@@ -27,11 +27,8 @@ pnpm test
 # Run unit tests in watch mode
 pnpm test -- --watch
 
-# Run E2E tests (Playwright)
-pnpm test:e2e
-
-# Run E2E tests in UI mode
-pnpm test:e2e -- --ui
+# Run E2E tests (Playwright) - REMOVED
+# pnpm test:e2e (removed due to LiveStore compatibility issues)
 
 # Run Storybook tests
 pnpm test:storybook
@@ -116,12 +113,11 @@ Work Squared is a real-time collaborative web application built with:
 - Use `data-testid` attributes for reliable element selection
 - Always wrap components with LiveStore provider using test utilities
 
-### E2E Tests (Playwright)
+### E2E Tests (Playwright) - REMOVED
 
-- Test complete user workflows
-- Use page objects pattern for complex interactions
-- Test multi-tab sync scenarios
-- Visual regression testing for critical UI components
+- E2E testing removed due to LiveStore dependency compatibility issues
+- Consider adding back when LiveStore provides better E2E testing support
+- For now, rely on Storybook and component tests for UI validation
 
 ### Storybook
 

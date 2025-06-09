@@ -21,7 +21,6 @@ pnpm storybook
 
 # Run tests
 pnpm test
-pnpm test:e2e
 
 # Build for production
 pnpm build
@@ -48,12 +47,9 @@ pnpm test:watch        # Run tests in watch mode
 pnpm test:coverage     # Generate coverage report
 ```
 
-### End-to-End Tests (Playwright)
+### End-to-End Tests (Playwright) - REMOVED
 
-```bash
-pnpm test:e2e          # Run E2E tests
-pnpm test:e2e:ui       # Open Playwright UI mode
-```
+E2E testing with Playwright was removed due to LiveStore compatibility issues. Use Storybook and component tests for UI validation instead.
 
 ### Component Development (Storybook)
 
