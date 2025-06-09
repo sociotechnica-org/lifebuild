@@ -13,6 +13,8 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
 
     /* Linting */
     "strict": true,
@@ -22,6 +24,7 @@
     // "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["./src"],
+  "include": ["./src", "./tests", "./vitest.config.ts"],
+  "types": ["vitest/globals"],
   "exclude": ["node_modules"]
 }

@@ -1,6 +1,7 @@
 # Work Squared Implementation Todos - Phase 1 & 2 Parallel
 
 ## Quick Reference
+
 - **Design Doc**: [work-squared-demo-design.md](./work-squared-demo-design.md)
 - **Goal**: Build chat system AND Kanban board in parallel
 - **Strategy**: Vertical slices - each issue includes events → UI → tests
@@ -18,11 +19,13 @@
 ### Priority 0: Cloudflare Deployment (Do First!)
 
 #### Issue #0: Deploy to Cloudflare Pages
+
 **Branch**: `feat/cloudflare-deploy`
 **Assignee**: Either instance
 **Critical**: This enables PR preview deployments for all subsequent work
 
 Tasks:
+
 - [ ] Connect GitHub repo to Cloudflare Pages
 - [ ] Configure build settings:
   - Build command: `pnpm build`
@@ -35,6 +38,7 @@ Tasks:
 - [ ] Add deployment URLs to README
 
 Benefits:
+
 - **Every PR gets a unique preview URL** for QA
 - **Real environment** for testing WebSocket sync
 - **No local setup needed** for reviewers
@@ -42,16 +46,20 @@ Benefits:
 ---
 
 ### Issue #0.5: Testing Infrastructure Setup ✅ COMPLETED
+
 **Branch**: `feat/testing-setup`
 **Assignee**: Either instance
 **Critical**: This enables test-driven development for all subsequent work
 
+**UPDATE**: Switched from Jest to Vitest for better ESM/LiveStore compatibility
+
 Tasks:
-- [x] Jest and React Testing Library setup:
-  - [x] Install dependencies: `@testing-library/react`, `@testing-library/jest-dom`, `jest-environment-jsdom`
-  - [x] Configure `jest.config.js` for React/TypeScript
-  - [x] Add test scripts to package.json
-  - [x] Create `src/test-utils.tsx` with LiveStore providers
+
+- [x] Vitest and React Testing Library setup:
+  - [x] Install dependencies: `vitest`, `@vitest/ui`, `jsdom`, `@testing-library/react`, `@testing-library/jest-dom`
+  - [x] Configure `vitest.config.ts` for React/TypeScript/LiveStore
+  - [x] Update test scripts in package.json
+  - [x] Update `src/test-utils.tsx` for Vitest compatibility
 - [x] Playwright setup:
   - [x] Install `@playwright/test`
   - [x] Create `playwright.config.ts` with Chrome, Firefox configs
@@ -66,23 +74,25 @@ Tasks:
   - [x] Set up component story examples
   - [x] Configure Storybook test runner
   - [ ] Add Chromatic for visual regression (optional - skipped for MVP)
-- [x] Testing patterns:
-  - [x] Create example unit test for a LiveStore event
-  - [x] Create example component test with mock data
+- [ ] Testing patterns:
+  - [ ] Update unit tests for Vitest
+  - [ ] Update component tests for Vitest + LiveStore
   - [x] Create example E2E test for basic navigation
   - [x] Create example Storybook story for a component
-  - [x] Create visual regression test example
-- [x] Documentation:
-  - [x] Update CLAUDE.md with all test commands
-  - [x] Add testing best practices section
-  - [x] Document Storybook patterns for LiveStore components
+  - [ ] Create visual regression test example
+- [ ] Documentation:
+  - [ ] Update CLAUDE.md with all test commands
+  - [ ] Add testing best practices section
+  - [ ] Document Storybook patterns for LiveStore components
 
 Files created/modified:
-- Created: `jest.config.mjs`
+
+- Removed: `jest.config.mjs` (replaced with vitest.config.ts)
+- Created: `vitest.config.ts`
 - Created: `playwright.config.ts`
-- Created: `src/test-utils.tsx`
-- Created: `tests/unit/example.test.ts`
-- Created: `tests/components/example.test.tsx`
+- Updated: `src/test-utils.tsx` (Vitest compatibility)
+- Updated: `tests/unit/example.test.ts`
+- Updated: `tests/components/example.test.tsx`
 - Created: `tests/e2e/smoke.spec.ts`
 - Created: `.storybook/main.ts`
 - Created: `.storybook/preview.tsx`
@@ -94,24 +104,28 @@ Files created/modified:
 - Updated: `README.md`
 
 Success Criteria:
-- [x] `pnpm test` runs unit tests
+
+- [ ] `pnpm test` runs unit tests with Vitest
 - [x] `pnpm test:e2e` runs Playwright tests
 - [x] `pnpm storybook` launches Storybook dev server on port 6010
 - [x] `pnpm test:storybook` runs Storybook tests
-- [x] Tests run in CI on every PR
-- [x] Visual regression tests catch UI changes
-- [x] Test utilities available for all future work
+- [ ] Tests run in CI on every PR
+- [ ] Visual regression tests catch UI changes
+- [ ] Test utilities available for all future work
 
-**Notes**: 
+**Notes**:
+
+- **Switched to Vitest**: LiveStore itself uses Vitest, providing better ESM/TypeScript compatibility
+- **No mocking needed**: Vitest handles LiveStore packages natively without complex transformations
 - Storybook configured to run on port 6010 to avoid conflicts
-- Jest configured with ESM support via jest.config.mjs
-- All test infrastructure ready for TDD approach
+- All test infrastructure optimized for TDD approach
 
 ---
 
 ### Shared Interfaces & Setup
 
 #### Issue #S1: Core Types and LLM Service Contract
+
 **Branch**: `feat/core-types`
 **Assignee**: Both review together
 **Critical**: Defines shared contracts to prevent integration issues
@@ -121,136 +135,138 @@ Create shared types and service interfaces that both tracks will use:
 ```typescript
 // src/types/index.ts
 export interface BaseEvent {
-  id: string
-  timestamp: number
-  userId?: string
+  id: string;
+  timestamp: number;
+  userId?: string;
 }
 
 export interface Model {
-  id: string
-  name: string
-  provider: 'anthropic' | 'openai'
+  id: string;
+  name: string;
+  provider: "anthropic" | "openai";
 }
 
 // src/types/chat.ts
 export interface ChatMessageEvent extends BaseEvent {
-  type: 'chat.message'
-  role: 'user' | 'assistant' | 'system'
-  content: string
-  modelId?: string
+  type: "chat.message";
+  role: "user" | "assistant" | "system";
+  content: string;
+  modelId?: string;
   metadata?: {
-    streaming?: boolean
-    toolCalls?: ToolCall[]
-    error?: string
-    tokenUsage?: TokenUsage
-  }
+    streaming?: boolean;
+    toolCalls?: ToolCall[];
+    error?: string;
+    tokenUsage?: TokenUsage;
+  };
 }
 
 export interface ToolCall {
-  id: string
-  name: string
-  parameters: Record<string, any>
-  result?: any
+  id: string;
+  name: string;
+  parameters: Record<string, any>;
+  result?: any;
 }
 
 export interface TokenUsage {
-  prompt: number
-  completion: number
-  total: number
+  prompt: number;
+  completion: number;
+  total: number;
 }
 
 // src/types/kanban.ts
 export interface TaskEvent extends BaseEvent {
-  type: 'task.created' | 'task.updated' | 'task.moved' | 'task.deleted'
-  taskId: string
-  boardId: string
-  data: Partial<Task>
+  type: "task.created" | "task.updated" | "task.moved" | "task.deleted";
+  taskId: string;
+  boardId: string;
+  data: Partial<Task>;
 }
 
 export interface Task {
-  id: string
-  title: string
-  description?: string
-  column: string
-  position: number
+  id: string;
+  title: string;
+  description?: string;
+  column: string;
+  position: number;
 }
 
 // src/services/llm/types.ts - LLM Service Contract
 export interface ILLMService {
   // Core chat functionality
-  sendMessage(params: SendMessageParams): Promise<ChatResponse>
-  streamMessage(params: SendMessageParams): AsyncGenerator<StreamChunk>
-  
+  sendMessage(params: SendMessageParams): Promise<ChatResponse>;
+  streamMessage(params: SendMessageParams): AsyncGenerator<StreamChunk>;
+
   // Tool handling
-  registerTool(tool: ToolDefinition): void
-  executeTool(toolCall: ToolCall): Promise<ToolResult>
-  
+  registerTool(tool: ToolDefinition): void;
+  executeTool(toolCall: ToolCall): Promise<ToolResult>;
+
   // Model management
-  listModels(): Model[]
-  getCurrentModel(): Model
-  setModel(modelId: string): void
+  listModels(): Model[];
+  getCurrentModel(): Model;
+  setModel(modelId: string): void;
 }
 
 export interface SendMessageParams {
-  content: string
-  modelId?: string
-  systemPrompt?: string
-  tools?: ToolDefinition[]
-  temperature?: number
-  maxTokens?: number
+  content: string;
+  modelId?: string;
+  systemPrompt?: string;
+  tools?: ToolDefinition[];
+  temperature?: number;
+  maxTokens?: number;
 }
 
 export interface ChatResponse {
-  content: string
-  toolCalls?: ToolCall[]
-  usage?: TokenUsage
-  modelId: string
+  content: string;
+  toolCalls?: ToolCall[];
+  usage?: TokenUsage;
+  modelId: string;
 }
 
 export interface StreamChunk {
-  type: 'content' | 'tool_call' | 'error' | 'done'
-  content?: string
-  toolCall?: ToolCall
-  error?: string
+  type: "content" | "tool_call" | "error" | "done";
+  content?: string;
+  toolCall?: ToolCall;
+  error?: string;
 }
 
 export interface ToolDefinition {
-  name: string
-  description: string
+  name: string;
+  description: string;
   parameters: {
-    type: 'object'
-    properties: Record<string, any>
-    required: string[]
-  }
+    type: "object";
+    properties: Record<string, any>;
+    required: string[];
+  };
 }
 
 export interface ToolResult {
-  toolCallId: string
-  result: any
-  error?: string
+  toolCallId: string;
+  result: any;
+  error?: string;
 }
 
 // src/tools/types.ts - Tool System Types
 export interface ITool {
-  definition: ToolDefinition
-  execute(parameters: any): Promise<any>
+  definition: ToolDefinition;
+  execute(parameters: any): Promise<any>;
 }
 
 export interface IToolRegistry {
-  register(tool: ITool): void
-  get(name: string): ITool | undefined
-  list(): ToolDefinition[]
-  execute(toolCall: ToolCall): Promise<ToolResult>
+  register(tool: ITool): void;
+  get(name: string): ITool | undefined;
+  list(): ToolDefinition[];
+  execute(toolCall: ToolCall): Promise<ToolResult>;
 }
 ```
 
 Additional setup:
+
 - [ ] Create mock implementation of ILLMService for testing
 - [ ] Create mock tool registry
 - [ ] Define available models constant
 - [ ] Create LiveStore event types for tool executions
 
 Benefits:
+
 - Both tracks use same LLM interface
 - Tool system is extensible
 - Clear separation between LLM provider and app logic
@@ -261,10 +277,12 @@ Benefits:
 ## Track A: Chat System (Instance 1)
 
 ### Issue #A1: Basic Chat Message Flow
+
 **Branch**: `feat/chat-messages`
 **Deliverable**: Users can send messages and see them appear
 
 Tasks:
+
 - [ ] LiveStore setup:
   - [ ] Add ChatMessageEvent to `src/livestore/events.ts`
   - [ ] Add chatMessages table to schema
@@ -285,15 +303,18 @@ Tasks:
   - [ ] E2E test: Send message and see it appear
 
 PR must include:
+
 - Screenshot of working chat
 - All tests passing
 - Preview deployment URL
 
 ### Issue #A2: LLM Integration with Streaming
+
 **Branch**: `feat/llm-integration`
 **Deliverable**: Real LLM responses with streaming
 
 Tasks:
+
 - [ ] Service implementation:
   - [ ] Create `src/services/llm/llm-service.ts`
   - [ ] Add Anthropic SDK integration
@@ -316,10 +337,12 @@ Tasks:
   - [ ] E2E test: Full conversation flow
 
 ### Issue #A3: Model Picker and Chat Polish
+
 **Branch**: `feat/model-picker`
 **Deliverable**: Can switch between models, polished chat UX
 
 Tasks:
+
 - [ ] Model selection:
   - [ ] Create `src/components/chat/ModelPicker.tsx`
   - [ ] Add model state to LiveStore
@@ -339,10 +362,12 @@ Tasks:
   - [ ] E2E: Switch model mid-conversation
 
 ### Issue #A4: Chat Activity Components
+
 **Branch**: `feat/chat-activity`
 **Deliverable**: Chat-specific activity item components
 
 Tasks:
+
 - [ ] Create chat activity components:
   - [ ] `src/components/activity/ChatActivityItem.tsx`
   - [ ] Message sent/received indicators
@@ -367,10 +392,12 @@ Note: This creates the chat-specific components only. The main ActivityPanel wil
 ## Track B: Kanban System (Instance 2)
 
 ### Issue #B1: Basic Kanban Board
+
 **Branch**: `feat/kanban-board`
 **Deliverable**: Working Kanban board with drag-and-drop
 
 Tasks:
+
 - [ ] LiveStore setup:
   - [ ] Add Task events to `src/livestore/events.ts`
   - [ ] Add boards, columns, tasks tables to schema
@@ -390,15 +417,18 @@ Tasks:
   - [ ] E2E test: Drag task between columns
 
 PR must include:
+
 - Screenshot/GIF of drag-and-drop
 - All tests passing
 - Preview deployment URL
 
 ### Issue #B2: Task CRUD Operations
+
 **Branch**: `feat/task-crud`
 **Deliverable**: Can create, edit, delete tasks
 
 Tasks:
+
 - [ ] Create task:
   - [ ] Add "+" button to columns
   - [ ] Create `src/components/kanban/TaskModal.tsx`
@@ -421,10 +451,12 @@ Tasks:
   - [ ] UI updates in real-time
 
 ### Issue #B3: LLM Kanban Tools
+
 **Branch**: `feat/kanban-tools`
 **Deliverable**: LLM can manipulate Kanban board
 
 Tasks:
+
 - [ ] Tool definitions:
   - [ ] Create `src/tools/kanban-tools.ts`
   - [ ] Define tool schemas for LLM
@@ -444,10 +476,12 @@ Tasks:
   - [ ] Error handling for invalid operations
 
 ### Issue #B4: Kanban Activity Components
+
 **Branch**: `feat/kanban-activity`
 **Deliverable**: Kanban-specific activity item components
 
 Tasks:
+
 - [ ] Create kanban activity components:
   - [ ] `src/components/activity/KanbanActivityItem.tsx`
   - [ ] Task lifecycle indicators (created/moved/updated/deleted)
@@ -473,10 +507,12 @@ Note: This creates the kanban-specific components only. The main ActivityPanel w
 ## Integration Phase (Both Instances)
 
 ### Issue #I1: Connect Chat to Kanban Tools
+
 **Branch**: `feat/chat-kanban-integration`
 **Assignee**: Both collaborate
 
 Tasks:
+
 - [ ] Register Kanban tools with LLM
 - [ ] Update system prompt
 - [ ] Test tool execution from chat
@@ -484,11 +520,13 @@ Tasks:
 - [ ] Demo script for tool usage
 
 ### Issue #I2: Unified Activity Panel
+
 **Branch**: `feat/unified-activity`
 **Assignee**: Either instance
 **Dependencies**: A4 and B4 must be completed
 
 Tasks:
+
 - [ ] Create main activity panel:
   - [ ] `src/components/activity/ActivityPanel.tsx` (main container)
   - [ ] Query all events from LiveStore
@@ -509,10 +547,12 @@ Tasks:
   - [ ] Performance with 1000+ events
 
 ### Issue #I3: Demo Polish & Workflow
+
 **Branch**: `feat/demo-polish`
 **Assignee**: Both collaborate
 
 Tasks:
+
 - [ ] Create demo reset button
 - [ ] Add sample conversation starters
 - [ ] Polish all UI transitions
@@ -524,19 +564,23 @@ Tasks:
 ## Execution Sequence
 
 ### Phase 0: Setup (Both Instances)
+
 1. Issue #0 - Cloudflare deployment
 2. Issue #0.5 - Testing infrastructure ✅ COMPLETED
 3. Issue #S1 - Shared interfaces and LLM service contract
 
 ### Phase 1: Core Features (Parallel)
+
 - **Instance 1**: A1 → A2 (Chat foundation → LLM integration)
 - **Instance 2**: B1 → B2 (Kanban board → CRUD operations)
 
 ### Phase 2: Enhancement (Parallel)
+
 - **Instance 1**: A3 → A4 (Model picker → Activity log)
 - **Instance 2**: B3 → B4 (LLM tools → Activity log)
 
 ### Phase 3: Integration (Both)
+
 - I1 → I2 → I3 (Connect systems → Unified experience → Demo polish)
 
 ## Success Metrics

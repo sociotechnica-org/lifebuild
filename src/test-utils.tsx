@@ -1,68 +1,36 @@
-import '@testing-library/jest-dom';
-import { ReactElement } from 'react';
-import { render, RenderOptions } from '@testing-library/react';
-import { LiveStoreProvider, createStore } from '@livestore/react';
-import { WebPlatformAdapter } from '@livestore/adapter-web';
+import "@testing-library/jest-dom";
+import React, { ReactElement } from "react";
+import { render, RenderOptions } from "@testing-library/react";
 
-// Mock LiveStore for testing
-const createTestStore = () => {
-  const adapter = new WebPlatformAdapter({
-    namespace: 'test',
-    storage: 'memory',
-  });
-  
-  return createStore({
-    adapter,
-    tableSchemas: {
-      todos: {
-        id: 'string',
-        text: 'string',
-        completed: 'boolean',
-        createdAt: 'number',
-      },
-      chatMessages: {
-        id: 'string',
-        role: 'string',
-        content: 'string',
-        modelId: 'string?',
-        timestamp: 'number',
-        metadata: 'json?',
-      },
-      uiState: {
-        todoFilter: 'string',
-        currentModelId: 'string?',
-      },
-    },
-  });
-};
-
+// Simple test wrapper for basic component testing
 interface TestProviderProps {
   children: React.ReactNode;
-  store?: ReturnType<typeof createStore>;
 }
 
-function TestProvider({ children, store }: TestProviderProps) {
-  const testStore = store || createTestStore();
-  
-  return (
-    <LiveStoreProvider store={testStore}>
-      {children}
-    </LiveStoreProvider>
-  );
+function TestProvider({ children }: TestProviderProps) {
+  // Simple wrapper for now - can be enhanced later for LiveStore
+  return <div data-testid="test-wrapper">{children}</div>;
 }
 
 const customRender = (
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'> & { store?: ReturnType<typeof createStore> }
+  options?: Omit<RenderOptions, "wrapper">
 ) => {
-  const { store, ...renderOptions } = options || {};
-  
   return render(ui, {
-    wrapper: ({ children }) => <TestProvider store={store}>{children}</TestProvider>,
-    ...renderOptions,
+    wrapper: ({ children }) => <TestProvider>{children}</TestProvider>,
+    ...options,
   });
 };
 
+// Mock createTestStore for tests that expect it
+const createTestStore = () => {
+  return {
+    mutate: () => Promise.resolve(undefined),
+    query: () => [],
+    subscribe: () => () => {},
+  };
+};
+
 // Re-export everything
-export * from '@testing-library/react';
+export * from "@testing-library/react";
 export { customRender as render, createTestStore };

@@ -40,7 +40,8 @@ pnpm wrangler:deploy
 
 The project includes a comprehensive testing setup:
 
-### Unit & Component Tests (Jest + React Testing Library)
+### Unit & Component Tests (Vitest + React Testing Library)
+
 ```bash
 pnpm test              # Run all tests
 pnpm test:watch        # Run tests in watch mode
@@ -48,12 +49,14 @@ pnpm test:coverage     # Generate coverage report
 ```
 
 ### End-to-End Tests (Playwright)
+
 ```bash
 pnpm test:e2e          # Run E2E tests
 pnpm test:e2e:ui       # Open Playwright UI mode
 ```
 
 ### Component Development (Storybook)
+
 ```bash
 pnpm storybook         # Start Storybook dev server (port 6010)
 pnpm build-storybook   # Build static Storybook
@@ -61,5 +64,6 @@ pnpm test:storybook    # Run Storybook tests
 ```
 
 ### CI/CD
+
 - All tests run automatically on every PR via GitHub Actions
 - Test results and coverage reports are uploaded as artifacts
