@@ -50,7 +50,7 @@
     "dev:vite": "vite --force",
     "dev:wrangler": "wrangler dev --inspector-port 9230",
     "preview": "vite preview",
-    "wrangler:deploy": "pnpm build && wrangler pages deploy ./dist",
+    "wrangler:deploy": "pnpm build && wrangler pages deploy",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
