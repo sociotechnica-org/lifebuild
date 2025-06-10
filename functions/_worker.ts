@@ -1,10 +1,10 @@
 import { makeDurableObject, makeWorker } from '@livestore/sync-cf/cf-worker'
 
 export class WebSocketServer extends makeDurableObject({
-  onPush: async (message) => {
+  onPush: async message => {
     console.log('onPush', message.batch)
   },
-  onPull: async (message) => {
+  onPull: async message => {
     console.log('onPull', message)
   },
 }) {}

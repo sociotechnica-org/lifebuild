@@ -44,47 +44,47 @@ type WorkSquaredEvent =
   | TaskEvent
   | DocumentEvent
   | WorkflowEvent
-  | AgentActionEvent;
+  | AgentActionEvent
 
 interface ChatMessageEvent {
-  type: "chat.message";
-  role: "user" | "assistant" | "system";
-  content: string;
-  modelId?: string;
-  metadata?: Record<string, any>;
+  type: 'chat.message'
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  modelId?: string
+  metadata?: Record<string, any>
 }
 
 interface TaskEvent {
-  type: "task.created" | "task.updated" | "task.moved";
-  taskId: string;
-  boardId: string;
-  column?: string;
-  title?: string;
-  description?: string;
+  type: 'task.created' | 'task.updated' | 'task.moved'
+  taskId: string
+  boardId: string
+  column?: string
+  title?: string
+  description?: string
 }
 
 interface DocumentEvent {
-  type: "document.created" | "document.updated";
-  documentId: string;
-  path: string;
-  content?: string;
-  diff?: string;
+  type: 'document.created' | 'document.updated'
+  documentId: string
+  path: string
+  content?: string
+  diff?: string
 }
 
 interface WorkflowEvent {
-  type: "workflow.started" | "workflow.step" | "workflow.completed";
-  workflowId: string;
-  name: string;
-  step?: string;
-  status?: "pending" | "running" | "completed" | "failed";
+  type: 'workflow.started' | 'workflow.step' | 'workflow.completed'
+  workflowId: string
+  name: string
+  step?: string
+  status?: 'pending' | 'running' | 'completed' | 'failed'
 }
 
 interface AgentActionEvent {
-  type: "agent.action";
-  action: string;
-  tool: "kanban" | "obsidian" | "chat";
-  parameters: Record<string, any>;
-  result?: any;
+  type: 'agent.action'
+  action: string
+  tool: 'kanban' | 'obsidian' | 'chat'
+  parameters: Record<string, any>
+  result?: any
 }
 ```
 
@@ -97,47 +97,47 @@ Materialized views from events:
 const schema = {
   tables: {
     chatMessages: {
-      id: "string",
-      role: "string",
-      content: "string",
-      modelId: "string?",
-      timestamp: "number",
-      metadata: "json?",
+      id: 'string',
+      role: 'string',
+      content: 'string',
+      modelId: 'string?',
+      timestamp: 'number',
+      metadata: 'json?',
     },
     tasks: {
-      id: "string",
-      boardId: "string",
-      column: "string",
-      title: "string",
-      description: "string?",
-      position: "number",
-      updatedAt: "number",
+      id: 'string',
+      boardId: 'string',
+      column: 'string',
+      title: 'string',
+      description: 'string?',
+      position: 'number',
+      updatedAt: 'number',
     },
     documents: {
-      id: "string",
-      path: "string",
-      content: "string",
-      lastModified: "number",
+      id: 'string',
+      path: 'string',
+      content: 'string',
+      lastModified: 'number',
     },
     workflows: {
-      id: "string",
-      name: "string",
-      currentStep: "string?",
-      status: "string",
-      startedAt: "number",
-      completedAt: "number?",
+      id: 'string',
+      name: 'string',
+      currentStep: 'string?',
+      status: 'string',
+      startedAt: 'number',
+      completedAt: 'number?',
     },
     agentActions: {
-      id: "string",
-      workflowId: "string?",
-      action: "string",
-      tool: "string",
-      parameters: "json",
-      result: "json?",
-      timestamp: "number",
+      id: 'string',
+      workflowId: 'string?',
+      action: 'string',
+      tool: 'string',
+      parameters: 'json',
+      result: 'json?',
+      timestamp: 'number',
     },
   },
-};
+}
 ```
 
 ### 3. LLM Integration
@@ -148,26 +148,26 @@ const schema = {
 // src/services/llm-agent.ts
 interface LLMAgent {
   // Subscribe to relevant events
-  subscribeToEvents(store: LiveStore): void;
+  subscribeToEvents(store: LiveStore): void
 
   // Process incoming events and decide on actions
-  processEvent(event: WorkSquaredEvent): Promise<void>;
+  processEvent(event: WorkSquaredEvent): Promise<void>
 
   // Execute actions through tools
-  executeAction(action: AgentAction): Promise<void>;
+  executeAction(action: AgentAction): Promise<void>
 }
 
 // Tool interfaces for LLM
 interface KanbanTool {
-  createTask(boardId: string, task: TaskInput): Promise<Task>;
-  moveTask(taskId: string, column: string): Promise<void>;
-  updateTask(taskId: string, updates: Partial<Task>): Promise<void>;
+  createTask(boardId: string, task: TaskInput): Promise<Task>
+  moveTask(taskId: string, column: string): Promise<void>
+  updateTask(taskId: string, updates: Partial<Task>): Promise<void>
 }
 
 interface ObsidianTool {
-  createDocument(path: string, content: string): Promise<void>;
-  updateDocument(path: string, content: string): Promise<void>;
-  appendToDocument(path: string, content: string): Promise<void>;
+  createDocument(path: string, content: string): Promise<void>
+  updateDocument(path: string, content: string): Promise<void>
+  appendToDocument(path: string, content: string): Promise<void>
 }
 ```
 
@@ -218,23 +218,23 @@ function ChatInterface() {
 ```typescript
 // Internal Kanban with LiveStore
 interface KanbanBoard {
-  id: string;
-  name: string;
-  columns: Column[];
+  id: string
+  name: string
+  columns: Column[]
 }
 
 interface Column {
-  id: string;
-  name: string;
-  position: number;
+  id: string
+  name: string
+  position: number
 }
 
 // Events emitted by both UI and LLM tools
 type KanbanEvent =
-  | { type: "board.created"; board: KanbanBoard }
-  | { type: "task.created"; boardId: string; task: Task }
-  | { type: "task.moved"; taskId: string; fromColumn: string; toColumn: string }
-  | { type: "task.updated"; taskId: string; updates: Partial<Task> };
+  | { type: 'board.created'; board: KanbanBoard }
+  | { type: 'task.created'; boardId: string; task: Task }
+  | { type: 'task.moved'; taskId: string; fromColumn: string; toColumn: string }
+  | { type: 'task.updated'; taskId: string; updates: Partial<Task> }
 ```
 
 **Visual Design**: Trello-style columns with drag-and-drop for authenticity
@@ -272,21 +272,21 @@ Event Stream ← Document Events
 ```typescript
 interface ObsidianMCPTools {
   obsidian_read_file: {
-    input: { path: string };
-    output: { content: string; metadata: object };
-  };
+    input: { path: string }
+    output: { content: string; metadata: object }
+  }
   obsidian_write_file: {
-    input: { path: string; content: string };
-    output: { success: boolean; path: string };
-  };
+    input: { path: string; content: string }
+    output: { success: boolean; path: string }
+  }
   obsidian_list_files: {
-    input: { folder?: string };
-    output: { files: Array<{ path: string; modified: number }> };
-  };
+    input: { folder?: string }
+    output: { files: Array<{ path: string; modified: number }> }
+  }
   obsidian_search: {
-    input: { query: string };
-    output: { results: Array<{ path: string; matches: string[] }> };
-  };
+    input: { query: string }
+    output: { results: Array<{ path: string; matches: string[] }> }
+  }
 }
 ```
 
@@ -294,18 +294,18 @@ interface ObsidianMCPTools {
 
 ```typescript
 // MCP tool calls emit events
-mcpClient.on("tool_called", (tool, params, result) => {
-  if (tool.startsWith("obsidian_")) {
+mcpClient.on('tool_called', (tool, params, result) => {
+  if (tool.startsWith('obsidian_')) {
     dispatch({
-      type: "document.updated",
+      type: 'document.updated',
       documentId: params.path,
       path: params.path,
       content: result.content,
-      tool: "obsidian",
+      tool: 'obsidian',
       action: tool,
-    });
+    })
   }
-});
+})
 ```
 
 **Fallback Strategy**:

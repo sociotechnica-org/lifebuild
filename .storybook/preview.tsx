@@ -1,5 +1,5 @@
-import type { Preview } from "@storybook/react-vite";
-import React from "react";
+import type { Preview } from '@storybook/react-vite'
+import React from 'react'
 
 const preview: Preview = {
   parameters: {
@@ -11,15 +11,15 @@ const preview: Preview = {
     },
   },
   decorators: [
-    (Story) => {
+    Story => {
       // Simple wrapper for now - LiveStore setup can be added later when needed
       return (
-        <div data-testid="storybook-wrapper">
+        <div data-testid='storybook-wrapper'>
           <Story />
         </div>
-      );
+      )
     },
   ],
-};
+}
 
-export default preview;
+export default preview

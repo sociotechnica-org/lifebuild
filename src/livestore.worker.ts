@@ -1,24 +1,24 @@
-import { makeWorker } from "@livestore/adapter-web/worker";
-import { makeCfSync } from "@livestore/sync-cf";
+import { makeWorker } from '@livestore/adapter-web/worker'
+import { makeCfSync } from '@livestore/sync-cf'
 
-import { schema } from "./livestore/schema.js";
-import { makeTracer } from "./otel.js";
+import { schema } from './livestore/schema.js'
+import { makeTracer } from './otel.js'
 
 const getSyncUrl = () => {
   if (import.meta.env.PROD) {
     // In production the worker is served from the same origin as the site.
     // We only need to provide the base host, as makeCfSync appends the path.
-    return `wss://${self.location.host}`;
+    return `wss://${self.location.host}`
   }
   // In development, we use the URL provided by the .env file.
-  return import.meta.env.VITE_LIVESTORE_SYNC_URL;
-};
+  return import.meta.env.VITE_LIVESTORE_SYNC_URL
+}
 
 makeWorker({
   schema,
   sync: {
     backend: makeCfSync({ url: getSyncUrl() }),
-    initialSyncOptions: { _tag: "Blocking", timeout: 5000 },
+    initialSyncOptions: { _tag: 'Blocking', timeout: 5000 },
   },
-  otelOptions: { tracer: makeTracer("work-squared-worker") },
-});
+  otelOptions: { tracer: makeTracer('work-squared-worker') },
+})

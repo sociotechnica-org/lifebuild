@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { BoardCard } from '../components/BoardCard.js';
+import type { Meta, StoryObj } from '@storybook/react'
+import { BoardCard } from '../components/BoardCard.js'
 
 const meta: Meta<typeof BoardCard> = {
   title: 'Kanban/BoardCard',
@@ -11,10 +11,10 @@ const meta: Meta<typeof BoardCard> = {
   argTypes: {
     onClick: { action: 'clicked' },
   },
-};
+}
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -26,7 +26,7 @@ export const Default: Story = {
       deletedAt: null,
     },
   },
-};
+}
 
 export const RecentlyUpdated: Story = {
   args: {
@@ -38,7 +38,7 @@ export const RecentlyUpdated: Story = {
       deletedAt: null,
     },
   },
-};
+}
 
 export const LongName: Story = {
   args: {
@@ -50,7 +50,7 @@ export const LongName: Story = {
       deletedAt: null,
     },
   },
-};
+}
 
 export const WithoutClickHandler: Story = {
   args: {
@@ -63,4 +63,4 @@ export const WithoutClickHandler: Story = {
     },
     onClick: undefined,
   },
-};
+}

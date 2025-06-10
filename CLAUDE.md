@@ -34,6 +34,25 @@ pnpm test -- --watch
 pnpm test:storybook
 ```
 
+### Linting and Formatting
+
+```bash
+# Run ESLint
+pnpm lint
+
+# Fix ESLint issues automatically
+pnpm lint:fix
+
+# Format code with Prettier
+pnpm format
+
+# Check formatting with Prettier
+pnpm format:check
+
+# Type check with TypeScript
+pnpm typecheck
+```
+
 ### Build
 
 ```bash
@@ -134,13 +153,11 @@ For LiveStore-specific syntax and patterns, refer to: https://docs.livestore.dev
 
 ```typescript
 // Use test store with memory adapter
-const store = createTestStore();
+const store = createTestStore()
 
 // Add test data
-await store.mutate([
-  { type: "todo.add", id: "1", text: "Test", completed: false },
-]);
+await store.mutate([{ type: 'todo.add', id: '1', text: 'Test', completed: false }])
 
 // Test queries
-const todos = await store.query((db) => db.table("todos").all());
+const todos = await store.query(db => db.table('todos').all())
 ```
