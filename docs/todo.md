@@ -16,9 +16,7 @@
 
 ## Shared Setup (Day 0 - Both Instances)
 
-### Priority 0: Cloudflare Deployment (Do First!)
-
-#### Issue #0: Deploy to Cloudflare Pages
+#### Issue #0: Deploy to Cloudflare Pages ✅ COMPLETED
 
 **Branch**: `feat/cloudflare-deploy`
 **Assignee**: Either instance
@@ -26,16 +24,16 @@
 
 Tasks:
 
-- [ ] Connect GitHub repo to Cloudflare Pages
-- [ ] Configure build settings:
+- [x] Connect GitHub repo to Cloudflare Pages
+- [x] Configure build settings:
   - Build command: `pnpm build`
   - Build output directory: `dist`
   - Root directory: `/`
-- [ ] Set up environment variables in Cloudflare dashboard:
+- [x] Set up environment variables in Cloudflare dashboard:
   - `VITE_LIVESTORE_SYNC_URL` = `https://worksquared.your-subdomain.workers.dev`
-- [ ] Configure preview deployments for all PRs
-- [ ] Test deployment with current main branch
-- [ ] Add deployment URLs to README
+- [x] Configure preview deployments for all PRs
+- [x] Test deployment with current main branch
+- [x] Add deployment URLs to README
 
 Benefits:
 

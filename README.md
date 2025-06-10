@@ -32,24 +32,33 @@ Work Squared is an AI-enabled work environment.
     pnpm dev
     ```
 
-## Deployment to Cloudflare
+## Deployment
 
-This project is configured for a unified deployment to Cloudflare Pages (for the frontend) and Cloudflare Workers (for the backend).
+This project is deployed as a single Cloudflare Worker that serves both the static frontend assets and the backend WebSocket server.
 
-1.  **First-time setup:**
+### First-Time Setup
 
-    - Create the D1 database: `pnpm wrangler d1 create work-squared-prod`
-    - Copy the `database_id` from the output.
-    - Create a Cloudflare secret for the database ID: `echo "<paste-your-database-id>" | pnpm wrangler secret put D1_DATABASE_ID`
+Before the first deployment, you need to create the production D1 database and configure its ID.
 
-2.  **Deploy:**
-    Commit your changes and merge them to the `main` branch. The Cloudflare Pages project is configured to automatically deploy on every push to `main`.
-
-    To run a manual deployment from the `main` branch, use:
+1.  Run the following command to create the database on Cloudflare:
 
     ```bash
-    pnpm wrangler:deploy
+    pnpm wrangler d1 create work-squared-prod
     ```
+
+2.  Copy the `database_id` from the command's output.
+
+3.  Open `wrangler.jsonc` and paste the copied ID into the `database_id` field within the `d1_databases` section.
+
+### Deployment Process
+
+The application is automatically deployed to `app.worksquared.ai` upon every push to the `main` branch using GitHub Actions.
+
+To run a manual deployment from your local machine (requires authentication with `wrangler`):
+
+```bash
+pnpm wrangler:deploy
+```
 
 ## Development Commands
 
