@@ -1,6 +1,5 @@
 import type { Preview } from "@storybook/react-vite";
 import React from "react";
-import "todomvc-app-css/index.css";
 
 const preview: Preview = {
   parameters: {
