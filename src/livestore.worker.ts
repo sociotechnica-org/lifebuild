@@ -6,7 +6,7 @@ import { makeTracer } from "./otel.js";
 
 const getSyncUrl = () => {
   if (import.meta.env.PROD) {
-    // In production, the worker is served from the same origin as the site.
+    // In production the worker is served from the same origin as the site.
     // We only need to provide the base host, as makeCfSync appends the path.
     return `wss://${self.location.host}`;
   }
