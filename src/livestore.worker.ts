@@ -20,5 +20,5 @@ makeWorker({
     backend: makeCfSync({ url: getSyncUrl() }),
     initialSyncOptions: { _tag: "Blocking", timeout: 5000 },
   },
-  otelOptions: { tracer: makeTracer("todomvc-sync-cf-worker") },
+  otelOptions: { tracer: makeTracer("work-squared-worker") },
 });

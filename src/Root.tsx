@@ -25,7 +25,7 @@ const adapter = makePersistedAdapter({
   sharedWorker: LiveStoreSharedWorker,
 });
 
-const otelTracer = makeTracer("todomvc-sync-cf-main");
+const otelTracer = makeTracer("work-squared-main");
 
 export const App: React.FC = () => (
   <LiveStoreProvider
