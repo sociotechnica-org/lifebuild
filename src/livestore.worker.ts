@@ -7,8 +7,8 @@ import { makeTracer } from "./otel.js";
 const getSyncUrl = () => {
   if (import.meta.env.PROD) {
     // In production, the worker is served from the same origin as the site.
-    // We can construct the WebSocket URL from the worker's own location.
-    return `wss://${self.location.host}/websocket`;
+    // We only need to provide the base host, as makeCfSync appends the path.
+    return `wss://${self.location.host}`;
   }
   // In development, we use the URL provided by the .env file.
   return import.meta.env.VITE_LIVESTORE_SYNC_URL;
