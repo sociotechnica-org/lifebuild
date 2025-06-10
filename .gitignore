@@ -1,5 +1,7 @@
 node_modules
 .wrangler
+.env
+dist
 
 *storybook.log
 storybook-static
