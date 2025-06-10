@@ -1,4 +1,3 @@
-import 'todomvc-app-css/index.css'
 import './index.css'
 
 import React from 'react'
