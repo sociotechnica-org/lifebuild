@@ -3,30 +3,30 @@
   "compatibility_date": "2024-05-12",
   "main": "./functions/_worker.ts",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
   },
   "build": {
-    "command": "pnpm build"
+    "command": "pnpm build",
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "work-squared-prod",
-      "database_id": "3e3e5640-b41f-4838-8892-f5362e865e2d"
-    }
+      "database_id": "3e3e5640-b41f-4838-8892-f5362e865e2d",
+    },
   ],
   "durable_objects": {
     "bindings": [
       {
         "name": "WEBSOCKET_SERVER",
-        "class_name": "WebSocketServer"
-      }
-    ]
+        "class_name": "WebSocketServer",
+      },
+    ],
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["WebSocketServer"]
-    }
-  ]
+      "new_sqlite_classes": ["WebSocketServer"],
+    },
+  ],
 }

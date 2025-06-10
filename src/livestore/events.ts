@@ -1,4 +1,4 @@
-import { Events, Schema } from "@livestore/livestore";
+import { Events, Schema } from '@livestore/livestore'
 
 /**
  * LiveStore embraces event sourcing, so data changes are defined as events
@@ -10,35 +10,44 @@ import { Events, Schema } from "@livestore/livestore";
  */
 
 export const todoCreated = Events.synced({
-  name: "v1.TodoCreated",
+  name: 'v1.TodoCreated',
   schema: Schema.Struct({ id: Schema.String, text: Schema.String }),
-});
+})
 
 export const todoCompleted = Events.synced({
-  name: "v1.TodoCompleted",
+  name: 'v1.TodoCompleted',
   schema: Schema.Struct({ id: Schema.String }),
-});
+})
 
 export const todoUncompleted = Events.synced({
-  name: "v1.TodoUncompleted",
+  name: 'v1.TodoUncompleted',
   schema: Schema.Struct({ id: Schema.String }),
-});
+})
 
 export const todoDeleted = Events.synced({
-  name: "v1.TodoDeleted",
+  name: 'v1.TodoDeleted',
   schema: Schema.Struct({ id: Schema.String, deletedAt: Schema.Date }),
-});
+})
 
 export const todoClearedCompleted = Events.synced({
-  name: "v1.TodoClearedCompleted",
+  name: 'v1.TodoClearedCompleted',
   schema: Schema.Struct({ deletedAt: Schema.Date }),
-});
+})
 
 export const chatMessageSent = Events.synced({
-  name: "v1.ChatMessageSent",
+  name: 'v1.ChatMessageSent',
   schema: Schema.Struct({
     id: Schema.String,
     message: Schema.String,
     createdAt: Schema.Date,
   }),
-});
+})
+
+export const boardCreated = Events.synced({
+  name: 'v1.BoardCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+    createdAt: Schema.Date,
+  }),
+})

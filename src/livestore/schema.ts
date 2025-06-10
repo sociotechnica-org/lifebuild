@@ -1,12 +1,7 @@
-import {
-  makeSchema,
-  Schema,
-  SessionIdSymbol,
-  State,
-} from "@livestore/livestore";
+import { makeSchema, Schema, SessionIdSymbol, State } from '@livestore/livestore'
 
-import { Filter } from "../types.js";
-import * as eventsDefs from "./events.js";
+import { Filter } from '../types.js'
+import * as eventsDefs from './events.js'
 
 /**
  * LiveStore allows you to freely define your app state as SQLite tables (sometimes referred to as "read model")
@@ -22,66 +17,81 @@ import * as eventsDefs from "./events.js";
  */
 
 const chatMessages = State.SQLite.table({
-  name: "chatMessages",
+  name: 'chatMessages',
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
-    message: State.SQLite.text({ default: "" }),
+    message: State.SQLite.text({ default: '' }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
   },
-});
+})
 
 const todos = State.SQLite.table({
-  name: "todos",
+  name: 'todos',
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
-    text: State.SQLite.text({ default: "" }),
+    text: State.SQLite.text({ default: '' }),
     completed: State.SQLite.boolean({ default: false }),
     deletedAt: State.SQLite.integer({
       nullable: true,
       schema: Schema.DateFromNumber,
     }),
   },
-});
+})
+
+const boards = State.SQLite.table({
+  name: 'boards',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    name: State.SQLite.text({ default: '' }),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    updatedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    deletedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
 
 const uiState = State.SQLite.clientDocument({
-  name: "uiState",
+  name: 'uiState',
   schema: Schema.Struct({ newTodoText: Schema.String, filter: Filter }),
   default: {
     id: SessionIdSymbol,
-    value: { newTodoText: "", filter: "all" as Filter },
+    value: { newTodoText: '', filter: 'all' as Filter },
   },
-});
+})
 
-export type Todo = State.SQLite.FromTable.RowDecoded<typeof todos>;
-export type ChatMessage = State.SQLite.FromTable.RowDecoded<
-  typeof chatMessages
->;
-export type UiState = typeof uiState.default.value;
+export type Todo = State.SQLite.FromTable.RowDecoded<typeof todos>
+export type ChatMessage = State.SQLite.FromTable.RowDecoded<typeof chatMessages>
+export type Board = State.SQLite.FromTable.RowDecoded<typeof boards>
+export type UiState = typeof uiState.default.value
 
 export const events = {
   ...eventsDefs,
   uiStateSet: uiState.set,
-};
+}
 
-export const tables = { todos, uiState, chatMessages };
+export const tables = { todos, uiState, chatMessages, boards }
 
 const materializers = State.SQLite.materializers(events, {
-  "v1.TodoCreated": ({ id, text }) =>
-    todos.insert({ id, text, completed: false }),
-  "v1.TodoCompleted": ({ id }) =>
-    todos.update({ completed: true }).where({ id }),
-  "v1.TodoUncompleted": ({ id }) =>
-    todos.update({ completed: false }).where({ id }),
-  "v1.TodoDeleted": ({ id, deletedAt }) =>
-    todos.update({ deletedAt }).where({ id }),
-  "v1.TodoClearedCompleted": ({ deletedAt }) =>
+  'v1.TodoCreated': ({ id, text }) => todos.insert({ id, text, completed: false }),
+  'v1.TodoCompleted': ({ id }) => todos.update({ completed: true }).where({ id }),
+  'v1.TodoUncompleted': ({ id }) => todos.update({ completed: false }).where({ id }),
+  'v1.TodoDeleted': ({ id, deletedAt }) => todos.update({ deletedAt }).where({ id }),
+  'v1.TodoClearedCompleted': ({ deletedAt }) =>
     todos.update({ deletedAt }).where({ completed: true }),
-  "v1.ChatMessageSent": ({ id, message, createdAt }) =>
+  'v1.ChatMessageSent': ({ id, message, createdAt }) =>
     chatMessages.insert({ id, message, createdAt }),
-});
+  'v1.BoardCreated': ({ id, name, createdAt }) =>
+    boards.insert({ id, name, createdAt, updatedAt: createdAt }),
+})
 
-const state = State.SQLite.makeState({ tables, materializers });
+const state = State.SQLite.makeState({ tables, materializers })
 
-export const schema = makeSchema({ events, state });
+export const schema = makeSchema({ events, state })

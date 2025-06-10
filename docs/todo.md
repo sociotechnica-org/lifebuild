@@ -133,126 +133,126 @@ Create shared types and service interfaces that both tracks will use:
 ```typescript
 // src/types/index.ts
 export interface BaseEvent {
-  id: string;
-  timestamp: number;
-  userId?: string;
+  id: string
+  timestamp: number
+  userId?: string
 }
 
 export interface Model {
-  id: string;
-  name: string;
-  provider: "anthropic" | "openai";
+  id: string
+  name: string
+  provider: 'anthropic' | 'openai'
 }
 
 // src/types/chat.ts
 export interface ChatMessageEvent extends BaseEvent {
-  type: "chat.message";
-  role: "user" | "assistant" | "system";
-  content: string;
-  modelId?: string;
+  type: 'chat.message'
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  modelId?: string
   metadata?: {
-    streaming?: boolean;
-    toolCalls?: ToolCall[];
-    error?: string;
-    tokenUsage?: TokenUsage;
-  };
+    streaming?: boolean
+    toolCalls?: ToolCall[]
+    error?: string
+    tokenUsage?: TokenUsage
+  }
 }
 
 export interface ToolCall {
-  id: string;
-  name: string;
-  parameters: Record<string, any>;
-  result?: any;
+  id: string
+  name: string
+  parameters: Record<string, any>
+  result?: any
 }
 
 export interface TokenUsage {
-  prompt: number;
-  completion: number;
-  total: number;
+  prompt: number
+  completion: number
+  total: number
 }
 
 // src/types/kanban.ts
 export interface TaskEvent extends BaseEvent {
-  type: "task.created" | "task.updated" | "task.moved" | "task.deleted";
-  taskId: string;
-  boardId: string;
-  data: Partial<Task>;
+  type: 'task.created' | 'task.updated' | 'task.moved' | 'task.deleted'
+  taskId: string
+  boardId: string
+  data: Partial<Task>
 }
 
 export interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  column: string;
-  position: number;
+  id: string
+  title: string
+  description?: string
+  column: string
+  position: number
 }
 
 // src/services/llm/types.ts - LLM Service Contract
 export interface ILLMService {
   // Core chat functionality
-  sendMessage(params: SendMessageParams): Promise<ChatResponse>;
-  streamMessage(params: SendMessageParams): AsyncGenerator<StreamChunk>;
+  sendMessage(params: SendMessageParams): Promise<ChatResponse>
+  streamMessage(params: SendMessageParams): AsyncGenerator<StreamChunk>
 
   // Tool handling
-  registerTool(tool: ToolDefinition): void;
-  executeTool(toolCall: ToolCall): Promise<ToolResult>;
+  registerTool(tool: ToolDefinition): void
+  executeTool(toolCall: ToolCall): Promise<ToolResult>
 
   // Model management
-  listModels(): Model[];
-  getCurrentModel(): Model;
-  setModel(modelId: string): void;
+  listModels(): Model[]
+  getCurrentModel(): Model
+  setModel(modelId: string): void
 }
 
 export interface SendMessageParams {
-  content: string;
-  modelId?: string;
-  systemPrompt?: string;
-  tools?: ToolDefinition[];
-  temperature?: number;
-  maxTokens?: number;
+  content: string
+  modelId?: string
+  systemPrompt?: string
+  tools?: ToolDefinition[]
+  temperature?: number
+  maxTokens?: number
 }
 
 export interface ChatResponse {
-  content: string;
-  toolCalls?: ToolCall[];
-  usage?: TokenUsage;
-  modelId: string;
+  content: string
+  toolCalls?: ToolCall[]
+  usage?: TokenUsage
+  modelId: string
 }
 
 export interface StreamChunk {
-  type: "content" | "tool_call" | "error" | "done";
-  content?: string;
-  toolCall?: ToolCall;
-  error?: string;
+  type: 'content' | 'tool_call' | 'error' | 'done'
+  content?: string
+  toolCall?: ToolCall
+  error?: string
 }
 
 export interface ToolDefinition {
-  name: string;
-  description: string;
+  name: string
+  description: string
   parameters: {
-    type: "object";
-    properties: Record<string, any>;
-    required: string[];
-  };
+    type: 'object'
+    properties: Record<string, any>
+    required: string[]
+  }
 }
 
 export interface ToolResult {
-  toolCallId: string;
-  result: any;
-  error?: string;
+  toolCallId: string
+  result: any
+  error?: string
 }
 
 // src/tools/types.ts - Tool System Types
 export interface ITool {
-  definition: ToolDefinition;
-  execute(parameters: any): Promise<any>;
+  definition: ToolDefinition
+  execute(parameters: any): Promise<any>
 }
 
 export interface IToolRegistry {
-  register(tool: ITool): void;
-  get(name: string): ITool | undefined;
-  list(): ToolDefinition[];
-  execute(toolCall: ToolCall): Promise<ToolResult>;
+  register(tool: ITool): void
+  get(name: string): ITool | undefined
+  list(): ToolDefinition[]
+  execute(toolCall: ToolCall): Promise<ToolResult>
 }
 ```
 

@@ -44,47 +44,47 @@ type WorkSquaredEvent =
   | TaskEvent
   | DocumentEvent
   | WorkflowEvent
-  | AgentActionEvent;
+  | AgentActionEvent
 
 interface ChatMessageEvent {
-  type: "chat.message";
-  role: "user" | "assistant" | "system";
-  content: string;
-  modelId?: string;
-  metadata?: Record<string, any>;
+  type: 'chat.message'
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  modelId?: string
+  metadata?: Record<string, any>
 }
 
 interface TaskEvent {
-  type: "task.created" | "task.updated" | "task.moved";
-  taskId: string;
-  boardId: string;
-  column?: string;
-  title?: string;
-  description?: string;
+  type: 'task.created' | 'task.updated' | 'task.moved'
+  taskId: string
+  boardId: string
+  column?: string
+  title?: string
+  description?: string
 }
 
 interface DocumentEvent {
-  type: "document.created" | "document.updated";
-  documentId: string;
-  path: string;
-  content?: string;
-  diff?: string;
+  type: 'document.created' | 'document.updated'
+  documentId: string
+  path: string
+  content?: string
+  diff?: string
 }
 
 interface WorkflowEvent {
-  type: "workflow.started" | "workflow.step" | "workflow.completed";
-  workflowId: string;
-  name: string;
-  step?: string;
-  status?: "pending" | "running" | "completed" | "failed";
+  type: 'workflow.started' | 'workflow.step' | 'workflow.completed'
+  workflowId: string
+  name: string
+  step?: string
+  status?: 'pending' | 'running' | 'completed' | 'failed'
 }
 
 interface AgentActionEvent {
-  type: "agent.action";
-  action: string;
-  tool: "kanban" | "obsidian" | "chat";
-  parameters: Record<string, any>;
-  result?: any;
+  type: 'agent.action'
+  action: string
+  tool: 'kanban' | 'obsidian' | 'chat'
+  parameters: Record<string, any>
+  result?: any
 }
 ```
 
@@ -97,47 +97,47 @@ Materialized views from events:
 const schema = {
   tables: {
     chatMessages: {
-      id: "string",
-      role: "string",
-      content: "string",
-      modelId: "string?",
-      timestamp: "number",
-      metadata: "json?",
+      id: 'string',
+      role: 'string',
+      content: 'string',
+      modelId: 'string?',
+      timestamp: 'number',
+      metadata: 'json?',
     },
     tasks: {
-      id: "string",
-      boardId: "string",
-      column: "string",
-      title: "string",
-      description: "string?",
-      position: "number",
-      updatedAt: "number",
+      id: 'string',
+      boardId: 'string',
+      column: 'string',
+      title: 'string',
+      description: 'string?',
+      position: 'number',
+      updatedAt: 'number',
     },
     documents: {
-      id: "string",
-      path: "string",
-      content: "string",
-      lastModified: "number",
+      id: 'string',
+      path: 'string',
+      content: 'string',
+      lastModified: 'number',
     },
     workflows: {
-      id: "string",
-      name: "string",
-      currentStep: "string?",
-      status: "string",
-      startedAt: "number",
-      completedAt: "number?",
+      id: 'string',
+      name: 'string',
+      currentStep: 'string?',
+      status: 'string',
+      startedAt: 'number',
+      completedAt: 'number?',
     },
     agentActions: {
-      id: "string",
-      workflowId: "string?",
-      action: "string",
-      tool: "string",
-      parameters: "json",
-      result: "json?",
-      timestamp: "number",
+      id: 'string',
+      workflowId: 'string?',
+      action: 'string',
+      tool: 'string',
+      parameters: 'json',
+      result: 'json?',
+      timestamp: 'number',
     },
   },
-};
+}
 ```
 
 ### 3. LLM Integration
@@ -148,26 +148,26 @@ const schema = {
 // src/services/llm-agent.ts
 interface LLMAgent {
   // Subscribe to relevant events
-  subscribeToEvents(store: LiveStore): void;
+  subscribeToEvents(store: LiveStore): void
 
   // Process incoming events and decide on actions
-  processEvent(event: WorkSquaredEvent): Promise<void>;
+  processEvent(event: WorkSquaredEvent): Promise<void>
 
   // Execute actions through tools
-  executeAction(action: AgentAction): Promise<void>;
+  executeAction(action: AgentAction): Promise<void>
 }
 
 // Tool interfaces for LLM
 interface KanbanTool {
-  createTask(boardId: string, task: TaskInput): Promise<Task>;
-  moveTask(taskId: string, column: string): Promise<void>;
-  updateTask(taskId: string, updates: Partial<Task>): Promise<void>;
+  createTask(boardId: string, task: TaskInput): Promise<Task>
+  moveTask(taskId: string, column: string): Promise<void>
+  updateTask(taskId: string, updates: Partial<Task>): Promise<void>
 }
 
 interface ObsidianTool {
-  createDocument(path: string, content: string): Promise<void>;
-  updateDocument(path: string, content: string): Promise<void>;
-  appendToDocument(path: string, content: string): Promise<void>;
+  createDocument(path: string, content: string): Promise<void>
+  updateDocument(path: string, content: string): Promise<void>
+  appendToDocument(path: string, content: string): Promise<void>
 }
 ```
 
@@ -206,6 +206,7 @@ function ChatInterface() {
 **Recommendation**: Build internal Kanban for MVP
 
 **Rationale**:
+
 - Faster to implement (no API auth, rate limits, network latency)
 - Full control over event emission and UI updates
 - Can mock Trello-like appearance for demo authenticity
@@ -213,6 +214,7 @@ function ChatInterface() {
 - Aligns with "do the thing that's easier" principle
 
 **Implementation**:
+
 ```typescript
 // Internal Kanban with LiveStore
 interface KanbanBoard {
@@ -228,11 +230,11 @@ interface Column {
 }
 
 // Events emitted by both UI and LLM tools
-type KanbanEvent = 
-  | { type: 'board.created', board: KanbanBoard }
-  | { type: 'task.created', boardId: string, task: Task }
-  | { type: 'task.moved', taskId: string, fromColumn: string, toColumn: string }
-  | { type: 'task.updated', taskId: string, updates: Partial<Task> }
+type KanbanEvent =
+  | { type: 'board.created'; board: KanbanBoard }
+  | { type: 'task.created'; boardId: string; task: Task }
+  | { type: 'task.moved'; taskId: string; fromColumn: string; toColumn: string }
+  | { type: 'task.updated'; taskId: string; updates: Partial<Task> }
 ```
 
 **Visual Design**: Trello-style columns with drag-and-drop for authenticity
@@ -244,12 +246,14 @@ type KanbanEvent =
 **Recommendation**: Use Obsidian MCP via REST API (with internal fallback)
 
 **Rationale**:
+
 - Shows real integration capability (WorkSquared as integration layer)
 - Obsidian REST API already exists and is stable
 - Documents persist outside WorkSquared (authentic for consultancy demo)
 - Supports the narrative of "execution happens in other applications"
 
 **Architecture**:
+
 ```
 WorkSquared → MCP Client → Tailscale → Obsidian REST API
      ↓
@@ -257,34 +261,37 @@ Event Stream ← Document Events
 ```
 
 **Implementation Plan**:
+
 1. Set up Obsidian with REST API plugin on Tailscale network
 2. Implement MCP server wrapping Obsidian REST endpoints
 3. Create document preview component in UI
 4. Emit events for all document operations
 
 **MCP Tools**:
+
 ```typescript
 interface ObsidianMCPTools {
-  'obsidian_read_file': {
+  obsidian_read_file: {
     input: { path: string }
-    output: { content: string, metadata: object }
+    output: { content: string; metadata: object }
   }
-  'obsidian_write_file': {
-    input: { path: string, content: string }
-    output: { success: boolean, path: string }
+  obsidian_write_file: {
+    input: { path: string; content: string }
+    output: { success: boolean; path: string }
   }
-  'obsidian_list_files': {
+  obsidian_list_files: {
     input: { folder?: string }
-    output: { files: Array<{path: string, modified: number}> }
+    output: { files: Array<{ path: string; modified: number }> }
   }
-  'obsidian_search': {
+  obsidian_search: {
     input: { query: string }
-    output: { results: Array<{path: string, matches: string[]}> }
+    output: { results: Array<{ path: string; matches: string[] }> }
   }
 }
 ```
 
 **Event Integration**:
+
 ```typescript
 // MCP tool calls emit events
 mcpClient.on('tool_called', (tool, params, result) => {
@@ -295,13 +302,14 @@ mcpClient.on('tool_called', (tool, params, result) => {
       path: params.path,
       content: result.content,
       tool: 'obsidian',
-      action: tool
+      action: tool,
     })
   }
 })
 ```
 
 **Fallback Strategy**:
+
 - If Obsidian/Tailscale setup is too complex for demo deadline
 - Use internal markdown editor with same event interface
 - Store documents in LiveStore
@@ -310,67 +318,24 @@ mcpClient.on('tool_called', (tool, params, result) => {
 #### UI Considerations from Your Dialogue
 
 **Activity Log vs Chat Separation**:
+
 - Implement Factory.ai-style split view
 - Left: Chat interface for LLM interaction
 - Right: Activity log showing event stream
 - Visual indicators for tool calls and async operations
 
 **Model Picker Integration**:
+
 - Simple dropdown in chat interface
 - Store selected model in LiveStore uiState
 - Pass modelId with chat events
-
-## Demo Workflow Implementation
-
-### Consultancy Iteration Zero Workflow
-
-```typescript
-const iterationZeroWorkflow = {
-  name: "Iteration Zero Planning",
-  steps: [
-    {
-      id: "analyze-contract",
-      action: "Read and analyze the contract details",
-      tool: "chat",
-    },
-    {
-      id: "create-charter",
-      action: "Create project charter document",
-      tool: "obsidian",
-      template: "templates/project-charter.md",
-    },
-    {
-      id: "setup-board",
-      action: "Create Kanban board with initial structure",
-      tool: "kanban",
-      columns: ["Backlog", "In Progress", "Review", "Done"],
-    },
-    {
-      id: "create-stories",
-      action: "Generate initial user stories",
-      tool: "kanban",
-      estimatedCount: 8 - 12,
-    },
-    {
-      id: "technical-setup",
-      action: "Document technical architecture",
-      tool: "obsidian",
-      template: "templates/technical-design.md",
-    },
-    {
-      id: "schedule-kickoff",
-      action: "Create kickoff meeting agenda",
-      tool: "obsidian",
-    },
-  ],
-};
-```
 
 ## Implementation Phases
 
 ### Phase 1: Event-Driven LLM Chat
 
 **Core Implementation:**
+
 - [ ] LiveStore event schema for chat messages and agent actions
 - [ ] Chat interface with Factory.ai-style split view (chat + activity log)
 - [ ] LLM integration with streaming responses
@@ -379,6 +344,7 @@ const iterationZeroWorkflow = {
 - [ ] Basic WebSocket sync setup
 
 **Testing:**
+
 - [ ] Unit tests: Event emission and materialization for chat messages
 - [ ] Unit tests: Model picker state management
 - [ ] Integration tests: LLM service event processing
@@ -386,6 +352,7 @@ const iterationZeroWorkflow = {
 - [ ] Playwright test: Model switching functionality
 
 **Definition of Done:**
+
 - Can chat with LLM and see responses
 - All interactions visible in activity log
 - Can switch between different models
@@ -394,6 +361,7 @@ const iterationZeroWorkflow = {
 ### Phase 2: Kanban Tool
 
 **Core Implementation:**
+
 - [ ] LiveStore schema for boards, columns, and tasks
 - [ ] Trello-style Kanban UI component with drag-and-drop
 - [ ] LLM tool interface for Kanban operations (create, move, update tasks)
@@ -401,6 +369,7 @@ const iterationZeroWorkflow = {
 - [ ] Real-time UI updates from events
 
 **Testing:**
+
 - [ ] Unit tests: Task CRUD operations and event emission
 - [ ] Unit tests: Drag-and-drop state management
 - [ ] Integration tests: LLM Kanban tool execution
@@ -409,6 +378,7 @@ const iterationZeroWorkflow = {
 - [ ] Test fixture: Pre-populated board for consistent testing
 
 **Definition of Done:**
+
 - Kanban board displays and updates in real-time
 - LLM can create, move, and update tasks via tools
 - Drag-and-drop works smoothly
@@ -417,6 +387,7 @@ const iterationZeroWorkflow = {
 ### Phase 3: Obsidian Tool
 
 **Core Implementation:**
+
 - [ ] Document event schema and LiveStore tables
 - [ ] Obsidian REST API setup with Tailscale
 - [ ] MCP server implementation for Obsidian
@@ -425,6 +396,7 @@ const iterationZeroWorkflow = {
 - [ ] LLM tool interface for document operations
 
 **Testing:**
+
 - [ ] Unit tests: Document event emission and materialization
 - [ ] Unit tests: Markdown editor functionality (fallback)
 - [ ] Integration tests: MCP client to Obsidian communication
@@ -434,6 +406,7 @@ const iterationZeroWorkflow = {
 - [ ] Mock Obsidian API for CI/CD pipeline
 
 **Definition of Done:**
+
 - LLM can create/edit documents in Obsidian
 - Document previews appear in UI
 - Fallback editor works if Obsidian unavailable
@@ -442,6 +415,7 @@ const iterationZeroWorkflow = {
 ### Phase 4: Story-telling + UI Polish
 
 **Core Implementation:**
+
 - [ ] Iteration Zero workflow engine
 - [ ] Workflow visualization in activity log
 - [ ] Demo consultancy scenario setup
@@ -450,6 +424,7 @@ const iterationZeroWorkflow = {
 - [ ] Performance optimizations for demo
 
 **Testing:**
+
 - [ ] Unit tests: Workflow state machine logic
 - [ ] Integration tests: Complete workflow execution
 - [ ] Playwright test: Full Iteration Zero workflow (5-minute demo)
@@ -458,12 +433,12 @@ const iterationZeroWorkflow = {
 - [ ] Rehearsal mode: Deterministic demo for reliability
 
 **Definition of Done:**
+
 - Complete 5-minute demo runs smoothly
 - Iteration Zero workflow executes end-to-end
 - UI polished and professional
 - Demo is reliable and repeatable
 - All edge cases handled gracefully
-
 
 ## Shortcuts for MVP
 
