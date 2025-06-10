@@ -47,10 +47,6 @@ pnpm test:watch        # Run tests in watch mode
 pnpm test:coverage     # Generate coverage report
 ```
 
-### End-to-End Tests (Playwright) - REMOVED
-
-E2E testing with Playwright was removed due to LiveStore compatibility issues. Use Storybook and component tests for UI validation instead.
-
 ### Component Development (Storybook)
 
 ```bash
