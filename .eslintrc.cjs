@@ -3,14 +3,7 @@ module.exports = {
   ignorePatterns: ['**/dist/*', 'node_modules/*'],
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint', 'only-warn', 'simple-import-sort', 'import', 'prefer-arrow'],
-  extends: [
-    'plugin:@typescript-eslint/recommended',
-    'plugin:unicorn/recommended',
-    'prettier',
-    'plugin:prettier/recommended',
-    'plugin:react/recommended',
-    'plugin:react-hooks/recommended',
-  ],
+  extends: ['plugin:@typescript-eslint/recommended', 'plugin:unicorn/recommended', 'prettier', 'plugin:prettier/recommended', 'plugin:react/recommended', 'plugin:react-hooks/recommended', 'plugin:storybook/recommended'],
   rules: {
     'unicorn/prevent-abbreviations': 'off',
     'unicorn/filename-case': 'off',
