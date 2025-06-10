@@ -1,7 +1,7 @@
-import type { LiveStore } from '@livestore/livestore'
+import type { Store } from '@livestore/livestore'
 import { events } from '../livestore/schema.js'
 
-export function seedSampleBoards(store: LiveStore) {
+export function seedSampleBoards(store: Store) {
   const now = new Date()
 
   // Create sample boards
