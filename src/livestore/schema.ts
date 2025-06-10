@@ -58,6 +58,35 @@ const boards = State.SQLite.table({
   },
 })
 
+const columns = State.SQLite.table({
+  name: 'columns',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    boardId: State.SQLite.text(),
+    name: State.SQLite.text({ default: '' }),
+    position: State.SQLite.integer({ default: 0 }),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    updatedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
+const tasks = State.SQLite.table({
+  name: 'tasks',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    boardId: State.SQLite.text(),
+    columnId: State.SQLite.text(),
+    title: State.SQLite.text({ default: '' }),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
 const uiState = State.SQLite.clientDocument({
   name: 'uiState',
   schema: Schema.Struct({ newTodoText: Schema.String, filter: Filter }),
@@ -70,6 +99,8 @@ const uiState = State.SQLite.clientDocument({
 export type Todo = State.SQLite.FromTable.RowDecoded<typeof todos>
 export type ChatMessage = State.SQLite.FromTable.RowDecoded<typeof chatMessages>
 export type Board = State.SQLite.FromTable.RowDecoded<typeof boards>
+export type Column = State.SQLite.FromTable.RowDecoded<typeof columns>
+export type Task = State.SQLite.FromTable.RowDecoded<typeof tasks>
 export type UiState = typeof uiState.default.value
 
 export const events = {
@@ -77,7 +108,7 @@ export const events = {
   uiStateSet: uiState.set,
 }
 
-export const tables = { todos, uiState, chatMessages, boards }
+export const tables = { todos, uiState, chatMessages, boards, columns, tasks }
 
 const materializers = State.SQLite.materializers(events, {
   'v1.TodoCreated': ({ id, text }) => todos.insert({ id, text, completed: false }),
@@ -90,6 +121,14 @@ const materializers = State.SQLite.materializers(events, {
     chatMessages.insert({ id, message, createdAt }),
   'v1.BoardCreated': ({ id, name, createdAt }) =>
     boards.insert({ id, name, createdAt, updatedAt: createdAt }),
+  'v1.ColumnCreated': ({ id, boardId, name, position, createdAt }) =>
+    columns.insert({ id, boardId, name, position, createdAt, updatedAt: createdAt }),
+  'v1.ColumnRenamed': ({ id, name, updatedAt }) =>
+    columns.update({ name, updatedAt }).where({ id }),
+  'v1.ColumnReordered': ({ id, position, updatedAt }) =>
+    columns.update({ position, updatedAt }).where({ id }),
+  'v1.TaskCreated': ({ id, boardId, columnId, title, createdAt }) =>
+    tasks.insert({ id, boardId, columnId, title, createdAt }),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

@@ -4,36 +4,36 @@
 
 ---
 
-## 🍰 Story 1 – View list of Kanban boards
+## ✅ Story 1 – View list of Kanban boards — COMPLETED
 
 **User story**: _As a manager, I want to view a list of kanban boards for projects._
 
-### Tasks
+### Tasks — DONE
 
-- Events: `board.created`, `board.renamed`, `board.deleted` (define in `src/livestore/events.ts`)
-- Schema: Add `boards` table `{ id, name, createdAt, updatedAt }` in `src/livestore/schema.ts`
-- Query: `queries.getBoards` → returns all boards ordered by `updatedAt DESC`
-- Seed: Create default sample board in a migration script (dev only)
-- UI: `BoardsPage.tsx` + `BoardCard.tsx` with grid layout
-- Routing: `/boards` page registered in router
-- Tests: unit tests for materialization, component snapshot, storybook story
-- Definition of Done: Visiting `/boards` shows existing boards and empty-state message when none exist.
+- [x] Events: `board.created`, `board.renamed`, `board.deleted` (define in `src/livestore/events.ts`)
+- [x] Schema: Add `boards` table `{ id, name, createdAt, updatedAt }` in `src/livestore/schema.ts`
+- [x] Query: `queries.getBoards` → returns all boards ordered by `updatedAt DESC`
+- [x] Seed: Create default sample board in a migration script (dev only)
+- [x] UI: `BoardsPage.tsx` + `BoardCard.tsx` with grid layout
+- [x] Routing: `/boards` page registered in router
+- [x] Tests: unit tests for materialization, component snapshot, storybook story
+- [x] Definition of Done: Visiting `/boards` shows existing boards and empty-state message when none exist.
 
 ---
 
-## 🍰 Story 2 – View a Kanban board with task columns
+## ✅ Story 2 – View a Kanban board with task columns — COMPLETED
 
 **User story**: _As a manager, I want to view a kanban board for a project with tasks in various states (Todo, Doing, In Review, Done)._
 
-### Tasks
+### Tasks — DONE
 
-- Events: `column.created`, `column.renamed`, `column.reordered`
-- Schema: Add `columns` table `{ id, boardId, name, position }` and `tasks` table minimal subset `{ id, boardId, columnId, title }`
-- Query: `queries.getBoardColumnsAndTasks(boardId)`
-- UI: `KanbanBoard.tsx` container → maps columns to `KanbanColumn.tsx` which maps tasks to `TaskCard.tsx`
-- Styling: Tailwind columns with horizontal scroll fallback
-- Tests: Column & task rendering, LiveStore query returns expected order
-- DoD: Selecting a board from `/boards/:id` renders four default columns with seeded tasks.
+- [x] Events: `column.created`, `column.renamed`, `column.reordered`
+- [x] Schema: Add `columns` table `{ id, boardId, name, position }` and `tasks` table minimal subset `{ id, boardId, columnId, title }`
+- [x] Query: `queries.getBoardColumns$` and `queries.getBoardTasks$`
+- [x] UI: `KanbanBoard.tsx` container → maps columns to `KanbanColumn.tsx` which maps tasks to `TaskCard.tsx`
+- [x] Styling: Tailwind columns with horizontal scroll fallback
+- [x] Tests: Column & task rendering, LiveStore query returns expected order
+- [x] DoD: Selecting a board from `/board/:id` renders four default columns with seeded tasks.
 
 ---
 
