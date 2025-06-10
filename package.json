@@ -19,8 +19,7 @@
     "@overengineering/fps-meter": "0.1.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-router-dom": "^7.6.2",
-    "todomvc-app-css": "2.4.3"
+    "react-router-dom": "^7.6.2"
   },
   "devDependencies": {
     "@storybook/addon-docs": "^9.0.5",
