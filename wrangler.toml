@@ -1,6 +1,10 @@
-name = "websocket-server"
-main = "./src/cf-worker/index.ts"
+name = "work-squared"
 compatibility_date = "2024-05-12"
+
+[pages]
+build_output_dir = "./dist"
+build_command = "pnpm build"
+functions_dir = "./functions"
 
 [[durable_objects.bindings]]
 name = "WEBSOCKET_SERVER"
@@ -12,9 +16,10 @@ new_classes = ["WebSocketServer"]
 
 [[d1_databases]]
 binding = "DB"
-database_name = "livestore-sync-cf-demo"
-database_id = "1c9b5dae-f1fa-49d8-83fa-7bd5b39c4121"
-# database_id = "${LIVESTORE_CF_SYNC_DATABASE_ID}"
+# This database was created with `pnpm wrangler d1 create work-squared-prod`
+database_name = "work-squared-prod"
+# The database_id is configured via the D1_DATABASE_ID environment variable/secret
+database_id = "${D1_DATABASE_ID}"
 
 [vars]
 # should be set via CF dashboard (as secret)
