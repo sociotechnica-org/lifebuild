@@ -45,6 +45,24 @@ const todos = State.SQLite.table({
   },
 });
 
+const boards = State.SQLite.table({
+  name: "boards",
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    name: State.SQLite.text({ default: "" }),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    updatedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    deletedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+  },
+});
+
 const uiState = State.SQLite.clientDocument({
   name: "uiState",
   schema: Schema.Struct({ newTodoText: Schema.String, filter: Filter }),
@@ -58,6 +76,7 @@ export type Todo = State.SQLite.FromTable.RowDecoded<typeof todos>;
 export type ChatMessage = State.SQLite.FromTable.RowDecoded<
   typeof chatMessages
 >;
+export type Board = State.SQLite.FromTable.RowDecoded<typeof boards>;
 export type UiState = typeof uiState.default.value;
 
 export const events = {
@@ -65,7 +84,7 @@ export const events = {
   uiStateSet: uiState.set,
 };
 
-export const tables = { todos, uiState, chatMessages };
+export const tables = { todos, uiState, chatMessages, boards };
 
 const materializers = State.SQLite.materializers(events, {
   "v1.TodoCreated": ({ id, text }) =>
@@ -80,6 +99,8 @@ const materializers = State.SQLite.materializers(events, {
     todos.update({ deletedAt }).where({ completed: true }),
   "v1.ChatMessageSent": ({ id, message, createdAt }) =>
     chatMessages.insert({ id, message, createdAt }),
+  "v1.BoardCreated": ({ id, name, createdAt }) =>
+    boards.insert({ id, name, createdAt, updatedAt: createdAt }),
 });
 
 const state = State.SQLite.makeState({ tables, materializers });

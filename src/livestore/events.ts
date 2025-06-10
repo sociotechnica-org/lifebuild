@@ -42,3 +42,12 @@ export const chatMessageSent = Events.synced({
     createdAt: Schema.Date,
   }),
 });
+
+export const boardCreated = Events.synced({
+  name: "v1.BoardCreated",
+  schema: Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+    createdAt: Schema.Date,
+  }),
+});

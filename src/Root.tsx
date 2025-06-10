@@ -4,7 +4,9 @@ import { LiveStoreProvider } from "@livestore/react";
 import { FPSMeter } from "@overengineering/fps-meter";
 import React from "react";
 import { unstable_batchedUpdates as batchUpdates } from "react-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+import { BoardsPage } from "./components/BoardsPage.js";
 import { MainSection } from "./components/MainSection.js";
 import LiveStoreWorker from "./livestore.worker?worker";
 import { schema } from "./livestore/schema.js";
@@ -12,9 +14,17 @@ import { makeTracer } from "./otel.js";
 import { getStoreId } from "./util/store-id.js";
 
 const AppBody: React.FC = () => (
-  <section className="chat-app">
-    <MainSection />
-  </section>
+  <BrowserRouter>
+    <Routes>
+      <Route path="/boards" element={<BoardsPage />} />
+      <Route path="/chat" element={
+        <section className="chat-app">
+          <MainSection />
+        </section>
+      } />
+      <Route path="/" element={<Navigate to="/boards" replace />} />
+    </Routes>
+  </BrowserRouter>
 );
 
 const storeId = getStoreId();

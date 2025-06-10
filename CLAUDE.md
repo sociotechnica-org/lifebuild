@@ -92,6 +92,10 @@ Work Squared is a real-time collaborative web application built with:
 - `/src/components/` - React components
 - `/src/livestore.worker.ts` - SharedWorker for LiveStore operations
 
+## LiveStore Documentation
+
+For LiveStore-specific syntax and patterns, refer to: https://docs.livestore.dev/llms.txt
+
 ## Important Guidelines
 
 - When creating work plans or implementation tasks, NEVER include time estimates - focus on sequencing and dependencies only
