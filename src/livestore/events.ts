@@ -51,3 +51,43 @@ export const boardCreated = Events.synced({
     createdAt: Schema.Date,
   }),
 })
+
+export const columnCreated = Events.synced({
+  name: 'v1.ColumnCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    boardId: Schema.String,
+    name: Schema.String,
+    position: Schema.Number,
+    createdAt: Schema.Date,
+  }),
+})
+
+export const columnRenamed = Events.synced({
+  name: 'v1.ColumnRenamed',
+  schema: Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+    updatedAt: Schema.Date,
+  }),
+})
+
+export const columnReordered = Events.synced({
+  name: 'v1.ColumnReordered',
+  schema: Schema.Struct({
+    id: Schema.String,
+    position: Schema.Number,
+    updatedAt: Schema.Date,
+  }),
+})
+
+export const taskCreated = Events.synced({
+  name: 'v1.TaskCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    boardId: Schema.String,
+    columnId: Schema.String,
+    title: Schema.String,
+    createdAt: Schema.Date,
+  }),
+})

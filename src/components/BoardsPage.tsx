@@ -1,5 +1,6 @@
 import { useQuery, useStore } from '@livestore/react'
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { getBoards$ } from '../livestore/queries.js'
 import type { Board } from '../livestore/schema.js'
 import { seedSampleBoards } from '../util/seed-data.js'
@@ -7,6 +8,7 @@ import { BoardCard } from './BoardCard.js'
 
 export const BoardsPage: React.FC = () => {
   const { store } = useStore()
+  const navigate = useNavigate()
   const boards = useQuery(getBoards$) ?? []
   const hasSeededRef = React.useRef(false)
 
@@ -19,8 +21,7 @@ export const BoardsPage: React.FC = () => {
   }, [boards.length, store])
 
   const handleBoardClick = (board: Board) => {
-    // TODO: Navigate to board details page in Story 2
-    console.log('Board clicked:', board.name)
+    navigate(`/board/${board.id}`)
   }
 
   if (boards.length === 0) {

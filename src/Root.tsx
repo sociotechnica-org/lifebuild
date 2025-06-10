@@ -7,6 +7,7 @@ import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
 import { BoardsPage } from './components/BoardsPage.js'
+import { KanbanBoard } from './components/KanbanBoard.js'
 import { MainSection } from './components/MainSection.js'
 import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from './livestore/schema.js'
@@ -17,6 +18,7 @@ const AppBody: React.FC = () => (
   <BrowserRouter>
     <Routes>
       <Route path='/boards' element={<BoardsPage />} />
+      <Route path='/board/:boardId' element={<KanbanBoard />} />
       <Route
         path='/chat'
         element={
