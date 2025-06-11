@@ -11,7 +11,7 @@ export const getInitials = (name: string): string => {
     .join('')
     .toUpperCase()
     .slice(0, 2) // Limit to 2 characters max
-  
+
   // Fallback for empty names
   return initials || '?'
 }

@@ -133,3 +133,14 @@ export const conversationCreated = Events.synced({
     createdAt: Schema.Date,
   }),
 })
+
+export const commentAdded = Events.synced({
+  name: 'v1.CommentAdded',
+  schema: Schema.Struct({
+    id: Schema.String,
+    taskId: Schema.String,
+    authorId: Schema.String,
+    content: Schema.String,
+    createdAt: Schema.Date,
+  }),
+})
