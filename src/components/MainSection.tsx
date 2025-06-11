@@ -22,6 +22,7 @@ export const MainSection: React.FC = () => {
       store.commit(
         events.chatMessageSent({
           id: crypto.randomUUID(),
+          conversationId: 'main-section-chat', // Legacy chat in main section
           message,
           createdAt: new Date(),
         })

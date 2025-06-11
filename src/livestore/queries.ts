@@ -54,3 +54,14 @@ export const getConversation$ = (conversationId: string) =>
   queryDb(tables.conversations.select().where({ id: conversationId }), {
     label: `getConversation:${conversationId}`,
   })
+
+export const getConversationMessages$ = (conversationId: string) =>
+  queryDb(
+    tables.chatMessages
+      .select()
+      .where({ conversationId })
+      .orderBy([{ col: 'createdAt', direction: 'asc' }]),
+    {
+      label: `getConversationMessages:${conversationId}`,
+    }
+  )
