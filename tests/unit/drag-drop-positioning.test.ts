@@ -9,7 +9,7 @@ describe('Drag and Drop Position Calculation', () => {
   it('should calculate correct position when dropping task on empty column', () => {
     // Simplified logic: empty columns always get position 0
     const overId = 'empty-column-col-2'
-    
+
     if (overId.startsWith('empty-column-')) {
       const targetPosition = 0 // Always position 0 for empty columns
       expect(targetPosition).toBe(0)
@@ -20,9 +20,9 @@ describe('Drag and Drop Position Calculation', () => {
     // When dropping on a task, use the target task's position
     const targetTask = { id: 'task-4', columnId: 'col-2', position: 0 }
     const draggedTask = { id: 'task-2', columnId: 'col-1', position: 1 }
-    
-    let targetPosition = targetTask.position // Position 0
-    
+
+    const targetPosition = targetTask.position // Position 0
+
     // No adjustment needed when moving to different column
     if (targetTask.columnId !== draggedTask.columnId) {
       // Keep target position as-is for different columns
@@ -35,11 +35,14 @@ describe('Drag and Drop Position Calculation', () => {
     // When moving down in the same column, adjust target position
     const targetTask = { id: 'task-3', columnId: 'col-1', position: 2 }
     const draggedTask = { id: 'task-1', columnId: 'col-1', position: 0 }
-    
+
     let targetPosition = targetTask.position // Position 2
-    
+
     // For same-column movements, adjust position if moving down
-    if (targetTask.columnId === draggedTask.columnId && draggedTask.position < targetTask.position) {
+    if (
+      targetTask.columnId === draggedTask.columnId &&
+      draggedTask.position < targetTask.position
+    ) {
       targetPosition = targetTask.position - 1 // Becomes position 1
     }
 
@@ -50,11 +53,14 @@ describe('Drag and Drop Position Calculation', () => {
     // When moving up in the same column, no adjustment needed
     const targetTask = { id: 'task-1', columnId: 'col-1', position: 0 }
     const draggedTask = { id: 'task-3', columnId: 'col-1', position: 2 }
-    
+
     let targetPosition = targetTask.position // Position 0
-    
+
     // For same-column movements, only adjust if moving down
-    if (targetTask.columnId === draggedTask.columnId && draggedTask.position < targetTask.position) {
+    if (
+      targetTask.columnId === draggedTask.columnId &&
+      draggedTask.position < targetTask.position
+    ) {
       targetPosition = targetTask.position - 1
     }
 

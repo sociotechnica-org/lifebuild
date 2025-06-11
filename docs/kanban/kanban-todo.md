@@ -87,6 +87,8 @@
 
 ## 🍰 Story 5 – Edit a card's title & description
 
+**GitHub Issue**: [#9](https://github.com/sociotechnica-org/work-squared/issues/9)
+
 **User story**: _As a manager, I want to change the title and description of a card._
 
 ### Tasks
@@ -100,6 +102,8 @@
 ---
 
 ## 🍰 Story 6 – Assign a teammate to a card
+
+**GitHub Issue**: [#10](https://github.com/sociotechnica-org/work-squared/issues/10)
 
 **User story**: _As a manager, I want to assign someone to a card._
 
@@ -116,6 +120,8 @@
 
 ## 🍰 Story 7 – Comment on a card
 
+**GitHub Issue**: [#11](https://github.com/sociotechnica-org/work-squared/issues/11)
+
 **User story**: _As a manager, I want to comment on a card._
 
 ### Tasks
@@ -130,6 +136,8 @@
 
 ## 🍰 Story 8 – Set a due date for a card
 
+**GitHub Issue**: [#12](https://github.com/sociotechnica-org/work-squared/issues/12)
+
 **User story**: _As a manager, I want to set the due date for a card._
 
 ### Tasks
@@ -143,6 +151,8 @@
 ---
 
 ## 🍰 Story 9 – Archive a card
+
+**GitHub Issue**: [#13](https://github.com/sociotechnica-org/work-squared/issues/13)
 
 **User story**: _As a manager, I want to archive a card._
 

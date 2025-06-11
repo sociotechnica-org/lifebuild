@@ -25,7 +25,7 @@ export function KanbanBoard() {
     columnId: string
     position: number
   } | null>(null)
-  const [dragOverEmptyColumn, setDragOverEmptyColumn] = useState<string | null>(null)
+  const [dragOverAddCard, setDragOverAddCard] = useState<string | null>(null)
 
   if (!boardId) {
     return <div>Board not found</div>
@@ -83,7 +83,7 @@ export function KanbanBoard() {
     const { over, active } = event
     if (!over || !active) {
       setInsertionPreview(null)
-      setDragOverEmptyColumn(null)
+      setDragOverAddCard(null)
       return
     }
 
@@ -93,18 +93,20 @@ export function KanbanBoard() {
 
     if (!draggedTask) {
       setInsertionPreview(null)
-      setDragOverEmptyColumn(null)
+      setDragOverAddCard(null)
       return
     }
 
-    if (overId.startsWith('empty-column-')) {
-      // Hovering over empty column drop zone
-      const targetColumnId = overId.replace('empty-column-', '')
-      setDragOverEmptyColumn(targetColumnId)
-      setInsertionPreview({ columnId: targetColumnId, position: 0 })
+    if (overId.startsWith('add-card-')) {
+      // Hovering over Add Card button
+      const targetColumnId = overId.replace('add-card-', '')
+      setDragOverAddCard(targetColumnId)
+      const columnTasks = tasksByColumn[targetColumnId] || []
+      const targetPosition = columnTasks.filter(t => t.id !== activeTaskId).length
+      setInsertionPreview({ columnId: targetColumnId, position: targetPosition })
     } else {
       // Hovering over a task
-      setDragOverEmptyColumn(null)
+      setDragOverAddCard(null)
       const targetTask = findTask(overId)
       if (!targetTask) {
         setInsertionPreview(null)
@@ -139,7 +141,7 @@ export function KanbanBoard() {
     const { active, over } = event
     setActiveTask(null)
     setInsertionPreview(null)
-    setDragOverEmptyColumn(null)
+    setDragOverAddCard(null)
 
     if (!over || !active) return
 
@@ -151,10 +153,11 @@ export function KanbanBoard() {
     let targetColumnId: string
     let targetPosition: number
 
-    if (overId.startsWith('empty-column-')) {
-      // Dropped on empty column
-      targetColumnId = overId.replace('empty-column-', '')
-      targetPosition = 0
+    if (overId.startsWith('add-card-')) {
+      // Dropped on Add Card button - place at end of column
+      targetColumnId = overId.replace('add-card-', '')
+      const columnTasks = tasksByColumn[targetColumnId] || []
+      targetPosition = columnTasks.filter(t => t.id !== taskId).length
     } else {
       // Dropped on another task
       const targetTask = findTask(overId)
@@ -282,10 +285,7 @@ export function KanbanBoard() {
               }
               draggedTaskHeight={activeTask ? 76 : 0} // Approximate task card height
               draggedTaskId={activeTask?.id || null}
-              showEmptyDropZone={
-                dragOverEmptyColumn === column.id &&
-                (tasksByColumn[column.id] || []).filter(t => t.id !== activeTask?.id).length === 0
-              }
+              showAddCardPreview={dragOverAddCard === column.id}
             />
           ))}
         </div>

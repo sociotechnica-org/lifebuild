@@ -75,7 +75,7 @@ describe('KanbanColumn', () => {
         insertionPreview={null}
         draggedTaskHeight={0}
         draggedTaskId={null}
-        showEmptyDropZone={false}
+        showAddCardPreview={false}
         {...props}
       />
     )
@@ -138,13 +138,13 @@ describe('KanbanColumn', () => {
     )
   })
 
-  it('should show hover styling when dragging over empty column', () => {
+  it('should show hover styling when dragging over Add Card button', () => {
     mockUseDroppable.mockReturnValue({
       setNodeRef: vi.fn(),
       isOver: true,
     })
 
-    // Render with empty column and show drop zone
+    // Render with showAddCardPreview
     render(
       <KanbanColumn
         column={mockColumn}
@@ -152,15 +152,12 @@ describe('KanbanColumn', () => {
         insertionPreview={null}
         draggedTaskHeight={0}
         draggedTaskId={null}
-        showEmptyDropZone={true} // Show the drop zone
+        showAddCardPreview={true} // Show the preview above Add Card
       />
     )
 
-    // The content area should have hover styling
-    const contentArea = screen
-      .getByText('Test Column')
-      .closest('.flex-shrink-0')
-      ?.querySelector('.space-y-2')
-    expect(contentArea).toHaveClass('bg-blue-50', 'border-2', 'border-blue-300')
+    // The Add Card button should have hover styling
+    const addCardButton = screen.getByText('➕ Add Card')
+    expect(addCardButton).toHaveClass('bg-blue-50', 'border-blue-300', 'text-blue-600')
   })
 })

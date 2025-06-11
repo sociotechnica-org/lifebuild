@@ -12,7 +12,7 @@ interface KanbanColumnProps {
   insertionPreview: number | null // Position where insertion preview should show, null if none
   draggedTaskHeight: number // Height of the task being dragged for placeholder sizing
   draggedTaskId: string | null // ID of task currently being dragged
-  showEmptyDropZone: boolean // Whether to show the empty column drop zone
+  showAddCardPreview: boolean // Whether to show insertion preview above Add Card button
 }
 
 export function KanbanColumn({
@@ -21,16 +21,14 @@ export function KanbanColumn({
   insertionPreview,
   draggedTaskHeight,
   draggedTaskId,
-  showEmptyDropZone,
+  showAddCardPreview,
 }: KanbanColumnProps) {
   const { store } = useStore()
   const [isAddingTask, setIsAddingTask] = useState(false)
 
-  // Only make the column content droppable if it's empty and we're showing the drop zone
-  const shouldEnableDroppable = tasks.length === 0 && showEmptyDropZone
-  const { setNodeRef, isOver } = useDroppable({
-    id: `empty-column-${column.id}`,
-    disabled: !shouldEnableDroppable,
+  // Set up droppable for the Add Card button
+  const { setNodeRef: setAddCardRef, isOver: isAddCardOver } = useDroppable({
+    id: `add-card-${column.id}`,
   })
 
   // Create a placeholder component for insertion preview
@@ -67,7 +65,7 @@ export function KanbanColumn({
 
   return (
     <div className='flex-shrink-0 w-80 min-w-80 bg-gray-50 rounded-lg p-4'>
-      {/* Column Header - Not droppable */}
+      {/* Column Header */}
       <div className='flex items-center justify-between mb-4'>
         <h2 className='text-sm font-semibold text-gray-900 uppercase tracking-wide'>
           {column.name}
@@ -77,40 +75,27 @@ export function KanbanColumn({
         </span>
       </div>
 
-      {/* Column Content - Droppable only when empty */}
-      <div
-        ref={shouldEnableDroppable ? setNodeRef : undefined}
-        className={`space-y-2 min-h-24 transition-colors ${
-          shouldEnableDroppable && isOver
-            ? 'bg-blue-50 border-2 border-blue-300 rounded-lg p-2'
-            : ''
-        }`}
-      >
+      {/* Column Content */}
+      <div className='space-y-2 min-h-24'>
         {(() => {
           const elements: React.ReactNode[] = []
 
           // Sort visible tasks by position
           const sortedTasks = [...visibleTasks].sort((a, b) => a.position - b.position)
 
-          // Handle empty column with drop zone
-          if (sortedTasks.length === 0 && showEmptyDropZone) {
-            elements.push(<InsertionPlaceholder key='empty-column-placeholder' />)
-          } else {
-            // Handle columns with tasks
-            sortedTasks.forEach((task, _index) => {
-              // Show placeholder before this task if needed
-              if (insertionPreview === task.position) {
-                elements.push(<InsertionPlaceholder key={`placeholder-${task.position}`} />)
-              }
-
-              // Show the task
-              elements.push(<TaskCard key={task.id} task={task} />)
-            })
-
-            // Show placeholder at the end if needed (only for columns with tasks)
-            if (insertionPreview === sortedTasks.length) {
-              elements.push(<InsertionPlaceholder key={`placeholder-end`} />)
+          sortedTasks.forEach((task, _index) => {
+            // Show placeholder before this task if needed
+            if (insertionPreview === task.position) {
+              elements.push(<InsertionPlaceholder key={`placeholder-${task.position}`} />)
             }
+
+            // Show the task
+            elements.push(<TaskCard key={task.id} task={task} />)
+          })
+
+          // Show placeholder at the end if needed (either after last task or for empty column)
+          if (insertionPreview === sortedTasks.length || showAddCardPreview) {
+            elements.push(<InsertionPlaceholder key={`placeholder-end`} />)
           }
 
           return elements
@@ -120,8 +105,13 @@ export function KanbanColumn({
           <AddTaskForm onSubmit={handleAddTask} onCancel={() => setIsAddingTask(false)} />
         ) : (
           <button
+            ref={setAddCardRef}
             onClick={() => setIsAddingTask(true)}
-            className='w-full p-3 text-left text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors text-sm'
+            className={`w-full p-3 text-left text-gray-500 hover:text-gray-700 rounded-lg border-2 border-dashed transition-colors text-sm ${
+              isAddCardOver
+                ? 'bg-blue-50 border-blue-300 text-blue-600'
+                : 'bg-gray-100 border-gray-300 hover:border-gray-400'
+            }`}
           >
             ➕ Add Card
           </button>
