@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useDroppable } from '@dnd-kit/core'
 import { useStore } from '@livestore/react'
 import type { Column, Task } from '../livestore/schema.js'
 import { TaskCard } from './TaskCard.js'
@@ -13,6 +14,10 @@ interface KanbanColumnProps {
 export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
   const { store } = useStore()
   const [isAddingTask, setIsAddingTask] = useState(false)
+
+  const { setNodeRef, isOver } = useDroppable({
+    id: `column-${column.id}`,
+  })
 
   const handleAddTask = (title: string) => {
     const nextPosition = tasks.length === 0 ? 0 : Math.max(...tasks.map(t => t.position)) + 1
@@ -32,7 +37,12 @@ export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
   }
 
   return (
-    <div className='flex-shrink-0 w-80 bg-gray-50 rounded-lg p-4'>
+    <div
+      ref={setNodeRef}
+      className={`flex-shrink-0 w-80 rounded-lg p-4 transition-colors ${
+        isOver ? 'bg-blue-50 border-2 border-blue-300' : 'bg-gray-50'
+      }`}
+    >
       <div className='flex items-center justify-between mb-4'>
         <h2 className='text-sm font-semibold text-gray-900 uppercase tracking-wide'>
           {column.name}
@@ -41,7 +51,7 @@ export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
           {tasks.length}
         </span>
       </div>
-      <div className='space-y-2'>
+      <div className='space-y-2 min-h-24'>
         {tasks.map(task => (
           <TaskCard key={task.id} task={task} />
         ))}

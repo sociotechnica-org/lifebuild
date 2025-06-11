@@ -130,6 +130,8 @@ const materializers = State.SQLite.materializers(events, {
     columns.update({ position, updatedAt }).where({ id }),
   'v1.TaskCreated': ({ id, boardId, columnId, title, position, createdAt }) =>
     tasks.insert({ id, boardId, columnId, title, position, createdAt }),
+  'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt: _updatedAt }) =>
+    tasks.update({ columnId: toColumnId, position }).where({ id: taskId }),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

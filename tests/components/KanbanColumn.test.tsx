@@ -3,8 +3,22 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { KanbanColumn } from '../../src/components/KanbanColumn.js'
 
-// Create a mock function that we can spy on
-const mockCommit = vi.fn()
+// Hoisted mocks
+const { mockCommit, mockUseDroppable, mockUseDraggable } = vi.hoisted(() => {
+  const mockCommit = vi.fn()
+  const mockUseDroppable = vi.fn(() => ({
+    setNodeRef: vi.fn(),
+    isOver: false,
+  }))
+  const mockUseDraggable = vi.fn(() => ({
+    attributes: {},
+    listeners: {},
+    setNodeRef: vi.fn(),
+    transform: null,
+    isDragging: false,
+  }))
+  return { mockCommit, mockUseDroppable, mockUseDraggable }
+})
 
 // Mock the useStore hook
 vi.mock('@livestore/react', () => ({
@@ -13,6 +27,12 @@ vi.mock('@livestore/react', () => ({
       commit: mockCommit,
     },
   }),
+}))
+
+// Mock @dnd-kit/core
+vi.mock('@dnd-kit/core', () => ({
+  useDroppable: mockUseDroppable,
+  useDraggable: mockUseDraggable,
 }))
 
 describe('KanbanColumn', () => {
@@ -99,5 +119,16 @@ describe('KanbanColumn', () => {
         }),
       })
     )
+  })
+
+  it('should show hover styling when dragging over', () => {
+    mockUseDroppable.mockReturnValue({
+      setNodeRef: vi.fn(),
+      isOver: true,
+    })
+
+    render(<KanbanColumn column={mockColumn} tasks={[]} />)
+    const column = screen.getByText('Test Column').closest('.flex-shrink-0')
+    expect(column).toHaveClass('bg-blue-50', 'border-2', 'border-blue-300')
   })
 })

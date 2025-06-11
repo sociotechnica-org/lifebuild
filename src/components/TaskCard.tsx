@@ -1,13 +1,33 @@
 import React from 'react'
+import { useDraggable } from '@dnd-kit/core'
 import type { Task } from '../livestore/schema.js'
 
 interface TaskCardProps {
   task: Task
+  isDragOverlay?: boolean
 }
 
-export function TaskCard({ task }: TaskCardProps) {
+export function TaskCard({ task, isDragOverlay = false }: TaskCardProps) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: task.id,
+  })
+
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      }
+    : undefined
+
   return (
-    <div className='bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-2 hover:shadow-md transition-shadow'>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className={`bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-2 transition-shadow cursor-grab active:cursor-grabbing ${
+        isDragging ? 'opacity-50' : 'hover:shadow-md'
+      } ${isDragOverlay ? 'shadow-lg rotate-2' : ''}`}
+    >
       <h3 className='text-sm font-medium text-gray-900 line-clamp-2'>{task.title}</h3>
     </div>
   )
