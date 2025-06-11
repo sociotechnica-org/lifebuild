@@ -79,13 +79,21 @@ export function KanbanBoard() {
   }
 
   const handleDragOver = (event: DragOverEvent) => {
-    const { over } = event
-    if (!over) {
+    const { over, active } = event
+    if (!over || !active) {
       setInsertionPreview(null)
       return
     }
 
     const overId = over.id as string
+    const activeTaskId = active.id as string
+    const draggedTask = findTask(activeTaskId)
+    
+    if (!draggedTask) {
+      setInsertionPreview(null)
+      return
+    }
+
     let targetColumnId: string
     let targetPosition: number
 
@@ -102,6 +110,12 @@ export function KanbanBoard() {
       }
       targetColumnId = targetTask.columnId
       targetPosition = targetTask.position
+      
+      // Don't show insertion preview if dragging a task over its own current position
+      if (targetTask.id === activeTaskId) {
+        setInsertionPreview(null)
+        return
+      }
     }
 
     setInsertionPreview({ columnId: targetColumnId, position: targetPosition })
