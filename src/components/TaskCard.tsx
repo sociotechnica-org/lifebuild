@@ -18,7 +18,7 @@ export function TaskCard({ task, isDragOverlay = false }: TaskCardProps) {
     id: task.id,
   })
 
-  const { setNodeRef: setDropRef, isOver } = useDroppable({
+  const { setNodeRef: setDropRef } = useDroppable({
     id: task.id,
   })
 
@@ -42,7 +42,7 @@ export function TaskCard({ task, isDragOverlay = false }: TaskCardProps) {
       {...dragAttributes}
       className={`bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-2 transition-shadow cursor-grab active:cursor-grabbing ${
         isDragging ? 'opacity-50' : 'hover:shadow-md'
-      } ${isDragOverlay ? 'shadow-lg rotate-2' : ''} ${isOver ? 'border-blue-300 border-2' : ''}`}
+      } ${isDragOverlay ? 'shadow-lg rotate-2' : ''}`}
     >
       <h3 className='text-sm font-medium text-gray-900 line-clamp-2'>{task.title}</h3>
     </div>

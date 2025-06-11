@@ -21,6 +21,10 @@ export function KanbanBoard() {
   const { boardId } = useParams<{ boardId: string }>()
   const { store } = useStore()
   const [activeTask, setActiveTask] = useState<Task | null>(null)
+  const [insertionPreview, setInsertionPreview] = useState<{
+    columnId: string
+    position: number
+  } | null>(null)
 
   if (!boardId) {
     return <div>Board not found</div>
@@ -74,13 +78,39 @@ export function KanbanBoard() {
     setActiveTask(task || null)
   }
 
-  const handleDragOver = (_event: DragOverEvent) => {
-    // Could add visual feedback here for drop zones
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event
+    if (!over) {
+      setInsertionPreview(null)
+      return
+    }
+
+    const overId = over.id as string
+    let targetColumnId: string
+    let targetPosition: number
+
+    if (overId.startsWith('column-')) {
+      // Hovering over column background
+      targetColumnId = overId.replace('column-', '')
+      targetPosition = tasksByColumn[targetColumnId]?.length || 0
+    } else {
+      // Hovering over a task
+      const targetTask = findTask(overId)
+      if (!targetTask) {
+        setInsertionPreview(null)
+        return
+      }
+      targetColumnId = targetTask.columnId
+      targetPosition = targetTask.position
+    }
+
+    setInsertionPreview({ columnId: targetColumnId, position: targetPosition })
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     setActiveTask(null)
+    setInsertionPreview(null)
 
     if (!over || !active) return
 
@@ -216,7 +246,16 @@ export function KanbanBoard() {
       <div className='h-full bg-white'>
         <div className='flex h-full overflow-x-auto p-6 gap-6'>
           {(columns || []).map((column: Column) => (
-            <KanbanColumn key={column.id} column={column} tasks={tasksByColumn[column.id] || []} />
+            <KanbanColumn
+              key={column.id}
+              column={column}
+              tasks={tasksByColumn[column.id] || []}
+              insertionPreview={
+                insertionPreview?.columnId === column.id ? insertionPreview.position : null
+              }
+              draggedTaskHeight={activeTask ? 76 : 0} // Approximate task card height
+              draggedTaskId={activeTask?.id || null}
+            />
           ))}
         </div>
       </div>

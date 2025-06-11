@@ -66,35 +66,49 @@ describe('KanbanColumn', () => {
     },
   ]
 
+  // Helper to render with default props
+  const renderColumn = (props: Partial<React.ComponentProps<typeof KanbanColumn>> = {}) => {
+    return render(
+      <KanbanColumn
+        column={mockColumn}
+        tasks={[]}
+        insertionPreview={null}
+        draggedTaskHeight={0}
+        draggedTaskId={null}
+        {...props}
+      />
+    )
+  }
+
   it('should render column name', () => {
-    render(<KanbanColumn column={mockColumn} tasks={[]} />)
+    renderColumn()
     expect(screen.getByText('Test Column')).toBeInTheDocument()
   })
 
   it('should render task count', () => {
-    render(<KanbanColumn column={mockColumn} tasks={mockTasks} />)
+    renderColumn({ tasks: mockTasks })
     expect(screen.getByText('2')).toBeInTheDocument()
   })
 
   it('should render tasks', () => {
-    render(<KanbanColumn column={mockColumn} tasks={mockTasks} />)
+    renderColumn({ tasks: mockTasks })
     expect(screen.getByText('Task 1')).toBeInTheDocument()
     expect(screen.getByText('Task 2')).toBeInTheDocument()
   })
 
   it('should show Add Card button when no tasks', () => {
-    render(<KanbanColumn column={mockColumn} tasks={[]} />)
+    renderColumn()
     expect(screen.getByText('➕ Add Card')).toBeInTheDocument()
     expect(screen.getByText('0')).toBeInTheDocument()
   })
 
   it('should show Add Card button when there are tasks', () => {
-    render(<KanbanColumn column={mockColumn} tasks={mockTasks} />)
+    renderColumn({ tasks: mockTasks })
     expect(screen.getByText('➕ Add Card')).toBeInTheDocument()
   })
 
   it('should show AddTaskForm when Add Card button is clicked', () => {
-    render(<KanbanColumn column={mockColumn} tasks={[]} />)
+    renderColumn()
 
     fireEvent.click(screen.getByText('➕ Add Card'))
 
@@ -105,7 +119,7 @@ describe('KanbanColumn', () => {
   it('should assign position 0 to first task in empty column', () => {
     mockCommit.mockClear()
 
-    render(<KanbanColumn column={mockColumn} tasks={[]} />)
+    renderColumn()
 
     fireEvent.click(screen.getByText('➕ Add Card'))
     const input = screen.getByPlaceholderText('Task name')
@@ -129,7 +143,7 @@ describe('KanbanColumn', () => {
       isOver: true,
     })
 
-    render(<KanbanColumn column={mockColumn} tasks={[]} />)
+    renderColumn()
     const column = screen.getByText('Test Column').closest('.flex-shrink-0')
     expect(column).toHaveClass('bg-blue-50', 'border-2', 'border-blue-300')
   })

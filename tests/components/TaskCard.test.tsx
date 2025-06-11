@@ -66,15 +66,4 @@ describe('TaskCard', () => {
     const card = screen.getByText('Test Task').closest('div')
     expect(card).toHaveClass('opacity-50')
   })
-
-  it('should render with drop-over styling', () => {
-    mockUseDroppable.mockReturnValue({
-      setNodeRef: vi.fn(),
-      isOver: true,
-    })
-
-    render(<TaskCard task={mockTask} />)
-    const card = screen.getByText('Test Task').closest('div')
-    expect(card).toHaveClass('border-blue-300', 'border-2')
-  })
 })
