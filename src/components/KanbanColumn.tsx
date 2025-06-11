@@ -15,7 +15,7 @@ export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
   const [isAddingTask, setIsAddingTask] = useState(false)
 
   const handleAddTask = (title: string) => {
-    const nextPosition = Math.max(0, ...tasks.map(t => t.position)) + 1
+    const nextPosition = tasks.length === 0 ? 0 : Math.max(...tasks.map(t => t.position)) + 1
 
     store.commit(
       events.taskCreated({
