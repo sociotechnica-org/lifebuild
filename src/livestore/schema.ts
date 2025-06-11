@@ -81,6 +81,7 @@ const tasks = State.SQLite.table({
     boardId: State.SQLite.text(),
     columnId: State.SQLite.text(),
     title: State.SQLite.text({ default: '' }),
+    position: State.SQLite.integer({ default: 0 }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
@@ -127,8 +128,8 @@ const materializers = State.SQLite.materializers(events, {
     columns.update({ name, updatedAt }).where({ id }),
   'v1.ColumnReordered': ({ id, position, updatedAt }) =>
     columns.update({ position, updatedAt }).where({ id }),
-  'v1.TaskCreated': ({ id, boardId, columnId, title, createdAt }) =>
-    tasks.insert({ id, boardId, columnId, title, createdAt }),
+  'v1.TaskCreated': ({ id, boardId, columnId, title, position, createdAt }) =>
+    tasks.insert({ id, boardId, columnId, title, position, createdAt }),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

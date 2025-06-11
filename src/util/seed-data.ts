@@ -64,6 +64,7 @@ export function seedSampleBoards(store: Store) {
             boardId: board.id,
             columnId: columnId,
             title: title,
+            position: index,
             createdAt: new Date(board.createdAt.getTime() + index * 1000), // Stagger creation times
           })
         )

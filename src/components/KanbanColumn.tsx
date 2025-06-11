@@ -1,6 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useStore } from '@livestore/react'
 import type { Column, Task } from '../livestore/schema.js'
 import { TaskCard } from './TaskCard.js'
+import { AddTaskForm } from './AddTaskForm.js'
+import { events } from '../livestore/schema.js'
 
 interface KanbanColumnProps {
   column: Column
@@ -8,6 +11,26 @@ interface KanbanColumnProps {
 }
 
 export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
+  const { store } = useStore()
+  const [isAddingTask, setIsAddingTask] = useState(false)
+
+  const handleAddTask = (title: string) => {
+    const nextPosition = Math.max(0, ...tasks.map(t => t.position)) + 1
+
+    store.commit(
+      events.taskCreated({
+        id: crypto.randomUUID(),
+        boardId: column.boardId,
+        columnId: column.id,
+        title,
+        position: nextPosition,
+        createdAt: new Date(),
+      })
+    )
+
+    setIsAddingTask(false)
+  }
+
   return (
     <div className='flex-shrink-0 w-80 bg-gray-50 rounded-lg p-4'>
       <div className='flex items-center justify-between mb-4'>
@@ -19,10 +42,19 @@ export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
         </span>
       </div>
       <div className='space-y-2'>
-        {tasks.length === 0 ? (
-          <div className='text-center py-8 text-gray-400 text-sm'>No tasks yet</div>
+        {tasks.map(task => (
+          <TaskCard key={task.id} task={task} />
+        ))}
+
+        {isAddingTask ? (
+          <AddTaskForm onSubmit={handleAddTask} onCancel={() => setIsAddingTask(false)} />
         ) : (
-          tasks.map(task => <TaskCard key={task.id} task={task} />)
+          <button
+            onClick={() => setIsAddingTask(true)}
+            className='w-full p-3 text-left text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors text-sm'
+          >
+            ➕ Add Card
+          </button>
         )}
       </div>
     </div>

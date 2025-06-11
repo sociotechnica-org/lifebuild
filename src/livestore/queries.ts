@@ -14,11 +14,23 @@ export const getBoards$ = queryDb(
 )
 
 export const getBoardColumns$ = (boardId: string) =>
-  queryDb(tables.columns.select().where({ boardId }).orderBy([{ col: 'position', direction: 'asc' }]), {
-    label: `getBoardColumns:${boardId}`,
-  })
+  queryDb(
+    tables.columns
+      .select()
+      .where({ boardId })
+      .orderBy([{ col: 'position', direction: 'asc' }]),
+    {
+      label: `getBoardColumns:${boardId}`,
+    }
+  )
 
 export const getBoardTasks$ = (boardId: string) =>
-  queryDb(tables.tasks.select().where({ boardId }), {
-    label: `getBoardTasks:${boardId}`,
-  })
+  queryDb(
+    tables.tasks
+      .select()
+      .where({ boardId })
+      .orderBy([{ col: 'position', direction: 'asc' }]),
+    {
+      label: `getBoardTasks:${boardId}`,
+    }
+  )

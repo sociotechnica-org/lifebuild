@@ -37,18 +37,20 @@
 
 ---
 
-## 🍰 Story 3 – Create a new task card
+## ✅ Story 3 – Create a new task card — COMPLETED
 
 **User story**: _As a manager, I want to create a new card._
 
-### Tasks
+### Tasks — DONE
 
-- Event: `task.created`
-- Schema: extend `tasks` with `description?` and timestamp fields
-- UI: "➕ Add Card" button in each column opens `TaskModal.tsx` (title required, description optional)
-- Dispatch: Modal dispatches `task.created` → optimistic UI update
-- Tests: Modal validation, event emission, LiveStore materialization
-- DoD: Creating a card instantly appears in chosen column and persists on reload.
+- [x] Event: `task.created` with position field
+- [x] Schema: extend `tasks` with `position` field for ordering
+- [x] UI: "➕ Add Card" button in each column shows inline form (title required)
+- [x] Form: Inline AddTaskForm with Enter to submit, Escape to cancel
+- [x] Dispatch: Form dispatches `task.created` → optimistic UI update
+- [x] Position: New tasks appear at bottom of column with correct position
+- [x] Tests: Form validation, event emission, LiveStore materialization
+- [x] DoD: Creating a card instantly appears in chosen column and persists on reload.
 
 ---
 
