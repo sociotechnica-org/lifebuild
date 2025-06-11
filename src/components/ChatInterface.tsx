@@ -46,6 +46,7 @@ export const ChatInterface: React.FC = () => {
           id: messageId,
           conversationId: selectedConversationId,
           message: messageText.trim(),
+          role: 'user',
           createdAt: new Date(),
         })
       )
@@ -109,7 +110,24 @@ export const ChatInterface: React.FC = () => {
               {messages && messages.length > 0 ? (
                 <div className='space-y-4'>
                   {messages.map((message: ChatMessage) => (
-                    <div key={message.id} className='bg-blue-50 p-3 rounded-lg'>
+                    <div
+                      key={message.id}
+                      className={`p-3 rounded-lg ${
+                        message.role === 'user'
+                          ? 'bg-blue-50 ml-8'
+                          : message.role === 'assistant'
+                            ? 'bg-gray-50 mr-8'
+                            : 'bg-yellow-50'
+                      }`}
+                    >
+                      <div className='text-xs text-gray-500 mb-1 font-medium'>
+                        {message.role === 'user'
+                          ? 'You'
+                          : message.role === 'assistant'
+                            ? 'Assistant'
+                            : 'System'}
+                        {message.modelId && ` (${message.modelId})`}
+                      </div>
                       <div className='text-sm text-gray-900'>{message.message}</div>
                     </div>
                   ))}

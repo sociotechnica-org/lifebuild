@@ -65,6 +65,7 @@ describe('Chat Message Events and Materialization', () => {
       id: 'test-message-id',
       conversationId: 'test-conversation-id',
       message: 'Hello, LLM!',
+      role: 'user' as const,
       createdAt: new Date(),
     }
 
@@ -74,5 +75,24 @@ describe('Chat Message Events and Materialization', () => {
     expect(event.name).toBe('v1.ChatMessageSent')
     expect(event.args).toEqual(testMessage)
     expect(event.args.conversationId).toBe('test-conversation-id')
+  })
+
+  it('should create LLM response event with correct schema', () => {
+    const testResponse = {
+      id: 'test-response-id',
+      conversationId: 'test-conversation-id',
+      message: 'Hello! How can I help you with your project?',
+      role: 'assistant' as const,
+      modelId: 'gpt-4o',
+      createdAt: new Date(),
+      metadata: { source: 'braintrust' },
+    }
+
+    const event = events.llmResponseReceived(testResponse)
+
+    expect(event).toBeDefined()
+    expect(event.name).toBe('v1.LLMResponseReceived')
+    expect(event.args).toEqual(testResponse)
+    expect(event.args.role).toBe('assistant')
   })
 })

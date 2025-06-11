@@ -1,10 +1,15 @@
 import { makeDurableObject, makeWorker } from '@livestore/sync-cf/cf-worker'
 
 export class WebSocketServer extends makeDurableObject({
-  onPush: async message => {
-    console.log('onPush', message.batch)
+  onPush: async function (message) {
+    console.log('Sync server: relaying', message.batch.length, 'events')
+
+    // Just log event types for debugging - no processing
+    for (const event of message.batch) {
+      console.log(`Syncing event: ${event.name} (${event.args.role || 'no role'})`)
+    }
   },
-  onPull: async message => {
+  onPull: async function (message) {
     console.log('onPull', message)
   },
 }) {}
