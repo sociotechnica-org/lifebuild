@@ -9,6 +9,7 @@ describe('TaskCard', () => {
     boardId: 'test-board',
     columnId: 'test-column',
     title: 'Test Task',
+    position: 0,
     createdAt: new Date('2023-01-01'),
   }
 

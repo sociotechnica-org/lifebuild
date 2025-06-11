@@ -88,6 +88,7 @@ export const taskCreated = Events.synced({
     boardId: Schema.String,
     columnId: Schema.String,
     title: Schema.String,
+    position: Schema.Number,
     createdAt: Schema.Date,
   }),
 })
