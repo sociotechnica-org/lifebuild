@@ -3,6 +3,7 @@ import { useDraggable, useDroppable } from '@dnd-kit/core'
 import { useQuery } from '@livestore/react'
 import type { Task, User } from '../livestore/schema.js'
 import { getUsers$ } from '../livestore/queries.js'
+import { getInitials } from '../util/initials.js'
 
 interface TaskCardProps {
   task: Task
@@ -77,11 +78,7 @@ export function TaskCard({ task, isDragOverlay = false, onClick }: TaskCardProps
                 className='w-7 h-7 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-medium border-2 border-white'
                 title={assignee.name}
               >
-                {assignee.name
-                  .split(' ')
-                  .map(n => n[0])
-                  .join('')
-                  .toUpperCase()}
+{getInitials(assignee.name)}
               </div>
             ))}
             {assignees.length > 3 && (

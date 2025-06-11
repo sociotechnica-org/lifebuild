@@ -198,4 +198,25 @@ describe('TaskCard', () => {
     expect(screen.getByText('+2')).toBeInTheDocument()
     expect(screen.getByTitle('+2 more')).toBeInTheDocument()
   })
+
+  it('should handle edge cases in name formatting for initials', () => {
+    const taskWithEdgeCaseNames = {
+      ...mockTask,
+      assigneeIds: '["user-edge-1", "user-edge-2", "user-edge-3"]',
+    }
+
+    // Mock users with edge case names
+    mockUseQuery.mockReturnValue([
+      { id: 'user-edge-1', name: 'John  Smith', avatarUrl: null, createdAt: new Date() }, // Extra spaces
+      { id: 'user-edge-2', name: ' Jane Doe ', avatarUrl: null, createdAt: new Date() }, // Leading/trailing spaces
+      { id: 'user-edge-3', name: '   ', avatarUrl: null, createdAt: new Date() }, // Just spaces
+    ])
+
+    render(<TaskCard task={taskWithEdgeCaseNames} />)
+
+    // Should show properly formatted initials
+    expect(screen.getByText('JS')).toBeInTheDocument() // John Smith
+    expect(screen.getByText('JD')).toBeInTheDocument() // Jane Doe
+    expect(screen.getByText('?')).toBeInTheDocument() // Empty name fallback
+  })
 })
