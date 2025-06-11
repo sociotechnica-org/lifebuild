@@ -386,38 +386,34 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
 
             {/* Comments list */}
             <div className='space-y-4'>
-              {comments.length > 0 ? (
-                comments.map((comment: Comment) => {
-                  const author = users.find((user: User) => user.id === comment.authorId)
-                  return (
-                    <div key={comment.id} className='flex gap-3'>
-                      <div
-                        className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0'
-                        title={author?.name || 'Unknown User'}
-                      >
-                        {getInitials(author?.name || 'Unknown User')}
-                      </div>
-                      <div className='flex-1'>
-                        <div className='flex items-center gap-2 mb-1'>
-                          <span className='text-sm font-medium text-gray-900'>
-                            {author?.name || 'Unknown User'}
-                          </span>
-                          <span className='text-xs text-gray-500'>
-                            {formatDate(comment.createdAt)}
-                          </span>
+              {comments.length > 0
+                ? comments.map((comment: Comment) => {
+                    const author = users.find((user: User) => user.id === comment.authorId)
+                    return (
+                      <div key={comment.id} className='flex gap-3'>
+                        <div
+                          className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0'
+                          title={author?.name || 'Unknown User'}
+                        >
+                          {getInitials(author?.name || 'Unknown User')}
                         </div>
-                        <div className='text-sm text-gray-700 whitespace-pre-wrap'>
-                          {comment.content}
+                        <div className='flex-1'>
+                          <div className='flex items-center gap-2 mb-1'>
+                            <span className='text-sm font-medium text-gray-900'>
+                              {author?.name || 'Unknown User'}
+                            </span>
+                            <span className='text-xs text-gray-500'>
+                              {formatDate(comment.createdAt)}
+                            </span>
+                          </div>
+                          <div className='text-sm text-gray-700 whitespace-pre-wrap'>
+                            {comment.content}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )
-                })
-              ) : (
-                <div className='text-sm text-gray-500 italic text-center py-4'>
-                  No comments yet. Be the first to add one!
-                </div>
-              )}
+                    )
+                  })
+                : null}
             </div>
           </div>
 

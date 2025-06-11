@@ -230,7 +230,7 @@ describe('TaskModal Comments', () => {
     render(<TaskModal taskId='task-1' onClose={() => {}} />)
 
     expect(screen.getByText('Comments (0)')).toBeInTheDocument()
-    expect(screen.getByText('No comments yet. Be the first to add one!')).toBeInTheDocument()
+    // Comments section should be empty when no comments exist (no empty state message)
   })
 
   it('should handle unknown user gracefully', () => {
