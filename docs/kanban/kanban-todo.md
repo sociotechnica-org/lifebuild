@@ -100,27 +100,60 @@
 
 ---
 
-## 🍰 Story 5 – Edit a card's title & description
+## 🍰 Story 5 – View a card's details
+
+**GitHub Issue**: [#15](https://github.com/sociotechnica-org/work-squared/issues/15)
+
+**User story**: _As a manager, I want to view a card's details by clicking on it._
+
+### Tasks
+
+- Schema: Extend `tasks` table with `description` field for richer content
+- Query: `getTaskById$` for fetching individual task details
+- UI: `TaskModal` for displaying card details in overlay (read-only)
+- Component: `TaskCard` click handler to open modal
+- Layout: Modal shows title, description, column, creation date
+- Styling: Clean modal design with backdrop, close button, responsive
+- Accessibility: Focus management, escape key, ARIA labels
+- Tests: Modal rendering, click handlers, keyboard navigation
+- DoD: Clicking any task card opens modal with full details.
+
+### Implementation Notes
+
+- **Foundation for editing**: This modal will be extended for edit functionality in Story 6
+- **Reusable design**: Modal designed to accommodate future features (assignees, due dates, comments)
+- **Mobile-friendly**: Responsive modal that works on all device sizes
+
+---
+
+## 🍰 Story 6 – Edit a card's title & description
 
 **GitHub Issue**: [#9](https://github.com/sociotechnica-org/work-squared/issues/9)
 
 **User story**: _As a manager, I want to change the title and description of a card._
 
+**Dependencies**: Story 5 (View a card's details) must be completed first.
+
 ### Tasks
 
 - Event: `task.updated` `{ taskId, updates }`
-- UI: Re-use `TaskModal` in edit mode (opens on card click)
-- Validation: Title cannot be empty
-- Tests: Modal pre-populates data, save emits event, optimistic update
+- UI: Extend `TaskModal` with edit mode toggle
+- Form: Editable title and description fields with validation
+- Save/Cancel: Submit changes or revert to original values
+- Optimistic updates: UI updates immediately while sync happens
+- Validation: Title cannot be empty, real-time validation
+- Tests: Modal mode switching, form validation, event emission, optimistic updates
 - DoD: Editing fields updates card in realtime and persists.
 
 ---
 
-## 🍰 Story 6 – Assign a teammate to a card
+## 🍰 Story 7 – Assign a teammate to a card
 
 **GitHub Issue**: [#10](https://github.com/sociotechnica-org/work-squared/issues/10)
 
 **User story**: _As a manager, I want to assign someone to a card._
+
+**Dependencies**: Story 5 (View a card's details) and Story 6 (Edit a card) should be completed first.
 
 ### Tasks
 
@@ -133,11 +166,13 @@
 
 ---
 
-## 🍰 Story 7 – Comment on a card
+## 🍰 Story 8 – Comment on a card
 
 **GitHub Issue**: [#11](https://github.com/sociotechnica-org/work-squared/issues/11)
 
 **User story**: _As a manager, I want to comment on a card._
+
+**Dependencies**: Story 5 (View a card's details) must be completed first.
 
 ### Tasks
 
@@ -149,11 +184,13 @@
 
 ---
 
-## 🍰 Story 8 – Set a due date for a card
+## 🍰 Story 9 – Set a due date for a card
 
 **GitHub Issue**: [#12](https://github.com/sociotechnica-org/work-squared/issues/12)
 
 **User story**: _As a manager, I want to set the due date for a card._
+
+**Dependencies**: Story 5 (View a card's details) must be completed first.
 
 ### Tasks
 
@@ -165,11 +202,13 @@
 
 ---
 
-## 🍰 Story 9 – Archive a card
+## 🍰 Story 10 – Archive a card
 
 **GitHub Issue**: [#13](https://github.com/sociotechnica-org/work-squared/issues/13)
 
 **User story**: _As a manager, I want to archive a card._
+
+**Dependencies**: Story 5 (View a card's details) must be completed first.
 
 ### Tasks
 
