@@ -112,3 +112,12 @@ export const taskUpdated = Events.synced({
     updatedAt: Schema.Date,
   }),
 })
+
+export const conversationCreated = Events.synced({
+  name: 'v1.ConversationCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    title: Schema.String,
+    createdAt: Schema.Date,
+  }),
+})

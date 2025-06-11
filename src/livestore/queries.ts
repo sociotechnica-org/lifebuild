@@ -44,3 +44,13 @@ export const getBoardById$ = (boardId: string) =>
   queryDb(tables.boards.select().where({ id: boardId }), {
     label: `getBoardById:${boardId}`,
   })
+
+export const getConversations$ = queryDb(
+  tables.conversations.select().orderBy([{ col: 'createdAt', direction: 'desc' }]),
+  { label: 'getConversations' }
+)
+
+export const getConversation$ = (conversationId: string) =>
+  queryDb(tables.conversations.select().where({ id: conversationId }), {
+    label: `getConversation:${conversationId}`,
+  })

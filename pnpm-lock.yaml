@@ -53,9 +53,6 @@ importers:
       '@opentelemetry/sdk-trace-web':
         specifier: 2.0.0
         version: 2.0.0(@opentelemetry/api@1.9.0)
-      '@overengineering/fps-meter':
-        specifier: 0.1.2
-        version: 0.1.2(react@19.0.0)
       react:
         specifier: 19.0.0
         version: 19.0.0
@@ -1229,11 +1226,6 @@ packages:
   '@opentelemetry/semantic-conventions@1.32.0':
     resolution: {integrity: sha512-s0OpmpQFSfMrmedAn9Lhg4KWJELHCU6uU9dtIJ28N8UGhf9Y55im5X8fEzwhwDwiSqN+ZPSNrDJF7ivf/AuRPQ==}
     engines: {node: '>=14'}
-
-  '@overengineering/fps-meter@0.1.2':
-    resolution: {integrity: sha512-5CGNkn91qNbr7ZE++7iILDauQJAhxDxybePuiojTsg6nGLwReupIkeX5Q+06exl9IpZr97DaBH241vHdxzaK/A==}
-    peerDependencies:
-      react: '*'
 
   '@parcel/watcher-android-arm64@2.5.1':
     resolution: {integrity: sha512-KF8+j9nNbUN8vzOFDpRMsaKBHZ/mcjEjMToVMJOhTozkDonQFFrRcfdLWn6yWKCmJKmdVxSgHiYvTCef4/qcBA==}
@@ -6242,10 +6234,6 @@ snapshots:
       '@opentelemetry/semantic-conventions': 1.32.0
 
   '@opentelemetry/semantic-conventions@1.32.0': {}
-
-  '@overengineering/fps-meter@0.1.2(react@19.0.0)':
-    dependencies:
-      react: 19.0.0
 
   '@parcel/watcher-android-arm64@2.5.1':
     optional: true
