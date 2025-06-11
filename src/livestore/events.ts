@@ -102,3 +102,13 @@ export const taskMoved = Events.synced({
     updatedAt: Schema.Date,
   }),
 })
+
+export const taskUpdated = Events.synced({
+  name: 'v1.TaskUpdated',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    title: Schema.Union(Schema.String, Schema.Undefined),
+    description: Schema.Union(Schema.String, Schema.Undefined),
+    updatedAt: Schema.Date,
+  }),
+})

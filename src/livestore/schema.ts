@@ -136,6 +136,12 @@ const materializers = State.SQLite.materializers(events, {
     tasks.insert({ id, boardId, columnId, title, position, createdAt, updatedAt: createdAt }),
   'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt }) =>
     tasks.update({ columnId: toColumnId, position, updatedAt }).where({ id: taskId }),
+  'v1.TaskUpdated': ({ taskId, title, description, updatedAt }) => {
+    const updates: Record<string, any> = { updatedAt }
+    if (title !== undefined) updates.title = title
+    if (description !== undefined) updates.description = description
+    return tasks.update(updates).where({ id: taskId })
+  },
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

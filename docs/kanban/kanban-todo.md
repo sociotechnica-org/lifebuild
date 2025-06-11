@@ -126,7 +126,7 @@
 
 ---
 
-## 🍰 Story 6 – Edit a card's title & description
+## ✅ Story 6 – Edit a card's title & description — COMPLETED
 
 **GitHub Issue**: [#9](https://github.com/sociotechnica-org/work-squared/issues/9)
 
@@ -134,16 +134,24 @@
 
 **Dependencies**: Story 5 (View a card's details) must be completed first.
 
-### Tasks
+### Tasks — DONE
 
-- Event: `task.updated` `{ taskId, updates }`
-- UI: Extend `TaskModal` with edit mode toggle
-- Form: Editable title and description fields with validation
-- Save/Cancel: Submit changes or revert to original values
-- Optimistic updates: UI updates immediately while sync happens
-- Validation: Title cannot be empty, real-time validation
-- Tests: Modal mode switching, form validation, event emission, optimistic updates
-- DoD: Editing fields updates card in realtime and persists.
+- [x] Event: `task.updated` `{ taskId, title?, description?, updatedAt }`
+- [x] UI: Extend `TaskModal` with edit mode toggle
+- [x] Form: Editable title and description fields with validation
+- [x] Save/Cancel: Submit changes or revert to original values
+- [x] Optimistic updates: UI updates immediately while sync happens
+- [x] Validation: Title cannot be empty, real-time validation
+- [x] Tests: Modal mode switching, form validation, event emission, optimistic updates
+- [x] DoD: Editing fields updates card in realtime and persists.
+
+### Implementation Notes
+
+- **Edit Mode Toggle**: Click "Edit" button switches between view and edit modes
+- **Form Validation**: Title is required with real-time validation and error messages
+- **Efficient Updates**: Only changed fields are included in `task.updated` events
+- **Keyboard Support**: Escape key cancels editing or closes modal
+- **Optimistic UI**: Changes appear immediately while syncing in background
 
 ---
 
