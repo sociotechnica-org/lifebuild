@@ -88,7 +88,7 @@ export function KanbanBoard() {
     const overId = over.id as string
     const activeTaskId = active.id as string
     const draggedTask = findTask(activeTaskId)
-    
+
     if (!draggedTask) {
       setInsertionPreview(null)
       return
@@ -101,7 +101,7 @@ export function KanbanBoard() {
       // Hovering over column background
       targetColumnId = overId.replace('column-', '')
       targetPosition = tasksByColumn[targetColumnId]?.length || 0
-      
+
       // If dropping in the same column at the end, account for the dragged task being removed
       if (targetColumnId === draggedTask.columnId) {
         targetPosition = Math.max(0, targetPosition - 1)
@@ -120,13 +120,13 @@ export function KanbanBoard() {
       }
       targetColumnId = targetTask.columnId
       targetPosition = targetTask.position
-      
+
       // Don't show insertion preview if dragging a task over its own current position
       if (targetTask.id === activeTaskId) {
         setInsertionPreview(null)
         return
       }
-      
+
       // For same-column movements, calculate the effective target position
       if (targetColumnId === draggedTask.columnId) {
         // If moving down in the same column, the target position should be adjusted
@@ -164,6 +164,11 @@ export function KanbanBoard() {
       // Dropped on a column (empty area)
       targetColumnId = overId.replace('column-', '')
       targetPosition = tasksByColumn[targetColumnId]?.length || 0
+
+      // If dropping in the same column at the end, account for the dragged task being removed
+      if (targetColumnId === task.columnId) {
+        targetPosition = Math.max(0, targetPosition - 1)
+      }
     } else {
       // Dropped on another task - insert before the target task
       const targetTask = findTask(overId)
