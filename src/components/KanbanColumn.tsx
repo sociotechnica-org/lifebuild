@@ -12,6 +12,7 @@ interface KanbanColumnProps {
   insertionPreview: number | null // Position where insertion preview should show, null if none
   draggedTaskHeight: number // Height of the task being dragged for placeholder sizing
   draggedTaskId: string | null // ID of task currently being dragged
+  showEmptyDropZone: boolean // Whether to show the empty column drop zone
 }
 
 export function KanbanColumn({
@@ -20,12 +21,16 @@ export function KanbanColumn({
   insertionPreview,
   draggedTaskHeight,
   draggedTaskId,
+  showEmptyDropZone,
 }: KanbanColumnProps) {
   const { store } = useStore()
   const [isAddingTask, setIsAddingTask] = useState(false)
 
+  // Only make the column content droppable if it's empty and we're showing the drop zone
+  const shouldEnableDroppable = tasks.length === 0 && showEmptyDropZone
   const { setNodeRef, isOver } = useDroppable({
-    id: `column-${column.id}`,
+    id: `empty-column-${column.id}`,
+    disabled: !shouldEnableDroppable,
   })
 
   // Create a placeholder component for insertion preview
@@ -61,12 +66,8 @@ export function KanbanColumn({
   }
 
   return (
-    <div
-      ref={setNodeRef}
-      className={`flex-shrink-0 w-80 min-w-80 rounded-lg p-4 transition-colors ${
-        isOver ? 'bg-blue-50 border-2 border-blue-300' : 'bg-gray-50'
-      }`}
-    >
+    <div className='flex-shrink-0 w-80 min-w-80 bg-gray-50 rounded-lg p-4'>
+      {/* Column Header - Not droppable */}
       <div className='flex items-center justify-between mb-4'>
         <h2 className='text-sm font-semibold text-gray-900 uppercase tracking-wide'>
           {column.name}
@@ -75,26 +76,41 @@ export function KanbanColumn({
           {tasks.length}
         </span>
       </div>
-      <div className='space-y-2 min-h-24'>
+
+      {/* Column Content - Droppable only when empty */}
+      <div
+        ref={shouldEnableDroppable ? setNodeRef : undefined}
+        className={`space-y-2 min-h-24 transition-colors ${
+          shouldEnableDroppable && isOver
+            ? 'bg-blue-50 border-2 border-blue-300 rounded-lg p-2'
+            : ''
+        }`}
+      >
         {(() => {
           const elements: React.ReactNode[] = []
 
           // Sort visible tasks by position
           const sortedTasks = [...visibleTasks].sort((a, b) => a.position - b.position)
 
-          sortedTasks.forEach((task, _index) => {
-            // Show placeholder before this task if needed
-            if (insertionPreview === task.position) {
-              elements.push(<InsertionPlaceholder key={`placeholder-${task.position}`} />)
+          // Handle empty column with drop zone
+          if (sortedTasks.length === 0 && showEmptyDropZone) {
+            elements.push(<InsertionPlaceholder key='empty-column-placeholder' />)
+          } else {
+            // Handle columns with tasks
+            sortedTasks.forEach((task, _index) => {
+              // Show placeholder before this task if needed
+              if (insertionPreview === task.position) {
+                elements.push(<InsertionPlaceholder key={`placeholder-${task.position}`} />)
+              }
+
+              // Show the task
+              elements.push(<TaskCard key={task.id} task={task} />)
+            })
+
+            // Show placeholder at the end if needed (only for columns with tasks)
+            if (insertionPreview === sortedTasks.length) {
+              elements.push(<InsertionPlaceholder key={`placeholder-end`} />)
             }
-
-            // Show the task
-            elements.push(<TaskCard key={task.id} task={task} />)
-          })
-
-          // Show placeholder at the end if needed
-          if (insertionPreview === sortedTasks.length) {
-            elements.push(<InsertionPlaceholder key={`placeholder-end`} />)
           }
 
           return elements

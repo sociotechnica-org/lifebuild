@@ -75,6 +75,7 @@ describe('KanbanColumn', () => {
         insertionPreview={null}
         draggedTaskHeight={0}
         draggedTaskId={null}
+        showEmptyDropZone={false}
         {...props}
       />
     )
@@ -137,14 +138,29 @@ describe('KanbanColumn', () => {
     )
   })
 
-  it('should show hover styling when dragging over', () => {
+  it('should show hover styling when dragging over empty column', () => {
     mockUseDroppable.mockReturnValue({
       setNodeRef: vi.fn(),
       isOver: true,
     })
 
-    renderColumn()
-    const column = screen.getByText('Test Column').closest('.flex-shrink-0')
-    expect(column).toHaveClass('bg-blue-50', 'border-2', 'border-blue-300')
+    // Render with empty column and show drop zone
+    render(
+      <KanbanColumn
+        column={mockColumn}
+        tasks={[]} // Empty column
+        insertionPreview={null}
+        draggedTaskHeight={0}
+        draggedTaskId={null}
+        showEmptyDropZone={true} // Show the drop zone
+      />
+    )
+
+    // The content area should have hover styling
+    const contentArea = screen
+      .getByText('Test Column')
+      .closest('.flex-shrink-0')
+      ?.querySelector('.space-y-2')
+    expect(contentArea).toHaveClass('bg-blue-50', 'border-2', 'border-blue-300')
   })
 })

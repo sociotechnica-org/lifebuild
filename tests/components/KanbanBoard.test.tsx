@@ -73,7 +73,7 @@ describe('KanbanBoard', () => {
   beforeEach(() => {
     // Reset to default boardId
     mockUseParams.mockReturnValue({ boardId: 'test-board' })
-    
+
     mockUseQuery.mockImplementation((query: any) => {
       if (query.label?.includes('getBoardColumns')) {
         return mockColumns
@@ -151,7 +151,7 @@ describe('KanbanBoard', () => {
     })
 
     render(<KanbanBoard />)
-    
+
     expect(screen.getByText('Task 1')).toBeInTheDocument()
     expect(screen.getByText('Task 2')).toBeInTheDocument()
     expect(screen.getByText('Task 3')).toBeInTheDocument()

@@ -25,6 +25,7 @@ export function KanbanBoard() {
     columnId: string
     position: number
   } | null>(null)
+  const [dragOverEmptyColumn, setDragOverEmptyColumn] = useState<string | null>(null)
 
   if (!boardId) {
     return <div>Board not found</div>
@@ -82,6 +83,7 @@ export function KanbanBoard() {
     const { over, active } = event
     if (!over || !active) {
       setInsertionPreview(null)
+      setDragOverEmptyColumn(null)
       return
     }
 
@@ -91,63 +93,53 @@ export function KanbanBoard() {
 
     if (!draggedTask) {
       setInsertionPreview(null)
+      setDragOverEmptyColumn(null)
       return
     }
 
-    let targetColumnId: string
-    let targetPosition: number
-
-    if (overId.startsWith('column-')) {
-      // Hovering over column background
-      targetColumnId = overId.replace('column-', '')
-      targetPosition = tasksByColumn[targetColumnId]?.length || 0
-
-      // If dropping in the same column at the end, account for the dragged task being removed
-      if (targetColumnId === draggedTask.columnId) {
-        targetPosition = Math.max(0, targetPosition - 1)
-        // If the calculated position is the same as current, don't show preview
-        if (targetPosition === draggedTask.position) {
-          setInsertionPreview(null)
-          return
-        }
-      }
+    if (overId.startsWith('empty-column-')) {
+      // Hovering over empty column drop zone
+      const targetColumnId = overId.replace('empty-column-', '')
+      setDragOverEmptyColumn(targetColumnId)
+      setInsertionPreview({ columnId: targetColumnId, position: 0 })
     } else {
       // Hovering over a task
+      setDragOverEmptyColumn(null)
       const targetTask = findTask(overId)
       if (!targetTask) {
         setInsertionPreview(null)
         return
       }
-      targetColumnId = targetTask.columnId
-      targetPosition = targetTask.position
 
-      // Don't show insertion preview if dragging a task over its own current position
+      // Don't show insertion preview if dragging a task over itself
       if (targetTask.id === activeTaskId) {
         setInsertionPreview(null)
         return
       }
 
-      // For same-column movements, calculate the effective target position
-      if (targetColumnId === draggedTask.columnId) {
-        // If moving down in the same column, the target position should be adjusted
-        if (draggedTask.position < targetTask.position) {
-          targetPosition = targetTask.position - 1
-        }
-        // If the calculated position would be the same as current, don't show preview
-        if (targetPosition === draggedTask.position) {
-          setInsertionPreview(null)
-          return
-        }
-      }
-    }
+      const targetColumnId = targetTask.columnId
+      let targetPosition = targetTask.position
 
-    setInsertionPreview({ columnId: targetColumnId, position: targetPosition })
+      // For same-column movements, adjust position if moving down
+      if (targetColumnId === draggedTask.columnId && draggedTask.position < targetTask.position) {
+        targetPosition = targetTask.position - 1
+      }
+
+      // Don't show preview if the position would be the same
+      if (targetColumnId === draggedTask.columnId && targetPosition === draggedTask.position) {
+        setInsertionPreview(null)
+        return
+      }
+
+      setInsertionPreview({ columnId: targetColumnId, position: targetPosition })
+    }
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     setActiveTask(null)
     setInsertionPreview(null)
+    setDragOverEmptyColumn(null)
 
     if (!over || !active) return
 
@@ -155,32 +147,25 @@ export function KanbanBoard() {
     const task = findTask(taskId)
     if (!task) return
 
-    // Extract column ID and position from the over identifier
     const overId = over.id as string
     let targetColumnId: string
     let targetPosition: number
 
-    if (overId.startsWith('column-')) {
-      // Dropped on a column (empty area)
-      targetColumnId = overId.replace('column-', '')
-      targetPosition = tasksByColumn[targetColumnId]?.length || 0
-
-      // If dropping in the same column at the end, account for the dragged task being removed
-      if (targetColumnId === task.columnId) {
-        targetPosition = Math.max(0, targetPosition - 1)
-      }
+    if (overId.startsWith('empty-column-')) {
+      // Dropped on empty column
+      targetColumnId = overId.replace('empty-column-', '')
+      targetPosition = 0
     } else {
-      // Dropped on another task - insert before the target task
+      // Dropped on another task
       const targetTask = findTask(overId)
       if (!targetTask) return
-      targetColumnId = targetTask.columnId
 
-      // If moving within the same column and dropping after the current position,
-      // we need to account for the fact that the dragged task will be removed first
+      targetColumnId = targetTask.columnId
+      targetPosition = targetTask.position
+
+      // For same-column movements, adjust position if moving down
       if (task.columnId === targetColumnId && task.position < targetTask.position) {
         targetPosition = targetTask.position - 1
-      } else {
-        targetPosition = targetTask.position
       }
     }
 
@@ -297,6 +282,10 @@ export function KanbanBoard() {
               }
               draggedTaskHeight={activeTask ? 76 : 0} // Approximate task card height
               draggedTaskId={activeTask?.id || null}
+              showEmptyDropZone={
+                dragOverEmptyColumn === column.id &&
+                (tasksByColumn[column.id] || []).filter(t => t.id !== activeTask?.id).length === 0
+              }
             />
           ))}
         </div>
