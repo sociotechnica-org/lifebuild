@@ -31,6 +31,11 @@ Work Squared is an AI-enabled work environment featuring real-time collaborative
     ```bash
     pnpm dev
     ```
+    
+    To run on a custom port:
+    ```bash
+    PORT=3000 pnpm dev
+    ```
 
 ## Deployment
 
@@ -74,6 +79,9 @@ pnpm wrangler:deploy
 # Run development server (Vite + Wrangler)
 pnpm dev
 
+# Run development server on custom port
+PORT=3000 pnpm dev
+
 # Run Storybook (port 6010)
 pnpm storybook
 
@@ -96,7 +104,7 @@ pnpm wrangler:deploy
 
 ## Ports
 
-- **Vite dev server**: 5173
+- **Vite dev server**: 60001 (default), configurable via `PORT` environment variable
 - **Wrangler dev server**: 8787
 - **Storybook**: 6010 (configured to avoid conflicts with other Storybook instances)
 
