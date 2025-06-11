@@ -65,7 +65,18 @@
 - [x] State update: On drag end, dispatch `task.moved` and optimistically update positions
 - [x] Query: Ensure tasks query orders by `position`
 - [x] Tests: dnd interaction test with proper @dnd-kit mocking
+- [x] Simplified drop targets: Card-only drops with Add Card button for end-of-column
+- [x] Visual feedback: Insertion previews and drag overlays
+- [x] Empty column support: Drop via Add Card button
 - [x] DoD: Cards can be reordered within and across columns with persistence.
+
+### Implementation Notes
+
+- **Drop Targets**: Only task cards and Add Card buttons are droppable (no column backgrounds)
+- **Empty Columns**: Drag over Add Card button to drop into empty columns
+- **End of Column**: Drag over Add Card button to place tasks at the end
+- **Visual Feedback**: Clean insertion previews, no confusing double placeholders
+- **Known Issues**: Same-column reordering edge cases documented in [Issue #14](https://github.com/sociotechnica-org/work-squared/issues/14)
 
 ---
 
@@ -73,14 +84,18 @@
 
 **User story**: _As a manager, I want precise control over card positioning when dragging between other cards, with smooth visual feedback._
 
+**Status**: Partially implemented. Core positioning works, but same-column edge cases remain.
+
 ### Tasks
 
-- Animation: Cards shift up when a card is dragged out of a column
-- Animation: Bottom cards slide down when a card is dropped between two other cards
-- Position calculation: Support inserting cards at specific positions within the same column
-- Visual feedback: Show insertion indicator line when hovering between cards
-- Event optimization: Recalculate positions for all affected cards in source/target columns
-- Tests: Animation behavior, precise positioning logic, within-column reordering
+- [x] Position calculation: Support inserting cards at specific positions within the same column
+- [x] Visual feedback: Show insertion indicator line when hovering between cards
+- [x] Event optimization: Recalculate positions for all affected cards in source/target columns
+- [x] Tests: Precise positioning logic, cross-column reordering
+- [ ] Same-column reordering: Fix edge cases (see [Issue #14](https://github.com/sociotechnica-org/work-squared/issues/14))
+- [ ] Animation: Cards shift up when a card is dragged out of a column  
+- [ ] Animation: Bottom cards slide down when a card is dropped between two other cards
+- [ ] Tests: Animation behavior, within-column reordering edge cases
 - DoD: Dragging creates smooth animations and allows precise positioning anywhere in any column.
 
 ---
