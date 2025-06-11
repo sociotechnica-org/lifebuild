@@ -28,6 +28,7 @@ describe('TaskCard', () => {
     title: 'Test Task',
     position: 0,
     createdAt: new Date('2023-01-01'),
+    updatedAt: new Date('2023-01-01'),
   }
 
   it('should render task title', () => {

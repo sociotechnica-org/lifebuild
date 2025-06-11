@@ -98,11 +98,18 @@ export function KanbanBoard() {
       targetColumnId = overId.replace('column-', '')
       targetPosition = tasksByColumn[targetColumnId]?.length || 0
     } else {
-      // Dropped on another task
+      // Dropped on another task - insert before the target task
       const targetTask = findTask(overId)
       if (!targetTask) return
       targetColumnId = targetTask.columnId
-      targetPosition = targetTask.position
+
+      // If moving within the same column and dropping after the current position,
+      // we need to account for the fact that the dragged task will be removed first
+      if (task.columnId === targetColumnId && task.position < targetTask.position) {
+        targetPosition = targetTask.position - 1
+      } else {
+        targetPosition = targetTask.position
+      }
     }
 
     // Don't do anything if dropped in the same position
@@ -110,13 +117,91 @@ export function KanbanBoard() {
       return
     }
 
-    // Commit the move event
+    // Calculate position updates for affected tasks
+    const now = new Date()
+    const moveEvents: any[] = []
+
+    if (task.columnId === targetColumnId) {
+      // Moving within the same column
+      const columnTasks = tasksByColumn[targetColumnId] || []
+
+      if (task.position < targetPosition) {
+        // Moving down: shift tasks between old and new position up
+        columnTasks
+          .filter(
+            t => t.position > task.position && t.position <= targetPosition && t.id !== taskId
+          )
+          .forEach(t => {
+            moveEvents.push(
+              events.taskMoved({
+                taskId: t.id,
+                toColumnId: targetColumnId,
+                position: t.position - 1,
+                updatedAt: now,
+              })
+            )
+          })
+      } else {
+        // Moving up: shift tasks between new and old position down
+        columnTasks
+          .filter(
+            t => t.position >= targetPosition && t.position < task.position && t.id !== taskId
+          )
+          .forEach(t => {
+            moveEvents.push(
+              events.taskMoved({
+                taskId: t.id,
+                toColumnId: targetColumnId,
+                position: t.position + 1,
+                updatedAt: now,
+              })
+            )
+          })
+      }
+    } else {
+      // Moving between columns
+      const oldColumnTasks = tasksByColumn[task.columnId] || []
+      const newColumnTasks = tasksByColumn[targetColumnId] || []
+
+      // Shift tasks in old column up
+      oldColumnTasks
+        .filter(t => t.position > task.position)
+        .forEach(t => {
+          moveEvents.push(
+            events.taskMoved({
+              taskId: t.id,
+              toColumnId: task.columnId,
+              position: t.position - 1,
+              updatedAt: now,
+            })
+          )
+        })
+
+      // Shift tasks in new column down
+      newColumnTasks
+        .filter(t => t.position >= targetPosition)
+        .forEach(t => {
+          moveEvents.push(
+            events.taskMoved({
+              taskId: t.id,
+              toColumnId: targetColumnId,
+              position: t.position + 1,
+              updatedAt: now,
+            })
+          )
+        })
+    }
+
+    // Commit all position updates
+    moveEvents.forEach(event => store.commit(event))
+
+    // Finally, move the dragged task
     store.commit(
       events.taskMoved({
         taskId,
         toColumnId: targetColumnId,
         position: targetPosition,
-        updatedAt: new Date(),
+        updatedAt: now,
       })
     )
   }

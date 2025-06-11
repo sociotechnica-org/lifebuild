@@ -53,6 +53,7 @@ describe('KanbanColumn', () => {
       title: 'Task 1',
       position: 0,
       createdAt: new Date('2023-01-01'),
+      updatedAt: new Date('2023-01-01'),
     },
     {
       id: 'task-2',
@@ -61,6 +62,7 @@ describe('KanbanColumn', () => {
       title: 'Task 2',
       position: 1,
       createdAt: new Date('2023-01-02'),
+      updatedAt: new Date('2023-01-02'),
     },
   ]
 

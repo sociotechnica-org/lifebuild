@@ -66,6 +66,7 @@ describe('KanbanBoard', () => {
       title: 'Test Task',
       position: 0,
       createdAt: new Date(),
+      updatedAt: new Date(),
     },
   ]
 
