@@ -14,6 +14,9 @@ pnpm
 export VITE_LIVESTORE_SYNC_URL='http://localhost:8787'
 pnpm dev
 
+# Run development server on custom port
+PORT=3000 VITE_LIVESTORE_SYNC_URL='http://localhost:8787' pnpm dev
+
 # Run Storybook (port 6010 - avoids conflicts with other instances)
 pnpm storybook
 ```
