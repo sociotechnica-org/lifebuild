@@ -84,6 +84,7 @@ describe('Chat Message Events and Materialization', () => {
       message: 'Hello! How can I help you with your project?',
       role: 'assistant' as const,
       modelId: 'gpt-4o',
+      responseToMessageId: 'test-user-message-id',
       createdAt: new Date(),
       metadata: { source: 'braintrust' },
     }

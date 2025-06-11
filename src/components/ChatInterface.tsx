@@ -9,7 +9,8 @@ import { getInitials } from '../util/initials.js'
 async function callLLMAPI(userMessage: string): Promise<string> {
   console.log('🔗 Calling LLM API via proxy...')
 
-  const proxyUrl = 'http://localhost:8787/api/llm/chat'
+  // Use relative path for production, fallback to localhost for local development
+  const proxyUrl = import.meta.env.PROD ? '/api/llm/chat' : 'http://localhost:8787/api/llm/chat'
   const requestBody = { message: userMessage }
 
   console.log('🔗 Making request to:', proxyUrl)
@@ -116,9 +117,9 @@ export const ChatInterface: React.FC = () => {
         const lastUserMessage = userMessages[userMessages.length - 1]
         if (!lastUserMessage) return
 
-        // Check if we already have a response for this user message
+        // Check if we already have a response for this specific user message
         const hasResponse = assistantMessages.some(
-          response => response.createdAt > lastUserMessage.createdAt
+          response => response.responseToMessageId === lastUserMessage.id
         )
 
         if (!hasResponse) {
@@ -134,6 +135,7 @@ export const ChatInterface: React.FC = () => {
                 message: llmResponse,
                 role: 'assistant',
                 modelId: 'gpt-4o',
+                responseToMessageId: lastUserMessage.id,
                 createdAt: new Date(),
                 metadata: { source: 'braintrust' },
               })
@@ -150,6 +152,7 @@ export const ChatInterface: React.FC = () => {
                 message: 'Sorry, I encountered an error processing your message. Please try again.',
                 role: 'assistant',
                 modelId: 'error',
+                responseToMessageId: lastUserMessage.id,
                 createdAt: new Date(),
                 metadata: { source: 'error' },
               })

@@ -24,6 +24,7 @@ const chatMessages = State.SQLite.table({
     message: State.SQLite.text({ default: '' }),
     role: State.SQLite.text({ default: 'user' }),
     modelId: State.SQLite.text({ nullable: true }),
+    responseToMessageId: State.SQLite.text({ nullable: true }), // For assistant responses only
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
@@ -207,8 +208,26 @@ const materializers = State.SQLite.materializers(events, {
     users.insert({ id, name, avatarUrl, createdAt }),
   'v1.ConversationCreated': ({ id, title, createdAt }) =>
     conversations.insert({ id, title, createdAt, updatedAt: createdAt }),
-  'v1.LLMResponseReceived': ({ id, conversationId, message, role, modelId, createdAt, metadata }) =>
-    chatMessages.insert({ id, conversationId, message, role, modelId, createdAt, metadata }),
+  'v1.LLMResponseReceived': ({
+    id,
+    conversationId,
+    message,
+    role,
+    modelId,
+    responseToMessageId,
+    createdAt,
+    metadata,
+  }) =>
+    chatMessages.insert({
+      id,
+      conversationId,
+      message,
+      role,
+      modelId,
+      responseToMessageId,
+      createdAt,
+      metadata,
+    }),
   'v1.LLMResponseStarted': () => [],
   'v1.CommentAdded': ({ id, taskId, authorId, content, createdAt }) =>
     comments.insert({ id, taskId, authorId, content, createdAt }),

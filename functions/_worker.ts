@@ -14,9 +14,7 @@ export class WebSocketServer extends makeDurableObject({
   },
 }) {}
 
-// LLM API credentials
-const BRAINTRUST_API_KEY = 'sk-z0wNBIkLURT2XB6Xpg201dFuFf87I3anYenpgDUDrw2hcNkz'
-const BRAINTRUST_PROJECT_ID = '1266bed9-997c-4c1f-a6b4-24eb2ece48b3'
+// LLM API credentials loaded from environment
 
 // Custom worker that handles both WebSocket sync and HTTP API endpoints
 export default {
@@ -26,6 +24,14 @@ export default {
     // Handle LLM API proxy
     if (url.pathname === '/api/llm/chat' && request.method === 'POST') {
       try {
+        // Validate environment variables
+        if (!env.BRAINTRUST_API_KEY || !env.BRAINTRUST_PROJECT_ID) {
+          return new Response(JSON.stringify({ error: 'Missing LLM API configuration' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          })
+        }
+
         const { message } = await request.json()
 
         const systemPrompt = `You are an AI assistant for Work Squared, a consultancy workflow automation system. You help consultants and project managers by:
@@ -50,9 +56,9 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
         const response = await fetch('https://api.braintrust.dev/v1/proxy/chat/completions', {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${BRAINTRUST_API_KEY}`,
+            Authorization: `Bearer ${env.BRAINTRUST_API_KEY}`,
             'Content-Type': 'application/json',
-            'x-bt-parent': `project_id:${BRAINTRUST_PROJECT_ID}`,
+            'x-bt-parent': `project_id:${env.BRAINTRUST_PROJECT_ID}`,
           },
           body: JSON.stringify({
             model: 'gpt-4o',

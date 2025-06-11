@@ -147,6 +147,7 @@ export const llmResponseReceived = Events.synced({
     message: Schema.String,
     role: Schema.Literal('assistant'),
     modelId: Schema.String,
+    responseToMessageId: Schema.String, // ID of the user message this is responding to
     createdAt: Schema.Date,
     metadata: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
   }),
