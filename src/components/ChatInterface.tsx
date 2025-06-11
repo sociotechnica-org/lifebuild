@@ -5,6 +5,45 @@ import { events } from '../livestore/schema.js'
 import { getConversations$, getConversationMessages$ } from '../livestore/queries.js'
 import type { Conversation, ChatMessage } from '../livestore/schema.js'
 
+async function callLLMAPI(userMessage: string): Promise<string> {
+  console.log('🔗 Calling LLM API via proxy...')
+
+  const proxyUrl = 'http://localhost:8787/api/llm/chat'
+  const requestBody = { message: userMessage }
+
+  console.log('🔗 Making request to:', proxyUrl)
+  console.log('🔗 Request body:', requestBody)
+
+  try {
+    const response = await fetch(proxyUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+
+    console.log('🔗 Response status:', response.status)
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      console.error('🔗 Error response:', errorData)
+      throw new Error(`API call failed: ${response.status} ${errorData.error || 'Unknown error'}`)
+    }
+
+    const data = await response.json()
+    console.log('🔗 Response data:', data)
+
+    const responseMessage = data.message || 'No response generated'
+
+    console.log(`✅ Got LLM response: ${responseMessage.substring(0, 100)}...`)
+    return responseMessage
+  } catch (fetchError) {
+    console.error('🔗 Fetch error:', fetchError)
+    throw fetchError
+  }
+}
+
 export const ChatInterface: React.FC = () => {
   const { store } = useStore()
   const conversations = useQuery(getConversations$) ?? []
@@ -55,6 +94,68 @@ export const ChatInterface: React.FC = () => {
     },
     [store, messageText, selectedConversationId]
   )
+
+  // Listen for user messages and trigger LLM responses
+  React.useEffect(() => {
+    if (!selectedConversationId) return
+
+    const userMessagesQuery = getConversationMessages$(selectedConversationId)
+
+    const unsubscribe = store.subscribe(userMessagesQuery, {
+      onUpdate: async messages => {
+        // Find the most recent user message that hasn't been responded to
+        const userMessages = messages.filter(m => m.role === 'user')
+        const assistantMessages = messages.filter(m => m.role === 'assistant')
+
+        // Check if there's a user message without a corresponding assistant response
+        const lastUserMessage = userMessages[userMessages.length - 1]
+        if (!lastUserMessage) return
+
+        // Check if we already have a response for this user message
+        const hasResponse = assistantMessages.some(
+          response => response.createdAt > lastUserMessage.createdAt
+        )
+
+        if (!hasResponse) {
+          console.log('🤖 Processing user message for LLM:', lastUserMessage.message)
+
+          try {
+            const llmResponse = await callLLMAPI(lastUserMessage.message)
+
+            store.commit(
+              events.llmResponseReceived({
+                id: crypto.randomUUID(),
+                conversationId: selectedConversationId,
+                message: llmResponse,
+                role: 'assistant',
+                modelId: 'gpt-4o',
+                createdAt: new Date(),
+                metadata: { source: 'braintrust' },
+              })
+            )
+
+            console.log('✅ LLM response sent')
+          } catch (error) {
+            console.error('❌ Error calling LLM:', error)
+
+            store.commit(
+              events.llmResponseReceived({
+                id: crypto.randomUUID(),
+                conversationId: selectedConversationId,
+                message: 'Sorry, I encountered an error processing your message. Please try again.',
+                role: 'assistant',
+                modelId: 'error',
+                createdAt: new Date(),
+                metadata: { source: 'error' },
+              })
+            )
+          }
+        }
+      },
+    })
+
+    return unsubscribe
+  }, [store, selectedConversationId])
 
   // Auto-select first conversation if none selected
   React.useEffect(() => {

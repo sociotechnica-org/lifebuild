@@ -5,3 +5,9 @@ dist
 
 *storybook.log
 storybook-static
+
+# LiveStore databases
+**/eventlog@*.db
+**/state-*.db
+llm-test-*/
+work-squared-default/

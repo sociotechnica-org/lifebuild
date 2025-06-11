@@ -1,28 +1,29 @@
 # Work Squared LLM Architecture
 
 ## Overview
-Work Squared implements AI chat responses through a separated services architecture that maintains clean separation of concerns while leveraging LiveStore's event-driven system for real-time communication.
+Work Squared implements AI chat responses through a simplified event-driven architecture where the frontend handles LLM processing directly, maintaining clean separation of concerns while leveraging LiveStore's reactive system.
 
 ## Architecture
 
-### Service Separation
+### Simplified Architecture
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │  CF Worker      │    │ LLM Service     │
-│   (React)       │    │  (Sync Only)    │    │ (Node/Bun)      │
-├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ • Send messages │    │ • Relay events  │    │ • Listen for    │
-│ • Display chat  │    │ • Store events  │    │   user messages │
-│ • UI updates    │    │ • WebSocket hub │    │ • Call LLM APIs │
-└─────────────────┘    └─────────────────┘    │ • Emit responses│
-         │                       │             └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    ┌─────────────────┐
-                    │   LiveStore     │
-                    │  Event Stream   │
-                    └─────────────────┘
+┌─────────────────────────────────┐    ┌─────────────────┐
+│         Frontend                │    │  CF Worker      │
+│         (React)                 │    │  (Sync Only)    │
+├─────────────────────────────────┤    ├─────────────────┤
+│ • Send messages                 │    │ • Relay events  │
+│ • Listen for user messages      │    │ • Store events  │
+│ • Call LLM APIs directly        │    │ • WebSocket hub │
+│ • Emit LLM responses            │    │                 │
+│ • Display chat UI              │    │                 │
+└─────────────────────────────────┘    └─────────────────┘
+                │                                │
+                └────────────────────────────────┘
+                                │
+                   ┌─────────────────┐
+                   │   LiveStore     │
+                   │  Event Stream   │
+                   └─────────────────┘
 ```
 
 ### Event Flow
@@ -30,24 +31,24 @@ Work Squared implements AI chat responses through a separated services architect
 1. User types message
    Frontend → ChatMessageSent → CF Worker → All Clients
 
-2. LLM Service sees user message
-   LLM Service ← ChatMessageSent ← CF Worker
+2. Frontend listens for own user message
+   Frontend ← ChatMessageSent ← CF Worker
    
-3. LLM Service processes
-   LLM Service → LLM API → Response
+3. Frontend processes LLM call
+   Frontend → LLM API → Response
    
-4. LLM Service emits response
-   LLM Service → LLMResponseReceived → CF Worker → All Clients
+4. Frontend emits LLM response  
+   Frontend → LLMResponseReceived → CF Worker → All Clients
    
-5. Frontend displays response
+5. Frontend displays response reactively
    Frontend ← LLMResponseReceived ← CF Worker
 ```
 
 ## Implementation
 
-### Cloudflare Worker (Sync Server)
+### Cloudflare Worker (Sync Server + LLM Proxy)
 ```typescript
-// functions/_worker.ts - Pure sync server
+// functions/_worker.ts - Sync server with LLM proxy
 export class WebSocketServer extends makeDurableObject({
   onPush: async function (message) {
     console.log('Sync server: relaying', message.batch.length, 'events')
@@ -61,67 +62,67 @@ export class WebSocketServer extends makeDurableObject({
 }) {}
 ```
 
-### LLM Service (Node.js)
+### Frontend LLM Integration
 ```typescript
-// services/llm-service.ts
-import { makeAdapter } from '@livestore/adapter-node'
-import { createStorePromise, queryDb } from '@livestore/livestore'
-import { schema, tables } from '../src/livestore/schema.js'
-import { llmResponseReceived } from '../src/livestore/events.js'
+// src/components/ChatInterface.tsx
+async function callLLMAPI(userMessage: string): Promise<string> {
+  const response = await fetch('http://localhost:8787/api/llm/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: userMessage }),
+  })
+  
+  const data = await response.json()
+  return data.message || 'No response generated'
+}
 
-const store = await createStorePromise({
-  adapter: makeAdapter({ 
-    storage: { type: 'memory' },
-    sync: { backend: makeCfSync({ url: 'ws://localhost:8787' }) }
-  }),
-  schema,
-  storeId: 'llm-test-shared-store',
-  syncPayload: { authToken: 'insecure-token-change-me' }
-})
+// Event-driven LLM processing
+React.useEffect(() => {
+  if (!selectedConversationId) return
 
-// Subscribe to user messages
-const userMessagesQuery = queryDb(
-  tables.chatMessages.select().where({ role: 'user' }),
-  { label: 'userMessages' }
-)
-
-store.subscribe(userMessagesQuery, {
-  onUpdate: async (messages) => {
-    for (const message of messages) {
-      if (!processedMessages.has(message.id)) {
-        processedMessages.add(message.id)
+  const unsubscribe = store.subscribe(getConversationMessages$(selectedConversationId), {
+    onUpdate: async (messages) => {
+      const userMessages = messages.filter(m => m.role === 'user')
+      const assistantMessages = messages.filter(m => m.role === 'assistant')
+      
+      const lastUserMessage = userMessages[userMessages.length - 1]
+      if (!lastUserMessage) return
+      
+      // Check if we already have a response for this user message
+      const hasResponse = assistantMessages.some(response => 
+        response.createdAt > lastUserMessage.createdAt
+      )
+      
+      if (!hasResponse) {
+        const llmResponse = await callLLMAPI(lastUserMessage.message)
         
-        // Call LLM API and emit response
-        const llmResponse = await callBraintrustAPI(message.message)
-        const response = llmResponseReceived({
-          id: crypto.randomUUID(),
-          conversationId: message.conversationId,
-          message: llmResponse,
-          role: 'assistant',
-          modelId: 'gpt-4o',
-          createdAt: new Date(),
-          metadata: { source: 'braintrust' }
-        })
-        
-        store.commit(response)
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId: selectedConversationId,
+            message: llmResponse,
+            role: 'assistant',
+            modelId: 'gpt-4o',
+            createdAt: new Date(),
+            metadata: { source: 'braintrust' },
+          })
+        )
       }
     }
-  }
-})
+  })
+
+  return unsubscribe
+}, [store, selectedConversationId])
 ```
 
 ## Development Workflow
 
 ```bash
-# Terminal 1: CF Worker (sync server)
+# Start both sync worker and frontend
 pnpm dev
-
-# Terminal 2: LLM Service  
-pnpm llm:service
-
-# Terminal 3: Open frontend
-http://localhost:5173
 ```
+
+The frontend automatically handles LLM processing when users send messages. No additional services needed!
 
 ## LLM Configuration
 
@@ -151,44 +152,48 @@ The LLM is configured with a system prompt that positions it as a Work Squared a
 ### Environment Variables
 
 ```bash
-BRAINTRUST_API_KEY=your-api-key
-BRAINTRUST_PROJECT_ID=your-project-id
-STORE_ID=production-store-id
+# For production, set these in your frontend build
+VITE_BRAINTRUST_API_KEY=your-api-key
+VITE_BRAINTRUST_PROJECT_ID=your-project-id
 ```
 
 ## Benefits of This Architecture
 
-### ✅ Separation of Concerns
+### ✅ Simplicity
 - **CF Worker**: Pure sync server, fast and reliable
-- **LLM Service**: Dedicated to AI processing, can be scaled independently
-- **Frontend**: Pure UI, no business logic
-
-### ✅ Scalability
-- LLM service can run multiple instances
-- CF Worker stays lightweight and fast
-- Can add more AI services (image gen, etc.) easily
+- **Frontend**: Handles both UI and LLM processing in one place
+- **No separate services**: Everything runs in the browser
 
 ### ✅ Development Experience  
-- Can test LLM service independently
-- CF Worker is stable and rarely changes
-- Clear boundaries between services
+- Single codebase for frontend logic
+- No need to coordinate multiple services
+- Easy debugging - everything happens in browser dev tools
 
-### ✅ Error Handling
-- LLM failures don't break sync
-- Sync failures don't break LLM processing
-- Each service can retry/recover independently
+### ✅ Deployment Simplicity
+- Deploy frontend to Cloudflare Pages
+- Deploy sync worker to Cloudflare Workers
+- No Node.js servers to manage
 
-### ✅ Technology Choice
-- LLM service can use Node.js (better for AI libraries)
-- CF Worker optimized for WebSocket handling
-- Each service uses appropriate runtime
+### ✅ Event-Driven Architecture
+- LLM calls triggered by user message events
+- Responses flow through the same event system
+- Clean separation between UI and data flow
 
-## Next Steps
+### ✅ Real-time Sync
+- All LLM responses are synced across browser tabs
+- Works with existing LiveStore architecture
+- No additional complexity for multi-user scenarios
 
-1. **Remove LLM logic from CF Worker** - clean it up to be sync-only
-2. **Install Node adapter** - `pnpm add @livestore/adapter-node`  
-3. **Create LLM service** - new Node.js service that subscribes to events
-4. **Test event flow** - verify messages flow through both services
-5. **Add proper deployment** - figure out how to deploy the LLM service
+## Deployment
 
-This is much cleaner than trying to make the CF Worker do everything!
+### Production Deployment
+```bash
+# Deploy sync worker
+pnpm wrangler:deploy
+
+# Build and deploy frontend to Cloudflare Pages
+pnpm build
+# (Then upload dist/ to Cloudflare Pages)
+```
+
+This architecture is much simpler and easier to deploy than managing separate services!

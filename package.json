@@ -87,7 +87,6 @@
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit",
-    "llm:service": "tsx services/llm-service.ts"
+    "typecheck": "tsc --noEmit"
   }
 }
