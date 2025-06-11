@@ -11,10 +11,11 @@ Work Squared is an AI-enabled work environment featuring real-time collaborative
     ```
 
 2.  **Set up environment variables:**
-    Copy the `.env.example` file to `.env`:
+    Copy the environment files:
 
     ```bash
     cp .env.example .env
+    cp .dev.vars.example .dev.vars
     ```
 
     Update `.env` with the following for local development:
@@ -24,7 +25,14 @@ Work Squared is an AI-enabled work environment featuring real-time collaborative
     D1_DATABASE_ID=
     ```
 
-    _(Note: `D1_DATABASE_ID` can be left blank for local development as Wrangler will use a local SQLite file.)_
+    Update `.dev.vars` with your LLM API credentials:
+
+    ```
+    BRAINTRUST_API_KEY="your-braintrust-api-key-here"
+    BRAINTRUST_PROJECT_ID="your-braintrust-project-id-here"
+    ```
+
+    _(Note: `D1_DATABASE_ID` can be left blank for local development as Wrangler will use a local SQLite file. Get Braintrust credentials from https://www.braintrust.dev/)_
 
 3.  **Run the development server:**
     This will start the Vite frontend and the local Cloudflare Worker concurrently.

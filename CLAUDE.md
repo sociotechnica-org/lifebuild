@@ -10,6 +10,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Install dependencies
 pnpm
 
+# Set up environment variables (first time only)
+cp .env.example .env
+cp .dev.vars.example .dev.vars
+# Edit .dev.vars with your Braintrust API credentials
+
 # Run development server (starts both Vite and Wrangler concurrently)
 export VITE_LIVESTORE_SYNC_URL='http://localhost:8787'
 pnpm dev
