@@ -81,6 +81,7 @@ const tasks = State.SQLite.table({
     boardId: State.SQLite.text(),
     columnId: State.SQLite.text(),
     title: State.SQLite.text({ default: '' }),
+    description: State.SQLite.text({ nullable: true }),
     position: State.SQLite.integer({ default: 0 }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,

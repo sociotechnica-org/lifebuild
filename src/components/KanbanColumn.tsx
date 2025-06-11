@@ -13,6 +13,7 @@ interface KanbanColumnProps {
   draggedTaskHeight: number // Height of the task being dragged for placeholder sizing
   draggedTaskId: string | null // ID of task currently being dragged
   showAddCardPreview: boolean // Whether to show insertion preview above Add Card button
+  onTaskClick?: (taskId: string) => void // Handler for task click events
 }
 
 export function KanbanColumn({
@@ -22,12 +23,13 @@ export function KanbanColumn({
   draggedTaskHeight,
   draggedTaskId,
   showAddCardPreview,
+  onTaskClick,
 }: KanbanColumnProps) {
   const { store } = useStore()
   const [isAddingTask, setIsAddingTask] = useState(false)
 
   // Set up droppable for the Add Card button
-  const { setNodeRef: setAddCardRef, isOver: isAddCardOver } = useDroppable({
+  const { setNodeRef: setAddCardRef } = useDroppable({
     id: `add-card-${column.id}`,
   })
 
@@ -90,7 +92,7 @@ export function KanbanColumn({
             }
 
             // Show the task
-            elements.push(<TaskCard key={task.id} task={task} />)
+            elements.push(<TaskCard key={task.id} task={task} onClick={onTaskClick} />)
           })
 
           // Show placeholder at the end if needed (either after last task or for empty column)

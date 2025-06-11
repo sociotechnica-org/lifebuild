@@ -10,12 +10,13 @@ import {
   DragEndEvent,
 } from '@dnd-kit/core'
 import { useQuery, useStore } from '@livestore/react'
-import { useParams } from 'react-router-dom'
-import { getBoardColumns$, getBoardTasks$ } from '../livestore/queries.js'
-import type { Column, Task } from '../livestore/schema.js'
+import { useParams, Link } from 'react-router-dom'
+import { getBoardColumns$, getBoardTasks$, getBoardById$ } from '../livestore/queries.js'
+import type { Column, Task, Board } from '../livestore/schema.js'
 import { events } from '../livestore/schema.js'
 import { KanbanColumn } from './KanbanColumn.js'
 import { TaskCard } from './TaskCard.js'
+import { TaskModal } from './TaskModal.js'
 
 export function KanbanBoard() {
   const { boardId } = useParams<{ boardId: string }>()
@@ -26,11 +27,14 @@ export function KanbanBoard() {
     position: number
   } | null>(null)
   const [dragOverAddCard, setDragOverAddCard] = useState<string | null>(null)
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
   if (!boardId) {
     return <div>Board not found</div>
   }
 
+  const boardResult = useQuery(getBoardById$(boardId))
+  const board = boardResult?.[0] as Board | undefined
   const columns = useQuery(getBoardColumns$(boardId)) ?? []
   const tasks = useQuery(getBoardTasks$(boardId)) ?? []
 
@@ -57,6 +61,16 @@ export function KanbanBoard() {
   // Find task by ID helper
   const findTask = (taskId: string): Task | undefined => {
     return tasks.find(task => task.id === taskId)
+  }
+
+  // Handle task card click
+  const handleTaskClick = (taskId: string) => {
+    setSelectedTaskId(taskId)
+  }
+
+  // Handle modal close
+  const handleModalClose = () => {
+    setSelectedTaskId(null)
   }
 
   // Recalculate positions in a column (not used yet, but will be needed for future optimizations)
@@ -274,7 +288,37 @@ export function KanbanBoard() {
       onDragEnd={handleDragEnd}
     >
       <div className='h-full bg-white'>
-        <div className='flex h-full overflow-x-auto p-6 gap-6'>
+        {/* Board Header */}
+        <div className='border-b border-gray-200 bg-white px-6 py-4'>
+          <div className='flex items-center gap-4'>
+            <Link
+              to='/boards'
+              className='flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'
+              aria-label='Back to boards'
+            >
+              <svg
+                className='w-4 h-4 text-gray-600'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M15 19l-7-7 7-7'
+                />
+              </svg>
+            </Link>
+            <h1 className='text-xl font-semibold text-gray-900'>{board?.name || 'Loading...'}</h1>
+          </div>
+        </div>
+
+        {/* Board Content */}
+        <div
+          className='flex h-full overflow-x-auto p-6 gap-6 pb-6'
+          style={{ height: 'calc(100% - 73px)' }}
+        >
           {(columns || []).map((column: Column) => (
             <KanbanColumn
               key={column.id}
@@ -286,11 +330,13 @@ export function KanbanBoard() {
               draggedTaskHeight={activeTask ? 76 : 0} // Approximate task card height
               draggedTaskId={activeTask?.id || null}
               showAddCardPreview={dragOverAddCard === column.id}
+              onTaskClick={handleTaskClick}
             />
           ))}
         </div>
       </div>
       <DragOverlay>{activeTask ? <TaskCard task={activeTask} isDragOverlay /> : null}</DragOverlay>
+      <TaskModal taskId={selectedTaskId} onClose={handleModalClose} />
     </DndContext>
   )
 }
