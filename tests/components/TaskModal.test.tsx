@@ -5,14 +5,16 @@ import { TaskModal } from '../../src/components/TaskModal.js'
 import { createMockTask, createMockColumn } from '../../src/test-utils.js'
 
 // Hoisted mocks
-const { mockUseQuery } = vi.hoisted(() => {
+const { mockUseQuery, mockStore } = vi.hoisted(() => {
   const mockUseQuery = vi.fn()
-  return { mockUseQuery }
+  const mockStore = { commit: vi.fn() }
+  return { mockUseQuery, mockStore }
 })
 
 // Mock @livestore/react
 vi.mock('@livestore/react', () => ({
   useQuery: mockUseQuery,
+  useStore: () => ({ store: mockStore }),
 }))
 
 describe('TaskModal', () => {
@@ -28,6 +30,7 @@ describe('TaskModal', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockStore.commit.mockClear()
 
     // Default mock implementation
     mockUseQuery.mockImplementation((query: any) => {
@@ -147,5 +150,180 @@ describe('TaskModal', () => {
 
     // Restore original value
     document.body.style.overflow = originalOverflow
+  })
+
+  it('should enter edit mode when edit button is clicked', () => {
+    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+
+    const editButton = screen.getByText('Edit')
+    fireEvent.click(editButton)
+
+    // Should show save/cancel buttons instead of edit button
+    expect(screen.getByText('Save')).toBeInTheDocument()
+    expect(screen.getByText('Cancel')).toBeInTheDocument()
+    expect(screen.queryByText('Edit')).not.toBeInTheDocument()
+
+    // Should show editable fields
+    expect(screen.getByDisplayValue('Test Task')).toBeInTheDocument() // Title input
+    expect(screen.getByDisplayValue('This is a test task description')).toBeInTheDocument() // Description textarea
+  })
+
+  it('should cancel edit mode and restore original values', () => {
+    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+
+    // Enter edit mode
+    fireEvent.click(screen.getByText('Edit'))
+
+    // Modify values
+    const titleInput = screen.getByDisplayValue('Test Task')
+    const descriptionTextarea = screen.getByDisplayValue('This is a test task description')
+
+    fireEvent.change(titleInput, { target: { value: 'Modified Title' } })
+    fireEvent.change(descriptionTextarea, { target: { value: 'Modified description' } })
+
+    // Cancel edit
+    fireEvent.click(screen.getByText('Cancel'))
+
+    // Should return to view mode
+    expect(screen.getByText('Edit')).toBeInTheDocument()
+    expect(screen.queryByText('Save')).not.toBeInTheDocument()
+
+    // Original values should be displayed
+    expect(screen.getByText('Test Task')).toBeInTheDocument()
+    expect(screen.getByText('This is a test task description')).toBeInTheDocument()
+  })
+
+  it('should validate that title is required', () => {
+    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+
+    // Enter edit mode
+    fireEvent.click(screen.getByText('Edit'))
+
+    // Clear the title
+    const titleInput = screen.getByDisplayValue('Test Task')
+    fireEvent.change(titleInput, { target: { value: '' } })
+
+    // Try to save
+    fireEvent.click(screen.getByText('Save'))
+
+    // Should show validation error
+    expect(screen.getByText('Title is required')).toBeInTheDocument()
+
+    // Should still be in edit mode
+    expect(screen.getByText('Save')).toBeInTheDocument()
+
+    // Should not have committed any changes
+    expect(mockStore.commit).not.toHaveBeenCalled()
+  })
+
+  it('should save changes when title and description are modified', () => {
+    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+
+    // Enter edit mode
+    fireEvent.click(screen.getByText('Edit'))
+
+    // Modify values
+    const titleInput = screen.getByDisplayValue('Test Task')
+    const descriptionTextarea = screen.getByDisplayValue('This is a test task description')
+
+    fireEvent.change(titleInput, { target: { value: 'Updated Task Title' } })
+    fireEvent.change(descriptionTextarea, { target: { value: 'Updated description' } })
+
+    // Save changes
+    fireEvent.click(screen.getByText('Save'))
+
+    // Should commit the changes
+    expect(mockStore.commit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'v1.TaskUpdated',
+        args: expect.objectContaining({
+          taskId: 'test-task',
+          title: 'Updated Task Title',
+          description: 'Updated description',
+          updatedAt: expect.any(Date),
+        }),
+      })
+    )
+
+    // Should return to view mode
+    expect(screen.getByText('Edit')).toBeInTheDocument()
+    expect(screen.queryByText('Save')).not.toBeInTheDocument()
+  })
+
+  it('should only save changed fields', () => {
+    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+
+    // Enter edit mode
+    fireEvent.click(screen.getByText('Edit'))
+
+    // Only modify the title
+    const titleInput = screen.getByDisplayValue('Test Task')
+    fireEvent.change(titleInput, { target: { value: 'Only Title Changed' } })
+
+    // Save changes
+    fireEvent.click(screen.getByText('Save'))
+
+    // Should only include the changed title field
+    expect(mockStore.commit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'v1.TaskUpdated',
+        args: expect.objectContaining({
+          taskId: 'test-task',
+          title: 'Only Title Changed',
+          updatedAt: expect.any(Date),
+        }),
+      })
+    )
+
+    // Should not include description in the update (should be undefined)
+    const commitCall = mockStore.commit.mock.calls[0]?.[0]
+    expect(commitCall?.args?.description).toBeUndefined()
+  })
+
+  it('should clear title validation error when typing valid text', () => {
+    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+
+    // Enter edit mode
+    fireEvent.click(screen.getByText('Edit'))
+
+    // Clear the title to trigger validation error
+    const titleInput = screen.getByDisplayValue('Test Task')
+    fireEvent.change(titleInput, { target: { value: '' } })
+    fireEvent.click(screen.getByText('Save'))
+
+    // Should show error
+    expect(screen.getByText('Title is required')).toBeInTheDocument()
+
+    // Type valid text
+    fireEvent.change(titleInput, { target: { value: 'Valid Title' } })
+
+    // Error should be cleared
+    expect(screen.queryByText('Title is required')).not.toBeInTheDocument()
+  })
+
+  it('should allow clearing task description', () => {
+    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+
+    // Enter edit mode
+    fireEvent.click(screen.getByText('Edit'))
+
+    // Clear the description
+    const descriptionTextarea = screen.getByDisplayValue('This is a test task description')
+    fireEvent.change(descriptionTextarea, { target: { value: '' } })
+
+    // Save changes
+    fireEvent.click(screen.getByText('Save'))
+
+    // Should commit the change with empty description
+    expect(mockStore.commit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'v1.TaskUpdated',
+        args: expect.objectContaining({
+          taskId: 'test-task',
+          description: '',
+          updatedAt: expect.any(Date),
+        }),
+      })
+    )
   })
 })
