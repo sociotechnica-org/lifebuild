@@ -138,26 +138,29 @@ describe('KanbanColumn', () => {
     )
   })
 
-  it('should show hover styling when dragging over Add Card button', () => {
+  it('should show insertion placeholder when dragging over Add Card button', () => {
     mockUseDroppable.mockReturnValue({
       setNodeRef: vi.fn(),
       isOver: true,
     })
 
-    // Render with showAddCardPreview
+    // Render with showAddCardPreview to show insertion placeholder
     render(
       <KanbanColumn
         column={mockColumn}
         tasks={[]} // Empty column
         insertionPreview={null}
-        draggedTaskHeight={0}
+        draggedTaskHeight={76}
         draggedTaskId={null}
         showAddCardPreview={true} // Show the preview above Add Card
       />
     )
 
-    // The Add Card button should have hover styling
+    // Should show the insertion placeholder (Drop here text)
+    expect(screen.getByText('Drop here')).toBeInTheDocument()
+    
+    // The Add Card button should maintain normal styling
     const addCardButton = screen.getByText('➕ Add Card')
-    expect(addCardButton).toHaveClass('bg-blue-50', 'border-blue-300', 'text-blue-600')
+    expect(addCardButton).toHaveClass('border-gray-300')
   })
 })
