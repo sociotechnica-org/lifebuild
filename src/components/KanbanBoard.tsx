@@ -105,6 +105,11 @@ export function KanbanBoard() {
       // If dropping in the same column at the end, account for the dragged task being removed
       if (targetColumnId === draggedTask.columnId) {
         targetPosition = Math.max(0, targetPosition - 1)
+        // If the calculated position is the same as current, don't show preview
+        if (targetPosition === draggedTask.position) {
+          setInsertionPreview(null)
+          return
+        }
       }
     } else {
       // Hovering over a task
