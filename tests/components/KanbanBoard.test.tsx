@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { KanbanBoard } from '../../src/components/KanbanBoard.js'
 
 // Hoisted mocks
@@ -71,6 +71,9 @@ describe('KanbanBoard', () => {
   ]
 
   beforeEach(() => {
+    // Reset to default boardId
+    mockUseParams.mockReturnValue({ boardId: 'test-board' })
+    
     mockUseQuery.mockImplementation((query: any) => {
       if (query.label?.includes('getBoardColumns')) {
         return mockColumns
@@ -103,5 +106,54 @@ describe('KanbanBoard', () => {
 
     render(<KanbanBoard />)
     expect(screen.getByText('Board not found')).toBeInTheDocument()
+  })
+
+  it('should render with multiple tasks and maintain proper structure', () => {
+    // Set up test scenario: column with 3 tasks to test rendering behavior
+    const testTasks = [
+      {
+        id: 'task-1',
+        boardId: 'test-board',
+        columnId: 'col-1',
+        title: 'Task 1',
+        position: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 'task-2',
+        boardId: 'test-board',
+        columnId: 'col-1',
+        title: 'Task 2',
+        position: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 'task-3',
+        boardId: 'test-board',
+        columnId: 'col-1',
+        title: 'Task 3',
+        position: 2,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]
+
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.label?.includes('getBoardColumns')) {
+        return mockColumns
+      }
+      if (query.label?.includes('getBoardTasks')) {
+        return testTasks
+      }
+      return []
+    })
+
+    render(<KanbanBoard />)
+    
+    expect(screen.getByText('Task 1')).toBeInTheDocument()
+    expect(screen.getByText('Task 2')).toBeInTheDocument()
+    expect(screen.getByText('Task 3')).toBeInTheDocument()
   })
 })
