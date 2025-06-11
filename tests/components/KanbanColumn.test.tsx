@@ -3,8 +3,22 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { KanbanColumn } from '../../src/components/KanbanColumn.js'
 
-// Create a mock function that we can spy on
-const mockCommit = vi.fn()
+// Hoisted mocks
+const { mockCommit, mockUseDroppable, mockUseDraggable } = vi.hoisted(() => {
+  const mockCommit = vi.fn()
+  const mockUseDroppable = vi.fn(() => ({
+    setNodeRef: vi.fn(),
+    isOver: false,
+  }))
+  const mockUseDraggable = vi.fn(() => ({
+    attributes: {},
+    listeners: {},
+    setNodeRef: vi.fn(),
+    transform: null,
+    isDragging: false,
+  }))
+  return { mockCommit, mockUseDroppable, mockUseDraggable }
+})
 
 // Mock the useStore hook
 vi.mock('@livestore/react', () => ({
@@ -13,6 +27,12 @@ vi.mock('@livestore/react', () => ({
       commit: mockCommit,
     },
   }),
+}))
+
+// Mock @dnd-kit/core
+vi.mock('@dnd-kit/core', () => ({
+  useDroppable: mockUseDroppable,
+  useDraggable: mockUseDraggable,
 }))
 
 describe('KanbanColumn', () => {
@@ -33,6 +53,7 @@ describe('KanbanColumn', () => {
       title: 'Task 1',
       position: 0,
       createdAt: new Date('2023-01-01'),
+      updatedAt: new Date('2023-01-01'),
     },
     {
       id: 'task-2',
@@ -41,38 +62,54 @@ describe('KanbanColumn', () => {
       title: 'Task 2',
       position: 1,
       createdAt: new Date('2023-01-02'),
+      updatedAt: new Date('2023-01-02'),
     },
   ]
 
+  // Helper to render with default props
+  const renderColumn = (props: Partial<React.ComponentProps<typeof KanbanColumn>> = {}) => {
+    return render(
+      <KanbanColumn
+        column={mockColumn}
+        tasks={[]}
+        insertionPreview={null}
+        draggedTaskHeight={0}
+        draggedTaskId={null}
+        showAddCardPreview={false}
+        {...props}
+      />
+    )
+  }
+
   it('should render column name', () => {
-    render(<KanbanColumn column={mockColumn} tasks={[]} />)
+    renderColumn()
     expect(screen.getByText('Test Column')).toBeInTheDocument()
   })
 
   it('should render task count', () => {
-    render(<KanbanColumn column={mockColumn} tasks={mockTasks} />)
+    renderColumn({ tasks: mockTasks })
     expect(screen.getByText('2')).toBeInTheDocument()
   })
 
   it('should render tasks', () => {
-    render(<KanbanColumn column={mockColumn} tasks={mockTasks} />)
+    renderColumn({ tasks: mockTasks })
     expect(screen.getByText('Task 1')).toBeInTheDocument()
     expect(screen.getByText('Task 2')).toBeInTheDocument()
   })
 
   it('should show Add Card button when no tasks', () => {
-    render(<KanbanColumn column={mockColumn} tasks={[]} />)
+    renderColumn()
     expect(screen.getByText('➕ Add Card')).toBeInTheDocument()
     expect(screen.getByText('0')).toBeInTheDocument()
   })
 
   it('should show Add Card button when there are tasks', () => {
-    render(<KanbanColumn column={mockColumn} tasks={mockTasks} />)
+    renderColumn({ tasks: mockTasks })
     expect(screen.getByText('➕ Add Card')).toBeInTheDocument()
   })
 
   it('should show AddTaskForm when Add Card button is clicked', () => {
-    render(<KanbanColumn column={mockColumn} tasks={[]} />)
+    renderColumn()
 
     fireEvent.click(screen.getByText('➕ Add Card'))
 
@@ -83,7 +120,7 @@ describe('KanbanColumn', () => {
   it('should assign position 0 to first task in empty column', () => {
     mockCommit.mockClear()
 
-    render(<KanbanColumn column={mockColumn} tasks={[]} />)
+    renderColumn()
 
     fireEvent.click(screen.getByText('➕ Add Card'))
     const input = screen.getByPlaceholderText('Task name')
@@ -99,5 +136,31 @@ describe('KanbanColumn', () => {
         }),
       })
     )
+  })
+
+  it('should show insertion placeholder when dragging over Add Card button', () => {
+    mockUseDroppable.mockReturnValue({
+      setNodeRef: vi.fn(),
+      isOver: true,
+    })
+
+    // Render with showAddCardPreview to show insertion placeholder
+    render(
+      <KanbanColumn
+        column={mockColumn}
+        tasks={[]} // Empty column
+        insertionPreview={null}
+        draggedTaskHeight={76}
+        draggedTaskId={null}
+        showAddCardPreview={true} // Show the preview above Add Card
+      />
+    )
+
+    // Should show the insertion placeholder (Drop here text)
+    expect(screen.getByText('Drop here')).toBeInTheDocument()
+    
+    // The Add Card button should maintain normal styling
+    const addCardButton = screen.getByText('➕ Add Card')
+    expect(addCardButton).toHaveClass('border-gray-300')
   })
 })

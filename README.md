@@ -1,6 +1,6 @@
 # Work Squared
 
-Work Squared is an AI-enabled work environment.
+Work Squared is an AI-enabled work environment featuring real-time collaborative Kanban boards.
 
 ## Running locally
 
@@ -60,6 +60,14 @@ To run a manual deployment from your local machine (requires authentication with
 pnpm wrangler:deploy
 ```
 
+## Features
+
+- **Real-time Kanban Boards**: Collaborative task management with live updates
+- **Drag & Drop**: Move tasks between columns and reorder within columns
+- **Responsive Design**: Works on desktop and mobile devices
+- **Local-first Architecture**: Powered by LiveStore for offline-capable real-time sync
+- **Type-safe**: Built with TypeScript for robust development
+
 ## Development Commands
 
 ```bash
@@ -71,6 +79,13 @@ pnpm storybook
 
 # Run tests
 pnpm test
+
+# Lint and format code
+pnpm lint
+pnpm format
+
+# Type checking
+pnpm typecheck
 
 # Build for production
 pnpm build
@@ -109,3 +124,20 @@ pnpm test:storybook    # Run Storybook tests
 
 - All tests run automatically on every PR via GitHub Actions
 - Test results and coverage reports are uploaded as artifacts
+
+## Architecture
+
+Work Squared is built with a modern, real-time architecture:
+
+- **Frontend**: React 19 with TypeScript, Vite for development, Tailwind CSS for styling
+- **State Management**: LiveStore with event sourcing and SQLite materialized views
+- **Real-time Sync**: WebSocket server on Cloudflare Workers with Durable Objects
+- **Testing**: Vitest for unit tests, React Testing Library for components, Storybook for UI development
+- **Drag & Drop**: @dnd-kit for accessible, performant drag-and-drop interactions
+
+### Key Design Decisions
+
+- **Local-first**: Data is stored locally and synced to the cloud, ensuring fast interactions
+- **Event Sourcing**: All changes are events, enabling reliable real-time collaboration
+- **Card-only Drop Targets**: Simplified drag-and-drop UX with Add Card buttons for end-of-column drops
+- **Comprehensive Testing**: Unit, component, and visual regression tests for reliability

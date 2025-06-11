@@ -54,22 +54,55 @@
 
 ---
 
-## 🍰 Story 4 – Move a card via drag-and-drop
+## ✅ Story 4 – Move a card via drag-and-drop — COMPLETED
 
 **User story**: _As a manager, I want to move a card from one state to another by dragging-and-dropping._
 
+### Tasks — DONE
+
+- [x] Event: `task.moved` `{ taskId, toColumnId, position, updatedAt }`
+- [x] UI: Integrate `@dnd-kit` (lightweight, accessible) into `KanbanBoard`
+- [x] State update: On drag end, dispatch `task.moved` and optimistically update positions
+- [x] Query: Ensure tasks query orders by `position`
+- [x] Tests: dnd interaction test with proper @dnd-kit mocking
+- [x] Simplified drop targets: Card-only drops with Add Card button for end-of-column
+- [x] Visual feedback: Insertion previews and drag overlays
+- [x] Empty column support: Drop via Add Card button
+- [x] DoD: Cards can be reordered within and across columns with persistence.
+
+### Implementation Notes
+
+- **Drop Targets**: Only task cards and Add Card buttons are droppable (no column backgrounds)
+- **Empty Columns**: Drag over Add Card button to drop into empty columns
+- **End of Column**: Drag over Add Card button to place tasks at the end
+- **Visual Feedback**: Clean insertion previews, no confusing double placeholders
+- **Known Issues**: Same-column reordering edge cases documented in [Issue #14](https://github.com/sociotechnica-org/work-squared/issues/14)
+
+---
+
+## 🍰 Story 4.5 – Advanced drag-and-drop positioning
+
+**User story**: _As a manager, I want precise control over card positioning when dragging between other cards, with smooth visual feedback._
+
+**Status**: Partially implemented. Core positioning works, but same-column edge cases remain.
+
 ### Tasks
 
-- Event: `task.moved` `{ taskId, fromColumnId, toColumnId, position }`
-- UI: Integrate `@dnd-kit` (lightweight, accessible) into `KanbanBoard`
-- State update: On drag end, dispatch `task.moved` and optimistically update positions
-- Query: Ensure tasks query orders by `position`
-- Tests: dnd interaction test with RTL & `@dnd-kit/test-utils`
-- DoD: Cards can be reordered within and across columns with persistence.
+- [x] Position calculation: Support inserting cards at specific positions within the same column
+- [x] Visual feedback: Show insertion indicator line when hovering between cards
+- [x] Event optimization: Recalculate positions for all affected cards in source/target columns
+- [x] Tests: Precise positioning logic, cross-column reordering
+- [ ] Same-column reordering: Fix edge cases (see [Issue #14](https://github.com/sociotechnica-org/work-squared/issues/14))
+- [ ] Animation: Cards shift up when a card is dragged out of a column  
+- [ ] Animation: Bottom cards slide down when a card is dropped between two other cards
+- [ ] Tests: Animation behavior, within-column reordering edge cases
+- DoD: Dragging creates smooth animations and allows precise positioning anywhere in any column.
 
 ---
 
 ## 🍰 Story 5 – Edit a card's title & description
+
+**GitHub Issue**: [#9](https://github.com/sociotechnica-org/work-squared/issues/9)
 
 **User story**: _As a manager, I want to change the title and description of a card._
 
@@ -84,6 +117,8 @@
 ---
 
 ## 🍰 Story 6 – Assign a teammate to a card
+
+**GitHub Issue**: [#10](https://github.com/sociotechnica-org/work-squared/issues/10)
 
 **User story**: _As a manager, I want to assign someone to a card._
 
@@ -100,6 +135,8 @@
 
 ## 🍰 Story 7 – Comment on a card
 
+**GitHub Issue**: [#11](https://github.com/sociotechnica-org/work-squared/issues/11)
+
 **User story**: _As a manager, I want to comment on a card._
 
 ### Tasks
@@ -114,6 +151,8 @@
 
 ## 🍰 Story 8 – Set a due date for a card
 
+**GitHub Issue**: [#12](https://github.com/sociotechnica-org/work-squared/issues/12)
+
 **User story**: _As a manager, I want to set the due date for a card._
 
 ### Tasks
@@ -127,6 +166,8 @@
 ---
 
 ## 🍰 Story 9 – Archive a card
+
+**GitHub Issue**: [#13](https://github.com/sociotechnica-org/work-squared/issues/13)
 
 **User story**: _As a manager, I want to archive a card._
 
