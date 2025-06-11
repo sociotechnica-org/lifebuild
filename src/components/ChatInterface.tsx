@@ -80,10 +80,35 @@ export const ChatInterface: React.FC = () => {
       <div className='flex-shrink-0 p-4 border-b border-gray-200'>
         <div className='flex items-center justify-between mb-2'>
           <h2 className='text-lg font-semibold text-gray-900'>LLM Chat</h2>
+          {/* Only show + button and user avatar when conversations exist */}
+          {conversations.length > 0 && currentUser && (
+            <div
+              className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium'
+              title={currentUser.name}
+            >
+              {getInitials(currentUser.name)}
+            </div>
+          )}
+        </div>
+
+        {/* Conversation Selector with + button inline */}
+        {conversations.length > 0 && (
           <div className='flex items-center gap-2'>
+            <select
+              value={selectedConversationId || ''}
+              onChange={e => setSelectedConversationId(e.target.value)}
+              className='flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
+            >
+              <option value=''>Select a conversation...</option>
+              {conversations.map((conversation: Conversation) => (
+                <option key={conversation.id} value={conversation.id}>
+                  {conversation.title}
+                </option>
+              ))}
+            </select>
             <button
               onClick={handleCreateConversation}
-              className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors'
+              className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors flex-shrink-0'
               aria-label='New Chat'
               title='New Chat'
             >
@@ -96,31 +121,7 @@ export const ChatInterface: React.FC = () => {
                 />
               </svg>
             </button>
-            {currentUser && (
-              <div
-                className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium'
-                title={currentUser.name}
-              >
-                {getInitials(currentUser.name)}
-              </div>
-            )}
           </div>
-        </div>
-
-        {/* Conversation Selector */}
-        {conversations.length > 0 && (
-          <select
-            value={selectedConversationId || ''}
-            onChange={e => setSelectedConversationId(e.target.value)}
-            className='w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-          >
-            <option value=''>Select a conversation...</option>
-            {conversations.map((conversation: Conversation) => (
-              <option key={conversation.id} value={conversation.id}>
-                {conversation.title}
-              </option>
-            ))}
-          </select>
         )}
       </div>
 
