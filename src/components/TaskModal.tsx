@@ -77,7 +77,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
         events.taskUpdated({
           taskId: task.id,
           title: titleChanged ? trimmedTitle : undefined,
-          description: descriptionChanged ? editDescription || undefined : undefined,
+          description: descriptionChanged ? editDescription : undefined,
           updatedAt: new Date(),
         })
       )
@@ -107,7 +107,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   React.useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  }, [isEditing, handleCancelEdit, onClose])
 
   // Prevent body scroll when modal is open
   React.useEffect(() => {

@@ -300,4 +300,30 @@ describe('TaskModal', () => {
     // Error should be cleared
     expect(screen.queryByText('Title is required')).not.toBeInTheDocument()
   })
+
+  it('should allow clearing task description', () => {
+    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+
+    // Enter edit mode
+    fireEvent.click(screen.getByText('Edit'))
+
+    // Clear the description
+    const descriptionTextarea = screen.getByDisplayValue('This is a test task description')
+    fireEvent.change(descriptionTextarea, { target: { value: '' } })
+
+    // Save changes
+    fireEvent.click(screen.getByText('Save'))
+
+    // Should commit the change with empty description
+    expect(mockStore.commit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'v1.TaskUpdated',
+        args: expect.objectContaining({
+          taskId: 'test-task',
+          description: '',
+          updatedAt: expect.any(Date),
+        }),
+      })
+    )
+  })
 })
