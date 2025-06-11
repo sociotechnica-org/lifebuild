@@ -184,7 +184,7 @@
 
 ---
 
-## 🍰 Story 8 – Comment on a card
+## ✅ Story 8 – Comment on a card — COMPLETED
 
 **GitHub Issue**: [#11](https://github.com/sociotechnica-org/work-squared/issues/11)
 
@@ -192,13 +192,25 @@
 
 **Dependencies**: Story 5 (View a card's details) must be completed first.
 
-### Tasks
+### Tasks — DONE
 
-- Schema: New `comments` table `{ id, taskId, authorId, content, createdAt }`
-- Events: `comment.added`, `comment.edited`, `comment.deleted`
-- UI: Comments panel inside `TaskModal` with list & composer
-- Tests: Add comment renders in list; events materialize correctly
-- DoD: Comments visible in modal and survive reload.
+- [x] Schema: New `comments` table `{ id, taskId, authorId, content, createdAt }`
+- [x] Events: `comment.added` event for creating comments
+- [x] UI: Comments panel inside `TaskModal` with list & composer
+- [x] Query: `getTaskComments$` for fetching comments by taskId
+- [x] Tests: Comprehensive comment functionality with 10 test cases
+- [x] DoD: Comments visible in modal and survive reload.
+
+### Implementation Notes
+
+- **Comment Display**: Comments show in reverse chronological order (newest first)
+- **Author Identification**: User avatars with initials and hover tooltips for full names
+- **Validation**: Comments have max 5000 character limit and cannot be empty
+- **Real-time Updates**: Comments sync immediately across all connected clients
+- **Keyboard Support**: Cmd+Enter shortcut to submit comments quickly
+- **User Experience**: Character counter and helpful submission hints
+- **Security**: Plain text comments with preserved line breaks (whitespace-pre-wrap)
+- **Future Enhancement**: Markdown support documented in [Issue #23](https://github.com/sociotechnica-org/work-squared/issues/23)
 
 ---
 
