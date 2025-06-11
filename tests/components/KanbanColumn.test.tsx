@@ -2,6 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { KanbanColumn } from '../../src/components/KanbanColumn.js'
+import { createMockColumn, createMockTasks } from '../../src/test-utils.js'
 
 // Hoisted mocks
 const { mockCommit, mockUseDroppable, mockUseDraggable } = vi.hoisted(() => {
@@ -36,35 +37,12 @@ vi.mock('@dnd-kit/core', () => ({
 }))
 
 describe('KanbanColumn', () => {
-  const mockColumn = {
-    id: 'test-column',
-    boardId: 'test-board',
-    name: 'Test Column',
-    position: 0,
+  const mockColumn = createMockColumn()
+  const mockTasks = createMockTasks(2, { 
+    columnId: 'test-column',
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-01'),
-  }
-
-  const mockTasks = [
-    {
-      id: 'task-1',
-      boardId: 'test-board',
-      columnId: 'test-column',
-      title: 'Task 1',
-      position: 0,
-      createdAt: new Date('2023-01-01'),
-      updatedAt: new Date('2023-01-01'),
-    },
-    {
-      id: 'task-2',
-      boardId: 'test-board',
-      columnId: 'test-column',
-      title: 'Task 2',
-      position: 1,
-      createdAt: new Date('2023-01-02'),
-      updatedAt: new Date('2023-01-02'),
-    },
-  ]
+  })
 
   // Helper to render with default props
   const renderColumn = (props: Partial<React.ComponentProps<typeof KanbanColumn>> = {}) => {
@@ -158,7 +136,7 @@ describe('KanbanColumn', () => {
 
     // Should show the insertion placeholder (Drop here text)
     expect(screen.getByText('Drop here')).toBeInTheDocument()
-    
+
     // The Add Card button should maintain normal styling
     const addCardButton = screen.getByText('➕ Add Card')
     expect(addCardButton).toHaveClass('border-gray-300')

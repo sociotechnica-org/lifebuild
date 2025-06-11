@@ -5,9 +5,10 @@ import type { Task } from '../livestore/schema.js'
 interface TaskCardProps {
   task: Task
   isDragOverlay?: boolean
+  onClick?: (taskId: string) => void
 }
 
-export function TaskCard({ task, isDragOverlay = false }: TaskCardProps) {
+export function TaskCard({ task, isDragOverlay = false, onClick }: TaskCardProps) {
   const {
     attributes: dragAttributes,
     listeners: dragListeners,
@@ -34,12 +35,21 @@ export function TaskCard({ task, isDragOverlay = false }: TaskCardProps) {
       }
     : undefined
 
+  const handleClick = (e: React.MouseEvent) => {
+    // Only handle click if not dragging and click handler exists
+    if (!isDragging && onClick) {
+      e.stopPropagation()
+      onClick(task.id)
+    }
+  }
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...dragListeners}
       {...dragAttributes}
+      onClick={handleClick}
       className={`bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-2 transition-shadow cursor-grab active:cursor-grabbing ${
         isDragging ? 'opacity-50' : 'hover:shadow-md'
       } ${isDragOverlay ? 'shadow-lg rotate-2' : ''}`}

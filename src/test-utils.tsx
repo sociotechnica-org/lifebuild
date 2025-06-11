@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom'
 import React, { ReactElement } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
+import type { Task, Column, Board } from './livestore/schema.js'
 
 // Simple test wrapper for basic component testing
 interface TestProviderProps {
@@ -26,6 +27,50 @@ const createTestStore = () => {
     query: () => [],
     subscribe: () => () => {},
   }
+}
+
+// Factory functions for creating test data
+export const createMockTask = (overrides: Partial<Task> = {}): Task => ({
+  id: 'test-task',
+  boardId: 'test-board',
+  columnId: 'test-column',
+  title: 'Test Task',
+  description: null,
+  position: 0,
+  createdAt: new Date('2023-01-01'),
+  updatedAt: new Date('2023-01-01'),
+  ...overrides,
+})
+
+export const createMockColumn = (overrides: Partial<Column> = {}): Column => ({
+  id: 'test-column',
+  boardId: 'test-board',
+  name: 'Test Column',
+  position: 0,
+  createdAt: new Date('2023-01-01'),
+  updatedAt: new Date('2023-01-01'),
+  ...overrides,
+})
+
+export const createMockBoard = (overrides: Partial<Board> = {}): Board => ({
+  id: 'test-board',
+  name: 'Test Board',
+  createdAt: new Date('2023-01-01'),
+  updatedAt: new Date('2023-01-01'),
+  deletedAt: null,
+  ...overrides,
+})
+
+// Helper to create multiple tasks with sequential IDs and positions
+export const createMockTasks = (count: number, baseOverrides: Partial<Task> = {}): Task[] => {
+  return Array.from({ length: count }, (_, index) =>
+    createMockTask({
+      id: `task-${index + 1}`,
+      title: `Task ${index + 1}`,
+      position: index,
+      ...baseOverrides,
+    })
+  )
 }
 
 // Re-export everything

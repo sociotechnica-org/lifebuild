@@ -16,6 +16,7 @@ import type { Column, Task } from '../livestore/schema.js'
 import { events } from '../livestore/schema.js'
 import { KanbanColumn } from './KanbanColumn.js'
 import { TaskCard } from './TaskCard.js'
+import { TaskModal } from './TaskModal.js'
 
 export function KanbanBoard() {
   const { boardId } = useParams<{ boardId: string }>()
@@ -26,6 +27,7 @@ export function KanbanBoard() {
     position: number
   } | null>(null)
   const [dragOverAddCard, setDragOverAddCard] = useState<string | null>(null)
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
   if (!boardId) {
     return <div>Board not found</div>
@@ -57,6 +59,16 @@ export function KanbanBoard() {
   // Find task by ID helper
   const findTask = (taskId: string): Task | undefined => {
     return tasks.find(task => task.id === taskId)
+  }
+
+  // Handle task card click
+  const handleTaskClick = (taskId: string) => {
+    setSelectedTaskId(taskId)
+  }
+
+  // Handle modal close
+  const handleModalClose = () => {
+    setSelectedTaskId(null)
   }
 
   // Recalculate positions in a column (not used yet, but will be needed for future optimizations)
@@ -286,11 +298,13 @@ export function KanbanBoard() {
               draggedTaskHeight={activeTask ? 76 : 0} // Approximate task card height
               draggedTaskId={activeTask?.id || null}
               showAddCardPreview={dragOverAddCard === column.id}
+              onTaskClick={handleTaskClick}
             />
           ))}
         </div>
       </div>
       <DragOverlay>{activeTask ? <TaskCard task={activeTask} isDragOverlay /> : null}</DragOverlay>
+      <TaskModal taskId={selectedTaskId} onClose={handleModalClose} />
     </DndContext>
   )
 }

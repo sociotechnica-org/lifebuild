@@ -2,6 +2,7 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { KanbanBoard } from '../../src/components/KanbanBoard.js'
+import { createMockColumn, createMockTask, createMockTasks } from '../../src/test-utils.js'
 
 // Hoisted mocks
 const { mockUseQuery, mockStore, mockUseParams } = vi.hoisted(() => {
@@ -48,26 +49,11 @@ vi.mock('@dnd-kit/core', () => ({
 
 describe('KanbanBoard', () => {
   const mockColumns = [
-    {
-      id: 'col-1',
-      boardId: 'test-board',
-      name: 'Todo',
-      position: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
+    createMockColumn({ id: 'col-1', name: 'Todo' }),
   ]
 
   const mockTasks = [
-    {
-      id: 'task-1',
-      boardId: 'test-board',
-      columnId: 'col-1',
-      title: 'Test Task',
-      position: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
+    createMockTask({ id: 'task-1', columnId: 'col-1', title: 'Test Task' }),
   ]
 
   beforeEach(() => {
@@ -110,35 +96,7 @@ describe('KanbanBoard', () => {
 
   it('should render with multiple tasks and maintain proper structure', () => {
     // Set up test scenario: column with 3 tasks to test rendering behavior
-    const testTasks = [
-      {
-        id: 'task-1',
-        boardId: 'test-board',
-        columnId: 'col-1',
-        title: 'Task 1',
-        position: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 'task-2',
-        boardId: 'test-board',
-        columnId: 'col-1',
-        title: 'Task 2',
-        position: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 'task-3',
-        boardId: 'test-board',
-        columnId: 'col-1',
-        title: 'Task 3',
-        position: 2,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ]
+    const testTasks = createMockTasks(3, { columnId: 'col-1' })
 
     mockUseQuery.mockImplementation((query: any) => {
       if (query.label?.includes('getBoardColumns')) {
