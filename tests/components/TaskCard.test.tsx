@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { TaskCard } from '../../src/components/TaskCard.js'
 
 // Hoisted mocks
-const { mockUseDraggable } = vi.hoisted(() => {
+const { mockUseDraggable, mockUseDroppable } = vi.hoisted(() => {
   const mockUseDraggable = vi.fn(() => ({
     attributes: {},
     listeners: {},
@@ -12,12 +12,17 @@ const { mockUseDraggable } = vi.hoisted(() => {
     transform: null,
     isDragging: false,
   }))
-  return { mockUseDraggable }
+  const mockUseDroppable = vi.fn(() => ({
+    setNodeRef: vi.fn(),
+    isOver: false,
+  }))
+  return { mockUseDraggable, mockUseDroppable }
 })
 
 // Mock @dnd-kit/core
 vi.mock('@dnd-kit/core', () => ({
   useDraggable: mockUseDraggable,
+  useDroppable: mockUseDroppable,
 }))
 
 describe('TaskCard', () => {
@@ -60,5 +65,16 @@ describe('TaskCard', () => {
     render(<TaskCard task={mockTask} />)
     const card = screen.getByText('Test Task').closest('div')
     expect(card).toHaveClass('opacity-50')
+  })
+
+  it('should render with drop-over styling', () => {
+    mockUseDroppable.mockReturnValue({
+      setNodeRef: vi.fn(),
+      isOver: true,
+    })
+
+    render(<TaskCard task={mockTask} />)
+    const card = screen.getByText('Test Task').closest('div')
+    expect(card).toHaveClass('border-blue-300', 'border-2')
   })
 })
