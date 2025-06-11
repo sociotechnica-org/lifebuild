@@ -111,9 +111,6 @@ export const ChatInterface: React.FC = () => {
                   {messages.map((message: ChatMessage) => (
                     <div key={message.id} className='bg-blue-50 p-3 rounded-lg'>
                       <div className='text-sm text-gray-900'>{message.message}</div>
-                      <div className='text-xs text-gray-500 mt-1'>
-                        {message.createdAt.toLocaleString()}
-                      </div>
                     </div>
                   ))}
                   <div ref={messagesEndRef} />
