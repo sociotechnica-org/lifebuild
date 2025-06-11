@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery, useStore } from '@livestore/react'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 import type { Task, Column, User, Comment } from '../livestore/schema.js'
 import {
   getTaskById$,
@@ -209,6 +211,45 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
     }).format(date)
   }
 
+  const renderMarkdown = (content: string) => {
+    // Configure marked for basic security
+    marked.setOptions({
+      breaks: true, // Convert line breaks to <br>
+      gfm: true, // GitHub Flavored Markdown
+      async: false, // Force synchronous parsing
+    })
+
+    try {
+      const html = marked.parse(content, { async: false }) as string
+      // Sanitize the HTML to prevent XSS attacks
+      return DOMPurify.sanitize(html, {
+        ALLOWED_TAGS: [
+          'p',
+          'br',
+          'strong',
+          'em',
+          'ul',
+          'ol',
+          'li',
+          'a',
+          'code',
+          'pre',
+          'blockquote',
+          'h1',
+          'h2',
+          'h3',
+          'h4',
+          'h5',
+          'h6',
+        ],
+        ALLOWED_ATTR: ['href'],
+      })
+    } catch {
+      // Fallback to plain text if markdown parsing fails
+      return DOMPurify.sanitize(content)
+    }
+  }
+
   return (
     <div
       className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'
@@ -406,9 +447,10 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
                               {formatDate(comment.createdAt)}
                             </span>
                           </div>
-                          <div className='text-sm text-gray-700 whitespace-pre-wrap'>
-                            {comment.content}
-                          </div>
+                          <div
+                            className='text-sm text-gray-700 prose prose-sm max-w-none'
+                            dangerouslySetInnerHTML={{ __html: renderMarkdown(comment.content) }}
+                          />
                         </div>
                       </div>
                     )
