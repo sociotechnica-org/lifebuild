@@ -115,7 +115,18 @@ export const taskUpdated = Events.synced({
     taskId: Schema.String,
     title: Schema.Union(Schema.String, Schema.Undefined),
     description: Schema.Union(Schema.String, Schema.Undefined),
+    assigneeIds: Schema.Union(Schema.Array(Schema.String), Schema.Undefined),
     updatedAt: Schema.Date,
+  }),
+})
+
+export const userCreated = Events.synced({
+  name: 'v1.UserCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+    avatarUrl: Schema.Union(Schema.String, Schema.Undefined),
+    createdAt: Schema.Date,
   }),
 })
 
@@ -146,6 +157,17 @@ export const llmResponseStarted = Events.synced({
   schema: Schema.Struct({
     conversationId: Schema.String,
     userMessageId: Schema.String,
+    createdAt: Schema.Date,
+  }),
+})
+
+export const commentAdded = Events.synced({
+  name: 'v1.CommentAdded',
+  schema: Schema.Struct({
+    id: Schema.String,
+    taskId: Schema.String,
+    authorId: Schema.String,
+    content: Schema.String,
     createdAt: Schema.Date,
   }),
 })

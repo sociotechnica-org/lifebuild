@@ -81,6 +81,18 @@ const columns = State.SQLite.table({
   },
 })
 
+const users = State.SQLite.table({
+  name: 'users',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    name: State.SQLite.text({ default: '' }),
+    avatarUrl: State.SQLite.text({ nullable: true }),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
 const tasks = State.SQLite.table({
   name: 'tasks',
   columns: {
@@ -89,6 +101,7 @@ const tasks = State.SQLite.table({
     columnId: State.SQLite.text(),
     title: State.SQLite.text({ default: '' }),
     description: State.SQLite.text({ nullable: true }),
+    assigneeIds: State.SQLite.text({ default: '[]' }), // JSON array of user IDs
     position: State.SQLite.integer({ default: 0 }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
@@ -113,6 +126,19 @@ const conversations = State.SQLite.table({
   },
 })
 
+const comments = State.SQLite.table({
+  name: 'comments',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    taskId: State.SQLite.text(),
+    authorId: State.SQLite.text(),
+    content: State.SQLite.text({ default: '' }),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
 const uiState = State.SQLite.clientDocument({
   name: 'uiState',
   schema: Schema.Struct({ newTodoText: Schema.String, filter: Filter }),
@@ -126,8 +152,10 @@ export type Todo = State.SQLite.FromTable.RowDecoded<typeof todos>
 export type ChatMessage = State.SQLite.FromTable.RowDecoded<typeof chatMessages>
 export type Board = State.SQLite.FromTable.RowDecoded<typeof boards>
 export type Column = State.SQLite.FromTable.RowDecoded<typeof columns>
+export type User = State.SQLite.FromTable.RowDecoded<typeof users>
 export type Task = State.SQLite.FromTable.RowDecoded<typeof tasks>
 export type Conversation = State.SQLite.FromTable.RowDecoded<typeof conversations>
+export type Comment = State.SQLite.FromTable.RowDecoded<typeof comments>
 export type UiState = typeof uiState.default.value
 
 export const events = {
@@ -135,7 +163,17 @@ export const events = {
   uiStateSet: uiState.set,
 }
 
-export const tables = { todos, uiState, chatMessages, boards, columns, tasks, conversations }
+export const tables = {
+  todos,
+  uiState,
+  chatMessages,
+  boards,
+  columns,
+  users,
+  tasks,
+  conversations,
+  comments,
+}
 
 const materializers = State.SQLite.materializers(events, {
   'v1.TodoCreated': ({ id, text }) => todos.insert({ id, text, completed: false }),
@@ -158,17 +196,22 @@ const materializers = State.SQLite.materializers(events, {
     tasks.insert({ id, boardId, columnId, title, position, createdAt, updatedAt: createdAt }),
   'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt }) =>
     tasks.update({ columnId: toColumnId, position, updatedAt }).where({ id: taskId }),
-  'v1.TaskUpdated': ({ taskId, title, description, updatedAt }) => {
+  'v1.TaskUpdated': ({ taskId, title, description, assigneeIds, updatedAt }) => {
     const updates: Record<string, any> = { updatedAt }
     if (title !== undefined) updates.title = title
     if (description !== undefined) updates.description = description
+    if (assigneeIds !== undefined) updates.assigneeIds = JSON.stringify(assigneeIds)
     return tasks.update(updates).where({ id: taskId })
   },
+  'v1.UserCreated': ({ id, name, avatarUrl, createdAt }) =>
+    users.insert({ id, name, avatarUrl, createdAt }),
   'v1.ConversationCreated': ({ id, title, createdAt }) =>
     conversations.insert({ id, title, createdAt, updatedAt: createdAt }),
   'v1.LLMResponseReceived': ({ id, conversationId, message, role, modelId, createdAt, metadata }) =>
     chatMessages.insert({ id, conversationId, message, role, modelId, createdAt, metadata }),
   'v1.LLMResponseStarted': () => [],
+  'v1.CommentAdded': ({ id, taskId, authorId, content, createdAt }) =>
+    comments.insert({ id, taskId, authorId, content, createdAt }),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

@@ -4,6 +4,39 @@ import { events } from '../livestore/schema.js'
 export function seedSampleBoards(store: Store) {
   const now = new Date()
 
+  // Create sample users
+  const sampleUsers = [
+    {
+      id: 'user-1',
+      name: 'Alice Johnson',
+      avatarUrl: undefined,
+      createdAt: new Date(now.getTime() - 604800000), // 1 week ago
+    },
+    {
+      id: 'user-2',
+      name: 'Bob Smith',
+      avatarUrl: undefined,
+      createdAt: new Date(now.getTime() - 518400000), // 6 days ago
+    },
+    {
+      id: 'user-3',
+      name: 'Carol Davis',
+      avatarUrl: undefined,
+      createdAt: new Date(now.getTime() - 432000000), // 5 days ago
+    },
+    {
+      id: 'user-4',
+      name: 'David Wilson',
+      avatarUrl: undefined,
+      createdAt: new Date(now.getTime() - 345600000), // 4 days ago
+    },
+  ]
+
+  // Commit user creation events
+  sampleUsers.forEach(user => {
+    store.commit(events.userCreated(user))
+  })
+
   // Create sample boards
   const sampleBoards = [
     {
@@ -58,9 +91,12 @@ export function seedSampleBoards(store: Store) {
 
       // Create tasks for this column
       sampleTasks[column.position as keyof typeof sampleTasks].forEach((title, index) => {
+        const taskId = `${columnId}-task-${index}`
+
+        // Create the task
         store.commit(
           events.taskCreated({
-            id: `${columnId}-task-${index}`,
+            id: taskId,
             boardId: board.id,
             columnId: columnId,
             title: title,
@@ -68,6 +104,23 @@ export function seedSampleBoards(store: Store) {
             createdAt: new Date(board.createdAt.getTime() + index * 1000), // Stagger creation times
           })
         )
+
+        // Add some sample assignments (randomly assign 0-2 users to each task)
+        const numAssignees = Math.floor(Math.random() * 3) // 0, 1, or 2 assignees
+        if (numAssignees > 0) {
+          const shuffledUsers = [...sampleUsers].sort(() => Math.random() - 0.5)
+          const assigneeIds = shuffledUsers.slice(0, numAssignees).map(user => user.id)
+
+          store.commit(
+            events.taskUpdated({
+              taskId,
+              title: undefined,
+              description: undefined,
+              assigneeIds,
+              updatedAt: new Date(board.createdAt.getTime() + index * 1000 + 500),
+            })
+          )
+        }
       })
     })
   })

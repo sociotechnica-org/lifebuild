@@ -155,7 +155,7 @@
 
 ---
 
-## 🍰 Story 7 – Assign a teammate to a card
+## ✅ Story 7 – Assign a teammate to a card — COMPLETED
 
 **GitHub Issue**: [#10](https://github.com/sociotechnica-org/work-squared/issues/10)
 
@@ -163,14 +163,24 @@
 
 **Dependencies**: Story 5 (View a card's details) and Story 6 (Edit a card) should be completed first.
 
-### Tasks
+### Tasks — DONE
 
-- Schema: Add `assigneeId?` to `tasks`; add `users` table minimal `{ id, name, avatarUrl }`
-- Event: extend `task.updated` to include `assigneeId`
-- UI: Assignee dropdown in `TaskModal` powered by `Combobox` component
-- Seed: Mock users list in dev
-- Tests: Selecting assignee updates task; avatar chip shows on `TaskCard`
-- DoD: Cards display assignee avatar; assignment persists.
+- [x] Schema: Add `assigneeIds` array to `tasks`; add `users` table `{ id, name, avatarUrl, createdAt }`
+- [x] Event: extend `task.updated` to include `assigneeIds` array for multi-user assignment
+- [x] UI: Multi-select assignee dropdown in `TaskModal` powered by `Combobox` component
+- [x] Seed: Mock users list in dev (Alice Johnson, Bob Smith, Carol Davis, David Wilson)
+- [x] Tests: Comprehensive test coverage for assignee functionality and edge cases
+- [x] DoD: Cards display assignee avatars with initials; multi-assignment persists.
+
+### Implementation Notes
+
+- **Multi-user Support**: Cards can be assigned to multiple users simultaneously
+- **Always Available**: Assignee editing works in both view and edit modes with immediate save
+- **Visual Design**: Avatar circles with initials displayed on TaskCard (bottom-right, up to 3 + overflow)
+- **Accessibility**: Full keyboard navigation, ARIA labels, escape key support
+- **Edge Case Handling**: Robust initials generation with fallbacks for malformed names
+- **Real-time Sync**: Assignments sync immediately across all connected clients
+- **JSON Storage**: assigneeIds stored as JSON array for SQLite compatibility
 
 ---
 

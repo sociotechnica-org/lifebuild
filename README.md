@@ -68,7 +68,9 @@ pnpm wrangler:deploy
 ## Features
 
 - **Real-time Kanban Boards**: Collaborative task management with live updates
-- **Drag & Drop**: Move tasks between columns and reorder within columns
+- **Multi-user Assignment**: Assign multiple team members to tasks with avatar indicators
+- **Task Management**: Create, edit, and view detailed task information
+- **Drag & Drop**: Move tasks between columns and reorder within columns  
 - **Responsive Design**: Works on desktop and mobile devices
 - **Local-first Architecture**: Powered by LiveStore for offline-capable real-time sync
 - **Type-safe**: Built with TypeScript for robust development
