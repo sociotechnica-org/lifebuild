@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { events, tables } from '../../src/livestore/schema.js'
-import { getConversations$, getConversation$ } from '../../src/livestore/queries.js'
+import {
+  getConversations$,
+  getConversation$,
+  getConversationMessages$,
+} from '../../src/livestore/queries.js'
 
 describe('Conversation Events and Materialization', () => {
   it('should have conversation creation event function', () => {
@@ -36,5 +40,39 @@ describe('Conversation Events and Materialization', () => {
     expect(event).toBeDefined()
     expect(event.name).toBe('v1.ConversationCreated')
     expect(event.args).toEqual(testConversation)
+  })
+
+  it('should define getConversationMessages query', () => {
+    expect(getConversationMessages$).toBeDefined()
+    const testId = 'test-conversation-id'
+    const query = getConversationMessages$(testId)
+    expect(query.label).toBe(`getConversationMessages:${testId}`)
+  })
+})
+
+describe('Chat Message Events and Materialization', () => {
+  it('should have chat message sent event function', () => {
+    expect(events.chatMessageSent).toBeDefined()
+    expect(typeof events.chatMessageSent).toBe('function')
+  })
+
+  it('should define chatMessages table', () => {
+    expect(tables.chatMessages).toBeDefined()
+  })
+
+  it('should create chat message event with correct schema including conversationId', () => {
+    const testMessage = {
+      id: 'test-message-id',
+      conversationId: 'test-conversation-id',
+      message: 'Hello, LLM!',
+      createdAt: new Date(),
+    }
+
+    const event = events.chatMessageSent(testMessage)
+
+    expect(event).toBeDefined()
+    expect(event.name).toBe('v1.ChatMessageSent')
+    expect(event.args).toEqual(testMessage)
+    expect(event.args.conversationId).toBe('test-conversation-id')
   })
 })

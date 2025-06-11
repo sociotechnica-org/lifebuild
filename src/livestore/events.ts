@@ -38,6 +38,7 @@ export const chatMessageSent = Events.synced({
   name: 'v1.ChatMessageSent',
   schema: Schema.Struct({
     id: Schema.String,
+    conversationId: Schema.String,
     message: Schema.String,
     createdAt: Schema.Date,
   }),

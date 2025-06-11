@@ -17,19 +17,19 @@ Based on the technical design document, the LLM Chat system will:
 ## Progress Summary
 
 - ✅ **Story 1**: Start a New Chat with an LLM - COMPLETED
-- ⏳ **Story 2**: Send a Chat Message to an LLM - PENDING
+- ✅ **Story 2**: Send a Chat Message to an LLM - COMPLETED
 - ⏳ **Story 3**: LLM Responds to Chat Messages - PENDING  
 - ⏳ **Story 4**: LLM Creates Tasks (Kanban Cards) - PENDING
 - ⏳ **Story 5**: LLM Lists Tasks (Kanban Cards) - PENDING
 - ⏳ **Story 6**: LLM Lists Projects (Kanban Boards) - PENDING
 
-**Current Status**: Foundation complete! Chat interface is live as persistent right panel. Ready to implement message sending functionality.
+**Current Status**: Message sending complete! Users can now create conversations and send messages that are persisted with proper conversation linking. Ready for LLM response functionality.
 
-**Next Steps for Story 2**:
-1. Update existing `chatMessages` table to include `conversationId` foreign key
-2. Implement message input handling and form submission
-3. Add message display component to show conversation history
-4. Set up message persistence with conversation linking
+**Next Steps for Story 3**:
+1. Set up Cloudflare Worker for LLM API calls
+2. Create sync worker that watches chat message events
+3. Implement conversation-aware message routing
+4. Add LLM response generation and event emission
 
 ---
 
@@ -64,24 +64,34 @@ Based on the technical design document, the LLM Chat system will:
 
 ---
 
-### Story 2: Send a Chat Message to an LLM
+### ✅ Story 2: Send a Chat Message to an LLM - COMPLETED
 **As a user, I want to send a chat message to an LLM.**
 
 **Acceptance Criteria:**
-- I can type a message in the chat input
-- I can send the message by pressing Enter or clicking Send
-- My message appears in the chat interface immediately
-- The message is persisted with the correct conversation ID
-- Events are emitted for message creation
+- ✅ I can type a message in the chat input
+- ✅ I can send the message by pressing Enter or clicking Send
+- ✅ My message appears in the chat interface immediately
+- ✅ The message is persisted with the correct conversation ID
+- ✅ Events are emitted for message creation
 
 **Technical Implementation:**
-- Add `chat.message` event type with conversation ID
-- Add `chatMessages` table with conversation foreign key
-- Implement message input component
-- Add message display component
-- Set up event emission for user messages
+- ✅ Updated `chatMessageSent` event to include `conversationId` field
+- ✅ Updated `chatMessages` table with conversation foreign key
+- ✅ Implemented message input form with controlled state in ChatInterface
+- ✅ Added message display component showing conversation history
+- ✅ Set up event emission for user messages with proper conversation linking
+- ✅ Added `getConversationMessages$` query for fetching messages by conversation
 
-**Dependencies:** Story 1 (needs conversation context)
+**Implementation Notes:**
+- Chat messages now properly linked to conversations via `conversationId` foreign key
+- Message input includes form validation (empty messages are disabled)
+- Messages display in chronological order with timestamps
+- Real-time updates as messages are added to conversations
+- Updated existing MainSection.tsx to include conversationId for backward compatibility
+- Events: `v1.ChatMessageSent` with id, conversationId, message, createdAt fields
+- Tests: 4 additional unit tests for message events and queries
+
+**Dependencies:** Story 1 (needs conversation context) - ✅ COMPLETED
 
 ---
 

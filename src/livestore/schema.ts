@@ -20,6 +20,7 @@ const chatMessages = State.SQLite.table({
   name: 'chatMessages',
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
+    conversationId: State.SQLite.text(),
     message: State.SQLite.text({ default: '' }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
@@ -137,8 +138,8 @@ const materializers = State.SQLite.materializers(events, {
   'v1.TodoDeleted': ({ id, deletedAt }) => todos.update({ deletedAt }).where({ id }),
   'v1.TodoClearedCompleted': ({ deletedAt }) =>
     todos.update({ deletedAt }).where({ completed: true }),
-  'v1.ChatMessageSent': ({ id, message, createdAt }) =>
-    chatMessages.insert({ id, message, createdAt }),
+  'v1.ChatMessageSent': ({ id, conversationId, message, createdAt }) =>
+    chatMessages.insert({ id, conversationId, message, createdAt }),
   'v1.BoardCreated': ({ id, name, createdAt }) =>
     boards.insert({ id, name, createdAt, updatedAt: createdAt }),
   'v1.ColumnCreated': ({ id, boardId, name, position, createdAt }) =>
