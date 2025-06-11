@@ -70,3 +70,14 @@ export const getUsers$ = queryDb(
   tables.users.select().orderBy([{ col: 'name', direction: 'asc' }]),
   { label: 'getUsers' }
 )
+
+export const getTaskComments$ = (taskId: string) =>
+  queryDb(
+    tables.comments
+      .select()
+      .where({ taskId })
+      .orderBy([{ col: 'createdAt', direction: 'desc' }]),
+    {
+      label: `getTaskComments:${taskId}`,
+    }
+  )

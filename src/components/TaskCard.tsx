@@ -78,7 +78,7 @@ export function TaskCard({ task, isDragOverlay = false, onClick }: TaskCardProps
                 className='w-7 h-7 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-medium border-2 border-white'
                 title={assignee.name}
               >
-{getInitials(assignee.name)}
+                {getInitials(assignee.name)}
               </div>
             ))}
             {assignees.length > 3 && (

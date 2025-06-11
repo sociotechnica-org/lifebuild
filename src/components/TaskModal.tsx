@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import type { Task, Column, User } from '../livestore/schema.js'
-import { getTaskById$, getBoardColumns$, getUsers$ } from '../livestore/queries.js'
+import type { Task, Column, User, Comment } from '../livestore/schema.js'
+import {
+  getTaskById$,
+  getBoardColumns$,
+  getUsers$,
+  getTaskComments$,
+} from '../livestore/queries.js'
 import { events } from '../livestore/schema.js'
 import { Combobox } from './Combobox.js'
+import { getInitials } from '../util/initials.js'
 
 interface TaskModalProps {
   taskId: string | null
@@ -25,6 +31,10 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   const column = columns.find((col: Column) => col.id === task.columnId)
 
   const users = useQuery(getUsers$) ?? []
+  const comments = useQuery(getTaskComments$(taskId)) ?? []
+
+  // Get first user as current user (for comments)
+  const currentUser = users[0]
 
   // Parse assigneeIds from JSON string safely
   let currentAssigneeIds: string[] = []
@@ -40,6 +50,10 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   const [editDescription, setEditDescription] = useState(task.description || '')
   const [editAssigneeIds, setEditAssigneeIds] = useState<string[]>(currentAssigneeIds)
   const [titleError, setTitleError] = useState('')
+
+  // Comment state
+  const [newComment, setNewComment] = useState('')
+  const [commentError, setCommentError] = useState('')
 
   // Update form fields when task changes (for optimistic updates)
   useEffect(() => {
@@ -131,6 +145,59 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
       document.body.style.overflow = 'unset'
     }
   }, [])
+
+  const validateComment = (content: string): boolean => {
+    const trimmed = content.trim()
+    if (!trimmed) {
+      setCommentError('Comment cannot be empty')
+      return false
+    }
+    if (trimmed.length > 5000) {
+      setCommentError('Comment cannot exceed 5000 characters')
+      return false
+    }
+    setCommentError('')
+    return true
+  }
+
+  const handleAddComment = () => {
+    if (!currentUser) return
+
+    const trimmedComment = newComment.trim()
+    if (!validateComment(trimmedComment)) {
+      return
+    }
+
+    store.commit(
+      events.commentAdded({
+        id: crypto.randomUUID(),
+        taskId: task.id,
+        authorId: currentUser.id,
+        content: trimmedComment,
+        createdAt: new Date(),
+      })
+    )
+
+    setNewComment('')
+    setCommentError('')
+  }
+
+  const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value
+    setNewComment(value)
+
+    // Real-time validation
+    if (commentError && value.trim()) {
+      setCommentError('')
+    }
+  }
+
+  const handleCommentKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault()
+      handleAddComment()
+    }
+  }
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -272,6 +339,86 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
                 )}
               </>
             )}
+          </div>
+
+          {/* Comments */}
+          <div>
+            <h2 className='text-sm font-medium text-gray-900 mb-3'>Comments ({comments.length})</h2>
+
+            {/* Comment composer */}
+            {currentUser && (
+              <div className='mb-4 p-4 border border-gray-200 rounded-lg'>
+                <div className='flex gap-3'>
+                  <div
+                    className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0'
+                    title={currentUser.name}
+                  >
+                    {getInitials(currentUser.name)}
+                  </div>
+                  <div className='flex-1'>
+                    <textarea
+                      value={newComment}
+                      onChange={handleCommentChange}
+                      onKeyDown={handleCommentKeyDown}
+                      className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical min-h-[80px] ${
+                        commentError ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder='Add a comment...'
+                      rows={3}
+                    />
+                    {commentError && <p className='text-red-500 text-sm mt-1'>{commentError}</p>}
+                    <div className='flex items-center justify-between mt-2'>
+                      <p className='text-xs text-gray-500'>
+                        {newComment.length}/5000 • Cmd+Enter to post
+                      </p>
+                      <button
+                        onClick={handleAddComment}
+                        disabled={!newComment.trim()}
+                        className='px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors'
+                      >
+                        Comment
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Comments list */}
+            <div className='space-y-4'>
+              {comments.length > 0 ? (
+                comments.map((comment: Comment) => {
+                  const author = users.find((user: User) => user.id === comment.authorId)
+                  return (
+                    <div key={comment.id} className='flex gap-3'>
+                      <div
+                        className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0'
+                        title={author?.name || 'Unknown User'}
+                      >
+                        {getInitials(author?.name || 'Unknown User')}
+                      </div>
+                      <div className='flex-1'>
+                        <div className='flex items-center gap-2 mb-1'>
+                          <span className='text-sm font-medium text-gray-900'>
+                            {author?.name || 'Unknown User'}
+                          </span>
+                          <span className='text-xs text-gray-500'>
+                            {formatDate(comment.createdAt)}
+                          </span>
+                        </div>
+                        <div className='text-sm text-gray-700 whitespace-pre-wrap'>
+                          {comment.content}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })
+              ) : (
+                <div className='text-sm text-gray-500 italic text-center py-4'>
+                  No comments yet. Be the first to add one!
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Metadata */}

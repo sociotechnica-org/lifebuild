@@ -18,7 +18,7 @@ describe('ChatInterface', () => {
     render(<ChatInterface />)
 
     expect(screen.getByText('LLM Chat')).toBeInTheDocument()
-    expect(screen.getByText('New Chat')).toBeInTheDocument()
+    expect(screen.getByLabelText('New Chat')).toBeInTheDocument()
     expect(screen.getByText('No conversation selected')).toBeInTheDocument()
   })
 })

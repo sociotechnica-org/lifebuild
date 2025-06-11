@@ -2,15 +2,20 @@ import { useQuery, useStore } from '@livestore/react'
 import React from 'react'
 
 import { events } from '../livestore/schema.js'
-import { getConversations$, getConversationMessages$ } from '../livestore/queries.js'
+import { getConversations$, getConversationMessages$, getUsers$ } from '../livestore/queries.js'
 import type { Conversation, ChatMessage } from '../livestore/schema.js'
+import { getInitials } from '../util/initials.js'
 
 export const ChatInterface: React.FC = () => {
   const { store } = useStore()
   const conversations = useQuery(getConversations$) ?? []
+  const users = useQuery(getUsers$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [messageText, setMessageText] = React.useState('')
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
+
+  // Get first user as current user
+  const currentUser = users[0]
 
   // Use a stable conversation ID for the query to avoid hook order issues
   const queryConversationId = selectedConversationId ?? '__no_conversation__'
@@ -75,12 +80,31 @@ export const ChatInterface: React.FC = () => {
       <div className='flex-shrink-0 p-4 border-b border-gray-200'>
         <div className='flex items-center justify-between mb-2'>
           <h2 className='text-lg font-semibold text-gray-900'>LLM Chat</h2>
-          <button
-            onClick={handleCreateConversation}
-            className='bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors'
-          >
-            New Chat
-          </button>
+          <div className='flex items-center gap-2'>
+            <button
+              onClick={handleCreateConversation}
+              className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors'
+              aria-label='New Chat'
+              title='New Chat'
+            >
+              <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M12 4v16m8-8H4'
+                />
+              </svg>
+            </button>
+            {currentUser && (
+              <div
+                className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium'
+                title={currentUser.name}
+              >
+                {getInitials(currentUser.name)}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Conversation Selector */}
