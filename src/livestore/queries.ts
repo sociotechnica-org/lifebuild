@@ -39,3 +39,8 @@ export const getTaskById$ = (taskId: string) =>
   queryDb(tables.tasks.select().where({ id: taskId }), {
     label: `getTaskById:${taskId}`,
   })
+
+export const getBoardById$ = (boardId: string) =>
+  queryDb(tables.boards.select().where({ id: boardId }), {
+    label: `getBoardById:${boardId}`,
+  })

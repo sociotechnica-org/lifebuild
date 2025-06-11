@@ -24,9 +24,7 @@ describe('TaskModal', () => {
     updatedAt: new Date('2023-01-01T10:00:00Z'),
   })
 
-  const mockColumns = [
-    createMockColumn({ name: 'Todo' }),
-  ]
+  const mockColumns = [createMockColumn({ name: 'Todo' })]
 
   beforeEach(() => {
     vi.clearAllMocks()

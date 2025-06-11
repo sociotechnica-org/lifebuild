@@ -38,7 +38,7 @@ vi.mock('@dnd-kit/core', () => ({
 
 describe('KanbanColumn', () => {
   const mockColumn = createMockColumn()
-  const mockTasks = createMockTasks(2, { 
+  const mockTasks = createMockTasks(2, {
     columnId: 'test-column',
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-01'),

@@ -2,7 +2,12 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { KanbanBoard } from '../../src/components/KanbanBoard.js'
-import { createMockColumn, createMockTask, createMockTasks } from '../../src/test-utils.js'
+import {
+  createMockBoard,
+  createMockColumn,
+  createMockTask,
+  createMockTasks,
+} from '../../src/test-utils.js'
 
 // Hoisted mocks
 const { mockUseQuery, mockStore, mockUseParams } = vi.hoisted(() => {
@@ -15,6 +20,11 @@ const { mockUseQuery, mockStore, mockUseParams } = vi.hoisted(() => {
 // Mock react-router-dom
 vi.mock('react-router-dom', () => ({
   useParams: mockUseParams,
+  Link: ({ children, to, ...props }: any) => (
+    <a href={to} {...props}>
+      {children}
+    </a>
+  ),
 }))
 
 // Mock @livestore/react
@@ -48,19 +58,20 @@ vi.mock('@dnd-kit/core', () => ({
 }))
 
 describe('KanbanBoard', () => {
-  const mockColumns = [
-    createMockColumn({ id: 'col-1', name: 'Todo' }),
-  ]
+  const mockBoard = createMockBoard({ name: 'Test Board' })
 
-  const mockTasks = [
-    createMockTask({ id: 'task-1', columnId: 'col-1', title: 'Test Task' }),
-  ]
+  const mockColumns = [createMockColumn({ id: 'col-1', name: 'Todo' })]
+
+  const mockTasks = [createMockTask({ id: 'task-1', columnId: 'col-1', title: 'Test Task' })]
 
   beforeEach(() => {
     // Reset to default boardId
     mockUseParams.mockReturnValue({ boardId: 'test-board' })
 
     mockUseQuery.mockImplementation((query: any) => {
+      if (query.label?.includes('getBoardById')) {
+        return [mockBoard]
+      }
       if (query.label?.includes('getBoardColumns')) {
         return mockColumns
       }
@@ -99,6 +110,9 @@ describe('KanbanBoard', () => {
     const testTasks = createMockTasks(3, { columnId: 'col-1' })
 
     mockUseQuery.mockImplementation((query: any) => {
+      if (query.label?.includes('getBoardById')) {
+        return [mockBoard]
+      }
       if (query.label?.includes('getBoardColumns')) {
         return mockColumns
       }
