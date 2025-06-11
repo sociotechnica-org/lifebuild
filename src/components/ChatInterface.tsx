@@ -106,58 +106,67 @@ export const ChatInterface: React.FC = () => {
     if (!selectedConversationId) return
 
     const userMessagesQuery = getConversationMessages$(selectedConversationId)
+    let isProcessing = false // Prevent race conditions
 
     const unsubscribe = store.subscribe(userMessagesQuery, {
       onUpdate: async messages => {
-        // Find the most recent user message that hasn't been responded to
+        if (isProcessing) return // Skip if already processing
+
         const userMessages = messages.filter(m => m.role === 'user')
         const assistantMessages = messages.filter(m => m.role === 'assistant')
 
-        // Check if there's a user message without a corresponding assistant response
-        const lastUserMessage = userMessages[userMessages.length - 1]
-        if (!lastUserMessage) return
-
-        // Check if we already have a response for this specific user message
-        const hasResponse = assistantMessages.some(
-          response => response.responseToMessageId === lastUserMessage.id
+        // Find ALL user messages that don't have responses yet
+        const unansweredMessages = userMessages.filter(
+          userMsg =>
+            !assistantMessages.some(assistantMsg => assistantMsg.responseToMessageId === userMsg.id)
         )
 
-        if (!hasResponse) {
-          console.log('🤖 Processing user message for LLM:', lastUserMessage.message)
+        if (unansweredMessages.length === 0) return
 
-          try {
-            const llmResponse = await callLLMAPI(lastUserMessage.message)
+        isProcessing = true
 
-            store.commit(
-              events.llmResponseReceived({
-                id: crypto.randomUUID(),
-                conversationId: selectedConversationId,
-                message: llmResponse,
-                role: 'assistant',
-                modelId: 'gpt-4o',
-                responseToMessageId: lastUserMessage.id,
-                createdAt: new Date(),
-                metadata: { source: 'braintrust' },
-              })
-            )
+        try {
+          // Process each unanswered message sequentially to avoid race conditions
+          for (const userMessage of unansweredMessages) {
+            console.log('🤖 Processing user message for LLM:', userMessage.message)
 
-            console.log('✅ LLM response sent')
-          } catch (error) {
-            console.error('❌ Error calling LLM:', error)
+            try {
+              const llmResponse = await callLLMAPI(userMessage.message)
 
-            store.commit(
-              events.llmResponseReceived({
-                id: crypto.randomUUID(),
-                conversationId: selectedConversationId,
-                message: 'Sorry, I encountered an error processing your message. Please try again.',
-                role: 'assistant',
-                modelId: 'error',
-                responseToMessageId: lastUserMessage.id,
-                createdAt: new Date(),
-                metadata: { source: 'error' },
-              })
-            )
+              store.commit(
+                events.llmResponseReceived({
+                  id: crypto.randomUUID(),
+                  conversationId: selectedConversationId,
+                  message: llmResponse,
+                  role: 'assistant',
+                  modelId: 'gpt-4o',
+                  responseToMessageId: userMessage.id,
+                  createdAt: new Date(),
+                  metadata: { source: 'braintrust' },
+                })
+              )
+
+              console.log('✅ LLM response sent for message:', userMessage.id)
+            } catch (error) {
+              console.error('❌ Error calling LLM for message:', userMessage.id, error)
+
+              store.commit(
+                events.llmResponseReceived({
+                  id: crypto.randomUUID(),
+                  conversationId: selectedConversationId,
+                  message:
+                    'Sorry, I encountered an error processing your message. Please try again.',
+                  role: 'assistant',
+                  modelId: 'error',
+                  responseToMessageId: userMessage.id,
+                  createdAt: new Date(),
+                  metadata: { source: 'error' },
+                })
+              )
+            }
           }
+        } finally {
+          isProcessing = false
         }
       },
     })

@@ -14,6 +14,16 @@ export class WebSocketServer extends makeDurableObject({
   },
 }) {}
 
+// Create worker instance once at module level for efficiency
+const worker = makeWorker({
+  validatePayload: (payload: any) => {
+    if (payload?.authToken !== 'insecure-token-change-me') {
+      throw new Error('Invalid auth token')
+    }
+  },
+  enableCORS: true,
+})
+
 // LLM API credentials loaded from environment
 
 // Custom worker that handles both WebSocket sync and HTTP API endpoints
@@ -136,17 +146,8 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
       })
     }
 
-    // Handle WebSocket upgrade requests - delegate to makeWorker
+    // Handle WebSocket upgrade requests - use pre-instantiated worker
     if (request.headers.get('upgrade') === 'websocket') {
-      const worker = makeWorker({
-        validatePayload: (payload: any) => {
-          if (payload?.authToken !== 'insecure-token-change-me') {
-            throw new Error('Invalid auth token')
-          }
-        },
-        enableCORS: true,
-      })
-
       return worker.fetch(request, env)
     }
 
