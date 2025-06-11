@@ -101,6 +101,11 @@ export function KanbanBoard() {
       // Hovering over column background
       targetColumnId = overId.replace('column-', '')
       targetPosition = tasksByColumn[targetColumnId]?.length || 0
+      
+      // If dropping in the same column at the end, account for the dragged task being removed
+      if (targetColumnId === draggedTask.columnId) {
+        targetPosition = Math.max(0, targetPosition - 1)
+      }
     } else {
       // Hovering over a task
       const targetTask = findTask(overId)
@@ -115,6 +120,19 @@ export function KanbanBoard() {
       if (targetTask.id === activeTaskId) {
         setInsertionPreview(null)
         return
+      }
+      
+      // For same-column movements, calculate the effective target position
+      if (targetColumnId === draggedTask.columnId) {
+        // If moving down in the same column, the target position should be adjusted
+        if (draggedTask.position < targetTask.position) {
+          targetPosition = targetTask.position - 1
+        }
+        // If the calculated position would be the same as current, don't show preview
+        if (targetPosition === draggedTask.position) {
+          setInsertionPreview(null)
+          return
+        }
       }
     }
 
