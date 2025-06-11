@@ -32,7 +32,39 @@ export default {
           })
         }
 
-        const { message } = await request.json()
+        let requestBody
+        try {
+          requestBody = await request.json()
+        } catch {
+          return new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          })
+        }
+
+        const { message } = requestBody
+
+        // Validate message field
+        if (!message || typeof message !== 'string' || message.trim().length === 0) {
+          return new Response(
+            JSON.stringify({ error: 'Message field is required and must be a non-empty string' }),
+            {
+              status: 400,
+              headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+            }
+          )
+        }
+
+        // Check message length limit (10,000 characters)
+        if (message.length > 10000) {
+          return new Response(
+            JSON.stringify({ error: 'Message exceeds maximum length of 10,000 characters' }),
+            {
+              status: 400,
+              headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+            }
+          )
+        }
 
         const systemPrompt = `You are an AI assistant for Work Squared, a consultancy workflow automation system. You help consultants and project managers by:
 
