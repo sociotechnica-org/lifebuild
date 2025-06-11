@@ -54,18 +54,34 @@
 
 ---
 
-## 🍰 Story 4 – Move a card via drag-and-drop
+## ✅ Story 4 – Move a card via drag-and-drop — COMPLETED
 
 **User story**: _As a manager, I want to move a card from one state to another by dragging-and-dropping._
 
+### Tasks — DONE
+
+- [x] Event: `task.moved` `{ taskId, toColumnId, position, updatedAt }`
+- [x] UI: Integrate `@dnd-kit` (lightweight, accessible) into `KanbanBoard`
+- [x] State update: On drag end, dispatch `task.moved` and optimistically update positions
+- [x] Query: Ensure tasks query orders by `position`
+- [x] Tests: dnd interaction test with proper @dnd-kit mocking
+- [x] DoD: Cards can be reordered within and across columns with persistence.
+
+---
+
+## 🍰 Story 4.5 – Advanced drag-and-drop positioning
+
+**User story**: _As a manager, I want precise control over card positioning when dragging between other cards, with smooth visual feedback._
+
 ### Tasks
 
-- Event: `task.moved` `{ taskId, fromColumnId, toColumnId, position }`
-- UI: Integrate `@dnd-kit` (lightweight, accessible) into `KanbanBoard`
-- State update: On drag end, dispatch `task.moved` and optimistically update positions
-- Query: Ensure tasks query orders by `position`
-- Tests: dnd interaction test with RTL & `@dnd-kit/test-utils`
-- DoD: Cards can be reordered within and across columns with persistence.
+- Animation: Cards shift up when a card is dragged out of a column
+- Animation: Bottom cards slide down when a card is dropped between two other cards
+- Position calculation: Support inserting cards at specific positions within the same column
+- Visual feedback: Show insertion indicator line when hovering between cards
+- Event optimization: Recalculate positions for all affected cards in source/target columns
+- Tests: Animation behavior, precise positioning logic, within-column reordering
+- DoD: Dragging creates smooth animations and allows precise positioning anywhere in any column.
 
 ---
 
