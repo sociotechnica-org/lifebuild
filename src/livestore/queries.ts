@@ -54,3 +54,8 @@ export const getConversation$ = (conversationId: string) =>
   queryDb(tables.conversations.select().where({ id: conversationId }), {
     label: `getConversation:${conversationId}`,
   })
+
+export const getUsers$ = queryDb(
+  tables.users.select().orderBy([{ col: 'name', direction: 'asc' }]),
+  { label: 'getUsers' }
+)

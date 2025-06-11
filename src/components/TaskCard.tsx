@@ -1,6 +1,8 @@
 import React from 'react'
 import { useDraggable, useDroppable } from '@dnd-kit/core'
-import type { Task } from '../livestore/schema.js'
+import { useQuery } from '@livestore/react'
+import type { Task, User } from '../livestore/schema.js'
+import { getUsers$ } from '../livestore/queries.js'
 
 interface TaskCardProps {
   task: Task
@@ -9,6 +11,17 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, isDragOverlay = false, onClick }: TaskCardProps) {
+  const users = useQuery(getUsers$) ?? []
+
+  // Parse assigneeIds from JSON string safely
+  let assigneeIds: string[] = []
+  try {
+    assigneeIds = task.assigneeIds ? JSON.parse(task.assigneeIds) : []
+  } catch {
+    assigneeIds = []
+  }
+  const assignees = users.filter((user: User) => assigneeIds.includes(user.id))
+
   const {
     attributes: dragAttributes,
     listeners: dragListeners,
@@ -54,7 +67,34 @@ export function TaskCard({ task, isDragOverlay = false, onClick }: TaskCardProps
         isDragging ? 'opacity-50' : 'hover:shadow-md'
       } ${isDragOverlay ? 'shadow-lg rotate-2' : ''}`}
     >
-      <h3 className='text-sm font-medium text-gray-900 line-clamp-2'>{task.title}</h3>
+      <div className='flex items-start justify-between'>
+        <h3 className='text-sm font-medium text-gray-900 line-clamp-2 flex-1 pr-2'>{task.title}</h3>
+        {assignees.length > 0 && (
+          <div className='flex -space-x-1'>
+            {assignees.slice(0, 3).map((assignee: User) => (
+              <div
+                key={assignee.id}
+                className='w-7 h-7 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-medium border-2 border-white'
+                title={assignee.name}
+              >
+                {assignee.name
+                  .split(' ')
+                  .map(n => n[0])
+                  .join('')
+                  .toUpperCase()}
+              </div>
+            ))}
+            {assignees.length > 3 && (
+              <div
+                className='w-7 h-7 bg-gray-400 text-white rounded-full flex items-center justify-center text-xs font-medium border-2 border-white'
+                title={`+${assignees.length - 3} more`}
+              >
+                +{assignees.length - 3}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

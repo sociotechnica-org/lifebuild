@@ -28,6 +28,7 @@ vi.mock('@livestore/react', () => ({
       commit: mockCommit,
     },
   }),
+  useQuery: () => [], // Mock empty users array
 }))
 
 // Mock @dnd-kit/core

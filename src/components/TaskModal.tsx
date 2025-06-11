@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import type { Task, Column } from '../livestore/schema.js'
-import { getTaskById$, getBoardColumns$ } from '../livestore/queries.js'
+import type { Task, Column, User } from '../livestore/schema.js'
+import { getTaskById$, getBoardColumns$, getUsers$ } from '../livestore/queries.js'
 import { events } from '../livestore/schema.js'
+import { Combobox } from './Combobox.js'
 
 interface TaskModalProps {
   taskId: string | null
@@ -23,17 +24,29 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   const columns = useQuery(getBoardColumns$(task.boardId)) ?? []
   const column = columns.find((col: Column) => col.id === task.columnId)
 
+  const users = useQuery(getUsers$) ?? []
+
+  // Parse assigneeIds from JSON string safely
+  let currentAssigneeIds: string[] = []
+  try {
+    currentAssigneeIds = task.assigneeIds ? JSON.parse(task.assigneeIds) : []
+  } catch {
+    currentAssigneeIds = []
+  }
+
   // Edit mode state
   const [isEditing, setIsEditing] = useState(false)
   const [editTitle, setEditTitle] = useState(task.title)
   const [editDescription, setEditDescription] = useState(task.description || '')
+  const [editAssigneeIds, setEditAssigneeIds] = useState<string[]>(currentAssigneeIds)
   const [titleError, setTitleError] = useState('')
 
   // Update form fields when task changes (for optimistic updates)
   useEffect(() => {
     setEditTitle(task.title)
     setEditDescription(task.description || '')
-  }, [task.title, task.description])
+    setEditAssigneeIds(currentAssigneeIds)
+  }, [task.title, task.description, task.assigneeIds])
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -68,7 +81,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
       return
     }
 
-    // Only update if values have changed
+    // Only update if values have changed (assignees are saved immediately)
     const titleChanged = trimmedTitle !== task.title
     const descriptionChanged = editDescription !== (task.description || '')
 
@@ -78,6 +91,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
           taskId: task.id,
           title: titleChanged ? trimmedTitle : undefined,
           description: descriptionChanged ? editDescription : undefined,
+          assigneeIds: undefined, // Assignees are saved immediately
           updatedAt: new Date(),
         })
       )
@@ -89,6 +103,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   const handleCancelEdit = () => {
     setEditTitle(task.title)
     setEditDescription(task.description || '')
+    // Don't reset assignees since they save immediately
     setTitleError('')
     setIsEditing(false)
   }
@@ -206,6 +221,35 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
 
         {/* Content */}
         <div className='p-6 space-y-6'>
+          {/* Assignees */}
+          <div>
+            <h2 className='text-sm font-medium text-gray-900 mb-2'>Assignees</h2>
+            <Combobox
+              options={users.map((user: User) => ({ id: user.id, label: user.name }))}
+              selectedIds={editAssigneeIds}
+              onSelectionChange={assigneeIds => {
+                setEditAssigneeIds(assigneeIds)
+                // Save immediately when not in edit mode
+                if (!isEditing) {
+                  const assigneesChanged =
+                    JSON.stringify(assigneeIds) !== JSON.stringify(currentAssigneeIds)
+                  if (assigneesChanged) {
+                    store.commit(
+                      events.taskUpdated({
+                        taskId: task.id,
+                        title: undefined,
+                        description: undefined,
+                        assigneeIds,
+                        updatedAt: new Date(),
+                      })
+                    )
+                  }
+                }
+              }}
+              placeholder='Select assignees...'
+            />
+          </div>
+
           {/* Description */}
           <div>
             <h2 className='text-sm font-medium text-gray-900 mb-2'>Description</h2>
