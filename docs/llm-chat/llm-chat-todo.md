@@ -14,22 +14,51 @@ Based on the technical design document, the LLM Chat system will:
 
 ## User Stories (Implementation Order)
 
-### Story 1: Start a New Chat with an LLM
+## Progress Summary
+
+- ✅ **Story 1**: Start a New Chat with an LLM - COMPLETED
+- ⏳ **Story 2**: Send a Chat Message to an LLM - PENDING
+- ⏳ **Story 3**: LLM Responds to Chat Messages - PENDING  
+- ⏳ **Story 4**: LLM Creates Tasks (Kanban Cards) - PENDING
+- ⏳ **Story 5**: LLM Lists Tasks (Kanban Cards) - PENDING
+- ⏳ **Story 6**: LLM Lists Projects (Kanban Boards) - PENDING
+
+**Current Status**: Foundation complete! Chat interface is live as persistent right panel. Ready to implement message sending functionality.
+
+**Next Steps for Story 2**:
+1. Update existing `chatMessages` table to include `conversationId` foreign key
+2. Implement message input handling and form submission
+3. Add message display component to show conversation history
+4. Set up message persistence with conversation linking
+
+---
+
+### ✅ Story 1: Start a New Chat with an LLM - COMPLETED
 **As a user, I want to start a new chat with an LLM.**
 
 **Acceptance Criteria:**
-- I can click a "New Chat" button or similar UI element
-- A new conversation is created with a unique conversation ID
-- The chat interface appears ready for input
-- The conversation is persisted in LiveStore
-- Events are emitted for conversation creation
+- ✅ I can click a "New Chat" button or similar UI element
+- ✅ A new conversation is created with a unique conversation ID
+- ✅ The chat interface appears ready for input
+- ✅ The conversation is persisted in LiveStore
+- ✅ Events are emitted for conversation creation
 
 **Technical Implementation:**
-- Add `conversation.created` event type to LiveStore events
-- Add `conversations` table to LiveStore schema
-- Create ChatInterface component with conversation management
-- Set up basic UI with conversation selector
-- Implement conversation creation flow
+- ✅ Add `conversationCreated` event type to LiveStore events
+- ✅ Add `conversations` table to LiveStore schema
+- ✅ Create ChatInterface component with conversation management
+- ✅ Set up persistent right panel UI with conversation selector
+- ✅ Implement conversation creation flow
+- ✅ Add Layout component to show chat panel on all pages
+- ✅ Comprehensive test coverage (unit tests for events/schema and component tests)
+
+**Implementation Notes:**
+- Chat interface implemented as persistent right panel (384px width) visible on all pages
+- Conversations stored in SQLite with auto-generated titles and timestamps
+- Dropdown selector for switching between conversations
+- Chat panel integrates with existing routing via Layout component
+- Events: `v1.ConversationCreated` with id, title, createdAt fields
+- Tests: 5 unit tests for events/schema, 1 component test for basic UI
 
 **Dependencies:** None (foundational story)
 
