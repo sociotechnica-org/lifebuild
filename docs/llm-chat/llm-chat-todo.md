@@ -219,3 +219,20 @@ Based on the technical design document, the LLM Chat system will:
 - Integration with external services (Trello, Obsidian)
 - Conversation history and context management
 - Model selection and configuration options
+
+## Using the Chat Interface with Markdown
+
+The `ChatInterface` component now supports Markdown-formatted responses from the LLM. Simply include the component in your page and any assistant messages will render with full Markdown syntax and syntax highlighted code blocks.
+
+```tsx
+import { ChatInterface } from '../src/components/ChatInterface'
+
+export default function Page() {
+  return (
+    <div className="h-screen flex">
+      {/* other content */}
+      <ChatInterface />
+    </div>
+  )
+}
+```

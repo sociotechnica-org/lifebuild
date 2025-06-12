@@ -1,5 +1,8 @@
 import { useQuery, useStore } from '@livestore/react'
 import React from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeHighlight from 'rehype-highlight'
 
 import { events } from '../livestore/schema.js'
 import { getConversations$, getConversationMessages$, getUsers$ } from '../livestore/queries.js'
@@ -266,7 +269,41 @@ export const ChatInterface: React.FC = () => {
                             : 'System'}
                         {message.modelId && ` (${message.modelId})`}
                       </div>
-                      <div className='text-sm text-gray-900'>{message.message}</div>
+                      <div className='text-sm text-gray-900'>
+                        {message.role === 'assistant' ? (
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            rehypePlugins={[rehypeHighlight]}
+                            components={{
+                              a: props => (
+                                <a
+                                  {...props}
+                                  target='_blank'
+                                  rel='noreferrer'
+                                  className='text-blue-600 underline'
+                                />
+                              ),
+                              code({ node, inline, className, children, ...rest }) {
+                                return inline ? (
+                                  <code className='bg-gray-100 px-1 rounded' {...rest}>
+                                    {children}
+                                  </code>
+                                ) : (
+                                  <pre className='bg-gray-100 p-2 rounded overflow-auto'>
+                                    <code className={className} {...rest}>
+                                      {children}
+                                    </code>
+                                  </pre>
+                                )
+                              },
+                            }}
+                          >
+                            {message.message}
+                          </ReactMarkdown>
+                        ) : (
+                          message.message
+                        )}
+                      </div>
                     </div>
                   ))}
                   <div ref={messagesEndRef} />
