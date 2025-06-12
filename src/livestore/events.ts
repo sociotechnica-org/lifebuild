@@ -40,6 +40,11 @@ export const chatMessageSent = Events.synced({
     id: Schema.String,
     conversationId: Schema.String,
     message: Schema.String,
+    role: Schema.Union(
+      Schema.Literal('user'),
+      Schema.Literal('assistant'),
+      Schema.Literal('system')
+    ),
     createdAt: Schema.Date,
   }),
 })
@@ -130,6 +135,29 @@ export const conversationCreated = Events.synced({
   schema: Schema.Struct({
     id: Schema.String,
     title: Schema.String,
+    createdAt: Schema.Date,
+  }),
+})
+
+export const llmResponseReceived = Events.synced({
+  name: 'v1.LLMResponseReceived',
+  schema: Schema.Struct({
+    id: Schema.String,
+    conversationId: Schema.String,
+    message: Schema.String,
+    role: Schema.Literal('assistant'),
+    modelId: Schema.String,
+    responseToMessageId: Schema.String, // ID of the user message this is responding to
+    createdAt: Schema.Date,
+    metadata: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
+  }),
+})
+
+export const llmResponseStarted = Events.synced({
+  name: 'v1.LLMResponseStarted',
+  schema: Schema.Struct({
+    conversationId: Schema.String,
+    userMessageId: Schema.String,
     createdAt: Schema.Date,
   }),
 })

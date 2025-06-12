@@ -22,8 +22,15 @@ const chatMessages = State.SQLite.table({
     id: State.SQLite.text({ primaryKey: true }),
     conversationId: State.SQLite.text(),
     message: State.SQLite.text({ default: '' }),
+    role: State.SQLite.text({ default: 'user' }),
+    modelId: State.SQLite.text({ nullable: true }),
+    responseToMessageId: State.SQLite.text({ nullable: true }), // For assistant responses only
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
+    }),
+    metadata: State.SQLite.text({
+      nullable: true,
+      schema: Schema.parseJson(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
     }),
   },
 })
@@ -176,8 +183,8 @@ const materializers = State.SQLite.materializers(events, {
   'v1.TodoDeleted': ({ id, deletedAt }) => todos.update({ deletedAt }).where({ id }),
   'v1.TodoClearedCompleted': ({ deletedAt }) =>
     todos.update({ deletedAt }).where({ completed: true }),
-  'v1.ChatMessageSent': ({ id, conversationId, message, createdAt }) =>
-    chatMessages.insert({ id, conversationId, message, createdAt }),
+  'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) =>
+    chatMessages.insert({ id, conversationId, message, role, createdAt }),
   'v1.BoardCreated': ({ id, name, createdAt }) =>
     boards.insert({ id, name, createdAt, updatedAt: createdAt }),
   'v1.ColumnCreated': ({ id, boardId, name, position, createdAt }) =>
@@ -201,6 +208,27 @@ const materializers = State.SQLite.materializers(events, {
     users.insert({ id, name, avatarUrl, createdAt }),
   'v1.ConversationCreated': ({ id, title, createdAt }) =>
     conversations.insert({ id, title, createdAt, updatedAt: createdAt }),
+  'v1.LLMResponseReceived': ({
+    id,
+    conversationId,
+    message,
+    role,
+    modelId,
+    responseToMessageId,
+    createdAt,
+    metadata,
+  }) =>
+    chatMessages.insert({
+      id,
+      conversationId,
+      message,
+      role,
+      modelId,
+      responseToMessageId,
+      createdAt,
+      metadata,
+    }),
+  'v1.LLMResponseStarted': () => [],
   'v1.CommentAdded': ({ id, taskId, authorId, content, createdAt }) =>
     comments.insert({ id, taskId, authorId, content, createdAt }),
 })

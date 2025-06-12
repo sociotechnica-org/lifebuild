@@ -9,6 +9,7 @@ vi.mock('@livestore/react', () => ({
   useStore: vi.fn(() => ({
     store: {
       commit: vi.fn(),
+      subscribe: vi.fn(() => vi.fn()), // Return unsubscribe function
     },
   })),
 }))

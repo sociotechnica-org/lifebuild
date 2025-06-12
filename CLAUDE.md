@@ -10,9 +10,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Install dependencies
 pnpm
 
+# Set up environment variables (first time only)
+cp .env.example .env
+cp .dev.vars.example .dev.vars
+# Edit .dev.vars with your Braintrust API credentials
+
 # Run development server (starts both Vite and Wrangler concurrently)
 export VITE_LIVESTORE_SYNC_URL='http://localhost:8787'
 pnpm dev
+
+# Run LLM service (separate terminal) 
+pnpm llm:service
 
 # Run development server on custom port
 PORT=3000 VITE_LIVESTORE_SYNC_URL='http://localhost:8787' pnpm dev
@@ -86,6 +94,7 @@ Work Squared is a real-time collaborative web application built with:
 - **LiveStore**: Event-sourced state management with SQLite materialized views
 - **React 19** with TypeScript for the frontend
 - **Cloudflare Workers** with Durable Objects for WebSocket-based real-time sync
+- **Node.js LLM Service**: Separate service for AI chat responses via Braintrust/OpenAI
 - **SharedWorker** for multi-tab synchronization
 - **OPFS** for client-side persistence
 
@@ -107,16 +116,60 @@ Work Squared is a real-time collaborative web application built with:
    - Events get synced across all connected clients
    - Local-first with automatic conflict resolution
 
+4. **LLM Integration**: Separate Node.js service handles AI chat responses
+   - Service listens for `ChatMessageSent` events with `role: 'user'`
+   - Calls Braintrust API (GPT-4o) for AI responses
+   - Emits `LLMResponseReceived` events back to LiveStore
+   - Service implementation in `services/llm-service.ts`
+
 ### Directory Structure
 
 - `/src/livestore/` - Data model (schema, events, queries)
-- `/src/cf-worker/` - Cloudflare Worker for sync server
+- `/functions/` - Cloudflare Worker for sync server
+- `/services/` - Node.js LLM service
 - `/src/components/` - React components
 - `/src/livestore.worker.ts` - SharedWorker for LiveStore operations
 
 ## LiveStore Documentation
 
 For LiveStore-specific syntax and patterns, refer to: https://docs.livestore.dev/llms.txt
+
+## LLM Integration
+
+For detailed LLM integration architecture and implementation details, see: [docs/llm-clean-architecture.md](docs/llm-clean-architecture.md)
+
+## Deployment
+
+The application consists of two main services that need to be deployed:
+
+### 1. Cloudflare Worker (Sync Server)
+```bash
+# Deploy the sync server
+pnpm wrangler:deploy
+```
+
+### 2. LLM Service (Node.js)
+The LLM service (`services/llm-service.ts`) needs to be deployed to a Node.js runtime. Options include:
+- **Docker container** (recommended for production)
+- **VPS/Server** with Node.js runtime
+- **Serverless platform** (Vercel, Railway, etc.)
+
+**Environment Variables Required:**
+```bash
+BRAINTRUST_API_KEY=your-api-key
+BRAINTRUST_PROJECT_ID=your-project-id
+STORE_ID=production-store-id
+```
+
+**Docker Example:**
+```dockerfile
+FROM node:18
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm install
+COPY . .
+CMD ["pnpm", "llm:service"]
+```
 
 ## Important Guidelines
 
