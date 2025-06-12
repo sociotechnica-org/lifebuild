@@ -24,6 +24,7 @@ export const MainSection: React.FC = () => {
           id: crypto.randomUUID(),
           conversationId: 'main-section-chat', // Legacy chat in main section
           message,
+          role: 'user',
           createdAt: new Date(),
         })
       )

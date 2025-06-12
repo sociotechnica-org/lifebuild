@@ -6,6 +6,46 @@ import { getConversations$, getConversationMessages$, getUsers$ } from '../lives
 import type { Conversation, ChatMessage } from '../livestore/schema.js'
 import { getInitials } from '../util/initials.js'
 
+async function callLLMAPI(userMessage: string): Promise<string> {
+  console.log('🔗 Calling LLM API via proxy...')
+
+  // Use relative path for production, fallback to localhost for local development
+  const proxyUrl = import.meta.env.PROD ? '/api/llm/chat' : 'http://localhost:8787/api/llm/chat'
+  const requestBody = { message: userMessage }
+
+  console.log('🔗 Making request to:', proxyUrl)
+  console.log('🔗 Request body:', requestBody)
+
+  try {
+    const response = await fetch(proxyUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+
+    console.log('🔗 Response status:', response.status)
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      console.error('🔗 Error response:', errorData)
+      throw new Error(`API call failed: ${response.status} ${errorData.error || 'Unknown error'}`)
+    }
+
+    const data = await response.json()
+    console.log('🔗 Response data:', data)
+
+    const responseMessage = data.message || 'No response generated'
+
+    console.log(`✅ Got LLM response: ${responseMessage.substring(0, 100)}...`)
+    return responseMessage
+  } catch (fetchError) {
+    console.error('🔗 Fetch error:', fetchError)
+    throw fetchError
+  }
+}
+
 export const ChatInterface: React.FC = () => {
   const { store } = useStore()
   const conversations = useQuery(getConversations$) ?? []
@@ -51,6 +91,7 @@ export const ChatInterface: React.FC = () => {
           id: messageId,
           conversationId: selectedConversationId,
           message: messageText.trim(),
+          role: 'user',
           createdAt: new Date(),
         })
       )
@@ -59,6 +100,79 @@ export const ChatInterface: React.FC = () => {
     },
     [store, messageText, selectedConversationId]
   )
+
+  // Listen for user messages and trigger LLM responses
+  React.useEffect(() => {
+    if (!selectedConversationId) return
+
+    const userMessagesQuery = getConversationMessages$(selectedConversationId)
+    let isProcessing = false // Prevent race conditions
+
+    const unsubscribe = store.subscribe(userMessagesQuery, {
+      onUpdate: async messages => {
+        if (isProcessing) return // Skip if already processing
+
+        const userMessages = messages.filter(m => m.role === 'user')
+        const assistantMessages = messages.filter(m => m.role === 'assistant')
+
+        // Find ALL user messages that don't have responses yet
+        const unansweredMessages = userMessages.filter(
+          userMsg =>
+            !assistantMessages.some(assistantMsg => assistantMsg.responseToMessageId === userMsg.id)
+        )
+
+        if (unansweredMessages.length === 0) return
+
+        isProcessing = true
+
+        try {
+          // Process each unanswered message sequentially to avoid race conditions
+          for (const userMessage of unansweredMessages) {
+            console.log('🤖 Processing user message for LLM:', userMessage.message)
+
+            try {
+              const llmResponse = await callLLMAPI(userMessage.message)
+
+              store.commit(
+                events.llmResponseReceived({
+                  id: crypto.randomUUID(),
+                  conversationId: selectedConversationId,
+                  message: llmResponse,
+                  role: 'assistant',
+                  modelId: 'gpt-4o',
+                  responseToMessageId: userMessage.id,
+                  createdAt: new Date(),
+                  metadata: { source: 'braintrust' },
+                })
+              )
+
+              console.log('✅ LLM response sent for message:', userMessage.id)
+            } catch (error) {
+              console.error('❌ Error calling LLM for message:', userMessage.id, error)
+
+              store.commit(
+                events.llmResponseReceived({
+                  id: crypto.randomUUID(),
+                  conversationId: selectedConversationId,
+                  message:
+                    'Sorry, I encountered an error processing your message. Please try again.',
+                  role: 'assistant',
+                  modelId: 'error',
+                  responseToMessageId: userMessage.id,
+                  createdAt: new Date(),
+                  metadata: { source: 'error' },
+                })
+              )
+            }
+          }
+        } finally {
+          isProcessing = false
+        }
+      },
+    })
+
+    return unsubscribe
+  }, [store, selectedConversationId])
 
   // Auto-select first conversation if none selected
   React.useEffect(() => {
@@ -134,7 +248,24 @@ export const ChatInterface: React.FC = () => {
               {messages && messages.length > 0 ? (
                 <div className='space-y-4'>
                   {messages.map((message: ChatMessage) => (
-                    <div key={message.id} className='bg-blue-50 p-3 rounded-lg'>
+                    <div
+                      key={message.id}
+                      className={`p-3 rounded-lg ${
+                        message.role === 'user'
+                          ? 'bg-blue-50 ml-8'
+                          : message.role === 'assistant'
+                            ? 'bg-gray-50 mr-8'
+                            : 'bg-yellow-50'
+                      }`}
+                    >
+                      <div className='text-xs text-gray-500 mb-1 font-medium'>
+                        {message.role === 'user'
+                          ? 'You'
+                          : message.role === 'assistant'
+                            ? 'Assistant'
+                            : 'System'}
+                        {message.modelId && ` (${message.modelId})`}
+                      </div>
                       <div className='text-sm text-gray-900'>{message.message}</div>
                     </div>
                   ))}

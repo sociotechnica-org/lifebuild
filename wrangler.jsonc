@@ -29,4 +29,8 @@
       "new_sqlite_classes": ["WebSocketServer"],
     },
   ],
+  "vars": {
+    "BRAINTRUST_API_KEY": "",
+    "BRAINTRUST_PROJECT_ID": ""
+  },
 }
