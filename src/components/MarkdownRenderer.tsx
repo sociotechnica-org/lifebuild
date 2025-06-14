@@ -77,6 +77,13 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             'a',
             'span',
             'div',
+            'table',
+            'thead',
+            'tbody',
+            'tr',
+            'th',
+            'td',
+            'hr',
           ],
           ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
           // Force external links to open in new tab with security attributes
@@ -103,7 +110,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
 
   return (
     <div
-      className={`prose prose-sm max-w-none ${className}`}
+      className={`markdown-content ${className}`}
       dangerouslySetInnerHTML={{ __html: htmlContent }}
     />
   )

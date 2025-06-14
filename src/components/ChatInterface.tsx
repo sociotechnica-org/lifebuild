@@ -268,10 +268,7 @@ export const ChatInterface: React.FC = () => {
                         {message.modelId && ` (${message.modelId})`}
                       </div>
                       {message.role === 'assistant' ? (
-                        <MarkdownRenderer
-                          content={message.message}
-                          className='text-sm text-gray-900'
-                        />
+                        <MarkdownRenderer content={message.message} className='' />
                       ) : (
                         <div className='text-sm text-gray-900'>{message.message}</div>
                       )}
