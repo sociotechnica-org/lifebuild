@@ -6,7 +6,10 @@ import { Snackbar } from '../../src/components/Snackbar.js'
 // Hoisted mocks
 const { mockUseQuery, mockStore } = vi.hoisted(() => {
   const mockUseQuery = vi.fn()
-  const mockStore = { commit: vi.fn() }
+  const mockStore = {
+    commit: vi.fn(),
+    query: vi.fn(),
+  }
   return { mockUseQuery, mockStore }
 })
 
@@ -20,7 +23,10 @@ describe('Snackbar', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockStore.commit.mockClear()
+    mockStore.query.mockClear()
     vi.useFakeTimers()
+    // Mock store.query to return the same app state
+    mockStore.query.mockReturnValue({ newTodoText: '', filter: 'all' })
   })
 
   afterEach(() => {
@@ -133,7 +139,7 @@ describe('Snackbar', () => {
     )
   })
 
-  it('should auto-hide snackbar when timeout expires', () => {
+  it('should auto-hide snackbar when timeout expires', async () => {
     const showTime = 3000
     const mockApp = {
       newTodoText: '',
@@ -147,6 +153,8 @@ describe('Snackbar', () => {
       },
     }
     mockUseQuery.mockReturnValue(mockApp)
+    // Update the store.query mock to return the app with snackbar
+    mockStore.query.mockReturnValue(mockApp)
 
     render(<Snackbar />)
 
@@ -219,4 +227,3 @@ describe('Snackbar', () => {
     expect(screen.getByLabelText('Close notification')).toBeInTheDocument()
   })
 })
-

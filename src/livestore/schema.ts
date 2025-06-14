@@ -248,8 +248,7 @@ const materializers = State.SQLite.materializers(events, {
   'v1.CommentAdded': ({ id, taskId, authorId, content, createdAt }) =>
     comments.insert({ id, taskId, authorId, content, createdAt }),
   'v1.TaskArchived': ({ taskId, archivedAt }) => tasks.update({ archivedAt }).where({ id: taskId }),
-  'v1.TaskUnarchived': ({ taskId }) =>
-    tasks.update({ archivedAt: undefined }).where({ id: taskId }),
+  'v1.TaskUnarchived': ({ taskId }) => tasks.update({ archivedAt: null }).where({ id: taskId }),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

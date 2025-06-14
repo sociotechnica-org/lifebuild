@@ -10,7 +10,7 @@ export function Snackbar() {
 
   // Auto-hide snackbar when time expires
   useEffect(() => {
-    if (!snackbar) return
+    if (!snackbar || !app) return
 
     const now = Date.now()
     const timeLeft = snackbar.showUntil.getTime() - now
@@ -28,16 +28,20 @@ export function Snackbar() {
 
     // Set timeout to hide when it expires
     const timeout = setTimeout(() => {
-      store.commit(
-        events.uiStateSet({
-          ...app,
-          snackbar: undefined,
-        })
-      )
+      // Get current app state when timeout fires
+      const currentApp = store.query(app$)
+      if (currentApp?.snackbar) {
+        store.commit(
+          events.uiStateSet({
+            ...currentApp,
+            snackbar: undefined,
+          })
+        )
+      }
     }, timeLeft)
 
     return () => clearTimeout(timeout)
-  }, [snackbar, store, app])
+  }, [snackbar?.showUntil, store, app$])
 
   if (!snackbar) return null
 
@@ -51,22 +55,29 @@ export function Snackbar() {
       )
     }
 
-    // Hide snackbar after action
-    store.commit(
-      events.uiStateSet({
-        ...app,
-        snackbar: undefined,
-      })
-    )
+    // Hide snackbar after action - get current app state
+    const currentApp = store.query(app$)
+    if (currentApp) {
+      store.commit(
+        events.uiStateSet({
+          ...currentApp,
+          snackbar: undefined,
+        })
+      )
+    }
   }
 
   const handleClose = () => {
-    store.commit(
-      events.uiStateSet({
-        ...app,
-        snackbar: undefined,
-      })
-    )
+    // Get current app state
+    const currentApp = store.query(app$)
+    if (currentApp) {
+      store.commit(
+        events.uiStateSet({
+          ...currentApp,
+          snackbar: undefined,
+        })
+      )
+    }
   }
 
   return (
@@ -101,4 +112,3 @@ export function Snackbar() {
     </div>
   )
 }
-
