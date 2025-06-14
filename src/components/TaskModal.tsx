@@ -11,6 +11,7 @@ import { events } from '../livestore/schema.js'
 import { Combobox } from './Combobox.js'
 import { getInitials } from '../util/initials.js'
 import { useSnackbar } from './Snackbar.js'
+import { Markdown } from './Markdown.js'
 
 interface TaskModalProps {
   taskId: string | null
@@ -475,9 +476,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
                               {formatDate(comment.createdAt)}
                             </span>
                           </div>
-                          <div className='text-sm text-gray-700 whitespace-pre-wrap'>
-                            {comment.content}
-                          </div>
+                          <Markdown content={comment.content} />
                         </div>
                       </div>
                     )

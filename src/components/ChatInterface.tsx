@@ -5,6 +5,7 @@ import { events } from '../livestore/schema.js'
 import { getConversations$, getConversationMessages$, getUsers$ } from '../livestore/queries.js'
 import type { Conversation, ChatMessage } from '../livestore/schema.js'
 import { getInitials } from '../util/initials.js'
+import { MarkdownRenderer } from './MarkdownRenderer.js'
 
 async function callLLMAPI(userMessage: string): Promise<string> {
   console.log('🔗 Calling LLM API via proxy...')
@@ -53,6 +54,7 @@ export const ChatInterface: React.FC = () => {
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [messageText, setMessageText] = React.useState('')
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
   // Get first user as current user
   const currentUser = users[0]
@@ -62,6 +64,12 @@ export const ChatInterface: React.FC = () => {
   const allMessages = useQuery(getConversationMessages$(queryConversationId)) ?? []
   // Only show messages if we have a real conversation selected
   const messages = selectedConversationId ? allMessages : []
+
+  const resetTextareaHeight = React.useCallback(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '80px'
+    }
+  }, [])
 
   const handleCreateConversation = React.useCallback(() => {
     const id = crypto.randomUUID()
@@ -97,8 +105,9 @@ export const ChatInterface: React.FC = () => {
       )
 
       setMessageText('')
+      resetTextareaHeight()
     },
-    [store, messageText, selectedConversationId]
+    [store, messageText, selectedConversationId, resetTextareaHeight]
   )
 
   // Listen for user messages and trigger LLM responses
@@ -186,6 +195,18 @@ export const ChatInterface: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // Auto-resize textarea
+  const handleTextareaChange = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessageText(e.target.value)
+
+    // Auto-resize textarea
+    const textarea = e.target
+    textarea.style.height = 'auto'
+    const scrollHeight = textarea.scrollHeight
+    const maxHeight = 200
+    textarea.style.height = `${Math.min(scrollHeight, maxHeight)}px`
+  }, [])
+
   const selectedConversation = conversations.find(c => c.id === selectedConversationId)
 
   return (
@@ -266,7 +287,11 @@ export const ChatInterface: React.FC = () => {
                             : 'System'}
                         {message.modelId && ` (${message.modelId})`}
                       </div>
-                      <div className='text-sm text-gray-900'>{message.message}</div>
+                      {message.role === 'assistant' ? (
+                        <MarkdownRenderer content={message.message} className='' />
+                      ) : (
+                        <div className='text-sm text-gray-900'>{message.message}</div>
+                      )}
                     </div>
                   ))}
                   <div ref={messagesEndRef} />
@@ -284,21 +309,43 @@ export const ChatInterface: React.FC = () => {
             </div>
 
             {/* Message Input - Fixed at bottom */}
-            <div className='flex-shrink-0 p-4 bg-gray-50 border-t border-gray-200'>
-              <form onSubmit={handleSendMessage} className='flex flex-col gap-2'>
-                <input
-                  type='text'
+            <div className='flex-shrink-0 bg-gray-50 border-t border-gray-200 relative'>
+              <form onSubmit={handleSendMessage} className='h-full'>
+                <textarea
+                  ref={textareaRef}
                   value={messageText}
-                  onChange={e => setMessageText(e.target.value)}
+                  onChange={handleTextareaChange}
                   placeholder='Type your message...'
-                  className='w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                  rows={1}
+                  className='w-full h-full px-4 py-4 pr-14 bg-transparent border-none text-sm resize-none focus:outline-none placeholder-gray-500 overflow-y-auto'
+                  style={{ minHeight: '80px', maxHeight: '200px', height: '80px' }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      handleSendMessage(e)
+                    }
+                  }}
                 />
                 <button
                   type='submit'
                   disabled={!messageText.trim()}
-                  className='bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors'
+                  className='absolute bottom-4 right-4 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white p-2 rounded-full transition-colors shadow-sm'
+                  title='Send message (Enter)'
                 >
-                  Send
+                  <svg
+                    className='w-4 h-4'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M5 10l7-7m0 0l7 7m-7-7v18'
+                    />
+                  </svg>
                 </button>
               </form>
             </div>
