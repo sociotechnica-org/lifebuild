@@ -203,7 +203,7 @@ export const ChatInterface: React.FC = () => {
     const textarea = e.target
     textarea.style.height = 'auto'
     const scrollHeight = textarea.scrollHeight
-    const maxHeight = 160
+    const maxHeight = 200
     textarea.style.height = `${Math.min(scrollHeight, maxHeight)}px`
   }, [])
 
@@ -318,7 +318,7 @@ export const ChatInterface: React.FC = () => {
                   placeholder='Type your message...'
                   rows={1}
                   className='w-full h-full px-4 py-4 pr-14 bg-transparent border-none text-sm resize-none focus:outline-none placeholder-gray-500 overflow-y-auto'
-                  style={{ minHeight: '80px', maxHeight: '160px', height: '80px' }}
+                  style={{ minHeight: '80px', maxHeight: '200px', height: '80px' }}
                   onKeyDown={e => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault()
