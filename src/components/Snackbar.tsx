@@ -57,15 +57,23 @@ export function Snackbar() {
   const handleClose = () => {
     console.log('handleClose called, current app state:', app)
     
-    // Let's try the exact same pattern as the default value in schema
-    const newState = { newTodoText: '', filter: 'all' as const }
-    console.log('Setting new state:', newState)
+    // Try preserving all existing state except snackbar
+    const { snackbar: _, ...restState } = app || { newTodoText: '', filter: 'all' }
+    const newState = { ...restState }
+    console.log('Setting new state (preserving existing):', newState)
     
     try {
       const event = events.uiStateSet(newState)
       console.log('Generated event:', event)
       store.commit(event)
       console.log('Committed successfully')
+      
+      // Check state immediately after commit
+      setTimeout(() => {
+        const updatedApp = store.query(app$)
+        console.log('State after commit:', updatedApp)
+      }, 100)
+      
     } catch (error) {
       console.error('Error committing:', error)
     }
