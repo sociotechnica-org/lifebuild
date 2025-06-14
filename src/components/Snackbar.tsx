@@ -26,15 +26,10 @@ export function useSnackbar() {
 
 export function SnackbarProvider({ children }: { children: React.ReactNode }) {
   const [snackbar, setSnackbar] = useState<SnackbarData | null>(null)
-  const [isVisible, setIsVisible] = useState(false)
-  const [isHiding, setIsHiding] = useState(false)
 
   const showSnackbar = useCallback(
     (data: Omit<SnackbarData, 'showUntil'> & { duration?: number }) => {
       const duration = data.duration || 5000
-      // Reset states for new snackbar
-      setIsVisible(false)
-      setIsHiding(false)
       setSnackbar({
         ...data,
         showUntil: new Date(Date.now() + duration),
@@ -44,49 +39,26 @@ export function SnackbarProvider({ children }: { children: React.ReactNode }) {
   )
 
   const hideSnackbar = useCallback(() => {
-    if (!isHiding) {
-      setIsHiding(true)
-      setIsVisible(false)
-    }
-  }, [isHiding])
-
-  // Handle fade in animation when snackbar is set
-  useEffect(() => {
-    if (snackbar && !isVisible && !isHiding) {
-      const timer = setTimeout(() => setIsVisible(true), 10)
-      return () => clearTimeout(timer)
-    }
-  }, [snackbar, isVisible, isHiding])
-
-  // Handle fade out and cleanup
-  useEffect(() => {
-    if (isHiding) {
-      const timer = setTimeout(() => {
-        setSnackbar(null)
-        setIsHiding(false)
-      }, 100)
-      return () => clearTimeout(timer)
-    }
-  }, [isHiding])
+    setSnackbar(null)
+  }, [])
 
   return (
     <SnackbarContext.Provider value={{ showSnackbar }}>
       {children}
-      <SnackbarComponent snackbar={snackbar} isVisible={isVisible} onHide={hideSnackbar} />
+      <SnackbarComponent snackbar={snackbar} onHide={hideSnackbar} />
     </SnackbarContext.Provider>
   )
 }
 
 function SnackbarComponent({
   snackbar,
-  isVisible,
   onHide,
 }: {
   snackbar: SnackbarData | null
-  isVisible: boolean
   onHide: () => void
 }) {
   const { store } = useStore()
+  const [isVisible, setIsVisible] = useState(false)
 
   // Auto-hide snackbar when time expires
   useEffect(() => {
@@ -96,12 +68,10 @@ function SnackbarComponent({
     const timeLeft = snackbar.showUntil.getTime() - now
 
     if (timeLeft <= 0) {
-      // Already expired, hide immediately
       onHide()
       return
     }
 
-    // Set timeout to hide when it expires
     const timeout = setTimeout(() => {
       onHide()
     }, timeLeft)
@@ -109,19 +79,27 @@ function SnackbarComponent({
     return () => clearTimeout(timeout)
   }, [snackbar, onHide])
 
+  // Handle fade-in animation
+  useEffect(() => {
+    if (snackbar) {
+      setIsVisible(false)
+      const timer = setTimeout(() => setIsVisible(true), 10)
+      return () => clearTimeout(timer)
+    } else {
+      setIsVisible(false)
+    }
+  }, [snackbar])
+
   if (!snackbar) return null
 
   const handleAction = () => {
     if (snackbar.type === 'archive-undo' && snackbar.actionData?.taskId) {
-      // Undo archive by unarchiving the task
       store.commit(
         events.taskUnarchived({
           taskId: snackbar.actionData.taskId as string,
         })
       )
     }
-
-    // Hide snackbar after action
     onHide()
   }
 

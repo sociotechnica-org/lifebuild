@@ -128,7 +128,7 @@ describe('Snackbar', () => {
     fireEvent.click(screen.getByText('Show Snackbar'))
     expect(screen.getByText('Task archived')).toBeInTheDocument()
 
-    // Fast-forward time
+    // Fast-forward time to trigger auto-hide
     act(() => {
       vi.advanceTimersByTime(1000)
     })
@@ -158,7 +158,7 @@ describe('Snackbar', () => {
       </SnackbarProvider>
     )
 
-    // Should not render expired snackbar
+    // Should not render expired snackbar (immediately hidden)
     expect(screen.queryByText('Expired message')).not.toBeInTheDocument()
   })
 
