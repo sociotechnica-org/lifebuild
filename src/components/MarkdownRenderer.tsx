@@ -18,26 +18,36 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
   const [htmlContent, setHtmlContent] = React.useState<string>('')
 
   React.useEffect(() => {
-    const processMarkdown = async () => {
+    // Helper function to decode HTML entities
+    const decodeHtmlEntities = (text: string) => {
+      const textarea = document.createElement('textarea')
+      textarea.innerHTML = text
+      return textarea.value
+    }
+
+    const processMarkdown = () => {
       try {
-        const rawHtml = await marked(content)
+        const rawHtml = marked(content) as string
 
         // Apply syntax highlighting to code blocks
         const highlightedHtml = rawHtml.replace(
           /<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/g,
-          (match, lang, code) => {
+          (_match: string, lang: string, code: string) => {
+            // Decode HTML entities before highlighting
+            const decodedCode = decodeHtmlEntities(code)
+
             if (hljs.getLanguage(lang)) {
               try {
-                const highlighted = hljs.highlight(code, { language: lang }).value
+                const highlighted = hljs.highlight(decodedCode, { language: lang }).value
                 return `<pre><code class="language-${lang} hljs">${highlighted}</code></pre>`
               } catch {
                 // Fall back to auto-highlighting
-                const autoHighlighted = hljs.highlightAuto(code).value
+                const autoHighlighted = hljs.highlightAuto(decodedCode).value
                 return `<pre><code class="hljs">${autoHighlighted}</code></pre>`
               }
             }
             // Auto-highlight if language not recognized
-            const autoHighlighted = hljs.highlightAuto(code).value
+            const autoHighlighted = hljs.highlightAuto(decodedCode).value
             return `<pre><code class="hljs">${autoHighlighted}</code></pre>`
           }
         )
@@ -45,8 +55,10 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
         // Apply highlighting to inline code without language
         const finalHtml = highlightedHtml.replace(
           /<pre><code>([\s\S]*?)<\/code><\/pre>/g,
-          (match, code) => {
-            const highlighted = hljs.highlightAuto(code).value
+          (_match: string, code: string) => {
+            // Decode HTML entities before highlighting
+            const decodedCode = decodeHtmlEntities(code)
+            const highlighted = hljs.highlightAuto(decodedCode).value
             return `<pre><code class="hljs">${highlighted}</code></pre>`
           }
         )
