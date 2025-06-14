@@ -257,4 +257,49 @@ describe('TaskModal Comments', () => {
     expect(screen.getByText('Unknown User')).toBeInTheDocument()
     expect(screen.getByText('UU')).toBeInTheDocument() // fallback initials from getInitials
   })
+
+  it('should render markdown content in comments', () => {
+    const markdownComment: Comment = {
+      id: 'markdown-comment',
+      taskId: 'task-1',
+      authorId: 'user-1',
+      content: 'Hello **world**',
+      createdAt: new Date('2023-01-03'),
+    }
+
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.label?.includes('getTaskById')) return [mockTask]
+      if (query.label?.includes('getBoardColumns')) return mockColumns
+      if (query.label?.includes('getUsers')) return mockUsers
+      if (query.label?.includes('getTaskComments')) return [markdownComment]
+      return []
+    })
+
+    render(<TaskModal taskId='task-1' onClose={() => {}} />)
+
+    const strongEl = screen.getByText('world')
+    expect(strongEl.tagName).toBe('STRONG')
+  })
+
+  it('should sanitize disallowed HTML in comments', () => {
+    const maliciousComment: Comment = {
+      id: 'malicious',
+      taskId: 'task-1',
+      authorId: 'user-1',
+      content: 'Bad <script>evil()</script> text',
+      createdAt: new Date('2023-01-03'),
+    }
+
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.label?.includes('getTaskById')) return [mockTask]
+      if (query.label?.includes('getBoardColumns')) return mockColumns
+      if (query.label?.includes('getUsers')) return mockUsers
+      if (query.label?.includes('getTaskComments')) return [maliciousComment]
+      return []
+    })
+
+    const { container } = render(<TaskModal taskId='task-1' onClose={() => {}} />)
+
+    expect(container.querySelector('script')).toBeNull()
+  })
 })
