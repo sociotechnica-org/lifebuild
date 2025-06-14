@@ -90,11 +90,16 @@ describe('Snackbar', () => {
         name: 'uiStateSet',
         args: expect.objectContaining({
           value: expect.objectContaining({
-            snackbar: undefined,
+            newTodoText: '',
+            filter: 'all',
           }),
         }),
       })
     )
+
+    // Ensure snackbar is not in the committed state
+    const commitCall = mockStore.commit.mock.calls[0]?.[0]
+    expect(commitCall?.args?.value).not.toHaveProperty('snackbar')
   })
 
   it('should perform undo action when undo button is clicked', () => {
@@ -132,11 +137,16 @@ describe('Snackbar', () => {
         name: 'uiStateSet',
         args: expect.objectContaining({
           value: expect.objectContaining({
-            snackbar: undefined,
+            newTodoText: '',
+            filter: 'all',
           }),
         }),
       })
     )
+
+    // Ensure snackbar is not in the committed state
+    const secondCommitCall = mockStore.commit.mock.calls[1]?.[0]
+    expect(secondCommitCall?.args?.value).not.toHaveProperty('snackbar')
   })
 
   it('should auto-hide snackbar when timeout expires', async () => {
@@ -172,11 +182,16 @@ describe('Snackbar', () => {
         name: 'uiStateSet',
         args: expect.objectContaining({
           value: expect.objectContaining({
-            snackbar: undefined,
+            newTodoText: '',
+            filter: 'all',
           }),
         }),
       })
     )
+
+    // Ensure snackbar is not in the committed state
+    const commitCall = mockStore.commit.mock.calls[0]?.[0]
+    expect(commitCall?.args?.value).not.toHaveProperty('snackbar')
   })
 
   it('should immediately hide if snackbar is already expired', () => {
@@ -201,11 +216,16 @@ describe('Snackbar', () => {
         name: 'uiStateSet',
         args: expect.objectContaining({
           value: expect.objectContaining({
-            snackbar: undefined,
+            newTodoText: '',
+            filter: 'all',
           }),
         }),
       })
     )
+
+    // Ensure snackbar is not in the committed state
+    const commitCall = mockStore.commit.mock.calls[0]?.[0]
+    expect(commitCall?.args?.value).not.toHaveProperty('snackbar')
   })
 
   it('should render snackbar without action button when no actionLabel is provided', () => {

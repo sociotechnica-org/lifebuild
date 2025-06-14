@@ -19,8 +19,8 @@ export function Snackbar() {
       // Already expired, hide immediately
       store.commit(
         events.uiStateSet({
-          ...app,
-          snackbar: undefined,
+          newTodoText: app.newTodoText || '',
+          filter: app.filter || 'all',
         })
       )
       return
@@ -33,8 +33,8 @@ export function Snackbar() {
       if (currentApp?.snackbar) {
         store.commit(
           events.uiStateSet({
-            ...currentApp,
-            snackbar: undefined,
+            newTodoText: currentApp.newTodoText || '',
+            filter: currentApp.filter || 'all',
           })
         )
       }
@@ -55,29 +55,23 @@ export function Snackbar() {
       )
     }
 
-    // Hide snackbar after action - get current app state
-    const currentApp = store.query(app$)
-    if (currentApp) {
-      store.commit(
-        events.uiStateSet({
-          ...currentApp,
-          snackbar: undefined,
-        })
-      )
-    }
+    // Hide snackbar after action - create new state without snackbar
+    store.commit(
+      events.uiStateSet({
+        newTodoText: app?.newTodoText || '',
+        filter: app?.filter || 'all',
+      })
+    )
   }
 
   const handleClose = () => {
-    // Get current app state
-    const currentApp = store.query(app$)
-    if (currentApp) {
-      store.commit(
-        events.uiStateSet({
-          ...currentApp,
-          snackbar: undefined,
-        })
-      )
-    }
+    // Hide snackbar - create new state without snackbar
+    store.commit(
+      events.uiStateSet({
+        newTodoText: app?.newTodoText || '',
+        filter: app?.filter || 'all',
+      })
+    )
   }
 
   return (
