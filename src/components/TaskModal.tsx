@@ -231,7 +231,8 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
     // Show undo snackbar
     store.commit(
       events.uiStateSet({
-        ...app,
+        newTodoText: app?.newTodoText || '',
+        filter: app?.filter || 'all',
         snackbar: {
           message: `Task "${task.title}" archived`,
           type: 'archive-undo',

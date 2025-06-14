@@ -7,6 +7,8 @@ export function Snackbar() {
   const { store } = useStore()
   const app = useQuery(app$)
   const snackbar = app?.snackbar
+  
+  console.log('Snackbar render - app:', app, 'snackbar:', snackbar)
 
   // Auto-hide snackbar when time expires
   useEffect(() => {
@@ -65,13 +67,14 @@ export function Snackbar() {
   }
 
   const handleClose = () => {
+    console.log('handleClose called, current app state:', app)
     // Hide snackbar - create new state without snackbar
-    store.commit(
-      events.uiStateSet({
-        newTodoText: app?.newTodoText || '',
-        filter: app?.filter || 'all',
-      })
-    )
+    const newState = {
+      newTodoText: app?.newTodoText || '',
+      filter: app?.filter || 'all',
+    }
+    console.log('Setting new state:', newState)
+    store.commit(events.uiStateSet(newState))
   }
 
   return (
