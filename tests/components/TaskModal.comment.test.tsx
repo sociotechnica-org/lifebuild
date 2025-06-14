@@ -2,6 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { TaskModal } from '../../src/components/TaskModal.js'
+import { SnackbarProvider } from '../../src/components/Snackbar.js'
 import type { Task, User, Comment } from '../../src/livestore/schema.js'
 
 // Mock LiveStore hooks
@@ -34,6 +35,12 @@ describe('TaskModal Comments', () => {
     position: 1,
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-01'),
+    archivedAt: null,
+  }
+
+  // Helper to render with providers
+  const renderWithProviders = (component: React.ReactElement) => {
+    return render(<SnackbarProvider>{component}</SnackbarProvider>)
   }
 
   const mockUsers: User[] = [
@@ -93,13 +100,13 @@ describe('TaskModal Comments', () => {
   })
 
   it('should display comments count in header', () => {
-    render(<TaskModal taskId='task-1' onClose={() => {}} />)
+    renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
     expect(screen.getByText('Comments (2)')).toBeInTheDocument()
   })
 
   it('should display comments in reverse chronological order', () => {
-    render(<TaskModal taskId='task-1' onClose={() => {}} />)
+    renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
     const commentElements = screen.getAllByText(/This is a test comment|Another comment here/)
 
@@ -110,7 +117,7 @@ describe('TaskModal Comments', () => {
   })
 
   it('should show comment author names and avatars', () => {
-    render(<TaskModal taskId='task-1' onClose={() => {}} />)
+    renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
     expect(screen.getByText('Alice Johnson')).toBeInTheDocument()
     expect(screen.getByText('Bob Smith')).toBeInTheDocument()
@@ -122,14 +129,14 @@ describe('TaskModal Comments', () => {
   })
 
   it('should show comment composer when user is available', () => {
-    render(<TaskModal taskId='task-1' onClose={() => {}} />)
+    renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
     expect(screen.getByPlaceholderText('Add a comment...')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Comment' })).toBeInTheDocument()
   })
 
   it('should validate comment content', async () => {
-    render(<TaskModal taskId='task-1' onClose={() => {}} />)
+    renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
     const textarea = screen.getByPlaceholderText('Add a comment...')
     const submitButton = screen.getByRole('button', { name: 'Comment' })
@@ -155,7 +162,7 @@ describe('TaskModal Comments', () => {
   })
 
   it('should submit comment when valid content is provided', async () => {
-    render(<TaskModal taskId='task-1' onClose={() => {}} />)
+    renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
     const textarea = screen.getByPlaceholderText('Add a comment...')
     const submitButton = screen.getByRole('button', { name: 'Comment' })
@@ -184,7 +191,7 @@ describe('TaskModal Comments', () => {
   })
 
   it('should submit comment with Cmd+Enter keyboard shortcut', async () => {
-    render(<TaskModal taskId='task-1' onClose={() => {}} />)
+    renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
     const textarea = screen.getByPlaceholderText('Add a comment...')
 
@@ -205,7 +212,7 @@ describe('TaskModal Comments', () => {
   })
 
   it('should show character count', () => {
-    render(<TaskModal taskId='task-1' onClose={() => {}} />)
+    renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
     const textarea = screen.getByPlaceholderText('Add a comment...')
 
@@ -227,7 +234,7 @@ describe('TaskModal Comments', () => {
       return []
     })
 
-    render(<TaskModal taskId='task-1' onClose={() => {}} />)
+    renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
     expect(screen.getByText('Comments (0)')).toBeInTheDocument()
     // Comments section should be empty when no comments exist (no empty state message)
@@ -252,7 +259,7 @@ describe('TaskModal Comments', () => {
       return []
     })
 
-    render(<TaskModal taskId='task-1' onClose={() => {}} />)
+    renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
     expect(screen.getByText('Unknown User')).toBeInTheDocument()
     expect(screen.getByText('UU')).toBeInTheDocument() // fallback initials from getInitials
@@ -275,7 +282,7 @@ describe('TaskModal Comments', () => {
       return []
     })
 
-    render(<TaskModal taskId='task-1' onClose={() => {}} />)
+    renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
     const strongEl = screen.getByText('world')
     expect(strongEl.tagName).toBe('STRONG')
@@ -298,7 +305,7 @@ describe('TaskModal Comments', () => {
       return []
     })
 
-    const { container } = render(<TaskModal taskId='task-1' onClose={() => {}} />)
+    const { container } = renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
     expect(container.querySelector('script')).toBeNull()
   })

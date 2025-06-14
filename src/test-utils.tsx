@@ -40,6 +40,7 @@ export const createMockTask = (overrides: Partial<Task> = {}): Task => ({
   position: 0,
   createdAt: new Date('2023-01-01'),
   updatedAt: new Date('2023-01-01'),
+  archivedAt: null,
   ...overrides,
 })
 

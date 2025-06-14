@@ -110,6 +110,10 @@ const tasks = State.SQLite.table({
     updatedAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
+    archivedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
   },
 })
 
@@ -142,7 +146,10 @@ const comments = State.SQLite.table({
 
 const uiState = State.SQLite.clientDocument({
   name: 'uiState',
-  schema: Schema.Struct({ newTodoText: Schema.String, filter: Filter }),
+  schema: Schema.Struct({
+    newTodoText: Schema.String,
+    filter: Filter,
+  }),
   default: {
     id: SessionIdSymbol,
     value: { newTodoText: '', filter: 'all' as Filter },
@@ -231,6 +238,8 @@ const materializers = State.SQLite.materializers(events, {
   'v1.LLMResponseStarted': () => [],
   'v1.CommentAdded': ({ id, taskId, authorId, content, createdAt }) =>
     comments.insert({ id, taskId, authorId, content, createdAt }),
+  'v1.TaskArchived': ({ taskId, archivedAt }) => tasks.update({ archivedAt }).where({ id: taskId }),
+  'v1.TaskUnarchived': ({ taskId }) => tasks.update({ archivedAt: null }).where({ id: taskId }),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })
