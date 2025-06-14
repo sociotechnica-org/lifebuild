@@ -67,7 +67,7 @@ export const ChatInterface: React.FC = () => {
 
   const resetTextareaHeight = React.useCallback(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = '60px'
+      textareaRef.current.style.height = '80px'
     }
   }, [])
 
@@ -203,7 +203,7 @@ export const ChatInterface: React.FC = () => {
     const textarea = e.target
     textarea.style.height = 'auto'
     const scrollHeight = textarea.scrollHeight
-    const maxHeight = 120
+    const maxHeight = 160
     textarea.style.height = `${Math.min(scrollHeight, maxHeight)}px`
   }, [])
 
@@ -309,16 +309,16 @@ export const ChatInterface: React.FC = () => {
             </div>
 
             {/* Message Input - Fixed at bottom */}
-            <div className='flex-shrink-0 p-4 bg-gray-50 border-t border-gray-200'>
-              <form onSubmit={handleSendMessage} className='relative'>
+            <div className='flex-shrink-0 bg-gray-50 border-t border-gray-200 relative'>
+              <form onSubmit={handleSendMessage} className='h-full'>
                 <textarea
                   ref={textareaRef}
                   value={messageText}
                   onChange={handleTextareaChange}
                   placeholder='Type your message...'
                   rows={1}
-                  className='w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 overflow-y-auto'
-                  style={{ minHeight: '60px', maxHeight: '120px', height: '60px' }}
+                  className='w-full h-full px-4 py-4 pr-14 bg-transparent border-none text-sm resize-none focus:outline-none placeholder-gray-500 overflow-y-auto'
+                  style={{ minHeight: '80px', maxHeight: '160px', height: '80px' }}
                   onKeyDown={e => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault()
@@ -329,7 +329,7 @@ export const ChatInterface: React.FC = () => {
                 <button
                   type='submit'
                   disabled={!messageText.trim()}
-                  className='absolute bottom-2 right-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white p-2 rounded-full transition-colors'
+                  className='absolute bottom-4 right-4 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white p-2 rounded-full transition-colors shadow-sm'
                   title='Send message (Enter)'
                 >
                   <svg
