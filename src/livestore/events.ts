@@ -172,3 +172,18 @@ export const commentAdded = Events.synced({
     createdAt: Schema.Date,
   }),
 })
+
+export const taskArchived = Events.synced({
+  name: 'v1.TaskArchived',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    archivedAt: Schema.Date,
+  }),
+})
+
+export const taskUnarchived = Events.synced({
+  name: 'v1.TaskUnarchived',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+  }),
+})

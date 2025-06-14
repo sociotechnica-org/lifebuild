@@ -6,6 +6,7 @@ import {
   getBoardColumns$,
   getUsers$,
   getTaskComments$,
+  app$,
 } from '../livestore/queries.js'
 import { events } from '../livestore/schema.js'
 import { Combobox } from './Combobox.js'
@@ -23,6 +24,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   const { store } = useStore()
   const taskResult = useQuery(getTaskById$(taskId))
   const task = taskResult?.[0] as Task | undefined
+  const app = useQuery(app$)
 
   // Don't render if task not found
   if (!task) return null
@@ -54,6 +56,10 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   // Comment state
   const [newComment, setNewComment] = useState('')
   const [commentError, setCommentError] = useState('')
+
+  // More actions dropdown state
+  const [moreActionsOpen, setMoreActionsOpen] = useState(false)
+  const moreActionsRef = React.useRef<HTMLDivElement>(null)
 
   // Update form fields when task changes (for optimistic updates)
   useEffect(() => {
@@ -132,11 +138,26 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
     }
   }
 
+  // Handle click outside more actions dropdown
+  const handleClickOutside = React.useCallback((event: MouseEvent) => {
+    if (moreActionsRef.current && !moreActionsRef.current.contains(event.target as Node)) {
+      setMoreActionsOpen(false)
+    }
+  }, [])
+
   // Set up escape key listener
   React.useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [isEditing, handleCancelEdit, onClose])
+
+  // Set up click outside listener for more actions dropdown
+  React.useEffect(() => {
+    if (moreActionsOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [moreActionsOpen, handleClickOutside])
 
   // Prevent body scroll when modal is open
   React.useEffect(() => {
@@ -197,6 +218,32 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
       e.preventDefault()
       handleAddComment()
     }
+  }
+
+  const handleArchiveTask = () => {
+    store.commit(
+      events.taskArchived({
+        taskId: task.id,
+        archivedAt: new Date(),
+      })
+    )
+
+    // Show undo snackbar
+    store.commit(
+      events.uiStateSet({
+        ...app,
+        snackbar: {
+          message: `Task "${task.title}" archived`,
+          type: 'archive-undo',
+          actionLabel: 'Undo',
+          actionData: { taskId: task.id },
+          showUntil: new Date(Date.now() + 5000), // Show for 5 seconds
+        },
+      })
+    )
+
+    setMoreActionsOpen(false)
+    onClose() // Close the modal after archiving
   }
 
   const formatDate = (date: Date) => {
@@ -261,13 +308,40 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                className='px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors'
-                aria-label='Edit task'
-              >
-                Edit
-              </button>
+              <>
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className='px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors'
+                  aria-label='Edit task'
+                >
+                  Edit
+                </button>
+                {/* More actions dropdown */}
+                <div className='relative' ref={moreActionsRef}>
+                  <button
+                    onClick={() => setMoreActionsOpen(!moreActionsOpen)}
+                    className='p-1 text-gray-400 hover:text-gray-600 transition-colors rounded-md hover:bg-gray-100'
+                    aria-label='More actions'
+                  >
+                    <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 20 20'>
+                      <path d='M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z' />
+                    </svg>
+                  </button>
+
+                  {moreActionsOpen && (
+                    <div className='absolute right-0 top-full mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10'>
+                      <div className='py-1'>
+                        <button
+                          onClick={handleArchiveTask}
+                          className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors'
+                        >
+                          Archive Task
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
             <button
               onClick={onClose}

@@ -326,4 +326,108 @@ describe('TaskModal', () => {
       })
     )
   })
+
+  describe('Archive functionality', () => {
+    beforeEach(() => {
+      // Mock app$ query for UI state
+      mockUseQuery.mockImplementation((query: any) => {
+        if (query.label?.includes('getTaskById')) {
+          return [mockTask]
+        }
+        if (query.label?.includes('getBoardColumns')) {
+          return mockColumns
+        }
+        if (query.label?.includes('app')) {
+          return { newTodoText: '', filter: 'all' }
+        }
+        return []
+      })
+    })
+
+    it('should display more actions dropdown when three dots button is clicked', () => {
+      render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+
+      // More actions button should be visible (not in edit mode)
+      const moreActionsButton = screen.getByLabelText('More actions')
+      expect(moreActionsButton).toBeInTheDocument()
+
+      // Dropdown should not be visible initially
+      expect(screen.queryByText('Archive Task')).not.toBeInTheDocument()
+
+      // Click more actions button
+      fireEvent.click(moreActionsButton)
+
+      // Dropdown should now be visible
+      expect(screen.getByText('Archive Task')).toBeInTheDocument()
+    })
+
+    it('should hide more actions dropdown when clicking outside', () => {
+      render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+
+      // Open dropdown
+      const moreActionsButton = screen.getByLabelText('More actions')
+      fireEvent.click(moreActionsButton)
+      expect(screen.getByText('Archive Task')).toBeInTheDocument()
+
+      // Simulate clicking outside by firing mousedown on document
+      fireEvent.mouseDown(document.body)
+
+      // Dropdown should be hidden
+      expect(screen.queryByText('Archive Task')).not.toBeInTheDocument()
+    })
+
+    it('should archive task when Archive Task button is clicked', () => {
+      render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+
+      // Open more actions dropdown
+      const moreActionsButton = screen.getByLabelText('More actions')
+      fireEvent.click(moreActionsButton)
+
+      // Click Archive Task
+      const archiveButton = screen.getByText('Archive Task')
+      fireEvent.click(archiveButton)
+
+      // Should commit archive event
+      expect(mockStore.commit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'v1.TaskArchived',
+          args: expect.objectContaining({
+            taskId: 'test-task',
+            archivedAt: expect.any(Date),
+          }),
+        })
+      )
+
+      // Should also commit snackbar state
+      expect(mockStore.commit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'uiStateSet',
+          args: expect.objectContaining({
+            value: expect.objectContaining({
+              snackbar: expect.objectContaining({
+                message: 'Task "Test Task" archived',
+                type: 'archive-undo',
+                actionLabel: 'Undo',
+                actionData: { taskId: 'test-task' },
+                showUntil: expect.any(Date),
+              }),
+            }),
+          }),
+        })
+      )
+
+      // Should close modal
+      expect(mockOnClose).toHaveBeenCalledTimes(1)
+    })
+
+    it('should not show more actions dropdown in edit mode', () => {
+      render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+
+      // Enter edit mode
+      fireEvent.click(screen.getByText('Edit'))
+
+      // More actions button should not be visible in edit mode
+      expect(screen.queryByLabelText('More actions')).not.toBeInTheDocument()
+    })
+  })
 })

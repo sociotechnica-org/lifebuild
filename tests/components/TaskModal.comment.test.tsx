@@ -34,6 +34,7 @@ describe('TaskModal Comments', () => {
     position: 1,
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-01'),
+    archivedAt: null,
   }
 
   const mockUsers: User[] = [

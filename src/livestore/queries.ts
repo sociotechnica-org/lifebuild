@@ -28,7 +28,7 @@ export const getBoardTasks$ = (boardId: string) =>
   queryDb(
     tables.tasks
       .select()
-      .where({ boardId })
+      .where({ boardId, archivedAt: undefined })
       .orderBy([{ col: 'position', direction: 'asc' }]),
     {
       label: `getBoardTasks:${boardId}`,
