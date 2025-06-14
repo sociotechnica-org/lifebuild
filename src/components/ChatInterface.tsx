@@ -5,6 +5,7 @@ import { events } from '../livestore/schema.js'
 import { getConversations$, getConversationMessages$, getUsers$ } from '../livestore/queries.js'
 import type { Conversation, ChatMessage } from '../livestore/schema.js'
 import { getInitials } from '../util/initials.js'
+import { MarkdownRenderer } from './MarkdownRenderer.js'
 
 async function callLLMAPI(userMessage: string): Promise<string> {
   console.log('🔗 Calling LLM API via proxy...')
@@ -266,7 +267,14 @@ export const ChatInterface: React.FC = () => {
                             : 'System'}
                         {message.modelId && ` (${message.modelId})`}
                       </div>
-                      <div className='text-sm text-gray-900'>{message.message}</div>
+                      {message.role === 'assistant' ? (
+                        <MarkdownRenderer
+                          content={message.message}
+                          className='text-sm text-gray-900'
+                        />
+                      ) : (
+                        <div className='text-sm text-gray-900'>{message.message}</div>
+                      )}
                     </div>
                   ))}
                   <div ref={messagesEndRef} />
