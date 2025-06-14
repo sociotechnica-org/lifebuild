@@ -54,6 +54,7 @@ export const ChatInterface: React.FC = () => {
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [messageText, setMessageText] = React.useState('')
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
   // Get first user as current user
   const currentUser = users[0]
@@ -63,6 +64,12 @@ export const ChatInterface: React.FC = () => {
   const allMessages = useQuery(getConversationMessages$(queryConversationId)) ?? []
   // Only show messages if we have a real conversation selected
   const messages = selectedConversationId ? allMessages : []
+
+  const resetTextareaHeight = React.useCallback(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '60px'
+    }
+  }, [])
 
   const handleCreateConversation = React.useCallback(() => {
     const id = crypto.randomUUID()
@@ -98,8 +105,9 @@ export const ChatInterface: React.FC = () => {
       )
 
       setMessageText('')
+      resetTextareaHeight()
     },
-    [store, messageText, selectedConversationId]
+    [store, messageText, selectedConversationId, resetTextareaHeight]
   )
 
   // Listen for user messages and trigger LLM responses
@@ -186,6 +194,18 @@ export const ChatInterface: React.FC = () => {
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  // Auto-resize textarea
+  const handleTextareaChange = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessageText(e.target.value)
+
+    // Auto-resize textarea
+    const textarea = e.target
+    textarea.style.height = 'auto'
+    const scrollHeight = textarea.scrollHeight
+    const maxHeight = 120
+    textarea.style.height = `${Math.min(scrollHeight, maxHeight)}px`
+  }, [])
 
   const selectedConversation = conversations.find(c => c.id === selectedConversationId)
 
@@ -290,20 +310,42 @@ export const ChatInterface: React.FC = () => {
 
             {/* Message Input - Fixed at bottom */}
             <div className='flex-shrink-0 p-4 bg-gray-50 border-t border-gray-200'>
-              <form onSubmit={handleSendMessage} className='flex flex-col gap-2'>
-                <input
-                  type='text'
+              <form onSubmit={handleSendMessage} className='relative'>
+                <textarea
+                  ref={textareaRef}
                   value={messageText}
-                  onChange={e => setMessageText(e.target.value)}
+                  onChange={handleTextareaChange}
                   placeholder='Type your message...'
-                  className='w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                  rows={1}
+                  className='w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 overflow-y-auto'
+                  style={{ minHeight: '60px', maxHeight: '120px', height: '60px' }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      handleSendMessage(e)
+                    }
+                  }}
                 />
                 <button
                   type='submit'
                   disabled={!messageText.trim()}
-                  className='bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors'
+                  className='absolute bottom-2 right-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white p-2 rounded-full transition-colors'
+                  title='Send message (Enter)'
                 >
-                  Send
+                  <svg
+                    className='w-4 h-4'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M5 10l7-7m0 0l7 7m-7-7v18'
+                    />
+                  </svg>
                 </button>
               </form>
             </div>
