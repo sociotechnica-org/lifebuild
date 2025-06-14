@@ -92,10 +92,36 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
         })
 
         // Add target="_blank" and security attributes to links
-        const safeHtml = cleanHtml.replace(
-          /<a\s+href="([^"]*)"([^>]*)>/gi,
-          '<a href="$1"$2 target="_blank" rel="noopener noreferrer">'
-        )
+        const safeHtml = cleanHtml.replace(/<a([^>]*)>/gi, (match, attributes) => {
+          // Check if target or rel attributes already exist
+          const hasTarget = /\btarget\s*=/i.test(attributes)
+          const hasRel = /\brel\s*=/i.test(attributes)
+
+          let newAttributes = attributes
+
+          // Add target="_blank" if not present
+          if (!hasTarget) {
+            newAttributes += ' target="_blank"'
+          }
+
+          // Add or update rel attribute
+          if (!hasRel) {
+            newAttributes += ' rel="noopener noreferrer"'
+          } else {
+            // If rel exists, ensure it includes noopener noreferrer
+            newAttributes = newAttributes.replace(
+              /\brel\s*=\s*"([^"]*)"/i,
+              (_relMatch: string, relValue: string) => {
+                const relParts = relValue.split(/\s+/).filter(Boolean)
+                if (!relParts.includes('noopener')) relParts.push('noopener')
+                if (!relParts.includes('noreferrer')) relParts.push('noreferrer')
+                return `rel="${relParts.join(' ')}"`
+              }
+            )
+          }
+
+          return `<a${newAttributes}>`
+        })
 
         setHtmlContent(safeHtml)
       } catch (error) {
