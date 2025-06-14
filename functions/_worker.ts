@@ -31,7 +31,7 @@ export default {
   async fetch(request: Request, env: any): Promise<Response> {
     const url = new URL(request.url)
 
-    // Handle LLM API proxy
+    // Handle LLM API proxy with tool calling support
     if (url.pathname === '/api/llm/chat' && request.method === 'POST') {
       try {
         // Validate environment variables
@@ -52,7 +52,7 @@ export default {
           })
         }
 
-        const { message } = requestBody
+        const { message, conversationHistory } = requestBody
 
         // Validate message field
         if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -85,14 +85,55 @@ export default {
 
 You have access to tools for:
 - Creating and managing Kanban tasks and boards
-- Creating and editing documents
-- Tracking project workflows and milestones
 
-Maintain a professional but conversational tone. Focus on practical, actionable advice. When users describe project requirements, break them down into specific, manageable tasks.`
+When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed.
 
+Maintain a professional but conversational tone. Focus on practical, actionable advice.`
+
+        // Build messages array with conversation history if provided
         const messages = [
           { role: 'system', content: systemPrompt },
+          ...(conversationHistory || []),
           { role: 'user', content: message },
+        ]
+
+        // Define available tools
+        const tools = [
+          {
+            type: 'function',
+            function: {
+              name: 'create_task',
+              description: 'Create a new task in the Kanban system',
+              parameters: {
+                type: 'object',
+                properties: {
+                  title: {
+                    type: 'string',
+                    description: 'The title/name of the task (required)',
+                  },
+                  description: {
+                    type: 'string',
+                    description: 'Optional detailed description of the task',
+                  },
+                  boardId: {
+                    type: 'string',
+                    description:
+                      'ID of the board to create the task on (optional, defaults to first board)',
+                  },
+                  columnId: {
+                    type: 'string',
+                    description:
+                      'ID of the column to place the task in (optional, defaults to first column)',
+                  },
+                  assigneeId: {
+                    type: 'string',
+                    description: 'ID of the user to assign the task to (optional)',
+                  },
+                },
+                required: ['title'],
+              },
+            },
+          },
         ]
 
         const response = await fetch('https://api.braintrust.dev/v1/proxy/chat/completions', {
@@ -105,6 +146,8 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
           body: JSON.stringify({
             model: 'gpt-4o',
             messages,
+            tools,
+            tool_choice: 'auto',
             temperature: 0.7,
             max_tokens: 1000,
           }),
@@ -122,11 +165,26 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
         }
 
         const data = await response.json()
-        const responseMessage = data.choices[0]?.message?.content || 'No response generated'
+        const choice = data.choices[0]
+        const responseMessage = choice?.message
 
-        return new Response(JSON.stringify({ message: responseMessage }), {
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-        })
+        if (!responseMessage) {
+          return new Response(JSON.stringify({ error: 'No response generated' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          })
+        }
+
+        // Return the full response including any tool calls
+        return new Response(
+          JSON.stringify({
+            message: responseMessage.content || '',
+            toolCalls: responseMessage.tool_calls || [],
+          }),
+          {
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          }
+        )
       } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), {
           status: 500,

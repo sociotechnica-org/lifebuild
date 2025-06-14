@@ -6,13 +6,40 @@ import { getConversations$, getConversationMessages$, getUsers$ } from '../lives
 import type { Conversation, ChatMessage } from '../livestore/schema.js'
 import { getInitials } from '../util/initials.js'
 import { MarkdownRenderer } from './MarkdownRenderer.js'
+import { executeLLMTool } from '../utils/llm-tools.js'
 
-async function callLLMAPI(userMessage: string): Promise<string> {
+interface LLMAPIResponse {
+  message: string
+  toolCalls?: Array<{
+    id: string
+    type: 'function'
+    function: {
+      name: string
+      arguments: string
+    }
+  }>
+}
+
+async function callLLMAPI(
+  userMessage: string,
+  conversationHistory?: ChatMessage[]
+): Promise<LLMAPIResponse> {
   console.log('🔗 Calling LLM API via proxy...')
 
   // Use relative path for production, fallback to localhost for local development
   const proxyUrl = import.meta.env.PROD ? '/api/llm/chat' : 'http://localhost:8787/api/llm/chat'
-  const requestBody = { message: userMessage }
+
+  // Build conversation history for API
+  const historyForAPI =
+    conversationHistory?.map(msg => ({
+      role: msg.role,
+      content: msg.message,
+    })) || []
+
+  const requestBody = {
+    message: userMessage,
+    conversationHistory: historyForAPI,
+  }
 
   console.log('🔗 Making request to:', proxyUrl)
   console.log('🔗 Request body:', requestBody)
@@ -37,10 +64,10 @@ async function callLLMAPI(userMessage: string): Promise<string> {
     const data = await response.json()
     console.log('🔗 Response data:', data)
 
-    const responseMessage = data.message || 'No response generated'
-
-    console.log(`✅ Got LLM response: ${responseMessage.substring(0, 100)}...`)
-    return responseMessage
+    return {
+      message: data.message || 'No response generated',
+      toolCalls: data.toolCalls || [],
+    }
   } catch (fetchError) {
     console.error('🔗 Fetch error:', fetchError)
     throw fetchError
@@ -53,6 +80,7 @@ export const ChatInterface: React.FC = () => {
   const users = useQuery(getUsers$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [messageText, setMessageText] = React.useState('')
+  const [processingToolCalls, setProcessingToolCalls] = React.useState<Set<string>>(new Set())
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
@@ -140,20 +168,136 @@ export const ChatInterface: React.FC = () => {
             console.log('🤖 Processing user message for LLM:', userMessage.message)
 
             try {
-              const llmResponse = await callLLMAPI(userMessage.message)
+              // Get conversation history for context
+              const conversationHistory = messages.filter(m => m.createdAt < userMessage.createdAt)
+              const llmResponse = await callLLMAPI(userMessage.message, conversationHistory)
 
-              store.commit(
-                events.llmResponseReceived({
-                  id: crypto.randomUUID(),
-                  conversationId: selectedConversationId,
-                  message: llmResponse,
-                  role: 'assistant',
-                  modelId: 'gpt-4o',
-                  responseToMessageId: userMessage.id,
-                  createdAt: new Date(),
-                  metadata: { source: 'braintrust' },
-                })
-              )
+              // Handle tool calls if present
+              if (llmResponse.toolCalls && llmResponse.toolCalls.length > 0) {
+                console.log('🔧 LLM wants to call tools:', llmResponse.toolCalls.length)
+
+                // Create initial response with tool calls
+                const responseId = crypto.randomUUID()
+                store.commit(
+                  events.llmResponseReceived({
+                    id: responseId,
+                    conversationId: selectedConversationId,
+                    message:
+                      llmResponse.message || "I'll help you with that. Let me create some tasks...",
+                    role: 'assistant',
+                    modelId: 'gpt-4o',
+                    responseToMessageId: userMessage.id,
+                    createdAt: new Date(),
+                    metadata: {
+                      source: 'braintrust',
+                      toolCalls: llmResponse.toolCalls,
+                    },
+                  })
+                )
+
+                // Process tool calls
+                for (const toolCall of llmResponse.toolCalls) {
+                  try {
+                    setProcessingToolCalls(prev => new Set(prev).add(toolCall.id))
+                    console.log(
+                      '🔧 Executing tool:',
+                      toolCall.function.name,
+                      toolCall.function.arguments
+                    )
+
+                    const toolArgs = JSON.parse(toolCall.function.arguments)
+                    const toolResult = await executeLLMTool(store, {
+                      name: toolCall.function.name,
+                      parameters: toolArgs,
+                    })
+
+                    setProcessingToolCalls(prev => {
+                      const newSet = new Set(prev)
+                      newSet.delete(toolCall.id)
+                      return newSet
+                    })
+
+                    // Create follow-up message with tool result
+                    if (toolResult.success) {
+                      const confirmationMessage = `✅ Created task "${toolResult.taskTitle}" on ${toolResult.boardName} in ${toolResult.columnName}${
+                        toolResult.assigneeName ? ` (assigned to ${toolResult.assigneeName})` : ''
+                      }`
+
+                      store.commit(
+                        events.llmResponseReceived({
+                          id: crypto.randomUUID(),
+                          conversationId: selectedConversationId,
+                          message: confirmationMessage,
+                          role: 'assistant',
+                          modelId: 'gpt-4o',
+                          responseToMessageId: userMessage.id,
+                          createdAt: new Date(),
+                          metadata: {
+                            source: 'tool-result',
+                            toolCall: toolCall,
+                            toolResult: toolResult,
+                          },
+                        })
+                      )
+                    } else {
+                      store.commit(
+                        events.llmResponseReceived({
+                          id: crypto.randomUUID(),
+                          conversationId: selectedConversationId,
+                          message: `❌ Failed to create task: ${toolResult.error}`,
+                          role: 'assistant',
+                          modelId: 'gpt-4o',
+                          responseToMessageId: userMessage.id,
+                          createdAt: new Date(),
+                          metadata: {
+                            source: 'tool-error',
+                            toolCall: toolCall,
+                            toolResult: toolResult,
+                          },
+                        })
+                      )
+                    }
+                  } catch (toolError) {
+                    console.error('❌ Tool execution error:', toolError)
+                    setProcessingToolCalls(prev => {
+                      const newSet = new Set(prev)
+                      newSet.delete(toolCall.id)
+                      return newSet
+                    })
+
+                    store.commit(
+                      events.llmResponseReceived({
+                        id: crypto.randomUUID(),
+                        conversationId: selectedConversationId,
+                        message: `❌ Error executing tool: ${(toolError as Error).message}`,
+                        role: 'assistant',
+                        modelId: 'error',
+                        responseToMessageId: userMessage.id,
+                        createdAt: new Date(),
+                        metadata: {
+                          source: 'tool-error',
+                          toolCall: toolCall,
+                          error: (toolError as Error).message,
+                        },
+                      })
+                    )
+                  }
+                }
+              } else {
+                // Normal text response without tools
+                store.commit(
+                  events.llmResponseReceived({
+                    id: crypto.randomUUID(),
+                    conversationId: selectedConversationId,
+                    message: llmResponse.message,
+                    role: 'assistant',
+                    modelId: 'gpt-4o',
+                    responseToMessageId: userMessage.id,
+                    createdAt: new Date(),
+                    metadata: { source: 'braintrust' },
+                  })
+                )
+              }
 
               console.log('✅ LLM response sent for message:', userMessage.id)
             } catch (error) {
@@ -287,6 +431,66 @@ export const ChatInterface: React.FC = () => {
                             : 'System'}
                         {message.modelId && ` (${message.modelId})`}
                       </div>
+
+                      {/* Tool call indicators */}
+                      {message.metadata?.toolCalls && Array.isArray(message.metadata.toolCalls) && (
+                        <div className='mb-2'>
+                          {message.metadata.toolCalls.map((toolCall: any) => (
+                            <div
+                              key={toolCall.id}
+                              className='flex items-center gap-2 text-xs text-blue-600 mb-1'
+                            >
+                              {processingToolCalls.has(toolCall.id) ? (
+                                <>
+                                  <div className='w-3 h-3 border border-blue-600 border-t-transparent rounded-full animate-spin' />
+                                  <span>Creating task...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <svg className='w-3 h-3' fill='currentColor' viewBox='0 0 20 20'>
+                                    <path d='M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z' />
+                                  </svg>
+                                  <span>Tool: {toolCall.function.name}</span>
+                                </>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Task creation link */}
+                      {message.metadata?.source === 'tool-result' &&
+                        (message.metadata.toolResult as any)?.success && (
+                          <div className='mb-2 p-2 bg-green-50 border border-green-200 rounded text-xs'>
+                            <div className='flex items-center gap-2 text-green-700'>
+                              <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                                <path
+                                  fillRule='evenodd'
+                                  d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                                  clipRule='evenodd'
+                                />
+                              </svg>
+                              <span>Task created successfully</span>
+                            </div>
+                            {(message.metadata.toolResult as any)?.taskId && (
+                              <div className='mt-1'>
+                                <button
+                                  onClick={() => {
+                                    // Navigate to the task - simplified for now
+                                    console.log(
+                                      'Navigate to task:',
+                                      (message.metadata!.toolResult as any).taskId
+                                    )
+                                  }}
+                                  className='text-blue-600 hover:text-blue-800 underline'
+                                >
+                                  View task: {(message.metadata!.toolResult as any).taskTitle}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                       {message.role === 'assistant' ? (
                         <MarkdownRenderer content={message.message} className='' />
                       ) : (
