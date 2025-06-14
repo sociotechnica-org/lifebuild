@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext, useContext } from 'react'
+import React, { useState, useEffect, createContext, useContext, useCallback } from 'react'
 import { useStore } from '@livestore/react'
 import { events } from '../livestore/schema.js'
 
@@ -27,24 +27,47 @@ export function useSnackbar() {
 export function SnackbarProvider({ children }: { children: React.ReactNode }) {
   const [snackbar, setSnackbar] = useState<SnackbarData | null>(null)
   const [isVisible, setIsVisible] = useState(false)
+  const [isHiding, setIsHiding] = useState(false)
 
-  const showSnackbar = (data: Omit<SnackbarData, 'showUntil'> & { duration?: number }) => {
-    const duration = data.duration || 5000
-    // Reset visibility for new snackbar
-    setIsVisible(false)
-    setSnackbar({
-      ...data,
-      showUntil: new Date(Date.now() + duration),
-    })
-    // Trigger fade in after setting snackbar
-    setTimeout(() => setIsVisible(true), 10)
-  }
+  const showSnackbar = useCallback(
+    (data: Omit<SnackbarData, 'showUntil'> & { duration?: number }) => {
+      const duration = data.duration || 5000
+      // Reset states for new snackbar
+      setIsVisible(false)
+      setIsHiding(false)
+      setSnackbar({
+        ...data,
+        showUntil: new Date(Date.now() + duration),
+      })
+    },
+    []
+  )
 
-  const hideSnackbar = () => {
-    setIsVisible(false)
-    // Wait for fade out animation to complete before removing from DOM
-    setTimeout(() => setSnackbar(null), 100)
-  }
+  const hideSnackbar = useCallback(() => {
+    if (!isHiding) {
+      setIsHiding(true)
+      setIsVisible(false)
+    }
+  }, [isHiding])
+
+  // Handle fade in animation when snackbar is set
+  useEffect(() => {
+    if (snackbar && !isVisible && !isHiding) {
+      const timer = setTimeout(() => setIsVisible(true), 10)
+      return () => clearTimeout(timer)
+    }
+  }, [snackbar, isVisible, isHiding])
+
+  // Handle fade out and cleanup
+  useEffect(() => {
+    if (isHiding) {
+      const timer = setTimeout(() => {
+        setSnackbar(null)
+        setIsHiding(false)
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [isHiding])
 
   return (
     <SnackbarContext.Provider value={{ showSnackbar }}>
