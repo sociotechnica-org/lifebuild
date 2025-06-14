@@ -37,7 +37,6 @@
     "@storybook/react-vite": "^9.0.5",
     "@storybook/test-runner": "^0.22.0",
     "@tailwindcss/postcss": "^4.1.8",
-    "@tailwindcss/typography": "^0.5.12",
     "@tailwindcss/vite": "^4.1.8",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
