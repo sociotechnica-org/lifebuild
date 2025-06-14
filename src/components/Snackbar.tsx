@@ -26,28 +26,41 @@ export function useSnackbar() {
 
 export function SnackbarProvider({ children }: { children: React.ReactNode }) {
   const [snackbar, setSnackbar] = useState<SnackbarData | null>(null)
+  const [isVisible, setIsVisible] = useState(false)
 
   const showSnackbar = (data: Omit<SnackbarData, 'showUntil'> & { duration?: number }) => {
     const duration = data.duration || 5000
+    // Reset visibility for new snackbar
+    setIsVisible(false)
     setSnackbar({
       ...data,
       showUntil: new Date(Date.now() + duration),
     })
+    // Trigger fade in after setting snackbar
+    setTimeout(() => setIsVisible(true), 10)
+  }
+
+  const hideSnackbar = () => {
+    setIsVisible(false)
+    // Wait for fade out animation to complete before removing from DOM
+    setTimeout(() => setSnackbar(null), 100)
   }
 
   return (
     <SnackbarContext.Provider value={{ showSnackbar }}>
       {children}
-      <SnackbarComponent snackbar={snackbar} onHide={() => setSnackbar(null)} />
+      <SnackbarComponent snackbar={snackbar} isVisible={isVisible} onHide={hideSnackbar} />
     </SnackbarContext.Provider>
   )
 }
 
 function SnackbarComponent({
   snackbar,
+  isVisible,
   onHide,
 }: {
   snackbar: SnackbarData | null
+  isVisible: boolean
   onHide: () => void
 }) {
   const { store } = useStore()
@@ -95,7 +108,11 @@ function SnackbarComponent({
 
   return (
     <div className='fixed bottom-4 left-4 right-4 flex justify-center z-50'>
-      <div className='bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 max-w-md'>
+      <div
+        className={`bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 max-w-md transition-all duration-100 ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+        }`}
+      >
         <span className='flex-1 text-sm'>{snackbar.message}</span>
         <div className='flex items-center gap-2'>
           {snackbar.actionLabel && (
