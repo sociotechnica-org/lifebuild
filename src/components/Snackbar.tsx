@@ -19,12 +19,8 @@ export function Snackbar() {
 
     if (timeLeft <= 0) {
       // Already expired, hide immediately
-      store.commit(
-        events.uiStateSet({
-          newTodoText: app.newTodoText || '',
-          filter: app.filter || 'all',
-        })
-      )
+      const newState = { newTodoText: app.newTodoText || '', filter: (app.filter || 'all') as const }
+      store.commit(events.uiStateSet(newState))
       return
     }
 
@@ -33,12 +29,8 @@ export function Snackbar() {
       // Get current app state when timeout fires
       const currentApp = store.query(app$)
       if (currentApp?.snackbar) {
-        store.commit(
-          events.uiStateSet({
-            newTodoText: currentApp.newTodoText || '',
-            filter: currentApp.filter || 'all',
-          })
-        )
+        const newState = { newTodoText: currentApp.newTodoText || '', filter: (currentApp.filter || 'all') as const }
+        store.commit(events.uiStateSet(newState))
       }
     }, timeLeft)
 
@@ -57,24 +49,26 @@ export function Snackbar() {
       )
     }
 
-    // Hide snackbar after action - create new state without snackbar
-    store.commit(
-      events.uiStateSet({
-        newTodoText: app?.newTodoText || '',
-        filter: app?.filter || 'all',
-      })
-    )
+    // Hide snackbar after action - same pattern as handleClose
+    const newState = { newTodoText: app?.newTodoText || '', filter: (app?.filter || 'all') as const }
+    store.commit(events.uiStateSet(newState))
   }
 
   const handleClose = () => {
     console.log('handleClose called, current app state:', app)
-    // Hide snackbar - create new state without snackbar
-    const newState = {
-      newTodoText: app?.newTodoText || '',
-      filter: app?.filter || 'all',
-    }
+    
+    // Let's try the exact same pattern as the default value in schema
+    const newState = { newTodoText: '', filter: 'all' as const }
     console.log('Setting new state:', newState)
-    store.commit(events.uiStateSet(newState))
+    
+    try {
+      const event = events.uiStateSet(newState)
+      console.log('Generated event:', event)
+      store.commit(event)
+      console.log('Committed successfully')
+    } catch (error) {
+      console.error('Error committing:', error)
+    }
   }
 
   return (

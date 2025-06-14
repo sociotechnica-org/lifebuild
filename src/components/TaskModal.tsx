@@ -232,7 +232,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
     store.commit(
       events.uiStateSet({
         newTodoText: app?.newTodoText || '',
-        filter: app?.filter || 'all',
+        filter: (app?.filter || 'all') as const,
         snackbar: {
           message: `Task "${task.title}" archived`,
           type: 'archive-undo',
