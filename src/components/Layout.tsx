@@ -1,6 +1,6 @@
 import React from 'react'
 import { ChatInterface } from './ChatInterface.js'
-import { Snackbar } from './Snackbar.js'
+import { SnackbarProvider } from './Snackbar.js'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -8,15 +8,14 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className='flex h-screen'>
-      {/* Main Content Area */}
-      <div className='flex-1 overflow-auto'>{children}</div>
+    <SnackbarProvider>
+      <div className='flex h-screen'>
+        {/* Main Content Area */}
+        <div className='flex-1 overflow-auto'>{children}</div>
 
-      {/* Chat Panel */}
-      <ChatInterface />
-
-      {/* Global Snackbar */}
-      <Snackbar />
-    </div>
+        {/* Chat Panel */}
+        <ChatInterface />
+      </div>
+    </SnackbarProvider>
   )
 }

@@ -1,125 +1,108 @@
 import React from 'react'
 import { render, screen, fireEvent, act } from '@testing-library/react'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { Snackbar } from '../../src/components/Snackbar.js'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+import { SnackbarProvider, useSnackbar } from '../../src/components/Snackbar.js'
 
-// Hoisted mocks
-const { mockUseQuery, mockStore } = vi.hoisted(() => {
-  const mockUseQuery = vi.fn()
-  const mockStore = {
-    commit: vi.fn(),
-    query: vi.fn(),
-  }
-  return { mockUseQuery, mockStore }
-})
+// Mock store for undo functionality
+const mockStore = vi.hoisted(() => ({
+  commit: vi.fn(),
+}))
 
 // Mock @livestore/react
 vi.mock('@livestore/react', () => ({
-  useQuery: mockUseQuery,
   useStore: () => ({ store: mockStore }),
 }))
+
+// Test component that uses the snackbar hook
+function TestComponent() {
+  const { showSnackbar } = useSnackbar()
+
+  return (
+    <div>
+      <button
+        onClick={() =>
+          showSnackbar({
+            message: 'Task archived',
+            type: 'archive-undo',
+            actionLabel: 'Undo',
+            actionData: { taskId: 'test-task' },
+            duration: 1000,
+          })
+        }
+      >
+        Show Snackbar
+      </button>
+      <button
+        onClick={() =>
+          showSnackbar({
+            message: 'Simple message',
+            type: 'info',
+          })
+        }
+      >
+        Show Simple
+      </button>
+    </div>
+  )
+}
 
 describe('Snackbar', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockStore.commit.mockClear()
-    mockStore.query.mockClear()
     vi.useFakeTimers()
-    // Mock store.query to return the same app state
-    mockStore.query.mockReturnValue({ newTodoText: '', filter: 'all' })
   })
 
   afterEach(() => {
     vi.useRealTimers()
   })
 
-  it('should not render when no snackbar is present', () => {
-    mockUseQuery.mockReturnValue(null)
-    render(<Snackbar />)
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  it('should not render when no snackbar is shown', () => {
+    render(
+      <SnackbarProvider>
+        <div>No snackbar</div>
+      </SnackbarProvider>
+    )
+    expect(screen.queryByText('Task archived')).not.toBeInTheDocument()
   })
 
-  it('should not render when app state has no snackbar', () => {
-    mockUseQuery.mockReturnValue({ newTodoText: '', filter: 'all' })
-    render(<Snackbar />)
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
-  })
+  it('should render snackbar when showSnackbar is called', () => {
+    render(
+      <SnackbarProvider>
+        <TestComponent />
+      </SnackbarProvider>
+    )
 
-  it('should render snackbar with message when snackbar is present', () => {
-    const mockApp = {
-      newTodoText: '',
-      filter: 'all',
-      snackbar: {
-        message: 'Task "Test Task" archived',
-        type: 'archive-undo',
-        actionLabel: 'Undo',
-        actionData: { taskId: 'test-task' },
-        showUntil: new Date(Date.now() + 5000),
-      },
-    }
-    mockUseQuery.mockReturnValue(mockApp)
+    fireEvent.click(screen.getByText('Show Snackbar'))
 
-    render(<Snackbar />)
-
-    expect(screen.getByText('Task "Test Task" archived')).toBeInTheDocument()
+    expect(screen.getByText('Task archived')).toBeInTheDocument()
     expect(screen.getByText('Undo')).toBeInTheDocument()
     expect(screen.getByLabelText('Close notification')).toBeInTheDocument()
   })
 
   it('should hide snackbar when close button is clicked', () => {
-    const mockApp = {
-      newTodoText: '',
-      filter: 'all',
-      snackbar: {
-        message: 'Task "Test Task" archived',
-        type: 'archive-undo',
-        actionLabel: 'Undo',
-        actionData: { taskId: 'test-task' },
-        showUntil: new Date(Date.now() + 5000),
-      },
-    }
-    mockUseQuery.mockReturnValue(mockApp)
-
-    render(<Snackbar />)
-
-    const closeButton = screen.getByLabelText('Close notification')
-    fireEvent.click(closeButton)
-
-    expect(mockStore.commit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: 'uiStateSet',
-        args: expect.objectContaining({
-          value: expect.objectContaining({
-            newTodoText: '',
-            filter: 'all',
-          }),
-        }),
-      })
+    render(
+      <SnackbarProvider>
+        <TestComponent />
+      </SnackbarProvider>
     )
 
-    // Ensure snackbar is not in the committed state
-    const commitCall = mockStore.commit.mock.calls[0]?.[0]
-    expect(commitCall?.args?.value).not.toHaveProperty('snackbar')
+    fireEvent.click(screen.getByText('Show Snackbar'))
+    expect(screen.getByText('Task archived')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByLabelText('Close notification'))
+    expect(screen.queryByText('Task archived')).not.toBeInTheDocument()
   })
 
   it('should perform undo action when undo button is clicked', () => {
-    const mockApp = {
-      newTodoText: '',
-      filter: 'all',
-      snackbar: {
-        message: 'Task "Test Task" archived',
-        type: 'archive-undo',
-        actionLabel: 'Undo',
-        actionData: { taskId: 'test-task' },
-        showUntil: new Date(Date.now() + 5000),
-      },
-    }
-    mockUseQuery.mockReturnValue(mockApp)
+    render(
+      <SnackbarProvider>
+        <TestComponent />
+      </SnackbarProvider>
+    )
 
-    render(<Snackbar />)
-
-    const undoButton = screen.getByText('Undo')
-    fireEvent.click(undoButton)
+    fireEvent.click(screen.getByText('Show Snackbar'))
+    fireEvent.click(screen.getByText('Undo'))
 
     // Should commit unarchive event
     expect(mockStore.commit).toHaveBeenCalledWith(
@@ -131,118 +114,64 @@ describe('Snackbar', () => {
       })
     )
 
-    // Should also hide the snackbar
-    expect(mockStore.commit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: 'uiStateSet',
-        args: expect.objectContaining({
-          value: expect.objectContaining({
-            newTodoText: '',
-            filter: 'all',
-          }),
-        }),
-      })
-    )
-
-    // Ensure snackbar is not in the committed state
-    const secondCommitCall = mockStore.commit.mock.calls[1]?.[0]
-    expect(secondCommitCall?.args?.value).not.toHaveProperty('snackbar')
+    // Snackbar should be hidden after undo
+    expect(screen.queryByText('Task archived')).not.toBeInTheDocument()
   })
 
-  it('should auto-hide snackbar when timeout expires', async () => {
-    const showTime = 3000
-    const mockApp = {
-      newTodoText: '',
-      filter: 'all',
-      snackbar: {
-        message: 'Task "Test Task" archived',
-        type: 'archive-undo',
-        actionLabel: 'Undo',
-        actionData: { taskId: 'test-task' },
-        showUntil: new Date(Date.now() + showTime),
-      },
-    }
-    mockUseQuery.mockReturnValue(mockApp)
-    // Update the store.query mock to return the app with snackbar
-    mockStore.query.mockReturnValue(mockApp)
+  it('should auto-hide snackbar when timeout expires', () => {
+    render(
+      <SnackbarProvider>
+        <TestComponent />
+      </SnackbarProvider>
+    )
 
-    render(<Snackbar />)
-
-    // Snackbar should be visible
-    expect(screen.getByText('Task "Test Task" archived')).toBeInTheDocument()
+    fireEvent.click(screen.getByText('Show Snackbar'))
+    expect(screen.getByText('Task archived')).toBeInTheDocument()
 
     // Fast-forward time
     act(() => {
-      vi.advanceTimersByTime(showTime)
+      vi.advanceTimersByTime(1000)
     })
 
-    // Should have hidden the snackbar
-    expect(mockStore.commit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: 'uiStateSet',
-        args: expect.objectContaining({
-          value: expect.objectContaining({
-            newTodoText: '',
-            filter: 'all',
-          }),
-        }),
-      })
-    )
-
-    // Ensure snackbar is not in the committed state
-    const commitCall = mockStore.commit.mock.calls[0]?.[0]
-    expect(commitCall?.args?.value).not.toHaveProperty('snackbar')
+    expect(screen.queryByText('Task archived')).not.toBeInTheDocument()
   })
 
   it('should immediately hide if snackbar is already expired', () => {
-    const mockApp = {
-      newTodoText: '',
-      filter: 'all',
-      snackbar: {
-        message: 'Task "Test Task" archived',
-        type: 'archive-undo',
-        actionLabel: 'Undo',
-        actionData: { taskId: 'test-task' },
-        showUntil: new Date(Date.now() - 1000), // Already expired
-      },
+    // Create a component that shows an expired snackbar
+    function ExpiredTestComponent() {
+      const { showSnackbar } = useSnackbar()
+
+      React.useEffect(() => {
+        showSnackbar({
+          message: 'Expired message',
+          type: 'info',
+          duration: -1000, // Already expired
+        })
+      }, [showSnackbar])
+
+      return <div>Test</div>
     }
-    mockUseQuery.mockReturnValue(mockApp)
 
-    render(<Snackbar />)
-
-    // Should immediately hide the snackbar
-    expect(mockStore.commit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: 'uiStateSet',
-        args: expect.objectContaining({
-          value: expect.objectContaining({
-            newTodoText: '',
-            filter: 'all',
-          }),
-        }),
-      })
+    render(
+      <SnackbarProvider>
+        <ExpiredTestComponent />
+      </SnackbarProvider>
     )
 
-    // Ensure snackbar is not in the committed state
-    const commitCall = mockStore.commit.mock.calls[0]?.[0]
-    expect(commitCall?.args?.value).not.toHaveProperty('snackbar')
+    // Should not render expired snackbar
+    expect(screen.queryByText('Expired message')).not.toBeInTheDocument()
   })
 
   it('should render snackbar without action button when no actionLabel is provided', () => {
-    const mockApp = {
-      newTodoText: '',
-      filter: 'all',
-      snackbar: {
-        message: 'Operation completed',
-        type: 'info',
-        showUntil: new Date(Date.now() + 5000),
-      },
-    }
-    mockUseQuery.mockReturnValue(mockApp)
+    render(
+      <SnackbarProvider>
+        <TestComponent />
+      </SnackbarProvider>
+    )
 
-    render(<Snackbar />)
+    fireEvent.click(screen.getByText('Show Simple'))
 
-    expect(screen.getByText('Operation completed')).toBeInTheDocument()
+    expect(screen.getByText('Simple message')).toBeInTheDocument()
     expect(screen.queryByText('Undo')).not.toBeInTheDocument()
     expect(screen.getByLabelText('Close notification')).toBeInTheDocument()
   })

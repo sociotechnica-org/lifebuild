@@ -1,41 +1,77 @@
-import React, { useEffect } from 'react'
-import { useQuery, useStore } from '@livestore/react'
-import { app$ } from '../livestore/queries.js'
+import React, { useState, useEffect, createContext, useContext } from 'react'
+import { useStore } from '@livestore/react'
 import { events } from '../livestore/schema.js'
 
-export function Snackbar() {
+interface SnackbarData {
+  message: string
+  type: string
+  actionLabel?: string
+  actionData?: Record<string, any>
+  showUntil: Date
+}
+
+interface SnackbarContextType {
+  showSnackbar: (data: Omit<SnackbarData, 'showUntil'> & { duration?: number }) => void
+}
+
+const SnackbarContext = createContext<SnackbarContextType | null>(null)
+
+export function useSnackbar() {
+  const context = useContext(SnackbarContext)
+  if (!context) {
+    throw new Error('useSnackbar must be used within a SnackbarProvider')
+  }
+  return context
+}
+
+export function SnackbarProvider({ children }: { children: React.ReactNode }) {
+  const [snackbar, setSnackbar] = useState<SnackbarData | null>(null)
+
+  const showSnackbar = (data: Omit<SnackbarData, 'showUntil'> & { duration?: number }) => {
+    const duration = data.duration || 5000
+    setSnackbar({
+      ...data,
+      showUntil: new Date(Date.now() + duration),
+    })
+  }
+
+  return (
+    <SnackbarContext.Provider value={{ showSnackbar }}>
+      {children}
+      <SnackbarComponent snackbar={snackbar} onHide={() => setSnackbar(null)} />
+    </SnackbarContext.Provider>
+  )
+}
+
+function SnackbarComponent({
+  snackbar,
+  onHide,
+}: {
+  snackbar: SnackbarData | null
+  onHide: () => void
+}) {
   const { store } = useStore()
-  const app = useQuery(app$)
-  const snackbar = app?.snackbar
-  
-  console.log('Snackbar render - app:', app, 'snackbar:', snackbar)
 
   // Auto-hide snackbar when time expires
   useEffect(() => {
-    if (!snackbar || !app) return
+    if (!snackbar) return
 
     const now = Date.now()
     const timeLeft = snackbar.showUntil.getTime() - now
 
     if (timeLeft <= 0) {
       // Already expired, hide immediately
-      const newState = { newTodoText: app.newTodoText || '', filter: (app.filter || 'all') as const }
-      store.commit(events.uiStateSet(newState))
+      onHide()
       return
     }
 
     // Set timeout to hide when it expires
     const timeout = setTimeout(() => {
-      // Get current app state when timeout fires
-      const currentApp = store.query(app$)
-      if (currentApp?.snackbar) {
-        const newState = { newTodoText: currentApp.newTodoText || '', filter: (currentApp.filter || 'all') as const }
-        store.commit(events.uiStateSet(newState))
-      }
+      onHide()
     }, timeLeft)
 
     return () => clearTimeout(timeout)
-  }, [snackbar?.showUntil, store, app$])
+  }, [snackbar, onHide])
 
   if (!snackbar) return null
 
@@ -49,34 +85,12 @@ export function Snackbar() {
       )
     }
 
-    // Hide snackbar after action - same pattern as handleClose
-    const newState = { newTodoText: app?.newTodoText || '', filter: (app?.filter || 'all') as const }
-    store.commit(events.uiStateSet(newState))
+    // Hide snackbar after action
+    onHide()
   }
 
   const handleClose = () => {
-    console.log('handleClose called, current app state:', app)
-    
-    // Try preserving all existing state except snackbar
-    const { snackbar: _, ...restState } = app || { newTodoText: '', filter: 'all' }
-    const newState = { ...restState }
-    console.log('Setting new state (preserving existing):', newState)
-    
-    try {
-      const event = events.uiStateSet(newState)
-      console.log('Generated event:', event)
-      store.commit(event)
-      console.log('Committed successfully')
-      
-      // Check state immediately after commit
-      setTimeout(() => {
-        const updatedApp = store.query(app$)
-        console.log('State after commit:', updatedApp)
-      }, 100)
-      
-    } catch (error) {
-      console.error('Error committing:', error)
-    }
+    onHide()
   }
 
   return (

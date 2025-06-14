@@ -6,11 +6,11 @@ import {
   getBoardColumns$,
   getUsers$,
   getTaskComments$,
-  app$,
 } from '../livestore/queries.js'
 import { events } from '../livestore/schema.js'
 import { Combobox } from './Combobox.js'
 import { getInitials } from '../util/initials.js'
+import { useSnackbar } from './Snackbar.js'
 
 interface TaskModalProps {
   taskId: string | null
@@ -22,9 +22,9 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   if (!taskId) return null
 
   const { store } = useStore()
+  const { showSnackbar } = useSnackbar()
   const taskResult = useQuery(getTaskById$(taskId))
   const task = taskResult?.[0] as Task | undefined
-  const app = useQuery(app$)
 
   // Don't render if task not found
   if (!task) return null
@@ -229,19 +229,13 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
     )
 
     // Show undo snackbar
-    store.commit(
-      events.uiStateSet({
-        newTodoText: app?.newTodoText || '',
-        filter: (app?.filter || 'all') as const,
-        snackbar: {
-          message: `Task "${task.title}" archived`,
-          type: 'archive-undo',
-          actionLabel: 'Undo',
-          actionData: { taskId: task.id },
-          showUntil: new Date(Date.now() + 5000), // Show for 5 seconds
-        },
-      })
-    )
+    showSnackbar({
+      message: `Task "${task.title}" archived`,
+      type: 'archive-undo',
+      actionLabel: 'Undo',
+      actionData: { taskId: task.id },
+      duration: 5000, // Show for 5 seconds
+    })
 
     setMoreActionsOpen(false)
     onClose() // Close the modal after archiving

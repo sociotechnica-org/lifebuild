@@ -2,6 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { TaskModal } from '../../src/components/TaskModal.js'
+import { SnackbarProvider } from '../../src/components/Snackbar.js'
 import { createMockTask, createMockColumn } from '../../src/test-utils.js'
 
 // Hoisted mocks
@@ -28,6 +29,11 @@ describe('TaskModal', () => {
 
   const mockColumns = [createMockColumn({ name: 'Todo' })]
 
+  // Helper to render with providers
+  const renderWithProviders = (component: React.ReactElement) => {
+    return render(<SnackbarProvider>{component}</SnackbarProvider>)
+  }
+
   beforeEach(() => {
     vi.clearAllMocks()
     mockStore.commit.mockClear()
@@ -45,7 +51,7 @@ describe('TaskModal', () => {
   })
 
   it('should not render when taskId is null', () => {
-    render(<TaskModal taskId={null} onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId={null} onClose={mockOnClose} />)
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
@@ -58,12 +64,12 @@ describe('TaskModal', () => {
       return mockColumns
     })
 
-    render(<TaskModal taskId='non-existent' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='non-existent' onClose={mockOnClose} />)
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
   it('should render task details when taskId is provided', () => {
-    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.getByText('Test Task')).toBeInTheDocument()
@@ -84,13 +90,13 @@ describe('TaskModal', () => {
       return []
     })
 
-    render(<TaskModal taskId='task-no-desc' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='task-no-desc' onClose={mockOnClose} />)
 
     expect(screen.getByText('No description provided.')).toBeInTheDocument()
   })
 
   it('should display creation and update dates', () => {
-    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     expect(screen.getByText('Created')).toBeInTheDocument()
     expect(screen.getByText('Last Updated')).toBeInTheDocument()
@@ -100,7 +106,7 @@ describe('TaskModal', () => {
   })
 
   it('should call onClose when close button is clicked', () => {
-    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     const closeButton = screen.getByLabelText('Close modal')
     fireEvent.click(closeButton)
@@ -109,7 +115,7 @@ describe('TaskModal', () => {
   })
 
   it('should call onClose when backdrop is clicked', () => {
-    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     const backdrop = screen.getByRole('dialog').parentElement!
     fireEvent.click(backdrop)
@@ -118,7 +124,7 @@ describe('TaskModal', () => {
   })
 
   it('should not call onClose when modal content is clicked', () => {
-    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     const modalContent = screen.getByRole('dialog')
     fireEvent.click(modalContent)
@@ -127,7 +133,7 @@ describe('TaskModal', () => {
   })
 
   it('should have proper accessibility attributes', () => {
-    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     const dialog = screen.getByRole('dialog')
     expect(dialog).toHaveAttribute('aria-modal', 'true')
@@ -140,7 +146,7 @@ describe('TaskModal', () => {
   it('should prevent body scroll when modal is open', () => {
     const originalOverflow = document.body.style.overflow
 
-    const { unmount } = render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    const { unmount } = renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     expect(document.body.style.overflow).toBe('hidden')
 
@@ -153,7 +159,7 @@ describe('TaskModal', () => {
   })
 
   it('should enter edit mode when edit button is clicked', () => {
-    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     const editButton = screen.getByText('Edit')
     fireEvent.click(editButton)
@@ -169,7 +175,7 @@ describe('TaskModal', () => {
   })
 
   it('should cancel edit mode and restore original values', () => {
-    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     // Enter edit mode
     fireEvent.click(screen.getByText('Edit'))
@@ -194,7 +200,7 @@ describe('TaskModal', () => {
   })
 
   it('should validate that title is required', () => {
-    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     // Enter edit mode
     fireEvent.click(screen.getByText('Edit'))
@@ -217,7 +223,7 @@ describe('TaskModal', () => {
   })
 
   it('should save changes when title and description are modified', () => {
-    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     // Enter edit mode
     fireEvent.click(screen.getByText('Edit'))
@@ -251,7 +257,7 @@ describe('TaskModal', () => {
   })
 
   it('should only save changed fields', () => {
-    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     // Enter edit mode
     fireEvent.click(screen.getByText('Edit'))
@@ -281,7 +287,7 @@ describe('TaskModal', () => {
   })
 
   it('should clear title validation error when typing valid text', () => {
-    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     // Enter edit mode
     fireEvent.click(screen.getByText('Edit'))
@@ -302,7 +308,7 @@ describe('TaskModal', () => {
   })
 
   it('should allow clearing task description', () => {
-    render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
     // Enter edit mode
     fireEvent.click(screen.getByText('Edit'))
@@ -345,7 +351,7 @@ describe('TaskModal', () => {
     })
 
     it('should display more actions dropdown when three dots button is clicked', () => {
-      render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+      renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
       // More actions button should be visible (not in edit mode)
       const moreActionsButton = screen.getByLabelText('More actions')
@@ -362,7 +368,7 @@ describe('TaskModal', () => {
     })
 
     it('should hide more actions dropdown when clicking outside', () => {
-      render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+      renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
       // Open dropdown
       const moreActionsButton = screen.getByLabelText('More actions')
@@ -377,7 +383,7 @@ describe('TaskModal', () => {
     })
 
     it('should archive task when Archive Task button is clicked', () => {
-      render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+      renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
       // Open more actions dropdown
       const moreActionsButton = screen.getByLabelText('More actions')
@@ -398,30 +404,15 @@ describe('TaskModal', () => {
         })
       )
 
-      // Should also commit snackbar state
-      expect(mockStore.commit).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: 'uiStateSet',
-          args: expect.objectContaining({
-            value: expect.objectContaining({
-              snackbar: expect.objectContaining({
-                message: 'Task "Test Task" archived',
-                type: 'archive-undo',
-                actionLabel: 'Undo',
-                actionData: { taskId: 'test-task' },
-                showUntil: expect.any(Date),
-              }),
-            }),
-          }),
-        })
-      )
+      // Should only commit one event (the archive event)
+      expect(mockStore.commit).toHaveBeenCalledTimes(1)
 
       // Should close modal
       expect(mockOnClose).toHaveBeenCalledTimes(1)
     })
 
     it('should not show more actions dropdown in edit mode', () => {
-      render(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+      renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
       // Enter edit mode
       fireEvent.click(screen.getByText('Edit'))

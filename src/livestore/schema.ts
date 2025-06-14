@@ -149,15 +149,6 @@ const uiState = State.SQLite.clientDocument({
   schema: Schema.Struct({
     newTodoText: Schema.String,
     filter: Filter,
-    snackbar: Schema.optional(
-      Schema.Struct({
-        message: Schema.String,
-        type: Schema.String,
-        actionLabel: Schema.optional(Schema.String),
-        actionData: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
-        showUntil: Schema.DateFromNumber,
-      })
-    ),
   }),
   default: {
     id: SessionIdSymbol,
