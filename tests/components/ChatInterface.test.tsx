@@ -1,6 +1,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
 import { ChatInterface } from '../../src/components/ChatInterface.js'
 
 // Mock the LiveStore hooks
@@ -25,7 +26,11 @@ describe('ChatInterface', () => {
 
   it('should render basic UI elements when no conversations exist', () => {
     mockUseQuery.mockReturnValue([])
-    render(<ChatInterface />)
+    render(
+      <MemoryRouter>
+        <ChatInterface />
+      </MemoryRouter>
+    )
 
     expect(screen.getByText('LLM Chat')).toBeInTheDocument()
     expect(screen.getByText('No conversation selected')).toBeInTheDocument()
@@ -47,7 +52,11 @@ describe('ChatInterface', () => {
       return []
     })
 
-    render(<ChatInterface />)
+    render(
+      <MemoryRouter>
+        <ChatInterface />
+      </MemoryRouter>
+    )
 
     expect(screen.getByText('LLM Chat')).toBeInTheDocument()
     expect(screen.getByLabelText('New Chat')).toBeInTheDocument() // + button should be visible

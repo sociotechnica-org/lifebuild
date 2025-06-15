@@ -1,8 +1,14 @@
 import { useQuery, useStore } from '@livestore/react'
 import React from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { events } from '../livestore/schema.js'
-import { getConversations$, getConversationMessages$, getUsers$ } from '../livestore/queries.js'
+import {
+  getConversations$,
+  getConversationMessages$,
+  getUsers$,
+  getBoardById$,
+} from '../livestore/queries.js'
 import type { Conversation, ChatMessage } from '../livestore/schema.js'
 import { getInitials } from '../util/initials.js'
 import { MarkdownRenderer } from './MarkdownRenderer.js'
@@ -22,7 +28,8 @@ interface LLMAPIResponse {
 
 async function callLLMAPI(
   userMessage: string,
-  conversationHistory?: ChatMessage[]
+  conversationHistory?: ChatMessage[],
+  currentBoard?: { id: string; name: string }
 ): Promise<LLMAPIResponse> {
   console.log('🔗 Calling LLM API via proxy...')
 
@@ -39,6 +46,7 @@ async function callLLMAPI(
   const requestBody = {
     message: userMessage,
     conversationHistory: historyForAPI,
+    currentBoard,
   }
 
   console.log('🔗 Making request to:', proxyUrl)
@@ -76,6 +84,7 @@ async function callLLMAPI(
 
 export const ChatInterface: React.FC = () => {
   const { store } = useStore()
+  const location = useLocation()
   const conversations = useQuery(getConversations$) ?? []
   const users = useQuery(getUsers$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
@@ -83,6 +92,17 @@ export const ChatInterface: React.FC = () => {
   const [processingToolCalls, setProcessingToolCalls] = React.useState<Set<string>>(new Set())
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+
+  // Extract current board ID from URL
+  const getCurrentBoardId = () => {
+    const path = location.pathname
+    const match = path.match(/^\/board\/([^\/]+)/)
+    return match ? match[1] : null
+  }
+
+  const currentBoardId = getCurrentBoardId()
+  const boardResult = currentBoardId ? useQuery(getBoardById$(currentBoardId)) : null
+  const currentBoard = boardResult?.[0] as any
 
   // Get first user as current user
   const currentUser = users[0]
@@ -170,7 +190,14 @@ export const ChatInterface: React.FC = () => {
             try {
               // Get conversation history for context
               const conversationHistory = messages.filter(m => m.createdAt < userMessage.createdAt)
-              const llmResponse = await callLLMAPI(userMessage.message, conversationHistory)
+              const boardContext = currentBoard
+                ? { id: currentBoard.id, name: currentBoard.name }
+                : undefined
+              const llmResponse = await callLLMAPI(
+                userMessage.message,
+                conversationHistory,
+                boardContext
+              )
 
               // Handle tool calls if present
               if (llmResponse.toolCalls && llmResponse.toolCalls.length > 0) {
@@ -219,9 +246,21 @@ export const ChatInterface: React.FC = () => {
 
                     // Create follow-up message with tool result
                     if (toolResult.success) {
-                      const confirmationMessage = `✅ Created task "${toolResult.taskTitle}" on ${toolResult.boardName} in ${toolResult.columnName}${
-                        toolResult.assigneeName ? ` (assigned to ${toolResult.assigneeName})` : ''
-                      }`
+                      let confirmationMessage = ''
+
+                      if (toolCall.function.name === 'create_task') {
+                        confirmationMessage = `✅ Created task "${toolResult.taskTitle}" on ${toolResult.boardName} in ${toolResult.columnName}${
+                          toolResult.assigneeName ? ` (assigned to ${toolResult.assigneeName})` : ''
+                        }`
+                      } else if (toolCall.function.name === 'list_boards') {
+                        const boardList =
+                          toolResult.boards
+                            ?.map((b: any) => `- ${b.name} (ID: ${b.id})`)
+                            .join('\n') || 'No boards found'
+                        confirmationMessage = `📋 Available boards:\n${boardList}`
+                      } else {
+                        confirmationMessage = `✅ Tool executed successfully`
+                      }
 
                       store.commit(
                         events.llmResponseReceived({
@@ -240,11 +279,16 @@ export const ChatInterface: React.FC = () => {
                         })
                       )
                     } else {
+                      const errorMessage =
+                        toolCall.function.name === 'create_task'
+                          ? `❌ Failed to create task: ${toolResult.error}`
+                          : `❌ Failed to execute ${toolCall.function.name}: ${toolResult.error}`
+
                       store.commit(
                         events.llmResponseReceived({
                           id: crypto.randomUUID(),
                           conversationId: selectedConversationId,
-                          message: `❌ Failed to create task: ${toolResult.error}`,
+                          message: errorMessage,
                           role: 'assistant',
                           modelId: 'gpt-4o',
                           responseToMessageId: userMessage.id,

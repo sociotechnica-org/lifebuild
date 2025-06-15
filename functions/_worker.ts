@@ -52,7 +52,7 @@ export default {
           })
         }
 
-        const { message, conversationHistory } = requestBody
+        const { message, conversationHistory, currentBoard } = requestBody
 
         // Validate message field
         if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -76,6 +76,10 @@ export default {
           )
         }
 
+        const currentBoardContext = currentBoard
+          ? `\n\nCURRENT CONTEXT:\nYou are currently viewing the "${currentBoard.name}" board (ID: ${currentBoard.id}). When creating tasks without specifying a board, they will be created on this board by default.`
+          : `\n\nCURRENT CONTEXT:\nNo specific board is currently selected. Use the list_boards tool to see available boards, or tasks will be created on the default board.`
+
         const systemPrompt = `You are an AI assistant for Work Squared, a consultancy workflow automation system. You help consultants and project managers by:
 
 1. **Project Planning**: Breaking down client requirements into actionable tasks
@@ -84,11 +88,12 @@ export default {
 4. **Workflow Automation**: Guiding users through consultancy processes from contract closure to iteration zero planning
 
 You have access to tools for:
-- Creating and managing Kanban tasks and boards
+- Creating tasks in the Kanban system (create_task)
+- Listing all available boards (list_boards)
 
-When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed.
+When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed. If you need to know what boards are available, use the list_boards tool first.
 
-Maintain a professional but conversational tone. Focus on practical, actionable advice.`
+Maintain a professional but conversational tone. Focus on practical, actionable advice.${currentBoardContext}`
 
         // Build messages array with conversation history if provided
         const messages = [
@@ -131,6 +136,18 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
                   },
                 },
                 required: ['title'],
+              },
+            },
+          },
+          {
+            type: 'function',
+            function: {
+              name: 'list_boards',
+              description: 'Get a list of all available Kanban boards with their IDs and names',
+              parameters: {
+                type: 'object',
+                properties: {},
+                required: [],
               },
             },
           },

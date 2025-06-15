@@ -31,10 +31,7 @@ export interface LLMToolCall {
 /**
  * Creates a task using the provided parameters
  */
-export async function createTask(
-  store: Store,
-  params: TaskCreationParams
-): Promise<TaskCreationResult> {
+export function createTask(store: Store, params: TaskCreationParams): TaskCreationResult {
   try {
     const { title, description, boardId, columnId, assigneeId } = params
 
@@ -43,7 +40,7 @@ export async function createTask(
     }
 
     // Get all boards to determine target board
-    const boards = await store.query(getBoards$)
+    const boards = store.query(getBoards$)
     if (boards.length === 0) {
       return { success: false, error: 'No boards available. Please create a board first.' }
     }
@@ -58,7 +55,7 @@ export async function createTask(
     }
 
     // Get columns for the target board
-    const columns = await store.query(getBoardColumns$(targetBoard.id))
+    const columns = store.query(getBoardColumns$(targetBoard.id))
     if (columns.length === 0) {
       return {
         success: false,
@@ -78,7 +75,7 @@ export async function createTask(
     // Validate assignee if provided
     let assigneeName: string | undefined
     if (assigneeId) {
-      const users = await store.query(getUsers$)
+      const users = store.query(getUsers$)
       const assignee = users.find((u: any) => u.id === assigneeId)
       if (!assignee) {
         return { success: false, error: `User with ID ${assigneeId} not found` }
@@ -87,15 +84,20 @@ export async function createTask(
     }
 
     // Get existing tasks in the column to calculate position
-    const existingTasks = await store.query(getBoardTasks$(targetBoard.id))
+    const existingTasks = store.query(getBoardTasks$(targetBoard.id))
     const tasksInColumn = existingTasks.filter((t: any) => t.columnId === targetColumn.id)
-    const nextPosition =
-      tasksInColumn.length > 0 ? Math.max(...tasksInColumn.map((t: any) => t.position)) + 1 : 1
+
+    // Calculate next position, ensuring we handle non-numeric positions safely
+    const validPositions = tasksInColumn
+      .map((t: any) => t.position)
+      .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
+
+    const nextPosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 1
 
     // Create the task
     const taskId = crypto.randomUUID()
 
-    await store.commit(
+    store.commit(
       events.taskCreated({
         id: taskId,
         boardId: targetBoard.id,
@@ -108,7 +110,7 @@ export async function createTask(
 
     // Add description if provided
     if (description?.trim()) {
-      await store.commit(
+      store.commit(
         events.taskUpdated({
           taskId,
           title: undefined,
@@ -121,7 +123,7 @@ export async function createTask(
 
     // Add assignee if provided
     if (assigneeId) {
-      await store.commit(
+      store.commit(
         events.taskUpdated({
           taskId,
           title: undefined,
@@ -188,18 +190,56 @@ export const LLM_TOOLS = [
       },
     },
   },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'list_boards',
+      description: 'Get a list of all available Kanban boards with their IDs and names',
+      parameters: {
+        type: 'object',
+        properties: {},
+        required: [],
+      },
+    },
+  },
 ] as const
 
 /**
  * Execute an LLM tool call
  */
+/**
+ * List all available boards
+ */
+export function listBoards(store: Store): { success: boolean; boards?: any[]; error?: string } {
+  try {
+    const boards = store.query(getBoards$)
+    return {
+      success: true,
+      boards: boards.map((b: any) => ({
+        id: b.id,
+        name: b.name,
+        createdAt: b.createdAt,
+      })),
+    }
+  } catch (error) {
+    console.error('Error listing boards:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
 export async function executeLLMTool(
   store: Store,
   toolCall: { name: string; parameters: any }
 ): Promise<any> {
   switch (toolCall.name) {
     case 'create_task':
-      return await createTask(store, toolCall.parameters)
+      return createTask(store, toolCall.parameters)
+
+    case 'list_boards':
+      return listBoards(store)
 
     default:
       throw new Error(`Unknown tool: ${toolCall.name}`)
