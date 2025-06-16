@@ -38,15 +38,13 @@ export async function navigateToAppWithUniqueStore(page: Page) {
 
 /**
  * Wait for WebSocket connection to be established
+ * For LiveStore applications, this is effectively the same as waiting for LiveStore to be ready
+ * since LiveStore manages WebSocket connections to the sync server internally.
  */
 export async function waitForWebSocketConnection(page: Page) {
-  await page.waitForFunction(
-    () => {
-      // Check if there are any WebSocket connections in the ready state
-      return window.performance.getEntriesByType('navigation').length > 0
-    },
-    { timeout: 10000 }
-  )
+  // Since LiveStore handles WebSocket connections internally,
+  // we delegate to waitForLiveStoreReady which waits for the sync connection
+  await waitForLiveStoreReady(page)
 }
 
 /**
