@@ -14,6 +14,8 @@ const baseURL = `http://localhost:${port}`
  */
 export default defineConfig({
   testDir: './e2e',
+  /* In CI, only run the basic test. Locally, run all tests. */
+  testMatch: process.env.CI ? '**/basic.spec.ts' : '**/*.spec.ts',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -74,7 +76,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command: process.env.CI
-      ? `pnpm build && pnpm preview --port ${port} --host`
+      ? `pnpm build && pnpm preview --port ${process.env.PLAYWRIGHT_PORT || '5173'} --host`
       : `VITE_LIVESTORE_SYNC_URL='http://localhost:8787' pnpm dev`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
