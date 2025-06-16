@@ -101,8 +101,14 @@ export const ChatInterface: React.FC = () => {
   }
 
   const currentBoardId = getCurrentBoardId()
-  const boardResult = currentBoardId ? useQuery(getBoardById$(currentBoardId)) : null
-  const currentBoard = boardResult?.[0] as any
+  // Create a stable query using useMemo to avoid hooks order issues
+  const boardQuery = React.useMemo(() => {
+    return currentBoardId ? getBoardById$(currentBoardId) : null
+  }, [currentBoardId])
+
+  // Always call useQuery but conditionally use the result
+  const boardResult = useQuery(boardQuery || getBoardById$('__no_board__'))
+  const currentBoard = currentBoardId && boardResult?.[0] ? (boardResult[0] as any) : null
 
   // Get first user as current user
   const currentUser = users[0]
