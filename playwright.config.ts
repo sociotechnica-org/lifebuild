@@ -73,7 +73,9 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: `VITE_LIVESTORE_SYNC_URL='http://localhost:8787' pnpm dev`,
+    command: process.env.CI
+      ? 'pnpm build && pnpm preview'
+      : `VITE_LIVESTORE_SYNC_URL='http://localhost:8787' pnpm dev`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
