@@ -57,6 +57,8 @@ export function KanbanColumn({
         boardId: column.boardId,
         columnId: column.id,
         title,
+        description: undefined,
+        assigneeIds: undefined,
         position: nextPosition,
         createdAt: new Date(),
       })

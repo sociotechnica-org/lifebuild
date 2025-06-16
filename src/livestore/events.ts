@@ -94,6 +94,8 @@ export const taskCreated = Events.synced({
     boardId: Schema.String,
     columnId: Schema.String,
     title: Schema.String,
+    description: Schema.Union(Schema.String, Schema.Undefined),
+    assigneeIds: Schema.Union(Schema.Array(Schema.String), Schema.Undefined),
     position: Schema.Number,
     createdAt: Schema.Date,
   }),

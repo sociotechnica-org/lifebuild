@@ -114,38 +114,14 @@ export function createTask(store: Store, params: TaskCreationParams): TaskCreati
         boardId: targetBoard.id,
         columnId: targetColumn.id,
         title: title.trim(),
+        description: description?.trim() || undefined,
+        assigneeIds: assigneeId ? [assigneeId] : undefined,
         position: nextPosition,
         createdAt: new Date(),
       })
     )
 
     console.log('✅ Task creation event committed')
-
-    // Add description if provided
-    if (description?.trim()) {
-      store.commit(
-        events.taskUpdated({
-          taskId,
-          title: undefined,
-          description: description.trim(),
-          assigneeIds: undefined,
-          updatedAt: new Date(),
-        })
-      )
-    }
-
-    // Add assignee if provided
-    if (assigneeId) {
-      store.commit(
-        events.taskUpdated({
-          taskId,
-          title: undefined,
-          description: undefined,
-          assigneeIds: [assigneeId],
-          updatedAt: new Date(),
-        })
-      )
-    }
 
     return {
       success: true,

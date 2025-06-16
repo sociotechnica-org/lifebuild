@@ -200,8 +200,27 @@ const materializers = State.SQLite.materializers(events, {
     columns.update({ name, updatedAt }).where({ id }),
   'v1.ColumnReordered': ({ id, position, updatedAt }) =>
     columns.update({ position, updatedAt }).where({ id }),
-  'v1.TaskCreated': ({ id, boardId, columnId, title, position, createdAt }) =>
-    tasks.insert({ id, boardId, columnId, title, position, createdAt, updatedAt: createdAt }),
+  'v1.TaskCreated': ({
+    id,
+    boardId,
+    columnId,
+    title,
+    description,
+    assigneeIds,
+    position,
+    createdAt,
+  }) =>
+    tasks.insert({
+      id,
+      boardId,
+      columnId,
+      title,
+      description,
+      assigneeIds: assigneeIds ? JSON.stringify(assigneeIds) : undefined,
+      position,
+      createdAt,
+      updatedAt: createdAt,
+    }),
   'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt }) =>
     tasks.update({ columnId: toColumnId, position, updatedAt }).where({ id: taskId }),
   'v1.TaskUpdated': ({ taskId, title, description, assigneeIds, updatedAt }) => {
