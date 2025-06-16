@@ -74,11 +74,11 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command: process.env.CI
-      ? 'pnpm build && pnpm preview'
+      ? 'pnpm build && pnpm preview --port 5173 --host'
       : `VITE_LIVESTORE_SYNC_URL='http://localhost:8787' pnpm dev`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 180 * 1000, // Increased timeout for CI
     env: {
       PORT: port.toString(),
     },
