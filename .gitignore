@@ -12,3 +12,5 @@ storybook-static
 **/state-*.db
 llm-test-*/
 work-squared-default/
+playwright-report/
+test-results/

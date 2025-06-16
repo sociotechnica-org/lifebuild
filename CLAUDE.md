@@ -38,8 +38,17 @@ pnpm test
 # Run unit tests in watch mode
 pnpm test -- --watch
 
-# Run E2E tests (Playwright) - REMOVED
-# pnpm test:e2e (removed due to LiveStore compatibility issues)
+# Run E2E tests (Playwright)
+pnpm test:e2e
+
+# Run E2E tests with UI mode
+pnpm test:e2e:ui
+
+# Run E2E tests in debug mode
+pnpm test:e2e:debug
+
+# Run E2E tests on specific port (for multiple Claude instances)
+PLAYWRIGHT_PORT=9090 pnpm test:e2e
 
 # Run Storybook tests
 pnpm test:storybook
@@ -192,11 +201,28 @@ CMD ["pnpm", "llm:service"]
 - Use `data-testid` attributes for reliable element selection
 - Always wrap components with LiveStore provider using test utilities
 
-### E2E Tests (Playwright) - REMOVED
+### E2E Tests (Playwright)
 
-- E2E testing removed due to LiveStore dependency compatibility issues
-- Consider adding back when LiveStore provides better E2E testing support
-- For now, rely on Storybook and component tests for UI validation
+- Playwright tests with playwright-mcp integration for Claude Code compatibility
+- Tests run against the full multi-service architecture (Vite + Wrangler)
+- Dynamic port allocation prevents conflicts between multiple Claude instances
+- Basic smoke tests validate core functionality and LiveStore integration
+
+#### Configuration
+
+```bash
+# Default port (5173) - configured in playwright.config.ts
+pnpm test:e2e
+
+# Custom port for multiple Claude instances
+PLAYWRIGHT_PORT=9090 pnpm test:e2e
+```
+
+#### Test Structure
+
+- `/e2e/` - E2E test files and utilities
+- `e2e/test-utils.ts` - Helper functions for LiveStore and app interactions
+- `e2e/smoke.spec.ts` - Basic smoke tests for core functionality
 
 ### Storybook
 
