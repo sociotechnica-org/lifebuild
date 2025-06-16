@@ -31,7 +31,7 @@ export default {
   async fetch(request: Request, env: any): Promise<Response> {
     const url = new URL(request.url)
 
-    // Handle LLM API proxy
+    // Handle LLM API proxy with tool calling support
     if (url.pathname === '/api/llm/chat' && request.method === 'POST') {
       try {
         // Validate environment variables
@@ -52,18 +52,28 @@ export default {
           })
         }
 
-        const { message } = requestBody
+        const { message, conversationHistory, currentBoard } = requestBody
 
-        // Validate message field
-        if (!message || typeof message !== 'string' || message.trim().length === 0) {
+        console.log('🔧 Worker received:', {
+          message: message?.substring(0, 50),
+          hasHistory: !!conversationHistory,
+          currentBoard,
+        })
+
+        // Validate message field (allow empty for continuation calls)
+        if (message === undefined || message === null || typeof message !== 'string') {
           return new Response(
-            JSON.stringify({ error: 'Message field is required and must be a non-empty string' }),
+            JSON.stringify({ error: 'Message field is required and must be a string' }),
             {
               status: 400,
               headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
             }
           )
         }
+
+        // Check if this is a continuation call (empty message with conversation history containing tool results)
+        const isContinuation =
+          message.trim().length === 0 && conversationHistory && conversationHistory.length > 0
 
         // Check message length limit (10,000 characters)
         if (message.length > 10000) {
@@ -76,6 +86,10 @@ export default {
           )
         }
 
+        const currentBoardContext = currentBoard
+          ? `\n\nCURRENT CONTEXT:\nYou are currently viewing the "${currentBoard.name}" board (ID: ${currentBoard.id}). When creating tasks, they will be created on this board automatically. You do NOT need to call list_boards since you already know the current board.`
+          : `\n\nCURRENT CONTEXT:\nNo specific board is currently selected. Use the list_boards tool to see available boards, or tasks will be created on the default board.`
+
         const systemPrompt = `You are an AI assistant for Work Squared, a consultancy workflow automation system. You help consultants and project managers by:
 
 1. **Project Planning**: Breaking down client requirements into actionable tasks
@@ -84,15 +98,70 @@ export default {
 4. **Workflow Automation**: Guiding users through consultancy processes from contract closure to iteration zero planning
 
 You have access to tools for:
-- Creating and managing Kanban tasks and boards
-- Creating and editing documents
-- Tracking project workflows and milestones
+- Creating tasks in the Kanban system (create_task)
+- Listing all available boards (list_boards)
 
-Maintain a professional but conversational tone. Focus on practical, actionable advice. When users describe project requirements, break them down into specific, manageable tasks.`
+When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed. If you need to know what boards are available, use the list_boards tool first.
 
-        const messages = [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message },
+Maintain a professional but conversational tone. Focus on practical, actionable advice.${currentBoardContext}`
+
+        // Build messages array with conversation history if provided
+        const messages = [{ role: 'system', content: systemPrompt }, ...(conversationHistory || [])]
+
+        // Only add user message if this is not a continuation call
+        if (!isContinuation) {
+          messages.push({ role: 'user', content: message })
+        }
+
+        // Define available tools
+        const tools = [
+          {
+            type: 'function',
+            function: {
+              name: 'create_task',
+              description: 'Create a new task in the Kanban system',
+              parameters: {
+                type: 'object',
+                properties: {
+                  title: {
+                    type: 'string',
+                    description: 'The title/name of the task (required)',
+                  },
+                  description: {
+                    type: 'string',
+                    description: 'Optional detailed description of the task',
+                  },
+                  boardId: {
+                    type: 'string',
+                    description:
+                      'ID of the board to create the task on (optional, defaults to first board)',
+                  },
+                  columnId: {
+                    type: 'string',
+                    description:
+                      'ID of the column to place the task in (optional, defaults to first column)',
+                  },
+                  assigneeId: {
+                    type: 'string',
+                    description: 'ID of the user to assign the task to (optional)',
+                  },
+                },
+                required: ['title'],
+              },
+            },
+          },
+          {
+            type: 'function',
+            function: {
+              name: 'list_boards',
+              description: 'Get a list of all available Kanban boards with their IDs and names',
+              parameters: {
+                type: 'object',
+                properties: {},
+                required: [],
+              },
+            },
+          },
         ]
 
         const response = await fetch('https://api.braintrust.dev/v1/proxy/chat/completions', {
@@ -105,6 +174,8 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
           body: JSON.stringify({
             model: 'gpt-4o',
             messages,
+            tools,
+            tool_choice: 'auto',
             temperature: 0.7,
             max_tokens: 1000,
           }),
@@ -122,11 +193,34 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
         }
 
         const data = await response.json()
-        const responseMessage = data.choices[0]?.message?.content || 'No response generated'
+        console.log('🔧 Braintrust API response:', JSON.stringify(data, null, 2))
 
-        return new Response(JSON.stringify({ message: responseMessage }), {
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        const choice = data.choices[0]
+        const responseMessage = choice?.message
+
+        if (!responseMessage) {
+          return new Response(JSON.stringify({ error: 'No response generated' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          })
+        }
+
+        console.log('🔧 Parsed message:', {
+          content: responseMessage.content,
+          toolCalls: responseMessage.tool_calls,
+          isContinuation,
         })
+
+        // Return the full response including any tool calls
+        return new Response(
+          JSON.stringify({
+            message: responseMessage.content || '',
+            toolCalls: responseMessage.tool_calls || [],
+          }),
+          {
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          }
+        )
       } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), {
           status: 500,

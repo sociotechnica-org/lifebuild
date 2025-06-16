@@ -1,21 +1,244 @@
 import { useQuery, useStore } from '@livestore/react'
 import React from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { events } from '../livestore/schema.js'
-import { getConversations$, getConversationMessages$, getUsers$ } from '../livestore/queries.js'
+import {
+  getConversations$,
+  getConversationMessages$,
+  getUsers$,
+  getBoardById$,
+} from '../livestore/queries.js'
 import type { Conversation, ChatMessage } from '../livestore/schema.js'
 import { getInitials } from '../util/initials.js'
 import { MarkdownRenderer } from './MarkdownRenderer.js'
+import { executeLLMTool } from '../utils/llm-tools.js'
 
-async function callLLMAPI(userMessage: string): Promise<string> {
+interface LLMAPIResponse {
+  message: string
+  toolCalls?: Array<{
+    id: string
+    type: 'function'
+    function: {
+      name: string
+      arguments: string
+    }
+  }>
+}
+
+// Agentic loop to handle multi-step tool calling
+async function runAgenticLoop(
+  userMessage: ChatMessage,
+  conversationHistory: ChatMessage[],
+  initialLLMResponse: LLMAPIResponse,
+  initialToolMessages: Array<{ role: string; content: string; tool_call_id?: string }>,
+  boardContext: { id: string; name: string } | undefined,
+  selectedConversationId: string,
+  store: any
+): Promise<void> {
+  console.log('🚀 Starting agentic loop')
+
+  const currentHistory = [...conversationHistory, { role: 'user', content: userMessage.message }]
+
+  const maxIterations = 5 // Prevent infinite loops
+  let iteration = 0
+  let currentResponse = initialLLMResponse
+
+  while (iteration < maxIterations) {
+    iteration++
+    console.log(`🔄 Agentic loop iteration ${iteration}`)
+
+    // If we have tool calls to execute
+    if (currentResponse.toolCalls && currentResponse.toolCalls.length > 0) {
+      console.log(`🔧 Executing ${currentResponse.toolCalls.length} tool calls`)
+
+      // Show tool call indicators in UI (if this is the first iteration or has a message)
+      if (iteration === 1 || (currentResponse.message && currentResponse.message.trim())) {
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId: selectedConversationId,
+            message: currentResponse.message || '',
+            role: 'assistant',
+            modelId: 'gpt-4o',
+            responseToMessageId: userMessage.id,
+            createdAt: new Date(),
+            metadata: {
+              source: 'braintrust',
+              toolCalls: currentResponse.toolCalls,
+            },
+          })
+        )
+      }
+
+      // Add LLM's response to history
+      currentHistory.push({
+        role: 'assistant',
+        content: currentResponse.message || '', // Ensure content is never null
+        tool_calls: currentResponse.toolCalls,
+      } as any)
+
+      // Execute all tool calls
+      const toolMessages: Array<{ role: string; content: string; tool_call_id?: string }> = []
+
+      for (const toolCall of currentResponse.toolCalls) {
+        try {
+          console.log(`🔧 Executing tool: ${toolCall.function.name}`)
+
+          const toolArgs = JSON.parse(toolCall.function.arguments)
+          const toolResult = await executeLLMTool(store, {
+            name: toolCall.function.name,
+            parameters: toolArgs,
+          })
+
+          let toolResultMessage = ''
+          if (toolResult.success) {
+            if (toolCall.function.name === 'create_task') {
+              toolResultMessage = `Task created successfully: "${toolResult.taskTitle}" on board "${toolResult.boardName}" in column "${toolResult.columnName}"${
+                toolResult.assigneeName ? ` (assigned to ${toolResult.assigneeName})` : ''
+              }. Task ID: ${toolResult.taskId}`
+
+              // Show success notification in UI
+              store.commit(
+                events.llmResponseReceived({
+                  id: crypto.randomUUID(),
+                  conversationId: selectedConversationId,
+                  message: `✅ Created task successfully`,
+                  role: 'assistant',
+                  modelId: 'gpt-4o',
+                  responseToMessageId: userMessage.id,
+                  createdAt: new Date(),
+                  metadata: {
+                    source: 'tool-result',
+                    toolCall: toolCall,
+                    toolResult: toolResult,
+                  },
+                })
+              )
+            } else if (toolCall.function.name === 'list_boards') {
+              const boardList =
+                toolResult.boards?.map((b: any) => `${b.name} (ID: ${b.id})`).join(', ') ||
+                'No boards found'
+              toolResultMessage = `Available boards: ${boardList}`
+            } else {
+              toolResultMessage = `Tool executed successfully`
+            }
+          } else {
+            toolResultMessage = `Error: ${toolResult.error}`
+          }
+
+          toolMessages.push({
+            role: 'tool',
+            content: toolResultMessage,
+            tool_call_id: toolCall.id,
+          })
+        } catch (toolError) {
+          console.error('❌ Tool execution error:', toolError)
+          toolMessages.push({
+            role: 'tool',
+            content: `Error executing tool: ${(toolError as Error).message}`,
+            tool_call_id: toolCall.id,
+          })
+        }
+      }
+
+      // Add tool results to history
+      currentHistory.push(
+        ...toolMessages.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          tool_call_id: msg.tool_call_id,
+        }))
+      )
+
+      console.log(`🔄 Tool execution complete, getting LLM continuation...`)
+
+      // Get LLM's next response
+      try {
+        currentResponse = await callLLMAPI(
+          '', // Empty message since we're continuing with tool results
+          currentHistory as any, // Mixed message types for OpenAI API
+          boardContext
+        )
+
+        console.log(`🔄 Iteration ${iteration} LLM response:`, {
+          hasMessage: !!currentResponse.message?.trim(),
+          hasToolCalls: (currentResponse.toolCalls?.length || 0) > 0,
+          messagePreview: currentResponse.message?.substring(0, 100),
+        })
+
+        // Continue the loop to process any new tool calls or final message
+        continue
+      } catch (error) {
+        console.error(`❌ Error getting LLM continuation in iteration ${iteration}:`, error)
+        break
+      }
+    } else {
+      // No more tool calls - handle final response
+      if (currentResponse.message && currentResponse.message.trim()) {
+        console.log(`✅ Final LLM message: ${currentResponse.message.substring(0, 100)}...`)
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId: selectedConversationId,
+            message: currentResponse.message,
+            role: 'assistant',
+            modelId: 'gpt-4o',
+            responseToMessageId: userMessage.id,
+            createdAt: new Date(),
+            metadata: {
+              source: 'braintrust',
+              isContinuation: iteration > 1,
+              agenticIteration: iteration,
+            },
+          })
+        )
+      }
+
+      console.log(`✅ Agentic loop completed after ${iteration} iterations`)
+      break
+    }
+  }
+
+  if (iteration >= maxIterations) {
+    console.warn('⚠️ Agentic loop reached maximum iterations')
+  }
+}
+
+async function callLLMAPI(
+  userMessage: string,
+  conversationHistory?: ChatMessage[],
+  currentBoard?: { id: string; name: string }
+): Promise<LLMAPIResponse> {
   console.log('🔗 Calling LLM API via proxy...')
 
   // Use relative path for production, fallback to localhost for local development
   const proxyUrl = import.meta.env.PROD ? '/api/llm/chat' : 'http://localhost:8787/api/llm/chat'
-  const requestBody = { message: userMessage }
+
+  // Build conversation history for API
+  const historyForAPI =
+    conversationHistory?.map(msg => {
+      // Handle both our ChatMessage format and OpenAI format
+      const content = (msg as any).content || (msg as any).message || ''
+      return {
+        role: msg.role,
+        content: content,
+        // Include tool_calls if present
+        ...((msg as any).tool_calls && { tool_calls: (msg as any).tool_calls }),
+        // Include tool_call_id if present
+        ...((msg as any).tool_call_id && { tool_call_id: (msg as any).tool_call_id }),
+      }
+    }) || []
+
+  const requestBody = {
+    message: userMessage,
+    conversationHistory: historyForAPI,
+    currentBoard,
+  }
 
   console.log('🔗 Making request to:', proxyUrl)
   console.log('🔗 Request body:', requestBody)
+  console.log('🔗 History for API:', historyForAPI)
 
   try {
     const response = await fetch(proxyUrl, {
@@ -37,10 +260,10 @@ async function callLLMAPI(userMessage: string): Promise<string> {
     const data = await response.json()
     console.log('🔗 Response data:', data)
 
-    const responseMessage = data.message || 'No response generated'
-
-    console.log(`✅ Got LLM response: ${responseMessage.substring(0, 100)}...`)
-    return responseMessage
+    return {
+      message: data.message || 'No response generated',
+      toolCalls: data.toolCalls || [],
+    }
   } catch (fetchError) {
     console.error('🔗 Fetch error:', fetchError)
     throw fetchError
@@ -49,12 +272,30 @@ async function callLLMAPI(userMessage: string): Promise<string> {
 
 export const ChatInterface: React.FC = () => {
   const { store } = useStore()
+  const location = useLocation()
   const conversations = useQuery(getConversations$) ?? []
   const users = useQuery(getUsers$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [messageText, setMessageText] = React.useState('')
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+
+  // Extract current board ID from URL
+  const getCurrentBoardId = () => {
+    const path = location.pathname
+    const match = path.match(/^\/board\/([^\/]+)/)
+    return match ? match[1] : null
+  }
+
+  const currentBoardId = getCurrentBoardId()
+  // Create a stable query using useMemo to avoid hooks order issues
+  const boardQuery = React.useMemo(() => {
+    return currentBoardId ? getBoardById$(currentBoardId) : null
+  }, [currentBoardId])
+
+  // Always call useQuery but conditionally use the result
+  const boardResult = useQuery(boardQuery || getBoardById$('__no_board__'))
+  const currentBoard = currentBoardId && boardResult?.[0] ? (boardResult[0] as any) : null
 
   // Get first user as current user
   const currentUser = users[0]
@@ -140,20 +381,49 @@ export const ChatInterface: React.FC = () => {
             console.log('🤖 Processing user message for LLM:', userMessage.message)
 
             try {
-              const llmResponse = await callLLMAPI(userMessage.message)
-
-              store.commit(
-                events.llmResponseReceived({
-                  id: crypto.randomUUID(),
-                  conversationId: selectedConversationId,
-                  message: llmResponse,
-                  role: 'assistant',
-                  modelId: 'gpt-4o',
-                  responseToMessageId: userMessage.id,
-                  createdAt: new Date(),
-                  metadata: { source: 'braintrust' },
-                })
+              // Get conversation history for context
+              const conversationHistory = messages.filter(m => m.createdAt < userMessage.createdAt)
+              const boardContext = currentBoard
+                ? { id: currentBoard.id, name: currentBoard.name }
+                : undefined
+              const llmResponse = await callLLMAPI(
+                userMessage.message,
+                conversationHistory,
+                boardContext
               )
+
+              // Handle tool calls if present - start agentic loop immediately
+              if (llmResponse.toolCalls && llmResponse.toolCalls.length > 0) {
+                console.log(
+                  '🔧 LLM wants to call tools, starting agentic loop:',
+                  llmResponse.toolCalls.length
+                )
+
+                // Start the agentic loop with the initial response
+                await runAgenticLoop(
+                  userMessage,
+                  conversationHistory,
+                  llmResponse,
+                  [], // No initial tool messages - agentic loop will execute them
+                  boardContext,
+                  selectedConversationId,
+                  store
+                )
+              } else {
+                // Normal text response without tools
+                store.commit(
+                  events.llmResponseReceived({
+                    id: crypto.randomUUID(),
+                    conversationId: selectedConversationId,
+                    message: llmResponse.message,
+                    role: 'assistant',
+                    modelId: 'gpt-4o',
+                    responseToMessageId: userMessage.id,
+                    createdAt: new Date(),
+                    metadata: { source: 'braintrust' },
+                  })
+                )
+              }
 
               console.log('✅ LLM response sent for message:', userMessage.id)
             } catch (error) {
@@ -268,32 +538,87 @@ export const ChatInterface: React.FC = () => {
             <div className='flex-1 overflow-y-auto p-4 min-h-0'>
               {messages && messages.length > 0 ? (
                 <div className='space-y-4'>
-                  {messages.map((message: ChatMessage) => (
-                    <div
-                      key={message.id}
-                      className={`p-3 rounded-lg ${
-                        message.role === 'user'
-                          ? 'bg-blue-50 ml-8'
-                          : message.role === 'assistant'
-                            ? 'bg-gray-50 mr-8'
-                            : 'bg-yellow-50'
-                      }`}
-                    >
-                      <div className='text-xs text-gray-500 mb-1 font-medium'>
-                        {message.role === 'user'
-                          ? 'You'
-                          : message.role === 'assistant'
-                            ? 'Assistant'
-                            : 'System'}
-                        {message.modelId && ` (${message.modelId})`}
+                  {messages.map((message: ChatMessage) => {
+                    // Tool result notifications - render as special cards
+                    if (message.metadata?.source === 'tool-result') {
+                      return (
+                        <div key={message.id} className='px-2'>
+                          {(message.metadata?.toolResult as any)?.success && (
+                            <div className='p-3 bg-green-50 border border-green-200 rounded-lg'>
+                              <div className='flex items-center gap-2 text-green-700 text-sm font-medium mb-2'>
+                                <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                                  <path
+                                    fillRule='evenodd'
+                                    d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                                    clipRule='evenodd'
+                                  />
+                                </svg>
+                                <span>Task created successfully</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    }
+
+                    // Regular chat messages
+                    return (
+                      <div
+                        key={message.id}
+                        className={`p-3 rounded-lg ${
+                          message.role === 'user'
+                            ? 'bg-blue-50 ml-8'
+                            : message.role === 'assistant'
+                              ? 'bg-gray-50 mr-8'
+                              : 'bg-yellow-50'
+                        }`}
+                      >
+                        <div className='text-xs text-gray-500 mb-1 font-medium'>
+                          {message.role === 'user'
+                            ? 'You'
+                            : message.role === 'assistant'
+                              ? 'Assistant'
+                              : 'System'}
+                          {message.modelId && ` (${message.modelId})`}
+                        </div>
+
+                        {/* Tool call indicators */}
+                        {(() => {
+                          if (
+                            !message.metadata?.toolCalls ||
+                            !Array.isArray(message.metadata.toolCalls)
+                          ) {
+                            return null
+                          }
+                          return (
+                            <div className='mb-2'>
+                              {(message.metadata.toolCalls as any[]).map((toolCall: any) => (
+                                <div
+                                  key={toolCall.id}
+                                  className='flex items-center gap-2 text-xs text-blue-600 mb-1'
+                                >
+                                  <svg className='w-3 h-3' fill='currentColor' viewBox='0 0 20 20'>
+                                    <path d='M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z' />
+                                  </svg>
+                                  <span>Tool: {toolCall.function.name}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )
+                        })()}
+
+                        {/* Only show message content if it exists and isn't the placeholder */}
+                        {message.message &&
+                          message.message.trim() &&
+                          message.message !== 'No response generated' &&
+                          (message.role === 'assistant' ? (
+                            <MarkdownRenderer content={message.message} className='' />
+                          ) : (
+                            <div className='text-sm text-gray-900'>{message.message}</div>
+                          ))}
                       </div>
-                      {message.role === 'assistant' ? (
-                        <MarkdownRenderer content={message.message} className='' />
-                      ) : (
-                        <div className='text-sm text-gray-900'>{message.message}</div>
-                      )}
-                    </div>
-                  ))}
+                    )
+                  })}
                   <div ref={messagesEndRef} />
                 </div>
               ) : (
