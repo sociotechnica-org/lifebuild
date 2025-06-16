@@ -209,24 +209,25 @@ export const ChatInterface: React.FC = () => {
               if (llmResponse.toolCalls && llmResponse.toolCalls.length > 0) {
                 console.log('🔧 LLM wants to call tools:', llmResponse.toolCalls.length)
 
-                // Create initial response with tool calls
-                const responseId = crypto.randomUUID()
-                store.commit(
-                  events.llmResponseReceived({
-                    id: responseId,
-                    conversationId: selectedConversationId,
-                    message:
-                      llmResponse.message || "I'll help you with that. Let me create some tasks...",
-                    role: 'assistant',
-                    modelId: 'gpt-4o',
-                    responseToMessageId: userMessage.id,
-                    createdAt: new Date(),
-                    metadata: {
-                      source: 'braintrust',
-                      toolCalls: llmResponse.toolCalls,
-                    },
-                  })
-                )
+                // Create initial response with tool calls only if LLM provided a message
+                if (llmResponse.message && llmResponse.message.trim()) {
+                  const responseId = crypto.randomUUID()
+                  store.commit(
+                    events.llmResponseReceived({
+                      id: responseId,
+                      conversationId: selectedConversationId,
+                      message: llmResponse.message,
+                      role: 'assistant',
+                      modelId: 'gpt-4o',
+                      responseToMessageId: userMessage.id,
+                      createdAt: new Date(),
+                      metadata: {
+                        source: 'braintrust',
+                        toolCalls: llmResponse.toolCalls,
+                      },
+                    })
+                  )
+                }
 
                 // Process tool calls
                 for (const toolCall of llmResponse.toolCalls) {
@@ -462,57 +463,14 @@ export const ChatInterface: React.FC = () => {
             <div className='flex-1 overflow-y-auto p-4 min-h-0'>
               {messages && messages.length > 0 ? (
                 <div className='space-y-4'>
-                  {messages.map((message: ChatMessage) => (
-                    <div
-                      key={message.id}
-                      className={`p-3 rounded-lg ${
-                        message.role === 'user'
-                          ? 'bg-blue-50 ml-8'
-                          : message.role === 'assistant'
-                            ? 'bg-gray-50 mr-8'
-                            : 'bg-yellow-50'
-                      }`}
-                    >
-                      <div className='text-xs text-gray-500 mb-1 font-medium'>
-                        {message.role === 'user'
-                          ? 'You'
-                          : message.role === 'assistant'
-                            ? 'Assistant'
-                            : 'System'}
-                        {message.modelId && ` (${message.modelId})`}
-                      </div>
-
-                      {/* Tool call indicators */}
-                      {message.metadata?.toolCalls && Array.isArray(message.metadata.toolCalls) && (
-                        <div className='mb-2'>
-                          {message.metadata.toolCalls.map((toolCall: any) => (
-                            <div
-                              key={toolCall.id}
-                              className='flex items-center gap-2 text-xs text-blue-600 mb-1'
-                            >
-                              {processingToolCalls.has(toolCall.id) ? (
-                                <>
-                                  <div className='w-3 h-3 border border-blue-600 border-t-transparent rounded-full animate-spin' />
-                                  <span>Creating task...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <svg className='w-3 h-3' fill='currentColor' viewBox='0 0 20 20'>
-                                    <path d='M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z' />
-                                  </svg>
-                                  <span>Tool: {toolCall.function.name}</span>
-                                </>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Task creation link */}
-                      {message.metadata?.source === 'tool-result' &&
-                        (message.metadata.toolResult as any)?.success && (
-                          <div className='mb-2 p-2 bg-green-50 border border-green-200 rounded text-xs'>
-                            <div className='flex items-center gap-2 text-green-700'>
+                  {/* Tool result notifications */}
+                  {messages
+                    .filter(m => m.metadata?.source === 'tool-result')
+                    .map((message: ChatMessage) => (
+                      <div key={message.id} className='px-2'>
+                        {(message.metadata?.toolResult as any)?.success && (
+                          <div className='p-3 bg-green-50 border border-green-200 rounded-lg'>
+                            <div className='flex items-center gap-2 text-green-700 text-sm font-medium mb-2'>
                               <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
                                 <path
                                   fillRule='evenodd'
@@ -522,8 +480,8 @@ export const ChatInterface: React.FC = () => {
                               </svg>
                               <span>Task created successfully</span>
                             </div>
-                            {(message.metadata.toolResult as any)?.taskId && (
-                              <div className='mt-1'>
+                            {(message.metadata?.toolResult as any)?.taskId && (
+                              <div className='text-sm text-green-800'>
                                 <button
                                   onClick={() => {
                                     // Navigate to the task - simplified for now
@@ -532,7 +490,7 @@ export const ChatInterface: React.FC = () => {
                                       (message.metadata!.toolResult as any).taskId
                                     )
                                   }}
-                                  className='text-blue-600 hover:text-blue-800 underline'
+                                  className='text-blue-600 hover:text-blue-800 underline font-medium'
                                 >
                                   View task: {(message.metadata!.toolResult as any).taskTitle}
                                 </button>
@@ -540,14 +498,74 @@ export const ChatInterface: React.FC = () => {
                             )}
                           </div>
                         )}
+                      </div>
+                    ))}
 
-                      {message.role === 'assistant' ? (
-                        <MarkdownRenderer content={message.message} className='' />
-                      ) : (
-                        <div className='text-sm text-gray-900'>{message.message}</div>
-                      )}
-                    </div>
-                  ))}
+                  {/* Regular chat messages */}
+                  {messages
+                    .filter(m => m.metadata?.source !== 'tool-result')
+                    .map((message: ChatMessage) => (
+                      <div
+                        key={message.id}
+                        className={`p-3 rounded-lg ${
+                          message.role === 'user'
+                            ? 'bg-blue-50 ml-8'
+                            : message.role === 'assistant'
+                              ? 'bg-gray-50 mr-8'
+                              : 'bg-yellow-50'
+                        }`}
+                      >
+                        <div className='text-xs text-gray-500 mb-1 font-medium'>
+                          {message.role === 'user'
+                            ? 'You'
+                            : message.role === 'assistant'
+                              ? 'Assistant'
+                              : 'System'}
+                          {message.modelId && ` (${message.modelId})`}
+                        </div>
+
+                        {/* Tool call indicators */}
+                        {(() => {
+                          if (!message.metadata?.toolCalls || !Array.isArray(message.metadata.toolCalls)) {
+                            return null
+                          }
+                          return (
+                            <div className='mb-2'>
+                              {(message.metadata.toolCalls as any[]).map((toolCall: any) => (
+                                <div
+                                  key={toolCall.id}
+                                  className='flex items-center gap-2 text-xs text-blue-600 mb-1'
+                                >
+                                  {processingToolCalls.has(toolCall.id) ? (
+                                    <>
+                                      <div className='w-3 h-3 border border-blue-600 border-t-transparent rounded-full animate-spin' />
+                                      <span>Creating task...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <svg
+                                        className='w-3 h-3'
+                                        fill='currentColor'
+                                        viewBox='0 0 20 20'
+                                      >
+                                        <path d='M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z' />
+                                      </svg>
+                                      <span>Tool: {toolCall.function.name}</span>
+                                    </>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )
+                        })()}
+
+                        {message.role === 'assistant' ? (
+                          <MarkdownRenderer content={message.message} className='' />
+                        ) : (
+                          <div className='text-sm text-gray-900'>{message.message}</div>
+                        )}
+                      </div>
+                    ))}
                   <div ref={messagesEndRef} />
                 </div>
               ) : (

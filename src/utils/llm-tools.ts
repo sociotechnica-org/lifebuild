@@ -92,10 +92,21 @@ export function createTask(store: Store, params: TaskCreationParams): TaskCreati
       .map((t: any) => t.position)
       .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
 
-    const nextPosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 1
+    const nextPosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 0
 
     // Create the task
     const taskId = crypto.randomUUID()
+
+    console.log('🔧 Creating task with data:', {
+      id: taskId,
+      boardId: targetBoard.id,
+      boardName: targetBoard.name,
+      columnId: targetColumn.id,
+      columnName: targetColumn.name,
+      title: title.trim(),
+      position: nextPosition,
+      existingTasksInColumn: tasksInColumn.length,
+    })
 
     store.commit(
       events.taskCreated({
@@ -107,6 +118,8 @@ export function createTask(store: Store, params: TaskCreationParams): TaskCreati
         createdAt: new Date(),
       })
     )
+
+    console.log('✅ Task creation event committed')
 
     // Add description if provided
     if (description?.trim()) {
@@ -151,58 +164,8 @@ export function createTask(store: Store, params: TaskCreationParams): TaskCreati
   }
 }
 
-/**
- * Available LLM tools
- */
-export const LLM_TOOLS = [
-  {
-    type: 'function' as const,
-    function: {
-      name: 'create_task',
-      description: 'Create a new task in the Kanban system',
-      parameters: {
-        type: 'object',
-        properties: {
-          title: {
-            type: 'string',
-            description: 'The title/name of the task (required)',
-          },
-          description: {
-            type: 'string',
-            description: 'Optional detailed description of the task',
-          },
-          boardId: {
-            type: 'string',
-            description:
-              'ID of the board to create the task on (optional, defaults to first board)',
-          },
-          columnId: {
-            type: 'string',
-            description:
-              'ID of the column to place the task in (optional, defaults to first column)',
-          },
-          assigneeId: {
-            type: 'string',
-            description: 'ID of the user to assign the task to (optional)',
-          },
-        },
-        required: ['title'],
-      },
-    },
-  },
-  {
-    type: 'function' as const,
-    function: {
-      name: 'list_boards',
-      description: 'Get a list of all available Kanban boards with their IDs and names',
-      parameters: {
-        type: 'object',
-        properties: {},
-        required: [],
-      },
-    },
-  },
-] as const
+// Note: Tool definitions are maintained in functions/_worker.ts
+// The Cloudflare Worker is the single source of truth for LLM tool schemas
 
 /**
  * Execute an LLM tool call
