@@ -54,16 +54,26 @@ export default {
 
         const { message, conversationHistory, currentBoard } = requestBody
 
-        // Validate message field
-        if (!message || typeof message !== 'string' || message.trim().length === 0) {
+        console.log('🔧 Worker received:', {
+          message: message?.substring(0, 50),
+          hasHistory: !!conversationHistory,
+          currentBoard,
+        })
+
+        // Validate message field (allow empty for continuation calls)
+        if (message === undefined || message === null || typeof message !== 'string') {
           return new Response(
-            JSON.stringify({ error: 'Message field is required and must be a non-empty string' }),
+            JSON.stringify({ error: 'Message field is required and must be a string' }),
             {
               status: 400,
               headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
             }
           )
         }
+
+        // Check if this is a continuation call (empty message with conversation history containing tool results)
+        const isContinuation =
+          message.trim().length === 0 && conversationHistory && conversationHistory.length > 0
 
         // Check message length limit (10,000 characters)
         if (message.length > 10000) {
@@ -77,7 +87,7 @@ export default {
         }
 
         const currentBoardContext = currentBoard
-          ? `\n\nCURRENT CONTEXT:\nYou are currently viewing the "${currentBoard.name}" board (ID: ${currentBoard.id}). When creating tasks without specifying a board, they will be created on this board by default.`
+          ? `\n\nCURRENT CONTEXT:\nYou are currently viewing the "${currentBoard.name}" board (ID: ${currentBoard.id}). When creating tasks, they will be created on this board automatically. You do NOT need to call list_boards since you already know the current board.`
           : `\n\nCURRENT CONTEXT:\nNo specific board is currently selected. Use the list_boards tool to see available boards, or tasks will be created on the default board.`
 
         const systemPrompt = `You are an AI assistant for Work Squared, a consultancy workflow automation system. You help consultants and project managers by:
@@ -96,11 +106,12 @@ When users describe project requirements or ask you to create tasks, use the cre
 Maintain a professional but conversational tone. Focus on practical, actionable advice.${currentBoardContext}`
 
         // Build messages array with conversation history if provided
-        const messages = [
-          { role: 'system', content: systemPrompt },
-          ...(conversationHistory || []),
-          { role: 'user', content: message },
-        ]
+        const messages = [{ role: 'system', content: systemPrompt }, ...(conversationHistory || [])]
+
+        // Only add user message if this is not a continuation call
+        if (!isContinuation) {
+          messages.push({ role: 'user', content: message })
+        }
 
         // Define available tools
         const tools = [
@@ -182,6 +193,8 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
         }
 
         const data = await response.json()
+        console.log('🔧 Braintrust API response:', JSON.stringify(data, null, 2))
+
         const choice = data.choices[0]
         const responseMessage = choice?.message
 
@@ -191,6 +204,12 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
             headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
           })
         }
+
+        console.log('🔧 Parsed message:', {
+          content: responseMessage.content,
+          toolCalls: responseMessage.tool_calls,
+          isContinuation,
+        })
 
         // Return the full response including any tool calls
         return new Response(

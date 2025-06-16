@@ -26,6 +26,185 @@ interface LLMAPIResponse {
   }>
 }
 
+// Agentic loop to handle multi-step tool calling
+async function runAgenticLoop(
+  userMessage: ChatMessage,
+  conversationHistory: ChatMessage[],
+  initialLLMResponse: LLMAPIResponse,
+  initialToolMessages: Array<{ role: string; content: string; tool_call_id?: string }>,
+  boardContext: { id: string; name: string } | undefined,
+  selectedConversationId: string,
+  store: any
+): Promise<void> {
+  console.log('🚀 Starting agentic loop')
+
+  const currentHistory = [...conversationHistory, { role: 'user', content: userMessage.message }]
+
+  const maxIterations = 5 // Prevent infinite loops
+  let iteration = 0
+  let currentResponse = initialLLMResponse
+
+  while (iteration < maxIterations) {
+    iteration++
+    console.log(`🔄 Agentic loop iteration ${iteration}`)
+
+    // If we have tool calls to execute
+    if (currentResponse.toolCalls && currentResponse.toolCalls.length > 0) {
+      console.log(`🔧 Executing ${currentResponse.toolCalls.length} tool calls`)
+
+      // Show tool call indicators in UI (if this is the first iteration or has a message)
+      if (iteration === 1 || (currentResponse.message && currentResponse.message.trim())) {
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId: selectedConversationId,
+            message: currentResponse.message || '',
+            role: 'assistant',
+            modelId: 'gpt-4o',
+            responseToMessageId: userMessage.id,
+            createdAt: new Date(),
+            metadata: {
+              source: 'braintrust',
+              toolCalls: currentResponse.toolCalls,
+            },
+          })
+        )
+      }
+
+      // Add LLM's response to history
+      currentHistory.push({
+        role: 'assistant',
+        content: currentResponse.message || '', // Ensure content is never null
+        tool_calls: currentResponse.toolCalls,
+      } as any)
+
+      // Execute all tool calls
+      const toolMessages: Array<{ role: string; content: string; tool_call_id?: string }> = []
+
+      for (const toolCall of currentResponse.toolCalls) {
+        try {
+          console.log(`🔧 Executing tool: ${toolCall.function.name}`)
+
+          const toolArgs = JSON.parse(toolCall.function.arguments)
+          const toolResult = await executeLLMTool(store, {
+            name: toolCall.function.name,
+            parameters: toolArgs,
+          })
+
+          let toolResultMessage = ''
+          if (toolResult.success) {
+            if (toolCall.function.name === 'create_task') {
+              toolResultMessage = `Task created successfully: "${toolResult.taskTitle}" on board "${toolResult.boardName}" in column "${toolResult.columnName}"${
+                toolResult.assigneeName ? ` (assigned to ${toolResult.assigneeName})` : ''
+              }. Task ID: ${toolResult.taskId}`
+
+              // Show success notification in UI
+              store.commit(
+                events.llmResponseReceived({
+                  id: crypto.randomUUID(),
+                  conversationId: selectedConversationId,
+                  message: `✅ Created task successfully`,
+                  role: 'assistant',
+                  modelId: 'gpt-4o',
+                  responseToMessageId: userMessage.id,
+                  createdAt: new Date(),
+                  metadata: {
+                    source: 'tool-result',
+                    toolCall: toolCall,
+                    toolResult: toolResult,
+                  },
+                })
+              )
+            } else if (toolCall.function.name === 'list_boards') {
+              const boardList =
+                toolResult.boards?.map((b: any) => `${b.name} (ID: ${b.id})`).join(', ') ||
+                'No boards found'
+              toolResultMessage = `Available boards: ${boardList}`
+            } else {
+              toolResultMessage = `Tool executed successfully`
+            }
+          } else {
+            toolResultMessage = `Error: ${toolResult.error}`
+          }
+
+          toolMessages.push({
+            role: 'tool',
+            content: toolResultMessage,
+            tool_call_id: toolCall.id,
+          })
+        } catch (toolError) {
+          console.error('❌ Tool execution error:', toolError)
+          toolMessages.push({
+            role: 'tool',
+            content: `Error executing tool: ${(toolError as Error).message}`,
+            tool_call_id: toolCall.id,
+          })
+        }
+      }
+
+      // Add tool results to history
+      currentHistory.push(
+        ...toolMessages.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          tool_call_id: msg.tool_call_id,
+        }))
+      )
+
+      console.log(`🔄 Tool execution complete, getting LLM continuation...`)
+
+      // Get LLM's next response
+      try {
+        currentResponse = await callLLMAPI(
+          '', // Empty message since we're continuing with tool results
+          currentHistory as any, // Mixed message types for OpenAI API
+          boardContext
+        )
+
+        console.log(`🔄 Iteration ${iteration} LLM response:`, {
+          hasMessage: !!currentResponse.message?.trim(),
+          hasToolCalls: (currentResponse.toolCalls?.length || 0) > 0,
+          messagePreview: currentResponse.message?.substring(0, 100),
+        })
+
+        // Continue the loop to process any new tool calls or final message
+        continue
+      } catch (error) {
+        console.error(`❌ Error getting LLM continuation in iteration ${iteration}:`, error)
+        break
+      }
+    } else {
+      // No more tool calls - handle final response
+      if (currentResponse.message && currentResponse.message.trim()) {
+        console.log(`✅ Final LLM message: ${currentResponse.message.substring(0, 100)}...`)
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId: selectedConversationId,
+            message: currentResponse.message,
+            role: 'assistant',
+            modelId: 'gpt-4o',
+            responseToMessageId: userMessage.id,
+            createdAt: new Date(),
+            metadata: {
+              source: 'braintrust',
+              isContinuation: iteration > 1,
+              agenticIteration: iteration,
+            },
+          })
+        )
+      }
+
+      console.log(`✅ Agentic loop completed after ${iteration} iterations`)
+      break
+    }
+  }
+
+  if (iteration >= maxIterations) {
+    console.warn('⚠️ Agentic loop reached maximum iterations')
+  }
+}
+
 async function callLLMAPI(
   userMessage: string,
   conversationHistory?: ChatMessage[],
@@ -38,10 +217,18 @@ async function callLLMAPI(
 
   // Build conversation history for API
   const historyForAPI =
-    conversationHistory?.map(msg => ({
-      role: msg.role,
-      content: msg.message,
-    })) || []
+    conversationHistory?.map(msg => {
+      // Handle both our ChatMessage format and OpenAI format
+      const content = (msg as any).content || (msg as any).message || ''
+      return {
+        role: msg.role,
+        content: content,
+        // Include tool_calls if present
+        ...((msg as any).tool_calls && { tool_calls: (msg as any).tool_calls }),
+        // Include tool_call_id if present
+        ...((msg as any).tool_call_id && { tool_call_id: (msg as any).tool_call_id }),
+      }
+    }) || []
 
   const requestBody = {
     message: userMessage,
@@ -51,6 +238,7 @@ async function callLLMAPI(
 
   console.log('🔗 Making request to:', proxyUrl)
   console.log('🔗 Request body:', requestBody)
+  console.log('🔗 History for API:', historyForAPI)
 
   try {
     const response = await fetch(proxyUrl, {
@@ -89,7 +277,6 @@ export const ChatInterface: React.FC = () => {
   const users = useQuery(getUsers$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [messageText, setMessageText] = React.useState('')
-  const [processingToolCalls, setProcessingToolCalls] = React.useState<Set<string>>(new Set())
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
@@ -205,135 +392,23 @@ export const ChatInterface: React.FC = () => {
                 boardContext
               )
 
-              // Handle tool calls if present
+              // Handle tool calls if present - start agentic loop immediately
               if (llmResponse.toolCalls && llmResponse.toolCalls.length > 0) {
-                console.log('🔧 LLM wants to call tools:', llmResponse.toolCalls.length)
+                console.log(
+                  '🔧 LLM wants to call tools, starting agentic loop:',
+                  llmResponse.toolCalls.length
+                )
 
-                // Create initial response with tool calls only if LLM provided a message
-                if (llmResponse.message && llmResponse.message.trim()) {
-                  const responseId = crypto.randomUUID()
-                  store.commit(
-                    events.llmResponseReceived({
-                      id: responseId,
-                      conversationId: selectedConversationId,
-                      message: llmResponse.message,
-                      role: 'assistant',
-                      modelId: 'gpt-4o',
-                      responseToMessageId: userMessage.id,
-                      createdAt: new Date(),
-                      metadata: {
-                        source: 'braintrust',
-                        toolCalls: llmResponse.toolCalls,
-                      },
-                    })
-                  )
-                }
-
-                // Process tool calls
-                for (const toolCall of llmResponse.toolCalls) {
-                  try {
-                    setProcessingToolCalls(prev => new Set(prev).add(toolCall.id))
-                    console.log(
-                      '🔧 Executing tool:',
-                      toolCall.function.name,
-                      toolCall.function.arguments
-                    )
-
-                    const toolArgs = JSON.parse(toolCall.function.arguments)
-                    const toolResult = await executeLLMTool(store, {
-                      name: toolCall.function.name,
-                      parameters: toolArgs,
-                    })
-
-                    setProcessingToolCalls(prev => {
-                      const newSet = new Set(prev)
-                      newSet.delete(toolCall.id)
-                      return newSet
-                    })
-
-                    // Create follow-up message with tool result
-                    if (toolResult.success) {
-                      let confirmationMessage = ''
-
-                      if (toolCall.function.name === 'create_task') {
-                        confirmationMessage = `✅ Created task "${toolResult.taskTitle}" on ${toolResult.boardName} in ${toolResult.columnName}${
-                          toolResult.assigneeName ? ` (assigned to ${toolResult.assigneeName})` : ''
-                        }`
-                      } else if (toolCall.function.name === 'list_boards') {
-                        const boardList =
-                          toolResult.boards
-                            ?.map((b: any) => `- ${b.name} (ID: ${b.id})`)
-                            .join('\n') || 'No boards found'
-                        confirmationMessage = `📋 Available boards:\n${boardList}`
-                      } else {
-                        confirmationMessage = `✅ Tool executed successfully`
-                      }
-
-                      store.commit(
-                        events.llmResponseReceived({
-                          id: crypto.randomUUID(),
-                          conversationId: selectedConversationId,
-                          message: confirmationMessage,
-                          role: 'assistant',
-                          modelId: 'gpt-4o',
-                          responseToMessageId: userMessage.id,
-                          createdAt: new Date(),
-                          metadata: {
-                            source: 'tool-result',
-                            toolCall: toolCall,
-                            toolResult: toolResult,
-                          },
-                        })
-                      )
-                    } else {
-                      const errorMessage =
-                        toolCall.function.name === 'create_task'
-                          ? `❌ Failed to create task: ${toolResult.error}`
-                          : `❌ Failed to execute ${toolCall.function.name}: ${toolResult.error}`
-
-                      store.commit(
-                        events.llmResponseReceived({
-                          id: crypto.randomUUID(),
-                          conversationId: selectedConversationId,
-                          message: errorMessage,
-                          role: 'assistant',
-                          modelId: 'gpt-4o',
-                          responseToMessageId: userMessage.id,
-                          createdAt: new Date(),
-                          metadata: {
-                            source: 'tool-error',
-                            toolCall: toolCall,
-                            toolResult: toolResult,
-                          },
-                        })
-                      )
-                    }
-                  } catch (toolError) {
-                    console.error('❌ Tool execution error:', toolError)
-                    setProcessingToolCalls(prev => {
-                      const newSet = new Set(prev)
-                      newSet.delete(toolCall.id)
-                      return newSet
-                    })
-
-                    store.commit(
-                      events.llmResponseReceived({
-                        id: crypto.randomUUID(),
-                        conversationId: selectedConversationId,
-                        message: `❌ Error executing tool: ${(toolError as Error).message}`,
-                        role: 'assistant',
-                        modelId: 'error',
-                        responseToMessageId: userMessage.id,
-                        createdAt: new Date(),
-                        metadata: {
-                          source: 'tool-error',
-                          toolCall: toolCall,
-                          error: (toolError as Error).message,
-                        },
-                      })
-                    )
-                  }
-                }
+                // Start the agentic loop with the initial response
+                await runAgenticLoop(
+                  userMessage,
+                  conversationHistory,
+                  llmResponse,
+                  [], // No initial tool messages - agentic loop will execute them
+                  boardContext,
+                  selectedConversationId,
+                  store
+                )
               } else {
                 // Normal text response without tools
                 store.commit(
@@ -463,48 +538,31 @@ export const ChatInterface: React.FC = () => {
             <div className='flex-1 overflow-y-auto p-4 min-h-0'>
               {messages && messages.length > 0 ? (
                 <div className='space-y-4'>
-                  {/* Tool result notifications */}
-                  {messages
-                    .filter(m => m.metadata?.source === 'tool-result')
-                    .map((message: ChatMessage) => (
-                      <div key={message.id} className='px-2'>
-                        {(message.metadata?.toolResult as any)?.success && (
-                          <div className='p-3 bg-green-50 border border-green-200 rounded-lg'>
-                            <div className='flex items-center gap-2 text-green-700 text-sm font-medium mb-2'>
-                              <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
-                                <path
-                                  fillRule='evenodd'
-                                  d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                                  clipRule='evenodd'
-                                />
-                              </svg>
-                              <span>Task created successfully</span>
-                            </div>
-                            {(message.metadata?.toolResult as any)?.taskId && (
-                              <div className='text-sm text-green-800'>
-                                <button
-                                  onClick={() => {
-                                    // Navigate to the task - simplified for now
-                                    console.log(
-                                      'Navigate to task:',
-                                      (message.metadata!.toolResult as any).taskId
-                                    )
-                                  }}
-                                  className='text-blue-600 hover:text-blue-800 underline font-medium'
-                                >
-                                  View task: {(message.metadata!.toolResult as any).taskTitle}
-                                </button>
+                  {messages.map((message: ChatMessage) => {
+                    // Tool result notifications - render as special cards
+                    if (message.metadata?.source === 'tool-result') {
+                      return (
+                        <div key={message.id} className='px-2'>
+                          {(message.metadata?.toolResult as any)?.success && (
+                            <div className='p-3 bg-green-50 border border-green-200 rounded-lg'>
+                              <div className='flex items-center gap-2 text-green-700 text-sm font-medium mb-2'>
+                                <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                                  <path
+                                    fillRule='evenodd'
+                                    d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                                    clipRule='evenodd'
+                                  />
+                                </svg>
+                                <span>Task created successfully</span>
                               </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    }
 
-                  {/* Regular chat messages */}
-                  {messages
-                    .filter(m => m.metadata?.source !== 'tool-result')
-                    .map((message: ChatMessage) => (
+                    // Regular chat messages
+                    return (
                       <div
                         key={message.id}
                         className={`p-3 rounded-lg ${
@@ -526,7 +584,10 @@ export const ChatInterface: React.FC = () => {
 
                         {/* Tool call indicators */}
                         {(() => {
-                          if (!message.metadata?.toolCalls || !Array.isArray(message.metadata.toolCalls)) {
+                          if (
+                            !message.metadata?.toolCalls ||
+                            !Array.isArray(message.metadata.toolCalls)
+                          ) {
                             return null
                           }
                           return (
@@ -536,36 +597,28 @@ export const ChatInterface: React.FC = () => {
                                   key={toolCall.id}
                                   className='flex items-center gap-2 text-xs text-blue-600 mb-1'
                                 >
-                                  {processingToolCalls.has(toolCall.id) ? (
-                                    <>
-                                      <div className='w-3 h-3 border border-blue-600 border-t-transparent rounded-full animate-spin' />
-                                      <span>Creating task...</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <svg
-                                        className='w-3 h-3'
-                                        fill='currentColor'
-                                        viewBox='0 0 20 20'
-                                      >
-                                        <path d='M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z' />
-                                      </svg>
-                                      <span>Tool: {toolCall.function.name}</span>
-                                    </>
-                                  )}
+                                  <svg className='w-3 h-3' fill='currentColor' viewBox='0 0 20 20'>
+                                    <path d='M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z' />
+                                  </svg>
+                                  <span>Tool: {toolCall.function.name}</span>
                                 </div>
                               ))}
                             </div>
                           )
                         })()}
 
-                        {message.role === 'assistant' ? (
-                          <MarkdownRenderer content={message.message} className='' />
-                        ) : (
-                          <div className='text-sm text-gray-900'>{message.message}</div>
-                        )}
+                        {/* Only show message content if it exists and isn't the placeholder */}
+                        {message.message &&
+                          message.message.trim() &&
+                          message.message !== 'No response generated' &&
+                          (message.role === 'assistant' ? (
+                            <MarkdownRenderer content={message.message} className='' />
+                          ) : (
+                            <div className='text-sm text-gray-900'>{message.message}</div>
+                          ))}
                       </div>
-                    ))}
+                    )
+                  })}
                   <div ref={messagesEndRef} />
                 </div>
               ) : (
