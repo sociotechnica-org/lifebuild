@@ -18,7 +18,7 @@ test.describe('Basic App Tests', () => {
     expect(bodyText?.length).toBeGreaterThan(10)
 
     // Verify we're not on a 404 or completely broken page
-    await expect(page.locator('h1, h2, [role="heading"]')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('h1, h2, [role="heading"]').first()).toBeVisible({ timeout: 10000 })
 
     // The key test: verify LiveStore is attempting to work
     // It should either:
