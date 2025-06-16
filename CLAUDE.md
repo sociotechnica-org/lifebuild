@@ -224,6 +224,18 @@ PLAYWRIGHT_PORT=9090 pnpm test:e2e
 - `e2e/test-utils.ts` - Helper functions for LiveStore and app interactions
 - `e2e/smoke.spec.ts` - Basic smoke tests for core functionality
 
+#### GitHub Actions CI
+
+Playwright tests run automatically on:
+- Push to `main` branch
+- Pull requests to `main` branch
+
+The workflow includes:
+- Automated browser installation
+- Full multi-service test execution
+- Test report artifacts (retained for 30 days)
+- Proper caching for faster CI runs
+
 ### Storybook
 
 - Create stories for all UI components
