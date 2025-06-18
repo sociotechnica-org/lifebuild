@@ -23,7 +23,7 @@ test.describe('Smoke Tests', () => {
     await expectBasicAppStructure(page)
 
     // Should redirect to /boards by default (may include storeId parameter)
-    await expect(page).toHaveURL(/^\/(boards.*|(\?.*)?$)/) // Either /boards or root with storeId
+    await expect(page).toHaveURL(/\/(boards|$).*/) // Either /boards or root with storeId
 
     // Verify chat interface is visible (may not be fully functional in CI)
     const chatElement = page.locator('textarea[placeholder="Type your message..."]')
