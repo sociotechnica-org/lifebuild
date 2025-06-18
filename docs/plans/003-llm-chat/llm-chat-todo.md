@@ -19,17 +19,17 @@ Based on the technical design document, the LLM Chat system will:
 - ✅ **Story 1**: Start a New Chat with an LLM - COMPLETED
 - ✅ **Story 2**: Send a Chat Message to an LLM - COMPLETED
 - ✅ **Story 3**: LLM Responds to Chat Messages - COMPLETED  
-- ⏳ **Story 4**: LLM Creates Tasks (Kanban Cards) - PENDING
+- ✅ **Story 4**: LLM Creates Tasks (Kanban Cards) - COMPLETED
 - ⏳ **Story 5**: LLM Lists Tasks (Kanban Cards) - PENDING
-- ⏳ **Story 6**: LLM Lists Projects (Kanban Boards) - PENDING
+- ✅ **Story 6**: LLM Lists Projects (Kanban Boards) - COMPLETED
 
-**Current Status**: LLM responses complete! Users can now have full conversations with the AI assistant. Ready for tool integration functionality.
+**Current Status**: LLM can now create tasks and list projects! The AI assistant has basic tool capabilities integrated with the Kanban system.
 
-**Next Steps for Story 4**:
-1. Add task creation tool to LLM tool set
-2. Implement task.created event handling
-3. Connect task creation to existing Kanban system
-4. Add task creation confirmation in chat interface
+**Next Steps for Story 5**:
+1. Add task listing tool to LLM tool set
+2. Implement task querying and filtering
+3. Format task information for chat responses
+4. Add visual indicators for tool usage in chat
 
 ---
 
@@ -117,22 +117,22 @@ Based on the technical design document, the LLM Chat system will:
 
 ---
 
-### Story 4: LLM Creates Tasks (Kanban Cards)
+### ✅ Story 4: LLM Creates Tasks (Kanban Cards) - COMPLETED
 **As an LLM, I want to use a tool to create some tasks (kanban cards).**
 
 **Acceptance Criteria:**
-- LLM can create tasks when appropriate based on conversation context
-- Tasks are created with title, description, and board assignment
-- Task creation is confirmed in the chat interface
-- Tasks appear in the Kanban interface
-- Events are emitted for task creation
+- ✅ LLM can create tasks when appropriate based on conversation context
+- ✅ Tasks are created with title, description, and board assignment
+- ✅ Task creation is confirmed in the chat interface
+- ✅ Tasks appear in the Kanban interface
+- ✅ Events are emitted for task creation
 
 **Technical Implementation:**
-- Add task creation tool to LLM tool set
-- Implement `task.created` event handling
-- Connect task creation to existing Kanban system
-- Add task creation confirmation in chat interface
-- Display tool call results in chat messages
+- ✅ Add task creation tool to LLM tool set
+- ✅ Implement `task.created` event handling
+- ✅ Connect task creation to existing Kanban system
+- ✅ Add task creation confirmation in chat interface
+- ✅ Display tool call results in chat messages
 
 **Dependencies:** Story 3 (needs LLM response capability), existing Kanban system
 
@@ -159,22 +159,22 @@ Based on the technical design document, the LLM Chat system will:
 
 ---
 
-### Story 6: LLM Lists Projects (Kanban Boards)
+### ✅ Story 6: LLM Lists Projects (Kanban Boards) - COMPLETED
 **As an LLM, I want to use a tool to list projects (kanban boards).**
 
 **Acceptance Criteria:**
-- LLM can query and list existing boards/projects when asked
-- Board lists include relevant details (name, task count, status)
-- LLM can provide board overviews and summaries
-- Board information is presented clearly in chat responses
-- Tool call results are shown in chat messages
+- ✅ LLM can query and list existing boards/projects when asked
+- ✅ Board lists include relevant details (name, task count, status)
+- ✅ LLM can provide board overviews and summaries
+- ✅ Board information is presented clearly in chat responses
+- ✅ Tool call results are shown in chat messages
 
 **Technical Implementation:**
-- Add board listing tool to LLM tool set
-- Implement board querying from LiveStore
-- Add board summary and statistics generation
-- Format board information for LLM responses
-- Display tool call results in chat interface
+- ✅ Add board listing tool to LLM tool set
+- ✅ Implement board querying from LiveStore
+- ✅ Add board summary and statistics generation
+- ✅ Format board information for LLM responses
+- ✅ Display tool call results in chat interface
 
 **Dependencies:** Story 5 (builds on task management), existing Kanban system
 
