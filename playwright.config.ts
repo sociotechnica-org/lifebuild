@@ -6,7 +6,15 @@ import { defineConfig, devices } from '@playwright/test'
  */
 // require('dotenv').config();
 
-const port = process.env.PLAYWRIGHT_PORT ? parseInt(process.env.PLAYWRIGHT_PORT) : 5173
+// Robust port handling with validation
+const getPort = () => {
+  const envPort = process.env.PLAYWRIGHT_PORT
+  if (!envPort) return 5173
+  const parsed = parseInt(envPort, 10)
+  return isNaN(parsed) ? 5173 : parsed
+}
+
+const port = getPort()
 const baseURL = `http://localhost:${port}`
 
 /**
@@ -76,8 +84,8 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command: process.env.CI
-      ? `pnpm build && pnpm preview --port ${process.env.PLAYWRIGHT_PORT || '5173'} --host`
-      : `VITE_LIVESTORE_SYNC_URL='http://localhost:8787' pnpm dev`,
+      ? `pnpm build && pnpm preview --port ${port} --host`
+      : `VITE_LIVESTORE_SYNC_URL='http://localhost:8787' PORT=${port} pnpm dev`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 180 * 1000, // Increased timeout for CI
