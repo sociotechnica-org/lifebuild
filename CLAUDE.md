@@ -207,6 +207,8 @@ CMD ["pnpm", "llm:service"]
 - Tests run against the full multi-service architecture (Vite + Wrangler)
 - Dynamic port allocation prevents conflicts between multiple Claude instances
 - Basic smoke tests validate core functionality and LiveStore integration
+- **New features should include Playwright tests** to ensure end-to-end functionality
+- **Claude can verify tests work** by running `CI=true pnpm test:e2e` (uses build mode, outputs results without starting dev server)
 
 #### Configuration
 
