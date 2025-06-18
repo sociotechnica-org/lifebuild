@@ -8,9 +8,10 @@ Transform Work Squared from a demo application into a production-ready AI consul
 
 ### Projects
 
-- **Definition**: Containers for contextual knowledge (documents + metadata)
-- **Purpose**: Organize related documents that workers need to understand a domain
-- **Not**: Kanban boards (boards are cross-project task management)
+- **Definition**: Work containers that achieve specific outcomes (documents + tasks + metadata)
+- **Purpose**: Organize related work (documents and tasks) toward completing a goal
+- **Visualization**: Initially Kanban boards, with future support for lists, tables, etc.
+- **Tasks**: Can optionally belong to projects (data model supports orphaned tasks)
 
 ### AI Workers
 
@@ -83,24 +84,31 @@ Your requirements essentially demand a traditional backend:
 
 ### Phase 1: Documents & Projects Foundation
 
-**Goal**: Replace Claude Projects' document management
+**Goal**: Create unified project system with documents and tasks
 
 #### 1.0 Global Navigation
 - [ ] Create fixed top navigation bar
-- [ ] Navigation items: Projects | Boards | Documents | Workers
+- [ ] Navigation items: Projects | Documents | Workers
 - [ ] Active state indicators
 - [ ] User profile section (placeholder for Phase 3)
 - [ ] Update routing to support new sections
 - [ ] Responsive mobile navigation
 
-#### 1.1 Project Management
+#### 1.1 Project Management & Task System
 
 ```typescript
-// New Events
+// Project Events
 type ProjectEvent =
   | { type: 'project.created', id: string, name: string, description?: string }
   | { type: 'project.updated', id: string, updates: Partial<Project> }
   | { type: 'project.deleted', id: string }
+
+// Task Events  
+type TaskEvent =
+  | { type: 'task.created', id: string, projectId?: string, title: string, description?: string }
+  | { type: 'task.updated', id: string, updates: Partial<Task> }
+  | { type: 'task.moved', id: string, projectId?: string, column: string, position: number }
+  | { type: 'task.archived', id: string }
 
 // Schema
 projects: {
@@ -110,12 +118,31 @@ projects: {
   createdAt: number
   updatedAt: number
 }
+
+tasks: {
+  id: string
+  projectId?: string  // Optional - tasks can exist without projects
+  title: string
+  description?: string
+  column: string
+  position: number
+  createdAt: number
+  updatedAt: number
+  archivedAt?: number
+}
 ```
 
+**Project Management:**
 - [ ] Create projects page/list
 - [ ] Create new project modal
-- [ ] View project details
+- [ ] View project as Kanban board (integrate existing Kanban)
 - [ ] Edit project metadata
+
+**Task Management:**
+- [ ] Create tasks within projects
+- [ ] Support orphaned tasks (no project assignment)
+- [ ] Drag-and-drop within project Kanban view
+- [ ] Task search across all projects
 
 #### 1.2 Document System
 
@@ -150,13 +177,24 @@ documentProjects: {
 - [ ] Search documents (basic SQLite FTS)
 - [ ] Markdown preview
 
-#### 1.3 LLM Document Tools
+#### 1.3 LLM Tools for Projects & Documents
 
+**Document Tools:**
 - [ ] `read_document(documentId)` tool
 - [ ] `search_documents(query, projectId?)` tool
-- [ ] `create_document(title, content, projectIds)` tool
+- [ ] `create_document(title, content)` tool
 - [ ] `update_document(documentId, updates)` tool
-- [ ] @ mention syntax in chat for doc references
+- [ ] `add_document_to_project(documentId, projectId)` tool
+
+**Project & Task Tools:**
+- [ ] `list_projects()` tool
+- [ ] `get_project_details(projectId)` tool
+- [ ] `create_task(title, description?, projectId?)` tool
+- [ ] `move_task(taskId, column, projectId?)` tool
+- [ ] `list_tasks(projectId?, status?)` tool
+
+**Chat Features:**
+- [ ] @ mention syntax for document/project references
 
 ### Phase 2: AI Workers System
 
@@ -294,10 +332,11 @@ users: {
 
 ## Success Metrics
 
-- [ ] Can create and organize documents in projects
-- [ ] Can create specialized AI workers
-- [ ] Workers can read project documents and create tasks
-- [ ] Multiple users can collaborate
+- [ ] Can create projects that achieve specific outcomes
+- [ ] Can organize documents and tasks within projects
+- [ ] Can create specialized AI workers assigned to projects
+- [ ] Workers can read project documents and manage project tasks
+- [ ] Multiple users can collaborate on projects
 - [ ] System runs reliably for daily use
 
 ## Technical Principles
