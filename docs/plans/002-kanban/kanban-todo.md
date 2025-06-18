@@ -232,7 +232,7 @@
 
 ---
 
-## 🍰 Story 10 – Archive a card
+## ✅ Story 10 – Archive a card — COMPLETED
 
 **GitHub Issue**: [#13](https://github.com/sociotechnica-org/work-squared/issues/13)
 
@@ -240,13 +240,13 @@
 
 **Dependencies**: Story 5 (View a card's details) must be completed first.
 
-### Tasks
+### Tasks — DONE
 
-- Event: `task.archived` (instead of hard delete)
-- Schema: Add `archivedAt?` to `tasks`; queries exclude archived by default
-- UI: "Archive" button in `TaskModal` > "More actions" dropdown; undo snackbar
-- Tests: Archiving hides card; undo within 5 s restores
-- DoD: Archived cards disappear from board, still retrievable via future "Archive" view.
+- [x] Event: `task.archived` (instead of hard delete)
+- [x] Schema: Add `archivedAt?` to `tasks`; queries exclude archived by default
+- [x] UI: "Archive" button in `TaskModal` > "More actions" dropdown; undo snackbar
+- [x] Tests: Archiving hides card; undo within 5 s restores
+- [x] DoD: Archived cards disappear from board, still retrievable via future "Archive" view.
 
 ---
 
