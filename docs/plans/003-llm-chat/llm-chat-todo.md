@@ -18,7 +18,7 @@ Based on the technical design document, the LLM Chat system will:
 
 - ✅ **Story 1**: Start a New Chat with an LLM - COMPLETED
 - ✅ **Story 2**: Send a Chat Message to an LLM - COMPLETED
-- ✅ **Story 3**: LLM Responds to Chat Messages - COMPLETED  
+- ✅ **Story 3**: LLM Responds to Chat Messages - COMPLETED
 - ✅ **Story 4**: LLM Creates Tasks (Kanban Cards) - COMPLETED
 - ⏳ **Story 5**: LLM Lists Tasks (Kanban Cards) - PENDING
 - ✅ **Story 6**: LLM Lists Projects (Kanban Boards) - COMPLETED
@@ -26,6 +26,7 @@ Based on the technical design document, the LLM Chat system will:
 **Current Status**: LLM can now create tasks and list projects! The AI assistant has basic tool capabilities integrated with the Kanban system.
 
 **Next Steps for Story 5**:
+
 1. Add task listing tool to LLM tool set
 2. Implement task querying and filtering
 3. Format task information for chat responses
@@ -34,9 +35,11 @@ Based on the technical design document, the LLM Chat system will:
 ---
 
 ### ✅ Story 1: Start a New Chat with an LLM - COMPLETED
+
 **As a user, I want to start a new chat with an LLM.**
 
 **Acceptance Criteria:**
+
 - ✅ I can click a "New Chat" button or similar UI element
 - ✅ A new conversation is created with a unique conversation ID
 - ✅ The chat interface appears ready for input
@@ -44,6 +47,7 @@ Based on the technical design document, the LLM Chat system will:
 - ✅ Events are emitted for conversation creation
 
 **Technical Implementation:**
+
 - ✅ Add `conversationCreated` event type to LiveStore events
 - ✅ Add `conversations` table to LiveStore schema
 - ✅ Create ChatInterface component with conversation management
@@ -53,6 +57,7 @@ Based on the technical design document, the LLM Chat system will:
 - ✅ Comprehensive test coverage (unit tests for events/schema and component tests)
 
 **Implementation Notes:**
+
 - Chat interface implemented as persistent right panel (384px width) visible on all pages
 - Conversations stored in SQLite with auto-generated titles and timestamps
 - Dropdown selector for switching between conversations
@@ -65,9 +70,11 @@ Based on the technical design document, the LLM Chat system will:
 ---
 
 ### ✅ Story 2: Send a Chat Message to an LLM - COMPLETED
+
 **As a user, I want to send a chat message to an LLM.**
 
 **Acceptance Criteria:**
+
 - ✅ I can type a message in the chat input
 - ✅ I can send the message by pressing Enter or clicking Send
 - ✅ My message appears in the chat interface immediately
@@ -75,6 +82,7 @@ Based on the technical design document, the LLM Chat system will:
 - ✅ Events are emitted for message creation
 
 **Technical Implementation:**
+
 - ✅ Updated `chatMessageSent` event to include `conversationId` field
 - ✅ Updated `chatMessages` table with conversation foreign key
 - ✅ Implemented message input form with controlled state in ChatInterface
@@ -83,6 +91,7 @@ Based on the technical design document, the LLM Chat system will:
 - ✅ Added `getConversationMessages$` query for fetching messages by conversation
 
 **Implementation Notes:**
+
 - Chat messages now properly linked to conversations via `conversationId` foreign key
 - Message input includes form validation (empty messages are disabled)
 - Messages display in chronological order with timestamps
@@ -96,9 +105,11 @@ Based on the technical design document, the LLM Chat system will:
 ---
 
 ### ✅ Story 3: LLM Responds to Chat Messages - COMPLETED
+
 **As an LLM, I want to respond to the user's chat message by using one or more tools, if appropriate.**
 
 **Acceptance Criteria:**
+
 - [x] The system detects new user messages in a conversation
 - [x] LLM processes the message and generates a response
 - [x] LLM response appears in the chat interface
@@ -106,6 +117,7 @@ Based on the technical design document, the LLM Chat system will:
 - [ ] Tool usage is indicated when tools are called (will be implemented in Story 4+)
 
 **Technical Implementation:**
+
 - [x] Set up Cloudflare Worker for LLM API calls
 - [x] Create sync worker that watches chat message events
 - [x] Implement conversation-aware message routing
@@ -118,9 +130,11 @@ Based on the technical design document, the LLM Chat system will:
 ---
 
 ### ✅ Story 4: LLM Creates Tasks (Kanban Cards) - COMPLETED
+
 **As an LLM, I want to use a tool to create some tasks (kanban cards).**
 
 **Acceptance Criteria:**
+
 - ✅ LLM can create tasks when appropriate based on conversation context
 - ✅ Tasks are created with title, description, and board assignment
 - ✅ Task creation is confirmed in the chat interface
@@ -128,6 +142,7 @@ Based on the technical design document, the LLM Chat system will:
 - ✅ Events are emitted for task creation
 
 **Technical Implementation:**
+
 - ✅ Add task creation tool to LLM tool set
 - ✅ Implement `task.created` event handling
 - ✅ Connect task creation to existing Kanban system
@@ -139,9 +154,11 @@ Based on the technical design document, the LLM Chat system will:
 ---
 
 ### Story 5: LLM Lists Tasks (Kanban Cards)
+
 **As an LLM, I want to use a tool to list tasks (kanban cards).**
 
 **Acceptance Criteria:**
+
 - LLM can query and list existing tasks when asked
 - Task lists include relevant details (title, status, board)
 - LLM can filter tasks by board, status, or other criteria
@@ -149,6 +166,7 @@ Based on the technical design document, the LLM Chat system will:
 - Tool call results are shown in chat messages
 
 **Technical Implementation:**
+
 - Add task listing tool to LLM tool set
 - Implement task querying from LiveStore
 - Add task filtering and search capabilities
@@ -160,9 +178,11 @@ Based on the technical design document, the LLM Chat system will:
 ---
 
 ### ✅ Story 6: LLM Lists Projects (Kanban Boards) - COMPLETED
+
 **As an LLM, I want to use a tool to list projects (kanban boards).**
 
 **Acceptance Criteria:**
+
 - ✅ LLM can query and list existing boards/projects when asked
 - ✅ Board lists include relevant details (name, task count, status)
 - ✅ LLM can provide board overviews and summaries
@@ -170,6 +190,7 @@ Based on the technical design document, the LLM Chat system will:
 - ✅ Tool call results are shown in chat messages
 
 **Technical Implementation:**
+
 - ✅ Add board listing tool to LLM tool set
 - ✅ Implement board querying from LiveStore
 - ✅ Add board summary and statistics generation
@@ -183,21 +204,25 @@ Based on the technical design document, the LLM Chat system will:
 ## Infrastructure Considerations
 
 ### Event-Driven Architecture
+
 - All interactions flow through LiveStore event stream
 - Sync worker monitors events and triggers LLM responses
 - Conversation-aware event routing ensures messages reach correct context
 
 ### Cloudflare Worker Integration
+
 - LLM API calls handled through Cloudflare Worker
 - Async processing to avoid blocking UI
 - Error handling and retry logic for robustness
 
 ### Tool System
+
 - Extensible tool interface for LLM capabilities
 - Tool calls and results displayed in chat interface
 - Clear separation between tool definition and execution
 
 ### Simplifying Assumptions
+
 - Single global user (no authentication initially)
 - Single global LLM context
 - No user management or permissions

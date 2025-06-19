@@ -19,7 +19,7 @@ cp .dev.vars.example .dev.vars
 export VITE_LIVESTORE_SYNC_URL='http://localhost:8787'
 pnpm dev
 
-# Run LLM service (separate terminal) 
+# Run LLM service (separate terminal)
 pnpm llm:service
 
 # Run development server on custom port
@@ -121,6 +121,7 @@ Work Squared is a real-time collaborative web application built with:
    - Client sync setup in `src/Root.tsx`
 
 3. **State Management**: LiveStore provides reactive queries and event dispatch
+
    - Tables: `todos`, `chatMessages`, `uiState`
    - Events get synced across all connected clients
    - Local-first with automatic conflict resolution
@@ -152,18 +153,22 @@ For detailed LLM integration architecture and implementation details, see: [docs
 The application consists of two main services that need to be deployed:
 
 ### 1. Cloudflare Worker (Sync Server)
+
 ```bash
 # Deploy the sync server
 pnpm wrangler:deploy
 ```
 
 ### 2. LLM Service (Node.js)
+
 The LLM service (`services/llm-service.ts`) needs to be deployed to a Node.js runtime. Options include:
+
 - **Docker container** (recommended for production)
 - **VPS/Server** with Node.js runtime
 - **Serverless platform** (Vercel, Railway, etc.)
 
 **Environment Variables Required:**
+
 ```bash
 BRAINTRUST_API_KEY=your-api-key
 BRAINTRUST_PROJECT_ID=your-project-id
@@ -171,6 +176,7 @@ STORE_ID=production-store-id
 ```
 
 **Docker Example:**
+
 ```dockerfile
 FROM node:18
 WORKDIR /app
@@ -229,10 +235,12 @@ PLAYWRIGHT_PORT=9090 pnpm test:e2e
 #### GitHub Actions CI
 
 Playwright tests run automatically on:
+
 - Push to `main` branch
 - Pull requests to `main` branch
 
 The workflow includes:
+
 - Automated browser installation
 - Full multi-service test execution
 - Test report artifacts (retained for 30 days)

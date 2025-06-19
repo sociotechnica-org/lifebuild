@@ -87,6 +87,7 @@ Your requirements essentially demand a traditional backend:
 **Goal**: Create unified project system with documents and tasks
 
 #### 1.0 Global Navigation
+
 - [ ] Create fixed top navigation bar
 - [ ] Navigation items: Projects | Documents | Workers
 - [ ] Active state indicators
@@ -103,7 +104,7 @@ type ProjectEvent =
   | { type: 'project.updated', id: string, updates: Partial<Project> }
   | { type: 'project.deleted', id: string }
 
-// Task Events  
+// Task Events
 type TaskEvent =
   | { type: 'task.created', id: string, projectId?: string, title: string, description?: string }
   | { type: 'task.updated', id: string, updates: Partial<Task> }
@@ -133,12 +134,14 @@ tasks: {
 ```
 
 **Project Management:**
+
 - [ ] Create projects page/list
 - [ ] Create new project modal
 - [ ] View project as Kanban board (integrate existing Kanban)
 - [ ] Edit project metadata
 
 **Task Management:**
+
 - [ ] Create tasks within projects
 - [ ] Support orphaned tasks (no project assignment)
 - [ ] Drag-and-drop within project Kanban view
@@ -180,6 +183,7 @@ documentProjects: {
 #### 1.3 LLM Tools for Projects & Documents
 
 **Document Tools:**
+
 - [ ] `read_document(documentId)` tool
 - [ ] `search_documents(query, projectId?)` tool
 - [ ] `create_document(title, content)` tool
@@ -187,6 +191,7 @@ documentProjects: {
 - [ ] `add_document_to_project(documentId, projectId)` tool
 
 **Project & Task Tools:**
+
 - [ ] `list_projects()` tool
 - [ ] `get_project_details(projectId)` tool
 - [ ] `create_task(title, description?, projectId?)` tool
@@ -194,6 +199,7 @@ documentProjects: {
 - [ ] `list_tasks(projectId?, status?)` tool
 
 **Chat Features:**
+
 - [ ] @ mention syntax for document/project references
 
 ### Phase 2: AI Workers System

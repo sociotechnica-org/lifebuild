@@ -11,6 +11,7 @@ Proposed
 ## Context
 
 Work Squared requires a background job system to handle long-running AI worker tasks that can take minutes or hours to complete. These include:
+
 - Processing complex document analysis requests
 - Executing multi-step workflows
 - Running autonomous worker agents
@@ -19,6 +20,7 @@ Work Squared requires a background job system to handle long-running AI worker t
 The current architecture using Cloudflare Workers has a 30-second timeout limit, making it unsuitable for these long-running operations.
 
 We evaluated several options:
+
 1. **In-process task management**: Simple async/await tracking without persistence
 2. **SQLite-based queue**: Using LiveStore tables as a job queue
 3. **BullMQ**: Redis-based queue with advanced features
@@ -29,6 +31,7 @@ We evaluated several options:
 We will implement a SQLite-based task queue using LiveStore tables for the initial implementation.
 
 The queue will be implemented using these LiveStore tables:
+
 - `workerTasks`: Stores task definitions, status, and metadata
 - `taskExecutions`: Tracks execution history and logs
 
@@ -85,31 +88,32 @@ class LiveStoreTaskQueue {
         id: crypto.randomUUID(),
         status: 'pending',
         attempts: 0,
-        createdAt: new Date()
-      })
+        createdAt: new Date(),
+      }),
     ])
   }
-  
+
   async dequeue(): Promise<WorkerTask | null> {
     // Atomic claim of next task
-    const task = await store.query(db => 
-      db.table('workerTasks')
+    const task = await store.query(db =>
+      db
+        .table('workerTasks')
         .where('status', '=', 'pending')
         .where('processAfter', '<=', new Date())
         .orderBy('priority', 'desc')
         .orderBy('createdAt', 'asc')
         .first()
     )
-    
+
     if (task) {
       await store.mutate([
-        events.taskStarted({ 
-          taskId: task.id, 
-          startedAt: new Date() 
-        })
+        events.taskStarted({
+          taskId: task.id,
+          startedAt: new Date(),
+        }),
       ])
     }
-    
+
     return task
   }
 }

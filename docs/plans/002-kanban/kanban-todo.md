@@ -93,7 +93,7 @@
 - [x] Event optimization: Recalculate positions for all affected cards in source/target columns
 - [x] Tests: Precise positioning logic, cross-column reordering
 - [ ] Same-column reordering: Fix edge cases (see [Issue #14](https://github.com/sociotechnica-org/work-squared/issues/14))
-- [ ] Animation: Cards shift up when a card is dragged out of a column  
+- [ ] Animation: Cards shift up when a card is dragged out of a column
 - [ ] Animation: Bottom cards slide down when a card is dropped between two other cards
 - [ ] Tests: Animation behavior, within-column reordering edge cases
 - DoD: Dragging creates smooth animations and allows precise positioning anywhere in any column.

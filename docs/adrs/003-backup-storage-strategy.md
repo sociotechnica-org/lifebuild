@@ -11,12 +11,14 @@ Proposed
 ## Context
 
 Work Squared needs a reliable backup strategy for:
+
 - SQLite database snapshots (complete system state)
 - Document exports (markdown files)
 - Worker configurations and conversation history
 - User data for compliance and recovery
 
 Requirements:
+
 - Automated backups every 6 hours minimum
 - Point-in-time recovery capability
 - Cost-effective storage for growing data
@@ -24,6 +26,7 @@ Requirements:
 - Geographic redundancy
 
 Options evaluated:
+
 1. **Local disk backups**: Simple but no redundancy
 2. **Cloudflare R2**: S3-compatible object storage
 3. **AWS S3**: Industry standard but another vendor
@@ -34,6 +37,7 @@ Options evaluated:
 We will use Cloudflare R2 for backup storage with automated snapshots every 6 hours.
 
 Backup strategy:
+
 - **Full backups**: Complete SQLite database snapshots
 - **Incremental exports**: JSON exports of recent changes
 - **Retention policy**: 30 days of hourly, 12 months of daily backups
@@ -72,7 +76,7 @@ import { pipeline } from 'stream/promises'
 
 class BackupService {
   private r2: S3Client
-  
+
   constructor() {
     this.r2 = new S3Client({
       region: 'auto',
@@ -83,44 +87,46 @@ class BackupService {
       },
     })
   }
-  
+
   async createBackup() {
     const timestamp = new Date().toISOString()
-    
+
     // 1. Create SQLite snapshot
     const dbPath = '/data/livestore.db'
     const backupKey = `backups/full/${timestamp}/livestore.db`
-    
+
     // Copy database using SQLite backup API (safe for active DB)
     await this.backupDatabase(dbPath, backupKey)
-    
+
     // 2. Export metadata
     const metadata = {
       timestamp,
       version: APP_VERSION,
       stats: await this.getSystemStats(),
     }
-    
-    await this.r2.send(new PutObjectCommand({
-      Bucket: 'worksquared-backups',
-      Key: `backups/full/${timestamp}/metadata.json`,
-      Body: JSON.stringify(metadata, null, 2),
-      ContentType: 'application/json',
-    }))
-    
+
+    await this.r2.send(
+      new PutObjectCommand({
+        Bucket: 'worksquared-backups',
+        Key: `backups/full/${timestamp}/metadata.json`,
+        Body: JSON.stringify(metadata, null, 2),
+        ContentType: 'application/json',
+      })
+    )
+
     // 3. Cleanup old backups based on retention policy
     await this.cleanupOldBackups()
   }
-  
+
   async restoreBackup(timestamp: string) {
     // Download from R2
     const backupKey = `backups/full/${timestamp}/livestore.db`
     const restored = await this.downloadFromR2(backupKey)
-    
+
     // Verify integrity
     const isValid = await this.verifyDatabase(restored)
     if (!isValid) throw new Error('Backup integrity check failed')
-    
+
     // Replace current database
     await this.replaceDatabase(restored)
   }
@@ -145,17 +151,15 @@ async function runBackup() {
       id: 'cleanup-hourly',
       status: 'Enabled',
       filter: { prefix: 'backups/full/' },
-      expiration: { days: 30 }
+      expiration: { days: 30 },
     },
     {
       id: 'archive-daily',
-      status: 'Enabled', 
+      status: 'Enabled',
       filter: { prefix: 'backups/daily/' },
-      transitions: [
-        { days: 90, storageClass: 'GLACIER' }
-      ],
-      expiration: { days: 365 }
-    }
+      transitions: [{ days: 90, storageClass: 'GLACIER' }],
+      expiration: { days: 365 },
+    },
   ]
 }
 ```
