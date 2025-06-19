@@ -30,6 +30,17 @@ export const getBoardColumns$ = (boardId: string) =>
 // New project terminology alias
 export const getProjectColumns$ = getBoardColumns$
 
+export const getBoardColumnsOptional$ = (boardId: string | null) =>
+  queryDb(
+    tables.columns
+      .select()
+      .where(boardId ? { boardId } : { boardId: '' }) // Empty condition returns no results
+      .orderBy([{ col: 'position', direction: 'asc' }]),
+    {
+      label: `getBoardColumnsOptional:${boardId || 'null'}`,
+    }
+  )
+
 export const getBoardTasks$ = (boardId: string) =>
   queryDb(
     tables.tasks

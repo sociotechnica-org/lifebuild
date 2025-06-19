@@ -22,8 +22,8 @@ test.describe('Smoke Tests', () => {
     // Check basic app structure
     await expectBasicAppStructure(page)
 
-    // Should redirect to /boards by default (may include storeId parameter)
-    await expect(page).toHaveURL(/\/(boards|$).*/) // Either /boards or root with storeId
+    // Should redirect to /projects by default (may include storeId parameter)
+    await expect(page).toHaveURL(/\/(projects|$).*/) // Either /projects or root with storeId
 
     // Verify chat interface is visible (may not be fully functional in CI)
     const chatElement = page.locator('textarea[placeholder="Type your message..."]')
@@ -38,10 +38,10 @@ test.describe('Smoke Tests', () => {
     await waitForLiveStoreReady(page)
     await expect(page).toHaveURL(/\/chat/)
 
-    // Navigate back to boards
+    // Navigate to boards (should redirect to projects)
     await page.goto('/boards')
     await waitForLiveStoreReady(page)
-    await expect(page).toHaveURL(/\/boards/)
+    await expect(page).toHaveURL(/\/projects/)
   })
 
   test('LiveStore sync is working', async ({ page }) => {

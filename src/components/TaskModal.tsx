@@ -3,7 +3,7 @@ import { useQuery, useStore } from '@livestore/react'
 import type { Task, Column, User, Comment } from '../livestore/schema.js'
 import {
   getTaskById$,
-  getBoardColumns$,
+  getBoardColumnsOptional$,
   getUsers$,
   getTaskComments$,
 } from '../livestore/queries.js'
@@ -30,7 +30,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   // Don't render if task not found
   if (!task) return null
 
-  const columns = task.boardId ? useQuery(getBoardColumns$(task.boardId)) ?? [] : []
+  const columns = useQuery(getBoardColumnsOptional$(task.boardId)) ?? []
   const column = columns.find((col: Column) => col.id === task.columnId)
 
   const users = useQuery(getUsers$) ?? []
