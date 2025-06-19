@@ -36,11 +36,13 @@ Work Squared is an AI-enabled work environment featuring real-time collaborative
 
 3.  **Run the development server:**
     This will start the Vite frontend and the local Cloudflare Worker concurrently.
+
     ```bash
     pnpm dev
     ```
-    
+
     To run on a custom port:
+
     ```bash
     PORT=3000 pnpm dev
     ```
@@ -78,7 +80,7 @@ pnpm wrangler:deploy
 - **Real-time Kanban Boards**: Collaborative task management with live updates
 - **Multi-user Assignment**: Assign multiple team members to tasks with avatar indicators
 - **Task Management**: Create, edit, and view detailed task information
-- **Drag & Drop**: Move tasks between columns and reorder within columns  
+- **Drag & Drop**: Move tasks between columns and reorder within columns
 - **Responsive Design**: Works on desktop and mobile devices
 - **Local-first Architecture**: Powered by LiveStore for offline-capable real-time sync
 - **Type-safe**: Built with TypeScript for robust development
