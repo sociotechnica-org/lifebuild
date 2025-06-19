@@ -13,6 +13,9 @@ export const getBoards$ = queryDb(
   { label: 'getBoards' }
 )
 
+// New terminology alias
+export const getProjects$ = getBoards$
+
 export const getBoardColumns$ = (boardId: string) =>
   queryDb(
     tables.columns
@@ -23,6 +26,9 @@ export const getBoardColumns$ = (boardId: string) =>
       label: `getBoardColumns:${boardId}`,
     }
   )
+
+// New project terminology alias
+export const getProjectColumns$ = getBoardColumns$
 
 export const getBoardTasks$ = (boardId: string) =>
   queryDb(
@@ -35,6 +41,9 @@ export const getBoardTasks$ = (boardId: string) =>
     }
   )
 
+// New project terminology alias
+export const getProjectTasks$ = getBoardTasks$
+
 export const getTaskById$ = (taskId: string) =>
   queryDb(tables.tasks.select().where({ id: taskId }), {
     label: `getTaskById:${taskId}`,
@@ -44,6 +53,9 @@ export const getBoardById$ = (boardId: string) =>
   queryDb(tables.boards.select().where({ id: boardId }), {
     label: `getBoardById:${boardId}`,
   })
+
+// New project terminology alias
+export const getProjectById$ = getBoardById$
 
 export const getConversations$ = queryDb(
   tables.conversations.select().orderBy([{ col: 'createdAt', direction: 'desc' }]),

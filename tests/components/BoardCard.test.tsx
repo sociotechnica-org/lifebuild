@@ -7,6 +7,7 @@ describe('BoardCard', () => {
   const mockBoard = {
     id: 'test-board',
     name: 'Test Board',
+    description: 'Test project description',
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-02'),
     deletedAt: null,

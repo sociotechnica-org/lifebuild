@@ -49,10 +49,11 @@ const todos = State.SQLite.table({
 })
 
 const boards = State.SQLite.table({
-  name: 'boards',
+  name: 'boards', // Keep original table name for backward compatibility
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
     name: State.SQLite.text({ default: '' }),
+    description: State.SQLite.text({ nullable: true }), // Add description field
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
@@ -70,7 +71,7 @@ const columns = State.SQLite.table({
   name: 'columns',
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
-    boardId: State.SQLite.text(),
+    boardId: State.SQLite.text(), // Keep original field name for backward compatibility
     name: State.SQLite.text({ default: '' }),
     position: State.SQLite.integer({ default: 0 }),
     createdAt: State.SQLite.integer({
@@ -98,7 +99,7 @@ const tasks = State.SQLite.table({
   name: 'tasks',
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
-    boardId: State.SQLite.text(),
+    boardId: State.SQLite.text({ nullable: true }), // Made optional for orphaned tasks, keep original field name
     columnId: State.SQLite.text(),
     title: State.SQLite.text({ default: '' }),
     description: State.SQLite.text({ nullable: true }),
@@ -159,6 +160,7 @@ const uiState = State.SQLite.clientDocument({
 export type Todo = State.SQLite.FromTable.RowDecoded<typeof todos>
 export type ChatMessage = State.SQLite.FromTable.RowDecoded<typeof chatMessages>
 export type Board = State.SQLite.FromTable.RowDecoded<typeof boards>
+export type Project = Board // New terminology alias
 export type Column = State.SQLite.FromTable.RowDecoded<typeof columns>
 export type User = State.SQLite.FromTable.RowDecoded<typeof users>
 export type Task = State.SQLite.FromTable.RowDecoded<typeof tasks>
@@ -192,8 +194,8 @@ const materializers = State.SQLite.materializers(events, {
     todos.update({ deletedAt }).where({ completed: true }),
   'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) =>
     chatMessages.insert({ id, conversationId, message, role, createdAt }),
-  'v1.BoardCreated': ({ id, name, createdAt }) =>
-    boards.insert({ id, name, createdAt, updatedAt: createdAt }),
+  'v1.BoardCreated': ({ id, name, description, createdAt }) =>
+    boards.insert({ id, name, description, createdAt, updatedAt: createdAt }),
   'v1.ColumnCreated': ({ id, boardId, name, position, createdAt }) =>
     columns.insert({ id, boardId, name, position, createdAt, updatedAt: createdAt }),
   'v1.ColumnRenamed': ({ id, name, updatedAt }) =>

@@ -21,6 +21,7 @@ export const Default: Story = {
     board: {
       id: 'board-1',
       name: 'Project Alpha',
+      description: 'Main development project for our new product launch',
       createdAt: new Date('2023-01-01'),
       updatedAt: new Date('2023-01-15'),
       deletedAt: null,
@@ -33,6 +34,7 @@ export const RecentlyUpdated: Story = {
     board: {
       id: 'board-2',
       name: 'Marketing Campaign',
+      description: 'Q4 marketing campaign for product promotion',
       createdAt: new Date('2023-01-01'),
       updatedAt: new Date(),
       deletedAt: null,
@@ -45,6 +47,7 @@ export const LongName: Story = {
     board: {
       id: 'board-3',
       name: 'Very Long Project Name That Should Wrap Properly in the Card Layout',
+      description: 'Long-term project strategy and feature planning',
       createdAt: new Date('2023-01-01'),
       updatedAt: new Date('2023-01-10'),
       deletedAt: null,
@@ -57,6 +60,7 @@ export const WithoutClickHandler: Story = {
     board: {
       id: 'board-4',
       name: 'Static Board',
+      description: null,
       createdAt: new Date('2023-01-01'),
       updatedAt: new Date('2023-01-05'),
       deletedAt: null,

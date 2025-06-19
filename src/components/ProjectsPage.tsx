@@ -6,7 +6,7 @@ import type { Project } from '../livestore/schema.js'
 import { seedSampleBoards } from '../util/seed-data.js'
 import { ProjectCard } from './ProjectCard.js'
 
-export const BoardsPage: React.FC = () => {
+export const ProjectsPage: React.FC = () => {
   const { store } = useStore()
   const navigate = useNavigate()
   const projects = useQuery(getProjects$) ?? []
@@ -21,7 +21,7 @@ export const BoardsPage: React.FC = () => {
   }, [projects.length, store])
 
   const handleProjectClick = (project: Project) => {
-    navigate(`/board/${project.id}`) // Keep board URL for backward compatibility
+    navigate(`/project/${project.id}`)
   }
 
   if (projects.length === 0) {

@@ -37,26 +37,29 @@ export function seedSampleBoards(store: Store) {
     store.commit(events.userCreated(user))
   })
 
-  // Create sample boards
-  const sampleBoards = [
+  // Create sample projects
+  const sampleProjects = [
     {
-      id: 'board-1',
+      id: 'project-1',
       name: 'Project Alpha',
+      description: 'Main development project for our new product launch',
       createdAt: new Date(now.getTime() - 86400000), // 1 day ago
     },
     {
-      id: 'board-2',
+      id: 'project-2',
       name: 'Marketing Campaign',
+      description: 'Q4 marketing campaign for product promotion',
       createdAt: new Date(now.getTime() - 172800000), // 2 days ago
     },
     {
-      id: 'board-3',
+      id: 'project-3',
       name: 'Product Roadmap',
+      description: 'Long-term product strategy and feature planning',
       createdAt: new Date(now.getTime() - 259200000), // 3 days ago
     },
   ]
 
-  // Create default columns for each board
+  // Create default columns for each project
   const defaultColumns = [
     { name: 'Todo', position: 0 },
     { name: 'Doing', position: 1 },
@@ -72,20 +75,20 @@ export function seedSampleBoards(store: Store) {
     3: ['Deploy to staging environment', 'Fix minor UI bugs', 'Update user guide'],
   }
 
-  // Commit board creation events
-  sampleBoards.forEach(board => {
-    store.commit(events.boardCreated(board))
+  // Commit project creation events (using boardCreated event)
+  sampleProjects.forEach(project => {
+    store.commit(events.boardCreated(project))
 
-    // Create columns for this board
+    // Create columns for this project
     defaultColumns.forEach(column => {
-      const columnId = `${board.id}-col-${column.position}`
+      const columnId = `${project.id}-col-${column.position}`
       store.commit(
         events.columnCreated({
           id: columnId,
-          boardId: board.id,
+          boardId: project.id,
           name: column.name,
           position: column.position,
-          createdAt: board.createdAt,
+          createdAt: project.createdAt,
         })
       )
 
@@ -97,13 +100,13 @@ export function seedSampleBoards(store: Store) {
         store.commit(
           events.taskCreated({
             id: taskId,
-            boardId: board.id,
+            boardId: project.id,
             columnId: columnId,
             title: title,
             description: undefined,
             assigneeIds: undefined,
             position: index,
-            createdAt: new Date(board.createdAt.getTime() + index * 1000), // Stagger creation times
+            createdAt: new Date(project.createdAt.getTime() + index * 1000), // Stagger creation times
           })
         )
 
@@ -119,7 +122,7 @@ export function seedSampleBoards(store: Store) {
               title: undefined,
               description: undefined,
               assigneeIds,
-              updatedAt: new Date(board.createdAt.getTime() + index * 1000 + 500),
+              updatedAt: new Date(project.createdAt.getTime() + index * 1000 + 500),
             })
           )
         }

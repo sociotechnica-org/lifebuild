@@ -57,6 +57,7 @@ export const createMockColumn = (overrides: Partial<Column> = {}): Column => ({
 export const createMockBoard = (overrides: Partial<Board> = {}): Board => ({
   id: 'test-board',
   name: 'Test Board',
+  description: null,
   createdAt: new Date('2023-01-01'),
   updatedAt: new Date('2023-01-01'),
   deletedAt: null,

@@ -54,6 +54,7 @@ export const boardCreated = Events.synced({
   schema: Schema.Struct({
     id: Schema.String,
     name: Schema.String,
+    description: Schema.optional(Schema.String), // Added description field
     createdAt: Schema.Date,
   }),
 })
@@ -91,7 +92,7 @@ export const taskCreated = Events.synced({
   name: 'v1.TaskCreated',
   schema: Schema.Struct({
     id: Schema.String,
-    boardId: Schema.String,
+    boardId: Schema.optional(Schema.String), // Made optional for orphaned tasks
     columnId: Schema.String,
     title: Schema.String,
     description: Schema.Union(Schema.String, Schema.Undefined),

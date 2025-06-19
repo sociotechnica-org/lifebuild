@@ -30,7 +30,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   // Don't render if task not found
   if (!task) return null
 
-  const columns = useQuery(getBoardColumns$(task.boardId)) ?? []
+  const columns = task.boardId ? useQuery(getBoardColumns$(task.boardId)) ?? [] : []
   const column = columns.find((col: Column) => col.id === task.columnId)
 
   const users = useQuery(getUsers$) ?? []

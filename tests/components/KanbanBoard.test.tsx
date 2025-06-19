@@ -102,7 +102,7 @@ describe('KanbanBoard', () => {
     mockUseParams.mockReturnValue({ boardId: undefined as any })
 
     render(<KanbanBoard />)
-    expect(screen.getByText('Board not found')).toBeInTheDocument()
+    expect(screen.getByText('Project not found')).toBeInTheDocument()
   })
 
   it('should render with multiple tasks and maintain proper structure', () => {
