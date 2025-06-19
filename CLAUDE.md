@@ -193,6 +193,12 @@ CMD ["pnpm", "llm:service"]
 - Each PR should be small, focused, and demoable
 - Always run tests before creating a PR
 
+### PR Monitoring
+
+Whenever you push up a commit to a PR or open a new PR, watch the PR until all the checks are finished using `gh pr checks --watch`. The watch interface will update automatically every 10 seconds. No need to refresh or exit or whatever. This might take up to 10 minutes; just wait!
+
+- Cursor's BugBot check is a neutral check, but may report a bug that you need to fix. Even though it's neutral, please fix the bug and push up a new commit.
+
 ## Testing Best Practices
 
 ### Unit Tests (Vitest)
