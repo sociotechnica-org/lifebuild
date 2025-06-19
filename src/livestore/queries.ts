@@ -34,7 +34,7 @@ export const getBoardColumnsOptional$ = (boardId: string | null) =>
   queryDb(
     tables.columns
       .select()
-      .where(boardId ? { boardId } : { boardId: '' }) // Empty condition returns no results
+      .where(boardId !== null ? { boardId } : { id: null }) // Impossible condition returns no results when boardId is null
       .orderBy([{ col: 'position', direction: 'asc' }]),
     {
       label: `getBoardColumnsOptional:${boardId || 'null'}`,
