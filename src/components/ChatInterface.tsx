@@ -34,6 +34,7 @@ async function runAgenticLoop(
   initialToolMessages: Array<{ role: string; content: string; tool_call_id?: string }>,
   boardContext: { id: string; name: string } | undefined,
   selectedConversationId: string,
+  model: string,
   store: any
 ): Promise<void> {
   console.log('🚀 Starting agentic loop')
@@ -60,7 +61,7 @@ async function runAgenticLoop(
             conversationId: selectedConversationId,
             message: currentResponse.message || '',
             role: 'assistant',
-            modelId: 'gpt-4o',
+            modelId: model,
             responseToMessageId: userMessage.id,
             createdAt: new Date(),
             metadata: {
@@ -105,7 +106,7 @@ async function runAgenticLoop(
                   conversationId: selectedConversationId,
                   message: `✅ Created task successfully`,
                   role: 'assistant',
-                  modelId: 'gpt-4o',
+                  modelId: model,
                   responseToMessageId: userMessage.id,
                   createdAt: new Date(),
                   metadata: {
@@ -158,7 +159,8 @@ async function runAgenticLoop(
         currentResponse = await callLLMAPI(
           '', // Empty message since we're continuing with tool results
           currentHistory as any, // Mixed message types for OpenAI API
-          boardContext
+          boardContext,
+          model
         )
 
         console.log(`🔄 Iteration ${iteration} LLM response:`, {
@@ -183,7 +185,7 @@ async function runAgenticLoop(
             conversationId: selectedConversationId,
             message: currentResponse.message,
             role: 'assistant',
-            modelId: 'gpt-4o',
+            modelId: model,
             responseToMessageId: userMessage.id,
             createdAt: new Date(),
             metadata: {
@@ -208,7 +210,8 @@ async function runAgenticLoop(
 async function callLLMAPI(
   userMessage: string,
   conversationHistory?: ChatMessage[],
-  currentBoard?: { id: string; name: string }
+  currentBoard?: { id: string; name: string },
+  model: string = 'gpt-4o'
 ): Promise<LLMAPIResponse> {
   console.log('🔗 Calling LLM API via proxy...')
 
@@ -234,6 +237,7 @@ async function callLLMAPI(
     message: userMessage,
     conversationHistory: historyForAPI,
     currentBoard,
+    model,
   }
 
   console.log('🔗 Making request to:', proxyUrl)
@@ -277,6 +281,7 @@ export const ChatInterface: React.FC = () => {
   const users = useQuery(getUsers$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [messageText, setMessageText] = React.useState('')
+  const [selectedModel, setSelectedModel] = React.useState('gpt-4o')
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
@@ -389,7 +394,8 @@ export const ChatInterface: React.FC = () => {
               const llmResponse = await callLLMAPI(
                 userMessage.message,
                 conversationHistory,
-                boardContext
+                boardContext,
+                selectedModel
               )
 
               // Handle tool calls if present - start agentic loop immediately
@@ -407,6 +413,7 @@ export const ChatInterface: React.FC = () => {
                   [], // No initial tool messages - agentic loop will execute them
                   boardContext,
                   selectedConversationId,
+                  selectedModel,
                   store
                 )
               } else {
@@ -417,7 +424,7 @@ export const ChatInterface: React.FC = () => {
                     conversationId: selectedConversationId,
                     message: llmResponse.message,
                     role: 'assistant',
-                    modelId: 'gpt-4o',
+                    modelId: selectedModel,
                     responseToMessageId: userMessage.id,
                     createdAt: new Date(),
                     metadata: { source: 'braintrust' },
@@ -651,6 +658,16 @@ export const ChatInterface: React.FC = () => {
                     }
                   }}
                 />
+                <select
+                  value={selectedModel}
+                  onChange={e => setSelectedModel(e.target.value)}
+                  className='absolute bottom-4 left-4 text-xs bg-white border border-gray-300 rounded-md px-2 py-1 shadow-sm'
+                >
+                  <option value='sonnet'>Sonnet</option>
+                  <option value='opus'>Opus</option>
+                  <option value='gpt-4o'>GPT-4o</option>
+                  <option value='o3'>O3</option>
+                </select>
                 <button
                   type='submit'
                   disabled={!messageText.trim()}
