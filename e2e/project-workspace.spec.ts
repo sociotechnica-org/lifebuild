@@ -55,7 +55,7 @@ test.describe('Project Workspace', () => {
     // Verify tab interface
     const tasksTab = page.locator('button:has-text("Tasks")')
     const documentsTab = page.locator('button:has-text("Documents")')
-    
+
     await expect(tasksTab).toBeVisible()
     await expect(documentsTab).toBeVisible()
     await expect(documentsTab).toBeDisabled()
@@ -96,34 +96,34 @@ test.describe('Project Workspace', () => {
 
     // Create a project first to have a valid ID
     await expect(page).toHaveURL(/\/projects/)
-    
+
     const createProjectButton = page.locator('button:has-text("Create Project")')
     await createProjectButton.first().click()
 
     const projectName = `Redirect Test ${Date.now()}`
     await page.fill('input[id="project-name"]', projectName)
-    
+
     const submitButton = page.locator('form button[type="submit"]:has-text("Create Project")')
     await submitButton.click()
-    
+
     await expect(page.locator('text=Create New Project')).not.toBeVisible()
 
     // Get the project ID from the URL when we click on it
     await page.click(`text=${projectName}`)
     await waitForLiveStoreReady(page)
-    
+
     const currentUrl = page.url()
     const projectId = currentUrl.split('/project/')[1]
-    
+
     if (projectId) {
       // Navigate to old board URL format
       const oldBoardUrl = currentUrl.replace('/project/', '/board/')
       await page.goto(oldBoardUrl)
-      
+
       // Should redirect to new project URL format
       await expect(page).toHaveURL(/\/project\/.*/)
       await expect(page.locator(`text=${projectName}`)).toBeVisible()
-      
+
       console.log(`Successfully tested redirect from old board URL to project workspace`)
     } else {
       console.log('Could not extract project ID for redirect test')

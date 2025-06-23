@@ -1,11 +1,5 @@
 import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
-import { ProjectWorkspace } from '../components/ProjectWorkspace.js'
-
-// Mock react-router-dom for Storybook
-const MockRouter = ({ children }: { children: React.ReactNode }) => (
-  <div data-router-mock='true'>{children}</div>
-)
 
 // Create a simplified workspace component for Storybook that doesn't need LiveStore
 const ProjectWorkspaceStory = ({ 
