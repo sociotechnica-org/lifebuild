@@ -87,8 +87,8 @@ export default {
         }
 
         const currentBoardContext = currentBoard
-          ? `\n\nCURRENT CONTEXT:\nYou are currently viewing the "${currentBoard.name}" project (ID: ${currentBoard.id}). When creating tasks, they will be created on this project automatically. You do NOT need to call list_boards since you already know the current project.`
-          : `\n\nCURRENT CONTEXT:\nNo specific project is currently selected. Use the list_boards tool to see available projects, or tasks will be created on the default project.`
+          ? `\n\nCURRENT CONTEXT:\nYou are currently viewing the "${currentBoard.name}" project (ID: ${currentBoard.id}). When creating tasks, they will be created on this project automatically. You do NOT need to call list_projects since you already know the current project.`
+          : `\n\nCURRENT CONTEXT:\nNo specific project is currently selected. Use the list_projects tool to see available projects, or tasks will be created on the default project.`
 
         const systemPrompt = `You are an AI assistant for Work Squared, a consultancy workflow automation system. You help consultants and project managers by:
 
@@ -99,9 +99,9 @@ export default {
 
 You have access to tools for:
 - Creating tasks in the Kanban system (create_task)
-- Listing all available projects (list_boards)
+- Listing all available projects (list_projects)
 
-When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed. If you need to know what projects are available, use the list_boards tool first.
+When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed. If you need to know what projects are available, use the list_projects tool first.
 
 Maintain a professional but conversational tone. Focus on practical, actionable advice.${currentBoardContext}`
 
@@ -153,7 +153,7 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
           {
             type: 'function',
             function: {
-              name: 'list_boards',
+              name: 'list_projects',
               description: 'Get a list of all available projects with their IDs, names, and descriptions',
               parameters: {
                 type: 'object',
