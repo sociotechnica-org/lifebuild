@@ -22,7 +22,7 @@ describe('list_projects tool fix verification', () => {
 
     // Simulate the fixed logic from ChatInterface.tsx
     let toolResultMessage = ''
-    
+
     if (mockToolResult.success) {
       if (mockToolCall.function.name === 'list_projects') {
         const projectList =
@@ -52,7 +52,7 @@ describe('list_projects tool fix verification', () => {
     }
 
     let toolResultMessage = ''
-    
+
     if (mockToolResult.success) {
       if (mockToolCall.function.name === 'list_projects') {
         const projectList =
@@ -75,15 +75,17 @@ describe('list_projects tool fix verification', () => {
 
     // This simulates the OLD buggy code
     let toolResultMessageOld = ''
-    if (mockToolCall.function.name === 'list_boards') { // BUG: wrong tool name
+    if (mockToolCall.function.name === 'list_boards') {
+      // BUG: wrong tool name
       toolResultMessageOld = 'This would have matched'
     } else {
       toolResultMessageOld = 'Tool executed successfully' // Generic fallback
     }
 
-    // This simulates the FIXED code  
+    // This simulates the FIXED code
     let toolResultMessageFixed = ''
-    if (mockToolCall.function.name === 'list_projects') { // FIXED: correct tool name
+    if (mockToolCall.function.name === 'list_projects') {
+      // FIXED: correct tool name
       toolResultMessageFixed = 'Available projects: Test Project (ID: test-1)'
     } else {
       toolResultMessageFixed = 'Tool executed successfully'

@@ -12,7 +12,7 @@ describe('LLM Tools Integration', () => {
   describe('listProjects', () => {
     it('should return success with empty projects list when no projects exist', () => {
       const result = listProjects(store)
-      
+
       expect(result).toEqual({
         success: true,
         projects: [],
@@ -35,7 +35,7 @@ describe('LLM Tools Integration', () => {
       store.query = () => [mockProject]
 
       const result = listProjects(store)
-      
+
       expect(result.success).toBe(true)
       expect(result.projects).toHaveLength(1)
       expect(result.projects?.[0]).toEqual({
@@ -53,7 +53,7 @@ describe('LLM Tools Integration', () => {
       }
 
       const result = listProjects(store)
-      
+
       expect(result.success).toBe(false)
       expect(result.error).toBe('Database connection failed')
       expect(result.projects).toBeUndefined()
@@ -71,7 +71,7 @@ describe('LLM Tools Integration', () => {
           createdAt: new Date('2023-01-01'),
         },
         {
-          id: 'project-2', 
+          id: 'project-2',
           name: 'Project 2',
           description: null,
           createdAt: new Date('2023-01-02'),
@@ -103,7 +103,7 @@ describe('LLM Tools Integration', () => {
     it('should demonstrate the list_boards vs list_projects naming issue', () => {
       // This test demonstrates the bug where ChatInterface.tsx checks for 'list_boards'
       // but the actual tool is named 'list_projects'
-      
+
       const toolCallMock = {
         function: {
           name: 'list_projects', // This is the actual tool name
@@ -115,10 +115,10 @@ describe('LLM Tools Integration', () => {
       // } else if (toolCall.function.name === 'list_boards') {
       // Should be:
       // } else if (toolCall.function.name === 'list_projects') {
-      
+
       // This test verifies that the tool name is indeed 'list_projects'
       expect(toolCallMock.function.name).toBe('list_projects')
-      
+
       // And that the function exists and works
       const result = listProjects(store)
       expect(result.success).toBe(true)

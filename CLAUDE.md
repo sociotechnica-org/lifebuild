@@ -193,6 +193,17 @@ CMD ["pnpm", "llm:service"]
 - Each PR should be small, focused, and demoable
 - Always run tests before creating a PR
 
+### Development Workflow
+
+- **ALWAYS run `pnpm lint:fix` and `pnpm typecheck` before committing** - This prevents CI failures and maintains code quality
+- **E2E tests must provide real value** - Only add E2E tests that test vital user flows through the app. Don't add tests that only verify routing or basic component rendering. E2E tests are slow and costly to maintain.
+- **Test-Driven Development for bug fixes** - When fixing bugs, follow this process:
+  1. Add a minimal failing test that demonstrates the bug
+  2. Run the test to verify it fails 
+  3. Fix the bug
+  4. Run the test again to verify it passes
+  5. This ensures the bug is properly isolated and the fix is verified
+
 ### PR Monitoring
 
 Whenever you push up a commit to a PR or open a new PR, watch the PR until all the checks are finished using `gh pr checks --watch`. The watch interface will update automatically every 10 seconds. No need to refresh or exit or whatever. This might take up to 10 minutes; just wait!

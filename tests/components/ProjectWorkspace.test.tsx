@@ -8,7 +8,10 @@ import { createMockProject, createMockColumn, createMockTask } from '../../src/t
 const { mockUseQuery, mockStore, mockUseParams } = vi.hoisted(() => {
   const mockUseQuery = vi.fn()
   const mockStore = { commit: vi.fn() }
-  const mockUseParams = vi.fn(() => ({ projectId: 'test-project' as string | undefined, boardId: undefined as string | undefined }))
+  const mockUseParams = vi.fn(() => ({
+    projectId: 'test-project' as string | undefined,
+    boardId: undefined as string | undefined,
+  }))
   return { mockUseQuery, mockStore, mockUseParams }
 })
 
