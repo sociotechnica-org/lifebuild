@@ -125,7 +125,8 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
           <h3 className='text-lg font-semibold leading-6 text-gray-900'>Create New Project</h3>
           <button
             onClick={handleClose}
-            className='text-gray-400 hover:text-gray-500 focus:outline-none'
+            className='text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100'
+            aria-label='Close modal'
           >
             <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path
@@ -197,14 +198,14 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
               <button
                 type='button'
                 onClick={handleClose}
-                className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                className='px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors'
               >
                 Cancel
               </button>
               <button
                 type='submit'
                 disabled={isSubmitting}
-                className='px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
+                className='px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors'
               >
                 {isSubmitting ? 'Creating...' : 'Create Project'}
               </button>
