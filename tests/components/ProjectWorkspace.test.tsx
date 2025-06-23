@@ -8,7 +8,7 @@ import { createMockProject, createMockColumn, createMockTask } from '../../src/t
 const { mockUseQuery, mockStore, mockUseParams } = vi.hoisted(() => {
   const mockUseQuery = vi.fn()
   const mockStore = { commit: vi.fn() }
-  const mockUseParams = vi.fn(() => ({ projectId: 'test-project' }))
+  const mockUseParams = vi.fn(() => ({ projectId: 'test-project' as string | undefined, boardId: undefined as string | undefined }))
   return { mockUseQuery, mockStore, mockUseParams }
 })
 
@@ -62,7 +62,7 @@ describe('ProjectWorkspace', () => {
   const mockTasks = [createMockTask({ id: 'task-1', columnId: 'col-1', title: 'Test Task' })]
 
   beforeEach(() => {
-    mockUseParams.mockReturnValue({ projectId: 'test-project' })
+    mockUseParams.mockReturnValue({ projectId: 'test-project', boardId: undefined })
 
     // Reset all queries to return proper data
     mockUseQuery.mockReset()
@@ -121,14 +121,14 @@ describe('ProjectWorkspace', () => {
   })
 
   it('should handle missing projectId', () => {
-    mockUseParams.mockReturnValue({ projectId: undefined })
+    mockUseParams.mockReturnValue({ projectId: undefined, boardId: undefined })
 
     render(<ProjectWorkspace />)
     expect(screen.getByText('Project not found')).toBeInTheDocument()
   })
 
   it('should support old board URLs with boardId param', () => {
-    mockUseParams.mockReturnValue({ boardId: 'test-project' })
+    mockUseParams.mockReturnValue({ projectId: undefined, boardId: 'test-project' })
 
     render(<ProjectWorkspace />)
     expect(screen.getByRole('heading', { name: 'Test Project' })).toBeInTheDocument()
