@@ -154,7 +154,8 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
             type: 'function',
             function: {
               name: 'list_projects',
-              description: 'Get a list of all available projects with their IDs, names, and descriptions',
+              description:
+                'Get a list of all available projects with their IDs, names, and descriptions',
               parameters: {
                 type: 'object',
                 properties: {},
