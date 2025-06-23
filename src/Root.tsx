@@ -21,7 +21,7 @@ const AppBody: React.FC = () => (
         <Route path='/projects' element={<ProjectsPage />} />
         <Route path='/project/:projectId' element={<KanbanBoard />} />
         <Route path='/boards' element={<Navigate to='/projects' replace />} />
-        <Route path='/board/:boardId' element={<KanbanBoard />} />
+        <Route path='/board/:projectId' element={<KanbanBoard />} />
         <Route path='/chat' element={<MainSection />} />
         <Route path='/' element={<Navigate to='/projects' replace />} />
       </Routes>

@@ -59,8 +59,8 @@ test.describe('Smoke Tests', () => {
     }
 
     // Basic functionality should be available (this tests that LiveStore has loaded)
-    // Try to access the boards page which requires LiveStore data
-    await page.goto('/boards')
+    // Try to access the projects page which requires LiveStore data
+    await page.goto('/projects')
     await waitForLiveStoreReady(page)
 
     // Should not show any error messages (unless it's expected LiveStore sync errors in CI)
@@ -101,9 +101,10 @@ test.describe('Smoke Tests', () => {
     await page.goto('/chat')
     await expect(page).toHaveURL(/\/chat/)
 
-    // Navigate to boards route
+    // Navigate to projects route (via redirect from boards)
     await page.goto('/boards')
-    await expect(page).toHaveURL(/\/boards/)
+    await waitForLiveStoreReady(page) // Wait for redirect to complete
+    await expect(page).toHaveURL(/\/projects/)
 
     // Basic navigation is working
     console.log('Basic app routing verified')

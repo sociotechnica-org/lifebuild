@@ -17,10 +17,10 @@ Based on the production plan, Phase 1.1 transforms the existing Kanban system in
 - [x] Events: Rename `board.*` events to `project.*` events
 - [x] Schema: Rename `boards` table to `projects` and add `description` field
 - [x] Query: Update `getBoards` to `getProjects` with description support
-- [ ] UI: Update `BoardsPage` to `ProjectsPage` with project cards showing descriptions
-- [ ] Routing: Update `/boards` to `/projects`
+- [x] UI: Update `BoardsPage` to `ProjectsPage` with project cards showing descriptions
+- [x] Routing: Update `/boards` to `/projects`
 - [x] Tests: Update existing board tests to work with project terminology
-- [ ] DoD: Visiting `/projects` shows existing projects with names and descriptions
+- [x] DoD: Visiting `/projects` shows existing projects with names and descriptions
 
 ### Implementation Notes
 
