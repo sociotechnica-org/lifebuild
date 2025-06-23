@@ -395,13 +395,10 @@ const ProjectWorkspaceContent: React.FC = () => {
 
 // Main component that provides project context
 export function ProjectWorkspace() {
-  const { boardId, projectId } = useParams<{ boardId?: string; projectId?: string }>()
-
-  // Support both old board URLs and new project URLs
-  const entityId = projectId || boardId
+  const { projectId } = useParams<{ projectId: string }>()
 
   return (
-    <ProjectProvider projectId={entityId || null}>
+    <ProjectProvider projectId={projectId || null}>
       <ProjectWorkspaceContent />
     </ProjectProvider>
   )

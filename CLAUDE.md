@@ -199,7 +199,7 @@ CMD ["pnpm", "llm:service"]
 - **E2E tests must provide real value** - Only add E2E tests that test vital user flows through the app. Don't add tests that only verify routing or basic component rendering. E2E tests are slow and costly to maintain.
 - **Test-Driven Development for bug fixes** - When fixing bugs, follow this process:
   1. Add a minimal failing test that demonstrates the bug
-  2. Run the test to verify it fails 
+  2. Run the test to verify it fails
   3. Fix the bug
   4. Run the test again to verify it passes
   5. This ensures the bug is properly isolated and the fix is verified
