@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { KanbanBoard } from '../../src/components/KanbanBoard.js'
+import { ProjectWorkspace } from '../../src/components/ProjectWorkspace.js'
 import {
   createMockProject,
   createMockColumn,
@@ -57,7 +57,7 @@ vi.mock('@dnd-kit/core', () => ({
   })),
 }))
 
-describe('KanbanBoard', () => {
+describe('ProjectWorkspace', () => {
   const mockBoard = createMockProject({ name: 'Test Board' })
 
   const mockColumns = [createMockColumn({ id: 'col-1', name: 'Todo' })]
@@ -83,17 +83,17 @@ describe('KanbanBoard', () => {
   })
 
   it('should render DndContext wrapper', () => {
-    render(<KanbanBoard />)
+    render(<ProjectWorkspace />)
     expect(screen.getByTestId('dnd-context')).toBeInTheDocument()
   })
 
   it('should render DragOverlay', () => {
-    render(<KanbanBoard />)
+    render(<ProjectWorkspace />)
     expect(screen.getByTestId('drag-overlay')).toBeInTheDocument()
   })
 
   it('should render columns and tasks', () => {
-    render(<KanbanBoard />)
+    render(<ProjectWorkspace />)
     expect(screen.getByText('Todo')).toBeInTheDocument()
     expect(screen.getByText('Test Task')).toBeInTheDocument()
   })
@@ -101,7 +101,7 @@ describe('KanbanBoard', () => {
   it('should handle missing boardId', () => {
     mockUseParams.mockReturnValue({ boardId: undefined as any })
 
-    render(<KanbanBoard />)
+    render(<ProjectWorkspace />)
     expect(screen.getByText('Project not found')).toBeInTheDocument()
   })
 
@@ -122,7 +122,7 @@ describe('KanbanBoard', () => {
       return []
     })
 
-    render(<KanbanBoard />)
+    render(<ProjectWorkspace />)
 
     expect(screen.getByText('Task 1')).toBeInTheDocument()
     expect(screen.getByText('Task 2')).toBeInTheDocument()

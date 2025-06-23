@@ -3,12 +3,18 @@ import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedwo
 import { LiveStoreProvider } from '@livestore/react'
 import React from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
 
 import { ProjectsPage } from './components/ProjectsPage.js'
-import { KanbanBoard } from './components/KanbanBoard.js'
+import { ProjectWorkspace } from './components/ProjectWorkspace.js'
 import { Layout } from './components/Layout.js'
 import { MainSection } from './components/MainSection.js'
+
+// Redirect component for old board URLs
+const BoardRedirect: React.FC = () => {
+  const { boardId } = useParams<{ boardId: string }>()
+  return <Navigate to={`/project/${boardId}`} replace />
+}
 import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from './livestore/schema.js'
 import { makeTracer } from './otel.js'
@@ -19,9 +25,9 @@ const AppBody: React.FC = () => (
     <Layout>
       <Routes>
         <Route path='/projects' element={<ProjectsPage />} />
-        <Route path='/project/:projectId' element={<KanbanBoard />} />
+        <Route path='/project/:projectId' element={<ProjectWorkspace />} />
         <Route path='/boards' element={<Navigate to='/projects' replace />} />
-        <Route path='/board/:projectId' element={<KanbanBoard />} />
+        <Route path='/board/:boardId' element={<BoardRedirect />} />
         <Route path='/chat' element={<MainSection />} />
         <Route path='/' element={<Navigate to='/projects' replace />} />
       </Routes>

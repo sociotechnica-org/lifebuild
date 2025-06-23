@@ -11,15 +11,17 @@ import {
 } from '@dnd-kit/core'
 import { useQuery, useStore } from '@livestore/react'
 import { useParams, Link } from 'react-router-dom'
-import { getBoardColumns$, getBoardTasks$, getBoardById$ } from '../livestore/queries.js'
-import type { Column, Task, Board } from '../livestore/schema.js'
+import { getProjectColumns$, getProjectTasks$ } from '../livestore/queries.js'
+import type { Column, Task } from '../livestore/schema.js'
 import { events } from '../livestore/schema.js'
+import { ProjectProvider, useProject } from '../contexts/ProjectContext.js'
 import { KanbanColumn } from './KanbanColumn.js'
 import { TaskCard } from './TaskCard.js'
 import { TaskModal } from './TaskModal.js'
 
-export function KanbanBoard() {
-  const { boardId, projectId } = useParams<{ boardId?: string; projectId?: string }>()
+// Component for the actual workspace content
+const ProjectWorkspaceContent: React.FC = () => {
+  const { project, projectId } = useProject()
   const { store } = useStore()
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [insertionPreview, setInsertionPreview] = useState<{
@@ -28,18 +30,14 @@ export function KanbanBoard() {
   } | null>(null)
   const [dragOverAddCard, setDragOverAddCard] = useState<string | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'tasks' | 'documents'>('tasks')
 
-  // Support both old board URLs and new project URLs
-  const entityId = projectId || boardId
-
-  if (!entityId) {
+  if (!projectId) {
     return <div>Project not found</div>
   }
 
-  const boardResult = useQuery(getBoardById$(entityId))
-  const board = boardResult?.[0] as Board | undefined
-  const columns = useQuery(getBoardColumns$(entityId)) ?? []
-  const tasks = useQuery(getBoardTasks$(entityId)) ?? []
+  const columns = useQuery(getProjectColumns$(projectId)) ?? []
+  const tasks = useQuery(getProjectTasks$(projectId)) ?? []
 
   // Group tasks by column
   const tasksByColumn = (tasks || []).reduce((acc: Record<string, Task[]>, task: Task) => {
@@ -75,20 +73,6 @@ export function KanbanBoard() {
   const handleModalClose = () => {
     setSelectedTaskId(null)
   }
-
-  // Recalculate positions in a column (not used yet, but will be needed for future optimizations)
-  // const recalculatePositions = (
-  //   columnTasks: Task[],
-  //   insertIndex: number,
-  //   excludeTaskId?: string
-  // ) => {
-  //   return columnTasks
-  //     .filter(task => task.id !== excludeTaskId)
-  //     .map((task, index) => ({
-  //       ...task,
-  //       position: index >= insertIndex ? index + 1 : index,
-  //     }))
-  // }
 
   const handleDragStart = (event: DragStartEvent) => {
     const taskId = event.active.id as string
@@ -284,23 +268,110 @@ export function KanbanBoard() {
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
-    >
-      <div className='h-full bg-white'>
-        {/* Board Header */}
-        <div className='border-b border-gray-200 bg-white px-6 py-4'>
-          <div className='flex items-center gap-4'>
-            <Link
-              to='/projects'
-              className='flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'
-              aria-label='Back to projects'
+    <div className='h-full bg-white flex flex-col'>
+      {/* Project Header with Breadcrumb */}
+      <div className='border-b border-gray-200 bg-white px-6 py-4'>
+        <div className='flex items-center gap-4 mb-3'>
+          <Link
+            to='/projects'
+            className='flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'
+            aria-label='Back to projects'
+          >
+            <svg
+              className='w-4 h-4 text-gray-600'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
             >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M15 19l-7-7 7-7'
+              />
+            </svg>
+          </Link>
+
+          {/* Breadcrumb */}
+          <nav className='flex items-center text-sm text-gray-500'>
+            <Link to='/projects' className='hover:text-gray-700 transition-colors'>
+              Projects
+            </Link>
+            <svg className='w-4 h-4 mx-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
+            </svg>
+            <span className='text-gray-900 font-medium'>{project?.name || 'Loading...'}</span>
+          </nav>
+        </div>
+
+        {/* Project Title and Description */}
+        <div className='mb-4'>
+          <h1 className='text-xl font-semibold text-gray-900 mb-1'>
+            {project?.name || 'Loading...'}
+          </h1>
+          {project?.description && <p className='text-gray-600 text-sm'>{project.description}</p>}
+        </div>
+
+        {/* Tab Navigation */}
+        <div className='flex border-b border-gray-200 -mb-px'>
+          <button
+            onClick={() => setActiveTab('tasks')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'tasks'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Tasks
+          </button>
+          <button
+            onClick={() => setActiveTab('documents')}
+            disabled
+            className='px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-400 cursor-not-allowed'
+            title='Documents tab coming in Phase 1.2'
+          >
+            Documents
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className='flex-1 overflow-hidden'>
+        {activeTab === 'tasks' && (
+          <DndContext
+            sensors={sensors}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+          >
+            <div className='flex h-full overflow-x-auto p-6 gap-6 pb-6'>
+              {(columns || []).map((column: Column) => (
+                <KanbanColumn
+                  key={column.id}
+                  column={column}
+                  tasks={tasksByColumn[column.id] || []}
+                  insertionPreview={
+                    insertionPreview?.columnId === column.id ? insertionPreview.position : null
+                  }
+                  draggedTaskHeight={activeTask ? 76 : 0} // Approximate task card height
+                  draggedTaskId={activeTask?.id || null}
+                  showAddCardPreview={dragOverAddCard === column.id}
+                  onTaskClick={handleTaskClick}
+                />
+              ))}
+            </div>
+            <DragOverlay>
+              {activeTask ? <TaskCard task={activeTask} isDragOverlay /> : null}
+            </DragOverlay>
+            <TaskModal taskId={selectedTaskId} onClose={handleModalClose} />
+          </DndContext>
+        )}
+
+        {activeTab === 'documents' && (
+          <div className='flex items-center justify-center h-full text-gray-500'>
+            <div className='text-center'>
               <svg
-                className='w-4 h-4 text-gray-600'
+                className='w-12 h-12 mx-auto mb-4 text-gray-300'
                 fill='none'
                 stroke='currentColor'
                 viewBox='0 0 24 24'
@@ -308,38 +379,30 @@ export function KanbanBoard() {
                 <path
                   strokeLinecap='round'
                   strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M15 19l-7-7 7-7'
+                  strokeWidth={1.5}
+                  d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
                 />
               </svg>
-            </Link>
-            <h1 className='text-xl font-semibold text-gray-900'>{board?.name || 'Loading...'}</h1>
+              <p className='text-lg font-medium mb-1'>Documents Coming Soon</p>
+              <p className='text-sm'>Document management will be available in Phase 1.2</p>
+            </div>
           </div>
-        </div>
-
-        {/* Board Content */}
-        <div
-          className='flex h-full overflow-x-auto p-6 gap-6 pb-6'
-          style={{ height: 'calc(100% - 73px)' }}
-        >
-          {(columns || []).map((column: Column) => (
-            <KanbanColumn
-              key={column.id}
-              column={column}
-              tasks={tasksByColumn[column.id] || []}
-              insertionPreview={
-                insertionPreview?.columnId === column.id ? insertionPreview.position : null
-              }
-              draggedTaskHeight={activeTask ? 76 : 0} // Approximate task card height
-              draggedTaskId={activeTask?.id || null}
-              showAddCardPreview={dragOverAddCard === column.id}
-              onTaskClick={handleTaskClick}
-            />
-          ))}
-        </div>
+        )}
       </div>
-      <DragOverlay>{activeTask ? <TaskCard task={activeTask} isDragOverlay /> : null}</DragOverlay>
-      <TaskModal taskId={selectedTaskId} onClose={handleModalClose} />
-    </DndContext>
+    </div>
+  )
+}
+
+// Main component that provides project context
+export function ProjectWorkspace() {
+  const { boardId, projectId } = useParams<{ boardId?: string; projectId?: string }>()
+
+  // Support both old board URLs and new project URLs
+  const entityId = projectId || boardId
+
+  return (
+    <ProjectProvider projectId={entityId || null}>
+      <ProjectWorkspaceContent />
+    </ProjectProvider>
   )
 }
