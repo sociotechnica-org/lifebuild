@@ -117,9 +117,13 @@ async function runAgenticLoop(
               )
             } else if (toolCall.function.name === 'list_projects') {
               const projectList =
-                toolResult.projects?.map((p: any) => `${p.name} (ID: ${p.id})`).join(', ') ||
-                'No projects found'
-              toolResultMessage = `Available projects: ${projectList}`
+                toolResult.projects
+                  ?.map(
+                    (p: any) =>
+                      `${p.name} (ID: ${p.id})${p.description ? ` - ${p.description}` : ''}`
+                  )
+                  .join('\n• ') || 'No projects found'
+              toolResultMessage = `Available projects:\n• ${projectList}`
             } else {
               toolResultMessage = `Tool executed successfully`
             }

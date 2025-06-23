@@ -12,9 +12,10 @@ function formatToolResult(toolCall: any, toolResult: any): string {
       }. Task ID: ${toolResult.taskId}`
     } else if (toolCall.function.name === 'list_projects') {
       const projectList =
-        toolResult.projects?.map((p: any) => `${p.name} (ID: ${p.id})`).join(', ') ||
-        'No projects found'
-      toolResultMessage = `Available projects: ${projectList}`
+        toolResult.projects
+          ?.map((p: any) => `${p.name} (ID: ${p.id})${p.description ? ` - ${p.description}` : ''}`)
+          .join('\n• ') || 'No projects found'
+      toolResultMessage = `Available projects:\n• ${projectList}`
     } else {
       toolResultMessage = `Tool executed successfully`
     }
@@ -36,8 +37,12 @@ describe('ChatInterface tool result formatting', () => {
   const mockProjectsResult = {
     success: true,
     projects: [
-      { id: 'proj-1', name: 'Website Redesign' },
-      { id: 'proj-2', name: 'Mobile App' },
+      {
+        id: 'proj-1',
+        name: 'Website Redesign',
+        description: 'Redesign company website with modern UI',
+      },
+      { id: 'proj-2', name: 'Mobile App', description: null },
     ],
   }
 
@@ -45,9 +50,10 @@ describe('ChatInterface tool result formatting', () => {
     const result = formatToolResult(mockListProjectsCall, mockProjectsResult)
 
     expect(result).toBe(
-      'Available projects: Website Redesign (ID: proj-1), Mobile App (ID: proj-2)'
+      'Available projects:\n• Website Redesign (ID: proj-1) - Redesign company website with modern UI\n• Mobile App (ID: proj-2)'
     )
     expect(result).toContain('Website Redesign')
+    expect(result).toContain('Redesign company website with modern UI')
     expect(result).toContain('Mobile App')
   })
 
@@ -58,7 +64,7 @@ describe('ChatInterface tool result formatting', () => {
     }
 
     const result = formatToolResult(mockListProjectsCall, emptyResult)
-    expect(result).toBe('Available projects: No projects found')
+    expect(result).toBe('Available projects:\n• No projects found')
   })
 
   it('should handle tool execution errors', () => {
