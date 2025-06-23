@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import React, { ReactElement } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
-import type { Task, Column, Board } from './livestore/schema.js'
+import type { Task, Column, Project } from './livestore/schema.js'
 
 // Simple test wrapper for basic component testing
 interface TestProviderProps {
@@ -32,7 +32,7 @@ const createTestStore = () => {
 // Factory functions for creating test data
 export const createMockTask = (overrides: Partial<Task> = {}): Task => ({
   id: 'test-task',
-  boardId: 'test-board',
+  projectId: 'test-project',
   columnId: 'test-column',
   title: 'Test Task',
   description: null,
@@ -46,7 +46,7 @@ export const createMockTask = (overrides: Partial<Task> = {}): Task => ({
 
 export const createMockColumn = (overrides: Partial<Column> = {}): Column => ({
   id: 'test-column',
-  boardId: 'test-board',
+  projectId: 'test-project',
   name: 'Test Column',
   position: 0,
   createdAt: new Date('2023-01-01'),
@@ -54,9 +54,9 @@ export const createMockColumn = (overrides: Partial<Column> = {}): Column => ({
   ...overrides,
 })
 
-export const createMockBoard = (overrides: Partial<Board> = {}): Board => ({
-  id: 'test-board',
-  name: 'Test Board',
+export const createMockProject = (overrides: Partial<Project> = {}): Project => ({
+  id: 'test-project',
+  name: 'Test Project',
   description: null,
   createdAt: new Date('2023-01-01'),
   updatedAt: new Date('2023-01-01'),

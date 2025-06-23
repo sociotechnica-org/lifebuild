@@ -20,7 +20,7 @@ export const getBoardColumns$ = (boardId: string) =>
   queryDb(
     tables.columns
       .select()
-      .where({ boardId })
+      .where({ projectId: boardId })
       .orderBy([{ col: 'position', direction: 'asc' }]),
     {
       label: `getBoardColumns:${boardId}`,
@@ -34,7 +34,7 @@ export const getBoardColumnsOptional$ = (boardId: string | null) =>
   queryDb(
     tables.columns
       .select()
-      .where(boardId !== null ? { boardId } : { id: null }) // Impossible condition returns no results when boardId is null
+      .where(boardId !== null ? { projectId: boardId } : { projectId: '__impossible__' }) // Impossible condition returns no results when boardId is null
       .orderBy([{ col: 'position', direction: 'asc' }]),
     {
       label: `getBoardColumnsOptional:${boardId || 'null'}`,
@@ -45,7 +45,7 @@ export const getBoardTasks$ = (boardId: string) =>
   queryDb(
     tables.tasks
       .select()
-      .where({ boardId, archivedAt: null })
+      .where({ projectId: boardId, archivedAt: null })
       .orderBy([{ col: 'position', direction: 'asc' }]),
     {
       label: `getBoardTasks:${boardId}`,

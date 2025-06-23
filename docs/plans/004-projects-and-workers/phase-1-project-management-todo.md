@@ -14,20 +14,18 @@ Based on the production plan, Phase 1.1 transforms the existing Kanban system in
 
 ### Tasks
 
-- [ ] Events: Rename `board.*` events to `project.*` events while maintaining backward compatibility
-- [ ] Schema: Rename `boards` table to `projects` and add `description` field
-- [ ] Migration: Create LiveStore migration to rename existing boards to projects
-- [ ] Query: Update `getBoards` to `getProjects` with description support
+- [x] Events: Rename `board.*` events to `project.*` events
+- [x] Schema: Rename `boards` table to `projects` and add `description` field
+- [x] Query: Update `getBoards` to `getProjects` with description support
 - [ ] UI: Update `BoardsPage` to `ProjectsPage` with project cards showing descriptions
-- [ ] Routing: Update `/boards` to `/projects` (with redirect for old URLs)
-- [ ] Tests: Update existing board tests to work with project terminology
+- [ ] Routing: Update `/boards` to `/projects`
+- [x] Tests: Update existing board tests to work with project terminology
 - [ ] DoD: Visiting `/projects` shows existing projects with names and descriptions
 
 ### Implementation Notes
 
-- **Backward Compatibility**: Existing boards become projects seamlessly
 - **Progressive Enhancement**: Description field is optional, existing projects work without it
-- **URL Migration**: Old `/boards` URLs redirect to `/projects` to avoid breaking bookmarks
+- **URL Updates**: Update `/boards` URLs to `/projects`
 
 ---
 
@@ -67,7 +65,7 @@ Based on the production plan, Phase 1.1 transforms the existing Kanban system in
 - [ ] Layout: Create tabbed interface with "Tasks" tab (Documents tab comes in Phase 1.2)
 - [ ] Header: Add project description display in workspace header
 - [ ] Breadcrumb: Add project name breadcrumb navigation
-- [ ] Routing: Update `/board/:id` to `/project/:id` (with redirect)
+- [ ] Routing: Update `/board/:id` to `/project/:id`
 - [ ] Context: Create ProjectContext for sharing project data across workspace tabs
 - [ ] Tests: Workspace layout, tab navigation, project context
 - [ ] DoD: Project workspace shows tasks in Kanban view with room for future document integration
@@ -195,9 +193,9 @@ type TaskEvent =
 
 ### Schema Evolution Strategy
 
-1. **Direct Updates**: Update schema definitions directly (no formal migrations needed)
+1. **Direct Updates**: Update schema definitions directly
 2. **Additive Changes**: Add new fields without breaking existing functionality  
-3. **Semantic Renaming**: Rename concepts in code while maintaining backward compatibility
+3. **Semantic Renaming**: Rename concepts in code
 4. **Progressive Enhancement**: New features work alongside existing Kanban functionality
 
 ### Testing Strategy
@@ -205,7 +203,6 @@ type TaskEvent =
 - **Unit Tests**: Event handling, query results, component rendering
 - **Integration Tests**: Cross-project task moves, project workspace functionality
 - **E2E Tests**: Complete user workflows from project creation to task management
-- **Compatibility Tests**: Ensure existing board functionality continues working
 
 ### Performance Considerations
 
@@ -217,15 +214,13 @@ type TaskEvent =
 
 ## Implementation Guidelines
 
-1. **Backward Compatibility**: Existing Kanban functionality must continue working
-2. **Progressive Enhancement**: Each story adds value without breaking existing features
-3. **Event-Driven**: All changes flow through LiveStore events
-4. **Test Coverage**: Maintain >80% test coverage for all new functionality
-5. **Mobile-First**: Ensure all features work well on mobile devices
+1. **Progressive Enhancement**: Each story adds value without breaking existing features
+2. **Event-Driven**: All changes flow through LiveStore events
+3. **Test Coverage**: Maintain >80% test coverage for all new functionality
+4. **Mobile-First**: Ensure all features work well on mobile devices
 
 ## Success Metrics
 
-- [ ] Existing board functionality works without changes
 - [ ] Projects can be created with descriptions and context
 - [ ] Tasks can exist with or without project assignment
 - [ ] Tasks can be moved between projects

@@ -111,7 +111,7 @@ export function createTask(store: Store, params: TaskCreationParams): TaskCreati
     store.commit(
       events.taskCreated({
         id: taskId,
-        boardId: targetBoard.id,
+        projectId: targetBoard.id,
         columnId: targetColumn.id,
         title: title.trim(),
         description: description?.trim() || undefined,
@@ -157,6 +157,7 @@ export function listBoards(store: Store): { success: boolean; boards?: any[]; er
       boards: boards.map((b: any) => ({
         id: b.id,
         name: b.name,
+        description: b.description,
         createdAt: b.createdAt,
       })),
     }

@@ -75,9 +75,9 @@ export function seedSampleBoards(store: Store) {
     3: ['Deploy to staging environment', 'Fix minor UI bugs', 'Update user guide'],
   }
 
-  // Commit project creation events (using boardCreated event)
+  // Commit project creation events
   sampleProjects.forEach(project => {
-    store.commit(events.boardCreated(project))
+    store.commit(events.projectCreated(project))
 
     // Create columns for this project
     defaultColumns.forEach(column => {
@@ -85,7 +85,7 @@ export function seedSampleBoards(store: Store) {
       store.commit(
         events.columnCreated({
           id: columnId,
-          boardId: project.id,
+          projectId: project.id,
           name: column.name,
           position: column.position,
           createdAt: project.createdAt,
@@ -100,7 +100,7 @@ export function seedSampleBoards(store: Store) {
         store.commit(
           events.taskCreated({
             id: taskId,
-            boardId: project.id,
+            projectId: project.id,
             columnId: columnId,
             title: title,
             description: undefined,

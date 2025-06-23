@@ -49,7 +49,7 @@ const todos = State.SQLite.table({
 })
 
 const boards = State.SQLite.table({
-  name: 'boards', // Keep original table name for backward compatibility
+  name: 'projects',
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
     name: State.SQLite.text({ default: '' }),
@@ -71,7 +71,7 @@ const columns = State.SQLite.table({
   name: 'columns',
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
-    boardId: State.SQLite.text(), // Keep original field name for backward compatibility
+    projectId: State.SQLite.text(),
     name: State.SQLite.text({ default: '' }),
     position: State.SQLite.integer({ default: 0 }),
     createdAt: State.SQLite.integer({
@@ -99,7 +99,7 @@ const tasks = State.SQLite.table({
   name: 'tasks',
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
-    boardId: State.SQLite.text({ nullable: true }), // Made optional for orphaned tasks, keep original field name
+    projectId: State.SQLite.text({ nullable: true }),
     columnId: State.SQLite.text(),
     title: State.SQLite.text({ default: '' }),
     description: State.SQLite.text({ nullable: true }),
@@ -194,17 +194,17 @@ const materializers = State.SQLite.materializers(events, {
     todos.update({ deletedAt }).where({ completed: true }),
   'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) =>
     chatMessages.insert({ id, conversationId, message, role, createdAt }),
-  'v1.BoardCreated': ({ id, name, description, createdAt }) =>
+  'v1.ProjectCreated': ({ id, name, description, createdAt }) =>
     boards.insert({ id, name, description, createdAt, updatedAt: createdAt }),
-  'v1.ColumnCreated': ({ id, boardId, name, position, createdAt }) =>
-    columns.insert({ id, boardId, name, position, createdAt, updatedAt: createdAt }),
+  'v1.ColumnCreated': ({ id, projectId, name, position, createdAt }) =>
+    columns.insert({ id, projectId, name, position, createdAt, updatedAt: createdAt }),
   'v1.ColumnRenamed': ({ id, name, updatedAt }) =>
     columns.update({ name, updatedAt }).where({ id }),
   'v1.ColumnReordered': ({ id, position, updatedAt }) =>
     columns.update({ position, updatedAt }).where({ id }),
   'v1.TaskCreated': ({
     id,
-    boardId,
+    projectId,
     columnId,
     title,
     description,
@@ -214,7 +214,7 @@ const materializers = State.SQLite.materializers(events, {
   }) =>
     tasks.insert({
       id,
-      boardId,
+      projectId,
       columnId,
       title,
       description,

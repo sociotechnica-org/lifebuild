@@ -3,9 +3,9 @@ import { events, tables } from '../../src/livestore/schema.js'
 import { getBoards$ } from '../../src/livestore/queries.js'
 
 describe('Board Events and Materialization', () => {
-  it('should have board creation event function', () => {
-    expect(events.boardCreated).toBeDefined()
-    expect(typeof events.boardCreated).toBe('function')
+  it('should have project creation event function', () => {
+    expect(events.projectCreated).toBeDefined()
+    expect(typeof events.projectCreated).toBe('function')
   })
 
   it('should define boards table', () => {
