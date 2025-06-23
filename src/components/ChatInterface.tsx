@@ -115,11 +115,11 @@ async function runAgenticLoop(
                   },
                 })
               )
-            } else if (toolCall.function.name === 'list_boards') {
-              const boardList =
-                toolResult.boards?.map((b: any) => `${b.name} (ID: ${b.id})`).join(', ') ||
-                'No boards found'
-              toolResultMessage = `Available boards: ${boardList}`
+            } else if (toolCall.function.name === 'list_projects') {
+              const projectList =
+                toolResult.projects?.map((p: any) => `${p.name} (ID: ${p.id})`).join(', ') ||
+                'No projects found'
+              toolResultMessage = `Available projects: ${projectList}`
             } else {
               toolResultMessage = `Tool executed successfully`
             }
