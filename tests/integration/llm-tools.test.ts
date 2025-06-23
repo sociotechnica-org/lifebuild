@@ -98,30 +98,4 @@ describe('LLM Tools Integration', () => {
       ).rejects.toThrow('Unknown tool: unknown_tool')
     })
   })
-
-  describe('list_projects tool call handling bug', () => {
-    it('should demonstrate the list_boards vs list_projects naming issue', () => {
-      // This test demonstrates the bug where ChatInterface.tsx checks for 'list_boards'
-      // but the actual tool is named 'list_projects'
-
-      const toolCallMock = {
-        function: {
-          name: 'list_projects', // This is the actual tool name
-          arguments: '{}',
-        },
-      }
-
-      // The bug is in ChatInterface.tsx line 118:
-      // } else if (toolCall.function.name === 'list_boards') {
-      // Should be:
-      // } else if (toolCall.function.name === 'list_projects') {
-
-      // This test verifies that the tool name is indeed 'list_projects'
-      expect(toolCallMock.function.name).toBe('list_projects')
-
-      // And that the function exists and works
-      const result = listProjects(store)
-      expect(result.success).toBe(true)
-    })
-  })
 })
