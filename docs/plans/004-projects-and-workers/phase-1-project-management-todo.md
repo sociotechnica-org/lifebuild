@@ -37,13 +37,13 @@ Based on the production plan, Phase 1.1 transforms the existing Kanban system in
 
 ### Tasks
 
-- [ ] Event: `project.created` with `{ id, name, description?, createdAt }`
-- [ ] UI: Update create project modal to include description field
-- [ ] Form: Add description textarea with character limit (500 chars)
-- [ ] Validation: Name required, description optional
-- [ ] Display: Show description in project cards and project header
-- [ ] Tests: Form validation, event emission, description display
-- [ ] DoD: New projects can be created with descriptions that appear in project lists and headers
+- [x] Event: `project.created` with `{ id, name, description?, createdAt }`
+- [x] UI: Update create project modal to include description field
+- [x] Form: Add description textarea with character limit (500 chars)
+- [x] Validation: Name required, description optional
+- [x] Display: Show description in project cards and project header
+- [x] Tests: Form validation, event emission, description display
+- [x] DoD: New projects can be created with descriptions that appear in project lists and headers
 
 ### Implementation Notes
 
