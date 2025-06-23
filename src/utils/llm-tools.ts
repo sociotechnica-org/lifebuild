@@ -1,6 +1,6 @@
 import type { Store } from '@livestore/livestore'
 import { events } from '../livestore/schema.js'
-import { getBoards$, getBoardColumns$, getBoardTasks$, getUsers$ } from '../livestore/queries.js'
+import { getProjects$, getBoardColumns$, getBoardTasks$, getUsers$ } from '../livestore/queries.js'
 
 export interface TaskCreationParams {
   title: string
@@ -15,7 +15,7 @@ export interface TaskCreationResult {
   taskId?: string
   error?: string
   taskTitle?: string
-  boardName?: string
+  projectName?: string
   columnName?: string
   assigneeName?: string
 }
@@ -39,27 +39,27 @@ export function createTask(store: Store, params: TaskCreationParams): TaskCreati
       return { success: false, error: 'Task title is required' }
     }
 
-    // Get all boards to determine target board
-    const boards = store.query(getBoards$)
-    if (boards.length === 0) {
-      return { success: false, error: 'No boards available. Please create a board first.' }
+    // Get all projects to determine target project
+    const projects = store.query(getProjects$)
+    if (projects.length === 0) {
+      return { success: false, error: 'No projects available. Please create a project first.' }
     }
 
-    // Use provided boardId or default to first board
-    const targetBoard = boardId ? boards.find((b: any) => b.id === boardId) : boards[0]
-    if (!targetBoard) {
+    // Use provided boardId or default to first project
+    const targetProject = boardId ? projects.find((p: any) => p.id === boardId) : projects[0]
+    if (!targetProject) {
       return {
         success: false,
-        error: boardId ? `Board with ID ${boardId} not found` : 'No boards available',
+        error: boardId ? `Project with ID ${boardId} not found` : 'No projects available',
       }
     }
 
     // Get columns for the target board
-    const columns = store.query(getBoardColumns$(targetBoard.id))
+    const columns = store.query(getBoardColumns$(targetProject.id))
     if (columns.length === 0) {
       return {
         success: false,
-        error: `Board "${targetBoard.name}" has no columns. Please add columns first.`,
+        error: `Board "${targetProject.name}" has no columns. Please add columns first.`,
       }
     }
 
@@ -84,7 +84,7 @@ export function createTask(store: Store, params: TaskCreationParams): TaskCreati
     }
 
     // Get existing tasks in the column to calculate position
-    const existingTasks = store.query(getBoardTasks$(targetBoard.id))
+    const existingTasks = store.query(getBoardTasks$(targetProject.id))
     const tasksInColumn = existingTasks.filter((t: any) => t.columnId === targetColumn.id)
 
     // Calculate next position, ensuring we handle non-numeric positions safely
@@ -99,8 +99,8 @@ export function createTask(store: Store, params: TaskCreationParams): TaskCreati
 
     console.log('🔧 Creating task with data:', {
       id: taskId,
-      boardId: targetBoard.id,
-      boardName: targetBoard.name,
+      boardId: targetProject.id,
+      projectName: targetProject.name,
       columnId: targetColumn.id,
       columnName: targetColumn.name,
       title: title.trim(),
@@ -111,7 +111,7 @@ export function createTask(store: Store, params: TaskCreationParams): TaskCreati
     store.commit(
       events.taskCreated({
         id: taskId,
-        boardId: targetBoard.id,
+        projectId: targetProject.id,
         columnId: targetColumn.id,
         title: title.trim(),
         description: description?.trim() || undefined,
@@ -127,7 +127,7 @@ export function createTask(store: Store, params: TaskCreationParams): TaskCreati
       success: true,
       taskId,
       taskTitle: title.trim(),
-      boardName: targetBoard.name,
+      projectName: targetProject.name,
       columnName: targetColumn.name,
       assigneeName,
     }
@@ -147,21 +147,22 @@ export function createTask(store: Store, params: TaskCreationParams): TaskCreati
  * Execute an LLM tool call
  */
 /**
- * List all available boards
+ * List all available projects
  */
-export function listBoards(store: Store): { success: boolean; boards?: any[]; error?: string } {
+export function listProjects(store: Store): { success: boolean; projects?: any[]; error?: string } {
   try {
-    const boards = store.query(getBoards$)
+    const projects = store.query(getProjects$) as any[]
     return {
       success: true,
-      boards: boards.map((b: any) => ({
-        id: b.id,
-        name: b.name,
-        createdAt: b.createdAt,
+      projects: projects.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        createdAt: p.createdAt,
       })),
     }
   } catch (error) {
-    console.error('Error listing boards:', error)
+    console.error('Error listing projects:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -177,8 +178,8 @@ export async function executeLLMTool(
     case 'create_task':
       return createTask(store, toolCall.parameters)
 
-    case 'list_boards':
-      return listBoards(store)
+    case 'list_projects':
+      return listProjects(store)
 
     default:
       throw new Error(`Unknown tool: ${toolCall.name}`)

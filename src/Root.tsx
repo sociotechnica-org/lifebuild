@@ -5,7 +5,7 @@ import React from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
-import { BoardsPage } from './components/BoardsPage.js'
+import { ProjectsPage } from './components/ProjectsPage.js'
 import { KanbanBoard } from './components/KanbanBoard.js'
 import { Layout } from './components/Layout.js'
 import { MainSection } from './components/MainSection.js'
@@ -18,10 +18,12 @@ const AppBody: React.FC = () => (
   <BrowserRouter>
     <Layout>
       <Routes>
-        <Route path='/boards' element={<BoardsPage />} />
-        <Route path='/board/:boardId' element={<KanbanBoard />} />
+        <Route path='/projects' element={<ProjectsPage />} />
+        <Route path='/project/:projectId' element={<KanbanBoard />} />
+        <Route path='/boards' element={<Navigate to='/projects' replace />} />
+        <Route path='/board/:projectId' element={<KanbanBoard />} />
         <Route path='/chat' element={<MainSection />} />
-        <Route path='/' element={<Navigate to='/boards' replace />} />
+        <Route path='/' element={<Navigate to='/projects' replace />} />
       </Routes>
     </Layout>
   </BrowserRouter>
