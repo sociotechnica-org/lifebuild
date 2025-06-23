@@ -133,12 +133,15 @@ Based on the production plan, Phase 1.1 transforms the existing Kanban system in
 ## ⏳ Deferred to Phase 2
 
 ### Story 6 – Global task search across all projects
+
 **Reason**: Complex feature that requires search infrastructure. Better suited for Phase 2 when we have more projects and tasks to search.
 
-### Story 7 – Project dashboard with task statistics  
+### Story 7 – Project dashboard with task statistics
+
 **Reason**: Nice-to-have feature that can wait until core project management is solid.
 
 ### Story 8 – Archive completed projects
+
 **Reason**: Archival is important but not needed for initial project management functionality.
 
 ---
@@ -188,13 +191,13 @@ type TaskEvent =
   | { type: 'task.created'; id: string; projectId?: string; title: string; description?: string }
   | { type: 'task.moved'; id: string; projectId?: string; column: string; position: number }
   | { type: 'task.updated'; id: string; updates: Partial<Task> }
-  | { type:'task.archived'; id: string; archivedAt: number }
+  | { type: 'task.archived'; id: string; archivedAt: number }
 ```
 
 ### Schema Evolution Strategy
 
 1. **Direct Updates**: Update schema definitions directly
-2. **Additive Changes**: Add new fields without breaking existing functionality  
+2. **Additive Changes**: Add new fields without breaking existing functionality
 3. **Semantic Renaming**: Rename concepts in code
 4. **Progressive Enhancement**: New features work alongside existing Kanban functionality
 

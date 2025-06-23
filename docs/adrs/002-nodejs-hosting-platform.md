@@ -11,12 +11,14 @@ Proposed
 ## Context
 
 Work Squared requires a Node.js backend service to run persistent AI workers that can:
+
 - Execute long-running tasks beyond Cloudflare's 30-second limit
 - Maintain persistent connections to LiveStore via WebSocket
 - Process background jobs for hours if needed
 - Store and query large document collections
 
 We need to choose a hosting platform that supports:
+
 - Node.js applications with persistent processes
 - WebSocket connections
 - Scheduled jobs (cron)
@@ -24,6 +26,7 @@ We need to choose a hosting platform that supports:
 - Reasonable pricing for a startup
 
 Options evaluated:
+
 1. **Cloudflare Workers + D1**: Stay within CF ecosystem but work around limitations
 2. **Render.com**: Purpose-built for Node.js apps with integrated features
 3. **Railway**: Similar to Render with good developer experience
@@ -34,6 +37,7 @@ Options evaluated:
 We will host the Node.js worker service on Render.com while keeping the WebSocket sync server on Cloudflare Workers.
 
 Architecture:
+
 ```
 ┌─────────────┐     ┌──────────────┐     ┌─────────────┐
 │   Frontend  │────▶│  CF Worker   │◀────│  Node.js    │
@@ -80,10 +84,10 @@ services:
     repo: https://github.com/your-org/worksquared
     branch: main
     rootDir: services/worker
-    
+
     buildCommand: pnpm install && pnpm build
     startCommand: pnpm start
-    
+
     envVars:
       - key: NODE_ENV
         value: production
@@ -91,14 +95,14 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
-        
+
     disk:
       name: worker-data
       mountPath: /data
       sizeGB: 10
-      
+
     healthCheckPath: /health
-    
+
     # Scaling
     scaling:
       minInstances: 1
@@ -110,7 +114,7 @@ crons:
   - type: worker
     name: backup-job
     runtime: node
-    schedule: "0 */6 * * *"  # Every 6 hours
+    schedule: '0 */6 * * *' # Every 6 hours
     buildCommand: pnpm install
     startCommand: pnpm backup:create
 ```

@@ -202,6 +202,7 @@ Whenever you push up a commit to a PR or open a new PR, watch the PR until all t
 ### PR Completion
 
 When a PR is completed (merged), if the PR was related to a specific GitHub issue:
+
 - Update the GitHub issue description with implementation details or resolution notes
 - Close the issue if the PR fully addresses it, or leave it open if more work is needed
 

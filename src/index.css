@@ -1,10 +1,11 @@
-@import "tailwindcss";
-@import "highlight.js/styles/github.css";
+@import 'tailwindcss';
+@import 'highlight.js/styles/github.css';
 
 /* Markdown Chat Styles - Inspired by ChatGPT/Claude */
 .markdown-content {
   /* Typography */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.6;
   color: #374151;
 }
@@ -105,7 +106,8 @@
   color: #e11d48;
   padding: 0.125em 0.25em;
   border-radius: 0.25em;
-  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+  font-family:
+    'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   font-size: 0.875em;
 }
 
@@ -116,7 +118,8 @@
   padding: 1em;
   margin: 1em 0;
   overflow-x: auto;
-  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+  font-family:
+    'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   font-size: 0.875em;
   line-height: 1.4;
 }
