@@ -53,10 +53,10 @@ vi.mock('@dnd-kit/core', () => ({
 }))
 
 describe('ProjectWorkspace', () => {
-  const mockProject = createMockProject({ 
+  const mockProject = createMockProject({
     id: 'test-project',
-    name: 'Test Project', 
-    description: 'Test project description' 
+    name: 'Test Project',
+    description: 'Test project description',
   })
   const mockColumns = [createMockColumn({ id: 'col-1', name: 'Todo' })]
   const mockTasks = [createMockTask({ id: 'task-1', columnId: 'col-1', title: 'Test Task' })]
@@ -66,7 +66,7 @@ describe('ProjectWorkspace', () => {
 
     // Reset all queries to return proper data
     mockUseQuery.mockReset()
-    
+
     // Create a mock implementation based on call order since we can't easily inspect the query
     let callCount = 0
     mockUseQuery.mockImplementation(() => {
@@ -84,7 +84,7 @@ describe('ProjectWorkspace', () => {
 
   it('should render project workspace with header and breadcrumb', () => {
     render(<ProjectWorkspace />)
-    
+
     expect(screen.getByText('Projects')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Test Project' })).toBeInTheDocument()
     expect(screen.getByText('Test project description')).toBeInTheDocument()
@@ -92,21 +92,21 @@ describe('ProjectWorkspace', () => {
 
   it('should render tabbed interface with Tasks tab active', () => {
     render(<ProjectWorkspace />)
-    
+
     const tasksTab = screen.getByRole('button', { name: 'Tasks' })
     const documentsTab = screen.getByRole('button', { name: 'Documents' })
-    
+
     expect(tasksTab).toBeInTheDocument()
     expect(documentsTab).toBeInTheDocument()
     expect(documentsTab).toBeDisabled()
-    
+
     // Tasks tab should be active by default
     expect(tasksTab).toHaveClass('border-blue-500', 'text-blue-600')
   })
 
   it('should render kanban board in tasks tab', () => {
     render(<ProjectWorkspace />)
-    
+
     expect(screen.getByTestId('dnd-context')).toBeInTheDocument()
     expect(screen.getByText('Todo')).toBeInTheDocument()
     expect(screen.getByText('Test Task')).toBeInTheDocument()
@@ -114,7 +114,7 @@ describe('ProjectWorkspace', () => {
 
   it('should show documents coming soon when documents tab is active', () => {
     render(<ProjectWorkspace />)
-    
+
     // Even though the button is disabled, let's test that it has the proper title
     const documentsTab = screen.getByRole('button', { name: 'Documents' })
     expect(documentsTab).toHaveAttribute('title', 'Documents tab coming in Phase 1.2')
@@ -122,21 +122,21 @@ describe('ProjectWorkspace', () => {
 
   it('should handle missing projectId', () => {
     mockUseParams.mockReturnValue({ projectId: undefined })
-    
+
     render(<ProjectWorkspace />)
     expect(screen.getByText('Project not found')).toBeInTheDocument()
   })
 
   it('should support old board URLs with boardId param', () => {
     mockUseParams.mockReturnValue({ boardId: 'test-project' })
-    
+
     render(<ProjectWorkspace />)
     expect(screen.getByRole('heading', { name: 'Test Project' })).toBeInTheDocument()
   })
 
   it('should render back to projects link', () => {
     render(<ProjectWorkspace />)
-    
+
     const backLink = screen.getByLabelText('Back to projects')
     expect(backLink).toBeInTheDocument()
     expect(backLink).toHaveAttribute('href', '/projects')
@@ -144,11 +144,11 @@ describe('ProjectWorkspace', () => {
 
   it('should show project name in breadcrumb navigation', () => {
     render(<ProjectWorkspace />)
-    
+
     // Should have breadcrumb link to projects
     const projectsLink = screen.getByRole('link', { name: 'Projects' })
     expect(projectsLink).toHaveAttribute('href', '/projects')
-    
+
     // Should show project name in breadcrumb
     const breadcrumbItems = screen.getAllByText('Test Project')
     expect(breadcrumbItems.length).toBeGreaterThan(0)

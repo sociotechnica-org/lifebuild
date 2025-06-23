@@ -2,14 +2,14 @@ import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
 
 // Create a simplified workspace component for Storybook that doesn't need LiveStore
-const ProjectWorkspaceStory = ({ 
+const ProjectWorkspaceStory = ({
   projectName = 'Sample Project',
   projectDescription = 'This is a sample project description that shows how the workspace displays project information with tabs and breadcrumb navigation.',
-  hasDescription = true
-}: { 
+  hasDescription = true,
+}: {
   projectName?: string
   projectDescription?: string
-  hasDescription?: boolean 
+  hasDescription?: boolean
 }) => {
   const [activeTab, setActiveTab] = React.useState<'tasks' | 'documents'>('tasks')
 
@@ -36,29 +36,23 @@ const ProjectWorkspaceStory = ({
               />
             </svg>
           </button>
-          
+
           {/* Breadcrumb */}
           <nav className='flex items-center text-sm text-gray-500'>
-            <button className='hover:text-gray-700 transition-colors'>
-              Projects
-            </button>
+            <button className='hover:text-gray-700 transition-colors'>Projects</button>
             <svg className='w-4 h-4 mx-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
             </svg>
             <span className='text-gray-900 font-medium'>{projectName}</span>
           </nav>
         </div>
-        
+
         {/* Project Title and Description */}
         <div className='mb-4'>
-          <h1 className='text-xl font-semibold text-gray-900 mb-1'>
-            {projectName}
-          </h1>
-          {hasDescription && (
-            <p className='text-gray-600 text-sm'>{projectDescription}</p>
-          )}
+          <h1 className='text-xl font-semibold text-gray-900 mb-1'>{projectName}</h1>
+          {hasDescription && <p className='text-gray-600 text-sm'>{projectDescription}</p>}
         </div>
-        
+
         {/* Tab Navigation */}
         <div className='flex border-b border-gray-200 -mb-px'>
           <button
@@ -101,7 +95,7 @@ const ProjectWorkspaceStory = ({
                 </div>
               </div>
             </div>
-            
+
             <div className='flex-shrink-0 w-80'>
               <div className='bg-gray-50 rounded-lg p-4'>
                 <h3 className='font-medium text-gray-900 mb-3'>Doing</h3>
@@ -112,7 +106,7 @@ const ProjectWorkspaceStory = ({
                 </div>
               </div>
             </div>
-            
+
             <div className='flex-shrink-0 w-80'>
               <div className='bg-gray-50 rounded-lg p-4'>
                 <h3 className='font-medium text-gray-900 mb-3'>Done</h3>
@@ -125,7 +119,7 @@ const ProjectWorkspaceStory = ({
             </div>
           </div>
         )}
-        
+
         {activeTab === 'documents' && (
           <div className='flex items-center justify-center h-full text-gray-500'>
             <div className='text-center'>
@@ -187,7 +181,8 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     projectName: 'Website Redesign',
-    projectDescription: 'Complete redesign of the company website with modern UI/UX principles and improved user experience.',
+    projectDescription:
+      'Complete redesign of the company website with modern UI/UX principles and improved user experience.',
     hasDescription: true,
   },
 }
@@ -209,7 +204,8 @@ export const WithoutDescription: Story = {
 export const LongProjectName: Story = {
   args: {
     projectName: 'Enterprise Customer Relationship Management System Migration',
-    projectDescription: 'Migration of legacy CRM system to modern cloud-based solution with enhanced features for customer tracking, sales pipeline management, and automated reporting capabilities.',
+    projectDescription:
+      'Migration of legacy CRM system to modern cloud-based solution with enhanced features for customer tracking, sales pipeline management, and automated reporting capabilities.',
     hasDescription: true,
   },
   parameters: {
@@ -224,13 +220,15 @@ export const LongProjectName: Story = {
 export const TabNavigation: Story = {
   args: {
     projectName: 'Product Documentation',
-    projectDescription: 'Comprehensive documentation portal for all product features and API references.',
+    projectDescription:
+      'Comprehensive documentation portal for all product features and API references.',
     hasDescription: true,
   },
   parameters: {
     docs: {
       description: {
-        story: 'Shows the tabbed interface with Tasks tab active and Documents tab prepared for Phase 1.2. Try clicking between the tabs to see the navigation in action.',
+        story:
+          'Shows the tabbed interface with Tasks tab active and Documents tab prepared for Phase 1.2. Try clicking between the tabs to see the navigation in action.',
       },
     },
   },
