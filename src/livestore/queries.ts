@@ -119,11 +119,14 @@ export const getDocumentProjectsByProject$ = (projectId: string) =>
     label: `getDocumentProjectsByProject:${projectId}`,
   })
 
-// For now, return empty array - will implement proper join logic later
+// Temporary implementation - returns all documents for now to test functionality
+// TODO: Implement proper join query in future story
 export const getDocumentsForProject$ = (projectId: string) =>
   queryDb(
-    // Simple implementation that returns empty array for now
-    tables.documents.select().where({ id: '__nonexistent__' }),
+    tables.documents
+      .select()
+      .where({ archivedAt: null })
+      .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
     {
       label: `getDocumentsForProject:${projectId}`,
     }
