@@ -9,7 +9,6 @@ import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
 import { OrphanedTasksPage } from './components/OrphanedTasksPage.js'
 import { Layout } from './components/Layout.js'
-import { MainSection } from './components/MainSection.js'
 import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from './livestore/schema.js'
 import { makeTracer } from './otel.js'
@@ -22,7 +21,6 @@ const AppBody: React.FC = () => (
         <Route path='/projects' element={<ProjectsPage />} />
         <Route path='/project/:projectId' element={<ProjectWorkspace />} />
         <Route path='/orphaned-tasks' element={<OrphanedTasksPage />} />
-        <Route path='/chat' element={<MainSection />} />
         <Route path='/' element={<Navigate to='/projects' replace />} />
       </Routes>
     </Layout>

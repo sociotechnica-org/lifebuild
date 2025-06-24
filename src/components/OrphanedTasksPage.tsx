@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { getOrphanedTasks$, getOrphanedColumns$ } from '../livestore/queries.js'
 import type { Task } from '../livestore/schema.js'
 import { events } from '../livestore/schema.js'
-import { OrphanedKanbanColumn } from './OrphanedKanbanColumn.js'
+import { KanbanBoard } from './KanbanBoard.js'
 import { CreateTaskModal } from './CreateTaskModal.js'
 
 export const OrphanedTasksPage: React.FC = () => {
@@ -69,15 +69,7 @@ export const OrphanedTasksPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className='flex gap-6 overflow-x-auto pb-6'>
-            {columns.map(column => (
-              <OrphanedKanbanColumn
-                key={column.id}
-                column={column}
-                tasks={tasksByColumn[column.id] || []}
-              />
-            ))}
-          </div>
+          <KanbanBoard columns={columns} tasksByColumn={tasksByColumn} enableDragAndDrop={false} />
         )}
 
         <CreateTaskModal
