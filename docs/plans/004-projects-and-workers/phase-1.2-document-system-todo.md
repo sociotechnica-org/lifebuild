@@ -6,7 +6,7 @@ This phase introduces documents as a core feature, laying the groundwork for con
 
 ---
 
-## Story 1 – View project-specific documents list
+## ✅ Story 1 – View project-specific documents list
 
 **User story**: _As a user, I want to see a list of documents associated with a project inside the project workspace so I can easily access project-related materials._
 
@@ -14,11 +14,13 @@ This phase introduces documents as a core feature, laying the groundwork for con
 
 ### Tasks
 
-- [ ] UI: Add a "Documents" tab to the `ProjectWorkspace` component (alongside the existing "Tasks" tab).
-- [ ] UI: Inside the "Documents" tab, create a list view to display documents.
-- [ ] Schema: Implement `documents` and `documentProjects` tables in LiveStore.
-- [ ] Query: Create a `getDocumentsForProject$` query to fetch all documents linked to a specific `projectId`.
-- [ ] DoD: A project's workspace has a "Documents" tab that shows a (currently empty) list, ready for documents to be added.
+- [x] UI: Add a "Documents" tab to the `ProjectWorkspace` component (alongside the existing "Tasks" tab).
+- [x] UI: Inside the "Documents" tab, create a list view to display documents.
+- [x] Schema: Implement `documents` and `documentProjects` tables in LiveStore.
+- [x] Query: Create a `getDocumentsForProject$` query to fetch all documents linked to a specific `projectId`.
+- [x] DoD: A project's workspace has a "Documents" tab that shows a (currently empty) list, ready for documents to be added.
+
+**Status**: ✅ **COMPLETED** - Implemented in PR #46
 
 ### Implementation Notes
 
@@ -27,7 +29,7 @@ This phase introduces documents as a core feature, laying the groundwork for con
 
 ---
 
-## Story 2 – Create a document from within a project
+## ✅ Story 2 – Create a document from within a project
 
 **User story**: _As a user, I want to create a new document from within a project so that it's automatically organized with my other project work._
 
@@ -35,11 +37,13 @@ This phase introduces documents as a core feature, laying the groundwork for con
 
 ### Tasks
 
-- [ ] Events: Define `document.created` and `document.addedToProject` events.
-- [ ] UI: Add a "Create Document" button within the project's "Documents" tab.
-- [ ] UI: The button should open a simple modal with fields for `title` and a plain `textarea` for `content`.
-- [ ] Logic: On form submission, fire a `document.created` event, followed by a `document.addedToProject` event to link it to the current project.
-- [ ] DoD: A user can create a document from a project's document tab, and it immediately appears in that project's document list.
+- [x] Events: Define `document.created` and `document.addedToProject` events.
+- [x] UI: Add a "Create Document" button within the project's "Documents" tab.
+- [x] UI: The button should open a simple modal with fields for `title` and a plain `textarea` for `content`.
+- [x] Logic: On form submission, fire a `document.created` event, followed by a `document.addedToProject` event to link it to the current project.
+- [x] DoD: A user can create a document from a project's document tab, and it immediately appears in that project's document list.
+
+**Status**: ✅ **COMPLETED** - Implemented in PR #46
 
 ### Implementation Notes
 
@@ -89,9 +93,11 @@ This phase introduces documents as a core feature, laying the groundwork for con
 
 ### Tasks
 
-- [ ] Query: Create an `getAllDocuments$` query to fetch all non-archived documents.
+- [x] Query: Create an `getAllDocuments$` query to fetch all non-archived documents.
 - [ ] UI: The `/documents` page should display a list of all documents, showing their titles.
 - [ ] DoD: Visiting the `/documents` page shows a comprehensive list of every document in the system.
+
+**Status**: 🔄 **PARTIALLY COMPLETED** - Query implemented in PR #46, UI pending Story 4
 
 ---
 
@@ -118,12 +124,14 @@ This phase introduces documents as a core feature, laying the groundwork for con
 
 ### Tasks
 
-- [ ] Schema: Add an `archivedAt?: number` field to the `documents` table.
-- [ ] Event: Rename `document.deleted` to `document.archived` and update its payload to `{ id, archivedAt }`.
+- [x] Schema: Add an `archivedAt?: number` field to the `documents` table.
+- [x] Event: Rename `document.deleted` to `document.archived` and update its payload to `{ id, archivedAt }`.
 - [ ] UI: Add an "Archive" button on the `DocumentPage`.
 - [ ] Logic: Clicking "Archive" fires the `document.archived` event.
-- [ ] Queries: Update `getAllDocuments$` and `getDocumentsForProject$` to filter out documents where `archivedAt` is not null.
+- [x] Queries: Update `getAllDocuments$` and `getDocumentsForProject$` to filter out documents where `archivedAt` is not null.
 - [ ] DoD: Archiving a document removes it from all visible lists (central and project-specific).
+
+**Status**: 🔄 **PARTIALLY COMPLETED** - Schema and events implemented in PR #46, UI pending Story 3
 
 ### Implementation Notes
 
