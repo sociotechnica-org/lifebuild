@@ -49,14 +49,14 @@ pnpm test:e2e:debug
 
 # Run E2E tests on specific port (for multiple Claude instances)
 PLAYWRIGHT_PORT=9090 pnpm test:e2e
-
-# Run Storybook tests
-pnpm test:storybook
 ```
 
 ### Linting and Formatting
 
 ```bash
+# Run all linting, formatting, and type checking (recommended for local development)
+pnpm lint-all
+
 # Run ESLint
 pnpm lint
 
