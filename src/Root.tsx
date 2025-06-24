@@ -6,7 +6,7 @@ import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
 import { ProjectsPage } from './components/ProjectsPage.js'
-import { KanbanBoard } from './components/KanbanBoard.js'
+import { ProjectWorkspace } from './components/ProjectWorkspace.js'
 import { Layout } from './components/Layout.js'
 import { MainSection } from './components/MainSection.js'
 import LiveStoreWorker from './livestore.worker?worker'
@@ -19,9 +19,7 @@ const AppBody: React.FC = () => (
     <Layout>
       <Routes>
         <Route path='/projects' element={<ProjectsPage />} />
-        <Route path='/project/:projectId' element={<KanbanBoard />} />
-        <Route path='/boards' element={<Navigate to='/projects' replace />} />
-        <Route path='/board/:projectId' element={<KanbanBoard />} />
+        <Route path='/project/:projectId' element={<ProjectWorkspace />} />
         <Route path='/chat' element={<MainSection />} />
         <Route path='/' element={<Navigate to='/projects' replace />} />
       </Routes>

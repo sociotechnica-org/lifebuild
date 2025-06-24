@@ -49,14 +49,14 @@ pnpm test:e2e:debug
 
 # Run E2E tests on specific port (for multiple Claude instances)
 PLAYWRIGHT_PORT=9090 pnpm test:e2e
-
-# Run Storybook tests
-pnpm test:storybook
 ```
 
 ### Linting and Formatting
 
 ```bash
+# Run all linting, formatting, and type checking (recommended for local development)
+pnpm lint-all
+
 # Run ESLint
 pnpm lint
 
@@ -238,6 +238,17 @@ When implementing new features, follow this structured process:
 - Prefer vertical slices (full features) over horizontal layers when possible
 - Each PR should be small, focused, and demoable
 - Always run tests before creating a PR
+
+### Development Workflow
+
+- **ALWAYS run `pnpm lint:fix` and `pnpm typecheck` before committing** - This prevents CI failures and maintains code quality
+- **E2E tests must provide real value** - Only add E2E tests that test vital user flows through the app. Don't add tests that only verify routing or basic component rendering. E2E tests are slow and costly to maintain.
+- **Test-Driven Development for bug fixes** - When fixing bugs, follow this process:
+  1. Add a minimal failing test that demonstrates the bug
+  2. Run the test to verify it fails
+  3. Fix the bug
+  4. Run the test again to verify it passes
+  5. This ensures the bug is properly isolated and the fix is verified
 
 ### PR Monitoring
 

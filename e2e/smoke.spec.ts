@@ -38,8 +38,8 @@ test.describe('Smoke Tests', () => {
     await waitForLiveStoreReady(page)
     await expect(page).toHaveURL(/\/chat/)
 
-    // Navigate to boards (should redirect to projects)
-    await page.goto('/boards')
+    // Navigate directly to projects
+    await page.goto('/projects')
     await waitForLiveStoreReady(page)
     await expect(page).toHaveURL(/\/projects/)
   })
@@ -101,9 +101,9 @@ test.describe('Smoke Tests', () => {
     await page.goto('/chat')
     await expect(page).toHaveURL(/\/chat/)
 
-    // Navigate to projects route (via redirect from boards)
-    await page.goto('/boards')
-    await waitForLiveStoreReady(page) // Wait for redirect to complete
+    // Navigate to projects route directly
+    await page.goto('/projects')
+    await waitForLiveStoreReady(page)
     await expect(page).toHaveURL(/\/projects/)
 
     // Basic navigation is working

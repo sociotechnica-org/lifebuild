@@ -1,6 +1,13 @@
 module.exports = [
   {
-    ignores: ['**/dist/*', 'node_modules/*', '.wrangler/*', 'storybook-static/*'],
+    ignores: [
+      '**/dist/*',
+      'node_modules/*',
+      '.wrangler/*',
+      'storybook-static/*',
+      'playwright-report/*',
+      'test-results/*',
+    ],
   },
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
