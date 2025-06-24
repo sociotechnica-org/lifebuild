@@ -7,7 +7,7 @@ import {
   getProjectTasks$,
   getDocumentsForProject$,
 } from '../livestore/queries.js'
-import type { Column, Task, Document } from '../livestore/schema.js'
+import type { Task, Document } from '../livestore/schema.js'
 import { events } from '../livestore/schema.js'
 import { ProjectProvider, useProject } from '../contexts/ProjectContext.js'
 import { KanbanBoard } from './KanbanBoard.js'
