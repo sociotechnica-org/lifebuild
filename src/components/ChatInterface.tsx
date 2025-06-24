@@ -3,14 +3,8 @@ import React from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { events } from '../livestore/schema.js'
-import {
-  getConversations$,
-  getConversationMessages$,
-  getUsers$,
-  getBoardById$,
-} from '../livestore/queries.js'
+import { getConversations$, getConversationMessages$, getBoardById$ } from '../livestore/queries.js'
 import type { Conversation, ChatMessage } from '../livestore/schema.js'
-import { getInitials } from '../util/initials.js'
 import { MarkdownRenderer } from './MarkdownRenderer.js'
 import { executeLLMTool } from '../utils/llm-tools.js'
 
@@ -278,7 +272,6 @@ export const ChatInterface: React.FC = () => {
   const { store } = useStore()
   const location = useLocation()
   const conversations = useQuery(getConversations$) ?? []
-  const users = useQuery(getUsers$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [messageText, setMessageText] = React.useState('')
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
@@ -300,9 +293,6 @@ export const ChatInterface: React.FC = () => {
   // Always call useQuery but conditionally use the result
   const boardResult = useQuery(boardQuery || getBoardById$('__no_board__'))
   const currentBoard = currentBoardId && boardResult?.[0] ? (boardResult[0] as any) : null
-
-  // Get first user as current user
-  const currentUser = users[0]
 
   // Use a stable conversation ID for the query to avoid hook order issues
   const queryConversationId = selectedConversationId ?? '__no_conversation__'
@@ -489,15 +479,6 @@ export const ChatInterface: React.FC = () => {
       <div className='flex-shrink-0 p-4 border-b border-gray-200'>
         <div className='flex items-center justify-between mb-2'>
           <h2 className='text-lg font-semibold text-gray-900'>LLM Chat</h2>
-          {/* Only show + button and user avatar when conversations exist */}
-          {conversations.length > 0 && currentUser && (
-            <div
-              className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium'
-              title={currentUser.name}
-            >
-              {getInitials(currentUser.name)}
-            </div>
-          )}
         </div>
 
         {/* Conversation Selector with + button inline */}

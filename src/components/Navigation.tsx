@@ -1,8 +1,13 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useQuery } from '@livestore/react'
+import { getUsers$ } from '../livestore/queries.js'
+import { getInitials } from '../util/initials.js'
 
 export const Navigation: React.FC = () => {
   const location = useLocation()
+  const users = useQuery(getUsers$) ?? []
+  const currentUser = users[0] // Get first user as current user
 
   const isActive = (path: string) => {
     if (path === '/projects') {
@@ -16,7 +21,7 @@ export const Navigation: React.FC = () => {
 
   return (
     <nav className='bg-white border-b border-gray-200'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+      <div className='px-4 sm:px-6 lg:px-8'>
         <div className='flex justify-between h-16'>
           <div className='flex space-x-8'>
             <Link
@@ -39,6 +44,18 @@ export const Navigation: React.FC = () => {
             >
               Tasks
             </Link>
+          </div>
+
+          {/* User Profile */}
+          <div className='flex items-center'>
+            {currentUser && (
+              <div
+                className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium'
+                title={currentUser.name}
+              >
+                {getInitials(currentUser.name)}
+              </div>
+            )}
           </div>
         </div>
       </div>

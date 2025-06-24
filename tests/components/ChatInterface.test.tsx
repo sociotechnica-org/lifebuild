@@ -40,15 +40,13 @@ describe('ChatInterface', () => {
     expect(screen.queryByLabelText('New Chat')).not.toBeInTheDocument()
   })
 
-  it('should show + button and user avatar when conversations exist', () => {
+  it('should show + button when conversations exist', () => {
     const mockConversations = [
       { id: 'conv1', title: 'Test Conversation', createdAt: new Date(), updatedAt: new Date() },
     ]
-    const mockUsers = [{ id: 'user1', name: 'Test User', avatarUrl: null, createdAt: new Date() }]
 
     mockUseQuery.mockImplementation((query: any) => {
       if (query.label?.includes('getConversations')) return mockConversations
-      if (query.label?.includes('getUsers')) return mockUsers
       return []
     })
 
@@ -60,7 +58,6 @@ describe('ChatInterface', () => {
 
     expect(screen.getByText('LLM Chat')).toBeInTheDocument()
     expect(screen.getByLabelText('New Chat')).toBeInTheDocument() // + button should be visible
-    expect(screen.getByText('TU')).toBeInTheDocument() // user avatar initials
     expect(screen.getByDisplayValue('')).toBeInTheDocument() // conversation selector
   })
 })
