@@ -61,14 +61,14 @@ Based on the production plan, Phase 1.1 transforms the existing Kanban system in
 
 ### Tasks
 
-- [ ] UI: Rename `KanbanBoard` component to `ProjectWorkspace`
-- [ ] Layout: Create tabbed interface with "Tasks" tab (Documents tab comes in Phase 1.2)
-- [ ] Header: Add project description display in workspace header
-- [ ] Breadcrumb: Add project name breadcrumb navigation
-- [ ] Routing: Update `/board/:id` to `/project/:id`
-- [ ] Context: Create ProjectContext for sharing project data across workspace tabs
-- [ ] Tests: Workspace layout, tab navigation, project context
-- [ ] DoD: Project workspace shows tasks in Kanban view with room for future document integration
+- [x] UI: Rename `KanbanBoard` component to `ProjectWorkspace`
+- [x] Layout: Create tabbed interface with "Tasks" tab (Documents tab comes in Phase 1.2)
+- [x] Header: Add project description display in workspace header
+- [x] Breadcrumb: Add project name breadcrumb navigation
+- [x] Routing: Update `/board/:id` to `/project/:id`
+- [x] Context: Create ProjectContext for sharing project data across workspace tabs
+- [x] Tests: Workspace layout, tab navigation, project context
+- [x] DoD: Project workspace shows tasks in Kanban view with room for future document integration
 
 ### Implementation Notes
 
