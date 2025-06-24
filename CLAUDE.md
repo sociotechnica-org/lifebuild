@@ -186,6 +186,60 @@ COPY . .
 CMD ["pnpm", "llm:service"]
 ```
 
+## Development Process
+
+When implementing new features, follow this structured process:
+
+### 0. Planning & Review
+
+- Review the assignment thoroughly (user stories, phase documentation)
+- Ask clarifying questions before starting implementation
+- Check dependencies and ensure prerequisites are met
+
+### 1. Branch Creation
+
+- Create a descriptive branch name (e.g., `feature/documents-tab`, `fix/task-drag-drop`)
+- Branch from the appropriate base branch (usually `main`)
+
+### 2. Implementation
+
+- Implement the complete feature according to specifications
+- Reference planning documents (e.g., `@docs/plans/004-projects-and-workers/phase-1.2-document-system-todo.md`)
+- Follow existing code patterns and conventions
+- Focus on vertical slices (complete features) over horizontal layers
+
+### 3. Testing
+
+- Write appropriate, minimal unit tests for new functionality
+- Create stateless Storybook stories for new UI components when possible
+- Add integration tests for critical workflows (use sparingly)
+- Ensure all tests pass before proceeding
+
+### 4. Quality Assurance
+
+- Run linting: `pnpm lint` (fix with `pnpm lint:fix`)
+- Run formatting: `pnpm format`
+- Run type checking: `pnpm typecheck`
+- Verify all quality checks pass
+
+### 5. Version Control
+
+- Commit changes with clear, descriptive messages
+- Push branch to remote repository
+- Ensure commit history is clean and logical
+
+### 6. Pull Request
+
+- Open a new PR with descriptive title and detailed description
+- Include summary of changes and testing approach
+- Reference any related issues or documentation
+
+### 7. PR Monitoring
+
+- Watch PR checks using `gh pr checks --watch` (may take up to 10 minutes)
+- Fix any failing checks or issues identified by CI
+- Address BugBot feedback even if it's a neutral check
+
 ## Important Guidelines
 
 - When creating work plans or implementation tasks, NEVER include time estimates - focus on sequencing and dependencies only

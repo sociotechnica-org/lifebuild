@@ -105,6 +105,38 @@ export const getTaskComments$ = (taskId: string) =>
     }
   )
 
+export const getAllDocuments$ = queryDb(
+  tables.documents
+    .select()
+    .where({ archivedAt: null })
+    .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
+  { label: 'getAllDocuments' }
+)
+
+// Helper query to get document-project associations for a project
+export const getDocumentProjectsByProject$ = (projectId: string) =>
+  queryDb(tables.documentProjects.select().where({ projectId }), {
+    label: `getDocumentProjectsByProject:${projectId}`,
+  })
+
+// Temporary implementation - returns all documents for now to test functionality
+// TODO: Implement proper join query in future story
+export const getDocumentsForProject$ = (projectId: string) =>
+  queryDb(
+    tables.documents
+      .select()
+      .where({ archivedAt: null })
+      .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
+    {
+      label: `getDocumentsForProject:${projectId}`,
+    }
+  )
+
+export const getDocumentById$ = (documentId: string) =>
+  queryDb(tables.documents.select().where({ id: documentId }), {
+    label: `getDocumentById:${documentId}`,
+  })
+
 export const getOrphanedTasks$ = queryDb(
   tables.tasks
     .select()

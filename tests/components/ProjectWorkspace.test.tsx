@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ProjectWorkspace } from '../../src/components/ProjectWorkspace.js'
 import { createMockProject, createMockColumn, createMockTask } from '../../src/test-utils.js'
@@ -80,6 +80,8 @@ describe('ProjectWorkspace', () => {
         return mockColumns // Second call is for columns
       } else if (callCount === 3) {
         return mockTasks // Third call is for tasks
+      } else if (callCount === 4) {
+        return [] // Fourth call is for documents (empty for now)
       }
       return []
     })
@@ -101,7 +103,7 @@ describe('ProjectWorkspace', () => {
 
     expect(tasksTab).toBeInTheDocument()
     expect(documentsTab).toBeInTheDocument()
-    expect(documentsTab).toBeDisabled()
+    expect(documentsTab).toBeEnabled() // Documents tab is now enabled
 
     // Tasks tab should be active by default
     expect(tasksTab).toHaveClass('border-blue-500', 'text-blue-600')
@@ -115,12 +117,23 @@ describe('ProjectWorkspace', () => {
     expect(screen.getByText('Test Task')).toBeInTheDocument()
   })
 
-  it('should show documents coming soon when documents tab is active', () => {
+  it('should show empty documents list with create button when documents tab is active', () => {
     render(<ProjectWorkspace />)
 
-    // Even though the button is disabled, let's test that it has the proper title
+    // Click on documents tab to switch to it
     const documentsTab = screen.getByRole('button', { name: 'Documents' })
-    expect(documentsTab).toHaveAttribute('title', 'Documents tab coming in Phase 1.2')
+    expect(documentsTab).toBeEnabled()
+    expect(documentsTab).not.toHaveAttribute('title') // No tooltip since it's enabled
+
+    // Switch to documents tab to see the content
+    act(() => {
+      documentsTab.click()
+    })
+
+    // Should show empty state with create button
+    expect(screen.getByText('No documents yet')).toBeInTheDocument()
+    expect(screen.getByText('Create your first document to get started')).toBeInTheDocument()
+    expect(screen.getAllByText('Create Document')).toHaveLength(2) // Header button + empty state button
   })
 
   it('should handle missing projectId', () => {
