@@ -22,8 +22,8 @@ test.describe('Smoke Tests', () => {
     // Check basic app structure
     await expectBasicAppStructure(page)
 
-    // Should redirect to /boards by default (may include storeId parameter)
-    await expect(page).toHaveURL(/\/(boards|$).*/) // Either /boards or root with storeId
+    // Should redirect to /projects by default (may include storeId parameter)
+    await expect(page).toHaveURL(/\/(projects|$).*/) // Either /projects or root with storeId
 
     // Verify chat interface is visible (may not be fully functional in CI)
     const chatElement = page.locator('textarea[placeholder="Type your message..."]')
@@ -38,10 +38,10 @@ test.describe('Smoke Tests', () => {
     await waitForLiveStoreReady(page)
     await expect(page).toHaveURL(/\/chat/)
 
-    // Navigate back to boards
+    // Navigate to boards (should redirect to projects)
     await page.goto('/boards')
     await waitForLiveStoreReady(page)
-    await expect(page).toHaveURL(/\/boards/)
+    await expect(page).toHaveURL(/\/projects/)
   })
 
   test('LiveStore sync is working', async ({ page }) => {
@@ -59,8 +59,8 @@ test.describe('Smoke Tests', () => {
     }
 
     // Basic functionality should be available (this tests that LiveStore has loaded)
-    // Try to access the boards page which requires LiveStore data
-    await page.goto('/boards')
+    // Try to access the projects page which requires LiveStore data
+    await page.goto('/projects')
     await waitForLiveStoreReady(page)
 
     // Should not show any error messages (unless it's expected LiveStore sync errors in CI)
@@ -101,9 +101,10 @@ test.describe('Smoke Tests', () => {
     await page.goto('/chat')
     await expect(page).toHaveURL(/\/chat/)
 
-    // Navigate to boards route
+    // Navigate to projects route (via redirect from boards)
     await page.goto('/boards')
-    await expect(page).toHaveURL(/\/boards/)
+    await waitForLiveStoreReady(page) // Wait for redirect to complete
+    await expect(page).toHaveURL(/\/projects/)
 
     // Basic navigation is working
     console.log('Basic app routing verified')

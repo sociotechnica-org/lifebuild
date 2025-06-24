@@ -19,7 +19,7 @@ import { TaskCard } from './TaskCard.js'
 import { TaskModal } from './TaskModal.js'
 
 export function KanbanBoard() {
-  const { boardId } = useParams<{ boardId: string }>()
+  const { boardId, projectId } = useParams<{ boardId?: string; projectId?: string }>()
   const { store } = useStore()
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [insertionPreview, setInsertionPreview] = useState<{
@@ -29,14 +29,17 @@ export function KanbanBoard() {
   const [dragOverAddCard, setDragOverAddCard] = useState<string | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
-  if (!boardId) {
-    return <div>Board not found</div>
+  // Support both old board URLs and new project URLs
+  const entityId = projectId || boardId
+
+  if (!entityId) {
+    return <div>Project not found</div>
   }
 
-  const boardResult = useQuery(getBoardById$(boardId))
+  const boardResult = useQuery(getBoardById$(entityId))
   const board = boardResult?.[0] as Board | undefined
-  const columns = useQuery(getBoardColumns$(boardId)) ?? []
-  const tasks = useQuery(getBoardTasks$(boardId)) ?? []
+  const columns = useQuery(getBoardColumns$(entityId)) ?? []
+  const tasks = useQuery(getBoardTasks$(entityId)) ?? []
 
   // Group tasks by column
   const tasksByColumn = (tasks || []).reduce((acc: Record<string, Task[]>, task: Task) => {
@@ -292,9 +295,9 @@ export function KanbanBoard() {
         <div className='border-b border-gray-200 bg-white px-6 py-4'>
           <div className='flex items-center gap-4'>
             <Link
-              to='/boards'
+              to='/projects'
               className='flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'
-              aria-label='Back to boards'
+              aria-label='Back to projects'
             >
               <svg
                 className='w-4 h-4 text-gray-600'

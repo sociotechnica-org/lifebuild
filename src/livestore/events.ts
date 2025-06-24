@@ -49,11 +49,12 @@ export const chatMessageSent = Events.synced({
   }),
 })
 
-export const boardCreated = Events.synced({
-  name: 'v1.BoardCreated',
+export const projectCreated = Events.synced({
+  name: 'v1.ProjectCreated',
   schema: Schema.Struct({
     id: Schema.String,
     name: Schema.String,
+    description: Schema.optional(Schema.String), // Added description field
     createdAt: Schema.Date,
   }),
 })
@@ -62,7 +63,7 @@ export const columnCreated = Events.synced({
   name: 'v1.ColumnCreated',
   schema: Schema.Struct({
     id: Schema.String,
-    boardId: Schema.String,
+    projectId: Schema.String,
     name: Schema.String,
     position: Schema.Number,
     createdAt: Schema.Date,
@@ -91,7 +92,7 @@ export const taskCreated = Events.synced({
   name: 'v1.TaskCreated',
   schema: Schema.Struct({
     id: Schema.String,
-    boardId: Schema.String,
+    projectId: Schema.optional(Schema.String), // Made optional for orphaned tasks
     columnId: Schema.String,
     title: Schema.String,
     description: Schema.Union(Schema.String, Schema.Undefined),

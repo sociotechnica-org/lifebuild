@@ -13,14 +13,31 @@ export const getBoards$ = queryDb(
   { label: 'getBoards' }
 )
 
+// New terminology alias
+export const getProjects$ = getBoards$
+
 export const getBoardColumns$ = (boardId: string) =>
   queryDb(
     tables.columns
       .select()
-      .where({ boardId })
+      .where({ projectId: boardId })
       .orderBy([{ col: 'position', direction: 'asc' }]),
     {
       label: `getBoardColumns:${boardId}`,
+    }
+  )
+
+// New project terminology alias
+export const getProjectColumns$ = getBoardColumns$
+
+export const getBoardColumnsOptional$ = (boardId: string | null) =>
+  queryDb(
+    tables.columns
+      .select()
+      .where(boardId !== null ? { projectId: boardId } : { projectId: '__impossible__' }) // Impossible condition returns no results when boardId is null
+      .orderBy([{ col: 'position', direction: 'asc' }]),
+    {
+      label: `getBoardColumnsOptional:${boardId || 'null'}`,
     }
   )
 
@@ -28,12 +45,15 @@ export const getBoardTasks$ = (boardId: string) =>
   queryDb(
     tables.tasks
       .select()
-      .where({ boardId, archivedAt: null })
+      .where({ projectId: boardId, archivedAt: null })
       .orderBy([{ col: 'position', direction: 'asc' }]),
     {
       label: `getBoardTasks:${boardId}`,
     }
   )
+
+// New project terminology alias
+export const getProjectTasks$ = getBoardTasks$
 
 export const getTaskById$ = (taskId: string) =>
   queryDb(tables.tasks.select().where({ id: taskId }), {
@@ -44,6 +64,9 @@ export const getBoardById$ = (boardId: string) =>
   queryDb(tables.boards.select().where({ id: boardId }), {
     label: `getBoardById:${boardId}`,
   })
+
+// New project terminology alias
+export const getProjectById$ = getBoardById$
 
 export const getConversations$ = queryDb(
   tables.conversations.select().orderBy([{ col: 'createdAt', direction: 'desc' }]),
