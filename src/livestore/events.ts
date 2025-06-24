@@ -190,3 +190,49 @@ export const taskUnarchived = Events.synced({
     taskId: Schema.String,
   }),
 })
+
+export const documentCreated = Events.synced({
+  name: 'v1.DocumentCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    title: Schema.String,
+    content: Schema.String,
+    createdAt: Schema.Date,
+  }),
+})
+
+export const documentUpdated = Events.synced({
+  name: 'v1.DocumentUpdated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    updates: Schema.Struct({
+      title: Schema.Union(Schema.String, Schema.Undefined),
+      content: Schema.Union(Schema.String, Schema.Undefined),
+    }),
+    updatedAt: Schema.Date,
+  }),
+})
+
+export const documentArchived = Events.synced({
+  name: 'v1.DocumentArchived',
+  schema: Schema.Struct({
+    id: Schema.String,
+    archivedAt: Schema.Date,
+  }),
+})
+
+export const documentAddedToProject = Events.synced({
+  name: 'v1.DocumentAddedToProject',
+  schema: Schema.Struct({
+    documentId: Schema.String,
+    projectId: Schema.String,
+  }),
+})
+
+export const documentRemovedFromProject = Events.synced({
+  name: 'v1.DocumentRemovedFromProject',
+  schema: Schema.Struct({
+    documentId: Schema.String,
+    projectId: Schema.String,
+  }),
+})

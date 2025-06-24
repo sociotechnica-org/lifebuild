@@ -104,3 +104,32 @@ export const getTaskComments$ = (taskId: string) =>
       label: `getTaskComments:${taskId}`,
     }
   )
+
+export const getAllDocuments$ = queryDb(
+  tables.documents
+    .select()
+    .where({ archivedAt: null })
+    .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
+  { label: 'getAllDocuments' }
+)
+
+// Helper query to get document-project associations for a project
+export const getDocumentProjectsByProject$ = (projectId: string) =>
+  queryDb(tables.documentProjects.select().where({ projectId }), {
+    label: `getDocumentProjectsByProject:${projectId}`,
+  })
+
+// For now, return empty array - will implement proper join logic later
+export const getDocumentsForProject$ = (projectId: string) =>
+  queryDb(
+    // Simple implementation that returns empty array for now
+    tables.documents.select().where({ id: '__nonexistent__' }),
+    {
+      label: `getDocumentsForProject:${projectId}`,
+    }
+  )
+
+export const getDocumentById$ = (documentId: string) =>
+  queryDb(tables.documents.select().where({ id: documentId }), {
+    label: `getDocumentById:${documentId}`,
+  })

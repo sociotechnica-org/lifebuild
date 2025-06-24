@@ -145,6 +145,33 @@ const comments = State.SQLite.table({
   },
 })
 
+const documents = State.SQLite.table({
+  name: 'documents',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    title: State.SQLite.text({ default: '' }),
+    content: State.SQLite.text({ default: '' }),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    updatedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    archivedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
+const documentProjects = State.SQLite.table({
+  name: 'documentProjects',
+  columns: {
+    documentId: State.SQLite.text(),
+    projectId: State.SQLite.text(),
+  },
+})
+
 const uiState = State.SQLite.clientDocument({
   name: 'uiState',
   schema: Schema.Struct({
@@ -166,6 +193,8 @@ export type User = State.SQLite.FromTable.RowDecoded<typeof users>
 export type Task = State.SQLite.FromTable.RowDecoded<typeof tasks>
 export type Conversation = State.SQLite.FromTable.RowDecoded<typeof conversations>
 export type Comment = State.SQLite.FromTable.RowDecoded<typeof comments>
+export type Document = State.SQLite.FromTable.RowDecoded<typeof documents>
+export type DocumentProject = State.SQLite.FromTable.RowDecoded<typeof documentProjects>
 export type UiState = typeof uiState.default.value
 
 export const events = {
@@ -183,6 +212,8 @@ export const tables = {
   tasks,
   conversations,
   comments,
+  documents,
+  documentProjects,
 }
 
 const materializers = State.SQLite.materializers(events, {
@@ -261,6 +292,19 @@ const materializers = State.SQLite.materializers(events, {
     comments.insert({ id, taskId, authorId, content, createdAt }),
   'v1.TaskArchived': ({ taskId, archivedAt }) => tasks.update({ archivedAt }).where({ id: taskId }),
   'v1.TaskUnarchived': ({ taskId }) => tasks.update({ archivedAt: null }).where({ id: taskId }),
+  'v1.DocumentCreated': ({ id, title, content, createdAt }) =>
+    documents.insert({ id, title, content, createdAt, updatedAt: createdAt }),
+  'v1.DocumentUpdated': ({ id, updates, updatedAt }) => {
+    const updateData: Record<string, any> = { updatedAt }
+    if (updates.title !== undefined) updateData.title = updates.title
+    if (updates.content !== undefined) updateData.content = updates.content
+    return documents.update(updateData).where({ id })
+  },
+  'v1.DocumentArchived': ({ id, archivedAt }) => documents.update({ archivedAt }).where({ id }),
+  'v1.DocumentAddedToProject': ({ documentId, projectId }) =>
+    documentProjects.insert({ documentId, projectId }),
+  'v1.DocumentRemovedFromProject': ({ documentId, projectId }) =>
+    documentProjects.delete().where({ documentId, projectId }),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })
