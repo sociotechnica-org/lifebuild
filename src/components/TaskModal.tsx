@@ -12,6 +12,7 @@ import { Combobox } from './Combobox.js'
 import { getInitials } from '../util/initials.js'
 import { useSnackbar } from './Snackbar.js'
 import { Markdown } from './Markdown.js'
+import { MoveTaskModal } from './MoveTaskModal.js'
 
 interface TaskModalProps {
   taskId: string | null
@@ -61,6 +62,9 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   // More actions dropdown state
   const [moreActionsOpen, setMoreActionsOpen] = useState(false)
   const moreActionsRef = React.useRef<HTMLDivElement>(null)
+
+  // Move modal state
+  const [moveModalOpen, setMoveModalOpen] = useState(false)
 
   // Update form fields when task changes (for optimistic updates)
   useEffect(() => {
@@ -328,6 +332,15 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
                     <div className='absolute right-0 top-full mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10'>
                       <div className='py-1'>
                         <button
+                          onClick={() => {
+                            setMoveModalOpen(true)
+                            setMoreActionsOpen(false)
+                          }}
+                          className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors'
+                        >
+                          Move to Project
+                        </button>
+                        <button
                           onClick={handleArchiveTask}
                           className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors'
                         >
@@ -498,6 +511,9 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
           </div>
         </div>
       </div>
+
+      {/* Move Task Modal */}
+      <MoveTaskModal isOpen={moveModalOpen} onClose={() => setMoveModalOpen(false)} task={task} />
     </div>
   )
 }

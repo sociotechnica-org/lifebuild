@@ -115,7 +115,6 @@ Based on the production plan, Phase 1.1 transforms the existing Kanban system in
 - [ ] UI: Add "Move to Project" option in task modal
 - [ ] Modal: Create project selector modal for task reassignment
 - [ ] Validation: Ensure task positions are recalculated when moving between projects
-- [ ] Drag-and-drop: Support dragging tasks between project workspaces (future enhancement)
 - [ ] Query: Update task queries to handle project changes correctly
 - [ ] Tests: Cross-project task moves, position recalculation, project assignment
 - [ ] DoD: Tasks can be moved between projects while maintaining their column positions
