@@ -63,7 +63,7 @@ export const columnCreated = Events.synced({
   name: 'v1.ColumnCreated',
   schema: Schema.Struct({
     id: Schema.String,
-    projectId: Schema.String,
+    projectId: Schema.optional(Schema.String), // Make optional for orphaned columns
     name: Schema.String,
     position: Schema.Number,
     createdAt: Schema.Date,
@@ -106,6 +106,17 @@ export const taskMoved = Events.synced({
   name: 'v1.TaskMoved',
   schema: Schema.Struct({
     taskId: Schema.String,
+    toColumnId: Schema.String,
+    position: Schema.Number,
+    updatedAt: Schema.Date,
+  }),
+})
+
+export const taskMovedToProject = Events.synced({
+  name: 'v1.TaskMovedToProject',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    toProjectId: Schema.optional(Schema.String), // null for orphaned tasks
     toColumnId: Schema.String,
     position: Schema.Number,
     updatedAt: Schema.Date,

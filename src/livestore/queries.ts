@@ -136,3 +136,23 @@ export const getDocumentById$ = (documentId: string) =>
   queryDb(tables.documents.select().where({ id: documentId }), {
     label: `getDocumentById:${documentId}`,
   })
+
+export const getOrphanedTasks$ = queryDb(
+  tables.tasks
+    .select()
+    .where({ projectId: null, archivedAt: null })
+    .orderBy([{ col: 'position', direction: 'asc' }]),
+  {
+    label: 'getOrphanedTasks',
+  }
+)
+
+export const getOrphanedColumns$ = queryDb(
+  tables.columns
+    .select()
+    .where({ projectId: null }) // Use null for orphaned columns
+    .orderBy([{ col: 'position', direction: 'asc' }]),
+  {
+    label: 'getOrphanedColumns',
+  }
+)

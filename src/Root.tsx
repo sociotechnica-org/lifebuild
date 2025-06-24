@@ -7,8 +7,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
 import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
+import { TasksPage } from './components/TasksPage.js'
 import { Layout } from './components/Layout.js'
-import { MainSection } from './components/MainSection.js'
 import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from './livestore/schema.js'
 import { makeTracer } from './otel.js'
@@ -20,7 +20,8 @@ const AppBody: React.FC = () => (
       <Routes>
         <Route path='/projects' element={<ProjectsPage />} />
         <Route path='/project/:projectId' element={<ProjectWorkspace />} />
-        <Route path='/chat' element={<MainSection />} />
+        <Route path='/tasks' element={<TasksPage />} />
+        <Route path='/orphaned-tasks' element={<Navigate to='/tasks' replace />} />
         <Route path='/' element={<Navigate to='/projects' replace />} />
       </Routes>
     </Layout>

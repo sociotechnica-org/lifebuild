@@ -1,14 +1,5 @@
 import React, { useState } from 'react'
-import {
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragStartEvent,
-  DragOverEvent,
-  DragEndEvent,
-} from '@dnd-kit/core'
+import { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
 import { useQuery, useStore } from '@livestore/react'
 import { useParams, Link } from 'react-router-dom'
 import {
@@ -19,8 +10,7 @@ import {
 import type { Column, Task, Document } from '../livestore/schema.js'
 import { events } from '../livestore/schema.js'
 import { ProjectProvider, useProject } from '../contexts/ProjectContext.js'
-import { KanbanColumn } from './KanbanColumn.js'
-import { TaskCard } from './TaskCard.js'
+import { KanbanBoard } from './KanbanBoard.js'
 import { TaskModal } from './TaskModal.js'
 import { DocumentCreateModal } from './DocumentCreateModal.js'
 
@@ -56,15 +46,6 @@ const ProjectWorkspaceContent: React.FC = () => {
     }
     return acc
   }, {})
-
-  // Set up sensors for drag detection
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8, // Minimum distance before drag starts
-      },
-    })
-  )
 
   // Find task by ID helper
   const findTask = (taskId: string): Task | undefined => {
@@ -347,33 +328,21 @@ const ProjectWorkspaceContent: React.FC = () => {
       {/* Tab Content */}
       <div className='flex-1 overflow-hidden'>
         {activeTab === 'tasks' && (
-          <DndContext
-            sensors={sensors}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDragEnd={handleDragEnd}
-          >
-            <div className='flex h-full overflow-x-auto p-6 gap-6 pb-6'>
-              {(columns || []).map((column: Column) => (
-                <KanbanColumn
-                  key={column.id}
-                  column={column}
-                  tasks={tasksByColumn[column.id] || []}
-                  insertionPreview={
-                    insertionPreview?.columnId === column.id ? insertionPreview.position : null
-                  }
-                  draggedTaskHeight={activeTask ? 76 : 0} // Approximate task card height
-                  draggedTaskId={activeTask?.id || null}
-                  showAddCardPreview={dragOverAddCard === column.id}
-                  onTaskClick={handleTaskClick}
-                />
-              ))}
-            </div>
-            <DragOverlay>
-              {activeTask ? <TaskCard task={activeTask} isDragOverlay /> : null}
-            </DragOverlay>
+          <>
+            <KanbanBoard
+              columns={columns || []}
+              tasksByColumn={tasksByColumn}
+              enableDragAndDrop={true}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDragEnd={handleDragEnd}
+              insertionPreview={insertionPreview}
+              activeTask={activeTask}
+              dragOverAddCard={dragOverAddCard}
+              onTaskClick={handleTaskClick}
+            />
             <TaskModal taskId={selectedTaskId} onClose={handleModalClose} />
-          </DndContext>
+          </>
         )}
 
         {activeTab === 'documents' && (
