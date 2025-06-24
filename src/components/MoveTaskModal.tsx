@@ -22,9 +22,7 @@ export const MoveTaskModal: React.FC<MoveTaskModalProps> = ({ isOpen, onClose, t
   const projectColumns = selectedProjectId ? useQuery(getProjectColumns$(selectedProjectId)) : null
   const orphanedColumns = !selectedProjectId ? useQuery(getOrphanedColumns$) : null
 
-  const columns = selectedProjectId 
-    ? (projectColumns ?? []) 
-    : (orphanedColumns ?? [])
+  const columns = selectedProjectId ? (projectColumns ?? []) : (orphanedColumns ?? [])
 
   // Reset form when modal opens/closes
   React.useEffect(() => {
@@ -102,7 +100,6 @@ export const MoveTaskModal: React.FC<MoveTaskModalProps> = ({ isOpen, onClose, t
     const project = projects.find((p: Project) => p.id === task.projectId)
     return project?.name || 'Unknown Project'
   }
-
 
   return (
     <div

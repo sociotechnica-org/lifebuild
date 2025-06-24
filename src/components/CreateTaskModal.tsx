@@ -31,9 +31,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   const projectColumns = selectedProjectId ? useQuery(getProjectColumns$(selectedProjectId)) : null
   const orphanedColumns = !selectedProjectId ? useQuery(getOrphanedColumns$) : null
 
-  const columns = selectedProjectId 
-    ? (projectColumns ?? []) 
-    : (orphanedColumns ?? [])
+  const columns = selectedProjectId ? (projectColumns ?? []) : (orphanedColumns ?? [])
 
   // Reset form when modal opens/closes
   React.useEffect(() => {
