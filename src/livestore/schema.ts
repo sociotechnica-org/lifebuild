@@ -71,7 +71,7 @@ const columns = State.SQLite.table({
   name: 'columns',
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
-    projectId: State.SQLite.text(),
+    projectId: State.SQLite.text({ nullable: true }),
     name: State.SQLite.text({ default: '' }),
     position: State.SQLite.integer({ default: 0 }),
     createdAt: State.SQLite.integer({
@@ -225,6 +225,10 @@ const materializers = State.SQLite.materializers(events, {
     }),
   'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt }) =>
     tasks.update({ columnId: toColumnId, position, updatedAt }).where({ id: taskId }),
+  'v1.TaskMovedToProject': ({ taskId, toProjectId, toColumnId, position, updatedAt }) =>
+    tasks
+      .update({ projectId: toProjectId, columnId: toColumnId, position, updatedAt })
+      .where({ id: taskId }),
   'v1.TaskUpdated': ({ taskId, title, description, assigneeIds, updatedAt }) => {
     const updates: Record<string, any> = { updatedAt }
     if (title !== undefined) updates.title = title

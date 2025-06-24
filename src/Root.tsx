@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
 import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
+import { OrphanedTasksPage } from './components/OrphanedTasksPage.js'
 import { Layout } from './components/Layout.js'
 import { MainSection } from './components/MainSection.js'
 import LiveStoreWorker from './livestore.worker?worker'
@@ -20,6 +21,7 @@ const AppBody: React.FC = () => (
       <Routes>
         <Route path='/projects' element={<ProjectsPage />} />
         <Route path='/project/:projectId' element={<ProjectWorkspace />} />
+        <Route path='/orphaned-tasks' element={<OrphanedTasksPage />} />
         <Route path='/chat' element={<MainSection />} />
         <Route path='/' element={<Navigate to='/projects' replace />} />
       </Routes>
