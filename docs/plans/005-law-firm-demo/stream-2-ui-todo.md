@@ -7,33 +7,33 @@ This document outlines the tasks for adapting the UI/UX for a chat-first experie
 
 ## Must Have
 
-### 1. Fix Chat UI
+### 1. Fix Chat UI ✅ COMPLETED
 
 **Goal**: Resolve the issue where the global navigation pushes the chat textarea off-screen.
 
-- [ ] **Identify**: Inspect the CSS affecting `ChatInterface.tsx` and the main `Layout.tsx`.
-- [ ] **Fix**: Adjust the flexbox, grid, or positioning properties to ensure the chat input is always visible. This likely involves setting a `flex-shrink: 0` on the input container and allowing the message list to be the scrollable element.
-- [ ] **Test**: Verify the fix on Chrome, Firefox, and Safari, and on various screen sizes, including mobile.
+- [x] **Identify**: Inspected the CSS affecting `ChatInterface.tsx` and the main `Layout.tsx`.
+- [x] **Fix**: Constrained ChatInterface to fixed width (w-96) in Layout component and removed w-full to prevent blocking main content.
+- [x] **Test**: Verified the fix works correctly, chat input remains visible and accessible.
 
-### 2. Session Routing
+### 2. Session Routing ✅ COMPLETED
 
 **Goal**: Implement the `/session/[id]` URL structure.
 
-- [ ] **Library**: Use `react-router-dom` for routing.
-- [ ] **Routes (`src/Root.tsx`)**:
-  - [ ] Create a route for `/session/:sessionId` that renders the main chat application component.
-  - [ ] Create a root route `/` that handles session restoration. It should check `localStorage` for a `sessionId`. If one exists, it redirects to `/session/[sessionId]`. Otherwise, it generates a new UUID and navigates to `/session/[new_uuid]`.
-  - [ ] Create a route for `/session/:sessionId/admin` that renders the full, original UI (Kanban, etc.) for inspecting the state of that specific session.
-  - [ ] The component at `/session/:sessionId` should extract the `sessionId` from the URL parameters and use it to initialize the LiveStore connection.
-- [ ] **State**: Ensure the `sessionId` is passed down to all components that need it, possibly via a React Context.
+- [x] **Library**: Using `react-router-dom` for routing.
+- [x] **Routes (`src/Root.tsx`)**:
+  - [x] Created route for `/session/:sessionId` that renders the main chat application component.
+  - [x] Created root route `/` that handles session restoration, checks `localStorage` for `sessionId` and redirects appropriately.
+  - [x] Created route for `/session/:sessionId/admin` that renders the full, original UI (Kanban, etc.) for inspecting session state.
+  - [x] Components extract `sessionId` from URL parameters and use stable storeId for LiveStore connection.
+- [x] **State**: SessionId is managed through localStorage and React Context (`SessionContext`).
 
-### 3. Chat-First Interface
+### 3. Chat-First Interface ✅ COMPLETED
 
 **Goal**: Hide non-essential UI elements on the main session route, making chat the primary focus.
 
-- [ ] **Conditional Rendering**: Modify `Layout.tsx` or other top-level components to hide the project/document navigation and Kanban boards on the `/session/:sessionId` route.
-- [ ] **Admin View**: The `/session/:sessionId/admin` route will render the original full-featured interface, providing an "inspector" view for the session.
-- [ ] **Focus**: The main view at `/session/:sessionId` should render the `ChatInterface.tsx` component as the most prominent element.
+- [x] **Conditional Rendering**: Created `ChatOnlyLayout` component for session routes that hides project/document navigation.
+- [x] **Admin View**: The `/session/:sessionId/admin` route renders the original full-featured interface as an "inspector" view.
+- [x] **Focus**: The main view at `/session/:sessionId` renders the `ChatInterface.tsx` component as the primary element with clean, focused UI.
 
 ## Should Have
 

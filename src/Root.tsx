@@ -1,34 +1,19 @@
 import { makePersistedAdapter } from '@livestore/adapter-web'
 import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedworker'
 import { LiveStoreProvider } from '@livestore/react'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
 import { TasksPage } from './components/TasksPage.js'
 import { Layout } from './components/Layout.js'
+import { ChatOnlyLayout } from './components/ChatOnlyLayout.js'
+import { EnsureStoreId } from './components/EnsureStoreId.js'
 import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from './livestore/schema.js'
 import { makeTracer } from './otel.js'
-import { getStoreId } from './util/store-id.js'
-
-const AppBody: React.FC = () => (
-  <BrowserRouter>
-    <Layout>
-      <Routes>
-        <Route path='/projects' element={<ProjectsPage />} />
-        <Route path='/project/:projectId' element={<ProjectWorkspace />} />
-        <Route path='/tasks' element={<TasksPage />} />
-        <Route path='/orphaned-tasks' element={<Navigate to='/tasks' replace />} />
-        <Route path='/' element={<Navigate to='/projects' replace />} />
-      </Routes>
-    </Layout>
-  </BrowserRouter>
-)
-
-const storeId = getStoreId()
 
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
@@ -38,16 +23,92 @@ const adapter = makePersistedAdapter({
 
 const otelTracer = makeTracer('work-squared-main')
 
+// LiveStore wrapper - stable storeId that respects URL overrides on mount
+const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Determine storeId once on mount - prioritize URL over localStorage
+  const storeId = useMemo(() => {
+    if (typeof window === 'undefined') return 'unused'
+
+    // Check URL first (using window.location for initial mount)
+    const urlParams = new URLSearchParams(window.location.search)
+    const urlStoreId = urlParams.get('storeId')
+
+    if (urlStoreId) {
+      // URL has storeId - use it and sync to localStorage
+      localStorage.setItem('storeId', urlStoreId)
+      return urlStoreId
+    }
+
+    // No URL storeId - fall back to localStorage
+    let storedId = localStorage.getItem('storeId')
+    if (!storedId) {
+      // No localStorage either - create new one
+      storedId = crypto.randomUUID()
+      localStorage.setItem('storeId', storedId)
+    }
+    return storedId
+  }, []) // Empty deps - calculated once on mount, stable during navigation
+
+  console.log(`Using stable storeId: ${storeId}`)
+
+  return (
+    <LiveStoreProvider
+      schema={schema}
+      renderLoading={_ => <div>Loading LiveStore ({_.stage})...</div>}
+      adapter={adapter}
+      batchUpdates={batchUpdates}
+      storeId={storeId}
+      otelOptions={{ tracer: otelTracer }}
+      syncPayload={{ authToken: 'insecure-token-change-me' }}
+    >
+      {children}
+    </LiveStoreProvider>
+  )
+}
+
 export const App: React.FC = () => (
-  <LiveStoreProvider
-    schema={schema}
-    renderLoading={_ => <div>Loading LiveStore ({_.stage})...</div>}
-    adapter={adapter}
-    batchUpdates={batchUpdates}
-    storeId={storeId}
-    otelOptions={{ tracer: otelTracer }}
-    syncPayload={{ authToken: 'insecure-token-change-me' }}
-  >
-    <AppBody />
-  </LiveStoreProvider>
+  <BrowserRouter>
+    <LiveStoreWrapper>
+      <EnsureStoreId>
+        <Routes>
+          {/* Chat-first route */}
+          <Route path='/' element={<ChatOnlyLayout />} />
+
+          {/* Admin routes */}
+          <Route
+            path='/admin'
+            element={
+              <Layout>
+                <ProjectsPage />
+              </Layout>
+            }
+          />
+          <Route
+            path='/admin/projects'
+            element={
+              <Layout>
+                <ProjectsPage />
+              </Layout>
+            }
+          />
+          <Route
+            path='/admin/tasks'
+            element={
+              <Layout>
+                <TasksPage />
+              </Layout>
+            }
+          />
+          <Route
+            path='/admin/project/:projectId'
+            element={
+              <Layout>
+                <ProjectWorkspace />
+              </Layout>
+            }
+          />
+        </Routes>
+      </EnsureStoreId>
+    </LiveStoreWrapper>
+  </BrowserRouter>
 )
