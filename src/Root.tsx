@@ -78,20 +78,23 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
     if (newStoreId && newStoreId !== storeId) {
       console.log(`StoreId changing: ${storeId} -> ${newStoreId} for ${location.pathname}`)
       setStoreId(newStoreId)
+    } else {
+      console.log(`StoreId staying: ${storeId} for ${location.pathname}`)
     }
-  }, [location.pathname, location.search, storeId])
+  }, [location.pathname, location.search]) // Remove storeId from dependencies!
 
   // Add storeId to URL for non-session routes that don't have it
   React.useEffect(() => {
     if (location.pathname !== '/' && !location.pathname.startsWith('/session/')) {
       const searchParams = new URLSearchParams(location.search)
       if (!searchParams.has('storeId')) {
+        console.log(`Adding storeId ${storeId} to URL for ${location.pathname}`)
         searchParams.set('storeId', storeId)
         const newUrl = `${location.pathname}?${searchParams.toString()}`
         window.history.replaceState({}, '', newUrl)
       }
     }
-  }, [location.pathname]) // Only depend on pathname, not search or storeId to avoid loops
+  }, [location.pathname, storeId]) // Include storeId since we need its current value
 
   return (
     <LiveStoreProvider
