@@ -6,6 +6,7 @@ import type { Project } from '../livestore/schema.js'
 import { seedSampleBoards } from '../util/seed-data.js'
 import { ProjectCard } from './ProjectCard.js'
 import { CreateProjectModal } from './CreateProjectModal.js'
+import { preserveStoreIdInUrl } from '../util/navigation.js'
 
 export const ProjectsPage: React.FC = () => {
   const { store } = useStore()
@@ -23,7 +24,7 @@ export const ProjectsPage: React.FC = () => {
   }, [projects.length, store])
 
   const handleProjectClick = (project: Project) => {
-    navigate(`/project/${project.id}`)
+    navigate(preserveStoreIdInUrl(`/admin/project/${project.id}`))
   }
 
   if (projects.length === 0) {

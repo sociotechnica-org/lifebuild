@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useQuery } from '@livestore/react'
 import { getUsers$ } from '../livestore/queries.js'
 import { getInitials } from '../util/initials.js'
+import { preserveStoreIdInUrl } from '../util/navigation.js'
 
 export const Navigation: React.FC = () => {
   const location = useLocation()
@@ -10,11 +11,11 @@ export const Navigation: React.FC = () => {
   const currentUser = users[0] // Get first user as current user
 
   const isActive = (path: string) => {
-    if (path === '/projects') {
-      return location.pathname === '/projects' || location.pathname.startsWith('/project/')
+    if (path === '/admin/projects') {
+      return location.pathname === '/admin/projects' || location.pathname.startsWith('/admin/project/')
     }
-    if (path === '/tasks') {
-      return location.pathname === '/tasks' || location.pathname === '/orphaned-tasks'
+    if (path === '/admin/tasks') {
+      return location.pathname === '/admin/tasks'
     }
     return location.pathname === path
   }
@@ -25,9 +26,9 @@ export const Navigation: React.FC = () => {
         <div className='flex justify-between h-16'>
           <div className='flex space-x-8'>
             <Link
-              to='/projects'
+              to={preserveStoreIdInUrl('/admin/projects')}
               className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                isActive('/projects')
+                isActive('/admin/projects')
                   ? 'border-blue-500 text-gray-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
@@ -35,9 +36,9 @@ export const Navigation: React.FC = () => {
               Projects
             </Link>
             <Link
-              to='/tasks'
+              to={preserveStoreIdInUrl('/admin/tasks')}
               className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                isActive('/tasks')
+                isActive('/admin/tasks')
                   ? 'border-blue-500 text-gray-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}

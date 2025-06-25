@@ -22,8 +22,8 @@ test.describe('Smoke Tests', () => {
     // Check basic app structure
     await expectBasicAppStructure(page)
 
-    // Should redirect to session-based URL by default
-    await expect(page).toHaveURL(/\/session\/[a-f0-9-]+/) // Session-based URL
+    // Should add storeId to URL by default
+    await expect(page).toHaveURL(/\?storeId=[a-f0-9-]+/) // storeId-based URL
 
     // Verify chat interface is visible (may not be fully functional in CI)
     const chatElement = page.locator('textarea[placeholder="Type your message..."]')
@@ -33,35 +33,22 @@ test.describe('Smoke Tests', () => {
       console.log('Chat interface not visible - expected in CI without sync server')
     }
 
-    // Test navigation by going directly to projects via admin route
-    const sessionId = 'test-smoke-' + Date.now()
-    await page.goto(`/session/${sessionId}/admin`)
+    // Test navigation by going to admin route
+    const storeId = 'test-smoke-' + Date.now()
+    await page.goto(`/admin?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
-    await expect(page).toHaveURL(/\/session\/[^\/]+\/admin/)
+    await expect(page).toHaveURL(/\/admin\?storeId=[^&]+/)
 
-    // Verify admin interface is visible and accessible
-    await expect(page.locator('text=Session Admin View')).toBeVisible()
-    await expect(page.locator(`text=${sessionId}`)).toBeVisible()
-
-    // Verify projects content is visible (not blocked by chat panel)
+    // Verify admin interface shows projects
     const projectsSection = page.locator('text=Projects').first()
     if (await projectsSection.isVisible()) {
       await expect(projectsSection).toBeVisible()
     }
 
-    // Verify chat panel is present but not blocking main content
-    const chatPanel = page.locator('text=LLM Chat')
-    if (await chatPanel.isVisible()) {
-      await expect(chatPanel).toBeVisible()
-      // Main content should still be accessible
-      const mainContent = page.locator('text=Session Admin View')
-      await expect(mainContent).toBeVisible()
-    }
-
-    // Navigate directly to projects (should work in admin)
-    await page.goto('/projects')
+    // Navigate directly to admin projects
+    await page.goto(`/admin/projects?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
-    await expect(page).toHaveURL(/\/projects/)
+    await expect(page).toHaveURL(/\/admin\/projects\?storeId=[^&]+/)
   })
 
   test('LiveStore sync is working', async ({ page }) => {
@@ -79,8 +66,8 @@ test.describe('Smoke Tests', () => {
     }
 
     // Basic functionality should be available (this tests that LiveStore has loaded)
-    // Try to access the projects page which requires LiveStore data
-    await page.goto('/projects')
+    // Try to access the admin projects page which requires LiveStore data
+    await page.goto('/admin/projects')
     await waitForLiveStoreReady(page)
 
     // Should not show any error messages (unless it's expected LiveStore sync errors in CI)
@@ -117,15 +104,15 @@ test.describe('Smoke Tests', () => {
     // Wait for initial load
     await waitForLiveStoreReady(page)
 
-    // Test session-based routing
-    const sessionId = 'test-routing-' + Date.now()
-    await page.goto(`/session/${sessionId}`)
-    await expect(page).toHaveURL(/\/session\/[^\/]+$/)
+    // Test storeId-based routing
+    const storeId = 'test-routing-' + Date.now()
+    await page.goto(`/?storeId=${storeId}`)
+    await expect(page).toHaveURL(/\?storeId=[^&]+$/)
 
-    // Navigate to projects route directly
-    await page.goto('/projects')
+    // Navigate to admin projects route directly
+    await page.goto(`/admin/projects?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
-    await expect(page).toHaveURL(/\/projects/)
+    await expect(page).toHaveURL(/\/admin\/projects\?storeId=[^&]+/)
 
     // Basic navigation is working
     console.log('Basic app routing verified')

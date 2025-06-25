@@ -39,10 +39,10 @@ export async function waitForLiveStoreReady(page: Page) {
  * Uses admin routes to access the full original interface for testing
  */
 export async function navigateToAppWithUniqueStore(page: Page) {
-  const sessionId = `test-${Date.now()}-${Math.random().toString(36).substring(7)}`
-  await page.goto(`/session/${sessionId}/admin`)
+  const storeId = `test-${Date.now()}-${Math.random().toString(36).substring(7)}`
+  await page.goto(`/admin?storeId=${storeId}`)
   await waitForLiveStoreReady(page)
-  return sessionId
+  return storeId
 }
 
 /**

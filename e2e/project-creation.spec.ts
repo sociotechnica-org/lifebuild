@@ -13,8 +13,8 @@ test.describe('Project Creation and Task Management', () => {
       return
     }
 
-    // Should start on admin page (which shows projects interface)
-    await expect(page).toHaveURL(/\/session\/[^\/]+\/admin/)
+    // Should be on admin page (which shows projects interface)
+    await expect(page).toHaveURL(/\/admin\?storeId=[^&]+/)
 
     // Verify we're on the projects page with the "Create Project" button
     await expect(page.locator('h1')).toContainText('Projects')
@@ -57,7 +57,7 @@ test.describe('Project Creation and Task Management', () => {
     await waitForLiveStoreReady(page)
 
     // Should be on the project board page
-    await expect(page).toHaveURL(/\/project\/.*/)
+    await expect(page).toHaveURL(/\/admin\/project\/.*/)
 
     // Verify the project name appears as the page title
     await expect(page.locator('h1')).toContainText(projectName)
@@ -86,8 +86,8 @@ test.describe('Project Creation and Task Management', () => {
       return
     }
 
-    // Navigate to admin page (which shows projects interface)
-    await expect(page).toHaveURL(/\/session\/[^\/]+\/admin/)
+    // Should be on admin page (which shows projects interface)
+    await expect(page).toHaveURL(/\/admin\?storeId=[^&]+/)
 
     // Click Create Project button
     const createProjectButton = page.locator('button:has-text("Create Project")')

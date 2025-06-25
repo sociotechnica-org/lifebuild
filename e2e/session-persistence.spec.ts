@@ -3,17 +3,17 @@ import { waitForLiveStoreReady } from './test-utils'
 
 test.describe('Session Persistence', () => {
   test('session state persists across URL visits', async ({ page }) => {
-    // Navigate to root - should redirect to session
+    // Navigate to root - should add storeId to URL
     await page.goto('/')
     await waitForLiveStoreReady(page)
 
-    // Should be redirected to a session URL
-    await expect(page).toHaveURL(/\/session\/[a-f0-9-]+$/)
+    // Should have storeId query parameter
+    await expect(page).toHaveURL(/\?storeId=[a-f0-9-]+$/)
 
-    // Get the current session URL
+    // Get the current URL with storeId
     const sessionUrl = page.url()
-    const sessionId = sessionUrl.match(/\/session\/([a-f0-9-]+)$/)?.[1]
-    expect(sessionId).toBeTruthy()
+    const storeId = new URL(sessionUrl).searchParams.get('storeId')
+    expect(storeId).toBeTruthy()
 
     // Create a conversation to test persistence
     const createConversationButton = page.locator('button:has-text("Start New Chat")')
@@ -29,12 +29,12 @@ test.describe('Session Persistence', () => {
       await page.waitForTimeout(500)
     }
 
-    // Navigate away and back to the same session URL
+    // Navigate away and back to the same URL with storeId
     await page.goto('https://example.com') // Navigate away
-    await page.goto(sessionUrl) // Go back to same session
+    await page.goto(sessionUrl) // Go back to same URL
     await waitForLiveStoreReady(page)
 
-    // Should be at the same session URL
+    // Should be at the same URL with storeId
     await expect(page).toHaveURL(sessionUrl)
 
     // The conversation and state should persist
@@ -53,22 +53,21 @@ test.describe('Session Persistence', () => {
     console.log('Has persisted conversations:', hasConversations)
   })
 
-  test('root redirect creates consistent session behavior', async ({ page }) => {
+  test('root redirect creates consistent storeId behavior', async ({ page }) => {
     // First visit to root
     await page.goto('/')
     await waitForLiveStoreReady(page)
 
-    // Should redirect to session URL, not storeId URL
+    // Should have storeId query parameter
     const firstUrl = page.url()
     console.log('First root visit URL:', firstUrl)
 
-    // Should be session format, not storeId format
-    expect(firstUrl).toMatch(/\/session\/[a-f0-9-]+$/)
-    expect(firstUrl).not.toMatch(/\?storeId=/)
+    // Should have storeId format
+    expect(firstUrl).toMatch(/\?storeId=[a-f0-9-]+$/)
 
-    // Extract session ID
-    const firstSessionId = firstUrl.match(/\/session\/([a-f0-9-]+)$/)?.[1]
-    expect(firstSessionId).toBeTruthy()
+    // Extract storeId
+    const firstStoreId = new URL(firstUrl).searchParams.get('storeId')
+    expect(firstStoreId).toBeTruthy()
 
     // Navigate away and back to root again
     await page.goto('https://example.com')
@@ -78,17 +77,16 @@ test.describe('Session Persistence', () => {
     const secondUrl = page.url()
     console.log('Second root visit URL:', secondUrl)
 
-    // Should redirect to the SAME session (from localStorage)
+    // Should redirect to the SAME storeId (from localStorage)
     expect(secondUrl).toBe(firstUrl)
-    expect(secondUrl).toMatch(/\/session\/[a-f0-9-]+$/)
-    expect(secondUrl).not.toMatch(/\?storeId=/)
+    expect(secondUrl).toMatch(/\?storeId=[a-f0-9-]+$/)
 
-    // Extract second session ID - should be the same
-    const secondSessionId = secondUrl.match(/\/session\/([a-f0-9-]+)$/)?.[1]
-    expect(secondSessionId).toBe(firstSessionId)
+    // Extract second storeId - should be the same
+    const secondStoreId = new URL(secondUrl).searchParams.get('storeId')
+    expect(secondStoreId).toBe(firstStoreId)
   })
 
-  test('multiple tabs get same session from localStorage', async ({ browser }) => {
+  test('multiple tabs get same storeId from localStorage', async ({ browser }) => {
     const context = await browser.newContext()
 
     // First tab
@@ -98,7 +96,7 @@ test.describe('Session Persistence', () => {
 
     const firstTabUrl = page1.url()
     console.log('First tab URL:', firstTabUrl)
-    expect(firstTabUrl).toMatch(/\/session\/[a-f0-9-]+$/)
+    expect(firstTabUrl).toMatch(/\?storeId=[a-f0-9-]+$/)
 
     // Second tab (same context = same localStorage)
     const page2 = await context.newPage()
@@ -108,13 +106,13 @@ test.describe('Session Persistence', () => {
     const secondTabUrl = page2.url()
     console.log('Second tab URL:', secondTabUrl)
 
-    // Should be the same session URL
+    // Should be the same URL with storeId
     expect(secondTabUrl).toBe(firstTabUrl)
 
     await context.close()
   })
 
-  test('incognito gets new session', async ({ browser }) => {
+  test('incognito gets new storeId', async ({ browser }) => {
     // Regular context
     const context1 = await browser.newContext()
     const page1 = await context1.newPage()
@@ -132,10 +130,10 @@ test.describe('Session Persistence', () => {
     console.log('Regular session:', url1)
     console.log('Incognito session:', url2)
 
-    // Should be different sessions
+    // Should be different storeIds
     expect(url1).not.toBe(url2)
-    expect(url1).toMatch(/\/session\/[a-f0-9-]+$/)
-    expect(url2).toMatch(/\/session\/[a-f0-9-]+$/)
+    expect(url1).toMatch(/\?storeId=[a-f0-9-]+$/)
+    expect(url2).toMatch(/\?storeId=[a-f0-9-]+$/)
 
     await context1.close()
     await context2.close()

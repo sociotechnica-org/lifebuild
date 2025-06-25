@@ -1,17 +1,16 @@
 import { makePersistedAdapter } from '@livestore/adapter-web'
 import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedworker'
 import { LiveStoreProvider } from '@livestore/react'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
 import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
 import { TasksPage } from './components/TasksPage.js'
 import { Layout } from './components/Layout.js'
-import { SessionRedirect } from './components/SessionRedirect.js'
-import { SessionWrapper } from './components/SessionWrapper.js'
-import { SessionAdminWrapper } from './components/SessionAdminWrapper.js'
+import { ChatOnlyLayout } from './components/ChatOnlyLayout.js'
+import { EnsureStoreId } from './components/EnsureStoreId.js'
 import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from './livestore/schema.js'
 import { makeTracer } from './otel.js'
@@ -24,34 +23,35 @@ const adapter = makePersistedAdapter({
 
 const otelTracer = makeTracer('work-squared-main')
 
-// Get stable storeId with proper URL and SSR handling
-const getStableStoreId = (): string => {
-  if (typeof window === 'undefined') return 'unused'
-
-  // First check if we're on a session route - use URL sessionId
-  const sessionMatch = window.location.pathname.match(/^\/session\/([^\/]+)/)
-  if (sessionMatch && sessionMatch[1]) {
-    // Store in localStorage for consistency
-    localStorage.setItem('sessionId', sessionMatch[1])
-    return sessionMatch[1]
-  }
-
-  // For non-session routes, check localStorage
-  const sessionId = localStorage.getItem('sessionId')
-  if (sessionId) {
-    return sessionId
-  }
-
-  // Generate new sessionId and store it
-  const newId = crypto.randomUUID()
-  localStorage.setItem('sessionId', newId)
-  return newId
+// Get storeId from URL query params
+const getStoreIdFromQuery = (): string | null => {
+  if (typeof window === 'undefined') return null
+  
+  const urlParams = new URLSearchParams(window.location.search)
+  return urlParams.get('storeId')
 }
 
-// LiveStore wrapper - keep it simple
+// Get or create storeId for localStorage fallback
+const getOrCreateStoreId = (): string => {
+  if (typeof window === 'undefined') return 'unused'
+  
+  // Check localStorage for existing storeId
+  let storeId = localStorage.getItem('storeId')
+  if (!storeId) {
+    // Generate new storeId
+    storeId = crypto.randomUUID()
+    localStorage.setItem('storeId', storeId)
+  }
+  
+  return storeId
+}
+
+// LiveStore wrapper - stable storeId from localStorage
 const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Use the same storeId for everything - no navigation-based changes
-  const storeId = getStableStoreId()
+  // Use stable storeId - don't change it on navigation
+  const storeId = useMemo(() => {
+    return getOrCreateStoreId()
+  }, []) // No dependencies - this should be stable
 
   console.log(`Using stable storeId: ${storeId}`)
 
@@ -73,14 +73,14 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
 export const App: React.FC = () => (
   <BrowserRouter>
     <LiveStoreWrapper>
-      <Routes>
-        {/* Session-based routes */}
-        <Route path='/session/:sessionId' element={<SessionWrapper />} />
-        <Route path='/session/:sessionId/admin' element={<SessionAdminWrapper />} />
-
-        {/* Original routes */}
+      <EnsureStoreId>
+        <Routes>
+        {/* Chat-first route */}
+        <Route path='/' element={<ChatOnlyLayout />} />
+        
+        {/* Admin routes */}
         <Route
-          path='/projects'
+          path='/admin'
           element={
             <Layout>
               <ProjectsPage />
@@ -88,26 +88,32 @@ export const App: React.FC = () => (
           }
         />
         <Route
-          path='/project/:projectId'
+          path='/admin/projects'
           element={
             <Layout>
-              <ProjectWorkspace />
+              <ProjectsPage />
             </Layout>
           }
         />
         <Route
-          path='/tasks'
+          path='/admin/tasks'
           element={
             <Layout>
               <TasksPage />
             </Layout>
           }
         />
-        <Route path='/orphaned-tasks' element={<Navigate to='/tasks' replace />} />
-
-        {/* Root redirect to session */}
-        <Route path='/' element={<SessionRedirect />} />
-      </Routes>
+        <Route
+          path='/admin/project/:projectId'
+          element={
+            <Layout>
+              <ProjectWorkspace />
+            </Layout>
+          }
+        />
+        
+        </Routes>
+      </EnsureStoreId>
     </LiveStoreWrapper>
   </BrowserRouter>
 )
