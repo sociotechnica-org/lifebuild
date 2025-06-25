@@ -4,7 +4,8 @@ import { getStoreId } from '../../src/util/store-id.js'
 describe('getStoreId', () => {
   it('returns existing storeId from query string', () => {
     const originalHref = window.location.href
-    window.history.replaceState({}, '', '?storeId=abc123')
+    // Simulate being on a non-root path with storeId
+    window.history.replaceState({}, '', '/projects?storeId=abc123')
     const id = getStoreId()
     expect(id).toBe('abc123')
     window.history.replaceState({}, '', originalHref)

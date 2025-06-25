@@ -9,6 +9,12 @@ export const getStoreId = () => {
     return sessionId
   }
 
+  // If we're at the root path, we're about to be redirected to a session
+  // Don't create storeId URLs, just return a temporary ID
+  if (window.location.pathname === '/') {
+    return 'temp-root-' + crypto.randomUUID()
+  }
+
   // Fallback to original behavior for non-session routes
   const searchParams = new URLSearchParams(window.location.search)
   const storeId = searchParams.get('storeId')
