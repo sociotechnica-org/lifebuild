@@ -501,7 +501,7 @@ export const ChatInterface: React.FC = () => {
       {/* Chat Header - Fixed */}
       <div className='flex-shrink-0 p-4 border-b border-gray-200'>
         <div className='flex items-center justify-between mb-2'>
-          <h2 className='text-lg font-semibold text-gray-900'>LLM Chat</h2>
+          <h2 className='text-lg font-semibold text-gray-900'>Chat</h2>
         </div>
 
         {/* Conversation Selector with + button inline */}
