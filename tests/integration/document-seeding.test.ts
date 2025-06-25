@@ -1,33 +1,22 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { createTestStore } from '../../src/test-utils'
 import { seedSessionDocuments } from '../../src/util/seed-data'
 import { getDocumentList$ } from '../../src/livestore/queries'
-
-// Mock fetch for document content loading
-const mockFetch = vi.fn()
-global.fetch = mockFetch
 
 describe('Document Seeding', () => {
   let store: any
 
   beforeEach(() => {
     store = createTestStore()
-    mockFetch.mockClear()
   })
 
-  it('should seed 5 documents when none exist', async () => {
-    // Mock successful fetch responses for all seed documents
-    mockFetch.mockResolvedValue({
-      ok: true,
-      text: () => Promise.resolve('# Mock Document Content\n\nThis is test content.'),
-    })
-
+  it('should seed 5 documents when none exist', () => {
     // Initial state - no documents
     const initialDocuments = store.query(getDocumentList$)
     expect(initialDocuments).toHaveLength(0)
 
     // Seed documents
-    await seedSessionDocuments(store)
+    seedSessionDocuments(store)
 
     // Verify documents were created
     const documents = store.query(getDocumentList$)
@@ -43,13 +32,8 @@ describe('Document Seeding', () => {
     expect(firstDoc).toHaveProperty('archivedAt', null)
   })
 
-  it('should create documents with specific titles and IDs', async () => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      text: () => Promise.resolve('# Test Content'),
-    })
-
-    await seedSessionDocuments(store)
+  it('should create documents with specific titles and IDs', () => {
+    seedSessionDocuments(store)
 
     const documents = store.query(getDocumentList$)
     const titles = documents.map((doc: any) => doc.title)
@@ -68,47 +52,21 @@ describe('Document Seeding', () => {
     expect(ids).toContain('doc-legal-research')
   })
 
-  it('should handle fetch failures gracefully with placeholder content', async () => {
-    // Mock fetch to fail
-    mockFetch.mockResolvedValue({
-      ok: false,
-      status: 404,
-    })
-
-    await seedSessionDocuments(store)
+  it('should create documents with actual content', () => {
+    seedSessionDocuments(store)
 
     const documents = store.query(getDocumentList$)
-    expect(documents).toHaveLength(5)
-
-    // Check that placeholder content was used
-    const firstDoc = documents[0]
-    expect(firstDoc.content).toContain('# ')
-    expect(firstDoc.content).toContain('This document provides guidance')
-    expect(firstDoc.content).toContain('Content will be loaded when available')
+    const ethicsGuide = documents.find((doc: any) => doc.id === 'doc-ai-ethics-guide')
+    
+    expect(ethicsGuide).toBeDefined()
+    expect(ethicsGuide.content).toContain('# AI Legal Ethics Guide')
+    expect(ethicsGuide.content).toContain('## Introduction')
+    expect(ethicsGuide.content).toContain('artificial intelligence into legal practice')
+    expect(ethicsGuide.title).toBe('AI Legal Ethics Guide')
   })
 
-  it('should handle network errors gracefully', async () => {
-    // Mock fetch to throw an error
-    mockFetch.mockRejectedValue(new Error('Network error'))
-
-    await seedSessionDocuments(store)
-
-    const documents = store.query(getDocumentList$)
-    expect(documents).toHaveLength(5)
-
-    // Check that placeholder content was used for all documents
-    documents.forEach((doc: any) => {
-      expect(doc.content).toContain('Content will be loaded when available')
-    })
-  })
-
-  it('should create documents with different creation dates', async () => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      text: () => Promise.resolve('# Test Content'),
-    })
-
-    await seedSessionDocuments(store)
+  it('should create documents with different creation dates', () => {
+    seedSessionDocuments(store)
 
     const documents = store.query(getDocumentList$)
     const creationDates = documents.map((doc: any) => doc.createdAt.getTime())
@@ -123,42 +81,42 @@ describe('Document Seeding', () => {
     }
   })
 
-  it('should load actual content when fetch succeeds', async () => {
-    const mockContent =
-      '# AI Legal Ethics Guide\n\n## Introduction\n\nThis is the actual content from the markdown file.'
-
-    mockFetch.mockResolvedValue({
-      ok: true,
-      text: () => Promise.resolve(mockContent),
-    })
-
-    await seedSessionDocuments(store)
+  it('should create documents with meaningful content for each type', () => {
+    seedSessionDocuments(store)
 
     const documents = store.query(getDocumentList$)
+    
+    // Check each document has relevant content
     const ethicsGuide = documents.find((doc: any) => doc.id === 'doc-ai-ethics-guide')
+    expect(ethicsGuide.content).toContain('ethical challenges')
+    expect(ethicsGuide.content).toContain('Client Confidentiality')
 
-    expect(ethicsGuide).toBeDefined()
-    expect(ethicsGuide.content).toBe(mockContent)
-    expect(ethicsGuide.title).toBe('AI Legal Ethics Guide')
+    const roadmap = documents.find((doc: any) => doc.id === 'doc-implementation-roadmap')
+    expect(roadmap.content).toContain('Phase 1')
+    expect(roadmap.content).toContain('Infrastructure Assessment')
+
+    const checklist = documents.find((doc: any) => doc.id === 'doc-vendor-evaluation')
+    expect(checklist.content).toContain('Security and Compliance')
+    expect(checklist.content).toContain('Encryption Standards')
+
+    const bestPractices = documents.find((doc: any) => doc.id === 'doc-contract-review')
+    expect(bestPractices.content).toContain('contract review processes')
+    expect(bestPractices.content).toContain('Quality Control Framework')
+
+    const researchStrategies = documents.find((doc: any) => doc.id === 'doc-legal-research')
+    expect(researchStrategies.content).toContain('legal research')
+    expect(researchStrategies.content).toContain('Case Law Research')
   })
 
-  it('should make fetch requests for all seed documents', async () => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      text: () => Promise.resolve('# Test Content'),
-    })
+  it('should handle multiple seeding calls gracefully', () => {
+    // First seeding
+    seedSessionDocuments(store)
+    const firstDocuments = store.query(getDocumentList$)
+    expect(firstDocuments).toHaveLength(5)
 
-    await seedSessionDocuments(store)
-
-    // Verify fetch was called for each document
-    expect(mockFetch).toHaveBeenCalledTimes(5)
-
-    // Verify the correct URLs were called
-    const calledUrls = mockFetch.mock.calls.map(call => call[0])
-    expect(calledUrls).toContain('/docs/seed-content/ai-legal-ethics-guide.md')
-    expect(calledUrls).toContain('/docs/seed-content/ai-implementation-roadmap.md')
-    expect(calledUrls).toContain('/docs/seed-content/ai-vendor-evaluation-checklist.md')
-    expect(calledUrls).toContain('/docs/seed-content/ai-contract-review-best-practices.md')
-    expect(calledUrls).toContain('/docs/seed-content/ai-legal-research-strategies.md')
+    // Second seeding should add more documents (not replace)
+    seedSessionDocuments(store)
+    const secondDocuments = store.query(getDocumentList$)
+    expect(secondDocuments).toHaveLength(10) // 5 + 5 = 10
   })
 })

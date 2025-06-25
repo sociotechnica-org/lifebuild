@@ -1,4 +1,4 @@
-# AI Legal Ethics Guide
+export const aiLegalEthicsGuide = `# AI Legal Ethics Guide
 
 ## Introduction
 
@@ -66,27 +66,6 @@ Implement robust quality assurance measures:
 - Audit trails for AI-assisted work
 - Performance monitoring and adjustment
 
-## Regulatory Considerations
-
-### Current Regulatory Landscape
-
-The regulatory environment for AI in legal practice is evolving:
-
-- State bar associations are developing AI-specific guidance
-- Federal agencies are increasing oversight of AI systems
-- International regulations may apply to cross-border matters
-- Industry standards are emerging for AI governance
-
-### Compliance Strategies
-
-Develop proactive compliance strategies:
-
-- Monitor regulatory developments in relevant jurisdictions
-- Participate in bar association AI committees and working groups
-- Engage with regulatory bodies on AI policy development
-- Implement compliance monitoring systems
-- Regular policy updates based on regulatory changes
-
 ## Risk Management
 
 ### Identifying AI-Related Risks
@@ -113,4 +92,4 @@ Implement comprehensive risk mitigation measures:
 
 The successful integration of AI into legal practice requires careful attention to ethical obligations, regulatory compliance, and risk management. By following the principles and practices outlined in this guide, law firms can harness the benefits of AI while maintaining the trust and confidence of their clients and the legal profession.
 
-Regular review and updates of AI policies and procedures are essential as technology and regulations continue to evolve. The future of legal practice will increasingly depend on the responsible and ethical deployment of AI technologies.
+Regular review and updates of AI policies and procedures are essential as technology and regulations continue to evolve. The future of legal practice will increasingly depend on the responsible and ethical deployment of AI technologies.`
