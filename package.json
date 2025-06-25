@@ -81,7 +81,7 @@
     "dev": "concurrently \"vite\" \"wrangler dev\"",
     "dev:wrangler": "wrangler dev",
     "preview": "vite preview",
-    "wrangler:deploy": "wrangler deploy",
+    "wrangler:deploy": "wrangler pages deploy dist --compatibility-date=2024-05-12",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
