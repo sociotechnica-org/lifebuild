@@ -22,9 +22,39 @@ const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>
 
 // Mock createTestStore for tests that expect it
 const createTestStore = () => {
+  const mockData = new Map()
+
   return {
     mutate: () => Promise.resolve(undefined),
-    query: () => [],
+    commit: (event: any) => {
+      // Simple mock implementation for commit
+      if (event.name === 'v1.DocumentCreated') {
+        const docs = mockData.get('documents') || []
+        docs.push({
+          id: event.args.id,
+          title: event.args.title,
+          content: event.args.content,
+          createdAt: event.args.createdAt,
+          updatedAt: event.args.createdAt,
+          archivedAt: null,
+        })
+        mockData.set('documents', docs)
+      }
+    },
+    query: (queryObj: any) => {
+      // Handle different query types based on the query object
+      if (queryObj && queryObj.label && queryObj.label.includes('Document')) {
+        return mockData.get('documents') || []
+      }
+      if (queryObj && queryObj.label === 'getDocumentList') {
+        return mockData.get('documents') || []
+      }
+      // Fallback for any query that might contain 'document'
+      if (queryObj && JSON.stringify(queryObj).toLowerCase().includes('document')) {
+        return mockData.get('documents') || []
+      }
+      return []
+    },
     subscribe: () => () => {},
   }
 }

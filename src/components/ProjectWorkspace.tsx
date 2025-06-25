@@ -9,6 +9,7 @@ import {
 } from '../livestore/queries.js'
 import type { Task, Document } from '../livestore/schema.js'
 import { events } from '../livestore/schema.js'
+import { seedSessionDocuments } from '../util/seed-data.js'
 import { ProjectProvider, useProject } from '../contexts/ProjectContext.js'
 import { KanbanBoard } from './KanbanBoard.js'
 import { TaskModal } from './TaskModal.js'
@@ -35,6 +36,15 @@ const ProjectWorkspaceContent: React.FC = () => {
   const columns = useQuery(getProjectColumns$(projectId)) ?? []
   const tasks = useQuery(getProjectTasks$(projectId)) ?? []
   const documents = (useQuery(getDocumentsForProject$(projectId)) ?? []) as Document[]
+  const hasSeededDocumentsRef = React.useRef(false)
+
+  // Seed documents if none exist (similar to project seeding pattern)
+  React.useEffect(() => {
+    if (documents.length === 0 && !hasSeededDocumentsRef.current) {
+      hasSeededDocumentsRef.current = true
+      seedSessionDocuments(store).catch(console.error)
+    }
+  }, [documents.length, store])
 
   // Group tasks by column
   const tasksByColumn = (tasks || []).reduce((acc: Record<string, Task[]>, task: Task) => {
