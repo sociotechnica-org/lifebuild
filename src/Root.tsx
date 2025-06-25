@@ -26,7 +26,7 @@ const adapter = makePersistedAdapter({
 const otelTracer = makeTracer('work-squared-main')
 
 // Compute storeId without side effects
-const computeStoreId = (pathname: string, search: string): string => {
+const computeStoreId = (pathname: string, search: string, currentStoreId?: string): string => {
   if (typeof window === 'undefined') return 'unused'
 
   // For session-based routing, use the sessionId as the storeId
@@ -40,12 +40,18 @@ const computeStoreId = (pathname: string, search: string): string => {
     return getOrCreateSessionId()
   }
 
-  // For non-session routes, check for existing storeId in search params
+  // For non-session routes, check for existing storeId in search params first
   const searchParams = new URLSearchParams(search)
   const storeId = searchParams.get('storeId')
   if (storeId !== null) return storeId
 
-  // Generate new storeId but don't modify location here - let React Router handle navigation
+  // If we have a current storeId (from previous navigation), preserve it
+  // This handles the case where user navigates from /session/[id] to /project/[id]
+  if (currentStoreId && currentStoreId !== 'temp-loading') {
+    return currentStoreId
+  }
+
+  // Generate new storeId as last resort
   return crypto.randomUUID()
 }
 
@@ -58,8 +64,8 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   })
 
   React.useEffect(() => {
-    // Update storeId when location changes, but avoid side effects
-    const newStoreId = computeStoreId(location.pathname, location.search)
+    // Update storeId when location changes, preserving current storeId when appropriate
+    const newStoreId = computeStoreId(location.pathname, location.search, storeId)
     if (newStoreId !== storeId) {
       setStoreId(newStoreId)
     }
@@ -70,12 +76,12 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
     // Only update URL for non-session, non-root routes that need storeId in URL
     if (location.pathname !== '/' && !location.pathname.startsWith('/session/')) {
       const searchParams = new URLSearchParams(location.search)
-      if (!searchParams.has('storeId')) {
+      if (!searchParams.has('storeId') && storeId && storeId !== 'temp-loading') {
         searchParams.set('storeId', storeId)
         window.history.replaceState({}, '', `${location.pathname}?${searchParams.toString()}`)
       }
     }
-  }, [storeId, location.pathname, location.search])
+  }, [storeId, location.pathname]) // Remove location.search dependency to avoid loops
 
   return (
     <LiveStoreProvider
