@@ -29,4 +29,16 @@
       "new_sqlite_classes": ["WebSocketServer"],
     },
   ],
+  "secrets_store_secrets": [
+    {
+      "binding": "BRAINTRUST_API_KEY",
+      "store_id": "59823320bc6a4a69919427c46669f9f3",
+      "secret_name": "BRAINTRUST_API_KEY",
+    },
+    {
+      "binding": "BRAINTRUST_PROJECT_ID",
+      "store_id": "59823320bc6a4a69919427c46669f9f3",
+      "secret_name": "BRAINTRUST_PROJECT_ID",
+    },
+  ],
 }

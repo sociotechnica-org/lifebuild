@@ -34,8 +34,12 @@ export default {
     // Handle LLM API proxy with tool calling support
     if (url.pathname === '/api/llm/chat' && request.method === 'POST') {
       try {
-        // Validate environment variables
-        if (!env.BRAINTRUST_API_KEY || !env.BRAINTRUST_PROJECT_ID) {
+        // Fetch secrets from the store
+        const apiKey = await env.BRAINTRUST_API_KEY.get()
+        const projectId = await env.BRAINTRUST_PROJECT_ID.get()
+
+        // Validate secrets
+        if (!apiKey || !projectId) {
           return new Response(JSON.stringify({ error: 'Missing LLM API configuration' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
@@ -219,9 +223,9 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
         const response = await fetch('https://api.braintrust.dev/v1/proxy/chat/completions', {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${env.BRAINTRUST_API_KEY}`,
+            Authorization: `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
-            'x-bt-parent': `project_id:${env.BRAINTRUST_PROJECT_ID}`,
+            'x-bt-parent': `project_id:${projectId}`,
           },
           body: JSON.stringify({
             model: 'gpt-4o',
@@ -294,7 +298,14 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
 
     // Handle WebSocket upgrade requests - use pre-instantiated worker
     if (request.headers.get('upgrade') === 'websocket') {
-      return worker.fetch(request, env)
+      return worker.fetch(request, env, {
+        onPush: async function (message) {
+          console.log('Sync server: relaying', message.batch.length, 'events')
+        },
+        onPull: async function (message) {
+          console.log('onPull', message)
+        },
+      })
     }
 
     return new Response('Not found', { status: 404 })
