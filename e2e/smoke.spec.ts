@@ -42,13 +42,13 @@ test.describe('Smoke Tests', () => {
     // Verify admin interface is visible and accessible
     await expect(page.locator('text=Session Admin View')).toBeVisible()
     await expect(page.locator(`text=${sessionId}`)).toBeVisible()
-    
+
     // Verify projects content is visible (not blocked by chat panel)
     const projectsSection = page.locator('text=Projects').first()
     if (await projectsSection.isVisible()) {
       await expect(projectsSection).toBeVisible()
     }
-    
+
     // Verify chat panel is present but not blocking main content
     const chatPanel = page.locator('text=LLM Chat')
     if (await chatPanel.isVisible()) {
