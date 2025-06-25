@@ -3,7 +3,7 @@ import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedwo
 import { LiveStoreProvider } from '@livestore/react'
 import React, { useMemo } from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
@@ -23,18 +23,10 @@ const adapter = makePersistedAdapter({
 
 const otelTracer = makeTracer('work-squared-main')
 
-// Get storeId from URL query params
-const getStoreIdFromQuery = (): string | null => {
-  if (typeof window === 'undefined') return null
-  
-  const urlParams = new URLSearchParams(window.location.search)
-  return urlParams.get('storeId')
-}
-
 // Get or create storeId for localStorage fallback
 const getOrCreateStoreId = (): string => {
   if (typeof window === 'undefined') return 'unused'
-  
+
   // Check localStorage for existing storeId
   let storeId = localStorage.getItem('storeId')
   if (!storeId) {
@@ -42,7 +34,7 @@ const getOrCreateStoreId = (): string => {
     storeId = crypto.randomUUID()
     localStorage.setItem('storeId', storeId)
   }
-  
+
   return storeId
 }
 
@@ -75,43 +67,42 @@ export const App: React.FC = () => (
     <LiveStoreWrapper>
       <EnsureStoreId>
         <Routes>
-        {/* Chat-first route */}
-        <Route path='/' element={<ChatOnlyLayout />} />
-        
-        {/* Admin routes */}
-        <Route
-          path='/admin'
-          element={
-            <Layout>
-              <ProjectsPage />
-            </Layout>
-          }
-        />
-        <Route
-          path='/admin/projects'
-          element={
-            <Layout>
-              <ProjectsPage />
-            </Layout>
-          }
-        />
-        <Route
-          path='/admin/tasks'
-          element={
-            <Layout>
-              <TasksPage />
-            </Layout>
-          }
-        />
-        <Route
-          path='/admin/project/:projectId'
-          element={
-            <Layout>
-              <ProjectWorkspace />
-            </Layout>
-          }
-        />
-        
+          {/* Chat-first route */}
+          <Route path='/' element={<ChatOnlyLayout />} />
+
+          {/* Admin routes */}
+          <Route
+            path='/admin'
+            element={
+              <Layout>
+                <ProjectsPage />
+              </Layout>
+            }
+          />
+          <Route
+            path='/admin/projects'
+            element={
+              <Layout>
+                <ProjectsPage />
+              </Layout>
+            }
+          />
+          <Route
+            path='/admin/tasks'
+            element={
+              <Layout>
+                <TasksPage />
+              </Layout>
+            }
+          />
+          <Route
+            path='/admin/project/:projectId'
+            element={
+              <Layout>
+                <ProjectWorkspace />
+              </Layout>
+            }
+          />
         </Routes>
       </EnsureStoreId>
     </LiveStoreWrapper>

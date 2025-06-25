@@ -283,7 +283,10 @@ const ProjectWorkspaceContent: React.FC = () => {
 
           {/* Breadcrumb */}
           <nav className='flex items-center text-sm text-gray-500'>
-            <Link to={preserveStoreIdInUrl('/admin/projects')} className='hover:text-gray-700 transition-colors'>
+            <Link
+              to={preserveStoreIdInUrl('/admin/projects')}
+              className='hover:text-gray-700 transition-colors'
+            >
               Projects
             </Link>
             <svg className='w-4 h-4 mx-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>

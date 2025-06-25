@@ -13,7 +13,7 @@ export const EnsureStoreId: React.FC<EnsureStoreIdProps> = ({ children }) => {
     // Only redirect if we don't have storeId and we're not already redirecting
     const urlParams = new URLSearchParams(location.search)
     const hasStoreId = urlParams.get('storeId')
-    
+
     if (!hasStoreId) {
       // Get or create storeId from localStorage
       let storeId = localStorage.getItem('storeId')
@@ -21,7 +21,7 @@ export const EnsureStoreId: React.FC<EnsureStoreIdProps> = ({ children }) => {
         storeId = crypto.randomUUID()
         localStorage.setItem('storeId', storeId)
       }
-      
+
       // Add storeId to current URL
       const newSearch = `${location.search ? location.search + '&' : '?'}storeId=${storeId}`
       const newUrl = `${location.pathname}${newSearch}${location.hash}`
