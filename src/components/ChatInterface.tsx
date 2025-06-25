@@ -474,7 +474,7 @@ export const ChatInterface: React.FC = () => {
   const selectedConversation = conversations.find(c => c.id === selectedConversationId)
 
   return (
-    <div className='w-96 h-full bg-white border-l border-gray-200 flex flex-col'>
+    <div className='w-full h-full bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col'>
       {/* Chat Header - Fixed */}
       <div className='flex-shrink-0 p-4 border-b border-gray-200'>
         <div className='flex items-center justify-between mb-2'>

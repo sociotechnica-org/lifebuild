@@ -9,6 +9,9 @@ import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
 import { TasksPage } from './components/TasksPage.js'
 import { Layout } from './components/Layout.js'
+import { SessionRedirect } from './components/SessionRedirect.js'
+import { SessionWrapper } from './components/SessionWrapper.js'
+import { SessionAdminWrapper } from './components/SessionAdminWrapper.js'
 import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from './livestore/schema.js'
 import { makeTracer } from './otel.js'
@@ -16,15 +19,41 @@ import { getStoreId } from './util/store-id.js'
 
 const AppBody: React.FC = () => (
   <BrowserRouter>
-    <Layout>
-      <Routes>
-        <Route path='/projects' element={<ProjectsPage />} />
-        <Route path='/project/:projectId' element={<ProjectWorkspace />} />
-        <Route path='/tasks' element={<TasksPage />} />
-        <Route path='/orphaned-tasks' element={<Navigate to='/tasks' replace />} />
-        <Route path='/' element={<Navigate to='/projects' replace />} />
-      </Routes>
-    </Layout>
+    <Routes>
+      {/* Session-based routes */}
+      <Route path='/session/:sessionId' element={<SessionWrapper />} />
+      <Route path='/session/:sessionId/admin' element={<SessionAdminWrapper />} />
+
+      {/* Original routes */}
+      <Route
+        path='/projects'
+        element={
+          <Layout>
+            <ProjectsPage />
+          </Layout>
+        }
+      />
+      <Route
+        path='/project/:projectId'
+        element={
+          <Layout>
+            <ProjectWorkspace />
+          </Layout>
+        }
+      />
+      <Route
+        path='/tasks'
+        element={
+          <Layout>
+            <TasksPage />
+          </Layout>
+        }
+      />
+      <Route path='/orphaned-tasks' element={<Navigate to='/tasks' replace />} />
+
+      {/* Root redirect to session */}
+      <Route path='/' element={<SessionRedirect />} />
+    </Routes>
   </BrowserRouter>
 )
 
