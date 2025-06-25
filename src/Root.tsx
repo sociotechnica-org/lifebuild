@@ -3,7 +3,7 @@ import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedwo
 import { LiveStoreProvider } from '@livestore/react'
 import React, { useMemo } from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
@@ -23,23 +23,33 @@ const adapter = makePersistedAdapter({
 
 const otelTracer = makeTracer('work-squared-main')
 
-
-// LiveStore wrapper - simply gets storeId from URL
+// LiveStore wrapper - stable storeId that respects URL overrides on mount
 const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const location = useLocation()
-  
-  // Get storeId from URL query params (EnsureStoreId guarantees it exists)
+  // Determine storeId once on mount - prioritize URL over localStorage
   const storeId = useMemo(() => {
     if (typeof window === 'undefined') return 'unused'
-    
-    const urlParams = new URLSearchParams(location.search)
-    const urlStoreId = urlParams.get('storeId')
-    
-    // Should always exist due to EnsureStoreId, but fallback to avoid crashes
-    return urlStoreId || 'fallback-' + Math.random().toString(36).substring(7)
-  }, [location.search])
 
-  console.log(`LiveStore using storeId: ${storeId}`)
+    // Check URL first (using window.location for initial mount)
+    const urlParams = new URLSearchParams(window.location.search)
+    const urlStoreId = urlParams.get('storeId')
+
+    if (urlStoreId) {
+      // URL has storeId - use it and sync to localStorage
+      localStorage.setItem('storeId', urlStoreId)
+      return urlStoreId
+    }
+
+    // No URL storeId - fall back to localStorage
+    let storedId = localStorage.getItem('storeId')
+    if (!storedId) {
+      // No localStorage either - create new one
+      storedId = crypto.randomUUID()
+      localStorage.setItem('storeId', storedId)
+    }
+    return storedId
+  }, []) // Empty deps - calculated once on mount, stable during navigation
+
+  console.log(`Using stable storeId: ${storeId}`)
 
   return (
     <LiveStoreProvider
