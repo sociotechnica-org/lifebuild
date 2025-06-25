@@ -29,50 +29,69 @@ const otelTracer = makeTracer('work-squared-main')
 const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation()
 
-  // Memoize storeId computation to avoid excessive recalculations
-  const storeId = React.useMemo(() => {
-    // For session routes, always use sessionId
+  // Use state to maintain stable storeId across navigations
+  const [storeId, setStoreId] = React.useState<string>(() => {
+    // Initial storeId computation
     const sessionMatch = location.pathname.match(/^\/session\/([^\/]+)/)
     if (sessionMatch && sessionMatch[1]) {
       return sessionMatch[1]
     }
-
-    // For root path, use session from localStorage
     if (location.pathname === '/') {
       return getOrCreateSessionId()
     }
-
-    // For other routes, check URL first
     const searchParams = new URLSearchParams(location.search)
     const urlStoreId = searchParams.get('storeId')
     if (urlStoreId) {
       return urlStoreId
     }
-
-    // Fallback: try to get session from localStorage if it exists
     const sessionId = localStorage.getItem('sessionId')
     if (sessionId) {
       return sessionId
     }
-
-    // Last resort: generate new ID
     return crypto.randomUUID()
-  }, [location.pathname, location.search])
+  })
 
-  // Add storeId to URL for non-session routes
+  // Only update storeId when we actually need to change it
+  React.useEffect(() => {
+    let newStoreId: string | null = null
+
+    // For session routes, use sessionId
+    const sessionMatch = location.pathname.match(/^\/session\/([^\/]+)/)
+    if (sessionMatch && sessionMatch[1]) {
+      newStoreId = sessionMatch[1]
+    }
+    // For root path, use session from localStorage
+    else if (location.pathname === '/') {
+      newStoreId = getOrCreateSessionId()
+    }
+    // For other routes, check URL params
+    else {
+      const searchParams = new URLSearchParams(location.search)
+      const urlStoreId = searchParams.get('storeId')
+      if (urlStoreId) {
+        newStoreId = urlStoreId
+      }
+      // If no storeId in URL, keep current one (don't change)
+    }
+
+    // Only update state if storeId actually needs to change
+    if (newStoreId && newStoreId !== storeId) {
+      console.log(`StoreId changing: ${storeId} -> ${newStoreId} for ${location.pathname}`)
+      setStoreId(newStoreId)
+    }
+  }, [location.pathname, location.search, storeId])
+
+  // Add storeId to URL for non-session routes that don't have it
   React.useEffect(() => {
     if (location.pathname !== '/' && !location.pathname.startsWith('/session/')) {
       const searchParams = new URLSearchParams(location.search)
       if (!searchParams.has('storeId')) {
         searchParams.set('storeId', storeId)
         const newUrl = `${location.pathname}?${searchParams.toString()}`
-        // Only update if it would actually change the URL
-        if (window.location.pathname + window.location.search !== newUrl) {
-          window.history.replaceState({}, '', newUrl)
-        }
+        window.history.replaceState({}, '', newUrl)
       }
     }
-  }, [storeId, location.pathname, location.search])
+  }, [location.pathname]) // Only depend on pathname, not search or storeId to avoid loops
 
   return (
     <LiveStoreProvider
