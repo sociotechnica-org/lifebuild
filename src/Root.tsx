@@ -29,27 +29,28 @@ const otelTracer = makeTracer('work-squared-main')
 const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation()
 
-  // Use state to maintain stable storeId across navigations
-  const [storeId, setStoreId] = React.useState<string>(() => {
-    // Initial storeId computation
+  // Use a ref to store storeId and prevent unnecessary LiveStore re-renders
+  const storeIdRef = React.useRef<string>('')
+  
+  // Initialize storeId only once
+  if (!storeIdRef.current) {
     const sessionMatch = location.pathname.match(/^\/session\/([^\/]+)/)
     if (sessionMatch && sessionMatch[1]) {
-      return sessionMatch[1]
+      storeIdRef.current = sessionMatch[1]
+    } else if (location.pathname === '/') {
+      storeIdRef.current = getOrCreateSessionId()
+    } else {
+      const searchParams = new URLSearchParams(location.search)
+      const urlStoreId = searchParams.get('storeId')
+      if (urlStoreId) {
+        storeIdRef.current = urlStoreId
+      } else {
+        const sessionId = localStorage.getItem('sessionId')
+        storeIdRef.current = sessionId || crypto.randomUUID()
+      }
     }
-    if (location.pathname === '/') {
-      return getOrCreateSessionId()
-    }
-    const searchParams = new URLSearchParams(location.search)
-    const urlStoreId = searchParams.get('storeId')
-    if (urlStoreId) {
-      return urlStoreId
-    }
-    const sessionId = localStorage.getItem('sessionId')
-    if (sessionId) {
-      return sessionId
-    }
-    return crypto.randomUUID()
-  })
+    console.log(`Initial storeId: ${storeIdRef.current} for ${location.pathname}`)
+  }
 
   // Only update storeId when we actually need to change it
   React.useEffect(() => {
@@ -74,14 +75,19 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       // If no storeId in URL, keep current one (don't change)
     }
 
-    // Only update state if storeId actually needs to change
-    if (newStoreId && newStoreId !== storeId) {
-      console.log(`StoreId changing: ${storeId} -> ${newStoreId} for ${location.pathname}`)
-      setStoreId(newStoreId)
+    // Only update ref if storeId actually needs to change
+    if (newStoreId && newStoreId !== storeIdRef.current) {
+      console.log(`StoreId changing: ${storeIdRef.current} -> ${newStoreId} for ${location.pathname}`)
+      storeIdRef.current = newStoreId
+      // Force re-render since we changed the ref
+      setForceRender(prev => prev + 1)
     } else {
-      console.log(`StoreId staying: ${storeId} for ${location.pathname}`)
+      console.log(`StoreId staying: ${storeIdRef.current} for ${location.pathname}`)
     }
-  }, [location.pathname, location.search]) // Remove storeId from dependencies!
+  }, [location.pathname, location.search])
+  
+  // Use a counter to force re-renders only when storeId actually changes
+  const [forceRender, setForceRender] = React.useState(0)
 
   // TEMPORARILY DISABLED: Add storeId to URL for non-session routes that don't have it
   // This might be causing LiveStore to reload unnecessarily
@@ -103,7 +109,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       renderLoading={_ => <div>Loading LiveStore ({_.stage})...</div>}
       adapter={adapter}
       batchUpdates={batchUpdates}
-      storeId={storeId}
+      storeId={storeIdRef.current}
       otelOptions={{ tracer: otelTracer }}
       syncPayload={{ authToken: 'insecure-token-change-me' }}
     >
