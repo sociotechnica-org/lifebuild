@@ -130,3 +130,92 @@ export function seedSampleBoards(store: Store) {
     })
   })
 }
+
+export async function seedSessionDocuments(store: Store) {
+  const now = new Date()
+
+  // Define the seed documents with their file names and metadata
+  const seedDocuments = [
+    {
+      id: 'doc-ai-ethics-guide',
+      title: 'AI Legal Ethics Guide',
+      fileName: 'ai-legal-ethics-guide.md',
+      createdAt: new Date(now.getTime() - 432000000), // 5 days ago
+    },
+    {
+      id: 'doc-implementation-roadmap',
+      title: 'AI Implementation Roadmap for Law Firms',
+      fileName: 'ai-implementation-roadmap.md',
+      createdAt: new Date(now.getTime() - 345600000), // 4 days ago
+    },
+    {
+      id: 'doc-vendor-evaluation',
+      title: 'AI Vendor Evaluation Checklist',
+      fileName: 'ai-vendor-evaluation-checklist.md',
+      createdAt: new Date(now.getTime() - 259200000), // 3 days ago
+    },
+    {
+      id: 'doc-contract-review',
+      title: 'AI Contract Review Best Practices',
+      fileName: 'ai-contract-review-best-practices.md',
+      createdAt: new Date(now.getTime() - 172800000), // 2 days ago
+    },
+    {
+      id: 'doc-legal-research',
+      title: 'AI Legal Research Strategies',
+      fileName: 'ai-legal-research-strategies.md',
+      createdAt: new Date(now.getTime() - 86400000), // 1 day ago
+    },
+  ]
+
+  // Load document content from seed files
+  for (const docMeta of seedDocuments) {
+    try {
+      // In a browser environment, we'll fetch the content from the public directory
+      // Note: This requires the seed content files to be available via HTTP
+      const response = await fetch(`/docs/seed-content/${docMeta.fileName}`)
+
+      if (response.ok) {
+        const content = await response.text()
+
+        // Create the document using the DocumentCreated event
+        store.commit(
+          events.documentCreated({
+            id: docMeta.id,
+            title: docMeta.title,
+            content: content,
+            createdAt: docMeta.createdAt,
+          })
+        )
+
+        console.log(`✅ Seeded document: ${docMeta.title}`)
+      } else {
+        console.warn(`⚠️ Could not load seed document: ${docMeta.fileName} (${response.status})`)
+
+        // Create a placeholder document with basic content
+        store.commit(
+          events.documentCreated({
+            id: docMeta.id,
+            title: docMeta.title,
+            content: `# ${docMeta.title}\n\nThis document provides guidance for ${docMeta.title.toLowerCase()}. Content will be loaded when available.`,
+            createdAt: docMeta.createdAt,
+          })
+        )
+      }
+    } catch (error) {
+      console.error(`❌ Error loading seed document ${docMeta.fileName}:`, error)
+
+      // Create a placeholder document as fallback
+      store.commit(
+        events.documentCreated({
+          id: docMeta.id,
+          title: docMeta.title,
+          content: `# ${docMeta.title}\n\nThis document provides guidance for ${docMeta.title.toLowerCase()}. Content will be loaded when available.`,
+          createdAt: docMeta.createdAt,
+        })
+      )
+    }
+  }
+
+  console.log(`🌱 Document seeding completed: ${seedDocuments.length} documents seeded`)
+}

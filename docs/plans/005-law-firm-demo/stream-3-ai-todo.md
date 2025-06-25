@@ -7,21 +7,21 @@ This document outlines the tasks for building the Virtual Danvers AI, including 
 
 ## Must Have
 
-### 1. Document Tools for LLM
+### 1. Document Tools for LLM ✅ COMPLETED
 
 **Goal**: Implement tools that allow the LLM to read, search, and list documents from the LiveStore.
 
-- [ ] **Location**: Add new tool definitions in `src/utils/llm-tools.ts`.
-- [ ] **`list_documents()` tool**:
-  - [ ] Create a new query in `src/livestore/queries.ts` to select all document titles and IDs.
-  - [ ] The tool function will call this query and return a formatted list of available documents.
-- [ ] **`read_document(documentId)` tool**:
-  - [ ] Create a query to select the content of a single document by its ID.
-  - [ ] The tool function will take a `documentId` and return the document's content as a string.
-- [ ] **`search_documents(query)` tool**:
-  - [ ] This is more complex. For the demo, a simple search will suffice. Implement a query that performs a `LIKE '%query%'` search on the document content in SQLite.
-  - [ ] The tool function will take a search string and return a list of matching document snippets and their IDs.
-- [ ] **Integration**: Register these new tools with the LLM provider in the chat implementation.
+- [x] **Location**: Add new tool definitions in `src/utils/llm-tools.ts`.
+- [x] **`list_documents()` tool**:
+  - [x] Create a new query in `src/livestore/queries.ts` to select all document titles and IDs.
+  - [x] The tool function will call this query and return a formatted list of available documents.
+- [x] **`read_document(documentId)` tool**:
+  - [x] Create a query to select the content of a single document by its ID.
+  - [x] The tool function will take a `documentId` and return the document's content as a string.
+- [x] **`search_documents(query)` tool**:
+  - [x] This is more complex. For the demo, a simple search will suffice. Implement a query that performs a `LIKE '%query%'` search on the document content in SQLite.
+  - [x] The tool function will take a search string and return a list of matching document snippets and their IDs.
+- [x] **Integration**: Register these new tools with the LLM provider in the chat implementation.
 
 ### 2. Document Seeding
 
