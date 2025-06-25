@@ -1,6 +1,14 @@
 import type { Store } from '@livestore/livestore'
 import { events } from '../livestore/schema.js'
-import { getProjects$, getBoardColumns$, getBoardTasks$, getUsers$ } from '../livestore/queries.js'
+import {
+  getProjects$,
+  getBoardColumns$,
+  getBoardTasks$,
+  getUsers$,
+  getDocumentList$,
+  getDocumentById$,
+  searchDocuments$,
+} from '../livestore/queries.js'
 
 export interface TaskCreationParams {
   title: string
@@ -170,6 +178,108 @@ export function listProjects(store: Store): { success: boolean; projects?: any[]
   }
 }
 
+/**
+ * List all available documents
+ */
+export function listDocuments(store: Store): {
+  success: boolean
+  documents?: any[]
+  error?: string
+} {
+  try {
+    const documents = store.query(getDocumentList$) as any[]
+    return {
+      success: true,
+      documents: documents.map((d: any) => ({
+        id: d.id,
+        title: d.title,
+        updatedAt: d.updatedAt,
+      })),
+    }
+  } catch (error) {
+    console.error('Error listing documents:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
+/**
+ * Read a specific document by ID
+ */
+export function readDocument(
+  store: Store,
+  documentId: string
+): { success: boolean; document?: any; error?: string } {
+  try {
+    if (!documentId?.trim()) {
+      return { success: false, error: 'Document ID is required' }
+    }
+
+    const documents = store.query(getDocumentById$(documentId)) as any[]
+    if (documents.length === 0) {
+      return { success: false, error: `Document with ID ${documentId} not found` }
+    }
+
+    const document = documents[0]
+    return {
+      success: true,
+      document: {
+        id: document.id,
+        title: document.title,
+        content: document.content,
+        createdAt: document.createdAt,
+        updatedAt: document.updatedAt,
+      },
+    }
+  } catch (error) {
+    console.error('Error reading document:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
+/**
+ * Search documents by query string
+ */
+export function searchDocuments(
+  store: Store,
+  query: string
+): { success: boolean; results?: any[]; error?: string } {
+  try {
+    if (!query?.trim()) {
+      return { success: false, error: 'Search query is required' }
+    }
+
+    const searchQuery = query.trim().toLowerCase()
+    const allDocuments = store.query(searchDocuments$(query.trim())) as any[]
+
+    // Filter documents that match the search query in title or content
+    const results = allDocuments.filter(
+      (d: any) =>
+        d.title.toLowerCase().includes(searchQuery) || d.content.toLowerCase().includes(searchQuery)
+    )
+
+    return {
+      success: true,
+      results: results.map((d: any) => ({
+        id: d.id,
+        title: d.title,
+        snippet: d.content.substring(0, 200) + (d.content.length > 200 ? '...' : ''),
+      })),
+    }
+  } catch (error) {
+    console.error('Error searching documents:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
 export async function executeLLMTool(
   store: Store,
   toolCall: { name: string; parameters: any }
@@ -180,6 +290,15 @@ export async function executeLLMTool(
 
     case 'list_projects':
       return listProjects(store)
+
+    case 'list_documents':
+      return listDocuments(store)
+
+    case 'read_document':
+      return readDocument(store, toolCall.parameters.documentId)
+
+    case 'search_documents':
+      return searchDocuments(store, toolCall.parameters.query)
 
     default:
       throw new Error(`Unknown tool: ${toolCall.name}`)

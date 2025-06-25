@@ -100,6 +100,9 @@ export default {
 You have access to tools for:
 - Creating tasks in the Kanban system (create_task)
 - Listing all available projects (list_projects)
+- Listing all available documents (list_documents)
+- Reading a specific document by ID (read_document)
+- Searching through document content (search_documents)
 
 When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed. If you need to know what projects are available, use the list_projects tool first.
 
@@ -160,6 +163,54 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
                 type: 'object',
                 properties: {},
                 required: [],
+              },
+            },
+          },
+          {
+            type: 'function',
+            function: {
+              name: 'list_documents',
+              description:
+                'Get a list of all available documents with their IDs, titles, and last updated dates',
+              parameters: {
+                type: 'object',
+                properties: {},
+                required: [],
+              },
+            },
+          },
+          {
+            type: 'function',
+            function: {
+              name: 'read_document',
+              description: 'Read the full content of a specific document by its ID',
+              parameters: {
+                type: 'object',
+                properties: {
+                  documentId: {
+                    type: 'string',
+                    description: 'The ID of the document to read (required)',
+                  },
+                },
+                required: ['documentId'],
+              },
+            },
+          },
+          {
+            type: 'function',
+            function: {
+              name: 'search_documents',
+              description: 'Search through document titles and content for a specific query',
+              parameters: {
+                type: 'object',
+                properties: {
+                  query: {
+                    type: 'string',
+                    description:
+                      'The search query to find in document titles and content (required)',
+                  },
+                },
+                required: ['query'],
               },
             },
           },

@@ -156,3 +156,16 @@ export const getOrphanedColumns$ = queryDb(
     label: 'getOrphanedColumns',
   }
 )
+
+export const getDocumentList$ = queryDb(
+  tables.documents
+    .select()
+    .where({ archivedAt: null })
+    .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
+  { label: 'getDocumentList' }
+)
+
+export const searchDocuments$ = (query: string) =>
+  queryDb(tables.documents.select().where({ archivedAt: null }), {
+    label: `searchDocuments:${query}`,
+  })
