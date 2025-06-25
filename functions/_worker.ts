@@ -34,12 +34,8 @@ export default {
     // Handle LLM API proxy with tool calling support
     if (url.pathname === '/api/llm/chat' && request.method === 'POST') {
       try {
-        // Fetch secrets from the store
-        const apiKey = await env.BRAINTRUST_API_KEY.get()
-        const projectId = await env.BRAINTRUST_PROJECT_ID.get()
-
-        // Validate secrets
-        if (!apiKey || !projectId) {
+        // Validate environment variables
+        if (!env.BRAINTRUST_API_KEY || !env.BRAINTRUST_PROJECT_ID) {
           return new Response(JSON.stringify({ error: 'Missing LLM API configuration' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
@@ -223,9 +219,9 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
         const response = await fetch('https://api.braintrust.dev/v1/proxy/chat/completions', {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${env.BRAINTRUST_API_KEY}`,
             'Content-Type': 'application/json',
-            'x-bt-parent': `project_id:${projectId}`,
+            'x-bt-parent': `project_id:${env.BRAINTRUST_PROJECT_ID}`,
           },
           body: JSON.stringify({
             model: 'gpt-4o',
