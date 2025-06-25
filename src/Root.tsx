@@ -83,18 +83,19 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
     }
   }, [location.pathname, location.search]) // Remove storeId from dependencies!
 
-  // Add storeId to URL for non-session routes that don't have it
-  React.useEffect(() => {
-    if (location.pathname !== '/' && !location.pathname.startsWith('/session/')) {
-      const searchParams = new URLSearchParams(location.search)
-      if (!searchParams.has('storeId')) {
-        console.log(`Adding storeId ${storeId} to URL for ${location.pathname}`)
-        searchParams.set('storeId', storeId)
-        const newUrl = `${location.pathname}?${searchParams.toString()}`
-        window.history.replaceState({}, '', newUrl)
-      }
-    }
-  }, [location.pathname, storeId]) // Include storeId since we need its current value
+  // TEMPORARILY DISABLED: Add storeId to URL for non-session routes that don't have it
+  // This might be causing LiveStore to reload unnecessarily
+  // React.useEffect(() => {
+  //   if (location.pathname !== '/' && !location.pathname.startsWith('/session/')) {
+  //     const searchParams = new URLSearchParams(location.search)
+  //     if (!searchParams.has('storeId')) {
+  //       console.log(`Adding storeId ${storeId} to URL for ${location.pathname}`)
+  //       searchParams.set('storeId', storeId)
+  //       const newUrl = `${location.pathname}?${searchParams.toString()}`
+  //       window.history.replaceState({}, '', newUrl)
+  //     }
+  //   }
+  // }, [location.pathname])
 
   return (
     <LiveStoreProvider
