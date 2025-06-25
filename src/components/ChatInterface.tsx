@@ -482,6 +482,18 @@ export const ChatInterface: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // Handle focus for mobile to show keyboard
+  React.useEffect(() => {
+    // Only autofocus on mobile if there's a selected conversation
+    if (selectedConversationId && textareaRef.current) {
+      // Small delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        textareaRef.current?.focus()
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [selectedConversationId])
+
   // Auto-resize textarea
   const handleTextareaChange = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessageText(e.target.value)
@@ -497,7 +509,7 @@ export const ChatInterface: React.FC = () => {
   const selectedConversation = conversations.find(c => c.id === selectedConversationId)
 
   return (
-    <div className='h-full bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col'>
+    <div className='h-full bg-white md:border md:border-gray-200 md:rounded-lg md:shadow-sm flex flex-col'>
       {/* Chat Header - Fixed */}
       <div className='flex-shrink-0 p-4 border-b border-gray-200'>
         <div className='flex items-center justify-between mb-2'>
@@ -650,8 +662,14 @@ export const ChatInterface: React.FC = () => {
                   onChange={handleTextareaChange}
                   placeholder='Type your message...'
                   rows={1}
-                  className='w-full h-full px-4 py-4 pr-14 bg-transparent border-none text-sm resize-none focus:outline-none placeholder-gray-500 overflow-y-auto'
-                  style={{ minHeight: '80px', maxHeight: '200px', height: '80px' }}
+                  className='w-full h-full px-4 py-4 pr-14 bg-transparent border-none text-base resize-none focus:outline-none placeholder-gray-500 overflow-y-auto'
+                  style={{
+                    minHeight: '80px',
+                    maxHeight: '200px',
+                    height: '80px',
+                    fontSize: '16px',
+                  }}
+                  autoFocus
                   onKeyDown={e => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault()
