@@ -32,13 +32,13 @@ This document outlines the tasks for building the Virtual Danvers AI, including 
 - [x] **Implementation**: The `seedSessionDocuments` function sketched in the main plan should be implemented. It will iterate through the default documents (reading them from the new directory) and emit a `document.created` event for each one using the LiveStore `mutate` API.
 - [x] **Event Schema**: Ensure the `document.created` event in `src/livestore/events.ts` and the `documents` table schema in `src/livestore/schema.ts` can store all necessary information (e.g., `id`, `title`, `content`).
 
-### 3. Basic Virtual Danvers Persona
+### 3. Basic Virtual Danvers Persona ✅ COMPLETED
 
 **Goal**: Configure the LLM with a system prompt for a law firm AI integration advisor.
 
-- [ ] **System Prompt**: Finalize the system prompt. The draft is: `You are Virtual Danvers, an AI integration advisor for law firms...` This should be refined to include instructions on tone, purpose, and how to use its tools.
-- [ ] **Configuration**: Update the LLM provider configuration (`VIRTUAL_DANVERS_CONFIG` from the plan) with the system prompt, model (`gpt-4-turbo`), and temperature (`0.7`).
-- [ ] **Tool Registration**: Ensure the newly created document tools are included in the `tools` array for the configuration.
+- [x] **System Prompt**: Finalize the system prompt. The draft is: `You are Virtual Danvers, an AI integration advisor for law firms...` This should be refined to include instructions on tone, purpose, and how to use its tools.
+- [x] **Configuration**: Update the LLM provider configuration (`VIRTUAL_DANVERS_CONFIG` from the plan) with the system prompt, model (`o3`), and temperature (`0.7`).
+- [x] **Tool Registration**: Ensure the newly created document tools are included in the `tools` array for the configuration.
 
 ## Should Have
 
