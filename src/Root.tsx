@@ -5,10 +5,10 @@ import React from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
-import { BoardsPage } from './components/BoardsPage.js'
-import { KanbanBoard } from './components/KanbanBoard.js'
+import { ProjectsPage } from './components/ProjectsPage.js'
+import { ProjectWorkspace } from './components/ProjectWorkspace.js'
+import { TasksPage } from './components/TasksPage.js'
 import { Layout } from './components/Layout.js'
-import { MainSection } from './components/MainSection.js'
 import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from './livestore/schema.js'
 import { makeTracer } from './otel.js'
@@ -18,10 +18,11 @@ const AppBody: React.FC = () => (
   <BrowserRouter>
     <Layout>
       <Routes>
-        <Route path='/boards' element={<BoardsPage />} />
-        <Route path='/board/:boardId' element={<KanbanBoard />} />
-        <Route path='/chat' element={<MainSection />} />
-        <Route path='/' element={<Navigate to='/boards' replace />} />
+        <Route path='/projects' element={<ProjectsPage />} />
+        <Route path='/project/:projectId' element={<ProjectWorkspace />} />
+        <Route path='/tasks' element={<TasksPage />} />
+        <Route path='/orphaned-tasks' element={<Navigate to='/tasks' replace />} />
+        <Route path='/' element={<Navigate to='/projects' replace />} />
       </Routes>
     </Layout>
   </BrowserRouter>

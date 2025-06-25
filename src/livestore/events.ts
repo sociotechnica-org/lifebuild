@@ -49,11 +49,12 @@ export const chatMessageSent = Events.synced({
   }),
 })
 
-export const boardCreated = Events.synced({
-  name: 'v1.BoardCreated',
+export const projectCreated = Events.synced({
+  name: 'v1.ProjectCreated',
   schema: Schema.Struct({
     id: Schema.String,
     name: Schema.String,
+    description: Schema.optional(Schema.String), // Added description field
     createdAt: Schema.Date,
   }),
 })
@@ -62,7 +63,7 @@ export const columnCreated = Events.synced({
   name: 'v1.ColumnCreated',
   schema: Schema.Struct({
     id: Schema.String,
-    boardId: Schema.String,
+    projectId: Schema.optional(Schema.String), // Make optional for orphaned columns
     name: Schema.String,
     position: Schema.Number,
     createdAt: Schema.Date,
@@ -91,7 +92,7 @@ export const taskCreated = Events.synced({
   name: 'v1.TaskCreated',
   schema: Schema.Struct({
     id: Schema.String,
-    boardId: Schema.String,
+    projectId: Schema.optional(Schema.String), // Made optional for orphaned tasks
     columnId: Schema.String,
     title: Schema.String,
     description: Schema.Union(Schema.String, Schema.Undefined),
@@ -105,6 +106,17 @@ export const taskMoved = Events.synced({
   name: 'v1.TaskMoved',
   schema: Schema.Struct({
     taskId: Schema.String,
+    toColumnId: Schema.String,
+    position: Schema.Number,
+    updatedAt: Schema.Date,
+  }),
+})
+
+export const taskMovedToProject = Events.synced({
+  name: 'v1.TaskMovedToProject',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    toProjectId: Schema.optional(Schema.String), // null for orphaned tasks
     toColumnId: Schema.String,
     position: Schema.Number,
     updatedAt: Schema.Date,
@@ -187,5 +199,51 @@ export const taskUnarchived = Events.synced({
   name: 'v1.TaskUnarchived',
   schema: Schema.Struct({
     taskId: Schema.String,
+  }),
+})
+
+export const documentCreated = Events.synced({
+  name: 'v1.DocumentCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    title: Schema.String,
+    content: Schema.String,
+    createdAt: Schema.Date,
+  }),
+})
+
+export const documentUpdated = Events.synced({
+  name: 'v1.DocumentUpdated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    updates: Schema.Struct({
+      title: Schema.Union(Schema.String, Schema.Undefined),
+      content: Schema.Union(Schema.String, Schema.Undefined),
+    }),
+    updatedAt: Schema.Date,
+  }),
+})
+
+export const documentArchived = Events.synced({
+  name: 'v1.DocumentArchived',
+  schema: Schema.Struct({
+    id: Schema.String,
+    archivedAt: Schema.Date,
+  }),
+})
+
+export const documentAddedToProject = Events.synced({
+  name: 'v1.DocumentAddedToProject',
+  schema: Schema.Struct({
+    documentId: Schema.String,
+    projectId: Schema.String,
+  }),
+})
+
+export const documentRemovedFromProject = Events.synced({
+  name: 'v1.DocumentRemovedFromProject',
+  schema: Schema.Struct({
+    documentId: Schema.String,
+    projectId: Schema.String,
   }),
 })

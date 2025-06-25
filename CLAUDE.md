@@ -49,14 +49,14 @@ pnpm test:e2e:debug
 
 # Run E2E tests on specific port (for multiple Claude instances)
 PLAYWRIGHT_PORT=9090 pnpm test:e2e
-
-# Run Storybook tests
-pnpm test:storybook
 ```
 
 ### Linting and Formatting
 
 ```bash
+# Run all linting, formatting, and type checking (recommended for local development)
+pnpm lint-all
+
 # Run ESLint
 pnpm lint
 
@@ -186,12 +186,90 @@ COPY . .
 CMD ["pnpm", "llm:service"]
 ```
 
+## Development Process
+
+When implementing new features, follow this structured process:
+
+### 0. Planning & Review
+
+- Review the assignment thoroughly (user stories, phase documentation)
+- Ask clarifying questions before starting implementation
+- Check dependencies and ensure prerequisites are met
+
+### 1. Branch Creation
+
+- Create a descriptive branch name (e.g., `feature/documents-tab`, `fix/task-drag-drop`)
+- Branch from the appropriate base branch (usually `main`)
+
+### 2. Implementation
+
+- Implement the complete feature according to specifications
+- Reference planning documents (e.g., `@docs/plans/004-projects-and-workers/phase-1.2-document-system-todo.md`)
+- Follow existing code patterns and conventions
+- Focus on vertical slices (complete features) over horizontal layers
+
+### 3. Testing
+
+- Write appropriate, minimal unit tests for new functionality
+- Create stateless Storybook stories for new UI components when possible
+- Add integration tests for critical workflows (use sparingly)
+- Ensure all tests pass before proceeding
+
+### 4. Quality Assurance
+
+- Run linting: `pnpm lint` (fix with `pnpm lint:fix`)
+- Run formatting: `pnpm format`
+- Run type checking: `pnpm typecheck`
+- Verify all quality checks pass
+
+### 5. Version Control
+
+- Commit changes with clear, descriptive messages
+- Push branch to remote repository
+- Ensure commit history is clean and logical
+
+### 6. Pull Request
+
+- Open a new PR with descriptive title and detailed description
+- Include summary of changes and testing approach
+- Reference any related issues or documentation
+
+### 7. PR Monitoring
+
+- Watch PR checks using `gh pr checks --watch` (may take up to 10 minutes)
+- Fix any failing checks or issues identified by CI
+- Address BugBot feedback even if it's a neutral check
+
 ## Important Guidelines
 
 - When creating work plans or implementation tasks, NEVER include time estimates - focus on sequencing and dependencies only
 - Prefer vertical slices (full features) over horizontal layers when possible
 - Each PR should be small, focused, and demoable
 - Always run tests before creating a PR
+
+### Development Workflow
+
+- **ALWAYS run `pnpm lint:fix` and `pnpm typecheck` before committing** - This prevents CI failures and maintains code quality
+- **E2E tests must provide real value** - Only add E2E tests that test vital user flows through the app. Don't add tests that only verify routing or basic component rendering. E2E tests are slow and costly to maintain.
+- **Test-Driven Development for bug fixes** - When fixing bugs, follow this process:
+  1. Add a minimal failing test that demonstrates the bug
+  2. Run the test to verify it fails
+  3. Fix the bug
+  4. Run the test again to verify it passes
+  5. This ensures the bug is properly isolated and the fix is verified
+
+### PR Monitoring
+
+Whenever you push up a commit to a PR or open a new PR, watch the PR until all the checks are finished using `gh pr checks --watch`. The watch interface will update automatically every 10 seconds. No need to refresh or exit or whatever. This might take up to 10 minutes; just wait!
+
+- Cursor's BugBot check is a neutral check, but may report a bug that you need to fix. Even though it's neutral, please fix the bug and push up a new commit.
+
+### PR Completion
+
+When a PR is completed (merged), if the PR was related to a specific GitHub issue:
+
+- Update the GitHub issue description with implementation details or resolution notes
+- Close the issue if the PR fully addresses it, or leave it open if more work is needed
 
 ## Testing Best Practices
 

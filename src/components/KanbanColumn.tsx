@@ -54,7 +54,7 @@ export function KanbanColumn({
     store.commit(
       events.taskCreated({
         id: crypto.randomUUID(),
-        boardId: column.boardId,
+        projectId: column.projectId || undefined,
         columnId: column.id,
         title,
         description: undefined,

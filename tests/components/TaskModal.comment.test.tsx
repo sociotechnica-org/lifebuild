@@ -27,7 +27,7 @@ vi.stubGlobal('crypto', {
 describe('TaskModal Comments', () => {
   const mockTask: Task = {
     id: 'task-1',
-    boardId: 'board-1',
+    projectId: 'board-1',
     columnId: 'column-1',
     title: 'Test Task',
     description: 'Test description',
@@ -61,7 +61,7 @@ describe('TaskModal Comments', () => {
   const mockColumns = [
     {
       id: 'column-1',
-      boardId: 'board-1',
+      projectId: 'board-1',
       name: 'To Do',
       position: 1,
       createdAt: new Date(),

@@ -3,14 +3,8 @@ import React from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { events } from '../livestore/schema.js'
-import {
-  getConversations$,
-  getConversationMessages$,
-  getUsers$,
-  getBoardById$,
-} from '../livestore/queries.js'
+import { getConversations$, getConversationMessages$, getBoardById$ } from '../livestore/queries.js'
 import type { Conversation, ChatMessage } from '../livestore/schema.js'
-import { getInitials } from '../util/initials.js'
 import { MarkdownRenderer } from './MarkdownRenderer.js'
 import { executeLLMTool } from '../utils/llm-tools.js'
 
@@ -116,11 +110,37 @@ async function runAgenticLoop(
                   },
                 })
               )
-            } else if (toolCall.function.name === 'list_boards') {
-              const boardList =
-                toolResult.boards?.map((b: any) => `${b.name} (ID: ${b.id})`).join(', ') ||
-                'No boards found'
-              toolResultMessage = `Available boards: ${boardList}`
+            } else if (toolCall.function.name === 'list_projects') {
+              const projectList =
+                toolResult.projects
+                  ?.map(
+                    (p: any) =>
+                      `${p.name} (ID: ${p.id})${p.description ? ` - ${p.description}` : ''}`
+                  )
+                  .join('\n• ') || 'No projects found'
+              toolResultMessage = `Available projects:\n• ${projectList}`
+            } else if (toolCall.function.name === 'list_documents') {
+              const documentList =
+                toolResult.documents
+                  ?.map(
+                    (d: any) =>
+                      `${d.title} (ID: ${d.id}) - Updated: ${new Date(d.updatedAt).toLocaleDateString()}`
+                  )
+                  .join('\n• ') || 'No documents found'
+              toolResultMessage = `Available documents:\n• ${documentList}`
+            } else if (toolCall.function.name === 'read_document') {
+              if (toolResult.document) {
+                const doc = toolResult.document
+                toolResultMessage = `Document: ${doc.title}\n\nContent:\n${doc.content}`
+              } else {
+                toolResultMessage = 'Document not found'
+              }
+            } else if (toolCall.function.name === 'search_documents') {
+              const searchResults =
+                toolResult.results
+                  ?.map((r: any) => `${r.title} (ID: ${r.id})\n  Snippet: ${r.snippet}`)
+                  .join('\n\n• ') || 'No matching documents found'
+              toolResultMessage = `Search results:\n• ${searchResults}`
             } else {
               toolResultMessage = `Tool executed successfully`
             }
@@ -217,6 +237,7 @@ async function callLLMAPI(
 
   // Use relative path for production, fallback to localhost for local development
   const proxyUrl = import.meta.env.PROD ? '/api/llm/chat' : 'http://localhost:8787/api/llm/chat'
+  console.log('🔗 PROD mode:', import.meta.env.PROD, 'Using URL:', proxyUrl)
 
   // Build conversation history for API
   const historyForAPI =
@@ -278,7 +299,6 @@ export const ChatInterface: React.FC = () => {
   const { store } = useStore()
   const location = useLocation()
   const conversations = useQuery(getConversations$) ?? []
-  const users = useQuery(getUsers$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [messageText, setMessageText] = React.useState('')
   const [selectedModel, setSelectedModel] = React.useState('gpt-4o')
@@ -301,9 +321,6 @@ export const ChatInterface: React.FC = () => {
   // Always call useQuery but conditionally use the result
   const boardResult = useQuery(boardQuery || getBoardById$('__no_board__'))
   const currentBoard = currentBoardId && boardResult?.[0] ? (boardResult[0] as any) : null
-
-  // Get first user as current user
-  const currentUser = users[0]
 
   // Use a stable conversation ID for the query to avoid hook order issues
   const queryConversationId = selectedConversationId ?? '__no_conversation__'
@@ -492,15 +509,6 @@ export const ChatInterface: React.FC = () => {
       <div className='flex-shrink-0 p-4 border-b border-gray-200'>
         <div className='flex items-center justify-between mb-2'>
           <h2 className='text-lg font-semibold text-gray-900'>LLM Chat</h2>
-          {/* Only show + button and user avatar when conversations exist */}
-          {conversations.length > 0 && currentUser && (
-            <div
-              className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium'
-              title={currentUser.name}
-            >
-              {getInitials(currentUser.name)}
-            </div>
-          )}
         </div>
 
         {/* Conversation Selector with + button inline */}
