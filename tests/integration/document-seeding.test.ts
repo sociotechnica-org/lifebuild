@@ -57,7 +57,7 @@ describe('Document Seeding', () => {
 
     const documents = store.query(getDocumentList$)
     const ethicsGuide = documents.find((doc: any) => doc.id === 'doc-ai-ethics-guide')
-    
+
     expect(ethicsGuide).toBeDefined()
     expect(ethicsGuide.content).toContain('# AI Legal Ethics Guide')
     expect(ethicsGuide.content).toContain('## Introduction')
@@ -85,7 +85,7 @@ describe('Document Seeding', () => {
     seedSessionDocuments(store)
 
     const documents = store.query(getDocumentList$)
-    
+
     // Check each document has relevant content
     const ethicsGuide = documents.find((doc: any) => doc.id === 'doc-ai-ethics-guide')
     expect(ethicsGuide.content).toContain('ethical challenges')
