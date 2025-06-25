@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test'
-import { waitForLiveStoreReady } from './test-utils'
+import { waitForLiveStoreReady, waitForStoreIdInUrl } from './test-utils'
 
 test.describe('Session Persistence', () => {
   test('session state persists across URL visits', async ({ page }) => {
     // Navigate to root - should add storeId to URL
     await page.goto('/')
+    await waitForStoreIdInUrl(page)
     await waitForLiveStoreReady(page)
 
     // Should have storeId query parameter
@@ -56,6 +57,7 @@ test.describe('Session Persistence', () => {
   test('root redirect creates consistent storeId behavior', async ({ page }) => {
     // First visit to root
     await page.goto('/')
+    await waitForStoreIdInUrl(page)
     await waitForLiveStoreReady(page)
 
     // Should have storeId query parameter
@@ -92,6 +94,7 @@ test.describe('Session Persistence', () => {
     // First tab
     const page1 = await context.newPage()
     await page1.goto('/')
+    await waitForStoreIdInUrl(page1)
     await waitForLiveStoreReady(page1)
 
     const firstTabUrl = page1.url()
@@ -101,6 +104,7 @@ test.describe('Session Persistence', () => {
     // Second tab (same context = same localStorage)
     const page2 = await context.newPage()
     await page2.goto('/')
+    await waitForStoreIdInUrl(page2)
     await waitForLiveStoreReady(page2)
 
     const secondTabUrl = page2.url()

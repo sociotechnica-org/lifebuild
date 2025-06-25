@@ -46,6 +46,19 @@ export async function navigateToAppWithUniqueStore(page: Page) {
 }
 
 /**
+ * Wait for the storeId to be added to the URL
+ */
+export async function waitForStoreIdInUrl(page: Page) {
+  await page.waitForFunction(
+    () => {
+      const urlParams = new URLSearchParams(window.location.search)
+      return urlParams.has('storeId')
+    },
+    { timeout: 5000 }
+  )
+}
+
+/**
  * Wait for WebSocket connection to be established
  * For LiveStore applications, this is effectively the same as waiting for LiveStore to be ready
  * since LiveStore manages WebSocket connections to the sync server internally.
