@@ -8,6 +8,10 @@
   "build": {
     "command": "pnpm build",
   },
+  "observability": {
+    "enabled": true,
+  },
+  "logpush": true,
   "d1_databases": [
     {
       "binding": "DB",
