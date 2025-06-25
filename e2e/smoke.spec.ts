@@ -22,8 +22,8 @@ test.describe('Smoke Tests', () => {
     // Check basic app structure
     await expectBasicAppStructure(page)
 
-    // Should redirect to /projects by default (may include storeId parameter)
-    await expect(page).toHaveURL(/\/(projects|$).*/) // Either /projects or root with storeId
+    // Should redirect to session-based URL by default
+    await expect(page).toHaveURL(/\/session\/[a-f0-9-]+/) // Session-based URL
 
     // Verify chat interface is visible (may not be fully functional in CI)
     const chatElement = page.locator('textarea[placeholder="Type your message..."]')
@@ -33,13 +33,14 @@ test.describe('Smoke Tests', () => {
       console.log('Chat interface not visible - expected in CI without sync server')
     }
 
-    // Test navigation by going directly to /chat route
-    await page.goto('/chat')
+    // Test navigation by going directly to projects via admin route
+    const sessionId = 'test-smoke-' + Date.now()
+    await page.goto(`/session/${sessionId}/admin`)
     await waitForLiveStoreReady(page)
-    await expect(page).toHaveURL(/\/chat/)
+    await expect(page).toHaveURL(/\/session\/[^\/]+\/admin/)
 
-    // Navigate directly to projects
-    await page.goto('/projects')
+    // Navigate directly to projects (should work in admin)
+    await page.goto('/projects')  
     await waitForLiveStoreReady(page)
     await expect(page).toHaveURL(/\/projects/)
   })
@@ -97,9 +98,10 @@ test.describe('Smoke Tests', () => {
     // Wait for initial load
     await waitForLiveStoreReady(page)
 
-    // Navigate to chat route to verify basic routing works
-    await page.goto('/chat')
-    await expect(page).toHaveURL(/\/chat/)
+    // Test session-based routing  
+    const sessionId = 'test-routing-' + Date.now()
+    await page.goto(`/session/${sessionId}`)
+    await expect(page).toHaveURL(/\/session\/[^\/]+$/)
 
     // Navigate to projects route directly
     await page.goto('/projects')

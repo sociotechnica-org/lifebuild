@@ -36,12 +36,13 @@ export async function waitForLiveStoreReady(page: Page) {
 
 /**
  * Navigate to the app with a unique store ID for test isolation
+ * Uses admin routes to access the full original interface for testing
  */
 export async function navigateToAppWithUniqueStore(page: Page) {
-  const storeId = `test-${Date.now()}-${Math.random().toString(36).substring(7)}`
-  await page.goto(`/?storeId=${storeId}`)
+  const sessionId = `test-${Date.now()}-${Math.random().toString(36).substring(7)}`
+  await page.goto(`/session/${sessionId}/admin`)
   await waitForLiveStoreReady(page)
-  return storeId
+  return sessionId
 }
 
 /**

@@ -13,8 +13,8 @@ test.describe('Project Creation and Task Management', () => {
       return
     }
 
-    // Should start on projects page
-    await expect(page).toHaveURL(/\/projects/)
+    // Should start on admin page (which shows projects interface)
+    await expect(page).toHaveURL(/\/session\/[^\/]+\/admin/)
 
     // Verify we're on the projects page with the "Create Project" button
     await expect(page.locator('h1')).toContainText('Projects')
@@ -86,8 +86,8 @@ test.describe('Project Creation and Task Management', () => {
       return
     }
 
-    // Navigate to projects page
-    await expect(page).toHaveURL(/\/projects/)
+    // Navigate to admin page (which shows projects interface)
+    await expect(page).toHaveURL(/\/session\/[^\/]+\/admin/)
 
     // Click Create Project button
     const createProjectButton = page.locator('button:has-text("Create Project")')
