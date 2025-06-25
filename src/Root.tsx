@@ -3,7 +3,7 @@ import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedwo
 import { LiveStoreProvider } from '@livestore/react'
 import React from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
 import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
@@ -15,7 +15,6 @@ import { SessionAdminWrapper } from './components/SessionAdminWrapper.js'
 import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from './livestore/schema.js'
 import { makeTracer } from './otel.js'
-import { getOrCreateSessionId } from './util/session-id.js'
 
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
@@ -25,83 +24,26 @@ const adapter = makePersistedAdapter({
 
 const otelTracer = makeTracer('work-squared-main')
 
-// LiveStore wrapper that gets storeId reactively based on current route
-const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const location = useLocation()
-
-  // Use a ref to store storeId and prevent unnecessary LiveStore re-renders
-  const storeIdRef = React.useRef<string>('')
-  
-  // Initialize storeId only once
-  if (!storeIdRef.current) {
-    const sessionMatch = location.pathname.match(/^\/session\/([^\/]+)/)
-    if (sessionMatch && sessionMatch[1]) {
-      storeIdRef.current = sessionMatch[1]
-    } else if (location.pathname === '/') {
-      storeIdRef.current = getOrCreateSessionId()
-    } else {
-      const searchParams = new URLSearchParams(location.search)
-      const urlStoreId = searchParams.get('storeId')
-      if (urlStoreId) {
-        storeIdRef.current = urlStoreId
-      } else {
-        const sessionId = localStorage.getItem('sessionId')
-        storeIdRef.current = sessionId || crypto.randomUUID()
-      }
-    }
-    console.log(`Initial storeId: ${storeIdRef.current} for ${location.pathname}`)
+// Simple stable storeId - just like TodoMVC example
+const getStableStoreId = (): string => {
+  // Use sessionId if available in localStorage
+  const sessionId = localStorage.getItem('sessionId')
+  if (sessionId) {
+    return sessionId
   }
 
-  // Only update storeId when we actually need to change it
-  React.useEffect(() => {
-    let newStoreId: string | null = null
+  // Otherwise generate and store new one
+  const newId = crypto.randomUUID()
+  localStorage.setItem('sessionId', newId)
+  return newId
+}
 
-    // For session routes, use sessionId
-    const sessionMatch = location.pathname.match(/^\/session\/([^\/]+)/)
-    if (sessionMatch && sessionMatch[1]) {
-      newStoreId = sessionMatch[1]
-    }
-    // For root path, use session from localStorage
-    else if (location.pathname === '/') {
-      newStoreId = getOrCreateSessionId()
-    }
-    // For other routes, check URL params
-    else {
-      const searchParams = new URLSearchParams(location.search)
-      const urlStoreId = searchParams.get('storeId')
-      if (urlStoreId) {
-        newStoreId = urlStoreId
-      }
-      // If no storeId in URL, keep current one (don't change)
-    }
+// LiveStore wrapper - keep it simple
+const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Use the same storeId for everything - no navigation-based changes
+  const storeId = getStableStoreId()
 
-    // Only update ref if storeId actually needs to change
-    if (newStoreId && newStoreId !== storeIdRef.current) {
-      console.log(`StoreId changing: ${storeIdRef.current} -> ${newStoreId} for ${location.pathname}`)
-      storeIdRef.current = newStoreId
-      // Force re-render since we changed the ref
-      setForceRender(prev => prev + 1)
-    } else {
-      console.log(`StoreId staying: ${storeIdRef.current} for ${location.pathname}`)
-    }
-  }, [location.pathname, location.search])
-  
-  // Use a counter to force re-renders only when storeId actually changes
-  const [forceRender, setForceRender] = React.useState(0)
-
-  // TEMPORARILY DISABLED: Add storeId to URL for non-session routes that don't have it
-  // This might be causing LiveStore to reload unnecessarily
-  // React.useEffect(() => {
-  //   if (location.pathname !== '/' && !location.pathname.startsWith('/session/')) {
-  //     const searchParams = new URLSearchParams(location.search)
-  //     if (!searchParams.has('storeId')) {
-  //       console.log(`Adding storeId ${storeId} to URL for ${location.pathname}`)
-  //       searchParams.set('storeId', storeId)
-  //       const newUrl = `${location.pathname}?${searchParams.toString()}`
-  //       window.history.replaceState({}, '', newUrl)
-  //     }
-  //   }
-  // }, [location.pathname])
+  console.log(`Using stable storeId: ${storeId}`)
 
   return (
     <LiveStoreProvider
@@ -109,7 +51,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       renderLoading={_ => <div>Loading LiveStore ({_.stage})...</div>}
       adapter={adapter}
       batchUpdates={batchUpdates}
-      storeId={storeIdRef.current}
+      storeId={storeId}
       otelOptions={{ tracer: otelTracer }}
       syncPayload={{ authToken: 'insecure-token-change-me' }}
     >
