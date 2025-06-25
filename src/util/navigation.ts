@@ -14,8 +14,14 @@ export const buildUrlWithStoreId = (path: string, storeId?: string): string => {
     return path
   }
 
-  const separator = path.includes('?') ? '&' : '?'
-  return `${path}${separator}storeId=${currentStoreId}`
+  // Parse existing URL to avoid duplicates
+  const [basePath, searchString] = path.split('?')
+  const urlParams = new URLSearchParams(searchString || '')
+
+  // Set/update the storeId parameter
+  urlParams.set('storeId', currentStoreId)
+
+  return `${basePath}?${urlParams.toString()}`
 }
 
 export const preserveStoreIdInUrl = (path: string): string => {

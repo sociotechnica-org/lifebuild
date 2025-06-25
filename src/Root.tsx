@@ -3,7 +3,7 @@ import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedwo
 import { LiveStoreProvider } from '@livestore/react'
 import React, { useMemo } from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 
 import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
@@ -23,29 +23,23 @@ const adapter = makePersistedAdapter({
 
 const otelTracer = makeTracer('work-squared-main')
 
-// Get or create storeId for localStorage fallback
-const getOrCreateStoreId = (): string => {
-  if (typeof window === 'undefined') return 'unused'
 
-  // Check localStorage for existing storeId
-  let storeId = localStorage.getItem('storeId')
-  if (!storeId) {
-    // Generate new storeId
-    storeId = crypto.randomUUID()
-    localStorage.setItem('storeId', storeId)
-  }
-
-  return storeId
-}
-
-// LiveStore wrapper - stable storeId from localStorage
+// LiveStore wrapper - simply gets storeId from URL
 const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Use stable storeId - don't change it on navigation
+  const location = useLocation()
+  
+  // Get storeId from URL query params (EnsureStoreId guarantees it exists)
   const storeId = useMemo(() => {
-    return getOrCreateStoreId()
-  }, []) // No dependencies - this should be stable
+    if (typeof window === 'undefined') return 'unused'
+    
+    const urlParams = new URLSearchParams(location.search)
+    const urlStoreId = urlParams.get('storeId')
+    
+    // Should always exist due to EnsureStoreId, but fallback to avoid crashes
+    return urlStoreId || 'fallback-' + Math.random().toString(36).substring(7)
+  }, [location.search])
 
-  console.log(`Using stable storeId: ${storeId}`)
+  console.log(`LiveStore using storeId: ${storeId}`)
 
   return (
     <LiveStoreProvider
