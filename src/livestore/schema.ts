@@ -297,7 +297,7 @@ const materializers = State.SQLite.materializers(events, {
   'v1.TaskArchived': ({ taskId, archivedAt }) => tasks.update({ archivedAt }).where({ id: taskId }),
   'v1.TaskUnarchived': ({ taskId }) => tasks.update({ archivedAt: null }).where({ id: taskId }),
   'v1.DocumentCreated': ({ id, title, content, createdAt }) =>
-    documents.insert({ id, title, content, createdAt, updatedAt: createdAt }),
+    documents.insert({ id, title, content, createdAt, updatedAt: createdAt, archivedAt: null }),
   'v1.DocumentUpdated': ({ id, updates, updatedAt }) => {
     const updateData: Record<string, any> = { updatedAt }
     if (updates.title !== undefined) updateData.title = updates.title

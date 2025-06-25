@@ -118,6 +118,28 @@ async function runAgenticLoop(
                   )
                   .join('\n• ') || 'No projects found'
               toolResultMessage = `Available projects:\n• ${projectList}`
+            } else if (toolCall.function.name === 'list_documents') {
+              const documentList =
+                toolResult.documents
+                  ?.map(
+                    (d: any) =>
+                      `${d.title} (ID: ${d.id}) - Updated: ${new Date(d.updatedAt).toLocaleDateString()}`
+                  )
+                  .join('\n• ') || 'No documents found'
+              toolResultMessage = `Available documents:\n• ${documentList}`
+            } else if (toolCall.function.name === 'read_document') {
+              if (toolResult.document) {
+                const doc = toolResult.document
+                toolResultMessage = `Document: ${doc.title}\n\nContent:\n${doc.content}`
+              } else {
+                toolResultMessage = 'Document not found'
+              }
+            } else if (toolCall.function.name === 'search_documents') {
+              const searchResults =
+                toolResult.results
+                  ?.map((r: any) => `${r.title} (ID: ${r.id})\n  Snippet: ${r.snippet}`)
+                  .join('\n\n• ') || 'No matching documents found'
+              toolResultMessage = `Search results:\n• ${searchResults}`
             } else {
               toolResultMessage = `Tool executed successfully`
             }
@@ -212,6 +234,7 @@ async function callLLMAPI(
 
   // Use relative path for production, fallback to localhost for local development
   const proxyUrl = import.meta.env.PROD ? '/api/llm/chat' : 'http://localhost:8787/api/llm/chat'
+  console.log('🔗 PROD mode:', import.meta.env.PROD, 'Using URL:', proxyUrl)
 
   // Build conversation history for API
   const historyForAPI =
