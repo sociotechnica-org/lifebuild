@@ -3,7 +3,7 @@ import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedwo
 import { LiveStoreProvider } from '@livestore/react'
 import React from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
 import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
@@ -27,25 +27,17 @@ const otelTracer = makeTracer('work-squared-main')
 
 // LiveStore wrapper that gets storeId reactively based on current route
 const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation()
   const [storeId, setStoreId] = React.useState<string>(() => {
     // Don't call getStoreId on initial render - wait for routing to settle
     return 'temp-loading'
   })
 
   React.useEffect(() => {
-    // Update storeId after routing has had a chance to work
-    const updateStoreId = () => {
-      const newStoreId = getStoreId()
-      setStoreId(newStoreId)
-    }
-
-    // Update immediately
-    updateStoreId()
-
-    // Also listen for URL changes (in case of navigation)
-    window.addEventListener('popstate', updateStoreId)
-    return () => window.removeEventListener('popstate', updateStoreId)
-  }, [])
+    // Update storeId whenever the location changes
+    const newStoreId = getStoreId()
+    setStoreId(newStoreId)
+  }, [location.pathname, location.search]) // React to both path and search changes
 
   // Don't render LiveStore until we have a real storeId
   if (storeId === 'temp-loading') {
