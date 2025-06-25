@@ -23,14 +23,14 @@ This document outlines the tasks for building the Virtual Danvers AI, including 
   - [x] The tool function will take a search string and return a list of matching document snippets and their IDs.
 - [x] **Integration**: Register these new tools with the LLM provider in the chat implementation.
 
-### 2. Document Seeding
+### 2. Document Seeding ✅ COMPLETED
 
 **Goal**: Pre-load 3-5 of Danvers' documents into each new session.
 
-- [ ] **Content**: Create a new directory, `docs/seed-content/`, and place the 3-5 final Markdown documents there.
-- [ ] **Seeding Logic**: This task depends on the session creation mechanism from Stream 1. Once a new session and its store are created, a seeding function should be triggered.
-- [ ] **Implementation**: The `seedSessionDocuments` function sketched in the main plan should be implemented. It will iterate through the default documents (reading them from the new directory) and emit a `document.created` event for each one using the LiveStore `mutate` API.
-- [ ] **Event Schema**: Ensure the `document.created` event in `src/livestore/events.ts` and the `documents` table schema in `src/livestore/schema.ts` can store all necessary information (e.g., `id`, `title`, `content`).
+- [x] **Content**: Create a new directory, `docs/seed-content/`, and place the 3-5 final Markdown documents there.
+- [x] **Seeding Logic**: This task depends on the session creation mechanism from Stream 1. Once a new session and its store are created, a seeding function should be triggered.
+- [x] **Implementation**: The `seedSessionDocuments` function sketched in the main plan should be implemented. It will iterate through the default documents (reading them from the new directory) and emit a `document.created` event for each one using the LiveStore `mutate` API.
+- [x] **Event Schema**: Ensure the `document.created` event in `src/livestore/events.ts` and the `documents` table schema in `src/livestore/schema.ts` can store all necessary information (e.g., `id`, `title`, `content`).
 
 ### 3. Basic Virtual Danvers Persona
 
