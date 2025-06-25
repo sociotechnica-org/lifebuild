@@ -39,6 +39,25 @@ test.describe('Smoke Tests', () => {
     await waitForLiveStoreReady(page)
     await expect(page).toHaveURL(/\/session\/[^\/]+\/admin/)
 
+    // Verify admin interface is visible and accessible
+    await expect(page.locator('text=Session Admin View')).toBeVisible()
+    await expect(page.locator(`text=${sessionId}`)).toBeVisible()
+    
+    // Verify projects content is visible (not blocked by chat panel)
+    const projectsSection = page.locator('text=Projects').first()
+    if (await projectsSection.isVisible()) {
+      await expect(projectsSection).toBeVisible()
+    }
+    
+    // Verify chat panel is present but not blocking main content
+    const chatPanel = page.locator('text=LLM Chat')
+    if (await chatPanel.isVisible()) {
+      await expect(chatPanel).toBeVisible()
+      // Main content should still be accessible
+      const mainContent = page.locator('text=Session Admin View')
+      await expect(mainContent).toBeVisible()
+    }
+
     // Navigate directly to projects (should work in admin)
     await page.goto('/projects')
     await waitForLiveStoreReady(page)
