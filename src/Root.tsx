@@ -41,7 +41,7 @@ const getStableStoreId = (): string => {
   if (sessionId) {
     return sessionId
   }
-  
+
   // Generate new sessionId and store it
   const newId = crypto.randomUUID()
   localStorage.setItem('sessionId', newId)
