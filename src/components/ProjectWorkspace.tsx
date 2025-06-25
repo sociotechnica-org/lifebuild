@@ -42,7 +42,7 @@ const ProjectWorkspaceContent: React.FC = () => {
   React.useEffect(() => {
     if (documents.length === 0 && !hasSeededDocumentsRef.current) {
       hasSeededDocumentsRef.current = true
-      seedSessionDocuments(store)
+      seedSessionDocuments(store).catch(console.error)
     }
   }, [documents.length, store])
 

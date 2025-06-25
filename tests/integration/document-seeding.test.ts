@@ -10,13 +10,13 @@ describe('Document Seeding', () => {
     store = createTestStore()
   })
 
-  it('should seed 5 documents when none exist', () => {
+  it('should seed 5 documents when none exist', async () => {
     // Initial state - no documents
     const initialDocuments = store.query(getDocumentList$)
     expect(initialDocuments).toHaveLength(0)
 
     // Seed documents
-    seedSessionDocuments(store)
+    await seedSessionDocuments(store)
 
     // Verify documents were created
     const documents = store.query(getDocumentList$)
@@ -32,8 +32,8 @@ describe('Document Seeding', () => {
     expect(firstDoc).toHaveProperty('archivedAt', null)
   })
 
-  it('should create documents with specific titles and IDs', () => {
-    seedSessionDocuments(store)
+  it('should create documents with specific titles and IDs', async () => {
+    await seedSessionDocuments(store)
 
     const documents = store.query(getDocumentList$)
     const titles = documents.map((doc: any) => doc.title)
@@ -52,8 +52,8 @@ describe('Document Seeding', () => {
     expect(ids).toContain('doc-legal-research')
   })
 
-  it('should create documents with actual content', () => {
-    seedSessionDocuments(store)
+  it('should create documents with actual content', async () => {
+    await seedSessionDocuments(store)
 
     const documents = store.query(getDocumentList$)
     const ethicsGuide = documents.find((doc: any) => doc.id === 'doc-ai-ethics-guide')
@@ -65,8 +65,8 @@ describe('Document Seeding', () => {
     expect(ethicsGuide.title).toBe('AI Legal Ethics Guide')
   })
 
-  it('should create documents with different creation dates', () => {
-    seedSessionDocuments(store)
+  it('should create documents with different creation dates', async () => {
+    await seedSessionDocuments(store)
 
     const documents = store.query(getDocumentList$)
     const creationDates = documents.map((doc: any) => doc.createdAt.getTime())
@@ -81,8 +81,8 @@ describe('Document Seeding', () => {
     }
   })
 
-  it('should create documents with meaningful content for each type', () => {
-    seedSessionDocuments(store)
+  it('should create documents with meaningful content for each type', async () => {
+    await seedSessionDocuments(store)
 
     const documents = store.query(getDocumentList$)
 
@@ -108,14 +108,14 @@ describe('Document Seeding', () => {
     expect(researchStrategies.content).toContain('Case Law Research')
   })
 
-  it('should handle multiple seeding calls gracefully', () => {
+  it('should handle multiple seeding calls gracefully', async () => {
     // First seeding
-    seedSessionDocuments(store)
+    await seedSessionDocuments(store)
     const firstDocuments = store.query(getDocumentList$)
     expect(firstDocuments).toHaveLength(5)
 
     // Second seeding should add more documents (not replace)
-    seedSessionDocuments(store)
+    await seedSessionDocuments(store)
     const secondDocuments = store.query(getDocumentList$)
     expect(secondDocuments).toHaveLength(10) // 5 + 5 = 10
   })

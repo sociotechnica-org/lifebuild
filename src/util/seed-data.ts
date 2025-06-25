@@ -136,7 +136,7 @@ export function seedSampleBoards(store: Store) {
   })
 }
 
-export function seedSessionDocuments(store: Store) {
+export async function seedSessionDocuments(store: Store) {
   const now = new Date()
 
   // Define the seed documents with their content directly imported
@@ -174,8 +174,8 @@ export function seedSessionDocuments(store: Store) {
   ]
 
   // Create documents using imported content
-  seedDocuments.forEach(docMeta => {
-    store.commit(
+  for (const docMeta of seedDocuments) {
+    await store.commit(
       events.documentCreated({
         id: docMeta.id,
         title: docMeta.title,
@@ -185,7 +185,7 @@ export function seedSessionDocuments(store: Store) {
     )
 
     console.log(`✅ Seeded document: ${docMeta.title}`)
-  })
+  }
 
   console.log(`🌱 Document seeding completed: ${seedDocuments.length} documents seeded`)
 }
