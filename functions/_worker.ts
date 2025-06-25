@@ -306,17 +306,17 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
 
     // For all other requests, serve the static assets
     // For SPA routes (like /admin), we need to serve index.html
-    const url = new URL(request.url)
-    
+    // Note: 'url' is already declared at the top of this function
+
     // Try to fetch the requested asset first
     let response = await env.ASSETS.fetch(request)
-    
+
     // If it's a 404 and looks like a route (no file extension), serve index.html
     if (response.status === 404 && !url.pathname.includes('.')) {
       const indexRequest = new Request(new URL('/index.html', request.url).toString(), request)
       response = await env.ASSETS.fetch(indexRequest)
     }
-    
+
     return response
   },
 }
