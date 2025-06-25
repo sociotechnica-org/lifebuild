@@ -24,15 +24,25 @@ const adapter = makePersistedAdapter({
 
 const otelTracer = makeTracer('work-squared-main')
 
-// Simple stable storeId - just like TodoMVC example
+// Get stable storeId with proper URL and SSR handling
 const getStableStoreId = (): string => {
-  // Use sessionId if available in localStorage
+  if (typeof window === 'undefined') return 'unused'
+
+  // First check if we're on a session route - use URL sessionId
+  const sessionMatch = window.location.pathname.match(/^\/session\/([^\/]+)/)
+  if (sessionMatch && sessionMatch[1]) {
+    // Store in localStorage for consistency
+    localStorage.setItem('sessionId', sessionMatch[1])
+    return sessionMatch[1]
+  }
+
+  // For non-session routes, check localStorage
   const sessionId = localStorage.getItem('sessionId')
   if (sessionId) {
     return sessionId
   }
-
-  // Otherwise generate and store new one
+  
+  // Generate new sessionId and store it
   const newId = crypto.randomUUID()
   localStorage.setItem('sessionId', newId)
   return newId
