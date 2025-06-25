@@ -40,7 +40,7 @@ test.describe('Smoke Tests', () => {
     await expect(page).toHaveURL(/\/session\/[^\/]+\/admin/)
 
     // Navigate directly to projects (should work in admin)
-    await page.goto('/projects')  
+    await page.goto('/projects')
     await waitForLiveStoreReady(page)
     await expect(page).toHaveURL(/\/projects/)
   })
@@ -98,7 +98,7 @@ test.describe('Smoke Tests', () => {
     // Wait for initial load
     await waitForLiveStoreReady(page)
 
-    // Test session-based routing  
+    // Test session-based routing
     const sessionId = 'test-routing-' + Date.now()
     await page.goto(`/session/${sessionId}`)
     await expect(page).toHaveURL(/\/session\/[^\/]+$/)
