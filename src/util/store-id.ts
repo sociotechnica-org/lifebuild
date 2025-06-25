@@ -1,4 +1,4 @@
-import { getSessionIdFromUrl } from './session-id.js'
+import { getSessionIdFromUrl, getOrCreateSessionId } from './session-id.js'
 
 export const getStoreId = () => {
   if (typeof window === 'undefined') return 'unused'
@@ -10,9 +10,9 @@ export const getStoreId = () => {
   }
 
   // If we're at the root path, we're about to be redirected to a session
-  // Don't create storeId URLs, just return a temporary ID
+  // Use the same session ID that the redirect will use for consistency
   if (window.location.pathname === '/') {
-    return 'temp-root-' + crypto.randomUUID()
+    return getOrCreateSessionId()
   }
 
   // Fallback to original behavior for non-session routes
