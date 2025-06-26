@@ -5,6 +5,7 @@ This document outlines the cleanup tasks needed to revert law firm-specific chan
 ## High Priority Cleanup
 
 ### 1. Revert Chat-First Interface
+
 **Goal**: Restore original Projects List page layout with persistent chat sidebar
 
 - [ ] Remove nested `/admin` route structure
@@ -15,6 +16,7 @@ This document outlines the cleanup tasks needed to revert law firm-specific chan
 - [ ] Ensure session routing still works but with original UI structure
 
 ### 2. Revert Document Seeding
+
 **Goal**: Remove law firm-specific document seeding
 
 - [ ] Remove `docs/seed-content/` directory with law firm documents
@@ -25,6 +27,7 @@ This document outlines the cleanup tasks needed to revert law firm-specific chan
 ## Medium Priority Cleanup
 
 ### 3. Clean Up Code References
+
 **Goal**: Remove law firm-specific code and comments (if any exist)
 
 - [ ] Search codebase for "Danvers", "law firm", "legal" references
@@ -34,6 +37,7 @@ This document outlines the cleanup tasks needed to revert law firm-specific chan
 **Note**: Since Virtual Danvers work was never committed, most law firm-specific code should not exist in the codebase.
 
 ### 4. Documentation Cleanup
+
 **Goal**: Update documentation to reflect current state
 
 - [ ] Update README if it references law firm demo
@@ -43,6 +47,7 @@ This document outlines the cleanup tasks needed to revert law firm-specific chan
 ## Low Priority Cleanup
 
 ### 5. Optional Code Consolidation
+
 **Goal**: Clean up unused code paths (only if time permits)
 
 - [ ] Remove unused components created for law firm demo
@@ -52,6 +57,7 @@ This document outlines the cleanup tasks needed to revert law firm-specific chan
 ## Preserve These Features
 
 ### ✅ Keep These (They're Useful)
+
 - Document tools (`list_documents`, `read_document`, `search_documents`)
 - Session management and URL-based sessions
 - localStorage persistence and storeId handling
@@ -60,6 +66,7 @@ This document outlines the cleanup tasks needed to revert law firm-specific chan
 - API key persistence fixes
 
 ### ⚠️ Evaluate These
+
 - Admin/inspector routes (might be useful for debugging)
 - Session sharing functionality (copy URL, new session buttons)
 
