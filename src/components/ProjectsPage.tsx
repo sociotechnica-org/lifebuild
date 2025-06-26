@@ -36,6 +36,11 @@ export const ProjectsPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        <CreateProjectModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+        />
       </div>
     )
   }
