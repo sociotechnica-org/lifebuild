@@ -18,8 +18,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Main Content Area */}
           <div className='flex-1 overflow-auto'>{children}</div>
 
-          {/* Chat Panel */}
-          <ChatInterface />
+          {/* Chat Panel - Fixed width */}
+          <div className='w-96 flex-shrink-0'>
+            <ChatInterface />
+          </div>
         </div>
       </div>
     </SnackbarProvider>

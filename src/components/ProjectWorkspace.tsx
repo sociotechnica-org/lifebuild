@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
 import { useQuery, useStore } from '@livestore/react'
 import { useParams, Link } from 'react-router-dom'
+import { preserveStoreIdInUrl } from '../util/navigation.js'
 import {
   getProjectColumns$,
   getProjectTasks$,
@@ -271,7 +272,7 @@ const ProjectWorkspaceContent: React.FC = () => {
       <div className='border-b border-gray-200 bg-white px-6 py-4'>
         <div className='flex items-center gap-4 mb-3'>
           <Link
-            to='/projects'
+            to={preserveStoreIdInUrl('/admin/projects')}
             className='flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'
             aria-label='Back to projects'
           >
@@ -292,7 +293,10 @@ const ProjectWorkspaceContent: React.FC = () => {
 
           {/* Breadcrumb */}
           <nav className='flex items-center text-sm text-gray-500'>
-            <Link to='/projects' className='hover:text-gray-700 transition-colors'>
+            <Link
+              to={preserveStoreIdInUrl('/admin/projects')}
+              className='hover:text-gray-700 transition-colors'
+            >
               Projects
             </Link>
             <svg className='w-4 h-4 mx-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>

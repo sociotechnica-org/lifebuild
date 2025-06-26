@@ -4,9 +4,14 @@
   "main": "./functions/_worker.ts",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
   },
   "build": {
     "command": "pnpm build",
+  },
+  "observability": {
+    "enabled": true,
   },
   "d1_databases": [
     {

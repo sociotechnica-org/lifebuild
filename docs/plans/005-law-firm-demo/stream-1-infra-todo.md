@@ -1,6 +1,6 @@
 # Stream 1: Production Infrastructure Todo
 
-**Owner**: Gemini
+**Owner**: Jess
 **Parent Plan**: [Law Firm Demo Plan](./law-firm-demo-plan.md)
 
 This document outlines the tasks for setting up the production infrastructure for the Virtual Danvers Advisor demo.

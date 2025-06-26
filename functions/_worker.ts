@@ -299,9 +299,18 @@ Maintain a professional, authoritative tone while being approachable and practic
 
     // Handle WebSocket upgrade requests - use pre-instantiated worker
     if (request.headers.get('upgrade') === 'websocket') {
-      return worker.fetch(request, env)
+      return worker.fetch(request, env, {
+        onPush: async function (message) {
+          console.log('Sync server: relaying', message.batch.length, 'events')
+        },
+        onPull: async function (message) {
+          console.log('onPull', message)
+        },
+      })
     }
 
-    return new Response('Not found', { status: 404 })
+    // For all other requests, use the ASSETS binding to serve static files
+    // This handles both static assets and SPA routing
+    return env.ASSETS.fetch(request)
   },
 }

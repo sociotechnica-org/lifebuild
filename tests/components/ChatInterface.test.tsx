@@ -32,7 +32,7 @@ describe('ChatInterface', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getByText('LLM Chat')).toBeInTheDocument()
+    expect(screen.getByText('Chat')).toBeInTheDocument()
     expect(screen.getByText('No conversation selected')).toBeInTheDocument()
     expect(screen.getByText('Start New Chat')).toBeInTheDocument()
 
@@ -56,7 +56,7 @@ describe('ChatInterface', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getByText('LLM Chat')).toBeInTheDocument()
+    expect(screen.getByText('Chat')).toBeInTheDocument()
     expect(screen.getByLabelText('New Chat')).toBeInTheDocument() // + button should be visible
     expect(screen.getByDisplayValue('')).toBeInTheDocument() // conversation selector
   })

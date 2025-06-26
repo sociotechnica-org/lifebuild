@@ -148,7 +148,7 @@ describe('ProjectWorkspace', () => {
 
     const backLink = screen.getByLabelText('Back to projects')
     expect(backLink).toBeInTheDocument()
-    expect(backLink).toHaveAttribute('href', '/projects')
+    expect(backLink).toHaveAttribute('href', '/admin/projects')
   })
 
   it('should show project name in breadcrumb navigation', () => {
@@ -156,7 +156,7 @@ describe('ProjectWorkspace', () => {
 
     // Should have breadcrumb link to projects
     const projectsLink = screen.getByRole('link', { name: 'Projects' })
-    expect(projectsLink).toHaveAttribute('href', '/projects')
+    expect(projectsLink).toHaveAttribute('href', '/admin/projects')
 
     // Should show project name in breadcrumb
     const breadcrumbItems = screen.getAllByText('Test Project')
