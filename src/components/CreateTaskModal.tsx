@@ -120,11 +120,11 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
 
   return (
     <div
-      className='fixed inset-0 backdrop-blur-sm flex items-center justify-center p-4 z-50'
+      className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'
       onClick={handleBackdropClick}
     >
       <div
-        className='bg-white rounded-lg shadow-lg max-w-md w-full'
+        className='bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto'
         role='dialog'
         aria-modal='true'
         aria-labelledby='create-task-modal-title'
