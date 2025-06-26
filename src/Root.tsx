@@ -9,7 +9,6 @@ import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
 import { TasksPage } from './components/TasksPage.js'
 import { Layout } from './components/Layout.js'
-import { ChatOnlyLayout } from './components/ChatOnlyLayout.js'
 import { EnsureStoreId } from './components/EnsureStoreId.js'
 import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from './livestore/schema.js'
@@ -71,12 +70,9 @@ export const App: React.FC = () => (
     <LiveStoreWrapper>
       <EnsureStoreId>
         <Routes>
-          {/* Chat-first route */}
-          <Route path='/' element={<ChatOnlyLayout />} />
-
-          {/* Admin routes */}
+          {/* Main routes - restored original structure */}
           <Route
-            path='/admin'
+            path='/'
             element={
               <Layout>
                 <ProjectsPage />
@@ -84,7 +80,7 @@ export const App: React.FC = () => (
             }
           />
           <Route
-            path='/admin/projects'
+            path='/projects'
             element={
               <Layout>
                 <ProjectsPage />
@@ -92,7 +88,7 @@ export const App: React.FC = () => (
             }
           />
           <Route
-            path='/admin/tasks'
+            path='/tasks'
             element={
               <Layout>
                 <TasksPage />
@@ -100,7 +96,7 @@ export const App: React.FC = () => (
             }
           />
           <Route
-            path='/admin/project/:projectId'
+            path='/project/:projectId'
             element={
               <Layout>
                 <ProjectWorkspace />

@@ -10,7 +10,6 @@ import {
 } from '../livestore/queries.js'
 import type { Task, Document } from '../livestore/schema.js'
 import { events } from '../livestore/schema.js'
-import { seedSessionDocuments } from '../util/seed-data.js'
 import { ProjectProvider, useProject } from '../contexts/ProjectContext.js'
 import { KanbanBoard } from './KanbanBoard.js'
 import { TaskModal } from './TaskModal.js'
@@ -37,15 +36,6 @@ const ProjectWorkspaceContent: React.FC = () => {
   const columns = useQuery(getProjectColumns$(projectId)) ?? []
   const tasks = useQuery(getProjectTasks$(projectId)) ?? []
   const documents = (useQuery(getDocumentsForProject$(projectId)) ?? []) as Document[]
-  const hasSeededDocumentsRef = React.useRef(false)
-
-  // Seed documents if none exist (similar to project seeding pattern)
-  React.useEffect(() => {
-    if (documents.length === 0 && !hasSeededDocumentsRef.current) {
-      hasSeededDocumentsRef.current = true
-      seedSessionDocuments(store).catch(console.error)
-    }
-  }, [documents.length, store])
 
   // Group tasks by column
   const tasksByColumn = (tasks || []).reduce((acc: Record<string, Task[]>, task: Task) => {
@@ -272,7 +262,7 @@ const ProjectWorkspaceContent: React.FC = () => {
       <div className='border-b border-gray-200 bg-white px-6 py-4'>
         <div className='flex items-center gap-4 mb-3'>
           <Link
-            to={preserveStoreIdInUrl('/admin/projects')}
+            to={preserveStoreIdInUrl('/projects')}
             className='flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'
             aria-label='Back to projects'
           >
@@ -294,7 +284,7 @@ const ProjectWorkspaceContent: React.FC = () => {
           {/* Breadcrumb */}
           <nav className='flex items-center text-sm text-gray-500'>
             <Link
-              to={preserveStoreIdInUrl('/admin/projects')}
+              to={preserveStoreIdInUrl('/projects')}
               className='hover:text-gray-700 transition-colors'
             >
               Projects

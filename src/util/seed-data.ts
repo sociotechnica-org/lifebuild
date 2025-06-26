@@ -1,10 +1,5 @@
 import type { Store } from '@livestore/livestore'
 import { events } from '../livestore/schema.js'
-import { aiLegalEthicsGuide } from './seeds/ai-legal-ethics-guide.js'
-import { aiImplementationRoadmap } from './seeds/ai-implementation-roadmap.js'
-import { aiVendorEvaluationChecklist } from './seeds/ai-vendor-evaluation-checklist.js'
-import { aiContractReviewBestPractices } from './seeds/ai-contract-review-best-practices.js'
-import { aiLegalResearchStrategies } from './seeds/ai-legal-research-strategies.js'
 
 export function seedSampleBoards(store: Store) {
   const now = new Date()
@@ -134,58 +129,4 @@ export function seedSampleBoards(store: Store) {
       })
     })
   })
-}
-
-export async function seedSessionDocuments(store: Store) {
-  const now = new Date()
-
-  // Define the seed documents with their content directly imported
-  const seedDocuments = [
-    {
-      id: 'doc-ai-ethics-guide',
-      title: 'AI Legal Ethics Guide',
-      content: aiLegalEthicsGuide,
-      createdAt: new Date(now.getTime() - 432000000), // 5 days ago
-    },
-    {
-      id: 'doc-implementation-roadmap',
-      title: 'AI Implementation Roadmap for Law Firms',
-      content: aiImplementationRoadmap,
-      createdAt: new Date(now.getTime() - 345600000), // 4 days ago
-    },
-    {
-      id: 'doc-vendor-evaluation',
-      title: 'AI Vendor Evaluation Checklist',
-      content: aiVendorEvaluationChecklist,
-      createdAt: new Date(now.getTime() - 259200000), // 3 days ago
-    },
-    {
-      id: 'doc-contract-review',
-      title: 'AI Contract Review Best Practices',
-      content: aiContractReviewBestPractices,
-      createdAt: new Date(now.getTime() - 172800000), // 2 days ago
-    },
-    {
-      id: 'doc-legal-research',
-      title: 'AI Legal Research Strategies',
-      content: aiLegalResearchStrategies,
-      createdAt: new Date(now.getTime() - 86400000), // 1 day ago
-    },
-  ]
-
-  // Create documents using imported content
-  for (const docMeta of seedDocuments) {
-    await store.commit(
-      events.documentCreated({
-        id: docMeta.id,
-        title: docMeta.title,
-        content: docMeta.content,
-        createdAt: docMeta.createdAt,
-      })
-    )
-
-    console.log(`✅ Seeded document: ${docMeta.title}`)
-  }
-
-  console.log(`🌱 Document seeding completed: ${seedDocuments.length} documents seeded`)
 }
