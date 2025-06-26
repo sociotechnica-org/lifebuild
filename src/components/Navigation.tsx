@@ -12,7 +12,11 @@ export const Navigation: React.FC = () => {
 
   const isActive = (path: string) => {
     if (path === '/projects') {
-      return location.pathname === '/projects' || location.pathname.startsWith('/project/')
+      return (
+        location.pathname === '/projects' ||
+        location.pathname === '/' ||
+        location.pathname.startsWith('/project/')
+      )
     }
     if (path === '/tasks') {
       return location.pathname === '/tasks'
