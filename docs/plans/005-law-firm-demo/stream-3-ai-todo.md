@@ -23,7 +23,7 @@ This document outlines the tasks for building the Virtual Danvers AI, including 
   - [x] The tool function will take a search string and return a list of matching document snippets and their IDs.
 - [x] **Integration**: Register these new tools with the LLM provider in the chat implementation.
 
-### 2. Document Seeding ✅ COMPLETED
+### 2. Document Seeding ⚠️ NEEDS REVERSION
 
 **Goal**: Pre-load 3-5 of Danvers' documents into each new session.
 
@@ -32,7 +32,9 @@ This document outlines the tasks for building the Virtual Danvers AI, including 
 - [x] **Implementation**: The `seedSessionDocuments` function sketched in the main plan should be implemented. It will iterate through the default documents (reading them from the new directory) and emit a `document.created` event for each one using the LiveStore `mutate` API.
 - [x] **Event Schema**: Ensure the `document.created` event in `src/livestore/events.ts` and the `documents` table schema in `src/livestore/schema.ts` can store all necessary information (e.g., `id`, `title`, `content`).
 
-### 3. Basic Virtual Danvers Persona
+**Reversion Needed**: Document seeding was implemented but needs to be reverted since the Virtual Danvers demo is not needed. The seeding logic and law firm-specific content should be removed.
+
+### 3. Basic Virtual Danvers Persona ⚠️ NEEDS REVERSION
 
 **Goal**: Configure the LLM with a system prompt for a law firm AI integration advisor.
 
@@ -40,27 +42,17 @@ This document outlines the tasks for building the Virtual Danvers AI, including 
 - [ ] **Configuration**: Update the LLM provider configuration (`VIRTUAL_DANVERS_CONFIG` from the plan) with the system prompt, model (`gpt-4-turbo`), and temperature (`0.7`).
 - [ ] **Tool Registration**: Ensure the newly created document tools are included in the `tools` array for the configuration.
 
-## Should Have
+**Reversion Needed**: Any law firm-specific system prompts or persona configuration should be reverted to generic prompts. This work could be pivoted into a general purpose "advisors" feature in the future.
 
-### 1. Intro Message System
+## Final Status
 
-**Goal**: Display a brief welcome message in new sessions.
+### Virtual Danvers Work Not Merged
+The Virtual Danvers AI advisor work was not merged into the main branch since the live demo was ultimately not needed.
 
-- [ ] **Mechanism**: When a new session is created, after seeding the documents, emit a `chat.message.created` event with a welcome message from the `assistant`.
-- [ ] **Content**: The message should briefly introduce Virtual Danvers and suggest what the user can ask. For example: "Welcome. I'm Virtual Danvers, your AI integration advisor. You can ask me about the pre-loaded documents on AI in legal practice."
-- [ ] **Implementation**: This can be part of the `seedSessionDocuments` function.
+### Document Work Status
+- Document tools (`list_documents`, `read_document`, `search_documents`) were successfully implemented and are useful for future features
+- Document seeding functionality was implemented but should be reverted
+- Law firm-specific content and prompts should be reverted to generic versions
 
-### 2. Response Optimization
-
-**Goal**: Test and refine the quality of the AI's responses.
-
-- [ ] **Testing**: After the core features are built, conduct several test conversations covering expected user questions.
-- [ ] **Scenarios**: Test document retrieval, summarization, and questions about AI integration.
-- [ ] **Refinement**: Based on test results, tweak the system prompt, tool descriptions, or even the document content to improve response quality.
-
-### 3. Legal Disclaimers
-
-**Goal**: Include a basic legal disclaimer.
-
-- [ ] **Content**: Draft a short, clear disclaimer. E.g., "I am an AI assistant and not a lawyer. My responses are for informational purposes only and do not constitute legal advice."
-- [ ] **Placement**: The disclaimer can be included as part of the initial welcome message or as a static piece of text in the UI near the chat interface. Placing it in the welcome message is likely sufficient for the demo.
+### Future Potential
+This work could be pivoted into a general purpose "advisors" feature where users can create specialized AI assistants for different domains, but that's outside the current scope.
