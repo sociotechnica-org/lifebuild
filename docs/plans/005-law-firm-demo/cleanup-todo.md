@@ -99,6 +99,7 @@ This document outlines the cleanup tasks needed to revert law firm-specific chan
 ## Cleanup Summary
 
 **Completed Work:**
+
 - Reverted chat-first interface back to original Projects List layout
 - Removed all `/admin` routes and restored original routing structure
 - Deleted `ChatOnlyLayout` component
