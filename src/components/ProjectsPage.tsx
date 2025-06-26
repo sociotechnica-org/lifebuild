@@ -13,7 +13,7 @@ export const ProjectsPage: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const handleProjectClick = (project: Project) => {
-    navigate(preserveStoreIdInUrl(`/admin/project/${project.id}`))
+    navigate(preserveStoreIdInUrl(`/project/${project.id}`))
   }
 
   if (projects.length === 0) {
