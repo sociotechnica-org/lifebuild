@@ -1,10 +1,12 @@
 import type { Store } from '@livestore/livestore'
 import { events } from '../livestore/schema.js'
-import { aiLegalEthicsGuide } from './seeds/ai-legal-ethics-guide.js'
-import { aiImplementationRoadmap } from './seeds/ai-implementation-roadmap.js'
-import { aiVendorEvaluationChecklist } from './seeds/ai-vendor-evaluation-checklist.js'
-import { aiContractReviewBestPractices } from './seeds/ai-contract-review-best-practices.js'
-import { aiLegalResearchStrategies } from './seeds/ai-legal-research-strategies.js'
+import { aiRevolutionInLegalPractice } from './seeds/ai-revolution-in-legal-practice.js'
+import { applesLlmStudyDrawsAnImportantDistinctionAboutReasoningModels } from './seeds/apples-llm-study-draws-an-important-distinction-about-reasoning-models.js'
+import { beyondTheSymbolicHumanizingAiTools } from './seeds/beyond-the-symbolic-humanizing-ai-tools.js'
+import { retroUiFoundation } from './seeds/retro-ui-foundation.js'
+import { software30 } from './seeds/software-3.0.js'
+import { theDeathOfTheJuniorDeveloper } from './seeds/the-death-of-the-junior-developer.js'
+import { theGapThroughWhichWePraiseTheMachine } from './seeds/the-gap-through-which-we-praise-the-machine.js'
 
 export function seedSampleBoards(store: Store) {
   const now = new Date()
@@ -142,33 +144,45 @@ export async function seedSessionDocuments(store: Store) {
   // Define the seed documents with their content directly imported
   const seedDocuments = [
     {
-      id: 'doc-ai-ethics-guide',
-      title: 'AI Legal Ethics Guide',
-      content: aiLegalEthicsGuide,
+      id: 'doc-ai-revolution-legal',
+      title: 'AI Revolution in Legal Practice',
+      content: aiRevolutionInLegalPractice,
+      createdAt: new Date(now.getTime() - 604800000), // 7 days ago
+    },
+    {
+      id: 'doc-llm-reasoning-study',
+      title: "Apple's LLM Study Draws Important Distinction on Reasoning Models",
+      content: applesLlmStudyDrawsAnImportantDistinctionAboutReasoningModels,
+      createdAt: new Date(now.getTime() - 518400000), // 6 days ago
+    },
+    {
+      id: 'doc-beyond-symbolic',
+      title: 'Beyond the Symbolic: Humanizing AI Tools',
+      content: beyondTheSymbolicHumanizingAiTools,
       createdAt: new Date(now.getTime() - 432000000), // 5 days ago
     },
     {
-      id: 'doc-implementation-roadmap',
-      title: 'AI Implementation Roadmap for Law Firms',
-      content: aiImplementationRoadmap,
+      id: 'doc-retro-ui',
+      title: 'Retro UI Foundation',
+      content: retroUiFoundation,
       createdAt: new Date(now.getTime() - 345600000), // 4 days ago
     },
     {
-      id: 'doc-vendor-evaluation',
-      title: 'AI Vendor Evaluation Checklist',
-      content: aiVendorEvaluationChecklist,
+      id: 'doc-software-3',
+      title: 'Software 3.0 - Software Is Changing, Again',
+      content: software30,
       createdAt: new Date(now.getTime() - 259200000), // 3 days ago
     },
     {
-      id: 'doc-contract-review',
-      title: 'AI Contract Review Best Practices',
-      content: aiContractReviewBestPractices,
+      id: 'doc-death-junior-dev',
+      title: 'The Death of the Junior Developer',
+      content: theDeathOfTheJuniorDeveloper,
       createdAt: new Date(now.getTime() - 172800000), // 2 days ago
     },
     {
-      id: 'doc-legal-research',
-      title: 'AI Legal Research Strategies',
-      content: aiLegalResearchStrategies,
+      id: 'doc-gap-praise-machine',
+      title: 'The Gap Through Which We Praise the Machine',
+      content: theGapThroughWhichWePraiseTheMachine,
       createdAt: new Date(now.getTime() - 86400000), // 1 day ago
     },
   ]

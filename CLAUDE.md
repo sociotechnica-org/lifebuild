@@ -2,98 +2,53 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Commands
+## 🚨 CRITICAL: Before Committing Code
+
+**ALWAYS run this command before committing:**
+```bash
+pnpm lint-all  # Runs lint, format, AND typecheck in one command
+```
+
+This single command replaces:
+- `pnpm lint:fix`
+- `pnpm format`
+- `pnpm typecheck`
+
+## Essential Commands
 
 ### Development
 
 ```bash
-# Install dependencies
-pnpm
-
-# Set up environment variables (first time only)
-cp .env.example .env
-cp .dev.vars.example .dev.vars
+# First time setup
+pnpm install
+cp .env.example .env && cp .dev.vars.example .dev.vars
 # Edit .dev.vars with your Braintrust API credentials
 
-# Run development server (starts both Vite and Wrangler concurrently)
+# Start development (2 terminals needed)
 export VITE_LIVESTORE_SYNC_URL='http://localhost:8787'
-pnpm dev
+pnpm dev          # Terminal 1: Vite + Wrangler
+pnpm llm:service  # Terminal 2: LLM service
 
-# Run LLM service (separate terminal)
-pnpm llm:service
-
-# Run development server on custom port
+# Alternative ports (for multiple Claude instances)
 PORT=3000 VITE_LIVESTORE_SYNC_URL='http://localhost:8787' pnpm dev
-
-# Run Storybook (port 6010 - avoids conflicts with other instances)
-pnpm storybook
 ```
 
-### Testing
+### Key Commands
 
 ```bash
-# Run unit tests (Vitest)
-pnpm test
+# Quality checks (use before committing!)
+pnpm lint-all      # ✅ Use this! Runs lint, format, and typecheck
 
-# Run unit tests in watch mode
-pnpm test -- --watch
+# Testing
+pnpm test          # Unit tests
+pnpm test:e2e      # E2E tests
+CI=true pnpm test:e2e  # Verify E2E tests work (for Claude)
 
-# Run E2E tests (Playwright)
-pnpm test:e2e
+# Building
+pnpm build         # Production build
 
-# Run E2E tests with UI mode
-pnpm test:e2e:ui
-
-# Run E2E tests in debug mode
-pnpm test:e2e:debug
-
-# Run E2E tests on specific port (for multiple Claude instances)
-PLAYWRIGHT_PORT=9090 pnpm test:e2e
-```
-
-### Linting and Formatting
-
-```bash
-# Run all linting, formatting, and type checking (recommended for local development)
-pnpm lint-all
-
-# Run ESLint
-pnpm lint
-
-# Fix ESLint issues automatically
-pnpm lint:fix
-
-# Format code with Prettier
-pnpm format
-
-# Check formatting with Prettier
-pnpm format:check
-
-# Type check with TypeScript
-pnpm typecheck
-```
-
-### Build
-
-```bash
-# Production build
-pnpm build
-
-# Build with bundle analysis
-pnpm build:analyze
-
-# Build Storybook static site
-pnpm build-storybook
-```
-
-### Cloudflare Workers
-
-```bash
-# Deploy to Cloudflare Workers
-pnpm wrangler:deploy
-
-# Run Wrangler dev server only
-pnpm dev:wrangler
+# Deployment
+pnpm wrangler:deploy  # Deploy sync server to Cloudflare
 ```
 
 ## Architecture
@@ -107,239 +62,74 @@ Work Squared is a real-time collaborative web application built with:
 - **SharedWorker** for multi-tab synchronization
 - **OPFS** for client-side persistence
 
-### Key Concepts
+### Key Files
 
-1. **Event Sourcing**: All state changes are events that get materialized into SQLite tables
+- `src/livestore/events.ts` - Event definitions
+- `src/livestore/schema.ts` - Database schema & materializers
+- `src/livestore/queries.ts` - Database queries
+- `services/llm-service.ts` - LLM service implementation
+- `src/cf-worker/index.ts` - WebSocket sync server
 
-   - Events are defined in `src/livestore/events.ts`
-   - Schema and materializers in `src/livestore/schema.ts`
-   - Queries in `src/livestore/queries.ts`
+## External Documentation
 
-2. **Real-time Sync**: WebSocket server runs on Cloudflare Workers
+- LiveStore patterns: https://docs.livestore.dev/llms.txt
+- LLM architecture: [docs/llm-clean-architecture.md](docs/llm-clean-architecture.md)
 
-   - Server implementation in `src/cf-worker/index.ts`
-   - Client sync setup in `src/Root.tsx`
+## Development Workflow
 
-3. **State Management**: LiveStore provides reactive queries and event dispatch
+### Before Starting Work
+1. Review requirements thoroughly
+2. Create descriptive branch (e.g., `feature/documents-tab`)
 
-   - Tables: `todos`, `chatMessages`, `uiState`
-   - Events get synced across all connected clients
-   - Local-first with automatic conflict resolution
+### While Developing
+1. Follow existing code patterns
+2. Write minimal, focused tests
+3. Create Storybook stories for UI components
 
-4. **LLM Integration**: Separate Node.js service handles AI chat responses
-   - Service listens for `ChatMessageSent` events with `role: 'user'`
-   - Calls Braintrust API (GPT-4o) for AI responses
-   - Emits `LLMResponseReceived` events back to LiveStore
-   - Service implementation in `services/llm-service.ts`
-
-### Directory Structure
-
-- `/src/livestore/` - Data model (schema, events, queries)
-- `/functions/` - Cloudflare Worker for sync server
-- `/services/` - Node.js LLM service
-- `/src/components/` - React components
-- `/src/livestore.worker.ts` - SharedWorker for LiveStore operations
-
-## LiveStore Documentation
-
-For LiveStore-specific syntax and patterns, refer to: https://docs.livestore.dev/llms.txt
-
-## LLM Integration
-
-For detailed LLM integration architecture and implementation details, see: [docs/llm-clean-architecture.md](docs/llm-clean-architecture.md)
-
-## Deployment
-
-The application consists of two main services that need to be deployed:
-
-### 1. Cloudflare Worker (Sync Server)
-
+### Before Committing (CRITICAL)
 ```bash
-# Deploy the sync server
-pnpm wrangler:deploy
+pnpm lint-all  # ALWAYS run this!
 ```
 
-### 2. LLM Service (Node.js)
-
-The LLM service (`services/llm-service.ts`) needs to be deployed to a Node.js runtime. Options include:
-
-- **Docker container** (recommended for production)
-- **VPS/Server** with Node.js runtime
-- **Serverless platform** (Vercel, Railway, etc.)
-
-**Environment Variables Required:**
-
-```bash
-BRAINTRUST_API_KEY=your-api-key
-BRAINTRUST_PROJECT_ID=your-project-id
-STORE_ID=production-store-id
-```
-
-**Docker Example:**
-
-```dockerfile
-FROM node:18
-WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install
-COPY . .
-CMD ["pnpm", "llm:service"]
-```
-
-## Development Process
-
-When implementing new features, follow this structured process:
-
-### 0. Planning & Review
-
-- Review the assignment thoroughly (user stories, phase documentation)
-- Ask clarifying questions before starting implementation
-- Check dependencies and ensure prerequisites are met
-
-### 1. Branch Creation
-
-- Create a descriptive branch name (e.g., `feature/documents-tab`, `fix/task-drag-drop`)
-- Branch from the appropriate base branch (usually `main`)
-
-### 2. Implementation
-
-- Implement the complete feature according to specifications
-- Reference planning documents (e.g., `@docs/plans/004-projects-and-workers/phase-1.2-document-system-todo.md`)
-- Follow existing code patterns and conventions
-- Focus on vertical slices (complete features) over horizontal layers
-
-### 3. Testing
-
-- Write appropriate, minimal unit tests for new functionality
-- Create stateless Storybook stories for new UI components when possible
-- Add integration tests for critical workflows (use sparingly)
-- Ensure all tests pass before proceeding
-
-### 4. Quality Assurance
-
-- Run linting: `pnpm lint` (fix with `pnpm lint:fix`)
-- Run formatting: `pnpm format`
-- Run type checking: `pnpm typecheck`
-- Verify all quality checks pass
-
-### 5. Version Control
-
-- Commit changes with clear, descriptive messages
-- Push branch to remote repository
-- Ensure commit history is clean and logical
-
-### 6. Pull Request
-
-- Open a new PR with descriptive title and detailed description
-- Include summary of changes and testing approach
-- Reference any related issues or documentation
-
-### 7. PR Monitoring
-
-- Watch PR checks using `gh pr checks --watch` (may take up to 10 minutes)
-- Fix any failing checks or issues identified by CI
-- Address BugBot feedback even if it's a neutral check
+### Creating a PR
+1. Write clear commit messages
+2. Open PR with detailed description
+3. Run `gh pr checks --watch` and wait for all checks
+4. Fix any issues (including neutral BugBot feedback)
 
 ## Important Guidelines
 
-- When creating work plans or implementation tasks, NEVER include time estimates - focus on sequencing and dependencies only
-- Prefer vertical slices (full features) over horizontal layers when possible
-- Each PR should be small, focused, and demoable
-- Always run tests before creating a PR
+- **Quality before committing**: Always run `pnpm lint-all`
+- **Small PRs**: Keep them focused and demoable
+- **No time estimates**: Focus on sequencing and dependencies
+- **Test-driven bug fixes**: Write failing test first, then fix
+- **E2E tests sparingly**: Only for vital user flows
+- **PR monitoring**: Use `gh pr checks --watch` and be patient
+- **Fix all feedback**: Including neutral BugBot checks
 
-### Development Workflow
+## Testing
 
-- **ALWAYS run `pnpm lint:fix` and `pnpm typecheck` before committing** - This prevents CI failures and maintains code quality
-- **E2E tests must provide real value** - Only add E2E tests that test vital user flows through the app. Don't add tests that only verify routing or basic component rendering. E2E tests are slow and costly to maintain.
-- **Test-Driven Development for bug fixes** - When fixing bugs, follow this process:
-  1. Add a minimal failing test that demonstrates the bug
-  2. Run the test to verify it fails
-  3. Fix the bug
-  4. Run the test again to verify it passes
-  5. This ensures the bug is properly isolated and the fix is verified
-
-### PR Monitoring
-
-Whenever you push up a commit to a PR or open a new PR, watch the PR until all the checks are finished using `gh pr checks --watch`. The watch interface will update automatically every 10 seconds. No need to refresh or exit or whatever. This might take up to 10 minutes; just wait!
-
-- Cursor's BugBot check is a neutral check, but may report a bug that you need to fix. Even though it's neutral, please fix the bug and push up a new commit.
-
-### PR Completion
-
-When a PR is completed (merged), if the PR was related to a specific GitHub issue:
-
-- Update the GitHub issue description with implementation details or resolution notes
-- Close the issue if the PR fully addresses it, or leave it open if more work is needed
-
-## Testing Best Practices
-
-### Unit Tests (Vitest)
-
-- Test LiveStore events and materializers in isolation
-- Use the test utilities from `src/test-utils.tsx` for components
+### Unit Tests
+- Use `src/test-utils.tsx` for component testing
+- Test LiveStore events in isolation
 - Mock external dependencies
 
-### Component Tests (React Testing Library)
+### E2E Tests
+- Only for vital user flows
+- Run with `CI=true pnpm test:e2e` to verify
+- Use `PLAYWRIGHT_PORT=9090` for multiple Claude instances
 
-- Test user interactions, not implementation details
-- Use `data-testid` attributes for reliable element selection
-- Always wrap components with LiveStore provider using test utilities
-
-### E2E Tests (Playwright)
-
-- Playwright tests with playwright-mcp integration for Claude Code compatibility
-- Tests run against the full multi-service architecture (Vite + Wrangler)
-- Dynamic port allocation prevents conflicts between multiple Claude instances
-- Basic smoke tests validate core functionality and LiveStore integration
-- **New features should include Playwright tests** to ensure end-to-end functionality
-- **Claude can verify tests work** by running `CI=true pnpm test:e2e` (uses build mode, outputs results without starting dev server)
-
-#### Configuration
-
-```bash
-# Default port (5173) - configured in playwright.config.ts
-pnpm test:e2e
-
-# Custom port for multiple Claude instances
-PLAYWRIGHT_PORT=9090 pnpm test:e2e
-```
-
-#### Test Structure
-
-- `/e2e/` - E2E test files and utilities
-- `e2e/test-utils.ts` - Helper functions for LiveStore and app interactions
-- `e2e/smoke.spec.ts` - Basic smoke tests for core functionality
-
-#### GitHub Actions CI
-
-Playwright tests run automatically on:
-
-- Push to `main` branch
-- Pull requests to `main` branch
-
-The workflow includes:
-
-- Automated browser installation
-- Full multi-service test execution
-- Test report artifacts (retained for 30 days)
-- Proper caching for faster CI runs
-
-### Storybook
-
-- Create stories for all UI components
-- Use Storybook for visual testing and documentation
-- Test different component states and edge cases
-- Stories should be self-contained with mock data
-
-### LiveStore Testing Patterns
-
+### LiveStore Testing
 ```typescript
-// Use test store with memory adapter
 const store = createTestStore()
-
-// Add test data
 await store.mutate([{ type: 'todo.add', id: '1', text: 'Test', completed: false }])
-
-// Test queries
 const todos = await store.query(db => db.table('todos').all())
 ```
+
+## Deployment
+
+1. **Cloudflare Worker**: `pnpm wrangler:deploy`
+2. **LLM Service**: Deploy to Node.js runtime with env vars:
+   - `BRAINTRUST_API_KEY`
+   - `BRAINTRUST_PROJECT_ID`
+   - `STORE_ID`
