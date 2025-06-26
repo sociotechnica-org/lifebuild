@@ -1,27 +1,16 @@
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery } from '@livestore/react'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getProjects$ } from '../livestore/queries.js'
 import type { Project } from '../livestore/schema.js'
-import { seedSampleBoards } from '../util/seed-data.js'
 import { ProjectCard } from './ProjectCard.js'
 import { CreateProjectModal } from './CreateProjectModal.js'
 import { preserveStoreIdInUrl } from '../util/navigation.js'
 
 export const ProjectsPage: React.FC = () => {
-  const { store } = useStore()
   const navigate = useNavigate()
   const projects = useQuery(getProjects$) ?? []
-  const hasSeededRef = React.useRef(false)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-
-  // Seed sample data if no projects exist (dev only)
-  React.useEffect(() => {
-    if (projects.length === 0 && !hasSeededRef.current) {
-      hasSeededRef.current = true
-      seedSampleBoards(store)
-    }
-  }, [projects.length, store])
 
   const handleProjectClick = (project: Project) => {
     navigate(preserveStoreIdInUrl(`/project/${project.id}`))
@@ -47,6 +36,11 @@ export const ProjectsPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        <CreateProjectModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+        />
       </div>
     )
   }
