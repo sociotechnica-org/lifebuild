@@ -22,26 +22,18 @@ This document outlines the cleanup tasks needed to revert law firm-specific chan
 - [ ] Clean up any law firm-specific document seeding logic
 - [ ] Remove any hardcoded law firm document references
 
-### 3. Revert AI Persona/Prompts
-**Goal**: Remove Virtual Danvers persona and restore generic prompts
-
-- [ ] Remove law firm-specific system prompts
-- [ ] Remove "Virtual Danvers" persona configuration
-- [ ] Restore generic AI assistant prompts
-- [ ] Remove any law firm-specific intro messages
-- [ ] Clean up `VIRTUAL_DANVERS_CONFIG` references
-
 ## Medium Priority Cleanup
 
-### 4. Clean Up Code References
-**Goal**: Remove law firm-specific code and comments
+### 3. Clean Up Code References
+**Goal**: Remove law firm-specific code and comments (if any exist)
 
 - [ ] Search codebase for "Danvers", "law firm", "legal" references
 - [ ] Remove or genericize law firm-specific comments
 - [ ] Clean up any hardcoded law firm terminology
-- [ ] Update variable names that reference Virtual Danvers
 
-### 5. Documentation Cleanup
+**Note**: Since Virtual Danvers work was never committed, most law firm-specific code should not exist in the codebase.
+
+### 4. Documentation Cleanup
 **Goal**: Update documentation to reflect current state
 
 - [ ] Update README if it references law firm demo
@@ -50,7 +42,7 @@ This document outlines the cleanup tasks needed to revert law firm-specific chan
 
 ## Low Priority Cleanup
 
-### 6. Optional Code Consolidation
+### 5. Optional Code Consolidation
 **Goal**: Clean up unused code paths (only if time permits)
 
 - [ ] Remove unused components created for law firm demo
@@ -81,6 +73,6 @@ This document outlines the cleanup tasks needed to revert law firm-specific chan
 ## Success Criteria
 
 - [ ] Application returns to original Projects List layout
-- [ ] No law firm-specific content or terminology remains
+- [ ] Any remaining law firm-specific content or terminology is removed
 - [ ] All useful infrastructure improvements are preserved
-- [ ] Application works as expected with generic prompts and no document seeding
+- [ ] Application works as expected without document seeding

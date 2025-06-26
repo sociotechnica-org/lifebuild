@@ -42,107 +42,11 @@
 
 ## Three Work Streams
 
-### Stream 1: Production Infrastructure
+For detailed task breakdowns and final status, see the individual stream documentation:
 
-**Goal**: Stable, monitored production deployment with isolated session persistence
-
-#### Session Isolation & Management
-
-- [ ] Implement unique, persistent session URLs (e.g., `/session/[id]`)
-- [ ] On first visit, generate a session ID and store it in `localStorage`
-- [ ] **Complete database isolation**: Each session gets separate D1 database instance
-- [ ] Session persistence for 1+ week (handle longer event streams)
-- [ ] URL copying/sharing functionality
-- [ ] Session recovery: Visiting the root URL (`/`) restores the previous session from `localStorage`
-
-#### Production Deployment
-
-- [ ] Fix Cloudflare production deployment
-- [ ] Implement automatic D1 database creation per session via Cloudflare API
-- [ ] Configure LiveStore for production with D1 adapter
-- [ ] Environment variables for API keys (prevent wiping)
-
-#### API Key Management
-
-- [ ] **Confirm API key persistence**: Ensure keys are secure in Cloudflare environment variables and accessed via worker proxy
-- [ ] Secure Braintrust API key storage in Cloudflare
-- [ ] Set up production Braintrust account
-- [ ] Configure spending limits (~10 concurrent users)
-
-#### Live Activity Monitoring
-
-- [ ] **Real-time activity dashboard** for demo day monitoring
-- [ ] Track session creation/usage (not content)
-- [ ] Monitor concurrent users and API usage
-- [ ] Set up alerts for critical failures
-- [ ] Simple analytics service for live activity
-
-#### UI Fixes
-
-- [ ] **Fix chat textarea**: Resolve Global Nav pushing it off-screen
-- [ ] Add light WorkSquared branding to unbranded app
-
-### Stream 2: UI/UX Adaptation
-
-**Goal**: Chat-first interface optimized for mobile + laptop demo
-
-#### Chat-First Interface
-
-- [ ] Make chat the primary/landing interface
-- [ ] Hide projects/documents/tasks from main UI
-- [ ] Create session inspector interface at `/session/[id]/admin`
-- [ ] Optimize chat for mobile devices
-- [ ] Improve chat design (fix current issues)
-
-#### Session Management UI
-
-- [ ] "Copy Session URL" button prominently displayed
-- [ ] "Start New Session" button to clear `localStorage` and create a new session
-- [ ] Clear session persistence indicators
-- [ ] Simple onboarding flow for new users
-
-#### Mobile Optimization
-
-- [ ] Responsive chat interface
-- [ ] Touch-friendly interactions
-- [ ] Readable text sizes
-- [ ] Proper viewport handling
-
-### Stream 3: Virtual Danvers AI System
-
-**Goal**: Effective AI advisor with law firm expertise and document access
-
-#### Document System Enhancement
-
-- [ ] Document viewing/reading interface
-- [ ] Attach documents to all sessions by default
-- [ ] Pre-seed all sessions with Danvers' AI documents from `docs/seed-content/`
-- [ ] Document search functionality
-
-#### LLM Tools for Documents
-
-- [ ] `read_document(documentId)` tool
-- [ ] `search_documents(query)` tool
-- [ ] `list_documents()` tool
-- [ ] Context-aware document recommendations
-
-#### Virtual Danvers Persona
-
-- [ ] Specialized system prompt for law firm AI integration
-- [ ] **Determine scope**: Strict law firm AI vs broader legal questions
-- [ ] Model selection (GPT-4 vs alternatives)
-- [ ] Response tone/style tuning
-- [ ] **Intro message**: Brief welcome message for new sessions
-- [ ] Document references as mentions (not clickable links)
-- [ ] Consider basic legal disclaimers
-
-#### Document Content Preparation
-
-- [ ] Load Danvers' AI integration documents (already in Markdown)
-- [ ] **Document scope**: 3-5 docs, 5-10 pages each
-- [ ] Optimize documents for LLM consumption
-- [ ] Create document taxonomy/tagging
-- [ ] Test document retrieval effectiveness
+- **[Stream 1: Production Infrastructure](./stream-1-infra-todo.md)** - Session isolation, deployments, API keys, monitoring
+- **[Stream 2: UI/UX Adaptation](./stream-2-ui-todo.md)** - Chat-first interface, session management, mobile optimization  
+- **[Stream 3: Virtual Danvers AI System](./stream-3-ai-todo.md)** - Document tools, seeding, AI persona configuration
 
 ## Technical Architecture
 
@@ -347,8 +251,8 @@ The detailed implementation plan for each stream is broken down into a separate 
 - **Monitoring**: Basic CloudFlare logging available, but not comprehensive demo monitoring
 
 ### ❌ Not Completed / Needs Reversion
-- **Virtual Danvers Persona**: Law firm-specific prompts and persona not merged
-- **Document Seeding**: Implemented but needs reversion due to law firm focus
+- **Virtual Danvers Persona**: Never implemented or committed to codebase
+- **Document Seeding**: Implemented but needs reversion due to law firm-specific content
 - **Chat-First Interface**: Nested admin routes need reversion to original Projects List layout
 - **Branding**: WorkSquared branding not implemented
 
