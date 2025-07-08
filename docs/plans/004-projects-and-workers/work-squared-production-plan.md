@@ -358,7 +358,3 @@ users: {
 2. Document versioning - needed for phase 1 or defer?
 3. Worker memory - should workers remember past conversations?
 4. ~~Backup strategy - how often, where to store?~~ ✓ Decided: R2 with 6-hour snapshots
-
----
-
-This plan provides a clear path from the current demo to a production system for daily use. The phasing allows you to start using documents immediately while building toward the full worker agent vision.
