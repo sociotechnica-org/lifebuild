@@ -14,10 +14,11 @@ import { ProjectProvider, useProject } from '../contexts/ProjectContext.js'
 import { KanbanBoard } from './KanbanBoard.js'
 import { TaskModal } from './TaskModal.js'
 import { DocumentCreateModal } from './DocumentCreateModal.js'
+import { LoadingState } from './LoadingState.js'
 
 // Component for the actual workspace content
 const ProjectWorkspaceContent: React.FC = () => {
-  const { project, projectId } = useProject()
+  const { project, projectId, isLoading } = useProject()
   const { store } = useStore()
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [insertionPreview, setInsertionPreview] = useState<{
@@ -29,8 +30,12 @@ const ProjectWorkspaceContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'tasks' | 'documents'>('tasks')
   const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false)
 
-  if (!projectId) {
-    return <div>Project not found</div>
+  if (isLoading) {
+    return <LoadingState message='Loading project...' />
+  }
+
+  if (!projectId || !project) {
+    return <LoadingState message='Project not found' />
   }
 
   const columns = useQuery(getProjectColumns$(projectId)) ?? []

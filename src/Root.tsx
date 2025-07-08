@@ -13,6 +13,7 @@ import { DocumentsPage } from './components/DocumentsPage.js'
 import { DocumentPage } from './components/DocumentPage.js'
 import { Layout } from './components/Layout.js'
 import { EnsureStoreId } from './components/EnsureStoreId.js'
+import { LoadingState } from './components/LoadingState.js'
 import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from './livestore/schema.js'
 import { makeTracer } from './otel.js'
@@ -57,7 +58,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   return (
     <LiveStoreProvider
       schema={schema}
-      renderLoading={_ => <div>Loading LiveStore ({_.stage})...</div>}
+      renderLoading={_ => <LoadingState message={`Loading LiveStore (${_.stage})...`} fullScreen />}
       adapter={adapter}
       batchUpdates={batchUpdates}
       storeId={storeId}
