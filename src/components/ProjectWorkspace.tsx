@@ -374,9 +374,10 @@ const ProjectWorkspaceContent: React.FC = () => {
             {documents.length > 0 ? (
               <div className='space-y-3'>
                 {documents.map((document: Document) => (
-                  <div
+                  <Link
                     key={document.id}
-                    className='bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors cursor-pointer'
+                    to={preserveStoreIdInUrl(`/document/${document.id}`)}
+                    className='block bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors cursor-pointer'
                   >
                     <div className='flex items-start justify-between'>
                       <div className='flex-1'>
@@ -411,7 +412,7 @@ const ProjectWorkspaceContent: React.FC = () => {
                         </svg>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (

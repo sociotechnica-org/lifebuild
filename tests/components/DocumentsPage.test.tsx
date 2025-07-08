@@ -151,7 +151,7 @@ describe('DocumentsPage', () => {
     )
 
     const archiveButtons = screen.getAllByTitle('Archive document')
-    fireEvent.click(archiveButtons[0])
+    fireEvent.click(archiveButtons[0]!)
 
     await waitFor(() => {
       expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to archive this document?')
@@ -176,7 +176,7 @@ describe('DocumentsPage', () => {
     )
 
     const archiveButtons = screen.getAllByTitle('Archive document')
-    fireEvent.click(archiveButtons[0])
+    fireEvent.click(archiveButtons[0]!)
 
     expect(window.confirm).toHaveBeenCalled()
     expect(mockStore.commit).not.toHaveBeenCalled()

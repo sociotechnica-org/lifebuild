@@ -1,9 +1,11 @@
 import { useQuery, useStore } from '@livestore/react'
 import React, { useState, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { getAllDocuments$, getProjects$ } from '../livestore/queries.js'
 import type { Document } from '../livestore/schema.js'
 import { events } from '../livestore/schema.js'
 import { DocumentCreateModal } from './DocumentCreateModal.js'
+import { preserveStoreIdInUrl } from '../util/navigation.js'
 
 export const DocumentsPage: React.FC = () => {
   const { store } = useStore()
@@ -173,9 +175,10 @@ export const DocumentsPage: React.FC = () => {
         ) : (
           <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
             {filteredDocuments.map(document => (
-              <div
+              <Link
                 key={document.id}
-                className='bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer'
+                to={preserveStoreIdInUrl(`/document/${document.id}`)}
+                className='bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer block'
               >
                 <div className='flex items-start justify-between'>
                   <div className='flex-1 min-w-0'>
@@ -193,6 +196,7 @@ export const DocumentsPage: React.FC = () => {
                   <div className='ml-4 flex-shrink-0'>
                     <button
                       onClick={e => {
+                        e.preventDefault()
                         e.stopPropagation()
                         handleArchiveDocument(document.id)
                       }}
@@ -215,7 +219,7 @@ export const DocumentsPage: React.FC = () => {
                     </button>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
