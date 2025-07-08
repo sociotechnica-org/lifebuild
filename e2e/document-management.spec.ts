@@ -70,7 +70,7 @@ console.log('Hello from code block!');
     await expect(page).toHaveURL(/\/document\/.*/)
 
     // Verify the document title appears as the page title
-    await expect(page.locator('h1')).toContainText(documentTitle)
+    await expect(page.locator('h1.text-2xl')).toContainText(documentTitle)
 
     // Verify we can see the document content in view mode (markdown rendered)
     await expect(page.locator('text=Test Document')).toBeVisible() // H1 heading
@@ -203,7 +203,7 @@ console.log('Hello from code block!');
 
     // Should navigate to the document page
     await expect(page).toHaveURL(/\/document\/.*/)
-    await expect(page.locator('h1')).toContainText(documentTitle)
+    await expect(page.locator('h1.text-2xl')).toContainText(documentTitle)
 
     // Verify breadcrumb navigation back to documents
     const documentsLink = page.locator('nav a:has-text("Documents")')
