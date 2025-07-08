@@ -6,26 +6,48 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 
 ---
 
-## Story 1 – Create a new Worker
+## ✅ Story 1 – Create a new Worker
 
 **User story**: _As a user, I want to create a new Worker with a name, role description, and system prompt so I can have specialized AI assistants for different types of work._
 
 **Context**: This establishes the foundation for the worker system, replacing the single LLM chat with persistent, specialized agents.
 
+**Status**: ✅ **COMPLETED** - [PR #60](https://github.com/sociotechnica-org/work-squared/pull/60)
+
 ### Tasks
 
-- [ ] Events: Define `worker.created` event with `{ id, name, roleDescription?, systemPrompt, createdAt }`
-- [ ] Schema: Add `workers` table with fields: `id, name, roleDescription?, systemPrompt, avatar?, createdAt, isActive`
-- [ ] UI: Create Workers page accessible from main navigation
-- [ ] UI: Add "Create Worker" button that opens a modal with form fields:
-  - Name (required)
+- [x] Events: Define `worker.created` event with `{ id, name, roleDescription?, systemPrompt, avatar?, createdAt }`
+- [x] Schema: Add `workers` table with fields: `id, name, roleDescription?, systemPrompt, avatar?, createdAt, isActive`
+- [x] UI: Create Workers page accessible from main navigation
+- [x] UI: Add "Create Worker" button that opens a modal with form fields:
+  - Name (required, with auto-generation)
   - Role description (optional, e.g., "Frontend Developer", "Project Manager")
   - System prompt (required, with helpful defaults/templates)
-  - Avatar (optional, emoji picker for now)
-- [ ] Logic: Generate random worker names if user leaves name blank
-- [ ] Query: Create `getWorkers$` query to fetch all active workers
-- [ ] Tests: Worker creation flow, form validation, event emission
-- [ ] DoD: Users can create workers that appear in the workers list
+  - Avatar (optional, emoji input)
+- [x] Logic: Generate random worker names if user leaves name blank
+- [x] Query: Create `getWorkers$` query to fetch all active workers
+- [x] Tests: Worker creation flow, form validation, event emission
+- [x] DoD: Users can create workers that appear in the workers list
+
+### Implementation Summary
+
+**Components Created:**
+- `WorkersPage` - Main page with worker cards and creation modal
+- `WorkerCard` - Individual worker display with Chat/Edit buttons (placeholders)
+- `CreateWorkerModal` - Form for creating new workers with validation
+- `workerNames.ts` - Utility for random name generation and system prompt templates
+
+**Database Changes:**
+- Added `workers` table with full LiveStore integration
+- Added `workerCreated` event with proper materialization
+- Added `getWorkers$` query for active workers
+
+**Features:**
+- Auto-generated worker names (e.g., "Helpful Assistant", "Smart Coordinator")
+- System prompt templates (General Assistant, Code Review, Project Planner, etc.)
+- Form validation for required fields
+- Navigation integration with /workers route
+- Full test coverage (unit, component, integration tests)
 
 ### Implementation Notes
 
@@ -94,26 +116,42 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 
 ---
 
-## Story 4 – View list of all Workers
+## ✅ Story 4 – View list of all Workers
 
 **User story**: _As a user, I want to see a list of all the workers in my Work Squared so I can manage and access my AI assistants._
 
 **Dependencies**: Story 1 (need worker creation)
 
+**Status**: ✅ **PARTIALLY COMPLETED** - Basic functionality implemented in Story 1
+
 ### Tasks
 
-- [ ] UI: Create Workers page with card-based layout
-- [ ] UI: Each worker card shows:
+- [x] UI: Create Workers page with card-based layout
+- [x] UI: Each worker card shows:
   - Name and avatar
   - Role description
-  - Last active timestamp
-  - Number of assigned projects
-  - Quick actions (Chat, Edit, Archive)
+  - ~~Last active timestamp~~ (shows creation date for now)
+  - ~~Number of assigned projects~~ (not implemented yet - needs Story 5)
+  - Quick actions (Chat, Edit, Archive) - **placeholder buttons only**
 - [ ] UI: Add search/filter functionality for workers
 - [ ] Logic: Show workers ordered by last activity
 - [ ] Query: Create `getWorkerSummary$` query with project counts and activity
-- [ ] Tests: Worker list display, search functionality, card interactions
-- [ ] DoD: Users can view all workers in an organized, searchable list
+- [x] Tests: Worker list display, ~~search functionality~~, card interactions
+- [x] DoD: Users can view all workers in an organized, ~~searchable~~ list
+
+### Implementation Notes
+
+**What's Working:**
+- Workers page accessible from main navigation
+- Card-based layout showing worker info
+- Basic worker display with name, avatar, role, creation date, and status
+- Chat/Edit buttons (placeholder - functionality in Stories 3 & 6)
+
+**Still Needed:**
+- Search/filter functionality 
+- Activity tracking and last active timestamps
+- Project assignment counts (depends on Story 5)
+- Actual functionality for Chat/Edit buttons
 
 ### Implementation Notes
 
@@ -417,7 +455,7 @@ const supportedModels = [
 
 ## Success Metrics
 
-- [ ] Workers can be created with custom system prompts and specializations
+- [x] **Workers can be created with custom system prompts and specializations** ✅ Story 1 Complete
 - [ ] Workers can be assigned to multiple projects with appropriate access controls
 - [ ] Each worker maintains separate conversation history with model selection
 - [ ] Workers can access and work with project-specific documents and tasks
