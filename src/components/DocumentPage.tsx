@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useStore } from '@livestore/react'
 import { getDocumentById$ } from '../livestore/queries.js'
@@ -28,8 +28,8 @@ export const DocumentPage: React.FC = () => {
     }
   }, [document])
 
-  // Handle save
-  const handleSave = async () => {
+  // Handle save - memoized to prevent stale closures in event handlers
+  const handleSave = useCallback(async () => {
     if (!document || isSaving) return
 
     setIsSaving(true)
@@ -58,7 +58,7 @@ export const DocumentPage: React.FC = () => {
     } finally {
       setIsSaving(false)
     }
-  }
+  }, [document, title, content, isSaving, store])
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -71,7 +71,7 @@ export const DocumentPage: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [document, title, content, isSaving])
+  }, [handleSave])
 
   // Loading state
   if (!document) {
