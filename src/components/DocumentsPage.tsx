@@ -6,6 +6,7 @@ import { events } from '../livestore/schema.js'
 import { DocumentCreateModal } from './DocumentCreateModal.js'
 import { preserveStoreIdInUrl } from '../util/navigation.js'
 import { useSearch } from '../hooks/useSearch.js'
+import { generateRoute } from '../constants/routes.js'
 
 export const DocumentsPage: React.FC = () => {
   const { store } = useStore()
@@ -155,7 +156,7 @@ export const DocumentsPage: React.FC = () => {
             {filteredDocuments.map(document => (
               <Link
                 key={document.id}
-                to={preserveStoreIdInUrl(`/document/${document.id}`)}
+                to={preserveStoreIdInUrl(generateRoute.document(document.id))}
                 className='bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer block'
               >
                 <div className='flex items-start justify-between'>

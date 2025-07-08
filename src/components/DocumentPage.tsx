@@ -5,6 +5,7 @@ import { getDocumentById$ } from '../livestore/queries.js'
 import { events } from '../livestore/schema.js'
 import { preserveStoreIdInUrl } from '../util/navigation.js'
 import { MarkdownRenderer } from './MarkdownRenderer.js'
+import { ROUTES } from '../constants/routes.js'
 
 export const DocumentPage: React.FC = () => {
   const { documentId } = useParams<{ documentId: string }>()
@@ -90,7 +91,7 @@ export const DocumentPage: React.FC = () => {
       <div className='border-b border-gray-200 bg-white px-6 py-4'>
         <div className='flex items-center gap-4 mb-3'>
           <Link
-            to={preserveStoreIdInUrl('/documents')}
+            to={preserveStoreIdInUrl(ROUTES.DOCUMENTS)}
             className='flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'
             aria-label='Back to documents'
           >
@@ -112,7 +113,7 @@ export const DocumentPage: React.FC = () => {
           {/* Breadcrumb */}
           <nav className='flex items-center text-sm text-gray-500'>
             <Link
-              to={preserveStoreIdInUrl('/documents')}
+              to={preserveStoreIdInUrl(ROUTES.DOCUMENTS)}
               className='hover:text-gray-700 transition-colors'
             >
               Documents
