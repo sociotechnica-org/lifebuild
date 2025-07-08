@@ -4,6 +4,7 @@ import { useQuery, useStore } from '@livestore/react'
 import { getDocumentById$ } from '../livestore/queries.js'
 import { events } from '../livestore/schema.js'
 import { preserveStoreIdInUrl } from '../util/navigation.js'
+import { MarkdownRenderer } from './MarkdownRenderer.js'
 
 export const DocumentPage: React.FC = () => {
   const { documentId } = useParams<{ documentId: string }>()
@@ -246,8 +247,17 @@ export const DocumentPage: React.FC = () => {
                 className='w-full min-h-[500px] text-gray-900 placeholder-gray-400 border border-gray-300 rounded-md p-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none'
               />
             ) : (
-              <div className='whitespace-pre-wrap text-gray-900 min-h-[500px] p-4 border border-gray-200 rounded-md bg-gray-50'>
-                {document.content || 'No content yet. Click Edit to add content.'}
+              <div className='min-h-[500px] p-4 border border-gray-200 rounded-md bg-gray-50'>
+                {document.content ? (
+                  <MarkdownRenderer
+                    content={document.content}
+                    className='prose prose-lg max-w-none'
+                  />
+                ) : (
+                  <div className='text-gray-500 italic'>
+                    No content yet. Click Edit to add content.
+                  </div>
+                )}
               </div>
             )}
           </div>
