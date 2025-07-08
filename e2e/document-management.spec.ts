@@ -73,19 +73,19 @@ console.log('Hello from code block!');
     await expect(page.locator('h1.text-2xl')).toContainText(documentTitle)
 
     // Verify we can see the document content in view mode (markdown rendered)
-    await expect(page.locator('text=Test Document')).toBeVisible() // H1 heading
-    await expect(page.locator('text=Features to test:')).toBeVisible() // H2 heading
-    await expect(page.locator('text=Hello from code block!')).toBeVisible() // Code block content
+    await expect(page.locator('.prose h1').first()).toContainText('Test Document') // H1 heading
+    await expect(page.locator('.prose h2').first()).toContainText('Features to test:') // H2 heading
+    await expect(page.locator('.prose code').first()).toContainText('Hello from code block!') // Code block content
 
     // Verify we're in view mode initially (Edit button should be visible)
-    const editButton = page.locator('button:has-text("Edit")')
+    const editButton = page.locator('button[type="button"]:has-text("Edit")')
     await expect(editButton).toBeVisible()
 
     // Click Edit button to enter edit mode
     await editButton.click()
 
     // Should now be in edit mode (Save button should be visible)
-    const saveButton = page.locator('button:has-text("Save")')
+    const saveButton = page.locator('button[type="button"]:has-text("Save")')
     await expect(saveButton).toBeVisible()
 
     // Should see textarea with content
@@ -166,8 +166,8 @@ console.log('Hello from code block!');
     await page.click('form button[type="submit"]:has-text("Create Project")')
 
     // Navigate to the project
-    await expect(page.locator(`text=${projectName}`)).toBeVisible()
-    await page.click(`text=${projectName}`)
+    await expect(page.locator(`a:has-text("${projectName}")`)).toBeVisible()
+    await page.click(`a:has-text("${projectName}")`)
     await waitForLiveStoreReady(page)
 
     // Should be on the project page
@@ -195,10 +195,10 @@ console.log('Hello from code block!');
     await page.click('button[type="submit"]:has-text("Create Document")')
 
     // Should see the document in the project's document list
-    await expect(page.locator(`text=${documentTitle}`)).toBeVisible()
+    await expect(page.locator(`a:has-text("${documentTitle}")`)).toBeVisible()
 
     // Click on the document to view it
-    await page.click(`text=${documentTitle}`)
+    await page.click(`a:has-text("${documentTitle}")`)
     await waitForLiveStoreReady(page)
 
     // Should navigate to the document page
@@ -215,7 +215,7 @@ console.log('Hello from code block!');
     await expect(page.locator('h1')).toContainText('Documents')
 
     // The document should appear in the main documents list too
-    await expect(page.locator(`text=${documentTitle}`)).toBeVisible()
+    await expect(page.locator(`a:has-text("${documentTitle}")`)).toBeVisible()
 
     console.log(
       `Successfully created document "${documentTitle}" from within project "${projectName}"`
