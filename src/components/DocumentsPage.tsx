@@ -2,7 +2,6 @@ import { useQuery, useStore } from '@livestore/react'
 import React, { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { getAllDocuments$, getProjects$ } from '../livestore/queries.js'
-import type { Document } from '../livestore/schema.js'
 import { events } from '../livestore/schema.js'
 import { DocumentCreateModal } from './DocumentCreateModal.js'
 import { preserveStoreIdInUrl } from '../util/navigation.js'
@@ -15,6 +14,8 @@ export const DocumentsPage: React.FC = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState('')
   const [filterProjectId, setFilterProjectId] = useState<string>('all')
+  const [confirmArchive, setConfirmArchive] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   // TODO: Implement proper document-project associations
   // For now, we'll show documents without project associations
@@ -48,13 +49,18 @@ export const DocumentsPage: React.FC = () => {
   }
 
   const handleArchiveDocument = async (documentId: string) => {
-    if (confirm('Are you sure you want to archive this document?')) {
-      store.commit(
+    try {
+      await store.commit(
         events.documentArchived({
           id: documentId,
           archivedAt: new Date(),
         })
       )
+      setConfirmArchive(null)
+      setError(null)
+    } catch (error) {
+      console.error('Error archiving document:', error)
+      setError('Failed to archive document. Please try again.')
     }
   }
 
@@ -180,7 +186,7 @@ export const DocumentsPage: React.FC = () => {
                       onClick={e => {
                         e.preventDefault()
                         e.stopPropagation()
-                        handleArchiveDocument(document.id)
+                        setConfirmArchive(document.id)
                       }}
                       className='text-gray-400 hover:text-gray-500'
                       title='Archive document'
@@ -206,6 +212,68 @@ export const DocumentsPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className='mx-6 mt-4 p-3 bg-red-50 border border-red-200 rounded-md'>
+          <div className='flex items-center'>
+            <svg
+              className='w-5 h-5 text-red-400 mr-2'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+              />
+            </svg>
+            <span className='text-red-800 text-sm'>{error}</span>
+            <button
+              onClick={() => setError(null)}
+              className='ml-auto text-red-400 hover:text-red-600'
+            >
+              <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M6 18L18 6M6 6l12 12'
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Archive Modal */}
+      {confirmArchive && (
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+          <div className='bg-white rounded-lg max-w-md w-full mx-4 p-6'>
+            <h3 className='text-lg font-medium text-gray-900 mb-4'>Archive Document</h3>
+            <p className='text-gray-600 mb-6'>
+              Are you sure you want to archive this document? It will be removed from all lists but
+              can be restored later.
+            </p>
+            <div className='flex justify-end space-x-3'>
+              <button
+                onClick={() => setConfirmArchive(null)}
+                className='px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors'
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleArchiveDocument(confirmArchive)}
+                className='px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-md transition-colors'
+              >
+                Archive
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create Document Modal */}
       <DocumentCreateModal

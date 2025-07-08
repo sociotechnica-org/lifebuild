@@ -48,7 +48,7 @@ vi.mock('@livestore/react', () => ({
 
 // Mock DocumentCreateModal
 vi.mock('../../src/components/DocumentCreateModal.js', () => ({
-  DocumentCreateModal: ({ isOpen, onClose }: any) =>
+  DocumentCreateModal: ({ isOpen, _onClose }: any) =>
     isOpen ? <div data-testid='document-create-modal'>Document Create Modal</div> : null,
 }))
 
@@ -141,9 +141,6 @@ describe('DocumentsPage', () => {
   })
 
   it('should archive document when clicking archive button', async () => {
-    // Mock window.confirm
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
-
     render(
       <MemoryRouter>
         <DocumentsPage />
@@ -153,8 +150,17 @@ describe('DocumentsPage', () => {
     const archiveButtons = screen.getAllByTitle('Archive document')
     fireEvent.click(archiveButtons[0]!)
 
+    // Should show confirmation modal
     await waitFor(() => {
-      expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to archive this document?')
+      expect(screen.getByText('Archive Document')).toBeInTheDocument()
+      expect(screen.getByText(/Are you sure you want to archive this document/)).toBeInTheDocument()
+    })
+
+    // Click Archive button in modal
+    const archiveButton = screen.getByRole('button', { name: 'Archive' })
+    fireEvent.click(archiveButton)
+
+    await waitFor(() => {
       expect(mockStore.commit).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'v1.DocumentArchived',
@@ -166,9 +172,7 @@ describe('DocumentsPage', () => {
     })
   })
 
-  it('should not archive document when user cancels', () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(false)
-
+  it('should not archive document when user cancels', async () => {
     render(
       <MemoryRouter>
         <DocumentsPage />
@@ -178,7 +182,19 @@ describe('DocumentsPage', () => {
     const archiveButtons = screen.getAllByTitle('Archive document')
     fireEvent.click(archiveButtons[0]!)
 
-    expect(window.confirm).toHaveBeenCalled()
+    // Should show confirmation modal
+    await waitFor(() => {
+      expect(screen.getByText('Archive Document')).toBeInTheDocument()
+    })
+
+    // Click Cancel button in modal
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' })
+    fireEvent.click(cancelButton)
+
+    // Modal should close and no commit should be called
+    await waitFor(() => {
+      expect(screen.queryByText('Archive Document')).not.toBeInTheDocument()
+    })
     expect(mockStore.commit).not.toHaveBeenCalled()
   })
 })
