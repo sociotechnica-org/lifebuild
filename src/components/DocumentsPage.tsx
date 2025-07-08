@@ -1,10 +1,11 @@
 import { useQuery, useStore } from '@livestore/react'
-import React, { useState, useMemo } from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getAllDocuments$, getProjects$ } from '../livestore/queries.js'
 import { events } from '../livestore/schema.js'
 import { DocumentCreateModal } from './DocumentCreateModal.js'
 import { preserveStoreIdInUrl } from '../util/navigation.js'
+import { useSearch } from '../hooks/useSearch.js'
 
 export const DocumentsPage: React.FC = () => {
   const { store } = useStore()
@@ -21,21 +22,10 @@ export const DocumentsPage: React.FC = () => {
   // For now, we'll show documents without project associations
 
   // Filter documents based on search and project filter
-  const filteredDocuments = useMemo(() => {
-    let filtered = documents
-
-    // Apply search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(
-        doc => doc.title.toLowerCase().includes(query) || doc.content.toLowerCase().includes(query)
-      )
-    }
-
-    // TODO: Apply project filter once we have proper associations
-
-    return filtered
-  }, [documents, searchQuery])
+  const filteredDocuments = useSearch(documents, searchQuery, {
+    searchFields: ['title', 'content'],
+    // TODO: Add project filter once we have proper associations
+  })
 
   const handleCreateDocument = () => {
     // If a project is filtered, use it as the default
