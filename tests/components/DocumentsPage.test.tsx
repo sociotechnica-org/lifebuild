@@ -49,7 +49,7 @@ vi.mock('@livestore/react', () => ({
 // Mock DocumentCreateModal
 vi.mock('../../src/components/DocumentCreateModal.js', () => ({
   DocumentCreateModal: ({ isOpen, onClose }: any) =>
-    isOpen ? <div data-testid="document-create-modal">Document Create Modal</div> : null,
+    isOpen ? <div data-testid='document-create-modal'>Document Create Modal</div> : null,
 }))
 
 describe('DocumentsPage', () => {

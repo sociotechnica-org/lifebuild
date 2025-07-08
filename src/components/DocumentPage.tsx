@@ -8,10 +8,10 @@ import { preserveStoreIdInUrl } from '../util/navigation.js'
 export const DocumentPage: React.FC = () => {
   const { documentId } = useParams<{ documentId: string }>()
   const { store } = useStore()
-  
+
   // Get document from store
   const document = useQuery(getDocumentById$(documentId!))?.[0]
-  
+
   // Local state for editing
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -47,7 +47,7 @@ export const DocumentPage: React.FC = () => {
           })
         )
       }
-      
+
       setIsEditing(false)
     } catch (error) {
       console.error('Error saving document:', error)
@@ -72,65 +72,65 @@ export const DocumentPage: React.FC = () => {
   // Loading state
   if (!document) {
     return (
-      <div className="h-full bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-gray-500">Loading document...</div>
+      <div className='h-full bg-white flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='text-gray-500'>Loading document...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="h-full bg-white flex flex-col">
+    <div className='h-full bg-white flex flex-col'>
       {/* Header with Breadcrumb */}
-      <div className="border-b border-gray-200 bg-white px-6 py-4">
-        <div className="flex items-center gap-4 mb-3">
+      <div className='border-b border-gray-200 bg-white px-6 py-4'>
+        <div className='flex items-center gap-4 mb-3'>
           <Link
             to={preserveStoreIdInUrl('/documents')}
-            className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors"
-            aria-label="Back to documents"
+            className='flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'
+            aria-label='Back to documents'
           >
             <svg
-              className="w-4 h-4 text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+              className='w-4 h-4 text-gray-600'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
             >
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeLinecap='round'
+                strokeLinejoin='round'
                 strokeWidth={2}
-                d="M15 19l-7-7 7-7"
+                d='M15 19l-7-7 7-7'
               />
             </svg>
           </Link>
 
           {/* Breadcrumb */}
-          <nav className="flex items-center text-sm text-gray-500">
+          <nav className='flex items-center text-sm text-gray-500'>
             <Link
               to={preserveStoreIdInUrl('/documents')}
-              className="hover:text-gray-700 transition-colors"
+              className='hover:text-gray-700 transition-colors'
             >
               Documents
             </Link>
-            <svg className="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            <svg className='w-4 h-4 mx-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
             </svg>
-            <span className="text-gray-900 font-medium">
+            <span className='text-gray-900 font-medium'>
               {document.title || 'Untitled Document'}
             </span>
           </nav>
         </div>
 
         {/* Document Actions */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-gray-500">
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-4'>
+            <span className='text-xs text-gray-500'>
               Last updated {new Date(document.updatedAt).toLocaleDateString()}
             </span>
           </div>
-          
-          <div className="flex items-center gap-2">
+
+          <div className='flex items-center gap-2'>
             {isEditing && (
               <button
                 onClick={() => {
@@ -138,12 +138,12 @@ export const DocumentPage: React.FC = () => {
                   setContent(document.content || '')
                   setIsEditing(false)
                 }}
-                className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                className='px-3 py-1 text-sm text-gray-600 hover:text-gray-800 transition-colors'
               >
                 Cancel
               </button>
             )}
-            
+
             <button
               onClick={isEditing ? handleSave : () => setIsEditing(true)}
               disabled={isSaving}
@@ -155,23 +155,58 @@ export const DocumentPage: React.FC = () => {
             >
               {isSaving ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className='animate-spin -ml-1 mr-2 h-4 w-4 text-white'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                  >
+                    <circle
+                      className='opacity-25'
+                      cx='12'
+                      cy='12'
+                      r='10'
+                      stroke='currentColor'
+                      strokeWidth='4'
+                    ></circle>
+                    <path
+                      className='opacity-75'
+                      fill='currentColor'
+                      d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                    ></path>
                   </svg>
                   Saving...
                 </>
               ) : isEditing ? (
                 <>
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className='w-4 h-4 mr-2'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M5 13l4 4L19 7'
+                    />
                   </svg>
                   Save
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  <svg
+                    className='w-4 h-4 mr-2'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+                    />
                   </svg>
                   Edit
                 </>
@@ -182,36 +217,36 @@ export const DocumentPage: React.FC = () => {
       </div>
 
       {/* Document Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="max-w-4xl mx-auto p-6">
+      <div className='flex-1 overflow-auto'>
+        <div className='max-w-4xl mx-auto p-6'>
           {/* Document Title */}
-          <div className="mb-6">
+          <div className='mb-6'>
             {isEditing ? (
               <input
-                type="text"
+                type='text'
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Document title"
-                className="w-full text-2xl font-bold text-gray-900 placeholder-gray-400 border-none outline-none focus:ring-0 p-0 bg-transparent"
+                onChange={e => setTitle(e.target.value)}
+                placeholder='Document title'
+                className='w-full text-2xl font-bold text-gray-900 placeholder-gray-400 border-none outline-none focus:ring-0 p-0 bg-transparent'
               />
             ) : (
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className='text-2xl font-bold text-gray-900'>
                 {document.title || 'Untitled Document'}
               </h1>
             )}
           </div>
 
           {/* Document Content */}
-          <div className="prose prose-lg max-w-none">
+          <div className='prose prose-lg max-w-none'>
             {isEditing ? (
               <textarea
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Write your document content here..."
-                className="w-full min-h-[500px] text-gray-900 placeholder-gray-400 border border-gray-300 rounded-md p-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                onChange={e => setContent(e.target.value)}
+                placeholder='Write your document content here...'
+                className='w-full min-h-[500px] text-gray-900 placeholder-gray-400 border border-gray-300 rounded-md p-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none'
               />
             ) : (
-              <div className="whitespace-pre-wrap text-gray-900 min-h-[500px] p-4 border border-gray-200 rounded-md bg-gray-50">
+              <div className='whitespace-pre-wrap text-gray-900 min-h-[500px] p-4 border border-gray-200 rounded-md bg-gray-50'>
                 {document.content || 'No content yet. Click Edit to add content.'}
               </div>
             )}
