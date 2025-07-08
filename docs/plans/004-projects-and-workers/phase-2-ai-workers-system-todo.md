@@ -327,14 +327,26 @@ chatMessages: {
 ```typescript
 // Worker events
 type WorkerEvent =
-  | { type: 'worker.created'; id: string; name: string; roleDescription?: string; systemPrompt: string }
+  | {
+      type: 'worker.created'
+      id: string
+      name: string
+      roleDescription?: string
+      systemPrompt: string
+    }
   | { type: 'worker.updated'; id: string; updates: Partial<Worker> }
   | { type: 'worker.assignedToProject'; workerId: string; projectId: string }
   | { type: 'worker.unassignedFromProject'; workerId: string; projectId: string }
 
 // Conversation events
 type ConversationEvent =
-  | { type: 'workerConversation.created'; id: string; workerId: string; title: string; model: string }
+  | {
+      type: 'workerConversation.created'
+      id: string
+      workerId: string
+      title: string
+      model: string
+    }
   | { type: 'workerConversation.updated'; id: string; updates: Partial<WorkerConversation> }
 ```
 
@@ -346,7 +358,7 @@ const workerTools = [
   {
     name: 'list_assigned_projects',
     description: 'Get list of projects assigned to this worker',
-    parameters: { type: 'object', properties: {}, required: [] }
+    parameters: { type: 'object', properties: {}, required: [] },
   },
   {
     name: 'get_project_documents',
@@ -354,8 +366,8 @@ const workerTools = [
     parameters: {
       type: 'object',
       properties: { projectId: { type: 'string' } },
-      required: ['projectId']
-    }
+      required: ['projectId'],
+    },
   },
   {
     name: 'get_project_tasks',
@@ -363,14 +375,14 @@ const workerTools = [
     parameters: {
       type: 'object',
       properties: { projectId: { type: 'string' } },
-      required: ['projectId']
-    }
+      required: ['projectId'],
+    },
   },
   {
     name: 'list_workers',
     description: 'Get list of all active workers',
-    parameters: { type: 'object', properties: {}, required: [] }
-  }
+    parameters: { type: 'object', properties: {}, required: [] },
+  },
 ]
 ```
 
@@ -382,7 +394,7 @@ const supportedModels = [
   { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet', provider: 'anthropic' },
   { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai' },
   { id: 'claude-3-opus-latest', name: 'Claude 3 Opus', provider: 'anthropic' },
-  { id: 'o3', name: 'OpenAI O3', provider: 'openai' }
+  { id: 'o3', name: 'OpenAI O3', provider: 'openai' },
 ]
 ```
 

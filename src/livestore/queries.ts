@@ -169,3 +169,11 @@ export const searchDocuments$ = (query: string) =>
   queryDb(tables.documents.select().where({ archivedAt: null }), {
     label: `searchDocuments:${query}`,
   })
+
+export const getWorkers$ = queryDb(
+  tables.workers
+    .select()
+    .where({ isActive: true })
+    .orderBy([{ col: 'createdAt', direction: 'desc' }]),
+  { label: 'getWorkers' }
+)

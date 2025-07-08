@@ -172,6 +172,21 @@ const documentProjects = State.SQLite.table({
   },
 })
 
+const workers = State.SQLite.table({
+  name: 'workers',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    name: State.SQLite.text({ default: '' }),
+    roleDescription: State.SQLite.text({ nullable: true }),
+    systemPrompt: State.SQLite.text({ default: '' }),
+    avatar: State.SQLite.text({ nullable: true }),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    isActive: State.SQLite.boolean({ default: true }),
+  },
+})
+
 const uiState = State.SQLite.clientDocument({
   name: 'uiState',
   schema: Schema.Struct({
@@ -195,6 +210,7 @@ export type Conversation = State.SQLite.FromTable.RowDecoded<typeof conversation
 export type Comment = State.SQLite.FromTable.RowDecoded<typeof comments>
 export type Document = State.SQLite.FromTable.RowDecoded<typeof documents>
 export type DocumentProject = State.SQLite.FromTable.RowDecoded<typeof documentProjects>
+export type Worker = State.SQLite.FromTable.RowDecoded<typeof workers>
 export type UiState = typeof uiState.default.value
 
 export const events = {
@@ -214,6 +230,7 @@ export const tables = {
   comments,
   documents,
   documentProjects,
+  workers,
 }
 
 const materializers = State.SQLite.materializers(events, {
@@ -309,6 +326,8 @@ const materializers = State.SQLite.materializers(events, {
     documentProjects.insert({ documentId, projectId }),
   'v1.DocumentRemovedFromProject': ({ documentId, projectId }) =>
     documentProjects.delete().where({ documentId, projectId }),
+  'v1.WorkerCreated': ({ id, name, roleDescription, systemPrompt, avatar, createdAt }) =>
+    workers.insert({ id, name, roleDescription, systemPrompt, avatar, createdAt, isActive: true }),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

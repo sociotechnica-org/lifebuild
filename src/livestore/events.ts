@@ -247,3 +247,15 @@ export const documentRemovedFromProject = Events.synced({
     projectId: Schema.String,
   }),
 })
+
+export const workerCreated = Events.synced({
+  name: 'v1.WorkerCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+    roleDescription: Schema.optional(Schema.String),
+    systemPrompt: Schema.String,
+    avatar: Schema.optional(Schema.String),
+    createdAt: Schema.Date,
+  }),
+})

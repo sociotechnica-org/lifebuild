@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
 import { TasksPage } from './components/TasksPage.js'
+import { WorkersPage } from './components/WorkersPage.js'
 import { Layout } from './components/Layout.js'
 import { EnsureStoreId } from './components/EnsureStoreId.js'
 import LiveStoreWorker from './livestore.worker?worker'
@@ -92,6 +93,14 @@ export const App: React.FC = () => (
             element={
               <Layout>
                 <TasksPage />
+              </Layout>
+            }
+          />
+          <Route
+            path='/workers'
+            element={
+              <Layout>
+                <WorkersPage />
               </Layout>
             }
           />
