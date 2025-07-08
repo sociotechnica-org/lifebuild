@@ -35,7 +35,10 @@ export const DocumentsPage: React.FC = () => {
     if (filterProjectId !== 'all') {
       setSelectedProjectId(filterProjectId)
     } else if (projects.length > 0) {
-      setSelectedProjectId(projects[0]!.id)
+      const firstProject = projects[0]
+      if (firstProject) {
+        setSelectedProjectId(firstProject.id)
+      }
     }
     // Always open the modal, even without a project
     setIsCreateModalOpen(true)
