@@ -7,6 +7,8 @@ import { getConversations$, getConversationMessages$, getBoardById$ } from '../l
 import type { Conversation, ChatMessage } from '../livestore/schema.js'
 import { MarkdownRenderer } from './MarkdownRenderer.js'
 import { executeLLMTool } from '../utils/llm-tools.js'
+import { ModelSelector } from './ModelSelector.js'
+import { DEFAULT_MODEL } from '../util/models.js'
 
 interface LLMAPIResponse {
   message: string
@@ -28,7 +30,8 @@ async function runAgenticLoop(
   initialToolMessages: Array<{ role: string; content: string; tool_call_id?: string }>,
   boardContext: { id: string; name: string } | undefined,
   selectedConversationId: string,
-  store: any
+  store: any,
+  model: string
 ): Promise<void> {
   console.log('🚀 Starting agentic loop')
 
@@ -54,7 +57,7 @@ async function runAgenticLoop(
             conversationId: selectedConversationId,
             message: currentResponse.message || '',
             role: 'assistant',
-            modelId: 'gpt-4o',
+            modelId: model,
             responseToMessageId: userMessage.id,
             createdAt: new Date(),
             metadata: {
@@ -99,7 +102,7 @@ async function runAgenticLoop(
                   conversationId: selectedConversationId,
                   message: `✅ Created task successfully`,
                   role: 'assistant',
-                  modelId: 'gpt-4o',
+                  modelId: model,
                   responseToMessageId: userMessage.id,
                   createdAt: new Date(),
                   metadata: {
@@ -178,7 +181,8 @@ async function runAgenticLoop(
         currentResponse = await callLLMAPI(
           '', // Empty message since we're continuing with tool results
           currentHistory as any, // Mixed message types for OpenAI API
-          boardContext
+          boardContext,
+          model
         )
 
         console.log(`🔄 Iteration ${iteration} LLM response:`, {
@@ -203,7 +207,7 @@ async function runAgenticLoop(
             conversationId: selectedConversationId,
             message: currentResponse.message,
             role: 'assistant',
-            modelId: 'gpt-4o',
+            modelId: model,
             responseToMessageId: userMessage.id,
             createdAt: new Date(),
             metadata: {
@@ -228,7 +232,8 @@ async function runAgenticLoop(
 async function callLLMAPI(
   userMessage: string,
   conversationHistory?: ChatMessage[],
-  currentBoard?: { id: string; name: string }
+  currentBoard?: { id: string; name: string },
+  model?: string
 ): Promise<LLMAPIResponse> {
   console.log('🔗 Calling LLM API via proxy...')
 
@@ -255,6 +260,7 @@ async function callLLMAPI(
     message: userMessage,
     conversationHistory: historyForAPI,
     currentBoard,
+    model: model || DEFAULT_MODEL,
   }
 
   console.log('🔗 Making request to:', proxyUrl)
@@ -337,12 +343,28 @@ export const ChatInterface: React.FC = () => {
       events.conversationCreated({
         id,
         title,
+        model: DEFAULT_MODEL,
         createdAt: new Date(),
       })
     )
 
     setSelectedConversationId(id)
   }, [store])
+
+  const handleModelChange = React.useCallback(
+    (newModel: string) => {
+      if (!selectedConversationId) return
+
+      store.commit(
+        events.conversationModelUpdated({
+          id: selectedConversationId,
+          model: newModel,
+          updatedAt: new Date(),
+        })
+      )
+    },
+    [store, selectedConversationId]
+  )
 
   const handleSendMessage = React.useCallback(
     (e: React.FormEvent) => {
@@ -406,7 +428,8 @@ export const ChatInterface: React.FC = () => {
               const llmResponse = await callLLMAPI(
                 userMessage.message,
                 conversationHistory,
-                boardContext
+                boardContext,
+                selectedConversation?.model || DEFAULT_MODEL
               )
 
               // Handle tool calls if present - start agentic loop immediately
@@ -424,7 +447,8 @@ export const ChatInterface: React.FC = () => {
                   [], // No initial tool messages - agentic loop will execute them
                   boardContext,
                   selectedConversationId,
-                  store
+                  store,
+                  selectedConversation?.model || DEFAULT_MODEL
                 )
               } else {
                 // Normal text response without tools
@@ -434,7 +458,7 @@ export const ChatInterface: React.FC = () => {
                     conversationId: selectedConversationId,
                     message: llmResponse.message,
                     role: 'assistant',
-                    modelId: 'gpt-4o',
+                    modelId: selectedConversation?.model || DEFAULT_MODEL,
                     responseToMessageId: userMessage.id,
                     createdAt: new Date(),
                     metadata: { source: 'braintrust' },
@@ -514,11 +538,14 @@ export const ChatInterface: React.FC = () => {
       <div className='flex-shrink-0 p-4 border-b border-gray-200'>
         <div className='flex items-center justify-between mb-2'>
           <h2 className='text-lg font-semibold text-gray-900'>Chat</h2>
+          {selectedConversation && (
+            <div className='text-xs text-gray-500'>Model: {selectedConversation.model}</div>
+          )}
         </div>
 
         {/* Conversation Selector with + button inline */}
         {conversations.length > 0 && (
-          <div className='flex items-center gap-2'>
+          <div className='flex items-center gap-2 mb-3'>
             <select
               value={selectedConversationId || ''}
               onChange={e => setSelectedConversationId(e.target.value)}
@@ -547,6 +574,15 @@ export const ChatInterface: React.FC = () => {
               </svg>
             </button>
           </div>
+        )}
+
+        {/* Model Selector */}
+        {selectedConversation && (
+          <ModelSelector
+            selectedModel={selectedConversation.model}
+            onModelChange={handleModelChange}
+            className='mt-2'
+          />
         )}
       </div>
 

@@ -149,7 +149,17 @@ export const conversationCreated = Events.synced({
   schema: Schema.Struct({
     id: Schema.String,
     title: Schema.String,
+    model: Schema.String,
     createdAt: Schema.Date,
+  }),
+})
+
+export const conversationModelUpdated = Events.synced({
+  name: 'v1.ConversationModelUpdated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    model: Schema.String,
+    updatedAt: Schema.Date,
   }),
 })
 
