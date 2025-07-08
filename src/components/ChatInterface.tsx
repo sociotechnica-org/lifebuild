@@ -303,6 +303,8 @@ export const ChatInterface: React.FC = () => {
   const conversations = useQuery(getConversations$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [messageText, setMessageText] = React.useState('')
+  const [selectedModelForNextMessage, setSelectedModelForNextMessage] =
+    React.useState<string>(DEFAULT_MODEL)
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
@@ -351,20 +353,9 @@ export const ChatInterface: React.FC = () => {
     setSelectedConversationId(id)
   }, [store])
 
-  const handleModelChange = React.useCallback(
-    (newModel: string) => {
-      if (!selectedConversationId) return
-
-      store.commit(
-        events.conversationModelUpdated({
-          id: selectedConversationId,
-          model: newModel,
-          updatedAt: new Date(),
-        })
-      )
-    },
-    [store, selectedConversationId]
-  )
+  const handleModelChange = React.useCallback((newModel: string) => {
+    setSelectedModelForNextMessage(newModel)
+  }, [])
 
   const handleSendMessage = React.useCallback(
     (e: React.FormEvent) => {
@@ -429,7 +420,7 @@ export const ChatInterface: React.FC = () => {
                 userMessage.message,
                 conversationHistory,
                 boardContext,
-                selectedConversation?.model || DEFAULT_MODEL
+                selectedModelForNextMessage
               )
 
               // Handle tool calls if present - start agentic loop immediately
@@ -448,7 +439,7 @@ export const ChatInterface: React.FC = () => {
                   boardContext,
                   selectedConversationId,
                   store,
-                  selectedConversation?.model || DEFAULT_MODEL
+                  selectedModelForNextMessage
                 )
               } else {
                 // Normal text response without tools
@@ -458,7 +449,7 @@ export const ChatInterface: React.FC = () => {
                     conversationId: selectedConversationId,
                     message: llmResponse.message,
                     role: 'assistant',
-                    modelId: selectedConversation?.model || DEFAULT_MODEL,
+                    modelId: selectedModelForNextMessage,
                     responseToMessageId: userMessage.id,
                     createdAt: new Date(),
                     metadata: { source: 'braintrust' },
@@ -492,7 +483,7 @@ export const ChatInterface: React.FC = () => {
     })
 
     return unsubscribe
-  }, [store, selectedConversationId])
+  }, [store, selectedConversationId, selectedModelForNextMessage])
 
   // Auto-select first conversation if none selected
   React.useEffect(() => {
@@ -500,6 +491,20 @@ export const ChatInterface: React.FC = () => {
       setSelectedConversationId(conversations[0]?.id || null)
     }
   }, [selectedConversationId, conversations])
+
+  // Update selected model when conversation changes
+  React.useEffect(() => {
+    if (selectedConversationId && messages.length > 0) {
+      // Find the last assistant message to get the model used
+      const lastAssistantMessage = messages
+        .filter(m => m.role === 'assistant' && m.modelId)
+        .slice(-1)[0]
+
+      if (lastAssistantMessage?.modelId) {
+        setSelectedModelForNextMessage(lastAssistantMessage.modelId)
+      }
+    }
+  }, [selectedConversationId, messages])
 
   // Auto-scroll to bottom when messages change
   React.useEffect(() => {
@@ -538,14 +543,11 @@ export const ChatInterface: React.FC = () => {
       <div className='flex-shrink-0 p-4 border-b border-gray-200'>
         <div className='flex items-center justify-between mb-2'>
           <h2 className='text-lg font-semibold text-gray-900'>Chat</h2>
-          {selectedConversation && (
-            <div className='text-xs text-gray-500'>Model: {selectedConversation.model}</div>
-          )}
         </div>
 
         {/* Conversation Selector with + button inline */}
         {conversations.length > 0 && (
-          <div className='flex items-center gap-2 mb-3'>
+          <div className='flex items-center gap-2'>
             <select
               value={selectedConversationId || ''}
               onChange={e => setSelectedConversationId(e.target.value)}
@@ -574,15 +576,6 @@ export const ChatInterface: React.FC = () => {
               </svg>
             </button>
           </div>
-        )}
-
-        {/* Model Selector */}
-        {selectedConversation && (
-          <ModelSelector
-            selectedModel={selectedConversation.model}
-            onModelChange={handleModelChange}
-            className='mt-2'
-          />
         )}
       </div>
 
@@ -690,51 +683,62 @@ export const ChatInterface: React.FC = () => {
             </div>
 
             {/* Message Input - Fixed at bottom */}
-            <div className='flex-shrink-0 bg-gray-50 border-t border-gray-200 relative'>
-              <form onSubmit={handleSendMessage} className='h-full'>
-                <textarea
-                  ref={textareaRef}
-                  value={messageText}
-                  onChange={handleTextareaChange}
-                  placeholder='Type your message...'
-                  rows={1}
-                  className='w-full h-full px-4 py-4 pr-14 bg-transparent border-none text-base resize-none focus:outline-none placeholder-gray-500 overflow-y-auto'
-                  style={{
-                    minHeight: '80px',
-                    maxHeight: '200px',
-                    height: '80px',
-                    fontSize: '16px',
-                  }}
-                  autoFocus
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault()
-                      handleSendMessage(e)
-                    }
-                  }}
+            <div className='flex-shrink-0 bg-gray-50 border-t border-gray-200'>
+              {/* Model Selector */}
+              <div className='px-4 py-3 border-b border-gray-200'>
+                <ModelSelector
+                  selectedModel={selectedModelForNextMessage}
+                  onModelChange={handleModelChange}
                 />
-                <button
-                  type='submit'
-                  disabled={!messageText.trim()}
-                  className='absolute bottom-4 right-4 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white p-2 rounded-full transition-colors shadow-sm'
-                  title='Send message (Enter)'
-                >
-                  <svg
-                    className='w-4 h-4'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                    xmlns='http://www.w3.org/2000/svg'
+              </div>
+
+              {/* Message Input */}
+              <div className='relative'>
+                <form onSubmit={handleSendMessage} className='h-full'>
+                  <textarea
+                    ref={textareaRef}
+                    value={messageText}
+                    onChange={handleTextareaChange}
+                    placeholder='Type your message...'
+                    rows={1}
+                    className='w-full h-full px-4 py-4 pr-14 bg-transparent border-none text-base resize-none focus:outline-none placeholder-gray-500 overflow-y-auto'
+                    style={{
+                      minHeight: '80px',
+                      maxHeight: '200px',
+                      height: '80px',
+                      fontSize: '16px',
+                    }}
+                    autoFocus
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleSendMessage(e)
+                      }
+                    }}
+                  />
+                  <button
+                    type='submit'
+                    disabled={!messageText.trim()}
+                    className='absolute bottom-4 right-4 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white p-2 rounded-full transition-colors shadow-sm'
+                    title='Send message (Enter)'
                   >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M5 10l7-7m0 0l7 7m-7-7v18'
-                    />
-                  </svg>
-                </button>
-              </form>
+                    <svg
+                      className='w-4 h-4'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                      xmlns='http://www.w3.org/2000/svg'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M5 10l7-7m0 0l7 7m-7-7v18'
+                      />
+                    </svg>
+                  </button>
+                </form>
+              </div>
             </div>
           </>
         ) : (
