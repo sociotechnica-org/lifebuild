@@ -5,7 +5,7 @@ import { events } from '../livestore/schema.js'
 interface DocumentCreateModalProps {
   isOpen: boolean
   onClose: () => void
-  projectId: string
+  projectId?: string
 }
 
 export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
@@ -57,13 +57,15 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
         })
       )
 
-      // Associate it with the project
-      store.commit(
-        events.documentAddedToProject({
-          documentId,
-          projectId,
-        })
-      )
+      // Associate it with the project if projectId is provided
+      if (projectId) {
+        store.commit(
+          events.documentAddedToProject({
+            documentId,
+            projectId,
+          })
+        )
+      }
 
       // Reset form and close modal
       setTitle('')

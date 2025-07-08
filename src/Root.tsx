@@ -9,6 +9,8 @@ import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
 import { TasksPage } from './components/TasksPage.js'
 import { WorkersPage } from './components/WorkersPage.js'
+import { DocumentsPage } from './components/DocumentsPage.js'
+import { DocumentPage } from './components/DocumentPage.js'
 import { Layout } from './components/Layout.js'
 import { EnsureStoreId } from './components/EnsureStoreId.js'
 import LiveStoreWorker from './livestore.worker?worker'
@@ -101,6 +103,22 @@ export const App: React.FC = () => (
             element={
               <Layout>
                 <WorkersPage />
+              </Layout>
+            }
+          />
+          <Route
+            path='/documents'
+            element={
+              <Layout>
+                <DocumentsPage />
+              </Layout>
+            }
+          />
+          <Route
+            path='/document/:documentId'
+            element={
+              <Layout>
+                <DocumentPage />
               </Layout>
             }
           />
