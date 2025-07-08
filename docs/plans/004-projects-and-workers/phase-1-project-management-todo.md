@@ -86,14 +86,14 @@ Based on the production plan, Phase 1.1 transforms the existing Kanban system in
 
 ### Tasks
 
-- [ ] Schema: Ensure `tasks.projectId` is optional (already implemented)
-- [ ] Query: Create `getOrphanedTasks$` query for tasks with null projectId
-- [ ] UI: Create "Orphaned Tasks" special project view accessible from main navigation
-- [ ] Creation: Allow task creation without project assignment
-- [ ] Assignment: Add ability to assign orphaned tasks to projects via drag-and-drop or modal
-- [ ] Navigation: Add "Orphaned Tasks" link in main navigation
-- [ ] Tests: Orphaned task queries, assignment flows, navigation
-- [ ] DoD: Users can create, view, and manage tasks without project assignment
+- [x] Schema: Ensure `tasks.projectId` is optional (already implemented)
+- [x] Query: Create `getOrphanedTasks$` query for tasks with null projectId
+- [x] UI: Create "Orphaned Tasks" special project view accessible from main navigation
+- [x] Creation: Allow task creation without project assignment
+- [x] Assignment: Add ability to assign orphaned tasks to projects via drag-and-drop or modal
+- [x] Navigation: Add "Orphaned Tasks" link in main navigation
+- [x] Tests: Orphaned task queries, assignment flows, navigation
+- [x] DoD: Users can create, view, and manage tasks without project assignment
 
 ### Implementation Notes
 
@@ -111,13 +111,13 @@ Based on the production plan, Phase 1.1 transforms the existing Kanban system in
 
 ### Tasks
 
-- [ ] Event: `task.moved` event to support cross-project moves (extend existing event)
-- [ ] UI: Add "Move to Project" option in task modal
-- [ ] Modal: Create project selector modal for task reassignment
-- [ ] Validation: Ensure task positions are recalculated when moving between projects
-- [ ] Query: Update task queries to handle project changes correctly
-- [ ] Tests: Cross-project task moves, position recalculation, project assignment
-- [ ] DoD: Tasks can be moved between projects while maintaining their column positions
+- [x] Event: `task.moved` event to support cross-project moves (extend existing event)
+- [x] UI: Add "Move to Project" option in task modal
+- [x] Modal: Create project selector modal for task reassignment
+- [x] Validation: Ensure task positions are recalculated when moving between projects
+- [x] Query: Update task queries to handle project changes correctly
+- [x] Tests: Cross-project task moves, position recalculation, project assignment
+- [x] DoD: Tasks can be moved between projects while maintaining their column positions
 
 ### Implementation Notes
 
