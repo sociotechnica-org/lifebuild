@@ -49,8 +49,8 @@ console.log('Hello from code block!');
 > This is a blockquote for testing markdown rendering.
 `
 
-    await page.fill('input[placeholder="Document title"]', documentTitle)
-    await page.fill('textarea[placeholder="Write your document content here..."]', documentContent)
+    await page.fill('input[placeholder="Enter document title"]', documentTitle)
+    await page.fill('textarea[placeholder="Enter document content..."]', documentContent)
 
     // Submit the form
     const createButton = page.locator('button[type="submit"]:has-text("Create Document")')
@@ -188,8 +188,8 @@ console.log('Hello from code block!');
     const documentContent =
       '# Project Document\n\nThis document was created within a project context.'
 
-    await page.fill('input[placeholder="Document title"]', documentTitle)
-    await page.fill('textarea[placeholder="Write your document content here..."]', documentContent)
+    await page.fill('input[placeholder="Enter document title"]', documentTitle)
+    await page.fill('textarea[placeholder="Enter document content..."]', documentContent)
 
     // Create the document
     await page.click('button[type="submit"]:has-text("Create Document")')
