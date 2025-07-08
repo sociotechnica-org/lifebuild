@@ -176,8 +176,10 @@ console.log('Hello from code block!');
     // Click on Documents tab
     await page.click('button:has-text("Documents")')
 
-    // Should see the Create Document button in the project
-    const createDocumentButton = page.locator('button:has-text("Create Document")')
+    // Should see the Create Document button in the project header
+    const createDocumentButton = page
+      .locator('div:has-text("Project Documents")')
+      .locator('button:has-text("Create Document")')
     await expect(createDocumentButton).toBeVisible()
     await createDocumentButton.click()
 

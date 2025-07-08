@@ -43,6 +43,7 @@ export const DocumentsPage: React.FC = () => {
     } else if (projects.length > 0) {
       setSelectedProjectId(projects[0]!.id)
     }
+    // Always open the modal, even without a project
     setIsCreateModalOpen(true)
   }
 
@@ -207,16 +208,14 @@ export const DocumentsPage: React.FC = () => {
       </div>
 
       {/* Create Document Modal */}
-      {selectedProjectId && (
-        <DocumentCreateModal
-          isOpen={isCreateModalOpen}
-          onClose={() => {
-            setIsCreateModalOpen(false)
-            setSelectedProjectId('')
-          }}
-          projectId={selectedProjectId}
-        />
-      )}
+      <DocumentCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={() => {
+          setIsCreateModalOpen(false)
+          setSelectedProjectId('')
+        }}
+        projectId={selectedProjectId}
+      />
     </div>
   )
 }
