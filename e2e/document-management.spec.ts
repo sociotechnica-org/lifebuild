@@ -46,8 +46,7 @@ This is a **test document** with *markdown formatting*.
 console.log('Hello from code block!');
 \`\`\`
 
-> This is a blockquote for testing markdown rendering.
-`
+> This is a blockquote for testing markdown rendering.`
 
     await page.fill('input[placeholder="Enter document title"]', documentTitle)
     await page.fill('textarea[placeholder="Enter document content..."]', documentContent)
@@ -166,8 +165,8 @@ console.log('Hello from code block!');
     await page.click('form button[type="submit"]:has-text("Create Project")')
 
     // Navigate to the project
-    await expect(page.locator(`a:has-text("${projectName}")`)).toBeVisible()
-    await page.click(`a:has-text("${projectName}")`)
+    await expect(page.locator(`text=${projectName}`)).toBeVisible()
+    await page.click(`text=${projectName}`)
     await waitForLiveStoreReady(page)
 
     // Should be on the project page
@@ -180,6 +179,7 @@ console.log('Hello from code block!');
     const createDocumentButton = page
       .locator('div:has-text("Project Documents")')
       .locator('button:has-text("Create Document")')
+      .first()
     await expect(createDocumentButton).toBeVisible()
     await createDocumentButton.click()
 
@@ -195,10 +195,10 @@ console.log('Hello from code block!');
     await page.click('button[type="submit"]:has-text("Create Document")')
 
     // Should see the document in the project's document list
-    await expect(page.locator(`a:has-text("${documentTitle}")`)).toBeVisible()
+    await expect(page.locator(`text=${documentTitle}`)).toBeVisible()
 
     // Click on the document to view it
-    await page.click(`a:has-text("${documentTitle}")`)
+    await page.click(`text=${documentTitle}`)
     await waitForLiveStoreReady(page)
 
     // Should navigate to the document page
@@ -206,16 +206,16 @@ console.log('Hello from code block!');
     await expect(page.locator('h1.text-2xl')).toContainText(documentTitle)
 
     // Verify breadcrumb navigation back to documents
-    const documentsLink = page.locator('nav a:has-text("Documents")')
+    const documentsLink = page.locator('nav a:has-text("Documents")').first()
     await expect(documentsLink).toBeVisible()
     await documentsLink.click()
 
     // Should be on the main documents page now
     await expect(page).toHaveURL(/\/documents\?storeId=[^&]+/)
-    await expect(page.locator('h1')).toContainText('Documents')
+    await expect(page.locator('h1:has-text("Documents")')).toBeVisible()
 
     // The document should appear in the main documents list too
-    await expect(page.locator(`a:has-text("${documentTitle}")`)).toBeVisible()
+    await expect(page.locator(`text=${documentTitle}`)).toBeVisible()
 
     console.log(
       `Successfully created document "${documentTitle}" from within project "${projectName}"`
