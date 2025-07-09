@@ -14,6 +14,7 @@ import { DocumentPage } from './components/DocumentPage.js'
 import { Layout } from './components/Layout.js'
 import { EnsureStoreId } from './components/EnsureStoreId.js'
 import { LoadingState } from './components/LoadingState.js'
+import { ErrorBoundary } from './components/ErrorBoundary.js'
 import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from './livestore/schema.js'
 import { makeTracer } from './otel.js'
@@ -71,69 +72,87 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
 }
 
 export const App: React.FC = () => (
-  <BrowserRouter>
-    <LiveStoreWrapper>
-      <EnsureStoreId>
-        <Routes>
-          {/* Main routes - restored original structure */}
-          <Route
-            path={ROUTES.HOME}
-            element={
-              <Layout>
-                <ProjectsPage />
-              </Layout>
-            }
-          />
-          <Route
-            path={ROUTES.PROJECTS}
-            element={
-              <Layout>
-                <ProjectsPage />
-              </Layout>
-            }
-          />
-          <Route
-            path={ROUTES.TASKS}
-            element={
-              <Layout>
-                <TasksPage />
-              </Layout>
-            }
-          />
-          <Route
-            path={ROUTES.WORKERS}
-            element={
-              <Layout>
-                <WorkersPage />
-              </Layout>
-            }
-          />
-          <Route
-            path={ROUTES.DOCUMENTS}
-            element={
-              <Layout>
-                <DocumentsPage />
-              </Layout>
-            }
-          />
-          <Route
-            path={ROUTES.DOCUMENT}
-            element={
-              <Layout>
-                <DocumentPage />
-              </Layout>
-            }
-          />
-          <Route
-            path={ROUTES.PROJECT}
-            element={
-              <Layout>
-                <ProjectWorkspace />
-              </Layout>
-            }
-          />
-        </Routes>
-      </EnsureStoreId>
-    </LiveStoreWrapper>
-  </BrowserRouter>
+  <ErrorBoundary>
+    <BrowserRouter>
+      <LiveStoreWrapper>
+        <EnsureStoreId>
+          <ErrorBoundary>
+            <Routes>
+              {/* Main routes - restored original structure */}
+              <Route
+                path={ROUTES.HOME}
+                element={
+                  <Layout>
+                    <ErrorBoundary>
+                      <ProjectsPage />
+                    </ErrorBoundary>
+                  </Layout>
+                }
+              />
+              <Route
+                path={ROUTES.PROJECTS}
+                element={
+                  <Layout>
+                    <ErrorBoundary>
+                      <ProjectsPage />
+                    </ErrorBoundary>
+                  </Layout>
+                }
+              />
+              <Route
+                path={ROUTES.TASKS}
+                element={
+                  <Layout>
+                    <ErrorBoundary>
+                      <TasksPage />
+                    </ErrorBoundary>
+                  </Layout>
+                }
+              />
+              <Route
+                path={ROUTES.WORKERS}
+                element={
+                  <Layout>
+                    <ErrorBoundary>
+                      <WorkersPage />
+                    </ErrorBoundary>
+                  </Layout>
+                }
+              />
+              <Route
+                path={ROUTES.DOCUMENTS}
+                element={
+                  <Layout>
+                    <ErrorBoundary>
+                      <DocumentsPage />
+                    </ErrorBoundary>
+                  </Layout>
+                }
+              />
+              <Route
+                path={ROUTES.DOCUMENT}
+                element={
+                  <Layout>
+                    <ErrorBoundary>
+                      <DocumentPage />
+                    </ErrorBoundary>
+                  </Layout>
+                }
+              />
+              <Route
+                path={ROUTES.PROJECT}
+                element={
+                  <Layout>
+                    <ErrorBoundary>
+                      <ProjectWorkspace />
+                    </ErrorBoundary>
+                  </Layout>
+                }
+              />
+            </Routes>
+          </ErrorBoundary>
+        </EnsureStoreId>
+      </LiveStoreWrapper>
+    </BrowserRouter>
+  </ErrorBoundary>
 )
