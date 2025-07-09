@@ -68,12 +68,12 @@ const createTestStore = () => {
       }
       if (event.name === 'v1.WorkerAssignedToProject') {
         const assignments = mockData.get('workerProjects') || []
-        const compositeId = `${event.args.workerId}-${event.args.projectId}`
         // Check if assignment already exists to prevent duplicates
-        const existingAssignment = assignments.find((wp: any) => wp.id === compositeId)
+        const existingAssignment = assignments.find(
+          (wp: any) => wp.workerId === event.args.workerId && wp.projectId === event.args.projectId
+        )
         if (!existingAssignment) {
           assignments.push({
-            id: compositeId,
             workerId: event.args.workerId,
             projectId: event.args.projectId,
           })
@@ -82,8 +82,10 @@ const createTestStore = () => {
       }
       if (event.name === 'v1.WorkerUnassignedFromProject') {
         const assignments = mockData.get('workerProjects') || []
-        const compositeId = `${event.args.workerId}-${event.args.projectId}`
-        const filtered = assignments.filter((wp: any) => wp.id !== compositeId)
+        const filtered = assignments.filter(
+          (wp: any) =>
+            !(wp.workerId === event.args.workerId && wp.projectId === event.args.projectId)
+        )
         mockData.set('workerProjects', filtered)
       }
     },
