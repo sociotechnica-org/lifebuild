@@ -3,7 +3,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { DocumentsPage } from '../../src/components/DocumentsPage.js'
-import { getAllDocuments$, getProjects$ } from '../../src/livestore/queries.js'
+import {
+  getAllDocuments$,
+  getProjects$,
+  getAllDocumentProjects$,
+} from '../../src/livestore/queries.js'
 import { useQuery } from '@livestore/react'
 
 // Hoisted mocks
@@ -38,6 +42,7 @@ const { mockStore, mockDocuments, mockProjects } = vi.hoisted(() => {
 vi.mock('../../src/livestore/queries.js', () => ({
   getAllDocuments$: vi.fn(),
   getProjects$: vi.fn(),
+  getAllDocumentProjects$: vi.fn(),
 }))
 
 // Mock @livestore/react
@@ -62,6 +67,9 @@ describe('DocumentsPage', () => {
       }
       if (query === getProjects$) {
         return mockProjects
+      }
+      if (query === getAllDocumentProjects$) {
+        return [] // Empty document-project associations by default
       }
       return []
     })
@@ -113,6 +121,9 @@ describe('DocumentsPage', () => {
       }
       if (query === getProjects$) {
         return mockProjects
+      }
+      if (query === getAllDocumentProjects$) {
+        return []
       }
       return []
     })
