@@ -40,6 +40,54 @@ const createTestStore = () => {
         })
         mockData.set('documents', docs)
       }
+      if (event.name === 'v1.WorkerCreated') {
+        const workers = mockData.get('workers') || []
+        workers.push({
+          id: event.args.id,
+          name: event.args.name,
+          roleDescription: event.args.roleDescription || null,
+          systemPrompt: event.args.systemPrompt,
+          avatar: event.args.avatar || null,
+          createdAt: event.args.createdAt,
+          updatedAt: event.args.createdAt,
+          isActive: true,
+        })
+        mockData.set('workers', workers)
+      }
+      if (event.name === 'v1.ProjectCreated') {
+        const projects = mockData.get('projects') || []
+        projects.push({
+          id: event.args.id,
+          name: event.args.name,
+          description: event.args.description || null,
+          createdAt: event.args.createdAt,
+          updatedAt: event.args.createdAt,
+          deletedAt: null,
+        })
+        mockData.set('projects', projects)
+      }
+      if (event.name === 'v1.WorkerAssignedToProject') {
+        const assignments = mockData.get('workerProjects') || []
+        // Check if assignment already exists to prevent duplicates
+        const existingAssignment = assignments.find(
+          (wp: any) => wp.workerId === event.args.workerId && wp.projectId === event.args.projectId
+        )
+        if (!existingAssignment) {
+          assignments.push({
+            workerId: event.args.workerId,
+            projectId: event.args.projectId,
+          })
+        }
+        mockData.set('workerProjects', assignments)
+      }
+      if (event.name === 'v1.WorkerUnassignedFromProject') {
+        const assignments = mockData.get('workerProjects') || []
+        const filtered = assignments.filter(
+          (wp: any) =>
+            !(wp.workerId === event.args.workerId && wp.projectId === event.args.projectId)
+        )
+        mockData.set('workerProjects', filtered)
+      }
     },
     query: (queryObj: any) => {
       // Handle different query types based on the query object
@@ -48,6 +96,25 @@ const createTestStore = () => {
       }
       if (queryObj && queryObj.label === 'getDocumentList') {
         return mockData.get('documents') || []
+      }
+      if (queryObj && queryObj.label === 'getWorkers') {
+        return mockData.get('workers') || []
+      }
+      if (queryObj && queryObj.label === 'getProjects') {
+        return mockData.get('projects') || []
+      }
+      if (queryObj && queryObj.label === 'getAllWorkerProjects') {
+        return mockData.get('workerProjects') || []
+      }
+      if (queryObj && queryObj.label && queryObj.label.startsWith('getWorkerProjects:')) {
+        const workerId = queryObj.label.split(':')[1]
+        const assignments = mockData.get('workerProjects') || []
+        return assignments.filter((wp: any) => wp.workerId === workerId)
+      }
+      if (queryObj && queryObj.label && queryObj.label.startsWith('getProjectWorkers:')) {
+        const projectId = queryObj.label.split(':')[1]
+        const assignments = mockData.get('workerProjects') || []
+        return assignments.filter((wp: any) => wp.projectId === projectId)
       }
       // Fallback for any query that might contain 'document'
       if (queryObj && JSON.stringify(queryObj).toLowerCase().includes('document')) {

@@ -1,7 +1,21 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ProjectCard } from './ProjectCard.js'
+
+// Hoisted mocks
+const { mockStore } = vi.hoisted(() => {
+  const mockStore = {
+    query: vi.fn().mockResolvedValue([]),
+    commit: vi.fn(),
+  }
+  return { mockStore }
+})
+
+// Mock @livestore/react
+vi.mock('@livestore/react', () => ({
+  useStore: () => ({ store: mockStore }),
+}))
 
 describe('ProjectCard', () => {
   const mockProject = {
@@ -12,6 +26,10 @@ describe('ProjectCard', () => {
     updatedAt: new Date('2023-01-02'),
     deletedAt: null,
   }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
   it('should render project name', () => {
     render(<ProjectCard project={mockProject} />)
