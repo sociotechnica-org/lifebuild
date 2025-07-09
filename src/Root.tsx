@@ -132,14 +132,6 @@ export const App: React.FC = () => (
               </Layout>
             }
           />
-          <Route
-            path={ROUTES.DOCUMENT}
-            element={
-              <Layout>
-                <DocumentPage />
-              </Layout>
-            }
-          />
         </Routes>
       </EnsureStoreId>
     </LiveStoreWrapper>

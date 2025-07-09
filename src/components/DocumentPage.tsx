@@ -134,7 +134,7 @@ export const DocumentPage: React.FC = () => {
           <div className='flex items-center gap-2'>
             {isEditing && (
               <button
-                type="button"
+                type='button'
                 onClick={() => {
                   setTitle(document.title || '')
                   setContent(document.content || '')
@@ -148,7 +148,7 @@ export const DocumentPage: React.FC = () => {
             )}
 
             <button
-              type="button"
+              type='button'
               onClick={isEditing ? handleSave : () => setIsEditing(true)}
               disabled={isSaving}
               className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
