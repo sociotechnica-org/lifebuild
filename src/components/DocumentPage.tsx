@@ -13,10 +13,11 @@ export const DocumentPage: React.FC = () => {
   const { documentId } = useParams<{ documentId: string }>()
   const { store } = useStore()
 
-  // Get document from store
-  const documentResult = documentId ? useQuery(getDocumentById$(documentId)) : null
+  // Get document from store - always call hook to avoid React hook rules violation
+  // Use impossible ID when documentId is not available to get empty result
+  const documentResult = useQuery(getDocumentById$(documentId || '__impossible__'))
   const document = documentResult?.[0]
-  const isLoading = documentId ? documentResult === undefined : false
+  const isLoading = !documentId ? false : documentResult === undefined
 
   // Local state for editing
   const [title, setTitle] = useState('')
