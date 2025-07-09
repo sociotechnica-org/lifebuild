@@ -32,6 +32,7 @@ describe('Conversation Events and Materialization', () => {
     const testConversation = {
       id: 'test-id',
       title: 'Test Conversation',
+      model: 'claude-3-5-sonnet-latest',
       createdAt: new Date(),
     }
 

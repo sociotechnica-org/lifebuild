@@ -123,6 +123,7 @@ const conversations = State.SQLite.table({
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
     title: State.SQLite.text({ default: '' }),
+    model: State.SQLite.text({ default: 'claude-3-5-sonnet-latest' }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
@@ -286,8 +287,10 @@ const materializers = State.SQLite.materializers(events, {
   },
   'v1.UserCreated': ({ id, name, avatarUrl, createdAt }) =>
     users.insert({ id, name, avatarUrl, createdAt }),
-  'v1.ConversationCreated': ({ id, title, createdAt }) =>
-    conversations.insert({ id, title, createdAt, updatedAt: createdAt }),
+  'v1.ConversationCreated': ({ id, title, model, createdAt }) =>
+    conversations.insert({ id, title, model, createdAt, updatedAt: createdAt }),
+  'v1.ConversationModelUpdated': ({ id, model, updatedAt }) =>
+    conversations.update({ model, updatedAt }).where({ id }),
   'v1.LLMResponseReceived': ({
     id,
     conversationId,

@@ -7,6 +7,8 @@ import { getConversations$, getConversationMessages$, getBoardById$ } from '../l
 import type { Conversation, ChatMessage } from '../livestore/schema.js'
 import { MarkdownRenderer } from './MarkdownRenderer.js'
 import { executeLLMTool } from '../utils/llm-tools.js'
+import { ModelSelector } from './ModelSelector.js'
+import { DEFAULT_MODEL } from '../util/models.js'
 
 interface LLMAPIResponse {
   message: string
@@ -28,7 +30,8 @@ async function runAgenticLoop(
   initialToolMessages: Array<{ role: string; content: string; tool_call_id?: string }>,
   boardContext: { id: string; name: string } | undefined,
   selectedConversationId: string,
-  store: any
+  store: any,
+  model: string
 ): Promise<void> {
   console.log('🚀 Starting agentic loop')
 
@@ -54,7 +57,7 @@ async function runAgenticLoop(
             conversationId: selectedConversationId,
             message: currentResponse.message || '',
             role: 'assistant',
-            modelId: 'gpt-4o',
+            modelId: model,
             responseToMessageId: userMessage.id,
             createdAt: new Date(),
             metadata: {
@@ -99,7 +102,7 @@ async function runAgenticLoop(
                   conversationId: selectedConversationId,
                   message: `✅ Created task successfully`,
                   role: 'assistant',
-                  modelId: 'gpt-4o',
+                  modelId: model,
                   responseToMessageId: userMessage.id,
                   createdAt: new Date(),
                   metadata: {
@@ -178,7 +181,8 @@ async function runAgenticLoop(
         currentResponse = await callLLMAPI(
           '', // Empty message since we're continuing with tool results
           currentHistory as any, // Mixed message types for OpenAI API
-          boardContext
+          boardContext,
+          model
         )
 
         console.log(`🔄 Iteration ${iteration} LLM response:`, {
@@ -203,7 +207,7 @@ async function runAgenticLoop(
             conversationId: selectedConversationId,
             message: currentResponse.message,
             role: 'assistant',
-            modelId: 'gpt-4o',
+            modelId: model,
             responseToMessageId: userMessage.id,
             createdAt: new Date(),
             metadata: {
@@ -228,7 +232,8 @@ async function runAgenticLoop(
 async function callLLMAPI(
   userMessage: string,
   conversationHistory?: ChatMessage[],
-  currentBoard?: { id: string; name: string }
+  currentBoard?: { id: string; name: string },
+  model?: string
 ): Promise<LLMAPIResponse> {
   console.log('🔗 Calling LLM API via proxy...')
 
@@ -255,6 +260,7 @@ async function callLLMAPI(
     message: userMessage,
     conversationHistory: historyForAPI,
     currentBoard,
+    model: model || DEFAULT_MODEL,
   }
 
   console.log('🔗 Making request to:', proxyUrl)
@@ -297,6 +303,10 @@ export const ChatInterface: React.FC = () => {
   const conversations = useQuery(getConversations$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [messageText, setMessageText] = React.useState('')
+  const [selectedModelForNextMessage, setSelectedModelForNextMessage] =
+    React.useState<string>(DEFAULT_MODEL)
+  const selectedModelRef = React.useRef<string>(DEFAULT_MODEL)
+  const userHasChangedModel = React.useRef<boolean>(false)
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
@@ -337,12 +347,33 @@ export const ChatInterface: React.FC = () => {
       events.conversationCreated({
         id,
         title,
+        model: DEFAULT_MODEL,
         createdAt: new Date(),
       })
     )
 
     setSelectedConversationId(id)
   }, [store])
+
+  const handleModelChange = React.useCallback(
+    (newModel: string) => {
+      setSelectedModelForNextMessage(newModel)
+      selectedModelRef.current = newModel // Keep ref in sync
+      userHasChangedModel.current = true
+
+      // Persist the model change to the database if we have a selected conversation
+      if (selectedConversationId) {
+        store.commit(
+          events.conversationModelUpdated({
+            id: selectedConversationId,
+            model: newModel,
+            updatedAt: new Date(),
+          })
+        )
+      }
+    },
+    [selectedConversationId, store]
+  )
 
   const handleSendMessage = React.useCallback(
     (e: React.FormEvent) => {
@@ -406,7 +437,8 @@ export const ChatInterface: React.FC = () => {
               const llmResponse = await callLLMAPI(
                 userMessage.message,
                 conversationHistory,
-                boardContext
+                boardContext,
+                selectedModelRef.current // Use ref to get current model at processing time
               )
 
               // Handle tool calls if present - start agentic loop immediately
@@ -424,7 +456,8 @@ export const ChatInterface: React.FC = () => {
                   [], // No initial tool messages - agentic loop will execute them
                   boardContext,
                   selectedConversationId,
-                  store
+                  store,
+                  selectedModelRef.current // Use ref to get current model at processing time
                 )
               } else {
                 // Normal text response without tools
@@ -434,7 +467,7 @@ export const ChatInterface: React.FC = () => {
                     conversationId: selectedConversationId,
                     message: llmResponse.message,
                     role: 'assistant',
-                    modelId: 'gpt-4o',
+                    modelId: selectedModelRef.current, // Use ref to get current model at processing time
                     responseToMessageId: userMessage.id,
                     createdAt: new Date(),
                     metadata: { source: 'braintrust' },
@@ -468,7 +501,7 @@ export const ChatInterface: React.FC = () => {
     })
 
     return unsubscribe
-  }, [store, selectedConversationId])
+  }, [store, selectedConversationId]) // Don't depend on selectedModelForNextMessage to avoid subscription churn
 
   // Auto-select first conversation if none selected
   React.useEffect(() => {
@@ -476,6 +509,26 @@ export const ChatInterface: React.FC = () => {
       setSelectedConversationId(conversations[0]?.id || null)
     }
   }, [selectedConversationId, conversations])
+
+  // Get selected conversation object (needed for useEffect below)
+  const selectedConversation = conversations.find(c => c.id === selectedConversationId)
+
+  // Update selected model when conversation changes (but not on new messages)
+  React.useEffect(() => {
+    // Reset the user change flag when switching conversations
+    userHasChangedModel.current = false
+
+    if (selectedConversationId && selectedConversation) {
+      // Use the conversation's stored model, or default if not set
+      const model = selectedConversation.model || DEFAULT_MODEL
+      setSelectedModelForNextMessage(model)
+      selectedModelRef.current = model // Keep ref in sync
+    } else {
+      // No conversation selected, use default
+      setSelectedModelForNextMessage(DEFAULT_MODEL)
+      selectedModelRef.current = DEFAULT_MODEL // Keep ref in sync
+    }
+  }, [selectedConversationId, selectedConversation]) // Depend on conversation and its data
 
   // Auto-scroll to bottom when messages change
   React.useEffect(() => {
@@ -505,8 +558,6 @@ export const ChatInterface: React.FC = () => {
     const maxHeight = 200
     textarea.style.height = `${Math.min(scrollHeight, maxHeight)}px`
   }, [])
-
-  const selectedConversation = conversations.find(c => c.id === selectedConversationId)
 
   return (
     <div className='h-full bg-white md:border md:border-gray-200 md:rounded-lg md:shadow-sm flex flex-col'>
@@ -654,51 +705,62 @@ export const ChatInterface: React.FC = () => {
             </div>
 
             {/* Message Input - Fixed at bottom */}
-            <div className='flex-shrink-0 bg-gray-50 border-t border-gray-200 relative'>
-              <form onSubmit={handleSendMessage} className='h-full'>
-                <textarea
-                  ref={textareaRef}
-                  value={messageText}
-                  onChange={handleTextareaChange}
-                  placeholder='Type your message...'
-                  rows={1}
-                  className='w-full h-full px-4 py-4 pr-14 bg-transparent border-none text-base resize-none focus:outline-none placeholder-gray-500 overflow-y-auto'
-                  style={{
-                    minHeight: '80px',
-                    maxHeight: '200px',
-                    height: '80px',
-                    fontSize: '16px',
-                  }}
-                  autoFocus
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault()
-                      handleSendMessage(e)
-                    }
-                  }}
+            <div className='flex-shrink-0 bg-gray-50 border-t border-gray-200'>
+              {/* Model Selector */}
+              <div className='px-4 py-3 border-b border-gray-200'>
+                <ModelSelector
+                  selectedModel={selectedModelForNextMessage}
+                  onModelChange={handleModelChange}
                 />
-                <button
-                  type='submit'
-                  disabled={!messageText.trim()}
-                  className='absolute bottom-4 right-4 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white p-2 rounded-full transition-colors shadow-sm'
-                  title='Send message (Enter)'
-                >
-                  <svg
-                    className='w-4 h-4'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                    xmlns='http://www.w3.org/2000/svg'
+              </div>
+
+              {/* Message Input */}
+              <div className='relative'>
+                <form onSubmit={handleSendMessage} className='h-full'>
+                  <textarea
+                    ref={textareaRef}
+                    value={messageText}
+                    onChange={handleTextareaChange}
+                    placeholder='Type your message...'
+                    rows={1}
+                    className='w-full h-full px-4 py-4 pr-14 bg-transparent border-none text-base resize-none focus:outline-none placeholder-gray-500 overflow-y-auto'
+                    style={{
+                      minHeight: '80px',
+                      maxHeight: '200px',
+                      height: '80px',
+                      fontSize: '16px',
+                    }}
+                    autoFocus
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleSendMessage(e)
+                      }
+                    }}
+                  />
+                  <button
+                    type='submit'
+                    disabled={!messageText.trim()}
+                    className='absolute bottom-4 right-4 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white p-2 rounded-full transition-colors shadow-sm'
+                    title='Send message (Enter)'
                   >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M5 10l7-7m0 0l7 7m-7-7v18'
-                    />
-                  </svg>
-                </button>
-              </form>
+                    <svg
+                      className='w-4 h-4'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                      xmlns='http://www.w3.org/2000/svg'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M5 10l7-7m0 0l7 7m-7-7v18'
+                      />
+                    </svg>
+                  </button>
+                </form>
+              </div>
             </div>
           </>
         ) : (

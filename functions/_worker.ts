@@ -52,12 +52,13 @@ export default {
           })
         }
 
-        const { message, conversationHistory, currentBoard } = requestBody
+        const { message, conversationHistory, currentBoard, model } = requestBody
 
         console.log('🔧 Worker received:', {
           message: message?.substring(0, 50),
           hasHistory: !!conversationHistory,
           currentBoard,
+          model,
         })
 
         // Validate message field (allow empty for continuation calls)
@@ -224,7 +225,7 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
             'x-bt-parent': `project_id:${env.BRAINTRUST_PROJECT_ID}`,
           },
           body: JSON.stringify({
-            model: 'gpt-4o',
+            model: model || 'claude-3-5-sonnet-latest',
             messages,
             tools,
             tool_choice: 'auto',
