@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { DocumentCreateModal } from '../../src/components/DocumentCreateModal.js'
+import { DocumentCreateModal } from '../../src/components/documents/DocumentCreateModal.js'
 
 // Hoisted mocks
 const { mockStore } = vi.hoisted(() => {

@@ -1,8 +1,8 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { TaskModal } from '../../src/components/TaskModal.js'
-import { SnackbarProvider } from '../../src/components/Snackbar.js'
+import { TaskModal } from '../../src/components/tasks/TaskModal.js'
+import { SnackbarProvider } from '../../src/components/ui/Snackbar.js'
 import { createMockTask, createMockColumn } from '../../src/test-utils.js'
 
 // Hoisted mocks

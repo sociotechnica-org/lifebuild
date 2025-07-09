@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { WorkerCard } from '../../src/components/WorkerCard.js'
+import { WorkerCard } from '../../src/components/workers/WorkerCard.js'
 
 describe('WorkerCard', () => {
   const mockWorker = {

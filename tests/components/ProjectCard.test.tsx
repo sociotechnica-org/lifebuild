@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { ProjectCard } from '../../src/components/ProjectCard.js'
+import { ProjectCard } from '../../src/components/projects/ProjectCard.js'
 
 describe('ProjectCard', () => {
   const mockProject = {

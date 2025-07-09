@@ -2,7 +2,7 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
-import { ChatInterface } from '../../src/components/ChatInterface.js'
+import { ChatInterface } from '../../src/components/chat/ChatInterface.js'
 
 // Mock the LiveStore hooks
 vi.mock('@livestore/react', () => ({

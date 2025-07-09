@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { CreateWorkerModal } from '../../src/components/CreateWorkerModal.js'
+import { CreateWorkerModal } from '../../src/components/workers/CreateWorkerModal.js'
 
 // Hoisted mocks
 const { mockStore } = vi.hoisted(() => {

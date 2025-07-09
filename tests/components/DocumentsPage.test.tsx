@@ -2,7 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
-import { DocumentsPage } from '../../src/components/DocumentsPage.js'
+import { DocumentsPage } from '../../src/components/documents/DocumentsPage.js'
 import {
   getAllDocuments$,
   getProjects$,

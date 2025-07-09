@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import { SnackbarProvider, useSnackbar } from '../../src/components/Snackbar.js'
+import { SnackbarProvider, useSnackbar } from '../../src/components/ui/Snackbar.js'
 
 // Mock store for undo functionality
 const mockStore = vi.hoisted(() => ({

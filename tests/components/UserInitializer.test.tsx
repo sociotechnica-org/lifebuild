@@ -4,7 +4,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import {
   UserInitializer,
   resetUserInitializationState,
-} from '../../src/components/UserInitializer.js'
+} from '../../src/components/utils/UserInitializer.js'
 
 // Mock LiveStore hooks
 const mockCommit = vi.fn()

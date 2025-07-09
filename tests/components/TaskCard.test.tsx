@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { TaskCard } from '../../src/components/TaskCard.js'
+import { TaskCard } from '../../src/components/tasks/TaskCard.js'
 import { createMockTask } from '../../src/test-utils.js'
 
 // Hoisted mocks

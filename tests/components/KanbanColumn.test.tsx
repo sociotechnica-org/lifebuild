@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { KanbanColumn } from '../../src/components/KanbanColumn.js'
+import { KanbanColumn } from '../../src/components/tasks/kanban/KanbanColumn.js'
 import { createMockColumn, createMockTasks } from '../../src/test-utils.js'
 
 // Hoisted mocks

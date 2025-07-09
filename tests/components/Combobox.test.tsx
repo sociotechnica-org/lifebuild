@@ -1,7 +1,7 @@
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { Combobox } from '../../src/components/Combobox'
+import { Combobox } from '../../src/components/ui/Combobox'
 
 const mockOptions = [
   { id: 'user-1', label: 'Alice Johnson' },

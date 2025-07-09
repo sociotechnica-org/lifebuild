@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
-import { ErrorBoundary } from '../../src/components/ErrorBoundary'
+import { ErrorBoundary } from '../../src/components/ui/ErrorBoundary'
 
 const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
   if (shouldThrow) {

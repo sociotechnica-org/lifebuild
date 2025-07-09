@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { AddExistingDocumentModal } from '../../src/components/AddExistingDocumentModal.js'
+import { AddExistingDocumentModal } from '../../src/components/documents/AddExistingDocumentModal.js'
 
 // Hoisted mocks
 const { mockStore } = vi.hoisted(() => {

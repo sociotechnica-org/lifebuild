@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { AddTaskForm } from '../../src/components/AddTaskForm.js'
+import { AddTaskForm } from '../../src/components/tasks/AddTaskForm.js'
 
 describe('AddTaskForm', () => {
   it('should render input with placeholder', () => {
