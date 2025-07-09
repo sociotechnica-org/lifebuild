@@ -305,6 +305,7 @@ export const ChatInterface: React.FC = () => {
   const [messageText, setMessageText] = React.useState('')
   const [selectedModelForNextMessage, setSelectedModelForNextMessage] =
     React.useState<string>(DEFAULT_MODEL)
+  const userHasChangedModel = React.useRef<boolean>(false)
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
@@ -355,6 +356,7 @@ export const ChatInterface: React.FC = () => {
 
   const handleModelChange = React.useCallback((newModel: string) => {
     setSelectedModelForNextMessage(newModel)
+    userHasChangedModel.current = true
   }, [])
 
   const handleSendMessage = React.useCallback(
@@ -492,19 +494,15 @@ export const ChatInterface: React.FC = () => {
     }
   }, [selectedConversationId, conversations])
 
-  // Update selected model when conversation changes
+  // Update selected model when conversation changes (but not on new messages)
   React.useEffect(() => {
-    if (selectedConversationId && messages.length > 0) {
-      // Find the last assistant message to get the model used
-      const lastAssistantMessage = messages
-        .filter(m => m.role === 'assistant' && m.modelId)
-        .slice(-1)[0]
+    // Reset the user change flag when switching conversations
+    userHasChangedModel.current = false
 
-      if (lastAssistantMessage?.modelId) {
-        setSelectedModelForNextMessage(lastAssistantMessage.modelId)
-      }
-    }
-  }, [selectedConversationId, messages])
+    // Always default to the default model when switching conversations
+    // This prevents overriding user selections and is simpler
+    setSelectedModelForNextMessage(DEFAULT_MODEL)
+  }, [selectedConversationId]) // Only depend on conversation change, not messages
 
   // Auto-scroll to bottom when messages change
   React.useEffect(() => {
