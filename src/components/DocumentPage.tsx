@@ -14,7 +14,9 @@ export const DocumentPage: React.FC = () => {
   const { store } = useStore()
 
   // Get document from store
-  const document = documentId ? useQuery(getDocumentById$(documentId))?.[0] : undefined
+  const documentResult = documentId ? useQuery(getDocumentById$(documentId)) : null
+  const document = documentResult?.[0]
+  const isLoading = documentId ? documentResult === null : false
 
   // Local state for editing
   const [title, setTitle] = useState('')
@@ -76,9 +78,17 @@ export const DocumentPage: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleSave])
 
-  // Loading state
-  if (!document) {
+  // Handle loading and not found states
+  if (!documentId) {
+    return <LoadingState message='Invalid document URL' />
+  }
+
+  if (isLoading) {
     return <LoadingState message='Loading document...' />
+  }
+
+  if (!document) {
+    return <LoadingState message='Document not found' />
   }
 
   return (
