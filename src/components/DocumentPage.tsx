@@ -1,17 +1,14 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useStore } from '@livestore/react'
-import {
-  getDocumentById$,
-  getDocumentProjectsByDocument$,
-  getProjects$,
-} from '../livestore/queries.js'
+import { getDocumentById$ } from '../livestore/queries.js'
 import { events } from '../livestore/schema.js'
 import { preserveStoreIdInUrl } from '../util/navigation.js'
 import { MarkdownRenderer } from './MarkdownRenderer.js'
 import { LoadingState } from './LoadingState.js'
 import { LoadingSpinner } from './LoadingSpinner.js'
 import { ROUTES, generateRoute } from '../constants/routes.js'
+import { useDocumentProjectsTargeted } from '../hooks/useDocumentProjects.js'
 
 export const DocumentPage: React.FC = () => {
   const { documentId } = useParams<{ documentId: string }>()
@@ -24,14 +21,7 @@ export const DocumentPage: React.FC = () => {
   const isLoading = !documentId ? false : documentResult === undefined
 
   // Get project associations
-  const documentProjects =
-    useQuery(getDocumentProjectsByDocument$(documentId || '__impossible__')) ?? []
-  const allProjects = useQuery(getProjects$) ?? []
-
-  const associatedProjects = useMemo(() => {
-    const projectIds = documentProjects.map(dp => dp.projectId)
-    return allProjects.filter(project => projectIds.includes(project.id))
-  }, [documentProjects, allProjects])
+  const associatedProjects = useDocumentProjectsTargeted(documentId || '__impossible__')
 
   // Local state for editing
   const [title, setTitle] = useState('')

@@ -1,10 +1,9 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
-import { useQuery } from '@livestore/react'
 import type { Document } from '../livestore/schema.js'
 import { preserveStoreIdInUrl } from '../util/navigation.js'
 import { generateRoute } from '../constants/routes.js'
-import { getAllDocumentProjects$, getProjects$ } from '../livestore/queries.js'
+import { useDocumentProjects } from '../hooks/useDocumentProjects.js'
 
 interface DocumentCardProps {
   document: Document
@@ -12,17 +11,7 @@ interface DocumentCardProps {
 }
 
 export const DocumentCard: React.FC<DocumentCardProps> = ({ document, onArchive }) => {
-  const allDocumentProjects = useQuery(getAllDocumentProjects$) ?? []
-  const allProjects = useQuery(getProjects$) ?? []
-
-  // Get projects associated with this document
-  const associatedProjects = useMemo(() => {
-    const projectIds = allDocumentProjects
-      .filter(dp => dp.documentId === document.id)
-      .map(dp => dp.projectId)
-
-    return allProjects.filter(project => projectIds.includes(project.id))
-  }, [allDocumentProjects, allProjects, document.id])
+  const associatedProjects = useDocumentProjects(document.id)
   return (
     <Link
       to={preserveStoreIdInUrl(generateRoute.document(document.id))}
