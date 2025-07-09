@@ -6,6 +6,7 @@ import type { Project } from '../livestore/schema.js'
 import { ProjectCard } from './ProjectCard.js'
 import { CreateProjectModal } from './CreateProjectModal.js'
 import { preserveStoreIdInUrl } from '../util/navigation.js'
+import { generateRoute } from '../constants/routes.js'
 
 export const ProjectsPage: React.FC = () => {
   const navigate = useNavigate()
@@ -13,7 +14,7 @@ export const ProjectsPage: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const handleProjectClick = (project: Project) => {
-    navigate(preserveStoreIdInUrl(`/project/${project.id}`))
+    navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
   }
 
   if (projects.length === 0) {

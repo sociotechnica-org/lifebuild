@@ -4,6 +4,7 @@ import { useQuery } from '@livestore/react'
 import { getUsers$ } from '../livestore/queries.js'
 import { getInitials } from '../util/initials.js'
 import { preserveStoreIdInUrl } from '../util/navigation.js'
+import { ROUTES, ROUTE_PATTERNS } from '../constants/routes.js'
 
 export const Navigation: React.FC = () => {
   const location = useLocation()
@@ -11,18 +12,24 @@ export const Navigation: React.FC = () => {
   const currentUser = users[0] // Get first user as current user
 
   const isActive = (path: string) => {
-    if (path === '/projects') {
+    if (path === ROUTES.PROJECTS) {
       return (
-        location.pathname === '/projects' ||
-        location.pathname === '/' ||
-        location.pathname.startsWith('/project/')
+        location.pathname === ROUTES.PROJECTS ||
+        location.pathname === ROUTES.HOME ||
+        location.pathname.startsWith(ROUTE_PATTERNS.PROJECT)
       )
     }
-    if (path === '/tasks') {
-      return location.pathname === '/tasks'
+    if (path === ROUTES.TASKS) {
+      return location.pathname === ROUTES.TASKS
     }
-    if (path === '/workers') {
-      return location.pathname === '/workers'
+    if (path === ROUTES.WORKERS) {
+      return location.pathname === ROUTES.WORKERS
+    }
+    if (path === ROUTES.DOCUMENTS) {
+      return (
+        location.pathname === ROUTES.DOCUMENTS ||
+        location.pathname.startsWith(ROUTE_PATTERNS.DOCUMENT)
+      )
     }
     return location.pathname === path
   }
@@ -33,9 +40,9 @@ export const Navigation: React.FC = () => {
         <div className='flex justify-between h-16'>
           <div className='flex space-x-8'>
             <Link
-              to={preserveStoreIdInUrl('/projects')}
+              to={preserveStoreIdInUrl(ROUTES.PROJECTS)}
               className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                isActive('/projects')
+                isActive(ROUTES.PROJECTS)
                   ? 'border-blue-500 text-gray-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
@@ -43,9 +50,9 @@ export const Navigation: React.FC = () => {
               Projects
             </Link>
             <Link
-              to={preserveStoreIdInUrl('/tasks')}
+              to={preserveStoreIdInUrl(ROUTES.TASKS)}
               className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                isActive('/tasks')
+                isActive(ROUTES.TASKS)
                   ? 'border-blue-500 text-gray-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
@@ -53,14 +60,24 @@ export const Navigation: React.FC = () => {
               Tasks
             </Link>
             <Link
-              to={preserveStoreIdInUrl('/workers')}
+              to={preserveStoreIdInUrl(ROUTES.WORKERS)}
               className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                isActive('/workers')
+                isActive(ROUTES.WORKERS)
                   ? 'border-blue-500 text-gray-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
               Workers
+            </Link>
+            <Link
+              to={preserveStoreIdInUrl(ROUTES.DOCUMENTS)}
+              className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                isActive(ROUTES.DOCUMENTS)
+                  ? 'border-blue-500 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Documents
             </Link>
           </div>
 

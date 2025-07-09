@@ -9,11 +9,15 @@ import { ProjectsPage } from './components/ProjectsPage.js'
 import { ProjectWorkspace } from './components/ProjectWorkspace.js'
 import { TasksPage } from './components/TasksPage.js'
 import { WorkersPage } from './components/WorkersPage.js'
+import { DocumentsPage } from './components/DocumentsPage.js'
+import { DocumentPage } from './components/DocumentPage.js'
 import { Layout } from './components/Layout.js'
 import { EnsureStoreId } from './components/EnsureStoreId.js'
+import { LoadingState } from './components/LoadingState.js'
 import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from './livestore/schema.js'
 import { makeTracer } from './otel.js'
+import { ROUTES } from './constants/routes.js'
 
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
@@ -54,7 +58,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   return (
     <LiveStoreProvider
       schema={schema}
-      renderLoading={_ => <div>Loading LiveStore ({_.stage})...</div>}
+      renderLoading={_ => <LoadingState message={`Loading LiveStore (${_.stage})...`} fullScreen />}
       adapter={adapter}
       batchUpdates={batchUpdates}
       storeId={storeId}
@@ -73,7 +77,7 @@ export const App: React.FC = () => (
         <Routes>
           {/* Main routes - restored original structure */}
           <Route
-            path='/'
+            path={ROUTES.HOME}
             element={
               <Layout>
                 <ProjectsPage />
@@ -81,7 +85,7 @@ export const App: React.FC = () => (
             }
           />
           <Route
-            path='/projects'
+            path={ROUTES.PROJECTS}
             element={
               <Layout>
                 <ProjectsPage />
@@ -89,7 +93,7 @@ export const App: React.FC = () => (
             }
           />
           <Route
-            path='/tasks'
+            path={ROUTES.TASKS}
             element={
               <Layout>
                 <TasksPage />
@@ -97,7 +101,7 @@ export const App: React.FC = () => (
             }
           />
           <Route
-            path='/workers'
+            path={ROUTES.WORKERS}
             element={
               <Layout>
                 <WorkersPage />
@@ -105,7 +109,23 @@ export const App: React.FC = () => (
             }
           />
           <Route
-            path='/project/:projectId'
+            path={ROUTES.DOCUMENTS}
+            element={
+              <Layout>
+                <DocumentsPage />
+              </Layout>
+            }
+          />
+          <Route
+            path={ROUTES.DOCUMENT}
+            element={
+              <Layout>
+                <DocumentPage />
+              </Layout>
+            }
+          />
+          <Route
+            path={ROUTES.PROJECT}
             element={
               <Layout>
                 <ProjectWorkspace />
