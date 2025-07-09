@@ -305,6 +305,7 @@ export const ChatInterface: React.FC = () => {
   const [messageText, setMessageText] = React.useState('')
   const [selectedModelForNextMessage, setSelectedModelForNextMessage] =
     React.useState<string>(DEFAULT_MODEL)
+  const selectedModelRef = React.useRef<string>(DEFAULT_MODEL)
   const userHasChangedModel = React.useRef<boolean>(false)
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
@@ -357,6 +358,7 @@ export const ChatInterface: React.FC = () => {
   const handleModelChange = React.useCallback(
     (newModel: string) => {
       setSelectedModelForNextMessage(newModel)
+      selectedModelRef.current = newModel // Keep ref in sync
       userHasChangedModel.current = true
 
       // Persist the model change to the database if we have a selected conversation
@@ -436,7 +438,7 @@ export const ChatInterface: React.FC = () => {
                 userMessage.message,
                 conversationHistory,
                 boardContext,
-                selectedModelForNextMessage
+                selectedModelRef.current // Use ref to get current model at processing time
               )
 
               // Handle tool calls if present - start agentic loop immediately
@@ -455,7 +457,7 @@ export const ChatInterface: React.FC = () => {
                   boardContext,
                   selectedConversationId,
                   store,
-                  selectedModelForNextMessage
+                  selectedModelRef.current // Use ref to get current model at processing time
                 )
               } else {
                 // Normal text response without tools
@@ -465,7 +467,7 @@ export const ChatInterface: React.FC = () => {
                     conversationId: selectedConversationId,
                     message: llmResponse.message,
                     role: 'assistant',
-                    modelId: selectedModelForNextMessage,
+                    modelId: selectedModelRef.current, // Use ref to get current model at processing time
                     responseToMessageId: userMessage.id,
                     createdAt: new Date(),
                     metadata: { source: 'braintrust' },
@@ -499,7 +501,7 @@ export const ChatInterface: React.FC = () => {
     })
 
     return unsubscribe
-  }, [store, selectedConversationId, selectedModelForNextMessage])
+  }, [store, selectedConversationId]) // Don't depend on selectedModelForNextMessage to avoid subscription churn
 
   // Auto-select first conversation if none selected
   React.useEffect(() => {
@@ -518,10 +520,13 @@ export const ChatInterface: React.FC = () => {
 
     if (selectedConversationId && selectedConversation) {
       // Use the conversation's stored model, or default if not set
-      setSelectedModelForNextMessage(selectedConversation.model || DEFAULT_MODEL)
+      const model = selectedConversation.model || DEFAULT_MODEL
+      setSelectedModelForNextMessage(model)
+      selectedModelRef.current = model // Keep ref in sync
     } else {
       // No conversation selected, use default
       setSelectedModelForNextMessage(DEFAULT_MODEL)
+      selectedModelRef.current = DEFAULT_MODEL // Keep ref in sync
     }
   }, [selectedConversationId, selectedConversation]) // Depend on conversation and its data
 
