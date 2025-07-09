@@ -195,6 +195,7 @@ const workers = State.SQLite.table({
 const workerProjects = State.SQLite.table({
   name: 'workerProjects',
   columns: {
+    id: State.SQLite.text({ primaryKey: true }),
     workerId: State.SQLite.text(),
     projectId: State.SQLite.text(),
   },
@@ -364,9 +365,9 @@ const materializers = State.SQLite.materializers(events, {
     return workers.update(processedUpdates).where({ id })
   },
   'v1.WorkerAssignedToProject': ({ workerId, projectId }) =>
-    workerProjects.insert({ workerId, projectId }),
+    workerProjects.insert({ id: `${workerId}-${projectId}`, workerId, projectId }),
   'v1.WorkerUnassignedFromProject': ({ workerId, projectId }) =>
-    workerProjects.delete().where({ workerId, projectId }),
+    workerProjects.delete().where({ id: `${workerId}-${projectId}` }),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })
