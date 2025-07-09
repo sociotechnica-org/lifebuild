@@ -34,11 +34,9 @@ export const DocumentsPage: React.FC = () => {
     // If a project is filtered, use it as the default
     if (filterProjectId !== 'all') {
       setSelectedProjectId(filterProjectId)
-    } else if (projects.length > 0) {
-      const firstProject = projects[0]
-      if (firstProject) {
-        setSelectedProjectId(firstProject.id)
-      }
+    } else {
+      // Don't auto-select a project when creating from Documents page
+      setSelectedProjectId('')
     }
     // Always open the modal, even without a project
     setIsCreateModalOpen(true)
