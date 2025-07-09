@@ -39,7 +39,7 @@ const { mockStore, mockDocuments, mockProjects } = vi.hoisted(() => {
 })
 
 // Mock queries first
-vi.mock('../../src/livestore/queries.js', () => ({
+vi.mock('../../../livestore/queries.js', () => ({
   getAllDocuments$: vi.fn(),
   getProjects$: vi.fn(),
   getAllDocumentProjects$: vi.fn(),
@@ -52,7 +52,7 @@ vi.mock('@livestore/react', () => ({
 }))
 
 // Mock DocumentCreateModal
-vi.mock('../../src/components/DocumentCreateModal.js', () => ({
+vi.mock('../DocumentCreateModal/DocumentCreateModal.js', () => ({
   DocumentCreateModal: ({ isOpen, _onClose }: any) =>
     isOpen ? <div data-testid='document-create-modal'>Document Create Modal</div> : null,
 }))

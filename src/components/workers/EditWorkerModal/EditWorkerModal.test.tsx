@@ -16,11 +16,11 @@ vi.mock('@livestore/react', () => ({
 }))
 
 // Mock system prompt templates
-vi.mock('../../src/util/workerNames.js', () => ({
+vi.mock('../../../util/workerNames.js', () => ({
   systemPromptTemplates: [
     {
       name: 'General Assistant',
-      prompt: 'You are a helpful AI assistant.',
+      prompt: 'You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user queries. You are professional, friendly, and always strive to be as useful as possible.',
     },
     {
       name: 'Code Reviewer',
@@ -68,7 +68,7 @@ describe('EditWorkerModal', () => {
     fireEvent.change(templateSelect, { target: { value: 'General Assistant' } })
 
     const systemPromptInput = screen.getByLabelText('System Prompt *') as HTMLTextAreaElement
-    expect(systemPromptInput.value).toBe('You are a helpful AI assistant.')
+    expect(systemPromptInput.value).toBe('You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user queries. You are professional, friendly, and always strive to be as useful as possible.')
   })
 
   it('should require name and system prompt', async () => {

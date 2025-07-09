@@ -15,12 +15,12 @@ vi.mock('@livestore/react', () => ({
 }))
 
 // Mock random worker name generation
-vi.mock('../../src/util/workerNames.js', () => ({
+vi.mock('../../../util/workerNames.js', () => ({
   generateRandomWorkerName: () => 'Test Worker',
   systemPromptTemplates: [
     {
       name: 'General Assistant',
-      prompt: 'You are a helpful AI assistant.',
+      prompt: 'You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user queries. You are professional, friendly, and always strive to be as useful as possible.',
     },
   ],
 }))
@@ -39,7 +39,7 @@ describe('CreateWorkerModal', () => {
     fireEvent.change(templateSelect, { target: { value: 'General Assistant' } })
 
     const systemPromptInput = screen.getByLabelText('System Prompt *') as HTMLTextAreaElement
-    expect(systemPromptInput.value).toBe('You are a helpful AI assistant.')
+    expect(systemPromptInput.value).toBe('You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user queries. You are professional, friendly, and always strive to be as useful as possible.')
   })
 
   it('should require name and system prompt', async () => {
