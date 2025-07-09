@@ -27,6 +27,7 @@ describe('WorkerCard', () => {
     systemPrompt: 'Test system prompt',
     avatar: '🤖',
     createdAt: new Date('2023-01-01'),
+    updatedAt: new Date('2023-01-01'),
     isActive: true,
   }
 

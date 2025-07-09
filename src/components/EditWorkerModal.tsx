@@ -64,13 +64,13 @@ export const EditWorkerModal: React.FC<EditWorkerModalProps> = ({ isOpen, onClos
         updates.name = name.trim()
       }
       if (roleDescription.trim() !== (worker.roleDescription || '')) {
-        updates.roleDescription = roleDescription.trim() || undefined
+        updates.roleDescription = roleDescription.trim() || null
       }
       if (systemPrompt.trim() !== worker.systemPrompt) {
         updates.systemPrompt = systemPrompt.trim()
       }
       if (avatar.trim() !== (worker.avatar || '')) {
-        updates.avatar = avatar.trim() || undefined
+        updates.avatar = avatar.trim() || null
       }
 
       // Only emit event if there are actual changes

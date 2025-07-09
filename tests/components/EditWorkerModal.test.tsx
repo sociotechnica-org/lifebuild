@@ -38,6 +38,7 @@ describe('EditWorkerModal', () => {
     systemPrompt: 'Original system prompt',
     avatar: '🤖',
     createdAt: new Date('2023-01-01'),
+    updatedAt: new Date('2023-01-01'),
     isActive: true,
   }
 
@@ -199,8 +200,8 @@ describe('EditWorkerModal', () => {
         args: expect.objectContaining({
           id: 'test-worker-id',
           updates: {
-            roleDescription: undefined,
-            avatar: undefined,
+            roleDescription: null,
+            avatar: null,
           },
         }),
       })

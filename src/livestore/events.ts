@@ -276,9 +276,9 @@ export const workerUpdated = Events.synced({
     id: Schema.String,
     updates: Schema.Struct({
       name: Schema.optional(Schema.String),
-      roleDescription: Schema.optional(Schema.String),
+      roleDescription: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
       systemPrompt: Schema.optional(Schema.String),
-      avatar: Schema.optional(Schema.String),
+      avatar: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
       isActive: Schema.optional(Schema.Boolean),
     }),
     updatedAt: Schema.Date,

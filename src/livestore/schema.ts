@@ -184,6 +184,10 @@ const workers = State.SQLite.table({
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
+    updatedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+      nullable: true,
+    }),
     isActive: State.SQLite.boolean({ default: true }),
   },
 })
@@ -330,12 +334,24 @@ const materializers = State.SQLite.materializers(events, {
   'v1.DocumentRemovedFromProject': ({ documentId, projectId }) =>
     documentProjects.delete().where({ documentId, projectId }),
   'v1.WorkerCreated': ({ id, name, roleDescription, systemPrompt, avatar, createdAt }) =>
-    workers.insert({ id, name, roleDescription, systemPrompt, avatar, createdAt, isActive: true }),
-  'v1.WorkerUpdated': ({ id, updates }) => {
-    const filteredUpdates = Object.fromEntries(
+    workers.insert({
+      id,
+      name,
+      roleDescription,
+      systemPrompt,
+      avatar,
+      createdAt,
+      updatedAt: createdAt,
+      isActive: true,
+    }),
+  'v1.WorkerUpdated': ({ id, updates, updatedAt }) => {
+    // Allow null values to clear optional fields, but filter out undefined values
+    const processedUpdates: Record<string, any> = Object.fromEntries(
       Object.entries(updates).filter(([_, value]) => value !== undefined)
     )
-    return workers.update(filteredUpdates).where({ id })
+    // Always include the updatedAt timestamp
+    processedUpdates.updatedAt = updatedAt
+    return workers.update(processedUpdates).where({ id })
   },
 })
 
