@@ -364,8 +364,14 @@ const materializers = State.SQLite.materializers(events, {
     processedUpdates.updatedAt = updatedAt
     return workers.update(processedUpdates).where({ id })
   },
-  'v1.WorkerAssignedToProject': ({ workerId, projectId }) =>
-    workerProjects.insert({ id: `${workerId}-${projectId}`, workerId, projectId }),
+  'v1.WorkerAssignedToProject': ({ workerId, projectId }) => {
+    const id = `${workerId}-${projectId}`
+    // Use upsert pattern: delete if exists, then insert
+    return [
+      workerProjects.delete().where({ id }),
+      workerProjects.insert({ id, workerId, projectId }),
+    ]
+  },
   'v1.WorkerUnassignedFromProject': ({ workerId, projectId }) =>
     workerProjects.delete().where({ id: `${workerId}-${projectId}` }),
 })
