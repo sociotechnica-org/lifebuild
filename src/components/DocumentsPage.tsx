@@ -1,6 +1,6 @@
 import { useQuery, useStore } from '@livestore/react'
-import React, { useState } from 'react'
-import { getAllDocuments$, getProjects$ } from '../livestore/queries.js'
+import React, { useState, useMemo } from 'react'
+import { getAllDocuments$, getProjects$, getAllDocumentProjects$ } from '../livestore/queries.js'
 import { events } from '../livestore/schema.js'
 import { DocumentCreateModal } from './DocumentCreateModal.js'
 import { DocumentsPageHeader } from './DocumentsPageHeader.js'
@@ -14,6 +14,8 @@ export const DocumentsPage: React.FC = () => {
   const { store } = useStore()
   const documents = useQuery(getAllDocuments$) ?? []
   const projects = useQuery(getProjects$) ?? []
+  const allDocumentProjects = useQuery(getAllDocumentProjects$) ?? []
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState('')
@@ -21,13 +23,20 @@ export const DocumentsPage: React.FC = () => {
   const [confirmArchive, setConfirmArchive] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  // TODO: Implement proper document-project associations
-  // For now, we'll show documents without project associations
+  // Filter documents by project first
+  const projectFilteredDocuments = useMemo(() => {
+    if (filterProjectId === 'all') return documents
 
-  // Filter documents based on search and project filter
-  const filteredDocuments = useSearch(documents, searchQuery, {
+    const documentIdsForProject = allDocumentProjects
+      .filter(dp => dp.projectId === filterProjectId)
+      .map(dp => dp.documentId)
+
+    return documents.filter(doc => documentIdsForProject.includes(doc.id))
+  }, [documents, allDocumentProjects, filterProjectId])
+
+  // Then apply search filter
+  const filteredDocuments = useSearch(projectFilteredDocuments, searchQuery, {
     searchFields: ['title', 'content'],
-    // TODO: Add project filter once we have proper associations
   })
 
   const handleCreateDocument = () => {

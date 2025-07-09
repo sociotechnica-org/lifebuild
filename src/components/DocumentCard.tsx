@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { useQuery } from '@livestore/react'
 import type { Document } from '../livestore/schema.js'
 import { preserveStoreIdInUrl } from '../util/navigation.js'
 import { generateRoute } from '../constants/routes.js'
+import { getAllDocumentProjects$, getProjects$ } from '../livestore/queries.js'
 
 interface DocumentCardProps {
   document: Document
@@ -10,6 +12,17 @@ interface DocumentCardProps {
 }
 
 export const DocumentCard: React.FC<DocumentCardProps> = ({ document, onArchive }) => {
+  const allDocumentProjects = useQuery(getAllDocumentProjects$) ?? []
+  const allProjects = useQuery(getProjects$) ?? []
+
+  // Get projects associated with this document
+  const associatedProjects = useMemo(() => {
+    const projectIds = allDocumentProjects
+      .filter(dp => dp.documentId === document.id)
+      .map(dp => dp.projectId)
+
+    return allProjects.filter(project => projectIds.includes(project.id))
+  }, [allDocumentProjects, allProjects, document.id])
   return (
     <Link
       to={preserveStoreIdInUrl(generateRoute.document(document.id))}
@@ -23,6 +36,36 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({ document, onArchive 
           {document.content && (
             <p className='mt-2 text-sm text-gray-600 line-clamp-3'>{document.content}</p>
           )}
+
+          {/* Project associations */}
+          {associatedProjects.length > 0 && (
+            <div className='mt-3 flex items-center gap-2'>
+              <svg
+                className='w-3 h-3 text-gray-400'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z'
+                />
+              </svg>
+              <div className='flex flex-wrap gap-1'>
+                {associatedProjects.map(project => (
+                  <span
+                    key={project.id}
+                    className='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700'
+                  >
+                    {project.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className='mt-3 flex items-center text-xs text-gray-500'>
             <span>Updated {new Date(document.updatedAt).toLocaleDateString()}</span>
           </div>

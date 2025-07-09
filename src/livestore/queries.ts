@@ -177,3 +177,14 @@ export const getWorkers$ = queryDb(
     .orderBy([{ col: 'createdAt', direction: 'desc' }]),
   { label: 'getWorkers' }
 )
+
+// Get all document-project associations
+export const getAllDocumentProjects$ = queryDb(tables.documentProjects.select(), {
+  label: 'getAllDocumentProjects',
+})
+
+// Helper query to get project associations for a specific document
+export const getDocumentProjectsByDocument$ = (documentId: string) =>
+  queryDb(tables.documentProjects.select().where({ documentId }), {
+    label: `getDocumentProjectsByDocument:${documentId}`,
+  })

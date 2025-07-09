@@ -1,13 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useStore } from '@livestore/react'
-import { getDocumentById$ } from '../livestore/queries.js'
+import {
+  getDocumentById$,
+  getDocumentProjectsByDocument$,
+  getProjects$,
+} from '../livestore/queries.js'
 import { events } from '../livestore/schema.js'
 import { preserveStoreIdInUrl } from '../util/navigation.js'
 import { MarkdownRenderer } from './MarkdownRenderer.js'
 import { LoadingState } from './LoadingState.js'
 import { LoadingSpinner } from './LoadingSpinner.js'
-import { ROUTES } from '../constants/routes.js'
+import { ROUTES, generateRoute } from '../constants/routes.js'
 
 export const DocumentPage: React.FC = () => {
   const { documentId } = useParams<{ documentId: string }>()
@@ -18,6 +22,16 @@ export const DocumentPage: React.FC = () => {
   const documentResult = useQuery(getDocumentById$(documentId || '__impossible__'))
   const document = documentResult?.[0]
   const isLoading = !documentId ? false : documentResult === undefined
+
+  // Get project associations
+  const documentProjects =
+    useQuery(getDocumentProjectsByDocument$(documentId || '__impossible__')) ?? []
+  const allProjects = useQuery(getProjects$) ?? []
+
+  const associatedProjects = useMemo(() => {
+    const projectIds = documentProjects.map(dp => dp.projectId)
+    return allProjects.filter(project => projectIds.includes(project.id))
+  }, [documentProjects, allProjects])
 
   // Local state for editing
   const [title, setTitle] = useState('')
@@ -140,6 +154,24 @@ export const DocumentPage: React.FC = () => {
             <span className='text-xs text-gray-500'>
               Last updated {new Date(document.updatedAt).toLocaleDateString()}
             </span>
+
+            {/* Project associations */}
+            {associatedProjects.length > 0 && (
+              <div className='flex items-center gap-2'>
+                <span className='text-xs text-gray-500'>Projects:</span>
+                <div className='flex flex-wrap gap-1'>
+                  {associatedProjects.map(project => (
+                    <Link
+                      key={project.id}
+                      to={preserveStoreIdInUrl(generateRoute.project(project.id))}
+                      className='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors'
+                    >
+                      {project.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className='flex items-center gap-2'>
