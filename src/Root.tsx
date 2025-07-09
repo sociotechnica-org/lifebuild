@@ -1,5 +1,4 @@
 import { makePersistedAdapter } from '@livestore/adapter-web'
-import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedworker'
 import { LiveStoreProvider } from '@livestore/react'
 import React, { useMemo } from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
@@ -22,8 +21,7 @@ import { ROUTES } from './constants/routes.js'
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
   worker: LiveStoreWorker,
-  sharedWorker: LiveStoreSharedWorker,
-})
+} as any)
 
 const otelTracer = makeTracer('work-squared-main')
 

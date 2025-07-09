@@ -61,7 +61,6 @@ Work Squared is a real-time collaborative web application built with:
 - **LiveStore**: Event-sourced state management with SQLite materialized views
 - **React 19** with TypeScript for the frontend
 - **Cloudflare Workers** with Durable Objects for WebSocket-based real-time sync
-- **SharedWorker** for multi-tab synchronization
 - **OPFS** for client-side persistence
 
 ### Key Files
