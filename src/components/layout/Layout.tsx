@@ -1,7 +1,7 @@
 import React from 'react'
-import { ChatInterface } from '../chat/ChatInterface.js'
+import { ChatInterface } from '../chat/ChatInterface/ChatInterface.js'
 import { Navigation } from './Navigation.js'
-import { SnackbarProvider } from '../ui/Snackbar.js'
+import { SnackbarProvider } from '../ui/Snackbar/Snackbar.js'
 
 interface LayoutProps {
   children: React.ReactNode

@@ -1,8 +1,8 @@
 import { useQuery } from '@livestore/react'
 import React, { useState } from 'react'
 import { getWorkers$ } from '../../livestore/queries.js'
-import { WorkerCard } from './WorkerCard.js'
-import { CreateWorkerModal } from './CreateWorkerModal.js'
+import { WorkerCard } from './WorkerCard/WorkerCard.js'
+import { CreateWorkerModal } from './CreateWorkerModal/CreateWorkerModal.js'
 
 export const WorkersPage: React.FC = () => {
   const workers = useQuery(getWorkers$) ?? []

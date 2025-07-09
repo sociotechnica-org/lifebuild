@@ -2,8 +2,8 @@ import React from 'react'
 import { DndContext, DragOverlay, DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
 import { useSensors, useSensor, PointerSensor, KeyboardSensor } from '@dnd-kit/core'
 import type { Column, Task } from '../../../livestore/schema.js'
-import { KanbanColumn } from './KanbanColumn.js'
-import { TaskCard } from '../TaskCard.js'
+import { KanbanColumn } from './KanbanColumn/KanbanColumn.js'
+import { TaskCard } from '../TaskCard/TaskCard.js'
 
 interface KanbanBoardProps {
   columns: readonly Column[]

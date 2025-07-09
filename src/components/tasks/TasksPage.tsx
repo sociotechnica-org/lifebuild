@@ -6,7 +6,7 @@ import type { Task } from '../../livestore/schema.js'
 import { events } from '../../livestore/schema.js'
 import { KanbanBoard } from './kanban/KanbanBoard.js'
 import { CreateTaskModal } from './CreateTaskModal.js'
-import { TaskModal } from './TaskModal.js'
+import { TaskModal } from './TaskModal/TaskModal.js'
 
 export const TasksPage: React.FC = () => {
   const { store } = useStore()
