@@ -10,8 +10,8 @@ export interface SupportedModel {
 
 export const supportedModels: SupportedModel[] = [
   {
-    id: 'claude-3-5-sonnet-latest',
-    name: 'Claude 3.5 Sonnet',
+    id: 'claude-sonnet-4-20250514',
+    name: 'Claude 4 Sonnet',
     provider: 'anthropic',
     description: 'Fast, intelligent model for most tasks',
   },
@@ -22,8 +22,8 @@ export const supportedModels: SupportedModel[] = [
     description: "OpenAI's multimodal flagship model",
   },
   {
-    id: 'claude-3-opus-latest',
-    name: 'Claude 3 Opus',
+    id: 'claude-opus-4-20250514',
+    name: 'Claude 4 Opus',
     provider: 'anthropic',
     description: 'Most capable model for complex tasks',
   },
@@ -38,7 +38,7 @@ export const supportedModels: SupportedModel[] = [
 /**
  * Default model for new conversations
  */
-export const DEFAULT_MODEL = 'claude-3-5-sonnet-latest'
+export const DEFAULT_MODEL = 'claude-sonnet-4-20250514'
 
 /**
  * Get a model by ID

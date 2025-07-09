@@ -7,11 +7,11 @@ describe('ModelSelector', () => {
   it('should display the selected model and allow changing it', () => {
     const onModelChange = vi.fn()
 
-    render(<ModelSelector selectedModel='claude-3-5-sonnet-latest' onModelChange={onModelChange} />)
+    render(<ModelSelector selectedModel='claude-sonnet-4-20250514' onModelChange={onModelChange} />)
 
     // Check that the select shows the current model
     const select = screen.getByRole('combobox')
-    expect(select).toHaveValue('claude-3-5-sonnet-latest')
+    expect(select).toHaveValue('claude-sonnet-4-20250514')
 
     // Check that provider is displayed
     expect(screen.getByText('anthropic')).toBeInTheDocument()
@@ -24,12 +24,12 @@ describe('ModelSelector', () => {
   it('should show all supported models as options', () => {
     const onModelChange = vi.fn()
 
-    render(<ModelSelector selectedModel='claude-3-5-sonnet-latest' onModelChange={onModelChange} />)
+    render(<ModelSelector selectedModel='claude-sonnet-4-20250514' onModelChange={onModelChange} />)
 
     // Check that all models are available as options
-    expect(screen.getByRole('option', { name: 'Claude 3.5 Sonnet' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Claude 4 Sonnet' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: 'GPT-4o' })).toBeInTheDocument()
-    expect(screen.getByRole('option', { name: 'Claude 3 Opus' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Claude 4 Opus' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: 'OpenAI O3' })).toBeInTheDocument()
   })
 })
