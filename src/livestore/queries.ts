@@ -119,8 +119,8 @@ export const getDocumentProjectsByProject$ = (projectId: string) =>
     label: `getDocumentProjectsByProject:${projectId}`,
   })
 
-// Temporary implementation - returns all documents for now to test functionality
-// TODO: Implement proper join query in future story
+// Get documents for a specific project (client-side filtering for now)
+// TODO: Implement proper join query when LiveStore supports complex joins
 export const getDocumentsForProject$ = (projectId: string) =>
   queryDb(
     tables.documents
@@ -187,4 +187,29 @@ export const getAllDocumentProjects$ = queryDb(tables.documentProjects.select(),
 export const getDocumentProjectsByDocument$ = (documentId: string) =>
   queryDb(tables.documentProjects.select().where({ documentId }), {
     label: `getDocumentProjectsByDocument:${documentId}`,
+  })
+
+// Enhanced search query that will support FTS in Phase 2.4
+// For now, returns all documents and filtering is done client-side
+export const searchDocumentsWithProject$ = (query: string, projectId?: string) => {
+  const baseQuery = tables.documents.select().where({ archivedAt: null })
+
+  // For now, return all documents and let the calling code filter by project
+  // TODO: Implement proper join query when LiveStore supports complex joins
+  return queryDb(baseQuery, {
+    label: `searchDocumentsWithProject:${query}:${projectId || 'all'}`,
+  })
+}
+
+// Query to get project details with document and task counts (for LLM tools)
+export const getProjectDetails$ = (projectId: string) =>
+  queryDb(tables.boards.select().where({ id: projectId }), {
+    label: `getProjectDetails:${projectId}`,
+  })
+
+// Query to get documents by IDs (for efficient bulk lookups)
+// TODO: Implement proper IN operator when LiveStore supports it
+export const getDocumentsByIds$ = (documentIds: string[]) =>
+  queryDb(tables.documents.select().where({ archivedAt: null }), {
+    label: `getDocumentsByIds:${documentIds.length}`,
   })

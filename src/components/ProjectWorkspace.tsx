@@ -44,7 +44,7 @@ const ProjectWorkspaceContent: React.FC = () => {
   const columns = useQuery(getProjectColumns$(projectId)) ?? []
   const tasks = useQuery(getProjectTasks$(projectId)) ?? []
 
-  // Fetch document associations and all documents, then filter client-side
+  // Get documents for project using client-side filtering for now
   const documentProjects = useQuery(getDocumentProjectsByProject$(projectId)) ?? []
   const allDocuments = useQuery(getAllDocuments$) ?? []
   const documentIds = new Set(documentProjects.map(dp => dp.documentId))
