@@ -20,7 +20,8 @@ vi.mock('../../../util/workerNames.js', () => ({
   systemPromptTemplates: [
     {
       name: 'General Assistant',
-      prompt: 'You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user queries. You are professional, friendly, and always strive to be as useful as possible.',
+      prompt:
+        'You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user queries. You are professional, friendly, and always strive to be as useful as possible.',
     },
   ],
 }))
@@ -39,7 +40,9 @@ describe('CreateWorkerModal', () => {
     fireEvent.change(templateSelect, { target: { value: 'General Assistant' } })
 
     const systemPromptInput = screen.getByLabelText('System Prompt *') as HTMLTextAreaElement
-    expect(systemPromptInput.value).toBe('You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user queries. You are professional, friendly, and always strive to be as useful as possible.')
+    expect(systemPromptInput.value).toBe(
+      'You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user queries. You are professional, friendly, and always strive to be as useful as possible.'
+    )
   })
 
   it('should require name and system prompt', async () => {
