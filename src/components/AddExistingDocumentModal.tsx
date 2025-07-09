@@ -39,7 +39,9 @@ export const AddExistingDocumentModal: React.FC<AddExistingDocumentModalProps> =
 
     const query = searchQuery.toLowerCase()
     return availableDocuments.filter(
-      doc => doc.title.toLowerCase().includes(query) || doc.content.toLowerCase().includes(query)
+      doc =>
+        (doc.title || '').toLowerCase().includes(query) ||
+        (doc.content || '').toLowerCase().includes(query)
     )
   }, [availableDocuments, searchQuery])
 
@@ -136,9 +138,12 @@ export const AddExistingDocumentModal: React.FC<AddExistingDocumentModalProps> =
                         : 'hover:bg-gray-50 border border-transparent'
                     }`}
                   >
-                    <div className='font-medium text-gray-900 truncate'>{doc.title}</div>
+                    <div className='font-medium text-gray-900 truncate'>
+                      {doc.title || 'Untitled Document'}
+                    </div>
                     <div className='text-sm text-gray-500 mt-1 line-clamp-2'>
-                      {doc.content.substring(0, 100)}...
+                      {(doc.content || '').substring(0, 100)}
+                      {doc.content && doc.content.length > 100 ? '...' : ''}
                     </div>
                     <div className='text-xs text-gray-400 mt-1'>
                       Updated {new Date(doc.updatedAt).toLocaleDateString()}
@@ -154,11 +159,11 @@ export const AddExistingDocumentModal: React.FC<AddExistingDocumentModalProps> =
             {selectedDocument ? (
               <div className='p-6'>
                 <h3 className='text-lg font-semibold text-gray-900 mb-4'>
-                  {selectedDocument.title}
+                  {selectedDocument.title || 'Untitled Document'}
                 </h3>
                 <div className='prose prose-sm max-w-none'>
                   <div className='text-gray-700 whitespace-pre-wrap'>
-                    {selectedDocument.content}
+                    {selectedDocument.content || 'No content available.'}
                   </div>
                 </div>
               </div>

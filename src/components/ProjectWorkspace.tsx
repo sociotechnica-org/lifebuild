@@ -6,7 +6,7 @@ import { preserveStoreIdInUrl } from '../util/navigation.js'
 import {
   getProjectColumns$,
   getProjectTasks$,
-  getDocumentsForProject$,
+  getAllDocuments$,
   getDocumentProjectsByProject$,
 } from '../livestore/queries.js'
 import type { Task, Document } from '../livestore/schema.js'
@@ -46,7 +46,7 @@ const ProjectWorkspaceContent: React.FC = () => {
 
   // Fetch document associations and all documents, then filter client-side
   const documentProjects = useQuery(getDocumentProjectsByProject$(projectId)) ?? []
-  const allDocuments = useQuery(getDocumentsForProject$(projectId)) ?? []
+  const allDocuments = useQuery(getAllDocuments$) ?? []
   const documentIds = new Set(documentProjects.map(dp => dp.documentId))
   const documents = allDocuments.filter(doc => documentIds.has(doc.id)) as Document[]
 
