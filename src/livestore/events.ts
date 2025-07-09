@@ -284,3 +284,19 @@ export const workerUpdated = Events.synced({
     updatedAt: Schema.Date,
   }),
 })
+
+export const workerAssignedToProject = Events.synced({
+  name: 'v1.WorkerAssignedToProject',
+  schema: Schema.Struct({
+    workerId: Schema.String,
+    projectId: Schema.String,
+  }),
+})
+
+export const workerUnassignedFromProject = Events.synced({
+  name: 'v1.WorkerUnassignedFromProject',
+  schema: Schema.Struct({
+    workerId: Schema.String,
+    projectId: Schema.String,
+  }),
+})

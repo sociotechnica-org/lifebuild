@@ -178,6 +178,20 @@ export const getWorkers$ = queryDb(
   { label: 'getWorkers' }
 )
 
+export const getWorkerProjects$ = (workerId: string) =>
+  queryDb(tables.workerProjects.select().where({ workerId }), {
+    label: `getWorkerProjects:${workerId}`,
+  })
+
+export const getProjectWorkers$ = (projectId: string) =>
+  queryDb(tables.workerProjects.select().where({ projectId }), {
+    label: `getProjectWorkers:${projectId}`,
+  })
+
+export const getAllWorkerProjects$ = queryDb(tables.workerProjects.select(), {
+  label: 'getAllWorkerProjects',
+})
+
 // Get all document-project associations
 export const getAllDocumentProjects$ = queryDb(tables.documentProjects.select(), {
   label: 'getAllDocumentProjects',

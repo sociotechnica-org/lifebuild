@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
-import type { Worker } from '../../../livestore/schema.js'
+import React, { useState, useEffect } from 'react'
+import { useStore } from '@livestore/react'
+import type { Worker, Project } from '../../../livestore/schema.js'
+import { getWorkerProjects$, getProjects$ } from '../../../livestore/queries.js'
 import { EditWorkerModal } from '../EditWorkerModal/EditWorkerModal.js'
 
 interface WorkerCardProps {
@@ -8,7 +10,10 @@ interface WorkerCardProps {
 }
 
 export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
+  const { store } = useStore()
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [assignedProjects, setAssignedProjects] = useState<Project[]>([])
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
@@ -16,6 +21,25 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
       year: 'numeric',
     }).format(new Date(date))
   }
+
+  useEffect(() => {
+    const loadAssignedProjects = async () => {
+      try {
+        const [workerProjects, allProjects] = await Promise.all([
+          store.query(getWorkerProjects$(worker.id)),
+          store.query(getProjects$),
+        ])
+
+        const assignedProjectIds = new Set(workerProjects.map(wp => wp.projectId))
+        const assigned = allProjects.filter(project => assignedProjectIds.has(project.id))
+        setAssignedProjects(assigned)
+      } catch (error) {
+        console.error('Error loading assigned projects:', error)
+      }
+    }
+
+    loadAssignedProjects()
+  }, [worker.id, store])
 
   return (
     <div
@@ -37,7 +61,29 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
       <div className='text-sm text-gray-500 mb-3'>
         <p>Created: {formatDate(worker.createdAt)}</p>
         <p>Status: {worker.isActive ? 'Active' : 'Inactive'}</p>
+        <p>Projects: {assignedProjects.length > 0 ? assignedProjects.length : 'None assigned'}</p>
       </div>
+
+      {assignedProjects.length > 0 && (
+        <div className='mb-3'>
+          <div className='text-xs text-gray-500 mb-1'>Assigned Projects:</div>
+          <div className='flex flex-wrap gap-1'>
+            {assignedProjects.slice(0, 3).map(project => (
+              <span
+                key={project.id}
+                className='inline-flex items-center px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full'
+              >
+                {project.name}
+              </span>
+            ))}
+            {assignedProjects.length > 3 && (
+              <span className='inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full'>
+                +{assignedProjects.length - 3} more
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className='flex gap-2'>
         <button className='flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors'>

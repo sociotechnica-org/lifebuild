@@ -192,6 +192,14 @@ const workers = State.SQLite.table({
   },
 })
 
+const workerProjects = State.SQLite.table({
+  name: 'workerProjects',
+  columns: {
+    workerId: State.SQLite.text(),
+    projectId: State.SQLite.text(),
+  },
+})
+
 const uiState = State.SQLite.clientDocument({
   name: 'uiState',
   schema: Schema.Struct({
@@ -216,6 +224,7 @@ export type Comment = State.SQLite.FromTable.RowDecoded<typeof comments>
 export type Document = State.SQLite.FromTable.RowDecoded<typeof documents>
 export type DocumentProject = State.SQLite.FromTable.RowDecoded<typeof documentProjects>
 export type Worker = State.SQLite.FromTable.RowDecoded<typeof workers>
+export type WorkerProject = State.SQLite.FromTable.RowDecoded<typeof workerProjects>
 export type UiState = typeof uiState.default.value
 
 export const events = {
@@ -236,6 +245,7 @@ export const tables = {
   documents,
   documentProjects,
   workers,
+  workerProjects,
 }
 
 const materializers = State.SQLite.materializers(events, {
@@ -353,6 +363,10 @@ const materializers = State.SQLite.materializers(events, {
     processedUpdates.updatedAt = updatedAt
     return workers.update(processedUpdates).where({ id })
   },
+  'v1.WorkerAssignedToProject': ({ workerId, projectId }) =>
+    workerProjects.insert({ workerId, projectId }),
+  'v1.WorkerUnassignedFromProject': ({ workerId, projectId }) =>
+    workerProjects.delete().where({ workerId, projectId }),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

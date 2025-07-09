@@ -1,5 +1,7 @@
-import React from 'react'
-import type { Project } from '../../../livestore/schema.js'
+import React, { useState, useEffect } from 'react'
+import { useStore } from '@livestore/react'
+import type { Project, Worker } from '../../../livestore/schema.js'
+import { getProjectWorkers$, getWorkers$ } from '../../../livestore/queries.js'
 
 interface ProjectCardProps {
   project: Project
@@ -7,6 +9,9 @@ interface ProjectCardProps {
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
+  const { store } = useStore()
+  const [assignedWorkers, setAssignedWorkers] = useState<Worker[]>([])
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
@@ -14,6 +19,25 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
       year: 'numeric',
     }).format(new Date(date))
   }
+
+  useEffect(() => {
+    const loadAssignedWorkers = async () => {
+      try {
+        const [projectWorkers, allWorkers] = await Promise.all([
+          store.query(getProjectWorkers$(project.id)),
+          store.query(getWorkers$),
+        ])
+
+        const assignedWorkerIds = new Set(projectWorkers.map(pw => pw.workerId))
+        const assigned = allWorkers.filter(worker => assignedWorkerIds.has(worker.id))
+        setAssignedWorkers(assigned)
+      } catch (error) {
+        console.error('Error loading assigned workers:', error)
+      }
+    }
+
+    loadAssignedWorkers()
+  }, [project.id, store])
 
   return (
     <div
@@ -24,9 +48,33 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
       {project.description && (
         <p className='text-sm text-gray-600 mb-3 line-clamp-2'>{project.description}</p>
       )}
+
+      {assignedWorkers.length > 0 && (
+        <div className='mb-3'>
+          <div className='text-xs text-gray-500 mb-1'>Assigned Workers:</div>
+          <div className='flex flex-wrap gap-1'>
+            {assignedWorkers.slice(0, 3).map(worker => (
+              <span
+                key={worker.id}
+                className='inline-flex items-center px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full'
+              >
+                {worker.avatar && <span className='mr-1'>{worker.avatar}</span>}
+                {worker.name}
+              </span>
+            ))}
+            {assignedWorkers.length > 3 && (
+              <span className='inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full'>
+                +{assignedWorkers.length - 3} more
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className='text-sm text-gray-500'>
         <p>Created: {formatDate(project.createdAt)}</p>
         <p>Updated: {formatDate(project.updatedAt)}</p>
+        <p>Workers: {assignedWorkers.length > 0 ? assignedWorkers.length : 'None assigned'}</p>
       </div>
     </div>
   )
