@@ -354,10 +354,24 @@ export const ChatInterface: React.FC = () => {
     setSelectedConversationId(id)
   }, [store])
 
-  const handleModelChange = React.useCallback((newModel: string) => {
-    setSelectedModelForNextMessage(newModel)
-    userHasChangedModel.current = true
-  }, [])
+  const handleModelChange = React.useCallback(
+    (newModel: string) => {
+      setSelectedModelForNextMessage(newModel)
+      userHasChangedModel.current = true
+
+      // Persist the model change to the database if we have a selected conversation
+      if (selectedConversationId) {
+        store.commit(
+          events.conversationModelUpdated({
+            id: selectedConversationId,
+            model: newModel,
+            updatedAt: new Date(),
+          })
+        )
+      }
+    },
+    [selectedConversationId, store]
+  )
 
   const handleSendMessage = React.useCallback(
     (e: React.FormEvent) => {
@@ -494,15 +508,22 @@ export const ChatInterface: React.FC = () => {
     }
   }, [selectedConversationId, conversations])
 
+  // Get selected conversation object (needed for useEffect below)
+  const selectedConversation = conversations.find(c => c.id === selectedConversationId)
+
   // Update selected model when conversation changes (but not on new messages)
   React.useEffect(() => {
     // Reset the user change flag when switching conversations
     userHasChangedModel.current = false
 
-    // Always default to the default model when switching conversations
-    // This prevents overriding user selections and is simpler
-    setSelectedModelForNextMessage(DEFAULT_MODEL)
-  }, [selectedConversationId]) // Only depend on conversation change, not messages
+    if (selectedConversationId && selectedConversation) {
+      // Use the conversation's stored model, or default if not set
+      setSelectedModelForNextMessage(selectedConversation.model || DEFAULT_MODEL)
+    } else {
+      // No conversation selected, use default
+      setSelectedModelForNextMessage(DEFAULT_MODEL)
+    }
+  }, [selectedConversationId, selectedConversation]) // Depend on conversation and its data
 
   // Auto-scroll to bottom when messages change
   React.useEffect(() => {
@@ -532,8 +553,6 @@ export const ChatInterface: React.FC = () => {
     const maxHeight = 200
     textarea.style.height = `${Math.min(scrollHeight, maxHeight)}px`
   }, [])
-
-  const selectedConversation = conversations.find(c => c.id === selectedConversationId)
 
   return (
     <div className='h-full bg-white md:border md:border-gray-200 md:rounded-lg md:shadow-sm flex flex-col'>
