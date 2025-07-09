@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { EditWorkerModal } from '../../src/components/EditWorkerModal.js'
+import { EditWorkerModal } from '../../src/components/workers/EditWorkerModal.js'
 import type { Worker } from '../../src/livestore/schema.js'
 
 // Hoisted mocks
