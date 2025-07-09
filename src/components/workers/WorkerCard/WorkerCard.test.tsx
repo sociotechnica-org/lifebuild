@@ -5,7 +5,10 @@ import { WorkerCard } from './WorkerCard.js'
 
 // Hoisted mocks
 const { mockStore } = vi.hoisted(() => {
-  const mockStore = { commit: vi.fn() }
+  const mockStore = { 
+    query: vi.fn().mockResolvedValue([]),
+    commit: vi.fn() 
+  }
   return { mockStore }
 })
 
