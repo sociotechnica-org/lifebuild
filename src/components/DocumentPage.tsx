@@ -16,7 +16,7 @@ export const DocumentPage: React.FC = () => {
   // Get document from store
   const documentResult = documentId ? useQuery(getDocumentById$(documentId)) : null
   const document = documentResult?.[0]
-  const isLoading = documentId ? documentResult === null : false
+  const isLoading = documentId ? documentResult === undefined : false
 
   // Local state for editing
   const [title, setTitle] = useState('')
