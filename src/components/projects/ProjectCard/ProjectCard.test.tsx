@@ -5,9 +5,9 @@ import { ProjectCard } from './ProjectCard.js'
 
 // Hoisted mocks
 const { mockStore } = vi.hoisted(() => {
-  const mockStore = { 
+  const mockStore = {
     query: vi.fn().mockResolvedValue([]),
-    commit: vi.fn() 
+    commit: vi.fn(),
   }
   return { mockStore }
 })
