@@ -331,6 +331,12 @@ const materializers = State.SQLite.materializers(events, {
     documentProjects.delete().where({ documentId, projectId }),
   'v1.WorkerCreated': ({ id, name, roleDescription, systemPrompt, avatar, createdAt }) =>
     workers.insert({ id, name, roleDescription, systemPrompt, avatar, createdAt, isActive: true }),
+  'v1.WorkerUpdated': ({ id, updates }) => {
+    const filteredUpdates = Object.fromEntries(
+      Object.entries(updates).filter(([_, value]) => value !== undefined)
+    )
+    return workers.update(filteredUpdates).where({ id })
+  },
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

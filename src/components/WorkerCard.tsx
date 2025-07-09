@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import type { Worker } from '../livestore/schema.js'
+import { EditWorkerModal } from './EditWorkerModal.js'
 
 interface WorkerCardProps {
   worker: Worker
@@ -7,6 +8,7 @@ interface WorkerCardProps {
 }
 
 export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
@@ -41,10 +43,22 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
         <button className='flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors'>
           Chat
         </button>
-        <button className='flex-1 bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm transition-colors'>
+        <button
+          onClick={e => {
+            e.stopPropagation()
+            setIsEditModalOpen(true)
+          }}
+          className='flex-1 bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm transition-colors'
+        >
           Edit
         </button>
       </div>
+
+      <EditWorkerModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        worker={worker}
+      />
     </div>
   )
 }

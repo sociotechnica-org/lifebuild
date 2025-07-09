@@ -1,7 +1,23 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { WorkerCard } from '../../src/components/WorkerCard.js'
+
+// Hoisted mocks
+const { mockStore } = vi.hoisted(() => {
+  const mockStore = { commit: vi.fn() }
+  return { mockStore }
+})
+
+// Mock @livestore/react
+vi.mock('@livestore/react', () => ({
+  useStore: () => ({ store: mockStore }),
+}))
+
+// Mock system prompt templates
+vi.mock('../../src/util/workerNames.js', () => ({
+  systemPromptTemplates: [],
+}))
 
 describe('WorkerCard', () => {
   const mockWorker = {
@@ -13,6 +29,10 @@ describe('WorkerCard', () => {
     createdAt: new Date('2023-01-01'),
     isActive: true,
   }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
   it('should render default avatar when none provided', () => {
     const workerWithoutAvatar = { ...mockWorker, avatar: null }

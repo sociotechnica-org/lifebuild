@@ -269,3 +269,18 @@ export const workerCreated = Events.synced({
     createdAt: Schema.Date,
   }),
 })
+
+export const workerUpdated = Events.synced({
+  name: 'v1.WorkerUpdated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    updates: Schema.Struct({
+      name: Schema.optional(Schema.String),
+      roleDescription: Schema.optional(Schema.String),
+      systemPrompt: Schema.optional(Schema.String),
+      avatar: Schema.optional(Schema.String),
+      isActive: Schema.optional(Schema.Boolean),
+    }),
+    updatedAt: Schema.Date,
+  }),
+})
