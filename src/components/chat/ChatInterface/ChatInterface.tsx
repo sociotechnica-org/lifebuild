@@ -464,13 +464,14 @@ export const ChatInterface: React.FC = () => {
                 ? { id: currentBoard.id, name: currentBoard.name }
                 : undefined
               // Build worker context if this is a worker conversation
-              const workerContext = currentWorker && currentWorker.systemPrompt
-                ? {
-                    systemPrompt: currentWorker.systemPrompt,
-                    name: currentWorker.name,
-                    roleDescription: currentWorker.roleDescription || undefined,
-                  }
-                : undefined
+              const workerContext =
+                currentWorker && currentWorker.systemPrompt
+                  ? {
+                      systemPrompt: currentWorker.systemPrompt,
+                      name: currentWorker.name,
+                      roleDescription: currentWorker.roleDescription || undefined,
+                    }
+                  : undefined
 
               const llmResponse = await callLLMAPI(
                 userMessage.message,
