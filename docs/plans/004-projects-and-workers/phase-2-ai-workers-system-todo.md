@@ -60,27 +60,51 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 
 ---
 
-## Story 2 – Select model for Worker conversation
+## ✅ Story 2 – Select model for Worker conversation
 
 **User story**: _As a user, I want to select which AI model will be used by the Worker while chatting with it so I can choose the best model for the task at hand._
 
 **Dependencies**: Story 1 (need worker creation)
 
+**Status**: ✅ **COMPLETED** - Full model selection system implemented
+
 ### Tasks
 
-- [ ] Schema: Add `conversationModel` field to worker conversations
-- [ ] UI: Add model selector dropdown in chat interface near the message input
-- [ ] UI: Display current model selection in chat header
-- [ ] Models: Support these Braintrust model strings:
-  - `claude-3-5-sonnet-latest` (Claude Sonnet)
+- [x] Schema: Add `conversationModel` field to worker conversations
+- [x] UI: Add model selector dropdown in chat interface near the message input
+- [x] UI: Display current model selection in chat header
+- [x] Models: Support these Braintrust model strings:
+  - `claude-sonnet-4-20250514` (Claude 4 Sonnet)
   - `gpt-4o` (GPT-4o)
-  - `claude-3-opus-latest` (Claude Opus)
+  - `claude-opus-4-20250514` (Claude 4 Opus)
   - `o3` (OpenAI O3)
-- [ ] Logic: Default to `claude-3-5-sonnet-latest` for new conversations
-- [ ] Logic: Model selection persists per conversation (not global worker setting)
-- [ ] Backend: Update worker API to use selected model instead of hardcoded `gpt-4o`
-- [ ] Tests: Model selection persistence, API integration with different models
-- [ ] DoD: Users can select and switch models during worker conversations
+- [x] Logic: Default to `claude-3-5-sonnet-latest` for new conversations
+- [x] Logic: Model selection persists per conversation (not global worker setting)
+- [x] Backend: Update worker API to use selected model instead of hardcoded `gpt-4o`
+- [x] Tests: Model selection persistence, API integration with different models
+- [x] DoD: Users can select and switch models during worker conversations
+
+### Implementation Summary
+
+**Components Created:**
+
+- `ModelSelector` - Dropdown component for model selection with provider information
+- Model selection integrated into chat interface header
+- Per-conversation model persistence with LiveStore events
+
+**Database Changes:**
+
+- Added `model` field to `conversations` table with default `claude-3-5-sonnet-latest`
+- Added `modelId` field to `chatMessages` table for tracking model-generated responses
+- Added `conversationModelUpdated` event with proper materialization
+
+**Features:**
+
+- Model selection dropdown prominently displayed in chat interface
+- Per-conversation model persistence (not global worker setting)
+- Real-time model switching with immediate backend integration
+- Support for 4 major AI models with proper fallback handling
+- Visual feedback showing current model selection
 
 ### Implementation Notes
 
@@ -90,26 +114,28 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 
 ---
 
-## Story 3 – Edit Worker system prompt
+## ✅ Story 3 – Edit Worker system prompt
 
 **User story**: _As a user, I want to edit the system prompt for a Worker so I can refine their behavior and specialization over time._
 
 **Dependencies**: Story 1 (need worker creation)
 
+**Status**: ✅ **COMPLETED** - [PR #66](https://github.com/sociotechnica-org/work-squared/pull/66)
+
 ### Tasks
 
-- [ ] Event: Define `worker.updated` event with `{ id, updates: Partial<Worker> }`
-- [ ] UI: Add "Edit Worker" button/link in worker profile view
-- [ ] UI: Create edit worker modal with form fields:
+- [x] Event: Define `worker.updated` event with `{ id, updates: Partial<Worker> }`
+- [x] UI: Add "Edit Worker" button/link in worker profile view
+- [x] UI: Create edit worker modal with form fields:
   - Name (editable)
   - Role description (editable)
   - System prompt (editable, large textarea)
   - Avatar (editable)
-- [ ] Logic: System prompt changes take effect in new conversations
-- [ ] Logic: Existing conversations retain their original system prompt
-- [ ] Validation: Ensure system prompt is not empty
-- [ ] Tests: System prompt editing, conversation isolation, validation
-- [ ] DoD: Users can edit worker details and see changes reflected in new conversations
+- [x] Logic: System prompt changes take effect in new conversations
+- [x] Logic: Existing conversations retain their original system prompt
+- [x] Validation: Ensure system prompt is not empty
+- [x] Tests: System prompt editing, conversation isolation, validation
+- [x] DoD: Users can edit worker details and see changes reflected in new conversations
 
 ### Implementation Notes
 
@@ -166,32 +192,63 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 
 ---
 
-## Story 5 – Assign Worker to projects
+## ✅ Story 5 – Assign Worker to projects
 
 **User story**: _As a user, I want to assign a worker to one or more projects so they can have context about specific work areas._
 
 **Dependencies**: Story 4 (need worker list), Phase 1 project system
 
+**Status**: ✅ **COMPLETED** - [PR #68](https://github.com/sociotechnica-org/work-squared/pull/68)
+
 ### Tasks
 
-- [ ] Schema: Add `workerProjects` junction table with `workerId, projectId`
-- [ ] Event: Define `worker.assignedToProject` and `worker.unassignedFromProject` events
-- [ ] UI: Add "Assign to Projects" button in worker profile/edit modal
-- [ ] UI: Create project assignment modal with:
+- [x] Schema: Add `workerProjects` junction table with `workerId, projectId`
+- [x] Event: Define `worker.assignedToProject` and `worker.unassignedFromProject` events
+- [x] UI: Add "Assign to Projects" button in worker profile/edit modal
+- [x] UI: Create project assignment modal with:
   - Searchable list of all projects
   - Checkboxes for current assignments
   - Save/cancel actions
-- [ ] UI: Show assigned projects in worker cards and profile
-- [ ] UI: Show assigned workers in project views
-- [ ] Query: Create `getWorkerProjects$` and `getProjectWorkers$` queries
-- [ ] Tests: Project assignment flow, many-to-many relationship handling
-- [ ] DoD: Workers can be assigned to multiple projects and projects can have multiple workers
+- [x] UI: Show assigned projects in worker cards and profile
+- [x] UI: Show assigned workers in project views
+- [x] Query: Create `getWorkerProjects$` and `getProjectWorkers$` queries
+- [x] Tests: Project assignment flow, many-to-many relationship handling
+- [x] DoD: Workers can be assigned to multiple projects and projects can have multiple workers
 
 ### Implementation Notes
 
 - **Many-to-Many Relationship**: Workers can be assigned to multiple projects, projects can have multiple workers
 - **Visual Indicators**: Show project assignments prominently in both worker and project views
 - **Bulk Operations**: Allow assigning/unassigning multiple projects at once
+
+---
+
+## Story 2B – Worker-tied model selection
+
+**User story**: _As a user, I want to select a default AI model when creating a Worker so that each worker has a consistent model choice that reflects their specialization._
+
+**Dependencies**: Story 1 (need worker creation), Story 2 (need model selection system)
+
+### Tasks
+
+- [ ] Schema: Add `defaultModel` field to `workers` table
+- [ ] Event: Update `worker.created` event to include `defaultModel`
+- [ ] UI: Add model selector dropdown in CreateWorkerModal
+- [ ] UI: Add model selector dropdown in EditWorkerModal
+- [ ] UI: Display worker's default model in worker cards and profile
+- [ ] Logic: New conversations with this worker start with their default model
+- [ ] Logic: Users can still change model per conversation (Story 2 functionality preserved)
+- [ ] Logic: Default to `claude-3-5-sonnet-latest` if no model specified
+- [ ] Validation: Ensure selected model is from supported list
+- [ ] Tests: Worker creation with model selection, model display, conversation defaults
+- [ ] DoD: Workers can be created with default models, and new conversations use that model
+
+### Implementation Notes
+
+- **Worker Specialization**: Different workers can have different default models suited to their role
+- **Conversation Override**: Users can still change models per conversation (Story 2 remains functional)
+- **Model Consistency**: Each worker's conversations start with their specialized model
+- **Backward Compatibility**: Existing workers without default models use `claude-3-5-sonnet-latest`
 
 ---
 
