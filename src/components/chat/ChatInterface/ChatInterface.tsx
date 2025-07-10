@@ -464,7 +464,7 @@ export const ChatInterface: React.FC = () => {
                 ? { id: currentBoard.id, name: currentBoard.name }
                 : undefined
               // Build worker context if this is a worker conversation
-              const workerContext = currentWorker
+              const workerContext = currentWorker && currentWorker.systemPrompt
                 ? {
                     systemPrompt: currentWorker.systemPrompt,
                     name: currentWorker.name,
@@ -541,7 +541,7 @@ export const ChatInterface: React.FC = () => {
     })
 
     return unsubscribe
-  }, [store, selectedConversationId]) // Don't depend on selectedModelForNextMessage to avoid subscription churn
+  }, [store, selectedConversationId, currentWorker, selectedConversation, currentBoard])
 
   // Auto-select first conversation if none selected
   React.useEffect(() => {
