@@ -344,7 +344,7 @@ describe('TaskModal', () => {
           return mockColumns
         }
         if (query.label?.includes('app')) {
-          return { newTodoText: '', filter: 'all' }
+          return { filter: 'all' }
         }
         return []
       })
