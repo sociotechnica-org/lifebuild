@@ -124,6 +124,7 @@ const conversations = State.SQLite.table({
     id: State.SQLite.text({ primaryKey: true }),
     title: State.SQLite.text({ default: '' }),
     model: State.SQLite.text({ default: 'claude-3-5-sonnet-latest' }),
+    workerId: State.SQLite.text({ nullable: true }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
@@ -181,6 +182,7 @@ const workers = State.SQLite.table({
     roleDescription: State.SQLite.text({ nullable: true }),
     systemPrompt: State.SQLite.text({ default: '' }),
     avatar: State.SQLite.text({ nullable: true }),
+    defaultModel: State.SQLite.text({ default: 'claude-3-5-sonnet-latest' }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
@@ -301,8 +303,8 @@ const materializers = State.SQLite.materializers(events, {
   },
   'v1.UserCreated': ({ id, name, avatarUrl, createdAt }) =>
     users.insert({ id, name, avatarUrl, createdAt }),
-  'v1.ConversationCreated': ({ id, title, model, createdAt }) =>
-    conversations.insert({ id, title, model, createdAt, updatedAt: createdAt }),
+  'v1.ConversationCreated': ({ id, title, model, workerId, createdAt }) =>
+    conversations.insert({ id, title, model, workerId, createdAt, updatedAt: createdAt }),
   'v1.ConversationModelUpdated': ({ id, model, updatedAt }) =>
     conversations.update({ model, updatedAt }).where({ id }),
   'v1.LLMResponseReceived': ({
@@ -343,13 +345,22 @@ const materializers = State.SQLite.materializers(events, {
     documentProjects.insert({ documentId, projectId }),
   'v1.DocumentRemovedFromProject': ({ documentId, projectId }) =>
     documentProjects.delete().where({ documentId, projectId }),
-  'v1.WorkerCreated': ({ id, name, roleDescription, systemPrompt, avatar, createdAt }) =>
+  'v1.WorkerCreated': ({
+    id,
+    name,
+    roleDescription,
+    systemPrompt,
+    avatar,
+    defaultModel,
+    createdAt,
+  }) =>
     workers.insert({
       id,
       name,
       roleDescription,
       systemPrompt,
       avatar,
+      defaultModel,
       createdAt,
       updatedAt: createdAt,
       isActive: true,

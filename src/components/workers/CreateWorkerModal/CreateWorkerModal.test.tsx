@@ -26,6 +26,36 @@ vi.mock('../../../util/workerNames.js', () => ({
   ],
 }))
 
+// Mock models utility
+vi.mock('../../../util/models.js', () => ({
+  DEFAULT_MODEL: 'claude-3-5-sonnet-latest',
+  supportedModels: [
+    { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet', provider: 'anthropic' },
+    { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai' },
+  ],
+  getModelById: (id: string) => {
+    const models = [
+      { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet', provider: 'anthropic' },
+      { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai' },
+    ]
+    return models.find(m => m.id === id)
+  },
+}))
+
+// Mock ModelSelector component
+vi.mock('../../ui/ModelSelector/ModelSelector.js', () => ({
+  ModelSelector: ({ selectedModel, onModelChange }: any) => (
+    <select
+      data-testid='model-selector'
+      value={selectedModel}
+      onChange={e => onModelChange(e.target.value)}
+    >
+      <option value='claude-3-5-sonnet-latest'>Claude 3.5 Sonnet</option>
+      <option value='gpt-4o'>GPT-4o</option>
+    </select>
+  ),
+}))
+
 describe('CreateWorkerModal', () => {
   const mockOnClose = vi.fn()
 
@@ -88,10 +118,48 @@ describe('CreateWorkerModal', () => {
         args: expect.objectContaining({
           name: 'Test Worker',
           systemPrompt: 'Test system prompt',
+          defaultModel: 'claude-3-5-sonnet-latest',
         }),
       })
     )
 
     expect(mockOnClose).toHaveBeenCalled()
+  })
+
+  it('should include selected model when creating worker', async () => {
+    render(<CreateWorkerModal isOpen={true} onClose={mockOnClose} />)
+
+    const nameInput = screen.getByLabelText('Name *')
+    const systemPromptInput = screen.getByLabelText('System Prompt *')
+    const modelSelector = screen.getByTestId('model-selector')
+    const submitButton = screen.getByRole('button', { name: 'Create Worker' })
+
+    fireEvent.change(nameInput, { target: { value: 'Test Worker' } })
+    fireEvent.change(systemPromptInput, { target: { value: 'Test system prompt' } })
+    fireEvent.change(modelSelector, { target: { value: 'gpt-4o' } })
+
+    fireEvent.click(submitButton)
+
+    await waitFor(() => {
+      expect(mockStore.commit).toHaveBeenCalledTimes(1)
+    })
+
+    expect(mockStore.commit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'v1.WorkerCreated',
+        args: expect.objectContaining({
+          name: 'Test Worker',
+          systemPrompt: 'Test system prompt',
+          defaultModel: 'gpt-4o',
+        }),
+      })
+    )
+  })
+
+  it('should render model selector with default model', () => {
+    render(<CreateWorkerModal isOpen={true} onClose={mockOnClose} />)
+
+    const modelSelector = screen.getByTestId('model-selector')
+    expect(modelSelector).toHaveValue('claude-3-5-sonnet-latest')
   })
 })

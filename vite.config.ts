@@ -14,6 +14,9 @@ const isProdBuild = process.env.NODE_ENV === 'production'
 export default defineConfig({
   server: {
     port: process.env.PORT ? Number(process.env.PORT) : 60_001,
+    watch: {
+      ignored: ['**/docs/**', '**/node_modules/**'],
+    },
   },
   worker: isProdBuild ? { format: 'es' } : undefined,
   optimizeDeps: {

@@ -260,15 +260,10 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 
 ### Tasks
 
-- [ ] Schema: Replace single chat with `workerConversations` table:
-  - `id, workerId, title, createdAt, model`
-- [ ] Schema: Update `chatMessages` to reference `conversationId` instead of global chat
-- [ ] UI: Replace main chat with worker-specific chat interface
 - [ ] UI: Show worker avatar, name, and role in chat header
-- [ ] UI: Display current model selection in chat interface
-- [ ] UI: Add conversation history/switching in sidebar
-- [ ] Logic: Each worker maintains separate conversation history
-- [ ] Logic: Apply worker's system prompt to their conversations
+- [ ] UI: Remove the model selector from the chat interface (it's now a worker setting)
+- [ ] Logic: Each worker can have multiple separate conversation histories
+- [ ] Logic: Include worker's system prompt in their conversations
 - [ ] Backend: Update chat API to handle worker-specific conversations
 - [ ] Tests: Worker conversation isolation, message threading, system prompt application
 - [ ] DoD: Each worker has dedicated chat interface with proper context and history

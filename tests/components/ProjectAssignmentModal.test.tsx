@@ -8,6 +8,7 @@ describe('ProjectAssignmentModal', () => {
     roleDescription: 'Test Role',
     systemPrompt: 'Test system prompt',
     avatar: '🤖',
+    defaultModel: 'claude-3-5-sonnet-latest',
     createdAt: new Date(),
     updatedAt: new Date(),
     isActive: true,

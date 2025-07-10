@@ -22,6 +22,7 @@ describe('Worker Events', () => {
         roleDescription: 'Test Role',
         systemPrompt: 'Test system prompt',
         avatar: '🤖',
+        defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date('2023-01-01'),
       })
 
@@ -32,6 +33,7 @@ describe('Worker Events', () => {
         roleDescription: 'Test Role',
         systemPrompt: 'Test system prompt',
         avatar: '🤖',
+        defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date('2023-01-01'),
       })
     })
@@ -41,6 +43,7 @@ describe('Worker Events', () => {
         id: 'test-id',
         name: 'Test Worker',
         systemPrompt: 'Test system prompt',
+        defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date('2023-01-01'),
       })
 
@@ -49,6 +52,7 @@ describe('Worker Events', () => {
         id: 'test-id',
         name: 'Test Worker',
         systemPrompt: 'Test system prompt',
+        defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date('2023-01-01'),
       })
     })

@@ -9,6 +9,7 @@
   },
   "build": {
     "command": "pnpm build",
+    "watch_dir": ["./src", "./functions"],
   },
   "observability": {
     "enabled": true,

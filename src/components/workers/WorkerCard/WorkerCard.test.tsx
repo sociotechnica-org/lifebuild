@@ -29,6 +29,7 @@ describe('WorkerCard', () => {
     roleDescription: 'Test Role',
     systemPrompt: 'Test system prompt',
     avatar: '🤖',
+    defaultModel: 'claude-3-5-sonnet-latest',
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-01'),
     isActive: true,

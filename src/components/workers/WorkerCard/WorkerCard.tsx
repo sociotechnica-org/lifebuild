@@ -3,6 +3,8 @@ import { useStore } from '@livestore/react'
 import type { Worker, Project } from '../../../livestore/schema.js'
 import { getWorkerProjects$, getProjects$ } from '../../../livestore/queries.js'
 import { EditWorkerModal } from '../EditWorkerModal/EditWorkerModal.js'
+import { getModelById, DEFAULT_MODEL } from '../../../util/models.js'
+import { events } from '../../../livestore/schema.js'
 
 interface WorkerCardProps {
   worker: Worker
@@ -20,6 +22,31 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
       day: 'numeric',
       year: 'numeric',
     }).format(new Date(date))
+  }
+
+  const handleChatClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+
+    // Create a new conversation with this worker
+    const conversationId = crypto.randomUUID()
+    const title = `Chat with ${worker.name}`
+    const model = worker.defaultModel || DEFAULT_MODEL
+
+    store.commit(
+      events.conversationCreated({
+        id: conversationId,
+        title,
+        model,
+        workerId: worker.id,
+        createdAt: new Date(),
+      })
+    )
+
+    // Navigate to chat interface - for now, we'll just log
+    // TODO: Add navigation to chat interface with the new conversation
+    console.log(
+      `Created conversation ${conversationId} with worker ${worker.name} using model ${model}`
+    )
   }
 
   useEffect(() => {
@@ -62,6 +89,7 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
         <p>Created: {formatDate(worker.createdAt)}</p>
         <p>Status: {worker.isActive ? 'Active' : 'Inactive'}</p>
         <p>Projects: {assignedProjects.length > 0 ? assignedProjects.length : 'None assigned'}</p>
+        <p>Model: {getModelById(worker.defaultModel || DEFAULT_MODEL)?.name || 'Unknown'}</p>
       </div>
 
       {assignedProjects.length > 0 && (
@@ -86,7 +114,10 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
       )}
 
       <div className='flex gap-2'>
-        <button className='flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors'>
+        <button
+          onClick={handleChatClick}
+          className='flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors'
+        >
           Chat
         </button>
         <button
