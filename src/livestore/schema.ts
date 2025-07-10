@@ -35,19 +35,6 @@ const chatMessages = State.SQLite.table({
   },
 })
 
-const todos = State.SQLite.table({
-  name: 'todos',
-  columns: {
-    id: State.SQLite.text({ primaryKey: true }),
-    text: State.SQLite.text({ default: '' }),
-    completed: State.SQLite.boolean({ default: false }),
-    deletedAt: State.SQLite.integer({
-      nullable: true,
-      schema: Schema.DateFromNumber,
-    }),
-  },
-})
-
 const boards = State.SQLite.table({
   name: 'projects',
   columns: {
@@ -212,7 +199,6 @@ const uiState = State.SQLite.clientDocument({
   },
 })
 
-export type Todo = State.SQLite.FromTable.RowDecoded<typeof todos>
 export type ChatMessage = State.SQLite.FromTable.RowDecoded<typeof chatMessages>
 export type Board = State.SQLite.FromTable.RowDecoded<typeof boards>
 export type Project = Board // New terminology alias
@@ -233,7 +219,6 @@ export const events = {
 }
 
 export const tables = {
-  todos,
   uiState,
   chatMessages,
   boards,
@@ -249,12 +234,6 @@ export const tables = {
 }
 
 const materializers = State.SQLite.materializers(events, {
-  'v1.TodoCreated': ({ id, text }) => todos.insert({ id, text, completed: false }),
-  'v1.TodoCompleted': ({ id }) => todos.update({ completed: true }).where({ id }),
-  'v1.TodoUncompleted': ({ id }) => todos.update({ completed: false }).where({ id }),
-  'v1.TodoDeleted': ({ id, deletedAt }) => todos.update({ deletedAt }).where({ id }),
-  'v1.TodoClearedCompleted': ({ deletedAt }) =>
-    todos.update({ deletedAt }).where({ completed: true }),
   'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) =>
     chatMessages.insert({ id, conversationId, message, role, createdAt }),
   'v1.ProjectCreated': ({ id, name, description, createdAt }) =>

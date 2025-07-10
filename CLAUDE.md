@@ -132,8 +132,8 @@ CI=true pnpm test:e2e  # Run E2E tests
 
 ```typescript
 const store = createTestStore()
-await store.mutate([{ type: 'todo.add', id: '1', text: 'Test', completed: false }])
-const todos = await store.query(db => db.table('todos').all())
+await store.mutate([{ type: 'project.create', id: '1', name: 'Test', description: 'Test' }])
+const projects = await store.query(db => db.table('projects').all())
 ```
 
 ## Deployment
