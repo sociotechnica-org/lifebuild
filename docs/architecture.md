@@ -49,11 +49,11 @@ The current production architecture spans multiple services:
 └─────────────────┘     └─────────────────┘
          │                       │
          └───────────────────────┴
-                              │
-                        ┌─────▼─────┐
-                        │ LiveStore │
-                        │ (SQLite)  │
-                        └───────────┘
+                    │
+              ┌─────▼─────┐
+              │ LiveStore │
+              │ (SQLite)  │
+              └───────────┘
 ```
 
 ## System Components
@@ -132,6 +132,7 @@ The agentic loop in `src/components/chat/ChatInterface/ChatInterface.tsx` provid
 ```
 
 **Key Features:**
+
 - **Multi-turn conversations**: Tools results fed back to LLM for further processing
 - **Real-time UI updates**: Each tool execution shows immediate feedback
 - **Error handling**: Tool failures gracefully handled and reported
@@ -142,6 +143,7 @@ The agentic loop in `src/components/chat/ChatInterface/ChatInterface.tsx` provid
 Tools are defined in the Cloudflare Worker (`functions/_worker.ts`) but executed client-side:
 
 **Available Tools:**
+
 - `create_task`: Create Kanban tasks with full validation
 - `list_projects`: Get all available projects
 - `list_documents`: Get all documents with metadata
@@ -149,6 +151,7 @@ Tools are defined in the Cloudflare Worker (`functions/_worker.ts`) but executed
 - `search_documents`: Search through document content
 
 **Execution Flow:**
+
 1. Worker defines tool schemas for LLM
 2. LLM returns tool calls in response
 3. Client executes tools via `executeLLMTool()` in `src/utils/llm-tools.ts`
