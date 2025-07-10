@@ -179,7 +179,7 @@ export const getWorkers$ = queryDb(
 )
 
 export const getWorkerById$ = (workerId: string) =>
-  queryDb(tables.workers.select().where({ id: workerId, isActive: true }), {
+  queryDb(tables.workers.select().where({ id: workerId }), {
     label: `getWorkerById:${workerId}`,
   })
 
