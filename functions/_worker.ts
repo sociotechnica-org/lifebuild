@@ -52,7 +52,7 @@ export default {
           })
         }
 
-        const { message, conversationHistory, currentBoard, model } = requestBody
+        const { message, conversationHistory, currentBoard, model, workerContext } = requestBody
 
         console.log('🔧 Worker received:', {
           message: message?.substring(0, 50),
@@ -91,7 +91,27 @@ export default {
           ? `\n\nCURRENT CONTEXT:\nYou are currently viewing the "${currentBoard.name}" project (ID: ${currentBoard.id}). When creating tasks, they will be created on this project automatically. You do NOT need to call list_projects since you already know the current project.`
           : `\n\nCURRENT CONTEXT:\nNo specific project is currently selected. Use the list_projects tool to see available projects, or tasks will be created on the default project.`
 
-        const systemPrompt = `You are an AI assistant for Work Squared, a consultancy workflow automation system. You help consultants and project managers by:
+        let systemPrompt = ''
+
+        if (workerContext) {
+          // Use worker's custom system prompt
+          systemPrompt = `${workerContext.systemPrompt}
+
+WORKER PROFILE:
+- Name: ${workerContext.name}
+${workerContext.roleDescription ? `- Role: ${workerContext.roleDescription}` : ''}
+
+You have access to tools for:
+- Creating tasks in the Kanban system (create_task)
+- Listing all available projects (list_projects)
+- Listing all available documents (list_documents)
+- Reading a specific document by ID (read_document)
+- Searching through document content (search_documents)
+
+When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed.${currentBoardContext}`
+        } else {
+          // Use default system prompt
+          systemPrompt = `You are an AI assistant for Work Squared, a consultancy workflow automation system. You help consultants and project managers by:
 
 1. **Project Planning**: Breaking down client requirements into actionable tasks
 2. **Task Management**: Creating, organizing, and tracking work items in Kanban boards  
@@ -108,6 +128,7 @@ You have access to tools for:
 When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed. If you need to know what projects are available, use the list_projects tool first.
 
 Maintain a professional but conversational tone. Focus on practical, actionable advice.${currentBoardContext}`
+        }
 
         // Build messages array with conversation history if provided
         const messages = [{ role: 'system', content: systemPrompt }, ...(conversationHistory || [])]
