@@ -25,30 +25,34 @@ LLMs interact with the system through well-defined tools:
 - **Document Tools**: Read, create, edit markdown documents
 - **Project Tools**: Manage document collections and contexts
 
-### 3. Multi-Service Architecture
+### 3. Client-Side Agentic Loop
+
+The AI integration uses a sophisticated client-side agentic loop that:
+
+- Executes multiple tool calls in sequence
+- Handles continuation conversations with tool results
+- Provides real-time UI feedback during tool execution
+- Supports up to 5 iterations to prevent infinite loops
+
+### 4. Multi-Service Architecture
 
 The current production architecture spans multiple services:
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   React SPA     │────▶│ CF Worker       │◀────│ Node.js Worker  │
-│  (CF Pages)     │     │ (WebSocket)     │     │ (Render.com)    │
-├─────────────────┤     ├─────────────────┤     ├─────────────────┤
-│ • UI Components │     │ • Event relay   │     │ • AI Workers    │
-│ • User actions  │     │ • WebSocket hub │     │ • Long tasks    │
-│ • Real-time UI  │     │ • Sync logic    │     │ • Tool execution│
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-         │                       │                        │
-         └───────────────────────┴────────────────────────┘
+┌─────────────────┐     ┌─────────────────┐
+│   React SPA     │────▶│ CF Worker       │
+│  (CF Pages)     │     │ (WebSocket)     │
+├─────────────────┤     ├─────────────────┤
+│ • UI Components │     │ • Event relay   │
+│ • User actions  │     │ • WebSocket hub │
+│ • Real-time UI  │     │ • Sync logic    │
+└─────────────────┘     └─────────────────┘
+         │                       │
+         └───────────────────────┴
                               │
                         ┌─────▼─────┐
                         │ LiveStore │
                         │ (SQLite)  │
-                        └───────────┘
-                              │
-                        ┌─────▼─────┐
-                        │ CF R2     │
-                        │ (Backups) │
                         └───────────┘
 ```
 
@@ -56,10 +60,10 @@ The current production architecture spans multiple services:
 
 ### Frontend (React SPA)
 
-- **User Interface**: Projects, Documents, Kanban boards, Worker chats
+- **User Interface**: Projects, Tasks, Documents, Worker chats
 - **Real-time Updates**: Subscribes to LiveStore queries for reactive UI
 - **Event Emission**: All user actions emit events to the system
-- **Routing**: Global navigation between Projects | Boards | Documents | Workers
+- **Routing**: Global navigation between Projects | Tasks | Documents | Workers
 
 ### Cloudflare Worker (Sync Server)
 
@@ -67,170 +71,20 @@ The current production architecture spans multiple services:
 - **Event Relay**: Distributes events across all connected clients
 - **Durable Objects**: Maintains connection state and message ordering
 
-### Node.js Worker Service (Render.com)
-
-- **AI Workers**: Persistent entities that process long-running tasks
-- **Tool Execution**: Implements Kanban, document, and project tools
-- **Task Queue**: SQLite-based queue for background job processing
-- **LLM Integration**: Secure API calls to AI providers (OpenAI/Anthropic)
-
 ### Data Layer
 
 - **LiveStore (SQLite)**: Event sourcing with materialized views
-- **Cloudflare R2**: Automated backups every 6 hours
 - **Real-time Sync**: WebSocket-based synchronization across clients
 
 ## Data Model
 
 ### Core Event Types
 
-Work Squared uses event sourcing with these primary event categories:
-
-```typescript
-// Core event types
-type WorkSquaredEvent =
-  | ChatMessageEvent // Worker conversations
-  | TaskEvent // Kanban board operations
-  | DocumentEvent // Document management
-  | ProjectEvent // Project organization
-  | WorkerEvent // AI worker lifecycle
-  | ToolExecutionEvent // LLM tool calls
-
-// Example implementations
-interface ChatMessageEvent {
-  type: 'chat.message'
-  conversationId: string
-  role: 'user' | 'assistant' | 'system'
-  content: string
-  workerId?: string
-  metadata?: {
-    toolCalls?: ToolCall[]
-    model?: string
-  }
-}
-
-interface TaskEvent {
-  type: 'task.created' | 'task.updated' | 'task.moved' | 'task.archived'
-  taskId: string
-  boardId: string
-  updates: Partial<Task>
-}
-
-interface DocumentEvent {
-  type: 'document.created' | 'document.updated' | 'document.addedToProject'
-  documentId: string
-  content?: string
-  projectIds?: string[]
-}
-```
+Work Squared uses event sourcing with events defined in `src/livestore/events.ts`.
 
 ### LiveStore Schema
 
-Events are materialized into these core tables:
-
-```typescript
-const schema = {
-  tables: {
-    // Project Management
-    projects: { id: 'string', name: 'string', description: 'string?', createdAt: 'number' },
-    documents: { id: 'string', title: 'string', content: 'string', createdAt: 'number' },
-    documentProjects: { documentId: 'string', projectId: 'string' },
-
-    // Kanban System
-    boards: { id: 'string', name: 'string', createdAt: 'number' },
-    columns: { id: 'string', boardId: 'string', name: 'string', position: 'number' },
-    tasks: {
-      id: 'string',
-      boardId: 'string',
-      columnId: 'string',
-      title: 'string',
-      position: 'number',
-    },
-
-    // AI Workers
-    workers: { id: 'string', name: 'string', systemPrompt: 'string', isActive: 'boolean' },
-    workerProjects: { workerId: 'string', projectId: 'string' },
-    conversations: { id: 'string', workerId: 'string', title: 'string', createdAt: 'number' },
-    chatMessages: { id: 'string', conversationId: 'string', role: 'string', content: 'string' },
-
-    // Background Jobs
-    workerTasks: {
-      id: 'string',
-      workerId: 'string',
-      type: 'string',
-      status: 'string',
-      payload: 'json',
-    },
-  },
-}
-```
-
-## AI Worker System
-
-### Worker Architecture
-
-AI Workers are persistent entities that can process long-running tasks:
-
-```typescript
-interface AIWorker {
-  id: string
-  name: string
-  specialization: string
-  systemPrompt: string
-  assignedProjects: string[]
-  isActive: boolean
-}
-
-// Worker capabilities
-interface WorkerTools {
-  // Document management
-  readDocument(documentId: string): Promise<string>
-  createDocument(title: string, content: string): Promise<string>
-  updateDocument(documentId: string, content: string): Promise<void>
-  searchDocuments(query: string, projectId?: string): Promise<Document[]>
-
-  // Task management
-  createTask(boardId: string, title: string, description?: string): Promise<string>
-  moveTask(taskId: string, columnId: string): Promise<void>
-  updateTask(taskId: string, updates: Partial<Task>): Promise<void>
-  listTasks(boardId?: string): Promise<Task[]>
-
-  // Project management
-  listProjects(): Promise<Project[]>
-  getProjectDocuments(projectId: string): Promise<Document[]>
-
-  // Worker collaboration
-  createWorker(name: string, specialization: string): Promise<string>
-  assignWorkerToProject(workerId: string, projectId: string): Promise<void>
-}
-```
-
-### Background Task Processing
-
-The Node.js service implements a SQLite-based queue for long-running tasks:
-
-```typescript
-interface WorkerTask {
-  id: string
-  workerId: string
-  type: 'process_message' | 'analyze_documents' | 'execute_workflow'
-  payload: Record<string, any>
-  status: 'pending' | 'processing' | 'completed' | 'failed'
-  priority: number
-  attempts: number
-  createdAt: Date
-  processAfter: Date
-}
-
-// Task queue operations
-class TaskQueue {
-  async enqueue(task: WorkerTask): Promise<void>
-  async dequeue(): Promise<WorkerTask | null>
-  async markCompleted(taskId: string, result?: any): Promise<void>
-  async markFailed(taskId: string, error: string): Promise<void>
-  async retry(taskId: string, delay?: number): Promise<void>
-}
-```
+Events are materialized into core tables listed in `src/livestore/schema.ts`
 
 ## Current Implementation Status
 
@@ -241,18 +95,73 @@ class TaskQueue {
 - **Worker Tools**: Task creation, project listing via LLM
 - **Real-time Sync**: Multi-client synchronization via WebSocket
 - **Testing**: Playwright E2E tests, comprehensive unit tests
+- **Document System**: Markdown editor, project organization
 
 ### 🚧 In Progress
 
-- **Document System**: Markdown editor, project organization
-- **AI Workers**: Persistent worker entities, background processing
-- **Node.js Backend**: Long-running task support, secure LLM calls
+- **Enhanced Worker Tools**: Expanding LLM tool coverage for all operations
+- **Projects/Boards Separation**: Architectural improvement to separate concepts
 
 ### 📋 Planned
 
 - **Multi-user Support**: Authentication, user awareness
 - **Worker Autonomy**: Scheduled tasks, event-driven triggers
 - **Advanced Tools**: File uploads, external integrations
+
+## AI Integration Architecture
+
+### Current Implementation
+
+Work Squared implements AI integration through a hybrid client-server approach:
+
+1. **Cloudflare Worker Proxy**: Handles LLM API calls securely via Braintrust
+2. **Client-Side Agentic Loop**: Executes tools and manages conversation flow
+3. **Tool Execution**: Direct LiveStore integration for immediate state updates
+
+### Agentic Loop Details
+
+The agentic loop in `src/components/chat/ChatInterface/ChatInterface.tsx` provides sophisticated AI interaction:
+
+```typescript
+// Agentic loop flow:
+1. User sends message → ChatInterface
+2. LLM called via Cloudflare Worker → Returns tool calls
+3. Tools executed client-side → Results added to conversation
+4. Continuation call to LLM → Process results, possibly more tools
+5. Repeat until no more tool calls (max 5 iterations)
+```
+
+**Key Features:**
+- **Multi-turn conversations**: Tools results fed back to LLM for further processing
+- **Real-time UI updates**: Each tool execution shows immediate feedback
+- **Error handling**: Tool failures gracefully handled and reported
+- **Context awareness**: Board and worker context passed through all calls
+
+### Tool Calling Architecture
+
+Tools are defined in the Cloudflare Worker (`functions/_worker.ts`) but executed client-side:
+
+**Available Tools:**
+- `create_task`: Create Kanban tasks with full validation
+- `list_projects`: Get all available projects
+- `list_documents`: Get all documents with metadata
+- `read_document`: Read full document content
+- `search_documents`: Search through document content
+
+**Execution Flow:**
+1. Worker defines tool schemas for LLM
+2. LLM returns tool calls in response
+3. Client executes tools via `executeLLMTool()` in `src/utils/llm-tools.ts`
+4. Results formatted and sent back to LLM for continuation
+
+### Worker Context Support
+
+The system supports specialized AI workers with custom system prompts:
+
+- **Worker Profiles**: Custom name, role description, avatar, default model
+- **System Prompts**: Worker-specific instructions and behavior
+- **Conversation Binding**: Workers can be bound to specific conversations
+- **Context Injection**: Worker context passed through entire conversation flow
 
 ## Historical Context
 
@@ -262,65 +171,24 @@ Work Squared has evolved through several architectural phases:
 
 1. **Demo Phase**: Frontend-only LLM calls for simplicity
 2. **Feature Development**: Added Kanban system and real-time sync
-3. **Production Transition**: Introduced Node.js backend for persistent workers
-4. **Current State**: Multi-service architecture supporting long-running AI tasks
+3. **Current State**: Hybrid approach with secure proxy and client-side execution
 
-### Legacy Frontend Integration
+### Current Approach Benefits
 
-The original implementation handled LLM calls directly in the browser for development simplicity. This approach worked for the demo but had limitations:
+The hybrid client-server approach provides several advantages:
 
-- API keys exposed to clients
-- Limited to 30-second Cloudflare Worker timeouts
-- No background processing capabilities
-- Single-user context only
-
-### Migration to Backend Workers
-
-The current architecture moves LLM processing to a dedicated Node.js service, enabling:
-
-- Secure API key management
-- Long-running tasks (hours if needed)
-- Persistent worker entities
-- Background job queuing
-- Multi-user collaboration
-
-## Development Workflow
-
-### Current Development Setup
-
-```bash
-# Start frontend and sync worker
-pnpm dev
-
-# Run LLM service (separate terminal)
-pnpm llm:service
-
-# Run tests
-pnpm test              # Unit tests
-pnpm test:e2e          # E2E tests with Playwright
-pnpm test:storybook    # Component visual testing
-```
-
-### Production Deployment
-
-```bash
-# Deploy sync worker to Cloudflare
-pnpm wrangler:deploy
-
-# Build and deploy frontend to Cloudflare Pages
-pnpm build
-
-# Deploy Node.js service to Render.com
-# (via git push to connected repository)
-```
+- **Security**: API keys secured in Cloudflare Worker environment
+- **Performance**: Tools execute directly against LiveStore for immediate updates
+- **Real-time**: Users see tool execution progress in real-time
+- **Flexibility**: Easy to add new tools without backend changes
 
 ## Architecture Decisions
 
 The current architecture is documented through formal ADRs:
 
-- **[ADR-001](./adrs/001-background-job-system.md)**: SQLite-based task queue for background jobs
-- **[ADR-002](./adrs/002-nodejs-hosting-platform.md)**: Render.com hosting for Node.js workers
-- **[ADR-003](./adrs/003-backup-storage-strategy.md)**: Cloudflare R2 for automated backups
+- **[ADR-001](./adrs/001-background-job-system.md)**: PROPOSED - SQLite-based task queue for background jobs
+- **[ADR-002](./adrs/002-nodejs-hosting-platform.md)**: PROPOSED - Render.com hosting for Node.js workers
+- **[ADR-003](./adrs/003-backup-storage-strategy.md)**: PROPOSED - Cloudflare R2 for automated backups
 
 ## Related Documentation
 
