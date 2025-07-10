@@ -24,6 +24,7 @@ describe('Worker Project Assignment', () => {
         id: workerId,
         name: 'Test Worker',
         systemPrompt: 'Test system prompt',
+        defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date(),
       })
     )
@@ -67,6 +68,7 @@ describe('Worker Project Assignment', () => {
         id: workerId,
         name: 'Test Worker',
         systemPrompt: 'Test system prompt',
+        defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date(),
       })
     )
@@ -115,6 +117,7 @@ describe('Worker Project Assignment', () => {
         id: worker1Id,
         name: 'Test Worker 1',
         systemPrompt: 'Test system prompt 1',
+        defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date(),
       })
     )
@@ -124,6 +127,7 @@ describe('Worker Project Assignment', () => {
         id: worker2Id,
         name: 'Test Worker 2',
         systemPrompt: 'Test system prompt 2',
+        defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date(),
       })
     )
@@ -170,6 +174,7 @@ describe('Worker Project Assignment', () => {
         id: workerId,
         name: 'Test Worker',
         systemPrompt: 'Test system prompt',
+        defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date(),
       })
     )
@@ -225,6 +230,7 @@ describe('Worker Project Assignment', () => {
         id: worker1Id,
         name: 'Test Worker 1',
         systemPrompt: 'Test system prompt 1',
+        defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date(),
       })
     )
@@ -234,6 +240,7 @@ describe('Worker Project Assignment', () => {
         id: worker2Id,
         name: 'Test Worker 2',
         systemPrompt: 'Test system prompt 2',
+        defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date(),
       })
     )
@@ -303,6 +310,7 @@ describe('Worker Project Assignment', () => {
         id: workerId,
         name: 'Test Worker',
         systemPrompt: 'Test system prompt',
+        defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date(),
       })
     )

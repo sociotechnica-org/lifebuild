@@ -150,6 +150,7 @@ export const conversationCreated = Events.synced({
     id: Schema.String,
     title: Schema.String,
     model: Schema.String,
+    workerId: Schema.optional(Schema.String),
     createdAt: Schema.Date,
   }),
 })
@@ -266,6 +267,7 @@ export const workerCreated = Events.synced({
     roleDescription: Schema.optional(Schema.String),
     systemPrompt: Schema.String,
     avatar: Schema.optional(Schema.String),
+    defaultModel: Schema.String,
     createdAt: Schema.Date,
   }),
 })
@@ -279,6 +281,7 @@ export const workerUpdated = Events.synced({
       roleDescription: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
       systemPrompt: Schema.optional(Schema.String),
       avatar: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+      defaultModel: Schema.optional(Schema.String),
       isActive: Schema.optional(Schema.Boolean),
     }),
     updatedAt: Schema.Date,

@@ -3,6 +3,8 @@ import { useStore } from '@livestore/react'
 import { events } from '../../../livestore/schema.js'
 import { systemPromptTemplates } from '../../../util/workerNames.js'
 import { ProjectAssignmentModal } from '../../ProjectAssignmentModal.js'
+import { ModelSelector } from '../../ui/ModelSelector/ModelSelector.js'
+import { DEFAULT_MODEL } from '../../../util/models.js'
 import type { Worker } from '../../../livestore/schema.js'
 
 interface EditWorkerModalProps {
@@ -17,6 +19,7 @@ export const EditWorkerModal: React.FC<EditWorkerModalProps> = ({ isOpen, onClos
   const [roleDescription, setRoleDescription] = useState(worker.roleDescription || '')
   const [systemPrompt, setSystemPrompt] = useState(worker.systemPrompt)
   const [avatar, setAvatar] = useState(worker.avatar || '')
+  const [defaultModel, setDefaultModel] = useState(worker.defaultModel || DEFAULT_MODEL)
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<{ name?: string; systemPrompt?: string }>({})
@@ -29,6 +32,7 @@ export const EditWorkerModal: React.FC<EditWorkerModalProps> = ({ isOpen, onClos
       setRoleDescription(worker.roleDescription || '')
       setSystemPrompt(worker.systemPrompt)
       setAvatar(worker.avatar || '')
+      setDefaultModel(worker.defaultModel || DEFAULT_MODEL)
       setSelectedTemplate('')
       setErrors({})
     }
@@ -74,6 +78,9 @@ export const EditWorkerModal: React.FC<EditWorkerModalProps> = ({ isOpen, onClos
       if (avatar.trim() !== (worker.avatar || '')) {
         updates.avatar = avatar.trim() || null
       }
+      if (defaultModel !== (worker.defaultModel || DEFAULT_MODEL)) {
+        updates.defaultModel = defaultModel
+      }
 
       // Only emit event if there are actual changes
       if (Object.keys(updates).length > 0) {
@@ -100,6 +107,7 @@ export const EditWorkerModal: React.FC<EditWorkerModalProps> = ({ isOpen, onClos
     setRoleDescription(worker.roleDescription || '')
     setSystemPrompt(worker.systemPrompt)
     setAvatar(worker.avatar || '')
+    setDefaultModel(worker.defaultModel || DEFAULT_MODEL)
     setSelectedTemplate('')
     setErrors({})
     onClose()
@@ -218,6 +226,25 @@ export const EditWorkerModal: React.FC<EditWorkerModalProps> = ({ isOpen, onClos
                 placeholder='🤖'
                 maxLength={2}
               />
+            </div>
+
+            {/* Default Model */}
+            <div>
+              <label
+                htmlFor='default-model'
+                className='block text-sm font-medium text-gray-900 mb-2'
+              >
+                Default Model
+              </label>
+              <ModelSelector
+                selectedModel={defaultModel}
+                onModelChange={setDefaultModel}
+                className='w-full'
+              />
+              <p className='mt-1 text-sm text-gray-500'>
+                This model will be used by default for new conversations with this worker. Users can
+                still change the model per conversation.
+              </p>
             </div>
 
             {/* System Prompt Template */}

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useStore } from '@livestore/react'
 import { events } from '../../../livestore/schema.js'
 import { generateRandomWorkerName, systemPromptTemplates } from '../../../util/workerNames.js'
+import { ModelSelector } from '../../ui/ModelSelector/ModelSelector.js'
+import { DEFAULT_MODEL } from '../../../util/models.js'
 
 interface CreateWorkerModalProps {
   isOpen: boolean
@@ -14,6 +16,7 @@ export const CreateWorkerModal: React.FC<CreateWorkerModalProps> = ({ isOpen, on
   const [roleDescription, setRoleDescription] = useState('')
   const [systemPrompt, setSystemPrompt] = useState('')
   const [avatar, setAvatar] = useState('')
+  const [defaultModel, setDefaultModel] = useState(DEFAULT_MODEL)
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<{ name?: string; systemPrompt?: string }>({})
@@ -61,6 +64,7 @@ export const CreateWorkerModal: React.FC<CreateWorkerModalProps> = ({ isOpen, on
           roleDescription: roleDescription.trim() || undefined,
           systemPrompt: systemPrompt.trim(),
           avatar: avatar.trim() || undefined,
+          defaultModel,
           createdAt,
         })
       )
@@ -80,6 +84,7 @@ export const CreateWorkerModal: React.FC<CreateWorkerModalProps> = ({ isOpen, on
     setRoleDescription('')
     setSystemPrompt('')
     setAvatar('')
+    setDefaultModel(DEFAULT_MODEL)
     setSelectedTemplate('')
     setErrors({})
   }
@@ -215,6 +220,25 @@ export const CreateWorkerModal: React.FC<CreateWorkerModalProps> = ({ isOpen, on
                 placeholder='🤖'
                 maxLength={2}
               />
+            </div>
+
+            {/* Default Model */}
+            <div>
+              <label
+                htmlFor='default-model'
+                className='block text-sm font-medium text-gray-900 mb-2'
+              >
+                Default Model
+              </label>
+              <ModelSelector
+                selectedModel={defaultModel}
+                onModelChange={setDefaultModel}
+                className='w-full'
+              />
+              <p className='mt-1 text-sm text-gray-500'>
+                This model will be used by default for new conversations with this worker. Users can
+                still change the model per conversation.
+              </p>
             </div>
 
             {/* System Prompt Template */}
