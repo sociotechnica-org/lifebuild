@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from '@livestore/react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import type { Worker, Project } from '../../../livestore/schema.js'
 import { getWorkerProjects$, getProjects$ } from '../../../livestore/queries.js'
 import { EditWorkerModal } from '../EditWorkerModal/EditWorkerModal.js'
@@ -13,6 +14,8 @@ interface WorkerCardProps {
 
 export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
   const { store } = useStore()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [assignedProjects, setAssignedProjects] = useState<Project[]>([])
 
@@ -42,8 +45,14 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
       })
     )
 
-    // Navigate to chat interface - for now, we'll just log
-    // TODO: Add navigation to chat interface with the new conversation
+    // Navigate to current page with conversation parameters to select the new conversation
+    const params = new URLSearchParams(location.search)
+    params.set('workerId', worker.id)
+    params.set('conversationId', conversationId)
+
+    // Keep current pathname and add the parameters
+    navigate(`${location.pathname}?${params.toString()}`)
+
     console.log(
       `Created conversation ${conversationId} with worker ${worker.name} using model ${model}`
     )

@@ -1,6 +1,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { BrowserRouter } from 'react-router-dom'
 import { WorkerCard } from './WorkerCard.js'
 
 // Hoisted mocks
@@ -41,13 +42,21 @@ describe('WorkerCard', () => {
 
   it('should render default avatar when none provided', () => {
     const workerWithoutAvatar = { ...mockWorker, avatar: null }
-    render(<WorkerCard worker={workerWithoutAvatar} />)
+    render(
+      <BrowserRouter>
+        <WorkerCard worker={workerWithoutAvatar} />
+      </BrowserRouter>
+    )
     expect(screen.getByText('🤖')).toBeInTheDocument()
   })
 
   it('should call onClick when card is clicked', () => {
     const onClick = vi.fn()
-    render(<WorkerCard worker={mockWorker} onClick={onClick} />)
+    render(
+      <BrowserRouter>
+        <WorkerCard worker={mockWorker} onClick={onClick} />
+      </BrowserRouter>
+    )
 
     const card = screen.getByText('Test Worker').closest('div')
     card?.click()

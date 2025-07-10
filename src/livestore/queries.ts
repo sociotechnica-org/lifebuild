@@ -178,6 +178,11 @@ export const getWorkers$ = queryDb(
   { label: 'getWorkers' }
 )
 
+export const getWorkerById$ = (workerId: string) =>
+  queryDb(tables.workers.select().where({ id: workerId }), {
+    label: `getWorkerById:${workerId}`,
+  })
+
 export const getWorkerProjects$ = (workerId: string) =>
   queryDb(tables.workerProjects.select().where({ workerId }), {
     label: `getWorkerProjects:${workerId}`,

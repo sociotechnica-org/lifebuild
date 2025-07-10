@@ -1,17 +1,17 @@
 import { useQuery, useStore } from '@livestore/react'
 import React from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { events } from '../../../livestore/schema.js'
 import {
   getConversations$,
   getConversationMessages$,
   getBoardById$,
+  getWorkerById$,
 } from '../../../livestore/queries.js'
 import type { Conversation, ChatMessage } from '../../../livestore/schema.js'
 import { MarkdownRenderer } from '../../markdown/MarkdownRenderer.js'
 import { executeLLMTool } from '../../../utils/llm-tools.js'
-import { ModelSelector } from '../../ui/ModelSelector/ModelSelector.js'
 import { DEFAULT_MODEL } from '../../../util/models.js'
 
 interface LLMAPIResponse {
@@ -35,7 +35,8 @@ async function runAgenticLoop(
   boardContext: { id: string; name: string } | undefined,
   selectedConversationId: string,
   store: any,
-  model: string
+  model: string,
+  workerContext?: { systemPrompt: string; name: string; roleDescription?: string }
 ): Promise<void> {
   console.log('🚀 Starting agentic loop')
 
@@ -186,7 +187,8 @@ async function runAgenticLoop(
           '', // Empty message since we're continuing with tool results
           currentHistory as any, // Mixed message types for OpenAI API
           boardContext,
-          model
+          model,
+          workerContext
         )
 
         console.log(`🔄 Iteration ${iteration} LLM response:`, {
@@ -237,7 +239,8 @@ async function callLLMAPI(
   userMessage: string,
   conversationHistory?: ChatMessage[],
   currentBoard?: { id: string; name: string },
-  model?: string
+  model?: string,
+  workerContext?: { systemPrompt: string; name: string; roleDescription?: string }
 ): Promise<LLMAPIResponse> {
   console.log('🔗 Calling LLM API via proxy...')
 
@@ -265,6 +268,7 @@ async function callLLMAPI(
     conversationHistory: historyForAPI,
     currentBoard,
     model: model || DEFAULT_MODEL,
+    workerContext,
   }
 
   console.log('🔗 Making request to:', proxyUrl)
@@ -304,13 +308,20 @@ async function callLLMAPI(
 export const ChatInterface: React.FC = () => {
   const { store } = useStore()
   const location = useLocation()
+  const navigate = useNavigate()
   const conversations = useQuery(getConversations$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
+
+  // Handle URL parameters for conversation selection
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const urlConversationId = params.get('conversationId')
+
+    if (urlConversationId && conversations.some(c => c.id === urlConversationId)) {
+      setSelectedConversationId(urlConversationId)
+    }
+  }, [location.search, conversations])
   const [messageText, setMessageText] = React.useState('')
-  const [selectedModelForNextMessage, setSelectedModelForNextMessage] =
-    React.useState<string>(DEFAULT_MODEL)
-  const selectedModelRef = React.useRef<string>(DEFAULT_MODEL)
-  const userHasChangedModel = React.useRef<boolean>(false)
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
@@ -331,6 +342,17 @@ export const ChatInterface: React.FC = () => {
   const boardResult = useQuery(boardQuery || getBoardById$('__no_board__'))
   const currentBoard = currentBoardId && boardResult?.[0] ? (boardResult[0] as any) : null
 
+  // Get selected conversation object to check for workerId
+  const selectedConversation = conversations.find(c => c.id === selectedConversationId)
+
+  // Query for worker if conversation has workerId
+  const workerQuery = React.useMemo(() => {
+    return selectedConversation?.workerId ? getWorkerById$(selectedConversation.workerId) : null
+  }, [selectedConversation?.workerId])
+
+  const workerResult = useQuery(workerQuery || getWorkerById$('__no_worker__'))
+  const currentWorker = selectedConversation?.workerId && workerResult?.[0] ? workerResult[0] : null
+
   // Use a stable conversation ID for the query to avoid hook order issues
   const queryConversationId = selectedConversationId ?? '__no_conversation__'
   const allMessages = useQuery(getConversationMessages$(queryConversationId)) ?? []
@@ -342,6 +364,29 @@ export const ChatInterface: React.FC = () => {
       textareaRef.current.style.height = '80px'
     }
   }, [])
+
+  const handleConversationChange = React.useCallback(
+    (conversationId: string) => {
+      const conversation = conversations.find(c => c.id === conversationId)
+
+      if (conversation) {
+        setSelectedConversationId(conversationId)
+
+        // Update URL parameters
+        const params = new URLSearchParams(location.search)
+        params.set('conversationId', conversationId)
+
+        if (conversation.workerId) {
+          params.set('workerId', conversation.workerId)
+        } else {
+          params.delete('workerId')
+        }
+
+        navigate(`${location.pathname}?${params.toString()}`, { replace: true })
+      }
+    },
+    [conversations, location, navigate]
+  )
 
   const handleCreateConversation = React.useCallback(() => {
     const id = crypto.randomUUID()
@@ -356,28 +401,8 @@ export const ChatInterface: React.FC = () => {
       })
     )
 
-    setSelectedConversationId(id)
-  }, [store])
-
-  const handleModelChange = React.useCallback(
-    (newModel: string) => {
-      setSelectedModelForNextMessage(newModel)
-      selectedModelRef.current = newModel // Keep ref in sync
-      userHasChangedModel.current = true
-
-      // Persist the model change to the database if we have a selected conversation
-      if (selectedConversationId) {
-        store.commit(
-          events.conversationModelUpdated({
-            id: selectedConversationId,
-            model: newModel,
-            updatedAt: new Date(),
-          })
-        )
-      }
-    },
-    [selectedConversationId, store]
-  )
+    handleConversationChange(id)
+  }, [store, handleConversationChange])
 
   const handleSendMessage = React.useCallback(
     (e: React.FormEvent) => {
@@ -438,11 +463,22 @@ export const ChatInterface: React.FC = () => {
               const boardContext = currentBoard
                 ? { id: currentBoard.id, name: currentBoard.name }
                 : undefined
+              // Build worker context if this is a worker conversation
+              const workerContext =
+                currentWorker && currentWorker.systemPrompt
+                  ? {
+                      systemPrompt: currentWorker.systemPrompt,
+                      name: currentWorker.name,
+                      roleDescription: currentWorker.roleDescription || undefined,
+                    }
+                  : undefined
+
               const llmResponse = await callLLMAPI(
                 userMessage.message,
                 conversationHistory,
                 boardContext,
-                selectedModelRef.current // Use ref to get current model at processing time
+                selectedConversation?.model || DEFAULT_MODEL,
+                workerContext
               )
 
               // Handle tool calls if present - start agentic loop immediately
@@ -461,7 +497,8 @@ export const ChatInterface: React.FC = () => {
                   boardContext,
                   selectedConversationId,
                   store,
-                  selectedModelRef.current // Use ref to get current model at processing time
+                  selectedConversation?.model || DEFAULT_MODEL,
+                  workerContext
                 )
               } else {
                 // Normal text response without tools
@@ -471,7 +508,7 @@ export const ChatInterface: React.FC = () => {
                     conversationId: selectedConversationId,
                     message: llmResponse.message,
                     role: 'assistant',
-                    modelId: selectedModelRef.current, // Use ref to get current model at processing time
+                    modelId: selectedConversation?.model || DEFAULT_MODEL,
                     responseToMessageId: userMessage.id,
                     createdAt: new Date(),
                     metadata: { source: 'braintrust' },
@@ -505,7 +542,7 @@ export const ChatInterface: React.FC = () => {
     })
 
     return unsubscribe
-  }, [store, selectedConversationId]) // Don't depend on selectedModelForNextMessage to avoid subscription churn
+  }, [store, selectedConversationId, currentWorker, selectedConversation, currentBoard])
 
   // Auto-select first conversation if none selected
   React.useEffect(() => {
@@ -513,26 +550,6 @@ export const ChatInterface: React.FC = () => {
       setSelectedConversationId(conversations[0]?.id || null)
     }
   }, [selectedConversationId, conversations])
-
-  // Get selected conversation object (needed for useEffect below)
-  const selectedConversation = conversations.find(c => c.id === selectedConversationId)
-
-  // Update selected model when conversation changes (but not on new messages)
-  React.useEffect(() => {
-    // Reset the user change flag when switching conversations
-    userHasChangedModel.current = false
-
-    if (selectedConversationId && selectedConversation) {
-      // Use the conversation's stored model, or default if not set
-      const model = selectedConversation.model || DEFAULT_MODEL
-      setSelectedModelForNextMessage(model)
-      selectedModelRef.current = model // Keep ref in sync
-    } else {
-      // No conversation selected, use default
-      setSelectedModelForNextMessage(DEFAULT_MODEL)
-      selectedModelRef.current = DEFAULT_MODEL // Keep ref in sync
-    }
-  }, [selectedConversationId, selectedConversation]) // Depend on conversation and its data
 
   // Auto-scroll to bottom when messages change
   React.useEffect(() => {
@@ -568,7 +585,20 @@ export const ChatInterface: React.FC = () => {
       {/* Chat Header - Fixed */}
       <div className='flex-shrink-0 p-4 border-b border-gray-200'>
         <div className='flex items-center justify-between mb-2'>
-          <h2 className='text-lg font-semibold text-gray-900'>Chat</h2>
+          {currentWorker ? (
+            <div className='flex items-center gap-3'>
+              <div className='text-2xl'>{currentWorker.avatar || '🤖'}</div>
+              <div>
+                <h2 className='text-lg font-semibold text-gray-900'>{currentWorker.name}</h2>
+                {currentWorker.roleDescription && (
+                  <p className='text-sm text-gray-600'>{currentWorker.roleDescription}</p>
+                )}
+                <p className='text-xs text-gray-500'>Model: {currentWorker.defaultModel}</p>
+              </div>
+            </div>
+          ) : (
+            <h2 className='text-lg font-semibold text-gray-900'>Chat</h2>
+          )}
         </div>
 
         {/* Conversation Selector with + button inline */}
@@ -576,7 +606,7 @@ export const ChatInterface: React.FC = () => {
           <div className='flex items-center gap-2'>
             <select
               value={selectedConversationId || ''}
-              onChange={e => setSelectedConversationId(e.target.value)}
+              onChange={e => handleConversationChange(e.target.value)}
               className='flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
             >
               <option value=''>Select a conversation...</option>
@@ -710,14 +740,6 @@ export const ChatInterface: React.FC = () => {
 
             {/* Message Input - Fixed at bottom */}
             <div className='flex-shrink-0 bg-gray-50 border-t border-gray-200'>
-              {/* Model Selector */}
-              <div className='px-4 py-3 border-b border-gray-200'>
-                <ModelSelector
-                  selectedModel={selectedModelForNextMessage}
-                  onModelChange={handleModelChange}
-                />
-              </div>
-
               {/* Message Input */}
               <div className='relative'>
                 <form onSubmit={handleSendMessage} className='h-full'>
