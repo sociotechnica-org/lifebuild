@@ -223,25 +223,44 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 
 ---
 
-## Story 2B – Worker-tied model selection
+## ✅ Story 2B – Worker-tied model selection
 
 **User story**: _As a user, I want to select a default AI model when creating a Worker so that each worker has a consistent model choice that reflects their specialization._
 
 **Dependencies**: Story 1 (need worker creation), Story 2 (need model selection system)
 
+**Status**: ✅ **COMPLETED** - [PR #72](https://github.com/sociotechnica-org/work-squared/pull/72)
+
 ### Tasks
 
-- [ ] Schema: Add `defaultModel` field to `workers` table
-- [ ] Event: Update `worker.created` event to include `defaultModel`
-- [ ] UI: Add model selector dropdown in CreateWorkerModal
-- [ ] UI: Add model selector dropdown in EditWorkerModal
-- [ ] UI: Display worker's default model in worker cards and profile
-- [ ] Logic: New conversations with this worker start with their default model
-- [ ] Logic: Users can still change model per conversation (Story 2 functionality preserved)
-- [ ] Logic: Default to `claude-3-5-sonnet-latest` if no model specified
-- [ ] Validation: Ensure selected model is from supported list
-- [ ] Tests: Worker creation with model selection, model display, conversation defaults
-- [ ] DoD: Workers can be created with default models, and new conversations use that model
+- [x] Schema: Add `defaultModel` field to `workers` table
+- [x] Event: Update `worker.created` event to include `defaultModel`
+- [x] UI: Add model selector dropdown in CreateWorkerModal
+- [x] UI: Add model selector dropdown in EditWorkerModal
+- [x] UI: Display worker's default model in worker cards and profile
+- [x] Logic: New conversations with this worker start with their default model
+- [x] Logic: Users can still change model per conversation (Story 2 functionality preserved)
+- [x] Logic: Default to `claude-3-5-sonnet-latest` if no model specified
+- [x] Validation: Ensure selected model is from supported list
+- [x] Tests: Worker creation with model selection, model display, conversation defaults
+- [x] DoD: Workers can be created with default models, and new conversations use that model
+
+### Implementation Summary
+
+**Database Changes:**
+- Added `defaultModel` field to `workers` table with proper materialization
+- Updated `workerCreated` event to include `defaultModel` parameter
+- Modified worker queries to include default model information
+
+**UI Components:**
+- Enhanced `CreateWorkerModal` and `EditWorkerModal` with model selection
+- Updated `WorkerCard` to display worker's default model
+- Added model display in worker profile views
+
+**Logic Implementation:**
+- New worker conversations automatically use worker's default model
+- Existing model-per-conversation functionality preserved
+- Fallback to `claude-3-5-sonnet-latest` for legacy workers
 
 ### Implementation Notes
 
@@ -252,27 +271,58 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 
 ---
 
-## Story 6 – Worker chat system
+## ✅ Story 6 – Worker chat system
 
 **User story**: _As a user, I want to chat with individual workers in dedicated conversations so I can have specialized interactions with each AI assistant._
 
 **Dependencies**: Story 1 (need worker creation), Story 2 (need model selection)
 
+**Status**: ✅ **COMPLETED** - [PR #72](https://github.com/sociotechnica-org/work-squared/pull/72)
+
 ### Tasks
 
-- [ ] UI: Show worker avatar, name, and role in chat header
-- [ ] UI: Remove the model selector from the chat interface (it's now a worker setting)
-- [ ] Logic: Each worker can have multiple separate conversation histories
-- [ ] Logic: Include worker's system prompt in their conversations
-- [ ] Backend: Update chat API to handle worker-specific conversations
-- [ ] Tests: Worker conversation isolation, message threading, system prompt application
-- [ ] DoD: Each worker has dedicated chat interface with proper context and history
+- [x] UI: Show worker avatar, name, and role in chat header
+- [x] UI: Remove the model selector from the chat interface (it's now a worker setting)
+- [x] Logic: Each worker can have multiple separate conversation histories
+- [x] Logic: Include worker's system prompt in their conversations
+- [x] Backend: Update chat API to handle worker-specific conversations
+- [x] Tests: Worker conversation isolation, message threading, system prompt application
+- [x] DoD: Each worker has dedicated chat interface with proper context and history
+
+### Implementation Summary
+
+**UI Enhancements:**
+- Chat header now displays worker avatar, name, role description, and default model when in worker conversation
+- Removed ModelSelector component from chat interface - workers use their default model
+- Added URL parameter-based navigation for bookmarkable worker conversations
+- Enhanced conversation selector to handle both general and worker-specific chats
+
+**Database Changes:**
+- Added `workerId` field to `conversations` table to link conversations to specific workers
+- Added `getWorkerById$` query for worker lookup in chat interface
+- Updated conversation creation to include worker context
+
+**Backend Integration:**
+- Modified chat API (`functions/_worker.ts`) to handle `workerContext` parameter
+- Added conditional system prompt logic: worker's custom prompt vs default assistant prompt
+- Integrated worker profile information (name, role, system prompt) into API requests
+
+**Navigation & State Management:**
+- Implemented URL parameter handling for `workerId` and `conversationId`
+- Added `WorkerCard` chat button functionality to create and navigate to worker conversations
+- Enhanced conversation switching with proper URL updates for bookmarkable state
+
+**Testing:**
+- Fixed `WorkerCard` tests to include `BrowserRouter` context for navigation hooks
+- Added proper test coverage for worker conversation functionality
+- Resolved React hooks dependency issues identified by automated code review
 
 ### Implementation Notes
 
 - **Conversation Isolation**: Each worker maintains completely separate conversation history
-- **Context Switching**: Users can easily switch between different worker conversations
+- **Context Switching**: Users can easily switch between different worker conversations using URL parameters
 - **Public DM Style**: Conversations are visible to all users but specific to each worker
+- **Backward Compatibility**: Non-worker conversations continue to work with default system prompt
 
 ---
 
