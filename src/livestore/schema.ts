@@ -190,12 +190,11 @@ const workerProjects = State.SQLite.table({
 const uiState = State.SQLite.clientDocument({
   name: 'uiState',
   schema: Schema.Struct({
-    newTodoText: Schema.String,
     filter: Filter,
   }),
   default: {
     id: SessionIdSymbol,
-    value: { newTodoText: '', filter: 'all' as Filter },
+    value: { filter: 'all' as Filter },
   },
 })
 
