@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useStore } from '@livestore/react'
 import type { Project, Worker } from '../../../livestore/schema.js'
 import { getProjectWorkers$, getWorkers$ } from '../../../livestore/queries.js'
+import { getAvatarColor } from '../../../utils/avatarColors.js'
 
 interface ProjectCardProps {
   project: Project
@@ -56,7 +57,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
             {assignedWorkers.slice(0, 3).map(worker => (
               <span
                 key={worker.id}
-                className='inline-flex items-center px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full'
+                className={`inline-flex items-center px-2 py-1 text-xs ${getAvatarColor(worker.id)} text-white rounded-full`}
               >
                 {worker.avatar && <span className='mr-1'>{worker.avatar}</span>}
                 {worker.name}

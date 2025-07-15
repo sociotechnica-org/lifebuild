@@ -6,6 +6,7 @@ import { getWorkerProjects$, getProjects$ } from '../../../livestore/queries.js'
 import { EditWorkerModal } from '../EditWorkerModal/EditWorkerModal.js'
 import { getModelById, DEFAULT_MODEL } from '../../../util/models.js'
 import { events } from '../../../livestore/schema.js'
+import { getAvatarColor } from '../../../utils/avatarColors.js'
 
 interface WorkerCardProps {
   worker: Worker
@@ -83,7 +84,9 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
       onClick={onClick}
     >
       <div className='flex items-center mb-3'>
-        <div className='w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center text-lg font-medium mr-3'>
+        <div
+          className={`w-10 h-10 ${getAvatarColor(worker.id)} text-white rounded-full flex items-center justify-center text-lg font-medium mr-3`}
+        >
           {worker.avatar || '🤖'}
         </div>
         <div>

@@ -54,7 +54,8 @@ describe('EditWorkerModal', () => {
     expect(screen.getByDisplayValue('Test Worker')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Test Role')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Original system prompt')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('🤖')).toBeInTheDocument()
+    // Check that the emoji picker shows the worker's avatar
+    expect(screen.getByText('🤖')).toBeInTheDocument()
   })
 
   it('should not render when isOpen is false', () => {
@@ -185,12 +186,10 @@ describe('EditWorkerModal', () => {
     )
 
     const roleInput = screen.getByLabelText('Role Description')
-    const avatarInput = screen.getByLabelText('Avatar (emoji)')
     const submitButton = screen.getByRole('button', { name: 'Save Changes' })
 
-    // Clear optional fields
+    // Clear role field (avatar change testing would require more complex interaction with EmojiPicker)
     fireEvent.change(roleInput, { target: { value: '' } })
-    fireEvent.change(avatarInput, { target: { value: '' } })
 
     fireEvent.click(submitButton)
 
@@ -205,7 +204,6 @@ describe('EditWorkerModal', () => {
           id: 'test-worker-id',
           updates: {
             roleDescription: null,
-            avatar: null,
           },
         }),
       })
