@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { executeLLMTool } from '../../src/utils/llm-tools/index.js'
 import { listProjects } from '../../src/utils/llm-tools/projects.js'
-import { listDocuments, readDocument, searchDocuments } from '../../src/utils/llm-tools/documents.js'
+import {
+  listDocuments,
+  readDocument,
+  searchDocuments,
+} from '../../src/utils/llm-tools/documents.js'
 import {
   createTask,
   updateTask,
