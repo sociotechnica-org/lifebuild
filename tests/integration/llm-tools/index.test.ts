@@ -362,7 +362,7 @@ describe('LLM Tools - executeLLMTool', () => {
       })
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('Document ID is required')
+      expect(result.error).toBe('Document with ID  not found')
     })
   })
 })

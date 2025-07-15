@@ -35,11 +35,8 @@ function listDocumentsCore(store: Store): ListDocumentsResult {
  * Read a specific document by ID (core implementation)
  */
 function readDocumentCore(store: Store, documentId: string): ReadDocumentResult {
-  // Validate required fields
-  const validDocumentId = validators.requireId(documentId, 'Document ID')
-
-  const documents = store.query(getDocumentById$(validDocumentId)) as any[]
-  const document = validators.requireEntity(documents, 'Document', validDocumentId)
+  const documents = store.query(getDocumentById$(documentId)) as any[]
+  const document = validators.requireEntity(documents, 'Document', documentId)
 
   return {
     success: true,
@@ -57,11 +54,8 @@ function readDocumentCore(store: Store, documentId: string): ReadDocumentResult 
  * Search documents by query string (core implementation)
  */
 function searchDocumentsCore(store: Store, query: string): SearchDocumentsResult {
-  // Validate required fields
-  const validQuery = validators.requireId(query, 'Search query')
-
-  const searchQuery = validQuery.toLowerCase()
-  const allDocuments = store.query(searchDocuments$(validQuery)) as any[]
+  const searchQuery = query.toLowerCase()
+  const allDocuments = store.query(searchDocuments$(query)) as any[]
 
   // Filter documents that match the search query in title or content
   const results = allDocuments.filter(
@@ -83,11 +77,8 @@ function searchDocumentsCore(store: Store, query: string): SearchDocumentsResult
  * Get all documents for a specific project (core implementation)
  */
 function getProjectDocumentsCore(store: Store, projectId: string): GetProjectDocumentsResult {
-  // Validate required fields
-  const validProjectId = validators.requireId(projectId, 'Project ID')
-
   // Get document-project associations and all documents, then filter
-  const documentProjects = store.query(getDocumentProjectsByProject$(validProjectId)) as any[]
+  const documentProjects = store.query(getDocumentProjectsByProject$(projectId)) as any[]
   const allDocuments = store.query(getAllDocuments$) as any[]
   const documentIds = new Set(documentProjects.map(dp => dp.documentId))
   const documents = allDocuments.filter(doc => documentIds.has(doc.id))
@@ -112,11 +103,8 @@ function searchProjectDocumentsCore(
   query: string,
   projectId?: string
 ): SearchProjectDocumentsResult {
-  // Validate required fields
-  const validQuery = validators.requireId(query, 'Search query')
-
-  const searchQuery = validQuery.toLowerCase()
-  let documents = store.query(searchDocumentsWithProject$(validQuery, projectId)) as any[]
+  const searchQuery = query.toLowerCase()
+  let documents = store.query(searchDocumentsWithProject$(query, projectId)) as any[]
 
   // If projectId is provided, filter documents by project
   if (projectId) {

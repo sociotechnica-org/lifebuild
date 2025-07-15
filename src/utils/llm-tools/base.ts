@@ -13,13 +13,6 @@ export interface LLMToolCall {
 // ===== VALIDATION HELPERS =====
 
 export const validators = {
-  requireId: (id: string | undefined, name: string): string => {
-    if (!id?.trim()) {
-      throw new Error(`${name} is required`)
-    }
-    return id.trim()
-  },
-
   requireEntity: <T>(entities: readonly T[], entityName: string, id: string): T => {
     if (entities.length === 0) {
       throw new Error(`${entityName} with ID ${id} not found`)

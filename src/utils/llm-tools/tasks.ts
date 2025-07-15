@@ -36,9 +36,6 @@ import type {
 function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResult {
   const { title, description, boardId, columnId, assigneeId } = params
 
-  // Validate required fields
-  const validTitle = validators.requireId(title, 'Task title')
-
   // Get all projects to determine target project
   const projects = store.query(getProjects$)
   if (projects.length === 0) {
@@ -92,7 +89,7 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
     projectName: targetProject.name,
     columnId: targetColumn.id,
     columnName: targetColumn.name,
-    title: validTitle,
+    title: title.trim(),
     position: nextPosition,
     existingTasksInColumn: tasksInColumn.length,
   })
@@ -102,7 +99,7 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
       id: taskId,
       projectId: targetProject.id,
       columnId: targetColumn.id,
-      title: validTitle,
+      title: title.trim(),
       description: description?.trim() || undefined,
       assigneeIds: assigneeId ? [assigneeId] : undefined,
       position: nextPosition,
@@ -115,7 +112,7 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
   return {
     success: true,
     taskId,
-    taskTitle: validTitle,
+    taskTitle: title.trim(),
     projectName: targetProject.name,
     columnName: targetColumn.name,
     assigneeName,
@@ -129,12 +126,9 @@ function updateTaskCore(store: Store, params: UpdateTaskParams): UpdateTaskResul
   try {
     const { taskId, title, description, assigneeIds } = params
 
-    // Validate required fields
-    const validTaskId = validators.requireId(taskId, 'Task ID')
-
     // Verify task exists
-    const tasks = store.query(getTaskById$(validTaskId))
-    validators.requireEntity(tasks, 'Task', validTaskId)
+    const tasks = store.query(getTaskById$(taskId))
+    validators.requireEntity(tasks, 'Task', taskId)
 
     // Validate assignees if provided
     if (assigneeIds && assigneeIds.length > 0) {
@@ -145,7 +139,7 @@ function updateTaskCore(store: Store, params: UpdateTaskParams): UpdateTaskResul
     // Create update event
     store.commit(
       events.taskUpdated({
-        taskId: validTaskId,
+        taskId: taskId,
         title: title?.trim(),
         description: description?.trim(),
         assigneeIds,
@@ -156,7 +150,7 @@ function updateTaskCore(store: Store, params: UpdateTaskParams): UpdateTaskResul
     return {
       success: true,
       task: {
-        id: validTaskId,
+        id: taskId,
         title,
         description,
         assigneeIds,
@@ -178,13 +172,9 @@ function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
   try {
     const { taskId, toColumnId, position } = params
 
-    // Validate required fields
-    const validTaskId = validators.requireId(taskId, 'Task ID')
-    const validColumnId = validators.requireId(toColumnId, 'Column ID')
-
     // Verify task exists
-    const tasks = store.query(getTaskById$(validTaskId))
-    const task = validators.requireEntity(tasks, 'Task', validTaskId)
+    const tasks = store.query(getTaskById$(taskId))
+    const task = validators.requireEntity(tasks, 'Task', taskId)
 
     // Get project to verify column exists
     if (!task.projectId) {
@@ -192,16 +182,16 @@ function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
     }
 
     const columns = store.query(getBoardColumns$(task.projectId))
-    const targetColumn = columns.find((c: any) => c.id === validColumnId)
+    const targetColumn = columns.find((c: any) => c.id === toColumnId)
     if (!targetColumn) {
-      return { success: false, error: `Column with ID ${validColumnId} not found` }
+      return { success: false, error: `Column with ID ${toColumnId} not found` }
     }
 
     // Calculate position if not provided
     let movePosition = position
     if (movePosition === undefined) {
       const existingTasks = store.query(getBoardTasks$(task.projectId))
-      const tasksInColumn = existingTasks.filter((t: any) => t.columnId === validColumnId)
+      const tasksInColumn = existingTasks.filter((t: any) => t.columnId === toColumnId)
       const validPositions = tasksInColumn
         .map((t: any) => t.position)
         .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
@@ -211,8 +201,8 @@ function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
     // Create move event
     store.commit(
       events.taskMoved({
-        taskId: validTaskId,
-        toColumnId: validColumnId,
+        taskId: taskId,
+        toColumnId: toColumnId,
         position: movePosition,
         updatedAt: new Date(),
       })
@@ -221,8 +211,8 @@ function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
     return {
       success: true,
       task: {
-        id: validTaskId,
-        columnId: validColumnId,
+        id: taskId,
+        columnId: toColumnId,
         position: movePosition,
       },
     }
@@ -245,29 +235,24 @@ function moveTaskToProjectCore(
   try {
     const { taskId, toProjectId, toColumnId, position } = params
 
-    // Validate required fields
-    const validTaskId = validators.requireId(taskId, 'Task ID')
-    const validColumnId = validators.requireId(toColumnId, 'Column ID')
-
     // Verify task exists
-    const tasks = store.query(getTaskById$(validTaskId))
-    validators.requireEntity(tasks, 'Task', validTaskId)
+    const tasks = store.query(getTaskById$(taskId))
+    validators.requireEntity(tasks, 'Task', taskId)
 
     // Verify target project and column if projectId provided
     if (toProjectId) {
-      const validProjectId = validators.requireId(toProjectId, 'Project ID')
       const projects = store.query(getProjects$)
-      const targetProject = projects.find((p: any) => p.id === validProjectId)
+      const targetProject = projects.find((p: any) => p.id === toProjectId)
       if (!targetProject) {
-        return { success: false, error: `Project with ID ${validProjectId} not found` }
+        return { success: false, error: `Project with ID ${toProjectId} not found` }
       }
 
-      const columns = store.query(getBoardColumns$(validProjectId))
-      const targetColumn = columns.find((c: any) => c.id === validColumnId)
+      const columns = store.query(getBoardColumns$(toProjectId))
+      const targetColumn = columns.find((c: any) => c.id === toColumnId)
       if (!targetColumn) {
         return {
           success: false,
-          error: `Column with ID ${validColumnId} not found in project ${validProjectId}`,
+          error: `Column with ID ${toColumnId} not found in project ${toProjectId}`,
         }
       }
     }
@@ -276,9 +261,8 @@ function moveTaskToProjectCore(
     let movePosition = position
     if (movePosition === undefined) {
       if (toProjectId) {
-        const validProjectId = validators.requireId(toProjectId, 'Project ID')
-        const existingTasks = store.query(getBoardTasks$(validProjectId))
-        const tasksInColumn = existingTasks.filter((t: any) => t.columnId === validColumnId)
+        const existingTasks = store.query(getBoardTasks$(toProjectId))
+        const tasksInColumn = existingTasks.filter((t: any) => t.columnId === toColumnId)
         const validPositions = tasksInColumn
           .map((t: any) => t.position)
           .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
@@ -291,9 +275,9 @@ function moveTaskToProjectCore(
     // Create move to project event
     store.commit(
       events.taskMovedToProject({
-        taskId: validTaskId,
+        taskId: taskId,
         toProjectId: toProjectId?.trim(),
-        toColumnId: validColumnId,
+        toColumnId: toColumnId,
         position: movePosition,
         updatedAt: new Date(),
       })
@@ -302,9 +286,9 @@ function moveTaskToProjectCore(
     return {
       success: true,
       task: {
-        id: validTaskId,
+        id: taskId,
         projectId: toProjectId,
-        columnId: validColumnId,
+        columnId: toColumnId,
         position: movePosition,
       },
     }
@@ -322,12 +306,9 @@ function moveTaskToProjectCore(
  */
 function archiveTaskCore(store: Store, taskId: string): ArchiveTaskResult {
   try {
-    // Validate required fields
-    const validTaskId = validators.requireId(taskId, 'Task ID')
-
     // Verify task exists
-    const tasks = store.query(getTaskById$(validTaskId))
-    const task = validators.requireEntity(tasks, 'Task', validTaskId)
+    const tasks = store.query(getTaskById$(taskId))
+    const task = validators.requireEntity(tasks, 'Task', taskId)
     if (task.archivedAt) {
       return { success: false, error: 'Task is already archived' }
     }
@@ -335,7 +316,7 @@ function archiveTaskCore(store: Store, taskId: string): ArchiveTaskResult {
     // Create archive event
     store.commit(
       events.taskArchived({
-        taskId: validTaskId,
+        taskId: taskId,
         archivedAt: new Date(),
       })
     )
@@ -343,7 +324,7 @@ function archiveTaskCore(store: Store, taskId: string): ArchiveTaskResult {
     return {
       success: true,
       task: {
-        id: validTaskId,
+        id: taskId,
         archivedAt: new Date(),
       },
     }
@@ -361,12 +342,9 @@ function archiveTaskCore(store: Store, taskId: string): ArchiveTaskResult {
  */
 function unarchiveTaskCore(store: Store, taskId: string): UnarchiveTaskResult {
   try {
-    // Validate required fields
-    const validTaskId = validators.requireId(taskId, 'Task ID')
-
     // Verify task exists (need to query without archive filter)
-    const tasks = store.query(getTaskById$(validTaskId))
-    const task = validators.requireEntity(tasks, 'Task', validTaskId)
+    const tasks = store.query(getTaskById$(taskId))
+    const task = validators.requireEntity(tasks, 'Task', taskId)
     if (!task.archivedAt) {
       return { success: false, error: 'Task is not archived' }
     }
@@ -374,14 +352,14 @@ function unarchiveTaskCore(store: Store, taskId: string): UnarchiveTaskResult {
     // Create unarchive event
     store.commit(
       events.taskUnarchived({
-        taskId: validTaskId,
+        taskId: taskId,
       })
     )
 
     return {
       success: true,
       task: {
-        id: validTaskId,
+        id: taskId,
         archivedAt: null,
       },
     }
@@ -398,12 +376,9 @@ function unarchiveTaskCore(store: Store, taskId: string): UnarchiveTaskResult {
  * Get a specific task by ID (core implementation)
  */
 function getTaskByIdCore(store: Store, taskId: string): GetTaskByIdResult {
-  // Validate required fields
-  const validTaskId = validators.requireId(taskId, 'Task ID')
-
   // Query for the task
-  const tasks = store.query(getTaskById$(validTaskId)) as any[]
-  const task = validators.requireEntity(tasks, 'Task', validTaskId)
+  const tasks = store.query(getTaskById$(taskId)) as any[]
+  const task = validators.requireEntity(tasks, 'Task', taskId)
 
   return {
     success: true,
@@ -425,17 +400,14 @@ function getTaskByIdCore(store: Store, taskId: string): GetTaskByIdResult {
  * Get all tasks for a specific project (core implementation)
  */
 function getProjectTasksCore(store: Store, projectId: string): GetProjectTasksResult {
-  // Validate required fields
-  const validProjectId = validators.requireId(projectId, 'Project ID')
-
   // Verify project exists
   const projects = store.query(getProjects$)
-  const project = projects.find((p: any) => p.id === validProjectId)
+  const project = projects.find((p: any) => p.id === projectId)
   if (!project) {
-    throw new Error(`Project with ID ${validProjectId} not found`)
+    throw new Error(`Project with ID ${projectId} not found`)
   }
 
-  const tasks = store.query(getBoardTasks$(validProjectId)) as any[]
+  const tasks = store.query(getBoardTasks$(projectId)) as any[]
   return {
     success: true,
     tasks: tasks.map((t: any) => ({

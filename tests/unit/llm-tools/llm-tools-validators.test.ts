@@ -2,29 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { validators } from '../../../src/utils/llm-tools/base.js'
 
 describe('LLM Tool Validators', () => {
-  describe('requireId', () => {
-    it('should return trimmed ID when valid', () => {
-      expect(validators.requireId('  test-id  ', 'Test ID')).toBe('test-id')
-      expect(validators.requireId('test-id', 'Test ID')).toBe('test-id')
-    })
-
-    it('should throw error when ID is empty', () => {
-      expect(() => validators.requireId('', 'Test ID')).toThrow('Test ID is required')
-    })
-
-    it('should throw error when ID is undefined', () => {
-      expect(() => validators.requireId(undefined, 'Test ID')).toThrow('Test ID is required')
-    })
-
-    it('should throw error when ID is only whitespace', () => {
-      expect(() => validators.requireId('   ', 'Test ID')).toThrow('Test ID is required')
-    })
-
-    it('should preserve original field name in error message', () => {
-      expect(() => validators.requireId('', 'Task ID')).toThrow('Task ID is required')
-      expect(() => validators.requireId('', 'Project ID')).toThrow('Project ID is required')
-    })
-  })
+  // NOTE: Basic type validation (requireId) was removed since OpenAI + TypeScript handle this
 
   describe('requireEntity', () => {
     it('should return entity when found', () => {

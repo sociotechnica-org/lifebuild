@@ -30,15 +30,12 @@ function listProjectsCore(store: Store): ListProjectsResult {
  * Get detailed information about a project (core implementation)
  */
 function getProjectDetailsCore(store: Store, projectId: string): GetProjectDetailsResult {
-  // Validate required fields
-  const validProjectId = validators.requireId(projectId, 'Project ID')
-
-  const projects = store.query(getProjectDetails$(validProjectId)) as any[]
-  const project = validators.requireEntity(projects, 'Project', validProjectId)
+  const projects = store.query(getProjectDetails$(projectId)) as any[]
+  const project = validators.requireEntity(projects, 'Project', projectId)
 
   // Get document and task counts using client-side filtering
-  const documentProjects = store.query(getDocumentProjectsByProject$(validProjectId)) as any[]
-  const tasks = store.query(getBoardTasks$(validProjectId)) as any[]
+  const documentProjects = store.query(getDocumentProjectsByProject$(projectId)) as any[]
+  const tasks = store.query(getBoardTasks$(projectId)) as any[]
 
   return {
     success: true,
