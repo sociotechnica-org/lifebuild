@@ -7,189 +7,165 @@ import {
   getAllDocuments$,
   getDocumentProjectsByProject$,
 } from '../../livestore/queries.js'
+import { validators, wrapStringParamFunction, wrapNoParamFunction } from './base.js'
 
 /**
- * List all available documents
+ * List all available documents (core implementation)
  */
-export function listDocuments(store: Store): {
+function listDocumentsCore(store: Store): {
   success: boolean
   documents?: any[]
   error?: string
 } {
-  try {
-    const documents = store.query(getDocumentList$) as any[]
-    return {
-      success: true,
-      documents: documents.map((d: any) => ({
-        id: d.id,
-        title: d.title,
-        updatedAt: d.updatedAt,
-      })),
-    }
-  } catch (error) {
-    console.error('Error listing documents:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    }
+  const documents = store.query(getDocumentList$) as any[]
+  return {
+    success: true,
+    documents: documents.map((d: any) => ({
+      id: d.id,
+      title: d.title,
+      updatedAt: d.updatedAt,
+    })),
   }
 }
 
 /**
- * Read a specific document by ID
+ * Read a specific document by ID (core implementation)
  */
-export function readDocument(
+function readDocumentCore(
   store: Store,
   documentId: string
 ): { success: boolean; document?: any; error?: string } {
-  try {
-    if (!documentId?.trim()) {
-      return { success: false, error: 'Document ID is required' }
-    }
+  // Validate required fields
+  const validDocumentId = validators.requireId(documentId, 'Document ID')
 
-    const documents = store.query(getDocumentById$(documentId)) as any[]
-    if (documents.length === 0) {
-      return { success: false, error: `Document with ID ${documentId} not found` }
-    }
+  const documents = store.query(getDocumentById$(validDocumentId)) as any[]
+  const document = validators.requireEntity(documents, 'Document', validDocumentId)
 
-    const document = documents[0]
-    return {
-      success: true,
-      document: {
-        id: document.id,
-        title: document.title,
-        content: document.content,
-        createdAt: document.createdAt,
-        updatedAt: document.updatedAt,
-      },
-    }
-  } catch (error) {
-    console.error('Error reading document:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    }
+  return {
+    success: true,
+    document: {
+      id: document.id,
+      title: document.title,
+      content: document.content,
+      createdAt: document.createdAt,
+      updatedAt: document.updatedAt,
+    },
   }
 }
 
 /**
- * Search documents by query string
+ * Search documents by query string (core implementation)
  */
-export function searchDocuments(
+function searchDocumentsCore(
   store: Store,
   query: string
 ): { success: boolean; results?: any[]; error?: string } {
-  try {
-    if (!query?.trim()) {
-      return { success: false, error: 'Search query is required' }
-    }
+  // Validate required fields
+  const validQuery = validators.requireId(query, 'Search query')
 
-    const searchQuery = query.trim().toLowerCase()
-    const allDocuments = store.query(searchDocuments$(query.trim())) as any[]
+  const searchQuery = validQuery.toLowerCase()
+  const allDocuments = store.query(searchDocuments$(validQuery)) as any[]
 
-    // Filter documents that match the search query in title or content
-    const results = allDocuments.filter(
-      (d: any) =>
-        d.title.toLowerCase().includes(searchQuery) || d.content.toLowerCase().includes(searchQuery)
-    )
+  // Filter documents that match the search query in title or content
+  const results = allDocuments.filter(
+    (d: any) =>
+      d.title.toLowerCase().includes(searchQuery) || d.content.toLowerCase().includes(searchQuery)
+  )
 
-    return {
-      success: true,
-      results: results.map((d: any) => ({
-        id: d.id,
-        title: d.title,
-        snippet: d.content.substring(0, 200) + (d.content.length > 200 ? '...' : ''),
-      })),
-    }
-  } catch (error) {
-    console.error('Error searching documents:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    }
+  return {
+    success: true,
+    results: results.map((d: any) => ({
+      id: d.id,
+      title: d.title,
+      snippet: d.content.substring(0, 200) + (d.content.length > 200 ? '...' : ''),
+    })),
   }
 }
 
 /**
- * Get all documents for a specific project
+ * Get all documents for a specific project (core implementation)
  */
-export function getProjectDocuments(
+function getProjectDocumentsCore(
   store: Store,
   projectId: string
 ): { success: boolean; documents?: any[]; error?: string } {
-  try {
-    if (!projectId?.trim()) {
-      return { success: false, error: 'Project ID is required' }
-    }
+  // Validate required fields
+  const validProjectId = validators.requireId(projectId, 'Project ID')
 
-    // Get document-project associations and all documents, then filter
-    const documentProjects = store.query(getDocumentProjectsByProject$(projectId.trim())) as any[]
-    const allDocuments = store.query(getAllDocuments$) as any[]
-    const documentIds = new Set(documentProjects.map(dp => dp.documentId))
-    const documents = allDocuments.filter(doc => documentIds.has(doc.id))
+  // Get document-project associations and all documents, then filter
+  const documentProjects = store.query(getDocumentProjectsByProject$(validProjectId)) as any[]
+  const allDocuments = store.query(getAllDocuments$) as any[]
+  const documentIds = new Set(documentProjects.map(dp => dp.documentId))
+  const documents = allDocuments.filter(doc => documentIds.has(doc.id))
 
-    return {
-      success: true,
-      documents: documents.map((d: any) => ({
-        id: d.id,
-        title: d.title,
-        content: d.content,
-        updatedAt: d.updatedAt,
-        createdAt: d.createdAt,
-      })),
-    }
-  } catch (error) {
-    console.error('Error getting project documents:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to get project documents',
-    }
+  return {
+    success: true,
+    documents: documents.map((d: any) => ({
+      id: d.id,
+      title: d.title,
+      content: d.content,
+      updatedAt: d.updatedAt,
+      createdAt: d.createdAt,
+    })),
   }
 }
 
 /**
- * Search documents within a specific project
+ * Search documents within a specific project (core implementation)
  */
+function searchProjectDocumentsCore(
+  store: Store,
+  query: string,
+  projectId?: string
+): { success: boolean; results?: any[]; error?: string } {
+  // Validate required fields
+  const validQuery = validators.requireId(query, 'Search query')
+
+  const searchQuery = validQuery.toLowerCase()
+  let documents = store.query(searchDocumentsWithProject$(validQuery, projectId)) as any[]
+
+  // If projectId is provided, filter documents by project
+  if (projectId) {
+    const documentProjects = store.query(getDocumentProjectsByProject$(projectId)) as any[]
+    const documentIds = new Set(documentProjects.map(dp => dp.documentId))
+    documents = documents.filter(doc => documentIds.has(doc.id))
+  }
+
+  // Filter documents that match the search query in title or content
+  const results = documents.filter(
+    (d: any) =>
+      d.title.toLowerCase().includes(searchQuery) || d.content.toLowerCase().includes(searchQuery)
+  )
+
+  return {
+    success: true,
+    results: results.map((d: any) => ({
+      id: d.id,
+      title: d.title,
+      snippet: d.content.substring(0, 200) + (d.content.length > 200 ? '...' : ''),
+      projectId: projectId,
+    })),
+  }
+}
+
+// Export wrapped versions for external use
+export const listDocuments = wrapNoParamFunction(listDocumentsCore)
+export const readDocument = wrapStringParamFunction(readDocumentCore)
+export const searchDocuments = wrapStringParamFunction(searchDocumentsCore)
+export const getProjectDocuments = wrapStringParamFunction(getProjectDocumentsCore)
+
+// This function takes two parameters, so we need a custom wrapper
 export function searchProjectDocuments(
   store: Store,
   query: string,
   projectId?: string
 ): { success: boolean; results?: any[]; error?: string } {
   try {
-    if (!query?.trim()) {
-      return { success: false, error: 'Search query is required' }
-    }
-
-    const searchQuery = query.trim().toLowerCase()
-    let documents = store.query(searchDocumentsWithProject$(query.trim(), projectId)) as any[]
-
-    // If projectId is provided, filter documents by project
-    if (projectId) {
-      const documentProjects = store.query(getDocumentProjectsByProject$(projectId)) as any[]
-      const documentIds = new Set(documentProjects.map(dp => dp.documentId))
-      documents = documents.filter(doc => documentIds.has(doc.id))
-    }
-
-    // Filter documents that match the search query in title or content
-    const results = documents.filter(
-      (d: any) =>
-        d.title.toLowerCase().includes(searchQuery) || d.content.toLowerCase().includes(searchQuery)
-    )
-
-    return {
-      success: true,
-      results: results.map((d: any) => ({
-        id: d.id,
-        title: d.title,
-        snippet: d.content.substring(0, 200) + (d.content.length > 200 ? '...' : ''),
-        projectId: projectId,
-      })),
-    }
+    return searchProjectDocumentsCore(store, query, projectId)
   } catch (error) {
-    console.error('Error searching project documents:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to search project documents',
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
     }
   }
 }

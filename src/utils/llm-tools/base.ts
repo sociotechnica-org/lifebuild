@@ -62,3 +62,31 @@ export function wrapToolFunction<T extends Record<string, any>>(
     }
   }
 }
+
+// Specialized wrapper for functions that take a single string parameter
+export function wrapStringParamFunction(fn: (store: Store, param: string) => any) {
+  return (store: Store, param: string) => {
+    try {
+      return fn(store, param)
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      }
+    }
+  }
+}
+
+// Specialized wrapper for functions that take no parameters
+export function wrapNoParamFunction(fn: (store: Store) => any) {
+  return (store: Store) => {
+    try {
+      return fn(store)
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      }
+    }
+  }
+}

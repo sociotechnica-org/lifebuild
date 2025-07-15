@@ -8,7 +8,12 @@ import {
   getOrphanedTasks$,
   getProjects$,
 } from '../../livestore/queries.js'
-import { validators, wrapToolFunction } from './base.js'
+import {
+  validators,
+  wrapToolFunction,
+  wrapStringParamFunction,
+  wrapNoParamFunction,
+} from './base.js'
 
 // ===== TYPE DEFINITIONS =====
 
@@ -54,111 +59,91 @@ export interface TaskMoveToProjectParams {
  * Creates a task using the provided parameters
  */
 function createTaskCore(store: Store, params: TaskCreationParams): TaskCreationResult {
-  try {
-    const { title, description, boardId, columnId, assigneeId } = params
+  const { title, description, boardId, columnId, assigneeId } = params
 
-    if (!title?.trim()) {
-      return { success: false, error: 'Task title is required' }
-    }
+  // Validate required fields
+  const validTitle = validators.requireId(title, 'Task title')
 
-    // Get all projects to determine target project
-    const projects = store.query(getProjects$)
-    if (projects.length === 0) {
-      return { success: false, error: 'No projects available. Please create a project first.' }
-    }
+  // Get all projects to determine target project
+  const projects = store.query(getProjects$)
+  if (projects.length === 0) {
+    throw new Error('No projects available. Please create a project first.')
+  }
 
-    // Use provided boardId or default to first project
-    const targetProject = boardId ? projects.find((p: any) => p.id === boardId) : projects[0]
-    if (!targetProject) {
-      return {
-        success: false,
-        error: boardId ? `Project with ID ${boardId} not found` : 'No projects available',
-      }
-    }
+  // Use provided boardId or default to first project
+  const targetProject = boardId ? projects.find((p: any) => p.id === boardId) : projects[0]
+  if (!targetProject) {
+    throw new Error(boardId ? `Project with ID ${boardId} not found` : 'No projects available')
+  }
 
-    // Get columns for the target board
-    const columns = store.query(getBoardColumns$(targetProject.id))
-    if (columns.length === 0) {
-      return {
-        success: false,
-        error: `Board "${targetProject.name}" has no columns. Please add columns first.`,
-      }
-    }
+  // Get columns for the target board
+  const columns = store.query(getBoardColumns$(targetProject.id))
+  if (columns.length === 0) {
+    throw new Error(`Board "${targetProject.name}" has no columns. Please add columns first.`)
+  }
 
-    // Use provided columnId or default to first column (typically "To Do")
-    const targetColumn = columnId ? columns.find((c: any) => c.id === columnId) : columns[0]
-    if (!targetColumn) {
-      return {
-        success: false,
-        error: columnId ? `Column with ID ${columnId} not found` : 'No columns available',
-      }
-    }
+  // Use provided columnId or default to first column (typically "To Do")
+  const targetColumn = columnId ? columns.find((c: any) => c.id === columnId) : columns[0]
+  if (!targetColumn) {
+    throw new Error(columnId ? `Column with ID ${columnId} not found` : 'No columns available')
+  }
 
-    // Validate assignee if provided
-    let assigneeName: string | undefined
-    if (assigneeId) {
-      const users = store.query(getUsers$)
-      const assignee = users.find((u: any) => u.id === assigneeId)
-      if (!assignee) {
-        return { success: false, error: `User with ID ${assigneeId} not found` }
-      }
-      assigneeName = assignee.name
-    }
+  // Validate assignee if provided
+  let assigneeName: string | undefined
+  if (assigneeId) {
+    const users = store.query(getUsers$)
+    validators.validateAssignees([assigneeId], users)
+    const assignee = users.find((u: any) => u.id === assigneeId)
+    assigneeName = assignee?.name
+  }
 
-    // Get existing tasks in the column to calculate position
-    const existingTasks = store.query(getBoardTasks$(targetProject.id))
-    const tasksInColumn = existingTasks.filter((t: any) => t.columnId === targetColumn.id)
+  // Get existing tasks in the column to calculate position
+  const existingTasks = store.query(getBoardTasks$(targetProject.id))
+  const tasksInColumn = existingTasks.filter((t: any) => t.columnId === targetColumn.id)
 
-    // Calculate next position, ensuring we handle non-numeric positions safely
-    const validPositions = tasksInColumn
-      .map((t: any) => t.position)
-      .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
+  // Calculate next position, ensuring we handle non-numeric positions safely
+  const validPositions = tasksInColumn
+    .map((t: any) => t.position)
+    .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
 
-    const nextPosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 0
+  const nextPosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 0
 
-    // Create the task
-    const taskId = crypto.randomUUID()
+  // Create the task
+  const taskId = crypto.randomUUID()
 
-    console.log('🔧 Creating task with data:', {
+  console.log('🔧 Creating task with data:', {
+    id: taskId,
+    boardId: targetProject.id,
+    projectName: targetProject.name,
+    columnId: targetColumn.id,
+    columnName: targetColumn.name,
+    title: validTitle,
+    position: nextPosition,
+    existingTasksInColumn: tasksInColumn.length,
+  })
+
+  store.commit(
+    events.taskCreated({
       id: taskId,
-      boardId: targetProject.id,
-      projectName: targetProject.name,
+      projectId: targetProject.id,
       columnId: targetColumn.id,
-      columnName: targetColumn.name,
-      title: title.trim(),
+      title: validTitle,
+      description: description?.trim() || undefined,
+      assigneeIds: assigneeId ? [assigneeId] : undefined,
       position: nextPosition,
-      existingTasksInColumn: tasksInColumn.length,
+      createdAt: new Date(),
     })
+  )
 
-    store.commit(
-      events.taskCreated({
-        id: taskId,
-        projectId: targetProject.id,
-        columnId: targetColumn.id,
-        title: title.trim(),
-        description: description?.trim() || undefined,
-        assigneeIds: assigneeId ? [assigneeId] : undefined,
-        position: nextPosition,
-        createdAt: new Date(),
-      })
-    )
+  console.log('✅ Task creation event committed')
 
-    console.log('✅ Task creation event committed')
-
-    return {
-      success: true,
-      taskId,
-      taskTitle: title.trim(),
-      projectName: targetProject.name,
-      columnName: targetColumn.name,
-      assigneeName,
-    }
-  } catch (error) {
-    console.error('Error creating task:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    }
+  return {
+    success: true,
+    taskId,
+    taskTitle: validTitle,
+    projectName: targetProject.name,
+    columnName: targetColumn.name,
+    assigneeName,
   }
 }
 
@@ -447,117 +432,89 @@ function unarchiveTaskCore(
 }
 
 /**
- * Get a specific task by ID
+ * Get a specific task by ID (core implementation)
  */
-export function getTaskById(
+function getTaskByIdCore(
   store: Store,
   taskId: string
 ): { success: boolean; task?: any; error?: string } {
-  try {
-    if (!taskId?.trim()) {
-      return { success: false, error: 'Task ID is required' }
-    }
+  // Validate required fields
+  const validTaskId = validators.requireId(taskId, 'Task ID')
 
-    const tasks = store.query(getTaskById$(taskId.trim())) as any[]
-    if (tasks.length === 0) {
-      return { success: false, error: `Task with ID ${taskId} not found` }
-    }
+  // Query for the task
+  const tasks = store.query(getTaskById$(validTaskId)) as any[]
+  const task = validators.requireEntity(tasks, 'Task', validTaskId)
 
-    const task = tasks[0]
-    return {
-      success: true,
-      task: {
-        id: task.id,
-        projectId: task.projectId,
-        columnId: task.columnId,
-        title: task.title,
-        description: task.description,
-        assigneeIds: task.assigneeIds,
-        position: task.position,
-        createdAt: task.createdAt,
-        archivedAt: task.archivedAt,
-      },
-    }
-  } catch (error) {
-    console.error('Error getting task by ID:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    }
+  return {
+    success: true,
+    task: {
+      id: task.id,
+      projectId: task.projectId,
+      columnId: task.columnId,
+      title: task.title,
+      description: task.description,
+      assigneeIds: task.assigneeIds,
+      position: task.position,
+      createdAt: task.createdAt,
+      archivedAt: task.archivedAt,
+    },
   }
 }
 
 /**
- * Get all tasks for a specific project
+ * Get all tasks for a specific project (core implementation)
  */
-export function getProjectTasks(
+function getProjectTasksCore(
   store: Store,
   projectId: string
 ): { success: boolean; tasks?: any[]; error?: string } {
-  try {
-    if (!projectId?.trim()) {
-      return { success: false, error: 'Project ID is required' }
-    }
+  // Validate required fields
+  const validProjectId = validators.requireId(projectId, 'Project ID')
 
-    // Verify project exists
-    const projects = store.query(getProjects$)
-    const project = projects.find((p: any) => p.id === projectId.trim())
-    if (!project) {
-      return { success: false, error: `Project with ID ${projectId} not found` }
-    }
+  // Verify project exists
+  const projects = store.query(getProjects$)
+  const project = projects.find((p: any) => p.id === validProjectId)
+  if (!project) {
+    throw new Error(`Project with ID ${validProjectId} not found`)
+  }
 
-    const tasks = store.query(getBoardTasks$(projectId.trim())) as any[]
-    return {
-      success: true,
-      tasks: tasks.map((t: any) => ({
-        id: t.id,
-        projectId: t.projectId,
-        columnId: t.columnId,
-        title: t.title,
-        description: t.description,
-        assigneeIds: t.assigneeIds,
-        position: t.position,
-        createdAt: t.createdAt,
-      })),
-    }
-  } catch (error) {
-    console.error('Error getting project tasks:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    }
+  const tasks = store.query(getBoardTasks$(validProjectId)) as any[]
+  return {
+    success: true,
+    tasks: tasks.map((t: any) => ({
+      id: t.id,
+      projectId: t.projectId,
+      columnId: t.columnId,
+      title: t.title,
+      description: t.description,
+      assigneeIds: t.assigneeIds,
+      position: t.position,
+      createdAt: t.createdAt,
+    })),
   }
 }
 
 /**
- * Get all orphaned tasks (tasks without a project)
+ * Get all orphaned tasks (tasks without a project) (core implementation)
  */
-export function getOrphanedTasks(store: Store): {
+function getOrphanedTasksCore(store: Store): {
   success: boolean
   tasks?: any[]
   error?: string
 } {
-  try {
-    const tasks = store.query(getOrphanedTasks$) as any[]
-    return {
-      success: true,
-      tasks: tasks.map((t: any) => ({
-        id: t.id,
-        projectId: t.projectId,
-        columnId: t.columnId,
-        title: t.title,
-        description: t.description,
-        assigneeIds: t.assigneeIds,
-        position: t.position,
-        createdAt: t.createdAt,
-      })),
-    }
-  } catch (error) {
-    console.error('Error getting orphaned tasks:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    }
+  const tasks = store.query(getOrphanedTasks$) as any[]
+  return {
+    success: true,
+    tasks: tasks.map((t: any) => ({
+      id: t.id,
+      projectId: t.projectId,
+      columnId: t.columnId,
+      title: t.title,
+      description: t.description,
+      assigneeIds: t.assigneeIds,
+      position: t.position,
+      createdAt: t.createdAt,
+    })),
   }
 }
 
@@ -566,32 +523,8 @@ export const createTask = wrapToolFunction(createTaskCore)
 export const updateTask = wrapToolFunction(updateTaskCore)
 export const moveTask = wrapToolFunction(moveTaskCore)
 export const moveTaskToProject = wrapToolFunction(moveTaskToProjectCore)
-
-// These functions maintain their original string parameter interface for backward compatibility
-export function archiveTask(
-  store: Store,
-  taskId: string
-): { success: boolean; error?: string; task?: any } {
-  try {
-    return archiveTaskCore(store, taskId)
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    }
-  }
-}
-
-export function unarchiveTask(
-  store: Store,
-  taskId: string
-): { success: boolean; error?: string; task?: any } {
-  try {
-    return unarchiveTaskCore(store, taskId)
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    }
-  }
-}
+export const archiveTask = wrapStringParamFunction(archiveTaskCore)
+export const unarchiveTask = wrapStringParamFunction(unarchiveTaskCore)
+export const getTaskById = wrapStringParamFunction(getTaskByIdCore)
+export const getProjectTasks = wrapStringParamFunction(getProjectTasksCore)
+export const getOrphanedTasks = wrapNoParamFunction(getOrphanedTasksCore)
