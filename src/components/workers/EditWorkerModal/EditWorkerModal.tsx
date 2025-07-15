@@ -19,7 +19,7 @@ export const EditWorkerModal: React.FC<EditWorkerModalProps> = ({ isOpen, onClos
   const [name, setName] = useState(worker.name)
   const [roleDescription, setRoleDescription] = useState(worker.roleDescription || '')
   const [systemPrompt, setSystemPrompt] = useState(worker.systemPrompt)
-  const [avatar, setAvatar] = useState(worker.avatar || '')
+  const [avatar, setAvatar] = useState(worker.avatar || '🤖')
   const [defaultModel, setDefaultModel] = useState(worker.defaultModel || DEFAULT_MODEL)
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -32,7 +32,7 @@ export const EditWorkerModal: React.FC<EditWorkerModalProps> = ({ isOpen, onClos
       setName(worker.name)
       setRoleDescription(worker.roleDescription || '')
       setSystemPrompt(worker.systemPrompt)
-      setAvatar(worker.avatar || '')
+      setAvatar(worker.avatar || '🤖')
       setDefaultModel(worker.defaultModel || DEFAULT_MODEL)
       setSelectedTemplate('')
       setErrors({})
@@ -107,7 +107,7 @@ export const EditWorkerModal: React.FC<EditWorkerModalProps> = ({ isOpen, onClos
     setName(worker.name)
     setRoleDescription(worker.roleDescription || '')
     setSystemPrompt(worker.systemPrompt)
-    setAvatar(worker.avatar || '')
+    setAvatar(worker.avatar || '🤖')
     setDefaultModel(worker.defaultModel || DEFAULT_MODEL)
     setSelectedTemplate('')
     setErrors({})
@@ -218,7 +218,7 @@ export const EditWorkerModal: React.FC<EditWorkerModalProps> = ({ isOpen, onClos
               <label htmlFor='avatar' className='block text-sm font-medium text-gray-900 mb-2'>
                 Avatar (emoji)
               </label>
-              <EmojiPicker value={avatar} onChange={setAvatar} className='w-full' />
+              <EmojiPicker value={avatar} onChange={setAvatar} className='w-full' id='avatar' />
             </div>
 
             {/* Default Model */}

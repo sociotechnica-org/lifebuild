@@ -27,9 +27,10 @@ interface EmojiPickerProps {
   value?: string
   onChange: (emoji: string) => void
   className?: string
+  id?: string
 }
 
-export function EmojiPicker({ value, onChange, className = '' }: EmojiPickerProps) {
+export function EmojiPicker({ value, onChange, className = '', id }: EmojiPickerProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   const handleEmojiSelect = (emoji: string) => {
@@ -41,6 +42,7 @@ export function EmojiPicker({ value, onChange, className = '' }: EmojiPickerProp
     <div className={`relative ${className}`}>
       <button
         type='button'
+        id={id}
         onClick={() => setIsOpen(!isOpen)}
         className='w-full px-3 py-2 border border-gray-300 rounded-md text-left bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
       >
@@ -51,10 +53,10 @@ export function EmojiPicker({ value, onChange, className = '' }: EmojiPickerProp
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div className='fixed inset-0 z-10' onClick={() => setIsOpen(false)} />
+          <div className='fixed inset-0 z-[60]' onClick={() => setIsOpen(false)} />
 
           {/* Emoji grid */}
-          <div className='absolute z-20 mt-1 p-3 bg-white border border-gray-300 rounded-md shadow-lg grid grid-cols-5 gap-2 w-64'>
+          <div className='absolute z-[70] mt-1 p-3 bg-white border border-gray-300 rounded-md shadow-lg grid grid-cols-5 gap-2 w-64'>
             {ROBOT_EMOJIS.map(emoji => (
               <button
                 key={emoji}

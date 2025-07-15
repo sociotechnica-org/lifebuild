@@ -16,7 +16,7 @@ export const CreateWorkerModal: React.FC<CreateWorkerModalProps> = ({ isOpen, on
   const [name, setName] = useState('')
   const [roleDescription, setRoleDescription] = useState('')
   const [systemPrompt, setSystemPrompt] = useState('')
-  const [avatar, setAvatar] = useState('')
+  const [avatar, setAvatar] = useState('🤖')
   const [defaultModel, setDefaultModel] = useState(DEFAULT_MODEL)
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -84,7 +84,7 @@ export const CreateWorkerModal: React.FC<CreateWorkerModalProps> = ({ isOpen, on
     setName('')
     setRoleDescription('')
     setSystemPrompt('')
-    setAvatar('')
+    setAvatar('🤖')
     setDefaultModel(DEFAULT_MODEL)
     setSelectedTemplate('')
     setErrors({})
@@ -212,7 +212,7 @@ export const CreateWorkerModal: React.FC<CreateWorkerModalProps> = ({ isOpen, on
               <label htmlFor='avatar' className='block text-sm font-medium text-gray-900 mb-2'>
                 Avatar (emoji)
               </label>
-              <EmojiPicker value={avatar} onChange={setAvatar} className='w-full' />
+              <EmojiPicker value={avatar} onChange={setAvatar} className='w-full' id='avatar' />
             </div>
 
             {/* Default Model */}
