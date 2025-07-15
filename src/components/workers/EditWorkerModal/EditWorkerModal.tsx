@@ -76,7 +76,7 @@ export const EditWorkerModal: React.FC<EditWorkerModalProps> = ({ isOpen, onClos
       if (systemPrompt.trim() !== worker.systemPrompt) {
         updates.systemPrompt = systemPrompt.trim()
       }
-      if (avatar.trim() !== (worker.avatar || '')) {
+      if (avatar.trim() !== (worker.avatar || '🤖')) {
         updates.avatar = avatar.trim() || null
       }
       if (defaultModel !== (worker.defaultModel || DEFAULT_MODEL)) {
