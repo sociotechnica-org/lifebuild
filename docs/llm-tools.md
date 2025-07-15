@@ -10,38 +10,61 @@ Work Squared uses LiveStore's event-sourced architecture where:
 - **Queries** represent read operations
 - **LLM Tools** provide AI assistants access to these operations
 
+## Architecture
+
+The LLM tools system has been fully refactored with a modular architecture:
+
+```
+src/utils/llm-tools/
+├── base.ts          # Core validators, wrappers, schema builders
+├── tasks.ts         # Task operations & validation logic
+├── projects.ts      # Project operations
+├── documents.ts     # Document operations
+├── schemas.ts       # Centralized OpenAI function schemas
+├── types.ts         # TypeScript interfaces for all tools
+└── index.ts         # Main exports & executeLLMTool
+```
+
+**Key Features:**
+
+- ✅ Full TypeScript type safety across all tools
+- ✅ Centralized OpenAI schemas in `schemas.ts`
+- ✅ Consistent error handling and validation patterns
+- ✅ Comprehensive test coverage (298 tests)
+- ✅ Optimized validation approach leveraging OpenAI + TypeScript + business logic
+
 ## Current Implementation Status
 
 ### Events (Write Operations)
 
-| Category          | Event Name                  | Tool | Name        |
-| ----------------- | --------------------------- | ---- | ----------- |
-| **Projects**      | projectCreated              | ❌   | -           |
-| **Columns**       | columnCreated               | ❌   | -           |
-|                   | columnRenamed               | ❌   | -           |
-|                   | columnReordered             | ❌   | -           |
-| **Tasks**         | taskCreated                 | ✅   | create_task |
-|                   | taskMoved                   | ❌   | -           |
-|                   | taskMovedToProject          | ❌   | -           |
-|                   | taskUpdated                 | ❌   | -           |
-|                   | taskArchived                | ❌   | -           |
-|                   | taskUnarchived              | ❌   | -           |
-| **Users**         | userCreated                 | ❌   | -           |
-| **Chat**          | chatMessageSent             | ❌   | -           |
-|                   | llmResponseReceived         | ❌   | -           |
-|                   | llmResponseStarted          | ❌   | -           |
-| **Conversations** | conversationCreated         | ❌   | -           |
-|                   | conversationModelUpdated    | ❌   | -           |
-| **Comments**      | commentAdded                | ❌   | -           |
-| **Documents**     | documentCreated             | ❌   | -           |
-|                   | documentUpdated             | ❌   | -           |
-|                   | documentArchived            | ❌   | -           |
-|                   | documentAddedToProject      | ❌   | -           |
-|                   | documentRemovedFromProject  | ❌   | -           |
-| **Workers**       | workerCreated               | ❌   | -           |
-|                   | workerUpdated               | ❌   | -           |
-|                   | workerAssignedToProject     | ❌   | -           |
-|                   | workerUnassignedFromProject | ❌   | -           |
+| Category          | Event Name                  | Tool | Name                 |
+| ----------------- | --------------------------- | ---- | -------------------- |
+| **Projects**      | projectCreated              | ❌   | -                    |
+| **Columns**       | columnCreated               | ❌   | -                    |
+|                   | columnRenamed               | ❌   | -                    |
+|                   | columnReordered             | ❌   | -                    |
+| **Tasks**         | taskCreated                 | ✅   | create_task          |
+|                   | taskMoved                   | ✅   | move_task            |
+|                   | taskMovedToProject          | ✅   | move_task_to_project |
+|                   | taskUpdated                 | ✅   | update_task          |
+|                   | taskArchived                | ✅   | archive_task         |
+|                   | taskUnarchived              | ✅   | unarchive_task       |
+| **Users**         | userCreated                 | ❌   | -                    |
+| **Chat**          | chatMessageSent             | ❌   | -                    |
+|                   | llmResponseReceived         | ❌   | -                    |
+|                   | llmResponseStarted          | ❌   | -                    |
+| **Conversations** | conversationCreated         | ❌   | -                    |
+|                   | conversationModelUpdated    | ❌   | -                    |
+| **Comments**      | commentAdded                | ❌   | -                    |
+| **Documents**     | documentCreated             | ❌   | -                    |
+|                   | documentUpdated             | ❌   | -                    |
+|                   | documentArchived            | ❌   | -                    |
+|                   | documentAddedToProject      | ❌   | -                    |
+|                   | documentRemovedFromProject  | ❌   | -                    |
+| **Workers**       | workerCreated               | ❌   | -                    |
+|                   | workerUpdated               | ❌   | -                    |
+|                   | workerAssignedToProject     | ❌   | -                    |
+|                   | workerUnassignedFromProject | ❌   | -                    |
 
 ### Queries (Read Operations)
 
@@ -54,11 +77,11 @@ Work Squared uses LiveStore's event-sourced architecture where:
 | **Columns**       | getBoardColumns$               | ❌   | -                        |
 |                   | getBoardColumnsOptional$       | ❌   | -                        |
 |                   | getProjectColumns$             | ❌   | -                        |
-| **Tasks**         | getBoardTasks$                 | ❌   | -                        |
-|                   | getProjectTasks$               | ❌   | -                        |
-|                   | getTaskById$                   | ❌   | -                        |
-|                   | getOrphanedTasks$              | ❌   | -                        |
 |                   | getOrphanedColumns$            | ❌   | -                        |
+| **Tasks**         | getBoardTasks$                 | ✅   | get_project_tasks        |
+|                   | getProjectTasks$               | ✅   | get_project_tasks        |
+|                   | getTaskById$                   | ✅   | get_task_by_id           |
+|                   | getOrphanedTasks$              | ✅   | get_orphaned_tasks       |
 | **Users**         | getUsers$                      | ❌   | -                        |
 | **Conversations** | getConversations$              | ❌   | -                        |
 |                   | getConversation$               | ❌   | -                        |
@@ -82,9 +105,9 @@ Work Squared uses LiveStore's event-sourced architecture where:
 ## Implementation Summary
 
 - **Total Events**: 26 events
-- **Events with LLM Tools**: 1 (3.8%)
+- **Events with LLM Tools**: 5 (19.2%)
 - **Total Queries**: 31 queries
-- **Queries with LLM Tools**: 8 (25%)
+- **Queries with LLM Tools**: 9 (29.0%)
 
 ## Priority Implementation List
 
@@ -99,10 +122,14 @@ Work Squared uses LiveStore's event-sourced architecture where:
 
 2. **Task Management**
 
-   - `update_task` (taskUpdated)
-   - `move_task` (taskMoved)
-   - `archive_task` (taskArchived)
-   - `get_task_by_id` (getTaskById$)
+   - ✅ `update_task` (taskUpdated)
+   - ✅ `move_task` (taskMoved)
+   - ✅ `move_task_to_project` (taskMovedToProject)
+   - ✅ `archive_task` (taskArchived)
+   - ✅ `unarchive_task` (taskUnarchived)
+   - ✅ `get_task_by_id` (getTaskById$)
+   - ✅ `get_project_tasks` (getBoardTasks$)
+   - ✅ `get_orphaned_tasks` (getOrphanedTasks$)
 
 3. **Document Management**
    - `create_document` (documentCreated)
@@ -122,10 +149,6 @@ Work Squared uses LiveStore's event-sourced architecture where:
    - `create_worker` (workerCreated)
    - `assign_worker_to_project` (workerAssignedToProject)
    - `list_workers` (getWorkers$)
-
-6. **User Management**
-   - `create_user` (userCreated)
-   - `list_users` (getUsers$)
 
 ### Low Priority (Advanced Features)
 

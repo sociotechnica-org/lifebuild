@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import React, { ReactElement } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
-import type { Task, Column, Project } from './livestore/schema.js'
+import type { Task, Column, Project } from '../src/livestore/schema.js'
 
 // Simple test wrapper for basic component testing
 interface TestProviderProps {
