@@ -553,7 +553,9 @@ export const ChatInterface: React.FC = () => {
 
   // Auto-scroll to bottom when messages change
   React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (messagesEndRef.current && typeof messagesEndRef.current.scrollIntoView === 'function') {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
   }, [messages])
 
   // Handle focus for mobile to show keyboard
@@ -721,6 +723,36 @@ export const ChatInterface: React.FC = () => {
                           ) : (
                             <div className='text-sm text-gray-900'>{message.message}</div>
                           ))}
+
+                        {message.message && message.message.trim() && (
+                          <div className='mt-2 flex justify-end'>
+                            <button
+                              onClick={() =>
+                                navigator.clipboard
+                                  .writeText(message.message as string)
+                                  .catch(err => {
+                                    console.error('Failed to copy message', err)
+                                  })
+                              }
+                              className='flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600'
+                            >
+                              <svg
+                                className='w-3 h-3'
+                                fill='none'
+                                stroke='currentColor'
+                                viewBox='0 0 24 24'
+                              >
+                                <path
+                                  strokeLinecap='round'
+                                  strokeLinejoin='round'
+                                  strokeWidth={2}
+                                  d='M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-4 8h4a2 2 0 002-2v-4m-6 6L16 8'
+                                />
+                              </svg>
+                              <span>Copy</span>
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )
                   })}
