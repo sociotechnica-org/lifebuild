@@ -17,7 +17,7 @@ The LLM tools system has been fully refactored with a modular architecture:
 ```
 src/utils/llm-tools/
 ├── base.ts          # Core validators, wrappers, schema builders
-├── tasks.ts         # Task operations & validation logic  
+├── tasks.ts         # Task operations & validation logic
 ├── projects.ts      # Project operations
 ├── documents.ts     # Document operations
 ├── schemas.ts       # Centralized OpenAI function schemas
@@ -26,6 +26,7 @@ src/utils/llm-tools/
 ```
 
 **Key Features:**
+
 - ✅ Full TypeScript type safety across all tools
 - ✅ Centralized OpenAI schemas in `schemas.ts`
 - ✅ Consistent error handling and validation patterns
@@ -148,7 +149,6 @@ src/utils/llm-tools/
    - `create_worker` (workerCreated)
    - `assign_worker_to_project` (workerAssignedToProject)
    - `list_workers` (getWorkers$)
-
 
 ### Low Priority (Advanced Features)
 
