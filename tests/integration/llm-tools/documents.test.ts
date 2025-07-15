@@ -1,10 +1,15 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   listDocuments,
   readDocument,
   searchDocuments,
   getProjectDocuments,
   searchProjectDocuments,
+  createDocument,
+  updateDocument,
+  archiveDocument,
+  addDocumentToProject,
+  removeDocumentFromProject,
 } from '../../../src/utils/llm-tools/documents.js'
 import { createTestStore } from '../../test-utils.js'
 
@@ -249,6 +254,321 @@ describe('LLM Tools - Documents', () => {
       expect(result.results).toHaveLength(2)
       expect(result.results?.[0]?.projectId).toBeUndefined()
       expect(result.results?.[1]?.projectId).toBeUndefined()
+    })
+  })
+
+  // Test data for new document tools
+  const mockProject = {
+    id: 'project-1',
+    name: 'Test Project',
+    description: 'A test project',
+  }
+
+  const mockDocumentProjects = [{ documentId: 'doc-1', projectId: 'project-1' }]
+
+  describe('createDocument', () => {
+    it('should create document successfully', () => {
+      store.commit = vi.fn()
+
+      const result = createDocument(store, {
+        title: 'New Document',
+        content: 'New content',
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.title).toBe('New Document')
+      expect(result.content).toBe('New content')
+      expect(result.documentId).toBeDefined()
+      expect(store.commit).toHaveBeenCalled()
+    })
+
+    it('should create document with minimal parameters', () => {
+      store.commit = vi.fn()
+
+      const result = createDocument(store, {
+        title: 'Minimal Document',
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.title).toBe('Minimal Document')
+      expect(result.content).toBe('')
+      expect(store.commit).toHaveBeenCalled()
+    })
+
+    it('should validate title requirement', () => {
+      const result = createDocument(store, {
+        title: '',
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Document title is required')
+    })
+
+    it('should trim whitespace from title and content', () => {
+      store.commit = vi.fn()
+
+      const result = createDocument(store, {
+        title: '  Whitespace Document  ',
+        content: '  Content with spaces  ',
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.title).toBe('Whitespace Document')
+      expect(result.content).toBe('Content with spaces')
+    })
+  })
+
+  describe('updateDocument', () => {
+    it('should update document successfully', () => {
+      store.query = () => [mockDocument]
+      store.commit = vi.fn()
+
+      const result = updateDocument(store, {
+        documentId: 'doc-1',
+        title: 'Updated Title',
+        content: 'Updated content',
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.document?.title).toBe('Updated Title')
+      expect(result.document?.content).toBe('Updated content')
+      expect(store.commit).toHaveBeenCalled()
+    })
+
+    it('should update only title', () => {
+      store.query = () => [mockDocument]
+      store.commit = vi.fn()
+
+      const result = updateDocument(store, {
+        documentId: 'doc-1',
+        title: 'New Title Only',
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.document?.title).toBe('New Title Only')
+      expect(result.document?.content).toBeUndefined()
+    })
+
+    it('should update only content', () => {
+      store.query = () => [mockDocument]
+      store.commit = vi.fn()
+
+      const result = updateDocument(store, {
+        documentId: 'doc-1',
+        content: 'New content only',
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.document?.title).toBeUndefined()
+      expect(result.document?.content).toBe('New content only')
+    })
+
+    it('should validate document exists', () => {
+      store.query = () => []
+
+      const result = updateDocument(store, {
+        documentId: 'nonexistent',
+        title: 'New Title',
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Document with ID nonexistent not found')
+    })
+
+    it('should require at least one field for update', () => {
+      store.query = () => [mockDocument]
+
+      const result = updateDocument(store, {
+        documentId: 'doc-1',
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('At least one field (title or content) must be provided for update')
+    })
+
+    it('should validate empty title', () => {
+      store.query = () => [mockDocument]
+
+      const result = updateDocument(store, {
+        documentId: 'doc-1',
+        title: '   ',
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Document title cannot be empty')
+    })
+  })
+
+  describe('archiveDocument', () => {
+    it('should archive document successfully', () => {
+      store.query = () => [mockDocument]
+      store.commit = vi.fn()
+
+      const result = archiveDocument(store, 'doc-1')
+
+      expect(result.success).toBe(true)
+      expect(result.document?.id).toBe('doc-1')
+      expect(result.document?.archivedAt).toBeInstanceOf(Date)
+      expect(store.commit).toHaveBeenCalled()
+    })
+
+    it('should validate document exists', () => {
+      store.query = () => []
+
+      const result = archiveDocument(store, 'nonexistent')
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Document with ID nonexistent not found')
+    })
+
+    it('should prevent archiving already archived document', () => {
+      const archivedDocument = { ...mockDocument, archivedAt: new Date() }
+      store.query = () => [archivedDocument]
+
+      const result = archiveDocument(store, 'doc-1')
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Document is already archived')
+    })
+  })
+
+  describe('addDocumentToProject', () => {
+    it('should add document to project successfully', () => {
+      store.query = (query: any) => {
+        if (query.label?.startsWith('getDocumentById:')) return [mockDocument]
+        if (query.label === 'getBoards' || query.label === 'getProjects') return [mockProject]
+        if (query.label?.startsWith('getDocumentProjectsByProject:')) return []
+        return []
+      }
+      store.commit = vi.fn()
+
+      const result = addDocumentToProject(store, {
+        documentId: 'doc-1',
+        projectId: 'project-1',
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.association?.documentId).toBe('doc-1')
+      expect(result.association?.projectId).toBe('project-1')
+      expect(store.commit).toHaveBeenCalled()
+    })
+
+    it('should validate document exists', () => {
+      store.query = (query: any) => {
+        if (query.label?.startsWith('getDocumentById:')) return []
+        return []
+      }
+
+      const result = addDocumentToProject(store, {
+        documentId: 'nonexistent',
+        projectId: 'project-1',
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Document with ID nonexistent not found')
+    })
+
+    it('should validate project exists', () => {
+      store.query = (query: any) => {
+        if (query.label?.startsWith('getDocumentById:')) return [mockDocument]
+        if (query.label === 'getBoards' || query.label === 'getProjects') return []
+        return []
+      }
+
+      const result = addDocumentToProject(store, {
+        documentId: 'doc-1',
+        projectId: 'nonexistent',
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Project with ID nonexistent not found')
+    })
+
+    it('should prevent duplicate associations', () => {
+      store.query = (query: any) => {
+        if (query.label?.startsWith('getDocumentById:')) return [mockDocument]
+        if (query.label === 'getBoards' || query.label === 'getProjects') return [mockProject]
+        if (query.label?.startsWith('getDocumentProjectsByProject:')) return mockDocumentProjects
+        return []
+      }
+
+      const result = addDocumentToProject(store, {
+        documentId: 'doc-1',
+        projectId: 'project-1',
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Document is already associated with project project-1')
+    })
+  })
+
+  describe('removeDocumentFromProject', () => {
+    it('should remove document from project successfully', () => {
+      store.query = (query: any) => {
+        if (query.label?.startsWith('getDocumentById:')) return [mockDocument]
+        if (query.label === 'getBoards' || query.label === 'getProjects') return [mockProject]
+        if (query.label?.startsWith('getDocumentProjectsByProject:')) return mockDocumentProjects
+        return []
+      }
+      store.commit = vi.fn()
+
+      const result = removeDocumentFromProject(store, {
+        documentId: 'doc-1',
+        projectId: 'project-1',
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.association?.documentId).toBe('doc-1')
+      expect(result.association?.projectId).toBe('project-1')
+      expect(store.commit).toHaveBeenCalled()
+    })
+
+    it('should validate document exists', () => {
+      store.query = (query: any) => {
+        if (query.label?.startsWith('getDocumentById:')) return []
+        return []
+      }
+
+      const result = removeDocumentFromProject(store, {
+        documentId: 'nonexistent',
+        projectId: 'project-1',
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Document with ID nonexistent not found')
+    })
+
+    it('should validate project exists', () => {
+      store.query = (query: any) => {
+        if (query.label?.startsWith('getDocumentById:')) return [mockDocument]
+        if (query.label === 'getBoards' || query.label === 'getProjects') return []
+        return []
+      }
+
+      const result = removeDocumentFromProject(store, {
+        documentId: 'doc-1',
+        projectId: 'nonexistent',
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Project with ID nonexistent not found')
+    })
+
+    it('should validate association exists', () => {
+      store.query = (query: any) => {
+        if (query.label?.startsWith('getDocumentById:')) return [mockDocument]
+        if (query.label === 'getBoards' || query.label === 'getProjects') return [mockProject]
+        if (query.label?.startsWith('getDocumentProjectsByProject:')) return []
+        return []
+      }
+
+      const result = removeDocumentFromProject(store, {
+        documentId: 'doc-1',
+        projectId: 'project-1',
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Document is not associated with project project-1')
     })
   })
 })

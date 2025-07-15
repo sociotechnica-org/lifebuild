@@ -272,6 +272,78 @@ export interface SearchProjectDocumentsResult {
   error?: string
 }
 
+// ===== NEW DOCUMENT TOOL TYPES =====
+
+export interface CreateDocumentParams {
+  title: string
+  content?: string
+}
+
+export interface CreateDocumentResult {
+  success: boolean
+  documentId?: string
+  title?: string
+  content?: string
+  error?: string
+}
+
+export interface UpdateDocumentParams {
+  documentId: string
+  title?: string
+  content?: string
+}
+
+export interface UpdateDocumentResult {
+  success: boolean
+  document?: {
+    id: string
+    title?: string
+    content?: string
+  }
+  error?: string
+}
+
+export interface ArchiveDocumentParams {
+  documentId: string
+}
+
+export interface ArchiveDocumentResult {
+  success: boolean
+  document?: {
+    id: string
+    archivedAt: Date
+  }
+  error?: string
+}
+
+export interface AddDocumentToProjectParams {
+  documentId: string
+  projectId: string
+}
+
+export interface AddDocumentToProjectResult {
+  success: boolean
+  association?: {
+    documentId: string
+    projectId: string
+  }
+  error?: string
+}
+
+export interface RemoveDocumentFromProjectParams {
+  documentId: string
+  projectId: string
+}
+
+export interface RemoveDocumentFromProjectResult {
+  success: boolean
+  association?: {
+    documentId: string
+    projectId: string
+  }
+  error?: string
+}
+
 // ===== UNION TYPES =====
 
 export type LLMToolParams =
@@ -291,6 +363,11 @@ export type LLMToolParams =
   | SearchDocumentsParams
   | GetProjectDocumentsParams
   | SearchProjectDocumentsParams
+  | CreateDocumentParams
+  | UpdateDocumentParams
+  | ArchiveDocumentParams
+  | AddDocumentToProjectParams
+  | RemoveDocumentFromProjectParams
 
 export type LLMToolResult =
   | CreateTaskResult
@@ -309,3 +386,8 @@ export type LLMToolResult =
   | SearchDocumentsResult
   | GetProjectDocumentsResult
   | SearchProjectDocumentsResult
+  | CreateDocumentResult
+  | UpdateDocumentResult
+  | ArchiveDocumentResult
+  | AddDocumentToProjectResult
+  | RemoveDocumentFromProjectResult

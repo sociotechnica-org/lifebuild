@@ -49,6 +49,10 @@ src/utils/llm-tools/
 |                   | taskUpdated                 | ✅   | update_task          |
 |                   | taskArchived                | ✅   | archive_task         |
 |                   | taskUnarchived              | ✅   | unarchive_task       |
+| **Tasks**         | getBoardTasks$              | ✅   | get_project_tasks    |
+|                   | getProjectTasks$            | ✅   | get_project_tasks    |
+|                   | getTaskById$                | ✅   | get_task_by_id       |
+|                   | getOrphanedTasks$           | ✅   | get_orphaned_tasks   |
 | **Users**         | userCreated                 | ❌   | -                    |
 | **Chat**          | chatMessageSent             | ❌   | -                    |
 |                   | llmResponseReceived         | ❌   | -                    |
@@ -56,11 +60,11 @@ src/utils/llm-tools/
 | **Conversations** | conversationCreated         | ❌   | -                    |
 |                   | conversationModelUpdated    | ❌   | -                    |
 | **Comments**      | commentAdded                | ❌   | -                    |
-| **Documents**     | documentCreated             | ❌   | -                    |
-|                   | documentUpdated             | ❌   | -                    |
-|                   | documentArchived            | ❌   | -                    |
-|                   | documentAddedToProject      | ❌   | -                    |
-|                   | documentRemovedFromProject  | ❌   | -                    |
+| **Documents**     | documentCreated             | ✅   | create_document      |
+|                   | documentUpdated             | ✅   | update_document      |
+|                   | documentArchived            | ✅   | archive_document     |
+|                   | documentAddedToProject      | ✅   | add_document_to_project |
+|                   | documentRemovedFromProject  | ✅   | remove_document_from_project |
 | **Workers**       | workerCreated               | ❌   | -                    |
 |                   | workerUpdated               | ❌   | -                    |
 |                   | workerAssignedToProject     | ❌   | -                    |
@@ -105,7 +109,7 @@ src/utils/llm-tools/
 ## Implementation Summary
 
 - **Total Events**: 26 events
-- **Events with LLM Tools**: 5 (19.2%)
+- **Events with LLM Tools**: 10 (38.5%)
 - **Total Queries**: 31 queries
 - **Queries with LLM Tools**: 9 (29.0%)
 
@@ -132,9 +136,11 @@ src/utils/llm-tools/
    - ✅ `get_orphaned_tasks` (getOrphanedTasks$)
 
 3. **Document Management**
-   - `create_document` (documentCreated)
-   - `update_document` (documentUpdated)
-   - `add_document_to_project` (documentAddedToProject)
+   - ✅ `create_document` (documentCreated)
+   - ✅ `update_document` (documentUpdated)
+   - ✅ `archive_document` (documentArchived)
+   - ✅ `add_document_to_project` (documentAddedToProject)
+   - ✅ `remove_document_from_project` (documentRemovedFromProject)
 
 ### Medium Priority (Extended Features)
 
