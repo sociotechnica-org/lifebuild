@@ -92,7 +92,7 @@ export const taskMovedToProject = Events.synced({
   schema: Schema.Struct({
     taskId: Schema.String,
     toProjectId: Schema.optional(Schema.String), // null for orphaned tasks
-    toColumnId: Schema.optional(Schema.String), // null for orphaned tasks
+    toColumnId: Schema.String,
     position: Schema.Number,
     updatedAt: Schema.Date,
   }),

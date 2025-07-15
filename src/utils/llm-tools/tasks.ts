@@ -7,6 +7,7 @@ import {
   getTaskById$,
   getOrphanedTasks$,
   getProjects$,
+  getOrphanedColumns$,
 } from '../../livestore/queries.js'
 import {
   validators,
@@ -227,16 +228,9 @@ function moveTaskToProjectCore(
   const tasks = store.query(getTaskById$(taskId))
   validators.requireEntity(tasks, 'Task', taskId)
 
-  // Validate input consistency
-  if (!toProjectId && toColumnId) {
-    throw new Error('Cannot specify column ID when moving task to orphaned state (no project)')
-  }
-  if (toProjectId && !toColumnId) {
-    throw new Error('Column ID is required when moving task to a project')
-  }
-
-  // Verify target project and column if projectId provided
+  // Verify target project and column consistency
   if (toProjectId) {
+    // Moving to a specific project - validate project and column belong together
     const projects = store.query(getProjects$)
     const targetProject = projects.find((p: any) => p.id === toProjectId)
     if (!targetProject) {
@@ -247,6 +241,18 @@ function moveTaskToProjectCore(
     const targetColumn = columns.find((c: any) => c.id === toColumnId)
     if (!targetColumn) {
       throw new Error(`Column with ID ${toColumnId} not found in project ${toProjectId}`)
+    }
+  } else {
+    // Moving to orphaned state - validate column exists and is orphaned
+    const orphanedColumns = store.query(getOrphanedColumns$)
+    const targetColumn = orphanedColumns.find((c: any) => c.id === toColumnId)
+    if (!targetColumn) {
+      throw new Error(`Orphaned column with ID ${toColumnId} not found`)
+    }
+    if (targetColumn.projectId) {
+      throw new Error(
+        `Column ${toColumnId} belongs to project ${targetColumn.projectId}, cannot use for orphaned task`
+      )
     }
   }
 
@@ -270,7 +276,7 @@ function moveTaskToProjectCore(
     events.taskMovedToProject({
       taskId: taskId,
       toProjectId: toProjectId?.trim(),
-      toColumnId: toProjectId ? toColumnId : undefined,
+      toColumnId: toColumnId,
       position: movePosition,
       updatedAt: new Date(),
     })
@@ -281,7 +287,7 @@ function moveTaskToProjectCore(
     task: {
       id: taskId,
       projectId: toProjectId,
-      columnId: toProjectId ? toColumnId : undefined,
+      columnId: toColumnId,
       position: movePosition,
     },
   }

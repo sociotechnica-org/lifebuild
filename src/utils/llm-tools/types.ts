@@ -60,7 +60,7 @@ export interface MoveTaskResult {
 export interface MoveTaskToProjectParams {
   taskId: string
   toProjectId?: string
-  toColumnId?: string
+  toColumnId: string
   position?: number
 }
 
@@ -70,7 +70,7 @@ export interface MoveTaskToProjectResult {
   task?: {
     id: string
     projectId?: string
-    columnId?: string
+    columnId: string
     position: number
   }
 }

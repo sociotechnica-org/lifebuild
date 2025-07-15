@@ -203,36 +203,43 @@ describe('LLM Tools - Tasks', () => {
       expect(result.task?.columnId).toBe('test-column')
     })
 
-    it('should handle orphaning task when no project specified', () => {
+    it('should handle orphaning task with orphaned column', () => {
+      const orphanedColumn = { id: 'orphaned-column', name: 'Orphaned', projectId: null }
+
       store.query = (query: any) => {
         if (query.label?.startsWith('getTaskById:')) return [mockTask]
+        if (query.label === 'getOrphanedColumns') return [orphanedColumn]
         return []
       }
       store.commit = () => {}
 
       const result = moveTaskToProject(store, {
         taskId: 'test-task',
+        toColumnId: 'orphaned-column',
       })
 
       expect(result.success).toBe(true)
       expect(result.task?.projectId).toBeUndefined()
-      expect(result.task?.columnId).toBeUndefined()
+      expect(result.task?.columnId).toBe('orphaned-column')
     })
 
-    it('should reject orphaning task with column ID specified', () => {
+    it('should reject orphaning task with project-owned column', () => {
+      const projectColumn = { id: 'project-column', name: 'Project Col', projectId: 'some-project' }
+
       store.query = (query: any) => {
         if (query.label?.startsWith('getTaskById:')) return [mockTask]
+        if (query.label === 'getOrphanedColumns') return [projectColumn]
         return []
       }
 
       const result = moveTaskToProject(store, {
         taskId: 'test-task',
-        toColumnId: 'test-column',
+        toColumnId: 'project-column',
       })
 
       expect(result.success).toBe(false)
       expect(result.error).toBe(
-        'Cannot specify column ID when moving task to orphaned state (no project)'
+        'Column project-column belongs to project some-project, cannot use for orphaned task'
       )
     })
   })
