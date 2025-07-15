@@ -49,10 +49,6 @@ src/utils/llm-tools/
 |                   | taskUpdated                 | ✅   | update_task                  |
 |                   | taskArchived                | ✅   | archive_task                 |
 |                   | taskUnarchived              | ✅   | unarchive_task               |
-| **Tasks**         | getBoardTasks$              | ✅   | get_project_tasks            |
-|                   | getProjectTasks$            | ✅   | get_project_tasks            |
-|                   | getTaskById$                | ✅   | get_task_by_id               |
-|                   | getOrphanedTasks$           | ✅   | get_orphaned_tasks           |
 | **Users**         | userCreated                 | ❌   | -                            |
 | **Chat**          | chatMessageSent             | ❌   | -                            |
 |                   | llmResponseReceived         | ❌   | -                            |
