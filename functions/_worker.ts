@@ -107,10 +107,11 @@ ${workerContext.roleDescription ? `- Role: ${workerContext.roleDescription}` : '
 You have access to tools for:
 - Creating and managing tasks (create_task, update_task, move_task, move_task_to_project, archive_task, unarchive_task)
 - Viewing tasks (get_task_by_id, get_project_tasks, get_orphaned_tasks)
-- Listing all available projects (list_projects)
-- Listing all available documents (list_documents)
-- Reading a specific document by ID (read_document)
-- Searching through document content (search_documents)
+- Managing projects (list_projects, get_project_details)
+- Creating and managing documents (create_document, update_document, archive_document)
+- Managing document-project associations (add_document_to_project, remove_document_from_project)
+- Viewing documents (list_documents, read_document, get_project_documents)
+- Searching through document content (search_documents, search_project_documents)
 
 When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed.${currentBoardContext}`
         } else {
@@ -123,11 +124,13 @@ When users describe project requirements or ask you to create tasks, use the cre
 4. **Workflow Automation**: Guiding users through consultancy processes from contract closure to iteration zero planning
 
 You have access to tools for:
-- Creating tasks in the Kanban system (create_task)
-- Listing all available projects (list_projects)
-- Listing all available documents (list_documents)
-- Reading a specific document by ID (read_document)
-- Searching through document content (search_documents)
+- Creating and managing tasks (create_task, update_task, move_task, move_task_to_project, archive_task, unarchive_task)
+- Viewing tasks (get_task_by_id, get_project_tasks, get_orphaned_tasks)
+- Managing projects (list_projects, get_project_details)
+- Creating and managing documents (create_document, update_document, archive_document)
+- Managing document-project associations (add_document_to_project, remove_document_from_project)
+- Viewing documents (list_documents, read_document, get_project_documents)
+- Searching through document content (search_documents, search_project_documents)
 
 When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed. If you need to know what projects are available, use the list_projects tool first.
 

@@ -37,34 +37,34 @@ src/utils/llm-tools/
 
 ### Events (Write Operations)
 
-| Category          | Event Name                  | Tool | Name                 |
-| ----------------- | --------------------------- | ---- | -------------------- |
-| **Projects**      | projectCreated              | ❌   | -                    |
-| **Columns**       | columnCreated               | ❌   | -                    |
-|                   | columnRenamed               | ❌   | -                    |
-|                   | columnReordered             | ❌   | -                    |
-| **Tasks**         | taskCreated                 | ✅   | create_task          |
-|                   | taskMoved                   | ✅   | move_task            |
-|                   | taskMovedToProject          | ✅   | move_task_to_project |
-|                   | taskUpdated                 | ✅   | update_task          |
-|                   | taskArchived                | ✅   | archive_task         |
-|                   | taskUnarchived              | ✅   | unarchive_task       |
-| **Users**         | userCreated                 | ❌   | -                    |
-| **Chat**          | chatMessageSent             | ❌   | -                    |
-|                   | llmResponseReceived         | ❌   | -                    |
-|                   | llmResponseStarted          | ❌   | -                    |
-| **Conversations** | conversationCreated         | ❌   | -                    |
-|                   | conversationModelUpdated    | ❌   | -                    |
-| **Comments**      | commentAdded                | ❌   | -                    |
-| **Documents**     | documentCreated             | ❌   | -                    |
-|                   | documentUpdated             | ❌   | -                    |
-|                   | documentArchived            | ❌   | -                    |
-|                   | documentAddedToProject      | ❌   | -                    |
-|                   | documentRemovedFromProject  | ❌   | -                    |
-| **Workers**       | workerCreated               | ❌   | -                    |
-|                   | workerUpdated               | ❌   | -                    |
-|                   | workerAssignedToProject     | ❌   | -                    |
-|                   | workerUnassignedFromProject | ❌   | -                    |
+| Category          | Event Name                  | Tool | Name                         |
+| ----------------- | --------------------------- | ---- | ---------------------------- |
+| **Projects**      | projectCreated              | ❌   | -                            |
+| **Columns**       | columnCreated               | ❌   | -                            |
+|                   | columnRenamed               | ❌   | -                            |
+|                   | columnReordered             | ❌   | -                            |
+| **Tasks**         | taskCreated                 | ✅   | create_task                  |
+|                   | taskMoved                   | ✅   | move_task                    |
+|                   | taskMovedToProject          | ✅   | move_task_to_project         |
+|                   | taskUpdated                 | ✅   | update_task                  |
+|                   | taskArchived                | ✅   | archive_task                 |
+|                   | taskUnarchived              | ✅   | unarchive_task               |
+| **Users**         | userCreated                 | ❌   | -                            |
+| **Chat**          | chatMessageSent             | ❌   | -                            |
+|                   | llmResponseReceived         | ❌   | -                            |
+|                   | llmResponseStarted          | ❌   | -                            |
+| **Conversations** | conversationCreated         | ❌   | -                            |
+|                   | conversationModelUpdated    | ❌   | -                            |
+| **Comments**      | commentAdded                | ❌   | -                            |
+| **Documents**     | documentCreated             | ✅   | create_document              |
+|                   | documentUpdated             | ✅   | update_document              |
+|                   | documentArchived            | ✅   | archive_document             |
+|                   | documentAddedToProject      | ✅   | add_document_to_project      |
+|                   | documentRemovedFromProject  | ✅   | remove_document_from_project |
+| **Workers**       | workerCreated               | ❌   | -                            |
+|                   | workerUpdated               | ❌   | -                            |
+|                   | workerAssignedToProject     | ❌   | -                            |
+|                   | workerUnassignedFromProject | ❌   | -                            |
 
 ### Queries (Read Operations)
 
@@ -105,7 +105,7 @@ src/utils/llm-tools/
 ## Implementation Summary
 
 - **Total Events**: 26 events
-- **Events with LLM Tools**: 5 (19.2%)
+- **Events with LLM Tools**: 10 (38.5%)
 - **Total Queries**: 31 queries
 - **Queries with LLM Tools**: 9 (29.0%)
 
@@ -132,9 +132,11 @@ src/utils/llm-tools/
    - ✅ `get_orphaned_tasks` (getOrphanedTasks$)
 
 3. **Document Management**
-   - `create_document` (documentCreated)
-   - `update_document` (documentUpdated)
-   - `add_document_to_project` (documentAddedToProject)
+   - ✅ `create_document` (documentCreated)
+   - ✅ `update_document` (documentUpdated)
+   - ✅ `archive_document` (documentArchived)
+   - ✅ `add_document_to_project` (documentAddedToProject)
+   - ✅ `remove_document_from_project` (documentRemovedFromProject)
 
 ### Medium Priority (Extended Features)
 

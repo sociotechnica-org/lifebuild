@@ -158,4 +158,54 @@ export const llmToolSchemas = [
       required: ['query'],
     }
   ),
+
+  // Document Event Tools (Write Operations)
+  toolDef('create_document', 'Create a new document with title and optional content', {
+    type: 'object',
+    properties: {
+      title: requiredString('The title of the document'),
+      content: optionalString('The content of the document (defaults to empty)'),
+    },
+    required: ['title'],
+  }),
+
+  toolDef('update_document', "Update an existing document's title and/or content", {
+    type: 'object',
+    properties: {
+      documentId: requiredString('The ID of the document to update'),
+      title: optionalString('New title for the document'),
+      content: optionalString('New content for the document'),
+    },
+    required: ['documentId'],
+  }),
+
+  toolDef('archive_document', 'Archive a document to remove it from active view', {
+    type: 'object',
+    properties: {
+      documentId: requiredString('The ID of the document to archive'),
+    },
+    required: ['documentId'],
+  }),
+
+  toolDef('add_document_to_project', 'Associate an existing document with a project', {
+    type: 'object',
+    properties: {
+      documentId: requiredString('The ID of the document to add to the project'),
+      projectId: requiredString('The ID of the project to add the document to'),
+    },
+    required: ['documentId', 'projectId'],
+  }),
+
+  toolDef(
+    'remove_document_from_project',
+    'Remove a document association from a project (keeps the document)',
+    {
+      type: 'object',
+      properties: {
+        documentId: requiredString('The ID of the document to remove from the project'),
+        projectId: requiredString('The ID of the project to remove the document from'),
+      },
+      required: ['documentId', 'projectId'],
+    }
+  ),
 ]

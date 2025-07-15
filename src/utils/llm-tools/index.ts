@@ -40,6 +40,11 @@ export async function executeLLMTool(
     searchDocuments,
     getProjectDocuments,
     searchProjectDocuments,
+    createDocument,
+    updateDocument,
+    archiveDocument,
+    addDocumentToProject,
+    removeDocumentFromProject,
   } = await import('./documents.js')
 
   switch (toolCall.name) {
@@ -90,6 +95,21 @@ export async function executeLLMTool(
 
     case 'get_project_details':
       return getProjectDetails(store, toolCall.parameters.projectId)
+
+    case 'create_document':
+      return createDocument(store, toolCall.parameters)
+
+    case 'update_document':
+      return updateDocument(store, toolCall.parameters)
+
+    case 'archive_document':
+      return archiveDocument(store, toolCall.parameters.documentId)
+
+    case 'add_document_to_project':
+      return addDocumentToProject(store, toolCall.parameters)
+
+    case 'remove_document_from_project':
+      return removeDocumentFromProject(store, toolCall.parameters)
 
     default:
       throw new Error(`Unknown tool: ${toolCall.name}`)
