@@ -26,32 +26,8 @@ const worker = makeWorker({
 
 // LLM API credentials loaded from environment
 
-// Tool schema builders to reduce duplication
-const toolDef = (name: string, description: string, params: any) => ({
-  type: 'function',
-  function: { name, description, parameters: params },
-})
-
-const requiredString = (description: string) => ({
-  type: 'string',
-  description,
-})
-
-const optionalString = (description: string) => ({
-  type: 'string',
-  description,
-})
-
-const optionalNumber = (description: string) => ({
-  type: 'number',
-  description,
-})
-
-const stringArray = (description: string) => ({
-  type: 'array',
-  items: { type: 'string' },
-  description,
-})
+// Import centralized tool schemas
+import { llmToolSchemas } from '../src/utils/llm-tools/schemas.js'
 
 // Custom worker that handles both WebSocket sync and HTTP API endpoints
 export default {
@@ -166,133 +142,8 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
           messages.push({ role: 'user', content: message })
         }
 
-        // Define available tools using schema builders
-        const tools = [
-          toolDef('create_task', 'Create a new task in the Kanban system', {
-            type: 'object',
-            properties: {
-              title: requiredString('The title/name of the task'),
-              description: optionalString('Optional detailed description of the task'),
-              boardId: optionalString(
-                'ID of the project to create the task on (defaults to first project)'
-              ),
-              columnId: optionalString(
-                'ID of the column to place the task in (defaults to first column)'
-              ),
-              assigneeId: optionalString('ID of the user to assign the task to'),
-            },
-            required: ['title'],
-          }),
-
-          toolDef('update_task', 'Update an existing task with new information', {
-            type: 'object',
-            properties: {
-              taskId: requiredString('The ID of the task to update'),
-              title: optionalString('New title for the task'),
-              description: optionalString('New description for the task'),
-              assigneeIds: stringArray('Array of user IDs to assign to the task'),
-            },
-            required: ['taskId'],
-          }),
-
-          toolDef('move_task', 'Move a task to a different column within the same project', {
-            type: 'object',
-            properties: {
-              taskId: requiredString('The ID of the task to move'),
-              toColumnId: requiredString('The ID of the column to move the task to'),
-              position: optionalNumber('Position in the column (defaults to end)'),
-            },
-            required: ['taskId', 'toColumnId'],
-          }),
-
-          toolDef('move_task_to_project', 'Move a task to a different project and column', {
-            type: 'object',
-            properties: {
-              taskId: requiredString('The ID of the task to move'),
-              toProjectId: optionalString(
-                'The ID of the project to move the task to (optional for orphaning)'
-              ),
-              toColumnId: requiredString('The ID of the column to move the task to'),
-              position: optionalNumber('Position in the column (defaults to end)'),
-            },
-            required: ['taskId', 'toColumnId'],
-          }),
-
-          toolDef('archive_task', 'Archive a task to remove it from active view', {
-            type: 'object',
-            properties: {
-              taskId: requiredString('The ID of the task to archive'),
-            },
-            required: ['taskId'],
-          }),
-
-          toolDef('unarchive_task', 'Unarchive a task to restore it to active view', {
-            type: 'object',
-            properties: {
-              taskId: requiredString('The ID of the task to unarchive'),
-            },
-            required: ['taskId'],
-          }),
-
-          toolDef('get_task_by_id', 'Get detailed information about a specific task', {
-            type: 'object',
-            properties: {
-              taskId: requiredString('The ID of the task to retrieve'),
-            },
-            required: ['taskId'],
-          }),
-
-          toolDef('get_project_tasks', 'Get all tasks for a specific project', {
-            type: 'object',
-            properties: {
-              projectId: requiredString('The ID of the project to get tasks for'),
-            },
-            required: ['projectId'],
-          }),
-
-          toolDef('get_orphaned_tasks', 'Get all tasks that are not assigned to any project', {
-            type: 'object',
-            properties: {},
-            required: [],
-          }),
-
-          toolDef(
-            'list_projects',
-            'Get a list of all available projects with their IDs, names, and descriptions',
-            {
-              type: 'object',
-              properties: {},
-              required: [],
-            }
-          ),
-          toolDef(
-            'list_documents',
-            'Get a list of all available documents with their IDs, titles, and last updated dates',
-            {
-              type: 'object',
-              properties: {},
-              required: [],
-            }
-          ),
-          toolDef('read_document', 'Read the full content of a specific document by its ID', {
-            type: 'object',
-            properties: {
-              documentId: requiredString('The ID of the document to read'),
-            },
-            required: ['documentId'],
-          }),
-          toolDef(
-            'search_documents',
-            'Search through document titles and content for a specific query',
-            {
-              type: 'object',
-              properties: {
-                query: requiredString('The search query to find in document titles and content'),
-              },
-              required: ['query'],
-            }
-          ),
-        ]
+        // Use centralized tool schemas
+        const tools = llmToolSchemas
 
         const response = await fetch('https://api.braintrust.dev/v1/proxy/chat/completions', {
           method: 'POST',

@@ -46,6 +46,34 @@ export const validators = {
   },
 }
 
+// ===== SCHEMA BUILDERS =====
+
+export const toolDef = (name: string, description: string, params: any) => ({
+  type: 'function',
+  function: { name, description, parameters: params },
+})
+
+export const requiredString = (description: string) => ({
+  type: 'string',
+  description,
+})
+
+export const optionalString = (description: string) => ({
+  type: 'string',
+  description,
+})
+
+export const optionalNumber = (description: string) => ({
+  type: 'number',
+  description,
+})
+
+export const stringArray = (description: string) => ({
+  type: 'array',
+  items: { type: 'string' },
+  description,
+})
+
 // ===== ERROR HANDLING WRAPPER =====
 
 export function wrapToolFunction<T extends Record<string, any>>(

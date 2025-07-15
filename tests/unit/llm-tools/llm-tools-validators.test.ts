@@ -1,39 +1,5 @@
 import { describe, it, expect } from 'vitest'
-
-// Validators that will be implemented during refactoring
-const validators = {
-  requireId: (id: string | undefined, name: string): string => {
-    if (!id?.trim()) {
-      throw new Error(`${name} is required`)
-    }
-    return id.trim()
-  },
-
-  requireEntity: <T>(entities: T[], entityName: string, id: string): T => {
-    if (entities.length === 0) {
-      throw new Error(`${entityName} with ID ${id} not found`)
-    }
-    const entity = entities[0]
-    if (!entity) {
-      throw new Error(`${entityName} with ID ${id} not found`)
-    }
-    return entity
-  },
-
-  validateAssignees: (assigneeIds: string[], users: any[]): void => {
-    const userIds = new Set(users.map((u: any) => u.id))
-    const invalidAssignees = assigneeIds.filter(id => !userIds.has(id))
-    if (invalidAssignees.length > 0) {
-      throw new Error(`Invalid assignee IDs: ${invalidAssignees.join(', ')}`)
-    }
-  },
-
-  validateOptionalAssignees: (assigneeIds: string[] | undefined, users: any[]): void => {
-    if (assigneeIds && assigneeIds.length > 0) {
-      validators.validateAssignees(assigneeIds, users)
-    }
-  },
-}
+import { validators } from '../../../src/utils/llm-tools/base.js'
 
 describe('LLM Tool Validators', () => {
   describe('requireId', () => {

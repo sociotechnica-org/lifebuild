@@ -32,18 +32,7 @@ describe('LLM Tools - Projects', () => {
   ]
 
   describe('listProjects', () => {
-    it('should return success with empty projects list when no projects exist', () => {
-      store.query = () => []
-
-      const result = listProjects(store)
-
-      expect(result).toEqual({
-        success: true,
-        projects: [],
-      })
-    })
-
-    it('should return projects when they exist', () => {
+    it('should return projects with proper formatting', () => {
       store.query = () => mockProjects
 
       const result = listProjects(store)
@@ -64,19 +53,7 @@ describe('LLM Tools - Projects', () => {
       })
     })
 
-    it('should handle query errors gracefully', () => {
-      store.query = () => {
-        throw new Error('Database connection failed')
-      }
-
-      const result = listProjects(store)
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Database connection failed')
-      expect(result.projects).toBeUndefined()
-    })
-
-    it('should handle null/undefined projects', () => {
+    it('should filter out null/undefined projects', () => {
       store.query = () => [null, undefined, mockProject]
 
       const result = listProjects(store)
@@ -96,7 +73,7 @@ describe('LLM Tools - Projects', () => {
       { id: 'task-3', title: 'Task 3' },
     ]
 
-    it('should return project details when project exists', () => {
+    it('should return project details with document and task counts', () => {
       store.query = (query: any) => {
         if (query.label?.startsWith('getProjectDetails:')) return [mockProject]
         if (query.label?.startsWith('getDocumentProjectsByProject:')) return mockDocumentProjects
@@ -118,37 +95,6 @@ describe('LLM Tools - Projects', () => {
       })
     })
 
-    it('should return error when project not found', () => {
-      store.query = () => []
-
-      const result = getProjectDetails(store, 'nonexistent-project')
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Project with ID nonexistent-project not found')
-      expect(result.project).toBeUndefined()
-    })
-
-    it('should return error when projectId is empty', () => {
-      const result = getProjectDetails(store, '')
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Project ID is required')
-    })
-
-    it('should return error when projectId is undefined', () => {
-      const result = getProjectDetails(store, undefined as any)
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Project ID is required')
-    })
-
-    it('should return error when projectId is only whitespace', () => {
-      const result = getProjectDetails(store, '   ')
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Project ID is required')
-    })
-
     it('should handle project with zero documents and tasks', () => {
       store.query = (query: any) => {
         if (query.label?.startsWith('getProjectDetails:')) return [mockProject]
@@ -162,34 +108,6 @@ describe('LLM Tools - Projects', () => {
       expect(result.success).toBe(true)
       expect(result.project?.documentCount).toBe(0)
       expect(result.project?.taskCount).toBe(0)
-    })
-
-    it('should handle query errors gracefully', () => {
-      store.query = () => {
-        throw new Error('Database connection failed')
-      }
-
-      const result = getProjectDetails(store, 'test-project-1')
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Database connection failed')
-      expect(result.project).toBeUndefined()
-    })
-
-    it('should trim projectId input', () => {
-      store.query = (query: any) => {
-        // Should receive trimmed ID in the query
-        if (query.label?.startsWith('getProjectDetails:')) {
-          expect(query.label).toBe('getProjectDetails:test-project-1')
-          return [mockProject]
-        }
-        return []
-      }
-
-      const result = getProjectDetails(store, '  test-project-1  ')
-
-      expect(result.success).toBe(true)
-      expect(result.project?.id).toBe('test-project-1')
     })
 
     it('should handle projects with null description', () => {

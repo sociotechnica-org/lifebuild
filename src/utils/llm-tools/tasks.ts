@@ -14,51 +14,26 @@ import {
   wrapStringParamFunction,
   wrapNoParamFunction,
 } from './base.js'
-
-// ===== TYPE DEFINITIONS =====
-
-export interface TaskCreationParams {
-  title: string
-  description?: string
-  boardId?: string
-  columnId?: string
-  assigneeId?: string
-}
-
-export interface TaskCreationResult {
-  success: boolean
-  taskId?: string
-  error?: string
-  taskTitle?: string
-  projectName?: string
-  columnName?: string
-  assigneeName?: string
-}
-
-export interface TaskUpdateParams {
-  taskId: string
-  title?: string
-  description?: string
-  assigneeIds?: string[]
-}
-
-export interface TaskMoveParams {
-  taskId: string
-  toColumnId: string
-  position?: number
-}
-
-export interface TaskMoveToProjectParams {
-  taskId: string
-  toProjectId?: string
-  toColumnId: string
-  position?: number
-}
+import type {
+  CreateTaskParams,
+  CreateTaskResult,
+  UpdateTaskParams,
+  UpdateTaskResult,
+  MoveTaskParams,
+  MoveTaskResult,
+  MoveTaskToProjectParams,
+  MoveTaskToProjectResult,
+  ArchiveTaskResult,
+  UnarchiveTaskResult,
+  GetTaskByIdResult,
+  GetProjectTasksResult,
+  GetOrphanedTasksResult,
+} from './types.js'
 
 /**
  * Creates a task using the provided parameters
  */
-function createTaskCore(store: Store, params: TaskCreationParams): TaskCreationResult {
+function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResult {
   const { title, description, boardId, columnId, assigneeId } = params
 
   // Validate required fields
@@ -150,10 +125,7 @@ function createTaskCore(store: Store, params: TaskCreationParams): TaskCreationR
 /**
  * Updates a task with new information (core implementation)
  */
-function updateTaskCore(
-  store: Store,
-  params: TaskUpdateParams
-): { success: boolean; error?: string; task?: any } {
+function updateTaskCore(store: Store, params: UpdateTaskParams): UpdateTaskResult {
   try {
     const { taskId, title, description, assigneeIds } = params
 
@@ -202,10 +174,7 @@ function updateTaskCore(
 /**
  * Moves a task to a different column (core implementation)
  */
-function moveTaskCore(
-  store: Store,
-  params: TaskMoveParams
-): { success: boolean; error?: string; task?: any } {
+function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
   try {
     const { taskId, toColumnId, position } = params
 
@@ -271,8 +240,8 @@ function moveTaskCore(
  */
 function moveTaskToProjectCore(
   store: Store,
-  params: TaskMoveToProjectParams
-): { success: boolean; error?: string; task?: any } {
+  params: MoveTaskToProjectParams
+): MoveTaskToProjectResult {
   try {
     const { taskId, toProjectId, toColumnId, position } = params
 
@@ -351,10 +320,7 @@ function moveTaskToProjectCore(
 /**
  * Archives a task (core implementation)
  */
-function archiveTaskCore(
-  store: Store,
-  taskId: string
-): { success: boolean; error?: string; task?: any } {
+function archiveTaskCore(store: Store, taskId: string): ArchiveTaskResult {
   try {
     // Validate required fields
     const validTaskId = validators.requireId(taskId, 'Task ID')
@@ -393,10 +359,7 @@ function archiveTaskCore(
 /**
  * Unarchives a task (core implementation)
  */
-function unarchiveTaskCore(
-  store: Store,
-  taskId: string
-): { success: boolean; error?: string; task?: any } {
+function unarchiveTaskCore(store: Store, taskId: string): UnarchiveTaskResult {
   try {
     // Validate required fields
     const validTaskId = validators.requireId(taskId, 'Task ID')
@@ -434,10 +397,7 @@ function unarchiveTaskCore(
 /**
  * Get a specific task by ID (core implementation)
  */
-function getTaskByIdCore(
-  store: Store,
-  taskId: string
-): { success: boolean; task?: any; error?: string } {
+function getTaskByIdCore(store: Store, taskId: string): GetTaskByIdResult {
   // Validate required fields
   const validTaskId = validators.requireId(taskId, 'Task ID')
 
@@ -464,10 +424,7 @@ function getTaskByIdCore(
 /**
  * Get all tasks for a specific project (core implementation)
  */
-function getProjectTasksCore(
-  store: Store,
-  projectId: string
-): { success: boolean; tasks?: any[]; error?: string } {
+function getProjectTasksCore(store: Store, projectId: string): GetProjectTasksResult {
   // Validate required fields
   const validProjectId = validators.requireId(projectId, 'Project ID')
 
@@ -497,11 +454,7 @@ function getProjectTasksCore(
 /**
  * Get all orphaned tasks (tasks without a project) (core implementation)
  */
-function getOrphanedTasksCore(store: Store): {
-  success: boolean
-  tasks?: any[]
-  error?: string
-} {
+function getOrphanedTasksCore(store: Store): GetOrphanedTasksResult {
   const tasks = store.query(getOrphanedTasks$) as any[]
   return {
     success: true,

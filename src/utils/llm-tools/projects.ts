@@ -6,11 +6,12 @@ import {
   getDocumentProjectsByProject$,
 } from '../../livestore/queries.js'
 import { validators, wrapStringParamFunction, wrapNoParamFunction } from './base.js'
+import type { ListProjectsResult, GetProjectDetailsResult } from './types.js'
 
 /**
  * List all available projects (core implementation)
  */
-function listProjectsCore(store: Store): { success: boolean; projects?: any[]; error?: string } {
+function listProjectsCore(store: Store): ListProjectsResult {
   const projects = store.query(getProjects$) as any[]
   return {
     success: true,
@@ -28,10 +29,7 @@ function listProjectsCore(store: Store): { success: boolean; projects?: any[]; e
 /**
  * Get detailed information about a project (core implementation)
  */
-function getProjectDetailsCore(
-  store: Store,
-  projectId: string
-): { success: boolean; project?: any; error?: string } {
+function getProjectDetailsCore(store: Store, projectId: string): GetProjectDetailsResult {
   // Validate required fields
   const validProjectId = validators.requireId(projectId, 'Project ID')
 

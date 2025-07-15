@@ -8,15 +8,18 @@ import {
   getDocumentProjectsByProject$,
 } from '../../livestore/queries.js'
 import { validators, wrapStringParamFunction, wrapNoParamFunction } from './base.js'
+import type {
+  ListDocumentsResult,
+  ReadDocumentResult,
+  SearchDocumentsResult,
+  GetProjectDocumentsResult,
+  SearchProjectDocumentsResult,
+} from './types.js'
 
 /**
  * List all available documents (core implementation)
  */
-function listDocumentsCore(store: Store): {
-  success: boolean
-  documents?: any[]
-  error?: string
-} {
+function listDocumentsCore(store: Store): ListDocumentsResult {
   const documents = store.query(getDocumentList$) as any[]
   return {
     success: true,
@@ -31,10 +34,7 @@ function listDocumentsCore(store: Store): {
 /**
  * Read a specific document by ID (core implementation)
  */
-function readDocumentCore(
-  store: Store,
-  documentId: string
-): { success: boolean; document?: any; error?: string } {
+function readDocumentCore(store: Store, documentId: string): ReadDocumentResult {
   // Validate required fields
   const validDocumentId = validators.requireId(documentId, 'Document ID')
 
@@ -56,10 +56,7 @@ function readDocumentCore(
 /**
  * Search documents by query string (core implementation)
  */
-function searchDocumentsCore(
-  store: Store,
-  query: string
-): { success: boolean; results?: any[]; error?: string } {
+function searchDocumentsCore(store: Store, query: string): SearchDocumentsResult {
   // Validate required fields
   const validQuery = validators.requireId(query, 'Search query')
 
@@ -85,10 +82,7 @@ function searchDocumentsCore(
 /**
  * Get all documents for a specific project (core implementation)
  */
-function getProjectDocumentsCore(
-  store: Store,
-  projectId: string
-): { success: boolean; documents?: any[]; error?: string } {
+function getProjectDocumentsCore(store: Store, projectId: string): GetProjectDocumentsResult {
   // Validate required fields
   const validProjectId = validators.requireId(projectId, 'Project ID')
 
@@ -117,7 +111,7 @@ function searchProjectDocumentsCore(
   store: Store,
   query: string,
   projectId?: string
-): { success: boolean; results?: any[]; error?: string } {
+): SearchProjectDocumentsResult {
   // Validate required fields
   const validQuery = validators.requireId(query, 'Search query')
 
@@ -159,7 +153,7 @@ export function searchProjectDocuments(
   store: Store,
   query: string,
   projectId?: string
-): { success: boolean; results?: any[]; error?: string } {
+): SearchProjectDocumentsResult {
   try {
     return searchProjectDocumentsCore(store, query, projectId)
   } catch (error) {

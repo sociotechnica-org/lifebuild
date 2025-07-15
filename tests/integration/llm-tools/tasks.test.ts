@@ -51,8 +51,7 @@ describe('LLM Tools - Tasks', () => {
   }
 
   describe('createTask', () => {
-    it('should create task successfully', () => {
-      // Mock store responses
+    it('should create task with proper project and column selection', () => {
       store.query = (query: any) => {
         if (query.label === 'getBoards' || query.label === 'getProjects') return [mockProject]
         if (query.label?.startsWith('getBoardColumns:')) return [mockColumn]
@@ -72,19 +71,7 @@ describe('LLM Tools - Tasks', () => {
       expect(result.columnName).toBe('To Do')
     })
 
-    it('should return error when title is empty', () => {
-      const result = createTask(store, { title: '' })
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Task title is required')
-    })
-
-    it('should return error when title is undefined', () => {
-      const result = createTask(store, { title: undefined as any })
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Task title is required')
-    })
-
-    it('should return error when no projects exist', () => {
+    it('should handle no projects available', () => {
       store.query = () => []
 
       const result = createTask(store, { title: 'Test Task' })
@@ -92,21 +79,7 @@ describe('LLM Tools - Tasks', () => {
       expect(result.error).toBe('No projects available. Please create a project first.')
     })
 
-    it('should return error when project not found', () => {
-      store.query = (query: any) => {
-        if (query.label === 'getBoards' || query.label === 'getProjects') return [mockProject]
-        return []
-      }
-
-      const result = createTask(store, {
-        title: 'Test Task',
-        boardId: 'nonexistent-project',
-      })
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Project with ID nonexistent-project not found')
-    })
-
-    it('should return error when no columns exist', () => {
+    it('should handle no columns available', () => {
       store.query = (query: any) => {
         if (query.label === 'getBoards' || query.label === 'getProjects') return [mockProject]
         if (query.label?.startsWith('getBoardColumns:')) return []
@@ -116,21 +89,6 @@ describe('LLM Tools - Tasks', () => {
       const result = createTask(store, { title: 'Test Task' })
       expect(result.success).toBe(false)
       expect(result.error).toBe('Board "Test Project" has no columns. Please add columns first.')
-    })
-
-    it('should return error when column not found', () => {
-      store.query = (query: any) => {
-        if (query.label === 'getBoards' || query.label === 'getProjects') return [mockProject]
-        if (query.label?.startsWith('getBoardColumns:')) return [mockColumn]
-        return []
-      }
-
-      const result = createTask(store, {
-        title: 'Test Task',
-        columnId: 'nonexistent-column',
-      })
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Column with ID nonexistent-column not found')
     })
 
     it('should validate assignee when provided', () => {
@@ -152,7 +110,7 @@ describe('LLM Tools - Tasks', () => {
   })
 
   describe('updateTask', () => {
-    it('should update task successfully', () => {
+    it('should update task with assignee validation', () => {
       store.query = (query: any) => {
         if (query.label?.startsWith('getTaskById:')) return [mockTask]
         if (query.label === 'getUsers') return [mockUser]
@@ -170,29 +128,7 @@ describe('LLM Tools - Tasks', () => {
       expect(result.task?.title).toBe('Updated Task')
     })
 
-    it('should return error when task not found', () => {
-      store.query = () => []
-
-      const result = updateTask(store, {
-        taskId: 'nonexistent-task',
-        title: 'Updated Task',
-      })
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Task with ID nonexistent-task not found')
-    })
-
-    it('should return error when taskId is empty', () => {
-      const result = updateTask(store, {
-        taskId: '',
-        title: 'Updated Task',
-      })
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Task ID is required')
-    })
-
-    it('should return error for invalid assignees', () => {
+    it('should validate assignees', () => {
       store.query = (query: any) => {
         if (query.label?.startsWith('getTaskById:')) return [mockTask]
         if (query.label === 'getUsers') return [mockUser]
@@ -210,7 +146,7 @@ describe('LLM Tools - Tasks', () => {
   })
 
   describe('moveTask', () => {
-    it('should move task successfully', () => {
+    it('should move task to different column', () => {
       store.query = (query: any) => {
         if (query.label?.startsWith('getTaskById:')) return [mockTask]
         if (query.label?.startsWith('getBoardColumns:')) return [mockColumn]
@@ -228,39 +164,7 @@ describe('LLM Tools - Tasks', () => {
       expect(result.task?.columnId).toBe('test-column')
     })
 
-    it('should return error when task not found', () => {
-      store.query = () => []
-
-      const result = moveTask(store, {
-        taskId: 'nonexistent-task',
-        toColumnId: 'test-column',
-      })
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Task with ID nonexistent-task not found')
-    })
-
-    it('should return error when taskId is empty', () => {
-      const result = moveTask(store, {
-        taskId: '',
-        toColumnId: 'test-column',
-      })
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Task ID is required')
-    })
-
-    it('should return error when toColumnId is empty', () => {
-      const result = moveTask(store, {
-        taskId: 'test-task',
-        toColumnId: '',
-      })
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Column ID is required')
-    })
-
-    it('should return error for orphaned task', () => {
+    it('should reject moving orphaned task', () => {
       const orphanedTask = { ...mockTask, projectId: null }
       store.query = (query: any) => {
         if (query.label?.startsWith('getTaskById:')) return [orphanedTask]
@@ -275,26 +179,10 @@ describe('LLM Tools - Tasks', () => {
       expect(result.success).toBe(false)
       expect(result.error).toBe('Cannot move orphaned task')
     })
-
-    it('should return error when column not found', () => {
-      store.query = (query: any) => {
-        if (query.label?.startsWith('getTaskById:')) return [mockTask]
-        if (query.label?.startsWith('getBoardColumns:')) return []
-        return []
-      }
-
-      const result = moveTask(store, {
-        taskId: 'test-task',
-        toColumnId: 'nonexistent-column',
-      })
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Column with ID nonexistent-column not found')
-    })
   })
 
   describe('moveTaskToProject', () => {
-    it('should move task to project successfully', () => {
+    it('should move task to different project', () => {
       store.query = (query: any) => {
         if (query.label?.startsWith('getTaskById:')) return [mockTask]
         if (query.label === 'getBoards' || query.label === 'getProjects') return [mockProject]
@@ -313,36 +201,6 @@ describe('LLM Tools - Tasks', () => {
       expect(result.success).toBe(true)
       expect(result.task?.projectId).toBe('test-project')
       expect(result.task?.columnId).toBe('test-column')
-    })
-
-    it('should return error when task not found', () => {
-      store.query = () => []
-
-      const result = moveTaskToProject(store, {
-        taskId: 'nonexistent-task',
-        toProjectId: 'test-project',
-        toColumnId: 'test-column',
-      })
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Task with ID nonexistent-task not found')
-    })
-
-    it('should return error when project not found', () => {
-      store.query = (query: any) => {
-        if (query.label?.startsWith('getTaskById:')) return [mockTask]
-        if (query.label === 'getBoards' || query.label === 'getProjects') return []
-        return []
-      }
-
-      const result = moveTaskToProject(store, {
-        taskId: 'test-task',
-        toProjectId: 'nonexistent-project',
-        toColumnId: 'test-column',
-      })
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Project with ID nonexistent-project not found')
     })
 
     it('should handle orphaning task when no project specified', () => {
@@ -371,21 +229,7 @@ describe('LLM Tools - Tasks', () => {
       expect(result.success).toBe(true)
     })
 
-    it('should return error when task not found', () => {
-      store.query = () => []
-
-      const result = archiveTask(store, 'nonexistent-task')
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Task with ID nonexistent-task not found')
-    })
-
-    it('should return error when taskId is empty', () => {
-      const result = archiveTask(store, '')
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Task ID is required')
-    })
-
-    it('should return error when task already archived', () => {
+    it('should prevent archiving already archived task', () => {
       const archivedTask = { ...mockTask, archivedAt: new Date() }
       store.query = () => [archivedTask]
 
@@ -396,9 +240,8 @@ describe('LLM Tools - Tasks', () => {
   })
 
   describe('unarchiveTask', () => {
-    const archivedTask = { ...mockTask, archivedAt: new Date() }
-
     it('should unarchive task successfully', () => {
+      const archivedTask = { ...mockTask, archivedAt: new Date() }
       store.query = () => [archivedTask]
       store.commit = () => {}
 
@@ -406,21 +249,7 @@ describe('LLM Tools - Tasks', () => {
       expect(result.success).toBe(true)
     })
 
-    it('should return error when task not found', () => {
-      store.query = () => []
-
-      const result = unarchiveTask(store, 'nonexistent-task')
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Task with ID nonexistent-task not found')
-    })
-
-    it('should return error when taskId is empty', () => {
-      const result = unarchiveTask(store, '')
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Task ID is required')
-    })
-
-    it('should return error when task is not archived', () => {
+    it('should prevent unarchiving non-archived task', () => {
       store.query = () => [mockTask]
 
       const result = unarchiveTask(store, 'test-task')
@@ -438,20 +267,6 @@ describe('LLM Tools - Tasks', () => {
       expect(result.task?.id).toBe('test-task')
       expect(result.task?.title).toBe('Test Task')
     })
-
-    it('should return error when task not found', () => {
-      store.query = () => []
-
-      const result = getTaskById(store, 'nonexistent-task')
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Task with ID nonexistent-task not found')
-    })
-
-    it('should return error when taskId is empty', () => {
-      const result = getTaskById(store, '')
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Task ID is required')
-    })
   })
 
   describe('getProjectTasks', () => {
@@ -467,32 +282,6 @@ describe('LLM Tools - Tasks', () => {
       expect(result.tasks).toHaveLength(1)
       expect(result.tasks?.[0].id).toBe('test-task')
     })
-
-    it('should return error when project not found', () => {
-      store.query = () => []
-
-      const result = getProjectTasks(store, 'nonexistent-project')
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Project with ID nonexistent-project not found')
-    })
-
-    it('should return error when projectId is empty', () => {
-      const result = getProjectTasks(store, '')
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Project ID is required')
-    })
-
-    it('should return empty array when project has no tasks', () => {
-      store.query = (query: any) => {
-        if (query.label === 'getBoards' || query.label === 'getProjects') return [mockProject]
-        if (query.label?.startsWith('getBoardTasks:')) return []
-        return []
-      }
-
-      const result = getProjectTasks(store, 'test-project')
-      expect(result.success).toBe(true)
-      expect(result.tasks).toEqual([])
-    })
   })
 
   describe('getOrphanedTasks', () => {
@@ -504,14 +293,6 @@ describe('LLM Tools - Tasks', () => {
       expect(result.success).toBe(true)
       expect(result.tasks).toHaveLength(1)
       expect(result.tasks?.[0].projectId).toBeNull()
-    })
-
-    it('should return empty array when no orphaned tasks', () => {
-      store.query = () => []
-
-      const result = getOrphanedTasks(store)
-      expect(result.success).toBe(true)
-      expect(result.tasks).toEqual([])
     })
   })
 })

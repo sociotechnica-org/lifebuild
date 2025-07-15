@@ -1,31 +1,11 @@
 import { describe, it, expect } from 'vitest'
-
-// Tool schema builders that will be implemented during refactoring
-const toolDef = (name: string, description: string, params: any) => ({
-  type: 'function',
-  function: { name, description, parameters: params },
-})
-
-const requiredString = (description: string) => ({
-  type: 'string',
-  description,
-})
-
-const optionalString = (description: string) => ({
-  type: 'string',
-  description,
-})
-
-const optionalNumber = (description: string) => ({
-  type: 'number',
-  description,
-})
-
-const stringArray = (description: string) => ({
-  type: 'array',
-  items: { type: 'string' },
-  description,
-})
+import {
+  toolDef,
+  requiredString,
+  optionalString,
+  optionalNumber,
+  stringArray,
+} from '../../../src/utils/llm-tools/base.js'
 
 describe('Tool Schema Builders', () => {
   describe('toolDef', () => {

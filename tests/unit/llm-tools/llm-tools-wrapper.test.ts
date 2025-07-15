@@ -1,20 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import type { Store } from '@livestore/livestore'
-
-// Tool wrapper that will be implemented during refactoring
-function wrapToolFunction<T extends Record<string, any>>(fn: (store: Store, params: T) => any) {
-  return (store: Store, params: T) => {
-    try {
-      const result = fn(store, params)
-      return result
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-      }
-    }
-  }
-}
+import { wrapToolFunction } from '../../../src/utils/llm-tools/base.js'
 
 describe('wrapToolFunction', () => {
   const mockStore = {
