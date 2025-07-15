@@ -212,11 +212,28 @@ describe('LLM Tools - Tasks', () => {
 
       const result = moveTaskToProject(store, {
         taskId: 'test-task',
-        toColumnId: 'test-column',
       })
 
       expect(result.success).toBe(true)
       expect(result.task?.projectId).toBeUndefined()
+      expect(result.task?.columnId).toBeUndefined()
+    })
+
+    it('should reject orphaning task with column ID specified', () => {
+      store.query = (query: any) => {
+        if (query.label?.startsWith('getTaskById:')) return [mockTask]
+        return []
+      }
+
+      const result = moveTaskToProject(store, {
+        taskId: 'test-task',
+        toColumnId: 'test-column',
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe(
+        'Cannot specify column ID when moving task to orphaned state (no project)'
+      )
     })
   })
 

@@ -270,7 +270,7 @@ const materializers = State.SQLite.materializers(events, {
     tasks.update({ columnId: toColumnId, position, updatedAt }).where({ id: taskId }),
   'v1.TaskMovedToProject': ({ taskId, toProjectId, toColumnId, position, updatedAt }) =>
     tasks
-      .update({ projectId: toProjectId, columnId: toColumnId, position, updatedAt })
+      .update({ projectId: toProjectId, columnId: toColumnId || undefined, position, updatedAt })
       .where({ id: taskId }),
   'v1.TaskUpdated': ({ taskId, title, description, assigneeIds, updatedAt }) => {
     const updates: Record<string, any> = { updatedAt }

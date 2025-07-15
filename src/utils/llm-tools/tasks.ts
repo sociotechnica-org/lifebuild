@@ -227,6 +227,14 @@ function moveTaskToProjectCore(
   const tasks = store.query(getTaskById$(taskId))
   validators.requireEntity(tasks, 'Task', taskId)
 
+  // Validate input consistency
+  if (!toProjectId && toColumnId) {
+    throw new Error('Cannot specify column ID when moving task to orphaned state (no project)')
+  }
+  if (toProjectId && !toColumnId) {
+    throw new Error('Column ID is required when moving task to a project')
+  }
+
   // Verify target project and column if projectId provided
   if (toProjectId) {
     const projects = store.query(getProjects$)
@@ -262,7 +270,7 @@ function moveTaskToProjectCore(
     events.taskMovedToProject({
       taskId: taskId,
       toProjectId: toProjectId?.trim(),
-      toColumnId: toColumnId,
+      toColumnId: toProjectId ? toColumnId : undefined,
       position: movePosition,
       updatedAt: new Date(),
     })
@@ -273,7 +281,7 @@ function moveTaskToProjectCore(
     task: {
       id: taskId,
       projectId: toProjectId,
-      columnId: toColumnId,
+      columnId: toProjectId ? toColumnId : undefined,
       position: movePosition,
     },
   }
