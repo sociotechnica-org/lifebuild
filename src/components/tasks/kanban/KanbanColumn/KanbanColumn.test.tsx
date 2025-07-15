@@ -2,7 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { KanbanColumn } from './KanbanColumn.js'
-import { createMockColumn, createMockTasks } from '../../../../test-utils.js'
+import { createMockColumn, createMockTasks } from '../../../../../tests/test-utils.js'
 
 // Hoisted mocks
 const { mockCommit, mockUseDroppable, mockUseDraggable } = vi.hoisted(() => {

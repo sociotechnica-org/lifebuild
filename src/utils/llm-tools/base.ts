@@ -1,0 +1,64 @@
+import type { Store } from '@livestore/livestore'
+
+// ===== TYPE DEFINITIONS =====
+
+export interface LLMToolCall {
+  name: string
+  parameters: any
+  result?: any
+  error?: string
+  status: 'pending' | 'success' | 'error'
+}
+
+// ===== VALIDATION HELPERS =====
+
+export const validators = {
+  requireId: (id: string | undefined, name: string): string => {
+    if (!id?.trim()) {
+      throw new Error(`${name} is required`)
+    }
+    return id.trim()
+  },
+
+  requireEntity: <T>(entities: readonly T[], entityName: string, id: string): T => {
+    if (entities.length === 0) {
+      throw new Error(`${entityName} with ID ${id} not found`)
+    }
+    const entity = entities[0]
+    if (!entity) {
+      throw new Error(`${entityName} with ID ${id} not found`)
+    }
+    return entity
+  },
+
+  validateAssignees: (assigneeIds: string[], users: readonly any[]): void => {
+    const userIds = new Set(users.map((u: any) => u.id))
+    const invalidAssignees = assigneeIds.filter(id => !userIds.has(id))
+    if (invalidAssignees.length > 0) {
+      throw new Error(`Invalid assignee IDs: ${invalidAssignees.join(', ')}`)
+    }
+  },
+
+  validateOptionalAssignees: (assigneeIds: string[] | undefined, users: readonly any[]): void => {
+    if (assigneeIds && assigneeIds.length > 0) {
+      validators.validateAssignees(assigneeIds, users)
+    }
+  },
+}
+
+// ===== ERROR HANDLING WRAPPER =====
+
+export function wrapToolFunction<T extends Record<string, any>>(
+  fn: (store: Store, params: T) => any
+) {
+  return (store: Store, params: T) => {
+    try {
+      return fn(store, params)
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      }
+    }
+  }
+}

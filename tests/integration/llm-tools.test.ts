@@ -1,10 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+import { executeLLMTool } from '../../src/utils/llm-tools/index.js'
+import { listProjects } from '../../src/utils/llm-tools/projects.js'
+import { listDocuments, readDocument, searchDocuments } from '../../src/utils/llm-tools/documents.js'
 import {
-  executeLLMTool,
-  listProjects,
-  listDocuments,
-  readDocument,
-  searchDocuments,
   createTask,
   updateTask,
   moveTask,
@@ -13,8 +11,8 @@ import {
   getTaskById,
   getProjectTasks,
   getOrphanedTasks,
-} from '../../src/utils/llm-tools.js'
-import { createTestStore } from '../../src/test-utils.js'
+} from '../../src/utils/llm-tools/tasks.js'
+import { createTestStore } from '../test-utils.js'
 
 describe('LLM Tools Integration', () => {
   let store: any
