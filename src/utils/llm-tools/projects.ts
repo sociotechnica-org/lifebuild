@@ -14,12 +14,14 @@ function listProjectsCore(store: Store): { success: boolean; projects?: any[]; e
   const projects = store.query(getProjects$) as any[]
   return {
     success: true,
-    projects: projects.map((p: any) => ({
-      id: p.id,
-      name: p.name,
-      description: p.description,
-      createdAt: p.createdAt,
-    })),
+    projects: projects
+      .filter(p => p != null)
+      .map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        createdAt: p.createdAt,
+      })),
   }
 }
 
