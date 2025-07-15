@@ -60,4 +60,64 @@ describe('ChatInterface', () => {
     expect(screen.getByLabelText('New Chat')).toBeInTheDocument() // + button should be visible
     expect(screen.getByDisplayValue('')).toBeInTheDocument() // conversation selector
   })
+
+  it('renders copy button for chat messages', () => {
+    const mockConversations = [
+      { id: 'conv1', title: 'Test Conversation', createdAt: new Date(), updatedAt: new Date() },
+    ]
+
+    const mockMessages = [
+      {
+        id: 'msg1',
+        conversationId: 'conv1',
+        message: 'Hello world',
+        role: 'assistant',
+        createdAt: new Date(),
+      },
+    ]
+
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.label?.includes('getConversations')) return mockConversations
+      if (query.label === 'getConversationMessages:conv1') return mockMessages
+      return []
+    })
+
+    render(
+      <MemoryRouter initialEntries={['/?conversationId=conv1']}>
+        <ChatInterface />
+      </MemoryRouter>
+    )
+
+    expect(screen.getByText('Copy')).toBeInTheDocument()
+  })
+
+  it('hides copy button for placeholder messages', () => {
+    const mockConversations = [
+      { id: 'conv1', title: 'Test Conversation', createdAt: new Date(), updatedAt: new Date() },
+    ]
+
+    const mockMessages = [
+      {
+        id: 'msg1',
+        conversationId: 'conv1',
+        message: 'No response generated',
+        role: 'assistant',
+        createdAt: new Date(),
+      },
+    ]
+
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.label?.includes('getConversations')) return mockConversations
+      if (query.label === 'getConversationMessages:conv1') return mockMessages
+      return []
+    })
+
+    render(
+      <MemoryRouter initialEntries={['/?conversationId=conv1']}>
+        <ChatInterface />
+      </MemoryRouter>
+    )
+
+    expect(screen.queryByText('Copy')).not.toBeInTheDocument()
+  })
 })
