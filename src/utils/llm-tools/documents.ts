@@ -205,7 +205,7 @@ function updateDocumentCore(store: Store, params: UpdateDocumentParams): UpdateD
   validators.requireEntity(documents, 'Document', documentId)
 
   // At least one field must be provided for update
-  if (!title && !content) {
+  if (title === undefined && content === undefined) {
     throw new Error('At least one field (title or content) must be provided for update')
   }
 
