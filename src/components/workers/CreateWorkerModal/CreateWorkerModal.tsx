@@ -4,6 +4,7 @@ import { events } from '../../../livestore/schema.js'
 import { generateRandomWorkerName, systemPromptTemplates } from '../../../util/workerNames.js'
 import { ModelSelector } from '../../ui/ModelSelector/ModelSelector.js'
 import { DEFAULT_MODEL } from '../../../util/models.js'
+import { EmojiPicker } from '../EmojiPicker/EmojiPicker.js'
 
 interface CreateWorkerModalProps {
   isOpen: boolean
@@ -211,15 +212,7 @@ export const CreateWorkerModal: React.FC<CreateWorkerModalProps> = ({ isOpen, on
               <label htmlFor='avatar' className='block text-sm font-medium text-gray-900 mb-2'>
                 Avatar (emoji)
               </label>
-              <input
-                type='text'
-                id='avatar'
-                value={avatar}
-                onChange={e => setAvatar(e.target.value)}
-                className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                placeholder='🤖'
-                maxLength={2}
-              />
+              <EmojiPicker value={avatar} onChange={setAvatar} className='w-full' />
             </div>
 
             {/* Default Model */}
