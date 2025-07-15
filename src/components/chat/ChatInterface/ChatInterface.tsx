@@ -13,6 +13,7 @@ import type { Conversation, ChatMessage } from '../../../livestore/schema.js'
 import { MarkdownRenderer } from '../../markdown/MarkdownRenderer.js'
 import { executeLLMTool } from '../../../utils/llm-tools/index.js'
 import { DEFAULT_MODEL } from '../../../util/models.js'
+import { getAvatarColor } from '../../../utils/avatarColors.js'
 
 interface LLMAPIResponse {
   message: string
@@ -587,7 +588,11 @@ export const ChatInterface: React.FC = () => {
         <div className='flex items-center justify-between mb-2'>
           {currentWorker ? (
             <div className='flex items-center gap-3'>
-              <div className='text-2xl'>{currentWorker.avatar || '🤖'}</div>
+              <div
+                className={`w-10 h-10 ${getAvatarColor(currentWorker.id)} text-white rounded-full flex items-center justify-center text-lg font-medium`}
+              >
+                {currentWorker.avatar || '🤖'}
+              </div>
               <div>
                 <h2 className='text-lg font-semibold text-gray-900'>{currentWorker.name}</h2>
                 {currentWorker.roleDescription && (
