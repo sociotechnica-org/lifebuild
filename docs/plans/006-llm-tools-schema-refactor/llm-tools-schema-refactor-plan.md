@@ -26,7 +26,7 @@ src/utils/llm-tools/
 - ✅ Validation helpers: `requireEntity`, `validateAssignees`, `validateOptionalAssignees`
 - ✅ Schema builders: `toolDef`, `requiredString`, `optionalString`, `stringArray`
 - ✅ Error wrappers: `wrapToolFunction`, `wrapStringParamFunction`, `wrapNoParamFunction`
-- ✅ Consistent error handling across all 19 implemented tools
+- ✅ Consistent error handling across all 17 implemented tools
 
 #### ✅ Phase 2: Schema Consolidation (Complete)
 
@@ -42,7 +42,7 @@ src/utils/llm-tools/
 **Type Safety Implementation:**
 
 - ✅ Created `src/utils/llm-tools/types.ts` with comprehensive interfaces
-- ✅ Added parameter interfaces for all 19 tools
+- ✅ Added parameter interfaces for all 17 tools
 - ✅ Added result interfaces with proper error handling types
 - ✅ Union types for tool dispatching and type safety
 - ✅ Full compile-time type safety across all tool implementations
@@ -87,15 +87,14 @@ src/utils/llm-tools/
 
 ### Current Implementation Status
 
-**Fully Implemented Tools (19/46 total):**
+**Fully Implemented Tools (17/46 total):**
 
 - ✅ **Tasks (9 tools):** create, update, move, move_to_project, archive, unarchive, get_by_id, get_project_tasks, get_orphaned_tasks
 - ✅ **Projects (2 tools):** list_projects, get_project_details  
 - ✅ **Documents (6 tools):** list_documents, read_document, search_documents, get_project_documents, search_project_documents
-- ✅ **System (2 tools):** list_users, create_user
 
 **Tool Status:**
-- All implemented tools have complete OpenAI schemas in `schemas.ts`
+- All 17 implemented tools have complete OpenAI schemas in `schemas.ts`
 - All tools have comprehensive TypeScript interfaces in `types.ts` 
 - All tools have robust error handling and validation
 - All tools are fully tested with 298 passing tests
@@ -110,7 +109,7 @@ src/utils/llm-tools/
 - ✅ All implemented tools available to LLM
 
 **Type Safety:**
-- ✅ Complete TypeScript interfaces for all 19 tools
+- ✅ Complete TypeScript interfaces for all 17 tools
 - ✅ Compile-time type safety across entire codebase
 - ✅ Better IDE support and auto-completion
 - ✅ Refactoring safety and documentation through types
@@ -160,7 +159,7 @@ src/utils/llm-tools/
 
 ## Future Considerations
 
-### Remaining Tools (27 tools)
+### Remaining Tools (29 tools)
 The refactoring framework is now in place for easy addition of remaining tools:
 - Follow established patterns in existing files
 - Add schemas to `schemas.ts`  
