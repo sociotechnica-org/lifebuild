@@ -36,6 +36,11 @@ import type {
 function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResult {
   const { title, description, boardId, columnId, assigneeId } = params
 
+  // Validate title
+  if (!title || title.trim().length === 0) {
+    throw new Error('Task title is required')
+  }
+
   // Get all projects to determine target project
   const projects = store.query(getProjects$)
   if (projects.length === 0) {

@@ -54,6 +54,11 @@ function readDocumentCore(store: Store, documentId: string): ReadDocumentResult 
  * Search documents by query string (core implementation)
  */
 function searchDocumentsCore(store: Store, query: string): SearchDocumentsResult {
+  // Validate query
+  if (!query || query.trim().length === 0) {
+    throw new Error('Search query is required')
+  }
+
   const searchQuery = query.toLowerCase()
   const allDocuments = store.query(searchDocuments$(query)) as any[]
 
@@ -103,6 +108,11 @@ function searchProjectDocumentsCore(
   query: string,
   projectId?: string
 ): SearchProjectDocumentsResult {
+  // Validate query
+  if (!query || query.trim().length === 0) {
+    throw new Error('Search query is required')
+  }
+
   const searchQuery = query.toLowerCase()
   let documents = store.query(searchDocumentsWithProject$(query, projectId)) as any[]
 
