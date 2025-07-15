@@ -82,13 +82,17 @@ describe('ChatInterface', () => {
       return []
     })
 
-    render(
+    const { container } = render(
       <MemoryRouter initialEntries={['/?conversationId=conv1']}>
         <ChatInterface />
       </MemoryRouter>
     )
 
-    expect(screen.getByText('Copy')).toBeInTheDocument()
+    // Look for the copy button by finding the unique clipboard SVG path
+    const clipboardIcon = container.querySelector(
+      'svg path[d*="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638"]'
+    )
+    expect(clipboardIcon).toBeInTheDocument()
   })
 
   it('hides copy button for placeholder messages', () => {
@@ -112,12 +116,16 @@ describe('ChatInterface', () => {
       return []
     })
 
-    render(
+    const { container } = render(
       <MemoryRouter initialEntries={['/?conversationId=conv1']}>
         <ChatInterface />
       </MemoryRouter>
     )
 
-    expect(screen.queryByText('Copy')).not.toBeInTheDocument()
+    // Look for copy button by finding the unique clipboard SVG path - should not be present
+    const clipboardIcon = container.querySelector(
+      'svg path[d*="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638"]'
+    )
+    expect(clipboardIcon).not.toBeInTheDocument()
   })
 })
