@@ -252,11 +252,12 @@ function archiveDocumentCore(store: Store, documentId: string): ArchiveDocumentR
     throw new Error('Document is already archived')
   }
 
-  // Create archive event
+  // Create archive event with consistent timestamp
+  const archivedAt = new Date()
   store.commit(
     events.documentArchived({
       id: documentId,
-      archivedAt: new Date(),
+      archivedAt,
     })
   )
 
@@ -264,7 +265,7 @@ function archiveDocumentCore(store: Store, documentId: string): ArchiveDocumentR
     success: true,
     document: {
       id: documentId,
-      archivedAt: new Date(),
+      archivedAt,
     },
   }
 }
