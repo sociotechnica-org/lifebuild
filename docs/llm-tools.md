@@ -10,6 +10,29 @@ Work Squared uses LiveStore's event-sourced architecture where:
 - **Queries** represent read operations
 - **LLM Tools** provide AI assistants access to these operations
 
+## Architecture
+
+The LLM tools system has been fully refactored with a modular architecture:
+
+```
+src/utils/llm-tools/
+├── base.ts          # Core validators, wrappers, schema builders
+├── tasks.ts         # Task operations & validation logic
+├── projects.ts      # Project operations
+├── documents.ts     # Document operations
+├── schemas.ts       # Centralized OpenAI function schemas
+├── types.ts         # TypeScript interfaces for all tools
+└── index.ts         # Main exports & executeLLMTool
+```
+
+**Key Features:**
+
+- ✅ Full TypeScript type safety across all tools
+- ✅ Centralized OpenAI schemas in `schemas.ts`
+- ✅ Consistent error handling and validation patterns
+- ✅ Comprehensive test coverage (298 tests)
+- ✅ Optimized validation approach leveraging OpenAI + TypeScript + business logic
+
 ## Current Implementation Status
 
 ### Events (Write Operations)
@@ -82,9 +105,9 @@ Work Squared uses LiveStore's event-sourced architecture where:
 ## Implementation Summary
 
 - **Total Events**: 26 events
-- **Events with LLM Tools**: 6 (23.1%)
+- **Events with LLM Tools**: 5 (19.2%)
 - **Total Queries**: 31 queries
-- **Queries with LLM Tools**: 11 (35.5%)
+- **Queries with LLM Tools**: 9 (29.0%)
 
 ## Priority Implementation List
 
@@ -126,10 +149,6 @@ Work Squared uses LiveStore's event-sourced architecture where:
    - `create_worker` (workerCreated)
    - `assign_worker_to_project` (workerAssignedToProject)
    - `list_workers` (getWorkers$)
-
-6. **User Management**
-   - `create_user` (userCreated)
-   - `list_users` (getUsers$)
 
 ### Low Priority (Advanced Features)
 

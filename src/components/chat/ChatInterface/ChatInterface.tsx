@@ -11,7 +11,7 @@ import {
 } from '../../../livestore/queries.js'
 import type { Conversation, ChatMessage } from '../../../livestore/schema.js'
 import { MarkdownRenderer } from '../../markdown/MarkdownRenderer.js'
-import { executeLLMTool } from '../../../utils/llm-tools.js'
+import { executeLLMTool } from '../../../utils/llm-tools/index.js'
 import { DEFAULT_MODEL } from '../../../util/models.js'
 
 interface LLMAPIResponse {

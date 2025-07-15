@@ -26,6 +26,9 @@ const worker = makeWorker({
 
 // LLM API credentials loaded from environment
 
+// Import centralized tool schemas
+import { llmToolSchemas } from '../src/utils/llm-tools/schemas.js'
+
 // Custom worker that handles both WebSocket sync and HTTP API endpoints
 export default {
   async fetch(request: Request, env: any): Promise<Response> {
@@ -139,105 +142,8 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
           messages.push({ role: 'user', content: message })
         }
 
-        // Define available tools
-        const tools = [
-          {
-            type: 'function',
-            function: {
-              name: 'create_task',
-              description: 'Create a new task in the Kanban system',
-              parameters: {
-                type: 'object',
-                properties: {
-                  title: {
-                    type: 'string',
-                    description: 'The title/name of the task (required)',
-                  },
-                  description: {
-                    type: 'string',
-                    description: 'Optional detailed description of the task',
-                  },
-                  boardId: {
-                    type: 'string',
-                    description:
-                      'ID of the project to create the task on (optional, defaults to first project)',
-                  },
-                  columnId: {
-                    type: 'string',
-                    description:
-                      'ID of the column to place the task in (optional, defaults to first column)',
-                  },
-                  assigneeId: {
-                    type: 'string',
-                    description: 'ID of the user to assign the task to (optional)',
-                  },
-                },
-                required: ['title'],
-              },
-            },
-          },
-          {
-            type: 'function',
-            function: {
-              name: 'list_projects',
-              description:
-                'Get a list of all available projects with their IDs, names, and descriptions',
-              parameters: {
-                type: 'object',
-                properties: {},
-                required: [],
-              },
-            },
-          },
-          {
-            type: 'function',
-            function: {
-              name: 'list_documents',
-              description:
-                'Get a list of all available documents with their IDs, titles, and last updated dates',
-              parameters: {
-                type: 'object',
-                properties: {},
-                required: [],
-              },
-            },
-          },
-          {
-            type: 'function',
-            function: {
-              name: 'read_document',
-              description: 'Read the full content of a specific document by its ID',
-              parameters: {
-                type: 'object',
-                properties: {
-                  documentId: {
-                    type: 'string',
-                    description: 'The ID of the document to read (required)',
-                  },
-                },
-                required: ['documentId'],
-              },
-            },
-          },
-          {
-            type: 'function',
-            function: {
-              name: 'search_documents',
-              description: 'Search through document titles and content for a specific query',
-              parameters: {
-                type: 'object',
-                properties: {
-                  query: {
-                    type: 'string',
-                    description:
-                      'The search query to find in document titles and content (required)',
-                  },
-                },
-                required: ['query'],
-              },
-            },
-          },
-        ]
+        // Use centralized tool schemas
+        const tools = llmToolSchemas
 
         const response = await fetch('https://api.braintrust.dev/v1/proxy/chat/completions', {
           method: 'POST',

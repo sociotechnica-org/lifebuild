@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { createTestStore } from '../../src/test-utils.js'
+import { createTestStore } from '../test-utils.js'
 import { events } from '../../src/livestore/schema.js'
 import {
   getWorkerProjects$,
