@@ -248,16 +248,19 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 ### Implementation Summary
 
 **Database Changes:**
+
 - Added `defaultModel` field to `workers` table with proper materialization
 - Updated `workerCreated` event to include `defaultModel` parameter
 - Modified worker queries to include default model information
 
 **UI Components:**
+
 - Enhanced `CreateWorkerModal` and `EditWorkerModal` with model selection
 - Updated `WorkerCard` to display worker's default model
 - Added model display in worker profile views
 
 **Logic Implementation:**
+
 - New worker conversations automatically use worker's default model
 - Existing model-per-conversation functionality preserved
 - Fallback to `claude-3-5-sonnet-latest` for legacy workers
@@ -292,27 +295,32 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 ### Implementation Summary
 
 **UI Enhancements:**
+
 - Chat header now displays worker avatar, name, role description, and default model when in worker conversation
 - Removed ModelSelector component from chat interface - workers use their default model
 - Added URL parameter-based navigation for bookmarkable worker conversations
 - Enhanced conversation selector to handle both general and worker-specific chats
 
 **Database Changes:**
+
 - Added `workerId` field to `conversations` table to link conversations to specific workers
 - Added `getWorkerById$` query for worker lookup in chat interface
 - Updated conversation creation to include worker context
 
 **Backend Integration:**
+
 - Modified chat API (`functions/_worker.ts`) to handle `workerContext` parameter
 - Added conditional system prompt logic: worker's custom prompt vs default assistant prompt
 - Integrated worker profile information (name, role, system prompt) into API requests
 
 **Navigation & State Management:**
+
 - Implemented URL parameter handling for `workerId` and `conversationId`
 - Added `WorkerCard` chat button functionality to create and navigate to worker conversations
 - Enhanced conversation switching with proper URL updates for bookmarkable state
 
 **Testing:**
+
 - Fixed `WorkerCard` tests to include `BrowserRouter` context for navigation hooks
 - Added proper test coverage for worker conversation functionality
 - Resolved React hooks dependency issues identified by automated code review

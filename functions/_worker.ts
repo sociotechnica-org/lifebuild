@@ -102,7 +102,8 @@ WORKER PROFILE:
 ${workerContext.roleDescription ? `- Role: ${workerContext.roleDescription}` : ''}
 
 You have access to tools for:
-- Creating tasks in the Kanban system (create_task)
+- Creating and managing tasks (create_task, update_task, move_task, move_task_to_project, archive_task, unarchive_task)
+- Viewing tasks (get_task_by_id, get_project_tasks, get_orphaned_tasks)
 - Listing all available projects (list_projects)
 - Listing all available documents (list_documents)
 - Reading a specific document by ID (read_document)

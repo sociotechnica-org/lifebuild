@@ -12,6 +12,8 @@ import {
   getProjectDetails$,
   getAllDocuments$,
   getDocumentProjectsByProject$,
+  getTaskById$,
+  getOrphanedTasks$,
 } from '../livestore/queries.js'
 
 export interface TaskCreationParams {
@@ -30,6 +32,26 @@ export interface TaskCreationResult {
   projectName?: string
   columnName?: string
   assigneeName?: string
+}
+
+export interface TaskUpdateParams {
+  taskId: string
+  title?: string
+  description?: string
+  assigneeIds?: string[]
+}
+
+export interface TaskMoveParams {
+  taskId: string
+  toColumnId: string
+  position?: number
+}
+
+export interface TaskMoveToProjectParams {
+  taskId: string
+  toProjectId?: string
+  toColumnId: string
+  position?: number
 }
 
 export interface LLMToolCall {
@@ -145,6 +167,328 @@ export function createTask(store: Store, params: TaskCreationParams): TaskCreati
     }
   } catch (error) {
     console.error('Error creating task:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
+/**
+ * Updates a task with new information
+ */
+export function updateTask(
+  store: Store,
+  params: TaskUpdateParams
+): { success: boolean; error?: string; task?: any } {
+  try {
+    const { taskId, title, description, assigneeIds } = params
+
+    if (!taskId?.trim()) {
+      return { success: false, error: 'Task ID is required' }
+    }
+
+    // Verify task exists
+    const tasks = store.query(getTaskById$(taskId.trim()))
+    if (tasks.length === 0) {
+      return { success: false, error: `Task with ID ${taskId} not found` }
+    }
+
+    // Validate assignees if provided
+    if (assigneeIds && assigneeIds.length > 0) {
+      const users = store.query(getUsers$)
+      const userIds = new Set(users.map((u: any) => u.id))
+      const invalidAssignees = assigneeIds.filter(id => !userIds.has(id))
+      if (invalidAssignees.length > 0) {
+        return { success: false, error: `Invalid assignee IDs: ${invalidAssignees.join(', ')}` }
+      }
+    }
+
+    // Create update event
+    store.commit(
+      events.taskUpdated({
+        taskId: taskId.trim(),
+        title: title?.trim(),
+        description: description?.trim(),
+        assigneeIds,
+        updatedAt: new Date(),
+      })
+    )
+
+    return {
+      success: true,
+      task: {
+        id: taskId,
+        title,
+        description,
+        assigneeIds,
+      },
+    }
+  } catch (error) {
+    console.error('Error updating task:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
+/**
+ * Moves a task to a different column
+ */
+export function moveTask(
+  store: Store,
+  params: TaskMoveParams
+): { success: boolean; error?: string; task?: any } {
+  try {
+    const { taskId, toColumnId, position } = params
+
+    if (!taskId?.trim()) {
+      return { success: false, error: 'Task ID is required' }
+    }
+
+    if (!toColumnId?.trim()) {
+      return { success: false, error: 'Column ID is required' }
+    }
+
+    // Verify task exists
+    const tasks = store.query(getTaskById$(taskId.trim()))
+    if (tasks.length === 0) {
+      return { success: false, error: `Task with ID ${taskId} not found` }
+    }
+
+    const task = tasks[0]
+    if (!task) {
+      return { success: false, error: `Task with ID ${taskId} not found` }
+    }
+
+    // Get project to verify column exists
+    if (!task.projectId) {
+      return { success: false, error: 'Cannot move orphaned task' }
+    }
+
+    const columns = store.query(getBoardColumns$(task.projectId))
+    const targetColumn = columns.find((c: any) => c.id === toColumnId.trim())
+    if (!targetColumn) {
+      return { success: false, error: `Column with ID ${toColumnId} not found` }
+    }
+
+    // Calculate position if not provided
+    let movePosition = position
+    if (movePosition === undefined) {
+      const existingTasks = store.query(getBoardTasks$(task.projectId))
+      const tasksInColumn = existingTasks.filter((t: any) => t.columnId === toColumnId)
+      const validPositions = tasksInColumn
+        .map((t: any) => t.position)
+        .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
+      movePosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 0
+    }
+
+    // Create move event
+    store.commit(
+      events.taskMoved({
+        taskId: taskId.trim(),
+        toColumnId: toColumnId.trim(),
+        position: movePosition,
+        updatedAt: new Date(),
+      })
+    )
+
+    return {
+      success: true,
+      task: {
+        id: taskId,
+        columnId: toColumnId,
+        position: movePosition,
+      },
+    }
+  } catch (error) {
+    console.error('Error moving task:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
+/**
+ * Moves a task to a different project
+ */
+export function moveTaskToProject(
+  store: Store,
+  params: TaskMoveToProjectParams
+): { success: boolean; error?: string; task?: any } {
+  try {
+    const { taskId, toProjectId, toColumnId, position } = params
+
+    if (!taskId?.trim()) {
+      return { success: false, error: 'Task ID is required' }
+    }
+
+    if (!toColumnId?.trim()) {
+      return { success: false, error: 'Column ID is required' }
+    }
+
+    // Verify task exists
+    const tasks = store.query(getTaskById$(taskId.trim()))
+    if (tasks.length === 0) {
+      return { success: false, error: `Task with ID ${taskId} not found` }
+    }
+
+    // Verify target project and column if projectId provided
+    if (toProjectId) {
+      const projects = store.query(getProjects$)
+      const targetProject = projects.find((p: any) => p.id === toProjectId.trim())
+      if (!targetProject) {
+        return { success: false, error: `Project with ID ${toProjectId} not found` }
+      }
+
+      const columns = store.query(getBoardColumns$(toProjectId.trim()))
+      const targetColumn = columns.find((c: any) => c.id === toColumnId.trim())
+      if (!targetColumn) {
+        return {
+          success: false,
+          error: `Column with ID ${toColumnId} not found in project ${toProjectId}`,
+        }
+      }
+    }
+
+    // Calculate position if not provided
+    let movePosition = position
+    if (movePosition === undefined) {
+      if (toProjectId) {
+        const existingTasks = store.query(getBoardTasks$(toProjectId.trim()))
+        const tasksInColumn = existingTasks.filter((t: any) => t.columnId === toColumnId)
+        const validPositions = tasksInColumn
+          .map((t: any) => t.position)
+          .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
+        movePosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 0
+      } else {
+        movePosition = 0
+      }
+    }
+
+    // Create move to project event
+    store.commit(
+      events.taskMovedToProject({
+        taskId: taskId.trim(),
+        toProjectId: toProjectId?.trim(),
+        toColumnId: toColumnId.trim(),
+        position: movePosition,
+        updatedAt: new Date(),
+      })
+    )
+
+    return {
+      success: true,
+      task: {
+        id: taskId,
+        projectId: toProjectId,
+        columnId: toColumnId,
+        position: movePosition,
+      },
+    }
+  } catch (error) {
+    console.error('Error moving task to project:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
+/**
+ * Archives a task
+ */
+export function archiveTask(
+  store: Store,
+  taskId: string
+): { success: boolean; error?: string; task?: any } {
+  try {
+    if (!taskId?.trim()) {
+      return { success: false, error: 'Task ID is required' }
+    }
+
+    // Verify task exists
+    const tasks = store.query(getTaskById$(taskId.trim()))
+    if (tasks.length === 0) {
+      return { success: false, error: `Task with ID ${taskId} not found` }
+    }
+
+    const task = tasks[0]
+    if (!task) {
+      return { success: false, error: `Task with ID ${taskId} not found` }
+    }
+    if (task.archivedAt) {
+      return { success: false, error: 'Task is already archived' }
+    }
+
+    // Create archive event
+    store.commit(
+      events.taskArchived({
+        taskId: taskId.trim(),
+        archivedAt: new Date(),
+      })
+    )
+
+    return {
+      success: true,
+      task: {
+        id: taskId,
+        archivedAt: new Date(),
+      },
+    }
+  } catch (error) {
+    console.error('Error archiving task:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
+/**
+ * Unarchives a task
+ */
+export function unarchiveTask(
+  store: Store,
+  taskId: string
+): { success: boolean; error?: string; task?: any } {
+  try {
+    if (!taskId?.trim()) {
+      return { success: false, error: 'Task ID is required' }
+    }
+
+    // Verify task exists (need to query without archive filter)
+    const tasks = store.query(getTaskById$(taskId.trim()))
+    if (tasks.length === 0) {
+      return { success: false, error: `Task with ID ${taskId} not found` }
+    }
+
+    const task = tasks[0]
+    if (!task) {
+      return { success: false, error: `Task with ID ${taskId} not found` }
+    }
+    if (!task.archivedAt) {
+      return { success: false, error: 'Task is not archived' }
+    }
+
+    // Create unarchive event
+    store.commit(
+      events.taskUnarchived({
+        taskId: taskId.trim(),
+      })
+    )
+
+    return {
+      success: true,
+      task: {
+        id: taskId,
+        archivedAt: null,
+      },
+    }
+  } catch (error) {
+    console.error('Error unarchiving task:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -369,6 +713,121 @@ export function searchProjectDocuments(
 }
 
 /**
+ * Get a specific task by ID
+ */
+export function getTaskById(
+  store: Store,
+  taskId: string
+): { success: boolean; task?: any; error?: string } {
+  try {
+    if (!taskId?.trim()) {
+      return { success: false, error: 'Task ID is required' }
+    }
+
+    const tasks = store.query(getTaskById$(taskId.trim())) as any[]
+    if (tasks.length === 0) {
+      return { success: false, error: `Task with ID ${taskId} not found` }
+    }
+
+    const task = tasks[0]
+    return {
+      success: true,
+      task: {
+        id: task.id,
+        projectId: task.projectId,
+        columnId: task.columnId,
+        title: task.title,
+        description: task.description,
+        assigneeIds: task.assigneeIds,
+        position: task.position,
+        createdAt: task.createdAt,
+        archivedAt: task.archivedAt,
+      },
+    }
+  } catch (error) {
+    console.error('Error getting task by ID:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
+/**
+ * Get all tasks for a specific project
+ */
+export function getProjectTasks(
+  store: Store,
+  projectId: string
+): { success: boolean; tasks?: any[]; error?: string } {
+  try {
+    if (!projectId?.trim()) {
+      return { success: false, error: 'Project ID is required' }
+    }
+
+    // Verify project exists
+    const projects = store.query(getProjects$)
+    const project = projects.find((p: any) => p.id === projectId.trim())
+    if (!project) {
+      return { success: false, error: `Project with ID ${projectId} not found` }
+    }
+
+    const tasks = store.query(getBoardTasks$(projectId.trim())) as any[]
+    return {
+      success: true,
+      tasks: tasks.map((t: any) => ({
+        id: t.id,
+        projectId: t.projectId,
+        columnId: t.columnId,
+        title: t.title,
+        description: t.description,
+        assigneeIds: t.assigneeIds,
+        position: t.position,
+        createdAt: t.createdAt,
+      })),
+    }
+  } catch (error) {
+    console.error('Error getting project tasks:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
+/**
+ * Get all orphaned tasks (tasks without a project)
+ */
+export function getOrphanedTasks(store: Store): {
+  success: boolean
+  tasks?: any[]
+  error?: string
+} {
+  try {
+    const tasks = store.query(getOrphanedTasks$) as any[]
+    return {
+      success: true,
+      tasks: tasks.map((t: any) => ({
+        id: t.id,
+        projectId: t.projectId,
+        columnId: t.columnId,
+        title: t.title,
+        description: t.description,
+        assigneeIds: t.assigneeIds,
+        position: t.position,
+        createdAt: t.createdAt,
+      })),
+    }
+  } catch (error) {
+    console.error('Error getting orphaned tasks:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
+/**
  * Get detailed information about a project
  */
 export function getProjectDetails(
@@ -420,6 +879,30 @@ export async function executeLLMTool(
   switch (toolCall.name) {
     case 'create_task':
       return createTask(store, toolCall.parameters)
+
+    case 'update_task':
+      return updateTask(store, toolCall.parameters)
+
+    case 'move_task':
+      return moveTask(store, toolCall.parameters)
+
+    case 'move_task_to_project':
+      return moveTaskToProject(store, toolCall.parameters)
+
+    case 'archive_task':
+      return archiveTask(store, toolCall.parameters.taskId)
+
+    case 'unarchive_task':
+      return unarchiveTask(store, toolCall.parameters.taskId)
+
+    case 'get_task_by_id':
+      return getTaskById(store, toolCall.parameters.taskId)
+
+    case 'get_project_tasks':
+      return getProjectTasks(store, toolCall.parameters.projectId)
+
+    case 'get_orphaned_tasks':
+      return getOrphanedTasks(store)
 
     case 'list_projects':
       return listProjects(store)
