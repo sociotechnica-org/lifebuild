@@ -59,8 +59,9 @@ function searchDocumentsCore(store: Store, query: string): SearchDocumentsResult
     throw new Error('Search query is required')
   }
 
-  const searchQuery = query.toLowerCase()
-  const allDocuments = store.query(searchDocuments$(query)) as any[]
+  const trimmedQuery = query.trim()
+  const searchQuery = trimmedQuery.toLowerCase()
+  const allDocuments = store.query(searchDocuments$(trimmedQuery)) as any[]
 
   // Filter documents that match the search query in title or content
   const results = allDocuments.filter(
@@ -82,6 +83,11 @@ function searchDocumentsCore(store: Store, query: string): SearchDocumentsResult
  * Get all documents for a specific project (core implementation)
  */
 function getProjectDocumentsCore(store: Store, projectId: string): GetProjectDocumentsResult {
+  // Validate projectId
+  if (!projectId || projectId.trim().length === 0) {
+    throw new Error('Project ID is required')
+  }
+
   // Get document-project associations and all documents, then filter
   const documentProjects = store.query(getDocumentProjectsByProject$(projectId)) as any[]
   const allDocuments = store.query(getAllDocuments$) as any[]
@@ -113,8 +119,9 @@ function searchProjectDocumentsCore(
     throw new Error('Search query is required')
   }
 
-  const searchQuery = query.toLowerCase()
-  let documents = store.query(searchDocumentsWithProject$(query, projectId)) as any[]
+  const trimmedQuery = query.trim()
+  const searchQuery = trimmedQuery.toLowerCase()
+  let documents = store.query(searchDocumentsWithProject$(trimmedQuery, projectId)) as any[]
 
   // If projectId is provided, filter documents by project
   if (projectId) {
