@@ -15,7 +15,7 @@ export const WorkersPage: React.FC = () => {
         <div className='border-b border-gray-200 bg-white px-6 py-4'>
           <div className='flex justify-between items-center mb-4'>
             <div>
-              <h1 className='text-xl font-semibold text-gray-900 mb-1'>Workers</h1>
+              <h1 className='text-xl font-semibold text-gray-900 mb-1'>Team</h1>
               <p className='text-gray-600 text-sm'>Manage your AI assistants</p>
             </div>
             <button
@@ -30,7 +30,7 @@ export const WorkersPage: React.FC = () => {
         {/* Empty State Content */}
         <div className='flex-1 bg-gray-50 flex flex-col items-center justify-center p-8'>
           <div className='text-center'>
-            <h2 className='text-xl font-semibold text-gray-600 mb-4'>No workers found</h2>
+            <h2 className='text-xl font-semibold text-gray-600 mb-4'>No team members found</h2>
             <p className='text-gray-500 mb-6'>
               Create your first worker to get started with AI assistance.
             </p>
@@ -54,7 +54,7 @@ export const WorkersPage: React.FC = () => {
       <div className='border-b border-gray-200 bg-white px-6 py-4'>
         <div className='flex justify-between items-center mb-4'>
           <div>
-            <h1 className='text-xl font-semibold text-gray-900 mb-1'>Workers</h1>
+            <h1 className='text-xl font-semibold text-gray-900 mb-1'>Team</h1>
             <p className='text-gray-600 text-sm'>Manage your AI assistants</p>
           </div>
           <button

@@ -6,7 +6,7 @@ export const ROUTES = {
   HOME: '/',
   PROJECTS: '/projects',
   TASKS: '/tasks',
-  WORKERS: '/workers',
+  TEAM: '/team',
   DOCUMENTS: '/documents',
   DOCUMENT: '/document/:documentId',
   PROJECT: '/project/:projectId',

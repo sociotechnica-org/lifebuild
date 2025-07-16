@@ -112,7 +112,7 @@ export const App: React.FC = () => (
                   }
                 />
                 <Route
-                  path={ROUTES.WORKERS}
+                  path={ROUTES.TEAM}
                   element={
                     <Layout>
                       <ErrorBoundary>

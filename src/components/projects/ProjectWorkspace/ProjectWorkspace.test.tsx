@@ -7,6 +7,7 @@ import {
   createMockColumn,
   createMockTask,
 } from '../../../../tests/test-utils.js'
+import type { Worker } from '../../../livestore/schema.js'
 
 // Hoisted mocks
 const { mockUseQuery, mockStore, mockUseParams } = vi.hoisted(() => {
@@ -67,6 +68,19 @@ describe('ProjectWorkspace', () => {
   })
   const mockColumns = [createMockColumn({ id: 'col-1', name: 'Todo' })]
   const mockTasks = [createMockTask({ id: 'task-1', columnId: 'col-1', title: 'Test Task' })]
+  const mockWorkers = [
+    {
+      id: 'worker-1',
+      name: 'Worker One',
+      roleDescription: null,
+      systemPrompt: 'test',
+      avatar: '🤖',
+      defaultModel: 'claude-3-5-sonnet-latest',
+      createdAt: new Date('2023-01-01'),
+      updatedAt: new Date('2023-01-01'),
+      isActive: true,
+    },
+  ] as unknown as Worker[]
 
   beforeEach(() => {
     mockUseParams.mockReturnValue({ projectId: 'test-project' })
@@ -85,7 +99,13 @@ describe('ProjectWorkspace', () => {
       } else if (callCount === 3) {
         return mockTasks // Third call is for tasks
       } else if (callCount === 4) {
-        return [] // Fourth call is for documents (empty for now)
+        return [] // Fourth call is for document-project links
+      } else if (callCount === 5) {
+        return [] // Fifth call is for documents
+      } else if (callCount === 6) {
+        return [] // Sixth call is for project workers (none)
+      } else if (callCount === 7) {
+        return mockWorkers // Seventh call is for all workers
       }
       return []
     })
@@ -138,6 +158,17 @@ describe('ProjectWorkspace', () => {
     expect(screen.getByText('No documents yet')).toBeInTheDocument()
     expect(screen.getByText('Create your first document to get started')).toBeInTheDocument()
     expect(screen.getAllByText('Create Document')).toHaveLength(2) // Header button + empty state button
+  })
+
+  it('should show empty state when team tab is active with no assignments', () => {
+    render(<ProjectWorkspace />)
+
+    const teamTab = screen.getByRole('button', { name: 'Team' })
+    act(() => {
+      teamTab.click()
+    })
+
+    expect(screen.getByText('No team members assigned')).toBeInTheDocument()
   })
 
   it('should handle missing projectId', () => {
