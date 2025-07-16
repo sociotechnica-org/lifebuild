@@ -52,7 +52,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
 
       {assignedWorkers.length > 0 && (
         <div className='mb-3'>
-          <div className='text-xs text-gray-500 mb-1'>Assigned Workers:</div>
+          <div className='text-xs text-gray-500 mb-1'>Assigned Team:</div>
           <div className='flex flex-wrap gap-1'>
             {assignedWorkers.slice(0, 3).map(worker => (
               <span
@@ -75,7 +75,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
       <div className='text-sm text-gray-500'>
         <p>Created: {formatDate(project.createdAt)}</p>
         <p>Updated: {formatDate(project.updatedAt)}</p>
-        <p>Workers: {assignedWorkers.length > 0 ? assignedWorkers.length : 'None assigned'}</p>
+        <p>Team: {assignedWorkers.length > 0 ? assignedWorkers.length : 'None assigned'}</p>
       </div>
     </div>
   )

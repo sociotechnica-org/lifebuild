@@ -22,8 +22,8 @@ export const Navigation: React.FC = () => {
     if (path === ROUTES.TASKS) {
       return location.pathname === ROUTES.TASKS
     }
-    if (path === ROUTES.WORKERS) {
-      return location.pathname === ROUTES.WORKERS
+    if (path === ROUTES.TEAM) {
+      return location.pathname === ROUTES.TEAM
     }
     if (path === ROUTES.DOCUMENTS) {
       return (
@@ -60,14 +60,14 @@ export const Navigation: React.FC = () => {
               Tasks
             </Link>
             <Link
-              to={preserveStoreIdInUrl(ROUTES.WORKERS)}
+              to={preserveStoreIdInUrl(ROUTES.TEAM)}
               className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                isActive(ROUTES.WORKERS)
+                isActive(ROUTES.TEAM)
                   ? 'border-blue-500 text-gray-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Workers
+              Team
             </Link>
             <Link
               to={preserveStoreIdInUrl(ROUTES.DOCUMENTS)}
