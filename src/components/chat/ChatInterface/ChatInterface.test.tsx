@@ -60,4 +60,72 @@ describe('ChatInterface', () => {
     expect(screen.getByLabelText('New Chat')).toBeInTheDocument() // + button should be visible
     expect(screen.getByDisplayValue('')).toBeInTheDocument() // conversation selector
   })
+
+  it('renders copy button for chat messages', () => {
+    const mockConversations = [
+      { id: 'conv1', title: 'Test Conversation', createdAt: new Date(), updatedAt: new Date() },
+    ]
+
+    const mockMessages = [
+      {
+        id: 'msg1',
+        conversationId: 'conv1',
+        message: 'Hello world',
+        role: 'assistant',
+        createdAt: new Date(),
+      },
+    ]
+
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.label?.includes('getConversations')) return mockConversations
+      if (query.label === 'getConversationMessages:conv1') return mockMessages
+      return []
+    })
+
+    const { container } = render(
+      <MemoryRouter initialEntries={['/?conversationId=conv1']}>
+        <ChatInterface />
+      </MemoryRouter>
+    )
+
+    // Look for the copy button by finding the unique clipboard SVG path
+    const clipboardIcon = container.querySelector(
+      'svg path[d*="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638"]'
+    )
+    expect(clipboardIcon).toBeInTheDocument()
+  })
+
+  it('hides copy button for placeholder messages', () => {
+    const mockConversations = [
+      { id: 'conv1', title: 'Test Conversation', createdAt: new Date(), updatedAt: new Date() },
+    ]
+
+    const mockMessages = [
+      {
+        id: 'msg1',
+        conversationId: 'conv1',
+        message: 'No response generated',
+        role: 'assistant',
+        createdAt: new Date(),
+      },
+    ]
+
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.label?.includes('getConversations')) return mockConversations
+      if (query.label === 'getConversationMessages:conv1') return mockMessages
+      return []
+    })
+
+    const { container } = render(
+      <MemoryRouter initialEntries={['/?conversationId=conv1']}>
+        <ChatInterface />
+      </MemoryRouter>
+    )
+
+    // Look for copy button by finding the unique clipboard SVG path - should not be present
+    const clipboardIcon = container.querySelector(
+      'svg path[d*="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638"]'
+    )
+    expect(clipboardIcon).not.toBeInTheDocument()
+  })
 })
