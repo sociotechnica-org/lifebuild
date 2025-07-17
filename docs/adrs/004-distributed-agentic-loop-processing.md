@@ -48,16 +48,24 @@ This is a classic distributed coordination problem. The LiveStore documentation 
 ### Options Evaluated
 
 **1. Client-side coordination**
-Event-based locking where clients compete for processing rights using LiveStore events. One approach would emit "processing started" events as locks, with clients checking for existing locks before processing. This keeps the current architecture but adds coordination complexity. Trade-offs: maintains immediate client-side tool execution and zero additional infrastructure, but introduces race conditions, lock timeout management, and "split-brain" scenarios where multiple clients think they won the lock.
+Event-based locking where clients compete for processing rights using LiveStore events. One approach would emit "processing started" events as locks, with clients checking for existing locks before processing. This keeps the current architecture but adds coordination complexity.
+
+Trade-offs: maintains immediate client-side tool execution and zero additional infrastructure, but introduces race conditions, lock timeout management, and "split-brain" scenarios where multiple clients think they won the lock.
 
 **2. Server-side processing in Cloudflare Worker**
-Move the entire agentic loop into the existing Cloudflare Worker that currently handles LLM API proxying. This centralizes processing without additional services. Trade-offs: leverages existing infrastructure and eliminates client coordination issues, but hits the 30-second Worker timeout limit for complex agentic loops and loses the immediate LiveStore integration benefit since Workers can't directly access the SQLite store.
+Move the entire agentic loop into the existing Cloudflare Worker that currently handles LLM API proxying. This centralizes processing without additional services.
+
+Trade-offs: leverages existing infrastructure and eliminates client coordination issues, but hits the 30-second Worker timeout limit for complex agentic loops and loses the immediate LiveStore integration benefit since Workers can't directly access the SQLite store.
 
 **3. Node.js service with LiveStore node adapter**
-Create a dedicated Node.js service that subscribes to LiveStore events and processes agentic loops with direct store access. This service would be the single authority for message processing while clients remain purely reactive. Trade-offs: provides proper architectural separation and eliminates all coordination issues with direct LiveStore integration, but adds operational complexity of another service and introduces network latency between user input and processing.
+Create a dedicated Node.js service that subscribes to LiveStore events and processes agentic loops with direct store access. This service would be the single authority for message processing while clients remain purely reactive.
+
+Trade-offs: provides proper architectural separation and eliminates all coordination issues with direct LiveStore integration, but adds operational complexity of another service and introduces network latency between user input and processing.
 
 **4. Hybrid approach**
-Keep tool execution client-side for immediate feedback but move coordination server-side. A lightweight coordination service would assign message processing to specific clients, combining the benefits of immediate tool execution with centralized coordination. Trade-offs: maintains immediate tool feedback and reduces server load, but still requires complex client coordination and doesn't solve the fundamental problem of multiple processors for the same logical operation.
+Keep tool execution client-side for immediate feedback but move coordination server-side. A lightweight coordination service would assign message processing to specific clients, combining the benefits of immediate tool execution with centralized coordination.
+
+Trade-offs: maintains immediate tool feedback and reduces server load, but still requires complex client coordination and doesn't solve the fundamental problem of multiple processors for the same logical operation.
 
 ## Decision
 
@@ -74,13 +82,13 @@ We will move agentic loop processing to a dedicated Node.js service using the Li
 │ • User input│     │ • WebSocket  │     │ • Tool exec │
 │ • Real-time │     │ • Sync logic │     │ • Loop coord│
 └─────────────┘     └──────────────┘     └─────────────┘
-         │                   │                   │
-         └───────────────────┴───────────────────┴
-                              │
-                        ┌─────▼─────┐
-                        │ LiveStore │
-                        │ (SQLite)  │
-                        └───────────┘
+         │                  │                   │
+         └──────────────────┴───────────────────┴
+                            │
+                      ┌─────▼─────┐
+                      │ LiveStore │
+                      │ (SQLite)  │
+                      └───────────┘
 ```
 
 ### Processing Flow
@@ -120,10 +128,9 @@ The recommended approach is **async processing within a single service initially
 ### Negative
 
 - **Architectural complexity**: Adds another service to maintain and deploy
-- **Network dependency**: Clients depend on Node.js service being available
+- **Network dependency**: Clients depend on Node.js service being available in order to process messages to the LLM
 - **Development overhead**: Need to run Node.js service locally
-- **Latency**: Additional round-trip through Node.js service
-- **Tool execution location**: Tools run on server, not immediately client-side
+- **Tool invocation location**: Tool logic is invoked on the server. While this introduces latency (covered above), write operations still occur via LiveStore events, preserving client-side reactivity.
 
 ### Neutral
 
