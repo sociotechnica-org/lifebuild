@@ -4,7 +4,27 @@
 
 Work Squared is an AI-powered consultancy workflow automation platform built on LiveStore's event-sourcing architecture. The system demonstrates how LLMs can interact with real-world tools (Kanban boards, documents, chat) through a unified event-driven interface.
 
-The platform has evolved from a demo application to a production system supporting persistent AI workers, document management, and collaborative project planning.
+The platform has evolved from a demo application to a production system supporting persistent AI workers, document management, and collaborative project planning, now organized as a modern monorepo architecture.
+
+## Monorepo Architecture
+
+As of 2025, Work Squared has been migrated to a pnpm workspace monorepo structure with clear separation of concerns:
+
+```
+work-squared/
+├── packages/
+│   ├── web/              # React frontend application
+│   ├── worker/           # Cloudflare Worker backend
+│   └── shared/           # Shared schemas and utilities
+├── docs/                 # Architecture and planning documents
+└── package.json          # Workspace configuration
+```
+
+### Package Responsibilities
+
+- **`@work-squared/web`**: React frontend with LiveStore integration, UI components, and real-time collaboration features
+- **`@work-squared/worker`**: Cloudflare Worker handling WebSocket sync, LLM proxy, and asset serving
+- **`@work-squared/shared`**: Type-safe schemas, event definitions, and utilities shared across packages
 
 ## Core Architecture Principles
 
@@ -80,11 +100,11 @@ The current production architecture spans multiple services:
 
 ### Core Event Types
 
-Work Squared uses event sourcing with events defined in `src/livestore/events.ts`.
+Work Squared uses event sourcing with events defined in `packages/shared/src/events.ts`.
 
 ### LiveStore Schema
 
-Events are materialized into core tables listed in `src/livestore/schema.ts`
+Events are materialized into core tables listed in `packages/shared/src/schema.ts`
 
 ## Current Implementation Status
 
@@ -120,7 +140,7 @@ Work Squared implements AI integration through a hybrid client-server approach:
 
 ### Agentic Loop Details
 
-The agentic loop in `src/components/chat/ChatInterface/ChatInterface.tsx` provides sophisticated AI interaction:
+The agentic loop in `packages/web/src/components/chat/ChatInterface/ChatInterface.tsx` provides sophisticated AI interaction:
 
 ```typescript
 // Agentic loop flow:
@@ -140,7 +160,7 @@ The agentic loop in `src/components/chat/ChatInterface/ChatInterface.tsx` provid
 
 ### Tool Calling Architecture
 
-Tools are defined in the Cloudflare Worker (`functions/_worker.ts`) but executed client-side:
+Tools are defined in the Cloudflare Worker (`packages/worker/functions/_worker.ts`) but executed client-side:
 
 **Available Tools:**
 
@@ -154,7 +174,7 @@ Tools are defined in the Cloudflare Worker (`functions/_worker.ts`) but executed
 
 1. Worker defines tool schemas for LLM
 2. LLM returns tool calls in response
-3. Client executes tools via `executeLLMTool()` in `src/utils/llm-tools.ts`
+3. Client executes tools via `executeLLMTool()` in `packages/web/src/utils/llm-tools.ts`
 4. Results formatted and sent back to LLM for continuation
 
 ### Worker Context Support
