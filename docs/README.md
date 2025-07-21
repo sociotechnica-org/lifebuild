@@ -35,21 +35,29 @@ Initial demo application planning and parallel development strategy for chat + K
 
 **[work-squared-production-plan.md](./plans/004-projects-and-workers/work-squared-production-plan.md)** - Production system design with documents, projects, AI workers, and multi-user support.
 
+### [007-multiplayer/](./plans/007-multiplayer/)
+
+**[README.md](./plans/007-multiplayer/README.md)** - Multiplayer release plan for transitioning to server-side architecture with Node.js backend, event sync, and LLM processing migration.
+
 ## Architecture Decision Records (ADRs)
 
 The `adrs/` directory contains formal architecture decisions:
 
-- **[001-background-job-system.md](./adrs/001-background-job-system.md)** - SQLite-based task queue for long-running AI worker tasks
-- **[002-nodejs-hosting-platform.md](./adrs/002-nodejs-hosting-platform.md)** - Render.com hosting for Node.js worker service
-- **[003-backup-storage-strategy.md](./adrs/003-backup-storage-strategy.md)** - Cloudflare R2 for automated backup storage
+- **[001-background-job-system.md](./adrs/001-background-job-system.md)** - SQLite-based task queue for long-running AI worker tasks (Proposed)
+- **[002-nodejs-hosting-platform.md](./adrs/002-nodejs-hosting-platform.md)** - Render.com hosting for Node.js worker service (Proposed)
+- **[003-backup-storage-strategy.md](./adrs/003-backup-storage-strategy.md)** - Cloudflare R2 for automated backup storage (Proposed)
+- **[004-distributed-agentic-loop-processing.md](./adrs/004-distributed-agentic-loop-processing.md)** - Server-side processing with single Node.js instance (Accepted)
+- **[005-jwt-authentication-with-durable-objects.md](./adrs/005-jwt-authentication-with-durable-objects.md)** - JWT authentication for multi-user support (Proposed)
+- **[006-monorepo-pnpm-workspaces.md](./adrs/006-monorepo-pnpm-workspaces.md)** - Use pnpm workspaces for monorepo structure (Accepted)
 
 ## Navigation Guide
 
 ### For Implementation
 
 1. **Current Architecture**: Start with [architecture.md](./architecture.md)
-2. **Latest Plan**: See [004-projects-and-workers/](./plans/004-projects-and-workers/) for production roadmap
-3. **Active Development**: Check Kanban and LLM chat plans for ongoing work
+2. **Active Plan**: See [007-multiplayer/](./plans/007-multiplayer/) for multiplayer release roadmap
+3. **Production Roadmap**: [004-projects-and-workers/](./plans/004-projects-and-workers/) for overall system design
+4. **Foundation Development**: Check Kanban and LLM chat plans for completed work
 
 ### For Architecture Decisions
 
@@ -65,9 +73,12 @@ The `adrs/` directory contains formal architecture decisions:
 
 ## Document Status
 
-- **Current**: Plans 002-004 represent active/recent development
-- **Archived**: Plan 000 (demo build) is historical
-- **Proposed**: ADRs marked as "Proposed" await implementation
+- **Active**: Plan 007-multiplayer is the current development focus
+- **Completed**: Plans 002-003 (Kanban, LLM chat) are implemented
+- **Reference**: Plan 004 (projects/workers) provides overall system design
+- **Archived**: Plan 000-001 are historical
+- **Accepted**: ADRs 004, 006 are implemented decisions
+- **Proposed**: ADRs 001-003, 005 await implementation
 - **Living**: Architecture.md updated as system evolves
 
 ---
