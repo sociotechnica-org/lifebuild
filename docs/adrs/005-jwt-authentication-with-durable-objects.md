@@ -213,7 +213,6 @@ Reconnection attempt
   - No Durable Object needed
   - JWT contains user identity
   - Expires after inactivity (15 min access, 7 day refresh)
-  
 - **Work Squared Instances**: Separate LiveStore spaces (existing system)
   - Uses instance id in URL (e.g., `/project/abc123`)
   - Each instance has its own Durable Object

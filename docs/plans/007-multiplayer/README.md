@@ -19,6 +19,7 @@ This plan outlines the transition from client-side to server-side architecture, 
 Create the foundation for separating frontend, backend, and shared code.
 
 **Tasks:**
+
 1. Create pnpm workspace structure
 2. Move existing frontend code to `packages/web`
 3. Move Cloudflare Worker (`functions/_worker.ts`) to `packages/worker`
@@ -26,6 +27,7 @@ Create the foundation for separating frontend, backend, and shared code.
 5. Update build scripts for parallel development (Vite + Wrangler)
 
 **Success Criteria:**
+
 - Can run `pnpm dev` to start all services (frontend + CF Worker)
 - Shared types work across packages
 - WebSocket sync and LLM proxy still work
@@ -36,17 +38,20 @@ Create the foundation for separating frontend, backend, and shared code.
 Get a minimal Node.js server running locally that receives events from the Cloudflare Worker.
 
 **Tasks:**
+
 1. Create `packages/server` with TypeScript setup
 2. Integrate LiveStore Node.js adapter
 3. Connect to CF Worker via WebSocket
 4. Use LiveStore DevTools to monitor events
 
 **Success Criteria:**
+
 - Server receives events from browser actions
 - LiveStore DevTools show real-time event flow
 - Events persist in server-side SQLite
 
 **Verification:**
+
 - Open LiveStore DevTools at `http://localhost:3001/__livestore`
 - Create a task in the browser
 - See event appear in DevTools within 100ms
@@ -56,12 +61,14 @@ Get a minimal Node.js server running locally that receives events from the Cloud
 Deploy the Node.js backend to Render.com and verify event sync works in production.
 
 **Tasks:**
+
 1. Create `render.yaml` configuration
 2. Set up environment variables
 3. Deploy and verify WebSocket connection
 4. Test multi-client event propagation
 
 **Success Criteria:**
+
 - Server running on Render.com
 - Events sync between local and deployed instances
 - LiveStore DevTools accessible in production
@@ -71,6 +78,7 @@ Deploy the Node.js backend to Render.com and verify event sync works in producti
 Move the agentic loop from `ChatInterface.tsx` to the server, and remove the LLM proxy from the CF Worker.
 
 **Tasks:**
+
 1. Extract agentic loop logic to server
 2. Implement server-side tool execution
 3. Update client to receive LLM events
@@ -78,11 +86,13 @@ Move the agentic loop from `ChatInterface.tsx` to the server, and remove the LLM
 5. Remove `/api/llm/chat` endpoint from CF Worker
 
 **Key Simplifications:**
+
 - No streaming responses (use complete messages)
 - Reuse existing tool execution logic
 - Minimal changes to UI components
 
 **Success Criteria:**
+
 - Chat messages processed on server
 - Tools execute server-side
 - Multiple users see LLM responses
@@ -92,6 +102,7 @@ Move the agentic loop from `ChatInterface.tsx` to the server, and remove the LLM
 ## Technical Architecture
 
 ### Current State
+
 ```
 Browser → CF Worker (WebSocket + LLM Proxy) → Browser
            ├── WebSocket sync server
@@ -99,6 +110,7 @@ Browser → CF Worker (WebSocket + LLM Proxy) → Browser
 ```
 
 ### Target State
+
 ```
 Browser → CF Worker → Node.js Server
            ├── WebSocket relay     ├── Event processing
@@ -108,6 +120,7 @@ Browser ← CF Worker ← Event emission
 ```
 
 ### Package Structure
+
 ```
 work-squared/
 ├── packages/
@@ -132,7 +145,7 @@ const store = createStore({
   schema,
   events,
   storage: { type: 'sqlite', path: './data/work-squared.db' },
-  devTools: { enabled: true }  // Provides monitoring at /__livestore
+  devTools: { enabled: true }, // Provides monitoring at /__livestore
 })
 ```
 
@@ -172,6 +185,7 @@ To keep scope manageable with 2 internal users:
 ## Development Workflow
 
 ### Local Development
+
 ```bash
 # Start all services (currently Vite + Wrangler)
 pnpm dev

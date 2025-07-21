@@ -115,7 +115,7 @@ Moving to server-side processing introduces a fundamental challenge: **LLM calls
 
 ```
 Time 0: Both Node.js A and B see user message status = "pending" in local SQLite
-Time 1: Node.js A starts LLM processing, emits "processingStarted" 
+Time 1: Node.js A starts LLM processing, emits "processingStarted"
 Time 2: Node.js B starts LLM processing (A's event hasn't synced yet)
 Time 3: Both events sync - duplicate LLM calls have occurred
 ```
@@ -127,7 +127,7 @@ Time 3: Both events sync - duplicate LLM calls have occurred
 ```typescript
 // Events: Immutable facts about what happened
 chatMessageSent        → User sent a message
-llmProcessingRequested → System should process this message  
+llmProcessingRequested → System should process this message
 llmResponseReceived    → LLM returned a response
 
 // State: Processing coordination
@@ -165,7 +165,7 @@ The recommended approach is **async processing within a single service initially
 ### Positive
 
 - **Exactly-once processing**: Single instance eliminates all coordination complexity and race conditions
-- **Proper separation**: UI updates remain reactive, side effects have clear ownership  
+- **Proper separation**: UI updates remain reactive, side effects have clear ownership
 - **Better error handling**: Centralized retry logic, timeout management
 - **Performance**: No wasted API calls or duplicate tool execution
 - **Operational simplicity**: No distributed coordination to debug or maintain

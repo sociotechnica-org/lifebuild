@@ -11,6 +11,7 @@ Accepted
 ## Context
 
 Work Squared needs to transition from a single-package application to a monorepo structure to support:
+
 - Frontend (React + Vite)
 - Backend (Node.js + TypeScript)
 - Shared code (TypeScript types, utilities)
@@ -29,6 +30,7 @@ We evaluated several monorepo solutions:
 We will use pnpm workspaces for our monorepo structure.
 
 The workspace will be organized as:
+
 ```
 work-squared/
 ├── pnpm-workspace.yaml
@@ -66,12 +68,14 @@ work-squared/
 ## Implementation Notes
 
 1. Create `pnpm-workspace.yaml`:
+
 ```yaml
 packages:
   - 'packages/*'
 ```
 
 2. Update package names:
+
 ```json
 {
   "name": "@work-squared/web",
@@ -82,6 +86,7 @@ packages:
 ```
 
 3. Root development scripts:
+
 ```json
 {
   "scripts": {
@@ -95,5 +100,6 @@ packages:
 ## Future Path
 
 If the project grows beyond 10 packages or 5 developers, we can:
+
 1. Add Turborepo for caching while keeping pnpm workspaces
 2. Consider full migration to Nx for enterprise features
