@@ -1,8 +1,16 @@
 # Work Squared
 
-Work Squared is an AI-enabled work environment featuring real-time collaborative Kanban boards.
+Work Squared is an AI-enabled work environment featuring real-time collaborative Kanban boards, built with a modern monorepo architecture.
 
-## Running locally
+## Monorepo Structure
+
+This project is organized as a pnpm workspace with the following packages:
+
+- **[`packages/web`](./packages/web/README.md)** - React frontend application
+- **[`packages/worker`](./packages/worker/README.md)** - Cloudflare Worker backend 
+- **[`packages/shared`](./packages/shared/README.md)** - Shared schemas and utilities
+
+## Quick Start
 
 1.  **Install dependencies:**
 
@@ -14,28 +22,29 @@ Work Squared is an AI-enabled work environment featuring real-time collaborative
     Copy the environment files:
 
     ```bash
-    cp .env.example .env
+    cp packages/web/.env.example packages/web/.env
     cp .dev.vars.example .dev.vars
     ```
 
-    Update `.env` with the following for local development:
+    Update `packages/web/.env` with:
 
     ```
     VITE_LIVESTORE_SYNC_URL=ws://localhost:8787
     D1_DATABASE_ID=
+    BRAINTRUST_API_KEY=
     ```
 
     Update `.dev.vars` with your LLM API credentials:
 
     ```
-    BRAINTRUST_API_KEY="your-braintrust-api-key-here"
+    BRAINTRUST_API_KEY="your-braintrust-api-key-here" 
     BRAINTRUST_PROJECT_ID="your-braintrust-project-id-here"
     ```
 
-    _(Note: `D1_DATABASE_ID` can be left blank for local development as Wrangler will use a local SQLite file. Get Braintrust credentials from https://www.braintrust.dev/)_
+    _(Get Braintrust credentials from https://www.braintrust.dev/)_
 
 3.  **Run the development server:**
-    This will start the Vite frontend and the local Cloudflare Worker concurrently.
+    This will start the Vite frontend and Cloudflare Worker concurrently.
 
     ```bash
     pnpm dev
@@ -44,7 +53,7 @@ Work Squared is an AI-enabled work environment featuring real-time collaborative
     To run on a custom port:
 
     ```bash
-    PORT=3000 pnpm dev
+    PORT=3000 VITE_LIVESTORE_SYNC_URL='http://localhost:8787' pnpm dev
     ```
 
 ## Deployment
@@ -58,12 +67,12 @@ Before the first deployment, you need to create the production D1 database and c
 1.  Run the following command to create the database on Cloudflare:
 
     ```bash
-    pnpm wrangler d1 create work-squared-prod
+    pnpm --filter @work-squared/worker wrangler d1 create work-squared-prod
     ```
 
 2.  Copy the `database_id` from the command's output.
 
-3.  Open `wrangler.jsonc` and paste the copied ID into the `database_id` field within the `d1_databases` section.
+3.  Open `packages/worker/wrangler.jsonc` and paste the copied ID into the `database_id` field within the `d1_databases` section.
 
 ### Deployment Process
 
@@ -72,7 +81,7 @@ The application is automatically deployed to `app.worksquared.ai` upon every pus
 To run a manual deployment from your local machine (requires authentication with `wrangler`):
 
 ```bash
-pnpm wrangler:deploy
+pnpm --filter @work-squared/worker deploy
 ```
 
 ## Features
@@ -87,31 +96,44 @@ pnpm wrangler:deploy
 
 ## Development Commands
 
+### Workspace Commands (run from root)
+
 ```bash
-# Run development server (Vite + Wrangler)
+# Run development server (Vite + Wrangler) 
 pnpm dev
 
 # Run development server on custom port
-PORT=3000 pnpm dev
+PORT=3000 VITE_LIVESTORE_SYNC_URL='http://localhost:8787' pnpm dev
 
-# Run Storybook (port 6010)
-pnpm storybook
+# Run all linting and formatting checks
+pnpm lint-all
 
-# Run tests
+# Run tests across all packages
 pnpm test
 
-# Lint and format code
-pnpm lint
-pnpm format
-
-# Type checking
-pnpm typecheck
-
-# Build for production
-pnpm build
+# Run E2E tests  
+pnpm test:e2e
+CI=true pnpm test:e2e  # For verification
 
 # Deploy to Cloudflare
-pnpm wrangler:deploy
+pnpm --filter @work-squared/worker deploy
+```
+
+### Package-specific Commands
+
+```bash
+# Web package (frontend)
+pnpm --filter @work-squared/web dev        # Start Vite dev server
+pnpm --filter @work-squared/web build      # Build for production
+pnpm --filter @work-squared/web test       # Run unit tests
+pnpm --filter @work-squared/web storybook  # Start Storybook (port 6010)
+
+# Worker package (backend) 
+pnpm --filter @work-squared/worker dev      # Start Wrangler dev server
+pnpm --filter @work-squared/worker deploy  # Deploy to Cloudflare
+
+# Shared package
+pnpm --filter @work-squared/shared typecheck  # Type check schemas
 ```
 
 ## Ports
@@ -147,17 +169,18 @@ pnpm test:storybook    # Run Storybook tests
 
 ## Architecture
 
-Work Squared is built with a modern, real-time architecture:
+Work Squared is built with a modern monorepo architecture featuring real-time collaboration and AI integration.
 
-- **Frontend**: React 19 with TypeScript, Vite for development, Tailwind CSS for styling
-- **State Management**: LiveStore with event sourcing and SQLite materialized views
-- **Real-time Sync**: WebSocket server on Cloudflare Workers with Durable Objects
-- **Testing**: Vitest for unit tests, React Testing Library for components, Storybook for UI development
-- **Drag & Drop**: @dnd-kit for accessible, performant drag-and-drop interactions
+**📖 For detailed technical architecture, see [docs/architecture.md](./docs/architecture.md)**
 
-### Key Design Decisions
+### Key Technologies
+- **Monorepo**: pnpm workspaces with TypeScript across all packages
+- **Frontend**: React 19, Vite, Tailwind CSS, LiveStore for state management
+- **Backend**: Cloudflare Worker with Durable Objects and WebSocket sync
+- **AI Integration**: Client-side agentic loops with tool calling via LLM proxy
+- **Testing**: Vitest, React Testing Library, Playwright E2E tests
 
-- **Local-first**: Data is stored locally and synced to the cloud, ensuring fast interactions
-- **Event Sourcing**: All changes are events, enabling reliable real-time collaboration
-- **Card-only Drop Targets**: Simplified drag-and-drop UX with Add Card buttons for end-of-column drops
-- **Comprehensive Testing**: Unit, component, and visual regression tests for reliability
+### Package Structure
+- **[`packages/web`](./packages/web/README.md)** - React frontend application
+- **[`packages/worker`](./packages/worker/README.md)** - Cloudflare Worker backend 
+- **[`packages/shared`](./packages/shared/README.md)** - Shared schemas and utilities

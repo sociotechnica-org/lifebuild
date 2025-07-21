@@ -1,0 +1,26 @@
+{
+  "name": "@work-squared/worker",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@work-squared/shared": "workspace:*",
+    "@livestore/sync-cf": "0.3.0",
+    "@livestore/adapter-web": "0.3.0",
+    "@opentelemetry/exporter-trace-otlp-http": "0.200.0",
+    "@opentelemetry/resources": "2.0.0",
+    "@opentelemetry/sdk-trace-base": "2.0.0",
+    "@opentelemetry/sdk-trace-web": "2.0.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0",
+    "@types/node": "^24.0.3",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.4"
+  }
+}

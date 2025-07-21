@@ -25,11 +25,10 @@ CI=true pnpm test:e2e  # Runs E2E tests
 ```bash
 # First time setup
 pnpm install
-cp .env.example .env && cp .dev.vars.example .dev.vars
-# Edit .dev.vars with your Braintrust API credentials
+cp packages/web/.env.example packages/web/.env && cp .dev.vars.example .dev.vars
+# Edit packages/web/.env and .dev.vars with your Braintrust API credentials
 
-# Start development (2 terminals needed)
-export VITE_LIVESTORE_SYNC_URL='http://localhost:8787'
+# Start development (monorepo - runs both web and worker)
 pnpm dev          # Vite + Wrangler
 
 # Alternative ports (for multiple Claude instances)
@@ -48,28 +47,30 @@ pnpm test:e2e      # E2E tests
 CI=true pnpm test:e2e  # Verify E2E tests work (for Claude)
 
 # Building
-pnpm build         # Production build
+pnpm --filter @work-squared/web build    # Build web package
+pnpm build         # Build all packages (if needed)
 
 # Deployment
-pnpm wrangler deploy  # Deploy sync server to Cloudflare
+pnpm --filter @work-squared/worker deploy  # Deploy sync server to Cloudflare
 ```
 
 ## Architecture
 
-Work Squared is a real-time collaborative web application built with:
+Work Squared is a real-time collaborative web application built as a monorepo with:
 
 - **LiveStore**: Event-sourced state management with SQLite materialized views
-- **React 19** with TypeScript for the frontend
-- **Cloudflare Workers** with Durable Objects for WebSocket-based real-time sync
+- **React 19** with TypeScript for the frontend (`packages/web`)
+- **Cloudflare Workers** with Durable Objects for WebSocket-based real-time sync (`packages/worker`)
 - **SharedWorker** for multi-tab synchronization
 - **OPFS** for client-side persistence
 
-### Key Files
+### Key Files (Monorepo)
 
-- `src/livestore/events.ts` - Event definitions
-- `src/livestore/schema.ts` - Database schema & materializers
-- `src/livestore/queries.ts` - Database queries
-- `functions/_worker.ts` - WebSocket sync server
+- `packages/shared/src/events.ts` - Event definitions
+- `packages/shared/src/schema.ts` - Database schema & materializers  
+- `packages/shared/src/queries.ts` - Database queries
+- `packages/worker/functions/_worker.ts` - WebSocket sync server
+- `packages/web/src/` - React frontend application
 
 ## Documentation
 
@@ -119,7 +120,7 @@ CI=true pnpm test:e2e  # Run E2E tests
 
 ### Unit Tests
 
-- Use `src/test-utils.tsx` for component testing
+- Use `packages/web/src/test-utils.tsx` for component testing
 - Test LiveStore events in isolation
 - Mock external dependencies
 
@@ -140,4 +141,4 @@ const projects = await store.query(db => db.table('projects').all())
 
 Deployments happen automatically when you push to the main branch.
 
-1. Deploy worker + assets to Cloudflare `pnpm wrangler deploy`
+1. Deploy worker + assets to Cloudflare `pnpm --filter @work-squared/worker deploy`

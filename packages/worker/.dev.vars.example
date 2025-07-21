@@ -1,0 +1,7 @@
+# Development environment variables for Cloudflare Workers
+# Copy this file to .dev.vars and fill in your actual values
+
+# Braintrust LLM API credentials
+# Get these from https://www.braintrust.dev/
+BRAINTRUST_API_KEY="your-braintrust-api-key-here"
+BRAINTRUST_PROJECT_ID="your-braintrust-project-id-here"
