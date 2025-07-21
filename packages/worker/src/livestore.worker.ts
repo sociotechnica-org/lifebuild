@@ -5,13 +5,14 @@ import { schema } from '@work-squared/shared/schema'
 import { makeTracer } from './otel.js'
 
 const getSyncUrl = () => {
-  if (import.meta.env.PROD) {
-    // In production the worker is served from the same origin as the site.
-    // We only need to provide the base host, as makeCfSync appends the path.
-    return `wss://${self.location.host}`
+  // For development, always use the local wrangler instance
+  // In a worker context, check if we're in development mode
+  if (self.location && self.location.hostname === 'localhost') {
+    return 'ws://localhost:8787'
   }
-  // In development, we use the URL provided by the .env file.
-  return import.meta.env.VITE_LIVESTORE_SYNC_URL
+  // In production the worker is served from the same origin as the site.
+  // We only need to provide the base host, as makeCfSync appends the path.
+  return `wss://${self.location.host}`
 }
 
 makeWorker({
