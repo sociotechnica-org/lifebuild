@@ -22,7 +22,7 @@ import { ROUTES } from './constants/routes.js'
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
   worker: () =>
-    new Worker(new URL('../worker/src/livestore.worker.ts', import.meta.url), { type: 'module' }),
+    new Worker(new URL('../../worker/src/livestore.worker.ts', import.meta.url), { type: 'module' }),
   sharedWorker: LiveStoreSharedWorker,
 })
 
