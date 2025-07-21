@@ -2,7 +2,8 @@ import { makeWorker } from '@livestore/adapter-web/worker'
 import { makeCfSync } from '@livestore/sync-cf'
 
 import { schema } from '@work-squared/shared/schema'
-import { makeTracer } from './otel.js'
+// Temporarily disable OTEL to fix worker loading
+// import { makeTracer } from './otel.js'
 
 const getSyncUrl = () => {
   // For development, always use the local wrangler instance
@@ -21,5 +22,4 @@ makeWorker({
     backend: makeCfSync({ url: getSyncUrl() }),
     initialSyncOptions: { _tag: 'Blocking', timeout: 5000 },
   },
-  otelOptions: { tracer: makeTracer('work-squared-worker') },
 })
