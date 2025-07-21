@@ -206,7 +206,7 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
           }
         )
       } catch (error) {
-        return new Response(JSON.stringify({ error: error.message }), {
+        return new Response(JSON.stringify({ error: (error as Error).message }), {
           status: 500,
           headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
         })
@@ -227,10 +227,10 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
     // Handle WebSocket upgrade requests - use pre-instantiated worker
     if (request.headers.get('upgrade') === 'websocket') {
       return worker.fetch(request, env, {
-        onPush: async function (message) {
+        onPush: async function (message: any) {
           console.log('Sync server: relaying', message.batch.length, 'events')
         },
-        onPull: async function (message) {
+        onPull: async function (message: any) {
           console.log('onPull', message)
         },
       })

@@ -16,18 +16,15 @@ import { EnsureStoreId } from './components/utils/EnsureStoreId.js'
 import { LoadingState } from './components/ui/LoadingState.js'
 import { ErrorBoundary } from './components/ui/ErrorBoundary/ErrorBoundary.js'
 import { UserInitializer } from './components/utils/UserInitializer/UserInitializer.js'
-import LiveStoreWorker from './livestore.worker?worker'
 import { schema } from '@work-squared/shared/schema'
-import { makeTracer } from './otel.js'
 import { ROUTES } from './constants/routes.js'
 
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
-  worker: LiveStoreWorker,
+  worker: () =>
+    new Worker(new URL('../worker/src/livestore.worker.ts', import.meta.url), { type: 'module' }),
   sharedWorker: LiveStoreSharedWorker,
 })
-
-const otelTracer = makeTracer('work-squared-main')
 
 // LiveStore wrapper - stable storeId that respects URL overrides on mount
 const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -64,7 +61,6 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       adapter={adapter}
       batchUpdates={batchUpdates}
       storeId={storeId}
-      otelOptions={{ tracer: otelTracer }}
       syncPayload={{ authToken: 'insecure-token-change-me' }}
     >
       {children}

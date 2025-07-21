@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from '@livestore/react'
-import { events } from '@work-squared/shared/events'
+import { events } from '@work-squared/shared/schema'
 import { getProjects$, getWorkerProjects$ } from '@work-squared/shared/queries'
 import type { Worker, Project } from '@work-squared/shared/schema'
 
