@@ -1,0 +1,26 @@
+{
+  "name": "@work-squared/shared",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./events": "./src/livestore/events.ts",
+    "./schema": "./src/livestore/schema.ts",
+    "./queries": "./src/livestore/queries.ts",
+    "./types": "./src/types.ts",
+    "./llm-tools": "./src/llm-tools/index.ts",
+    "./llm-tools/schemas": "./src/llm-tools/schemas.ts",
+    "./llm-tools/documents": "./src/llm-tools/documents.ts",
+    "./llm-tools/tasks": "./src/llm-tools/tasks.ts",
+    "./llm-tools/projects": "./src/llm-tools/projects.ts",
+    "./llm-tools/base": "./src/llm-tools/base.ts"
+  },
+  "dependencies": {
+    "@livestore/livestore": "0.3.0",
+    "@livestore/utils": "0.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

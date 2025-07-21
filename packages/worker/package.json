@@ -1,0 +1,19 @@
+{
+  "name": "@work-squared/worker",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@work-squared/shared": "workspace:*",
+    "@livestore/sync-cf": "0.3.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0",
+    "@types/node": "^24.0.3",
+    "typescript": "^5.8.3"
+  }
+}
