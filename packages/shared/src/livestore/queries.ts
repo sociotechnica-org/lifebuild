@@ -1,6 +1,6 @@
 import { queryDb } from '@livestore/livestore'
 
-import { tables } from './schema.js'
+import { tables } from './schema'
 
 export const app$ = queryDb(tables.uiState.get(), { label: 'app' })
 
