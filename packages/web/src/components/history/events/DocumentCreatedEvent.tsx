@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { FileText } from '@phosphor-icons/react'
 import { BaseEventItem } from './BaseEventItem.js'
 import { HistoryEvent } from '../types.js'
+import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../util/navigation.js'
 
 interface DocumentCreatedEventProps {
@@ -19,7 +20,7 @@ export const DocumentCreatedEvent: React.FC<DocumentCreatedEventProps> = ({ even
   }
 
   const handleViewDocument = () => {
-    navigate(preserveStoreIdInUrl(`/document/${data.id}`))
+    navigate(preserveStoreIdInUrl(generateRoute.document(data.id)))
   }
 
   const icon = <FileText size={16} className='text-amber-600' />

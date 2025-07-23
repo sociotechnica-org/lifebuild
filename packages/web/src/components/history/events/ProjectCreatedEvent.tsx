@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { FolderPlus } from '@phosphor-icons/react'
 import { BaseEventItem } from './BaseEventItem.js'
 import { HistoryEvent } from '../types.js'
+import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../util/navigation.js'
 
 interface ProjectCreatedEventProps {
@@ -19,7 +20,7 @@ export const ProjectCreatedEvent: React.FC<ProjectCreatedEventProps> = ({ event,
   }
 
   const handleViewProject = () => {
-    navigate(preserveStoreIdInUrl(`/project/${data.id}`))
+    navigate(preserveStoreIdInUrl(generateRoute.project(data.id)))
   }
 
   const icon = <FolderPlus size={16} className='text-blue-600' />
