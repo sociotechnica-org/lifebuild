@@ -10,6 +10,7 @@
     ".": "./src/index.ts",
     "./events": "./src/livestore/events.ts",
     "./schema": "./src/livestore/schema.ts",
+    "./livestore/schema": "./src/livestore/schema.ts",
     "./queries": "./src/livestore/queries.ts",
     "./types": "./src/types.ts",
     "./llm-tools": "./src/llm-tools/index.ts",
