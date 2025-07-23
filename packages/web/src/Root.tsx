@@ -11,6 +11,7 @@ import { TasksPage } from './components/tasks/TasksPage.js'
 import { WorkersPage } from './components/workers/WorkersPage.js'
 import { DocumentsPage } from './components/documents/DocumentsPage/DocumentsPage.js'
 import { DocumentPage } from './components/documents/DocumentPage.js'
+import { HistoryPage } from './pages/HistoryPage.js'
 import { Layout } from './components/layout/Layout.js'
 import { EnsureStoreId } from './components/utils/EnsureStoreId.js'
 import { LoadingState } from './components/ui/LoadingState.js'
@@ -125,6 +126,16 @@ export const App: React.FC = () => (
                     <Layout>
                       <ErrorBoundary>
                         <DocumentsPage />
+                      </ErrorBoundary>
+                    </Layout>
+                  }
+                />
+                <Route
+                  path={ROUTES.HISTORY}
+                  element={
+                    <Layout>
+                      <ErrorBoundary>
+                        <HistoryPage />
                       </ErrorBoundary>
                     </Layout>
                   }
