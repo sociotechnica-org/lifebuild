@@ -30,28 +30,88 @@ async function main() {
   // } catch (error) {
   //   console.log('Query error:', error)
   // }
-  console.log('Basic functionality working - DevTools starting...')
+  // Basic server functionality - skip events for now due to schema issues
+  console.log('✅ Server initialized successfully')
 
-  // Event subscriptions disabled for now due to LiveStore issue
-  // TODO: Re-enable subscriptions once LiveStore issue is resolved
-  console.log('Skipping event subscriptions for now')
+  // Check data directory
+  try {
+    const fs = await import('fs')
+    const dataPath = './data'
+    if (fs.existsSync(dataPath)) {
+      const files = fs.readdirSync(dataPath)
+      console.log('📁 Data directory contents:', files)
+    } else {
+      console.log('📁 Data directory will be created on first use')
+    }
+  } catch (error) {
+    console.log('⚠️  Could not check data directory:', error)
+  }
 
-  // Start LiveStore DevTools
-  console.log('LiveStore DevTools available at http://localhost:3001/__livestore')
   console.log('Store ID:', store.storeId)
 
-  // Handle graceful shutdown
-  process.on('SIGINT', async () => {
-    console.log('Shutting down server...')
-    await store.shutdown()
-    process.exit(0)
+  // Add a simple HTTP health check endpoint with basic stats
+  const http = await import('http')
+  const healthServer = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+
+    if (req.method === 'OPTIONS') {
+      res.writeHead(200)
+      res.end()
+      return
+    }
+
+    if (req.url === '/health') {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          status: 'healthy',
+          storeId: store.storeId,
+          timestamp: new Date().toISOString(),
+          uptime: process.uptime(),
+          storage: 'filesystem',
+          dataPath: './data',
+        })
+      )
+    } else if (req.url === '/') {
+      res.writeHead(200, { 'Content-Type': 'text/html' })
+      res.end(`
+        <html>
+          <head><title>Work Squared Server</title></head>
+          <body>
+            <h1>Work Squared Server</h1>
+            <p>✅ Server is running</p>
+            <p>Store ID: ${store.storeId}</p>
+            <p>Storage: Filesystem (./data)</p>
+            <p><a href="/health">Health Check</a></p>
+            <p><strong>Note:</strong> LiveStore DevTools should auto-start but URL not visible in logs yet.</p>
+          </body>
+        </html>
+      `)
+    } else {
+      res.writeHead(404, { 'Content-Type': 'text/plain' })
+      res.end('Not Found')
+    }
   })
 
-  process.on('SIGTERM', async () => {
+  const PORT = 3003
+  healthServer.listen(PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`)
+    console.log(`🩺 Health check: http://localhost:${PORT}/health`)
+    console.log(`🔧 DevTools: Check logs above for auto-generated URL`)
+  })
+
+  // Handle graceful shutdown
+  const shutdown = async () => {
     console.log('Shutting down server...')
+    healthServer.close()
     await store.shutdown()
     process.exit(0)
-  })
+  }
+
+  process.on('SIGINT', shutdown)
+  process.on('SIGTERM', shutdown)
 }
 
 main().catch(console.error)
