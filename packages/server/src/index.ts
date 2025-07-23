@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
 import { createStorePromise } from '@livestore/livestore'
 import { adapter, schema } from './store.js'
-import { getAllTasks$, getAllProjects$, getAllUsers$ } from '@work-squared/shared/queries'
+import { getConversationMessages$, getConversations$ } from '@work-squared/shared/queries'
 
 dotenv.config()
 
@@ -25,46 +25,19 @@ async function main() {
 
   console.log('✅ Server initialized - sync enabled')
 
-  // Monitor data using simple direct table queries
   try {
-    let lastTaskCount = 0
-    let lastProjectCount = 0
-    let lastUserCount = 0
-
     // Simple polling to detect new data using typed LiveStore queries
-    const checkForChanges = () => {
-      try {
-        // Use typed LiveStore queries from shared package
-        const tasks = store.query(getAllTasks$)
-        const projects = store.query(getAllProjects$)
-        const users = store.query(getAllUsers$)
-
-        if (Array.isArray(tasks) && tasks.length > lastTaskCount) {
-          const newCount = tasks.length - lastTaskCount
-          const latestTask = tasks[tasks.length - 1]?.title || 'Untitled'
-          console.log(`📝 ${newCount} new task(s) - "${latestTask}"`)
-          lastTaskCount = tasks.length
-        }
-
-        if (Array.isArray(projects) && projects.length > lastProjectCount) {
-          const newCount = projects.length - lastProjectCount
-          const latestProject = projects[projects.length - 1]?.name || 'Untitled'
-          console.log(`📁 ${newCount} new project(s) - "${latestProject}"`)
-          lastProjectCount = projects.length
-        }
-
-        if (Array.isArray(users) && users.length > lastUserCount) {
-          const newCount = users.length - lastUserCount
-          const latestUser = users[users.length - 1]?.name || 'Unnamed'
-          console.log(`👤 ${newCount} new user(s) - "${latestUser}"`)
-          lastUserCount = users.length
-        }
-      } catch {
-        // Silently ignore query errors during startup
+    // TODO: remove this once we have a proper event system
+    const checkForChanges = async () => {
+      let messageCount = 0
+      const conversations = store.query(getConversations$)
+      for (const conversation of conversations) {
+        const messages = store.query(getConversationMessages$(conversation.id))
+        messageCount += messages.length
       }
+      console.log(`💬 ${messageCount} total messages`)
     }
 
-    // Check for changes every 5 seconds (less verbose)
     setInterval(checkForChanges, 5000)
   } catch (error) {
     console.log('⚠️ Event monitoring setup failed:', error)
@@ -116,7 +89,7 @@ async function main() {
     }
   })
 
-  const PORT = 3003
+  const PORT = process.env.PORT || 3003
   healthServer.listen(PORT, () => {
     console.log(`🌐 Health endpoint: http://localhost:${PORT}/health`)
   })

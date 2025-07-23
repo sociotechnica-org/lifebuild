@@ -94,22 +94,6 @@ export const getUsers$ = queryDb(
   { label: 'getUsers' }
 )
 
-// Simple queries for server monitoring (all records)
-export const getAllTasks$ = queryDb(
-  tables.tasks.select(),
-  { label: 'getAllTasks' }
-)
-
-export const getAllProjects$ = queryDb(
-  tables.boards.select(),
-  { label: 'getAllProjects' }
-)
-
-export const getAllUsers$ = queryDb(
-  tables.users.select(),
-  { label: 'getAllUsers' }
-)
-
 export const getTaskComments$ = (taskId: string) =>
   queryDb(
     tables.comments
