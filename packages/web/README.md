@@ -5,6 +5,7 @@ The React frontend application for Work Squared, featuring real-time collaborati
 ## Overview
 
 This package contains the user-facing React application built with modern web technologies:
+
 - **React 19** with TypeScript for the UI framework
 - **Vite** for fast development and optimized builds
 - **Tailwind CSS** for styling with utility-first approach
@@ -14,16 +15,19 @@ This package contains the user-facing React application built with modern web te
 ## Development
 
 ### Prerequisites
+
 Run from the monorepo root after `pnpm install`.
 
 ### Environment Setup
 
 Copy and configure the environment file:
+
 ```bash
 cp packages/web/.env.example packages/web/.env
 ```
 
 Required environment variables:
+
 ```env
 # WebSocket URL for LiveStore sync
 VITE_LIVESTORE_SYNC_URL=ws://localhost:8787
@@ -67,6 +71,7 @@ pnpm --filter @work-squared/web build-storybook
 ## Architecture
 
 ### Key Technologies
+
 - **React 19**: Latest React with concurrent features
 - **TypeScript**: Type-safe development
 - **Vite**: Fast build tool with HMR
@@ -75,6 +80,7 @@ pnpm --filter @work-squared/web build-storybook
 - **@dnd-kit**: Accessible drag-and-drop functionality
 
 ### Project Structure
+
 ```
 src/
 ├── components/          # Reusable UI components
@@ -91,11 +97,13 @@ src/
 ```
 
 ### State Management
+
 - **LiveStore**: Event-sourced state with real-time sync
 - **React Context**: For app-level state (user, theme, etc.)
 - **Local State**: Component-level state with hooks
 
 ### Testing Strategy
+
 - **Unit Tests**: Individual component and utility testing
 - **Integration Tests**: Component interaction testing
 - **Storybook**: Visual component development and testing
@@ -103,6 +111,7 @@ src/
 ## Features
 
 ### Core Functionality
+
 - **Real-time Kanban Boards**: Drag-and-drop task management
 - **Multi-user Collaboration**: Live updates across users
 - **Project Workspaces**: Organized task and document management
@@ -110,6 +119,7 @@ src/
 - **Document Management**: Create and edit rich text documents
 
 ### UI/UX Features
+
 - **Responsive Design**: Mobile-first approach
 - **Dark/Light Mode**: Theme switching support
 - **Accessibility**: ARIA compliant with keyboard navigation
@@ -119,19 +129,22 @@ src/
 ## Configuration
 
 ### Vite Configuration
-- **React Plugin**: Fast refresh and JSX support  
+
+- **React Plugin**: Fast refresh and JSX support
 - **TypeScript**: Type checking and compilation
 - **Tailwind CSS**: JIT compilation and optimization
 - **Path Aliases**: Clean import statements
 - **Build Optimization**: Code splitting and tree shaking
 
 ### LiveStore Integration
+
 - **Schema Import**: Shared types from `@work-squared/shared`
 - **Web Worker**: Background processing for sync operations
 - **Shared Worker**: Multi-tab synchronization
 - **OPFS Storage**: Persistent local storage
 
 ### Testing Configuration
+
 - **Vitest**: Fast unit test runner
 - **React Testing Library**: Component testing utilities
 - **jsdom**: DOM environment for testing
