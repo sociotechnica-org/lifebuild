@@ -4,8 +4,10 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "tsc && pnpm build:resolve-paths",
+    "build:resolve-paths": "echo 'Build path resolution skipped - using workspace references'",
     "start": "node dist/index.js",
+    "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
@@ -14,9 +16,9 @@
   },
   "dependencies": {
     "@work-squared/shared": "workspace:*",
-    "@livestore/adapter-node": "^0.3.1",
-    "@livestore/livestore": "^0.3.1",
-    "@livestore/sync-cf": "^0.3.1",
+    "@livestore/adapter-node": "0.3.0",
+    "@livestore/livestore": "0.3.0",
+    "@livestore/sync-cf": "0.3.0",
     "dotenv": "^16.0.0"
   },
   "devDependencies": {

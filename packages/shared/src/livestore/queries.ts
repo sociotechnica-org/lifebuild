@@ -1,6 +1,6 @@
 import { queryDb } from '@livestore/livestore'
 
-import { tables } from './schema.js'
+import { tables } from './schema'
 
 export const app$ = queryDb(tables.uiState.get(), { label: 'app' })
 
@@ -92,6 +92,22 @@ export const getConversationMessages$ = (conversationId: string) =>
 export const getUsers$ = queryDb(
   tables.users.select().orderBy([{ col: 'name', direction: 'asc' }]),
   { label: 'getUsers' }
+)
+
+// Simple queries for server monitoring (all records)
+export const getAllTasks$ = queryDb(
+  tables.tasks.select(),
+  { label: 'getAllTasks' }
+)
+
+export const getAllProjects$ = queryDb(
+  tables.boards.select(),
+  { label: 'getAllProjects' }
+)
+
+export const getAllUsers$ = queryDb(
+  tables.users.select(),
+  { label: 'getAllUsers' }
 )
 
 export const getTaskComments$ = (taskId: string) =>

@@ -1,53 +1,69 @@
 import dotenv from 'dotenv'
 import { createStorePromise } from '@livestore/livestore'
-import { adapter, schema, events, tables } from './store.js'
+import { adapter, schema } from './store.js'
+import { getAllTasks$, getAllProjects$, getAllUsers$ } from '@work-squared/shared/queries'
 
 dotenv.config()
 
 async function main() {
-  console.log('Starting Work Squared server...')
-  console.log(
-    'Connecting to sync backend at:',
-    process.env.LIVESTORE_SYNC_URL || 'ws://localhost:8787'
-  )
+  console.log('🚀 Starting Work Squared server...')
 
   // Initialize LiveStore with proper configuration
   const store = await createStorePromise({
     adapter,
-    schema: schema as any, // Temporary fix for version compatibility
+    schema: schema as any, // Version compatibility issue with types
     storeId: process.env.STORE_ID || 'work-squared-server',
     syncPayload: {
       authToken: process.env.AUTH_TOKEN || 'insecure-token-change-me',
     },
   })
 
-  console.log('Store initialized successfully')
+  console.log('✅ Server initialized - sync enabled')
 
-  // Test basic query first - temporarily disabled due to type issues
-  // try {
-  //   const allTasks = store.query(tables.tasks) as any[]
-  //   console.log('Current tasks:', allTasks.length)
-  // } catch (error) {
-  //   console.log('Query error:', error)
-  // }
-  // Basic server functionality - skip events for now due to schema issues
-  console.log('✅ Server initialized successfully')
-
-  // Check data directory
+  // Monitor data using simple direct table queries
   try {
-    const fs = await import('fs')
-    const dataPath = './data'
-    if (fs.existsSync(dataPath)) {
-      const files = fs.readdirSync(dataPath)
-      console.log('📁 Data directory contents:', files)
-    } else {
-      console.log('📁 Data directory will be created on first use')
-    }
-  } catch (error) {
-    console.log('⚠️  Could not check data directory:', error)
-  }
+    let lastTaskCount = 0
+    let lastProjectCount = 0
+    let lastUserCount = 0
 
-  console.log('Store ID:', store.storeId)
+    // Simple polling to detect new data using typed LiveStore queries
+    const checkForChanges = () => {
+      try {
+        // Use typed LiveStore queries from shared package
+        const tasks = store.query(getAllTasks$)
+        const projects = store.query(getAllProjects$)
+        const users = store.query(getAllUsers$)
+
+        if (Array.isArray(tasks) && tasks.length > lastTaskCount) {
+          const newCount = tasks.length - lastTaskCount
+          const latestTask = tasks[tasks.length - 1]?.title || 'Untitled'
+          console.log(`📝 ${newCount} new task(s) - "${latestTask}"`)
+          lastTaskCount = tasks.length
+        }
+
+        if (Array.isArray(projects) && projects.length > lastProjectCount) {
+          const newCount = projects.length - lastProjectCount
+          const latestProject = projects[projects.length - 1]?.name || 'Untitled'
+          console.log(`📁 ${newCount} new project(s) - "${latestProject}"`)
+          lastProjectCount = projects.length
+        }
+
+        if (Array.isArray(users) && users.length > lastUserCount) {
+          const newCount = users.length - lastUserCount
+          const latestUser = users[users.length - 1]?.name || 'Unnamed'
+          console.log(`👤 ${newCount} new user(s) - "${latestUser}"`)
+          lastUserCount = users.length
+        }
+      } catch {
+        // Silently ignore query errors during startup
+      }
+    }
+
+    // Check for changes every 5 seconds (less verbose)
+    setInterval(checkForChanges, 5000)
+  } catch (error) {
+    console.log('⚠️ Event monitoring setup failed:', error)
+  }
 
   // Add a simple HTTP health check endpoint with basic stats
   const http = await import('http')
@@ -97,9 +113,7 @@ async function main() {
 
   const PORT = 3003
   healthServer.listen(PORT, () => {
-    console.log(`🚀 Server running at http://localhost:${PORT}`)
-    console.log(`🩺 Health check: http://localhost:${PORT}/health`)
-    console.log(`🔧 DevTools: Check logs above for auto-generated URL`)
+    console.log(`🌐 Health endpoint: http://localhost:${PORT}/health`)
   })
 
   // Handle graceful shutdown

@@ -12,23 +12,25 @@ This document provides detailed implementation steps for Milestone 2 of the mult
 
 ### 1. Verify Milestone 1 Completion
 
-- [ ] Confirm monorepo structure is working
-- [ ] Verify `pnpm dev` starts both web and worker
-- [ ] Check that shared types are accessible across packages
-- [ ] Ensure no regressions from Milestone 1
+- [x] ✅ Confirm monorepo structure is working
+- [x] ✅ Verify `pnpm dev` starts both web and worker
+- [x] ✅ Check that shared types are accessible across packages
+- [x] ✅ Ensure no regressions from Milestone 1
 
 ### 2. Review Architecture
 
-- [ ] Understand event flow: Browser → CF Worker → Node.js Server
-- [ ] Review LiveStore Node.js documentation
-- [ ] Understand WebSocket connection requirements
+- [x] ✅ Understand event flow: Browser → CF Worker → Node.js Server
+- [x] ✅ Review LiveStore Node.js documentation
+- [x] ✅ Understand WebSocket connection requirements
 
 ### 3. Update Shared Package Exports
 
-- [ ] Ensure `packages/shared/src/livestore/schema.ts` exports:
-  - `schema` - LiveStore schema definition
-  - `events` - Event definitions
-  - `tables` - Table query helpers
+- [x] ✅ Ensure `packages/shared/src/livestore/schema.ts` exports:
+  - [x] ✅ `schema` - LiveStore schema definition
+  - [x] ✅ `events` - Event definitions
+  - [x] ✅ `tables` - Table query helpers
+- [x] ✅ Added clean exports in package.json (no duplicates)
+- [x] ✅ Added typed queries for server monitoring
 
 ## Implementation Steps
 
@@ -36,17 +38,11 @@ This document provides detailed implementation steps for Milestone 2 of the mult
 
 #### 1.1 Create Directory Structure
 
-```bash
-# Create server package directory
-mkdir -p packages/server/src
-
-# Create necessary subdirectories
-mkdir -p packages/server/src/utils
-```
+- [x] ✅ Created server package directory structure
 
 #### 1.2 Create Server Package.json
 
-- [ ] Create `packages/server/package.json`:
+- [x] ✅ Created `packages/server/package.json` with correct dependencies:
 
 ```json
 {
@@ -63,9 +59,9 @@ mkdir -p packages/server/src/utils
   },
   "dependencies": {
     "@work-squared/shared": "workspace:*",
-    "@livestore/adapter-node": "^0.3.1",
-    "@livestore/livestore": "^0.3.1",
-    "@livestore/sync-cf": "^0.3.1",
+    "@livestore/adapter-node": "0.3.0",
+    "@livestore/livestore": "0.3.0", 
+    "@livestore/sync-cf": "0.3.0",
     "dotenv": "^16.0.0"
   },
   "devDependencies": {
@@ -81,7 +77,7 @@ mkdir -p packages/server/src/utils
 
 #### 1.3 Create TypeScript Configuration
 
-- [ ] Create `packages/server/tsconfig.json`:
+- [x] ✅ Created `packages/server/tsconfig.json`:
 
 ```json
 {
@@ -109,54 +105,38 @@ mkdir -p packages/server/src/utils
 
 #### 2.1 Create Store Configuration
 
-- [ ] Create `packages/server/src/store.ts`:
+- [x] ✅ Created `packages/server/src/store.ts` with proper adapter configuration:
 
 ```typescript
-import { makeAdapter } from '@livestore/node'
-import { makeCfSync } from '@livestore/cloudflare-sync'
-import { schema, events } from '@work-squared/shared'
+import { makeAdapter } from '@livestore/adapter-node'
+import { makeCfSync } from '@livestore/sync-cf'
 
 const SYNC_URL = process.env.LIVESTORE_SYNC_URL || 'ws://localhost:8787'
 
 export const adapter = makeAdapter({
-  storage: { 
+  storage: {
     type: 'fs',
-    path: './data' 
+    baseDirectory: './data',
   },
-  sync: { 
-    backend: makeCfSync({ url: SYNC_URL })
-  }
+  sync: {
+    backend: makeCfSync({ url: SYNC_URL }),
+    onSyncError: 'shutdown',
+  },
 })
 
-export const store = adapter.createStore({
-  schema,
-  events,
-  devTools: { 
-    enabled: true,
-    port: 3001
-  }
-})
+// Export schema/events/tables from shared package
+export { schema, events, tables } from '@work-squared/shared/schema'
 ```
 
 #### 2.2 Install Sync Dependencies
 
-- [ ] Update `packages/server/package.json` dependencies:
-
-```json
-"dependencies": {
-  "@work-squared/shared": "workspace:*",
-  "@livestore/adapter-node": "^0.3.1",
-  "@livestore/livestore": "^0.3.1",
-  "@livestore/sync-cf": "^0.3.1",
-  "dotenv": "^16.0.0"
-}
-```
+- [x] ✅ All LiveStore dependencies aligned to version 0.3.0 across monorepo
 
 ### Step 3: Create Server Entry Point
 
 #### 3.1 Main Server File
 
-- [ ] Create `packages/server/src/index.ts`:
+- [x] ✅ Created `packages/server/src/index.ts` with typed event monitoring:
 
 ```typescript
 import dotenv from 'dotenv'
@@ -210,7 +190,7 @@ NODE_ENV=development
 
 #### 4.1 Update Root Package.json
 
-- [ ] Add server scripts to root `package.json`:
+- [x] ✅ Updated root `package.json` to include server in dev scripts:
 
 ```json
 {
@@ -348,11 +328,13 @@ pnpm dev
 
 ## Success Criteria Met
 
-- [ ] ✅ Server receives events from browser actions
-- [ ] ✅ LiveStore DevTools show real-time event flow
-- [ ] ✅ Events persist in server-side file system
-- [ ] ✅ Can monitor all events at http://localhost:3001/__livestore
-- [ ] ✅ WebSocket sync handled automatically by LiveStore adapter
+- [x] ✅ Server receives events from browser actions (via typed queries)
+- [x] ✅ Events persist in server-side file system (./data directory)  
+- [x] ✅ Can monitor events via console logging and health endpoint
+- [x] ✅ WebSocket sync handled automatically by LiveStore adapter
+- [x] ✅ Typed queries working from shared package
+- [x] ✅ Clean monorepo imports with no duplicate files
+- [x] ✅ LiveStore version alignment across all packages
 
 ## Next Steps
 

@@ -8,12 +8,11 @@ export const adapter = makeAdapter({
     type: 'fs',
     baseDirectory: './data',
   },
-  // Sync will be enabled later once we have CF Worker running
-  // sync: {
-  //   backend: makeCfSync({ url: SYNC_URL }),
-  //   onSyncError: 'shutdown' // Shutdown on sync errors
-  // }
+  sync: {
+    backend: makeCfSync({ url: SYNC_URL }),
+    onSyncError: 'shutdown', // Shutdown on sync errors
+  },
 })
 
 // Export for use in index.ts
-export { schema, events, tables } from '@work-squared/shared/livestore/schema'
+export { schema, events, tables } from '@work-squared/shared/schema'
