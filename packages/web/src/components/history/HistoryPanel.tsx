@@ -1,9 +1,18 @@
 import React from 'react'
+import { useQuery } from '@livestore/react'
+import { getAllEvents$ } from '@work-squared/shared/queries'
 import { EventList } from './EventList.js'
 
 export const HistoryPanel: React.FC = () => {
-  // TODO: Replace with actual LiveStore event query when available
-  const events: any[] = []
+  const eventsLogData = useQuery(getAllEvents$) ?? []
+
+  // Transform the eventsLog data to match our HistoryEvent interface
+  const events = eventsLogData.map(eventLog => ({
+    id: eventLog.id,
+    type: eventLog.eventType,
+    timestamp: eventLog.createdAt,
+    data: JSON.parse(eventLog.eventData),
+  }))
 
   return (
     <div className='h-full flex flex-col'>

@@ -220,6 +220,15 @@ export const searchDocumentsWithProject$ = (query: string, projectId?: string) =
   })
 }
 
+// Query to get all events for the history panel
+export const getAllEvents$ = queryDb(
+  tables.eventsLog
+    .select()
+    .orderBy([{ col: 'createdAt', direction: 'desc' }])
+    .limit(100),
+  { label: 'getAllEvents' }
+)
+
 // Query to get project details with document and task counts (for LLM tools)
 export const getProjectDetails$ = (projectId: string) =>
   queryDb(tables.boards.select().where({ id: projectId }), {
