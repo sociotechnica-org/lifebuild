@@ -19,7 +19,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@work-squared/shared": "workspace:*",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -30,7 +29,9 @@
     "@livestore/react": "0.3.0",
     "@livestore/utils": "0.3.0",
     "@livestore/wa-sqlite": "1.0.5-dev.2",
+    "@phosphor-icons/react": "^2.1.10",
     "@types/dompurify": "^3.2.0",
+    "@work-squared/shared": "workspace:*",
     "dompurify": "^3.0.4",
     "highlight.js": "^11.11.1",
     "marked": "^12.0.2",
