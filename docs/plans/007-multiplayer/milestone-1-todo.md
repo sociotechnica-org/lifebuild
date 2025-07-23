@@ -1,5 +1,7 @@
 # Milestone 1: Monorepo Structure - Implementation TODO
 
+**✅ COMPLETED**: This milestone was completed in PR #86 on 2025-07-23
+
 ## Overview
 
 This document provides detailed implementation steps for Milestone 1 of the multiplayer release: creating a pnpm workspace monorepo structure.
@@ -10,16 +12,16 @@ This document provides detailed implementation steps for Milestone 1 of the mult
 
 ### 1. Backup Current State
 
-- [ ] Commit all current changes
-- [ ] Create branch: `git checkout -b milestone-1-monorepo`
-- [ ] Run existing tests to establish baseline: `pnpm test`
-- [ ] Verify current dev workflow: `pnpm dev` works correctly
+- [x] Commit all current changes
+- [x] Create branch: `git checkout -b milestone-1-monorepo`
+- [x] Run existing tests to establish baseline: `pnpm test`
+- [x] Verify current dev workflow: `pnpm dev` works correctly
 
 ### 2. Understand Current Structure
 
-- [ ] Document current file locations
-- [ ] Note all import paths in key files
-- [ ] List all package.json scripts that will need updating
+- [x] Document current file locations
+- [x] Note all import paths in key files
+- [x] List all package.json scripts that will need updating
 
 ## Implementation Steps
 
@@ -37,7 +39,7 @@ touch pnpm-workspace.yaml
 
 #### 1.2 Configure pnpm Workspace
 
-- [ ] Create `pnpm-workspace.yaml`:
+- [x] Create `pnpm-workspace.yaml`:
 
 ```yaml
 packages:
@@ -48,22 +50,22 @@ packages:
 
 #### 2.1 Move Core Files
 
-- [ ] Move `src/` → `packages/web/src/`
-- [ ] Move `public/` → `packages/web/public/`
-- [ ] Move `index.html` → `packages/web/index.html`
-- [ ] Copy `.env.example` → `packages/web/.env.example`
+- [x] Move `src/` → `packages/web/src/`
+- [x] Move `public/` → `packages/web/public/`
+- [x] Move `index.html` → `packages/web/index.html`
+- [x] Copy `.env.example` → `packages/web/.env.example`
 
 #### 2.2 Move Config Files
 
-- [ ] Move `vite.config.ts` → `packages/web/vite.config.ts`
-- [ ] Move `tsconfig.json` → `packages/web/tsconfig.json`
-- [ ] Move `tailwind.config.js` → `packages/web/tailwind.config.js`
-- [ ] Move `postcss.config.js` → `packages/web/postcss.config.js`
-- [ ] Move `.storybook/` → `packages/web/.storybook/`
+- [x] Move `vite.config.ts` → `packages/web/vite.config.ts`
+- [x] Move `tsconfig.json` → `packages/web/tsconfig.json`
+- [x] Move `tailwind.config.js` → `packages/web/tailwind.config.js`
+- [x] Move `postcss.config.js` → `packages/web/postcss.config.js`
+- [ ] Move `.storybook/` → `packages/web/.storybook/` (Not found - may not be needed)
 
 #### 2.3 Create Web Package.json
 
-- [ ] Create `packages/web/package.json`:
+- [x] Create `packages/web/package.json`:
 
 ```json
 {
@@ -87,21 +89,21 @@ packages:
 
 #### 2.4 Update Import Paths
 
-- [ ] Update `packages/web/src/` imports to use `@work-squared/shared`
-- [ ] Update any absolute paths to be relative within web package
-- [ ] Fix Storybook config paths in `packages/web/.storybook/`
+- [x] Update `packages/web/src/` imports to use `@work-squared/shared`
+- [x] Update any absolute paths to be relative within web package
+- [x] Fix Storybook config paths in `packages/web/.storybook/` (if applicable)
 
 ### Step 3: Move Cloudflare Worker (`packages/worker`)
 
 #### 3.1 Move Worker Files
 
-- [ ] Move `functions/` → `packages/worker/functions/`
-- [ ] Move `wrangler.jsonc` → `packages/worker/wrangler.jsonc`
-- [ ] Copy `.dev.vars.example` → `packages/worker/.dev.vars.example`
+- [x] Move `functions/` → `packages/worker/functions/`
+- [x] Move `wrangler.jsonc` → `packages/worker/wrangler.jsonc`
+- [x] Copy `.dev.vars.example` → `packages/worker/.dev.vars.example`
 
 #### 3.2 Create Worker Package.json
 
-- [ ] Create `packages/worker/package.json`:
+- [x] Create `packages/worker/package.json`:
 
 ```json
 {
@@ -120,23 +122,23 @@ packages:
 
 #### 3.3 Update Worker Imports
 
-- [ ] Update `packages/worker/functions/_worker.ts` imports
-- [ ] Change `../src/utils/llm-tools/schemas.js` → `@work-squared/shared/llm-tools/schemas`
-- [ ] Update wrangler.jsonc paths if needed
+- [x] Update `packages/worker/functions/_worker.ts` imports
+- [x] Change `../src/utils/llm-tools/schemas.js` → `@work-squared/shared/llm-tools/schemas`
+- [x] Update wrangler.jsonc paths if needed
 
 ### Step 4: Create Shared Package (`packages/shared`)
 
 #### 4.1 Extract Shared Types
 
-- [ ] Create `packages/shared/src/` directory
-- [ ] Move `src/livestore/events.ts` → `packages/shared/src/events.ts`
-- [ ] Move `src/livestore/schema.ts` → `packages/shared/src/schema.ts`
-- [ ] Move `src/utils/llm-tools/` → `packages/shared/src/llm-tools/`
-- [ ] Move other shared utilities as needed
+- [x] Create `packages/shared/src/` directory
+- [x] Move `src/livestore/events.ts` → `packages/shared/src/livestore/events.ts`
+- [x] Move `src/livestore/schema.ts` → `packages/shared/src/livestore/schema.ts`
+- [x] Move `src/utils/llm-tools/` → `packages/shared/src/llm-tools/`
+- [x] Move other shared utilities as needed (queries.ts, types.ts)
 
 #### 4.2 Create Shared Package.json
 
-- [ ] Create `packages/shared/package.json`:
+- [x] Create `packages/shared/package.json`:
 
 ```json
 {
@@ -155,7 +157,7 @@ packages:
 
 #### 4.3 Create Shared Index
 
-- [ ] Create `packages/shared/src/index.ts`:
+- [x] Create `packages/shared/src/index.ts`:
 
 ```typescript
 // Re-export all shared functionality
@@ -168,7 +170,7 @@ export * from './llm-tools'
 
 #### 5.1 Update Root Package.json
 
-- [ ] Update root `package.json` scripts:
+- [x] Update root `package.json` scripts:
 
 ```json
 {
@@ -187,21 +189,21 @@ export * from './llm-tools'
 
 #### 5.2 Move Dependencies
 
-- [ ] Move web-specific deps from root to `packages/web/package.json`
-- [ ] Move worker-specific deps from root to `packages/worker/package.json`
-- [ ] Keep only shared dev tools (prettier, eslint) in root
+- [x] Move web-specific deps from root to `packages/web/package.json`
+- [x] Move worker-specific deps from root to `packages/worker/package.json`
+- [x] Keep only shared dev tools (prettier, eslint) in root
 
 #### 5.3 Update Config Files
 
-- [ ] Update root `.gitignore` to handle package-specific ignores
-- [ ] Update GitHub Actions workflow paths if needed
-- [ ] Update any VS Code settings for new structure
+- [x] Update root `.gitignore` to handle package-specific ignores
+- [x] Update GitHub Actions workflow paths if needed
+- [x] Update any VS Code settings for new structure
 
 ### Step 6: Create Server Package Stub
 
 #### 6.1 Basic Server Structure
 
-- [ ] Create `packages/server/package.json`:
+- [ ] Create `packages/server/package.json`: (Stub not created yet - for future milestone)
 
 ```json
 {
@@ -228,9 +230,9 @@ rm -rf node_modules packages/*/node_modules
 pnpm install
 ```
 
-- [ ] All packages install successfully
-- [ ] No dependency resolution errors
-- [ ] Workspace links created correctly
+- [x] All packages install successfully
+- [x] No dependency resolution errors
+- [x] Workspace links created correctly
 
 ### Test 2: Development Servers
 
@@ -243,10 +245,10 @@ pnpm dev:worker # Should start Wrangler on port 8787
 pnpm dev        # Should start both services
 ```
 
-- [ ] Web server starts without errors
-- [ ] Worker server starts without errors
-- [ ] Both services can run in parallel
-- [ ] Hot reload works for both services
+- [x] Web server starts without errors
+- [x] Worker server starts without errors
+- [x] Both services can run in parallel
+- [x] Hot reload works for both services
 
 ### Test 3: Build Process
 
@@ -254,26 +256,26 @@ pnpm dev        # Should start both services
 pnpm build
 ```
 
-- [ ] Web package builds successfully
-- [ ] Worker package builds successfully
-- [ ] No TypeScript errors
-- [ ] Build outputs in correct locations
+- [x] Web package builds successfully
+- [x] Worker package builds successfully
+- [x] No TypeScript errors
+- [x] Build outputs in correct locations
 
 ### Test 4: Functionality Tests
 
-- [ ] Open http://localhost:60001 in browser
-- [ ] Create a task - verify it works
-- [ ] Open chat interface - verify it works
-- [ ] Drag and drop tasks - verify it works
-- [ ] WebSocket connection established (check browser network tab)
-- [ ] LLM chat responses work
+- [x] Open http://localhost:60001 in browser
+- [x] Create a task - verify it works
+- [x] Open chat interface - verify it works
+- [x] Drag and drop tasks - verify it works
+- [x] WebSocket connection established (check browser network tab)
+- [x] LLM chat responses work
 
 ### Test 5: Shared Package Import
 
-- [ ] Verify web package can import from `@work-squared/shared`
-- [ ] Verify worker package can import from `@work-squared/shared`
-- [ ] No circular dependency warnings
-- [ ] TypeScript recognizes shared types
+- [x] Verify web package can import from `@work-squared/shared`
+- [x] Verify worker package can import from `@work-squared/shared`
+- [x] No circular dependency warnings
+- [x] TypeScript recognizes shared types
 
 ## Rollback Plan
 
@@ -321,13 +323,13 @@ If migration fails at any step:
 
 ## Success Criteria Met
 
-- [ ] ✅ Can run `pnpm dev` to start all services (frontend + CF Worker)
-- [ ] ✅ Shared types work across packages
-- [ ] ✅ WebSocket sync and LLM proxy still work
-- [ ] ✅ No regression in existing functionality
-- [ ] ✅ All existing tests pass
-- [ ] ✅ Build process works for all packages
-- [ ] ✅ Ready to proceed to Milestone 2
+- [x] ✅ Can run `pnpm dev` to start all services (frontend + CF Worker)
+- [x] ✅ Shared types work across packages
+- [x] ✅ WebSocket sync and LLM proxy still work
+- [x] ✅ No regression in existing functionality
+- [x] ✅ All existing tests pass
+- [x] ✅ Build process works for all packages
+- [x] ✅ Ready to proceed to Milestone 2
 
 ## Next Steps
 
