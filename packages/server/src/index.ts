@@ -9,12 +9,17 @@ async function main() {
   console.log('🚀 Starting Work Squared server...')
 
   // Initialize LiveStore with proper configuration
+  const storeId = process.env.STORE_ID || 'work-squared-default'
+  const authToken = process.env.AUTH_TOKEN || 'insecure-token-change-me'
+
+  console.log(`📋 Store ID: ${storeId}`)
+
   const store = await createStorePromise({
     adapter,
     schema: schema as any, // Version compatibility issue with types
-    storeId: process.env.STORE_ID || 'work-squared-server',
+    storeId,
     syncPayload: {
-      authToken: process.env.AUTH_TOKEN || 'insecure-token-change-me',
+      authToken,
     },
   })
 
