@@ -58,7 +58,7 @@ STORE_ID=work-squared-default           # Unique identifier for this workspace
 AUTH_TOKEN=your-secure-token           # Auth token for sync (change in production)
 LIVESTORE_SYNC_URL=ws://localhost:8787  # WebSocket URL to Cloudflare Worker
 
-# Server Configuration  
+# Server Configuration
 PORT=3003                              # HTTP health check port
 
 # Development
@@ -67,13 +67,13 @@ NODE_ENV=development
 
 ### Environment Variables
 
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `STORE_ID` | Unique workspace identifier | `work-squared-default` | No |
-| `AUTH_TOKEN` | Authentication token for sync | `insecure-token-change-me` | No |
-| `LIVESTORE_SYNC_URL` | WebSocket connection URL | `ws://localhost:8787` | No |
-| `PORT` | HTTP server port | `3003` | No |
-| `NODE_ENV` | Node environment | `development` | No |
+| Variable             | Description                   | Default                    | Required |
+| -------------------- | ----------------------------- | -------------------------- | -------- |
+| `STORE_ID`           | Unique workspace identifier   | `work-squared-default`     | No       |
+| `AUTH_TOKEN`         | Authentication token for sync | `insecure-token-change-me` | No       |
+| `LIVESTORE_SYNC_URL` | WebSocket connection URL      | `ws://localhost:8787`      | No       |
+| `PORT`               | HTTP server port              | `3003`                     | No       |
+| `NODE_ENV`           | Node environment              | `development`              | No       |
 
 ## Development
 
@@ -110,6 +110,7 @@ pnpm start
 ```
 
 The server will:
+
 1. Connect to the LiveStore sync backend
 2. Begin monitoring events from the configured workspace
 3. Start HTTP health check server on configured port
@@ -123,10 +124,11 @@ The server provides HTTP endpoints for monitoring:
 - **GET /** - HTML status page with server information
 
 Example health response:
+
 ```json
 {
   "status": "healthy",
-  "storeId": "work-squared-default", 
+  "storeId": "work-squared-default",
   "timestamp": "2025-01-15T10:30:00.000Z",
   "uptime": 3600,
   "storage": "filesystem",
@@ -197,7 +199,7 @@ CMD ["node", "dist/index.js"]
 For production deployments:
 
 1. **Generate secure AUTH_TOKEN**: Use a strong random string
-2. **Configure STORE_ID**: Set to your workspace identifier  
+2. **Configure STORE_ID**: Set to your workspace identifier
 3. **Set LIVESTORE_SYNC_URL**: Point to your Cloudflare Worker
 4. **Ensure data persistence**: Mount `./data` directory
 5. **Configure health checks**: Monitor `/health` endpoint
@@ -207,11 +209,13 @@ For production deployments:
 ### Connection Issues
 
 **Problem**: Server can't connect to Cloudflare Worker
+
 ```
 Error: WebSocket connection failed
 ```
 
 **Solutions**:
+
 - Verify `LIVESTORE_SYNC_URL` is correct
 - Ensure Cloudflare Worker is running
 - Check network connectivity and firewalls
@@ -219,11 +223,13 @@ Error: WebSocket connection failed
 ### Data Issues
 
 **Problem**: Events not persisting
+
 ```
 Error: Cannot write to ./data directory
 ```
 
 **Solutions**:
+
 - Ensure `./data` directory exists and has write permissions
 - Check available disk space
 - Verify file system permissions
@@ -233,6 +239,7 @@ Error: Cannot write to ./data directory
 **Problem**: High memory usage or slow responses
 
 **Solutions**:
+
 - Monitor event processing logs for bottlenecks
 - Check LiveStore database size in `./data`
 - Consider scaling to more powerful hardware
@@ -241,13 +248,15 @@ Error: Cannot write to ./data directory
 ### Debugging
 
 Enable verbose logging:
+
 ```bash
 NODE_ENV=development pnpm dev
 ```
 
 Check server logs for:
+
 - WebSocket connection status
-- Event processing activity  
+- Event processing activity
 - AI assistant interactions
 - Error messages and stack traces
 
@@ -256,14 +265,16 @@ Check server logs for:
 ### Health Endpoints
 
 #### GET /health
+
 Returns server health status and configuration.
 
 **Response**:
+
 ```json
 {
   "status": "healthy",
   "storeId": "workspace-id",
-  "timestamp": "2025-01-15T10:30:00.000Z", 
+  "timestamp": "2025-01-15T10:30:00.000Z",
   "uptime": 3600,
   "storage": "filesystem",
   "dataPath": "./data"
@@ -271,6 +282,7 @@ Returns server health status and configuration.
 ```
 
 #### GET /
+
 Returns HTML status page for browser viewing.
 
 ## Contributing
