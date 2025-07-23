@@ -12,6 +12,9 @@ export const adapter = makeAdapter({
     backend: makeCfSync({ url: SYNC_URL }),
     onSyncError: 'shutdown', // Shutdown on sync errors
   },
+  devtools: {
+    schemaPath: '../shared/src/livestore/schema.ts',
+  },
 })
 
 // Export for use in index.ts
