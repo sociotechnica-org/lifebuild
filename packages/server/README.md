@@ -45,7 +45,7 @@ pnpm install
 cp .env.example .env
 
 # Edit configuration
-nano .env
+vim .env
 ```
 
 ## Configuration
@@ -168,31 +168,7 @@ See [Multi-Store Server Support Plan](../../docs/plans/007-multiplayer/multi-sto
 
 ## Deployment
 
-### Render.com (Recommended)
-
-1. Create new Web Service on Render.com
-2. Connect your GitHub repository
-3. Configure build and start commands:
-   - **Build Command**: `pnpm install && pnpm --filter @work-squared/server build`
-   - **Start Command**: `pnpm --filter @work-squared/server start`
-4. Set environment variables in Render dashboard
-5. Deploy and monitor health endpoint
-
-### Docker
-
-```dockerfile
-FROM node:20-alpine
-
-WORKDIR /app
-COPY package*.json ./
-RUN pnpm install --production
-
-COPY packages/server/dist ./dist
-COPY packages/shared/dist ./shared
-
-EXPOSE 3003
-CMD ["node", "dist/index.js"]
-```
+Coming soon.
 
 ### Environment Setup
 
@@ -203,47 +179,6 @@ For production deployments:
 3. **Set LIVESTORE_SYNC_URL**: Point to your Cloudflare Worker
 4. **Ensure data persistence**: Mount `./data` directory
 5. **Configure health checks**: Monitor `/health` endpoint
-
-## Troubleshooting
-
-### Connection Issues
-
-**Problem**: Server can't connect to Cloudflare Worker
-
-```
-Error: WebSocket connection failed
-```
-
-**Solutions**:
-
-- Verify `LIVESTORE_SYNC_URL` is correct
-- Ensure Cloudflare Worker is running
-- Check network connectivity and firewalls
-
-### Data Issues
-
-**Problem**: Events not persisting
-
-```
-Error: Cannot write to ./data directory
-```
-
-**Solutions**:
-
-- Ensure `./data` directory exists and has write permissions
-- Check available disk space
-- Verify file system permissions
-
-### Performance Issues
-
-**Problem**: High memory usage or slow responses
-
-**Solutions**:
-
-- Monitor event processing logs for bottlenecks
-- Check LiveStore database size in `./data`
-- Consider scaling to more powerful hardware
-- Review AI processing frequency and complexity
 
 ### Debugging
 
@@ -284,14 +219,6 @@ Returns server health status and configuration.
 #### GET /
 
 Returns HTML status page for browser viewing.
-
-## Contributing
-
-1. Follow existing code patterns and LiveStore integration
-2. Add tests for new functionality
-3. Update documentation for configuration changes
-4. Test with multiple workspace scenarios
-5. Ensure graceful error handling and logging
 
 ## Related Documentation
 
