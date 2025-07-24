@@ -11,7 +11,8 @@
     "test:ci": "vitest run",
     "lint": "echo 'No lint configured'",
     "lint:fix": "echo 'No lint configured'",
-    "format": "echo 'No format configured'"
+    "format": "echo 'No format configured'",
+    "lint-all": "pnpm test:ci && pnpm lint:fix && pnpm typecheck && pnpm format"
   },
   "dependencies": {
     "@work-squared/shared": "workspace:*"
