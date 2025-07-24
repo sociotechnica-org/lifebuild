@@ -78,23 +78,31 @@ NODE_ENV=development
 ## Development
 
 ```bash
-# Start development server with auto-reload
-pnpm dev
+# Development
+pnpm dev                # Start development server with auto-reload
+pnpm build              # Build for production
+pnpm start              # Start production server
 
-# Build for production
-pnpm build
+# Quality Checks
+pnpm lint-all           # Run all quality checks (lint + format + typecheck)
+pnpm typecheck          # TypeScript type checking
+pnpm lint               # Run ESLint
+pnpm lint:fix           # Auto-fix linting issues
+pnpm format             # Format code with Prettier
+pnpm format:check       # Check code formatting
+```
 
-# Start production server
-pnpm start
+### Script Standards
 
-# Type checking
-pnpm typecheck
+This package follows the monorepo script conventions. All scripts are available in the root via:
 
-# Linting
-pnpm lint
+```bash
+# Run from monorepo root
+pnpm --filter @work-squared/server <script>
 
-# Code formatting
-pnpm format
+# Examples
+pnpm --filter @work-squared/server dev
+pnpm --filter @work-squared/server lint-all
 ```
 
 ## Usage

@@ -7,12 +7,12 @@
     "build": "tsc && pnpm build:resolve-paths",
     "build:resolve-paths": "echo 'Build path resolution skipped - using workspace references'",
     "start": "node dist/index.js",
-    "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck",
-    "typecheck": "tsc --noEmit",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "format": "prettier --write src",
-    "format:check": "prettier --check src"
+    "format:check": "prettier --check src",
+    "typecheck": "tsc --noEmit",
+    "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck"
   },
   "dependencies": {
     "@work-squared/shared": "workspace:*",
