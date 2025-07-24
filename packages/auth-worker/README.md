@@ -79,14 +79,47 @@ The service will be available at `http://localhost:8788`.
 
 ### Testing
 ```bash
-# Run all tests
-pnpm test
+# Unit tests
+pnpm test                    # Run unit tests once
+pnpm test:watch              # Run unit tests in watch mode
 
-# Run tests in CI mode
-pnpm test:ci
+# Integration tests  
+pnpm test:integration        # Run end-to-end auth service tests
 
-# Type check
-pnpm typecheck
+# Quality checks
+pnpm lint-all               # Run all quality checks
+pnpm typecheck              # TypeScript type checking
+```
+
+#### Integration Testing
+
+The auth service includes comprehensive integration tests that validate all Milestone 1 features:
+
+**Features Tested:**
+- ✅ Service health check
+- ✅ User signup with validation
+- ✅ Email uniqueness enforcement
+- ✅ User login and authentication
+- ✅ Invalid credentials rejection
+- ✅ JWT token refresh with rotation
+- ✅ User logout
+- ✅ Password strength validation
+- ✅ Email format validation
+- ✅ Invalid token rejection
+- ✅ CORS headers configuration
+- ✅ Response time performance
+
+**Running Integration Tests:**
+
+```bash
+# Make sure auth service is running
+pnpm dev
+
+# Run integration tests (in another terminal)
+pnpm test:integration
+
+# Or test against a different URL
+AUTH_SERVICE_URL=https://your-auth-service.com pnpm test:integration
 ```
 
 ### Deployment

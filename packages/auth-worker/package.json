@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:integration": "tsx scripts/integration-test.ts",
     "lint": "echo 'No lint configured'",
     "lint:fix": "echo 'No lint configured'",
     "format": "echo 'No format configured'",
@@ -22,6 +23,7 @@
     "@types/node": "^24.0.3",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4",
-    "miniflare": "^3.20250110.3"
+    "miniflare": "^3.20250110.3",
+    "tsx": "^4.20.1"
   }
 }

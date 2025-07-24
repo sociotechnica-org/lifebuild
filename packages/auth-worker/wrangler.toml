@@ -9,9 +9,6 @@ ENVIRONMENT = "development"
 name = "USER_STORE"
 class_name = "UserStore"
 
-[durable_objects.bindings.script_name]
-# Allows the same script to define and use the Durable Object
-
 [[migrations]]
 tag = "v1"
 new_classes = ["UserStore"]
