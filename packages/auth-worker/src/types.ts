@@ -17,6 +17,7 @@ export interface Instance {
 export interface JWTPayload {
   userId: string
   email: string
+  jti?: string  // JWT ID for uniqueness
   iat: number
   exp: number
   iss: string

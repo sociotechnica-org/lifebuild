@@ -8,6 +8,7 @@ ENVIRONMENT = "development"
 [[durable_objects.bindings]]
 name = "USER_STORE"
 class_name = "UserStore"
+script_name = "work-squared-auth"
 
 [[migrations]]
 tag = "v1"

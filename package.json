@@ -15,6 +15,7 @@
     "test:e2e": "pnpm --filter @work-squared/web test:e2e",
     "test:e2e:ui": "pnpm --filter @work-squared/web test:e2e:ui",
     "test:e2e:debug": "pnpm --filter @work-squared/web test:e2e:debug",
+    "test:integration:auth": "pnpm --filter @work-squared/auth-worker test:integration",
     "lint": "pnpm -r --if-present lint",
     "lint:fix": "pnpm -r --if-present lint:fix",
     "format": "pnpm -r --if-present format",

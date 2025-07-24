@@ -206,7 +206,7 @@ export async function handleRefresh(request: Request, env: Env): Promise<Respons
     // Generate new access token
     const accessToken = await createAccessToken(user.id, user.email, env)
     
-    // Optionally rotate refresh token (recommended for high security)
+    // Always rotate refresh token (recommended for high security)
     const newRefreshToken = await createRefreshToken(user.id, env)
 
     return createSuccessResponse({
@@ -221,6 +221,10 @@ export async function handleRefresh(request: Request, env: Env): Promise<Respons
 
   } catch (error) {
     console.error('Refresh error:', error)
+    // Don't catch token verification errors - let them bubble up as INVALID_TOKEN
+    if (error instanceof Error && error.message.includes('token')) {
+      return createErrorResponse(ErrorCode.INVALID_TOKEN, 'Invalid refresh token')
+    }
     return createErrorResponse(ErrorCode.INTERNAL_ERROR, 'Internal server error')
   }
 }

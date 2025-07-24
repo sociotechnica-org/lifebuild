@@ -83,9 +83,9 @@ export default {
       return handleOptions()
     }
 
-    // Rate limiting for auth endpoints
+    // Rate limiting for auth endpoints (skip in development)
     const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown'
-    if (!checkRateLimit(clientIP)) {
+    if (env.ENVIRONMENT !== 'development' && !checkRateLimit(clientIP)) {
       return createErrorResponse('Too many requests', 429)
     }
 

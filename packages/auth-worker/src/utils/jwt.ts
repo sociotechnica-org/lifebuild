@@ -57,6 +57,7 @@ function generateTokenId(): string {
  */
 export async function createAccessToken(userId: string, email: string, env: Env): Promise<string> {
   const now = Math.floor(Date.now() / 1000)
+  const jti = generateTokenId() // Add unique token ID
   
   const header = {
     alg: ALGORITHM,
@@ -66,6 +67,7 @@ export async function createAccessToken(userId: string, email: string, env: Env)
   const payload: JWTPayload = {
     userId,
     email,
+    jti, // Add unique token ID to ensure uniqueness
     iat: now,
     exp: now + ACCESS_TOKEN_EXPIRES_IN,
     iss: ISSUER

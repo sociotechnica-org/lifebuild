@@ -12,10 +12,12 @@
  */
 
 import { performance } from 'perf_hooks'
+import { spawn, ChildProcess } from 'child_process'
 
 // Test configuration
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:8788'
 const TEST_TIMEOUT = 30000 // 30 seconds
+const AUTO_START_SERVER = process.env.AUTO_START_SERVER !== 'false' // Default to true
 
 interface TestResult {
   name: string
@@ -31,6 +33,66 @@ class AuthIntegrationTester {
     email: `test-${Date.now()}@example.com`,
     password: 'SecureTestPass123!'
   }
+  private serverProcess: ChildProcess | null = null
+
+  /**
+   * Start the development server
+   */
+  private async startServer(): Promise<boolean> {
+    return new Promise((resolve) => {
+      console.log('🔧 Starting auth service...')
+      
+      this.serverProcess = spawn('pnpm', ['dev'], {
+        cwd: process.cwd(),
+        stdio: ['ignore', 'pipe', 'pipe']
+      })
+      
+      let serverReady = false
+      const timeout = setTimeout(() => {
+        if (!serverReady) {
+          console.error('❌ Server failed to start within 30 seconds')
+          resolve(false)
+        }
+      }, 30000)
+      
+      this.serverProcess.stdout?.on('data', (data) => {
+        const output = data.toString()
+        if (output.includes('Ready on http://localhost:8788') && !serverReady) {
+          serverReady = true
+          clearTimeout(timeout)
+          console.log('✅ Auth service started successfully')
+          setTimeout(() => resolve(true), 1000) // Give it a moment to be fully ready
+        }
+      })
+      
+      this.serverProcess.stderr?.on('data', (data) => {
+        const output = data.toString()
+        if (output.includes('Address already in use')) {
+          console.log('ℹ️  Server already running on port 8788')
+          serverReady = true
+          clearTimeout(timeout)
+          resolve(true)
+        }
+      })
+      
+      this.serverProcess.on('error', (error) => {
+        console.error('❌ Failed to start server:', error.message)
+        clearTimeout(timeout)
+        resolve(false)
+      })
+    })
+  }
+  
+  /**
+   * Stop the development server
+   */
+  private stopServer(): void {
+    if (this.serverProcess && !this.serverProcess.killed) {
+      console.log('🛑 Stopping auth service...')
+      this.serverProcess.kill('SIGTERM')
+      this.serverProcess = null
+    }
+  }
 
   /**
    * Run all integration tests
@@ -41,11 +103,26 @@ class AuthIntegrationTester {
     console.log(`📧 Test user: ${this.testUser.email}`)
     console.log('')
 
+    // Auto-start server if needed
+    if (AUTO_START_SERVER) {
+      const started = await this.startServer()
+      if (!started) {
+        console.error('❌ Failed to start auth service automatically')
+        return false
+      }
+    }
+
     // Check if service is running
     const healthCheck = await this.runTest('Health Check', () => this.testHealth())
     if (!healthCheck.success) {
-      console.error('❌ Auth service is not accessible. Make sure it\'s running:')
-      console.error('   pnpm dev:auth')
+      if (AUTO_START_SERVER) {
+        this.stopServer()
+      }
+      console.error('❌ Auth service is not accessible')
+      if (!AUTO_START_SERVER) {
+        console.error('   Make sure it\'s running: pnpm dev')
+        console.error('   Or set AUTO_START_SERVER=true to start automatically')
+      }
       return false
     }
 
@@ -67,6 +144,12 @@ class AuthIntegrationTester {
     await this.runTest('Response Time Check', () => this.testResponseTime())
 
     this.printSummary()
+    
+    // Cleanup server if we started it
+    if (AUTO_START_SERVER) {
+      this.stopServer()
+    }
+    
     return this.results.every(r => r.success)
   }
 
@@ -471,12 +554,24 @@ class AuthIntegrationTester {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const tester = new AuthIntegrationTester()
   
+  // Handle graceful shutdown
+  process.on('SIGINT', () => {
+    console.log('\n🛑 Shutting down...')
+    if ((tester as any).serverProcess) {
+      (tester as any).stopServer()
+    }
+    process.exit(0)
+  })
+  
   tester.runAllTests()
     .then(success => {
       process.exit(success ? 0 : 1)
     })
     .catch(error => {
       console.error('💥 Test runner error:', error)
+      if ((tester as any).serverProcess) {
+        (tester as any).stopServer()
+      }
       process.exit(1)
     })
 }

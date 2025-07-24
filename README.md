@@ -115,10 +115,11 @@ pnpm lint:fix         # Auto-fix linting issues
 pnpm format           # Format code
 
 # Testing
-pnpm test             # Run unit tests (web + auth)
-pnpm test:watch       # Run tests in watch mode
-pnpm test:e2e         # Run E2E tests
-pnpm test:e2e:ui      # Run E2E tests with UI
+pnpm test                  # Run unit tests (web + auth)
+pnpm test:watch            # Run tests in watch mode
+pnpm test:e2e              # Run E2E tests
+pnpm test:e2e:ui           # Run E2E tests with UI
+pnpm test:integration:auth # Run auth service integration tests
 
 # Building & Deployment
 pnpm build            # Build all packages
