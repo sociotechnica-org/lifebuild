@@ -7,12 +7,12 @@
     "dev": "wrangler dev --port 8788",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
-    "test": "vitest",
-    "test:ci": "vitest run",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "echo 'No lint configured'",
     "lint:fix": "echo 'No lint configured'",
     "format": "echo 'No format configured'",
-    "lint-all": "pnpm test:ci && pnpm lint:fix && pnpm typecheck && pnpm format"
+    "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck"
   },
   "dependencies": {
     "@work-squared/shared": "workspace:*"
