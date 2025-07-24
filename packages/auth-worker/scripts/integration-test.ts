@@ -36,6 +36,61 @@ class AuthIntegrationTester {
   private serverProcess: ChildProcess | null = null
 
   /**
+   * Make a POST request to the auth service
+   */
+  private async makeAuthRequest(endpoint: string, body: any): Promise<Response> {
+    return await fetch(`${AUTH_SERVICE_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+  }
+
+  /**
+   * Make a GET request to the auth service
+   */
+  private async makeGetRequest(endpoint: string): Promise<Response> {
+    return await fetch(`${AUTH_SERVICE_URL}${endpoint}`)
+  }
+
+  /**
+   * Validate successful response and return data
+   */
+  private async validateSuccessResponse(response: Response, operation: string): Promise<any> {
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`${operation} failed: ${response.status} - ${error}`)
+    }
+
+    const data = await response.json()
+    
+    if (!data.success) {
+      throw new Error(`${operation} failed: ${data.error?.message}`)
+    }
+    
+    return data
+  }
+
+  /**
+   * Validate error response with expected status and error code
+   */
+  private async validateErrorResponse(response: Response, expectedStatus: number, expectedErrorCode: string, operation: string): Promise<void> {
+    if (response.ok) {
+      throw new Error(`${operation} should have been rejected`)
+    }
+
+    if (response.status !== expectedStatus) {
+      throw new Error(`Expected ${expectedStatus} status, got ${response.status}`)
+    }
+
+    const data = await response.json()
+    
+    if (data.error?.code !== expectedErrorCode) {
+      throw new Error(`Expected ${expectedErrorCode} error, got ${data.error?.code}`)
+    }
+  }
+
+  /**
    * Start the development server
    */
   private async startServer(): Promise<boolean> {
@@ -157,7 +212,7 @@ class AuthIntegrationTester {
    * Test the health endpoint
    */
   private async testHealth(): Promise<void> {
-    const response = await fetch(`${AUTH_SERVICE_URL}/health`)
+    const response = await this.makeGetRequest('/health')
     
     if (!response.ok) {
       throw new Error(`Health check failed: ${response.status}`)
@@ -176,22 +231,8 @@ class AuthIntegrationTester {
    * Test user signup
    */
   private async testSignup(): Promise<any> {
-    const response = await fetch(`${AUTH_SERVICE_URL}/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(this.testUser)
-    })
-
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`Signup failed: ${response.status} - ${error}`)
-    }
-
-    const data = await response.json()
-
-    if (!data.success) {
-      throw new Error(`Signup failed: ${data.error?.message}`)
-    }
+    const response = await this.makeAuthRequest('/signup', this.testUser)
+    const data = await this.validateSuccessResponse(response, 'Signup')
 
     // Validate response structure
     if (!data.user || !data.accessToken || !data.refreshToken) {
@@ -217,47 +258,16 @@ class AuthIntegrationTester {
    * Test duplicate email rejection
    */
   private async testDuplicateSignup(): Promise<void> {
-    const response = await fetch(`${AUTH_SERVICE_URL}/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(this.testUser)
-    })
-
-    if (response.ok) {
-      throw new Error('Duplicate signup should have been rejected')
-    }
-
-    if (response.status !== 400) {
-      throw new Error(`Expected 400 status, got ${response.status}`)
-    }
-
-    const data = await response.json()
-    
-    if (data.error?.code !== 'EMAIL_ALREADY_EXISTS') {
-      throw new Error(`Expected EMAIL_ALREADY_EXISTS error, got ${data.error?.code}`)
-    }
+    const response = await this.makeAuthRequest('/signup', this.testUser)
+    await this.validateErrorResponse(response, 400, 'EMAIL_ALREADY_EXISTS', 'Duplicate signup')
   }
 
   /**
    * Test user login
    */
   private async testLogin(): Promise<any> {
-    const response = await fetch(`${AUTH_SERVICE_URL}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(this.testUser)
-    })
-
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`Login failed: ${response.status} - ${error}`)
-    }
-
-    const data = await response.json()
-
-    if (!data.success) {
-      throw new Error(`Login failed: ${data.error?.message}`)
-    }
+    const response = await this.makeAuthRequest('/login', this.testUser)
+    const data = await this.validateSuccessResponse(response, 'Login')
 
     // Validate response structure
     if (!data.user || !data.accessToken || !data.refreshToken) {
@@ -275,28 +285,12 @@ class AuthIntegrationTester {
    * Test invalid credentials
    */
   private async testInvalidLogin(): Promise<void> {
-    const response = await fetch(`${AUTH_SERVICE_URL}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: this.testUser.email,
-        password: 'WrongPassword123!'
-      })
-    })
-
-    if (response.ok) {
-      throw new Error('Invalid login should have been rejected')
+    const invalidCredentials = {
+      email: this.testUser.email,
+      password: 'WrongPassword123!'
     }
-
-    if (response.status !== 400) {
-      throw new Error(`Expected 400 status, got ${response.status}`)
-    }
-
-    const data = await response.json()
-    
-    if (data.error?.code !== 'INVALID_CREDENTIALS') {
-      throw new Error(`Expected INVALID_CREDENTIALS error, got ${data.error?.code}`)
-    }
+    const response = await this.makeAuthRequest('/login', invalidCredentials)
+    await this.validateErrorResponse(response, 400, 'INVALID_CREDENTIALS', 'Invalid login')
   }
 
   /**
@@ -306,24 +300,10 @@ class AuthIntegrationTester {
     // First login to get tokens
     const loginData = await this.testLogin()
     
-    const response = await fetch(`${AUTH_SERVICE_URL}/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        refreshToken: loginData.refreshToken
-      })
+    const response = await this.makeAuthRequest('/refresh', {
+      refreshToken: loginData.refreshToken
     })
-
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`Token refresh failed: ${response.status} - ${error}`)
-    }
-
-    const data = await response.json()
-
-    if (!data.success) {
-      throw new Error(`Token refresh failed: ${data.error?.message}`)
-    }
+    const data = await this.validateSuccessResponse(response, 'Token refresh')
 
     if (!data.accessToken || !data.refreshToken) {
       throw new Error('Refresh response missing tokens')
@@ -343,95 +323,44 @@ class AuthIntegrationTester {
    * Test logout
    */
   private async testLogout(): Promise<void> {
-    const response = await fetch(`${AUTH_SERVICE_URL}/logout`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        refreshToken: 'any-token'
-      })
+    const response = await this.makeAuthRequest('/logout', {
+      refreshToken: 'any-token'
     })
-
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`Logout failed: ${response.status} - ${error}`)
-    }
-
-    const data = await response.json()
-
-    if (!data.success) {
-      throw new Error(`Logout failed: ${data.error?.message}`)
-    }
+    await this.validateSuccessResponse(response, 'Logout')
   }
 
   /**
    * Test weak password rejection
    */
   private async testWeakPassword(): Promise<void> {
-    const response = await fetch(`${AUTH_SERVICE_URL}/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: `weak-${Date.now()}@example.com`,
-        password: 'weak'
-      })
-    })
-
-    if (response.ok) {
-      throw new Error('Weak password should have been rejected')
+    const weakUser = {
+      email: `weak-${Date.now()}@example.com`,
+      password: 'weak'
     }
-
-    const data = await response.json()
-    
-    if (data.error?.code !== 'WEAK_PASSWORD') {
-      throw new Error(`Expected WEAK_PASSWORD error, got ${data.error?.code}`)
-    }
+    const response = await this.makeAuthRequest('/signup', weakUser)
+    await this.validateErrorResponse(response, 400, 'WEAK_PASSWORD', 'Weak password signup')
   }
 
   /**
    * Test invalid email format
    */
   private async testInvalidEmail(): Promise<void> {
-    const response = await fetch(`${AUTH_SERVICE_URL}/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: 'invalid-email-format',
-        password: 'ValidPass123!'
-      })
-    })
-
-    if (response.ok) {
-      throw new Error('Invalid email should have been rejected')
+    const invalidEmailUser = {
+      email: 'invalid-email-format',
+      password: 'ValidPass123!'
     }
-
-    const data = await response.json()
-    
-    if (data.error?.code !== 'INVALID_REQUEST') {
-      throw new Error(`Expected INVALID_REQUEST error, got ${data.error?.code}`)
-    }
+    const response = await this.makeAuthRequest('/signup', invalidEmailUser)
+    await this.validateErrorResponse(response, 400, 'INVALID_REQUEST', 'Invalid email signup')
   }
 
   /**
    * Test invalid token rejection
    */
   private async testInvalidToken(): Promise<void> {
-    const response = await fetch(`${AUTH_SERVICE_URL}/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        refreshToken: 'invalid.jwt.token'
-      })
+    const response = await this.makeAuthRequest('/refresh', {
+      refreshToken: 'invalid.jwt.token'
     })
-
-    if (response.ok) {
-      throw new Error('Invalid token should have been rejected')
-    }
-
-    const data = await response.json()
-    
-    if (data.error?.code !== 'INVALID_TOKEN') {
-      throw new Error(`Expected INVALID_TOKEN error, got ${data.error?.code}`)
-    }
+    await this.validateErrorResponse(response, 400, 'INVALID_TOKEN', 'Invalid token refresh')
   }
 
   /**
@@ -469,7 +398,7 @@ class AuthIntegrationTester {
   private async testResponseTime(): Promise<number> {
     const start = performance.now()
     
-    await fetch(`${AUTH_SERVICE_URL}/health`)
+    await this.makeGetRequest('/health')
     
     const duration = performance.now() - start
     
