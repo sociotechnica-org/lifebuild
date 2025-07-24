@@ -189,6 +189,18 @@ const workerProjects = State.SQLite.table({
   },
 })
 
+const eventsLog = State.SQLite.table({
+  name: 'eventsLog',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    eventType: State.SQLite.text(),
+    eventData: State.SQLite.text(), // JSON string of the event data
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
 const uiState = State.SQLite.clientDocument({
   name: 'uiState',
   schema: Schema.Struct({
@@ -212,6 +224,7 @@ export type Document = State.SQLite.FromTable.RowDecoded<typeof documents>
 export type DocumentProject = State.SQLite.FromTable.RowDecoded<typeof documentProjects>
 export type Worker = State.SQLite.FromTable.RowDecoded<typeof workers>
 export type WorkerProject = State.SQLite.FromTable.RowDecoded<typeof workerProjects>
+export type EventsLog = State.SQLite.FromTable.RowDecoded<typeof eventsLog>
 export type UiState = typeof uiState.default.value
 
 export const events = {
@@ -232,13 +245,30 @@ export const tables = {
   documentProjects,
   workers,
   workerProjects,
+  eventsLog,
+}
+
+// Helper function to log events to the eventsLog table
+const logEvent = (eventType: string, eventData: any, timestamp?: Date) => {
+  const eventId = crypto.randomUUID()
+  const createdAt = timestamp || new Date()
+  return eventsLog.insert({
+    id: eventId,
+    eventType,
+    eventData: JSON.stringify(eventData),
+    createdAt,
+  })
 }
 
 const materializers = State.SQLite.materializers(events, {
-  'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) =>
+  'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) => [
     chatMessages.insert({ id, conversationId, message, role, createdAt }),
-  'v1.ProjectCreated': ({ id, name, description, createdAt }) =>
+    logEvent('v1.ChatMessageSent', { id, conversationId, message, role, createdAt }, createdAt),
+  ],
+  'v1.ProjectCreated': ({ id, name, description, createdAt }) => [
     boards.insert({ id, name, description, createdAt, updatedAt: createdAt }),
+    logEvent('v1.ProjectCreated', { id, name, description, createdAt }, createdAt),
+  ],
   'v1.ColumnCreated': ({ id, projectId, name, position, createdAt }) =>
     columns.insert({ id, projectId, name, position, createdAt, updatedAt: createdAt }),
   'v1.ColumnRenamed': ({ id, name, updatedAt }) =>
@@ -254,7 +284,7 @@ const materializers = State.SQLite.materializers(events, {
     assigneeIds,
     position,
     createdAt,
-  }) =>
+  }) => [
     tasks.insert({
       id,
       projectId,
@@ -266,6 +296,17 @@ const materializers = State.SQLite.materializers(events, {
       createdAt,
       updatedAt: createdAt,
     }),
+    logEvent('v1.TaskCreated', {
+      id,
+      projectId,
+      columnId,
+      title,
+      description,
+      assigneeIds,
+      position,
+      createdAt,
+    }, createdAt),
+  ],
   'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt }) =>
     tasks.update({ columnId: toColumnId, position, updatedAt }).where({ id: taskId }),
   'v1.TaskMovedToProject': ({ taskId, toProjectId, toColumnId, position, updatedAt }) =>
@@ -281,8 +322,10 @@ const materializers = State.SQLite.materializers(events, {
   },
   'v1.UserCreated': ({ id, name, avatarUrl, createdAt }) =>
     users.insert({ id, name, avatarUrl, createdAt }),
-  'v1.ConversationCreated': ({ id, title, model, workerId, createdAt }) =>
+  'v1.ConversationCreated': ({ id, title, model, workerId, createdAt }) => [
     conversations.insert({ id, title, model, workerId, createdAt, updatedAt: createdAt }),
+    logEvent('v1.ConversationCreated', { id, title, model, workerId, createdAt }, createdAt),
+  ],
   'v1.ConversationModelUpdated': ({ id, model, updatedAt }) =>
     conversations.update({ model, updatedAt }).where({ id }),
   'v1.LLMResponseReceived': ({
@@ -310,8 +353,10 @@ const materializers = State.SQLite.materializers(events, {
     comments.insert({ id, taskId, authorId, content, createdAt }),
   'v1.TaskArchived': ({ taskId, archivedAt }) => tasks.update({ archivedAt }).where({ id: taskId }),
   'v1.TaskUnarchived': ({ taskId }) => tasks.update({ archivedAt: null }).where({ id: taskId }),
-  'v1.DocumentCreated': ({ id, title, content, createdAt }) =>
+  'v1.DocumentCreated': ({ id, title, content, createdAt }) => [
     documents.insert({ id, title, content, createdAt, updatedAt: createdAt, archivedAt: null }),
+    logEvent('v1.DocumentCreated', { id, title, content, createdAt }, createdAt),
+  ],
   'v1.DocumentUpdated': ({ id, updates, updatedAt }) => {
     const updateData: Record<string, any> = { updatedAt }
     if (updates.title !== undefined) updateData.title = updates.title

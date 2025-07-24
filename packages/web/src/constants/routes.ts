@@ -8,6 +8,7 @@ export const ROUTES = {
   TASKS: '/tasks',
   TEAM: '/team',
   DOCUMENTS: '/documents',
+  HISTORY: '/history',
   DOCUMENT: '/document/:documentId',
   PROJECT: '/project/:projectId',
 } as const
