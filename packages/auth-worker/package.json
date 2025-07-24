@@ -1,0 +1,26 @@
+{
+  "name": "@work-squared/auth-worker",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev --port 8788",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:ci": "vitest run",
+    "lint": "echo 'No lint configured'",
+    "lint:fix": "echo 'No lint configured'",
+    "format": "echo 'No format configured'"
+  },
+  "dependencies": {
+    "@work-squared/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0",
+    "@types/node": "^24.0.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4",
+    "miniflare": "^3.20250110.3"
+  }
+}

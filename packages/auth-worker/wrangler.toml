@@ -1,0 +1,17 @@
+name = "work-squared-auth"
+compatibility_date = "2024-05-12"
+main = "./src/index.ts"
+
+[vars]
+ENVIRONMENT = "development"
+
+[[durable_objects.bindings]]
+name = "USER_STORE"
+class_name = "UserStore"
+
+[durable_objects.bindings.script_name]
+# Allows the same script to define and use the Durable Object
+
+[[migrations]]
+tag = "v1"
+new_classes = ["UserStore"]
