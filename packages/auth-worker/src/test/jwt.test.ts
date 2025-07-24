@@ -74,7 +74,15 @@ describe('JWT utilities', () => {
 
     it('should reject invalid tokens', async () => {
       const invalidToken = 'invalid.token.signature'
+      
+      // Suppress console errors for this test since we expect the error
+      const originalConsoleError = console.error
+      console.error = () => {}
+      
       const payload = await verifyToken(invalidToken, mockEnv)
+      
+      // Restore console.error
+      console.error = originalConsoleError
       
       expect(payload).toBeNull()
     })
