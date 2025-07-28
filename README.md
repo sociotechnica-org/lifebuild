@@ -7,7 +7,9 @@ Work Squared is an AI-enabled work environment featuring real-time collaborative
 This project is organized as a pnpm workspace with the following packages:
 
 - **[`packages/web`](./packages/web/README.md)** - React frontend application
-- **[`packages/worker`](./packages/worker/README.md)** - Cloudflare Worker backend 
+- **[`packages/worker`](./packages/worker/README.md)** - Cloudflare Worker backend for WebSocket sync
+- **[`packages/server`](./packages/server/README.md)** - Node.js server for LLM processing 
+- **[`packages/auth-worker`](./packages/auth-worker/README.md)** - JWT authentication service
 - **[`packages/shared`](./packages/shared/README.md)** - Shared schemas and utilities
 
 ## Quick Start
@@ -99,47 +101,75 @@ pnpm --filter @work-squared/worker deploy
 ### Workspace Commands (run from root)
 
 ```bash
-# Run development server (Vite + Wrangler) 
-pnpm dev
+# Development
+pnpm dev              # Start all services (web + worker + server)
+pnpm dev:web          # Start only frontend
+pnpm dev:worker       # Start only sync worker
+pnpm dev:server       # Start only Node.js server
+pnpm dev:auth         # Start only auth service
 
-# Run development server on custom port
-PORT=3000 VITE_LIVESTORE_SYNC_URL='http://localhost:8787' pnpm dev
+# Quality Checks (all packages)
+pnpm lint-all         # Run linting, formatting, and type checking
+pnpm typecheck        # Type check all packages
+pnpm lint:fix         # Auto-fix linting issues
+pnpm format           # Format code
 
-# Run all linting and formatting checks
-pnpm lint-all
+# Testing
+pnpm test                  # Run unit tests (web + auth)
+pnpm test:watch            # Run tests in watch mode
+pnpm test:e2e              # Run E2E tests
+pnpm test:e2e:ui           # Run E2E tests with UI
+pnpm test:integration:auth # Run auth service integration tests
 
-# Run tests across all packages
-pnpm test
-
-# Run E2E tests  
-pnpm test:e2e
-CI=true pnpm test:e2e  # For verification
-
-# Deploy to Cloudflare
-pnpm --filter @work-squared/worker deploy
+# Building & Deployment
+pnpm build            # Build all packages
+pnpm deploy:worker    # Deploy sync worker to Cloudflare
+pnpm deploy:auth      # Deploy auth service to Cloudflare
 ```
 
 ### Package-specific Commands
 
+All packages support a consistent set of scripts where applicable:
+
 ```bash
-# Web package (frontend)
-pnpm --filter @work-squared/web dev        # Start Vite dev server
-pnpm --filter @work-squared/web build      # Build for production
-pnpm --filter @work-squared/web test       # Run unit tests
-pnpm --filter @work-squared/web storybook  # Start Storybook (port 6010)
+# Quality checks (available in packages with source code)
+pnpm --filter <package> lint-all    # Complete quality check
+pnpm --filter <package> typecheck   # TypeScript type checking
+pnpm --filter <package> lint        # Run linter
+pnpm --filter <package> lint:fix    # Auto-fix linting issues
+pnpm --filter <package> format      # Format code
 
-# Worker package (backend) 
-pnpm --filter @work-squared/worker dev      # Start Wrangler dev server
-pnpm --filter @work-squared/worker deploy  # Deploy to Cloudflare
+# Testing (available in packages with tests)  
+pnpm --filter <package> test        # Run tests once
+pnpm --filter <package> test:watch  # Run tests in watch mode
 
-# Shared package
-pnpm --filter @work-squared/shared typecheck  # Type check schemas
+# Development
+pnpm --filter <package> dev         # Start development server
+pnpm --filter <package> build       # Build for production
 ```
+
+### Script Standards
+
+Each package follows consistent naming conventions:
+
+| Script | Purpose | Available In |
+|--------|---------|--------------|
+| `dev` | Development server | web, worker, server, auth-worker |
+| `build` | Production build | web, server |
+| `test` | Run tests once | web, auth-worker |
+| `test:watch` | Watch mode tests | web, auth-worker |
+| `lint-all` | All quality checks | All packages |
+| `typecheck` | TypeScript checking | All packages |
+| `lint` | Linting only | web, server |
+| `lint:fix` | Auto-fix linting | web, server |
+| `format` | Code formatting | web, server |
 
 ## Ports
 
 - **Vite dev server**: 60001 (default), configurable via `PORT` environment variable
-- **Wrangler dev server**: 8787
+- **Cloudflare Worker**: 8787 (WebSocket sync server)
+- **Auth Worker**: 8788 (JWT authentication service)
+- **Node.js Server**: 3001 (LLM processing server)
 - **Storybook**: 6010 (configured to avoid conflicts with other Storybook instances)
 
 ## Testing
@@ -182,5 +212,7 @@ Work Squared is built with a modern monorepo architecture featuring real-time co
 
 ### Package Structure
 - **[`packages/web`](./packages/web/README.md)** - React frontend application
-- **[`packages/worker`](./packages/worker/README.md)** - Cloudflare Worker backend 
+- **[`packages/worker`](./packages/worker/README.md)** - Cloudflare Worker for WebSocket sync
+- **[`packages/server`](./packages/server/README.md)** - Node.js server for LLM processing
+- **[`packages/auth-worker`](./packages/auth-worker/README.md)** - JWT authentication service
 - **[`packages/shared`](./packages/shared/README.md)** - Shared schemas and utilities

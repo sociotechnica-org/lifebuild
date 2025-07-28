@@ -11,12 +11,17 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
     "storybook": "storybook dev -p 6010",
     "build-storybook": "storybook build",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

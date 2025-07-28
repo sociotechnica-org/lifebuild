@@ -155,6 +155,9 @@ console.log('Hello from code block!');
       return
     }
 
+    // Wait for the projects page to load fully
+    await page.waitForSelector('h1', { timeout: 10000 })
+
     // First create a project
     const createProjectButton = page.locator('button:has-text("Create Project")')
     await expect(createProjectButton.first()).toBeVisible()
