@@ -16,6 +16,9 @@ test.describe('Project Creation and Task Management', () => {
     // Should be on root page (which shows projects interface)
     await expect(page).toHaveURL(/\/\?storeId=[^&]+/)
 
+    // Wait for the projects page to load fully
+    await page.waitForSelector('h1', { timeout: 10000 })
+
     // Verify we're on the projects page with the "Create Project" button
     await expect(page.locator('h1')).toContainText('Projects')
 

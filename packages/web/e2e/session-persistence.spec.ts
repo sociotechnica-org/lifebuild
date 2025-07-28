@@ -7,6 +7,9 @@ test.describe('Session Persistence', () => {
     await page.goto('/')
     await waitForLiveStoreReady(page)
 
+    // Wait for redirect to happen and add storeId to URL
+    await page.waitForURL(/\?storeId=[a-f0-9-]+$/, { timeout: 10000 })
+
     // Should have storeId query parameter
     await expect(page).toHaveURL(/\?storeId=[a-f0-9-]+$/)
 
