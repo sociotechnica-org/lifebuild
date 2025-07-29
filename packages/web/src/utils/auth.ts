@@ -211,3 +211,10 @@ export async function getCurrentAccessToken(): Promise<string | null> {
   // For now, return the stored token and let the server handle validation
   return tokens.accessToken
 }
+
+/**
+ * Get current user info (for event metadata)
+ */
+export function getCurrentUser(): AuthUser | null {
+  return getStoredUser()
+}

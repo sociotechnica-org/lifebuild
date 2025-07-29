@@ -5,21 +5,14 @@ export class WebSocketServer extends makeDurableObject({
   onPush: async function (message) {
     console.log('Sync server: relaying', message.batch.length, 'events')
 
-    // TODO: Implement proper metadata injection
-    // For now, skip metadata injection until we understand LiveStore context
-    // const userId = message.payload?._userId
-    if (false) {
-      for (const event of message.batch) {
-        // Add metadata to event if not already present
-        if (!event.args.metadata) {
-          // TODO: Implement metadata injection
-          console.log(`Would inject metadata for event: ${event.name}`)
-        }
-      }
-    } else {
-      // Log events without metadata
-      for (const event of message.batch) {
-        console.log(`Syncing event without auth: ${event.name}`)
+    // LiveStore doesn't provide connection context in onPush
+    // Events should already have metadata from the client
+    // We'll validate metadata exists and log for monitoring
+    for (const event of message.batch) {
+      if (!event.args.metadata) {
+        console.warn(`Event ${event.name} missing metadata - this should not happen in production`)
+      } else {
+        console.log(`Syncing event ${event.name} from user ${event.args.metadata.userId}`)
       }
     }
   },
@@ -87,11 +80,19 @@ async function validateSyncPayload(payload: any, env: any): Promise<{ userId: st
 
 // Create worker instance once at module level for efficiency  
 const worker = makeWorker({
-  validatePayload: async (payload: any) => {
-    // TODO: Implement proper auth validation
-    // For now, just validate that authToken exists if required
-    console.log('Validating payload:', Object.keys(payload))
-    // validatePayload should return void
+  validatePayload: async (payload: any, env: any) => {
+    // Validate the sync payload and authenticate the user
+    // This runs in the Worker context, not the Durable Object
+    // We can only accept/reject the connection here
+    try {
+      const authResult = await validateSyncPayload(payload, env)
+      console.log(`Authenticated user ${authResult.userId}${authResult.isGracePeriod ? ' (grace period)' : ''}`)
+      // Note: We cannot pass authResult to the Durable Object
+      // Events must include metadata from the client side
+    } catch (error) {
+      console.error('Auth validation failed:', error)
+      throw error // This will reject the WebSocket connection
+    }
   },
   enableCORS: true,
 })
