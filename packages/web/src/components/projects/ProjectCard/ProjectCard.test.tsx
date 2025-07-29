@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ProjectCard } from './ProjectCard.js'
 
@@ -31,20 +31,26 @@ describe('ProjectCard', () => {
     vi.clearAllMocks()
   })
 
-  it('should render project name', () => {
-    render(<ProjectCard project={mockProject} />)
+  it('should render project name', async () => {
+    await act(async () => {
+      render(<ProjectCard project={mockProject} />)
+    })
     expect(screen.getByText('Test Project')).toBeInTheDocument()
   })
 
-  it('should render creation and update information', () => {
-    render(<ProjectCard project={mockProject} />)
+  it('should render creation and update information', async () => {
+    await act(async () => {
+      render(<ProjectCard project={mockProject} />)
+    })
     expect(screen.getByText(/Created:/)).toBeInTheDocument()
     expect(screen.getByText(/Updated:/)).toBeInTheDocument()
   })
 
-  it('should call onClick when clicked', () => {
+  it('should call onClick when clicked', async () => {
     const onClick = vi.fn()
-    render(<ProjectCard project={mockProject} onClick={onClick} />)
+    await act(async () => {
+      render(<ProjectCard project={mockProject} onClick={onClick} />)
+    })
 
     const card = screen.getByText('Test Project').closest('div')
     card?.click()
@@ -52,7 +58,9 @@ describe('ProjectCard', () => {
     expect(onClick).toHaveBeenCalledOnce()
   })
 
-  it('should render without onClick handler', () => {
-    expect(() => render(<ProjectCard project={mockProject} />)).not.toThrow()
+  it('should render without onClick handler', async () => {
+    await act(async () => {
+      expect(() => render(<ProjectCard project={mockProject} />)).not.toThrow()
+    })
   })
 })

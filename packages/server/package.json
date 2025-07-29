@@ -15,21 +15,21 @@
     "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck"
   },
   "dependencies": {
+    "@livestore/adapter-node": "0.3.1",
+    "@livestore/livestore": "0.3.1",
+    "@livestore/sync-cf": "0.3.1",
     "@work-squared/shared": "workspace:*",
-    "@livestore/adapter-node": "0.3.0",
-    "@livestore/livestore": "0.3.0",
-    "@livestore/sync-cf": "0.3.0",
-    "dotenv": "^16.0.0"
+    "dotenv": "^17.2.1"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.34.0",
-    "@typescript-eslint/parser": "^8.34.0",
-    "eslint": "^9.28.0",
-    "eslint-plugin-prettier": "^5.4.1",
-    "prettier": "^3.4.2",
-    "tsx": "^4.0.0",
-    "typescript": "^5.0.0"
+    "@types/node": "^24.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "eslint": "^9.32.0",
+    "eslint-plugin-prettier": "^5.5.3",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">=20.0.0"

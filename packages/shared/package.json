@@ -21,8 +21,8 @@
     "./llm-tools/base": "./src/llm-tools/base.ts"
   },
   "dependencies": {
-    "@livestore/livestore": "0.3.0",
-    "@livestore/utils": "0.3.0"
+    "@livestore/livestore": "0.3.1",
+    "@livestore/utils": "0.3.1"
   },
   "devDependencies": {
     "typescript": "^5.8.3"
