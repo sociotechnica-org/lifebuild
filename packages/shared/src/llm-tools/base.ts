@@ -1,5 +1,14 @@
 import type { Store } from '@livestore/livestore'
 
+// ===== METADATA HELPERS =====
+
+// Default metadata for system-generated events (from LLM tools)
+const SYSTEM_USER_ID = 'system-llm'
+export const createSystemMetadata = () => ({
+  userId: SYSTEM_USER_ID,
+  timestamp: Date.now()
+})
+
 // ===== TYPE DEFINITIONS =====
 
 export interface LLMToolCall {

@@ -9,6 +9,12 @@ import { Events, Schema } from '@livestore/livestore'
  * It's recommended to version event definitions. Learn more: https://next.livestore.dev/docs/reference/events
  */
 
+// Shared metadata schema for all events
+const EventMetadataSchema = Schema.Struct({
+  userId: Schema.String,
+  timestamp: Schema.Number,
+})
+
 export const chatMessageSent = Events.synced({
   name: 'v1.ChatMessageSent',
   schema: Schema.Struct({
@@ -21,6 +27,7 @@ export const chatMessageSent = Events.synced({
       Schema.Literal('system')
     ),
     createdAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -31,6 +38,7 @@ export const projectCreated = Events.synced({
     name: Schema.String,
     description: Schema.optional(Schema.String), // Added description field
     createdAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -42,6 +50,7 @@ export const columnCreated = Events.synced({
     name: Schema.String,
     position: Schema.Number,
     createdAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -51,6 +60,7 @@ export const columnRenamed = Events.synced({
     id: Schema.String,
     name: Schema.String,
     updatedAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -60,6 +70,7 @@ export const columnReordered = Events.synced({
     id: Schema.String,
     position: Schema.Number,
     updatedAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -74,6 +85,7 @@ export const taskCreated = Events.synced({
     assigneeIds: Schema.Union(Schema.Array(Schema.String), Schema.Undefined),
     position: Schema.Number,
     createdAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -84,6 +96,7 @@ export const taskMoved = Events.synced({
     toColumnId: Schema.String,
     position: Schema.Number,
     updatedAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -95,6 +108,7 @@ export const taskMovedToProject = Events.synced({
     toColumnId: Schema.String,
     position: Schema.Number,
     updatedAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -106,6 +120,7 @@ export const taskUpdated = Events.synced({
     description: Schema.Union(Schema.String, Schema.Undefined),
     assigneeIds: Schema.Union(Schema.Array(Schema.String), Schema.Undefined),
     updatedAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -116,6 +131,7 @@ export const userCreated = Events.synced({
     name: Schema.String,
     avatarUrl: Schema.Union(Schema.String, Schema.Undefined),
     createdAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -127,6 +143,7 @@ export const conversationCreated = Events.synced({
     model: Schema.String,
     workerId: Schema.optional(Schema.String),
     createdAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -136,6 +153,7 @@ export const conversationModelUpdated = Events.synced({
     id: Schema.String,
     model: Schema.String,
     updatedAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -149,7 +167,8 @@ export const llmResponseReceived = Events.synced({
     modelId: Schema.String,
     responseToMessageId: Schema.String, // ID of the user message this is responding to
     createdAt: Schema.Date,
-    metadata: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
+    metadata: EventMetadataSchema,
+    llmMetadata: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
   }),
 })
 
@@ -159,6 +178,7 @@ export const llmResponseStarted = Events.synced({
     conversationId: Schema.String,
     userMessageId: Schema.String,
     createdAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -170,6 +190,7 @@ export const commentAdded = Events.synced({
     authorId: Schema.String,
     content: Schema.String,
     createdAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -178,6 +199,7 @@ export const taskArchived = Events.synced({
   schema: Schema.Struct({
     taskId: Schema.String,
     archivedAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -185,6 +207,7 @@ export const taskUnarchived = Events.synced({
   name: 'v1.TaskUnarchived',
   schema: Schema.Struct({
     taskId: Schema.String,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -195,6 +218,7 @@ export const documentCreated = Events.synced({
     title: Schema.String,
     content: Schema.String,
     createdAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -207,6 +231,7 @@ export const documentUpdated = Events.synced({
       content: Schema.Union(Schema.String, Schema.Undefined),
     }),
     updatedAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -215,6 +240,7 @@ export const documentArchived = Events.synced({
   schema: Schema.Struct({
     id: Schema.String,
     archivedAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -223,6 +249,7 @@ export const documentAddedToProject = Events.synced({
   schema: Schema.Struct({
     documentId: Schema.String,
     projectId: Schema.String,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -231,6 +258,7 @@ export const documentRemovedFromProject = Events.synced({
   schema: Schema.Struct({
     documentId: Schema.String,
     projectId: Schema.String,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -244,6 +272,7 @@ export const workerCreated = Events.synced({
     avatar: Schema.optional(Schema.String),
     defaultModel: Schema.String,
     createdAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -260,6 +289,7 @@ export const workerUpdated = Events.synced({
       isActive: Schema.optional(Schema.Boolean),
     }),
     updatedAt: Schema.Date,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -268,6 +298,7 @@ export const workerAssignedToProject = Events.synced({
   schema: Schema.Struct({
     workerId: Schema.String,
     projectId: Schema.String,
+    metadata: EventMetadataSchema,
   }),
 })
 
@@ -276,5 +307,6 @@ export const workerUnassignedFromProject = Events.synced({
   schema: Schema.Struct({
     workerId: Schema.String,
     projectId: Schema.String,
+    metadata: EventMetadataSchema,
   }),
 })

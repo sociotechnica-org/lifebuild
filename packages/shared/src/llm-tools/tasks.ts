@@ -14,6 +14,7 @@ import {
   wrapToolFunction,
   wrapStringParamFunction,
   wrapNoParamFunction,
+  createSystemMetadata,
 } from './base.js'
 import type {
   CreateTaskParams,
@@ -110,6 +111,7 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
       assigneeIds: assigneeId ? [assigneeId] : undefined,
       position: nextPosition,
       createdAt: new Date(),
+      metadata: createSystemMetadata(),
     })
   )
 
@@ -149,6 +151,7 @@ function updateTaskCore(store: Store, params: UpdateTaskParams): UpdateTaskResul
       description: description?.trim(),
       assigneeIds,
       updatedAt: new Date(),
+      metadata: createSystemMetadata(),
     })
   )
 
@@ -202,6 +205,7 @@ function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
       toColumnId: toColumnId,
       position: movePosition,
       updatedAt: new Date(),
+      metadata: createSystemMetadata(),
     })
   )
 
@@ -279,6 +283,7 @@ function moveTaskToProjectCore(
       toColumnId: toColumnId,
       position: movePosition,
       updatedAt: new Date(),
+      metadata: createSystemMetadata(),
     })
   )
 
@@ -309,6 +314,7 @@ function archiveTaskCore(store: Store, taskId: string): ArchiveTaskResult {
     events.taskArchived({
       taskId: taskId,
       archivedAt: new Date(),
+      metadata: createSystemMetadata(),
     })
   )
 
@@ -336,6 +342,7 @@ function unarchiveTaskCore(store: Store, taskId: string): UnarchiveTaskResult {
   store.commit(
     events.taskUnarchived({
       taskId: taskId,
+      metadata: createSystemMetadata(),
     })
   )
 

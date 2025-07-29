@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { generateRandomWorkerName } from '../../src/util/workerNames.js'
 import { workerCreated, workerUpdated } from '@work-squared/shared/events'
+import { createSystemMetadata } from '@work-squared/shared/llm-tools/base'
 
 describe('Worker Name Generation', () => {
   it('should generate different names on subsequent calls', () => {
@@ -24,6 +25,7 @@ describe('Worker Events', () => {
         avatar: '🤖',
         defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date('2023-01-01'),
+        metadata: createSystemMetadata(),
       })
 
       expect(event.name).toBe('v1.WorkerCreated')
@@ -45,6 +47,7 @@ describe('Worker Events', () => {
         systemPrompt: 'Test system prompt',
         defaultModel: 'claude-3-5-sonnet-latest',
         createdAt: new Date('2023-01-01'),
+        metadata: createSystemMetadata(),
       })
 
       expect(event.name).toBe('v1.WorkerCreated')
@@ -68,6 +71,7 @@ describe('Worker Events', () => {
           systemPrompt: 'Updated system prompt',
         },
         updatedAt: new Date('2023-01-02'),
+        metadata: createSystemMetadata(),
       })
 
       expect(event.name).toBe('v1.WorkerUpdated')
@@ -89,6 +93,7 @@ describe('Worker Events', () => {
           name: 'Only Name Updated',
         },
         updatedAt: new Date('2023-01-02'),
+        metadata: createSystemMetadata(),
       })
 
       expect(event.name).toBe('v1.WorkerUpdated')
@@ -106,6 +111,7 @@ describe('Worker Events', () => {
         id: 'test-id',
         updates: {},
         updatedAt: new Date('2023-01-02'),
+        metadata: createSystemMetadata(),
       })
 
       expect(event.name).toBe('v1.WorkerUpdated')

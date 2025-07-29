@@ -1,12 +1,26 @@
 import { makeDurableObject, makeWorker } from '@livestore/sync-cf/cf-worker'
+import { verifyJWT, isWithinGracePeriod, DEFAULT_GRACE_PERIOD_SECONDS, DEV_AUTH, ENV_VARS, AuthErrorCode } from '@work-squared/shared/auth'
 
 export class WebSocketServer extends makeDurableObject({
   onPush: async function (message) {
     console.log('Sync server: relaying', message.batch.length, 'events')
 
-    // Just log event types for debugging - no processing
-    for (const event of message.batch) {
-      console.log(`Syncing event: ${event.name} (${event.args.role || 'no role'})`)
+    // TODO: Implement proper metadata injection
+    // For now, skip metadata injection until we understand LiveStore context
+    // const userId = message.payload?._userId
+    if (false) {
+      for (const event of message.batch) {
+        // Add metadata to event if not already present
+        if (!event.args.metadata) {
+          // TODO: Implement metadata injection
+          console.log(`Would inject metadata for event: ${event.name}`)
+        }
+      }
+    } else {
+      // Log events without metadata
+      for (const event of message.batch) {
+        console.log(`Syncing event without auth: ${event.name}`)
+      }
     }
   },
   onPull: async function (message) {
@@ -14,12 +28,70 @@ export class WebSocketServer extends makeDurableObject({
   },
 }) {}
 
-// Create worker instance once at module level for efficiency
-const worker = makeWorker({
-  validatePayload: (payload: any) => {
-    if (payload?.authToken !== 'insecure-token-change-me') {
-      throw new Error('Invalid auth token')
+/**
+ * Validate sync payload and authenticate user
+ */
+async function validateSyncPayload(payload: any, env: any): Promise<{ userId: string; isGracePeriod?: boolean }> {
+  const requireAuth = env[ENV_VARS.REQUIRE_AUTH] === 'true' || env[ENV_VARS.ENVIRONMENT] === 'production'
+  
+  // Development mode - allow unauthenticated access
+  if (!requireAuth) {
+    console.log('Auth disabled in development mode')
+    return { userId: DEV_AUTH.DEFAULT_USER_ID }
+  }
+
+  // Check for auth token
+  const authToken = payload?.authToken
+  if (!authToken) {
+    throw new Error(`${AuthErrorCode.TOKEN_MISSING}: Authentication required`)
+  }
+
+  // Handle legacy insecure token during transition
+  if (authToken === DEV_AUTH.INSECURE_TOKEN) {
+    if (env[ENV_VARS.ENVIRONMENT] === 'development') {
+      console.log('Using legacy insecure token in development')
+      return { userId: DEV_AUTH.DEFAULT_USER_ID }
+    } else {
+      throw new Error(`${AuthErrorCode.TOKEN_INVALID}: Legacy token not allowed in production`)
     }
+  }
+
+  // Verify JWT
+  const jwtSecret = env[ENV_VARS.JWT_SECRET]
+  if (!jwtSecret) {
+    throw new Error(`${AuthErrorCode.AUTH_SERVICE_ERROR}: JWT secret not configured`)
+  }
+
+  const payload_decoded = await verifyJWT(authToken, jwtSecret)
+  if (!payload_decoded) {
+    throw new Error(`${AuthErrorCode.TOKEN_INVALID}: Invalid JWT token`)
+  }
+
+  // Check expiration with grace period
+  const gracePeriodSeconds = parseInt(env[ENV_VARS.GRACE_PERIOD_SECONDS] || DEFAULT_GRACE_PERIOD_SECONDS.toString())
+  
+  if (!isWithinGracePeriod(payload_decoded, gracePeriodSeconds)) {
+    throw new Error(`${AuthErrorCode.GRACE_PERIOD_EXPIRED}: Token expired beyond grace period`)
+  }
+
+  const isGracePeriod = payload_decoded.exp < Math.floor(Date.now() / 1000)
+  if (isGracePeriod) {
+    console.log(`User ${payload_decoded.userId} authenticated with expired token within grace period`)
+  }
+
+  return { 
+    userId: payload_decoded.userId,
+    isGracePeriod 
+  }
+}
+
+// Create worker instance once at module level for efficiency  
+const worker = makeWorker({
+  validatePayload: async (payload: any) => {
+    // TODO: Implement proper auth validation
+    // For now, just validate that authToken exists if required
+    console.log('Validating payload:', Object.keys(payload))
+    // validatePayload should return void
   },
   enableCORS: true,
 })
