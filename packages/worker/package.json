@@ -10,18 +10,18 @@
     "lint-all": "pnpm typecheck"
   },
   "dependencies": {
-    "@work-squared/shared": "workspace:*",
-    "@livestore/sync-cf": "0.3.0",
-    "@livestore/adapter-web": "0.3.0",
-    "@opentelemetry/exporter-trace-otlp-http": "0.200.0",
-    "@opentelemetry/resources": "2.0.0",
-    "@opentelemetry/sdk-trace-base": "2.0.0",
-    "@opentelemetry/sdk-trace-web": "2.0.0"
+    "@livestore/adapter-web": "0.3.1",
+    "@livestore/sync-cf": "0.3.1",
+    "@opentelemetry/exporter-trace-otlp-http": "0.203.0",
+    "@opentelemetry/resources": "2.0.1",
+    "@opentelemetry/sdk-trace-base": "2.0.1",
+    "@opentelemetry/sdk-trace-web": "2.0.1",
+    "@work-squared/shared": "workspace:*"
   },
   "devDependencies": {
-    "wrangler": "^4.0.0",
-    "@types/node": "^24.0.3",
+    "@types/node": "^24.1.0",
     "typescript": "^5.8.3",
-    "vite": "^6.3.4"
+    "vite": "^7.0.6",
+    "wrangler": "^4.26.1"
   }
 }
