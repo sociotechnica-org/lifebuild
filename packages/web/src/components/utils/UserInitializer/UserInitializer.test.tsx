@@ -26,6 +26,9 @@ describe('UserInitializer', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     resetUserInitializationState()
+    // Suppress console output for cleaner test runs
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
   it('should create a default user when no users exist and query has loaded', async () => {

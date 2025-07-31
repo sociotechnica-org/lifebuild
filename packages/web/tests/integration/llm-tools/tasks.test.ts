@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   createTask,
   updateTask,
@@ -17,6 +17,9 @@ describe('LLM Tools - Tasks', () => {
 
   beforeEach(() => {
     store = createTestStore()
+    // Suppress console output for cleaner test runs
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
   // Mock data

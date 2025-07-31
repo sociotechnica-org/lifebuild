@@ -1,86 +1,52 @@
-# Auth Implementation Plan
+# JWT Authentication for Work Squared
 
-This directory contains the implementation plan for JWT-based authentication in Work Squared, as specified in [ADR-005](../../adrs/005-jwt-authentication-with-durable-objects.md).
+JWT-based authentication implementation as specified in [ADR-005](../../adrs/005-jwt-authentication-with-durable-objects.md).
 
-## Overview
+## Status
 
-The auth implementation is broken down into 4 discrete milestones that can be implemented and tested independently:
+✅ **Milestone 1**: Auth Service Foundation - **COMPLETED**  
+✅ **Milestone 2**: WebSocket JWT Validation - **COMPLETED**  
+🔄 **Milestone 3**: Frontend Auth UI - **NEXT**  
+🔄 **Milestone 4**: Event Metadata Attribution - **FUTURE**
 
-### [Main Plan Document](./auth-implementation-plan.md)
-Complete implementation plan with architecture, technical details, and migration strategy.
+## Documents
 
-### Milestone TODO Lists
+- **[Implementation Plan](./implementation-plan.md)** - Complete technical plan and progress
+- **[Milestone 1 Results](./milestone-1-auth-service-todo.md)** - Auth service foundation (completed)
+- **[Milestone 2 Results](./milestone-2-jwt-websocket-validation.md)** - WebSocket JWT validation (completed)
 
-1. **[Milestone 1: Auth Service Foundation](./milestone-1-auth-service-todo.md)**
-   - Separate Cloudflare Worker for authentication
-   - User Store Durable Object
-   - JWT generation and password hashing
-   - Core auth endpoints (signup, login, refresh)
+## Quick Summary
 
-2. **[Milestone 2: JWT Integration with WebSocket Sync](./milestone-2-jwt-integration-todo.md)**
-   - JWT verification in sync server
-   - Event attribution with userId
-   - Offline grace period support
-   - Multi-tab auth state synchronization
+**What's working now:**
 
-3. **[Milestone 3: Frontend Auth UI and Flow](./milestone-3-frontend-auth-todo.md)**
-   - Login and signup pages
-   - Auth context and protected routes
-   - Automatic token refresh
-   - User info display in header
+- Auth service with JWT generation (`packages/auth-worker`)
+- WebSocket authentication validation (`packages/worker`)
+- Environment-based auth control (`REQUIRE_AUTH=true/false`)
+- Grace period for offline scenarios (24-hour window)
 
-4. **[Milestone 4: Multi-Instance User Management](./milestone-4-multi-instance-todo.md)**
-   - Multiple instances per user
-   - Instance switching UI
-   - Instance management endpoints
-   - Data isolation between instances
+**What's next:**
 
-## Implementation Order
+- Frontend login/signup UI
+- Replace dev tokens with real JWTs
+- Event metadata attribution
 
-The milestones should be implemented in sequence as each builds on the previous:
+## Architecture
 
-1. Start with Auth Service Foundation to establish core authentication
-2. Integrate JWT into existing sync system for security
-3. Add frontend UI for user-facing auth experience  
-4. Enable multi-instance support for advanced usage
+- **Separate auth service** - `packages/auth-worker` handles user management
+- **JWT validation** - `packages/worker` validates tokens for WebSocket connections
+- **Environment control** - Development mode allows bypass, production enforces auth
+- **Offline support** - Grace period for expired tokens during offline work
 
-## Key Architecture Decisions
+## Testing
 
-- **JWT-based**: Stateless authentication with self-contained tokens
-- **Dual-token**: Short access tokens (15min) + long refresh tokens (7d)
-- **Separate Service**: Auth runs as independent Cloudflare Worker
-- **Offline Support**: 24-hour grace period for expired tokens
-- **Multi-Instance**: Users can maintain multiple isolated workspaces
+```bash
+# Test auth service
+curl -X POST http://localhost:8788/signup \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"Test123!"}'
 
-## Getting Started
+# Test with REQUIRE_AUTH=true to see WebSocket rejection
+# (Edit packages/worker/.dev.vars, restart pnpm dev, try to use app)
+```
 
-1. Review the [main implementation plan](./auth-implementation-plan.md)
-2. Start with [Milestone 1 TODO](./milestone-1-auth-service-todo.md)
-3. Use the TODO lists to track progress
-4. Test thoroughly before moving to next milestone
-
-## Testing Strategy
-
-Each milestone includes:
-- Unit tests for core logic
-- Integration tests for flows
-- E2E tests for user journeys
-- Security verification steps
-- Performance benchmarks
-
-## Security Considerations
-
-- Argon2id for password hashing
-- httpOnly cookies for refresh tokens
-- Short-lived access tokens
-- CORS configuration
-- Rate limiting on auth endpoints
-
-## Future Enhancements
-
-After core auth is complete:
-- SSO providers (Google, GitHub)
-- Email verification
-- Two-factor authentication
-- Team/organization support
-- Fine-grained permissions
+See [implementation-plan.md](./implementation-plan.md) for complete technical details.

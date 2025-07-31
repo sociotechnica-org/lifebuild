@@ -5,6 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint-all": "pnpm typecheck"
   },
   "exports": {
@@ -13,6 +15,7 @@
     "./schema": "./src/livestore/schema.ts",
     "./queries": "./src/livestore/queries.ts",
     "./types": "./src/types.ts",
+    "./auth": "./src/auth/index.ts",
     "./llm-tools": "./src/llm-tools/index.ts",
     "./llm-tools/schemas": "./src/llm-tools/schemas.ts",
     "./llm-tools/documents": "./src/llm-tools/documents.ts",
@@ -25,6 +28,8 @@
     "@livestore/utils": "0.3.1"
   },
   "devDependencies": {
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4",
+    "@types/node": "^24.0.3"
   }
 }

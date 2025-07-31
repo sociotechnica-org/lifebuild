@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, act } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { BrowserRouter } from 'react-router-dom'
 import { WorkerCard } from './WorkerCard.js'
@@ -42,28 +42,29 @@ describe('WorkerCard', () => {
 
   it('should render default avatar when none provided', async () => {
     const workerWithoutAvatar = { ...mockWorker, avatar: null }
-    await act(async () => {
-      render(
-        <BrowserRouter>
-          <WorkerCard worker={workerWithoutAvatar} />
-        </BrowserRouter>
-      )
+    render(
+      <BrowserRouter>
+        <WorkerCard worker={workerWithoutAvatar} />
+      </BrowserRouter>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('🤖')).toBeInTheDocument()
     })
-    expect(screen.getByText('🤖')).toBeInTheDocument()
   })
 
   it('should call onClick when card is clicked', async () => {
     const onClick = vi.fn()
-    await act(async () => {
-      render(
-        <BrowserRouter>
-          <WorkerCard worker={mockWorker} onClick={onClick} />
-        </BrowserRouter>
-      )
-    })
+    render(
+      <BrowserRouter>
+        <WorkerCard worker={mockWorker} onClick={onClick} />
+      </BrowserRouter>
+    )
 
-    const card = screen.getByText('Test Worker').closest('div')
-    card?.click()
+    await waitFor(() => {
+      const card = screen.getByText('Test Worker').closest('div')
+      card?.click()
+    })
 
     expect(onClick).toHaveBeenCalledOnce()
   })

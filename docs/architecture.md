@@ -14,7 +14,8 @@ As of 2025, Work Squared has been migrated to a pnpm workspace monorepo structur
 work-squared/
 ├── packages/
 │   ├── web/              # React frontend application
-│   ├── worker/           # Cloudflare Worker backend
+│   ├── worker/           # Cloudflare Worker backend for sync
+│   ├── auth-worker/      # JWT authentication service
 │   └── shared/           # Shared schemas and utilities
 ├── docs/                 # Architecture and planning documents
 └── package.json          # Workspace configuration
@@ -24,6 +25,7 @@ work-squared/
 
 - **`@work-squared/web`**: React frontend with LiveStore integration, UI components, and real-time collaboration features
 - **`@work-squared/worker`**: Cloudflare Worker handling WebSocket sync, LLM proxy, and asset serving
+- **`@work-squared/auth-worker`**: JWT authentication service with user management and token generation
 - **`@work-squared/shared`**: Type-safe schemas, event definitions, and utilities shared across packages
 
 ## Core Architecture Principles
@@ -87,9 +89,11 @@ The current production architecture spans multiple services:
 
 ### Cloudflare Worker (Sync Server)
 
-- **WebSocket Hub**: Manages real-time connections between clients
+- **WebSocket Hub**: Manages real-time connections between clients with JWT authentication
 - **Event Relay**: Distributes events across all connected clients
 - **Durable Objects**: Maintains connection state and message ordering
+- **Authentication**: JWT validation for WebSocket connections with configurable enforcement
+- **Server Bypass**: Internal service authentication via bypass tokens
 
 ### Data Layer
 
