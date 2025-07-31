@@ -62,19 +62,19 @@ async function injectAuthTokens(page: Page, accessToken: string, refreshToken: s
 test.describe('Authentication Integration E2E', () => {
   test.describe.configure({ timeout: 60000 }) // 60 second timeout for auth tests
 
-  test.skip('should work with valid authentication tokens', async ({ _page }) => {
+  test.skip('should work with valid authentication tokens', async () => {
     // Skip: Auth is currently disabled (REQUIRE_AUTH=false) in development
     // This test will be enabled when auth is enforced in Milestone 3
     console.log('Skipping auth test - REQUIRE_AUTH=false in development')
   })
 
-  test.skip('should create events with user metadata', async ({ _page }) => {
+  test.skip('should create events with user metadata', async () => {
     // Skip: Event metadata functionality was removed from Milestone 2
     // This will be implemented in Milestone 4: Event Metadata Attribution
     console.log('Skipping metadata test - event metadata removed for future PR')
   })
 
-  test.skip('should handle token refresh gracefully', async ({ _page }) => {
+  test.skip('should handle token refresh gracefully', async () => {
     // Skip: Auth service integration will be tested when auth is enforced in Milestone 3
     console.log('Skipping token refresh test - auth service integration pending')
   })
