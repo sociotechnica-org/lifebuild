@@ -41,4 +41,6 @@ export const ENV_VARS = {
   GRACE_PERIOD_SECONDS: 'GRACE_PERIOD_SECONDS',
   // Environment mode
   ENVIRONMENT: 'ENVIRONMENT',
+  // Server bypass token for internal connections
+  SERVER_BYPASS_TOKEN: 'SERVER_BYPASS_TOKEN',
 } as const

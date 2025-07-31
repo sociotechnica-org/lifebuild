@@ -4,17 +4,6 @@ import { verifyJWT, isWithinGracePeriod, DEFAULT_GRACE_PERIOD_SECONDS, DEV_AUTH,
 export class WebSocketServer extends makeDurableObject({
   onPush: async function (message) {
     console.log('Sync server: relaying', message.batch.length, 'events')
-
-    // LiveStore doesn't provide connection context in onPush
-    // Events should already have metadata from the client
-    // We'll validate metadata exists and log for monitoring
-    for (const event of message.batch) {
-      if (!event.args.metadata) {
-        console.warn(`Event ${event.name} missing metadata - this should not happen in production`)
-      } else {
-        console.log(`Syncing event ${event.name} from user ${event.args.metadata.userId}`)
-      }
-    }
   },
   onPull: async function (message) {
     console.log('onPull', message)
@@ -31,6 +20,12 @@ async function validateSyncPayload(payload: any, env: any): Promise<{ userId: st
   if (!requireAuth) {
     console.log('Auth disabled in development mode')
     return { userId: DEV_AUTH.DEFAULT_USER_ID }
+  }
+
+  // Server bypass - allow internal server connections without JWT
+  if (payload?.serverBypass === env[ENV_VARS.SERVER_BYPASS_TOKEN]) {
+    console.log('Server bypass authenticated')
+    return { userId: 'server-internal' }
   }
 
   // Check for auth token
@@ -78,34 +73,28 @@ async function validateSyncPayload(payload: any, env: any): Promise<{ userId: st
   }
 }
 
-// Create worker instance once at module level for efficiency  
-const worker = makeWorker({
-  validatePayload: async (payload: any) => {
-    // Validate the sync payload and authenticate the user
-    // This runs in the Worker context, not the Durable Object
-    // We can only accept/reject the connection here
-    console.log('Validating sync payload:', Object.keys(payload || {}))
-    
-    // Basic validation - ensure payload exists
-    if (!payload) {
-      throw new Error('Invalid sync payload: payload is null/undefined')
-    }
-    
-    // Note: instanceId is handled internally by LiveStore and not passed to validatePayload
-    // Only custom properties (like authToken) are passed through
-    
-    // Log auth token if present (for debugging)
-    if (payload.authToken) {
-      console.log('Auth token provided:', payload.authToken.substring(0, 20) + '...')
-    } else {
-      console.log('No auth token provided - allowing for development')
-    }
-    
-    // For now, allow all connections
-    // TODO: Implement proper auth validation once we understand LiveStore env access
-  },
-  enableCORS: true,
-})
+// Create worker instance that captures env in closure
+function createWorkerWithAuth(env: any) {
+  return makeWorker({
+    validatePayload: async (payload: any) => {
+      console.log('Validating sync payload:', Object.keys(payload || {}))
+      
+      // Use our authentication function with the captured env
+      try {
+        const authResult = await validateSyncPayload(payload, env)
+        console.log(`Authentication successful for user: ${authResult.userId}`)
+        if (authResult.isGracePeriod) {
+          console.log('User authenticated within grace period')
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        console.error('Authentication failed:', errorMessage)
+        throw error // This will reject the WebSocket connection
+      }
+    },
+    enableCORS: true,
+  })
+}
 
 // LLM API credentials loaded from environment
 
@@ -307,8 +296,9 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
       })
     }
 
-    // Handle WebSocket upgrade requests - use pre-instantiated worker
+    // Handle WebSocket upgrade requests - create worker with auth
     if (request.headers.get('upgrade') === 'websocket') {
+      const worker = createWorkerWithAuth(env)
       return worker.fetch(request, env, {
         onPush: async function (message: any) {
           console.log('Sync server: relaying', message.batch.length, 'events')
