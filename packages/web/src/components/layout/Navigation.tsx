@@ -138,10 +138,10 @@ export const Navigation: React.FC = () => {
                 </button>
 
                 {showDropdown && (
-                  <div className='absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200'>
+                  <div className='absolute right-0 mt-2 min-w-64 max-w-80 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200'>
                     <div className='px-4 py-2 text-sm text-gray-700 border-b border-gray-100'>
-                      <div className='font-medium'>{getDisplayName()}</div>
-                      <div className='text-gray-500'>{getEmail()}</div>
+                      <div className='font-medium truncate'>{getDisplayName()}</div>
+                      <div className='text-gray-500 truncate'>{getEmail()}</div>
                     </div>
                     <button
                       onClick={async () => {
