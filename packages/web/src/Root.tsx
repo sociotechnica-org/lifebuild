@@ -15,11 +15,14 @@ import { WorkersPage } from './components/workers/WorkersPage.js'
 import { DocumentsPage } from './components/documents/DocumentsPage/DocumentsPage.js'
 import { DocumentPage } from './components/documents/DocumentPage.js'
 import { HistoryPage } from './pages/HistoryPage.js'
+import { LoginPage } from './pages/LoginPage.js'
+import { SignupPage } from './pages/SignupPage.js'
 import { Layout } from './components/layout/Layout.js'
 import { EnsureStoreId } from './components/utils/EnsureStoreId.js'
 import { LoadingState } from './components/ui/LoadingState.js'
 import { ErrorBoundary } from './components/ui/ErrorBoundary/ErrorBoundary.js'
 import { UserInitializer } from './components/utils/UserInitializer/UserInitializer.js'
+import { ProtectedRoute } from './components/auth/ProtectedRoute.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
 
@@ -87,85 +90,105 @@ export const App: React.FC = () => (
             <UserInitializer>
               <ErrorBoundary>
                 <Routes>
-                  {/* Main routes - restored original structure */}
+                  {/* Public auth routes */}
+                  <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+                  <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
+
+                  {/* Protected routes - all existing routes are now protected */}
                   <Route
                     path={ROUTES.HOME}
                     element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <ProjectsPage />
-                        </ErrorBoundary>
-                      </Layout>
+                      <ProtectedRoute>
+                        <Layout>
+                          <ErrorBoundary>
+                            <ProjectsPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      </ProtectedRoute>
                     }
                   />
                   <Route
                     path={ROUTES.PROJECTS}
                     element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <ProjectsPage />
-                        </ErrorBoundary>
-                      </Layout>
+                      <ProtectedRoute>
+                        <Layout>
+                          <ErrorBoundary>
+                            <ProjectsPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      </ProtectedRoute>
                     }
                   />
                   <Route
                     path={ROUTES.TASKS}
                     element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <TasksPage />
-                        </ErrorBoundary>
-                      </Layout>
+                      <ProtectedRoute>
+                        <Layout>
+                          <ErrorBoundary>
+                            <TasksPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      </ProtectedRoute>
                     }
                   />
                   <Route
                     path={ROUTES.TEAM}
                     element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <WorkersPage />
-                        </ErrorBoundary>
-                      </Layout>
+                      <ProtectedRoute>
+                        <Layout>
+                          <ErrorBoundary>
+                            <WorkersPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      </ProtectedRoute>
                     }
                   />
                   <Route
                     path={ROUTES.DOCUMENTS}
                     element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <DocumentsPage />
-                        </ErrorBoundary>
-                      </Layout>
+                      <ProtectedRoute>
+                        <Layout>
+                          <ErrorBoundary>
+                            <DocumentsPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      </ProtectedRoute>
                     }
                   />
                   <Route
                     path={ROUTES.HISTORY}
                     element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <HistoryPage />
-                        </ErrorBoundary>
-                      </Layout>
+                      <ProtectedRoute>
+                        <Layout>
+                          <ErrorBoundary>
+                            <HistoryPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      </ProtectedRoute>
                     }
                   />
                   <Route
                     path={ROUTES.DOCUMENT}
                     element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <DocumentPage />
-                        </ErrorBoundary>
-                      </Layout>
+                      <ProtectedRoute>
+                        <Layout>
+                          <ErrorBoundary>
+                            <DocumentPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      </ProtectedRoute>
                     }
                   />
                   <Route
                     path={ROUTES.PROJECT}
                     element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <ProjectWorkspace />
-                        </ErrorBoundary>
-                      </Layout>
+                      <ProtectedRoute>
+                        <Layout>
+                          <ErrorBoundary>
+                            <ProjectWorkspace />
+                          </ErrorBoundary>
+                        </Layout>
+                      </ProtectedRoute>
                     }
                   />
                 </Routes>

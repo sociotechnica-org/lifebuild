@@ -1,15 +1,47 @@
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useQuery } from '@livestore/react'
 import { getUsers$ } from '@work-squared/shared/queries'
 import { getInitials } from '../../util/initials.js'
 import { preserveStoreIdInUrl } from '../../util/navigation.js'
 import { ROUTES, ROUTE_PATTERNS } from '../../constants/routes.js'
+import { useAuth } from '../../contexts/AuthContext.js'
 
 export const Navigation: React.FC = () => {
   const location = useLocation()
   const users = useQuery(getUsers$) ?? []
-  const currentUser = users[0] // Get first user as current user
+  const legacyUser = users[0] // Get first user as fallback for non-auth systems
+  const { user: authUser, isAuthenticated, logout } = useAuth()
+  const [showDropdown, setShowDropdown] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Use auth user if available, otherwise fall back to legacy user system
+  const currentUser = authUser || legacyUser
+
+  // Helper to get display name and email
+  const getDisplayName = () => {
+    if (authUser) return authUser.email // AuthUser only has email
+    if (legacyUser) return legacyUser.name // Legacy user has name
+    return 'User'
+  }
+
+  const getEmail = () => {
+    if (authUser) return authUser.email
+    if (legacyUser) return legacyUser.name // Legacy user uses name as display
+    return ''
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const isActive = (path: string) => {
     if (path === ROUTES.PROJECTS) {
@@ -94,15 +126,43 @@ export const Navigation: React.FC = () => {
             </Link>
           </div>
 
-          {/* User Profile */}
-          <div className='flex items-center'>
-            {currentUser && (
-              <div
-                className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium'
-                title={currentUser.name}
-              >
-                {getInitials(currentUser.name)}
+          {/* User Profile / Auth */}
+          <div className='flex items-center relative'>
+            {isAuthenticated && currentUser ? (
+              <div className='relative' ref={dropdownRef}>
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                  title={getDisplayName()}
+                >
+                  {getInitials(getDisplayName())}
+                </button>
+
+                {showDropdown && (
+                  <div className='absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200'>
+                    <div className='px-4 py-2 text-sm text-gray-700 border-b border-gray-100'>
+                      <div className='font-medium'>{getDisplayName()}</div>
+                      <div className='text-gray-500'>{getEmail()}</div>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        await logout()
+                        setShowDropdown(false)
+                      }}
+                      className='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                )}
               </div>
+            ) : (
+              <Link
+                to={ROUTES.LOGIN}
+                className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+              >
+                Sign in
+              </Link>
             )}
           </div>
         </div>
