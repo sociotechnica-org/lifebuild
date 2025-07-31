@@ -12,7 +12,9 @@ const APP_URL = process.env.APP_URL || 'http://localhost:5173'
 
 /**
  * Helper to create a test user via API
+ * Currently unused - will be needed when auth tests are re-enabled in Milestone 3
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function createTestUser() {
   const testEmail = `e2e-test-${Date.now()}@example.com`
   const testPassword = 'E2ETestPassword123!'
@@ -43,7 +45,9 @@ async function createTestUser() {
 
 /**
  * Helper to inject auth tokens into browser
+ * Currently unused - will be needed when auth tests are re-enabled in Milestone 3
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function injectAuthTokens(page: Page, accessToken: string, refreshToken: string, user: any) {
   await page.addInitScript(
     ({ accessToken, refreshToken, user }) => {
@@ -58,19 +62,19 @@ async function injectAuthTokens(page: Page, accessToken: string, refreshToken: s
 test.describe('Authentication Integration E2E', () => {
   test.describe.configure({ timeout: 60000 }) // 60 second timeout for auth tests
 
-  test.skip('should work with valid authentication tokens', async ({ page }) => {
+  test.skip('should work with valid authentication tokens', async ({ _page }) => {
     // Skip: Auth is currently disabled (REQUIRE_AUTH=false) in development
     // This test will be enabled when auth is enforced in Milestone 3
     console.log('Skipping auth test - REQUIRE_AUTH=false in development')
   })
 
-  test.skip('should create events with user metadata', async ({ page }) => {
+  test.skip('should create events with user metadata', async ({ _page }) => {
     // Skip: Event metadata functionality was removed from Milestone 2
     // This will be implemented in Milestone 4: Event Metadata Attribution
     console.log('Skipping metadata test - event metadata removed for future PR')
   })
 
-  test.skip('should handle token refresh gracefully', async ({ page }) => {
+  test.skip('should handle token refresh gracefully', async ({ _page }) => {
     // Skip: Auth service integration will be tested when auth is enforced in Milestone 3
     console.log('Skipping token refresh test - auth service integration pending')
   })
@@ -79,9 +83,9 @@ test.describe('Authentication Integration E2E', () => {
     // This tests the current behavior: REQUIRE_AUTH=false allows development access
     // The app should use the insecure token automatically
 
-    // Navigate to app without pre-injecting any auth tokens  
+    // Navigate to app without pre-injecting any auth tokens
     await page.goto(APP_URL)
-    
+
     // Use load state instead of networkidle to avoid hanging
     await page.waitForLoadState('load', { timeout: 30000 })
     await page.waitForTimeout(3000) // Give LiveStore time to initialize
@@ -104,7 +108,7 @@ test.describe('Authentication Integration E2E', () => {
 
     // Navigate to app
     await page.goto(APP_URL)
-    
+
     // Use load state instead of networkidle to avoid hanging
     await page.waitForLoadState('load', { timeout: 30000 })
     await page.waitForTimeout(2000) // Brief wait for app initialization
