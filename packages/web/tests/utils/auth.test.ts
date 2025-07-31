@@ -10,7 +10,7 @@ import {
   getStoredUser,
   clearStoredAuth,
   isAuthenticated,
-} from '../auth.js'
+} from '../../src/utils/auth.js'
 import { AuthTokens, AuthUser } from '@work-squared/shared/auth'
 
 // Mock localStorage
