@@ -17,8 +17,9 @@ export function useSyncPayload({ instanceId }: UseSyncPayloadOptions) {
     authToken: DEV_AUTH.INSECURE_TOKEN, // Fallback for development
   })
   
-  console.log('useSyncPayload - instanceId:', instanceId)
-  console.log('useSyncPayload - current syncPayload:', syncPayload)
+  // Debug logs - remove after testing
+  // console.log('useSyncPayload - instanceId:', instanceId)
+  // console.log('useSyncPayload - current syncPayload:', syncPayload)
 
   const updateSyncPayload = useCallback(async () => {
     try {

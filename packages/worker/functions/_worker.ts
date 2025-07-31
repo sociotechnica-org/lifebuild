@@ -91,11 +91,8 @@ const worker = makeWorker({
       throw new Error('Invalid sync payload: payload is null/undefined')
     }
     
-    // Log if instanceId is missing (this shouldn't happen normally)
-    if (!payload.instanceId) {
-      console.warn('Warning: sync payload missing instanceId:', payload)
-      // Don't throw error for now to allow debugging
-    }
+    // Note: instanceId is handled internally by LiveStore and not passed to validatePayload
+    // Only custom properties (like authToken) are passed through
     
     // Log auth token if present (for debugging)
     if (payload.authToken) {
