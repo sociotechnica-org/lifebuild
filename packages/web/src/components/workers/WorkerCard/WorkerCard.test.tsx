@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { BrowserRouter } from 'react-router-dom'
 import { WorkerCard } from './WorkerCard.js'
@@ -40,17 +40,20 @@ describe('WorkerCard', () => {
     vi.clearAllMocks()
   })
 
-  it('should render default avatar when none provided', () => {
+  it('should render default avatar when none provided', async () => {
     const workerWithoutAvatar = { ...mockWorker, avatar: null }
     render(
       <BrowserRouter>
         <WorkerCard worker={workerWithoutAvatar} />
       </BrowserRouter>
     )
-    expect(screen.getByText('🤖')).toBeInTheDocument()
+    
+    await waitFor(() => {
+      expect(screen.getByText('🤖')).toBeInTheDocument()
+    })
   })
 
-  it('should call onClick when card is clicked', () => {
+  it('should call onClick when card is clicked', async () => {
     const onClick = vi.fn()
     render(
       <BrowserRouter>
@@ -58,8 +61,10 @@ describe('WorkerCard', () => {
       </BrowserRouter>
     )
 
-    const card = screen.getByText('Test Worker').closest('div')
-    card?.click()
+    await waitFor(() => {
+      const card = screen.getByText('Test Worker').closest('div')
+      card?.click()
+    })
 
     expect(onClick).toHaveBeenCalledOnce()
   })
