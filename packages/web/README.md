@@ -80,6 +80,10 @@ pnpm --filter @work-squared/web typecheck
 # Storybook for component development
 pnpm --filter @work-squared/web storybook
 pnpm --filter @work-squared/web build-storybook
+
+# Storybook tests (check for rendering failures)
+pnpm --filter @work-squared/web test:storybook
+pnpm --filter @work-squared/web test:storybook:ci
 ```
 
 ## Architecture
