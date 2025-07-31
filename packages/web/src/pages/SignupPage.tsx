@@ -8,18 +8,18 @@ export const SignupPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
   const navigate = useNavigate()
 
   // Check if we're in development mode
   const isDevelopmentMode = import.meta.env.DEV || import.meta.env.VITE_REQUIRE_AUTH === 'false'
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated (but only after auth loading is complete)
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!authLoading && isAuthenticated) {
       navigate('/', { replace: true })
     }
-  }, [isAuthenticated, navigate])
+  }, [authLoading, isAuthenticated, navigate])
 
   const validateForm = () => {
     if (!email.trim()) {

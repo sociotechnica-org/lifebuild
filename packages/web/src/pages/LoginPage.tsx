@@ -7,7 +7,7 @@ export const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const { login, isAuthenticated } = useAuth()
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -18,12 +18,12 @@ export const LoginPage: React.FC = () => {
   // Check if we're in development mode (simple check for dev mode indicator)
   const isDevelopmentMode = import.meta.env.DEV || import.meta.env.VITE_REQUIRE_AUTH === 'false'
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated (but only after auth loading is complete)
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!authLoading && isAuthenticated) {
       navigate(redirectTo, { replace: true })
     }
-  }, [isAuthenticated, navigate, redirectTo])
+  }, [authLoading, isAuthenticated, navigate, redirectTo])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,6 +45,7 @@ export const LoginPage: React.FC = () => {
   }
 
   const isFormValid = email.trim() !== '' && password.trim() !== ''
+  const isFormDisabled = isLoading || authLoading
 
   return (
     <div className='min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8'>
@@ -123,10 +124,10 @@ export const LoginPage: React.FC = () => {
             <div>
               <button
                 type='submit'
-                disabled={!isFormValid || isLoading}
+                disabled={!isFormValid || isFormDisabled}
                 className='w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed'
               >
-                {isLoading ? 'Signing in...' : 'Sign in'}
+                {isLoading ? 'Signing in...' : authLoading ? 'Loading...' : 'Sign in'}
               </button>
             </div>
 
