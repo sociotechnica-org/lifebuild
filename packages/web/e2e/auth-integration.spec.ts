@@ -255,14 +255,14 @@ test.describe('Authentication Integration E2E', () => {
     await page.fill('input[name="email"]', 'invalid-email')
     await page.fill('input[name="password"]', 'validpassword123')
     await page.fill('input[name="confirmPassword"]', 'validpassword123')
-    
+
     // Check if the email input is invalid (browser validation)
     const emailInput = page.locator('input[name="email"]')
     await expect(emailInput).toHaveAttribute('type', 'email')
-    
+
     // Try to submit - browser validation should prevent submission
     await page.click('button[type="submit"]')
-    
+
     // The form should not submit (URL should not change to success/redirect)
     // and the input should show as invalid
     const isInvalid = await emailInput.evaluate((el: HTMLInputElement) => !el.validity.valid)

@@ -44,6 +44,7 @@ BRAINTRUST_API_KEY=your-key-here
 ```
 
 **Authentication Modes**:
+
 - `VITE_REQUIRE_AUTH=false` (default): Development mode, authentication optional
 - `VITE_REQUIRE_AUTH=true`: Production mode, authentication required for all protected routes
 
@@ -127,28 +128,32 @@ src/
 The project includes comprehensive E2E tests that validate authentication flows and user interactions:
 
 **Development Mode (`REQUIRE_AUTH=false`)**:
+
 - Tests UI components and basic functionality
 - Validates app works without authentication
 - Automatically skips auth enforcement tests
 
 **Production Mode (`REQUIRE_AUTH=true`)**:
+
 - Tests complete signup → login → project creation flow
 - Validates protected route redirects and session management
 - Tests authentication state in UI (login button vs user dropdown)
 
 **Key E2E Test Coverage**:
+
 - ✅ Login/signup page UI and form validation
-- ✅ Authentication service API integration  
+- ✅ Authentication service API integration
 - ✅ Protected route access control
 - ✅ Post-login redirect handling
 - ✅ Session cleanup on logout
 
 **Running Specific Test Categories**:
+
 ```bash
 # Test auth service integration
 pnpm test:e2e --grep "auth service API"
 
-# Test development mode behavior  
+# Test development mode behavior
 pnpm test:e2e --grep "development mode"
 
 # Test complete auth flow (requires REQUIRE_AUTH=true)
