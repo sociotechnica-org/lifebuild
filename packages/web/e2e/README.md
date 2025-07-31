@@ -64,12 +64,52 @@ test('full auth flow', async ({ page }) => {
 ## Running Individual Test Categories
 
 ```bash
-# Test only UI components (works in dev mode)
-npx playwright test --grep "should display auth UI components"
+# Test auth service API integration (works in both modes)
+CI=true pnpm test:e2e --grep "should successfully create user via auth service API"
 
-# Test only full auth flow (requires REQUIRE_AUTH=true)
-REQUIRE_AUTH=true npx playwright test --grep "should complete full authentication flow"
+# Test development mode behavior
+CI=true pnpm test:e2e --grep "should work in development mode without auth tokens"
 
-# Test form validation
-npx playwright test --grep "should validate signup form"
+# Test full auth flow (requires REQUIRE_AUTH=true and auth-worker running)
+REQUIRE_AUTH=true CI=true pnpm test:e2e --grep "should demonstrate complete auth-enabled workflow"
+
+# Test form validation (UI dependent)
+CI=true pnpm test:e2e --grep "should validate form inputs correctly"
 ```
+
+## Test Status
+
+### ✅ Working Tests
+- **Auth Service API Integration**: Tests user creation via direct API calls
+- **Development Mode**: Tests app functionality with REQUIRE_AUTH=false
+- **Basic App Loading**: Tests fundamental app loading and functionality
+
+### 🚧 UI-Dependent Tests  
+- **Login/Signup Page Loading**: Currently affected by LiveStore loading states in test environment
+- **Form Validation**: Depends on auth pages loading correctly
+- **Complete Auth Flow UI**: Requires UI elements to be fully loaded
+
+### 💡 Recommendations
+
+For reliable E2E testing of the authentication system:
+
+1. **Use API integration tests** for core auth functionality validation
+2. **Test development mode** to ensure the app works without auth
+3. **For production testing**, consider using token injection rather than UI flows:
+
+```typescript
+// Inject tokens directly for faster, more reliable tests
+await page.addInitScript(({ accessToken, refreshToken, user }) => {
+  localStorage.setItem('work-squared-access-token', accessToken)
+  localStorage.setItem('work-squared-refresh-token', refreshToken)
+  localStorage.setItem('work-squared-user-info', JSON.stringify(user))
+}, { accessToken, refreshToken, user })
+```
+
+## Production Testing Setup
+
+To test the complete auth flow with REQUIRE_AUTH=true:
+
+1. Start the auth service: `pnpm --filter @work-squared/auth-worker dev`
+2. Start the main app with auth required: `REQUIRE_AUTH=true pnpm dev`
+3. Run the comprehensive test: `REQUIRE_AUTH=true CI=true pnpm test:e2e --grep "auth-enabled workflow"`
