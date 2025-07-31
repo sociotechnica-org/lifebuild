@@ -10,10 +10,11 @@ import { Events, Schema } from '@livestore/livestore'
  */
 
 // Shared metadata schema for all events
-const EventMetadataSchema = Schema.Struct({
-  userId: Schema.String,
-  timestamp: Schema.Number,
-})
+// Support flexible metadata format during transition period
+const EventMetadataSchema = Schema.optional(Schema.Record({
+  key: Schema.String,
+  value: Schema.Unknown
+}))
 
 export const chatMessageSent = Events.synced({
   name: 'v1.ChatMessageSent',

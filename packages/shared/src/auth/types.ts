@@ -24,6 +24,7 @@ export interface AuthInstance {
 export interface SyncPayload {
   instanceId: string
   authToken?: string
+  [key: string]: any  // Allow additional properties for LiveStore compatibility
 }
 
 export interface EventMetadata {

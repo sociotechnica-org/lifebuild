@@ -66,6 +66,10 @@ export async function verifyJWT(token: string, secret: string): Promise<JWTPaylo
     }
     
     const [headerEncoded, payloadEncoded, signatureEncoded] = parts
+    if (!headerEncoded || !payloadEncoded || !signatureEncoded) {
+      return null
+    }
+    
     const message = `${headerEncoded}.${payloadEncoded}`
     
     // Verify signature
@@ -109,7 +113,12 @@ export function decodeJWTPayload(token: string): JWTPayload | null {
       return null
     }
     
-    const payloadBytes = base64UrlDecode(parts[1])
+    const payloadPart = parts[1]
+    if (!payloadPart) {
+      return null
+    }
+    
+    const payloadBytes = base64UrlDecode(payloadPart)
     const payloadText = new TextDecoder().decode(payloadBytes)
     return JSON.parse(payloadText) as JWTPayload
   } catch (error) {
