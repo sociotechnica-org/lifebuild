@@ -12,6 +12,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth()
   const location = useLocation()
 
+  // Check if authentication is required based on environment
+  const requireAuth = import.meta.env.VITE_REQUIRE_AUTH === 'true' && !import.meta.env.DEV
+
+  // In development mode or when auth is disabled, always allow access
+  if (!requireAuth) {
+    return <>{children}</>
+  }
+
   // Show loading state while auth is being checked
   if (isLoading) {
     return <LoadingState message='Checking authentication...' fullScreen />

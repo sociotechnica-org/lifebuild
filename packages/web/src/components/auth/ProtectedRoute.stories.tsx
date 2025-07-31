@@ -73,6 +73,14 @@ const ProtectedRouteStory = ({
                 <strong>{isAuthenticated ? 'Authenticated' : 'Not authenticated'}</strong>
                 {isLoading && ' (Loading...)'}
               </p>
+              <p className='text-sm text-blue-700'>
+                Auth required:{' '}
+                <strong>
+                  {import.meta.env.VITE_REQUIRE_AUTH === 'true' && !import.meta.env.DEV
+                    ? 'Yes'
+                    : 'No'}
+                </strong>
+              </p>
             </div>
 
             <ProtectedRoute>

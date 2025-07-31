@@ -81,121 +81,128 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   )
 }
 
+// Protected app wrapper - includes LiveStore and all protected routes
+const ProtectedApp: React.FC = () => (
+  <LiveStoreWrapper>
+    <EnsureStoreId>
+      <UserInitializer>
+        <ErrorBoundary>
+          <Routes>
+            <Route
+              path={ROUTES.HOME}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <ProjectsPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.PROJECTS}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <ProjectsPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.TASKS}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <TasksPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.TEAM}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <WorkersPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.DOCUMENTS}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <DocumentsPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.HISTORY}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <HistoryPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.DOCUMENT}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <DocumentPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.PROJECT}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <ProjectWorkspace />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </ErrorBoundary>
+      </UserInitializer>
+    </EnsureStoreId>
+  </LiveStoreWrapper>
+)
+
 export const App: React.FC = () => (
   <ErrorBoundary>
     <BrowserRouter>
       <AuthProvider>
-        <LiveStoreWrapper>
-          <EnsureStoreId>
-            <UserInitializer>
-              <ErrorBoundary>
-                <Routes>
-                  {/* Public auth routes */}
-                  <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-                  <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
+        <Routes>
+          {/* Public auth routes - outside LiveStore */}
+          <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+          <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
 
-                  {/* Protected routes - all existing routes are now protected */}
-                  <Route
-                    path={ROUTES.HOME}
-                    element={
-                      <ProtectedRoute>
-                        <Layout>
-                          <ErrorBoundary>
-                            <ProjectsPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.PROJECTS}
-                    element={
-                      <ProtectedRoute>
-                        <Layout>
-                          <ErrorBoundary>
-                            <ProjectsPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.TASKS}
-                    element={
-                      <ProtectedRoute>
-                        <Layout>
-                          <ErrorBoundary>
-                            <TasksPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.TEAM}
-                    element={
-                      <ProtectedRoute>
-                        <Layout>
-                          <ErrorBoundary>
-                            <WorkersPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.DOCUMENTS}
-                    element={
-                      <ProtectedRoute>
-                        <Layout>
-                          <ErrorBoundary>
-                            <DocumentsPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.HISTORY}
-                    element={
-                      <ProtectedRoute>
-                        <Layout>
-                          <ErrorBoundary>
-                            <HistoryPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.DOCUMENT}
-                    element={
-                      <ProtectedRoute>
-                        <Layout>
-                          <ErrorBoundary>
-                            <DocumentPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.PROJECT}
-                    element={
-                      <ProtectedRoute>
-                        <Layout>
-                          <ErrorBoundary>
-                            <ProjectWorkspace />
-                          </ErrorBoundary>
-                        </Layout>
-                      </ProtectedRoute>
-                    }
-                  />
-                </Routes>
-              </ErrorBoundary>
-            </UserInitializer>
-          </EnsureStoreId>
-        </LiveStoreWrapper>
+          {/* Protected routes - wrapped in LiveStore */}
+          <Route path='/*' element={<ProtectedApp />} />
+        </Routes>
       </AuthProvider>
     </BrowserRouter>
   </ErrorBoundary>

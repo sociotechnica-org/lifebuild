@@ -190,8 +190,16 @@ test.describe('Authentication Flow E2E', () => {
     // Should NOT redirect to login in dev mode
     expect(page.url()).not.toContain('/login')
 
-    // Should see main app interface
-    await expect(page.locator('nav')).toBeVisible()
+    // Wait for LiveStore to finish loading and app to render
+    // First wait for loading state to disappear or timeout after reasonable time
+    try {
+      await page.waitForSelector('text=Loading LiveStore', { state: 'detached', timeout: 20000 })
+    } catch {
+      console.log('⚠️ LiveStore loading did not complete within 20s, continuing with test')
+    }
+
+    // Should see main app interface - check for Projects heading instead of nav
+    await expect(page.locator('h1:has-text("Projects")')).toBeVisible({ timeout: 10000 })
     console.log('✅ Development mode allows access to protected routes')
 
     // Should still be able to access auth pages

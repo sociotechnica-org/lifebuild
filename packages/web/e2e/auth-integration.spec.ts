@@ -224,14 +224,20 @@ test.describe('Authentication Integration E2E', () => {
     await page.goto(`${APP_URL}/signup`)
     await page.waitForLoadState('load')
 
-    // Test empty form submission
-    await page.click('button[type="submit"]')
-    // Browser validation should prevent submission
+    // Wait for form to be ready
+    await expect(page.locator('h2:has-text("Create your account")')).toBeVisible()
+
+    // Test empty form - button should be disabled
+    await expect(page.locator('button[type="submit"]')).toBeDisabled()
 
     // Test password mismatch
     await page.fill('input[name="email"]', 'test@example.com')
     await page.fill('input[name="password"]', 'password123')
     await page.fill('input[name="confirmPassword"]', 'different123')
+
+    // Button should now be enabled since all fields have content
+    await expect(page.locator('button[type="submit"]')).toBeEnabled()
+
     await page.click('button[type="submit"]')
 
     // Should show password mismatch error
