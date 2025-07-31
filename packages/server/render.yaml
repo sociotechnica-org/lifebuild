@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: work-squared-server
+    runtime: node
+    plan: starter
+    buildCommand: pnpm install && pnpm build
+    startCommand: pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        fromService:
+          type: web
+          name: work-squared-server
+          property: port
+      - key: STORE_ID
+        value: work-squared-production
+      - key: AUTH_TOKEN
+        generateValue: true
+      - key: LIVESTORE_SYNC_URL
+        value: wss://app.worksquared.ai
+      # BRAINTRUST_API_KEY not needed yet - LLM calls still go through CF Worker
+      # Will be added when agentic loop is migrated to server (Milestone 4)
+    healthCheckPath: /health
+    disk:
+      name: work-squared-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 10
+    # Scaling configuration from ADR-002
+    scaling:
+      minInstances: 1
+      maxInstances: 3
+      targetCPUPercent: 70
+
+# Cron jobs for backup (from ADR-002)
+crons:
+  - type: worker
+    name: backup-job
+    runtime: node
+    schedule: '0 */6 * * *' # Every 6 hours
+    buildCommand: pnpm install
+    startCommand: echo "Backup job placeholder - implement later"
