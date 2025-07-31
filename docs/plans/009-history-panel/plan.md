@@ -75,17 +75,14 @@ Created complete history panel structure:
 Successfully implemented 4 core event types:
 
 1. **Project Events** ✅
-
    - `v1.ProjectCreated` - Shows project name with FolderPlus icon
    - Action: "View Project" button with proper navigation
 
 2. **Task Events** ✅
-
    - `v1.TaskCreated` - Shows task title with Note icon
    - Displays task creation in context
 
 3. **Chat/Conversation Events** ✅
-
    - `v1.ConversationCreated` - Shows conversation title with ChatCircle icon
    - `v1.ChatMessageSent` - Shows message activity
 
@@ -262,14 +259,12 @@ packages/web/package.json                  # Added @phosphor-icons/react depende
 ### Major Implementation Decisions:
 
 1. **Event Materialization Strategy**: Instead of trying to access LiveStore's internal event stream (which isn't exposed), we implemented an `eventsLog` table that materializes all events. This approach:
-
    - Works with LiveStore's architecture
    - Provides efficient querying
    - Maintains event sourcing benefits
    - Allows for future filtering/search
 
 2. **Icon Library**: Used Phosphor icons instead of inline SVGs for:
-
    - Professional, consistent design
    - Smaller bundle size
    - Semantic icon names

@@ -226,14 +226,12 @@ The existing LiveStore Sync Durable Objects remain unchanged except for adding u
 ### Implementation Details
 
 1. **JWT Structure**
-
    - Contains: userId, email, issuedAt, expiresAt
    - Signed with secret stored in Worker environment
    - Short-lived (15 minutes) for security
    - Paired with long-lived refresh token (7 days)
 
 2. **No Session Durable Object Needed**
-
    - JWTs are self-contained and stateless
    - Session validity determined by JWT expiration
    - Refresh tokens stored in httpOnly cookies client-side
@@ -286,13 +284,11 @@ The existing LiveStore Sync Durable Objects remain unchanged except for adding u
 ### Implementation Considerations
 
 1. **Gradual Rollout**
-
    - Phase 1: Optional auth (development mode)
    - Phase 2: Required auth with default user
    - Phase 3: Full multi-user auth
 
 2. **Backward Compatibility**
-
    - Support anonymous events during transition
    - Migrate existing data to include system userId
 

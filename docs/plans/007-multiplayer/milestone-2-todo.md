@@ -269,13 +269,11 @@ pnpm dev
 **Note**: LiveStore adapter handles WebSocket sync automatically
 
 1. **Open LiveStore DevTools**:
-
    - [ ] Navigate to http://localhost:3001/\_\_livestore
    - [ ] DevTools interface loads correctly
    - [ ] Can see event log section
 
 2. **Create a Task in Browser**:
-
    - [ ] Open web app at http://localhost:60001
    - [ ] Create a new task
    - [ ] Task appears in UI
