@@ -47,7 +47,7 @@ describe('WorkerCard', () => {
         <WorkerCard worker={workerWithoutAvatar} />
       </BrowserRouter>
     )
-    
+
     await waitFor(() => {
       expect(screen.getByText('🤖')).toBeInTheDocument()
     })

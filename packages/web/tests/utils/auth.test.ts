@@ -75,7 +75,7 @@ describe('Auth utilities', () => {
       const originalGetItem = localStorage.getItem
       const originalConsoleError = console.error
       console.error = vi.fn()
-      
+
       localStorage.getItem = vi.fn(() => {
         throw new Error('localStorage error')
       })
@@ -111,7 +111,7 @@ describe('Auth utilities', () => {
       // Note: Date objects become strings after JSON serialization
       const expectedUser = {
         ...mockUser,
-        instances: mockUser.instances.map((instance) => ({
+        instances: mockUser.instances.map(instance => ({
           ...instance,
           createdAt: instance.createdAt.toISOString(),
           lastAccessedAt: instance.lastAccessedAt.toISOString(),
@@ -130,12 +130,12 @@ describe('Auth utilities', () => {
       // Suppress console.error for this test
       const originalConsoleError = console.error
       console.error = vi.fn()
-      
+
       localStorage.setItem('work-squared-user-info', 'invalid-json')
 
       const retrieved = getStoredUser()
       expect(retrieved).toBeNull()
-      
+
       // Restore
       console.error = originalConsoleError
     })

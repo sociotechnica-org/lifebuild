@@ -33,7 +33,7 @@ describe('ProjectCard', () => {
 
   it('should render project name', async () => {
     render(<ProjectCard project={mockProject} />)
-    
+
     await waitFor(() => {
       expect(screen.getByText('Test Project')).toBeInTheDocument()
     })
@@ -41,7 +41,7 @@ describe('ProjectCard', () => {
 
   it('should render creation and update information', async () => {
     render(<ProjectCard project={mockProject} />)
-    
+
     await waitFor(() => {
       expect(screen.getByText(/Created:/)).toBeInTheDocument()
       expect(screen.getByText(/Updated:/)).toBeInTheDocument()
@@ -64,7 +64,7 @@ describe('ProjectCard', () => {
     expect(() => {
       render(<ProjectCard project={mockProject} />)
     }).not.toThrow()
-    
+
     // Wait for async operations to complete
     await waitFor(() => {
       expect(screen.getByText('Test Project')).toBeInTheDocument()

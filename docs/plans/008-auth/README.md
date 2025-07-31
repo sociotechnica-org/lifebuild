@@ -18,12 +18,14 @@ JWT-based authentication implementation as specified in [ADR-005](../../adrs/005
 ## Quick Summary
 
 **What's working now:**
+
 - Auth service with JWT generation (`packages/auth-worker`)
 - WebSocket authentication validation (`packages/worker`)
 - Environment-based auth control (`REQUIRE_AUTH=true/false`)
 - Grace period for offline scenarios (24-hour window)
 
 **What's next:**
+
 - Frontend login/signup UI
 - Replace dev tokens with real JWTs
 - Event metadata attribution

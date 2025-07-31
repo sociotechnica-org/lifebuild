@@ -22,6 +22,7 @@ JWT-based authentication for Work Squared using Cloudflare Workers, implemented 
 ## Milestone 1: Auth Service Foundation ✅ COMPLETED
 
 ### What was built:
+
 - Separate Cloudflare Worker at `packages/auth-worker`
 - User Store Durable Object with email → user mapping
 - JWT generation and signing with proper expiration
@@ -29,13 +30,14 @@ JWT-based authentication for Work Squared using Cloudflare Workers, implemented 
 - Password hashing with PBKDF2-SHA256
 
 ### Testing:
+
 ```bash
 # Test signup
 curl -X POST http://localhost:8788/signup \
   -H "Content-Type: application/json" \
   -d '{"email": "test@example.com", "password": "Test123!"}'
 
-# Test login  
+# Test login
 curl -X POST http://localhost:8788/login \
   -H "Content-Type: application/json" \
   -d '{"email": "test@example.com", "password": "Test123!"}'
@@ -44,6 +46,7 @@ curl -X POST http://localhost:8788/login \
 ## Milestone 2: WebSocket JWT Validation ✅ COMPLETED
 
 ### What was built:
+
 - JWT verification in sync worker's `validatePayload` function
 - Environment flag support (`REQUIRE_AUTH=true/false`)
 - Server bypass mechanism for internal connections (`SERVER_BYPASS_TOKEN`)
@@ -51,11 +54,13 @@ curl -X POST http://localhost:8788/login \
 - Connection rejection for invalid/missing tokens
 
 ### Key files:
+
 - `packages/worker/functions/_worker.ts` - JWT validation implementation
 - `packages/shared/src/auth/config.ts` - Added SERVER_BYPASS_TOKEN
 - `packages/web/src/hooks/useSyncPayload.ts` - JWT integration ready
 
 ### Authentication flow:
+
 1. Client sends sync payload: `{ instanceId, authToken }`
 2. Worker validates JWT using shared JWT_SECRET
 3. Invalid tokens → WebSocket connection rejected
@@ -64,6 +69,7 @@ curl -X POST http://localhost:8788/login \
 ## Milestone 3: Frontend Auth UI 🔄 NEXT
 
 ### Planned tasks:
+
 - Login/signup pages with forms
 - Auth context provider for token management
 - Protected routes requiring authentication
@@ -72,25 +78,28 @@ curl -X POST http://localhost:8788/login \
 - Integration with real JWTs (replace dev tokens)
 
 ### Key components to build:
+
 - `packages/web/src/pages/Login.tsx`
-- `packages/web/src/pages/Signup.tsx` 
+- `packages/web/src/pages/Signup.tsx`
 - `packages/web/src/contexts/AuthContext.tsx` (expand existing)
 - `packages/web/src/components/ProtectedRoute.tsx`
 
 ## Milestone 4: Event Metadata Attribution 🔄 FUTURE
 
 ### Planned tasks:
+
 - Add metadata to all LiveStore events with userId attribution
 - Event structure: `{ type: 'task.create', args: {...}, metadata: { userId, timestamp } }`
 - Multi-tab auth state synchronization via SharedWorker
 - Migration strategy for existing events
 
 ### Event attribution example:
+
 ```typescript
 // Before
 { type: 'task.create', title: 'New Task' }
 
-// After  
+// After
 {
   type: 'task.create',
   title: 'New Task',
@@ -104,6 +113,7 @@ curl -X POST http://localhost:8788/login \
 ## Environment Configuration
 
 ### Development (.dev.vars):
+
 ```bash
 ENVIRONMENT=development
 REQUIRE_AUTH=false  # Allows dev tokens
@@ -113,6 +123,7 @@ SERVER_BYPASS_TOKEN=dev-server-bypass-token-change-me
 ```
 
 ### Production:
+
 ```bash
 ENVIRONMENT=production
 REQUIRE_AUTH=true   # Enforces JWT validation
@@ -126,7 +137,7 @@ SERVER_BYPASS_TOKEN=<secure-production-token>
 ```json
 {
   "userId": "user_abc123",
-  "email": "user@example.com", 
+  "email": "user@example.com",
   "iat": 1710000000,
   "exp": 1710000900,
   "iss": "work-squared-auth"
@@ -137,7 +148,7 @@ SERVER_BYPASS_TOKEN=<secure-production-token>
 
 - Password hashing with PBKDF2-SHA256
 - Short-lived access tokens (15 minutes)
-- Long-lived refresh tokens (7 days) 
+- Long-lived refresh tokens (7 days)
 - Server bypass for internal connections
 - Environment-based auth enforcement
 - Grace period for offline scenarios
@@ -146,11 +157,13 @@ SERVER_BYPASS_TOKEN=<secure-production-token>
 ## Testing Strategy
 
 ### Current testing:
+
 - Auth service unit tests ✅
 - JWT verification unit tests ✅
 - Integration test for auth flow ✅
 
 ### Planned testing:
+
 - E2E tests for login flow
 - Token refresh testing
 - Multi-tab synchronization tests

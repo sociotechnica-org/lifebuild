@@ -28,6 +28,10 @@ const chatMessages = State.SQLite.table({
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
+    llmMetadata: State.SQLite.text({
+      nullable: true,
+      schema: Schema.parseJson(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
+    }),
   },
 })
 
@@ -332,6 +336,7 @@ const materializers = State.SQLite.materializers(events, {
     modelId,
     responseToMessageId,
     createdAt,
+    llmMetadata,
   }) =>
     chatMessages.insert({
       id,
@@ -341,6 +346,7 @@ const materializers = State.SQLite.materializers(events, {
       modelId,
       responseToMessageId,
       createdAt,
+      llmMetadata,
     }),
   'v1.LLMResponseStarted': () => [],
   'v1.CommentAdded': ({ id, taskId, authorId, content, createdAt }) =>

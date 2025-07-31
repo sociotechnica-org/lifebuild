@@ -66,7 +66,7 @@ async function runAgenticLoop(
             modelId: model,
             responseToMessageId: userMessage.id,
             createdAt: new Date(),
-            metadata: {
+            llmMetadata: {
               source: 'braintrust',
               toolCalls: currentResponse.toolCalls,
             },
@@ -111,7 +111,7 @@ async function runAgenticLoop(
                   modelId: model,
                   responseToMessageId: userMessage.id,
                   createdAt: new Date(),
-                  metadata: {
+                  llmMetadata: {
                     source: 'tool-result',
                     toolCall: toolCall,
                     toolResult: toolResult,
@@ -217,7 +217,7 @@ async function runAgenticLoop(
             modelId: model,
             responseToMessageId: userMessage.id,
             createdAt: new Date(),
-            metadata: {
+            llmMetadata: {
               source: 'braintrust',
               isContinuation: iteration > 1,
               agenticIteration: iteration,
@@ -512,7 +512,7 @@ export const ChatInterface: React.FC = () => {
                     modelId: selectedConversation?.model || DEFAULT_MODEL,
                     responseToMessageId: userMessage.id,
                     createdAt: new Date(),
-                    metadata: { source: 'braintrust' },
+                    llmMetadata: { source: 'braintrust' },
                   })
                 )
               }
@@ -531,7 +531,7 @@ export const ChatInterface: React.FC = () => {
                   modelId: 'error',
                   responseToMessageId: userMessage.id,
                   createdAt: new Date(),
-                  metadata: { source: 'error' },
+                  llmMetadata: { source: 'error' },
                 })
               )
             }
@@ -652,10 +652,10 @@ export const ChatInterface: React.FC = () => {
                 <div className='space-y-4'>
                   {messages.map((message: ChatMessage) => {
                     // Tool result notifications - render as special cards
-                    if (message.metadata?.source === 'tool-result') {
+                    if (message.llmMetadata?.source === 'tool-result') {
                       return (
                         <div key={message.id} className='px-2'>
-                          {(message.metadata?.toolResult as any)?.success && (
+                          {(message.llmMetadata?.toolResult as any)?.success && (
                             <div className='p-3 bg-green-50 border border-green-200 rounded-lg'>
                               <div className='flex items-center gap-2 text-green-700 text-sm font-medium mb-2'>
                                 <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
@@ -697,14 +697,14 @@ export const ChatInterface: React.FC = () => {
                         {/* Tool call indicators */}
                         {(() => {
                           if (
-                            !message.metadata?.toolCalls ||
-                            !Array.isArray(message.metadata.toolCalls)
+                            !message.llmMetadata?.toolCalls ||
+                            !Array.isArray(message.llmMetadata.toolCalls)
                           ) {
                             return null
                           }
                           return (
                             <div className='mb-2'>
-                              {(message.metadata.toolCalls as any[]).map((toolCall: any) => (
+                              {(message.llmMetadata.toolCalls as any[]).map((toolCall: any) => (
                                 <div
                                   key={toolCall.id}
                                   className='flex items-center gap-2 text-xs text-blue-600 mb-1'
