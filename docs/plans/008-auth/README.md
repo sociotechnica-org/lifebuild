@@ -52,7 +52,7 @@ pnpm dev
 
 # Run comprehensive test suite
 pnpm lint-all    # Lint, format, typecheck
-pnpm test        # Unit tests  
+pnpm test        # Unit tests
 CI=true pnpm test:e2e  # E2E tests
 
 # Test auth service API directly

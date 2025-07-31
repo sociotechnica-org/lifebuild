@@ -137,6 +137,79 @@ await store.mutate([{ type: 'project.create', id: '1', name: 'Test', description
 const projects = await store.query(db => db.table('projects').all())
 ```
 
+### Storybook Stories
+
+Create Storybook stories for all UI components following these patterns:
+
+#### Story Structure
+
+```typescript
+import type { Meta, StoryObj } from '@storybook/react'
+import { ComponentName } from './ComponentName.js'
+
+const meta: Meta<typeof ComponentName> = {
+  title: 'Category/ComponentName', // Use logical grouping
+  component: ComponentName,
+  parameters: {
+    layout: 'centered', // or 'fullscreen' for pages
+    docs: {
+      description: {
+        component: 'Brief description of the component',
+      },
+    },
+  },
+  tags: ['autodocs'],
+  argTypes: {
+    // Define controls for interactive props
+  },
+}
+
+export default meta
+type Story = StoryObj<typeof meta>
+```
+
+#### Story Categories
+
+- `Components/` - Reusable UI components
+- `Pages/` - Full page components
+- `Modals/` - Modal dialogs
+- `Kanban/` - Kanban-specific components
+
+#### Required Stories
+
+- **Default**: Standard usage
+- **Edge Cases**: Long text, empty states, error states
+- **Interactive**: Form validation, loading states
+- **Variants**: Different modes (dev/prod, authenticated/not)
+
+#### Mocking Dependencies
+
+For components with external dependencies:
+
+```typescript
+// Mock contexts and providers
+const MockAuthProvider = ({ children, mockProps }) => {
+  const mockContext = { ...defaultValues, ...mockProps }
+  return <div data-mock-auth={JSON.stringify(mockContext)}>{children}</div>
+}
+
+// Mock routing
+<MemoryRouter initialEntries={['/path']}>
+  <Component />
+</MemoryRouter>
+
+// Mock environment variables
+React.useEffect(() => {
+  (import.meta as any).env = { ...import.meta.env, VITE_VAR: 'value' }
+}, [])
+```
+
+#### Story Descriptions
+
+- Include `parameters.docs.description.story` for complex examples
+- Explain interaction patterns ("Try submitting with invalid data")
+- Document different states and behaviors
+
 ## Deployment
 
 Deployments happen automatically when you push to the main branch.
