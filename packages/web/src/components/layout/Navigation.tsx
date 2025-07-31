@@ -27,8 +27,7 @@ export const Navigation: React.FC = () => {
 
   const getEmail = () => {
     if (authUser) return authUser.email
-    if (legacyUser) return legacyUser.name // Legacy user uses name as display
-    return ''
+    return '' // Legacy users don't have email addresses
   }
 
   // Close dropdown when clicking outside

@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "pnpm --parallel --filter @work-squared/web --filter @work-squared/worker --filter @work-squared/server dev",
+    "dev": "pnpm --parallel --filter @work-squared/web --filter @work-squared/worker --filter @work-squared/server --filter @work-squared/auth-worker dev",
     "dev:web": "pnpm --filter @work-squared/web dev",
     "dev:worker": "pnpm --filter @work-squared/worker dev",
     "dev:server": "pnpm --filter @work-squared/server dev",

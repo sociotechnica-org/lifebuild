@@ -5,18 +5,21 @@ This directory contains comprehensive E2E tests for the authentication system, i
 ## Running Auth Tests
 
 ### Development Mode (REQUIRE_AUTH=false)
+
 ```bash
 # Standard E2E tests - tests UI components and basic flows
 pnpm test:e2e
 ```
 
 ### Production Mode (REQUIRE_AUTH=true)
+
 ```bash
 # Run with authentication enforcement enabled
 REQUIRE_AUTH=true pnpm test:e2e
 ```
 
 The tests will automatically:
+
 - **Skip auth enforcement tests** when `REQUIRE_AUTH=false` (development mode)
 - **Run full authentication flow tests** when `REQUIRE_AUTH=true` (production mode)
 - **Always test UI components and form validation** regardless of auth mode
@@ -24,6 +27,7 @@ The tests will automatically:
 ## Test Coverage
 
 ### Always Run (Both Modes)
+
 - ✅ Login/signup page UI components
 - ✅ Form validation (client-side)
 - ✅ Error handling for invalid credentials
@@ -31,6 +35,7 @@ The tests will automatically:
 - ✅ Dev mode indicators
 
 ### Only When REQUIRE_AUTH=true
+
 - ✅ Complete signup → login → project creation flow
 - ✅ Protected route redirects
 - ✅ Post-login redirect to intended destination
@@ -40,7 +45,7 @@ The tests will automatically:
 ## Authentication Flow Tested
 
 1. **User tries to access protected route** → redirected to `/login`
-2. **User clicks "Sign up"** → navigates to `/signup` 
+2. **User clicks "Sign up"** → navigates to `/signup`
 3. **User creates account** → redirected to `/login` with success message
 4. **User logs in** → redirected to intended destination
 5. **User sees authenticated header** → user initials dropdown visible
@@ -80,11 +85,13 @@ CI=true pnpm test:e2e --grep "should validate form inputs correctly"
 ## Test Status
 
 ### ✅ Working Tests
+
 - **Auth Service API Integration**: Tests user creation via direct API calls
 - **Development Mode**: Tests app functionality with REQUIRE_AUTH=false
 - **Basic App Loading**: Tests fundamental app loading and functionality
 
-### 🚧 UI-Dependent Tests  
+### 🚧 UI-Dependent Tests
+
 - **Login/Signup Page Loading**: Currently affected by LiveStore loading states in test environment
 - **Form Validation**: Depends on auth pages loading correctly
 - **Complete Auth Flow UI**: Requires UI elements to be fully loaded
@@ -99,11 +106,14 @@ For reliable E2E testing of the authentication system:
 
 ```typescript
 // Inject tokens directly for faster, more reliable tests
-await page.addInitScript(({ accessToken, refreshToken, user }) => {
-  localStorage.setItem('work-squared-access-token', accessToken)
-  localStorage.setItem('work-squared-refresh-token', refreshToken)
-  localStorage.setItem('work-squared-user-info', JSON.stringify(user))
-}, { accessToken, refreshToken, user })
+await page.addInitScript(
+  ({ accessToken, refreshToken, user }) => {
+    localStorage.setItem('work-squared-access-token', accessToken)
+    localStorage.setItem('work-squared-refresh-token', refreshToken)
+    localStorage.setItem('work-squared-user-info', JSON.stringify(user))
+  },
+  { accessToken, refreshToken, user }
+)
 ```
 
 ## Production Testing Setup

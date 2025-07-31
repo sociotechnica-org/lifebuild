@@ -16,7 +16,7 @@ test.describe('Auth UI Components', () => {
     await page.screenshot({ path: 'test-results/login-page-debug.png' })
     console.log('Page URL:', page.url())
     console.log('Page title:', await page.title())
-    
+
     const pageContent = await page.content()
     console.log('Page content preview:', pageContent.substring(0, 500))
 
@@ -31,11 +31,11 @@ test.describe('Auth UI Components', () => {
 
     // Basic checks that should always pass
     await expect(page.locator('body')).toBeVisible()
-    
+
     // Check for React app content
     const hasReactContent = await page.locator('#react-app').isVisible()
     console.log('React app container visible:', hasReactContent)
-    
+
     if (hasReactContent) {
       // If React loaded, we should see our auth UI
       await expect(page.locator('h1')).toContainText('Work Squared')
@@ -53,11 +53,11 @@ test.describe('Auth UI Components', () => {
     console.log('Signup page content preview:', pageContent.substring(0, 500))
 
     await expect(page.locator('body')).toBeVisible()
-    
+
     // Check for React app content
     const hasReactContent = await page.locator('#react-app').isVisible()
     console.log('React app container visible on signup:', hasReactContent)
-    
+
     if (hasReactContent) {
       await expect(page.locator('h1')).toContainText('Work Squared')
       await expect(page.locator('h2')).toContainText('Create your account')
