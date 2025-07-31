@@ -8,7 +8,7 @@ This project is organized as a pnpm workspace with the following packages:
 
 - **[`packages/web`](./packages/web/README.md)** - React frontend application
 - **[`packages/worker`](./packages/worker/README.md)** - Cloudflare Worker backend for WebSocket sync
-- **[`packages/server`](./packages/server/README.md)** - Node.js server for LLM processing 
+- **[`packages/server`](./packages/server/README.md)** - Node.js server for LLM processing
 - **[`packages/auth-worker`](./packages/auth-worker/README.md)** - JWT authentication service
 - **[`packages/shared`](./packages/shared/README.md)** - Shared schemas and utilities
 
@@ -25,22 +25,36 @@ This project is organized as a pnpm workspace with the following packages:
 
     ```bash
     cp packages/web/.env.example packages/web/.env
-    cp .dev.vars.example .dev.vars
+    cp packages/worker/.dev.vars.example packages/worker/.dev.vars
+    cp packages/auth-worker/.dev.vars.example packages/auth-worker/.dev.vars
     ```
 
     Update `packages/web/.env` with:
 
     ```
     VITE_LIVESTORE_SYNC_URL=ws://localhost:8787
-    D1_DATABASE_ID=
-    BRAINTRUST_API_KEY=
+    VITE_ENVIRONMENT=development
+    VITE_REQUIRE_AUTH=false
+    VITE_AUTH_SERVICE_URL=http://localhost:8788
     ```
 
-    Update `.dev.vars` with your LLM API credentials:
+    Update `packages/worker/.dev.vars` with:
 
     ```
-    BRAINTRUST_API_KEY="your-braintrust-api-key-here" 
+    ENVIRONMENT=development
+    REQUIRE_AUTH=false
+    JWT_SECRET=dev-jwt-secret-change-me-in-production
+    GRACE_PERIOD_SECONDS=86400
+    SERVER_BYPASS_TOKEN=dev-server-bypass-token-change-me
+    BRAINTRUST_API_KEY="your-braintrust-api-key-here"
     BRAINTRUST_PROJECT_ID="your-braintrust-project-id-here"
+    ```
+
+    Update `packages/auth-worker/.dev.vars` with:
+
+    ```
+    ENVIRONMENT=development
+    JWT_SECRET=dev-jwt-secret-change-me-in-production
     ```
 
     _(Get Braintrust credentials from https://www.braintrust.dev/)_
@@ -139,7 +153,7 @@ pnpm --filter <package> lint        # Run linter
 pnpm --filter <package> lint:fix    # Auto-fix linting issues
 pnpm --filter <package> format      # Format code
 
-# Testing (available in packages with tests)  
+# Testing (available in packages with tests)
 pnpm --filter <package> test        # Run tests once
 pnpm --filter <package> test:watch  # Run tests in watch mode
 
@@ -152,17 +166,17 @@ pnpm --filter <package> build       # Build for production
 
 Each package follows consistent naming conventions:
 
-| Script | Purpose | Available In |
-|--------|---------|--------------|
-| `dev` | Development server | web, worker, server, auth-worker |
-| `build` | Production build | web, server |
-| `test` | Run tests once | web, auth-worker |
-| `test:watch` | Watch mode tests | web, auth-worker |
-| `lint-all` | All quality checks | All packages |
-| `typecheck` | TypeScript checking | All packages |
-| `lint` | Linting only | web, server |
-| `lint:fix` | Auto-fix linting | web, server |
-| `format` | Code formatting | web, server |
+| Script       | Purpose             | Available In                     |
+| ------------ | ------------------- | -------------------------------- |
+| `dev`        | Development server  | web, worker, server, auth-worker |
+| `build`      | Production build    | web, server                      |
+| `test`       | Run tests once      | web, auth-worker                 |
+| `test:watch` | Watch mode tests    | web, auth-worker                 |
+| `lint-all`   | All quality checks  | All packages                     |
+| `typecheck`  | TypeScript checking | All packages                     |
+| `lint`       | Linting only        | web, server                      |
+| `lint:fix`   | Auto-fix linting    | web, server                      |
+| `format`     | Code formatting     | web, server                      |
 
 ## Ports
 
@@ -204,6 +218,7 @@ Work Squared is built with a modern monorepo architecture featuring real-time co
 **📖 For detailed technical architecture, see [docs/architecture.md](./docs/architecture.md)**
 
 ### Key Technologies
+
 - **Monorepo**: pnpm workspaces with TypeScript across all packages
 - **Frontend**: React 19, Vite, Tailwind CSS, LiveStore for state management
 - **Backend**: Cloudflare Worker with Durable Objects and WebSocket sync
@@ -211,6 +226,7 @@ Work Squared is built with a modern monorepo architecture featuring real-time co
 - **Testing**: Vitest, React Testing Library, Playwright E2E tests
 
 ### Package Structure
+
 - **[`packages/web`](./packages/web/README.md)** - React frontend application
 - **[`packages/worker`](./packages/worker/README.md)** - Cloudflare Worker for WebSocket sync
 - **[`packages/server`](./packages/server/README.md)** - Node.js server for LLM processing

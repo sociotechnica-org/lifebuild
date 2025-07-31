@@ -5,6 +5,7 @@ This directory contains shared authentication utilities for Work Squared, implem
 ## Overview
 
 The auth system provides:
+
 - JWT token generation and verification
 - Event metadata attribution with user IDs
 - Offline support with grace periods
@@ -41,11 +42,11 @@ import { useAuth } from './contexts/AuthContext.js'
 
 function MyComponent() {
   const { user, login, logout, isAuthenticated } = useAuth()
-  
+
   if (!isAuthenticated) {
     return <LoginForm onLogin={login} />
   }
-  
+
   return <div>Welcome, {user?.email}</div>
 }
 ```
@@ -90,6 +91,7 @@ All events automatically include metadata:
 ### Development Mode
 
 When `REQUIRE_AUTH=false` or `ENVIRONMENT=development`:
+
 - Unauthenticated connections allowed
 - Events attributed to default user ID
 - Legacy insecure tokens accepted
@@ -128,6 +130,7 @@ The system handles offline scenarios:
 ## Error Handling
 
 Auth errors are handled gracefully:
+
 - Connection failures trigger token refresh
 - Multiple retry attempts with backoff
 - Fallback to development mode if configured
@@ -136,6 +139,7 @@ Auth errors are handled gracefully:
 ## Migration
 
 The system supports gradual rollout:
+
 1. Deploy with `REQUIRE_AUTH=false`
 2. Test with early users
 3. Enable `REQUIRE_AUTH=true` in production

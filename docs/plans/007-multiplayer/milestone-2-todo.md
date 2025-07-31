@@ -60,7 +60,7 @@ This document provides detailed implementation steps for Milestone 2 of the mult
   "dependencies": {
     "@work-squared/shared": "workspace:*",
     "@livestore/adapter-node": "0.3.0",
-    "@livestore/livestore": "0.3.0", 
+    "@livestore/livestore": "0.3.0",
     "@livestore/sync-cf": "0.3.0",
     "dotenv": "^16.0.0"
   },
@@ -147,19 +147,19 @@ dotenv.config()
 async function main() {
   console.log('Starting Work Squared server...')
   console.log('Connecting to sync backend at:', process.env.LIVESTORE_SYNC_URL || 'ws://localhost:8787')
-  
+
   // Initialize LiveStore (sync is handled automatically by the adapter)
   await store.init()
-  
+
   // Subscribe to all events
-  store.subscribe('*', (event) => {
+  store.subscribe('*', event => {
     console.log('Received event:', event.type, event)
     // Future: This is where agentic loop will be triggered
   })
-  
+
   // Start LiveStore DevTools
   console.log('LiveStore DevTools available at http://localhost:3001/__livestore')
-  
+
   // Handle graceful shutdown
   process.on('SIGINT', async () => {
     console.log('Shutting down server...')
@@ -248,7 +248,7 @@ pnpm dev:server
 ```
 
 - [ ] Server starts without errors
-- [ ] LiveStore DevTools accessible at http://localhost:3001/__livestore
+- [ ] LiveStore DevTools accessible at http://localhost:3001/\_\_livestore
 - [ ] Data files created in `packages/server/data/`
 
 ### Test 3: Full Stack Development
@@ -269,11 +269,13 @@ pnpm dev
 **Note**: LiveStore adapter handles WebSocket sync automatically
 
 1. **Open LiveStore DevTools**:
-   - [ ] Navigate to http://localhost:3001/__livestore
+
+   - [ ] Navigate to http://localhost:3001/\_\_livestore
    - [ ] DevTools interface loads correctly
    - [ ] Can see event log section
 
 2. **Create a Task in Browser**:
+
    - [ ] Open web app at http://localhost:60001
    - [ ] Create a new task
    - [ ] Task appears in UI
@@ -310,7 +312,7 @@ pnpm dev
 
 ### LiveStore DevTools Not Loading
 
-- **Problem**: Can't access DevTools at http://localhost:3001/__livestore
+- **Problem**: Can't access DevTools at http://localhost:3001/\_\_livestore
 - **Solution**: Check if port 3001 is already in use
 - **Fix**: Change `DEVTOOLS_PORT` in `.env`
 
@@ -329,7 +331,7 @@ pnpm dev
 ## Success Criteria Met
 
 - [x] ✅ Server receives events from browser actions (via typed queries)
-- [x] ✅ Events persist in server-side file system (./data directory)  
+- [x] ✅ Events persist in server-side file system (./data directory)
 - [x] ✅ Can monitor events via console logging and health endpoint
 - [x] ✅ WebSocket sync handled automatically by LiveStore adapter
 - [x] ✅ Typed queries working from shared package

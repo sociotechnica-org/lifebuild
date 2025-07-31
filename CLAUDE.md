@@ -67,7 +67,7 @@ Work Squared is a real-time collaborative web application built as a monorepo wi
 ### Key Files (Monorepo)
 
 - `packages/shared/src/events.ts` - Event definitions
-- `packages/shared/src/schema.ts` - Database schema & materializers  
+- `packages/shared/src/schema.ts` - Database schema & materializers
 - `packages/shared/src/queries.ts` - Database queries
 - `packages/worker/functions/_worker.ts` - WebSocket sync server
 - `packages/web/src/` - React frontend application
