@@ -1,5 +1,7 @@
 import type { Preview } from '@storybook/react-vite'
 import React from 'react'
+import { BrowserRouter } from 'react-router-dom'
+import { AuthProvider } from '../src/contexts/AuthContext.js'
 import '../src/index.css'
 
 const preview: Preview = {
@@ -13,11 +15,15 @@ const preview: Preview = {
   },
   decorators: [
     Story => {
-      // Simple wrapper for now - LiveStore setup can be added later when needed
+      // Wrap stories with necessary providers for components that use auth/routing
       return (
-        <div data-testid='storybook-wrapper'>
-          <Story />
-        </div>
+        <BrowserRouter>
+          <AuthProvider>
+            <div data-testid='storybook-wrapper'>
+              <Story />
+            </div>
+          </AuthProvider>
+        </BrowserRouter>
       )
     },
   ],
