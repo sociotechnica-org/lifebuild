@@ -8,7 +8,7 @@ JWT-based authentication for Work Squared using Cloudflare Workers, implemented 
 
 ✅ **Milestone 1**: Auth Service Foundation - **COMPLETED**  
 ✅ **Milestone 2**: WebSocket JWT Validation - **COMPLETED**  
-🔄 **Milestone 3**: Frontend Auth UI - **NEXT**  
+✅ **Milestone 3**: Frontend Auth UI - **COMPLETED**  
 🔄 **Milestone 4**: Event Metadata Attribution - **FUTURE**
 
 ## Architecture
@@ -66,23 +66,55 @@ curl -X POST http://localhost:8788/login \
 3. Invalid tokens → WebSocket connection rejected
 4. Valid tokens → Connection accepted, events sync normally
 
-## Milestone 3: Frontend Auth UI 🔄 NEXT
+## Milestone 3: Frontend Auth UI ✅ COMPLETED
 
-### Planned tasks:
+### What was built:
 
-- Login/signup pages with forms
-- Auth context provider for token management
-- Protected routes requiring authentication
-- Automatic token refresh
-- User info display in header
-- Integration with real JWTs (replace dev tokens)
+- **Authentication Pages**: Complete login/signup pages with Tailwind styling
+  - `LoginPage.tsx` - Email/password login, redirect handling, dev mode indicator
+  - `SignupPage.tsx` - Registration with password confirmation and validation
+  - Both pages include comprehensive form validation and error handling
 
-### Key components to build:
+- **Protected Routing System**: All routes protected except `/login` and `/signup`
+  - `ProtectedRoute.tsx` - HOC that redirects unauthenticated users
+  - Preserves intended destination with `?redirect=` URL parameter
+  - Handles loading states during authentication checks
 
-- `packages/web/src/pages/Login.tsx`
-- `packages/web/src/pages/Signup.tsx`
-- `packages/web/src/contexts/AuthContext.tsx` (expand existing)
-- `packages/web/src/components/ProtectedRoute.tsx`
+- **Header Integration**: Authentication-aware navigation
+  - Replaced user bubble with "Sign In" button when unauthenticated
+  - User initials dropdown with email display and "Sign Out" when authenticated
+  - Responsive dropdown with proper email width handling and truncation
+
+- **Multi-tab Synchronization**: Login state syncs across browser tabs
+  - `AuthContext.tsx` enhanced with localStorage event listeners
+  - Login/logout in one tab immediately reflects in all open tabs
+
+- **WebSocket JWT Integration**: Complete token flow
+  - `useSyncPayload.ts` automatically includes JWT tokens in WebSocket connections
+  - Seamless integration between frontend auth and backend validation
+  - Automatic token refresh handling for expired tokens
+
+- **Production Deployment**: Ready for production use
+  - `wrangler.jsonc` configured with `VITE_REQUIRE_AUTH=true` for production builds
+  - Environment variables set for production auth enforcement
+  - Complete end-to-end authentication flow from signup to real-time collaboration
+
+- **Comprehensive Testing**: Full test coverage
+  - E2E tests for complete auth workflow (signup → login → create project → logout)
+  - Storybook stories for all auth components with multiple variants
+  - API integration tests for auth service validation
+  - Environment-aware tests for both dev and prod modes
+
+### Key files created/modified:
+
+- `packages/web/src/pages/LoginPage.tsx` + `.stories.tsx`
+- `packages/web/src/pages/SignupPage.tsx` + `.stories.tsx`
+- `packages/web/src/components/auth/ProtectedRoute.tsx` + `.stories.tsx`
+- `packages/web/src/contexts/AuthContext.tsx` (enhanced)
+- `packages/web/src/hooks/useSyncPayload.ts` (enhanced)
+- `packages/web/src/components/layout/Navigation.tsx` (auth integration)
+- `packages/web/e2e/auth-flow-comprehensive.spec.ts`
+- `packages/worker/wrangler.jsonc` (production config)
 
 ## Milestone 4: Event Metadata Attribution 🔄 FUTURE
 
@@ -156,17 +188,18 @@ SERVER_BYPASS_TOKEN=<secure-production-token>
 
 ## Testing Strategy
 
-### Current testing:
+### Completed testing:
 
 - Auth service unit tests ✅
 - JWT verification unit tests ✅
 - Integration test for auth flow ✅
-
-### Planned testing:
-
-- E2E tests for login flow
-- Token refresh testing
-- Multi-tab synchronization tests
+- Comprehensive E2E auth workflow tests ✅
+- Storybook stories for all auth components ✅
+- API integration tests ✅
+- Multi-tab synchronization tests ✅
+- Environment-aware testing (dev/prod modes) ✅
+- Token refresh and expiration handling ✅
+- Protected route redirect testing ✅
 - Offline/online transition tests
 
 ## Migration Strategy
