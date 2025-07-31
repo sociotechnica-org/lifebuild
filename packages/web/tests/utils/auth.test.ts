@@ -71,8 +71,11 @@ describe('Auth utilities', () => {
     })
 
     it('should handle localStorage errors gracefully', () => {
-      // Mock localStorage to throw error
+      // Mock localStorage to throw error and suppress console.error
       const originalGetItem = localStorage.getItem
+      const originalConsoleError = console.error
+      console.error = vi.fn()
+      
       localStorage.getItem = vi.fn(() => {
         throw new Error('localStorage error')
       })
@@ -82,6 +85,7 @@ describe('Auth utilities', () => {
 
       // Restore
       localStorage.getItem = originalGetItem
+      console.error = originalConsoleError
     })
   })
 
@@ -123,10 +127,17 @@ describe('Auth utilities', () => {
     })
 
     it('should handle JSON parse errors gracefully', () => {
+      // Suppress console.error for this test
+      const originalConsoleError = console.error
+      console.error = vi.fn()
+      
       localStorage.setItem('work-squared-user-info', 'invalid-json')
 
       const retrieved = getStoredUser()
       expect(retrieved).toBeNull()
+      
+      // Restore
+      console.error = originalConsoleError
     })
   })
 
