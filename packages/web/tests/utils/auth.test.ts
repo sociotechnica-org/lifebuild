@@ -104,7 +104,17 @@ describe('Auth utilities', () => {
       storeUser(mockUser)
       const retrieved = getStoredUser()
 
-      expect(retrieved).toEqual(mockUser)
+      // Note: Date objects become strings after JSON serialization
+      const expectedUser = {
+        ...mockUser,
+        instances: mockUser.instances.map((instance) => ({
+          ...instance,
+          createdAt: instance.createdAt.toISOString(),
+          lastAccessedAt: instance.lastAccessedAt.toISOString(),
+        })),
+      }
+
+      expect(retrieved).toEqual(expectedUser)
     })
 
     it('should return null when no user stored', () => {
