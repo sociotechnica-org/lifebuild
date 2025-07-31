@@ -14,7 +14,6 @@ import {
   wrapStringParamFunction,
   wrapNoParamFunction,
   wrapToolFunction,
-  createSystemMetadata,
 } from './base.js'
 import type {
   ListDocumentsResult,
@@ -184,7 +183,6 @@ function createDocumentCore(store: Store, params: CreateDocumentParams): CreateD
       title: title.trim(),
       content: content?.trim() || '',
       createdAt: new Date(),
-      metadata: createSystemMetadata(),
     })
   )
 
@@ -229,7 +227,6 @@ function updateDocumentCore(store: Store, params: UpdateDocumentParams): UpdateD
       id: documentId,
       updates,
       updatedAt: new Date(),
-      metadata: createSystemMetadata(),
     })
   )
 
@@ -261,7 +258,6 @@ function archiveDocumentCore(store: Store, documentId: string): ArchiveDocumentR
     events.documentArchived({
       id: documentId,
       archivedAt,
-      metadata: createSystemMetadata(),
     })
   )
 
@@ -306,7 +302,6 @@ function addDocumentToProjectCore(
     events.documentAddedToProject({
       documentId,
       projectId,
-      metadata: createSystemMetadata(),
     })
   )
 
@@ -351,7 +346,6 @@ function removeDocumentFromProjectCore(
     events.documentRemovedFromProject({
       documentId,
       projectId,
-      metadata: createSystemMetadata(),
     })
   )
 
