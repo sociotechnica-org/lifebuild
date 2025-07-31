@@ -9,7 +9,6 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:jwt-integration": "tsx scripts/test-jwt-integration.ts",
     "lint-all": "pnpm typecheck"
   },
   "dependencies": {
