@@ -75,11 +75,26 @@ async function validateSyncPayload(payload: any, env: any): Promise<{ userId: st
 
 // Create worker instance that captures env in closure
 function createWorkerWithAuth(env: any) {
+  const requireAuth = env[ENV_VARS.REQUIRE_AUTH] === 'true' || env[ENV_VARS.ENVIRONMENT] === 'production'
+  
+  // If auth is disabled, use simple token validation like main branch for compatibility
+  if (!requireAuth) {
+    console.log('Auth disabled - using simple token validation for development')
+    return makeWorker({
+      validatePayload: (payload: any) => {
+        if (payload?.authToken !== DEV_AUTH.INSECURE_TOKEN) {
+          throw new Error('Invalid auth token')
+        }
+      },
+      enableCORS: true,
+    })
+  }
+  
+  // Auth is enabled - use full JWT validation
   return makeWorker({
     validatePayload: async (payload: any) => {
       console.log('Validating sync payload:', Object.keys(payload || {}))
       
-      // Use our authentication function with the captured env
       try {
         const authResult = await validateSyncPayload(payload, env)
         console.log(`Authentication successful for user: ${authResult.userId}`)
