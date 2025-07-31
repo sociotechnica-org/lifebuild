@@ -86,9 +86,15 @@ const worker = makeWorker({
     // We can only accept/reject the connection here
     console.log('Validating sync payload:', Object.keys(payload || {}))
     
-    // Basic validation - ensure payload exists and has instanceId
-    if (!payload || !payload.instanceId) {
-      throw new Error('Invalid sync payload: missing instanceId')
+    // Basic validation - ensure payload exists
+    if (!payload) {
+      throw new Error('Invalid sync payload: payload is null/undefined')
+    }
+    
+    // Log if instanceId is missing (this shouldn't happen normally)
+    if (!payload.instanceId) {
+      console.warn('Warning: sync payload missing instanceId:', payload)
+      // Don't throw error for now to allow debugging
     }
     
     // Log auth token if present (for debugging)

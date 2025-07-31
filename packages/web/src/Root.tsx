@@ -62,6 +62,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   const { syncPayload } = useSyncPayload({ instanceId: storeId })
 
   console.log(`Using stable storeId: ${storeId}`)
+  console.log('Sync payload being passed to LiveStore:', syncPayload)
 
   return (
     <LiveStoreProvider
