@@ -32,12 +32,20 @@ Required environment variables:
 # WebSocket URL for LiveStore sync
 VITE_LIVESTORE_SYNC_URL=ws://localhost:8787
 
+# Authentication configuration
+VITE_REQUIRE_AUTH=false  # Set to 'true' for production
+VITE_AUTH_SERVICE_URL=http://localhost:8788
+
 # Database ID (leave blank for local development)
 D1_DATABASE_ID=
 
 # Braintrust API key for LLM features
 BRAINTRUST_API_KEY=your-key-here
 ```
+
+**Authentication Modes**:
+- `VITE_REQUIRE_AUTH=false` (default): Development mode, authentication optional
+- `VITE_REQUIRE_AUTH=true`: Production mode, authentication required for all protected routes
 
 ### Development Commands
 
@@ -54,6 +62,11 @@ pnpm --filter @work-squared/web build
 pnpm --filter @work-squared/web test
 pnpm --filter @work-squared/web test:watch
 pnpm --filter @work-squared/web test:coverage
+
+# E2E tests
+pnpm --filter @work-squared/web test:e2e
+# With authentication enforcement (production mode)
+REQUIRE_AUTH=true pnpm --filter @work-squared/web test:e2e
 
 # Linting and formatting
 pnpm --filter @work-squared/web lint
@@ -104,19 +117,58 @@ src/
 
 ### Testing Strategy
 
-- **Unit Tests**: Individual component and utility testing
-- **Integration Tests**: Component interaction testing
+- **Unit Tests**: Individual component and utility testing with Vitest
+- **Integration Tests**: Component interaction testing with React Testing Library
+- **E2E Tests**: End-to-end authentication and user flow testing with Playwright
 - **Storybook**: Visual component development and testing
+
+#### E2E Testing
+
+The project includes comprehensive E2E tests that validate authentication flows and user interactions:
+
+**Development Mode (`REQUIRE_AUTH=false`)**:
+- Tests UI components and basic functionality
+- Validates app works without authentication
+- Automatically skips auth enforcement tests
+
+**Production Mode (`REQUIRE_AUTH=true`)**:
+- Tests complete signup → login → project creation flow
+- Validates protected route redirects and session management
+- Tests authentication state in UI (login button vs user dropdown)
+
+**Key E2E Test Coverage**:
+- ✅ Login/signup page UI and form validation
+- ✅ Authentication service API integration  
+- ✅ Protected route access control
+- ✅ Post-login redirect handling
+- ✅ Session cleanup on logout
+
+**Running Specific Test Categories**:
+```bash
+# Test auth service integration
+pnpm test:e2e --grep "auth service API"
+
+# Test development mode behavior  
+pnpm test:e2e --grep "development mode"
+
+# Test complete auth flow (requires REQUIRE_AUTH=true)
+REQUIRE_AUTH=true pnpm test:e2e --grep "complete auth"
+
+# Test form validation
+pnpm test:e2e --grep "validate.*form"
+```
 
 ## Features
 
 ### Core Functionality
 
+- **JWT Authentication**: Secure user authentication with signup/login flows
 - **Real-time Kanban Boards**: Drag-and-drop task management
-- **Multi-user Collaboration**: Live updates across users
+- **Multi-user Collaboration**: Live updates across users with user attribution
 - **Project Workspaces**: Organized task and document management
 - **AI Workers**: Configurable AI assistants for tasks
 - **Document Management**: Create and edit rich text documents
+- **Protected Routing**: Environment-controlled access to authenticated features
 
 ### UI/UX Features
 
