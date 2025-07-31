@@ -17,7 +17,7 @@ const MockAuthProvider = ({
     user: null,
     login: async (email: string, password: string) => {
       console.log('Mock login attempt:', { email, password })
-      return Promise.resolve()
+      return Promise.resolve(true)
     },
     logout: async () => Promise.resolve(),
     ...mockProps,

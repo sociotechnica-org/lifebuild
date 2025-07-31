@@ -17,7 +17,7 @@ const MockAuthProvider = ({
     isAuthenticated,
     isLoading,
     user: isAuthenticated ? { id: 'mock-user', email: 'user@example.com' } : null,
-    login: async () => Promise.resolve(),
+    login: async () => Promise.resolve(true),
     logout: async () => Promise.resolve(),
   }
 
