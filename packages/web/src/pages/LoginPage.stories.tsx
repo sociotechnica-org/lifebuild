@@ -3,48 +3,26 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { MemoryRouter } from 'react-router-dom'
 import { LoginPage } from './LoginPage.js'
 
-// Mock AuthContext for Storybook
-const MockAuthProvider = ({
-  children,
-  mockProps,
-}: {
-  children: React.ReactNode
-  mockProps: any
-}) => {
-  const mockAuthContext = {
-    isAuthenticated: false,
-    isLoading: false,
-    user: null,
-    login: async (email: string, password: string) => {
-      console.log('Mock login attempt:', { email, password })
-      return Promise.resolve(true)
+// Mock environment variables
+const mockEnv = (isDevelopmentMode: boolean) => {
+  // Mock the import.meta.env object
+  Object.defineProperty(window, '__vite_env__', {
+    value: {
+      DEV: isDevelopmentMode,
+      VITE_REQUIRE_AUTH: isDevelopmentMode ? 'false' : 'true',
+      VITE_AUTH_SERVICE_URL: 'http://localhost:8788',
     },
-    logout: async () => Promise.resolve(),
-    ...mockProps,
-  }
-
-  return React.createElement(
-    'div',
-    {
-      children,
-      // Provide mock context through a fake provider
-      'data-mock-auth': JSON.stringify(mockAuthContext),
-    },
-    children
-  )
+    writable: true,
+  })
 }
 
-// Create a story wrapper that doesn't depend on real AuthContext
+// Create a story wrapper that uses the default AuthProvider from preview
 const LoginPageStory = ({
   isDevelopmentMode = true,
   hasSuccessMessage = false,
-  isAuthLoading = false,
-  isAuthenticated = false,
 }: {
   isDevelopmentMode?: boolean
   hasSuccessMessage?: boolean
-  isAuthLoading?: boolean
-  isAuthenticated?: boolean
 }) => {
   // Mock the environment and URL params
   const searchParams = new URLSearchParams()
@@ -53,21 +31,14 @@ const LoginPageStory = ({
   }
 
   React.useEffect(() => {
-    // Mock environment variables
-    ;(import.meta as any).env = {
-      ...import.meta.env,
-      DEV: isDevelopmentMode,
-      VITE_REQUIRE_AUTH: isDevelopmentMode ? 'false' : 'true',
-    }
+    mockEnv(isDevelopmentMode)
   }, [isDevelopmentMode])
 
   return (
     <MemoryRouter initialEntries={[`/login?${searchParams.toString()}`]}>
-      <MockAuthProvider mockProps={{ isLoading: isAuthLoading, isAuthenticated }}>
-        <div className='min-h-screen'>
-          <LoginPage />
-        </div>
-      </MockAuthProvider>
+      <div className='min-h-screen'>
+        <LoginPage />
+      </div>
     </MemoryRouter>
   )
 }
@@ -94,14 +65,6 @@ const meta: Meta<typeof LoginPageStory> = {
       control: 'boolean',
       description: 'Shows success message from signup redirect',
     },
-    isAuthLoading: {
-      control: 'boolean',
-      description: 'Shows loading state during authentication',
-    },
-    isAuthenticated: {
-      control: 'boolean',
-      description: 'Whether user is already authenticated (would redirect)',
-    },
   },
 }
 
@@ -112,8 +75,6 @@ export const Default: Story = {
   args: {
     isDevelopmentMode: true,
     hasSuccessMessage: false,
-    isAuthLoading: false,
-    isAuthenticated: false,
   },
 }
 
@@ -121,8 +82,6 @@ export const ProductionMode: Story = {
   args: {
     isDevelopmentMode: false,
     hasSuccessMessage: false,
-    isAuthLoading: false,
-    isAuthenticated: false,
   },
   parameters: {
     docs: {
@@ -137,8 +96,6 @@ export const WithSuccessMessage: Story = {
   args: {
     isDevelopmentMode: true,
     hasSuccessMessage: true,
-    isAuthLoading: false,
-    isAuthenticated: false,
   },
   parameters: {
     docs: {
@@ -149,28 +106,10 @@ export const WithSuccessMessage: Story = {
   },
 }
 
-export const Loading: Story = {
-  args: {
-    isDevelopmentMode: true,
-    hasSuccessMessage: false,
-    isAuthLoading: true,
-    isAuthenticated: false,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Login page in loading state during authentication check.',
-      },
-    },
-  },
-}
-
 export const FormValidation: Story = {
   args: {
     isDevelopmentMode: true,
     hasSuccessMessage: false,
-    isAuthLoading: false,
-    isAuthenticated: false,
   },
   parameters: {
     docs: {

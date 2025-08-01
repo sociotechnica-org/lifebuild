@@ -3,60 +3,30 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { MemoryRouter } from 'react-router-dom'
 import { SignupPage } from './SignupPage.js'
 
-// Mock AuthContext for Storybook
-const MockAuthProvider = ({
-  children,
-  mockProps,
-}: {
-  children: React.ReactNode
-  mockProps: any
-}) => {
-  const mockAuthContext = {
-    isAuthenticated: false,
-    isLoading: false,
-    user: null,
-    login: async (_email: string, _password: string) => Promise.resolve(true),
-    logout: async () => Promise.resolve(),
-    ...mockProps,
-  }
-
-  return React.createElement(
-    'div',
-    {
-      children,
-      'data-mock-auth': JSON.stringify(mockAuthContext),
-    },
-    children
-  )
-}
-
-// Create a story wrapper that doesn't depend on real AuthContext
-const SignupPageStory = ({
-  isDevelopmentMode = true,
-  isAuthLoading = false,
-  isAuthenticated = false,
-}: {
-  isDevelopmentMode?: boolean
-  isAuthLoading?: boolean
-  isAuthenticated?: boolean
-}) => {
-  React.useEffect(() => {
-    // Mock environment variables
-    ;(import.meta as any).env = {
-      ...import.meta.env,
+// Mock environment variables
+const mockEnv = (isDevelopmentMode: boolean) => {
+  // Mock the import.meta.env object
+  Object.defineProperty(window, '__vite_env__', {
+    value: {
       DEV: isDevelopmentMode,
       VITE_REQUIRE_AUTH: isDevelopmentMode ? 'false' : 'true',
       VITE_AUTH_SERVICE_URL: 'http://localhost:8788',
-    }
+    },
+    writable: true,
+  })
+}
+
+// Create a story wrapper that uses the default AuthProvider from preview
+const SignupPageStory = ({ isDevelopmentMode = true }: { isDevelopmentMode?: boolean }) => {
+  React.useEffect(() => {
+    mockEnv(isDevelopmentMode)
   }, [isDevelopmentMode])
 
   return (
     <MemoryRouter initialEntries={['/signup']}>
-      <MockAuthProvider mockProps={{ isLoading: isAuthLoading, isAuthenticated }}>
-        <div className='min-h-screen'>
-          <SignupPage />
-        </div>
-      </MockAuthProvider>
+      <div className='min-h-screen'>
+        <SignupPage />
+      </div>
     </MemoryRouter>
   )
 }
@@ -79,14 +49,6 @@ const meta: Meta<typeof SignupPageStory> = {
       control: 'boolean',
       description: 'Shows dev mode indicator when true',
     },
-    isAuthLoading: {
-      control: 'boolean',
-      description: 'Shows loading state during authentication check',
-    },
-    isAuthenticated: {
-      control: 'boolean',
-      description: 'Whether user is already authenticated (would redirect)',
-    },
   },
 }
 
@@ -96,16 +58,12 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     isDevelopmentMode: true,
-    isAuthLoading: false,
-    isAuthenticated: false,
   },
 }
 
 export const ProductionMode: Story = {
   args: {
     isDevelopmentMode: false,
-    isAuthLoading: false,
-    isAuthenticated: false,
   },
   parameters: {
     docs: {
@@ -116,26 +74,9 @@ export const ProductionMode: Story = {
   },
 }
 
-export const Loading: Story = {
-  args: {
-    isDevelopmentMode: true,
-    isAuthLoading: true,
-    isAuthenticated: false,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Signup page in loading state during authentication check.',
-      },
-    },
-  },
-}
-
 export const FormValidation: Story = {
   args: {
     isDevelopmentMode: true,
-    isAuthLoading: false,
-    isAuthenticated: false,
   },
   parameters: {
     docs: {

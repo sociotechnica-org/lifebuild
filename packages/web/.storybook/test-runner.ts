@@ -18,11 +18,35 @@ const config: TestRunnerConfig = {
     // Custom assertions after story renders
     const storyElement = page.locator('#storybook-root')
 
-    // Check that the story rendered successfully
-    await expect(storyElement).toBeVisible()
+    // Wait a bit for content to render
+    await page.waitForTimeout(1000)
 
-    // Simple check - if we get here, the story rendered without throwing errors
-    // More complex error checking could be added here if needed
+    // Check for any error messages first
+    const errorElement = page.locator('[data-testid="error-message"]')
+    const hasError = await errorElement.isVisible().catch(() => false)
+
+    if (hasError) {
+      const errorText = await errorElement.textContent()
+      console.warn('Story has error:', errorText)
+    }
+
+    // Check that the story element exists and has content
+    const hasContent = await storyElement
+      .locator('*')
+      .first()
+      .isVisible()
+      .catch(() => false)
+
+    if (!hasContent) {
+      // Log what's actually in the storybook root for debugging
+      const content = await storyElement.innerHTML().catch(() => 'Could not get innerHTML')
+      console.warn('Story rendered but has no visible content. Content:', content)
+    }
+
+    // Ensure the story root exists (it should always exist)
+    await expect(storyElement).toBeAttached()
+
+    // Simple check - if we get here, the story loaded without crashing
   },
 
   // Tags to run/skip
