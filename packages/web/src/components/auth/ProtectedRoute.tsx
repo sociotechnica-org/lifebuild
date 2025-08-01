@@ -13,9 +13,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const location = useLocation()
 
   // Check if authentication is required based on environment
-  const requireAuth = import.meta.env.VITE_REQUIRE_AUTH === 'true' && !import.meta.env.DEV
+  const requireAuth = import.meta.env.VITE_REQUIRE_AUTH === 'true'
 
-  // In development mode or when auth is disabled, always allow access
+  // When auth is disabled, always allow access
   if (!requireAuth) {
     return <>{children}</>
   }

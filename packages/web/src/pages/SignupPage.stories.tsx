@@ -3,25 +3,8 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { MemoryRouter } from 'react-router-dom'
 import { SignupPage } from './SignupPage.js'
 
-// Mock environment variables
-const mockEnv = (isDevelopmentMode: boolean) => {
-  // Mock the import.meta.env object
-  Object.defineProperty(window, '__vite_env__', {
-    value: {
-      DEV: isDevelopmentMode,
-      VITE_REQUIRE_AUTH: isDevelopmentMode ? 'false' : 'true',
-      VITE_AUTH_SERVICE_URL: 'http://localhost:8788',
-    },
-    writable: true,
-  })
-}
-
-// Create a story wrapper that uses the default AuthProvider from preview
-const SignupPageStory = ({ isDevelopmentMode = true }: { isDevelopmentMode?: boolean }) => {
-  React.useEffect(() => {
-    mockEnv(isDevelopmentMode)
-  }, [isDevelopmentMode])
-
+// Simple story wrapper - uses actual component with current environment
+const SignupPageStory = () => {
   return (
     <MemoryRouter initialEntries={['/signup']}>
       <div className='min-h-screen'>
@@ -44,40 +27,25 @@ const meta: Meta<typeof SignupPageStory> = {
     },
   },
   tags: ['autodocs'],
-  argTypes: {
-    isDevelopmentMode: {
-      control: 'boolean',
-      description: 'Shows dev mode indicator when true',
-    },
-  },
+  argTypes: {},
 }
 
 export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  args: {
-    isDevelopmentMode: true,
-  },
-}
-
-export const ProductionMode: Story = {
-  args: {
-    isDevelopmentMode: false,
-  },
+  args: {},
   parameters: {
     docs: {
       description: {
-        story: 'Signup page in production mode without the dev mode indicator.',
+        story: 'Default signup page with current environment settings.',
       },
     },
   },
 }
 
 export const FormValidation: Story = {
-  args: {
-    isDevelopmentMode: true,
-  },
+  args: {},
   parameters: {
     docs: {
       description: {
