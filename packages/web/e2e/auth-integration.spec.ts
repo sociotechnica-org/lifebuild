@@ -4,11 +4,7 @@
  */
 
 import { test, expect } from '@playwright/test'
-import {
-  createTestUserViaAPI,
-  APP_URL,
-  REQUIRE_AUTH,
-} from './test-utils.js'
+import { createTestUserViaAPI, APP_URL, REQUIRE_AUTH } from './test-utils.js'
 
 test.describe('Authentication Integration E2E', () => {
   test.describe.configure({ timeout: 60000 }) // 60 second timeout for auth tests
