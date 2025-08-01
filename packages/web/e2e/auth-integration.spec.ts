@@ -4,43 +4,11 @@
  */
 
 import { test, expect } from '@playwright/test'
-
-// Test configuration
-const AUTH_SERVICE_URL =
-  process.env.AUTH_SERVICE_URL || 'https://work-squared-auth.jessmartin.workers.dev'
-const APP_URL = process.env.APP_URL || 'http://localhost:5173'
-const REQUIRE_AUTH = process.env.REQUIRE_AUTH === 'true'
-
-/**
- * Helper to create a test user via API
- */
-async function createTestUser() {
-  const testEmail = `e2e-test-${Date.now()}@example.com`
-  const testPassword = 'E2ETestPassword123!'
-
-  const response = await fetch(`${AUTH_SERVICE_URL}/signup`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: testEmail, password: testPassword }),
-  })
-
-  if (!response.ok) {
-    throw new Error(`Failed to create test user: ${response.status}`)
-  }
-
-  const data = await response.json()
-  if (!data.success) {
-    throw new Error(`Test user creation failed: ${data.error?.message}`)
-  }
-
-  return {
-    email: testEmail,
-    password: testPassword,
-    user: data.user,
-    accessToken: data.accessToken,
-    refreshToken: data.refreshToken,
-  }
-}
+import {
+  createTestUserViaAPI,
+  APP_URL,
+  REQUIRE_AUTH,
+} from './test-utils.js'
 
 test.describe('Authentication Integration E2E', () => {
   test.describe.configure({ timeout: 60000 }) // 60 second timeout for auth tests
@@ -141,7 +109,7 @@ test.describe('Authentication Integration E2E', () => {
     expect(url).toContain('redirect=%2Ftasks')
 
     // Create and login with a test user
-    const testUser = await createTestUser()
+    const testUser = await createTestUserViaAPI()
 
     await page.fill('input[name="email"]', testUser.email)
     await page.fill('input[name="password"]', testUser.password)

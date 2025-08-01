@@ -19,7 +19,8 @@ const ProtectedRouteStory = () => {
       <div className='mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
         <h1 className='text-lg font-semibold text-blue-800'>ProtectedRoute Demo</h1>
         <p className='text-sm text-blue-700'>
-          Auth required: <strong>{import.meta.env.VITE_REQUIRE_AUTH === 'true' ? 'Yes' : 'No'}</strong>
+          Auth required:{' '}
+          <strong>{import.meta.env.VITE_REQUIRE_AUTH === 'true' ? 'Yes' : 'No'}</strong>
         </p>
       </div>
 
