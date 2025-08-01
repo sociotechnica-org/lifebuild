@@ -15,7 +15,6 @@ test.describe('Smoke Tests', () => {
     const hasContent = await page.locator('body').textContent()
     if (hasContent?.includes('Loading LiveStore')) {
       // App is stuck loading - this is expected in CI without sync server
-      console.log('App stuck on loading screen - expected in CI environment')
       return // Exit test gracefully
     }
 
@@ -29,8 +28,6 @@ test.describe('Smoke Tests', () => {
     const chatElement = page.locator('textarea[placeholder="Type your message..."]')
     if (await chatElement.isVisible()) {
       await expect(chatElement).toBeVisible()
-    } else {
-      console.log('Chat interface not visible - expected in CI without sync server')
     }
 
     // Test navigation by going to projects route
@@ -115,6 +112,5 @@ test.describe('Smoke Tests', () => {
     await expect(page).toHaveURL(/\/projects\?storeId=[^&]+/)
 
     // Basic navigation is working
-    console.log('Basic app routing verified')
   })
 })

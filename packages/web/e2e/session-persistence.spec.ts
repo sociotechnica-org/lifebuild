@@ -43,8 +43,7 @@ test.describe('Session Persistence', () => {
     // The conversation and state should persist
     if (await textarea.isVisible()) {
       // Textarea should still have the text (if it was persisting)
-      const textValue = await textarea.inputValue()
-      console.log('Textarea value after return:', textValue)
+      await textarea.inputValue()
       // Note: This might be empty if we don't persist draft text, that's OK
     }
 
@@ -52,8 +51,7 @@ test.describe('Session Persistence', () => {
     const conversationElements = page.locator(
       'select option, .conversation-item, [data-testid*="conversation"]'
     )
-    const hasConversations = (await conversationElements.count()) > 1 // More than just "Select a conversation"
-    console.log('Has persisted conversations:', hasConversations)
+    await conversationElements.count() // More than just "Select a conversation"
   })
 
   test('root redirect creates consistent storeId behavior', async ({ page }) => {
@@ -63,7 +61,6 @@ test.describe('Session Persistence', () => {
 
     // Should have storeId query parameter
     const firstUrl = page.url()
-    console.log('First root visit URL:', firstUrl)
 
     // Should have storeId format
     expect(firstUrl).toMatch(/\?storeId=[a-f0-9-]+$/)
@@ -78,7 +75,6 @@ test.describe('Session Persistence', () => {
     await waitForLiveStoreReady(page)
 
     const secondUrl = page.url()
-    console.log('Second root visit URL:', secondUrl)
 
     // Should redirect to the SAME storeId (from localStorage)
     expect(secondUrl).toBe(firstUrl)
@@ -98,7 +94,6 @@ test.describe('Session Persistence', () => {
     await waitForLiveStoreReady(page1)
 
     const firstTabUrl = page1.url()
-    console.log('First tab URL:', firstTabUrl)
     expect(firstTabUrl).toMatch(/\?storeId=[a-f0-9-]+$/)
 
     // Second tab (same context = same localStorage)
@@ -107,7 +102,6 @@ test.describe('Session Persistence', () => {
     await waitForLiveStoreReady(page2)
 
     const secondTabUrl = page2.url()
-    console.log('Second tab URL:', secondTabUrl)
 
     // Should be the same URL with storeId
     expect(secondTabUrl).toBe(firstTabUrl)
@@ -129,9 +123,6 @@ test.describe('Session Persistence', () => {
     await page2.goto('/')
     await waitForLiveStoreReady(page2)
     const url2 = page2.url()
-
-    console.log('Regular session:', url1)
-    console.log('Incognito session:', url2)
 
     // Should be different storeIds
     expect(url1).not.toBe(url2)

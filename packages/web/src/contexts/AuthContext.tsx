@@ -8,9 +8,6 @@ import { AuthUser, AuthTokens, ConnectionState } from '@work-squared/shared/auth
 import {
   getStoredTokens,
   getStoredUser,
-  storeTokens,
-  storeUser,
-  clearStoredAuth,
   refreshAccessToken,
   login as authLogin,
   logout as authLogout,
@@ -62,7 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const retryCountRef = useRef(0)
   const maxRetries = 3
 
-  // Initialize auth state from localStorage
+  // Initialize auth state from localStorage and listen for changes
   useEffect(() => {
     const initializeAuth = async () => {
       try {
@@ -81,7 +78,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     }
 
+    // Multi-tab sync: listen for localStorage changes
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'work-squared-access-token') {
+        // Auth state changed in another tab
+        const storedTokens = getStoredTokens()
+        const storedUser = getStoredUser()
+
+        if (storedTokens && storedUser) {
+          // Logged in from another tab
+          setTokens(storedTokens)
+          setUser(storedUser)
+          setConnectionState(ConnectionState.AUTHENTICATED)
+        } else {
+          // Logged out from another tab
+          setTokens(null)
+          setUser(null)
+          setConnectionState(ConnectionState.DISCONNECTED)
+        }
+      }
+    }
+
     initializeAuth()
+
+    // Listen for storage changes (multi-tab sync)
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {

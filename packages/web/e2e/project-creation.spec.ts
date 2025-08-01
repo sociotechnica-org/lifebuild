@@ -72,9 +72,8 @@ test.describe('Project Creation and Task Management', () => {
       await expect(page.locator('text=Doing')).toBeVisible({ timeout: 5000 })
       await expect(page.locator('text=In Review')).toBeVisible({ timeout: 5000 })
       await expect(page.locator('text=Done')).toBeVisible({ timeout: 5000 })
-      console.log(`Successfully created project "${projectName}" with default columns`)
     } catch {
-      console.log('Default columns not visible - this may be expected in CI environment')
+      // Default columns not visible - this may be expected in CI environment
     }
   })
 
@@ -123,7 +122,5 @@ test.describe('Project Creation and Task Management', () => {
 
     // Modal should close
     await expect(page.locator('text=Create New Project')).not.toBeVisible()
-
-    console.log('Form validation working correctly')
   })
 })

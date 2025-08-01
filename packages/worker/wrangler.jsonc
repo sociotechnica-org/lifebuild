@@ -8,12 +8,18 @@
     "not_found_handling": "single-page-application",
   },
   "build": {
-    "command": "pnpm --filter @work-squared/web build",
+    "command": "VITE_REQUIRE_AUTH=true pnpm --filter @work-squared/web build",
     "watch_dir": ["./src", "./functions", "../web/src", "../shared/src"],
   },
   "observability": {
     "enabled": true,
   },
+  "vars": {
+    "REQUIRE_AUTH": "true",
+    "ENVIRONMENT": "production"
+  },
+  // Note: JWT_SECRET must be set as a Cloudflare Worker secret:
+  // wrangler secret put JWT_SECRET
   "d1_databases": [
     {
       "binding": "DB",
