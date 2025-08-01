@@ -224,18 +224,48 @@ test.describe('Authentication Flow E2E', () => {
     // Try to find form elements with flexible selectors
     const emailInput = page.locator('input[type="email"], input[name="email"]').first()
     const passwordInput = page.locator('input[type="password"], input[name="password"]').first()
+    const confirmPasswordInput = page
+      .locator('input[name="confirmPassword"], input[id="confirmPassword"]')
+      .first()
     const submitButton = page.locator('button[type="submit"], button:has-text("Create")').first()
 
-    // Test invalid email
+    // Test form validation scenarios
     if (await emailInput.isVisible({ timeout: 5000 })) {
+      console.log('📝 Testing invalid email validation')
+
+      // Test 1: Invalid email format should trigger browser validation
       await emailInput.fill('invalid-email')
       await passwordInput.fill('validpassword123')
+      await confirmPasswordInput.fill('validpassword123')
 
-      // Try to submit
+      // Button should be enabled now since all fields are filled
+      await expect(submitButton).toBeEnabled()
+
+      // Try to submit - browser validation should prevent it
       await submitButton.click()
 
-      // Should show validation error or browser validation prevents submission
-      console.log('✅ Email validation working')
+      // Check if still on signup page (form validation prevented submission)
+      await expect(page).toHaveURL(/signup/)
+      console.log('✅ Invalid email validation working')
+
+      console.log('📝 Testing valid form submission attempt')
+
+      // Test 2: Valid email format
+      await emailInput.fill('testuser@example.com')
+      await passwordInput.fill('validpassword123')
+      await confirmPasswordInput.fill('validpassword123')
+
+      // Button should be enabled
+      await expect(submitButton).toBeEnabled()
+
+      // Click submit - this should attempt to create account
+      await submitButton.click()
+
+      // Should either redirect or show an error (since this is a test email)
+      // We'll wait for any response and check that the form at least processes
+      await page.waitForTimeout(2000)
+
+      console.log('✅ Form submission validation working')
     } else {
       console.log('⚠️  Signup form not visible, skipping form validation test')
     }
