@@ -1,16 +1,13 @@
 import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
-import { MemoryRouter } from 'react-router-dom'
 import { SignupPage } from './SignupPage.js'
 
-// Simple story wrapper - uses actual component with current environment
+// Simple story wrapper that uses the existing BrowserRouter from Storybook preview
 const SignupPageStory = () => {
   return (
-    <MemoryRouter initialEntries={['/signup']}>
-      <div className='min-h-screen'>
-        <SignupPage />
-      </div>
-    </MemoryRouter>
+    <div className='min-h-screen'>
+      <SignupPage />
+    </div>
   )
 }
 

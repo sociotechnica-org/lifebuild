@@ -1,22 +1,33 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
-import { MemoryRouter } from 'react-router-dom'
 import { LoginPage } from './LoginPage.js'
 
-// Simple story wrapper - uses actual component with current environment
+// Story wrapper that simulates URL search params without additional Router
 const LoginPageStory = ({ hasSuccessMessage = false }: { hasSuccessMessage?: boolean }) => {
-  // Mock URL params for success message
-  const searchParams = new URLSearchParams()
-  if (hasSuccessMessage) {
-    searchParams.set('message', 'Account created successfully. Please sign in.')
-  }
+  useEffect(() => {
+    // Simulate search params for Storybook by temporarily modifying URL
+    const originalUrl = window.location.href
+    const url = new URL(window.location.href)
+
+    if (hasSuccessMessage) {
+      url.searchParams.set('message', 'Account created successfully. Please sign in.')
+    } else {
+      url.searchParams.delete('message')
+    }
+
+    // Update URL without triggering navigation
+    window.history.replaceState({}, '', url.toString())
+
+    // Cleanup on unmount
+    return () => {
+      window.history.replaceState({}, '', originalUrl)
+    }
+  }, [hasSuccessMessage])
 
   return (
-    <MemoryRouter initialEntries={[`/login?${searchParams.toString()}`]}>
-      <div className='min-h-screen'>
-        <LoginPage />
-      </div>
-    </MemoryRouter>
+    <div className='min-h-screen'>
+      <LoginPage />
+    </div>
   )
 }
 
