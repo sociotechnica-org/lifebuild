@@ -4,21 +4,66 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
+    "build": "tsc --build tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "lint-all": "pnpm typecheck"
   },
   "exports": {
-    ".": "./src/index.ts",
-    "./events": "./src/livestore/events.ts",
-    "./schema": "./src/livestore/schema.ts",
-    "./queries": "./src/livestore/queries.ts",
-    "./types": "./src/types.ts",
-    "./llm-tools": "./src/llm-tools/index.ts",
-    "./llm-tools/schemas": "./src/llm-tools/schemas.ts",
-    "./llm-tools/documents": "./src/llm-tools/documents.ts",
-    "./llm-tools/tasks": "./src/llm-tools/tasks.ts",
-    "./llm-tools/projects": "./src/llm-tools/projects.ts",
-    "./llm-tools/base": "./src/llm-tools/base.ts"
+    ".": {
+      "import": "./src/index.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./events": {
+      "import": "./src/livestore/events.ts",
+      "require": "./dist/livestore/events.js",
+      "default": "./dist/livestore/events.js"
+    },
+    "./schema": {
+      "import": "./src/livestore/schema.ts",
+      "require": "./dist/livestore/schema.js",
+      "default": "./dist/livestore/schema.js"
+    },
+    "./queries": {
+      "import": "./src/livestore/queries.ts",
+      "require": "./dist/livestore/queries.js",
+      "default": "./dist/livestore/queries.js"
+    },
+    "./types": {
+      "import": "./src/types.ts",
+      "require": "./dist/types.js",
+      "default": "./dist/types.js"
+    },
+    "./llm-tools": {
+      "import": "./src/llm-tools/index.ts",
+      "require": "./dist/llm-tools/index.js",
+      "default": "./dist/llm-tools/index.js"
+    },
+    "./llm-tools/schemas": {
+      "import": "./src/llm-tools/schemas.ts",
+      "require": "./dist/llm-tools/schemas.js",
+      "default": "./dist/llm-tools/schemas.js"
+    },
+    "./llm-tools/documents": {
+      "import": "./src/llm-tools/documents.ts",
+      "require": "./dist/llm-tools/documents.js",
+      "default": "./dist/llm-tools/documents.js"
+    },
+    "./llm-tools/tasks": {
+      "import": "./src/llm-tools/tasks.ts",
+      "require": "./dist/llm-tools/tasks.js",
+      "default": "./dist/llm-tools/tasks.js"
+    },
+    "./llm-tools/projects": {
+      "import": "./src/llm-tools/projects.ts",
+      "require": "./dist/llm-tools/projects.js",
+      "default": "./dist/llm-tools/projects.js"
+    },
+    "./llm-tools/base": {
+      "import": "./src/llm-tools/base.ts",
+      "require": "./dist/llm-tools/base.js",
+      "default": "./dist/llm-tools/base.js"
+    }
   },
   "dependencies": {
     "@livestore/livestore": "0.3.1",

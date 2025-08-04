@@ -1,5 +1,5 @@
 import type { Store } from '@livestore/livestore'
-import { events } from '../livestore/schema.ts'
+import { events } from '../livestore/schema.js'
 import {
   getDocumentList$,
   getDocumentById$,
@@ -8,7 +8,7 @@ import {
   getAllDocuments$,
   getDocumentProjectsByProject$,
   getProjects$,
-} from '../livestore/queries.ts'
+} from '../livestore/queries.js'
 import {
   validators,
   wrapStringParamFunction,
