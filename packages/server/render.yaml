@@ -3,8 +3,10 @@ services:
     name: work-squared-server
     runtime: node
     plan: starter
-    buildCommand: pnpm install && pnpm build
-    startCommand: pnpm start
+    # Build from monorepo root to access workspace dependencies
+    rootDir: .
+    buildCommand: pnpm install && pnpm --filter @work-squared/server build
+    startCommand: pnpm --filter @work-squared/server start
     envVars:
       - key: NODE_ENV
         value: production
