@@ -2,8 +2,7 @@ import { queryDb } from '@livestore/livestore'
 
 import { tables } from './schema'
 
-// TODO: Fix uiState.get() usage - temporarily commented out for build
-// export const app$ = queryDb(tables.uiState.get({ sessionId: '' }), { label: 'app' })
+export const app$ = queryDb(tables.uiState.get(), { label: 'app' })
 
 export const getBoards$ = queryDb(
   _get => {
