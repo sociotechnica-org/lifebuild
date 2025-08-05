@@ -9,6 +9,7 @@ import { Events, Schema } from '@livestore/livestore'
  * It's recommended to version event definitions. Learn more: https://next.livestore.dev/docs/reference/events
  */
 
+
 export const chatMessageSent = Events.synced({
   name: 'v1.ChatMessageSent',
   schema: Schema.Struct({
@@ -149,7 +150,7 @@ export const llmResponseReceived = Events.synced({
     modelId: Schema.String,
     responseToMessageId: Schema.String, // ID of the user message this is responding to
     createdAt: Schema.Date,
-    metadata: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
+    llmMetadata: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
   }),
 })
 

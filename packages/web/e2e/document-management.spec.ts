@@ -140,8 +140,6 @@ console.log('Hello from code block!');
     await expect(page.locator('button:has-text("Edit")')).toBeVisible()
     await expect(page.locator('text=This change should be cancelled')).not.toBeVisible()
     await expect(page.locator('text=Final test addition!')).toBeVisible() // Original content should remain
-
-    console.log(`Successfully created, viewed, and edited document "${documentTitle}"`)
   })
 
   test('creates document from within a project', async ({ page }) => {
@@ -219,9 +217,5 @@ console.log('Hello from code block!');
 
     // The document should appear in the main documents list too
     await expect(page.locator(`text=${documentTitle}`)).toBeVisible()
-
-    console.log(
-      `Successfully created document "${documentTitle}" from within project "${projectName}"`
-    )
   })
 })

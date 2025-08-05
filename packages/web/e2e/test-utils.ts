@@ -4,6 +4,12 @@ import { Page, expect } from '@playwright/test'
  * Test utilities for E2E tests with LiveStore
  */
 
+// Test configuration
+const AUTH_SERVICE_URL =
+  process.env.AUTH_SERVICE_URL || 'https://work-squared-auth.jessmartin.workers.dev'
+const APP_URL = process.env.APP_URL || 'http://localhost:5173'
+const REQUIRE_AUTH = process.env.REQUIRE_AUTH === 'true'
+
 /**
  * Wait for LiveStore to finish loading
  * In CI environments, LiveStore may not be able to connect to sync server,
@@ -27,7 +33,6 @@ export async function waitForLiveStoreReady(page: Page) {
   } catch {
     // In CI, LiveStore might fail to connect to sync server, which is expected
     // Continue with tests anyway since we're testing the basic app structure
-    console.log('LiveStore loading timeout - continuing with tests (expected in CI)')
   }
 
   // Wait a bit more to ensure any transitions are complete
@@ -63,7 +68,6 @@ export async function expectBasicAppStructure(page: Page) {
   // Check if we're stuck on loading screen
   const isLoading = await page.locator('text=Loading LiveStore').isVisible()
   if (isLoading) {
-    console.log('App still loading - skipping structure checks')
     return
   }
 
@@ -80,7 +84,7 @@ export async function expectBasicAppStructure(page: Page) {
       await expect(heading.first()).toBeVisible({ timeout: 5000 })
     }
   } catch {
-    console.log('Basic structure check failed - expected in CI environment')
+    // Basic structure check failed - expected in CI environment
   }
 }
 
@@ -107,3 +111,83 @@ export async function waitForLoadingComplete(page: Page) {
     { timeout: 10000 }
   )
 }
+
+/**
+ * Create test user via direct API call
+ */
+export async function createTestUserViaAPI() {
+  const testEmail = `e2e-test-${Date.now()}@example.com`
+  const testPassword = 'E2ETestPassword123!'
+
+  const response = await fetch(`${AUTH_SERVICE_URL}/signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: testEmail, password: testPassword }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to create test user: ${response.status}`)
+  }
+
+  const data = await response.json()
+  if (!data.success) {
+    throw new Error(`Test user creation failed: ${data.error?.message}`)
+  }
+
+  return {
+    email: testEmail,
+    password: testPassword,
+    user: data.user,
+    accessToken: data.accessToken,
+    refreshToken: data.refreshToken,
+  }
+}
+
+/**
+ * Login via UI with test user
+ */
+export async function loginViaUI(page: Page, email: string, password: string) {
+  await page.goto(`${APP_URL}/login`)
+  await page.waitForTimeout(2000)
+
+  const emailInput = page.locator('input[type="email"], input[name="email"]').first()
+  const passwordInput = page.locator('input[type="password"], input[name="password"]').first()
+  const submitButton = page.locator('button[type="submit"], button:has-text("Sign in")').first()
+
+  await emailInput.fill(email)
+  await passwordInput.fill(password)
+  await submitButton.click()
+
+  await page.waitForURL(/\/projects/, { timeout: 15000 })
+}
+
+/**
+ * Logout via UI
+ */
+export async function logoutViaUI(page: Page) {
+  const userDropdown = page
+    .locator('[title*="@"], button:has-text("User"), .user-menu, [data-testid*="user"]')
+    .first()
+  const logoutButton = page
+    .locator('button:has-text("Sign out"), button:has-text("Logout"), a:has-text("Sign out")')
+    .first()
+
+  if (await userDropdown.isVisible({ timeout: 3000 })) {
+    await userDropdown.click()
+    await logoutButton.click()
+  } else if (await logoutButton.isVisible({ timeout: 2000 })) {
+    await logoutButton.click()
+  } else {
+    // Fallback: clear localStorage
+    await page.evaluate(() => {
+      localStorage.removeItem('work-squared-access-token')
+      localStorage.removeItem('work-squared-refresh-token')
+      localStorage.removeItem('work-squared-user-info')
+    })
+    await page.reload()
+  }
+
+  await page.waitForURL(/\/login/, { timeout: 10000 })
+}
+
+export { AUTH_SERVICE_URL, APP_URL, REQUIRE_AUTH }

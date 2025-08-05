@@ -39,12 +39,7 @@ Core event types using LiveStore's event sourcing:
 
 ```typescript
 // src/livestore/events.ts
-type WorkSquaredEvent =
-  | ChatMessageEvent
-  | TaskEvent
-  | DocumentEvent
-  | WorkflowEvent
-  | AgentActionEvent
+type WorkSquaredEvent = ChatMessageEvent | TaskEvent | DocumentEvent | WorkflowEvent | AgentActionEvent
 
 interface ChatMessageEvent {
   type: 'chat.message'

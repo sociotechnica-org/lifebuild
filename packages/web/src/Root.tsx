@@ -5,6 +5,9 @@ import React, { useMemo } from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
+import { AuthProvider } from './contexts/AuthContext.js'
+import { useSyncPayload } from './hooks/useSyncPayload.js'
+
 import { ProjectsPage } from './components/projects/ProjectsPage.js'
 import { ProjectWorkspace } from './components/projects/ProjectWorkspace/ProjectWorkspace.js'
 import { TasksPage } from './components/tasks/TasksPage.js'
@@ -12,11 +15,14 @@ import { WorkersPage } from './components/workers/WorkersPage.js'
 import { DocumentsPage } from './components/documents/DocumentsPage/DocumentsPage.js'
 import { DocumentPage } from './components/documents/DocumentPage.js'
 import { HistoryPage } from './pages/HistoryPage.js'
+import { LoginPage } from './pages/LoginPage.js'
+import { SignupPage } from './pages/SignupPage.js'
 import { Layout } from './components/layout/Layout.js'
 import { EnsureStoreId } from './components/utils/EnsureStoreId.js'
 import { LoadingState } from './components/ui/LoadingState.js'
 import { ErrorBoundary } from './components/ui/ErrorBoundary/ErrorBoundary.js'
 import { UserInitializer } from './components/utils/UserInitializer/UserInitializer.js'
+import { ProtectedRoute } from './components/auth/ProtectedRoute.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
 
@@ -29,7 +35,7 @@ const adapter = makePersistedAdapter({
   sharedWorker: LiveStoreSharedWorker,
 })
 
-// LiveStore wrapper - stable storeId that respects URL overrides on mount
+// LiveStore wrapper with auth integration
 const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Determine storeId once on mount - prioritize URL over localStorage
   const storeId = useMemo(() => {
@@ -55,7 +61,11 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
     return storedId
   }, []) // Empty deps - calculated once on mount, stable during navigation
 
+  // Get dynamic sync payload with auth token
+  const { syncPayload } = useSyncPayload({ instanceId: storeId })
+
   console.log(`Using stable storeId: ${storeId}`)
+  // Debug: console.log('Sync payload being passed to LiveStore:', syncPayload)
 
   return (
     <LiveStoreProvider
@@ -64,107 +74,136 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       adapter={adapter}
       batchUpdates={batchUpdates}
       storeId={storeId}
-      syncPayload={{ authToken: 'insecure-token-change-me' }}
+      syncPayload={syncPayload}
     >
       {children}
     </LiveStoreProvider>
   )
 }
 
+// Protected app wrapper - includes LiveStore and all protected routes
+const ProtectedApp: React.FC = () => (
+  <LiveStoreWrapper>
+    <EnsureStoreId>
+      <UserInitializer>
+        <ErrorBoundary>
+          <Routes>
+            <Route
+              path={ROUTES.HOME}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <ProjectsPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.PROJECTS}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <ProjectsPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.TASKS}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <TasksPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.TEAM}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <WorkersPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.DOCUMENTS}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <DocumentsPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.HISTORY}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <HistoryPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.DOCUMENT}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <DocumentPage />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.PROJECT}
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary>
+                      <ProjectWorkspace />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </ErrorBoundary>
+      </UserInitializer>
+    </EnsureStoreId>
+  </LiveStoreWrapper>
+)
+
 export const App: React.FC = () => (
   <ErrorBoundary>
     <BrowserRouter>
-      <LiveStoreWrapper>
-        <EnsureStoreId>
-          <UserInitializer>
-            <ErrorBoundary>
-              <Routes>
-                {/* Main routes - restored original structure */}
-                <Route
-                  path={ROUTES.HOME}
-                  element={
-                    <Layout>
-                      <ErrorBoundary>
-                        <ProjectsPage />
-                      </ErrorBoundary>
-                    </Layout>
-                  }
-                />
-                <Route
-                  path={ROUTES.PROJECTS}
-                  element={
-                    <Layout>
-                      <ErrorBoundary>
-                        <ProjectsPage />
-                      </ErrorBoundary>
-                    </Layout>
-                  }
-                />
-                <Route
-                  path={ROUTES.TASKS}
-                  element={
-                    <Layout>
-                      <ErrorBoundary>
-                        <TasksPage />
-                      </ErrorBoundary>
-                    </Layout>
-                  }
-                />
-                <Route
-                  path={ROUTES.TEAM}
-                  element={
-                    <Layout>
-                      <ErrorBoundary>
-                        <WorkersPage />
-                      </ErrorBoundary>
-                    </Layout>
-                  }
-                />
-                <Route
-                  path={ROUTES.DOCUMENTS}
-                  element={
-                    <Layout>
-                      <ErrorBoundary>
-                        <DocumentsPage />
-                      </ErrorBoundary>
-                    </Layout>
-                  }
-                />
-                <Route
-                  path={ROUTES.HISTORY}
-                  element={
-                    <Layout>
-                      <ErrorBoundary>
-                        <HistoryPage />
-                      </ErrorBoundary>
-                    </Layout>
-                  }
-                />
-                <Route
-                  path={ROUTES.DOCUMENT}
-                  element={
-                    <Layout>
-                      <ErrorBoundary>
-                        <DocumentPage />
-                      </ErrorBoundary>
-                    </Layout>
-                  }
-                />
-                <Route
-                  path={ROUTES.PROJECT}
-                  element={
-                    <Layout>
-                      <ErrorBoundary>
-                        <ProjectWorkspace />
-                      </ErrorBoundary>
-                    </Layout>
-                  }
-                />
-              </Routes>
-            </ErrorBoundary>
-          </UserInitializer>
-        </EnsureStoreId>
-      </LiveStoreWrapper>
+      <AuthProvider>
+        <Routes>
+          {/* Public auth routes - outside LiveStore */}
+          <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+          <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
+
+          {/* Protected routes - wrapped in LiveStore */}
+          <Route path='/*' element={<ProtectedApp />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   </ErrorBoundary>
 )

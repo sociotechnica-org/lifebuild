@@ -16,6 +16,8 @@
     "test:e2e:debug": "playwright test --debug",
     "storybook": "storybook dev -p 6010",
     "build-storybook": "storybook build",
+    "test:storybook": "test-storybook --url http://127.0.0.1:6008",
+    "test:storybook:ci": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"pnpm build-storybook --quiet && npx http-server storybook-static --port 6008 --silent\" \"wait-on tcp:6008 && pnpm test:storybook\"",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --write .",
@@ -50,6 +52,7 @@
     "@storybook/addon-onboarding": "^9.0.18",
     "@storybook/react": "^9.0.18",
     "@storybook/react-vite": "^9.0.18",
+    "@storybook/test-runner": "^0.23.0",
     "@tailwindcss/postcss": "^4.1.11",
     "@tailwindcss/vite": "^4.1.11",
     "@testing-library/jest-dom": "^6.6.4",
@@ -62,6 +65,7 @@
     "@vitejs/plugin-react": "^4.7.0",
     "@vitest/ui": "^3.2.4",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.0",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
@@ -73,6 +77,7 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-storybook": "^9.0.18",
     "eslint-plugin-unicorn": "^60.0.0",
+    "http-server": "^14.1.1",
     "identity-obj-proxy": "^3.0.0",
     "jsdom": "^26.1.0",
     "postcss": "^8.5.6",
@@ -84,6 +89,7 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
     "vite": "^7.0.6",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "wait-on": "^8.0.4"
   }
 }

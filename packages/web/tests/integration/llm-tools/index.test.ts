@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { executeLLMTool } from '@work-squared/shared/llm-tools'
 import { createTestStore } from '../../test-utils.js'
 
@@ -7,6 +7,9 @@ describe('LLM Tools - executeLLMTool', () => {
 
   beforeEach(() => {
     store = createTestStore()
+    // Suppress console output for cleaner test runs
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
   // Mock data

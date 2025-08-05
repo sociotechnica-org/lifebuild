@@ -36,13 +36,11 @@ Your requirements essentially demand a traditional backend:
 1. **Persistent Workers**: Cloudflare Workers timeout after 30s. Your AI workers need to run for minutes/hours on complex tasks.
 
 2. **Document Processing**:
-
    - Full-text search across documents
    - Document parsing and indexing
    - Cross-document analysis for workers
 
 3. **Worker Orchestration**:
-
    - Queue management for long-running tasks
    - Event-driven worker triggers (future)
    - Worker-to-worker communication

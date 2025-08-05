@@ -114,14 +114,12 @@ src/utils/llm-tools/
 ### High Priority (Core Operations)
 
 1. **Project Management**
-
    - `create_project` (projectCreated)
    - `get_project_by_id` (getProjectById$)
    - `get_project_columns` (getBoardColumns$)
    - `get_project_tasks` (getBoardTasks$)
 
 2. **Task Management**
-
    - ✅ `update_task` (taskUpdated)
    - ✅ `move_task` (taskMoved)
    - ✅ `move_task_to_project` (taskMovedToProject)
@@ -141,13 +139,11 @@ src/utils/llm-tools/
 ### Medium Priority (Extended Features)
 
 4. **Column Management**
-
    - `create_column` (columnCreated)
    - `rename_column` (columnRenamed)
    - `reorder_column` (columnReordered)
 
 5. **Worker Management**
-
    - `create_worker` (workerCreated)
    - `assign_worker_to_project` (workerAssignedToProject)
    - `list_workers` (getWorkers$)
@@ -155,7 +151,6 @@ src/utils/llm-tools/
 ### Low Priority (Advanced Features)
 
 7. **Comments & Conversations**
-
    - `add_comment` (commentAdded)
    - `get_task_comments` (getTaskComments$)
    - `create_conversation` (conversationCreated)

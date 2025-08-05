@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, act } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ProjectCard } from './ProjectCard.js'
 
@@ -32,35 +32,42 @@ describe('ProjectCard', () => {
   })
 
   it('should render project name', async () => {
-    await act(async () => {
-      render(<ProjectCard project={mockProject} />)
+    render(<ProjectCard project={mockProject} />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Project')).toBeInTheDocument()
     })
-    expect(screen.getByText('Test Project')).toBeInTheDocument()
   })
 
   it('should render creation and update information', async () => {
-    await act(async () => {
-      render(<ProjectCard project={mockProject} />)
+    render(<ProjectCard project={mockProject} />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/Created:/)).toBeInTheDocument()
+      expect(screen.getByText(/Updated:/)).toBeInTheDocument()
     })
-    expect(screen.getByText(/Created:/)).toBeInTheDocument()
-    expect(screen.getByText(/Updated:/)).toBeInTheDocument()
   })
 
   it('should call onClick when clicked', async () => {
     const onClick = vi.fn()
-    await act(async () => {
-      render(<ProjectCard project={mockProject} onClick={onClick} />)
-    })
+    render(<ProjectCard project={mockProject} onClick={onClick} />)
 
-    const card = screen.getByText('Test Project').closest('div')
-    card?.click()
+    await waitFor(() => {
+      const card = screen.getByText('Test Project').closest('div')
+      card?.click()
+    })
 
     expect(onClick).toHaveBeenCalledOnce()
   })
 
   it('should render without onClick handler', async () => {
-    await act(async () => {
-      expect(() => render(<ProjectCard project={mockProject} />)).not.toThrow()
+    expect(() => {
+      render(<ProjectCard project={mockProject} />)
+    }).not.toThrow()
+
+    // Wait for async operations to complete
+    await waitFor(() => {
+      expect(screen.getByText('Test Project')).toBeInTheDocument()
     })
   })
 })

@@ -11,6 +11,8 @@ export const ROUTES = {
   HISTORY: '/history',
   DOCUMENT: '/document/:documentId',
   PROJECT: '/project/:projectId',
+  LOGIN: '/login',
+  SIGNUP: '/signup',
 } as const
 
 /**
