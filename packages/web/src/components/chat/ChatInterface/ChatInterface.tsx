@@ -149,8 +149,40 @@ async function runAgenticLoop(
                   ?.map((r: any) => `${r.title} (ID: ${r.id})\n  Snippet: ${r.snippet}`)
                   .join('\n\n• ') || 'No matching documents found'
               toolResultMessage = `Search results:\n• ${searchResults}`
+            } else if (toolCall.function.name === 'create_document') {
+              toolResultMessage = `Document created successfully:\n• Title: ${toolResult.title}\n• Document ID: ${toolResult.documentId}\n• Content length: ${toolResult.content?.length || 0} characters`
+            } else if (toolCall.function.name === 'update_document') {
+              toolResultMessage = `Document updated successfully:\n• Document ID: ${toolResult.document?.id}`
+              if (toolResult.document?.title) {
+                toolResultMessage += `\n• New title: ${toolResult.document.title}`
+              }
+              if (toolResult.document?.content !== undefined) {
+                toolResultMessage += `\n• Content updated (${toolResult.document.content.length} characters)`
+              }
+            } else if (toolCall.function.name === 'add_document_to_project') {
+              toolResultMessage = `Document successfully added to project:\n• Document ID: ${toolResult.association?.documentId}\n• Project ID: ${toolResult.association?.projectId}`
+            } else if (toolCall.function.name === 'remove_document_from_project') {
+              toolResultMessage = `Document successfully removed from project:\n• Document ID: ${toolResult.association?.documentId}\n• Project ID: ${toolResult.association?.projectId}`
+            } else if (toolCall.function.name === 'archive_document') {
+              toolResultMessage = `Document archived successfully:\n• Document ID: ${toolResult.document?.id}`
+            } else if (toolCall.function.name === 'get_project_documents') {
+              const documentList =
+                toolResult.documents
+                  ?.map(
+                    (d: any) =>
+                      `${d.title} (ID: ${d.id}) - Created: ${new Date(d.createdAt).toLocaleDateString()}`
+                  )
+                  .join('\n• ') || 'No documents found in project'
+              toolResultMessage = `Project documents:\n• ${documentList}`
+            } else if (toolCall.function.name === 'search_project_documents') {
+              const searchResults =
+                toolResult.results
+                  ?.map((r: any) => `${r.title} (ID: ${r.id})\n  Snippet: ${r.snippet}`)
+                  .join('\n\n• ') || 'No matching documents found in project'
+              toolResultMessage = `Project search results:\n• ${searchResults}`
             } else {
-              toolResultMessage = `Tool executed successfully`
+              // For any other tools, return the full result as JSON so the AI gets all the data
+              toolResultMessage = `Tool executed successfully. Result: ${JSON.stringify(toolResult, null, 2)}`
             }
           } else {
             toolResultMessage = `Error: ${toolResult.error}`
