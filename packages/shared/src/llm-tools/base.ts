@@ -14,6 +14,9 @@ export interface LLMToolCall {
 
 export const validators = {
   requireEntity: <T>(entities: readonly T[], entityName: string, id: string): T => {
+    if (!entities || !Array.isArray(entities)) {
+      throw new Error(`Failed to retrieve ${entityName} list`)
+    }
     if (entities.length === 0) {
       throw new Error(`${entityName} with ID ${id} not found`)
     }
