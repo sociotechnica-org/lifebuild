@@ -180,6 +180,57 @@ async function runAgenticLoop(
                   ?.map((r: any) => `${r.title} (ID: ${r.id})\n  Snippet: ${r.snippet}`)
                   .join('\n\n• ') || 'No matching documents found in project'
               toolResultMessage = `Project search results:\n• ${searchResults}`
+            } else if (toolCall.function.name === 'update_task') {
+              toolResultMessage = `Task updated successfully:\n• Task ID: ${toolResult.task?.id}`
+              if (toolResult.task?.title) {
+                toolResultMessage += `\n• New title: ${toolResult.task.title}`
+              }
+              if (toolResult.task?.description !== undefined) {
+                toolResultMessage += `\n• Description updated`
+              }
+              if (toolResult.task?.assigneeIds) {
+                toolResultMessage += `\n• Assignees updated`
+              }
+            } else if (toolCall.function.name === 'move_task') {
+              toolResultMessage = `Task moved successfully:\n• Task ID: ${toolResult.task?.id}\n• New column ID: ${toolResult.task?.columnId}\n• Position: ${toolResult.task?.position}`
+            } else if (toolCall.function.name === 'move_task_to_project') {
+              toolResultMessage = `Task moved to project:\n• Task ID: ${toolResult.task?.id}\n• New project ID: ${toolResult.task?.projectId || 'orphaned'}\n• New column ID: ${toolResult.task?.columnId}\n• Position: ${toolResult.task?.position}`
+            } else if (toolCall.function.name === 'archive_task') {
+              toolResultMessage = `Task archived successfully:\n• Task ID: ${toolResult.task?.id}`
+            } else if (toolCall.function.name === 'unarchive_task') {
+              toolResultMessage = `Task unarchived successfully:\n• Task ID: ${toolResult.task?.id}`
+            } else if (toolCall.function.name === 'get_task_by_id') {
+              if (toolResult.task) {
+                const t = toolResult.task
+                toolResultMessage = `Task details:\n• ID: ${t.id}\n• Title: ${t.title}\n• Project ID: ${t.projectId || 'none'}\n• Column ID: ${t.columnId || 'none'}\n• Description: ${t.description || 'none'}\n• Position: ${t.position}`
+                if (t.assigneeIds?.length) {
+                  toolResultMessage += `\n• Assignees: ${t.assigneeIds.join(', ')}`
+                }
+              } else {
+                toolResultMessage = 'Task not found'
+              }
+            } else if (toolCall.function.name === 'get_project_tasks') {
+              const taskList =
+                toolResult.tasks
+                  ?.map(
+                    (t: any) =>
+                      `${t.title} (ID: ${t.id}) - Column: ${t.columnId}, Position: ${t.position}`
+                  )
+                  .join('\n• ') || 'No tasks found in project'
+              toolResultMessage = `Project tasks:\n• ${taskList}`
+            } else if (toolCall.function.name === 'get_orphaned_tasks') {
+              const taskList =
+                toolResult.tasks
+                  ?.map((t: any) => `${t.title} (ID: ${t.id}) - Position: ${t.position}`)
+                  .join('\n• ') || 'No orphaned tasks found'
+              toolResultMessage = `Orphaned tasks:\n• ${taskList}`
+            } else if (toolCall.function.name === 'get_project_details') {
+              if (toolResult.project) {
+                const p = toolResult.project
+                toolResultMessage = `Project details:\n• ID: ${p.id}\n• Name: ${p.name}\n• Description: ${p.description || 'none'}\n• Document count: ${p.documentCount}\n• Task count: ${p.taskCount}`
+              } else {
+                toolResultMessage = 'Project not found'
+              }
             } else {
               // For any other tools, return the full result as JSON so the AI gets all the data
               toolResultMessage = `Tool executed successfully. Result: ${JSON.stringify(toolResult, null, 2)}`
