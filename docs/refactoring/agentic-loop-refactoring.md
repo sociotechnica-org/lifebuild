@@ -7,6 +7,7 @@ This document describes the refactoring of the `runAgenticLoop` function from th
 ## Problem Statement
 
 The original `runAgenticLoop` function in ChatInterface.tsx was:
+
 - **Monolithic**: ~300 lines of deeply nested code
 - **Untestable**: Business logic mixed with UI concerns
 - **Unmaintainable**: Tool result formatting scattered throughout
@@ -19,12 +20,14 @@ The original `runAgenticLoop` function in ChatInterface.tsx was:
 **Purpose**: Centralize and standardize how tool results are formatted for AI consumption.
 
 **Structure**:
+
 - `TaskToolFormatter`: Formats task-related tool results
-- `DocumentToolFormatter`: Formats document-related tool results  
+- `DocumentToolFormatter`: Formats document-related tool results
 - `ProjectToolFormatter`: Formats project-related tool results
 - `ToolResultFormatterService`: Composite formatter that delegates to appropriate formatter
 
 **Benefits**:
+
 - Consistent formatting across all tools
 - Easy to add new tools
 - Testable in isolation
@@ -35,6 +38,7 @@ The original `runAgenticLoop` function in ChatInterface.tsx was:
 **Purpose**: Abstract tool execution logic with proper error handling and event callbacks.
 
 **Features**:
+
 - Sequential and parallel execution modes
 - Event callbacks for monitoring progress
 - Automatic result formatting
@@ -45,6 +49,7 @@ The original `runAgenticLoop` function in ChatInterface.tsx was:
 **Purpose**: Manage conversation history with proper OpenAI API formatting.
 
 **Features**:
+
 - Type-safe message management
 - OpenAI format conversion
 - History manipulation (clear, clone, get last N)
@@ -55,6 +60,7 @@ The original `runAgenticLoop` function in ChatInterface.tsx was:
 **Purpose**: Orchestrate the iterative LLM conversation flow.
 
 **Features**:
+
 - Event-driven architecture
 - Maximum iteration control
 - Provider-agnostic (works with any LLM)
@@ -65,6 +71,7 @@ The original `runAgenticLoop` function in ChatInterface.tsx was:
 **Purpose**: Abstract LLM API calls behind a provider interface.
 
 **Implementation**:
+
 - `BraintrustProvider`: Current implementation using proxy
 - `LLMProvider` interface: Allows swapping providers
 - Ready to move to server with minimal changes
@@ -74,6 +81,7 @@ The original `runAgenticLoop` function in ChatInterface.tsx was:
 **Purpose**: Bridge between UI and agentic loop.
 
 **Features**:
+
 - Handles UI event storage
 - Manages conversation state
 - Provides clean API for components
@@ -101,15 +109,18 @@ When moving to server (per Milestone 4):
 ## Testing Strategy
 
 ### Unit Tests
+
 - **Tool Formatters**: Test each formatter independently
 - **Conversation History**: Test message management
 - **Agentic Loop**: Test flow control with mock providers
 
 ### Integration Tests
+
 - **Tool Executor**: Test with mock store
 - **Chat Handler**: Test event emission
 
 ### E2E Tests
+
 - Full flow from UI to tool execution
 
 ## Benefits Achieved
@@ -159,7 +170,7 @@ await chatHandler.handleMessage('Create a document and add it to project X', {
   conversationId: 'conv-123',
   model: 'claude-3-5-sonnet',
   boardContext: { id: 'project-x', name: 'Project X' },
-  maxIterations: 10
+  maxIterations: 10,
 })
 ```
 

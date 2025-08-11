@@ -82,13 +82,14 @@ export class BraintrustProvider implements LLMProvider {
 
       return {
         message: data.message,
-        toolCalls: data.toolCalls?.map(tc => ({
-          id: tc.id,
-          function: {
-            name: tc.function.name,
-            arguments: tc.function.arguments,
-          },
-        })) || null,
+        toolCalls:
+          data.toolCalls?.map(tc => ({
+            id: tc.id,
+            function: {
+              name: tc.function.name,
+              arguments: tc.function.arguments,
+            },
+          })) || null,
       }
     } catch (error) {
       console.error('🔴 Error calling LLM API:', error)

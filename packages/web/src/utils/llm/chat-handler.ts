@@ -49,10 +49,7 @@ export class ChatHandler {
   /**
    * Handle a chat message from the user
    */
-  async handleMessage(
-    userMessage: string,
-    options: ChatHandlerOptions
-  ): Promise<void> {
+  async handleMessage(userMessage: string, options: ChatHandlerOptions): Promise<void> {
     const { conversationId, model, boardContext, workerContext, maxIterations } = options
 
     // Store the user message
@@ -79,7 +76,7 @@ export class ChatHandler {
       ...originalEvents,
       onToolsExecuting: (toolCalls: any[]) => {
         originalEvents.onToolsExecuting?.(toolCalls)
-        
+
         // Store tool execution notifications in UI if needed
         for (const toolCall of toolCalls) {
           if (toolCall.function.name === 'create_task') {
@@ -104,7 +101,7 @@ export class ChatHandler {
       },
       onFinalMessage: (message: string) => {
         originalEvents.onFinalMessage?.(message)
-        
+
         // Store the final assistant message
         this.store.commit(
           events.llmResponseReceived({
@@ -123,7 +120,7 @@ export class ChatHandler {
       },
       onError: (error: Error, iteration: number) => {
         originalEvents.onError?.(error, iteration)
-        
+
         // Store error in UI
         this.store.commit(
           events.llmResponseReceived({
