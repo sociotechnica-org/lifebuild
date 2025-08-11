@@ -342,8 +342,9 @@ function removeDocumentFromProjectCore(
   }
 
   // Check if document is associated with this project
-  const existingAssociations = store.query(getDocumentProjectsByProject$(projectId))
-  const isAssociated = existingAssociations.some((dp: any) => dp.documentId === documentId)
+  const existingAssociations = store.query(getDocumentProjectsByProject$(projectId)) || []
+  const isAssociated = Array.isArray(existingAssociations) && 
+    existingAssociations.some((dp: any) => dp?.documentId === documentId)
   if (!isAssociated) {
     throw new Error(`Document is not associated with project ${projectId}`)
   }
