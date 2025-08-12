@@ -430,6 +430,7 @@ export const ChatInterface: React.FC = () => {
   const conversations = useQuery(getConversations$) ?? []
   const availableWorkers = useQuery(getWorkers$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
+  const [showChatPicker, setShowChatPicker] = React.useState(false)
 
   // Handle URL parameters for conversation selection
   React.useEffect(() => {
@@ -527,21 +528,40 @@ export const ChatInterface: React.FC = () => {
         })
       )
 
-      handleConversationChange(id)
+      // Directly set the selected conversation ID since we just created it
+      // This bypasses the existence check in handleConversationChange
+      setSelectedConversationId(id)
+
+      // Update URL parameters
+      const params = new URLSearchParams(location.search)
+      params.set('conversationId', id)
+      if (workerId) {
+        params.set('workerId', workerId)
+      } else {
+        params.delete('workerId')
+      }
+      navigate(`${location.pathname}?${params.toString()}`, { replace: true })
     },
-    [store, handleConversationChange, availableWorkers]
+    [store, availableWorkers, location, navigate]
   )
 
   const handleNewChatClick = React.useCallback(() => {
-    // If we have workers available and loaded, we should ideally show a worker selection dialog
-    // For now, we'll create a generic chat. In a full implementation, this would show a modal
-    // to let users choose between a generic chat or a specific worker chat
+    setShowChatPicker(true)
+  }, [])
 
-    // The bug was that if getWorkers$ returns empty array during loading,
-    // we incorrectly assume no workers exist. We should check if the query is still loading
-    // For now, we'll always create generic chats as fallback
-    handleCreateConversation()
-  }, [handleCreateConversation])
+  const handleChatTypeSelect = React.useCallback(
+    (workerId?: string) => {
+      setShowChatPicker(false)
+      handleCreateConversation(workerId)
+    },
+    [handleCreateConversation]
+  )
+
+  const handleChatPickerBackdropClick = React.useCallback((e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setShowChatPicker(false)
+    }
+  }, [])
 
   const handleSendMessage = React.useCallback(
     (e: React.FormEvent) => {
@@ -786,7 +806,7 @@ export const ChatInterface: React.FC = () => {
             </select>
             <button
               onClick={handleNewChatClick}
-              className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors flex-shrink-0'
+              className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors flex-shrink-0 cursor-pointer'
               aria-label='New Chat'
               title='New Chat'
             >
@@ -1013,7 +1033,7 @@ export const ChatInterface: React.FC = () => {
                   <p className='text-xs mb-3'>Create your first chat to get started.</p>
                   <button
                     onClick={handleNewChatClick}
-                    className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors'
+                    className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer'
                   >
                     Start New Chat
                   </button>
@@ -1025,6 +1045,61 @@ export const ChatInterface: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Chat Type Picker Modal */}
+      {showChatPicker && (
+        <div
+          className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'
+          onClick={handleChatPickerBackdropClick}
+        >
+          <div className='bg-white rounded-lg shadow-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto'>
+            <h3 className='text-lg font-medium text-gray-900 mb-4'>Choose Chat Type</h3>
+            <div className='space-y-2'>
+              {/* Generic Chat Option */}
+              <button
+                onClick={() => handleChatTypeSelect()}
+                className='w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors cursor-pointer flex items-center'
+              >
+                <div className='w-8 h-8 bg-gray-500 text-white rounded-full flex items-center justify-center text-sm font-medium mr-3'>
+                  💬
+                </div>
+                <div>
+                  <div className='font-medium text-gray-900'>Generic Chat</div>
+                  <div className='text-sm text-gray-500'>General purpose AI assistant</div>
+                </div>
+              </button>
+
+              {/* Worker Options */}
+              {availableWorkers.map(worker => (
+                <button
+                  key={worker.id}
+                  onClick={() => handleChatTypeSelect(worker.id)}
+                  className='w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors cursor-pointer flex items-center'
+                >
+                  <div
+                    className={`w-8 h-8 ${getAvatarColor(worker.id)} text-white rounded-full flex items-center justify-center text-sm font-medium mr-3`}
+                  >
+                    {worker.avatar || '🤖'}
+                  </div>
+                  <div>
+                    <div className='font-medium text-gray-900'>{worker.name}</div>
+                    <div className='text-sm text-gray-500'>
+                      {worker.roleDescription || 'AI Worker'}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShowChatPicker(false)}
+              className='mt-4 w-full px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors cursor-pointer'
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
