@@ -548,6 +548,24 @@ export const ChatInterface: React.FC = () => {
     [store, messageText, selectedConversationId, resetTextareaHeight]
   )
 
+  const handleRetry = React.useCallback(
+    (failedMessage: ChatMessage) => {
+      if (!selectedConversationId) return
+      const original = messages.find(m => m.id === failedMessage.responseToMessageId)
+      if (!original) return
+      store.commit(
+        events.chatMessageSent({
+          id: crypto.randomUUID(),
+          conversationId: selectedConversationId,
+          message: original.message,
+          role: 'user',
+          createdAt: new Date(),
+        })
+      )
+    },
+    [messages, selectedConversationId, store]
+  )
+
   // Listen for user messages and trigger LLM responses
   React.useEffect(() => {
     if (!selectedConversationId) return
@@ -581,7 +599,12 @@ export const ChatInterface: React.FC = () => {
 
             try {
               // Get conversation history for context
-              const conversationHistory = messages.filter(m => m.createdAt < userMessage.createdAt)
+              const conversationHistory = messages.filter(
+                m =>
+                  m.createdAt < userMessage.createdAt &&
+                  m.llmMetadata?.source !== 'status' &&
+                  m.llmMetadata?.source !== 'error'
+              )
               const boardContext = currentBoard
                 ? { id: currentBoard.id, name: currentBoard.name }
                 : undefined
@@ -813,6 +836,32 @@ export const ChatInterface: React.FC = () => {
                     }
 
                     // Regular chat messages
+                    if (message.llmMetadata?.source === 'status') {
+                      return (
+                        <div
+                          key={message.id}
+                          className='p-3 rounded-lg bg-gray-50 mr-8 flex items-center gap-2 text-sm text-gray-600'
+                        >
+                          <svg className='w-4 h-4 animate-spin text-gray-400' viewBox='0 0 24 24'>
+                            <circle
+                              className='opacity-25'
+                              cx='12'
+                              cy='12'
+                              r='10'
+                              stroke='currentColor'
+                              strokeWidth='4'
+                              fill='none'
+                            />
+                            <path
+                              className='opacity-75'
+                              fill='currentColor'
+                              d='M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z'
+                            />
+                          </svg>
+                          <span>{message.message}</span>
+                        </div>
+                      )
+                    }
                     return (
                       <div
                         key={message.id}
@@ -871,7 +920,7 @@ export const ChatInterface: React.FC = () => {
                         {message.message &&
                           message.message.trim() &&
                           message.message !== 'No response generated' && (
-                            <div className='mt-2 flex justify-end'>
+                            <div className='mt-2 flex justify-end gap-2'>
                               <button
                                 onClick={() => {
                                   if (
@@ -903,6 +952,15 @@ export const ChatInterface: React.FC = () => {
                                   />
                                 </svg>
                               </button>
+                              {message.llmMetadata?.source === 'error' &&
+                                message.responseToMessageId && (
+                                  <button
+                                    onClick={() => handleRetry(message)}
+                                    className='text-xs text-blue-600 hover:underline'
+                                  >
+                                    Retry
+                                  </button>
+                                )}
                             </div>
                           )}
                       </div>

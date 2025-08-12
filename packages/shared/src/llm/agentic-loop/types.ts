@@ -10,7 +10,15 @@ export interface LLMProvider {
     messages: any[],
     boardContext?: any,
     model?: string,
-    workerContext?: any
+    workerContext?: any,
+    options?: {
+      onRetry?: (
+        attempt: number,
+        maxRetries: number,
+        delayMs: number,
+        error: Error
+      ) => void
+    }
   ): Promise<LLMResponse>
 }
 
@@ -29,4 +37,10 @@ export interface AgenticLoopEvents {
   onFinalMessage?: (message: string) => void
   onError?: (error: Error, iteration: number) => void
   onComplete?: (iterations: number) => void
+  onRetry?: (
+    attempt: number,
+    maxRetries: number,
+    delayMs: number,
+    error: Error
+  ) => void
 }

@@ -57,7 +57,11 @@ export class AgenticLoop {
           this.history.getOpenAIFormat(),
           boardContext,
           model,
-          workerContext
+          workerContext,
+          {
+            onRetry: (attempt, maxRetries, delayMs, error) =>
+              this.events.onRetry?.(attempt, maxRetries, delayMs, error),
+          }
         )
 
         console.log(`🔄 Iteration ${iteration} LLM response:`, {
