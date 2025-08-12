@@ -6,7 +6,7 @@ import {
   ConversationHistory,
 } from '@work-squared/shared'
 import { events } from '@work-squared/shared/schema'
-import { BraintrustProvider } from './braintrust-provider.js'
+import { BraintrustProvider, RateLimitError } from './braintrust-provider.js'
 
 interface ChatHandlerOptions {
   conversationId: string
@@ -58,6 +58,20 @@ export class ChatHandler {
       onIterationStart: (iteration: number) => {
         console.log(`🔄 Starting iteration ${iteration}`)
       },
+      onRetry: (attempt, maxRetries, delayMs) => {
+        this.store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId,
+            message: `The AI service is busy. Retrying in ${Math.round(delayMs / 1000)}s (attempt ${attempt}/${maxRetries})...`,
+            role: 'assistant',
+            modelId: model,
+            responseToMessageId: userMessageEvent.args.id,
+            createdAt: new Date(),
+            llmMetadata: { source: 'status', retryAttempt: attempt },
+          })
+        )
+      },
       onToolsExecuting: (toolCalls: any[]) => {
         console.log(`🔧 Executing ${toolCalls.length} tools`)
 
@@ -108,12 +122,16 @@ export class ChatHandler {
       onError: (error: Error, iteration: number) => {
         console.error(`❌ Error in iteration ${iteration}:`, error)
 
-        // Store error in UI
+        const isRateLimit = error instanceof RateLimitError
+        const message = isRateLimit
+          ? 'The AI service is busy. Please try again later.'
+          : `Error: ${error.message}`
+
         this.store.commit(
           events.llmResponseReceived({
             id: crypto.randomUUID(),
             conversationId,
-            message: `Error: ${error.message}`,
+            message,
             role: 'assistant',
             modelId: model,
             responseToMessageId: userMessageEvent.args.id,

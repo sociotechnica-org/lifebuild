@@ -1,6 +1,16 @@
 import type { LLMProvider, LLMResponse } from '@work-squared/shared'
 import { llmToolSchemas } from '@work-squared/shared/llm-tools/schemas'
 
+export class RateLimitError extends Error {
+  constructor(
+    public status: number,
+    message: string
+  ) {
+    super(message)
+    this.name = 'RateLimitError'
+  }
+}
+
 interface LLMAPIResponse {
   message: string | null
   toolCalls: Array<{
@@ -28,7 +38,10 @@ export class BraintrustProvider implements LLMProvider {
     messages: any[],
     boardContext?: { id: string; name: string },
     model: string = 'claude-3-5-sonnet-20241022',
-    workerContext?: { systemPrompt: string; name: string; roleDescription?: string }
+    workerContext?: { systemPrompt: string; name: string; roleDescription?: string },
+    options?: {
+      onRetry?: (attempt: number, maxRetries: number, delayMs: number, error: Error) => void
+    }
   ): Promise<LLMResponse> {
     console.log('🔗 Calling LLM API via proxy...')
     console.log('🔗 PROD mode:', import.meta.env.PROD, 'Using URL:', this.proxyUrl)
@@ -58,42 +71,80 @@ export class BraintrustProvider implements LLMProvider {
       ...(workerContext && { workerContext }),
     }
 
-    try {
-      const response = await fetch(this.proxyUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      })
+    const maxRetries = 3
+    let lastError: any = null
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('🔴 LLM API Error:', response.status, errorText)
-        throw new Error(`LLM API request failed: ${response.status} ${errorText}`)
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await fetch(this.proxyUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        })
+
+        if (response.status === 429 || response.status === 503 || response.status === 529) {
+          if (attempt < maxRetries) {
+            const delay = Math.min(1000 * Math.pow(2, attempt), 30000)
+            console.warn(
+              `🔄 Rate limited (status ${response.status}). Retrying in ${delay}ms (attempt ${
+                attempt + 1
+              }/${maxRetries})`
+            )
+            options?.onRetry?.(
+              attempt + 1,
+              maxRetries,
+              delay,
+              new Error(`Rate limited: ${response.status}`)
+            )
+            await new Promise(resolve => setTimeout(resolve, delay))
+            continue
+          }
+          const errorText = await response.text()
+          lastError = new RateLimitError(
+            response.status,
+            `LLM API rate limit: ${errorText || response.status}`
+          )
+          break
+        }
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('🔴 LLM API Error:', response.status, errorText)
+          throw new Error(`LLM API request failed: ${response.status} ${errorText}`)
+        }
+
+        const data: LLMAPIResponse = await response.json()
+        console.log('✅ LLM API Response received:', {
+          hasMessage: !!data.message,
+          hasToolCalls: !!data.toolCalls?.length,
+          toolCallCount: data.toolCalls?.length || 0,
+        })
+
+        return {
+          message: data.message,
+          toolCalls:
+            data.toolCalls?.map(tc => ({
+              id: tc.id,
+              function: {
+                name: tc.function.name,
+                arguments: tc.function.arguments,
+              },
+            })) || null,
+        }
+      } catch (error) {
+        lastError = error
+        if (attempt === maxRetries) {
+          console.error('🔴 Error calling LLM API:', error)
+          throw error
+        }
+        const delay = Math.min(1000 * Math.pow(2, attempt), 30000)
+        options?.onRetry?.(attempt + 1, maxRetries, delay, error as Error)
+        await new Promise(resolve => setTimeout(resolve, delay))
       }
-
-      const data: LLMAPIResponse = await response.json()
-      console.log('✅ LLM API Response received:', {
-        hasMessage: !!data.message,
-        hasToolCalls: !!data.toolCalls?.length,
-        toolCallCount: data.toolCalls?.length || 0,
-      })
-
-      return {
-        message: data.message,
-        toolCalls:
-          data.toolCalls?.map(tc => ({
-            id: tc.id,
-            function: {
-              name: tc.function.name,
-              arguments: tc.function.arguments,
-            },
-          })) || null,
-      }
-    } catch (error) {
-      console.error('🔴 Error calling LLM API:', error)
-      throw error
     }
+
+    throw lastError
   }
 }
