@@ -354,6 +354,18 @@ export const ChatInterface: React.FC = () => {
   const workerResult = useQuery(workerQuery || getWorkerById$('__no_worker__'))
   const currentWorker = selectedConversation?.workerId && workerResult?.[0] ? workerResult[0] : null
 
+  // Filter conversations to only those matching the current worker context
+  const filteredConversations = React.useMemo(() => {
+    if (!selectedConversationId) {
+      return conversations
+    }
+    if (selectedConversation?.workerId) {
+      return conversations.filter(c => c.workerId === selectedConversation.workerId)
+    }
+    // When current conversation has no worker, show only conversations without a worker
+    return conversations.filter(c => !c.workerId)
+  }, [conversations, selectedConversation?.workerId, selectedConversationId])
+
   // Use a stable conversation ID for the query to avoid hook order issues
   const queryConversationId = selectedConversationId ?? '__no_conversation__'
   const allMessages = useQuery(getConversationMessages$(queryConversationId)) ?? []
@@ -391,19 +403,21 @@ export const ChatInterface: React.FC = () => {
 
   const handleCreateConversation = React.useCallback(() => {
     const id = crypto.randomUUID()
-    const title = `New Chat ${new Date().toLocaleTimeString()}`
+    const time = new Date().toLocaleTimeString()
+    const title = currentWorker ? `Chat with ${currentWorker.name} ${time}` : `Core AI Chat ${time}`
 
     store.commit(
       events.conversationCreated({
         id,
         title,
-        model: DEFAULT_MODEL,
+        model: currentWorker?.defaultModel || DEFAULT_MODEL,
+        workerId: currentWorker?.id,
         createdAt: new Date(),
       })
     )
 
     handleConversationChange(id)
-  }, [store, handleConversationChange])
+  }, [store, handleConversationChange, currentWorker])
 
   const handleSendMessage = React.useCallback(
     (e: React.FormEvent) => {
@@ -547,10 +561,10 @@ export const ChatInterface: React.FC = () => {
 
   // Auto-select first conversation if none selected
   React.useEffect(() => {
-    if (!selectedConversationId && conversations.length > 0) {
-      setSelectedConversationId(conversations[0]?.id || null)
+    if (!selectedConversationId && filteredConversations.length > 0) {
+      setSelectedConversationId(filteredConversations[0]?.id || null)
     }
-  }, [selectedConversationId, conversations])
+  }, [selectedConversationId, filteredConversations])
 
   // Auto-scroll to bottom when messages change
   React.useEffect(() => {
@@ -603,13 +617,15 @@ export const ChatInterface: React.FC = () => {
                 <p className='text-xs text-gray-500'>Model: {currentWorker.defaultModel}</p>
               </div>
             </div>
+          ) : selectedConversation ? (
+            <h2 className='text-lg font-semibold text-gray-900'>Core AI</h2>
           ) : (
             <h2 className='text-lg font-semibold text-gray-900'>Chat</h2>
           )}
         </div>
 
         {/* Conversation Selector with + button inline */}
-        {conversations.length > 0 && (
+        {filteredConversations.length > 0 && (
           <div className='flex items-center gap-2'>
             <select
               value={selectedConversationId || ''}
@@ -617,7 +633,7 @@ export const ChatInterface: React.FC = () => {
               className='flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
             >
               <option value=''>Select a conversation...</option>
-              {conversations.map((conversation: Conversation) => (
+              {filteredConversations.map((conversation: Conversation) => (
                 <option key={conversation.id} value={conversation.id}>
                   {conversation.title}
                 </option>
@@ -838,7 +854,7 @@ export const ChatInterface: React.FC = () => {
           <div className='flex-1 flex items-center justify-center p-4'>
             <div className='text-center text-gray-500'>
               <h3 className='text-sm font-medium mb-2'>No conversation selected</h3>
-              {conversations.length === 0 ? (
+              {filteredConversations.length === 0 ? (
                 <>
                   <p className='text-xs mb-3'>Create your first chat to get started.</p>
                   <button
