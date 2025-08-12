@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 import { generateRandomWorkerName } from '../../src/util/workerNames.js'
 import { workerCreated, workerUpdated } from '@work-squared/shared/events'
 
@@ -22,7 +23,7 @@ describe('Worker Events', () => {
         roleDescription: 'Test Role',
         systemPrompt: 'Test system prompt',
         avatar: '🤖',
-        defaultModel: 'claude-3-5-sonnet-latest',
+        defaultModel: DEFAULT_MODEL,
         createdAt: new Date('2023-01-01'),
       })
 
@@ -33,7 +34,7 @@ describe('Worker Events', () => {
         roleDescription: 'Test Role',
         systemPrompt: 'Test system prompt',
         avatar: '🤖',
-        defaultModel: 'claude-3-5-sonnet-latest',
+        defaultModel: DEFAULT_MODEL,
         createdAt: new Date('2023-01-01'),
       })
     })
@@ -43,7 +44,7 @@ describe('Worker Events', () => {
         id: 'test-id',
         name: 'Test Worker',
         systemPrompt: 'Test system prompt',
-        defaultModel: 'claude-3-5-sonnet-latest',
+        defaultModel: DEFAULT_MODEL,
         createdAt: new Date('2023-01-01'),
       })
 
@@ -52,7 +53,7 @@ describe('Worker Events', () => {
         id: 'test-id',
         name: 'Test Worker',
         systemPrompt: 'Test system prompt',
-        defaultModel: 'claude-3-5-sonnet-latest',
+        defaultModel: DEFAULT_MODEL,
         createdAt: new Date('2023-01-01'),
       })
     })

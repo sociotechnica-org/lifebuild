@@ -1,5 +1,6 @@
 import type { LLMProvider, LLMResponse } from '@work-squared/shared'
 import { llmToolSchemas } from '@work-squared/shared/llm-tools/schemas'
+import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 
 interface LLMAPIResponse {
   message: string | null
@@ -27,7 +28,7 @@ export class BraintrustProvider implements LLMProvider {
   async call(
     messages: any[],
     boardContext?: { id: string; name: string },
-    model: string = 'claude-3-5-sonnet-20241022',
+    model: string = DEFAULT_MODEL,
     workerContext?: { systemPrompt: string; name: string; roleDescription?: string }
   ): Promise<LLMResponse> {
     console.log('🔗 Calling LLM API via proxy...')

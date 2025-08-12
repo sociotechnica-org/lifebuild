@@ -75,12 +75,12 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 - [x] UI: Display current model selection in chat header
 - [x] Models: Support these Braintrust model strings:
   - `claude-sonnet-4-20250514` (Claude 4 Sonnet)
-  - `gpt-4o` (GPT-4o)
-  - `claude-opus-4-20250514` (Claude 4 Opus)
-  - `o3` (OpenAI O3)
-- [x] Logic: Default to `claude-3-5-sonnet-latest` for new conversations
+  - `claude-opus-4-1-20250805` (Claude 4.1 Opus)
+  - `gpt-5-2025-08-07` (GPT-5)
+  - `o3-2025-04-16` (OpenAI O3)
+- [x] Logic: Default to `claude-sonnet-4-20250514` for new conversations
 - [x] Logic: Model selection persists per conversation (not global worker setting)
-- [x] Backend: Update worker API to use selected model instead of hardcoded `gpt-4o`
+- [x] Backend: Update worker API to use selected model instead of hardcoded `gpt-5-2025-08-07`
 - [x] Tests: Model selection persistence, API integration with different models
 - [x] DoD: Users can select and switch models during worker conversations
 
@@ -94,7 +94,7 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 
 **Database Changes:**
 
-- Added `model` field to `conversations` table with default `claude-3-5-sonnet-latest`
+- Added `model` field to `conversations` table with default `claude-sonnet-4-20250514`
 - Added `modelId` field to `chatMessages` table for tracking model-generated responses
 - Added `conversationModelUpdated` event with proper materialization
 
@@ -109,7 +109,7 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 ### Implementation Notes
 
 - **Per-Conversation Setting**: Model selection is tied to specific conversations, not workers globally
-- **Model Fallback**: If selected model fails, fall back to `claude-3-5-sonnet-latest`
+- **Model Fallback**: If selected model fails, fall back to `claude-sonnet-4-20250514`
 - **UI Placement**: Model selector should be prominent but not intrusive in chat interface
 
 ---
@@ -240,7 +240,7 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 - [x] UI: Display worker's default model in worker cards and profile
 - [x] Logic: New conversations with this worker start with their default model
 - [x] Logic: Users can still change model per conversation (Story 2 functionality preserved)
-- [x] Logic: Default to `claude-3-5-sonnet-latest` if no model specified
+- [x] Logic: Default to `claude-sonnet-4-20250514` if no model specified
 - [x] Validation: Ensure selected model is from supported list
 - [x] Tests: Worker creation with model selection, model display, conversation defaults
 - [x] DoD: Workers can be created with default models, and new conversations use that model
@@ -263,14 +263,14 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 
 - New worker conversations automatically use worker's default model
 - Existing model-per-conversation functionality preserved
-- Fallback to `claude-3-5-sonnet-latest` for legacy workers
+- Fallback to `claude-sonnet-4-20250514` for legacy workers
 
 ### Implementation Notes
 
 - **Worker Specialization**: Different workers can have different default models suited to their role
 - **Conversation Override**: Users can still change models per conversation (Story 2 remains functional)
 - **Model Consistency**: Each worker's conversations start with their specialized model
-- **Backward Compatibility**: Existing workers without default models use `claude-3-5-sonnet-latest`
+- **Backward Compatibility**: Existing workers without default models use `claude-sonnet-4-20250514`
 
 ---
 
@@ -544,10 +544,10 @@ const workerTools = [
 ```typescript
 // Supported models for worker conversations
 const supportedModels = [
-  { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet', provider: 'anthropic' },
-  { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai' },
-  { id: 'claude-3-opus-latest', name: 'Claude 3 Opus', provider: 'anthropic' },
-  { id: 'o3', name: 'OpenAI O3', provider: 'openai' },
+  { id: 'claude-sonnet-4-20250514', name: 'Claude 4 Sonnet', provider: 'anthropic' },
+  { id: 'gpt-5-2025-08-07', name: 'GPT-5', provider: 'openai' },
+  { id: 'claude-opus-4-1-20250805', name: 'Claude 4.1 Opus', provider: 'anthropic' },
+  { id: 'o3-2025-04-16', name: 'OpenAI O3', provider: 'openai' },
 ]
 ```
 
