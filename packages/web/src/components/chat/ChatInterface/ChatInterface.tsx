@@ -418,7 +418,9 @@ export const ChatInterface: React.FC = () => {
   const [messageText, setMessageText] = React.useState('')
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
-  const [isProcessing, setIsProcessing] = React.useState(false)
+  const [processingConversations, setProcessingConversations] = React.useState<Set<string>>(
+    new Set()
+  )
 
   // Extract current board ID from URL
   const getCurrentBoardId = () => {
@@ -546,7 +548,7 @@ export const ChatInterface: React.FC = () => {
         if (unansweredMessages.length === 0) return
 
         isProcessingInternal = true
-        setIsProcessing(true)
+        setProcessingConversations(prev => new Set(prev).add(selectedConversationId))
 
         try {
           // Process each unanswered message sequentially to avoid race conditions
@@ -633,12 +635,24 @@ export const ChatInterface: React.FC = () => {
           }
         } finally {
           isProcessingInternal = false
-          setIsProcessing(false)
+          setProcessingConversations(prev => {
+            const newSet = new Set(prev)
+            newSet.delete(selectedConversationId)
+            return newSet
+          })
         }
       },
     })
 
-    return unsubscribe
+    return () => {
+      unsubscribe()
+      // Clean up processing state when unmounting or switching conversations
+      setProcessingConversations(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(selectedConversationId)
+        return newSet
+      })
+    }
   }, [store, selectedConversationId, currentWorker, selectedConversation, currentBoard])
 
   // Auto-select first conversation if none selected
@@ -865,7 +879,10 @@ export const ChatInterface: React.FC = () => {
                       </div>
                     )
                   })}
-                  {isProcessing && <div className='p-3 text-sm text-gray-500'>Pondering...</div>}
+                  {selectedConversationId &&
+                    processingConversations.has(selectedConversationId) && (
+                      <div className='p-3 text-sm text-gray-500'>Pondering...</div>
+                    )}
                   <div ref={messagesEndRef} />
                 </div>
               ) : (
@@ -876,7 +893,10 @@ export const ChatInterface: React.FC = () => {
                   </p>
                   <p className='text-sm mt-4'>Ready for messages.</p>
                   <p className='text-xs mt-1'>Send a message to start chatting with the LLM.</p>
-                  {isProcessing && <div className='mt-4 text-sm text-gray-500'>Pondering...</div>}
+                  {selectedConversationId &&
+                    processingConversations.has(selectedConversationId) && (
+                      <div className='mt-4 text-sm text-gray-500'>Pondering...</div>
+                    )}
                   <div ref={messagesEndRef} />
                 </div>
               )}
