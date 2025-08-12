@@ -83,8 +83,10 @@ describe('CreateWorkerModal', () => {
     const submitButton = screen.getByRole('button', { name: 'Create Worker' })
 
     // Clear the auto-generated name and system prompt
-    fireEvent.change(nameInput, { target: { value: '   ' } }) // Just spaces
-    fireEvent.change(systemPromptInput, { target: { value: '   ' } }) // Just spaces
+    fireEvent.change(nameInput, { target: { value: '' } })
+    fireEvent.change(systemPromptInput, { target: { value: '' } })
+
+    expect(nameInput).toHaveValue('')
 
     fireEvent.click(submitButton)
 

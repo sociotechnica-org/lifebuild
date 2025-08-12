@@ -24,10 +24,10 @@ export const CreateWorkerModal: React.FC<CreateWorkerModalProps> = ({ isOpen, on
 
   // Generate random name when modal opens
   useEffect(() => {
-    if (isOpen && !name) {
+    if (isOpen) {
       setName(generateRandomWorkerName())
     }
-  }, [isOpen, name])
+  }, [isOpen])
 
   const validateForm = () => {
     const newErrors: { name?: string; systemPrompt?: string } = {}
