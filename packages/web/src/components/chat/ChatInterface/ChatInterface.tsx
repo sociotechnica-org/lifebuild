@@ -285,6 +285,29 @@ async function runAgenticLoop(
         continue
       } catch (error) {
         console.error(`❌ Error getting LLM continuation in iteration ${iteration}:`, error)
+
+        // Surface the error to the user instead of failing silently
+        const errorMessage = (error as Error).message || 'Unknown error occurred'
+        const isTimeout = errorMessage.includes('timed out')
+
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId: selectedConversationId,
+            message: isTimeout
+              ? 'The request timed out after 30 seconds. This can happen with complex tool operations. Please try again with a simpler request.'
+              : `An error occurred while processing your request: ${errorMessage}`,
+            role: 'assistant',
+            modelId: 'error',
+            responseToMessageId: userMessage.id,
+            createdAt: new Date(),
+            llmMetadata: {
+              source: 'error',
+              agenticIteration: iteration,
+              errorType: isTimeout ? 'timeout' : 'continuation_error',
+            },
+          })
+        )
         break
       }
     } else {
@@ -359,6 +382,9 @@ async function callLLMAPI(
   console.log('🔗 Request body:', requestBody)
   console.log('🔗 History for API:', historyForAPI)
 
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 30000)
+
   try {
     const response = await fetch(proxyUrl, {
       method: 'POST',
@@ -366,8 +392,10 @@ async function callLLMAPI(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
+      signal: controller.signal,
     })
 
+    clearTimeout(timeoutId)
     console.log('🔗 Response status:', response.status)
 
     if (!response.ok) {
@@ -384,6 +412,11 @@ async function callLLMAPI(
       toolCalls: data.toolCalls || [],
     }
   } catch (fetchError) {
+    clearTimeout(timeoutId)
+    if ((fetchError as any)?.name === 'AbortError') {
+      console.error('🔗 Fetch timeout')
+      throw new Error('Request timed out')
+    }
     console.error('🔗 Fetch error:', fetchError)
     throw fetchError
   }
@@ -408,6 +441,9 @@ export const ChatInterface: React.FC = () => {
   const [messageText, setMessageText] = React.useState('')
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+  const [processingConversations, setProcessingConversations] = React.useState<Set<string>>(
+    new Set()
+  )
 
   // Extract current board ID from URL
   const getCurrentBoardId = () => {
@@ -517,11 +553,12 @@ export const ChatInterface: React.FC = () => {
     if (!selectedConversationId) return
 
     const userMessagesQuery = getConversationMessages$(selectedConversationId)
-    let isProcessing = false // Prevent race conditions
+    let isProcessingInternal = false // Prevent race conditions
+    const currentConversationId = selectedConversationId // Capture the conversation ID for this effect
 
     const unsubscribe = store.subscribe(userMessagesQuery, {
       onUpdate: async messages => {
-        if (isProcessing) return // Skip if already processing
+        if (isProcessingInternal) return // Skip if already processing
 
         const userMessages = messages.filter(m => m.role === 'user')
         const assistantMessages = messages.filter(m => m.role === 'assistant')
@@ -534,7 +571,8 @@ export const ChatInterface: React.FC = () => {
 
         if (unansweredMessages.length === 0) return
 
-        isProcessing = true
+        isProcessingInternal = true
+        setProcessingConversations(prev => new Set(prev).add(currentConversationId))
 
         try {
           // Process each unanswered message sequentially to avoid race conditions
@@ -620,12 +658,30 @@ export const ChatInterface: React.FC = () => {
             }
           }
         } finally {
-          isProcessing = false
+          isProcessingInternal = false
+          setProcessingConversations(prev => {
+            const newSet = new Set(prev)
+            newSet.delete(currentConversationId)
+            return newSet
+          })
         }
       },
     })
 
-    return unsubscribe
+    return () => {
+      unsubscribe()
+      // Clean up processing state when unmounting or switching conversations
+      // Only clear if still processing this specific conversation
+      setProcessingConversations(prev => {
+        const newSet = new Set(prev)
+        // Only delete if this conversation is still in the set
+        // This prevents clearing the state if a new subscription has already started
+        if (newSet.has(currentConversationId)) {
+          newSet.delete(currentConversationId)
+        }
+        return newSet
+      })
+    }
   }, [store, selectedConversationId, currentWorker, selectedConversation, currentBoard])
 
   // Auto-select first conversation if none selected
@@ -852,6 +908,10 @@ export const ChatInterface: React.FC = () => {
                       </div>
                     )
                   })}
+                  {selectedConversationId &&
+                    processingConversations.has(selectedConversationId) && (
+                      <div className='p-3 text-sm text-gray-500'>Pondering...</div>
+                    )}
                   <div ref={messagesEndRef} />
                 </div>
               ) : (
@@ -862,6 +922,11 @@ export const ChatInterface: React.FC = () => {
                   </p>
                   <p className='text-sm mt-4'>Ready for messages.</p>
                   <p className='text-xs mt-1'>Send a message to start chatting with the LLM.</p>
+                  {selectedConversationId &&
+                    processingConversations.has(selectedConversationId) && (
+                      <div className='mt-4 text-sm text-gray-500'>Pondering...</div>
+                    )}
+                  <div ref={messagesEndRef} />
                 </div>
               )}
             </div>
