@@ -361,7 +361,9 @@ export const ChatInterface: React.FC = () => {
   // Only show messages if we have a real conversation selected
   const messages = selectedConversationId ? allMessages : []
 
-  const workers = useQuery(getWorkers$) ?? []
+  const workersResult = useQuery(getWorkers$)
+  const workers = workersResult ?? []
+  const workersLoading = workersResult === undefined
   const [menuAnchor, setMenuAnchor] = React.useState<'plus' | 'start' | null>(null)
 
   const resetTextareaHeight = React.useCallback(() => {
@@ -409,20 +411,39 @@ export const ChatInterface: React.FC = () => {
         })
       )
 
-      handleConversationChange(id)
+      // Immediately switch to the new conversation
+      setSelectedConversationId(id)
+
+      // Update URL parameters
+      const params = new URLSearchParams(location.search)
+      params.set('conversationId', id)
+      if (worker?.id) {
+        params.set('workerId', worker.id)
+      } else {
+        params.delete('workerId')
+      }
+      navigate(`${location.pathname}?${params.toString()}`, { replace: true })
     },
-    [store, handleConversationChange]
+    [store, location, navigate]
   )
 
   const handleNewChatClick = React.useCallback(
     (anchor: 'plus' | 'start') => {
+      // Don't create a chat if workers are still loading
+      if (workersLoading) {
+        return
+      }
+
+      // If there's exactly one worker, create a chat with that worker
+      // If there are no workers, create a generic chat
       if (workers.length <= 1) {
         handleCreateConversation(workers[0])
       } else {
+        // Multiple workers - show selection menu
         setMenuAnchor(prev => (prev === anchor ? null : anchor))
       }
     },
-    [workers, handleCreateConversation]
+    [workers, workersLoading, handleCreateConversation]
   )
 
   const handleSendMessage = React.useCallback(
@@ -646,9 +667,10 @@ export const ChatInterface: React.FC = () => {
             <div className='relative flex-shrink-0'>
               <button
                 onClick={() => handleNewChatClick('plus')}
-                className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors'
+                disabled={workersLoading}
+                className='bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white p-2 rounded-full transition-colors'
                 aria-label='New Chat'
-                title='New Chat'
+                title={workersLoading ? 'Loading workers...' : 'New Chat'}
               >
                 <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path
@@ -887,9 +909,10 @@ export const ChatInterface: React.FC = () => {
                   <div className='relative inline-block'>
                     <button
                       onClick={() => handleNewChatClick('start')}
-                      className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors'
+                      disabled={workersLoading}
+                      className='bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors'
                     >
-                      Start New Chat
+                      {workersLoading ? 'Loading...' : 'Start New Chat'}
                     </button>
                     {menuAnchor === 'start' && workers.length > 1 && (
                       <div className='absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10'>
