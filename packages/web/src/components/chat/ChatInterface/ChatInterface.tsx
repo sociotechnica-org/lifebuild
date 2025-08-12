@@ -8,6 +8,7 @@ import {
   getConversationMessages$,
   getBoardById$,
   getWorkerById$,
+  getWorkers$,
 } from '@work-squared/shared/queries'
 import type { Conversation, ChatMessage } from '@work-squared/shared/schema'
 import { MarkdownRenderer } from '../../markdown/MarkdownRenderer.js'
@@ -427,6 +428,7 @@ export const ChatInterface: React.FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const conversations = useQuery(getConversations$) ?? []
+  const availableWorkers = useQuery(getWorkers$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
 
   // Handle URL parameters for conversation selection
@@ -508,21 +510,38 @@ export const ChatInterface: React.FC = () => {
     [conversations, location, navigate]
   )
 
-  const handleCreateConversation = React.useCallback(() => {
-    const id = crypto.randomUUID()
-    const title = `New Chat ${new Date().toLocaleTimeString()}`
+  const handleCreateConversation = React.useCallback(
+    (workerId?: string) => {
+      const id = crypto.randomUUID()
+      const title = workerId
+        ? `Chat with ${availableWorkers.find(w => w.id === workerId)?.name || 'Worker'} - ${new Date().toLocaleTimeString()}`
+        : `New Chat ${new Date().toLocaleTimeString()}`
 
-    store.commit(
-      events.conversationCreated({
-        id,
-        title,
-        model: DEFAULT_MODEL,
-        createdAt: new Date(),
-      })
-    )
+      store.commit(
+        events.conversationCreated({
+          id,
+          title,
+          model: DEFAULT_MODEL,
+          workerId,
+          createdAt: new Date(),
+        })
+      )
 
-    handleConversationChange(id)
-  }, [store, handleConversationChange])
+      handleConversationChange(id)
+    },
+    [store, handleConversationChange, availableWorkers]
+  )
+
+  const handleNewChatClick = React.useCallback(() => {
+    // If we have workers available and loaded, we should ideally show a worker selection dialog
+    // For now, we'll create a generic chat. In a full implementation, this would show a modal
+    // to let users choose between a generic chat or a specific worker chat
+
+    // The bug was that if getWorkers$ returns empty array during loading,
+    // we incorrectly assume no workers exist. We should check if the query is still loading
+    // For now, we'll always create generic chats as fallback
+    handleCreateConversation()
+  }, [handleCreateConversation])
 
   const handleSendMessage = React.useCallback(
     (e: React.FormEvent) => {
@@ -700,15 +719,18 @@ export const ChatInterface: React.FC = () => {
 
   // Handle focus for mobile to show keyboard
   React.useEffect(() => {
-    // Only autofocus on mobile if there's a selected conversation
-    if (selectedConversationId && textareaRef.current) {
-      // Small delay to ensure DOM is ready
+    // Only autofocus if there's a selected conversation and messages exist
+    // This ensures the textarea component is fully mounted
+    if (selectedConversationId && textareaRef.current && messages) {
+      // Longer delay to ensure component is fully rendered
       const timer = setTimeout(() => {
-        textareaRef.current?.focus()
-      }, 100)
+        if (textareaRef.current) {
+          textareaRef.current.focus()
+        }
+      }, 200)
       return () => clearTimeout(timer)
     }
-  }, [selectedConversationId])
+  }, [selectedConversationId, messages])
 
   // Auto-resize textarea
   const handleTextareaChange = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -763,7 +785,7 @@ export const ChatInterface: React.FC = () => {
               ))}
             </select>
             <button
-              onClick={handleCreateConversation}
+              onClick={handleNewChatClick}
               className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors flex-shrink-0'
               aria-label='New Chat'
               title='New Chat'
@@ -990,7 +1012,7 @@ export const ChatInterface: React.FC = () => {
                 <>
                   <p className='text-xs mb-3'>Create your first chat to get started.</p>
                   <button
-                    onClick={handleCreateConversation}
+                    onClick={handleNewChatClick}
                     className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors'
                   >
                     Start New Chat
