@@ -276,6 +276,9 @@ async function callLLMAPI(
   console.log('🔗 Request body:', requestBody)
   console.log('🔗 History for API:', historyForAPI)
 
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 30000)
+
   try {
     const response = await fetch(proxyUrl, {
       method: 'POST',
@@ -283,8 +286,10 @@ async function callLLMAPI(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
+      signal: controller.signal,
     })
 
+    clearTimeout(timeoutId)
     console.log('🔗 Response status:', response.status)
 
     if (!response.ok) {
@@ -301,6 +306,11 @@ async function callLLMAPI(
       toolCalls: data.toolCalls || [],
     }
   } catch (fetchError) {
+    clearTimeout(timeoutId)
+    if ((fetchError as any)?.name === 'AbortError') {
+      console.error('🔗 Fetch timeout')
+      throw new Error('Request timed out')
+    }
     console.error('🔗 Fetch error:', fetchError)
     throw fetchError
   }
@@ -325,6 +335,7 @@ export const ChatInterface: React.FC = () => {
   const [messageText, setMessageText] = React.useState('')
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+  const [isProcessing, setIsProcessing] = React.useState(false)
 
   // Extract current board ID from URL
   const getCurrentBoardId = () => {
@@ -434,11 +445,11 @@ export const ChatInterface: React.FC = () => {
     if (!selectedConversationId) return
 
     const userMessagesQuery = getConversationMessages$(selectedConversationId)
-    let isProcessing = false // Prevent race conditions
+    let isProcessingInternal = false // Prevent race conditions
 
     const unsubscribe = store.subscribe(userMessagesQuery, {
       onUpdate: async messages => {
-        if (isProcessing) return // Skip if already processing
+        if (isProcessingInternal) return // Skip if already processing
 
         const userMessages = messages.filter(m => m.role === 'user')
         const assistantMessages = messages.filter(m => m.role === 'assistant')
@@ -451,7 +462,8 @@ export const ChatInterface: React.FC = () => {
 
         if (unansweredMessages.length === 0) return
 
-        isProcessing = true
+        isProcessingInternal = true
+        setIsProcessing(true)
 
         try {
           // Process each unanswered message sequentially to avoid race conditions
@@ -537,7 +549,8 @@ export const ChatInterface: React.FC = () => {
             }
           }
         } finally {
-          isProcessing = false
+          isProcessingInternal = false
+          setIsProcessing(false)
         }
       },
     })
@@ -769,6 +782,9 @@ export const ChatInterface: React.FC = () => {
                       </div>
                     )
                   })}
+                  {isProcessing && (
+                    <div className='p-3 text-sm text-gray-500'>Assistant is thinking...</div>
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
               ) : (
@@ -779,6 +795,10 @@ export const ChatInterface: React.FC = () => {
                   </p>
                   <p className='text-sm mt-4'>Ready for messages.</p>
                   <p className='text-xs mt-1'>Send a message to start chatting with the LLM.</p>
+                  {isProcessing && (
+                    <div className='mt-4 text-sm text-gray-500'>Assistant is thinking...</div>
+                  )}
+                  <div ref={messagesEndRef} />
                 </div>
               )}
             </div>
