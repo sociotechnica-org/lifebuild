@@ -528,9 +528,22 @@ export const ChatInterface: React.FC = () => {
         })
       )
 
-      handleConversationChange(id)
+      // Navigate immediately without waiting for query to update
+      setSelectedConversationId(id)
+
+      // Update URL parameters directly
+      const params = new URLSearchParams(location.search)
+      params.set('conversationId', id)
+
+      if (workerId) {
+        params.set('workerId', workerId)
+      } else {
+        params.delete('workerId')
+      }
+
+      navigate(`${location.pathname}?${params.toString()}`, { replace: true })
     },
-    [store, handleConversationChange, availableWorkers]
+    [store, availableWorkers, location, navigate]
   )
 
   const handleNewChatClick = React.useCallback(() => {

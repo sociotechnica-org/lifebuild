@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from '@livestore/react'
-import { useNavigate, useLocation } from 'react-router-dom'
 import type { Worker, Project } from '@work-squared/shared/schema'
 import { getWorkerProjects$, getProjects$ } from '@work-squared/shared/queries'
 import { EditWorkerModal } from '../EditWorkerModal/EditWorkerModal.js'
 import { getModelById, DEFAULT_MODEL } from '../../../util/models.js'
-import { events } from '@work-squared/shared/schema'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
 
 interface WorkerCardProps {
@@ -15,8 +13,6 @@ interface WorkerCardProps {
 
 export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
   const { store } = useStore()
-  const navigate = useNavigate()
-  const location = useLocation()
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [assignedProjects, setAssignedProjects] = useState<Project[]>([])
 
