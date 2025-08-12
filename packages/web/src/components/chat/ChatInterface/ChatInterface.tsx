@@ -561,7 +561,12 @@ export const ChatInterface: React.FC = () => {
 
             try {
               // Get conversation history for context
-              const conversationHistory = messages.filter(m => m.createdAt < userMessage.createdAt)
+              const conversationHistory = messages.filter(
+                m =>
+                  m.createdAt < userMessage.createdAt &&
+                  m.llmMetadata?.source !== 'status' &&
+                  m.llmMetadata?.source !== 'error'
+              )
               const boardContext = currentBoard
                 ? { id: currentBoard.id, name: currentBoard.name }
                 : undefined
