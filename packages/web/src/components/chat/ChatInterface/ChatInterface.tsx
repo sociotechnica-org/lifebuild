@@ -865,9 +865,7 @@ export const ChatInterface: React.FC = () => {
                       </div>
                     )
                   })}
-                  {isProcessing && (
-                    <div className='p-3 text-sm text-gray-500'>Assistant is thinking...</div>
-                  )}
+                  {isProcessing && <div className='p-3 text-sm text-gray-500'>Pondering...</div>}
                   <div ref={messagesEndRef} />
                 </div>
               ) : (
@@ -878,9 +876,7 @@ export const ChatInterface: React.FC = () => {
                   </p>
                   <p className='text-sm mt-4'>Ready for messages.</p>
                   <p className='text-xs mt-1'>Send a message to start chatting with the LLM.</p>
-                  {isProcessing && (
-                    <div className='mt-4 text-sm text-gray-500'>Assistant is thinking...</div>
-                  )}
+                  {isProcessing && <div className='mt-4 text-sm text-gray-500'>Pondering...</div>}
                   <div ref={messagesEndRef} />
                 </div>
               )}
