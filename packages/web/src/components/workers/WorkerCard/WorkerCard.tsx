@@ -28,37 +28,6 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
     }).format(new Date(date))
   }
 
-  const handleChatClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-
-    // Create a new conversation with this worker
-    const conversationId = crypto.randomUUID()
-    const title = `Chat with ${worker.name}`
-    const model = worker.defaultModel || DEFAULT_MODEL
-
-    store.commit(
-      events.conversationCreated({
-        id: conversationId,
-        title,
-        model,
-        workerId: worker.id,
-        createdAt: new Date(),
-      })
-    )
-
-    // Navigate to current page with conversation parameters to select the new conversation
-    const params = new URLSearchParams(location.search)
-    params.set('workerId', worker.id)
-    params.set('conversationId', conversationId)
-
-    // Keep current pathname and add the parameters
-    navigate(`${location.pathname}?${params.toString()}`)
-
-    console.log(
-      `Created conversation ${conversationId} with worker ${worker.name} using model ${model}`
-    )
-  }
-
   useEffect(() => {
     const loadAssignedProjects = async () => {
       try {
@@ -125,13 +94,7 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
         </div>
       )}
 
-      <div className='flex gap-2'>
-        <button
-          onClick={handleChatClick}
-          className='flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors'
-        >
-          Chat
-        </button>
+      <div className='flex'>
         <button
           onClick={e => {
             e.stopPropagation()
