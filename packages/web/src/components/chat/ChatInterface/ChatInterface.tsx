@@ -285,6 +285,29 @@ async function runAgenticLoop(
         continue
       } catch (error) {
         console.error(`❌ Error getting LLM continuation in iteration ${iteration}:`, error)
+
+        // Surface the error to the user instead of failing silently
+        const errorMessage = (error as Error).message || 'Unknown error occurred'
+        const isTimeout = errorMessage.includes('timed out')
+
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId: selectedConversationId,
+            message: isTimeout
+              ? 'The request timed out after 30 seconds. This can happen with complex tool operations. Please try again with a simpler request.'
+              : `An error occurred while processing your request: ${errorMessage}`,
+            role: 'assistant',
+            modelId: 'error',
+            responseToMessageId: userMessage.id,
+            createdAt: new Date(),
+            llmMetadata: {
+              source: 'error',
+              agenticIteration: iteration,
+              errorType: isTimeout ? 'timeout' : 'continuation_error',
+            },
+          })
+        )
         break
       }
     } else {
@@ -531,6 +554,7 @@ export const ChatInterface: React.FC = () => {
 
     const userMessagesQuery = getConversationMessages$(selectedConversationId)
     let isProcessingInternal = false // Prevent race conditions
+    const currentConversationId = selectedConversationId // Capture the conversation ID for this effect
 
     const unsubscribe = store.subscribe(userMessagesQuery, {
       onUpdate: async messages => {
@@ -548,7 +572,7 @@ export const ChatInterface: React.FC = () => {
         if (unansweredMessages.length === 0) return
 
         isProcessingInternal = true
-        setProcessingConversations(prev => new Set(prev).add(selectedConversationId))
+        setProcessingConversations(prev => new Set(prev).add(currentConversationId))
 
         try {
           // Process each unanswered message sequentially to avoid race conditions
@@ -637,7 +661,7 @@ export const ChatInterface: React.FC = () => {
           isProcessingInternal = false
           setProcessingConversations(prev => {
             const newSet = new Set(prev)
-            newSet.delete(selectedConversationId)
+            newSet.delete(currentConversationId)
             return newSet
           })
         }
@@ -647,9 +671,14 @@ export const ChatInterface: React.FC = () => {
     return () => {
       unsubscribe()
       // Clean up processing state when unmounting or switching conversations
+      // Only clear if still processing this specific conversation
       setProcessingConversations(prev => {
         const newSet = new Set(prev)
-        newSet.delete(selectedConversationId)
+        // Only delete if this conversation is still in the set
+        // This prevents clearing the state if a new subscription has already started
+        if (newSet.has(currentConversationId)) {
+          newSet.delete(currentConversationId)
+        }
         return newSet
       })
     }
