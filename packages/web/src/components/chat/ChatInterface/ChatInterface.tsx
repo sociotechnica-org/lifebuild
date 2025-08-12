@@ -149,8 +149,91 @@ async function runAgenticLoop(
                   ?.map((r: any) => `${r.title} (ID: ${r.id})\n  Snippet: ${r.snippet}`)
                   .join('\n\n• ') || 'No matching documents found'
               toolResultMessage = `Search results:\n• ${searchResults}`
+            } else if (toolCall.function.name === 'create_document') {
+              toolResultMessage = `Document created successfully:\n• Title: ${toolResult.title}\n• Document ID: ${toolResult.documentId}\n• Content length: ${toolResult.content?.length || 0} characters`
+            } else if (toolCall.function.name === 'update_document') {
+              toolResultMessage = `Document updated successfully:\n• Document ID: ${toolResult.document?.id}`
+              if (toolResult.document?.title) {
+                toolResultMessage += `\n• New title: ${toolResult.document.title}`
+              }
+              if (toolResult.document?.content !== undefined) {
+                toolResultMessage += `\n• Content updated (${toolResult.document.content.length} characters)`
+              }
+            } else if (toolCall.function.name === 'add_document_to_project') {
+              toolResultMessage = `Document successfully added to project:\n• Document ID: ${toolResult.association?.documentId}\n• Project ID: ${toolResult.association?.projectId}`
+            } else if (toolCall.function.name === 'remove_document_from_project') {
+              toolResultMessage = `Document successfully removed from project:\n• Document ID: ${toolResult.association?.documentId}\n• Project ID: ${toolResult.association?.projectId}`
+            } else if (toolCall.function.name === 'archive_document') {
+              toolResultMessage = `Document archived successfully:\n• Document ID: ${toolResult.document?.id}`
+            } else if (toolCall.function.name === 'get_project_documents') {
+              const documentList =
+                toolResult.documents
+                  ?.map(
+                    (d: any) =>
+                      `${d.title} (ID: ${d.id}) - Created: ${new Date(d.createdAt).toLocaleDateString()}`
+                  )
+                  .join('\n• ') || 'No documents found in project'
+              toolResultMessage = `Project documents:\n• ${documentList}`
+            } else if (toolCall.function.name === 'search_project_documents') {
+              const searchResults =
+                toolResult.results
+                  ?.map((r: any) => `${r.title} (ID: ${r.id})\n  Snippet: ${r.snippet}`)
+                  .join('\n\n• ') || 'No matching documents found in project'
+              toolResultMessage = `Project search results:\n• ${searchResults}`
+            } else if (toolCall.function.name === 'update_task') {
+              toolResultMessage = `Task updated successfully:\n• Task ID: ${toolResult.task?.id}`
+              if (toolResult.task?.title) {
+                toolResultMessage += `\n• New title: ${toolResult.task.title}`
+              }
+              if (toolResult.task?.description !== undefined) {
+                toolResultMessage += `\n• Description updated`
+              }
+              if (toolResult.task?.assigneeIds) {
+                toolResultMessage += `\n• Assignees updated`
+              }
+            } else if (toolCall.function.name === 'move_task') {
+              toolResultMessage = `Task moved successfully:\n• Task ID: ${toolResult.task?.id}\n• New column ID: ${toolResult.task?.columnId}\n• Position: ${toolResult.task?.position}`
+            } else if (toolCall.function.name === 'move_task_to_project') {
+              toolResultMessage = `Task moved to project:\n• Task ID: ${toolResult.task?.id}\n• New project ID: ${toolResult.task?.projectId || 'orphaned'}\n• New column ID: ${toolResult.task?.columnId}\n• Position: ${toolResult.task?.position}`
+            } else if (toolCall.function.name === 'archive_task') {
+              toolResultMessage = `Task archived successfully:\n• Task ID: ${toolResult.task?.id}`
+            } else if (toolCall.function.name === 'unarchive_task') {
+              toolResultMessage = `Task unarchived successfully:\n• Task ID: ${toolResult.task?.id}`
+            } else if (toolCall.function.name === 'get_task_by_id') {
+              if (toolResult.task) {
+                const t = toolResult.task
+                toolResultMessage = `Task details:\n• ID: ${t.id}\n• Title: ${t.title}\n• Project ID: ${t.projectId || 'none'}\n• Column ID: ${t.columnId || 'none'}\n• Description: ${t.description || 'none'}\n• Position: ${t.position}`
+                if (t.assigneeIds?.length) {
+                  toolResultMessage += `\n• Assignees: ${t.assigneeIds.join(', ')}`
+                }
+              } else {
+                toolResultMessage = 'Task not found'
+              }
+            } else if (toolCall.function.name === 'get_project_tasks') {
+              const taskList =
+                toolResult.tasks
+                  ?.map(
+                    (t: any) =>
+                      `${t.title} (ID: ${t.id}) - Column: ${t.columnId}, Position: ${t.position}`
+                  )
+                  .join('\n• ') || 'No tasks found in project'
+              toolResultMessage = `Project tasks:\n• ${taskList}`
+            } else if (toolCall.function.name === 'get_orphaned_tasks') {
+              const taskList =
+                toolResult.tasks
+                  ?.map((t: any) => `${t.title} (ID: ${t.id}) - Position: ${t.position}`)
+                  .join('\n• ') || 'No orphaned tasks found'
+              toolResultMessage = `Orphaned tasks:\n• ${taskList}`
+            } else if (toolCall.function.name === 'get_project_details') {
+              if (toolResult.project) {
+                const p = toolResult.project
+                toolResultMessage = `Project details:\n• ID: ${p.id}\n• Name: ${p.name}\n• Description: ${p.description || 'none'}\n• Document count: ${p.documentCount}\n• Task count: ${p.taskCount}`
+              } else {
+                toolResultMessage = 'Project not found'
+              }
             } else {
-              toolResultMessage = `Tool executed successfully`
+              // For any other tools, return the full result as JSON so the AI gets all the data
+              toolResultMessage = `Tool executed successfully. Result: ${JSON.stringify(toolResult, null, 2)}`
             }
           } else {
             toolResultMessage = `Error: ${toolResult.error}`

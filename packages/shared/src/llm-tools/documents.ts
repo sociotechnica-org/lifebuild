@@ -36,7 +36,7 @@ import type {
  * List all available documents (core implementation)
  */
 function listDocumentsCore(store: Store): ListDocumentsResult {
-  const documents = store.query(getDocumentList$) as any[]
+  const documents = (store.query(getDocumentList$) || []) as any[]
   return {
     success: true,
     documents: documents.map((d: any) => ({
@@ -77,7 +77,7 @@ function searchDocumentsCore(store: Store, query: string): SearchDocumentsResult
 
   const trimmedQuery = query.trim()
   const searchQuery = trimmedQuery.toLowerCase()
-  const allDocuments = store.query(searchDocuments$(trimmedQuery)) as any[]
+  const allDocuments = (store.query(searchDocuments$(trimmedQuery)) || []) as any[]
 
   // Filter documents that match the search query in title or content
   const results = allDocuments.filter(
@@ -105,8 +105,8 @@ function getProjectDocumentsCore(store: Store, projectId: string): GetProjectDoc
   }
 
   // Get document-project associations and all documents, then filter
-  const documentProjects = store.query(getDocumentProjectsByProject$(projectId)) as any[]
-  const allDocuments = store.query(getAllDocuments$) as any[]
+  const documentProjects = (store.query(getDocumentProjectsByProject$(projectId)) || []) as any[]
+  const allDocuments = (store.query(getAllDocuments$) || []) as any[]
   const documentIds = new Set(documentProjects.map(dp => dp.documentId))
   const documents = allDocuments.filter(doc => documentIds.has(doc.id))
 
@@ -137,11 +137,11 @@ function searchProjectDocumentsCore(
 
   const trimmedQuery = query.trim()
   const searchQuery = trimmedQuery.toLowerCase()
-  let documents = store.query(searchDocumentsWithProject$(trimmedQuery, projectId)) as any[]
+  let documents = (store.query(searchDocumentsWithProject$(trimmedQuery, projectId)) || []) as any[]
 
   // If projectId is provided, filter documents by project
   if (projectId) {
-    const documentProjects = store.query(getDocumentProjectsByProject$(projectId)) as any[]
+    const documentProjects = (store.query(getDocumentProjectsByProject$(projectId)) || []) as any[]
     const documentIds = new Set(documentProjects.map(dp => dp.documentId))
     documents = documents.filter(doc => documentIds.has(doc.id))
   }
@@ -284,15 +284,19 @@ function addDocumentToProjectCore(
   validators.requireEntity(documents, 'Document', documentId)
 
   // Verify project exists
-  const projects = store.query(getProjects$)
-  const project = projects.find((p: any) => p.id === projectId)
+  const projects = store.query(getProjects$) || []
+  if (!Array.isArray(projects)) {
+    throw new Error('Failed to retrieve projects list')
+  }
+  const project = projects.find((p: any) => p?.id === projectId)
   if (!project) {
     throw new Error(`Project with ID ${projectId} not found`)
   }
 
   // Check if document is already associated with this project
-  const existingAssociations = store.query(getDocumentProjectsByProject$(projectId))
-  const alreadyAssociated = existingAssociations.some((dp: any) => dp.documentId === documentId)
+  const existingAssociations = store.query(getDocumentProjectsByProject$(projectId)) || []
+  const alreadyAssociated = Array.isArray(existingAssociations) && 
+    existingAssociations.some((dp: any) => dp?.documentId === documentId)
   if (alreadyAssociated) {
     throw new Error(`Document is already associated with project ${projectId}`)
   }
@@ -328,15 +332,19 @@ function removeDocumentFromProjectCore(
   validators.requireEntity(documents, 'Document', documentId)
 
   // Verify project exists
-  const projects = store.query(getProjects$)
-  const project = projects.find((p: any) => p.id === projectId)
+  const projects = store.query(getProjects$) || []
+  if (!Array.isArray(projects)) {
+    throw new Error('Failed to retrieve projects list')
+  }
+  const project = projects.find((p: any) => p?.id === projectId)
   if (!project) {
     throw new Error(`Project with ID ${projectId} not found`)
   }
 
   // Check if document is associated with this project
-  const existingAssociations = store.query(getDocumentProjectsByProject$(projectId))
-  const isAssociated = existingAssociations.some((dp: any) => dp.documentId === documentId)
+  const existingAssociations = store.query(getDocumentProjectsByProject$(projectId)) || []
+  const isAssociated = Array.isArray(existingAssociations) && 
+    existingAssociations.some((dp: any) => dp?.documentId === documentId)
   if (!isAssociated) {
     throw new Error(`Document is not associated with project ${projectId}`)
   }
