@@ -1,5 +1,6 @@
 import { makeDurableObject, makeWorker } from '@livestore/sync-cf/cf-worker'
 import { verifyJWT, isWithinGracePeriod, DEFAULT_GRACE_PERIOD_SECONDS, DEV_AUTH, ENV_VARS, AuthErrorCode } from '@work-squared/shared/auth'
+import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 
 export class WebSocketServer extends makeDurableObject({
   onPush: async function (message) {
@@ -243,7 +244,7 @@ Maintain a professional but conversational tone. Focus on practical, actionable 
             'x-bt-parent': `project_id:${env.BRAINTRUST_PROJECT_ID}`,
           },
           body: JSON.stringify({
-            model: model || 'claude-3-5-sonnet-latest',
+            model: model || DEFAULT_MODEL,
             messages,
             tools,
             tool_choice: 'auto',

@@ -17,17 +17,17 @@ export const CreateWorkerModal: React.FC<CreateWorkerModalProps> = ({ isOpen, on
   const [roleDescription, setRoleDescription] = useState('')
   const [systemPrompt, setSystemPrompt] = useState('')
   const [avatar, setAvatar] = useState('🤖')
-  const [defaultModel, setDefaultModel] = useState(DEFAULT_MODEL)
+  const [defaultModel, setDefaultModel] = useState<string>(DEFAULT_MODEL)
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<{ name?: string; systemPrompt?: string }>({})
 
   // Generate random name when modal opens
   useEffect(() => {
-    if (isOpen && !name) {
+    if (isOpen) {
       setName(generateRandomWorkerName())
     }
-  }, [isOpen, name])
+  }, [isOpen])
 
   const validateForm = () => {
     const newErrors: { name?: string; systemPrompt?: string } = {}

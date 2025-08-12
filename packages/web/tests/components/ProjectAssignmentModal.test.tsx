@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { Worker } from '@work-squared/shared/schema'
+import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 
 describe('ProjectAssignmentModal', () => {
   const mockWorker: Worker = {
@@ -8,7 +9,7 @@ describe('ProjectAssignmentModal', () => {
     roleDescription: 'Test Role',
     systemPrompt: 'Test system prompt',
     avatar: '🤖',
-    defaultModel: 'claude-3-5-sonnet-latest',
+    defaultModel: DEFAULT_MODEL,
     createdAt: new Date(),
     updatedAt: new Date(),
     isActive: true,

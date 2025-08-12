@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { createTestStore } from '../test-utils.js'
 import { events } from '@work-squared/shared/schema'
+import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 import {
   getWorkerProjects$,
   getProjectWorkers$,
@@ -24,7 +25,7 @@ describe('Worker Project Assignment', () => {
         id: workerId,
         name: 'Test Worker',
         systemPrompt: 'Test system prompt',
-        defaultModel: 'claude-3-5-sonnet-latest',
+        defaultModel: DEFAULT_MODEL,
         createdAt: new Date(),
       })
     )
@@ -68,7 +69,7 @@ describe('Worker Project Assignment', () => {
         id: workerId,
         name: 'Test Worker',
         systemPrompt: 'Test system prompt',
-        defaultModel: 'claude-3-5-sonnet-latest',
+        defaultModel: DEFAULT_MODEL,
         createdAt: new Date(),
       })
     )
@@ -117,7 +118,7 @@ describe('Worker Project Assignment', () => {
         id: worker1Id,
         name: 'Test Worker 1',
         systemPrompt: 'Test system prompt 1',
-        defaultModel: 'claude-3-5-sonnet-latest',
+        defaultModel: DEFAULT_MODEL,
         createdAt: new Date(),
       })
     )
@@ -127,7 +128,7 @@ describe('Worker Project Assignment', () => {
         id: worker2Id,
         name: 'Test Worker 2',
         systemPrompt: 'Test system prompt 2',
-        defaultModel: 'claude-3-5-sonnet-latest',
+        defaultModel: DEFAULT_MODEL,
         createdAt: new Date(),
       })
     )
@@ -174,7 +175,7 @@ describe('Worker Project Assignment', () => {
         id: workerId,
         name: 'Test Worker',
         systemPrompt: 'Test system prompt',
-        defaultModel: 'claude-3-5-sonnet-latest',
+        defaultModel: DEFAULT_MODEL,
         createdAt: new Date(),
       })
     )
@@ -230,7 +231,7 @@ describe('Worker Project Assignment', () => {
         id: worker1Id,
         name: 'Test Worker 1',
         systemPrompt: 'Test system prompt 1',
-        defaultModel: 'claude-3-5-sonnet-latest',
+        defaultModel: DEFAULT_MODEL,
         createdAt: new Date(),
       })
     )
@@ -240,7 +241,7 @@ describe('Worker Project Assignment', () => {
         id: worker2Id,
         name: 'Test Worker 2',
         systemPrompt: 'Test system prompt 2',
-        defaultModel: 'claude-3-5-sonnet-latest',
+        defaultModel: DEFAULT_MODEL,
         createdAt: new Date(),
       })
     )
@@ -310,7 +311,7 @@ describe('Worker Project Assignment', () => {
         id: workerId,
         name: 'Test Worker',
         systemPrompt: 'Test system prompt',
-        defaultModel: 'claude-3-5-sonnet-latest',
+        defaultModel: DEFAULT_MODEL,
         createdAt: new Date(),
       })
     )
