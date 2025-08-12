@@ -8,6 +8,7 @@ import {
   createMockTask,
 } from '../../../../tests/test-utils.js'
 import type { Worker } from '@work-squared/shared/schema'
+import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 
 // Hoisted mocks
 const { mockUseQuery, mockStore, mockUseParams } = vi.hoisted(() => {
@@ -75,7 +76,7 @@ describe('ProjectWorkspace', () => {
       roleDescription: null,
       systemPrompt: 'test',
       avatar: '🤖',
-      defaultModel: 'claude-3-5-sonnet-latest',
+      defaultModel: DEFAULT_MODEL,
       createdAt: new Date('2023-01-01'),
       updatedAt: new Date('2023-01-01'),
       isActive: true,

@@ -1,4 +1,5 @@
 import { makeSchema, Schema, SessionIdSymbol, State } from '@livestore/livestore'
+import { DEFAULT_MODEL } from '../llm/models.js'
 
 import { Filter } from '../types'
 import * as eventsDefs from './events'
@@ -110,7 +111,7 @@ const conversations = State.SQLite.table({
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
     title: State.SQLite.text({ default: '' }),
-    model: State.SQLite.text({ default: 'claude-3-5-sonnet-latest' }),
+    model: State.SQLite.text({ default: DEFAULT_MODEL }),
     workerId: State.SQLite.text({ nullable: true }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
@@ -169,7 +170,7 @@ const workers = State.SQLite.table({
     roleDescription: State.SQLite.text({ nullable: true }),
     systemPrompt: State.SQLite.text({ default: '' }),
     avatar: State.SQLite.text({ nullable: true }),
-    defaultModel: State.SQLite.text({ default: 'claude-3-5-sonnet-latest' }),
+    defaultModel: State.SQLite.text({ default: DEFAULT_MODEL }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),

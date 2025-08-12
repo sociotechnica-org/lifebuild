@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { BrowserRouter } from 'react-router-dom'
 import { WorkerCard } from './WorkerCard.js'
+import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 
 // Hoisted mocks
 const { mockStore } = vi.hoisted(() => {
@@ -30,7 +31,7 @@ describe('WorkerCard', () => {
     roleDescription: 'Test Role',
     systemPrompt: 'Test system prompt',
     avatar: '🤖',
-    defaultModel: 'claude-3-5-sonnet-latest',
+    defaultModel: DEFAULT_MODEL,
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-01'),
     isActive: true,

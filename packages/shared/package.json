@@ -70,6 +70,11 @@
       "import": "./src/llm-tools/base.ts",
       "require": "./dist/llm-tools/base.js",
       "default": "./dist/llm-tools/base.js"
+    },
+    "./llm/models": {
+      "import": "./src/llm/models.ts",
+      "require": "./dist/llm/models.js",
+      "default": "./dist/llm/models.js"
     }
   },
   "dependencies": {

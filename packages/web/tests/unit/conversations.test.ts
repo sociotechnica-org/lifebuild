@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { events, tables } from '@work-squared/shared/schema'
+import { MODEL_IDS } from '@work-squared/shared/llm/models'
 import {
   getConversations$,
   getConversation$,
@@ -32,7 +33,7 @@ describe('Conversation Events and Materialization', () => {
     const testConversation = {
       id: 'test-id',
       title: 'Test Conversation',
-      model: 'claude-sonnet-4-20250514',
+      model: MODEL_IDS.CLAUDE_SONNET,
       createdAt: new Date(),
     }
 
@@ -84,7 +85,7 @@ describe('Chat Message Events and Materialization', () => {
       conversationId: 'test-conversation-id',
       message: 'Hello! How can I help you with your project?',
       role: 'assistant' as const,
-      modelId: 'gpt-4o',
+      modelId: MODEL_IDS.GPT_5,
       responseToMessageId: 'test-user-message-id',
       createdAt: new Date(),
       metadata: { source: 'braintrust' },

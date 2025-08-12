@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { EditWorkerModal } from './EditWorkerModal.js'
 import type { Worker } from '@work-squared/shared/schema'
+import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 
 // Hoisted mocks
 const { mockStore } = vi.hoisted(() => {
@@ -38,7 +39,7 @@ describe('EditWorkerModal', () => {
     roleDescription: 'Test Role',
     systemPrompt: 'Original system prompt',
     avatar: '🤖',
-    defaultModel: 'claude-3-5-sonnet-latest',
+    defaultModel: DEFAULT_MODEL,
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-01'),
     isActive: true,

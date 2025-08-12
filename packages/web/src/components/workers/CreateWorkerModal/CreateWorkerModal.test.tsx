@@ -2,6 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { CreateWorkerModal } from './CreateWorkerModal.js'
+import { MODEL_IDS, DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 
 // Hoisted mocks
 const { mockStore } = vi.hoisted(() => {
@@ -26,22 +27,6 @@ vi.mock('../../../util/workerNames.js', () => ({
   ],
 }))
 
-// Mock models utility
-vi.mock('../../../util/models.js', () => ({
-  DEFAULT_MODEL: 'claude-3-5-sonnet-latest',
-  supportedModels: [
-    { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet', provider: 'anthropic' },
-    { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai' },
-  ],
-  getModelById: (id: string) => {
-    const models = [
-      { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet', provider: 'anthropic' },
-      { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai' },
-    ]
-    return models.find(m => m.id === id)
-  },
-}))
-
 // Mock ModelSelector component
 vi.mock('../../ui/ModelSelector/ModelSelector.js', () => ({
   ModelSelector: ({ selectedModel, onModelChange }: any) => (
@@ -50,8 +35,8 @@ vi.mock('../../ui/ModelSelector/ModelSelector.js', () => ({
       value={selectedModel}
       onChange={e => onModelChange(e.target.value)}
     >
-      <option value='claude-3-5-sonnet-latest'>Claude 3.5 Sonnet</option>
-      <option value='gpt-4o'>GPT-4o</option>
+      <option value={MODEL_IDS.CLAUDE_SONNET}>Claude 4 Sonnet</option>
+      <option value={MODEL_IDS.GPT_5}>GPT-5</option>
     </select>
   ),
 }))
@@ -120,7 +105,7 @@ describe('CreateWorkerModal', () => {
         args: expect.objectContaining({
           name: 'Test Worker',
           systemPrompt: 'Test system prompt',
-          defaultModel: 'claude-3-5-sonnet-latest',
+          defaultModel: DEFAULT_MODEL,
         }),
       })
     )
@@ -138,7 +123,7 @@ describe('CreateWorkerModal', () => {
 
     fireEvent.change(nameInput, { target: { value: 'Test Worker' } })
     fireEvent.change(systemPromptInput, { target: { value: 'Test system prompt' } })
-    fireEvent.change(modelSelector, { target: { value: 'gpt-4o' } })
+    fireEvent.change(modelSelector, { target: { value: MODEL_IDS.GPT_5 } })
 
     fireEvent.click(submitButton)
 
@@ -152,7 +137,7 @@ describe('CreateWorkerModal', () => {
         args: expect.objectContaining({
           name: 'Test Worker',
           systemPrompt: 'Test system prompt',
-          defaultModel: 'gpt-4o',
+          defaultModel: MODEL_IDS.GPT_5,
         }),
       })
     )
@@ -162,6 +147,6 @@ describe('CreateWorkerModal', () => {
     render(<CreateWorkerModal isOpen={true} onClose={mockOnClose} />)
 
     const modelSelector = screen.getByTestId('model-selector')
-    expect(modelSelector).toHaveValue('claude-3-5-sonnet-latest')
+    expect(modelSelector).toHaveValue(DEFAULT_MODEL)
   })
 })
