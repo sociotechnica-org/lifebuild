@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { ChatInterface } from './ChatInterface.js'
@@ -59,6 +59,35 @@ describe('ChatInterface', () => {
     expect(screen.getByText('Chat')).toBeInTheDocument()
     expect(screen.getByLabelText('New Chat')).toBeInTheDocument() // + button should be visible
     expect(screen.getByDisplayValue('')).toBeInTheDocument() // conversation selector
+  })
+
+  it('shows worker menu when multiple workers exist', () => {
+    const mockConversations = [
+      { id: 'conv1', title: 'Test Conversation', createdAt: new Date(), updatedAt: new Date() },
+    ]
+
+    const mockWorkers = [
+      { id: 'w1', name: 'Alice', defaultModel: 'gpt-4' },
+      { id: 'w2', name: 'Bob', defaultModel: 'gpt-4' },
+    ]
+
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.label?.includes('getConversations')) return mockConversations
+      if (query.label?.includes('getWorkers')) return mockWorkers
+      return []
+    })
+
+    render(
+      <MemoryRouter>
+        <ChatInterface />
+      </MemoryRouter>
+    )
+
+    const newChatButton = screen.getByLabelText('New Chat')
+    fireEvent.click(newChatButton)
+
+    expect(screen.getByText('Alice')).toBeInTheDocument()
+    expect(screen.getByText('Bob')).toBeInTheDocument()
   })
 
   it('renders copy button for chat messages', () => {

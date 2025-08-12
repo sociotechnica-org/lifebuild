@@ -8,8 +8,9 @@ import {
   getConversationMessages$,
   getBoardById$,
   getWorkerById$,
+  getWorkers$,
 } from '@work-squared/shared/queries'
-import type { Conversation, ChatMessage } from '@work-squared/shared/schema'
+import type { Conversation, ChatMessage, Worker } from '@work-squared/shared/schema'
 import { MarkdownRenderer } from '../../markdown/MarkdownRenderer.js'
 import { executeLLMTool } from '@work-squared/shared/llm-tools'
 import { DEFAULT_MODEL } from '../../../util/models.js'
@@ -360,6 +361,9 @@ export const ChatInterface: React.FC = () => {
   // Only show messages if we have a real conversation selected
   const messages = selectedConversationId ? allMessages : []
 
+  const workers = useQuery(getWorkers$) ?? []
+  const [menuAnchor, setMenuAnchor] = React.useState<'plus' | 'start' | null>(null)
+
   const resetTextareaHeight = React.useCallback(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = '80px'
@@ -389,21 +393,37 @@ export const ChatInterface: React.FC = () => {
     [conversations, location, navigate]
   )
 
-  const handleCreateConversation = React.useCallback(() => {
-    const id = crypto.randomUUID()
-    const title = `New Chat ${new Date().toLocaleTimeString()}`
+  const handleCreateConversation = React.useCallback(
+    (worker?: Worker) => {
+      const id = crypto.randomUUID()
+      const timestamp = new Date().toLocaleTimeString()
+      const title = worker ? `Chat with ${worker.name} (${timestamp})` : `New Chat ${timestamp}`
 
-    store.commit(
-      events.conversationCreated({
-        id,
-        title,
-        model: DEFAULT_MODEL,
-        createdAt: new Date(),
-      })
-    )
+      store.commit(
+        events.conversationCreated({
+          id,
+          title,
+          model: worker?.defaultModel || DEFAULT_MODEL,
+          workerId: worker?.id,
+          createdAt: new Date(),
+        })
+      )
 
-    handleConversationChange(id)
-  }, [store, handleConversationChange])
+      handleConversationChange(id)
+    },
+    [store, handleConversationChange]
+  )
+
+  const handleNewChatClick = React.useCallback(
+    (anchor: 'plus' | 'start') => {
+      if (workers.length <= 1) {
+        handleCreateConversation(workers[0])
+      } else {
+        setMenuAnchor(prev => (prev === anchor ? null : anchor))
+      }
+    },
+    [workers, handleCreateConversation]
+  )
 
   const handleSendMessage = React.useCallback(
     (e: React.FormEvent) => {
@@ -623,21 +643,44 @@ export const ChatInterface: React.FC = () => {
                 </option>
               ))}
             </select>
-            <button
-              onClick={handleCreateConversation}
-              className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors flex-shrink-0'
-              aria-label='New Chat'
-              title='New Chat'
-            >
-              <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M12 4v16m8-8H4'
-                />
-              </svg>
-            </button>
+            <div className='relative flex-shrink-0'>
+              <button
+                onClick={() => handleNewChatClick('plus')}
+                className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors'
+                aria-label='New Chat'
+                title='New Chat'
+              >
+                <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M12 4v16m8-8H4'
+                  />
+                </svg>
+              </button>
+              {menuAnchor === 'plus' && workers.length > 1 && (
+                <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10'>
+                  {workers.map(worker => (
+                    <button
+                      key={worker.id}
+                      onClick={() => {
+                        handleCreateConversation(worker)
+                        setMenuAnchor(null)
+                      }}
+                      className='flex items-center w-full px-3 py-2 text-sm text-left hover:bg-gray-50'
+                    >
+                      <span
+                        className={`w-6 h-6 ${getAvatarColor(worker.id)} text-white rounded-full flex items-center justify-center text-xs mr-2`}
+                      >
+                        {worker.avatar || '🤖'}
+                      </span>
+                      {worker.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -841,12 +884,35 @@ export const ChatInterface: React.FC = () => {
               {conversations.length === 0 ? (
                 <>
                   <p className='text-xs mb-3'>Create your first chat to get started.</p>
-                  <button
-                    onClick={handleCreateConversation}
-                    className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors'
-                  >
-                    Start New Chat
-                  </button>
+                  <div className='relative inline-block'>
+                    <button
+                      onClick={() => handleNewChatClick('start')}
+                      className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors'
+                    >
+                      Start New Chat
+                    </button>
+                    {menuAnchor === 'start' && workers.length > 1 && (
+                      <div className='absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10'>
+                        {workers.map(worker => (
+                          <button
+                            key={worker.id}
+                            onClick={() => {
+                              handleCreateConversation(worker)
+                              setMenuAnchor(null)
+                            }}
+                            className='flex items-center w-full px-3 py-2 text-sm text-left hover:bg-gray-50'
+                          >
+                            <span
+                              className={`w-6 h-6 ${getAvatarColor(worker.id)} text-white rounded-full flex items-center justify-center text-xs mr-2`}
+                            >
+                              {worker.avatar || '🤖'}
+                            </span>
+                            {worker.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </>
               ) : (
                 <p className='text-xs'>Select a conversation from the dropdown above.</p>
