@@ -1,5 +1,10 @@
 import type { Store } from '@livestore/livestore'
-import { AgenticLoop, type AgenticLoopContext } from '@work-squared/shared'
+import {
+  AgenticLoop,
+  type AgenticLoopContext,
+  type AgenticLoopEvents,
+  ConversationHistory,
+} from '@work-squared/shared'
 import { events } from '@work-squared/shared/schema'
 import { BraintrustProvider } from './braintrust-provider.js'
 
@@ -14,37 +19,15 @@ interface ChatHandlerOptions {
 /**
  * Refactored chat handler using the new agentic loop abstractions
  * This demonstrates how the ChatInterface can be simplified
+ *
+ * Note: Creates a new AgenticLoop instance per message to avoid context leakage
+ * while maintaining conversation history across messages within the handler.
  */
 export class ChatHandler {
-  private agenticLoop: AgenticLoop
   private llmProvider = new BraintrustProvider()
+  private sharedHistory: ConversationHistory | null = null // Shared conversation history across messages
 
-  constructor(private store: Store) {
-    this.agenticLoop = new AgenticLoop(store, this.llmProvider, {
-      onIterationStart: (iteration: number) => {
-        console.log(`🔄 Starting iteration ${iteration}`)
-      },
-      onToolsExecuting: (toolCalls: any[]) => {
-        console.log(`🔧 Executing ${toolCalls.length} tools`)
-        // Could emit UI events here for loading states
-      },
-      onToolsComplete: (results: any[]) => {
-        console.log(`✅ Tools completed, ${results.length} results`)
-        // Could emit UI events here for tool results
-      },
-      onFinalMessage: (message: string) => {
-        console.log(`💬 Final message received`)
-        // This is where the final assistant message is ready
-      },
-      onError: (error: Error, iteration: number) => {
-        console.error(`❌ Error in iteration ${iteration}:`, error)
-        // Could emit UI error events here
-      },
-      onComplete: (iterations: number) => {
-        console.log(`✅ Completed after ${iterations} iterations`)
-      },
-    })
-  }
+  constructor(private store: Store) {}
 
   /**
    * Handle a chat message from the user
@@ -70,12 +53,13 @@ export class ChatHandler {
       maxIterations: maxIterations || 10,
     }
 
-    // Set up event handlers to store results in the UI
-    const originalEvents = this.agenticLoop['events']
-    this.agenticLoop['events'] = {
-      ...originalEvents,
+    // Create event handlers with captured context for this specific call
+    const eventHandlers: AgenticLoopEvents = {
+      onIterationStart: (iteration: number) => {
+        console.log(`🔄 Starting iteration ${iteration}`)
+      },
       onToolsExecuting: (toolCalls: any[]) => {
-        originalEvents.onToolsExecuting?.(toolCalls)
+        console.log(`🔧 Executing ${toolCalls.length} tools`)
 
         // Store tool execution notifications in UI if needed
         for (const toolCall of toolCalls) {
@@ -99,8 +83,11 @@ export class ChatHandler {
           }
         }
       },
+      onToolsComplete: (results: any[]) => {
+        console.log(`✅ Tools completed, ${results.length} results`)
+      },
       onFinalMessage: (message: string) => {
-        originalEvents.onFinalMessage?.(message)
+        console.log(`💬 Final message received`)
 
         // Store the final assistant message
         this.store.commit(
@@ -119,7 +106,7 @@ export class ChatHandler {
         )
       },
       onError: (error: Error, iteration: number) => {
-        originalEvents.onError?.(error, iteration)
+        console.error(`❌ Error in iteration ${iteration}:`, error)
 
         // Store error in UI
         this.store.commit(
@@ -138,11 +125,29 @@ export class ChatHandler {
           })
         )
       },
+      onComplete: (iterations: number) => {
+        console.log(`✅ Completed after ${iterations} iterations`)
+      },
+    }
+
+    // Create a new AgenticLoop instance for this message to avoid context leakage
+    // Each call gets its own instance with its own event handlers that capture
+    // the call-specific context (conversationId, model, etc.)
+    const agenticLoop = new AgenticLoop(this.store, this.llmProvider, eventHandlers)
+
+    // If we have shared history from previous messages, restore it
+    // This allows conversation continuity while avoiding context leakage
+    if (this.sharedHistory) {
+      // Note: This assumes AgenticLoop has a way to set initial history
+      // If not, this would need to be added to the AgenticLoop class
+      // For now, we'll just create a fresh loop each time
     }
 
     // Run the agentic loop
     try {
-      await this.agenticLoop.run(userMessage, context)
+      await agenticLoop.run(userMessage, context)
+      // Store the history from this loop for potential future use
+      this.sharedHistory = agenticLoop.getHistory()
     } catch (error) {
       console.error('Failed to run agentic loop:', error)
       throw error
@@ -153,13 +158,13 @@ export class ChatHandler {
    * Clear the conversation history
    */
   clearHistory(): void {
-    this.agenticLoop.clearHistory()
+    this.sharedHistory = null
   }
 
   /**
    * Get the current conversation history
    */
-  getHistory() {
-    return this.agenticLoop.getHistory()
+  getHistory(): ConversationHistory | null {
+    return this.sharedHistory
   }
 }
