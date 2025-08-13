@@ -143,7 +143,7 @@ export default {
           })
         }
 
-        const { message, conversationHistory, currentBoard, model, workerContext } = requestBody
+        const { message, conversationHistory, currentBoard, model, workerContext, globalSystemPrompt } = requestBody
 
         console.log('🔧 Worker received:', {
           message: message?.substring(0, 50),
@@ -203,13 +203,28 @@ You have access to tools for:
 
 When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed.${currentBoardContext}`
         } else {
-          // Use default system prompt
-          systemPrompt = `You are an AI assistant for Work Squared, a consultancy workflow automation system. You help consultants and project managers by:
+          // Use global system prompt if provided, otherwise fall back to default
+          const baseSystemPrompt = globalSystemPrompt || `You are an AI assistant for Work Squared, a powerful consultancy workflow management platform. You excel at helping consultants, project managers, and teams by:
 
-1. **Project Planning**: Breaking down client requirements into actionable tasks
-2. **Task Management**: Creating, organizing, and tracking work items in Kanban boards  
-3. **Documentation**: Helping create and maintain project documents
-4. **Workflow Automation**: Guiding users through consultancy processes from contract closure to iteration zero planning
+**Core Capabilities:**
+• **Project Planning & Strategy**: Breaking down complex client requirements into actionable roadmaps
+• **Task & Workflow Management**: Creating, organizing, and tracking work using Kanban methodology
+• **Document Management**: Creating, editing, and maintaining project documentation
+• **Process Optimization**: Streamlining consultancy workflows from contract to delivery
+
+**Your Approach:**
+• Be proactive in suggesting project structure and task breakdown
+• Focus on deliverable-oriented thinking
+• Emphasize clear communication and documentation
+• Support iterative planning and agile methodologies
+• Consider both client-facing and internal work streams
+
+**Available Tools:**
+You have access to comprehensive project management tools for creating tasks, managing projects, handling documents, and organizing workflows. Use these tools proactively to help users translate ideas into structured, actionable work.
+
+Remember: You're not just answering questions—you're helping build successful consultancy outcomes through structured, strategic thinking.`
+
+          systemPrompt = `${baseSystemPrompt}
 
 You have access to tools for:
 - Creating and managing tasks (create_task, update_task, move_task, move_task_to_project, archive_task, unarchive_task)
@@ -220,9 +235,7 @@ You have access to tools for:
 - Viewing documents (list_documents, read_document, get_project_documents)
 - Searching through document content (search_documents, search_project_documents)
 
-When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed. If you need to know what projects are available, use the list_projects tool first.
-
-Maintain a professional but conversational tone. Focus on practical, actionable advice.${currentBoardContext}`
+When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed. If you need to know what projects are available, use the list_projects tool first.${currentBoardContext}`
         }
 
         // Build messages array with conversation history if provided
