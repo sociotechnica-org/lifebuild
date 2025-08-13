@@ -3,9 +3,9 @@ import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedwo
 import { LiveStoreProvider } from '@livestore/react'
 import React, { useMemo } from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
-import { AuthProvider } from './contexts/AuthContext.js'
+import { AuthProvider, useAuth } from './contexts/AuthContext.js'
 import { useSyncPayload } from './hooks/useSyncPayload.js'
 
 import { ProjectsPage } from './components/projects/ProjectsPage.js'
@@ -22,7 +22,6 @@ import { EnsureStoreId } from './components/utils/EnsureStoreId.js'
 import { LoadingState } from './components/ui/LoadingState.js'
 import { ErrorBoundary } from './components/ui/ErrorBoundary/ErrorBoundary.js'
 import { UserInitializer } from './components/utils/UserInitializer/UserInitializer.js'
-import { ProtectedRoute } from './components/auth/ProtectedRoute.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
 
@@ -81,114 +80,132 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   )
 }
 
+// Auth guard for the entire protected app
+const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuth()
+  const location = useLocation()
+
+  // Check if authentication is required based on environment
+  const requireAuth = import.meta.env.VITE_REQUIRE_AUTH === 'true'
+
+  // When auth is disabled, always allow access
+  if (!requireAuth) {
+    return <>{children}</>
+  }
+
+  // Show loading state while auth is being checked
+  if (isLoading) {
+    return <LoadingState message='Checking authentication...' fullScreen />
+  }
+
+  // If not authenticated, redirect to login with current path as redirect target
+  if (!isAuthenticated) {
+    const redirectPath =
+      location.pathname !== ROUTES.HOME
+        ? `${ROUTES.LOGIN}?redirect=${encodeURIComponent(location.pathname + location.search)}`
+        : ROUTES.LOGIN
+
+    return <Navigate to={redirectPath} replace />
+  }
+
+  // User is authenticated, render the protected content
+  return <>{children}</>
+}
+
 // Protected app wrapper - includes LiveStore and all protected routes
 const ProtectedApp: React.FC = () => (
-  <LiveStoreWrapper>
-    <EnsureStoreId>
-      <UserInitializer>
-        <ErrorBoundary>
-          <Routes>
-            <Route
-              path={ROUTES.HOME}
-              element={
-                <ProtectedRoute>
+  <AuthGuard>
+    <LiveStoreWrapper>
+      <EnsureStoreId>
+        <UserInitializer>
+          <ErrorBoundary>
+            <Routes>
+              <Route
+                path={ROUTES.HOME}
+                element={
                   <Layout>
                     <ErrorBoundary>
                       <ProjectsPage />
                     </ErrorBoundary>
                   </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={ROUTES.PROJECTS}
-              element={
-                <ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.PROJECTS}
+                element={
                   <Layout>
                     <ErrorBoundary>
                       <ProjectsPage />
                     </ErrorBoundary>
                   </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={ROUTES.TASKS}
-              element={
-                <ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.TASKS}
+                element={
                   <Layout>
                     <ErrorBoundary>
                       <TasksPage />
                     </ErrorBoundary>
                   </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={ROUTES.TEAM}
-              element={
-                <ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.TEAM}
+                element={
                   <Layout>
                     <ErrorBoundary>
                       <WorkersPage />
                     </ErrorBoundary>
                   </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={ROUTES.DOCUMENTS}
-              element={
-                <ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.DOCUMENTS}
+                element={
                   <Layout>
                     <ErrorBoundary>
                       <DocumentsPage />
                     </ErrorBoundary>
                   </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={ROUTES.HISTORY}
-              element={
-                <ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.HISTORY}
+                element={
                   <Layout>
                     <ErrorBoundary>
                       <HistoryPage />
                     </ErrorBoundary>
                   </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={ROUTES.DOCUMENT}
-              element={
-                <ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.DOCUMENT}
+                element={
                   <Layout>
                     <ErrorBoundary>
                       <DocumentPage />
                     </ErrorBoundary>
                   </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={ROUTES.PROJECT}
-              element={
-                <ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.PROJECT}
+                element={
                   <Layout>
                     <ErrorBoundary>
                       <ProjectWorkspace />
                     </ErrorBoundary>
                   </Layout>
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </ErrorBoundary>
-      </UserInitializer>
-    </EnsureStoreId>
-  </LiveStoreWrapper>
+                }
+              />
+            </Routes>
+          </ErrorBoundary>
+        </UserInitializer>
+      </EnsureStoreId>
+    </LiveStoreWrapper>
+  </AuthGuard>
 )
 
 export const App: React.FC = () => (

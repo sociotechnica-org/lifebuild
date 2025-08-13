@@ -213,7 +213,7 @@ test.describe('Authentication Integration E2E', () => {
     await page.click('button[type="submit"]')
 
     // Should show password length error
-    await expect(page.locator('text=Password must be at least 6 characters')).toBeVisible()
+    await expect(page.locator('text=Password must be at least 8 characters')).toBeVisible()
 
     // Test invalid email - this should trigger browser validation
     await page.fill('input[name="email"]', 'invalid-email')
