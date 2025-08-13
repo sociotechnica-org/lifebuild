@@ -123,33 +123,5 @@ export function validatePasswordStrength(password: string): { valid: boolean; me
     return { valid: false, message: 'Password must be at least 8 characters long' }
   }
   
-  if (password.length > 128) {
-    return { valid: false, message: 'Password must be less than 128 characters long' }
-  }
-  
-  const hasUpperCase = /[A-Z]/.test(password)
-  const hasLowerCase = /[a-z]/.test(password)
-  const hasNumbers = /\d/.test(password)
-  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password)
-  
-  const strengthCount = [hasUpperCase, hasLowerCase, hasNumbers, hasSpecial].filter(Boolean).length
-  
-  if (strengthCount < 3) {
-    return { 
-      valid: false, 
-      message: 'Password must contain at least 3 of: uppercase, lowercase, numbers, special characters' 
-    }
-  }
-  
-  // Check for common weak passwords
-  const weakPasswords = [
-    'password', '12345678', 'qwerty123', 'abc123456', 
-    'password123', '123456789', 'welcome123'
-  ]
-  
-  if (weakPasswords.includes(password.toLowerCase())) {
-    return { valid: false, message: 'Password is too common, please choose a stronger password' }
-  }
-  
   return { valid: true }
 }

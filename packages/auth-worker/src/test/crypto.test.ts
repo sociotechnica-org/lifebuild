@@ -43,14 +43,18 @@ describe('crypto utilities', () => {
   })
 
   describe('password strength validation', () => {
-    it('should accept strong passwords', () => {
-      const strongPasswords = [
+    it('should accept passwords with 8+ characters', () => {
+      const validPasswords = [
         'StrongPass123!',
         'MySecure@Password2024',
-        'Complex#Password$456'
+        'Complex#Password$456',
+        'simple12', // simple password with 8 chars
+        '12345678', // just numbers
+        'password', // common but 8+ chars
+        'UPPERCASE' // just uppercase
       ]
 
-      strongPasswords.forEach(password => {
+      validPasswords.forEach(password => {
         const result = validatePasswordStrength(password)
         expect(result.valid).toBe(true)
         expect(result.message).toBeUndefined()
@@ -58,49 +62,16 @@ describe('crypto utilities', () => {
     })
 
     it('should reject short passwords', () => {
-      const shortPassword = 'Short1!'
-      const result = validatePasswordStrength(shortPassword)
-      
-      expect(result.valid).toBe(false)
-      expect(result.message).toBe('Password must be at least 8 characters long')
-    })
-
-    it('should reject very long passwords', () => {
-      const longPassword = 'a'.repeat(129)
-      const result = validatePasswordStrength(longPassword)
-      
-      expect(result.valid).toBe(false)
-      expect(result.message).toBe('Password must be less than 128 characters long')
-    })
-
-    it('should reject weak passwords', () => {
-      const weakPasswords = [
-        'password123', // only lowercase + numbers
-        'PASSWORD123', // only uppercase + numbers
-        'password!@#', // only lowercase + special
-        'PASSWORD!@#'  // only uppercase + special
+      const shortPasswords = [
+        'Short1!', // 7 chars
+        '1234567', // 7 chars
+        'abc123'   // 6 chars
       ]
-
-      weakPasswords.forEach(password => {
+      
+      shortPasswords.forEach(password => {
         const result = validatePasswordStrength(password)
         expect(result.valid).toBe(false)
-        expect(result.message).toContain('at least 3 of')
-      })
-    })
-
-    it('should reject common passwords', () => {
-      const commonPasswords = [
-        'password',
-        'password123',
-        '12345678'
-      ]
-
-      commonPasswords.forEach(password => {
-        const result = validatePasswordStrength(password)
-        expect(result.valid).toBe(false)
-        // Some common passwords fail strength checks rather than common checks
-        expect(result.message).toBeDefined()
-        expect(result.valid).toBe(false)
+        expect(result.message).toBe('Password must be at least 8 characters long')
       })
     })
   })

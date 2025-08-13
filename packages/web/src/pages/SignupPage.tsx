@@ -30,8 +30,8 @@ export const SignupPage: React.FC = () => {
       setError('Please enter a valid email address')
       return false
     }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long')
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long')
       return false
     }
     if (password !== confirmPassword) {
@@ -143,7 +143,7 @@ export const SignupPage: React.FC = () => {
                   placeholder='Enter your password'
                 />
               </div>
-              <p className='mt-1 text-xs text-gray-500'>Must be at least 6 characters long</p>
+              <p className='mt-1 text-xs text-gray-500'>Must be at least 8 characters long</p>
             </div>
 
             <div>
