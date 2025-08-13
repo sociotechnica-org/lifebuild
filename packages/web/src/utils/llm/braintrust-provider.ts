@@ -1,5 +1,4 @@
 import type { LLMProvider, LLMResponse } from '@work-squared/shared'
-import { llmToolSchemas } from '@work-squared/shared/llm-tools/schemas'
 import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 
 export class RateLimitError extends Error {
@@ -42,7 +41,8 @@ export class BraintrustProvider implements LLMProvider {
     workerContext?: { systemPrompt: string; name: string; roleDescription?: string },
     options?: {
       onRetry?: (attempt: number, maxRetries: number, delayMs: number, error: Error) => void
-    }
+    },
+    globalSystemPrompt?: string
   ): Promise<LLMResponse> {
     console.log('🔗 Calling LLM API via proxy...')
     console.log('🔗 PROD mode:', import.meta.env.PROD, 'Using URL:', this.proxyUrl)
@@ -65,11 +65,11 @@ export class BraintrustProvider implements LLMProvider {
 
     const requestBody = {
       message: userMessage,
-      history: historyForAPI,
-      tools: llmToolSchemas,
+      conversationHistory: historyForAPI,
       model,
-      ...(boardContext && { boardContext }),
+      ...(boardContext && { currentBoard: boardContext }),
       ...(workerContext && { workerContext }),
+      ...(globalSystemPrompt && { globalSystemPrompt }),
     }
 
     const maxRetries = 3

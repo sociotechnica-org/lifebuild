@@ -241,3 +241,14 @@ export const getDocumentsByIds$ = (documentIds: string[]) =>
   queryDb(tables.documents.select().where({ archivedAt: null }), {
     label: `getDocumentsByIds:${documentIds.length}`,
   })
+
+// Settings queries
+export const getAllSettings$ = queryDb(
+  tables.settings.select().orderBy([{ col: 'key', direction: 'asc' }]),
+  { label: 'getAllSettings' }
+)
+
+export const getSettingByKey$ = (key: string) =>
+  queryDb(tables.settings.select().where({ key }), {
+    label: `getSettingByKey:${key}`,
+  })

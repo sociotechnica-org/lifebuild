@@ -202,6 +202,17 @@ const eventsLog = State.SQLite.table({
   },
 })
 
+const settings = State.SQLite.table({
+  name: 'settings',
+  columns: {
+    key: State.SQLite.text({ primaryKey: true }), // e.g., 'instanceName', 'systemPrompt'
+    value: State.SQLite.text(),
+    updatedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
 const uiState = State.SQLite.clientDocument({
   name: 'uiState',
   schema: Schema.Struct({
@@ -226,6 +237,7 @@ export type DocumentProject = State.SQLite.FromTable.RowDecoded<typeof documentP
 export type Worker = State.SQLite.FromTable.RowDecoded<typeof workers>
 export type WorkerProject = State.SQLite.FromTable.RowDecoded<typeof workerProjects>
 export type EventsLog = State.SQLite.FromTable.RowDecoded<typeof eventsLog>
+export type Setting = State.SQLite.FromTable.RowDecoded<typeof settings>
 export type UiState = typeof uiState.default.value
 
 export const events = {
@@ -247,6 +259,7 @@ export const tables = {
   workers,
   workerProjects,
   eventsLog,
+  settings,
 }
 
 // Helper function to log events to the eventsLog table
@@ -402,6 +415,11 @@ const materializers = State.SQLite.materializers(events, {
     workerProjects.insert({ workerId, projectId }),
   'v1.WorkerUnassignedFromProject': ({ workerId, projectId }) =>
     workerProjects.delete().where({ workerId, projectId }),
+  'v1.SettingUpdated': ({ key, value, updatedAt }) => [
+    settings.delete().where({ key }),
+    settings.insert({ key, value, updatedAt }),
+    logEvent('v1.SettingUpdated', { key, value, updatedAt }, updatedAt),
+  ],
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

@@ -65,6 +65,9 @@ export const Navigation: React.FC = () => {
     if (path === ROUTES.HISTORY) {
       return location.pathname === ROUTES.HISTORY
     }
+    if (path === ROUTES.SETTINGS) {
+      return location.pathname === ROUTES.SETTINGS
+    }
     return location.pathname === path
   }
 
@@ -143,6 +146,13 @@ export const Navigation: React.FC = () => {
                       <div className='font-medium truncate'>{getDisplayName()}</div>
                       <div className='text-gray-500 truncate'>{getEmail()}</div>
                     </div>
+                    <Link
+                      to={preserveStoreIdInUrl(ROUTES.SETTINGS)}
+                      onClick={() => setShowDropdown(false)}
+                      className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                    >
+                      Settings
+                    </Link>
                     <button
                       onClick={async () => {
                         await logout()

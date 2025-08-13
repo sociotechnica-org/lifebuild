@@ -17,11 +17,14 @@ import { DocumentPage } from './components/documents/DocumentPage.js'
 import { HistoryPage } from './pages/HistoryPage.js'
 import { LoginPage } from './pages/LoginPage.js'
 import { SignupPage } from './pages/SignupPage.js'
+import { SettingsPage } from './components/settings/SettingsPage.js'
 import { Layout } from './components/layout/Layout.js'
 import { EnsureStoreId } from './components/utils/EnsureStoreId.js'
 import { LoadingState } from './components/ui/LoadingState.js'
 import { ErrorBoundary } from './components/ui/ErrorBoundary/ErrorBoundary.js'
 import { UserInitializer } from './components/utils/UserInitializer/UserInitializer.js'
+import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
+import { ProtectedRoute } from './components/auth/ProtectedRoute.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
 
@@ -118,6 +121,7 @@ const ProtectedApp: React.FC = () => (
     <LiveStoreWrapper>
       <EnsureStoreId>
         <UserInitializer>
+          <SettingsInitializer>
           <ErrorBoundary>
             <Routes>
               <Route
@@ -181,6 +185,16 @@ const ProtectedApp: React.FC = () => (
                 }
               />
               <Route
+                path={ROUTES.SETTINGS}
+                element={
+                  <Layout>
+                    <ErrorBoundary>
+                      <SettingsPage />
+                    </ErrorBoundary>
+                  </Layout>
+                }
+              />
+              <Route
                 path={ROUTES.DOCUMENT}
                 element={
                   <Layout>
@@ -202,9 +216,10 @@ const ProtectedApp: React.FC = () => (
               />
             </Routes>
           </ErrorBoundary>
-        </UserInitializer>
-      </EnsureStoreId>
-    </LiveStoreWrapper>
+        </SettingsInitializer>
+      </UserInitializer>
+    </EnsureStoreId>
+  </LiveStoreWrapper>
   </AuthGuard>
 )
 

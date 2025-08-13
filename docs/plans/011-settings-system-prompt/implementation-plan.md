@@ -3,6 +3,7 @@
 ## Overview
 
 Create a configurable settings system that allows Work Squared instances to be customized with:
+
 1. **Instance Name** - A customizable name for the Work Squared instance
 2. **Global System Prompt** - A configurable system prompt that applies to all AI chats
 
@@ -10,7 +11,7 @@ This replaces the current hardcoded system prompt with a better default and prov
 
 ## Current State
 
-- System prompts are currently hardcoded in `/packages/worker/functions/_worker.ts` 
+- System prompts are currently hardcoded in `/packages/worker/functions/_worker.ts`
 - Worker-specific chats use the worker's `systemPrompt` field
 - Global chats use a hardcoded default system prompt
 - No UI for configuring instance-wide settings
@@ -50,12 +51,14 @@ export const settingUpdated = Events.synced({
 ### 3. Default Settings
 
 Initialize with improved defaults:
+
 - **Instance Name**: "Work Squared"
 - **System Prompt**: A better default focused on consultancy workflow automation
 
 ### 4. Settings UI
 
 Create a Settings page/modal with:
+
 - Instance name field
 - System prompt textarea (with preview)
 - Save/cancel buttons
@@ -64,6 +67,7 @@ Create a Settings page/modal with:
 ### 5. System Prompt Integration
 
 Update the worker logic to:
+
 1. Check for custom global system prompt in settings
 2. Fall back to improved hardcoded default if none set
 3. Still allow worker-specific system prompts to override
@@ -71,23 +75,27 @@ Update the worker logic to:
 ## Implementation Steps
 
 ### Phase 1: LiveStore Schema & Events
+
 1. Add `settings` table to schema
 2. Add `settingUpdated` event
 3. Create materializer for settings updates
 4. Add helper functions for getting/setting configuration
 
 ### Phase 2: Default System Prompt
+
 1. Create improved default system prompt
 2. Update worker logic to use configurable system prompt
 3. Initialize default settings on first run
 
 ### Phase 3: Settings UI
+
 1. Create Settings page/component
 2. Add navigation to settings (possibly in header menu)
 3. Form for editing instance name and system prompt
 4. Real-time preview of system prompt changes
 
 ### Phase 4: Integration & Testing
+
 1. Test system prompt changes apply to new chats
 2. Verify settings persist across sessions
 3. Test with both global and worker-specific chats
@@ -95,19 +103,23 @@ Update the worker logic to:
 ## Files to Modify
 
 ### Schema & Events
+
 - `packages/shared/src/livestore/schema.ts` - Add settings table
 - `packages/shared/src/livestore/events.ts` - Add setting events
 
 ### Backend
+
 - `packages/worker/functions/_worker.ts` - Use configurable system prompt
 
 ### Frontend
+
 - Create `packages/web/src/components/settings/` directory
 - `packages/web/src/components/settings/SettingsPage.tsx`
-- `packages/web/src/components/settings/SystemPromptEditor.tsx` 
+- `packages/web/src/components/settings/SystemPromptEditor.tsx`
 - Add routing for settings page
 
 ### Queries & Utils
+
 - Add settings queries to `packages/shared/src/queries.ts`
 - Create settings utilities for common operations
 
@@ -153,6 +165,7 @@ Remember: You're not just answering questions—you're helping build successful 
 ```
 
 This improved prompt:
+
 - Is more specific to consultancy work
 - Emphasizes proactive assistance
 - Mentions the tools available

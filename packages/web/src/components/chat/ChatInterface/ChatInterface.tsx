@@ -9,12 +9,14 @@ import {
   getBoardById$,
   getWorkerById$,
   getWorkers$,
+  getSettingByKey$,
 } from '@work-squared/shared/queries'
 import type { Conversation, ChatMessage } from '@work-squared/shared/schema'
 import { MarkdownRenderer } from '../../markdown/MarkdownRenderer.js'
 import { executeLLMTool } from '@work-squared/shared/llm-tools'
 import { DEFAULT_MODEL } from '../../../util/models.js'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
+import { SETTINGS_KEYS, DEFAULT_SETTINGS } from '@work-squared/shared'
 
 interface LLMAPIResponse {
   message: string
@@ -38,7 +40,8 @@ async function runAgenticLoop(
   selectedConversationId: string,
   store: any,
   model: string,
-  workerContext?: { systemPrompt: string; name: string; roleDescription?: string }
+  workerContext?: { systemPrompt: string; name: string; roleDescription?: string },
+  globalSystemPrompt?: string
 ): Promise<void> {
   console.log('🚀 Starting agentic loop')
 
@@ -273,7 +276,8 @@ async function runAgenticLoop(
           currentHistory as any, // Mixed message types for OpenAI API
           boardContext,
           model,
-          workerContext
+          workerContext,
+          globalSystemPrompt
         )
 
         console.log(`🔄 Iteration ${iteration} LLM response:`, {
@@ -348,7 +352,8 @@ async function callLLMAPI(
   conversationHistory?: ChatMessage[],
   currentBoard?: { id: string; name: string },
   model?: string,
-  workerContext?: { systemPrompt: string; name: string; roleDescription?: string }
+  workerContext?: { systemPrompt: string; name: string; roleDescription?: string },
+  globalSystemPrompt?: string
 ): Promise<LLMAPIResponse> {
   console.log('🔗 Calling LLM API via proxy...')
 
@@ -377,6 +382,7 @@ async function callLLMAPI(
     currentBoard,
     model: model || DEFAULT_MODEL,
     workerContext,
+    ...(globalSystemPrompt && { globalSystemPrompt }),
   }
 
   console.log('🔗 Making request to:', proxyUrl)
@@ -429,6 +435,9 @@ export const ChatInterface: React.FC = () => {
   const navigate = useNavigate()
   const conversations = useQuery(getConversations$) ?? []
   const availableWorkers = useQuery(getWorkers$) ?? []
+  const systemPromptSetting = useQuery(getSettingByKey$(SETTINGS_KEYS.SYSTEM_PROMPT))
+  const globalSystemPrompt =
+    systemPromptSetting?.[0]?.value || DEFAULT_SETTINGS[SETTINGS_KEYS.SYSTEM_PROMPT]
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [showChatPicker, setShowChatPicker] = React.useState(false)
 
@@ -657,7 +666,8 @@ export const ChatInterface: React.FC = () => {
                 conversationHistory,
                 boardContext,
                 selectedConversation?.model || DEFAULT_MODEL,
-                workerContext
+                workerContext,
+                globalSystemPrompt
               )
 
               // Handle tool calls if present - start agentic loop immediately
@@ -677,7 +687,8 @@ export const ChatInterface: React.FC = () => {
                   selectedConversationId,
                   store,
                   selectedConversation?.model || DEFAULT_MODEL,
-                  workerContext
+                  workerContext,
+                  globalSystemPrompt
                 )
               } else {
                 // Normal text response without tools
