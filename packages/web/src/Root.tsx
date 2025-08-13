@@ -24,7 +24,6 @@ import { LoadingState } from './components/ui/LoadingState.js'
 import { ErrorBoundary } from './components/ui/ErrorBoundary/ErrorBoundary.js'
 import { UserInitializer } from './components/utils/UserInitializer/UserInitializer.js'
 import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
-import { ProtectedRoute } from './components/auth/ProtectedRoute.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
 
@@ -122,104 +121,104 @@ const ProtectedApp: React.FC = () => (
       <EnsureStoreId>
         <UserInitializer>
           <SettingsInitializer>
-          <ErrorBoundary>
-            <Routes>
-              <Route
-                path={ROUTES.HOME}
-                element={
-                  <Layout>
-                    <ErrorBoundary>
-                      <ProjectsPage />
-                    </ErrorBoundary>
-                  </Layout>
-                }
-              />
-              <Route
-                path={ROUTES.PROJECTS}
-                element={
-                  <Layout>
-                    <ErrorBoundary>
-                      <ProjectsPage />
-                    </ErrorBoundary>
-                  </Layout>
-                }
-              />
-              <Route
-                path={ROUTES.TASKS}
-                element={
-                  <Layout>
-                    <ErrorBoundary>
-                      <TasksPage />
-                    </ErrorBoundary>
-                  </Layout>
-                }
-              />
-              <Route
-                path={ROUTES.TEAM}
-                element={
-                  <Layout>
-                    <ErrorBoundary>
-                      <WorkersPage />
-                    </ErrorBoundary>
-                  </Layout>
-                }
-              />
-              <Route
-                path={ROUTES.DOCUMENTS}
-                element={
-                  <Layout>
-                    <ErrorBoundary>
-                      <DocumentsPage />
-                    </ErrorBoundary>
-                  </Layout>
-                }
-              />
-              <Route
-                path={ROUTES.HISTORY}
-                element={
-                  <Layout>
-                    <ErrorBoundary>
-                      <HistoryPage />
-                    </ErrorBoundary>
-                  </Layout>
-                }
-              />
-              <Route
-                path={ROUTES.SETTINGS}
-                element={
-                  <Layout>
-                    <ErrorBoundary>
-                      <SettingsPage />
-                    </ErrorBoundary>
-                  </Layout>
-                }
-              />
-              <Route
-                path={ROUTES.DOCUMENT}
-                element={
-                  <Layout>
-                    <ErrorBoundary>
-                      <DocumentPage />
-                    </ErrorBoundary>
-                  </Layout>
-                }
-              />
-              <Route
-                path={ROUTES.PROJECT}
-                element={
-                  <Layout>
-                    <ErrorBoundary>
-                      <ProjectWorkspace />
-                    </ErrorBoundary>
-                  </Layout>
-                }
-              />
-            </Routes>
-          </ErrorBoundary>
-        </SettingsInitializer>
-      </UserInitializer>
-    </EnsureStoreId>
-  </LiveStoreWrapper>
+            <ErrorBoundary>
+              <Routes>
+                <Route
+                  path={ROUTES.HOME}
+                  element={
+                    <Layout>
+                      <ErrorBoundary>
+                        <ProjectsPage />
+                      </ErrorBoundary>
+                    </Layout>
+                  }
+                />
+                <Route
+                  path={ROUTES.PROJECTS}
+                  element={
+                    <Layout>
+                      <ErrorBoundary>
+                        <ProjectsPage />
+                      </ErrorBoundary>
+                    </Layout>
+                  }
+                />
+                <Route
+                  path={ROUTES.TASKS}
+                  element={
+                    <Layout>
+                      <ErrorBoundary>
+                        <TasksPage />
+                      </ErrorBoundary>
+                    </Layout>
+                  }
+                />
+                <Route
+                  path={ROUTES.TEAM}
+                  element={
+                    <Layout>
+                      <ErrorBoundary>
+                        <WorkersPage />
+                      </ErrorBoundary>
+                    </Layout>
+                  }
+                />
+                <Route
+                  path={ROUTES.DOCUMENTS}
+                  element={
+                    <Layout>
+                      <ErrorBoundary>
+                        <DocumentsPage />
+                      </ErrorBoundary>
+                    </Layout>
+                  }
+                />
+                <Route
+                  path={ROUTES.HISTORY}
+                  element={
+                    <Layout>
+                      <ErrorBoundary>
+                        <HistoryPage />
+                      </ErrorBoundary>
+                    </Layout>
+                  }
+                />
+                <Route
+                  path={ROUTES.SETTINGS}
+                  element={
+                    <Layout>
+                      <ErrorBoundary>
+                        <SettingsPage />
+                      </ErrorBoundary>
+                    </Layout>
+                  }
+                />
+                <Route
+                  path={ROUTES.DOCUMENT}
+                  element={
+                    <Layout>
+                      <ErrorBoundary>
+                        <DocumentPage />
+                      </ErrorBoundary>
+                    </Layout>
+                  }
+                />
+                <Route
+                  path={ROUTES.PROJECT}
+                  element={
+                    <Layout>
+                      <ErrorBoundary>
+                        <ProjectWorkspace />
+                      </ErrorBoundary>
+                    </Layout>
+                  }
+                />
+              </Routes>
+            </ErrorBoundary>
+          </SettingsInitializer>
+        </UserInitializer>
+      </EnsureStoreId>
+    </LiveStoreWrapper>
   </AuthGuard>
 )
 
