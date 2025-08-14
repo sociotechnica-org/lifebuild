@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
+  "license": "FSL-1.1-ALv2",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

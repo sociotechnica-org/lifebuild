@@ -2,6 +2,7 @@
   "name": "@work-squared/shared",
   "version": "0.1.0",
   "type": "module",
+  "license": "FSL-1.1-ALv2",
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
