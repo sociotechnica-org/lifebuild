@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://worksquared.ai/worksquared-logo.png" alt="Work Squared Logo" style="max-width: 64px; max-height: 64px;" />
+  <img src="https://worksquared.ai/worksquared-logo.png" alt="Work Squared Logo" style="width: 111px; height: 111px;" />
   
  <h1>Work Squared</h1>
 </div>
