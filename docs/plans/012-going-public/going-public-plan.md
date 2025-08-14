@@ -124,12 +124,14 @@ This plan outlines the steps necessary to safely transition the Work Squared rep
 ## Pre-Launch Checklist
 
 ### Phase 1: Security & Legal
+
 - [ ] **CRITICAL**: Clean git history with BFG to remove exposed API key
 - [ ] Add FSL-1.1-ALv2 license file
 - [ ] Update package.json files with license field
 - [ ] Create minimal SECURITY.md
 
 ### Phase 2: Documentation
+
 - [ ] Add W² logo/branding to README
 - [ ] Add FSL-1.1-ALv2 and build badges
 - [ ] Add screenshots from app.worksquared.ai
@@ -137,6 +139,7 @@ This plan outlines the steps necessary to safely transition the Work Squared rep
 - [ ] Note that demo signup may be disabled
 
 ### Phase 3: Repository Polish
+
 - [ ] Set up basic issue templates
 - [ ] Add GitHub repository description and topics
 - [ ] Clean up any debug console.logs
@@ -144,6 +147,7 @@ This plan outlines the steps necessary to safely transition the Work Squared rep
 - [ ] Create 2-3 "good first issues"
 
 ### Launch Day
+
 - [ ] Final check for secrets in history
 - [ ] Flip repository to public
 - [ ] Post announcement if desired
@@ -163,13 +167,14 @@ This plan outlines the steps necessary to safely transition the Work Squared rep
 ### 🚨 CRITICAL - Must Do Before Going Public
 
 1. **Clean Git History**
+
    ```bash
    # Create passwords.txt with the exposed key
    echo "sk-z0wNBIkLURT2XB6Xpg201dFuFf87I3anYenpgDUDrw2hcNkz" > passwords.txt
-   
+
    # Run BFG to clean history
    bfg --replace-text passwords.txt
-   
+
    # Clean up and force push
    git reflog expire --expire=now --all && git gc --prune=now --aggressive
    git push --force-with-lease
@@ -187,7 +192,7 @@ This plan outlines the steps necessary to safely transition the Work Squared rep
 ## Timeline
 
 - **Phase 1**: Security & Legal (Priority 0)
-- **Phase 2**: Documentation (Priority 1)  
+- **Phase 2**: Documentation (Priority 1)
 - **Phase 3**: Polish (Priority 2)
 
 The repository is already in good shape with proper gitignore, clear documentation, and working demo. Main blocker is cleaning the git history to remove the exposed API key.
