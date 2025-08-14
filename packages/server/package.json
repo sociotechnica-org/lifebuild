@@ -2,6 +2,7 @@
   "name": "@work-squared/server",
   "version": "0.1.0",
   "type": "module",
+  "license": "FSL-1.1-ALv2",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "node build.js",

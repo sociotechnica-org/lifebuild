@@ -1,0 +1,108 @@
+# Functional Source License, Version 1.1, ALv2 Future License
+
+## Abbreviation
+
+FSL-1.1-ALv2
+
+## Notice
+
+Copyright 2024 Jess Martin
+
+## Terms and Conditions
+
+### Licensor ("We")
+
+The party offering the Software under these Terms and Conditions.
+
+### The Software
+
+The "Software" is each version of the software that we make available under
+these Terms and Conditions, as indicated by our inclusion of these Terms and
+Conditions with the Software.
+
+### License Grant
+
+Subject to your compliance with this License Grant and the Patents,
+Redistribution and Trademark clauses below, we hereby grant you the right to
+use, copy, modify, create derivative works, publicly perform, publicly display
+and redistribute the Software for any Permitted Purpose identified below.
+
+### Permitted Purpose
+
+A Permitted Purpose is any purpose other than a Competing Use. A Competing Use
+means making the Software available to others in a commercial product or
+service that:
+
+1. substitutes for the Software;
+
+2. substitutes for any other product or service we offer using the Software
+   that exists as of the date we make the Software available; or
+
+3. offers the same or substantially similar functionality as the Software.
+
+Permitted Purposes specifically include using the Software:
+
+1. for your internal use and access;
+
+2. for non-commercial education;
+
+3. for non-commercial research; and
+
+4. in connection with professional services that you provide to a licensee
+   using the Software in accordance with these Terms and Conditions.
+
+### Patents
+
+To the extent your use for a Permitted Purpose would necessarily infringe our
+patents, the license grant above includes a license under our patents. If you
+make a claim against any party that the Software infringes or contributes to
+the infringement of any patent, then your patent license to the Software ends
+immediately.
+
+### Redistribution
+
+The Terms and Conditions apply to all copies, modifications and derivatives of
+the Software.
+
+If you redistribute any copies, modifications or derivatives of the Software,
+you must include a copy of or a link to these Terms and Conditions and not
+remove any copyright notices provided in or with the Software.
+
+### Trademark
+
+Except to the extent necessary to comply with the attribution requirements in
+the Notices section, you may not use our name or logo to market, sell or
+promote your products or services without our prior written consent.
+
+### Notices
+
+The "Notices" means the following copyright and license information:
+
+Copyright 2024 Jess Martin
+
+Licensed under the Functional Source License, Version 1.1, ALv2 Future License
+(FSL-1.1-ALv2); you may not use this file except in compliance with the FSL-1.1-ALv2.
+
+You may obtain a copy of the License at https://fsl.software/FSL-1.1-ALv2.template.md
+
+### Disclaimer
+
+The Software is provided "as is" and without warranty. You are responsible for
+determining whether the Software is suitable for your purposes.
+
+### Termination
+
+These Terms and Conditions terminate automatically if you breach any of these
+terms.
+
+## Future License
+
+Effective four years after the Software is first publicly distributed, the
+Software will also be made available under the Apache License, Version 2.0, as
+published by the Apache Foundation.
+
+You may obtain a copy of the Apache License, Version 2.0 at
+https://www.apache.org/licenses/LICENSE-2.0
+
+On the fourth anniversary of the Software's initial public distribution, you may
+use the Software under either the FSL-1.1-ALv2 or the Apache License, Version 2.0.

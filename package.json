@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "private": true,
+  "license": "FSL-1.1-ALv2",
   "scripts": {
     "dev": "pnpm --parallel --filter @work-squared/web --filter @work-squared/worker --filter @work-squared/server --filter @work-squared/auth-worker dev",
     "dev:web": "pnpm --filter @work-squared/web dev",

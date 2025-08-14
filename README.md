@@ -1,6 +1,25 @@
-# Work Squared
+<div align="center">
+  <img src="https://worksquared.ai/worksquared-logo.png" alt="Work Squared Logo" style="max-width: 64px; max-height: 64px;" />
+  
+ <h1>Work Squared</h1>
+</div>
 
-Work Squared is an AI-enabled work environment featuring real-time collaborative Kanban boards, built with a modern monorepo architecture.
+[Work Squared](https://worksquared.ai) (W²) is an AI-enabled work environment where users and AI agents can collaborate on projects and documents.
+
+## Why Work Squared?
+
+W² reimagines project management with:
+
+- **Real-time collaboration** - See changes instantly across all users
+- **AI-powered workflows** - Integrated LLM capabilities
+- **Local-first architecture** - Works offline with automatic sync when reconnected
+- **Event-driven architecture** - Built on [LiveStore](https://livestore.dev)
+
+Read some of [the thinking behind the technical foundations underpinnign Work Squared](https://sociotechnica.org/notebook/ws-tech-foundations/).
+
+## Building in Public
+
+Check out our [development plans](/docs/plans) to see what we're working on and where we're headed. I've been using AI to build this as well, and the plans are an interesting artifact of that process.
 
 ## Monorepo Structure
 
