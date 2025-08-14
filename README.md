@@ -1,23 +1,23 @@
 # W² Work Squared
 
-[![License: FSL-1.1-ALv2](https://img.shields.io/badge/License-FSL--1.1--ALv2-blue.svg)](LICENSE)
-[![Live Demo](https://img.shields.io/badge/Demo-app.worksquared.ai-green.svg)](https://app.worksquared.ai)
+[![Work Squared Logo](./public/worksquared-logo.png)](https://worksquared.ai)
 
-Work Squared (W²) is an AI-enabled work environment featuring real-time collaborative Kanban boards, built with a modern monorepo architecture.
-
-🚀 **[Try the live demo](https://app.worksquared.ai)** _(Note: Public signup may be disabled)_
+[Work Squared](https://worksquared.ai) (W²) is an AI-enabled work environment where users and AI agents can collaborate on projects and documents.
 
 ## Why Work Squared?
 
 W² reimagines project management with:
+
 - **Real-time collaboration** - See changes instantly across all users
-- **AI-powered workflows** - Integrated LLM capabilities for intelligent task management  
+- **AI-powered workflows** - Integrated LLM capabilities
 - **Local-first architecture** - Works offline with automatic sync when reconnected
-- **Modern tech stack** - Built on Cloudflare Workers, React 19, and LiveStore
+- **Event-driven architecture** - Built on [LiveStore](https://livestore.dev)
+
+Read some of [the thinking behind the technical foundations underpinnign Work Squared](https://sociotechnica.org/notebook/ws-tech-foundations/).
 
 ## Building in Public
 
-We believe in transparent development. Check out our [development plans](/docs/plans) to see what we're working on and where we're headed.
+Check out our [development plans](/docs/plans) to see what we're working on and where we're headed. I've been using AI to build this as well, and the plans are an interesting artifact of that process.
 
 ## Monorepo Structure
 
