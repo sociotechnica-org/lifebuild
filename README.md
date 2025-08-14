@@ -1,6 +1,6 @@
 # W² Work Squared
 
-[![Work Squared Logo](./public/worksquared-logo.png)](https://worksquared.ai)
+[![Work Squared Logo](https://worksquared.ai/worksquared-logo.png)](https://worksquared.ai)
 
 [Work Squared](https://worksquared.ai) (W²) is an AI-enabled work environment where users and AI agents can collaborate on projects and documents.
 
