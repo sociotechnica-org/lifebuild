@@ -9,11 +9,7 @@ This plan outlines the steps necessary to safely transition the Work Squared rep
 ### 🚨 P0 - Must Fix Before Going Public
 
 1. **Clean Git History - CRITICAL**
-   - **Found exposed Braintrust API key in commits**: `sk-z0wNBIkLURT2XB6Xpg201dFuFf87I3anYenpgDUDrw2hcNkz`
-   - Exposed in commits: `0f08eff`, `3fa1dc1`, `ff9056f`, `9f7fe61`
-   - **Action Required**: Clean history using BFG Repo-Cleaner before going public
-   - Command: `bfg --replace-text passwords.txt` (create file with key to remove)
-   - Force-push cleaned history
+   - **Found exposed Braintrust API key in commits** - Rotate key.
 
 2. **Production Database ID - ACCEPTABLE RISK**
    - File: `packages/worker/wrangler.jsonc`
@@ -189,7 +185,7 @@ This plan outlines the steps necessary to safely transition the Work Squared rep
 
 ## Ready for Launch
 
-The repository is now ready to be made public. All essential legal, security, and documentation requirements have been completed. 
+The repository is now ready to be made public. All essential legal, security, and documentation requirements have been completed.
 
 **PR Status**: https://github.com/sociotechnica-org/work-squared/pull/121
 
