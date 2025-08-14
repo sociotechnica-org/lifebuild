@@ -8,7 +8,7 @@
     "not_found_handling": "single-page-application",
   },
   "build": {
-    "command": "VITE_REQUIRE_AUTH=true pnpm --filter @work-squared/web build",
+    "command": "VITE_REQUIRE_AUTH=true VITE_AUTH_SERVICE_URL=https://work-squared-auth.jessmartin.workers.dev pnpm --filter @work-squared/web build",
     "watch_dir": ["./src", "./functions", "../web/src", "../shared/src"],
   },
   "observability": {
