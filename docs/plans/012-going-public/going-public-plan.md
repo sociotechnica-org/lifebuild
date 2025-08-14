@@ -123,22 +123,22 @@ This plan outlines the steps necessary to safely transition the Work Squared rep
 
 ## Pre-Launch Checklist
 
-### Phase 1: Security & Legal
+### Phase 1: Security & Legal ✅ COMPLETED
 
-- [ ] **CRITICAL**: Clean git history with BFG to remove exposed API key
-- [ ] Add FSL-1.1-ALv2 license file
-- [ ] Update package.json files with license field
-- [ ] Create minimal SECURITY.md
+- [x] ~~Clean git history with BFG to remove exposed API key~~ - Not needed, key disabled in Braintrust
+- [x] Add FSL-1.1-ALv2 license file
+- [x] Update package.json files with license field
+- [x] ~~Create minimal SECURITY.md~~ - Decided not needed for initial release
 
-### Phase 2: Documentation
+### Phase 2: Documentation ✅ COMPLETED
 
-- [ ] Add W² logo/branding to README
-- [ ] Add FSL-1.1-ALv2 and build badges
-- [ ] Add screenshots from app.worksquared.ai
-- [ ] Create minimal CONTRIBUTING.md
-- [ ] Note that demo signup may be disabled
+- [x] Add W² logo/branding to README
+- [x] ~~Add FSL-1.1-ALv2 and build badges~~ - Removed badges, kept clean branding
+- [x] ~~Add screenshots from app.worksquared.ai~~ - Added logo instead
+- [x] Create minimal CONTRIBUTING.md
+- [x] Note that demo signup may be disabled - Removed demo references per user updates
 
-### Phase 3: Repository Polish
+### Phase 3: Repository Polish (OPTIONAL)
 
 - [ ] Set up basic issue templates
 - [ ] Add GitHub repository description and topics
@@ -162,37 +162,35 @@ This plan outlines the steps necessary to safely transition the Work Squared rep
 ✅ **Branding**: Simple W² text logo
 ✅ **.env secrets**: No rotation needed (properly gitignored)
 
-## Key Action Items
+## Implementation Status
 
-### 🚨 CRITICAL - Must Do Before Going Public
+### ✅ Completed Actions
 
-1. **Clean Git History**
+1. **Security**
+   - Rotated Braintrust API keys (old key disabled)
+   - No git history cleanup needed since key is disabled
 
-   ```bash
-   # Create passwords.txt with the exposed key
-   echo "sk-z0wNBIkLURT2XB6Xpg201dFuFf87I3anYenpgDUDrw2hcNkz" > passwords.txt
+2. **Legal & Licensing**
+   - Added FSL-1.1-ALv2 LICENSE file (Copyright 2024 Jess Martin)
+   - Updated all 6 package.json files with license field
+   - Created CONTRIBUTING.md with FSL implications
 
-   # Run BFG to clean history
-   bfg --replace-text passwords.txt
+3. **Documentation Updates**
+   - Updated README with W² branding and logo
+   - Added link to worksquared.ai
+   - Added "Building in Public" section linking to plans
+   - Removed demo/signup references per user preference
 
-   # Clean up and force push
-   git reflog expire --expire=now --all && git gc --prune=now --aggressive
-   git push --force-with-lease
-   ```
+4. **Changes from Original Plan**
+   - Removed SECURITY.md (not needed)
+   - Used actual logo instead of screenshots
+   - Simplified badges approach
+   - No git history cleanup (key disabled makes it safe)
 
-2. **Add FSL-1.1-ALv2 License**
-   - Create LICENSE file with proper copyright year and name
-   - Update all package.json files
+## Ready for Launch
 
-3. **Quick README Polish**
-   - Add W² branding
-   - Add screenshots
-   - Note about demo/signup
+The repository is now ready to be made public. All essential legal, security, and documentation requirements have been completed. 
 
-## Timeline
+**PR Status**: https://github.com/sociotechnica-org/work-squared/pull/121
 
-- **Phase 1**: Security & Legal (Priority 0)
-- **Phase 2**: Documentation (Priority 1)
-- **Phase 3**: Polish (Priority 2)
-
-The repository is already in good shape with proper gitignore, clear documentation, and working demo. Main blocker is cleaning the git history to remove the exposed API key.
+Once the PR is merged, the repository can be flipped to public.
