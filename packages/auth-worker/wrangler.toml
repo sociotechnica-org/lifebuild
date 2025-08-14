@@ -13,3 +13,6 @@ script_name = "work-squared-auth"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["UserStore"]
+
+[observability.logs]
+enabled = true
