@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { formatRegistrationDate } from '../../util/dates.js'
 
 interface AdminUser {
   email: string
@@ -42,20 +43,6 @@ export const AdminUsersPage: React.FC = () => {
       console.error('Error fetching users:', err)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const formatDate = (dateString: string) => {
-    try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    } catch {
-      return dateString
     }
   }
 
@@ -165,7 +152,7 @@ export const AdminUsersPage: React.FC = () => {
                       <div>
                         <p className='text-sm font-medium text-gray-900 truncate'>{user.email}</p>
                         <p className='text-sm text-gray-500'>
-                          Registered: {formatDate(user.createdAt)}
+                          Registered: {formatRegistrationDate(user.createdAt)}
                         </p>
                       </div>
                       <div className='flex items-center space-x-4'>
