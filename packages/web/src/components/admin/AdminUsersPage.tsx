@@ -24,6 +24,7 @@ export const AdminUsersPage: React.FC = () => {
 
       // Get auth service URL from environment
       const authServiceUrl = import.meta.env.VITE_AUTH_SERVICE_URL || 'http://localhost:8788'
+      console.log('🔍 Fetching users from:', `${authServiceUrl}/admin/users`)
 
       const response = await fetch(`${authServiceUrl}/admin/users`, {
         method: 'GET',
@@ -32,11 +33,17 @@ export const AdminUsersPage: React.FC = () => {
         },
       })
 
+      console.log('📡 Response status:', response.status, response.statusText)
+
       if (!response.ok) {
+        const errorText = await response.text()
+        console.error('❌ Response error:', errorText)
         throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`)
       }
 
       const data = await response.json()
+      console.log('📦 Received data:', data)
+      console.log('👥 Users array:', data.users)
       setUsers(data.users || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error occurred')

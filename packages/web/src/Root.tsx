@@ -195,16 +195,6 @@ const ProtectedApp: React.FC = () => (
                   }
                 />
                 <Route
-                  path={ROUTES.ADMIN}
-                  element={
-                    <Layout>
-                      <ErrorBoundary>
-                        <AdminUsersPage />
-                      </ErrorBoundary>
-                    </Layout>
-                  }
-                />
-                <Route
                   path={ROUTES.DOCUMENT}
                   element={
                     <Layout>
@@ -241,6 +231,13 @@ export const App: React.FC = () => (
           {/* Public auth routes - outside LiveStore */}
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
+          
+          {/* Admin route - outside LiveStore */}
+          <Route path={ROUTES.ADMIN} element={
+            <ErrorBoundary>
+              <AdminUsersPage />
+            </ErrorBoundary>
+          } />
 
           {/* Protected routes - wrapped in LiveStore */}
           <Route path='/*' element={<ProtectedApp />} />

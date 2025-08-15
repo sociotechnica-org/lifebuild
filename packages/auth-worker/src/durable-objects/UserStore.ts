@@ -191,12 +191,22 @@ export class UserStore implements DurableObject {
     const userList = await this.storage.list({ prefix: 'user:' })
     const users: any[] = []
 
+    console.log('🔍 UserStore: Found keys:', Array.from(userList.keys()))
+    console.log('🔍 UserStore: Total entries:', userList.size)
+
     for (const [key, user] of userList) {
+      console.log('🔍 UserStore: Processing key:', key)
+      
       // Skip the 'user:id:' entries to avoid duplicates
-      if (key.startsWith('user:id:')) continue
+      if (key.startsWith('user:id:')) {
+        console.log('⏭️  UserStore: Skipping user:id: key:', key)
+        continue
+      }
       
       const userData = user as User
       const { hashedPassword: _, ...userResponse } = userData
+      
+      console.log('👤 UserStore: Processing user:', userResponse.email)
       
       // Format the response to match the API specification
       users.push({
@@ -207,6 +217,7 @@ export class UserStore implements DurableObject {
       })
     }
 
+    console.log('📤 UserStore: Returning users:', users.length)
     return new Response(JSON.stringify({ users }), {
       headers: { 'Content-Type': 'application/json' }
     })
