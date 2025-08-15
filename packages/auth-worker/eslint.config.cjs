@@ -1,10 +1,6 @@
 module.exports = [
   {
-    ignores: [
-      '**/dist/*',
-      'node_modules/*',
-      '.wrangler/*',
-    ],
+    ignores: ['**/dist/*', 'node_modules/*', '.wrangler/*'],
   },
   {
     files: ['**/*.{js,ts}'],
