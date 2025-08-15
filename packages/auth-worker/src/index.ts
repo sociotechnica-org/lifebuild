@@ -167,11 +167,39 @@ async function handleAdminUpdateAdminStatus(
 }
 
 /**
+ * Handle admin delete user request
+ */
+async function handleAdminDeleteUser(
+  request: Request,
+  env: Env,
+  userEmail: string
+): Promise<Response> {
+  try {
+    // Verify admin access
+    const adminError = await verifyAdminAccessOrReturnError(request, env)
+    if (adminError) return adminError
+
+    // Forward request to UserStore
+    const userStore = getUserStore(env)
+    const userStoreRequest = new Request(`http://localhost/delete-user`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail }),
+    })
+
+    return await userStore.fetch(userStoreRequest)
+  } catch (error) {
+    console.error('Admin delete user error:', error)
+    return createAdminErrorResponse('Failed to delete user')
+  }
+}
+
+/**
  * CORS headers for cross-origin requests
  */
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*', // In production, restrict to your domain
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Access-Control-Max-Age': '86400',
 }
@@ -329,10 +357,13 @@ export default {
 
           if (path.startsWith('/admin/users/') && path.split('/').length === 4) {
             const userEmail = decodeURIComponent(path.split('/admin/users/')[1])
-            if (method !== 'GET') {
+            if (method === 'GET') {
+              return addCorsHeaders(await handleAdminGetUser(request, env, userEmail))
+            } else if (method === 'DELETE') {
+              return addCorsHeaders(await handleAdminDeleteUser(request, env, userEmail))
+            } else {
               return createErrorResponse('Method not allowed', 405)
             }
-            return addCorsHeaders(await handleAdminGetUser(request, env, userEmail))
           }
 
           return createErrorResponse('Not found', 404)

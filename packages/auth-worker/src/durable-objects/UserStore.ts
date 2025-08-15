@@ -36,6 +36,8 @@ export class UserStore implements DurableObject {
           return await this.handleUpdateUserStoreIds(request)
         case '/update-user-admin-status':
           return await this.handleUpdateUserAdminStatus(request)
+        case '/delete-user':
+          return await this.handleDeleteUser(request)
         default:
           return new Response('Not found', { status: 404 })
       }
@@ -333,6 +335,42 @@ export class UserStore implements DurableObject {
         success: true,
         user: userResponse,
         message: `Admin status ${isAdmin ? 'granted' : 'revoked'} successfully`,
+      }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
+  }
+
+  /**
+   * Delete a user (but preserve their instances)
+   */
+  private async handleDeleteUser(request: Request): Promise<Response> {
+    const { email } = await request.json()
+
+    if (!email) {
+      return new Response(JSON.stringify({ error: 'Email is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const user = await this.storage.get<User>(`user:${email}`)
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'User not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Delete user records (but not their instances - they remain accessible to other users)
+    await this.storage.delete(`user:${email}`)
+    await this.storage.delete(`user:id:${user.id}`)
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'User deleted successfully',
       }),
       {
         headers: { 'Content-Type': 'application/json' },
