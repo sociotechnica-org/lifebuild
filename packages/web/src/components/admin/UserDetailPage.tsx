@@ -175,10 +175,12 @@ export const UserDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className='p-6'>
-        <div className='flex items-center justify-center py-12'>
-          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
-          <span className='ml-2 text-gray-600'>Loading user details...</span>
+      <div className='p-6 bg-white min-h-screen'>
+        <div className='max-w-4xl mx-auto'>
+          <div className='flex justify-center items-center py-12'>
+            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
+            <span className='ml-2 text-gray-600'>Loading user details...</span>
+          </div>
         </div>
       </div>
     )
@@ -186,36 +188,43 @@ export const UserDetailPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className='p-6'>
-        <div className='bg-red-50 border border-red-200 rounded-md p-4'>
-          <div className='flex'>
-            <div className='flex-shrink-0'>
-              <svg className='h-5 w-5 text-red-400' viewBox='0 0 20 20' fill='currentColor'>
-                <path
-                  fillRule='evenodd'
-                  d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
-                  clipRule='evenodd'
-                />
-              </svg>
-            </div>
-            <div className='ml-3'>
-              <h3 className='text-sm font-medium text-red-800'>Error loading user</h3>
-              <div className='mt-2 text-sm text-red-700'>
-                <p>{error}</p>
+      <div className='p-6 bg-white min-h-screen'>
+        <div className='max-w-4xl mx-auto'>
+          <div className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md'>
+            <div className='flex'>
+              <div className='flex-shrink-0'>
+                <svg
+                  className='h-5 w-5 text-red-400'
+                  viewBox='0 0 20 20'
+                  fill='currentColor'
+                  aria-hidden='true'
+                >
+                  <path
+                    fillRule='evenodd'
+                    d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z'
+                    clipRule='evenodd'
+                  />
+                </svg>
               </div>
-              <div className='mt-4'>
-                <button
-                  onClick={fetchUserDetail}
-                  className='bg-red-100 px-3 py-2 rounded text-sm font-medium text-red-800 hover:bg-red-200'
-                >
-                  Try Again
-                </button>
-                <button
-                  onClick={() => navigate(ROUTES.ADMIN)}
-                  className='ml-2 bg-gray-100 px-3 py-2 rounded text-sm font-medium text-gray-800 hover:bg-gray-200'
-                >
-                  Back to Users
-                </button>
+              <div className='ml-3'>
+                <h3 className='text-sm font-medium text-red-800'>Error loading user</h3>
+                <div className='mt-2 text-sm text-red-700'>
+                  <p>{error}</p>
+                </div>
+                <div className='mt-4'>
+                  <button
+                    onClick={fetchUserDetail}
+                    className='bg-red-100 px-3 py-2 rounded text-sm font-medium text-red-800 hover:bg-red-200'
+                  >
+                    Try Again
+                  </button>
+                  <button
+                    onClick={() => navigate(ROUTES.ADMIN)}
+                    className='ml-2 bg-gray-100 px-3 py-2 rounded text-sm font-medium text-gray-800 hover:bg-gray-200'
+                  >
+                    Back to Users
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -226,17 +235,19 @@ export const UserDetailPage: React.FC = () => {
 
   if (!userDetail) {
     return (
-      <div className='p-6'>
-        <div className='text-center py-12'>
-          <h3 className='mt-2 text-sm font-medium text-gray-900'>User not found</h3>
-          <p className='mt-1 text-sm text-gray-500'>The requested user could not be found.</p>
-          <div className='mt-6'>
-            <button
-              onClick={() => navigate(ROUTES.ADMIN)}
-              className='bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700'
-            >
-              Back to Users
-            </button>
+      <div className='p-6 bg-white min-h-screen'>
+        <div className='max-w-4xl mx-auto'>
+          <div className='text-center py-12'>
+            <h3 className='mt-2 text-sm font-medium text-gray-900'>User not found</h3>
+            <p className='mt-1 text-sm text-gray-500'>The requested user could not be found.</p>
+            <div className='mt-6'>
+              <button
+                onClick={() => navigate(ROUTES.ADMIN)}
+                className='bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700'
+              >
+                Back to Users
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -244,16 +255,21 @@ export const UserDetailPage: React.FC = () => {
   }
 
   return (
-    <div className='p-6'>
-      {/* Header */}
-      <div className='mb-6'>
-        <div className='flex items-center justify-between'>
-          <div>
+    <div className='p-6 bg-white min-h-screen'>
+      <div className='max-w-4xl mx-auto'>
+        {/* Header */}
+        <div className='mb-6'>
+          <div className='flex items-center gap-4 mb-3'>
             <button
               onClick={() => navigate(ROUTES.ADMIN)}
-              className='flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 mb-2'
+              className='flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'
             >
-              <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <svg
+                className='w-4 h-4 text-gray-600'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
                 <path
                   strokeLinecap='round'
                   strokeLinejoin='round'
@@ -261,157 +277,128 @@ export const UserDetailPage: React.FC = () => {
                   d='M15 19l-7-7 7-7'
                 />
               </svg>
-              Back to Users
             </button>
-            <h1 className='text-2xl font-bold text-gray-900'>User Details</h1>
-            <p className='mt-2 text-gray-600'>Manage user settings and Work Squared instances</p>
-          </div>
-        </div>
-      </div>
-
-      {/* User Info */}
-      <div className='bg-white shadow overflow-hidden sm:rounded-lg mb-6'>
-        <div className='px-4 py-5 sm:px-6'>
-          <h3 className='text-lg leading-6 font-medium text-gray-900'>User Information</h3>
-          <p className='mt-1 max-w-2xl text-sm text-gray-500'>Basic details and account status</p>
-        </div>
-        <div className='border-t border-gray-200'>
-          <dl>
-            <div className='bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
-              <dt className='text-sm font-medium text-gray-500'>Email</dt>
-              <dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
-                {userDetail.email}
-              </dd>
-            </div>
-            <div className='bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
-              <dt className='text-sm font-medium text-gray-500'>Registration Date</dt>
-              <dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
-                {formatRegistrationDate(userDetail.createdAt)}
-              </dd>
-            </div>
-            <div className='bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
-              <dt className='text-sm font-medium text-gray-500'>Admin Status</dt>
-              <dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
-                <div className='flex items-center space-x-3'>
-                  <span
-                    className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      userDetail.isAdmin
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}
-                  >
-                    {userDetail.isAdmin ? 'Admin' : 'User'}
-                  </span>
-                  <button
-                    onClick={() => updateAdminStatus(!userDetail.isAdmin)}
-                    disabled={updating}
-                    className={`px-3 py-1 text-xs font-medium rounded ${
-                      userDetail.isAdmin
-                        ? 'bg-red-100 text-red-800 hover:bg-red-200'
-                        : 'bg-green-100 text-green-800 hover:bg-green-200'
-                    } disabled:opacity-50`}
-                  >
-                    {updating ? 'Updating...' : userDetail.isAdmin ? 'Revoke Admin' : 'Grant Admin'}
-                  </button>
-                </div>
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-
-      {/* Work Squared Instances */}
-      <div className='bg-white shadow overflow-hidden sm:rounded-lg'>
-        <div className='px-4 py-5 sm:px-6'>
-          <h3 className='text-lg leading-6 font-medium text-gray-900'>
-            Work Squared Instances ({userDetail.instances.length})
-          </h3>
-          <p className='mt-1 max-w-2xl text-sm text-gray-500'>
-            Manage user access to Work Squared instances (storeIds)
-          </p>
-        </div>
-
-        {/* Add Instance Form */}
-        <div className='border-t border-gray-200 px-4 py-5 sm:px-6'>
-          <form onSubmit={handleAddStoreId} className='flex space-x-3'>
-            <div className='flex-1'>
-              <input
-                type='text'
-                value={newStoreId}
-                onChange={e => setNewStoreId(e.target.value)}
-                placeholder='Enter new store ID'
-                className='block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm'
-                disabled={updating}
-              />
-            </div>
-            <button
-              type='submit'
-              disabled={updating || !newStoreId.trim()}
-              className='bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50'
-            >
-              {updating ? 'Adding...' : 'Add Instance'}
-            </button>
-          </form>
-        </div>
-
-        {/* Instances List */}
-        <div className='border-t border-gray-200'>
-          {userDetail.instances.length === 0 ? (
-            <div className='text-center py-12'>
-              <svg
-                className='mx-auto h-12 w-12 text-gray-400'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-              >
+            <nav className='flex items-center text-sm text-gray-500'>
+              <span className='hover:text-gray-700 transition-colors'>Admin Users</span>
+              <svg className='w-4 h-4 mx-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path
                   strokeLinecap='round'
                   strokeLinejoin='round'
                   strokeWidth={2}
-                  d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
+                  d='M9 5l7 7-7 7'
                 />
               </svg>
-              <h3 className='mt-2 text-sm font-medium text-gray-900'>No instances</h3>
-              <p className='mt-1 text-sm text-gray-500'>This user has no Work Squared instances.</p>
+              <span className='text-gray-900 font-medium'>{userDetail.email}</span>
+            </nav>
+          </div>
+
+          <div className='flex items-center justify-between'>
+            <div>
+              <h1 className='text-2xl font-bold text-gray-900 flex items-center gap-3'>
+                {userDetail.email}
+                {userDetail.isAdmin && (
+                  <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
+                    Admin
+                  </span>
+                )}
+              </h1>
+              <p className='text-gray-600'>
+                Created on {formatRegistrationDate(userDetail.createdAt)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Admin Status Section */}
+        <div className='bg-white border border-gray-200 rounded-lg p-6 mb-6'>
+          <h2 className='text-lg font-medium text-gray-900 mb-4'>Admin Status</h2>
+          <div className='flex items-center justify-between'>
+            <div>
+              <p className='text-sm font-medium text-gray-900'>Admin Access</p>
+              <p className='text-sm text-gray-500'>
+                {userDetail.isAdmin
+                  ? 'This user has administrator privileges'
+                  : 'This user does not have administrator privileges'}
+              </p>
+            </div>
+            <button
+              onClick={() => updateAdminStatus(!userDetail.isAdmin)}
+              disabled={updating}
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 ${
+                userDetail.isAdmin ? 'bg-blue-600' : 'bg-gray-200'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  userDetail.isAdmin ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        {/* Instances Section */}
+        <div className='bg-white border border-gray-200 rounded-lg p-6'>
+          <h2 className='text-lg font-medium text-gray-900 mb-4'>Instances</h2>
+
+          {/* Add Instance */}
+          <div className='mb-6'>
+            <form onSubmit={handleAddStoreId} className='flex gap-3'>
+              <input
+                type='text'
+                value={newStoreId}
+                onChange={e => setNewStoreId(e.target.value)}
+                placeholder='store_abc123'
+                className='flex-1 min-w-0 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm'
+                disabled={updating}
+              />
+              <button
+                type='submit'
+                disabled={updating || !newStoreId.trim()}
+                className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed'
+              >
+                {updating ? 'Adding...' : 'Add Instance'}
+              </button>
+            </form>
+          </div>
+
+          {/* Instances List */}
+          {userDetail.instances.length === 0 ? (
+            <div className='text-center py-6'>
+              <p className='text-gray-500'>No instances found for this user.</p>
             </div>
           ) : (
-            <ul className='divide-y divide-gray-200'>
+            <div className='space-y-3'>
               {userDetail.instances.map(instance => (
-                <li key={instance.id} className='px-4 py-4 sm:px-6'>
-                  <div className='flex items-center justify-between'>
-                    <div className='flex-1 min-w-0'>
-                      <div className='flex items-start justify-between'>
-                        <div>
-                          <p className='text-sm font-medium text-gray-900 truncate'>
-                            {instance.id}
-                            {instance.isDefault && (
-                              <span className='ml-2 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full'>
-                                Default
-                              </span>
-                            )}
-                          </p>
-                          <p className='text-sm text-gray-500'>{instance.name}</p>
-                          <p className='text-xs text-gray-400'>
-                            Created: {formatRegistrationDate(instance.createdAt)}
-                          </p>
-                        </div>
-                        <div className='flex items-center space-x-2'>
-                          {!instance.isDefault && (
-                            <button
-                              onClick={() => updateStoreIds('remove', instance.id)}
-                              disabled={updating}
-                              className='bg-red-100 text-red-800 px-3 py-1 rounded text-xs font-medium hover:bg-red-200 disabled:opacity-50'
-                            >
-                              {updating ? 'Removing...' : 'Remove'}
-                            </button>
-                          )}
-                        </div>
-                      </div>
+                <div
+                  key={instance.id}
+                  className='flex items-center justify-between p-4 border border-gray-200 rounded-lg'
+                >
+                  <div className='flex-1'>
+                    <div className='flex items-center gap-2'>
+                      <h3 className='text-sm font-medium text-gray-900'>{instance.name}</h3>
+                      {instance.isDefault && (
+                        <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
+                          Default
+                        </span>
+                      )}
                     </div>
+                    <p className='text-sm text-gray-500'>ID: {instance.id}</p>
+                    <p className='text-xs text-gray-400'>
+                      Created: {formatRegistrationDate(instance.createdAt)} • Last accessed:{' '}
+                      {formatRegistrationDate(instance.lastAccessedAt)}
+                    </p>
                   </div>
-                </li>
+                  <button
+                    onClick={() => updateStoreIds('remove', instance.id)}
+                    disabled={instance.isDefault || updating}
+                    className='ml-4 inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed'
+                  >
+                    {instance.isDefault ? 'Default' : updating ? 'Removing...' : 'Remove'}
+                  </button>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </div>
