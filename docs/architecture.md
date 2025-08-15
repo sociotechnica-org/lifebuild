@@ -16,6 +16,7 @@ work-squared/
 │   ├── web/              # React frontend application
 │   ├── worker/           # Cloudflare Worker backend for sync
 │   ├── auth-worker/      # JWT authentication service
+│   ├── server/           # Node.js backend server
 │   └── shared/           # Shared schemas and utilities
 ├── docs/                 # Architecture and planning documents
 └── package.json          # Workspace configuration
@@ -26,6 +27,7 @@ work-squared/
 - **`@work-squared/web`**: React frontend with LiveStore integration, UI components, and real-time collaboration features
 - **`@work-squared/worker`**: Cloudflare Worker handling WebSocket sync, LLM proxy, and asset serving
 - **`@work-squared/auth-worker`**: JWT authentication service with user management and token generation
+- **`@work-squared/server`**: Node.js backend server for event processing and server-side LLM operations
 - **`@work-squared/shared`**: Type-safe schemas, event definitions, and utilities shared across packages
 
 ## Core Architecture Principles
@@ -61,21 +63,30 @@ The AI integration uses a sophisticated client-side agentic loop that:
 The current production architecture spans multiple services:
 
 ```
-┌─────────────────┐     ┌─────────────────┐
-│   React SPA     │────▶│ CF Worker       │
-│  (CF Pages)     │     │ (WebSocket)     │
-├─────────────────┤     ├─────────────────┤
-│ • UI Components │     │ • Event relay   │
-│ • User actions  │     │ • WebSocket hub │
-│ • Real-time UI  │     │ • Sync logic    │
-└─────────────────┘     └─────────────────┘
-         │                       │
-         └───────────────────────┴
-                    │
-              ┌─────▼─────┐
-              │ LiveStore │
-              │ (SQLite)  │
-              └───────────┘
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   React SPA     │────▶│ CF Worker       │────▶│ Node.js Server  │
+│  (CF Pages)     │     │ (WebSocket)     │     │ (Render.com)    │
+├─────────────────┤     ├─────────────────┤     ├─────────────────┤
+│ • UI Components │     │ • Event relay   │     │ • Event process │
+│ • User actions  │     │ • WebSocket hub │     │ • LLM calls     │
+│ • Real-time UI  │     │ • JWT validation│     │ • Tool execution│
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+         │                       │                       │
+         │               ┌───────▼───────┐               │
+         │               │  Auth Worker  │               │
+         └──────────────▶│ (CF Worker)   │               │
+                         ├───────────────┤               │
+                         │ • User mgmt   │               │
+                         │ • JWT tokens  │               │
+                         │ • Signup/Login│               │
+                         └───────────────┘               │
+                                 │                       │
+                                 └───────────────────────┴
+                                            │
+                                      ┌─────▼─────┐
+                                      │ LiveStore │
+                                      │ (SQLite)  │
+                                      └───────────┘
 ```
 
 ## System Components
@@ -86,6 +97,7 @@ The current production architecture spans multiple services:
 - **Real-time Updates**: Subscribes to LiveStore queries for reactive UI
 - **Event Emission**: All user actions emit events to the system
 - **Routing**: Global navigation between Projects | Tasks | Documents | Workers
+- **Authentication**: Login/signup UI with JWT token management
 
 ### Cloudflare Worker (Sync Server)
 
@@ -95,10 +107,25 @@ The current production architecture spans multiple services:
 - **Authentication**: JWT validation for WebSocket connections with configurable enforcement
 - **Server Bypass**: Internal service authentication via bypass tokens
 
+### Auth Worker (JWT Service)
+
+- **User Management**: User registration and authentication
+- **JWT Generation**: Secure token generation and validation
+- **Durable Objects**: User store for persistent user data
+- **Password Security**: Bcrypt hashing with salt
+
+### Node.js Server (Backend Processing)
+
+- **Event Processing**: Receives and processes events from the Cloudflare Worker
+- **LLM Integration**: Server-side AI tool execution and conversation management
+- **Tool Execution**: Kanban, document, and project management tools
+- **Background Jobs**: Persistent workers and scheduled tasks
+
 ### Data Layer
 
 - **LiveStore (SQLite)**: Event sourcing with materialized views
 - **Real-time Sync**: WebSocket-based synchronization across clients
+- **Persistence**: Client-side OPFS and server-side SQLite storage
 
 ## Data Model
 
@@ -120,17 +147,21 @@ Events are materialized into core tables listed in `packages/shared/src/schema.t
 - **Real-time Sync**: Multi-client synchronization via WebSocket
 - **Testing**: Playwright E2E tests, comprehensive unit tests
 - **Document System**: Markdown editor, project organization
+- **Authentication System**: JWT-based auth with login/signup UI
+- **Multi-Service Architecture**: Monorepo with separate auth, sync, and backend services
+- **User Management**: Admin interface with user deletion functionality
 
 ### 🚧 In Progress
 
 - **Enhanced Worker Tools**: Expanding LLM tool coverage for all operations
-- **Projects/Boards Separation**: Architectural improvement to separate concepts
+- **Server-side LLM Processing**: Migration from client-side to backend processing
+- **Background Jobs**: Scheduled tasks and worker autonomy
 
 ### 📋 Planned
 
-- **Multi-user Support**: Authentication, user awareness
-- **Worker Autonomy**: Scheduled tasks, event-driven triggers
+- **Event Metadata Attribution**: User attribution for all events
 - **Advanced Tools**: File uploads, external integrations
+- **Automated Backups**: Cloudflare R2 integration for data persistence
 
 ## AI Integration Architecture
 
@@ -214,8 +245,11 @@ The hybrid client-server approach provides several advantages:
 The current architecture is documented through formal ADRs:
 
 - **[ADR-001](./adrs/001-background-job-system.md)**: PROPOSED - SQLite-based task queue for background jobs
-- **[ADR-002](./adrs/002-nodejs-hosting-platform.md)**: PROPOSED - Render.com hosting for Node.js workers
+- **[ADR-002](./adrs/002-nodejs-hosting-platform.md)**: ACCEPTED - Render.com hosting for Node.js workers
 - **[ADR-003](./adrs/003-backup-storage-strategy.md)**: PROPOSED - Cloudflare R2 for automated backups
+- **[ADR-004](./adrs/004-distributed-agentic-loop-processing.md)**: PROPOSED - Distributed agentic loop processing architecture
+- **[ADR-005](./adrs/005-jwt-authentication-with-durable-objects.md)**: ACCEPTED - JWT authentication with Cloudflare Durable Objects
+- **[ADR-006](./adrs/006-monorepo-pnpm-workspaces.md)**: ACCEPTED - pnpm workspaces for monorepo structure
 
 ## Related Documentation
 

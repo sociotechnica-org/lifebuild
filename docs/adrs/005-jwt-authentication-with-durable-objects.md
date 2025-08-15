@@ -2,7 +2,11 @@
 
 ## Status
 
-Proposed
+Accepted
+
+## Last Updated
+
+2025-08-15
 
 ## Context
 
