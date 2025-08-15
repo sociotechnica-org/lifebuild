@@ -231,13 +231,16 @@ export const App: React.FC = () => (
           {/* Public auth routes - outside LiveStore */}
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
-          
+
           {/* Admin route - outside LiveStore */}
-          <Route path={ROUTES.ADMIN} element={
-            <ErrorBoundary>
-              <AdminUsersPage />
-            </ErrorBoundary>
-          } />
+          <Route
+            path={ROUTES.ADMIN}
+            element={
+              <ErrorBoundary>
+                <AdminUsersPage />
+              </ErrorBoundary>
+            }
+          />
 
           {/* Protected routes - wrapped in LiveStore */}
           <Route path='/*' element={<ProtectedApp />} />
