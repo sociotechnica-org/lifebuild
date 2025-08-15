@@ -30,6 +30,8 @@ export class UserStore implements DurableObject {
           return await this.handleVerifyCredentials(request)
         case '/update-user':
           return await this.handleUpdateUser(request)
+        case '/list-all-users':
+          return await this.handleListAllUsers(request)
         default:
           return new Response('Not found', { status: 404 })
       }
@@ -177,6 +179,35 @@ export class UserStore implements DurableObject {
 
     const { hashedPassword: _, ...userResponse } = updatedUser
     return new Response(JSON.stringify({ user: userResponse }), {
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
+
+  /**
+   * List all users for admin purposes
+   */
+  private async handleListAllUsers(request: Request): Promise<Response> {
+    // Get all user keys with the 'user:' prefix (but not 'user:id:' prefix)
+    const userList = await this.storage.list({ prefix: 'user:' })
+    const users: any[] = []
+
+    for (const [key, user] of userList) {
+      // Skip the 'user:id:' entries to avoid duplicates
+      if (key.startsWith('user:id:')) continue
+      
+      const userData = user as User
+      const { hashedPassword: _, ...userResponse } = userData
+      
+      // Format the response to match the API specification
+      users.push({
+        email: userResponse.email,
+        createdAt: userResponse.createdAt,
+        storeIds: userResponse.instances.map(instance => instance.id), // Map instances to storeIds
+        instanceCount: userResponse.instances.length
+      })
+    }
+
+    return new Response(JSON.stringify({ users }), {
       headers: { 'Content-Type': 'application/json' }
     })
   }

@@ -18,6 +18,7 @@ import { HistoryPage } from './pages/HistoryPage.js'
 import { LoginPage } from './pages/LoginPage.js'
 import { SignupPage } from './pages/SignupPage.js'
 import { SettingsPage } from './components/settings/SettingsPage.js'
+import { AdminUsersPage } from './components/admin/AdminUsersPage.js'
 import { Layout } from './components/layout/Layout.js'
 import { EnsureStoreId } from './components/utils/EnsureStoreId.js'
 import { LoadingState } from './components/ui/LoadingState.js'
@@ -189,6 +190,16 @@ const ProtectedApp: React.FC = () => (
                     <Layout>
                       <ErrorBoundary>
                         <SettingsPage />
+                      </ErrorBoundary>
+                    </Layout>
+                  }
+                />
+                <Route
+                  path={ROUTES.ADMIN}
+                  element={
+                    <Layout>
+                      <ErrorBoundary>
+                        <AdminUsersPage />
                       </ErrorBoundary>
                     </Layout>
                   }

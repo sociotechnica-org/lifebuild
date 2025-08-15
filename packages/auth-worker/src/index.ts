@@ -2,6 +2,35 @@ import { UserStore } from './durable-objects/UserStore.js'
 import { handleSignup, handleLogin, handleRefresh, handleLogout } from './handlers/auth.js'
 
 /**
+ * Handle admin list users request
+ */
+async function handleAdminListUsers(request: Request, env: Env): Promise<Response> {
+  try {
+    // Get UserStore Durable Object
+    const userStoreId = env.USER_STORE.idFromName('global')
+    const userStore = env.USER_STORE.get(userStoreId)
+    
+    // Forward request to UserStore
+    const userStoreRequest = new Request(`${request.url.replace('/admin/users', '/list-all-users')}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    })
+    
+    return await userStore.fetch(userStoreRequest)
+  } catch (error) {
+    console.error('Admin list users error:', error)
+    return new Response(JSON.stringify({
+      success: false,
+      error: { message: 'Failed to list users' }
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
+}
+
+/**
  * CORS headers for cross-origin requests
  */
 const corsHeaders = {
@@ -123,6 +152,12 @@ export default {
           }), {
             headers: { 'Content-Type': 'application/json' }
           }))
+
+        case '/admin/users':
+          if (method !== 'GET') {
+            return createErrorResponse('Method not allowed', 405)
+          }
+          return addCorsHeaders(await handleAdminListUsers(request, env))
 
         default:
           return createErrorResponse('Not found', 404)

@@ -10,6 +10,7 @@ export const ROUTES = {
   DOCUMENTS: '/documents',
   HISTORY: '/history',
   SETTINGS: '/settings',
+  ADMIN: '/admin',
   DOCUMENT: '/document/:documentId',
   PROJECT: '/project/:projectId',
   LOGIN: '/login',
