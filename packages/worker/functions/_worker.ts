@@ -91,7 +91,8 @@ async function validateSyncPayload(
 
 // Create worker instance that captures env in closure
 function createWorkerWithAuth(env: any) {
-  const requireAuth = env[ENV_VARS.REQUIRE_AUTH] === 'true' || env[ENV_VARS.ENVIRONMENT] === 'production'
+  const requireAuth =
+    env[ENV_VARS.REQUIRE_AUTH] === 'true' || env[ENV_VARS.ENVIRONMENT] === 'production'
 
   // If auth is disabled, use simple token validation like main branch for compatibility
   if (!requireAuth) {
@@ -102,13 +103,13 @@ function createWorkerWithAuth(env: any) {
         if (payload?.authToken === DEV_AUTH.INSECURE_TOKEN) {
           return
         }
-        
+
         // Also try to validate as JWT for logged-in users
         try {
-          const result = await validateSyncPayload(payload, env)
+          await validateSyncPayload(payload, env)
           // If JWT validation succeeds, allow it
           return
-        } catch (error) {
+        } catch {
           // If both dev token and JWT validation fail, reject
           throw new Error('Invalid auth token')
         }
