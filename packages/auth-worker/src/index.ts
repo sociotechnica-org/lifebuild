@@ -8,25 +8,11 @@ import { verifyAdminAccess } from './utils/adminAuth.js'
 async function handleAdminListUsers(request: Request, env: Env): Promise<Response> {
   try {
     // Verify admin access
-    const adminCheck = await verifyAdminAccess(request, env)
-    if (!adminCheck.valid) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: { message: adminCheck.error || 'Admin access denied' },
-        }),
-        {
-          status: adminCheck.statusCode || 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-    }
-
-    // Get UserStore Durable Object (same instance as auth handlers)
-    const userStoreId = env.USER_STORE.idFromName('user-store')
-    const userStore = env.USER_STORE.get(userStoreId)
+    const adminError = await verifyAdminAccessOrReturnError(request, env)
+    if (adminError) return adminError
 
     // Forward request to UserStore
+    const userStore = getUserStore(env)
     const userStoreRequest = new Request(
       `${request.url.replace('/admin/users', '/list-all-users')}`,
       {
@@ -39,16 +25,144 @@ async function handleAdminListUsers(request: Request, env: Env): Promise<Respons
     return await userStore.fetch(userStoreRequest)
   } catch (error) {
     console.error('Admin list users error:', error)
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: { message: 'Failed to list users' },
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
+    return createAdminErrorResponse('Failed to list users')
+  }
+}
+
+/**
+ * Create standardized error response
+ */
+function createAdminErrorResponse(message: string, status = 500): Response {
+  return new Response(
+    JSON.stringify({
+      success: false,
+      error: { message },
+    }),
+    {
+      status,
+      headers: { 'Content-Type': 'application/json' },
+    }
+  )
+}
+
+/**
+ * Verify admin access and return error response if invalid
+ */
+async function verifyAdminAccessOrReturnError(
+  request: Request,
+  env: Env
+): Promise<Response | null> {
+  const adminCheck = await verifyAdminAccess(request, env)
+  if (!adminCheck.valid) {
+    return createAdminErrorResponse(
+      adminCheck.error || 'Admin access denied',
+      adminCheck.statusCode || 403
     )
+  }
+  return null
+}
+
+/**
+ * Get UserStore instance
+ */
+function getUserStore(env: Env) {
+  const userStoreId = env.USER_STORE.idFromName('user-store')
+  return env.USER_STORE.get(userStoreId)
+}
+
+/**
+ * Handle admin get user details request
+ */
+async function handleAdminGetUser(
+  request: Request,
+  env: Env,
+  userEmail: string
+): Promise<Response> {
+  try {
+    // Verify admin access
+    const adminError = await verifyAdminAccessOrReturnError(request, env)
+    if (adminError) return adminError
+
+    // Forward request to UserStore
+    const userStore = getUserStore(env)
+    const userStoreRequest = new Request(`http://localhost/get-user-by-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail }),
+    })
+
+    return await userStore.fetch(userStoreRequest)
+  } catch (error) {
+    console.error('Admin get user error:', error)
+    return createAdminErrorResponse('Failed to get user')
+  }
+}
+
+/**
+ * Handle admin update user storeId request
+ */
+async function handleAdminUpdateStoreIds(
+  request: Request,
+  env: Env,
+  userEmail: string
+): Promise<Response> {
+  try {
+    // Verify admin access
+    const adminError = await verifyAdminAccessOrReturnError(request, env)
+    if (adminError) return adminError
+
+    // Validate request body
+    const { action, storeId } = await request.json()
+    if (!action || !storeId || !['add', 'remove'].includes(action)) {
+      return createAdminErrorResponse('Invalid request: action and storeId required', 400)
+    }
+
+    // Forward request to UserStore
+    const userStore = getUserStore(env)
+    const userStoreRequest = new Request(`http://localhost/update-user-store-ids`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail, action, storeId }),
+    })
+
+    return await userStore.fetch(userStoreRequest)
+  } catch (error) {
+    console.error('Admin update storeIds error:', error)
+    return createAdminErrorResponse('Failed to update storeIds')
+  }
+}
+
+/**
+ * Handle admin update user admin status request
+ */
+async function handleAdminUpdateAdminStatus(
+  request: Request,
+  env: Env,
+  userEmail: string
+): Promise<Response> {
+  try {
+    // Verify admin access
+    const adminError = await verifyAdminAccessOrReturnError(request, env)
+    if (adminError) return adminError
+
+    // Validate request body
+    const { isAdmin } = await request.json()
+    if (typeof isAdmin !== 'boolean') {
+      return createAdminErrorResponse('Invalid request: isAdmin must be a boolean', 400)
+    }
+
+    // Forward request to UserStore
+    const userStore = getUserStore(env)
+    const userStoreRequest = new Request(`http://localhost/update-user-admin-status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail, isAdmin }),
+    })
+
+    return await userStore.fetch(userStoreRequest)
+  } catch (error) {
+    console.error('Admin update admin status error:', error)
+    return createAdminErrorResponse('Failed to update admin status')
   }
 }
 
@@ -192,6 +306,35 @@ export default {
           return addCorsHeaders(await handleAdminListUsers(request, env))
 
         default:
+          // Handle dynamic admin routes
+          if (path.startsWith('/admin/users/') && path.includes('/store-ids')) {
+            const userEmail = decodeURIComponent(
+              path.split('/admin/users/')[1].split('/store-ids')[0]
+            )
+            if (method !== 'POST') {
+              return createErrorResponse('Method not allowed', 405)
+            }
+            return addCorsHeaders(await handleAdminUpdateStoreIds(request, env, userEmail))
+          }
+
+          if (path.startsWith('/admin/users/') && path.includes('/admin-status')) {
+            const userEmail = decodeURIComponent(
+              path.split('/admin/users/')[1].split('/admin-status')[0]
+            )
+            if (method !== 'POST') {
+              return createErrorResponse('Method not allowed', 405)
+            }
+            return addCorsHeaders(await handleAdminUpdateAdminStatus(request, env, userEmail))
+          }
+
+          if (path.startsWith('/admin/users/') && path.split('/').length === 4) {
+            const userEmail = decodeURIComponent(path.split('/admin/users/')[1])
+            if (method !== 'GET') {
+              return createErrorResponse('Method not allowed', 405)
+            }
+            return addCorsHeaders(await handleAdminGetUser(request, env, userEmail))
+          }
+
           return createErrorResponse('Not found', 404)
       }
     } catch (error) {

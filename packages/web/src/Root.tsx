@@ -19,6 +19,7 @@ import { LoginPage } from './pages/LoginPage.js'
 import { SignupPage } from './pages/SignupPage.js'
 import { SettingsPage } from './components/settings/SettingsPage.js'
 import { AdminUsersPage } from './components/admin/AdminUsersPage.js'
+import { UserDetailPage } from './components/admin/UserDetailPage.js'
 import { Layout } from './components/layout/Layout.js'
 import { EnsureStoreId } from './components/utils/EnsureStoreId.js'
 import { LoadingState } from './components/ui/LoadingState.js'
@@ -232,12 +233,20 @@ export const App: React.FC = () => (
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
 
-          {/* Admin route - outside LiveStore */}
+          {/* Admin routes - outside LiveStore */}
           <Route
             path={ROUTES.ADMIN}
             element={
               <ErrorBoundary>
                 <AdminUsersPage />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path={ROUTES.ADMIN_USER}
+            element={
+              <ErrorBoundary>
+                <UserDetailPage />
               </ErrorBoundary>
             }
           />
