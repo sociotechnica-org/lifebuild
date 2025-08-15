@@ -53,17 +53,13 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: [
-    // Start auth worker for tests (only if auth is enabled)
-    ...(process.env.REQUIRE_AUTH === 'true'
-      ? [
-          {
-            command: 'cd ../auth-worker && pnpm dev',
-            port: 8788,
-            reuseExistingServer: true,
-            timeout: 60 * 1000,
-          },
-        ]
-      : []),
+    // Always start auth worker for tests since the app always connects to it
+    {
+      command: 'cd ../auth-worker && pnpm dev',
+      port: 8788,
+      reuseExistingServer: true,
+      timeout: 60 * 1000,
+    },
     // Start main app
     {
       command: process.env.CI
