@@ -14,7 +14,7 @@ async function handleAdminListUsers(request: Request, env: Env): Promise<Respons
         success: false,
         error: { message: adminCheck.error || 'Admin access denied' }
       }), {
-        status: 403,
+        status: adminCheck.statusCode || 403,
         headers: { 'Content-Type': 'application/json' }
       })
     }
