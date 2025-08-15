@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import { Navigate } from 'react-router-dom'
 import { formatRegistrationDate } from '../../util/dates.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { isCurrentUserAdmin } from '../../utils/adminCheck.jsx'
+import { ROUTES } from '../../constants/routes.js'
 
 interface AdminUser {
   email: string
@@ -16,29 +18,13 @@ export const AdminUsersPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Check admin access
+  // Check admin access - redirect if not authenticated or not admin
   if (!isAuthenticated) {
-    return (
-      <div className='p-6'>
-        <div className='bg-red-50 border border-red-200 rounded-md p-4'>
-          <h3 className='text-sm font-medium text-red-800'>Authentication Required</h3>
-          <p className='mt-1 text-sm text-red-700'>Please log in to access the admin panel.</p>
-        </div>
-      </div>
-    )
+    return <Navigate to={ROUTES.LOGIN} replace />
   }
 
   if (!isCurrentUserAdmin(user)) {
-    return (
-      <div className='p-6'>
-        <div className='bg-red-50 border border-red-200 rounded-md p-4'>
-          <h3 className='text-sm font-medium text-red-800'>Access Denied</h3>
-          <p className='mt-1 text-sm text-red-700'>
-            Admin privileges required to access this page.
-          </p>
-        </div>
-      </div>
-    )
+    return <Navigate to={ROUTES.PROJECTS} replace />
   }
 
   useEffect(() => {

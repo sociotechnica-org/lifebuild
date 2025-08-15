@@ -11,10 +11,8 @@ import { AuthUser } from '@work-squared/shared/auth'
 export function isCurrentUserAdmin(user: AuthUser | null): boolean {
   if (!user) return false
 
-  // Check if user has admin flag or is bootstrap admin via environment
-  const bootstrapAdminEmail = import.meta.env.VITE_BOOTSTRAP_ADMIN_EMAIL
-
-  return user.isAdmin === true || (bootstrapAdminEmail && user.email === bootstrapAdminEmail)
+  // Admin status is already computed and included in the JWT token by the auth service
+  return user.isAdmin === true
 }
 
 /**

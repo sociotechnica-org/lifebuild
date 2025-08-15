@@ -28,13 +28,9 @@ export async function verifyAdminAccess(request: Request, env: Env): Promise<{ v
     return { valid: false, error: 'Invalid or expired token' }
   }
 
-  // Check if user is admin (either via isAdmin flag or bootstrap email)
+  // Check if user is admin (admin status already computed during token creation)
   if (!payload.isAdmin) {
-    // Check bootstrap admin as fallback
-    const bootstrapAdminEmail = env.BOOTSTRAP_ADMIN_EMAIL
-    if (!bootstrapAdminEmail || payload.email !== bootstrapAdminEmail) {
-      return { valid: false, error: 'Admin privileges required' }
-    }
+    return { valid: false, error: 'Admin privileges required' }
   }
 
   return { valid: true, user: payload }
