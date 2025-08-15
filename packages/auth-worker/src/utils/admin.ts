@@ -11,7 +11,7 @@ export function isUserAdmin(user: User, bootstrapAdminEmail?: string): boolean {
   if (bootstrapAdminEmail && user.email === bootstrapAdminEmail) {
     return true
   }
-  
+
   // Check isAdmin flag
   return user.isAdmin === true
 }

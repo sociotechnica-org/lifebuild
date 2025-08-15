@@ -52,7 +52,12 @@ function generateTokenId(): string {
 /**
  * Create a JWT access token
  */
-export async function createAccessToken(userId: string, email: string, isAdmin: boolean, env: Env): Promise<string> {
+export async function createAccessToken(
+  userId: string,
+  email: string,
+  isAdmin: boolean,
+  env: Env
+): Promise<string> {
   const now = Math.floor(Date.now() / 1000)
   const jti = generateTokenId() // Add unique token ID
 

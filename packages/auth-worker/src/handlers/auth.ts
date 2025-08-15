@@ -65,23 +65,27 @@ function getUserStore(env: Env): DurableObjectStub {
 /**
  * Create auth success response with tokens
  */
-async function createAuthSuccessResponse(user: any, env: Env, refreshToken?: string): Promise<Response> {
+async function createAuthSuccessResponse(
+  user: any,
+  env: Env,
+  refreshToken?: string
+): Promise<Response> {
   // Check if user is admin (bootstrap email or isAdmin flag)
   const adminStatus = isUserAdmin(user, env.BOOTSTRAP_ADMIN_EMAIL)
 
   // Generate tokens
   const accessToken = await createAccessToken(user.id, user.email, adminStatus, env)
-  const newRefreshToken = refreshToken || await createRefreshToken(user.id, env)
+  const newRefreshToken = refreshToken || (await createRefreshToken(user.id, env))
 
   return createSuccessResponse({
     user: {
       id: user.id,
       email: user.email,
       instances: user.instances,
-      isAdmin: adminStatus
+      isAdmin: adminStatus,
     },
     accessToken,
-    refreshToken: newRefreshToken
+    refreshToken: newRefreshToken,
   })
 }
 

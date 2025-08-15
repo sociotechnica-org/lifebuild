@@ -9,7 +9,10 @@ import type { JWTPayload } from '../types.js'
 /**
  * Verify admin access from Authorization header
  */
-export async function verifyAdminAccess(request: Request, env: Env): Promise<{ valid: boolean; user?: JWTPayload; error?: string; statusCode?: number }> {
+export async function verifyAdminAccess(
+  request: Request,
+  env: Env
+): Promise<{ valid: boolean; user?: JWTPayload; error?: string; statusCode?: number }> {
   // Get Authorization header
   const authHeader = request.headers.get('Authorization')
   if (!authHeader) {
