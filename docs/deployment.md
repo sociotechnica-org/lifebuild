@@ -4,7 +4,7 @@ This document covers deployment setup and processes for Work Squared.
 
 ## Automatic Deployment
 
-Work Squared uses GitHub Actions for automatic deployment to Cloudflare Workers when code is merged to the `main` branch.
+Work Squared uses GitHub Actions for automatic deployment to Cloudflare Workers when code is merged to the `main` branch. Deployments typically complete within 2-3 minutes.
 
 ### GitHub Secrets Setup
 
