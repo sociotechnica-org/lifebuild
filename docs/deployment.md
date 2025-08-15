@@ -18,13 +18,19 @@ The deployment workflow requires the following GitHub secrets to be configured:
 
 1. Go to [Cloudflare Dashboard > My Profile > API Tokens](https://dash.cloudflare.com/profile/api-tokens)
 2. Click "Create Token"
-3. Use the "Custom Token" template
-4. Configure the token with these permissions:
-   - **Account** - `Cloudflare Workers:Edit`
-   - **Zone** - `Zone Settings:Read, Zone:Read` (for your domain)
-   - **Account** - `Account Settings:Read`
-5. Set Account Resources to include your Cloudflare account
-6. Set Zone Resources to include your domain (if applicable)
+3. Click "Get started" next to "Custom token"
+4. Configure the token with these exact permissions:
+   
+   **Account Permissions:**
+   - `Account:Cloudflare Workers Scripts:Edit`
+   - `Account:Account Settings:Read`
+   
+   **User Permissions:**
+   - `User:Memberships:Read`
+   
+5. Under "Account Resources", select:
+   - Include → Your specific account name
+6. Leave "Zone Resources" blank (not needed for Workers)
 7. Copy the generated token
 
 ### Adding Secrets to GitHub
