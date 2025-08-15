@@ -8,25 +8,11 @@ import { verifyAdminAccess } from './utils/adminAuth.js'
 async function handleAdminListUsers(request: Request, env: Env): Promise<Response> {
   try {
     // Verify admin access
-    const adminCheck = await verifyAdminAccess(request, env)
-    if (!adminCheck.valid) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: { message: adminCheck.error || 'Admin access denied' },
-        }),
-        {
-          status: adminCheck.statusCode || 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-    }
-
-    // Get UserStore Durable Object (same instance as auth handlers)
-    const userStoreId = env.USER_STORE.idFromName('user-store')
-    const userStore = env.USER_STORE.get(userStoreId)
+    const adminError = await verifyAdminAccessOrReturnError(request, env)
+    if (adminError) return adminError
 
     // Forward request to UserStore
+    const userStore = getUserStore(env)
     const userStoreRequest = new Request(
       `${request.url.replace('/admin/users', '/list-all-users')}`,
       {
@@ -39,17 +25,49 @@ async function handleAdminListUsers(request: Request, env: Env): Promise<Respons
     return await userStore.fetch(userStoreRequest)
   } catch (error) {
     console.error('Admin list users error:', error)
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: { message: 'Failed to list users' },
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
+    return createAdminErrorResponse('Failed to list users')
+  }
+}
+
+/**
+ * Create standardized error response
+ */
+function createAdminErrorResponse(message: string, status = 500): Response {
+  return new Response(
+    JSON.stringify({
+      success: false,
+      error: { message },
+    }),
+    {
+      status,
+      headers: { 'Content-Type': 'application/json' },
+    }
+  )
+}
+
+/**
+ * Verify admin access and return error response if invalid
+ */
+async function verifyAdminAccessOrReturnError(
+  request: Request,
+  env: Env
+): Promise<Response | null> {
+  const adminCheck = await verifyAdminAccess(request, env)
+  if (!adminCheck.valid) {
+    return createAdminErrorResponse(
+      adminCheck.error || 'Admin access denied',
+      adminCheck.statusCode || 403
     )
   }
+  return null
+}
+
+/**
+ * Get UserStore instance
+ */
+function getUserStore(env: Env) {
+  const userStoreId = env.USER_STORE.idFromName('user-store')
+  return env.USER_STORE.get(userStoreId)
 }
 
 /**
@@ -62,25 +80,11 @@ async function handleAdminGetUser(
 ): Promise<Response> {
   try {
     // Verify admin access
-    const adminCheck = await verifyAdminAccess(request, env)
-    if (!adminCheck.valid) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: { message: adminCheck.error || 'Admin access denied' },
-        }),
-        {
-          status: adminCheck.statusCode || 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-    }
-
-    // Get UserStore Durable Object
-    const userStoreId = env.USER_STORE.idFromName('user-store')
-    const userStore = env.USER_STORE.get(userStoreId)
+    const adminError = await verifyAdminAccessOrReturnError(request, env)
+    if (adminError) return adminError
 
     // Forward request to UserStore
+    const userStore = getUserStore(env)
     const userStoreRequest = new Request(`http://localhost/get-user-by-email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -90,16 +94,7 @@ async function handleAdminGetUser(
     return await userStore.fetch(userStoreRequest)
   } catch (error) {
     console.error('Admin get user error:', error)
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: { message: 'Failed to get user' },
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    )
+    return createAdminErrorResponse('Failed to get user')
   }
 }
 
@@ -113,40 +108,17 @@ async function handleAdminUpdateStoreIds(
 ): Promise<Response> {
   try {
     // Verify admin access
-    const adminCheck = await verifyAdminAccess(request, env)
-    if (!adminCheck.valid) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: { message: adminCheck.error || 'Admin access denied' },
-        }),
-        {
-          status: adminCheck.statusCode || 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-    }
+    const adminError = await verifyAdminAccessOrReturnError(request, env)
+    if (adminError) return adminError
 
+    // Validate request body
     const { action, storeId } = await request.json()
-
     if (!action || !storeId || !['add', 'remove'].includes(action)) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: { message: 'Invalid request: action and storeId required' },
-        }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
+      return createAdminErrorResponse('Invalid request: action and storeId required', 400)
     }
-
-    // Get UserStore Durable Object
-    const userStoreId = env.USER_STORE.idFromName('user-store')
-    const userStore = env.USER_STORE.get(userStoreId)
 
     // Forward request to UserStore
+    const userStore = getUserStore(env)
     const userStoreRequest = new Request(`http://localhost/update-user-store-ids`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -156,16 +128,7 @@ async function handleAdminUpdateStoreIds(
     return await userStore.fetch(userStoreRequest)
   } catch (error) {
     console.error('Admin update storeIds error:', error)
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: { message: 'Failed to update storeIds' },
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    )
+    return createAdminErrorResponse('Failed to update storeIds')
   }
 }
 
@@ -179,40 +142,17 @@ async function handleAdminUpdateAdminStatus(
 ): Promise<Response> {
   try {
     // Verify admin access
-    const adminCheck = await verifyAdminAccess(request, env)
-    if (!adminCheck.valid) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: { message: adminCheck.error || 'Admin access denied' },
-        }),
-        {
-          status: adminCheck.statusCode || 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-    }
+    const adminError = await verifyAdminAccessOrReturnError(request, env)
+    if (adminError) return adminError
 
+    // Validate request body
     const { isAdmin } = await request.json()
-
     if (typeof isAdmin !== 'boolean') {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: { message: 'Invalid request: isAdmin must be a boolean' },
-        }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
+      return createAdminErrorResponse('Invalid request: isAdmin must be a boolean', 400)
     }
-
-    // Get UserStore Durable Object
-    const userStoreId = env.USER_STORE.idFromName('user-store')
-    const userStore = env.USER_STORE.get(userStoreId)
 
     // Forward request to UserStore
+    const userStore = getUserStore(env)
     const userStoreRequest = new Request(`http://localhost/update-user-admin-status`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -222,16 +162,7 @@ async function handleAdminUpdateAdminStatus(
     return await userStore.fetch(userStoreRequest)
   } catch (error) {
     console.error('Admin update admin status error:', error)
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: { message: 'Failed to update admin status' },
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    )
+    return createAdminErrorResponse('Failed to update admin status')
   }
 }
 
