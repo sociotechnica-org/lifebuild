@@ -1,6 +1,5 @@
 import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
-import { MemoryRouter } from 'react-router-dom'
 import { UserList } from './UserList.js'
 
 const meta: Meta<typeof UserList> = {
@@ -8,13 +7,11 @@ const meta: Meta<typeof UserList> = {
   component: UserList,
   decorators: [
     Story => (
-      <MemoryRouter>
-        <div className='p-6 bg-gray-50 min-h-screen'>
-          <div className='max-w-4xl mx-auto'>
-            <Story />
-          </div>
+      <div className='p-6 bg-gray-50 min-h-screen'>
+        <div className='max-w-4xl mx-auto'>
+          <Story />
         </div>
-      </MemoryRouter>
+      </div>
     ),
   ],
   parameters: {
