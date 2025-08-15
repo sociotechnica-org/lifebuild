@@ -32,6 +32,8 @@ jobs:
         run: pnpm --filter @work-squared/web test:e2e
         env:
           CI: true
+          AUTH_SERVICE_URL: http://localhost:8788
+          VITE_AUTH_SERVICE_URL: http://localhost:8788
 
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4

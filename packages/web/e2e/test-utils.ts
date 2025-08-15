@@ -5,8 +5,9 @@ import { Page, expect } from '@playwright/test'
  */
 
 // Test configuration
-const AUTH_SERVICE_URL =
-  process.env.AUTH_SERVICE_URL || 'https://work-squared-auth.jessmartin.workers.dev'
+// IMPORTANT: E2E tests should NEVER use production auth service
+// Always use local auth service for testing
+const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:8788'
 const APP_URL = process.env.APP_URL || 'http://localhost:5173'
 const REQUIRE_AUTH = process.env.REQUIRE_AUTH === 'true'
 

@@ -52,17 +52,32 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: process.env.CI
-      ? `VITE_REQUIRE_AUTH=${process.env.REQUIRE_AUTH || 'false'} VITE_LIVESTORE_SYNC_URL='' pnpm build && pnpm preview --port ${port} --host`
-      : `VITE_LIVESTORE_SYNC_URL='http://localhost:8787' PORT=${port} pnpm dev`,
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 180 * 1000, // Increased timeout for CI
-    env: {
-      PORT: port.toString(),
-      VITE_REQUIRE_AUTH: process.env.REQUIRE_AUTH || 'false',
-      VITE_LIVESTORE_SYNC_URL: process.env.CI ? '' : 'http://localhost:8787',
+  webServer: [
+    // Start auth worker for tests (only if auth is enabled)
+    ...(process.env.REQUIRE_AUTH === 'true'
+      ? [
+          {
+            command: 'cd ../auth-worker && pnpm dev',
+            port: 8788,
+            reuseExistingServer: true,
+            timeout: 60 * 1000,
+          },
+        ]
+      : []),
+    // Start main app
+    {
+      command: process.env.CI
+        ? `VITE_REQUIRE_AUTH=${process.env.REQUIRE_AUTH || 'false'} VITE_AUTH_SERVICE_URL='http://localhost:8788' VITE_LIVESTORE_SYNC_URL='' pnpm build && pnpm preview --port ${port} --host`
+        : `VITE_AUTH_SERVICE_URL='http://localhost:8788' VITE_LIVESTORE_SYNC_URL='http://localhost:8787' PORT=${port} pnpm dev`,
+      url: baseURL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 180 * 1000, // Increased timeout for CI
+      env: {
+        PORT: port.toString(),
+        VITE_REQUIRE_AUTH: process.env.REQUIRE_AUTH || 'false',
+        VITE_AUTH_SERVICE_URL: 'http://localhost:8788',
+        VITE_LIVESTORE_SYNC_URL: process.env.CI ? '' : 'http://localhost:8787',
+      },
     },
-  },
+  ],
 })

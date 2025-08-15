@@ -17,7 +17,7 @@ The deployment workflow requires the following GitHub secrets to be configured:
 
 ### Setting up Cloudflare Global API Key
 
-> **Note:** Due to limitations with Cloudflare's API token system and the `/memberships` endpoint, 
+> **Note:** Due to limitations with Cloudflare's API token system and the `/memberships` endpoint,
 > we use the Global API Key instead of scoped API tokens for automated deployments.
 
 1. Go to [Cloudflare Dashboard > My Profile > API Tokens](https://dash.cloudflare.com/profile/api-tokens)
