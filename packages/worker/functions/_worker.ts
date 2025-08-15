@@ -51,16 +51,8 @@ async function validateSyncPayload(payload: any, env: any): Promise<{ userId: st
     throw new Error(`${AuthErrorCode.AUTH_SERVICE_ERROR}: JWT secret not configured`)
   }
 
-  console.log('Debug: JWT secret length:', jwtSecret?.length)
-  console.log('Debug: Auth token preview:', authToken?.substring(0, 50) + '...')
-  
   const payload_decoded = await verifyJWT(authToken, jwtSecret)
   if (!payload_decoded) {
-    console.log('Debug: JWT verification failed for token')
-    // Try to decode without verification to see payload
-    const { decodeJWTPayload } = await import('@work-squared/shared/auth')
-    const unverifiedPayload = decodeJWTPayload(authToken)
-    console.log('Debug: Unverified payload:', unverifiedPayload)
     throw new Error(`${AuthErrorCode.TOKEN_INVALID}: Invalid JWT token`)
   }
 
