@@ -78,12 +78,23 @@ async function validateSyncPayload(payload: any, env: any): Promise<{ userId: st
 function createWorkerWithAuth(env: any) {
   const requireAuth = env[ENV_VARS.REQUIRE_AUTH] === 'true' || env[ENV_VARS.ENVIRONMENT] === 'production'
   
-  // If auth is disabled, use simple token validation like main branch for compatibility
+  // If auth is disabled, accept both dev tokens and JWT tokens for development
   if (!requireAuth) {
-    console.log('Auth disabled - using simple token validation for development')
+    console.log('Auth disabled - accepting both dev tokens and JWT tokens for development')
     return makeWorker({
-      validatePayload: (payload: any) => {
-        if (payload?.authToken !== DEV_AUTH.INSECURE_TOKEN) {
+      validatePayload: async (payload: any) => {
+        // Accept the insecure dev token
+        if (payload?.authToken === DEV_AUTH.INSECURE_TOKEN) {
+          return
+        }
+        
+        // Also try to validate as JWT for logged-in users
+        try {
+          const result = await validateSyncPayload(payload, env)
+          // If JWT validation succeeds, allow it
+          return
+        } catch (error) {
+          // If both dev token and JWT validation fail, reject
           throw new Error('Invalid auth token')
         }
       },
