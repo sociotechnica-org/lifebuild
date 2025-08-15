@@ -69,8 +69,8 @@ test.describe('Admin Access Control', () => {
   // Note: These tests use mocked auth state in localStorage to avoid
   // dependency on auth service availability in CI. The critical security
   // logic (JWT verification) happens server-side and is covered by unit tests.
-  // 
-  // TODO: The 'admin user can access admin route' test is skipped because it 
+  //
+  // TODO: The 'admin user can access admin route' test is skipped because it
   // requires real JWT verification with local auth-worker setup.
   // See GitHub Issue #124 for multi-service E2E testing implementation.
 })

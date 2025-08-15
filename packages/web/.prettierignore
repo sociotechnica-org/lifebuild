@@ -1,0 +1,17 @@
+# Build outputs
+dist/
+build/
+storybook-static/
+.wrangler/
+
+# Dependencies
+node_modules/
+
+# Test outputs
+playwright-report/
+test-results/
+coverage/
+
+# Cache files
+.eslintcache
+*.tsbuildinfo
