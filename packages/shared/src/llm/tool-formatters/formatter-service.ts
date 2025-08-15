@@ -18,7 +18,7 @@ export class ToolResultFormatterService {
 
     // Find appropriate formatter
     const formatter = this.formatters.find(f => f.canFormat(toolCall.function.name))
-    
+
     if (formatter) {
       return formatter.format(toolResult, toolCall)
     }

@@ -295,7 +295,8 @@ function addDocumentToProjectCore(
 
   // Check if document is already associated with this project
   const existingAssociations = store.query(getDocumentProjectsByProject$(projectId)) || []
-  const alreadyAssociated = Array.isArray(existingAssociations) && 
+  const alreadyAssociated =
+    Array.isArray(existingAssociations) &&
     existingAssociations.some((dp: any) => dp?.documentId === documentId)
   if (alreadyAssociated) {
     throw new Error(`Document is already associated with project ${projectId}`)
@@ -343,7 +344,8 @@ function removeDocumentFromProjectCore(
 
   // Check if document is associated with this project
   const existingAssociations = store.query(getDocumentProjectsByProject$(projectId)) || []
-  const isAssociated = Array.isArray(existingAssociations) && 
+  const isAssociated =
+    Array.isArray(existingAssociations) &&
     existingAssociations.some((dp: any) => dp?.documentId === documentId)
   if (!isAssociated) {
     throw new Error(`Document is not associated with project ${projectId}`)

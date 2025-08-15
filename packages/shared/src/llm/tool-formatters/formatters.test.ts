@@ -55,10 +55,7 @@ describe('Tool Formatters', () => {
     })
 
     it('should format get_task_by_id when task not found', () => {
-      const result = formatter.format(
-        { success: true },
-        { function: { name: 'get_task_by_id' } }
-      )
+      const result = formatter.format({ success: true }, { function: { name: 'get_task_by_id' } })
 
       expect(result).toBe('Task not found')
     })
@@ -233,10 +230,9 @@ describe('Tool Formatters', () => {
     })
 
     it('should format error objects', () => {
-      const result = service.formatError(
-        new Error('Something went wrong'),
-        { function: { name: 'test_tool' } }
-      )
+      const result = service.formatError(new Error('Something went wrong'), {
+        function: { name: 'test_tool' },
+      })
 
       expect(result).toBe('Error executing tool test_tool: Something went wrong')
     })

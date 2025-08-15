@@ -17,7 +17,5 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["vitest/globals", "node"]
   },
-  "include": [
-    "src/**/*.ts"
-  ]
+  "include": ["src/**/*.ts"]
 }

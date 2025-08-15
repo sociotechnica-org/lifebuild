@@ -6,10 +6,10 @@
 export interface JWTPayload {
   userId: string
   email: string
-  jti?: string  // JWT ID for uniqueness
-  iat: number   // issued at
-  exp: number   // expires at
-  iss: string   // issuer
+  jti?: string // JWT ID for uniqueness
+  iat: number // issued at
+  exp: number // expires at
+  iss: string // issuer
 }
 
 export interface RefreshTokenPayload {
@@ -33,7 +33,7 @@ function base64UrlEncode(data: Uint8Array): string {
  */
 function base64UrlDecode(data: string): Uint8Array {
   const base64 = data.replace(/-/g, '+').replace(/_/g, '/')
-  const padded = base64 + '='.repeat((4 - base64.length % 4) % 4)
+  const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4)
   const binary = atob(padded)
   return new Uint8Array(binary.split('').map(c => c.charCodeAt(0)))
 }
@@ -44,14 +44,11 @@ function base64UrlDecode(data: string): Uint8Array {
 async function getJWTKey(secret: string): Promise<CryptoKey> {
   const encoder = new TextEncoder()
   const keyData = encoder.encode(secret)
-  
-  return await crypto.subtle.importKey(
-    'raw',
-    keyData,
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign', 'verify']
-  )
+
+  return await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, [
+    'sign',
+    'verify',
+  ])
 }
 
 /**
@@ -64,29 +61,29 @@ export async function verifyJWT(token: string, secret: string): Promise<JWTPaylo
     if (parts.length !== 3) {
       return null
     }
-    
+
     const [headerEncoded, payloadEncoded, signatureEncoded] = parts
     if (!headerEncoded || !payloadEncoded || !signatureEncoded) {
       return null
     }
-    
+
     const message = `${headerEncoded}.${payloadEncoded}`
-    
+
     // Verify signature
     const key = await getJWTKey(secret)
     const encoder = new TextEncoder()
     const signature = base64UrlDecode(signatureEncoded)
-    
+
     const isValid = await crypto.subtle.verify('HMAC', key, signature, encoder.encode(message))
     if (!isValid) {
       return null
     }
-    
+
     // Decode payload
     const payloadBytes = base64UrlDecode(payloadEncoded)
     const payloadText = new TextDecoder().decode(payloadBytes)
     const payload = JSON.parse(payloadText) as JWTPayload
-    
+
     return payload
   } catch (error) {
     console.error('JWT verification error:', error)
@@ -99,7 +96,7 @@ export async function verifyJWT(token: string, secret: string): Promise<JWTPaylo
  */
 export function isTokenExpired(payload: JWTPayload, gracePeriodSeconds = 0): boolean {
   const now = Math.floor(Date.now() / 1000)
-  return now > (payload.exp + gracePeriodSeconds)
+  return now > payload.exp + gracePeriodSeconds
 }
 
 /**
@@ -112,12 +109,12 @@ export function decodeJWTPayload(token: string): JWTPayload | null {
     if (parts.length !== 3) {
       return null
     }
-    
+
     const payloadPart = parts[1]
     if (!payloadPart) {
       return null
     }
-    
+
     const payloadBytes = base64UrlDecode(payloadPart)
     const payloadText = new TextDecoder().decode(payloadBytes)
     return JSON.parse(payloadText) as JWTPayload
@@ -133,7 +130,7 @@ export function isWithinGracePeriod(payload: JWTPayload, gracePeriodSeconds: num
   if (!isTokenExpired(payload, 0)) {
     return true // Token is still valid
   }
-  
+
   // Token is expired, check if within grace period
   return !isTokenExpired(payload, gracePeriodSeconds)
 }

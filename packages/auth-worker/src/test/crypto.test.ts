@@ -7,10 +7,10 @@ describe('crypto utilities', () => {
       const password = 'testPassword123!'
       const hash1 = await hashPassword(password)
       const hash2 = await hashPassword(password)
-      
+
       // Hashes should be different due to salt
       expect(hash1).not.toBe(hash2)
-      
+
       // Both hashes should contain salt and hash separated by ':'
       expect(hash1).toMatch(/^[a-f0-9]{32}:[a-f0-9]{64}$/)
       expect(hash2).toMatch(/^[a-f0-9]{32}:[a-f0-9]{64}$/)
@@ -19,7 +19,7 @@ describe('crypto utilities', () => {
     it('should verify correct passwords', async () => {
       const password = 'testPassword123!'
       const hash = await hashPassword(password)
-      
+
       const isValid = await verifyPassword(password, hash)
       expect(isValid).toBe(true)
     })
@@ -28,7 +28,7 @@ describe('crypto utilities', () => {
       const password = 'testPassword123!'
       const wrongPassword = 'wrongPassword456!'
       const hash = await hashPassword(password)
-      
+
       const isValid = await verifyPassword(wrongPassword, hash)
       expect(isValid).toBe(false)
     })
@@ -36,7 +36,7 @@ describe('crypto utilities', () => {
     it('should handle invalid hash format', async () => {
       const password = 'testPassword123!'
       const invalidHash = 'invalid-hash-format'
-      
+
       const isValid = await verifyPassword(password, invalidHash)
       expect(isValid).toBe(false)
     })
@@ -51,7 +51,7 @@ describe('crypto utilities', () => {
         'simple12', // simple password with 8 chars
         '12345678', // just numbers
         'password', // common but 8+ chars
-        'UPPERCASE' // just uppercase
+        'UPPERCASE', // just uppercase
       ]
 
       validPasswords.forEach(password => {
@@ -65,9 +65,9 @@ describe('crypto utilities', () => {
       const shortPasswords = [
         'Short1!', // 7 chars
         '1234567', // 7 chars
-        'abc123'   // 6 chars
+        'abc123', // 6 chars
       ]
-      
+
       shortPasswords.forEach(password => {
         const result = validatePasswordStrength(password)
         expect(result.valid).toBe(false)

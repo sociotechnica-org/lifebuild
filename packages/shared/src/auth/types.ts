@@ -25,7 +25,7 @@ export interface AuthInstance {
 export interface SyncPayload {
   instanceId: string
   authToken?: string
-  [key: string]: any  // Allow additional properties for LiveStore compatibility
+  [key: string]: any // Allow additional properties for LiveStore compatibility
 }
 
 export interface EventMetadata {
@@ -36,7 +36,7 @@ export interface EventMetadata {
 // Auth error codes for consistent handling
 export enum AuthErrorCode {
   TOKEN_MISSING = 'TOKEN_MISSING',
-  TOKEN_INVALID = 'TOKEN_INVALID', 
+  TOKEN_INVALID = 'TOKEN_INVALID',
   TOKEN_EXPIRED = 'TOKEN_EXPIRED',
   TOKEN_MALFORMED = 'TOKEN_MALFORMED',
   USER_NOT_FOUND = 'USER_NOT_FOUND',
@@ -53,7 +53,7 @@ export interface AuthError {
 // Connection states for sync
 export enum ConnectionState {
   CONNECTING = 'connecting',
-  CONNECTED = 'connected', 
+  CONNECTED = 'connected',
   AUTHENTICATED = 'authenticated',
   DISCONNECTED = 'disconnected',
   RECONNECTING = 'reconnecting',

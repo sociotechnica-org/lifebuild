@@ -9,7 +9,6 @@ import { Events, Schema } from '@livestore/livestore'
  * It's recommended to version event definitions. Learn more: https://next.livestore.dev/docs/reference/events
  */
 
-
 export const chatMessageSent = Events.synced({
   name: 'v1.ChatMessageSent',
   schema: Schema.Struct({

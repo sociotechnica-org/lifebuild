@@ -23,9 +23,7 @@ export class ProjectToolFormatter implements ToolResultFormatter {
   private formatListProjects(result: any): string {
     const projectList =
       result.projects
-        ?.map(
-          (p: any) => `${p.name} (ID: ${p.id})${p.description ? ` - ${p.description}` : ''}`
-        )
+        ?.map((p: any) => `${p.name} (ID: ${p.id})${p.description ? ` - ${p.description}` : ''}`)
         .join('\n• ') || 'No projects found'
     return `Available projects:\n• ${projectList}`
   }

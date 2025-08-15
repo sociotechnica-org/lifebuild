@@ -19,7 +19,7 @@ export interface JWTPayload {
   userId: string
   email: string
   isAdmin?: boolean
-  jti?: string  // JWT ID for uniqueness
+  jti?: string // JWT ID for uniqueness
   iat: number
   exp: number
   iss: string
@@ -75,5 +75,5 @@ export enum ErrorCode {
   INVALID_REQUEST = 'INVALID_REQUEST',
   INTERNAL_ERROR = 'INTERNAL_ERROR',
   USER_NOT_FOUND = 'USER_NOT_FOUND',
-  WEAK_PASSWORD = 'WEAK_PASSWORD'
+  WEAK_PASSWORD = 'WEAK_PASSWORD',
 }

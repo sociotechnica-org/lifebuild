@@ -25,7 +25,7 @@ export class ToolExecutor {
 
     try {
       console.log(`🔧 Executing tool: ${toolCall.function.name}`)
-      
+
       const toolArgs = JSON.parse(toolCall.function.arguments)
       const toolResult = await executeLLMTool(this.store, {
         name: toolCall.function.name,
@@ -61,7 +61,7 @@ export class ToolExecutor {
 
     for (const toolCall of toolCalls) {
       const execution = await this.executeTool(toolCall)
-      
+
       const content = execution.success
         ? this.formatter.format(execution.result, toolCall)
         : this.formatter.formatError(execution.error || 'Unknown error', toolCall)
@@ -80,9 +80,7 @@ export class ToolExecutor {
    * Execute tools in parallel (when order doesn't matter)
    */
   async executeToolsParallel(toolCalls: ToolCall[]): Promise<ToolMessage[]> {
-    const executions = await Promise.all(
-      toolCalls.map(toolCall => this.executeTool(toolCall))
-    )
+    const executions = await Promise.all(toolCalls.map(toolCall => this.executeTool(toolCall)))
 
     return executions.map(execution => {
       const content = execution.success

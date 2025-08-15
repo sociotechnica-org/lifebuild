@@ -40,12 +40,10 @@ describe('ConversationHistory', () => {
         function: { name: 'create_task', arguments: '{"title":"Test"}' },
       },
     ])
-    history.addToolMessages([
-      { role: 'tool', content: 'Task created', tool_call_id: 'call-1' },
-    ])
+    history.addToolMessages([{ role: 'tool', content: 'Task created', tool_call_id: 'call-1' }])
 
     const openAIFormat = history.getOpenAIFormat()
-    
+
     expect(openAIFormat).toHaveLength(3)
     expect(openAIFormat[0]).toEqual({
       role: 'user',
