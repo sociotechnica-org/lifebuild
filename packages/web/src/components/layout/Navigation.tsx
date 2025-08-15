@@ -140,6 +140,7 @@ export const Navigation: React.FC = () => {
                   onClick={() => setShowDropdown(!showDropdown)}
                   className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
                   title={getDisplayName()}
+                  data-testid='user-menu-button'
                 >
                   {getInitials(getDisplayName())}
                 </button>
