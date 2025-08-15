@@ -6,8 +6,8 @@ import { handleSignup, handleLogin, handleRefresh, handleLogout } from './handle
  */
 async function handleAdminListUsers(request: Request, env: Env): Promise<Response> {
   try {
-    // Get UserStore Durable Object
-    const userStoreId = env.USER_STORE.idFromName('global')
+    // Get UserStore Durable Object (same instance as auth handlers)
+    const userStoreId = env.USER_STORE.idFromName('user-store')
     const userStore = env.USER_STORE.get(userStoreId)
     
     // Forward request to UserStore
