@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { formatRegistrationDate } from '../../util/dates.js'
+import { useAuth } from '../../contexts/AuthContext.js'
+import { isCurrentUserAdmin } from '../../utils/adminCheck.jsx'
 
 interface AdminUser {
   email: string
@@ -9,9 +11,35 @@ interface AdminUser {
 }
 
 export const AdminUsersPage: React.FC = () => {
+  const { user, getCurrentToken, isAuthenticated } = useAuth()
   const [users, setUsers] = useState<AdminUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Check admin access
+  if (!isAuthenticated) {
+    return (
+      <div className='p-6'>
+        <div className='bg-red-50 border border-red-200 rounded-md p-4'>
+          <h3 className='text-sm font-medium text-red-800'>Authentication Required</h3>
+          <p className='mt-1 text-sm text-red-700'>Please log in to access the admin panel.</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isCurrentUserAdmin(user)) {
+    return (
+      <div className='p-6'>
+        <div className='bg-red-50 border border-red-200 rounded-md p-4'>
+          <h3 className='text-sm font-medium text-red-800'>Access Denied</h3>
+          <p className='mt-1 text-sm text-red-700'>
+            Admin privileges required to access this page.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   useEffect(() => {
     fetchUsers()
@@ -22,6 +50,12 @@ export const AdminUsersPage: React.FC = () => {
       setLoading(true)
       setError(null)
 
+      // Get current access token
+      const token = await getCurrentToken()
+      if (!token) {
+        throw new Error('No access token available')
+      }
+
       // Get auth service URL from environment
       const authServiceUrl = import.meta.env.VITE_AUTH_SERVICE_URL || 'http://localhost:8788'
 
@@ -29,6 +63,7 @@ export const AdminUsersPage: React.FC = () => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       })
 

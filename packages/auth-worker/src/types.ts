@@ -4,6 +4,7 @@ export interface User {
   hashedPassword: string
   createdAt: Date
   instances: Instance[]
+  isAdmin?: boolean
 }
 
 export interface Instance {
@@ -17,6 +18,7 @@ export interface Instance {
 export interface JWTPayload {
   userId: string
   email: string
+  isAdmin?: boolean
   jti?: string  // JWT ID for uniqueness
   iat: number
   exp: number

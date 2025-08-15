@@ -1,11 +1,24 @@
 import { UserStore } from './durable-objects/UserStore.js'
 import { handleSignup, handleLogin, handleRefresh, handleLogout } from './handlers/auth.js'
+import { verifyAdminAccess } from './utils/adminAuth.js'
 
 /**
  * Handle admin list users request
  */
 async function handleAdminListUsers(request: Request, env: Env): Promise<Response> {
   try {
+    // Verify admin access
+    const adminCheck = await verifyAdminAccess(request, env)
+    if (!adminCheck.valid) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: { message: adminCheck.error || 'Admin access denied' }
+      }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    }
+
     // Get UserStore Durable Object (same instance as auth handlers)
     const userStoreId = env.USER_STORE.idFromName('user-store')
     const userStore = env.USER_STORE.get(userStoreId)
@@ -177,4 +190,5 @@ interface Env {
   JWT_SECRET?: string
   USER_STORE: any
   ENVIRONMENT?: string
+  BOOTSTRAP_ADMIN_EMAIL?: string
 }

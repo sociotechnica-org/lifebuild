@@ -1,6 +1,7 @@
 import { AuthResponse, SignupRequest, LoginRequest, RefreshRequest, ErrorCode } from '../types.js'
 import { validatePasswordStrength } from '../utils/crypto.js'
 import { createAccessToken, createRefreshToken, verifyToken, isTokenExpired } from '../utils/jwt.js'
+import { isUserAdmin } from '../utils/admin.js'
 import type { RefreshTokenPayload } from '../types.js'
 
 /**
@@ -88,8 +89,11 @@ export async function handleSignup(request: Request, env: Env): Promise<Response
     const userData = await userResponse.json()
     const user = userData.user
 
+    // Check if user is admin (bootstrap email or isAdmin flag)
+    const adminStatus = isUserAdmin(user, env.BOOTSTRAP_ADMIN_EMAIL)
+
     // Generate tokens
-    const accessToken = await createAccessToken(user.id, user.email, env)
+    const accessToken = await createAccessToken(user.id, user.email, adminStatus, env)
     const refreshToken = await createRefreshToken(user.id, env)
 
     return createSuccessResponse({
@@ -145,8 +149,11 @@ export async function handleLogin(request: Request, env: Env): Promise<Response>
 
     const user = credentialsData.user
 
+    // Check if user is admin (bootstrap email or isAdmin flag)
+    const adminStatus = isUserAdmin(user, env.BOOTSTRAP_ADMIN_EMAIL)
+
     // Generate tokens
-    const accessToken = await createAccessToken(user.id, user.email, env)
+    const accessToken = await createAccessToken(user.id, user.email, adminStatus, env)
     const refreshToken = await createRefreshToken(user.id, env)
 
     return createSuccessResponse({
@@ -203,8 +210,11 @@ export async function handleRefresh(request: Request, env: Env): Promise<Respons
     const userData = await userResponse.json()
     const user = userData.user
 
+    // Check if user is admin (bootstrap email or isAdmin flag)
+    const adminStatus = isUserAdmin(user, env.BOOTSTRAP_ADMIN_EMAIL)
+
     // Generate new access token
-    const accessToken = await createAccessToken(user.id, user.email, env)
+    const accessToken = await createAccessToken(user.id, user.email, adminStatus, env)
     
     // Always rotate refresh token (recommended for high security)
     const newRefreshToken = await createRefreshToken(user.id, env)
@@ -250,6 +260,7 @@ export async function handleLogout(request: Request, env: Env): Promise<Response
 interface Env {
   JWT_SECRET?: string
   USER_STORE: any
+  BOOTSTRAP_ADMIN_EMAIL?: string
 }
 
 interface DurableObjectStub {

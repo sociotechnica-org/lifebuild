@@ -55,7 +55,7 @@ function generateTokenId(): string {
 /**
  * Create a JWT access token
  */
-export async function createAccessToken(userId: string, email: string, env: Env): Promise<string> {
+export async function createAccessToken(userId: string, email: string, isAdmin: boolean, env: Env): Promise<string> {
   const now = Math.floor(Date.now() / 1000)
   const jti = generateTokenId() // Add unique token ID
   
@@ -67,6 +67,7 @@ export async function createAccessToken(userId: string, email: string, env: Env)
   const payload: JWTPayload = {
     userId,
     email,
+    isAdmin,
     jti, // Add unique token ID to ensure uniqueness
     iat: now,
     exp: now + ACCESS_TOKEN_EXPIRES_IN,
@@ -184,4 +185,5 @@ export function decodeTokenPayload<T = JWTPayload>(token: string): T | null {
 interface Env {
   JWT_SECRET?: string
   USER_STORE: any
+  BOOTSTRAP_ADMIN_EMAIL?: string
 }

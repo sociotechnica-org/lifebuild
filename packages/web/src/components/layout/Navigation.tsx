@@ -6,6 +6,7 @@ import { getInitials } from '../../util/initials.js'
 import { preserveStoreIdInUrl } from '../../util/navigation.js'
 import { ROUTES, ROUTE_PATTERNS } from '../../constants/routes.js'
 import { useAuth } from '../../contexts/AuthContext.js'
+import { isCurrentUserAdmin } from '../../utils/adminCheck.jsx'
 
 export const Navigation: React.FC = () => {
   const location = useLocation()
@@ -67,6 +68,9 @@ export const Navigation: React.FC = () => {
     }
     if (path === ROUTES.SETTINGS) {
       return location.pathname === ROUTES.SETTINGS
+    }
+    if (path === ROUTES.ADMIN) {
+      return location.pathname === ROUTES.ADMIN
     }
     return location.pathname === path
   }
@@ -145,6 +149,9 @@ export const Navigation: React.FC = () => {
                     <div className='px-4 py-2 text-sm text-gray-700 border-b border-gray-100'>
                       <div className='font-medium truncate'>{getDisplayName()}</div>
                       <div className='text-gray-500 truncate'>{getEmail()}</div>
+                      {isCurrentUserAdmin(authUser) && (
+                        <div className='text-xs text-blue-600 font-medium'>Admin</div>
+                      )}
                     </div>
                     <Link
                       to={preserveStoreIdInUrl(ROUTES.SETTINGS)}
@@ -153,6 +160,15 @@ export const Navigation: React.FC = () => {
                     >
                       Settings
                     </Link>
+                    {isCurrentUserAdmin(authUser) && (
+                      <Link
+                        to={ROUTES.ADMIN}
+                        onClick={() => setShowDropdown(false)}
+                        className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                      >
+                        Admin
+                      </Link>
+                    )}
                     <button
                       onClick={async () => {
                         await logout()
