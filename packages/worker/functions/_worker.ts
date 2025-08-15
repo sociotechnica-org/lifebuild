@@ -1,5 +1,12 @@
 import { makeDurableObject, makeWorker } from '@livestore/sync-cf/cf-worker'
-import { verifyJWT, isWithinGracePeriod, DEFAULT_GRACE_PERIOD_SECONDS, DEV_AUTH, ENV_VARS, AuthErrorCode } from '@work-squared/shared/auth'
+import {
+  verifyJWT,
+  isWithinGracePeriod,
+  DEFAULT_GRACE_PERIOD_SECONDS,
+  DEV_AUTH,
+  ENV_VARS,
+  AuthErrorCode,
+} from '@work-squared/shared/auth'
 import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 
 export class WebSocketServer extends makeDurableObject({
@@ -14,9 +21,13 @@ export class WebSocketServer extends makeDurableObject({
 /**
  * Validate sync payload and authenticate user
  */
-async function validateSyncPayload(payload: any, env: any): Promise<{ userId: string; isGracePeriod?: boolean }> {
-  const requireAuth = env[ENV_VARS.REQUIRE_AUTH] === 'true' || env[ENV_VARS.ENVIRONMENT] === 'production'
-  
+async function validateSyncPayload(
+  payload: any,
+  env: any
+): Promise<{ userId: string; isGracePeriod?: boolean }> {
+  const requireAuth =
+    env[ENV_VARS.REQUIRE_AUTH] === 'true' || env[ENV_VARS.ENVIRONMENT] === 'production'
+
   // Development mode - allow unauthenticated access
   if (!requireAuth) {
     console.log('Auth disabled in development mode')
@@ -57,28 +68,32 @@ async function validateSyncPayload(payload: any, env: any): Promise<{ userId: st
   }
 
   // Check expiration with grace period
-  const gracePeriodSeconds = parseInt(env[ENV_VARS.GRACE_PERIOD_SECONDS] || DEFAULT_GRACE_PERIOD_SECONDS.toString())
-  
+  const gracePeriodSeconds = parseInt(
+    env[ENV_VARS.GRACE_PERIOD_SECONDS] || DEFAULT_GRACE_PERIOD_SECONDS.toString()
+  )
+
   if (!isWithinGracePeriod(payload_decoded, gracePeriodSeconds)) {
     throw new Error(`${AuthErrorCode.GRACE_PERIOD_EXPIRED}: Token expired beyond grace period`)
   }
 
   const isGracePeriod = payload_decoded.exp < Math.floor(Date.now() / 1000)
   if (isGracePeriod) {
-    console.log(`User ${payload_decoded.userId} authenticated with expired token within grace period`)
+    console.log(
+      `User ${payload_decoded.userId} authenticated with expired token within grace period`
+    )
   }
 
-  return { 
+  return {
     userId: payload_decoded.userId,
-    isGracePeriod 
+    isGracePeriod,
   }
 }
 
 // Create worker instance that captures env in closure
 function createWorkerWithAuth(env: any) {
   const requireAuth = env[ENV_VARS.REQUIRE_AUTH] === 'true' || env[ENV_VARS.ENVIRONMENT] === 'production'
-  
-  // If auth is disabled, accept both dev tokens and JWT tokens for development
+
+  // If auth is disabled, use simple token validation like main branch for compatibility
   if (!requireAuth) {
     console.log('Auth disabled - accepting both dev tokens and JWT tokens for development')
     return makeWorker({
@@ -101,12 +116,12 @@ function createWorkerWithAuth(env: any) {
       enableCORS: true,
     })
   }
-  
+
   // Auth is enabled - use full JWT validation
   return makeWorker({
     validatePayload: async (payload: any) => {
       console.log('Validating sync payload:', Object.keys(payload || {}))
-      
+
       try {
         const authResult = await validateSyncPayload(payload, env)
         console.log(`Authentication successful for user: ${authResult.userId}`)
@@ -154,7 +169,14 @@ export default {
           })
         }
 
-        const { message, conversationHistory, currentBoard, model, workerContext, globalSystemPrompt } = requestBody
+        const {
+          message,
+          conversationHistory,
+          currentBoard,
+          model,
+          workerContext,
+          globalSystemPrompt,
+        } = requestBody
 
         console.log('🔧 Worker received:', {
           message: message?.substring(0, 50),
@@ -215,7 +237,9 @@ You have access to tools for:
 When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed.${currentBoardContext}`
         } else {
           // Use global system prompt if provided, otherwise fall back to default
-          const baseSystemPrompt = globalSystemPrompt || `You are an AI assistant for Work Squared, a powerful consultancy workflow management platform. You excel at helping consultants, project managers, and teams by:
+          const baseSystemPrompt =
+            globalSystemPrompt ||
+            `You are an AI assistant for Work Squared, a powerful consultancy workflow management platform. You excel at helping consultants, project managers, and teams by:
 
 **Core Capabilities:**
 • **Project Planning & Strategy**: Breaking down complex client requirements into actionable roadmaps
