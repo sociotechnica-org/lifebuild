@@ -51,7 +51,8 @@ pnpm --filter @work-squared/web build    # Build web package
 pnpm build         # Build all packages (if needed)
 
 # Deployment
-pnpm --filter @work-squared/worker deploy  # Deploy sync server to Cloudflare
+pnpm --filter @work-squared/auth-worker run deploy  # Deploy auth worker to Cloudflare
+pnpm --filter @work-squared/worker run deploy  # Deploy sync server to Cloudflare
 ```
 
 ## Architecture

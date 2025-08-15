@@ -46,10 +46,10 @@ For manual deployment, use these commands:
 wrangler auth login
 
 # Deploy auth worker
-pnpm --filter @work-squared/auth-worker deploy
+pnpm --filter @work-squared/auth-worker run deploy
 
 # Deploy main worker (includes frontend)
-pnpm --filter @work-squared/worker deploy
+pnpm --filter @work-squared/worker run deploy
 ```
 
 ## Deployment Architecture
@@ -60,14 +60,14 @@ Work Squared consists of two Cloudflare Workers:
 
 - **Purpose**: Handles user authentication, signup, login, token management
 - **URL**: `https://work-squared-auth.jessmartin.workers.dev`
-- **Deploy command**: `pnpm --filter @work-squared/auth-worker deploy`
+- **Deploy command**: `pnpm --filter @work-squared/auth-worker run deploy`
 - **Configuration**: `packages/auth-worker/wrangler.toml`
 
 ### 2. Main Worker
 
 - **Purpose**: Serves frontend app + WebSocket LiveStore sync server
 - **URL**: `https://work-squared.jessmartin.workers.dev`
-- **Deploy command**: `pnpm --filter @work-squared/worker deploy`
+- **Deploy command**: `pnpm --filter @work-squared/worker run deploy`
 - **Configuration**: `packages/worker/wrangler.jsonc`
 
 ## Environment Variables
