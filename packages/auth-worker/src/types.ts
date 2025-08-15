@@ -39,6 +39,7 @@ export interface AuthResponse {
     id: string
     email: string
     instances: Instance[]
+    isAdmin: boolean
   }
   accessToken?: string
   refreshToken?: string
