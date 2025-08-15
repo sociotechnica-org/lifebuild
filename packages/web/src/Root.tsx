@@ -18,6 +18,7 @@ import { HistoryPage } from './pages/HistoryPage.js'
 import { LoginPage } from './pages/LoginPage.js'
 import { SignupPage } from './pages/SignupPage.js'
 import { SettingsPage } from './components/settings/SettingsPage.js'
+import { AdminUsersPage } from './components/admin/AdminUsersPage.js'
 import { Layout } from './components/layout/Layout.js'
 import { EnsureStoreId } from './components/utils/EnsureStoreId.js'
 import { LoadingState } from './components/ui/LoadingState.js'
@@ -230,6 +231,16 @@ export const App: React.FC = () => (
           {/* Public auth routes - outside LiveStore */}
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
+
+          {/* Admin route - outside LiveStore */}
+          <Route
+            path={ROUTES.ADMIN}
+            element={
+              <ErrorBoundary>
+                <AdminUsersPage />
+              </ErrorBoundary>
+            }
+          />
 
           {/* Protected routes - wrapped in LiveStore */}
           <Route path='/*' element={<ProtectedApp />} />

@@ -1,5 +1,6 @@
 import { useQuery, useStore } from '@livestore/react'
 import React from 'react'
+import { formatDate } from '../../../util/dates.js'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { events } from '@work-squared/shared/schema'
@@ -135,8 +136,7 @@ async function runAgenticLoop(
               const documentList =
                 toolResult.documents
                   ?.map(
-                    (d: any) =>
-                      `${d.title} (ID: ${d.id}) - Updated: ${new Date(d.updatedAt).toLocaleDateString()}`
+                    (d: any) => `${d.title} (ID: ${d.id}) - Updated: ${formatDate(d.updatedAt)}`
                   )
                   .join('\n• ') || 'No documents found'
               toolResultMessage = `Available documents:\n• ${documentList}`
@@ -173,8 +173,7 @@ async function runAgenticLoop(
               const documentList =
                 toolResult.documents
                   ?.map(
-                    (d: any) =>
-                      `${d.title} (ID: ${d.id}) - Created: ${new Date(d.createdAt).toLocaleDateString()}`
+                    (d: any) => `${d.title} (ID: ${d.id}) - Created: ${formatDate(d.createdAt)}`
                   )
                   .join('\n• ') || 'No documents found in project'
               toolResultMessage = `Project documents:\n• ${documentList}`

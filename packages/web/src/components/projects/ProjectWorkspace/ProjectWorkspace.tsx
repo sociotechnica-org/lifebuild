@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
+import { formatDate } from '../../../util/dates.js'
 import { useQuery, useStore } from '@livestore/react'
 import { useParams, Link } from 'react-router-dom'
 import { preserveStoreIdInUrl } from '../../../util/navigation.js'
@@ -465,7 +466,7 @@ const ProjectWorkspaceContent: React.FC = () => {
                         )}
                         <div className='flex items-center gap-4 mt-3'>
                           <span className='text-xs text-gray-500'>
-                            Updated {new Date(document.updatedAt).toLocaleDateString()}
+                            Updated {formatDate(document.updatedAt)}
                           </span>
                         </div>
                       </div>

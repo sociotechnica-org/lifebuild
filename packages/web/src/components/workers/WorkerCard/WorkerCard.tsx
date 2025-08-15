@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from '@livestore/react'
+import { formatDate } from '../../../util/dates.js'
 import type { Worker, Project } from '@work-squared/shared/schema'
 import { getWorkerProjects$, getProjects$ } from '@work-squared/shared/queries'
 import { EditWorkerModal } from '../EditWorkerModal/EditWorkerModal.js'
@@ -15,14 +16,6 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
   const { store } = useStore()
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [assignedProjects, setAssignedProjects] = useState<Project[]>([])
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(new Date(date))
-  }
 
   useEffect(() => {
     const loadAssignedProjects = async () => {

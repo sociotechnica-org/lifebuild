@@ -1,16 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
+import { formatDate } from '../../../util/dates.js'
 
 // Mock ProjectCard component that doesn't use LiveStore
 const ProjectCardStoryWrapper = ({ project, onClick, mockWorkers = [] }: any) => {
   // Create a version of ProjectCard that displays without LiveStore dependency
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(new Date(date))
-  }
 
   const getAvatarColor = (id: string) => {
     // Simple avatar color logic for stories

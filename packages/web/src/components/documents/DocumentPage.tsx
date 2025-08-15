@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { formatDate } from '../../util/dates.js'
 import { useQuery, useStore } from '@livestore/react'
 import { getDocumentById$ } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
@@ -142,7 +143,7 @@ export const DocumentPage: React.FC = () => {
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-4'>
             <span className='text-xs text-gray-500'>
-              Last updated {new Date(document.updatedAt).toLocaleDateString()}
+              Last updated {formatDate(document.updatedAt)}
             </span>
 
             {/* Project associations */}

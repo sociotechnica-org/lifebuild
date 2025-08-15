@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { formatDate } from '../../util/dates.js'
 import type { Document } from '@work-squared/shared/schema'
 import { preserveStoreIdInUrl } from '../../util/navigation.js'
 import { generateRoute } from '../../constants/routes.js'
@@ -56,7 +57,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({ document, onArchive 
           )}
 
           <div className='mt-3 flex items-center text-xs text-gray-500'>
-            <span>Updated {new Date(document.updatedAt).toLocaleDateString()}</span>
+            <span>Updated {formatDate(document.updatedAt)}</span>
           </div>
         </div>
         <div className='ml-4 flex-shrink-0'>

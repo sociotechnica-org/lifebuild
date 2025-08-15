@@ -1,4 +1,5 @@
 import React from 'react'
+import { formatDate } from '../../../util/dates.js'
 
 interface BaseEventItemProps {
   timestamp: Date
@@ -30,7 +31,7 @@ export const BaseEventItem: React.FC<BaseEventItemProps> = ({
     if (diffHours < 24) return `${diffHours}h ago`
     if (diffDays < 7) return `${diffDays}d ago`
 
-    return date.toLocaleDateString()
+    return formatDate(date)
   }
 
   return (
