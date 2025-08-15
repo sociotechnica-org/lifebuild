@@ -2,10 +2,10 @@
 
 /**
  * Auth Service Integration Test
- * 
+ *
  * Tests all Milestone 1 features of the JWT authentication service.
  * Can be run standalone to verify auth service functionality.
- * 
+ *
  * Usage:
  *   pnpm test:integration
  *   npx tsx scripts/integration-test.ts
@@ -31,7 +31,7 @@ class AuthIntegrationTester {
   private results: TestResult[] = []
   private testUser = {
     email: `test-${Date.now()}@example.com`,
-    password: 'SecureTestPass123!'
+    password: 'SecureTestPass123!',
   }
   private serverProcess: ChildProcess | null = null
 
@@ -42,7 +42,7 @@ class AuthIntegrationTester {
     return await fetch(`${AUTH_SERVICE_URL}${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     })
   }
 
@@ -63,18 +63,23 @@ class AuthIntegrationTester {
     }
 
     const data = await response.json()
-    
+
     if (!data.success) {
       throw new Error(`${operation} failed: ${data.error?.message}`)
     }
-    
+
     return data
   }
 
   /**
    * Validate error response with expected status and error code
    */
-  private async validateErrorResponse(response: Response, expectedStatus: number, expectedErrorCode: string, operation: string): Promise<void> {
+  private async validateErrorResponse(
+    response: Response,
+    expectedStatus: number,
+    expectedErrorCode: string,
+    operation: string
+  ): Promise<void> {
     if (response.ok) {
       throw new Error(`${operation} should have been rejected`)
     }
@@ -84,7 +89,7 @@ class AuthIntegrationTester {
     }
 
     const data = await response.json()
-    
+
     if (data.error?.code !== expectedErrorCode) {
       throw new Error(`Expected ${expectedErrorCode} error, got ${data.error?.code}`)
     }
@@ -94,14 +99,14 @@ class AuthIntegrationTester {
    * Start the development server
    */
   private async startServer(): Promise<boolean> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       console.log('🔧 Starting auth service...')
-      
+
       this.serverProcess = spawn('pnpm', ['dev'], {
         cwd: process.cwd(),
-        stdio: ['ignore', 'pipe', 'pipe']
+        stdio: ['ignore', 'pipe', 'pipe'],
       })
-      
+
       let serverReady = false
       const timeout = setTimeout(() => {
         if (!serverReady) {
@@ -109,8 +114,8 @@ class AuthIntegrationTester {
           resolve(false)
         }
       }, 30000)
-      
-      this.serverProcess.stdout?.on('data', (data) => {
+
+      this.serverProcess.stdout?.on('data', data => {
         const output = data.toString()
         if (output.includes('Ready on http://localhost:8788') && !serverReady) {
           serverReady = true
@@ -119,8 +124,8 @@ class AuthIntegrationTester {
           setTimeout(() => resolve(true), 1000) // Give it a moment to be fully ready
         }
       })
-      
-      this.serverProcess.stderr?.on('data', (data) => {
+
+      this.serverProcess.stderr?.on('data', data => {
         const output = data.toString()
         if (output.includes('Address already in use')) {
           console.log('ℹ️  Server already running on port 8788')
@@ -129,15 +134,15 @@ class AuthIntegrationTester {
           resolve(true)
         }
       })
-      
-      this.serverProcess.on('error', (error) => {
+
+      this.serverProcess.on('error', error => {
         console.error('❌ Failed to start server:', error.message)
         clearTimeout(timeout)
         resolve(false)
       })
     })
   }
-  
+
   /**
    * Stop the development server
    */
@@ -175,7 +180,7 @@ class AuthIntegrationTester {
       }
       console.error('❌ Auth service is not accessible')
       if (!AUTO_START_SERVER) {
-        console.error('   Make sure it\'s running: pnpm dev')
+        console.error("   Make sure it's running: pnpm dev")
         console.error('   Or set AUTO_START_SERVER=true to start automatically')
       }
       return false
@@ -199,12 +204,12 @@ class AuthIntegrationTester {
     await this.runTest('Response Time Check', () => this.testResponseTime())
 
     this.printSummary()
-    
+
     // Cleanup server if we started it
     if (AUTO_START_SERVER) {
       this.stopServer()
     }
-    
+
     return this.results.every(r => r.success)
   }
 
@@ -213,13 +218,13 @@ class AuthIntegrationTester {
    */
   private async testHealth(): Promise<void> {
     const response = await this.makeGetRequest('/health')
-    
+
     if (!response.ok) {
       throw new Error(`Health check failed: ${response.status}`)
     }
 
     const data = await response.json()
-    
+
     if (data.status !== 'healthy') {
       throw new Error(`Service reports unhealthy status: ${data.status}`)
     }
@@ -287,7 +292,7 @@ class AuthIntegrationTester {
   private async testInvalidLogin(): Promise<void> {
     const invalidCredentials = {
       email: this.testUser.email,
-      password: 'WrongPassword123!'
+      password: 'WrongPassword123!',
     }
     const response = await this.makeAuthRequest('/login', invalidCredentials)
     await this.validateErrorResponse(response, 400, 'INVALID_CREDENTIALS', 'Invalid login')
@@ -299,9 +304,9 @@ class AuthIntegrationTester {
   private async testTokenRefresh(): Promise<void> {
     // First login to get tokens
     const loginData = await this.testLogin()
-    
+
     const response = await this.makeAuthRequest('/refresh', {
-      refreshToken: loginData.refreshToken
+      refreshToken: loginData.refreshToken,
     })
     const data = await this.validateSuccessResponse(response, 'Token refresh')
 
@@ -324,7 +329,7 @@ class AuthIntegrationTester {
    */
   private async testLogout(): Promise<void> {
     const response = await this.makeAuthRequest('/logout', {
-      refreshToken: 'any-token'
+      refreshToken: 'any-token',
     })
     await this.validateSuccessResponse(response, 'Logout')
   }
@@ -335,7 +340,7 @@ class AuthIntegrationTester {
   private async testWeakPassword(): Promise<void> {
     const weakUser = {
       email: `weak-${Date.now()}@example.com`,
-      password: 'weak'
+      password: 'weak',
     }
     const response = await this.makeAuthRequest('/signup', weakUser)
     await this.validateErrorResponse(response, 400, 'WEAK_PASSWORD', 'Weak password signup')
@@ -347,7 +352,7 @@ class AuthIntegrationTester {
   private async testInvalidEmail(): Promise<void> {
     const invalidEmailUser = {
       email: 'invalid-email-format',
-      password: 'ValidPass123!'
+      password: 'ValidPass123!',
     }
     const response = await this.makeAuthRequest('/signup', invalidEmailUser)
     await this.validateErrorResponse(response, 400, 'INVALID_REQUEST', 'Invalid email signup')
@@ -358,7 +363,7 @@ class AuthIntegrationTester {
    */
   private async testInvalidToken(): Promise<void> {
     const response = await this.makeAuthRequest('/refresh', {
-      refreshToken: 'invalid.jwt.token'
+      refreshToken: 'invalid.jwt.token',
     })
     await this.validateErrorResponse(response, 400, 'INVALID_TOKEN', 'Invalid token refresh')
   }
@@ -368,7 +373,7 @@ class AuthIntegrationTester {
    */
   private async testCorsHeaders(): Promise<void> {
     const response = await fetch(`${AUTH_SERVICE_URL}/health`, {
-      method: 'OPTIONS'
+      method: 'OPTIONS',
     })
 
     if (response.status !== 204) {
@@ -378,7 +383,7 @@ class AuthIntegrationTester {
     const corsHeaders = {
       'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
       'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
-      'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers')
+      'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
     }
 
     if (!corsHeaders['Access-Control-Allow-Origin']) {
@@ -397,12 +402,13 @@ class AuthIntegrationTester {
    */
   private async testResponseTime(): Promise<number> {
     const start = performance.now()
-    
+
     await this.makeGetRequest('/health')
-    
+
     const duration = performance.now() - start
-    
-    if (duration > 2000) { // 2 seconds
+
+    if (duration > 2000) {
+      // 2 seconds
       throw new Error(`Health endpoint too slow: ${duration.toFixed(0)}ms`)
     }
 
@@ -419,27 +425,26 @@ class AuthIntegrationTester {
     try {
       const data = await Promise.race([
         testFn(),
-        new Promise((_, reject) => 
+        new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Test timeout')), TEST_TIMEOUT)
-        )
+        ),
       ])
 
       const duration = performance.now() - start
       const result: TestResult = { name, success: true, duration, data }
-      
+
       console.log(`   ✅ Passed (${duration.toFixed(0)}ms)`)
       this.results.push(result)
       return result
-
     } catch (error) {
       const duration = performance.now() - start
-      const result: TestResult = { 
-        name, 
-        success: false, 
-        duration, 
-        error: error instanceof Error ? error.message : String(error)
+      const result: TestResult = {
+        name,
+        success: false,
+        duration,
+        error: error instanceof Error ? error.message : String(error),
       }
-      
+
       console.log(`   ❌ Failed (${duration.toFixed(0)}ms): ${result.error}`)
       this.results.push(result)
       return result
@@ -465,9 +470,7 @@ class AuthIntegrationTester {
 
     if (failed > 0) {
       console.log('❌ Failed Tests:')
-      this.results
-        .filter(r => !r.success)
-        .forEach(r => console.log(`   • ${r.name}: ${r.error}`))
+      this.results.filter(r => !r.success).forEach(r => console.log(`   • ${r.name}: ${r.error}`))
       console.log('')
     }
 
@@ -482,24 +485,25 @@ class AuthIntegrationTester {
 // Run tests if executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   const tester = new AuthIntegrationTester()
-  
+
   // Handle graceful shutdown
   process.on('SIGINT', () => {
     console.log('\n🛑 Shutting down...')
     if ((tester as any).serverProcess) {
-      (tester as any).stopServer()
+      ;(tester as any).stopServer()
     }
     process.exit(0)
   })
-  
-  tester.runAllTests()
+
+  tester
+    .runAllTests()
     .then(success => {
       process.exit(success ? 0 : 1)
     })
     .catch(error => {
       console.error('💥 Test runner error:', error)
       if ((tester as any).serverProcess) {
-        (tester as any).stopServer()
+        ;(tester as any).stopServer()
       }
       process.exit(1)
     })

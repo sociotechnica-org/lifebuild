@@ -15,7 +15,7 @@ export const TOKEN_STORAGE_KEYS = {
 // Auth service endpoints
 export const AUTH_ENDPOINTS = {
   SIGNUP: '/signup',
-  LOGIN: '/login', 
+  LOGIN: '/login',
   REFRESH: '/refresh',
   LOGOUT: '/logout',
   HEALTH: '/health',
@@ -34,7 +34,7 @@ export const ENV_VARS = {
   // Whether authentication is required (production should be 'true')
   REQUIRE_AUTH: 'REQUIRE_AUTH',
   // Auth service URL for token verification
-  AUTH_SERVICE_URL: 'AUTH_SERVICE_URL', 
+  AUTH_SERVICE_URL: 'AUTH_SERVICE_URL',
   // JWT secret for token verification
   JWT_SECRET: 'JWT_SECRET',
   // Grace period override in seconds

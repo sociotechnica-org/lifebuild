@@ -310,16 +310,20 @@ const materializers = State.SQLite.materializers(events, {
       createdAt,
       updatedAt: createdAt,
     }),
-    logEvent('v1.TaskCreated', {
-      id,
-      projectId,
-      columnId,
-      title,
-      description,
-      assigneeIds,
-      position,
-      createdAt,
-    }, createdAt),
+    logEvent(
+      'v1.TaskCreated',
+      {
+        id,
+        projectId,
+        columnId,
+        title,
+        description,
+        assigneeIds,
+        position,
+        createdAt,
+      },
+      createdAt
+    ),
   ],
   'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt }) =>
     tasks.update({ columnId: toColumnId, position, updatedAt }).where({ id: taskId }),

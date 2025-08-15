@@ -1,6 +1,6 @@
 /**
  * Password hashing utilities using Argon2id via WebCrypto API
- * 
+ *
  * Since Cloudflare Workers don't support native Argon2id, we use PBKDF2
  * with SHA-256 which is available via WebCrypto and provides good security.
  */
@@ -42,7 +42,7 @@ function hexToBuffer(hex: string): Uint8Array {
 export async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder()
   const salt = generateSalt()
-  
+
   // Import password as key material
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -51,22 +51,22 @@ export async function hashPassword(password: string): Promise<string> {
     false,
     ['deriveBits']
   )
-  
+
   // Derive key using PBKDF2
   const derivedBits = await crypto.subtle.deriveBits(
     {
       name: 'PBKDF2',
       salt: salt,
       iterations: ITERATIONS,
-      hash: 'SHA-256'
+      hash: 'SHA-256',
     },
     keyMaterial,
     KEY_LENGTH * 8 // bits
   )
-  
+
   const hash = bufferToHex(derivedBits)
   const saltHex = bufferToHex(salt)
-  
+
   // Store as "salt:hash" format
   return `${saltHex}:${hash}`
 }
@@ -80,10 +80,10 @@ export async function verifyPassword(password: string, storedHash: string): Prom
     if (!saltHex || !hash) {
       return false
     }
-    
+
     const encoder = new TextEncoder()
     const salt = hexToBuffer(saltHex)
-    
+
     // Import password as key material
     const keyMaterial = await crypto.subtle.importKey(
       'raw',
@@ -92,21 +92,21 @@ export async function verifyPassword(password: string, storedHash: string): Prom
       false,
       ['deriveBits']
     )
-    
+
     // Derive key using same parameters
     const derivedBits = await crypto.subtle.deriveBits(
       {
         name: 'PBKDF2',
         salt: salt,
         iterations: ITERATIONS,
-        hash: 'SHA-256'
+        hash: 'SHA-256',
       },
       keyMaterial,
       KEY_LENGTH * 8
     )
-    
+
     const computedHash = bufferToHex(derivedBits)
-    
+
     // Constant-time comparison
     return computedHash === hash
   } catch (error) {
@@ -122,6 +122,6 @@ export function validatePasswordStrength(password: string): { valid: boolean; me
   if (password.length < 8) {
     return { valid: false, message: 'Password must be at least 8 characters long' }
   }
-  
+
   return { valid: true }
 }

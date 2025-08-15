@@ -10,11 +10,11 @@ import type { RefreshTokenPayload } from '../types.js'
 function createErrorResponse(code: ErrorCode, message: string, status = 400): Response {
   const response: AuthResponse = {
     success: false,
-    error: { code, message }
+    error: { code, message },
   }
   return new Response(JSON.stringify(response), {
     status,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
   })
 }
 
@@ -24,10 +24,10 @@ function createErrorResponse(code: ErrorCode, message: string, status = 400): Re
 function createSuccessResponse(data: Partial<AuthResponse>): Response {
   const response: AuthResponse = {
     success: true,
-    ...data
+    ...data,
   }
   return new Response(JSON.stringify(response), {
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
   })
 }
 
@@ -65,23 +65,27 @@ function getUserStore(env: Env): DurableObjectStub {
 /**
  * Create auth success response with tokens
  */
-async function createAuthSuccessResponse(user: any, env: Env, refreshToken?: string): Promise<Response> {
+async function createAuthSuccessResponse(
+  user: any,
+  env: Env,
+  refreshToken?: string
+): Promise<Response> {
   // Check if user is admin (bootstrap email or isAdmin flag)
   const adminStatus = isUserAdmin(user, env.BOOTSTRAP_ADMIN_EMAIL)
 
   // Generate tokens
   const accessToken = await createAccessToken(user.id, user.email, adminStatus, env)
-  const newRefreshToken = refreshToken || await createRefreshToken(user.id, env)
+  const newRefreshToken = refreshToken || (await createRefreshToken(user.id, env))
 
   return createSuccessResponse({
     user: {
       id: user.id,
       email: user.email,
       instances: user.instances,
-      isAdmin: adminStatus
+      isAdmin: adminStatus,
     },
     accessToken,
-    refreshToken: newRefreshToken
+    refreshToken: newRefreshToken,
   })
 }
 
@@ -105,16 +109,21 @@ export async function handleSignup(request: Request, env: Env): Promise<Response
 
     // Create user via UserStore
     const userStore = getUserStore(env)
-    const userResponse = await userStore.fetch(new Request('http://userstore/create-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    }))
+    const userResponse = await userStore.fetch(
+      new Request('http://userstore/create-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+    )
 
     if (!userResponse.ok) {
       const errorData = await userResponse.json()
       if (userResponse.status === 409) {
-        return createErrorResponse(ErrorCode.EMAIL_ALREADY_EXISTS, 'An account with this email already exists')
+        return createErrorResponse(
+          ErrorCode.EMAIL_ALREADY_EXISTS,
+          'An account with this email already exists'
+        )
       }
       return createErrorResponse(ErrorCode.INTERNAL_ERROR, 'Failed to create user')
     }
@@ -123,7 +132,6 @@ export async function handleSignup(request: Request, env: Env): Promise<Response
     const user = userData.user
 
     return await createAuthSuccessResponse(user, env)
-
   } catch (error) {
     console.error('Signup error:', error)
     return createErrorResponse(ErrorCode.INTERNAL_ERROR, 'Internal server error')
@@ -144,18 +152,20 @@ export async function handleLogin(request: Request, env: Env): Promise<Response>
 
     // Verify credentials via UserStore
     const userStore = getUserStore(env)
-    const credentialsResponse = await userStore.fetch(new Request('http://userstore/verify-credentials', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    }))
+    const credentialsResponse = await userStore.fetch(
+      new Request('http://userstore/verify-credentials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+    )
 
     if (!credentialsResponse.ok) {
       return createErrorResponse(ErrorCode.INTERNAL_ERROR, 'Failed to verify credentials')
     }
 
     const credentialsData = await credentialsResponse.json()
-    
+
     if (!credentialsData.valid) {
       return createErrorResponse(ErrorCode.INVALID_CREDENTIALS, 'Invalid email or password')
     }
@@ -163,7 +173,6 @@ export async function handleLogin(request: Request, env: Env): Promise<Response>
     const user = credentialsData.user
 
     return await createAuthSuccessResponse(user, env)
-
   } catch (error) {
     console.error('Login error:', error)
     return createErrorResponse(ErrorCode.INTERNAL_ERROR, 'Internal server error')
@@ -195,11 +204,13 @@ export async function handleRefresh(request: Request, env: Env): Promise<Respons
 
     // Get user data
     const userStore = getUserStore(env)
-    const userResponse = await userStore.fetch(new Request('http://userstore/get-user-by-id', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: payload.userId })
-    }))
+    const userResponse = await userStore.fetch(
+      new Request('http://userstore/get-user-by-id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: payload.userId }),
+      })
+    )
 
     if (!userResponse.ok) {
       return createErrorResponse(ErrorCode.USER_NOT_FOUND, 'User not found')
@@ -212,7 +223,6 @@ export async function handleRefresh(request: Request, env: Env): Promise<Respons
     const newRefreshToken = await createRefreshToken(user.id, env)
 
     return await createAuthSuccessResponse(user, env, newRefreshToken)
-
   } catch (error) {
     console.error('Refresh error:', error)
     // Don't catch token verification errors - let them bubble up as INVALID_TOKEN
@@ -231,9 +241,8 @@ export async function handleLogout(request: Request, env: Env): Promise<Response
     // For now, we just return success since we're using stateless JWTs
     // In a full implementation, we might maintain a token blacklist
     // or store refresh tokens in the UserStore for revocation
-    
-    return createSuccessResponse({})
 
+    return createSuccessResponse({})
   } catch (error) {
     console.error('Logout error:', error)
     return createErrorResponse(ErrorCode.INTERNAL_ERROR, 'Internal server error')

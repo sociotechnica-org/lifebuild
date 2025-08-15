@@ -50,9 +50,7 @@ describe('AgenticLoop', () => {
   })
 
   it('should handle simple message without tools', async () => {
-    mockProvider = new MockLLMProvider([
-      { message: 'Hello! How can I help you?', toolCalls: null },
-    ])
+    mockProvider = new MockLLMProvider([{ message: 'Hello! How can I help you?', toolCalls: null }])
 
     const loop = new AgenticLoop(mockStore, mockProvider, events)
     const context: AgenticLoopContext = { model: 'test-model' }
@@ -169,7 +167,7 @@ describe('AgenticLoop', () => {
     mockProvider = new MockLLMProvider(responses)
 
     const loop = new AgenticLoop(mockStore, mockProvider, events)
-    const context: AgenticLoopContext = { 
+    const context: AgenticLoopContext = {
       model: 'test-model',
       maxIterations: 3,
     }
@@ -182,9 +180,7 @@ describe('AgenticLoop', () => {
   })
 
   it('should handle empty responses', async () => {
-    mockProvider = new MockLLMProvider([
-      { message: '', toolCalls: null },
-    ])
+    mockProvider = new MockLLMProvider([{ message: '', toolCalls: null }])
 
     const loop = new AgenticLoop(mockStore, mockProvider, events)
     const context: AgenticLoopContext = { model: 'test-model' }
@@ -197,9 +193,7 @@ describe('AgenticLoop', () => {
   })
 
   it('should preserve conversation history', async () => {
-    mockProvider = new MockLLMProvider([
-      { message: 'First response', toolCalls: null },
-    ])
+    mockProvider = new MockLLMProvider([{ message: 'First response', toolCalls: null }])
 
     const loop = new AgenticLoop(mockStore, mockProvider, events)
     const context: AgenticLoopContext = { model: 'test-model' }
@@ -215,9 +209,7 @@ describe('AgenticLoop', () => {
   })
 
   it('should clear history', async () => {
-    mockProvider = new MockLLMProvider([
-      { message: 'Response', toolCalls: null },
-    ])
+    mockProvider = new MockLLMProvider([{ message: 'Response', toolCalls: null }])
 
     const loop = new AgenticLoop(mockStore, mockProvider, events)
     const context: AgenticLoopContext = { model: 'test-model' }

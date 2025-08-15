@@ -101,7 +101,9 @@ export class TaskToolFormatter implements ToolResultFormatter {
   private formatGetProjectTasks(result: any): string {
     const taskList =
       result.tasks
-        ?.map((t: any) => `${t.title} (ID: ${t.id}) - Column: ${t.columnId}, Position: ${t.position}`)
+        ?.map(
+          (t: any) => `${t.title} (ID: ${t.id}) - Column: ${t.columnId}, Position: ${t.position}`
+        )
         .join('\n• ') || 'No tasks found in project'
     return `Project tasks:\n• ${taskList}`
   }

@@ -16,7 +16,7 @@
   },
   "vars": {
     "REQUIRE_AUTH": "true",
-    "ENVIRONMENT": "production"
+    "ENVIRONMENT": "production",
   },
   // Note: JWT_SECRET must be set as a Cloudflare Worker secret:
   // wrangler secret put JWT_SECRET

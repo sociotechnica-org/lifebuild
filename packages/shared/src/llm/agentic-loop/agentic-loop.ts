@@ -1,12 +1,7 @@
 import type { Store } from '@livestore/livestore'
 import { ConversationHistory } from '../conversation/conversation-history.js'
 import { ToolExecutor } from '../tool-executor/tool-executor.js'
-import type {
-  LLMProvider,
-  LLMResponse,
-  AgenticLoopContext,
-  AgenticLoopEvents,
-} from './types.js'
+import type { LLMProvider, LLMResponse, AgenticLoopContext, AgenticLoopEvents } from './types.js'
 import type { ToolCall } from '../tool-formatters/types.js'
 
 export class AgenticLoop {
@@ -21,10 +16,10 @@ export class AgenticLoop {
   ) {
     this.history = new ConversationHistory()
     this.toolExecutor = new ToolExecutor(store, {
-      onToolStart: (toolCall) => {
+      onToolStart: toolCall => {
         console.log(`🔧 Executing tool: ${toolCall.function.name}`)
       },
-      onToolComplete: (result) => {
+      onToolComplete: result => {
         console.log(`✅ Tool completed: ${result.toolCall.function.name}`)
       },
       onToolError: (error, toolCall) => {
@@ -80,7 +75,7 @@ export class AgenticLoop {
           // Execute tools
           this.events.onToolsExecuting?.(response.toolCalls)
           const toolMessages = await this.toolExecutor.executeTools(response.toolCalls)
-          
+
           // Add tool results to history
           this.history.addToolMessages(toolMessages)
           this.events.onToolsComplete?.(toolMessages)
@@ -103,7 +98,7 @@ export class AgenticLoop {
       } catch (error) {
         console.error(`❌ Error in iteration ${iteration}:`, error)
         this.events.onError?.(error as Error, iteration)
-        
+
         // Decide whether to continue or abort
         // For now, we'll abort on error
         throw error
