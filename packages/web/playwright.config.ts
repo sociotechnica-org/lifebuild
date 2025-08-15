@@ -56,6 +56,7 @@ export default defineConfig({
     // Always start auth worker for tests since the app always connects to it
     {
       command: 'cd ../auth-worker && pnpm dev',
+      url: 'http://localhost:8788/health',
       port: 8788,
       reuseExistingServer: true,
       timeout: 60 * 1000,
