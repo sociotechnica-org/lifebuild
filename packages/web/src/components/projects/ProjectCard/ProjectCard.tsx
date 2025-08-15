@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from '@livestore/react'
+import { formatDate } from '../../../util/dates.js'
 import type { Project, Worker } from '@work-squared/shared/schema'
 import { getProjectWorkers$, getWorkers$ } from '@work-squared/shared/queries'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
@@ -12,14 +13,6 @@ interface ProjectCardProps {
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
   const { store } = useStore()
   const [assignedWorkers, setAssignedWorkers] = useState<Worker[]>([])
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(new Date(date))
-  }
 
   useEffect(() => {
     const loadAssignedWorkers = async () => {

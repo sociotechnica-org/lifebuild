@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery, useStore } from '@livestore/react'
+import { formatDateTime } from '../../../util/dates.js'
 import type { Task, Column, User, Comment } from '@work-squared/shared/schema'
 import {
   getTaskById$,
@@ -246,16 +247,6 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
     onClose() // Close the modal after archiving
   }
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    }).format(date)
-  }
-
   return (
     <div
       className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'
@@ -486,7 +477,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
                               {author?.name || 'Unknown User'}
                             </span>
                             <span className='text-xs text-gray-500'>
-                              {formatDate(comment.createdAt)}
+                              {formatDateTime(comment.createdAt)}
                             </span>
                           </div>
                           <Markdown content={comment.content} />
@@ -502,11 +493,11 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200'>
             <div>
               <h3 className='text-sm font-medium text-gray-900'>Created</h3>
-              <p className='text-sm text-gray-600 mt-1'>{formatDate(task.createdAt)}</p>
+              <p className='text-sm text-gray-600 mt-1'>{formatDateTime(task.createdAt)}</p>
             </div>
             <div>
               <h3 className='text-sm font-medium text-gray-900'>Last Updated</h3>
-              <p className='text-sm text-gray-600 mt-1'>{formatDate(task.updatedAt)}</p>
+              <p className='text-sm text-gray-600 mt-1'>{formatDateTime(task.updatedAt)}</p>
             </div>
           </div>
         </div>

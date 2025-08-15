@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { useQuery, useStore } from '@livestore/react'
+import { formatDate } from '../../../util/dates.js'
 import { getAllDocuments$, getDocumentProjectsByProject$ } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
 import { LoadingSpinner } from '../../ui/LoadingSpinner.js'
@@ -168,7 +169,7 @@ export const AddExistingDocumentModal: React.FC<AddExistingDocumentModalProps> =
                       {doc.content && doc.content.length > 100 ? '...' : ''}
                     </div>
                     <div className='text-xs text-gray-400 mt-1'>
-                      Updated {new Date(doc.updatedAt).toLocaleDateString()}
+                      Updated {formatDate(doc.updatedAt)}
                     </div>
                   </button>
                 ))}
