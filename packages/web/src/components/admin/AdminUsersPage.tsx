@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import { Navigate } from 'react-router-dom'
 import { formatRegistrationDate } from '../../util/dates.js'
+import { useAuth } from '../../contexts/AuthContext.js'
+import { isCurrentUserAdmin } from '../../utils/adminCheck.jsx'
+import { ROUTES } from '../../constants/routes.js'
 
 interface AdminUser {
   email: string
@@ -9,6 +13,7 @@ interface AdminUser {
 }
 
 export const AdminUsersPage: React.FC = () => {
+  const { user, getCurrentToken, isAuthenticated } = useAuth()
   const [users, setUsers] = useState<AdminUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -17,10 +22,25 @@ export const AdminUsersPage: React.FC = () => {
     fetchUsers()
   }, [])
 
+  // Check admin access - redirect if not authenticated or not admin
+  if (!isAuthenticated) {
+    return <Navigate to={ROUTES.LOGIN} replace />
+  }
+
+  if (!isCurrentUserAdmin(user)) {
+    return <Navigate to={ROUTES.PROJECTS} replace />
+  }
+
   const fetchUsers = async () => {
     try {
       setLoading(true)
       setError(null)
+
+      // Get current access token
+      const token = await getCurrentToken()
+      if (!token) {
+        throw new Error('No access token available')
+      }
 
       // Get auth service URL from environment
       const authServiceUrl = import.meta.env.VITE_AUTH_SERVICE_URL || 'http://localhost:8788'
@@ -29,6 +49,7 @@ export const AdminUsersPage: React.FC = () => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       })
 
@@ -118,6 +139,7 @@ export const AdminUsersPage: React.FC = () => {
             <button
               onClick={fetchUsers}
               className='bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700'
+              data-testid='refresh-users-button'
             >
               Refresh
             </button>

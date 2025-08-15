@@ -11,6 +11,7 @@ export interface AuthUser {
   id: string
   email: string
   instances: AuthInstance[]
+  isAdmin?: boolean
 }
 
 export interface AuthInstance {

@@ -5,7 +5,8 @@ import type { JWTPayload, RefreshTokenPayload } from '../types.js'
 // Mock environment for testing
 const mockEnv = {
   JWT_SECRET: 'test-secret-for-testing-only',
-  USER_STORE: {} as any
+  USER_STORE: {} as any,
+  BOOTSTRAP_ADMIN_EMAIL: 'admin@example.com'
 }
 
 describe('JWT utilities', () => {
@@ -14,7 +15,7 @@ describe('JWT utilities', () => {
       const userId = 'user-123'
       const email = 'test@example.com'
       
-      const token = await createAccessToken(userId, email, mockEnv)
+      const token = await createAccessToken(userId, email, false, mockEnv)
       
       expect(token).toBeDefined()
       expect(typeof token).toBe('string')
@@ -47,7 +48,7 @@ describe('JWT utilities', () => {
       const userId = 'user-123'
       const email = 'test@example.com'
       
-      const token = await createAccessToken(userId, email, mockEnv)
+      const token = await createAccessToken(userId, email, false, mockEnv)
       const payload = await verifyToken<JWTPayload>(token, mockEnv)
       
       expect(payload).toBeDefined()
@@ -104,7 +105,7 @@ describe('JWT utilities', () => {
       const userId = 'user-123'
       const email = 'test@example.com'
       
-      const token = await createAccessToken(userId, email, mockEnv)
+      const token = await createAccessToken(userId, email, false, mockEnv)
       const parts = token.split('.')
       const tamperedToken = parts[0] + '.' + parts[1] + '.tampered-signature'
       
@@ -160,7 +161,7 @@ describe('JWT utilities', () => {
       const userId = 'user-123'
       const email = 'test@example.com'
       
-      const token = await createAccessToken(userId, email, mockEnv)
+      const token = await createAccessToken(userId, email, false, mockEnv)
       const payload = decodeTokenPayload<JWTPayload>(token)
       
       expect(payload).toBeDefined()

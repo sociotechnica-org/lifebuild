@@ -1,6 +1,7 @@
 import { AuthResponse, SignupRequest, LoginRequest, RefreshRequest, ErrorCode } from '../types.js'
 import { validatePasswordStrength } from '../utils/crypto.js'
 import { createAccessToken, createRefreshToken, verifyToken, isTokenExpired } from '../utils/jwt.js'
+import { isUserAdmin } from '../utils/admin.js'
 import type { RefreshTokenPayload } from '../types.js'
 
 /**
@@ -39,11 +40,49 @@ function isValidEmail(email: string): boolean {
 }
 
 /**
+ * Validate email and password input
+ */
+function validateEmailPassword(email: string, password: string): Response | null {
+  if (!email || !password) {
+    return createErrorResponse(ErrorCode.INVALID_REQUEST, 'Email and password are required')
+  }
+
+  if (!isValidEmail(email)) {
+    return createErrorResponse(ErrorCode.INVALID_REQUEST, 'Invalid email format')
+  }
+
+  return null // Valid
+}
+
+/**
  * Get UserStore Durable Object stub
  */
 function getUserStore(env: Env): DurableObjectStub {
   const id = env.USER_STORE.idFromName('user-store')
   return env.USER_STORE.get(id)
+}
+
+/**
+ * Create auth success response with tokens
+ */
+async function createAuthSuccessResponse(user: any, env: Env, refreshToken?: string): Promise<Response> {
+  // Check if user is admin (bootstrap email or isAdmin flag)
+  const adminStatus = isUserAdmin(user, env.BOOTSTRAP_ADMIN_EMAIL)
+
+  // Generate tokens
+  const accessToken = await createAccessToken(user.id, user.email, adminStatus, env)
+  const newRefreshToken = refreshToken || await createRefreshToken(user.id, env)
+
+  return createSuccessResponse({
+    user: {
+      id: user.id,
+      email: user.email,
+      instances: user.instances,
+      isAdmin: adminStatus
+    },
+    accessToken,
+    refreshToken: newRefreshToken
+  })
 }
 
 /**
@@ -55,13 +94,8 @@ export async function handleSignup(request: Request, env: Env): Promise<Response
     const { email, password } = body
 
     // Validate input
-    if (!email || !password) {
-      return createErrorResponse(ErrorCode.INVALID_REQUEST, 'Email and password are required')
-    }
-
-    if (!isValidEmail(email)) {
-      return createErrorResponse(ErrorCode.INVALID_REQUEST, 'Invalid email format')
-    }
+    const validationError = validateEmailPassword(email, password)
+    if (validationError) return validationError
 
     // Validate password strength
     const passwordValidation = validatePasswordStrength(password)
@@ -88,19 +122,7 @@ export async function handleSignup(request: Request, env: Env): Promise<Response
     const userData = await userResponse.json()
     const user = userData.user
 
-    // Generate tokens
-    const accessToken = await createAccessToken(user.id, user.email, env)
-    const refreshToken = await createRefreshToken(user.id, env)
-
-    return createSuccessResponse({
-      user: {
-        id: user.id,
-        email: user.email,
-        instances: user.instances
-      },
-      accessToken,
-      refreshToken
-    })
+    return await createAuthSuccessResponse(user, env)
 
   } catch (error) {
     console.error('Signup error:', error)
@@ -117,13 +139,8 @@ export async function handleLogin(request: Request, env: Env): Promise<Response>
     const { email, password } = body
 
     // Validate input
-    if (!email || !password) {
-      return createErrorResponse(ErrorCode.INVALID_REQUEST, 'Email and password are required')
-    }
-
-    if (!isValidEmail(email)) {
-      return createErrorResponse(ErrorCode.INVALID_REQUEST, 'Invalid email format')
-    }
+    const validationError = validateEmailPassword(email, password)
+    if (validationError) return validationError
 
     // Verify credentials via UserStore
     const userStore = getUserStore(env)
@@ -145,19 +162,7 @@ export async function handleLogin(request: Request, env: Env): Promise<Response>
 
     const user = credentialsData.user
 
-    // Generate tokens
-    const accessToken = await createAccessToken(user.id, user.email, env)
-    const refreshToken = await createRefreshToken(user.id, env)
-
-    return createSuccessResponse({
-      user: {
-        id: user.id,
-        email: user.email,
-        instances: user.instances
-      },
-      accessToken,
-      refreshToken
-    })
+    return await createAuthSuccessResponse(user, env)
 
   } catch (error) {
     console.error('Login error:', error)
@@ -203,21 +208,10 @@ export async function handleRefresh(request: Request, env: Env): Promise<Respons
     const userData = await userResponse.json()
     const user = userData.user
 
-    // Generate new access token
-    const accessToken = await createAccessToken(user.id, user.email, env)
-    
     // Always rotate refresh token (recommended for high security)
     const newRefreshToken = await createRefreshToken(user.id, env)
 
-    return createSuccessResponse({
-      user: {
-        id: user.id,
-        email: user.email,
-        instances: user.instances
-      },
-      accessToken,
-      refreshToken: newRefreshToken
-    })
+    return await createAuthSuccessResponse(user, env, newRefreshToken)
 
   } catch (error) {
     console.error('Refresh error:', error)
@@ -250,6 +244,7 @@ export async function handleLogout(request: Request, env: Env): Promise<Response
 interface Env {
   JWT_SECRET?: string
   USER_STORE: any
+  BOOTSTRAP_ADMIN_EMAIL?: string
 }
 
 interface DurableObjectStub {

@@ -69,8 +69,8 @@ test.describe('Session Persistence', () => {
     const firstStoreId = new URL(firstUrl).searchParams.get('storeId')
     expect(firstStoreId).toBeTruthy()
 
-    // Navigate away and back to root again
-    await page.goto('https://example.com')
+    // Navigate away and back to root again (use about:blank to avoid external network dependency)
+    await page.goto('about:blank')
     await page.goto('/')
     await waitForLiveStoreReady(page)
 
