@@ -57,7 +57,6 @@ export default defineConfig({
     {
       command: 'cd ../auth-worker && pnpm dev',
       url: 'http://localhost:8788/health',
-      port: 8788,
       reuseExistingServer: true,
       timeout: 60 * 1000,
     },
