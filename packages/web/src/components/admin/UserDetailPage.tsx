@@ -4,6 +4,9 @@ import { formatRegistrationDate } from '../../util/dates.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { isCurrentUserAdmin } from '../../utils/adminCheck.jsx'
 import { ROUTES } from '../../constants/routes.js'
+import { AdminToggle } from './AdminToggle.js'
+import { InstancesList } from './InstancesList.js'
+import { AddInstanceForm } from './AddInstanceForm.js'
 
 interface UserDetail {
   id: string
@@ -27,7 +30,6 @@ export const UserDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [updating, setUpdating] = useState(false)
-  const [newStoreId, setNewStoreId] = useState('')
 
   useEffect(() => {
     if (userEmail) {
@@ -117,9 +119,6 @@ export const UserDetailPage: React.FC = () => {
 
       // Refresh user detail
       await fetchUserDetail()
-      if (action === 'add') {
-        setNewStoreId('')
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error occurred')
       console.error(`Error ${action}ing store ID:`, err)
@@ -163,13 +162,6 @@ export const UserDetailPage: React.FC = () => {
       console.error('Error updating admin status:', err)
     } finally {
       setUpdating(false)
-    }
-  }
-
-  const handleAddStoreId = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (newStoreId.trim()) {
-      updateStoreIds('add', newStoreId.trim())
     }
   }
 
@@ -310,32 +302,11 @@ export const UserDetailPage: React.FC = () => {
         </div>
 
         {/* Admin Status Section */}
-        <div className='bg-white border border-gray-200 rounded-lg p-6 mb-6'>
-          <h2 className='text-lg font-medium text-gray-900 mb-4'>Admin Status</h2>
-          <div className='flex items-center justify-between'>
-            <div>
-              <p className='text-sm font-medium text-gray-900'>Admin Access</p>
-              <p className='text-sm text-gray-500'>
-                {userDetail.isAdmin
-                  ? 'This user has administrator privileges'
-                  : 'This user does not have administrator privileges'}
-              </p>
-            </div>
-            <button
-              onClick={() => updateAdminStatus(!userDetail.isAdmin)}
-              disabled={updating}
-              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 ${
-                userDetail.isAdmin ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                  userDetail.isAdmin ? 'translate-x-5' : 'translate-x-0'
-                }`}
-              />
-            </button>
-          </div>
-        </div>
+        <AdminToggle
+          isAdmin={userDetail.isAdmin ?? false}
+          onToggle={(isAdmin: boolean) => updateAdminStatus(isAdmin)}
+          disabled={updating}
+        />
 
         {/* Instances Section */}
         <div className='bg-white border border-gray-200 rounded-lg p-6'>
@@ -343,63 +314,18 @@ export const UserDetailPage: React.FC = () => {
 
           {/* Add Instance */}
           <div className='mb-6'>
-            <form onSubmit={handleAddStoreId} className='flex gap-3'>
-              <input
-                type='text'
-                value={newStoreId}
-                onChange={e => setNewStoreId(e.target.value)}
-                placeholder='store_abc123'
-                className='flex-1 min-w-0 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm'
-                disabled={updating}
-              />
-              <button
-                type='submit'
-                disabled={updating || !newStoreId.trim()}
-                className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed'
-              >
-                {updating ? 'Adding...' : 'Add Instance'}
-              </button>
-            </form>
+            <AddInstanceForm
+              onAddInstance={storeId => updateStoreIds('add', storeId)}
+              disabled={updating}
+            />
           </div>
 
           {/* Instances List */}
-          {userDetail.instances.length === 0 ? (
-            <div className='text-center py-6'>
-              <p className='text-gray-500'>No instances found for this user.</p>
-            </div>
-          ) : (
-            <div className='space-y-3'>
-              {userDetail.instances.map(instance => (
-                <div
-                  key={instance.id}
-                  className='flex items-center justify-between p-4 border border-gray-200 rounded-lg'
-                >
-                  <div className='flex-1'>
-                    <div className='flex items-center gap-2'>
-                      <h3 className='text-sm font-medium text-gray-900'>{instance.name}</h3>
-                      {instance.isDefault && (
-                        <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
-                          Default
-                        </span>
-                      )}
-                    </div>
-                    <p className='text-sm text-gray-500'>ID: {instance.id}</p>
-                    <p className='text-xs text-gray-400'>
-                      Created: {formatRegistrationDate(instance.createdAt)} • Last accessed:{' '}
-                      {formatRegistrationDate(instance.lastAccessedAt)}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => updateStoreIds('remove', instance.id)}
-                    disabled={instance.isDefault || updating}
-                    className='ml-4 inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed'
-                  >
-                    {instance.isDefault ? 'Default' : updating ? 'Removing...' : 'Remove'}
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          <InstancesList
+            instances={userDetail.instances}
+            onRemoveInstance={instanceId => updateStoreIds('remove', instanceId)}
+            removing={updating}
+          />
         </div>
       </div>
     </div>
