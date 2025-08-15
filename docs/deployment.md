@@ -12,36 +12,33 @@ The deployment workflow requires the following GitHub secrets to be configured:
 
 #### Required Secrets
 
-1. **`CLOUDFLARE_API_TOKEN`** - Cloudflare API token with Worker deployment permissions
+1. **`CLOUDFLARE_API_KEY`** - Your Cloudflare Global API Key
+2. **`CLOUDFLARE_EMAIL`** - Your Cloudflare account email address
 
-### Setting up Cloudflare API Token
+### Setting up Cloudflare Global API Key
+
+> **Note:** Due to limitations with Cloudflare's API token system and the `/memberships` endpoint, 
+> we use the Global API Key instead of scoped API tokens for automated deployments.
 
 1. Go to [Cloudflare Dashboard > My Profile > API Tokens](https://dash.cloudflare.com/profile/api-tokens)
-2. Click "Create Token"
-3. Click "Get started" next to "Custom token"
-4. Configure the token with these exact permissions:
-   
-   **Account Permissions:**
-   - `Account:Cloudflare Workers Scripts:Edit`
-   - `Account:Account Settings:Read`
-   
-   **User Permissions:**
-   - `User:Memberships:Read`
-   
-5. Under "Account Resources", select:
-   - Include → Your specific account name
-6. Leave "Zone Resources" blank (not needed for Workers)
-7. Copy the generated token
+2. Scroll down to the **"API Keys"** section (not API Tokens)
+3. Click **"View"** next to **"Global API Key"**
+4. Enter your Cloudflare account password
+5. Copy the entire Global API Key (should be 37 characters)
 
 ### Adding Secrets to GitHub
 
 1. Go to your repository on GitHub
 2. Navigate to **Settings** > **Secrets and variables** > **Actions**
 3. Click **New repository secret**
-4. Add the secret:
-   - Name: `CLOUDFLARE_API_TOKEN`
-   - Secret: (paste your Cloudflare API token)
-5. Click **Add secret**
+4. Add the first secret:
+   - Name: `CLOUDFLARE_API_KEY`
+   - Secret: (paste your Global API Key)
+   - Click **Add secret**
+5. Add the second secret:
+   - Name: `CLOUDFLARE_EMAIL`
+   - Secret: (your Cloudflare account email)
+   - Click **Add secret**
 
 ## Manual Deployment
 
@@ -107,8 +104,9 @@ For local development:
 
 **Authentication Errors**
 
-- Verify `CLOUDFLARE_API_TOKEN` is set correctly in GitHub secrets
-- Ensure token has necessary permissions (Workers:Edit)
+- Verify `CLOUDFLARE_API_KEY` and `CLOUDFLARE_EMAIL` are set correctly in GitHub secrets
+- Ensure you're using the Global API Key (37 characters), not an API token
+- The Global API Key can be found in Dashboard > My Profile > API Keys section
 
 **Build Failures**
 
