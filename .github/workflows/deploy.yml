@@ -7,6 +7,8 @@ on:
 
 env:
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+  CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
 
 jobs:
   deploy:
@@ -39,13 +41,9 @@ jobs:
 
       - name: Deploy Auth Worker
         run: pnpm --filter @work-squared/auth-worker run deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       - name: Deploy Main Worker
         run: pnpm --filter @work-squared/worker run deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       - name: Deployment Success Notification
         if: success()
