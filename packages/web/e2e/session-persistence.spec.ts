@@ -33,7 +33,7 @@ test.describe('Session Persistence', () => {
     }
 
     // Navigate away and back to the same URL with storeId
-    await page.goto('https://example.com') // Navigate away
+    await page.goto('about:blank') // Navigate away (always available)
     await page.goto(sessionUrl) // Go back to same URL
     await waitForLiveStoreReady(page)
 
