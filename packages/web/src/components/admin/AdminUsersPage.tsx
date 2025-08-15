@@ -18,6 +18,10 @@ export const AdminUsersPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    fetchUsers()
+  }, [])
+
   // Check admin access - redirect if not authenticated or not admin
   if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} replace />
@@ -26,10 +30,6 @@ export const AdminUsersPage: React.FC = () => {
   if (!isCurrentUserAdmin(user)) {
     return <Navigate to={ROUTES.PROJECTS} replace />
   }
-
-  useEffect(() => {
-    fetchUsers()
-  }, [])
 
   const fetchUsers = async () => {
     try {
