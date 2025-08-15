@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
 import { formatRegistrationDate } from '../../util/dates.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { isCurrentUserAdmin } from '../../utils/adminCheck.jsx'
-import { ROUTES } from '../../constants/routes.js'
+import { ROUTES, generateRoute } from '../../constants/routes.js'
 
 interface AdminUser {
   email: string
   createdAt: string
   storeIds: string[]
   instanceCount: number
+  isAdmin?: boolean
 }
 
 export const AdminUsersPage: React.FC = () => {
@@ -168,27 +169,56 @@ export const AdminUsersPage: React.FC = () => {
           <ul className='divide-y divide-gray-200'>
             {users.map(user => (
               <li key={user.email} className='px-4 py-4 sm:px-6'>
-                <div className='flex items-center justify-between'>
-                  <div className='flex-1 min-w-0'>
-                    <div className='flex items-start justify-between'>
-                      <div>
-                        <p className='text-sm font-medium text-gray-900 truncate'>{user.email}</p>
-                        <p className='text-sm text-gray-500'>
-                          Registered: {formatRegistrationDate(user.createdAt)}
-                        </p>
-                      </div>
-                      <div className='flex items-center space-x-4'>
-                        <div className='text-right'>
-                          <p className='text-sm font-medium text-gray-900'>
-                            {user.instanceCount}{' '}
-                            {user.instanceCount === 1 ? 'instance' : 'instances'}
+                <Link
+                  to={generateRoute.adminUser(user.email)}
+                  className='block hover:bg-gray-50 transition-colors duration-150'
+                >
+                  <div className='flex items-center justify-between'>
+                    <div className='flex-1 min-w-0'>
+                      <div className='flex items-start justify-between'>
+                        <div>
+                          <div className='flex items-center space-x-2'>
+                            <p className='text-sm font-medium text-gray-900 truncate'>
+                              {user.email}
+                            </p>
+                            {user.isAdmin && (
+                              <span className='px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full'>
+                                Admin
+                              </span>
+                            )}
+                          </div>
+                          <p className='text-sm text-gray-500'>
+                            Registered: {formatRegistrationDate(user.createdAt)}
                           </p>
-                          <p className='text-sm text-gray-500'>{formatStoreIds(user.storeIds)}</p>
+                        </div>
+                        <div className='flex items-center space-x-4'>
+                          <div className='text-right'>
+                            <p className='text-sm font-medium text-gray-900'>
+                              {user.instanceCount}{' '}
+                              {user.instanceCount === 1 ? 'instance' : 'instances'}
+                            </p>
+                            <p className='text-sm text-gray-500'>{formatStoreIds(user.storeIds)}</p>
+                          </div>
+                          <div className='flex-shrink-0'>
+                            <svg
+                              className='h-5 w-5 text-gray-400'
+                              fill='none'
+                              stroke='currentColor'
+                              viewBox='0 0 24 24'
+                            >
+                              <path
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                                strokeWidth={2}
+                                d='M9 5l7 7-7 7'
+                              />
+                            </svg>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               </li>
             ))}
           </ul>

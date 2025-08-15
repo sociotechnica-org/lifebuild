@@ -53,6 +53,189 @@ async function handleAdminListUsers(request: Request, env: Env): Promise<Respons
 }
 
 /**
+ * Handle admin get user details request
+ */
+async function handleAdminGetUser(
+  request: Request,
+  env: Env,
+  userEmail: string
+): Promise<Response> {
+  try {
+    // Verify admin access
+    const adminCheck = await verifyAdminAccess(request, env)
+    if (!adminCheck.valid) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: { message: adminCheck.error || 'Admin access denied' },
+        }),
+        {
+          status: adminCheck.statusCode || 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
+    // Get UserStore Durable Object
+    const userStoreId = env.USER_STORE.idFromName('user-store')
+    const userStore = env.USER_STORE.get(userStoreId)
+
+    // Forward request to UserStore
+    const userStoreRequest = new Request(`http://localhost/get-user-by-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail }),
+    })
+
+    return await userStore.fetch(userStoreRequest)
+  } catch (error) {
+    console.error('Admin get user error:', error)
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: { message: 'Failed to get user' },
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
+  }
+}
+
+/**
+ * Handle admin update user storeId request
+ */
+async function handleAdminUpdateStoreIds(
+  request: Request,
+  env: Env,
+  userEmail: string
+): Promise<Response> {
+  try {
+    // Verify admin access
+    const adminCheck = await verifyAdminAccess(request, env)
+    if (!adminCheck.valid) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: { message: adminCheck.error || 'Admin access denied' },
+        }),
+        {
+          status: adminCheck.statusCode || 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
+    const { action, storeId } = await request.json()
+
+    if (!action || !storeId || !['add', 'remove'].includes(action)) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: { message: 'Invalid request: action and storeId required' },
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
+    // Get UserStore Durable Object
+    const userStoreId = env.USER_STORE.idFromName('user-store')
+    const userStore = env.USER_STORE.get(userStoreId)
+
+    // Forward request to UserStore
+    const userStoreRequest = new Request(`http://localhost/update-user-store-ids`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail, action, storeId }),
+    })
+
+    return await userStore.fetch(userStoreRequest)
+  } catch (error) {
+    console.error('Admin update storeIds error:', error)
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: { message: 'Failed to update storeIds' },
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
+  }
+}
+
+/**
+ * Handle admin update user admin status request
+ */
+async function handleAdminUpdateAdminStatus(
+  request: Request,
+  env: Env,
+  userEmail: string
+): Promise<Response> {
+  try {
+    // Verify admin access
+    const adminCheck = await verifyAdminAccess(request, env)
+    if (!adminCheck.valid) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: { message: adminCheck.error || 'Admin access denied' },
+        }),
+        {
+          status: adminCheck.statusCode || 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
+    const { isAdmin } = await request.json()
+
+    if (typeof isAdmin !== 'boolean') {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: { message: 'Invalid request: isAdmin must be a boolean' },
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
+    // Get UserStore Durable Object
+    const userStoreId = env.USER_STORE.idFromName('user-store')
+    const userStore = env.USER_STORE.get(userStoreId)
+
+    // Forward request to UserStore
+    const userStoreRequest = new Request(`http://localhost/update-user-admin-status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail, isAdmin }),
+    })
+
+    return await userStore.fetch(userStoreRequest)
+  } catch (error) {
+    console.error('Admin update admin status error:', error)
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: { message: 'Failed to update admin status' },
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
+  }
+}
+
+/**
  * CORS headers for cross-origin requests
  */
 const corsHeaders = {
@@ -192,6 +375,35 @@ export default {
           return addCorsHeaders(await handleAdminListUsers(request, env))
 
         default:
+          // Handle dynamic admin routes
+          if (path.startsWith('/admin/users/') && path.includes('/store-ids')) {
+            const userEmail = decodeURIComponent(
+              path.split('/admin/users/')[1].split('/store-ids')[0]
+            )
+            if (method !== 'POST') {
+              return createErrorResponse('Method not allowed', 405)
+            }
+            return addCorsHeaders(await handleAdminUpdateStoreIds(request, env, userEmail))
+          }
+
+          if (path.startsWith('/admin/users/') && path.includes('/admin-status')) {
+            const userEmail = decodeURIComponent(
+              path.split('/admin/users/')[1].split('/admin-status')[0]
+            )
+            if (method !== 'POST') {
+              return createErrorResponse('Method not allowed', 405)
+            }
+            return addCorsHeaders(await handleAdminUpdateAdminStatus(request, env, userEmail))
+          }
+
+          if (path.startsWith('/admin/users/') && path.split('/').length === 4) {
+            const userEmail = decodeURIComponent(path.split('/admin/users/')[1])
+            if (method !== 'GET') {
+              return createErrorResponse('Method not allowed', 405)
+            }
+            return addCorsHeaders(await handleAdminGetUser(request, env, userEmail))
+          }
+
           return createErrorResponse('Not found', 404)
       }
     } catch (error) {

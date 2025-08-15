@@ -11,6 +11,7 @@ export const ROUTES = {
   HISTORY: '/history',
   SETTINGS: '/settings',
   ADMIN: '/admin',
+  ADMIN_USER: '/admin/users/:userEmail',
   DOCUMENT: '/document/:documentId',
   PROJECT: '/project/:projectId',
   LOGIN: '/login',
@@ -23,6 +24,7 @@ export const ROUTES = {
 export const generateRoute = {
   document: (id: string) => `/document/${id}`,
   project: (id: string) => `/project/${id}`,
+  adminUser: (userEmail: string) => `/admin/users/${encodeURIComponent(userEmail)}`,
 } as const
 
 /**

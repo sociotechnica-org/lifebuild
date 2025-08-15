@@ -32,6 +32,10 @@ export class UserStore implements DurableObject {
           return await this.handleUpdateUser(request)
         case '/list-all-users':
           return await this.handleListAllUsers(request)
+        case '/update-user-store-ids':
+          return await this.handleUpdateUserStoreIds(request)
+        case '/update-user-admin-status':
+          return await this.handleUpdateUserAdminStatus(request)
         default:
           return new Response('Not found', { status: 404 })
       }
@@ -204,12 +208,136 @@ export class UserStore implements DurableObject {
         createdAt: userResponse.createdAt,
         storeIds: userResponse.instances.map(instance => instance.id), // Map instances to storeIds
         instanceCount: userResponse.instances.length,
+        isAdmin: userResponse.isAdmin || false,
       })
     }
 
     return new Response(JSON.stringify({ users }), {
       headers: { 'Content-Type': 'application/json' },
     })
+  }
+
+  /**
+   * Update user storeIds (add/remove instances)
+   */
+  private async handleUpdateUserStoreIds(request: Request): Promise<Response> {
+    const { email, action, storeId } = await request.json()
+
+    if (!email || !action || !storeId || !['add', 'remove'].includes(action)) {
+      return new Response(JSON.stringify({ error: 'Invalid request parameters' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const user = await this.storage.get<User>(`user:${email}`)
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'User not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    let updatedInstances = [...user.instances]
+
+    if (action === 'add') {
+      // Check if instance already exists
+      if (updatedInstances.some(instance => instance.id === storeId)) {
+        return new Response(JSON.stringify({ error: 'Instance already exists' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+
+      // Add new instance
+      const newInstance: Instance = {
+        id: storeId,
+        name: `Instance ${updatedInstances.length + 1}`,
+        createdAt: new Date(),
+        lastAccessedAt: new Date(),
+        isDefault: false,
+      }
+      updatedInstances.push(newInstance)
+    } else if (action === 'remove') {
+      // Check if this is the default instance
+      const instanceToRemove = updatedInstances.find(instance => instance.id === storeId)
+      if (instanceToRemove?.isDefault) {
+        return new Response(JSON.stringify({ error: 'Cannot remove default instance' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+
+      // Remove instance
+      updatedInstances = updatedInstances.filter(instance => instance.id !== storeId)
+
+      if (updatedInstances.length === 0) {
+        return new Response(JSON.stringify({ error: 'Cannot remove all instances' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+    }
+
+    // Update user
+    const updatedUser: User = { ...user, instances: updatedInstances }
+
+    // Store updated user by both email and ID
+    await this.storage.put(`user:${email}`, updatedUser)
+    await this.storage.put(`user:id:${user.id}`, updatedUser)
+
+    const { hashedPassword: _, ...userResponse } = updatedUser
+    return new Response(
+      JSON.stringify({
+        success: true,
+        user: userResponse,
+        message: `Instance ${action === 'add' ? 'added' : 'removed'} successfully`,
+      }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
+  }
+
+  /**
+   * Update user admin status
+   */
+  private async handleUpdateUserAdminStatus(request: Request): Promise<Response> {
+    const { email, isAdmin } = await request.json()
+
+    if (!email || typeof isAdmin !== 'boolean') {
+      return new Response(JSON.stringify({ error: 'Invalid request parameters' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const user = await this.storage.get<User>(`user:${email}`)
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'User not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Update user admin status
+    const updatedUser: User = { ...user, isAdmin }
+
+    // Store updated user by both email and ID
+    await this.storage.put(`user:${email}`, updatedUser)
+    await this.storage.put(`user:id:${user.id}`, updatedUser)
+
+    const { hashedPassword: _, ...userResponse } = updatedUser
+    return new Response(
+      JSON.stringify({
+        success: true,
+        user: userResponse,
+        message: `Admin status ${isAdmin ? 'granted' : 'revoked'} successfully`,
+      }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
   }
 }
 
