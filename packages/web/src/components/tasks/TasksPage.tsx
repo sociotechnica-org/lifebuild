@@ -165,17 +165,106 @@ export const TasksPage: React.FC = () => {
     const targetColumnId = targetTask.columnId
     if (targetColumnId === task.columnId && targetTask.id === task.id) return // Same task, no move
 
-    // Move to target position
+    // Calculate proper target position
     const targetColumnTasks = tasksByColumn[targetColumnId] || []
     const sortedTasks = [...targetColumnTasks].sort((a, b) => a.position - b.position)
     const targetIndex = sortedTasks.findIndex(t => t.id === targetTask.id)
 
+    let targetPosition: number
+    const now = new Date()
+    const moveEvents: any[] = []
+
+    if (targetColumnId === task.columnId) {
+      // Moving within the same column
+      const currentIndex = sortedTasks.findIndex(t => t.id === taskId)
+
+      if (currentIndex === targetIndex) return // No actual movement
+
+      if (currentIndex < targetIndex) {
+        // Moving down - place after target
+        targetPosition = targetTask.position + 1
+
+        // Shift tasks between current and target position up
+        sortedTasks
+          .filter(
+            t => t.position > task.position && t.position <= targetPosition && t.id !== taskId
+          )
+          .forEach(t => {
+            moveEvents.push(
+              events.taskMoved({
+                taskId: t.id,
+                toColumnId: targetColumnId,
+                position: t.position - 1,
+                updatedAt: now,
+              })
+            )
+          })
+      } else {
+        // Moving up - place before target
+        targetPosition = targetTask.position
+
+        // Shift tasks between target and current position down
+        sortedTasks
+          .filter(
+            t => t.position >= targetPosition && t.position < task.position && t.id !== taskId
+          )
+          .forEach(t => {
+            moveEvents.push(
+              events.taskMoved({
+                taskId: t.id,
+                toColumnId: targetColumnId,
+                position: t.position + 1,
+                updatedAt: now,
+              })
+            )
+          })
+      }
+    } else {
+      // Moving to a different column
+      targetPosition = targetTask.position
+
+      const oldColumnTasks = tasksByColumn[task.columnId] || []
+      const newColumnTasks = tasksByColumn[targetColumnId] || []
+
+      // Shift tasks in old column up
+      oldColumnTasks
+        .filter(t => t.position > task.position)
+        .forEach(t => {
+          moveEvents.push(
+            events.taskMoved({
+              taskId: t.id,
+              toColumnId: task.columnId,
+              position: t.position - 1,
+              updatedAt: now,
+            })
+          )
+        })
+
+      // Shift tasks in new column down
+      newColumnTasks
+        .filter(t => t.position >= targetPosition)
+        .forEach(t => {
+          moveEvents.push(
+            events.taskMoved({
+              taskId: t.id,
+              toColumnId: targetColumnId,
+              position: t.position + 1,
+              updatedAt: now,
+            })
+          )
+        })
+    }
+
+    // Commit all position updates
+    moveEvents.forEach(event => store.commit(event))
+
+    // Finally, move the dragged task
     store.commit(
       events.taskMoved({
-        taskId: task.id,
+        taskId,
         toColumnId: targetColumnId,
-        position: targetIndex,
-        updatedAt: new Date(),
+        position: targetPosition,
+        updatedAt: now,
       })
     )
   }
