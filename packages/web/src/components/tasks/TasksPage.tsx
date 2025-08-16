@@ -187,7 +187,7 @@ export const TasksPage: React.FC = () => {
         // Shift tasks between current and target position up
         sortedTasks
           .filter(
-            t => t.position > task.position && t.position <= targetPosition && t.id !== taskId
+            t => t.position > task.position && t.position <= targetTask.position && t.id !== taskId
           )
           .forEach(t => {
             moveEvents.push(
