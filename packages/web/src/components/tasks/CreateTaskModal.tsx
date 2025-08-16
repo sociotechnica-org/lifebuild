@@ -3,6 +3,7 @@ import { useQuery, useStore } from '@livestore/react'
 import { getProjects$, getProjectColumns$, getOrphanedColumns$ } from '@work-squared/shared/queries'
 import type { Project, Column } from '@work-squared/shared/schema'
 import { events } from '@work-squared/shared/schema'
+import { AssigneeSelector } from '../ui/AssigneeSelector/AssigneeSelector.js'
 
 interface CreateTaskModalProps {
   isOpen: boolean
@@ -25,6 +26,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   const [description, setDescription] = useState('')
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(projectId)
   const [selectedColumnId, setSelectedColumnId] = useState<string>(defaultColumnId || '')
+  const [selectedAssigneeIds, setSelectedAssigneeIds] = useState<string[]>([])
   const [titleError, setTitleError] = useState('')
 
   // Get columns for selected project (or orphaned columns)
@@ -40,6 +42,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       setDescription('')
       setSelectedProjectId(projectId)
       setSelectedColumnId(defaultColumnId || '')
+      setSelectedAssigneeIds([])
       setTitleError('')
     }
   }, [isOpen, projectId, defaultColumnId])
@@ -95,7 +98,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
         columnId: selectedColumnId,
         title: trimmedTitle,
         description: description.trim() || undefined,
-        assigneeIds: undefined,
+        assigneeIds: selectedAssigneeIds.length > 0 ? selectedAssigneeIds : undefined,
         position: nextPosition,
         createdAt: new Date(),
       })
@@ -239,6 +242,16 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                 </select>
               </div>
             )}
+
+            {/* Assignees Selection */}
+            <div>
+              <label className='block text-sm font-medium text-gray-900 mb-2'>Assignees</label>
+              <AssigneeSelector
+                selectedIds={selectedAssigneeIds}
+                onSelectionChange={setSelectedAssigneeIds}
+                placeholder='Select assignees (optional)'
+              />
+            </div>
 
             {selectedProjectId && columns.length === 0 && (
               <div className='text-sm text-gray-500 bg-gray-50 p-3 rounded-md'>

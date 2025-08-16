@@ -75,9 +75,15 @@ const users = State.SQLite.table({
   name: 'users',
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
+    email: State.SQLite.text({ nullable: true }),
     name: State.SQLite.text({ default: '' }),
     avatarUrl: State.SQLite.text({ nullable: true }),
+    isAdmin: State.SQLite.boolean({ default: false }),
     createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    syncedAt: State.SQLite.integer({
+      nullable: true,
       schema: Schema.DateFromNumber,
     }),
   },
@@ -340,6 +346,10 @@ const materializers = State.SQLite.materializers(events, {
   },
   'v1.UserCreated': ({ id, name, avatarUrl, createdAt }) =>
     users.insert({ id, name, avatarUrl, createdAt }),
+  'v1.UserSynced': ({ id, email, name, avatarUrl, isAdmin, syncedAt }) => [
+    users.delete().where({ id }),
+    users.insert({ id, email, name, avatarUrl, isAdmin, createdAt: syncedAt, syncedAt }),
+  ],
   'v1.ConversationCreated': ({ id, title, model, workerId, createdAt }) => [
     conversations.insert({ id, title, model, workerId, createdAt, updatedAt: createdAt }),
     logEvent('v1.ConversationCreated', { id, title, model, workerId, createdAt }, createdAt),
