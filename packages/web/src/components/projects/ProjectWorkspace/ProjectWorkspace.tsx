@@ -156,7 +156,9 @@ const ProjectWorkspaceContent: React.FC = () => {
 
     // Don't move if dropping in same position
     if (targetColumnId === task.columnId) {
-      const sortedTasks = [...tasksByColumn[targetColumnId]].sort((a, b) => a.position - b.position)
+      const columnTasks = tasksByColumn[targetColumnId]
+      if (!columnTasks) return
+      const sortedTasks = [...columnTasks].sort((a, b) => a.position - b.position)
       const currentIndex = sortedTasks.findIndex(t => t.id === task.id)
       if (currentIndex === targetIndex) return
     }
