@@ -7,6 +7,7 @@ import { events } from '@work-squared/shared/schema'
 import { KanbanBoard } from './kanban/KanbanBoard.js'
 import { CreateTaskModal } from './CreateTaskModal.js'
 import { TaskModal } from './TaskModal/TaskModal.js'
+import { calculateTaskReorder, calculateDropTarget } from '../../utils/taskReordering.js'
 
 export const TasksPage: React.FC = () => {
   const { store } = useStore()
@@ -103,17 +104,12 @@ export const TasksPage: React.FC = () => {
       return
     }
 
-    // Handle dropping over task cards or columns
-    const targetTask = findTask(overId)
-    if (targetTask && targetTask.columnId !== draggedTask.columnId) {
-      // Calculate insertion position
-      const targetColumnTasks = tasksByColumn[targetTask.columnId] || []
-      const sortedTasks = [...targetColumnTasks].sort((a, b) => a.position - b.position)
-      const targetIndex = sortedTasks.findIndex(t => t.id === targetTask.id)
-
+    // Handle dropping over task cards - show preview for both same and different columns
+    const dropTarget = calculateDropTarget(overId, draggedTask, tasksByColumn)
+    if (dropTarget) {
       setInsertionPreview({
-        columnId: targetTask.columnId,
-        position: targetIndex,
+        columnId: dropTarget.columnId,
+        position: dropTarget.index,
       })
       setDragOverAddCard(null)
     } else {
@@ -138,135 +134,40 @@ export const TasksPage: React.FC = () => {
 
     const overId = over.id as string
 
-    // Handle dropping on Add Card buttons
-    if (overId.startsWith('add-card-')) {
-      const targetColumnId = overId.replace('add-card-', '')
-      if (targetColumnId === task.columnId) return // Same column, no move needed
+    // Calculate drop target
+    const dropTarget = calculateDropTarget(overId, task, tasksByColumn)
+    if (!dropTarget) return
 
-      const targetColumnTasks = tasksByColumn[targetColumnId] || []
-      const nextPosition =
-        targetColumnTasks.length === 0 ? 0 : Math.max(...targetColumnTasks.map(t => t.position)) + 1
+    const { columnId: targetColumnId, index: targetIndex } = dropTarget
 
-      store.commit(
-        events.taskMoved({
-          taskId: task.id,
-          toColumnId: targetColumnId,
-          position: nextPosition,
-          updatedAt: new Date(),
-        })
-      )
-      return
-    }
-
-    // Handle dropping on other tasks
-    const targetTask = findTask(overId)
-    if (!targetTask) return
-
-    const targetColumnId = targetTask.columnId
-    if (targetColumnId === task.columnId && targetTask.id === task.id) return // Same task, no move
-
-    // Calculate proper target position
-    const targetColumnTasks = tasksByColumn[targetColumnId] || []
-    const sortedTasks = [...targetColumnTasks].sort((a, b) => a.position - b.position)
-    const targetIndex = sortedTasks.findIndex(t => t.id === targetTask.id)
-
-    let targetPosition: number
-    const now = new Date()
-    const moveEvents: any[] = []
-
+    // Don't move if dropping in same position
     if (targetColumnId === task.columnId) {
-      // Moving within the same column
-      const currentIndex = sortedTasks.findIndex(t => t.id === taskId)
-
-      if (currentIndex === targetIndex) return // No actual movement
-
-      if (currentIndex < targetIndex) {
-        // Moving down - place after target
-        targetPosition = targetTask.position + 1
-
-        // Shift tasks between current and target position up
-        sortedTasks
-          .filter(
-            t => t.position > task.position && t.position <= targetTask.position && t.id !== taskId
-          )
-          .forEach(t => {
-            moveEvents.push(
-              events.taskMoved({
-                taskId: t.id,
-                toColumnId: targetColumnId,
-                position: t.position - 1,
-                updatedAt: now,
-              })
-            )
-          })
-      } else {
-        // Moving up - place before target
-        targetPosition = targetTask.position
-
-        // Shift tasks between target and current position down
-        sortedTasks
-          .filter(
-            t => t.position >= targetPosition && t.position < task.position && t.id !== taskId
-          )
-          .forEach(t => {
-            moveEvents.push(
-              events.taskMoved({
-                taskId: t.id,
-                toColumnId: targetColumnId,
-                position: t.position + 1,
-                updatedAt: now,
-              })
-            )
-          })
-      }
-    } else {
-      // Moving to a different column
-      targetPosition = targetTask.position
-
-      const oldColumnTasks = tasksByColumn[task.columnId] || []
-      const newColumnTasks = tasksByColumn[targetColumnId] || []
-
-      // Shift tasks in old column up
-      oldColumnTasks
-        .filter(t => t.position > task.position)
-        .forEach(t => {
-          moveEvents.push(
-            events.taskMoved({
-              taskId: t.id,
-              toColumnId: task.columnId,
-              position: t.position - 1,
-              updatedAt: now,
-            })
-          )
-        })
-
-      // Shift tasks in new column down
-      newColumnTasks
-        .filter(t => t.position >= targetPosition)
-        .forEach(t => {
-          moveEvents.push(
-            events.taskMoved({
-              taskId: t.id,
-              toColumnId: targetColumnId,
-              position: t.position + 1,
-              updatedAt: now,
-            })
-          )
-        })
+      const sortedTasks = [...tasksByColumn[targetColumnId]].sort((a, b) => a.position - b.position)
+      const currentIndex = sortedTasks.findIndex(t => t.id === task.id)
+      if (currentIndex === targetIndex) return
     }
+
+    // Calculate reorder operations
+    const targetColumnTasks = tasksByColumn[targetColumnId] || []
+    const sortedTargetTasks = [...targetColumnTasks].sort((a, b) => a.position - b.position)
+    const reorderResults = calculateTaskReorder(
+      task,
+      targetColumnId,
+      targetIndex,
+      sortedTargetTasks
+    )
 
     // Commit all position updates
-    moveEvents.forEach(event => store.commit(event))
-
-    // Finally, move the dragged task
-    store.commit(
-      events.taskMoved({
-        taskId,
-        toColumnId: targetColumnId,
-        position: targetPosition,
-        updatedAt: now,
-      })
-    )
+    reorderResults.forEach(result => {
+      store.commit(
+        events.taskMoved({
+          taskId: result.taskId,
+          toColumnId: result.toColumnId,
+          position: result.position,
+          updatedAt: result.updatedAt,
+        })
+      )
+    })
   }
 
   return (
