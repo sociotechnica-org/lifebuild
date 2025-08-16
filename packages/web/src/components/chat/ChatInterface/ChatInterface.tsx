@@ -48,9 +48,16 @@ async function runAgenticLoop(
 
   const currentHistory = [...conversationHistory, { role: 'user', content: userMessage.message }]
 
-  const maxIterations = 5 // Prevent infinite loops
+  const maxIterations = import.meta.env.VITE_LLM_MAX_ITERATIONS
+    ? parseInt(import.meta.env.VITE_LLM_MAX_ITERATIONS as string, 10)
+    : 15 // Prevent infinite loops - increased from 5 to 15 for complex multi-step operations
   let iteration = 0
   let currentResponse = initialLLMResponse
+
+  // Track tool calls to detect stuck/infinite loops
+  const toolCallHistory: Array<{ name: string; args: string; iteration: number }> = []
+  let consecutiveIdenticalCalls = 0
+  const warningThreshold = Math.floor(maxIterations * 0.8) // 80% of max iterations
 
   while (iteration < maxIterations) {
     iteration++
@@ -59,6 +66,77 @@ async function runAgenticLoop(
     // If we have tool calls to execute
     if (currentResponse.toolCalls && currentResponse.toolCalls.length > 0) {
       console.log(`🔧 Executing ${currentResponse.toolCalls.length} tool calls`)
+
+      // Check for stuck/infinite loops
+      let isStuckLoop = false
+      for (const toolCall of currentResponse.toolCalls) {
+        // Check if this exact call was made recently
+        const recentIdenticalCall = toolCallHistory
+          .slice(-3) // Check last 3 calls
+          .find(tc => tc.name === toolCall.function.name && tc.args === toolCall.function.arguments)
+
+        if (recentIdenticalCall) {
+          consecutiveIdenticalCalls++
+          console.warn(
+            `⚠️ Detected repeated tool call: ${toolCall.function.name} (${consecutiveIdenticalCalls} times)`
+          )
+
+          if (consecutiveIdenticalCalls >= 3) {
+            isStuckLoop = true
+            console.error('❌ Detected stuck loop - breaking out')
+            store.commit(
+              events.llmResponseReceived({
+                id: crypto.randomUUID(),
+                conversationId: selectedConversationId,
+                message: `I noticed I'm repeating the same actions. This might indicate an issue with processing your request. Please try rephrasing your request or breaking it down into smaller steps.`,
+                role: 'assistant',
+                modelId: model,
+                responseToMessageId: userMessage.id,
+                createdAt: new Date(),
+                llmMetadata: {
+                  source: 'braintrust',
+                  agenticIteration: iteration,
+                  errorType: 'stuck_loop_detected',
+                },
+              })
+            )
+            break
+          }
+        } else {
+          consecutiveIdenticalCalls = 0 // Reset counter when we see a different call
+        }
+
+        toolCallHistory.push({
+          name: toolCall.function.name,
+          args: toolCall.function.arguments,
+          iteration,
+        })
+      }
+
+      if (isStuckLoop) {
+        break // Exit the main loop
+      }
+
+      // Warn when approaching iteration limit
+      if (iteration === warningThreshold && !isStuckLoop) {
+        console.warn(`⚠️ Approaching iteration limit (${iteration}/${maxIterations})`)
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId: selectedConversationId,
+            message: `⚠️ Processing is taking longer than expected (${iteration}/${maxIterations} steps). Continuing...`,
+            role: 'assistant',
+            modelId: 'system',
+            responseToMessageId: userMessage.id,
+            createdAt: new Date(),
+            llmMetadata: {
+              source: 'system',
+              agenticIteration: iteration,
+              warningType: 'approaching_limit',
+            },
+          })
+        )
+      }
 
       // Show tool call indicators in UI (if this is the first iteration or has a message)
       if (iteration === 1 || (currentResponse.message && currentResponse.message.trim())) {
@@ -343,6 +421,25 @@ async function runAgenticLoop(
 
   if (iteration >= maxIterations) {
     console.warn('⚠️ Agentic loop reached maximum iterations')
+
+    // Provide helpful feedback to the user about what happened
+    store.commit(
+      events.llmResponseReceived({
+        id: crypto.randomUUID(),
+        conversationId: selectedConversationId,
+        message: `I've reached the maximum number of processing steps (${maxIterations}). The operation may be incomplete. To continue, you can:\n\n• Try again with a simpler request\n• Break down your request into smaller parts\n• Ask me to continue from where I left off`,
+        role: 'assistant',
+        modelId: 'system',
+        responseToMessageId: userMessage.id,
+        createdAt: new Date(),
+        llmMetadata: {
+          source: 'system',
+          agenticIteration: iteration,
+          errorType: 'max_iterations_reached',
+          toolCallHistory: toolCallHistory.slice(-5), // Include last 5 tool calls for debugging
+        },
+      })
+    )
   }
 }
 

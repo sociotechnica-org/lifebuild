@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { ConversationHistory } from './conversation-history.js'
+import { ConversationHistory } from '../../../src/llm/conversation/conversation-history.js'
 
 describe('ConversationHistory', () => {
   it('should add and retrieve messages', () => {
