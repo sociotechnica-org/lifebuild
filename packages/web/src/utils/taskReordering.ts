@@ -10,7 +10,7 @@ export interface ReorderResult {
 /**
  * Calculates the new positions for tasks when reordering within or between columns.
  *
- * This uses a simple floating-point position system to minimize database updates:
+ * This uses an integer position system with large gaps to minimize database updates:
  * - When moving a task, we calculate a new position between its neighbors
  * - Only the moved task needs to be updated (no cascading updates)
  * - Positions are periodically normalized when gaps get too small
@@ -43,7 +43,10 @@ export function calculateTaskReorder(
     // Moving to the beginning
     const firstTask = otherTasks[0]
     if (firstTask) {
-      newPosition = firstTask.position / 2
+      // Use integer division to stay as integer
+      newPosition = Math.floor(firstTask.position / 2)
+      // Ensure we don't go below 1
+      if (newPosition < 1) newPosition = 1
     } else {
       newPosition = 1000
     }
@@ -60,7 +63,13 @@ export function calculateTaskReorder(
     const prevTask = otherTasks[targetIndex - 1]
     const nextTask = otherTasks[targetIndex]
     if (prevTask && nextTask) {
-      newPosition = (prevTask.position + nextTask.position) / 2
+      // Use integer division for midpoint
+      newPosition = Math.floor((prevTask.position + nextTask.position) / 2)
+      // If no space between positions, trigger normalization
+      if (newPosition <= prevTask.position || newPosition >= nextTask.position) {
+        // This will trigger normalization below
+        newPosition = prevTask.position
+      }
     } else {
       newPosition = 1000
     }
@@ -102,15 +111,22 @@ function shouldNormalizePositions(
 ): boolean {
   if (otherTasks.length === 0) return false
 
-  // Check if the new position is getting too close to neighbors
-  const MIN_GAP = 0.001
-
+  // Check if we have no space between integer positions
   if (targetIndex > 0 && targetIndex < otherTasks.length) {
     const prevTask = otherTasks[targetIndex - 1]
     const nextTask = otherTasks[targetIndex]
     if (prevTask && nextTask) {
+      // If positions are consecutive integers, we need to normalize
       const gap = nextTask.position - prevTask.position
-      return gap < MIN_GAP * 2
+      return gap <= 1 || newPosition <= prevTask.position || newPosition >= nextTask.position
+    }
+  }
+
+  // Also check if we're at the beginning and position is too low
+  if (targetIndex === 0 && otherTasks.length > 0) {
+    const firstTask = otherTasks[0]
+    if (firstTask && newPosition <= 0) {
+      return true
     }
   }
 
@@ -151,7 +167,7 @@ function normalizeColumnPositions(
     const newPosition = (index + 1) * POSITION_GAP
 
     // Only add to results if position actually changed
-    if (task.id === draggedTask.id || Math.abs(task.position - newPosition) > 0.01) {
+    if (task.id === draggedTask.id || task.position !== newPosition) {
       results.push({
         taskId: task.id,
         toColumnId: targetColumnId,
