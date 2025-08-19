@@ -173,24 +173,18 @@ export class AgenticLoop {
       }
     }
 
-    // Check if we hit max iterations
-    if (this.history.getMessageCount() > 0) {
-      const lastMessages = this.history.getLastMessages(1)
-      const lastMessage = lastMessages[0]
-      if (lastMessage && lastMessage.role === 'tool') {
-        console.warn(`⚠️ Hit max iterations (${this.maxIterations}) - loop may be incomplete`)
-        console.log('Tool call history (last 5):', toolCallHistory.slice(-5))
+    // Check if we hit max iterations - always notify regardless of message state
+    console.warn(`⚠️ Hit max iterations (${this.maxIterations}) - loop may be incomplete`)
+    console.log('Tool call history (last 5):', toolCallHistory.slice(-5))
 
-        // Trigger error event with helpful context
-        this.events.onError?.(
-          new Error(
-            `Maximum iterations reached (${this.maxIterations}). The operation may be incomplete. Consider breaking down complex requests into smaller parts.`
-          ),
-          this.maxIterations
-        )
-        this.events.onComplete?.(this.maxIterations)
-      }
-    }
+    // Trigger error event with helpful context
+    this.events.onError?.(
+      new Error(
+        `Maximum iterations reached (${this.maxIterations}). The operation may be incomplete. Consider breaking down complex requests into smaller parts.`
+      ),
+      this.maxIterations
+    )
+    this.events.onComplete?.(this.maxIterations)
   }
 
   /**
