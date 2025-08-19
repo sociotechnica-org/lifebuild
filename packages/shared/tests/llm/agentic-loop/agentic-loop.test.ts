@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { AgenticLoop } from '../../../src/llm/agentic-loop/agentic-loop.js'
-import type { LLMProvider, LLMResponse, AgenticLoopContext } from '../../../src/llm/agentic-loop/types.js'
+import type {
+  LLMProvider,
+  LLMResponse,
+  AgenticLoopContext,
+} from '../../../src/llm/agentic-loop/types.js'
 
 // Mock store
 const createMockStore = () => ({
@@ -155,15 +159,17 @@ describe('AgenticLoop', () => {
 
   it('should respect max iterations', async () => {
     // Create a provider that always returns tool calls with different args to avoid stuck detection
-    const responses = Array(15).fill(null).map((_, i) => ({
-      message: null,
-      toolCalls: [
-        {
-          id: `call-${i}`,
-          function: { name: 'test', arguments: `{"iteration": ${i}}` },
-        },
-      ],
-    }))
+    const responses = Array(15)
+      .fill(null)
+      .map((_, i) => ({
+        message: null,
+        toolCalls: [
+          {
+            id: `call-${i}`,
+            function: { name: 'test', arguments: `{"iteration": ${i}}` },
+          },
+        ],
+      }))
     mockProvider = new MockLLMProvider(responses)
 
     const loop = new AgenticLoop(mockStore, mockProvider, events)
@@ -252,15 +258,17 @@ describe('AgenticLoop', () => {
 
   it('should warn when approaching max iterations at 80%', async () => {
     // Create responses that will hit the warning threshold with different args each time
-    const responses = Array(15).fill(null).map((_, i) => ({
-      message: null,
-      toolCalls: [
-        {
-          id: `call-${i}`,
-          function: { name: 'test', arguments: `{"iteration": ${i}}` }, // Different args each time
-        },
-      ],
-    }))
+    const responses = Array(15)
+      .fill(null)
+      .map((_, i) => ({
+        message: null,
+        toolCalls: [
+          {
+            id: `call-${i}`,
+            function: { name: 'test', arguments: `{"iteration": ${i}}` }, // Different args each time
+          },
+        ],
+      }))
     mockProvider = new MockLLMProvider(responses)
 
     const loop = new AgenticLoop(mockStore, mockProvider, events)
@@ -281,15 +289,17 @@ describe('AgenticLoop', () => {
     // The implementation works but the test environment makes it hard to test
     return
 
-    const responses = Array(25).fill(null).map((_, i) => ({
-      message: null,
-      toolCalls: [
-        {
-          id: `call-${i}`,
-          function: { name: 'test', arguments: `{"iteration": ${i}}` },
-        },
-      ],
-    }))
+    const responses = Array(25)
+      .fill(null)
+      .map((_, i) => ({
+        message: null,
+        toolCalls: [
+          {
+            id: `call-${i}`,
+            function: { name: 'test', arguments: `{"iteration": ${i}}` },
+          },
+        ],
+      }))
     mockProvider = new MockLLMProvider(responses)
 
     const loop = new AgenticLoop(mockStore, mockProvider, events)
@@ -308,15 +318,17 @@ describe('AgenticLoop', () => {
 
   it('should provide helpful error message when hitting max iterations', async () => {
     // Create a provider that always returns tool calls with unique args
-    const responses = Array(20).fill(null).map((_, i) => ({
-      message: null,
-      toolCalls: [
-        {
-          id: `call-${i}`,
-          function: { name: 'test', arguments: `{"iteration": ${i}}` },
-        },
-      ],
-    }))
+    const responses = Array(20)
+      .fill(null)
+      .map((_, i) => ({
+        message: null,
+        toolCalls: [
+          {
+            id: `call-${i}`,
+            function: { name: 'test', arguments: `{"iteration": ${i}}` },
+          },
+        ],
+      }))
     mockProvider = new MockLLMProvider(responses)
 
     const loop = new AgenticLoop(mockStore, mockProvider, events)
