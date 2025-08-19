@@ -35,9 +35,33 @@ vi.mock('@livestore/react', () => ({
 describe('TaskCard', () => {
   const mockTask = createMockTask()
   const mockUsers = [
-    { id: 'user-1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: null, isAdmin: false, createdAt: new Date(), syncedAt: null },
-    { id: 'user-2', name: 'Bob Smith', email: 'bob@example.com', avatarUrl: null, isAdmin: false, createdAt: new Date(), syncedAt: null },
-    { id: 'user-3', name: 'Carol Davis', email: 'carol@example.com', avatarUrl: null, isAdmin: false, createdAt: new Date(), syncedAt: null },
+    {
+      id: 'user-1',
+      name: 'Alice Johnson',
+      email: 'alice@example.com',
+      avatarUrl: null,
+      isAdmin: false,
+      createdAt: new Date(),
+      syncedAt: null,
+    },
+    {
+      id: 'user-2',
+      name: 'Bob Smith',
+      email: 'bob@example.com',
+      avatarUrl: null,
+      isAdmin: false,
+      createdAt: new Date(),
+      syncedAt: null,
+    },
+    {
+      id: 'user-3',
+      name: 'Carol Davis',
+      email: 'carol@example.com',
+      avatarUrl: null,
+      isAdmin: false,
+      createdAt: new Date(),
+      syncedAt: null,
+    },
   ]
 
   beforeEach(() => {
@@ -188,8 +212,24 @@ describe('TaskCard', () => {
     // Add more mock users
     mockUseQuery.mockReturnValue([
       ...mockUsers,
-      { id: 'user-4', name: 'David Wilson', email: 'david@example.com', avatarUrl: null, isAdmin: false, createdAt: new Date(), syncedAt: null },
-      { id: 'user-5', name: 'Eva Brown', email: 'eva@example.com', avatarUrl: null, isAdmin: false, createdAt: new Date(), syncedAt: null },
+      {
+        id: 'user-4',
+        name: 'David Wilson',
+        email: 'david@example.com',
+        avatarUrl: null,
+        isAdmin: false,
+        createdAt: new Date(),
+        syncedAt: null,
+      },
+      {
+        id: 'user-5',
+        name: 'Eva Brown',
+        email: 'eva@example.com',
+        avatarUrl: null,
+        isAdmin: false,
+        createdAt: new Date(),
+        syncedAt: null,
+      },
     ])
 
     render(<TaskCard task={taskWithManyAssignees} />)
@@ -206,9 +246,33 @@ describe('TaskCard', () => {
 
     // Mock users with edge case names
     mockUseQuery.mockReturnValue([
-      { id: 'user-edge-1', name: 'John  Smith', email: 'john@example.com', avatarUrl: null, isAdmin: false, createdAt: new Date(), syncedAt: null }, // Extra spaces
-      { id: 'user-edge-2', name: ' Jane Doe ', email: 'jane@example.com', avatarUrl: null, isAdmin: false, createdAt: new Date(), syncedAt: null }, // Leading/trailing spaces
-      { id: 'user-edge-3', name: 'Bob', email: 'bob@example.com', avatarUrl: null, isAdmin: false, createdAt: new Date(), syncedAt: null },
+      {
+        id: 'user-edge-1',
+        name: 'John  Smith',
+        email: 'john@example.com',
+        avatarUrl: null,
+        isAdmin: false,
+        createdAt: new Date(),
+        syncedAt: null,
+      }, // Extra spaces
+      {
+        id: 'user-edge-2',
+        name: ' Jane Doe ',
+        email: 'jane@example.com',
+        avatarUrl: null,
+        isAdmin: false,
+        createdAt: new Date(),
+        syncedAt: null,
+      }, // Leading/trailing spaces
+      {
+        id: 'user-edge-3',
+        name: 'Bob',
+        email: 'bob@example.com',
+        avatarUrl: null,
+        isAdmin: false,
+        createdAt: new Date(),
+        syncedAt: null,
+      },
     ])
 
     render(<TaskCard task={taskWithEdgeCaseNames} />)
