@@ -142,4 +142,25 @@ describe('KanbanColumn', () => {
     const addCardButton = screen.getByText('➕ Add Card')
     expect(addCardButton).toHaveClass('border-gray-300')
   })
+
+  it('should show insertion placeholder between cards at correct position', () => {
+    // Render with multiple tasks and insertionPreview at position 1 (between first and second task)
+    render(
+      <KanbanColumn
+        column={mockColumn}
+        tasks={mockTasks}
+        insertionPreview={1} // Insert at index 1 (between Task 1 and Task 2)
+        draggedTaskHeight={76}
+        draggedTaskId={null}
+        showAddCardPreview={false}
+      />
+    )
+
+    // Should show the insertion placeholder (Drop here text)
+    expect(screen.getByText('Drop here')).toBeInTheDocument()
+
+    // Should show both tasks
+    expect(screen.getByText('Task 1')).toBeInTheDocument()
+    expect(screen.getByText('Task 2')).toBeInTheDocument()
+  })
 })
