@@ -119,6 +119,18 @@ export const userCreated = Events.synced({
   }),
 })
 
+export const userSynced = Events.synced({
+  name: 'v1.UserSynced',
+  schema: Schema.Struct({
+    id: Schema.String,
+    email: Schema.String,
+    name: Schema.String,
+    avatarUrl: Schema.optional(Schema.String),
+    isAdmin: Schema.optional(Schema.Boolean),
+    syncedAt: Schema.Date,
+  }),
+})
+
 export const conversationCreated = Events.synced({
   name: 'v1.ConversationCreated',
   schema: Schema.Struct({

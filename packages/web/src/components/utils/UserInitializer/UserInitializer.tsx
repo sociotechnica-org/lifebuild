@@ -1,60 +1,20 @@
-import React, { useEffect } from 'react'
-import { useQuery, useStore } from '@livestore/react'
-import { getUsers$ } from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
+import React from 'react'
 
 interface UserInitializerProps {
   children: React.ReactNode
 }
 
-// Global flag to prevent multiple initialization attempts across component instances
-let globalInitializationAttempted = false
-
+// Simplified UserInitializer - no longer creates default users
+// Auth users are synced via AuthUserSync, AI workers don't need user entries
 export const UserInitializer: React.FC<UserInitializerProps> = ({ children }) => {
-  const { store } = useStore()
-  const users = useQuery(getUsers$)
-
-  useEffect(() => {
-    const initializeUser = async () => {
-      // Only attempt initialization once and only when users query has loaded
-      if (globalInitializationAttempted || users === undefined) {
-        return
-      }
-
-      // If users exist, no need to initialize
-      if (users.length > 0) {
-        return
-      }
-
-      // Mark that we're attempting initialization to prevent race conditions
-      globalInitializationAttempted = true
-
-      try {
-        console.log('No users found, creating default user')
-
-        await store.commit(
-          events.userCreated({
-            id: crypto.randomUUID(),
-            name: 'Default User',
-            avatarUrl: undefined,
-            createdAt: new Date(),
-          })
-        )
-      } catch (error) {
-        console.error('Failed to create default user:', error)
-        // Reset the flag so we can retry on next render if needed
-        globalInitializationAttempted = false
-      }
-    }
-
-    initializeUser()
-  }, [users, store])
-
-  // Always render children - don't block on initialization
+  // This component is kept for backwards compatibility but no longer creates default users
+  // User creation is now handled by:
+  // 1. AuthUserSync - syncs authenticated users from auth server
+  // 2. Manual user creation in admin interface
   return <>{children}</>
 }
 
 // Export function to reset global state (for testing)
 export const resetUserInitializationState = () => {
-  globalInitializationAttempted = false
+  // No longer needed but kept for test compatibility
 }

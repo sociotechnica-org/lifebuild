@@ -1,9 +1,7 @@
 import React from 'react'
 import { useDraggable, useDroppable } from '@dnd-kit/core'
-import { useQuery } from '@livestore/react'
-import type { Task, User } from '@work-squared/shared/schema'
-import { getUsers$ } from '@work-squared/shared/queries'
-import { getInitials } from '../../../util/initials.js'
+import type { Task } from '@work-squared/shared/schema'
+import { AssigneeAvatars } from '../../ui/AssigneeSelector/AssigneeSelector.js'
 
 interface TaskCardProps {
   task: Task
@@ -12,8 +10,6 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, isDragOverlay = false, onClick }: TaskCardProps) {
-  const users = useQuery(getUsers$) ?? []
-
   // Parse assigneeIds from JSON string safely
   let assigneeIds: string[] = []
   try {
@@ -21,7 +17,6 @@ export function TaskCard({ task, isDragOverlay = false, onClick }: TaskCardProps
   } catch {
     assigneeIds = []
   }
-  const assignees = users.filter((user: User) => assigneeIds.includes(user.id))
 
   const {
     attributes: dragAttributes,
@@ -70,25 +65,9 @@ export function TaskCard({ task, isDragOverlay = false, onClick }: TaskCardProps
     >
       <div className='flex items-start justify-between'>
         <h3 className='text-sm font-medium text-gray-900 line-clamp-2 flex-1 pr-2'>{task.title}</h3>
-        {assignees.length > 0 && (
-          <div className='flex -space-x-1'>
-            {assignees.slice(0, 3).map((assignee: User) => (
-              <div
-                key={assignee.id}
-                className='w-7 h-7 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-medium border-2 border-white'
-                title={assignee.name}
-              >
-                {getInitials(assignee.name)}
-              </div>
-            ))}
-            {assignees.length > 3 && (
-              <div
-                className='w-7 h-7 bg-gray-400 text-white rounded-full flex items-center justify-center text-xs font-medium border-2 border-white'
-                title={`+${assignees.length - 3} more`}
-              >
-                +{assignees.length - 3}
-              </div>
-            )}
+        {assigneeIds.length > 0 && (
+          <div className='flex-shrink-0'>
+            <AssigneeAvatars assigneeIds={assigneeIds} maxDisplay={3} />
           </div>
         )}
       </div>

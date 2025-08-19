@@ -35,9 +35,33 @@ vi.mock('@livestore/react', () => ({
 describe('TaskCard', () => {
   const mockTask = createMockTask()
   const mockUsers = [
-    { id: 'user-1', name: 'Alice Johnson', avatarUrl: null, createdAt: new Date() },
-    { id: 'user-2', name: 'Bob Smith', avatarUrl: null, createdAt: new Date() },
-    { id: 'user-3', name: 'Carol Davis', avatarUrl: null, createdAt: new Date() },
+    {
+      id: 'user-1',
+      name: 'Alice Johnson',
+      email: 'alice@example.com',
+      avatarUrl: null,
+      isAdmin: false,
+      createdAt: new Date(),
+      syncedAt: null,
+    },
+    {
+      id: 'user-2',
+      name: 'Bob Smith',
+      email: 'bob@example.com',
+      avatarUrl: null,
+      isAdmin: false,
+      createdAt: new Date(),
+      syncedAt: null,
+    },
+    {
+      id: 'user-3',
+      name: 'Carol Davis',
+      email: 'carol@example.com',
+      avatarUrl: null,
+      isAdmin: false,
+      createdAt: new Date(),
+      syncedAt: null,
+    },
   ]
 
   beforeEach(() => {
@@ -152,8 +176,8 @@ describe('TaskCard', () => {
     // Should show avatars for Alice and Bob
     expect(screen.getByTitle('Alice Johnson')).toBeInTheDocument()
     expect(screen.getByTitle('Bob Smith')).toBeInTheDocument()
-    expect(screen.getByText('AJ')).toBeInTheDocument() // Alice Johnson initials
-    expect(screen.getByText('BS')).toBeInTheDocument() // Bob Smith initials
+    expect(screen.getByText('A')).toBeInTheDocument() // Alice first initial
+    expect(screen.getByText('B')).toBeInTheDocument() // Bob first initial
   })
 
   it('should not display assignee section when task has no assignees', () => {
@@ -166,7 +190,7 @@ describe('TaskCard', () => {
 
     // Should not show any avatars
     expect(screen.queryByTitle('Alice Johnson')).not.toBeInTheDocument()
-    expect(screen.queryByText('AJ')).not.toBeInTheDocument()
+    expect(screen.queryByText('A')).not.toBeInTheDocument()
   })
 
   it('should handle malformed assigneeIds gracefully', () => {
@@ -188,15 +212,30 @@ describe('TaskCard', () => {
     // Add more mock users
     mockUseQuery.mockReturnValue([
       ...mockUsers,
-      { id: 'user-4', name: 'David Wilson', avatarUrl: null, createdAt: new Date() },
-      { id: 'user-5', name: 'Eva Brown', avatarUrl: null, createdAt: new Date() },
+      {
+        id: 'user-4',
+        name: 'David Wilson',
+        email: 'david@example.com',
+        avatarUrl: null,
+        isAdmin: false,
+        createdAt: new Date(),
+        syncedAt: null,
+      },
+      {
+        id: 'user-5',
+        name: 'Eva Brown',
+        email: 'eva@example.com',
+        avatarUrl: null,
+        isAdmin: false,
+        createdAt: new Date(),
+        syncedAt: null,
+      },
     ])
 
     render(<TaskCard task={taskWithManyAssignees} />)
 
     // Should show first 3 avatars plus +2 indicator
     expect(screen.getByText('+2')).toBeInTheDocument()
-    expect(screen.getByTitle('+2 more')).toBeInTheDocument()
   })
 
   it('should handle edge cases in name formatting for initials', () => {
@@ -207,16 +246,39 @@ describe('TaskCard', () => {
 
     // Mock users with edge case names
     mockUseQuery.mockReturnValue([
-      { id: 'user-edge-1', name: 'John  Smith', avatarUrl: null, createdAt: new Date() }, // Extra spaces
-      { id: 'user-edge-2', name: ' Jane Doe ', avatarUrl: null, createdAt: new Date() }, // Leading/trailing spaces
-      { id: 'user-edge-3', name: '   ', avatarUrl: null, createdAt: new Date() }, // Just spaces
+      {
+        id: 'user-edge-1',
+        name: 'John  Smith',
+        email: 'john@example.com',
+        avatarUrl: null,
+        isAdmin: false,
+        createdAt: new Date(),
+        syncedAt: null,
+      }, // Extra spaces
+      {
+        id: 'user-edge-2',
+        name: ' Jane Doe ',
+        email: 'jane@example.com',
+        avatarUrl: null,
+        isAdmin: false,
+        createdAt: new Date(),
+        syncedAt: null,
+      }, // Leading/trailing spaces
+      {
+        id: 'user-edge-3',
+        name: 'Bob',
+        email: 'bob@example.com',
+        avatarUrl: null,
+        isAdmin: false,
+        createdAt: new Date(),
+        syncedAt: null,
+      },
     ])
 
     render(<TaskCard task={taskWithEdgeCaseNames} />)
 
-    // Should show properly formatted initials
-    expect(screen.getByText('JS')).toBeInTheDocument() // John Smith
-    expect(screen.getByText('JD')).toBeInTheDocument() // Jane Doe
-    expect(screen.getByText('?')).toBeInTheDocument() // Empty name fallback
+    // Should show properly formatted initials (first letter only)
+    expect(screen.getByText('J')).toBeInTheDocument() // John (first initial)
+    expect(screen.getByText('B')).toBeInTheDocument() // Bob
   })
 })

@@ -9,7 +9,7 @@ import {
   getTaskComments$,
 } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
-import { Combobox } from '../../ui/Combobox/Combobox.js'
+import { AssigneeSelector } from '../../ui/AssigneeSelector/AssigneeSelector.js'
 import { getInitials } from '../../../util/initials.js'
 import { useSnackbar } from '../../ui/Snackbar/Snackbar.js'
 import { Markdown } from '../../markdown/Markdown.js'
@@ -365,8 +365,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
           {/* Assignees */}
           <div>
             <h2 className='text-sm font-medium text-gray-900 mb-2'>Assignees</h2>
-            <Combobox
-              options={users.map((user: User) => ({ id: user.id, label: user.name }))}
+            <AssigneeSelector
               selectedIds={editAssigneeIds}
               onSelectionChange={assigneeIds => {
                 setEditAssigneeIds(assigneeIds)

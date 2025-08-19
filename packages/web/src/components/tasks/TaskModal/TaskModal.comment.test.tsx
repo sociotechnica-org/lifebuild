@@ -47,14 +47,20 @@ describe('TaskModal Comments', () => {
     {
       id: 'user-1',
       name: 'Alice Johnson',
+      email: 'alice@example.com',
       avatarUrl: null,
+      isAdmin: false,
       createdAt: new Date('2023-01-01'),
+      syncedAt: null,
     },
     {
       id: 'user-2',
       name: 'Bob Smith',
+      email: 'bob@example.com',
       avatarUrl: null,
+      isAdmin: false,
       createdAt: new Date('2023-01-01'),
+      syncedAt: null,
     },
   ]
 

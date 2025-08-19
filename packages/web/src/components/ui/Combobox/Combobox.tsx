@@ -1,8 +1,51 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { getAvatarColor } from '../../../utils/avatarColors.js'
+
+const OptionContent: React.FC<{ option: ComboboxOption }> = ({ option }) => {
+  const renderAvatar = () => {
+    if (option.type === 'worker') {
+      // Show the worker's chosen avatar emoji with their color
+      return (
+        <div
+          className={`w-6 h-6 rounded-full ${getAvatarColor(option.id)} text-white flex items-center justify-center text-sm`}
+        >
+          {option.avatar || '🤖'}
+        </div>
+      )
+    }
+
+    if (option.avatar) {
+      return (
+        <img src={option.avatar} alt={option.label} className='w-6 h-6 rounded-full object-cover' />
+      )
+    }
+
+    // Show initial for users without avatars
+    if (option.type === 'user') {
+      const initial = option.label ? option.label.charAt(0).toUpperCase() : '?'
+      return (
+        <div className='w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs font-medium'>
+          {initial}
+        </div>
+      )
+    }
+
+    return null
+  }
+
+  return (
+    <div className='flex items-center gap-2'>
+      {renderAvatar()}
+      <span>{option.label}</span>
+    </div>
+  )
+}
 
 interface ComboboxOption {
   id: string
   label: string
+  avatar?: string
+  type?: 'user' | 'worker'
 }
 
 interface ComboboxProps {
@@ -71,9 +114,9 @@ export function Combobox({
               selectedOptions.map(option => (
                 <span
                   key={option.id}
-                  className='inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full'
+                  className='inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full'
                 >
-                  {option.label}
+                  <OptionContent option={option} />
                 </span>
               ))
             ) : (
@@ -108,7 +151,7 @@ export function Combobox({
                     aria-selected={isSelected}
                   >
                     <div className='flex items-center justify-between'>
-                      <span>{option.label}</span>
+                      <OptionContent option={option} />
                       {isSelected && (
                         <svg
                           className='w-5 h-5 text-blue-600'
