@@ -87,10 +87,11 @@ export function KanbanColumn({
           // Sort visible tasks by position
           const sortedTasks = [...visibleTasks].sort((a, b) => a.position - b.position)
 
-          sortedTasks.forEach((task, _index) => {
+          sortedTasks.forEach((task, index) => {
             // Show placeholder before this task if needed
-            if (insertionPreview === task.position) {
-              elements.push(<InsertionPlaceholder key={`placeholder-${task.position}`} />)
+            // insertionPreview is an index, not a position value
+            if (insertionPreview === index) {
+              elements.push(<InsertionPlaceholder key={`placeholder-${index}`} />)
             }
 
             // Show the task
