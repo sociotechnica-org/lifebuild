@@ -41,7 +41,8 @@ export class AgenticLoop {
       // @ts-ignore - import.meta.env may not exist in all environments
       if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_LLM_MAX_ITERATIONS) {
         // @ts-ignore
-        envMaxIterations = parseInt(import.meta.env.VITE_LLM_MAX_ITERATIONS as string, 10)
+        const parsed = parseInt(import.meta.env.VITE_LLM_MAX_ITERATIONS as string, 10)
+        envMaxIterations = isNaN(parsed) ? 15 : Math.max(1, parsed) // Ensure positive integer
       }
     } catch {
       // Fallback if import.meta is not available
@@ -55,7 +56,7 @@ export class AgenticLoop {
 
     // Track tool calls to detect stuck/infinite loops
     const toolCallHistory: Array<{ name: string; args: string; iteration: number }> = []
-    let consecutiveIdenticalCalls = 0
+    const consecutiveCallCounts = new Map<string, number>() // Track consecutive calls per tool signature
     const warningThreshold = Math.floor(this.maxIterations * 0.8) // 80% of max iterations
 
     // Run the loop
@@ -89,6 +90,8 @@ export class AgenticLoop {
           // Check for stuck/infinite loops
           let isStuckLoop = false
           for (const toolCall of response.toolCalls) {
+            const toolSignature = `${toolCall.function.name}:${toolCall.function.arguments}`
+
             // Check if this exact call was made recently
             const recentIdenticalCall = toolCallHistory
               .slice(-3) // Check last 3 calls
@@ -97,12 +100,13 @@ export class AgenticLoop {
               )
 
             if (recentIdenticalCall) {
-              consecutiveIdenticalCalls++
+              const currentCount = (consecutiveCallCounts.get(toolSignature) || 0) + 1
+              consecutiveCallCounts.set(toolSignature, currentCount)
               console.warn(
-                `⚠️ Detected repeated tool call: ${toolCall.function.name} (${consecutiveIdenticalCalls} times)`
+                `⚠️ Detected repeated tool call: ${toolCall.function.name} (${currentCount} times)`
               )
 
-              if (consecutiveIdenticalCalls >= 3) {
+              if (currentCount >= 3) {
                 isStuckLoop = true
                 console.error('❌ Detected stuck loop - breaking out')
                 this.events.onError?.(
@@ -112,7 +116,7 @@ export class AgenticLoop {
                 break
               }
             } else {
-              consecutiveIdenticalCalls = 0 // Reset counter when we see a different call
+              consecutiveCallCounts.set(toolSignature, 0) // Reset counter for this specific tool call
             }
 
             toolCallHistory.push({
