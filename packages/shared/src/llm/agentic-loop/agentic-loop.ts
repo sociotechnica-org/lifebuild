@@ -1,8 +1,7 @@
 import type { Store } from '@livestore/livestore'
 import { ConversationHistory } from '../conversation/conversation-history.js'
 import { ToolExecutor } from '../tool-executor/tool-executor.js'
-import type { LLMProvider, LLMResponse, AgenticLoopContext, AgenticLoopEvents } from './types.js'
-import type { ToolCall } from '../tool-formatters/types.js'
+import type { LLMProvider, AgenticLoopContext, AgenticLoopEvents } from './types.js'
 
 export class AgenticLoop {
   private history: ConversationHistory
@@ -34,12 +33,30 @@ export class AgenticLoop {
    */
   async run(userMessage: string, context: AgenticLoopContext): Promise<void> {
     // Initialize context
-    this.maxIterations = context.maxIterations || 10
+    // Use environment variable if available, otherwise use context.maxIterations, fallback to 15
+    // Check for environment variable in a way that works in both Node and browser
+    let envMaxIterations = 15
+    try {
+      // @ts-ignore - import.meta.env may not exist in all environments
+      if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_LLM_MAX_ITERATIONS) {
+        // @ts-ignore
+        const parsed = parseInt(import.meta.env.VITE_LLM_MAX_ITERATIONS as string, 10)
+        envMaxIterations = isNaN(parsed) ? 15 : Math.max(1, parsed) // Ensure positive integer
+      }
+    } catch {
+      // Fallback if import.meta is not available
+    }
+    this.maxIterations = context.maxIterations || envMaxIterations
     const { boardContext, workerContext, model } = context
 
     // Add user message to history
     this.history.addUserMessage(userMessage)
     console.log(`🚀 Starting agentic loop with message: "${userMessage.substring(0, 100)}..."`)
+
+    // Track tool calls to detect stuck/infinite loops
+    const toolCallHistory: Array<{ name: string; args: string; iteration: number }> = []
+    const consecutiveCallCounts = new Map<string, number>() // Track consecutive calls per tool signature
+    const warningThreshold = Math.floor(this.maxIterations * 0.8) // 80% of max iterations
 
     // Run the loop
     for (let iteration = 1; iteration <= this.maxIterations; iteration++) {
@@ -69,6 +86,57 @@ export class AgenticLoop {
 
         // Check if we have tool calls to process
         if (response.toolCalls && response.toolCalls.length > 0) {
+          // Check for stuck/infinite loops
+          let isStuckLoop = false
+          for (const toolCall of response.toolCalls) {
+            const toolSignature = `${toolCall.function.name}:${toolCall.function.arguments}`
+
+            // Check if this exact call was made recently
+            const recentIdenticalCall = toolCallHistory
+              .slice(-3) // Check last 3 calls
+              .find(
+                tc => tc.name === toolCall.function.name && tc.args === toolCall.function.arguments
+              )
+
+            if (recentIdenticalCall) {
+              const currentCount = (consecutiveCallCounts.get(toolSignature) || 0) + 1
+              consecutiveCallCounts.set(toolSignature, currentCount)
+              console.warn(
+                `⚠️ Detected repeated tool call: ${toolCall.function.name} (${currentCount} times)`
+              )
+
+              if (currentCount >= 3) {
+                isStuckLoop = true
+                console.error('❌ Detected stuck loop - breaking out')
+                this.events.onError?.(
+                  new Error('Stuck loop detected: Repeating same tool calls'),
+                  iteration
+                )
+                break
+              }
+            } else {
+              consecutiveCallCounts.set(toolSignature, 0) // Reset counter for this specific tool call
+            }
+
+            toolCallHistory.push({
+              name: toolCall.function.name,
+              args: toolCall.function.arguments,
+              iteration,
+            })
+          }
+
+          if (isStuckLoop) {
+            // Exit the loop if stuck
+            this.events.onComplete?.(iteration)
+            return
+          }
+
+          // Warn when approaching iteration limit
+          if (iteration === warningThreshold) {
+            console.warn(`⚠️ Approaching iteration limit (${iteration}/${this.maxIterations})`)
+            // Don't call onIterationStart again - it was already called at the start of this iteration
+          }
+
           // Add assistant message with tool calls
           this.history.addAssistantMessage(response.message || '', response.toolCalls)
 
@@ -105,15 +173,18 @@ export class AgenticLoop {
       }
     }
 
-    // Check if we hit max iterations
-    if (this.history.getMessageCount() > 0) {
-      const lastMessages = this.history.getLastMessages(1)
-      const lastMessage = lastMessages[0]
-      if (lastMessage && lastMessage.role === 'tool') {
-        console.warn(`⚠️ Hit max iterations (${this.maxIterations}) - loop may be incomplete`)
-        this.events.onComplete?.(this.maxIterations)
-      }
-    }
+    // Check if we hit max iterations - always notify regardless of message state
+    console.warn(`⚠️ Hit max iterations (${this.maxIterations}) - loop may be incomplete`)
+    console.log('Tool call history (last 5):', toolCallHistory.slice(-5))
+
+    // Trigger error event with helpful context
+    this.events.onError?.(
+      new Error(
+        `Maximum iterations reached (${this.maxIterations}). The operation may be incomplete. Consider breaking down complex requests into smaller parts.`
+      ),
+      this.maxIterations
+    )
+    this.events.onComplete?.(this.maxIterations)
   }
 
   /**
