@@ -74,7 +74,7 @@ async function runAgenticLoop(
       let isStuckLoop = false
       for (const toolCall of currentResponse.toolCalls) {
         const toolSignature = `${toolCall.function.name}:${toolCall.function.arguments}`
-        
+
         // Check if this exact call was made recently
         const recentIdenticalCall = toolCallHistory
           .slice(-3) // Check last 3 calls

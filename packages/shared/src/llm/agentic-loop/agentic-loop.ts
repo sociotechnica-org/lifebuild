@@ -1,8 +1,7 @@
 import type { Store } from '@livestore/livestore'
 import { ConversationHistory } from '../conversation/conversation-history.js'
 import { ToolExecutor } from '../tool-executor/tool-executor.js'
-import type { LLMProvider, LLMResponse, AgenticLoopContext, AgenticLoopEvents } from './types.js'
-import type { ToolCall } from '../tool-formatters/types.js'
+import type { LLMProvider, AgenticLoopContext, AgenticLoopEvents } from './types.js'
 
 export class AgenticLoop {
   private history: ConversationHistory
