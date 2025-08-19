@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import { useQuery } from '@livestore/react'
 import { getUsers$, getWorkers$ } from '@work-squared/shared/queries'
 import { Combobox } from '../Combobox/Combobox.js'
+import { getAvatarColor } from '../../../utils/avatarColors.js'
 import type { User, Worker } from '@work-squared/shared/schema'
 
 interface AssigneeSelectorProps {
@@ -24,16 +25,20 @@ export const AssigneeSelector: React.FC<AssigneeSelectorProps> = ({
 
   // Combine users and workers into assignee options
   const assigneeOptions = useMemo(() => {
-    const options: Array<{ id: string; label: string; type: 'user' | 'worker' }> = []
+    const options: Array<{ id: string; label: string; type: 'user' | 'worker'; avatar?: string }> =
+      []
 
-    // Add users with their email or name
-    users.forEach((user: User) => {
-      options.push({
-        id: user.id,
-        label: user.email ? `${user.name} (${user.email})` : user.name,
-        type: 'user',
+    // Add users with their email or name (exclude Default User)
+    users
+      .filter((user: User) => user.name !== 'Default User' && user.email !== 'default@example.com')
+      .forEach((user: User) => {
+        options.push({
+          id: user.id,
+          label: user.name ? user.name : user.email ? user.email : '',
+          type: 'user',
+          avatar: user.avatarUrl || undefined,
+        })
       })
-    })
 
     // Add active AI workers with a badge
     workers
@@ -41,8 +46,9 @@ export const AssigneeSelector: React.FC<AssigneeSelectorProps> = ({
       .forEach((worker: Worker) => {
         options.push({
           id: worker.id,
-          label: `🤖 ${worker.name}${worker.roleDescription ? ` - ${worker.roleDescription}` : ''}`,
+          label: `${worker.name}${worker.roleDescription ? ` - ${worker.roleDescription}` : ''}`,
           type: 'worker',
+          avatar: worker.avatar || undefined,
         })
       })
 
@@ -76,7 +82,7 @@ export const AssigneeAvatars: React.FC<{ assigneeIds: string[]; maxDisplay?: num
       if (user) {
         result.push({
           id: user.id,
-          name: user.name,
+          name: user.name || user.email || '',
           type: 'user',
           avatar: user.avatarUrl || undefined,
         })
@@ -109,15 +115,21 @@ export const AssigneeAvatars: React.FC<{ assigneeIds: string[]; maxDisplay?: num
       {displayAssignees.map(assignee => (
         <div
           key={assignee.id}
-          className='w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs font-medium'
+          className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+            assignee.type === 'worker'
+              ? `${getAvatarColor(assignee.id)} text-white`
+              : assignee.avatar
+                ? 'bg-transparent'
+                : 'bg-gray-300 text-gray-700'
+          }`}
           title={assignee.name}
         >
           {assignee.type === 'worker' ? (
-            <span>🤖</span>
+            <span>{assignee.avatar || '🤖'}</span>
           ) : assignee.avatar ? (
             <img src={assignee.avatar} alt={assignee.name} className='w-full h-full rounded-full' />
           ) : (
-            <span>{assignee.name.charAt(0).toUpperCase()}</span>
+            <span>{assignee.name ? assignee.name.charAt(0).toUpperCase() : '?'}</span>
           )}
         </div>
       ))}
