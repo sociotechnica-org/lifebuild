@@ -50,7 +50,7 @@ describe('RecurringTaskForm', () => {
 
   it('shows disabled submit button for empty required fields', () => {
     render(<RecurringTaskForm {...defaultProps} />)
-    
+
     const submitButton = screen.getByText('Create Task')
     expect(submitButton).toBeDisabled()
   })
@@ -106,7 +106,6 @@ describe('RecurringTaskForm', () => {
     expect(projectSelect).toBeInTheDocument()
     // Note: The actual project name would be shown if we had mock data
   })
-
 
   it('disables submit button when required fields are empty', () => {
     render(<RecurringTaskForm {...defaultProps} />)
