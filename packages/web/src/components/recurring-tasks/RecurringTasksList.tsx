@@ -69,7 +69,7 @@ interface RecurringTaskCardProps {
 
 const RecurringTaskCard: React.FC<RecurringTaskCardProps> = ({ task }) => {
   const isEnabled = task.enabled
-  const nextExecution = task.nextExecutionAt ? new Date(task.nextExecutionAt).getTime() : null
+  const nextExecution = task.nextExecutionAt ? task.nextExecutionAt.getTime() : null
 
   return (
     <div
@@ -132,7 +132,7 @@ const RecurringTaskCard: React.FC<RecurringTaskCardProps> = ({ task }) => {
                     d='M5 13l4 4L19 7'
                   />
                 </svg>
-                Last: {formatRelativeTime(new Date(task.lastExecutedAt).getTime())}
+                Last: {formatRelativeTime(task.lastExecutedAt.getTime())}
               </div>
             )}
           </div>
