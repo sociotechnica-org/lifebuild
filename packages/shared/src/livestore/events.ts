@@ -306,9 +306,6 @@ export const contactCreated = Events.synced({
     id: Schema.String,
     name: Schema.String,
     email: Schema.optional(Schema.String),
-    phone: Schema.optional(Schema.String),
-    company: Schema.optional(Schema.String),
-    notes: Schema.optional(Schema.String),
     createdAt: Schema.Date,
   }),
 })
@@ -320,9 +317,6 @@ export const contactUpdated = Events.synced({
     updates: Schema.Struct({
       name: Schema.optional(Schema.String),
       email: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
-      phone: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
-      company: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
-      notes: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
     }),
     updatedAt: Schema.Date,
   }),
