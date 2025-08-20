@@ -252,3 +252,14 @@ export const getSettingByKey$ = (key: string) =>
   queryDb(tables.settings.select().where({ key }), {
     label: `getSettingByKey:${key}`,
   })
+
+// Recurring tasks queries
+export const getRecurringTasks$ = queryDb(
+  tables.recurringTasks.select().orderBy([{ col: 'createdAt', direction: 'desc' }]),
+  { label: 'getRecurringTasks' }
+)
+
+export const getRecurringTaskById$ = (id: string) =>
+  queryDb(tables.recurringTasks.select().where({ id }), {
+    label: `getRecurringTaskById:${id}`,
+  })
