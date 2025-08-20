@@ -13,7 +13,7 @@ export interface StoreInfo {
 
 export class StoreManager {
   private stores: Map<string, StoreInfo> = new Map()
-  private reconnectIntervals: Map<string, NodeJS.Timeout> = new Map()
+  private reconnectTimeouts: Map<string, NodeJS.Timeout> = new Map()
   private healthCheckInterval?: NodeJS.Timeout
   private readonly maxReconnectAttempts: number
   private readonly reconnectInterval: number
@@ -82,10 +82,10 @@ export class StoreManager {
       return
     }
 
-    const reconnectInterval = this.reconnectIntervals.get(storeId)
-    if (reconnectInterval) {
-      clearInterval(reconnectInterval)
-      this.reconnectIntervals.delete(storeId)
+    const reconnectTimeout = this.reconnectTimeouts.get(storeId)
+    if (reconnectTimeout) {
+      clearTimeout(reconnectTimeout)
+      this.reconnectTimeouts.delete(storeId)
     }
 
     try {
@@ -132,7 +132,7 @@ export class StoreManager {
   }
 
   private scheduleReconnect(storeId: string): void {
-    if (this.reconnectIntervals.has(storeId)) {
+    if (this.reconnectTimeouts.has(storeId)) {
       return
     }
 
@@ -148,8 +148,8 @@ export class StoreManager {
     console.log(`🔄 Scheduling reconnect for store ${storeId} in ${this.reconnectInterval}ms`)
     storeInfo.status = 'connecting'
 
-    const interval = setTimeout(async () => {
-      this.reconnectIntervals.delete(storeId)
+    const timeout = setTimeout(async () => {
+      this.reconnectTimeouts.delete(storeId)
       storeInfo.reconnectAttempts++
 
       try {
@@ -179,7 +179,7 @@ export class StoreManager {
       }
     }, this.reconnectInterval)
 
-    this.reconnectIntervals.set(storeId, interval)
+    this.reconnectTimeouts.set(storeId, timeout)
   }
 
   private startHealthChecks(): void {
@@ -211,10 +211,10 @@ export class StoreManager {
       clearInterval(this.healthCheckInterval)
     }
 
-    for (const interval of this.reconnectIntervals.values()) {
-      clearTimeout(interval)
+    for (const timeout of this.reconnectTimeouts.values()) {
+      clearTimeout(timeout)
     }
-    this.reconnectIntervals.clear()
+    this.reconnectTimeouts.clear()
 
     const shutdownPromises = Array.from(this.stores.keys()).map(storeId =>
       this.removeStore(storeId)
