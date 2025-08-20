@@ -75,29 +75,57 @@ Build the absolute minimal feature set to enable background agents to check user
 
 ## Implementation Steps (In Order)
 
-1. **Multi-Store Server Support**
+### Foundation Phase (Critical Infrastructure)
+
+1. **Multi-Store Server Support** ⚠️ CRITICAL DEPENDENCY
    - Environment variable configuration for LiveStore instances
    - Server startup to monitor multiple stores
+   - Store isolation and event routing
+   - **Must complete before moving agentic loop to server**
 
-2. **Simple Contact Management**
-   - `contacts` table (id, name, email)
+2. **Server-Side Agentic Loop Migration** ⚠️ CRITICAL DEPENDENCY
+   - Port agentic loop from client to server
+   - Implement feature flags for gradual rollout
+   - Migrate tools to server-side execution
+   - Maintain backward compatibility
+   - **Required for recurring task LLM execution**
+
+### Feature Phase (User-Facing Capabilities)
+
+3. **Simple Contact Management**
+   - `contacts` table (id, name, email) - global to store
    - `project_contacts` junction table
    - Basic UI to add contacts to projects
+   - Bulk import via comma-delimited emails
+   - Contact detail views with project associations
 
-3. **Recurring Tasks**
+4. **Recurring Tasks (Frontend + Mock Execution)**
    - `recurring_tasks` table with simple interval scheduling
-   - UI to create recurring tasks with custom prompts
-   - Server-side task execution checking (every 1-5 minutes)
+   - UI to create/edit recurring tasks with custom prompts
+   - Manual trigger with mock execution
+   - Basic execution history display
+   - Server-side checking (mock execution only initially)
 
-4. **Gmail MCP Server Setup**
+5. **Recurring Tasks (LLM Integration)**
+   - **Prerequisites**: Multi-store + Server agentic loop complete
+   - Connect recurring tasks to server-side agentic loop
+   - Execute prompts with real LLM
+   - Handle tool calls and task creation
+   - Error handling and retries
+
+6. **Gmail MCP Server Setup**
    - Configure Gmail MCP server
+   - OAuth flow for Gmail connection
    - Implement search emails tool (4-hour window)
    - Implement create draft email tool
+   - Email-to-task conversion
 
-5. **Backend Agentic Loop**
-   - Move agentic execution to server
-   - Task execution with customizable prompts
-   - Email processing and draft creation workflow
+7. **Email Processing Workflow**
+   - Create recurring task for email checking
+   - Filter emails by project contacts
+   - Create tasks from relevant emails
+   - Generate draft replies via LLM
+   - Link drafts to tasks
 
 ## Key Decisions Made
 
@@ -106,7 +134,27 @@ Build the absolute minimal feature set to enable background agents to check user
 - **Simple intervals** - no complex RRULE scheduling
 - **Minimal contacts** - just name and email, no metadata
 - **Backend execution** - move agentic loop to server for recurring tasks
+- **Infrastructure first** - Multi-store and agentic loop migration before LLM features
+- **Feature flags** - Gradual rollout of server-side execution
+- **Mock execution** - Recurring tasks work without LLM initially
+
+## Implementation Risks & Mitigations
+
+### Critical Risk: Breaking Production LLM
+
+- **Risk**: Moving agentic loop to server without multi-store breaks existing chat
+- **Mitigation**: Complete multi-store first, use feature flags, maintain client fallback
+
+### High Risk: Complex Dependencies
+
+- **Risk**: Features blocked waiting for infrastructure
+- **Mitigation**: Build features with mock execution first, add LLM later
+
+### Medium Risk: Delayed Value Delivery
+
+- **Risk**: Infrastructure work delays user-facing features
+- **Mitigation**: Ship contacts and recurring tasks UI early with mock backends
 
 ## Goal
 
-Ship this week with these minimal features that provide real value and can be built upon incrementally.
+Ship a working email draft system, with intermediate value delivered through contacts and recurring tasks features even if LLM integration is delayed.
