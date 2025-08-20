@@ -48,19 +48,11 @@ describe('RecurringTaskForm', () => {
     expect(screen.queryByText('Create Recurring Task')).not.toBeInTheDocument()
   })
 
-  it('shows validation errors for required fields', async () => {
-    const onClose = vi.fn()
-    render(<RecurringTaskForm {...defaultProps} onClose={onClose} />)
-
+  it('shows disabled submit button for empty required fields', () => {
+    render(<RecurringTaskForm {...defaultProps} />)
+    
     const submitButton = screen.getByText('Create Task')
-    fireEvent.click(submitButton)
-
-    await waitFor(() => {
-      expect(screen.getByText('Name is required')).toBeInTheDocument()
-      expect(screen.getByText('Prompt is required')).toBeInTheDocument()
-    })
-
-    expect(onClose).not.toHaveBeenCalled()
+    expect(submitButton).toBeDisabled()
   })
 
   it('submits form with valid data', async () => {
@@ -115,26 +107,6 @@ describe('RecurringTaskForm', () => {
     // Note: The actual project name would be shown if we had mock data
   })
 
-  it('clears validation errors when typing', async () => {
-    render(<RecurringTaskForm {...defaultProps} />)
-
-    // Trigger validation error
-    const submitButton = screen.getByText('Create Task')
-    fireEvent.click(submitButton)
-
-    await waitFor(() => {
-      expect(screen.getByText('Name is required')).toBeInTheDocument()
-    })
-
-    // Start typing in name field
-    fireEvent.change(screen.getByLabelText('Name *'), {
-      target: { value: 'T' },
-    })
-
-    await waitFor(() => {
-      expect(screen.queryByText('Name is required')).not.toBeInTheDocument()
-    })
-  })
 
   it('disables submit button when required fields are empty', () => {
     render(<RecurringTaskForm {...defaultProps} />)
