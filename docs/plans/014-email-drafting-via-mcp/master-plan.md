@@ -1,167 +1,112 @@
-# Email Drafting via MCP - Master Plan
+# Email Drafting via MCP - Master Plan (MINIMAL VERSION)
 
 ## Overview
 
-Build a minimal feature set that enables background agents to check user email via MCP (Model Context Protocol) and create email drafts for replies to emails that are attached to task cards.
+Build the absolute minimal feature set to enable background agents to check user email via MCP and create email drafts for replies. Focus on shipping quickly with simple abstractions that can be built upon.
 
-## Core User Stories
+## Minimal Core Features
 
-### Contact Management
-- **As a user, I want to add contacts to my Work Squared**
-  - Contact entity with name, email, phone, notes
-  - Basic CRUD operations
-  - Integration with project assignments
+### Simple Contact Management
 
-- **As a user, I want to add my Work Squared contacts to a project**
-  - Many-to-many relationship between contacts and projects
-  - Contact selection UI within project context
-  - Contact visibility and permissions per project
+- **Contacts are just name + email**
+- **Projects have a list of contacts** (many-to-many)
+- **Purpose**: Tell the system which email addresses to look for in MCP email checking
+- **No complex CRUD, permissions, or metadata - just the basics**
 
-### Recurring Tasks & Scheduling
+### Recurring Tasks (Simplified)
+
 - **As a user, I want to create a recurring task**
-  - Full Google Calendar-style scheduling features
-  - RRULE support for complex recurrence patterns
-  - Time zone handling
-  - Task templates for recurring instances
+  - Simple scheduling interface (every X hours/days)
+  - Customizable prompt for task execution
+  - No complex RRULE - just basic intervals
 
-- **As a user, I want to list recurring tasks as a lane in the task board**
-  - Special lane type for recurring tasks
-  - Visual indicators for scheduled vs overdue
-  - Quick actions to execute or reschedule
+- **As an agent, I want to execute recurring tasks on schedule**
+  - Server checks recurring tasks every minute/5 minutes
+  - Execute tasks in their execution window
+  - Move agentic loop to backend for task execution
 
-- **As an agent, I want to execute a recurring task on a schedule**
-  - Server-side cron-like functionality
-  - Task execution queue and error handling
-  - Notification system for completed/failed executions
+### Gmail MCP Integration
 
-### Email Integration
-- **As a user, I want to connect my email account to Work Squared via MCP**
-  - OAuth flow for Gmail/Outlook
-  - MCP server configuration and credential storage
-  - Email account verification and testing
+- **Set up Gmail MCP server**
+- **Email search tool** - check emails from last 4 hours (windowing approach)
+- **Draft creation tool** - create draft replies
+- **Email tracking** - use "last seen" timestamp to avoid reprocessing
 
-- **As an agent, I want to check a user's email via MCP**
-  - Background email polling service
-  - Email parsing and content extraction
-  - Attachment handling and storage
-  - Thread/conversation tracking
+### Multi-Store Server Support
 
-- **As an agent, I want to create a draft email in Google via MCP**
-  - Draft creation with proper threading
-  - Template system for response types
-  - Rich text formatting support
-  - Attachment handling
+- **Environment variable controls which LiveStore instances to monitor**
+- **Simple startup configuration - no dynamic control system**
+- **Easy to add new stores by updating env var**
 
-### Task Enhancement
-- **As a user, I want to add a tag to a task**
-  - Tag entity with color coding
-  - Many-to-many relationship with tasks
-  - Auto-completion for existing tags
+## Technical Implementation (Minimal)
 
-- **As a user, I want to filter tasks by tag**
-  - Tag-based filtering in task board
-  - Multiple tag selection
-  - Tag-based search and sorting
+### Server Architecture
 
-## Technical Infrastructure Requirements
-
-### Server-Side Architecture
 1. **Multi-Store Support**
-   - LiveStore instance per storeId
-   - Store isolation and resource management
-   - Connection pooling and cleanup
+   - Read LiveStore instances from environment variable on startup
+   - Monitor all configured stores
+   - No dynamic add/remove - restart required
 
-2. **Background Task System**
-   - Cron-like recurring task execution
-   - Task queue with priority and retry logic
-   - Dead letter queue for failed tasks
-   - Monitoring and alerting
+2. **Background Task Execution**
+   - Simple interval checking (every 1-5 minutes)
+   - Read all recurring tasks across all stores
+   - Execute if in execution window
+   - Separate agentic loop for task execution
 
-3. **MCP Integration Layer**
-   - MCP server management per user
-   - Credential encryption and secure storage
-   - Rate limiting and quota management
-   - Error handling and fallback strategies
+3. **Gmail MCP Setup**
+   - Gmail MCP server configuration
+   - Search emails tool (last 4 hours window)
+   - Create draft email tool
+   - Last seen timestamp tracking (no email caching)
 
-### Data Model Extensions
-- `contacts` table with user association
+### Data Model (Minimal)
+
+- `contacts` table: id, name, email
 - `project_contacts` junction table
-- `recurring_tasks` with RRULE support
-- `email_accounts` with encrypted credentials
-- `email_threads` for conversation tracking
-- `tags` with color and metadata
-- `task_tags` junction table
+- `recurring_tasks` table: simple interval scheduling
+- Email tracking: timestamp-based, no local email storage
 
-## Open Questions
+### Tools Required
 
-### Contact Management
-- How do we handle contact deduplication across users?
-- Should contacts be shareable between projects/users?
-- What contact fields are essential vs optional?
+- **Search emails tool** (via MCP)
+- **Create draft email tool** (via MCP)
+- **Task creation** (existing)
+- **Customizable prompts** for task execution
 
-### Recurring Tasks
-- How do we handle timezone changes for recurring tasks?
-- What happens to recurring tasks when the underlying task template changes?
-- How do we handle conflicts between recurring task instances?
+## Implementation Steps (In Order)
 
-### Email Integration
-- Which email providers should we support initially?
-- How do we handle email threading and conversation context?
-- What's our strategy for handling large email volumes?
-- How do we prevent duplicate processing of emails?
+1. **Multi-Store Server Support**
+   - Environment variable configuration for LiveStore instances
+   - Server startup to monitor multiple stores
 
-### Agent Behavior
-- What triggers should cause an agent to draft an email response?
-- How do we ensure draft quality and appropriateness?
-- What approval workflow should exist for agent-generated drafts?
-- How do we handle agent errors and fallbacks?
+2. **Simple Contact Management**
+   - `contacts` table (id, name, email)
+   - `project_contacts` junction table
+   - Basic UI to add contacts to projects
 
-### Security & Privacy
-- How do we encrypt and store email credentials?
-- What audit trail do we need for agent actions?
-- How do we handle user consent for agent email access?
-- What data retention policies apply to email content?
+3. **Recurring Tasks**
+   - `recurring_tasks` table with simple interval scheduling
+   - UI to create recurring tasks with custom prompts
+   - Server-side task execution checking (every 1-5 minutes)
 
-### Performance & Scalability
-- How do we scale the background task system?
-- What's our strategy for handling email polling at scale?
-- How do we optimize LiveStore performance with multiple instances?
+4. **Gmail MCP Server Setup**
+   - Configure Gmail MCP server
+   - Implement search emails tool (4-hour window)
+   - Implement create draft email tool
 
-### User Experience
-- How do users configure and monitor agent behavior?
-- What notifications do users need about agent actions?
-- How do we make email drafts discoverable and actionable?
+5. **Backend Agentic Loop**
+   - Move agentic execution to server
+   - Task execution with customizable prompts
+   - Email processing and draft creation workflow
 
-## Implementation Phases
+## Key Decisions Made
 
-### Phase 1: Foundation
-- Contact management system
-- Basic tag functionality
-- Multi-store server architecture
+- **No email caching** - use windowing (last 4 hours) and timestamp tracking
+- **Environment variable configuration** - no dynamic store management
+- **Simple intervals** - no complex RRULE scheduling
+- **Minimal contacts** - just name and email, no metadata
+- **Backend execution** - move agentic loop to server for recurring tasks
 
-### Phase 2: Scheduling Infrastructure
-- Recurring task creation and management
-- Background task execution system
-- Task board integration
+## Goal
 
-### Phase 3: Email Integration
-- MCP email connection setup
-- Email polling and parsing
-- Basic draft creation
-
-### Phase 4: Agent Intelligence
-- Email-to-task association logic
-- Intelligent draft generation
-- User approval workflows
-
-## Success Metrics
-- Time saved on email management tasks
-- User engagement with agent-generated drafts
-- System reliability and uptime
-- Email processing accuracy and speed
-
-## Risk Mitigation
-- Start with read-only email access
-- Implement comprehensive logging and monitoring
-- Build user controls for agent behavior
-- Plan for graceful degradation of services
+Ship this week with these minimal features that provide real value and can be built upon incrementally.
