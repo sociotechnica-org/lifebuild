@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { useQuery } from '@livestore/react'
+import { getProjects$ } from '@work-squared/shared/queries'
 import { formatInterval, formatRelativeTime } from '@work-squared/shared'
 import type { RecurringTask } from '@work-squared/shared/schema'
 
@@ -15,12 +17,14 @@ export const RecurringTaskCard: React.FC<RecurringTaskCardProps> = ({
   onDelete,
   onToggleEnabled,
 }) => {
+  const projects = useQuery(getProjects$) ?? []
   const [showActions, setShowActions] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isToggling, setIsToggling] = useState(false)
 
   const isEnabled = task.enabled
   const nextExecution = task.nextExecutionAt ? task.nextExecutionAt.getTime() : null
+  const project = task.projectId ? projects.find(p => p.id === task.projectId) : null
 
   const handleToggleEnabled = async () => {
     setIsToggling(true)
@@ -92,6 +96,20 @@ export const RecurringTaskCard: React.FC<RecurringTaskCardProps> = ({
               </svg>
               Every {formatInterval(task.intervalHours)}
             </div>
+
+            {project && (
+              <div className='flex items-center gap-1'>
+                <svg className='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
+                  />
+                </svg>
+                {project.name}
+              </div>
+            )}
 
             {isEnabled && nextExecution && (
               <div className='flex items-center gap-1'>

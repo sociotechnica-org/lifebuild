@@ -10,6 +10,11 @@ vi.mock('@work-squared/shared', () => ({
   formatRelativeTime: vi.fn((timestamp: number) => 'in 2 hours'),
 }))
 
+// Mock useQuery hook
+vi.mock('@livestore/react', () => ({
+  useQuery: vi.fn(() => []),
+}))
+
 const mockTask: RecurringTask = {
   id: 'task-1',
   name: 'Test Task',

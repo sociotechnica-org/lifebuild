@@ -3,7 +3,7 @@ import { useQuery, useStore } from '@livestore/react'
 import { getProjects$ } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
 import { calculateNextExecution } from '@work-squared/shared'
-import type { Project, RecurringTask } from '@work-squared/shared'
+import type { RecurringTask } from '@work-squared/shared'
 
 interface EditRecurringTaskModalProps {
   isOpen: boolean
@@ -148,156 +148,158 @@ export const EditRecurringTaskModal: React.FC<EditRecurringTaskModalProps> = ({
 
   if (!isOpen || !task) return null
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
+  }
+
   return (
-    <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto'>
-        <div className='px-6 py-4 border-b'>
-          <div className='flex items-center justify-between'>
-            <h2 className='text-lg font-semibold text-gray-900'>Edit Recurring Task</h2>
-            <button
-              onClick={onClose}
-              className='text-gray-400 hover:text-gray-600 transition-colors'
-            >
-              <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M6 18L18 6M6 6l12 12'
-                />
-              </svg>
-            </button>
-          </div>
+    <div
+      className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'
+      onClick={handleBackdropClick}
+    >
+      <div className='bg-white rounded-lg shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto'>
+        {/* Header */}
+        <div className='flex items-start justify-between p-6 border-b border-gray-200'>
+          <h3 className='text-lg font-semibold leading-6 text-gray-900'>Edit Recurring Task</h3>
+          <button
+            onClick={onClose}
+            className='text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100'
+            aria-label='Close modal'
+          >
+            <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M6 18L18 6M6 6l12 12'
+              />
+            </svg>
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className='px-6 py-4 space-y-4'>
-          {/* Name Field */}
-          <div>
-            <label htmlFor='task-name' className='block text-sm font-medium text-gray-700 mb-1'>
-              Task Name
-            </label>
-            <input
-              id='task-name'
-              type='text'
-              value={name}
-              onChange={e => setName(e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                nameError ? 'border-red-300' : 'border-gray-300'
-              }`}
-              placeholder='Enter task name'
-            />
-            {nameError && <p className='text-red-600 text-xs mt-1'>{nameError}</p>}
-          </div>
+        {/* Content */}
+        <div className='p-6'>
+          <form onSubmit={handleSubmit} className='space-y-6'>
+            {/* Name Field */}
+            <div>
+              <label htmlFor='task-name' className='block text-sm font-medium text-gray-900 mb-2'>
+                Task Name *
+              </label>
+              <input
+                id='task-name'
+                type='text'
+                value={name}
+                onChange={e => setName(e.target.value)}
+                className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  nameError ? 'border-red-300' : 'border-gray-300'
+                }`}
+                placeholder='Enter task name'
+                autoFocus
+              />
+              {nameError && <p className='mt-1 text-sm text-red-600'>{nameError}</p>}
+            </div>
 
-          {/* Description Field */}
-          <div>
-            <label
-              htmlFor='task-description'
-              className='block text-sm font-medium text-gray-700 mb-1'
-            >
-              Description (optional)
-            </label>
-            <input
-              id='task-description'
-              type='text'
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-              placeholder='Brief description of the task'
-            />
-          </div>
+            {/* Description Field */}
+            <div>
+              <label
+                htmlFor='task-description'
+                className='block text-sm font-medium text-gray-900 mb-2'
+              >
+                Description
+              </label>
+              <input
+                id='task-description'
+                type='text'
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                placeholder='Brief description of the task (optional)'
+              />
+            </div>
 
-          {/* Prompt Field */}
-          <div>
-            <label htmlFor='task-prompt' className='block text-sm font-medium text-gray-700 mb-1'>
-              Task Prompt
-            </label>
-            <textarea
-              id='task-prompt'
-              value={prompt}
-              onChange={e => setPrompt(e.target.value)}
-              rows={4}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${
-                promptError ? 'border-red-300' : 'border-gray-300'
-              }`}
-              placeholder='Enter the prompt that will be sent to the AI when this task runs'
-            />
-            {promptError && <p className='text-red-600 text-xs mt-1'>{promptError}</p>}
-          </div>
+            {/* Prompt Field */}
+            <div>
+              <label htmlFor='task-prompt' className='block text-sm font-medium text-gray-900 mb-2'>
+                Task Prompt *
+              </label>
+              <textarea
+                id='task-prompt'
+                value={prompt}
+                onChange={e => setPrompt(e.target.value)}
+                rows={4}
+                className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical min-h-[100px] ${
+                  promptError ? 'border-red-300' : 'border-gray-300'
+                }`}
+                placeholder='Enter the prompt that will be sent to the AI when this task runs'
+              />
+              {promptError && <p className='mt-1 text-sm text-red-600'>{promptError}</p>}
+            </div>
 
-          {/* Interval Field */}
-          <div>
-            <label htmlFor='task-interval' className='block text-sm font-medium text-gray-700 mb-1'>
-              Run Every
-            </label>
-            <select
-              id='task-interval'
-              value={intervalHours}
-              onChange={e => setIntervalHours(Number(e.target.value))}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-            >
-              {INTERVAL_OPTIONS.map(option => (
-                <option key={option.hours} value={option.hours}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
+            {/* Interval Field */}
+            <div>
+              <label
+                htmlFor='task-interval'
+                className='block text-sm font-medium text-gray-900 mb-2'
+              >
+                Run Every
+              </label>
+              <select
+                id='task-interval'
+                value={intervalHours}
+                onChange={e => setIntervalHours(Number(e.target.value))}
+                className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+              >
+                {INTERVAL_OPTIONS.map(option => (
+                  <option key={option.hours} value={option.hours}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* Project Field */}
-          <div>
-            <label htmlFor='task-project' className='block text-sm font-medium text-gray-700 mb-1'>
-              Project (optional)
-            </label>
-            <select
-              id='task-project'
-              value={selectedProjectId || ''}
-              onChange={e => setSelectedProjectId(e.target.value || null)}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-            >
-              <option value=''>No specific project</option>
-              {projects.map(project => (
-                <option key={project.id} value={project.id}>
-                  {project.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </form>
+            {/* Project Field */}
+            <div>
+              <label
+                htmlFor='task-project'
+                className='block text-sm font-medium text-gray-900 mb-2'
+              >
+                Project
+              </label>
+              <select
+                id='task-project'
+                value={selectedProjectId || ''}
+                onChange={e => setSelectedProjectId(e.target.value || null)}
+                className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+              >
+                <option value=''>No specific project</option>
+                {projects.map(project => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {/* Actions */}
-        <div className='px-6 py-4 border-t bg-gray-50 flex justify-end gap-2'>
-          <button
-            type='button'
-            onClick={onClose}
-            className='px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors'
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className='px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2'
-          >
-            {isSubmitting && (
-              <svg className='w-4 h-4 animate-spin' fill='none' viewBox='0 0 24 24'>
-                <circle
-                  className='opacity-25'
-                  cx='12'
-                  cy='12'
-                  r='10'
-                  stroke='currentColor'
-                  strokeWidth='4'
-                />
-                <path
-                  className='opacity-75'
-                  fill='currentColor'
-                  d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                />
-              </svg>
-            )}
-            {isSubmitting ? 'Saving...' : 'Save Changes'}
-          </button>
+            {/* Actions */}
+            <div className='flex justify-end space-x-3 pt-4'>
+              <button
+                type='button'
+                onClick={onClose}
+                className='px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors'
+              >
+                Cancel
+              </button>
+              <button
+                type='submit'
+                disabled={isSubmitting}
+                className='px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors'
+              >
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
