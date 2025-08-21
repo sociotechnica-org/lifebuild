@@ -253,6 +253,25 @@ export const getSettingByKey$ = (key: string) =>
     label: `getSettingByKey:${key}`,
   })
 
+// Contact queries
+export const getContacts$ = queryDb(
+  tables.contacts
+    .select()
+    .where({ deletedAt: null })
+    .orderBy([{ col: 'name', direction: 'asc' }]),
+  { label: 'getContacts' }
+)
+
+export const getContactById$ = (contactId: string) =>
+  queryDb(tables.contacts.select().where({ id: contactId, deletedAt: null }), {
+    label: `getContactById:${contactId}`,
+  })
+
+export const getContactByEmail$ = (email: string) =>
+  queryDb(tables.contacts.select().where({ email, deletedAt: null }), {
+    label: `getContactByEmail:${email}`,
+  })
+
 // Recurring tasks queries
 export const getRecurringTasks$ = queryDb(
   tables.recurringTasks.select().orderBy([{ col: 'createdAt', direction: 'desc' }]),

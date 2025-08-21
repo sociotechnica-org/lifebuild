@@ -245,6 +245,25 @@ const settings = State.SQLite.table({
   },
 })
 
+const contacts = State.SQLite.table({
+  name: 'contacts',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    name: State.SQLite.text({ default: '' }),
+    email: State.SQLite.text({ nullable: true }),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    updatedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    deletedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
 const uiState = State.SQLite.clientDocument({
   name: 'uiState',
   schema: Schema.Struct({
@@ -271,6 +290,7 @@ export type WorkerProject = State.SQLite.FromTable.RowDecoded<typeof workerProje
 export type RecurringTask = State.SQLite.FromTable.RowDecoded<typeof recurringTasks>
 export type EventsLog = State.SQLite.FromTable.RowDecoded<typeof eventsLog>
 export type Setting = State.SQLite.FromTable.RowDecoded<typeof settings>
+export type Contact = State.SQLite.FromTable.RowDecoded<typeof contacts>
 export type UiState = typeof uiState.default.value
 
 export const events = {
@@ -294,6 +314,7 @@ export const tables = {
   recurringTasks,
   eventsLog,
   settings,
+  contacts,
 }
 
 // Helper function to log events to the eventsLog table
@@ -501,6 +522,20 @@ const materializers = State.SQLite.materializers(events, {
     settings.delete().where({ key }),
     settings.insert({ key, value, updatedAt }),
     logEvent('v1.SettingUpdated', { key, value, updatedAt }, updatedAt),
+  ],
+  'v1.ContactCreated': ({ id, name, email, createdAt }) => [
+    contacts.insert({ id, name, email, createdAt, updatedAt: createdAt }),
+    logEvent('v1.ContactCreated', { id, name, email, createdAt }, createdAt),
+  ],
+  'v1.ContactUpdated': ({ id, updates, updatedAt }) => {
+    const updateData: Record<string, any> = { updatedAt }
+    if (updates.name !== undefined) updateData.name = updates.name
+    if (updates.email !== undefined) updateData.email = updates.email
+    return contacts.update(updateData).where({ id })
+  },
+  'v1.ContactDeleted': ({ id, deletedAt }) => [
+    contacts.update({ deletedAt }).where({ id }),
+    logEvent('v1.ContactDeleted', { id, deletedAt }, deletedAt),
   ],
 })
 
