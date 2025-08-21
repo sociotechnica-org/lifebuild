@@ -299,3 +299,33 @@ export const settingUpdated = Events.synced({
     updatedAt: Schema.Date,
   }),
 })
+
+export const contactCreated = Events.synced({
+  name: 'v1.ContactCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+    email: Schema.optional(Schema.String),
+    createdAt: Schema.Date,
+  }),
+})
+
+export const contactUpdated = Events.synced({
+  name: 'v1.ContactUpdated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    updates: Schema.Struct({
+      name: Schema.optional(Schema.String),
+      email: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+    }),
+    updatedAt: Schema.Date,
+  }),
+})
+
+export const contactDeleted = Events.synced({
+  name: 'v1.ContactDeleted',
+  schema: Schema.Struct({
+    id: Schema.String,
+    deletedAt: Schema.Date,
+  }),
+})

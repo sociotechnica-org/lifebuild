@@ -14,6 +14,7 @@ import { TasksPage } from './components/tasks/TasksPage.js'
 import { WorkersPage } from './components/workers/WorkersPage.js'
 import { DocumentsPage } from './components/documents/DocumentsPage/DocumentsPage.js'
 import { DocumentPage } from './components/documents/DocumentPage.js'
+import { ContactList } from './components/contacts/ContactList.js'
 import { HistoryPage } from './pages/HistoryPage.js'
 import { LoginPage } from './pages/LoginPage.js'
 import { SignupPage } from './pages/SignupPage.js'
@@ -173,6 +174,16 @@ const ProtectedApp: React.FC = () => (
                       <Layout>
                         <ErrorBoundary>
                           <DocumentsPage />
+                        </ErrorBoundary>
+                      </Layout>
+                    }
+                  />
+                  <Route
+                    path={ROUTES.CONTACTS}
+                    element={
+                      <Layout>
+                        <ErrorBoundary>
+                          <ContactList />
                         </ErrorBoundary>
                       </Layout>
                     }
