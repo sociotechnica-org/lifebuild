@@ -5,6 +5,7 @@ import { events } from '@work-squared/shared/schema'
 import { ErrorMessage } from '../ui/ErrorMessage.js'
 import { LoadingSpinner } from '../ui/LoadingSpinner.js'
 import { ContactForm } from './ContactForm.js'
+import { ContactItem } from './ContactItem.js'
 
 export const ContactList: React.FC = () => {
   const { store } = useStore()
@@ -75,19 +76,9 @@ export const ContactList: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className='divide-y divide-gray-200'>
+            <div>
               {contacts.map(contact => (
-                <div key={contact.id} className='px-6 py-4 hover:bg-gray-50'>
-                  <div className='flex items-center justify-between'>
-                    <div>
-                      <h3 className='text-sm font-medium text-gray-900'>{contact.name}</h3>
-                      {contact.email && <p className='text-sm text-gray-600'>{contact.email}</p>}
-                      <p className='text-xs text-gray-400 mt-1'>
-                        Created {new Date(contact.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                <ContactItem key={contact.id} contact={contact} />
               ))}
             </div>
           )}
