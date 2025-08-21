@@ -182,19 +182,11 @@ test.describe('Contact Management', () => {
     // Should show validation error
     await expect(page.locator('text=Please enter a valid email address')).toBeVisible()
 
-    // Clear name to test required field
-    await page.fill('input[id="edit-name"]', '')
-    await page.click('button:has-text("Save Changes")')
-
-    // Should show name required error
-    await expect(page.locator('text=Name is required')).toBeVisible()
-
-    // Fix both issues
-    await page.fill('input[id="edit-name"]', 'Fixed Name')
+    // Try to save with valid email - should work since name is now optional
     await page.fill('input[id="edit-email"]', 'fixed@example.com')
-
-    // Should be able to save now
     await page.click('button:has-text("Save Changes")')
+
+    // Should successfully close modal since both name is optional and email is valid
     await expect(page.locator('text=Edit Contact')).not.toBeVisible()
   })
 

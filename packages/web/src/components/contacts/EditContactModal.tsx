@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Contact } from '@work-squared/shared/schema'
 import { useContacts } from '../../hooks/useContacts.js'
-import { ErrorMessage } from '../ui/ErrorMessage.js'
 
 interface EditContactModalProps {
   contact: Contact
@@ -89,15 +88,42 @@ export const EditContactModal: React.FC<EditContactModalProps> = ({
     return name.trim() !== contact.name || email.trim() !== (contact.email || '')
   }
 
-  return (
-    <div className='fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50'>
-      <div className='relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white'>
-        <div className='mt-3'>
-          <h3 className='text-lg font-medium text-gray-900 mb-4'>Edit Contact</h3>
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
+  }
 
-          <form onSubmit={handleSubmit} className='space-y-4'>
+  return (
+    <div
+      className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'
+      onClick={handleBackdropClick}
+    >
+      <div className='bg-white rounded-lg shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto'>
+        {/* Header */}
+        <div className='flex items-start justify-between p-6 border-b border-gray-200'>
+          <h3 className='text-lg font-semibold leading-6 text-gray-900'>Edit Contact</h3>
+          <button
+            onClick={onClose}
+            className='text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100'
+            aria-label='Close modal'
+          >
+            <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M6 18L18 6M6 6l12 12'
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className='p-6'>
+          <form onSubmit={handleSubmit} className='space-y-6'>
             <div>
-              <label htmlFor='edit-name' className='block text-sm font-medium text-gray-700 mb-1'>
+              <label htmlFor='edit-name' className='block text-sm font-medium text-gray-900 mb-2'>
                 Name *
               </label>
               <input
@@ -105,31 +131,34 @@ export const EditContactModal: React.FC<EditContactModalProps> = ({
                 id='edit-name'
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500'
+                className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                 placeholder='Enter contact name'
-                required
+                autoFocus
               />
             </div>
 
             <div>
-              <label htmlFor='edit-email' className='block text-sm font-medium text-gray-700 mb-1'>
+              <label htmlFor='edit-email' className='block text-sm font-medium text-gray-900 mb-2'>
                 Email
               </label>
               <input
-                type='email'
+                type='text'
                 id='edit-email'
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500'
+                className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                 placeholder='Enter email address'
               />
             </div>
 
+            {error && <p className='text-sm text-red-600'>{error}</p>}
+
+            {/* Actions */}
             <div className='flex justify-end space-x-3 pt-4'>
               <button
                 type='button'
                 onClick={onClose}
-                className='px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500'
+                className='px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors'
                 disabled={isSubmitting}
               >
                 Cancel
@@ -137,7 +166,7 @@ export const EditContactModal: React.FC<EditContactModalProps> = ({
               <button
                 type='submit'
                 disabled={isSubmitting || !hasChanges()}
-                className='px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed'
+                className='px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors'
               >
                 {isSubmitting ? 'Saving...' : 'Save Changes'}
               </button>
@@ -145,8 +174,6 @@ export const EditContactModal: React.FC<EditContactModalProps> = ({
           </form>
         </div>
       </div>
-
-      <ErrorMessage error={error} onDismiss={() => setError(null)} />
     </div>
   )
 }
