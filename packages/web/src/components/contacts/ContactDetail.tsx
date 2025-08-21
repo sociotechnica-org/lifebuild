@@ -9,7 +9,6 @@ import { ROUTES } from '../../constants/routes.js'
 export const ContactDetail: React.FC = () => {
   const { contactId } = useParams<{ contactId: string }>()
   const navigate = useNavigate()
-  const contact = useContact(contactId!)
   const { deleteContact } = useContacts()
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -23,6 +22,8 @@ export const ContactDetail: React.FC = () => {
       </div>
     )
   }
+
+  const contact = useContact(contactId)
 
   if (contact === undefined) {
     return (
