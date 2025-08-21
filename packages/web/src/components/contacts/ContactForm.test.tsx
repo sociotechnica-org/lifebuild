@@ -12,12 +12,12 @@ describe('ContactForm', () => {
 
   it('should allow creating a contact with just an email (no name)', async () => {
     mockOnSubmit.mockResolvedValueOnce(true)
-    
+
     render(<ContactForm onSubmit={mockOnSubmit} />)
 
     // Only fill in email, leave name empty
     await fireEvent.change(screen.getByPlaceholderText('Enter email address'), {
-      target: { value: 'test@example.com' }
+      target: { value: 'test@example.com' },
     })
 
     // Submit should be enabled since only email is required
@@ -33,14 +33,14 @@ describe('ContactForm', () => {
 
   it('should create contact with provided name', async () => {
     mockOnSubmit.mockResolvedValueOnce(true)
-    
+
     render(<ContactForm onSubmit={mockOnSubmit} />)
 
     await fireEvent.change(screen.getByPlaceholderText('Enter contact name'), {
-      target: { value: 'John Doe' }
+      target: { value: 'John Doe' },
     })
     await fireEvent.change(screen.getByPlaceholderText('Enter email address'), {
-      target: { value: 'john@example.com' }
+      target: { value: 'john@example.com' },
     })
 
     fireEvent.click(screen.getByText('Add Contact'))
@@ -56,16 +56,16 @@ describe('ContactForm', () => {
     // Submit button should be disabled when email is empty
     const submitButton = screen.getByText('Add Contact')
     expect(submitButton).toBeDisabled()
-    
+
     // Even if we try to click, the form shouldn't submit
     fireEvent.click(submitButton)
     expect(mockOnSubmit).not.toHaveBeenCalled()
 
     // Fill in email and button should become enabled
     await fireEvent.change(screen.getByPlaceholderText('Enter email address'), {
-      target: { value: 'test@example.com' }
+      target: { value: 'test@example.com' },
     })
-    
+
     expect(submitButton).not.toBeDisabled()
   })
 
@@ -73,7 +73,7 @@ describe('ContactForm', () => {
     render(<ContactForm onSubmit={mockOnSubmit} />)
 
     await fireEvent.change(screen.getByPlaceholderText('Enter email address'), {
-      target: { value: 'invalid-email' }
+      target: { value: 'invalid-email' },
     })
 
     fireEvent.click(screen.getByText('Add Contact'))
@@ -81,7 +81,7 @@ describe('ContactForm', () => {
     await waitFor(() => {
       expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument()
     })
-    
+
     expect(mockOnSubmit).not.toHaveBeenCalled()
   })
 })
