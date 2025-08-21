@@ -208,6 +208,32 @@ const eventsLog = State.SQLite.table({
   },
 })
 
+const recurringTasks = State.SQLite.table({
+  name: 'recurringTasks',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    name: State.SQLite.text({ default: '' }),
+    description: State.SQLite.text({ nullable: true }),
+    prompt: State.SQLite.text({ default: '' }),
+    intervalHours: State.SQLite.integer({ default: 24 }),
+    lastExecutedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+    nextExecutionAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    enabled: State.SQLite.boolean({ default: true }),
+    projectId: State.SQLite.text({ nullable: true }),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    updatedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
 const settings = State.SQLite.table({
   name: 'settings',
   columns: {
@@ -261,6 +287,7 @@ export type Document = State.SQLite.FromTable.RowDecoded<typeof documents>
 export type DocumentProject = State.SQLite.FromTable.RowDecoded<typeof documentProjects>
 export type Worker = State.SQLite.FromTable.RowDecoded<typeof workers>
 export type WorkerProject = State.SQLite.FromTable.RowDecoded<typeof workerProjects>
+export type RecurringTask = State.SQLite.FromTable.RowDecoded<typeof recurringTasks>
 export type EventsLog = State.SQLite.FromTable.RowDecoded<typeof eventsLog>
 export type Setting = State.SQLite.FromTable.RowDecoded<typeof settings>
 export type Contact = State.SQLite.FromTable.RowDecoded<typeof contacts>
@@ -284,6 +311,7 @@ export const tables = {
   documentProjects,
   workers,
   workerProjects,
+  recurringTasks,
   eventsLog,
   settings,
   contacts,
@@ -450,6 +478,46 @@ const materializers = State.SQLite.materializers(events, {
     workerProjects.insert({ workerId, projectId }),
   'v1.WorkerUnassignedFromProject': ({ workerId, projectId }) =>
     workerProjects.delete().where({ workerId, projectId }),
+  'v1.RecurringTaskCreated': ({
+    id,
+    name,
+    description,
+    prompt,
+    intervalHours,
+    enabled,
+    projectId,
+    nextExecutionAt,
+    createdAt,
+  }) => [
+    recurringTasks.insert({
+      id,
+      name,
+      description,
+      prompt,
+      intervalHours,
+      enabled,
+      projectId,
+      lastExecutedAt: null,
+      nextExecutionAt,
+      createdAt,
+      updatedAt: createdAt,
+    }),
+    logEvent(
+      'v1.RecurringTaskCreated',
+      {
+        id,
+        name,
+        description,
+        prompt,
+        intervalHours,
+        enabled,
+        projectId,
+        nextExecutionAt,
+        createdAt,
+      },
+      createdAt
+    ),
+  ],
   'v1.SettingUpdated': ({ key, value, updatedAt }) => [
     settings.delete().where({ key }),
     settings.insert({ key, value, updatedAt }),

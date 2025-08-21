@@ -291,6 +291,21 @@ export const workerUnassignedFromProject = Events.synced({
   }),
 })
 
+export const recurringTaskCreated = Events.synced({
+  name: 'v1.RecurringTaskCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+    description: Schema.Union(Schema.String, Schema.Undefined),
+    prompt: Schema.String,
+    intervalHours: Schema.Number,
+    enabled: Schema.Boolean,
+    projectId: Schema.Union(Schema.String, Schema.Undefined),
+    nextExecutionAt: Schema.Date,
+    createdAt: Schema.Date,
+  }),
+})
+
 export const settingUpdated = Events.synced({
   name: 'v1.SettingUpdated',
   schema: Schema.Struct({
