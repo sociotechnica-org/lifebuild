@@ -10,21 +10,11 @@ export interface StoreConfig {
   syncUrl?: string
   dataPath?: string
   connectionTimeout?: number
-  devtoolsPort?: number
+  devtoolsUrl?: string
+  enableDevtools?: boolean
 }
 
 const STORE_ID_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-_]{2,63}$/
-
-function generateDevtoolsPort(storeId: string, basePort = 4242): number {
-  // Create a simple hash of the store ID to generate a consistent port offset
-  let hash = 0
-  for (let i = 0; i < storeId.length; i++) {
-    hash = ((hash << 5) - hash + storeId.charCodeAt(i)) & 0xffffffff
-  }
-  // Use absolute value and modulo to get a port offset between 0-99
-  const offset = Math.abs(hash) % 100
-  return basePort + offset
-}
 
 export function validateStoreId(storeId: string): boolean {
   if (!storeId || typeof storeId !== 'string') {
@@ -48,14 +38,16 @@ export function getStoreConfig(storeId: string): StoreConfig {
     syncUrl: process.env.LIVESTORE_SYNC_URL || 'ws://localhost:8787',
     dataPath: process.env.STORE_DATA_PATH || './data',
     connectionTimeout: Number(process.env.STORE_CONNECTION_TIMEOUT) || 30000,
-    devtoolsPort: generateDevtoolsPort(storeId),
+    devtoolsUrl: process.env.DEVTOOLS_URL || 'http://localhost:4300',
+    enableDevtools:
+      process.env.NODE_ENV !== 'production' && process.env.DISABLE_DEVTOOLS !== 'true',
   }
 
   const storeSpecificEnvPrefix = `STORE_${storeId.toUpperCase().replace(/-/g, '_')}_`
   const authTokenKey = `${storeSpecificEnvPrefix}AUTH_TOKEN`
   const syncUrlKey = `${storeSpecificEnvPrefix}SYNC_URL`
   const dataPathKey = `${storeSpecificEnvPrefix}DATA_PATH`
-  const devtoolsPortKey = `${storeSpecificEnvPrefix}DEVTOOLS_PORT`
+  const devtoolsUrlKey = `${storeSpecificEnvPrefix}DEVTOOLS_URL`
 
   if (process.env[authTokenKey]) {
     baseConfig.authToken = process.env[authTokenKey]
@@ -66,11 +58,8 @@ export function getStoreConfig(storeId: string): StoreConfig {
   if (process.env[dataPathKey]) {
     baseConfig.dataPath = process.env[dataPathKey]
   }
-  if (process.env[devtoolsPortKey]) {
-    const port = Number(process.env[devtoolsPortKey])
-    if (port > 0 && port < 65536) {
-      baseConfig.devtoolsPort = port
-    }
+  if (process.env[devtoolsUrlKey]) {
+    baseConfig.devtoolsUrl = process.env[devtoolsUrlKey]
   }
 
   return baseConfig
@@ -93,7 +82,8 @@ export async function createStore(
     storeId: config.storeId,
     syncUrl: config.syncUrl,
     dataPath: config.dataPath,
-    devtoolsPort: config.devtoolsPort,
+    devtoolsEnabled: config.enableDevtools,
+    devtoolsUrl: config.enableDevtools ? config.devtoolsUrl : 'disabled',
   })
 
   const storeDataPath = path.join(config.dataPath!, storeId)
@@ -109,10 +99,11 @@ export async function createStore(
           onSyncError: 'shutdown',
         }
       : undefined,
-    devtools: {
-      schemaPath: '../shared/src/livestore/schema.ts',
-      port: config.devtoolsPort,
-    },
+    devtools: config.enableDevtools
+      ? {
+          schemaPath: '../shared/src/livestore/schema.ts',
+        }
+      : undefined,
   })
 
   const timeoutPromise = new Promise<never>((_, reject) => {

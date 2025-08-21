@@ -1,10 +1,13 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { validateStoreId, getStoreConfig, StoreFactory } from '../../src/factories/store-factory.js'
 
-vi.mock('@livestore/livestore', () => ({
-  createStorePromise: vi.fn(),
-  Schema: {},
-}))
+vi.mock('@livestore/livestore', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    createStorePromise: vi.fn(),
+  }
+})
 
 vi.mock('@livestore/adapter-node', () => ({
   makeAdapter: vi.fn(),
@@ -66,8 +69,8 @@ describe('Store Factory', () => {
       expect(config.syncUrl).toBe('ws://localhost:8787')
       expect(config.dataPath).toBe('./data')
       expect(config.connectionTimeout).toBe(30000)
-      expect(config.devtoolsPort).toBeGreaterThanOrEqual(4242)
-      expect(config.devtoolsPort).toBeLessThan(4342)
+      expect(config.devtoolsUrl).toBe('http://localhost:4300')
+      expect(config.enableDevtools).toBe(true)
     })
 
     it('should use global environment variables', () => {
@@ -75,6 +78,7 @@ describe('Store Factory', () => {
       process.env.LIVESTORE_SYNC_URL = 'ws://global:8787'
       process.env.STORE_DATA_PATH = './global-data'
       process.env.STORE_CONNECTION_TIMEOUT = '60000'
+      process.env.DEVTOOLS_URL = 'http://localhost:4400'
 
       const config = getStoreConfig('test-store')
 
@@ -82,6 +86,7 @@ describe('Store Factory', () => {
       expect(config.syncUrl).toBe('ws://global:8787')
       expect(config.dataPath).toBe('./global-data')
       expect(config.connectionTimeout).toBe(60000)
+      expect(config.devtoolsUrl).toBe('http://localhost:4400')
     })
 
     it('should prioritize store-specific environment variables', () => {
@@ -89,12 +94,14 @@ describe('Store Factory', () => {
       process.env.STORE_TEST_STORE_AUTH_TOKEN = 'specific-token'
       process.env.STORE_TEST_STORE_SYNC_URL = 'ws://specific:8787'
       process.env.STORE_TEST_STORE_DATA_PATH = './specific-data'
+      process.env.STORE_TEST_STORE_DEVTOOLS_URL = 'http://localhost:4500'
 
       const config = getStoreConfig('test-store')
 
       expect(config.authToken).toBe('specific-token')
       expect(config.syncUrl).toBe('ws://specific:8787')
       expect(config.dataPath).toBe('./specific-data')
+      expect(config.devtoolsUrl).toBe('http://localhost:4500')
     })
 
     it('should handle store IDs with hyphens in env vars', () => {
@@ -105,26 +112,28 @@ describe('Store Factory', () => {
       expect(config.authToken).toBe('special-token')
     })
 
-    it('should generate consistent devtools ports for same store ID', () => {
-      const config1 = getStoreConfig('test-store')
-      const config2 = getStoreConfig('test-store')
-
-      expect(config1.devtoolsPort).toBe(config2.devtoolsPort)
-    })
-
-    it('should generate different devtools ports for different store IDs', () => {
-      const config1 = getStoreConfig('store-1')
-      const config2 = getStoreConfig('store-2')
-
-      expect(config1.devtoolsPort).not.toBe(config2.devtoolsPort)
-    })
-
-    it('should support store-specific devtools port override', () => {
-      process.env.STORE_TEST_STORE_DEVTOOLS_PORT = '5000'
+    it('should support store-specific devtools URL override', () => {
+      process.env.STORE_TEST_STORE_DEVTOOLS_URL = 'http://localhost:5000'
 
       const config = getStoreConfig('test-store')
 
-      expect(config.devtoolsPort).toBe(5000)
+      expect(config.devtoolsUrl).toBe('http://localhost:5000')
+    })
+
+    it('should disable devtools in production', () => {
+      process.env.NODE_ENV = 'production'
+
+      const config = getStoreConfig('test-store')
+
+      expect(config.enableDevtools).toBe(false)
+    })
+
+    it('should disable devtools when DISABLE_DEVTOOLS is true', () => {
+      process.env.DISABLE_DEVTOOLS = 'true'
+
+      const config = getStoreConfig('test-store')
+
+      expect(config.enableDevtools).toBe(false)
     })
   })
 
