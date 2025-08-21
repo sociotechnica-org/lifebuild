@@ -3,6 +3,7 @@ import { validateStoreId, getStoreConfig, StoreFactory } from '../../src/factori
 
 vi.mock('@livestore/livestore', () => ({
   createStorePromise: vi.fn(),
+  Schema: {},
 }))
 
 vi.mock('@livestore/adapter-node', () => ({
@@ -65,6 +66,8 @@ describe('Store Factory', () => {
       expect(config.syncUrl).toBe('ws://localhost:8787')
       expect(config.dataPath).toBe('./data')
       expect(config.connectionTimeout).toBe(30000)
+      expect(config.devtoolsPort).toBeGreaterThanOrEqual(4242)
+      expect(config.devtoolsPort).toBeLessThan(4342)
     })
 
     it('should use global environment variables', () => {
@@ -100,6 +103,28 @@ describe('Store Factory', () => {
       const config = getStoreConfig('my-special-store')
 
       expect(config.authToken).toBe('special-token')
+    })
+
+    it('should generate consistent devtools ports for same store ID', () => {
+      const config1 = getStoreConfig('test-store')
+      const config2 = getStoreConfig('test-store')
+
+      expect(config1.devtoolsPort).toBe(config2.devtoolsPort)
+    })
+
+    it('should generate different devtools ports for different store IDs', () => {
+      const config1 = getStoreConfig('store-1')
+      const config2 = getStoreConfig('store-2')
+
+      expect(config1.devtoolsPort).not.toBe(config2.devtoolsPort)
+    })
+
+    it('should support store-specific devtools port override', () => {
+      process.env.STORE_TEST_STORE_DEVTOOLS_PORT = '5000'
+
+      const config = getStoreConfig('test-store')
+
+      expect(config.devtoolsPort).toBe(5000)
     })
   })
 
