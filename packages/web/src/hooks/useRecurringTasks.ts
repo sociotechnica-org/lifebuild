@@ -15,10 +15,10 @@ export interface CreateRecurringTaskParams {
 
 export interface UpdateRecurringTaskParams {
   name?: string
-  description?: string
+  description?: string | null
   prompt?: string
   intervalHours?: number
-  projectId?: string
+  projectId?: string | null
 }
 
 export function useRecurringTasks() {

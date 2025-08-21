@@ -312,10 +312,10 @@ export const recurringTaskUpdated = Events.synced({
     id: Schema.String,
     updates: Schema.Struct({
       name: Schema.Union(Schema.String, Schema.Undefined),
-      description: Schema.Union(Schema.String, Schema.Undefined),
+      description: Schema.Union(Schema.String, Schema.Null, Schema.Undefined),
       prompt: Schema.Union(Schema.String, Schema.Undefined),
       intervalHours: Schema.Union(Schema.Number, Schema.Undefined),
-      projectId: Schema.Union(Schema.String, Schema.Undefined),
+      projectId: Schema.Union(Schema.String, Schema.Null, Schema.Undefined),
     }),
     updatedAt: Schema.Date,
     nextExecutionAt: Schema.Union(Schema.Date, Schema.Undefined),

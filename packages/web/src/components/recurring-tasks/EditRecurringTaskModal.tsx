@@ -81,10 +81,10 @@ export const EditRecurringTaskModal: React.FC<EditRecurringTaskModalProps> = ({
       // Build updates object - only include changed fields
       const updates: {
         name?: string
-        description?: string
+        description?: string | null
         prompt?: string
         intervalHours?: number
-        projectId?: string
+        projectId?: string | null
       } = {}
 
       let needsNextExecutionUpdate = false
@@ -95,7 +95,7 @@ export const EditRecurringTaskModal: React.FC<EditRecurringTaskModalProps> = ({
 
       const trimmedDescription = description.trim()
       if (trimmedDescription !== (task.description || '')) {
-        updates.description = trimmedDescription || undefined
+        updates.description = trimmedDescription || null
       }
 
       if (trimmedPrompt !== task.prompt) {
@@ -108,7 +108,7 @@ export const EditRecurringTaskModal: React.FC<EditRecurringTaskModalProps> = ({
       }
 
       if (selectedProjectId !== task.projectId) {
-        updates.projectId = selectedProjectId || undefined
+        updates.projectId = selectedProjectId || null
       }
 
       // Calculate new nextExecutionAt if interval changed and task is enabled
