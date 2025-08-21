@@ -46,6 +46,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
   const kanbanContent = (
     <div className='flex h-full overflow-x-auto p-6 gap-6 pb-6'>
+      {showRecurringTasks && <RecurringTasksColumn projectId={projectId} />}
       {columns.map((column: Column) => (
         <KanbanColumn
           key={column.id}
@@ -60,7 +61,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
           onTaskClick={onTaskClick}
         />
       ))}
-      {showRecurringTasks && <RecurringTasksColumn projectId={projectId} />}
     </div>
   )
 

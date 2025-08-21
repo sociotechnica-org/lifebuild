@@ -49,7 +49,7 @@ export const RecurringTasksColumn: React.FC<RecurringTasksColumnProps> = ({ proj
         </div>
 
         <div className='p-4'>
-          <RecurringTasksList onCreateTask={() => setIsFormOpen(true)} />
+          <RecurringTasksList onCreateTask={() => setIsFormOpen(true)} projectId={projectId} />
         </div>
       </div>
 

@@ -6,10 +6,24 @@ import type { RecurringTask } from '@work-squared/shared/schema'
 
 interface RecurringTasksListProps {
   onCreateTask: () => void
+  projectId?: string | null
 }
 
-export const RecurringTasksList: React.FC<RecurringTasksListProps> = ({ onCreateTask }) => {
-  const recurringTasks = useQuery(getRecurringTasks$) ?? []
+export const RecurringTasksList: React.FC<RecurringTasksListProps> = ({
+  onCreateTask,
+  projectId,
+}) => {
+  const allRecurringTasks = useQuery(getRecurringTasks$) ?? []
+
+  // Filter tasks by project if projectId is provided
+  const recurringTasks = React.useMemo(() => {
+    if (projectId === null || projectId === undefined) {
+      // Show all tasks for top-level /tasks page
+      return allRecurringTasks
+    }
+    // Filter by specific project
+    return allRecurringTasks.filter(task => task.projectId === projectId)
+  }, [allRecurringTasks, projectId])
 
   if (recurringTasks.length === 0) {
     return (
