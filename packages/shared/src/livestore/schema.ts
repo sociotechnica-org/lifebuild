@@ -3,6 +3,7 @@ import { DEFAULT_MODEL } from '../llm/models.js'
 
 import { Filter } from '../types'
 import * as eventsDefs from './events'
+import { calculateNextExecution } from '../utils/scheduling.js'
 
 /**
  * LiveStore allows you to freely define your app state as SQLite tables (sometimes referred to as "read model")
@@ -221,6 +222,7 @@ const recurringTasks = State.SQLite.table({
       schema: Schema.DateFromNumber,
     }),
     nextExecutionAt: State.SQLite.integer({
+      nullable: true,
       schema: Schema.DateFromNumber,
     }),
     enabled: State.SQLite.boolean({ default: true }),
@@ -517,6 +519,46 @@ const materializers = State.SQLite.materializers(events, {
       },
       createdAt
     ),
+  ],
+  'v1.RecurringTaskUpdated': ({ id, updates, updatedAt, nextExecutionAt }) => {
+    const updateData: Record<string, any> = { updatedAt }
+
+    // Only include defined fields in the update
+    if (updates.name !== undefined) updateData.name = updates.name
+    if (updates.description !== undefined) updateData.description = updates.description
+    if (updates.prompt !== undefined) updateData.prompt = updates.prompt
+    if (updates.intervalHours !== undefined) updateData.intervalHours = updates.intervalHours
+    if (updates.projectId !== undefined) updateData.projectId = updates.projectId
+    if (nextExecutionAt !== undefined) updateData.nextExecutionAt = nextExecutionAt
+
+    return [
+      recurringTasks.update(updateData).where({ id }),
+      logEvent('v1.RecurringTaskUpdated', { id, updates, updatedAt, nextExecutionAt }, updatedAt),
+    ]
+  },
+  'v1.RecurringTaskDeleted': ({ id, deletedAt }) => [
+    recurringTasks.delete().where({ id }),
+    logEvent('v1.RecurringTaskDeleted', { id, deletedAt }, deletedAt),
+  ],
+  'v1.RecurringTaskEnabled': ({ id, enabledAt, nextExecutionAt }) => [
+    recurringTasks
+      .update({
+        enabled: true,
+        updatedAt: enabledAt,
+        nextExecutionAt,
+      })
+      .where({ id }),
+    logEvent('v1.RecurringTaskEnabled', { id, enabledAt, nextExecutionAt }, enabledAt),
+  ],
+  'v1.RecurringTaskDisabled': ({ id, disabledAt }) => [
+    recurringTasks
+      .update({
+        enabled: false,
+        updatedAt: disabledAt,
+        nextExecutionAt: null,
+      })
+      .where({ id }),
+    logEvent('v1.RecurringTaskDisabled', { id, disabledAt }, disabledAt),
   ],
   'v1.SettingUpdated': ({ key, value, updatedAt }) => [
     settings.delete().where({ key }),
