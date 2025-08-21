@@ -4,7 +4,7 @@ import { useContact, useContacts } from '../../hooks/useContacts.js'
 import { LoadingSpinner } from '../ui/LoadingSpinner.js'
 import { ErrorMessage } from '../ui/ErrorMessage.js'
 import { EditContactModal } from './EditContactModal.js'
-import { generateRoute, ROUTES } from '../../constants/routes.js'
+import { ROUTES } from '../../constants/routes.js'
 
 export const ContactDetail: React.FC = () => {
   const { contactId } = useParams<{ contactId: string }>()

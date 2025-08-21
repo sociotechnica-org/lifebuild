@@ -30,7 +30,11 @@ export const EditContactModal: React.FC<EditContactModalProps> = ({
     if (error === 'Name is required' && name.trim()) {
       setError(null)
     }
-    if (error === 'Please enter a valid email address' && email.trim() && isValidEmail(email.trim())) {
+    if (
+      error === 'Please enter a valid email address' &&
+      email.trim() &&
+      isValidEmail(email.trim())
+    ) {
       setError(null)
     }
   }, [name, email, error])

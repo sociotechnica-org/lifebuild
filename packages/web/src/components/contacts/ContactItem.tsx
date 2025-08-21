@@ -21,6 +21,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({ contact }) => {
                 <span className='text-sm font-medium text-blue-800'>
                   {contact.name
                     .split(' ')
+                    .filter(n => n.length > 0)
                     .map(n => n[0])
                     .join('')
                     .toUpperCase()

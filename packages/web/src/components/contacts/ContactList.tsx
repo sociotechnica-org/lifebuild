@@ -3,7 +3,6 @@ import React, { useState } from 'react'
 import { getContacts$ } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
 import { ErrorMessage } from '../ui/ErrorMessage.js'
-import { LoadingSpinner } from '../ui/LoadingSpinner.js'
 import { ContactForm } from './ContactForm.js'
 import { ContactItem } from './ContactItem.js'
 
