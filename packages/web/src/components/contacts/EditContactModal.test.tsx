@@ -94,7 +94,7 @@ describe('EditContactModal', () => {
     expect(saveButton).toBeEnabled()
   })
 
-  it('should show error when name is empty', async () => {
+  it('should allow empty name and use "Unnamed Contact" fallback', async () => {
     render(
       <EditContactModal contact={mockContact} onClose={mockOnClose} onSuccess={mockOnSuccess} />
     )
@@ -105,10 +105,8 @@ describe('EditContactModal', () => {
     fireEvent.click(screen.getByText('Save Changes'))
 
     await waitFor(() => {
-      expect(screen.getByText('Name is required')).toBeInTheDocument()
+      expect(mockUpdateContact).toHaveBeenCalledWith('test-contact', { name: 'Unnamed Contact' })
     })
-
-    expect(mockUpdateContact).not.toHaveBeenCalled()
   })
 
   it('should show error for invalid email', async () => {
@@ -284,27 +282,27 @@ describe('EditContactModal', () => {
     })
   })
 
-  it('should clear validation error when valid input is entered', async () => {
+  it('should clear email validation error when valid email is entered', async () => {
     render(
       <EditContactModal contact={mockContact} onClose={mockOnClose} onSuccess={mockOnSuccess} />
     )
 
-    const nameInput = screen.getByDisplayValue('Jane Smith')
+    const emailInput = screen.getByDisplayValue('jane.smith@example.com')
 
-    // Clear name to trigger error
-    fireEvent.change(nameInput, { target: { value: '' } })
+    // Enter invalid email to trigger error
+    fireEvent.change(emailInput, { target: { value: 'invalid-email' } })
     fireEvent.click(screen.getByText('Save Changes'))
 
     await waitFor(() => {
-      expect(screen.getByText('Name is required')).toBeInTheDocument()
+      expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument()
     })
 
-    // Enter valid name
-    fireEvent.change(nameInput, { target: { value: 'Valid Name' } })
+    // Enter valid email
+    fireEvent.change(emailInput, { target: { value: 'valid@example.com' } })
 
     // Error should be cleared
     await waitFor(() => {
-      expect(screen.queryByText('Name is required')).not.toBeInTheDocument()
+      expect(screen.queryByText('Please enter a valid email address')).not.toBeInTheDocument()
     })
   })
 })

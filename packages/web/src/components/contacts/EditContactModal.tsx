@@ -24,11 +24,8 @@ export const EditContactModal: React.FC<EditContactModalProps> = ({
     return emailRegex.test(email)
   }
 
-  // Clear error when name becomes valid
+  // Clear error when email becomes valid
   useEffect(() => {
-    if (error === 'Name is required' && name.trim()) {
-      setError(null)
-    }
     if (
       error === 'Please enter a valid email address' &&
       email.trim() &&
@@ -36,15 +33,12 @@ export const EditContactModal: React.FC<EditContactModalProps> = ({
     ) {
       setError(null)
     }
-  }, [name, email, error])
+  }, [email, error])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!name.trim()) {
-      setError('Name is required')
-      return
-    }
+    // Name is optional - no validation needed
 
     if (email.trim() && !isValidEmail(email.trim())) {
       setError('Please enter a valid email address')
@@ -57,8 +51,9 @@ export const EditContactModal: React.FC<EditContactModalProps> = ({
 
       const updates: { name?: string; email?: string | null } = {}
 
-      if (name.trim() !== contact.name) {
-        updates.name = name.trim()
+      const finalName = name.trim() || 'Unnamed Contact'
+      if (finalName !== contact.name) {
+        updates.name = finalName
       }
 
       const trimmedEmail = email.trim()
@@ -124,7 +119,7 @@ export const EditContactModal: React.FC<EditContactModalProps> = ({
           <form onSubmit={handleSubmit} className='space-y-6'>
             <div>
               <label htmlFor='edit-name' className='block text-sm font-medium text-gray-900 mb-2'>
-                Name *
+                Name
               </label>
               <input
                 type='text'
