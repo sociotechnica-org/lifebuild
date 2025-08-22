@@ -15,6 +15,11 @@ vi.mock('@livestore/react', () => ({
   useQuery: vi.fn(() => []),
 }))
 
+// Mock ExecutionHistory component
+vi.mock('./ExecutionHistory', () => ({
+  ExecutionHistory: vi.fn(() => null),
+}))
+
 const mockTask: RecurringTask = {
   id: 'task-1',
   name: 'Test Task',
@@ -41,6 +46,7 @@ describe('RecurringTaskCard', () => {
   const mockOnEdit = vi.fn()
   const mockOnDelete = vi.fn()
   const mockOnToggleEnabled = vi.fn()
+  const mockOnTrigger = vi.fn()
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -53,6 +59,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
       />
     )
 
@@ -69,6 +76,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
       />
     )
 
@@ -84,6 +92,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
       />
     )
 
@@ -106,6 +115,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
       />
     )
 
@@ -128,6 +138,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
       />
     )
 
@@ -153,6 +164,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
       />
     )
 
@@ -183,6 +195,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
       />
     )
 
@@ -207,6 +220,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
       />
     )
 
@@ -232,10 +246,52 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
       />
     )
 
     expect(screen.queryByText(/Next:/)).not.toBeInTheDocument()
+  })
+
+  it('should call onTrigger when run button is clicked', async () => {
+    render(
+      <RecurringTaskCard
+        task={mockTask}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+        onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
+      />
+    )
+
+    const card = screen.getByText('Test Task').closest('div')!
+    fireEvent.mouseEnter(card)
+
+    await waitFor(() => {
+      const runButton = screen.getByTitle('Run now')
+      expect(runButton).toBeInTheDocument()
+      fireEvent.click(runButton)
+    })
+
+    expect(mockOnTrigger).toHaveBeenCalledWith('task-1')
+  })
+
+  it('should disable run button for disabled tasks', () => {
+    render(
+      <RecurringTaskCard
+        task={mockDisabledTask}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+        onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
+      />
+    )
+
+    const card = screen.getByText('Disabled Task').closest('div')!
+    fireEvent.mouseEnter(card)
+
+    const runButton = screen.getByTitle('Enable task to run')
+    expect(runButton).toBeDisabled()
   })
 
   it('should show last executed time when available', () => {
@@ -250,6 +306,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
       />
     )
 

@@ -3,7 +3,6 @@ import { DEFAULT_MODEL } from '../llm/models.js'
 
 import { Filter } from '../types'
 import * as eventsDefs from './events'
-import { calculateNextExecution } from '../utils/scheduling.js'
 
 /**
  * LiveStore allows you to freely define your app state as SQLite tables (sometimes referred to as "read model")
@@ -266,6 +265,24 @@ const contacts = State.SQLite.table({
   },
 })
 
+const taskExecutions = State.SQLite.table({
+  name: 'taskExecutions',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    recurringTaskId: State.SQLite.text(),
+    startedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    completedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+    status: State.SQLite.text({ default: 'pending' }), // 'pending', 'running', 'completed', 'failed'
+    output: State.SQLite.text({ nullable: true }),
+    createdTaskIds: State.SQLite.text({ default: '[]' }), // JSON array of created task IDs
+  },
+})
+
 const uiState = State.SQLite.clientDocument({
   name: 'uiState',
   schema: Schema.Struct({
@@ -293,6 +310,7 @@ export type RecurringTask = State.SQLite.FromTable.RowDecoded<typeof recurringTa
 export type EventsLog = State.SQLite.FromTable.RowDecoded<typeof eventsLog>
 export type Setting = State.SQLite.FromTable.RowDecoded<typeof settings>
 export type Contact = State.SQLite.FromTable.RowDecoded<typeof contacts>
+export type TaskExecution = State.SQLite.FromTable.RowDecoded<typeof taskExecutions>
 export type UiState = typeof uiState.default.value
 
 export const events = {
@@ -317,6 +335,7 @@ export const tables = {
   eventsLog,
   settings,
   contacts,
+  taskExecutions,
 }
 
 // Helper function to log events to the eventsLog table
@@ -560,6 +579,44 @@ const materializers = State.SQLite.materializers(events, {
       .where({ id }),
     logEvent('v1.RecurringTaskDisabled', { id, disabledAt }, disabledAt),
   ],
+  'v1.RecurringTaskExecute': ({ taskId, triggeredAt }) => [
+    // Manual trigger event - doesn't create execution, just logs
+    logEvent('v1.RecurringTaskExecute', { taskId, triggeredAt }, triggeredAt),
+  ],
+  'v1.TaskExecutionStarted': ({ id, recurringTaskId, startedAt }) => [
+    taskExecutions.insert({
+      id,
+      recurringTaskId,
+      startedAt,
+      completedAt: null,
+      status: 'running',
+      output: null,
+      createdTaskIds: '[]',
+    }),
+    recurringTasks.update({ lastExecutedAt: startedAt }).where({ id: recurringTaskId }),
+    logEvent('v1.TaskExecutionStarted', { id, recurringTaskId, startedAt }, startedAt),
+  ],
+  'v1.TaskExecutionCompleted': ({ id, completedAt, output, createdTaskIds }) => [
+    taskExecutions
+      .update({
+        completedAt,
+        status: 'completed',
+        output: output || null,
+        createdTaskIds: createdTaskIds ? JSON.stringify(createdTaskIds) : '[]',
+      })
+      .where({ id }),
+    logEvent('v1.TaskExecutionCompleted', { id, completedAt, output, createdTaskIds }, completedAt),
+  ],
+  'v1.TaskExecutionFailed': ({ id, failedAt, error }) => [
+    taskExecutions
+      .update({
+        completedAt: failedAt,
+        status: 'failed',
+        output: error || null,
+      })
+      .where({ id }),
+    logEvent('v1.TaskExecutionFailed', { id, failedAt, error }, failedAt),
+  ],
   'v1.SettingUpdated': ({ key, value, updatedAt }) => [
     settings.delete().where({ key }),
     settings.insert({ key, value, updatedAt }),
@@ -584,3 +641,4 @@ const materializers = State.SQLite.materializers(events, {
 const state = State.SQLite.makeState({ tables, materializers })
 
 export const schema = makeSchema({ events, state })
+export { materializers }

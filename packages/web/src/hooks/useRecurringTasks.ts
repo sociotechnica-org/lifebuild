@@ -1,9 +1,14 @@
 import { useCallback } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { getRecurringTasks$, getRecurringTaskById$ } from '@work-squared/shared/queries'
+import {
+  getRecurringTasks$,
+  getRecurringTaskById$,
+  getTaskExecutions$,
+  getLatestExecution$,
+} from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
 import { calculateNextExecution } from '@work-squared/shared'
-import type { RecurringTask } from '@work-squared/shared/schema'
+import type { RecurringTask, TaskExecution } from '@work-squared/shared/schema'
 
 export interface CreateRecurringTaskParams {
   name: string
@@ -133,6 +138,69 @@ export function useRecurringTasks() {
     [enableRecurringTask, disableRecurringTask]
   )
 
+  const triggerRecurringTask = useCallback(
+    async (id: string) => {
+      // Find the task to get its details
+      const task = recurringTasks.find(t => t.id === id)
+      if (!task) return
+
+      const now = new Date()
+
+      // First emit the manual trigger event
+      await store.commit(
+        events.recurringTaskExecute({
+          taskId: id,
+          triggeredAt: now,
+        })
+      )
+
+      // Create execution record
+      const executionId = crypto.randomUUID()
+      await store.commit(
+        events.taskExecutionStarted({
+          id: executionId,
+          recurringTaskId: id,
+          startedAt: now,
+        })
+      )
+
+      // Mock execution - wait 2 seconds then complete
+      setTimeout(async () => {
+        const completedAt = new Date()
+        const nextExecutionAt = new Date(
+          calculateNextExecution(completedAt.getTime(), task.intervalHours)
+        )
+
+        // Mark execution as completed
+        await store.commit(
+          events.taskExecutionCompleted({
+            id: executionId,
+            completedAt,
+            output: 'Mock execution completed successfully',
+            createdTaskIds: [],
+          })
+        )
+
+        // Update the task's next execution time
+        await store.commit(
+          events.recurringTaskUpdated({
+            id,
+            updates: {
+              name: undefined,
+              description: undefined,
+              prompt: undefined,
+              intervalHours: undefined,
+              projectId: undefined,
+            },
+            updatedAt: completedAt,
+            nextExecutionAt,
+          })
+        )
+      }, 2000)
+    },
+    [store, recurringTasks]
+  )
+
   return {
     recurringTasks,
     createRecurringTask,
@@ -141,13 +209,18 @@ export function useRecurringTasks() {
     enableRecurringTask,
     disableRecurringTask,
     toggleRecurringTask,
+    triggerRecurringTask,
   }
 }
 
 export function useRecurringTask(id: string) {
   const task = useQuery(getRecurringTaskById$(id))?.[0] as RecurringTask | undefined
+  const executions = useQuery(getTaskExecutions$(id)) ?? []
+  const latestExecution = useQuery(getLatestExecution$(id))?.[0] as TaskExecution | undefined
 
   return {
     task,
+    executions,
+    latestExecution,
   }
 }
