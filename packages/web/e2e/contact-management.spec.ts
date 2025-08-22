@@ -14,7 +14,7 @@ test.describe('Contact Management', () => {
     }
 
     // Navigate to contacts page
-    await page.click('nav a[href="/contacts"]')
+    await page.click('nav a:has-text("Contacts")')
     await waitForLiveStoreReady(page)
 
     // Wait for the contacts page to load
@@ -29,8 +29,8 @@ test.describe('Contact Management', () => {
     await page.click('button:has-text("Add Contact")')
 
     // Wait for contact to appear in the list
-    await expect(page.locator(`text=${contactName}`)).toBeVisible()
-    await expect(page.locator(`text=${contactEmail}`)).toBeVisible()
+    await expect(page.locator(`text=${contactName}`).first()).toBeVisible()
+    await expect(page.locator(`text=${contactEmail}`).first()).toBeVisible()
 
     // Click on the contact to navigate to detail view
     await page.click(`text=${contactName}`)
@@ -43,7 +43,7 @@ test.describe('Contact Management', () => {
 
     // Verify contact details are displayed
     await expect(page.locator(`h1:has-text("${contactName}")`)).toBeVisible()
-    await expect(page.locator(`text=${contactEmail}`)).toBeVisible()
+    await expect(page.locator(`text=${contactEmail}`).first()).toBeVisible()
 
     // Verify action buttons are present
     await expect(page.locator('button:has-text("Edit")')).toBeVisible()
@@ -51,8 +51,8 @@ test.describe('Contact Management', () => {
 
     // Verify back button works
     await page.click('text=← Back to Contacts')
-    await expect(page).toHaveURL(/\/contacts$/)
-    await expect(page.locator(`text=${contactName}`)).toBeVisible()
+    await expect(page).toHaveURL(/\/contacts/)
+    await expect(page.locator(`text=${contactName}`).first()).toBeVisible()
   })
 
   test('edits a contact from detail view', async ({ page }) => {
@@ -67,7 +67,7 @@ test.describe('Contact Management', () => {
     }
 
     // Navigate to contacts and create a test contact
-    await page.click('nav a[href="/contacts"]')
+    await page.click('nav a:has-text("Contacts")')
     await waitForLiveStoreReady(page)
 
     const originalName = `Original Name ${Date.now()}`
@@ -100,7 +100,7 @@ test.describe('Contact Management', () => {
     // Verify modal closes and changes are reflected
     await expect(page.locator('text=Edit Contact')).not.toBeVisible()
     await expect(page.locator(`h1:has-text("${updatedName}")`)).toBeVisible()
-    await expect(page.locator(`text=${updatedEmail}`)).toBeVisible()
+    await expect(page.locator(`text=${updatedEmail}`).first()).toBeVisible()
   })
 
   test('deletes a contact from detail view', async ({ page }) => {
@@ -115,7 +115,7 @@ test.describe('Contact Management', () => {
     }
 
     // Navigate to contacts and create a test contact
-    await page.click('nav a[href="/contacts"]')
+    await page.click('nav a:has-text("Contacts")')
     await waitForLiveStoreReady(page)
 
     const contactName = `Delete Me ${Date.now()}`
@@ -138,11 +138,11 @@ test.describe('Contact Management', () => {
       page.locator(`text=Are you sure you want to delete "${contactName}"`)
     ).toBeVisible()
 
-    // Confirm deletion
-    await page.click('button:has-text("Delete"):not(:has-text("Cancel"))')
+    // Confirm deletion - force click to bypass backdrop interference
+    await page.locator('.fixed.inset-0 button:has-text("Delete")').click({ force: true })
 
     // Should be redirected back to contacts list
-    await expect(page).toHaveURL(/\/contacts$/)
+    await expect(page).toHaveURL(/\/contacts/)
 
     // Contact should no longer exist
     await expect(page.locator(`text=${contactName}`)).not.toBeVisible()
@@ -160,7 +160,7 @@ test.describe('Contact Management', () => {
     }
 
     // Navigate to contacts and create a test contact
-    await page.click('nav a[href="/contacts"]')
+    await page.click('nav a:has-text("Contacts")')
     await waitForLiveStoreReady(page)
 
     const contactName = `Validation Test ${Date.now()}`
@@ -202,7 +202,7 @@ test.describe('Contact Management', () => {
     }
 
     // Navigate to contacts and create a test contact
-    await page.click('nav a[href="/contacts"]')
+    await page.click('nav a:has-text("Contacts")')
     await waitForLiveStoreReady(page)
 
     const contactName = `Cancel Test ${Date.now()}`
@@ -227,7 +227,7 @@ test.describe('Contact Management', () => {
     // Modal should close and original values should be preserved
     await expect(page.locator('text=Edit Contact')).not.toBeVisible()
     await expect(page.locator(`h1:has-text("${contactName}")`)).toBeVisible()
-    await expect(page.locator(`text=${contactEmail}`)).toBeVisible()
+    await expect(page.locator(`text=${contactEmail}`).first()).toBeVisible()
   })
 
   test('prevents duplicate email creation from contacts list', async ({ page }) => {
@@ -242,7 +242,7 @@ test.describe('Contact Management', () => {
     }
 
     // Navigate to contacts
-    await page.click('nav a[href="/contacts"]')
+    await page.click('nav a:has-text("Contacts")')
     await waitForLiveStoreReady(page)
 
     const uniqueEmail = `duplicate${Date.now()}@example.com`

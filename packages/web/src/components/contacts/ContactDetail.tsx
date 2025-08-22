@@ -130,13 +130,21 @@ export const ContactDetail: React.FC = () => {
             <div>
               <dt className='text-sm font-medium text-gray-500'>Last Updated</dt>
               <dd className='mt-1 text-sm text-gray-900'>
-                {new Date(contact.updatedAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
+                {contact.updatedAt
+                  ? new Date(contact.updatedAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
+                  : new Date(contact.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
               </dd>
             </div>
           </dl>
