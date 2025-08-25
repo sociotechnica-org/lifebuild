@@ -11,6 +11,7 @@ Implement support for monitoring and processing multiple LiveStore instances fro
 #### 1.1 Create Store Manager Service
 
 - [ ] Create `packages/server/src/services/store-manager.ts`:
+
   ```typescript
   class StoreManager {
     private stores: Map<string, LiveStore>

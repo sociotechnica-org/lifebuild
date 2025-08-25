@@ -15,19 +15,23 @@ pnpm install
 ## Reproduction Steps
 
 ### 1. Start the sync server
+
 ```bash
 # Terminal 1
 pnpm sync-server  # or use `wrangler dev` if you have Cloudflare tools
 ```
 
 ### 2. Start the Node.js monitor
+
 ```bash
-# Terminal 2  
+# Terminal 2
 pnpm node-monitor
 ```
+
 This should connect successfully and show "Node monitor connected".
 
 ### 3. Start the web client
+
 ```bash
 # Terminal 3
 pnpm web-client
@@ -57,7 +61,7 @@ This happens because different adapters may compile/bundle the materializer func
 
 - `schema.ts` - Simple schema with one event type and one table
 - `sync-server.ts` - Cloudflare Worker sync server
-- `web-client.ts` - Web client that creates events (using web adapter)  
+- `web-client.ts` - Web client that creates events (using web adapter)
 - `node-monitor.ts` - Node.js monitor that should receive events (using node adapter)
 - `wrangler.toml` - Cloudflare Worker configuration
 

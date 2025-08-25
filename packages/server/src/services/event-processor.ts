@@ -1,11 +1,12 @@
 import type { Store as LiveStore } from '@livestore/livestore'
+import { queryDb } from '@livestore/livestore'
 import type { StoreManager } from './store-manager.js'
-import { getAllEvents$ } from '@work-squared/shared/queries'
+import { tables } from '@work-squared/shared/schema'
 
 export class EventProcessor {
   private storeManager: StoreManager
   private subscriptions: Map<string, () => void> = new Map()
-  private lastSeenSeqNum: Map<string, number> = new Map()
+  private lastSeenCounts: Map<string, Map<string, number>> = new Map()
 
   constructor(storeManager: StoreManager) {
     this.storeManager = storeManager
@@ -14,49 +15,51 @@ export class EventProcessor {
   startMonitoring(storeId: string, store: LiveStore): void {
     console.log(`📡 Starting event monitoring for store ${storeId}`)
 
-    // Track the last seen sequence number for this store
-    this.lastSeenSeqNum.set(storeId, 0)
-    
-    const unsubscribe = store.subscribe(getAllEvents$, {
-      onUpdate: (events) => {
-        // Only log new events since last check
-        if (!events || events.length === 0) return
-        
-        const lastSeenSeq = this.lastSeenSeqNum.get(storeId) || 0
-        
-        // Filter to only new events
-        const newEvents = events.filter(e => e.seqNum > lastSeenSeq)
-        
-        if (newEvents.length === 0) return
-        
-        console.log(`\n📨 [${new Date().toISOString()}] Store ${storeId} received ${newEvents.length} new events:`)
-        
-        for (const event of newEvents) {
-          // Log ALL events with details
-          console.log(`  📌 ${event.name}`)
-          console.log(`     seq: ${event.seqNum}, parent: ${event.parentSeqNum}`)
-          if (event.args && Object.keys(event.args).length > 0) {
-            const argsStr = JSON.stringify(event.args, null, 2)
-            if (argsStr.length > 200) {
-              console.log(`     args: ${argsStr.substring(0, 200)}...`)
-            } else {
-              console.log(`     args:`, argsStr.split('\n').map((line, i) => i === 0 ? line : `          ${line}`).join('\n'))
-            }
-          }
-        }
-        
-        // Update the last seen sequence number
-        const maxSeq = Math.max(...newEvents.map(e => e.seqNum))
-        this.lastSeenSeqNum.set(storeId, maxSeq)
-        
-        // Update activity tracker
-        this.storeManager.updateActivity(storeId)
+    // Initialize counters for this store
+    this.lastSeenCounts.set(storeId, new Map())
 
-        this.handleEvents(storeId, newEvents)
-      }
+    // Monitor chat messages table to detect activity
+    const chatMessagesQuery = queryDb(tables.chatMessages.select(), {
+      label: 'monitor-chatMessages',
+    })
+
+    const unsubscribe = store.subscribe(chatMessagesQuery as any, {
+      onUpdate: (records: any[]) => {
+        this.handleTableUpdate(storeId, 'chatMessages', records)
+      },
     })
 
     this.subscriptions.set(storeId, unsubscribe)
+  }
+
+  private handleTableUpdate(storeId: string, tableName: string, records: any[]): void {
+    const storeCounters = this.lastSeenCounts.get(storeId)!
+    const lastCount = storeCounters.get(tableName) || 0
+    const currentCount = records.length
+
+    // Only log if we have new records
+    if (currentCount > lastCount) {
+      const newRecords = records.slice(0, currentCount - lastCount)
+
+      for (const record of newRecords) {
+        const timestamp = new Date().toISOString()
+        const displayText = record.message || record.name || record.title || record.id
+        const truncatedText =
+          displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
+
+        console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
+      }
+
+      storeCounters.set(tableName, currentCount)
+
+      // Update activity tracker
+      this.storeManager.updateActivity(storeId)
+
+      this.handleEvents(
+        storeId,
+        newRecords.map(r => ({ type: tableName, data: r }))
+      )
+    }
   }
 
   stopMonitoring(storeId: string): void {
@@ -80,7 +83,7 @@ export class EventProcessor {
     }
   }
 
-  private async processEvent(storeId: string, event: any): Promise<void> {
+  private async processEvent(_storeId: string, _event: any): Promise<void> {
     // Future: Implement specific event processing logic here
     // For now, all events are logged in startMonitoring
   }

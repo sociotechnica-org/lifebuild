@@ -18,7 +18,7 @@ async function main() {
 
   // Set up event processor
   const eventProcessor = new EventProcessor(storeManager)
-  
+
   // Start monitoring all stores
   for (const [storeId, store] of storeManager.getAllStores()) {
     eventProcessor.startMonitoring(storeId, store)
