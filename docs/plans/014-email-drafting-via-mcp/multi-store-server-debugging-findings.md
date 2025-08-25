@@ -6,7 +6,7 @@ The multi-store server implementation crashes immediately with "materializer has
 
 ## ✅ ROOT CAUSE IDENTIFIED
 
-**Complex materializers with function calls and arrays cause LiveStore materializer hash mismatches between different adapters.**
+**Non-deterministic function calls in materializers cause LiveStore materializer hash mismatches between different adapters.**
 
 ## Investigation Timeline
 
@@ -79,10 +79,11 @@ The multi-store server implementation crashes immediately with "materializer has
 
 LiveStore generates hashes of materializer functions to ensure schema consistency across clients. The hash mismatch occurs when materializers contain:
 
-1. **Function calls** (`logEvent()`, `crypto.randomUUID()`)
-2. **Arrays of operations** (`[insert(), logEvent()]`)
-3. **Non-pure functions** (side effects, external dependencies)
-4. **Complex expressions** that serialize differently across contexts
+1. **Non-deterministic function calls** (`logEvent()` with `crypto.randomUUID()`, `new Date()`)
+2. **External function calls with side effects** (`logEvent()`, console logs)
+3. **Dependencies on global state** (non-pure functions)
+
+**Note**: Arrays of operations are explicitly supported by LiveStore and are not the cause of hash mismatches.
 
 ### Why Simple Materializers Work
 
@@ -91,13 +92,13 @@ LiveStore generates hashes of materializer functions to ensure schema consistenc
 'v1.EventName': (data) => table.insert(data)
 ```
 
-### Why Complex Materializers Fail
+### Why Materializers with logEvent() Fail
 
 ```typescript
-// ❌ Function calls + arrays = inconsistent hashing
+// ❌ Non-deterministic function calls = inconsistent hashing
 'v1.EventName': (data) => [
   table.insert(data),
-  logEvent('v1.EventName', data), // ← Non-deterministic serialization
+  logEvent('v1.EventName', data), // ← crypto.randomUUID() and new Date() are non-deterministic
 ]
 ```
 
@@ -105,12 +106,11 @@ LiveStore generates hashes of materializer functions to ensure schema consistenc
 
 **LiveStore's materializer hash generation cannot consistently serialize functions with:**
 
-- External function calls
-- Side effects
-- Complex return values (arrays)
+- Non-deterministic function calls (crypto.randomUUID(), new Date())
+- External function calls with side effects
 - Dependencies on global state
 
-Different LiveStore adapters (web vs node) execute in different JavaScript contexts, causing identical complex functions to serialize with different hashes.
+Different LiveStore adapters (web vs node) execute in different JavaScript contexts, causing functions with non-deterministic calls to serialize with different hashes.
 
 ## The Solution
 
@@ -129,10 +129,16 @@ const materializers = State.SQLite.materializers(events, {
 ### Fixed Pattern:
 
 ```typescript
-// ✅ WORKS - Simple, pure materializers
+// ✅ WORKS - Pure, deterministic materializers (arrays OK, no logEvent())
 const materializers = State.SQLite.materializers(events, {
   'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) =>
     chatMessages.insert({ id, conversationId, message, role, createdAt }),
+
+  // Arrays are fine when they contain only deterministic operations
+  'v1.SettingUpdated': ({ key, value, updatedAt }) => [
+    settings.delete().where({ key }),
+    settings.insert({ key, value, updatedAt }),
+  ],
 })
 ```
 
@@ -140,7 +146,7 @@ const materializers = State.SQLite.materializers(events, {
 
 **File**: `packages/shared/src/livestore/schema.ts`
 
-**Events to fix** (remove `logEvent()` calls and arrays):
+**Events to fix** (remove `logEvent()` calls only):
 
 - `v1.ChatMessageSent`
 - `v1.ProjectCreated`
@@ -149,7 +155,7 @@ const materializers = State.SQLite.materializers(events, {
 - `v1.DocumentCreated`
 - `v1.SettingUpdated`
 
-**Pattern**: Change from `[operation, logEvent()]` to `operation`
+**Pattern**: Remove `logEvent()` calls but keep arrays where they serve a purpose (like upsert operations)
 
 ## Alternative Logging Strategies
 
@@ -175,9 +181,9 @@ Since event logging will be removed from materializers:
 
 ## Conclusion
 
-The multi-store server materializer hash mismatch is **definitively caused by complex materializers with function calls**, not monorepo structure, import patterns, or execution context differences.
+The multi-store server materializer hash mismatch is **definitively caused by non-deterministic function calls in materializers**, not arrays, monorepo structure, import patterns, or execution context differences.
 
-**The fix is straightforward**: Replace complex materializers with simple, pure functions that return single operations.
+**The fix is straightforward**: Remove non-deterministic function calls (like `logEvent()`) from materializers while keeping deterministic operations (including arrays of operations).
 
 ## Debugging Methodology and Process Documentation
 
@@ -265,7 +271,7 @@ Complex systems have many moving parts. Start with the simplest version that sho
 
 #### Framework Constraints Are Real
 
-Every tool has assumptions. LiveStore's materializer hashing requires pure, deterministic functions - understanding constraints early saves time.
+Every tool has assumptions. LiveStore's materializer hashing requires pure, deterministic functions without non-deterministic calls - understanding constraints early saves time. Arrays are fine, but `crypto.randomUUID()` and `new Date()` break hashing.
 
 #### Reproducible Cases Are Gold
 
