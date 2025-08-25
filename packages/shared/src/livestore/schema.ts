@@ -455,7 +455,7 @@ const materializers = State.SQLite.materializers(events, {
     projectId,
     nextExecutionAt,
     createdAt,
-  }) => [
+  }) =>
     recurringTasks.insert({
       id,
       name,
@@ -469,7 +469,6 @@ const materializers = State.SQLite.materializers(events, {
       createdAt,
       updatedAt: createdAt,
     }),
-  ],
   'v1.RecurringTaskUpdated': ({ id, updates, updatedAt, nextExecutionAt }) => {
     const updateData: Record<string, any> = { updatedAt }
 
@@ -481,10 +480,10 @@ const materializers = State.SQLite.materializers(events, {
     if (updates.projectId !== undefined) updateData.projectId = updates.projectId
     if (nextExecutionAt !== undefined) updateData.nextExecutionAt = nextExecutionAt
 
-    return [recurringTasks.update(updateData).where({ id })]
+    return recurringTasks.update(updateData).where({ id })
   },
-  'v1.RecurringTaskDeleted': ({ id, deletedAt }) => [recurringTasks.delete().where({ id })],
-  'v1.RecurringTaskEnabled': ({ id, enabledAt, nextExecutionAt }) => [
+  'v1.RecurringTaskDeleted': ({ id, deletedAt }) => recurringTasks.delete().where({ id }),
+  'v1.RecurringTaskEnabled': ({ id, enabledAt, nextExecutionAt }) =>
     recurringTasks
       .update({
         enabled: true,
@@ -492,8 +491,7 @@ const materializers = State.SQLite.materializers(events, {
         nextExecutionAt,
       })
       .where({ id }),
-  ],
-  'v1.RecurringTaskDisabled': ({ id, disabledAt }) => [
+  'v1.RecurringTaskDisabled': ({ id, disabledAt }) =>
     recurringTasks
       .update({
         enabled: false,
@@ -501,21 +499,19 @@ const materializers = State.SQLite.materializers(events, {
         nextExecutionAt: null,
       })
       .where({ id }),
-  ],
   'v1.SettingUpdated': ({ key, value, updatedAt }) => [
     settings.delete().where({ key }),
     settings.insert({ key, value, updatedAt }),
   ],
-  'v1.ContactCreated': ({ id, name, email, createdAt }) => [
+  'v1.ContactCreated': ({ id, name, email, createdAt }) =>
     contacts.insert({ id, name, email, createdAt, updatedAt: createdAt }),
-  ],
   'v1.ContactUpdated': ({ id, updates, updatedAt }) => {
     const updateData: Record<string, any> = { updatedAt }
     if (updates.name !== undefined) updateData.name = updates.name
     if (updates.email !== undefined) updateData.email = updates.email
     return contacts.update(updateData).where({ id })
   },
-  'v1.ContactDeleted': ({ id, deletedAt }) => [contacts.update({ deletedAt }).where({ id })],
+  'v1.ContactDeleted': ({ id, deletedAt }) => contacts.update({ deletedAt }).where({ id }),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })
