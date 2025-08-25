@@ -39,7 +39,7 @@ export class EventProcessor {
 
     // Only log if we have new records
     if (currentCount > lastCount) {
-      const newRecords = records.slice(0, currentCount - lastCount)
+      const newRecords = records.slice(0, currentCount - lastCount).reverse() // Get newest records first
 
       for (const record of newRecords) {
         const timestamp = new Date().toISOString()
