@@ -315,11 +315,10 @@ const materializers = State.SQLite.materializers(events, {
   },
   'v1.UserCreated': ({ id, name, avatarUrl, createdAt }) =>
     users.insert({ id, name, avatarUrl, createdAt }),
-  'v1.UserSynced': ({ id, email, name, avatarUrl, isAdmin, syncedAt }) => {
-    // Use upsert pattern: delete then insert to handle user sync
-    users.delete().where({ id })
-    return users.insert({ id, email, name, avatarUrl, isAdmin, createdAt: syncedAt, syncedAt })
-  },
+  'v1.UserSynced': ({ id, email, name, avatarUrl, isAdmin, syncedAt }) => [
+    users.delete().where({ id }),
+    users.insert({ id, email, name, avatarUrl, isAdmin, createdAt: syncedAt, syncedAt }),
+  ],
   'v1.ConversationCreated': ({ id, title, model, workerId, createdAt }) =>
     conversations.insert({ id, title, model, workerId, createdAt, updatedAt: createdAt }),
   'v1.ConversationModelUpdated': ({ id, model, updatedAt }) =>
@@ -395,11 +394,10 @@ const materializers = State.SQLite.materializers(events, {
     workerProjects.insert({ workerId, projectId }),
   'v1.WorkerUnassignedFromProject': ({ workerId, projectId }) =>
     workerProjects.delete().where({ workerId, projectId }),
-  'v1.SettingUpdated': ({ key, value, updatedAt }) => {
-    // Use upsert pattern: delete then insert to handle setting updates
-    settings.delete().where({ key })
-    return settings.insert({ key, value, updatedAt })
-  },
+  'v1.SettingUpdated': ({ key, value, updatedAt }) => [
+    settings.delete().where({ key }),
+    settings.insert({ key, value, updatedAt }),
+  ],
 })
 
 const state = State.SQLite.makeState({ tables, materializers })
