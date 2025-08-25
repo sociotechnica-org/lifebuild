@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
 import { storeManager } from './services/store-manager.js'
+import { EventProcessor } from './services/event-processor.js'
 import { loadStoresConfig } from './config/stores.js'
-import { getConversationMessages$, getConversations$ } from '@work-squared/shared/queries'
 
 dotenv.config()
 
@@ -16,33 +16,15 @@ async function main() {
     console.warn('⚠️ No stores configured. Server running in monitoring mode only.')
   }
 
-  try {
-    const checkForChanges = async () => {
-      const stores = storeManager.getAllStores()
-
-      for (const [storeId, store] of stores) {
-        try {
-          let messageCount = 0
-          const conversations = store.query(getConversations$)
-          for (const conversation of conversations) {
-            const messages = store.query(getConversationMessages$(conversation.id))
-            messageCount += messages.length
-          }
-          console.log(`💬 Store ${storeId}: ${messageCount} total messages`)
-
-          storeManager.updateActivity(storeId)
-        } catch (error) {
-          console.error(`❌ Error checking store ${storeId}:`, error)
-        }
-      }
-    }
-
-    if (config.storeIds.length > 0) {
-      setInterval(checkForChanges, 5000)
-    }
-  } catch (error) {
-    console.log('⚠️ Event monitoring setup failed:', error)
+  // Set up event processor
+  const eventProcessor = new EventProcessor(storeManager)
+  
+  // Start monitoring all stores
+  for (const [storeId, store] of storeManager.getAllStores()) {
+    eventProcessor.startMonitoring(storeId, store)
   }
+
+  console.log('📡 Event monitoring started for all stores')
 
   const http = await import('http')
   const healthServer = http.createServer((req, res) => {
