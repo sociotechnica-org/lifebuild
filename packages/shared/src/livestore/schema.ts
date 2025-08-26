@@ -3,7 +3,6 @@ import { DEFAULT_MODEL } from '../llm/models.js'
 
 import { Filter } from '../types'
 import * as eventsDefs from './events'
-import { calculateNextExecution } from '../utils/scheduling.js'
 
 /**
  * LiveStore allows you to freely define your app state as SQLite tables (sometimes referred to as "read model")
@@ -278,6 +277,24 @@ const projectContacts = State.SQLite.table({
   },
 })
 
+const taskExecutions = State.SQLite.table({
+  name: 'taskExecutions',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    recurringTaskId: State.SQLite.text(),
+    startedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    completedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+    status: State.SQLite.text({ default: 'pending' }), // 'pending', 'running', 'completed', 'failed'
+    output: State.SQLite.text({ nullable: true }),
+    createdTaskIds: State.SQLite.text({ default: '[]' }), // JSON array of created task IDs
+  },
+})
+
 const uiState = State.SQLite.clientDocument({
   name: 'uiState',
   schema: Schema.Struct({
@@ -306,6 +323,7 @@ export type EventsLog = State.SQLite.FromTable.RowDecoded<typeof eventsLog>
 export type Setting = State.SQLite.FromTable.RowDecoded<typeof settings>
 export type Contact = State.SQLite.FromTable.RowDecoded<typeof contacts>
 export type ProjectContact = State.SQLite.FromTable.RowDecoded<typeof projectContacts>
+export type TaskExecution = State.SQLite.FromTable.RowDecoded<typeof taskExecutions>
 export type UiState = typeof uiState.default.value
 
 export const events = {
@@ -331,6 +349,7 @@ export const tables = {
   settings,
   contacts,
   projectContacts,
+  taskExecutions,
 }
 
 const materializers = State.SQLite.materializers(events, {
@@ -496,7 +515,7 @@ const materializers = State.SQLite.materializers(events, {
 
     return recurringTasks.update(updateData).where({ id })
   },
-  'v1.RecurringTaskDeleted': ({ id, deletedAt }) => recurringTasks.delete().where({ id }),
+  'v1.RecurringTaskDeleted': ({ id, deletedAt: _ }) => recurringTasks.delete().where({ id }),
   'v1.RecurringTaskEnabled': ({ id, enabledAt, nextExecutionAt }) =>
     recurringTasks
       .update({
@@ -511,6 +530,38 @@ const materializers = State.SQLite.materializers(events, {
         enabled: false,
         updatedAt: disabledAt,
         nextExecutionAt: null,
+      })
+      .where({ id }),
+  'v1.RecurringTaskExecute': ({ taskId: _, triggeredAt: __ }) => [
+    // Manual trigger event - doesn't create execution, just marks the intent
+  ],
+  'v1.TaskExecutionStarted': ({ id, recurringTaskId, startedAt }) => [
+    taskExecutions.insert({
+      id,
+      recurringTaskId,
+      startedAt,
+      completedAt: null,
+      status: 'running',
+      output: null,
+      createdTaskIds: '[]',
+    }),
+    recurringTasks.update({ lastExecutedAt: startedAt }).where({ id: recurringTaskId }),
+  ],
+  'v1.TaskExecutionCompleted': ({ id, completedAt, output, createdTaskIds }) =>
+    taskExecutions
+      .update({
+        completedAt,
+        status: 'completed',
+        output: output || null,
+        createdTaskIds: createdTaskIds ? JSON.stringify(createdTaskIds) : '[]',
+      })
+      .where({ id }),
+  'v1.TaskExecutionFailed': ({ id, failedAt, error }) =>
+    taskExecutions
+      .update({
+        completedAt: failedAt,
+        status: 'failed',
+        output: error || null,
       })
       .where({ id }),
   'v1.SettingUpdated': ({ key, value, updatedAt }) => [
@@ -535,3 +586,4 @@ const materializers = State.SQLite.materializers(events, {
 const state = State.SQLite.makeState({ tables, materializers })
 
 export const schema = makeSchema({ events, state })
+export { materializers }

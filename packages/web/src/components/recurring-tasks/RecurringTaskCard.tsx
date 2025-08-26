@@ -3,12 +3,14 @@ import { useQuery } from '@livestore/react'
 import { getProjects$ } from '@work-squared/shared/queries'
 import { formatInterval, formatRelativeTime } from '@work-squared/shared'
 import type { RecurringTask } from '@work-squared/shared/schema'
+import { ExecutionHistory } from './ExecutionHistory'
 
 interface RecurringTaskCardProps {
   task: RecurringTask
   onEdit: (task: RecurringTask) => void
   onDelete: (taskId: string) => void
   onToggleEnabled: (taskId: string, enabled: boolean) => void
+  onTrigger: (taskId: string) => void
 }
 
 export const RecurringTaskCard: React.FC<RecurringTaskCardProps> = ({
@@ -16,11 +18,13 @@ export const RecurringTaskCard: React.FC<RecurringTaskCardProps> = ({
   onEdit,
   onDelete,
   onToggleEnabled,
+  onTrigger,
 }) => {
   const projects = useQuery(getProjects$) ?? []
   const [showActions, setShowActions] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isToggling, setIsToggling] = useState(false)
+  const [isTriggering, setIsTriggering] = useState(false)
 
   const isEnabled = task.enabled
   const nextExecution = task.nextExecutionAt ? task.nextExecutionAt.getTime() : null
@@ -52,6 +56,15 @@ export const RecurringTaskCard: React.FC<RecurringTaskCardProps> = ({
 
   const handleEdit = () => {
     onEdit(task)
+  }
+
+  const handleTrigger = async () => {
+    setIsTriggering(true)
+    try {
+      await onTrigger(task.id)
+    } finally {
+      setIsTriggering(false)
+    }
   }
 
   return (
@@ -148,6 +161,50 @@ export const RecurringTaskCard: React.FC<RecurringTaskCardProps> = ({
           }`}
         >
           <button
+            onClick={handleTrigger}
+            disabled={isTriggering || !isEnabled}
+            className={`p-1.5 hover:bg-gray-100 rounded transition-colors ${
+              isTriggering || !isEnabled
+                ? 'text-gray-300 cursor-not-allowed'
+                : 'text-blue-500 hover:text-blue-600'
+            }`}
+            title={isEnabled ? 'Run now' : 'Enable task to run'}
+          >
+            {isTriggering ? (
+              <svg className='w-4 h-4 animate-spin' fill='none' viewBox='0 0 24 24'>
+                <circle
+                  className='opacity-25'
+                  cx='12'
+                  cy='12'
+                  r='10'
+                  stroke='currentColor'
+                  strokeWidth='4'
+                />
+                <path
+                  className='opacity-75'
+                  fill='currentColor'
+                  d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                />
+              </svg>
+            ) : (
+              <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z'
+                />
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                />
+              </svg>
+            )}
+          </button>
+
+          <button
             onClick={handleEdit}
             className='p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors'
             title='Edit task'
@@ -239,6 +296,9 @@ export const RecurringTaskCard: React.FC<RecurringTaskCardProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Execution History */}
+      <ExecutionHistory recurringTaskId={task.id} maxItems={5} />
     </div>
   )
 }
