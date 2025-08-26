@@ -22,6 +22,7 @@ interface StoreProcessingState {
   stopping: boolean
   // Chat processing state
   activeConversations: Set<string> // Track conversations currently being processed
+  messageQueue: Map<string, any[]> // Queue of pending messages per conversation
   llmProvider?: BraintrustProvider
 }
 
@@ -92,6 +93,7 @@ export class EventProcessor {
       processingQueue: Promise.resolve(),
       stopping: false,
       activeConversations: new Set(),
+      messageQueue: new Map(),
       llmProvider:
         this.braintrustApiKey && this.braintrustProjectId
           ? new BraintrustProvider(this.braintrustApiKey, this.braintrustProjectId)
@@ -326,10 +328,19 @@ export class EventProcessor {
       return
     }
 
-    // Skip if this conversation is already being processed
+    // Skip if this conversation is already being processed - queue the message instead
     if (storeState.activeConversations.has(conversationId)) {
       console.log(`⏸️ Queueing message for conversation ${conversationId} (already processing)`)
-      // TODO: Implement message queueing
+
+      // Add to message queue
+      if (!storeState.messageQueue.has(conversationId)) {
+        storeState.messageQueue.set(conversationId, [])
+      }
+      storeState.messageQueue.get(conversationId)!.push(chatMessage)
+
+      console.log(
+        `📥 Message queued for conversation ${conversationId}. Queue length: ${storeState.messageQueue.get(conversationId)!.length}`
+      )
       return
     }
 
@@ -374,6 +385,9 @@ export class EventProcessor {
     } finally {
       // Always remove from active conversations
       storeState.activeConversations.delete(conversationId)
+
+      // Process any queued messages for this conversation
+      await this.processQueuedMessages(storeId, conversationId, storeState)
     }
   }
 
@@ -415,82 +429,94 @@ export class EventProcessor {
       }
     }
 
-    // TODO: Get conversation history for context when implementing conversation history in agentic loop
-    // const historyQuery = queryDb(
-    //   tables.chatMessages
-    //     .select()
-    //     .where('conversationId', '=', userMessage.conversationId)
-    //     .where('createdAt', '<', userMessage.createdAt)
-    // )
-    // const conversationHistory = store.query(historyQuery)
+    // Get conversation history for context
+    const historyQuery = queryDb(
+      tables.chatMessages
+        .select()
+        .where('conversationId', '=', userMessage.conversationId)
+        .where('createdAt', '<', userMessage.createdAt)
+    )
+    const chatHistory = store.query(historyQuery)
 
-    // Create agentic loop instance
-    const agenticLoop = new AgenticLoop(store, storeState.llmProvider, {
-      onIterationStart: iteration => {
-        console.log(`🔄 Agentic loop iteration ${iteration} started`)
-      },
-      onToolsExecuting: toolCalls => {
-        // Emit tool execution events for UI updates
-        for (const toolCall of toolCalls) {
+    // Convert chat messages to conversation history format
+    const conversationHistory = chatHistory.map((msg: any) => ({
+      role: msg.role,
+      content: msg.message || '',
+      tool_calls: msg.llmMetadata?.toolCalls,
+      tool_call_id: msg.llmMetadata?.tool_call_id,
+    }))
+
+    // Create agentic loop instance with conversation history
+    const agenticLoop = new AgenticLoop(
+      store,
+      storeState.llmProvider,
+      {
+        onIterationStart: iteration => {
+          console.log(`🔄 Agentic loop iteration ${iteration} started`)
+        },
+        onToolsExecuting: toolCalls => {
+          // Emit tool execution events for UI updates
+          for (const toolCall of toolCalls) {
+            store.commit(
+              events.llmResponseReceived({
+                id: crypto.randomUUID(),
+                conversationId: userMessage.conversationId,
+                message: `🔧 Using ${toolCall.function.name} tool...`,
+                role: 'assistant',
+                modelId: 'system',
+                responseToMessageId: userMessage.id,
+                createdAt: new Date(),
+                llmMetadata: {
+                  source: 'tool-execution',
+                  toolCall: toolCall,
+                },
+              })
+            )
+          }
+        },
+        onFinalMessage: message => {
+          // Emit final LLM response
           store.commit(
             events.llmResponseReceived({
               id: crypto.randomUUID(),
               conversationId: userMessage.conversationId,
-              message: `🔧 Using ${toolCall.function.name} tool...`,
+              message,
               role: 'assistant',
-              modelId: 'system',
+              modelId: conversation?.model || DEFAULT_MODEL,
+              responseToMessageId: userMessage.id,
+              createdAt: new Date(),
+              llmMetadata: { source: 'braintrust' },
+            })
+          )
+        },
+        onError: (error, iteration) => {
+          console.error(`❌ Agentic loop error at iteration ${iteration}:`, error)
+          store.commit(
+            events.llmResponseReceived({
+              id: crypto.randomUUID(),
+              conversationId: userMessage.conversationId,
+              message: error.message.includes('Maximum iterations')
+                ? error.message
+                : 'I encountered an error while processing your request. Please try again.',
+              role: 'assistant',
+              modelId: 'error',
               responseToMessageId: userMessage.id,
               createdAt: new Date(),
               llmMetadata: {
-                source: 'tool-execution',
-                toolCall: toolCall,
+                source: 'error',
+                agenticIteration: iteration,
+                errorType: error.message.includes('stuck loop')
+                  ? 'stuck_loop_detected'
+                  : 'processing_error',
               },
             })
           )
-        }
+        },
       },
-      onFinalMessage: message => {
-        // Emit final LLM response
-        store.commit(
-          events.llmResponseReceived({
-            id: crypto.randomUUID(),
-            conversationId: userMessage.conversationId,
-            message,
-            role: 'assistant',
-            modelId: conversation?.model || DEFAULT_MODEL,
-            responseToMessageId: userMessage.id,
-            createdAt: new Date(),
-            llmMetadata: { source: 'braintrust' },
-          })
-        )
-      },
-      onError: (error, iteration) => {
-        console.error(`❌ Agentic loop error at iteration ${iteration}:`, error)
-        store.commit(
-          events.llmResponseReceived({
-            id: crypto.randomUUID(),
-            conversationId: userMessage.conversationId,
-            message: error.message.includes('Maximum iterations')
-              ? error.message
-              : 'I encountered an error while processing your request. Please try again.',
-            role: 'assistant',
-            modelId: 'error',
-            responseToMessageId: userMessage.id,
-            createdAt: new Date(),
-            llmMetadata: {
-              source: 'error',
-              agenticIteration: iteration,
-              errorType: error.message.includes('stuck loop')
-                ? 'stuck_loop_detected'
-                : 'processing_error',
-            },
-          })
-        )
-      },
-    })
+      conversationHistory
+    )
 
-    // Set conversation history on the agentic loop
-    // TODO: Convert conversationHistory to the format expected by ConversationHistory class
+    // Conversation history is now set in the AgenticLoop constructor
 
     // Run the agentic loop
     await agenticLoop.run(userMessage.message, {
@@ -498,6 +524,44 @@ export class EventProcessor {
       workerContext,
       model: conversation?.model || DEFAULT_MODEL,
     })
+  }
+
+  /**
+   * Process any queued messages for a conversation
+   */
+  private async processQueuedMessages(
+    storeId: string,
+    conversationId: string,
+    storeState: StoreProcessingState
+  ): Promise<void> {
+    const queuedMessages = storeState.messageQueue.get(conversationId)
+
+    if (!queuedMessages || queuedMessages.length === 0) {
+      return
+    }
+
+    console.log(
+      `📤 Processing ${queuedMessages.length} queued messages for conversation ${conversationId}`
+    )
+
+    // Get the next message from the queue
+    const nextMessage = queuedMessages.shift()!
+
+    // Remove empty queue
+    if (queuedMessages.length === 0) {
+      storeState.messageQueue.delete(conversationId)
+    }
+
+    // Process the next message asynchronously to avoid blocking
+    // Use setTimeout to ensure this runs after the current call stack
+    setTimeout(() => {
+      this.handleUserMessage(storeId, nextMessage, storeState).catch(error => {
+        console.error(
+          `❌ Error processing queued message for conversation ${conversationId}:`,
+          error
+        )
+      })
+    }, 0)
   }
 
   private incrementErrorCount(storeId: string, error: Error): void {

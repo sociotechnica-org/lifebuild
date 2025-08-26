@@ -11,9 +11,10 @@ export class AgenticLoop {
   constructor(
     private store: Store,
     private llmProvider: LLMProvider,
-    private events: AgenticLoopEvents = {}
+    private events: AgenticLoopEvents = {},
+    initialHistory: any[] = []
   ) {
-    this.history = new ConversationHistory()
+    this.history = new ConversationHistory(initialHistory)
     this.toolExecutor = new ToolExecutor(store, {
       onToolStart: toolCall => {
         console.log(`🔧 Executing tool: ${toolCall.function.name}`)
