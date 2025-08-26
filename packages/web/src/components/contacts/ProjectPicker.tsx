@@ -34,7 +34,7 @@ export const ProjectPicker: React.FC<ProjectPickerProps> = ({
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
-      const eventsToCommit = []
+      const eventsToCommit: any[] = []
 
       // Find projects to add (selected but not in existing)
       const projectsToAdd = Array.from(selectedProjectIds).filter(

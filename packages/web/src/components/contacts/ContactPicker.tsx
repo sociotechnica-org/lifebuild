@@ -60,7 +60,7 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
-      const eventsToCommit = []
+      const eventsToCommit: any[] = []
 
       // Find contacts to add (selected but not in existing)
       const contactsToAdd = Array.from(selectedContactIds).filter(
