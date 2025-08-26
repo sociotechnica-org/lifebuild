@@ -415,14 +415,14 @@ export class EventProcessor {
       }
     }
 
-    // Get conversation history for context
-    const historyQuery = queryDb(
-      tables.chatMessages
-        .select()
-        .where('conversationId', '=', userMessage.conversationId)
-        .where('createdAt', '<', userMessage.createdAt)
-    )
-    const _conversationHistory = store.query(historyQuery)
+    // TODO: Get conversation history for context when implementing conversation history in agentic loop
+    // const historyQuery = queryDb(
+    //   tables.chatMessages
+    //     .select()
+    //     .where('conversationId', '=', userMessage.conversationId)
+    //     .where('createdAt', '<', userMessage.createdAt)
+    // )
+    // const conversationHistory = store.query(historyQuery)
 
     // Create agentic loop instance
     const agenticLoop = new AgenticLoop(store, storeState.llmProvider, {
