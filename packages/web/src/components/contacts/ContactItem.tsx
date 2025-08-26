@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { Contact } from '@work-squared/shared/schema'
 import { generateRoute } from '../../constants/routes.js'
+import { getInitials } from '../../util/initials.js'
 
 interface ContactItemProps {
   contact: Contact
@@ -19,18 +20,14 @@ export const ContactItem: React.FC<ContactItemProps> = ({ contact }) => {
             <div className='flex-shrink-0'>
               <div className='h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center'>
                 <span className='text-sm font-medium text-blue-800'>
-                  {contact.name
-                    .split(' ')
-                    .filter(n => n.length > 0)
-                    .map(n => n[0])
-                    .join('')
-                    .toUpperCase()
-                    .slice(0, 2)}
+                  {getInitials(contact.name || '')}
                 </span>
               </div>
             </div>
             <div className='ml-4 flex-1'>
-              <h3 className='text-sm font-medium text-gray-900'>{contact.name}</h3>
+              <h3 className='text-sm font-medium text-gray-900'>
+                {contact.name || 'Unnamed Contact'}
+              </h3>
               {contact.email && <p className='text-sm text-gray-600'>{contact.email}</p>}
               <p className='text-xs text-gray-400 mt-1'>
                 Created {new Date(contact.createdAt).toLocaleDateString()}
