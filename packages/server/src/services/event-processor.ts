@@ -8,6 +8,7 @@ import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 import { MessageQueueManager } from './message-queue-manager.js'
 import { AsyncQueueProcessor } from './async-queue-processor.js'
 import { QueryOptimizer, QueryPatterns } from './query-optimizer.js'
+import { ResourceMonitor } from './resource-monitor.js'
 import type {
   EventBuffer,
   ProcessedEvent,
@@ -34,6 +35,7 @@ interface StoreProcessingState {
   llmProvider?: BraintrustProvider
   queryOptimizer: QueryOptimizer // Query optimization and caching
   queryPatterns: QueryPatterns // Common query patterns
+  resourceMonitor: ResourceMonitor // Resource monitoring and limits
 }
 
 export class EventProcessor {
@@ -42,6 +44,7 @@ export class EventProcessor {
   private readonly maxBufferSize = 100
   private readonly flushInterval = 5000 // 5 seconds
   private flushTimer?: NodeJS.Timeout
+  private globalResourceMonitor: ResourceMonitor
 
   // LLM configuration from environment
   private braintrustApiKey: string | undefined
@@ -63,6 +66,17 @@ export class EventProcessor {
   constructor(storeManager: StoreManager) {
     this.storeManager = storeManager
     this.startFlushTimer()
+
+    // Initialize global resource monitor
+    this.globalResourceMonitor = new ResourceMonitor({
+      maxConcurrentLLMCalls: parseInt(process.env.MAX_CONCURRENT_LLM_CALLS || '10'),
+      maxQueuedMessages: parseInt(process.env.MAX_QUEUED_MESSAGES || '1000'),
+      maxConversationsPerStore: parseInt(process.env.MAX_CONVERSATIONS_PER_STORE || '100'),
+      messageRateLimit: parseInt(process.env.MESSAGE_RATE_LIMIT || '600'),
+      llmCallTimeout: parseInt(process.env.LLM_CALL_TIMEOUT || '30000'),
+    }, (alert) => {
+      console.warn(`🚨 Resource Alert [${alert.type}]: ${alert.message}`);
+    });
 
     // Load LLM configuration from environment
     this.braintrustApiKey = process.env.BRAINTRUST_API_KEY
@@ -115,6 +129,10 @@ export class EventProcessor {
         maxCacheSize: 500 // Reasonable cache size per store
       }),
       queryPatterns: undefined as any, // Will be initialized below
+      resourceMonitor: new ResourceMonitor({
+        maxConversationsPerStore: 50, // Per-store limit
+        maxQueuedMessages: 200, // Per-store limit
+      }),
     }
     
     // Initialize query patterns with the same optimizer for consistency
@@ -348,6 +366,37 @@ export class EventProcessor {
       return
     }
 
+    // Check resource limits before processing
+    if (!this.globalResourceMonitor.canMakeLLMCall()) {
+      console.warn(`🚨 Rejecting LLM call for conversation ${conversationId}: Resource limits exceeded`)
+      const store = this.storeManager.getStore(storeId)
+      if (store) {
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId,
+            message: 'System is currently under high load. Please try again in a moment.',
+            role: 'assistant',
+            modelId: 'resource-limit',
+            responseToMessageId: messageId,
+            createdAt: new Date(),
+            llmMetadata: { source: 'resource-limit-exceeded' },
+          })
+        )
+      }
+      return
+    }
+
+    // Check if we can queue more messages
+    if (!this.globalResourceMonitor.canQueueMessage()) {
+      console.warn(`🚨 Message rate limit exceeded for conversation ${conversationId}`)
+      return
+    }
+
+    // Track the message
+    this.globalResourceMonitor.trackMessage()
+    storeState.resourceMonitor.trackMessage()
+
     // Skip if this conversation is already being processed - queue the message instead
     if (storeState.activeConversations.has(conversationId)) {
       console.log(`⏸️ Queueing message for conversation ${conversationId} (already processing)`)
@@ -381,8 +430,17 @@ export class EventProcessor {
 
     console.log(`🤖 Starting agentic loop for user message in conversation ${conversationId}`)
 
+    // Check conversation limits per store
+    if (storeState.activeConversations.size >= 50) {
+      console.warn(`🚨 Too many active conversations in store ${storeId}`);
+      return;
+    }
+
     // Mark conversation as active
     storeState.activeConversations.add(conversationId)
+
+    // Track LLM call start
+    const llmCallId = this.globalResourceMonitor.trackLLMCallStart()
 
     // Emit response started event
     const store = this.storeManager.getStore(storeId)
@@ -397,8 +455,16 @@ export class EventProcessor {
     }
 
     try {
+      const startTime = Date.now()
       await this.runAgenticLoop(storeId, chatMessage, storeState)
+      const responseTime = Date.now() - startTime
+      
+      // Track successful completion
+      this.globalResourceMonitor.trackLLMCallComplete(llmCallId, false, responseTime)
     } catch (error) {
+      // Track error
+      this.globalResourceMonitor.trackError(`LLM call failed: ${error}`);
+      this.globalResourceMonitor.trackLLMCallComplete(llmCallId, false);
       console.error(`❌ Error in agentic loop for conversation ${conversationId}:`, error)
 
       // Emit error message to conversation
@@ -675,8 +741,9 @@ export class EventProcessor {
       }
       storeState.conversationProcessors.clear()
       
-      // Cleanup query optimizer
+      // Cleanup query optimizer and resource monitor
       storeState.queryOptimizer.destroy()
+      storeState.resourceMonitor.destroy()
       
       this.storeStates.delete(storeId)
       console.log(`🛑 Stopped event monitoring for store ${storeId}`)
@@ -695,6 +762,9 @@ export class EventProcessor {
       this.flushTimer = undefined
     }
 
+    // Cleanup global resource monitor
+    this.globalResourceMonitor.destroy()
+
     console.log('🛑 Stopped all event monitoring')
   }
 
@@ -707,6 +777,10 @@ export class EventProcessor {
       processing: boolean
       lastFlushed: string
       tablesMonitored: number
+      activeConversations: number
+      queuedMessages: number
+      resourceMetrics: any
+      cacheStats: any
     }
   > {
     const stats = new Map()
@@ -719,9 +793,46 @@ export class EventProcessor {
         processing: storeState.eventBuffer.processing,
         lastFlushed: storeState.eventBuffer.lastFlushed.toISOString(),
         tablesMonitored: storeState.subscriptions.length,
+        activeConversations: storeState.activeConversations.size,
+        queuedMessages: storeState.messageQueue.getTotalQueuedMessages(),
+        resourceMetrics: storeState.resourceMonitor.getCurrentMetrics(),
+        cacheStats: storeState.queryOptimizer.getCacheStats(),
       })
     }
 
     return stats
+  }
+
+  /**
+   * Get comprehensive resource report across all stores
+   */
+  getResourceReport(): {
+    global: any
+    perStore: Map<string, any>
+    systemHealth: 'healthy' | 'stressed' | 'critical'
+  } {
+    const globalReport = this.globalResourceMonitor.getResourceReport()
+    const perStoreReports = new Map()
+    
+    for (const [storeId, storeState] of this.storeStates) {
+      perStoreReports.set(storeId, storeState.resourceMonitor.getResourceReport())
+    }
+
+    // Determine overall system health
+    const isUnderStress = this.globalResourceMonitor.isSystemUnderStress()
+    const hasCriticalAlerts = globalReport.alerts.some(alert => alert.type === 'critical')
+    
+    let systemHealth: 'healthy' | 'stressed' | 'critical' = 'healthy'
+    if (hasCriticalAlerts) {
+      systemHealth = 'critical'
+    } else if (isUnderStress) {
+      systemHealth = 'stressed'
+    }
+
+    return {
+      global: globalReport,
+      perStore: perStoreReports,
+      systemHealth,
+    }
   }
 }
