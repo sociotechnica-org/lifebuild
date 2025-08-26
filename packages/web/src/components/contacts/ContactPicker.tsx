@@ -16,13 +16,13 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
 }) => {
   const contacts = useQuery(getContacts$) ?? []
   const { store } = useStore()
-  const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(new Set())
+  const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(
+    new Set(existingContactIds)
+  )
   const [searchTerm, setSearchTerm] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const availableContacts = contacts.filter((c: Contact) => !existingContactIds.includes(c.id))
-
-  const filteredContacts = availableContacts.filter((contact: Contact) => {
+  const filteredContacts = contacts.filter((contact: Contact) => {
     const search = searchTerm.toLowerCase()
     return (
       contact.name.toLowerCase().includes(search) ||
@@ -41,31 +41,62 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
   }
 
   const handleSelectAll = () => {
-    if (selectedContactIds.size === filteredContacts.length) {
-      setSelectedContactIds(new Set())
+    const filteredContactIds = filteredContacts.map(c => c.id)
+    const allFilteredSelected = filteredContactIds.every(id => selectedContactIds.has(id))
+
+    if (allFilteredSelected) {
+      // Deselect all filtered contacts
+      const newSelected = new Set(selectedContactIds)
+      filteredContactIds.forEach(id => newSelected.delete(id))
+      setSelectedContactIds(newSelected)
     } else {
-      setSelectedContactIds(new Set(filteredContacts.map((c: Contact) => c.id)))
+      // Select all filtered contacts
+      const newSelected = new Set(selectedContactIds)
+      filteredContactIds.forEach(id => newSelected.add(id))
+      setSelectedContactIds(newSelected)
     }
   }
 
   const handleSubmit = async () => {
-    if (selectedContactIds.size === 0) return
-
     setIsSubmitting(true)
     try {
-      const eventsToCommit = Array.from(selectedContactIds).map(contactId =>
-        events.projectContactAdded({
-          id: crypto.randomUUID(),
-          projectId,
-          contactId,
-          createdAt: new Date(),
-        })
-      )
+      const eventsToCommit = []
 
-      await store.commit(...eventsToCommit)
+      // Find contacts to add (selected but not in existing)
+      const contactsToAdd = Array.from(selectedContactIds).filter(
+        id => !existingContactIds.includes(id)
+      )
+      // Find contacts to remove (in existing but not selected)
+      const contactsToRemove = existingContactIds.filter(id => !selectedContactIds.has(id))
+
+      // Add events for new associations
+      contactsToAdd.forEach(contactId => {
+        eventsToCommit.push(
+          events.projectContactAdded({
+            id: crypto.randomUUID(),
+            projectId,
+            contactId,
+            createdAt: new Date(),
+          })
+        )
+      })
+
+      // Add events for removed associations
+      contactsToRemove.forEach(contactId => {
+        eventsToCommit.push(
+          events.projectContactRemoved({
+            projectId,
+            contactId,
+          })
+        )
+      })
+
+      if (eventsToCommit.length > 0) {
+        await store.commit(...eventsToCommit)
+      }
       onClose()
     } catch (error) {
-      console.error('Failed to add contacts to project:', error)
+      console.error('Failed to update contact associations:', error)
     } finally {
       setIsSubmitting(false)
     }
@@ -81,11 +112,11 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
         onClick={e => e.stopPropagation()}
       >
         <div>
-          <h3 className='text-lg font-medium leading-6 text-gray-900'>Add Contacts</h3>
+          <h3 className='text-lg font-medium leading-6 text-gray-900'>Manage Project Contacts</h3>
 
-          {availableContacts.length === 0 ? (
+          {contacts.length === 0 ? (
             <p className='mt-4 text-sm text-gray-500'>
-              All contacts are already associated with this project.
+              No contacts available. Create some contacts first.
             </p>
           ) : (
             <>
@@ -106,7 +137,7 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
                     onClick={handleSelectAll}
                     className='text-sm text-blue-600 hover:text-blue-800'
                   >
-                    {selectedContactIds.size === filteredContacts.length
+                    {filteredContacts.every(c => selectedContactIds.has(c.id))
                       ? 'Deselect All'
                       : 'Select All'}
                   </button>
@@ -149,12 +180,10 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={selectedContactIds.size === 0 || isSubmitting}
+                  disabled={isSubmitting}
                   className='px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
                 >
-                  {isSubmitting
-                    ? 'Adding...'
-                    : `Add ${selectedContactIds.size} Contact${selectedContactIds.size !== 1 ? 's' : ''}`}
+                  {isSubmitting ? 'Updating...' : 'Update Associations'}
                 </button>
               </div>
             </>
