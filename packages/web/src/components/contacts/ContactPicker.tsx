@@ -72,94 +72,93 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
   }
 
   return (
-    <div className='fixed inset-0 z-50 overflow-y-auto'>
-      <div className='flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0'>
-        <div
-          className='fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75'
-          onClick={onClose}
-        />
+    <div
+      className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'
+      onClick={onClose}
+    >
+      <div
+        className='bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto'
+        onClick={e => e.stopPropagation()}
+      >
+        <div>
+          <h3 className='text-lg font-medium leading-6 text-gray-900'>Add Contacts</h3>
 
-        <div className='inline-block w-full max-w-md px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:p-6'>
-          <div>
-            <h3 className='text-lg font-medium leading-6 text-gray-900'>Add Contacts</h3>
+          {availableContacts.length === 0 ? (
+            <p className='mt-4 text-sm text-gray-500'>
+              All contacts are already associated with this project.
+            </p>
+          ) : (
+            <>
+              <div className='mt-4'>
+                <input
+                  type='text'
+                  placeholder='Search contacts...'
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className='block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500'
+                />
+              </div>
 
-            {availableContacts.length === 0 ? (
-              <p className='mt-4 text-sm text-gray-500'>
-                All contacts are already associated with this project.
-              </p>
-            ) : (
-              <>
-                <div className='mt-4'>
-                  <input
-                    type='text'
-                    placeholder='Search contacts...'
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                    className='block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500'
-                  />
-                </div>
-
-                {filteredContacts.length > 0 && (
-                  <div className='mt-2 flex justify-end'>
-                    <button
-                      type='button'
-                      onClick={handleSelectAll}
-                      className='text-sm text-blue-600 hover:text-blue-800'
-                    >
-                      {selectedContactIds.size === filteredContacts.length
-                        ? 'Deselect All'
-                        : 'Select All'}
-                    </button>
-                  </div>
-                )}
-
-                <div className='mt-2 space-y-2 max-h-60 overflow-y-auto'>
-                  {filteredContacts.length === 0 ? (
-                    <p className='text-sm text-gray-500 py-4 text-center'>No contacts found</p>
-                  ) : (
-                    filteredContacts.map((contact: Contact) => (
-                      <label
-                        key={contact.id}
-                        className='flex items-start p-3 rounded-lg hover:bg-gray-50 cursor-pointer'
-                      >
-                        <input
-                          type='checkbox'
-                          checked={selectedContactIds.has(contact.id)}
-                          onChange={() => handleToggleContact(contact.id)}
-                          className='mt-1 mr-3 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
-                        />
-                        <div className='flex-1'>
-                          <p className='text-sm font-medium text-gray-900'>{contact.name}</p>
-                          {contact.email && (
-                            <p className='text-xs text-gray-500 mt-1'>{contact.email}</p>
-                          )}
-                        </div>
-                      </label>
-                    ))
-                  )}
-                </div>
-
-                <div className='mt-5 sm:mt-6 flex justify-end space-x-3'>
+              {filteredContacts.length > 0 && (
+                <div className='mt-2 flex justify-end'>
                   <button
                     type='button'
-                    onClick={onClose}
-                    className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50'
+                    onClick={handleSelectAll}
+                    className='text-sm text-blue-600 hover:text-blue-800'
                   >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSubmit}
-                    disabled={selectedContactIds.size === 0 || isSubmitting}
-                    className='px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
-                  >
-                    {isSubmitting
-                      ? 'Adding...'
-                      : `Add ${selectedContactIds.size} Contact${selectedContactIds.size !== 1 ? 's' : ''}`}
+                    {selectedContactIds.size === filteredContacts.length
+                      ? 'Deselect All'
+                      : 'Select All'}
                   </button>
                 </div>
-              </>
-            )}
-          </div>
+              )}
+
+              <div className='mt-2 space-y-2 max-h-60 overflow-y-auto'>
+                {filteredContacts.length === 0 ? (
+                  <p className='text-sm text-gray-500 py-4 text-center'>No contacts found</p>
+                ) : (
+                  filteredContacts.map((contact: Contact) => (
+                    <label
+                      key={contact.id}
+                      className='flex items-start p-3 rounded-lg hover:bg-gray-50 cursor-pointer'
+                    >
+                      <input
+                        type='checkbox'
+                        checked={selectedContactIds.has(contact.id)}
+                        onChange={() => handleToggleContact(contact.id)}
+                        className='mt-1 mr-3 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
+                      />
+                      <div className='flex-1'>
+                        <p className='text-sm font-medium text-gray-900'>{contact.name}</p>
+                        {contact.email && (
+                          <p className='text-xs text-gray-500 mt-1'>{contact.email}</p>
+                        )}
+                      </div>
+                    </label>
+                  ))
+                )}
+              </div>
+
+              <div className='mt-5 sm:mt-6 flex justify-end space-x-3'>
+                <button
+                  type='button'
+                  onClick={onClose}
+                  className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50'
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={selectedContactIds.size === 0 || isSubmitting}
+                  className='px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                >
+                  {isSubmitting
+                    ? 'Adding...'
+                    : `Add ${selectedContactIds.size} Contact${selectedContactIds.size !== 1 ? 's' : ''}`}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
