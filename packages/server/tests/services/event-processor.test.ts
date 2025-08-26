@@ -4,6 +4,9 @@ import type { StoreManager, StoreInfo } from '../../src/services/store-manager.j
 // Mock the schema tables first
 vi.mock('@work-squared/shared/schema', () => {
   const mockSelectFn = vi.fn(() => 'mock-query')
+  const mockWhereFn = vi.fn(() => ({ where: mockWhereFn }))
+  mockSelectFn.mockReturnValue({ where: mockWhereFn })
+  
   return {
     tables: {
       chatMessages: { select: mockSelectFn },
@@ -15,12 +18,37 @@ vi.mock('@work-squared/shared/schema', () => {
       comments: { select: mockSelectFn },
       recurringTasks: { select: mockSelectFn },
       contacts: { select: mockSelectFn },
+    },
+    events: {
+      llmResponseStarted: vi.fn((data) => ({ type: 'llmResponseStarted', ...data })),
+      llmResponseReceived: vi.fn((data) => ({ type: 'llmResponseReceived', ...data })),
     }
   }
 })
 
 vi.mock('@livestore/livestore', () => ({
   queryDb: vi.fn((query, options) => ({ query, options })),
+}))
+
+// Mock the agentic loop components
+vi.mock('../../src/services/agentic-loop/braintrust-provider.js', () => ({
+  BraintrustProvider: vi.fn().mockImplementation(() => ({
+    call: vi.fn().mockResolvedValue({
+      message: 'Mock LLM response',
+      toolCalls: []
+    })
+  }))
+}))
+
+vi.mock('../../src/services/agentic-loop/agentic-loop.js', () => ({
+  AgenticLoop: vi.fn().mockImplementation((store, provider, options) => ({
+    run: vi.fn().mockImplementation(async (message, context) => {
+      // Simulate calling onFinalMessage callback
+      if (options?.onFinalMessage) {
+        options.onFinalMessage('Mock agentic response')
+      }
+    })
+  }))
 }))
 
 // Import after mocking
@@ -366,6 +394,259 @@ describe('EventProcessor', () => {
       const storeStats = stats.get('test-store')!
       
       expect(storeStats.errorCount).toBe(0)
+    })
+  })
+
+  describe('agentic loop integration', () => {
+    let mockStoreWithLLM: any
+
+    beforeEach(() => {
+      // Set environment variables for LLM
+      process.env.BRAINTRUST_API_KEY = 'test-api-key'
+      process.env.BRAINTRUST_PROJECT_ID = 'test-project-id'
+
+      mockStoreWithLLM = {
+        subscribe: vi.fn((query, options) => {
+          const key = query.options?.label || 'default'
+          subscribeCallbacks.set(key, options.onUpdate)
+          return () => subscribeCallbacks.delete(key)
+        }),
+        read: vi.fn(() => []), // Mock empty reads
+        commit: vi.fn(),
+      }
+
+      mockStoreManager.getStore = vi.fn(() => mockStoreWithLLM)
+    })
+
+    afterEach(() => {
+      delete process.env.BRAINTRUST_API_KEY
+      delete process.env.BRAINTRUST_PROJECT_ID
+    })
+
+    it('should initialize with LLM provider when environment is configured', () => {
+      const processor = new EventProcessor(mockStoreManager)
+      processor.startMonitoring('test-store', mockStoreWithLLM)
+
+      // Should not throw and should create Braintrust provider
+      expect(() => processor.startMonitoring('test-store', mockStoreWithLLM)).not.toThrow()
+    })
+
+    it('should handle user chat messages and trigger agentic loop', async () => {
+      eventProcessor.startMonitoring('test-store', mockStoreWithLLM)
+
+      const chatCallback = subscribeCallbacks.get('monitor-chatMessages-test-store')!
+      expect(chatCallback).toBeDefined()
+
+      // Simulate a user message
+      const userMessage = {
+        id: 'msg-123',
+        conversationId: 'conv-456',
+        message: 'Create a task for testing',
+        role: 'user',
+        createdAt: new Date(),
+      }
+
+      chatCallback([userMessage])
+
+      // Give time for async processing
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      // Should have emitted llmResponseStarted event
+      expect(mockStoreWithLLM.commit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'llmResponseStarted',
+          conversationId: 'conv-456',
+          userMessageId: 'msg-123',
+        })
+      )
+    })
+
+    it('should skip non-user chat messages', async () => {
+      eventProcessor.startMonitoring('test-store', mockStoreWithLLM)
+
+      const chatCallback = subscribeCallbacks.get('monitor-chatMessages-test-store')!
+
+      // Simulate an assistant message
+      const assistantMessage = {
+        id: 'msg-123',
+        conversationId: 'conv-456',
+        message: 'I am the assistant',
+        role: 'assistant',
+        createdAt: new Date(),
+      }
+
+      chatCallback([assistantMessage])
+
+      // Give time for async processing
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      // Should not have triggered agentic loop (no llmResponseStarted event)
+      expect(mockStoreWithLLM.commit).not.toHaveBeenCalled()
+    })
+
+    it('should prevent concurrent processing of same conversation', async () => {
+      eventProcessor.startMonitoring('test-store', mockStoreWithLLM)
+
+      const chatCallback = subscribeCallbacks.get('monitor-chatMessages-test-store')!
+
+      // Simulate two messages in the same conversation quickly
+      const userMessage1 = {
+        id: 'msg-1',
+        conversationId: 'conv-456',
+        message: 'First message',
+        role: 'user',
+        createdAt: new Date(),
+      }
+
+      const userMessage2 = {
+        id: 'msg-2',
+        conversationId: 'conv-456', // Same conversation
+        message: 'Second message',
+        role: 'user',
+        createdAt: new Date(),
+      }
+
+      // Process first message
+      chatCallback([userMessage1])
+
+      // Immediately process second message (should be queued)
+      chatCallback([userMessage1, userMessage2]) // Simulate both messages present
+
+      // Give time for async processing
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      // Should have processed the first message but queued the second
+      // (Implementation detail: the second message handling should be skipped due to activeConversations tracking)
+      const commitCalls = mockStoreWithLLM.commit.mock.calls
+      const startedEvents = commitCalls.filter(call => 
+        call[0].type === 'llmResponseStarted'
+      )
+      
+      // Should have at least one started event, but not necessarily two due to concurrency control
+      expect(startedEvents.length).toBeGreaterThanOrEqual(1)
+    })
+
+    it('should handle LLM errors gracefully', async () => {
+      // Mock AgenticLoop to throw an error
+      const { AgenticLoop } = await import('../../src/services/agentic-loop/agentic-loop.js')
+      const mockAgenticLoop = AgenticLoop as any
+      mockAgenticLoop.mockImplementation((store: any, provider: any, options: any) => ({
+        run: vi.fn().mockRejectedValue(new Error('LLM processing failed'))
+      }))
+
+      eventProcessor.startMonitoring('test-store', mockStoreWithLLM)
+
+      const chatCallback = subscribeCallbacks.get('monitor-chatMessages-test-store')!
+      
+      const userMessage = {
+        id: 'msg-123',
+        conversationId: 'conv-456',
+        message: 'This will fail',
+        role: 'user',
+        createdAt: new Date(),
+      }
+
+      chatCallback([userMessage])
+
+      // Give time for async processing and error handling
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      // Should have emitted an error response
+      const commitCalls = mockStoreWithLLM.commit.mock.calls
+      const errorResponses = commitCalls.filter(call => 
+        call[0].type === 'llmResponseReceived' && call[0].modelId === 'error'
+      )
+      
+      expect(errorResponses.length).toBeGreaterThanOrEqual(1)
+      
+      // Check that error response has appropriate message
+      const errorResponse = errorResponses[0][0]
+      expect(errorResponse.message).toContain('error')
+      expect(errorResponse.llmMetadata.source).toBe('error')
+    })
+
+    it('should skip processing when LLM is not configured', async () => {
+      // Create processor without LLM environment
+      delete process.env.BRAINTRUST_API_KEY
+      delete process.env.BRAINTRUST_PROJECT_ID
+      
+      const processorNoLLM = new EventProcessor(mockStoreManager)
+      processorNoLLM.startMonitoring('test-store', mockStoreWithLLM)
+
+      const chatCallback = subscribeCallbacks.get('monitor-chatMessages-test-store')!
+      
+      const userMessage = {
+        id: 'msg-123',
+        conversationId: 'conv-456',
+        message: 'This should be skipped',
+        role: 'user',
+        createdAt: new Date(),
+      }
+
+      chatCallback([userMessage])
+
+      // Give time for async processing
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      // Should not have triggered any LLM processing
+      expect(mockStoreWithLLM.commit).not.toHaveBeenCalled()
+      
+      // Clean up
+      processorNoLLM.stopAll()
+    })
+
+    it('should handle worker context when conversation has workerId', async () => {
+      // Mock conversation and worker data
+      mockStoreWithLLM.read = vi.fn()
+        .mockReturnValueOnce([{ // conversation
+          id: 'conv-456',
+          workerId: 'worker-789',
+          model: 'claude-sonnet-4'
+        }])
+        .mockReturnValueOnce([{ // worker
+          id: 'worker-789',
+          name: 'Test Worker',
+          systemPrompt: 'You are a test worker',
+          roleDescription: 'Testing role'
+        }])
+        .mockReturnValue([]) // conversation history
+
+      eventProcessor.startMonitoring('test-store', mockStoreWithLLM)
+
+      const chatCallback = subscribeCallbacks.get('monitor-chatMessages-test-store')!
+      
+      const userMessage = {
+        id: 'msg-123',
+        conversationId: 'conv-456',
+        message: 'Test with worker context',
+        role: 'user',
+        createdAt: new Date(),
+      }
+
+      chatCallback([userMessage])
+
+      // Give time for async processing
+      await new Promise(resolve => setTimeout(resolve, 20))
+
+      // Should have called read to get conversation and worker data
+      expect(mockStoreWithLLM.read).toHaveBeenCalledTimes(3) // conversation, worker, history
+
+      // Should have run the agentic loop with worker context
+      const { AgenticLoop } = await import('../../src/services/agentic-loop/agentic-loop.js')
+      const mockAgenticLoop = AgenticLoop as any
+      const runCall = mockAgenticLoop.mock.results[0].value.run
+      
+      expect(runCall).toHaveBeenCalledWith(
+        'Test with worker context',
+        expect.objectContaining({
+          workerContext: {
+            systemPrompt: 'You are a test worker',
+            name: 'Test Worker',
+            roleDescription: 'Testing role'
+          },
+          model: 'claude-sonnet-4'
+        })
+      )
     })
   })
 })

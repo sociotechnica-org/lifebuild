@@ -84,10 +84,10 @@ Build the absolute minimal feature set to enable background agents to check user
    - **Must complete before moving agentic loop to server**
 
 2. **Server-Side Agentic Loop Migration** ⚠️ CRITICAL DEPENDENCY
-   - Port agentic loop from client to server
-   - Implement feature flags for gradual rollout
-   - Migrate tools to server-side execution
-   - Maintain backward compatibility
+   - Port agentic loop from client to server (EventProcessor pattern)
+   - **Event-driven architecture**: No REST APIs, pure LiveStore events
+   - User message → EventProcessor detects → Agentic loop → LLM responses as events
+   - Tool execution creates normal LiveStore events (task.created, etc.)
    - **Required for recurring task LLM execution**
 
 ### Feature Phase (User-Facing Capabilities)

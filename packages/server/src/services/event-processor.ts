@@ -1,7 +1,10 @@
 import type { Store as LiveStore } from '@livestore/livestore'
 import { queryDb } from '@livestore/livestore'
 import type { StoreManager } from './store-manager.js'
-import { tables } from '@work-squared/shared/schema'
+import { tables, events } from '@work-squared/shared/schema'
+import { AgenticLoop } from './agentic-loop/agentic-loop.js'
+import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
+import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 
 interface EventBuffer {
   events: any[]
@@ -17,6 +20,9 @@ interface StoreProcessingState {
   lastError?: Error
   processingQueue: Promise<void>
   stopping: boolean
+  // Chat processing state
+  activeConversations: Set<string> // Track conversations currently being processed
+  llmProvider?: BraintrustProvider
 }
 
 export class EventProcessor {
@@ -25,6 +31,10 @@ export class EventProcessor {
   private readonly maxBufferSize = 100
   private readonly flushInterval = 5000 // 5 seconds
   private flushTimer?: NodeJS.Timeout
+
+  // LLM configuration from environment
+  private braintrustApiKey: string | undefined
+  private braintrustProjectId: string | undefined
 
   // Tables to monitor for activity
   private readonly monitoredTables = [
@@ -42,6 +52,18 @@ export class EventProcessor {
   constructor(storeManager: StoreManager) {
     this.storeManager = storeManager
     this.startFlushTimer()
+
+    // Load LLM configuration from environment
+    this.braintrustApiKey = process.env.BRAINTRUST_API_KEY
+    this.braintrustProjectId = process.env.BRAINTRUST_PROJECT_ID
+
+    if (!this.braintrustApiKey || !this.braintrustProjectId) {
+      console.warn(
+        '⚠️ LLM functionality disabled: Missing BRAINTRUST_API_KEY or BRAINTRUST_PROJECT_ID environment variables'
+      )
+    } else {
+      console.log('✅ LLM functionality enabled with Braintrust integration')
+    }
   }
 
   startMonitoring(storeId: string, store: LiveStore): void {
@@ -69,6 +91,11 @@ export class EventProcessor {
       errorCount: 0,
       processingQueue: Promise.resolve(),
       stopping: false,
+      activeConversations: new Set(),
+      llmProvider:
+        this.braintrustApiKey && this.braintrustProjectId
+          ? new BraintrustProvider(this.braintrustApiKey, this.braintrustProjectId)
+          : undefined,
     }
 
     this.storeStates.set(storeId, storeState)
@@ -180,6 +207,11 @@ export class EventProcessor {
           displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
 
         console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
+
+        // Handle chat messages for agentic loop processing
+        if (tableName === 'chatMessages' && record.role === 'user') {
+          this.handleUserMessage(storeId, record, storeState)
+        }
       }
 
       storeState.lastSeenCounts.set(tableName, currentCount)
@@ -276,6 +308,196 @@ export class EventProcessor {
   ): Promise<void> {
     // Future: Implement specific event processing logic here
     // For now, events are logged in handleTableUpdate
+  }
+
+  /**
+   * Handle a new user message and trigger agentic loop if needed
+   */
+  private async handleUserMessage(
+    storeId: string,
+    chatMessage: any,
+    storeState: StoreProcessingState
+  ): Promise<void> {
+    const { conversationId, message, id: messageId } = chatMessage
+
+    // Skip if LLM is not configured
+    if (!storeState.llmProvider) {
+      console.log(`⚠️ Skipping chat message processing for ${storeId}: LLM not configured`)
+      return
+    }
+
+    // Skip if this conversation is already being processed
+    if (storeState.activeConversations.has(conversationId)) {
+      console.log(`⏸️ Queueing message for conversation ${conversationId} (already processing)`)
+      // TODO: Implement message queueing
+      return
+    }
+
+    console.log(`🤖 Starting agentic loop for user message in conversation ${conversationId}`)
+
+    // Mark conversation as active
+    storeState.activeConversations.add(conversationId)
+
+    // Emit response started event
+    const store = this.storeManager.getStore(storeId)
+    if (store) {
+      store.commit(
+        events.llmResponseStarted({
+          conversationId,
+          userMessageId: messageId,
+          createdAt: new Date(),
+        })
+      )
+    }
+
+    try {
+      await this.runAgenticLoop(storeId, chatMessage, storeState)
+    } catch (error) {
+      console.error(`❌ Error in agentic loop for conversation ${conversationId}:`, error)
+
+      // Emit error message to conversation
+      const store = this.storeManager.getStore(storeId)
+      if (store) {
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId,
+            message: 'Sorry, I encountered an error processing your message. Please try again.',
+            role: 'assistant',
+            modelId: 'error',
+            responseToMessageId: messageId,
+            createdAt: new Date(),
+            llmMetadata: { source: 'error' },
+          })
+        )
+      }
+    } finally {
+      // Always remove from active conversations
+      storeState.activeConversations.delete(conversationId)
+    }
+  }
+
+  /**
+   * Run the agentic loop for a user message
+   */
+  private async runAgenticLoop(
+    storeId: string,
+    userMessage: any,
+    storeState: StoreProcessingState
+  ): Promise<void> {
+    const store = this.storeManager.getStore(storeId)
+    if (!store || !storeState.llmProvider) {
+      return
+    }
+
+    // Get conversation details and worker context
+    const conversationQuery = queryDb(
+      tables.conversations.select().where('id', '=', userMessage.conversationId)
+    )
+    const conversations = store.query(conversationQuery)
+    const conversation = conversations[0]
+
+    let workerContext: any = undefined
+    let boardContext: any = undefined
+
+    // Get worker context if conversation has a workerId
+    if (conversation?.workerId) {
+      const workerQuery = queryDb(tables.workers.select().where('id', '=', conversation.workerId))
+      const workers = store.query(workerQuery)
+      const worker = workers[0]
+
+      if (worker) {
+        workerContext = {
+          systemPrompt: worker.systemPrompt,
+          name: worker.name,
+          roleDescription: worker.roleDescription,
+        }
+      }
+    }
+
+    // Get conversation history for context
+    const historyQuery = queryDb(
+      tables.chatMessages
+        .select()
+        .where('conversationId', '=', userMessage.conversationId)
+        .where('createdAt', '<', userMessage.createdAt)
+    )
+    const conversationHistory = store.query(historyQuery)
+
+    // Create agentic loop instance
+    const agenticLoop = new AgenticLoop(store, storeState.llmProvider, {
+      onIterationStart: iteration => {
+        console.log(`🔄 Agentic loop iteration ${iteration} started`)
+      },
+      onToolsExecuting: toolCalls => {
+        // Emit tool execution events for UI updates
+        for (const toolCall of toolCalls) {
+          store.commit(
+            events.llmResponseReceived({
+              id: crypto.randomUUID(),
+              conversationId: userMessage.conversationId,
+              message: `🔧 Using ${toolCall.function.name} tool...`,
+              role: 'assistant',
+              modelId: 'system',
+              responseToMessageId: userMessage.id,
+              createdAt: new Date(),
+              llmMetadata: {
+                source: 'tool-execution',
+                toolCall: toolCall,
+              },
+            })
+          )
+        }
+      },
+      onFinalMessage: message => {
+        // Emit final LLM response
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId: userMessage.conversationId,
+            message,
+            role: 'assistant',
+            modelId: conversation?.model || DEFAULT_MODEL,
+            responseToMessageId: userMessage.id,
+            createdAt: new Date(),
+            llmMetadata: { source: 'braintrust' },
+          })
+        )
+      },
+      onError: (error, iteration) => {
+        console.error(`❌ Agentic loop error at iteration ${iteration}:`, error)
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId: userMessage.conversationId,
+            message: error.message.includes('Maximum iterations')
+              ? error.message
+              : 'I encountered an error while processing your request. Please try again.',
+            role: 'assistant',
+            modelId: 'error',
+            responseToMessageId: userMessage.id,
+            createdAt: new Date(),
+            llmMetadata: {
+              source: 'error',
+              agenticIteration: iteration,
+              errorType: error.message.includes('stuck loop')
+                ? 'stuck_loop_detected'
+                : 'processing_error',
+            },
+          })
+        )
+      },
+    })
+
+    // Set conversation history on the agentic loop
+    // TODO: Convert conversationHistory to the format expected by ConversationHistory class
+
+    // Run the agentic loop
+    await agenticLoop.run(userMessage.message, {
+      boardContext,
+      workerContext,
+      model: conversation?.model || DEFAULT_MODEL,
+    })
   }
 
   private incrementErrorCount(storeId: string, error: Error): void {

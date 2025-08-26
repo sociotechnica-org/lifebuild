@@ -137,50 +137,53 @@ Implement support for monitoring and processing multiple LiveStore instances fro
 
 ---
 
-## Phase 3: Agentic Loop per Store
+## Phase 3: Event-Driven Agentic Loop per Store
 
-### Store-Specific Agents
+### Store-Specific Chat Processing
 
-#### 3.1 Create Store-Scoped Agent Manager
+#### 3.1 Extend EventProcessor for Chat Messages
 
-- [ ] Update `packages/server/src/services/agent-manager.ts`:
+- [ ] Update `packages/server/src/services/event-processor.ts`:
   ```typescript
-  class AgentManager {
-    createAgent(storeId: string, workerId: string): Agent
-    getAgent(storeId: string, workerId: string): Agent | null
-    executeForStore(storeId: string, prompt: string): Promise<Result>
+  class EventProcessor {
+    handleChatMessageSent(storeId: string, event: ChatMessageSentEvent): Promise<void>
+    runAgenticLoop(storeId: string, userMessage: ChatMessage, workerContext?: WorkerContext): Promise<void>
+    executeToolsForStore(storeId: string, toolCalls: ToolCall[]): Promise<ToolResult[]>
   }
   ```
 
-#### 3.2 Context Isolation
+#### 3.2 Event-Driven Flow Implementation
 
-- [ ] Maintain separate context per store
-- [ ] Store-specific tool access
-- [ ] Isolated conversation history
-- [ ] Per-store system prompts
+- [ ] Detect `chatMessageSent` events per store
+- [ ] Extract user message and conversation context  
+- [ ] Load worker context if conversation has workerId
+- [ ] Run agentic loop with direct Braintrust integration
+- [ ] Emit `llmResponseReceived` events for client display
+- [ ] Tool execution creates normal LiveStore events
 
-#### 3.3 Resource Management
+#### 3.3 Context Isolation
 
-- [ ] Limit concurrent agents per store
-- [ ] Implement per-store rate limiting
-- [ ] Queue management per workspace
-- [ ] Memory management for contexts
+- [ ] Maintain separate conversation history per store
+- [ ] Store-specific worker contexts and system prompts
+- [ ] Isolated tool execution (prevent cross-store access)
+- [ ] Per-store LLM rate limiting and error handling
 
-### Tool Execution
+#### 3.4 Progress and Status Events
 
-#### 3.4 Store-Scoped Tools
+- [ ] Add new event types to schema:
+  ```typescript
+  agenticLoopStarted: { conversationId, userMessageId, storeId }
+  toolExecutionStarted: { conversationId, toolCall, storeId }  
+  toolExecutionCompleted: { conversationId, toolCall, result, storeId }
+  agenticLoopCompleted: { conversationId, iterations, storeId }
+  ```
 
-- [ ] Pass correct store to tool executors
-- [ ] Validate tool access per store
-- [ ] Store-specific tool configuration
-- [ ] Audit tool usage per workspace
+#### 3.5 Message Queueing per Store
 
-#### 3.5 Cross-Store Protection
-
-- [ ] Prevent tools from accessing wrong store
-- [ ] Validate storeId in all operations
-- [ ] Implement access control checks
-- [ ] Log cross-store attempt warnings
+- [ ] Track processing state per conversation  
+- [ ] Queue new user messages if agentic loop already running
+- [ ] Process queued messages sequentially after completion
+- [ ] Prevent race conditions between multiple user messages
 
 ### Tests
 
