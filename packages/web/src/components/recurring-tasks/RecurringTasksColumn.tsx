@@ -11,7 +11,10 @@ export const RecurringTasksColumn: React.FC<RecurringTasksColumnProps> = ({ proj
 
   return (
     <>
-      <div className='w-80 flex-shrink-0 bg-gray-50 border border-gray-200 rounded-lg'>
+      <div
+        className='w-80 flex-shrink-0 bg-gray-50 border border-gray-200 rounded-lg'
+        data-testid='recurring-tasks-column'
+      >
         <div className='p-4 border-b border-gray-200'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-2'>
