@@ -2,11 +2,7 @@ import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useStore } from '@livestore/react'
 import { Project } from '@work-squared/shared/schema'
-import {
-  getContactById$,
-  getContactProjects$,
-  getProjects$,
-} from '@work-squared/shared/queries'
+import { getContactById$, getContactProjects$, getProjects$ } from '@work-squared/shared/queries'
 import { useContacts } from '../../hooks/useContacts'
 import { EditContactModal } from './EditContactModal'
 import { ProjectPicker } from './ProjectPicker'
