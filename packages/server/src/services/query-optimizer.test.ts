@@ -290,7 +290,7 @@ describe('QueryOptimizer', () => {
         name: 'Conversation without worker',
         // No workerId
       }
-      const mockChatHistory = []
+      const mockChatHistory: any[] = []
 
       optimizer.queryAll = vi.fn().mockResolvedValue([[mockConversation], mockChatHistory])
 

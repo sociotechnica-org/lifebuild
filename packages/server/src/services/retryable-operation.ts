@@ -61,7 +61,7 @@ export class RetryableOperation<T = any> {
   async executeWithStats(operation: () => Promise<T>): Promise<RetryResult<T>> {
     const startTime = Date.now()
     const options = this.options as RetryOptions
-    let lastError: Error
+    let lastError: Error = new Error('Operation failed with unknown error')
 
     for (let attempt = 0; attempt <= options.maxRetries; attempt++) {
       try {

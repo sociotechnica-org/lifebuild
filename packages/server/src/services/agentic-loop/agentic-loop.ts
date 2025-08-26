@@ -68,7 +68,7 @@ export class AgenticLoop {
 
         // Call LLM with current history
         const response = await this.llmProvider.call(
-          this.history.getOpenAIFormat(),
+          this.history.getMessages(),
           boardContext,
           model,
           workerContext,

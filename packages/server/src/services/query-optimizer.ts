@@ -183,7 +183,7 @@ export class QueryOptimizer {
         const batch = batches[index]
 
         if (result.status === 'fulfilled') {
-          const data = result.value
+          const data = result.value as any[]
 
           // Cache the result
           this.setCache(batch.key, data, cacheTTL)

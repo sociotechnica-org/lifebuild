@@ -1,5 +1,8 @@
 import type { ToolCall, LLMMessage, ToolMessage } from './types.js'
 
+// Re-export ToolMessage for convenience
+export type { ToolMessage }
+
 // Legacy interface for backward compatibility
 export interface Message extends LLMMessage {}
 

@@ -244,16 +244,22 @@ export class EventProcessor {
       const newRecords = records.slice(lastCount) // Get only the new records (from lastCount onwards)
 
       for (const record of newRecords) {
+        // Type guard to ensure record is an object with properties
+        if (!record || typeof record !== 'object') {
+          continue
+        }
+        
+        const recordObj = record as Record<string, any>
         const timestamp = new Date().toISOString()
-        const displayText = record.message || record.name || record.title || record.id
+        const displayText = recordObj.message || recordObj.name || recordObj.title || recordObj.id || 'Unknown'
         const truncatedText =
           displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
 
         console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
 
         // Handle chat messages for agentic loop processing
-        if (tableName === 'chatMessages' && record.role === 'user') {
-          this.handleUserMessage(storeId, record, storeState)
+        if (tableName === 'chatMessages' && recordObj.role === 'user') {
+          this.handleUserMessage(storeId, recordObj as ChatMessage, storeState)
         }
       }
 

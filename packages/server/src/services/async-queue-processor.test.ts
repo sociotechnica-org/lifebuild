@@ -38,19 +38,19 @@ describe('AsyncQueueProcessor', () => {
 
       const task1 = processor.enqueue('task-1', async () => {
         await new Promise(resolve => setTimeout(resolve, 10))
-        return ++counter
+        return (++counter).toString()
       })
 
       const task2 = processor.enqueue('task-2', async () => {
         await new Promise(resolve => setTimeout(resolve, 5))
-        return ++counter
+        return (++counter).toString()
       })
 
       const [result1, result2] = await Promise.all([task1, task2])
 
       // Should execute in order, not by completion time
-      expect(result1).toBe(1)
-      expect(result2).toBe(2)
+      expect(result1).toBe('1')
+      expect(result2).toBe('2')
     })
   })
 
@@ -195,7 +195,7 @@ describe('AsyncQueueProcessor', () => {
           // Small random delay to test ordering
           await new Promise(resolve => setTimeout(resolve, Math.random() * 10))
           results.push(i)
-          return i
+          return i.toString()
         })
       )
 
@@ -203,7 +203,7 @@ describe('AsyncQueueProcessor', () => {
 
       // Should complete in order despite random delays
       expect(results).toEqual(Array.from({ length: taskCount }, (_, i) => i))
-      expect(processedResults).toEqual(Array.from({ length: taskCount }, (_, i) => i))
+      expect(processedResults).toEqual(Array.from({ length: taskCount }, (_, i) => i.toString()))
     })
   })
 })

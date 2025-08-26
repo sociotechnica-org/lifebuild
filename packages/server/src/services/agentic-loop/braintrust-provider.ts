@@ -12,6 +12,7 @@ import { RetryableOperation } from '../retryable-operation.js'
 
 export class BraintrustProvider implements LLMProvider {
   private inputValidator: InputValidator
+  private retryableOperation: RetryableOperation
 
   constructor(
     private apiKey: string,
@@ -19,6 +20,7 @@ export class BraintrustProvider implements LLMProvider {
     customValidator?: InputValidator
   ) {
     this.inputValidator = customValidator ?? new InputValidator()
+    this.retryableOperation = new RetryableOperation()
   }
 
   async call(
