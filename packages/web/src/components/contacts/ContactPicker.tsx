@@ -110,16 +110,23 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
       onClick={onClose}
     >
       <div
-        className='bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto'
+        className='bg-white rounded-lg shadow-xl w-full max-w-2xl h-[85vh] flex flex-col'
         onClick={e => e.stopPropagation()}
       >
-        <div>
+        {/* Header */}
+        <div className='p-6 border-b border-gray-200'>
           <h3 className='text-lg font-medium leading-6 text-gray-900'>Manage Project Contacts</h3>
+        </div>
+
+        {/* Content */}
+        <div className='flex-1 flex flex-col p-6'>
 
           {contacts.length === 0 ? (
-            <p className='mt-4 text-sm text-gray-500'>
-              No contacts available. Create some contacts first.
-            </p>
+            <div className='flex-1 flex items-center justify-center'>
+              <p className='text-sm text-gray-500'>
+                No contacts available. Create some contacts first.
+              </p>
+            </div>
           ) : (
             <>
               <div className='mt-4'>
@@ -146,7 +153,7 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
                 </div>
               )}
 
-              <div className='mt-2 space-y-2 max-h-60 overflow-y-auto'>
+              <div className='mt-2 space-y-2 flex-1 overflow-y-auto'>
                 {filteredContacts.length === 0 ? (
                   <p className='text-sm text-gray-500 py-4 text-center'>No contacts found</p>
                 ) : (
@@ -172,7 +179,7 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
                 )}
               </div>
 
-              <div className='mt-5 sm:mt-6 flex justify-end space-x-3'>
+              <div className='mt-6 pt-4 border-t border-gray-200 flex justify-end space-x-3'>
                 <button
                   type='button'
                   onClick={onClose}
