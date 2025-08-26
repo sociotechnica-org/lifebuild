@@ -1,6 +1,5 @@
 import { useQuery, useStore } from '@livestore/react'
 import React from 'react'
-import { formatDate } from '../../../util/dates.js'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { events } from '@work-squared/shared/schema'
@@ -25,7 +24,7 @@ export const ChatInterface: React.FC = () => {
   const conversations = useQuery(getConversations$) ?? []
   const availableWorkers = useQuery(getWorkers$) ?? []
   const systemPromptSetting = useQuery(getSettingByKey$(SETTINGS_KEYS.SYSTEM_PROMPT))
-  const globalSystemPrompt =
+  const _globalSystemPrompt =
     systemPromptSetting?.[0]?.value || DEFAULT_SETTINGS[SETTINGS_KEYS.SYSTEM_PROMPT]
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [showChatPicker, setShowChatPicker] = React.useState(false)
@@ -61,7 +60,7 @@ export const ChatInterface: React.FC = () => {
 
   // Always call useQuery but conditionally use the result
   const boardResult = useQuery(boardQuery || getBoardById$('__no_board__'))
-  const currentBoard = currentBoardId && boardResult?.[0] ? (boardResult[0] as any) : null
+  const _currentBoard = currentBoardId && boardResult?.[0] ? (boardResult[0] as any) : null
 
   // Get selected conversation object to check for workerId
   const selectedConversation = conversations.find(c => c.id === selectedConversationId)

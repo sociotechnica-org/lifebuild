@@ -12,7 +12,7 @@ export class BraintrustProvider implements LLMProvider {
     boardContext?: any,
     model?: string,
     workerContext?: any,
-    options?: {
+    _options?: {
       onRetry?: (attempt: number, maxRetries: number, delayMs: number, error: Error) => void
     }
   ): Promise<LLMResponse> {

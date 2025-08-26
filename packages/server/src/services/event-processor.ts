@@ -318,7 +318,7 @@ export class EventProcessor {
     chatMessage: any,
     storeState: StoreProcessingState
   ): Promise<void> {
-    const { conversationId, message, id: messageId } = chatMessage
+    const { conversationId, id: messageId } = chatMessage
 
     // Skip if LLM is not configured
     if (!storeState.llmProvider) {
@@ -398,7 +398,7 @@ export class EventProcessor {
     const conversation = conversations[0]
 
     let workerContext: any = undefined
-    let boardContext: any = undefined
+    const boardContext: any = undefined
 
     // Get worker context if conversation has a workerId
     if (conversation?.workerId) {
@@ -422,7 +422,7 @@ export class EventProcessor {
         .where('conversationId', '=', userMessage.conversationId)
         .where('createdAt', '<', userMessage.createdAt)
     )
-    const conversationHistory = store.query(historyQuery)
+    const _conversationHistory = store.query(historyQuery)
 
     // Create agentic loop instance
     const agenticLoop = new AgenticLoop(store, storeState.llmProvider, {
