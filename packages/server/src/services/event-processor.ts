@@ -201,11 +201,15 @@ export class EventProcessor {
     }
   }
 
-  private scheduleEventProcessing(storeId: string, storeState: StoreProcessingState): void {
+  private scheduleEventProcessing(
+    storeId: string,
+    storeState: StoreProcessingState
+  ): Promise<void> {
     // Chain processing to ensure serialization per store
     storeState.processingQueue = storeState.processingQueue.then(async () => {
       await this.processBufferedEvents(storeId, storeState)
     })
+    return storeState.processingQueue
   }
 
   private async processBufferedEvents(
@@ -273,7 +277,9 @@ export class EventProcessor {
   }
 
   private async flushAllBuffers(): Promise<void> {
-    const flushPromises = Array.from(this.storeStates.entries()).map(([storeId, storeState]) => {
+    const flushPromises: Promise<void>[] = []
+
+    for (const [storeId, storeState] of this.storeStates.entries()) {
       const timeSinceFlush = Date.now() - storeState.eventBuffer.lastFlushed.getTime()
 
       if (
@@ -281,9 +287,9 @@ export class EventProcessor {
         storeState.eventBuffer.events.length > 0 &&
         !storeState.eventBuffer.processing
       ) {
-        return this.scheduleEventProcessing(storeId, storeState)
+        flushPromises.push(this.scheduleEventProcessing(storeId, storeState))
       }
-    })
+    }
 
     await Promise.allSettled(flushPromises)
   }
