@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { Contact, events, Event } from '@work-squared/shared/schema'
+import { Contact, events } from '@work-squared/shared/schema'
 import { getContacts$ } from '@work-squared/shared/queries'
+
+type Event = ReturnType<(typeof events)[keyof typeof events]>
 
 interface ContactPickerProps {
   projectId: string

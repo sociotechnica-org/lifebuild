@@ -1,7 +1,7 @@
 import { useQuery, useStore } from '@livestore/react'
 import { getContacts$, getContactById$, getContactByEmail$ } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
-import { ParsedContact } from '@work-squared/shared/src/utils/contact-import'
+import { ParsedContact } from '@work-squared/shared'
 
 /**
  * Custom hook for contact management operations
@@ -87,7 +87,7 @@ export function useContacts() {
         await store.commit(
           events.contactCreated({
             id: contactId,
-            name: contact.name || contact.email.split('@')[0],
+            name: contact.name || contact.email.split('@')[0] || 'Unknown',
             email: contact.email,
             createdAt: new Date(),
           })

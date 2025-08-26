@@ -207,7 +207,7 @@ export const ContactDetail: React.FC = () => {
                             contactId: contactId!,
                           })
                         )
-                      } catch (err) {
+                      } catch {
                         setError('Failed to remove from project')
                       }
                     }}

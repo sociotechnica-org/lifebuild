@@ -99,7 +99,7 @@ export const ContactList: React.FC = () => {
       {showBulkImport && (
         <BulkImportModal
           onClose={() => setShowBulkImport(false)}
-          onSuccess={(results) => {
+          onSuccess={results => {
             setShowBulkImport(false)
             console.log('Import successful:', results)
           }}

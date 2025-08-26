@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { parseEmailList, ParsedContact } from '../../../../shared/src/utils/contact-import'
+import { parseEmailList, ParsedContact } from '@work-squared/shared'
 import { useContacts } from '../../hooks/useContacts.js'
 
 interface BulkImportModalProps {
@@ -7,10 +7,7 @@ interface BulkImportModalProps {
   onSuccess: (results: { created: number; skipped: number }) => void
 }
 
-export const BulkImportModal: React.FC<BulkImportModalProps> = ({
-  onClose,
-  onSuccess,
-}) => {
+export const BulkImportModal: React.FC<BulkImportModalProps> = ({ onClose, onSuccess }) => {
   const { createContactsBulk, contacts: existingContacts } = useContacts()
   const [input, setInput] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -53,7 +50,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
       setError(null)
 
       const results = await createContactsBulk(parseResult.contacts)
-      
+
       onSuccess({
         created: results.created.length,
         skipped: results.skipped.length,
@@ -85,7 +82,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
             <textarea
               id='bulk-input'
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={e => setInput(e.target.value)}
               disabled={isSubmitting}
               className='w-full h-32 p-3 border border-gray-300 rounded-md'
               placeholder='john@example.com, Jane Doe <jane@example.com>, bob@company.com'
@@ -106,12 +103,13 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
 
           {/* Actions */}
           <div className='flex justify-end space-x-3'>
-            <button onClick={onClose} disabled={isSubmitting}>Cancel</button>
-            <button
-              onClick={handleImport}
-              disabled={isSubmitting || validContacts === 0}
-            >
-              {isSubmitting ? 'Importing...' : `Import ${validContacts} Contact${validContacts !== 1 ? 's' : ''}`}
+            <button onClick={onClose} disabled={isSubmitting}>
+              Cancel
+            </button>
+            <button onClick={handleImport} disabled={isSubmitting || validContacts === 0}>
+              {isSubmitting
+                ? 'Importing...'
+                : `Import ${validContacts} Contact${validContacts !== 1 ? 's' : ''}`}
             </button>
           </div>
         </div>
