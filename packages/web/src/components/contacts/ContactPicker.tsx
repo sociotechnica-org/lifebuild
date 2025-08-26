@@ -120,7 +120,6 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
 
         {/* Content */}
         <div className='flex-1 flex flex-col p-6'>
-
           {contacts.length === 0 ? (
             <div className='flex-1 flex items-center justify-center'>
               <p className='text-sm text-gray-500'>
