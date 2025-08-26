@@ -40,6 +40,7 @@ async function main() {
 
     if (req.url === '/health') {
       const healthStatus = storeManager.getHealthStatus()
+      const processingStats = eventProcessor.getProcessingStats()
 
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(
@@ -49,12 +50,16 @@ async function main() {
           uptime: process.uptime(),
           storage: 'filesystem',
           dataPath: process.env.STORE_DATA_PATH || './data',
-          stores: healthStatus.stores,
+          stores: healthStatus.stores.map(store => ({
+            ...store,
+            processing: processingStats.get(store.storeId) || null,
+          })),
           storeCount: healthStatus.stores.length,
         })
       )
     } else if (req.url === '/stores') {
       const storeInfo = storeManager.getAllStoreInfo()
+      const processingStats = eventProcessor.getProcessingStats()
       const stores = Array.from(storeInfo.entries()).map(([id, info]) => ({
         id,
         status: info.status,
@@ -62,6 +67,7 @@ async function main() {
         lastActivity: info.lastActivity.toISOString(),
         errorCount: info.errorCount,
         reconnectAttempts: info.reconnectAttempts,
+        processing: processingStats.get(id) || null,
       }))
 
       res.writeHead(200, { 'Content-Type': 'application/json' })
@@ -136,6 +142,7 @@ async function main() {
   const shutdown = async () => {
     console.log('Shutting down server...')
     healthServer.close()
+    eventProcessor.stopAll()
     await storeManager.shutdown()
     process.exit(0)
   }
