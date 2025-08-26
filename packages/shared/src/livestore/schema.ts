@@ -265,6 +265,18 @@ const contacts = State.SQLite.table({
   },
 })
 
+const projectContacts = State.SQLite.table({
+  name: 'projectContacts',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    projectId: State.SQLite.text(),
+    contactId: State.SQLite.text(),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
 const taskExecutions = State.SQLite.table({
   name: 'taskExecutions',
   columns: {
@@ -310,6 +322,7 @@ export type RecurringTask = State.SQLite.FromTable.RowDecoded<typeof recurringTa
 export type EventsLog = State.SQLite.FromTable.RowDecoded<typeof eventsLog>
 export type Setting = State.SQLite.FromTable.RowDecoded<typeof settings>
 export type Contact = State.SQLite.FromTable.RowDecoded<typeof contacts>
+export type ProjectContact = State.SQLite.FromTable.RowDecoded<typeof projectContacts>
 export type TaskExecution = State.SQLite.FromTable.RowDecoded<typeof taskExecutions>
 export type UiState = typeof uiState.default.value
 
@@ -335,6 +348,7 @@ export const tables = {
   eventsLog,
   settings,
   contacts,
+  projectContacts,
   taskExecutions,
 }
 
@@ -563,6 +577,10 @@ const materializers = State.SQLite.materializers(events, {
     return contacts.update(updateData).where({ id })
   },
   'v1.ContactDeleted': ({ id, deletedAt }) => contacts.update({ deletedAt }).where({ id }),
+  'v1.ProjectContactAdded': ({ id, projectId, contactId, createdAt }) =>
+    projectContacts.insert({ id, projectId, contactId, createdAt }),
+  'v1.ProjectContactRemoved': ({ projectId, contactId }) =>
+    projectContacts.delete().where({ projectId, contactId }),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })
