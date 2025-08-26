@@ -5,12 +5,15 @@ import { events } from '@work-squared/shared/schema'
 import { ErrorMessage } from '../ui/ErrorMessage.js'
 import { ContactForm } from './ContactForm.js'
 import { ContactItem } from './ContactItem.js'
+import { BulkImportModal } from './BulkImportModal.js'
 
 export const ContactList: React.FC = () => {
   const { store } = useStore()
   const contacts = useQuery(getContacts$) ?? []
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [showBulkImport, setShowBulkImport] = useState(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   const handleCreateContact = async (name: string, email: string) => {
     try {
@@ -42,6 +45,21 @@ export const ContactList: React.FC = () => {
     }
   }
 
+  const handleBulkImportSuccess = (results: { created: number; skipped: number }) => {
+    setShowBulkImport(false)
+    setError(null)
+    
+    let message = `Successfully imported ${results.created} contact${results.created !== 1 ? 's' : ''}`
+    if (results.skipped > 0) {
+      message += ` (${results.skipped} skipped)`
+    }
+    
+    setSuccessMessage(message)
+    
+    // Clear success message after a few seconds
+    setTimeout(() => setSuccessMessage(null), 5000)
+  }
+
   return (
     <div className='h-full bg-gray-50 flex flex-col'>
       {/* Header */}
@@ -54,7 +72,15 @@ export const ContactList: React.FC = () => {
       <div className='flex-1 overflow-auto px-6 py-6'>
         {/* Create Contact Form */}
         <div className='bg-white rounded-lg border border-gray-200 p-6 mb-6'>
-          <h2 className='text-lg font-semibold text-gray-900 mb-4'>Add New Contact</h2>
+          <div className='flex justify-between items-center mb-4'>
+            <h2 className='text-lg font-semibold text-gray-900'>Add New Contact</h2>
+            <button
+              onClick={() => setShowBulkImport(true)}
+              className='px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors border border-gray-300'
+            >
+              Bulk Import
+            </button>
+          </div>
           <ContactForm onSubmit={handleCreateContact} isLoading={isLoading} />
         </div>
 
@@ -85,6 +111,19 @@ export const ContactList: React.FC = () => {
       </div>
 
       <ErrorMessage error={error} onDismiss={() => setError(null)} />
+      
+      {successMessage && (
+        <div className='fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg'>
+          {successMessage}
+        </div>
+      )}
+
+      {showBulkImport && (
+        <BulkImportModal
+          onClose={() => setShowBulkImport(false)}
+          onSuccess={handleBulkImportSuccess}
+        />
+      )}
     </div>
   )
 }
