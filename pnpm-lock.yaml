@@ -144,7 +144,7 @@ importers:
         specifier: ^24.1.0
         version: 24.1.0
       '@types/ws':
-        specifier: ^8.5.15
+        specifier: ^8.18.1
         version: 8.18.1
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.38.0
