@@ -172,45 +172,103 @@ export const ContactDetail: React.FC = () => {
       {/* Delete Confirmation Modal */}
       {showDeleteConfirmation && (
         <div
-          className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
+          className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'
           onClick={e => e.target === e.currentTarget && setShowDeleteConfirmation(false)}
         >
-          <div className='bg-white rounded-lg max-w-md w-full mx-4 p-6'>
-            <div className='text-center'>
-              <div className='mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4'>
-                <svg
-                  className='h-6 w-6 text-red-600'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  strokeWidth='1.5'
-                  stroke='currentColor'
-                >
+          <div className='bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto'>
+            {/* Header */}
+            <div className='flex items-start justify-between p-6 border-b border-gray-200'>
+              <h3 className='text-lg font-semibold leading-6 text-gray-900'>Delete Contact</h3>
+              <button
+                onClick={() => setShowDeleteConfirmation(false)}
+                className='text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100'
+                aria-label='Close modal'
+                disabled={isDeleting}
+              >
+                <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path
                     strokeLinecap='round'
                     strokeLinejoin='round'
-                    d='M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z'
+                    strokeWidth={2}
+                    d='M6 18L18 6M6 6l12 12'
                   />
                 </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className='p-6'>
+              <div className='flex items-center mb-4'>
+                <div className='flex-shrink-0'>
+                  <div className='mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100'>
+                    <svg
+                      className='h-6 w-6 text-red-600'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                      strokeWidth='1.5'
+                      stroke='currentColor'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        d='M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z'
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div className='ml-4'>
+                  <p className='text-gray-600'>
+                    Are you sure you want to delete <strong>"{contact.name}"</strong>?
+                  </p>
+                </div>
               </div>
-              <h3 className='text-lg font-medium text-gray-900 mb-4'>Delete Contact</h3>
-              <p className='text-gray-600 mb-6'>
-                Are you sure you want to delete "{contact.name}"? This action cannot be undone and
-                will remove the contact from all projects.
-              </p>
+
+              <div className='bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6'>
+                <div className='flex'>
+                  <div className='flex-shrink-0'>
+                    <svg
+                      className='h-5 w-5 text-yellow-400'
+                      viewBox='0 0 20 20'
+                      fill='currentColor'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                  </div>
+                  <div className='ml-3'>
+                    <p className='text-sm text-yellow-700'>
+                      <strong>This action cannot be undone.</strong> The contact will be permanently
+                      deleted and removed from all projects.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
               <div className='flex justify-end space-x-3'>
                 <button
                   onClick={() => setShowDeleteConfirmation(false)}
-                  className='px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors'
                   disabled={isDeleting}
+                  className='px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDelete}
-                  className='px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-md transition-colors'
                   disabled={isDeleting}
+                  className='px-3 py-1.5 text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors flex items-center'
                 >
-                  {isDeleting ? 'Deleting...' : 'Delete'}
+                  {isDeleting ? (
+                    <>
+                      <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    'Delete Contact'
+                  )}
                 </button>
               </div>
             </div>
