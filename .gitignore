@@ -6,6 +6,9 @@ node_modules
 .dev.vars
 dist
 
+# TypeScript build artifacts
+*.tsbuildinfo
+
 *storybook.log
 storybook-static
 
