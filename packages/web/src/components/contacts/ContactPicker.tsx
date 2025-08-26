@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { Contact, events } from '@work-squared/shared/schema'
+import { Contact, events, Event } from '@work-squared/shared/schema'
 import { getContacts$ } from '@work-squared/shared/queries'
 
 interface ContactPickerProps {
@@ -60,7 +60,7 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
-      const eventsToCommit = []
+      const eventsToCommit: Event[] = []
 
       // Find contacts to add (selected but not in existing)
       const contactsToAdd = Array.from(selectedContactIds).filter(

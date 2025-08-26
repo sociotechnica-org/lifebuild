@@ -1,7 +1,7 @@
 import { useQuery, useStore } from '@livestore/react'
 import { getContacts$, getContactById$, getContactByEmail$ } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
-import { ParsedContact } from '../../../../shared/src/utils/contact-import'
+import { ParsedContact } from '@work-squared/shared/src/utils/contact-import'
 
 /**
  * Custom hook for contact management operations
@@ -71,7 +71,9 @@ export function useContacts() {
     for (const contact of parsedContacts) {
       try {
         // Check for duplicate email against existing contacts
-        const existingContact = contacts.find(c => c.email?.toLowerCase() === contact.email.toLowerCase())
+        const existingContact = contacts.find(
+          c => c.email?.toLowerCase() === contact.email.toLowerCase()
+        )
         if (existingContact) {
           results.skipped.push({
             email: contact.email,

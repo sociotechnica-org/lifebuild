@@ -85,11 +85,11 @@ function parseEmailEntry(entry: string): ParseEntryResult {
 
   if (nameEmailMatch) {
     const [, name, email] = nameEmailMatch
-    const cleanName = name.trim()
-    const cleanEmail = email.trim()
+    const cleanName = name?.trim()
+    const cleanEmail = email?.trim()
 
-    if (!isValidEmail(cleanEmail)) {
-      return { error: `Invalid email format: ${cleanEmail}` }
+    if (!cleanEmail || !isValidEmail(cleanEmail)) {
+      return { error: `Invalid email format: ${cleanEmail || 'undefined'}` }
     }
 
     return {
