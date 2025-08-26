@@ -236,6 +236,25 @@ const recurringTasks = State.SQLite.table({
   },
 })
 
+const taskExecutions = State.SQLite.table({
+  name: 'taskExecutions',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    recurringTaskId: State.SQLite.text(),
+    startedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    completedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+    status: State.SQLite.text({ default: 'running' }), // 'running', 'completed', 'failed'
+    output: State.SQLite.text({ nullable: true }), // JSON string of the execution output
+    createdTaskIds: State.SQLite.text({ nullable: true }), // JSON array of created task IDs
+    triggerType: State.SQLite.text({ default: 'manual' }), // 'manual' or 'automatic'
+  },
+})
+
 const settings = State.SQLite.table({
   name: 'settings',
   columns: {
@@ -290,6 +309,7 @@ export type DocumentProject = State.SQLite.FromTable.RowDecoded<typeof documentP
 export type Worker = State.SQLite.FromTable.RowDecoded<typeof workers>
 export type WorkerProject = State.SQLite.FromTable.RowDecoded<typeof workerProjects>
 export type RecurringTask = State.SQLite.FromTable.RowDecoded<typeof recurringTasks>
+export type TaskExecution = State.SQLite.FromTable.RowDecoded<typeof taskExecutions>
 export type EventsLog = State.SQLite.FromTable.RowDecoded<typeof eventsLog>
 export type Setting = State.SQLite.FromTable.RowDecoded<typeof settings>
 export type Contact = State.SQLite.FromTable.RowDecoded<typeof contacts>
@@ -314,6 +334,7 @@ export const tables = {
   workers,
   workerProjects,
   recurringTasks,
+  taskExecutions,
   eventsLog,
   settings,
   contacts,
@@ -497,6 +518,37 @@ const materializers = State.SQLite.materializers(events, {
         enabled: false,
         updatedAt: disabledAt,
         nextExecutionAt: null,
+      })
+      .where({ id }),
+  'v1.RecurringTaskExecute': () => [],
+  'v1.TaskExecutionStarted': ({ id, recurringTaskId, triggerType, startedAt }) => [
+    taskExecutions.insert({
+      id,
+      recurringTaskId,
+      startedAt,
+      completedAt: null,
+      status: 'running',
+      output: null,
+      createdTaskIds: null,
+      triggerType,
+    }),
+    recurringTasks.update({ lastExecutedAt: startedAt }).where({ id: recurringTaskId }),
+  ],
+  'v1.TaskExecutionCompleted': ({ id, completedAt, output, createdTaskIds }) =>
+    taskExecutions
+      .update({
+        completedAt,
+        status: 'completed',
+        output: output ? output : null,
+        createdTaskIds: createdTaskIds ? JSON.stringify(createdTaskIds) : null,
+      })
+      .where({ id }),
+  'v1.TaskExecutionFailed': ({ id, failedAt, error }) =>
+    taskExecutions
+      .update({
+        completedAt: failedAt,
+        status: 'failed',
+        output: JSON.stringify({ error }),
       })
       .where({ id }),
   'v1.SettingUpdated': ({ key, value, updatedAt }) => [

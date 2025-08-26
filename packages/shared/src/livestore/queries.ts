@@ -282,3 +282,24 @@ export const getRecurringTaskById$ = (id: string) =>
   queryDb(tables.recurringTasks.select().where({ id }), {
     label: `getRecurringTaskById:${id}`,
   })
+
+// Task execution queries
+export const getTaskExecutions$ = (taskId: string) =>
+  queryDb(
+    tables.taskExecutions
+      .select()
+      .where({ recurringTaskId: taskId })
+      .orderBy([{ col: 'startedAt', direction: 'desc' }])
+      .limit(5),
+    { label: `getTaskExecutions:${taskId}` }
+  )
+
+export const getLatestExecution$ = (taskId: string) =>
+  queryDb(
+    tables.taskExecutions
+      .select()
+      .where({ recurringTaskId: taskId })
+      .orderBy([{ col: 'startedAt', direction: 'desc' }])
+      .limit(1),
+    { label: `getLatestExecution:${taskId}` }
+  )

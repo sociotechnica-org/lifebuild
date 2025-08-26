@@ -347,6 +347,44 @@ export const recurringTaskDisabled = Events.synced({
   }),
 })
 
+export const recurringTaskExecute = Events.synced({
+  name: 'v1.RecurringTaskExecute',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    triggerType: Schema.Union(Schema.Literal('manual'), Schema.Literal('automatic')),
+    triggeredAt: Schema.Date,
+  }),
+})
+
+export const taskExecutionStarted = Events.synced({
+  name: 'v1.TaskExecutionStarted',
+  schema: Schema.Struct({
+    id: Schema.String,
+    recurringTaskId: Schema.String,
+    triggerType: Schema.Union(Schema.Literal('manual'), Schema.Literal('automatic')),
+    startedAt: Schema.Date,
+  }),
+})
+
+export const taskExecutionCompleted = Events.synced({
+  name: 'v1.TaskExecutionCompleted',
+  schema: Schema.Struct({
+    id: Schema.String,
+    completedAt: Schema.Date,
+    output: Schema.Union(Schema.String, Schema.Undefined),
+    createdTaskIds: Schema.Union(Schema.Array(Schema.String), Schema.Undefined),
+  }),
+})
+
+export const taskExecutionFailed = Events.synced({
+  name: 'v1.TaskExecutionFailed',
+  schema: Schema.Struct({
+    id: Schema.String,
+    failedAt: Schema.Date,
+    error: Schema.String,
+  }),
+})
+
 export const settingUpdated = Events.synced({
   name: 'v1.SettingUpdated',
   schema: Schema.Struct({

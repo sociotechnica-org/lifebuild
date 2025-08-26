@@ -41,6 +41,7 @@ describe('RecurringTaskCard', () => {
   const mockOnEdit = vi.fn()
   const mockOnDelete = vi.fn()
   const mockOnToggleEnabled = vi.fn()
+  const mockOnExecute = vi.fn()
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -53,6 +54,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onExecute={mockOnExecute}
       />
     )
 
@@ -69,6 +71,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onExecute={mockOnExecute}
       />
     )
 
@@ -84,6 +87,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onExecute={mockOnExecute}
       />
     )
 
@@ -106,6 +110,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onExecute={mockOnExecute}
       />
     )
 
@@ -128,6 +133,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onExecute={mockOnExecute}
       />
     )
 
@@ -153,6 +159,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onExecute={mockOnExecute}
       />
     )
 
@@ -183,6 +190,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onExecute={mockOnExecute}
       />
     )
 
@@ -207,6 +215,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onExecute={mockOnExecute}
       />
     )
 
@@ -232,6 +241,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onExecute={mockOnExecute}
       />
     )
 
@@ -250,6 +260,7 @@ describe('RecurringTaskCard', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onToggleEnabled={mockOnToggleEnabled}
+        onExecute={mockOnExecute}
       />
     )
 

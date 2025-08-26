@@ -28,6 +28,7 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary/ErrorBoundary.js'
 import { UserInitializer } from './components/utils/UserInitializer/UserInitializer.js'
 import { AuthUserSync } from './components/utils/AuthUserSync/AuthUserSync.js'
 import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
+import { TaskScheduler } from './components/recurring-tasks/TaskScheduler.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
 
@@ -126,6 +127,7 @@ const ProtectedApp: React.FC = () => (
         <UserInitializer>
           <AuthUserSync>
             <SettingsInitializer>
+              <TaskScheduler />
               <ErrorBoundary>
                 <Routes>
                   <Route

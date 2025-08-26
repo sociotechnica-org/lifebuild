@@ -1,9 +1,14 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { getRecurringTasks$, getRecurringTaskById$ } from '@work-squared/shared/queries'
+import {
+  getRecurringTasks$,
+  getRecurringTaskById$,
+  getTaskExecutions$,
+  getLatestExecution$,
+} from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
 import { calculateNextExecution } from '@work-squared/shared'
-import type { RecurringTask } from '@work-squared/shared/schema'
+import type { RecurringTask, TaskExecution } from '@work-squared/shared/schema'
 
 export interface CreateRecurringTaskParams {
   name: string
@@ -133,6 +138,63 @@ export function useRecurringTasks() {
     [enableRecurringTask, disableRecurringTask]
   )
 
+  const executeRecurringTask = useCallback(
+    async (id: string, triggerType: 'manual' | 'automatic' = 'manual') => {
+      const executionId = crypto.randomUUID()
+      const now = new Date()
+
+      // Start the execution
+      await store.commit(
+        events.taskExecutionStarted({
+          id: executionId,
+          recurringTaskId: id,
+          triggerType,
+          startedAt: now,
+        })
+      )
+
+      // Simulate execution (2 seconds)
+      setTimeout(async () => {
+        const mockOutput = `Task executed successfully at ${now.toLocaleString()}`
+        const completedAt = new Date()
+
+        await store.commit(
+          events.taskExecutionCompleted({
+            id: executionId,
+            completedAt,
+            output: mockOutput,
+            createdTaskIds: undefined,
+          })
+        )
+
+        // Update next execution time if task is enabled
+        const task = recurringTasks.find(t => t.id === id)
+        if (task && task.enabled) {
+          const nextExecutionAt = new Date(
+            calculateNextExecution(completedAt.getTime(), task.intervalHours)
+          )
+          await store.commit(
+            events.recurringTaskUpdated({
+              id,
+              updates: {
+                name: undefined,
+                description: undefined,
+                prompt: undefined,
+                intervalHours: undefined,
+                projectId: undefined,
+              },
+              updatedAt: completedAt,
+              nextExecutionAt,
+            })
+          )
+        }
+      }, 2000)
+
+      return executionId
+    },
+    [store, recurringTasks]
+  )
+
   return {
     recurringTasks,
     createRecurringTask,
@@ -141,13 +203,18 @@ export function useRecurringTasks() {
     enableRecurringTask,
     disableRecurringTask,
     toggleRecurringTask,
+    executeRecurringTask,
   }
 }
 
 export function useRecurringTask(id: string) {
   const task = useQuery(getRecurringTaskById$(id))?.[0] as RecurringTask | undefined
+  const executions = useQuery(getTaskExecutions$(id)) ?? []
+  const latestExecution = useQuery(getLatestExecution$(id))?.[0] as TaskExecution | undefined
 
   return {
     task,
+    executions,
+    latestExecution,
   }
 }

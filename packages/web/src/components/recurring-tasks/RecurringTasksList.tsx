@@ -16,7 +16,7 @@ export const RecurringTasksList: React.FC<RecurringTasksListProps> = ({
   projectId,
 }) => {
   const allRecurringTasks = useQuery(getRecurringTasks$) ?? []
-  const { deleteRecurringTask, toggleRecurringTask } = useRecurringTasks()
+  const { deleteRecurringTask, toggleRecurringTask, executeRecurringTask } = useRecurringTasks()
   const [editingTask, setEditingTask] = useState<RecurringTask | null>(null)
 
   // Filter tasks by project if projectId is provided
@@ -39,6 +39,10 @@ export const RecurringTasksList: React.FC<RecurringTasksListProps> = ({
 
   const handleToggleEnabled = async (taskId: string, enabled: boolean) => {
     await toggleRecurringTask(taskId, enabled)
+  }
+
+  const handleExecute = async (taskId: string) => {
+    await executeRecurringTask(taskId)
   }
 
   if (recurringTasks.length === 0) {
@@ -83,6 +87,7 @@ export const RecurringTasksList: React.FC<RecurringTasksListProps> = ({
             onEdit={handleEdit}
             onDelete={handleDelete}
             onToggleEnabled={handleToggleEnabled}
+            onExecute={handleExecute}
           />
         ))}
         <div className='pt-2'>
