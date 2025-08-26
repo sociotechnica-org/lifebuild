@@ -121,7 +121,8 @@ When users describe project requirements or ask you to create tasks, use the cre
     const DEFAULT_MODEL = 'gpt-4o-mini'
     const tools = llmToolSchemas
 
-    try {
+    // Execute API call with retry logic
+    return await this.retryableOperation.execute(async () => {
       const response = await fetch('https://api.braintrust.dev/v1/proxy/chat/completions', {
         method: 'POST',
         headers: {
@@ -141,7 +142,14 @@ When users describe project requirements or ask you to create tasks, use the cre
 
       if (!response.ok) {
         const errorText = await response.text()
-        throw new Error(`Braintrust API call failed: ${response.status} ${errorText}`)
+        const error = new Error(`Braintrust API call failed: ${response.status} ${errorText}`)
+        
+        // Call the external onRetry callback if provided and it's a retryable error
+        if (_options?.onRetry && (response.status >= 500 || response.status === 429)) {
+          console.log(`⚠️ Braintrust API error ${response.status}, will retry if attempts remain`)
+        }
+        
+        throw error
       }
 
       const data = await response.json()
@@ -156,9 +164,6 @@ When users describe project requirements or ask you to create tasks, use the cre
         message: responseMessage.content || '',
         toolCalls: responseMessage.tool_calls || [],
       }
-    } catch (error) {
-      console.error('❌ Braintrust API error:', error)
-      throw error
-    }
+    })
   }
 }
