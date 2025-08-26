@@ -91,11 +91,34 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({ onClose, onSuc
           </div>
 
           {/* Preview */}
-          {parseResult.contacts.length > 0 && (
+          {(parseResult.contacts.length > 0 || parseResult.errors.length > 0) && (
             <div className='bg-gray-50 border border-gray-200 rounded-md p-4'>
-              <h4>Preview</h4>
-              <div>Will Create: {validContacts}</div>
-              <div>Already Exist: {existingContactCount}</div>
+              <h4 className='font-semibold mb-2'>Preview</h4>
+              <div className='space-y-1 text-sm'>
+                <div>
+                  Will Create: <span className='font-medium text-green-600'>{validContacts}</span>
+                </div>
+                <div>
+                  Already Exist:{' '}
+                  <span className='font-medium text-yellow-600'>{existingContactCount}</span>
+                </div>
+                {parseResult.errors.length > 0 && (
+                  <div>
+                    Parsing Errors:{' '}
+                    <span className='font-medium text-red-600'>{parseResult.errors.length}</span>
+                  </div>
+                )}
+              </div>
+              {parseResult.errors.length > 0 && (
+                <div className='mt-3 p-2 bg-red-50 border border-red-200 rounded text-sm'>
+                  <div className='font-medium text-red-800 mb-1'>Issues found:</div>
+                  <ul className='text-red-700 space-y-1 list-disc list-inside'>
+                    {parseResult.errors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 
