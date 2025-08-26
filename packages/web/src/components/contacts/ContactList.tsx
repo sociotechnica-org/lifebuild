@@ -5,12 +5,14 @@ import { events } from '@work-squared/shared/schema'
 import { ErrorMessage } from '../ui/ErrorMessage.js'
 import { ContactForm } from './ContactForm.js'
 import { ContactItem } from './ContactItem.js'
+import { BulkImportModal } from './BulkImportModal.js'
 
 export const ContactList: React.FC = () => {
   const { store } = useStore()
   const contacts = useQuery(getContacts$) ?? []
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [showBulkImport, setShowBulkImport] = useState(false)
 
   const handleCreateContact = async (name: string, email: string) => {
     try {
@@ -54,7 +56,15 @@ export const ContactList: React.FC = () => {
       <div className='flex-1 overflow-auto px-6 py-6'>
         {/* Create Contact Form */}
         <div className='bg-white rounded-lg border border-gray-200 p-6 mb-6'>
-          <h2 className='text-lg font-semibold text-gray-900 mb-4'>Add New Contact</h2>
+          <div className='flex justify-between items-center mb-4'>
+            <h2 className='text-lg font-semibold text-gray-900'>Add New Contact</h2>
+            <button
+              onClick={() => setShowBulkImport(true)}
+              className='px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200'
+            >
+              Bulk Import
+            </button>
+          </div>
           <ContactForm onSubmit={handleCreateContact} isLoading={isLoading} />
         </div>
 
@@ -85,6 +95,16 @@ export const ContactList: React.FC = () => {
       </div>
 
       <ErrorMessage error={error} onDismiss={() => setError(null)} />
+
+      {showBulkImport && (
+        <BulkImportModal
+          onClose={() => setShowBulkImport(false)}
+          onSuccess={(results) => {
+            setShowBulkImport(false)
+            console.log('Import successful:', results)
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { useQuery, useStore } from '@livestore/react'
 import { getContacts$, getContactById$, getContactByEmail$ } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
+import { ParsedContact } from '../../../../shared/src/utils/contact-import'
 
 /**
  * Custom hook for contact management operations
@@ -61,11 +62,58 @@ export function useContacts() {
     )
   }
 
+  const createContactsBulk = async (parsedContacts: ParsedContact[]) => {
+    const results = {
+      created: [] as { id: string; email: string; name?: string }[],
+      skipped: [] as { email: string; reason: string; name?: string }[],
+    }
+
+    for (const contact of parsedContacts) {
+      try {
+        // Check for duplicate email against existing contacts
+        const existingContact = contacts.find(c => c.email?.toLowerCase() === contact.email.toLowerCase())
+        if (existingContact) {
+          results.skipped.push({
+            email: contact.email,
+            name: contact.name,
+            reason: 'Email already exists',
+          })
+          continue
+        }
+
+        const contactId = crypto.randomUUID()
+        await store.commit(
+          events.contactCreated({
+            id: contactId,
+            name: contact.name || contact.email.split('@')[0],
+            email: contact.email,
+            createdAt: new Date(),
+          })
+        )
+
+        results.created.push({
+          id: contactId,
+          email: contact.email,
+          name: contact.name,
+        })
+      } catch (error) {
+        results.skipped.push({
+          email: contact.email,
+          name: contact.name,
+          reason: error instanceof Error ? error.message : 'Unknown error',
+        })
+      }
+    }
+
+    return results
+  }
+
   return {
     contacts,
     createContact,
     updateContact,
     deleteContact,
+    createContactsBulk,
   }
 }
 
