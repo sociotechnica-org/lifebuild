@@ -32,10 +32,10 @@ export class AgenticLoop {
    * Run the agentic loop with a user message
    */
   async run(userMessage: string, context: AgenticLoopContext): Promise<void> {
-    // Initialize context - use Node.js environment variables
-    const envMaxIterations = process.env.VITE_LLM_MAX_ITERATIONS
+    // Initialize context - use server environment variables
+    const envMaxIterations = process.env.LLM_MAX_ITERATIONS
       ? (() => {
-          const parsed = parseInt(process.env.VITE_LLM_MAX_ITERATIONS, 10)
+          const parsed = parseInt(process.env.LLM_MAX_ITERATIONS, 10)
           return isNaN(parsed) ? 15 : Math.max(1, parsed) // Ensure positive integer
         })()
       : 15 // Prevent infinite loops - increased from 5 to 15 for complex multi-step operations
@@ -53,6 +53,7 @@ export class AgenticLoop {
     const warningThreshold = Math.floor(this.maxIterations * 0.8) // 80% of max iterations
 
     // Run the loop
+    let completedSuccessfully = false
     for (let iteration = 1; iteration <= this.maxIterations; iteration++) {
       try {
         this.events.onIterationStart?.(iteration)
@@ -122,6 +123,7 @@ export class AgenticLoop {
           if (isStuckLoop) {
             // Exit the loop if stuck
             this.events.onComplete?.(iteration)
+            completedSuccessfully = true
             return
           }
 
@@ -156,6 +158,7 @@ export class AgenticLoop {
         // Exit loop - we're done
         console.log(`✅ Agentic loop completed after ${iteration} iterations`)
         this.events.onComplete?.(iteration)
+        completedSuccessfully = true
         break
       } catch (error) {
         console.error(`❌ Error in iteration ${iteration}:`, error)
@@ -167,18 +170,20 @@ export class AgenticLoop {
       }
     }
 
-    // Check if we hit max iterations - always notify regardless of message state
-    console.warn(`⚠️ Hit max iterations (${this.maxIterations}) - loop may be incomplete`)
-    console.log('Tool call history (last 5):', toolCallHistory.slice(-5))
+    // Only report max iterations error if we didn't complete successfully
+    if (!completedSuccessfully) {
+      console.warn(`⚠️ Hit max iterations (${this.maxIterations}) - loop may be incomplete`)
+      console.log('Tool call history (last 5):', toolCallHistory.slice(-5))
 
-    // Trigger error event with helpful context
-    this.events.onError?.(
-      new Error(
-        `Maximum iterations reached (${this.maxIterations}). The operation may be incomplete. Consider breaking down complex requests into smaller parts.`
-      ),
-      this.maxIterations
-    )
-    this.events.onComplete?.(this.maxIterations)
+      // Trigger error event with helpful context
+      this.events.onError?.(
+        new Error(
+          `Maximum iterations reached (${this.maxIterations}). The operation may be incomplete. Consider breaking down complex requests into smaller parts.`
+        ),
+        this.maxIterations
+      )
+      this.events.onComplete?.(this.maxIterations)
+    }
   }
 
   /**

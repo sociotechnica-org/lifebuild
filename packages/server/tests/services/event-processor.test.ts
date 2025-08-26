@@ -411,7 +411,7 @@ describe('EventProcessor', () => {
           subscribeCallbacks.set(key, options.onUpdate)
           return () => subscribeCallbacks.delete(key)
         }),
-        read: vi.fn(() => []), // Mock empty reads
+        query: vi.fn(() => []), // Mock empty query results
         commit: vi.fn(),
       }
 
@@ -597,7 +597,7 @@ describe('EventProcessor', () => {
 
     it('should handle worker context when conversation has workerId', async () => {
       // Mock conversation and worker data
-      mockStoreWithLLM.read = vi.fn()
+      mockStoreWithLLM.query = vi.fn()
         .mockReturnValueOnce([{ // conversation
           id: 'conv-456',
           workerId: 'worker-789',
@@ -628,8 +628,8 @@ describe('EventProcessor', () => {
       // Give time for async processing
       await new Promise(resolve => setTimeout(resolve, 20))
 
-      // Should have called read to get conversation and worker data
-      expect(mockStoreWithLLM.read).toHaveBeenCalledTimes(3) // conversation, worker, history
+      // Should have called query to get conversation and worker data
+      expect(mockStoreWithLLM.query).toHaveBeenCalledTimes(3) // conversation, worker, history
 
       // Should have run the agentic loop with worker context
       const { AgenticLoop } = await import('../../src/services/agentic-loop/agentic-loop.js')

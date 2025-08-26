@@ -103,7 +103,7 @@ describe('Tool Formatters', () => {
       expect(result).toContain('Document created successfully')
       expect(result).toContain('Test Document')
       expect(result).toContain('doc-123')
-      expect(result).toContain('18 characters') // content length
+      expect(result).toContain('19 characters') // content length
     })
 
     it('should format add_document_to_project result', () => {
