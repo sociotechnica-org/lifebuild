@@ -29,7 +29,10 @@ export function useContacts() {
     return contactId
   }
 
-  const updateContact = async (contactId: string, updates: { name?: string; email?: string }) => {
+  const updateContact = async (
+    contactId: string,
+    updates: { name?: string; email?: string | null }
+  ) => {
     // If email is being updated, check for duplicates
     if (updates.email) {
       const existingContact = contacts.find(

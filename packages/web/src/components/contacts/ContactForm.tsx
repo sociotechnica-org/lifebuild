@@ -20,11 +20,6 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, isLoading = 
     setValidationError(null)
 
     // Validation
-    if (!name.trim()) {
-      setValidationError('Name is required')
-      return
-    }
-
     if (!email.trim()) {
       setValidationError('Email is required')
       return
@@ -36,7 +31,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, isLoading = 
     }
 
     // Submit
-    const success = await onSubmit(name.trim(), email.trim())
+    const success = await onSubmit(name.trim() || 'Unnamed Contact', email.trim())
     if (success) {
       setName('')
       setEmail('')
@@ -48,7 +43,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, isLoading = 
       <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
         <div>
           <label htmlFor='name' className='block text-sm font-medium text-gray-700 mb-1'>
-            Name *
+            Name
           </label>
           <input
             id='name'
@@ -58,7 +53,6 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, isLoading = 
             className='w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
             placeholder='Enter contact name'
             disabled={isLoading}
-            required
           />
         </div>
 
@@ -68,13 +62,12 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, isLoading = 
           </label>
           <input
             id='email'
-            type='email'
+            type='text'
             value={email}
             onChange={e => setEmail(e.target.value)}
             className='w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
             placeholder='Enter email address'
             disabled={isLoading}
-            required
           />
         </div>
       </div>
@@ -88,7 +81,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, isLoading = 
       <div>
         <button
           type='submit'
-          disabled={isLoading || !name.trim() || !email.trim()}
+          disabled={isLoading || !email.trim()}
           className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed'
         >
           {isLoading ? (

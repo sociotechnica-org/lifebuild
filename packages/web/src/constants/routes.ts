@@ -9,6 +9,7 @@ export const ROUTES = {
   TEAM: '/team',
   DOCUMENTS: '/documents',
   CONTACTS: '/contacts',
+  CONTACT: '/contacts/:contactId',
   HISTORY: '/history',
   SETTINGS: '/settings',
   ADMIN: '/admin',
@@ -25,6 +26,7 @@ export const ROUTES = {
 export const generateRoute = {
   document: (id: string) => `/document/${id}`,
   project: (id: string) => `/project/${id}`,
+  contact: (id: string) => `/contacts/${id}`,
   adminUser: (userEmail: string) => `/admin/users/${encodeURIComponent(userEmail)}`,
 } as const
 
@@ -34,4 +36,5 @@ export const generateRoute = {
 export const ROUTE_PATTERNS = {
   DOCUMENT: '/document/',
   PROJECT: '/project/',
+  CONTACT: '/contacts/',
 } as const

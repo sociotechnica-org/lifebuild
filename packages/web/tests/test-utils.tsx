@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import React, { ReactElement } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
-import type { Task, Column, Project } from '@work-squared/shared/schema'
+import type { Task, Column, Project, Contact } from '@work-squared/shared/schema'
 
 // Simple test wrapper for basic component testing
 interface TestProviderProps {
@@ -155,6 +155,16 @@ export const createMockProject = (overrides: Partial<Project> = {}): Project => 
   id: 'test-project',
   name: 'Test Project',
   description: null,
+  createdAt: new Date('2023-01-01'),
+  updatedAt: new Date('2023-01-01'),
+  deletedAt: null,
+  ...overrides,
+})
+
+export const createMockContact = (overrides: Partial<Contact> = {}): Contact => ({
+  id: 'test-contact',
+  name: 'John Doe',
+  email: 'john.doe@example.com',
   createdAt: new Date('2023-01-01'),
   updatedAt: new Date('2023-01-01'),
   deletedAt: null,
