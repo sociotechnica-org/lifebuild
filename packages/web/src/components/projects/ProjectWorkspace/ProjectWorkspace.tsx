@@ -11,9 +11,8 @@ import {
   getDocumentProjectsByProject$,
   getProjectWorkers$,
   getWorkers$,
-  getContacts$,
 } from '@work-squared/shared/queries'
-import type { Task, Document, Worker, Contact } from '@work-squared/shared/schema'
+import type { Task, Document, Worker } from '@work-squared/shared/schema'
 import { events } from '@work-squared/shared/schema'
 import { ProjectProvider, useProject } from '../../../contexts/ProjectContext.js'
 import { KanbanBoard } from '../../tasks/kanban/KanbanBoard.js'

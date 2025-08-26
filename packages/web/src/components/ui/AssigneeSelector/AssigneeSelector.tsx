@@ -18,7 +18,7 @@ export const AssigneeSelector: React.FC<AssigneeSelectorProps> = ({
   onSelectionChange,
   placeholder = 'Select assignees...',
   className,
-  disabled = false,
+  disabled: _disabled = false,
 }) => {
   const users = useQuery(getUsers$) ?? []
   const workers = useQuery(getWorkers$) ?? []

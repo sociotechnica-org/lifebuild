@@ -3,6 +3,8 @@ import { useQuery, useStore } from '@livestore/react'
 import { Project, events } from '@work-squared/shared/schema'
 import { getProjects$ } from '@work-squared/shared/queries'
 
+type Event = ReturnType<(typeof events)[keyof typeof events]>
+
 interface ProjectPickerProps {
   contactId: string
   existingProjectIds: string[]
@@ -34,7 +36,7 @@ export const ProjectPicker: React.FC<ProjectPickerProps> = ({
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
-      const eventsToCommit = []
+      const eventsToCommit: Event[] = []
 
       // Find projects to add (selected but not in existing)
       const projectsToAdd = Array.from(selectedProjectIds).filter(
