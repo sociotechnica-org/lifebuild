@@ -133,7 +133,7 @@ test.describe('Contact Management', () => {
     await page.click('button:has-text("Delete")')
 
     // Verify confirmation modal opens
-    await expect(page.locator('text=Delete Contact')).toBeVisible()
+    await expect(page.locator('h3:has-text("Delete Contact")')).toBeVisible()
     await expect(
       page.locator(`text=Are you sure you want to delete "${contactName}"`)
     ).toBeVisible()
