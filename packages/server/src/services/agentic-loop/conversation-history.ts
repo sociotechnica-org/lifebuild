@@ -1,29 +1,19 @@
-import type { ToolCall } from './types.js'
+import type { ToolCall, LLMMessage, ToolMessage } from './types.js'
 
-export interface ToolMessage {
-  role: 'tool'
-  content: string
-  tool_call_id?: string
-}
-
-export interface Message {
-  role: 'user' | 'assistant' | 'system' | 'tool'
-  content: string
-  tool_calls?: ToolCall[]
-  tool_call_id?: string
-}
+// Legacy interface for backward compatibility
+export interface Message extends LLMMessage {}
 
 export interface OpenAIMessage {
   role: string
   content: string | null
-  tool_calls?: any[]
+  tool_calls?: ToolCall[]
   tool_call_id?: string
 }
 
 export class ConversationHistory {
-  private messages: Message[] = []
+  private messages: LLMMessage[] = []
 
-  constructor(initialMessages: Message[] = []) {
+  constructor(initialMessages: LLMMessage[] = []) {
     this.messages = [...initialMessages]
   }
 
@@ -62,7 +52,7 @@ export class ConversationHistory {
   /**
    * Get all messages
    */
-  getMessages(): Message[] {
+  getMessages(): LLMMessage[] {
     return [...this.messages]
   }
 
@@ -76,7 +66,7 @@ export class ConversationHistory {
   /**
    * Convert a message to OpenAI format
    */
-  private toOpenAIFormat(message: Message): OpenAIMessage {
+  private toOpenAIFormat(message: LLMMessage): OpenAIMessage {
     if (message.role === 'assistant' && message.tool_calls) {
       return {
         role: 'assistant',
@@ -109,7 +99,7 @@ export class ConversationHistory {
   /**
    * Get the last N messages
    */
-  getLastMessages(n: number): Message[] {
+  getLastMessages(n: number): LLMMessage[] {
     return this.messages.slice(-n)
   }
 

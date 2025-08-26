@@ -1,6 +1,14 @@
-import type { LLMProvider, LLMResponse } from './types.js'
+import type { 
+  LLMProvider, 
+  LLMResponse, 
+  LLMMessage, 
+  BoardContext, 
+  WorkerContext, 
+  LLMCallOptions
+} from './types.js'
 import { llmToolSchemas } from '../../tools/schemas.js'
 import { InputValidator } from './input-validator.js'
+import { RetryableOperation } from '../retryable-operation.js'
 
 export class BraintrustProvider implements LLMProvider {
   private inputValidator: InputValidator
@@ -14,13 +22,11 @@ export class BraintrustProvider implements LLMProvider {
   }
 
   async call(
-    messages: any[],
-    boardContext?: any,
+    messages: LLMMessage[],
+    boardContext?: BoardContext,
     model?: string,
-    workerContext?: any,
-    _options?: {
-      onRetry?: (attempt: number, maxRetries: number, delayMs: number, error: Error) => void
-    }
+    workerContext?: WorkerContext,
+    _options?: LLMCallOptions
   ): Promise<LLMResponse> {
     // Validate input messages
     const messageValidation = this.inputValidator.validateMessages(messages)
@@ -28,10 +34,10 @@ export class BraintrustProvider implements LLMProvider {
       console.warn('🚨 Invalid input messages blocked:', messageValidation.reason)
       throw new Error(`Input validation failed: ${messageValidation.reason}`)
     }
-    const validatedMessages = JSON.parse(messageValidation.sanitizedContent!)
+    const validatedMessages = JSON.parse(messageValidation.sanitizedContent!) as LLMMessage[]
 
     // Validate board context
-    let sanitizedBoardContext = boardContext
+    let sanitizedBoardContext: BoardContext | undefined = boardContext
     if (boardContext) {
       const boardValidation = this.inputValidator.validateBoardContext(boardContext)
       if (!boardValidation.isValid) {
@@ -39,12 +45,12 @@ export class BraintrustProvider implements LLMProvider {
         throw new Error(`Board context validation failed: ${boardValidation.reason}`)
       }
       sanitizedBoardContext = boardValidation.sanitizedContent 
-        ? JSON.parse(boardValidation.sanitizedContent) 
+        ? JSON.parse(boardValidation.sanitizedContent) as BoardContext
         : boardContext
     }
 
     // Validate worker context
-    let sanitizedWorkerContext = workerContext
+    let sanitizedWorkerContext: WorkerContext | undefined = workerContext
     if (workerContext) {
       const workerValidation = this.inputValidator.validateWorkerContext(workerContext)
       if (!workerValidation.isValid) {
@@ -52,7 +58,7 @@ export class BraintrustProvider implements LLMProvider {
         throw new Error(`Worker context validation failed: ${workerValidation.reason}`)
       }
       sanitizedWorkerContext = workerValidation.sanitizedContent 
-        ? JSON.parse(workerValidation.sanitizedContent) 
+        ? JSON.parse(workerValidation.sanitizedContent) as WorkerContext
         : workerContext
     }
     const currentBoardContext = sanitizedBoardContext

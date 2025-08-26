@@ -1,7 +1,13 @@
 import type { Store } from '@livestore/livestore'
 import { ConversationHistory } from './conversation-history.js'
 import { ToolExecutor } from './tool-executor.js'
-import type { LLMProvider, AgenticLoopContext, AgenticLoopEvents } from './types.js'
+import type { 
+  LLMProvider, 
+  AgenticLoopContext, 
+  AgenticLoopEvents, 
+  LLMMessage,
+  LLMResponse
+} from './types.js'
 
 export class AgenticLoop {
   private history: ConversationHistory
@@ -12,7 +18,7 @@ export class AgenticLoop {
     private store: Store,
     private llmProvider: LLMProvider,
     private events: AgenticLoopEvents = {},
-    initialHistory: any[] = []
+    initialHistory: LLMMessage[] = []
   ) {
     this.history = new ConversationHistory(initialHistory)
     this.toolExecutor = new ToolExecutor(store, {
@@ -206,5 +212,12 @@ export class AgenticLoop {
    */
   setHistory(history: ConversationHistory): void {
     this.history = history
+  }
+
+  /**
+   * Get the current LLM provider
+   */
+  getLLMProvider(): LLMProvider {
+    return this.llmProvider
   }
 }

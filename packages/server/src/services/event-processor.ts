@@ -7,12 +7,16 @@ import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
 import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 import { MessageQueueManager } from './message-queue-manager.js'
 import { AsyncQueueProcessor } from './async-queue-processor.js'
-
-interface EventBuffer {
-  events: any[]
-  lastFlushed: Date
-  processing: boolean
-}
+import type {
+  EventBuffer,
+  ProcessedEvent,
+  ChatMessage,
+  Conversation,
+  Worker,
+  LLMMessage,
+  BoardContext,
+  WorkerContext
+} from './agentic-loop/types.js'
 
 interface StoreProcessingState {
   subscriptions: Array<() => void>
@@ -191,7 +195,7 @@ export class EventProcessor {
   private handleTableUpdate(
     storeId: string,
     tableName: string,
-    records: any[],
+    records: unknown[],
     storeState: StoreProcessingState
   ): void {
     // Skip processing if store is stopping
@@ -239,7 +243,7 @@ export class EventProcessor {
     }
   }
 
-  private bufferEvents(storeId: string, events: any[], storeState: StoreProcessingState): void {
+  private bufferEvents(storeId: string, events: ProcessedEvent[], storeState: StoreProcessingState): void {
     storeState.eventBuffer.events.push(...events)
 
     // If buffer is full or processing is idle, trigger processing
@@ -291,7 +295,7 @@ export class EventProcessor {
 
   private async handleEvents(
     storeId: string,
-    events: any[],
+    events: ProcessedEvent[],
     storeState: StoreProcessingState
   ): Promise<void> {
     for (const event of events) {
@@ -309,7 +313,7 @@ export class EventProcessor {
 
   private async processEvent(
     _storeId: string,
-    _event: any,
+    _event: ProcessedEvent,
     _storeState: StoreProcessingState
   ): Promise<void> {
     // Future: Implement specific event processing logic here
@@ -321,7 +325,7 @@ export class EventProcessor {
    */
   private async handleUserMessage(
     storeId: string,
-    chatMessage: any,
+    chatMessage: ChatMessage,
     storeState: StoreProcessingState
   ): Promise<void> {
     const { conversationId, id: messageId } = chatMessage
@@ -415,7 +419,7 @@ export class EventProcessor {
    */
   private async runAgenticLoop(
     storeId: string,
-    userMessage: any,
+    userMessage: ChatMessage,
     storeState: StoreProcessingState
   ): Promise<void> {
     const store = this.storeManager.getStore(storeId)
@@ -427,16 +431,16 @@ export class EventProcessor {
     const conversationQuery = queryDb(
       tables.conversations.select().where('id', '=', userMessage.conversationId)
     )
-    const conversations = store.query(conversationQuery)
+    const conversations = store.query(conversationQuery) as Conversation[]
     const conversation = conversations[0]
 
-    let workerContext: any = undefined
-    const boardContext: any = undefined
+    let workerContext: WorkerContext | undefined = undefined
+    const boardContext: BoardContext | undefined = undefined
 
     // Get worker context if conversation has a workerId
     if (conversation?.workerId) {
       const workerQuery = queryDb(tables.workers.select().where('id', '=', conversation.workerId))
-      const workers = store.query(workerQuery)
+      const workers = store.query(workerQuery) as Worker[]
       const worker = workers[0]
 
       if (worker) {
@@ -455,10 +459,10 @@ export class EventProcessor {
         .where('conversationId', '=', userMessage.conversationId)
         .where('createdAt', '<', userMessage.createdAt)
     )
-    const chatHistory = store.query(historyQuery)
+    const chatHistory = store.query(historyQuery) as ChatMessage[]
 
     // Convert chat messages to conversation history format
-    const conversationHistory = chatHistory.map((msg: any) => ({
+    const conversationHistory: LLMMessage[] = chatHistory.map((msg) => ({
       role: msg.role,
       content: msg.message || '',
       tool_calls: msg.llmMetadata?.toolCalls,
