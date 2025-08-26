@@ -11,8 +11,9 @@ import {
   getDocumentProjectsByProject$,
   getProjectWorkers$,
   getWorkers$,
+  getContacts$,
 } from '@work-squared/shared/queries'
-import type { Task, Document, Worker } from '@work-squared/shared/schema'
+import type { Task, Document, Worker, Contact } from '@work-squared/shared/schema'
 import { events } from '@work-squared/shared/schema'
 import { ProjectProvider, useProject } from '../../../contexts/ProjectContext.js'
 import { KanbanBoard } from '../../tasks/kanban/KanbanBoard.js'
@@ -21,6 +22,7 @@ import { DocumentCreateModal } from '../../documents/DocumentCreateModal/Documen
 import { AddExistingDocumentModal } from '../../documents/AddExistingDocumentModal/AddExistingDocumentModal.js'
 import { LoadingState } from '../../ui/LoadingState.js'
 import { WorkerCard } from '../../workers/WorkerCard/WorkerCard.js'
+import { ProjectContacts } from '../ProjectContacts.js'
 import { calculateTaskReorder, calculateDropTarget } from '../../../utils/taskReordering.js'
 
 // Component for the actual workspace content
@@ -34,7 +36,7 @@ const ProjectWorkspaceContent: React.FC = () => {
   } | null>(null)
   const [dragOverAddCard, setDragOverAddCard] = useState<string | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'tasks' | 'documents' | 'team'>('tasks')
+  const [activeTab, setActiveTab] = useState<'tasks' | 'documents' | 'team' | 'contacts'>('tasks')
   const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false)
   const [isAddExistingDocumentModalOpen, setIsAddExistingDocumentModalOpen] = useState(false)
 
@@ -266,6 +268,16 @@ const ProjectWorkspaceContent: React.FC = () => {
           >
             Documents
           </button>
+          <button
+            onClick={() => setActiveTab('contacts')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'contacts'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Contacts
+          </button>
         </div>
       </div>
 
@@ -302,6 +314,12 @@ const ProjectWorkspaceContent: React.FC = () => {
                 <p>No team members assigned</p>
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === 'contacts' && (
+          <div className='p-6'>
+            <ProjectContacts projectId={projectId} />
           </div>
         )}
 

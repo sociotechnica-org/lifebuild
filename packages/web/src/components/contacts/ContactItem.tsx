@@ -1,6 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { useStore } from '@livestore/react'
 import { Contact } from '@work-squared/shared/schema'
+import { getContactProjects$ } from '@work-squared/shared/queries'
 import { generateRoute } from '../../constants/routes.js'
 
 interface ContactItemProps {
@@ -8,6 +10,9 @@ interface ContactItemProps {
 }
 
 export const ContactItem: React.FC<ContactItemProps> = ({ contact }) => {
+  const contactProjects = useStore(getContactProjects$(contact.id))
+  const projectCount = contactProjects.length
+
   return (
     <Link
       to={generateRoute.contact(contact.id)}
@@ -32,9 +37,16 @@ export const ContactItem: React.FC<ContactItemProps> = ({ contact }) => {
             <div className='ml-4 flex-1'>
               <h3 className='text-sm font-medium text-gray-900'>{contact.name}</h3>
               {contact.email && <p className='text-sm text-gray-600'>{contact.email}</p>}
-              <p className='text-xs text-gray-400 mt-1'>
-                Created {new Date(contact.createdAt).toLocaleDateString()}
-              </p>
+              <div className='flex items-center gap-3 mt-1'>
+                <p className='text-xs text-gray-400'>
+                  Created {new Date(contact.createdAt).toLocaleDateString()}
+                </p>
+                {projectCount > 0 && (
+                  <span className='text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded'>
+                    {projectCount} {projectCount === 1 ? 'project' : 'projects'}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>

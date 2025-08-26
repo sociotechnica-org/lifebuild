@@ -1,9 +1,13 @@
 import React, { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useStore } from '@livestore/react'
 import { useContact, useContacts } from '../../hooks/useContacts.js'
+import { useContactProjects } from '../../hooks/useProjectContacts.js'
+import { getProjects$, getContacts$ } from '@work-squared/shared/queries'
 import { LoadingSpinner } from '../ui/LoadingSpinner.js'
 import { ErrorMessage } from '../ui/ErrorMessage.js'
 import { EditContactModal } from './EditContactModal.js'
+import { ProjectPicker } from './ProjectPicker.js'
 import { ROUTES } from '../../constants/routes.js'
 
 export const ContactDetail: React.FC = () => {
@@ -11,6 +15,7 @@ export const ContactDetail: React.FC = () => {
   const navigate = useNavigate()
   const { deleteContact } = useContacts()
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isProjectPickerOpen, setIsProjectPickerOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -24,6 +29,13 @@ export const ContactDetail: React.FC = () => {
   }
 
   const contact = useContact(contactId)
+  const projects = useStore(getProjects$)
+  const { contactProjects, addContactToProjects } = useContactProjects(contactId)
+
+  // Get the actual project objects for this contact
+  const associatedProjects = projects.filter(project =>
+    contactProjects.some(cp => cp.projectId === project.id)
+  )
 
   if (contact === undefined) {
     return (
@@ -150,13 +162,65 @@ export const ContactDetail: React.FC = () => {
           </dl>
         </div>
 
-        {/* Associated Projects Section - Placeholder for Phase 3 */}
+        {/* Associated Projects Section */}
         <div className='mt-6 bg-white rounded-lg border border-gray-200 p-6'>
-          <h2 className='text-lg font-semibold text-gray-900 mb-4'>Associated Projects</h2>
-          <div className='text-center py-8 text-gray-500'>
-            <div className='text-4xl mb-2'>🔗</div>
-            <p>Project associations will be available in Phase 3</p>
+          <div className='flex items-center justify-between mb-4'>
+            <h2 className='text-lg font-semibold text-gray-900'>Associated Projects</h2>
+            <button
+              onClick={() => setIsProjectPickerOpen(true)}
+              className='inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50'
+            >
+              Add to Project
+            </button>
           </div>
+
+          {associatedProjects.length === 0 ? (
+            <div className='text-center py-8 text-gray-500'>
+              <div className='text-4xl mb-2'>📁</div>
+              <p>Not associated with any projects yet</p>
+              <button
+                onClick={() => setIsProjectPickerOpen(true)}
+                className='mt-4 text-blue-600 hover:text-blue-700 text-sm font-medium'
+              >
+                Add to a project
+              </button>
+            </div>
+          ) : (
+            <div className='space-y-2'>
+              {associatedProjects.map(project => (
+                <div
+                  key={project.id}
+                  className='flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 group'
+                >
+                  <Link
+                    to={`/projects/${project.id}`}
+                    className='flex-1 text-sm font-medium text-gray-900 hover:text-blue-600'
+                  >
+                    {project.name}
+                  </Link>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const { mutate } = useStore.store()
+                        await mutate([
+                          {
+                            type: 'v1.ProjectContactRemoved',
+                            projectId: project.id,
+                            contactId,
+                          },
+                        ])
+                      } catch (err) {
+                        setError('Failed to remove from project')
+                      }
+                    }}
+                    className='opacity-0 group-hover:opacity-100 text-red-600 hover:text-red-700 text-sm'
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -166,6 +230,23 @@ export const ContactDetail: React.FC = () => {
           contact={contact}
           onClose={() => setIsEditModalOpen(false)}
           onSuccess={() => setIsEditModalOpen(false)}
+        />
+      )}
+
+      {/* Project Picker Modal */}
+      {isProjectPickerOpen && (
+        <ProjectPicker
+          contactId={contactId}
+          existingProjectIds={associatedProjects.map(p => p.id)}
+          onClose={() => setIsProjectPickerOpen(false)}
+          onSelect={async projectIds => {
+            try {
+              await addContactToProjects(contactId, projectIds)
+              setIsProjectPickerOpen(false)
+            } catch (err) {
+              setError('Failed to add to projects')
+            }
+          }}
         />
       )}
 

@@ -271,3 +271,14 @@ export const getContactByEmail$ = (email: string) =>
   queryDb(tables.contacts.select().where({ email, deletedAt: null }), {
     label: `getContactByEmail:${email}`,
   })
+
+// Project-Contact association queries
+export const getProjectContacts$ = (projectId: string) =>
+  queryDb(tables.projectContacts.select().where({ projectId }), {
+    label: `getProjectContacts:${projectId}`,
+  })
+
+export const getContactProjects$ = (contactId: string) =>
+  queryDb(tables.projectContacts.select().where({ contactId }), {
+    label: `getContactProjects:${contactId}`,
+  })

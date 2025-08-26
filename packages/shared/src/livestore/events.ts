@@ -329,3 +329,21 @@ export const contactDeleted = Events.synced({
     deletedAt: Schema.Date,
   }),
 })
+
+export const projectContactAdded = Events.synced({
+  name: 'v1.ProjectContactAdded',
+  schema: Schema.Struct({
+    id: Schema.String,
+    projectId: Schema.String,
+    contactId: Schema.String,
+    createdAt: Schema.Date,
+  }),
+})
+
+export const projectContactRemoved = Events.synced({
+  name: 'v1.ProjectContactRemoved',
+  schema: Schema.Struct({
+    projectId: Schema.String,
+    contactId: Schema.String,
+  }),
+})
