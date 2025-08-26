@@ -1,11 +1,17 @@
 import type { LLMProvider, LLMResponse } from './types.js'
 import { llmToolSchemas } from '../../tools/schemas.js'
+import { InputValidator } from './input-validator.js'
 
 export class BraintrustProvider implements LLMProvider {
+  private inputValidator: InputValidator
+
   constructor(
     private apiKey: string,
-    private projectId: string
-  ) {}
+    private projectId: string,
+    customValidator?: InputValidator
+  ) {
+    this.inputValidator = customValidator ?? new InputValidator()
+  }
 
   async call(
     messages: any[],
@@ -16,19 +22,52 @@ export class BraintrustProvider implements LLMProvider {
       onRetry?: (attempt: number, maxRetries: number, delayMs: number, error: Error) => void
     }
   ): Promise<LLMResponse> {
-    const currentBoardContext = boardContext
-      ? `\n\nCURRENT CONTEXT:\nYou are currently viewing the "${boardContext.name}" project (ID: ${boardContext.id}). When creating tasks, they will be created on this project automatically. You do NOT need to call list_projects since you already know the current project.`
+    // Validate input messages
+    const messageValidation = this.inputValidator.validateMessages(messages)
+    if (!messageValidation.isValid) {
+      console.warn('🚨 Invalid input messages blocked:', messageValidation.reason)
+      throw new Error(`Input validation failed: ${messageValidation.reason}`)
+    }
+    const validatedMessages = JSON.parse(messageValidation.sanitizedContent!)
+
+    // Validate board context
+    let sanitizedBoardContext = boardContext
+    if (boardContext) {
+      const boardValidation = this.inputValidator.validateBoardContext(boardContext)
+      if (!boardValidation.isValid) {
+        console.warn('🚨 Invalid board context blocked:', boardValidation.reason)
+        throw new Error(`Board context validation failed: ${boardValidation.reason}`)
+      }
+      sanitizedBoardContext = boardValidation.sanitizedContent 
+        ? JSON.parse(boardValidation.sanitizedContent) 
+        : boardContext
+    }
+
+    // Validate worker context
+    let sanitizedWorkerContext = workerContext
+    if (workerContext) {
+      const workerValidation = this.inputValidator.validateWorkerContext(workerContext)
+      if (!workerValidation.isValid) {
+        console.warn('🚨 Invalid worker context blocked:', workerValidation.reason)
+        throw new Error(`Worker context validation failed: ${workerValidation.reason}`)
+      }
+      sanitizedWorkerContext = workerValidation.sanitizedContent 
+        ? JSON.parse(workerValidation.sanitizedContent) 
+        : workerContext
+    }
+    const currentBoardContext = sanitizedBoardContext
+      ? `\n\nCURRENT CONTEXT:\nYou are currently viewing the "${sanitizedBoardContext.name}" project (ID: ${sanitizedBoardContext.id}). When creating tasks, they will be created on this project automatically. You do NOT need to call list_projects since you already know the current project.`
       : `\n\nCURRENT CONTEXT:\nNo specific project is currently selected. Use the list_projects tool to see available projects, or tasks will be created on the default project.`
 
     let systemPrompt = ''
 
-    if (workerContext) {
+    if (sanitizedWorkerContext) {
       // Use worker's custom system prompt
-      systemPrompt = `${workerContext.systemPrompt}
+      systemPrompt = `${sanitizedWorkerContext.systemPrompt}
 
 WORKER PROFILE:
-- Name: ${workerContext.name}
-${workerContext.roleDescription ? `- Role: ${workerContext.roleDescription}` : ''}
+- Name: ${sanitizedWorkerContext.name}
+${sanitizedWorkerContext.roleDescription ? `- Role: ${sanitizedWorkerContext.roleDescription}` : ''}
 
 You have access to tools for:
 - Creating and managing tasks (create_task, update_task, move_task, move_task_to_project, archive_task, unarchive_task)
@@ -76,8 +115,8 @@ You have access to tools for:
 When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed. If you need to know what projects are available, use the list_projects tool first.${currentBoardContext}`
     }
 
-    // Build messages array with system prompt
-    const finalMessages = [{ role: 'system', content: systemPrompt }, ...messages]
+    // Build messages array with system prompt using validated messages
+    const finalMessages = [{ role: 'system', content: systemPrompt }, ...validatedMessages]
 
     const DEFAULT_MODEL = 'gpt-4o-mini'
     const tools = llmToolSchemas
