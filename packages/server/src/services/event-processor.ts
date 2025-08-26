@@ -248,10 +248,11 @@ export class EventProcessor {
         if (!record || typeof record !== 'object') {
           continue
         }
-        
+
         const recordObj = record as Record<string, any>
         const timestamp = new Date().toISOString()
-        const displayText = recordObj.message || recordObj.name || recordObj.title || recordObj.id || 'Unknown'
+        const displayText =
+          recordObj.message || recordObj.name || recordObj.title || recordObj.id || 'Unknown'
         const truncatedText =
           displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
 
