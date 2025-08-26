@@ -59,13 +59,13 @@ export class WebSocketDistributor {
         this.scheduleReconnect(storeId, config)
       })
 
-      ws.on('error', error => {
+      ws.on('error', (error: Error) => {
         console.error(`❌ WebSocket error for store ${storeId}:`, error)
         this.connections.delete(storeId)
         this.scheduleReconnect(storeId, config)
       })
 
-      ws.on('message', data => {
+      ws.on('message', (data: WebSocket.Data) => {
         try {
           const message = JSON.parse(data.toString())
           this.handleIncomingMessage(storeId, message)
