@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { useStore } from '@livestore/react'
-import { Contact } from '@work-squared/shared/schema'
+import { useQuery, useStore } from '@livestore/react'
+import { Contact, events } from '@work-squared/shared/schema'
 import { getContacts$ } from '@work-squared/shared/queries'
 
 interface ContactPickerProps {
@@ -14,8 +14,8 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
   existingContactIds,
   onClose,
 }) => {
-  const contacts = useStore(getContacts$)
-  const { mutate } = useStore.store()
+  const contacts = useQuery(getContacts$) ?? []
+  const { store } = useStore()
   const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(new Set())
   const [searchTerm, setSearchTerm] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -53,15 +53,16 @@ export const ContactPicker: React.FC<ContactPickerProps> = ({
 
     setIsSubmitting(true)
     try {
-      const events = Array.from(selectedContactIds).map(contactId => ({
-        type: 'v1.ProjectContactAdded' as const,
-        id: crypto.randomUUID(),
-        projectId,
-        contactId,
-        createdAt: new Date(),
-      }))
+      const eventsToCommit = Array.from(selectedContactIds).map(contactId =>
+        events.projectContactAdded({
+          id: crypto.randomUUID(),
+          projectId,
+          contactId,
+          createdAt: new Date(),
+        })
+      )
 
-      await mutate(events)
+      await store.commit(...eventsToCommit)
       onClose()
     } catch (error) {
       console.error('Failed to add contacts to project:', error)

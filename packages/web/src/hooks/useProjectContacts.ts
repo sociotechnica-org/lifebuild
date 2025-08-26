@@ -1,43 +1,43 @@
-import { useStore } from '@livestore/react'
+import { useQuery, useStore } from '@livestore/react'
 import { getProjectContacts$, getContactProjects$ } from '@work-squared/shared/queries'
+import { events } from '@work-squared/shared/schema'
 
 export function useProjectContacts(projectId?: string) {
-  const { mutate } = useStore.store()
+  const { store } = useStore()
 
-  const projectContacts = projectId ? useStore(getProjectContacts$(projectId)) : []
+  const projectContacts = projectId ? (useQuery(getProjectContacts$(projectId)) ?? []) : []
 
   const addContactToProject = async (projectId: string, contactId: string) => {
-    await mutate([
-      {
-        type: 'v1.ProjectContactAdded',
+    await store.commit(
+      events.projectContactAdded({
         id: crypto.randomUUID(),
         projectId,
         contactId,
         createdAt: new Date(),
-      },
-    ])
+      })
+    )
   }
 
   const removeContactFromProject = async (projectId: string, contactId: string) => {
-    await mutate([
-      {
-        type: 'v1.ProjectContactRemoved',
+    await store.commit(
+      events.projectContactRemoved({
         projectId,
         contactId,
-      },
-    ])
+      })
+    )
   }
 
   const addMultipleContactsToProject = async (projectId: string, contactIds: string[]) => {
-    const events = contactIds.map(contactId => ({
-      type: 'v1.ProjectContactAdded' as const,
-      id: crypto.randomUUID(),
-      projectId,
-      contactId,
-      createdAt: new Date(),
-    }))
+    const eventsToCommit = contactIds.map(contactId =>
+      events.projectContactAdded({
+        id: crypto.randomUUID(),
+        projectId,
+        contactId,
+        createdAt: new Date(),
+      })
+    )
 
-    await mutate(events)
+    await store.commit(...eventsToCommit)
   }
 
   return {
@@ -49,20 +49,21 @@ export function useProjectContacts(projectId?: string) {
 }
 
 export function useContactProjects(contactId?: string) {
-  const { mutate } = useStore.store()
+  const { store } = useStore()
 
-  const contactProjects = contactId ? useStore(getContactProjects$(contactId)) : []
+  const contactProjects = contactId ? (useQuery(getContactProjects$(contactId)) ?? []) : []
 
   const addContactToProjects = async (contactId: string, projectIds: string[]) => {
-    const events = projectIds.map(projectId => ({
-      type: 'v1.ProjectContactAdded' as const,
-      id: crypto.randomUUID(),
-      projectId,
-      contactId,
-      createdAt: new Date(),
-    }))
+    const eventsToCommit = projectIds.map(projectId =>
+      events.projectContactAdded({
+        id: crypto.randomUUID(),
+        projectId,
+        contactId,
+        createdAt: new Date(),
+      })
+    )
 
-    await mutate(events)
+    await store.commit(...eventsToCommit)
   }
 
   return {

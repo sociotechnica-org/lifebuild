@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { useStore } from '@livestore/react'
+import { useQuery, useStore } from '@livestore/react'
 import { useContact, useContacts } from '../../hooks/useContacts.js'
 import { getProjects$, getContactProjects$ } from '@work-squared/shared/queries'
+import { events } from '@work-squared/shared/schema'
 import { LoadingSpinner } from '../ui/LoadingSpinner.js'
 import { ErrorMessage } from '../ui/ErrorMessage.js'
 import { EditContactModal } from './EditContactModal.js'
@@ -18,10 +19,11 @@ export const ContactDetail: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   // Get projects data for associations
-  const allProjects = useStore(getProjects$)
-  const projectContactJunctions = useStore(getContactProjects$(contactId || ''))
+  const allProjects = useQuery(getProjects$) ?? []
+  const projectContactJunctions = useQuery(getContactProjects$(contactId || '')) ?? []
+  const { store } = useStore()
   const projectIds = new Set(projectContactJunctions.map(pc => pc.projectId))
   const associatedProjects = allProjects.filter(p => projectIds.has(p.id))
 
@@ -171,7 +173,7 @@ export const ContactDetail: React.FC = () => {
               Add to Project
             </button>
           </div>
-          
+
           {associatedProjects.length === 0 ? (
             <div className='text-center py-8 text-gray-500'>
               <div className='text-4xl mb-2'>📁</div>
@@ -199,12 +201,12 @@ export const ContactDetail: React.FC = () => {
                   <button
                     onClick={async () => {
                       try {
-                        const { store } = useStore()
-                        await store.commit({
-                          type: 'v1.ProjectContactRemoved',
-                          projectId: project.id,
-                          contactId: contactId!,
-                        })
+                        await store.commit(
+                          events.projectContactRemoved({
+                            projectId: project.id,
+                            contactId: contactId!,
+                          })
+                        )
                       } catch (err) {
                         setError('Failed to remove from project')
                       }

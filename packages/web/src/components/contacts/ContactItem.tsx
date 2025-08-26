@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useStore } from '@livestore/react'
+import { useQuery } from '@livestore/react'
 import { Contact } from '@work-squared/shared/schema'
 import { getContactProjects$ } from '@work-squared/shared/queries'
 import { generateRoute } from '../../constants/routes.js'
@@ -11,7 +11,7 @@ interface ContactItemProps {
 }
 
 export const ContactItem: React.FC<ContactItemProps> = ({ contact }) => {
-  const contactProjects = useStore(getContactProjects$(contact.id))
+  const contactProjects = useQuery(getContactProjects$(contact.id)) ?? []
   const projectCount = contactProjects.length
 
   return (

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { useStore } from '@livestore/react'
-import { Contact } from '@work-squared/shared/schema'
+import { useQuery, useStore } from '@livestore/react'
+import { Contact, events } from '@work-squared/shared/schema'
 import { getProjectContacts$, getContacts$ } from '@work-squared/shared/queries'
 import { ContactPicker } from '../contacts/ContactPicker'
 
@@ -9,9 +9,9 @@ interface ProjectContactsProps {
 }
 
 export const ProjectContacts: React.FC<ProjectContactsProps> = ({ projectId }) => {
-  const projectContactJunctions = useStore(getProjectContacts$(projectId))
-  const allContacts = useStore(getContacts$)
-  const { mutate } = useStore.store()
+  const projectContactJunctions = useQuery(getProjectContacts$(projectId)) ?? []
+  const allContacts = useQuery(getContacts$) ?? []
+  const { store } = useStore()
   const [showContactPicker, setShowContactPicker] = useState(false)
 
   // Map junction data to actual contacts
@@ -19,13 +19,12 @@ export const ProjectContacts: React.FC<ProjectContactsProps> = ({ projectId }) =
   const contacts = allContacts.filter(c => contactIds.has(c.id))
 
   const handleRemoveContact = async (contactId: string) => {
-    await mutate([
-      {
-        type: 'v1.ProjectContactRemoved',
+    await store.commit(
+      events.projectContactRemoved({
         projectId,
         contactId,
-      },
-    ])
+      })
+    )
   }
 
   return (

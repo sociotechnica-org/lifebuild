@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { useStore } from '@livestore/react'
-import { Project } from '@work-squared/shared/schema'
+import { useQuery, useStore } from '@livestore/react'
+import { Project, events } from '@work-squared/shared/schema'
 import { getProjects$ } from '@work-squared/shared/queries'
 
 interface ProjectPickerProps {
@@ -14,8 +14,8 @@ export const ProjectPicker: React.FC<ProjectPickerProps> = ({
   existingProjectIds,
   onClose,
 }) => {
-  const projects = useStore(getProjects$)
-  const { mutate } = useStore.store()
+  const projects = useQuery(getProjects$) ?? []
+  const { store } = useStore()
   const [selectedProjectIds, setSelectedProjectIds] = useState<Set<string>>(new Set())
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -36,15 +36,16 @@ export const ProjectPicker: React.FC<ProjectPickerProps> = ({
 
     setIsSubmitting(true)
     try {
-      const events = Array.from(selectedProjectIds).map(projectId => ({
-        type: 'v1.ProjectContactAdded' as const,
-        id: crypto.randomUUID(),
-        projectId,
-        contactId,
-        createdAt: new Date(),
-      }))
+      const eventsToCommit = Array.from(selectedProjectIds).map(projectId =>
+        events.projectContactAdded({
+          id: crypto.randomUUID(),
+          projectId,
+          contactId,
+          createdAt: new Date(),
+        })
+      )
 
-      await mutate(events)
+      await store.commit(...eventsToCommit)
       onClose()
     } catch (error) {
       console.error('Failed to add contact to projects:', error)
