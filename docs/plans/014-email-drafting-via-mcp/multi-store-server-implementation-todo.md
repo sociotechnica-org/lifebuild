@@ -155,7 +155,7 @@ Implement support for monitoring and processing multiple LiveStore instances fro
 #### 3.2 Event-Driven Flow Implementation
 
 - [ ] Detect `chatMessageSent` events per store
-- [ ] Extract user message and conversation context  
+- [ ] Extract user message and conversation context
 - [ ] Load worker context if conversation has workerId
 - [ ] Run agentic loop with direct Braintrust integration
 - [ ] Emit `llmResponseReceived` events for client display
@@ -172,15 +172,23 @@ Implement support for monitoring and processing multiple LiveStore instances fro
 
 - [ ] Add new event types to schema:
   ```typescript
-  agenticLoopStarted: { conversationId, userMessageId, storeId }
-  toolExecutionStarted: { conversationId, toolCall, storeId }  
-  toolExecutionCompleted: { conversationId, toolCall, result, storeId }
-  agenticLoopCompleted: { conversationId, iterations, storeId }
+  agenticLoopStarted: {
+    ;(conversationId, userMessageId, storeId)
+  }
+  toolExecutionStarted: {
+    ;(conversationId, toolCall, storeId)
+  }
+  toolExecutionCompleted: {
+    ;(conversationId, toolCall, result, storeId)
+  }
+  agenticLoopCompleted: {
+    ;(conversationId, iterations, storeId)
+  }
   ```
 
 #### 3.5 Message Queueing per Store
 
-- [ ] Track processing state per conversation  
+- [ ] Track processing state per conversation
 - [ ] Queue new user messages if agentic loop already running
 - [ ] Process queued messages sequentially after completion
 - [ ] Prevent race conditions between multiple user messages

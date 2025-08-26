@@ -32,7 +32,7 @@ This migration moves ALL LLM tool execution to the server, removing the complex 
 **No REST endpoints** - Everything flows through LiveStore events:
 
 - [ ] Extend `EventProcessor` to watch for `chatMessageSent` events
-- [ ] When user message detected → trigger agentic loop with worker context  
+- [ ] When user message detected → trigger agentic loop with worker context
 - [ ] Tool execution creates normal LiveStore events (`task.created`, etc.)
 - [ ] LLM responses become `llmResponseReceived` events
 - [ ] Add progress events (`agenticLoopStarted`, `toolExecutionStarted`, etc.)
@@ -60,7 +60,7 @@ This migration moves ALL LLM tool execution to the server, removing the complex 
 
 - ✅ No HTTP APIs needed - pure LiveStore event flows
 - ✅ Multi-store infrastructure already exists and is tested
-- ✅ Real-time updates via existing WebSocket subscriptions  
+- ✅ Real-time updates via existing WebSocket subscriptions
 - ✅ Removes 400+ lines of complex client code
 - ✅ Direct Braintrust integration (no proxy overhead)
 - ✅ Natural fit for recurring task execution
@@ -71,7 +71,7 @@ This migration moves ALL LLM tool execution to the server, removing the complex 
 ### Must Maintain
 
 - [ ] Zero downtime during migration
-- [ ] No degradation in response time  
+- [ ] No degradation in response time
 - [ ] All existing tools continue to work
 - [ ] Real-time streaming responses (via WebSocket events)
 - [ ] Multi-store isolation (already implemented)
@@ -87,19 +87,21 @@ This migration moves ALL LLM tool execution to the server, removing the complex 
 ### Migration Approach
 
 **Event-Driven Cutover**: Since this uses existing LiveStore event infrastructure:
+
 1. Deploy server with chat message event processing
 2. Update client to stop running agentic loop locally
-3. Remove client-side agentic loop code in same deployment  
+3. Remove client-side agentic loop code in same deployment
 4. No backward compatibility needed - same events, different processor
 
 **Flow**:
+
 - User types message → `events.chatMessageSent()` (same as before)
-- Server EventProcessor detects event → runs agentic loop  
+- Server EventProcessor detects event → runs agentic loop
 - Tool execution creates events → `task.created`, `document.updated`, etc.
 - LLM responses → `events.llmResponseReceived()` (same as before)
 - Client displays updates → via existing LiveStore subscriptions
 
-## Dependencies  
+## Dependencies
 
 ### Prerequisites ✅
 
@@ -120,7 +122,7 @@ VITE_LLM_MAX_ITERATIONS=15
 
 - [ ] 100% feature parity with client-side execution
 - [ ] No increase in response latency
-- [ ] All existing tools work identically  
+- [ ] All existing tools work identically
 - [ ] Zero cross-store data leaks (maintained by existing isolation)
 - [ ] Significant reduction in client bundle size
 - [ ] Cleaner, more maintainable codebase
