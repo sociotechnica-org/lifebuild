@@ -272,6 +272,19 @@ export const getContactByEmail$ = (email: string) =>
     label: `getContactByEmail:${email}`,
   })
 
+// Project-Contact association queries
+// Note: These queries return the junction table data for now.
+// The frontend components will need to look up the related entities separately
+export const getProjectContacts$ = (projectId: string) =>
+  queryDb(tables.projectContacts.select().where({ projectId }), {
+    label: `getProjectContacts:${projectId}`,
+  })
+
+export const getContactProjects$ = (contactId: string) =>
+  queryDb(tables.projectContacts.select().where({ contactId }), {
+    label: `getContactProjects:${contactId}`,
+  })
+
 // Recurring tasks queries
 export const getRecurringTasks$ = queryDb(
   tables.recurringTasks.select().orderBy([{ col: 'createdAt', direction: 'desc' }]),

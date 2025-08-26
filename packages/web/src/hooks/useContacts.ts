@@ -58,11 +58,19 @@ export function useContacts() {
     )
   }
 
+  const checkEmailDuplicate = async (email: string, excludeId?: string): Promise<boolean> => {
+    const existingContact = contacts.find(
+      c => c.email?.toLowerCase() === email.toLowerCase() && c.id !== excludeId
+    )
+    return !!existingContact
+  }
+
   return {
     contacts,
     createContact,
     updateContact,
     deleteContact,
+    checkEmailDuplicate,
   }
 }
 
