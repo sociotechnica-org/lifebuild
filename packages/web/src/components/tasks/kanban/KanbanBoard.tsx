@@ -4,6 +4,7 @@ import { useSensors, useSensor, PointerSensor, KeyboardSensor } from '@dnd-kit/c
 import type { Column, Task } from '@work-squared/shared/schema'
 import { KanbanColumn } from './KanbanColumn/KanbanColumn.js'
 import { TaskCard } from '../TaskCard/TaskCard.js'
+import { RecurringTasksColumn } from '../../recurring-tasks/RecurringTasksColumn.js'
 
 interface KanbanBoardProps {
   columns: readonly Column[]
@@ -16,6 +17,8 @@ interface KanbanBoardProps {
   insertionPreview?: { columnId: string; position: number } | null
   activeTask?: Task | null
   dragOverAddCard?: string | null
+  showRecurringTasks?: boolean
+  projectId?: string | null
 }
 
 export const KanbanBoard: React.FC<KanbanBoardProps> = ({
@@ -29,6 +32,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   insertionPreview,
   activeTask,
   dragOverAddCard,
+  showRecurringTasks = false,
+  projectId,
 }) => {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -41,6 +46,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
   const kanbanContent = (
     <div className='flex h-full overflow-x-auto p-6 gap-6 pb-6'>
+      {showRecurringTasks && <RecurringTasksColumn projectId={projectId} />}
       {columns.map((column: Column) => (
         <KanbanColumn
           key={column.id}

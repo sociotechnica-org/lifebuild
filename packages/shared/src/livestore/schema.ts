@@ -3,6 +3,7 @@ import { DEFAULT_MODEL } from '../llm/models.js'
 
 import { Filter } from '../types'
 import * as eventsDefs from './events'
+import { calculateNextExecution } from '../utils/scheduling.js'
 
 /**
  * LiveStore allows you to freely define your app state as SQLite tables (sometimes referred to as "read model")
@@ -208,6 +209,33 @@ const eventsLog = State.SQLite.table({
   },
 })
 
+const recurringTasks = State.SQLite.table({
+  name: 'recurringTasks',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    name: State.SQLite.text({ default: '' }),
+    description: State.SQLite.text({ nullable: true }),
+    prompt: State.SQLite.text({ default: '' }),
+    intervalHours: State.SQLite.integer({ default: 24 }),
+    lastExecutedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+    nextExecutionAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+    enabled: State.SQLite.boolean({ default: true }),
+    projectId: State.SQLite.text({ nullable: true }),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    updatedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
 const settings = State.SQLite.table({
   name: 'settings',
   columns: {
@@ -273,6 +301,7 @@ export type Document = State.SQLite.FromTable.RowDecoded<typeof documents>
 export type DocumentProject = State.SQLite.FromTable.RowDecoded<typeof documentProjects>
 export type Worker = State.SQLite.FromTable.RowDecoded<typeof workers>
 export type WorkerProject = State.SQLite.FromTable.RowDecoded<typeof workerProjects>
+export type RecurringTask = State.SQLite.FromTable.RowDecoded<typeof recurringTasks>
 export type EventsLog = State.SQLite.FromTable.RowDecoded<typeof eventsLog>
 export type Setting = State.SQLite.FromTable.RowDecoded<typeof settings>
 export type Contact = State.SQLite.FromTable.RowDecoded<typeof contacts>
@@ -297,33 +326,18 @@ export const tables = {
   documentProjects,
   workers,
   workerProjects,
+  recurringTasks,
   eventsLog,
   settings,
   contacts,
   projectContacts,
 }
 
-// Helper function to log events to the eventsLog table
-const logEvent = (eventType: string, eventData: any, timestamp?: Date) => {
-  const eventId = crypto.randomUUID()
-  const createdAt = timestamp || new Date()
-  return eventsLog.insert({
-    id: eventId,
-    eventType,
-    eventData: JSON.stringify(eventData),
-    createdAt,
-  })
-}
-
 const materializers = State.SQLite.materializers(events, {
-  'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) => [
+  'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) =>
     chatMessages.insert({ id, conversationId, message, role, createdAt }),
-    logEvent('v1.ChatMessageSent', { id, conversationId, message, role, createdAt }, createdAt),
-  ],
-  'v1.ProjectCreated': ({ id, name, description, createdAt }) => [
+  'v1.ProjectCreated': ({ id, name, description, createdAt }) =>
     boards.insert({ id, name, description, createdAt, updatedAt: createdAt }),
-    logEvent('v1.ProjectCreated', { id, name, description, createdAt }, createdAt),
-  ],
   'v1.ColumnCreated': ({ id, projectId, name, position, createdAt }) =>
     columns.insert({ id, projectId, name, position, createdAt, updatedAt: createdAt }),
   'v1.ColumnRenamed': ({ id, name, updatedAt }) =>
@@ -339,7 +353,7 @@ const materializers = State.SQLite.materializers(events, {
     assigneeIds,
     position,
     createdAt,
-  }) => [
+  }) =>
     tasks.insert({
       id,
       projectId,
@@ -351,21 +365,6 @@ const materializers = State.SQLite.materializers(events, {
       createdAt,
       updatedAt: createdAt,
     }),
-    logEvent(
-      'v1.TaskCreated',
-      {
-        id,
-        projectId,
-        columnId,
-        title,
-        description,
-        assigneeIds,
-        position,
-        createdAt,
-      },
-      createdAt
-    ),
-  ],
   'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt }) =>
     tasks.update({ columnId: toColumnId, position, updatedAt }).where({ id: taskId }),
   'v1.TaskMovedToProject': ({ taskId, toProjectId, toColumnId, position, updatedAt }) =>
@@ -385,10 +384,8 @@ const materializers = State.SQLite.materializers(events, {
     users.delete().where({ id }),
     users.insert({ id, email, name, avatarUrl, isAdmin, createdAt: syncedAt, syncedAt }),
   ],
-  'v1.ConversationCreated': ({ id, title, model, workerId, createdAt }) => [
+  'v1.ConversationCreated': ({ id, title, model, workerId, createdAt }) =>
     conversations.insert({ id, title, model, workerId, createdAt, updatedAt: createdAt }),
-    logEvent('v1.ConversationCreated', { id, title, model, workerId, createdAt }, createdAt),
-  ],
   'v1.ConversationModelUpdated': ({ id, model, updatedAt }) =>
     conversations.update({ model, updatedAt }).where({ id }),
   'v1.LLMResponseReceived': ({
@@ -416,10 +413,8 @@ const materializers = State.SQLite.materializers(events, {
     comments.insert({ id, taskId, authorId, content, createdAt }),
   'v1.TaskArchived': ({ taskId, archivedAt }) => tasks.update({ archivedAt }).where({ id: taskId }),
   'v1.TaskUnarchived': ({ taskId }) => tasks.update({ archivedAt: null }).where({ id: taskId }),
-  'v1.DocumentCreated': ({ id, title, content, createdAt }) => [
+  'v1.DocumentCreated': ({ id, title, content, createdAt }) =>
     documents.insert({ id, title, content, createdAt, updatedAt: createdAt, archivedAt: null }),
-    logEvent('v1.DocumentCreated', { id, title, content, createdAt }, createdAt),
-  ],
   'v1.DocumentUpdated': ({ id, updates, updatedAt }) => {
     const updateData: Record<string, any> = { updatedAt }
     if (updates.title !== undefined) updateData.title = updates.title
@@ -464,25 +459,73 @@ const materializers = State.SQLite.materializers(events, {
     workerProjects.insert({ workerId, projectId }),
   'v1.WorkerUnassignedFromProject': ({ workerId, projectId }) =>
     workerProjects.delete().where({ workerId, projectId }),
+  'v1.RecurringTaskCreated': ({
+    id,
+    name,
+    description,
+    prompt,
+    intervalHours,
+    enabled,
+    projectId,
+    nextExecutionAt,
+    createdAt,
+  }) =>
+    recurringTasks.insert({
+      id,
+      name,
+      description,
+      prompt,
+      intervalHours,
+      enabled,
+      projectId,
+      lastExecutedAt: null,
+      nextExecutionAt,
+      createdAt,
+      updatedAt: createdAt,
+    }),
+  'v1.RecurringTaskUpdated': ({ id, updates, updatedAt, nextExecutionAt }) => {
+    const updateData: Record<string, any> = { updatedAt }
+
+    // Only include defined fields in the update
+    if (updates.name !== undefined) updateData.name = updates.name
+    if (updates.description !== undefined) updateData.description = updates.description
+    if (updates.prompt !== undefined) updateData.prompt = updates.prompt
+    if (updates.intervalHours !== undefined) updateData.intervalHours = updates.intervalHours
+    if (updates.projectId !== undefined) updateData.projectId = updates.projectId
+    if (nextExecutionAt !== undefined) updateData.nextExecutionAt = nextExecutionAt
+
+    return recurringTasks.update(updateData).where({ id })
+  },
+  'v1.RecurringTaskDeleted': ({ id, deletedAt }) => recurringTasks.delete().where({ id }),
+  'v1.RecurringTaskEnabled': ({ id, enabledAt, nextExecutionAt }) =>
+    recurringTasks
+      .update({
+        enabled: true,
+        updatedAt: enabledAt,
+        nextExecutionAt,
+      })
+      .where({ id }),
+  'v1.RecurringTaskDisabled': ({ id, disabledAt }) =>
+    recurringTasks
+      .update({
+        enabled: false,
+        updatedAt: disabledAt,
+        nextExecutionAt: null,
+      })
+      .where({ id }),
   'v1.SettingUpdated': ({ key, value, updatedAt }) => [
     settings.delete().where({ key }),
     settings.insert({ key, value, updatedAt }),
-    logEvent('v1.SettingUpdated', { key, value, updatedAt }, updatedAt),
   ],
-  'v1.ContactCreated': ({ id, name, email, createdAt }) => [
+  'v1.ContactCreated': ({ id, name, email, createdAt }) =>
     contacts.insert({ id, name, email, createdAt, updatedAt: createdAt }),
-    logEvent('v1.ContactCreated', { id, name, email, createdAt }, createdAt),
-  ],
   'v1.ContactUpdated': ({ id, updates, updatedAt }) => {
     const updateData: Record<string, any> = { updatedAt }
     if (updates.name !== undefined) updateData.name = updates.name
     if (updates.email !== undefined) updateData.email = updates.email
     return contacts.update(updateData).where({ id })
   },
-  'v1.ContactDeleted': ({ id, deletedAt }) => [
-    contacts.update({ deletedAt }).where({ id }),
-    logEvent('v1.ContactDeleted', { id, deletedAt }, deletedAt),
-  ],
+  'v1.ContactDeleted': ({ id, deletedAt }) => contacts.update({ deletedAt }).where({ id }),
   'v1.ProjectContactAdded': ({ id, projectId, contactId, createdAt }) =>
     projectContacts.insert({ id, projectId, contactId, createdAt }),
   'v1.ProjectContactRemoved': ({ projectId, contactId }) =>

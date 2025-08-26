@@ -1,18 +1,14 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useStore } from '@livestore/react'
 import { Contact } from '@work-squared/shared/schema'
-import { getContactProjects$ } from '@work-squared/shared/queries'
 import { generateRoute } from '../../constants/routes.js'
+import { getInitials } from '../../util/initials.js'
 
 interface ContactItemProps {
   contact: Contact
 }
 
 export const ContactItem: React.FC<ContactItemProps> = ({ contact }) => {
-  const contactProjects = useStore(getContactProjects$(contact.id))
-  const projectCount = contactProjects.length
-
   return (
     <Link
       to={generateRoute.contact(contact.id)}
@@ -24,29 +20,18 @@ export const ContactItem: React.FC<ContactItemProps> = ({ contact }) => {
             <div className='flex-shrink-0'>
               <div className='h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center'>
                 <span className='text-sm font-medium text-blue-800'>
-                  {contact.name
-                    .split(' ')
-                    .filter(n => n.length > 0)
-                    .map(n => n[0])
-                    .join('')
-                    .toUpperCase()
-                    .slice(0, 2)}
+                  {getInitials(contact.name || '')}
                 </span>
               </div>
             </div>
             <div className='ml-4 flex-1'>
-              <h3 className='text-sm font-medium text-gray-900'>{contact.name}</h3>
+              <h3 className='text-sm font-medium text-gray-900'>
+                {contact.name || 'Unnamed Contact'}
+              </h3>
               {contact.email && <p className='text-sm text-gray-600'>{contact.email}</p>}
-              <div className='flex items-center gap-3 mt-1'>
-                <p className='text-xs text-gray-400'>
-                  Created {new Date(contact.createdAt).toLocaleDateString()}
-                </p>
-                {projectCount > 0 && (
-                  <span className='text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded'>
-                    {projectCount} {projectCount === 1 ? 'project' : 'projects'}
-                  </span>
-                )}
-              </div>
+              <p className='text-xs text-gray-400 mt-1'>
+                Created {new Date(contact.createdAt).toLocaleDateString()}
+              </p>
             </div>
           </div>
         </div>

@@ -296,6 +296,8 @@ const ProjectWorkspaceContent: React.FC = () => {
               activeTask={activeTask}
               dragOverAddCard={dragOverAddCard}
               onTaskClick={handleTaskClick}
+              showRecurringTasks={true}
+              projectId={projectId}
             />
             <TaskModal taskId={selectedTaskId} onClose={handleModalClose} />
           </>

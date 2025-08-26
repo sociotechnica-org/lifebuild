@@ -212,6 +212,8 @@ export const TasksPage: React.FC = () => {
               activeTask={activeTask}
               dragOverAddCard={dragOverAddCard}
               onTaskClick={handleTaskClick}
+              showRecurringTasks={true}
+              projectId={null}
             />
             <TaskModal taskId={selectedTaskId} onClose={handleModalClose} />
           </>

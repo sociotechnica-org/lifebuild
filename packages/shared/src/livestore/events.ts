@@ -291,6 +291,62 @@ export const workerUnassignedFromProject = Events.synced({
   }),
 })
 
+export const recurringTaskCreated = Events.synced({
+  name: 'v1.RecurringTaskCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+    description: Schema.Union(Schema.String, Schema.Undefined),
+    prompt: Schema.String,
+    intervalHours: Schema.Number,
+    enabled: Schema.Boolean,
+    projectId: Schema.Union(Schema.String, Schema.Undefined),
+    nextExecutionAt: Schema.Date,
+    createdAt: Schema.Date,
+  }),
+})
+
+export const recurringTaskUpdated = Events.synced({
+  name: 'v1.RecurringTaskUpdated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    updates: Schema.Struct({
+      name: Schema.Union(Schema.String, Schema.Undefined),
+      description: Schema.Union(Schema.String, Schema.Null, Schema.Undefined),
+      prompt: Schema.Union(Schema.String, Schema.Undefined),
+      intervalHours: Schema.Union(Schema.Number, Schema.Undefined),
+      projectId: Schema.Union(Schema.String, Schema.Null, Schema.Undefined),
+    }),
+    updatedAt: Schema.Date,
+    nextExecutionAt: Schema.Union(Schema.Date, Schema.Undefined),
+  }),
+})
+
+export const recurringTaskDeleted = Events.synced({
+  name: 'v1.RecurringTaskDeleted',
+  schema: Schema.Struct({
+    id: Schema.String,
+    deletedAt: Schema.Date,
+  }),
+})
+
+export const recurringTaskEnabled = Events.synced({
+  name: 'v1.RecurringTaskEnabled',
+  schema: Schema.Struct({
+    id: Schema.String,
+    enabledAt: Schema.Date,
+    nextExecutionAt: Schema.Date,
+  }),
+})
+
+export const recurringTaskDisabled = Events.synced({
+  name: 'v1.RecurringTaskDisabled',
+  schema: Schema.Struct({
+    id: Schema.String,
+    disabledAt: Schema.Date,
+  }),
+})
+
 export const settingUpdated = Events.synced({
   name: 'v1.SettingUpdated',
   schema: Schema.Struct({
