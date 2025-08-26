@@ -6,6 +6,7 @@ import { AgenticLoop } from './agentic-loop/agentic-loop.js'
 import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
 import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 import { MessageQueueManager } from './message-queue-manager.js'
+import { AsyncQueueProcessor } from './async-queue-processor.js'
 
 interface EventBuffer {
   events: any[]
@@ -24,6 +25,7 @@ interface StoreProcessingState {
   // Chat processing state
   activeConversations: Set<string> // Track conversations currently being processed
   messageQueue: MessageQueueManager // Queue of pending messages per conversation
+  conversationProcessors: Map<string, AsyncQueueProcessor> // Per-conversation async processors
   llmProvider?: BraintrustProvider
 }
 
@@ -95,6 +97,7 @@ export class EventProcessor {
       stopping: false,
       activeConversations: new Set(),
       messageQueue: new MessageQueueManager(),
+      conversationProcessors: new Map(),
       llmProvider:
         this.braintrustApiKey && this.braintrustProjectId
           ? new BraintrustProvider(this.braintrustApiKey, this.braintrustProjectId)
@@ -550,32 +553,66 @@ export class EventProcessor {
     conversationId: string,
     storeState: StoreProcessingState
   ): Promise<void> {
-    if (!storeState.messageQueue.hasMessages(conversationId)) {
-      return
-    }
+    // Process all queued messages sequentially using async queue processor
+    while (storeState.messageQueue.hasMessages(conversationId)) {
+      const nextMessage = storeState.messageQueue.dequeue(conversationId)
+      
+      if (!nextMessage) {
+        break
+      }
 
-    const queueLength = storeState.messageQueue.getQueueLength(conversationId)
-    console.log(
-      `📤 Processing ${queueLength} queued messages for conversation ${conversationId}`
-    )
+      console.log(
+        `📤 Processing queued message for conversation ${conversationId}. Remaining: ${storeState.messageQueue.getQueueLength(conversationId)}`
+      )
 
-    // Get the next message from the queue
-    const nextMessage = storeState.messageQueue.dequeue(conversationId)
-    
-    if (!nextMessage) {
-      return
-    }
+      // Get or create async processor for this conversation
+      let processor = storeState.conversationProcessors.get(conversationId)
+      if (!processor) {
+        processor = new AsyncQueueProcessor()
+        storeState.conversationProcessors.set(conversationId, processor)
+      }
 
-    // Process the next message using proper async scheduling
-    // Use setImmediate for better performance than setTimeout
-    setImmediate(() => {
-      this.handleUserMessage(storeId, nextMessage, storeState).catch(error => {
+      try {
+        // Queue the message processing task for sequential execution
+        await processor.enqueue(
+          `msg-${nextMessage.id}`,
+          async () => {
+            await this.handleUserMessage(storeId, nextMessage, storeState)
+          }
+        )
+      } catch (error) {
         console.error(
           `❌ Error processing queued message for conversation ${conversationId}:`,
           error
         )
-      })
-    })
+        
+        // Emit error to conversation
+        const store = this.storeManager.getStore(storeId)
+        if (store) {
+          store.commit(
+            events.llmResponseReceived({
+              id: crypto.randomUUID(),
+              conversationId,
+              message: 'Error processing queued message. Please try again.',
+              role: 'assistant',
+              modelId: 'error',
+              responseToMessageId: nextMessage.id,
+              createdAt: new Date(),
+              llmMetadata: { source: 'queue-processing-error' },
+            })
+          )
+        }
+      }
+    }
+    
+    // Clean up processor if no more messages
+    if (!storeState.messageQueue.hasMessages(conversationId)) {
+      const processor = storeState.conversationProcessors.get(conversationId)
+      if (processor && !processor.isProcessing()) {
+        processor.destroy()
+        storeState.conversationProcessors.delete(conversationId)
+      }
+    }
   }
 
   private incrementErrorCount(storeId: string, error: Error): void {
@@ -633,6 +670,12 @@ export class EventProcessor {
     storeState.processingQueue.finally(() => {
       // Cleanup message queue manager
       storeState.messageQueue.destroy()
+      
+      // Cleanup all conversation processors
+      for (const processor of storeState.conversationProcessors.values()) {
+        processor.destroy()
+      }
+      storeState.conversationProcessors.clear()
       
       this.storeStates.delete(storeId)
       console.log(`🛑 Stopped event monitoring for store ${storeId}`)
