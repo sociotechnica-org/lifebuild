@@ -5,6 +5,7 @@ import { tables, events } from '@work-squared/shared/schema'
 import { AgenticLoop } from './agentic-loop/agentic-loop.js'
 import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
 import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
+import { MessageQueueManager } from './message-queue-manager.js'
 
 interface EventBuffer {
   events: any[]
@@ -22,7 +23,7 @@ interface StoreProcessingState {
   stopping: boolean
   // Chat processing state
   activeConversations: Set<string> // Track conversations currently being processed
-  messageQueue: Map<string, any[]> // Queue of pending messages per conversation
+  messageQueue: MessageQueueManager // Queue of pending messages per conversation
   llmProvider?: BraintrustProvider
 }
 
@@ -93,7 +94,7 @@ export class EventProcessor {
       processingQueue: Promise.resolve(),
       stopping: false,
       activeConversations: new Set(),
-      messageQueue: new Map(),
+      messageQueue: new MessageQueueManager(),
       llmProvider:
         this.braintrustApiKey && this.braintrustProjectId
           ? new BraintrustProvider(this.braintrustApiKey, this.braintrustProjectId)
@@ -332,15 +333,30 @@ export class EventProcessor {
     if (storeState.activeConversations.has(conversationId)) {
       console.log(`⏸️ Queueing message for conversation ${conversationId} (already processing)`)
 
-      // Add to message queue
-      if (!storeState.messageQueue.has(conversationId)) {
-        storeState.messageQueue.set(conversationId, [])
+      try {
+        storeState.messageQueue.enqueue(conversationId, chatMessage)
+        console.log(
+          `📥 Message queued for conversation ${conversationId}. Queue length: ${storeState.messageQueue.getQueueLength(conversationId)}`
+        )
+      } catch (error) {
+        console.error(`❌ Failed to queue message for conversation ${conversationId}:`, error)
+        // Emit error to conversation if queue is full
+        const store = this.storeManager.getStore(storeId)
+        if (store) {
+          store.commit(
+            events.llmResponseReceived({
+              id: crypto.randomUUID(),
+              conversationId,
+              message: 'Message queue is full. Please wait before sending more messages.',
+              role: 'assistant',
+              modelId: 'error',
+              responseToMessageId: messageId,
+              createdAt: new Date(),
+              llmMetadata: { source: 'queue-overflow-error' },
+            })
+          )
+        }
       }
-      storeState.messageQueue.get(conversationId)!.push(chatMessage)
-
-      console.log(
-        `📥 Message queued for conversation ${conversationId}. Queue length: ${storeState.messageQueue.get(conversationId)!.length}`
-      )
       return
     }
 
@@ -534,34 +550,32 @@ export class EventProcessor {
     conversationId: string,
     storeState: StoreProcessingState
   ): Promise<void> {
-    const queuedMessages = storeState.messageQueue.get(conversationId)
-
-    if (!queuedMessages || queuedMessages.length === 0) {
+    if (!storeState.messageQueue.hasMessages(conversationId)) {
       return
     }
 
+    const queueLength = storeState.messageQueue.getQueueLength(conversationId)
     console.log(
-      `📤 Processing ${queuedMessages.length} queued messages for conversation ${conversationId}`
+      `📤 Processing ${queueLength} queued messages for conversation ${conversationId}`
     )
 
     // Get the next message from the queue
-    const nextMessage = queuedMessages.shift()!
-
-    // Remove empty queue
-    if (queuedMessages.length === 0) {
-      storeState.messageQueue.delete(conversationId)
+    const nextMessage = storeState.messageQueue.dequeue(conversationId)
+    
+    if (!nextMessage) {
+      return
     }
 
-    // Process the next message asynchronously to avoid blocking
-    // Use setTimeout to ensure this runs after the current call stack
-    setTimeout(() => {
+    // Process the next message using proper async scheduling
+    // Use setImmediate for better performance than setTimeout
+    setImmediate(() => {
       this.handleUserMessage(storeId, nextMessage, storeState).catch(error => {
         console.error(
           `❌ Error processing queued message for conversation ${conversationId}:`,
           error
         )
       })
-    }, 0)
+    })
   }
 
   private incrementErrorCount(storeId: string, error: Error): void {
@@ -617,6 +631,9 @@ export class EventProcessor {
 
     // Wait for processing to complete before removing state
     storeState.processingQueue.finally(() => {
+      // Cleanup message queue manager
+      storeState.messageQueue.destroy()
+      
       this.storeStates.delete(storeId)
       console.log(`🛑 Stopped event monitoring for store ${storeId}`)
     })
