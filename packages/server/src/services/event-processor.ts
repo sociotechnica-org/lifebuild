@@ -7,6 +7,7 @@ import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
 import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
 import { MessageQueueManager } from './message-queue-manager.js'
 import { AsyncQueueProcessor } from './async-queue-processor.js'
+import { QueryOptimizer, QueryPatterns } from './query-optimizer.js'
 import type {
   EventBuffer,
   ProcessedEvent,
@@ -31,6 +32,8 @@ interface StoreProcessingState {
   messageQueue: MessageQueueManager // Queue of pending messages per conversation
   conversationProcessors: Map<string, AsyncQueueProcessor> // Per-conversation async processors
   llmProvider?: BraintrustProvider
+  queryOptimizer: QueryOptimizer // Query optimization and caching
+  queryPatterns: QueryPatterns // Common query patterns
 }
 
 export class EventProcessor {
@@ -106,7 +109,16 @@ export class EventProcessor {
         this.braintrustApiKey && this.braintrustProjectId
           ? new BraintrustProvider(this.braintrustApiKey, this.braintrustProjectId)
           : undefined,
+      queryOptimizer: new QueryOptimizer(store, {
+        batchTimeout: 5, // 5ms batch window for real-time feel
+        defaultCacheTTL: 30000, // 30 seconds default cache
+        maxCacheSize: 500 // Reasonable cache size per store
+      }),
+      queryPatterns: undefined as any, // Will be initialized below
     }
+    
+    // Initialize query patterns with the same optimizer for consistency
+    storeState.queryPatterns = new QueryPatterns(storeState.queryOptimizer)
 
     this.storeStates.set(storeId, storeState)
 
@@ -427,42 +439,24 @@ export class EventProcessor {
       return
     }
 
-    // Get conversation details and worker context
-    const conversationQuery = queryDb(
-      tables.conversations.select().where('id', '=', userMessage.conversationId)
-    )
-    const conversations = store.query(conversationQuery) as Conversation[]
-    const conversation = conversations[0]
+    // Get conversation details, worker context, and history in optimized batch
+    const { conversation, worker, chatHistory } = await storeState.queryPatterns
+      .getConversationWithContext(userMessage.conversationId, tables)
 
     let workerContext: WorkerContext | undefined = undefined
     const boardContext: BoardContext | undefined = undefined
 
-    // Get worker context if conversation has a workerId
-    if (conversation?.workerId) {
-      const workerQuery = queryDb(tables.workers.select().where('id', '=', conversation.workerId))
-      const workers = store.query(workerQuery) as Worker[]
-      const worker = workers[0]
-
-      if (worker) {
-        workerContext = {
-          systemPrompt: worker.systemPrompt,
-          name: worker.name,
-          roleDescription: worker.roleDescription,
-        }
+    // Set worker context if worker data is available
+    if (worker) {
+      workerContext = {
+        systemPrompt: worker.systemPrompt,
+        name: worker.name,
+        roleDescription: worker.roleDescription,
       }
     }
 
-    // Get conversation history for context
-    const historyQuery = queryDb(
-      tables.chatMessages
-        .select()
-        .where('conversationId', '=', userMessage.conversationId)
-        .where('createdAt', '<', userMessage.createdAt)
-    )
-    const chatHistory = store.query(historyQuery) as ChatMessage[]
-
     // Convert chat messages to conversation history format
-    const conversationHistory: LLMMessage[] = chatHistory.map((msg) => ({
+    const conversationHistory: LLMMessage[] = (chatHistory as ChatMessage[]).map((msg) => ({
       role: msg.role,
       content: msg.message || '',
       tool_calls: msg.llmMetadata?.toolCalls,
@@ -680,6 +674,9 @@ export class EventProcessor {
         processor.destroy()
       }
       storeState.conversationProcessors.clear()
+      
+      // Cleanup query optimizer
+      storeState.queryOptimizer.destroy()
       
       this.storeStates.delete(storeId)
       console.log(`🛑 Stopped event monitoring for store ${storeId}`)
