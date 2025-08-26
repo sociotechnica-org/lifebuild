@@ -126,10 +126,18 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({ onClose, onSuc
 
           {/* Actions */}
           <div className='flex justify-end space-x-3'>
-            <button onClick={onClose} disabled={isSubmitting}>
+            <button
+              onClick={onClose}
+              disabled={isSubmitting}
+              className='px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+            >
               Cancel
             </button>
-            <button onClick={handleImport} disabled={isSubmitting || validContacts === 0}>
+            <button
+              onClick={handleImport}
+              disabled={isSubmitting || validContacts === 0}
+              className='px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors'
+            >
               {isSubmitting
                 ? 'Importing...'
                 : `Import ${validContacts} Contact${validContacts !== 1 ? 's' : ''}`}
