@@ -18,6 +18,7 @@ export class WebSocketDistributor {
   private connections: Map<string, WebSocket> = new Map()
   private reconnectTimeouts: Map<string, NodeJS.Timeout> = new Map()
   private connectionConfigs: Map<string, WebSocketConfig> = new Map()
+  private reconnectAttempts: Map<string, number> = new Map()
 
   async connectToStore(storeId: string, config: WebSocketConfig): Promise<void> {
     if (this.connections.has(storeId)) {
@@ -43,12 +44,13 @@ export class WebSocketDistributor {
         console.log(`✅ WebSocket connected for store ${storeId}`)
         this.connections.set(storeId, ws)
 
-        // Clear any existing reconnect timeout
+        // Clear any existing reconnect timeout and reset attempts
         const timeout = this.reconnectTimeouts.get(storeId)
         if (timeout) {
           clearTimeout(timeout)
           this.reconnectTimeouts.delete(storeId)
         }
+        this.reconnectAttempts.delete(storeId)
       })
 
       ws.on('close', () => {
@@ -78,11 +80,37 @@ export class WebSocketDistributor {
   }
 
   private scheduleReconnect(storeId: string, config: WebSocketConfig): void {
-    const interval = config.reconnectInterval || 5000
-    const timeout = setTimeout(async () => {
+    // Clear existing timeout if any
+    const existingTimeout = this.reconnectTimeouts.get(storeId)
+    if (existingTimeout) {
+      clearTimeout(existingTimeout)
+    }
+
+    // Check reconnect attempts
+    const attempts = this.reconnectAttempts.get(storeId) || 0
+    const maxAttempts = config.maxReconnectAttempts || 3
+
+    if (attempts >= maxAttempts) {
+      console.error(`❌ Store ${storeId} exceeded max reconnect attempts (${maxAttempts})`)
       this.reconnectTimeouts.delete(storeId)
-      console.log(`🔄 Attempting to reconnect WebSocket for store ${storeId}`)
-      await this.createConnection(storeId, config)
+      this.reconnectAttempts.delete(storeId)
+      return
+    }
+
+    const interval = config.reconnectInterval || 5000
+    const timeout = setTimeout(() => {
+      this.reconnectTimeouts.delete(storeId)
+      this.reconnectAttempts.set(storeId, attempts + 1)
+
+      console.log(
+        `🔄 Attempting to reconnect WebSocket for store ${storeId} (attempt ${attempts + 1}/${maxAttempts})`
+      )
+
+      // Handle the promise to avoid unhandled rejections
+      this.createConnection(storeId, config).catch(error => {
+        console.error(`❌ Reconnection failed for store ${storeId}:`, error)
+        // scheduleReconnect will be called again by the error handlers in createConnection
+      })
     }, interval)
 
     this.reconnectTimeouts.set(storeId, timeout)
@@ -141,6 +169,7 @@ export class WebSocketDistributor {
     }
 
     this.connectionConfigs.delete(storeId)
+    this.reconnectAttempts.delete(storeId)
     console.log(`🛑 WebSocket disconnected for store ${storeId}`)
   }
 

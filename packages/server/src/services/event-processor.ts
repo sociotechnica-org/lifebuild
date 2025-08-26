@@ -16,6 +16,7 @@ interface StoreProcessingState {
   errorCount: number
   lastError?: Error
   processingQueue: Promise<void>
+  stopping: boolean
 }
 
 export class EventProcessor {
@@ -46,8 +47,13 @@ export class EventProcessor {
   startMonitoring(storeId: string, store: LiveStore): void {
     console.log(`📡 Starting comprehensive event monitoring for store ${storeId}`)
 
-    if (this.storeStates.has(storeId)) {
-      console.warn(`⚠️ Store ${storeId} is already being monitored`)
+    const existingState = this.storeStates.get(storeId)
+    if (existingState) {
+      if (existingState.stopping) {
+        console.warn(`⚠️ Store ${storeId} is currently stopping, cannot start monitoring`)
+      } else {
+        console.warn(`⚠️ Store ${storeId} is already being monitored`)
+      }
       return
     }
 
@@ -62,6 +68,7 @@ export class EventProcessor {
       lastSeenCounts: new Map(),
       errorCount: 0,
       processingQueue: Promise.resolve(),
+      stopping: false,
     }
 
     this.storeStates.set(storeId, storeState)
@@ -154,6 +161,11 @@ export class EventProcessor {
     records: any[],
     storeState: StoreProcessingState
   ): void {
+    // Skip processing if store is stopping
+    if (storeState.stopping) {
+      return
+    }
+
     const lastCount = storeState.lastSeenCounts.get(tableName) || 0
     const currentCount = records.length
 
@@ -216,7 +228,11 @@ export class EventProcessor {
     storeId: string,
     storeState: StoreProcessingState
   ): Promise<void> {
-    if (storeState.eventBuffer.processing || storeState.eventBuffer.events.length === 0) {
+    if (
+      storeState.eventBuffer.processing ||
+      storeState.eventBuffer.events.length === 0 ||
+      storeState.stopping
+    ) {
       return
     }
 
@@ -300,6 +316,9 @@ export class EventProcessor {
       console.warn(`⚠️ Store ${storeId} is not being monitored`)
       return
     }
+
+    // Mark as stopping immediately to prevent race conditions
+    storeState.stopping = true
 
     // Unsubscribe from all table subscriptions
     for (const unsubscribe of storeState.subscriptions) {
