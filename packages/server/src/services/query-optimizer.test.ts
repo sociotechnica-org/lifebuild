@@ -8,7 +8,7 @@ describe('QueryOptimizer', () => {
 
   beforeEach(() => {
     vi.useFakeTimers()
-    
+
     // Mock Store
     mockStore = {
       query: vi.fn(),
@@ -17,7 +17,7 @@ describe('QueryOptimizer', () => {
     optimizer = new QueryOptimizer(mockStore, {
       batchTimeout: 10,
       defaultCacheTTL: 30000,
-      maxCacheSize: 100
+      maxCacheSize: 100,
     })
   })
 
@@ -42,10 +42,8 @@ describe('QueryOptimizer', () => {
     it('should batch normal priority queries', async () => {
       const mockResult1 = [{ id: 1 }]
       const mockResult2 = [{ id: 2 }]
-      
-      mockStore.query = vi.fn()
-        .mockReturnValueOnce(mockResult1)
-        .mockReturnValueOnce(mockResult2)
+
+      mockStore.query = vi.fn().mockReturnValueOnce(mockResult1).mockReturnValueOnce(mockResult2)
 
       const query1 = { table: 'users', operation: 'select' }
       const query2 = { table: 'users', operation: 'select' }
@@ -71,15 +69,15 @@ describe('QueryOptimizer', () => {
       const cacheKey = 'test-cache-key'
 
       // First call should execute query
-      const result1 = await optimizer.query(query, { 
+      const result1 = await optimizer.query(query, {
         cacheKey,
-        priority: 'high' // To avoid batching
+        priority: 'high', // To avoid batching
       })
 
       // Second call should use cache
-      const result2 = await optimizer.query(query, { 
+      const result2 = await optimizer.query(query, {
         cacheKey,
-        priority: 'high'
+        priority: 'high',
       })
 
       expect(result1).toEqual(mockResult)
@@ -98,7 +96,7 @@ describe('QueryOptimizer', () => {
       await optimizer.query(query, {
         cacheKey: 'ttl-test',
         cacheTTL: shortTTL,
-        priority: 'high'
+        priority: 'high',
       })
 
       // Advance time past TTL
@@ -108,7 +106,7 @@ describe('QueryOptimizer', () => {
       await optimizer.query(query, {
         cacheKey: 'ttl-test',
         cacheTTL: shortTTL,
-        priority: 'high'
+        priority: 'high',
       })
 
       expect(mockStore.query).toHaveBeenCalledTimes(2)
@@ -160,10 +158,11 @@ describe('QueryOptimizer', () => {
     it('should evict oldest entries when cache is full', async () => {
       const smallOptimizer = new QueryOptimizer(mockStore, {
         maxCacheSize: 2,
-        defaultCacheTTL: 60000
+        defaultCacheTTL: 60000,
       })
 
-      mockStore.query = vi.fn()
+      mockStore.query = vi
+        .fn()
         .mockReturnValueOnce([{ id: 1 }])
         .mockReturnValueOnce([{ id: 2 }])
         .mockReturnValueOnce([{ id: 3 }])
@@ -186,14 +185,17 @@ describe('QueryOptimizer', () => {
 
     it('should clean up expired entries periodically', async () => {
       const shortTTL = 100
-      
+
       mockStore.query = vi.fn().mockReturnValue([{ id: 1 }])
 
-      await optimizer.query({}, {
-        cacheKey: 'expire-test',
-        cacheTTL: shortTTL,
-        priority: 'high'
-      })
+      await optimizer.query(
+        {},
+        {
+          cacheKey: 'expire-test',
+          cacheTTL: shortTTL,
+          priority: 'high',
+        }
+      )
 
       expect(optimizer.getCacheStats().size).toBe(1)
 
@@ -227,24 +229,24 @@ describe('QueryOptimizer', () => {
 
     beforeEach(() => {
       queryPatterns = new QueryPatterns(optimizer)
-      
+
       mockTables = {
         conversations: {
           select: () => ({
-            where: vi.fn().mockReturnThis()
-          })
+            where: vi.fn().mockReturnThis(),
+          }),
         },
         workers: {
           select: () => ({
-            where: vi.fn().mockReturnThis()
-          })
+            where: vi.fn().mockReturnThis(),
+          }),
         },
         chatMessages: {
           select: () => ({
             where: vi.fn().mockReturnThis(),
-            orderBy: vi.fn().mockReturnThis()
-          })
-        }
+            orderBy: vi.fn().mockReturnThis(),
+          }),
+        },
       }
     })
 
@@ -253,32 +255,28 @@ describe('QueryOptimizer', () => {
       const mockConversation = {
         id: conversationId,
         workerId: 'worker-456',
-        name: 'Test Conversation'
+        name: 'Test Conversation',
       }
       const mockWorker = {
         id: 'worker-456',
         name: 'Test Worker',
-        systemPrompt: 'You are helpful'
+        systemPrompt: 'You are helpful',
       }
       const mockChatHistory = [
         { id: 'msg-1', message: 'Hello', role: 'user' },
-        { id: 'msg-2', message: 'Hi there!', role: 'assistant' }
+        { id: 'msg-2', message: 'Hi there!', role: 'assistant' },
       ]
 
       // Mock the optimizer's queryAll method
-      optimizer.queryAll = vi.fn()
-        .mockResolvedValueOnce([
-          [mockConversation], // conversation query result
-          mockChatHistory     // chat history query result
-        ])
+      optimizer.queryAll = vi.fn().mockResolvedValueOnce([
+        [mockConversation], // conversation query result
+        mockChatHistory, // chat history query result
+      ])
 
       // Mock the single query for worker
       optimizer.query = vi.fn().mockResolvedValue([mockWorker])
 
-      const result = await queryPatterns.getConversationWithContext(
-        conversationId,
-        mockTables
-      )
+      const result = await queryPatterns.getConversationWithContext(conversationId, mockTables)
 
       expect(result.conversation).toEqual(mockConversation)
       expect(result.worker).toEqual(mockWorker)
@@ -289,20 +287,14 @@ describe('QueryOptimizer', () => {
       const conversationId = 'conv-no-worker'
       const mockConversation = {
         id: conversationId,
-        name: 'Conversation without worker'
+        name: 'Conversation without worker',
         // No workerId
       }
       const mockChatHistory = []
 
-      optimizer.queryAll = vi.fn().mockResolvedValue([
-        [mockConversation],
-        mockChatHistory
-      ])
+      optimizer.queryAll = vi.fn().mockResolvedValue([[mockConversation], mockChatHistory])
 
-      const result = await queryPatterns.getConversationWithContext(
-        conversationId,
-        mockTables
-      )
+      const result = await queryPatterns.getConversationWithContext(conversationId, mockTables)
 
       expect(result.conversation).toEqual(mockConversation)
       expect(result.worker).toBeUndefined()
@@ -311,9 +303,10 @@ describe('QueryOptimizer', () => {
 
     it('should handle multiple conversations efficiently', async () => {
       const conversationIds = ['conv-1', 'conv-2']
-      
+
       // Mock individual calls
-      queryPatterns.getConversationWithContext = vi.fn()
+      queryPatterns.getConversationWithContext = vi
+        .fn()
         .mockResolvedValueOnce({ conversation: { id: 'conv-1' }, chatHistory: [] })
         .mockResolvedValueOnce({ conversation: { id: 'conv-2' }, chatHistory: [] })
 
@@ -334,7 +327,8 @@ describe('QueryOptimizer', () => {
       const normalResult = [{ priority: 'normal' }]
       const lowResult = [{ priority: 'low' }]
 
-      mockStore.query = vi.fn()
+      mockStore.query = vi
+        .fn()
         .mockReturnValueOnce(highResult)
         .mockReturnValueOnce(normalResult)
         .mockReturnValueOnce(lowResult)
@@ -343,25 +337,25 @@ describe('QueryOptimizer', () => {
         {
           query: { table: 'high' },
           priority: 'high' as const,
-          cacheKey: 'high-priority'
+          cacheKey: 'high-priority',
         },
         {
           query: { table: 'normal' },
           priority: 'normal' as const,
-          cacheKey: 'normal-priority'
+          cacheKey: 'normal-priority',
         },
         {
           query: { table: 'low' },
           priority: 'low' as const,
-          cacheKey: 'low-priority'
-        }
+          cacheKey: 'low-priority',
+        },
       ]
 
       const resultsPromise = optimizer.queryWithPriority(queries)
-      
+
       // Advance timers for batching
       await vi.advanceTimersByTimeAsync(15)
-      
+
       const results = await resultsPromise
 
       expect(results).toHaveLength(3)

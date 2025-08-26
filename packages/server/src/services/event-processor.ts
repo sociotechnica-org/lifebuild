@@ -17,7 +17,7 @@ import type {
   Worker,
   LLMMessage,
   BoardContext,
-  WorkerContext
+  WorkerContext,
 } from './agentic-loop/types.js'
 
 interface StoreProcessingState {
@@ -68,15 +68,18 @@ export class EventProcessor {
     this.startFlushTimer()
 
     // Initialize global resource monitor
-    this.globalResourceMonitor = new ResourceMonitor({
-      maxConcurrentLLMCalls: parseInt(process.env.MAX_CONCURRENT_LLM_CALLS || '10'),
-      maxQueuedMessages: parseInt(process.env.MAX_QUEUED_MESSAGES || '1000'),
-      maxConversationsPerStore: parseInt(process.env.MAX_CONVERSATIONS_PER_STORE || '100'),
-      messageRateLimit: parseInt(process.env.MESSAGE_RATE_LIMIT || '600'),
-      llmCallTimeout: parseInt(process.env.LLM_CALL_TIMEOUT || '30000'),
-    }, (alert) => {
-      console.warn(`🚨 Resource Alert [${alert.type}]: ${alert.message}`);
-    });
+    this.globalResourceMonitor = new ResourceMonitor(
+      {
+        maxConcurrentLLMCalls: parseInt(process.env.MAX_CONCURRENT_LLM_CALLS || '10'),
+        maxQueuedMessages: parseInt(process.env.MAX_QUEUED_MESSAGES || '1000'),
+        maxConversationsPerStore: parseInt(process.env.MAX_CONVERSATIONS_PER_STORE || '100'),
+        messageRateLimit: parseInt(process.env.MESSAGE_RATE_LIMIT || '600'),
+        llmCallTimeout: parseInt(process.env.LLM_CALL_TIMEOUT || '30000'),
+      },
+      alert => {
+        console.warn(`🚨 Resource Alert [${alert.type}]: ${alert.message}`)
+      }
+    )
 
     // Load LLM configuration from environment
     this.braintrustApiKey = process.env.BRAINTRUST_API_KEY
@@ -126,7 +129,7 @@ export class EventProcessor {
       queryOptimizer: new QueryOptimizer(store, {
         batchTimeout: 5, // 5ms batch window for real-time feel
         defaultCacheTTL: 30000, // 30 seconds default cache
-        maxCacheSize: 500 // Reasonable cache size per store
+        maxCacheSize: 500, // Reasonable cache size per store
       }),
       queryPatterns: undefined as any, // Will be initialized below
       resourceMonitor: new ResourceMonitor({
@@ -134,7 +137,7 @@ export class EventProcessor {
         maxQueuedMessages: 200, // Per-store limit
       }),
     }
-    
+
     // Initialize query patterns with the same optimizer for consistency
     storeState.queryPatterns = new QueryPatterns(storeState.queryOptimizer)
 
@@ -273,7 +276,11 @@ export class EventProcessor {
     }
   }
 
-  private bufferEvents(storeId: string, events: ProcessedEvent[], storeState: StoreProcessingState): void {
+  private bufferEvents(
+    storeId: string,
+    events: ProcessedEvent[],
+    storeState: StoreProcessingState
+  ): void {
     storeState.eventBuffer.events.push(...events)
 
     // If buffer is full or processing is idle, trigger processing
@@ -368,7 +375,9 @@ export class EventProcessor {
 
     // Check resource limits before processing
     if (!this.globalResourceMonitor.canMakeLLMCall()) {
-      console.warn(`🚨 Rejecting LLM call for conversation ${conversationId}: Resource limits exceeded`)
+      console.warn(
+        `🚨 Rejecting LLM call for conversation ${conversationId}: Resource limits exceeded`
+      )
       const store = this.storeManager.getStore(storeId)
       if (store) {
         store.commit(
@@ -432,8 +441,8 @@ export class EventProcessor {
 
     // Check conversation limits per store
     if (storeState.activeConversations.size >= 50) {
-      console.warn(`🚨 Too many active conversations in store ${storeId}`);
-      return;
+      console.warn(`🚨 Too many active conversations in store ${storeId}`)
+      return
     }
 
     // Mark conversation as active
@@ -458,13 +467,13 @@ export class EventProcessor {
       const startTime = Date.now()
       await this.runAgenticLoop(storeId, chatMessage, storeState)
       const responseTime = Date.now() - startTime
-      
+
       // Track successful completion
       this.globalResourceMonitor.trackLLMCallComplete(llmCallId, false, responseTime)
     } catch (error) {
       // Track error
-      this.globalResourceMonitor.trackError(`LLM call failed: ${error}`);
-      this.globalResourceMonitor.trackLLMCallComplete(llmCallId, false);
+      this.globalResourceMonitor.trackError(`LLM call failed: ${error}`)
+      this.globalResourceMonitor.trackLLMCallComplete(llmCallId, false)
       console.error(`❌ Error in agentic loop for conversation ${conversationId}:`, error)
 
       // Emit error message to conversation
@@ -506,8 +515,8 @@ export class EventProcessor {
     }
 
     // Get conversation details, worker context, and history in optimized batch
-    const { conversation, worker, chatHistory } = await storeState.queryPatterns
-      .getConversationWithContext(userMessage.conversationId, tables)
+    const { conversation, worker, chatHistory } =
+      await storeState.queryPatterns.getConversationWithContext(userMessage.conversationId, tables)
 
     let workerContext: WorkerContext | undefined = undefined
     const boardContext: BoardContext | undefined = undefined
@@ -522,7 +531,7 @@ export class EventProcessor {
     }
 
     // Convert chat messages to conversation history format
-    const conversationHistory: LLMMessage[] = (chatHistory as ChatMessage[]).map((msg) => ({
+    const conversationHistory: LLMMessage[] = (chatHistory as ChatMessage[]).map(msg => ({
       role: msg.role,
       content: msg.message || '',
       tool_calls: msg.llmMetadata?.toolCalls,
@@ -620,7 +629,7 @@ export class EventProcessor {
     // Process all queued messages sequentially using async queue processor
     while (storeState.messageQueue.hasMessages(conversationId)) {
       const nextMessage = storeState.messageQueue.dequeue(conversationId)
-      
+
       if (!nextMessage) {
         break
       }
@@ -638,18 +647,15 @@ export class EventProcessor {
 
       try {
         // Queue the message processing task for sequential execution
-        await processor.enqueue(
-          `msg-${nextMessage.id}`,
-          async () => {
-            await this.handleUserMessage(storeId, nextMessage, storeState)
-          }
-        )
+        await processor.enqueue(`msg-${nextMessage.id}`, async () => {
+          await this.handleUserMessage(storeId, nextMessage, storeState)
+        })
       } catch (error) {
         console.error(
           `❌ Error processing queued message for conversation ${conversationId}:`,
           error
         )
-        
+
         // Emit error to conversation
         const store = this.storeManager.getStore(storeId)
         if (store) {
@@ -668,7 +674,7 @@ export class EventProcessor {
         }
       }
     }
-    
+
     // Clean up processor if no more messages
     if (!storeState.messageQueue.hasMessages(conversationId)) {
       const processor = storeState.conversationProcessors.get(conversationId)
@@ -734,17 +740,17 @@ export class EventProcessor {
     storeState.processingQueue.finally(() => {
       // Cleanup message queue manager
       storeState.messageQueue.destroy()
-      
+
       // Cleanup all conversation processors
       for (const processor of storeState.conversationProcessors.values()) {
         processor.destroy()
       }
       storeState.conversationProcessors.clear()
-      
+
       // Cleanup query optimizer and resource monitor
       storeState.queryOptimizer.destroy()
       storeState.resourceMonitor.destroy()
-      
+
       this.storeStates.delete(storeId)
       console.log(`🛑 Stopped event monitoring for store ${storeId}`)
     })
@@ -813,7 +819,7 @@ export class EventProcessor {
   } {
     const globalReport = this.globalResourceMonitor.getResourceReport()
     const perStoreReports = new Map()
-    
+
     for (const [storeId, storeState] of this.storeStates) {
       perStoreReports.set(storeId, storeState.resourceMonitor.getResourceReport())
     }
@@ -821,7 +827,7 @@ export class EventProcessor {
     // Determine overall system health
     const isUnderStress = this.globalResourceMonitor.isSystemUnderStress()
     const hasCriticalAlerts = globalReport.alerts.some(alert => alert.type === 'critical')
-    
+
     let systemHealth: 'healthy' | 'stressed' | 'critical' = 'healthy'
     if (hasCriticalAlerts) {
       systemHealth = 'critical'

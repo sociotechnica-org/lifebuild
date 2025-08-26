@@ -49,10 +49,10 @@ export class ResourceMonitor {
   private errorCount = 0
   private responseTimes: number[] = []
   private cacheStats = { hits: 0, misses: 0 }
-  
+
   private metricsInterval?: NodeJS.Timeout
   private cleanupInterval?: NodeJS.Timeout
-  
+
   // Sliding window for rate calculations
   private readonly windowSize = 60000 // 1 minute
   private messageTimestamps: number[] = []
@@ -71,8 +71,13 @@ export class ResourceMonitor {
    */
   canMakeLLMCall(): boolean {
     if (this.activeLLMCalls >= this.limits.maxConcurrentLLMCalls) {
-      this.emitAlert('critical', 'activeLLMCalls', this.activeLLMCalls, this.limits.maxConcurrentLLMCalls,
-        'Maximum concurrent LLM calls reached')
+      this.emitAlert(
+        'critical',
+        'activeLLMCalls',
+        this.activeLLMCalls,
+        this.limits.maxConcurrentLLMCalls,
+        'Maximum concurrent LLM calls reached'
+      )
       return false
     }
     return true
@@ -85,15 +90,15 @@ export class ResourceMonitor {
     if (!this.canMakeLLMCall()) {
       throw new Error('LLM call rejected: Resource limit exceeded')
     }
-    
+
     this.activeLLMCalls++
     const callId = crypto.randomUUID()
-    
+
     // Set timeout for the call
     setTimeout(() => {
       this.trackLLMCallComplete(callId, true) // Mark as timeout
     }, this.limits.llmCallTimeout)
-    
+
     return callId
   }
 
@@ -104,12 +109,12 @@ export class ResourceMonitor {
     if (this.activeLLMCalls > 0) {
       this.activeLLMCalls--
     }
-    
+
     if (isTimeout) {
       this.trackError('LLM call timeout')
     } else if (responseTime) {
       this.responseTimes.push(responseTime)
-      
+
       // Keep only recent response times for average calculation
       if (this.responseTimes.length > 100) {
         this.responseTimes = this.responseTimes.slice(-50)
@@ -123,19 +128,29 @@ export class ResourceMonitor {
   canQueueMessage(): boolean {
     const totalQueued = this.getCurrentQueuedMessages()
     if (totalQueued >= this.limits.maxQueuedMessages) {
-      this.emitAlert('critical', 'queuedMessages', totalQueued, this.limits.maxQueuedMessages,
-        'Maximum queued messages limit reached')
+      this.emitAlert(
+        'critical',
+        'queuedMessages',
+        totalQueued,
+        this.limits.maxQueuedMessages,
+        'Maximum queued messages limit reached'
+      )
       return false
     }
-    
+
     // Check message rate limit
     const currentRate = this.getMessageRate()
     if (currentRate > this.limits.messageRateLimit) {
-      this.emitAlert('warning', 'messageRate', currentRate, this.limits.messageRateLimit,
-        'Message rate limit exceeded')
+      this.emitAlert(
+        'warning',
+        'messageRate',
+        currentRate,
+        this.limits.messageRateLimit,
+        'Message rate limit exceeded'
+      )
       return false
     }
-    
+
     return true
   }
 
@@ -145,7 +160,7 @@ export class ResourceMonitor {
   trackMessage(): void {
     this.messageCount++
     this.messageTimestamps.push(Date.now())
-    
+
     // Clean old timestamps outside the window
     const cutoff = Date.now() - this.windowSize
     this.messageTimestamps = this.messageTimestamps.filter(ts => ts > cutoff)
@@ -157,11 +172,11 @@ export class ResourceMonitor {
   trackError(errorType: string): void {
     this.errorCount++
     this.errorTimestamps.push(Date.now())
-    
+
     // Clean old error timestamps
     const cutoff = Date.now() - this.windowSize
     this.errorTimestamps = this.errorTimestamps.filter(ts => ts > cutoff)
-    
+
     console.warn(`🚨 Resource Monitor: ${errorType}`)
   }
 
@@ -181,7 +196,7 @@ export class ResourceMonitor {
    */
   getCurrentMetrics(): ResourceMetrics {
     const now = Date.now()
-    
+
     return {
       timestamp: now,
       activeLLMCalls: this.activeLLMCalls,
@@ -211,7 +226,7 @@ export class ResourceMonitor {
   } {
     const current = this.getCurrentMetrics()
     const trends = this.calculateTrends()
-    
+
     return {
       limits: this.limits,
       current,
@@ -225,7 +240,7 @@ export class ResourceMonitor {
    */
   isSystemUnderStress(): boolean {
     const metrics = this.getCurrentMetrics()
-    
+
     return (
       metrics.activeLLMCalls > this.limits.maxConcurrentLLMCalls * 0.8 ||
       metrics.queuedMessages > this.limits.maxQueuedMessages * 0.8 ||
@@ -251,20 +266,21 @@ export class ResourceMonitor {
     this.metricsInterval = setInterval(() => {
       const metrics = this.getCurrentMetrics()
       this.metrics.push(metrics)
-      
+
       // Keep only recent metrics (last hour)
-      if (this.metrics.length > 360) { // 6 per minute * 60 minutes
+      if (this.metrics.length > 360) {
+        // 6 per minute * 60 minutes
         this.metrics = this.metrics.slice(-300)
       }
-      
+
       this.checkAlerts(metrics)
     }, 10000)
-    
+
     // Cleanup old data every minute
     this.cleanupInterval = setInterval(() => {
       this.cleanupOldData()
     }, 60000)
-    
+
     console.log('📊 Resource monitoring started')
   }
 
@@ -282,34 +298,34 @@ export class ResourceMonitor {
         metric: 'activeLLMCalls',
         value: metrics.activeLLMCalls,
         threshold: this.limits.maxConcurrentLLMCalls * 0.8,
-        type: 'warning'
+        type: 'warning',
       },
       {
         metric: 'queuedMessages',
         value: metrics.queuedMessages,
         threshold: this.limits.maxQueuedMessages * 0.8,
-        type: 'warning'
+        type: 'warning',
       },
       {
         metric: 'memoryUsageMB',
         value: metrics.memoryUsageMB,
         threshold: this.limits.maxMemoryUsageMB * 0.9,
-        type: 'critical'
+        type: 'critical',
       },
       {
         metric: 'cpuUsagePercent',
         value: metrics.cpuUsagePercent,
         threshold: this.limits.maxCPUUsagePercent * 0.9,
-        type: 'critical'
+        type: 'critical',
       },
       {
         metric: 'errorRate',
         value: metrics.errorRate,
         threshold: 10,
-        type: 'warning'
+        type: 'warning',
       },
     ]
-    
+
     checks.forEach(check => {
       if (check.value > check.threshold) {
         this.emitAlert(
@@ -339,18 +355,19 @@ export class ResourceMonitor {
       currentValue,
       threshold,
       message,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     }
-    
+
     // Avoid duplicate alerts within 1 minute
-    const recentSimilarAlert = this.alerts
-      .filter(a => a.metric === metric && Date.now() - a.timestamp < 60000)
-      .length > 0
-    
+    const recentSimilarAlert =
+      this.alerts.filter(a => a.metric === metric && Date.now() - a.timestamp < 60000).length > 0
+
     if (!recentSimilarAlert) {
       this.alerts.push(alert)
-      console.warn(`${type === 'critical' ? '🚨' : '⚠️'} ${message}: ${currentValue} (threshold: ${threshold})`)
-      
+      console.warn(
+        `${type === 'critical' ? '🚨' : '⚠️'} ${message}: ${currentValue} (threshold: ${threshold})`
+      )
+
       if (this.onAlert) {
         this.onAlert(alert)
       }
@@ -366,7 +383,7 @@ export class ResourceMonitor {
     responseTimeTrend: 'increasing' | 'stable' | 'decreasing'
   } {
     const recentMetrics = this.metrics.slice(-6) // Last 6 data points (1 minute)
-    
+
     if (recentMetrics.length < 3) {
       return {
         messageRateTrend: 'stable',
@@ -374,21 +391,21 @@ export class ResourceMonitor {
         responseTimeTrend: 'stable',
       }
     }
-    
+
     const calculateTrend = (values: number[]): 'increasing' | 'stable' | 'decreasing' => {
       const firstHalf = values.slice(0, Math.floor(values.length / 2))
       const secondHalf = values.slice(Math.floor(values.length / 2))
-      
+
       const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length
       const secondAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length
-      
+
       const change = (secondAvg - firstAvg) / firstAvg
-      
+
       if (change > 0.1) return 'increasing'
       if (change < -0.1) return 'decreasing'
       return 'stable'
     }
-    
+
     return {
       messageRateTrend: calculateTrend(recentMetrics.map(m => m.messageRate)),
       errorRateTrend: calculateTrend(recentMetrics.map(m => m.errorRate)),
@@ -461,10 +478,10 @@ export class ResourceMonitor {
    */
   private cleanupOldData(): void {
     const oneHourAgo = Date.now() - 60 * 60 * 1000
-    
+
     // Clean old alerts
     this.alerts = this.alerts.filter(alert => alert.timestamp > oneHourAgo)
-    
+
     // Clean old timestamps
     this.messageTimestamps = this.messageTimestamps.filter(ts => ts > Date.now() - this.windowSize)
     this.errorTimestamps = this.errorTimestamps.filter(ts => ts > Date.now() - this.windowSize)
@@ -478,12 +495,12 @@ export class ResourceMonitor {
       clearInterval(this.metricsInterval)
       this.metricsInterval = undefined
     }
-    
+
     if (this.cleanupInterval) {
       clearInterval(this.cleanupInterval)
       this.cleanupInterval = undefined
     }
-    
+
     console.log('📊 Resource monitoring stopped')
   }
 }

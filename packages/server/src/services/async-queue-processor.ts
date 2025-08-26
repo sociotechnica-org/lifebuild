@@ -20,7 +20,7 @@ export class AsyncQueueProcessor<T = any> {
 
     return new Promise<T>((resolve, reject) => {
       this.queue.push({ id, task, resolve, reject })
-      
+
       // Start processing if not already running
       if (!this.processing) {
         this.processQueue().catch(error => {
@@ -43,7 +43,7 @@ export class AsyncQueueProcessor<T = any> {
     try {
       while (this.queue.length > 0 && !this.destroyed) {
         const queuedTask = this.queue.shift()!
-        
+
         try {
           const result = await queuedTask.task()
           queuedTask.resolve(result)
@@ -83,7 +83,7 @@ export class AsyncQueueProcessor<T = any> {
   clear(): void {
     const tasks = this.queue.splice(0)
     const error = new Error('Queue cleared')
-    
+
     for (const task of tasks) {
       task.reject(error)
     }

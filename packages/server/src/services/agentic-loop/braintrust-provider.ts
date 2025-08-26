@@ -1,10 +1,10 @@
-import type { 
-  LLMProvider, 
-  LLMResponse, 
-  LLMMessage, 
-  BoardContext, 
-  WorkerContext, 
-  LLMCallOptions
+import type {
+  LLMProvider,
+  LLMResponse,
+  LLMMessage,
+  BoardContext,
+  WorkerContext,
+  LLMCallOptions,
 } from './types.js'
 import { llmToolSchemas } from '../../tools/schemas.js'
 import { InputValidator } from './input-validator.js'
@@ -44,8 +44,8 @@ export class BraintrustProvider implements LLMProvider {
         console.warn('🚨 Invalid board context blocked:', boardValidation.reason)
         throw new Error(`Board context validation failed: ${boardValidation.reason}`)
       }
-      sanitizedBoardContext = boardValidation.sanitizedContent 
-        ? JSON.parse(boardValidation.sanitizedContent) as BoardContext
+      sanitizedBoardContext = boardValidation.sanitizedContent
+        ? (JSON.parse(boardValidation.sanitizedContent) as BoardContext)
         : boardContext
     }
 
@@ -57,8 +57,8 @@ export class BraintrustProvider implements LLMProvider {
         console.warn('🚨 Invalid worker context blocked:', workerValidation.reason)
         throw new Error(`Worker context validation failed: ${workerValidation.reason}`)
       }
-      sanitizedWorkerContext = workerValidation.sanitizedContent 
-        ? JSON.parse(workerValidation.sanitizedContent) as WorkerContext
+      sanitizedWorkerContext = workerValidation.sanitizedContent
+        ? (JSON.parse(workerValidation.sanitizedContent) as WorkerContext)
         : workerContext
     }
     const currentBoardContext = sanitizedBoardContext
@@ -149,12 +149,12 @@ When users describe project requirements or ask you to create tasks, use the cre
       if (!response.ok) {
         const errorText = await response.text()
         const error = new Error(`Braintrust API call failed: ${response.status} ${errorText}`)
-        
+
         // Call the external onRetry callback if provided and it's a retryable error
         if (_options?.onRetry && (response.status >= 500 || response.status === 429)) {
           console.log(`⚠️ Braintrust API error ${response.status}, will retry if attempts remain`)
         }
-        
+
         throw error
       }
 

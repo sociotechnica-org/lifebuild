@@ -17,29 +17,29 @@ export class InputValidator {
     maxMessageLength: 10000, // 10KB per message
     maxMessagesCount: 100, // Max 100 messages in conversation
     allowedRoles: new Set(['system', 'user', 'assistant', 'tool']),
-    
+
     // Patterns that should block the request entirely
     blockedPatterns: [
       // Attempts to break out of role
       /ignore\s+(?:all\s+)?(?:previous\s+)?(?:system\s+)?(?:instructions?|prompts?|rules?)/i,
       /forget\s+(?:everything|all)\s+(?:above|before|previous)/i,
       /you\s+are\s+now\s+(?:a\s+)?(?:different|new|another)/i,
-      
+
       // Direct system message injection attempts
       /\n\s*system\s*:\s*/i,
       /<\s*system\s*>/i,
       /\[system\]/i,
-      
+
       // Role manipulation
       /pretend\s+(?:to\s+be|you\s+are)\s+(?:a\s+)?(?:system|admin|developer|programmer)/i,
       /act\s+as\s+(?:if\s+you\s+are\s+)?(?:a\s+)?(?:system|admin|developer)/i,
-      
+
       // Prompt injection markers
       /#\s*system\s*#/i,
       /--\s*system\s*--/i,
       /\*\*system\*\*/i,
     ],
-    
+
     // Patterns that are suspicious but might be legitimate (will be sanitized)
     suspiciousPatterns: [
       // Multiple newlines that could be used for formatting attacks
@@ -50,7 +50,7 @@ export class InputValidator {
       /[\u0000-\u001F\u007F-\u009F]/g,
       // HTML/XML-like tags
       /<[^>]+>/g,
-    ]
+    ],
   }
 
   private config: ValidationConfig
@@ -63,12 +63,12 @@ export class InputValidator {
       allowedRoles: customConfig?.allowedRoles ?? InputValidator.DEFAULT_CONFIG.allowedRoles,
       blockedPatterns: [
         ...InputValidator.DEFAULT_CONFIG.blockedPatterns,
-        ...(customConfig?.blockedPatterns ?? [])
+        ...(customConfig?.blockedPatterns ?? []),
       ],
       suspiciousPatterns: [
         ...InputValidator.DEFAULT_CONFIG.suspiciousPatterns,
-        ...(customConfig?.suspiciousPatterns ?? [])
-      ]
+        ...(customConfig?.suspiciousPatterns ?? []),
+      ],
     }
   }
 
@@ -80,7 +80,7 @@ export class InputValidator {
     if (messages.length > this.config.maxMessagesCount) {
       return {
         isValid: false,
-        reason: `Too many messages: ${messages.length} exceeds limit of ${this.config.maxMessagesCount}`
+        reason: `Too many messages: ${messages.length} exceeds limit of ${this.config.maxMessagesCount}`,
       }
     }
 
@@ -88,12 +88,12 @@ export class InputValidator {
 
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i]
-      
+
       // Validate message structure
       if (!message || typeof message !== 'object') {
         return {
           isValid: false,
-          reason: `Invalid message structure at index ${i}`
+          reason: `Invalid message structure at index ${i}`,
         }
       }
 
@@ -101,7 +101,7 @@ export class InputValidator {
       if (!message.role || !this.config.allowedRoles.has(message.role)) {
         return {
           isValid: false,
-          reason: `Invalid or missing role at index ${i}: ${message.role}`
+          reason: `Invalid or missing role at index ${i}: ${message.role}`,
         }
       }
 
@@ -111,13 +111,13 @@ export class InputValidator {
         if (!contentValidation.isValid) {
           return {
             isValid: false,
-            reason: `Invalid content at index ${i}: ${contentValidation.reason}`
+            reason: `Invalid content at index ${i}: ${contentValidation.reason}`,
           }
         }
 
         sanitizedMessages.push({
           ...message,
-          content: contentValidation.sanitizedContent
+          content: contentValidation.sanitizedContent,
         })
       } else {
         // Handle messages without content (e.g., tool calls)
@@ -127,7 +127,7 @@ export class InputValidator {
 
     return {
       isValid: true,
-      sanitizedContent: JSON.stringify(sanitizedMessages)
+      sanitizedContent: JSON.stringify(sanitizedMessages),
     }
   }
 
@@ -139,7 +139,7 @@ export class InputValidator {
     if (typeof content !== 'string') {
       return {
         isValid: false,
-        reason: 'Content must be a string'
+        reason: 'Content must be a string',
       }
     }
 
@@ -147,7 +147,7 @@ export class InputValidator {
     if (content.length > this.config.maxMessageLength) {
       return {
         isValid: false,
-        reason: `Content too long: ${content.length} exceeds limit of ${this.config.maxMessageLength}`
+        reason: `Content too long: ${content.length} exceeds limit of ${this.config.maxMessageLength}`,
       }
     }
 
@@ -156,7 +156,7 @@ export class InputValidator {
       if (pattern.test(content)) {
         return {
           isValid: false,
-          reason: `Content contains blocked pattern: ${pattern.source}`
+          reason: `Content contains blocked pattern: ${pattern.source}`,
         }
       }
     }
@@ -183,7 +183,7 @@ export class InputValidator {
 
     return {
       isValid: true,
-      sanitizedContent
+      sanitizedContent,
     }
   }
 
@@ -199,19 +199,19 @@ export class InputValidator {
     if (!boardContext.id || !boardContext.name) {
       return {
         isValid: false,
-        reason: 'Board context missing required id or name'
+        reason: 'Board context missing required id or name',
       }
     }
 
     // Validate field types and sanitize
     const sanitized = {
       id: String(boardContext.id).substring(0, 100), // Limit ID length
-      name: this.sanitizeText(String(boardContext.name), 200) // Limit name length
+      name: this.sanitizeText(String(boardContext.name), 200), // Limit name length
     }
 
     return {
       isValid: true,
-      sanitizedContent: JSON.stringify(sanitized)
+      sanitizedContent: JSON.stringify(sanitized),
     }
   }
 
@@ -231,7 +231,7 @@ export class InputValidator {
       if (!promptValidation.isValid) {
         return {
           isValid: false,
-          reason: `Invalid worker system prompt: ${promptValidation.reason}`
+          reason: `Invalid worker system prompt: ${promptValidation.reason}`,
         }
       }
       sanitized.systemPrompt = promptValidation.sanitizedContent
@@ -248,7 +248,7 @@ export class InputValidator {
 
     return {
       isValid: true,
-      sanitizedContent: JSON.stringify(sanitized)
+      sanitizedContent: JSON.stringify(sanitized),
     }
   }
 
@@ -257,7 +257,7 @@ export class InputValidator {
    */
   private sanitizeText(text: string, maxLength: number): string {
     let sanitized = text
-    
+
     // Remove suspicious patterns
     for (const pattern of this.config.suspiciousPatterns) {
       sanitized = sanitized.replace(pattern, match => {
@@ -284,7 +284,7 @@ export class InputValidator {
         /bypass\s+(?:security|safety|restrictions)/i,
         /override\s+(?:system|safety|security)/i,
         /disable\s+(?:safety|security|filters?)/i,
-      ]
+      ],
     })
   }
 
@@ -299,7 +299,7 @@ export class InputValidator {
         // Only the most critical patterns
         /ignore\s+(?:all\s+)?(?:previous\s+)?(?:system\s+)?instructions?/i,
         /you\s+are\s+now\s+(?:a\s+)?different/i,
-      ]
+      ],
     })
   }
 }

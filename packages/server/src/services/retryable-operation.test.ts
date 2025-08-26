@@ -22,14 +22,15 @@ describe('RetryableOperation', () => {
     })
 
     it('should retry on failure and eventually succeed', async () => {
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('Network error'))
         .mockRejectedValueOnce(new Error('ECONNRESET'))
         .mockResolvedValue('success')
 
       const retryable = new RetryableOperation({
         maxRetries: 3,
-        baseDelay: 100
+        baseDelay: 100,
       })
 
       const executePromise = retryable.execute(operation)
@@ -50,7 +51,7 @@ describe('RetryableOperation', () => {
 
       const retryable = new RetryableOperation({
         maxRetries: 2,
-        baseDelay: 100
+        baseDelay: 100,
       })
 
       const executePromise = retryable.execute(operation)
@@ -76,13 +77,14 @@ describe('RetryableOperation', () => {
     })
 
     it('should retry network errors by default', async () => {
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('ECONNRESET'))
         .mockResolvedValue('success')
 
       const retryable = new RetryableOperation({
         maxRetries: 2,
-        baseDelay: 100
+        baseDelay: 100,
       })
 
       const executePromise = retryable.execute(operation)
@@ -94,13 +96,14 @@ describe('RetryableOperation', () => {
     })
 
     it('should retry 5xx HTTP errors by default', async () => {
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('HTTP call failed: 500 Internal Server Error'))
         .mockResolvedValue('success')
 
       const retryable = new RetryableOperation({
         maxRetries: 2,
-        baseDelay: 100
+        baseDelay: 100,
       })
 
       const executePromise = retryable.execute(operation)
@@ -121,14 +124,15 @@ describe('RetryableOperation', () => {
     })
 
     it('should use custom retry condition', async () => {
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('Custom error'))
         .mockResolvedValue('success')
 
       const retryable = new RetryableOperation({
         maxRetries: 2,
         baseDelay: 100,
-        retryCondition: (error) => error.message.includes('Custom')
+        retryCondition: error => error.message.includes('Custom'),
       })
 
       const executePromise = retryable.execute(operation)
@@ -142,7 +146,8 @@ describe('RetryableOperation', () => {
 
   describe('Exponential backoff', () => {
     it('should increase delay exponentially', async () => {
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('ECONNRESET'))
         .mockRejectedValueOnce(new Error('ECONNRESET'))
         .mockResolvedValue('success')
@@ -153,7 +158,7 @@ describe('RetryableOperation', () => {
         baseDelay: 1000,
         backoffMultiplier: 2,
         jitterMax: 0, // No jitter for predictable testing
-        onRetry
+        onRetry,
       })
 
       const executePromise = retryable.execute(operation)
@@ -162,12 +167,12 @@ describe('RetryableOperation', () => {
       await vi.advanceTimersByTimeAsync(1000)
       // Second retry should be around 2000ms
       await vi.advanceTimersByTimeAsync(2000)
-      
+
       const result = await executePromise
 
       expect(result).toBe('success')
       expect(onRetry).toHaveBeenCalledTimes(2)
-      
+
       // Check that delays increased
       const [firstCall, secondCall] = onRetry.mock.calls
       expect(firstCall[2]).toBe(1000) // First delay
@@ -175,7 +180,8 @@ describe('RetryableOperation', () => {
     })
 
     it('should respect maximum delay', async () => {
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('ECONNRESET'))
         .mockResolvedValue('success')
 
@@ -186,7 +192,7 @@ describe('RetryableOperation', () => {
         maxDelay: 1500, // Cap delay at 1.5 seconds
         backoffMultiplier: 3,
         jitterMax: 0,
-        onRetry
+        onRetry,
       })
 
       const executePromise = retryable.execute(operation)
@@ -198,12 +204,13 @@ describe('RetryableOperation', () => {
     })
 
     it('should add jitter to prevent thundering herd', async () => {
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('ECONNRESET'))
         .mockResolvedValue('success')
 
       const onRetry = vi.fn()
-      
+
       // Mock Math.random to return predictable values
       const originalRandom = Math.random
       Math.random = vi.fn().mockReturnValue(0.5) // 50% jitter
@@ -213,7 +220,7 @@ describe('RetryableOperation', () => {
         baseDelay: 1000,
         jitterMax: 0.1, // 10% jitter
         backoffMultiplier: 1,
-        onRetry
+        onRetry,
       })
 
       const executePromise = retryable.execute(operation)
@@ -229,13 +236,14 @@ describe('RetryableOperation', () => {
 
   describe('Statistics and monitoring', () => {
     it('should return execution statistics', async () => {
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('ECONNRESET'))
         .mockResolvedValue('success')
 
       const retryable = new RetryableOperation({
         maxRetries: 2,
-        baseDelay: 100
+        baseDelay: 100,
       })
 
       const executePromise = retryable.executeWithStats(operation)
@@ -248,7 +256,8 @@ describe('RetryableOperation', () => {
     })
 
     it('should call onRetry callback with correct parameters', async () => {
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('ECONNRESET'))
         .mockRejectedValueOnce(new Error('ETIMEDOUT'))
         .mockResolvedValue('success')
@@ -257,38 +266,51 @@ describe('RetryableOperation', () => {
       const retryable = new RetryableOperation({
         maxRetries: 3,
         baseDelay: 100,
-        onRetry
+        onRetry,
       })
 
       const executePromise = retryable.execute(operation)
-      
+
       // Fast forward through retries
       for (let i = 0; i < 3; i++) {
         await vi.advanceTimersByTimeAsync(500)
       }
-      
+
       await executePromise
 
       expect(onRetry).toHaveBeenCalledTimes(2)
-      
+
       // First retry
-      expect(onRetry).toHaveBeenNthCalledWith(1, 1, 3, expect.any(Number), expect.objectContaining({
-        message: 'ECONNRESET'
-      }))
-      
+      expect(onRetry).toHaveBeenNthCalledWith(
+        1,
+        1,
+        3,
+        expect.any(Number),
+        expect.objectContaining({
+          message: 'ECONNRESET',
+        })
+      )
+
       // Second retry
-      expect(onRetry).toHaveBeenNthCalledWith(2, 2, 3, expect.any(Number), expect.objectContaining({
-        message: 'ETIMEDOUT'
-      }))
+      expect(onRetry).toHaveBeenNthCalledWith(
+        2,
+        2,
+        3,
+        expect.any(Number),
+        expect.objectContaining({
+          message: 'ETIMEDOUT',
+        })
+      )
     })
   })
 
   describe('Pre-configured strategies', () => {
     it('should create HTTP-optimized retryable operation', async () => {
       const httpRetryable = RetryableOperation.forHttp()
-      
+
       // Should retry 5xx errors
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('fetch failed: 500'))
         .mockResolvedValue('success')
 
@@ -302,9 +324,10 @@ describe('RetryableOperation', () => {
 
     it('should create database-optimized retryable operation', async () => {
       const dbRetryable = RetryableOperation.forDatabase()
-      
+
       // Should retry database connection errors
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('database connection timeout'))
         .mockResolvedValue('success')
 
@@ -318,9 +341,10 @@ describe('RetryableOperation', () => {
 
     it('should create aggressive retry strategy', async () => {
       const aggressiveRetryable = RetryableOperation.aggressive()
-      
+
       // Should retry any error
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('Any error'))
         .mockResolvedValue('success')
 
@@ -334,15 +358,18 @@ describe('RetryableOperation', () => {
 
     it('should create conservative retry strategy', async () => {
       const conservativeRetryable = RetryableOperation.conservative()
-      
+
       // Should only retry obvious network errors
       const validationError = vi.fn().mockRejectedValue(new Error('Validation failed'))
-      const networkError = vi.fn()
+      const networkError = vi
+        .fn()
         .mockRejectedValueOnce(new Error('network timeout'))
         .mockResolvedValue('success')
 
       // Should not retry validation error
-      await expect(conservativeRetryable.execute(validationError)).rejects.toThrow('Validation failed')
+      await expect(conservativeRetryable.execute(validationError)).rejects.toThrow(
+        'Validation failed'
+      )
       expect(validationError).toHaveBeenCalledTimes(1)
 
       // Should retry network error
@@ -358,14 +385,15 @@ describe('RetryableOperation', () => {
   describe('Concurrent operations', () => {
     it('should execute multiple operations with individual retry logic', async () => {
       const op1 = vi.fn().mockResolvedValue('result1')
-      const op2 = vi.fn()
+      const op2 = vi
+        .fn()
         .mockRejectedValueOnce(new Error('ECONNRESET'))
         .mockResolvedValue('result2')
       const op3 = vi.fn().mockResolvedValue('result3')
 
       const executePromise = RetryableOperation.executeAll([op1, op2, op3], {
         maxRetries: 2,
-        baseDelay: 100
+        baseDelay: 100,
       })
 
       await vi.advanceTimersByTimeAsync(200)
@@ -378,17 +406,19 @@ describe('RetryableOperation', () => {
     })
 
     it('should execute operations with different strategies', async () => {
-      const httpOp = vi.fn()
+      const httpOp = vi
+        .fn()
         .mockRejectedValueOnce(new Error('HTTP 500'))
         .mockResolvedValue('http-result')
-      
-      const dbOp = vi.fn()
+
+      const dbOp = vi
+        .fn()
         .mockRejectedValueOnce(new Error('database locked'))
         .mockResolvedValue('db-result')
 
       const executePromise = RetryableOperation.executeWithStrategies([
         { operation: httpOp, strategy: RetryableOperation.forHttp() },
-        { operation: dbOp, strategy: RetryableOperation.forDatabase() }
+        { operation: dbOp, strategy: RetryableOperation.forDatabase() },
       ])
 
       await vi.advanceTimersByTimeAsync(2000)
@@ -402,14 +432,12 @@ describe('RetryableOperation', () => {
 
   describe('Error handling edge cases', () => {
     it('should handle non-Error thrown values', async () => {
-      const operation = vi.fn()
-        .mockRejectedValueOnce('string error')
-        .mockResolvedValue('success')
+      const operation = vi.fn().mockRejectedValueOnce('string error').mockResolvedValue('success')
 
       const retryable = new RetryableOperation({
         maxRetries: 2,
         baseDelay: 100,
-        retryCondition: () => true
+        retryCondition: () => true,
       })
 
       const executePromise = retryable.execute(operation)

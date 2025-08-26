@@ -1,12 +1,12 @@
 import type { Store } from '@livestore/livestore'
 import { ConversationHistory } from './conversation-history.js'
 import { ToolExecutor } from './tool-executor.js'
-import type { 
-  LLMProvider, 
-  AgenticLoopContext, 
-  AgenticLoopEvents, 
+import type {
+  LLMProvider,
+  AgenticLoopContext,
+  AgenticLoopEvents,
   LLMMessage,
-  LLMResponse
+  LLMResponse,
 } from './types.js'
 
 export class AgenticLoop {

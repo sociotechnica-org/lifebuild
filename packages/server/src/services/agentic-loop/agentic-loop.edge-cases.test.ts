@@ -49,63 +49,65 @@ describe('AgenticLoop Edge Cases', () => {
   describe('Maximum iterations handling', () => {
     it('should respect environment variable for max iterations', async () => {
       process.env.LLM_MAX_ITERATIONS = '7'
-      
+
       const customLoop = new AgenticLoop(mockStore, mockLLMProvider, mockEvents)
-      
+
       // Mock infinite loop scenario
       mockLLMProvider.call = vi.fn().mockResolvedValue({
         message: '',
-        toolCalls: [{ id: 'call-1', type: 'function' as const, function: { name: 'test', arguments: '{}' } }]
+        toolCalls: [
+          { id: 'call-1', type: 'function' as const, function: { name: 'test', arguments: '{}' } },
+        ],
       })
-      
+
       const mockToolExecutor = customLoop['toolExecutor']
       mockToolExecutor.executeTools = vi.fn().mockResolvedValue([])
-      
+
       await customLoop.run('Test message', { model: 'gpt-4' })
-      
+
       expect(mockEvents.onError).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: expect.stringContaining('Maximum iterations reached (7)')
+          message: expect.stringContaining('Maximum iterations reached (7)'),
         }),
         7
       )
-      
+
       delete process.env.LLM_MAX_ITERATIONS
     })
 
     it('should handle invalid environment variable gracefully', async () => {
       process.env.LLM_MAX_ITERATIONS = 'invalid-number'
-      
+
       const customLoop = new AgenticLoop(mockStore, mockLLMProvider, mockEvents)
-      
+
       mockLLMProvider.call = vi.fn().mockResolvedValue({
         message: 'Final response',
-        toolCalls: []
+        toolCalls: [],
       })
-      
+
       await customLoop.run('Test message', { model: 'gpt-4' })
-      
+
       // Should use default of 15
       expect(mockLLMProvider.call).toHaveBeenCalled()
-      
+
       delete process.env.LLM_MAX_ITERATIONS
     })
 
     it('should handle negative max iterations', async () => {
       process.env.LLM_MAX_ITERATIONS = '-5'
-      
+
       const customLoop = new AgenticLoop(mockStore, mockLLMProvider, mockEvents)
-      
+
       mockLLMProvider.call = vi.fn().mockResolvedValue({
         message: 'Final response',
-        toolCalls: []
+        toolCalls: [],
       })
-      
+
       await customLoop.run('Test message', { model: 'gpt-4' })
-      
+
       // Should enforce minimum of 1
       expect(mockLLMProvider.call).toHaveBeenCalled()
-      
+
       delete process.env.LLM_MAX_ITERATIONS
     })
   })
@@ -115,23 +117,23 @@ describe('AgenticLoop Edge Cases', () => {
       const identicalToolCall = {
         id: 'call-1',
         type: 'function' as const,
-        function: { name: 'test_tool', arguments: '{"param": "value"}' }
+        function: { name: 'test_tool', arguments: '{"param": "value"}' },
       }
-      
+
       mockLLMProvider.call = vi.fn().mockResolvedValue({
         message: '',
-        toolCalls: [identicalToolCall]
+        toolCalls: [identicalToolCall],
       })
-      
+
       const mockToolExecutor = agenticLoop['toolExecutor']
       mockToolExecutor.executeTools = vi.fn().mockResolvedValue([])
-      
+
       await agenticLoop.run('Test message', { model: 'gpt-4' })
-      
+
       // Should detect stuck loop after 3 identical calls
       expect(mockEvents.onError).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Stuck loop detected: Repeating same tool calls'
+          message: 'Stuck loop detected: Repeating same tool calls',
         }),
         expect.any(Number)
       )
@@ -141,15 +143,15 @@ describe('AgenticLoop Edge Cases', () => {
       const toolCall1 = {
         id: 'call-1',
         type: 'function' as const,
-        function: { name: 'test_tool', arguments: '{"param": "value1"}' }
+        function: { name: 'test_tool', arguments: '{"param": "value1"}' },
       }
-      
+
       const toolCall2 = {
         id: 'call-2',
         type: 'function' as const,
-        function: { name: 'test_tool', arguments: '{"param": "value2"}' }
+        function: { name: 'test_tool', arguments: '{"param": "value2"}' },
       }
-      
+
       let callCount = 0
       mockLLMProvider.call = vi.fn().mockImplementation(() => {
         callCount++
@@ -161,16 +163,16 @@ describe('AgenticLoop Edge Cases', () => {
           return Promise.resolve({ message: 'Done', toolCalls: [] })
         }
       })
-      
+
       const mockToolExecutor = agenticLoop['toolExecutor']
       mockToolExecutor.executeTools = vi.fn().mockResolvedValue([])
-      
+
       await agenticLoop.run('Test message', { model: 'gpt-4' })
-      
+
       // Should complete successfully without stuck loop detection
       expect(mockEvents.onError).not.toHaveBeenCalledWith(
         expect.objectContaining({
-          message: expect.stringContaining('Stuck loop')
+          message: expect.stringContaining('Stuck loop'),
         }),
         expect.any(Number)
       )
@@ -180,15 +182,15 @@ describe('AgenticLoop Edge Cases', () => {
       const toolCall1 = {
         id: 'call-1',
         type: 'function' as const,
-        function: { name: 'tool_a', arguments: '{}' }
+        function: { name: 'tool_a', arguments: '{}' },
       }
-      
+
       const toolCall2 = {
         id: 'call-2',
         type: 'function' as const,
-        function: { name: 'tool_b', arguments: '{}' }
+        function: { name: 'tool_b', arguments: '{}' },
       }
-      
+
       let callCount = 0
       mockLLMProvider.call = vi.fn().mockImplementation(() => {
         callCount++
@@ -200,12 +202,12 @@ describe('AgenticLoop Edge Cases', () => {
           return Promise.resolve({ message: 'Final answer', toolCalls: [] })
         }
       })
-      
+
       const mockToolExecutor = agenticLoop['toolExecutor']
       mockToolExecutor.executeTools = vi.fn().mockResolvedValue([])
-      
+
       await agenticLoop.run('Test message', { model: 'gpt-4' })
-      
+
       // Should complete without stuck loop (alternating is allowed)
       expect(mockEvents.onComplete).toHaveBeenCalled()
     })
@@ -215,32 +217,39 @@ describe('AgenticLoop Edge Cases', () => {
     it('should handle empty LLM responses', async () => {
       mockLLMProvider.call = vi.fn().mockResolvedValue({
         message: null,
-        toolCalls: null
+        toolCalls: null,
       })
-      
+
       await agenticLoop.run('Test message', { model: 'gpt-4' })
-      
+
       expect(mockEvents.onComplete).toHaveBeenCalled()
     })
 
     it('should handle LLM responses with empty message but tool calls', async () => {
-      mockLLMProvider.call = vi.fn()
+      mockLLMProvider.call = vi
+        .fn()
         .mockResolvedValueOnce({
           message: '',
-          toolCalls: [{ id: 'call-1', type: 'function' as const, function: { name: 'test', arguments: '{}' } }]
+          toolCalls: [
+            {
+              id: 'call-1',
+              type: 'function' as const,
+              function: { name: 'test', arguments: '{}' },
+            },
+          ],
         })
         .mockResolvedValueOnce({
           message: 'Tool execution complete',
-          toolCalls: []
+          toolCalls: [],
         })
-      
+
       const mockToolExecutor = agenticLoop['toolExecutor']
-      mockToolExecutor.executeTools = vi.fn().mockResolvedValue([
-        { role: 'tool', content: 'Tool result', tool_call_id: 'call-1' }
-      ])
-      
+      mockToolExecutor.executeTools = vi
+        .fn()
+        .mockResolvedValue([{ role: 'tool', content: 'Tool result', tool_call_id: 'call-1' }])
+
       await agenticLoop.run('Test message', { model: 'gpt-4' })
-      
+
       expect(mockEvents.onFinalMessage).toHaveBeenCalledWith('Tool execution complete')
     })
 
@@ -251,15 +260,15 @@ describe('AgenticLoop Edge Cases', () => {
           null, // Invalid tool call
           { id: 'call-1' }, // Missing function
           { function: { name: 'test' } }, // Missing id
-          { id: 'call-2', type: 'function', function: { name: 'valid_tool', arguments: '{}' } }
-        ] as any
+          { id: 'call-2', type: 'function', function: { name: 'valid_tool', arguments: '{}' } },
+        ] as any,
       })
-      
+
       const mockToolExecutor = agenticLoop['toolExecutor']
       mockToolExecutor.executeTools = vi.fn().mockResolvedValue([])
-      
+
       await agenticLoop.run('Test message', { model: 'gpt-4' })
-      
+
       // Should attempt to execute tools despite malformed ones
       expect(mockToolExecutor.executeTools).toHaveBeenCalled()
     })
@@ -267,11 +276,11 @@ describe('AgenticLoop Edge Cases', () => {
     it('should handle whitespace-only messages', async () => {
       mockLLMProvider.call = vi.fn().mockResolvedValue({
         message: '   \n\t  \n   ',
-        toolCalls: []
+        toolCalls: [],
       })
-      
+
       await agenticLoop.run('Test message', { model: 'gpt-4' })
-      
+
       // Should complete successfully even with whitespace-only message
       expect(mockEvents.onComplete).toHaveBeenCalled()
     })
@@ -279,38 +288,56 @@ describe('AgenticLoop Edge Cases', () => {
 
   describe('Tool execution edge cases', () => {
     it('should handle tool execution errors gracefully', async () => {
-      mockLLMProvider.call = vi.fn()
+      mockLLMProvider.call = vi
+        .fn()
         .mockResolvedValueOnce({
           message: '',
-          toolCalls: [{ id: 'call-1', type: 'function' as const, function: { name: 'failing_tool', arguments: '{}' } }]
+          toolCalls: [
+            {
+              id: 'call-1',
+              type: 'function' as const,
+              function: { name: 'failing_tool', arguments: '{}' },
+            },
+          ],
         })
         .mockResolvedValueOnce({
           message: 'Handled the error',
-          toolCalls: []
+          toolCalls: [],
         })
-      
+
       const mockToolExecutor = agenticLoop['toolExecutor']
-      mockToolExecutor.executeTools = vi.fn().mockRejectedValueOnce(new Error('Tool execution failed'))
-      
-      await expect(agenticLoop.run('Test message', { model: 'gpt-4' })).rejects.toThrow('Tool execution failed')
+      mockToolExecutor.executeTools = vi
+        .fn()
+        .mockRejectedValueOnce(new Error('Tool execution failed'))
+
+      await expect(agenticLoop.run('Test message', { model: 'gpt-4' })).rejects.toThrow(
+        'Tool execution failed'
+      )
     })
 
     it('should handle empty tool results', async () => {
-      mockLLMProvider.call = vi.fn()
+      mockLLMProvider.call = vi
+        .fn()
         .mockResolvedValueOnce({
           message: '',
-          toolCalls: [{ id: 'call-1', type: 'function' as const, function: { name: 'test_tool', arguments: '{}' } }]
+          toolCalls: [
+            {
+              id: 'call-1',
+              type: 'function' as const,
+              function: { name: 'test_tool', arguments: '{}' },
+            },
+          ],
         })
         .mockResolvedValueOnce({
           message: 'Processed empty results',
-          toolCalls: []
+          toolCalls: [],
         })
-      
+
       const mockToolExecutor = agenticLoop['toolExecutor']
       mockToolExecutor.executeTools = vi.fn().mockResolvedValue([])
-      
+
       await agenticLoop.run('Test message', { model: 'gpt-4' })
-      
+
       expect(mockEvents.onToolsComplete).toHaveBeenCalledWith([])
       expect(mockEvents.onFinalMessage).toHaveBeenCalledWith('Processed empty results')
     })
@@ -319,24 +346,31 @@ describe('AgenticLoop Edge Cases', () => {
       const largeToolResult = {
         role: 'tool' as const,
         content: 'x'.repeat(100000), // 100KB of data
-        tool_call_id: 'call-1'
+        tool_call_id: 'call-1',
       }
-      
-      mockLLMProvider.call = vi.fn()
+
+      mockLLMProvider.call = vi
+        .fn()
         .mockResolvedValueOnce({
           message: '',
-          toolCalls: [{ id: 'call-1', type: 'function' as const, function: { name: 'large_data_tool', arguments: '{}' } }]
+          toolCalls: [
+            {
+              id: 'call-1',
+              type: 'function' as const,
+              function: { name: 'large_data_tool', arguments: '{}' },
+            },
+          ],
         })
         .mockResolvedValueOnce({
           message: 'Processed large data',
-          toolCalls: []
+          toolCalls: [],
         })
-      
+
       const mockToolExecutor = agenticLoop['toolExecutor']
       mockToolExecutor.executeTools = vi.fn().mockResolvedValue([largeToolResult])
-      
+
       await agenticLoop.run('Test message', { model: 'gpt-4' })
-      
+
       expect(mockEvents.onToolsComplete).toHaveBeenCalledWith([largeToolResult])
     })
   })
@@ -345,15 +379,15 @@ describe('AgenticLoop Edge Cases', () => {
     it('should handle missing board context gracefully', async () => {
       mockLLMProvider.call = vi.fn().mockResolvedValue({
         message: 'Response without board context',
-        toolCalls: []
+        toolCalls: [],
       })
-      
+
       await agenticLoop.run('Test message', {
         model: 'gpt-4',
         boardContext: undefined,
-        workerContext: undefined
+        workerContext: undefined,
       })
-      
+
       expect(mockLLMProvider.call).toHaveBeenCalledWith(
         expect.any(Array),
         undefined,
@@ -366,32 +400,32 @@ describe('AgenticLoop Edge Cases', () => {
     it('should handle malformed worker context', async () => {
       mockLLMProvider.call = vi.fn().mockResolvedValue({
         message: 'Response with malformed context',
-        toolCalls: []
+        toolCalls: [],
       })
-      
+
       const malformedWorkerContext = {
         name: null,
         systemPrompt: undefined,
-        extraField: 'should be ignored'
+        extraField: 'should be ignored',
       } as any
-      
+
       await agenticLoop.run('Test message', {
         model: 'gpt-4',
-        workerContext: malformedWorkerContext
+        workerContext: malformedWorkerContext,
       })
-      
+
       expect(mockLLMProvider.call).toHaveBeenCalled()
     })
 
     it('should handle model parameter edge cases', async () => {
       mockLLMProvider.call = vi.fn().mockResolvedValue({
         message: 'Response with edge case model',
-        toolCalls: []
+        toolCalls: [],
       })
-      
+
       // Test with empty string model
       await agenticLoop.run('Test message', { model: '' })
-      
+
       expect(mockLLMProvider.call).toHaveBeenCalledWith(
         expect.any(Array),
         undefined,
@@ -405,15 +439,13 @@ describe('AgenticLoop Edge Cases', () => {
   describe('Event handling edge cases', () => {
     it('should handle missing event callbacks gracefully', async () => {
       const loopWithoutEvents = new AgenticLoop(mockStore, mockLLMProvider, {})
-      
+
       mockLLMProvider.call = vi.fn().mockResolvedValue({
         message: 'Response without events',
-        toolCalls: []
+        toolCalls: [],
       })
-      
-      await expect(
-        loopWithoutEvents.run('Test message', { model: 'gpt-4' })
-      ).resolves.not.toThrow()
+
+      await expect(loopWithoutEvents.run('Test message', { model: 'gpt-4' })).resolves.not.toThrow()
     })
 
     it('should handle event callback errors gracefully', async () => {
@@ -422,55 +454,68 @@ describe('AgenticLoop Edge Cases', () => {
           throw new Error('Event callback failed')
         }),
         onFinalMessage: vi.fn(),
-        onComplete: vi.fn()
+        onComplete: vi.fn(),
       }
-      
+
       const loopWithBadEvents = new AgenticLoop(mockStore, mockLLMProvider, eventsWithErrors)
-      
+
       mockLLMProvider.call = vi.fn().mockResolvedValue({
         message: 'Final message',
-        toolCalls: []
+        toolCalls: [],
       })
-      
-      await expect(
-        loopWithBadEvents.run('Test message', { model: 'gpt-4' })
-      ).rejects.toThrow('Event callback failed')
+
+      await expect(loopWithBadEvents.run('Test message', { model: 'gpt-4' })).rejects.toThrow(
+        'Event callback failed'
+      )
     })
 
     it('should provide iteration warnings at correct thresholds', async () => {
       process.env.LLM_MAX_ITERATIONS = '10'
-      
+
       const loopWithWarnings = new AgenticLoop(mockStore, mockLLMProvider, mockEvents)
-      
+
       let callCount = 0
       mockLLMProvider.call = vi.fn().mockImplementation(() => {
         callCount++
-        if (callCount < 8) { // 80% of 10
+        if (callCount < 8) {
+          // 80% of 10
           return Promise.resolve({
             message: '',
-            toolCalls: [{ id: `call-${callCount}`, type: 'function' as const, function: { name: 'test', arguments: '{}' } }]
+            toolCalls: [
+              {
+                id: `call-${callCount}`,
+                type: 'function' as const,
+                function: { name: 'test', arguments: '{}' },
+              },
+            ],
           })
         } else if (callCount === 8) {
           return Promise.resolve({
             message: '',
-            toolCalls: [{ id: `call-${callCount}`, type: 'function' as const, function: { name: 'test', arguments: '{}' } }]
+            toolCalls: [
+              {
+                id: `call-${callCount}`,
+                type: 'function' as const,
+                function: { name: 'test', arguments: '{}' },
+              },
+            ],
           })
         } else {
           return Promise.resolve({ message: 'Final message', toolCalls: [] })
         }
       })
-      
+
       const mockToolExecutor = loopWithWarnings['toolExecutor']
       mockToolExecutor.executeTools = vi.fn().mockResolvedValue([])
-      
+
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      
+
       await loopWithWarnings.run('Test message', { model: 'gpt-4' })
-      
+
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Approaching iteration limit (8/10)')
       )
-      
+
       consoleSpy.mockRestore()
       delete process.env.LLM_MAX_ITERATIONS
     })
@@ -482,26 +527,24 @@ describe('AgenticLoop Edge Cases', () => {
         role: 'user' as const,
         content: `Message ${i}`,
       }))
-      
+
       const loopWithLargeHistory = new AgenticLoop(
         mockStore,
         mockLLMProvider,
         mockEvents,
         largeHistory
       )
-      
+
       mockLLMProvider.call = vi.fn().mockResolvedValue({
         message: 'Handled large history',
-        toolCalls: []
+        toolCalls: [],
       })
-      
+
       await loopWithLargeHistory.run('New message', { model: 'gpt-4' })
-      
+
       // Should pass all history messages plus the new user message and system prompt
       expect(mockLLMProvider.call).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.objectContaining({ role: 'user', content: 'New message' })
-        ]),
+        expect.arrayContaining([expect.objectContaining({ role: 'user', content: 'New message' })]),
         undefined,
         'gpt-4',
         undefined,
@@ -510,21 +553,19 @@ describe('AgenticLoop Edge Cases', () => {
     })
 
     it('should clear history correctly', () => {
-      const initialHistory = [
-        { role: 'user' as const, content: 'Test message' }
-      ]
-      
+      const initialHistory = [{ role: 'user' as const, content: 'Test message' }]
+
       const loopWithHistory = new AgenticLoop(
         mockStore,
         mockLLMProvider,
         mockEvents,
         initialHistory
       )
-      
+
       expect(loopWithHistory.getHistory().getMessageCount()).toBe(1)
-      
+
       loopWithHistory.clearHistory()
-      
+
       expect(loopWithHistory.getHistory().getMessageCount()).toBe(0)
     })
   })

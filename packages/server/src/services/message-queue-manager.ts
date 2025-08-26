@@ -19,20 +19,22 @@ export class MessageQueueManager {
    */
   enqueue(conversationId: string, message: any): void {
     const queue = this.queues.get(conversationId) || []
-    
+
     // Check queue size limit
     if (queue.length >= this.maxQueueSize) {
-      throw new Error(`Message queue overflow for conversation ${conversationId}: ${queue.length} messages`)
+      throw new Error(
+        `Message queue overflow for conversation ${conversationId}: ${queue.length} messages`
+      )
     }
-    
+
     // Add message with timestamp
-    queue.push({ 
-      message, 
-      timestamp: Date.now() 
+    queue.push({
+      message,
+      timestamp: Date.now(),
     })
-    
+
     this.queues.set(conversationId, queue)
-    
+
     // Clean stale messages immediately for this conversation
     this.cleanStaleMessages(conversationId)
   }
@@ -47,12 +49,12 @@ export class MessageQueueManager {
     }
 
     const queuedMessage = queue.shift()
-    
+
     // Remove empty queue
     if (queue.length === 0) {
       this.queues.delete(conversationId)
     }
-    
+
     return queuedMessage?.message || null
   }
 
@@ -130,9 +132,7 @@ export class MessageQueueManager {
 
     if (freshMessages.length !== queue.length) {
       const staleCount = queue.length - freshMessages.length
-      console.warn(
-        `🧹 Cleaned ${staleCount} stale messages from conversation ${conversationId}`
-      )
+      console.warn(`🧹 Cleaned ${staleCount} stale messages from conversation ${conversationId}`)
 
       if (freshMessages.length === 0) {
         this.queues.delete(conversationId)
@@ -169,7 +169,9 @@ export class MessageQueueManager {
     }
 
     if (totalCleaned > 0) {
-      console.log(`🧹 Periodic cleanup: removed ${totalCleaned} stale messages from ${conversationIds.length} conversations`)
+      console.log(
+        `🧹 Periodic cleanup: removed ${totalCleaned} stale messages from ${conversationIds.length} conversations`
+      )
     }
   }
 
@@ -181,7 +183,7 @@ export class MessageQueueManager {
       clearInterval(this.cleanupTimer)
       this.cleanupTimer = undefined
     }
-    
+
     // Clear all queues
     this.queues.clear()
   }

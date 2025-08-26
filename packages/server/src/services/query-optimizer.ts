@@ -51,7 +51,7 @@ export class QueryOptimizer {
     }
   ): Promise<T[]> {
     const cacheKey = options?.cacheKey || this.generateCacheKey(query)
-    
+
     // Check cache first (unless skipped)
     if (!options?.skipCache) {
       const cached = this.getFromCache<T>(cacheKey)
@@ -85,7 +85,7 @@ export class QueryOptimizer {
     const promises = queries.map(({ query, cacheKey, cacheTTL, skipCache }) =>
       this.query<T>(query, { cacheKey, cacheTTL, skipCache })
     )
-    
+
     return Promise.all(promises)
   }
 
@@ -123,22 +123,18 @@ export class QueryOptimizer {
   /**
    * Batch similar queries together
    */
-  private async batchQuery<T>(
-    query: any,
-    cacheKey: string,
-    cacheTTL?: number
-  ): Promise<T[]> {
+  private async batchQuery<T>(query: any, cacheKey: string, cacheTTL?: number): Promise<T[]> {
     return new Promise<T[]>((resolve, reject) => {
       const batchKey = this.generateBatchKey(query)
-      
+
       // Add to batch
       const batch: QueryBatch<T> = {
         key: cacheKey,
         query,
         resolver: resolve,
-        rejecter: reject
+        rejecter: reject,
       }
-      
+
       if (!this.queryBatches.has(batchKey)) {
         this.queryBatches.set(batchKey, [])
       }
@@ -149,7 +145,7 @@ export class QueryOptimizer {
         const timer = setTimeout(() => {
           this.executeBatch(batchKey, cacheTTL)
         }, this.batchTimeout)
-        
+
         this.batchTimers.set(batchKey, timer)
       }
     })
@@ -185,13 +181,13 @@ export class QueryOptimizer {
       // Process results and resolve/reject promises
       results.forEach((result, index) => {
         const batch = batches[index]
-        
+
         if (result.status === 'fulfilled') {
           const data = result.value
-          
+
           // Cache the result
           this.setCache(batch.key, data, cacheTTL)
-          
+
           // Resolve the promise
           batch.resolver(data)
         } else {
@@ -199,7 +195,6 @@ export class QueryOptimizer {
           batch.rejecter(result.reason)
         }
       })
-      
     } catch (error) {
       // If batch execution fails, reject all promises
       batches.forEach(batch => {
@@ -230,7 +225,7 @@ export class QueryOptimizer {
       // Extract table name or operation type
       const tableMatch = serialized.match(/"table":\s*"([^"]+)"/)
       const operationMatch = serialized.match(/"operation":\s*"([^"]+)"/)
-      
+
       return `batch:${tableMatch?.[1] || 'unknown'}:${operationMatch?.[1] || 'select'}`
     } catch {
       return 'batch:unknown'
@@ -265,7 +260,7 @@ export class QueryOptimizer {
     this.queryCache.set(key, {
       data,
       timestamp: Date.now(),
-      ttl: ttl || this.defaultCacheTTL
+      ttl: ttl || this.defaultCacheTTL,
     })
   }
 
@@ -328,13 +323,13 @@ export class QueryOptimizer {
     const entries = Array.from(this.queryCache.entries()).map(([key, entry]) => ({
       key,
       age: now - entry.timestamp,
-      ttl: entry.ttl
+      ttl: entry.ttl,
     }))
 
     return {
       size: this.queryCache.size,
       maxSize: this.maxCacheSize,
-      entries
+      entries,
     }
   }
 
@@ -355,10 +350,10 @@ export class QueryOptimizer {
       clearTimeout(timer)
     }
     this.batchTimers.clear()
-    
+
     // Clear batches
     this.queryBatches.clear()
-    
+
     // Clear cache
     this.clearCache()
   }
@@ -385,7 +380,7 @@ export class QueryPatterns {
       {
         query: queryDb(tables.conversations.select().where('id', '=', conversationId)),
         cacheKey: `conversation:${conversationId}`,
-        cacheTTL: 10000 // 10 seconds for conversation data
+        cacheTTL: 10000, // 10 seconds for conversation data
       },
       {
         query: queryDb(
@@ -395,8 +390,8 @@ export class QueryPatterns {
             .orderBy('createdAt', 'asc')
         ),
         cacheKey: `chat-history:${conversationId}`,
-        cacheTTL: 5000 // 5 seconds for chat history
-      }
+        cacheTTL: 5000, // 5 seconds for chat history
+      },
     ])
 
     const conversation = conversationResult[0]
@@ -409,7 +404,7 @@ export class QueryPatterns {
         queryDb(tables.workers.select().where('id', '=', conversation.workerId)),
         {
           cacheKey: `worker:${conversation.workerId}`,
-          cacheTTL: 60000 // 1 minute for worker data
+          cacheTTL: 60000, // 1 minute for worker data
         }
       )
       worker = workerResult[0]
@@ -418,7 +413,7 @@ export class QueryPatterns {
     return {
       conversation,
       worker,
-      chatHistory
+      chatHistory,
     }
   }
 
@@ -432,7 +427,7 @@ export class QueryPatterns {
     const results = await Promise.all(
       conversationIds.map(id => this.getConversationWithContext(id, tables))
     )
-    
+
     return results
   }
 
@@ -449,17 +444,14 @@ export class QueryPatterns {
       ),
       {
         cacheKey: 'active-conversations',
-        cacheTTL: 30000
+        cacheTTL: 30000,
       }
     )
 
     // Preload all workers
-    await this.optimizer.query(
-      queryDb(tables.workers.select()),
-      {
-        cacheKey: 'all-workers',
-        cacheTTL: 300000 // 5 minutes
-      }
-    )
+    await this.optimizer.query(queryDb(tables.workers.select()), {
+      cacheKey: 'all-workers',
+      cacheTTL: 300000, // 5 minutes
+    })
   }
 }

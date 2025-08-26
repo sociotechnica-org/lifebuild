@@ -8,14 +8,17 @@ describe('ResourceMonitor', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     alertCallback = vi.fn()
-    
-    monitor = new ResourceMonitor({
-      maxConcurrentLLMCalls: 5,
-      maxQueuedMessages: 100,
-      maxConversationsPerStore: 10,
-      messageRateLimit: 60, // 1 per second
-      llmCallTimeout: 5000, // 5 seconds
-    }, alertCallback)
+
+    monitor = new ResourceMonitor(
+      {
+        maxConcurrentLLMCalls: 5,
+        maxQueuedMessages: 100,
+        maxConversationsPerStore: 10,
+        messageRateLimit: 60, // 1 per second
+        llmCallTimeout: 5000, // 5 seconds
+      },
+      alertCallback
+    )
   })
 
   afterEach(() => {
@@ -26,7 +29,7 @@ describe('ResourceMonitor', () => {
   describe('LLM call management', () => {
     it('should allow LLM calls within limits', () => {
       expect(monitor.canMakeLLMCall()).toBe(true)
-      
+
       const callId1 = monitor.trackLLMCallStart()
       expect(callId1).toBeTruthy()
       expect(monitor.canMakeLLMCall()).toBe(true) // Still under limit
@@ -48,9 +51,9 @@ describe('ResourceMonitor', () => {
     it('should allow new calls after completion', () => {
       const callId = monitor.trackLLMCallStart()
       expect(monitor.canMakeLLMCall()).toBe(true)
-      
+
       monitor.trackLLMCallComplete(callId, false, 1000)
-      
+
       const metrics = monitor.getCurrentMetrics()
       expect(metrics.activeLLMCalls).toBe(0)
       expect(metrics.avgResponseTime).toBe(1000)
@@ -58,10 +61,10 @@ describe('ResourceMonitor', () => {
 
     it('should handle call timeouts', () => {
       const callId = monitor.trackLLMCallStart()
-      
+
       // Advance time past timeout
       vi.advanceTimersByTime(6000)
-      
+
       const metrics = monitor.getCurrentMetrics()
       expect(metrics.activeLLMCalls).toBe(0) // Should be decremented by timeout
     })
@@ -69,10 +72,10 @@ describe('ResourceMonitor', () => {
     it('should track response times correctly', () => {
       const callId1 = monitor.trackLLMCallStart()
       const callId2 = monitor.trackLLMCallStart()
-      
+
       monitor.trackLLMCallComplete(callId1, false, 1000)
       monitor.trackLLMCallComplete(callId2, false, 2000)
-      
+
       const metrics = monitor.getCurrentMetrics()
       expect(metrics.avgResponseTime).toBe(1500) // Average of 1000 and 2000
     })
@@ -84,7 +87,7 @@ describe('ResourceMonitor', () => {
         expect(monitor.canQueueMessage()).toBe(true)
         monitor.trackMessage()
       }
-      
+
       // Should reject the next message
       expect(monitor.canQueueMessage()).toBe(false)
     })
@@ -95,10 +98,10 @@ describe('ResourceMonitor', () => {
         monitor.trackMessage()
       }
       expect(monitor.canQueueMessage()).toBe(false)
-      
+
       // Advance time past window
       vi.advanceTimersByTime(61000) // 61 seconds
-      
+
       expect(monitor.canQueueMessage()).toBe(true)
     })
 
@@ -106,7 +109,7 @@ describe('ResourceMonitor', () => {
       for (let i = 0; i < 30; i++) {
         monitor.trackMessage()
       }
-      
+
       const metrics = monitor.getCurrentMetrics()
       expect(metrics.messageRate).toBe(30)
     })
@@ -116,17 +119,17 @@ describe('ResourceMonitor', () => {
     it('should track errors correctly', () => {
       monitor.trackError('Test error 1')
       monitor.trackError('Test error 2')
-      
+
       const metrics = monitor.getCurrentMetrics()
       expect(metrics.errorRate).toBe(2)
     })
 
     it('should clean up old errors', () => {
       monitor.trackError('Old error')
-      
+
       // Advance time past window
       vi.advanceTimersByTime(61000)
-      
+
       const metrics = monitor.getCurrentMetrics()
       expect(metrics.errorRate).toBe(0)
     })
@@ -137,7 +140,7 @@ describe('ResourceMonitor', () => {
       monitor.trackCacheHit(true)
       monitor.trackCacheHit(true)
       monitor.trackCacheHit(false)
-      
+
       const metrics = monitor.getCurrentMetrics()
       expect(metrics.cacheHitRate).toBe(67) // 2/3 * 100, rounded
     })
@@ -154,10 +157,10 @@ describe('ResourceMonitor', () => {
       for (let i = 0; i < 4; i++) {
         monitor.trackLLMCallStart()
       }
-      
+
       // Advance time to trigger metrics collection and alert checking
       vi.advanceTimersByTime(10000)
-      
+
       expect(alertCallback).toHaveBeenCalledWith(
         expect.objectContaining({
           type: 'warning',
@@ -172,10 +175,10 @@ describe('ResourceMonitor', () => {
       for (let i = 0; i < 4; i++) {
         monitor.trackLLMCallStart()
       }
-      
+
       vi.advanceTimersByTime(10000)
       vi.advanceTimersByTime(10000)
-      
+
       // Should only be called once due to deduplication
       expect(alertCallback).toHaveBeenCalledTimes(1)
     })
@@ -185,9 +188,9 @@ describe('ResourceMonitor', () => {
     it('should allow updating limits', () => {
       monitor.updateLimits({
         maxConcurrentLLMCalls: 10,
-        messageRateLimit: 120
+        messageRateLimit: 120,
       })
-      
+
       // Should now allow more LLM calls
       for (let i = 0; i < 7; i++) {
         expect(monitor.canMakeLLMCall()).toBe(true)
@@ -199,10 +202,11 @@ describe('ResourceMonitor', () => {
   describe('System stress detection', () => {
     it('should detect system under stress', () => {
       // Fill to near capacity to trigger stress detection
-      for (let i = 0; i < 4; i++) { // 80% of 5
+      for (let i = 0; i < 4; i++) {
+        // 80% of 5
         monitor.trackLLMCallStart()
       }
-      
+
       expect(monitor.isSystemUnderStress()).toBe(true)
     })
 
@@ -216,10 +220,10 @@ describe('ResourceMonitor', () => {
     it('should collect metrics over time', () => {
       monitor.trackMessage()
       monitor.trackLLMCallStart()
-      
+
       // Advance time to trigger metrics collection
       vi.advanceTimersByTime(10000)
-      
+
       const report = monitor.getResourceReport()
       expect(report.current.messageRate).toBe(1)
       expect(report.current.activeLLMCalls).toBe(1)
@@ -233,7 +237,7 @@ describe('ResourceMonitor', () => {
         }
         vi.advanceTimersByTime(10000) // Collect metrics
       }
-      
+
       const report = monitor.getResourceReport()
       // Trend calculation might be 'stable' if the algorithm needs more data points
       expect(['increasing', 'stable']).toContain(report.trends.messageRateTrend)
@@ -244,14 +248,14 @@ describe('ResourceMonitor', () => {
       monitor.trackError('Test error')
       const callId = monitor.trackLLMCallStart()
       monitor.trackLLMCallComplete(callId, false, 500)
-      
+
       const report = monitor.getResourceReport()
-      
+
       expect(report).toHaveProperty('limits')
       expect(report).toHaveProperty('current')
       expect(report).toHaveProperty('alerts')
       expect(report).toHaveProperty('trends')
-      
+
       expect(report.current.messageRate).toBe(1)
       expect(report.current.errorRate).toBe(1)
       expect(report.current.avgResponseTime).toBe(500)
@@ -275,24 +279,26 @@ describe('ResourceMonitor', () => {
       // Add some data
       monitor.trackMessage()
       monitor.trackError('Test error')
-      
+
       expect(monitor.getCurrentMetrics().messageRate).toBe(1)
       expect(monitor.getCurrentMetrics().errorRate).toBe(1)
-      
+
       // Advance time past cleanup window
       vi.advanceTimersByTime(65000) // 65 seconds
-      
+
       expect(monitor.getCurrentMetrics().messageRate).toBe(0)
       expect(monitor.getCurrentMetrics().errorRate).toBe(0)
     })
 
     it('should clean up on destroy', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-      
+
       monitor.destroy()
-      
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Resource monitoring stopped'))
-      
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Resource monitoring stopped')
+      )
+
       consoleSpy.mockRestore()
     })
 
@@ -308,7 +314,7 @@ describe('ResourceMonitor', () => {
     it('should handle negative response times', () => {
       const callId = monitor.trackLLMCallStart()
       monitor.trackLLMCallComplete(callId, false, -100)
-      
+
       const metrics = monitor.getCurrentMetrics()
       expect(metrics.avgResponseTime).toBe(-100) // Should handle gracefully
     })

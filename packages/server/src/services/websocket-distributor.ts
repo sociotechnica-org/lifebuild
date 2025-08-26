@@ -1,4 +1,4 @@
-import WebSocket from 'ws'
+import WebSocket, { type RawData } from 'ws'
 
 export interface WebSocketConfig {
   url: string
@@ -65,7 +65,7 @@ export class WebSocketDistributor {
         this.scheduleReconnect(storeId, config)
       })
 
-      ws.on('message', (data: WebSocket.Data) => {
+      ws.on('message', (data: RawData) => {
         try {
           const message = JSON.parse(data.toString())
           this.handleIncomingMessage(storeId, message)

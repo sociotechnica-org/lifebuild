@@ -7,7 +7,7 @@ import type { RecurringTask } from '@work-squared/shared/schema'
 // Mock formatInterval and formatRelativeTime
 vi.mock('@work-squared/shared', () => ({
   formatInterval: vi.fn((hours: number) => `${hours} hours`),
-  formatRelativeTime: vi.fn((timestamp: number) => 'in 2 hours'),
+  formatRelativeTime: vi.fn((_timestamp: number) => 'in 2 hours'),
 }))
 
 // Mock useQuery hook

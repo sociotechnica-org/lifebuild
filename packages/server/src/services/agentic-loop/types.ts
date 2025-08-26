@@ -127,7 +127,7 @@ export interface ProcessedEvent {
 export function isLLMMessage(obj: unknown): obj is LLMMessage {
   if (typeof obj !== 'object' || obj === null) return false
   const message = obj as Record<string, unknown>
-  
+
   return (
     typeof message.role === 'string' &&
     ['system', 'user', 'assistant', 'tool'].includes(message.role) &&
@@ -138,19 +138,13 @@ export function isLLMMessage(obj: unknown): obj is LLMMessage {
 export function isBoardContext(obj: unknown): obj is BoardContext {
   if (typeof obj !== 'object' || obj === null) return false
   const context = obj as Record<string, unknown>
-  
-  return (
-    typeof context.id === 'string' &&
-    typeof context.name === 'string'
-  )
+
+  return typeof context.id === 'string' && typeof context.name === 'string'
 }
 
 export function isWorkerContext(obj: unknown): obj is WorkerContext {
   if (typeof obj !== 'object' || obj === null) return false
   const context = obj as Record<string, unknown>
-  
-  return (
-    typeof context.name === 'string' &&
-    typeof context.systemPrompt === 'string'
-  )
+
+  return typeof context.name === 'string' && typeof context.systemPrompt === 'string'
 }
