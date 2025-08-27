@@ -5,6 +5,7 @@ import { tables, events } from '@work-squared/shared/schema'
 import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
 import { ConversationHistory } from './agentic-loop/conversation-history.js'
 import { InputValidator } from './agentic-loop/input-validator.js'
+import { ToolExecutor } from './agentic-loop/tool-executor.js'
 
 interface EventBuffer {
   events: any[]
@@ -32,6 +33,7 @@ export class EventProcessor {
   private llmProvider?: BraintrustProvider
   private inputValidator: InputValidator
   private conversationHistories: Map<string, ConversationHistory> = new Map()
+  private toolExecutors: Map<string, ToolExecutor> = new Map() // One per store
 
   // Tables to monitor for activity
   private readonly monitoredTables = [
@@ -97,6 +99,25 @@ export class EventProcessor {
     }
 
     this.storeStates.set(storeId, storeState)
+
+    // Initialize tool executor for this store
+    const toolExecutor = new ToolExecutor(store, {
+      onToolStart: toolCall => {
+        console.log(`🔧 Starting tool execution: ${toolCall.function.name} for store ${storeId}`)
+      },
+      onToolComplete: result => {
+        console.log(
+          `✅ Tool execution completed: ${result.toolCall.function.name} for store ${storeId}`
+        )
+      },
+      onToolError: (error, toolCall) => {
+        console.error(
+          `❌ Tool execution error for ${toolCall.function.name} in store ${storeId}:`,
+          error
+        )
+      },
+    })
+    this.toolExecutors.set(storeId, toolExecutor)
 
     // Monitor all important tables
     for (const tableName of this.monitoredTables) {
@@ -424,44 +445,74 @@ export class EventProcessor {
 
       console.log(`✅ LLM response received for conversation ${conversationId} in ${duration}ms`)
 
-      // Add assistant response to history
-      if (response.message) {
-        history.addAssistantMessage(response.message, response.toolCalls || undefined)
+      // Handle tool calls if present
+      if (response.toolCalls && response.toolCalls.length > 0) {
+        console.log(
+          `🔧 Processing ${response.toolCalls.length} tool call(s) for conversation ${conversationId}`
+        )
 
-        // Emit LLM response to LiveStore
-        setTimeout(() => {
-          const storeState = this.storeStates.get(storeId)
-          if (storeState?.stopping) {
-            return
-          }
+        const toolExecutor = this.toolExecutors.get(storeId)
+        if (toolExecutor) {
+          try {
+            // Execute tools and format results
+            const toolResults = await toolExecutor.executeTools(response.toolCalls)
 
-          const store = this.storeManager.getStore(storeId)
-          if (store) {
-            try {
-              store.commit(
-                events.llmResponseReceived({
-                  id: crypto.randomUUID(),
-                  conversationId,
-                  message: response.message || '',
-                  role: 'assistant',
-                  modelId: response.modelUsed,
-                  responseToMessageId: messageId,
-                  createdAt: new Date(),
-                  llmMetadata: {
-                    source: 'server-llm',
-                    duration,
-                  },
-                })
-              )
-            } catch (error) {
-              console.error(
-                `❌ Failed to emit LLM response for conversation ${conversationId}:`,
-                error
-              )
-              this.incrementErrorCount(storeId, error as Error)
+            // Create a summary message combining LLM response and tool results
+            let finalMessage = response.message || 'I executed the requested actions:'
+
+            // Add tool results to the message
+            const toolSummary = toolResults.map(result => result.content).join('\n\n')
+            if (toolSummary) {
+              finalMessage += '\n\n' + toolSummary
             }
+
+            // Add assistant message with tool calls to history
+            history.addAssistantMessage(response.message || '', response.toolCalls)
+
+            // Add tool results to history
+            history.addToolMessages(toolResults)
+
+            // Emit combined response to LiveStore
+            this.emitLLMResponse(
+              storeId,
+              conversationId,
+              messageId,
+              finalMessage,
+              response.modelUsed,
+              duration,
+              {
+                source: 'server-llm-with-tools',
+                toolCalls: response.toolCalls,
+                toolResults: toolResults.length,
+              }
+            )
+          } catch (toolError) {
+            console.error(`❌ Tool execution failed for conversation ${conversationId}:`, toolError)
+            // Still emit the LLM response, but add error note
+            const errorMessage =
+              response.message +
+              '\n\n⚠️ Note: Some requested actions could not be completed due to an error.'
+            this.emitLLMResponse(
+              storeId,
+              conversationId,
+              messageId,
+              errorMessage,
+              response.modelUsed,
+              duration,
+              {
+                source: 'server-llm-tool-error',
+                error: (toolError as Error).message,
+              }
+            )
           }
-        }, 0)
+        } else {
+          console.error(`❌ No tool executor available for store ${storeId}`)
+          // Emit LLM response without tools
+          this.emitLLMResponseWithoutTools(storeId, conversationId, messageId, response, duration)
+        }
+      } else {
+        // No tool calls, just emit the regular LLM response
+        this.emitLLMResponseWithoutTools(storeId, conversationId, messageId, response, duration)
       }
     } catch (error) {
       console.error(`❌ LLM processing failed for conversation ${conversationId}:`, error)
@@ -473,6 +524,75 @@ export class EventProcessor {
         conversationId,
         messageId,
         'Sorry, I encountered an error processing your request. Please try again.'
+      )
+    }
+  }
+
+  private emitLLMResponse(
+    storeId: string,
+    conversationId: string,
+    messageId: string,
+    message: string,
+    modelId: string,
+    duration: number,
+    metadata: any = {}
+  ): void {
+    setTimeout(() => {
+      const storeState = this.storeStates.get(storeId)
+      if (storeState?.stopping) {
+        return
+      }
+
+      const store = this.storeManager.getStore(storeId)
+      if (store) {
+        try {
+          store.commit(
+            events.llmResponseReceived({
+              id: crypto.randomUUID(),
+              conversationId,
+              message,
+              role: 'assistant',
+              modelId,
+              responseToMessageId: messageId,
+              createdAt: new Date(),
+              llmMetadata: {
+                ...metadata,
+                duration,
+              },
+            })
+          )
+        } catch (error) {
+          console.error(`❌ Failed to emit LLM response for conversation ${conversationId}:`, error)
+          this.incrementErrorCount(storeId, error as Error)
+        }
+      }
+    }, 0)
+  }
+
+  private emitLLMResponseWithoutTools(
+    storeId: string,
+    conversationId: string,
+    messageId: string,
+    response: any,
+    duration: number
+  ): void {
+    if (response.message) {
+      const historyKey = `${storeId}-${conversationId}`
+      const history = this.conversationHistories.get(historyKey)
+      if (history) {
+        history.addAssistantMessage(response.message, response.toolCalls || undefined)
+      }
+
+      this.emitLLMResponse(
+        storeId,
+        conversationId,
+        messageId,
+        response.message,
+        response.modelUsed,
+        duration,
+        {
+          source: 'server-llm',
+        }
       )
     }
   }
@@ -608,6 +728,8 @@ export class EventProcessor {
     storeState.processingQueue.finally(() => {
       // Clear processed message IDs to free memory
       storeState.processedMessageIds.clear()
+      // Clean up tool executor
+      this.toolExecutors.delete(storeId)
       this.storeStates.delete(storeId)
       console.log(`🛑 Stopped event monitoring for store ${storeId}`)
     })
