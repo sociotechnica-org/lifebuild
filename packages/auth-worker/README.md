@@ -190,10 +190,11 @@ User data is stored in Durable Objects with the following structure:
 
 ## Environment Variables
 
-| Variable      | Description                | Default                                  |
-| ------------- | -------------------------- | ---------------------------------------- |
-| `JWT_SECRET`  | Secret key for JWT signing | `dev-secret-please-change-in-production` |
-| `ENVIRONMENT` | Environment setting        | `development`                            |
+| Variable              | Description                                     | Default                                  |
+| --------------------- | ----------------------------------------------- | ---------------------------------------- |
+| `JWT_SECRET`          | Secret key for JWT signing                      | `dev-secret-please-change-in-production` |
+| `ENVIRONMENT`         | Environment setting                             | `development`                            |
+| `DISCORD_WEBHOOK_URL` | Webhook URL for signup notifications (optional) | -                                        |
 
 ⚠️ **Important**: Always use a strong, random `JWT_SECRET` in production!
 
