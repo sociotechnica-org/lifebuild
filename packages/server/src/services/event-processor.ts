@@ -444,7 +444,7 @@ export class EventProcessor {
                   conversationId,
                   message: response.message || '',
                   role: 'assistant',
-                  modelId: 'claude-3-5-sonnet-20241022',
+                  modelId: response.modelUsed,
                   responseToMessageId: messageId,
                   createdAt: new Date(),
                   llmMetadata: {

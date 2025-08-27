@@ -17,6 +17,7 @@ export interface LLMMessage {
 export interface LLMResponse {
   message: string | null
   toolCalls: ToolCall[] | null
+  modelUsed: string
 }
 
 export interface BoardContext {

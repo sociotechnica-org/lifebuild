@@ -171,6 +171,7 @@ When users describe project requirements or ask you to create tasks, use the cre
       return {
         message: responseMessage.content || '',
         toolCalls: responseMessage.tool_calls || [],
+        modelUsed: model || DEFAULT_MODEL,
       }
     })
   }
