@@ -1,137 +1,129 @@
-export interface ValidationResult {
+interface ValidationResult {
   isValid: boolean
-  reason?: string
   sanitizedContent?: string
+  reason?: string
 }
 
-export interface SecurityConfig {
+interface ValidationConfig {
   maxMessageLength: number
-  maxContextSize: number
-  enableSanitization: boolean
-  logSecurityViolations: boolean
+  maxMessagesCount: number
+  allowedRoles: Set<string>
+  blockedPatterns: RegExp[]
+  suspiciousPatterns: RegExp[]
 }
 
-/**
- * Input validator to prevent prompt injection attacks and validate user inputs
- * before server-side LLM processing.
- */
 export class InputValidator {
-  private readonly blockedPatterns = [
-    // Prompt injection attempts
-    /ignore\s+(?:all\s+)?(?:previous\s+)?(?:system\s+)?(?:instructions?|prompts?|rules?)/i,
-    /forget\s+(?:everything|all)\s+(?:above|before|previous)/i,
-    /you\s+are\s+now\s+(?:a\s+)?(?:different|new|another)/i,
-    /disregard\s+(?:all\s+)?(?:previous\s+)?(?:instructions?|prompts?)/i,
-    /override\s+(?:all\s+)?(?:previous\s+)?(?:instructions?|settings?)/i,
+  private static readonly DEFAULT_CONFIG: ValidationConfig = {
+    maxMessageLength: 10000, // 10KB per message
+    maxMessagesCount: 100, // Max 100 messages in conversation
+    allowedRoles: new Set(['system', 'user', 'assistant', 'tool']),
 
-    // System prompt extraction attempts
-    /(?:show|reveal|display|tell\s+me)\s+(?:your\s+)?(?:system\s+)?(?:prompt|instructions?)/i,
-    /show\s+me\s+your\s+system\s+prompt/i,
-    /what\s+(?:are|is)\s+your\s+(?:system\s+)?(?:prompt|instructions?)/i,
-    /(?:print|output|return)\s+your\s+(?:system\s+)?(?:prompt|instructions?)/i,
+    // Patterns that should block the request entirely
+    blockedPatterns: [
+      // Attempts to break out of role
+      /ignore\s+(?:all\s+)?(?:previous\s+)?(?:system\s+)?(?:instructions?|prompts?|rules?)/i,
+      /forget\s+(?:everything|all)\s+(?:above|before|previous)/i,
+      /you\s+are\s+now\s+(?:a\s+)?(?:different|new|another)/i,
 
-    // Role manipulation attempts
-    /act\s+as\s+(?:if\s+you\s+are\s+)?(?:a\s+)?(?:different|new|other|unrestricted|uncensored)/i,
-    /pretend\s+(?:to\s+be|you\s+are)\s+(?:a\s+)?(?:different|new|other|unrestricted|uncensored)/i,
-    /pretend\s+you\s+are\s+(?:an?\s+)?unrestricted\s+AI/i,
-    /roleplay\s+as\s+(?:a\s+)?(?:different|new|other|unrestricted|uncensored)/i,
+      // Direct system message injection attempts
+      /\n\s*system\s*:\s*/i,
+      /<\s*system\s*>/i,
+      /\[system\]/i,
 
-    // Information extraction attempts
-    /(?:list|show|tell\s+me)\s+all\s+your\s+(?:capabilities|functions|tools)/i,
-    /what\s+(?:can|are)\s+you\s+(?:do|capable\s+of)/i,
+      // Role manipulation
+      /pretend\s+(?:to\s+be|you\s+are)\s+(?:a\s+)?(?:system|admin|developer|programmer)/i,
+      /act\s+as\s+(?:if\s+you\s+are\s+)?(?:a\s+)?(?:system|admin|developer)/i,
 
-    // Jailbreak attempts
-    /(?:simulate|emulate)\s+(?:a\s+|an\s+)?(?:different|unrestricted|uncensored)(?:\s+AI)?/i,
-    /bypass\s+(?:all\s+)?(?:safety|security|restrictions?)/i,
-    /enable\s+(?:developer|admin|debug)\s+mode/i,
-  ]
+      // Prompt injection markers
+      /#\s*system\s*#/i,
+      /--\s*system\s*--/i,
+      /\*\*system\*\*/i,
+    ],
 
-  private readonly suspiciousPatterns = [
-    // Multiple instructions in sequence
-    /\.\s*(?:now|then|next)\s+(?:ignore|forget|disregard)/i,
-    // Hidden instructions (unusual spacing/formatting)
-    /\u200B|\u200C|\u200D|\uFEFF/g, // Zero-width characters
-    // Excessive repetition (possible obfuscation)
-    /(.{1,10})\1{10,}/,
-  ]
+    // Patterns that are suspicious but might be legitimate (will be sanitized)
+    suspiciousPatterns: [
+      // Multiple newlines that could be used for formatting attacks
+      /\n{5,}/g,
+      // Excessive whitespace
+      /\s{20,}/g,
+      // Unicode control characters
+      /[\u0000-\u001F\u007F-\u009F]/g,
+      // HTML/XML-like tags
+      /<[^>]+>/g,
+    ],
+  }
 
-  private config: SecurityConfig
+  private config: ValidationConfig
 
-  constructor(customConfig?: Partial<SecurityConfig>) {
+  constructor(customConfig?: Partial<ValidationConfig>) {
     this.config = {
-      maxMessageLength: 10000,
-      maxContextSize: 50000,
-      enableSanitization: true,
-      logSecurityViolations: true,
+      ...InputValidator.DEFAULT_CONFIG,
       ...customConfig,
+      // Merge arrays/sets properly
+      allowedRoles: customConfig?.allowedRoles ?? InputValidator.DEFAULT_CONFIG.allowedRoles,
+      blockedPatterns: [
+        ...InputValidator.DEFAULT_CONFIG.blockedPatterns,
+        ...(customConfig?.blockedPatterns ?? []),
+      ],
+      suspiciousPatterns: [
+        ...InputValidator.DEFAULT_CONFIG.suspiciousPatterns,
+        ...(customConfig?.suspiciousPatterns ?? []),
+      ],
     }
   }
 
   /**
-   * Validate an array of chat messages
+   * Validate and sanitize an array of messages
    */
   validateMessages(messages: any[]): ValidationResult {
-    if (!Array.isArray(messages)) {
+    // Check message count
+    if (messages.length > this.config.maxMessagesCount) {
       return {
         isValid: false,
-        reason: 'Messages must be an array',
+        reason: `Too many messages: ${messages.length} exceeds limit of ${this.config.maxMessagesCount}`,
       }
     }
 
-    if (messages.length === 0) {
-      return {
-        isValid: false,
-        reason: 'Messages array cannot be empty',
-      }
-    }
+    const sanitizedMessages: any[] = []
 
-    // Validate each message
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i]
 
+      // Validate message structure
       if (!message || typeof message !== 'object') {
         return {
           isValid: false,
-          reason: `Message at index ${i} is not a valid object`,
+          reason: `Invalid message structure at index ${i}`,
         }
       }
 
-      if (!message.role || !['user', 'assistant', 'system', 'tool'].includes(message.role)) {
+      // Validate role
+      if (!message.role || !this.config.allowedRoles.has(message.role)) {
         return {
           isValid: false,
-          reason: `Message at index ${i} has invalid role: ${message.role}`,
+          reason: `Invalid or missing role at index ${i}: ${message.role}`,
         }
       }
 
-      if (!message.content || typeof message.content !== 'string') {
-        return {
-          isValid: false,
-          reason: `Message at index ${i} has invalid content`,
+      // Validate and sanitize content
+      if (message.content) {
+        const contentValidation = this.validateContent(message.content)
+        if (!contentValidation.isValid) {
+          return {
+            isValid: false,
+            reason: `Invalid content at index ${i}: ${contentValidation.reason}`,
+          }
         }
-      }
 
-      // Check message length
-      if (message.content.length > this.config.maxMessageLength) {
-        return {
-          isValid: false,
-          reason: `Message at index ${i} exceeds maximum length (${this.config.maxMessageLength} chars)`,
-        }
-      }
-
-      // Check for malicious content
-      const contentValidation = this.validateTextContent(message.content, `message[${i}].content`)
-      if (!contentValidation.isValid) {
-        return contentValidation
+        sanitizedMessages.push({
+          ...message,
+          content: contentValidation.sanitizedContent,
+        })
+      } else {
+        // Handle messages without content (e.g., tool calls)
+        sanitizedMessages.push(message)
       }
     }
-
-    // Serialize and return sanitized version if needed
-    const sanitizedMessages = this.config.enableSanitization
-      ? messages.map(msg => ({
-          ...msg,
-          content: this.sanitizeText(msg.content),
-        }))
-      : messages
 
     return {
       isValid: true,
@@ -140,201 +132,174 @@ export class InputValidator {
   }
 
   /**
-   * Validate board context object
+   * Validate and sanitize message content
    */
-  validateBoardContext(context: any): ValidationResult {
-    if (!context || typeof context !== 'object') {
-      return {
-        isValid: false,
-        reason: 'Board context must be an object',
-      }
-    }
-
-    const serialized = JSON.stringify(context)
-    if (serialized.length > this.config.maxContextSize) {
-      return {
-        isValid: false,
-        reason: `Board context exceeds maximum size (${this.config.maxContextSize} chars)`,
-      }
-    }
-
-    // Validate text fields
-    const textFields = ['name', 'description', 'notes']
-    for (const field of textFields) {
-      if (context[field] && typeof context[field] === 'string') {
-        const fieldValidation = this.validateTextContent(context[field], `boardContext.${field}`)
-        if (!fieldValidation.isValid) {
-          return fieldValidation
-        }
-      }
-    }
-
-    return {
-      isValid: true,
-      sanitizedContent: this.config.enableSanitization ? this.sanitizeObject(context) : undefined,
-    }
-  }
-
-  /**
-   * Validate worker context object
-   */
-  validateWorkerContext(context: any): ValidationResult {
-    if (!context || typeof context !== 'object') {
-      return {
-        isValid: false,
-        reason: 'Worker context must be an object',
-      }
-    }
-
-    const serialized = JSON.stringify(context)
-    if (serialized.length > this.config.maxContextSize) {
-      return {
-        isValid: false,
-        reason: `Worker context exceeds maximum size (${this.config.maxContextSize} chars)`,
-      }
-    }
-
-    // Validate text fields
-    const textFields = ['name', 'systemPrompt', 'roleDescription']
-    for (const field of textFields) {
-      if (context[field] && typeof context[field] === 'string') {
-        const fieldValidation = this.validateTextContent(context[field], `workerContext.${field}`)
-        if (!fieldValidation.isValid) {
-          return fieldValidation
-        }
-      }
-    }
-
-    return {
-      isValid: true,
-      sanitizedContent: this.config.enableSanitization ? this.sanitizeObject(context) : undefined,
-    }
-  }
-
-  /**
-   * Validate text content for malicious patterns
-   */
-  private validateTextContent(content: string, fieldName: string): ValidationResult {
+  private validateContent(content: any): ValidationResult {
+    // Ensure content is a string
     if (typeof content !== 'string') {
       return {
         isValid: false,
-        reason: `${fieldName} must be a string`,
+        reason: 'Content must be a string',
       }
     }
 
-    // Check for blocked patterns (security violations)
-    for (const pattern of this.blockedPatterns) {
+    // Check length
+    if (content.length > this.config.maxMessageLength) {
+      return {
+        isValid: false,
+        reason: `Content too long: ${content.length} exceeds limit of ${this.config.maxMessageLength}`,
+      }
+    }
+
+    // Check for blocked patterns
+    for (const pattern of this.config.blockedPatterns) {
       if (pattern.test(content)) {
-        const violation = `Blocked malicious pattern in ${fieldName}`
-        this.logSecurityViolation(violation, content, pattern)
         return {
           isValid: false,
-          reason: violation,
+          reason: `Content contains blocked pattern: ${pattern.source}`,
         }
       }
     }
 
-    // Check for suspicious patterns (warnings, but allow through with sanitization)
-    for (const pattern of this.suspiciousPatterns) {
-      if (pattern.test(content)) {
-        const warning = `Suspicious pattern detected in ${fieldName}`
-        this.logSecurityViolation(warning, content, pattern, 'warning')
-        // Continue processing but will be sanitized
-      }
-    }
-
-    return { isValid: true }
-  }
-
-  /**
-   * Sanitize text content by removing/replacing suspicious elements
-   */
-  private sanitizeText(content: string): string {
-    if (!this.config.enableSanitization) {
-      return content
-    }
-
-    let sanitized = content
-
-    // Remove zero-width characters
-    sanitized = sanitized.replace(/[\u200B-\u200D\uFEFF]/g, '')
-
-    // Limit excessive character repetition
-    sanitized = sanitized.replace(/(.)\1{5,}/g, '$1$1$1') // Max 3 consecutive chars
-
-    // Remove potential hidden instructions
-    sanitized = sanitized.replace(
-      /\s*\.\s*(?:now|then|next)\s+(?:ignore|forget|disregard)\s+[^\n.]*/gi,
-      ''
-    )
-
-    return sanitized
-  }
-
-  /**
-   * Sanitize an object by sanitizing all string values
-   */
-  private sanitizeObject(obj: any): string {
-    const sanitizeValue = (value: any): any => {
-      if (typeof value === 'string') {
-        return this.sanitizeText(value)
-      } else if (Array.isArray(value)) {
-        return value.map(sanitizeValue)
-      } else if (value && typeof value === 'object') {
-        const sanitizedObj: any = {}
-        for (const [key, val] of Object.entries(value)) {
-          sanitizedObj[key] = sanitizeValue(val)
+    // Sanitize suspicious patterns
+    let sanitizedContent = content
+    for (const pattern of this.config.suspiciousPatterns) {
+      sanitizedContent = sanitizedContent.replace(pattern, match => {
+        // For newlines, reduce to max 3
+        if (match.includes('\n')) {
+          return '\n\n\n'
         }
-        return sanitizedObj
+        // For excessive whitespace, reduce to single space
+        if (/\s/.test(match)) {
+          return ' '
+        }
+        // For other patterns, remove entirely
+        return ''
+      })
+    }
+
+    // Trim excessive whitespace
+    sanitizedContent = sanitizedContent.trim()
+
+    return {
+      isValid: true,
+      sanitizedContent,
+    }
+  }
+
+  /**
+   * Validate board context
+   */
+  validateBoardContext(boardContext: any): ValidationResult {
+    if (!boardContext) {
+      return { isValid: true }
+    }
+
+    // Validate required fields
+    if (!boardContext.id || !boardContext.name) {
+      return {
+        isValid: false,
+        reason: 'Board context missing required id or name',
       }
-      return value
     }
 
-    return JSON.stringify(sanitizeValue(obj))
-  }
-
-  /**
-   * Log security violations
-   */
-  private logSecurityViolation(
-    message: string,
-    content: string,
-    pattern: RegExp,
-    level: 'error' | 'warning' = 'error'
-  ): void {
-    if (!this.config.logSecurityViolations) {
-      return
+    // Validate field types and sanitize
+    const sanitized = {
+      id: String(boardContext.id).substring(0, 100), // Limit ID length
+      name: this.sanitizeText(String(boardContext.name), 200), // Limit name length
     }
 
-    const emoji = level === 'error' ? '🚨' : '⚠️'
-    const timestamp = new Date().toISOString()
-
-    // Log violation without exposing full content (security risk)
-    const contentPreview = content.length > 30 ? content.slice(0, 30) + '...' : content
-    const patternStr = pattern.source
-
-    if (level === 'error') {
-      console.error(`${emoji} [${timestamp}] SECURITY VIOLATION: ${message}`)
-      console.error(`  Pattern: ${patternStr}`)
-      console.error(`  Content preview: "${contentPreview}"`)
-    } else {
-      console.warn(`${emoji} [${timestamp}] SECURITY WARNING: ${message}`)
-      console.warn(`  Pattern: ${patternStr}`)
-      console.warn(`  Content preview: "${contentPreview}"`)
+    return {
+      isValid: true,
+      sanitizedContent: JSON.stringify(sanitized),
     }
   }
 
   /**
-   * Update security configuration
+   * Validate worker context
    */
-  updateConfig(newConfig: Partial<SecurityConfig>): void {
-    this.config = { ...this.config, ...newConfig }
+  validateWorkerContext(workerContext: any): ValidationResult {
+    if (!workerContext) {
+      return { isValid: true }
+    }
+
+    const sanitized: any = {}
+
+    // Validate and sanitize system prompt
+    if (workerContext.systemPrompt) {
+      const promptValidation = this.validateContent(workerContext.systemPrompt)
+      if (!promptValidation.isValid) {
+        return {
+          isValid: false,
+          reason: `Invalid worker system prompt: ${promptValidation.reason}`,
+        }
+      }
+      sanitized.systemPrompt = promptValidation.sanitizedContent
+    }
+
+    // Sanitize other fields
+    if (workerContext.name) {
+      sanitized.name = this.sanitizeText(String(workerContext.name), 100)
+    }
+
+    if (workerContext.roleDescription) {
+      sanitized.roleDescription = this.sanitizeText(String(workerContext.roleDescription), 500)
+    }
+
+    return {
+      isValid: true,
+      sanitizedContent: JSON.stringify(sanitized),
+    }
   }
 
   /**
-   * Get current security configuration
+   * Sanitize text content
    */
-  getConfig(): SecurityConfig {
-    return { ...this.config }
+  private sanitizeText(text: string, maxLength: number): string {
+    let sanitized = text
+
+    // Remove suspicious patterns
+    for (const pattern of this.config.suspiciousPatterns) {
+      sanitized = sanitized.replace(pattern, match => {
+        if (match.includes('\n')) return '\n'
+        if (/\s/.test(match)) return ' '
+        return ''
+      })
+    }
+
+    // Trim and limit length
+    return sanitized.trim().substring(0, maxLength)
+  }
+
+  /**
+   * Create a validator with stricter settings
+   */
+  static createStrict(): InputValidator {
+    return new InputValidator({
+      maxMessageLength: 5000,
+      maxMessagesCount: 50,
+      blockedPatterns: [
+        ...InputValidator.DEFAULT_CONFIG.blockedPatterns,
+        // Additional strict patterns
+        /bypass\s+(?:security|safety|restrictions)/i,
+        /override\s+(?:system|safety|security)/i,
+        /disable\s+(?:safety|security|filters?)/i,
+      ],
+    })
+  }
+
+  /**
+   * Create a validator with more permissive settings for development
+   */
+  static createPermissive(): InputValidator {
+    return new InputValidator({
+      maxMessageLength: 50000,
+      maxMessagesCount: 200,
+      blockedPatterns: [
+        // Only the most critical patterns
+        /ignore\s+(?:all\s+)?(?:previous\s+)?(?:system\s+)?instructions?/i,
+        /you\s+are\s+now\s+(?:a\s+)?different/i,
+      ],
+    })
   }
 }
