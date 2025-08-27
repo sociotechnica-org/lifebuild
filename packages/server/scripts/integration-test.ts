@@ -26,7 +26,7 @@ async function runMemoryManagementTests() {
 
   console.log(`   ✅ Created 1000 queues in ${Date.now() - startTime}ms`)
   const stats = manager.getStats()
-  console.log(`   📊 Queue stats: ${stats.totalQueues} queues, ${stats.totalMessages} messages`)
+  console.log(`   📊 Queue stats: ${stats.totalConversations} conversations, ${stats.totalMessages} messages`)
 
   // Test 2: Queue Overflow Handling  
   console.log('\n📝 Test 2: Queue Overflow Handling')

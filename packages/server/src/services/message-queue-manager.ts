@@ -19,24 +19,26 @@ export class MessageQueueManager {
    */
   enqueue(conversationId: string, message: any): void {
     const queue = this.queues.get(conversationId) || []
+    this.queues.set(conversationId, queue)
 
-    // Check queue size limit
-    if (queue.length >= this.maxQueueSize) {
+    // Clean stale messages first, then check size limit
+    this.cleanStaleMessages(conversationId)
+    const cleanedQueue = this.queues.get(conversationId) || []
+
+    // Check queue size limit after cleanup
+    if (cleanedQueue.length >= this.maxQueueSize) {
       throw new Error(
-        `Message queue overflow for conversation ${conversationId}: ${queue.length} messages`
+        `Message queue overflow for conversation ${conversationId}: ${cleanedQueue.length} messages`
       )
     }
 
     // Add message with timestamp
-    queue.push({
+    cleanedQueue.push({
       message,
       timestamp: Date.now(),
     })
 
-    this.queues.set(conversationId, queue)
-
-    // Clean stale messages immediately for this conversation
-    this.cleanStaleMessages(conversationId)
+    this.queues.set(conversationId, cleanedQueue)
   }
 
   /**

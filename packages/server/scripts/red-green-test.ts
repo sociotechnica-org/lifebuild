@@ -40,9 +40,9 @@ class BrokenMessageQueueManager {
     // No cleanup of intervals or resources
   }
 
-  getStats(): { totalQueues: number; totalMessages: number } {
+  getStats(): { totalConversations: number; totalMessages: number } {
     const totalMessages = Array.from(this.queues.values()).reduce((sum, queue) => sum + queue.length, 0)
-    return { totalQueues: this.queues.size, totalMessages }
+    return { totalConversations: this.queues.size, totalMessages }
   }
 }
 
