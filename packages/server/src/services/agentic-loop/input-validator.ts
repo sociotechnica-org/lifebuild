@@ -23,23 +23,23 @@ export class InputValidator {
     /you\s+are\s+now\s+(?:a\s+)?(?:different|new|another)/i,
     /disregard\s+(?:all\s+)?(?:previous\s+)?(?:instructions?|prompts?)/i,
     /override\s+(?:all\s+)?(?:previous\s+)?(?:instructions?|settings?)/i,
-    
+
     // System prompt extraction attempts
     /(?:show|reveal|display|tell\s+me)\s+(?:your\s+)?(?:system\s+)?(?:prompt|instructions?)/i,
     /show\s+me\s+your\s+system\s+prompt/i,
     /what\s+(?:are|is)\s+your\s+(?:system\s+)?(?:prompt|instructions?)/i,
     /(?:print|output|return)\s+your\s+(?:system\s+)?(?:prompt|instructions?)/i,
-    
+
     // Role manipulation attempts
     /act\s+as\s+(?:if\s+you\s+are\s+)?(?:a\s+)?(?:different|new|other|unrestricted|uncensored)/i,
     /pretend\s+(?:to\s+be|you\s+are)\s+(?:a\s+)?(?:different|new|other|unrestricted|uncensored)/i,
     /pretend\s+you\s+are\s+(?:an?\s+)?unrestricted\s+AI/i,
     /roleplay\s+as\s+(?:a\s+)?(?:different|new|other|unrestricted|uncensored)/i,
-    
+
     // Information extraction attempts
     /(?:list|show|tell\s+me)\s+all\s+your\s+(?:capabilities|functions|tools)/i,
     /what\s+(?:can|are)\s+you\s+(?:do|capable\s+of)/i,
-    
+
     // Jailbreak attempts
     /(?:simulate|emulate)\s+(?:a\s+|an\s+)?(?:different|unrestricted|uncensored)(?:\s+AI)?/i,
     /bypass\s+(?:all\s+)?(?:safety|security|restrictions?)/i,
@@ -88,7 +88,7 @@ export class InputValidator {
     // Validate each message
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i]
-      
+
       if (!message || typeof message !== 'object') {
         return {
           isValid: false,
@@ -126,10 +126,10 @@ export class InputValidator {
     }
 
     // Serialize and return sanitized version if needed
-    const sanitizedMessages = this.config.enableSanitization 
+    const sanitizedMessages = this.config.enableSanitization
       ? messages.map(msg => ({
           ...msg,
-          content: this.sanitizeText(msg.content)
+          content: this.sanitizeText(msg.content),
         }))
       : messages
 
@@ -263,7 +263,10 @@ export class InputValidator {
     sanitized = sanitized.replace(/(.)\1{5,}/g, '$1$1$1') // Max 3 consecutive chars
 
     // Remove potential hidden instructions
-    sanitized = sanitized.replace(/\s*\.\s*(?:now|then|next)\s+(?:ignore|forget|disregard)\s+[^\n.]*/gi, '')
+    sanitized = sanitized.replace(
+      /\s*\.\s*(?:now|then|next)\s+(?:ignore|forget|disregard)\s+[^\n.]*/gi,
+      ''
+    )
 
     return sanitized
   }
@@ -294,9 +297,9 @@ export class InputValidator {
    * Log security violations
    */
   private logSecurityViolation(
-    message: string, 
-    content: string, 
-    pattern: RegExp, 
+    message: string,
+    content: string,
+    pattern: RegExp,
     level: 'error' | 'warning' = 'error'
   ): void {
     if (!this.config.logSecurityViolations) {
@@ -305,7 +308,7 @@ export class InputValidator {
 
     const emoji = level === 'error' ? '🚨' : '⚠️'
     const timestamp = new Date().toISOString()
-    
+
     // Log violation without exposing full content (security risk)
     const contentPreview = content.length > 30 ? content.slice(0, 30) + '...' : content
     const patternStr = pattern.source
