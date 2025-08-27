@@ -41,7 +41,7 @@ The Work Squared Server is a Node.js service that connects to LiveStore instance
 # Install dependencies
 pnpm install
 
-# Copy environment template
+# Copy environment template (from package directory)
 cp .env.example .env
 
 # Edit configuration
