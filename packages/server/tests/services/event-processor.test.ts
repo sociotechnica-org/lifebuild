@@ -112,12 +112,12 @@ describe('EventProcessor', () => {
       expect(stats.get('test-store')?.bufferSize).toBeGreaterThanOrEqual(0)
     })
 
-    it('should not process duplicate records', () => {
-      const callback = subscribeCallbacks.get('monitor-tasks-test-store')!
+    it('should not process duplicate chat messages', () => {
+      const callback = subscribeCallbacks.get('monitor-chatMessages-test-store')!
       
       // First batch of records
       const records1 = [
-        { id: '1', title: 'Task 1', createdAt: new Date() },
+        { id: '1', message: 'Hello', role: 'user', createdAt: new Date() },
       ]
       callback(records1)
 
@@ -125,7 +125,7 @@ describe('EventProcessor', () => {
       const updateActivityCallCount = mockStoreManager.updateActivity.mock.calls.length
       callback(records1)
 
-      // Should not have called updateActivity again
+      // Should not have called updateActivity again (deduplication only applies to chatMessages)
       expect(mockStoreManager.updateActivity).toHaveBeenCalledTimes(updateActivityCallCount)
     })
 

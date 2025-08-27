@@ -1,7 +1,7 @@
 import type { Store as LiveStore } from '@livestore/livestore'
 import { queryDb } from '@livestore/livestore'
 import type { StoreManager } from './store-manager.js'
-import { tables } from '@work-squared/shared/schema'
+import { tables, events } from '@work-squared/shared/schema'
 
 interface EventBuffer {
   events: any[]
@@ -13,6 +13,7 @@ interface StoreProcessingState {
   subscriptions: Array<() => void>
   eventBuffer: EventBuffer
   lastSeenCounts: Map<string, number>
+  processedMessageIds: Set<string> // Track processed message IDs to prevent duplicates
   errorCount: number
   lastError?: Error
   processingQueue: Promise<void>
@@ -66,6 +67,7 @@ export class EventProcessor {
         processing: false,
       },
       lastSeenCounts: new Map(),
+      processedMessageIds: new Set(),
       errorCount: 0,
       processingQueue: Promise.resolve(),
       stopping: false,
@@ -166,24 +168,62 @@ export class EventProcessor {
       return
     }
 
-    const lastCount = storeState.lastSeenCounts.get(tableName) || 0
     const currentCount = records.length
+    const lastSeenCount = storeState.lastSeenCounts.get(tableName) || 0
 
-    // Only process if we have new records
-    if (currentCount > lastCount) {
-      const newRecords = records.slice(lastCount) // Get only the new records (from lastCount onwards)
+    // For non-chat tables, use count-based deduplication to avoid reprocessing all records
+    if (tableName !== 'chatMessages') {
+      if (currentCount <= lastSeenCount) {
+        return // No new records, skip processing
+      }
+    }
 
-      for (const record of newRecords) {
+    const newRecords = []
+
+    for (const record of records) {
+      let shouldProcess = true
+
+      // For chat messages, use ID-based deduplication to prevent infinite loops
+      if (tableName === 'chatMessages' && record.id) {
+        if (storeState.processedMessageIds.has(record.id)) {
+          shouldProcess = false // Skip already processed message
+        } else {
+          storeState.processedMessageIds.add(record.id)
+          // Memory management: limit the Set size to prevent memory leaks
+          if (storeState.processedMessageIds.size > 10000) {
+            console.warn(
+              `⚠️ Processed message IDs approaching limit for store ${storeId}. Clearing old entries.`
+            )
+            // Keep only the most recent 5000 IDs (rough cleanup)
+            const idsArray = Array.from(storeState.processedMessageIds)
+            storeState.processedMessageIds.clear()
+            idsArray.slice(-5000).forEach(id => storeState.processedMessageIds.add(id))
+          }
+        }
+      }
+
+      if (shouldProcess) {
         const timestamp = new Date().toISOString()
         const displayText = record.message || record.name || record.title || record.id
         const truncatedText =
           displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
 
         console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
+
+        // Handle user messages for test responses (only genuine user messages)
+        if (tableName === 'chatMessages' && record.role === 'user') {
+          this.handleUserMessage(storeId, record, storeState)
+        }
+
+        newRecords.push(record)
       }
+    }
 
-      storeState.lastSeenCounts.set(tableName, currentCount)
+    // Update the seen count for all tables to track new records
+    storeState.lastSeenCounts.set(tableName, currentCount)
 
+    // Only update activity and buffer events if we had new records
+    if (newRecords.length > 0) {
       // Update activity tracker
       this.storeManager.updateActivity(storeId)
 
@@ -278,6 +318,79 @@ export class EventProcessor {
     // For now, events are logged in handleTableUpdate
   }
 
+  /**
+   * Handle user messages and emit test responses for messages starting with "server:"
+   */
+  private handleUserMessage(
+    storeId: string,
+    chatMessage: any,
+    _storeState: StoreProcessingState
+  ): void {
+    const { conversationId, id: messageId, message } = chatMessage
+
+    // Validate required fields
+    if (!conversationId || !messageId) {
+      console.warn(`⚠️ Invalid chat message: missing conversationId or messageId`, {
+        conversationId,
+        messageId,
+        storeId,
+      })
+      return
+    }
+
+    // Format message content for logging
+    const messagePreview = message
+      ? message.length > 100
+        ? `${message.slice(0, 100)}...`
+        : message
+      : '<no message content>'
+
+    console.log(`📨 received user message in conversation ${conversationId}: ${messagePreview}`)
+
+    // Only process messages starting with "server:" for testing
+    if (message && message.startsWith('server:')) {
+      const testMessage = message.substring(7).trim() // Remove "server:" prefix
+
+      console.log(`🤖 Emitting test response for conversation ${conversationId}`)
+
+      // Use setTimeout to avoid LiveStore race condition (GitHub issue #577)
+      // This is the officially recommended workaround for committing from within subscriptions
+      setTimeout(() => {
+        // Check if store is still active (not stopping)
+        const storeState = this.storeStates.get(storeId)
+        if (storeState?.stopping) {
+          return // Skip processing if store is being stopped
+        }
+
+        const store = this.storeManager.getStore(storeId)
+        if (store) {
+          try {
+            store.commit(
+              events.llmResponseReceived({
+                id: crypto.randomUUID(),
+                conversationId,
+                message: `Echo: ${testMessage}`,
+                role: 'assistant',
+                modelId: 'test-echo',
+                responseToMessageId: messageId,
+                createdAt: new Date(),
+                llmMetadata: { source: 'server-test-echo' },
+              })
+            )
+          } catch (error) {
+            console.error(
+              `❌ Failed to emit test response for conversation ${conversationId}:`,
+              error
+            )
+            this.incrementErrorCount(storeId, error as Error)
+          }
+        } else {
+          console.warn(`⚠️ Store ${storeId} not found for test response emission`)
+        }
+      }, 0)
+    }
+  }
+
   private incrementErrorCount(storeId: string, error: Error): void {
     const storeState = this.storeStates.get(storeId)
     if (storeState) {
@@ -331,6 +444,8 @@ export class EventProcessor {
 
     // Wait for processing to complete before removing state
     storeState.processingQueue.finally(() => {
+      // Clear processed message IDs to free memory
+      storeState.processedMessageIds.clear()
       this.storeStates.delete(storeId)
       console.log(`🛑 Stopped event monitoring for store ${storeId}`)
     })
