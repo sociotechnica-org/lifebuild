@@ -160,6 +160,61 @@ describe('MessageQueueManager', () => {
     })
   })
 
+  describe('Configuration', () => {
+    it('should use custom maxQueueSize configuration', () => {
+      const customManager = new MessageQueueManager({ maxQueueSize: 5 })
+      const conversationId = 'custom-conv'
+      const message = { id: 'msg', content: 'Test' }
+
+      // Fill queue to custom limit (5 messages)
+      for (let i = 0; i < 5; i++) {
+        customManager.enqueue(conversationId, { ...message, id: `msg-${i}` })
+      }
+
+      // Next message should throw error at custom limit
+      expect(() => {
+        customManager.enqueue(conversationId, message)
+      }).toThrow('Message queue overflow for conversation custom-conv: 5 messages')
+
+      customManager.destroy()
+    })
+
+    it('should use custom messageTimeout configuration', () => {
+      vi.useFakeTimers()
+
+      const customManager = new MessageQueueManager({ messageTimeout: 1000 }) // 1 second
+      const conversationId = 'timeout-conv'
+
+      customManager.enqueue(conversationId, { id: 'msg-1', content: 'First' })
+      expect(customManager.getQueueLength(conversationId)).toBe(1)
+
+      // Fast forward past custom timeout (1 second)
+      vi.advanceTimersByTime(1500)
+
+      // Trigger cleanup by enqueueing another message
+      customManager.enqueue(conversationId, { id: 'msg-2', content: 'Second' })
+
+      // First message should be cleaned, only second remains
+      expect(customManager.getQueueLength(conversationId)).toBe(1)
+
+      customManager.destroy()
+      vi.useRealTimers()
+    })
+
+    it('should use default configuration when no config provided', () => {
+      const defaultManager = new MessageQueueManager()
+
+      // Should still work with default 100 message limit
+      expect(() => {
+        for (let i = 0; i <= 100; i++) {
+          defaultManager.enqueue('test', { id: `msg-${i}`, content: 'Test' })
+        }
+      }).toThrow('Message queue overflow')
+
+      defaultManager.destroy()
+    })
+  })
+
   describe('Statistics and monitoring', () => {
     it('should provide accurate queue statistics', () => {
       const conv1 = 'conv-1'

@@ -3,14 +3,24 @@ interface QueuedMessage {
   timestamp: number
 }
 
+interface QueueConfig {
+  maxQueueSize: number
+  messageTimeout: number
+  cleanupInterval: number
+}
+
 export class MessageQueueManager {
   private queues = new Map<string, QueuedMessage[]>()
-  private readonly maxQueueSize = 100
-  private readonly messageTimeout = 5 * 60 * 1000 // 5 minutes
-  private readonly cleanupInterval = 60 * 1000 // 1 minute
+  private readonly config: QueueConfig
   private cleanupTimer?: NodeJS.Timeout
 
-  constructor() {
+  constructor(config: Partial<QueueConfig> = {}) {
+    this.config = {
+      maxQueueSize: 100,
+      messageTimeout: 5 * 60 * 1000, // 5 minutes
+      cleanupInterval: 60 * 1000, // 1 minute
+      ...config,
+    }
     this.startCleanupTimer()
   }
 
@@ -26,7 +36,7 @@ export class MessageQueueManager {
     const cleanedQueue = this.queues.get(conversationId) || []
 
     // Check queue size limit after cleanup
-    if (cleanedQueue.length >= this.maxQueueSize) {
+    if (cleanedQueue.length >= this.config.maxQueueSize) {
       throw new Error(
         `Message queue overflow for conversation ${conversationId}: ${cleanedQueue.length} messages`
       )
@@ -129,7 +139,7 @@ export class MessageQueueManager {
 
     const now = Date.now()
     const freshMessages = queue.filter(
-      queuedMessage => now - queuedMessage.timestamp < this.messageTimeout
+      queuedMessage => now - queuedMessage.timestamp < this.config.messageTimeout
     )
 
     if (freshMessages.length !== queue.length) {
@@ -150,7 +160,7 @@ export class MessageQueueManager {
   private startCleanupTimer(): void {
     this.cleanupTimer = setInterval(() => {
       this.cleanupAllStaleMessages()
-    }, this.cleanupInterval)
+    }, this.config.cleanupInterval)
   }
 
   /**
