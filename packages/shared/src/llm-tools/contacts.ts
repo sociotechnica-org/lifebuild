@@ -320,8 +320,10 @@ export const addContactToProject = wrapToolFunction(
     }
 
     // Check if association already exists
-    const existingContacts = (await store.query(getProjectContactAssociations$(projectId))) as any[]
-    if (existingContacts.some(c => c.id === contactId)) {
+    const existingAssociations = (await store.query(
+      getProjectContactAssociations$(projectId)
+    )) as any[]
+    if (existingAssociations.some(c => c.contactId === contactId)) {
       return {
         success: true,
         message: 'Contact is already associated with this project',
@@ -362,8 +364,10 @@ export const removeContactFromProject = wrapToolFunction(
     const contact = validators.requireEntity(contacts, 'Contact', contactId)
 
     // Check if association exists
-    const existingContacts = (await store.query(getProjectContactAssociations$(projectId))) as any[]
-    if (!existingContacts.some(c => c.id === contactId)) {
+    const existingAssociations = (await store.query(
+      getProjectContactAssociations$(projectId)
+    )) as any[]
+    if (!existingAssociations.some(c => c.contactId === contactId)) {
       return {
         success: true,
         message: 'Contact is not associated with this project',
