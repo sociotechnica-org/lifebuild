@@ -1,10 +1,12 @@
 # Development environment variables for Auth Worker
 # Copy this file to .dev.vars and fill in your actual values
 
+# Environment setting (development/production)
+ENVIRONMENT=development
+
 # JWT secret key for signing tokens  
 # IMPORTANT: Change this to a strong, random secret in production!
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
 
-# Admin credentials for local testing
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=admin123
+# Bootstrap admin email for admin privileges (optional)
+# BOOTSTRAP_ADMIN_EMAIL=admin@example.com
