@@ -13,6 +13,7 @@ interface StoreProcessingState {
   subscriptions: Array<() => void>
   eventBuffer: EventBuffer
   lastSeenCounts: Map<string, number>
+  processedMessageIds: Set<string> // Track processed message IDs to prevent duplicates
   errorCount: number
   lastError?: Error
   processingQueue: Promise<void>
@@ -66,6 +67,7 @@ export class EventProcessor {
         processing: false,
       },
       lastSeenCounts: new Map(),
+      processedMessageIds: new Set(),
       errorCount: 0,
       processingQueue: Promise.resolve(),
       stopping: false,
@@ -166,32 +168,33 @@ export class EventProcessor {
       return
     }
 
-    const lastCount = storeState.lastSeenCounts.get(tableName) || 0
-    const currentCount = records.length
+    const newRecords = []
 
-    // Only process if we have new records
-    if (currentCount > lastCount) {
-      const newRecords = records.slice(lastCount) // Get only the new records (from lastCount onwards)
-
-      for (const record of newRecords) {
-        const timestamp = new Date().toISOString()
-        const displayText = record.message || record.name || record.title || record.id
-        const truncatedText =
-          displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
-
-        console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
-
-        // Handle user messages for test responses (only genuine user messages)
-        if (tableName === 'chatMessages' && record.role === 'user') {
-          // Use setTimeout to defer processing and avoid LiveStore reactivity issues
-          setTimeout(() => {
-            this.handleUserMessage(storeId, record, storeState)
-          }, 0)
+    for (const record of records) {
+      // For chat messages, use ID to prevent duplicate processing
+      if (tableName === 'chatMessages' && record.id) {
+        if (storeState.processedMessageIds.has(record.id)) {
+          continue // Skip already processed message
         }
+        storeState.processedMessageIds.add(record.id)
       }
 
-      storeState.lastSeenCounts.set(tableName, currentCount)
+      const timestamp = new Date().toISOString()
+      const displayText = record.message || record.name || record.title || record.id
+      const truncatedText = displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
 
+      console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
+
+      // Handle user messages for test responses (only genuine user messages)
+      if (tableName === 'chatMessages' && record.role === 'user') {
+        this.handleUserMessage(storeId, record, storeState)
+      }
+
+      newRecords.push(record)
+    }
+
+    // Only update activity and buffer events if we had new records
+    if (newRecords.length > 0) {
       // Update activity tracker
       this.storeManager.updateActivity(storeId)
 
@@ -404,6 +407,8 @@ export class EventProcessor {
 
     // Wait for processing to complete before removing state
     storeState.processingQueue.finally(() => {
+      // Clear processed message IDs to free memory
+      storeState.processedMessageIds.clear()
       this.storeStates.delete(storeId)
       console.log(`🛑 Stopped event monitoring for store ${storeId}`)
     })
