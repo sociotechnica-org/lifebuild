@@ -181,15 +181,12 @@ export class EventProcessor {
 
         console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
 
-        // Handle user messages for test responses (exclude our own server responses)
-        if (tableName === 'chatMessages') {
-          console.log(
-            `🔍 Debug: Chat message - role: ${record.role}, llmMetadata: ${JSON.stringify(record.llmMetadata)}`
-          )
-
-          if (record.role === 'user' && !record.llmMetadata?.source?.includes('server-test-echo')) {
+        // Handle user messages for test responses (only genuine user messages)
+        if (tableName === 'chatMessages' && record.role === 'user') {
+          // Use setTimeout to defer processing and avoid LiveStore reactivity issues
+          setTimeout(() => {
             this.handleUserMessage(storeId, record, storeState)
-          }
+          }, 0)
         }
       }
 
