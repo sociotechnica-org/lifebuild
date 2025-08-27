@@ -293,6 +293,16 @@ export class EventProcessor {
   ): void {
     const { conversationId, id: messageId, message } = chatMessage
 
+    // Validate required fields
+    if (!conversationId || !messageId) {
+      console.warn(`⚠️ Invalid chat message: missing conversationId or messageId`, {
+        conversationId,
+        messageId,
+        storeId,
+      })
+      return
+    }
+
     console.log(
       `📨 received user message in conversation ${conversationId}: ${message?.slice(0, 100)}...`
     )
@@ -303,21 +313,32 @@ export class EventProcessor {
 
       console.log(`🤖 Emitting test response for conversation ${conversationId}`)
 
-      // Get the store and emit a test response
+      // Get the store and emit a test response with error handling
       const store = this.storeManager.getStore(storeId)
       if (store) {
-        store.commit(
-          events.llmResponseReceived({
-            id: crypto.randomUUID(),
-            conversationId,
-            message: `Echo: ${testMessage}`,
-            role: 'assistant',
-            modelId: 'test-echo',
-            responseToMessageId: messageId,
-            createdAt: new Date(),
-            llmMetadata: { source: 'server-test-echo' },
-          })
-        )
+        try {
+          store.commit(
+            events.llmResponseReceived({
+              id: crypto.randomUUID(),
+              conversationId,
+              message: `Echo: ${testMessage}`,
+              role: 'assistant',
+              modelId: 'test-echo',
+              responseToMessageId: messageId,
+              createdAt: new Date(),
+              llmMetadata: { source: 'server-test-echo' },
+            })
+          )
+        } catch (error) {
+          console.error(
+            `❌ Failed to emit test response for conversation ${conversationId}:`,
+            error
+          )
+          this.incrementErrorCount(storeId, error as Error)
+          // Continue processing other events even if this one fails
+        }
+      } else {
+        console.warn(`⚠️ Store ${storeId} not found for test response emission`)
       }
     }
   }
