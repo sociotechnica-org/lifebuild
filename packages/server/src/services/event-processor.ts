@@ -183,11 +183,12 @@ export class EventProcessor {
 
         // Handle user messages for test responses (exclude our own server responses)
         if (tableName === 'chatMessages') {
-          console.log(`🔍 Debug: Chat message - role: ${recordObj.role}, llmMetadata: ${JSON.stringify(recordObj.llmMetadata)}`)
-          
-          if (recordObj.role === 'user' && 
-              !recordObj.llmMetadata?.source?.includes('server-test-echo')) {
-            this.handleUserMessage(storeId, recordObj, storeState)
+          console.log(
+            `🔍 Debug: Chat message - role: ${record.role}, llmMetadata: ${JSON.stringify(record.llmMetadata)}`
+          )
+
+          if (record.role === 'user' && !record.llmMetadata?.source?.includes('server-test-echo')) {
+            this.handleUserMessage(storeId, record, storeState)
           }
         }
       }
