@@ -6,7 +6,7 @@ ENVIRONMENT=development
 
 # JWT secret key for signing tokens  
 # IMPORTANT: Change this to a strong, random secret in production!
-JWT_SECRET=your-super-secret-jwt-key-change-in-production
+JWT_SECRET=dev-jwt-secret-change-me-in-production
 
 # Bootstrap admin email for admin privileges (optional)
 # BOOTSTRAP_ADMIN_EMAIL=admin@example.com
