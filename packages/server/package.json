@@ -9,6 +9,7 @@
     "start": "node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:integration": "npx tsx scripts/integration-test.ts",
     "clean": "rm -rf data/*",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
