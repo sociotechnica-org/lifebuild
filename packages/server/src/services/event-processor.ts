@@ -2,6 +2,9 @@ import type { Store as LiveStore } from '@livestore/livestore'
 import { queryDb } from '@livestore/livestore'
 import type { StoreManager } from './store-manager.js'
 import { tables, events } from '@work-squared/shared/schema'
+import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
+import { ConversationHistory } from './agentic-loop/conversation-history.js'
+import { InputValidator } from './agentic-loop/input-validator.js'
 
 interface EventBuffer {
   events: any[]
@@ -26,6 +29,9 @@ export class EventProcessor {
   private readonly maxBufferSize = 100
   private readonly flushInterval = 5000 // 5 seconds
   private flushTimer?: NodeJS.Timeout
+  private llmProvider?: BraintrustProvider
+  private inputValidator: InputValidator
+  private conversationHistories: Map<string, ConversationHistory> = new Map()
 
   // Tables to monitor for activity
   private readonly monitoredTables = [
@@ -42,7 +48,24 @@ export class EventProcessor {
 
   constructor(storeManager: StoreManager) {
     this.storeManager = storeManager
+    this.inputValidator = new InputValidator()
+    this.initializeLLMProvider()
     this.startFlushTimer()
+  }
+
+  private initializeLLMProvider(): void {
+    const apiKey = process.env.BRAINTRUST_API_KEY
+    const projectId = process.env.BRAINTRUST_PROJECT_ID
+
+    if (apiKey && projectId) {
+      this.llmProvider = new BraintrustProvider(apiKey, projectId, this.inputValidator)
+      console.log('✅ Braintrust LLM provider initialized')
+    } else {
+      console.warn(
+        '⚠️ Braintrust API credentials not configured. LLM features will be unavailable.'
+      )
+      console.warn('   Set BRAINTRUST_API_KEY and BRAINTRUST_PROJECT_ID environment variables.')
+    }
   }
 
   startMonitoring(storeId: string, store: LiveStore): void {
@@ -319,7 +342,7 @@ export class EventProcessor {
   }
 
   /**
-   * Handle user messages and emit test responses for messages starting with "server:"
+   * Handle user messages and emit LLM responses for messages starting with "server:"
    */
   private handleUserMessage(
     storeId: string,
@@ -349,46 +372,185 @@ export class EventProcessor {
 
     // Only process messages starting with "server:" for testing
     if (message && message.startsWith('server:')) {
-      const testMessage = message.substring(7).trim() // Remove "server:" prefix
+      const userMessage = message.substring(7).trim() // Remove "server:" prefix
 
-      console.log(`🤖 Emitting test response for conversation ${conversationId}`)
-
-      // Use setTimeout to avoid LiveStore race condition (GitHub issue #577)
-      // This is the officially recommended workaround for committing from within subscriptions
-      setTimeout(() => {
-        // Check if store is still active (not stopping)
-        const storeState = this.storeStates.get(storeId)
-        if (storeState?.stopping) {
-          return // Skip processing if store is being stopped
-        }
-
-        const store = this.storeManager.getStore(storeId)
-        if (store) {
-          try {
-            store.commit(
-              events.llmResponseReceived({
-                id: crypto.randomUUID(),
-                conversationId,
-                message: `Echo: ${testMessage}`,
-                role: 'assistant',
-                modelId: 'test-echo',
-                responseToMessageId: messageId,
-                createdAt: new Date(),
-                llmMetadata: { source: 'server-test-echo' },
-              })
-            )
-          } catch (error) {
-            console.error(
-              `❌ Failed to emit test response for conversation ${conversationId}:`,
-              error
-            )
-            this.incrementErrorCount(storeId, error as Error)
-          }
-        } else {
-          console.warn(`⚠️ Store ${storeId} not found for test response emission`)
-        }
-      }, 0)
+      // Process with LLM if provider is available
+      if (this.llmProvider) {
+        console.log(`🤖 Processing with LLM for conversation ${conversationId}`)
+        this.processWithLLM(storeId, conversationId, messageId, userMessage)
+      } else {
+        console.log(
+          `🤖 Emitting echo response for conversation ${conversationId} (no LLM configured)`
+        )
+        // Fallback to echo response if LLM not configured
+        this.emitEchoResponse(storeId, conversationId, messageId, userMessage)
+      }
     }
+  }
+
+  private async processWithLLM(
+    storeId: string,
+    conversationId: string,
+    messageId: string,
+    userMessage: string
+  ): Promise<void> {
+    try {
+      // Get or create conversation history for this conversation
+      const historyKey = `${storeId}-${conversationId}`
+      let history = this.conversationHistories.get(historyKey)
+      if (!history) {
+        history = new ConversationHistory()
+        this.conversationHistories.set(historyKey, history)
+
+        // Memory management: limit conversation histories
+        if (this.conversationHistories.size > 100) {
+          console.warn('⚠️ Conversation histories approaching limit. Clearing oldest entries.')
+          const entries = Array.from(this.conversationHistories.entries())
+          // Remove oldest 20 entries
+          entries.slice(0, 20).forEach(([key]) => this.conversationHistories.delete(key))
+        }
+      }
+
+      // Add user message to history
+      history.addUserMessage(userMessage)
+
+      // Get messages for LLM call
+      const messages = history.getMessages()
+
+      // Call LLM with retry logic
+      const startTime = Date.now()
+      const response = await this.llmProvider!.call(messages)
+      const duration = Date.now() - startTime
+
+      console.log(`✅ LLM response received for conversation ${conversationId} in ${duration}ms`)
+
+      // Add assistant response to history
+      if (response.message) {
+        history.addAssistantMessage(response.message, response.toolCalls || undefined)
+
+        // Emit LLM response to LiveStore
+        setTimeout(() => {
+          const storeState = this.storeStates.get(storeId)
+          if (storeState?.stopping) {
+            return
+          }
+
+          const store = this.storeManager.getStore(storeId)
+          if (store) {
+            try {
+              store.commit(
+                events.llmResponseReceived({
+                  id: crypto.randomUUID(),
+                  conversationId,
+                  message: response.message || '',
+                  role: 'assistant',
+                  modelId: response.modelUsed,
+                  responseToMessageId: messageId,
+                  createdAt: new Date(),
+                  llmMetadata: {
+                    source: 'server-llm',
+                    duration,
+                  },
+                })
+              )
+            } catch (error) {
+              console.error(
+                `❌ Failed to emit LLM response for conversation ${conversationId}:`,
+                error
+              )
+              this.incrementErrorCount(storeId, error as Error)
+            }
+          }
+        }, 0)
+      }
+    } catch (error) {
+      console.error(`❌ LLM processing failed for conversation ${conversationId}:`, error)
+      this.incrementErrorCount(storeId, error as Error)
+
+      // Emit error message to user
+      this.emitErrorResponse(
+        storeId,
+        conversationId,
+        messageId,
+        'Sorry, I encountered an error processing your request. Please try again.'
+      )
+    }
+  }
+
+  private emitEchoResponse(
+    storeId: string,
+    conversationId: string,
+    messageId: string,
+    message: string
+  ): void {
+    setTimeout(() => {
+      const storeState = this.storeStates.get(storeId)
+      if (storeState?.stopping) {
+        return
+      }
+
+      const store = this.storeManager.getStore(storeId)
+      if (store) {
+        try {
+          store.commit(
+            events.llmResponseReceived({
+              id: crypto.randomUUID(),
+              conversationId,
+              message: `Echo: ${message}`,
+              role: 'assistant',
+              modelId: 'test-echo',
+              responseToMessageId: messageId,
+              createdAt: new Date(),
+              llmMetadata: { source: 'server-test-echo' },
+            })
+          )
+        } catch (error) {
+          console.error(
+            `❌ Failed to emit echo response for conversation ${conversationId}:`,
+            error
+          )
+          this.incrementErrorCount(storeId, error as Error)
+        }
+      }
+    }, 0)
+  }
+
+  private emitErrorResponse(
+    storeId: string,
+    conversationId: string,
+    messageId: string,
+    errorMessage: string
+  ): void {
+    setTimeout(() => {
+      const storeState = this.storeStates.get(storeId)
+      if (storeState?.stopping) {
+        return
+      }
+
+      const store = this.storeManager.getStore(storeId)
+      if (store) {
+        try {
+          store.commit(
+            events.llmResponseReceived({
+              id: crypto.randomUUID(),
+              conversationId,
+              message: errorMessage,
+              role: 'assistant',
+              modelId: 'error-handler',
+              responseToMessageId: messageId,
+              createdAt: new Date(),
+              llmMetadata: { source: 'server-error' },
+            })
+          )
+        } catch (error) {
+          console.error(
+            `❌ Failed to emit error response for conversation ${conversationId}:`,
+            error
+          )
+          this.incrementErrorCount(storeId, error as Error)
+        }
+      }
+    }, 0)
   }
 
   private incrementErrorCount(storeId: string, error: Error): void {

@@ -1,0 +1,211 @@
+import { toolDef, requiredString, optionalString, optionalNumber, stringArray } from './base.js'
+
+/**
+ * Centralized OpenAI function schemas for all LLM tools
+ * This eliminates duplication and provides a single source of truth
+ */
+export const llmToolSchemas = [
+  // Task Management Tools
+  toolDef('create_task', 'Create a new task in the Kanban system', {
+    type: 'object',
+    properties: {
+      title: requiredString('The title/name of the task'),
+      description: optionalString('Optional detailed description of the task'),
+      boardId: optionalString(
+        'ID of the project to create the task on (defaults to first project)'
+      ),
+      columnId: optionalString('ID of the column to place the task in (defaults to first column)'),
+      assigneeId: optionalString('ID of the user to assign the task to'),
+    },
+    required: ['title'],
+  }),
+
+  toolDef('update_task', 'Update an existing task with new information', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('The ID of the task to update'),
+      title: optionalString('New title for the task'),
+      description: optionalString('New description for the task'),
+      assigneeIds: stringArray('Array of user IDs to assign to the task'),
+    },
+    required: ['taskId'],
+  }),
+
+  toolDef('move_task', 'Move a task to a different column within the same project', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('The ID of the task to move'),
+      toColumnId: requiredString('The ID of the column to move the task to'),
+      position: optionalNumber('Position in the column (defaults to end)'),
+    },
+    required: ['taskId', 'toColumnId'],
+  }),
+
+  toolDef('move_task_to_project', 'Move a task to a different project and column', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('The ID of the task to move'),
+      toProjectId: optionalString(
+        'The ID of the project to move the task to (optional for orphaning)'
+      ),
+      toColumnId: requiredString('The ID of the column to move the task to'),
+      position: optionalNumber('Position in the column (defaults to end)'),
+    },
+    required: ['taskId', 'toColumnId'],
+  }),
+
+  toolDef('archive_task', 'Archive a task to remove it from active view', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('The ID of the task to archive'),
+    },
+    required: ['taskId'],
+  }),
+
+  toolDef('unarchive_task', 'Unarchive a task to restore it to active view', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('The ID of the task to unarchive'),
+    },
+    required: ['taskId'],
+  }),
+
+  toolDef('get_task_by_id', 'Get detailed information about a specific task', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('The ID of the task to retrieve'),
+    },
+    required: ['taskId'],
+  }),
+
+  toolDef('get_project_tasks', 'Get all tasks for a specific project', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('The ID of the project to get tasks for'),
+    },
+    required: ['projectId'],
+  }),
+
+  toolDef('get_orphaned_tasks', 'Get all tasks that are not assigned to any project', {
+    type: 'object',
+    properties: {},
+    required: [],
+  }),
+
+  // Project Management Tools
+  toolDef(
+    'list_projects',
+    'Get a list of all available projects with their IDs, names, and descriptions',
+    {
+      type: 'object',
+      properties: {},
+      required: [],
+    }
+  ),
+
+  toolDef('get_project_details', 'Get detailed information about a specific project', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('The ID of the project to get details for'),
+    },
+    required: ['projectId'],
+  }),
+
+  // Document Management Tools
+  toolDef(
+    'list_documents',
+    'Get a list of all available documents with their IDs, titles, and last updated dates',
+    {
+      type: 'object',
+      properties: {},
+      required: [],
+    }
+  ),
+
+  toolDef('read_document', 'Read the full content of a specific document by its ID', {
+    type: 'object',
+    properties: {
+      documentId: requiredString('The ID of the document to read'),
+    },
+    required: ['documentId'],
+  }),
+
+  toolDef('search_documents', 'Search through document titles and content for a specific query', {
+    type: 'object',
+    properties: {
+      query: requiredString('The search query to find in document titles and content'),
+    },
+    required: ['query'],
+  }),
+
+  toolDef('get_project_documents', 'Get all documents for a specific project', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('The ID of the project to get documents for'),
+    },
+    required: ['projectId'],
+  }),
+
+  toolDef(
+    'search_project_documents',
+    'Search through document titles and content within a specific project',
+    {
+      type: 'object',
+      properties: {
+        query: requiredString('The search query to find in document titles and content'),
+        projectId: optionalString('The ID of the project to search within (optional)'),
+      },
+      required: ['query'],
+    }
+  ),
+
+  // Document Event Tools (Write Operations)
+  toolDef('create_document', 'Create a new document with title and optional content', {
+    type: 'object',
+    properties: {
+      title: requiredString('The title of the document'),
+      content: optionalString('The content of the document (defaults to empty)'),
+    },
+    required: ['title'],
+  }),
+
+  toolDef('update_document', "Update an existing document's title and/or content", {
+    type: 'object',
+    properties: {
+      documentId: requiredString('The ID of the document to update'),
+      title: optionalString('New title for the document'),
+      content: optionalString('New content for the document'),
+    },
+    required: ['documentId'],
+  }),
+
+  toolDef('archive_document', 'Archive a document to remove it from active view', {
+    type: 'object',
+    properties: {
+      documentId: requiredString('The ID of the document to archive'),
+    },
+    required: ['documentId'],
+  }),
+
+  toolDef('add_document_to_project', 'Associate an existing document with a project', {
+    type: 'object',
+    properties: {
+      documentId: requiredString('The ID of the document to add to the project'),
+      projectId: requiredString('The ID of the project to add the document to'),
+    },
+    required: ['documentId', 'projectId'],
+  }),
+
+  toolDef(
+    'remove_document_from_project',
+    'Remove a document association from a project (keeps the document)',
+    {
+      type: 'object',
+      properties: {
+        documentId: requiredString('The ID of the document to remove from the project'),
+        projectId: requiredString('The ID of the project to remove the document from'),
+      },
+      required: ['documentId', 'projectId'],
+    }
+  ),
+]

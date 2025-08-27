@@ -160,6 +160,7 @@ Build the absolute minimal feature set to enable background agents to check user
 ### ✅ Completed Work
 
 #### Foundation Phase (Infrastructure) - COMPLETE
+
 - **✅ Multi-Store Server Support** (PRs #138, #143)
   - Phase 1: Store management infrastructure with environment variables
   - Phase 2: Per-store event processing with isolation and WebSocket distribution
@@ -168,13 +169,15 @@ Build the absolute minimal feature set to enable background agents to check user
 #### Feature Phase (User-Facing Capabilities) - MAJOR PROGRESS
 
 ##### Simple Contact Management - COMPLETE ✅
+
 - **✅ Phase 1**: Basic contact creation & display (PR #136)
-- **✅ Phase 2**: Contact detail view & editing (PR #139) 
+- **✅ Phase 2**: Contact detail view & editing (PR #139)
 - **✅ Phase 3**: Project-contact associations (PR #146)
 - **✅ Phase 4**: Bulk contact import functionality (PR #149)
 - 🔄 **Phase 7**: LLM contacts tools for MCP integration (PR #154 - OPEN)
 
 ##### Recurring Tasks - COMPLETE ✅
+
 - **✅ Phase 1**: Basic recurring task creation & display (PR #137)
 - **✅ Phase 2**: Task editing, deletion & enable/disable (PR #140)
 - **✅ Phase 3**: Manual execution & basic history (PR #141)
@@ -182,6 +185,7 @@ Build the absolute minimal feature set to enable background agents to check user
 ### 🔄 In Progress Work
 
 #### Server-Side Agentic Loop Migration - IN PROGRESS
+
 - 🔄 **Major rewrite**: Server-side agentic loop processing (PR #148 - OPEN)
   - Complete move of LLM execution from client to server
   - Event-driven architecture with LiveStore event flow
@@ -191,13 +195,15 @@ Build the absolute minimal feature set to enable background agents to check user
 ### 📋 Remaining Work
 
 #### Gmail MCP Server Setup - PENDING
+
 - Configure Gmail MCP server
 - OAuth flow for Gmail connection
 - Implement search emails tool (4-hour window)
 - Implement create draft email tool
 - Email-to-task conversion
 
-#### Email Processing Workflow - PENDING  
+#### Email Processing Workflow - PENDING
+
 - Create recurring task for email checking
 - Filter emails by project contacts
 - Create tasks from relevant emails
@@ -205,6 +211,7 @@ Build the absolute minimal feature set to enable background agents to check user
 - Link drafts to tasks
 
 #### Recurring Tasks LLM Integration - BLOCKED
+
 - **Prerequisites**: Server agentic loop (PR #148) must be complete
 - Connect recurring tasks to server-side agentic loop
 - Execute prompts with real LLM (currently mock execution)
@@ -220,10 +227,10 @@ Build the absolute minimal feature set to enable background agents to check user
 
 - **Foundation Phase**: ✅ 100% Complete
 - **Simple Contact Management**: ✅ ~90% Complete (Phase 7 in review)
-- **Recurring Tasks (Basic)**: ✅ 100% Complete  
+- **Recurring Tasks (Basic)**: ✅ 100% Complete
 - **Server Agentic Loop**: 🔄 ~80% Complete (PR in progress)
 - **Recurring Tasks (LLM)**: ❌ 0% (blocked on agentic loop)
-- **Gmail MCP Integration**: ❌ 0% 
+- **Gmail MCP Integration**: ❌ 0%
 - **Email Processing Workflow**: ❌ 0%
 
 **Total Project Progress: ~60%**
