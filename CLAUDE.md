@@ -25,8 +25,11 @@ CI=true pnpm test:e2e  # Runs E2E tests
 ```bash
 # First time setup
 pnpm install
-cp packages/web/.env.example packages/web/.env && cp .dev.vars.example .dev.vars
-# Edit packages/web/.env and .dev.vars with your Braintrust API credentials
+cp packages/web/.env.example packages/web/.env
+cp packages/worker/.dev.vars.example packages/worker/.dev.vars
+cp packages/auth-worker/.dev.vars.example packages/auth-worker/.dev.vars
+cp packages/server/.env.example packages/server/.env
+# Edit the respective .env and .dev.vars files with your credentials
 
 # Start development (monorepo - runs both web and worker)
 pnpm dev          # Vite + Wrangler

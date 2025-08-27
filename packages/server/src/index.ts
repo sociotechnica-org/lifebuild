@@ -1,9 +1,15 @@
 import dotenv from 'dotenv'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 import { storeManager } from './services/store-manager.js'
 import { EventProcessor } from './services/event-processor.js'
 import { loadStoresConfig } from './config/stores.js'
 
-dotenv.config()
+// Load environment variables from package-local .env file
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const packageRoot = resolve(__dirname, '..')
+dotenv.config({ path: resolve(packageRoot, '.env') })
 
 async function main() {
   console.log('🚀 Starting Work Squared Multi-Store Server...')

@@ -76,7 +76,7 @@ curl http://localhost:8788/health
 pnpm install
 
 # Copy environment file
-cp .env.example .env
+cp .dev.vars.example .dev.vars
 
 # Start development server
 pnpm dev

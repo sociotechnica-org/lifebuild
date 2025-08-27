@@ -1,7 +1,14 @@
-# Development environment variables for Cloudflare Workers
+# Development environment variables for Main Worker (sync + LLM)
 # Copy this file to .dev.vars and fill in your actual values
 
-# Braintrust LLM API credentials
+# Environment
+ENVIRONMENT=development
+REQUIRE_AUTH=true
+JWT_SECRET=dev-jwt-secret-change-me-in-production
+GRACE_PERIOD_SECONDS=86400
+SERVER_BYPASS_TOKEN=dev-server-bypass-token-change-me
+
+# Braintrust LLM API credentials (required for chat functionality)
 # Get these from https://www.braintrust.dev/
 BRAINTRUST_API_KEY="your-braintrust-api-key-here"
 BRAINTRUST_PROJECT_ID="your-braintrust-project-id-here"

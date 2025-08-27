@@ -46,16 +46,14 @@ This project is organized as a pnpm workspace with the following packages:
     cp packages/web/.env.example packages/web/.env
     cp packages/worker/.dev.vars.example packages/worker/.dev.vars
     cp packages/auth-worker/.dev.vars.example packages/auth-worker/.dev.vars
+    cp packages/server/.env.example packages/server/.env
     ```
 
-    Update `packages/web/.env` with:
-
-    ```
-    VITE_LIVESTORE_SYNC_URL=ws://localhost:8787
-    VITE_ENVIRONMENT=development
-    VITE_REQUIRE_AUTH=false
-    VITE_AUTH_SERVICE_URL=http://localhost:8788
-    ```
+    Update the environment files with your specific values:
+    - `packages/web/.env` - Frontend configuration
+    - `packages/worker/.dev.vars` - Main worker with Braintrust API credentials
+    - `packages/auth-worker/.dev.vars` - Authentication service
+    - `packages/server/.env` - Server configuration
 
     Update `packages/worker/.dev.vars` with:
 
