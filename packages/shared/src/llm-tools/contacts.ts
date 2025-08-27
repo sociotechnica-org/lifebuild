@@ -11,6 +11,7 @@ import {
   getContactByEmail$,
   getProjectContactAssociations$,
   getContactProjectAssociations$,
+  getProjects$,
 } from '../livestore/queries.js'
 import { events } from '../livestore/schema.js'
 import { parseEmailList } from '../utils/contact-import.js'
@@ -48,19 +49,20 @@ export const getContact = wrapStringParamFunction(async (store: Store, contactId
   }
 
   // Get associated projects
-  const projectAssociations = (await store.query(
-    getContactProjectAssociations$(contactId)
-  )) as any[] as any[]
+  const projectJunctions = (await store.query(getContactProjectAssociations$(contactId))) as any[]
+  const allProjects = (await store.query(getProjects$)) as any[]
+  const projectIds = new Set(projectJunctions.map((pj: any) => pj.projectId))
+  const associatedProjects = allProjects.filter(p => projectIds.has(p.id))
 
   return {
     success: true,
     contact: {
       id: contact.id,
-      name: contact.name || contact.email?.split('@')[0] || 'Unknown',
-      email: contact.email,
+      name: contact.name || (contact.email || '').split('@')[0] || 'Unknown',
+      email: contact.email || '',
       createdAt: contact.createdAt,
       updatedAt: contact.updatedAt,
-      projects: projectAssociations.map(p => ({
+      projects: associatedProjects.map(p => ({
         id: p.id,
         name: p.name,
         description: p.description,
@@ -80,13 +82,13 @@ export const searchContacts = wrapStringParamFunction(async (store: Store, query
     .filter(c => !c.deletedAt)
     .filter(contact => {
       const name = (contact.name || '').toLowerCase()
-      const email = contact.email.toLowerCase()
+      const email = (contact.email || '').toLowerCase()
       return name.includes(searchTerm) || email.includes(searchTerm)
     })
     .map(contact => ({
       id: contact.id,
-      name: contact.name || contact.email?.split('@')[0] || 'Unknown',
-      email: contact.email,
+      name: contact.name || (contact.email || '').split('@')[0] || 'Unknown',
+      email: contact.email || '',
       createdAt: contact.createdAt,
       updatedAt: contact.updatedAt,
     }))
@@ -224,7 +226,7 @@ export const deleteContact = wrapStringParamFunction(async (store: Store, contac
 
   return {
     success: true,
-    message: `Contact ${contact.name || contact.email} has been deleted`,
+    message: `Contact ${contact.name || contact.email || 'Unknown'} has been deleted`,
   }
 })
 
@@ -239,14 +241,17 @@ export const getProjectContacts = wrapStringParamFunction(
       throw new Error('Project ID is required')
     }
 
-    const contacts = (await store.query(getProjectContactAssociations$(projectId))) as any[]
+    const contactJunctions = (await store.query(getProjectContactAssociations$(projectId))) as any[]
+    const allContacts = (await store.query(getContacts$)) as any[]
+    const contactIds = new Set(contactJunctions.map((cj: any) => cj.contactId))
+    const projectContacts = allContacts.filter(c => contactIds.has(c.id) && !c.deletedAt)
 
     return {
       success: true,
       projectId,
-      contacts: contacts.map(contact => ({
+      contacts: projectContacts.map(contact => ({
         id: contact.id,
-        name: contact.name || contact.email?.split('@')[0] || 'Unknown',
+        name: contact.name || (contact.email || '').split('@')[0] || 'Unknown',
         email: contact.email || '',
         createdAt: contact.createdAt,
         updatedAt: contact.updatedAt,
@@ -272,16 +277,19 @@ export const getContactProjects = wrapStringParamFunction(
       throw new Error(`Contact with ID ${contactId} has been deleted`)
     }
 
-    const projects = (await store.query(getContactProjectAssociations$(contactId))) as any[]
+    const projectJunctions = (await store.query(getContactProjectAssociations$(contactId))) as any[]
+    const allProjects = (await store.query(getProjects$)) as any[]
+    const projectIds = new Set(projectJunctions.map((pj: any) => pj.projectId))
+    const contactProjects = allProjects.filter(p => projectIds.has(p.id) && !p.deletedAt)
 
     return {
       success: true,
       contactId,
       contact: {
-        name: contact.name || contact.email?.split('@')[0] || 'Unknown',
+        name: contact.name || (contact.email || '').split('@')[0] || 'Unknown',
         email: contact.email || '',
       },
-      projects: projects.map(project => ({
+      projects: contactProjects.map(project => ({
         id: project.id,
         name: project.name,
         description: project.description,
@@ -333,7 +341,7 @@ export const addContactToProject = wrapToolFunction(
 
     return {
       success: true,
-      message: `Contact ${contact.name || contact.email} has been added to project`,
+      message: `Contact ${contact.name || contact.email || 'Unknown'} has been added to project`,
     }
   }
 )
@@ -371,7 +379,7 @@ export const removeContactFromProject = wrapToolFunction(
 
     return {
       success: true,
-      message: `Contact ${contact.name || contact.email} has been removed from project`,
+      message: `Contact ${contact.name || contact.email || 'Unknown'} has been removed from project`,
     }
   }
 )
@@ -385,8 +393,11 @@ export const getProjectEmailList = wrapStringParamFunction(
       throw new Error('Project ID is required')
     }
 
-    const contacts = (await store.query(getProjectContactAssociations$(projectId))) as any[]
-    const emails = contacts.map(contact => contact.email)
+    const contactJunctions = (await store.query(getProjectContactAssociations$(projectId))) as any[]
+    const allContacts = (await store.query(getContacts$)) as any[]
+    const contactIds = new Set(contactJunctions.map((cj: any) => cj.contactId))
+    const projectContacts = allContacts.filter(c => contactIds.has(c.id) && !c.deletedAt)
+    const emails = projectContacts.map(contact => contact.email || '').filter(email => email !== '')
 
     return {
       success: true,
@@ -424,8 +435,8 @@ export const findContactsByEmail = wrapToolFunction(
         contact: matchingContact
           ? {
               id: matchingContact.id,
-              name: matchingContact.name || matchingContact.email.split('@')[0],
-              email: matchingContact.email,
+              name: matchingContact.name || (matchingContact.email || '').split('@')[0],
+              email: matchingContact.email || '',
             }
           : null,
       }
