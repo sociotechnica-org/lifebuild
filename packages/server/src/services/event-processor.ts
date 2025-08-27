@@ -324,33 +324,35 @@ export class EventProcessor {
 
       console.log(`🤖 Emitting test response for conversation ${conversationId}`)
 
-      // Get the store and emit a test response with error handling
-      const store = this.storeManager.getStore(storeId)
-      if (store) {
-        try {
-          store.commit(
-            events.llmResponseReceived({
-              id: crypto.randomUUID(),
-              conversationId,
-              message: `Echo: ${testMessage}`,
-              role: 'assistant',
-              modelId: 'test-echo',
-              responseToMessageId: messageId,
-              createdAt: new Date(),
-              llmMetadata: { source: 'server-test-echo' },
-            })
-          )
-        } catch (error) {
-          console.error(
-            `❌ Failed to emit test response for conversation ${conversationId}:`,
-            error
-          )
-          this.incrementErrorCount(storeId, error as Error)
-          // Continue processing other events even if this one fails
+      // Use setTimeout to avoid LiveStore race condition (GitHub issue #577)
+      // This is the officially recommended workaround for committing from within subscriptions
+      setTimeout(() => {
+        const store = this.storeManager.getStore(storeId)
+        if (store) {
+          try {
+            store.commit(
+              events.llmResponseReceived({
+                id: crypto.randomUUID(),
+                conversationId,
+                message: `Echo: ${testMessage}`,
+                role: 'assistant',
+                modelId: 'test-echo',
+                responseToMessageId: messageId,
+                createdAt: new Date(),
+                llmMetadata: { source: 'server-test-echo' },
+              })
+            )
+          } catch (error) {
+            console.error(
+              `❌ Failed to emit test response for conversation ${conversationId}:`,
+              error
+            )
+            this.incrementErrorCount(storeId, error as Error)
+          }
+        } else {
+          console.warn(`⚠️ Store ${storeId} not found for test response emission`)
         }
-      } else {
-        console.warn(`⚠️ Store ${storeId} not found for test response emission`)
-      }
+      }, 0)
     }
   }
 

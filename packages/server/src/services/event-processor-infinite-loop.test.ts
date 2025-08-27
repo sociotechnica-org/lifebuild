@@ -36,7 +36,7 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     eventProcessor.stopAll()
   })
 
-  it('should not process the same chat message multiple times', () => {
+  it('should not process the same chat message multiple times', async () => {
     const storeId = 'test-store'
     const chatMessages = [
       {
@@ -57,6 +57,9 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
     // Simulate initial message arrival
     chatMessagesCallback!(chatMessages)
+
+    // Wait for async setTimeout to complete
+    await new Promise(resolve => setTimeout(resolve, 10))
 
     // Verify handleUserMessage was called once
     expect(mockStore.commit).toHaveBeenCalledTimes(1)
@@ -96,7 +99,7 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     expect(mockStore.commit).not.toHaveBeenCalled()
   })
 
-  it('should process new messages but not duplicates', () => {
+  it('should process new messages but not duplicates', async () => {
     const storeId = 'test-store'
 
     eventProcessor.startMonitoring(storeId, mockStore as any)
@@ -114,6 +117,10 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     }
 
     chatMessagesCallback!([firstMessage])
+
+    // Wait for async setTimeout to complete
+    await new Promise(resolve => setTimeout(resolve, 10))
+
     expect(mockStore.commit).toHaveBeenCalledTimes(1)
     expect(mockStore.commit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -136,6 +143,9 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
     // LiveStore returns full dataset including both messages
     chatMessagesCallback!([firstMessage, secondMessage])
+
+    // Wait for async setTimeout to complete
+    await new Promise(resolve => setTimeout(resolve, 10))
 
     // Should only process the new message, not the first one again
     expect(mockStore.commit).toHaveBeenCalledTimes(1)
