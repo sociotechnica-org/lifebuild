@@ -327,6 +327,12 @@ export class EventProcessor {
       // Use setTimeout to avoid LiveStore race condition (GitHub issue #577)
       // This is the officially recommended workaround for committing from within subscriptions
       setTimeout(() => {
+        // Check if store is still active (not stopping)
+        const storeState = this.storeStates.get(storeId)
+        if (storeState?.stopping) {
+          return // Skip processing if store is being stopped
+        }
+
         const store = this.storeManager.getStore(storeId)
         if (store) {
           try {
