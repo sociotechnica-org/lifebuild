@@ -269,13 +269,15 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 
 ---
 
-## Phase 7: LLM Contacts Tools
+## Phase 7: LLM Contacts Tools 🔄
 
 **Goal**: Provide LLM tools for interacting with contacts and project-contact associations via MCP
 
+**Status**: 🔄 PR #154 - feat: add comprehensive LLM contacts tools for MCP integration (Phase 7) - OPEN
+
 ### Backend Tools
 
-- [ ] Create `packages/shared/src/mcp/contacts-tools.ts`:
+- [x] Create `packages/shared/src/llm-tools/contacts.ts`:
   - `listContacts()`: Get all contacts with basic info
   - `getContact(id)`: Get detailed contact information
   - `searchContacts(query)`: Search contacts by name or email
@@ -285,7 +287,7 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 
 ### Project-Contact Tools
 
-- [ ] Add to contacts tools:
+- [x] Add to contacts tools:
   - `getProjectContacts(projectId)`: Get all contacts for a project
   - `getContactProjects(contactId)`: Get all projects for a contact
   - `addContactToProject(contactId, projectId)`: Associate contact with project
@@ -294,7 +296,7 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 
 ### Integration & Utilities
 
-- [ ] Create `packages/shared/src/mcp/email-tools.ts`:
+- [x] Create email utility tools:
   - `findContactsByEmail(emails[])`: Match email addresses to contacts
   - `getProjectContactEmails(projectId)`: Get contact emails for project filtering
   - `validateEmailList(emails[])`: Validate and normalize email addresses
@@ -302,7 +304,7 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 
 ### Error Handling & Validation
 
-- [ ] Implement comprehensive error handling:
+- [x] Implement comprehensive error handling:
   - Contact not found errors
   - Duplicate email prevention
   - Invalid email format validation
@@ -311,7 +313,7 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 
 ### Documentation
 
-- [ ] Document MCP tools with examples:
+- [x] Document MCP tools with examples:
   - Tool schemas and parameter validation
   - Common usage patterns for email workflows
   - Integration examples with email drafting
@@ -319,11 +321,11 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 
 ### Tests
 
-- [ ] Unit tests for all MCP tools
-- [ ] Integration tests with LiveStore
-- [ ] Error handling test cases
-- [ ] Email matching and validation tests
-- [ ] Tool schema validation tests
+- [x] Unit tests for all MCP tools (75+ test cases)
+- [x] Integration tests with LiveStore
+- [x] Error handling test cases
+- [x] Email matching and validation tests
+- [x] Tool schema validation tests
 
 **QA Scenario**: LLM can discover contacts, search by email, create missing contacts from email threads, associate contacts with projects, and retrieve project contact lists for email filtering - all through well-defined MCP tools.
 
@@ -333,7 +335,7 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 - Contact discovery: Create contacts from email participants
 - Project management: Associate new contacts with relevant projects
 
-**Deliverable**: PR with comprehensive LLM contacts tools for MCP integration
+**Deliverable**: 🔄 PR #154 - feat: add comprehensive LLM contacts tools for MCP integration (Phase 7) - OPEN
 
 ---
 

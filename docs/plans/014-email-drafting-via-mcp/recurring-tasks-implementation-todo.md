@@ -6,146 +6,146 @@ Implement a minimal recurring task system with simple interval-based scheduling,
 
 Each phase delivers working, QA-able software with a complete vertical slice through all layers.
 
-## Phase 1: Basic Recurring Task Creation & Display
+## Phase 1: Basic Recurring Task Creation & Display ✅
 
 **Goal**: Users can create recurring tasks with intervals and view them in a list
 
 ### Backend
 
-- [ ] Add to `packages/shared/src/schema.ts`:
+- [x] Add to `packages/shared/src/schema.ts`:
   - `recurring_tasks` table (id, name, description, prompt, intervalHours, lastExecutedAt, nextExecutionAt, enabled, projectId, createdAt, updatedAt)
   - `recurring_task.create` event and materializer
   - Calculate `nextExecutionAt` on creation
-- [ ] Add to `packages/shared/src/events.ts`:
+- [x] Add to `packages/shared/src/events.ts`:
   - `recurring_task.create` event definition
-- [ ] Add to `packages/shared/src/queries.ts`:
+- [x] Add to `packages/shared/src/queries.ts`:
   - `getRecurringTasks(db): RecurringTask[]`
   - `getRecurringTaskById(db, id): RecurringTask | null`
-- [ ] Create `packages/shared/src/utils/scheduling.ts`:
+- [x] Create `packages/shared/src/utils/scheduling.ts`:
   - `calculateNextExecution(now: number, intervalHours: number): number`
 
 ### Frontend
 
-- [ ] Create `packages/web/src/components/recurring-tasks/RecurringTasksList.tsx`
+- [x] Create `packages/web/src/components/recurring-tasks/RecurringTasksList.tsx`
   - Display list of tasks (name, interval, next execution)
   - Include empty state
-- [ ] Create `packages/web/src/components/recurring-tasks/RecurringTaskForm.tsx`
+- [x] Create `packages/web/src/components/recurring-tasks/RecurringTaskForm.tsx`
   - Name and description fields
   - Prompt textarea
   - Interval selector (hours)
   - Submit button
-- [ ] Create `packages/web/src/hooks/useRecurringTasks.ts`
+- [x] Create `packages/web/src/hooks/useRecurringTasks.ts`
   - Subscribe to recurring tasks query
   - Provide create operation
-- [ ] Add "Recurring Tasks" to task board as new lane
+- [x] Add "Recurring Tasks" to task board as new lane
   - Show list of recurring tasks
   - Add task button opens form
 
 ### Tests
 
-- [ ] Unit test: recurring_task.create event and materializer
-- [ ] Unit test: calculateNextExecution
-- [ ] Component test: RecurringTaskForm submission
-- [ ] E2E test: Create recurring task and see it in list
+- [x] Unit test: recurring_task.create event and materializer
+- [x] Unit test: calculateNextExecution
+- [x] Component test: RecurringTaskForm submission
+- [x] E2E test: Create recurring task and see it in list
 
 **QA Scenario**: User navigates to task board, sees recurring tasks lane, creates a task with name, prompt, and 4-hour interval, sees it appear with calculated next execution time.
 
-**Deliverable**: PR with basic recurring task creation and display
+**Deliverable**: ✅ PR #137 - feat: Add Phase 1 recurring tasks functionality
 
 ---
 
-## Phase 2: Task Editing, Deletion & Enable/Disable
+## Phase 2: Task Editing, Deletion & Enable/Disable ✅
 
 **Goal**: Users can edit, delete, and enable/disable recurring tasks
 
 ### Backend
 
-- [ ] Add to `packages/shared/src/events.ts`:
+- [x] Add to `packages/shared/src/events.ts`:
   - `recurring_task.update` event
   - `recurring_task.delete` event
   - `recurring_task.enable` event
   - `recurring_task.disable` event
-- [ ] Add materializers for update/delete/enable/disable
+- [x] Add materializers for update/delete/enable/disable
   - Recalculate `nextExecutionAt` on update/enable
   - Set `nextExecutionAt` to null on disable
 
 ### Frontend
 
-- [ ] Create `packages/web/src/components/recurring-tasks/RecurringTaskCard.tsx`
+- [x] Create `packages/web/src/components/recurring-tasks/RecurringTaskCard.tsx`
   - Display task details
   - Edit, delete, enable/disable buttons
   - Show enabled/disabled state visually
-- [ ] Create `packages/web/src/components/recurring-tasks/EditRecurringTaskModal.tsx`
+- [x] Create `packages/web/src/components/recurring-tasks/EditRecurringTaskModal.tsx`
   - Modal for editing task details
   - Pre-fill current values
-- [ ] Update useRecurringTasks hook:
+- [x] Update useRecurringTasks hook:
   - Add update, delete, enable, disable operations
   - Handle optimistic updates
-- [ ] Update RecurringTasksList:
+- [x] Update RecurringTasksList:
   - Use RecurringTaskCard for each item
   - Show disabled tasks differently (grayed out)
 
 ### Tests
 
-- [ ] Unit test: update/delete/enable/disable events and materializers
-- [ ] Component test: Edit task flow
-- [ ] Component test: Enable/disable toggle
-- [ ] E2E test: Edit task and see updates
-- [ ] E2E test: Disable task and see visual change
+- [x] Unit test: update/delete/enable/disable events and materializers
+- [x] Component test: Edit task flow
+- [x] Component test: Enable/disable toggle
+- [x] E2E test: Edit task and see updates
+- [x] E2E test: Disable task and see visual change
 
 **QA Scenario**: User can edit a task's name, prompt, or interval, disable it (grays out, no next execution shown), re-enable it (next execution recalculated), and delete it.
 
-**Deliverable**: PR with task editing, deletion, and enable/disable
+**Deliverable**: ✅ PR #140 - feat: Implement Phase 2 recurring tasks - edit, delete, enable/disable
 
 ---
 
-## Phase 3: Manual Execution & Basic History
+## Phase 3: Manual Execution & Basic History ✅
 
 **Goal**: Users can manually trigger tasks and see execution history
 
 ### Backend
 
-- [ ] Add to `packages/shared/src/schema.ts`:
+- [x] Add to `packages/shared/src/schema.ts`:
   - `task_executions` table (id, recurringTaskId, startedAt, completedAt, status, output, createdTaskIds)
-- [ ] Add to `packages/shared/src/events.ts`:
+- [x] Add to `packages/shared/src/events.ts`:
   - `recurring_task.execute` event (manual trigger)
   - `task_execution.start` event
   - `task_execution.complete` event
   - `task_execution.fail` event
-- [ ] Add execution materializers:
+- [x] Add execution materializers:
   - Create execution record on start
   - Update task's lastExecutedAt
   - Calculate next execution
-- [ ] Add to `packages/shared/src/queries.ts`:
+- [x] Add to `packages/shared/src/queries.ts`:
   - `getTaskExecutions(db, taskId): TaskExecution[]`
   - `getLatestExecution(db, taskId): TaskExecution | null`
 
 ### Frontend
 
-- [ ] Add manual trigger button to RecurringTaskCard
+- [x] Add manual trigger button to RecurringTaskCard
   - Show loading state during execution
   - Disabled if already running
-- [ ] Create `packages/web/src/components/recurring-tasks/ExecutionHistory.tsx`
+- [x] Create `packages/web/src/components/recurring-tasks/ExecutionHistory.tsx`
   - Show last 5 executions inline in card
   - Status badges (success/failed/running)
   - Execution timestamp
-- [ ] Update useRecurringTasks hook:
+- [x] Update useRecurringTasks hook:
   - Add manual trigger operation
   - Subscribe to execution history
-- [ ] Create mock execution handler (simulates completion):
+- [x] Create mock execution handler (simulates completion):
   - Waits 2 seconds
   - Marks as complete with mock output
 
 ### Tests
 
-- [ ] Unit test: execution events and materializers
-- [ ] Component test: Manual trigger button
-- [ ] Component test: Execution history display
-- [ ] E2E test: Trigger task manually and see history
+- [x] Unit test: execution events and materializers
+- [x] Component test: Manual trigger button
+- [x] Component test: Execution history display
+- [x] E2E test: Trigger task manually and see history
 
 **QA Scenario**: User clicks "Run Now" on a task, sees it enter running state, completes after a few seconds, and execution appears in history with timestamp.
 
-**Deliverable**: PR with manual execution and basic history
+**Deliverable**: ✅ PR #141 - feat: Implement Phase 3 recurring tasks execution functionality
 
 ---
 
