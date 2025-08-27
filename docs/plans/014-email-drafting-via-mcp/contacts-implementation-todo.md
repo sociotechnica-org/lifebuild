@@ -6,48 +6,48 @@ Implement a minimal contact management system where contacts are simply name + e
 
 Each phase delivers working, QA-able software with a complete vertical slice through all layers.
 
-## Phase 1: Basic Contact Creation & Display
+## Phase 1: Basic Contact Creation & Display ✅
 
 **Goal**: Users can create and view global contacts (shared across all users in the Work Squared instance)
 
 ### Backend
 
-- [ ] Add to `packages/shared/src/schema.ts`:
+- [x] Add to `packages/shared/src/schema.ts`:
   - `contacts` table (id, name, email, createdAt, updatedAt)
   - `contact.create` event and materializer
   - **Enforce unique email constraint globally**
-- [ ] Add to `packages/shared/src/events.ts`:
+- [x] Add to `packages/shared/src/events.ts`:
   - `contact.create` event definition
-- [ ] Add to `packages/shared/src/queries.ts`:
+- [x] Add to `packages/shared/src/queries.ts`:
   - `getContacts(db): Contact[]`
   - `getContactById(db, id): Contact | null`
   - `getContactByEmail(db, email): Contact | null` (for duplicate checking)
 
 ### Frontend
 
-- [ ] Create `packages/web/src/components/contacts/ContactList.tsx`
+- [x] Create `packages/web/src/components/contacts/ContactList.tsx`
   - Display list of contacts (name, email)
   - Include empty state
-- [ ] Create `packages/web/src/components/contacts/ContactForm.tsx`
+- [x] Create `packages/web/src/components/contacts/ContactForm.tsx`
   - Name and email input fields
   - Submit button to create contact
   - Basic email validation
   - **Check for duplicate emails before creation**
-- [ ] Create `packages/web/src/hooks/useContacts.ts`
+- [x] Create `packages/web/src/hooks/useContacts.ts`
   - Subscribe to contacts query
   - Provide create operation
   - Handle duplicate email errors
-- [ ] Add "Contacts" tab to main navigation (alongside Projects, Tasks, Documents, Workers)
+- [x] Add "Contacts" tab to main navigation (alongside Projects, Tasks, Documents, Workers)
   - Route to `/contacts`
   - Show ContactList with inline form
 
 ### Tests
 
-- [ ] Unit test: contact.create event and materializer
-- [ ] Unit test: duplicate email prevention
-- [ ] Component test: ContactForm submission
-- [ ] E2E test: Create contact and see it in list
-- [ ] E2E test: Attempt to create duplicate email shows error
+- [x] Unit test: contact.create event and materializer
+- [x] Unit test: duplicate email prevention
+- [x] Component test: ContactForm submission
+- [x] E2E test: Create contact and see it in list
+- [x] E2E test: Attempt to create duplicate email shows error
 
 **QA Scenario**: User navigates to Contacts tab, creates a contact with name and email, sees it appear in the list immediately. Attempting to create another contact with the same email shows an error.
 
@@ -55,44 +55,44 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 
 ---
 
-## Phase 2: Contact Detail View & Editing
+## Phase 2: Contact Detail View & Editing ✅
 
 **Goal**: Users can view contact details, edit, and delete contacts
 
 ### Backend
 
-- [ ] Add to `packages/shared/src/events.ts`:
+- [x] Add to `packages/shared/src/events.ts`:
   - `contact.update` event
   - `contact.delete` event
-- [ ] Add materializers for update and delete
+- [x] Add materializers for update and delete
   - **Delete cascades to remove from all project associations**
   - **Enforce unique email on updates**
 
 ### Frontend
 
-- [ ] Create contact detail route `/contacts/:id`
-- [ ] Create `packages/web/src/components/contacts/ContactDetail.tsx`
+- [x] Create contact detail route `/contacts/:id`
+- [x] Create `packages/web/src/components/contacts/ContactDetail.tsx`
   - Show contact name and email
   - Edit and delete buttons
   - List of associated projects (read-only for now)
-- [ ] Create `packages/web/src/components/contacts/ContactItem.tsx`
+- [x] Create `packages/web/src/components/contacts/ContactItem.tsx`
   - Clickable list item that navigates to detail view
   - Display contact name and email
-- [ ] Create `packages/web/src/components/contacts/EditContactModal.tsx`
+- [x] Create `packages/web/src/components/contacts/EditContactModal.tsx`
   - Modal for editing contact details
   - Check for duplicate emails on save
-- [ ] Update useContacts hook:
+- [x] Update useContacts hook:
   - Add update and delete operations
   - Handle optimistic updates
 
 ### Tests
 
-- [ ] Unit test: update/delete events and materializers
-- [ ] Unit test: cascade delete removes project associations
-- [ ] Component test: Edit contact flow
-- [ ] Component test: Delete contact with confirmation
-- [ ] E2E test: Navigate to contact detail, edit, and save
-- [ ] E2E test: Delete contact removes it from all projects
+- [x] Unit test: update/delete events and materializers
+- [x] Unit test: cascade delete removes project associations
+- [x] Component test: Edit contact flow
+- [x] Component test: Delete contact with confirmation
+- [x] E2E test: Navigate to contact detail, edit, and save
+- [x] E2E test: Delete contact removes it from all projects
 
 **QA Scenario**: User clicks on a contact to view details, can edit name/email (with duplicate check), and delete with confirmation. Deleting a contact removes it from all projects.
 
@@ -100,49 +100,49 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 
 ---
 
-## Phase 3: Project-Contact Association
+## Phase 3: Project-Contact Association ✅
 
 **Goal**: Users can associate contacts with projects from both contact and project views
 
 ### Backend
 
-- [ ] Add to `packages/shared/src/schema.ts`:
+- [x] Add to `packages/shared/src/schema.ts`:
   - `project_contacts` junction table
   - Materializers for association
-- [ ] Add to `packages/shared/src/events.ts`:
+- [x] Add to `packages/shared/src/events.ts`:
   - `project.contact.add` event
   - `project.contact.remove` event
-- [ ] Add to `packages/shared/src/queries.ts`:
+- [x] Add to `packages/shared/src/queries.ts`:
   - `getProjectContacts(db, projectId): Contact[]`
   - `getContactProjects(db, contactId): Project[]`
 
 ### Frontend
 
-- [ ] Update `ContactDetail.tsx`:
+- [x] Update `ContactDetail.tsx`:
   - Add "Add to Project" button
   - Show list of associated projects
   - Remove from project button
-- [ ] Create `packages/web/src/components/projects/ProjectContacts.tsx`
+- [x] Create `packages/web/src/components/projects/ProjectContacts.tsx`
   - Display contacts for a project
   - "Add Contact" button
   - Remove contact button
-- [ ] Create `packages/web/src/components/contacts/ContactPicker.tsx`
+- [x] Create `packages/web/src/components/contacts/ContactPicker.tsx`
   - Modal with list of all contacts
   - Checkboxes for selection
   - Filter out already-added contacts
-- [ ] Create `packages/web/src/components/projects/ProjectPicker.tsx`
+- [x] Create `packages/web/src/components/projects/ProjectPicker.tsx`
   - Modal to add contact to projects from contact detail
-- [ ] Update project detail view to include ProjectContacts section
-- [ ] Create `packages/web/src/hooks/useProjectContacts.ts`
+- [x] Update project detail view to include ProjectContacts section
+- [x] Create `packages/web/src/hooks/useProjectContacts.ts`
 
 ### Tests
 
-- [ ] Unit test: project-contact association events
-- [ ] Component test: ContactPicker selection
-- [ ] Component test: ProjectPicker from contact detail
-- [ ] E2E test: Add contact to project from project view
-- [ ] E2E test: Add contact to project from contact detail
-- [ ] E2E test: Remove contact from project
+- [x] Unit test: project-contact association events
+- [x] Component test: ContactPicker selection
+- [x] Component test: ProjectPicker from contact detail
+- [x] E2E test: Add contact to project from project view
+- [x] E2E test: Add contact to project from contact detail
+- [x] E2E test: Remove contact from project
 
 **QA Scenario**: User can add contacts to projects from either the project view or contact detail view. User can see which projects a contact belongs to and remove associations.
 
@@ -150,40 +150,40 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 
 ---
 
-## Phase 4: Bulk Import Contacts
+## Phase 4: Bulk Import Contacts ✅
 
 **Goal**: Users can bulk import contacts using comma-delimited email addresses
 
 ### Backend
 
-- [ ] Create `packages/shared/src/utils/contact-import.ts`:
+- [x] Create `packages/shared/src/utils/contact-import.ts`:
   - `parseEmailList(input: string): { email: string, name?: string }[]`
   - Handle various formats: "email@example.com" or "Name <email@example.com>"
   - Trim whitespace, validate emails
   - Skip duplicates within import
-- [ ] Add batch contact creation support
+- [x] Add batch contact creation support
   - Check for existing emails
   - Return list of created vs skipped contacts
 
 ### Frontend
 
-- [ ] Create `packages/web/src/components/contacts/BulkImportModal.tsx`
+- [x] Create `packages/web/src/components/contacts/BulkImportModal.tsx`
   - Textarea for comma-delimited email input
   - Support formats: "email1, email2" or "Name1 <email1>, Name2 <email2>"
   - Preview parsed contacts before import
   - Show which emails already exist
-- [ ] Add "Bulk Import" button to ContactList
-- [ ] Update useContacts hook:
+- [x] Add "Bulk Import" button to ContactList
+- [x] Update useContacts hook:
   - Add bulk create operation
   - Handle partial success (some created, some skipped)
 
 ### Tests
 
-- [ ] Unit test: Email list parsing
-- [ ] Unit test: Various email formats
-- [ ] Component test: Bulk import preview
-- [ ] E2E test: Import multiple contacts
-- [ ] E2E test: Import with some duplicates shows proper feedback
+- [x] Unit test: Email list parsing
+- [x] Unit test: Various email formats
+- [x] Component test: Bulk import preview
+- [x] E2E test: Import multiple contacts
+- [x] E2E test: Import with some duplicates shows proper feedback
 
 **QA Scenario**: User clicks "Bulk Import", pastes comma-delimited emails, sees preview of what will be imported, imports successfully with feedback on duplicates.
 
@@ -266,6 +266,74 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 **QA Scenario**: System correctly matches emails to contacts, handles various email formats, and provides email list for MCP tools
 
 **Deliverable**: PR with email integration utilities
+
+---
+
+## Phase 7: LLM Contacts Tools
+
+**Goal**: Provide LLM tools for interacting with contacts and project-contact associations via MCP
+
+### Backend Tools
+
+- [ ] Create `packages/shared/src/mcp/contacts-tools.ts`:
+  - `listContacts()`: Get all contacts with basic info
+  - `getContact(id)`: Get detailed contact information
+  - `searchContacts(query)`: Search contacts by name or email
+  - `createContact(name, email)`: Create new contact with duplicate checking
+  - `updateContact(id, updates)`: Update contact details
+  - `deleteContact(id)`: Delete contact and all associations
+
+### Project-Contact Tools
+
+- [ ] Add to contacts tools:
+  - `getProjectContacts(projectId)`: Get all contacts for a project
+  - `getContactProjects(contactId)`: Get all projects for a contact
+  - `addContactToProject(contactId, projectId)`: Associate contact with project
+  - `removeContactFromProject(contactId, projectId)`: Remove association
+  - `getProjectEmailList(projectId)`: Get formatted email list for a project
+
+### Integration & Utilities
+
+- [ ] Create `packages/shared/src/mcp/email-tools.ts`:
+  - `findContactsByEmail(emails[])`: Match email addresses to contacts
+  - `getProjectContactEmails(projectId)`: Get contact emails for project filtering
+  - `validateEmailList(emails[])`: Validate and normalize email addresses
+  - `suggestContactsFromEmails(emails[])`: Suggest creating contacts for unknown emails
+
+### Error Handling & Validation
+
+- [ ] Implement comprehensive error handling:
+  - Contact not found errors
+  - Duplicate email prevention
+  - Invalid email format validation
+  - Project association conflicts
+  - Proper error messages for LLM consumption
+
+### Documentation
+
+- [ ] Document MCP tools with examples:
+  - Tool schemas and parameter validation
+  - Common usage patterns for email workflows
+  - Integration examples with email drafting
+  - Best practices for contact management via LLM
+
+### Tests
+
+- [ ] Unit tests for all MCP tools
+- [ ] Integration tests with LiveStore
+- [ ] Error handling test cases
+- [ ] Email matching and validation tests
+- [ ] Tool schema validation tests
+
+**QA Scenario**: LLM can discover contacts, search by email, create missing contacts from email threads, associate contacts with projects, and retrieve project contact lists for email filtering - all through well-defined MCP tools.
+
+**Use Cases**:
+- Email drafting: Get project contact list for To/CC suggestions
+- Email filtering: Match incoming emails to project contacts
+- Contact discovery: Create contacts from email participants
+- Project management: Associate new contacts with relevant projects
+
+**Deliverable**: PR with comprehensive LLM contacts tools for MCP integration
 
 ---
 
