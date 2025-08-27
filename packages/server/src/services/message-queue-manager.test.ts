@@ -139,7 +139,7 @@ describe('MessageQueueManager', () => {
       // Manually create stale message by setting old timestamp
       const queue = (manager as any).queues.get(conversationId)
       if (queue && queue.length > 0) {
-        queue[0].timestamp = Date.now() - (6 * 60 * 1000) // 6 minutes ago (stale)
+        queue[0].timestamp = Date.now() - 6 * 60 * 1000 // 6 minutes ago (stale)
       }
 
       // Trigger cleanup by enqueuing to same conversation (calls cleanStaleMessages internally)
@@ -152,7 +152,7 @@ describe('MessageQueueManager', () => {
       // Now make the remaining message stale and trigger cleanup again
       const updatedQueue = (manager as any).queues.get(conversationId)
       if (updatedQueue && updatedQueue.length > 0) {
-        updatedQueue[0].timestamp = Date.now() - (6 * 60 * 1000)
+        updatedQueue[0].timestamp = Date.now() - 6 * 60 * 1000
       }
 
       manager.enqueue(conversationId, { id: 'msg-3', content: 'Final trigger' })
