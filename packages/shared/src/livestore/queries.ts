@@ -273,15 +273,19 @@ export const getContactByEmail$ = (email: string) =>
   })
 
 // Project-Contact association queries
-export const getProjectContacts$ = (projectId: string) =>
+export const getProjectContactAssociations$ = (projectId: string) =>
   queryDb(tables.projectContacts.select().where({ projectId }), {
-    label: `getProjectContacts:${projectId}`,
+    label: `getProjectContactAssociations:${projectId}`,
   })
 
-export const getContactProjects$ = (contactId: string) =>
+export const getContactProjectAssociations$ = (contactId: string) =>
   queryDb(tables.projectContacts.select().where({ contactId }), {
-    label: `getContactProjects:${contactId}`,
+    label: `getContactProjectAssociations:${contactId}`,
   })
+
+// Alias queries for web component compatibility
+export const getProjectContacts$ = getProjectContactAssociations$
+export const getContactProjects$ = getContactProjectAssociations$
 
 // Recurring tasks queries
 export const getRecurringTasks$ = queryDb(

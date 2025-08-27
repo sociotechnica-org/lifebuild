@@ -2,12 +2,14 @@ import type { ToolResultFormatter } from './types.js'
 import { TaskToolFormatter } from './task-formatter.js'
 import { DocumentToolFormatter } from './document-formatter.js'
 import { ProjectToolFormatter } from './project-formatter.js'
+import { ContactFormatter } from './contact-formatter.js'
 
 export class ToolResultFormatterService {
   private formatters: ToolResultFormatter[] = [
     new TaskToolFormatter(),
     new DocumentToolFormatter(),
     new ProjectToolFormatter(),
+    new ContactFormatter(),
   ]
 
   format(toolResult: any, toolCall: any): string {

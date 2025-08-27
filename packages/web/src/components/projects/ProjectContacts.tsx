@@ -15,7 +15,7 @@ export const ProjectContacts: React.FC<ProjectContactsProps> = ({ projectId }) =
   const [showContactPicker, setShowContactPicker] = useState(false)
 
   // Map junction data to actual contacts
-  const contactIds = new Set(projectContactJunctions.map(pc => pc.contactId))
+  const contactIds = new Set(projectContactJunctions.map((pc: any) => pc.contactId))
   const contacts = allContacts.filter(c => contactIds.has(c.id))
 
   const handleRemoveContact = async (contactId: string) => {

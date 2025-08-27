@@ -330,6 +330,7 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 **QA Scenario**: LLM can discover contacts, search by email, create missing contacts from email threads, associate contacts with projects, and retrieve project contact lists for email filtering - all through well-defined MCP tools.
 
 **Use Cases**:
+
 - Email drafting: Get project contact list for To/CC suggestions
 - Email filtering: Match incoming emails to project contacts
 - Contact discovery: Create contacts from email participants

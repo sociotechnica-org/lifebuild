@@ -208,4 +208,134 @@ export const llmToolSchemas = [
       required: ['documentId', 'projectId'],
     }
   ),
+
+  // Contact Management Tools
+  toolDef('list_contacts', 'Get a list of all contacts with their names, emails, and IDs', {
+    type: 'object',
+    properties: {},
+    required: [],
+  }),
+
+  toolDef('get_contact', 'Get detailed information about a specific contact', {
+    type: 'object',
+    properties: {
+      contactId: requiredString('The ID of the contact to retrieve'),
+    },
+    required: ['contactId'],
+  }),
+
+  toolDef('search_contacts', 'Search contacts by name or email address', {
+    type: 'object',
+    properties: {
+      query: requiredString('Search query to find contacts by name or email'),
+    },
+    required: ['query'],
+  }),
+
+  toolDef('create_contact', 'Create a new contact with name and email', {
+    type: 'object',
+    properties: {
+      name: optionalString('The name of the contact'),
+      email: requiredString('The email address of the contact'),
+    },
+    required: ['email'],
+  }),
+
+  toolDef('update_contact', "Update an existing contact's details", {
+    type: 'object',
+    properties: {
+      contactId: requiredString('The ID of the contact to update'),
+      name: optionalString('New name for the contact'),
+      email: optionalString('New email address for the contact'),
+    },
+    required: ['contactId'],
+  }),
+
+  toolDef('delete_contact', 'Delete a contact and remove all project associations', {
+    type: 'object',
+    properties: {
+      contactId: requiredString('The ID of the contact to delete'),
+    },
+    required: ['contactId'],
+  }),
+
+  // Project-Contact Association Tools
+  toolDef('get_project_contacts', 'Get all contacts associated with a specific project', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('The ID of the project to get contacts for'),
+    },
+    required: ['projectId'],
+  }),
+
+  toolDef('get_contact_projects', 'Get all projects associated with a specific contact', {
+    type: 'object',
+    properties: {
+      contactId: requiredString('The ID of the contact to get projects for'),
+    },
+    required: ['contactId'],
+  }),
+
+  toolDef('add_contact_to_project', 'Associate a contact with a project', {
+    type: 'object',
+    properties: {
+      contactId: requiredString('The ID of the contact to add to the project'),
+      projectId: requiredString('The ID of the project to add the contact to'),
+    },
+    required: ['contactId', 'projectId'],
+  }),
+
+  toolDef('remove_contact_from_project', 'Remove a contact association from a project', {
+    type: 'object',
+    properties: {
+      contactId: requiredString('The ID of the contact to remove from the project'),
+      projectId: requiredString('The ID of the project to remove the contact from'),
+    },
+    required: ['contactId', 'projectId'],
+  }),
+
+  toolDef('get_project_email_list', 'Get formatted email list for a project (for email drafting)', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('The ID of the project to get email list for'),
+    },
+    required: ['projectId'],
+  }),
+
+  // Email Utility Tools
+  toolDef('find_contacts_by_email', 'Match email addresses to existing contacts', {
+    type: 'object',
+    properties: {
+      emails: stringArray('Array of email addresses to match against contacts'),
+    },
+    required: ['emails'],
+  }),
+
+  toolDef(
+    'get_project_contact_emails',
+    'Get contact email addresses for a project (for filtering)',
+    {
+      type: 'object',
+      properties: {
+        projectId: requiredString('The ID of the project to get contact emails for'),
+      },
+      required: ['projectId'],
+    }
+  ),
+
+  toolDef('validate_email_list', 'Validate and normalize email addresses', {
+    type: 'object',
+    properties: {
+      emails: stringArray('Array of email addresses to validate'),
+    },
+    required: ['emails'],
+  }),
+
+  toolDef('suggest_contacts_from_emails', 'Suggest creating contacts for unknown email addresses', {
+    type: 'object',
+    properties: {
+      emails: stringArray('Array of email addresses to analyze for contact creation'),
+    },
+    required: ['emails'],
+  }),
 ]
