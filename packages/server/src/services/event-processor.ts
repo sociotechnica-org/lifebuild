@@ -1,7 +1,7 @@
 import type { Store as LiveStore } from '@livestore/livestore'
 import { queryDb } from '@livestore/livestore'
 import type { StoreManager } from './store-manager.js'
-import { tables } from '@work-squared/shared/schema'
+import { tables, events } from '@work-squared/shared/schema'
 
 interface EventBuffer {
   events: any[]
@@ -180,6 +180,11 @@ export class EventProcessor {
           displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
 
         console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
+
+        // Handle user messages for test responses
+        if (tableName === 'chatMessages' && record.role === 'user') {
+          this.handleUserMessage(storeId, record, storeState)
+        }
       }
 
       storeState.lastSeenCounts.set(tableName, currentCount)
@@ -276,6 +281,45 @@ export class EventProcessor {
   ): Promise<void> {
     // Future: Implement specific event processing logic here
     // For now, events are logged in handleTableUpdate
+  }
+
+  /**
+   * Handle user messages and emit test responses for messages starting with "server:"
+   */
+  private handleUserMessage(
+    storeId: string,
+    chatMessage: any,
+    _storeState: StoreProcessingState
+  ): void {
+    const { conversationId, id: messageId, message } = chatMessage
+
+    console.log(
+      `📨 received user message in conversation ${conversationId}: ${message?.slice(0, 100)}...`
+    )
+
+    // Only process messages starting with "server:" for testing
+    if (message && message.startsWith('server:')) {
+      const testMessage = message.substring(7).trim() // Remove "server:" prefix
+
+      console.log(`🤖 Emitting test response for conversation ${conversationId}`)
+
+      // Get the store and emit a test response
+      const store = this.storeManager.getStore(storeId)
+      if (store) {
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId,
+            message: `Echo: ${testMessage}`,
+            role: 'assistant',
+            modelId: 'test-echo',
+            responseToMessageId: messageId,
+            createdAt: new Date(),
+            llmMetadata: { source: 'server-test-echo' },
+          })
+        )
+      }
+    }
   }
 
   private incrementErrorCount(storeId: string, error: Error): void {
