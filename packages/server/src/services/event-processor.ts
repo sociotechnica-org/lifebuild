@@ -303,9 +303,14 @@ export class EventProcessor {
       return
     }
 
-    console.log(
-      `📨 received user message in conversation ${conversationId}: ${message?.slice(0, 100)}...`
-    )
+    // Format message content for logging
+    const messagePreview = message
+      ? message.length > 100
+        ? `${message.slice(0, 100)}...`
+        : message
+      : '<no message content>'
+
+    console.log(`📨 received user message in conversation ${conversationId}: ${messagePreview}`)
 
     // Only process messages starting with "server:" for testing
     if (message && message.startsWith('server:')) {
