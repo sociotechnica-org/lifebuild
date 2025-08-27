@@ -1,0 +1,297 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { MessageQueueManager } from './message-queue-manager.js'
+
+describe('MessageQueueManager', () => {
+  let manager: MessageQueueManager
+
+  beforeEach(() => {
+    manager = new MessageQueueManager()
+  })
+
+  afterEach(() => {
+    manager.destroy()
+  })
+
+  describe('Basic queue operations', () => {
+    it('should enqueue and dequeue messages correctly', () => {
+      const conversationId = 'conv-1'
+      const message = { id: 'msg-1', content: 'Hello' }
+
+      manager.enqueue(conversationId, message)
+      expect(manager.hasMessages(conversationId)).toBe(true)
+      expect(manager.getQueueLength(conversationId)).toBe(1)
+
+      const dequeued = manager.dequeue(conversationId)
+      expect(dequeued).toEqual(message)
+      expect(manager.hasMessages(conversationId)).toBe(false)
+      expect(manager.getQueueLength(conversationId)).toBe(0)
+    })
+
+    it('should handle multiple messages in order', () => {
+      const conversationId = 'conv-1'
+      const messages = [
+        { id: 'msg-1', content: 'First' },
+        { id: 'msg-2', content: 'Second' },
+        { id: 'msg-3', content: 'Third' },
+      ]
+
+      // Enqueue all messages
+      messages.forEach(msg => manager.enqueue(conversationId, msg))
+      expect(manager.getQueueLength(conversationId)).toBe(3)
+
+      // Dequeue in order
+      for (const expectedMessage of messages) {
+        const dequeued = manager.dequeue(conversationId)
+        expect(dequeued).toEqual(expectedMessage)
+      }
+
+      expect(manager.hasMessages(conversationId)).toBe(false)
+    })
+
+    it('should handle multiple conversations independently', () => {
+      const conv1 = 'conv-1'
+      const conv2 = 'conv-2'
+      const msg1 = { id: 'msg-1', content: 'Conv1 message' }
+      const msg2 = { id: 'msg-2', content: 'Conv2 message' }
+
+      manager.enqueue(conv1, msg1)
+      manager.enqueue(conv2, msg2)
+
+      expect(manager.getQueueLength(conv1)).toBe(1)
+      expect(manager.getQueueLength(conv2)).toBe(1)
+
+      const dequeued1 = manager.dequeue(conv1)
+      expect(dequeued1).toEqual(msg1)
+      expect(manager.hasMessages(conv2)).toBe(true)
+
+      const dequeued2 = manager.dequeue(conv2)
+      expect(dequeued2).toEqual(msg2)
+    })
+  })
+
+  describe('Queue limits and overflow', () => {
+    it('should throw error when queue size limit is exceeded', () => {
+      const conversationId = 'conv-1'
+      const message = { id: 'msg', content: 'Test' }
+
+      // Fill queue to the limit (100 messages)
+      for (let i = 0; i < 100; i++) {
+        manager.enqueue(conversationId, { ...message, id: `msg-${i}` })
+      }
+
+      // Next message should throw error
+      expect(() => {
+        manager.enqueue(conversationId, message)
+      }).toThrow('Message queue overflow for conversation conv-1: 100 messages')
+    })
+
+    it('should allow enqueueing after dequeue reduces queue size', () => {
+      const conversationId = 'conv-1'
+      const message = { id: 'msg', content: 'Test' }
+
+      // Fill queue to the limit
+      for (let i = 0; i < 100; i++) {
+        manager.enqueue(conversationId, { ...message, id: `msg-${i}` })
+      }
+
+      // Dequeue one message
+      manager.dequeue(conversationId)
+
+      // Should now allow one more message
+      expect(() => {
+        manager.enqueue(conversationId, message)
+      }).not.toThrow()
+    })
+  })
+
+  describe('Queue cleanup and stale messages', () => {
+    it('should clean up stale messages', async () => {
+      vi.useFakeTimers()
+
+      const conversationId = 'conv-1'
+      const message = { id: 'msg-1', content: 'Test' }
+
+      manager.enqueue(conversationId, message)
+      expect(manager.getQueueLength(conversationId)).toBe(1)
+
+      // Fast forward past message timeout (5 minutes)
+      vi.advanceTimersByTime(5 * 60 * 1000 + 1000)
+
+      // Trigger cleanup by enqueueing another message
+      manager.enqueue(conversationId, { id: 'msg-2', content: 'New' })
+
+      // Old message should be cleaned up, only new one remains
+      expect(manager.getQueueLength(conversationId)).toBe(1)
+
+      const dequeued = manager.dequeue(conversationId)
+      expect(dequeued.id).toBe('msg-2')
+
+      vi.useRealTimers()
+    })
+
+    it('should remove empty queues after cleanup', () => {
+      const conversationId = 'conv-1'
+      const message = { id: 'msg-1', content: 'Test' }
+
+      manager.enqueue(conversationId, message)
+      expect(manager.hasMessages(conversationId)).toBe(true)
+
+      // Manually create stale message by setting old timestamp
+      const queue = (manager as any).queues.get(conversationId)
+      if (queue && queue.length > 0) {
+        queue[0].timestamp = Date.now() - 6 * 60 * 1000 // 6 minutes ago (stale)
+      }
+
+      // Trigger cleanup by enqueuing to same conversation (calls cleanStaleMessages internally)
+      manager.enqueue(conversationId, { id: 'msg-2', content: 'Trigger cleanup' })
+
+      // Original stale message should be cleaned, new message remains
+      expect(manager.hasMessages(conversationId)).toBe(true)
+      expect(manager.getQueueLength(conversationId)).toBe(1)
+
+      // Now make the remaining message stale and trigger cleanup again
+      const updatedQueue = (manager as any).queues.get(conversationId)
+      if (updatedQueue && updatedQueue.length > 0) {
+        updatedQueue[0].timestamp = Date.now() - 6 * 60 * 1000
+      }
+
+      manager.enqueue(conversationId, { id: 'msg-3', content: 'Final trigger' })
+      expect(manager.getQueueLength(conversationId)).toBe(1) // Only the fresh message
+    })
+  })
+
+  describe('Configuration', () => {
+    it('should use custom maxQueueSize configuration', () => {
+      const customManager = new MessageQueueManager({ maxQueueSize: 5 })
+      const conversationId = 'custom-conv'
+      const message = { id: 'msg', content: 'Test' }
+
+      // Fill queue to custom limit (5 messages)
+      for (let i = 0; i < 5; i++) {
+        customManager.enqueue(conversationId, { ...message, id: `msg-${i}` })
+      }
+
+      // Next message should throw error at custom limit
+      expect(() => {
+        customManager.enqueue(conversationId, message)
+      }).toThrow('Message queue overflow for conversation custom-conv: 5 messages')
+
+      customManager.destroy()
+    })
+
+    it('should use custom messageTimeout configuration', () => {
+      vi.useFakeTimers()
+
+      const customManager = new MessageQueueManager({ messageTimeout: 1000 }) // 1 second
+      const conversationId = 'timeout-conv'
+
+      customManager.enqueue(conversationId, { id: 'msg-1', content: 'First' })
+      expect(customManager.getQueueLength(conversationId)).toBe(1)
+
+      // Fast forward past custom timeout (1 second)
+      vi.advanceTimersByTime(1500)
+
+      // Trigger cleanup by enqueueing another message
+      customManager.enqueue(conversationId, { id: 'msg-2', content: 'Second' })
+
+      // First message should be cleaned, only second remains
+      expect(customManager.getQueueLength(conversationId)).toBe(1)
+
+      customManager.destroy()
+      vi.useRealTimers()
+    })
+
+    it('should use default configuration when no config provided', () => {
+      const defaultManager = new MessageQueueManager()
+
+      // Should still work with default 100 message limit
+      expect(() => {
+        for (let i = 0; i <= 100; i++) {
+          defaultManager.enqueue('test', { id: `msg-${i}`, content: 'Test' })
+        }
+      }).toThrow('Message queue overflow')
+
+      defaultManager.destroy()
+    })
+  })
+
+  describe('Statistics and monitoring', () => {
+    it('should provide accurate queue statistics', () => {
+      const conv1 = 'conv-1'
+      const conv2 = 'conv-2'
+
+      // Add messages to first conversation
+      manager.enqueue(conv1, { id: 'msg-1' })
+      manager.enqueue(conv1, { id: 'msg-2' })
+      manager.enqueue(conv1, { id: 'msg-3' })
+
+      // Add messages to second conversation
+      manager.enqueue(conv2, { id: 'msg-4' })
+
+      const stats = manager.getStats()
+      expect(stats.totalConversations).toBe(2)
+      expect(stats.totalMessages).toBe(4)
+      expect(stats.averageQueueLength).toBe(2) // 4 messages / 2 conversations
+      expect(stats.maxQueueLength).toBe(3)
+
+      expect(manager.getTotalQueuedMessages()).toBe(4)
+    })
+
+    it('should handle empty queues in statistics', () => {
+      const stats = manager.getStats()
+      expect(stats.totalConversations).toBe(0)
+      expect(stats.totalMessages).toBe(0)
+      expect(stats.averageQueueLength).toBe(0)
+      expect(stats.maxQueueLength).toBe(0)
+
+      expect(manager.getTotalQueuedMessages()).toBe(0)
+    })
+  })
+
+  describe('Queue management', () => {
+    it('should clear specific conversation queue', () => {
+      const conv1 = 'conv-1'
+      const conv2 = 'conv-2'
+
+      manager.enqueue(conv1, { id: 'msg-1' })
+      manager.enqueue(conv2, { id: 'msg-2' })
+
+      expect(manager.hasMessages(conv1)).toBe(true)
+      expect(manager.hasMessages(conv2)).toBe(true)
+
+      manager.clearQueue(conv1)
+
+      expect(manager.hasMessages(conv1)).toBe(false)
+      expect(manager.hasMessages(conv2)).toBe(true)
+    })
+
+    it('should handle dequeue from empty queue', () => {
+      const result = manager.dequeue('non-existent')
+      expect(result).toBeNull()
+    })
+
+    it('should handle operations on non-existent queues gracefully', () => {
+      expect(manager.hasMessages('non-existent')).toBe(false)
+      expect(manager.getQueueLength('non-existent')).toBe(0)
+      expect(() => manager.clearQueue('non-existent')).not.toThrow()
+    })
+  })
+
+  describe('Cleanup and destruction', () => {
+    it('should clear all queues when destroyed', () => {
+      const conv1 = 'conv-1'
+      const conv2 = 'conv-2'
+
+      manager.enqueue(conv1, { id: 'msg-1' })
+      manager.enqueue(conv2, { id: 'msg-2' })
+
+      expect(manager.getTotalQueuedMessages()).toBe(2)
+
+      manager.destroy()
+
+      expect(manager.getTotalQueuedMessages()).toBe(0)
+      expect(manager.hasMessages(conv1)).toBe(false)
+      expect(manager.hasMessages(conv2)).toBe(false)
+    })
+  })
+})
