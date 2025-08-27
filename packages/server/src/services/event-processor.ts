@@ -168,30 +168,59 @@ export class EventProcessor {
       return
     }
 
+    const currentCount = records.length
+    const lastSeenCount = storeState.lastSeenCounts.get(tableName) || 0
+
+    // For non-chat tables, use count-based deduplication to avoid reprocessing all records
+    if (tableName !== 'chatMessages') {
+      if (currentCount <= lastSeenCount) {
+        return // No new records, skip processing
+      }
+    }
+
     const newRecords = []
 
     for (const record of records) {
-      // For chat messages, use ID to prevent duplicate processing
+      let shouldProcess = true
+
+      // For chat messages, use ID-based deduplication to prevent infinite loops
       if (tableName === 'chatMessages' && record.id) {
         if (storeState.processedMessageIds.has(record.id)) {
-          continue // Skip already processed message
+          shouldProcess = false // Skip already processed message
+        } else {
+          storeState.processedMessageIds.add(record.id)
+          // Memory management: limit the Set size to prevent memory leaks
+          if (storeState.processedMessageIds.size > 10000) {
+            console.warn(
+              `⚠️ Processed message IDs approaching limit for store ${storeId}. Clearing old entries.`
+            )
+            // Keep only the most recent 5000 IDs (rough cleanup)
+            const idsArray = Array.from(storeState.processedMessageIds)
+            storeState.processedMessageIds.clear()
+            idsArray.slice(-5000).forEach(id => storeState.processedMessageIds.add(id))
+          }
         }
-        storeState.processedMessageIds.add(record.id)
       }
 
-      const timestamp = new Date().toISOString()
-      const displayText = record.message || record.name || record.title || record.id
-      const truncatedText = displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
+      if (shouldProcess) {
+        const timestamp = new Date().toISOString()
+        const displayText = record.message || record.name || record.title || record.id
+        const truncatedText =
+          displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
 
-      console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
+        console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
 
-      // Handle user messages for test responses (only genuine user messages)
-      if (tableName === 'chatMessages' && record.role === 'user') {
-        this.handleUserMessage(storeId, record, storeState)
+        // Handle user messages for test responses (only genuine user messages)
+        if (tableName === 'chatMessages' && record.role === 'user') {
+          this.handleUserMessage(storeId, record, storeState)
+        }
+
+        newRecords.push(record)
       }
-
-      newRecords.push(record)
     }
+
+    // Update the seen count for all tables to track new records
+    storeState.lastSeenCounts.set(tableName, currentCount)
 
     // Only update activity and buffer events if we had new records
     if (newRecords.length > 0) {
