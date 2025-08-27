@@ -24,7 +24,7 @@ export const ContactDetail: React.FC = () => {
   const allProjects = useQuery(getProjects$) ?? []
   const projectContactJunctions = useQuery(getContactProjects$(contactId || '')) ?? []
   const { store } = useStore()
-  const projectIds = new Set(projectContactJunctions.map(pc => pc.projectId))
+  const projectIds = new Set(projectContactJunctions.map((pc: any) => pc.projectId))
   const associatedProjects = allProjects.filter(p => projectIds.has(p.id))
 
   if (!contactId) {

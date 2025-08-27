@@ -117,7 +117,8 @@ export const createContact = wrapToolFunction(
 
     // Check for duplicate email
     const existingContacts = await store.query(getContactByEmail$(email.toLowerCase()))
-    if (existingContacts.length > 0 && !existingContacts[0].deletedAt) {
+    const existingContact = existingContacts[0]
+    if (existingContacts.length > 0 && existingContact && !existingContact.deletedAt) {
       throw new Error(`Contact with email ${email} already exists`)
     }
 

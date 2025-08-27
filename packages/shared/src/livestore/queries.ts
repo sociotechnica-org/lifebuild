@@ -283,6 +283,10 @@ export const getContactProjectAssociations$ = (contactId: string) =>
     label: `getContactProjectAssociations:${contactId}`,
   })
 
+// Alias queries for web component compatibility
+export const getProjectContacts$ = getProjectContactAssociations$
+export const getContactProjects$ = getContactProjectAssociations$
+
 // Recurring tasks queries
 export const getRecurringTasks$ = queryDb(
   tables.recurringTasks.select().orderBy([{ col: 'createdAt', direction: 'desc' }]),
