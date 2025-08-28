@@ -8,7 +8,7 @@ import {
   createMockTask,
 } from '../../../../tests/test-utils.js'
 import type { Worker } from '@work-squared/shared/schema'
-import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
+import { DEFAULT_MODEL } from '@work-squared/shared'
 
 // Hoisted mocks
 const { mockUseQuery, mockStore, mockUseParams } = vi.hoisted(() => {

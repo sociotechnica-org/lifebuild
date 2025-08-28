@@ -5,4 +5,4 @@ export {
   getModelById,
   isValidModelId,
   type SupportedModel,
-} from '@work-squared/shared/llm/models'
+} from '@work-squared/shared'

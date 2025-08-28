@@ -2,26 +2,38 @@ import type { Store as LiveStore } from '@livestore/livestore'
 import { queryDb } from '@livestore/livestore'
 import type { StoreManager } from './store-manager.js'
 import { tables, events } from '@work-squared/shared/schema'
+import { AgenticLoop } from './agentic-loop/agentic-loop.js'
 import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
-import { ConversationHistory } from './agentic-loop/conversation-history.js'
-import { InputValidator } from './agentic-loop/input-validator.js'
-import { ToolExecutor } from './agentic-loop/tool-executor.js'
-
-interface EventBuffer {
-  events: any[]
-  lastFlushed: Date
-  processing: boolean
-}
+import { DEFAULT_MODEL } from '@work-squared/shared'
+import { MessageQueueManager } from './message-queue-manager.js'
+import { AsyncQueueProcessor } from './async-queue-processor.js'
+import { QueryOptimizer, QueryPatterns } from './query-optimizer.js'
+import { ResourceMonitor } from './resource-monitor.js'
+import type {
+  EventBuffer,
+  ProcessedEvent,
+  ChatMessage,
+  LLMMessage,
+  BoardContext,
+  WorkerContext,
+} from './agentic-loop/types.js'
 
 interface StoreProcessingState {
   subscriptions: Array<() => void>
   eventBuffer: EventBuffer
   lastSeenCounts: Map<string, number>
-  processedMessageIds: Set<string> // Track processed message IDs to prevent duplicates
   errorCount: number
   lastError?: Error
   processingQueue: Promise<void>
   stopping: boolean
+  // Chat processing state
+  activeConversations: Set<string> // Track conversations currently being processed
+  messageQueue: MessageQueueManager // Queue of pending messages per conversation
+  conversationProcessors: Map<string, AsyncQueueProcessor> // Per-conversation async processors
+  llmProvider?: BraintrustProvider
+  queryOptimizer: QueryOptimizer // Query optimization and caching
+  queryPatterns: QueryPatterns // Common query patterns
+  resourceMonitor: ResourceMonitor // Resource monitoring and limits
 }
 
 export class EventProcessor {
@@ -30,38 +42,58 @@ export class EventProcessor {
   private readonly maxBufferSize = 100
   private readonly flushInterval = 5000 // 5 seconds
   private flushTimer?: NodeJS.Timeout
-  private llmProvider?: BraintrustProvider
-  private inputValidator: InputValidator
-  private conversationHistories: Map<string, ConversationHistory> = new Map()
-  private toolExecutors: Map<string, ToolExecutor> = new Map() // One per store
+  private globalResourceMonitor: ResourceMonitor
 
-  // Tables to monitor - only chatMessages needed for LLM processing
-  private readonly monitoredTables = ['chatMessages'] as const
+  // LLM configuration from environment
+  private braintrustApiKey: string | undefined
+  private braintrustProjectId: string | undefined
+
+  // Tables to monitor for activity
+  private readonly monitoredTables = [
+    'chatMessages',
+    'tasks',
+    'projects',
+    'conversations',
+    'documents',
+    'workers',
+    'comments',
+    'recurringTasks',
+    'contacts',
+  ] as const
 
   constructor(storeManager: StoreManager) {
     this.storeManager = storeManager
-    this.inputValidator = new InputValidator()
-    this.initializeLLMProvider()
     this.startFlushTimer()
-  }
 
-  private initializeLLMProvider(): void {
-    const apiKey = process.env.BRAINTRUST_API_KEY
-    const projectId = process.env.BRAINTRUST_PROJECT_ID
+    // Initialize global resource monitor
+    this.globalResourceMonitor = new ResourceMonitor(
+      {
+        maxConcurrentLLMCalls: parseInt(process.env.MAX_CONCURRENT_LLM_CALLS || '10'),
+        maxQueuedMessages: parseInt(process.env.MAX_QUEUED_MESSAGES || '1000'),
+        maxConversationsPerStore: parseInt(process.env.MAX_CONVERSATIONS_PER_STORE || '100'),
+        messageRateLimit: parseInt(process.env.MESSAGE_RATE_LIMIT || '600'),
+        llmCallTimeout: parseInt(process.env.LLM_CALL_TIMEOUT || '30000'),
+      },
+      alert => {
+        console.warn(`🚨 Resource Alert [${alert.type}]: ${alert.message}`)
+      }
+    )
 
-    if (apiKey && projectId) {
-      this.llmProvider = new BraintrustProvider(apiKey, projectId, this.inputValidator)
-      console.log('✅ Braintrust LLM provider initialized')
-    } else {
+    // Load LLM configuration from environment
+    this.braintrustApiKey = process.env.BRAINTRUST_API_KEY
+    this.braintrustProjectId = process.env.BRAINTRUST_PROJECT_ID
+
+    if (!this.braintrustApiKey || !this.braintrustProjectId) {
       console.warn(
-        '⚠️ Braintrust API credentials not configured. LLM features will be unavailable.'
+        '⚠️ LLM functionality disabled: Missing BRAINTRUST_API_KEY or BRAINTRUST_PROJECT_ID environment variables'
       )
-      console.warn('   Set BRAINTRUST_API_KEY and BRAINTRUST_PROJECT_ID environment variables.')
+    } else {
+      console.log('✅ LLM functionality enabled with Braintrust integration')
     }
   }
 
   startMonitoring(storeId: string, store: LiveStore): void {
-    console.log(`📡 Monitoring chat messages for store ${storeId}`)
+    console.log(`📡 Starting comprehensive event monitoring for store ${storeId}`)
 
     const existingState = this.storeStates.get(storeId)
     if (existingState) {
@@ -82,32 +114,32 @@ export class EventProcessor {
         processing: false,
       },
       lastSeenCounts: new Map(),
-      processedMessageIds: new Set(),
       errorCount: 0,
       processingQueue: Promise.resolve(),
       stopping: false,
+      activeConversations: new Set(),
+      messageQueue: new MessageQueueManager(),
+      conversationProcessors: new Map(),
+      llmProvider:
+        this.braintrustApiKey && this.braintrustProjectId
+          ? new BraintrustProvider(this.braintrustApiKey, this.braintrustProjectId)
+          : undefined,
+      queryOptimizer: new QueryOptimizer(store, {
+        batchTimeout: 5, // 5ms batch window for real-time feel
+        defaultCacheTTL: 30000, // 30 seconds default cache
+        maxCacheSize: 500, // Reasonable cache size per store
+      }),
+      queryPatterns: undefined as any, // Will be initialized below
+      resourceMonitor: new ResourceMonitor({
+        maxConversationsPerStore: 50, // Per-store limit
+        maxQueuedMessages: 200, // Per-store limit
+      }),
     }
 
-    this.storeStates.set(storeId, storeState)
+    // Initialize query patterns with the same optimizer for consistency
+    storeState.queryPatterns = new QueryPatterns(storeState.queryOptimizer)
 
-    // Initialize tool executor for this store
-    const toolExecutor = new ToolExecutor(store, {
-      onToolStart: toolCall => {
-        console.log(`🔧 Starting tool execution: ${toolCall.function.name} for store ${storeId}`)
-      },
-      onToolComplete: result => {
-        console.log(
-          `✅ Tool execution completed: ${result.toolCall.function.name} for store ${storeId}`
-        )
-      },
-      onToolError: (error, toolCall) => {
-        console.error(
-          `❌ Tool execution error for ${toolCall.function.name} in store ${storeId}:`,
-          error
-        )
-      },
-    })
-    this.toolExecutors.set(storeId, toolExecutor)
+    this.storeStates.set(storeId, storeState)
 
     // Monitor all important tables
     for (const tableName of this.monitoredTables) {
@@ -184,8 +216,7 @@ export class EventProcessor {
       })
 
       storeState.subscriptions.push(unsubscribe)
-      // Subscription logging disabled - too verbose
-      // console.log(`✅ Subscribed to ${tableName} for store ${storeId}`)
+      console.log(`✅ Subscribed to ${tableName} for store ${storeId}`)
     } catch (error) {
       console.error(`❌ Failed to subscribe to ${tableName} for store ${storeId}:`, error)
       this.incrementErrorCount(storeId, error as Error)
@@ -195,7 +226,7 @@ export class EventProcessor {
   private handleTableUpdate(
     storeId: string,
     tableName: string,
-    records: any[],
+    records: unknown[],
     storeState: StoreProcessingState
   ): void {
     // Skip processing if store is stopping
@@ -203,62 +234,36 @@ export class EventProcessor {
       return
     }
 
+    const lastCount = storeState.lastSeenCounts.get(tableName) || 0
     const currentCount = records.length
-    const lastSeenCount = storeState.lastSeenCounts.get(tableName) || 0
 
-    // For non-chat tables, use count-based deduplication to avoid reprocessing all records
-    if (tableName !== 'chatMessages') {
-      if (currentCount <= lastSeenCount) {
-        return // No new records, skip processing
-      }
-    }
+    // Only process if we have new records
+    if (currentCount > lastCount) {
+      const newRecords = records.slice(lastCount) // Get only the new records (from lastCount onwards)
 
-    const newRecords = []
+      for (const record of newRecords) {
+        // Type guard to ensure record is an object with properties
+        if (!record || typeof record !== 'object') {
+          continue
+        }
 
-    for (const record of records) {
-      let shouldProcess = true
+        const recordObj = record as Record<string, any>
+        const timestamp = new Date().toISOString()
+        const displayText =
+          recordObj.message || recordObj.name || recordObj.title || recordObj.id || 'Unknown'
+        const truncatedText =
+          displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
 
-      // For chat messages, use ID-based deduplication to prevent infinite loops
-      if (tableName === 'chatMessages' && record.id) {
-        if (storeState.processedMessageIds.has(record.id)) {
-          shouldProcess = false // Skip already processed message
-        } else {
-          storeState.processedMessageIds.add(record.id)
-          // Memory management: limit the Set size to prevent memory leaks
-          if (storeState.processedMessageIds.size > 10000) {
-            console.warn(
-              `⚠️ Processed message IDs approaching limit for store ${storeId}. Clearing old entries.`
-            )
-            // Keep only the most recent 5000 IDs (rough cleanup)
-            const idsArray = Array.from(storeState.processedMessageIds)
-            storeState.processedMessageIds.clear()
-            idsArray.slice(-5000).forEach(id => storeState.processedMessageIds.add(id))
-          }
+        console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
+
+        // Handle chat messages for agentic loop processing
+        if (tableName === 'chatMessages' && recordObj.role === 'user') {
+          this.handleUserMessage(storeId, recordObj as ChatMessage, storeState)
         }
       }
 
-      if (shouldProcess) {
-        // Verbose logging disabled
-        // const timestamp = new Date().toISOString()
-        // const displayText = record.message || record.name || record.title || record.id
-        // const truncatedText =
-        //   displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
-        // console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
+      storeState.lastSeenCounts.set(tableName, currentCount)
 
-        // Handle user messages for test responses (only genuine user messages)
-        if (tableName === 'chatMessages' && record.role === 'user') {
-          this.handleUserMessage(storeId, record, storeState)
-        }
-
-        newRecords.push(record)
-      }
-    }
-
-    // Update the seen count for all tables to track new records
-    storeState.lastSeenCounts.set(tableName, currentCount)
-
-    // Only update activity and buffer events if we had new records
-    if (newRecords.length > 0) {
       // Update activity tracker
       this.storeManager.updateActivity(storeId)
 
@@ -276,7 +281,11 @@ export class EventProcessor {
     }
   }
 
-  private bufferEvents(storeId: string, events: any[], storeState: StoreProcessingState): void {
+  private bufferEvents(
+    storeId: string,
+    events: ProcessedEvent[],
+    storeState: StoreProcessingState
+  ): void {
     storeState.eventBuffer.events.push(...events)
 
     // If buffer is full or processing is idle, trigger processing
@@ -328,7 +337,7 @@ export class EventProcessor {
 
   private async handleEvents(
     storeId: string,
-    events: any[],
+    events: ProcessedEvent[],
     storeState: StoreProcessingState
   ): Promise<void> {
     for (const event of events) {
@@ -346,7 +355,7 @@ export class EventProcessor {
 
   private async processEvent(
     _storeId: string,
-    _event: any,
+    _event: ProcessedEvent,
     _storeState: StoreProcessingState
   ): Promise<void> {
     // Future: Implement specific event processing logic here
@@ -354,310 +363,331 @@ export class EventProcessor {
   }
 
   /**
-   * Handle user messages and emit LLM responses for messages starting with "server:"
+   * Handle a new user message and trigger agentic loop if needed
    */
-  private handleUserMessage(
+  private async handleUserMessage(
     storeId: string,
-    chatMessage: any,
-    _storeState: StoreProcessingState
-  ): void {
-    const { conversationId, id: messageId, message } = chatMessage
+    chatMessage: ChatMessage,
+    storeState: StoreProcessingState
+  ): Promise<void> {
+    const { conversationId, id: messageId } = chatMessage
 
-    // Validate required fields
-    if (!conversationId || !messageId) {
-      console.warn(`⚠️ Invalid chat message: missing conversationId or messageId`, {
-        conversationId,
-        messageId,
-        storeId,
-      })
+    // Skip if LLM is not configured
+    if (!storeState.llmProvider) {
+      console.log(`⚠️ Skipping chat message processing for ${storeId}: LLM not configured`)
       return
     }
 
-    // Reduced logging - only log server: messages
-    if (message.startsWith('server:')) {
-      console.log(`📨 Processing server message in conversation ${conversationId}`)
-    }
-
-    // Only process messages starting with "server:" for testing
-    if (message && message.startsWith('server:')) {
-      const userMessage = message.substring(7).trim() // Remove "server:" prefix
-
-      // Process with LLM if provider is available
-      if (this.llmProvider) {
-        console.log(`🤖 Processing with LLM for conversation ${conversationId}`)
-        this.processWithLLM(storeId, conversationId, messageId, userMessage)
-      } else {
-        console.log(
-          `🤖 Emitting echo response for conversation ${conversationId} (no LLM configured)`
-        )
-        // Fallback to echo response if LLM not configured
-        this.emitEchoResponse(storeId, conversationId, messageId, userMessage)
-      }
-    }
-  }
-
-  private async processWithLLM(
-    storeId: string,
-    conversationId: string,
-    messageId: string,
-    userMessage: string
-  ): Promise<void> {
-    try {
-      // Get or create conversation history for this conversation
-      const historyKey = `${storeId}-${conversationId}`
-      let history = this.conversationHistories.get(historyKey)
-      if (!history) {
-        history = new ConversationHistory()
-        this.conversationHistories.set(historyKey, history)
-
-        // Memory management: limit conversation histories
-        if (this.conversationHistories.size > 100) {
-          console.warn('⚠️ Conversation histories approaching limit. Clearing oldest entries.')
-          const entries = Array.from(this.conversationHistories.entries())
-          // Remove oldest 20 entries
-          entries.slice(0, 20).forEach(([key]) => this.conversationHistories.delete(key))
-        }
-      }
-
-      // Add user message to history
-      history.addUserMessage(userMessage)
-
-      // Get messages for LLM call
-      const messages = history.getMessages()
-
-      // Call LLM with retry logic
-      const startTime = Date.now()
-      const response = await this.llmProvider!.call(messages)
-      const duration = Date.now() - startTime
-
-      console.log(`✅ LLM response received for conversation ${conversationId} in ${duration}ms`)
-
-      // Handle tool calls if present
-      if (response.toolCalls && response.toolCalls.length > 0) {
-        console.log(
-          `🔧 Processing ${response.toolCalls.length} tool call(s) for conversation ${conversationId}`
-        )
-
-        const toolExecutor = this.toolExecutors.get(storeId)
-        if (toolExecutor) {
-          try {
-            // Execute tools and format results
-            const toolResults = await toolExecutor.executeTools(response.toolCalls)
-
-            // Create a summary message combining LLM response and tool results
-            let finalMessage = response.message || 'I executed the requested actions:'
-
-            // Add tool results to the message
-            const toolSummary = toolResults.map(result => result.content).join('\n\n')
-            if (toolSummary) {
-              finalMessage += '\n\n' + toolSummary
-            }
-
-            // Add assistant message with tool calls to history
-            history.addAssistantMessage(response.message || '', response.toolCalls)
-
-            // Add tool results to history
-            history.addToolMessages(toolResults)
-
-            // Emit combined response to LiveStore
-            this.emitLLMResponse(
-              storeId,
-              conversationId,
-              messageId,
-              finalMessage,
-              response.modelUsed,
-              duration,
-              {
-                source: 'server-llm-with-tools',
-                toolCalls: response.toolCalls,
-                toolResults: toolResults.length,
-              }
-            )
-          } catch (toolError) {
-            console.error(`❌ Tool execution failed for conversation ${conversationId}:`, toolError)
-            // Still emit the LLM response, but add error note
-            const errorMessage =
-              response.message +
-              '\n\n⚠️ Note: Some requested actions could not be completed due to an error.'
-            this.emitLLMResponse(
-              storeId,
-              conversationId,
-              messageId,
-              errorMessage,
-              response.modelUsed,
-              duration,
-              {
-                source: 'server-llm-tool-error',
-                error: (toolError as Error).message,
-              }
-            )
-          }
-        } else {
-          console.error(`❌ No tool executor available for store ${storeId}`)
-          // Emit LLM response without tools
-          this.emitLLMResponseWithoutTools(storeId, conversationId, messageId, response, duration)
-        }
-      } else {
-        // No tool calls, just emit the regular LLM response
-        this.emitLLMResponseWithoutTools(storeId, conversationId, messageId, response, duration)
-      }
-    } catch (error) {
-      console.error(`❌ LLM processing failed for conversation ${conversationId}:`, error)
-      this.incrementErrorCount(storeId, error as Error)
-
-      // Emit error message to user
-      this.emitErrorResponse(
-        storeId,
-        conversationId,
-        messageId,
-        'Sorry, I encountered an error processing your request. Please try again.'
+    // Check resource limits before processing
+    if (!this.globalResourceMonitor.canMakeLLMCall()) {
+      console.warn(
+        `🚨 Rejecting LLM call for conversation ${conversationId}: Resource limits exceeded`
       )
-    }
-  }
-
-  private emitLLMResponse(
-    storeId: string,
-    conversationId: string,
-    messageId: string,
-    message: string,
-    modelId: string,
-    duration: number,
-    metadata: any = {}
-  ): void {
-    setTimeout(() => {
-      const storeState = this.storeStates.get(storeId)
-      if (storeState?.stopping) {
-        return
-      }
-
       const store = this.storeManager.getStore(storeId)
       if (store) {
-        try {
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId,
+            message: 'System is currently under high load. Please try again in a moment.',
+            role: 'assistant',
+            modelId: 'resource-limit',
+            responseToMessageId: messageId,
+            createdAt: new Date(),
+            llmMetadata: { source: 'resource-limit-exceeded' },
+          })
+        )
+      }
+      return
+    }
+
+    // Check if we can queue more messages
+    if (!this.globalResourceMonitor.canQueueMessage()) {
+      console.warn(`🚨 Message rate limit exceeded for conversation ${conversationId}`)
+      return
+    }
+
+    // Track the message
+    this.globalResourceMonitor.trackMessage()
+    storeState.resourceMonitor.trackMessage()
+
+    // Skip if this conversation is already being processed - queue the message instead
+    if (storeState.activeConversations.has(conversationId)) {
+      console.log(`⏸️ Queueing message for conversation ${conversationId} (already processing)`)
+
+      try {
+        storeState.messageQueue.enqueue(conversationId, chatMessage)
+        console.log(
+          `📥 Message queued for conversation ${conversationId}. Queue length: ${storeState.messageQueue.getQueueLength(conversationId)}`
+        )
+      } catch (error) {
+        console.error(`❌ Failed to queue message for conversation ${conversationId}:`, error)
+        // Emit error to conversation if queue is full
+        const store = this.storeManager.getStore(storeId)
+        if (store) {
           store.commit(
             events.llmResponseReceived({
               id: crypto.randomUUID(),
               conversationId,
-              message,
+              message: 'Message queue is full. Please wait before sending more messages.',
               role: 'assistant',
-              modelId,
+              modelId: 'error',
               responseToMessageId: messageId,
               createdAt: new Date(),
+              llmMetadata: { source: 'queue-overflow-error' },
+            })
+          )
+        }
+      }
+      return
+    }
+
+    console.log(`🤖 Starting agentic loop for user message in conversation ${conversationId}`)
+
+    // Check conversation limits per store
+    if (storeState.activeConversations.size >= 50) {
+      console.warn(`🚨 Too many active conversations in store ${storeId}`)
+      return
+    }
+
+    // Mark conversation as active
+    storeState.activeConversations.add(conversationId)
+
+    // Track LLM call start
+    const llmCallId = this.globalResourceMonitor.trackLLMCallStart()
+
+    // Emit response started event
+    const store = this.storeManager.getStore(storeId)
+    if (store) {
+      store.commit(
+        events.llmResponseStarted({
+          conversationId,
+          userMessageId: messageId,
+          createdAt: new Date(),
+        })
+      )
+    }
+
+    try {
+      const startTime = Date.now()
+      await this.runAgenticLoop(storeId, chatMessage, storeState)
+      const responseTime = Date.now() - startTime
+
+      // Track successful completion
+      this.globalResourceMonitor.trackLLMCallComplete(llmCallId, false, responseTime)
+    } catch (error) {
+      // Track error
+      this.globalResourceMonitor.trackError(`LLM call failed: ${error}`)
+      this.globalResourceMonitor.trackLLMCallComplete(llmCallId, false)
+      console.error(`❌ Error in agentic loop for conversation ${conversationId}:`, error)
+
+      // Emit error message to conversation
+      const store = this.storeManager.getStore(storeId)
+      if (store) {
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId,
+            message: 'Sorry, I encountered an error processing your message. Please try again.',
+            role: 'assistant',
+            modelId: 'error',
+            responseToMessageId: messageId,
+            createdAt: new Date(),
+            llmMetadata: { source: 'error' },
+          })
+        )
+      }
+    } finally {
+      // Always remove from active conversations
+      storeState.activeConversations.delete(conversationId)
+
+      // Process any queued messages for this conversation
+      await this.processQueuedMessages(storeId, conversationId, storeState)
+    }
+  }
+
+  /**
+   * Run the agentic loop for a user message
+   */
+  private async runAgenticLoop(
+    storeId: string,
+    userMessage: ChatMessage,
+    storeState: StoreProcessingState
+  ): Promise<void> {
+    const store = this.storeManager.getStore(storeId)
+    if (!store || !storeState.llmProvider) {
+      return
+    }
+
+    // Get conversation details, worker context, and history in optimized batch
+    const { conversation, worker, chatHistory } =
+      await storeState.queryPatterns.getConversationWithContext(userMessage.conversationId, tables)
+
+    let workerContext: WorkerContext | undefined = undefined
+    const boardContext: BoardContext | undefined = undefined
+
+    // Set worker context if worker data is available
+    if (worker) {
+      workerContext = {
+        systemPrompt: worker.systemPrompt,
+        name: worker.name,
+        roleDescription: worker.roleDescription,
+      }
+    }
+
+    // Convert chat messages to conversation history format
+    const conversationHistory: LLMMessage[] = (chatHistory as ChatMessage[]).map(msg => ({
+      role: msg.role,
+      content: msg.message || '',
+      tool_calls: msg.llmMetadata?.toolCalls,
+      tool_call_id: msg.llmMetadata?.tool_call_id,
+    }))
+
+    // Create agentic loop instance with conversation history
+    const agenticLoop = new AgenticLoop(
+      store,
+      storeState.llmProvider,
+      {
+        onIterationStart: iteration => {
+          console.log(`🔄 Agentic loop iteration ${iteration} started`)
+        },
+        onToolsExecuting: toolCalls => {
+          // Emit tool execution events for UI updates
+          for (const toolCall of toolCalls) {
+            store.commit(
+              events.llmResponseReceived({
+                id: crypto.randomUUID(),
+                conversationId: userMessage.conversationId,
+                message: `🔧 Using ${toolCall.function.name} tool...`,
+                role: 'assistant',
+                modelId: 'system',
+                responseToMessageId: userMessage.id,
+                createdAt: new Date(),
+                llmMetadata: {
+                  source: 'tool-execution',
+                  toolCall: toolCall,
+                },
+              })
+            )
+          }
+        },
+        onFinalMessage: message => {
+          // Emit final LLM response
+          store.commit(
+            events.llmResponseReceived({
+              id: crypto.randomUUID(),
+              conversationId: userMessage.conversationId,
+              message,
+              role: 'assistant',
+              modelId: conversation?.model || DEFAULT_MODEL,
+              responseToMessageId: userMessage.id,
+              createdAt: new Date(),
+              llmMetadata: { source: 'braintrust' },
+            })
+          )
+        },
+        onError: (error, iteration) => {
+          console.error(`❌ Agentic loop error at iteration ${iteration}:`, error)
+          store.commit(
+            events.llmResponseReceived({
+              id: crypto.randomUUID(),
+              conversationId: userMessage.conversationId,
+              message: error.message.includes('Maximum iterations')
+                ? error.message
+                : 'I encountered an error while processing your request. Please try again.',
+              role: 'assistant',
+              modelId: 'error',
+              responseToMessageId: userMessage.id,
+              createdAt: new Date(),
               llmMetadata: {
-                ...metadata,
-                duration,
+                source: 'error',
+                agenticIteration: iteration,
+                errorType: error.message.includes('stuck loop')
+                  ? 'stuck_loop_detected'
+                  : 'processing_error',
               },
             })
           )
-        } catch (error) {
-          console.error(`❌ Failed to emit LLM response for conversation ${conversationId}:`, error)
-          this.incrementErrorCount(storeId, error as Error)
-        }
-      }
-    }, 0)
+        },
+      },
+      conversationHistory
+    )
+
+    // Conversation history is now set in the AgenticLoop constructor
+
+    // Run the agentic loop
+    await agenticLoop.run(userMessage.message, {
+      boardContext,
+      workerContext,
+      model: conversation?.model || DEFAULT_MODEL,
+    })
   }
 
-  private emitLLMResponseWithoutTools(
+  /**
+   * Process any queued messages for a conversation
+   */
+  private async processQueuedMessages(
     storeId: string,
     conversationId: string,
-    messageId: string,
-    response: any,
-    duration: number
-  ): void {
-    if (response.message) {
-      const historyKey = `${storeId}-${conversationId}`
-      const history = this.conversationHistories.get(historyKey)
-      if (history) {
-        history.addAssistantMessage(response.message, response.toolCalls || undefined)
+    storeState: StoreProcessingState
+  ): Promise<void> {
+    // Process all queued messages sequentially using async queue processor
+    while (storeState.messageQueue.hasMessages(conversationId)) {
+      const nextMessage = storeState.messageQueue.dequeue(conversationId)
+
+      if (!nextMessage) {
+        break
       }
 
-      this.emitLLMResponse(
-        storeId,
-        conversationId,
-        messageId,
-        response.message,
-        response.modelUsed,
-        duration,
-        {
-          source: 'server-llm',
-        }
+      console.log(
+        `📤 Processing queued message for conversation ${conversationId}. Remaining: ${storeState.messageQueue.getQueueLength(conversationId)}`
       )
+
+      // Get or create async processor for this conversation
+      let processor = storeState.conversationProcessors.get(conversationId)
+      if (!processor) {
+        processor = new AsyncQueueProcessor()
+        storeState.conversationProcessors.set(conversationId, processor)
+      }
+
+      try {
+        // Queue the message processing task for sequential execution
+        await processor.enqueue(`msg-${nextMessage.id}`, async () => {
+          await this.handleUserMessage(storeId, nextMessage, storeState)
+        })
+      } catch (error) {
+        console.error(
+          `❌ Error processing queued message for conversation ${conversationId}:`,
+          error
+        )
+
+        // Emit error to conversation
+        const store = this.storeManager.getStore(storeId)
+        if (store) {
+          store.commit(
+            events.llmResponseReceived({
+              id: crypto.randomUUID(),
+              conversationId,
+              message: 'Error processing queued message. Please try again.',
+              role: 'assistant',
+              modelId: 'error',
+              responseToMessageId: nextMessage.id,
+              createdAt: new Date(),
+              llmMetadata: { source: 'queue-processing-error' },
+            })
+          )
+        }
+      }
     }
-  }
 
-  private emitEchoResponse(
-    storeId: string,
-    conversationId: string,
-    messageId: string,
-    message: string
-  ): void {
-    setTimeout(() => {
-      const storeState = this.storeStates.get(storeId)
-      if (storeState?.stopping) {
-        return
+    // Clean up processor if no more messages
+    if (!storeState.messageQueue.hasMessages(conversationId)) {
+      const processor = storeState.conversationProcessors.get(conversationId)
+      if (processor && !processor.isProcessing()) {
+        processor.destroy()
+        storeState.conversationProcessors.delete(conversationId)
       }
-
-      const store = this.storeManager.getStore(storeId)
-      if (store) {
-        try {
-          store.commit(
-            events.llmResponseReceived({
-              id: crypto.randomUUID(),
-              conversationId,
-              message: `Echo: ${message}`,
-              role: 'assistant',
-              modelId: 'test-echo',
-              responseToMessageId: messageId,
-              createdAt: new Date(),
-              llmMetadata: { source: 'server-test-echo' },
-            })
-          )
-        } catch (error) {
-          console.error(
-            `❌ Failed to emit echo response for conversation ${conversationId}:`,
-            error
-          )
-          this.incrementErrorCount(storeId, error as Error)
-        }
-      }
-    }, 0)
-  }
-
-  private emitErrorResponse(
-    storeId: string,
-    conversationId: string,
-    messageId: string,
-    errorMessage: string
-  ): void {
-    setTimeout(() => {
-      const storeState = this.storeStates.get(storeId)
-      if (storeState?.stopping) {
-        return
-      }
-
-      const store = this.storeManager.getStore(storeId)
-      if (store) {
-        try {
-          store.commit(
-            events.llmResponseReceived({
-              id: crypto.randomUUID(),
-              conversationId,
-              message: errorMessage,
-              role: 'assistant',
-              modelId: 'error-handler',
-              responseToMessageId: messageId,
-              createdAt: new Date(),
-              llmMetadata: { source: 'server-error' },
-            })
-          )
-        } catch (error) {
-          console.error(
-            `❌ Failed to emit error response for conversation ${conversationId}:`,
-            error
-          )
-          this.incrementErrorCount(storeId, error as Error)
-        }
-      }
-    }, 0)
+    }
   }
 
   private incrementErrorCount(storeId: string, error: Error): void {
@@ -713,10 +743,19 @@ export class EventProcessor {
 
     // Wait for processing to complete before removing state
     storeState.processingQueue.finally(() => {
-      // Clear processed message IDs to free memory
-      storeState.processedMessageIds.clear()
-      // Clean up tool executor
-      this.toolExecutors.delete(storeId)
+      // Cleanup message queue manager
+      storeState.messageQueue.destroy()
+
+      // Cleanup all conversation processors
+      for (const processor of storeState.conversationProcessors.values()) {
+        processor.destroy()
+      }
+      storeState.conversationProcessors.clear()
+
+      // Cleanup query optimizer and resource monitor
+      storeState.queryOptimizer.destroy()
+      storeState.resourceMonitor.destroy()
+
       this.storeStates.delete(storeId)
       console.log(`🛑 Stopped event monitoring for store ${storeId}`)
     })
@@ -734,6 +773,9 @@ export class EventProcessor {
       this.flushTimer = undefined
     }
 
+    // Cleanup global resource monitor
+    this.globalResourceMonitor.destroy()
+
     console.log('🛑 Stopped all event monitoring')
   }
 
@@ -746,6 +788,10 @@ export class EventProcessor {
       processing: boolean
       lastFlushed: string
       tablesMonitored: number
+      activeConversations: number
+      queuedMessages: number
+      resourceMetrics: any
+      cacheStats: any
     }
   > {
     const stats = new Map()
@@ -758,9 +804,46 @@ export class EventProcessor {
         processing: storeState.eventBuffer.processing,
         lastFlushed: storeState.eventBuffer.lastFlushed.toISOString(),
         tablesMonitored: storeState.subscriptions.length,
+        activeConversations: storeState.activeConversations.size,
+        queuedMessages: storeState.messageQueue.getTotalQueuedMessages(),
+        resourceMetrics: storeState.resourceMonitor.getCurrentMetrics(),
+        cacheStats: storeState.queryOptimizer.getCacheStats(),
       })
     }
 
     return stats
+  }
+
+  /**
+   * Get comprehensive resource report across all stores
+   */
+  getResourceReport(): {
+    global: any
+    perStore: Map<string, any>
+    systemHealth: 'healthy' | 'stressed' | 'critical'
+  } {
+    const globalReport = this.globalResourceMonitor.getResourceReport()
+    const perStoreReports = new Map()
+
+    for (const [storeId, storeState] of this.storeStates) {
+      perStoreReports.set(storeId, storeState.resourceMonitor.getResourceReport())
+    }
+
+    // Determine overall system health
+    const isUnderStress = this.globalResourceMonitor.isSystemUnderStress()
+    const hasCriticalAlerts = globalReport.alerts.some(alert => alert.type === 'critical')
+
+    let systemHealth: 'healthy' | 'stressed' | 'critical' = 'healthy'
+    if (hasCriticalAlerts) {
+      systemHealth = 'critical'
+    } else if (isUnderStress) {
+      systemHealth = 'stressed'
+    }
+
+    return {
+      global: globalReport,
+      perStore: perStoreReports,
+      systemHealth,
+    }
   }
 }

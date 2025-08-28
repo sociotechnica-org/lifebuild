@@ -1,5 +1,5 @@
 import { makeSchema, Schema, SessionIdSymbol, State } from '@livestore/livestore'
-import { DEFAULT_MODEL } from '../llm/models.js'
+import { DEFAULT_MODEL } from '../models.js'
 
 import { Filter } from '../types'
 import * as eventsDefs from './events'
