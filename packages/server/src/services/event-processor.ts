@@ -36,9 +36,7 @@ export class EventProcessor {
   private toolExecutors: Map<string, ToolExecutor> = new Map() // One per store
 
   // Tables to monitor - only chatMessages needed for LLM processing
-  private readonly monitoredTables = [
-    'chatMessages',
-  ] as const
+  private readonly monitoredTables = ['chatMessages'] as const
 
   constructor(storeManager: StoreManager) {
     this.storeManager = storeManager
@@ -240,12 +238,11 @@ export class EventProcessor {
       }
 
       if (shouldProcess) {
-        const timestamp = new Date().toISOString()
-        const displayText = record.message || record.name || record.title || record.id
-        const truncatedText =
-          displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
-
         // Verbose logging disabled
+        // const timestamp = new Date().toISOString()
+        // const displayText = record.message || record.name || record.title || record.id
+        // const truncatedText =
+        //   displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
         // console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
 
         // Handle user messages for test responses (only genuine user messages)
@@ -376,16 +373,9 @@ export class EventProcessor {
       return
     }
 
-    // Format message content for logging
-    const messagePreview = message
-      ? message.length > 100
-        ? `${message.slice(0, 100)}...`
-        : message
-      : '<no message content>'
-
     // Reduced logging - only log server: messages
     if (message.startsWith('server:')) {
-      console.log(`📨 Processing server message in conversation ${conversationId}`);
+      console.log(`📨 Processing server message in conversation ${conversationId}`)
     }
 
     // Only process messages starting with "server:" for testing
