@@ -49,17 +49,9 @@ export class EventProcessor {
   private braintrustProjectId: string | undefined
 
   // Tables to monitor for activity
-  private readonly monitoredTables = [
-    'chatMessages',
-    'tasks',
-    'projects',
-    'conversations',
-    'documents',
-    'workers',
-    'comments',
-    'recurringTasks',
-    'contacts',
-  ] as const
+  // IMPORTANT: Only monitor chatMessages to process user messages
+  // Monitoring other tables is unnecessary and causes performance issues
+  private readonly monitoredTables = ['chatMessages'] as const
 
   constructor(storeManager: StoreManager) {
     this.storeManager = storeManager
@@ -154,60 +146,15 @@ export class EventProcessor {
     storeState: StoreProcessingState
   ): void {
     try {
-      let query: any
-
-      // Handle each table specifically to avoid TypeScript issues
-      switch (tableName) {
-        case 'chatMessages':
-          query = queryDb(tables.chatMessages.select(), {
-            label: `monitor-${tableName}-${storeId}`,
-          })
-          break
-        case 'tasks':
-          query = queryDb(tables.tasks.select(), {
-            label: `monitor-${tableName}-${storeId}`,
-          })
-          break
-        case 'projects':
-          query = queryDb(tables.boards.select(), {
-            // Note: projects table is named 'boards' in schema
-            label: `monitor-${tableName}-${storeId}`,
-          })
-          break
-        case 'conversations':
-          query = queryDb(tables.conversations.select(), {
-            label: `monitor-${tableName}-${storeId}`,
-          })
-          break
-        case 'documents':
-          query = queryDb(tables.documents.select(), {
-            label: `monitor-${tableName}-${storeId}`,
-          })
-          break
-        case 'workers':
-          query = queryDb(tables.workers.select(), {
-            label: `monitor-${tableName}-${storeId}`,
-          })
-          break
-        case 'comments':
-          query = queryDb(tables.comments.select(), {
-            label: `monitor-${tableName}-${storeId}`,
-          })
-          break
-        case 'recurringTasks':
-          query = queryDb(tables.recurringTasks.select(), {
-            label: `monitor-${tableName}-${storeId}`,
-          })
-          break
-        case 'contacts':
-          query = queryDb(tables.contacts.select(), {
-            label: `monitor-${tableName}-${storeId}`,
-          })
-          break
-        default:
-          console.warn(`⚠️ Unknown table ${tableName} for store ${storeId}`)
-          return
+      // We only monitor chatMessages now for processing user messages
+      if (tableName !== 'chatMessages') {
+        console.warn(`⚠️ Unexpected table ${tableName} - only chatMessages should be monitored`)
+        return
       }
+
+      const query = queryDb(tables.chatMessages.select(), {
+        label: `monitor-${tableName}-${storeId}`,
+      })
 
       const unsubscribe = store.subscribe(query as any, {
         onUpdate: (records: any[]) => {
@@ -234,8 +181,15 @@ export class EventProcessor {
       return
     }
 
-    const lastCount = storeState.lastSeenCounts.get(tableName) || 0
+    const lastCount = storeState.lastSeenCounts.get(tableName)
     const currentCount = records.length
+
+    // On first subscription, initialize the count without processing existing records
+    if (lastCount === undefined) {
+      console.log(`📊 Initial sync for ${storeId}/${tableName}: ${currentCount} existing records`)
+      storeState.lastSeenCounts.set(tableName, currentCount)
+      return
+    }
 
     // Only process if we have new records
     if (currentCount > lastCount) {
@@ -256,8 +210,9 @@ export class EventProcessor {
 
         console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
 
-        // Handle chat messages for agentic loop processing
+        // Handle chat messages for agentic loop processing - only process truly NEW user messages
         if (tableName === 'chatMessages' && recordObj.role === 'user') {
+          console.log(`🆕 Processing new user message: ${recordObj.id}`)
           this.handleUserMessage(storeId, recordObj as ChatMessage, storeState)
         }
       }
@@ -466,8 +421,13 @@ export class EventProcessor {
           createdAt: new Date(),
         })
       )
+      
+      // CRITICAL: Wait for the commit to be processed before querying the store
+      // This prevents the refreshedAtoms error in the reactive graph
+      await new Promise(resolve => setTimeout(resolve, 50))
     }
 
+    let llmCallCompleted = false
     try {
       const startTime = Date.now()
       await this.runAgenticLoop(storeId, chatMessage, storeState)
@@ -475,10 +435,13 @@ export class EventProcessor {
 
       // Track successful completion
       this.globalResourceMonitor.trackLLMCallComplete(llmCallId, false, responseTime)
+      llmCallCompleted = true
     } catch (error) {
-      // Track error
+      // Track error and ensure LLM call is properly cleaned up
       this.globalResourceMonitor.trackError(`LLM call failed: ${error}`)
-      this.globalResourceMonitor.trackLLMCallComplete(llmCallId, false)
+      if (!llmCallCompleted) {
+        this.globalResourceMonitor.trackLLMCallComplete(llmCallId, true) // Mark as timeout/error
+      }
       console.error(`❌ Error in agentic loop for conversation ${conversationId}:`, error)
 
       // Emit error message to conversation
@@ -498,6 +461,11 @@ export class EventProcessor {
         )
       }
     } finally {
+      // Ensure LLM call is always cleaned up
+      if (!llmCallCompleted) {
+        this.globalResourceMonitor.trackLLMCallComplete(llmCallId, true)
+      }
+
       // Always remove from active conversations
       storeState.activeConversations.delete(conversationId)
 
@@ -520,8 +488,20 @@ export class EventProcessor {
     }
 
     // Get conversation details, worker context, and history in optimized batch
-    const { conversation, worker, chatHistory } =
-      await storeState.queryPatterns.getConversationWithContext(userMessage.conversationId, tables)
+    let conversation, worker, chatHistory
+    try {
+      const result = await storeState.queryPatterns.getConversationWithContext(
+        userMessage.conversationId,
+        tables
+      )
+      conversation = result.conversation
+      worker = result.worker
+      chatHistory = result.chatHistory
+    } catch (error) {
+      console.error(`❌ Error querying conversation context:`, error)
+      // If we can't get the context due to store issues, bail out gracefully
+      return
+    }
 
     let workerContext: WorkerContext | undefined = undefined
     const boardContext: BoardContext | undefined = undefined
@@ -535,13 +515,16 @@ export class EventProcessor {
       }
     }
 
-    // Convert chat messages to conversation history format
-    const conversationHistory: LLMMessage[] = (chatHistory as ChatMessage[]).map(msg => ({
+    // Convert chat messages to conversation history format and sanitize tool calls
+    const rawHistory: LLMMessage[] = (chatHistory as ChatMessage[]).map(msg => ({
       role: msg.role,
       content: msg.message || '',
       tool_calls: msg.llmMetadata?.toolCalls,
       tool_call_id: msg.llmMetadata?.tool_call_id,
     }))
+
+    // Sanitize conversation history to fix tool_use/tool_result mismatches
+    const conversationHistory = this.sanitizeConversationHistory(rawHistory)
 
     // Create agentic loop instance with conversation history
     const agenticLoop = new AgenticLoop(
@@ -815,6 +798,44 @@ export class EventProcessor {
   }
 
   /**
+   * Get global resource status for health endpoint
+   */
+  getGlobalResourceStatus(): {
+    systemHealth: 'healthy' | 'stressed' | 'critical'
+    activeLLMCalls: number
+    queuedMessages: number
+    activeConversations: number
+    errorRate: number
+    avgResponseTime: number
+    cacheHitRate: number
+    alerts: number
+  } {
+    const globalReport = this.globalResourceMonitor.getResourceReport()
+    
+    // Determine overall system health
+    const isUnderStress = this.globalResourceMonitor.isSystemUnderStress()
+    const hasCriticalAlerts = globalReport.alerts.some(alert => alert.type === 'critical')
+
+    let systemHealth: 'healthy' | 'stressed' | 'critical' = 'healthy'
+    if (hasCriticalAlerts) {
+      systemHealth = 'critical'
+    } else if (isUnderStress) {
+      systemHealth = 'stressed'
+    }
+
+    return {
+      systemHealth,
+      activeLLMCalls: globalReport.current.activeLLMCalls,
+      queuedMessages: globalReport.current.queuedMessages,
+      activeConversations: globalReport.current.activeConversations,
+      errorRate: globalReport.current.errorRate,
+      avgResponseTime: globalReport.current.avgResponseTime,
+      cacheHitRate: globalReport.current.cacheHitRate,
+      alerts: globalReport.alerts.length,
+    }
+  }
+
+  /**
    * Get comprehensive resource report across all stores
    */
   getResourceReport(): {
@@ -845,5 +866,47 @@ export class EventProcessor {
       perStore: perStoreReports,
       systemHealth,
     }
+  }
+
+  /**
+   * Sanitize conversation history to prevent tool_use/tool_result mismatches
+   */
+  private sanitizeConversationHistory(history: LLMMessage[]): LLMMessage[] {
+    const sanitized: LLMMessage[] = []
+    
+    for (let i = 0; i < history.length; i++) {
+      const message = history[i]
+      
+      // If this is an assistant message with tool_calls
+      if (message.role === 'assistant' && message.tool_calls && message.tool_calls.length > 0) {
+        // Check if the next message has corresponding tool_result blocks
+        const nextMessage = history[i + 1]
+        
+        if (!nextMessage || nextMessage.role !== 'tool' || !nextMessage.tool_call_id) {
+          // No corresponding tool result - strip the tool_calls to avoid API errors
+          console.warn(`🧹 Sanitizing incomplete tool_calls from assistant message`)
+          sanitized.push({
+            ...message,
+            tool_calls: undefined
+          })
+        } else {
+          // Has tool results - include as-is
+          sanitized.push(message)
+        }
+      } else if (message.role === 'tool') {
+        // Only include tool messages if the previous message was an assistant with tool_calls
+        const prevMessage = sanitized[sanitized.length - 1]
+        if (prevMessage && prevMessage.role === 'assistant' && prevMessage.tool_calls) {
+          sanitized.push(message)
+        } else {
+          console.warn(`🧹 Removing orphaned tool result message`)
+        }
+      } else {
+        // Regular user/assistant message without tool_calls - include as-is
+        sanitized.push(message)
+      }
+    }
+    
+    return sanitized
   }
 }
