@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
-import { MemoryRouter } from 'react-router-dom'
 import { ChatPresenter } from './ChatPresenter.js'
 import type { ChatData } from '../../../hooks/useChatData.js'
 
@@ -19,11 +18,9 @@ const meta: Meta<typeof ChatPresenter> = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <MemoryRouter>
-        <div style={{ height: '600px' }}>
-          <Story />
-        </div>
-      </MemoryRouter>
+      <div style={{ height: '600px' }}>
+        <Story />
+      </div>
     ),
   ],
 }
