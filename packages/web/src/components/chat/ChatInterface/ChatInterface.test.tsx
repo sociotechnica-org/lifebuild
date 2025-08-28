@@ -25,7 +25,10 @@ describe('ChatInterface', () => {
   })
 
   it('should render basic UI elements when no conversations exist', () => {
-    mockUseQuery.mockReturnValue([])
+    mockUseQuery.mockImplementation((query: any) => {
+      // Return empty arrays for all queries
+      return []
+    })
     render(
       <MemoryRouter>
         <ChatInterface />
@@ -47,6 +50,8 @@ describe('ChatInterface', () => {
 
     mockUseQuery.mockImplementation((query: any) => {
       if (query.label?.includes('getConversations')) return mockConversations
+      if (query.label === 'getActiveLLMProcessing') return []
+      if (query.label?.includes('getWorkers')) return []
       return []
     })
 
@@ -79,6 +84,8 @@ describe('ChatInterface', () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.label?.includes('getConversations')) return mockConversations
       if (query.label === 'getConversationMessages:conv1') return mockMessages
+      if (query.label === 'getActiveLLMProcessing') return []
+      if (query.label?.includes('getWorkers')) return []
       return []
     })
 
@@ -113,6 +120,8 @@ describe('ChatInterface', () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.label?.includes('getConversations')) return mockConversations
       if (query.label === 'getConversationMessages:conv1') return mockMessages
+      if (query.label === 'getActiveLLMProcessing') return []
+      if (query.label?.includes('getWorkers')) return []
       return []
     })
 
