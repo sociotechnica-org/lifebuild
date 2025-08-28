@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
-import { MemoryRouter } from 'react-router-dom'
 import { MessageList } from '../MessageList/MessageList.js'
 import { ChatInput } from '../ChatInput/ChatInput.js'
 import { ChatTypeModal } from '../ChatTypeModal/ChatTypeModal.js'
@@ -93,11 +92,9 @@ const meta: Meta<typeof ChatPresenterMock> = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <MemoryRouter>
-        <div style={{ height: '600px' }}>
-          <Story />
-        </div>
-      </MemoryRouter>
+      <div style={{ height: '600px' }}>
+        <Story />
+      </div>
     ),
   ],
 }
