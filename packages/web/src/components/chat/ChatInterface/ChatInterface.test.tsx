@@ -36,7 +36,7 @@ describe('ChatPresenter', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.useFakeTimers()
-    
+
     // Mock scrollIntoView
     window.HTMLElement.prototype.scrollIntoView = vi.fn()
   })
@@ -52,12 +52,11 @@ describe('ChatPresenter', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getByText('Chat')).toBeInTheDocument()
-    expect(screen.getByText('Welcome to Chat!')).toBeInTheDocument()
-    expect(screen.getAllByText('Start New Chat')).toHaveLength(2) // ConversationSelector + ChatPresenter
+    expect(screen.getByText('Select a conversation...')).toBeInTheDocument()
+    expect(screen.getByText('New Chat')).toBeInTheDocument()
   })
 
-  it('should show + button when conversations exist', () => {
+  it('should show conversations in selector when they exist', () => {
     const mockConversations = [
       {
         id: 'conv1',
@@ -80,9 +79,9 @@ describe('ChatPresenter', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getByText('Chat')).toBeInTheDocument()
-    expect(screen.getByLabelText('New Chat')).toBeInTheDocument() // + button should be visible
-    expect(screen.getByText('Select a conversation...')).toBeInTheDocument() // conversation selector
+    expect(screen.getByText('Test Conversation')).toBeInTheDocument()
+    expect(screen.getByText('New Chat')).toBeInTheDocument()
+    expect(screen.getByText('Select a conversation...')).toBeInTheDocument()
   })
 
   it('renders copy button for chat messages', () => {
