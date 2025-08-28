@@ -27,6 +27,25 @@ function createProjectCore(store: Store, params: CreateProjectParams): CreatePro
       })
     )
 
+    // Create default Kanban columns for the new project
+    const defaultColumns = [
+      { name: 'To Do', position: 0 },
+      { name: 'In Progress', position: 1 },
+      { name: 'Done', position: 2 }
+    ]
+
+    for (const column of defaultColumns) {
+      store.commit(
+        events.columnCreated({
+          id: crypto.randomUUID(),
+          projectId: projectId,
+          name: column.name,
+          position: column.position,
+          createdAt: now,
+        })
+      )
+    }
+
     return {
       success: true,
       project: {

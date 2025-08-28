@@ -29,7 +29,7 @@ export class ProjectToolFormatter implements ToolResultFormatter {
     const p = result.project
     return `Project created successfully:\n• Name: ${p.name}\n• ID: ${p.id}${
       p.description ? `\n• Description: ${p.description}` : ''
-    }`
+    }\n• Default columns created: "To Do", "In Progress", "Done"`
   }
 
   private formatListProjects(result: any): string {
