@@ -533,6 +533,30 @@ export class EventProcessor {
         onIterationStart: iteration => {
           console.log(`🔄 Agentic loop iteration ${iteration} started`)
         },
+        onIterationComplete: (iteration, response) => {
+          // Only send the LLM's message if there are tool calls
+          // If there are no tool calls, onFinalMessage will handle it
+          if (response.message && response.message.trim() && response.toolCalls && response.toolCalls.length > 0) {
+            console.log(`💬 Iteration ${iteration} LLM reasoning: ${response.message.substring(0, 100)}...`)
+            store.commit(
+              events.llmResponseReceived({
+                id: crypto.randomUUID(),
+                conversationId: userMessage.conversationId,
+                message: response.message,
+                role: 'assistant',
+                modelId: conversation?.model || DEFAULT_MODEL,
+                responseToMessageId: userMessage.id,
+                createdAt: new Date(),
+                llmMetadata: { 
+                  source: 'braintrust',
+                  iteration,
+                  hasToolCalls: true,
+                  messageType: 'reasoning'
+                },
+              })
+            )
+          }
+        },
         onToolsExecuting: toolCalls => {
           // Emit tool execution events for UI updates
           for (const toolCall of toolCalls) {
@@ -555,6 +579,7 @@ export class EventProcessor {
         },
         onFinalMessage: message => {
           // Emit final LLM response
+          console.log(`✅ Final LLM response: ${message.substring(0, 100)}...`)
           store.commit(
             events.llmResponseReceived({
               id: crypto.randomUUID(),
@@ -564,7 +589,10 @@ export class EventProcessor {
               modelId: conversation?.model || DEFAULT_MODEL,
               responseToMessageId: userMessage.id,
               createdAt: new Date(),
-              llmMetadata: { source: 'braintrust' },
+              llmMetadata: { 
+                source: 'braintrust',
+                messageType: 'final'
+              },
             })
           )
         },
@@ -588,6 +616,30 @@ export class EventProcessor {
                   ? 'stuck_loop_detected'
                   : 'processing_error',
               },
+            })
+          )
+          
+          // Send completion event indicating failure
+          store.commit(
+            events.llmResponseCompleted({
+              conversationId: userMessage.conversationId,
+              userMessageId: userMessage.id,
+              createdAt: new Date(),
+              iterations: iteration,
+              success: false,
+            })
+          )
+        },
+        onComplete: iterations => {
+          // Send completion event to indicate the agentic loop has finished
+          console.log(`✅ Agentic loop completed after ${iterations} iterations`)
+          store.commit(
+            events.llmResponseCompleted({
+              conversationId: userMessage.conversationId,
+              userMessageId: userMessage.id,
+              createdAt: new Date(),
+              iterations,
+              success: true,
             })
           )
         },

@@ -428,6 +428,7 @@ const materializers = State.SQLite.materializers(events, {
       llmMetadata,
     }),
   'v1.LLMResponseStarted': () => [],
+  'v1.LLMResponseCompleted': () => [],
   'v1.CommentAdded': ({ id, taskId, authorId, content, createdAt }) =>
     comments.insert({ id, taskId, authorId, content, createdAt }),
   'v1.TaskArchived': ({ taskId, archivedAt }) => tasks.update({ archivedAt }).where({ id: taskId }),

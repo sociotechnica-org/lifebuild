@@ -8,6 +8,7 @@ import {
   getConversationMessages$,
   getWorkerById$,
   getWorkers$,
+  getActiveLLMProcessing$,
 } from '@work-squared/shared/queries'
 import type { Conversation, ChatMessage } from '@work-squared/shared/schema'
 import { MarkdownRenderer } from '../../markdown/MarkdownRenderer.js'
@@ -22,6 +23,7 @@ export const ChatInterface: React.FC = () => {
   const navigate = useNavigate()
   const conversations = useQuery(getConversations$) ?? []
   const availableWorkers = useQuery(getWorkers$) ?? []
+  const llmEvents = useQuery(getActiveLLMProcessing$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [showChatPicker, setShowChatPicker] = React.useState(false)
   const [processingConversations, setProcessingConversations] = React.useState<Set<string>>(
@@ -58,26 +60,44 @@ export const ChatInterface: React.FC = () => {
   // Only show messages if we have a real conversation selected
   const messages = selectedConversationId ? allMessages : []
 
-  // Track processing state based on message flow
+  // Track processing state based on LLM events
   React.useEffect(() => {
-    if (!selectedConversationId || !messages) return
-
-    // Check if the last message is a user message without a following assistant response
-    const lastMessage = messages[messages.length - 1]
-    const hasUnrespondedUserMessage = lastMessage && lastMessage.role === 'user'
-
-    setProcessingConversations(prev => {
-      const next = new Set(prev)
+    const activeProcessing = new Set<string>()
+    
+    // Group events by conversation
+    const eventsByConversation = new Map<string, { started: any[]; completed: any[] }>()
+    
+    for (const event of llmEvents) {
+      const eventData = event.eventData as any
+      const conversationId = eventData.conversationId
       
-      if (hasUnrespondedUserMessage) {
-        next.add(selectedConversationId)
-      } else {
-        next.delete(selectedConversationId)
+      if (!eventsByConversation.has(conversationId)) {
+        eventsByConversation.set(conversationId, { started: [], completed: [] })
       }
       
-      return next.size !== prev.size || next.has(selectedConversationId) !== prev.has(selectedConversationId) ? next : prev
-    })
-  }, [selectedConversationId, messages])
+      const group = eventsByConversation.get(conversationId)!
+      
+      if (event.eventType === 'v1.LLMResponseStarted') {
+        group.started.push(event)
+      } else if (event.eventType === 'v1.LLMResponseCompleted') {
+        group.completed.push(event)
+      }
+    }
+    
+    // For each conversation, check if there are unmatched start events
+    for (const [conversationId, { started, completed }] of eventsByConversation) {
+      // Sort by creation time
+      const sortedStarted = started.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      const sortedCompleted = completed.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      
+      // If we have more starts than completions, this conversation is still processing
+      if (sortedStarted.length > sortedCompleted.length) {
+        activeProcessing.add(conversationId)
+      }
+    }
+    
+    setProcessingConversations(activeProcessing)
+  }, [llmEvents])
 
   const resetTextareaHeight = React.useCallback(() => {
     if (textareaRef.current) {

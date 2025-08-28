@@ -229,6 +229,21 @@ export const getAllEvents$ = queryDb(
   { label: 'getAllEvents' }
 )
 
+// Helper query to track active LLM processing states
+export const getActiveLLMProcessing$ = queryDb(
+  tables.eventsLog
+    .select()
+    .where({
+      eventType: {
+        op: 'IN' as const,
+        value: ['v1.LLMResponseStarted', 'v1.LLMResponseCompleted'] as const,
+      },
+    })
+    .orderBy([{ col: 'createdAt', direction: 'desc' }])
+    .limit(50), // Limit to recent events for performance
+  { label: 'getActiveLLMProcessing' }
+)
+
 // Query to get project details with document and task counts (for LLM tools)
 export const getProjectDetails$ = (projectId: string) =>
   queryDb(tables.boards.select().where({ id: projectId }), {
