@@ -31,11 +31,15 @@ export class ConversationHistory {
    * Add an assistant message (with optional tool calls)
    */
   addAssistantMessage(content: string, toolCalls?: ToolCall[]): void {
-    this.messages.push({
+    const message: LLMMessage = {
       role: 'assistant',
       content,
-      tool_calls: toolCalls,
-    })
+    }
+    // Only add tool_calls if there are actual tool calls (not empty array)
+    if (toolCalls && toolCalls.length > 0) {
+      message.tool_calls = toolCalls
+    }
+    this.messages.push(message)
   }
 
   /**
