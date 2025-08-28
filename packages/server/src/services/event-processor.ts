@@ -577,6 +577,26 @@ export class EventProcessor {
             )
           }
         },
+        onToolsComplete: toolMessages => {
+          // Send formatted tool results to the frontend
+          for (const toolMessage of toolMessages) {
+            store.commit(
+              events.llmResponseReceived({
+                id: crypto.randomUUID(),
+                conversationId: userMessage.conversationId,
+                message: toolMessage.content,
+                role: 'assistant',
+                modelId: 'system',
+                responseToMessageId: userMessage.id,
+                createdAt: new Date(),
+                llmMetadata: {
+                  source: 'tool-result',
+                  toolCallId: toolMessage.tool_call_id,
+                },
+              })
+            )
+          }
+        },
         onFinalMessage: message => {
           // Emit final LLM response
           console.log(`✅ Final LLM response: ${message.substring(0, 100)}...`)
