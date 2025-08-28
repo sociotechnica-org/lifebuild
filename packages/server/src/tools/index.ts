@@ -32,7 +32,7 @@ export async function executeLLMTool(
     getOrphanedTasks,
   } = await import('./tasks.js')
 
-  const { listProjects, getProjectDetails } = await import('./projects.js')
+  const { createProject, listProjects, getProjectDetails } = await import('./projects.js')
 
   const {
     listDocuments,
@@ -74,6 +74,9 @@ export async function executeLLMTool(
 
     case 'get_orphaned_tasks':
       return getOrphanedTasks(store)
+
+    case 'create_project':
+      return createProject(store, toolCall.parameters)
 
     case 'list_projects':
       return listProjects(store)

@@ -5,8 +5,45 @@ import {
   getBoardTasks$,
   getDocumentProjectsByProject$,
 } from '@work-squared/shared/queries'
-import { validators, wrapStringParamFunction, wrapNoParamFunction } from './base.js'
-import type { ListProjectsResult, GetProjectDetailsResult } from './types.js'
+import { events } from '@work-squared/shared/schema'
+import { validators, wrapStringParamFunction, wrapNoParamFunction, wrapToolFunction } from './base.js'
+import type { CreateProjectParams, CreateProjectResult, ListProjectsResult, GetProjectDetailsResult } from './types.js'
+
+/**
+ * Create a new project (core implementation)
+ */
+function createProjectCore(store: Store, params: CreateProjectParams): CreateProjectResult {
+  try {
+    const projectId = crypto.randomUUID()
+    const now = new Date()
+
+    // Emit project creation event
+    store.commit(
+      events.projectCreated({
+        id: projectId,
+        name: params.name,
+        description: params.description,
+        createdAt: now,
+      })
+    )
+
+    return {
+      success: true,
+      project: {
+        id: projectId,
+        name: params.name,
+        description: params.description,
+        createdAt: now,
+      },
+    }
+  } catch (error) {
+    console.error('Error creating project:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
 
 /**
  * List all available projects (core implementation)
@@ -52,5 +89,6 @@ function getProjectDetailsCore(store: Store, projectId: string): GetProjectDetai
 }
 
 // Export wrapped versions for external use
+export const createProject = wrapToolFunction(createProjectCore)
 export const listProjects = wrapNoParamFunction(listProjectsCore)
 export const getProjectDetails = wrapStringParamFunction(getProjectDetailsCore)
