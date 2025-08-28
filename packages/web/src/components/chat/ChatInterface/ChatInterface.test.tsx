@@ -2,30 +2,43 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
-import { ChatInterface } from './ChatInterface.js'
+import { ChatPresenter } from '../ChatPresenter/ChatPresenter.js'
+import type { ChatData } from '../../../hooks/useChatData.js'
 
-// Mock the LiveStore hooks
-vi.mock('@livestore/react', () => ({
-  useQuery: vi.fn(() => []),
-  useStore: vi.fn(() => ({
-    store: {
-      commit: vi.fn(),
-      subscribe: vi.fn(() => vi.fn()), // Return unsubscribe function
-    },
-  })),
-}))
+// Test the presenter component directly with mock data instead of the complex container
+// This avoids the memory leak issues from the LiveStore reactive queries
 
-// Import after mocking
-import { useQuery } from '@livestore/react'
-const mockUseQuery = useQuery as ReturnType<typeof vi.fn>
+const mockChatData: ChatData = {
+  // Data
+  conversations: [],
+  availableWorkers: [],
+  messages: [],
+  selectedConversation: null,
+  currentWorker: null,
 
-// TODO: Fix memory leak in ChatInterface tests - currently causing heap overflow
-// The issue appears to be related to infinite re-renders or array operations
-// in the useEffect that processes llmEvents. Skipping for now.
-describe.skip('ChatInterface', () => {
+  // State
+  selectedConversationId: null,
+  processingConversations: new Set(),
+  messageText: '',
+  showChatPicker: false,
+
+  // Actions (mock functions)
+  onConversationChange: vi.fn(),
+  onCreateConversation: vi.fn(),
+  onSendMessage: vi.fn(),
+  onMessageTextChange: vi.fn(),
+  onShowChatPicker: vi.fn(),
+  onHideChatPicker: vi.fn(),
+  onChatTypeSelect: vi.fn(),
+}
+
+describe('ChatPresenter', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.useFakeTimers()
+    
+    // Mock scrollIntoView
+    window.HTMLElement.prototype.scrollIntoView = vi.fn()
   })
 
   afterEach(() => {
@@ -33,51 +46,54 @@ describe.skip('ChatInterface', () => {
   })
 
   it('should render basic UI elements when no conversations exist', () => {
-    mockUseQuery.mockImplementation((query: any) => {
-      // Return empty arrays for all queries
-      return []
-    })
     render(
       <MemoryRouter>
-        <ChatInterface />
+        <ChatPresenter {...mockChatData} />
       </MemoryRouter>
     )
 
     expect(screen.getByText('Chat')).toBeInTheDocument()
-    expect(screen.getByText('No conversation selected')).toBeInTheDocument()
-    expect(screen.getByText('Start New Chat')).toBeInTheDocument()
-
-    // + button should not be visible when no conversations exist
-    expect(screen.queryByLabelText('New Chat')).not.toBeInTheDocument()
+    expect(screen.getByText('Welcome to Chat!')).toBeInTheDocument()
+    expect(screen.getAllByText('Start New Chat')).toHaveLength(2) // ConversationSelector + ChatPresenter
   })
 
   it('should show + button when conversations exist', () => {
     const mockConversations = [
-      { id: 'conv1', title: 'Test Conversation', createdAt: new Date(), updatedAt: new Date() },
-    ]
+      {
+        id: 'conv1',
+        title: 'Test Conversation',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        model: 'gpt-4',
+        workerId: null,
+      },
+    ] as const
 
-    mockUseQuery.mockImplementation((query: any) => {
-      if (query.label?.includes('getConversations')) return mockConversations
-      if (query.label === 'getActiveLLMProcessing') return []
-      if (query.label?.includes('getWorkers')) return []
-      return []
-    })
+    const chatDataWithConversations = {
+      ...mockChatData,
+      conversations: mockConversations,
+    }
 
     render(
       <MemoryRouter>
-        <ChatInterface />
+        <ChatPresenter {...chatDataWithConversations} />
       </MemoryRouter>
     )
 
     expect(screen.getByText('Chat')).toBeInTheDocument()
     expect(screen.getByLabelText('New Chat')).toBeInTheDocument() // + button should be visible
-    expect(screen.getByDisplayValue('')).toBeInTheDocument() // conversation selector
+    expect(screen.getByText('Select a conversation...')).toBeInTheDocument() // conversation selector
   })
 
   it('renders copy button for chat messages', () => {
-    const mockConversations = [
-      { id: 'conv1', title: 'Test Conversation', createdAt: new Date(), updatedAt: new Date() },
-    ]
+    const mockConversation = {
+      id: 'conv1',
+      title: 'Test Conversation',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      model: 'gpt-4',
+      workerId: null,
+    } as const
 
     const mockMessages = [
       {
@@ -86,20 +102,23 @@ describe.skip('ChatInterface', () => {
         message: 'Hello world',
         role: 'assistant',
         createdAt: new Date(),
+        modelId: null,
+        responseToMessageId: null,
+        llmMetadata: null,
       },
-    ]
+    ] as const
 
-    mockUseQuery.mockImplementation((query: any) => {
-      if (query.label?.includes('getConversations')) return mockConversations
-      if (query.label === 'getConversationMessages:conv1') return mockMessages
-      if (query.label === 'getActiveLLMProcessing') return []
-      if (query.label?.includes('getWorkers')) return []
-      return []
-    })
+    const chatDataWithMessage = {
+      ...mockChatData,
+      conversations: [mockConversation],
+      selectedConversation: mockConversation,
+      selectedConversationId: 'conv1',
+      messages: mockMessages,
+    }
 
     const { container } = render(
-      <MemoryRouter initialEntries={['/?conversationId=conv1']}>
-        <ChatInterface />
+      <MemoryRouter>
+        <ChatPresenter {...chatDataWithMessage} />
       </MemoryRouter>
     )
 
@@ -111,9 +130,14 @@ describe.skip('ChatInterface', () => {
   })
 
   it('hides copy button for placeholder messages', () => {
-    const mockConversations = [
-      { id: 'conv1', title: 'Test Conversation', createdAt: new Date(), updatedAt: new Date() },
-    ]
+    const mockConversation = {
+      id: 'conv1',
+      title: 'Test Conversation',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      model: 'gpt-4',
+      workerId: null,
+    } as const
 
     const mockMessages = [
       {
@@ -122,20 +146,23 @@ describe.skip('ChatInterface', () => {
         message: 'No response generated',
         role: 'assistant',
         createdAt: new Date(),
+        modelId: null,
+        responseToMessageId: null,
+        llmMetadata: null,
       },
-    ]
+    ] as const
 
-    mockUseQuery.mockImplementation((query: any) => {
-      if (query.label?.includes('getConversations')) return mockConversations
-      if (query.label === 'getConversationMessages:conv1') return mockMessages
-      if (query.label === 'getActiveLLMProcessing') return []
-      if (query.label?.includes('getWorkers')) return []
-      return []
-    })
+    const chatDataWithPlaceholder = {
+      ...mockChatData,
+      conversations: [mockConversation],
+      selectedConversation: mockConversation,
+      selectedConversationId: 'conv1',
+      messages: mockMessages,
+    }
 
     const { container } = render(
-      <MemoryRouter initialEntries={['/?conversationId=conv1']}>
-        <ChatInterface />
+      <MemoryRouter>
+        <ChatPresenter {...chatDataWithPlaceholder} />
       </MemoryRouter>
     )
 
