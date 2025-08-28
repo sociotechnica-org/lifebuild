@@ -7,8 +7,18 @@ import {
 } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
 import { DEFAULT_KANBAN_COLUMNS } from '@work-squared/shared'
-import { validators, wrapStringParamFunction, wrapNoParamFunction, wrapToolFunction } from './base.js'
-import type { CreateProjectParams, CreateProjectResult, ListProjectsResult, GetProjectDetailsResult } from './types.js'
+import {
+  validators,
+  wrapStringParamFunction,
+  wrapNoParamFunction,
+  wrapToolFunction,
+} from './base.js'
+import type {
+  CreateProjectParams,
+  CreateProjectResult,
+  ListProjectsResult,
+  GetProjectDetailsResult,
+} from './types.js'
 
 /**
  * Create a new project (core implementation)

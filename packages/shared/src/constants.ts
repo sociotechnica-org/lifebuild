@@ -15,4 +15,4 @@ export const DEFAULT_KANBAN_COLUMNS = [
 /**
  * Type-safe access to default column names
  */
-export type DefaultColumnName = typeof DEFAULT_KANBAN_COLUMNS[number]['name']
+export type DefaultColumnName = (typeof DEFAULT_KANBAN_COLUMNS)[number]['name']

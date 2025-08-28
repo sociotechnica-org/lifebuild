@@ -536,8 +536,15 @@ export class EventProcessor {
         onIterationComplete: (iteration, response) => {
           // Only send the LLM's message if there are tool calls
           // If there are no tool calls, onFinalMessage will handle it
-          if (response.message && response.message.trim() && response.toolCalls && response.toolCalls.length > 0) {
-            console.log(`💬 Iteration ${iteration} LLM reasoning: ${response.message.substring(0, 100)}...`)
+          if (
+            response.message &&
+            response.message.trim() &&
+            response.toolCalls &&
+            response.toolCalls.length > 0
+          ) {
+            console.log(
+              `💬 Iteration ${iteration} LLM reasoning: ${response.message.substring(0, 100)}...`
+            )
             store.commit(
               events.llmResponseReceived({
                 id: crypto.randomUUID(),
@@ -547,11 +554,11 @@ export class EventProcessor {
                 modelId: conversation?.model || DEFAULT_MODEL,
                 responseToMessageId: userMessage.id,
                 createdAt: new Date(),
-                llmMetadata: { 
+                llmMetadata: {
                   source: 'braintrust',
                   iteration,
                   hasToolCalls: true,
-                  messageType: 'reasoning'
+                  messageType: 'reasoning',
                 },
               })
             )
@@ -585,7 +592,7 @@ export class EventProcessor {
                 id: crypto.randomUUID(),
                 conversationId: userMessage.conversationId,
                 message: toolMessage.content, // This is already formatted by ToolResultFormatterService
-                role: 'assistant', 
+                role: 'assistant',
                 modelId: 'system',
                 responseToMessageId: userMessage.id,
                 createdAt: new Date(),
@@ -609,9 +616,9 @@ export class EventProcessor {
               modelId: conversation?.model || DEFAULT_MODEL,
               responseToMessageId: userMessage.id,
               createdAt: new Date(),
-              llmMetadata: { 
+              llmMetadata: {
                 source: 'braintrust',
-                messageType: 'final'
+                messageType: 'final',
               },
             })
           )
@@ -638,7 +645,7 @@ export class EventProcessor {
               },
             })
           )
-          
+
           // Send completion event indicating failure
           store.commit(
             events.llmResponseCompleted({
