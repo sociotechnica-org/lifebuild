@@ -578,14 +578,16 @@ export class EventProcessor {
           }
         },
         onToolsComplete: toolMessages => {
-          // Send formatted tool results to the frontend
+          // Send raw tool results to the frontend for client-side formatting
+          console.log(`📤 Sending ${toolMessages.length} tool results to frontend`)
           for (const toolMessage of toolMessages) {
+            console.log(`📤 Tool result: ${toolMessage.tool_call_id} - ${toolMessage.content.substring(0, 100)}...`)
             store.commit(
               events.llmResponseReceived({
                 id: crypto.randomUUID(),
                 conversationId: userMessage.conversationId,
-                message: toolMessage.content,
-                role: 'assistant',
+                message: toolMessage.content, // This is already formatted by ToolResultFormatterService
+                role: 'assistant', 
                 modelId: 'system',
                 responseToMessageId: userMessage.id,
                 createdAt: new Date(),
