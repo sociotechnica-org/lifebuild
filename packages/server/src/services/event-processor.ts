@@ -455,10 +455,93 @@ export class EventProcessor {
 
       // Always remove from active conversations
       storeState.activeConversations.delete(conversationId)
-
-      // Process any queued messages for this conversation
-      await this.processQueuedMessages(storeId, conversationId, storeState)
     }
+
+    // Process any queued messages for this conversation (outside try/catch to avoid recursion)
+    await this.processQueuedMessages(storeId, conversationId, storeState)
+  }
+
+  /**
+   * Process a single queued message without recursive queue processing
+   */
+  private async processQueuedMessage(
+    storeId: string,
+    chatMessage: ChatMessage,
+    storeState: StoreProcessingState
+  ): Promise<void> {
+    const conversationId = chatMessage.conversationId
+    const messageId = chatMessage.id
+
+    console.log(`🤖 Processing queued message for conversation ${conversationId}`)
+
+    // Check conversation limits per store
+    if (storeState.activeConversations.size >= 50) {
+      console.warn(`🚨 Too many active conversations in store ${storeId}`)
+      return
+    }
+
+    // Mark conversation as active
+    storeState.activeConversations.add(conversationId)
+
+    // Track LLM call start
+    const llmCallId = this.globalResourceMonitor.trackLLMCallStart()
+
+    // Emit response started event
+    const store = this.storeManager.getStore(storeId)
+    if (store) {
+      store.commit(
+        events.llmResponseStarted({
+          conversationId,
+          userMessageId: messageId,
+          createdAt: new Date(),
+        })
+      )
+    }
+
+    let llmCallCompleted = false
+    try {
+      const startTime = Date.now()
+      await this.runAgenticLoop(storeId, chatMessage, storeState)
+      const responseTime = Date.now() - startTime
+
+      // Track successful completion
+      this.globalResourceMonitor.trackLLMCallComplete(llmCallId, false, responseTime)
+      llmCallCompleted = true
+    } catch (error) {
+      // Track error and ensure LLM call is properly cleaned up
+      this.globalResourceMonitor.trackError(`LLM call failed: ${error}`)
+      if (!llmCallCompleted) {
+        this.globalResourceMonitor.trackLLMCallComplete(llmCallId, true) // Mark as timeout/error
+      }
+      console.error(`❌ Error in agentic loop for conversation ${conversationId}:`, error)
+
+      // Emit error message to conversation
+      const store = this.storeManager.getStore(storeId)
+      if (store) {
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId,
+            message: 'Sorry, I encountered an error processing your message. Please try again.',
+            role: 'assistant',
+            modelId: 'error',
+            responseToMessageId: messageId,
+            createdAt: new Date(),
+            llmMetadata: { source: 'error' },
+          })
+        )
+      }
+    } finally {
+      // Ensure LLM call is always cleaned up
+      if (!llmCallCompleted) {
+        this.globalResourceMonitor.trackLLMCallComplete(llmCallId, true)
+      }
+
+      // Always remove from active conversations
+      storeState.activeConversations.delete(conversationId)
+    }
+
+    // NOTE: Deliberately NOT calling processQueuedMessages here to avoid recursion
   }
 
   /**
@@ -718,7 +801,7 @@ export class EventProcessor {
       try {
         // Queue the message processing task for sequential execution
         await processor.enqueue(`msg-${nextMessage.id}`, async () => {
-          await this.handleUserMessage(storeId, nextMessage, storeState)
+          await this.processQueuedMessage(storeId, nextMessage, storeState)
         })
       } catch (error) {
         console.error(
