@@ -1,4 +1,5 @@
 import type { ToolResultFormatter } from './types.js'
+import { DEFAULT_KANBAN_COLUMNS } from '@work-squared/shared'
 
 export class ProjectToolFormatter implements ToolResultFormatter {
   private readonly projectTools = ['create_project', 'list_projects', 'get_project_details']
@@ -27,9 +28,10 @@ export class ProjectToolFormatter implements ToolResultFormatter {
       return `Failed to create project: ${result.error || 'Unknown error'}`
     }
     const p = result.project
+    const columnNames = DEFAULT_KANBAN_COLUMNS.map(col => `"${col.name}"`).join(', ')
     return `Project created successfully:\n• Name: ${p.name}\n• ID: ${p.id}${
       p.description ? `\n• Description: ${p.description}` : ''
-    }\n• Default columns created: "To Do", "In Progress", "Done"`
+    }\n• Default columns created: ${columnNames}`
   }
 
   private formatListProjects(result: any): string {

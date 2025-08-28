@@ -4,6 +4,7 @@ import { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
 import { getOrphanedTasks$, getOrphanedColumns$ } from '@work-squared/shared/queries'
 import type { Task } from '@work-squared/shared/schema'
 import { events } from '@work-squared/shared/schema'
+import { DEFAULT_KANBAN_COLUMNS } from '@work-squared/shared'
 import { KanbanBoard } from './kanban/KanbanBoard.js'
 import { CreateTaskModal } from './CreateTaskModal.js'
 import { TaskModal } from './TaskModal/TaskModal.js'
@@ -27,14 +28,8 @@ export const TasksPage: React.FC = () => {
   useEffect(() => {
     if (columns.length === 0 && !hasInitializedColumns) {
       setHasInitializedColumns(true)
-      const defaultColumns = [
-        { name: 'Todo', position: 0 },
-        { name: 'Doing', position: 1 },
-        { name: 'In Review', position: 2 },
-        { name: 'Done', position: 3 },
-      ]
 
-      defaultColumns.forEach(column => {
+      DEFAULT_KANBAN_COLUMNS.forEach(column => {
         store.commit(
           events.columnCreated({
             id: `orphaned-${column.name.toLowerCase().replace(/\s+/g, '-')}`,

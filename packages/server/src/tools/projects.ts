@@ -6,6 +6,7 @@ import {
   getDocumentProjectsByProject$,
 } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
+import { DEFAULT_KANBAN_COLUMNS } from '@work-squared/shared'
 import { validators, wrapStringParamFunction, wrapNoParamFunction, wrapToolFunction } from './base.js'
 import type { CreateProjectParams, CreateProjectResult, ListProjectsResult, GetProjectDetailsResult } from './types.js'
 
@@ -28,13 +29,7 @@ function createProjectCore(store: Store, params: CreateProjectParams): CreatePro
     )
 
     // Create default Kanban columns for the new project
-    const defaultColumns = [
-      { name: 'To Do', position: 0 },
-      { name: 'In Progress', position: 1 },
-      { name: 'Done', position: 2 }
-    ]
-
-    for (const column of defaultColumns) {
+    for (const column of DEFAULT_KANBAN_COLUMNS) {
       store.commit(
         events.columnCreated({
           id: crypto.randomUUID(),
