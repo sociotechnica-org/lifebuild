@@ -11,7 +11,7 @@ Integration tests for the agentic loop are complex because they involve round-tr
 - **Test individual components**: AgenticLoop, ToolExecutor, ConversationHistory
 - **Mock external dependencies**: LLMProvider interface with BraintrustProvider mocked
 - **Test error handling**: Retry logic, timeout handling, resource cleanup
-- **Test resource management**: ResourceMonitor, QueryOptimizer behaviors
+- **Test resource management**: ResourceMonitor behaviors
 - **Coverage**: ~90% of agentic loop logic without external API calls
 
 ### 2. Contract Tests for LLM Provider

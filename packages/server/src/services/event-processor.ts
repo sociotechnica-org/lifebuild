@@ -7,7 +7,6 @@ import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
 import { DEFAULT_MODEL } from '@work-squared/shared'
 import { MessageQueueManager } from './message-queue-manager.js'
 import { AsyncQueueProcessor } from './async-queue-processor.js'
-import { QueryOptimizer, QueryPatterns } from './query-optimizer.js'
 import { ResourceMonitor } from './resource-monitor.js'
 import type {
   EventBuffer,
@@ -31,8 +30,6 @@ interface StoreProcessingState {
   messageQueue: MessageQueueManager // Queue of pending messages per conversation
   conversationProcessors: Map<string, AsyncQueueProcessor> // Per-conversation async processors
   llmProvider?: BraintrustProvider
-  queryOptimizer: QueryOptimizer // Query optimization and caching
-  queryPatterns: QueryPatterns // Common query patterns
   resourceMonitor: ResourceMonitor // Resource monitoring and limits
 }
 
@@ -116,20 +113,11 @@ export class EventProcessor {
         this.braintrustApiKey && this.braintrustProjectId
           ? new BraintrustProvider(this.braintrustApiKey, this.braintrustProjectId)
           : undefined,
-      queryOptimizer: new QueryOptimizer(store, {
-        batchTimeout: 5, // 5ms batch window for real-time feel
-        defaultCacheTTL: 30000, // 30 seconds default cache
-        maxCacheSize: 500, // Reasonable cache size per store
-      }),
-      queryPatterns: undefined as any, // Will be initialized below
       resourceMonitor: new ResourceMonitor({
         maxConversationsPerStore: 50, // Per-store limit
         maxQueuedMessages: 200, // Per-store limit
       }),
     }
-
-    // Initialize query patterns with the same optimizer for consistency
-    storeState.queryPatterns = new QueryPatterns(storeState.queryOptimizer)
 
     this.storeStates.set(storeId, storeState)
 
@@ -486,16 +474,32 @@ export class EventProcessor {
       return
     }
 
-    // Get conversation details, worker context, and history in optimized batch
+    // Get conversation details, worker context, and history
     let conversation, worker, chatHistory
     try {
-      const result = await storeState.queryPatterns.getConversationWithContext(
-        userMessage.conversationId,
-        tables
+      // Get conversation
+      const conversationResult = store.query(
+        queryDb(tables.conversations.select().where('id', '=', userMessage.conversationId))
       )
-      conversation = result.conversation
-      worker = result.worker
-      chatHistory = result.chatHistory
+      conversation = conversationResult[0]
+
+      // Get worker if conversation has workerId
+      if (conversation?.workerId) {
+        const workerResult = store.query(
+          queryDb(tables.workers.select().where('id', '=', conversation.workerId))
+        )
+        worker = workerResult[0]
+      }
+
+      // Get chat history
+      chatHistory = store.query(
+        queryDb(
+          tables.chatMessages
+            .select()
+            .where('conversationId', '=', userMessage.conversationId)
+            .orderBy('createdAt', 'asc')
+        )
+      )
     } catch (error) {
       console.error(`❌ Error querying conversation context:`, error)
       // If we can't get the context due to store issues, bail out gracefully
@@ -510,16 +514,16 @@ export class EventProcessor {
       workerContext = {
         systemPrompt: worker.systemPrompt,
         name: worker.name,
-        roleDescription: worker.roleDescription,
+        roleDescription: worker.roleDescription || undefined,
       }
     }
 
     // Convert chat messages to conversation history format and sanitize tool calls
-    const rawHistory: LLMMessage[] = (chatHistory as ChatMessage[]).map(msg => ({
-      role: msg.role,
+    const rawHistory: LLMMessage[] = chatHistory.map(msg => ({
+      role: msg.role as 'user' | 'assistant' | 'system' | 'tool',
       content: msg.message || '',
-      tool_calls: msg.llmMetadata?.toolCalls,
-      tool_call_id: msg.llmMetadata?.tool_call_id,
+      tool_calls: msg.llmMetadata?.toolCalls as any,
+      tool_call_id: msg.llmMetadata?.tool_call_id as any,
     }))
 
     // Sanitize conversation history to fix tool_use/tool_result mismatches
@@ -814,7 +818,6 @@ export class EventProcessor {
       storeState.conversationProcessors.clear()
 
       // Cleanup query optimizer and resource monitor
-      storeState.queryOptimizer.destroy()
       storeState.resourceMonitor.destroy()
 
       this.storeStates.delete(storeId)
@@ -868,7 +871,7 @@ export class EventProcessor {
         activeConversations: storeState.activeConversations.size,
         queuedMessages: storeState.messageQueue.getTotalQueuedMessages(),
         resourceMetrics: storeState.resourceMonitor.getCurrentMetrics(),
-        cacheStats: storeState.queryOptimizer.getCacheStats(),
+        cacheStats: { size: 0, maxSize: 0, entries: [] },
       })
     }
 
