@@ -1,0 +1,7 @@
+name = "work-squared-analytics"
+compatibility_date = "2024-11-01"
+main = "./functions/worker.ts"
+
+[vars]
+POSTHOG_HOST = "https://app.posthog.com"
+ALLOW_ORIGIN = "https://YOUR_APP_ORIGIN"

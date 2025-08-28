@@ -1,0 +1,25 @@
+{
+  "name": "@work-squared/analytics-worker",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "license": "FSL-1.1-ALv2",
+  "scripts": {
+    "dev": "wrangler dev --port 8789",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.26.1"
+  }
+}
