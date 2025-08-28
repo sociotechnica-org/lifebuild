@@ -21,6 +21,7 @@ export class QueryOptimizer {
   private defaultCacheTTL = 30000 // 30 seconds cache
   private maxCacheSize = 1000
   private batchTimers: Map<string, NodeJS.Timeout> = new Map()
+  private cacheCleanupInterval: NodeJS.Timeout | undefined
 
   constructor(
     private store: Store,
@@ -35,7 +36,7 @@ export class QueryOptimizer {
     if (options?.maxCacheSize) this.maxCacheSize = options.maxCacheSize
 
     // Periodic cache cleanup
-    setInterval(() => this.cleanupCache(), 60000) // Every minute
+    this.cacheCleanupInterval = setInterval(() => this.cleanupCache(), 60000) // Every minute
   }
 
   /**
@@ -345,7 +346,13 @@ export class QueryOptimizer {
    * Clean up resources
    */
   destroy(): void {
-    // Clear all timers
+    // Clear cache cleanup interval
+    if (this.cacheCleanupInterval) {
+      clearInterval(this.cacheCleanupInterval)
+      this.cacheCleanupInterval = undefined
+    }
+
+    // Clear all batch timers
     for (const timer of this.batchTimers.values()) {
       clearTimeout(timer)
     }

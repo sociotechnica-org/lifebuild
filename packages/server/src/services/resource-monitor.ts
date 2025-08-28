@@ -53,6 +53,9 @@ export class ResourceMonitor {
   private metricsInterval?: NodeJS.Timeout
   private cleanupInterval?: NodeJS.Timeout
 
+  // Track LLM call timeouts to prevent false positives
+  private llmCallTimeouts: Map<string, NodeJS.Timeout> = new Map()
+
   // Sliding window for rate calculations
   private readonly windowSize = 60000 // 1 minute
   private messageTimestamps: number[] = []
@@ -95,9 +98,14 @@ export class ResourceMonitor {
     const callId = crypto.randomUUID()
 
     // Set timeout for the call
-    setTimeout(() => {
+    const timeoutHandle = setTimeout(() => {
+      console.warn(`🚨 Resource Monitor: LLM call timeout for ${callId}`)
+      this.llmCallTimeouts.delete(callId) // Clean up the timeout reference
       this.trackLLMCallComplete(callId, true) // Mark as timeout
     }, this.limits.llmCallTimeout)
+
+    // Store timeout handle so we can clear it if the call completes successfully
+    this.llmCallTimeouts.set(callId, timeoutHandle)
 
     return callId
   }
@@ -108,6 +116,15 @@ export class ResourceMonitor {
   trackLLMCallComplete(callId: string, isTimeout: boolean = false, responseTime?: number): void {
     if (this.activeLLMCalls > 0) {
       this.activeLLMCalls--
+    }
+
+    // Clear the timeout if this is a successful completion
+    if (!isTimeout) {
+      const timeoutHandle = this.llmCallTimeouts.get(callId)
+      if (timeoutHandle) {
+        clearTimeout(timeoutHandle)
+        this.llmCallTimeouts.delete(callId)
+      }
     }
 
     if (isTimeout) {
@@ -500,6 +517,12 @@ export class ResourceMonitor {
       clearInterval(this.cleanupInterval)
       this.cleanupInterval = undefined
     }
+
+    // Clear all pending LLM call timeouts
+    for (const timeoutHandle of this.llmCallTimeouts.values()) {
+      clearTimeout(timeoutHandle)
+    }
+    this.llmCallTimeouts.clear()
 
     console.log('📊 Resource monitoring stopped')
   }
