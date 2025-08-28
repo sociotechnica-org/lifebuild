@@ -24,6 +24,9 @@ export const ChatInterface: React.FC = () => {
   const availableWorkers = useQuery(getWorkers$) ?? []
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [showChatPicker, setShowChatPicker] = React.useState(false)
+  const [processingConversations, setProcessingConversations] = React.useState<Set<string>>(
+    new Set()
+  )
 
   // Handle URL parameters for conversation selection
   React.useEffect(() => {
@@ -54,6 +57,27 @@ export const ChatInterface: React.FC = () => {
   const allMessages = useQuery(getConversationMessages$(queryConversationId)) ?? []
   // Only show messages if we have a real conversation selected
   const messages = selectedConversationId ? allMessages : []
+
+  // Track processing state based on message flow
+  React.useEffect(() => {
+    if (!selectedConversationId || !messages) return
+
+    // Check if the last message is a user message without a following assistant response
+    const lastMessage = messages[messages.length - 1]
+    const hasUnrespondedUserMessage = lastMessage && lastMessage.role === 'user'
+
+    setProcessingConversations(prev => {
+      const next = new Set(prev)
+      
+      if (hasUnrespondedUserMessage) {
+        next.add(selectedConversationId)
+      } else {
+        next.delete(selectedConversationId)
+      }
+      
+      return next.size !== prev.size || next.has(selectedConversationId) !== prev.has(selectedConversationId) ? next : prev
+    })
+  }, [selectedConversationId, messages])
 
   const resetTextareaHeight = React.useCallback(() => {
     if (textareaRef.current) {
@@ -434,6 +458,29 @@ export const ChatInterface: React.FC = () => {
                       </div>
                     )
                   })}
+
+                  {/* Loading indicator for processing conversations */}
+                  {selectedConversationId && processingConversations.has(selectedConversationId) && (
+                    <div className='p-3 rounded-lg bg-gray-50 mr-8 flex items-center gap-2 text-sm text-gray-600'>
+                      <svg className='w-4 h-4 animate-spin text-gray-400' viewBox='0 0 24 24'>
+                        <circle
+                          className='opacity-25'
+                          cx='12'
+                          cy='12'
+                          r='10'
+                          stroke='currentColor'
+                          strokeWidth='4'
+                          fill='none'
+                        />
+                        <path
+                          className='opacity-75'
+                          fill='currentColor'
+                          d='M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z'
+                        />
+                      </svg>
+                      <span>Assistant is thinking...</span>
+                    </div>
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
               ) : (
