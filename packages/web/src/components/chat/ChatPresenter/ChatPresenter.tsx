@@ -1,34 +1,33 @@
 import React from 'react'
-import type { ChatData } from '../../../hooks/useChatData.js'
+import { useChatData } from '../../../hooks/useChatData.js'
 import { MessageList } from '../MessageList/MessageList.js'
 import { ChatInput } from '../ChatInput/ChatInput.js'
 import { ChatTypeModal } from '../ChatTypeModal/ChatTypeModal.js'
 
-interface ChatPresenterProps extends ChatData {}
+export const ChatPresenter: React.FC = () => {
+  const {
+    // Data
+    conversations,
+    availableWorkers,
+    messages,
+    selectedConversation,
+    currentWorker,
 
-export const ChatPresenter: React.FC<ChatPresenterProps> = ({
-  // Data
-  conversations,
-  availableWorkers,
-  messages,
-  selectedConversation,
-  currentWorker,
+    // State
+    selectedConversationId,
+    processingConversations,
+    messageText,
+    showChatPicker,
 
-  // State
-  selectedConversationId,
-  processingConversations,
-  messageText,
-  showChatPicker,
+    // Actions
+    onConversationChange,
+    onSendMessage,
+    onMessageTextChange,
+    onShowChatPicker,
+    onHideChatPicker,
+    onChatTypeSelect,
+  } = useChatData()
 
-  // Actions
-  onConversationChange,
-  onCreateConversation: _onCreateConversation,
-  onSendMessage,
-  onMessageTextChange,
-  onShowChatPicker,
-  onHideChatPicker,
-  onChatTypeSelect,
-}) => {
   const isProcessing = selectedConversationId
     ? processingConversations.has(selectedConversationId)
     : false
