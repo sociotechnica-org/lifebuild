@@ -35,17 +35,9 @@ export class EventProcessor {
   private conversationHistories: Map<string, ConversationHistory> = new Map()
   private toolExecutors: Map<string, ToolExecutor> = new Map() // One per store
 
-  // Tables to monitor for activity
+  // Tables to monitor - only chatMessages needed for LLM processing
   private readonly monitoredTables = [
     'chatMessages',
-    'tasks',
-    'projects',
-    'conversations',
-    'documents',
-    'workers',
-    'comments',
-    'recurringTasks',
-    'contacts',
   ] as const
 
   constructor(storeManager: StoreManager) {
@@ -71,7 +63,7 @@ export class EventProcessor {
   }
 
   startMonitoring(storeId: string, store: LiveStore): void {
-    console.log(`📡 Starting comprehensive event monitoring for store ${storeId}`)
+    console.log(`📡 Monitoring chat messages for store ${storeId}`)
 
     const existingState = this.storeStates.get(storeId)
     if (existingState) {
@@ -194,7 +186,8 @@ export class EventProcessor {
       })
 
       storeState.subscriptions.push(unsubscribe)
-      console.log(`✅ Subscribed to ${tableName} for store ${storeId}`)
+      // Subscription logging disabled - too verbose
+      // console.log(`✅ Subscribed to ${tableName} for store ${storeId}`)
     } catch (error) {
       console.error(`❌ Failed to subscribe to ${tableName} for store ${storeId}:`, error)
       this.incrementErrorCount(storeId, error as Error)
@@ -252,7 +245,8 @@ export class EventProcessor {
         const truncatedText =
           displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
 
-        console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
+        // Verbose logging disabled
+        // console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
 
         // Handle user messages for test responses (only genuine user messages)
         if (tableName === 'chatMessages' && record.role === 'user') {
@@ -389,7 +383,10 @@ export class EventProcessor {
         : message
       : '<no message content>'
 
-    console.log(`📨 received user message in conversation ${conversationId}: ${messagePreview}`)
+    // Reduced logging - only log server: messages
+    if (message.startsWith('server:')) {
+      console.log(`📨 Processing server message in conversation ${conversationId}`);
+    }
 
     // Only process messages starting with "server:" for testing
     if (message && message.startsWith('server:')) {

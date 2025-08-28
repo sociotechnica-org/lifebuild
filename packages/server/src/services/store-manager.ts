@@ -187,13 +187,13 @@ export class StoreManager {
 
     this.healthCheckInterval = setInterval(() => {
       for (const [storeId, storeInfo] of this.stores) {
-        const timeSinceActivity = Date.now() - storeInfo.lastActivity.getTime()
-
-        if (timeSinceActivity > 60000 && storeInfo.status === 'connected') {
-          console.warn(
-            `⚠️ Store ${storeId} has been inactive for ${Math.round(timeSinceActivity / 1000)}s`
-          )
-        }
+        // Inactive warnings disabled entirely
+        // const timeSinceActivity = Date.now() - storeInfo.lastActivity.getTime()
+        // if (timeSinceActivity > 60000 && storeInfo.status === 'connected') {
+        //   console.warn(
+        //     `⚠️ Store ${storeId} has been inactive for ${Math.round(timeSinceActivity / 1000)}s`
+        //   )
+        // }
 
         if (storeInfo.status === 'error' || storeInfo.status === 'disconnected') {
           if (storeInfo.reconnectAttempts < this.maxReconnectAttempts) {
