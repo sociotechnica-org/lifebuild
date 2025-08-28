@@ -212,8 +212,11 @@ export class EventProcessor {
 
         // Handle chat messages for agentic loop processing - only process truly NEW user messages
         if (tableName === 'chatMessages' && recordObj.role === 'user') {
-          console.log(`🆕 Processing new user message: ${recordObj.id}`)
-          this.handleUserMessage(storeId, recordObj as ChatMessage, storeState)
+          console.log(`🆕 Scheduling new user message processing: ${recordObj.id}`)
+          // Defer processing to avoid committing during reactive update cycle
+          setImmediate(() => {
+            this.handleUserMessage(storeId, recordObj as ChatMessage, storeState)
+          })
         }
       }
 
@@ -411,7 +414,7 @@ export class EventProcessor {
     // Track LLM call start
     const llmCallId = this.globalResourceMonitor.trackLLMCallStart()
 
-    // Emit response started event
+    // Emit response started event (safe now that we defer processing)
     const store = this.storeManager.getStore(storeId)
     if (store) {
       store.commit(
@@ -421,10 +424,6 @@ export class EventProcessor {
           createdAt: new Date(),
         })
       )
-      
-      // CRITICAL: Wait for the commit to be processed before querying the store
-      // This prevents the refreshedAtoms error in the reactive graph
-      await new Promise(resolve => setTimeout(resolve, 50))
     }
 
     let llmCallCompleted = false
@@ -811,7 +810,7 @@ export class EventProcessor {
     alerts: number
   } {
     const globalReport = this.globalResourceMonitor.getResourceReport()
-    
+
     // Determine overall system health
     const isUnderStress = this.globalResourceMonitor.isSystemUnderStress()
     const hasCriticalAlerts = globalReport.alerts.some(alert => alert.type === 'critical')
@@ -873,21 +872,21 @@ export class EventProcessor {
    */
   private sanitizeConversationHistory(history: LLMMessage[]): LLMMessage[] {
     const sanitized: LLMMessage[] = []
-    
+
     for (let i = 0; i < history.length; i++) {
       const message = history[i]
-      
+
       // If this is an assistant message with tool_calls
       if (message.role === 'assistant' && message.tool_calls && message.tool_calls.length > 0) {
         // Check if the next message has corresponding tool_result blocks
         const nextMessage = history[i + 1]
-        
+
         if (!nextMessage || nextMessage.role !== 'tool' || !nextMessage.tool_call_id) {
           // No corresponding tool result - strip the tool_calls to avoid API errors
           console.warn(`🧹 Sanitizing incomplete tool_calls from assistant message`)
           sanitized.push({
             ...message,
-            tool_calls: undefined
+            tool_calls: undefined,
           })
         } else {
           // Has tool results - include as-is
@@ -906,7 +905,7 @@ export class EventProcessor {
         sanitized.push(message)
       }
     }
-    
+
     return sanitized
   }
 }
