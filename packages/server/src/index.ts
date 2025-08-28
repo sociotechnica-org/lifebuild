@@ -47,6 +47,7 @@ async function main() {
     if (req.url === '/health') {
       const healthStatus = storeManager.getHealthStatus()
       const processingStats = eventProcessor.getProcessingStats()
+      const globalResourceStatus = eventProcessor.getGlobalResourceStatus()
 
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(
@@ -61,6 +62,7 @@ async function main() {
             processing: processingStats.get(store.storeId) || null,
           })),
           storeCount: healthStatus.stores.length,
+          globalResources: globalResourceStatus,
         })
       )
     } else if (req.url === '/stores') {
