@@ -6,46 +6,59 @@
 
 ## Context
 
-Work Squared needs analytics to understand user behavior, track feature usage, and make data-driven product decisions. We initially explored a complex first-party analytics solution using PostHog with a custom Cloudflare Worker proxy and offline event queueing system.
+Work Squared needs analytics to understand user behavior, track feature usage, and make data-driven product decisions. We evaluated several approaches for integrating PostHog analytics into our application.
 
-The initial approach included:
+## Options Considered
 
-- Custom Cloudflare Worker as a proxy to PostHog API
-- Offline-capable event queue with dual storage (LiveStore + IndexedDB)
-- Custom retry logic, batching, and delivery management
-- Integration with Work Squared's LiveStore schema
+### Option 1: Direct PostHog Integration
+
+Use PostHog's JavaScript SDK directly with their hosted service.
+
+- **Pros:** Zero infrastructure, battle-tested SDK, full feature access
+- **Cons:** Third-party domain, less control over requests
+
+### Option 2: Simple Proxy Worker
+
+Minimal Cloudflare Worker that forwards analytics requests to PostHog.
+
+- **Pros:** First-party domain, minimal complexity
+- **Cons:** Additional infrastructure to maintain
+
+### Option 3: Custom Analytics Infrastructure
+
+Custom Cloudflare Worker with offline queueing, retry logic, and LiveStore integration.
+
+- **Pros:** Maximum control, custom integrations, sophisticated offline handling
+- **Cons:** High complexity, significant maintenance burden, extensive testing requirements
+
+### Option 4: Self-hosted PostHog
+
+Run PostHog instance on our own infrastructure.
+
+- **Pros:** Full control over data and infrastructure
+- **Cons:** Operational overhead, scaling complexity, maintenance burden
 
 ## Decision
 
-We decided to **use PostHog directly** with their standard JavaScript SDK, avoiding the custom infrastructure layer.
+We chose **Option 1: Direct PostHog Integration** using their standard JavaScript SDK.
 
 ## Rationale
 
-### Complexity vs. Value Analysis
+### Focus on Core Value
 
-The custom proxy approach introduced significant complexity:
+Engineering time is better spent building project management features rather than analytics infrastructure. PostHog's SDK provides proven reliability and handles edge cases we haven't considered.
 
-- **Infrastructure overhead**: Additional Cloudflare Worker to deploy, monitor, and maintain
-- **Custom queue logic**: 200+ lines of offline handling, retry logic, and storage management
-- **Schema pollution**: Adding `analyticsQueue` table to core application schema
-- **Testing burden**: Custom analytics infrastructure requires comprehensive testing
-- **Debugging complexity**: Additional layer between application and analytics service
+### Complexity vs. Benefit Analysis
 
-### Benefits Don't Justify Complexity
+The benefits of first-party data collection don't justify the complexity for our use case:
 
-The primary benefit of the custom approach was first-party data collection (same domain), but:
+- Work Squared is primarily used by internal teams, not consumer-facing applications where ad-blockers and privacy concerns are critical
+- PostHog's SDK already includes automatic offline queueing, retry logic, and intelligent batching
+- Custom infrastructure would require significant testing, monitoring, and maintenance
 
-1. **Privacy isn't critical for our use case** - Work Squared is primarily used by internal teams, not consumer-facing where ad-blockers and privacy concerns are paramount
+### Migration Flexibility
 
-2. **PostHog SDK is battle-tested** - Their JavaScript SDK already includes:
-   - Automatic offline queueing and retry logic
-   - Intelligent batching and delivery optimization
-   - Cross-browser compatibility and edge case handling
-   - Regular security updates and maintenance
-
-3. **Focus on core value** - Engineering time is better spent on project management features rather than rebuilding analytics infrastructure
-
-4. **Migration flexibility** - Direct PostHog integration is easier to migrate from if requirements change
+Direct PostHog integration is easier to migrate from if requirements change. We can always add a proxy layer or move to self-hosted PostHog later if needed.
 
 ## Implementation
 
@@ -58,6 +71,7 @@ posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
   api_host: 'https://app.posthog.com',
   capture_pageview: false, // Manual page tracking
   persistence: 'localStorage+cookie',
+  debug: import.meta.env.DEV,
 })
 ```
 
@@ -72,9 +86,9 @@ posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
 ### Gained Benefits
 
 - **Zero infrastructure maintenance**: No workers, queues, or custom logic to maintain
-- **Proven reliability**: PostHog SDK handles edge cases we haven't considered
+- **Proven reliability**: PostHog SDK handles offline scenarios, retries, and edge cases
 - **Feature completeness**: Access to all PostHog features (session replay, feature flags, etc.)
-- **Faster development**: Integration takes hours instead of days
+- **Faster development**: Integration takes minutes instead of days
 - **Easier debugging**: Standard PostHog tooling and documentation
 
 ## Future Considerations
@@ -85,13 +99,4 @@ If first-party data collection becomes critical (e.g., for compliance, ad-blocke
 2. **PostHog Cloud EU**: Use PostHog's EU hosting for data residency requirements
 3. **Self-hosted PostHog**: Full control with managed complexity
 
-## Alternatives Considered
-
-1. **Custom analytics worker** (rejected) - Too complex for current needs
-2. **Simple proxy worker** - Considered but unnecessary for current requirements
-3. **Self-hosted PostHog** - Overkill for current scale and requirements
-4. **Other analytics providers** - PostHog's feature set aligns well with product analytics needs
-
-## Status
-
-**Accepted** - Implementing direct PostHog integration, removing custom worker approach.
+The direct integration approach doesn't prevent us from implementing these alternatives later if requirements change.
