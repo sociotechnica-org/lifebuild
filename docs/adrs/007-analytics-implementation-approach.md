@@ -1,8 +1,12 @@
 # ADR-007: Analytics Implementation Approach
 
-**Status:** Accepted  
-**Date:** 2025-08-28  
-**Authors:** Claude Code
+## Status
+
+Accepted
+
+## Last Updated
+
+2025-08-29
 
 ## Context
 
@@ -42,8 +46,6 @@ Run PostHog instance on our own infrastructure.
 
 We chose **Option 1: Direct PostHog Integration** using their standard JavaScript SDK.
 
-## Rationale
-
 ### Focus on Core Value
 
 Engineering time is better spent building project management features rather than analytics infrastructure. PostHog's SDK provides proven reliability and handles edge cases we haven't considered.
@@ -60,30 +62,15 @@ The benefits of first-party data collection don't justify the complexity for our
 
 Direct PostHog integration is easier to migrate from if requirements change. We can always add a proxy layer or move to self-hosted PostHog later if needed.
 
-## Implementation
+## Consequences
 
-Simple, direct integration:
-
-```typescript
-import posthog from 'posthog-js'
-
-posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
-  api_host: 'https://app.posthog.com',
-  capture_pageview: false, // Manual page tracking
-  persistence: 'localStorage+cookie',
-  debug: import.meta.env.DEV,
-})
-```
-
-## Trade-offs
-
-### Accepted Downsides
+### Downsides
 
 - **Third-party domain**: Analytics requests go to `app.posthog.com` instead of our domain
 - **Less control**: Cannot customize request handling or add custom logic
 - **Dependency**: Reliant on PostHog's infrastructure and SDK stability
 
-### Gained Benefits
+### Benefits
 
 - **Zero infrastructure maintenance**: No workers, queues, or custom logic to maintain
 - **Proven reliability**: PostHog SDK handles offline scenarios, retries, and edge cases
