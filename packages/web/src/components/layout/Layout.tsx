@@ -1,5 +1,5 @@
 import React from 'react'
-import { ChatPresenter } from '../chat/ChatPresenter/ChatPresenter.js'
+import { ChatInterface } from '../chat/ChatInterface/ChatInterface.js'
 import { Navigation } from './Navigation.js'
 import { SnackbarProvider } from '../ui/Snackbar/Snackbar.js'
 
@@ -20,7 +20,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
           {/* Chat Panel - Fixed width */}
           <div className='w-96 flex-shrink-0'>
-            <ChatPresenter />
+            <ChatInterface />
           </div>
         </div>
       </div>

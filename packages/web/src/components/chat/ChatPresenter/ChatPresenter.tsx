@@ -1,34 +1,60 @@
 import React from 'react'
-import { useChatData } from '../../../hooks/useChatData.js'
 import { MessageList } from '../MessageList/MessageList.js'
 import { ChatInput } from '../ChatInput/ChatInput.js'
 import { ChatTypeModal } from '../ChatTypeModal/ChatTypeModal.js'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
+import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
 
-export const ChatPresenter: React.FC = () => {
-  const {
-    // Data
-    conversations,
-    availableWorkers,
-    messages,
-    selectedConversation,
-    currentWorker,
+export interface ChatPresenterProps {
+  // Data
+  conversations: readonly Conversation[]
+  availableWorkers: readonly Worker[]
+  messages: readonly ChatMessage[]
+  selectedConversation: Conversation | null
+  currentWorker: Worker | null
 
-    // State
-    selectedConversationId,
-    processingConversations,
-    messageText,
-    showChatPicker,
+  // State
+  selectedConversationId: string | null
+  processingConversations: Set<string>
+  messageText: string
+  showChatPicker: boolean
 
-    // Actions
-    onConversationChange,
-    onSendMessage,
-    onMessageTextChange,
-    onShowChatPicker,
-    onHideChatPicker,
-    onChatTypeSelect,
-  } = useChatData()
+  // Actions
+  onConversationChange: (conversationId: string) => void
+  onSendMessage: (e: React.FormEvent) => void
+  onMessageTextChange: (text: string) => void
+  onShowChatPicker: () => void
+  onHideChatPicker: () => void
+  onChatTypeSelect: (workerId?: string) => void
+}
 
+/**
+ * Presentational component for the chat interface
+ * Receives all data and callbacks via props
+ * Does not directly access LiveStore or hooks
+ */
+export const ChatPresenter: React.FC<ChatPresenterProps> = ({
+  // Data
+  conversations,
+  availableWorkers,
+  messages,
+  selectedConversation,
+  currentWorker,
+
+  // State
+  selectedConversationId,
+  processingConversations,
+  messageText,
+  showChatPicker,
+
+  // Actions
+  onConversationChange,
+  onSendMessage,
+  onMessageTextChange,
+  onShowChatPicker,
+  onHideChatPicker,
+  onChatTypeSelect,
+}) => {
   const isProcessing = selectedConversationId
     ? processingConversations.has(selectedConversationId)
     : false
