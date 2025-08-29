@@ -161,6 +161,22 @@ export interface GetOrphanedTasksResult {
 
 // ===== PROJECT TOOL TYPES =====
 
+export interface CreateProjectParams {
+  name: string
+  description?: string
+}
+
+export interface CreateProjectResult {
+  success: boolean
+  project?: {
+    id: string
+    name: string
+    description?: string
+    createdAt: Date
+  }
+  error?: string
+}
+
 export interface ListProjectsParams {
   // No parameters needed
 }
@@ -356,6 +372,7 @@ export type LLMToolParams =
   | GetTaskByIdParams
   | GetProjectTasksParams
   | GetOrphanedTasksParams
+  | CreateProjectParams
   | ListProjectsParams
   | GetProjectDetailsParams
   | ListDocumentsParams
@@ -379,6 +396,7 @@ export type LLMToolResult =
   | GetTaskByIdResult
   | GetProjectTasksResult
   | GetOrphanedTasksResult
+  | CreateProjectResult
   | ListProjectsResult
   | GetProjectDetailsResult
   | ListDocumentsResult

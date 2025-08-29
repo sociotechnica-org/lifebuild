@@ -4,7 +4,7 @@ import {
   getProjectDetails$,
   getBoardTasks$,
   getDocumentProjectsByProject$,
-} from '../livestore/queries.js'
+} from '@work-squared/shared/queries'
 import { validators, wrapStringParamFunction, wrapNoParamFunction } from './base.js'
 import type { ListProjectsResult, GetProjectDetailsResult } from './types.js'
 

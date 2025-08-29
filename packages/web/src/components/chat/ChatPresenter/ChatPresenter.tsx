@@ -1,0 +1,147 @@
+import React from 'react'
+import { MessageList } from '../MessageList/MessageList.js'
+import { ChatInput } from '../ChatInput/ChatInput.js'
+import { ChatTypeModal } from '../ChatTypeModal/ChatTypeModal.js'
+import { getAvatarColor } from '../../../utils/avatarColors.js'
+import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
+
+export interface ChatPresenterProps {
+  // Data
+  conversations: readonly Conversation[]
+  availableWorkers: readonly Worker[]
+  messages: readonly ChatMessage[]
+  selectedConversation: Conversation | null
+  currentWorker: Worker | null
+
+  // State
+  selectedConversationId: string | null
+  processingConversations: Set<string>
+  messageText: string
+  showChatPicker: boolean
+
+  // Actions
+  onConversationChange: (conversationId: string) => void
+  onSendMessage: (e: React.FormEvent) => void
+  onMessageTextChange: (text: string) => void
+  onShowChatPicker: () => void
+  onHideChatPicker: () => void
+  onChatTypeSelect: (workerId?: string) => void
+}
+
+/**
+ * Presentational component for the chat interface
+ * Receives all data and callbacks via props
+ * Does not directly access LiveStore or hooks
+ */
+export const ChatPresenter: React.FC<ChatPresenterProps> = ({
+  // Data
+  conversations,
+  availableWorkers,
+  messages,
+  selectedConversation,
+  currentWorker,
+
+  // State
+  selectedConversationId,
+  processingConversations,
+  messageText,
+  showChatPicker,
+
+  // Actions
+  onConversationChange,
+  onSendMessage,
+  onMessageTextChange,
+  onShowChatPicker,
+  onHideChatPicker,
+  onChatTypeSelect,
+}) => {
+  const isProcessing = selectedConversationId
+    ? processingConversations.has(selectedConversationId)
+    : false
+
+  return (
+    <div className='h-full flex flex-col border-l border-gray-200'>
+      {/* Chat header with worker info and conversation selector */}
+      <div className='p-4 border-b border-gray-200'>
+        <div className='flex items-center gap-3 mb-3'>
+          {/* Worker avatar */}
+          <div
+            className={`w-10 h-10 ${currentWorker ? getAvatarColor(currentWorker.id) : 'bg-gray-500'} rounded-full flex items-center justify-center text-white text-lg`}
+          >
+            {currentWorker?.avatar || '🤖'}
+          </div>
+
+          {/* Worker info */}
+          <div className='flex-1'>
+            <div className='font-semibold text-gray-900'>{currentWorker?.name || 'Assistant'}</div>
+            <div className='text-sm text-gray-500'>
+              {currentWorker?.roleDescription || 'AI Assistant'}
+            </div>
+          </div>
+        </div>
+
+        {/* Conversation selector with new chat button */}
+        <div className='flex items-center gap-2'>
+          <select
+            value={selectedConversationId || ''}
+            onChange={e => onConversationChange(e.target.value)}
+            className='flex-1 p-2 border border-gray-200 rounded text-sm'
+          >
+            <option value=''>Chat with {currentWorker?.name || 'Assistant'}</option>
+            {conversations.map(conversation => (
+              <option key={conversation.id} value={conversation.id}>
+                {conversation.title}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={onShowChatPicker}
+            className='w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors'
+            aria-label='New chat'
+          >
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              className='w-5 h-5'
+            >
+              <line x1='12' y1='5' x2='12' y2='19'></line>
+              <line x1='5' y1='12' x2='19' y2='12'></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Messages area */}
+      <MessageList
+        messages={messages}
+        isProcessing={isProcessing}
+        conversationTitle={selectedConversation?.title}
+        currentWorker={currentWorker}
+      />
+
+      {/* Input area */}
+      <ChatInput
+        messageText={messageText}
+        onMessageTextChange={onMessageTextChange}
+        onSendMessage={onSendMessage}
+        disabled={isProcessing}
+        placeholder={currentWorker ? `Message ${currentWorker.name}...` : 'Type your message...'}
+      />
+
+      {/* Chat Type Picker Modal */}
+      {showChatPicker && (
+        <ChatTypeModal
+          availableWorkers={availableWorkers}
+          onClose={onHideChatPicker}
+          onSelectChatType={onChatTypeSelect}
+        />
+      )}
+    </div>
+  )
+}

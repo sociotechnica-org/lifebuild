@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { events, tables } from '@work-squared/shared/schema'
-import { MODEL_IDS } from '@work-squared/shared/llm/models'
+import { MODEL_IDS } from '@work-squared/shared'
 import {
   getConversations$,
   getConversation$,

@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { BrowserRouter } from 'react-router-dom'
 import { WorkerCard } from './WorkerCard.js'
-import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
+import { DEFAULT_MODEL } from '@work-squared/shared'
 
 // Hoisted mocks
 const { mockStore } = vi.hoisted(() => {

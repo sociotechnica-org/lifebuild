@@ -12,9 +12,9 @@ import {
   getProjectContactAssociations$,
   getContactProjectAssociations$,
   getProjects$,
-} from '../livestore/queries.js'
-import { events } from '../livestore/schema.js'
-import { parseEmailList } from '../utils/contact-import.js'
+} from '@work-squared/shared/queries'
+import { events } from '@work-squared/shared/schema'
+import { parseEmailList } from '@work-squared/shared'
 
 // ===== BASIC CONTACT OPERATIONS =====
 

@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { EditWorkerModal } from './EditWorkerModal.js'
 import type { Worker } from '@work-squared/shared/schema'
-import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
+import { DEFAULT_MODEL } from '@work-squared/shared'
 
 // Hoisted mocks
 const { mockStore } = vi.hoisted(() => {

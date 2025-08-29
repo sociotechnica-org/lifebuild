@@ -96,7 +96,7 @@ export async function createStore(
     sync: config.syncUrl
       ? {
           backend: makeCfSync({ url: config.syncUrl }),
-          onSyncError: 'shutdown',
+          onSyncError: 'shutdown', // Revert to original behavior
         }
       : undefined,
     devtools: config.enableDevtools

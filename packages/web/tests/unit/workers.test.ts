@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
+import { DEFAULT_MODEL } from '@work-squared/shared'
 import { generateRandomWorkerName } from '../../src/util/workerNames.js'
 import { workerCreated, workerUpdated } from '@work-squared/shared/events'
 

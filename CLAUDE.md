@@ -141,9 +141,49 @@ await store.mutate([{ type: 'project.create', id: '1', name: 'Test', description
 const projects = await store.query(db => db.table('projects').all())
 ```
 
+## Component Architecture Patterns
+
+### Container/Presenter Pattern
+
+**ALWAYS follow the Container/Presenter pattern for components that need data:**
+
+- **Container Components**: Handle data fetching, state management, and LiveStore integration
+- **Presenter Components**: Pure components that receive data via props and handle presentation
+
+**Example:**
+```typescript
+// ChatInterface.tsx (Container)
+export const ChatInterface: React.FC = () => {
+  const chatData = useChatData()
+  return <ChatPresenter {...chatData} />
+}
+
+// ChatPresenter.tsx (Presenter)  
+export interface ChatPresenterProps {
+  conversations: Conversation[]
+  messages: ChatMessage[]
+  onSendMessage: (e: React.FormEvent) => void
+  // ... all needed data and callbacks
+}
+
+export const ChatPresenter: React.FC<ChatPresenterProps> = ({
+  conversations,
+  messages, 
+  onSendMessage,
+}) => {
+  // Pure presentation logic only
+  return <div>...</div>
+}
+```
+
+**Benefits:**
+- Presenter components can be easily tested in Storybook without LiveStore context
+- Clear separation of data and presentation concerns
+- Reusable presenter components with different data sources
+
 ### Storybook Stories
 
-Create Storybook stories for all UI components following these patterns:
+Create Storybook stories for **Presenter components only** following these patterns:
 
 #### Story Structure
 

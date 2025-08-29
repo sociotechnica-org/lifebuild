@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { createTestStore } from '../test-utils.js'
 import { events } from '@work-squared/shared/schema'
-import { DEFAULT_MODEL } from '@work-squared/shared/llm/models'
+import { DEFAULT_MODEL } from '@work-squared/shared'
 import {
   getWorkerProjects$,
   getProjectWorkers$,
