@@ -783,8 +783,11 @@ export class EventProcessor {
     // Safety counter to prevent infinite loops
     let processedCount = 0
     const maxProcessedMessages = 100 // Reasonable limit
-    
-    while (storeState.messageQueue.hasMessages(conversationId) && processedCount < maxProcessedMessages) {
+
+    while (
+      storeState.messageQueue.hasMessages(conversationId) &&
+      processedCount < maxProcessedMessages
+    ) {
       processedCount++
       const nextMessage = storeState.messageQueue.dequeue(conversationId)
 
@@ -832,10 +835,12 @@ export class EventProcessor {
         }
       }
     }
-    
+
     // Log warning if we hit the safety limit
     if (processedCount >= maxProcessedMessages) {
-      console.warn(`⚠️ Hit safety limit processing ${processedCount} messages for conversation ${conversationId}. Remaining: ${storeState.messageQueue.getQueueLength(conversationId)}`)
+      console.warn(
+        `⚠️ Hit safety limit processing ${processedCount} messages for conversation ${conversationId}. Remaining: ${storeState.messageQueue.getQueueLength(conversationId)}`
+      )
     }
 
     // Clean up processor if no more messages
