@@ -6,11 +6,8 @@ import ReactDOM from 'react-dom/client'
 import { App } from './Root.js'
 import { initAnalytics, capture } from './lib/analytics.js'
 
-const posthogKey = import.meta.env.VITE_POSTHOG_KEY
-if (posthogKey) {
-  initAnalytics({ posthogKey, apiBase: `${location.origin}/e` })
-  capture('app_started')
-}
+initAnalytics()
+capture('app_started')
 
 const rootElement = document.getElementById('react-app')
 if (rootElement) {
