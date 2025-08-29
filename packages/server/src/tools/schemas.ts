@@ -93,6 +93,15 @@ export const llmToolSchemas = [
   }),
 
   // Project Management Tools
+  toolDef('create_project', 'Create a new project with name and optional description', {
+    type: 'object',
+    properties: {
+      name: requiredString('The name of the project'),
+      description: optionalString('Optional description of the project'),
+    },
+    required: ['name'],
+  }),
+
   toolDef(
     'list_projects',
     'Get a list of all available projects with their IDs, names, and descriptions',

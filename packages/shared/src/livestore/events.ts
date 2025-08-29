@@ -174,6 +174,17 @@ export const llmResponseStarted = Events.synced({
   }),
 })
 
+export const llmResponseCompleted = Events.synced({
+  name: 'v1.LLMResponseCompleted',
+  schema: Schema.Struct({
+    conversationId: Schema.String,
+    userMessageId: Schema.String,
+    createdAt: Schema.Date,
+    iterations: Schema.Number,
+    success: Schema.Boolean,
+  }),
+})
+
 export const commentAdded = Events.synced({
   name: 'v1.CommentAdded',
   schema: Schema.Struct({

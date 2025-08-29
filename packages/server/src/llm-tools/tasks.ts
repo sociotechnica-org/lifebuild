@@ -1,5 +1,5 @@
 import type { Store } from '@livestore/livestore'
-import { events } from '../livestore/schema.js'
+import { events } from '@work-squared/shared/schema'
 import {
   getBoardColumns$,
   getBoardTasks$,
@@ -8,7 +8,7 @@ import {
   getOrphanedTasks$,
   getProjects$,
   getOrphanedColumns$,
-} from '../livestore/queries.js'
+} from '@work-squared/shared/queries'
 import {
   validators,
   wrapToolFunction,
