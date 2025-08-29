@@ -73,14 +73,20 @@ function getSyncPayload(config: StoreConfig): Record<string, string> | undefined
   const isProduction = process.env.NODE_ENV === 'production'
   const serverBypassToken = process.env.SERVER_BYPASS_TOKEN
 
-  if (isProduction && serverBypassToken) {
+  if (isProduction) {
+    if (!serverBypassToken) {
+      throw new Error(
+        'SERVER_BYPASS_TOKEN is required for production deployment but not configured. ' +
+          'Please set this environment variable in your production environment.'
+      )
+    }
     console.log('Using server bypass authentication for production')
     return {
       serverBypass: serverBypassToken,
     }
   }
 
-  // Fallback to authToken for development
+  // Development mode - use authToken
   if (config.authToken) {
     console.log('Using authToken authentication for development')
     return {
