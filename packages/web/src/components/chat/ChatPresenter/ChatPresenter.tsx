@@ -122,6 +122,7 @@ export const ChatPresenter: React.FC<ChatPresenterProps> = ({
         messages={messages}
         isProcessing={isProcessing}
         conversationTitle={selectedConversation?.title}
+        currentWorker={currentWorker}
       />
 
       {/* Input area */}

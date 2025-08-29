@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
 import { MessageList } from './MessageList.js'
-import type { ChatMessage } from '@work-squared/shared/schema'
+import type { ChatMessage, Worker } from '@work-squared/shared/schema'
 
 const meta: Meta<typeof MessageList> = {
   title: 'Components/Chat/MessageList',
@@ -26,6 +26,18 @@ const meta: Meta<typeof MessageList> = {
 
 export default meta
 type Story = StoryObj<typeof meta>
+
+const mockWorker: Worker = {
+  id: 'worker-1',
+  name: 'Diligent Aide',
+  avatar: '☀️',
+  roleDescription: 'Project Manager',
+  systemPrompt: 'You are a helpful project management assistant.',
+  defaultModel: 'claude-sonnet-4-20250514',
+  isActive: true,
+  createdAt: new Date('2024-01-01'),
+  updatedAt: null,
+}
 
 const basicMessages: ChatMessage[] = [
   {
@@ -97,6 +109,7 @@ export const Default: Story = {
     messages: basicMessages,
     isProcessing: false,
     conversationTitle: 'Test Conversation',
+    currentWorker: mockWorker,
   },
 }
 
@@ -105,6 +118,7 @@ export const WithToolCalls: Story = {
     messages: toolCallMessages,
     isProcessing: false,
     conversationTitle: 'Tool Call Example',
+    currentWorker: mockWorker,
   },
 }
 
@@ -113,6 +127,7 @@ export const Processing: Story = {
     messages: basicMessages,
     isProcessing: true,
     conversationTitle: 'Processing...',
+    currentWorker: mockWorker,
   },
 }
 
@@ -121,6 +136,7 @@ export const Empty: Story = {
     messages: [],
     isProcessing: false,
     conversationTitle: 'New Conversation',
+    currentWorker: mockWorker,
   },
 }
 
@@ -152,5 +168,6 @@ export const LongConversation: Story = {
     ],
     isProcessing: false,
     conversationTitle: 'Long Conversation',
+    currentWorker: mockWorker,
   },
 }

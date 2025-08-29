@@ -1,20 +1,22 @@
 import React from 'react'
-import type { ChatMessage } from '@work-squared/shared/schema'
+import type { ChatMessage, Worker } from '@work-squared/shared/schema'
 import { MarkdownRenderer } from '../../markdown/MarkdownRenderer.js'
 
 interface MessageListProps {
   messages: readonly ChatMessage[]
   isProcessing: boolean
   conversationTitle?: string
+  currentWorker?: Worker | null
 }
 
 interface MessageItemProps {
   message: ChatMessage
   onCopy: (text: string) => void
   onRetry?: (message: ChatMessage) => void
+  currentWorker?: Worker | null
 }
 
-const MessageItem: React.FC<MessageItemProps> = ({ message, onCopy, onRetry }) => {
+const MessageItem: React.FC<MessageItemProps> = ({ message, onCopy, onRetry, currentWorker }) => {
   // Tool result notifications - render as special cards
   if (message.llmMetadata?.source === 'tool-result') {
     return (
@@ -77,8 +79,11 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, onCopy, onRetry }) =
       }`}
     >
       <div className='text-xs text-gray-500 mb-1 font-medium'>
-        {message.role === 'user' ? 'You' : message.role === 'assistant' ? 'Assistant' : 'System'}
-        {message.modelId && ` (${message.modelId})`}
+        {message.role === 'user'
+          ? 'You'
+          : message.role === 'assistant'
+            ? currentWorker?.name || 'Assistant'
+            : 'System'}
       </div>
 
       {/* Tool call indicators */}
@@ -163,6 +168,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   messages,
   isProcessing,
   conversationTitle,
+  currentWorker,
 }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
 
@@ -196,6 +202,7 @@ export const MessageList: React.FC<MessageListProps> = ({
               message={message}
               onCopy={handleCopy}
               onRetry={handleRetry}
+              currentWorker={currentWorker}
             />
           ))}
 
