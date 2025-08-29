@@ -55,11 +55,14 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     const chatMessagesCallback = subscriptionCallbacks.get('chatMessages')
     expect(chatMessagesCallback).toBeDefined()
 
-    // Simulate initial message arrival
+    // Simulate initial subscription with empty array (initial sync)
+    chatMessagesCallback!([])
+
+    // Simulate new message arrival
     chatMessagesCallback!(chatMessages)
 
-    // Wait for async setTimeout to complete
-    await new Promise(resolve => setTimeout(resolve, 10))
+    // Wait for async setImmediate to complete
+    await new Promise(resolve => setImmediate(resolve))
 
     // Verify handleUserMessage was called once
     expect(mockStore.commit).toHaveBeenCalledTimes(1)
@@ -107,6 +110,9 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     const chatMessagesCallback = subscriptionCallbacks.get('chatMessages')
     expect(chatMessagesCallback).toBeDefined()
 
+    // Simulate initial subscription with empty array
+    chatMessagesCallback!([])
+
     // First message
     const firstMessage = {
       id: 'msg-1',
@@ -118,8 +124,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
     chatMessagesCallback!([firstMessage])
 
-    // Wait for async setTimeout to complete
-    await new Promise(resolve => setTimeout(resolve, 10))
+    // Wait for async setImmediate to complete
+    await new Promise(resolve => setImmediate(resolve))
 
     expect(mockStore.commit).toHaveBeenCalledTimes(1)
     expect(mockStore.commit).toHaveBeenCalledWith(
@@ -144,8 +150,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     // LiveStore returns full dataset including both messages
     chatMessagesCallback!([firstMessage, secondMessage])
 
-    // Wait for async setTimeout to complete
-    await new Promise(resolve => setTimeout(resolve, 10))
+    // Wait for async setImmediate to complete
+    await new Promise(resolve => setImmediate(resolve))
 
     // Should only process the new message, not the first one again
     expect(mockStore.commit).toHaveBeenCalledTimes(1)
@@ -165,6 +171,9 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
     const chatMessagesCallback = subscriptionCallbacks.get('chatMessages')
     expect(chatMessagesCallback).toBeDefined()
+
+    // Simulate initial subscription with empty array
+    chatMessagesCallback!([])
 
     // Assistant message (should be ignored)
     const assistantMessage = {

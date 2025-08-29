@@ -318,9 +318,29 @@ export class EventProcessor {
   ): Promise<void> {
     const { conversationId, id: messageId } = chatMessage
 
-    // Skip if LLM is not configured
+    // Skip if LLM is not configured, but provide test mode echo response
     if (!storeState.llmProvider) {
-      console.log(`⚠️ Skipping chat message processing for ${storeId}: LLM not configured`)
+      console.log(`⚠️ LLM not configured for ${storeId}, using test mode`)
+
+      // Test mode: provide simple echo response for messages with 'server:' prefix
+      if (chatMessage.message.includes('server:')) {
+        const store = this.storeManager.getStore(storeId)
+        if (store) {
+          const echoMessage = chatMessage.message.replace('server:', '').trim()
+          store.commit(
+            events.llmResponseReceived({
+              id: crypto.randomUUID(),
+              conversationId,
+              message: `Echo: ${echoMessage}`,
+              role: 'assistant',
+              modelId: 'test-echo',
+              responseToMessageId: messageId,
+              createdAt: new Date(),
+              llmMetadata: { source: 'server-test-echo' },
+            })
+          )
+        }
+      }
       return
     }
 
@@ -553,7 +573,11 @@ export class EventProcessor {
     storeState: StoreProcessingState
   ): Promise<void> {
     const store = this.storeManager.getStore(storeId)
-    if (!store || !storeState.llmProvider) {
+    if (!store) {
+      return
+    }
+
+    if (!storeState.llmProvider) {
       return
     }
 
