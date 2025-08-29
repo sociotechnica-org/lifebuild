@@ -1,3 +1,5 @@
+import type { OpenAIMessage } from './conversation-history.js'
+
 export interface ToolCall {
   id: string
   type: 'function'
@@ -36,7 +38,7 @@ export interface LLMCallOptions {
 
 export interface LLMProvider {
   call(
-    messages: LLMMessage[],
+    messages: LLMMessage[] | OpenAIMessage[],
     boardContext?: BoardContext,
     model?: string,
     workerContext?: WorkerContext,

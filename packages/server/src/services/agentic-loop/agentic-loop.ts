@@ -55,15 +55,15 @@ export class AgenticLoop {
 
     // Run the loop
     let completedSuccessfully = false
-    let retryAttempts = 0
     for (let iteration = 1; iteration <= this.maxIterations; iteration++) {
+      let retryAttempts = 0 // Reset retry counter for each iteration
       try {
         this.events.onIterationStart?.(iteration)
         console.log(`🔄 Iteration ${iteration}/${this.maxIterations}`)
 
-        // Call LLM with current history
+        // Call LLM with current history in OpenAI format for better LLM provider compatibility
         const response = await this.llmProvider.call(
-          this.history.getMessages(),
+          this.history.getOpenAIFormat(),
           boardContext,
           model,
           workerContext,
@@ -164,7 +164,6 @@ export class AgenticLoop {
         break
       } catch (error) {
         console.error(`❌ Error in iteration ${iteration}:`, error)
-        const errorMessage = (error as Error).message || 'Unknown error'
 
         // Check if this is a transient error that we should retry
         const isTransientError = this.isTransientError(error)
