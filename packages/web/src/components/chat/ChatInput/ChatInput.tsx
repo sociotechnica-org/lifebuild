@@ -22,14 +22,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     const textarea = textareaRef.current
     if (textarea) {
       textarea.style.height = 'auto'
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px` // Max height of 120px
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px` // Max height of 200px
     }
   }, [messageText])
 
   // Reset textarea height when message is sent
   React.useEffect(() => {
     if (!messageText && textareaRef.current) {
-      textareaRef.current.style.height = '80px'
+      textareaRef.current.style.height = 'auto'
     }
   }, [messageText])
 
@@ -43,8 +43,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const canSend = messageText.trim().length > 0 && !disabled
 
   return (
-    <div className='border-t bg-white p-4'>
-      <form onSubmit={onSendMessage} className='flex gap-3'>
+    <div className='border-t border-gray-200 bg-white'>
+      <form onSubmit={onSendMessage} className='relative'>
         <textarea
           ref={textareaRef}
           value={messageText}
@@ -52,27 +52,36 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className='flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed'
-          style={{ minHeight: '80px', maxHeight: '120px' }}
+          className='w-full resize-none border-0 px-6 py-5 pr-16 text-base focus:outline-none focus:ring-0 disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400'
+          style={{ minHeight: '80px', maxHeight: '200px' }}
           rows={1}
         />
 
         <button
           type='submit'
           disabled={!canSend}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+          className={`absolute bottom-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
             canSend
               ? 'bg-blue-500 text-white hover:bg-blue-600'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
+          aria-label='Send message'
         >
-          Send
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth='2'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            className='w-5 h-5'
+          >
+            <line x1='22' y1='2' x2='11' y2='13'></line>
+            <polygon points='22 2 15 22 11 13 2 9 22 2'></polygon>
+          </svg>
         </button>
       </form>
-
-      {!disabled && (
-        <p className='text-xs text-gray-500 mt-2'>Press Enter to send, Shift+Enter for new line</p>
-      )}
     </div>
   )
 }

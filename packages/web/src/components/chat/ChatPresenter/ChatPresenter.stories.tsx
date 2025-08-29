@@ -4,74 +4,140 @@ import { MessageList } from '../MessageList/MessageList.js'
 import { ChatInput } from '../ChatInput/ChatInput.js'
 import { ChatTypeModal } from '../ChatTypeModal/ChatTypeModal.js'
 import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
+import { getAvatarColor } from '../../../utils/avatarColors.js'
 
-// Mock ChatPresenter component for Storybook that doesn't use useChatData
+// Simplified mock component for Storybook
 const ChatPresenterMock: React.FC<{
-  conversations?: Conversation[]
-  messages?: ChatMessage[]
-  availableWorkers?: Worker[]
-  selectedConversationId?: string | null
+  hasConversations?: boolean
+  hasMessages?: boolean
   showChatPicker?: boolean
+  isProcessing?: boolean
 }> = ({
-  conversations = [],
-  messages = [],
-  availableWorkers = [],
-  selectedConversationId = null,
+  hasConversations = false,
+  hasMessages = false,
   showChatPicker = false,
+  isProcessing = false,
 }) => {
   const [messageText, setMessageText] = React.useState('')
-  const selectedConversation = conversations.find(c => c.id === selectedConversationId) || null
-  const currentWorker = selectedConversation?.workerId
-    ? availableWorkers.find(w => w.id === selectedConversation.workerId) || null
-    : null
+
+  // Simple mock data
+  const conversations: Conversation[] = hasConversations
+    ? [
+        {
+          id: 'conv1',
+          title: 'Chat with Assistant',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          model: 'claude-sonnet-4-20250514',
+          workerId: null,
+        },
+      ]
+    : []
+
+  const messages: ChatMessage[] = hasMessages
+    ? [
+        {
+          id: 'msg1',
+          conversationId: 'conv1',
+          message: 'Hello, how can I help you today?',
+          role: 'assistant',
+          createdAt: new Date(),
+          modelId: 'claude-sonnet-4-20250514',
+          responseToMessageId: null,
+          llmMetadata: null,
+        },
+      ]
+    : []
+
+  const currentWorker: Worker = {
+    id: 'worker1',
+    name: 'Assistant',
+    avatar: '🤖',
+    roleDescription: 'AI Assistant',
+    systemPrompt: 'You are a helpful AI assistant.',
+    defaultModel: 'claude-sonnet-4-20250514',
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: null,
+  }
+
+  const workers: Worker[] = [currentWorker]
 
   return (
-    <div className='h-full flex flex-col'>
-      {/* Simple conversation selector */}
-      <div className='p-4 border-b'>
-        <select
-          value={selectedConversationId || ''}
-          onChange={() => {}}
-          className='w-full p-2 border rounded mb-2'
-        >
-          <option value=''>Select a conversation...</option>
-          {conversations.map(conversation => (
-            <option key={conversation.id} value={conversation.id}>
-              {conversation.title}
-            </option>
-          ))}
-        </select>
-        <button
-          onClick={() => {}}
-          className='w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors'
-        >
-          New Chat
-        </button>
+    <div className='h-full flex flex-col border-l border-gray-200'>
+      {/* Chat header with worker info */}
+      <div className='p-4 border-b border-gray-200'>
+        <div className='flex items-center gap-3 mb-3'>
+          {/* Worker avatar */}
+          <div
+            className={`w-10 h-10 ${getAvatarColor(currentWorker.id)} rounded-full flex items-center justify-center text-white text-lg`}
+          >
+            {currentWorker.avatar}
+          </div>
+
+          {/* Worker info */}
+          <div className='flex-1'>
+            <div className='font-semibold text-gray-900'>{currentWorker.name}</div>
+            <div className='text-sm text-gray-500'>{currentWorker.roleDescription}</div>
+          </div>
+        </div>
+
+        {/* Conversation selector with new chat button */}
+        <div className='flex items-center gap-2'>
+          <select
+            value={hasConversations ? 'conv1' : ''}
+            onChange={() => {}}
+            className='flex-1 p-2 border border-gray-200 rounded text-sm'
+          >
+            <option value=''>Chat with {currentWorker.name}</option>
+            {conversations.map(conv => (
+              <option key={conv.id} value={conv.id}>
+                {conv.title}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={() => {}}
+            className='w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors'
+            aria-label='New chat'
+          >
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              className='w-5 h-5'
+            >
+              <line x1='12' y1='5' x2='12' y2='19'></line>
+              <line x1='5' y1='12' x2='19' y2='12'></line>
+            </svg>
+          </button>
+        </div>
       </div>
 
-      {/* Messages area */}
+      {/* Messages */}
       <MessageList
         messages={messages}
-        isProcessing={false}
-        conversationTitle={selectedConversation?.title}
+        isProcessing={isProcessing}
+        conversationTitle={hasConversations ? 'Chat with Assistant' : undefined}
       />
 
-      {/* Input area */}
+      {/* Input */}
       <ChatInput
         messageText={messageText}
         onMessageTextChange={setMessageText}
         onSendMessage={() => {}}
-        disabled={false}
-        placeholder={currentWorker ? `Message ${currentWorker.name}...` : 'Type your message...'}
+        disabled={isProcessing}
+        placeholder='Type your message...'
       />
 
-      {/* Chat Type Picker Modal */}
+      {/* Modal */}
       {showChatPicker && (
-        <ChatTypeModal
-          availableWorkers={availableWorkers}
-          onClose={() => {}}
-          onSelectChatType={() => {}}
-        />
+        <ChatTypeModal availableWorkers={workers} onClose={() => {}} onSelectChatType={() => {}} />
       )}
     </div>
   )
@@ -84,8 +150,7 @@ const meta: Meta<typeof ChatPresenterMock> = {
     layout: 'fullscreen',
     docs: {
       description: {
-        component:
-          'Chat interface component with conversation selection and messaging. This story uses mock data for demonstration.',
+        component: 'Chat interface with conversation selection and messaging.',
       },
     },
   },
@@ -102,121 +167,27 @@ const meta: Meta<typeof ChatPresenterMock> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-const mockConversations: Conversation[] = [
-  {
-    id: 'conv1',
-    title: 'New Chat 12:49:30 PM',
-    createdAt: new Date('2025-01-01T12:49:30'),
-    updatedAt: new Date('2025-01-01T12:50:00'),
-    model: 'claude-sonnet-4-20250514',
-    workerId: null,
-  },
-  {
-    id: 'conv2',
-    title: 'Chat with Alice - 1:15:22 PM',
-    createdAt: new Date('2025-01-01T13:15:22'),
-    updatedAt: new Date('2025-01-01T13:16:00'),
-    model: 'claude-sonnet-4-20250514',
-    workerId: 'worker1',
-  },
-]
+export const Empty: Story = {
+  args: {},
+}
 
-const mockWorkers: Worker[] = [
-  {
-    id: 'worker1',
-    name: 'Alice',
-    avatar: '👩‍💻',
-    roleDescription: 'Frontend Developer',
-    systemPrompt: 'You are a helpful frontend developer.',
-    defaultModel: 'claude-sonnet-4-20250514',
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: null,
-  },
-  {
-    id: 'worker2',
-    name: 'Bob',
-    avatar: '👨‍🎨',
-    roleDescription: 'UX Designer',
-    systemPrompt: 'You are a creative UX designer.',
-    defaultModel: 'claude-sonnet-4-20250514',
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: null,
-  },
-]
-
-const mockMessages: ChatMessage[] = [
-  {
-    id: 'msg1',
-    conversationId: 'conv1',
-    message: 'Create two tasks: "meet and greet" and "Complete sale and handover"',
-    role: 'user',
-    createdAt: new Date('2025-01-01T12:49:35'),
-    modelId: null,
-    responseToMessageId: null,
-    llmMetadata: null,
-  },
-  {
-    id: 'msg2',
-    conversationId: 'conv1',
-    message:
-      'Task created successfully: "meet and greet" on board "undefined" in column "Todo". Task ID: 6b89de9c-46db-4d63-ae5c-03a306c65ce1',
-    role: 'assistant',
-    createdAt: new Date('2025-01-01T12:49:40'),
-    modelId: null,
-    responseToMessageId: 'msg1',
-    llmMetadata: { source: 'tool-result' },
-  },
-  {
-    id: 'msg3',
-    conversationId: 'conv1',
-    message: 'Using create_task tool...',
-    role: 'assistant',
-    createdAt: new Date('2025-01-01T12:49:45'),
-    modelId: 'claude-sonnet-4-20250514',
-    responseToMessageId: 'msg1',
-    llmMetadata: {
-      toolCalls: [
-        {
-          id: 'call_123',
-          function: { name: 'create_task' },
-        },
-      ],
-    },
-  },
-]
-
-export const Default: Story = {
+export const WithConversation: Story = {
   args: {
-    conversations: [],
-    messages: [],
-    availableWorkers: mockWorkers,
+    hasConversations: true,
+    hasMessages: true,
   },
 }
 
-export const WithConversations: Story = {
+export const Processing: Story = {
   args: {
-    conversations: mockConversations,
-    messages: [],
-    availableWorkers: mockWorkers,
+    hasConversations: true,
+    hasMessages: true,
+    isProcessing: true,
   },
 }
 
-export const WithSelectedConversation: Story = {
+export const ChatTypePicker: Story = {
   args: {
-    conversations: mockConversations,
-    messages: mockMessages,
-    availableWorkers: mockWorkers,
-    selectedConversationId: 'conv1',
-  },
-}
-
-export const ChatPickerOpen: Story = {
-  args: {
-    conversations: mockConversations,
-    messages: [],
-    availableWorkers: mockWorkers,
     showChatPicker: true,
   },
 }
