@@ -24,7 +24,7 @@ export class BraintrustProvider implements LLMProvider {
   }
 
   async call(
-    messages: LLMMessage[] | import('./conversation-history.js').OpenAIMessage[],
+    messages: LLMMessage[],
     boardContext?: BoardContext,
     model?: string,
     workerContext?: WorkerContext,

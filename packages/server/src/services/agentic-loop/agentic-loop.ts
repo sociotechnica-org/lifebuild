@@ -61,9 +61,9 @@ export class AgenticLoop {
         this.events.onIterationStart?.(iteration)
         console.log(`🔄 Iteration ${iteration}/${this.maxIterations}`)
 
-        // Call LLM with current history in OpenAI format for better LLM provider compatibility
+        // Call LLM with current history
         const response = await this.llmProvider.call(
-          this.history.getOpenAIFormat(),
+          this.history.getMessages(),
           boardContext,
           model,
           workerContext,
