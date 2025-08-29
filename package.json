@@ -11,7 +11,7 @@
     "dev:server": "pnpm --filter @work-squared/server dev",
     "dev:auth": "pnpm --filter @work-squared/auth-worker dev",
     "build": "pnpm -r build",
-    "test": "pnpm --filter @work-squared/web test && pnpm --filter @work-squared/auth-worker test && pnpm --filter @work-squared/server test",
+    "test": "pnpm --filter @work-squared/shared test && pnpm --filter @work-squared/web test && pnpm --filter @work-squared/auth-worker test && pnpm --filter @work-squared/server test",
     "test:watch": "pnpm --filter @work-squared/web test:watch",
     "test:e2e": "pnpm --filter @work-squared/web test:e2e",
     "test:e2e:ui": "pnpm --filter @work-squared/web test:e2e:ui",
