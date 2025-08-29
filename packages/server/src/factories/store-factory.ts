@@ -65,6 +65,38 @@ export function getStoreConfig(storeId: string): StoreConfig {
   return baseConfig
 }
 
+/**
+ * Creates the sync payload for server-worker authentication
+ * Uses serverBypass in production, authToken in development
+ */
+function getSyncPayload(config: StoreConfig): Record<string, string> | undefined {
+  const isProduction = process.env.NODE_ENV === 'production'
+  const serverBypassToken = process.env.SERVER_BYPASS_TOKEN
+
+  if (isProduction) {
+    if (!serverBypassToken) {
+      throw new Error(
+        'SERVER_BYPASS_TOKEN is required for production deployment but not configured. ' +
+          'Please set this environment variable in your production environment.'
+      )
+    }
+    console.log('Using server bypass authentication for production')
+    return {
+      serverBypass: serverBypassToken,
+    }
+  }
+
+  // Development mode - use authToken
+  if (config.authToken) {
+    console.log('Using authToken authentication for development')
+    return {
+      authToken: config.authToken,
+    }
+  }
+
+  return undefined
+}
+
 export async function createStore(
   storeId: string,
   configOverrides?: Partial<StoreConfig>
@@ -118,11 +150,7 @@ export async function createStore(
         adapter,
         schema: schema as any,
         storeId: config.storeId,
-        syncPayload: config.authToken
-          ? {
-              authToken: config.authToken,
-            }
-          : undefined,
+        syncPayload: getSyncPayload(config),
       }),
       timeoutPromise,
     ])

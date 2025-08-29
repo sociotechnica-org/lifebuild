@@ -151,6 +151,7 @@ const projects = await store.query(db => db.table('projects').all())
 - **Presenter Components**: Pure components that receive data via props and handle presentation
 
 **Example:**
+
 ```typescript
 // ChatInterface.tsx (Container)
 export const ChatInterface: React.FC = () => {
@@ -158,7 +159,7 @@ export const ChatInterface: React.FC = () => {
   return <ChatPresenter {...chatData} />
 }
 
-// ChatPresenter.tsx (Presenter)  
+// ChatPresenter.tsx (Presenter)
 export interface ChatPresenterProps {
   conversations: Conversation[]
   messages: ChatMessage[]
@@ -168,7 +169,7 @@ export interface ChatPresenterProps {
 
 export const ChatPresenter: React.FC<ChatPresenterProps> = ({
   conversations,
-  messages, 
+  messages,
   onSendMessage,
 }) => {
   // Pure presentation logic only
@@ -177,6 +178,7 @@ export const ChatPresenter: React.FC<ChatPresenterProps> = ({
 ```
 
 **Benefits:**
+
 - Presenter components can be easily tested in Storybook without LiveStore context
 - Clear separation of data and presentation concerns
 - Reusable presenter components with different data sources

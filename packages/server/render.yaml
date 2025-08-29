@@ -15,14 +15,31 @@ services:
           type: web
           name: work-squared-server
           property: port
-      - key: STORE_ID
-        value: work-squared-production
       - key: AUTH_TOKEN
         generateValue: true
       - key: LIVESTORE_SYNC_URL
         value: wss://app.worksquared.ai
-      # BRAINTRUST_API_KEY not needed yet - LLM calls still go through CF Worker
-      # Will be added when agentic loop is migrated to server (Milestone 4)
+      - key: SERVER_BYPASS_TOKEN
+        sync: false
+      - key: STORE_IDS
+        value: work-squared-production,885773a8-b433-47bd-8ee4-a907a79922d8,11d1a22c-3462-43aa-988a-3cf11b95f03b,d56d28db-bc17-406d-8204-4dd24d17c5ac,70fb4e45-7677-4b70-9e46-3c2e4f3cbd0a
+      - key: STORE_DATA_PATH
+        value: ./data
+      # Store Connection Settings
+      - key: STORE_CONNECTION_TIMEOUT
+        value: 30000
+      - key: STORE_RECONNECT_INTERVAL
+        value: 5000
+      - key: STORE_MAX_RECONNECT_ATTEMPTS
+        value: 3
+      # DevTools (disabled in production)
+      - key: DISABLE_DEVTOOLS
+        value: true
+      # BRAINTRUST credentials for server-side agentic loop
+      - key: BRAINTRUST_API_KEY
+        sync: false # Add via Render dashboard
+      - key: BRAINTRUST_PROJECT_ID
+        sync: false # Add via Render dashboard
     healthCheckPath: /health
     disk:
       name: work-squared-data

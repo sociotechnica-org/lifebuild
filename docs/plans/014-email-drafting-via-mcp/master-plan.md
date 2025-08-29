@@ -186,7 +186,7 @@ Build the absolute minimal feature set to enable background agents to check user
 
 #### Server-Side Agentic Loop Migration - COMPLETE ✅
 
-- **✅ Core Implementation**: Server-side agentic loop processing 
+- **✅ Core Implementation**: Server-side agentic loop processing
   - Complete move of LLM execution from client to server
   - Event-driven architecture with LiveStore event flow
   - Direct Braintrust integration with proper retry handling
@@ -196,7 +196,7 @@ Build the absolute minimal feature set to enable background agents to check user
 
 ### 🔄 In Progress Work
 
-*No items currently in progress - ready to start next phase!*
+_No items currently in progress - ready to start next phase!_
 
 ### 📋 Remaining Work
 
