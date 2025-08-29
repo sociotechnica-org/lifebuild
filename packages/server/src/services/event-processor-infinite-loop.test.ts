@@ -5,6 +5,7 @@ import { EventProcessor } from './event-processor.js'
 const mockStore = {
   commit: vi.fn(),
   subscribe: vi.fn(),
+  query: vi.fn().mockReturnValue([]),
 }
 
 const mockStoreManager = {
@@ -19,6 +20,10 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
   let eventProcessor: EventProcessor
 
   beforeEach(() => {
+    // Mock environment variables to enable LLM functionality for testing
+    process.env.BRAINTRUST_API_KEY = 'test-key'
+    process.env.BRAINTRUST_PROJECT_ID = 'test-project'
+
     eventProcessor = new EventProcessor(mockStoreManager as any)
     vi.clearAllMocks()
     subscriptionCallbacks.clear()
@@ -34,6 +39,9 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
   afterEach(() => {
     eventProcessor.stopAll()
+    // Clean up environment variables
+    delete process.env.BRAINTRUST_API_KEY
+    delete process.env.BRAINTRUST_PROJECT_ID
   })
 
   it('should not process the same chat message multiple times', async () => {
@@ -42,7 +50,7 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
       {
         id: 'msg-1',
         conversationId: 'conv-1',
-        message: 'server: hello test',
+        message: 'hello test',
         role: 'user',
         createdAt: new Date(),
       },
@@ -61,22 +69,14 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     // Simulate new message arrival
     chatMessagesCallback!(chatMessages)
 
-    // Wait for async setImmediate to complete
+    // Wait for async processing
     await new Promise(resolve => setImmediate(resolve))
 
-    // Verify handleUserMessage was called once
-    expect(mockStore.commit).toHaveBeenCalledTimes(1)
-    expect(mockStore.commit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: 'v1.LLMResponseReceived',
-        args: expect.objectContaining({
-          conversationId: 'conv-1',
-          message: 'Echo: hello test',
-          role: 'assistant',
-          responseToMessageId: 'msg-1',
-        }),
-      })
+    // Verify the LLMResponseStarted event was emitted (indicating processing started)
+    const startedEvents = (mockStore.commit as any).mock.calls.filter(
+      (call: any) => call[0]?.name === 'v1.LLMResponseStarted'
     )
+    expect(startedEvents.length).toBe(1)
 
     // Clear the mock to test duplicate prevention
     mockStore.commit.mockClear()
@@ -88,18 +88,24 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
       {
         id: 'msg-2', // Assistant response
         conversationId: 'conv-1',
-        message: 'Echo: hello test',
+        message: 'Hello! How can I help you?',
         role: 'assistant',
         createdAt: new Date(),
-        llmMetadata: { source: 'server-test-echo' },
+        llmMetadata: { source: 'braintrust' },
       },
     ]
 
     // Simulate subscription re-fire with full dataset (including original user message)
     chatMessagesCallback!(chatMessagesWithResponse)
 
+    // Wait for any potential processing
+    await new Promise(resolve => setImmediate(resolve))
+
     // The original user message should NOT be processed again
-    expect(mockStore.commit).not.toHaveBeenCalled()
+    const duplicateStartedEvents = (mockStore.commit as any).mock.calls.filter(
+      (call: any) => call[0]?.name === 'v1.LLMResponseStarted'
+    )
+    expect(duplicateStartedEvents.length).toBe(0)
   })
 
   it('should process new messages but not duplicates', async () => {
@@ -117,32 +123,30 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     const firstMessage = {
       id: 'msg-1',
       conversationId: 'conv-1',
-      message: 'server: first message',
+      message: 'first message',
       role: 'user',
       createdAt: new Date(),
     }
 
     chatMessagesCallback!([firstMessage])
 
-    // Wait for async setImmediate to complete
+    // Wait for async processing
     await new Promise(resolve => setImmediate(resolve))
 
-    expect(mockStore.commit).toHaveBeenCalledTimes(1)
-    expect(mockStore.commit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        args: expect.objectContaining({
-          message: 'Echo: first message',
-        }),
-      })
+    // Verify first message started processing
+    const firstStartedEvents = (mockStore.commit as any).mock.calls.filter(
+      (call: any) => call[0]?.name === 'v1.LLMResponseStarted'
     )
+    expect(firstStartedEvents.length).toBe(1)
+    expect(firstStartedEvents[0][0].args.userMessageId).toBe('msg-1')
 
     mockStore.commit.mockClear()
 
-    // Second message added to the dataset
+    // Second message in a different conversation to avoid queueing
     const secondMessage = {
       id: 'msg-2',
-      conversationId: 'conv-1',
-      message: 'server: second message',
+      conversationId: 'conv-2', // Different conversation
+      message: 'second message',
       role: 'user',
       createdAt: new Date(),
     }
@@ -150,21 +154,18 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     // LiveStore returns full dataset including both messages
     chatMessagesCallback!([firstMessage, secondMessage])
 
-    // Wait for async setImmediate to complete
+    // Wait for async processing
     await new Promise(resolve => setImmediate(resolve))
 
     // Should only process the new message, not the first one again
-    expect(mockStore.commit).toHaveBeenCalledTimes(1)
-    expect(mockStore.commit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        args: expect.objectContaining({
-          message: 'Echo: second message',
-        }),
-      })
+    const secondStartedEvents = (mockStore.commit as any).mock.calls.filter(
+      (call: any) => call[0]?.name === 'v1.LLMResponseStarted'
     )
+    expect(secondStartedEvents.length).toBe(1)
+    expect(secondStartedEvents[0][0].args.userMessageId).toBe('msg-2')
   })
 
-  it('should not process assistant messages from server', () => {
+  it('should not process assistant messages', async () => {
     const storeId = 'test-store'
 
     eventProcessor.startMonitoring(storeId, mockStore as any)
@@ -179,15 +180,18 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     const assistantMessage = {
       id: 'msg-assistant',
       conversationId: 'conv-1',
-      message: 'Echo: hello test',
+      message: 'Hello! How can I help you?',
       role: 'assistant',
       createdAt: new Date(),
-      llmMetadata: { source: 'server-test-echo' },
+      llmMetadata: { source: 'braintrust' },
     }
 
     chatMessagesCallback!([assistantMessage])
 
-    // Should not trigger any processing
+    // Wait for any potential processing
+    await new Promise(resolve => setImmediate(resolve))
+
+    // Should not trigger any processing since it's not a user message
     expect(mockStore.commit).not.toHaveBeenCalled()
   })
 })
