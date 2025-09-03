@@ -156,8 +156,11 @@ export class EventProcessor {
       })
 
       const unsubscribe = store.subscribe(query as any, {
-        onUpdate: async (records: any[]) => {
-          await this.handleTableUpdate(storeId, tableName, records, storeState)
+        onUpdate: (records: any[]) => {
+          // Defer async processing to avoid blocking LiveStore's reactive update cycle
+          setImmediate(() => {
+            this.handleTableUpdate(storeId, tableName, records, storeState)
+          })
         },
       })
 
