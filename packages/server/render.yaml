@@ -5,7 +5,15 @@ services:
     plan: starter
     # Build from monorepo root to access workspace dependencies
     rootDir: .
-    buildCommand: pnpm install && pnpm --filter @work-squared/server build
+    buildCommand: |
+      # Install system dependencies for native module compilation
+      apt-get update && apt-get install -y build-essential python3 &&
+      # Install dependencies and rebuild native modules
+      pnpm install &&
+      # Force rebuild better-sqlite3 for production environment
+      pnpm --filter @work-squared/server exec npm rebuild better-sqlite3 &&
+      # Build the server
+      pnpm --filter @work-squared/server build
     startCommand: pnpm --filter @work-squared/server start
     envVars:
       - key: NODE_ENV
