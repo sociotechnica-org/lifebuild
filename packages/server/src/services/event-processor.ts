@@ -170,75 +170,30 @@ export class EventProcessor {
         return
       }
 
-      const query = queryDb(tables.chatMessages.select(), {
-        label: `monitor-${tableName}-${storeId}`,
-      })
-
-      const unsubscribe = store.subscribe(query as any, {
-        onUpdate: (records: any[]) => {
-          // Defer async processing to avoid blocking LiveStore's reactive update cycle
-          setImmediate(() => {
-            this.handleTableUpdate(storeId, tableName, records, storeState)
-          })
+      // Subscribe to chatMessageSent events instead of the chatMessages table
+      // This gives us only NEW messages, not the entire chat history
+      const unsubscribe = store.subscribe(events.chatMessageSent, {
+        onEvent: (event: any) => {
+          console.log(`📨 New chat message event: ${event.payload.id} (${event.payload.role})`)
+          // Only process user messages (not assistant or system messages)
+          if (event.payload.role === 'user') {
+            console.log(`👤 Processing user message: ${event.payload.message?.slice(0, 50)}...`)
+            // Convert event payload to ChatMessage format and process
+            setImmediate(() => {
+              this.processChatMessage(storeId, event.payload as ChatMessage, storeState)
+            })
+          }
         },
       })
 
       storeState.subscriptions.push(unsubscribe)
-      console.log(`✅ Subscribed to ${tableName} for store ${storeId}`)
+      console.log(`✅ Subscribed to chatMessageSent events for store ${storeId}`)
     } catch (error) {
-      console.error(`❌ Failed to subscribe to ${tableName} for store ${storeId}:`, error)
+      console.error(`❌ Failed to subscribe to chatMessageSent events for store ${storeId}:`, error)
       this.incrementErrorCount(storeId, error as Error)
     }
   }
 
-  private async handleTableUpdate(
-    storeId: string,
-    tableName: string,
-    records: unknown[],
-    storeState: StoreProcessingState
-  ): Promise<void> {
-    // Skip processing if store is stopping
-    if (storeState.stopping) {
-      return
-    }
-
-    console.log(`📊 Processing ${records.length} records for ${storeId}/${tableName}`)
-
-    for (const record of records) {
-      // Type guard to ensure record is an object with properties
-      if (!record || typeof record !== 'object') {
-        continue
-      }
-
-      const recordObj = record as Record<string, any>
-      const timestamp = new Date().toISOString()
-      const displayText =
-        recordObj.message || recordObj.name || recordObj.title || recordObj.id || 'Unknown'
-      const truncatedText = displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
-
-      console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
-
-      // Handle chat messages for agentic loop processing
-      if (tableName === 'chatMessages' && recordObj.role === 'user') {
-        await this.processChatMessage(storeId, recordObj as ChatMessage, storeState)
-      }
-    }
-
-    // Update activity tracker
-    this.storeManager.updateActivity(storeId)
-
-    // Buffer events for processing
-    this.bufferEvents(
-      storeId,
-      records.map(r => ({
-        type: tableName,
-        storeId,
-        data: r,
-        timestamp: new Date(),
-      })),
-      storeState
-    )
-  }
 
   private async processChatMessage(
     storeId: string,

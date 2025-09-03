@@ -37,8 +37,8 @@ const mockStoreManager = {
   updateActivity: vi.fn(),
 }
 
-// Track subscription callbacks by table
-const subscriptionCallbacks = new Map<string, (records: any[]) => void>()
+// Track subscription callbacks for events
+const eventSubscriptionCallbacks = new Map<string, (event: any) => void>()
 
 describe('EventProcessor - Infinite Loop Prevention', () => {
   let eventProcessor: EventProcessor
@@ -50,14 +50,13 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
     eventProcessor = new EventProcessor(mockStoreManager as any)
     vi.clearAllMocks()
-    subscriptionCallbacks.clear()
+    eventSubscriptionCallbacks.clear()
     processedMessages.clear() // Clear the mock processed messages
 
-    // Mock subscribe to capture callbacks by query label
-    mockStore.subscribe.mockImplementation((query, { onUpdate }) => {
-      const label = query?.label || 'unknown'
-      const tableName = label.includes('monitor-chatMessages') ? 'chatMessages' : 'other'
-      subscriptionCallbacks.set(tableName, onUpdate)
+    // Mock subscribe to capture event callbacks
+    mockStore.subscribe.mockImplementation((eventType, { onEvent }) => {
+      const eventName = eventType?.name || 'unknown'
+      eventSubscriptionCallbacks.set(eventName, onEvent)
       return () => {} // unsubscribe function
     })
   })
