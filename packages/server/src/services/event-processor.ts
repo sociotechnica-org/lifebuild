@@ -21,7 +21,6 @@ import type {
 interface StoreProcessingState {
   subscriptions: Array<() => void>
   eventBuffer: EventBuffer
-  lastSeenCounts: Map<string, number>
   errorCount: number
   lastError?: Error
   processingQueue: Promise<void>
@@ -46,6 +45,9 @@ export class EventProcessor {
   // LLM configuration from environment
   private braintrustApiKey: string | undefined
   private braintrustProjectId: string | undefined
+
+  // Cutoff timestamp - messages before this are marked as processed but skipped
+  private messageCutoffTimestamp: Date | null
 
   // Tables to monitor for activity
   // IMPORTANT: Only monitor chatMessages to process user messages
@@ -83,6 +85,14 @@ export class EventProcessor {
       console.log('✅ LLM functionality enabled with Braintrust integration')
     }
 
+    // Load message cutoff timestamp from environment
+    const cutoffEnv = process.env.MESSAGE_PROCESSING_CUTOFF_TIMESTAMP
+    this.messageCutoffTimestamp = cutoffEnv ? new Date(cutoffEnv) : null
+    if (this.messageCutoffTimestamp) {
+      console.log(`📅 Message processing cutoff set to: ${this.messageCutoffTimestamp.toISOString()}`)
+      console.log('   Messages before this timestamp will be marked as processed but skipped')
+    }
+
     // Initialize processed message tracking
     this.processedTracker.initialize().catch(error => {
       console.error('❌ Failed to initialize processed message tracker:', error)
@@ -111,7 +121,6 @@ export class EventProcessor {
         lastFlushed: new Date(),
         processing: false,
       },
-      lastSeenCounts: new Map(),
       errorCount: 0,
       processingQueue: Promise.resolve(),
       stopping: false,
@@ -183,21 +192,9 @@ export class EventProcessor {
       return
     }
 
-    const lastCount = storeState.lastSeenCounts.get(tableName)
-    const currentCount = records.length
+    console.log(`📊 Processing ${records.length} records for ${storeId}/${tableName}`)
 
-    // On first subscription, initialize the count without processing existing records
-    if (lastCount === undefined) {
-      console.log(`📊 Initial sync for ${storeId}/${tableName}: ${currentCount} existing records`)
-      storeState.lastSeenCounts.set(tableName, currentCount)
-      return
-    }
-
-    // Only process if we have new records
-    if (currentCount > lastCount) {
-      const newRecords = records.slice(lastCount) // Get only the new records (from lastCount onwards)
-
-      for (const record of newRecords) {
+    for (const record of records) {
         // Type guard to ensure record is an object with properties
         if (!record || typeof record !== 'object') {
           continue
@@ -212,66 +209,76 @@ export class EventProcessor {
 
         console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
 
-        // Handle chat messages for agentic loop processing - only process truly NEW user messages
+        // Handle chat messages for agentic loop processing
         if (tableName === 'chatMessages' && recordObj.role === 'user') {
-          // Check if already processed using SQLite with error handling
-          try {
-            const isAlreadyProcessed = await this.processedTracker.isProcessed(
-              recordObj.id,
-              storeId
-            )
-
-            if (isAlreadyProcessed) {
-              console.log(`⏭️ Skipping already-processed message: ${recordObj.id}`)
-              continue
-            }
-
-            // Attempt to claim processing rights atomically
-            const claimedProcessing = await this.processedTracker.markProcessed(
-              recordObj.id,
-              storeId
-            )
-
-            if (!claimedProcessing) {
-              console.log(`🏁 Another instance claimed processing for message: ${recordObj.id}`)
-              continue
-            }
-
-            console.log(`🆕 Claimed processing rights for message: ${recordObj.id}`)
-
-            // Defer processing to avoid committing during reactive update cycle
-            setImmediate(() => {
-              this.handleUserMessage(storeId, recordObj as ChatMessage, storeState)
-            })
-          } catch (error) {
-            console.error(`❌ Database error checking message ${recordObj.id}:`, error)
-            // Fail safe: process the message rather than risk missing it
-            console.log(`⚠️ Processing message ${recordObj.id} despite database error`)
-
-            // Defer processing to avoid committing during reactive update cycle
-            setImmediate(() => {
-              this.handleUserMessage(storeId, recordObj as ChatMessage, storeState)
-            })
-          }
+          await this.processChatMessage(storeId, recordObj as ChatMessage, storeState)
         }
       }
 
-      storeState.lastSeenCounts.set(tableName, currentCount)
+    // Update activity tracker
+    this.storeManager.updateActivity(storeId)
 
-      // Update activity tracker
-      this.storeManager.updateActivity(storeId)
-
-      // Buffer events for processing
-      this.bufferEvents(
+    // Buffer events for processing
+    this.bufferEvents(
+      storeId,
+      records.map(r => ({
+        type: tableName,
         storeId,
-        newRecords.map(r => ({
-          type: tableName,
-          storeId,
-          data: r,
-          timestamp: new Date(),
-        })),
-        storeState
-      )
+        data: r,
+        timestamp: new Date(),
+      })),
+      storeState
+    )
+  }
+
+  private async processChatMessage(
+    storeId: string,
+    message: ChatMessage,
+    storeState: StoreProcessingState
+  ): Promise<void> {
+    try {
+      // Check if already processed using SQLite
+      const isAlreadyProcessed = await this.processedTracker.isProcessed(message.id, storeId)
+
+      if (isAlreadyProcessed) {
+        console.log(`⏭️ Skipping already-processed message: ${message.id}`)
+        return
+      }
+
+      // Check if message is before cutoff timestamp
+      if (this.messageCutoffTimestamp && message.createdAt) {
+        const messageDate = new Date(message.createdAt)
+        if (messageDate < this.messageCutoffTimestamp) {
+          console.log(`📅 Message ${message.id} is before cutoff (${messageDate.toISOString()}), marking as processed but skipping`)
+          // Mark as processed in SQLite but don't actually process it
+          await this.processedTracker.markProcessed(message.id, storeId)
+          return
+        }
+      }
+
+      // Attempt to claim processing rights atomically
+      const claimedProcessing = await this.processedTracker.markProcessed(message.id, storeId)
+
+      if (!claimedProcessing) {
+        console.log(`🏁 Another instance claimed processing for message: ${message.id}`)
+        return
+      }
+
+      console.log(`🆕 Claimed processing rights for message: ${message.id}`)
+
+      // Defer processing to avoid committing during reactive update cycle
+      setImmediate(() => {
+        this.handleUserMessage(storeId, message, storeState)
+      })
+    } catch (error) {
+      console.error(`❌ Database error checking message ${message.id}:`, error)
+      // Fail safe: process the message rather than risk missing it
+      console.log(`⚠️ Processing message ${message.id} despite database error`)
+
+      // Defer processing to avoid committing during reactive update cycle
+      setImmediate(() => {
+        this.handleUserMessage(storeId, message, storeState)
+      })
     }
   }
 
