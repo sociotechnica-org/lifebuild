@@ -131,13 +131,13 @@ importers:
         specifier: 0.3.1
         version: 0.3.1(6e956e46a0b467c507c9709cc4313aa0)
       '@types/better-sqlite3':
-        specifier: ^7.6.11
+        specifier: ^7.6.13
         version: 7.6.13
       '@work-squared/shared':
         specifier: workspace:*
         version: link:../shared
       better-sqlite3:
-        specifier: ^11.3.0
+        specifier: ^11.10.0
         version: 11.10.0
       dotenv:
         specifier: ^17.2.1
