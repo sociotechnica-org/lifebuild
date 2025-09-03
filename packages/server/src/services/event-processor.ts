@@ -8,6 +8,7 @@ import { DEFAULT_MODEL } from '@work-squared/shared'
 import { MessageQueueManager } from './message-queue-manager.js'
 import { AsyncQueueProcessor } from './async-queue-processor.js'
 import { ResourceMonitor } from './resource-monitor.js'
+import { ProcessedMessageTracker } from './processed-message-tracker.js'
 import type {
   EventBuffer,
   ProcessedEvent,
@@ -31,7 +32,6 @@ interface StoreProcessingState {
   conversationProcessors: Map<string, AsyncQueueProcessor> // Per-conversation async processors
   llmProvider?: BraintrustProvider
   resourceMonitor: ResourceMonitor // Resource monitoring and limits
-  processedMessageIds: Set<string> // Track which chat messages have been processed
 }
 
 export class EventProcessor {
@@ -41,6 +41,7 @@ export class EventProcessor {
   private readonly flushInterval = 5000 // 5 seconds
   private flushTimer?: NodeJS.Timeout
   private globalResourceMonitor: ResourceMonitor
+  private processedTracker: ProcessedMessageTracker
 
   // LLM configuration from environment
   private braintrustApiKey: string | undefined
@@ -53,6 +54,7 @@ export class EventProcessor {
 
   constructor(storeManager: StoreManager) {
     this.storeManager = storeManager
+    this.processedTracker = new ProcessedMessageTracker()
     this.startFlushTimer()
 
     // Initialize global resource monitor
@@ -80,6 +82,12 @@ export class EventProcessor {
     } else {
       console.log('✅ LLM functionality enabled with Braintrust integration')
     }
+
+    // Initialize processed message tracking
+    this.processedTracker.initialize().catch(error => {
+      console.error('❌ Failed to initialize processed message tracker:', error)
+      // Continue without persistent tracking - will fall back to processing all messages
+    })
   }
 
   async startMonitoring(storeId: string, store: LiveStore): Promise<void> {
@@ -118,28 +126,11 @@ export class EventProcessor {
         maxConversationsPerStore: 50, // Per-store limit
         maxQueuedMessages: 200, // Per-store limit
       }),
-      processedMessageIds: new Set(),
     }
 
     this.storeStates.set(storeId, storeState)
 
-    // Pre-populate processedMessageIds with existing user messages to avoid reprocessing
-    try {
-      const existingUserMessages = store.query(
-        queryDb(tables.chatMessages.select().where('role', '=', 'user'))
-      ) as Array<{ id: string }>
-
-      for (const msg of existingUserMessages) {
-        storeState.processedMessageIds.add(msg.id)
-      }
-
-      console.log(
-        `📝 Pre-populated ${existingUserMessages.length} existing user message IDs for store ${storeId}`
-      )
-    } catch (error) {
-      console.error(`⚠️ Failed to pre-populate message IDs for store ${storeId}:`, error)
-      // Continue anyway - will just risk reprocessing
-    }
+    console.log(`📝 Using persistent message tracking for store ${storeId}`)
 
     // Monitor all important tables
     for (const tableName of this.monitoredTables) {
@@ -165,8 +156,8 @@ export class EventProcessor {
       })
 
       const unsubscribe = store.subscribe(query as any, {
-        onUpdate: (records: any[]) => {
-          this.handleTableUpdate(storeId, tableName, records, storeState)
+        onUpdate: async (records: any[]) => {
+          await this.handleTableUpdate(storeId, tableName, records, storeState)
         },
       })
 
@@ -178,12 +169,12 @@ export class EventProcessor {
     }
   }
 
-  private handleTableUpdate(
+  private async handleTableUpdate(
     storeId: string,
     tableName: string,
     records: unknown[],
     storeState: StoreProcessingState
-  ): void {
+  ): Promise<void> {
     // Skip processing if store is stopping
     if (storeState.stopping) {
       return
@@ -220,19 +211,45 @@ export class EventProcessor {
 
         // Handle chat messages for agentic loop processing - only process truly NEW user messages
         if (tableName === 'chatMessages' && recordObj.role === 'user') {
-          // Skip if already processed
-          if (storeState.processedMessageIds.has(recordObj.id)) {
-            console.log(`⏭️ Skipping already-processed message: ${recordObj.id}`)
-            continue
+          // Check if already processed using SQLite with error handling
+          try {
+            const isAlreadyProcessed = await this.processedTracker.isProcessed(
+              recordObj.id,
+              storeId
+            )
+
+            if (isAlreadyProcessed) {
+              console.log(`⏭️ Skipping already-processed message: ${recordObj.id}`)
+              continue
+            }
+
+            // Attempt to claim processing rights atomically
+            const claimedProcessing = await this.processedTracker.markProcessed(
+              recordObj.id,
+              storeId
+            )
+
+            if (!claimedProcessing) {
+              console.log(`🏁 Another instance claimed processing for message: ${recordObj.id}`)
+              continue
+            }
+
+            console.log(`🆕 Claimed processing rights for message: ${recordObj.id}`)
+
+            // Defer processing to avoid committing during reactive update cycle
+            setImmediate(() => {
+              this.handleUserMessage(storeId, recordObj as ChatMessage, storeState)
+            })
+          } catch (error) {
+            console.error(`❌ Database error checking message ${recordObj.id}:`, error)
+            // Fail safe: process the message rather than risk missing it
+            console.log(`⚠️ Processing message ${recordObj.id} despite database error`)
+
+            // Defer processing to avoid committing during reactive update cycle
+            setImmediate(() => {
+              this.handleUserMessage(storeId, recordObj as ChatMessage, storeState)
+            })
           }
-
-          console.log(`🆕 Scheduling new user message processing: ${recordObj.id}`)
-          storeState.processedMessageIds.add(recordObj.id)
-
-          // Defer processing to avoid committing during reactive update cycle
-          setImmediate(() => {
-            this.handleUserMessage(storeId, recordObj as ChatMessage, storeState)
-          })
         }
       }
 
@@ -1076,6 +1093,36 @@ export class EventProcessor {
       global: globalReport,
       perStore: perStoreReports,
       systemHealth,
+    }
+  }
+
+  /**
+   * Get processed message statistics for health monitoring
+   */
+  async getProcessedMessageStats(): Promise<
+    | {
+        total: number
+        byStore: Record<string, number>
+        databasePath: string
+      }
+    | { error: string }
+  > {
+    try {
+      const total = await this.processedTracker.getProcessedCount()
+      const byStore: Record<string, number> = {}
+
+      for (const [storeId] of this.storeStates) {
+        const count = await this.processedTracker.getProcessedCount(storeId)
+        byStore[storeId] = count
+      }
+
+      return {
+        total,
+        byStore,
+        databasePath: this.processedTracker.databasePath,
+      }
+    } catch (error: any) {
+      return { error: error.message }
     }
   }
 

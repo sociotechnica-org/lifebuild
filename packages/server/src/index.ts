@@ -33,7 +33,7 @@ async function main() {
   console.log('📡 Event monitoring started for all stores')
 
   const http = await import('http')
-  const healthServer = http.createServer((req, res) => {
+  const healthServer = http.createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
@@ -48,6 +48,7 @@ async function main() {
       const healthStatus = storeManager.getHealthStatus()
       const processingStats = eventProcessor.getProcessingStats()
       const globalResourceStatus = eventProcessor.getGlobalResourceStatus()
+      const processedStats = await eventProcessor.getProcessedMessageStats()
 
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(
@@ -63,6 +64,7 @@ async function main() {
           })),
           storeCount: healthStatus.stores.length,
           globalResources: globalResourceStatus,
+          processedMessages: processedStats,
         })
       )
     } else if (req.url === '/stores') {
