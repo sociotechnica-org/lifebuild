@@ -41,6 +41,7 @@ export class EventProcessor {
   private flushTimer?: NodeJS.Timeout
   private globalResourceMonitor: ResourceMonitor
   private processedTracker: ProcessedMessageTracker
+  private databaseInitialized = false
 
   // LLM configuration from environment
   private braintrustApiKey: string | undefined
@@ -96,10 +97,17 @@ export class EventProcessor {
     }
 
     // Initialize processed message tracking
-    this.processedTracker.initialize().catch(error => {
-      console.error('❌ Failed to initialize processed message tracker:', error)
-      // Continue without persistent tracking - will fall back to processing all messages
-    })
+    this.processedTracker
+      .initialize()
+      .then(() => {
+        this.databaseInitialized = true
+        console.log('✅ Processed message tracking initialized')
+      })
+      .catch(error => {
+        console.error('❌ CRITICAL: Failed to initialize processed message tracker:', error)
+        console.error('❌ STOPPING ALL MESSAGE PROCESSING to prevent duplicate processing')
+        this.databaseInitialized = false
+      })
   }
 
   async startMonitoring(storeId: string, store: LiveStore): Promise<void> {
@@ -237,6 +245,15 @@ export class EventProcessor {
     message: ChatMessage,
     storeState: StoreProcessingState
   ): Promise<void> {
+    // CRITICAL: If database is not initialized, stop all processing to prevent infinite loops
+    if (!this.databaseInitialized) {
+      console.error(
+        `🚨 CRITICAL: Database not initialized - SKIPPING message ${message.id} to prevent duplicate processing`
+      )
+      console.error(`🚨 Fix database initialization issue and restart server`)
+      return
+    }
+
     try {
       // Check if already processed using SQLite
       const isAlreadyProcessed = await this.processedTracker.isProcessed(message.id, storeId)
@@ -275,13 +292,11 @@ export class EventProcessor {
       })
     } catch (error) {
       console.error(`❌ Database error checking message ${message.id}:`, error)
-      // Fail safe: process the message rather than risk missing it
-      console.log(`⚠️ Processing message ${message.id} despite database error`)
-
-      // Defer processing to avoid committing during reactive update cycle
-      setImmediate(() => {
-        this.handleUserMessage(storeId, message, storeState)
-      })
+      console.error(
+        `🚨 CRITICAL: Database operation failed - SKIPPING message to prevent infinite loops`
+      )
+      // DO NOT process the message - this could cause infinite loops if DB is broken
+      return
     }
   }
 
