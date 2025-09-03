@@ -170,11 +170,15 @@ export class EventProcessor {
         return
       }
 
-      // Subscribe to chatMessages table
-      // Note: This returns all messages on updates, but SQLite deduplication prevents reprocessing
-      const query = queryDb(tables.chatMessages.select(), {
-        label: `monitor-${tableName}-${storeId}`,
-      })
+      // Subscribe to chatMessages table with recent filter to reduce volume
+      // Still get all matching records on each update, but limit scope to reduce load
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+      const query = queryDb(
+        tables.chatMessages.select().where({ 
+          createdAt: { op: 'GTE' as any, value: oneHourAgo } 
+        }),
+        { label: `monitor-${tableName}-${storeId}` }
+      )
 
       const unsubscribe = store.subscribe(query as any, {
         onUpdate: (records: any[]) => {
