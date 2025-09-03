@@ -24,7 +24,10 @@ services:
       - key: STORE_IDS
         value: work-squared-production,885773a8-b433-47bd-8ee4-a907a79922d8,11d1a22c-3462-43aa-988a-3cf11b95f03b,d56d28db-bc17-406d-8204-4dd24d17c5ac,70fb4e45-7677-4b70-9e46-3c2e4f3cbd0a
       - key: STORE_DATA_PATH
-        value: ./data
+        value: /var/data
+      # Message processing cutoff - messages before this timestamp are skipped (temporary)
+      - key: MESSAGE_PROCESSING_CUTOFF_TIMESTAMP
+        value: 2025-09-01T00:00:00.000Z
       # Store Connection Settings
       - key: STORE_CONNECTION_TIMEOUT
         value: 30000
@@ -43,7 +46,7 @@ services:
     healthCheckPath: /health
     disk:
       name: work-squared-data
-      mountPath: /opt/render/project/src/data
+      mountPath: /var/data
       sizeGB: 10
     # Scaling configuration from ADR-002
     scaling:
