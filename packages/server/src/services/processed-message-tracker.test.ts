@@ -2,22 +2,9 @@ import { describe, expect, beforeEach, afterEach, test } from 'vitest'
 import fs from 'fs'
 import path from 'path'
 
-// Check if better-sqlite3 is available and can create a database
-let canUseSqlite = true
-let ProcessedMessageTracker: any = null
-
-try {
-  // Test if better-sqlite3 can actually create a database (not just require)
-  const Database = require('better-sqlite3')
-  const testDb = new Database(':memory:')
-  testDb.close()
-} catch {
-  canUseSqlite = false
-  console.warn('⚠️ Skipping ProcessedMessageTracker tests: better-sqlite3 not available')
-}
-
-describe.skipIf(!canUseSqlite)('ProcessedMessageTracker', () => {
+describe('ProcessedMessageTracker', () => {
   let tracker: any
+  let ProcessedMessageTracker: any
   const testDataPath = './test-data'
   const testDbPath = path.join(testDataPath, 'processed-messages.db')
 
