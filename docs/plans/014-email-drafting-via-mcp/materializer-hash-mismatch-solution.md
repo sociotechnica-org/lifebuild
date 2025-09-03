@@ -2,7 +2,7 @@
 
 ## Root Cause Identified ✅
 
-The multi-store server materializer hash mismatch is caused by **complex materializers with function calls and arrays**. LiveStore cannot consistently hash materializers that:
+The multi-store server materializer hash mismatch is caused by **complex materializers with function calls**. LiveStore cannot consistently hash materializers that:
 
 1. **Call other functions** (like `logEvent()`)
 2. **Return arrays of operations** (`[insert(), logEvent()]`)
