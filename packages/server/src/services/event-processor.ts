@@ -89,7 +89,9 @@ export class EventProcessor {
     const cutoffEnv = process.env.MESSAGE_PROCESSING_CUTOFF_TIMESTAMP
     this.messageCutoffTimestamp = cutoffEnv ? new Date(cutoffEnv) : null
     if (this.messageCutoffTimestamp) {
-      console.log(`📅 Message processing cutoff set to: ${this.messageCutoffTimestamp.toISOString()}`)
+      console.log(
+        `📅 Message processing cutoff set to: ${this.messageCutoffTimestamp.toISOString()}`
+      )
       console.log('   Messages before this timestamp will be marked as processed but skipped')
     }
 
@@ -195,25 +197,24 @@ export class EventProcessor {
     console.log(`📊 Processing ${records.length} records for ${storeId}/${tableName}`)
 
     for (const record of records) {
-        // Type guard to ensure record is an object with properties
-        if (!record || typeof record !== 'object') {
-          continue
-        }
-
-        const recordObj = record as Record<string, any>
-        const timestamp = new Date().toISOString()
-        const displayText =
-          recordObj.message || recordObj.name || recordObj.title || recordObj.id || 'Unknown'
-        const truncatedText =
-          displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
-
-        console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
-
-        // Handle chat messages for agentic loop processing
-        if (tableName === 'chatMessages' && recordObj.role === 'user') {
-          await this.processChatMessage(storeId, recordObj as ChatMessage, storeState)
-        }
+      // Type guard to ensure record is an object with properties
+      if (!record || typeof record !== 'object') {
+        continue
       }
+
+      const recordObj = record as Record<string, any>
+      const timestamp = new Date().toISOString()
+      const displayText =
+        recordObj.message || recordObj.name || recordObj.title || recordObj.id || 'Unknown'
+      const truncatedText = displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
+
+      console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
+
+      // Handle chat messages for agentic loop processing
+      if (tableName === 'chatMessages' && recordObj.role === 'user') {
+        await this.processChatMessage(storeId, recordObj as ChatMessage, storeState)
+      }
+    }
 
     // Update activity tracker
     this.storeManager.updateActivity(storeId)
@@ -249,7 +250,9 @@ export class EventProcessor {
       if (this.messageCutoffTimestamp && message.createdAt) {
         const messageDate = new Date(message.createdAt)
         if (messageDate < this.messageCutoffTimestamp) {
-          console.log(`📅 Message ${message.id} is before cutoff (${messageDate.toISOString()}), marking as processed but skipping`)
+          console.log(
+            `📅 Message ${message.id} is before cutoff (${messageDate.toISOString()}), marking as processed but skipping`
+          )
           // Mark as processed in SQLite but don't actually process it
           await this.processedTracker.markProcessed(message.id, storeId)
           return
