@@ -58,11 +58,13 @@ We will implement **persistent tracking of processed message IDs using SQLite on
 **Approach**: Enhance current in-memory solution with graceful shutdown hooks to persist state before termination.
 
 **Pros**:
+
 - Minimal code changes to existing solution
 - Fast lookups (O(1) hash table)
 - No additional infrastructure
 
 **Cons**:
+
 - Still vulnerable to ungraceful shutdowns (OOM kills, crash, force restart)
 - Render's deployment overlaps mean graceful shutdown may not help
 - Race conditions during overlapping deployments remain unsolved
@@ -77,12 +79,14 @@ We will implement **persistent tracking of processed message IDs using SQLite on
 **Approach**: Use Redis or similar external caching service to store processed message IDs.
 
 **Pros**:
+
 - Atomic operations (SETNX) for race condition prevention
 - Built-in TTL for automatic cleanup
 - High performance and proven reliability
 - Multiple instances can coordinate effectively
 
 **Cons**:
+
 - Additional service dependency and cost (~$15/month minimum)
 - Network dependency introduces failure mode
 - Overkill for our scale (10s of messages/minute vs 1000s/second)
@@ -97,12 +101,14 @@ We will implement **persistent tracking of processed message IDs using SQLite on
 **Approach**: Store processed message IDs in a simple JSON file on Render's attached disk.
 
 **Pros**:
+
 - Simple implementation
 - Persistent across deployments
 - No additional services
 - Easy to debug and inspect
 
 **Cons**:
+
 - File locking complexity for concurrent access
 - Not atomic - corruption risk during crashes
 - Performance degrades with file size
@@ -117,11 +123,13 @@ We will implement **persistent tracking of processed message IDs using SQLite on
 **Approach**: Use LiveStore events to coordinate processing between instances (e.g., emit "processing started" events).
 
 **Pros**:
+
 - Leverages existing LiveStore infrastructure
 - No additional storage needed
 - Consistent with event-sourced architecture
 
 **Cons**:
+
 - Eventually consistent - race conditions remain possible
 - Complex event coordination logic
 - Same async sync issues that caused current problem
@@ -136,6 +144,7 @@ We will implement **persistent tracking of processed message IDs using SQLite on
 **Approach**: Use SQLite database on Render's attached disk to persistently track processed message IDs.
 
 **Pros**:
+
 - ACID transactions provide atomicity guarantees
 - Persistent across deployments and crashes
 - Minimal operational overhead (embedded database)
@@ -145,6 +154,7 @@ We will implement **persistent tracking of processed message IDs using SQLite on
 - Built-in cleanup capabilities (DELETE old records)
 
 **Cons**:
+
 - File I/O slower than memory (but adequate for our scale)
 - Potential disk space growth (mitigated by cleanup)
 - Slight complexity increase over in-memory solution
@@ -152,9 +162,10 @@ We will implement **persistent tracking of processed message IDs using SQLite on
 **Scale Assessment**: SQLite easily handles 10s of messages/minute with room for 100x growth.
 
 **Race Condition Handling**:
+
 ```sql
 -- Atomic check-and-insert
-INSERT OR IGNORE INTO processed_messages (id, store_id, processed_at) 
+INSERT OR IGNORE INTO processed_messages (id, store_id, processed_at)
 VALUES (?, ?, datetime('now'));
 
 -- If rowsAffected = 1, we won processing rights
@@ -168,11 +179,13 @@ VALUES (?, ?, datetime('now'));
 **Approach**: Create an event log table tracking message processing lifecycle events.
 
 **Pros**:
+
 - Full audit trail of processing attempts
 - Can track processing failures and retries
 - Aligns with event-sourcing patterns
 
 **Cons**:
+
 - More complex than simple ID tracking
 - Requires careful state machine management
 - Higher storage overhead
@@ -209,4 +222,3 @@ VALUES (?, ?, datetime('now'));
 - **Performance**: Slight latency increase (1-2ms) per message check
 - **Maintenance**: Periodic cleanup required (can be automated)
 - **Monitoring**: Need to track database size and health
-

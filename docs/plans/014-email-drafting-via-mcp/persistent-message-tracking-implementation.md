@@ -24,6 +24,7 @@ Server Instance A/B → SQLite DB (Attached Disk) → Atomic Operations
 **Goal**: Add SQLite database and core tracking functionality
 
 #### 1.1 Add Dependencies
+
 ```bash
 cd packages/server
 pnpm add sqlite3 @types/sqlite3
@@ -41,7 +42,7 @@ import path from 'path'
 export class ProcessedMessageTracker {
   private db: sqlite3.Database | null = null
   private dbPath: string
-  
+
   constructor(dataPath?: string) {
     const basePath = dataPath || process.env.STORE_DATA_PATH || './data'
     this.dbPath = path.join(basePath, 'processed-messages.db')
@@ -49,19 +50,19 @@ export class ProcessedMessageTracker {
 
   async initialize(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.db = new sqlite3.Database(this.dbPath, (err) => {
+      this.db = new sqlite3.Database(this.dbPath, err => {
         if (err) {
           reject(new Error(`Failed to open database: ${err.message}`))
           return
         }
-        
+
         // Enable WAL mode for better concurrent access
-        this.db!.run('PRAGMA journal_mode=WAL', (err) => {
+        this.db!.run('PRAGMA journal_mode=WAL', err => {
           if (err) {
             reject(new Error(`Failed to enable WAL mode: ${err.message}`))
             return
           }
-          
+
           this.createTable()
             .then(() => resolve())
             .catch(reject)
@@ -82,9 +83,9 @@ export class ProcessedMessageTracker {
       CREATE INDEX IF NOT EXISTS idx_store_processed 
       ON processed_messages (store_id, processed_at);
     `
-    
+
     return new Promise((resolve, reject) => {
-      this.db!.exec(sql, (err) => {
+      this.db!.exec(sql, err => {
         if (err) {
           reject(new Error(`Failed to create table: ${err.message}`))
         } else {
@@ -97,7 +98,7 @@ export class ProcessedMessageTracker {
 
   async isProcessed(messageId: string, storeId: string): Promise<boolean> {
     if (!this.db) throw new Error('Database not initialized')
-    
+
     return new Promise((resolve, reject) => {
       this.db!.get(
         'SELECT 1 FROM processed_messages WHERE id = ? AND store_id = ?',
@@ -115,12 +116,12 @@ export class ProcessedMessageTracker {
 
   async markProcessed(messageId: string, storeId: string): Promise<boolean> {
     if (!this.db) throw new Error('Database not initialized')
-    
+
     return new Promise((resolve, reject) => {
       this.db!.run(
         'INSERT OR IGNORE INTO processed_messages (id, store_id) VALUES (?, ?)',
         [messageId, storeId],
-        function(err) {
+        function (err) {
           if (err) {
             reject(new Error(`Failed to mark processed: ${err.message}`))
           } else {
@@ -134,12 +135,12 @@ export class ProcessedMessageTracker {
 
   async getProcessedCount(storeId?: string): Promise<number> {
     if (!this.db) return 0
-    
-    const sql = storeId 
+
+    const sql = storeId
       ? 'SELECT COUNT(*) as count FROM processed_messages WHERE store_id = ?'
       : 'SELECT COUNT(*) as count FROM processed_messages'
     const params = storeId ? [storeId] : []
-    
+
     return new Promise((resolve, reject) => {
       this.db!.get(sql, params, (err, row: any) => {
         if (err) {
@@ -151,12 +152,11 @@ export class ProcessedMessageTracker {
     })
   }
 
-
   async close(): Promise<void> {
     if (!this.db) return
-    
-    return new Promise((resolve) => {
-      this.db!.close((err) => {
+
+    return new Promise(resolve => {
+      this.db!.close(err => {
         if (err) {
           console.error('Error closing database:', err.message)
         }
@@ -172,15 +172,17 @@ export class ProcessedMessageTracker {
 **File**: `packages/server/src/services/event-processor.ts`
 
 Add to imports:
+
 ```typescript
 import { ProcessedMessageTracker } from './processed-message-tracker.js'
 ```
 
 Add to class properties:
+
 ```typescript
 export class EventProcessor {
   private processedTracker: ProcessedMessageTracker
-  
+
   constructor(storeManager: StoreManager) {
     // ... existing code
     this.processedTracker = new ProcessedMessageTracker()
@@ -189,10 +191,11 @@ export class EventProcessor {
 ```
 
 Add initialization to constructor:
+
 ```typescript
 constructor(storeManager: StoreManager) {
   // ... existing code
-  
+
   // Initialize processed message tracking
   this.processedTracker.initialize().catch(error => {
     console.error('❌ Failed to initialize processed message tracker:', error)
@@ -221,7 +224,7 @@ describe('ProcessedMessageTracker', () => {
     if (fs.existsSync(testDbPath)) {
       fs.unlinkSync(testDbPath)
     }
-    
+
     tracker = new ProcessedMessageTracker('./test-data')
     await tracker.initialize()
   })
@@ -296,22 +299,22 @@ Replace the in-memory Set checks with SQLite:
 if (tableName === 'chatMessages' && recordObj.role === 'user') {
   // Check if already processed using SQLite
   const isAlreadyProcessed = await this.processedTracker.isProcessed(recordObj.id, storeId)
-  
+
   if (isAlreadyProcessed) {
     console.log(`⏭️ Skipping already-processed message: ${recordObj.id}`)
     continue
   }
-  
+
   // Attempt to claim processing rights atomically
   const claimedProcessing = await this.processedTracker.markProcessed(recordObj.id, storeId)
-  
+
   if (!claimedProcessing) {
     console.log(`🏁 Another instance claimed processing for message: ${recordObj.id}`)
     continue
   }
-  
+
   console.log(`🆕 Claimed processing rights for message: ${recordObj.id}`)
-  
+
   // Defer processing to avoid committing during reactive update cycle
   setImmediate(() => {
     this.handleUserMessage(storeId, recordObj as ChatMessage, storeState)
@@ -322,6 +325,7 @@ if (tableName === 'chatMessages' && recordObj.role === 'user') {
 #### 2.3 Remove In-Memory processedMessageIds
 
 Clean up the old implementation:
+
 - Remove `processedMessageIds: Set<string>` from `StoreProcessingState`
 - Remove Set initialization and management code
 
@@ -358,7 +362,7 @@ if (req.url === '/health') {
   const healthStatus = storeManager.getHealthStatus()
   const processingStats = eventProcessor.getProcessingStats()
   const globalResourceStatus = eventProcessor.getGlobalResourceStatus()
-  
+
   // Add processed message stats
   const processedStats = await eventProcessor.getProcessedMessageStats()
 
@@ -373,17 +377,18 @@ if (req.url === '/health') {
 ```
 
 Add method to EventProcessor:
+
 ```typescript
 async getProcessedMessageStats() {
   try {
     const total = await this.processedTracker.getProcessedCount()
     const byStore = new Map<string, number>()
-    
+
     for (const [storeId] of this.storeStates) {
       const count = await this.processedTracker.getProcessedCount(storeId)
       byStore.set(storeId, count)
     }
-    
+
     return {
       total,
       byStore: Object.fromEntries(byStore),
@@ -419,11 +424,11 @@ describe('EventProcessor Persistent Message Tracking', () => {
     // Setup test environment with real SQLite database
     tracker = new ProcessedMessageTracker('./test-data')
     await tracker.initialize()
-    
+
     mockStoreManager = {
       updateActivity: vi.fn(),
     }
-    
+
     eventProcessor = new EventProcessor(mockStoreManager)
   })
 
@@ -435,40 +440,40 @@ describe('EventProcessor Persistent Message Tracking', () => {
   it('should not reprocess messages after restart', async () => {
     const messageId = 'msg-test-123'
     const storeId = 'store-test'
-    
+
     // Simulate processing a message
     const claimed1 = await tracker.markProcessed(messageId, storeId)
     expect(claimed1).toBe(true) // First instance claims it
-    
+
     // Simulate restart - create new tracker (same database)
     const tracker2 = new ProcessedMessageTracker('./test-data')
     await tracker2.initialize()
-    
+
     // Should remember it was already processed
     const isProcessed = await tracker2.isProcessed(messageId, storeId)
     expect(isProcessed).toBe(true)
-    
+
     // Attempting to claim again should fail
     const claimed2 = await tracker2.markProcessed(messageId, storeId)
     expect(claimed2).toBe(false) // Already exists
-    
+
     await tracker2.close()
   })
 
   it('should handle concurrent processing attempts', async () => {
     const messageId = 'msg-concurrent-123'
     const storeId = 'store-test'
-    
+
     // Simulate two instances trying to process the same message
     const [result1, result2] = await Promise.all([
       tracker.markProcessed(messageId, storeId),
-      tracker.markProcessed(messageId, storeId)
+      tracker.markProcessed(messageId, storeId),
     ])
-    
+
     // Exactly one should succeed
     expect(result1 !== result2).toBe(true) // One true, one false
-    expect(result1 || result2).toBe(true)  // At least one succeeded
-    
+    expect(result1 || result2).toBe(true) // At least one succeeded
+
     // Both should see it as processed
     expect(await tracker.isProcessed(messageId, storeId)).toBe(true)
   })
@@ -488,37 +493,37 @@ import { ProcessedMessageTracker } from '../src/services/processed-message-track
 
 async function testPersistence() {
   console.log('🧪 Testing message persistence...')
-  
+
   const tracker1 = new ProcessedMessageTracker()
   await tracker1.initialize()
-  
+
   // Simulate processing some messages
   const testMessages = [
     { id: 'msg-1', storeId: 'store-a' },
     { id: 'msg-2', storeId: 'store-a' },
     { id: 'msg-3', storeId: 'store-b' },
   ]
-  
+
   for (const msg of testMessages) {
     const claimed = await tracker1.markProcessed(msg.id, msg.storeId)
     console.log(`Message ${msg.id}: ${claimed ? 'PROCESSED' : 'SKIPPED'}`)
   }
-  
+
   await tracker1.close()
   console.log('📝 First instance shut down')
-  
+
   // Simulate restart
   const tracker2 = new ProcessedMessageTracker()
   await tracker2.initialize()
-  
+
   console.log('🔄 Second instance started')
-  
+
   // Check persistence
   for (const msg of testMessages) {
     const isProcessed = await tracker2.isProcessed(msg.id, msg.storeId)
     console.log(`Message ${msg.id}: ${isProcessed ? 'REMEMBERED' : 'FORGOTTEN'} ❌`)
   }
-  
+
   await tracker2.close()
   console.log('✅ Test complete')
 }
@@ -534,10 +539,10 @@ Test SQLite performance under load:
 async function testPerformance() {
   const tracker = new ProcessedMessageTracker()
   await tracker.initialize()
-  
+
   console.log('⏱️ Performance testing...')
   const start = Date.now()
-  
+
   // Test 1000 message checks (simulating high load)
   for (let i = 0; i < 1000; i++) {
     await tracker.isProcessed(`msg-${i}`, 'store-test')
@@ -545,10 +550,10 @@ async function testPerformance() {
       await tracker.markProcessed(`msg-${i}`, 'store-test')
     }
   }
-  
+
   const elapsed = Date.now() - start
-  console.log(`✅ 1000 operations completed in ${elapsed}ms (${elapsed/1000}ms per operation)`)
-  
+  console.log(`✅ 1000 operations completed in ${elapsed}ms (${elapsed / 1000}ms per operation)`)
+
   await tracker.close()
 }
 ```
@@ -560,7 +565,8 @@ async function testPerformance() {
 ### Render Configuration
 
 1. **Attached Disk**: Ensure Render service has persistent disk mounted
-2. **Environment Variables**: 
+2. **Environment Variables**:
+
    ```env
    STORE_DATA_PATH=/opt/render/project/data  # Render's persistent disk path
    ```
