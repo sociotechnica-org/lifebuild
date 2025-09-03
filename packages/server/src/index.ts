@@ -27,7 +27,7 @@ async function main() {
 
   // Start monitoring all stores
   for (const [storeId, store] of storeManager.getAllStores()) {
-    eventProcessor.startMonitoring(storeId, store)
+    await eventProcessor.startMonitoring(storeId, store)
   }
 
   console.log('📡 Event monitoring started for all stores')
