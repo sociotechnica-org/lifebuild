@@ -174,9 +174,7 @@ export class EventProcessor {
       // Still get all matching records on each update, but limit scope to reduce load
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
       const query = queryDb(
-        tables.chatMessages.select().where({
-          createdAt: { op: 'GTE' as any, value: oneHourAgo },
-        }),
+        tables.chatMessages.select().where('createdAt', '>=', oneHourAgo),
         { label: `monitor-${tableName}-${storeId}` }
       )
 
