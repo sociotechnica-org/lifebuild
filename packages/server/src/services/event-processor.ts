@@ -987,6 +987,11 @@ export class EventProcessor {
     // Cleanup global resource monitor
     this.globalResourceMonitor.destroy()
 
+    // Cleanup processed message tracker
+    this.processedTracker.close().catch(error => {
+      console.error('Error closing processed message tracker:', error)
+    })
+
     console.log('🛑 Stopped all event monitoring')
   }
 

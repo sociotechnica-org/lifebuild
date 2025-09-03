@@ -1,26 +1,29 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, expect, beforeEach, afterEach, test } from 'vitest'
 import fs from 'fs'
 import path from 'path'
 
-// Skip tests if better-sqlite3 binaries are not available
-let canRunTests = true
+// Check if better-sqlite3 is available
+let canUseSqlite = true
 let ProcessedMessageTracker: any = null
 
 try {
-  const betterSqlite3 = require('better-sqlite3')
-  const trackerModule = await import('./processed-message-tracker.js')
-  ProcessedMessageTracker = trackerModule.ProcessedMessageTracker
-} catch (error) {
-  canRunTests = false
-  console.warn('⚠️ Skipping ProcessedMessageTracker tests: better-sqlite3 binaries not available')
+  // This will fail if better-sqlite3 binaries aren't compiled
+  require('better-sqlite3')
+} catch {
+  canUseSqlite = false
+  console.warn('⚠️ Skipping ProcessedMessageTracker tests: better-sqlite3 not available')
 }
 
-describe.skipIf(!canRunTests)('ProcessedMessageTracker', () => {
-  let tracker: ProcessedMessageTracker
+describe('ProcessedMessageTracker', () => {
+  let tracker: any
   const testDataPath = './test-data'
   const testDbPath = path.join(testDataPath, 'processed-messages.db')
 
   beforeEach(async () => {
+    if (!canUseSqlite) return
+
+    const trackerModule = await import('./processed-message-tracker.js')
+    ProcessedMessageTracker = trackerModule.ProcessedMessageTracker
     // Clean up any existing test db and directory
     if (fs.existsSync(testDbPath)) {
       fs.unlinkSync(testDbPath)
@@ -48,13 +51,13 @@ describe.skipIf(!canRunTests)('ProcessedMessageTracker', () => {
     }
   })
 
-  it('should initialize database and create table', async () => {
+  test.skipIf(!canUseSqlite)('should initialize database and create table', async () => {
     // If we get here without throwing, initialization worked
     expect(tracker).toBeDefined()
     expect(fs.existsSync(testDbPath)).toBe(true)
   })
 
-  it('should track processed messages correctly', async () => {
+  test.skipIf(!canUseSqlite)('should track processed messages correctly', async () => {
     const messageId = 'msg-123'
     const storeId = 'store-abc'
 
@@ -73,7 +76,7 @@ describe.skipIf(!canRunTests)('ProcessedMessageTracker', () => {
     expect(wasNewAgain).toBe(false)
   })
 
-  it('should handle different store IDs separately', async () => {
+  test.skipIf(!canUseSqlite)('should handle different store IDs separately', async () => {
     const messageId = 'msg-123'
     const storeId1 = 'store-a'
     const storeId2 = 'store-b'
@@ -90,32 +93,35 @@ describe.skipIf(!canRunTests)('ProcessedMessageTracker', () => {
     expect(await tracker.isProcessed(messageId, storeId2)).toBe(true)
   })
 
-  it('should persist across tracker instances (simulating server restart)', async () => {
-    const messageId = 'msg-persistent'
-    const storeId = 'store-test'
+  test.skipIf(!canUseSqlite)(
+    'should persist across tracker instances (simulating server restart)',
+    async () => {
+      const messageId = 'msg-persistent'
+      const storeId = 'store-test'
 
-    // Mark as processed with first instance
-    const wasNew = await tracker.markProcessed(messageId, storeId)
-    expect(wasNew).toBe(true)
-    expect(await tracker.isProcessed(messageId, storeId)).toBe(true)
+      // Mark as processed with first instance
+      const wasNew = await tracker.markProcessed(messageId, storeId)
+      expect(wasNew).toBe(true)
+      expect(await tracker.isProcessed(messageId, storeId)).toBe(true)
 
-    await tracker.close()
+      await tracker.close()
 
-    // Create new tracker instance (simulating restart)
-    const tracker2 = new ProcessedMessageTracker(testDataPath)
-    await tracker2.initialize()
+      // Create new tracker instance (simulating restart)
+      const tracker2 = new ProcessedMessageTracker(testDataPath)
+      await tracker2.initialize()
 
-    // Should remember it was already processed
-    expect(await tracker2.isProcessed(messageId, storeId)).toBe(true)
+      // Should remember it was already processed
+      expect(await tracker2.isProcessed(messageId, storeId)).toBe(true)
 
-    // Attempting to mark again should return false (already exists)
-    const wasNewAgain = await tracker2.markProcessed(messageId, storeId)
-    expect(wasNewAgain).toBe(false)
+      // Attempting to mark again should return false (already exists)
+      const wasNewAgain = await tracker2.markProcessed(messageId, storeId)
+      expect(wasNewAgain).toBe(false)
 
-    await tracker2.close()
-  })
+      await tracker2.close()
+    }
+  )
 
-  it('should handle concurrent processing attempts', async () => {
+  test.skipIf(!canUseSqlite)('should handle concurrent processing attempts', async () => {
     const messageId = 'msg-concurrent'
     const storeId = 'store-test'
 
@@ -133,7 +139,7 @@ describe.skipIf(!canRunTests)('ProcessedMessageTracker', () => {
     expect(await tracker.isProcessed(messageId, storeId)).toBe(true)
   })
 
-  it('should count processed messages correctly', async () => {
+  test.skipIf(!canUseSqlite)('should count processed messages correctly', async () => {
     const storeId = 'store-test'
 
     // Initially should have 0
@@ -151,18 +157,18 @@ describe.skipIf(!canRunTests)('ProcessedMessageTracker', () => {
     expect(await tracker.getProcessedCount('other-store')).toBe(1)
   })
 
-  it('should provide database path', () => {
+  test.skipIf(!canUseSqlite)('should provide database path', () => {
     expect(tracker.databasePath).toBe(testDbPath)
   })
 
-  it('should handle initialization errors gracefully', async () => {
+  test.skipIf(!canUseSqlite)('should handle initialization errors gracefully', async () => {
     // Try to initialize with invalid path
     const badTracker = new ProcessedMessageTracker('/invalid/path/that/does/not/exist')
 
     await expect(badTracker.initialize()).rejects.toThrow()
   })
 
-  it('should handle database operations when not initialized', async () => {
+  test.skipIf(!canUseSqlite)('should handle database operations when not initialized', async () => {
     const uninitializedTracker = new ProcessedMessageTracker(testDataPath)
     // Don't call initialize()
 
