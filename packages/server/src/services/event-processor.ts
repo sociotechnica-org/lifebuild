@@ -170,8 +170,8 @@ export class EventProcessor {
         return
       }
 
-      // Subscribe to chatMessages table
-      // Note: This returns all messages, but we filter in processChatMessage to prevent duplicates
+      // Subscribe to chatMessages table  
+      // Note: This returns all messages, but we use SQLite deduplication to prevent duplicates
       const query = queryDb(tables.chatMessages.select(), {
         label: `monitor-${tableName}-${storeId}`,
       })
@@ -192,9 +192,9 @@ export class EventProcessor {
             console.log(`👤 Processing ${userRecords.length} user messages`)
 
             // Defer async processing to avoid blocking LiveStore's reactive update cycle
-            setImmediate(() => {
+            setImmediate(async () => {
               for (const record of userRecords) {
-                this.processChatMessage(storeId, record as ChatMessage, storeState)
+                await this.processChatMessage(storeId, record as ChatMessage, storeState)
               }
             })
           }
@@ -202,7 +202,7 @@ export class EventProcessor {
       })
 
       storeState.subscriptions.push(unsubscribe)
-      console.log(`✅ Subscribed to recent ${tableName} for store ${storeId}`)
+      console.log(`✅ Subscribed to ${tableName} for store ${storeId}`)
     } catch (error) {
       console.error(`❌ Failed to subscribe to ${tableName} for store ${storeId}:`, error)
       this.incrementErrorCount(storeId, error as Error)
@@ -233,14 +233,6 @@ export class EventProcessor {
 
       if (isAlreadyProcessed) {
         console.log(`⏭️ SKIPPED: Message ${message.id} already processed - no LLM call`)
-        return
-      }
-
-      // Additional filter: Only process messages from the last hour to reduce log spam
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
-      if (message.createdAt && new Date(message.createdAt) < oneHourAgo) {
-        // Silently skip very old messages to reduce log spam
-        await this.processedTracker.markProcessed(message.id, storeId)
         return
       }
 
