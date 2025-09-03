@@ -173,33 +173,13 @@ export class EventProcessor {
       // Subscribe to chatMessages table with recent filter to reduce volume
       // Still get all matching records on each update, but limit scope to reduce load
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
-      const query = queryDb(
-        tables.chatMessages.select().where('createdAt', '>=', oneHourAgo),
-        { label: `monitor-${tableName}-${storeId}` }
-      )
+      const query = queryDb(tables.chatMessages.select().where('createdAt', '>=', oneHourAgo), {
+        label: `monitor-${tableName}-${storeId}`,
+      })
 
       const unsubscribe = store.subscribe(query as any, {
         onUpdate: (records: any[]) => {
-          // Skip processing if store is stopping
-          if (storeState.stopping) {
-            return
-          }
-
-          // Update activity tracker
-          this.storeManager.updateActivity(storeId)
-
-          // Only process user messages and log minimal info
-          const userRecords = records.filter((record: any) => record?.role === 'user')
-          if (userRecords.length > 0) {
-            console.log(`👤 Processing ${userRecords.length} user messages (SQLite will dedupe)`)
-
-            // Defer async processing to avoid blocking LiveStore's reactive update cycle
-            setImmediate(async () => {
-              for (const record of userRecords) {
-                await this.processChatMessage(storeId, record as ChatMessage, storeState)
-              }
-            })
-          }
+          this.handleTableUpdate(storeId, tableName, records, storeState)
         },
       })
 
@@ -209,6 +189,48 @@ export class EventProcessor {
       console.error(`❌ Failed to subscribe to ${tableName} for store ${storeId}:`, error)
       this.incrementErrorCount(storeId, error as Error)
     }
+  }
+
+  private handleTableUpdate(
+    storeId: string,
+    tableName: string,
+    records: unknown[],
+    storeState: StoreProcessingState
+  ): void {
+    // Skip processing if store is stopping
+    if (storeState.stopping) {
+      return
+    }
+
+    // Update activity tracker
+    this.storeManager.updateActivity(storeId)
+
+    // Only handle chatMessages table (our focus)
+    if (tableName !== 'chatMessages') {
+      return
+    }
+
+    // Filter for user messages only
+    const userRecords = records.filter(
+      (record: any) => record && typeof record === 'object' && record.role === 'user'
+    )
+
+    if (userRecords.length === 0) {
+      return
+    }
+
+    console.log(`👤 Buffering ${userRecords.length} user messages for processing`)
+
+    // Convert records to ProcessedEvent objects for buffering
+    const events: ProcessedEvent[] = userRecords.map((record: any) => ({
+      type: 'chatMessage',
+      storeId,
+      data: record,
+      timestamp: new Date(),
+    }))
+
+    // Buffer events for async processing (uses existing event pipeline)
+    this.bufferEvents(storeId, events, storeState)
   }
 
   private async processChatMessage(
@@ -350,12 +372,21 @@ export class EventProcessor {
   }
 
   private async processEvent(
-    _storeId: string,
-    _event: ProcessedEvent,
-    _storeState: StoreProcessingState
+    storeId: string,
+    event: ProcessedEvent,
+    storeState: StoreProcessingState
   ): Promise<void> {
-    // Future: Implement specific event processing logic here
-    // For now, events are logged in handleTableUpdate
+    // Handle different event types
+    if (event.type === 'chatMessage') {
+      // Extract ChatMessage data from the event
+      const chatMessage = event.data as ChatMessage
+
+      // Process using our existing chat message logic (with SQLite deduplication)
+      await this.processChatMessage(storeId, chatMessage, storeState)
+    } else {
+      // Log unhandled event types for future extension
+      console.log(`⚠️ Unhandled event type: ${event.type} for store ${storeId}`)
+    }
   }
 
   /**
