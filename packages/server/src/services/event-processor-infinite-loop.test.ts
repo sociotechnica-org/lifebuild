@@ -1,6 +1,30 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { EventProcessor } from './event-processor.js'
 
+// Mock ProcessedMessageTracker
+const processedMessages = new Set<string>()
+
+vi.mock('./processed-message-tracker.js', () => {
+  const mockTracker = {
+    initialize: vi.fn().mockResolvedValue(undefined),
+    isProcessed: vi.fn().mockImplementation(async (messageId: string) => {
+      return processedMessages.has(messageId)
+    }),
+    markProcessed: vi.fn().mockImplementation(async (messageId: string) => {
+      if (processedMessages.has(messageId)) {
+        return false // Already exists
+      }
+      processedMessages.add(messageId)
+      return true // Successfully added
+    }),
+    close: vi.fn().mockResolvedValue(undefined),
+  }
+  
+  return {
+    ProcessedMessageTracker: vi.fn(() => mockTracker),
+  }
+})
+
 // Mock store manager
 const mockStore = {
   commit: vi.fn(),
@@ -27,6 +51,7 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     eventProcessor = new EventProcessor(mockStoreManager as any)
     vi.clearAllMocks()
     subscriptionCallbacks.clear()
+    processedMessages.clear() // Clear the mock processed messages
 
     // Mock subscribe to capture callbacks by query label
     mockStore.subscribe.mockImplementation((query, { onUpdate }) => {
@@ -69,7 +94,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     // Simulate new message arrival
     chatMessagesCallback!(chatMessages)
 
-    // Wait for async processing
+    // Wait for async processing (multiple setImmediate calls may be needed)
+    await new Promise(resolve => setImmediate(resolve))
     await new Promise(resolve => setImmediate(resolve))
 
     // Verify the LLMResponseStarted event was emitted (indicating processing started)
@@ -98,7 +124,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     // Simulate subscription re-fire with full dataset (including original user message)
     chatMessagesCallback!(chatMessagesWithResponse)
 
-    // Wait for any potential processing
+    // Wait for any potential processing (multiple setImmediate calls may be needed)
+    await new Promise(resolve => setImmediate(resolve))
     await new Promise(resolve => setImmediate(resolve))
 
     // The original user message should NOT be processed again
@@ -130,7 +157,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
     chatMessagesCallback!([firstMessage])
 
-    // Wait for async processing
+    // Wait for async processing (multiple setImmediate calls may be needed)
+    await new Promise(resolve => setImmediate(resolve))
     await new Promise(resolve => setImmediate(resolve))
 
     // Verify first message started processing
@@ -154,7 +182,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     // LiveStore returns full dataset including both messages
     chatMessagesCallback!([firstMessage, secondMessage])
 
-    // Wait for async processing
+    // Wait for async processing (multiple setImmediate calls may be needed)
+    await new Promise(resolve => setImmediate(resolve))
     await new Promise(resolve => setImmediate(resolve))
 
     // Should only process the new message, not the first one again
@@ -188,7 +217,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
     chatMessagesCallback!([assistantMessage])
 
-    // Wait for any potential processing
+    // Wait for any potential processing (multiple setImmediate calls may be needed)
+    await new Promise(resolve => setImmediate(resolve))
     await new Promise(resolve => setImmediate(resolve))
 
     // Should not trigger any processing since it's not a user message
