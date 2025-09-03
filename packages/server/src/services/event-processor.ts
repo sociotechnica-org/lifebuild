@@ -170,8 +170,8 @@ export class EventProcessor {
         return
       }
 
-      // Subscribe to chatMessages table  
-      // Note: This returns all messages, but we use SQLite deduplication to prevent duplicates
+      // Subscribe to chatMessages table
+      // Note: This returns all messages on updates, but SQLite deduplication prevents reprocessing
       const query = queryDb(tables.chatMessages.select(), {
         label: `monitor-${tableName}-${storeId}`,
       })
@@ -189,7 +189,7 @@ export class EventProcessor {
           // Only process user messages and log minimal info
           const userRecords = records.filter((record: any) => record?.role === 'user')
           if (userRecords.length > 0) {
-            console.log(`👤 Processing ${userRecords.length} user messages`)
+            console.log(`👤 Processing ${userRecords.length} user messages (SQLite will dedupe)`)
 
             // Defer async processing to avoid blocking LiveStore's reactive update cycle
             setImmediate(async () => {
