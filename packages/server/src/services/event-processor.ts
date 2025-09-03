@@ -553,7 +553,11 @@ export class EventProcessor {
     storeState: StoreProcessingState
   ): Promise<void> {
     const store = this.storeManager.getStore(storeId)
-    if (!store || !storeState.llmProvider) {
+    if (!store) {
+      return
+    }
+
+    if (!storeState.llmProvider) {
       return
     }
 
