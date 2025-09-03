@@ -170,44 +170,41 @@ export class EventProcessor {
         return
       }
 
-      // Subscribe to chatMessageSent events instead of the chatMessages table
-      // This gives us only NEW messages, not the entire chat history
-      const unsubscribe = store.subscribe(events.chatMessageSent, {
-        onEvent: (event: any) => {
+      // Subscribe to chatMessages table
+      // Note: This returns all messages, but we filter in processChatMessage to prevent duplicates
+      const query = queryDb(tables.chatMessages.select(), {
+        label: `monitor-${tableName}-${storeId}`,
+      })
+
+      const unsubscribe = store.subscribe(query as any, {
+        onUpdate: (records: any[]) => {
           // Skip processing if store is stopping
           if (storeState.stopping) {
             return
           }
 
-          console.log(`📨 New chat message event: ${event.payload.id} (${event.payload.role})`)
-          // Only process user messages (not assistant or system messages)
-          if (event.payload.role === 'user') {
-            console.log(`👤 Processing user message: ${event.payload.message?.slice(0, 50)}...`)
+          // Update activity tracker
+          this.storeManager.updateActivity(storeId)
 
-            // Update activity tracker
-            this.storeManager.updateActivity(storeId)
+          // Only process user messages and log minimal info
+          const userRecords = records.filter((record: any) => record?.role === 'user')
+          if (userRecords.length > 0) {
+            console.log(`👤 Processing ${userRecords.length} user messages`)
 
-            // Safely convert event payload to ChatMessage format and process
-            const chatMessage: ChatMessage = {
-              id: event.payload.id,
-              conversationId: event.payload.conversationId,
-              message: event.payload.message,
-              role: event.payload.role,
-              createdAt: event.payload.createdAt || new Date(),
-              userId: event.payload.userId,
-            }
-
+            // Defer async processing to avoid blocking LiveStore's reactive update cycle
             setImmediate(() => {
-              this.processChatMessage(storeId, chatMessage, storeState)
+              for (const record of userRecords) {
+                this.processChatMessage(storeId, record as ChatMessage, storeState)
+              }
             })
           }
         },
       })
 
       storeState.subscriptions.push(unsubscribe)
-      console.log(`✅ Subscribed to chatMessageSent events for store ${storeId}`)
+      console.log(`✅ Subscribed to recent ${tableName} for store ${storeId}`)
     } catch (error) {
-      console.error(`❌ Failed to subscribe to chatMessageSent events for store ${storeId}:`, error)
+      console.error(`❌ Failed to subscribe to ${tableName} for store ${storeId}:`, error)
       this.incrementErrorCount(storeId, error as Error)
     }
   }
@@ -217,7 +214,8 @@ export class EventProcessor {
     message: ChatMessage,
     storeState: StoreProcessingState
   ): Promise<void> {
-    const messagePreview = message.message?.slice(0, 50) + (message.message?.length > 50 ? '...' : '')
+    const messagePreview =
+      message.message?.slice(0, 50) + (message.message?.length > 50 ? '...' : '')
     console.log(`📨 Processing chat message ${message.id}: "${messagePreview}"`)
 
     // CRITICAL: If database is not initialized, stop all processing to prevent infinite loops
@@ -238,6 +236,14 @@ export class EventProcessor {
         return
       }
 
+      // Additional filter: Only process messages from the last hour to reduce log spam
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+      if (message.createdAt && new Date(message.createdAt) < oneHourAgo) {
+        // Silently skip very old messages to reduce log spam
+        await this.processedTracker.markProcessed(message.id, storeId)
+        return
+      }
+
       // Check if message is before cutoff timestamp
       if (this.messageCutoffTimestamp && message.createdAt) {
         const messageDate = new Date(message.createdAt)
@@ -255,7 +261,9 @@ export class EventProcessor {
       const claimedProcessing = await this.processedTracker.markProcessed(message.id, storeId)
 
       if (!claimedProcessing) {
-        console.log(`🏁 SKIPPED: Another instance claimed processing for message ${message.id} - no LLM call`)
+        console.log(
+          `🏁 SKIPPED: Another instance claimed processing for message ${message.id} - no LLM call`
+        )
         return
       }
 

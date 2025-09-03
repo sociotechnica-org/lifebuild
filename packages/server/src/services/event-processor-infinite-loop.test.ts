@@ -90,7 +90,7 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     // Simulate new user message event
     const userMessageEvent = {
       type: 'v1.ChatMessageSent',
-      payload: chatMessages[0] // First message is the user message
+      payload: chatMessages[0], // First message is the user message
     }
     chatMessageSentCallback!(userMessageEvent)
 
@@ -141,7 +141,7 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
     const firstMessageEvent = {
       type: 'v1.ChatMessageSent',
-      payload: firstMessage
+      payload: firstMessage,
     }
     chatMessageSentCallback!(firstMessageEvent)
 
@@ -170,7 +170,7 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     // LiveStore returns full dataset including both messages
     const secondMessageEvent = {
       type: 'v1.ChatMessageSent',
-      payload: secondMessage
+      payload: secondMessage,
     }
     chatMessageSentCallback!(secondMessageEvent)
 
