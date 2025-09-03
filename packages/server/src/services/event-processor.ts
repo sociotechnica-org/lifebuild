@@ -1,6 +1,7 @@
 import type { Store as LiveStore } from '@livestore/livestore'
+import { queryDb } from '@livestore/livestore'
 import type { StoreManager } from './store-manager.js'
-import { events } from '@work-squared/shared/schema'
+import { tables, events } from '@work-squared/shared/schema'
 import { AgenticLoop } from './agentic-loop/agentic-loop.js'
 import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
 import { DEFAULT_MODEL } from '@work-squared/shared'
@@ -122,9 +123,23 @@ export class EventProcessor {
 
     this.storeStates.set(storeId, storeState)
 
-    // TODO: Pre-populate processedMessageIds with existing user messages to avoid reprocessing
-    // For now, we'll just track new messages during runtime to get the build working
-    console.log(`📝 Will track processed messages for store ${storeId} starting now`)
+    // Pre-populate processedMessageIds with existing user messages to avoid reprocessing
+    try {
+      const existingUserMessages = store.query(
+        queryDb(tables.chatMessages.select().where('role', '=', 'user'))
+      ) as Array<{ id: string }>
+
+      for (const msg of existingUserMessages) {
+        storeState.processedMessageIds.add(msg.id)
+      }
+
+      console.log(
+        `📝 Pre-populated ${existingUserMessages.length} existing user message IDs for store ${storeId}`
+      )
+    } catch (error) {
+      console.error(`⚠️ Failed to pre-populate message IDs for store ${storeId}:`, error)
+      // Continue anyway - will just risk reprocessing
+    }
 
     // Monitor all important tables
     for (const tableName of this.monitoredTables) {
@@ -145,7 +160,9 @@ export class EventProcessor {
         return
       }
 
-      const query = (db: any) => db.table(tableName).select()
+      const query = queryDb(tables.chatMessages.select(), {
+        label: `monitor-${tableName}-${storeId}`,
+      })
 
       const unsubscribe = store.subscribe(query as any, {
         onUpdate: (records: any[]) => {
@@ -575,14 +592,28 @@ export class EventProcessor {
     // Get conversation details, worker context, and history
     let conversation: any, worker: any, chatHistory: ChatMessage[]
     try {
-      // TODO: Fix query syntax to use proper LiveStore patterns
-      // For now, using basic approach to get build working
-      conversation = null // Will be populated via subscription patterns
-      worker = null
-      chatHistory = [] as ChatMessage[]
+      // Get conversation
+      const conversationResult = store.query(
+        queryDb(tables.conversations.select().where('id', '=', userMessage.conversationId))
+      )
+      conversation = conversationResult[0]
 
-      console.log(
-        `📋 Processing user message ${userMessage.id} in conversation ${userMessage.conversationId}`
+      // Get worker if conversation has workerId
+      if (conversation?.workerId) {
+        const workerResult = store.query(
+          queryDb(tables.workers.select().where('id', '=', conversation.workerId))
+        )
+        worker = workerResult[0]
+      }
+
+      // Get chat history
+      chatHistory = store.query(
+        queryDb(
+          tables.chatMessages
+            .select()
+            .where('conversationId', '=', userMessage.conversationId)
+            .orderBy('createdAt', 'asc')
+        )
       )
     } catch (error) {
       console.error(`❌ Error querying conversation context:`, error)
