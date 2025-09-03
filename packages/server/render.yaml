@@ -6,12 +6,11 @@ services:
     # Build from monorepo root to access workspace dependencies
     rootDir: .
     buildCommand: |
-      # Install system dependencies for native module compilation
-      apt-get update && apt-get install -y build-essential python3 &&
-      # Install dependencies and rebuild native modules
+      # Install dependencies
       pnpm install &&
-      # Force rebuild better-sqlite3 for production environment
-      pnpm --filter @work-squared/server exec npm rebuild better-sqlite3 &&
+      # Rebuild better-sqlite3 native bindings for production environment
+      cd node_modules/.pnpm/better-sqlite3@11.10.0/node_modules/better-sqlite3 && npm run build-release &&
+      cd - &&
       # Build the server
       pnpm --filter @work-squared/server build
     startCommand: pnpm --filter @work-squared/server start
