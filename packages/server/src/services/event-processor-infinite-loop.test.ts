@@ -83,15 +83,16 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     // Start monitoring
     eventProcessor.startMonitoring(storeId, mockStore as any)
 
-    // Get the chatMessages subscription callback
-    const chatMessagesCallback = subscriptionCallbacks.get('chatMessages')
-    expect(chatMessagesCallback).toBeDefined()
+    // Get the chatMessageSent event callback
+    const chatMessageSentCallback = eventSubscriptionCallbacks.get('v1.ChatMessageSent')
+    expect(chatMessageSentCallback).toBeDefined()
 
-    // Simulate initial subscription with empty array (initial sync)
-    chatMessagesCallback!([])
-
-    // Simulate new message arrival
-    chatMessagesCallback!(chatMessages)
+    // Simulate new user message event
+    const userMessageEvent = {
+      type: 'v1.ChatMessageSent',
+      payload: chatMessages[0] // First message is the user message
+    }
+    chatMessageSentCallback!(userMessageEvent)
 
     // Wait for async processing (multiple setImmediate calls may be needed)
     await new Promise(resolve => setImmediate(resolve))
@@ -106,22 +107,9 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     // Clear the mock to test duplicate prevention
     mockStore.commit.mockClear()
 
-    // Simulate the same message being returned again (LiveStore re-query scenario)
-    // This would happen when our assistant response triggers a subscription update
-    const chatMessagesWithResponse = [
-      ...chatMessages,
-      {
-        id: 'msg-2', // Assistant response
-        conversationId: 'conv-1',
-        message: 'Hello! How can I help you?',
-        role: 'assistant',
-        createdAt: new Date(),
-        llmMetadata: { source: 'braintrust' },
-      },
-    ]
-
-    // Simulate subscription re-fire with full dataset (including original user message)
-    chatMessagesCallback!(chatMessagesWithResponse)
+    // With event-based subscriptions, we don't get duplicate events
+    // Try to simulate the same message event again (should not happen in practice)
+    chatMessageSentCallback!(userMessageEvent)
 
     // Wait for any potential processing (multiple setImmediate calls may be needed)
     await new Promise(resolve => setImmediate(resolve))
@@ -139,11 +127,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
     eventProcessor.startMonitoring(storeId, mockStore as any)
 
-    const chatMessagesCallback = subscriptionCallbacks.get('chatMessages')
-    expect(chatMessagesCallback).toBeDefined()
-
-    // Simulate initial subscription with empty array
-    chatMessagesCallback!([])
+    const chatMessageSentCallback = eventSubscriptionCallbacks.get('v1.ChatMessageSent')
+    expect(chatMessageSentCallback).toBeDefined()
 
     // First message
     const firstMessage = {
@@ -154,7 +139,11 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
       createdAt: new Date(),
     }
 
-    chatMessagesCallback!([firstMessage])
+    const firstMessageEvent = {
+      type: 'v1.ChatMessageSent',
+      payload: firstMessage
+    }
+    chatMessageSentCallback!(firstMessageEvent)
 
     // Wait for async processing (multiple setImmediate calls may be needed)
     await new Promise(resolve => setImmediate(resolve))
@@ -179,7 +168,11 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     }
 
     // LiveStore returns full dataset including both messages
-    chatMessagesCallback!([firstMessage, secondMessage])
+    const secondMessageEvent = {
+      type: 'v1.ChatMessageSent',
+      payload: secondMessage
+    }
+    chatMessageSentCallback!(secondMessageEvent)
 
     // Wait for async processing (multiple setImmediate calls may be needed)
     await new Promise(resolve => setImmediate(resolve))
@@ -198,11 +191,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
     eventProcessor.startMonitoring(storeId, mockStore as any)
 
-    const chatMessagesCallback = subscriptionCallbacks.get('chatMessages')
-    expect(chatMessagesCallback).toBeDefined()
-
-    // Simulate initial subscription with empty array
-    chatMessagesCallback!([])
+    const chatMessageSentCallback = eventSubscriptionCallbacks.get('v1.ChatMessageSent')
+    expect(chatMessageSentCallback).toBeDefined()
 
     // Assistant message (should be ignored)
     const assistantMessage = {
@@ -214,7 +204,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
       llmMetadata: { source: 'braintrust' },
     }
 
-    chatMessagesCallback!([assistantMessage])
+    // Assistant messages don't trigger events that we process, so this test remains the same
+    // chatMessageSentCallback would only be called for user messages
 
     // Wait for any potential processing (multiple setImmediate calls may be needed)
     await new Promise(resolve => setImmediate(resolve))

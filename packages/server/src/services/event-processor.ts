@@ -174,13 +174,31 @@ export class EventProcessor {
       // This gives us only NEW messages, not the entire chat history
       const unsubscribe = store.subscribe(events.chatMessageSent, {
         onEvent: (event: any) => {
+          // Skip processing if store is stopping
+          if (storeState.stopping) {
+            return
+          }
+
           console.log(`📨 New chat message event: ${event.payload.id} (${event.payload.role})`)
           // Only process user messages (not assistant or system messages)
           if (event.payload.role === 'user') {
             console.log(`👤 Processing user message: ${event.payload.message?.slice(0, 50)}...`)
-            // Convert event payload to ChatMessage format and process
+
+            // Update activity tracker
+            this.storeManager.updateActivity(storeId)
+
+            // Safely convert event payload to ChatMessage format and process
+            const chatMessage: ChatMessage = {
+              id: event.payload.id,
+              conversationId: event.payload.conversationId,
+              message: event.payload.message,
+              role: event.payload.role,
+              createdAt: event.payload.createdAt || new Date(),
+              userId: event.payload.userId,
+            }
+
             setImmediate(() => {
-              this.processChatMessage(storeId, event.payload as ChatMessage, storeState)
+              this.processChatMessage(storeId, chatMessage, storeState)
             })
           }
         },
@@ -194,12 +212,14 @@ export class EventProcessor {
     }
   }
 
-
   private async processChatMessage(
     storeId: string,
     message: ChatMessage,
     storeState: StoreProcessingState
   ): Promise<void> {
+    const messagePreview = message.message?.slice(0, 50) + (message.message?.length > 50 ? '...' : '')
+    console.log(`📨 Processing chat message ${message.id}: "${messagePreview}"`)
+
     // CRITICAL: If database is not initialized, stop all processing to prevent infinite loops
     if (!this.databaseInitialized) {
       console.error(
@@ -214,7 +234,7 @@ export class EventProcessor {
       const isAlreadyProcessed = await this.processedTracker.isProcessed(message.id, storeId)
 
       if (isAlreadyProcessed) {
-        console.log(`⏭️ Skipping already-processed message: ${message.id}`)
+        console.log(`⏭️ SKIPPED: Message ${message.id} already processed - no LLM call`)
         return
       }
 
@@ -223,7 +243,7 @@ export class EventProcessor {
         const messageDate = new Date(message.createdAt)
         if (messageDate < this.messageCutoffTimestamp) {
           console.log(
-            `📅 Message ${message.id} is before cutoff (${messageDate.toISOString()}), marking as processed but skipping`
+            `📅 SKIPPED: Message ${message.id} before cutoff (${messageDate.toISOString()}) - no LLM call`
           )
           // Mark as processed in SQLite but don't actually process it
           await this.processedTracker.markProcessed(message.id, storeId)
@@ -235,11 +255,11 @@ export class EventProcessor {
       const claimedProcessing = await this.processedTracker.markProcessed(message.id, storeId)
 
       if (!claimedProcessing) {
-        console.log(`🏁 Another instance claimed processing for message: ${message.id}`)
+        console.log(`🏁 SKIPPED: Another instance claimed processing for message ${message.id} - no LLM call`)
         return
       }
 
-      console.log(`🆕 Claimed processing rights for message: ${message.id}`)
+      console.log(`🚀 PROCESSING: Message ${message.id} - sending LLM call`)
 
       // Defer processing to avoid committing during reactive update cycle
       setImmediate(() => {
@@ -248,7 +268,7 @@ export class EventProcessor {
     } catch (error) {
       console.error(`❌ Database error checking message ${message.id}:`, error)
       console.error(
-        `🚨 CRITICAL: Database operation failed - SKIPPING message to prevent infinite loops`
+        `🚨 CRITICAL: Database operation failed - SKIPPING message ${message.id} to prevent infinite loops`
       )
       // DO NOT process the message - this could cause infinite loops if DB is broken
       return
