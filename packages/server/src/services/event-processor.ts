@@ -170,16 +170,38 @@ export class EventProcessor {
         return
       }
 
-      const query = queryDb(tables.chatMessages.select(), {
-        label: `monitor-${tableName}-${storeId}`,
-      })
+      // Subscribe to chatMessages table with recent filter to reduce volume
+      // Still get all matching records on each update, but limit scope to reduce load
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+      const query = queryDb(
+        tables.chatMessages.select().where({
+          createdAt: { op: 'GTE' as any, value: oneHourAgo },
+        }),
+        { label: `monitor-${tableName}-${storeId}` }
+      )
 
       const unsubscribe = store.subscribe(query as any, {
         onUpdate: (records: any[]) => {
-          // Defer async processing to avoid blocking LiveStore's reactive update cycle
-          setImmediate(() => {
-            this.handleTableUpdate(storeId, tableName, records, storeState)
-          })
+          // Skip processing if store is stopping
+          if (storeState.stopping) {
+            return
+          }
+
+          // Update activity tracker
+          this.storeManager.updateActivity(storeId)
+
+          // Only process user messages and log minimal info
+          const userRecords = records.filter((record: any) => record?.role === 'user')
+          if (userRecords.length > 0) {
+            console.log(`👤 Processing ${userRecords.length} user messages (SQLite will dedupe)`)
+
+            // Defer async processing to avoid blocking LiveStore's reactive update cycle
+            setImmediate(async () => {
+              for (const record of userRecords) {
+                await this.processChatMessage(storeId, record as ChatMessage, storeState)
+              }
+            })
+          }
         },
       })
 
@@ -191,60 +213,15 @@ export class EventProcessor {
     }
   }
 
-  private async handleTableUpdate(
-    storeId: string,
-    tableName: string,
-    records: unknown[],
-    storeState: StoreProcessingState
-  ): Promise<void> {
-    // Skip processing if store is stopping
-    if (storeState.stopping) {
-      return
-    }
-
-    console.log(`📊 Processing ${records.length} records for ${storeId}/${tableName}`)
-
-    for (const record of records) {
-      // Type guard to ensure record is an object with properties
-      if (!record || typeof record !== 'object') {
-        continue
-      }
-
-      const recordObj = record as Record<string, any>
-      const timestamp = new Date().toISOString()
-      const displayText =
-        recordObj.message || recordObj.name || recordObj.title || recordObj.id || 'Unknown'
-      const truncatedText = displayText.length > 50 ? `${displayText.slice(0, 50)}...` : displayText
-
-      console.log(`📨 [${timestamp}] ${storeId}/${tableName}: ${truncatedText}`)
-
-      // Handle chat messages for agentic loop processing
-      if (tableName === 'chatMessages' && recordObj.role === 'user') {
-        await this.processChatMessage(storeId, recordObj as ChatMessage, storeState)
-      }
-    }
-
-    // Update activity tracker
-    this.storeManager.updateActivity(storeId)
-
-    // Buffer events for processing
-    this.bufferEvents(
-      storeId,
-      records.map(r => ({
-        type: tableName,
-        storeId,
-        data: r,
-        timestamp: new Date(),
-      })),
-      storeState
-    )
-  }
-
   private async processChatMessage(
     storeId: string,
     message: ChatMessage,
     storeState: StoreProcessingState
   ): Promise<void> {
+    const messagePreview =
+      message.message?.slice(0, 50) + (message.message?.length > 50 ? '...' : '')
+    console.log(`📨 Processing chat message ${message.id}: "${messagePreview}"`)
+
     // CRITICAL: If database is not initialized, stop all processing to prevent infinite loops
     if (!this.databaseInitialized) {
       console.error(
@@ -259,7 +236,7 @@ export class EventProcessor {
       const isAlreadyProcessed = await this.processedTracker.isProcessed(message.id, storeId)
 
       if (isAlreadyProcessed) {
-        console.log(`⏭️ Skipping already-processed message: ${message.id}`)
+        console.log(`⏭️ SKIPPED: Message ${message.id} already processed - no LLM call`)
         return
       }
 
@@ -268,7 +245,7 @@ export class EventProcessor {
         const messageDate = new Date(message.createdAt)
         if (messageDate < this.messageCutoffTimestamp) {
           console.log(
-            `📅 Message ${message.id} is before cutoff (${messageDate.toISOString()}), marking as processed but skipping`
+            `📅 SKIPPED: Message ${message.id} before cutoff (${messageDate.toISOString()}) - no LLM call`
           )
           // Mark as processed in SQLite but don't actually process it
           await this.processedTracker.markProcessed(message.id, storeId)
@@ -280,11 +257,13 @@ export class EventProcessor {
       const claimedProcessing = await this.processedTracker.markProcessed(message.id, storeId)
 
       if (!claimedProcessing) {
-        console.log(`🏁 Another instance claimed processing for message: ${message.id}`)
+        console.log(
+          `🏁 SKIPPED: Another instance claimed processing for message ${message.id} - no LLM call`
+        )
         return
       }
 
-      console.log(`🆕 Claimed processing rights for message: ${message.id}`)
+      console.log(`🚀 PROCESSING: Message ${message.id} - sending LLM call`)
 
       // Defer processing to avoid committing during reactive update cycle
       setImmediate(() => {
@@ -293,7 +272,7 @@ export class EventProcessor {
     } catch (error) {
       console.error(`❌ Database error checking message ${message.id}:`, error)
       console.error(
-        `🚨 CRITICAL: Database operation failed - SKIPPING message to prevent infinite loops`
+        `🚨 CRITICAL: Database operation failed - SKIPPING message ${message.id} to prevent infinite loops`
       )
       // DO NOT process the message - this could cause infinite loops if DB is broken
       return
