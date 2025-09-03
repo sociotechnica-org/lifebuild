@@ -80,33 +80,30 @@ describe('ProcessedMessageTracker', () => {
     expect(await tracker.isProcessed(messageId, storeId2)).toBe(true)
   })
 
-  test(
-    'should persist across tracker instances (simulating server restart)',
-    async () => {
-      const messageId = 'msg-persistent'
-      const storeId = 'store-test'
+  test('should persist across tracker instances (simulating server restart)', async () => {
+    const messageId = 'msg-persistent'
+    const storeId = 'store-test'
 
-      // Mark as processed with first instance
-      const wasNew = await tracker.markProcessed(messageId, storeId)
-      expect(wasNew).toBe(true)
-      expect(await tracker.isProcessed(messageId, storeId)).toBe(true)
+    // Mark as processed with first instance
+    const wasNew = await tracker.markProcessed(messageId, storeId)
+    expect(wasNew).toBe(true)
+    expect(await tracker.isProcessed(messageId, storeId)).toBe(true)
 
-      await tracker.close()
+    await tracker.close()
 
-      // Create new tracker instance (simulating restart)
-      const tracker2 = new ProcessedMessageTracker(testDataPath)
-      await tracker2.initialize()
+    // Create new tracker instance (simulating restart)
+    const tracker2 = new ProcessedMessageTracker(testDataPath)
+    await tracker2.initialize()
 
-      // Should remember it was already processed
-      expect(await tracker2.isProcessed(messageId, storeId)).toBe(true)
+    // Should remember it was already processed
+    expect(await tracker2.isProcessed(messageId, storeId)).toBe(true)
 
-      // Attempting to mark again should return false (already exists)
-      const wasNewAgain = await tracker2.markProcessed(messageId, storeId)
-      expect(wasNewAgain).toBe(false)
+    // Attempting to mark again should return false (already exists)
+    const wasNewAgain = await tracker2.markProcessed(messageId, storeId)
+    expect(wasNewAgain).toBe(false)
 
-      await tracker2.close()
-    }
-  )
+    await tracker2.close()
+  })
 
   test('should handle concurrent processing attempts', async () => {
     const messageId = 'msg-concurrent'
