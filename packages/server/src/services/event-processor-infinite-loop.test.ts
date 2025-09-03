@@ -37,8 +37,8 @@ const mockStoreManager = {
   updateActivity: vi.fn(),
 }
 
-// Track subscription callbacks by table
-const subscriptionCallbacks = new Map<string, (records: any[]) => void>()
+// Track subscription callbacks for table updates
+const tableUpdateCallbacks = new Map<string, (records: any[]) => void>()
 
 describe('EventProcessor - Infinite Loop Prevention', () => {
   let eventProcessor: EventProcessor
@@ -50,14 +50,14 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
     eventProcessor = new EventProcessor(mockStoreManager as any)
     vi.clearAllMocks()
-    subscriptionCallbacks.clear()
+    tableUpdateCallbacks.clear()
     processedMessages.clear() // Clear the mock processed messages
 
-    // Mock subscribe to capture callbacks by query label
+    // Mock subscribe to capture table update callbacks
     mockStore.subscribe.mockImplementation((query, { onUpdate }) => {
-      const label = query?.label || 'unknown'
-      const tableName = label.includes('monitor-chatMessages') ? 'chatMessages' : 'other'
-      subscriptionCallbacks.set(tableName, onUpdate)
+      // For table subscriptions, use the query label as the key
+      const queryLabel = query?.label || 'unknown'
+      tableUpdateCallbacks.set(queryLabel, onUpdate)
       return () => {} // unsubscribe function
     })
   })
@@ -84,15 +84,12 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     // Start monitoring
     eventProcessor.startMonitoring(storeId, mockStore as any)
 
-    // Get the chatMessages subscription callback
-    const chatMessagesCallback = subscriptionCallbacks.get('chatMessages')
-    expect(chatMessagesCallback).toBeDefined()
+    // Get the table update callback for chatMessages
+    const tableUpdateCallback = tableUpdateCallbacks.get('monitor-chatMessages-test-store')
+    expect(tableUpdateCallback).toBeDefined()
 
-    // Simulate initial subscription with empty array (initial sync)
-    chatMessagesCallback!([])
-
-    // Simulate new message arrival
-    chatMessagesCallback!(chatMessages)
+    // Simulate table update with user messages
+    tableUpdateCallback!(chatMessages)
 
     // Wait for async processing (multiple setImmediate calls may be needed)
     await new Promise(resolve => setImmediate(resolve))
@@ -107,22 +104,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     // Clear the mock to test duplicate prevention
     mockStore.commit.mockClear()
 
-    // Simulate the same message being returned again (LiveStore re-query scenario)
-    // This would happen when our assistant response triggers a subscription update
-    const chatMessagesWithResponse = [
-      ...chatMessages,
-      {
-        id: 'msg-2', // Assistant response
-        conversationId: 'conv-1',
-        message: 'Hello! How can I help you?',
-        role: 'assistant',
-        createdAt: new Date(),
-        llmMetadata: { source: 'braintrust' },
-      },
-    ]
-
-    // Simulate subscription re-fire with full dataset (including original user message)
-    chatMessagesCallback!(chatMessagesWithResponse)
+    // Simulate the same table update again (simulating LiveStore returning full result set)
+    tableUpdateCallback!(chatMessages)
 
     // Wait for any potential processing (multiple setImmediate calls may be needed)
     await new Promise(resolve => setImmediate(resolve))
@@ -140,11 +123,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
     eventProcessor.startMonitoring(storeId, mockStore as any)
 
-    const chatMessagesCallback = subscriptionCallbacks.get('chatMessages')
-    expect(chatMessagesCallback).toBeDefined()
-
-    // Simulate initial subscription with empty array
-    chatMessagesCallback!([])
+    const tableUpdateCallback = tableUpdateCallbacks.get('monitor-chatMessages-test-store')
+    expect(tableUpdateCallback).toBeDefined()
 
     // First message
     const firstMessage = {
@@ -155,7 +135,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
       createdAt: new Date(),
     }
 
-    chatMessagesCallback!([firstMessage])
+    // Simulate table update with first message
+    tableUpdateCallback!([firstMessage])
 
     // Wait for async processing (multiple setImmediate calls may be needed)
     await new Promise(resolve => setImmediate(resolve))
@@ -179,8 +160,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
       createdAt: new Date(),
     }
 
-    // LiveStore returns full dataset including both messages
-    chatMessagesCallback!([firstMessage, secondMessage])
+    // LiveStore returns full dataset including both messages (simulating table behavior)
+    tableUpdateCallback!([firstMessage, secondMessage])
 
     // Wait for async processing (multiple setImmediate calls may be needed)
     await new Promise(resolve => setImmediate(resolve))
@@ -199,11 +180,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
 
     eventProcessor.startMonitoring(storeId, mockStore as any)
 
-    const chatMessagesCallback = subscriptionCallbacks.get('chatMessages')
-    expect(chatMessagesCallback).toBeDefined()
-
-    // Simulate initial subscription with empty array
-    chatMessagesCallback!([])
+    const tableUpdateCallback = tableUpdateCallbacks.get('monitor-chatMessages-test-store')
+    expect(tableUpdateCallback).toBeDefined()
 
     // Assistant message (should be ignored)
     const assistantMessage = {
@@ -215,7 +193,8 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
       llmMetadata: { source: 'braintrust' },
     }
 
-    chatMessagesCallback!([assistantMessage])
+    // Simulate table update with assistant message (should be filtered out)
+    tableUpdateCallback!([assistantMessage])
 
     // Wait for any potential processing (multiple setImmediate calls may be needed)
     await new Promise(resolve => setImmediate(resolve))
