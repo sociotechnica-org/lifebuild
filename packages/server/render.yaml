@@ -5,14 +5,7 @@ services:
     plan: starter
     # Build from monorepo root to access workspace dependencies
     rootDir: .
-    buildCommand: |
-      # Install dependencies
-      pnpm install &&
-      # Rebuild better-sqlite3 native bindings for production environment
-      cd node_modules/.pnpm/better-sqlite3@11.10.0/node_modules/better-sqlite3 && npm run build-release &&
-      cd - &&
-      # Build the server
-      pnpm --filter @work-squared/server build
+    buildCommand: ./packages/server/scripts/build.sh
     startCommand: pnpm --filter @work-squared/server start
     envVars:
       - key: NODE_ENV
