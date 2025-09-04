@@ -4,6 +4,20 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { RecurringTaskFormPresentation } from './RecurringTaskFormPresentation'
 import type { Project } from '@work-squared/shared'
 
+// Mock the AssigneeSelector component
+vi.mock('../ui/AssigneeSelector/AssigneeSelector.js', () => ({
+  AssigneeSelector: ({ selectedIds, onSelectionChange, placeholder }: any) => (
+    <div data-testid='assignee-selector'>
+      <input
+        placeholder={placeholder}
+        value={selectedIds.join(',')}
+        onChange={e => onSelectionChange(e.target.value ? e.target.value.split(',') : [])}
+        data-testid='assignee-input'
+      />
+    </div>
+  ),
+}))
+
 describe('RecurringTaskFormPresentation', () => {
   const mockProjects: Project[] = [
     {
@@ -43,6 +57,7 @@ describe('RecurringTaskFormPresentation', () => {
     expect(screen.getByLabelText('Description')).toBeInTheDocument()
     expect(screen.getByLabelText('Prompt *')).toBeInTheDocument()
     expect(screen.getByLabelText('Run Every')).toBeInTheDocument()
+    expect(screen.getByText('Assignees')).toBeInTheDocument()
     expect(screen.getByLabelText('Project')).toBeInTheDocument()
   })
 
@@ -102,6 +117,11 @@ describe('RecurringTaskFormPresentation', () => {
       target: { value: '4' },
     })
 
+    // Select assignees
+    fireEvent.change(screen.getByTestId('assignee-input'), {
+      target: { value: 'user1,user2' },
+    })
+
     // Select project
     fireEvent.change(screen.getByLabelText('Project'), {
       target: { value: 'project-1' },
@@ -116,6 +136,7 @@ describe('RecurringTaskFormPresentation', () => {
         description: 'Test description',
         prompt: 'Create a test task',
         intervalHours: 4,
+        assigneeIds: ['user1', 'user2'],
         projectId: 'project-1',
       })
       expect(onClose).toHaveBeenCalled()
@@ -180,5 +201,52 @@ describe('RecurringTaskFormPresentation', () => {
 
     // Form should be reset
     expect(screen.getByLabelText('Name *')).toHaveValue('')
+  })
+
+  it('handles assignee selection', () => {
+    render(<RecurringTaskFormPresentation {...defaultProps} />)
+
+    const assigneeInput = screen.getByTestId('assignee-input')
+
+    // Initially empty
+    expect(assigneeInput).toHaveValue('')
+
+    // Add assignees
+    fireEvent.change(assigneeInput, {
+      target: { value: 'user1,user2' },
+    })
+
+    expect(assigneeInput).toHaveValue('user1,user2')
+  })
+
+  it('submits form with empty assignees when none selected', async () => {
+    const onSubmit = vi.fn()
+    const onClose = vi.fn()
+
+    render(
+      <RecurringTaskFormPresentation {...defaultProps} onSubmit={onSubmit} onClose={onClose} />
+    )
+
+    // Fill required fields only
+    fireEvent.change(screen.getByLabelText('Name *'), {
+      target: { value: 'Test Task' },
+    })
+    fireEvent.change(screen.getByLabelText('Prompt *'), {
+      target: { value: 'Test prompt' },
+    })
+
+    const submitButton = screen.getByText('Create Task')
+    fireEvent.click(submitButton)
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith({
+        name: 'Test Task',
+        description: '',
+        prompt: 'Test prompt',
+        intervalHours: 24,
+        assigneeIds: [],
+        projectId: null,
+      })
+    })
   })
 })

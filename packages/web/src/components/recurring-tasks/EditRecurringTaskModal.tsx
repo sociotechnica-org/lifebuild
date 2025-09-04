@@ -4,6 +4,7 @@ import { getProjects$ } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
 import { calculateNextExecution } from '@work-squared/shared'
 import type { RecurringTask } from '@work-squared/shared'
+import { AssigneeSelector } from '../ui/AssigneeSelector/AssigneeSelector.js'
 
 interface EditRecurringTaskModalProps {
   isOpen: boolean
@@ -34,6 +35,7 @@ export const EditRecurringTaskModal: React.FC<EditRecurringTaskModalProps> = ({
   const [description, setDescription] = useState('')
   const [prompt, setPrompt] = useState('')
   const [intervalHours, setIntervalHours] = useState(24)
+  const [assigneeIds, setAssigneeIds] = useState<string[]>([])
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [nameError, setNameError] = useState('')
   const [promptError, setPromptError] = useState('')
@@ -46,6 +48,15 @@ export const EditRecurringTaskModal: React.FC<EditRecurringTaskModalProps> = ({
       setDescription(task.description || '')
       setPrompt(task.prompt)
       setIntervalHours(task.intervalHours)
+      setAssigneeIds(
+        (() => {
+          try {
+            return task.assigneeIds ? JSON.parse(task.assigneeIds) : []
+          } catch {
+            return []
+          }
+        })()
+      )
       setSelectedProjectId(task.projectId || null)
       setNameError('')
       setPromptError('')
@@ -84,6 +95,7 @@ export const EditRecurringTaskModal: React.FC<EditRecurringTaskModalProps> = ({
         description?: string | null
         prompt?: string
         intervalHours?: number
+        assigneeIds?: string[]
         projectId?: string | null
       } = {}
 
@@ -107,6 +119,19 @@ export const EditRecurringTaskModal: React.FC<EditRecurringTaskModalProps> = ({
         needsNextExecutionUpdate = true
       }
 
+      const currentAssigneeIds = (() => {
+        try {
+          return task.assigneeIds ? JSON.parse(task.assigneeIds) : []
+        } catch {
+          return []
+        }
+      })()
+      if (
+        JSON.stringify([...assigneeIds].sort()) !== JSON.stringify([...currentAssigneeIds].sort())
+      ) {
+        updates.assigneeIds = assigneeIds
+      }
+
       if (selectedProjectId !== task.projectId) {
         updates.projectId = selectedProjectId || null
       }
@@ -125,6 +150,7 @@ export const EditRecurringTaskModal: React.FC<EditRecurringTaskModalProps> = ({
           description: updates.description,
           prompt: updates.prompt,
           intervalHours: updates.intervalHours,
+          assigneeIds: updates.assigneeIds,
           projectId: updates.projectId,
         }
 
@@ -257,6 +283,20 @@ export const EditRecurringTaskModal: React.FC<EditRecurringTaskModalProps> = ({
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Assignees Field */}
+            <div>
+              <label className='block text-sm font-medium text-gray-900 mb-2'>Assignees</label>
+              <AssigneeSelector
+                selectedIds={assigneeIds}
+                onSelectionChange={setAssigneeIds}
+                placeholder='Select assignees for this task...'
+                className='w-full'
+              />
+              <p className='text-xs text-gray-500 mt-1'>
+                Who should be assigned when tasks are created from this recurring task.
+              </p>
             </div>
 
             {/* Project Field */}

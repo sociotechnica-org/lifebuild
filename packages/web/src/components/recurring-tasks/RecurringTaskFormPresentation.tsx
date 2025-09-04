@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import type { Project } from '@work-squared/shared'
+import { AssigneeSelector } from '../ui/AssigneeSelector/AssigneeSelector.js'
 
 interface RecurringTaskFormPresentationProps {
   isOpen: boolean
@@ -9,6 +10,7 @@ interface RecurringTaskFormPresentationProps {
     description: string
     prompt: string
     intervalHours: number
+    assigneeIds: string[]
     projectId: string | null
   }) => void
   projects: readonly Project[]
@@ -37,6 +39,7 @@ export const RecurringTaskFormPresentation: React.FC<RecurringTaskFormPresentati
   const [description, setDescription] = useState('')
   const [prompt, setPrompt] = useState('')
   const [intervalHours, setIntervalHours] = useState(24)
+  const [assigneeIds, setAssigneeIds] = useState<string[]>([])
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(projectId)
   const [nameError, setNameError] = useState('')
   const [promptError, setPromptError] = useState('')
@@ -47,6 +50,7 @@ export const RecurringTaskFormPresentation: React.FC<RecurringTaskFormPresentati
       setDescription('')
       setPrompt('')
       setIntervalHours(24)
+      setAssigneeIds([])
       setSelectedProjectId(projectId)
       setNameError('')
       setPromptError('')
@@ -99,6 +103,7 @@ export const RecurringTaskFormPresentation: React.FC<RecurringTaskFormPresentati
       description: description.trim(),
       prompt: trimmedPrompt,
       intervalHours,
+      assigneeIds,
       projectId: selectedProjectId,
     })
 
@@ -239,6 +244,19 @@ export const RecurringTaskFormPresentation: React.FC<RecurringTaskFormPresentati
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label className='block text-sm font-medium text-gray-900 mb-2'>Assignees</label>
+              <AssigneeSelector
+                selectedIds={assigneeIds}
+                onSelectionChange={setAssigneeIds}
+                placeholder='Select assignees for this task...'
+                className='w-full'
+              />
+              <p className='text-xs text-gray-500 mt-1'>
+                Who should be assigned when tasks are created from this recurring task.
+              </p>
             </div>
 
             <div>
