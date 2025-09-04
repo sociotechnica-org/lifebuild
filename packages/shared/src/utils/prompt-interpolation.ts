@@ -31,7 +31,6 @@ export function interpolateRecurringTaskPrompt(template: string, task: Recurring
 
   // Replace each variable in the template
   for (const variable of AVAILABLE_VARIABLES) {
-    const placeholder = `{{${variable}}}`
     const value = formatTaskValue(task[variable], variable)
     result = result.replace(new RegExp(`\\{\\{${variable}\\}\\}`, 'g'), value)
   }

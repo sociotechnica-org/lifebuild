@@ -109,8 +109,12 @@ Task Weekly Report runs every 168 hours`)
       const result = validatePromptTemplate(template)
       expect(result.isValid).toBe(false)
       expect(result.errors).toHaveLength(2)
-      expect(result.errors[0]).toContain('Invalid variable: {{invalidVar}} - available variables are: {{id}}, {{name}}')
-      expect(result.errors[1]).toContain('Invalid variable: {{anotherInvalid}} - available variables are: {{id}}, {{name}}')
+      expect(result.errors[0]).toContain(
+        'Invalid variable: {{invalidVar}} - available variables are: {{id}}, {{name}}'
+      )
+      expect(result.errors[1]).toContain(
+        'Invalid variable: {{anotherInvalid}} - available variables are: {{id}}, {{name}}'
+      )
     })
 
     it('should detect empty variable names', () => {
