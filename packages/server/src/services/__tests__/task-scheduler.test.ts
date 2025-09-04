@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi, type MockedFunction } 
 import fs from 'fs'
 import { TaskScheduler } from '../task-scheduler.js'
 import { ProcessedTaskTracker } from '../processed-task-tracker.js'
-import type { RecurringTask } from '../../../../shared/src/livestore/schema.js'
+import type { RecurringTask } from '@work-squared/shared/schema'
 
 const TEST_DATA_PATH = './test-data-scheduler'
 

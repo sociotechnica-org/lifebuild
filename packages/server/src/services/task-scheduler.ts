@@ -4,7 +4,7 @@ import { AgenticLoop } from './agentic-loop/agentic-loop.js'
 import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
 import { ProcessedTaskTracker } from './processed-task-tracker.js'
 import { tables } from '@work-squared/shared/schema'
-import type { RecurringTask, TaskExecution } from '../../../shared/src/livestore/schema.js'
+import type { RecurringTask, TaskExecution } from '@work-squared/shared/schema'
 
 export class TaskScheduler {
   private taskTracker: ProcessedTaskTracker
