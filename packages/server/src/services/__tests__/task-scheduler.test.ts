@@ -149,6 +149,33 @@ describe('TaskScheduler', () => {
       expect(mockStore.commit).not.toHaveBeenCalled()
     })
 
+    it('should process newly created tasks with null lastExecutedAt', async () => {
+      const newTask: RecurringTask = {
+        id: 'new-task',
+        name: 'Brand New Task',
+        description: 'A task that has never been executed',
+        prompt: 'Execute for the first time',
+        intervalHours: 12,
+        lastExecutedAt: null, // Never executed before
+        nextExecutionAt: new Date(Date.now() - 30000), // 30 seconds ago (due)
+        enabled: true,
+        projectId: 'proj-123',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+
+      mockStore.query.mockResolvedValue([newTask])
+
+      await scheduler.checkAndExecuteTasks('test-store', mockStore)
+
+      // Should emit start and complete events even for never-executed tasks
+      expect(mockStore.commit).toHaveBeenCalledTimes(2)
+
+      const calls = (mockStore.commit as MockedFunction<any>).mock.calls
+      expect(calls[0][0]).toHaveProperty('name', 'task_execution.start')
+      expect(calls[1][0]).toHaveProperty('name', 'task_execution.complete')
+    })
+
     it('should handle task execution errors gracefully', async () => {
       const faultyTask: RecurringTask = {
         id: 'faulty-task',
