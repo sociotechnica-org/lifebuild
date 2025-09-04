@@ -150,13 +150,14 @@ Implement support for monitoring and processing multiple LiveStore instances fro
 **Render Cron Job Approach**: Separate task processing from real-time chat monitoring for better reliability and testability.
 
 **Architecture**:
+
 ```
 Main Server (packages/server/src/server.ts):
-├── EventProcessor - monitors chat messages 
+├── EventProcessor - monitors chat messages
 ├── WebSocket handling
 └── Real-time user interactions
 
-Cron Job Script (packages/server/src/scripts/process-tasks.ts):  
+Cron Job Script (packages/server/src/scripts/process-tasks.ts):
 ├── Runs every 5 minutes via Render cron job
 ├── Uses same StoreManager + multi-store infrastructure
 ├── Processes all stores independently
@@ -173,7 +174,7 @@ Cron Job Script (packages/server/src/scripts/process-tasks.ts):
 
 - [ ] Create `packages/server/src/services/processed-task-tracker.ts`:
   - Extend proven `ProcessedMessageTracker` pattern
-  - SQLite table: `processed_task_executions` with composite key 
+  - SQLite table: `processed_task_executions` with composite key
   - Atomic `INSERT OR IGNORE` for task execution claiming
 
 - [ ] Create `packages/server/src/services/task-scheduler.ts`:
@@ -184,8 +185,9 @@ Cron Job Script (packages/server/src/scripts/process-tasks.ts):
 ### Render Configuration
 
 **Cron Job Setup**:
+
 - **Schedule**: `*/5 * * * *` (every 5 minutes)
-- **Command**: `pnpm --filter @work-squared/server run process-tasks`  
+- **Command**: `pnpm --filter @work-squared/server run process-tasks`
 - **Environment**: Share environment group with main server
 - **Benefits**: Single-run guarantee, cost efficiency, easy local testing
 

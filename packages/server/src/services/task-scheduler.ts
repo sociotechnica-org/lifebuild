@@ -91,19 +91,23 @@ export class TaskScheduler {
 
     console.log(`  🎯 Executing task: ${task.name} (${task.id})`)
 
+    // Generate execution ID and start time once for the entire task execution
+    const executionId = this.generateExecutionId()
+    const startTime = new Date()
+
     try {
-      await this.executeTask(task, store, storeId)
+      await this.executeTask(task, store, storeId, executionId, startTime)
       console.log(`  ✅ Task ${task.id} completed successfully`)
     } catch (error) {
       console.error(`  ❌ Task ${task.id} execution failed:`, error)
 
-      // Emit failure event to store
+      // Emit failure event with the same execution ID and start time
       await this.emitExecutionEvent(store, {
         type: 'task_execution.fail',
         args: {
-          id: this.generateExecutionId(),
+          id: executionId,
           recurringTaskId: task.id,
-          startedAt: new Date(),
+          startedAt: startTime,
           completedAt: new Date(),
           status: 'failed' as const,
           output: `Error: ${error instanceof Error ? error.message : String(error)}`,
@@ -115,10 +119,7 @@ export class TaskScheduler {
   /**
    * Execute a single task using the existing AgenticLoop
    */
-  private async executeTask(task: RecurringTask, store: Store, storeId: string): Promise<void> {
-    const executionId = this.generateExecutionId()
-    const startTime = new Date()
-
+  private async executeTask(task: RecurringTask, store: Store, storeId: string, executionId: string, startTime: Date): Promise<void> {
     // Emit start event
     await this.emitExecutionEvent(store, {
       type: 'task_execution.start',

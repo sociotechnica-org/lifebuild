@@ -155,7 +155,8 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 
 ### Core Architecture
 
-**Render Cron Job Approach**: 
+**Render Cron Job Approach**:
+
 - Separate from main server process (clean separation)
 - Render's single-run guarantee provides natural deduplication
 - Easy local testing: `pnpm --filter @work-squared/server run process-tasks`
@@ -166,18 +167,19 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 ### Implementation
 
 - [ ] Create `packages/server/src/scripts/process-tasks.ts`:
+
   ```typescript
   // Standalone script that runs via cron job
   async function main() {
     const storeManager = new StoreManager()
     await storeManager.initialize(getStoreIds())
-    
+
     const taskScheduler = new TaskScheduler()
-    
+
     for (const [storeId, store] of storeManager.getAllStores()) {
       await taskScheduler.checkAndExecuteTasks(storeId, store)
     }
-    
+
     await storeManager.close()
     console.log('✅ Task processing complete')
     process.exit(0)
@@ -185,6 +187,7 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
   ```
 
 - [ ] Create `packages/server/src/services/processed-task-tracker.ts`:
+
   ```typescript
   class ProcessedTaskTracker {
     // Similar to ProcessedMessageTracker but for task executions
@@ -194,6 +197,7 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
   ```
 
 - [ ] Create `packages/server/src/services/task-scheduler.ts`:
+
   ```typescript
   class TaskScheduler {
     checkAndExecuteTasks(storeId: string, store: Store): Promise<void>
@@ -231,6 +235,7 @@ CREATE TABLE IF NOT EXISTS processed_task_executions (
 ```
 
 **Strategy**:
+
 1. **Query window**: Tasks due in last 10 minutes (catch missed executions)
 2. **Atomic claim**: `INSERT OR IGNORE` prevents duplicate execution
 3. **Execute if claimed**: Use existing `AgenticLoop(store, llmProvider).run()`
@@ -258,7 +263,7 @@ CREATE TABLE IF NOT EXISTS processed_task_executions (
 
 ---
 
-## Phase 5: LLM Integration for Task Executions  
+## Phase 5: LLM Integration for Task Executions
 
 **Goal**: Server executes tasks using actual LLM with custom prompts
 
@@ -267,11 +272,12 @@ CREATE TABLE IF NOT EXISTS processed_task_executions (
 ### Backend (Server)
 
 - [ ] Update `TaskScheduler.executeTask()` to use existing `AgenticLoop`:
+
   ```typescript
   async executeTask(task: RecurringTask, store: Store, storeId: string): Promise<void> {
     const llmProvider = new BraintrustLLMProvider() // existing
     const agenticLoop = new AgenticLoop(store, llmProvider) // existing class
-    
+
     // Execute task prompt with store context
     await agenticLoop.run(task.prompt, {
       boardContext: { id: storeId, name: storeId },
@@ -285,7 +291,6 @@ CREATE TABLE IF NOT EXISTS processed_task_executions (
   - `task_execution.complete` when AgenticLoop finishes
   - `task_execution.fail` if AgenticLoop throws error
   - Store LLM output and any created task IDs
-  
 - [ ] Error handling & retries:
   - Use existing AgenticLoop error handling
   - Retry failed executions with exponential backoff
