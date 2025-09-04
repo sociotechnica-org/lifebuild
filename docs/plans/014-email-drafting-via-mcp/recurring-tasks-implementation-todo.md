@@ -149,27 +149,92 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 
 ---
 
-## Phase 4: Server-Side Execution (Basic)
+## Phase 4: Render Cron Job Task Scheduler
 
-**Goal**: Server checks for due tasks and executes them with mock handler
+**Goal**: Use Render cron jobs to process due tasks every 5 minutes with SQLite deduplication
 
-### Backend (Server)
+### Core Architecture
 
-- [ ] Create `packages/server/src/services/recurring-tasks.ts`:
-  - `checkAndExecuteTasks(storeId): Promise<void>`
-  - `executeTask(task, storeId): Promise<void>`
-- [ ] Implement execution checker:
-  - Check every 5 minutes (configurable)
-  - Find tasks where nextExecutionAt < now
-  - Execute if not already running
-  - Mock execution (wait 2 seconds, mark complete)
-- [ ] Create `packages/server/src/services/scheduler.ts`:
-  - Start interval timer on server startup
-  - Check all configured stores
-- [ ] Emit execution events to store:
-  - task_execution.start when beginning
-  - task_execution.complete when done
-  - Update lastExecutedAt and nextExecutionAt
+**Render Cron Job Approach**: 
+- Separate from main server process (clean separation)
+- Render's single-run guarantee provides natural deduplication
+- Easy local testing: `pnpm --filter @work-squared/server run process-tasks`
+- Cost efficient: only runs when needed, billed per second
+
+**SQLite-Based Deduplication**: Extend `ProcessedMessageTracker` pattern for task-level deduplication across multiple cron job runs.
+
+### Implementation
+
+- [ ] Create `packages/server/src/scripts/process-tasks.ts`:
+  ```typescript
+  // Standalone script that runs via cron job
+  async function main() {
+    const storeManager = new StoreManager()
+    await storeManager.initialize(getStoreIds())
+    
+    const taskScheduler = new TaskScheduler()
+    
+    for (const [storeId, store] of storeManager.getAllStores()) {
+      await taskScheduler.checkAndExecuteTasks(storeId, store)
+    }
+    
+    await storeManager.close()
+    console.log('✅ Task processing complete')
+    process.exit(0)
+  }
+  ```
+
+- [ ] Create `packages/server/src/services/processed-task-tracker.ts`:
+  ```typescript
+  class ProcessedTaskTracker {
+    // Similar to ProcessedMessageTracker but for task executions
+    isTaskExecutionProcessed(taskId: string, scheduledTime: Date, storeId: string): Promise<boolean>
+    markTaskExecutionProcessed(taskId: string, scheduledTime: Date, storeId: string): Promise<boolean>
+  }
+  ```
+
+- [ ] Create `packages/server/src/services/task-scheduler.ts`:
+  ```typescript
+  class TaskScheduler {
+    checkAndExecuteTasks(storeId: string, store: Store): Promise<void>
+    executeTask(task: RecurringTask, store: Store, storeId: string): Promise<void>
+  }
+  ```
+
+- [ ] Add to `packages/server/package.json`:
+  ```json
+  {
+    "scripts": {
+      "process-tasks": "tsx src/scripts/process-tasks.ts"
+    }
+  }
+  ```
+
+### Render Cron Job Configuration
+
+**Schedule**: `*/5 * * * *` (every 5 minutes)  
+**Command**: `pnpm --filter @work-squared/server run process-tasks`  
+**Environment Variables**: Same as main server (shared environment group)
+
+### SQLite Deduplication
+
+Same proven pattern as chat message processing:
+
+```sql
+CREATE TABLE IF NOT EXISTS processed_task_executions (
+  task_id TEXT NOT NULL,
+  scheduled_time INTEGER NOT NULL, -- Unix timestamp of when task was scheduled to run
+  store_id TEXT NOT NULL,
+  processed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (task_id, scheduled_time, store_id)
+);
+```
+
+**Strategy**:
+1. **Query window**: Tasks due in last 10 minutes (catch missed executions)
+2. **Atomic claim**: `INSERT OR IGNORE` prevents duplicate execution
+3. **Execute if claimed**: Use existing `AgenticLoop(store, llmProvider).run()`
+4. **Emit events**: Results sent back to LiveStore for UI updates
 
 ### Frontend
 
@@ -191,62 +256,40 @@ Each phase delivers working, QA-able software with a complete vertical slice thr
 
 ---
 
-## Phase 4.5: DEPENDENCY - Multi-Store & Agentic Loop Migration
-
-**CRITICAL**: Before Phase 5, the following must be completed:
-
-1. **Multi-Store Server Support** (`docs/plans/007-multiplayer/multi-store-server-support.md`)
-   - At minimum, Phase 1: Manual Multi-Store Support must be complete
-   - Server must handle multiple stores via environment variables
-   - Store isolation must be verified
-
-2. **Server-Side Agentic Loop** (`docs/plans/014-email-drafting-via-mcp/server-agentic-loop-implementation-todo.md`)
-   - At minimum, Phases 1-3 must be complete
-   - Server-side agentic loop must be functional
-   - Tools must be migrated to server
-   - Client-server communication must work
-
-**Why this ordering is critical**:
-
-- Without multi-store support, moving agentic loop to server breaks production
-- Without server-side agentic loop, recurring tasks can't execute LLM prompts
-- These are foundational infrastructure changes that enable Phase 5
-
-**Alternative if dependencies aren't ready**:
-
-- Continue with mock executions only
-- Defer LLM integration until infrastructure is ready
-- Focus on UI and scheduling features
-
 ---
 
-## Phase 5: LLM Integration for Executions
+## Phase 5: LLM Integration for Task Executions  
 
 **Goal**: Server executes tasks using actual LLM with custom prompts
 
-**Prerequisites**:
-
-- ✅ Multi-store server support is deployed
-- ✅ Server-side agentic loop is working in production
+**Prerequisites**: ✅ Multi-store server support and AgenticLoop are already complete!
 
 ### Backend (Server)
 
-- [ ] Move agentic loop to server:
-  - Port relevant code from `packages/web/src/components/chat/ChatInterface`
-  - Create `packages/server/src/services/agentic-loop.ts`
-- [ ] Update executeTask to use LLM:
-  - Pass task prompt to LLM
-  - Include project context if projectId set
-  - Handle tool calls (create_task, etc.)
-  - Store LLM response in execution output
-- [ ] Error handling:
-  - Catch LLM errors
-  - Mark execution as failed
-  - Store error in output
-  - Retry with backoff (max 3 attempts)
-- [ ] Track created artifacts:
-  - If LLM creates tasks, store IDs
-  - Link to execution record
+- [ ] Update `TaskScheduler.executeTask()` to use existing `AgenticLoop`:
+  ```typescript
+  async executeTask(task: RecurringTask, store: Store, storeId: string): Promise<void> {
+    const llmProvider = new BraintrustLLMProvider() // existing
+    const agenticLoop = new AgenticLoop(store, llmProvider) // existing class
+    
+    // Execute task prompt with store context
+    await agenticLoop.run(task.prompt, {
+      boardContext: { id: storeId, name: storeId },
+      model: 'claude-3-5-sonnet-20241022'
+    })
+  }
+  ```
+
+- [ ] Emit execution events to LiveStore:
+  - `task_execution.start` when beginning execution
+  - `task_execution.complete` when AgenticLoop finishes
+  - `task_execution.fail` if AgenticLoop throws error
+  - Store LLM output and any created task IDs
+  
+- [ ] Error handling & retries:
+  - Use existing AgenticLoop error handling
+  - Retry failed executions with exponential backoff
+  - Mark task execution as failed after max retries
 
 ### Frontend
 

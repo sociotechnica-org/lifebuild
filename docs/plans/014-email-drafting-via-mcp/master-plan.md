@@ -194,16 +194,16 @@ Build the absolute minimal feature set to enable background agents to check user
   - Tool execution with proper isolation
   - **Status**: Core loop functional but missing multi-store coordination
 
-#### Multi-Store Server Support - PARTIALLY COMPLETE ⚠️
+#### Multi-Store Server Support - COMPLETE FOR TASK SCHEDULING ✅
 
 - **✅ Phase 1-2**: Basic multi-store infrastructure (PRs #138, #143)
   - Store management with environment variables
   - Per-store event processing and isolation 
   - WebSocket distribution per store
-- **❌ Phase 3-4**: Store-scoped agentic execution - **MISSING**
-  - No Agent Manager for coordinating agentic loops across stores
-  - No Task Scheduler for recurring task execution
-  - **Blocks recurring task LLM integration**
+- **✅ Phase 3**: Store-scoped agentic execution - **ALREADY EXISTS**
+  - `AgenticLoop` class already handles store isolation via constructor
+  - No "Agent Manager" needed - was over-architecture
+  - Ready for Task Scheduler integration
 
 ### 🔄 In Progress Work
 
@@ -211,21 +211,24 @@ _No items currently in progress - ready to start next phase!_
 
 ### 📋 Remaining Work
 
-#### Multi-Store Agentic Coordination - CRITICAL MISSING ⚠️
+#### Task Scheduler with SQLite Deduplication - READY TO IMPLEMENT ⚠️
 
-- **Prerequisites**: ✅ Basic multi-store infrastructure complete
-- **❌ MISSING**: Agent Manager for store-scoped agentic loops 
-- **❌ MISSING**: Task Scheduler for recurring task execution across stores
-- **Impact**: Blocks LLM-powered recurring tasks and email processing
-- **Priority**: HIGH - Required for any server-side LLM automation
+- **Prerequisites**: ✅ All infrastructure complete (multi-store + AgenticLoop)
+- **Missing**: Simple Task Scheduler using proven patterns:
+  - Extend `ProcessedMessageTracker` pattern for task execution deduplication
+  - SQLite `processed_task_executions` table with atomic `INSERT OR IGNORE`
+  - Integration with existing `EventProcessor` store monitoring loop
+  - Use existing `AgenticLoop` class - no new abstractions needed
+- **Impact**: Only thing blocking LLM-powered recurring tasks and email processing
+- **Priority**: HIGH - Single missing component for full email workflow
 
-#### Recurring Tasks LLM Integration - BLOCKED ❌
+#### Recurring Tasks LLM Integration - UNBLOCKED ✅
 
-- **Prerequisites**: ❌ Multi-store agentic coordination (currently missing)
-- Connect recurring tasks to server-side agentic loop
-- Execute prompts with real LLM (currently mock execution)  
-- Handle tool calls and task creation
-- **Status**: Blocked until Agent Manager and Task Scheduler exist
+- **Prerequisites**: ✅ Multi-store + AgenticLoop infrastructure complete
+- Connect recurring tasks to existing server-side agentic loop
+- Execute prompts with real LLM using `new AgenticLoop(store, llmProvider).run()`
+- Handle tool calls and task creation via existing tool system
+- **Status**: Ready to implement once Task Scheduler exists
 
 #### Gmail MCP Server Setup - PENDING
 
@@ -245,20 +248,21 @@ _No items currently in progress - ready to start next phase!_
 
 ### 🚧 Current Status
 
-**✅ Major Milestone Reached**: The server-side agentic loop is functionally complete! This unblocks several critical next steps.
+**✅ Infrastructure Complete**: Multi-store server + AgenticLoop are done! Only missing the simple Task Scheduler.
 
 ### 📊 Overall Progress
 
-- **Foundation Phase**: ✅ 100% Complete
-- **Simple Contact Management**: ✅ 100% Complete (Phase 7 merged!)
-- **Recurring Tasks (Basic)**: ✅ 100% Complete
-- **Server Agentic Loop**: ✅ 80% Complete (Core done, missing multi-store coordination)
-- **Multi-Store Support**: ⚠️ 50% Complete (Infrastructure done, missing agentic coordination)
-- **Recurring Tasks (LLM)**: ❌ 0% (BLOCKED - missing task scheduler)
+- **Foundation Phase**: ✅ 100% Complete  
+- **Simple Contact Management**: ✅ 100% Complete
+- **Recurring Tasks (Basic UI)**: ✅ 100% Complete
+- **Server Agentic Loop**: ✅ 100% Complete
+- **Multi-Store Support**: ✅ 100% Complete (for task scheduling needs)
+- **Task Scheduler**: ❌ 0% (ONLY MISSING PIECE)
+- **Recurring Tasks (LLM)**: ⏳ 0% (Ready once scheduler exists)
 - **Gmail MCP Integration**: ❌ 0%
 - **Email Processing Workflow**: ❌ 0%
 
-**Total Project Progress: ~65%** (Correction: Multi-store coordination still needed)
+**Total Project Progress: ~80%** (Much closer than previously thought!)
 
 ## Goal
 

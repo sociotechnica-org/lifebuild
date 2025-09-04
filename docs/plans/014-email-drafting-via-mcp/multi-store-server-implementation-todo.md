@@ -137,119 +137,66 @@ Implement support for monitoring and processing multiple LiveStore instances fro
 
 ---
 
-## Phase 3: Agentic Loop per Store
+## ~~Phase 3: Agentic Loop per Store~~ **CANCELLED - OVER-ARCHITECTED**
 
-### Store-Specific Agents
-
-#### 3.1 Create Store-Scoped Agent Manager
-
-- [ ] Update `packages/server/src/services/agent-manager.ts`:
-  ```typescript
-  class AgentManager {
-    createAgent(storeId: string, workerId: string): Agent
-    getAgent(storeId: string, workerId: string): Agent | null
-    executeForStore(storeId: string, prompt: string): Promise<Result>
-  }
-  ```
-
-#### 3.2 Context Isolation
-
-- [ ] Maintain separate context per store
-- [ ] Store-specific tool access
-- [ ] Isolated conversation history
-- [ ] Per-store system prompts
-
-#### 3.3 Resource Management
-
-- [ ] Limit concurrent agents per store
-- [ ] Implement per-store rate limiting
-- [ ] Queue management per workspace
-- [ ] Memory management for contexts
-
-### Tool Execution
-
-#### 3.4 Store-Scoped Tools
-
-- [ ] Pass correct store to tool executors
-- [ ] Validate tool access per store
-- [ ] Store-specific tool configuration
-- [ ] Audit tool usage per workspace
-
-#### 3.5 Cross-Store Protection
-
-- [ ] Prevent tools from accessing wrong store
-- [ ] Validate storeId in all operations
-- [ ] Implement access control checks
-- [ ] Log cross-store attempt warnings
-
-### Tests
-
-#### 3.6 Agent Isolation Tests
-
-- [ ] Test agent creation per store
-- [ ] Test context isolation
-- [ ] Test tool execution scoping
-- [ ] Test resource limits
-
-**Deliverable**: PR with store-scoped agentic processing
+**Decision**: No "Agent Manager" needed. The existing `AgenticLoop` class already handles store isolation by taking a specific `Store` instance in its constructor. Task execution can use `new AgenticLoop(store, llmProvider)` directly.
 
 ---
 
-## Phase 4: Recurring Task Execution per Store
+## Phase 3: Render Cron Job Task Scheduler
 
-### Task Scheduler
+### Clean Architecture with Cron Jobs
 
-#### 4.1 Multi-Store Task Scheduler
+**Render Cron Job Approach**: Separate task processing from real-time chat monitoring for better reliability and testability.
+
+**Architecture**:
+```
+Main Server (packages/server/src/server.ts):
+├── EventProcessor - monitors chat messages 
+├── WebSocket handling
+└── Real-time user interactions
+
+Cron Job Script (packages/server/src/scripts/process-tasks.ts):  
+├── Runs every 5 minutes via Render cron job
+├── Uses same StoreManager + multi-store infrastructure
+├── Processes all stores independently
+└── Exits after completion
+```
+
+### Implementation
+
+- [ ] Create `packages/server/src/scripts/process-tasks.ts`:
+  - Standalone script that connects to all configured stores
+  - Uses existing `StoreManager` for multi-store support
+  - Runs `TaskScheduler` for each store
+  - Clean exit when complete
+
+- [ ] Create `packages/server/src/services/processed-task-tracker.ts`:
+  - Extend proven `ProcessedMessageTracker` pattern
+  - SQLite table: `processed_task_executions` with composite key 
+  - Atomic `INSERT OR IGNORE` for task execution claiming
 
 - [ ] Create `packages/server/src/services/task-scheduler.ts`:
-  ```typescript
-  class TaskScheduler {
-    scheduleForStore(storeId: string): void
-    checkTasksForStore(storeId: string): Promise<RecurringTask[]>
-    executeTask(storeId: string, task: RecurringTask): Promise<void>
-  }
-  ```
+  - Use existing `AgenticLoop` class with store context
+  - Query due tasks with 10-minute window (catch missed executions)
+  - Emit execution events back to LiveStore for UI updates
 
-#### 4.2 Scheduling Logic
+### Render Configuration
 
-- [ ] Check each store independently
-- [ ] Maintain execution state per store
-- [ ] Handle overlapping schedules
-- [ ] Implement fair execution ordering
+**Cron Job Setup**:
+- **Schedule**: `*/5 * * * *` (every 5 minutes)
+- **Command**: `pnpm --filter @work-squared/server run process-tasks`  
+- **Environment**: Share environment group with main server
+- **Benefits**: Single-run guarantee, cost efficiency, easy local testing
 
-#### 4.3 Execution Isolation
+### Tests & Local Development
 
-- [ ] Execute tasks in store context
-- [ ] Prevent task interference
-- [ ] Store-specific execution history
-- [ ] Independent failure handling
+- [ ] **Easy local testing**: `pnpm --filter @work-squared/server run process-tasks`
+- [ ] Test SQLite deduplication prevents duplicate executions
+- [ ] Test multi-store processing in single script run
+- [ ] Test catch-up after missed cron runs
 
-### Performance Optimization
-
-#### 4.4 Efficient Store Checking
-
-- [ ] Stagger store checks to avoid thundering herd
-- [ ] Implement adaptive check intervals
-- [ ] Cache query results appropriately
-- [ ] Monitor check performance
-
-#### 4.5 Resource Pooling
-
-- [ ] Share LLM connections across stores
-- [ ] Pool database connections
-- [ ] Implement request batching
-- [ ] Monitor resource usage
-
-### Tests
-
-#### 4.6 Scheduler Tests
-
-- [ ] Test multi-store scheduling
-- [ ] Test execution isolation
-- [ ] Test performance with many stores
-- [ ] Test failure scenarios
-
-**Deliverable**: PR with multi-store recurring task execution
+**Deliverable**: Clean cron job architecture using existing multi-store patterns
 
 ---
 
