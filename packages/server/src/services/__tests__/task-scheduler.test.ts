@@ -118,13 +118,14 @@ describe('TaskScheduler', () => {
 
       await scheduler.checkAndExecuteTasks('test-store', mockStore)
 
-      // Should emit start and complete events
-      expect(mockStore.commit).toHaveBeenCalledTimes(2)
+      // Should emit start, complete, and update events
+      expect(mockStore.commit).toHaveBeenCalledTimes(3)
 
       // Check that events were emitted with correct structure
       const calls = (mockStore.commit as MockedFunction<any>).mock.calls
       expect(calls[0][0]).toHaveProperty('name', 'task_execution.start')
       expect(calls[1][0]).toHaveProperty('name', 'task_execution.complete')
+      expect(calls[2][0]).toHaveProperty('name', 'v1.RecurringTaskUpdated')
     })
 
     it('should skip tasks without nextExecutionAt', async () => {
@@ -168,12 +169,13 @@ describe('TaskScheduler', () => {
 
       await scheduler.checkAndExecuteTasks('test-store', mockStore)
 
-      // Should emit start and complete events even for never-executed tasks
-      expect(mockStore.commit).toHaveBeenCalledTimes(2)
+      // Should emit start, complete, and update events even for never-executed tasks
+      expect(mockStore.commit).toHaveBeenCalledTimes(3)
 
       const calls = (mockStore.commit as MockedFunction<any>).mock.calls
       expect(calls[0][0]).toHaveProperty('name', 'task_execution.start')
       expect(calls[1][0]).toHaveProperty('name', 'task_execution.complete')
+      expect(calls[2][0]).toHaveProperty('name', 'v1.RecurringTaskUpdated')
     })
 
     it('should handle task execution errors gracefully', async () => {
@@ -386,6 +388,64 @@ describe('TaskScheduler', () => {
       // Verify record is gone
       const statsAfter = await scheduler.getStats()
       expect(statsAfter.processedExecutions).toBe(0)
+    })
+  })
+
+  describe('Next execution scheduling', () => {
+    it('should update nextExecutionAt after successful task execution', async () => {
+      const now = new Date()
+      const dueTask: RecurringTask = {
+        id: 'schedule-test',
+        name: 'Schedule Test',
+        description: 'Test scheduling',
+        prompt: 'Test scheduling update',
+        intervalHours: 4, // 4 hours
+        lastExecutedAt: null,
+        nextExecutionAt: new Date(now.getTime() - 30000), // Due 30 seconds ago
+        enabled: true,
+        projectId: null,
+        createdAt: now,
+        updatedAt: now,
+      }
+
+      mockStore.query.mockResolvedValue([dueTask])
+
+      // Mock AgenticLoop to resolve successfully
+      const { AgenticLoop } = await import('../agentic-loop/agentic-loop.js')
+      const mockAgenticLoop = vi.mocked(AgenticLoop)
+      mockAgenticLoop.mockImplementation(
+        () =>
+          ({
+            run: vi.fn().mockResolvedValue(undefined),
+          }) as any
+      )
+
+      await scheduler.checkAndExecuteTasks('test-store', mockStore)
+
+      // Verify the task execution events
+      const commitCalls = mockStore.commit.mock.calls
+      expect(commitCalls.length).toBeGreaterThanOrEqual(3) // start, complete, update
+
+      // Find the RecurringTaskUpdated event
+      const updateEvent = commitCalls.find(
+        (call: any) => call[0].name === 'v1.RecurringTaskUpdated'
+      )
+      expect(updateEvent).toBeDefined()
+      expect(updateEvent![0].args).toMatchObject({
+        id: 'schedule-test',
+        updates: {},
+        updatedAt: expect.any(Date),
+        nextExecutionAt: expect.any(Date),
+      })
+
+      // Verify nextExecutionAt is approximately 4 hours in the future
+      const nextExecution = updateEvent![0].args.nextExecutionAt
+      const timeDiff = nextExecution.getTime() - now.getTime()
+      const expectedDiff = 4 * 60 * 60 * 1000 // 4 hours in milliseconds
+
+      // Allow for some variance due to test execution time (within 1 minute)
+      expect(timeDiff).toBeGreaterThan(expectedDiff - 60000)
+      expect(timeDiff).toBeLessThan(expectedDiff + 60000)
     })
   })
 })

@@ -48,6 +48,12 @@ async function main(): Promise<void> {
     const stores = storeManager.getAllStores()
 
     for (const [storeId, store] of stores) {
+      // Check if we received a shutdown signal
+      if (isShuttingDown) {
+        console.log('🛑 Shutdown signal received, stopping task processing')
+        break
+      }
+
       try {
         console.log(`\n🔍 Processing store: ${storeId}`)
         await taskScheduler.checkAndExecuteTasks(storeId, store)
@@ -87,9 +93,18 @@ async function main(): Promise<void> {
     }
   }
 
-  console.log('🏁 Process complete, exiting')
-  process.exit(0)
+  // Exit with appropriate code based on shutdown reason
+  if (isShuttingDown) {
+    console.log('🏁 Graceful shutdown complete')
+    process.exit(0)
+  } else {
+    console.log('🏁 Process complete, exiting')
+    process.exit(0)
+  }
 }
+
+// Graceful shutdown flag
+let isShuttingDown = false
 
 // Handle graceful shutdown
 function setupGracefulShutdown() {
@@ -97,16 +112,19 @@ function setupGracefulShutdown() {
 
   signals.forEach(signal => {
     process.on(signal, async () => {
-      console.log(`\n📡 Received ${signal}, shutting down gracefully...`)
+      if (isShuttingDown) {
+        console.log(`\n🔄 Already shutting down, ignoring ${signal}`)
+        return
+      }
 
-      // Give processes 10 seconds to clean up
+      console.log(`\n📡 Received ${signal}, shutting down gracefully...`)
+      isShuttingDown = true
+
+      // Give processes 10 seconds to clean up, then force exit
       setTimeout(() => {
         console.log('⏰ Forced exit after timeout')
         process.exit(1)
       }, 10000)
-
-      // The main function handles cleanup in its finally block
-      process.exit(0)
     })
   })
 }

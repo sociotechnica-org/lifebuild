@@ -6,6 +6,7 @@ import { ProcessedTaskTracker } from './processed-task-tracker.js'
 import { tables } from '@work-squared/shared/schema'
 import type { RecurringTask, TaskExecution } from '@work-squared/shared/schema'
 import { DEFAULT_MODEL } from '@work-squared/shared'
+import { calculateNextExecution } from '@work-squared/shared/utils/scheduling'
 
 export class TaskScheduler {
   private taskTracker: ProcessedTaskTracker
@@ -155,6 +156,11 @@ export class TaskScheduler {
 
       const completedAt = new Date()
 
+      // Calculate next execution time
+      const nextExecutionAt = new Date(
+        calculateNextExecution(completedAt.getTime(), task.intervalHours)
+      )
+
       // Emit success event
       await this.emitExecutionEvent(store, {
         type: 'task_execution.complete',
@@ -165,6 +171,17 @@ export class TaskScheduler {
           completedAt,
           status: 'completed' as const,
           output: 'Task completed successfully via AgenticLoop',
+        },
+      })
+
+      // Update the task's nextExecutionAt for the next scheduled run
+      store.commit({
+        name: 'v1.RecurringTaskUpdated',
+        args: {
+          id: task.id,
+          updates: {},
+          updatedAt: completedAt,
+          nextExecutionAt,
         },
       })
     } catch (error) {

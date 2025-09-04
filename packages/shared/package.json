@@ -80,6 +80,11 @@
       "import": "./src/llm/models.ts",
       "require": "./dist/llm/models.js",
       "default": "./dist/llm/models.js"
+    },
+    "./utils/scheduling": {
+      "import": "./src/utils/scheduling.ts",
+      "require": "./dist/utils/scheduling.js",
+      "default": "./dist/utils/scheduling.js"
     }
   },
   "dependencies": {
