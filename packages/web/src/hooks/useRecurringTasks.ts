@@ -15,6 +15,7 @@ export interface CreateRecurringTaskParams {
   description?: string
   prompt: string
   intervalHours: number
+  assigneeIds?: string[]
   projectId?: string
 }
 
@@ -23,6 +24,7 @@ export interface UpdateRecurringTaskParams {
   description?: string | null
   prompt?: string
   intervalHours?: number
+  assigneeIds?: string[]
   projectId?: string | null
 }
 
@@ -31,7 +33,14 @@ export function useRecurringTasks() {
   const recurringTasks = useQuery(getRecurringTasks$) ?? []
 
   const createRecurringTask = useCallback(
-    ({ name, description, prompt, intervalHours, projectId }: CreateRecurringTaskParams) => {
+    ({
+      name,
+      description,
+      prompt,
+      intervalHours,
+      assigneeIds,
+      projectId,
+    }: CreateRecurringTaskParams) => {
       const now = new Date()
       const nextExecutionAt = new Date(calculateNextExecution(now.getTime(), intervalHours))
 
@@ -42,6 +51,7 @@ export function useRecurringTasks() {
           description,
           prompt,
           intervalHours,
+          assigneeIds: assigneeIds && assigneeIds.length > 0 ? assigneeIds : undefined,
           enabled: true,
           projectId,
           nextExecutionAt,
@@ -72,6 +82,7 @@ export function useRecurringTasks() {
         description: updates.description,
         prompt: updates.prompt,
         intervalHours: updates.intervalHours,
+        assigneeIds: updates.assigneeIds,
         projectId: updates.projectId,
       }
 
@@ -190,6 +201,7 @@ export function useRecurringTasks() {
               description: undefined,
               prompt: undefined,
               intervalHours: undefined,
+              assigneeIds: undefined,
               projectId: undefined,
             },
             updatedAt: completedAt,

@@ -24,6 +24,7 @@ export const RecurringTaskForm: React.FC<RecurringTaskFormProps> = ({
     description: string
     prompt: string
     intervalHours: number
+    assigneeIds: string[]
     projectId: string | null
   }) => {
     const now = new Date()
@@ -36,6 +37,7 @@ export const RecurringTaskForm: React.FC<RecurringTaskFormProps> = ({
         description: data.description || undefined,
         prompt: data.prompt,
         intervalHours: data.intervalHours,
+        assigneeIds: data.assigneeIds.length > 0 ? data.assigneeIds : undefined,
         enabled: true,
         projectId: data.projectId || undefined,
         nextExecutionAt,

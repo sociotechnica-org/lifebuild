@@ -4,6 +4,7 @@ import { getProjects$ } from '@work-squared/shared/queries'
 import { formatInterval, formatRelativeTime } from '@work-squared/shared'
 import type { RecurringTask } from '@work-squared/shared/schema'
 import { ExecutionHistory } from './ExecutionHistory'
+import { AssigneeAvatars } from '../ui/AssigneeSelector/AssigneeSelector.js'
 
 interface RecurringTaskCardProps {
   task: RecurringTask
@@ -29,6 +30,13 @@ export const RecurringTaskCard: React.FC<RecurringTaskCardProps> = ({
   const isEnabled = task.enabled
   const nextExecution = task.nextExecutionAt ? task.nextExecutionAt.getTime() : null
   const project = task.projectId ? projects.find(p => p.id === task.projectId) : null
+  const assigneeIds = (() => {
+    try {
+      return task.assigneeIds ? JSON.parse(task.assigneeIds) : []
+    } catch {
+      return []
+    }
+  })()
 
   const handleToggleEnabled = async () => {
     setIsToggling(true)
@@ -152,6 +160,13 @@ export const RecurringTaskCard: React.FC<RecurringTaskCardProps> = ({
               </div>
             )}
           </div>
+
+          {assigneeIds.length > 0 && (
+            <div className='mt-2 flex items-center gap-2'>
+              <span className='text-xs text-gray-500'>Assigned to:</span>
+              <AssigneeAvatars assigneeIds={assigneeIds} maxDisplay={3} />
+            </div>
+          )}
         </div>
 
         {/* Action buttons */}

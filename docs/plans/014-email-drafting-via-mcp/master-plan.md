@@ -198,7 +198,7 @@ Build the absolute minimal feature set to enable background agents to check user
 
 - **✅ Phase 1-2**: Basic multi-store infrastructure (PRs #138, #143)
   - Store management with environment variables
-  - Per-store event processing and isolation 
+  - Per-store event processing and isolation
   - WebSocket distribution per store
 - **❌ Phase 3-4**: Store-scoped agentic execution - **MISSING**
   - No Agent Manager for coordinating agentic loops across stores
@@ -214,7 +214,7 @@ _No items currently in progress - ready to start next phase!_
 #### Multi-Store Agentic Coordination - CRITICAL MISSING ⚠️
 
 - **Prerequisites**: ✅ Basic multi-store infrastructure complete
-- **❌ MISSING**: Agent Manager for store-scoped agentic loops 
+- **❌ MISSING**: Agent Manager for store-scoped agentic loops
 - **❌ MISSING**: Task Scheduler for recurring task execution across stores
 - **Impact**: Blocks LLM-powered recurring tasks and email processing
 - **Priority**: HIGH - Required for any server-side LLM automation
@@ -223,7 +223,7 @@ _No items currently in progress - ready to start next phase!_
 
 - **Prerequisites**: ❌ Multi-store agentic coordination (currently missing)
 - Connect recurring tasks to server-side agentic loop
-- Execute prompts with real LLM (currently mock execution)  
+- Execute prompts with real LLM (currently mock execution)
 - Handle tool calls and task creation
 - **Status**: Blocked until Agent Manager and Task Scheduler exist
 
