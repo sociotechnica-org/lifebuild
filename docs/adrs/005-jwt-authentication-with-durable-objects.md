@@ -57,7 +57,7 @@ Implement JWT-based authentication using Cloudflare Workers and Durable Objects 
 │  │                                 │ │
 │  │  - Event storage per store      │ │
 │  │  - Client connections tracking  │ │
-│  │  - userId for each connection   │ │
+│  │  - clientId/sessionId per conn  │ │
 │  └─────────────────────────────────┘ │
 └──────────────────────────────────────┘
 ```
