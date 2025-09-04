@@ -2,11 +2,11 @@
 
 ## Status
 
-Accepted
+Implemented
 
 ## Last Updated
 
-2025-08-15
+2025-09-04
 
 ## Context
 
@@ -42,54 +42,52 @@ Implement JWT-based authentication using Cloudflare Workers and Durable Objects 
          │
          │ WebSocket + JWT
          ▼
-┌─────────────────────────────────────┐
-│    Cloudflare Worker (Sync)         │
-│                                     │
-│  1. Extract JWT from syncPayload    │
-│  2. Verify JWT signature            │
-│  3. Extract userId from JWT         │
-│  4. Accept/Reject connection        │
-└──────────┬──────────────────────────┘
-           │
-           │ WebSocket connection
-           ▼
-┌──────────────────────────┐
-│  LiveStore Sync DO       │
-│  (existing, per instance)│
-│                          │
-│  - Event storage         │
-│  - Client connections    │
-│  - Now includes userId   │
-│    for each connection   │
-└──────────────────────────┘
+┌──────────────────────────────────────┐
+│    Cloudflare Worker (Sync)          │
+│                                      │
+│  1. Extract JWT from syncPayload     │
+│  2. Verify JWT signature             │
+│  3. Extract userId from JWT          │
+│  4. Accept/Reject connection         │
+│                                      │
+│  Instantiates and manages:           │
+│  ┌─────────────────────────────────┐ │
+│  │    LiveStore Sync DO            │ │
+│  │    (global, handles all stores) │ │
+│  │                                 │ │
+│  │  - Event storage per store      │ │
+│  │  - Client connections tracking  │ │
+│  │  - userId for each connection   │ │
+│  └─────────────────────────────────┘ │
+└──────────────────────────────────────┘
 ```
 
 ### Authentication Flow
 
 ```
-┌──────┐     ┌──────────┐     ┌─────────┐      ┌─────────────┐
-│Client│     │Auth      │     │Worker   │      │Sync DO      │
-└──┬───┘     │Service   │     └────┬────┘      │(per instance)│
-   │         └─────┬────┘          │            └──────┬──────┘
-   │               │               │                   │
-   │  Login        │               │                   │
-   ├──────────────>│               │                   │
-   │               │               │                   │
-   │  JWT + User   │               │                   │
-   │<──────────────│               │                   │
-   │               │               │                   │
-   │  Connect w/JWT + instanceId   │                   │
-   ├──────────────────────────────>│                   │
-   │               │               │                   │
-   │               │  Verify JWT   │                   │
-   │               │  (self-contained)                 │
-   │               │               │                   │
-   │               │  Connect to DO│                   │
-   │               │               ├──────────────────>│
-   │               │               │                   │
-   │  Connection Accepted          │                   │
-   │<──────────────────────────────│                   │
-   │               │               │                   │
+┌──────┐     ┌──────────┐     ┌─────────────────────────┐
+│Client│     │Auth      │     │Sync Worker + DO         │
+└──┬───┘     │Service   │     └────────┬────────────────┘
+   │         └─────┬────┘              │
+   │               │                   │
+   │  Login        │                   │
+   ├──────────────>│                   │
+   │               │                   │
+   │  JWT + User   │                   │
+   │<──────────────│                   │
+   │               │                   │
+   │  Connect w/JWT + instanceId       │
+   ├──────────────────────────────────>│
+   │               │                   │
+   │               │  Verify JWT       │
+   │               │  (self-contained) │
+   │               │                   │
+   │               │  Manage DO        │
+   │               │  connections      │
+   │               │                   │
+   │  Connection Accepted              │
+   │<──────────────────────────────────│
+   │               │                   │
 ```
 
 ### Auth Service Architecture
