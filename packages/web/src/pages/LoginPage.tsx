@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.js'
 
 export const LoginPage: React.FC = () => {
@@ -129,15 +129,6 @@ export const LoginPage: React.FC = () => {
               >
                 {isLoading ? 'Signing in...' : authLoading ? 'Loading...' : 'Sign in'}
               </button>
-            </div>
-
-            <div className='text-center'>
-              <span className='text-sm text-gray-600'>
-                Don't have an account?{' '}
-                <Link to='/signup' className='font-medium text-indigo-600 hover:text-indigo-500'>
-                  Sign up
-                </Link>
-              </span>
             </div>
           </form>
         </div>
