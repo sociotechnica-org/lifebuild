@@ -4,6 +4,7 @@ import { getAllSettings$ } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
 import { SETTINGS_KEYS, DEFAULT_SETTINGS } from '@work-squared/shared'
 import { SystemPromptEditor } from './SystemPromptEditor.js'
+import { RecurringTaskPromptEditor } from './RecurringTaskPromptEditor.js'
 import { LoadingSpinner } from '../ui/LoadingSpinner.js'
 
 export const SettingsPage: React.FC = () => {
@@ -11,6 +12,7 @@ export const SettingsPage: React.FC = () => {
   const allSettings = useQuery(getAllSettings$) ?? []
   const [instanceName, setInstanceName] = useState('')
   const [systemPrompt, setSystemPrompt] = useState('')
+  const [recurringTaskPrompt, setRecurringTaskPrompt] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
 
@@ -29,9 +31,13 @@ export const SettingsPage: React.FC = () => {
       settingsMap[SETTINGS_KEYS.INSTANCE_NAME] || DEFAULT_SETTINGS[SETTINGS_KEYS.INSTANCE_NAME]
     const currentSystemPrompt =
       settingsMap[SETTINGS_KEYS.SYSTEM_PROMPT] || DEFAULT_SETTINGS[SETTINGS_KEYS.SYSTEM_PROMPT]
+    const currentRecurringTaskPrompt =
+      settingsMap[SETTINGS_KEYS.RECURRING_TASK_PROMPT] ||
+      DEFAULT_SETTINGS[SETTINGS_KEYS.RECURRING_TASK_PROMPT]
 
     setInstanceName(currentInstanceName)
     setSystemPrompt(currentSystemPrompt)
+    setRecurringTaskPrompt(currentRecurringTaskPrompt)
   }, [settingsMap])
 
   // Track changes
@@ -40,12 +46,16 @@ export const SettingsPage: React.FC = () => {
       settingsMap[SETTINGS_KEYS.INSTANCE_NAME] || DEFAULT_SETTINGS[SETTINGS_KEYS.INSTANCE_NAME]
     const originalSystemPrompt =
       settingsMap[SETTINGS_KEYS.SYSTEM_PROMPT] || DEFAULT_SETTINGS[SETTINGS_KEYS.SYSTEM_PROMPT]
+    const originalRecurringTaskPrompt =
+      settingsMap[SETTINGS_KEYS.RECURRING_TASK_PROMPT] ||
+      DEFAULT_SETTINGS[SETTINGS_KEYS.RECURRING_TASK_PROMPT]
 
     const hasInstanceNameChanged = instanceName !== originalInstanceName
     const hasSystemPromptChanged = systemPrompt !== originalSystemPrompt
+    const hasRecurringTaskPromptChanged = recurringTaskPrompt !== originalRecurringTaskPrompt
 
-    setHasChanges(hasInstanceNameChanged || hasSystemPromptChanged)
-  }, [instanceName, systemPrompt, settingsMap])
+    setHasChanges(hasInstanceNameChanged || hasSystemPromptChanged || hasRecurringTaskPromptChanged)
+  }, [instanceName, systemPrompt, recurringTaskPrompt, settingsMap])
 
   const handleSave = async () => {
     if (!hasChanges) return
@@ -80,6 +90,20 @@ export const SettingsPage: React.FC = () => {
         )
       }
 
+      // Update recurring task prompt if changed
+      const originalRecurringTaskPrompt =
+        settingsMap[SETTINGS_KEYS.RECURRING_TASK_PROMPT] ||
+        DEFAULT_SETTINGS[SETTINGS_KEYS.RECURRING_TASK_PROMPT]
+      if (recurringTaskPrompt !== originalRecurringTaskPrompt) {
+        updates.push(
+          events.settingUpdated({
+            key: SETTINGS_KEYS.RECURRING_TASK_PROMPT,
+            value: recurringTaskPrompt,
+            updatedAt: new Date(),
+          })
+        )
+      }
+
       if (updates.length > 0) {
         await Promise.all(updates.map(update => store.commit(update)))
       }
@@ -93,6 +117,7 @@ export const SettingsPage: React.FC = () => {
   const handleReset = () => {
     setInstanceName(DEFAULT_SETTINGS[SETTINGS_KEYS.INSTANCE_NAME])
     setSystemPrompt(DEFAULT_SETTINGS[SETTINGS_KEYS.SYSTEM_PROMPT])
+    setRecurringTaskPrompt(DEFAULT_SETTINGS[SETTINGS_KEYS.RECURRING_TASK_PROMPT])
   }
 
   const handleDiscard = () => {
@@ -100,9 +125,13 @@ export const SettingsPage: React.FC = () => {
       settingsMap[SETTINGS_KEYS.INSTANCE_NAME] || DEFAULT_SETTINGS[SETTINGS_KEYS.INSTANCE_NAME]
     const originalSystemPrompt =
       settingsMap[SETTINGS_KEYS.SYSTEM_PROMPT] || DEFAULT_SETTINGS[SETTINGS_KEYS.SYSTEM_PROMPT]
+    const originalRecurringTaskPrompt =
+      settingsMap[SETTINGS_KEYS.RECURRING_TASK_PROMPT] ||
+      DEFAULT_SETTINGS[SETTINGS_KEYS.RECURRING_TASK_PROMPT]
 
     setInstanceName(originalInstanceName)
     setSystemPrompt(originalSystemPrompt)
+    setRecurringTaskPrompt(originalRecurringTaskPrompt)
   }
 
   return (
@@ -149,6 +178,23 @@ export const SettingsPage: React.FC = () => {
                   worker)
                 </p>
                 <SystemPromptEditor value={systemPrompt} onChange={setSystemPrompt} />
+              </div>
+
+              {/* Recurring Task Prompt */}
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Recurring Task Custom Prompt
+                </label>
+                <p className='text-sm text-gray-500 mb-3'>
+                  Custom prompt template that will be prepended to the system prompt when executing
+                  recurring tasks. Use variable placeholders like{' '}
+                  <code className='bg-gray-100 px-1 rounded'>{'{{name}}'}</code> to include task
+                  data.
+                </p>
+                <RecurringTaskPromptEditor
+                  value={recurringTaskPrompt}
+                  onChange={setRecurringTaskPrompt}
+                />
               </div>
             </div>
 
