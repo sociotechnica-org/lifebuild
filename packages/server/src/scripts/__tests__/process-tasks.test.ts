@@ -43,7 +43,7 @@ const mockConsole = {
 }
 
 // Mock process.on for event handler tests
-const mockProcessOn = vi.spyOn(process, 'on').mockImplementation(() => process)
+vi.spyOn(process, 'on').mockImplementation(() => process)
 
 describe('process-tasks script', () => {
   let mockParseStoreIds: any

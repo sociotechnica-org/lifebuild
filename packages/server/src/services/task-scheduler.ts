@@ -120,7 +120,13 @@ export class TaskScheduler {
   /**
    * Execute a single task using the existing AgenticLoop
    */
-  private async executeTask(task: RecurringTask, store: Store, storeId: string, executionId: string, startTime: Date): Promise<void> {
+  private async executeTask(
+    task: RecurringTask,
+    store: Store,
+    storeId: string,
+    executionId: string,
+    startTime: Date
+  ): Promise<void> {
     // Emit start event
     await this.emitExecutionEvent(store, {
       type: 'task_execution.start',
@@ -222,7 +228,7 @@ export class TaskScheduler {
     }
 
     prompt += '\n\nPlease execute the following prompt and complete the requested task.'
-    
+
     return prompt
   }
 
