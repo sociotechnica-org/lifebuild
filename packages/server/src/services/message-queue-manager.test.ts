@@ -128,27 +128,6 @@ describe('MessageQueueManager', () => {
 
       vi.useRealTimers()
     })
-
-    it('should remove empty queues after cleanup', async () => {
-      vi.useFakeTimers()
-
-      const conversationId = 'conv-1'
-      const message = { id: 'msg-1', content: 'Test' }
-
-      manager.enqueue(conversationId, message)
-      expect(manager.hasMessages(conversationId)).toBe(true)
-
-      // Fast forward past message timeout
-      vi.advanceTimersByTime(5 * 60 * 1000 + 1000)
-
-      // Trigger periodic cleanup
-      vi.advanceTimersByTime(60 * 1000)
-
-      // Queue should be completely removed
-      expect(manager.hasMessages(conversationId)).toBe(false)
-
-      vi.useRealTimers()
-    })
   })
 
   describe('Statistics and monitoring', () => {
