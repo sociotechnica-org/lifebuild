@@ -72,9 +72,9 @@ export function validatePromptTemplate(template: string): PromptValidationResult
 
     // Check if variable is available
     if (!AVAILABLE_VARIABLES.includes(variableName as AvailableVariable)) {
-      const availableList = AVAILABLE_VARIABLES.join('`, `{{')
+      const availableList = AVAILABLE_VARIABLES.map(v => `{{${v}}}`).join(', ')
       errors.push(
-        `Invalid variable: {{${variableName}}} - available variables are: {{${availableList}}}`
+        `Invalid variable: {{${variableName}}} - available variables are: ${availableList}`
       )
       continue
     }
