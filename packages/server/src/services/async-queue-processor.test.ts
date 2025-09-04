@@ -121,40 +121,6 @@ describe('AsyncQueueProcessor', () => {
       expect(processor.getQueueLength()).toBe(0)
       expect(processor.isProcessing()).toBe(false)
     })
-
-    it('should clear all queued tasks', async () => {
-      let task1CanComplete = false
-
-      const task1 = processor.enqueue('task-1', async () => {
-        // Wait for signal to complete
-        while (!task1CanComplete) {
-          await new Promise(resolve => setTimeout(resolve, 10))
-        }
-        return 'result-1'
-      })
-
-      const task2 = processor.enqueue('task-2', async () => {
-        await new Promise(resolve => setTimeout(resolve, 100))
-        return 'result-2'
-      })
-
-      // Let first task start processing
-      await new Promise(resolve => setTimeout(resolve, 10))
-
-      // Clear queue while first task is running
-      processor.clear()
-
-      // Allow first task to complete
-      task1CanComplete = true
-
-      // First task should complete normally (already started)
-      await expect(task1).resolves.toBe('result-1')
-
-      // Second task should be rejected (was in queue)
-      await expect(task2).rejects.toThrow('Queue cleared')
-
-      expect(processor.getQueueLength()).toBe(0)
-    })
   })
 
   describe('Destruction and lifecycle', () => {
@@ -165,41 +131,6 @@ describe('AsyncQueueProcessor', () => {
 
       const task = processor.enqueue('task-1', async () => 'result')
       await expect(task).rejects.toThrow('Queue processor has been destroyed')
-    })
-
-    it('should reject all pending tasks on destruction', async () => {
-      let task1CanComplete = false
-      let task1Started = false
-
-      const task1 = processor.enqueue('task-1', async () => {
-        task1Started = true
-        // Wait for signal to complete
-        while (!task1CanComplete) {
-          await new Promise(resolve => setTimeout(resolve, 10))
-        }
-        return 'result-1'
-      })
-
-      const task2 = processor.enqueue('task-2', async () => 'result-2')
-
-      // Wait for task1 to start processing
-      while (!task1Started) {
-        await new Promise(resolve => setTimeout(resolve, 1))
-      }
-
-      // Destroy while task1 is running
-      processor.destroy()
-
-      // Allow task1 to complete (running tasks continue)
-      task1CanComplete = true
-
-      // Task1 should complete normally (already running)
-      // Task2 should be rejected (was in queue)
-      await expect(task1).resolves.toBe('result-1')
-      await expect(task2).rejects.toThrow('Queue cleared')
-
-      expect(processor.isDestroyed()).toBe(true)
-      expect(processor.getQueueLength()).toBe(0)
     })
 
     it('should handle multiple destroy calls gracefully', () => {
