@@ -20,12 +20,26 @@ vi.mock('./ExecutionHistory', () => ({
   ExecutionHistory: vi.fn(() => null),
 }))
 
+// Mock AssigneeAvatars component
+vi.mock('../ui/AssigneeSelector/AssigneeSelector.js', () => ({
+  AssigneeAvatars: ({ assigneeIds }: { assigneeIds: string[] }) => (
+    <div data-testid='assignee-avatars'>
+      {assigneeIds.map(id => (
+        <span key={id} data-testid={`avatar-${id}`}>
+          {id}
+        </span>
+      ))}
+    </div>
+  ),
+}))
+
 const mockTask: RecurringTask = {
   id: 'task-1',
   name: 'Test Task',
   description: 'A test recurring task',
   prompt: 'Do something important',
   intervalHours: 24,
+  assigneeIds: '["user1", "user2"]',
   enabled: true,
   projectId: null,
   lastExecutedAt: null,
@@ -38,6 +52,7 @@ const mockDisabledTask: RecurringTask = {
   ...mockTask,
   id: 'task-2',
   name: 'Disabled Task',
+  assigneeIds: '[]',
   enabled: false,
   nextExecutionAt: null,
 }
@@ -311,5 +326,57 @@ describe('RecurringTaskCard', () => {
     )
 
     expect(screen.getByText('Last: in 2 hours')).toBeInTheDocument()
+  })
+
+  it('should display assignee avatars when assignees exist', () => {
+    render(
+      <RecurringTaskCard
+        task={mockTask}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+        onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
+      />
+    )
+
+    expect(screen.getByText('Assigned to:')).toBeInTheDocument()
+    expect(screen.getByTestId('assignee-avatars')).toBeInTheDocument()
+    expect(screen.getByTestId('avatar-user1')).toBeInTheDocument()
+    expect(screen.getByTestId('avatar-user2')).toBeInTheDocument()
+  })
+
+  it('should not display assignees section when no assignees exist', () => {
+    render(
+      <RecurringTaskCard
+        task={mockDisabledTask}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+        onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
+      />
+    )
+
+    expect(screen.queryByText('Assigned to:')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('assignee-avatars')).not.toBeInTheDocument()
+  })
+
+  it('should handle malformed assigneeIds gracefully', () => {
+    const taskWithBadAssigneeIds = {
+      ...mockTask,
+      assigneeIds: 'invalid json',
+    }
+
+    render(
+      <RecurringTaskCard
+        task={taskWithBadAssigneeIds}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+        onToggleEnabled={mockOnToggleEnabled}
+        onTrigger={mockOnTrigger}
+      />
+    )
+
+    // Should not crash and not show assignees section
+    expect(screen.queryByText('Assigned to:')).not.toBeInTheDocument()
   })
 })
