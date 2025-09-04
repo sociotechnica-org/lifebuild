@@ -5,6 +5,7 @@ import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
 import { ProcessedTaskTracker } from './processed-task-tracker.js'
 import { tables } from '@work-squared/shared/schema'
 import type { RecurringTask, TaskExecution } from '@work-squared/shared/schema'
+import { DEFAULT_MODEL } from '@work-squared/shared'
 
 export class TaskScheduler {
   private taskTracker: ProcessedTaskTracker
@@ -140,9 +141,9 @@ export class TaskScheduler {
         boardContext: { id: storeId, name: storeId },
         workerContext: {
           name: `Recurring Task: ${task.name}`,
-          systemPrompt: `You are executing a recurring task. Task details:\n- Name: ${task.name}\n- Description: ${task.description || 'No description'}\n\nPlease execute the following prompt and complete the requested task.`,
+          systemPrompt: this.buildTaskSystemPrompt(task),
         },
-        model: 'claude-3-5-sonnet-20241022',
+        model: DEFAULT_MODEL,
         maxIterations: 10,
       })
 
@@ -205,6 +206,24 @@ export class TaskScheduler {
       console.error(`Failed to emit event ${event.type}:`, error)
       // Don't throw - execution events are best-effort
     }
+  }
+
+  /**
+   * Build comprehensive system prompt with all task details
+   */
+  private buildTaskSystemPrompt(task: RecurringTask): string {
+    let prompt = `You are executing a recurring task. Task details:
+- Name: ${task.name}
+- Description: ${task.description || 'No description provided'}
+- Recurring Interval: ${task.intervalHours} hours`
+
+    if (task.projectId) {
+      prompt += `\n- Project ID: ${task.projectId} (use project tools to look up project details)`
+    }
+
+    prompt += '\n\nPlease execute the following prompt and complete the requested task.'
+    
+    return prompt
   }
 
   /**
