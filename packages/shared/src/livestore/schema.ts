@@ -216,6 +216,7 @@ const recurringTasks = State.SQLite.table({
     description: State.SQLite.text({ nullable: true }),
     prompt: State.SQLite.text({ default: '' }),
     intervalHours: State.SQLite.integer({ default: 24 }),
+    assigneeIds: State.SQLite.text({ default: '[]' }), // JSON array of user IDs
     lastExecutedAt: State.SQLite.integer({
       nullable: true,
       schema: Schema.DateFromNumber,
@@ -485,6 +486,7 @@ const materializers = State.SQLite.materializers(events, {
     description,
     prompt,
     intervalHours,
+    assigneeIds,
     enabled,
     projectId,
     nextExecutionAt,
@@ -496,6 +498,7 @@ const materializers = State.SQLite.materializers(events, {
       description,
       prompt,
       intervalHours,
+      assigneeIds: assigneeIds ? JSON.stringify(assigneeIds) : undefined,
       enabled,
       projectId,
       lastExecutedAt: null,
@@ -511,6 +514,7 @@ const materializers = State.SQLite.materializers(events, {
     if (updates.description !== undefined) updateData.description = updates.description
     if (updates.prompt !== undefined) updateData.prompt = updates.prompt
     if (updates.intervalHours !== undefined) updateData.intervalHours = updates.intervalHours
+    if (updates.assigneeIds !== undefined) updateData.assigneeIds = JSON.stringify(updates.assigneeIds)
     if (updates.projectId !== undefined) updateData.projectId = updates.projectId
     if (nextExecutionAt !== undefined) updateData.nextExecutionAt = nextExecutionAt
 
