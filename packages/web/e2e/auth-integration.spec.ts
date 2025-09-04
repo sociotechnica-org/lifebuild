@@ -155,17 +155,14 @@ test.describe('Authentication Integration E2E', () => {
     await expect(page.locator('input[name="password"]')).toBeVisible()
     await expect(page.locator('button[type="submit"]')).toContainText('Sign in')
 
-    // Should have link to signup
-    await expect(page.locator('text=Sign up')).toBeVisible()
-
     // Test dev mode indicator (shown when REQUIRE_AUTH=false)
     if (!REQUIRE_AUTH) {
       await expect(page.locator('text=Dev Mode')).toBeVisible()
     }
 
-    // Test signup page
-    await page.click('text=Sign up')
-    await page.waitForURL(/\/signup/, { timeout: 5000 })
+    // Test signup page (direct navigation since link was removed)
+    await page.goto(`${APP_URL}/signup`)
+    await page.waitForLoadState('load')
 
     await expect(page.locator('h2')).toContainText('Create your account')
     await expect(page.locator('input[name="email"]')).toBeVisible()
