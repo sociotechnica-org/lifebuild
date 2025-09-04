@@ -514,7 +514,8 @@ const materializers = State.SQLite.materializers(events, {
     if (updates.description !== undefined) updateData.description = updates.description
     if (updates.prompt !== undefined) updateData.prompt = updates.prompt
     if (updates.intervalHours !== undefined) updateData.intervalHours = updates.intervalHours
-    if (updates.assigneeIds !== undefined) updateData.assigneeIds = JSON.stringify(updates.assigneeIds)
+    if (updates.assigneeIds !== undefined)
+      updateData.assigneeIds = JSON.stringify(updates.assigneeIds)
     if (updates.projectId !== undefined) updateData.projectId = updates.projectId
     if (nextExecutionAt !== undefined) updateData.nextExecutionAt = nextExecutionAt
 

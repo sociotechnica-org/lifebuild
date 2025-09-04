@@ -126,7 +126,9 @@ export const EditRecurringTaskModal: React.FC<EditRecurringTaskModalProps> = ({
           return []
         }
       })()
-      if (JSON.stringify(assigneeIds.sort()) !== JSON.stringify(currentAssigneeIds.sort())) {
+      if (
+        JSON.stringify([...assigneeIds].sort()) !== JSON.stringify([...currentAssigneeIds].sort())
+      ) {
         updates.assigneeIds = assigneeIds
       }
 
