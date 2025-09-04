@@ -1,6 +1,7 @@
 export const SETTINGS_KEYS = {
   INSTANCE_NAME: 'instanceName',
   SYSTEM_PROMPT: 'systemPrompt',
+  RECURRING_TASK_PROMPT: 'recurringTaskPrompt',
 } as const
 
 export const DEFAULT_SETTINGS = {
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS = {
 You have access to comprehensive project management tools for creating tasks, managing projects, handling documents, and organizing workflows. Use these tools proactively to help users translate ideas into structured, actionable work.
 
 Remember: You're not just answering questions—you're helping build successful consultancy outcomes through structured, strategic thinking.`,
+  [SETTINGS_KEYS.RECURRING_TASK_PROMPT]: '',
 } as const
 
 export type SettingsKey = keyof typeof DEFAULT_SETTINGS
