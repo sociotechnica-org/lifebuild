@@ -5,6 +5,7 @@ import { BaseEventItem } from './BaseEventItem.js'
 import { HistoryEvent } from '../types.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../util/navigation.js'
+import { useActorName } from '../hooks/useActorName.js'
 
 interface ProjectCreatedEventProps {
   event: HistoryEvent
@@ -13,6 +14,7 @@ interface ProjectCreatedEventProps {
 
 export const ProjectCreatedEvent: React.FC<ProjectCreatedEventProps> = ({ event, timestamp }) => {
   const navigate = useNavigate()
+  const actorName = useActorName(event.actorId)
   const data = event.data as {
     id: string
     name: string
@@ -25,13 +27,20 @@ export const ProjectCreatedEvent: React.FC<ProjectCreatedEventProps> = ({ event,
 
   const icon = <FolderPlus size={16} className='text-blue-600' />
 
+  // Truncate description to ~50 characters for compact display
+  const truncatedDescription =
+    data.description && data.description.length > 50
+      ? `${data.description.slice(0, 47)}...`
+      : data.description
+
   return (
     <BaseEventItem
       icon={icon}
       timestamp={timestamp}
       title={`Created project "${data.name}"`}
-      details={data.description}
-      actions={[{ label: 'View Project', onClick: handleViewProject }]}
+      details={truncatedDescription}
+      actor={actorName}
+      onIconClick={handleViewProject}
     />
   )
 }

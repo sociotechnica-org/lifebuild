@@ -20,7 +20,8 @@ export * from './contacts.js'
  */
 export async function executeLLMTool(
   store: Store,
-  toolCall: { name: string; parameters: any }
+  toolCall: { name: string; parameters: any },
+  workerId?: string
 ): Promise<any> {
   // Import functions dynamically to avoid circular dependencies
   const {
@@ -97,7 +98,7 @@ export async function executeLLMTool(
       return getOrphanedTasks(store)
 
     case 'create_project':
-      return createProject(store, toolCall.parameters)
+      return createProject(store, toolCall.parameters, workerId)
 
     case 'list_projects':
       return listProjects(store)

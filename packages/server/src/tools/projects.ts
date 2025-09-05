@@ -23,7 +23,11 @@ import type {
 /**
  * Create a new project (core implementation)
  */
-function createProjectCore(store: Store, params: CreateProjectParams): CreateProjectResult {
+function createProjectCore(
+  store: Store,
+  params: CreateProjectParams,
+  actorId?: string
+): CreateProjectResult {
   try {
     const projectId = crypto.randomUUID()
     const now = new Date()
@@ -35,6 +39,7 @@ function createProjectCore(store: Store, params: CreateProjectParams): CreatePro
         name: params.name,
         description: params.description,
         createdAt: now,
+        actorId,
       })
     )
 
@@ -113,6 +118,10 @@ function getProjectDetailsCore(store: Store, projectId: string): GetProjectDetai
 }
 
 // Export wrapped versions for external use
-export const createProject = wrapToolFunction(createProjectCore)
+export const createProject = (store: Store, params: any, actorId?: string) =>
+  wrapToolFunction((store: Store, params: any) => createProjectCore(store, params, actorId))(
+    store,
+    params
+  )
 export const listProjects = wrapNoParamFunction(listProjectsCore)
 export const getProjectDetails = wrapStringParamFunction(getProjectDetailsCore)

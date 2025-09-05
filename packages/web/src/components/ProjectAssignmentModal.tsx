@@ -75,6 +75,7 @@ export const ProjectAssignmentModal: React.FC<ProjectAssignmentModalProps> = ({
           events.workerAssignedToProject({
             workerId: worker.id,
             projectId,
+            assignedAt: new Date(),
           })
         )
       }
