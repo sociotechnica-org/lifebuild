@@ -218,6 +218,7 @@
   background-color: rgba(59, 130, 246, 0.1);
   color: #2563eb;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .chorus-file-link:hover {

@@ -31,7 +31,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, onCopy, onRetry, cur
               />
             </svg>
             <div className='flex-1'>
-              <div className='whitespace-pre-line text-sm text-green-800'>{message.message}</div>
+              <MarkdownRenderer content={message.message} className='text-sm text-green-800' />
             </div>
           </div>
         </div>
