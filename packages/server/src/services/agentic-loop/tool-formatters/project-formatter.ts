@@ -51,7 +51,7 @@ export class ProjectToolFormatter implements ToolResultFormatter {
       return 'Project not found'
     }
     const p = result.project
-    return `Project details:\n• ID: ${p.id}\n• Name: ${p.name}\n• Description: ${
+    return `Project details:\n• ID: ${ChorusFormatter.project(p.id)}\n• Name: ${p.name}\n• Description: ${
       p.description || 'none'
     }\n• Document count: ${p.documentCount}\n• Task count: ${p.taskCount}`
   }

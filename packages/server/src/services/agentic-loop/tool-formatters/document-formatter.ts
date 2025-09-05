@@ -133,6 +133,9 @@ export class DocumentToolFormatter implements ToolResultFormatter {
   }
 
   private formatRemoveDocumentFromProject(result: any): string {
-    return `Document successfully removed from project:\n• Document ID: ${result.association?.documentId}\n• Project ID: ${result.association?.projectId}`
+    if (!result.association?.documentId || !result.association?.projectId) {
+      return 'Document remove from project failed: Missing document or project ID'
+    }
+    return `Document successfully removed from project:\n• Document ID: ${ChorusFormatter.document(result.association.documentId)}\n• Project ID: ${ChorusFormatter.project(result.association.projectId)}`
   }
 }
