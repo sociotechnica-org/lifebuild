@@ -28,9 +28,10 @@ export const ProjectCreatedEvent: React.FC<ProjectCreatedEventProps> = ({ event,
   const icon = <FolderPlus size={16} className='text-blue-600' />
 
   // Truncate description to ~50 characters for compact display
-  const truncatedDescription = data.description && data.description.length > 50
-    ? `${data.description.slice(0, 47)}...`
-    : data.description
+  const truncatedDescription =
+    data.description && data.description.length > 50
+      ? `${data.description.slice(0, 47)}...`
+      : data.description
 
   return (
     <BaseEventItem
@@ -39,7 +40,7 @@ export const ProjectCreatedEvent: React.FC<ProjectCreatedEventProps> = ({ event,
       title={`Created project "${data.name}"`}
       details={truncatedDescription}
       actor={actorName}
-      actions={[{ label: 'View Project', onClick: handleViewProject }]}
+      onIconClick={handleViewProject}
     />
   )
 }
