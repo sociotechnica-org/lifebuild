@@ -3,7 +3,7 @@
  */
 export async function sendDiscordNotification(message: string, webhookUrl?: string): Promise<void> {
   console.log('Discord notification attempt:', { message, hasWebhookUrl: !!webhookUrl })
-  
+
   if (!webhookUrl) {
     console.log('No Discord webhook URL configured, skipping notification')
     return
@@ -15,7 +15,7 @@ export async function sendDiscordNotification(message: string, webhookUrl?: stri
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: message }),
     })
-    
+
     if (!response.ok) {
       console.error('Discord webhook failed:', response.status, response.statusText)
     } else {
