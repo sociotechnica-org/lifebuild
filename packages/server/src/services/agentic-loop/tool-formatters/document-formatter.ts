@@ -1,4 +1,5 @@
 import type { ToolResultFormatter } from './types.js'
+import { ChorusFormatter } from './chorus-formatter.js'
 
 export class DocumentToolFormatter implements ToolResultFormatter {
   private readonly documentTools = [
@@ -52,7 +53,7 @@ export class DocumentToolFormatter implements ToolResultFormatter {
       result.documents
         ?.map(
           (d: any) =>
-            `${d.title} (ID: ${d.id}) - Updated: ${new Date(d.updatedAt).toLocaleDateString()}`
+            `${d.title} (ID: ${ChorusFormatter.document(d.id)}) - Updated: ${new Date(d.updatedAt).toLocaleDateString()}`
         )
         .join('\n• ') || 'No documents found'
     return `Available documents:\n• ${documentList}`
@@ -69,7 +70,9 @@ export class DocumentToolFormatter implements ToolResultFormatter {
   private formatSearchDocuments(result: any): string {
     const searchResults =
       result.results
-        ?.map((r: any) => `${r.title} (ID: ${r.id})\n  Snippet: ${r.snippet}`)
+        ?.map(
+          (r: any) => `${r.title} (ID: ${ChorusFormatter.document(r.id)})\n  Snippet: ${r.snippet}`
+        )
         .join('\n\n• ') || 'No matching documents found'
     return `Search results:\n• ${searchResults}`
   }
@@ -94,13 +97,13 @@ export class DocumentToolFormatter implements ToolResultFormatter {
   }
 
   private formatCreateDocument(result: any): string {
-    return `Document created successfully:\n• Title: ${result.title}\n• Document ID: ${
+    return `Document created successfully:\n• Title: ${result.title}\n• Document ID: ${ChorusFormatter.document(
       result.documentId
-    }\n• Content length: ${result.content?.length || 0} characters`
+    )}\n• Content length: ${result.content?.length || 0} characters`
   }
 
   private formatUpdateDocument(result: any): string {
-    let message = `Document updated successfully:\n• Document ID: ${result.document?.id}`
+    let message = `Document updated successfully:\n• Document ID: ${ChorusFormatter.document(result.document?.id)}`
     if (result.document?.title) {
       message += `\n• New title: ${result.document.title}`
     }

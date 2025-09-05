@@ -25,6 +25,31 @@ export const useFileNavigation = () => {
     // Remove any leading/trailing whitespace
     const cleanPath = filePath.trim()
 
+    // Check for Work Squared entity references
+    if (cleanPath.startsWith('document:')) {
+      return {
+        type: 'document',
+        path: cleanPath,
+        navigable: true,
+      }
+    }
+
+    if (cleanPath.startsWith('project:')) {
+      return {
+        type: 'project',
+        path: cleanPath,
+        navigable: true,
+      }
+    }
+
+    if (cleanPath.startsWith('task:')) {
+      return {
+        type: 'project', // Tasks are viewed within projects
+        path: cleanPath,
+        navigable: true,
+      }
+    }
+
     // Check for common project file patterns
     if (cleanPath.match(/\.(tsx?|jsx?|py|java|cpp?|h|rs|go|php)$/)) {
       return {
@@ -73,16 +98,49 @@ export const useFileNavigation = () => {
           break
 
         case 'document':
-          // Navigate to document if we have an ID
-          if (options?.documentId) {
+          // Handle document references
+          if (analysis.path.startsWith('document:')) {
+            const documentId = analysis.path.split(':')[1]
+            if (documentId) {
+              navigate(preserveStoreIdInUrl(generateRoute.document(documentId)))
+            }
+          } else if (options?.documentId) {
             navigate(preserveStoreIdInUrl(generateRoute.document(options.documentId)))
+          } else {
+            // Copy to clipboard as fallback
+            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+              navigator.clipboard.writeText(analysis.path).catch(err => {
+                console.error('Failed to copy file path', err)
+              })
+            }
           }
           break
 
         case 'project':
-          // Navigate to project if we have an ID
-          if (options?.projectId) {
+          // Handle project and task references
+          if (analysis.path.startsWith('project:')) {
+            const projectId = analysis.path.split(':')[1]
+            if (projectId) {
+              navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
+            }
+          } else if (analysis.path.startsWith('task:')) {
+            // For tasks, we need to find the project they belong to
+            // For now, copy task ID to clipboard
+            const taskId = analysis.path.split(':')[1]
+            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+              navigator.clipboard.writeText(`Task ID: ${taskId}`).catch(err => {
+                console.error('Failed to copy task ID', err)
+              })
+            }
+          } else if (options?.projectId) {
             navigate(preserveStoreIdInUrl(generateRoute.project(options.projectId)))
+          } else {
+            // Copy to clipboard as fallback
+            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+              navigator.clipboard.writeText(analysis.path).catch(err => {
+                console.error('Failed to copy file path', err)
+              })
+            }
           }
           break
 
@@ -105,19 +163,42 @@ export const useFileNavigation = () => {
   const getFilePathDisplay = useCallback(
     (filePath: string) => {
       const analysis = analyzeFilePath(filePath)
+      const cleanPath = analysis.path
 
       switch (analysis.type) {
         case 'project':
-          return {
-            icon: '📄',
-            tooltip: 'Project file',
-            className: 'cursor-pointer text-blue-600 hover:text-blue-800 hover:underline',
+          if (cleanPath.startsWith('project:')) {
+            return {
+              icon: '📂',
+              tooltip: 'Navigate to project',
+              className: 'cursor-pointer text-blue-600 hover:text-blue-800 hover:underline',
+            }
+          } else if (cleanPath.startsWith('task:')) {
+            return {
+              icon: '✅',
+              tooltip: 'Copy task ID',
+              className: 'cursor-pointer text-indigo-600 hover:text-indigo-800 hover:underline',
+            }
+          } else {
+            return {
+              icon: '📄',
+              tooltip: 'Copy file path',
+              className: 'cursor-pointer text-blue-600 hover:text-blue-800 hover:underline',
+            }
           }
         case 'document':
-          return {
-            icon: '📝',
-            tooltip: 'Document file',
-            className: 'cursor-pointer text-green-600 hover:text-green-800 hover:underline',
+          if (cleanPath.startsWith('document:')) {
+            return {
+              icon: '📝',
+              tooltip: 'Navigate to document',
+              className: 'cursor-pointer text-green-600 hover:text-green-800 hover:underline',
+            }
+          } else {
+            return {
+              icon: '📝',
+              tooltip: 'Copy document path',
+              className: 'cursor-pointer text-green-600 hover:text-green-800 hover:underline',
+            }
           }
         case 'external':
           return {

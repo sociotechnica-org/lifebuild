@@ -184,3 +184,53 @@ This tests edge cases and error handling:
     },
   },
 }
+
+export const ToolOutputExamples: Story = {
+  args: {
+    content: `# Real Tool Output Examples
+
+These examples show how server-side tool formatters generate CHORUS_TAG elements.
+
+## Document Tools
+Document created successfully:
+• Title: Project Requirements  
+• Document ID: <CHORUS_TAG>document:doc-123-abc</CHORUS_TAG>
+• Content length: 1,250 characters
+
+Available documents:
+• Project Requirements (ID: <CHORUS_TAG>document:doc-123-abc</CHORUS_TAG>) - Updated: 12/5/2023
+• API Documentation (ID: <CHORUS_TAG>document:doc-456-def</CHORUS_TAG>) - Updated: 12/4/2023
+
+## Project Tools  
+Project created successfully:
+• Name: Mobile App Redesign
+• ID: <CHORUS_TAG>project:proj-789-ghi</CHORUS_TAG>  
+• Description: Complete redesign of mobile application
+• Default columns created: "Backlog", "In Progress", "Review", "Done"
+
+Available projects:
+• Mobile App Redesign (ID: <CHORUS_TAG>project:proj-789-ghi</CHORUS_TAG>) - Complete redesign  
+• Backend API (ID: <CHORUS_TAG>project:proj-101-jkl</CHORUS_TAG>) - RESTful API development
+
+## Task Tools
+Task created successfully: "Implement user authentication" on board "Backend API" in column "In Progress" (assigned to John Doe). Task ID: <CHORUS_TAG>task:task-202-mno</CHORUS_TAG>
+
+Task details:
+• ID: <CHORUS_TAG>task:task-202-mno</CHORUS_TAG>
+• Title: Implement user authentication  
+• Project ID: <CHORUS_TAG>project:proj-101-jkl</CHORUS_TAG>
+• Column ID: col-in-progress
+• Description: Add JWT-based authentication system
+• Position: 3
+
+**Try clicking on any of the IDs above!** 🚀`,
+    className: 'max-w-4xl',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Shows real examples of how server-side tool formatters generate CHORUS_TAG elements for navigation.',
+      },
+    },
+  },
+}
