@@ -75,14 +75,18 @@ I've analyzed the codebase and found the following files:
 ## Unknown Files
 - Some config file: <CHORUS_TAG>config/unknown.yaml</CHORUS_TAG>
 
-Click on any of the file paths above to navigate to them!`,
+**✨ Click on any of the file paths above to test navigation!**  
+🎯 **Project files** (.tsx, .ts) → Copy to clipboard  
+📝 **Documents** (.md) → Navigate to document (if ID available)  
+🔗 **External URLs** → Open in new tab  
+📁 **Other files** → Copy to clipboard`,
     className: 'max-w-2xl',
   },
   parameters: {
     docs: {
       description: {
         story:
-          'Demonstrates CHORUS_TAG functionality with different file types. Click on the file paths to test navigation.',
+          'Demonstrates fully functional CHORUS_TAG navigation. Click on the file paths to test the different behaviors based on file type.',
       },
     },
   },

@@ -32,13 +32,14 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
 
     const processMarkdown = () => {
       try {
-        // Simple CHORUS_TAG processing - just replace with styled spans
+        // Process CHORUS_TAG elements with proper data attributes for click handling
         const processedContent = content.replace(
           /<CHORUS_TAG>(.*?)<\/CHORUS_TAG>/g,
           (match, filePath) => {
             if (!filePath) return match
-            // Simple replacement with basic styling
-            return `<span class="chorus-file-link">${filePath}</span>`
+            // Add data attributes for safe event delegation
+            const escapedPath = filePath.replace(/"/g, '&quot;')
+            return `<span class="chorus-file-link" data-file-path="${escapedPath}" data-chorus="true">${filePath}</span>`
           }
         )
 
@@ -112,7 +113,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
             'td',
             'hr',
           ],
-          ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+          ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'data-file-path', 'data-chorus'],
           // Force external links to open in new tab with security attributes
           FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input'],
           FORBID_ATTR: ['style', 'onclick', 'onload', 'onerror'],
