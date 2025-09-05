@@ -75,6 +75,7 @@ export const taskCreated = Events.synced({
     assigneeIds: Schema.Union(Schema.Array(Schema.String), Schema.Undefined),
     position: Schema.Number,
     createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who created the task
   }),
 })
 
@@ -85,6 +86,7 @@ export const taskMoved = Events.synced({
     toColumnId: Schema.String,
     position: Schema.Number,
     updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who moved the task
   }),
 })
 
@@ -96,6 +98,7 @@ export const taskMovedToProject = Events.synced({
     toColumnId: Schema.String,
     position: Schema.Number,
     updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who moved the task
   }),
 })
 
@@ -107,6 +110,7 @@ export const taskUpdated = Events.synced({
     description: Schema.Union(Schema.String, Schema.Undefined),
     assigneeIds: Schema.Union(Schema.Array(Schema.String), Schema.Undefined),
     updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who updated the task
   }),
 })
 
@@ -117,6 +121,7 @@ export const userCreated = Events.synced({
     name: Schema.String,
     avatarUrl: Schema.Union(Schema.String, Schema.Undefined),
     createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who created the user (usually system)
   }),
 })
 
@@ -194,6 +199,7 @@ export const commentAdded = Events.synced({
     authorId: Schema.String,
     content: Schema.String,
     createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who added the comment
   }),
 })
 
@@ -202,6 +208,7 @@ export const taskArchived = Events.synced({
   schema: Schema.Struct({
     taskId: Schema.String,
     archivedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who archived the task
   }),
 })
 
@@ -219,6 +226,7 @@ export const documentCreated = Events.synced({
     title: Schema.String,
     content: Schema.String,
     createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who created the document
   }),
 })
 
@@ -231,6 +239,7 @@ export const documentUpdated = Events.synced({
       content: Schema.Union(Schema.String, Schema.Undefined),
     }),
     updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who updated the document
   }),
 })
 
@@ -239,6 +248,7 @@ export const documentArchived = Events.synced({
   schema: Schema.Struct({
     id: Schema.String,
     archivedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who archived the document
   }),
 })
 
@@ -268,6 +278,7 @@ export const workerCreated = Events.synced({
     avatar: Schema.optional(Schema.String),
     defaultModel: Schema.String,
     createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who created the worker
   }),
 })
 
@@ -284,6 +295,7 @@ export const workerUpdated = Events.synced({
       isActive: Schema.optional(Schema.Boolean),
     }),
     updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who updated the worker
   }),
 })
 
@@ -292,6 +304,7 @@ export const workerAssignedToProject = Events.synced({
   schema: Schema.Struct({
     workerId: Schema.String,
     projectId: Schema.String,
+    actorId: Schema.optional(Schema.String), // Track who assigned the worker
   }),
 })
 
@@ -316,6 +329,7 @@ export const recurringTaskCreated = Events.synced({
     projectId: Schema.Union(Schema.String, Schema.Undefined),
     nextExecutionAt: Schema.Date,
     createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who created the recurring task
   }),
 })
 
@@ -385,6 +399,7 @@ export const taskExecutionCompleted = Events.synced({
     completedAt: Schema.Date,
     output: Schema.optional(Schema.String),
     createdTaskIds: Schema.optional(Schema.Array(Schema.String)),
+    actorId: Schema.optional(Schema.String), // Track who/what completed the execution (usually system)
   }),
 })
 
@@ -413,6 +428,7 @@ export const contactCreated = Events.synced({
     name: Schema.String,
     email: Schema.optional(Schema.String),
     createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who created the contact
   }),
 })
 
