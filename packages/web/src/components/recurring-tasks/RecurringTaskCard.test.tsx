@@ -227,7 +227,11 @@ describe('RecurringTaskCard', () => {
   })
 
   it('should show loading state for toggle action', async () => {
-    mockOnToggleEnabled.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
+    let resolveToggle: () => void
+    const togglePromise = new Promise<void>(resolve => {
+      resolveToggle = resolve
+    })
+    mockOnToggleEnabled.mockImplementation(() => togglePromise)
 
     const { container } = render(
       <RecurringTaskCard
@@ -252,6 +256,10 @@ describe('RecurringTaskCard', () => {
       expect(container.querySelector('.opacity-50')).toBeInTheDocument()
       expect(container.querySelector('.pointer-events-none')).toBeInTheDocument()
     })
+
+    // Complete the toggle operation to prevent state update after test teardown
+    resolveToggle!()
+    await togglePromise
   })
 
   it('should not show next execution for disabled tasks', () => {
