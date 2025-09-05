@@ -196,11 +196,16 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     processMarkdown()
   }, [content, chorusElements, getFilePathDisplay])
 
-  // Handle clicks on CHORUS file links
+  // Handle clicks on CHORUS file links - only when CHORUS elements exist
   const handleChorusClick = React.useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
       const target = event.target as HTMLElement
+
+      // Only handle clicks on actual CHORUS elements
       if (target.classList.contains('chorus-file-link') || target.closest('.chorus-file-link')) {
+        event.preventDefault()
+        event.stopPropagation()
+
         const linkElement = target.classList.contains('chorus-file-link')
           ? target
           : target.closest('.chorus-file-link')
@@ -219,11 +224,14 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     [onFileNavigate, navigateToFile]
   )
 
+  // Only add click handler if there are CHORUS elements
+  const hasChorusElements = chorusElements.size > 0
+
   return (
     <div
       className={`markdown-content ${className}`}
       dangerouslySetInnerHTML={{ __html: htmlContent }}
-      onClick={handleChorusClick}
+      {...(hasChorusElements ? { onClick: handleChorusClick } : {})}
     />
   )
 }
