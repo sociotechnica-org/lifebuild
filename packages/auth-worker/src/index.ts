@@ -384,4 +384,5 @@ interface Env {
   USER_STORE: any
   ENVIRONMENT?: string
   BOOTSTRAP_ADMIN_EMAIL?: string
+  DISCORD_WEBHOOK_URL?: string
 }
