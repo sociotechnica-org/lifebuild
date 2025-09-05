@@ -66,7 +66,7 @@ export class TaskToolFormatter implements ToolResultFormatter {
   }
 
   private formatMoveTask(result: any): string {
-    return `Task moved successfully:\n• Task ID: ${result.task?.id}\n• New column ID: ${result.task?.columnId}\n• Position: ${result.task?.position}`
+    return `Task moved successfully:\n• Task ID: ${ChorusFormatter.task(result.task?.id)}\n• New column ID: ${result.task?.columnId}\n• Position: ${result.task?.position}`
   }
 
   private formatMoveTaskToProject(result: any): string {
@@ -80,7 +80,7 @@ export class TaskToolFormatter implements ToolResultFormatter {
   }
 
   private formatUnarchiveTask(result: any): string {
-    return `Task unarchived successfully:\n• Task ID: ${result.task?.id}`
+    return `Task unarchived successfully:\n• Task ID: ${ChorusFormatter.task(result.task?.id)}`
   }
 
   private formatGetTaskById(result: any): string {
@@ -103,7 +103,8 @@ export class TaskToolFormatter implements ToolResultFormatter {
     const taskList =
       result.tasks
         ?.map(
-          (t: any) => `${t.title} (ID: ${t.id}) - Column: ${t.columnId}, Position: ${t.position}`
+          (t: any) =>
+            `${t.title} (ID: ${ChorusFormatter.task(t.id)}) - Column: ${t.columnId}, Position: ${t.position}`
         )
         .join('\n• ') || 'No tasks found in project'
     return `Project tasks:\n• ${taskList}`
@@ -112,7 +113,9 @@ export class TaskToolFormatter implements ToolResultFormatter {
   private formatGetOrphanedTasks(result: any): string {
     const taskList =
       result.tasks
-        ?.map((t: any) => `${t.title} (ID: ${t.id}) - Position: ${t.position}`)
+        ?.map(
+          (t: any) => `${t.title} (ID: ${ChorusFormatter.task(t.id)}) - Position: ${t.position}`
+        )
         .join('\n• ') || 'No orphaned tasks found'
     return `Orphaned tasks:\n• ${taskList}`
   }
