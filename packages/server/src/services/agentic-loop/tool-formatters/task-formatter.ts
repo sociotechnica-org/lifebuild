@@ -70,13 +70,14 @@ export class TaskToolFormatter implements ToolResultFormatter {
   }
 
   private formatMoveTaskToProject(result: any): string {
-    return `Task moved to project:\n• Task ID: ${result.task?.id}\n• New project ID: ${
-      result.task?.projectId || 'orphaned'
-    }\n• New column ID: ${result.task?.columnId}\n• Position: ${result.task?.position}`
+    const projectIdFormatted = result.task?.projectId
+      ? ChorusFormatter.project(result.task.projectId)
+      : 'orphaned'
+    return `Task moved to project:\n• Task ID: ${ChorusFormatter.task(result.task?.id)}\n• New project ID: ${projectIdFormatted}\n• New column ID: ${result.task?.columnId}\n• Position: ${result.task?.position}`
   }
 
   private formatArchiveTask(result: any): string {
-    return `Task archived successfully:\n• Task ID: ${result.task?.id}`
+    return `Task archived successfully:\n• Task ID: ${ChorusFormatter.task(result.task?.id)}`
   }
 
   private formatUnarchiveTask(result: any): string {
