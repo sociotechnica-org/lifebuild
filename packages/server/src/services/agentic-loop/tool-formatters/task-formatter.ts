@@ -52,7 +52,10 @@ export class TaskToolFormatter implements ToolResultFormatter {
   }
 
   private formatUpdateTask(result: any): string {
-    let message = `Task updated successfully:\n• Task ID: ${ChorusFormatter.task(result.task?.id)}`
+    if (!result.task?.id) {
+      return 'Task update failed: Task ID not found'
+    }
+    let message = `Task updated successfully:\n• Task ID: ${ChorusFormatter.task(result.task.id)}`
     if (result.task?.title) {
       message += `\n• New title: ${result.task.title}`
     }
@@ -66,22 +69,34 @@ export class TaskToolFormatter implements ToolResultFormatter {
   }
 
   private formatMoveTask(result: any): string {
-    return `Task moved successfully:\n• Task ID: ${ChorusFormatter.task(result.task?.id)}\n• New column ID: ${result.task?.columnId}\n• Position: ${result.task?.position}`
+    if (!result.task?.id) {
+      return 'Task move failed: Task ID not found'
+    }
+    return `Task moved successfully:\n• Task ID: ${ChorusFormatter.task(result.task.id)}\n• New column ID: ${result.task.columnId}\n• Position: ${result.task.position}`
   }
 
   private formatMoveTaskToProject(result: any): string {
-    const projectIdFormatted = result.task?.projectId
+    if (!result.task?.id) {
+      return 'Task move to project failed: Task ID not found'
+    }
+    const projectIdFormatted = result.task.projectId
       ? ChorusFormatter.project(result.task.projectId)
       : 'orphaned'
-    return `Task moved to project:\n• Task ID: ${ChorusFormatter.task(result.task?.id)}\n• New project ID: ${projectIdFormatted}\n• New column ID: ${result.task?.columnId}\n• Position: ${result.task?.position}`
+    return `Task moved to project:\n• Task ID: ${ChorusFormatter.task(result.task.id)}\n• New project ID: ${projectIdFormatted}\n• New column ID: ${result.task.columnId}\n• Position: ${result.task.position}`
   }
 
   private formatArchiveTask(result: any): string {
-    return `Task archived successfully:\n• Task ID: ${ChorusFormatter.task(result.task?.id)}`
+    if (!result.task?.id) {
+      return 'Task archive failed: Task ID not found'
+    }
+    return `Task archived successfully:\n• Task ID: ${ChorusFormatter.task(result.task.id)}`
   }
 
   private formatUnarchiveTask(result: any): string {
-    return `Task unarchived successfully:\n• Task ID: ${ChorusFormatter.task(result.task?.id)}`
+    if (!result.task?.id) {
+      return 'Task unarchive failed: Task ID not found'
+    }
+    return `Task unarchived successfully:\n• Task ID: ${ChorusFormatter.task(result.task.id)}`
   }
 
   private formatGetTaskById(result: any): string {

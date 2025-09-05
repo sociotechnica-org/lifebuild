@@ -105,7 +105,10 @@ export class DocumentToolFormatter implements ToolResultFormatter {
   }
 
   private formatUpdateDocument(result: any): string {
-    let message = `Document updated successfully:\n• Document ID: ${ChorusFormatter.document(result.document?.id)}`
+    if (!result.document?.id) {
+      return 'Document update failed: Document ID not found'
+    }
+    let message = `Document updated successfully:\n• Document ID: ${ChorusFormatter.document(result.document.id)}`
     if (result.document?.title) {
       message += `\n• New title: ${result.document.title}`
     }
@@ -116,11 +119,17 @@ export class DocumentToolFormatter implements ToolResultFormatter {
   }
 
   private formatArchiveDocument(result: any): string {
-    return `Document archived successfully:\n• Document ID: ${result.document?.id}`
+    if (!result.document?.id) {
+      return 'Document archive failed: Document ID not found'
+    }
+    return `Document archived successfully:\n• Document ID: ${ChorusFormatter.document(result.document.id)}`
   }
 
   private formatAddDocumentToProject(result: any): string {
-    return `Document successfully added to project:\n• Document ID: ${result.association?.documentId}\n• Project ID: ${result.association?.projectId}`
+    if (!result.association?.documentId || !result.association?.projectId) {
+      return 'Document add to project failed: Missing document or project ID'
+    }
+    return `Document successfully added to project:\n• Document ID: ${ChorusFormatter.document(result.association.documentId)}\n• Project ID: ${ChorusFormatter.project(result.association.projectId)}`
   }
 
   private formatRemoveDocumentFromProject(result: any): string {
