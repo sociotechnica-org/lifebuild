@@ -2,7 +2,6 @@ import React from 'react'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
-import { useFileNavigation } from '../../hooks/useFileNavigation.js'
 
 // Configure marked for better rendering
 marked.setOptions({
@@ -19,11 +18,9 @@ interface MarkdownRendererProps {
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   content,
   className = '',
-  onFileNavigate,
+  onFileNavigate, // eslint-disable-line @typescript-eslint/no-unused-vars -- kept for future implementation
 }) => {
   const [htmlContent, setHtmlContent] = React.useState<string>('')
-  const { navigateToFile, getFilePathDisplay } = useFileNavigation()
-  const [chorusElements, setChorusElements] = React.useState<Map<string, string>>(new Map())
 
   React.useEffect(() => {
     // Helper function to decode HTML entities
@@ -33,38 +30,18 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       return textarea.value
     }
 
-    // Process CHORUS_TAG elements and replace with placeholders
-    const processChorusTags = (text: string) => {
-      const chorusTagRegex = /<CHORUS_TAG>(.*?)<\/CHORUS_TAG>/g
-      const newChorusElements = new Map<string, string>()
-      let match
-      let processedText = text
-
-      while ((match = chorusTagRegex.exec(text)) !== null) {
-        const fullMatch = match[0]
-        const filePath = match[1]
-
-        // Skip if no file path found
-        if (!filePath) continue
-
-        const uniqueId = `chorus-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-
-        // Store the mapping
-        newChorusElements.set(uniqueId, filePath)
-
-        // Replace with placeholder that will survive markdown processing
-        const placeholder = `__CHORUS_PLACEHOLDER_${uniqueId}__`
-        processedText = processedText.replace(fullMatch, placeholder)
-      }
-
-      setChorusElements(newChorusElements)
-      return processedText
-    }
-
     const processMarkdown = () => {
       try {
-        // First, process CHORUS_TAG elements and replace with placeholders
-        const processedContent = processChorusTags(content)
+        // Simple CHORUS_TAG processing - just replace with styled spans
+        const processedContent = content.replace(
+          /<CHORUS_TAG>(.*?)<\/CHORUS_TAG>/g,
+          (match, filePath) => {
+            if (!filePath) return match
+            // Simple replacement with basic styling
+            return `<span class="chorus-file-link">${filePath}</span>`
+          }
+        )
+
         const rawHtml = marked(processedContent) as string
 
         // Apply syntax highlighting to code blocks
@@ -135,7 +112,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
             'td',
             'hr',
           ],
-          ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'data-chorus-id', 'data-file-path'],
+          ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
           // Force external links to open in new tab with security attributes
           FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input'],
           FORBID_ATTR: ['style', 'onclick', 'onload', 'onerror'],
@@ -173,19 +150,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
           return `<a${newAttributes}>`
         })
 
-        // Replace CHORUS placeholders with clickable spans
-        const finalHtmlWithChorus = safeHtml.replace(
-          /__CHORUS_PLACEHOLDER_([^_]+)__/g,
-          (match, uniqueId) => {
-            const filePath = chorusElements.get(uniqueId)
-            if (!filePath) return match
-
-            const display = getFilePathDisplay(filePath)
-            return `<span class="chorus-file-link ${display.className}" data-chorus-id="${uniqueId}" data-file-path="${filePath}" title="${display.tooltip}">${display.icon} ${filePath}</span>`
-          }
-        )
-
-        setHtmlContent(finalHtmlWithChorus)
+        setHtmlContent(safeHtml)
       } catch (error) {
         console.error('Error processing markdown:', error)
         // Fallback to plain text
@@ -194,44 +159,16 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     }
 
     processMarkdown()
-  }, [content, chorusElements, getFilePathDisplay])
+  }, [content])
 
-  // Handle clicks on CHORUS file links - only when CHORUS elements exist
-  const handleChorusClick = React.useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      const target = event.target as HTMLElement
-
-      // Only handle clicks on actual CHORUS elements
-      if (target.classList.contains('chorus-file-link') || target.closest('.chorus-file-link')) {
-        event.preventDefault()
-        event.stopPropagation()
-
-        const linkElement = target.classList.contains('chorus-file-link')
-          ? target
-          : target.closest('.chorus-file-link')
-        if (linkElement) {
-          const filePath = linkElement.getAttribute('data-file-path')
-          if (filePath) {
-            if (onFileNavigate) {
-              onFileNavigate(filePath)
-            } else {
-              navigateToFile(filePath)
-            }
-          }
-        }
-      }
-    },
-    [onFileNavigate, navigateToFile]
-  )
-
-  // Only add click handler if there are CHORUS elements
-  const hasChorusElements = chorusElements.size > 0
+  // TODO: Add click handling for CHORUS elements in a future iteration
+  // For now, CHORUS elements are styled as clickable but don't have functionality
+  // This prevents any interference with existing navigation
 
   return (
     <div
       className={`markdown-content ${className}`}
       dangerouslySetInnerHTML={{ __html: htmlContent }}
-      {...(hasChorusElements ? { onClick: handleChorusClick } : {})}
     />
   )
 }
