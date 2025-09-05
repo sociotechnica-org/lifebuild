@@ -82,7 +82,7 @@ export class DocumentToolFormatter implements ToolResultFormatter {
       result.documents
         ?.map(
           (d: any) =>
-            `${d.title} (ID: ${d.id}) - Created: ${new Date(d.createdAt).toLocaleDateString()}`
+            `${d.title} (ID: ${ChorusFormatter.document(d.id)}) - Created: ${new Date(d.createdAt).toLocaleDateString()}`
         )
         .join('\n• ') || 'No documents found in project'
     return `Project documents:\n• ${documentList}`
@@ -91,7 +91,9 @@ export class DocumentToolFormatter implements ToolResultFormatter {
   private formatSearchProjectDocuments(result: any): string {
     const searchResults =
       result.results
-        ?.map((r: any) => `${r.title} (ID: ${r.id})\n  Snippet: ${r.snippet}`)
+        ?.map(
+          (r: any) => `${r.title} (ID: ${ChorusFormatter.document(r.id)})\n  Snippet: ${r.snippet}`
+        )
         .join('\n\n• ') || 'No matching documents found in project'
     return `Project search results:\n• ${searchResults}`
   }
