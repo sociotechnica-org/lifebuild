@@ -360,6 +360,258 @@ export interface RemoveDocumentFromProjectResult {
   error?: string
 }
 
+// ===== CONTACT TOOL TYPES =====
+
+export interface CreateContactParams {
+  name?: string
+  email: string
+}
+
+export interface CreateContactResult {
+  success: boolean
+  contact?: {
+    id: string
+    name: string
+    email: string
+    createdAt: Date
+  }
+  error?: string
+}
+
+export interface UpdateContactParams {
+  contactId: string
+  name?: string
+  email?: string
+}
+
+export interface UpdateContactResult {
+  success: boolean
+  contact?: {
+    id: string
+    name?: string
+    email?: string
+    updatedAt: Date
+  }
+  error?: string
+}
+
+export interface ListContactsParams {
+  // No parameters needed
+}
+
+export interface ListContactsResult {
+  success: boolean
+  contacts?: Array<{
+    id: string
+    name: string
+    email: string
+    createdAt: Date
+    updatedAt?: Date
+  }>
+  error?: string
+}
+
+export interface GetContactParams {
+  contactId: string
+}
+
+export interface GetContactResult {
+  success: boolean
+  contact?: {
+    id: string
+    name: string
+    email: string
+    createdAt: Date
+    updatedAt?: Date
+    projects?: Array<{
+      id: string
+      name: string
+      description?: string
+    }>
+  }
+  error?: string
+}
+
+export interface SearchContactsParams {
+  query: string
+}
+
+export interface SearchContactsResult {
+  success: boolean
+  contacts?: Array<{
+    id: string
+    name: string
+    email: string
+    createdAt: Date
+    updatedAt?: Date
+  }>
+  query?: string
+  error?: string
+}
+
+export interface DeleteContactParams {
+  contactId: string
+}
+
+export interface DeleteContactResult {
+  success: boolean
+  message?: string
+  error?: string
+}
+
+export interface GetProjectContactsParams {
+  projectId: string
+}
+
+export interface GetProjectContactsResult {
+  success: boolean
+  projectId?: string
+  contacts?: Array<{
+    id: string
+    name: string
+    email: string
+    createdAt: Date
+    updatedAt?: Date
+  }>
+  error?: string
+}
+
+export interface GetContactProjectsParams {
+  contactId: string
+}
+
+export interface GetContactProjectsResult {
+  success: boolean
+  contactId?: string
+  contact?: {
+    name: string
+    email: string
+  }
+  projects?: Array<{
+    id: string
+    name: string
+    description?: string
+    createdAt: Date
+    updatedAt?: Date
+  }>
+  error?: string
+}
+
+export interface AddContactToProjectParams {
+  contactId: string
+  projectId: string
+}
+
+export interface AddContactToProjectResult {
+  success: boolean
+  message?: string
+  error?: string
+}
+
+export interface RemoveContactFromProjectParams {
+  contactId: string
+  projectId: string
+}
+
+export interface RemoveContactFromProjectResult {
+  success: boolean
+  message?: string
+  error?: string
+}
+
+export interface GetProjectEmailListParams {
+  projectId: string
+}
+
+export interface GetProjectEmailListResult {
+  success: boolean
+  projectId?: string
+  emails?: string[]
+  formattedList?: string
+  count?: number
+  error?: string
+}
+
+export interface FindContactsByEmailParams {
+  emails: string[]
+}
+
+export interface FindContactsByEmailResult {
+  success: boolean
+  results?: Array<{
+    email: string
+    matched: boolean
+    contact?: {
+      id: string
+      name: string
+      email: string
+    } | null
+  }>
+  summary?: {
+    total: number
+    matched: number
+    unmatched: number
+    matchedEmails: string[]
+    unmatchedEmails: string[]
+  }
+  error?: string
+}
+
+export interface ValidateEmailListParams {
+  emails: string[]
+}
+
+export interface ValidateEmailListResult {
+  success: boolean
+  results?: Array<{
+    original: string
+    normalized: string | null
+    valid: boolean
+    error: string | null
+  }>
+  summary?: {
+    total: number
+    valid: number
+    invalid: number
+    validEmails: string[]
+    invalidEmails: string[]
+  }
+  error?: string
+}
+
+export interface SuggestContactsFromEmailsParams {
+  emails: string[]
+}
+
+export interface SuggestContactsFromEmailsResult {
+  success: boolean
+  suggestions?: Array<{
+    email: string
+    suggestedName: string
+    canCreate: boolean
+  }>
+  summary?: {
+    totalEmails: number
+    validEmails: number
+    existingContacts: number
+    newSuggestions: number
+  }
+  error?: string
+}
+
+export interface GetProjectContactEmailsParams {
+  projectId: string
+}
+
+export interface GetProjectContactEmailsResult {
+  success: boolean
+  projectId?: string
+  emails?: string[]
+  formattedList?: string
+  count?: number
+  error?: string
+}
+
 // ===== UNION TYPES =====
 
 export type LLMToolParams =
@@ -385,6 +637,21 @@ export type LLMToolParams =
   | ArchiveDocumentParams
   | AddDocumentToProjectParams
   | RemoveDocumentFromProjectParams
+  | CreateContactParams
+  | UpdateContactParams
+  | ListContactsParams
+  | GetContactParams
+  | SearchContactsParams
+  | DeleteContactParams
+  | GetProjectContactsParams
+  | GetContactProjectsParams
+  | AddContactToProjectParams
+  | RemoveContactFromProjectParams
+  | GetProjectEmailListParams
+  | GetProjectContactEmailsParams
+  | FindContactsByEmailParams
+  | ValidateEmailListParams
+  | SuggestContactsFromEmailsParams
 
 export type LLMToolResult =
   | CreateTaskResult
@@ -409,3 +676,18 @@ export type LLMToolResult =
   | ArchiveDocumentResult
   | AddDocumentToProjectResult
   | RemoveDocumentFromProjectResult
+  | CreateContactResult
+  | UpdateContactResult
+  | ListContactsResult
+  | GetContactResult
+  | SearchContactsResult
+  | DeleteContactResult
+  | GetProjectContactsResult
+  | GetContactProjectsResult
+  | AddContactToProjectResult
+  | RemoveContactFromProjectResult
+  | GetProjectEmailListResult
+  | GetProjectContactEmailsResult
+  | FindContactsByEmailResult
+  | ValidateEmailListResult
+  | SuggestContactsFromEmailsResult
