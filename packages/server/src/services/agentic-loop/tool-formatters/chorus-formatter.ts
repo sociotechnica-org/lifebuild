@@ -13,32 +13,28 @@ export class ChorusFormatter {
   /**
    * Wraps a document ID in a CHORUS_TAG for navigation to document editor
    */
-  static document(documentId: string, displayText?: string): string {
-    const text = displayText || documentId
+  static document(documentId: string): string {
     return `<CHORUS_TAG>document:${documentId}</CHORUS_TAG>`
   }
 
   /**
    * Wraps a project ID in a CHORUS_TAG for navigation to project page
    */
-  static project(projectId: string, displayText?: string): string {
-    const text = displayText || projectId
+  static project(projectId: string): string {
     return `<CHORUS_TAG>project:${projectId}</CHORUS_TAG>`
   }
 
   /**
    * Wraps a task ID in a CHORUS_TAG for navigation to task details
    */
-  static task(taskId: string, displayText?: string): string {
-    const text = displayText || taskId
+  static task(taskId: string): string {
     return `<CHORUS_TAG>task:${taskId}</CHORUS_TAG>`
   }
 
   /**
    * Wraps a file path in a CHORUS_TAG for file system navigation
    */
-  static file(filePath: string, displayText?: string): string {
-    const text = displayText || filePath
+  static file(filePath: string): string {
     return `<CHORUS_TAG>${filePath}</CHORUS_TAG>`
   }
 
