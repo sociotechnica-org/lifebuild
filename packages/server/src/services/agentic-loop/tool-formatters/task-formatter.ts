@@ -1,4 +1,5 @@
 import type { ToolResultFormatter } from './types.js'
+import { ChorusFormatter } from './chorus-formatter.js'
 
 export class TaskToolFormatter implements ToolResultFormatter {
   private readonly taskTools = [
@@ -47,11 +48,11 @@ export class TaskToolFormatter implements ToolResultFormatter {
   private formatCreateTask(result: any): string {
     return `Task created successfully: "${result.taskTitle}" on board "${result.boardName}" in column "${result.columnName}"${
       result.assigneeName ? ` (assigned to ${result.assigneeName})` : ''
-    }. Task ID: ${result.taskId}`
+    }. Task ID: ${ChorusFormatter.task(result.taskId)}`
   }
 
   private formatUpdateTask(result: any): string {
-    let message = `Task updated successfully:\n• Task ID: ${result.task?.id}`
+    let message = `Task updated successfully:\n• Task ID: ${ChorusFormatter.task(result.task?.id)}`
     if (result.task?.title) {
       message += `\n• New title: ${result.task.title}`
     }
@@ -87,8 +88,8 @@ export class TaskToolFormatter implements ToolResultFormatter {
       return 'Task not found'
     }
     const t = result.task
-    let message = `Task details:\n• ID: ${t.id}\n• Title: ${t.title}\n• Project ID: ${
-      t.projectId || 'none'
+    let message = `Task details:\n• ID: ${ChorusFormatter.task(t.id)}\n• Title: ${t.title}\n• Project ID: ${
+      t.projectId ? ChorusFormatter.project(t.projectId) : 'none'
     }\n• Column ID: ${t.columnId || 'none'}\n• Description: ${
       t.description || 'none'
     }\n• Position: ${t.position}`

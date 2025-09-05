@@ -1,5 +1,6 @@
 import type { ToolResultFormatter } from './types.js'
 import { DEFAULT_KANBAN_COLUMNS } from '@work-squared/shared'
+import { ChorusFormatter } from './chorus-formatter.js'
 
 export class ProjectToolFormatter implements ToolResultFormatter {
   private readonly projectTools = ['create_project', 'list_projects', 'get_project_details']
@@ -29,7 +30,7 @@ export class ProjectToolFormatter implements ToolResultFormatter {
     }
     const p = result.project
     const columnNames = DEFAULT_KANBAN_COLUMNS.map(col => `"${col.name}"`).join(', ')
-    return `Project created successfully:\n• Name: ${p.name}\n• ID: ${p.id}${
+    return `Project created successfully:\n• Name: ${p.name}\n• ID: ${ChorusFormatter.project(p.id)}${
       p.description ? `\n• Description: ${p.description}` : ''
     }\n• Default columns created: ${columnNames}`
   }
@@ -37,7 +38,10 @@ export class ProjectToolFormatter implements ToolResultFormatter {
   private formatListProjects(result: any): string {
     const projectList =
       result.projects
-        ?.map((p: any) => `${p.name} (ID: ${p.id})${p.description ? ` - ${p.description}` : ''}`)
+        ?.map(
+          (p: any) =>
+            `${p.name} (ID: ${ChorusFormatter.project(p.id)})${p.description ? ` - ${p.description}` : ''}`
+        )
         .join('\n• ') || 'No projects found'
     return `Available projects:\n• ${projectList}`
   }

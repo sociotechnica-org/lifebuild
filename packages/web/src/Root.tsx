@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 
 import { AuthProvider, useAuth } from './contexts/AuthContext.js'
 import { useSyncPayload } from './hooks/useSyncPayload.js'
+import { useChorusNavigation } from './hooks/useChorusNavigation.js'
 
 import { ProjectsPage } from './components/projects/ProjectsPage.js'
 import { ProjectWorkspace } from './components/projects/ProjectWorkspace/ProjectWorkspace.js'
@@ -120,134 +121,139 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 }
 
 // Protected app wrapper - includes LiveStore and all protected routes
-const ProtectedApp: React.FC = () => (
-  <AuthGuard>
-    <LiveStoreWrapper>
-      <EnsureStoreId>
-        <UserInitializer>
-          <AuthUserSync>
-            <SettingsInitializer>
-              <ErrorBoundary>
-                <Routes>
-                  <Route
-                    path={ROUTES.HOME}
-                    element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <ProjectsPage />
-                        </ErrorBoundary>
-                      </Layout>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.PROJECTS}
-                    element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <ProjectsPage />
-                        </ErrorBoundary>
-                      </Layout>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.TASKS}
-                    element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <TasksPage />
-                        </ErrorBoundary>
-                      </Layout>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.TEAM}
-                    element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <WorkersPage />
-                        </ErrorBoundary>
-                      </Layout>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.DOCUMENTS}
-                    element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <DocumentsPage />
-                        </ErrorBoundary>
-                      </Layout>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.CONTACTS}
-                    element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <ContactList />
-                        </ErrorBoundary>
-                      </Layout>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.CONTACT}
-                    element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <ContactDetail />
-                        </ErrorBoundary>
-                      </Layout>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.HISTORY}
-                    element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <HistoryPage />
-                        </ErrorBoundary>
-                      </Layout>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.SETTINGS}
-                    element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <SettingsPage />
-                        </ErrorBoundary>
-                      </Layout>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.DOCUMENT}
-                    element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <DocumentPage />
-                        </ErrorBoundary>
-                      </Layout>
-                    }
-                  />
-                  <Route
-                    path={ROUTES.PROJECT}
-                    element={
-                      <Layout>
-                        <ErrorBoundary>
-                          <ProjectWorkspace />
-                        </ErrorBoundary>
-                      </Layout>
-                    }
-                  />
-                </Routes>
-              </ErrorBoundary>
-            </SettingsInitializer>
-          </AuthUserSync>
-        </UserInitializer>
-      </EnsureStoreId>
-    </LiveStoreWrapper>
-  </AuthGuard>
-)
+const ProtectedApp: React.FC = () => {
+  // Initialize global CHORUS navigation handling
+  useChorusNavigation()
+
+  return (
+    <AuthGuard>
+      <LiveStoreWrapper>
+        <EnsureStoreId>
+          <UserInitializer>
+            <AuthUserSync>
+              <SettingsInitializer>
+                <ErrorBoundary>
+                  <Routes>
+                    <Route
+                      path={ROUTES.HOME}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <ProjectsPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.PROJECTS}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <ProjectsPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.TASKS}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <TasksPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.TEAM}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <WorkersPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.DOCUMENTS}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <DocumentsPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.CONTACTS}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <ContactList />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.CONTACT}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <ContactDetail />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.HISTORY}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <HistoryPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.SETTINGS}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <SettingsPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.DOCUMENT}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <DocumentPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.PROJECT}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <ProjectWorkspace />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                  </Routes>
+                </ErrorBoundary>
+              </SettingsInitializer>
+            </AuthUserSync>
+          </UserInitializer>
+        </EnsureStoreId>
+      </LiveStoreWrapper>
+    </AuthGuard>
+  )
+}
 
 export const App: React.FC = () => (
   <ErrorBoundary>
