@@ -44,6 +44,7 @@ describe('Worker Project Assignment', () => {
       events.workerAssignedToProject({
         workerId,
         projectId,
+        assignedAt: new Date(),
       })
     )
 
@@ -88,6 +89,7 @@ describe('Worker Project Assignment', () => {
       events.workerAssignedToProject({
         workerId,
         projectId,
+        assignedAt: new Date(),
       })
     )
 
@@ -147,6 +149,7 @@ describe('Worker Project Assignment', () => {
       events.workerAssignedToProject({
         workerId: worker1Id,
         projectId,
+        assignedAt: new Date(),
       })
     )
 
@@ -154,6 +157,7 @@ describe('Worker Project Assignment', () => {
       events.workerAssignedToProject({
         workerId: worker2Id,
         projectId,
+        assignedAt: new Date(),
       })
     )
 
@@ -202,6 +206,7 @@ describe('Worker Project Assignment', () => {
       events.workerAssignedToProject({
         workerId,
         projectId: project1Id,
+        assignedAt: new Date(),
       })
     )
 
@@ -209,6 +214,7 @@ describe('Worker Project Assignment', () => {
       events.workerAssignedToProject({
         workerId,
         projectId: project2Id,
+        assignedAt: new Date(),
       })
     )
 
@@ -268,6 +274,7 @@ describe('Worker Project Assignment', () => {
       events.workerAssignedToProject({
         workerId: worker1Id,
         projectId: project1Id,
+        assignedAt: new Date(),
       })
     )
 
@@ -275,6 +282,7 @@ describe('Worker Project Assignment', () => {
       events.workerAssignedToProject({
         workerId: worker2Id,
         projectId: project2Id,
+        assignedAt: new Date(),
       })
     )
 
@@ -282,6 +290,7 @@ describe('Worker Project Assignment', () => {
       events.workerAssignedToProject({
         workerId: worker1Id,
         projectId: project2Id,
+        assignedAt: new Date(),
       })
     )
 
@@ -375,6 +384,7 @@ describe('Worker Project Assignment', () => {
       events.workerAssignedToProject({
         workerId,
         projectId,
+        assignedAt: new Date(),
       })
     )
 
@@ -382,6 +392,7 @@ describe('Worker Project Assignment', () => {
       events.workerAssignedToProject({
         workerId,
         projectId,
+        assignedAt: new Date(),
       })
     )
 

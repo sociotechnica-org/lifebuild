@@ -304,6 +304,7 @@ export const workerAssignedToProject = Events.synced({
   schema: Schema.Struct({
     workerId: Schema.String,
     projectId: Schema.String,
+    assignedAt: Schema.Date,
     actorId: Schema.optional(Schema.String), // Track who assigned the worker
   }),
 })

@@ -591,14 +591,14 @@ const materializers = State.SQLite.materializers(events, {
       }),
     ]
   },
-  'v1.WorkerAssignedToProject': ({ workerId, projectId, actorId }) => [
+  'v1.WorkerAssignedToProject': ({ workerId, projectId, assignedAt, actorId }) => [
     workerProjects.insert({ workerId, projectId }),
     eventsLog.insert({
-      id: `worker_assigned_${workerId}_${projectId}_${Date.now()}`,
+      id: `worker_assigned_${workerId}_${projectId}_${assignedAt.getTime()}`,
       eventType: 'v1.WorkerAssignedToProject',
       eventData: JSON.stringify({ workerId, projectId }),
       actorId,
-      createdAt: new Date(),
+      createdAt: assignedAt,
     }),
   ],
   'v1.WorkerUnassignedFromProject': ({ workerId, projectId }) =>
