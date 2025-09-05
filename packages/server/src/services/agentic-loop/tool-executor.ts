@@ -12,11 +12,19 @@ export interface ToolExecutorOptions {
 
 export class ToolExecutor {
   private formatter = new ToolResultFormatterService()
+  private workerId?: string
 
   constructor(
     private store: Store,
     private options: ToolExecutorOptions = {}
   ) {}
+
+  /**
+   * Set the worker ID for tool executions
+   */
+  setWorkerId(workerId?: string) {
+    this.workerId = workerId
+  }
 
   /**
    * Execute a single tool call
@@ -28,10 +36,14 @@ export class ToolExecutor {
       console.log(`🔧 Executing tool: ${toolCall.function.name}`)
 
       const toolArgs = JSON.parse(toolCall.function.arguments)
-      const toolResult = await executeLLMTool(this.store, {
-        name: toolCall.function.name,
-        parameters: toolArgs,
-      })
+      const toolResult = await executeLLMTool(
+        this.store,
+        {
+          name: toolCall.function.name,
+          parameters: toolArgs,
+        },
+        this.workerId
+      )
 
       const result: ToolExecutionResult = {
         success: true,
