@@ -36,6 +36,18 @@ export const BaseEventItem: React.FC<BaseEventItemProps> = ({
     return formatDate(date)
   }
 
+  const formatFullTimestamp = (date: Date) => {
+    return date.toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+    })
+  }
+
   return (
     <div className='flex items-start space-x-3'>
       {/* Icon */}
@@ -55,7 +67,12 @@ export const BaseEventItem: React.FC<BaseEventItemProps> = ({
       <div className='flex-1 min-w-0'>
         <div className='flex items-center justify-between'>
           <p className='text-sm font-medium text-gray-900'>{title}</p>
-          <p className='text-xs text-gray-500 flex-shrink-0 ml-2'>{formatTime(timestamp)}</p>
+          <p 
+            className='text-xs text-gray-500 flex-shrink-0 ml-2 cursor-help' 
+            title={formatFullTimestamp(timestamp)}
+          >
+            {formatTime(timestamp)}
+          </p>
         </div>
 
         {actor && <p className='text-xs text-gray-500 mt-0.5'>by {actor}</p>}
