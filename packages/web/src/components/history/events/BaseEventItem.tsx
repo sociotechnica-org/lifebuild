@@ -6,6 +6,7 @@ interface BaseEventItemProps {
   title: string
   details?: string
   icon?: React.ReactNode
+  actor?: string // Display name of who performed the action
   actions?: Array<{
     label: string
     onClick: () => void
@@ -17,6 +18,7 @@ export const BaseEventItem: React.FC<BaseEventItemProps> = ({
   title,
   details,
   icon,
+  actor,
   actions,
 }) => {
   const formatTime = (date: Date) => {
@@ -55,6 +57,8 @@ export const BaseEventItem: React.FC<BaseEventItemProps> = ({
           <p className='text-sm font-medium text-gray-900'>{title}</p>
           <p className='text-xs text-gray-500 flex-shrink-0 ml-2'>{formatTime(timestamp)}</p>
         </div>
+
+        {actor && <p className='text-xs text-gray-500 mt-0.5'>by {actor}</p>}
 
         {details && <p className='text-sm text-gray-600 mt-1'>{details}</p>}
 

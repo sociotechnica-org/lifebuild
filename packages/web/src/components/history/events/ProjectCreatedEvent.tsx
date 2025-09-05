@@ -5,6 +5,7 @@ import { BaseEventItem } from './BaseEventItem.js'
 import { HistoryEvent } from '../types.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../util/navigation.js'
+import { useActorName } from '../hooks/useActorName.js'
 
 interface ProjectCreatedEventProps {
   event: HistoryEvent
@@ -13,6 +14,7 @@ interface ProjectCreatedEventProps {
 
 export const ProjectCreatedEvent: React.FC<ProjectCreatedEventProps> = ({ event, timestamp }) => {
   const navigate = useNavigate()
+  const actorName = useActorName(event.actorId)
   const data = event.data as {
     id: string
     name: string
@@ -31,6 +33,7 @@ export const ProjectCreatedEvent: React.FC<ProjectCreatedEventProps> = ({ event,
       timestamp={timestamp}
       title={`Created project "${data.name}"`}
       details={data.description}
+      actor={actorName}
       actions={[{ label: 'View Project', onClick: handleViewProject }]}
     />
   )

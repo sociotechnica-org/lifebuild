@@ -31,6 +31,7 @@ export const projectCreated = Events.synced({
     name: Schema.String,
     description: Schema.optional(Schema.String), // Added description field
     createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String), // Track who created the project
   }),
 })
 

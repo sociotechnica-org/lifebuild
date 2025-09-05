@@ -202,6 +202,7 @@ const eventsLog = State.SQLite.table({
     id: State.SQLite.text({ primaryKey: true }),
     eventType: State.SQLite.text(),
     eventData: State.SQLite.text(), // JSON string of the event data
+    actorId: State.SQLite.text({ nullable: true }), // Who performed the action
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
@@ -356,8 +357,16 @@ export const tables = {
 const materializers = State.SQLite.materializers(events, {
   'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) =>
     chatMessages.insert({ id, conversationId, message, role, createdAt }),
-  'v1.ProjectCreated': ({ id, name, description, createdAt }) =>
+  'v1.ProjectCreated': ({ id, name, description, createdAt, actorId }) => [
     boards.insert({ id, name, description, createdAt, updatedAt: createdAt }),
+    eventsLog.insert({
+      id: `project_created_${id}`,
+      eventType: 'v1.ProjectCreated',
+      eventData: JSON.stringify({ id, name, description }),
+      actorId,
+      createdAt,
+    }),
+  ],
   'v1.ColumnCreated': ({ id, projectId, name, position, createdAt }) =>
     columns.insert({ id, projectId, name, position, createdAt, updatedAt: createdAt }),
   'v1.ColumnRenamed': ({ id, name, updatedAt }) =>
