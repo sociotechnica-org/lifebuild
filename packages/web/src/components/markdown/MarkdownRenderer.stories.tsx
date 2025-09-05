@@ -229,7 +229,8 @@ Task details:
   parameters: {
     docs: {
       description: {
-        story: 'Shows real examples of how server-side tool formatters generate CHORUS_TAG elements for navigation.',
+        story:
+          'Shows real examples of how server-side tool formatters generate CHORUS_TAG elements for navigation.',
       },
     },
   },
