@@ -201,3 +201,67 @@
   background: transparent !important;
   color: inherit;
 }
+
+/* CHORUS File Links */
+.chorus-file-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  padding: 0.125em 0.375em;
+  border-radius: 0.25em;
+  font-family:
+    'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: 0.875em;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.chorus-file-link:hover {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.chorus-file-link:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Different colors for different file types */
+.markdown-content .chorus-file-link.text-green-600 {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+.markdown-content .chorus-file-link.text-green-600:hover {
+  background-color: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
+  box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2);
+}
+
+.markdown-content .chorus-file-link.text-purple-600 {
+  background-color: rgba(147, 51, 234, 0.1);
+  color: #9333ea;
+}
+
+.markdown-content .chorus-file-link.text-purple-600:hover {
+  background-color: rgba(147, 51, 234, 0.2);
+  border-color: #a855f7;
+  box-shadow: 0 2px 4px rgba(147, 51, 234, 0.2);
+}
+
+.markdown-content .chorus-file-link.text-gray-600 {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: #4b5563;
+}
+
+.markdown-content .chorus-file-link.text-gray-600:hover {
+  background-color: rgba(107, 114, 128, 0.2);
+  border-color: #6b7280;
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
+}
