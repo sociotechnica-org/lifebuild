@@ -82,7 +82,7 @@ export class DocumentToolFormatter implements ToolResultFormatter {
       result.documents
         ?.map(
           (d: any) =>
-            `${d.title} (ID: ${d.id}) - Created: ${new Date(d.createdAt).toLocaleDateString()}`
+            `${d.title} (ID: ${ChorusFormatter.document(d.id)}) - Created: ${new Date(d.createdAt).toLocaleDateString()}`
         )
         .join('\n• ') || 'No documents found in project'
     return `Project documents:\n• ${documentList}`
@@ -91,7 +91,9 @@ export class DocumentToolFormatter implements ToolResultFormatter {
   private formatSearchProjectDocuments(result: any): string {
     const searchResults =
       result.results
-        ?.map((r: any) => `${r.title} (ID: ${r.id})\n  Snippet: ${r.snippet}`)
+        ?.map(
+          (r: any) => `${r.title} (ID: ${ChorusFormatter.document(r.id)})\n  Snippet: ${r.snippet}`
+        )
         .join('\n\n• ') || 'No matching documents found in project'
     return `Project search results:\n• ${searchResults}`
   }
@@ -103,7 +105,10 @@ export class DocumentToolFormatter implements ToolResultFormatter {
   }
 
   private formatUpdateDocument(result: any): string {
-    let message = `Document updated successfully:\n• Document ID: ${ChorusFormatter.document(result.document?.id)}`
+    if (!result.document?.id) {
+      return 'Document update failed: Document ID not found'
+    }
+    let message = `Document updated successfully:\n• Document ID: ${ChorusFormatter.document(result.document.id)}`
     if (result.document?.title) {
       message += `\n• New title: ${result.document.title}`
     }
@@ -114,14 +119,23 @@ export class DocumentToolFormatter implements ToolResultFormatter {
   }
 
   private formatArchiveDocument(result: any): string {
-    return `Document archived successfully:\n• Document ID: ${result.document?.id}`
+    if (!result.document?.id) {
+      return 'Document archive failed: Document ID not found'
+    }
+    return `Document archived successfully:\n• Document ID: ${ChorusFormatter.document(result.document.id)}`
   }
 
   private formatAddDocumentToProject(result: any): string {
-    return `Document successfully added to project:\n• Document ID: ${result.association?.documentId}\n• Project ID: ${result.association?.projectId}`
+    if (!result.association?.documentId || !result.association?.projectId) {
+      return 'Document add to project failed: Missing document or project ID'
+    }
+    return `Document successfully added to project:\n• Document ID: ${ChorusFormatter.document(result.association.documentId)}\n• Project ID: ${ChorusFormatter.project(result.association.projectId)}`
   }
 
   private formatRemoveDocumentFromProject(result: any): string {
-    return `Document successfully removed from project:\n• Document ID: ${result.association?.documentId}\n• Project ID: ${result.association?.projectId}`
+    if (!result.association?.documentId || !result.association?.projectId) {
+      return 'Document remove from project failed: Missing document or project ID'
+    }
+    return `Document successfully removed from project:\n• Document ID: ${ChorusFormatter.document(result.association.documentId)}\n• Project ID: ${ChorusFormatter.project(result.association.projectId)}`
   }
 }
