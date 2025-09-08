@@ -12,9 +12,14 @@ marked.setOptions({
 interface MarkdownRendererProps {
   content: string
   className?: string
+  onFileNavigate?: (filePath: string, options?: { documentId?: string; projectId?: string }) => void
 }
 
-export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className = '' }) => {
+export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
+  content,
+  className = '',
+  onFileNavigate, // eslint-disable-line @typescript-eslint/no-unused-vars -- kept for future implementation
+}) => {
   const [htmlContent, setHtmlContent] = React.useState<string>('')
 
   React.useEffect(() => {
@@ -27,7 +32,18 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
 
     const processMarkdown = () => {
       try {
-        const rawHtml = marked(content) as string
+        // Process CHORUS_TAG elements with proper data attributes for click handling
+        const processedContent = content.replace(
+          /<CHORUS_TAG>(.*?)<\/CHORUS_TAG>/g,
+          (match, filePath) => {
+            if (!filePath) return match
+            // Add data attributes for safe event delegation
+            const escapedPath = filePath.replace(/"/g, '&quot;')
+            return `<span class="chorus-file-link" data-file-path="${escapedPath}" data-chorus="true">${filePath}</span>`
+          }
+        )
+
+        const rawHtml = marked(processedContent) as string
 
         // Apply syntax highlighting to code blocks
         const highlightedHtml = rawHtml.replace(
@@ -97,7 +113,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             'td',
             'hr',
           ],
-          ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+          ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'data-file-path', 'data-chorus'],
           // Force external links to open in new tab with security attributes
           FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input'],
           FORBID_ATTR: ['style', 'onclick', 'onload', 'onerror'],
@@ -145,6 +161,10 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
 
     processMarkdown()
   }, [content])
+
+  // TODO: Add click handling for CHORUS elements in a future iteration
+  // For now, CHORUS elements are styled as clickable but don't have functionality
+  // This prevents any interference with existing navigation
 
   return (
     <div

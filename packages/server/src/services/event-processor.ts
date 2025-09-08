@@ -852,6 +852,7 @@ export class EventProcessor {
     await agenticLoop.run(userMessage.message, {
       boardContext,
       workerContext,
+      workerId: worker?.id,
       model: conversation?.model || DEFAULT_MODEL,
     })
   }

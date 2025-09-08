@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useStore } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
+import { useAuth } from '../../../contexts/AuthContext.js'
 
 interface CreateProjectModalProps {
   isOpen: boolean
@@ -9,6 +10,7 @@ interface CreateProjectModalProps {
 
 export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose }) => {
   const { store } = useStore()
+  const { user } = useAuth()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -49,6 +51,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
           name: name.trim(),
           description: description.trim() || undefined,
           createdAt,
+          actorId: user?.id, // Track who created the project
         })
       )
 

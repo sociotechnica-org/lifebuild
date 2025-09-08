@@ -12,6 +12,7 @@ export const HistoryPanel: React.FC = () => {
     type: eventLog.eventType,
     timestamp: eventLog.createdAt,
     data: JSON.parse(eventLog.eventData),
+    actorId: eventLog.actorId || undefined,
   }))
 
   return (

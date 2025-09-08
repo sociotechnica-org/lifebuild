@@ -26,7 +26,7 @@
     "@livestore/sync-cf": "0.3.1",
     "@types/better-sqlite3": "^7.6.13",
     "@work-squared/shared": "workspace:*",
-    "better-sqlite3": "^11.10.0",
+    "better-sqlite3": "^12.2.0",
     "dotenv": "^17.2.1",
     "ws": "^8.18.0"
   },

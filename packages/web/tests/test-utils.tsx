@@ -54,6 +54,17 @@ const createTestStore = () => {
         })
         mockData.set('workers', workers)
       }
+      if (event.name === 'v1.UserCreated') {
+        const users = mockData.get('users') || []
+        users.push({
+          id: event.args.id,
+          name: event.args.name,
+          email: event.args.email,
+          createdAt: event.args.createdAt,
+          updatedAt: event.args.createdAt,
+        })
+        mockData.set('users', users)
+      }
       if (event.name === 'v1.ProjectCreated') {
         const projects = mockData.get('projects') || []
         projects.push({
@@ -65,6 +76,21 @@ const createTestStore = () => {
           deletedAt: null,
         })
         mockData.set('projects', projects)
+
+        // Also create the eventsLog entry (like the real materializer)
+        const eventsLog = mockData.get('eventsLog') || []
+        eventsLog.push({
+          id: `project_created_${event.args.id}`,
+          eventType: 'v1.ProjectCreated',
+          eventData: JSON.stringify({
+            id: event.args.id,
+            name: event.args.name,
+            description: event.args.description,
+          }),
+          actorId: event.args.actorId || null,
+          createdAt: event.args.createdAt,
+        })
+        mockData.set('eventsLog', eventsLog)
       }
       if (event.name === 'v1.WorkerAssignedToProject') {
         const assignments = mockData.get('workerProjects') || []
@@ -100,6 +126,9 @@ const createTestStore = () => {
       if (queryObj && queryObj.label === 'getWorkers') {
         return mockData.get('workers') || []
       }
+      if (queryObj && queryObj.label === 'getUsers') {
+        return mockData.get('users') || []
+      }
       if (queryObj && queryObj.label === 'getProjects') {
         return mockData.get('projects') || []
       }
@@ -116,8 +145,26 @@ const createTestStore = () => {
         const assignments = mockData.get('workerProjects') || []
         return assignments.filter((wp: any) => wp.projectId === projectId)
       }
+      // Handle eventsLog queries
+      if (queryObj && queryObj.label === 'getAllEvents') {
+        return mockData.get('eventsLog') || []
+      }
+      // Handle direct table queries (SQLite-style queries)
+      if (typeof queryObj === 'function') {
+        // This is a callback function used to query tables directly
+        const mockDb = {
+          table: (tableName: string) => ({
+            all: () => mockData.get(tableName) || [],
+          }),
+        }
+        return queryObj(mockDb)
+      }
       // Fallback for any query that might contain 'document'
-      if (queryObj && JSON.stringify(queryObj).toLowerCase().includes('document')) {
+      if (
+        queryObj &&
+        typeof queryObj === 'object' &&
+        JSON.stringify(queryObj).toLowerCase().includes('document')
+      ) {
         return mockData.get('documents') || []
       }
       return []

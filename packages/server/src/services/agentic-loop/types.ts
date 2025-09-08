@@ -47,6 +47,7 @@ export interface LLMProvider {
 export interface AgenticLoopContext {
   boardContext?: BoardContext
   workerContext?: WorkerContext
+  workerId?: string
   model: string
   maxIterations?: number
 }

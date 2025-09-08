@@ -6,6 +6,8 @@ interface BaseEventItemProps {
   title: string
   details?: string
   icon?: React.ReactNode
+  actor?: string // Display name of who performed the action
+  onIconClick?: () => void // Make the icon clickable
   actions?: Array<{
     label: string
     onClick: () => void
@@ -17,6 +19,8 @@ export const BaseEventItem: React.FC<BaseEventItemProps> = ({
   title,
   details,
   icon,
+  actor,
+  onIconClick,
   actions,
 }) => {
   const formatTime = (date: Date) => {
@@ -34,12 +38,29 @@ export const BaseEventItem: React.FC<BaseEventItemProps> = ({
     return formatDate(date)
   }
 
+  const formatFullTimestamp = (date: Date) => {
+    return date.toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+    })
+  }
+
   return (
     <div className='flex items-start space-x-3'>
       {/* Icon */}
       <div className='flex-shrink-0'>
         {icon ? (
-          <div className='w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center'>
+          <div
+            className={`w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center ${
+              onIconClick ? 'cursor-pointer hover:bg-gray-200 transition-colors' : ''
+            }`}
+            onClick={onIconClick}
+          >
             {icon}
           </div>
         ) : (
@@ -53,8 +74,15 @@ export const BaseEventItem: React.FC<BaseEventItemProps> = ({
       <div className='flex-1 min-w-0'>
         <div className='flex items-center justify-between'>
           <p className='text-sm font-medium text-gray-900'>{title}</p>
-          <p className='text-xs text-gray-500 flex-shrink-0 ml-2'>{formatTime(timestamp)}</p>
+          <p
+            className='text-xs text-gray-500 flex-shrink-0 ml-2 cursor-help'
+            title={formatFullTimestamp(timestamp)}
+          >
+            {formatTime(timestamp)}
+          </p>
         </div>
+
+        {actor && <p className='text-xs text-gray-500 mt-0.5'>by {actor}</p>}
 
         {details && <p className='text-sm text-gray-600 mt-1'>{details}</p>}
 

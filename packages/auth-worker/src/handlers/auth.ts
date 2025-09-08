@@ -3,6 +3,7 @@ import { validatePasswordStrength } from '../utils/crypto.js'
 import { createAccessToken, createRefreshToken, verifyToken, isTokenExpired } from '../utils/jwt.js'
 import { isUserAdmin } from '../utils/admin.js'
 import type { RefreshTokenPayload } from '../types.js'
+import { sendDiscordNotification } from '../utils/discord.js'
 
 /**
  * Utility to create error responses
@@ -131,6 +132,11 @@ export async function handleSignup(request: Request, env: Env): Promise<Response
     const userData = await userResponse.json()
     const user = userData.user
 
+    sendDiscordNotification(
+      `🅆 New Work Squared account created: \`${email}\``,
+      env.DISCORD_WEBHOOK_URL
+    )
+
     return await createAuthSuccessResponse(user, env)
   } catch (error) {
     console.error('Signup error:', error)
@@ -254,6 +260,7 @@ interface Env {
   JWT_SECRET?: string
   USER_STORE: any
   BOOTSTRAP_ADMIN_EMAIL?: string
+  DISCORD_WEBHOOK_URL?: string
 }
 
 interface DurableObjectStub {
