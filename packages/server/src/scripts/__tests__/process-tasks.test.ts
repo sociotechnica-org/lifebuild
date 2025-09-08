@@ -141,7 +141,9 @@ describe('process-tasks script', () => {
         expect(mockExit).toHaveBeenCalledWith(0)
       }
 
-      expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Task processing completed'))
+      expect(mockConsole.log).toHaveBeenCalledWith(
+        expect.stringContaining('Task processing completed')
+      )
       expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Processed 2 stores'))
     })
   })

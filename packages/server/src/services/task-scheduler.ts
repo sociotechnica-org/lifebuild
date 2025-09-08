@@ -27,11 +27,11 @@ export class TaskScheduler {
   }
 
   async initialize(): Promise<void> {
-    // No initialization needed without ProcessedTaskTracker
+    // No initialization needed
   }
 
   async close(): Promise<void> {
-    // No cleanup needed without ProcessedTaskTracker
+    // No cleanup needed
   }
 
   /**

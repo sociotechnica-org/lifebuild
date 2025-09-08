@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, afterEach, vi, type MockedFunction } 
 import fs from 'fs'
 import { TaskScheduler } from '../task-scheduler.js'
 import type { RecurringTask, TaskExecution } from '@work-squared/shared/schema'
-import * as events from '@work-squared/shared/events'
 
 const TEST_DATA_PATH = './test-data-scheduler'
 
