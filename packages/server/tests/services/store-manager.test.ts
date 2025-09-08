@@ -81,7 +81,7 @@ describe('StoreManager', () => {
 
       expect(store).toBe(mockStore)
       expect(storeManager.getStore('new-store')).toBe(mockStore)
-      expect(storeFactory.createStore).toHaveBeenCalledWith('new-store')
+      expect(storeFactory.createStore).toHaveBeenCalledWith('new-store', {})
     })
 
     it('should return existing store if already added', async () => {
