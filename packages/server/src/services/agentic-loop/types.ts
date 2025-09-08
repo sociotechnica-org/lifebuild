@@ -50,6 +50,9 @@ export interface AgenticLoopContext {
   workerId?: string
   model: string
   maxIterations?: number
+  allowContinuation?: boolean
+  continuationIncrement?: number
+  maxExecutionTimeMs?: number
 }
 
 export interface ToolMessage {
@@ -67,6 +70,12 @@ export interface AgenticLoopEvents {
   onError?: (error: Error, iteration: number) => void
   onComplete?: (iterations: number) => void
   onRetry?: (attempt: number, maxRetries: number, delayMs: number, error: Error) => void
+  onIterationLimitApproaching?: (
+    currentIteration: number,
+    maxIterations: number,
+    canContinue: boolean
+  ) => void
+  onRequestContinuation?: (currentIteration: number, maxIterations: number) => Promise<boolean>
 }
 
 export interface ToolExecutionResult {

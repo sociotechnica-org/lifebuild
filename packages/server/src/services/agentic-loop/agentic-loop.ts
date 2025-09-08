@@ -30,6 +30,107 @@ export class AgenticLoop {
   }
 
   /**
+   * Analyze task complexity and suggest appropriate iteration limit
+   */
+  private analyzeTaskComplexity(userMessage: string): {
+    complexity: 'simple' | 'medium' | 'complex' | 'very-complex'
+    suggestedLimit: number
+    reasoning: string
+  } {
+    const message = userMessage.toLowerCase()
+
+    // Complexity indicators
+    const complexityIndicators = {
+      simple: ['what is', 'explain', 'describe', 'show me', 'list', 'help with'],
+      medium: ['create', 'write', 'build', 'make', 'add', 'implement', 'fix', 'update'],
+      complex: [
+        'refactor',
+        'migrate',
+        'integrate',
+        'optimize',
+        'analyze',
+        'review',
+        'multiple',
+        'several',
+        'many',
+        'comprehensive',
+      ],
+      veryComplex: [
+        'architecture',
+        'system',
+        'framework',
+        'infrastructure',
+        'deployment',
+        'database',
+        'api',
+        'microservice',
+        'full stack',
+        'end-to-end',
+      ],
+    }
+
+    // Count indicators
+    let simpleCount = 0
+    let mediumCount = 0
+    let complexCount = 0
+    let veryComplexCount = 0
+
+    Object.entries(complexityIndicators).forEach(([level, indicators]) => {
+      indicators.forEach(indicator => {
+        if (message.includes(indicator)) {
+          switch (level) {
+            case 'simple':
+              simpleCount++
+              break
+            case 'medium':
+              mediumCount++
+              break
+            case 'complex':
+              complexCount++
+              break
+            case 'veryComplex':
+              veryComplexCount++
+              break
+          }
+        }
+      })
+    })
+
+    // Additional complexity factors
+    const messageLength = userMessage.length
+    const hasMultipleRequests =
+      message.includes(' and ') || message.includes(',') || message.includes(';')
+    const hasFileOperations =
+      message.includes('file') || message.includes('directory') || message.includes('folder')
+    const hasTestRequirements = message.includes('test') || message.includes('spec')
+
+    // Determine complexity level
+    let complexity: 'simple' | 'medium' | 'complex' | 'very-complex'
+    let suggestedLimit: number
+    let reasoning: string
+
+    if (veryComplexCount > 0 || (complexCount >= 2 && messageLength > 200)) {
+      complexity = 'very-complex'
+      suggestedLimit = 50
+      reasoning = 'Very complex task with architectural/system-level requirements'
+    } else if (complexCount > 0 || (mediumCount >= 2 && hasMultipleRequests)) {
+      complexity = 'complex'
+      suggestedLimit = 40
+      reasoning = 'Complex task requiring multiple operations or analysis'
+    } else if (mediumCount > 0 || hasFileOperations || hasTestRequirements) {
+      complexity = 'medium'
+      suggestedLimit = 30
+      reasoning = 'Medium complexity task with implementation work'
+    } else {
+      complexity = 'simple'
+      suggestedLimit = 15
+      reasoning = 'Simple task with limited operations required'
+    }
+
+    return { complexity, suggestedLimit, reasoning }
+  }
+
+  /**
    * Run the agentic loop with a user message
    */
   async run(userMessage: string, context: AgenticLoopContext): Promise<void> {
@@ -39,10 +140,37 @@ export class AgenticLoop {
           const parsed = parseInt(process.env.LLM_MAX_ITERATIONS, 10)
           return isNaN(parsed) ? 15 : Math.max(1, parsed) // Ensure positive integer
         })()
-      : 15 // Prevent infinite loops - increased from 5 to 15 for complex multi-step operations
+      : 30 // Default fallback
 
-    this.maxIterations = context.maxIterations || envMaxIterations
-    const { boardContext, workerContext, workerId, model } = context
+    // Analyze task complexity and adjust iterations accordingly
+    const taskAnalysis = this.analyzeTaskComplexity(userMessage)
+    console.log(
+      `📊 Task complexity analysis: ${taskAnalysis.complexity} (${taskAnalysis.reasoning})`
+    )
+    console.log(`🎯 Suggested iteration limit: ${taskAnalysis.suggestedLimit}`)
+
+    // Use context override, then environment variable, then task complexity suggestion, then default
+    const initialMaxIterations =
+      context.maxIterations || envMaxIterations || taskAnalysis.suggestedLimit
+    this.maxIterations = initialMaxIterations
+
+    // Get execution time limit from environment or context
+    const envMaxExecutionTimeMs = process.env.LLM_MAX_EXECUTION_TIME_MS
+      ? (() => {
+          const parsed = parseInt(process.env.LLM_MAX_EXECUTION_TIME_MS, 10)
+          return isNaN(parsed) ? 600000 : Math.max(30000, parsed) // Ensure at least 30 seconds
+        })()
+      : 600000 // Default 10 minutes
+
+    const {
+      boardContext,
+      workerContext,
+      workerId,
+      model,
+      allowContinuation = false,
+      continuationIncrement = 15,
+      maxExecutionTimeMs = envMaxExecutionTimeMs,
+    } = context
 
     // Set worker ID on tool executor for proper actor tracking
     this.toolExecutor.setWorkerId(workerId)
@@ -50,19 +178,55 @@ export class AgenticLoop {
     // Add user message to history
     this.history.addUserMessage(userMessage)
     console.log(`🚀 Starting agentic loop with message: "${userMessage.substring(0, 100)}..."`)
+    console.log(
+      `⏱️ Maximum execution time: ${Math.round(maxExecutionTimeMs / 1000 / 60)}m${Math.round((maxExecutionTimeMs % 60000) / 1000)}s`
+    )
 
-    // Track tool calls to detect stuck/infinite loops
-    const toolCallHistory: Array<{ name: string; args: string; iteration: number }> = []
+    // Time-based tracking
+    const startTime = Date.now()
+
+    // Track tool calls to detect stuck/infinite loops with improved intelligence
+    const toolCallHistory: Array<{
+      name: string
+      args: string
+      iteration: number
+      timestamp: number
+    }> = []
     const consecutiveCallCounts = new Map<string, number>() // Track consecutive calls per tool signature
+    const toolCallResults = new Map<string, { success: boolean; result: string }[]>() // Track outcomes
     const warningThreshold = Math.floor(this.maxIterations * 0.8) // 80% of max iterations
+
+    // Track productive vs unproductive iterations
+    let consecutiveUnproductiveIterations = 0
+    const maxConsecutiveUnproductive = 5 // Allow some unproductive iterations before flagging as stuck
 
     // Run the loop
     let completedSuccessfully = false
     for (let iteration = 1; iteration <= this.maxIterations; iteration++) {
       let retryAttempts = 0 // Reset retry counter for each iteration
+
+      // Check time-based limit
+      const elapsedTime = Date.now() - startTime
+      if (elapsedTime > maxExecutionTimeMs) {
+        console.warn(
+          `⏱️ Maximum execution time exceeded (${Math.round(elapsedTime / 1000)}s / ${Math.round(maxExecutionTimeMs / 1000)}s)`
+        )
+        this.events.onError?.(
+          new Error(
+            `Maximum execution time exceeded (${Math.round(elapsedTime / 1000)}s). The operation took too long to complete.`
+          ),
+          iteration
+        )
+        this.events.onComplete?.(iteration)
+        break
+      }
+
       try {
         this.events.onIterationStart?.(iteration)
-        console.log(`🔄 Iteration ${iteration}/${this.maxIterations}`)
+        const timeRemaining = maxExecutionTimeMs - elapsedTime
+        console.log(
+          `🔄 Iteration ${iteration}/${this.maxIterations} (${Math.round(elapsedTime / 1000)}s elapsed, ${Math.round(timeRemaining / 1000)}s remaining)`
+        )
 
         // Call LLM with current history
         const response = await this.llmProvider.call(
@@ -86,43 +250,84 @@ export class AgenticLoop {
 
         // Check if we have tool calls to process
         if (response.toolCalls && response.toolCalls.length > 0) {
-          // Check for stuck/infinite loops
+          // Enhanced loop detection with productivity tracking
           let isStuckLoop = false
+          let isProductiveIteration = false
+
           for (const toolCall of response.toolCalls) {
             const toolSignature = `${toolCall.function.name}:${toolCall.function.arguments}`
+            const currentTime = Date.now()
 
-            // Check if this exact call was made recently
-            const recentIdenticalCall = toolCallHistory
-              .slice(-3) // Check last 3 calls
-              .find(
-                tc => tc.name === toolCall.function.name && tc.args === toolCall.function.arguments
-              )
+            // Check if this exact call was made recently (within last 5 iterations or 30 seconds)
+            const recentIdenticalCalls = toolCallHistory.filter(
+              tc =>
+                tc.name === toolCall.function.name &&
+                tc.args === toolCall.function.arguments &&
+                (iteration - tc.iteration <= 5 || currentTime - tc.timestamp < 30000)
+            )
 
-            if (recentIdenticalCall) {
+            if (recentIdenticalCalls.length > 0) {
               const currentCount = (consecutiveCallCounts.get(toolSignature) || 0) + 1
               consecutiveCallCounts.set(toolSignature, currentCount)
+
               console.warn(
-                `⚠️ Detected repeated tool call: ${toolCall.function.name} (${currentCount} times)`
+                `⚠️ Detected repeated tool call: ${toolCall.function.name} (${currentCount} times) - checking productivity`
               )
 
-              if (currentCount >= 3) {
-                isStuckLoop = true
-                console.error('❌ Detected stuck loop - breaking out')
-                this.events.onError?.(
-                  new Error('Stuck loop detected: Repeating same tool calls'),
-                  iteration
-                )
-                break
+              // More lenient approach - allow repeated calls if they might be productive
+              // Only flag as stuck if we have many consecutive identical calls with no progress
+              if (currentCount >= 4) {
+                // Check if previous calls with same signature were productive
+                const previousResults = toolCallResults.get(toolSignature) || []
+                const recentFailures = previousResults.slice(-3).filter(r => !r.success).length
+
+                if (recentFailures >= 2) {
+                  isStuckLoop = true
+                  console.error('❌ Detected stuck loop - repeated failures with same tool call')
+                  this.events.onError?.(
+                    new Error(
+                      `Stuck loop detected: Tool "${toolCall.function.name}" failing repeatedly with same arguments`
+                    ),
+                    iteration
+                  )
+                  break
+                }
               }
+
+              // This iteration made progress if it's trying something new or hasn't failed recently
+              isProductiveIteration = currentCount <= 2 || recentIdenticalCalls.length === 1
             } else {
               consecutiveCallCounts.set(toolSignature, 0) // Reset counter for this specific tool call
+              isProductiveIteration = true // New tool call is considered productive
             }
 
             toolCallHistory.push({
               name: toolCall.function.name,
               args: toolCall.function.arguments,
               iteration,
+              timestamp: currentTime,
             })
+          }
+
+          // Update productivity tracking
+          if (isProductiveIteration) {
+            consecutiveUnproductiveIterations = 0
+          } else {
+            consecutiveUnproductiveIterations++
+          }
+
+          // Check for too many consecutive unproductive iterations
+          if (consecutiveUnproductiveIterations >= maxConsecutiveUnproductive) {
+            isStuckLoop = true
+            console.error(
+              `❌ Detected stuck loop - ${consecutiveUnproductiveIterations} consecutive unproductive iterations`
+            )
+            this.events.onError?.(
+              new Error(
+                `Stuck loop detected: ${consecutiveUnproductiveIterations} consecutive unproductive iterations`
+              ),
+              iteration
+            )
           }
 
           if (isStuckLoop) {
@@ -132,10 +337,43 @@ export class AgenticLoop {
             return
           }
 
-          // Warn when approaching iteration limit
+          // Progressive limits with user continuation
           if (iteration === warningThreshold) {
             console.warn(`⚠️ Approaching iteration limit (${iteration}/${this.maxIterations})`)
-            // Don't call onIterationStart again - it was already called at the start of this iteration
+            this.events.onIterationLimitApproaching?.(
+              iteration,
+              this.maxIterations,
+              allowContinuation
+            )
+
+            if (allowContinuation && this.events.onRequestContinuation) {
+              console.log(
+                `🤔 Checking if user wants to continue beyond ${this.maxIterations} iterations...`
+              )
+              try {
+                const shouldContinue = await this.events.onRequestContinuation(
+                  iteration,
+                  this.maxIterations
+                )
+                if (shouldContinue) {
+                  const newLimit = this.maxIterations + continuationIncrement
+                  console.log(
+                    `✅ User approved continuation - extending limit from ${this.maxIterations} to ${newLimit}`
+                  )
+                  this.maxIterations = newLimit
+                  // Recalculate warning threshold for the new limit
+                  const newWarningThreshold = Math.floor(this.maxIterations * 0.8)
+                  console.log(`📊 New warning threshold: ${newWarningThreshold}`)
+                } else {
+                  console.log(
+                    `❌ User declined continuation - will stop at ${this.maxIterations} iterations`
+                  )
+                }
+              } catch (error) {
+                console.error(`❌ Error requesting continuation:`, error)
+                // Continue with original limit if there's an error
+              }
+            }
           }
 
           // Add assistant message with tool calls
@@ -144,6 +382,28 @@ export class AgenticLoop {
           // Execute tools
           this.events.onToolsExecuting?.(response.toolCalls)
           const toolMessages = await this.toolExecutor.executeTools(response.toolCalls)
+
+          // Track tool execution results for smart loop detection
+          response.toolCalls.forEach((toolCall, index) => {
+            const toolSignature = `${toolCall.function.name}:${toolCall.function.arguments}`
+            const toolMessage = toolMessages[index]
+            const wasSuccessful =
+              toolMessage && !toolMessage.content.toLowerCase().includes('error')
+
+            if (!toolCallResults.has(toolSignature)) {
+              toolCallResults.set(toolSignature, [])
+            }
+            toolCallResults.get(toolSignature)!.push({
+              success: wasSuccessful,
+              result: toolMessage?.content.substring(0, 200) || '', // Store first 200 chars for analysis
+            })
+
+            // Keep only last 5 results per tool signature to prevent memory growth
+            const results = toolCallResults.get(toolSignature)!
+            if (results.length > 5) {
+              results.shift()
+            }
+          })
 
           // Add tool results to history
           this.history.addToolMessages(toolMessages)
