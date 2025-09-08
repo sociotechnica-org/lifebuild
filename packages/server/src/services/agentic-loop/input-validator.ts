@@ -76,18 +76,16 @@ export class InputValidator {
    * Validate and sanitize an array of messages
    */
   validateMessages(messages: any[]): ValidationResult {
-    // Check message count
+    // Truncate messages if they exceed the limit
+    let messagesToProcess = messages
     if (messages.length > this.config.maxMessagesCount) {
-      return {
-        isValid: false,
-        reason: `Too many messages: ${messages.length} exceeds limit of ${this.config.maxMessagesCount}`,
-      }
+      messagesToProcess = this.truncateMessages(messages)
     }
 
     const sanitizedMessages: any[] = []
 
-    for (let i = 0; i < messages.length; i++) {
-      const message = messages[i]
+    for (let i = 0; i < messagesToProcess.length; i++) {
+      const message = messagesToProcess[i]
 
       // Validate message structure
       if (!message || typeof message !== 'object') {
@@ -129,6 +127,37 @@ export class InputValidator {
       isValid: true,
       sanitizedContent: JSON.stringify(sanitizedMessages),
     }
+  }
+
+  /**
+   * Truncate messages to fit within the limit while preserving context
+   * Keeps the first system message (if any) and the most recent messages
+   */
+  private truncateMessages(messages: any[]): any[] {
+    const limit = Math.floor(this.config.maxMessagesCount * 0.8) // Use 80% of limit for recent messages
+
+    if (messages.length <= this.config.maxMessagesCount) {
+      return messages
+    }
+
+    // Find the first system message
+    const firstSystemIndex = messages.findIndex(msg => msg?.role === 'system')
+
+    if (firstSystemIndex === -1) {
+      // No system message, just take the most recent messages
+      return messages.slice(-limit)
+    }
+
+    // Keep the first system message and the most recent messages
+    const firstSystemMessage = messages[firstSystemIndex]
+    const recentMessages = messages.slice(-(limit - 1)) // -1 to account for system message
+
+    // If the system message is already in the recent messages, don't duplicate it
+    if (recentMessages.some(msg => msg === firstSystemMessage)) {
+      return recentMessages
+    }
+
+    return [firstSystemMessage, ...recentMessages]
   }
 
   /**
