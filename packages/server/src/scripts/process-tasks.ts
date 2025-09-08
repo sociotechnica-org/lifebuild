@@ -9,9 +9,21 @@
  * Command: pnpm --filter @work-squared/server run process-tasks
  */
 
+import dotenv from 'dotenv'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 import { StoreManager } from '../services/store-manager.js'
 import { TaskScheduler } from '../services/task-scheduler.js'
 import { parseStoreIds } from '../config/stores.js'
+
+// Load environment variables from package-local .env file
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const packageRoot = resolve(__dirname, '..', '..')
+dotenv.config({ path: resolve(packageRoot, '.env') })
+
+// Disable devtools for cron script to avoid port conflicts
+process.env.DISABLE_DEVTOOLS = 'true'
 
 async function main(): Promise<void> {
   const startTime = Date.now()
@@ -31,17 +43,16 @@ async function main(): Promise<void> {
 
     console.log(`📋 Processing tasks for ${storeIds.length} stores: ${storeIds.join(', ')}`)
 
-    // Initialize store manager and connect to all stores
-    storeManager = new StoreManager()
+    // Initialize store manager with separate database path for cron jobs
+    const cronDataPath = './data/cron'
+    storeManager = new StoreManager({
+      dataPath: cronDataPath, // Separate database path to avoid conflicts with dev server
+    })
     await storeManager.initialize(storeIds)
 
     // Initialize task scheduler
     taskScheduler = new TaskScheduler()
     await taskScheduler.initialize()
-
-    // Get stats before processing
-    const statsBefore = await taskScheduler.getStats()
-    console.log(`📊 Starting stats: ${statsBefore.processedExecutions} total executions processed`)
 
     // Process tasks for each store
     let totalTasksProcessed = 0
@@ -67,15 +78,9 @@ async function main(): Promise<void> {
       }
     }
 
-    // Get stats after processing
-    const statsAfter = await taskScheduler.getStats()
-    const newExecutions = statsAfter.processedExecutions - statsBefore.processedExecutions
-
     const duration = Date.now() - startTime
     console.log(`\n✅ Task processing completed in ${duration}ms`)
     console.log(`📊 Processed ${totalTasksProcessed} stores`)
-    console.log(`📊 New executions: ${newExecutions}`)
-    console.log(`📊 Total executions: ${statsAfter.processedExecutions}`)
   } catch (error) {
     console.error('❌ Fatal error during task processing:', error)
     process.exit(1)

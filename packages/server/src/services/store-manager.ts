@@ -17,13 +17,22 @@ export class StoreManager {
   private healthCheckInterval?: NodeJS.Timeout
   private readonly maxReconnectAttempts: number
   private readonly reconnectInterval: number
+  private readonly configOverrides: Partial<StoreConfig>
 
-  constructor(
-    maxReconnectAttempts = Number(process.env.STORE_MAX_RECONNECT_ATTEMPTS) || 3,
-    reconnectInterval = Number(process.env.STORE_RECONNECT_INTERVAL) || 5000
-  ) {
-    this.maxReconnectAttempts = maxReconnectAttempts
-    this.reconnectInterval = reconnectInterval
+  constructor(options?: {
+    maxReconnectAttempts?: number
+    reconnectInterval?: number
+    dataPath?: string
+  }) {
+    this.maxReconnectAttempts =
+      options?.maxReconnectAttempts || Number(process.env.STORE_MAX_RECONNECT_ATTEMPTS) || 3
+    this.reconnectInterval =
+      options?.reconnectInterval || Number(process.env.STORE_RECONNECT_INTERVAL) || 5000
+    this.configOverrides = {}
+
+    if (options?.dataPath) {
+      this.configOverrides.dataPath = options.dataPath
+    }
   }
 
   async initialize(storeIds: string[]): Promise<void> {
@@ -52,7 +61,7 @@ export class StoreManager {
     }
 
     try {
-      const { store, config } = await createStore(storeId)
+      const { store, config } = await createStore(storeId, this.configOverrides)
 
       const storeInfo: StoreInfo = {
         store,
@@ -158,7 +167,10 @@ export class StoreManager {
         )
 
         await storeInfo.store.shutdown()
-        const { store } = await createStore(storeId, storeInfo.config)
+        const { store } = await createStore(storeId, {
+          ...storeInfo.config,
+          ...this.configOverrides,
+        })
 
         storeInfo.store = store
         storeInfo.status = 'connected'

@@ -157,58 +157,31 @@ export function useRecurringTasks() {
 
       const now = new Date()
 
-      // First emit the manual trigger event
+      // Set nextExecutionAt to current time so the server will pick it up
+      // in the next cron job run (within the 10-minute window)
+      await store.commit(
+        events.recurringTaskUpdated({
+          id,
+          updates: {
+            name: undefined,
+            description: undefined,
+            prompt: undefined,
+            intervalHours: undefined,
+            assigneeIds: undefined,
+            projectId: undefined,
+          },
+          updatedAt: now,
+          nextExecutionAt: now,
+        })
+      )
+
+      // Emit the manual trigger event for tracking
       await store.commit(
         events.recurringTaskExecute({
           taskId: id,
           triggeredAt: now,
         })
       )
-
-      // Create execution record
-      const executionId = crypto.randomUUID()
-      await store.commit(
-        events.taskExecutionStarted({
-          id: executionId,
-          recurringTaskId: id,
-          startedAt: now,
-        })
-      )
-
-      // Mock execution - wait 2 seconds then complete
-      setTimeout(async () => {
-        const completedAt = new Date()
-        const nextExecutionAt = new Date(
-          calculateNextExecution(completedAt.getTime(), task.intervalHours)
-        )
-
-        // Mark execution as completed
-        await store.commit(
-          events.taskExecutionCompleted({
-            id: executionId,
-            completedAt,
-            output: 'Mock execution completed successfully',
-            createdTaskIds: [],
-          })
-        )
-
-        // Update the task's next execution time
-        await store.commit(
-          events.recurringTaskUpdated({
-            id,
-            updates: {
-              name: undefined,
-              description: undefined,
-              prompt: undefined,
-              intervalHours: undefined,
-              assigneeIds: undefined,
-              projectId: undefined,
-            },
-            updatedAt: completedAt,
-            nextExecutionAt,
-          })
-        )
-      }, 2000)
     },
     [store, recurringTasks]
   )

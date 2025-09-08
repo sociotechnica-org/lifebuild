@@ -109,8 +109,15 @@ export class TaskToolFormatter implements ToolResultFormatter {
     }\n• Column ID: ${t.columnId || 'none'}\n• Description: ${
       t.description || 'none'
     }\n• Position: ${t.position}`
-    if (t.assigneeIds?.length) {
-      message += `\n• Assignees: ${t.assigneeIds.join(', ')}`
+    if (t.assigneeIds) {
+      try {
+        const assignees = JSON.parse(t.assigneeIds)
+        if (Array.isArray(assignees) && assignees.length > 0) {
+          message += `\n• Assignees: ${assignees.join(', ')}`
+        }
+      } catch (error) {
+        // Ignore parsing errors - just don't show assignees
+      }
     }
     return message
   }

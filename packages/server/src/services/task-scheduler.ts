@@ -2,19 +2,17 @@ import type { Store } from '@livestore/livestore'
 import { queryDb } from '@livestore/livestore'
 import { AgenticLoop } from './agentic-loop/agentic-loop.js'
 import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
-import { ProcessedTaskTracker } from './processed-task-tracker.js'
 import { tables } from '@work-squared/shared/schema'
 import type { RecurringTask, TaskExecution } from '@work-squared/shared/schema'
+import { getRecurringTasks$ } from '@work-squared/shared/queries'
+import * as events from '@work-squared/shared/events'
 import { DEFAULT_MODEL } from '@work-squared/shared'
 import { calculateNextExecution } from '@work-squared/shared/utils/scheduling'
 
 export class TaskScheduler {
-  private taskTracker: ProcessedTaskTracker
   private llmProvider: BraintrustProvider
 
-  constructor(taskTracker?: ProcessedTaskTracker) {
-    this.taskTracker = taskTracker || new ProcessedTaskTracker()
-
+  constructor() {
     // Initialize Braintrust provider with environment variables
     const apiKey = process.env.BRAINTRUST_API_KEY
     const projectId = process.env.BRAINTRUST_PROJECT_ID
@@ -29,11 +27,11 @@ export class TaskScheduler {
   }
 
   async initialize(): Promise<void> {
-    await this.taskTracker.initialize()
+    // No initialization needed without ProcessedTaskTracker
   }
 
   async close(): Promise<void> {
-    await this.taskTracker.close()
+    // No cleanup needed without ProcessedTaskTracker
   }
 
   /**
@@ -43,7 +41,13 @@ export class TaskScheduler {
     console.log(`🔍 Checking for due tasks in store: ${storeId}`)
 
     try {
-      // Get due tasks with windowing (last 10 minutes to catch missed executions)
+      // Wait a moment for sync to complete (skip in tests)
+      if (process.env.NODE_ENV !== 'test') {
+        console.log(`  ⏳ Waiting 3 seconds for sync to complete...`)
+        await new Promise(resolve => setTimeout(resolve, 3000))
+      }
+
+      // Get due tasks
       const dueTasks = await this.getDueTasks(store)
 
       if (dueTasks.length === 0) {
@@ -68,7 +72,7 @@ export class TaskScheduler {
   }
 
   /**
-   * Process a single task - check deduplication and execute if needed
+   * Process a single task - check if it needs execution based on completion status
    */
   private async processTask(task: RecurringTask, store: Store, storeId: string): Promise<void> {
     if (!task.nextExecutionAt) {
@@ -76,18 +80,14 @@ export class TaskScheduler {
       return
     }
 
-    // Use the scheduled execution time for deduplication
+    // Check if this task execution time has already been completed
     const scheduledTime = task.nextExecutionAt
+    const hasCompletedExecution = await this.hasCompletedExecution(store, task.id, scheduledTime)
 
-    // Try to claim this task execution
-    const claimed = await this.taskTracker.markTaskExecutionProcessed(
-      task.id,
-      scheduledTime,
-      storeId
-    )
-
-    if (!claimed) {
-      console.log(`  🔒 Task ${task.id} already processed by another instance`)
+    if (hasCompletedExecution) {
+      console.log(
+        `  🔒 Task ${task.id} already completed for scheduled time ${scheduledTime.toISOString()}`
+      )
       return
     }
 
@@ -104,17 +104,13 @@ export class TaskScheduler {
       console.error(`  ❌ Task ${task.id} execution failed:`, error)
 
       // Emit failure event with the same execution ID and start time
-      await this.emitExecutionEvent(store, {
-        type: 'task_execution.fail',
-        args: {
+      await store.commit(
+        events.taskExecutionFailed({
           id: executionId,
-          recurringTaskId: task.id,
-          startedAt: startTime,
-          completedAt: new Date(),
-          status: 'failed' as const,
-          output: `Error: ${error instanceof Error ? error.message : String(error)}`,
-        },
-      })
+          failedAt: new Date(),
+          error: `Error: ${error instanceof Error ? error.message : String(error)}`,
+        })
+      )
     }
   }
 
@@ -129,15 +125,13 @@ export class TaskScheduler {
     startTime: Date
   ): Promise<void> {
     // Emit start event
-    await this.emitExecutionEvent(store, {
-      type: 'task_execution.start',
-      args: {
+    await store.commit(
+      events.taskExecutionStarted({
         id: executionId,
         recurringTaskId: task.id,
         startedAt: startTime,
-        status: 'running' as const,
-      },
-    })
+      })
+    )
 
     try {
       // Create AgenticLoop with store context
@@ -154,6 +148,8 @@ export class TaskScheduler {
         maxIterations: 10,
       })
 
+      console.log(`  🔄 AgenticLoop completed for task ${task.id}, processing completion...`)
+
       const completedAt = new Date()
 
       // Calculate next execution time
@@ -161,74 +157,90 @@ export class TaskScheduler {
         calculateNextExecution(completedAt.getTime(), task.intervalHours)
       )
 
+      console.log(`  📅 Next execution calculated for ${nextExecutionAt.toISOString()}`)
+
       // Emit success event
-      await this.emitExecutionEvent(store, {
-        type: 'task_execution.complete',
-        args: {
+      console.log(`  🎉 Emitting TaskExecutionCompleted event for execution ${executionId}`)
+      await store.commit(
+        events.taskExecutionCompleted({
           id: executionId,
-          recurringTaskId: task.id,
-          startedAt: startTime,
           completedAt,
-          status: 'completed' as const,
           output: 'Task completed successfully via AgenticLoop',
-        },
-      })
+        })
+      )
+      console.log(`  ✅ TaskExecutionCompleted event emitted successfully`)
 
       // Update the task's nextExecutionAt for the next scheduled run
-      store.commit({
-        name: 'v1.RecurringTaskUpdated',
-        args: {
+      console.log(`  🔄 Updating recurring task ${task.id} with next execution time`)
+      await store.commit(
+        events.recurringTaskUpdated({
           id: task.id,
-          updates: {},
+          updates: {
+            name: undefined,
+            description: undefined,
+            projectId: undefined,
+            assigneeIds: undefined,
+            prompt: undefined,
+            intervalHours: undefined,
+          },
           updatedAt: completedAt,
           nextExecutionAt,
-        },
-      })
+        })
+      )
+      console.log(`  ✅ Recurring task updated successfully`)
     } catch (error) {
+      console.error(`  ❌ Error in executeTask after AgenticLoop: ${error}`)
       // Re-throw so the caller can handle it
       throw error
     }
   }
 
   /**
-   * Get tasks that are due for execution (with 10-minute window for missed executions)
+   * Get tasks that are due for execution (including overdue tasks)
    */
   private async getDueTasks(store: Store): Promise<RecurringTask[]> {
     const now = new Date()
-    const windowStart = new Date(now.getTime() - 10 * 60 * 1000) // 10 minutes ago
+    // Look back 24 hours to catch any missed executions
+    const windowStart = new Date(now.getTime() - 24 * 60 * 60 * 1000)
 
-    const allTasks = store.query(
-      queryDb(
-        tables.recurringTasks
-          .select()
-          .where('enabled', '=', true)
-          .where('nextExecutionAt', '>=', windowStart)
-          .where('nextExecutionAt', '<=', now)
-      )
+    console.log(
+      `  🔍 Looking for tasks with nextExecutionAt between ${windowStart.toISOString()} and ${now.toISOString()}`
     )
 
-    return allTasks as RecurringTask[]
-  }
+    // Get all recurring tasks
+    const allTasks = store.query(getRecurringTasks$) as RecurringTask[]
+    const allEnabledTasks = allTasks.filter(task => task.enabled)
 
-  /**
-   * Emit execution event to LiveStore
-   */
-  private async emitExecutionEvent(
-    store: Store,
-    event: {
-      type: string
-      args: Partial<TaskExecution>
-    }
-  ): Promise<void> {
-    try {
-      store.commit({
-        name: event.type,
-        args: event.args,
-      })
-    } catch (error) {
-      console.error(`Failed to emit event ${event.type}:`, error)
-      // Don't throw - execution events are best-effort
-    }
+    console.log(`  📊 Total recurring tasks in store: ${allTasks.length}`)
+    console.log(`  📊 Enabled recurring tasks: ${allEnabledTasks.length}`)
+
+    allEnabledTasks.forEach(task => {
+      console.log(`    Task: ${task.name} (${task.id})`)
+      console.log(`      nextExecutionAt: ${task.nextExecutionAt?.toISOString() || 'null'}`)
+      console.log(`      enabled: ${task.enabled}`)
+      console.log(`      intervalHours: ${task.intervalHours}`)
+      if (task.nextExecutionAt) {
+        const isOverdue = task.nextExecutionAt <= now
+        const inWindow = task.nextExecutionAt >= windowStart && task.nextExecutionAt <= now
+        console.log(`      is overdue: ${isOverdue}`)
+        console.log(`      in execution window: ${inWindow}`)
+        if (isOverdue) {
+          const minutesOverdue = Math.round(
+            (now.getTime() - task.nextExecutionAt.getTime()) / (1000 * 60)
+          )
+          console.log(`      minutes overdue: ${minutesOverdue}`)
+        }
+      }
+    })
+
+    // Get tasks that are due (including overdue tasks)
+    const dueTasks = allEnabledTasks.filter(task => {
+      if (!task.nextExecutionAt) return false
+      return task.nextExecutionAt >= windowStart && task.nextExecutionAt <= now
+    })
+
+    console.log(`  📊 Due tasks found: ${dueTasks.length}`)
+    return dueTasks
   }
 
   /**
@@ -253,27 +265,35 @@ export class TaskScheduler {
    * Generate a unique execution ID
    */
   private generateExecutionId(): string {
-    return `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    // Use crypto.randomUUID for better uniqueness
+    return `exec_${crypto.randomUUID()}`
   }
 
   /**
-   * Get statistics about task processing
+   * Check if a task execution has already been completed for the given scheduled time
    */
-  async getStats(storeId?: string): Promise<{
-    processedExecutions: number
-    storeId?: string
-  }> {
-    const processedExecutions = await this.taskTracker.getProcessedCount(storeId)
-    return {
-      processedExecutions,
-      ...(storeId && { storeId }),
-    }
-  }
+  private async hasCompletedExecution(
+    store: Store,
+    taskId: string,
+    scheduledTime: Date
+  ): Promise<boolean> {
+    // Query for task executions that were completed for this recurring task around the scheduled time
+    // We use a small window (±5 minutes) to account for slight timing differences
+    const windowMs = 5 * 60 * 1000 // 5 minutes
+    const windowStart = new Date(scheduledTime.getTime() - windowMs)
+    const windowEnd = new Date(scheduledTime.getTime() + windowMs)
 
-  /**
-   * Clean up old execution records
-   */
-  async cleanup(olderThanDays: number = 30): Promise<number> {
-    return await this.taskTracker.cleanupOldExecutions(olderThanDays)
+    const completedExecutions = store.query(
+      queryDb(
+        tables.taskExecutions
+          .select()
+          .where('recurringTaskId', '=', taskId)
+          .where('status', '=', 'completed')
+          .where('startedAt', '>=', windowStart)
+          .where('startedAt', '<=', windowEnd)
+      )
+    ) as TaskExecution[]
+
+    return completedExecutions.length > 0
   }
 }
