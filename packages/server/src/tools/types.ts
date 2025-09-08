@@ -612,6 +612,171 @@ export interface GetProjectContactEmailsResult {
   error?: string
 }
 
+// ===== WORKER TOOL TYPES =====
+
+export interface CreateWorkerParams {
+  name: string
+  roleDescription?: string
+  systemPrompt: string
+  avatar?: string
+  defaultModel: string
+}
+
+export interface CreateWorkerResult {
+  success: boolean
+  workerId?: string
+  error?: string
+  worker?: {
+    id: string
+    name: string
+    roleDescription?: string
+    systemPrompt: string
+    avatar?: string
+    defaultModel: string
+    createdAt: Date
+  }
+}
+
+export interface UpdateWorkerParams {
+  workerId: string
+  name?: string
+  roleDescription?: string
+  systemPrompt?: string
+  avatar?: string
+  defaultModel?: string
+}
+
+export interface UpdateWorkerResult {
+  success: boolean
+  error?: string
+  worker?: {
+    id: string
+    name?: string
+    roleDescription?: string
+    systemPrompt?: string
+    avatar?: string
+    defaultModel?: string
+    updatedAt: Date
+  }
+}
+
+export interface ListWorkersParams {}
+
+export interface ListWorkersResult {
+  success: boolean
+  workers?: Array<{
+    id: string
+    name: string
+    roleDescription?: string
+    systemPrompt: string
+    avatar?: string
+    defaultModel: string
+    isActive: boolean
+    createdAt: Date
+    updatedAt?: Date
+  }>
+  error?: string
+}
+
+export interface GetWorkerParams {
+  workerId: string
+}
+
+export interface GetWorkerResult {
+  success: boolean
+  worker?: {
+    id: string
+    name: string
+    roleDescription?: string
+    systemPrompt: string
+    avatar?: string
+    defaultModel: string
+    isActive: boolean
+    createdAt: Date
+    updatedAt?: Date
+    projects?: Array<{
+      id: string
+      name: string
+      description?: string
+    }>
+  }
+  error?: string
+}
+
+export interface DeactivateWorkerParams {
+  workerId: string
+}
+
+export interface DeactivateWorkerResult {
+  success: boolean
+  message?: string
+  error?: string
+}
+
+export interface AssignWorkerToProjectParams {
+  workerId: string
+  projectId: string
+}
+
+export interface AssignWorkerToProjectResult {
+  success: boolean
+  message?: string
+  error?: string
+}
+
+export interface UnassignWorkerFromProjectParams {
+  workerId: string
+  projectId: string
+}
+
+export interface UnassignWorkerFromProjectResult {
+  success: boolean
+  message?: string
+  error?: string
+}
+
+export interface GetProjectWorkersParams {
+  projectId: string
+}
+
+export interface GetProjectWorkersResult {
+  success: boolean
+  projectId?: string
+  workers?: Array<{
+    id: string
+    name: string
+    roleDescription?: string
+    systemPrompt: string
+    avatar?: string
+    defaultModel: string
+    isActive: boolean
+    createdAt: Date
+    updatedAt?: Date
+  }>
+  error?: string
+}
+
+export interface GetWorkerProjectsParams {
+  workerId: string
+}
+
+export interface GetWorkerProjectsResult {
+  success: boolean
+  workerId?: string
+  worker?: {
+    name: string
+    roleDescription?: string
+  }
+  projects?: Array<{
+    id: string
+    name: string
+    description?: string
+    createdAt: Date
+    updatedAt?: Date
+  }>
+  error?: string
+}
+
 // ===== UNION TYPES =====
 
 export type LLMToolParams =
@@ -652,6 +817,15 @@ export type LLMToolParams =
   | FindContactsByEmailParams
   | ValidateEmailListParams
   | SuggestContactsFromEmailsParams
+  | CreateWorkerParams
+  | UpdateWorkerParams
+  | ListWorkersParams
+  | GetWorkerParams
+  | DeactivateWorkerParams
+  | AssignWorkerToProjectParams
+  | UnassignWorkerFromProjectParams
+  | GetProjectWorkersParams
+  | GetWorkerProjectsParams
 
 export type LLMToolResult =
   | CreateTaskResult
@@ -691,3 +865,12 @@ export type LLMToolResult =
   | FindContactsByEmailResult
   | ValidateEmailListResult
   | SuggestContactsFromEmailsResult
+  | CreateWorkerResult
+  | UpdateWorkerResult
+  | ListWorkersResult
+  | GetWorkerResult
+  | DeactivateWorkerResult
+  | AssignWorkerToProjectResult
+  | UnassignWorkerFromProjectResult
+  | GetProjectWorkersResult
+  | GetWorkerProjectsResult

@@ -15,6 +15,9 @@ export * from './documents.js'
 // Export contact tools
 export * from './contacts.js'
 
+// Export worker tools
+export * from './workers.js'
+
 /**
  * Execute an LLM tool call
  */
@@ -68,6 +71,18 @@ export async function executeLLMTool(
     validateEmailList,
     suggestContactsFromEmails,
   } = await import('./contacts.js')
+
+  const {
+    createWorker,
+    updateWorker,
+    listWorkers,
+    getWorker,
+    deactivateWorker,
+    assignWorkerToProject,
+    unassignWorkerFromProject,
+    getProjectWorkers,
+    getWorkerProjects,
+  } = await import('./workers.js')
 
   switch (toolCall.name) {
     case 'create_task':
@@ -181,6 +196,34 @@ export async function executeLLMTool(
 
     case 'suggest_contacts_from_emails':
       return suggestContactsFromEmails(store, toolCall.parameters)
+
+    // Worker tools
+    case 'create_worker':
+      return createWorker(store, toolCall.parameters, workerId)
+
+    case 'update_worker':
+      return updateWorker(store, toolCall.parameters, workerId)
+
+    case 'list_workers':
+      return listWorkers(store)
+
+    case 'get_worker':
+      return getWorker(store, toolCall.parameters.workerId)
+
+    case 'deactivate_worker':
+      return deactivateWorker(store, toolCall.parameters, workerId)
+
+    case 'assign_worker_to_project':
+      return assignWorkerToProject(store, toolCall.parameters, workerId)
+
+    case 'unassign_worker_from_project':
+      return unassignWorkerFromProject(store, toolCall.parameters, workerId)
+
+    case 'get_project_workers':
+      return getProjectWorkers(store, toolCall.parameters.projectId)
+
+    case 'get_worker_projects':
+      return getWorkerProjects(store, toolCall.parameters.workerId)
 
     default:
       throw new Error(`Unknown tool: ${toolCall.name}`)

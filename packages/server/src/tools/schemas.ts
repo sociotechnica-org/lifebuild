@@ -347,4 +347,87 @@ export const llmToolSchemas = [
     },
     required: ['emails'],
   }),
+
+  // Worker Management Tools
+  toolDef('create_worker', 'Create a new AI worker with specified capabilities', {
+    type: 'object',
+    properties: {
+      name: requiredString('The name of the worker'),
+      roleDescription: optionalString("Description of the worker's role and responsibilities"),
+      systemPrompt: requiredString("System prompt that defines the worker's behavior"),
+      avatar: optionalString("URL to the worker's avatar image"),
+      defaultModel: requiredString('Default AI model to use (e.g., gpt-4o-mini)'),
+    },
+    required: ['name', 'systemPrompt', 'defaultModel'],
+  }),
+
+  toolDef('update_worker', "Update an existing worker's configuration", {
+    type: 'object',
+    properties: {
+      workerId: requiredString('The ID of the worker to update'),
+      name: optionalString('New name for the worker'),
+      roleDescription: optionalString("New description of the worker's role"),
+      systemPrompt: optionalString('New system prompt for the worker'),
+      avatar: optionalString('New avatar URL for the worker'),
+      defaultModel: optionalString('New default AI model for the worker'),
+    },
+    required: ['workerId'],
+  }),
+
+  toolDef('list_workers', 'Get all active workers', {
+    type: 'object',
+    properties: {},
+    required: [],
+  }),
+
+  toolDef('get_worker', 'Get details of a specific worker', {
+    type: 'object',
+    properties: {
+      workerId: requiredString('The ID of the worker to retrieve'),
+    },
+    required: ['workerId'],
+  }),
+
+  toolDef('deactivate_worker', 'Deactivate a worker (soft delete)', {
+    type: 'object',
+    properties: {
+      workerId: requiredString('The ID of the worker to deactivate'),
+    },
+    required: ['workerId'],
+  }),
+
+  // Worker-Project Assignment Tools
+  toolDef('assign_worker_to_project', 'Assign a worker to a project', {
+    type: 'object',
+    properties: {
+      workerId: requiredString('The ID of the worker to assign'),
+      projectId: requiredString('The ID of the project to assign the worker to'),
+    },
+    required: ['workerId', 'projectId'],
+  }),
+
+  toolDef('unassign_worker_from_project', 'Remove a worker from a project', {
+    type: 'object',
+    properties: {
+      workerId: requiredString('The ID of the worker to unassign'),
+      projectId: requiredString('The ID of the project to unassign the worker from'),
+    },
+    required: ['workerId', 'projectId'],
+  }),
+
+  toolDef('get_project_workers', 'Get all workers assigned to a project', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('The ID of the project to get workers for'),
+    },
+    required: ['projectId'],
+  }),
+
+  toolDef('get_worker_projects', 'Get all projects a worker is assigned to', {
+    type: 'object',
+    properties: {
+      workerId: requiredString('The ID of the worker to get projects for'),
+    },
+    required: ['workerId'],
+  }),
 ]
