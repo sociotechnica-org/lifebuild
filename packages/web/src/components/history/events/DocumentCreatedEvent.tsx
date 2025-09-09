@@ -25,11 +25,12 @@ export const DocumentCreatedEvent: React.FC<DocumentCreatedEventProps> = ({ even
 
   const icon = <FileText size={16} className='text-amber-600' />
 
-  const previewContent = data.content
-    ? data.content.length > 100
-      ? data.content.substring(0, 100) + '...'
-      : data.content
-    : undefined
+  const previewContent =
+    data.content !== undefined
+      ? data.content.length > 100
+        ? data.content.substring(0, 100) + '...'
+        : data.content
+      : undefined
 
   return (
     <BaseEventItem
