@@ -66,7 +66,7 @@ export class AgenticLoop {
     this.history.addUserMessage(userMessage)
     console.log(`🚀 Starting agentic loop with message: "${userMessage.substring(0, 100)}..."`)
     console.log(
-      `⏱️ Maximum execution time: ${Math.round(maxExecutionTimeMs / 1000 / 60)}m${Math.round((maxExecutionTimeMs % 60000) / 1000)}s`
+      `⏱️ Maximum execution time: ${Math.floor(maxExecutionTimeMs / 1000 / 60)}m${Math.round((maxExecutionTimeMs % 60000) / 1000)}s`
     )
 
     // Time-based tracking
