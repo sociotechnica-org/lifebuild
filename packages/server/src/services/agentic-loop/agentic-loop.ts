@@ -94,7 +94,8 @@ export class AgenticLoop {
           iteration
         )
         this.events.onComplete?.(iteration)
-        break
+        completedSuccessfully = true
+        return
       }
 
       try {
