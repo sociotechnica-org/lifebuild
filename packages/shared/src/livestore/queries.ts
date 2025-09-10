@@ -336,3 +336,38 @@ export const getLatestExecution$ = (recurringTaskId: string) =>
       label: `getLatestExecution:${recurringTaskId}`,
     }
   )
+
+// Task execution status queries for scheduler
+export const getCompletedExecutionsInWindow$ = (
+  recurringTaskId: string,
+  windowStart: Date,
+  windowEnd: Date
+) =>
+  queryDb(
+    tables.taskExecutions
+      .select()
+      .where('recurringTaskId', '=', recurringTaskId)
+      .where('status', '=', 'completed')
+      .where('startedAt', '>=', windowStart)
+      .where('startedAt', '<=', windowEnd),
+    {
+      label: `getCompletedExecutionsInWindow:${recurringTaskId}`,
+    }
+  )
+
+export const getRunningExecutionsInWindow$ = (
+  recurringTaskId: string,
+  windowStart: Date,
+  windowEnd: Date
+) =>
+  queryDb(
+    tables.taskExecutions
+      .select()
+      .where('recurringTaskId', '=', recurringTaskId)
+      .where('status', '=', 'running')
+      .where('startedAt', '>=', windowStart)
+      .where('startedAt', '<=', windowEnd),
+    {
+      label: `getRunningExecutionsInWindow:${recurringTaskId}`,
+    }
+  )

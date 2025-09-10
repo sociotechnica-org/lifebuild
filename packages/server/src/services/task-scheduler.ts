@@ -1,10 +1,13 @@
 import type { Store } from '@livestore/livestore'
-import { queryDb } from '@livestore/livestore'
 import { AgenticLoop } from './agentic-loop/agentic-loop.js'
 import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
 import { tables } from '@work-squared/shared/schema'
 import type { RecurringTask, TaskExecution } from '@work-squared/shared/schema'
-import { getRecurringTasks$ } from '@work-squared/shared/queries'
+import {
+  getRecurringTasks$,
+  getCompletedExecutionsInWindow$,
+  getRunningExecutionsInWindow$,
+} from '@work-squared/shared/queries'
 import * as events from '@work-squared/shared/events'
 import { DEFAULT_MODEL } from '@work-squared/shared'
 import { calculateNextExecution } from '@work-squared/shared/utils/scheduling'
@@ -80,13 +83,23 @@ export class TaskScheduler {
       return
     }
 
-    // Check if this task execution time has already been completed
+    // Check if this task execution time has already been completed or started
     const scheduledTime = task.nextExecutionAt
     const hasCompletedExecution = await this.hasCompletedExecution(store, task.id, scheduledTime)
 
     if (hasCompletedExecution) {
       console.log(
         `  🔒 Task ${task.id} already completed for scheduled time ${scheduledTime.toISOString()}`
+      )
+      return
+    }
+
+    // Additional check: ensure no concurrent execution is already in progress
+    // (provides extra safety even though Render prevents concurrent cron instances)
+    const runningExecutionId = await this.hasRunningExecution(store, task.id, scheduledTime)
+    if (runningExecutionId) {
+      console.log(
+        `  🔒 Task ${task.id} already running for scheduled time ${scheduledTime.toISOString()} (execution: ${runningExecutionId})`
       )
       return
     }
@@ -150,6 +163,9 @@ export class TaskScheduler {
 
       console.log(`  🔄 AgenticLoop completed for task ${task.id}, processing completion...`)
 
+      // Small delay to ensure AgenticLoop database operations are fully committed
+      await new Promise(resolve => setTimeout(resolve, 100))
+
       const completedAt = new Date()
 
       // Calculate next execution time
@@ -159,20 +175,14 @@ export class TaskScheduler {
 
       console.log(`  📅 Next execution calculated for ${nextExecutionAt.toISOString()}`)
 
-      // Emit success event
-      console.log(`  🎉 Emitting TaskExecutionCompleted event for execution ${executionId}`)
+      // Batch both completion and task update events for atomicity
+      console.log(`  🎉 Emitting batched completion events for execution ${executionId}`)
       await store.commit(
         events.taskExecutionCompleted({
           id: executionId,
           completedAt,
           output: 'Task completed successfully via AgenticLoop',
-        })
-      )
-      console.log(`  ✅ TaskExecutionCompleted event emitted successfully`)
-
-      // Update the task's nextExecutionAt for the next scheduled run
-      console.log(`  🔄 Updating recurring task ${task.id} with next execution time`)
-      await store.commit(
+        }),
         events.recurringTaskUpdated({
           id: task.id,
           updates: {
@@ -187,7 +197,7 @@ export class TaskScheduler {
           nextExecutionAt,
         })
       )
-      console.log(`  ✅ Recurring task updated successfully`)
+      console.log(`  ✅ Batched completion events emitted successfully`)
     } catch (error) {
       console.error(`  ❌ Error in executeTask after AgenticLoop: ${error}`)
       // Re-throw so the caller can handle it
@@ -284,16 +294,31 @@ export class TaskScheduler {
     const windowEnd = new Date(scheduledTime.getTime() + windowMs)
 
     const completedExecutions = store.query(
-      queryDb(
-        tables.taskExecutions
-          .select()
-          .where('recurringTaskId', '=', taskId)
-          .where('status', '=', 'completed')
-          .where('startedAt', '>=', windowStart)
-          .where('startedAt', '<=', windowEnd)
-      )
+      getCompletedExecutionsInWindow$(taskId, windowStart, windowEnd)
     ) as TaskExecution[]
 
     return completedExecutions.length > 0
+  }
+
+  /**
+   * Check if a task execution is currently running for the given scheduled time
+   * Returns the execution ID if found, null otherwise
+   */
+  private async hasRunningExecution(
+    store: Store,
+    taskId: string,
+    scheduledTime: Date
+  ): Promise<string | null> {
+    // Query for task executions that are currently running for this recurring task around the scheduled time
+    // We use a small window (±5 minutes) to account for slight timing differences
+    const windowMs = 5 * 60 * 1000 // 5 minutes
+    const windowStart = new Date(scheduledTime.getTime() - windowMs)
+    const windowEnd = new Date(scheduledTime.getTime() + windowMs)
+
+    const runningExecutions = store.query(
+      getRunningExecutionsInWindow$(taskId, windowStart, windowEnd)
+    ) as TaskExecution[]
+
+    return runningExecutions.length > 0 ? runningExecutions[0].id : null
   }
 }

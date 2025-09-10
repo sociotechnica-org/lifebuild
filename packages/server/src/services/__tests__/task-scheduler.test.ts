@@ -135,14 +135,15 @@ describe('TaskScheduler', () => {
 
       await scheduler.checkAndExecuteTasks('test-store', mockStore)
 
-      // Should emit start, complete, and update events
-      expect(mockStore.commit).toHaveBeenCalledTimes(3)
+      // Should emit start event, then batched complete+update events
+      expect(mockStore.commit).toHaveBeenCalledTimes(2)
 
       // Check that proper event functions were called
       const calls = (mockStore.commit as MockedFunction<any>).mock.calls
       expect(calls[0][0]).toHaveProperty('name', 'v1.TaskExecutionStarted')
+      // calls[1] contains batched events: TaskExecutionCompleted and RecurringTaskUpdated
       expect(calls[1][0]).toHaveProperty('name', 'v1.TaskExecutionCompleted')
-      expect(calls[2][0]).toHaveProperty('name', 'v1.RecurringTaskUpdated')
+      expect(calls[1][1]).toHaveProperty('name', 'v1.RecurringTaskUpdated')
     })
 
     it('should skip tasks without nextExecutionAt', async () => {
@@ -205,13 +206,14 @@ describe('TaskScheduler', () => {
 
       await scheduler.checkAndExecuteTasks('test-store', mockStore)
 
-      // Should emit start, complete, and update events even for never-executed tasks
-      expect(mockStore.commit).toHaveBeenCalledTimes(3)
+      // Should emit start event, then batched complete+update events even for never-executed tasks
+      expect(mockStore.commit).toHaveBeenCalledTimes(2)
 
       const calls = (mockStore.commit as MockedFunction<any>).mock.calls
       expect(calls[0][0]).toHaveProperty('name', 'v1.TaskExecutionStarted')
+      // calls[1] contains batched events: TaskExecutionCompleted and RecurringTaskUpdated
       expect(calls[1][0]).toHaveProperty('name', 'v1.TaskExecutionCompleted')
-      expect(calls[2][0]).toHaveProperty('name', 'v1.RecurringTaskUpdated')
+      expect(calls[1][1]).toHaveProperty('name', 'v1.RecurringTaskUpdated')
     })
 
     it('should handle task execution errors gracefully', async () => {
@@ -318,7 +320,7 @@ describe('TaskScheduler', () => {
 
       // Run first time
       await scheduler.checkAndExecuteTasks('test-store', mockStore)
-      expect(mockStore.commit).toHaveBeenCalledTimes(3) // start + complete + update
+      expect(mockStore.commit).toHaveBeenCalledTimes(2) // start + batched(complete + update)
 
       // Clear mocks and set up for second run
       vi.clearAllMocks()
@@ -395,7 +397,7 @@ describe('TaskScheduler', () => {
         return []
       })
       await scheduler.checkAndExecuteTasks('test-store', mockStore)
-      expect(mockStore.commit).toHaveBeenCalledTimes(3)
+      expect(mockStore.commit).toHaveBeenCalledTimes(2)
 
       // Clear mocks and execute second time slot
       vi.clearAllMocks()
@@ -417,7 +419,7 @@ describe('TaskScheduler', () => {
       mockStore.mutate = vi.fn().mockReturnValue(undefined)
       mockStore.commit = vi.fn().mockReturnValue(undefined)
       await scheduler.checkAndExecuteTasks('test-store', mockStore)
-      expect(mockStore.commit).toHaveBeenCalledTimes(3) // Should execute again
+      expect(mockStore.commit).toHaveBeenCalledTimes(2) // Should execute again
     })
 
     it('should allow same task to run in different stores', async () => {
@@ -464,7 +466,7 @@ describe('TaskScheduler', () => {
 
       // Execute in store-1
       await scheduler.checkAndExecuteTasks('store-1', mockStore)
-      expect(mockStore.commit).toHaveBeenCalledTimes(3)
+      expect(mockStore.commit).toHaveBeenCalledTimes(2)
 
       // Clear mocks and execute in store-2
       vi.clearAllMocks()
@@ -484,7 +486,7 @@ describe('TaskScheduler', () => {
         return []
       })
       await scheduler.checkAndExecuteTasks('store-2', mockStore)
-      expect(mockStore.commit).toHaveBeenCalledTimes(3) // Should execute again
+      expect(mockStore.commit).toHaveBeenCalledTimes(2) // Should execute again
     })
   })
 
@@ -601,14 +603,15 @@ describe('TaskScheduler', () => {
 
       // Verify the task execution events
       const commitCalls = mockStore.commit.mock.calls
-      expect(commitCalls.length).toBeGreaterThanOrEqual(3) // start, complete, update
+      expect(commitCalls.length).toBeGreaterThanOrEqual(2) // start, batched(complete + update)
 
-      // Find the RecurringTaskUpdated event
-      const updateEvent = commitCalls.find(
-        (call: any) => call[0].name === 'v1.RecurringTaskUpdated'
-      )
+      // Find the RecurringTaskUpdated event (should be the second argument in the batched call)
+      const batchedCall = commitCalls.find((call: any) => call.length > 1)
+      expect(batchedCall).toBeDefined()
+      
+      const updateEvent = batchedCall.find((event: any) => event.name === 'v1.RecurringTaskUpdated')
       expect(updateEvent).toBeDefined()
-      expect(updateEvent![0].args).toMatchObject({
+      expect(updateEvent.args).toMatchObject({
         id: 'schedule-test',
         updates: {},
         updatedAt: expect.any(Date),
@@ -616,7 +619,7 @@ describe('TaskScheduler', () => {
       })
 
       // Verify nextExecutionAt is approximately 4 hours in the future
-      const nextExecution = updateEvent![0].args.nextExecutionAt
+      const nextExecution = updateEvent.args.nextExecutionAt
       const timeDiff = nextExecution.getTime() - now.getTime()
       const expectedDiff = 4 * 60 * 60 * 1000 // 4 hours in milliseconds
 
