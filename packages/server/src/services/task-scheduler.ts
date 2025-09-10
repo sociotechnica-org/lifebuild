@@ -1,7 +1,6 @@
 import type { Store } from '@livestore/livestore'
 import { AgenticLoop } from './agentic-loop/agentic-loop.js'
 import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
-import { tables } from '@work-squared/shared/schema'
 import type { RecurringTask, TaskExecution } from '@work-squared/shared/schema'
 import {
   getRecurringTasks$,

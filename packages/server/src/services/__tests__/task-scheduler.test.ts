@@ -608,7 +608,7 @@ describe('TaskScheduler', () => {
       // Find the RecurringTaskUpdated event (should be the second argument in the batched call)
       const batchedCall = commitCalls.find((call: any) => call.length > 1)
       expect(batchedCall).toBeDefined()
-      
+
       const updateEvent = batchedCall.find((event: any) => event.name === 'v1.RecurringTaskUpdated')
       expect(updateEvent).toBeDefined()
       expect(updateEvent.args).toMatchObject({
