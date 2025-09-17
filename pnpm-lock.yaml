@@ -4,6 +4,36 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@livestore/adapter-node':
+      specifier: 0.3.1
+      version: 0.3.1
+    '@livestore/adapter-web':
+      specifier: 0.3.1
+      version: 0.3.1
+    '@livestore/devtools-vite':
+      specifier: 0.3.1
+      version: 0.3.1
+    '@livestore/livestore':
+      specifier: 0.3.1
+      version: 0.3.1
+    '@livestore/peer-deps':
+      specifier: 0.3.1
+      version: 0.3.1
+    '@livestore/react':
+      specifier: 0.3.1
+      version: 0.3.1
+    '@livestore/sync-cf':
+      specifier: 0.3.1
+      version: 0.3.1
+    '@livestore/utils':
+      specifier: 0.3.1
+      version: 0.3.1
+    '@livestore/wa-sqlite':
+      specifier: 1.0.5
+      version: 1.0.5
+
 importers:
 
   .:
@@ -100,16 +130,16 @@ importers:
   packages/node-web-sync:
     dependencies:
       '@livestore/adapter-node':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(7da650e4c63cfa478c8974fd97f02ce6)
       '@livestore/adapter-web':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(5b2472b668c781b7b032cfd3c6dbd740)
       '@livestore/livestore':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(5b2472b668c781b7b032cfd3c6dbd740)
       '@livestore/sync-cf':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(6e956e46a0b467c507c9709cc4313aa0)
     devDependencies:
       '@types/node':
@@ -122,13 +152,13 @@ importers:
   packages/server:
     dependencies:
       '@livestore/adapter-node':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(7da650e4c63cfa478c8974fd97f02ce6)
       '@livestore/livestore':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(5b2472b668c781b7b032cfd3c6dbd740)
       '@livestore/sync-cf':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(6e956e46a0b467c507c9709cc4313aa0)
       '@types/better-sqlite3':
         specifier: ^7.6.13
@@ -186,10 +216,10 @@ importers:
   packages/shared:
     dependencies:
       '@livestore/livestore':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(5b2472b668c781b7b032cfd3c6dbd740)
       '@livestore/utils':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(6e956e46a0b467c507c9709cc4313aa0)
     devDependencies:
       '@types/node':
@@ -214,25 +244,25 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(react@19.1.1)
       '@livestore/adapter-web':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(3f04bf427443b2c50ed1b1191c4ba8d4)
       '@livestore/devtools-vite':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(9f255b041760ede93545ed20c5355575)
       '@livestore/livestore':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(3f04bf427443b2c50ed1b1191c4ba8d4)
       '@livestore/peer-deps':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(@effect/cluster@0.30.10(@effect/platform@0.82.4(effect@3.15.2))(@effect/rpc@0.56.8(@effect/platform@0.82.4(effect@3.15.2))(effect@3.15.2))(@effect/sql@0.33.20(@effect/experimental@0.46.4(@effect/platform@0.82.4(effect@3.15.2))(effect@3.15.2))(@effect/platform@0.82.4(effect@3.15.2))(effect@3.15.2))(effect@3.15.2))(@effect/rpc@0.56.8(@effect/platform@0.82.4(effect@3.15.2))(effect@3.15.2))(@effect/sql@0.33.20(@effect/experimental@0.46.4(@effect/platform@0.82.4(effect@3.15.2))(effect@3.15.2))(@effect/platform@0.82.4(effect@3.15.2))(effect@3.15.2))(@opentelemetry/sdk-metrics@2.0.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.0.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.0.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.36.0)
       '@livestore/react':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(f32d34bff8ab03e7165443614919bb4b)
       '@livestore/utils':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(939ba7c67cdd32176c65d3e91a4e7eb4)
       '@livestore/wa-sqlite':
-        specifier: 1.0.5
+        specifier: 'catalog:'
         version: 1.0.5
       '@phosphor-icons/react':
         specifier: ^2.1.10
@@ -398,10 +428,10 @@ importers:
   packages/worker:
     dependencies:
       '@livestore/adapter-web':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(5b2472b668c781b7b032cfd3c6dbd740)
       '@livestore/sync-cf':
-        specifier: 0.3.1
+        specifier: 'catalog:'
         version: 0.3.1(6e956e46a0b467c507c9709cc4313aa0)
       '@opentelemetry/exporter-trace-otlp-http':
         specifier: 0.203.0

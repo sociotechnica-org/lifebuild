@@ -21,11 +21,13 @@
     "@work-squared/shared": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^24.1.0",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
     "miniflare": "^4.20250726.0",
-    "tsx": "^4.20.3",
-    "typescript": "^5.8.3",
-    "vitest": "^3.2.4",
-    "wrangler": "^4.26.1"
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "wrangler": "catalog:"
   }
 }
