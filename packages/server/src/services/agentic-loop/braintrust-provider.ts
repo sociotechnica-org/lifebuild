@@ -20,7 +20,7 @@ export class BraintrustProvider implements LLMProvider {
     customValidator?: InputValidator
   ) {
     this.inputValidator = customValidator ?? new InputValidator()
-    this.retryableOperation = new RetryableOperation()
+    this.retryableOperation = RetryableOperation.forHttp()
   }
 
   async call(
@@ -131,47 +131,59 @@ When users describe project requirements or ask you to create tasks, use the cre
 
     // Execute API call with retry logic
     return await this.retryableOperation.execute(async () => {
-      const response = await fetch('https://api.braintrust.dev/v1/proxy/chat/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-          'x-bt-parent': `project_id:${this.projectId}`,
-        },
-        body: JSON.stringify({
-          model: model || DEFAULT_MODEL,
-          messages: finalMessages,
-          tools,
-          tool_choice: 'auto',
-          temperature: 0.7,
-          max_tokens: 1000,
-        }),
-      })
+      // Create AbortController for request timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        const error = new Error(`Braintrust API call failed: ${response.status} ${errorText}`)
+      try {
+        const response = await fetch('https://api.braintrust.dev/v1/proxy/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+            'x-bt-parent': `project_id:${this.projectId}`,
+          },
+          body: JSON.stringify({
+            model: model || DEFAULT_MODEL,
+            messages: finalMessages,
+            tools,
+            tool_choice: 'auto',
+            temperature: 0.7,
+            max_tokens: 1000,
+          }),
+          signal: controller.signal,
+        })
 
-        // Call the external onRetry callback if provided and it's a retryable error
-        if (_options?.onRetry && (response.status >= 500 || response.status === 429)) {
-          console.log(`⚠️ Braintrust API error ${response.status}, will retry if attempts remain`)
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          const error = new Error(`Braintrust API call failed: ${response.status} ${errorText}`)
+
+          // Call the external onRetry callback if provided and it's a retryable error
+          if (_options?.onRetry && (response.status >= 500 || response.status === 429)) {
+            console.log(`⚠️ Braintrust API error ${response.status}, will retry if attempts remain`)
+          }
+
+          throw error
         }
 
+        const data = await response.json()
+        const choice = data.choices[0]
+        const responseMessage = choice?.message
+
+        if (!responseMessage) {
+          throw new Error('No response generated from LLM')
+        }
+
+        return {
+          message: responseMessage.content || '',
+          toolCalls: responseMessage.tool_calls || [],
+          modelUsed: model || DEFAULT_MODEL,
+        }
+      } catch (error) {
+        clearTimeout(timeoutId)
         throw error
-      }
-
-      const data = await response.json()
-      const choice = data.choices[0]
-      const responseMessage = choice?.message
-
-      if (!responseMessage) {
-        throw new Error('No response generated from LLM')
-      }
-
-      return {
-        message: responseMessage.content || '',
-        toolCalls: responseMessage.tool_calls || [],
-        modelUsed: model || DEFAULT_MODEL,
       }
     })
   }
