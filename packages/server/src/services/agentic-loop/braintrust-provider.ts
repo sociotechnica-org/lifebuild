@@ -154,10 +154,9 @@ When users describe project requirements or ask you to create tasks, use the cre
           signal: controller.signal,
         })
 
-        clearTimeout(timeoutId)
-
         if (!response.ok) {
           const errorText = await response.text()
+          clearTimeout(timeoutId) // Clear after text parsing
           const error = new Error(`Braintrust API call failed: ${response.status} ${errorText}`)
 
           // Call the external onRetry callback if provided and it's a retryable error
@@ -169,6 +168,7 @@ When users describe project requirements or ask you to create tasks, use the cre
         }
 
         const data = await response.json()
+        clearTimeout(timeoutId) // Clear after JSON parsing
         const choice = data.choices[0]
         const responseMessage = choice?.message
 

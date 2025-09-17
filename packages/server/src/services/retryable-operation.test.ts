@@ -68,6 +68,23 @@ describe('RetryableOperation', () => {
       expect(mockOperation).toHaveBeenCalledTimes(2)
     })
 
+    it('should retry on AbortError from AbortController timeout', async () => {
+      const mockOperation = vi.fn()
+      const abortError = new Error('This operation was aborted')
+      abortError.name = 'AbortError'
+
+      mockOperation.mockRejectedValueOnce(abortError).mockResolvedValueOnce('success')
+
+      const retryableOp = new RetryableOperation({ maxRetries: 2 })
+
+      const promise = retryableOp.execute(mockOperation)
+      await vi.runAllTimersAsync()
+      const result = await promise
+
+      expect(result).toBe('success')
+      expect(mockOperation).toHaveBeenCalledTimes(2)
+    })
+
     it.skip('should eventually fail after exhausting retries on timeout errors', async () => {
       // Skipped due to CI unhandled rejection issues - functionality is tested in other tests
       const mockOperation = vi.fn()
@@ -98,6 +115,23 @@ describe('RetryableOperation', () => {
       timeoutError.cause = { code: 'UND_ERR_CONNECT_TIMEOUT' }
 
       mockOperation.mockRejectedValueOnce(timeoutError).mockResolvedValueOnce('success')
+
+      const retryableOp = RetryableOperation.forHttp()
+
+      const promise = retryableOp.execute(mockOperation)
+      await vi.runAllTimersAsync()
+      const result = await promise
+
+      expect(result).toBe('success')
+      expect(mockOperation).toHaveBeenCalledTimes(2)
+    })
+
+    it('should retry AbortError in forHttp method', async () => {
+      const mockOperation = vi.fn()
+      const abortError = new Error('This operation was aborted')
+      abortError.name = 'AbortError'
+
+      mockOperation.mockRejectedValueOnce(abortError).mockResolvedValueOnce('success')
 
       const retryableOp = RetryableOperation.forHttp()
 

@@ -29,7 +29,8 @@ export class RetryableOperation<T = any> {
         error.message.includes('ETIMEDOUT') ||
         error.message.includes('timeout') ||
         error.message.includes('UND_ERR_CONNECT_TIMEOUT') ||
-        error.message.includes('ConnectTimeoutError')
+        error.message.includes('ConnectTimeoutError') ||
+        error.name === 'AbortError'
       ) {
         return true
       }
@@ -162,7 +163,8 @@ export class RetryableOperation<T = any> {
           error.message.includes('ENOTFOUND') ||
           error.message.includes('ETIMEDOUT') ||
           error.message.includes('UND_ERR_CONNECT_TIMEOUT') ||
-          error.message.includes('ConnectTimeoutError')
+          error.message.includes('ConnectTimeoutError') ||
+          error.name === 'AbortError'
         ) {
           return true
         }
