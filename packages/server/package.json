@@ -20,9 +20,9 @@
     "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck"
   },
   "dependencies": {
-    "@livestore/adapter-node": "0.3.1",
-    "@livestore/livestore": "0.3.1",
-    "@livestore/sync-cf": "0.3.1",
+    "@livestore/adapter-node": "catalog:",
+    "@livestore/livestore": "catalog:",
+    "@livestore/sync-cf": "catalog:",
     "@types/better-sqlite3": "^7.6.13",
     "@work-squared/shared": "workspace:*",
     "better-sqlite3": "^12.2.0",
@@ -30,18 +30,18 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
-    "@types/node": "^24.1.0",
+    "@types/node": "catalog:",
     "@types/ws": "^8.18.1",
-    "@typescript-eslint/eslint-plugin": "^8.38.0",
-    "@typescript-eslint/parser": "^8.38.0",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
     "esbuild": "^0.19.0",
     "esbuild-node-externals": "^1.9.0",
-    "eslint": "^9.32.0",
+    "eslint": "catalog:",
     "eslint-plugin-prettier": "^5.5.3",
-    "prettier": "^3.6.2",
-    "tsx": "^4.20.3",
-    "typescript": "^5.8.3",
-    "vitest": "^2.1.0"
+    "prettier": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "engines": {
     "node": ">=20.0.0"

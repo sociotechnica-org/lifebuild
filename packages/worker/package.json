@@ -17,8 +17,8 @@
     "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck"
   },
   "dependencies": {
-    "@livestore/adapter-web": "0.3.1",
-    "@livestore/sync-cf": "0.3.1",
+    "@livestore/adapter-web": "catalog:",
+    "@livestore/sync-cf": "catalog:",
     "@opentelemetry/exporter-trace-otlp-http": "0.203.0",
     "@opentelemetry/resources": "2.0.1",
     "@opentelemetry/sdk-trace-base": "2.0.1",
@@ -26,11 +26,13 @@
     "@work-squared/shared": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^24.1.0",
-    "typescript": "^5.8.3",
-    "tsx": "^4.20.1",
-    "vite": "^7.0.6",
-    "vitest": "^3.2.4",
-    "wrangler": "^4.26.1"
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "tsx": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "wrangler": "catalog:"
   }
 }
