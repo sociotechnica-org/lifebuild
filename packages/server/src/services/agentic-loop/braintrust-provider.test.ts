@@ -107,14 +107,17 @@ describe('BraintrustProvider', () => {
       const error = new Error('Network error')
       mockFetch.mockRejectedValue(error)
 
-      const promise = provider.call(mockMessages)
-
-      await vi.runAllTimersAsync()
-
-      await expect(promise).rejects.toThrow()
-
-      // Just verify that the AbortController was used (main functionality)
-      expect(global.AbortController).toHaveBeenCalled()
+      try {
+        const promise = provider.call(mockMessages)
+        await vi.runAllTimersAsync()
+        await promise
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (err) {
+        expect(err.message).toContain('Network error')
+        // Just verify that the AbortController was used (main functionality)
+        expect(global.AbortController).toHaveBeenCalled()
+      }
     })
 
     it('should handle timeout during response reading', async () => {
@@ -148,14 +151,17 @@ describe('BraintrustProvider', () => {
       const timeoutError = new Error('ConnectTimeoutError: Connect Timeout Error')
       mockFetch.mockRejectedValue(timeoutError)
 
-      const promise = provider.call(mockMessages)
-
-      await vi.runAllTimersAsync()
-
-      await expect(promise).rejects.toThrow('ConnectTimeoutError')
-
-      // Should have made initial attempt + 3 retries (forHttp default)
-      expect(mockFetch).toHaveBeenCalledTimes(4)
+      try {
+        const promise = provider.call(mockMessages)
+        await vi.runAllTimersAsync()
+        await promise
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (error) {
+        expect(error.message).toContain('ConnectTimeoutError')
+        // Should have made initial attempt + 3 retries (forHttp default)
+        expect(mockFetch).toHaveBeenCalledTimes(4)
+      }
     })
   })
 
@@ -198,11 +204,16 @@ describe('BraintrustProvider', () => {
         text: () => Promise.resolve('Bad Request'),
       })
 
-      const promise = provider.call(mockMessages)
-      await vi.runAllTimersAsync()
-
-      await expect(promise).rejects.toThrow('Braintrust API call failed: 400 Bad Request')
-      expect(mockFetch).toHaveBeenCalledTimes(1) // no retries
+      try {
+        const promise = provider.call(mockMessages)
+        await vi.runAllTimersAsync()
+        await promise
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (error) {
+        expect(error.message).toContain('Braintrust API call failed: 400 Bad Request')
+        expect(mockFetch).toHaveBeenCalledTimes(1) // no retries
+      }
     })
   })
 })

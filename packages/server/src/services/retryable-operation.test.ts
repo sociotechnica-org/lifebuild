@@ -77,11 +77,16 @@ describe('RetryableOperation', () => {
 
       const retryableOp = new RetryableOperation({ maxRetries: 2 })
 
-      const promise = retryableOp.execute(mockOperation)
-      await vi.runAllTimersAsync()
-
-      await expect(promise).rejects.toThrow('fetch failed')
-      expect(mockOperation).toHaveBeenCalledTimes(3) // initial + 2 retries
+      try {
+        const promise = retryableOp.execute(mockOperation)
+        await vi.runAllTimersAsync()
+        await promise
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (error) {
+        expect(error.message).toBe('fetch failed')
+        expect(mockOperation).toHaveBeenCalledTimes(3) // initial + 2 retries
+      }
     })
   })
 
@@ -131,11 +136,16 @@ describe('RetryableOperation', () => {
 
       const retryableOp = RetryableOperation.forHttp()
 
-      const promise = retryableOp.execute(mockOperation)
-      await vi.runAllTimersAsync()
-
-      await expect(promise).rejects.toThrow('400 Bad Request')
-      expect(mockOperation).toHaveBeenCalledTimes(1) // no retries
+      try {
+        const promise = retryableOp.execute(mockOperation)
+        await vi.runAllTimersAsync()
+        await promise
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (error) {
+        expect(error.message).toContain('400 Bad Request')
+        expect(mockOperation).toHaveBeenCalledTimes(1) // no retries
+      }
     })
   })
 
