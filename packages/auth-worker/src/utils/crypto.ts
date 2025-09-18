@@ -56,7 +56,7 @@ export async function hashPassword(password: string): Promise<string> {
   const derivedBits = await crypto.subtle.deriveBits(
     {
       name: 'PBKDF2',
-      salt: salt,
+      salt: salt as BufferSource,
       iterations: ITERATIONS,
       hash: 'SHA-256',
     },
@@ -65,7 +65,7 @@ export async function hashPassword(password: string): Promise<string> {
   )
 
   const hash = bufferToHex(derivedBits)
-  const saltHex = bufferToHex(salt)
+  const saltHex = bufferToHex(salt.buffer as ArrayBuffer)
 
   // Store as "salt:hash" format
   return `${saltHex}:${hash}`
@@ -97,7 +97,7 @@ export async function verifyPassword(password: string, storedHash: string): Prom
     const derivedBits = await crypto.subtle.deriveBits(
       {
         name: 'PBKDF2',
-        salt: salt,
+        salt: salt as BufferSource,
         iterations: ITERATIONS,
         hash: 'SHA-256',
       },
