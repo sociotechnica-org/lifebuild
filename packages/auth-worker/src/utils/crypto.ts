@@ -65,7 +65,9 @@ export async function hashPassword(password: string): Promise<string> {
   )
 
   const hash = bufferToHex(derivedBits)
-  const saltHex = bufferToHex(salt.buffer.slice(salt.byteOffset, salt.byteOffset + salt.byteLength) as ArrayBuffer)
+  const saltHex = bufferToHex(
+    salt.buffer.slice(salt.byteOffset, salt.byteOffset + salt.byteLength) as ArrayBuffer
+  )
 
   // Store as "salt:hash" format
   return `${saltHex}:${hash}`

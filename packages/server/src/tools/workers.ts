@@ -19,7 +19,6 @@ import type {
   UpdateWorkerParams,
   UpdateWorkerResult,
   ListWorkersResult,
-  GetWorkerParams,
   GetWorkerResult,
   DeactivateWorkerParams,
   DeactivateWorkerResult,
@@ -27,9 +26,7 @@ import type {
   AssignWorkerToProjectResult,
   UnassignWorkerFromProjectParams,
   UnassignWorkerFromProjectResult,
-  GetProjectWorkersParams,
   GetProjectWorkersResult,
-  GetWorkerProjectsParams,
   GetWorkerProjectsResult,
 } from './types.js'
 
@@ -365,7 +362,7 @@ async function assignWorkerToProjectCore(
 async function unassignWorkerFromProjectCore(
   store: Store,
   params: UnassignWorkerFromProjectParams,
-  actorId?: string
+  _actorId?: string
 ): Promise<UnassignWorkerFromProjectResult> {
   try {
     // Check if worker exists

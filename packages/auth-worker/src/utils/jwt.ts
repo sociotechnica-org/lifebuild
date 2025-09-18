@@ -156,8 +156,8 @@ export async function verifyToken<T = JWTPayload>(token: string, env: Env): Prom
     const payload = JSON.parse(payloadText) as T
 
     return payload
-  } catch (error) {
-    console.error('JWT verification error:', error)
+  } catch {
+    console.error('JWT verification error')
     return null
   }
 }
@@ -186,7 +186,7 @@ export function decodeTokenPayload<T = JWTPayload>(token: string): T | null {
     const payloadBytes = base64UrlDecode(parts[1])
     const payloadText = new TextDecoder().decode(payloadBytes)
     return JSON.parse(payloadText) as T
-  } catch (error) {
+  } catch {
     return null
   }
 }

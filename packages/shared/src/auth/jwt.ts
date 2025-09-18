@@ -21,14 +21,6 @@ export interface RefreshTokenPayload {
 }
 
 /**
- * Base64URL encode
- */
-function base64UrlEncode(data: Uint8Array): string {
-  const base64 = btoa(String.fromCharCode(...data))
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-}
-
-/**
  * Base64URL decode
  */
 function base64UrlDecode(data: string): Uint8Array {
@@ -123,7 +115,7 @@ export function decodeJWTPayload(token: string): JWTPayload | null {
     const payloadBytes = base64UrlDecode(payloadPart)
     const payloadText = new TextDecoder().decode(payloadBytes)
     return JSON.parse(payloadText) as JWTPayload
-  } catch (error) {
+  } catch {
     return null
   }
 }

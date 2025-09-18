@@ -3,7 +3,6 @@
  */
 
 import { verifyToken } from './jwt.js'
-import { isUserAdmin } from './admin.js'
 import type { JWTPayload } from '../types.js'
 
 /**
