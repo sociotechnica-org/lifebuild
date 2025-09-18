@@ -27,8 +27,16 @@ export class RetryableOperation<T = any> {
         error.message.includes('ECONNRESET') ||
         error.message.includes('ENOTFOUND') ||
         error.message.includes('ETIMEDOUT') ||
-        error.message.includes('timeout')
+        error.message.includes('timeout') ||
+        error.message.includes('UND_ERR_CONNECT_TIMEOUT') ||
+        error.message.includes('ConnectTimeoutError') ||
+        error.name === 'AbortError'
       ) {
+        return true
+      }
+
+      // Check for undici timeout error codes in error cause
+      if ((error as any).cause?.code === 'UND_ERR_CONNECT_TIMEOUT') {
         return true
       }
 
@@ -153,8 +161,16 @@ export class RetryableOperation<T = any> {
           error.message.includes('fetch failed') ||
           error.message.includes('ECONNRESET') ||
           error.message.includes('ENOTFOUND') ||
-          error.message.includes('ETIMEDOUT')
+          error.message.includes('ETIMEDOUT') ||
+          error.message.includes('UND_ERR_CONNECT_TIMEOUT') ||
+          error.message.includes('ConnectTimeoutError') ||
+          error.name === 'AbortError'
         ) {
+          return true
+        }
+
+        // Check for undici timeout error codes in error cause
+        if ((error as any).cause?.code === 'UND_ERR_CONNECT_TIMEOUT') {
           return true
         }
 
