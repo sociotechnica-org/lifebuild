@@ -140,7 +140,12 @@ export async function verifyToken<T = JWTPayload>(token: string, env: Env): Prom
     const encoder = new TextEncoder()
     const signature = base64UrlDecode(signatureEncoded)
 
-    const isValid = await crypto.subtle.verify('HMAC', key, signature as BufferSource, encoder.encode(message))
+    const isValid = await crypto.subtle.verify(
+      'HMAC',
+      key,
+      signature as BufferSource,
+      encoder.encode(message)
+    )
     if (!isValid) {
       return null
     }

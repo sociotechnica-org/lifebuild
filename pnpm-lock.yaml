@@ -224,7 +224,7 @@ importers:
         version: 0.4.0-dev.7(fde82b5ce4e50f1a5ae4624c1ca75644)
       '@livestore/sync-cf':
         specifier: 'catalog:'
-        version: 0.4.0-dev.7(38ddfb776a848b7e8fab09a1966b8037)
+        version: 0.4.0-dev.7(6028a535709b4f3f336d12613459aa21)
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
@@ -365,6 +365,9 @@ importers:
       '@livestore/react':
         specifier: 'catalog:'
         version: 0.4.0-dev.7(f02c0118500ca93621bffd8e6cb5b24b)
+      '@livestore/sync-cf':
+        specifier: 'catalog:'
+        version: 0.4.0-dev.7(6028a535709b4f3f336d12613459aa21)
       '@livestore/utils':
         specifier: 'catalog:'
         version: 0.4.0-dev.7(38ddfb776a848b7e8fab09a1966b8037)
@@ -557,7 +560,7 @@ importers:
         version: 0.4.0-dev.7(fde82b5ce4e50f1a5ae4624c1ca75644)
       '@livestore/sync-cf':
         specifier: 'catalog:'
-        version: 0.4.0-dev.7(38ddfb776a848b7e8fab09a1966b8037)
+        version: 0.4.0-dev.7(6028a535709b4f3f336d12613459aa21)
       '@opentelemetry/exporter-trace-otlp-http':
         specifier: 0.203.0
         version: 0.203.0(@opentelemetry/api@1.9.0)
@@ -7987,7 +7990,7 @@ snapshots:
       - '@opentelemetry/resources'
       - effect
 
-  '@livestore/sync-cf@0.4.0-dev.7(38ddfb776a848b7e8fab09a1966b8037)':
+  '@livestore/sync-cf@0.4.0-dev.7(6028a535709b4f3f336d12613459aa21)':
     dependencies:
       '@cloudflare/workers-types': 4.20250823.0
       '@livestore/common': 0.4.0-dev.7(fde82b5ce4e50f1a5ae4624c1ca75644)
