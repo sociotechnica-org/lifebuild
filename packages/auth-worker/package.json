@@ -18,7 +18,13 @@
     "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck"
   },
   "dependencies": {
-    "@work-squared/shared": "workspace:*"
+    "@work-squared/shared": "workspace:*",
+    "effect": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/cluster": "catalog:",
+    "@effect/rpc": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/experimental": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

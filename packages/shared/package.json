@@ -84,7 +84,13 @@
   },
   "dependencies": {
     "@livestore/livestore": "catalog:",
-    "@livestore/utils": "catalog:"
+    "@livestore/utils": "catalog:",
+    "effect": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/cluster": "catalog:",
+    "@effect/rpc": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/experimental": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

@@ -27,7 +27,13 @@
     "@work-squared/shared": "workspace:*",
     "better-sqlite3": "^12.2.0",
     "dotenv": "^17.2.1",
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "effect": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/cluster": "catalog:",
+    "@effect/rpc": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/experimental": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

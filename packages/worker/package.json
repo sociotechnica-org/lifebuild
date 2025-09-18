@@ -23,7 +23,13 @@
     "@opentelemetry/resources": "2.0.1",
     "@opentelemetry/sdk-trace-base": "2.0.1",
     "@opentelemetry/sdk-trace-web": "2.0.1",
-    "@work-squared/shared": "workspace:*"
+    "@work-squared/shared": "workspace:*",
+    "effect": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/cluster": "catalog:",
+    "@effect/rpc": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/experimental": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
