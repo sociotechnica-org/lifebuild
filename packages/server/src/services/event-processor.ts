@@ -9,7 +9,7 @@ import { MessageQueueManager } from './message-queue-manager.js'
 import { AsyncQueueProcessor } from './async-queue-processor.js'
 import { ResourceMonitor } from './resource-monitor.js'
 import { ProcessedMessageTracker } from './processed-message-tracker.js'
-import { logger } from '../utils/logger.js'
+import { logger, storeLogger, createContextLogger } from '../utils/logger.js'
 import type {
   EventBuffer,
   ProcessedEvent,
@@ -71,7 +71,7 @@ export class EventProcessor {
         llmCallTimeout: parseInt(process.env.LLM_CALL_TIMEOUT || '30000'),
       },
       alert => {
-        logger.warn(`🚨 Resource Alert [${alert.type}]: ${alert.message}`)
+        logger.warn({ alertType: alert.type, message: alert.message }, 'Resource alert')
       }
     )
 
@@ -81,20 +81,20 @@ export class EventProcessor {
 
     if (!this.braintrustApiKey || !this.braintrustProjectId) {
       logger.warn(
-        '⚠️ LLM functionality disabled: Missing BRAINTRUST_API_KEY or BRAINTRUST_PROJECT_ID environment variables'
+        'LLM functionality disabled: Missing BRAINTRUST_API_KEY or BRAINTRUST_PROJECT_ID environment variables'
       )
     } else {
-      logger.log('✅ LLM functionality enabled with Braintrust integration')
+      logger.info('LLM functionality enabled with Braintrust integration')
     }
 
     // Load message cutoff timestamp from environment
     const cutoffEnv = process.env.MESSAGE_PROCESSING_CUTOFF_TIMESTAMP
     this.messageCutoffTimestamp = cutoffEnv ? new Date(cutoffEnv) : null
     if (this.messageCutoffTimestamp) {
-      logger.log(
-        `📅 Message processing cutoff set to: ${this.messageCutoffTimestamp.toISOString()}`
+      logger.info(
+        { cutoffTimestamp: this.messageCutoffTimestamp.toISOString() },
+        'Message processing cutoff configured'
       )
-      logger.log('   Messages before this timestamp will be marked as processed but skipped')
     }
 
     // Initialize processed message tracking
@@ -102,24 +102,26 @@ export class EventProcessor {
       .initialize()
       .then(() => {
         this.databaseInitialized = true
-        logger.log('✅ Processed message tracking initialized')
+        logger.info('Processed message tracking initialized')
       })
       .catch(error => {
-        logger.error('❌ CRITICAL: Failed to initialize processed message tracker:', error)
-        logger.error('❌ STOPPING ALL MESSAGE PROCESSING to prevent duplicate processing')
+        logger.error(
+          { error },
+          'CRITICAL: Failed to initialize processed message tracker, stopping all message processing'
+        )
         this.databaseInitialized = false
       })
   }
 
   async startMonitoring(storeId: string, store: LiveStore): Promise<void> {
-    logger.log(`📡 Starting comprehensive event monitoring for store ${storeId}`)
+    storeLogger(storeId).info('Starting comprehensive event monitoring')
 
     const existingState = this.storeStates.get(storeId)
     if (existingState) {
       if (existingState.stopping) {
-        logger.warn(`⚠️ Store ${storeId} is currently stopping, cannot start monitoring`)
+        storeLogger(storeId).warn('Store is currently stopping, cannot start monitoring')
       } else {
-        console.warn(`⚠️ Store ${storeId} is already being monitored`)
+        storeLogger(storeId).warn('Store is already being monitored')
       }
       return
     }
@@ -150,7 +152,7 @@ export class EventProcessor {
 
     this.storeStates.set(storeId, storeState)
 
-    logger.log(`📝 Using persistent message tracking for store ${storeId}`)
+    storeLogger(storeId).debug('Using persistent message tracking')
 
     // Monitor all important tables
     for (const tableName of this.monitoredTables) {
@@ -185,7 +187,7 @@ export class EventProcessor {
       })
 
       storeState.subscriptions.push(unsubscribe)
-      logger.log(`✅ Subscribed to ${tableName} for store ${storeId}`)
+      storeLogger(storeId).debug({ tableName }, 'Subscribed to table')
     } catch (error) {
       console.error(`❌ Failed to subscribe to ${tableName} for store ${storeId}:`, error)
       this.incrementErrorCount(storeId, error as Error)
@@ -220,7 +222,8 @@ export class EventProcessor {
       return
     }
 
-    logger.log(`👤 Buffering ${userRecords.length} user messages for processing`)
+    const log = createContextLogger({ storeId: 'unknown', operation: 'buffer_messages' })
+    log.debug({ messageCount: userRecords.length }, 'Buffering user messages for processing')
 
     // Convert records to ProcessedEvent objects for buffering
     const events: ProcessedEvent[] = userRecords.map((record: any) => ({
@@ -241,7 +244,11 @@ export class EventProcessor {
   ): Promise<void> {
     const messagePreview =
       message.message?.slice(0, 50) + (message.message?.length > 50 ? '...' : '')
-    logger.log(`📨 Processing chat message ${message.id}: "${messagePreview}"`)
+    const log = createContextLogger({
+      messageId: message.id,
+      conversationId: message.conversationId,
+    })
+    log.debug({ messagePreview }, 'Processing chat message')
 
     // CRITICAL: If database is not initialized, stop all processing to prevent infinite loops
     if (!this.databaseInitialized) {
@@ -257,7 +264,7 @@ export class EventProcessor {
       const isAlreadyProcessed = await this.processedTracker.isProcessed(message.id, storeId)
 
       if (isAlreadyProcessed) {
-        logger.log(`⏭️ SKIPPED: Message ${message.id} already processed - no LLM call`)
+        log.debug('Message already processed, skipping LLM call')
         return
       }
 
@@ -284,7 +291,7 @@ export class EventProcessor {
         return
       }
 
-      logger.log(`🚀 PROCESSING: Message ${message.id} - sending LLM call`)
+      log.info('Sending LLM call for message processing')
 
       // Defer processing to avoid committing during reactive update cycle
       setImmediate(() => {
@@ -1006,7 +1013,7 @@ export class EventProcessor {
       storeState.resourceMonitor.destroy()
 
       this.storeStates.delete(storeId)
-      logger.log(`🛑 Stopped event monitoring for store ${storeId}`)
+      storeLogger(storeId).info('Stopped event monitoring')
     })
   }
 
@@ -1030,7 +1037,7 @@ export class EventProcessor {
       console.error('Error closing processed message tracker:', error)
     })
 
-    logger.log('🛑 Stopped all event monitoring')
+    logger.info('Stopped all event monitoring')
   }
 
   getProcessingStats(): Map<

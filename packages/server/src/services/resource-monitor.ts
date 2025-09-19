@@ -300,7 +300,7 @@ export class ResourceMonitor {
       this.cleanupOldData()
     }, 60000)
 
-    logger.log('📊 Resource monitoring started')
+    logger.debug('Resource monitoring started')
   }
 
   /**
@@ -526,6 +526,6 @@ export class ResourceMonitor {
     }
     this.llmCallTimeouts.clear()
 
-    logger.log('📊 Resource monitoring stopped')
+    logger.debug('Resource monitoring stopped')
   }
 }
