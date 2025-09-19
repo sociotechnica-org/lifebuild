@@ -140,7 +140,12 @@ export async function verifyToken<T = JWTPayload>(token: string, env: Env): Prom
     const encoder = new TextEncoder()
     const signature = base64UrlDecode(signatureEncoded)
 
-    const isValid = await crypto.subtle.verify('HMAC', key, signature, encoder.encode(message))
+    const isValid = await crypto.subtle.verify(
+      'HMAC',
+      key,
+      signature as BufferSource,
+      encoder.encode(message)
+    )
     if (!isValid) {
       return null
     }
@@ -151,8 +156,7 @@ export async function verifyToken<T = JWTPayload>(token: string, env: Env): Prom
     const payload = JSON.parse(payloadText) as T
 
     return payload
-  } catch (error) {
-    console.error('JWT verification error:', error)
+  } catch {
     return null
   }
 }
@@ -181,7 +185,7 @@ export function decodeTokenPayload<T = JWTPayload>(token: string): T | null {
     const payloadBytes = base64UrlDecode(parts[1])
     const payloadText = new TextDecoder().decode(payloadBytes)
     return JSON.parse(payloadText) as T
-  } catch (error) {
+  } catch {
     return null
   }
 }
