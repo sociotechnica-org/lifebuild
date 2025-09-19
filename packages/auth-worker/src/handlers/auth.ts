@@ -119,7 +119,6 @@ export async function handleSignup(request: Request, env: Env): Promise<Response
     )
 
     if (!userResponse.ok) {
-      const errorData = await userResponse.json()
       if (userResponse.status === 409) {
         return createErrorResponse(
           ErrorCode.EMAIL_ALREADY_EXISTS,
@@ -242,7 +241,7 @@ export async function handleRefresh(request: Request, env: Env): Promise<Respons
 /**
  * Handle logout
  */
-export async function handleLogout(request: Request, env: Env): Promise<Response> {
+export async function handleLogout(_request: Request, _env: Env): Promise<Response> {
   try {
     // For now, we just return success since we're using stateless JWTs
     // In a full implementation, we might maintain a token blacklist

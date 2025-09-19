@@ -7,7 +7,7 @@ import { hashPassword, verifyPassword } from '../utils/crypto.js'
 export class UserStore implements DurableObject {
   private storage: DurableObjectStorage
 
-  constructor(state: DurableObjectState, env: Env) {
+  constructor(state: DurableObjectState, _env: Env) {
     this.storage = state.storage
   }
 
@@ -192,7 +192,7 @@ export class UserStore implements DurableObject {
   /**
    * List all users for admin purposes
    */
-  private async handleListAllUsers(request: Request): Promise<Response> {
+  private async handleListAllUsers(_request: Request): Promise<Response> {
     // Get all user keys with the 'user:' prefix (but not 'user:id:' prefix)
     const userList = await this.storage.list({ prefix: 'user:' })
     const users: any[] = []
