@@ -222,7 +222,7 @@ export class EventProcessor {
       return
     }
 
-    const log = createContextLogger({ storeId: 'unknown', operation: 'buffer_messages' })
+    const log = createContextLogger({ storeId, operation: 'buffer_messages' })
     log.debug({ messageCount: userRecords.length }, 'Buffering user messages for processing')
 
     // Convert records to ProcessedEvent objects for buffering
