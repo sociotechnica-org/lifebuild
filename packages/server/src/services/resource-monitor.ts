@@ -101,7 +101,7 @@ export class ResourceMonitor {
 
     // Set timeout for the call
     const timeoutHandle = setTimeout(() => {
-      console.warn(`🚨 Resource Monitor: LLM call timeout for ${callId}`)
+      logger.warn({ callId }, 'LLM call timeout')
       this.llmCallTimeouts.delete(callId) // Clean up the timeout reference
       this.trackLLMCallComplete(callId, true) // Mark as timeout
     }, this.limits.llmCallTimeout)
@@ -196,7 +196,7 @@ export class ResourceMonitor {
     const cutoff = Date.now() - this.windowSize
     this.errorTimestamps = this.errorTimestamps.filter(ts => ts > cutoff)
 
-    console.warn(`🚨 Resource Monitor: ${errorType}`)
+    logger.warn({ errorType }, 'Resource monitor error')
   }
 
   /**
@@ -274,7 +274,7 @@ export class ResourceMonitor {
    */
   updateLimits(newLimits: Partial<ResourceLimits>): void {
     this.limits = { ...this.limits, ...newLimits }
-    console.log('📊 Resource limits updated:', newLimits)
+    logger.info({ newLimits }, 'Resource limits updated')
   }
 
   /**
@@ -383,9 +383,7 @@ export class ResourceMonitor {
 
     if (!recentSimilarAlert) {
       this.alerts.push(alert)
-      console.warn(
-        `${type === 'critical' ? '🚨' : '⚠️'} ${message}: ${currentValue} (threshold: ${threshold})`
-      )
+      logger.warn({ type, metric, currentValue, threshold }, message)
 
       if (this.onAlert) {
         this.onAlert(alert)

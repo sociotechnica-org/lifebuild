@@ -8,5 +8,12 @@ export default defineConfig({
     env: {
       NODE_ENV: 'test', // Set to test environment for logger configuration
     },
+    setupFiles: ['./tests/setup.ts'],
+  },
+  resolve: {
+    alias: {
+      pino: 'pino',
+      'pino-pretty': 'pino-pretty',
+    },
   },
 })

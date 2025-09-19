@@ -13,6 +13,7 @@ import {
   wrapNoParamFunction,
   wrapToolFunction,
 } from './base.js'
+import { logger } from '../utils/logger.js'
 import type {
   CreateWorkerParams,
   CreateWorkerResult,
@@ -91,7 +92,7 @@ function createWorkerCore(
       },
     }
   } catch (error) {
-    console.error('Error creating worker:', error)
+    logger.error({ error }, 'Error creating worker')
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error creating worker',
@@ -175,7 +176,7 @@ async function updateWorkerCore(
       },
     }
   } catch (error) {
-    console.error('Error updating worker:', error)
+    logger.error({ error }, 'Error updating worker')
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error updating worker',
@@ -205,7 +206,7 @@ async function listWorkersCore(store: Store): Promise<ListWorkersResult> {
       })),
     }
   } catch (error) {
-    console.error('Error listing workers:', error)
+    logger.error({ error }, 'Error listing workers')
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error listing workers',
@@ -253,7 +254,7 @@ async function getWorkerByIdCore(store: Store, workerId: string): Promise<GetWor
       },
     }
   } catch (error) {
-    console.error('Error getting worker:', error)
+    logger.error({ error }, 'Error getting worker')
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error getting worker',
@@ -297,7 +298,7 @@ async function deactivateWorkerCore(
       message: `Worker "${worker.name}" has been deactivated`,
     }
   } catch (error) {
-    console.error('Error deactivating worker:', error)
+    logger.error({ error }, 'Error deactivating worker')
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error deactivating worker',
@@ -351,7 +352,7 @@ async function assignWorkerToProjectCore(
       message: `Worker "${worker.name}" has been assigned to project "${project.name}"`,
     }
   } catch (error) {
-    console.error('Error assigning worker to project:', error)
+    logger.error({ error }, 'Error assigning worker to project')
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error assigning worker to project',
@@ -398,7 +399,7 @@ async function unassignWorkerFromProjectCore(
       message: `Worker "${worker.name}" has been unassigned from project "${project.name}"`,
     }
   } catch (error) {
-    console.error('Error unassigning worker from project:', error)
+    logger.error({ error }, 'Error unassigning worker from project')
     return {
       success: false,
       error:
@@ -461,7 +462,7 @@ async function getProjectWorkersCore(
       workers,
     }
   } catch (error) {
-    console.error('Error getting project workers:', error)
+    logger.error({ error }, 'Error getting project workers')
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error getting project workers',
@@ -516,7 +517,7 @@ async function getWorkerProjectsCore(
       projects,
     }
   } catch (error) {
-    console.error('Error getting worker projects:', error)
+    logger.error({ error }, 'Error getting worker projects')
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error getting worker projects',

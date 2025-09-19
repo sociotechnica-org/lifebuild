@@ -23,7 +23,6 @@
     "@livestore/adapter-node": "catalog:",
     "@livestore/livestore": "catalog:",
     "@livestore/sync-cf": "catalog:",
-    "@types/better-sqlite3": "^7.6.13",
     "@work-squared/shared": "workspace:*",
     "better-sqlite3": "^12.2.0",
     "dotenv": "^17.2.1",
@@ -32,6 +31,7 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "catalog:",
     "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "catalog:",

@@ -3,6 +3,7 @@ import { executeLLMTool } from '../../tools/index.js'
 import { ToolResultFormatterService } from './tool-formatters/formatter-service.js'
 import type { ToolCall, ToolExecutionResult } from './types.js'
 import type { ToolMessage } from './conversation-history.js'
+import { logger } from '../../utils/logger.js'
 
 export interface ToolExecutorOptions {
   onToolStart?: (toolCall: ToolCall) => void
@@ -33,7 +34,7 @@ export class ToolExecutor {
     this.options.onToolStart?.(toolCall)
 
     try {
-      console.log(`🔧 Executing tool: ${toolCall.function.name}`)
+      logger.info({ toolName: toolCall.function.name }, 'Executing tool')
 
       const toolArgs = JSON.parse(toolCall.function.arguments)
       const toolResult = await executeLLMTool(
@@ -54,7 +55,7 @@ export class ToolExecutor {
       this.options.onToolComplete?.(result)
       return result
     } catch (error) {
-      console.error('❌ Tool execution error:', error)
+      logger.error({ error, toolName: toolCall.function.name }, 'Tool execution error')
       const errorObj = error as Error
       this.options.onToolError?.(errorObj, toolCall)
 

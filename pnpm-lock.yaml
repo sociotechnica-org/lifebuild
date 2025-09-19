@@ -174,9 +174,6 @@ importers:
       '@livestore/sync-cf':
         specifier: 'catalog:'
         version: 0.3.1(6e956e46a0b467c507c9709cc4313aa0)
-      '@types/better-sqlite3':
-        specifier: ^7.6.13
-        version: 7.6.13
       '@work-squared/shared':
         specifier: workspace:*
         version: link:../shared
@@ -196,6 +193,9 @@ importers:
         specifier: ^8.18.0
         version: 8.18.3
     devDependencies:
+      '@types/better-sqlite3':
+        specifier: ^7.6.13
+        version: 7.6.13
       '@types/node':
         specifier: 'catalog:'
         version: 24.1.0

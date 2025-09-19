@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3'
 import path from 'path'
 import fs from 'fs'
+import { logger } from '../utils/logger.js'
 
 export class ProcessedMessageTracker {
   private db: Database.Database | null = null
@@ -25,7 +26,7 @@ export class ProcessedMessageTracker {
       this.db.exec('PRAGMA journal_mode=WAL')
 
       this.createTable()
-      console.log('✅ Processed messages database initialized')
+      logger.info('Processed messages database initialized')
     } catch (error: any) {
       throw new Error(`Failed to open database: ${error.message}`)
     }
@@ -101,7 +102,7 @@ export class ProcessedMessageTracker {
       this.db.close()
       this.db = null
     } catch (error: any) {
-      console.error('Error closing database:', error.message)
+      logger.error({ error: error.message }, 'Error closing database')
     }
   }
 
