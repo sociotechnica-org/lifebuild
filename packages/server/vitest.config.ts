@@ -5,5 +5,8 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     include: ['tests/**/*.test.ts', 'src/**/*.test.ts'],
+    env: {
+      NODE_ENV: 'test', // Set to test environment for logger configuration
+    },
   },
 })

@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger.js'
+
 interface ResourceLimits {
   maxConcurrentLLMCalls: number
   maxQueuedMessages: number
@@ -298,7 +300,7 @@ export class ResourceMonitor {
       this.cleanupOldData()
     }, 60000)
 
-    console.log('📊 Resource monitoring started')
+    logger.debug('Resource monitoring started')
   }
 
   /**
@@ -524,6 +526,6 @@ export class ResourceMonitor {
     }
     this.llmCallTimeouts.clear()
 
-    console.log('📊 Resource monitoring stopped')
+    logger.debug('Resource monitoring stopped')
   }
 }

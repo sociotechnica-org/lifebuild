@@ -1,4 +1,5 @@
 import { validateStoreId } from '../factories/store-factory.js'
+import { operationLogger } from '../utils/logger.js'
 
 export interface StoresConfig {
   storeIds: string[]
@@ -9,7 +10,9 @@ export interface StoresConfig {
 
 export function parseStoreIds(storeIdsEnv?: string): string[] {
   if (!storeIdsEnv || storeIdsEnv.trim() === '') {
-    console.warn('⚠️ No STORE_IDS configured. Server will run without monitoring any stores.')
+    operationLogger('parse_store_ids').warn(
+      'No STORE_IDS configured. Server will run without monitoring any stores.'
+    )
     return []
   }
 
@@ -30,7 +33,7 @@ export function parseStoreIds(storeIdsEnv?: string): string[] {
   }
 
   if (invalidIds.length > 0) {
-    console.error(`❌ Invalid store IDs found and skipped: ${invalidIds.join(', ')}`)
+    operationLogger('parse_store_ids').error({ invalidIds }, 'Invalid store IDs found and skipped')
   }
 
   if (validIds.length === 0 && rawIds.length > 0) {
@@ -39,10 +42,13 @@ export function parseStoreIds(storeIdsEnv?: string): string[] {
 
   const uniqueIds = Array.from(new Set(validIds))
   if (uniqueIds.length !== validIds.length) {
-    console.warn('⚠️ Duplicate store IDs found and removed')
+    operationLogger('parse_store_ids').warn('Duplicate store IDs found and removed')
   }
 
-  console.log(`✅ Parsed ${uniqueIds.length} valid store IDs: ${uniqueIds.join(', ')}`)
+  operationLogger('parse_store_ids').info(
+    { storeCount: uniqueIds.length, storeIds: uniqueIds },
+    'Parsed valid store IDs'
+  )
   return uniqueIds
 }
 
@@ -54,20 +60,35 @@ export function loadStoresConfig(): StoresConfig {
   const maxReconnectAttempts = Number(process.env.STORE_MAX_RECONNECT_ATTEMPTS) || 3
 
   if (connectionTimeout < 1000 || connectionTimeout > 300000) {
-    console.warn(
-      `⚠️ STORE_CONNECTION_TIMEOUT ${connectionTimeout}ms is outside recommended range (1s-300s). Using default 30s.`
+    operationLogger('load_stores_config').warn(
+      {
+        configuredTimeout: connectionTimeout,
+        defaultTimeout: 30000,
+        recommendedRange: '1s-300s',
+      },
+      'STORE_CONNECTION_TIMEOUT outside recommended range, using default'
     )
   }
 
   if (reconnectInterval < 1000 || reconnectInterval > 60000) {
-    console.warn(
-      `⚠️ STORE_RECONNECT_INTERVAL ${reconnectInterval}ms is outside recommended range (1s-60s). Using default 5s.`
+    operationLogger('load_stores_config').warn(
+      {
+        configuredInterval: reconnectInterval,
+        defaultInterval: 5000,
+        recommendedRange: '1s-60s',
+      },
+      'STORE_RECONNECT_INTERVAL outside recommended range, using default'
     )
   }
 
   if (maxReconnectAttempts < 1 || maxReconnectAttempts > 10) {
-    console.warn(
-      `⚠️ STORE_MAX_RECONNECT_ATTEMPTS ${maxReconnectAttempts} is outside recommended range (1-10). Using default 3.`
+    operationLogger('load_stores_config').warn(
+      {
+        configuredAttempts: maxReconnectAttempts,
+        defaultAttempts: 3,
+        recommendedRange: '1-10',
+      },
+      'STORE_MAX_RECONNECT_ATTEMPTS outside recommended range, using default'
     )
   }
 
@@ -81,12 +102,16 @@ export function loadStoresConfig(): StoresConfig {
       maxReconnectAttempts >= 1 && maxReconnectAttempts <= 10 ? maxReconnectAttempts : 3,
   }
 
-  console.log('📋 Stores configuration loaded:', {
-    storeCount: config.storeIds.length,
-    connectionTimeout: `${config.connectionTimeout}ms`,
-    reconnectInterval: `${config.reconnectInterval}ms`,
-    maxReconnectAttempts: config.maxReconnectAttempts,
-  })
+  operationLogger('load_stores_config').info(
+    {
+      storeCount: config.storeIds.length,
+      connectionTimeout: config.connectionTimeout,
+      reconnectInterval: config.reconnectInterval,
+      maxReconnectAttempts: config.maxReconnectAttempts,
+      storeIds: config.storeIds,
+    },
+    'Stores configuration loaded'
+  )
 
   return config
 }
