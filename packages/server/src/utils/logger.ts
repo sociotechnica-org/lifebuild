@@ -73,11 +73,5 @@ export const storeLogger = (storeId: string) => createContextLogger({ storeId })
 export const operationLogger = (operation: string, context: object = {}) =>
   createContextLogger({ operation, ...context })
 
-// For backward compatibility during migration, we can also export individual methods
-export const logInfo = (message: string, context?: object) => logger.info(context, message)
-export const logWarn = (message: string, context?: object) => logger.warn(context, message)
-export const logError = (message: string, context?: object) => logger.error(context, message)
-export const logDebug = (message: string, context?: object) => logger.debug(context, message)
-
 // Export the configured logger as default
 export default logger
