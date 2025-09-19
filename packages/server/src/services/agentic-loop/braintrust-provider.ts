@@ -9,6 +9,7 @@ import type {
 import { llmToolSchemas } from '../../tools/schemas.js'
 import { InputValidator } from './input-validator.js'
 import { RetryableOperation } from '../retryable-operation.js'
+import { logger } from '../../utils/logger.js'
 
 export class BraintrustProvider implements LLMProvider {
   private inputValidator: InputValidator
@@ -33,7 +34,7 @@ export class BraintrustProvider implements LLMProvider {
     // Validate input messages
     const messageValidation = this.inputValidator.validateMessages(messages)
     if (!messageValidation.isValid) {
-      console.warn('🚨 Invalid input messages blocked:', messageValidation.reason)
+      logger.warn({ reason: messageValidation.reason }, 'Invalid input messages blocked')
       throw new Error(`Input validation failed: ${messageValidation.reason}`)
     }
     const validatedMessages = JSON.parse(messageValidation.sanitizedContent!) as LLMMessage[]
@@ -43,7 +44,7 @@ export class BraintrustProvider implements LLMProvider {
     if (boardContext) {
       const boardValidation = this.inputValidator.validateBoardContext(boardContext)
       if (!boardValidation.isValid) {
-        console.warn('🚨 Invalid board context blocked:', boardValidation.reason)
+        logger.warn({ reason: boardValidation.reason }, 'Invalid board context blocked')
         throw new Error(`Board context validation failed: ${boardValidation.reason}`)
       }
       sanitizedBoardContext = boardValidation.sanitizedContent
@@ -56,7 +57,7 @@ export class BraintrustProvider implements LLMProvider {
     if (workerContext) {
       const workerValidation = this.inputValidator.validateWorkerContext(workerContext)
       if (!workerValidation.isValid) {
-        console.warn('🚨 Invalid worker context blocked:', workerValidation.reason)
+        logger.warn({ reason: workerValidation.reason }, 'Invalid worker context blocked')
         throw new Error(`Worker context validation failed: ${workerValidation.reason}`)
       }
       sanitizedWorkerContext = workerValidation.sanitizedContent
@@ -161,7 +162,10 @@ When users describe project requirements or ask you to create tasks, use the cre
 
           // Call the external onRetry callback if provided and it's a retryable error
           if (_options?.onRetry && (response.status >= 500 || response.status === 429)) {
-            console.log(`⚠️ Braintrust API error ${response.status}, will retry if attempts remain`)
+            logger.warn(
+              { status: response.status },
+              'Braintrust API error, will retry if attempts remain'
+            )
           }
 
           throw error

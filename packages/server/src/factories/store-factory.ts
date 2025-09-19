@@ -3,6 +3,7 @@ import { makeAdapter } from '@livestore/adapter-node'
 import { makeCfSync } from '@livestore/sync-cf'
 import { schema } from '@work-squared/shared/schema'
 import path from 'path'
+import { logger } from '../utils/logger.js'
 
 export interface StoreConfig {
   storeId: string
@@ -22,8 +23,9 @@ export function validateStoreId(storeId: string): boolean {
   }
 
   if (!STORE_ID_REGEX.test(storeId)) {
-    console.error(
-      `Invalid store ID format: ${storeId}. Must be 3-64 characters, alphanumeric with hyphens/underscores.`
+    logger.error(
+      { storeId },
+      'Invalid store ID format: Must be 3-64 characters, alphanumeric with hyphens/underscores.'
     )
     return false
   }
@@ -80,7 +82,7 @@ function getSyncPayload(config: StoreConfig): Record<string, string> | undefined
           'Please set this environment variable in your production environment.'
       )
     }
-    console.log('Using server bypass authentication for production')
+    logger.info('Using server bypass authentication for production')
     return {
       serverBypass: serverBypassToken,
     }
@@ -88,7 +90,7 @@ function getSyncPayload(config: StoreConfig): Record<string, string> | undefined
 
   // Development mode - use authToken
   if (config.authToken) {
-    console.log('Using authToken authentication for development')
+    logger.info('Using authToken authentication for development')
     return {
       authToken: config.authToken,
     }
@@ -110,13 +112,16 @@ export async function createStore(
     ...configOverrides,
   }
 
-  console.log(`🏗️ Creating store ${storeId} with config:`, {
-    storeId: config.storeId,
-    syncUrl: config.syncUrl,
-    dataPath: config.dataPath,
-    devtoolsEnabled: config.enableDevtools,
-    devtoolsUrl: config.enableDevtools ? config.devtoolsUrl : 'disabled',
-  })
+  logger.info(
+    {
+      storeId: config.storeId,
+      syncUrl: config.syncUrl,
+      dataPath: config.dataPath,
+      devtoolsEnabled: config.enableDevtools,
+      devtoolsUrl: config.enableDevtools ? config.devtoolsUrl : 'disabled',
+    },
+    `Creating store ${storeId}`
+  )
 
   const storeDataPath = path.join(config.dataPath!, storeId)
 
@@ -155,10 +160,10 @@ export async function createStore(
       timeoutPromise,
     ])
 
-    console.log(`✅ Store ${storeId} created successfully`)
+    logger.info({ storeId }, 'Store created successfully')
     return { store, config }
   } catch (error) {
-    console.error(`❌ Failed to create store ${storeId}:`, error)
+    logger.error({ storeId, error }, 'Failed to create store')
     throw error
   }
 }

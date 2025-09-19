@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger.js'
+
 interface QueuedMessage {
   message: any
   timestamp: number
@@ -132,7 +134,7 @@ export class MessageQueueManager {
 
     if (freshMessages.length !== queue.length) {
       const staleCount = queue.length - freshMessages.length
-      console.warn(`🧹 Cleaned ${staleCount} stale messages from conversation ${conversationId}`)
+      logger.warn({ conversationId, staleCount }, 'Cleaned stale messages from conversation')
 
       if (freshMessages.length === 0) {
         this.queues.delete(conversationId)
@@ -169,8 +171,9 @@ export class MessageQueueManager {
     }
 
     if (totalCleaned > 0) {
-      console.log(
-        `🧹 Periodic cleanup: removed ${totalCleaned} stale messages from ${conversationIds.length} conversations`
+      logger.info(
+        { totalCleaned, conversationCount: conversationIds.length },
+        'Periodic cleanup: removed stale messages'
       )
     }
   }

@@ -13,6 +13,7 @@ import {
   wrapNoParamFunction,
   wrapToolFunction,
 } from './base.js'
+import { logger } from '../utils/logger.js'
 import type {
   CreateProjectParams,
   CreateProjectResult,
@@ -66,7 +67,7 @@ function createProjectCore(
       },
     }
   } catch (error) {
-    console.error('Error creating project:', error)
+    logger.error({ error }, 'Error creating project')
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',

@@ -169,7 +169,7 @@ export class EventProcessor {
     try {
       // We only monitor chatMessages now for processing user messages
       if (tableName !== 'chatMessages') {
-        console.warn(`⚠️ Unexpected table ${tableName} - only chatMessages should be monitored`)
+        logger.warn(`Unexpected table ${tableName} - only chatMessages should be monitored`)
         return
       }
 
@@ -189,7 +189,7 @@ export class EventProcessor {
       storeState.subscriptions.push(unsubscribe)
       storeLogger(storeId).debug({ tableName }, 'Subscribed to table')
     } catch (error) {
-      console.error(`❌ Failed to subscribe to ${tableName} for store ${storeId}:`, error)
+      storeLogger(storeId).error({ error, tableName }, `Failed to subscribe to ${tableName}`)
       this.incrementErrorCount(storeId, error as Error)
     }
   }
@@ -252,10 +252,10 @@ export class EventProcessor {
 
     // CRITICAL: If database is not initialized, stop all processing to prevent infinite loops
     if (!this.databaseInitialized) {
-      console.error(
-        `🚨 CRITICAL: Database not initialized - SKIPPING message ${message.id} to prevent duplicate processing`
+      logger.error(
+        { messageId: message.id },
+        `CRITICAL: Database not initialized - SKIPPING message to prevent duplicate processing. Fix database initialization issue and restart server`
       )
-      console.error(`🚨 Fix database initialization issue and restart server`)
       return
     }
 
@@ -272,8 +272,9 @@ export class EventProcessor {
       if (this.messageCutoffTimestamp && message.createdAt) {
         const messageDate = new Date(message.createdAt)
         if (messageDate < this.messageCutoffTimestamp) {
-          console.log(
-            `📅 SKIPPED: Message ${message.id} before cutoff (${messageDate.toISOString()}) - no LLM call`
+          logger.info(
+            { messageId: message.id, messageDate: messageDate.toISOString() },
+            `Message before cutoff - no LLM call`
           )
           // Mark as processed in SQLite but don't actually process it
           await this.processedTracker.markProcessed(message.id, storeId)
@@ -285,8 +286,9 @@ export class EventProcessor {
       const claimedProcessing = await this.processedTracker.markProcessed(message.id, storeId)
 
       if (!claimedProcessing) {
-        console.log(
-          `🏁 SKIPPED: Another instance claimed processing for message ${message.id} - no LLM call`
+        logger.info(
+          { messageId: message.id },
+          `Another instance claimed processing for message - no LLM call`
         )
         return
       }
@@ -298,9 +300,9 @@ export class EventProcessor {
         this.handleUserMessage(storeId, message, storeState)
       })
     } catch (error) {
-      console.error(`❌ Database error checking message ${message.id}:`, error)
-      console.error(
-        `🚨 CRITICAL: Database operation failed - SKIPPING message ${message.id} to prevent infinite loops`
+      logger.error(
+        { error, messageId: message.id },
+        `CRITICAL: Database operation failed - SKIPPING message to prevent infinite loops`
       )
       // DO NOT process the message - this could cause infinite loops if DB is broken
       return
@@ -354,7 +356,7 @@ export class EventProcessor {
     try {
       await this.handleEvents(storeId, events, storeState)
     } catch (error) {
-      console.error(`❌ Error processing buffered events for store ${storeId}:`, error)
+      storeLogger(storeId).error({ error }, `Error processing buffered events`)
       this.incrementErrorCount(storeId, error as Error)
     } finally {
       storeState.eventBuffer.processing = false
@@ -370,7 +372,7 @@ export class EventProcessor {
       try {
         await this.processEvent(storeId, event, storeState)
       } catch (error) {
-        console.error(`❌ Error processing event in store ${storeId}:`, error)
+        storeLogger(storeId).error({ error, event: event.type }, `Error processing event`)
         this.incrementErrorCount(storeId, error as Error)
 
         // Continue processing other events even if one fails (isolation)
@@ -393,7 +395,7 @@ export class EventProcessor {
       await this.processChatMessage(storeId, chatMessage, storeState)
     } else {
       // Log unhandled event types for future extension
-      console.log(`⚠️ Unhandled event type: ${event.type} for store ${storeId}`)
+      storeLogger(storeId).debug({ eventType: event.type }, `Unhandled event type`)
     }
   }
 
@@ -409,15 +411,13 @@ export class EventProcessor {
 
     // Skip if LLM is not configured
     if (!storeState.llmProvider) {
-      console.log(`⚠️ Skipping chat message processing for ${storeId}: LLM not configured`)
+      storeLogger(storeId).debug(`Skipping chat message processing: LLM not configured`)
       return
     }
 
     // Check resource limits before processing
     if (!this.globalResourceMonitor.canMakeLLMCall()) {
-      console.warn(
-        `🚨 Rejecting LLM call for conversation ${conversationId}: Resource limits exceeded`
-      )
+      logger.warn({ conversationId, storeId }, `Rejecting LLM call: Resource limits exceeded`)
       const store = this.storeManager.getStore(storeId)
       if (store) {
         store.commit(
@@ -438,7 +438,7 @@ export class EventProcessor {
 
     // Check if we can queue more messages
     if (!this.globalResourceMonitor.canQueueMessage()) {
-      console.warn(`🚨 Message rate limit exceeded for conversation ${conversationId}`)
+      logger.warn({ conversationId }, `Message rate limit exceeded`)
       return
     }
 
@@ -448,15 +448,16 @@ export class EventProcessor {
 
     // Skip if this conversation is already being processed - queue the message instead
     if (storeState.activeConversations.has(conversationId)) {
-      console.log(`⏸️ Queueing message for conversation ${conversationId} (already processing)`)
+      logger.debug({ conversationId }, `Queueing message (already processing)`)
 
       try {
         storeState.messageQueue.enqueue(conversationId, chatMessage)
-        console.log(
-          `📥 Message queued for conversation ${conversationId}. Queue length: ${storeState.messageQueue.getQueueLength(conversationId)}`
+        logger.debug(
+          { conversationId, queueLength: storeState.messageQueue.getQueueLength(conversationId) },
+          `Message queued`
         )
       } catch (error) {
-        console.error(`❌ Failed to queue message for conversation ${conversationId}:`, error)
+        logger.error({ error, conversationId }, `Failed to queue message`)
         // Emit error to conversation if queue is full
         const store = this.storeManager.getStore(storeId)
         if (store) {
@@ -477,11 +478,11 @@ export class EventProcessor {
       return
     }
 
-    console.log(`🤖 Starting agentic loop for user message in conversation ${conversationId}`)
+    logger.info({ conversationId }, `Starting agentic loop for user message`)
 
     // Check conversation limits per store
     if (storeState.activeConversations.size >= 50) {
-      console.warn(`🚨 Too many active conversations in store ${storeId}`)
+      storeLogger(storeId).warn(`Too many active conversations`)
       return
     }
 
@@ -518,7 +519,7 @@ export class EventProcessor {
       if (!llmCallCompleted) {
         this.globalResourceMonitor.trackLLMCallComplete(llmCallId, true) // Mark as timeout/error
       }
-      console.error(`❌ Error in agentic loop for conversation ${conversationId}:`, error)
+      logger.error({ error, conversationId }, `Error in agentic loop`)
 
       // Emit error message to conversation
       const store = this.storeManager.getStore(storeId)
@@ -561,11 +562,11 @@ export class EventProcessor {
     const conversationId = chatMessage.conversationId
     const messageId = chatMessage.id
 
-    console.log(`🤖 Processing queued message for conversation ${conversationId}`)
+    logger.info({ conversationId }, `Processing queued message`)
 
     // Check conversation limits per store
     if (storeState.activeConversations.size >= 50) {
-      console.warn(`🚨 Too many active conversations in store ${storeId}`)
+      storeLogger(storeId).warn(`Too many active conversations`)
       return
     }
 
@@ -602,7 +603,7 @@ export class EventProcessor {
       if (!llmCallCompleted) {
         this.globalResourceMonitor.trackLLMCallComplete(llmCallId, true) // Mark as timeout/error
       }
-      console.error(`❌ Error in agentic loop for conversation ${conversationId}:`, error)
+      logger.error({ error, conversationId }, `Error in agentic loop`)
 
       // Emit error message to conversation
       const store = this.storeManager.getStore(storeId)
@@ -677,7 +678,7 @@ export class EventProcessor {
         )
       )
     } catch (error) {
-      console.error(`❌ Error querying conversation context:`, error)
+      logger.error({ error }, `Error querying conversation context`)
       // If we can't get the context due to store issues, bail out gracefully
       return
     }
@@ -711,7 +712,7 @@ export class EventProcessor {
       storeState.llmProvider,
       {
         onIterationStart: iteration => {
-          console.log(`🔄 Agentic loop iteration ${iteration} started`)
+          logger.debug({ iteration }, `Agentic loop iteration started`)
         },
         onIterationComplete: (iteration, response) => {
           // Only send the LLM's message if there are tool calls
@@ -722,8 +723,9 @@ export class EventProcessor {
             response.toolCalls &&
             response.toolCalls.length > 0
           ) {
-            console.log(
-              `💬 Iteration ${iteration} LLM reasoning: ${response.message.substring(0, 100)}...`
+            logger.debug(
+              { iteration, reasoning: response.message.substring(0, 100) },
+              `Iteration LLM reasoning`
             )
             store.commit(
               events.llmResponseReceived({
@@ -786,7 +788,7 @@ export class EventProcessor {
         },
         onFinalMessage: message => {
           // Emit final LLM response
-          console.log(`✅ Final LLM response: ${message.substring(0, 100)}...`)
+          logger.info({ response: message.substring(0, 100) }, `Final LLM response`)
           store.commit(
             events.llmResponseReceived({
               id: crypto.randomUUID(),
@@ -804,7 +806,7 @@ export class EventProcessor {
           )
         },
         onError: (error, iteration) => {
-          console.error(`❌ Agentic loop error at iteration ${iteration}:`, error)
+          logger.error({ error, iteration }, `Agentic loop error`)
           store.commit(
             events.llmResponseReceived({
               id: crypto.randomUUID(),
@@ -839,7 +841,7 @@ export class EventProcessor {
         },
         onComplete: iterations => {
           // Send completion event to indicate the agentic loop has finished
-          console.log(`✅ Agentic loop completed after ${iterations} iterations`)
+          logger.info({ iterations }, `Agentic loop completed`)
           store.commit(
             events.llmResponseCompleted({
               conversationId: userMessage.conversationId,
@@ -889,8 +891,9 @@ export class EventProcessor {
         break
       }
 
-      console.log(
-        `📤 Processing queued message for conversation ${conversationId}. Remaining: ${storeState.messageQueue.getQueueLength(conversationId)}`
+      logger.debug(
+        { conversationId, remaining: storeState.messageQueue.getQueueLength(conversationId) },
+        `Processing queued message`
       )
 
       // Get or create async processor for this conversation
@@ -906,10 +909,7 @@ export class EventProcessor {
           await this.processQueuedMessage(storeId, nextMessage, storeState)
         })
       } catch (error) {
-        console.error(
-          `❌ Error processing queued message for conversation ${conversationId}:`,
-          error
-        )
+        logger.error({ error, conversationId }, `Error processing queued message`)
 
         // Emit error to conversation
         const store = this.storeManager.getStore(storeId)
@@ -932,8 +932,13 @@ export class EventProcessor {
 
     // Log warning if we hit the safety limit
     if (processedCount >= maxProcessedMessages) {
-      console.warn(
-        `⚠️ Hit safety limit processing ${processedCount} messages for conversation ${conversationId}. Remaining: ${storeState.messageQueue.getQueueLength(conversationId)}`
+      logger.warn(
+        {
+          processedCount,
+          conversationId,
+          remaining: storeState.messageQueue.getQueueLength(conversationId),
+        },
+        `Hit safety limit processing messages`
       )
     }
 
@@ -982,7 +987,7 @@ export class EventProcessor {
   stopMonitoring(storeId: string): void {
     const storeState = this.storeStates.get(storeId)
     if (!storeState) {
-      console.warn(`⚠️ Store ${storeId} is not being monitored`)
+      storeLogger(storeId).warn(`Store is not being monitored`)
       return
     }
 
@@ -994,7 +999,7 @@ export class EventProcessor {
       try {
         unsubscribe()
       } catch (error) {
-        console.error(`⚠️ Error unsubscribing from store ${storeId}:`, error)
+        storeLogger(storeId).error({ error }, `Error unsubscribing from store`)
       }
     }
 
@@ -1034,7 +1039,7 @@ export class EventProcessor {
 
     // Cleanup processed message tracker
     this.processedTracker.close().catch(error => {
-      console.error('Error closing processed message tracker:', error)
+      logger.error({ error }, 'Error closing processed message tracker')
     })
 
     logger.info('Stopped all event monitoring')
@@ -1192,7 +1197,7 @@ export class EventProcessor {
 
         if (!nextMessage || nextMessage.role !== 'tool' || !nextMessage.tool_call_id) {
           // No corresponding tool result - strip the tool_calls to avoid API errors
-          console.warn(`🧹 Sanitizing incomplete tool_calls from assistant message`)
+          logger.debug(`Sanitizing incomplete tool_calls from assistant message`)
           sanitized.push({
             ...message,
             tool_calls: undefined,
@@ -1207,7 +1212,7 @@ export class EventProcessor {
         if (prevMessage && prevMessage.role === 'assistant' && prevMessage.tool_calls) {
           sanitized.push(message)
         } else {
-          console.warn(`🧹 Removing orphaned tool result message`)
+          logger.debug(`Removing orphaned tool result message`)
         }
       } else {
         // Regular user/assistant message without tool_calls - include as-is

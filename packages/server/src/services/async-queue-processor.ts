@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger.js'
+
 interface QueuedTask<T> {
   id: string
   task: () => Promise<T>
@@ -24,7 +26,7 @@ export class AsyncQueueProcessor<T = any> {
       // Start processing if not already running
       if (!this.processing) {
         this.processQueue().catch(error => {
-          console.error('Unexpected error in queue processing:', error)
+          logger.error({ error }, 'Unexpected error in queue processing')
         })
       }
     })

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url'
 import { storeManager } from './services/store-manager.js'
 import { EventProcessor } from './services/event-processor.js'
 import { loadStoresConfig } from './config/stores.js'
+import { logger } from './utils/logger.js'
 
 // Load environment variables from package-local .env file
 const __filename = fileURLToPath(import.meta.url)
@@ -12,14 +13,14 @@ const packageRoot = resolve(__dirname, '..')
 dotenv.config({ path: resolve(packageRoot, '.env') })
 
 async function main() {
-  console.log('🚀 Starting Work Squared Multi-Store Server...')
+  logger.info('Starting Work Squared Multi-Store Server...')
 
   const config = loadStoresConfig()
 
   await storeManager.initialize(config.storeIds)
 
   if (config.storeIds.length === 0) {
-    console.warn('⚠️ No stores configured. Server running in monitoring mode only.')
+    logger.warn('No stores configured. Server running in monitoring mode only.')
   }
 
   // Set up event processor
@@ -30,7 +31,7 @@ async function main() {
     await eventProcessor.startMonitoring(storeId, store)
   }
 
-  console.log('📡 Event monitoring started for all stores')
+  logger.info('Event monitoring started for all stores')
 
   const http = await import('http')
   const healthServer = http.createServer(async (req, res) => {
@@ -144,13 +145,14 @@ async function main() {
 
   const PORT = process.env.PORT || 3003
   healthServer.listen(PORT, () => {
-    console.log(`🌐 Health endpoint: http://localhost:${PORT}/health`)
-    console.log(`🌐 Store status: http://localhost:${PORT}/stores`)
-    console.log(`🌐 Dashboard: http://localhost:${PORT}/`)
+    logger.info({ port: PORT }, `Server listening on port ${PORT}`)
+    logger.info(`Health endpoint: http://localhost:${PORT}/health`)
+    logger.info(`Store status: http://localhost:${PORT}/stores`)
+    logger.info(`Dashboard: http://localhost:${PORT}/`)
   })
 
   const shutdown = async () => {
-    console.log('Shutting down server...')
+    logger.info('Shutting down server...')
     healthServer.close()
     eventProcessor.stopAll()
     await storeManager.shutdown()
@@ -161,4 +163,7 @@ async function main() {
   process.on('SIGTERM', shutdown)
 }
 
-main().catch(console.error)
+main().catch(error => {
+  logger.error({ error }, 'Failed to start server')
+  process.exit(1)
+})

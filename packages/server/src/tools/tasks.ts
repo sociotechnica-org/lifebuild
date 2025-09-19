@@ -15,6 +15,7 @@ import {
   wrapStringParamFunction,
   wrapNoParamFunction,
 } from './base.js'
+import { logger } from '../utils/logger.js'
 import type {
   CreateTaskParams,
   CreateTaskResult,
@@ -89,16 +90,19 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
   // Create the task
   const taskId = crypto.randomUUID()
 
-  console.log('🔧 Creating task with data:', {
-    id: taskId,
-    boardId: targetProject.id,
-    projectName: targetProject.name,
-    columnId: targetColumn.id,
-    columnName: targetColumn.name,
-    title: title.trim(),
-    position: nextPosition,
-    existingTasksInColumn: tasksInColumn.length,
-  })
+  logger.debug(
+    {
+      id: taskId,
+      boardId: targetProject.id,
+      projectName: targetProject.name,
+      columnId: targetColumn.id,
+      columnName: targetColumn.name,
+      title: title.trim(),
+      position: nextPosition,
+      existingTasksInColumn: tasksInColumn.length,
+    },
+    'Creating task with data'
+  )
 
   store.commit(
     events.taskCreated({
@@ -113,7 +117,7 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
     })
   )
 
-  console.log('✅ Task creation event committed')
+  logger.info({ taskId }, 'Task creation event committed')
 
   return {
     success: true,
