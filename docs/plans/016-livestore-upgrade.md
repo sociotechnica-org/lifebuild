@@ -59,15 +59,28 @@ catalog:
 ### 2. packages/web
 
 #### A. Create New LiveStore Worker File
-**IMPORTANT:** The new worker file should NOT include sync configuration - that's handled differently in v0.4.0
+**IMPORTANT CORRECTION:** The worker file STILL includes sync configuration, but uses different imports
 
 **Create:** `packages/web/src/livestore.worker.ts`
 ```typescript
 import { makeWorker } from '@livestore/adapter-web/worker'
+import { makeWsSync } from '@livestore/sync-cf/client'  // Note: /client subpath and makeWsSync instead of makeCfSync
 import { schema } from '@work-squared/shared/schema'
 
-// Note: NO sync configuration here - that's a key difference in v0.4.0
-makeWorker({ schema })
+const getSyncUrl = () => {
+  if (self.location && self.location.hostname === 'localhost') {
+    return 'ws://localhost:8787'
+  }
+  return `wss://${self.location.host}`
+}
+
+makeWorker({
+  schema,
+  sync: {
+    backend: makeWsSync({ url: getSyncUrl() }),  // makeWsSync instead of makeCfSync
+    initialSyncOptions: { _tag: 'Blocking', timeout: 5000 },
+  },
+})
 ```
 
 #### B. Update vite.config.ts
@@ -181,7 +194,25 @@ const rawSqlEvent = Events.clientOnly({
 
 ### 5. packages/server
 
-#### A. Update Store Shutdown Calls
+#### A. Update Sync Imports
+**Breaking change:** Update sync imports in `packages/server/src/factories/store-factory.ts`
+
+```typescript
+// Old (line 3)
+import { makeCfSync } from '@livestore/sync-cf'
+
+// New - needs investigation for server-side usage
+// Option 1: Use client version (if compatible)
+import { makeWsSync } from '@livestore/sync-cf/client'
+
+// Option 2: May need server-specific import
+import { makeSync } from '@livestore/sync-cf/cf-worker'
+
+// Update usage (line 130)
+backend: makeWsSync({ url: config.syncUrl })  // or appropriate server function
+```
+
+#### B. Update Store Shutdown Calls
 **Breaking change:** Update any `store.shutdown()` calls
 
 ```typescript
@@ -190,13 +221,9 @@ await store.shutdown()
 
 // New (using Promise API)
 await store.shutdownPromise()
-
-// Or use Effect API
-import { Effect } from 'effect'
-yield* store.shutdown()
 ```
 
-#### B. Review QueryBuilder Usage
+#### C. Review QueryBuilder Usage
 Check all `.first()` calls and update as needed for new behavior.
 
 ### 6. packages/auth-worker
@@ -300,14 +327,16 @@ After reviewing the LiveStore 0.4.0 cf-chat example, here are additional pattern
    import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedworker'
    ```
 
-2. **Simplified Worker Setup**: The worker file is minimal:
+2. **Sync Import Changes**: Critical breaking change in imports:
    ```typescript
-   import { makeWorker } from '@livestore/adapter-web/worker'
-   import { schema } from './livestore/schema.ts'
-   makeWorker({ schema })
+   // OLD (v0.3.1)
+   import { makeCfSync } from '@livestore/sync-cf'
+
+   // NEW (v0.4.0) - must use /client subpath
+   import { makeWsSync } from '@livestore/sync-cf/client'
    ```
 
-3. **No Sync in Worker**: Unlike our current setup, sync configuration is NOT in the worker file for web clients
+3. **Worker Still Has Sync**: The worker STILL includes sync configuration (initial analysis was incorrect)
 
 4. **Vite Config Differences**:
    - Still excludes wa-sqlite from optimizeDeps
@@ -334,25 +363,36 @@ After analyzing both our codebase and the cf-chat example, here are the specific
 ### 4. Effect API Usage
 **Good news:** The codebase doesn't directly use Effect API. All "Effect" references are React useEffect hooks, not the Effect library.
 
-### 5. Worker Configuration - CRITICAL CHANGE
+### 5. Worker Configuration - CRITICAL CHANGES
 **Current setup:**
 - `packages/web/src/Root.tsx` imports worker from `packages/worker/src/livestore.worker.ts`
-- `packages/worker/src/livestore.worker.ts` exists and uses sync configuration (makeCfSync)
+- `packages/worker/src/livestore.worker.ts` uses `makeCfSync` from `@livestore/sync-cf`
+
+**Breaking changes in v0.4.0:**
+1. **Import path change**: `@livestore/sync-cf` no longer has a default export
+   - Must import from `@livestore/sync-cf/client` for web workers
+2. **Function name change**: `makeCfSync` → `makeWsSync`
+3. **Worker location**: Move to `packages/web/src/livestore.worker.ts`
 
 **Changes needed:**
-- Create NEW `packages/web/src/livestore.worker.ts` with simplified setup (NO sync config):
+- Create NEW `packages/web/src/livestore.worker.ts` with updated imports:
   ```typescript
   import { makeWorker } from '@livestore/adapter-web/worker'
+  import { makeWsSync } from '@livestore/sync-cf/client'  // NEW import
   import { schema } from '@work-squared/shared/schema'
 
-  makeWorker({ schema })
+  makeWorker({
+    schema,
+    sync: {
+      backend: makeWsSync({ url: getSyncUrl() }),  // makeWsSync not makeCfSync
+      initialSyncOptions: { _tag: 'Blocking', timeout: 5000 },
+    },
+  })
   ```
 - Update import in Root.tsx to use `?worker` suffix:
   ```typescript
   import LiveStoreWorker from './livestore.worker.ts?worker'
   ```
-- Remove sync configuration from web worker (sync is handled differently in 0.4.0)
-- Keep `packages/worker/src/livestore.worker.ts` for now (may need for migration testing)
 
 ### 6. Store Query Patterns
 The codebase uses:
@@ -399,15 +439,17 @@ The project uses GitHub Actions for deployment (`/.github/workflows/deploy.yml`)
 
 Based on the cf-chat example analysis, here are critical differences not in the changelog:
 
-1. **Worker Architecture Change**: The web worker NO LONGER contains sync configuration - it only needs the schema
+1. **Sync Import Breaking Change**: `@livestore/sync-cf` no longer has a default export
+   - Must use `@livestore/sync-cf/client` subpath
+   - Function renamed: `makeCfSync` → `makeWsSync`
 2. **Import Syntax Change**: Must use `?worker` and `?sharedworker` suffixes for Vite imports
 3. **Adapter Configuration**: Worker is passed directly, not as a function
 4. **wa-sqlite Optimization**: Still needs to be excluded from optimizeDeps in Vite
 5. **Development Strategy**: cf-chat uses concurrent scripts instead of Vite plugin for wrangler
 
 ## Notes
-- The upgrade has more architectural changes than initially indicated in changelog
-- Web worker simplification is a major change - no sync config in web worker
+- **CORRECTED**: Worker still includes sync configuration, but uses `makeWsSync` from `@livestore/sync-cf/client`
+- Major breaking change: `@livestore/sync-cf` package restructured with subpath exports
 - Only 2 shutdown calls need updating in server package
 - No QueryBuilder.first() or raw SQL usage to worry about
 - Deployment workflow remains unchanged - production builds work as before
