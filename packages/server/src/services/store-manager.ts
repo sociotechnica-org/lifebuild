@@ -1,5 +1,6 @@
 import type { Store as LiveStore } from '@livestore/livestore'
 import { type StoreConfig, createStore } from '../factories/store-factory.js'
+import { logger } from '../utils/logger.js'
 
 export interface StoreInfo {
   store: LiveStore
@@ -27,27 +28,27 @@ export class StoreManager {
   }
 
   async initialize(storeIds: string[]): Promise<void> {
-    console.log(`🚀 Initializing ${storeIds.length} stores...`)
+    logger.log(`🚀 Initializing ${storeIds.length} stores...`)
 
     const initPromises = storeIds.map(async storeId => {
       try {
         await this.addStore(storeId)
-        console.log(`✅ Store ${storeId} initialized`)
+        logger.log(`✅ Store ${storeId} initialized`)
       } catch (error) {
-        console.error(`❌ Failed to initialize store ${storeId}:`, error)
+        logger.error(`❌ Failed to initialize store ${storeId}:`, error)
       }
     })
 
     await Promise.allSettled(initPromises)
 
     this.startHealthChecks()
-    console.log(`📊 Store manager initialized with ${this.stores.size} active stores`)
+    logger.log(`📊 Store manager initialized with ${this.stores.size} active stores`)
   }
 
   async addStore(storeId: string): Promise<LiveStore> {
     if (this.stores.has(storeId)) {
       const existing = this.stores.get(storeId)!
-      console.log(`⚠️ Store ${storeId} already exists`)
+      logger.warn(`⚠️ Store ${storeId} already exists`)
       return existing.store
     }
 
@@ -67,10 +68,10 @@ export class StoreManager {
       this.stores.set(storeId, storeInfo)
       this.setupStoreEventHandlers(storeId, store)
 
-      console.log(`✅ Added store ${storeId}`)
+      logger.log(`✅ Added store ${storeId}`)
       return store
     } catch (error) {
-      console.error(`❌ Failed to add store ${storeId}:`, error)
+      logger.error(`❌ Failed to add store ${storeId}:`, error)
       throw error
     }
   }
@@ -78,7 +79,7 @@ export class StoreManager {
   async removeStore(storeId: string): Promise<void> {
     const storeInfo = this.stores.get(storeId)
     if (!storeInfo) {
-      console.warn(`⚠️ Store ${storeId} not found`)
+      logger.warn(`⚠️ Store ${storeId} not found`)
       return
     }
 
@@ -90,13 +91,13 @@ export class StoreManager {
 
     try {
       await storeInfo.store.shutdown()
-      console.log(`🔌 Store ${storeId} shutdown complete`)
+      logger.log(`🔌 Store ${storeId} shutdown complete`)
     } catch (error) {
-      console.error(`⚠️ Error shutting down store ${storeId}:`, error)
+      logger.error(`⚠️ Error shutting down store ${storeId}:`, error)
     }
 
     this.stores.delete(storeId)
-    console.log(`✅ Removed store ${storeId}`)
+    logger.log(`✅ Removed store ${storeId}`)
   }
 
   getStore(storeId: string): LiveStore | null {
@@ -128,7 +129,7 @@ export class StoreManager {
 
     // Mark as connected since store creation succeeded
     storeInfo.status = 'connected'
-    console.log(`✅ Store ${storeId} setup complete`)
+    logger.log(`✅ Store ${storeId} setup complete`)
   }
 
   private scheduleReconnect(storeId: string): void {
@@ -140,12 +141,12 @@ export class StoreManager {
     if (!storeInfo) return
 
     if (storeInfo.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error(`❌ Store ${storeId} exceeded max reconnect attempts`)
+      logger.error(`❌ Store ${storeId} exceeded max reconnect attempts`)
       storeInfo.status = 'error'
       return
     }
 
-    console.log(`🔄 Scheduling reconnect for store ${storeId} in ${this.reconnectInterval}ms`)
+    logger.log(`🔄 Scheduling reconnect for store ${storeId} in ${this.reconnectInterval}ms`)
     storeInfo.status = 'connecting'
 
     const timeout = setTimeout(async () => {
@@ -153,7 +154,7 @@ export class StoreManager {
       storeInfo.reconnectAttempts++
 
       try {
-        console.log(
+        logger.log(
           `🔄 Attempting to reconnect store ${storeId} (attempt ${storeInfo.reconnectAttempts})`
         )
 
@@ -167,9 +168,9 @@ export class StoreManager {
         storeInfo.reconnectAttempts = 0
 
         this.setupStoreEventHandlers(storeId, store)
-        console.log(`✅ Store ${storeId} reconnected successfully`)
+        logger.log(`✅ Store ${storeId} reconnected successfully`)
       } catch (error) {
-        console.error(`❌ Failed to reconnect store ${storeId}:`, error)
+        logger.error(`❌ Failed to reconnect store ${storeId}:`, error)
 
         if (storeInfo.reconnectAttempts < this.maxReconnectAttempts) {
           this.scheduleReconnect(storeId)
@@ -205,7 +206,7 @@ export class StoreManager {
   }
 
   async shutdown(): Promise<void> {
-    console.log('🛑 Shutting down store manager...')
+    logger.log('🛑 Shutting down store manager...')
 
     if (this.healthCheckInterval) {
       clearInterval(this.healthCheckInterval)
@@ -221,7 +222,7 @@ export class StoreManager {
     )
 
     await Promise.allSettled(shutdownPromises)
-    console.log('✅ Store manager shutdown complete')
+    logger.log('✅ Store manager shutdown complete')
   }
 
   updateActivity(storeId: string): void {

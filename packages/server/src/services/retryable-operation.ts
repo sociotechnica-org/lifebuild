@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger.js'
+
 interface RetryOptions {
   maxRetries: number
   baseDelay: number
@@ -77,7 +79,7 @@ export class RetryableOperation<T = any> {
         const totalDuration = Date.now() - startTime
 
         if (attempt > 0) {
-          console.log(`✅ Operation succeeded after ${attempt + 1} attempts (${totalDuration}ms)`)
+          logger.log(`✅ Operation succeeded after ${attempt + 1} attempts (${totalDuration}ms)`)
         }
 
         return {
@@ -95,14 +97,14 @@ export class RetryableOperation<T = any> {
 
         // Check if we should retry this error
         if (options.retryCondition && !options.retryCondition(lastError)) {
-          console.log(`❌ Non-retryable error: ${lastError.message}`)
+          logger.log(`❌ Non-retryable error: ${lastError.message}`)
           break
         }
 
         // Calculate delay with exponential backoff and jitter
         const delay = this.calculateDelay(attempt, options)
 
-        console.warn(
+        logger.warn(
           `⚠️ Attempt ${attempt + 1} failed: ${lastError.message}. Retrying in ${delay}ms...`
         )
 

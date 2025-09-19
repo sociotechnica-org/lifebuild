@@ -1,4 +1,5 @@
 import { validateStoreId } from '../factories/store-factory.js'
+import { logger } from '../utils/logger.js'
 
 export interface StoresConfig {
   storeIds: string[]
@@ -9,7 +10,7 @@ export interface StoresConfig {
 
 export function parseStoreIds(storeIdsEnv?: string): string[] {
   if (!storeIdsEnv || storeIdsEnv.trim() === '') {
-    console.warn('⚠️ No STORE_IDS configured. Server will run without monitoring any stores.')
+    logger.warn('⚠️ No STORE_IDS configured. Server will run without monitoring any stores.')
     return []
   }
 
@@ -30,7 +31,7 @@ export function parseStoreIds(storeIdsEnv?: string): string[] {
   }
 
   if (invalidIds.length > 0) {
-    console.error(`❌ Invalid store IDs found and skipped: ${invalidIds.join(', ')}`)
+    logger.error(`❌ Invalid store IDs found and skipped: ${invalidIds.join(', ')}`)
   }
 
   if (validIds.length === 0 && rawIds.length > 0) {
@@ -39,10 +40,10 @@ export function parseStoreIds(storeIdsEnv?: string): string[] {
 
   const uniqueIds = Array.from(new Set(validIds))
   if (uniqueIds.length !== validIds.length) {
-    console.warn('⚠️ Duplicate store IDs found and removed')
+    logger.warn('⚠️ Duplicate store IDs found and removed')
   }
 
-  console.log(`✅ Parsed ${uniqueIds.length} valid store IDs: ${uniqueIds.join(', ')}`)
+  logger.log(`✅ Parsed ${uniqueIds.length} valid store IDs: ${uniqueIds.join(', ')}`)
   return uniqueIds
 }
 
@@ -54,19 +55,19 @@ export function loadStoresConfig(): StoresConfig {
   const maxReconnectAttempts = Number(process.env.STORE_MAX_RECONNECT_ATTEMPTS) || 3
 
   if (connectionTimeout < 1000 || connectionTimeout > 300000) {
-    console.warn(
+    logger.warn(
       `⚠️ STORE_CONNECTION_TIMEOUT ${connectionTimeout}ms is outside recommended range (1s-300s). Using default 30s.`
     )
   }
 
   if (reconnectInterval < 1000 || reconnectInterval > 60000) {
-    console.warn(
+    logger.warn(
       `⚠️ STORE_RECONNECT_INTERVAL ${reconnectInterval}ms is outside recommended range (1s-60s). Using default 5s.`
     )
   }
 
   if (maxReconnectAttempts < 1 || maxReconnectAttempts > 10) {
-    console.warn(
+    logger.warn(
       `⚠️ STORE_MAX_RECONNECT_ATTEMPTS ${maxReconnectAttempts} is outside recommended range (1-10). Using default 3.`
     )
   }
@@ -81,7 +82,7 @@ export function loadStoresConfig(): StoresConfig {
       maxReconnectAttempts >= 1 && maxReconnectAttempts <= 10 ? maxReconnectAttempts : 3,
   }
 
-  console.log('📋 Stores configuration loaded:', {
+  logger.log('📋 Stores configuration loaded:', {
     storeCount: config.storeIds.length,
     connectionTimeout: `${config.connectionTimeout}ms`,
     reconnectInterval: `${config.reconnectInterval}ms`,
