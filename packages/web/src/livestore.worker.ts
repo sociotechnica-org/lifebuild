@@ -2,6 +2,7 @@ import { makeWorker } from '@livestore/adapter-web/worker'
 import { makeWsSync } from '@livestore/sync-cf/client'
 
 import { schema } from '@work-squared/shared/schema'
+import { makeTracer } from './otel.js'
 
 const getSyncUrl = () => {
   // Use environment variable if available
@@ -24,4 +25,5 @@ makeWorker({
     backend: makeWsSync({ url: getSyncUrl() }),
     initialSyncOptions: { _tag: 'Blocking', timeout: 5000 },
   },
+  otelOptions: { tracer: makeTracer('work-squared-worker') },
 })
