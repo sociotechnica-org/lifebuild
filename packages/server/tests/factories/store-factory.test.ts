@@ -13,8 +13,8 @@ vi.mock('@livestore/adapter-node', () => ({
   makeAdapter: vi.fn(),
 }))
 
-vi.mock('@livestore/sync-cf', () => ({
-  makeCfSync: vi.fn(),
+vi.mock('@livestore/sync-cf/client', () => ({
+  makeWsSync: vi.fn(),
 }))
 
 describe('Store Factory', () => {

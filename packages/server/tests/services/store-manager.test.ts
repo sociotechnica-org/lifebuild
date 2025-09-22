@@ -24,7 +24,7 @@ describe('StoreManager', () => {
     mockStore = {
       storeId: 'test-store',
       query: vi.fn(),
-      shutdown: vi.fn().mockResolvedValue(undefined),
+      shutdownPromise: vi.fn().mockResolvedValue(undefined),
       on: vi.fn(),
     }
 
@@ -105,7 +105,7 @@ describe('StoreManager', () => {
       await storeManager.addStore('test-store')
       await storeManager.removeStore('test-store')
 
-      expect(mockStore.shutdown).toHaveBeenCalled()
+      expect(mockStore.shutdownPromise).toHaveBeenCalled()
       expect(storeManager.getStore('test-store')).toBeNull()
     })
 
@@ -114,7 +114,7 @@ describe('StoreManager', () => {
     })
 
     it('should handle shutdown errors gracefully', async () => {
-      mockStore.shutdown.mockRejectedValueOnce(new Error('Shutdown failed'))
+      mockStore.shutdownPromise.mockRejectedValueOnce(new Error('Shutdown failed'))
 
       await storeManager.addStore('test-store')
       await expect(storeManager.removeStore('test-store')).resolves.not.toThrow()
@@ -233,12 +233,12 @@ describe('StoreManager', () => {
 
       await storeManager.shutdown()
 
-      expect(mockStore.shutdown).toHaveBeenCalledTimes(2)
+      expect(mockStore.shutdownPromise).toHaveBeenCalledTimes(2)
       expect(storeManager.getAllStores().size).toBe(0)
     })
 
     it('should handle shutdown errors gracefully', async () => {
-      mockStore.shutdown.mockRejectedValueOnce(new Error('Shutdown failed'))
+      mockStore.shutdownPromise.mockRejectedValueOnce(new Error('Shutdown failed'))
 
       await storeManager.addStore('test-store')
       await expect(storeManager.shutdown()).resolves.not.toThrow()

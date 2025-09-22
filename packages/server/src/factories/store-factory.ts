@@ -1,6 +1,6 @@
 import { createStorePromise, type Store as LiveStore } from '@livestore/livestore'
 import { makeAdapter } from '@livestore/adapter-node'
-import { makeCfSync } from '@livestore/sync-cf'
+import { makeWsSync } from '@livestore/sync-cf/client'
 import { schema } from '@work-squared/shared/schema'
 import path from 'path'
 import { logger } from '../utils/logger.js'
@@ -132,7 +132,7 @@ export async function createStore(
     },
     sync: config.syncUrl
       ? {
-          backend: makeCfSync({ url: config.syncUrl }),
+          backend: makeWsSync({ url: config.syncUrl }),
           onSyncError: 'shutdown', // Revert to original behavior
         }
       : undefined,
