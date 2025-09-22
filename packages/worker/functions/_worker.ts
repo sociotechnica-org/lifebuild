@@ -147,8 +147,8 @@ function createWorkerWithAuth(env: any) {
 }
 
 // Custom worker that handles both WebSocket sync and HTTP API endpoints
-export default {
-  async fetch(request: Request, env: any): Promise<Response> {
+const workerHandler = {
+  async fetch(request: any, env: any, ctx: any): Promise<any> {
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
       return new Response(null, {
@@ -163,7 +163,7 @@ export default {
     // Handle WebSocket upgrade requests - create worker with auth
     if (request.headers.get('upgrade') === 'websocket') {
       const worker = createWorkerWithAuth(env)
-      return worker.fetch(request, env, {})
+      return worker.fetch(request, env, ctx)
     }
 
     // For all other requests, use the ASSETS binding to serve static files
@@ -171,3 +171,5 @@ export default {
     return env.ASSETS.fetch(request)
   },
 }
+
+export default workerHandler
