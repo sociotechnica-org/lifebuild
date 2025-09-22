@@ -1,0 +1,24 @@
+{
+  "name": "debug-sync",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@livestore/adapter-web": "0.4.0-dev.7",
+    "@livestore/livestore": "0.4.0-dev.7",
+    "@livestore/react": "0.4.0-dev.7",
+    "@livestore/sync-cf": "0.4.0-dev.7",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "~5.6.0",
+    "vite": "^7.1.6"
+  }
+}
