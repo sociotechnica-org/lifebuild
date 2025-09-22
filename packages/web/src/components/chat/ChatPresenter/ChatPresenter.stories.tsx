@@ -3,9 +3,9 @@ import React from 'react'
 import { ChatPresenter, type ChatPresenterProps } from './ChatPresenter.js'
 import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
 
-const meta: Meta<typeof ChatPresenter> = {
+const meta: Meta<ChatPresenterProps> = {
   title: 'Components/Chat/ChatPresenter',
-  component: ChatPresenter,
+  component: ChatPresenter as any,
   parameters: {
     layout: 'fullscreen',
     docs: {

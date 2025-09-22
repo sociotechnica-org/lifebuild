@@ -1,6 +1,6 @@
 import React from 'react'
 
-interface DeleteUserModalProps {
+export interface DeleteUserModalProps {
   isOpen: boolean
   userEmail: string
   onConfirm: () => void

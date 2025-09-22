@@ -9,8 +9,16 @@ import {
 } from '@work-squared/shared/auth'
 
 export class WebSocketServer extends makeDurableObject({
-  onPush: async function (message, context) {
-    console.log('Sync server: relaying', message.batch.length, 'events')
+  onPush: async (message, context) => {
+    console.log(
+      'onPush',
+      message.batch.length,
+      'events',
+      'storeId:',
+      context.storeId,
+      'payload:',
+      context.payload
+    )
   },
   onPull: async function (message, context) {
     console.log('onPull', message)

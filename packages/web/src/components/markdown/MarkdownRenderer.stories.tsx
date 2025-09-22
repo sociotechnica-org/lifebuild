@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { MarkdownRenderer } from './MarkdownRenderer.js'
+import { MarkdownRenderer, type MarkdownRendererProps } from './MarkdownRenderer.js'
 
-const meta: Meta<typeof MarkdownRenderer> = {
+const meta: Meta<MarkdownRendererProps> = {
   title: 'Components/MarkdownRenderer',
-  component: MarkdownRenderer,
+  component: MarkdownRenderer as any,
   parameters: {
     layout: 'centered',
     docs: {

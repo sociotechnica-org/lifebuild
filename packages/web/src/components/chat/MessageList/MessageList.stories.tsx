@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
-import { MessageList } from './MessageList.js'
+import { MessageList, type MessageListProps } from './MessageList.js'
 import type { ChatMessage, Worker } from '@work-squared/shared/schema'
 
-const meta: Meta<typeof MessageList> = {
+const meta: Meta<MessageListProps> = {
   title: 'Components/Chat/MessageList',
-  component: MessageList,
+  component: MessageList as any,
   parameters: {
     layout: 'centered',
     docs: {

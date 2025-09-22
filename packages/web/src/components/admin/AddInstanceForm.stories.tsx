@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { AddInstanceForm } from './AddInstanceForm.js'
+import { AddInstanceForm, type AddInstanceFormProps } from './AddInstanceForm.js'
 
-const meta: Meta<typeof AddInstanceForm> = {
+const meta: Meta<AddInstanceFormProps> = {
   title: 'Components/Admin/AddInstanceForm',
-  component: AddInstanceForm,
+  component: AddInstanceForm as any,
   parameters: {
     layout: 'centered',
     docs: {
@@ -30,6 +30,7 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
+    onAddInstance: () => {},
     disabled: false,
   },
   parameters: {
@@ -43,6 +44,7 @@ export const Default: Story = {
 
 export const Disabled: Story = {
   args: {
+    onAddInstance: () => {},
     disabled: true,
   },
   parameters: {
@@ -56,6 +58,7 @@ export const Disabled: Story = {
 
 export const InteractiveDemo: Story = {
   args: {
+    onAddInstance: () => {},
     disabled: false,
   },
   parameters: {

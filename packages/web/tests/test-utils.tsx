@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom'
-import React, { ReactElement } from 'react'
+import React, { ReactNode } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
 import type { Task, Column, Project, Contact } from '@work-squared/shared/schema'
 
@@ -13,8 +13,8 @@ function TestProvider({ children }: TestProviderProps) {
   return <div data-testid='test-wrapper'>{children}</div>
 }
 
-const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) => {
-  return render(ui, {
+const customRender = (ui: ReactNode, options?: Omit<RenderOptions, 'wrapper'>) => {
+  return render(ui as any, {
     wrapper: ({ children }) => <TestProvider>{children}</TestProvider>,
     ...options,
   })

@@ -80,7 +80,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       storeId={storeId}
       syncPayload={staticSyncPayload}
     >
-      {children}
+      {children as any}
     </LiveStoreProvider>
   )
 }

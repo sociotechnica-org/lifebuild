@@ -1,10 +1,10 @@
 import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
-import { UserListItem } from './UserListItem.js'
+import { UserListItem, type UserListItemProps } from './UserListItem.js'
 
-const meta: Meta<typeof UserListItem> = {
+const meta: Meta<UserListItemProps> = {
   title: 'Components/Admin/UserListItem',
-  component: UserListItem,
+  component: UserListItem as any,
   decorators: [
     Story => (
       <ul className='divide-y divide-gray-200 bg-white shadow sm:rounded-md'>

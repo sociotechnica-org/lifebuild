@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { AdminToggle } from './AdminToggle.js'
+import { AdminToggle, type AdminToggleProps } from './AdminToggle.js'
 
-const meta: Meta<typeof AdminToggle> = {
+const meta: Meta<AdminToggleProps> = {
   title: 'Components/Admin/AdminToggle',
-  component: AdminToggle,
+  component: AdminToggle as any,
   parameters: {
     layout: 'centered',
     docs: {
@@ -36,6 +36,7 @@ type Story = StoryObj<typeof meta>
 export const AdminUser: Story = {
   args: {
     isAdmin: true,
+    onToggle: () => {},
     disabled: false,
   },
   parameters: {
@@ -50,6 +51,7 @@ export const AdminUser: Story = {
 export const RegularUser: Story = {
   args: {
     isAdmin: false,
+    onToggle: () => {},
     disabled: false,
   },
   parameters: {
@@ -64,6 +66,7 @@ export const RegularUser: Story = {
 export const DisabledAdmin: Story = {
   args: {
     isAdmin: true,
+    onToggle: () => {},
     disabled: true,
   },
   parameters: {
@@ -78,6 +81,7 @@ export const DisabledAdmin: Story = {
 export const DisabledRegular: Story = {
   args: {
     isAdmin: false,
+    onToggle: () => {},
     disabled: true,
   },
   parameters: {
@@ -92,6 +96,7 @@ export const DisabledRegular: Story = {
 export const InteractiveDemo: Story = {
   args: {
     isAdmin: false,
+    onToggle: () => {},
     disabled: false,
   },
   parameters: {

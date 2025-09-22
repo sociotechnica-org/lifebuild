@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { DeleteUserModal } from './DeleteUserModal.js'
+import { DeleteUserModal, type DeleteUserModalProps } from './DeleteUserModal.js'
 
-const meta: Meta<typeof DeleteUserModal> = {
+const meta: Meta<DeleteUserModalProps> = {
   title: 'Components/Admin/DeleteUserModal',
-  component: DeleteUserModal,
+  component: DeleteUserModal as any,
   parameters: {
     layout: 'centered',
     docs: {

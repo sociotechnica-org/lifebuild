@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { InstanceCard } from './InstanceCard.js'
+import { InstanceCard, type InstanceCardProps } from './InstanceCard.js'
 
-const meta: Meta<typeof InstanceCard> = {
+const meta: Meta<InstanceCardProps> = {
   title: 'Components/Admin/InstanceCard',
-  component: InstanceCard,
+  component: InstanceCard as any,
   parameters: {
     layout: 'centered',
     docs: {

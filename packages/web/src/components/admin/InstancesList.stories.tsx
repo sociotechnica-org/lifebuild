@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { InstancesList } from './InstancesList.js'
+import { InstancesList, type InstancesListProps } from './InstancesList.js'
 
-const meta: Meta<typeof InstancesList> = {
+const meta: Meta<InstancesListProps> = {
   title: 'Components/Admin/InstancesList',
-  component: InstancesList,
+  component: InstancesList as any,
   parameters: {
     layout: 'centered',
     docs: {

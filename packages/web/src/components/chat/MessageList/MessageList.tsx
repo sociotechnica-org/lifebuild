@@ -2,7 +2,7 @@ import React from 'react'
 import type { ChatMessage, Worker } from '@work-squared/shared/schema'
 import { MarkdownRenderer } from '../../markdown/MarkdownRenderer.js'
 
-interface MessageListProps {
+export interface MessageListProps {
   messages: readonly ChatMessage[]
   isProcessing: boolean
   conversationTitle?: string
