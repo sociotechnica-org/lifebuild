@@ -1,12 +1,12 @@
 import { makePersistedAdapter } from '@livestore/adapter-web'
 import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedworker'
 import { LiveStoreProvider } from '@livestore/react'
+import LiveStoreWorker from './livestore.worker.ts?worker'
 import React, { useMemo } from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
 import { AuthProvider, useAuth } from './contexts/AuthContext.js'
-import { useSyncPayload } from './hooks/useSyncPayload.js'
 import { useChorusNavigation } from './hooks/useChorusNavigation.js'
 
 import { ProjectsPage } from './components/projects/ProjectsPage.js'
@@ -35,10 +35,7 @@ import { ROUTES } from './constants/routes.js'
 
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
-  worker: () =>
-    new Worker(new URL('../../worker/src/livestore.worker.ts', import.meta.url), {
-      type: 'module',
-    }),
+  worker: LiveStoreWorker,
   sharedWorker: LiveStoreSharedWorker,
 })
 
@@ -68,11 +65,11 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
     return storedId
   }, []) // Empty deps - calculated once on mount, stable during navigation
 
-  // Get dynamic sync payload with auth token
-  const { syncPayload } = useSyncPayload({ instanceId: storeId })
+  // Temporarily use static sync payload to test WebSocket connection
+  const staticSyncPayload = { authToken: 'insecure-token-change-me' }
 
   console.log(`Using stable storeId: ${storeId}`)
-  // Debug: console.log('Sync payload being passed to LiveStore:', syncPayload)
+  console.log('Using static sync payload for testing:', staticSyncPayload)
 
   return (
     <LiveStoreProvider
@@ -81,7 +78,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       adapter={adapter}
       batchUpdates={batchUpdates}
       storeId={storeId}
-      syncPayload={syncPayload}
+      syncPayload={staticSyncPayload}
     >
       {children}
     </LiveStoreProvider>

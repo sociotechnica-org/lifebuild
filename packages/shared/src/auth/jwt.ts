@@ -74,7 +74,7 @@ export async function verifyJWT(token: string, secret: string): Promise<JWTPaylo
     const encoder = new TextEncoder()
     const signature = base64UrlDecode(signatureEncoded)
 
-    const isValid = await crypto.subtle.verify('HMAC', key, signature, encoder.encode(message))
+    const isValid = await crypto.subtle.verify('HMAC', key, signature as unknown as ArrayBuffer, encoder.encode(message))
     if (!isValid) {
       return null
     }
