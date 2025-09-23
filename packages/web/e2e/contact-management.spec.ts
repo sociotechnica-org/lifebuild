@@ -1,10 +1,20 @@
 import { test, expect } from '@playwright/test'
 import { waitForLiveStoreReady, navigateToAppWithUniqueStore } from './test-utils'
 
+async function openContactsSection(page, storeId: string) {
+  const contactsNav = page.locator('nav a:has-text("Contacts")')
+  if ((await contactsNav.count()) > 0) {
+    await contactsNav.first().click()
+  } else {
+    await page.goto(`/contacts?storeId=${storeId}`)
+  }
+  await waitForLiveStoreReady(page)
+}
+
 test.describe('Contact Management', () => {
   test('creates a contact and navigates to detail view', async ({ page }) => {
     // Navigate to app with unique store ID for test isolation
-    await navigateToAppWithUniqueStore(page)
+    const storeId = await navigateToAppWithUniqueStore(page)
 
     // Check if we're stuck on loading screen (expected in CI)
     const isLoading = await page.locator('text=Loading LiveStore').isVisible()
@@ -14,8 +24,7 @@ test.describe('Contact Management', () => {
     }
 
     // Navigate to contacts page
-    await page.click('nav a:has-text("Contacts")')
-    await waitForLiveStoreReady(page)
+    await openContactsSection(page, storeId)
 
     // Wait for the contacts page to load
     await expect(page.locator('h1:has-text("Contacts")')).toBeVisible({ timeout: 10000 })
@@ -57,7 +66,7 @@ test.describe('Contact Management', () => {
 
   test('edits a contact from detail view', async ({ page }) => {
     // Navigate to app with unique store ID
-    await navigateToAppWithUniqueStore(page)
+    const storeId = await navigateToAppWithUniqueStore(page)
 
     // Check if we're stuck on loading screen
     const isLoading = await page.locator('text=Loading LiveStore').isVisible()
@@ -67,8 +76,7 @@ test.describe('Contact Management', () => {
     }
 
     // Navigate to contacts and create a test contact
-    await page.click('nav a:has-text("Contacts")')
-    await waitForLiveStoreReady(page)
+    await openContactsSection(page, storeId)
 
     const originalName = `Original Name ${Date.now()}`
     const originalEmail = `original${Date.now()}@example.com`
@@ -105,7 +113,7 @@ test.describe('Contact Management', () => {
 
   test('deletes a contact from detail view', async ({ page }) => {
     // Navigate to app with unique store ID
-    await navigateToAppWithUniqueStore(page)
+    const storeId = await navigateToAppWithUniqueStore(page)
 
     // Check if we're stuck on loading screen
     const isLoading = await page.locator('text=Loading LiveStore').isVisible()
@@ -115,8 +123,7 @@ test.describe('Contact Management', () => {
     }
 
     // Navigate to contacts and create a test contact
-    await page.click('nav a:has-text("Contacts")')
-    await waitForLiveStoreReady(page)
+    await openContactsSection(page, storeId)
 
     const contactName = `Delete Me ${Date.now()}`
     const contactEmail = `deleteme${Date.now()}@example.com`
@@ -150,7 +157,7 @@ test.describe('Contact Management', () => {
 
   test('validates email format in edit modal', async ({ page }) => {
     // Navigate to app with unique store ID
-    await navigateToAppWithUniqueStore(page)
+    const storeId = await navigateToAppWithUniqueStore(page)
 
     // Check if we're stuck on loading screen
     const isLoading = await page.locator('text=Loading LiveStore').isVisible()
@@ -160,8 +167,7 @@ test.describe('Contact Management', () => {
     }
 
     // Navigate to contacts and create a test contact
-    await page.click('nav a:has-text("Contacts")')
-    await waitForLiveStoreReady(page)
+    await openContactsSection(page, storeId)
 
     const contactName = `Validation Test ${Date.now()}`
     const contactEmail = `valid${Date.now()}@example.com`
@@ -192,7 +198,7 @@ test.describe('Contact Management', () => {
 
   test('cancels edit operation', async ({ page }) => {
     // Navigate to app with unique store ID
-    await navigateToAppWithUniqueStore(page)
+    const storeId = await navigateToAppWithUniqueStore(page)
 
     // Check if we're stuck on loading screen
     const isLoading = await page.locator('text=Loading LiveStore').isVisible()
@@ -202,8 +208,7 @@ test.describe('Contact Management', () => {
     }
 
     // Navigate to contacts and create a test contact
-    await page.click('nav a:has-text("Contacts")')
-    await waitForLiveStoreReady(page)
+    await openContactsSection(page, storeId)
 
     const contactName = `Cancel Test ${Date.now()}`
     const contactEmail = `cancel${Date.now()}@example.com`
@@ -232,7 +237,7 @@ test.describe('Contact Management', () => {
 
   test('prevents duplicate email creation from contacts list', async ({ page }) => {
     // Navigate to app with unique store ID
-    await navigateToAppWithUniqueStore(page)
+    const storeId = await navigateToAppWithUniqueStore(page)
 
     // Check if we're stuck on loading screen
     const isLoading = await page.locator('text=Loading LiveStore').isVisible()
@@ -242,8 +247,7 @@ test.describe('Contact Management', () => {
     }
 
     // Navigate to contacts
-    await page.click('nav a:has-text("Contacts")')
-    await waitForLiveStoreReady(page)
+    await openContactsSection(page, storeId)
 
     const uniqueEmail = `duplicate${Date.now()}@example.com`
 
