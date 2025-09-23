@@ -9,7 +9,7 @@ marked.setOptions({
   gfm: true,
 })
 
-export interface MarkdownRendererProps {
+interface MarkdownRendererProps {
   content: string
   className?: string
   onFileNavigate?: (filePath: string, options?: { documentId?: string; projectId?: string }) => void

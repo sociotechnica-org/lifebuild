@@ -9,7 +9,7 @@ export interface AdminUser {
   isAdmin?: boolean
 }
 
-export interface UserListProps {
+interface UserListProps {
   users: AdminUser[]
 }
 

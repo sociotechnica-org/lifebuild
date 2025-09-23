@@ -1,7 +1,7 @@
 import React from 'react'
 import { InstanceCard, Instance } from './InstanceCard.js'
 
-export interface InstancesListProps {
+interface InstancesListProps {
   instances: Instance[]
   onRemoveInstance?: (instanceId: string) => void
   removing?: boolean

@@ -1,6 +1,6 @@
 import React from 'react'
 
-export interface AdminToggleProps {
+interface AdminToggleProps {
   isAdmin: boolean
   onToggle: (isAdmin: boolean) => void
   disabled?: boolean

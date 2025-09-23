@@ -11,7 +11,7 @@ export interface AdminUser {
   isAdmin?: boolean
 }
 
-export interface UserListItemProps {
+interface UserListItemProps {
   user: AdminUser
 }
 

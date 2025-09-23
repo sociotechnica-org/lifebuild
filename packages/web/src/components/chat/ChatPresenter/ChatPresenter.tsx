@@ -5,7 +5,7 @@ import { ChatTypeModal } from '../ChatTypeModal/ChatTypeModal.js'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
 import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
 
-export interface ChatPresenterProps {
+interface ChatPresenterProps {
   // Data
   conversations: readonly Conversation[]
   availableWorkers: readonly Worker[]
