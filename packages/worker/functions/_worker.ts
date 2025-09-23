@@ -1,4 +1,6 @@
-import { makeDurableObject, makeWorker } from '@livestore/sync-cf/cf-worker'
+import * as SyncBackend from '@livestore/sync-cf/cf-worker'
+
+import type { CfTypes, Env } from '@livestore/sync-cf/cf-worker'
 import {
   verifyJWT,
   isWithinGracePeriod,
@@ -8,7 +10,7 @@ import {
   AuthErrorCode,
 } from '@work-squared/shared/auth'
 
-export class WebSocketServer extends makeDurableObject({
+export class SyncBackendDO extends SyncBackend.makeDurableObject({
   onPush: async (message, context) => {
     console.log(
       'onPush',
@@ -21,7 +23,7 @@ export class WebSocketServer extends makeDurableObject({
     )
   },
   onPull: async function (message, context) {
-    console.log('onPull', message)
+    console.log('onPull', message, 'storeId:', context.storeId, 'payload:', context.payload)
   },
 }) {}
 
@@ -104,7 +106,7 @@ function createWorkerWithAuth(env: any) {
   // If auth is disabled, use simple token validation like main branch for compatibility
   if (!requireAuth) {
     console.log('Auth disabled - accepting both dev tokens and JWT tokens for development')
-    return makeWorker({
+    return SyncBackend.makeWorker({
       validatePayload: async (payload: any) => {
         // Accept the insecure dev token
         if (payload?.authToken === DEV_AUTH.INSECURE_TOKEN) {
@@ -126,7 +128,7 @@ function createWorkerWithAuth(env: any) {
   }
 
   // Auth is enabled - use full JWT validation
-  return makeWorker({
+  return SyncBackend.makeWorker({
     validatePayload: async (payload: any) => {
       console.log('Validating sync payload:', Object.keys(payload || {}))
 
@@ -147,8 +149,8 @@ function createWorkerWithAuth(env: any) {
 }
 
 // Custom worker that handles both WebSocket sync and HTTP API endpoints
-const workerHandler = {
-  async fetch(request: any, env: any, ctx: any): Promise<any> {
+export default {
+  fetch: async (request, env, ctx) => {
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
       return new Response(null, {
@@ -160,16 +162,34 @@ const workerHandler = {
       })
     }
 
+    const requestParamsResult = SyncBackend.getSyncRequestSearchParams(request)
+
+    console.log('requestParamsResult', requestParamsResult)
+
+    if (requestParamsResult._tag === 'Some') {
+      return SyncBackend.handleSyncRequest({
+        request,
+        searchParams: requestParamsResult.value,
+        env: env as any,
+        ctx,
+        options: {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          },
+          durableObject: { name: 'WEBSOCKET_SERVER' },
+        },
+      })
+    }
+
     // Handle WebSocket upgrade requests - create worker with auth
     if (request.headers.get('upgrade') === 'websocket') {
       const worker = createWorkerWithAuth(env)
       return worker.fetch(request, env, ctx)
     }
 
-    // For all other requests, use the ASSETS binding to serve static files
-    // This handles both static assets and SPA routing
-    return env.ASSETS.fetch(request)
+    // @ts-expect-error TODO remove casts once CF types are fixed in `@cloudflare/workers-types`
+    return new Response('Not found', { status: 404 }) as CfTypes.Response
   },
-}
-
-export default workerHandler
+} satisfies CfTypes.ExportedHandler<Env>

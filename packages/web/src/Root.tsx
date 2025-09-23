@@ -65,12 +65,6 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
     return storedId
   }, []) // Empty deps - calculated once on mount, stable during navigation
 
-  // Temporarily use static sync payload to test WebSocket connection
-  const staticSyncPayload = { authToken: 'insecure-token-change-me' }
-
-  console.log(`Using stable storeId: ${storeId}`)
-  console.log('Using static sync payload for testing:', staticSyncPayload)
-
   return (
     <LiveStoreProvider
       schema={schema}
@@ -78,7 +72,6 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       adapter={adapter}
       batchUpdates={batchUpdates}
       storeId={storeId}
-      syncPayload={staticSyncPayload}
     >
       {children as any}
     </LiveStoreProvider>
