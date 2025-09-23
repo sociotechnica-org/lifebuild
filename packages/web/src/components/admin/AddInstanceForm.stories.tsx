@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { AddInstanceForm, type AddInstanceFormProps } from './AddInstanceForm.js'
+import { AddInstanceForm } from './AddInstanceForm.js'
 
-const meta: Meta<AddInstanceFormProps> = {
+const meta = {
   title: 'Components/Admin/AddInstanceForm',
-  component: AddInstanceForm as any,
+  component: AddInstanceForm,
   parameters: {
     layout: 'centered',
     docs: {
@@ -23,7 +23,7 @@ const meta: Meta<AddInstanceFormProps> = {
       description: 'Whether the form is disabled (e.g., during submission)',
     },
   },
-}
+} satisfies Meta<typeof AddInstanceForm>
 
 export default meta
 type Story = StoryObj<typeof meta>

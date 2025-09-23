@@ -18,17 +18,19 @@ async function runMemoryManagementTests() {
 
   // Create many conversations with messages
   for (let i = 0; i < 1000; i++) {
-    manager.enqueue(`conversation-${i}`, { 
-      id: `msg-${i}`, 
+    manager.enqueue(`conversation-${i}`, {
+      id: `msg-${i}`,
       content: `Test message ${i}`,
     })
   }
 
   console.log(`   ✅ Created 1000 queues in ${Date.now() - startTime}ms`)
   const stats = manager.getStats()
-  console.log(`   📊 Queue stats: ${stats.totalConversations} conversations, ${stats.totalMessages} messages`)
+  console.log(
+    `   📊 Queue stats: ${stats.totalConversations} conversations, ${stats.totalMessages} messages`
+  )
 
-  // Test 2: Queue Overflow Handling  
+  // Test 2: Queue Overflow Handling
   console.log('\n📝 Test 2: Queue Overflow Handling')
   console.log('   Filling conversation queue to max capacity (100 messages)...')
 
@@ -39,7 +41,7 @@ async function runMemoryManagementTests() {
       manager.enqueue(testConversation, { id: `overflow-${i}`, content: `Message ${i}` })
     }
     console.log(`   ✅ Successfully enqueued 100 messages`)
-    
+
     // Try to overflow
     manager.enqueue(testConversation, { id: 'overflow-101', content: 'This should fail' })
     console.log('   ❌ ERROR: Should have thrown overflow error!')
@@ -74,7 +76,7 @@ async function runMemoryManagementTests() {
   console.log(`   ✅ All 50 tasks completed`)
 
   // Verify sequential execution (results should be in order)
-  const expectedResults = Array.from({length: 50}, (_, i) => `result-${i}`)
+  const expectedResults = Array.from({ length: 50 }, (_, i) => `result-${i}`)
   const resultsMatch = JSON.stringify(results) === JSON.stringify(expectedResults)
   console.log(`   ${resultsMatch ? '✅' : '❌'} Results in correct order: ${resultsMatch}`)
 
@@ -83,24 +85,30 @@ async function runMemoryManagementTests() {
   console.log('   Testing queue management and basic operations...')
 
   const testQueue = 'basic-ops-test'
-  
+
   // Test basic operations
   const hasMessagesBefore = manager.hasMessages(testQueue)
   console.log(`   ${!hasMessagesBefore ? '✅' : '❌'} Queue initially empty: ${!hasMessagesBefore}`)
-  
+
   manager.enqueue(testQueue, { id: 'test1', content: 'Test message 1' })
   manager.enqueue(testQueue, { id: 'test2', content: 'Test message 2' })
-  
+
   const hasMessagesAfter = manager.hasMessages(testQueue)
   const queueLength = manager.getQueueLength(testQueue)
-  console.log(`   ${hasMessagesAfter ? '✅' : '❌'} Queue has messages after enqueue: ${hasMessagesAfter}`)
-  console.log(`   ${queueLength === 2 ? '✅' : '❌'} Correct queue length: ${queueLength} (expected 2)`)
-  
+  console.log(
+    `   ${hasMessagesAfter ? '✅' : '❌'} Queue has messages after enqueue: ${hasMessagesAfter}`
+  )
+  console.log(
+    `   ${queueLength === 2 ? '✅' : '❌'} Correct queue length: ${queueLength} (expected 2)`
+  )
+
   // Test dequeue
   const dequeued = manager.dequeue(testQueue)
   const lengthAfterDequeue = manager.getQueueLength(testQueue)
   console.log(`   ${dequeued ? '✅' : '❌'} Successfully dequeued message: ${dequeued?.id}`)
-  console.log(`   ${lengthAfterDequeue === 1 ? '✅' : '❌'} Correct length after dequeue: ${lengthAfterDequeue}`)
+  console.log(
+    `   ${lengthAfterDequeue === 1 ? '✅' : '❌'} Correct length after dequeue: ${lengthAfterDequeue}`
+  )
 
   // Cleanup
   manager.destroy()
@@ -108,7 +116,7 @@ async function runMemoryManagementTests() {
 
   console.log('\n🎉 Memory Management Infrastructure integration tests completed!')
   console.log('   ✅ Memory leak prevention verified')
-  console.log('   ✅ Queue overflow protection verified') 
+  console.log('   ✅ Queue overflow protection verified')
   console.log('   ✅ Race condition prevention verified')
   console.log('   ✅ Basic queue operations verified')
   console.log('\n   All core functionality working beyond unit tests! 🚀')

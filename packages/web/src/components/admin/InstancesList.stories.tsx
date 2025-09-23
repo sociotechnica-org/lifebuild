@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { InstancesList, type InstancesListProps } from './InstancesList.js'
+import { InstancesList } from './InstancesList.js'
 
-const meta: Meta<InstancesListProps> = {
+const meta = {
   title: 'Components/Admin/InstancesList',
-  component: InstancesList as any,
+  component: InstancesList,
   parameters: {
     layout: 'centered',
     docs: {
@@ -28,7 +28,7 @@ const meta: Meta<InstancesListProps> = {
       description: 'Whether a remove operation is in progress',
     },
   },
-}
+} satisfies Meta<typeof InstancesList>
 
 export default meta
 type Story = StoryObj<typeof meta>

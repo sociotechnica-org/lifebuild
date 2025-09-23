@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { AdminToggle, type AdminToggleProps } from './AdminToggle.js'
+import { AdminToggle } from './AdminToggle.js'
 
-const meta: Meta<AdminToggleProps> = {
+const meta = {
   title: 'Components/Admin/AdminToggle',
-  component: AdminToggle as any,
+  component: AdminToggle,
   parameters: {
     layout: 'centered',
     docs: {
@@ -28,7 +28,7 @@ const meta: Meta<AdminToggleProps> = {
       description: 'Whether the toggle is disabled (e.g., during update)',
     },
   },
-}
+} satisfies Meta<typeof AdminToggle>
 
 export default meta
 type Story = StoryObj<typeof meta>

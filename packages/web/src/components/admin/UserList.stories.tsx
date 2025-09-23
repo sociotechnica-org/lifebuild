@@ -1,10 +1,10 @@
 import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
-import { UserList, type UserListProps } from './UserList.js'
+import { UserList } from './UserList.js'
 
-const meta: Meta<UserListProps> = {
+const meta = {
   title: 'Components/Admin/UserList',
-  component: UserList as any,
+  component: UserList,
   decorators: [
     Story => (
       <div className='p-6 bg-gray-50 min-h-screen'>
@@ -23,7 +23,7 @@ const meta: Meta<UserListProps> = {
     },
   },
   tags: ['autodocs'],
-}
+} satisfies Meta<typeof UserList>
 
 export default meta
 type Story = StoryObj<typeof meta>

@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { InstanceCard, type InstanceCardProps } from './InstanceCard.js'
+import { InstanceCard } from './InstanceCard.js'
 
-const meta: Meta<InstanceCardProps> = {
+const meta = {
   title: 'Components/Admin/InstanceCard',
-  component: InstanceCard as any,
+  component: InstanceCard,
   parameters: {
     layout: 'centered',
     docs: {
@@ -28,7 +28,7 @@ const meta: Meta<InstanceCardProps> = {
       description: 'Whether a remove operation is in progress',
     },
   },
-}
+} satisfies Meta<typeof InstanceCard>
 
 export default meta
 type Story = StoryObj<typeof meta>

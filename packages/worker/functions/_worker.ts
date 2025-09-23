@@ -149,47 +149,48 @@ function createWorkerWithAuth(env: any) {
 }
 
 // Custom worker that handles both WebSocket sync and HTTP API endpoints
-export default {
-  fetch: async (request, env, ctx) => {
-    // Handle CORS preflight
-    if (request.method === 'OPTIONS') {
-      return new Response(null, {
+const fetchHandler = async (
+  request: CfTypes.Request,
+  env: Env,
+  ctx: CfTypes.ExecutionContext
+): Promise<Response> => {
+  // Handle CORS preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      },
+    })
+  }
+
+  const requestParamsResult = SyncBackend.getSyncRequestSearchParams(request)
+
+  if (requestParamsResult._tag === 'Some') {
+    return (await SyncBackend.handleSyncRequest({
+      request,
+      searchParams: requestParamsResult.value,
+      env: env as any,
+      ctx,
+      options: {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         },
-      })
-    }
+        durableObject: { name: 'WEBSOCKET_SERVER' },
+      },
+    })) as unknown as Response
+  }
 
-    const requestParamsResult = SyncBackend.getSyncRequestSearchParams(request)
+  // Handle WebSocket upgrade requests - create worker with auth
+  if (request.headers.get('upgrade') === 'websocket') {
+    const worker = createWorkerWithAuth(env)
+    return (await worker.fetch(request, env, ctx)) as unknown as Response
+  }
 
-    console.log('requestParamsResult', requestParamsResult)
+  return new Response('Not found', { status: 404 })
+}
 
-    if (requestParamsResult._tag === 'Some') {
-      return SyncBackend.handleSyncRequest({
-        request,
-        searchParams: requestParamsResult.value,
-        env: env as any,
-        ctx,
-        options: {
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          },
-          durableObject: { name: 'WEBSOCKET_SERVER' },
-        },
-      })
-    }
-
-    // Handle WebSocket upgrade requests - create worker with auth
-    if (request.headers.get('upgrade') === 'websocket') {
-      const worker = createWorkerWithAuth(env)
-      return worker.fetch(request, env, ctx)
-    }
-
-    // @ts-expect-error TODO remove casts once CF types are fixed in `@cloudflare/workers-types`
-    return new Response('Not found', { status: 404 }) as CfTypes.Response
-  },
-} satisfies CfTypes.ExportedHandler<Env>
+export default { fetch: fetchHandler }

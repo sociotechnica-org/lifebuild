@@ -9,7 +9,7 @@ import { AsyncQueueProcessor } from '../src/services/async-queue-processor.js'
 // Create a "broken" version without memory management safeguards
 class BrokenMessageQueueManager {
   private queues: Map<string, Array<{ id: string; content: string; timestamp: number }>> = new Map()
-  
+
   // No size limits!
   enqueue(conversationId: string, message: { id: string; content: string }): void {
     if (!this.queues.has(conversationId)) {
@@ -23,7 +23,7 @@ class BrokenMessageQueueManager {
   dequeue(conversationId: string): { id: string; content: string } | null {
     const queue = this.queues.get(conversationId)
     if (!queue || queue.length === 0) return null
-    return queue.shift()! 
+    return queue.shift()!
   }
 
   hasMessages(conversationId: string): boolean {
@@ -41,7 +41,10 @@ class BrokenMessageQueueManager {
   }
 
   getStats(): { totalConversations: number; totalMessages: number } {
-    const totalMessages = Array.from(this.queues.values()).reduce((sum, queue) => sum + queue.length, 0)
+    const totalMessages = Array.from(this.queues.values()).reduce(
+      (sum, queue) => sum + queue.length,
+      0
+    )
     return { totalConversations: this.queues.size, totalMessages }
   }
 }
@@ -105,7 +108,7 @@ for (let i = 0; i < 10; i++) {
 
 await Promise.all(brokenPromises)
 
-const brokenExpected = Array.from({length: 10}, (_, i) => `result-${i}`)
+const brokenExpected = Array.from({ length: 10 }, (_, i) => `result-${i}`)
 const brokenInOrder = JSON.stringify(brokenResults) === JSON.stringify(brokenExpected)
 console.log(`   ${brokenInOrder ? '✅' : '❌'} BROKEN VERSION: Results in order: ${brokenInOrder}`)
 console.log(`   Expected: [result-0, result-1, result-2, ...]`)
@@ -127,7 +130,7 @@ try {
     realManager.enqueue('overflow-test', { id: `msg-${i}`, content: `Message ${i}` })
   }
   console.log('   ✅ REAL VERSION: Successfully enqueued 100 messages')
-  
+
   // Try to exceed limit
   realManager.enqueue('overflow-test', { id: 'overflow', content: 'This should fail' })
   console.log('   ❌ REAL VERSION: Should have thrown overflow error!')
@@ -163,7 +166,7 @@ for (let i = 0; i < 10; i++) {
 
 await Promise.all(realPromises)
 
-const realExpected = Array.from({length: 10}, (_, i) => `result-${i}`)
+const realExpected = Array.from({ length: 10 }, (_, i) => `result-${i}`)
 const realInOrder = JSON.stringify(realResults) === JSON.stringify(realExpected)
 console.log(`   ${realInOrder ? '✅' : '❌'} REAL VERSION: Results in order: ${realInOrder}`)
 console.log(`   Expected: [result-0, result-1, result-2, ...]`)
@@ -179,19 +182,30 @@ console.log('\n' + '='.repeat(60))
 console.log('🔄 REFACTOR: Summary of Red-Green-Refactor Results\n')
 
 console.log(`🔴 RED (Broken Version):`)
-console.log(`   - Overflow Protection: ${overflowTestPassed ? 'PASSED' : 'FAILED'} (allowed unlimited messages)`)
-console.log(`   - Sequential Processing: ${brokenInOrder ? 'PASSED' : 'FAILED'} (results out of order)`)
+console.log(
+  `   - Overflow Protection: ${overflowTestPassed ? 'PASSED' : 'FAILED'} (allowed unlimited messages)`
+)
+console.log(
+  `   - Sequential Processing: ${brokenInOrder ? 'PASSED' : 'FAILED'} (results out of order)`
+)
 
 console.log(`\n🟢 GREEN (Real Version):`)
-console.log(`   - Overflow Protection: ${realOverflowTestPassed ? 'PASSED' : 'FAILED'} (properly limited at 100)`)  
-console.log(`   - Sequential Processing: ${realInOrder ? 'PASSED' : 'FAILED'} (results in correct order)`)
+console.log(
+  `   - Overflow Protection: ${realOverflowTestPassed ? 'PASSED' : 'FAILED'} (properly limited at 100)`
+)
+console.log(
+  `   - Sequential Processing: ${realInOrder ? 'PASSED' : 'FAILED'} (results in correct order)`
+)
 
-const redGreenWorking = !overflowTestPassed && !brokenInOrder && realOverflowTestPassed && realInOrder
-console.log(`\n${redGreenWorking ? '🎉' : '❌'} Red-Green-Refactor Demo: ${redGreenWorking ? 'SUCCESS' : 'FAILED'}`)
+const redGreenWorking =
+  !overflowTestPassed && !brokenInOrder && realOverflowTestPassed && realInOrder
+console.log(
+  `\n${redGreenWorking ? '🎉' : '❌'} Red-Green-Refactor Demo: ${redGreenWorking ? 'SUCCESS' : 'FAILED'}`
+)
 
 if (redGreenWorking) {
   console.log('   The memory management safeguards are working as designed!')
-  console.log('   - Broken version fails as expected')  
+  console.log('   - Broken version fails as expected')
   console.log('   - Real version passes with proper protections')
 } else {
   console.log('   Something unexpected happened in the red-green comparison.')

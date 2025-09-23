@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
-import { MessageList, type MessageListProps } from './MessageList.js'
+import { MessageList } from './MessageList.js'
 import type { ChatMessage, Worker } from '@work-squared/shared/schema'
 
-const meta: Meta<MessageListProps> = {
+const meta = {
   title: 'Components/Chat/MessageList',
-  component: MessageList as any,
+  component: MessageList,
   parameters: {
     layout: 'centered',
     docs: {
@@ -22,7 +22,7 @@ const meta: Meta<MessageListProps> = {
       </div>
     ),
   ],
-}
+} satisfies Meta<typeof MessageList>
 
 export default meta
 type Story = StoryObj<typeof meta>
