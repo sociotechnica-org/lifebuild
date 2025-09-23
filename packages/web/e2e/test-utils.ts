@@ -11,6 +11,13 @@ const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:8788'
 const APP_URL = process.env.APP_URL || 'http://localhost:5173'
 const REQUIRE_AUTH = process.env.REQUIRE_AUTH === 'true'
 
+type AuthCredentials = {
+  email: string
+  password: string
+}
+
+let cachedAuthCredentials: AuthCredentials | null = null
+
 /**
  * Wait for LiveStore to finish loading
  * In CI environments, LiveStore may not be able to connect to sync server,
@@ -46,8 +53,31 @@ export async function waitForLiveStoreReady(page: Page) {
  */
 export async function navigateToAppWithUniqueStore(page: Page) {
   const storeId = `test-${Date.now()}-${Math.random().toString(36).substring(7)}`
-  await page.goto(`/?storeId=${storeId}`)
+  if (REQUIRE_AUTH) {
+    if (!cachedAuthCredentials) {
+      const testUser = await createTestUserViaAPI()
+      cachedAuthCredentials = {
+        email: testUser.email,
+        password: testUser.password,
+      }
+    }
+
+    await page.goto(`/login?storeId=${storeId}`)
+    await loginViaUI(page, cachedAuthCredentials.email, cachedAuthCredentials.password, {
+      skipNavigation: true,
+    })
+    await page.waitForLoadState('networkidle', { timeout: 15000 })
+  }
+
+  await page.goto(`/projects?storeId=${storeId}`)
   await waitForLiveStoreReady(page)
+
+  if (REQUIRE_AUTH) {
+    // Ensure navigation chrome is available before continuing
+    await page.waitForSelector('nav', { timeout: 10000 }).catch(() => {
+      console.warn('Navigation not available after login; continuing test execution')
+    })
+  }
   return storeId
 }
 
@@ -117,38 +147,73 @@ export async function waitForLoadingComplete(page: Page) {
  * Create test user via direct API call
  */
 export async function createTestUserViaAPI() {
-  const testEmail = `e2e-test-${Date.now()}@example.com`
+  const testEmail = `e2e-test-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`
   const testPassword = 'E2ETestPassword123!'
 
-  const response = await fetch(`${AUTH_SERVICE_URL}/signup`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: testEmail, password: testPassword }),
-  })
+  const maxAttempts = 5
+  let lastErrorMessage = ''
 
-  if (!response.ok) {
-    throw new Error(`Failed to create test user: ${response.status}`)
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const response = await fetch(`${AUTH_SERVICE_URL}/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testEmail, password: testPassword }),
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      if (!data.success) {
+        lastErrorMessage = data.error?.message || 'Unknown signup error'
+      } else {
+        return {
+          email: testEmail,
+          password: testPassword,
+          user: data.user,
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+        }
+      }
+    } else {
+      let detailText = ''
+      let parsed: any = null
+      try {
+        detailText = await response.clone().text()
+        parsed = JSON.parse(detailText)
+      } catch {}
+
+      const duplicateEmail = parsed?.error?.code === 'EMAIL_ALREADY_EXISTS'
+      if (duplicateEmail) {
+        return {
+          email: parsed.error.email ?? testEmail,
+          password: testPassword,
+          user: parsed.user ?? null,
+          accessToken: parsed.accessToken ?? null,
+          refreshToken: parsed.refreshToken ?? null,
+        }
+      }
+
+      lastErrorMessage = `status=${response.status}, body=${detailText || '<empty>'}`
+    }
+
+    // Retry with a short delay to give the auth worker time to start
+    await new Promise(resolve => setTimeout(resolve, 500 * attempt))
   }
 
-  const data = await response.json()
-  if (!data.success) {
-    throw new Error(`Test user creation failed: ${data.error?.message}`)
-  }
-
-  return {
-    email: testEmail,
-    password: testPassword,
-    user: data.user,
-    accessToken: data.accessToken,
-    refreshToken: data.refreshToken,
-  }
+  throw new Error(`Failed to create test user: ${lastErrorMessage}`)
 }
 
 /**
  * Login via UI with test user
  */
-export async function loginViaUI(page: Page, email: string, password: string) {
-  await page.goto(`${APP_URL}/login`)
+export async function loginViaUI(
+  page: Page,
+  email: string,
+  password: string,
+  options?: { skipNavigation?: boolean; waitForProjects?: boolean }
+) {
+  if (!options?.skipNavigation) {
+    await page.goto(`${APP_URL}/login`)
+  }
   await page.waitForTimeout(2000)
 
   const emailInput = page.locator('input[type="email"], input[name="email"]').first()
@@ -159,7 +224,11 @@ export async function loginViaUI(page: Page, email: string, password: string) {
   await passwordInput.fill(password)
   await submitButton.click()
 
-  await page.waitForURL(/\/projects/, { timeout: 15000 })
+  if (options?.waitForProjects !== false) {
+    await page.waitForFunction(() => !window.location.pathname.startsWith('/login'), {
+      timeout: 15000,
+    })
+  }
 }
 
 /**

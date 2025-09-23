@@ -14,7 +14,7 @@ test.describe('Project Creation and Task Management', () => {
     }
 
     // Should be on root page (which shows projects interface)
-    await expect(page).toHaveURL(/\/\?storeId=[^&]+/)
+    await expect(page).toHaveURL(/\/projects\?storeId=[^&]+/)
 
     // Wait for the projects page to load fully
     await page.waitForSelector('h1', { timeout: 10000 })
@@ -89,7 +89,7 @@ test.describe('Project Creation and Task Management', () => {
     }
 
     // Should be on root page (which shows projects interface)
-    await expect(page).toHaveURL(/\/\?storeId=[^&]+/)
+    await expect(page).toHaveURL(/\/projects\?storeId=[^&]+/)
 
     // Click Create Project button
     const createProjectButton = page.locator('button:has-text("Create Project")')

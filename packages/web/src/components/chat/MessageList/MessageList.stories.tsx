@@ -3,7 +3,7 @@ import React from 'react'
 import { MessageList } from './MessageList.js'
 import type { ChatMessage, Worker } from '@work-squared/shared/schema'
 
-const meta: Meta<typeof MessageList> = {
+const meta = {
   title: 'Components/Chat/MessageList',
   component: MessageList,
   parameters: {
@@ -22,7 +22,7 @@ const meta: Meta<typeof MessageList> = {
       </div>
     ),
   ],
-}
+} satisfies Meta<typeof MessageList>
 
 export default meta
 type Story = StoryObj<typeof meta>

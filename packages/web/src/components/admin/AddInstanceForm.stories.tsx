@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { AddInstanceForm } from './AddInstanceForm.js'
 
-const meta: Meta<typeof AddInstanceForm> = {
+const meta = {
   title: 'Components/Admin/AddInstanceForm',
   component: AddInstanceForm,
   parameters: {
@@ -23,13 +23,14 @@ const meta: Meta<typeof AddInstanceForm> = {
       description: 'Whether the form is disabled (e.g., during submission)',
     },
   },
-}
+} satisfies Meta<typeof AddInstanceForm>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
+    onAddInstance: () => {},
     disabled: false,
   },
   parameters: {
@@ -43,6 +44,7 @@ export const Default: Story = {
 
 export const Disabled: Story = {
   args: {
+    onAddInstance: () => {},
     disabled: true,
   },
   parameters: {
@@ -56,6 +58,7 @@ export const Disabled: Story = {
 
 export const InteractiveDemo: Story = {
   args: {
+    onAddInstance: () => {},
     disabled: false,
   },
   parameters: {

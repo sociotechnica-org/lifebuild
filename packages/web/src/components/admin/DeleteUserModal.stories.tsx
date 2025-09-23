@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { DeleteUserModal } from './DeleteUserModal.js'
 
-const meta: Meta<typeof DeleteUserModal> = {
+const meta = {
   title: 'Components/Admin/DeleteUserModal',
   component: DeleteUserModal,
   parameters: {
@@ -30,16 +30,22 @@ const meta: Meta<typeof DeleteUserModal> = {
     onConfirm: { action: 'confirmed' },
     onCancel: { action: 'cancelled' },
   },
-}
+} satisfies Meta<typeof DeleteUserModal>
 
 export default meta
 type Story = StoryObj<typeof meta>
+
+const defaultActions = {
+  onConfirm: () => {},
+  onCancel: () => {},
+}
 
 export const Default: Story = {
   args: {
     isOpen: true,
     userEmail: 'user@example.com',
     isDeleting: false,
+    ...defaultActions,
   },
 }
 
@@ -48,6 +54,7 @@ export const Deleting: Story = {
     isOpen: true,
     userEmail: 'user@example.com',
     isDeleting: true,
+    ...defaultActions,
   },
   parameters: {
     docs: {
@@ -63,6 +70,7 @@ export const LongEmail: Story = {
     isOpen: true,
     userEmail: 'very-long-email-address-that-might-wrap@company-with-a-very-long-domain-name.com',
     isDeleting: false,
+    ...defaultActions,
   },
   parameters: {
     docs: {
@@ -78,6 +86,7 @@ export const Closed: Story = {
     isOpen: false,
     userEmail: 'user@example.com',
     isDeleting: false,
+    ...defaultActions,
   },
   parameters: {
     docs: {

@@ -73,8 +73,24 @@ export async function verifyJWT(token: string, secret: string): Promise<JWTPaylo
     const key = await getJWTKey(secret)
     const encoder = new TextEncoder()
     const signature = base64UrlDecode(signatureEncoded)
+    const data = encoder.encode(message)
 
-    const isValid = await crypto.subtle.verify('HMAC', key, signature, encoder.encode(message))
+    const rawBuffer = signature.buffer
+    let signatureBuffer: ArrayBuffer
+
+    if (rawBuffer instanceof ArrayBuffer) {
+      signatureBuffer =
+        signature.byteOffset === 0 && signature.byteLength === rawBuffer.byteLength
+          ? rawBuffer
+          : rawBuffer.slice(signature.byteOffset, signature.byteOffset + signature.byteLength)
+    } else {
+      // SharedArrayBuffer isn't accepted by subtle.verify; copy into a new ArrayBuffer
+      const copy = new ArrayBuffer(signature.byteLength)
+      new Uint8Array(copy).set(signature)
+      signatureBuffer = copy
+    }
+
+    const isValid = await crypto.subtle.verify('HMAC', key, signatureBuffer, data)
     if (!isValid) {
       return null
     }

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { MarkdownRenderer } from './MarkdownRenderer.js'
 
-const meta: Meta<typeof MarkdownRenderer> = {
+const meta = {
   title: 'Components/MarkdownRenderer',
   component: MarkdownRenderer,
   parameters: {
@@ -27,7 +27,7 @@ const meta: Meta<typeof MarkdownRenderer> = {
       description: 'Callback for file navigation',
     },
   },
-}
+} satisfies Meta<typeof MarkdownRenderer>
 
 export default meta
 type Story = StoryObj<typeof meta>

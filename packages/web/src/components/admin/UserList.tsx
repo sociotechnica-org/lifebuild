@@ -1,7 +1,7 @@
 import React from 'react'
 import { UserListItem } from './UserListItem.js'
 
-interface AdminUser {
+export interface AdminUser {
   email: string
   createdAt: string
   storeIds: string[]

@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
-import { ChatPresenter, type ChatPresenterProps } from './ChatPresenter.js'
+import { ChatPresenter } from './ChatPresenter.js'
 import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
 
-const meta: Meta<typeof ChatPresenter> = {
+type ChatPresenterProps = React.ComponentProps<typeof ChatPresenter>
+
+const meta = {
   title: 'Components/Chat/ChatPresenter',
   component: ChatPresenter,
   parameters: {
@@ -23,7 +25,7 @@ const meta: Meta<typeof ChatPresenter> = {
       </div>
     ),
   ],
-}
+} satisfies Meta<typeof ChatPresenter>
 
 export default meta
 type Story = StoryObj<typeof meta>
@@ -130,7 +132,7 @@ export const WithSelectedConversation: Story = {
     ...defaultProps,
     conversations: mockConversations,
     messages: mockMessages,
-    selectedConversation: mockConversations[0],
+    selectedConversation: mockConversations[0]!,
     selectedConversationId: 'conv-1',
     currentWorker: mockWorker,
   },
@@ -141,7 +143,7 @@ export const Processing: Story = {
     ...defaultProps,
     conversations: mockConversations,
     messages: mockMessages,
-    selectedConversation: mockConversations[0],
+    selectedConversation: mockConversations[0]!,
     selectedConversationId: 'conv-1',
     currentWorker: mockWorker,
     processingConversations: new Set(['conv-1']),
@@ -153,7 +155,7 @@ export const WithMessageDraft: Story = {
     ...defaultProps,
     conversations: mockConversations,
     messages: mockMessages,
-    selectedConversation: mockConversations[0],
+    selectedConversation: mockConversations[0]!,
     selectedConversationId: 'conv-1',
     currentWorker: mockWorker,
     messageText: 'This is a draft message that the user is typing...',
@@ -206,7 +208,7 @@ export const LongConversation: Story = {
         llmMetadata: null,
       })),
     ],
-    selectedConversation: mockConversations[0],
+    selectedConversation: mockConversations[0]!,
     selectedConversationId: 'conv-1',
     currentWorker: mockWorker,
   },

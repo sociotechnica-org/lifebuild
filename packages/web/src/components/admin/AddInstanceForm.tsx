@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-export interface AddInstanceFormProps {
+interface AddInstanceFormProps {
   onAddInstance: (storeId: string) => void
   disabled?: boolean
 }

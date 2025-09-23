@@ -94,7 +94,7 @@ export class StoreManager {
     }
 
     try {
-      await storeInfo.store.shutdown()
+      await storeInfo.store.shutdownPromise()
       storeLogger(storeId).info('Store shutdown complete')
     } catch (error) {
       storeLogger(storeId).error({ error }, 'Error shutting down store')
@@ -169,7 +169,7 @@ export class StoreManager {
           'Attempting store reconnect'
         )
 
-        await storeInfo.store.shutdown()
+        await storeInfo.store.shutdownPromise()
         const { store } = await createStore(storeId, storeInfo.config)
 
         storeInfo.store = store

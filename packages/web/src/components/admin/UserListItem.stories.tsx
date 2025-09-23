@@ -2,7 +2,7 @@ import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
 import { UserListItem } from './UserListItem.js'
 
-const meta: Meta<typeof UserListItem> = {
+const meta = {
   title: 'Components/Admin/UserListItem',
   component: UserListItem,
   decorators: [
@@ -21,7 +21,7 @@ const meta: Meta<typeof UserListItem> = {
     },
   },
   tags: ['autodocs'],
-}
+} satisfies Meta<typeof UserListItem>
 
 export default meta
 type Story = StoryObj<typeof meta>

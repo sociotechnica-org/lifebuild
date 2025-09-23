@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom'
-import React, { ReactElement } from 'react'
-import { render, RenderOptions } from '@testing-library/react'
+import React, { type ReactElement, type ReactNode } from 'react'
+import { render, type RenderOptions } from '@testing-library/react'
 import type { Task, Column, Project, Contact } from '@work-squared/shared/schema'
 
 // Simple test wrapper for basic component testing

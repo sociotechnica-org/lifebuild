@@ -32,25 +32,29 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.32.0",
-    "@playwright/test": "^1.54.1",
-    "@typescript-eslint/eslint-plugin": "^8.38.0",
-    "@typescript-eslint/parser": "^8.38.0",
-    "concurrently": "^9.2.0",
-    "eslint": "^9.32.0",
+    "@eslint/js": "^9.36.0",
+    "@playwright/test": "^1.55.0",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-only-warn": "^1.1.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
-    "eslint-plugin-prettier": "^5.5.3",
+    "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "eslint-plugin-storybook": "^9.0.18",
+    "eslint-plugin-storybook": "^9.1.7",
     "eslint-plugin-unicorn": "^60.0.0",
     "playwright-mcp": "^0.0.12",
     "prettier": "^3.6.2",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.38.0"
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.44.1"
+  },
+  "dependencies": {
+    "@effect/ai": "0.27.1",
+    "@effect/cluster": "0.48.15"
   }
 }

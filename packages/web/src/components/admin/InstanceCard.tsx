@@ -9,7 +9,7 @@ export interface Instance {
   isDefault?: boolean
 }
 
-export interface InstanceCardProps {
+interface InstanceCardProps {
   instance: Instance
   onRemove?: (instanceId: string) => void
   removing?: boolean

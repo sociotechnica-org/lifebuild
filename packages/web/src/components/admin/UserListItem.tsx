@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { formatRegistrationDate } from '../../util/dates.js'
 import { generateRoute } from '../../constants/routes.js'
 
-interface AdminUser {
+export interface AdminUser {
   email: string
   createdAt: string
   storeIds: string[]
