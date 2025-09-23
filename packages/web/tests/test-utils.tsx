@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom'
-import React, { ReactNode } from 'react'
-import { render, RenderOptions } from '@testing-library/react'
+import React, { type ReactElement, type ReactNode } from 'react'
+import { render, type RenderOptions } from '@testing-library/react'
 import type { Task, Column, Project, Contact } from '@work-squared/shared/schema'
 
 // Simple test wrapper for basic component testing
@@ -13,8 +13,8 @@ function TestProvider({ children }: TestProviderProps) {
   return <div data-testid='test-wrapper'>{children}</div>
 }
 
-const customRender = (ui: ReactNode, options?: Omit<RenderOptions, 'wrapper'>) => {
-  return render(ui as any, {
+const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) => {
+  return render(ui, {
     wrapper: ({ children }) => <TestProvider>{children}</TestProvider>,
     ...options,
   })

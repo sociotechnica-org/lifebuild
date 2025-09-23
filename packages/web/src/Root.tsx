@@ -73,7 +73,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       batchUpdates={batchUpdates}
       storeId={storeId}
     >
-      {children as any}
+      {children}
     </LiveStoreProvider>
   )
 }
