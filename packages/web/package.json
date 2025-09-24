@@ -24,7 +24,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck"
+    "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck",
+    "deploy": "wrangler pages deploy dist --project-name work-squared-web"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -96,6 +97,7 @@
     "typescript-eslint": "^8.38.0",
     "vite": "catalog:",
     "vitest": "catalog:",
-    "wait-on": "^8.0.4"
+    "wait-on": "^8.0.4",
+    "wrangler": "catalog:"
   }
 }
