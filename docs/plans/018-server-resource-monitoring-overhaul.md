@@ -72,7 +72,7 @@ Preparation steps:
 
 ## Open Questions & Follow-Up
 
-- Track the future OTEL/Grafana work in a dedicated GitHub issue so it can be prioritized alongside the Cloudflare Worker migration.
+- Track the future OTEL/Grafana work in issue #210 so it can be prioritized alongside the Cloudflare Worker migration.
 - Confirm whether Render’s alerting coverage is sufficient until the Cloudflare migration lands, or if we need interim Slack/email hooks off Render metrics.
 - When the deployment moves to Cloudflare Workers, reassess observability tooling (e.g., Workers Metrics, Cloudflare Analytics) and adapt this plan accordingly.
 
