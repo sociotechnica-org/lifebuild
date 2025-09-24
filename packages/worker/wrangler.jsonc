@@ -29,15 +29,15 @@
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["SyncBackendDO"],
+      "new_sqlite_classes": ["WebSocketServer"],
     },
     {
       "tag": "v2",
       "renamed_classes": [
         {
           "from": "WebSocketServer",
-          "to": "SyncBackendDO"
-        }
+          "to": "SyncBackendDO",
+        },
       ],
     },
   ],
