@@ -7,9 +7,10 @@ The Node.js server (`packages/server`) previously shipped with an in-process `Re
 ## Current Implementation Assessment
 
 - The bespoke `ResourceMonitor` module has been removed; `/health` now exposes only derived queue and conversation counts from `EventProcessor` (`packages/server/src/services/event-processor.ts`) and clearly labels CPU/memory data as unavailable.
+- The `/health` payload now incorporates LiveStore-derived message and conversation totals per store so operators can see backlog and recency without the inaccurate resource monitor maths.
 - CPU and RAM monitoring are delegated to Render’s built-in platform metrics. Any thresholds or alerts should be configured there until we introduce external telemetry.
 - We continue to lack durable insight into message latency, per-store backlog depth, or LLM error rates once the Node process restarts—those features require purpose-built instrumentation.
-  
+
 These changes eliminate misleading self-reported numbers but leave a visibility gap for anything beyond basic queue length and active conversation counts.
 
 ## Identified Risks
@@ -33,11 +34,12 @@ These changes eliminate misleading self-reported numbers but leave a visibility 
   - Application metrics (LLM call concurrency, queue depth, processing latency) using gauges/histograms fed by real queue state.
 - Expose an OTEL/Prometheus endpoint (`/metrics`) and wire instrumentation to reflect actual system state instead of manual timers.
 
-### 3. External observability platform: Grafana Cloud (Prometheus/Loki) *(future evaluation)*
+### 3. External observability platform: Grafana Cloud (Prometheus/Loki) _(future evaluation)_
 
 Grafana Cloud offers a low-friction OTLP/Prometheus-compatible backend with generous free tiers and aligns with existing OpenTelemetry usage.
 
 Preparation steps:
+
 1. **Account & Stack**: Create/select a Grafana Cloud stack; note Prometheus endpoint, instance ID, and access token.
 2. **Collector/Agent**: Decide between pushing directly from Node with OTLP HTTP or deploying the lightweight Grafana Agent alongside the server (recommended for buffering and retries).
 3. **Configuration**:

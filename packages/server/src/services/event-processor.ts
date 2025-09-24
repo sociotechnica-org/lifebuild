@@ -18,6 +18,38 @@ import type {
   WorkerContext,
 } from './agentic-loop/types.js'
 
+const toTimestamp = (value: unknown): number | null => {
+  if (value === null || value === undefined) {
+    return null
+  }
+
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null
+  }
+
+  if (value instanceof Date) {
+    const time = value.getTime()
+    return Number.isNaN(time) ? null : time
+  }
+
+  if (typeof value === 'string') {
+    const date = new Date(value)
+    const time = date.getTime()
+    return Number.isNaN(time) ? null : time
+  }
+
+  return null
+}
+
+const toIsoString = (timestamp: number | null): string | null => {
+  if (timestamp === null || !Number.isFinite(timestamp)) {
+    return null
+  }
+
+  const date = new Date(timestamp)
+  return Number.isNaN(date.getTime()) ? null : date.toISOString()
+}
+
 interface StoreProcessingState {
   subscriptions: Array<() => void>
   eventBuffer: EventBuffer
@@ -30,6 +62,25 @@ interface StoreProcessingState {
   messageQueue: MessageQueueManager // Queue of pending messages per conversation
   conversationProcessors: Map<string, AsyncQueueProcessor> // Per-conversation async processors
   llmProvider?: BraintrustProvider
+}
+
+interface LiveStoreStats {
+  chatMessages: number
+  userMessages: number
+  assistantMessages: number
+  processedUserMessages: number
+  pendingUserMessages: number
+  conversations: number
+  lastMessageAt: string | null
+  lastUserMessageAt: string | null
+  lastAssistantMessageAt: string | null
+}
+
+type LiveStoreStatsEntry = LiveStoreStats | { error: string }
+
+interface LiveStoreStatsResult {
+  perStore: Map<string, LiveStoreStatsEntry>
+  totals: LiveStoreStats
 }
 
 export class EventProcessor {
@@ -1092,10 +1143,144 @@ export class EventProcessor {
     return stats
   }
 
+  async getLiveStoreStats(): Promise<LiveStoreStatsResult> {
+    const perStore = new Map<string, LiveStoreStatsEntry>()
+    const totalsAccumulator = {
+      chatMessages: 0,
+      userMessages: 0,
+      assistantMessages: 0,
+      processedUserMessages: 0,
+      pendingUserMessages: 0,
+      conversations: 0,
+      lastMessageAt: null as number | null,
+      lastUserMessageAt: null as number | null,
+      lastAssistantMessageAt: null as number | null,
+    }
+
+    const stores = this.storeManager.getAllStores()
+
+    for (const [storeId, store] of stores) {
+      try {
+        const query = (handler: (db: any) => any) =>
+          (store as unknown as { query: (cb: (db: any) => any) => Promise<any> | any }).query(
+            handler
+          )
+
+        const [rawMessages, rawConversations, processedUserMessages] = await Promise.all([
+          query((db: any) => db.table('chatMessages').all()),
+          query((db: any) => db.table('conversations').all()),
+          this.processedTracker.getProcessedCount(storeId),
+        ])
+
+        const chatMessages = Array.isArray(rawMessages) ? rawMessages : []
+        const conversations = Array.isArray(rawConversations) ? rawConversations : []
+
+        let userMessages = 0
+        let assistantMessages = 0
+        let lastMessageTimestamp: number | null = null
+        let lastUserMessageTimestamp: number | null = null
+        let lastAssistantMessageTimestamp: number | null = null
+
+        for (const message of chatMessages) {
+          const timestamp = toTimestamp((message as any)?.createdAt)
+
+          if (timestamp !== null) {
+            lastMessageTimestamp =
+              lastMessageTimestamp === null ? timestamp : Math.max(lastMessageTimestamp, timestamp)
+          }
+
+          const role = (message as any)?.role
+          if (role === 'user') {
+            userMessages += 1
+            if (timestamp !== null) {
+              lastUserMessageTimestamp =
+                lastUserMessageTimestamp === null
+                  ? timestamp
+                  : Math.max(lastUserMessageTimestamp, timestamp)
+            }
+          } else if (role === 'assistant') {
+            assistantMessages += 1
+            if (timestamp !== null) {
+              lastAssistantMessageTimestamp =
+                lastAssistantMessageTimestamp === null
+                  ? timestamp
+                  : Math.max(lastAssistantMessageTimestamp, timestamp)
+            }
+          }
+        }
+
+        const pendingUserMessages = Math.max(userMessages - processedUserMessages, 0)
+
+        const snapshot: LiveStoreStats = {
+          chatMessages: chatMessages.length,
+          userMessages,
+          assistantMessages,
+          processedUserMessages,
+          pendingUserMessages,
+          conversations: conversations.length,
+          lastMessageAt: toIsoString(lastMessageTimestamp),
+          lastUserMessageAt: toIsoString(lastUserMessageTimestamp),
+          lastAssistantMessageAt: toIsoString(lastAssistantMessageTimestamp),
+        }
+
+        perStore.set(storeId, snapshot)
+
+        totalsAccumulator.chatMessages += snapshot.chatMessages
+        totalsAccumulator.userMessages += snapshot.userMessages
+        totalsAccumulator.assistantMessages += snapshot.assistantMessages
+        totalsAccumulator.processedUserMessages += snapshot.processedUserMessages
+        totalsAccumulator.pendingUserMessages += snapshot.pendingUserMessages
+        totalsAccumulator.conversations += snapshot.conversations
+
+        if (lastMessageTimestamp !== null) {
+          totalsAccumulator.lastMessageAt =
+            totalsAccumulator.lastMessageAt === null
+              ? lastMessageTimestamp
+              : Math.max(totalsAccumulator.lastMessageAt, lastMessageTimestamp)
+        }
+
+        if (lastUserMessageTimestamp !== null) {
+          totalsAccumulator.lastUserMessageAt =
+            totalsAccumulator.lastUserMessageAt === null
+              ? lastUserMessageTimestamp
+              : Math.max(totalsAccumulator.lastUserMessageAt, lastUserMessageTimestamp)
+        }
+
+        if (lastAssistantMessageTimestamp !== null) {
+          totalsAccumulator.lastAssistantMessageAt =
+            totalsAccumulator.lastAssistantMessageAt === null
+              ? lastAssistantMessageTimestamp
+              : Math.max(totalsAccumulator.lastAssistantMessageAt, lastAssistantMessageTimestamp)
+        }
+      } catch (error: any) {
+        perStore.set(storeId, {
+          error: error?.message ?? 'Failed to retrieve LiveStore statistics for this store.',
+        })
+      }
+    }
+
+    const totals: LiveStoreStats = {
+      chatMessages: totalsAccumulator.chatMessages,
+      userMessages: totalsAccumulator.userMessages,
+      assistantMessages: totalsAccumulator.assistantMessages,
+      processedUserMessages: totalsAccumulator.processedUserMessages,
+      pendingUserMessages: totalsAccumulator.pendingUserMessages,
+      conversations: totalsAccumulator.conversations,
+      lastMessageAt: toIsoString(totalsAccumulator.lastMessageAt),
+      lastUserMessageAt: toIsoString(totalsAccumulator.lastUserMessageAt),
+      lastAssistantMessageAt: toIsoString(totalsAccumulator.lastAssistantMessageAt),
+    }
+
+    return {
+      perStore,
+      totals,
+    }
+  }
+
   /**
    * Get global resource status for health endpoint
    */
-  getGlobalResourceStatus(): {
+  getGlobalResourceStatus(options?: { pendingUserMessages?: number; userMessages?: number }): {
     systemHealth: 'healthy' | 'stressed' | 'critical'
     activeLLMCalls: number
     queuedMessages: number
@@ -1104,6 +1289,8 @@ export class EventProcessor {
     avgResponseTime: number | null
     cacheHitRate: number | null
     alerts: number
+    pendingUserMessages: number | null
+    userMessages: number | null
     notes?: string
   } {
     const totals = Array.from(this.storeStates.values()).reduce(
@@ -1125,8 +1312,17 @@ export class EventProcessor {
     const llmAtCapacity =
       this.maxConcurrentLLMCalls > 0 && this.activeLLMCalls >= this.maxConcurrentLLMCalls
 
+    const backlog = options?.pendingUserMessages ?? null
     if (queueNearCapacity || llmAtCapacity || (recentErrorRate ?? 0) > 10) {
       systemHealth = 'stressed'
+    }
+
+    const noteSegments = [
+      'In-process resource monitor disabled; rely on Render dashboards for CPU/memory metrics.',
+    ]
+
+    if (backlog && backlog > 0) {
+      noteSegments.push(`LiveStore backlog: ${backlog} pending user message(s).`)
     }
 
     return {
@@ -1138,8 +1334,9 @@ export class EventProcessor {
       avgResponseTime: averageResponseTime,
       cacheHitRate: null,
       alerts: 0,
-      notes:
-        'In-process resource monitor disabled; rely on Render dashboards for CPU/memory metrics.',
+      pendingUserMessages: backlog,
+      userMessages: options?.userMessages ?? null,
+      notes: noteSegments.join(' '),
     }
   }
 
