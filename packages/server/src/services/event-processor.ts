@@ -7,7 +7,6 @@ import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
 import { DEFAULT_MODEL } from '@work-squared/shared'
 import { MessageQueueManager } from './message-queue-manager.js'
 import { AsyncQueueProcessor } from './async-queue-processor.js'
-import { ResourceMonitor } from './resource-monitor.js'
 import { ProcessedMessageTracker } from './processed-message-tracker.js'
 import { logger, storeLogger, createContextLogger } from '../utils/logger.js'
 import type {
@@ -31,7 +30,6 @@ interface StoreProcessingState {
   messageQueue: MessageQueueManager // Queue of pending messages per conversation
   conversationProcessors: Map<string, AsyncQueueProcessor> // Per-conversation async processors
   llmProvider?: BraintrustProvider
-  resourceMonitor: ResourceMonitor // Resource monitoring and limits
 }
 
 export class EventProcessor {
@@ -40,7 +38,6 @@ export class EventProcessor {
   private readonly maxBufferSize = 100
   private readonly flushInterval = 5000 // 5 seconds
   private flushTimer?: NodeJS.Timeout
-  private globalResourceMonitor: ResourceMonitor
   private processedTracker: ProcessedMessageTracker
   private databaseInitialized = false
 
@@ -50,6 +47,19 @@ export class EventProcessor {
 
   // Cutoff timestamp - messages before this are marked as processed but skipped
   private messageCutoffTimestamp: Date | null
+
+  private readonly maxConcurrentLLMCalls: number
+  private readonly maxQueuedMessages: number
+  private readonly messageRateLimit: number
+  private readonly llmCallTimeoutMs: number
+  private readonly messageRateWindowMs = 60_000
+
+  private activeLLMCalls = 0
+  private llmCallsInFlight = new Set<string>()
+  private llmCallTimeouts: Map<string, NodeJS.Timeout> = new Map()
+  private messageTimestamps: number[] = []
+  private errorTimestamps: number[] = []
+  private responseTimes: number[] = []
 
   // Tables to monitor for activity
   // IMPORTANT: Only monitor chatMessages to process user messages
@@ -61,19 +71,29 @@ export class EventProcessor {
     this.processedTracker = new ProcessedMessageTracker()
     this.startFlushTimer()
 
-    // Initialize global resource monitor
-    this.globalResourceMonitor = new ResourceMonitor(
-      {
-        maxConcurrentLLMCalls: parseInt(process.env.MAX_CONCURRENT_LLM_CALLS || '10'),
-        maxQueuedMessages: parseInt(process.env.MAX_QUEUED_MESSAGES || '1000'),
-        maxConversationsPerStore: parseInt(process.env.MAX_CONVERSATIONS_PER_STORE || '100'),
-        messageRateLimit: parseInt(process.env.MESSAGE_RATE_LIMIT || '600'),
-        llmCallTimeout: parseInt(process.env.LLM_CALL_TIMEOUT || '30000'),
-      },
-      alert => {
-        logger.warn({ alertType: alert.type, message: alert.message }, 'Resource alert')
+    const parsePositiveInt = (
+      value: string | undefined,
+      fallback: number,
+      allowZero = false
+    ): number => {
+      if (!value) return fallback
+      const parsed = Number.parseInt(value, 10)
+      if (!Number.isFinite(parsed)) {
+        return fallback
       }
-    )
+      if (parsed > 0) {
+        return parsed
+      }
+      if (allowZero && parsed === 0) {
+        return 0
+      }
+      return fallback
+    }
+
+    this.maxConcurrentLLMCalls = parsePositiveInt(process.env.MAX_CONCURRENT_LLM_CALLS, 10, true)
+    this.maxQueuedMessages = parsePositiveInt(process.env.MAX_QUEUED_MESSAGES, 0, true)
+    this.messageRateLimit = parsePositiveInt(process.env.MESSAGE_RATE_LIMIT, 0, true)
+    this.llmCallTimeoutMs = parsePositiveInt(process.env.LLM_CALL_TIMEOUT, 30_000, true)
 
     // Load LLM configuration from environment
     this.braintrustApiKey = process.env.BRAINTRUST_API_KEY
@@ -144,10 +164,6 @@ export class EventProcessor {
         this.braintrustApiKey && this.braintrustProjectId
           ? new BraintrustProvider(this.braintrustApiKey, this.braintrustProjectId)
           : undefined,
-      resourceMonitor: new ResourceMonitor({
-        maxConversationsPerStore: 50, // Per-store limit
-        maxQueuedMessages: 200, // Per-store limit
-      }),
     }
 
     this.storeStates.set(storeId, storeState)
@@ -416,7 +432,7 @@ export class EventProcessor {
     }
 
     // Check resource limits before processing
-    if (!this.globalResourceMonitor.canMakeLLMCall()) {
+    if (!this.canStartLLMCall()) {
       logger.warn({ conversationId, storeId }, `Rejecting LLM call: Resource limits exceeded`)
       const store = this.storeManager.getStore(storeId)
       if (store) {
@@ -437,14 +453,14 @@ export class EventProcessor {
     }
 
     // Check if we can queue more messages
-    if (!this.globalResourceMonitor.canQueueMessage()) {
-      logger.warn({ conversationId }, `Message rate limit exceeded`)
+    const queueCheck = this.canAcceptIncomingMessage()
+    if (!queueCheck.allowed) {
+      logger.warn({ conversationId, reason: queueCheck.reason }, `Message intake limited`)
       return
     }
 
     // Track the message
-    this.globalResourceMonitor.trackMessage()
-    storeState.resourceMonitor.trackMessage()
+    this.recordIncomingMessage()
 
     // Skip if this conversation is already being processed - queue the message instead
     if (storeState.activeConversations.has(conversationId)) {
@@ -490,7 +506,7 @@ export class EventProcessor {
     storeState.activeConversations.add(conversationId)
 
     // Track LLM call start
-    const llmCallId = this.globalResourceMonitor.trackLLMCallStart()
+    const llmCallId = this.beginLLMCall()
 
     // Emit response started event (safe now that we defer processing)
     const store = this.storeManager.getStore(storeId)
@@ -511,13 +527,13 @@ export class EventProcessor {
       const responseTime = Date.now() - startTime
 
       // Track successful completion
-      this.globalResourceMonitor.trackLLMCallComplete(llmCallId, false, responseTime)
+      this.endLLMCall(llmCallId, false, responseTime)
       llmCallCompleted = true
     } catch (error) {
       // Track error and ensure LLM call is properly cleaned up
-      this.globalResourceMonitor.trackError(`LLM call failed: ${error}`)
+      this.recordError()
       if (!llmCallCompleted) {
-        this.globalResourceMonitor.trackLLMCallComplete(llmCallId, true) // Mark as timeout/error
+        this.endLLMCall(llmCallId, true) // Mark as timeout/error
       }
       logger.error({ error, conversationId }, `Error in agentic loop`)
 
@@ -540,7 +556,7 @@ export class EventProcessor {
     } finally {
       // Ensure LLM call is always cleaned up
       if (!llmCallCompleted) {
-        this.globalResourceMonitor.trackLLMCallComplete(llmCallId, true)
+        this.endLLMCall(llmCallId, true)
       }
 
       // Always remove from active conversations
@@ -574,7 +590,7 @@ export class EventProcessor {
     storeState.activeConversations.add(conversationId)
 
     // Track LLM call start
-    const llmCallId = this.globalResourceMonitor.trackLLMCallStart()
+    const llmCallId = this.beginLLMCall()
 
     // Emit response started event
     const store = this.storeManager.getStore(storeId)
@@ -595,13 +611,13 @@ export class EventProcessor {
       const responseTime = Date.now() - startTime
 
       // Track successful completion
-      this.globalResourceMonitor.trackLLMCallComplete(llmCallId, false, responseTime)
+      this.endLLMCall(llmCallId, false, responseTime)
       llmCallCompleted = true
     } catch (error) {
       // Track error and ensure LLM call is properly cleaned up
-      this.globalResourceMonitor.trackError(`LLM call failed: ${error}`)
+      this.recordError()
       if (!llmCallCompleted) {
-        this.globalResourceMonitor.trackLLMCallComplete(llmCallId, true) // Mark as timeout/error
+        this.endLLMCall(llmCallId, true) // Mark as timeout/error
       }
       logger.error({ error, conversationId }, `Error in agentic loop`)
 
@@ -624,7 +640,7 @@ export class EventProcessor {
     } finally {
       // Ensure LLM call is always cleaned up
       if (!llmCallCompleted) {
-        this.globalResourceMonitor.trackLLMCallComplete(llmCallId, true)
+        this.endLLMCall(llmCallId, true)
       }
 
       // Always remove from active conversations
@@ -1014,9 +1030,6 @@ export class EventProcessor {
       }
       storeState.conversationProcessors.clear()
 
-      // Cleanup query optimizer and resource monitor
-      storeState.resourceMonitor.destroy()
-
       this.storeStates.delete(storeId)
       storeLogger(storeId).info('Stopped event monitoring')
     })
@@ -1034,8 +1047,7 @@ export class EventProcessor {
       this.flushTimer = undefined
     }
 
-    // Cleanup global resource monitor
-    this.globalResourceMonitor.destroy()
+    this.clearLlmCallTracking()
 
     // Cleanup processed message tracker
     this.processedTracker.close().catch(error => {
@@ -1072,7 +1084,7 @@ export class EventProcessor {
         tablesMonitored: storeState.subscriptions.length,
         activeConversations: storeState.activeConversations.size,
         queuedMessages: storeState.messageQueue.getTotalQueuedMessages(),
-        resourceMetrics: storeState.resourceMonitor.getCurrentMetrics(),
+        resourceMetrics: null,
         cacheStats: { size: 0, maxSize: 0, entries: [] },
       })
     }
@@ -1088,66 +1100,46 @@ export class EventProcessor {
     activeLLMCalls: number
     queuedMessages: number
     activeConversations: number
-    errorRate: number
-    avgResponseTime: number
-    cacheHitRate: number
+    errorRate: number | null
+    avgResponseTime: number | null
+    cacheHitRate: number | null
     alerts: number
+    notes?: string
   } {
-    const globalReport = this.globalResourceMonitor.getResourceReport()
+    const totals = Array.from(this.storeStates.values()).reduce(
+      (acc, state) => {
+        acc.activeConversations += state.activeConversations.size
+        acc.queuedMessages += state.messageQueue.getTotalQueuedMessages()
+        return acc
+      },
+      { activeConversations: 0, queuedMessages: 0 }
+    )
 
-    // Determine overall system health
-    const isUnderStress = this.globalResourceMonitor.isSystemUnderStress()
-    const hasCriticalAlerts = globalReport.alerts.some(alert => alert.type === 'critical')
+    const recentErrorRate = this.getRecentErrorRate()
+    const averageResponseTime = this.getAverageResponseTime()
 
     let systemHealth: 'healthy' | 'stressed' | 'critical' = 'healthy'
-    if (hasCriticalAlerts) {
-      systemHealth = 'critical'
-    } else if (isUnderStress) {
+
+    const queueNearCapacity =
+      this.maxQueuedMessages > 0 && totals.queuedMessages >= this.maxQueuedMessages * 0.8
+    const llmAtCapacity =
+      this.maxConcurrentLLMCalls > 0 && this.activeLLMCalls >= this.maxConcurrentLLMCalls
+
+    if (queueNearCapacity || llmAtCapacity || (recentErrorRate ?? 0) > 10) {
       systemHealth = 'stressed'
     }
 
     return {
       systemHealth,
-      activeLLMCalls: globalReport.current.activeLLMCalls,
-      queuedMessages: globalReport.current.queuedMessages,
-      activeConversations: globalReport.current.activeConversations,
-      errorRate: globalReport.current.errorRate,
-      avgResponseTime: globalReport.current.avgResponseTime,
-      cacheHitRate: globalReport.current.cacheHitRate,
-      alerts: globalReport.alerts.length,
-    }
-  }
-
-  /**
-   * Get comprehensive resource report across all stores
-   */
-  getResourceReport(): {
-    global: any
-    perStore: Map<string, any>
-    systemHealth: 'healthy' | 'stressed' | 'critical'
-  } {
-    const globalReport = this.globalResourceMonitor.getResourceReport()
-    const perStoreReports = new Map()
-
-    for (const [storeId, storeState] of this.storeStates) {
-      perStoreReports.set(storeId, storeState.resourceMonitor.getResourceReport())
-    }
-
-    // Determine overall system health
-    const isUnderStress = this.globalResourceMonitor.isSystemUnderStress()
-    const hasCriticalAlerts = globalReport.alerts.some(alert => alert.type === 'critical')
-
-    let systemHealth: 'healthy' | 'stressed' | 'critical' = 'healthy'
-    if (hasCriticalAlerts) {
-      systemHealth = 'critical'
-    } else if (isUnderStress) {
-      systemHealth = 'stressed'
-    }
-
-    return {
-      global: globalReport,
-      perStore: perStoreReports,
-      systemHealth,
+      activeLLMCalls: this.activeLLMCalls,
+      queuedMessages: totals.queuedMessages,
+      activeConversations: totals.activeConversations,
+      errorRate: recentErrorRate,
+      avgResponseTime: averageResponseTime,
+      cacheHitRate: null,
+      alerts: 0,
+      notes:
+        'In-process resource monitor disabled; rely on Render dashboards for CPU/memory metrics.',
     }
   }
 
@@ -1179,6 +1171,141 @@ export class EventProcessor {
     } catch (error: any) {
       return { error: error.message }
     }
+  }
+
+  private canStartLLMCall(): boolean {
+    if (this.maxConcurrentLLMCalls <= 0) {
+      return true
+    }
+    return this.activeLLMCalls < this.maxConcurrentLLMCalls
+  }
+
+  private beginLLMCall(): string {
+    const callId = crypto.randomUUID()
+    this.activeLLMCalls += 1
+    this.llmCallsInFlight.add(callId)
+
+    if (this.llmCallTimeoutMs > 0) {
+      const timeout = setTimeout(() => {
+        if (this.llmCallsInFlight.has(callId)) {
+          logger.warn({ callId }, 'LLM call timeout')
+          this.endLLMCall(callId, true)
+        }
+      }, this.llmCallTimeoutMs)
+
+      this.llmCallTimeouts.set(callId, timeout)
+    }
+
+    return callId
+  }
+
+  private endLLMCall(callId: string, isTimeout: boolean, responseTime?: number): void {
+    if (!this.llmCallsInFlight.has(callId)) {
+      return
+    }
+
+    this.llmCallsInFlight.delete(callId)
+    if (this.activeLLMCalls > 0) {
+      this.activeLLMCalls -= 1
+    }
+
+    const timeout = this.llmCallTimeouts.get(callId)
+    if (timeout) {
+      clearTimeout(timeout)
+      this.llmCallTimeouts.delete(callId)
+    }
+
+    if (isTimeout) {
+      this.recordError()
+    } else if (typeof responseTime === 'number') {
+      this.recordResponseTime(responseTime)
+    }
+  }
+
+  private canAcceptIncomingMessage():
+    | { allowed: true }
+    | { allowed: false; reason: 'queue-limit' | 'rate-limit' } {
+    if (this.maxQueuedMessages > 0) {
+      const totalQueued = Array.from(this.storeStates.values()).reduce(
+        (acc, state) => acc + state.messageQueue.getTotalQueuedMessages(),
+        0
+      )
+
+      if (totalQueued >= this.maxQueuedMessages) {
+        return { allowed: false, reason: 'queue-limit' }
+      }
+    }
+
+    const now = Date.now()
+    this.trimTimestamps(this.messageTimestamps, now, this.messageRateWindowMs)
+
+    if (this.messageRateLimit > 0 && this.messageTimestamps.length >= this.messageRateLimit) {
+      return { allowed: false, reason: 'rate-limit' }
+    }
+
+    return { allowed: true }
+  }
+
+  private recordIncomingMessage(): void {
+    const now = Date.now()
+    this.messageTimestamps.push(now)
+    this.trimTimestamps(this.messageTimestamps, now, this.messageRateWindowMs)
+  }
+
+  private recordError(): void {
+    const now = Date.now()
+    this.errorTimestamps.push(now)
+    this.trimTimestamps(this.errorTimestamps, now, this.messageRateWindowMs)
+  }
+
+  private recordResponseTime(durationMs: number): void {
+    this.responseTimes.push(durationMs)
+
+    if (this.responseTimes.length > 100) {
+      this.responseTimes = this.responseTimes.slice(-50)
+    }
+  }
+
+  private getRecentErrorRate(): number | null {
+    if (this.errorTimestamps.length === 0) {
+      return null
+    }
+
+    const now = Date.now()
+    this.trimTimestamps(this.errorTimestamps, now, this.messageRateWindowMs)
+
+    return this.errorTimestamps.length
+  }
+
+  private getAverageResponseTime(): number | null {
+    if (this.responseTimes.length === 0) {
+      return null
+    }
+
+    const total = this.responseTimes.reduce((acc, value) => acc + value, 0)
+    return Math.round(total / this.responseTimes.length)
+  }
+
+  private trimTimestamps(timestamps: number[], now: number, windowMs: number): void {
+    const cutoff = now - windowMs
+    let firstValidIndex = 0
+
+    while (firstValidIndex < timestamps.length && timestamps[firstValidIndex] < cutoff) {
+      firstValidIndex++
+    }
+
+    if (firstValidIndex > 0) {
+      timestamps.splice(0, firstValidIndex)
+    }
+  }
+
+  private clearLlmCallTracking(): void {
+    for (const timeout of this.llmCallTimeouts.values()) {
+      clearTimeout(timeout)
+    }
+    this.llmCallTimeouts.clear()
+    this.llmCallsInFlight.clear()
+    this.activeLLMCalls = 0
   }
 
   /**

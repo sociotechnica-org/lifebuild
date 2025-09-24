@@ -2,40 +2,38 @@
 
 ## Overview
 
-The current Node.js server (`packages/server`) ships with an in-process `ResourceMonitor` that self-reports CPU, memory, queue depth, and error metrics via log alerts and the `/health` endpoint. Runtime behaviour shows these numbers are inaccurate (especially CPU), several metrics are hard-coded placeholders, and the server is effectively grading its own homework without external validation. This plan documents the existing implementation, pinpoints correctness issues, and recommends a more reliable observability approach using managed telemetry infrastructure.
+The Node.js server (`packages/server`) previously shipped with an in-process `ResourceMonitor` that self-reported CPU, memory, queue depth, and error metrics via log alerts and the `/health` endpoint. That monitor has now been removed: the server only surfaces lightweight queue/conversation statistics that it can observe directly, while CPU and memory visibility come from Render’s platform dashboards. This plan captures why the self-monitoring approach was retired and lays out the follow-on observability strategy so we can revisit richer telemetry (likely after the service migrates to Cloudflare Workers).
 
 ## Current Implementation Assessment
 
-- `ResourceMonitor` (`packages/server/src/services/resource-monitor.ts`) samples process data on a 10s interval, keeps a sliding window in memory, and emits warnings.
-- The monitor is instantiated globally and per store inside `EventProcessor` (`packages/server/src/services/event-processor.ts`). Its computed snapshot is exposed on `/health` via `getGlobalResourceStatus()` (`packages/server/src/index.ts`).
-- CPU usage is derived from `process.cpuUsage()` without deltas, so the reported “percent” is just cumulative CPU time in seconds (`resource-monitor.ts:464-469`).
-- `getCurrentQueuedMessages()` and `getCurrentActiveConversations()` are placeholders returning zero (`resource-monitor.ts:444-453`), so queue-based alerts can never trigger and the health response misleads operators.
-- Message/error rate counters only track what the server manually records; they omit backlog/latency visibility and lack persistence across restarts.
-- Alerts are logged at `warn` even when based on fabricated numbers, producing noisy or false-positive telemetry.
+- The bespoke `ResourceMonitor` module has been removed; `/health` now exposes only derived queue and conversation counts from `EventProcessor` (`packages/server/src/services/event-processor.ts`) and clearly labels CPU/memory data as unavailable.
+- CPU and RAM monitoring are delegated to Render’s built-in platform metrics. Any thresholds or alerts should be configured there until we introduce external telemetry.
+- We continue to lack durable insight into message latency, per-store backlog depth, or LLM error rates once the Node process restarts—those features require purpose-built instrumentation.
+  
+These changes eliminate misleading self-reported numbers but leave a visibility gap for anything beyond basic queue length and active conversation counts.
 
 ## Identified Risks
 
-- **Incorrect CPU telemetry**: Values monotonically increase past configured limits, flagging false “critical” CPU situations and masking real saturation.
-- **Missing queue/conversation observability**: Zeroed metrics mask whether the server is overloaded or dropping work.
-- **Self-referential monitoring**: Without exporting data externally, outages that take down the Node process also silence monitoring.
-- **Health endpoint trust issues**: Downstream systems consuming `/health` see misleading data, undermining automated alerting.
+- **Platform dependency**: While we depend on Render dashboards, any outage or migration away from Render reintroduces blind spots unless an alternative monitor is ready.
+- **Limited backlog/latency visibility**: Without OTEL-style instrumentation we still cannot quantify processing delays or LLM failure rates after restarts.
+- **Alerting gaps**: `/health` no longer pushes warnings, so operators must ensure Render or future tooling fires alerts for saturation scenarios.
 
 ## Recommended Direction
 
-### 1. Retire or neuter `ResourceMonitor`
+### 1. Short-term: lean on Render
 
-- Stop surfacing fabricated metrics on `/health`; short-term, strip CPU/queue/conversation numbers or clearly mark them as unavailable.
-- Remove auto-generated alerts or downgrade them to `debug` until accurate data exists.
-- Replace bespoke sliding-window logic with instrumentation that reflects actual queues (i.e., gather counts from `MessageQueueManager`, per-store processors, and the SQLite backlog directly).
+- Keep `/health` focused on deterministic data (active conversations, queued messages, recent errors) and explicitly note that CPU/memory metrics are supplied by Render.
+- Document where to find Render dashboards and how to adjust alert thresholds there.
+- Ensure structured logs still capture enough context for incident forensics while we operate without external metrics.
 
-### 2. Adopt standardized telemetry primitives
+### 2. Prepare for standardized telemetry (deferred)
 
 - Introduce OpenTelemetry Metrics via `@opentelemetry/sdk-node` (the monorepo already references OTEL for the worker) and instrument:
   - Process and event-loop stats via `@opentelemetry/host-metrics`/`prom-client` equivalents.
   - Application metrics (LLM call concurrency, queue depth, processing latency) using gauges/histograms fed by real queue state.
 - Expose an OTEL/Prometheus endpoint (`/metrics`) and wire instrumentation to reflect actual system state instead of manual timers.
 
-### 3. External observability platform: Grafana Cloud (Prometheus/Loki)
+### 3. External observability platform: Grafana Cloud (Prometheus/Loki) *(future evaluation)*
 
 Grafana Cloud offers a low-friction OTLP/Prometheus-compatible backend with generous free tiers and aligns with existing OpenTelemetry usage.
 
@@ -50,21 +48,21 @@ Preparation steps:
 
 ## Implementation Plan
 
-1. **Audit & disable misleading fields**
-   - Update `/health` to omit or flag inaccurate numbers until replacements exist.
-   - Gate existing warning logs behind a feature flag or remove them.
+1. **Stabilize the minimal health payload (in progress)**
+   - Keep the new queue/conversation counters and Render note up to date as the server evolves.
+   - Ensure non-critical rate limiting is optional so we do not reject messages without visibility.
 
-2. **Instrument real metrics**
+2. **Instrument real metrics (future)**
    - Capture queue depth directly from `MessageQueueManager` and per-store processors.
    - Measure LLM latency/throughput with histograms timed around actual call completions.
    - Replace `process.cpuUsage()` logic with OTEL host metrics or `process.resourceUsage()` deltas via a shared sampler.
 
-3. **Wire OpenTelemetry**
+3. **Wire OpenTelemetry (future)**
    - Add OTEL SDK bootstrap (likely `src/telemetry.ts`) and start it from `src/index.ts` before server code runs.
    - Configure OTLP metric exporter conditioned on environment variables; default to stdout/logging when disabled.
    - Provide `pnpm` scripts to run with OTEL locally (`pnpm --filter @work-squared/server dev:otel`).
 
-4. **Deploy Grafana Agent / configure exporters**
+4. **Deploy Grafana Agent / configure exporters (future)**
    - Supply deployment docs (Docker Compose/systemd) for running Grafana Agent next to the server.
    - Document required secrets and how to rotate them.
 
@@ -74,8 +72,8 @@ Preparation steps:
 
 ## Open Questions & Follow-Up
 
-- Hosting environment details (container orchestrator, bare metal, Cloudflare tunnel) will influence how the Grafana Agent is deployed—clarify before implementation.
-- Confirm whether logs should also ship to Grafana (Loki) or stay with existing logging pipeline.
-- Decide on retention/alert thresholds for business metrics (e.g., acceptable LLM call error rate) before codifying alerts.
+- Track the future OTEL/Grafana work in a dedicated GitHub issue so it can be prioritized alongside the Cloudflare Worker migration.
+- Confirm whether Render’s alerting coverage is sufficient until the Cloudflare migration lands, or if we need interim Slack/email hooks off Render metrics.
+- When the deployment moves to Cloudflare Workers, reassess observability tooling (e.g., Workers Metrics, Cloudflare Analytics) and adapt this plan accordingly.
 
-Once these items are addressed, the server will report actionable metrics externally, and `/health` can reflect trustworthy state without the current self-measurement pitfalls.
+Once those items are clarified, we can schedule the telemetry build-out and reintroduce rich metrics without reverting to inaccurate, in-process monitors.
