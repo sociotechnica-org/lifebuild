@@ -18,6 +18,7 @@ export interface CreateTaskResult {
   taskId?: string
   error?: string
   taskTitle?: string
+  boardName?: string
   projectName?: string
   columnName?: string
   assigneeName?: string
