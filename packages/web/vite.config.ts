@@ -26,7 +26,11 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     react(),
-    livestoreDevtoolsPlugin({ schemaPath: '../shared/src/livestore/schema.ts' }),
+    livestoreDevtoolsPlugin({
+      schemaPath: '../shared/src/livestore/schema.ts',
+      // Ensure devtools are enabled in production too
+      enabled: true
+    }),
     // @ts-expect-error plugin types seem to be wrong
     shouldAnalyze
       ? visualizer({
