@@ -9,6 +9,7 @@ Migrate Work Squared from a mixed deployment (web + worker together) to properly
 Prior to the LiveStore v0.4.0 upgrade, Work Squared deployed both the React frontend (`packages/web`) and the WebSocket sync server (`packages/worker`) as a single Cloudflare Worker deployment. This configuration was causing issues with the LiveStore upgrade and violates the separation of concerns principle.
 
 **Previous Mixed Configuration** (removed in commit `aafc60c`):
+
 ```json
 // packages/worker/wrangler.jsonc
 {
@@ -25,6 +26,7 @@ Prior to the LiveStore v0.4.0 upgrade, Work Squared deployed both the React fron
 ```
 
 **Issues with Mixed Deployment**:
+
 - Complexity in deployment and debugging
 - Resource competition between static assets and worker code
 - Deployment coupling (changes require redeploying both)
@@ -81,12 +83,14 @@ Prior to the LiveStore v0.4.0 upgrade, Work Squared deployed both the React fron
 ### Phase 1: Configure Cloudflare Pages
 
 1. **Create Pages Configuration**
+
    ```bash
    # Add pages configuration to web package
    cd packages/web
    ```
 
 2. **Update Web Package Scripts**
+
    ```json
    // packages/web/package.json
    {
@@ -98,6 +102,7 @@ Prior to the LiveStore v0.4.0 upgrade, Work Squared deployed both the React fron
    ```
 
 3. **Create Pages Project**
+
    ```bash
    cd packages/web
    # Build with final production URLs
@@ -114,6 +119,7 @@ Prior to the LiveStore v0.4.0 upgrade, Work Squared deployed both the React fron
 ### Phase 2: Configure Custom Domains
 
 1. **Set up Pages Custom Domain**
+
    ```bash
    # Add custom domain to Pages
    wrangler pages domain add work-squared-web app.worksquared.ai
@@ -131,6 +137,7 @@ Prior to the LiveStore v0.4.0 upgrade, Work Squared deployed both the React fron
 ### Phase 3: Configure Environment Variables
 
 1. **Set Production Environment Variables for Pages**
+
    ```bash
    # Set environment variables for Pages project (Note: Pages uses env vars at build time)
    # These will be set during the build command, not as secrets
@@ -143,6 +150,7 @@ Prior to the LiveStore v0.4.0 upgrade, Work Squared deployed both the React fron
 ### Phase 4: Test Integration
 
 1. **Verify Worker Deployment**
+
    ```bash
    cd packages/worker
    pnpm deploy
@@ -150,6 +158,7 @@ Prior to the LiveStore v0.4.0 upgrade, Work Squared deployed both the React fron
    ```
 
 2. **Deploy Web to Pages with Custom Domain**
+
    ```bash
    cd packages/web
    # Build with production URLs pointing to custom domain
@@ -171,6 +180,7 @@ Prior to the LiveStore v0.4.0 upgrade, Work Squared deployed both the React fron
    - Remove dependency on old mixed deployment
 
 2. **Separate Deployment Commands**
+
    ```json
    // Root package.json
    {
@@ -191,6 +201,7 @@ Prior to the LiveStore v0.4.0 upgrade, Work Squared deployed both the React fron
 ### Phase 5: DNS & Domain Configuration
 
 1. **Custom Domain Setup**
+
    ```bash
    # Configure custom domain for Pages
    wrangler pages domain add work-squared-web app.worksquared.ai
@@ -207,7 +218,9 @@ Prior to the LiveStore v0.4.0 upgrade, Work Squared deployed both the React fron
 ## Secrets & Environment Variables Strategy
 
 ### Current State (Before Migration)
+
 The old mixed deployment used build-time environment variables in the worker's build command:
+
 ```json
 // packages/worker/wrangler.jsonc (removed in LiveStore upgrade)
 "build": {
@@ -216,6 +229,7 @@ The old mixed deployment used build-time environment variables in the worker's b
 ```
 
 ### New Strategy (After Migration)
+
 **Environment variables will be handled in GitHub Actions workflow:**
 
 1. **Development (Local)**
@@ -224,7 +238,7 @@ The old mixed deployment used build-time environment variables in the worker's b
 
 2. **Production (GitHub Actions)**
    - Environment variables set in GitHub Actions workflow
-   - Build command includes all required VITE_ variables
+   - Build command includes all required VITE\_ variables
    - No secrets needed (all URLs are public)
 
 3. **Production Values**
@@ -265,6 +279,7 @@ pnpm dev
 ```
 
 **If local development has issues:**
+
 - Fix them first before proceeding with deployment migration
 - Local development is the foundation for production deployments
 
@@ -305,6 +320,7 @@ wrangler pages project get work-squared-web
 ### Step 4: DNS Configuration (Manual)
 
 **Manual steps in Cloudflare Dashboard:**
+
 1. Ensure `worksquared.ai` domain is managed by Cloudflare
 2. Create CNAME record: `app.worksquared.ai` → `work-squared-web.pages.dev`
 3. Optional: Create CNAME record: `worker.worksquared.ai` → `work-squared.jessmartin.workers.dev`
@@ -363,6 +379,7 @@ pnpm deploy
 ```
 
 **Key Changes:**
+
 1. Add web app build and deploy step with production env vars
 2. Update success notification to show all service URLs
 3. Ensures automated deployments include the frontend
@@ -370,6 +387,7 @@ pnpm deploy
 ## Post-Migration Verification
 
 ### Functional Testing
+
 1. **Authentication Flow**
    - Login/signup from Pages app
    - JWT token validation via Auth Worker
@@ -387,6 +405,7 @@ pnpm deploy
    - Document management
 
 ### Performance Testing
+
 - Pages loading speed
 - WebSocket connection latency
 - Cross-origin request handling
@@ -394,18 +413,21 @@ pnpm deploy
 ## Benefits of Separation
 
 ### Development Benefits
+
 - **Independent deployments**: Change web or worker without affecting the other
 - **Clearer debugging**: Issues isolated to specific services
 - **Better scaling**: Pages CDN for static content, Workers for compute
 - **LiveStore compatibility**: Follows recommended deployment patterns
 
 ### Operational Benefits
+
 - **Cost optimization**: Pages pricing for static content, Workers for compute
 - **Global performance**: Pages CDN vs single worker deployment
 - **Reliability**: Service isolation reduces single points of failure
 - **Monitoring**: Separate metrics and logs per service
 
 ### Maintenance Benefits
+
 - **Simpler configuration**: Each service has focused configuration
 - **Easier updates**: Update LiveStore or other dependencies independently
 - **Testing**: Test web and worker deployments separately

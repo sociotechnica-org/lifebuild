@@ -29,7 +29,7 @@ export default defineConfig({
     livestoreDevtoolsPlugin({
       schemaPath: '../shared/src/livestore/schema.ts',
       // Ensure devtools are enabled in production too
-      enabled: true
+      enabled: true,
     }),
     // @ts-expect-error plugin types seem to be wrong
     shouldAnalyze
