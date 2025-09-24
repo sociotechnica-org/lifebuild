@@ -24,11 +24,44 @@ work-squared/
 
 ### Package Responsibilities
 
-- **`@work-squared/web`**: React frontend with LiveStore integration, UI components, and real-time collaboration features
-- **`@work-squared/worker`**: Cloudflare Worker handling WebSocket sync, LLM proxy, and asset serving
+- **`@work-squared/web`**: React frontend deployed to **Cloudflare Pages** with LiveStore integration, UI components, and real-time collaboration features
+- **`@work-squared/worker`**: Cloudflare Worker handling **WebSocket sync only** with Durable Objects for connection state management
 - **`@work-squared/auth-worker`**: JWT authentication service with user management and token generation
 - **`@work-squared/server`**: Node.js backend server for event processing and server-side LLM operations
 - **`@work-squared/shared`**: Type-safe schemas, event definitions, and utilities shared across packages
+
+### Deployment Architecture (Separated Services)
+
+As of September 2025, Work Squared uses a **separated deployment architecture** for better scalability and maintainability:
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   React SPA     │────▶│ CF Worker       │────▶│ Node.js Server  │
+│ (Cloudflare     │     │ (WebSocket)     │     │ (Event Process) │
+│  Pages)         │     │                 │     │                 │
+├─────────────────┤     ├─────────────────┤     ├─────────────────┤
+│ • Static CDN    │     │ • Event relay   │     │ • Event process │
+│ • SPA routing   │     │ • WebSocket hub │     │ • LLM calls     │
+│ • UI components │     │ • JWT validation│     │ • Tool execution│
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+         │                       │                       │
+         │               ┌───────▼───────┐               │
+         │               │  Auth Worker  │               │
+         └──────────────▶│ (CF Worker)   │               │
+                         ├───────────────┤               │
+                         │ • User mgmt   │               │
+                         │ • JWT tokens  │               │
+                         │ • Auth flows  │               │
+                         └───────────────┘               │
+                                 │                       │
+                                 └───────────────────────┘
+```
+
+**Production URLs:**
+
+- **Web App**: https://app.worksquared.ai (Cloudflare Pages)
+- **Sync Worker**: https://work-squared.jessmartin.workers.dev (WebSocket)
+- **Auth Worker**: https://work-squared-auth.jessmartin.workers.dev (Authentication)
 
 ## Core Architecture Principles
 

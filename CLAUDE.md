@@ -53,18 +53,20 @@ CI=true pnpm test:e2e  # Verify E2E tests work (for Claude)
 pnpm --filter @work-squared/web build    # Build web package
 pnpm build         # Build all packages (if needed)
 
-# Deployment
+# Deployment (Separated Architecture)
 pnpm --filter @work-squared/auth-worker run deploy  # Deploy auth worker to Cloudflare
-pnpm --filter @work-squared/worker run deploy  # Deploy sync server to Cloudflare
+pnpm --filter @work-squared/worker run deploy       # Deploy sync server to Cloudflare
+pnpm --filter @work-squared/web run deploy          # Deploy web app to Cloudflare Pages
 ```
 
 ## Architecture
 
-Work Squared is a real-time collaborative web application built as a monorepo with:
+Work Squared is a real-time collaborative web application built as a monorepo with separated deployments:
 
 - **LiveStore**: Event-sourced state management with SQLite materialized views
-- **React 19** with TypeScript for the frontend (`packages/web`)
+- **React 19** with TypeScript frontend deployed to **Cloudflare Pages** (`packages/web`)
 - **Cloudflare Workers** with Durable Objects for WebSocket-based real-time sync (`packages/worker`)
+- **Cloudflare Auth Worker** for user authentication (`packages/auth-worker`)
 - **SharedWorker** for multi-tab synchronization
 - **OPFS** for client-side persistence
 
