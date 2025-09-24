@@ -49,7 +49,7 @@ jobs:
         run: |
           cd packages/web
           VITE_REQUIRE_AUTH=true VITE_AUTH_SERVICE_URL=https://work-squared-auth.jessmartin.workers.dev VITE_LIVESTORE_SYNC_URL=wss://work-squared.jessmartin.workers.dev pnpm build
-          pnpm exec wrangler pages deploy dist --project-name work-squared-web
+          pnpm run deploy
 
       - name: Deployment Success Notification
         if: success()
