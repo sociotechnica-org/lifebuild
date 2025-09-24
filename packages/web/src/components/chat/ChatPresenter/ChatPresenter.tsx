@@ -5,6 +5,28 @@ import { ChatTypeModal } from '../ChatTypeModal/ChatTypeModal.js'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
 import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
 
+const ChatProcessingIndicator: React.FC<{ workerName: string }> = ({ workerName }) => (
+  <div
+    className='flex items-center gap-2 px-6 py-3 text-sm italic text-gray-600 border-t border-gray-200 bg-gray-50'
+    role='status'
+    aria-live='polite'
+  >
+    <svg className='w-4 h-4 animate-spin text-gray-400' viewBox='0 0 24 24'>
+      <circle
+        className='opacity-25'
+        cx='12'
+        cy='12'
+        r='10'
+        stroke='currentColor'
+        strokeWidth='4'
+        fill='none'
+      />
+      <path className='opacity-75' fill='currentColor' d='M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z' />
+    </svg>
+    <span>{workerName} is thinking...</span>
+  </div>
+)
+
 interface ChatPresenterProps {
   // Data
   conversations: readonly Conversation[]
@@ -59,6 +81,8 @@ export const ChatPresenter: React.FC<ChatPresenterProps> = ({
     ? processingConversations.has(selectedConversationId)
     : false
 
+  const assistantName = currentWorker?.name || 'Assistant'
+
   return (
     <div className='h-full flex flex-col border-l border-gray-200'>
       {/* Chat header with worker info and conversation selector */}
@@ -87,12 +111,19 @@ export const ChatPresenter: React.FC<ChatPresenterProps> = ({
             onChange={e => onConversationChange(e.target.value)}
             className='flex-1 p-2 border border-gray-200 rounded text-sm'
           >
-            <option value=''>Chat with {currentWorker?.name || 'Assistant'}</option>
-            {conversations.map(conversation => (
-              <option key={conversation.id} value={conversation.id}>
-                {conversation.title}
-              </option>
-            ))}
+            <option value=''>Chat with {assistantName}</option>
+            {conversations.map(conversation => {
+              const isConversationProcessing = processingConversations.has(conversation.id)
+              const optionLabel = isConversationProcessing
+                ? `${conversation.title} (thinking...)`
+                : conversation.title
+
+              return (
+                <option key={conversation.id} value={conversation.id}>
+                  {optionLabel}
+                </option>
+              )
+            })}
           </select>
 
           <button
@@ -124,6 +155,8 @@ export const ChatPresenter: React.FC<ChatPresenterProps> = ({
         conversationTitle={selectedConversation?.title}
         currentWorker={currentWorker}
       />
+
+      {isProcessing && <ChatProcessingIndicator workerName={assistantName} />}
 
       {/* Input area */}
       <ChatInput
