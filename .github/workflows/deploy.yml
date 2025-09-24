@@ -45,12 +45,19 @@ jobs:
       - name: Deploy Main Worker
         run: pnpm --filter @work-squared/worker run deploy
 
+      - name: Build and Deploy Web App to Pages
+        run: |
+          cd packages/web
+          VITE_REQUIRE_AUTH=true VITE_AUTH_SERVICE_URL=https://work-squared-auth.jessmartin.workers.dev VITE_LIVESTORE_SYNC_URL=wss://work-squared.jessmartin.workers.dev pnpm build
+          pnpm deploy
+
       - name: Deployment Success Notification
         if: success()
         run: |
           echo "✅ Deployment successful!"
           echo "Auth Worker: https://work-squared-auth.jessmartin.workers.dev"
-          echo "Main App: https://work-squared.jessmartin.workers.dev"
+          echo "Sync Worker: https://work-squared.jessmartin.workers.dev"
+          echo "Web App: https://app.worksquared.ai"
 
       - name: Deployment Failure Notification
         if: failure()
