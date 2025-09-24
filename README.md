@@ -91,7 +91,33 @@ This project is organized as a pnpm workspace with the following packages:
 
 ## Deployment
 
-This project is deployed as a single Cloudflare Worker that serves both the static frontend assets and the backend WebSocket server.
+As of September 2025, Work Squared uses a **separated deployment architecture** with three services:
+
+- **Web Frontend**: Deployed to **Cloudflare Pages** at `app.worksquared.ai`
+- **WebSocket Sync**: Cloudflare Worker at `work-squared.jessmartin.workers.dev`
+- **Authentication**: Cloudflare Worker at `work-squared-auth.jessmartin.workers.dev`
+
+### Automated Deployment
+
+All services are automatically deployed upon every push to the `main` branch using GitHub Actions:
+
+1. **Auth Worker** → Cloudflare Workers
+2. **Sync Worker** → Cloudflare Workers
+3. **Web App** → Cloudflare Pages
+
+### Manual Deployment
+
+To deploy individual services manually (requires `wrangler` authentication):
+
+```bash
+# Deploy all services
+pnpm --filter @work-squared/auth-worker run deploy  # Auth service
+pnpm --filter @work-squared/worker run deploy       # Sync server
+pnpm --filter @work-squared/web run deploy          # Frontend to Pages
+
+# Or deploy specific service
+pnpm --filter @work-squared/web run deploy         # Just the web app
+```
 
 ### First-Time Setup
 
@@ -106,16 +132,6 @@ Before the first deployment, you need to create the production D1 database and c
 2.  Copy the `database_id` from the command's output.
 
 3.  Open `packages/worker/wrangler.jsonc` and paste the copied ID into the `database_id` field within the `d1_databases` section.
-
-### Deployment Process
-
-The application is automatically deployed to `app.worksquared.ai` upon every push to the `main` branch using GitHub Actions.
-
-To run a manual deployment from your local machine (requires authentication with `wrangler`):
-
-```bash
-pnpm --filter @work-squared/worker deploy
-```
 
 ## Features
 

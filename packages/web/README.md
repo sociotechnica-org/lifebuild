@@ -213,6 +213,44 @@ pnpm test:e2e --grep "validate.*form"
 
 ## Deployment
 
-The web package is built and deployed as static assets served by the Cloudflare Worker.
+As of September 2025, the web package is deployed to **Cloudflare Pages** as a separate service from the backend worker.
 
-Build artifacts are placed in `dist/` and referenced by the worker package's `wrangler.jsonc` configuration.
+### Production Deployment
+
+The web app is deployed to **Cloudflare Pages** with the custom domain `app.worksquared.ai`:
+
+```bash
+# Build with production environment variables
+VITE_REQUIRE_AUTH=true \
+VITE_AUTH_SERVICE_URL=https://work-squared-auth.jessmartin.workers.dev \
+VITE_LIVESTORE_SYNC_URL=wss://work-squared.jessmartin.workers.dev \
+pnpm build
+
+# Deploy to Cloudflare Pages
+pnpm run deploy
+```
+
+### Deployment Configuration
+
+- **Project Name**: `work-squared-web`
+- **Custom Domain**: `app.worksquared.ai`
+- **Build Output**: `dist/` directory
+- **Deployment Method**: Wrangler CLI (`wrangler pages deploy`)
+
+### Environment Variables for Production
+
+Production builds require these environment variables:
+
+```bash
+VITE_REQUIRE_AUTH=true
+VITE_AUTH_SERVICE_URL=https://work-squared-auth.jessmartin.workers.dev
+VITE_LIVESTORE_SYNC_URL=wss://work-squared.jessmartin.workers.dev
+```
+
+### Automated Deployment
+
+GitHub Actions automatically deploys the web app when changes are pushed to the `main` branch. The workflow:
+
+1. Installs dependencies
+2. Builds with production environment variables
+3. Deploys to Cloudflare Pages using `pnpm run deploy`

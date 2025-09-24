@@ -1,15 +1,17 @@
 # Worker Package (@work-squared/worker)
 
-The Cloudflare Worker backend for Work Squared, providing WebSocket-based real-time sync, LLM proxy services, and static asset serving.
+The Cloudflare Worker backend for Work Squared, providing WebSocket-based real-time sync and event relay services.
 
 ## Overview
 
-This package contains the backend infrastructure for Work Squared:
+This package contains the **WebSocket sync server only** for Work Squared (as of September 2025):
 
 - **WebSocket Server**: Real-time synchronization using Cloudflare Durable Objects
-- **LLM Proxy**: Secure API calls to Braintrust for AI chat functionality
-- **Asset Serving**: Static frontend assets from the web package
 - **Event Relay**: LiveStore event distribution across connected clients
+- **JWT Validation**: Authentication token verification for WebSocket connections
+- **Connection State Management**: Persistent WebSocket connection handling
+
+**Note**: Static asset serving has been moved to Cloudflare Pages (`packages/web`).
 
 ## Architecture
 
@@ -17,8 +19,8 @@ This package contains the backend infrastructure for Work Squared:
 
 - **Durable Objects**: `WebSocketServer` manages persistent WebSocket connections
 - **D1 Database**: SQLite database for production data persistence
-- **Static Assets**: Serves the built React application from `../web/dist`
 - **Event Sourcing**: Integration with LiveStore for real-time collaboration
+- **WebSocket API**: HTTP upgrade handling for WebSocket connections
 
 ### Technologies
 
