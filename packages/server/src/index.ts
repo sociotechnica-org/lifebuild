@@ -48,7 +48,11 @@ async function main() {
     if (req.url === '/health') {
       const healthStatus = storeManager.getHealthStatus()
       const processingStats = eventProcessor.getProcessingStats()
-      const globalResourceStatus = eventProcessor.getGlobalResourceStatus()
+      const liveStoreStats = await eventProcessor.getLiveStoreStats()
+      const globalResourceStatus = eventProcessor.getGlobalResourceStatus({
+        pendingUserMessages: liveStoreStats.totals.pendingUserMessages,
+        userMessages: liveStoreStats.totals.userMessages,
+      })
       const processedStats = await eventProcessor.getProcessedMessageStats()
 
       res.writeHead(200, { 'Content-Type': 'application/json' })
@@ -62,9 +66,12 @@ async function main() {
           stores: healthStatus.stores.map(store => ({
             ...store,
             processing: processingStats.get(store.storeId) || null,
+            liveStore: liveStoreStats.perStore.get(store.storeId) || null,
           })),
           storeCount: healthStatus.stores.length,
           globalResources: globalResourceStatus,
+          liveStoreTotals: liveStoreStats.totals,
+          liveStorePerStore: Object.fromEntries(liveStoreStats.perStore),
           processedMessages: processedStats,
         })
       )
