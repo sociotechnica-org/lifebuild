@@ -1,0 +1,406 @@
+import { toolDef, requiredString, optionalString, optionalNumber, stringArray } from './base.js'
+
+/**
+ * Worksquared tool schemas - minimal syntax
+ * FK = foreign key, PK = primary key, ? = nullable
+ */
+export const llmToolSchemas = [
+  // Task Tools
+  toolDef('create_task', 'INSERT task', {
+    type: 'object',
+    properties: {
+      title: requiredString('title'),
+      description: optionalString('description'),
+      boardId: optionalString('projectId FK (? = orphan)'),
+      columnId: optionalString('columnId FK (? = default)'),
+      assigneeId: optionalString('assigneeId FK'),
+    },
+    required: ['title'],
+  }),
+
+  toolDef('update_task', 'UPDATE task fields', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('id PK'),
+      title: optionalString('title'),
+      description: optionalString('description'),
+      assigneeIds: stringArray('assignees[]'),
+    },
+    required: ['taskId'],
+  }),
+
+  toolDef('move_task', 'UPDATE columnId only', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('id PK'),
+      toColumnId: requiredString('columnId'),
+      position: optionalNumber('position (? = end)'),
+    },
+    required: ['taskId', 'toColumnId'],
+  }),
+
+  toolDef('move_task_to_project', 'UPDATE projectId + columnId', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('id PK'),
+      toProjectId: optionalString('projectId (? = orphan)'),
+      toColumnId: requiredString('columnId'),
+      position: optionalNumber('position (? = end)'),
+    },
+    required: ['taskId', 'toColumnId'],
+  }),
+
+  toolDef('archive_task', 'SET archived=true', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('id PK'),
+    },
+    required: ['taskId'],
+  }),
+
+  toolDef('unarchive_task', 'SET archived=false', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('id PK'),
+    },
+    required: ['taskId'],
+  }),
+
+  toolDef('get_task', 'SELECT task WHERE id=?', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('id PK'),
+    },
+    required: ['taskId'],
+  }),
+
+  toolDef('list_project_tasks', 'SELECT tasks WHERE projectId=?', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('projectId FK'),
+    },
+    required: ['projectId'],
+  }),
+
+  toolDef('list_orphaned_tasks', 'SELECT tasks WHERE projectId=NULL', {
+    type: 'object',
+    properties: {},
+    required: [],
+  }),
+
+  // Project Tools
+  toolDef('create_project', 'INSERT project', {
+    type: 'object',
+    properties: {
+      name: requiredString('name'),
+      description: optionalString('description'),
+    },
+    required: ['name'],
+  }),
+
+  toolDef('list_projects', 'SELECT projects WHERE active=true', {
+    type: 'object',
+    properties: {},
+    required: [],
+  }),
+
+  toolDef('get_project', 'SELECT project WHERE id=?', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('id PK'),
+    },
+    required: ['projectId'],
+  }),
+
+  // Document Tools
+  toolDef('list_documents', 'SELECT docs WHERE archived=false', {
+    type: 'object',
+    properties: {},
+    required: [],
+  }),
+
+  toolDef('read_document', 'SELECT content WHERE id=?', {
+    type: 'object',
+    properties: {
+      documentId: requiredString('id PK'),
+    },
+    required: ['documentId'],
+  }),
+
+  toolDef('search_documents', 'SELECT docs WHERE title||content LIKE %?%', {
+    type: 'object',
+    properties: {
+      query: requiredString('search string'),
+    },
+    required: ['query'],
+  }),
+
+  toolDef('list_project_documents', 'SELECT docs JOIN project_docs WHERE projectId=?', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('projectId FK'),
+    },
+    required: ['projectId'],
+  }),
+
+  toolDef('search_project_documents', 'SELECT docs WHERE projectId=? AND LIKE %?%', {
+    type: 'object',
+    properties: {
+      query: requiredString('search string'),
+      projectId: optionalString('projectId FK filter'),
+    },
+    required: ['query'],
+  }),
+
+  toolDef('create_document', 'INSERT doc', {
+    type: 'object',
+    properties: {
+      title: requiredString('title'),
+      content: optionalString('content (? = "")'),
+    },
+    required: ['title'],
+  }),
+
+  toolDef('update_document', 'UPDATE doc fields', {
+    type: 'object',
+    properties: {
+      documentId: requiredString('id PK'),
+      title: optionalString('title'),
+      content: optionalString('content'),
+    },
+    required: ['documentId'],
+  }),
+
+  toolDef('archive_document', 'SET archived=true', {
+    type: 'object',
+    properties: {
+      documentId: requiredString('id PK'),
+    },
+    required: ['documentId'],
+  }),
+
+  toolDef('add_document_to_project', 'INSERT project_docs link', {
+    type: 'object',
+    properties: {
+      documentId: requiredString('docId FK'),
+      projectId: requiredString('projId FK'),
+    },
+    required: ['documentId', 'projectId'],
+  }),
+
+  toolDef('remove_document_from_project', 'DELETE project_docs link', {
+    type: 'object',
+    properties: {
+      documentId: requiredString('docId FK'),
+      projectId: requiredString('projId FK'),
+    },
+    required: ['documentId', 'projectId'],
+  }),
+
+  // Contact Tools
+  toolDef('list_contacts', 'SELECT contacts', {
+    type: 'object',
+    properties: {},
+    required: [],
+  }),
+
+  toolDef('get_contact', 'SELECT contact WHERE id=?', {
+    type: 'object',
+    properties: {
+      contactId: requiredString('id PK'),
+    },
+    required: ['contactId'],
+  }),
+
+  toolDef('search_contacts', 'SELECT WHERE name||email LIKE %?%', {
+    type: 'object',
+    properties: {
+      query: requiredString('search string'),
+    },
+    required: ['query'],
+  }),
+
+  toolDef('create_contact', 'INSERT contact', {
+    type: 'object',
+    properties: {
+      name: optionalString('name'),
+      email: requiredString('email'),
+    },
+    required: ['email'],
+  }),
+
+  toolDef('update_contact', 'UPDATE contact fields', {
+    type: 'object',
+    properties: {
+      contactId: requiredString('id PK'),
+      name: optionalString('name'),
+      email: optionalString('email'),
+    },
+    required: ['contactId'],
+  }),
+
+  toolDef('delete_contact', 'DELETE contact (CASCADE)', {
+    type: 'object',
+    properties: {
+      contactId: requiredString('id PK'),
+    },
+    required: ['contactId'],
+  }),
+
+  toolDef('list_project_contacts', 'SELECT contacts WHERE projectId=?', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('projectId FK'),
+    },
+    required: ['projectId'],
+  }),
+
+  toolDef('list_contact_projects', 'SELECT projects WHERE contactId=?', {
+    type: 'object',
+    properties: {
+      contactId: requiredString('contactId FK'),
+    },
+    required: ['contactId'],
+  }),
+
+  toolDef('add_contact_to_project', 'INSERT project_contacts link', {
+    type: 'object',
+    properties: {
+      contactId: requiredString('contactId FK'),
+      projectId: requiredString('projectId FK'),
+    },
+    required: ['contactId', 'projectId'],
+  }),
+
+  toolDef('remove_contact_from_project', 'DELETE project_contacts link', {
+    type: 'object',
+    properties: {
+      contactId: requiredString('contactId FK'),
+      projectId: requiredString('projectId FK'),
+    },
+    required: ['contactId', 'projectId'],
+  }),
+
+  toolDef('get_project_emails', 'SELECT emails WHERE projectId=?', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('projectId FK'),
+    },
+    required: ['projectId'],
+  }),
+
+  // Email Tools
+  toolDef('match_emails', 'SELECT contacts WHERE email IN(?)', {
+    type: 'object',
+    properties: {
+      emails: stringArray('emails[]'),
+    },
+    required: ['emails'],
+  }),
+
+  toolDef('list_project_emails', 'SELECT emails WHERE projectId=?', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('projectId FK'),
+    },
+    required: ['projectId'],
+  }),
+
+  toolDef('validate_emails', 'VALIDATE + normalize emails', {
+    type: 'object',
+    properties: {
+      emails: stringArray('emails[]'),
+    },
+    required: ['emails'],
+  }),
+
+  toolDef('identify_new_emails', 'RETURN emails NOT IN contacts', {
+    type: 'object',
+    properties: {
+      emails: stringArray('emails[]'),
+    },
+    required: ['emails'],
+  }),
+
+  // Worker Tools
+  toolDef('create_worker', 'INSERT worker', {
+    type: 'object',
+    properties: {
+      name: requiredString('name'),
+      roleDescription: optionalString('role'),
+      systemPrompt: requiredString('prompt'),
+      avatar: optionalString('avatarUrl'),
+      defaultModel: requiredString('model'),
+    },
+    required: ['name', 'systemPrompt', 'defaultModel'],
+  }),
+
+  toolDef('update_worker', 'UPDATE worker fields', {
+    type: 'object',
+    properties: {
+      workerId: requiredString('id PK'),
+      name: optionalString('name'),
+      roleDescription: optionalString('role'),
+      systemPrompt: optionalString('prompt'),
+      avatar: optionalString('avatarUrl'),
+      defaultModel: optionalString('model'),
+    },
+    required: ['workerId'],
+  }),
+
+  toolDef('list_workers', 'SELECT workers WHERE active=true', {
+    type: 'object',
+    properties: {},
+    required: [],
+  }),
+
+  toolDef('get_worker', 'SELECT worker WHERE id=?', {
+    type: 'object',
+    properties: {
+      workerId: requiredString('id PK'),
+    },
+    required: ['workerId'],
+  }),
+
+  toolDef('deactivate_worker', 'SET active=false', {
+    type: 'object',
+    properties: {
+      workerId: requiredString('id PK'),
+    },
+    required: ['workerId'],
+  }),
+
+  toolDef('assign_worker', 'INSERT project_workers link', {
+    type: 'object',
+    properties: {
+      workerId: requiredString('workerId FK'),
+      projectId: requiredString('projectId FK'),
+    },
+    required: ['workerId', 'projectId'],
+  }),
+
+  toolDef('unassign_worker', 'DELETE project_workers link', {
+    type: 'object',
+    properties: {
+      workerId: requiredString('workerId FK'),
+      projectId: requiredString('projectId FK'),
+    },
+    required: ['workerId', 'projectId'],
+  }),
+
+  toolDef('list_project_workers', 'SELECT workers WHERE projectId=?', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('projectId FK'),
+    },
+    required: ['projectId'],
+  }),
+
+  toolDef('list_worker_projects', 'SELECT projects WHERE workerId=?', {
+    type: 'object',
+    properties: {
+      workerId: requiredString('workerId FK'),
+    },
+    required: ['workerId'],
+  }),
+]
