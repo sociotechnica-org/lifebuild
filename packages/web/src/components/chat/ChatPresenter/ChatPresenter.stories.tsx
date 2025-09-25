@@ -51,6 +51,7 @@ const mockConversations: Conversation[] = [
     updatedAt: new Date('2024-01-01T10:30:00'),
     model: 'claude-sonnet-4-20250514',
     workerId: 'worker-1',
+    processingState: 'idle',
   },
   {
     id: 'conv-2',
@@ -59,6 +60,7 @@ const mockConversations: Conversation[] = [
     updatedAt: new Date('2024-01-01T14:45:00'),
     model: 'claude-sonnet-4-20250514',
     workerId: 'worker-1',
+    processingState: 'processing',
   },
 ]
 

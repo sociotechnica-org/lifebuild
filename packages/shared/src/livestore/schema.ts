@@ -119,6 +119,7 @@ const conversations = State.SQLite.table({
     title: State.SQLite.text({ default: '' }),
     model: State.SQLite.text({ default: DEFAULT_MODEL }),
     workerId: State.SQLite.text({ nullable: true }),
+    processingState: State.SQLite.text({ default: 'idle' }), // 'idle' | 'processing'
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
@@ -480,8 +481,12 @@ const materializers = State.SQLite.materializers(events, {
       createdAt,
       llmMetadata,
     }),
-  'v1.LLMResponseStarted': () => [],
-  'v1.LLMResponseCompleted': () => [],
+  'v1.LLMResponseStarted': ({ conversationId }) => [
+    conversations.update({ processingState: 'processing' }).where({ id: conversationId }),
+  ],
+  'v1.LLMResponseCompleted': ({ conversationId }) => [
+    conversations.update({ processingState: 'idle' }).where({ id: conversationId }),
+  ],
   'v1.CommentAdded': ({ id, taskId, authorId, content, createdAt, actorId }) => [
     comments.insert({ id, taskId, authorId, content, createdAt }),
     eventsLog.insert({

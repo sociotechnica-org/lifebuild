@@ -4,6 +4,12 @@ import { describe, expect, it } from 'vitest'
 import { ChatPresenter } from './ChatPresenter.js'
 import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
 
+// Mock scrollIntoView for tests
+Object.defineProperty(window.Element.prototype, 'scrollIntoView', {
+  writable: true,
+  value: () => {},
+})
+
 describe('ChatPresenter', () => {
   const mockWorker: Worker = {
     id: 'worker-1',
@@ -24,9 +30,21 @@ describe('ChatPresenter', () => {
     updatedAt: new Date('2024-01-01T01:05:00Z'),
     model: 'claude-sonnet-4-20250514',
     workerId: 'worker-1',
+    processingState: 'idle',
   }
 
-  const baseMessages: ChatMessage[] = []
+  const baseMessages: ChatMessage[] = [
+    {
+      id: 'msg-1',
+      conversationId: 'conversation-1',
+      message: 'Hello',
+      role: 'user',
+      createdAt: new Date('2024-01-01T02:00:00Z'),
+      modelId: null,
+      responseToMessageId: null,
+      llmMetadata: null,
+    },
+  ]
 
   const baseHandlers = {
     onConversationChange: () => {},
@@ -73,7 +91,7 @@ describe('ChatPresenter', () => {
     )
 
     expect(
-      screen.getByRole('option', { name: 'Strategy Session (thinking...)' })
+      screen.getByRole('option', { name: 'Strategy Session 🔄' })
     ).toBeInTheDocument()
   })
 })
