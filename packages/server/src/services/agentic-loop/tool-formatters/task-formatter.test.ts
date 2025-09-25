@@ -19,7 +19,7 @@ describe('TaskToolFormatter', () => {
     )
 
     expect(resultMessage).toContain(`on board "Danvers' Game of LifeSquared"`)
-    expect(resultMessage).toContain('<CHORUS_TAG>task:task-123</CHORUS_TAG>')
+    expect(resultMessage).toContain('<CHORUS_TAG path="task:task-123">task-123</CHORUS_TAG>')
   })
 
   it('falls back to project name when board name is not provided', () => {

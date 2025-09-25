@@ -194,31 +194,31 @@ These examples show how server-side tool formatters generate CHORUS_TAG elements
 ## Document Tools
 Document created successfully:
 • Title: Project Requirements  
-• Document ID: <CHORUS_TAG>document:doc-123-abc</CHORUS_TAG>
+• Document ID: <CHORUS_TAG path="document:doc-123-abc">doc-123-abc</CHORUS_TAG>
 • Content length: 1,250 characters
 
 Available documents:
-• Project Requirements (ID: <CHORUS_TAG>document:doc-123-abc</CHORUS_TAG>) - Updated: 12/5/2023
-• API Documentation (ID: <CHORUS_TAG>document:doc-456-def</CHORUS_TAG>) - Updated: 12/4/2023
+• Project Requirements (ID: <CHORUS_TAG path="document:doc-123-abc">doc-123-abc</CHORUS_TAG>) - Updated: 12/5/2023
+• API Documentation (ID: <CHORUS_TAG path="document:doc-456-def">doc-456-def</CHORUS_TAG>) - Updated: 12/4/2023
 
 ## Project Tools  
 Project created successfully:
 • Name: Mobile App Redesign
-• ID: <CHORUS_TAG>project:proj-789-ghi</CHORUS_TAG>  
+• ID: <CHORUS_TAG path="project:proj-789-ghi">proj-789-ghi</CHORUS_TAG>  
 • Description: Complete redesign of mobile application
 • Default columns created: "Backlog", "In Progress", "Review", "Done"
 
 Available projects:
-• Mobile App Redesign (ID: <CHORUS_TAG>project:proj-789-ghi</CHORUS_TAG>) - Complete redesign  
-• Backend API (ID: <CHORUS_TAG>project:proj-101-jkl</CHORUS_TAG>) - RESTful API development
+• Mobile App Redesign (ID: <CHORUS_TAG path="project:proj-789-ghi">proj-789-ghi</CHORUS_TAG>) - Complete redesign  
+• Backend API (ID: <CHORUS_TAG path="project:proj-101-jkl">proj-101-jkl</CHORUS_TAG>) - RESTful API development
 
 ## Task Tools
-Task created successfully: "Implement user authentication" on board "Backend API" in column "In Progress" (assigned to John Doe). Task ID: <CHORUS_TAG>task:task-202-mno</CHORUS_TAG>
+Task created successfully: "Implement user authentication" on board "Backend API" in column "In Progress" (assigned to John Doe). Task ID: <CHORUS_TAG path="task:task-202-mno">task-202-mno</CHORUS_TAG>
 
 Task details:
-• ID: <CHORUS_TAG>task:task-202-mno</CHORUS_TAG>
+• ID: <CHORUS_TAG path="task:task-202-mno">task-202-mno</CHORUS_TAG>
 • Title: Implement user authentication  
-• Project ID: <CHORUS_TAG>project:proj-101-jkl</CHORUS_TAG>
+• Project ID: <CHORUS_TAG path="project:proj-101-jkl">proj-101-jkl</CHORUS_TAG>
 • Column ID: col-in-progress
 • Description: Add JWT-based authentication system
 • Position: 3
