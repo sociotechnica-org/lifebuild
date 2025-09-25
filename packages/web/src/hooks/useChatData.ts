@@ -6,7 +6,6 @@ import {
   getConversationMessages$,
   getWorkerById$,
   getWorkers$,
-  getActiveLLMProcessing$,
 } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
 import type { Conversation, ChatMessage, Worker } from '@work-squared/shared/schema'
@@ -44,15 +43,22 @@ export const useChatData = (): ChatData => {
   // Basic queries
   const conversations = useQuery(getConversations$) ?? []
   const availableWorkers = useQuery(getWorkers$) ?? []
-  const llmEvents = useQuery(getActiveLLMProcessing$) ?? []
 
   // Local state
   const [selectedConversationId, setSelectedConversationId] = React.useState<string | null>(null)
   const [showChatPicker, setShowChatPicker] = React.useState(false)
   const [messageText, setMessageText] = React.useState('')
-  const [processingConversations, setProcessingConversations] = React.useState<Set<string>>(
-    new Set()
-  )
+
+  // Calculate processing conversations from conversation state
+  const processingConversations = React.useMemo(() => {
+    const processing = new Set<string>()
+    conversations.forEach(conversation => {
+      if (conversation.processingState === 'processing') {
+        processing.add(conversation.id)
+      }
+    })
+    return processing
+  }, [conversations])
 
   // Handle URL parameters for conversation selection
   React.useEffect(() => {
@@ -79,54 +85,6 @@ export const useChatData = (): ChatData => {
   const queryConversationId = selectedConversationId ?? '__no_conversation__'
   const allMessages = useQuery(getConversationMessages$(queryConversationId)) ?? []
   const messages = selectedConversationId ? allMessages : []
-
-  // Track processing state based on LLM events - memoized to prevent infinite loops
-  const processLLMEvents = React.useMemo(() => {
-    const activeProcessing = new Set<string>()
-
-    // Group events by conversation
-    const eventsByConversation = new Map<string, { started: any[]; completed: any[] }>()
-
-    for (const event of llmEvents) {
-      const eventData = event.eventData as any
-      const conversationId = eventData.conversationId
-
-      if (!eventsByConversation.has(conversationId)) {
-        eventsByConversation.set(conversationId, { started: [], completed: [] })
-      }
-
-      const group = eventsByConversation.get(conversationId)!
-
-      if (event.eventType === 'v1.LLMResponseStarted') {
-        group.started.push(event)
-      } else if (event.eventType === 'v1.LLMResponseCompleted') {
-        group.completed.push(event)
-      }
-    }
-
-    // For each conversation, check if there are unmatched start events
-    for (const [conversationId, { started, completed }] of eventsByConversation) {
-      // Sort by creation time
-      const sortedStarted = started.sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
-      const sortedCompleted = completed.sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
-
-      // If we have more starts than completions, this conversation is still processing
-      if (sortedStarted.length > sortedCompleted.length) {
-        activeProcessing.add(conversationId)
-      }
-    }
-
-    return activeProcessing
-  }, [llmEvents])
-
-  // Update processing state when LLM events change
-  React.useEffect(() => {
-    setProcessingConversations(processLLMEvents)
-  }, [processLLMEvents])
 
   // Action handlers
   const handleConversationChange = React.useCallback(

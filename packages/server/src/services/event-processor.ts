@@ -572,9 +572,10 @@ export class EventProcessor {
     }
 
     let llmCallCompleted = false
+    let completionEventEmitted = false
     try {
       const startTime = Date.now()
-      await this.runAgenticLoop(storeId, chatMessage, storeState)
+      completionEventEmitted = await this.runAgenticLoop(storeId, chatMessage, storeState)
       const responseTime = Date.now() - startTime
 
       // Track successful completion
@@ -589,7 +590,6 @@ export class EventProcessor {
       logger.error({ error, conversationId }, `Error in agentic loop`)
 
       // Emit error message to conversation
-      const store = this.storeManager.getStore(storeId)
       if (store) {
         store.commit(
           events.llmResponseReceived({
@@ -603,6 +603,19 @@ export class EventProcessor {
             llmMetadata: { source: 'error' },
           })
         )
+
+        if (!completionEventEmitted) {
+          store.commit(
+            events.llmResponseCompleted({
+              conversationId,
+              userMessageId: messageId,
+              createdAt: new Date(),
+              iterations: 0,
+              success: false,
+            })
+          )
+          completionEventEmitted = true
+        }
       }
     } finally {
       // Ensure LLM call is always cleaned up
@@ -612,6 +625,19 @@ export class EventProcessor {
 
       // Always remove from active conversations
       storeState.activeConversations.delete(conversationId)
+    }
+
+    if (!completionEventEmitted && store) {
+      store.commit(
+        events.llmResponseCompleted({
+          conversationId,
+          userMessageId: messageId,
+          createdAt: new Date(),
+          iterations: 0,
+          success: llmCallCompleted,
+        })
+      )
+      completionEventEmitted = true
     }
 
     // Process any queued messages for this conversation (outside try/catch to avoid recursion)
@@ -656,9 +682,10 @@ export class EventProcessor {
     }
 
     let llmCallCompleted = false
+    let completionEventEmitted = false
     try {
       const startTime = Date.now()
-      await this.runAgenticLoop(storeId, chatMessage, storeState)
+      completionEventEmitted = await this.runAgenticLoop(storeId, chatMessage, storeState)
       const responseTime = Date.now() - startTime
 
       // Track successful completion
@@ -673,7 +700,6 @@ export class EventProcessor {
       logger.error({ error, conversationId }, `Error in agentic loop`)
 
       // Emit error message to conversation
-      const store = this.storeManager.getStore(storeId)
       if (store) {
         store.commit(
           events.llmResponseReceived({
@@ -687,6 +713,19 @@ export class EventProcessor {
             llmMetadata: { source: 'error' },
           })
         )
+
+        if (!completionEventEmitted) {
+          store.commit(
+            events.llmResponseCompleted({
+              conversationId,
+              userMessageId: messageId,
+              createdAt: new Date(),
+              iterations: 0,
+              success: false,
+            })
+          )
+          completionEventEmitted = true
+        }
       }
     } finally {
       // Ensure LLM call is always cleaned up
@@ -699,6 +738,18 @@ export class EventProcessor {
     }
 
     // NOTE: Deliberately NOT calling processQueuedMessages here to avoid recursion
+
+    if (!completionEventEmitted && store) {
+      store.commit(
+        events.llmResponseCompleted({
+          conversationId,
+          userMessageId: messageId,
+          createdAt: new Date(),
+          iterations: 0,
+          success: llmCallCompleted,
+        })
+      )
+    }
   }
 
   /**
@@ -708,14 +759,14 @@ export class EventProcessor {
     storeId: string,
     userMessage: ChatMessage,
     storeState: StoreProcessingState
-  ): Promise<void> {
+  ): Promise<boolean> {
     const store = this.storeManager.getStore(storeId)
     if (!store) {
-      return
+      return false
     }
 
     if (!storeState.llmProvider) {
-      return
+      return false
     }
 
     // Get conversation details, worker context, and history
@@ -747,7 +798,30 @@ export class EventProcessor {
     } catch (error) {
       logger.error({ error }, `Error querying conversation context`)
       // If we can't get the context due to store issues, bail out gracefully
-      return
+      store.commit(
+        events.llmResponseReceived({
+          id: crypto.randomUUID(),
+          conversationId: userMessage.conversationId,
+          message: 'I had trouble loading the conversation context. Please try again.',
+          role: 'assistant',
+          modelId: 'error',
+          responseToMessageId: userMessage.id,
+          createdAt: new Date(),
+          llmMetadata: { source: 'context-load-error' },
+        })
+      )
+
+      store.commit(
+        events.llmResponseCompleted({
+          conversationId: userMessage.conversationId,
+          userMessageId: userMessage.id,
+          createdAt: new Date(),
+          iterations: 0,
+          success: false,
+        })
+      )
+
+      return true
     }
 
     let workerContext: WorkerContext | undefined = undefined
@@ -772,6 +846,8 @@ export class EventProcessor {
 
     // Sanitize conversation history to fix tool_use/tool_result mismatches
     const conversationHistory = this.sanitizeConversationHistory(rawHistory)
+
+    let completionEmitted = false
 
     // Create agentic loop instance with conversation history
     const agenticLoop = new AgenticLoop(
@@ -905,6 +981,7 @@ export class EventProcessor {
               success: false,
             })
           )
+          completionEmitted = true
         },
         onComplete: iterations => {
           // Send completion event to indicate the agentic loop has finished
@@ -918,6 +995,7 @@ export class EventProcessor {
               success: true,
             })
           )
+          completionEmitted = true
         },
       },
       conversationHistory
@@ -932,6 +1010,8 @@ export class EventProcessor {
       workerId: worker?.id,
       model: conversation?.model || DEFAULT_MODEL,
     })
+
+    return completionEmitted
   }
 
   /**

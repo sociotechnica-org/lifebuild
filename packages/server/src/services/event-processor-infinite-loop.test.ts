@@ -203,4 +203,50 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     // Should not trigger any processing since it's not a user message
     expect(mockStore.commit).not.toHaveBeenCalled()
   })
+
+  it('should emit completion event when conversation context fails to load', async () => {
+    const storeId = 'test-store'
+
+    eventProcessor.startMonitoring(storeId, mockStore as any)
+
+    const tableUpdateCallback = tableUpdateCallbacks.get('monitor-chatMessages-test-store')
+    expect(tableUpdateCallback).toBeDefined()
+
+    mockStore.commit.mockClear()
+
+    mockStore.query.mockImplementationOnce(() => {
+      throw new Error('context unavailable')
+    })
+
+    const failingMessage = {
+      id: 'msg-context-fail',
+      conversationId: 'conv-context',
+      message: 'hello?',
+      role: 'user',
+      createdAt: new Date(),
+    }
+
+    tableUpdateCallback!([failingMessage])
+
+    await new Promise(resolve => setImmediate(resolve))
+    await new Promise(resolve => setImmediate(resolve))
+
+    const startedEvents = (mockStore.commit as any).mock.calls.filter(
+      (call: any) => call[0]?.name === 'v1.LLMResponseStarted'
+    )
+    expect(startedEvents.length).toBe(1)
+
+    const completionEvents = (mockStore.commit as any).mock.calls.filter(
+      (call: any) => call[0]?.name === 'v1.LLMResponseCompleted'
+    )
+    expect(completionEvents.length).toBe(1)
+    expect(completionEvents[0][0].args.success).toBe(false)
+
+    const errorResponseEvents = (mockStore.commit as any).mock.calls.filter(
+      (call: any) =>
+        call[0]?.name === 'v1.LLMResponseReceived' &&
+        call[0]?.args?.llmMetadata?.source === 'context-load-error'
+    )
+    expect(errorResponseEvents.length).toBe(1)
+  })
 })

@@ -59,6 +59,8 @@ export const ChatPresenter: React.FC<ChatPresenterProps> = ({
     ? processingConversations.has(selectedConversationId)
     : false
 
+  const assistantName = currentWorker?.name || 'Assistant'
+
   return (
     <div className='h-full flex flex-col border-l border-gray-200'>
       {/* Chat header with worker info and conversation selector */}
@@ -87,12 +89,19 @@ export const ChatPresenter: React.FC<ChatPresenterProps> = ({
             onChange={e => onConversationChange(e.target.value)}
             className='flex-1 p-2 border border-gray-200 rounded text-sm'
           >
-            <option value=''>Chat with {currentWorker?.name || 'Assistant'}</option>
-            {conversations.map(conversation => (
-              <option key={conversation.id} value={conversation.id}>
-                {conversation.title}
-              </option>
-            ))}
+            <option value=''>Chat with {assistantName}</option>
+            {conversations.map(conversation => {
+              const isConversationProcessing = processingConversations.has(conversation.id)
+              const optionLabel = isConversationProcessing
+                ? `${conversation.title} 🔄`
+                : conversation.title
+
+              return (
+                <option key={conversation.id} value={conversation.id}>
+                  {optionLabel}
+                </option>
+              )
+            })}
           </select>
 
           <button
