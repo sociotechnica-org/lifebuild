@@ -15,7 +15,7 @@ W² reimagines project management with:
 - **Local-first architecture** - Works offline with automatic sync when reconnected
 - **Event-driven architecture** - Built on [LiveStore](https://livestore.dev)
 
-Read some of [the thinking behind the technical foundations underpinnign Work Squared](https://sociotechnica.org/notebook/ws-tech-foundations/).
+Read some of [the thinking behind the technical foundations underpinning Work Squared](https://sociotechnica.org/notebook/ws-tech-foundations/).
 
 ## Building in Public
 
