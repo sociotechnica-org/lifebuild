@@ -90,8 +90,6 @@ describe('ChatPresenter', () => {
       />
     )
 
-    expect(
-      screen.getByRole('option', { name: 'Strategy Session 🔄' })
-    ).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Strategy Session 🔄' })).toBeInTheDocument()
   })
 })
