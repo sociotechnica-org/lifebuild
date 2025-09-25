@@ -123,6 +123,7 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
     success: true,
     taskId,
     taskTitle: title.trim(),
+    boardName: targetProject.name,
     projectName: targetProject.name,
     columnName: targetColumn.name,
     assigneeName,

@@ -46,9 +46,18 @@ export class TaskToolFormatter implements ToolResultFormatter {
   }
 
   private formatCreateTask(result: any): string {
-    return `Task created successfully: "${result.taskTitle}" on board "${result.boardName}" in column "${result.columnName}"${
-      result.assigneeName ? ` (assigned to ${result.assigneeName})` : ''
-    }. Task ID: ${ChorusFormatter.task(result.taskId)}`
+    if (result?.success === false) {
+      const errorMessage = result?.error ?? 'Unknown error occurred'
+      return `Task creation failed: ${errorMessage}`
+    }
+
+    const taskTitle = result?.taskTitle ?? 'Untitled task'
+    const boardName = result?.boardName ?? result?.projectName ?? 'unknown board'
+    const columnName = result?.columnName ?? 'unknown column'
+    const assigneeSuffix = result?.assigneeName ? ` (assigned to ${result.assigneeName})` : ''
+    const taskId = result?.taskId ? ChorusFormatter.task(result.taskId) : 'unavailable'
+
+    return `Task created successfully: "${taskTitle}" on board "${boardName}" in column "${columnName}"${assigneeSuffix}. Task ID: ${taskId}`
   }
 
   private formatUpdateTask(result: any): string {

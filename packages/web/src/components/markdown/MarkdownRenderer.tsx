@@ -34,12 +34,16 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       try {
         // Process CHORUS_TAG elements with proper data attributes for click handling
         const processedContent = content.replace(
-          /<CHORUS_TAG>(.*?)<\/CHORUS_TAG>/g,
-          (match, filePath) => {
-            if (!filePath) return match
+          /<CHORUS_TAG([^>]*)>([\s\S]*?)<\/CHORUS_TAG>/g,
+          (match, attributeString = '', innerContent = '') => {
+            if (!innerContent) return match
+
+            const pathMatch = attributeString.match(/\spath=["']([^"']+)["']/)
+            const targetPath = pathMatch?.[1] ?? innerContent
+
             // Add data attributes for safe event delegation
-            const escapedPath = filePath.replace(/"/g, '&quot;')
-            return `<span class="chorus-file-link" data-file-path="${escapedPath}" data-chorus="true">${filePath}</span>`
+            const escapedPath = targetPath.replace(/"/g, '&quot;')
+            return `<span class="chorus-file-link" data-file-path="${escapedPath}" data-chorus="true">${innerContent}</span>`
           }
         )
 
