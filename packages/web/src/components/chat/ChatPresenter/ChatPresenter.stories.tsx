@@ -1,13 +1,61 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
 import { ChatPresenter } from './ChatPresenter.js'
-import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
+import { getConversations$, getWorkerById$ } from '@work-squared/shared/queries'
+import {
+  schema,
+  events,
+  type ChatMessage,
+  type Conversation,
+  type Worker,
+} from '@work-squared/shared/schema'
+import { LiveStoreProvider, useQuery } from '@livestore/react'
+import { makeInMemoryAdapter } from '@livestore/adapter-web'
+import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
+import { Store } from '@livestore/livestore'
 
 type ChatPresenterProps = React.ComponentProps<typeof ChatPresenter>
 
+const adapter = makeInMemoryAdapter()
+
+const ChatPresenterHelper = (props: ChatPresenterProps & { currentWorkerId?: string }) => {
+  const conversations = useQuery(getConversations$)
+
+  let currentWorker: Worker | null = null
+  if (props.currentWorkerId) {
+    currentWorker = useQuery(getWorkerById$(props.currentWorkerId))?.[0] || null
+  } else {
+    currentWorker = null
+  }
+  return <ChatPresenter {...props} conversations={conversations} currentWorker={currentWorker} />
+}
+
+const storySetup = (store: Store) => {
+  store.commit(
+    events.workerCreated({
+      id: '1',
+      name: 'New Assistant',
+      createdAt: new Date(),
+      systemPrompt: 'You are a helpful assistant.',
+      defaultModel: 'claude-sonnet-4-20250514',
+      actorId: '1',
+    })
+  )
+
+  store.commit(
+    events.conversationCreated({
+      id: '1',
+      title: 'Conversation with New Assistant',
+      createdAt: new Date(),
+      model: 'claude-sonnet-4-20250514',
+      workerId: '1',
+    })
+  )
+}
+
 const meta = {
   title: 'Components/Chat/ChatPresenter',
-  component: ChatPresenter,
+  component: ChatPresenterHelper,
   parameters: {
     layout: 'fullscreen',
     docs: {
@@ -20,9 +68,16 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <div style={{ height: '600px' }}>
-        <Story />
-      </div>
+      <LiveStoreProvider
+        schema={schema}
+        adapter={adapter}
+        batchUpdates={batchUpdates}
+        boot={storySetup}
+      >
+        <div style={{ height: '600px' }}>
+          <Story />
+        </div>
+      </LiveStoreProvider>
     ),
   ],
 } satisfies Meta<typeof ChatPresenter>
@@ -121,23 +176,68 @@ export const Empty: Story = {
   args: defaultProps,
 }
 
+// Create some conversations with events
+// pass those into the specific story
+
+const withConversationsSetup = (store: Store) => {
+  store.commit(
+    events.workerCreated({
+      id: '1',
+      name: 'Sample Assistant',
+      avatar: '✨',
+      createdAt: new Date(),
+      systemPrompt: 'You are a helpful assistant.',
+      defaultModel: 'claude-sonnet-4-20250514',
+      actorId: '1',
+    })
+  )
+  store.commit(
+    events.conversationCreated({
+      id: '1',
+      title: 'Conversation with Sample Assistant',
+      model: 'claude-sonnet-4-20250514',
+      createdAt: new Date(),
+      workerId: '1',
+    })
+  )
+}
+
 export const WithConversations: Story = {
   args: {
     ...defaultProps,
-    conversations: mockConversations,
-    currentWorker: mockWorker,
   },
+  decorators: [
+    Story => (
+      <LiveStoreProvider
+        schema={schema}
+        adapter={adapter}
+        batchUpdates={batchUpdates}
+        boot={withConversationsSetup}
+      >
+        <Story />
+      </LiveStoreProvider>
+    ),
+  ],
 }
 
 export const WithSelectedConversation: Story = {
   args: {
     ...defaultProps,
-    conversations: mockConversations,
-    messages: mockMessages,
-    selectedConversation: mockConversations[0]!,
-    selectedConversationId: 'conv-1',
-    currentWorker: mockWorker,
+    selectedConversationId: '1',
+    currentWorkerId: '1',
   },
+  decorators: [
+    Story => (
+      <LiveStoreProvider
+        schema={schema}
+        adapter={adapter}
+        batchUpdates={batchUpdates}
+        boot={withConversationsSetup}
+      >
+        <Story />
+      </LiveStoreProvider>
+    ),
+  ],
 }
 
 export const Processing: Story = {
