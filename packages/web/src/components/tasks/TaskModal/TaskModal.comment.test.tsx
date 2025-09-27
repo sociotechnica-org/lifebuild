@@ -1,17 +1,24 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { TaskModal } from './TaskModal.js'
 import { SnackbarProvider } from '../../ui/Snackbar/Snackbar.js'
 import type { Task, User, Comment } from '@work-squared/shared/schema'
 
 // Mock LiveStore hooks
+const { mockUseAuth } = vi.hoisted(() => ({
+  mockUseAuth: vi.fn(),
+}))
 const mockCommit = vi.fn()
 const mockStore = { commit: mockCommit }
 
 vi.mock('@livestore/react', () => ({
   useQuery: vi.fn(),
   useStore: vi.fn(() => ({ store: mockStore })),
+}))
+
+vi.mock('../../../contexts/AuthContext.js', () => ({
+  useAuth: () => mockUseAuth(),
 }))
 
 // Import after mocking
@@ -94,6 +101,13 @@ describe('TaskModal Comments', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: 'user-1',
+        email: 'alice@example.com',
+        instances: [],
+      },
+    })
 
     // Default mock implementation
     mockUseQuery.mockImplementation((query: any) => {
@@ -139,6 +153,36 @@ describe('TaskModal Comments', () => {
 
     expect(screen.getByPlaceholderText('Add a comment...')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Comment' })).toBeInTheDocument()
+  })
+
+  it('should use authenticated user for comment composer when available', () => {
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: 'user-2',
+        email: 'bob@example.com',
+        instances: [],
+      },
+    })
+
+    renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
+
+    const composerContainer = screen
+      .getByPlaceholderText('Add a comment...')
+      .parentElement?.parentElement?.parentElement as HTMLElement
+
+    expect(within(composerContainer).getByTitle('Bob Smith')).toBeInTheDocument()
+  })
+
+  it('should fall back to first available user when auth user is missing', () => {
+    mockUseAuth.mockReturnValue({ user: null })
+
+    renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
+
+    const composerContainer = screen
+      .getByPlaceholderText('Add a comment...')
+      .parentElement?.parentElement?.parentElement as HTMLElement
+
+    expect(within(composerContainer).getByTitle('Alice Johnson')).toBeInTheDocument()
   })
 
   it('should validate comment content', async () => {

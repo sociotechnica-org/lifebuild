@@ -1,21 +1,26 @@
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { TaskModal } from './TaskModal.js'
 import { SnackbarProvider } from '../../ui/Snackbar/Snackbar.js'
 import { createMockTask, createMockColumn } from '../../../../tests/test-utils.js'
 
 // Hoisted mocks
-const { mockUseQuery, mockStore } = vi.hoisted(() => {
+const { mockUseQuery, mockStore, mockUseAuth } = vi.hoisted(() => {
   const mockUseQuery = vi.fn()
   const mockStore = { commit: vi.fn() }
-  return { mockUseQuery, mockStore }
+  const mockUseAuth = vi.fn()
+  return { mockUseQuery, mockStore, mockUseAuth }
 })
 
 // Mock @livestore/react
 vi.mock('@livestore/react', () => ({
   useQuery: mockUseQuery,
   useStore: () => ({ store: mockStore }),
+}))
+
+vi.mock('../../../contexts/AuthContext.js', () => ({
+  useAuth: () => mockUseAuth(),
 }))
 
 describe('TaskModal', () => {
@@ -28,6 +33,26 @@ describe('TaskModal', () => {
   })
 
   const mockColumns = [createMockColumn({ name: 'Todo' })]
+  const mockUsers = [
+    {
+      id: 'user-1',
+      name: 'Alice Johnson',
+      email: 'alice@example.com',
+      avatarUrl: null,
+      isAdmin: false,
+      createdAt: new Date('2023-01-01T09:00:00Z'),
+      syncedAt: null,
+    },
+    {
+      id: 'user-2',
+      name: 'Bob Smith',
+      email: 'bob@example.com',
+      avatarUrl: null,
+      isAdmin: false,
+      createdAt: new Date('2023-01-01T09:30:00Z'),
+      syncedAt: null,
+    },
+  ]
 
   // Helper to render with providers
   const renderWithProviders = (component: React.ReactElement) => {
@@ -37,6 +62,13 @@ describe('TaskModal', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockStore.commit.mockClear()
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: 'user-1',
+        email: 'alice@example.com',
+        instances: [],
+      },
+    })
 
     // Default mock implementation
     mockUseQuery.mockImplementation((query: any) => {
@@ -45,6 +77,9 @@ describe('TaskModal', () => {
       }
       if (query.label?.includes('getBoardColumns')) {
         return mockColumns
+      }
+      if (query.label?.includes('getUsers')) {
+        return mockUsers
       }
       return []
     })
@@ -103,6 +138,24 @@ describe('TaskModal', () => {
 
     // Check that dates are formatted (contains "Jan" for January) - should have 2 instances
     expect(screen.getAllByText(/Jan 1, 2023/)).toHaveLength(2)
+  })
+
+  it('uses authenticated user for comment composer when available', () => {
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: 'user-2',
+        email: 'bob@example.com',
+        instances: [],
+      },
+    })
+
+    renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
+
+    const composerContainer = screen
+      .getByPlaceholderText('Add a comment...')
+      .parentElement?.parentElement?.parentElement as HTMLElement
+
+    expect(within(composerContainer).getByTitle('Bob Smith')).toBeInTheDocument()
   })
 
   it('should call onClose when close button is clicked', () => {

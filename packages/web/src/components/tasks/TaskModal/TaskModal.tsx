@@ -14,6 +14,7 @@ import { getInitials } from '../../../util/initials.js'
 import { useSnackbar } from '../../ui/Snackbar/Snackbar.js'
 import { Markdown } from '../../markdown/Markdown.js'
 import { MoveTaskModal } from '../MoveTaskModal.js'
+import { useAuth } from '../../../contexts/AuthContext.js'
 
 interface TaskModalProps {
   taskId: string | null
@@ -25,6 +26,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   if (!taskId) return null
 
   const { store } = useStore()
+  const { user: authUser } = useAuth()
   const { showSnackbar } = useSnackbar()
   const taskResult = useQuery(getTaskById$(taskId))
   const task = taskResult?.[0] as Task | undefined
@@ -38,8 +40,17 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   const users = useQuery(getUsers$) ?? []
   const comments = useQuery(getTaskComments$(taskId)) ?? []
 
-  // Get first user as current user (for comments)
-  const currentUser = users[0]
+  // Prefer authenticated user for comment composer, fallback to first available user
+  const currentUser = React.useMemo(() => {
+    if (authUser) {
+      const matchedUser = users.find((user: User) => user.id === authUser.id)
+      if (matchedUser) {
+        return matchedUser
+      }
+    }
+
+    return users[0]
+  }, [authUser, users])
 
   // Parse assigneeIds from JSON string safely
   let currentAssigneeIds: string[] = []
