@@ -1,12 +1,40 @@
 import type { ToolResultFormatter } from './types.js'
 import { ChorusFormatter } from './chorus-formatter.js'
 
+// Formatter contract interfaces to ensure tool results match formatter expectations
+export interface TaskFormatterResult {
+  success: boolean
+  error?: string
+  taskId?: string
+  taskTitle?: string
+  projectName?: string
+  columnName?: string
+  assigneeNames?: string[]
+  task?: {
+    id: string
+    title?: string
+    description?: string
+    projectId?: string
+    columnId?: string
+    position?: number
+    assigneeIds?: string[]
+    archivedAt?: Date | null
+  }
+  tasks?: Array<{
+    id: string
+    title: string
+    columnId: string
+    position: number
+  }>
+}
+
 export class TaskToolFormatter implements ToolResultFormatter {
   private readonly taskTools = [
     'create_task',
     'update_task',
-    'move_task',
+    'move_task_within_project',
     'move_task_to_project',
+    'orphan_task',
     'archive_task',
     'unarchive_task',
     'get_task_by_id',
@@ -26,10 +54,12 @@ export class TaskToolFormatter implements ToolResultFormatter {
         return this.formatCreateTask(toolResult)
       case 'update_task':
         return this.formatUpdateTask(toolResult)
-      case 'move_task':
-        return this.formatMoveTask(toolResult)
+      case 'move_task_within_project':
+        return this.formatMoveTaskWithinProject(toolResult)
       case 'move_task_to_project':
         return this.formatMoveTaskToProject(toolResult)
+      case 'orphan_task':
+        return this.formatOrphanTask(toolResult)
       case 'archive_task':
         return this.formatArchiveTask(toolResult)
       case 'unarchive_task':
@@ -45,19 +75,21 @@ export class TaskToolFormatter implements ToolResultFormatter {
     }
   }
 
-  private formatCreateTask(result: any): string {
+  private formatCreateTask(result: TaskFormatterResult): string {
     if (result?.success === false) {
       const errorMessage = result?.error ?? 'Unknown error occurred'
       return `Task creation failed: ${errorMessage}`
     }
 
     const taskTitle = result?.taskTitle ?? 'Untitled task'
-    const boardName = result?.boardName ?? result?.projectName ?? 'unknown board'
+    const projectName = result?.projectName ?? 'unknown project'
     const columnName = result?.columnName ?? 'unknown column'
-    const assigneeSuffix = result?.assigneeName ? ` (assigned to ${result.assigneeName})` : ''
+    const assigneeSuffix = result?.assigneeNames?.length
+      ? ` (assigned to ${result.assigneeNames.join(', ')})`
+      : ''
     const taskId = result?.taskId ? ChorusFormatter.task(result.taskId) : 'unavailable'
 
-    return `Task created successfully: "${taskTitle}" on board "${boardName}" in column "${columnName}"${assigneeSuffix}. Task ID: ${taskId}`
+    return `Task created successfully: "${taskTitle}" in project "${projectName}" column "${columnName}"${assigneeSuffix}. Task ID: ${taskId}`
   }
 
   private formatUpdateTask(result: any): string {
@@ -77,21 +109,25 @@ export class TaskToolFormatter implements ToolResultFormatter {
     return message
   }
 
-  private formatMoveTask(result: any): string {
+  private formatMoveTaskWithinProject(result: any): string {
     if (!result.task?.id) {
       return 'Task move failed: Task ID not found'
     }
-    return `Task moved successfully:\n• Task ID: ${ChorusFormatter.task(result.task.id)}\n• New column ID: ${result.task.columnId}\n• Position: ${result.task.position}`
+    return `Task moved within project successfully:\n• Task ID: ${ChorusFormatter.task(result.task.id)}\n• New column ID: ${result.task.columnId}\n• Position: ${result.task.position}`
   }
 
   private formatMoveTaskToProject(result: any): string {
     if (!result.task?.id) {
       return 'Task move to project failed: Task ID not found'
     }
-    const projectIdFormatted = result.task.projectId
-      ? ChorusFormatter.project(result.task.projectId)
-      : 'orphaned'
-    return `Task moved to project:\n• Task ID: ${ChorusFormatter.task(result.task.id)}\n• New project ID: ${projectIdFormatted}\n• New column ID: ${result.task.columnId}\n• Position: ${result.task.position}`
+    return `Task moved to project:\n• Task ID: ${ChorusFormatter.task(result.task.id)}\n• New project ID: ${ChorusFormatter.project(result.task.projectId)}\n• New column ID: ${result.task.columnId}\n• Position: ${result.task.position}`
+  }
+
+  private formatOrphanTask(result: any): string {
+    if (!result.task?.id) {
+      return 'Task orphaning failed: Task ID not found'
+    }
+    return `Task orphaned successfully:\n• Task ID: ${ChorusFormatter.task(result.task.id)}\n• Orphaned column ID: ${result.task.columnId}\n• Position: ${result.task.position}`
   }
 
   private formatArchiveTask(result: any): string {
@@ -125,14 +161,15 @@ export class TaskToolFormatter implements ToolResultFormatter {
   }
 
   private formatGetProjectTasks(result: any): string {
+    const projectInfo = result.projectName ? ` for "${result.projectName}"` : ''
     const taskList =
       result.tasks
         ?.map(
           (t: any) =>
-            `${t.title} (ID: ${ChorusFormatter.task(t.id)}) - Column: ${t.columnId}, Position: ${t.position}`
+            `${t.title} (ID: ${ChorusFormatter.task(t.id)}) - Column: ${t.columnName || t.columnId}, Position: ${t.position}`
         )
         .join('\n• ') || 'No tasks found in project'
-    return `Project tasks:\n• ${taskList}`
+    return `Project tasks${projectInfo}:\n• ${taskList}`
   }
 
   private formatGetOrphanedTasks(result: any): string {

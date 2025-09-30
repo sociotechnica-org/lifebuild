@@ -4,7 +4,7 @@
  */
 
 export interface ChorusTag {
-  type: 'document' | 'project' | 'task' | 'file'
+  type: 'document' | 'project' | 'task' | 'file' | 'contact'
   id?: string
   path?: string
 }
@@ -36,6 +36,13 @@ export class ChorusFormatter {
   }
 
   /**
+   * Wraps a contact ID in a CHORUS_TAG for navigation to contact details
+   */
+  static contact(contactId: string, options?: ChorusFormatterOptions): string {
+    return this.wrap('contact', contactId, options)
+  }
+
+  /**
    * Wraps a file path in a CHORUS_TAG for file system navigation
    */
   static file(filePath: string, options?: ChorusFormatterOptions): string {
@@ -46,7 +53,11 @@ export class ChorusFormatter {
    * Creates a formatted reference with both readable text and clickable ID
    * Example: "Document: My Document (ID: <CHORUS_TAG path=\"document:123\">123</CHORUS_TAG>)"
    */
-  static reference(type: 'document' | 'project' | 'task', id: string, title?: string): string {
+  static reference(
+    type: 'document' | 'project' | 'task' | 'contact',
+    id: string,
+    title?: string
+  ): string {
     const chorusTag = this[type](id)
     if (title) {
       return `${title} (ID: ${chorusTag})`

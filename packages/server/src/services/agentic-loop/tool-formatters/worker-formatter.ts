@@ -115,10 +115,8 @@ export class WorkerToolFormatter implements ToolResultFormatter {
       `**Default Model:** ${worker.defaultModel}`,
       worker.roleDescription ? `**Role:** ${worker.roleDescription}` : '',
       worker.avatar ? `**Avatar:** ${worker.avatar}` : '',
-      `**Created:** ${new Date(worker.createdAt).toLocaleDateString()}`,
-      worker.updatedAt
-        ? `**Last Updated:** ${new Date(worker.updatedAt).toLocaleDateString()}`
-        : '',
+      `**Created:** ${new Date(worker.createdAt).toISOString()}`,
+      worker.updatedAt ? `**Last Updated:** ${new Date(worker.updatedAt).toISOString()}` : '',
       '',
       `**System Prompt:**\n\`\`\`\n${worker.systemPrompt}\n\`\`\``,
       '',

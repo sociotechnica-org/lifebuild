@@ -30,8 +30,9 @@ export async function executeLLMTool(
   const {
     createTask,
     updateTask,
-    moveTask,
+    moveTaskWithinProject,
     moveTaskToProject,
+    orphanTask,
     archiveTask,
     unarchiveTask,
     getTaskById,
@@ -91,11 +92,14 @@ export async function executeLLMTool(
     case 'update_task':
       return updateTask(store, toolCall.parameters)
 
-    case 'move_task':
-      return moveTask(store, toolCall.parameters)
+    case 'move_task_within_project':
+      return moveTaskWithinProject(store, toolCall.parameters)
 
     case 'move_task_to_project':
       return moveTaskToProject(store, toolCall.parameters)
+
+    case 'orphan_task':
+      return orphanTask(store, toolCall.parameters)
 
     case 'archive_task':
       return archiveTask(store, toolCall.parameters.taskId)

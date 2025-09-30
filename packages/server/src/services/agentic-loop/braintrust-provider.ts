@@ -79,7 +79,7 @@ WORKER PROFILE:
 ${sanitizedWorkerContext.roleDescription ? `- Role: ${sanitizedWorkerContext.roleDescription}` : ''}
 
 You have access to tools for:
-- Creating and managing tasks (create_task, update_task, move_task, move_task_to_project, archive_task, unarchive_task)
+- Creating and managing tasks (create_task, update_task, move_task_within_project, move_task_to_project, orphan_task, archive_task, unarchive_task)
 - Viewing tasks (get_task_by_id, get_project_tasks, get_orphaned_tasks)
 - Managing projects (list_projects, get_project_details)
 - Creating and managing documents (create_document, update_document, archive_document)
@@ -113,7 +113,7 @@ Remember: You're not just answering questions—you're helping build successful 
       systemPrompt = `${baseSystemPrompt}
 
 You have access to tools for:
-- Creating and managing tasks (create_task, update_task, move_task, move_task_to_project, archive_task, unarchive_task)
+- Creating and managing tasks (create_task, update_task, move_task_within_project, move_task_to_project, orphan_task, archive_task, unarchive_task)
 - Viewing tasks (get_task_by_id, get_project_tasks, get_orphaned_tasks)
 - Managing projects (list_projects, get_project_details)
 - Creating and managing documents (create_document, update_document, archive_document)

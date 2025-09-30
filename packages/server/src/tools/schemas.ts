@@ -6,18 +6,16 @@ import { toolDef, requiredString, optionalString, optionalNumber, stringArray } 
  */
 export const llmToolSchemas = [
   // Task Management Tools
-  toolDef('create_task', 'Create a new task in the Kanban system', {
+  toolDef('create_task', 'Create a new task in a specific project and column', {
     type: 'object',
     properties: {
       title: requiredString('The title/name of the task'),
       description: optionalString('Optional detailed description of the task'),
-      boardId: optionalString(
-        'ID of the project to create the task on (defaults to first project)'
-      ),
-      columnId: optionalString('ID of the column to place the task in (defaults to first column)'),
-      assigneeId: optionalString('ID of the user to assign the task to'),
+      projectId: requiredString('ID of the project to create the task in'),
+      columnId: requiredString('ID of the column to place the task in'),
+      assigneeIds: stringArray('Array of user IDs to assign to the task'),
     },
-    required: ['title'],
+    required: ['title', 'projectId', 'columnId'],
   }),
 
   toolDef('update_task', 'Update an existing task with new information', {
@@ -31,24 +29,40 @@ export const llmToolSchemas = [
     required: ['taskId'],
   }),
 
-  toolDef('move_task', 'Move a task to a different column within the same project', {
-    type: 'object',
-    properties: {
-      taskId: requiredString('The ID of the task to move'),
-      toColumnId: requiredString('The ID of the column to move the task to'),
-      position: optionalNumber('Position in the column (defaults to end)'),
-    },
-    required: ['taskId', 'toColumnId'],
-  }),
+  toolDef(
+    'move_task_within_project',
+    'Move a task to a different column within the same project (task must have a projectId)',
+    {
+      type: 'object',
+      properties: {
+        taskId: requiredString('The ID of the task to move'),
+        toColumnId: requiredString(
+          "The ID of the column to move the task to (must belong to the task's current project)"
+        ),
+        position: optionalNumber('Position in the column (defaults to end)'),
+      },
+      required: ['taskId', 'toColumnId'],
+    }
+  ),
 
   toolDef('move_task_to_project', 'Move a task to a different project and column', {
     type: 'object',
     properties: {
       taskId: requiredString('The ID of the task to move'),
-      toProjectId: optionalString(
-        'The ID of the project to move the task to (optional for orphaning)'
+      toProjectId: requiredString('The ID of the project to move the task to'),
+      toColumnId: requiredString(
+        'The ID of the column to move the task to (must belong to the target project)'
       ),
-      toColumnId: requiredString('The ID of the column to move the task to'),
+      position: optionalNumber('Position in the column (defaults to end)'),
+    },
+    required: ['taskId', 'toProjectId', 'toColumnId'],
+  }),
+
+  toolDef('orphan_task', 'Move a task to orphaned state (remove from its current project)', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('The ID of the task to orphan'),
+      toColumnId: requiredString('The ID of the orphaned column to move the task to'),
       position: optionalNumber('Position in the column (defaults to end)'),
     },
     required: ['taskId', 'toColumnId'],
@@ -93,14 +107,18 @@ export const llmToolSchemas = [
   }),
 
   // Project Management Tools
-  toolDef('create_project', 'Create a new project with name and optional description', {
-    type: 'object',
-    properties: {
-      name: requiredString('The name of the project'),
-      description: optionalString('Optional description of the project'),
-    },
-    required: ['name'],
-  }),
+  toolDef(
+    'create_project',
+    'Create a new project with name and optional description (automatically creates default Kanban columns: To Do, In Progress, Done)',
+    {
+      type: 'object',
+      properties: {
+        name: requiredString('The name of the project'),
+        description: optionalString('Optional description of the project'),
+      },
+      required: ['name'],
+    }
+  ),
 
   toolDef(
     'list_projects',
@@ -112,13 +130,17 @@ export const llmToolSchemas = [
     }
   ),
 
-  toolDef('get_project_details', 'Get detailed information about a specific project', {
-    type: 'object',
-    properties: {
-      projectId: requiredString('The ID of the project to get details for'),
-    },
-    required: ['projectId'],
-  }),
+  toolDef(
+    'get_project_details',
+    'Get detailed information about a specific project including document count and task count',
+    {
+      type: 'object',
+      properties: {
+        projectId: requiredString('The ID of the project to get details for'),
+      },
+      required: ['projectId'],
+    }
+  ),
 
   // Document Management Tools
   toolDef(
@@ -157,12 +179,14 @@ export const llmToolSchemas = [
 
   toolDef(
     'search_project_documents',
-    'Search through document titles and content within a specific project',
+    'Search through document titles and content within a specific project or across all projects if projectId is omitted',
     {
       type: 'object',
       properties: {
         query: requiredString('The search query to find in document titles and content'),
-        projectId: optionalString('The ID of the project to search within (optional)'),
+        projectId: optionalString(
+          'The ID of the project to search within (searches all projects if omitted)'
+        ),
       },
       required: ['query'],
     }

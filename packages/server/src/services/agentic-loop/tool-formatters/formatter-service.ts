@@ -3,6 +3,7 @@ import { TaskToolFormatter } from './task-formatter.js'
 import { DocumentToolFormatter } from './document-formatter.js'
 import { ProjectToolFormatter } from './project-formatter.js'
 import { WorkerToolFormatter } from './worker-formatter.js'
+import { ContactToolFormatter } from './contact-formatter.js'
 
 export class ToolResultFormatterService {
   private formatters: ToolResultFormatter[] = [
@@ -10,6 +11,7 @@ export class ToolResultFormatterService {
     new DocumentToolFormatter(),
     new ProjectToolFormatter(),
     new WorkerToolFormatter(),
+    new ContactToolFormatter(),
   ]
 
   format(toolResult: any, toolCall: any): string {

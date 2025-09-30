@@ -5,24 +5,24 @@ import { TaskToolFormatter } from './task-formatter.js'
 const createTaskToolCall = { function: { name: 'create_task' } }
 
 describe('TaskToolFormatter', () => {
-  it('includes the provided board name in create_task output', () => {
+  it('includes the provided project name in create_task output', () => {
     const formatter = new TaskToolFormatter()
     const resultMessage = formatter.format(
       {
         success: true,
         taskTitle: 'Spin up test environment',
-        boardName: "Danvers' Game of LifeSquared",
+        projectName: "Danvers' Game of LifeSquared",
         columnName: 'To Do',
         taskId: 'task-123',
       },
       createTaskToolCall
     )
 
-    expect(resultMessage).toContain(`on board "Danvers' Game of LifeSquared"`)
+    expect(resultMessage).toContain(`in project "Danvers' Game of LifeSquared"`)
     expect(resultMessage).toContain('<CHORUS_TAG path="task:task-123">task-123</CHORUS_TAG>')
   })
 
-  it('falls back to project name when board name is not provided', () => {
+  it('uses project name when provided', () => {
     const formatter = new TaskToolFormatter()
     const resultMessage = formatter.format(
       {
@@ -35,7 +35,7 @@ describe('TaskToolFormatter', () => {
       createTaskToolCall
     )
 
-    expect(resultMessage).toContain('on board "LifeSquared Launch"')
+    expect(resultMessage).toContain('in project "LifeSquared Launch"')
   })
 
   it('surfaces task creation errors directly', () => {

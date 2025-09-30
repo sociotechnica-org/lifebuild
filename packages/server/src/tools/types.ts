@@ -8,9 +8,9 @@
 export interface CreateTaskParams {
   title: string
   description?: string
-  boardId?: string
-  columnId?: string
-  assigneeId?: string
+  projectId: string
+  columnId: string
+  assigneeIds?: string[]
 }
 
 export interface CreateTaskResult {
@@ -18,10 +18,9 @@ export interface CreateTaskResult {
   taskId?: string
   error?: string
   taskTitle?: string
-  boardName?: string
   projectName?: string
   columnName?: string
-  assigneeName?: string
+  assigneeNames?: string[]
 }
 
 export interface UpdateTaskParams {
@@ -60,7 +59,7 @@ export interface MoveTaskResult {
 
 export interface MoveTaskToProjectParams {
   taskId: string
-  toProjectId?: string
+  toProjectId: string
   toColumnId: string
   position?: number
 }
@@ -70,7 +69,23 @@ export interface MoveTaskToProjectResult {
   error?: string
   task?: {
     id: string
-    projectId?: string
+    projectId: string
+    columnId: string
+    position: number
+  }
+}
+
+export interface OrphanTaskParams {
+  taskId: string
+  toColumnId: string
+  position?: number
+}
+
+export interface OrphanTaskResult {
+  success: boolean
+  error?: string
+  task?: {
+    id: string
     columnId: string
     position: number
   }
@@ -128,10 +143,12 @@ export interface GetProjectTasksParams {
 
 export interface GetProjectTasksResult {
   success: boolean
+  projectName?: string
   tasks?: Array<{
     id: string
     projectId: string
     columnId: string
+    columnName?: string
     title: string
     description?: string
     assigneeIds?: string[]
