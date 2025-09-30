@@ -151,9 +151,8 @@ describe('TaskModal', () => {
 
     renderWithProviders(<TaskModal taskId='test-task' onClose={mockOnClose} />)
 
-    const composerContainer = screen
-      .getByPlaceholderText('Add a comment...')
-      .parentElement?.parentElement?.parentElement as HTMLElement
+    const composerContainer = screen.getByPlaceholderText('Add a comment...').parentElement
+      ?.parentElement?.parentElement as HTMLElement
 
     expect(within(composerContainer).getByTitle('Bob Smith')).toBeInTheDocument()
   })

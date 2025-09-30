@@ -166,9 +166,8 @@ describe('TaskModal Comments', () => {
 
     renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
-    const composerContainer = screen
-      .getByPlaceholderText('Add a comment...')
-      .parentElement?.parentElement?.parentElement as HTMLElement
+    const composerContainer = screen.getByPlaceholderText('Add a comment...').parentElement
+      ?.parentElement?.parentElement as HTMLElement
 
     expect(within(composerContainer).getByTitle('Bob Smith')).toBeInTheDocument()
   })
@@ -178,9 +177,8 @@ describe('TaskModal Comments', () => {
 
     renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
-    const composerContainer = screen
-      .getByPlaceholderText('Add a comment...')
-      .parentElement?.parentElement?.parentElement as HTMLElement
+    const composerContainer = screen.getByPlaceholderText('Add a comment...').parentElement
+      ?.parentElement?.parentElement as HTMLElement
 
     expect(within(composerContainer).getByTitle('Alice Johnson')).toBeInTheDocument()
   })
