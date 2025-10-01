@@ -131,9 +131,43 @@ wrangler deploy --dry-run
 wrangler tail <worker-name>
 ```
 
+## Node.js Server Deployment (Render.com)
+
+The `packages/server` backend service is deployed separately to Render.com. See [ADR 002: Node.js Hosting Platform](adrs/002-nodejs-hosting-platform.md) for the architecture decision.
+
+### Required Environment Variables (Render.com)
+
+Configure these in your Render service dashboard:
+
+**Required:**
+- `NODE_ENV=production`
+- `STORE_IDS` - Comma-separated workspace IDs to monitor
+- `AUTH_TOKEN` - Authentication token for LiveStore
+- `LIVESTORE_SYNC_URL` - WebSocket URL (e.g., `wss://work-squared.jessmartin.workers.dev`)
+- `SERVER_BYPASS_TOKEN` - Token for internal worker communication
+
+**Sentry (Optional but Recommended):**
+- `SENTRY_DSN` - Error tracking DSN from Sentry.io
+- `SENTRY_AUTH_TOKEN` - For uploading source maps during builds
+- `SENTRY_ORG` - Your Sentry organization slug
+- `SENTRY_PROJECT` - Your Sentry project slug
+
+**Braintrust (Optional):**
+- `BRAINTRUST_API_KEY` - For LLM agentic loop functionality
+- `BRAINTRUST_PROJECT_ID` - Braintrust project identifier
+
+### Source Maps
+
+The server build automatically uploads source maps to Sentry when:
+- `NODE_ENV=production`
+- `SENTRY_AUTH_TOKEN` is configured
+
+This provides readable stack traces in Sentry for production errors.
+
 ## Security Notes
 
 - Never commit API tokens or secrets to the repository
 - Use GitHub secrets for all sensitive configuration
-- Regularly rotate Cloudflare API tokens
+- Use Render environment variables for server secrets
+- Regularly rotate Cloudflare API tokens and Sentry auth tokens
 - Monitor deployment logs for any security issues

@@ -43,6 +43,15 @@ services:
         sync: false # Add via Render dashboard
       - key: BRAINTRUST_PROJECT_ID
         sync: false # Add via Render dashboard
+      # SENTRY error tracking and source maps
+      - key: SENTRY_DSN
+        sync: false # Add via Render dashboard
+      - key: SENTRY_AUTH_TOKEN
+        sync: false # Required for source maps upload during build
+      - key: SENTRY_ORG
+        sync: false # Your Sentry organization slug
+      - key: SENTRY_PROJECT
+        sync: false # Your Sentry project slug
     healthCheckPath: /health
     disk:
       name: work-squared-data
