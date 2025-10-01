@@ -25,6 +25,8 @@ import type {
   MoveTaskResult,
   MoveTaskToProjectParams,
   MoveTaskToProjectResult,
+  OrphanTaskParams,
+  OrphanTaskResult,
   ArchiveTaskResult,
   UnarchiveTaskResult,
   GetTaskByIdResult,
@@ -36,44 +38,41 @@ import type {
  * Creates a task using the provided parameters
  */
 function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResult {
-  const { title, description, boardId, columnId, assigneeId } = params
+  const { title, description, projectId, columnId, assigneeIds } = params
 
   // Validate title
   if (!title || title.trim().length === 0) {
     throw new Error('Task title is required')
   }
 
-  // Get all projects to determine target project
+  // Verify project exists
   const projects = store.query(getProjects$)
-  if (projects.length === 0) {
-    throw new Error('No projects available. Please create a project first.')
-  }
-
-  // Use provided boardId or default to first project
-  const targetProject = boardId ? projects.find((p: any) => p.id === boardId) : projects[0]
+  const targetProject = projects.find((p: any) => p.id === projectId)
   if (!targetProject) {
-    throw new Error(boardId ? `Project with ID ${boardId} not found` : 'No projects available')
+    throw new Error(`Project with ID ${projectId} not found`)
   }
 
   // Get columns for the target board
-  const columns = store.query(getBoardColumns$(targetProject.id))
+  const columns = store.query(getBoardColumns$(projectId))
   if (columns.length === 0) {
-    throw new Error(`Board "${targetProject.name}" has no columns. Please add columns first.`)
+    throw new Error(`Project "${targetProject.name}" has no columns. Please add columns first.`)
   }
 
-  // Use provided columnId or default to first column (typically "To Do")
-  const targetColumn = columnId ? columns.find((c: any) => c.id === columnId) : columns[0]
+  // Verify column exists and belongs to project
+  const targetColumn = columns.find((c: any) => c.id === columnId)
   if (!targetColumn) {
-    throw new Error(columnId ? `Column with ID ${columnId} not found` : 'No columns available')
+    throw new Error(`Column with ID ${columnId} not found in project ${projectId}`)
   }
 
-  // Validate assignee if provided
-  let assigneeName: string | undefined
-  if (assigneeId) {
+  // Validate assignees if provided
+  let assigneeNames: string[] = []
+  if (assigneeIds && assigneeIds.length > 0) {
     const users = store.query(getUsers$)
-    validators.validateAssignees([assigneeId], users)
-    const assignee = users.find((u: any) => u.id === assigneeId)
-    assigneeName = assignee?.name
+    validators.validateAssignees(assigneeIds, users)
+    assigneeNames = assigneeIds.map(id => {
+      const user = users.find((u: any) => u.id === id)
+      return user?.name || id
+    })
   }
 
   // Get existing tasks in the column to calculate position
@@ -93,7 +92,7 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
   logger.debug(
     {
       id: taskId,
-      boardId: targetProject.id,
+      projectId: targetProject.id,
       projectName: targetProject.name,
       columnId: targetColumn.id,
       columnName: targetColumn.name,
@@ -111,7 +110,7 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
       columnId: targetColumn.id,
       title: title.trim(),
       description: description?.trim() || undefined,
-      assigneeIds: assigneeId ? [assigneeId] : undefined,
+      assigneeIds: assigneeIds,
       position: nextPosition,
       createdAt: new Date(),
     })
@@ -123,10 +122,9 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
     success: true,
     taskId,
     taskTitle: title.trim(),
-    boardName: targetProject.name,
     projectName: targetProject.name,
     columnName: targetColumn.name,
-    assigneeName,
+    assigneeNames,
   }
 }
 
@@ -233,54 +231,36 @@ function moveTaskToProjectCore(
   const tasks = store.query(getTaskById$(taskId))
   validators.requireEntity(tasks, 'Task', taskId)
 
-  // Verify target project and column consistency
-  if (toProjectId) {
-    // Moving to a specific project - validate project and column belong together
-    const projects = store.query(getProjects$)
-    const targetProject = projects.find((p: any) => p.id === toProjectId)
-    if (!targetProject) {
-      throw new Error(`Project with ID ${toProjectId} not found`)
-    }
+  // Verify target project exists
+  const projects = store.query(getProjects$)
+  const targetProject = projects.find((p: any) => p.id === toProjectId)
+  if (!targetProject) {
+    throw new Error(`Project with ID ${toProjectId} not found`)
+  }
 
-    const columns = store.query(getBoardColumns$(toProjectId))
-    const targetColumn = columns.find((c: any) => c.id === toColumnId)
-    if (!targetColumn) {
-      throw new Error(`Column with ID ${toColumnId} not found in project ${toProjectId}`)
-    }
-  } else {
-    // Moving to orphaned state - validate column exists and is orphaned
-    const orphanedColumns = store.query(getOrphanedColumns$)
-    const targetColumn = orphanedColumns.find((c: any) => c.id === toColumnId)
-    if (!targetColumn) {
-      throw new Error(`Orphaned column with ID ${toColumnId} not found`)
-    }
-    if (targetColumn.projectId) {
-      throw new Error(
-        `Column ${toColumnId} belongs to project ${targetColumn.projectId}, cannot use for orphaned task`
-      )
-    }
+  // Verify column belongs to target project
+  const columns = store.query(getBoardColumns$(toProjectId))
+  const targetColumn = columns.find((c: any) => c.id === toColumnId)
+  if (!targetColumn) {
+    throw new Error(`Column with ID ${toColumnId} not found in project ${toProjectId}`)
   }
 
   // Calculate position if not provided
   let movePosition = position
   if (movePosition === undefined) {
-    if (toProjectId) {
-      const existingTasks = store.query(getBoardTasks$(toProjectId))
-      const tasksInColumn = existingTasks.filter((t: any) => t.columnId === toColumnId)
-      const validPositions = tasksInColumn
-        .map((t: any) => t.position)
-        .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
-      movePosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 0
-    } else {
-      movePosition = 0
-    }
+    const existingTasks = store.query(getBoardTasks$(toProjectId))
+    const tasksInColumn = existingTasks.filter((t: any) => t.columnId === toColumnId)
+    const validPositions = tasksInColumn
+      .map((t: any) => t.position)
+      .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
+    movePosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 0
   }
 
   // Create move to project event
   store.commit(
     events.taskMovedToProject({
       taskId: taskId,
-      toProjectId: toProjectId?.trim(),
+      toProjectId: toProjectId.trim(),
       toColumnId: toColumnId,
       position: movePosition,
       updatedAt: new Date(),
@@ -292,6 +272,52 @@ function moveTaskToProjectCore(
     task: {
       id: taskId,
       projectId: toProjectId,
+      columnId: toColumnId,
+      position: movePosition,
+    },
+  }
+}
+
+/**
+ * Orphans a task (removes it from its current project)
+ */
+function orphanTaskCore(store: Store, params: OrphanTaskParams): OrphanTaskResult {
+  const { taskId, toColumnId, position } = params
+
+  // Verify task exists
+  const tasks = store.query(getTaskById$(taskId))
+  validators.requireEntity(tasks, 'Task', taskId)
+
+  // Verify column is orphaned
+  const orphanedColumns = store.query(getOrphanedColumns$)
+  const targetColumn = orphanedColumns.find((c: any) => c.id === toColumnId)
+  if (!targetColumn) {
+    throw new Error(`Orphaned column with ID ${toColumnId} not found`)
+  }
+  if (targetColumn.projectId) {
+    throw new Error(
+      `Column ${toColumnId} belongs to project ${targetColumn.projectId}, cannot use for orphaned task`
+    )
+  }
+
+  // Calculate position if not provided
+  const movePosition = position ?? 0
+
+  // Create move to project event (with null projectId for orphaning)
+  store.commit(
+    events.taskMovedToProject({
+      taskId: taskId,
+      toProjectId: undefined,
+      toColumnId: toColumnId,
+      position: movePosition,
+      updatedAt: new Date(),
+    })
+  )
+
+  return {
+    success: true,
+    task: {
+      id: taskId,
       columnId: toColumnId,
       position: movePosition,
     },
@@ -388,13 +414,19 @@ function getProjectTasksCore(store: Store, projectId: string): GetProjectTasksRe
     throw new Error(`Project with ID ${projectId} not found`)
   }
 
+  // Get columns for mapping IDs to names
+  const columns = store.query(getBoardColumns$(projectId))
+  const columnMap = new Map(columns.map((c: any) => [c.id, c.name]))
+
   const tasks = store.query(getBoardTasks$(projectId)) as any[]
   return {
     success: true,
+    projectName: project.name,
     tasks: tasks.map((t: any) => ({
       id: t.id,
       projectId: t.projectId,
       columnId: t.columnId,
+      columnName: columnMap.get(t.columnId) || 'Unknown',
       title: t.title,
       description: t.description,
       assigneeIds: t.assigneeIds,
@@ -427,8 +459,9 @@ function getOrphanedTasksCore(store: Store): GetOrphanedTasksResult {
 // Export wrapped versions for external use
 export const createTask = wrapToolFunction(createTaskCore)
 export const updateTask = wrapToolFunction(updateTaskCore)
-export const moveTask = wrapToolFunction(moveTaskCore)
+export const moveTaskWithinProject = wrapToolFunction(moveTaskCore)
 export const moveTaskToProject = wrapToolFunction(moveTaskToProjectCore)
+export const orphanTask = wrapToolFunction(orphanTaskCore)
 export const archiveTask = wrapStringParamFunction(archiveTaskCore)
 export const unarchiveTask = wrapStringParamFunction(unarchiveTaskCore)
 export const getTaskById = wrapStringParamFunction(getTaskByIdCore)
