@@ -1,3 +1,6 @@
+// IMPORTANT: Import Sentry instrumentation first, before anything else
+import './instrument.js'
+
 import dotenv from 'dotenv'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
