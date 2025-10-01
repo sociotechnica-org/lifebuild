@@ -11,6 +11,7 @@ dotenv.config({ path: resolve(packageRoot, '.env') })
 // IMPORTANT: Import Sentry instrumentation after env vars are loaded
 // Using dynamic import to ensure it happens after dotenv.config()
 await import('./instrument.js')
+import * as Sentry from '@sentry/node'
 
 import { storeManager } from './services/store-manager.js'
 import { EventProcessor } from './services/event-processor.js'
@@ -168,6 +169,11 @@ async function main() {
     healthServer.close()
     eventProcessor.stopAll()
     await storeManager.shutdown()
+
+    // Flush any pending Sentry events before exiting
+    logger.info('Flushing Sentry events...')
+    await Sentry.flush(2000)
+
     process.exit(0)
   }
 
@@ -177,5 +183,10 @@ async function main() {
 
 main().catch(error => {
   logger.error({ error }, 'Failed to start server')
-  process.exit(1)
+  // Capture the error in Sentry before exiting
+  Sentry.captureException(error)
+  // Ensure the error is sent to Sentry before process exits
+  Sentry.flush(2000).finally(() => {
+    process.exit(1)
+  })
 })
