@@ -1,19 +1,21 @@
-// IMPORTANT: Import Sentry instrumentation first, before anything else
-import './instrument.js'
-
+// Load environment variables FIRST, before anything else (including Sentry)
 import dotenv from 'dotenv'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
-import { storeManager } from './services/store-manager.js'
-import { EventProcessor } from './services/event-processor.js'
-import { loadStoresConfig } from './config/stores.js'
-import { logger } from './utils/logger.js'
 
-// Load environment variables from package-local .env file
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const packageRoot = resolve(__dirname, '..')
 dotenv.config({ path: resolve(packageRoot, '.env') })
+
+// IMPORTANT: Import Sentry instrumentation after env vars are loaded
+// Using dynamic import to ensure it happens after dotenv.config()
+await import('./instrument.js')
+
+import { storeManager } from './services/store-manager.js'
+import { EventProcessor } from './services/event-processor.js'
+import { loadStoresConfig } from './config/stores.js'
+import { logger } from './utils/logger.js'
 
 async function main() {
   logger.info('Starting Work Squared Multi-Store Server...')

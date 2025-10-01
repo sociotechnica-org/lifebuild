@@ -1,5 +1,7 @@
 import * as Sentry from '@sentry/node'
 
+// DSN should be set via environment variable before this module is imported
+// If not set, Sentry will not send events (which is fine for dev without config)
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   // Setting this option to true will send default PII data to Sentry.
