@@ -22,22 +22,51 @@ function getLogLevel(): pino.Level {
 // Determine transport configuration
 function getTransport() {
   const env = process.env.NODE_ENV
+  const sentryDsn = process.env.SENTRY_DSN
 
-  if (env === 'production') {
-    // In production, use JSON format for structured logging (ready for Axiom)
-    return undefined
+  // Build transports array
+  const transports: Array<{ target: string; options: any; level?: string }> = []
+
+  // Add Sentry transport if DSN is configured
+  if (sentryDsn) {
+    transports.push({
+      target: 'pino-sentry',
+      options: {
+        dsn: sentryDsn,
+        environment: env || 'development',
+        // Only send warnings and errors to Sentry to reduce noise
+        minLevel: 'warn',
+      },
+      level: 'warn',
+    })
   }
 
-  // In development/test, use pretty printing for readability
-  return {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      translateTime: 'HH:MM:ss',
-      ignore: 'pid,hostname',
-      singleLine: false,
-    },
+  // Add pretty printing for development/test
+  if (env !== 'production') {
+    transports.push({
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'HH:MM:ss',
+        ignore: 'pid,hostname',
+        singleLine: false,
+      },
+    })
   }
+
+  // Return transport configuration
+  // If we have multiple transports, return as array
+  // If only one transport, return it directly
+  // If no transports, return undefined (JSON output)
+  if (transports.length > 1) {
+    return {
+      targets: transports,
+    }
+  } else if (transports.length === 1) {
+    return transports[0]
+  }
+
+  return undefined
 }
 
 // Create the base logger
