@@ -187,34 +187,97 @@ export const ChatPresenter: React.FC<ChatPresenterProps> = ({
 
 ### Storybook Stories
 
-Create Storybook stories for **Presenter components only** following these patterns:
+Create Storybook stories for **Presenter components only** following these patterns.
 
-#### Story Structure
+**IMPORTANT**: Use **real LiveStore events** to create state, not mock data. This ensures stories accurately reflect how components work in production.
+
+#### Story Structure with LiveStore
 
 ```typescript
 import type { Meta, StoryObj } from '@storybook/react'
-import { ComponentName } from './ComponentName.js'
+import React from 'react'
+import { ComponentPresenter } from './ComponentPresenter.js'
+import { getDataQuery$ } from '@work-squared/shared/queries'
+import { schema, events } from '@work-squared/shared/schema'
+import { LiveStoreProvider, useQuery } from '@livestore/react'
+import { makeInMemoryAdapter } from '@livestore/adapter-web'
+import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
+import { Store } from '@livestore/livestore'
 
-const meta: Meta<typeof ComponentName> = {
-  title: 'Category/ComponentName', // Use logical grouping
-  component: ComponentName,
+type ComponentProps = React.ComponentProps<typeof ComponentPresenter>
+
+// Define props that the helper provides via LiveStore
+type ProvidedProps = 'data' | 'relatedData'
+
+// Stories provide remaining props
+type HelperProps = Omit<ComponentProps, ProvidedProps> & {
+  dataId?: string  // Pass IDs, not data
+}
+
+const adapter = makeInMemoryAdapter()
+
+// Helper fetches data from LiveStore
+const ComponentHelper = (props: HelperProps) => {
+  const data = props.dataId ? useQuery(getDataQuery$(props.dataId)) : []
+  return <ComponentPresenter {...props} data={data} />
+}
+
+const meta: Meta<typeof ComponentHelper> = {
+  title: 'Category/ComponentName',
+  component: ComponentHelper,
   parameters: {
-    layout: 'centered', // or 'fullscreen' for pages
+    layout: 'centered',
     docs: {
       description: {
-        component: 'Brief description of the component',
+        component: 'Brief description',
       },
     },
   },
   tags: ['autodocs'],
-  argTypes: {
-    // Define controls for interactive props
-  },
-}
+} satisfies Meta<typeof ComponentHelper>
 
 export default meta
 type Story = StoryObj<typeof meta>
+
+// Boot function creates state via events
+const defaultSetup = (store: Store) => {
+  store.commit(
+    events.dataCreated({
+      id: '1',
+      name: 'Test Data',
+      createdAt: new Date(),
+      actorId: '1',
+    })
+  )
+}
+
+export const Default: Story = {
+  args: {
+    dataId: '1',
+    onAction: () => {},
+  },
+  decorators: [
+    Story => (
+      <LiveStoreProvider
+        schema={schema}
+        adapter={adapter}
+        batchUpdates={batchUpdates}
+        boot={defaultSetup}
+      >
+        <Story />
+      </LiveStoreProvider>
+    ),
+  ],
+}
 ```
+
+#### Key Principles
+
+1. **No Mock Data**: Always use real LiveStore events via `store.commit(events.eventName({...}))`
+2. **Helper Components**: Create helpers that use `useQuery` to fetch data from LiveStore
+3. **Type Safety**: Use `Omit` to define which props the helper provides vs stories provide
+4. **Boot Functions**: Each story has its own `boot` function that creates the necessary state
+5. **Decorators**: Wrap each story in `LiveStoreProvider` with its boot function
 
 #### Story Categories
 
@@ -225,31 +288,33 @@ type Story = StoryObj<typeof meta>
 
 #### Required Stories
 
-- **Default**: Standard usage
+- **Default**: Standard usage with minimal data
 - **Edge Cases**: Long text, empty states, error states
 - **Interactive**: Form validation, loading states
-- **Variants**: Different modes (dev/prod, authenticated/not)
+- **Variants**: Different data states and scenarios
 
-#### Mocking Dependencies
-
-For components with external dependencies:
+#### Common Patterns
 
 ```typescript
-// Mock contexts and providers
-const MockAuthProvider = ({ children, mockProps }) => {
-  const mockContext = { ...defaultValues, ...mockProps }
-  return <div data-mock-auth={JSON.stringify(mockContext)}>{children}</div>
+// Multiple items
+const multipleItemsSetup = (store: Store) => {
+  for (let i = 0; i < 5; i++) {
+    store.commit(events.itemCreated({ id: `${i}`, name: `Item ${i}`, actorId: '1' }))
+  }
 }
 
-// Mock routing
-<MemoryRouter initialEntries={['/path']}>
-  <Component />
-</MemoryRouter>
+// Related data (e.g., project with workers)
+const withRelatedDataSetup = (store: Store) => {
+  store.commit(events.projectCreated({ id: '1', name: 'Project', actorId: '1' }))
+  store.commit(events.workerCreated({ id: '1', name: 'Worker', actorId: '1' }))
+  store.commit(events.workerAssignedToProject({ workerId: '1', projectId: '1', actorId: '1' }))
+}
 
-// Mock environment variables
-React.useEffect(() => {
-  (import.meta as any).env = { ...import.meta.env, VITE_VAR: 'value' }
-}, [])
+// Empty state
+const emptySetup = (store: Store) => {
+  // Create minimal context (e.g., a project) but no items
+  store.commit(events.projectCreated({ id: '1', name: 'Empty Project', actorId: '1' }))
+}
 ```
 
 #### Story Descriptions
