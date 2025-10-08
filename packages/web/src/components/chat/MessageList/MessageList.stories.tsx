@@ -19,8 +19,6 @@ type MessageListHelperProps = Omit<MessageListProps, ProvidedProps> & {
   workerId?: string
 }
 
-const adapter = makeInMemoryAdapter()
-
 const MessageListHelper = (props: MessageListHelperProps) => {
   const messages = props.conversationId
     ? useQuery(getConversationMessages$(props.conversationId))
@@ -29,6 +27,18 @@ const MessageListHelper = (props: MessageListHelperProps) => {
 
   return <MessageList {...props} messages={messages} currentWorker={worker} />
 }
+
+// Helper to wrap stories with LiveStore - creates fresh adapter for each story
+const withLiveStore = (boot: (store: Store) => void) => (Story: React.ComponentType) => (
+  <LiveStoreProvider
+    schema={schema}
+    adapter={makeInMemoryAdapter()}
+    batchUpdates={batchUpdates}
+    boot={boot}
+  >
+    <Story />
+  </LiveStoreProvider>
+)
 
 const meta = {
   title: 'Components/Chat/MessageList',
@@ -104,18 +114,7 @@ export const Default: Story = {
     isProcessing: false,
     conversationTitle: 'Test Conversation',
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={basicMessagesSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(basicMessagesSetup)],
 }
 
 const toolCallMessagesSetup = (store: Store) => {
@@ -177,18 +176,7 @@ export const WithToolCalls: Story = {
     isProcessing: false,
     conversationTitle: 'Tool Call Example',
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={toolCallMessagesSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(toolCallMessagesSetup)],
 }
 
 const processingSetup = (store: Store) => {
@@ -241,18 +229,7 @@ export const Processing: Story = {
     isProcessing: true,
     conversationTitle: 'Processing...',
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={processingSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(processingSetup)],
 }
 
 const emptySetup = (store: Store) => {
@@ -286,18 +263,7 @@ export const Empty: Story = {
     isProcessing: false,
     conversationTitle: 'New Conversation',
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={emptySetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(emptySetup)],
 }
 
 const longConversationSetup = (store: Store) => {
@@ -411,16 +377,5 @@ export const LongConversation: Story = {
     isProcessing: false,
     conversationTitle: 'Long Conversation',
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={longConversationSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(longConversationSetup)],
 }

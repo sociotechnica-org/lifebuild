@@ -10,8 +10,6 @@ import { Store } from '@livestore/livestore'
 
 type ProjectCardProps = React.ComponentProps<typeof ProjectCard>
 
-const adapter = makeInMemoryAdapter()
-
 const ProjectCardHelper = (props: ProjectCardProps & { projectId?: string }) => {
   const projects = useQuery(getProjects$)
   const project = props.projectId ? projects.find(p => p.id === props.projectId) : projects[0]
@@ -22,6 +20,18 @@ const ProjectCardHelper = (props: ProjectCardProps & { projectId?: string }) => 
 
   return <ProjectCard project={project} onClick={props.onClick} />
 }
+
+// Helper to wrap stories with LiveStore - creates fresh adapter for each story
+const withLiveStore = (boot: (store: Store) => void) => (Story: React.ComponentType) => (
+  <LiveStoreProvider
+    schema={schema}
+    adapter={makeInMemoryAdapter()}
+    batchUpdates={batchUpdates}
+    boot={boot}
+  >
+    <Story />
+  </LiveStoreProvider>
+)
 
 const meta: Meta<typeof ProjectCardHelper> = {
   title: 'Components/ProjectCard',
@@ -60,18 +70,7 @@ export const Default: Story = {
   args: {
     projectId: 'project-1',
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={defaultProjectSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(defaultProjectSetup)],
 }
 
 const withTeamSetup = (store: Store) => {
@@ -152,18 +151,7 @@ export const WithTeamMembers: Story = {
   args: {
     projectId: 'project-2',
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={withTeamSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(withTeamSetup)],
 }
 
 const largeTeamSetup = (store: Store) => {
@@ -214,18 +202,7 @@ export const LargeTeam: Story = {
   args: {
     projectId: 'project-3',
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={largeTeamSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(largeTeamSetup)],
 }
 
 const longNameSetup = (store: Store) => {
@@ -263,18 +240,7 @@ export const LongName: Story = {
   args: {
     projectId: 'project-4',
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={longNameSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(longNameSetup)],
 }
 
 const withoutDescriptionSetup = (store: Store) => {
@@ -293,16 +259,5 @@ export const WithoutDescription: Story = {
     projectId: 'project-5',
     onClick: undefined,
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={withoutDescriptionSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(withoutDescriptionSetup)],
 }

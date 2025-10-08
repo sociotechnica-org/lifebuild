@@ -18,8 +18,6 @@ type ChatPresenterHelperProps = Omit<ChatPresenterProps, ProvidedProps> & {
   currentWorkerId?: string
 }
 
-const adapter = makeInMemoryAdapter()
-
 const ChatPresenterHelper = (props: ChatPresenterHelperProps) => {
   const conversations = useQuery(getConversations$)
   const selectedConversation =
@@ -40,6 +38,18 @@ const ChatPresenterHelper = (props: ChatPresenterHelperProps) => {
     />
   )
 }
+
+// Helper to wrap stories with LiveStore - creates fresh adapter for each story
+const withLiveStore = (boot: (store: Store) => void) => (Story: React.ComponentType) => (
+  <LiveStoreProvider
+    schema={schema}
+    adapter={makeInMemoryAdapter()}
+    batchUpdates={batchUpdates}
+    boot={boot}
+  >
+    <Story />
+  </LiveStoreProvider>
+)
 
 const storySetup = (store: Store) => {
   store.commit(
@@ -79,16 +89,9 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={storySetup}
-      >
-        <div style={{ height: '600px' }}>
-          <Story />
-        </div>
-      </LiveStoreProvider>
+      <div style={{ height: '600px' }}>
+        <Story />
+      </div>
     ),
   ],
 } satisfies Meta<typeof ChatPresenterHelper>
@@ -151,18 +154,7 @@ export const WithConversations: Story = {
     onHideChatPicker: () => {},
     onChatTypeSelect: () => {},
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={withConversationsSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(withConversationsSetup)],
 }
 
 export const WithSelectedConversation: Story = {
@@ -181,18 +173,7 @@ export const WithSelectedConversation: Story = {
     onHideChatPicker: () => {},
     onChatTypeSelect: () => {},
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={withConversationsSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(withConversationsSetup)],
 }
 
 const processingSetup = (store: Store) => {
@@ -243,18 +224,7 @@ export const Processing: Story = {
     onHideChatPicker: () => {},
     onChatTypeSelect: () => {},
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={processingSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(processingSetup)],
 }
 
 export const WithMessageDraft: Story = {
@@ -273,18 +243,7 @@ export const WithMessageDraft: Story = {
     onHideChatPicker: () => {},
     onChatTypeSelect: () => {},
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={withConversationsSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(withConversationsSetup)],
 }
 
 const chatPickerSetup = (store: Store) => {
@@ -351,18 +310,7 @@ export const ChatPickerOpen: Story = {
     onHideChatPicker: () => {},
     onChatTypeSelect: () => {},
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={chatPickerSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(chatPickerSetup)],
 }
 
 const longConversationSetup = (store: Store) => {
@@ -420,16 +368,5 @@ export const LongConversation: Story = {
     onHideChatPicker: () => {},
     onChatTypeSelect: () => {},
   },
-  decorators: [
-    Story => (
-      <LiveStoreProvider
-        schema={schema}
-        adapter={adapter}
-        batchUpdates={batchUpdates}
-        boot={longConversationSetup}
-      >
-        <Story />
-      </LiveStoreProvider>
-    ),
-  ],
+  decorators: [withLiveStore(longConversationSetup)],
 }
