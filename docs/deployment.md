@@ -140,6 +140,7 @@ The `packages/server` backend service is deployed separately to Render.com. See 
 Configure these in your Render service dashboard:
 
 **Required:**
+
 - `NODE_ENV=production`
 - `STORE_IDS` - Comma-separated workspace IDs to monitor
 - `AUTH_TOKEN` - Authentication token for LiveStore
@@ -147,18 +148,21 @@ Configure these in your Render service dashboard:
 - `SERVER_BYPASS_TOKEN` - Token for internal worker communication
 
 **Sentry (Optional but Recommended):**
+
 - `SENTRY_DSN` - Error tracking DSN from Sentry.io
 - `SENTRY_AUTH_TOKEN` - For uploading source maps during builds
 - `SENTRY_ORG` - Your Sentry organization slug
 - `SENTRY_PROJECT` - Your Sentry project slug
 
 **Braintrust (Optional):**
+
 - `BRAINTRUST_API_KEY` - For LLM agentic loop functionality
 - `BRAINTRUST_PROJECT_ID` - Braintrust project identifier
 
 ### Source Maps
 
 The server build automatically uploads source maps to Sentry when:
+
 - `NODE_ENV=production`
 - `SENTRY_AUTH_TOKEN` is configured
 

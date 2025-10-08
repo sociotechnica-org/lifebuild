@@ -37,7 +37,6 @@ function getTransport() {
         // Only send warnings and errors to Sentry to reduce noise
         minLevel: 'warn',
       },
-      level: 'warn',
     })
   }
 
