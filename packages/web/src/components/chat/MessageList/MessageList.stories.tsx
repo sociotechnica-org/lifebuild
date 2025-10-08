@@ -20,10 +20,12 @@ type MessageListHelperProps = Omit<MessageListProps, ProvidedProps> & {
 }
 
 const MessageListHelper = (props: MessageListHelperProps) => {
-  const messages = props.conversationId
-    ? useQuery(getConversationMessages$(props.conversationId))
-    : []
-  const worker = props.workerId ? useQuery(getWorkerById$(props.workerId))?.[0] || null : null
+  // Always call hooks unconditionally (Rules of Hooks) - query with empty IDs returns empty arrays
+  const allMessages = useQuery(getConversationMessages$(props.conversationId || ''))
+  const messages = props.conversationId ? allMessages : []
+
+  const allWorkers = useQuery(getWorkerById$(props.workerId || ''))
+  const worker = props.workerId ? allWorkers?.[0] || null : null
 
   return <MessageList {...props} messages={messages} currentWorker={worker} />
 }

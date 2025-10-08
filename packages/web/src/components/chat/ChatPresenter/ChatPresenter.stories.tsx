@@ -1,7 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
 import { ChatPresenter } from './ChatPresenter.js'
-import { getConversations$, getWorkerById$ } from '@work-squared/shared/queries'
+import {
+  getConversations$,
+  getWorkerById$,
+  getConversationMessages$,
+} from '@work-squared/shared/queries'
 import { schema, events, type Worker } from '@work-squared/shared/schema'
 import { LiveStoreProvider, useQuery } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
@@ -11,7 +15,7 @@ import { Store } from '@livestore/livestore'
 type ChatPresenterProps = React.ComponentProps<typeof ChatPresenter>
 
 // Props that the helper provides via LiveStore queries
-type ProvidedProps = 'conversations' | 'currentWorker' | 'selectedConversation'
+type ProvidedProps = 'conversations' | 'currentWorker' | 'selectedConversation' | 'messages'
 
 // Props that stories need to provide
 type ChatPresenterHelperProps = Omit<ChatPresenterProps, ProvidedProps> & {
@@ -23,18 +27,21 @@ const ChatPresenterHelper = (props: ChatPresenterHelperProps) => {
   const selectedConversation =
     conversations.find(c => c.id === props.selectedConversationId) || null
 
-  let currentWorker: Worker | null = null
-  if (props.currentWorkerId) {
-    currentWorker = useQuery(getWorkerById$(props.currentWorkerId))?.[0] || null
-  } else {
-    currentWorker = null
-  }
+  // Always call hooks unconditionally (Rules of Hooks) - query with empty IDs returns empty arrays
+  const allWorkers = useQuery(getWorkerById$(props.currentWorkerId || ''))
+  const currentWorker = props.currentWorkerId ? allWorkers?.[0] || null : null
+
+  // Get messages for the selected conversation
+  const allMessages = useQuery(getConversationMessages$(props.selectedConversationId || ''))
+  const messages = props.selectedConversationId ? allMessages : []
+
   return (
     <ChatPresenter
       {...props}
       conversations={conversations}
       currentWorker={currentWorker}
       selectedConversation={selectedConversation}
+      messages={messages}
     />
   )
 }
@@ -102,7 +109,6 @@ type Story = StoryObj<typeof meta>
 export const Empty: Story = {
   args: {
     availableWorkers: [],
-    messages: [],
     selectedConversationId: null,
     processingConversations: new Set(),
     messageText: '',
@@ -142,7 +148,6 @@ const withConversationsSetup = (store: Store) => {
 export const WithConversations: Story = {
   args: {
     availableWorkers: [],
-    messages: [],
     selectedConversationId: null,
     processingConversations: new Set(),
     messageText: '',
@@ -160,7 +165,6 @@ export const WithConversations: Story = {
 export const WithSelectedConversation: Story = {
   args: {
     availableWorkers: [],
-    messages: [],
     selectedConversationId: '1',
     currentWorkerId: '1',
     processingConversations: new Set(),
@@ -211,7 +215,6 @@ const processingSetup = (store: Store) => {
 export const Processing: Story = {
   args: {
     availableWorkers: [],
-    messages: [],
     selectedConversationId: '1',
     currentWorkerId: '1',
     processingConversations: new Set(['1']),
@@ -230,7 +233,6 @@ export const Processing: Story = {
 export const WithMessageDraft: Story = {
   args: {
     availableWorkers: [],
-    messages: [],
     selectedConversationId: '1',
     currentWorkerId: '1',
     messageText: 'This is a draft message that the user is typing...',
@@ -297,7 +299,6 @@ const chatPickerSetup = (store: Store) => {
 export const ChatPickerOpen: Story = {
   args: {
     availableWorkers: [],
-    messages: [],
     selectedConversationId: null,
     currentWorkerId: '1',
     showChatPicker: true,
@@ -355,7 +356,6 @@ const longConversationSetup = (store: Store) => {
 export const LongConversation: Story = {
   args: {
     availableWorkers: [],
-    messages: [],
     selectedConversationId: '1',
     currentWorkerId: '1',
     processingConversations: new Set(),
