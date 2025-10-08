@@ -30,13 +30,16 @@ function getTransport() {
   // Add Sentry transport if DSN is configured
   if (sentryDsn) {
     transports.push({
-      target: 'pino-sentry',
+      target: 'pino-sentry-transport',
       options: {
-        dsn: sentryDsn,
-        environment: env || 'development',
+        sentry: {
+          dsn: sentryDsn,
+          environment: env || 'development',
+        },
         // Only send warnings and errors to Sentry to reduce noise
         minLevel: 'warn',
       },
+      level: 'warn',
     })
   }
 
