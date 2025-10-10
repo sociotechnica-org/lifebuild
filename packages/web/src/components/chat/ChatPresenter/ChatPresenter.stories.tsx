@@ -1,13 +1,103 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
 import { ChatPresenter } from './ChatPresenter.js'
-import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
+import {
+  getConversations$,
+  getWorkerById$,
+  getConversationMessages$,
+  getWorkers$,
+} from '@work-squared/shared/queries'
+import { schema, events, type Worker } from '@work-squared/shared/schema'
+import { LiveStoreProvider, useQuery } from '@livestore/react'
+import { makeInMemoryAdapter } from '@livestore/adapter-web'
+import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
+import { Store } from '@livestore/livestore'
 
 type ChatPresenterProps = React.ComponentProps<typeof ChatPresenter>
 
+// Props that the helper provides via LiveStore queries
+type ProvidedProps =
+  | 'conversations'
+  | 'currentWorker'
+  | 'selectedConversation'
+  | 'messages'
+  | 'availableWorkers'
+
+// Props that stories need to provide
+type ChatPresenterHelperProps = Omit<ChatPresenterProps, ProvidedProps> & {
+  currentWorkerId?: string
+}
+
+const ChatPresenterHelper = (props: ChatPresenterHelperProps) => {
+  const conversations = useQuery(getConversations$)
+  const selectedConversation =
+    conversations.find(c => c.id === props.selectedConversationId) || null
+
+  // Always call hooks unconditionally (Rules of Hooks) - query with empty IDs returns empty arrays
+  const allWorkers = useQuery(getWorkerById$(props.currentWorkerId || ''))
+  const currentWorker = props.currentWorkerId ? allWorkers?.[0] || null : null
+
+  // Get all available workers
+  const availableWorkers = useQuery(getWorkers$)
+
+  // Get messages for the selected conversation
+  const allMessages = useQuery(getConversationMessages$(props.selectedConversationId || ''))
+  const messages = props.selectedConversationId ? allMessages : []
+
+  return (
+    <ChatPresenter
+      {...props}
+      conversations={conversations}
+      currentWorker={currentWorker}
+      selectedConversation={selectedConversation}
+      messages={messages}
+      availableWorkers={availableWorkers}
+    />
+  )
+}
+
+// Helper to wrap stories with LiveStore - creates fresh adapter for each story
+const withLiveStore = (boot: (store: Store) => void) => (Story: React.ComponentType) => (
+  <LiveStoreProvider
+    schema={schema}
+    adapter={makeInMemoryAdapter()}
+    batchUpdates={batchUpdates}
+    boot={boot}
+  >
+    <Story />
+  </LiveStoreProvider>
+)
+
+const emptySetup = (store: Store) => {
+  // Empty story - no initial data
+}
+
+const storySetup = (store: Store) => {
+  store.commit(
+    events.workerCreated({
+      id: '1',
+      name: 'New Assistant',
+      createdAt: new Date(),
+      systemPrompt: 'You are a helpful assistant.',
+      defaultModel: 'claude-sonnet-4-20250514',
+      actorId: '1',
+    })
+  )
+
+  store.commit(
+    events.conversationCreated({
+      id: '1',
+      title: 'Conversation with New Assistant',
+      createdAt: new Date(),
+      model: 'claude-sonnet-4-20250514',
+      workerId: '1',
+    })
+  )
+}
+
 const meta = {
   title: 'Components/Chat/ChatPresenter',
-  component: ChatPresenter,
+  component: ChatPresenterHelper,
   parameters: {
     layout: 'fullscreen',
     docs: {
@@ -25,193 +115,266 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof ChatPresenter>
+} satisfies Meta<typeof ChatPresenterHelper>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-// Mock data
-const mockWorker: Worker = {
-  id: 'worker-1',
-  name: 'Assistant',
-  avatar: '🤖',
-  roleDescription: 'AI Assistant',
-  systemPrompt: 'You are a helpful AI assistant.',
-  defaultModel: 'claude-sonnet-4-20250514',
-  isActive: true,
-  createdAt: new Date('2024-01-01'),
-  updatedAt: null,
-}
-
-const mockConversations: Conversation[] = [
-  {
-    id: 'conv-1',
-    title: 'Project Planning Discussion',
-    createdAt: new Date('2024-01-01T10:00:00'),
-    updatedAt: new Date('2024-01-01T10:30:00'),
-    model: 'claude-sonnet-4-20250514',
-    workerId: 'worker-1',
-    processingState: 'idle',
-  },
-  {
-    id: 'conv-2',
-    title: 'Code Review Session',
-    createdAt: new Date('2024-01-01T14:00:00'),
-    updatedAt: new Date('2024-01-01T14:45:00'),
-    model: 'claude-sonnet-4-20250514',
-    workerId: 'worker-1',
-    processingState: 'processing',
-  },
-]
-
-const mockMessages: ChatMessage[] = [
-  {
-    id: 'msg-1',
-    conversationId: 'conv-1',
-    message: 'Hello! How can I help you with your project today?',
-    role: 'assistant',
-    createdAt: new Date('2024-01-01T10:00:00'),
-    modelId: 'claude-sonnet-4-20250514',
-    responseToMessageId: null,
-    llmMetadata: null,
-  },
-  {
-    id: 'msg-2',
-    conversationId: 'conv-1',
-    message: 'I need help planning the architecture for a new feature',
-    role: 'user',
-    createdAt: new Date('2024-01-01T10:01:00'),
-    modelId: null,
-    responseToMessageId: null,
-    llmMetadata: null,
-  },
-  {
-    id: 'msg-3',
-    conversationId: 'conv-1',
-    message:
-      "I'd be happy to help you plan the architecture. Let's start by understanding the requirements...",
-    role: 'assistant',
-    createdAt: new Date('2024-01-01T10:02:00'),
-    modelId: 'claude-sonnet-4-20250514',
-    responseToMessageId: 'msg-2',
-    llmMetadata: null,
-  },
-]
-
-// Default props for stories
-const defaultProps: ChatPresenterProps = {
-  conversations: [],
-  availableWorkers: [mockWorker],
-  messages: [],
-  selectedConversation: null,
-  currentWorker: null,
-  selectedConversationId: null,
-  processingConversations: new Set(),
-  messageText: '',
-  showChatPicker: false,
-  onConversationChange: () => {},
-  onSendMessage: () => {},
-  onMessageTextChange: () => {},
-  onShowChatPicker: () => {},
-  onHideChatPicker: () => {},
-  onChatTypeSelect: () => {},
-}
-
 export const Empty: Story = {
-  args: defaultProps,
+  args: {
+    selectedConversationId: null,
+    processingConversations: new Set(),
+    messageText: '',
+    showChatPicker: false,
+    onConversationChange: () => {},
+    onSendMessage: () => {},
+    onMessageTextChange: () => {},
+    onShowChatPicker: () => {},
+    onHideChatPicker: () => {},
+    onChatTypeSelect: () => {},
+  },
+  decorators: [withLiveStore(emptySetup)],
+}
+
+const withConversationsSetup = (store: Store) => {
+  store.commit(
+    events.workerCreated({
+      id: '1',
+      name: 'Sample Assistant',
+      avatar: '✨',
+      createdAt: new Date(),
+      systemPrompt: 'You are a helpful assistant.',
+      defaultModel: 'claude-sonnet-4-20250514',
+      actorId: '1',
+    })
+  )
+  store.commit(
+    events.conversationCreated({
+      id: '1',
+      title: 'Conversation with Sample Assistant',
+      model: 'claude-sonnet-4-20250514',
+      createdAt: new Date(),
+      workerId: '1',
+    })
+  )
 }
 
 export const WithConversations: Story = {
   args: {
-    ...defaultProps,
-    conversations: mockConversations,
-    currentWorker: mockWorker,
+    selectedConversationId: null,
+    processingConversations: new Set(),
+    messageText: '',
+    showChatPicker: false,
+    onConversationChange: () => {},
+    onSendMessage: () => {},
+    onMessageTextChange: () => {},
+    onShowChatPicker: () => {},
+    onHideChatPicker: () => {},
+    onChatTypeSelect: () => {},
   },
+  decorators: [withLiveStore(withConversationsSetup)],
 }
 
 export const WithSelectedConversation: Story = {
   args: {
-    ...defaultProps,
-    conversations: mockConversations,
-    messages: mockMessages,
-    selectedConversation: mockConversations[0]!,
-    selectedConversationId: 'conv-1',
-    currentWorker: mockWorker,
+    selectedConversationId: '1',
+    currentWorkerId: '1',
+    processingConversations: new Set(),
+    messageText: '',
+    showChatPicker: false,
+    onConversationChange: () => {},
+    onSendMessage: () => {},
+    onMessageTextChange: () => {},
+    onShowChatPicker: () => {},
+    onHideChatPicker: () => {},
+    onChatTypeSelect: () => {},
   },
+  decorators: [withLiveStore(withConversationsSetup)],
+}
+
+const processingSetup = (store: Store) => {
+  store.commit(
+    events.workerCreated({
+      id: '1',
+      name: 'Processing Assistant',
+      avatar: '⚡',
+      createdAt: new Date(),
+      systemPrompt: 'You are a helpful assistant.',
+      defaultModel: 'claude-sonnet-4-20250514',
+      actorId: '1',
+    })
+  )
+  store.commit(
+    events.conversationCreated({
+      id: '1',
+      title: 'Processing Conversation',
+      model: 'claude-sonnet-4-20250514',
+      createdAt: new Date(),
+      workerId: '1',
+    })
+  )
+  store.commit(
+    events.chatMessageSent({
+      id: 'msg-1',
+      conversationId: '1',
+      message: 'Hello! How can I help you?',
+      role: 'assistant',
+      createdAt: new Date(),
+    })
+  )
 }
 
 export const Processing: Story = {
   args: {
-    ...defaultProps,
-    conversations: mockConversations,
-    messages: mockMessages,
-    selectedConversation: mockConversations[0]!,
-    selectedConversationId: 'conv-1',
-    currentWorker: mockWorker,
-    processingConversations: new Set(['conv-1']),
+    selectedConversationId: '1',
+    currentWorkerId: '1',
+    processingConversations: new Set(['1']),
+    messageText: '',
+    showChatPicker: false,
+    onConversationChange: () => {},
+    onSendMessage: () => {},
+    onMessageTextChange: () => {},
+    onShowChatPicker: () => {},
+    onHideChatPicker: () => {},
+    onChatTypeSelect: () => {},
   },
+  decorators: [withLiveStore(processingSetup)],
 }
 
 export const WithMessageDraft: Story = {
   args: {
-    ...defaultProps,
-    conversations: mockConversations,
-    messages: mockMessages,
-    selectedConversation: mockConversations[0]!,
-    selectedConversationId: 'conv-1',
-    currentWorker: mockWorker,
+    selectedConversationId: '1',
+    currentWorkerId: '1',
     messageText: 'This is a draft message that the user is typing...',
+    processingConversations: new Set(),
+    showChatPicker: false,
+    onConversationChange: () => {},
+    onSendMessage: () => {},
+    onMessageTextChange: () => {},
+    onShowChatPicker: () => {},
+    onHideChatPicker: () => {},
+    onChatTypeSelect: () => {},
   },
+  decorators: [withLiveStore(withConversationsSetup)],
+}
+
+const chatPickerSetup = (store: Store) => {
+  // Create multiple workers for the picker
+  store.commit(
+    events.workerCreated({
+      id: '1',
+      name: 'Assistant',
+      avatar: '🤖',
+      createdAt: new Date(),
+      systemPrompt: 'You are a helpful assistant.',
+      defaultModel: 'claude-sonnet-4-20250514',
+      actorId: '1',
+    })
+  )
+  store.commit(
+    events.workerCreated({
+      id: '2',
+      name: 'Code Reviewer',
+      avatar: '👨‍💻',
+      roleDescription: 'Specialized in code reviews',
+      createdAt: new Date(),
+      systemPrompt: 'You are a code review specialist.',
+      defaultModel: 'claude-sonnet-4-20250514',
+      actorId: '1',
+    })
+  )
+  store.commit(
+    events.workerCreated({
+      id: '3',
+      name: 'Project Manager',
+      avatar: '📋',
+      roleDescription: 'Project planning and management',
+      createdAt: new Date(),
+      systemPrompt: 'You are a project management expert.',
+      defaultModel: 'claude-sonnet-4-20250514',
+      actorId: '1',
+    })
+  )
+  store.commit(
+    events.conversationCreated({
+      id: '1',
+      title: 'Sample Conversation',
+      model: 'claude-sonnet-4-20250514',
+      createdAt: new Date(),
+      workerId: '1',
+    })
+  )
 }
 
 export const ChatPickerOpen: Story = {
   args: {
-    ...defaultProps,
-    conversations: mockConversations,
-    currentWorker: mockWorker,
+    selectedConversationId: null,
+    currentWorkerId: '1',
     showChatPicker: true,
-    availableWorkers: [
-      mockWorker,
-      {
-        ...mockWorker,
-        id: 'worker-2',
-        name: 'Code Reviewer',
-        avatar: '👨‍💻',
-        roleDescription: 'Specialized in code reviews',
-      },
-      {
-        ...mockWorker,
-        id: 'worker-3',
-        name: 'Project Manager',
-        avatar: '📋',
-        roleDescription: 'Project planning and management',
-      },
-    ],
+    processingConversations: new Set(),
+    messageText: '',
+    onConversationChange: () => {},
+    onSendMessage: () => {},
+    onMessageTextChange: () => {},
+    onShowChatPicker: () => {},
+    onHideChatPicker: () => {},
+    onChatTypeSelect: () => {},
   },
+  decorators: [withLiveStore(chatPickerSetup)],
+}
+
+const longConversationSetup = (store: Store) => {
+  store.commit(
+    events.workerCreated({
+      id: '1',
+      name: 'Chatty Assistant',
+      avatar: '💬',
+      createdAt: new Date(),
+      systemPrompt: 'You are a helpful assistant.',
+      defaultModel: 'claude-sonnet-4-20250514',
+      actorId: '1',
+    })
+  )
+  store.commit(
+    events.conversationCreated({
+      id: '1',
+      title: 'Long Conversation',
+      model: 'claude-sonnet-4-20250514',
+      createdAt: new Date(),
+      workerId: '1',
+    })
+  )
+
+  // Create a long conversation with many messages
+  for (let i = 0; i < 20; i++) {
+    const isUser = i % 2 === 0
+    store.commit(
+      events.chatMessageSent({
+        id: `msg-${i}`,
+        conversationId: '1',
+        message: isUser
+          ? `User message ${i}: This is a longer message to demonstrate scrolling behavior in the message list.`
+          : `Assistant response ${i}: This is a detailed response with multiple paragraphs.\n\nIt includes line breaks and formatting to show how the component handles longer content.`,
+        role: isUser ? 'user' : 'assistant',
+        createdAt: new Date(Date.now() + i * 60000),
+      })
+    )
+  }
 }
 
 export const LongConversation: Story = {
   args: {
-    ...defaultProps,
-    conversations: mockConversations,
-    messages: [
-      ...mockMessages,
-      ...Array.from({ length: 20 }, (_, i) => ({
-        id: `msg-long-${i}`,
-        conversationId: 'conv-1',
-        message:
-          i % 2 === 0
-            ? `User message ${i}: This is a longer message to demonstrate scrolling behavior in the message list.`
-            : `Assistant response ${i}: This is a detailed response with multiple paragraphs.\n\nIt includes line breaks and formatting to show how the component handles longer content.`,
-        role: (i % 2 === 0 ? 'user' : 'assistant') as 'user' | 'assistant',
-        createdAt: new Date(`2024-01-01T10:${10 + i}:00`),
-        modelId: i % 2 === 1 ? 'claude-sonnet-4-20250514' : null,
-        responseToMessageId: i > 0 ? `msg-long-${i - 1}` : null,
-        llmMetadata: null,
-      })),
-    ],
-    selectedConversation: mockConversations[0]!,
-    selectedConversationId: 'conv-1',
-    currentWorker: mockWorker,
+    selectedConversationId: '1',
+    currentWorkerId: '1',
+    processingConversations: new Set(),
+    messageText: '',
+    showChatPicker: false,
+    onConversationChange: () => {},
+    onSendMessage: () => {},
+    onMessageTextChange: () => {},
+    onShowChatPicker: () => {},
+    onHideChatPicker: () => {},
+    onChatTypeSelect: () => {},
   },
+  decorators: [withLiveStore(longConversationSetup)],
 }
