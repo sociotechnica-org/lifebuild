@@ -336,6 +336,9 @@ importers:
       marked:
         specifier: ^16.1.1
         version: 16.3.0
+      posthog-js:
+        specifier: ^1.261.0
+        version: 1.275.0
       react:
         specifier: 19.1.1
         version: 19.1.1
@@ -2224,6 +2227,9 @@ packages:
   '@poppinss/exception@1.2.2':
     resolution: {integrity: sha512-m7bpKCD4QMlFCjA/nKTs23fuvoVFoA83brRKmObCUNmi/9tVu8Ve3w4YQAnJu4q3Tjf5fr685HYIC/IA2zHRSg==}
 
+  '@posthog/core@1.2.4':
+    resolution: {integrity: sha512-o2TkycuV98PtAkcqE8B1DJv5LBvHEDTWirK5TlkQMeF2MJg0BYliY95CeRZFILNgZJCbI3k/fhahSMRQlpXOMg==}
+
   '@prisma/instrumentation@6.15.0':
     resolution: {integrity: sha512-6TXaH6OmDkMOQvOxwLZ8XS51hU2v4A3vmE2pSijCIiGRJYyNeMcL6nMHQMyYdZRD8wl7LF3Wzc+AMPMV/9Oo7A==}
     peerDependencies:
@@ -3741,6 +3747,9 @@ packages:
   core-js-compat@3.45.1:
     resolution: {integrity: sha512-tqTt5T4PzsMIZ430XGviK4vzYSoeNJ6CXODi6c/voxOT6IZqBht5/EKaSNnYiEjjRYxjVz7DQIsOsY0XNi8PIA==}
 
+  core-js@3.46.0:
+    resolution: {integrity: sha512-vDMm9B0xnqqZ8uSBpZ8sNtRtOdmfShrvT6h2TuQGLs0Is+cR0DYbj/KWP6ALVNbWPpqA/qPLoOuppJN07humpA==}
+
   cors@2.8.5:
     resolution: {integrity: sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==}
     engines: {node: '>= 0.10'}
@@ -4329,6 +4338,9 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  fflate@0.4.8:
+    resolution: {integrity: sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==}
 
   fflate@0.8.2:
     resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
@@ -5804,6 +5816,20 @@ packages:
     resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
     engines: {node: '>=0.10.0'}
 
+  posthog-js@1.275.0:
+    resolution: {integrity: sha512-pobnKPqsJoCpv9FnjJZ54QwRBMWqrp5BjXF5TXsh2H81RaRh9Fkaj43BkUIbYzFsVahb8ZHPYv/AywlnJlzR2A==}
+    peerDependencies:
+      '@rrweb/types': 2.0.0-alpha.17
+      rrweb-snapshot: 2.0.0-alpha.17
+    peerDependenciesMeta:
+      '@rrweb/types':
+        optional: true
+      rrweb-snapshot:
+        optional: true
+
+  preact@10.27.2:
+    resolution: {integrity: sha512-5SYSgFKSyhCbk6SrXyMpqjb5+MQBgfvEKE/OC+PujcY34sOpqtr+0AZQtPYx5IA6VxynQ7rUPCtKzyovpj9Bpg==}
+
   prebuild-install@7.1.3:
     resolution: {integrity: sha512-8Mf2cbV7x1cXPUILADGI3wuhfqWvtiLA1iclTDbFRZkgRQS0NqsPZphna9V+HyTEadheuPmjaJMsbzKQFOzLug==}
     engines: {node: '>=10'}
@@ -6853,6 +6879,9 @@ packages:
 
   walker@1.0.8:
     resolution: {integrity: sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==}
+
+  web-vitals@4.2.4:
+    resolution: {integrity: sha512-r4DIlprAGwJ7YM11VZp4R884m0Vmgr6EAKe3P+kO0PPj3Unqyvv59rczf6UiGcb9Z8QxZVcqKNwv/g0WNdWwsw==}
 
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
@@ -9181,6 +9210,8 @@ snapshots:
 
   '@poppinss/exception@1.2.2': {}
 
+  '@posthog/core@1.2.4': {}
+
   '@prisma/instrumentation@6.15.0(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
@@ -10787,6 +10818,8 @@ snapshots:
     dependencies:
       browserslist: 4.26.2
 
+  core-js@3.46.0: {}
+
   cors@2.8.5:
     dependencies:
       object-assign: 4.1.1
@@ -11541,6 +11574,8 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.3):
     optionalDependencies:
       picomatch: 4.0.3
+
+  fflate@0.4.8: {}
 
   fflate@0.8.2: {}
 
@@ -13269,6 +13304,16 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
+  posthog-js@1.275.0:
+    dependencies:
+      '@posthog/core': 1.2.4
+      core-js: 3.46.0
+      fflate: 0.4.8
+      preact: 10.27.2
+      web-vitals: 4.2.4
+
+  preact@10.27.2: {}
+
   prebuild-install@7.1.3:
     dependencies:
       detect-libc: 2.1.0
@@ -14439,6 +14484,8 @@ snapshots:
   walker@1.0.8:
     dependencies:
       makeerror: 1.0.12
+
+  web-vitals@4.2.4: {}
 
   webidl-conversions@3.0.1: {}
 
