@@ -8,6 +8,10 @@ import { App } from './Root.js'
 
 const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY
 const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST
+const isProduction = import.meta.env.PROD
+
+// Only enable PostHog in production
+const shouldEnablePosthog = posthogKey && isProduction
 
 const options = {
   api_host: posthogHost || 'https://us.i.posthog.com',
@@ -20,7 +24,7 @@ const options = {
 const rootElement = document.getElementById('react-app')
 if (rootElement) {
   ReactDOM.createRoot(rootElement).render(
-    posthogKey ? (
+    shouldEnablePosthog ? (
       <PostHogProvider apiKey={posthogKey} options={options}>
         <App />
       </PostHogProvider>
