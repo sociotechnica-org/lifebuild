@@ -836,16 +836,10 @@ export class EventProcessor {
       }
     }
 
-    // Convert chat messages to conversation history format and sanitize tool calls
-    const rawHistory: LLMMessage[] = chatHistory.map(msg => ({
-      role: msg.role as 'user' | 'assistant' | 'system' | 'tool',
-      content: msg.message || '',
-      tool_calls: msg.llmMetadata?.toolCalls as any,
-      tool_call_id: msg.llmMetadata?.tool_call_id as any,
-    }))
-
-    // Sanitize conversation history to fix tool_use/tool_result mismatches
-    const conversationHistory = this.sanitizeConversationHistory(rawHistory)
+    // Convert chat messages to conversation history format and sanitize tool calls.
+    // The conversation history intentionally excludes the live user message because the agentic
+    // loop appends it before contacting the provider.
+    const conversationHistory = this.buildConversationHistory(chatHistory, userMessage)
 
     let completionEmitted = false
 
@@ -1625,5 +1619,67 @@ export class EventProcessor {
     }
 
     return sanitized
+  }
+
+  private buildConversationHistory(
+    chatHistory: ChatMessage[],
+    userMessage: ChatMessage
+  ): LLMMessage[] {
+    let historyToUse = chatHistory
+
+    if (historyToUse.length > 0) {
+      const lastMessage = historyToUse[historyToUse.length - 1]
+
+      if (lastMessage.id === userMessage.id && lastMessage.role === 'user') {
+        historyToUse = historyToUse.slice(0, -1)
+        logger.debug(
+          {
+            conversationId: userMessage.conversationId,
+            userMessageId: userMessage.id,
+            removedMessageRole: lastMessage.role,
+          },
+          'Trimming current user message from conversation history before LLM call'
+        )
+      }
+    }
+
+    const rawHistory: LLMMessage[] = historyToUse.map(msg => ({
+      role: msg.role as 'user' | 'assistant' | 'system' | 'tool',
+      content: msg.message || '',
+      tool_calls: msg.llmMetadata?.toolCalls as any,
+      tool_call_id: msg.llmMetadata?.tool_call_id as any,
+    }))
+
+    const sanitizedHistory = this.sanitizeConversationHistory(rawHistory)
+
+    const duplicateUserMessages: Array<{ index: number; content: string | null }> = []
+    for (let i = 1; i < sanitizedHistory.length; i++) {
+      const previous = sanitizedHistory[i - 1]
+      const current = sanitizedHistory[i]
+
+      if (
+        previous.role === 'user' &&
+        current.role === 'user' &&
+        previous.content === current.content
+      ) {
+        duplicateUserMessages.push({ index: i, content: current.content })
+      }
+    }
+
+    if (duplicateUserMessages.length > 0) {
+      logger.warn(
+        {
+          conversationId: userMessage.conversationId,
+          userMessageId: userMessage.id,
+          duplicates: duplicateUserMessages.map(({ index, content }) => ({
+            index,
+            preview: content ? content.slice(0, 100) : null,
+          })),
+        },
+        'Detected duplicate consecutive user messages in conversation history'
+      )
+    }
+
+    return sanitizedHistory
   }
 }
