@@ -66,7 +66,7 @@ Direct PostHog integration is easier to migrate from if requirements change. We 
 
 ### Downsides
 
-- **Third-party domain**: Analytics requests go to `app.posthog.com` instead of our domain
+- **Third-party domain**: Analytics requests go to `us.i.posthog.com` instead of our domain
 - **Less control**: Cannot customize request handling or add custom logic
 - **Dependency**: Reliant on PostHog's infrastructure and SDK stability
 
