@@ -4,6 +4,7 @@
  */
 export const ROUTES = {
   HOME: '/',
+  HOME_NEW: '/home',
   PROJECTS: '/projects',
   TASKS: '/tasks',
   TEAM: '/team',

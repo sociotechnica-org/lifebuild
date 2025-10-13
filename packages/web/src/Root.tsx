@@ -18,6 +18,7 @@ import { DocumentPage } from './components/documents/DocumentPage.js'
 import { ContactList } from './components/contacts/ContactList.js'
 import { ContactDetail } from './components/contacts/ContactDetail.js'
 import { HistoryPage } from './pages/HistoryPage.js'
+import { HomePageContainer } from './pages/HomePageContainer.js'
 import { LoginPage } from './pages/LoginPage.js'
 import { SignupPage } from './pages/SignupPage.js'
 import { SettingsPage } from './components/settings/SettingsPage.js'
@@ -132,6 +133,14 @@ const ProtectedApp: React.FC = () => {
                             <ProjectsPage />
                           </ErrorBoundary>
                         </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.HOME_NEW}
+                      element={
+                        <ErrorBoundary>
+                          <HomePageContainer />
+                        </ErrorBoundary>
                       }
                     />
                     <Route
