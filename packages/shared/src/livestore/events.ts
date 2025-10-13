@@ -470,3 +470,68 @@ export const projectContactRemoved = Events.synced({
     contactId: Schema.String,
   }),
 })
+
+// ============================================================================
+// V2 TASK EVENTS - Status-based
+// ============================================================================
+
+export const taskCreatedV2 = Events.synced({
+  name: 'v2.TaskCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    projectId: Schema.optional(Schema.String),
+    title: Schema.String,
+    description: Schema.Union(Schema.String, Schema.Undefined),
+    status: Schema.optional(Schema.String), // 'todo' | 'doing' | 'in_review' | 'done'
+    assigneeIds: Schema.Union(Schema.Array(Schema.String), Schema.Undefined),
+    position: Schema.Number,
+    createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const taskStatusChanged = Events.synced({
+  name: 'v2.TaskStatusChanged',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    toStatus: Schema.String, // 'todo' | 'doing' | 'in_review' | 'done'
+    position: Schema.Number, // Position within the new status
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const taskReordered = Events.synced({
+  name: 'v2.TaskReordered',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    position: Schema.Number, // New position within same status
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const taskMovedToProjectV2 = Events.synced({
+  name: 'v2.TaskMovedToProject',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    toProjectId: Schema.optional(Schema.String),
+    position: Schema.Number,
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const taskUpdatedV2 = Events.synced({
+  name: 'v2.TaskUpdated',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    updates: Schema.Struct({
+      title: Schema.optional(Schema.String),
+      description: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+      assigneeIds: Schema.optional(Schema.Array(Schema.String)),
+    }),
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})

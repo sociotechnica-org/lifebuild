@@ -180,6 +180,7 @@ export const createMockTask = (overrides: Partial<Task> = {}): Task => ({
   columnId: 'test-column',
   title: 'Test Task',
   description: null,
+  status: 'todo',
   assigneeIds: '[]',
   position: 0,
   createdAt: new Date('2023-01-01'),

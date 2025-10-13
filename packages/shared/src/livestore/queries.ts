@@ -321,3 +321,59 @@ export const getLatestExecution$ = (recurringTaskId: string) =>
       label: `getLatestExecution:${recurringTaskId}`,
     }
   )
+
+// ============================================================================
+// STATUS-BASED TASK QUERIES
+// ============================================================================
+
+/**
+ * Get tasks by status for a project
+ */
+export const getTasksByStatus$ = (projectId: string, status: string) =>
+  queryDb(
+    tables.tasks
+      .select()
+      .where({ projectId, status, archivedAt: null })
+      .orderBy([{ col: 'position', direction: 'asc' }]),
+    {
+      label: `getTasksByStatus:${projectId}:${status}`,
+    }
+  )
+
+/**
+ * Get all tasks grouped by status for a project
+ * Returns tasks organized by status
+ */
+export const getProjectTasksByStatus$ = (projectId: string) =>
+  queryDb(
+    tables.tasks
+      .select()
+      .where({ projectId, archivedAt: null })
+      .orderBy([{ col: 'status', direction: 'asc' }, { col: 'position', direction: 'asc' }]),
+    {
+      label: `getProjectTasksByStatus:${projectId}`,
+    }
+  )
+
+/**
+ * Get task count summary by status for a project
+ * Note: Returns all tasks, filtering done client-side
+ */
+export const getProjectStatusSummary$ = (projectId: string) =>
+  queryDb(tables.tasks.select().where({ projectId, archivedAt: null }), {
+    label: `getProjectStatusSummary:${projectId}`,
+  })
+
+/**
+ * Get orphaned tasks by status (no project)
+ */
+export const getOrphanedTasksByStatus$ = (status: string) =>
+  queryDb(
+    tables.tasks
+      .select()
+      .where({ projectId: null, status, archivedAt: null })
+      .orderBy([{ col: 'position', direction: 'asc' }]),
+    {
+      label: `getOrphanedTasksByStatus:${status}`,
+    }
+  )
