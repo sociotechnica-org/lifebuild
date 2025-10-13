@@ -635,7 +635,12 @@ store.commit(events.taskCreatedV2({
 
 ### 6. Server Tools (LLM Integration)
 
-**Files**: `packages/server/src/tools/tasks.ts`, `packages/server/src/tools/schemas.ts`
+**Files**:
+
+- `packages/server/src/tools/tasks.ts` - Tool implementations
+- `packages/server/src/tools/schemas.ts` - Tool schemas for LLM
+- `packages/server/src/tools/types.ts` - TypeScript types for tool parameters and results
+- `packages/server/src/services/agentic-loop/tool-formatters/task-formatter.ts` - Output formatters
 
 #### 6.1 Update Task Tool Schemas
 

@@ -8,14 +8,14 @@ export interface TaskFormatterResult {
   taskId?: string
   taskTitle?: string
   projectName?: string
-  columnName?: string
+  status?: string
   assigneeNames?: string[]
   task?: {
     id: string
     title?: string
     description?: string
     projectId?: string
-    columnId?: string
+    status?: string
     position?: number
     assigneeIds?: string[]
     archivedAt?: Date | null
@@ -23,7 +23,7 @@ export interface TaskFormatterResult {
   tasks?: Array<{
     id: string
     title: string
-    columnId: string
+    status: string
     position: number
   }>
 }
@@ -83,13 +83,13 @@ export class TaskToolFormatter implements ToolResultFormatter {
 
     const taskTitle = result?.taskTitle ?? 'Untitled task'
     const projectName = result?.projectName ?? 'unknown project'
-    const columnName = result?.columnName ?? 'unknown column'
+    const status = result?.status ?? 'todo'
     const assigneeSuffix = result?.assigneeNames?.length
       ? ` (assigned to ${result.assigneeNames.join(', ')})`
       : ''
     const taskId = result?.taskId ? ChorusFormatter.task(result.taskId) : 'unavailable'
 
-    return `Task created successfully: "${taskTitle}" in project "${projectName}" column "${columnName}"${assigneeSuffix}. Task ID: ${taskId}`
+    return `Task created successfully: "${taskTitle}" in project "${projectName}" with status "${status}"${assigneeSuffix}. Task ID: ${taskId}`
   }
 
   private formatUpdateTask(result: any): string {
@@ -113,21 +113,23 @@ export class TaskToolFormatter implements ToolResultFormatter {
     if (!result.task?.id) {
       return 'Task move failed: Task ID not found'
     }
-    return `Task moved within project successfully:\n• Task ID: ${ChorusFormatter.task(result.task.id)}\n• New column ID: ${result.task.columnId}\n• Position: ${result.task.position}`
+    return `Task moved within project successfully:\n• Task ID: ${ChorusFormatter.task(result.task.id)}\n• New status: ${result.task.status}\n• Position: ${result.task.position}`
   }
 
   private formatMoveTaskToProject(result: any): string {
     if (!result.task?.id) {
       return 'Task move to project failed: Task ID not found'
     }
-    return `Task moved to project:\n• Task ID: ${ChorusFormatter.task(result.task.id)}\n• New project ID: ${ChorusFormatter.project(result.task.projectId)}\n• New column ID: ${result.task.columnId}\n• Position: ${result.task.position}`
+    const statusInfo = result.task?.status ? `\n• Status: ${result.task.status}` : ''
+    return `Task moved to project:\n• Task ID: ${ChorusFormatter.task(result.task.id)}\n• New project ID: ${ChorusFormatter.project(result.task.projectId)}${statusInfo}\n• Position: ${result.task.position}`
   }
 
   private formatOrphanTask(result: any): string {
     if (!result.task?.id) {
       return 'Task orphaning failed: Task ID not found'
     }
-    return `Task orphaned successfully:\n• Task ID: ${ChorusFormatter.task(result.task.id)}\n• Orphaned column ID: ${result.task.columnId}\n• Position: ${result.task.position}`
+    const statusInfo = result.task?.status ? `\n• Status: ${result.task.status}` : ''
+    return `Task orphaned successfully:\n• Task ID: ${ChorusFormatter.task(result.task.id)}${statusInfo}\n• Position: ${result.task.position}`
   }
 
   private formatArchiveTask(result: any): string {
@@ -151,7 +153,7 @@ export class TaskToolFormatter implements ToolResultFormatter {
     const t = result.task
     let message = `Task details:\n• ID: ${ChorusFormatter.task(t.id)}\n• Title: ${t.title}\n• Project ID: ${
       t.projectId ? ChorusFormatter.project(t.projectId) : 'none'
-    }\n• Column ID: ${t.columnId || 'none'}\n• Description: ${
+    }\n• Status: ${t.status || 'none'}\n• Description: ${
       t.description || 'none'
     }\n• Position: ${t.position}`
     if (t.assigneeIds?.length) {
@@ -166,7 +168,7 @@ export class TaskToolFormatter implements ToolResultFormatter {
       result.tasks
         ?.map(
           (t: any) =>
-            `${t.title} (ID: ${ChorusFormatter.task(t.id)}) - Column: ${t.columnName || t.columnId}, Position: ${t.position}`
+            `${t.title} (ID: ${ChorusFormatter.task(t.id)}) - Status: ${t.status}, Position: ${t.position}`
         )
         .join('\n• ') || 'No tasks found in project'
     return `Project tasks${projectInfo}:\n• ${taskList}`

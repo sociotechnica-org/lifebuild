@@ -6,16 +6,18 @@ import { toolDef, requiredString, optionalString, optionalNumber, stringArray } 
  */
 export const llmToolSchemas = [
   // Task Management Tools
-  toolDef('create_task', 'Create a new task in a specific project and column', {
+  toolDef('create_task', 'Create a new task in a specific project with a status', {
     type: 'object',
     properties: {
       title: requiredString('The title/name of the task'),
       description: optionalString('Optional detailed description of the task'),
       projectId: requiredString('ID of the project to create the task in'),
-      columnId: requiredString('ID of the column to place the task in'),
+      status: optionalString(
+        "Status of the task: 'todo', 'doing', 'in_review', or 'done' (defaults to 'todo')"
+      ),
       assigneeIds: stringArray('Array of user IDs to assign to the task'),
     },
-    required: ['title', 'projectId', 'columnId'],
+    required: ['title', 'projectId'],
   }),
 
   toolDef('update_task', 'Update an existing task with new information', {
@@ -31,41 +33,43 @@ export const llmToolSchemas = [
 
   toolDef(
     'move_task_within_project',
-    'Move a task to a different column within the same project (task must have a projectId)',
+    'Move a task to a different status within the same project (task must have a projectId)',
     {
       type: 'object',
       properties: {
         taskId: requiredString('The ID of the task to move'),
-        toColumnId: requiredString(
-          "The ID of the column to move the task to (must belong to the task's current project)"
+        toStatus: requiredString(
+          "The status to move the task to: 'todo', 'doing', 'in_review', or 'done'"
         ),
-        position: optionalNumber('Position in the column (defaults to end)'),
+        position: optionalNumber('Position within the status (defaults to end)'),
       },
-      required: ['taskId', 'toColumnId'],
+      required: ['taskId', 'toStatus'],
     }
   ),
 
-  toolDef('move_task_to_project', 'Move a task to a different project and column', {
+  toolDef('move_task_to_project', 'Move a task to a different project (keeps current status)', {
     type: 'object',
     properties: {
       taskId: requiredString('The ID of the task to move'),
       toProjectId: requiredString('The ID of the project to move the task to'),
-      toColumnId: requiredString(
-        'The ID of the column to move the task to (must belong to the target project)'
+      status: optionalString(
+        "Optional: change task status when moving ('todo', 'doing', 'in_review', 'done')"
       ),
-      position: optionalNumber('Position in the column (defaults to end)'),
+      position: optionalNumber('Position within the status (defaults to end)'),
     },
-    required: ['taskId', 'toProjectId', 'toColumnId'],
+    required: ['taskId', 'toProjectId'],
   }),
 
   toolDef('orphan_task', 'Move a task to orphaned state (remove from its current project)', {
     type: 'object',
     properties: {
       taskId: requiredString('The ID of the task to orphan'),
-      toColumnId: requiredString('The ID of the orphaned column to move the task to'),
-      position: optionalNumber('Position in the column (defaults to end)'),
+      status: optionalString(
+        "Optional: task status (defaults to keeping current status): 'todo', 'doing', 'in_review', 'done'"
+      ),
+      position: optionalNumber('Position (defaults to end)'),
     },
-    required: ['taskId', 'toColumnId'],
+    required: ['taskId'],
   }),
 
   toolDef('archive_task', 'Archive a task to remove it from active view', {
