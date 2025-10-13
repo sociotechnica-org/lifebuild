@@ -40,6 +40,7 @@ const tasks = State.SQLite.table({
 ```
 
 **Notes**:
+
 - Keep `columnId` temporarily for v1 event compatibility
 - Add `status` field with default 'todo'
 - Status values: 'todo', 'doing', 'in_review', 'done'
@@ -130,6 +131,7 @@ export const taskUpdatedV2 = Events.synced({
 #### 2.2 Keep V1 Events Unchanged
 
 Do not modify existing v1 events:
+
 - `v1.TaskCreated` - Keep as-is
 - `v1.TaskMoved` - Keep as-is
 - `v1.TaskMovedToProject` - Keep as-is
@@ -394,7 +396,10 @@ export const getProjectTasksByStatus$ = (projectId: string) =>
     tables.tasks
       .select()
       .where({ projectId, archivedAt: null })
-      .orderBy([{ col: 'status', direction: 'asc' }, { col: 'position', direction: 'asc' }]),
+      .orderBy([
+        { col: 'status', direction: 'asc' },
+        { col: 'position', direction: 'asc' },
+      ]),
     {
       label: `getProjectTasksByStatus:${projectId}`,
     }
@@ -405,12 +410,9 @@ export const getProjectTasksByStatus$ = (projectId: string) =>
  * Note: Returns all tasks, filtering done client-side
  */
 export const getProjectStatusSummary$ = (projectId: string) =>
-  queryDb(
-    tables.tasks.select().where({ projectId, archivedAt: null }),
-    {
-      label: `getProjectStatusSummary:${projectId}`,
-    }
-  )
+  queryDb(tables.tasks.select().where({ projectId, archivedAt: null }), {
+    label: `getProjectStatusSummary:${projectId}`,
+  })
 
 /**
  * Get orphaned tasks by status (no project)
@@ -430,6 +432,7 @@ export const getOrphanedTasksByStatus$ = (status: string) =>
 #### 4.2 Keep Column Queries (Temporarily)
 
 Keep existing column queries for now:
+
 - `getBoardColumns$` / `getProjectColumns$`
 - `getOrphanedColumns$`
 
@@ -581,13 +584,15 @@ const tasksByStatus: Record<TaskStatus, Task[]> = {
 const handleDragEnd = (event: DragEndEvent) => {
   // ... determine new status and position ...
 
-  store.commit(events.taskStatusChanged({
-    taskId: event.active.id,
-    toStatus: newStatus,
-    position: newPosition,
-    updatedAt: new Date(),
-    actorId: currentUser?.id,
-  }))
+  store.commit(
+    events.taskStatusChanged({
+      taskId: event.active.id,
+      toStatus: newStatus,
+      position: newPosition,
+      updatedAt: new Date(),
+      actorId: currentUser?.id,
+    })
+  )
 }
 ```
 
@@ -671,7 +676,7 @@ export const createTaskSchema = {
 
 export const moveTaskSchema = {
   name: 'move_task_status',
-  description: 'Change a task\'s status (move to different column)',
+  description: "Change a task's status (move to different column)",
   inputSchema: {
     type: 'object',
     properties: {
@@ -700,25 +705,25 @@ export const createTask = async (store: Store, input: any) => {
   const taskId = nanoid()
   const position = await calculateNextPosition(store, input.projectId, input.status || 'todo')
 
-  await store.commit(events.taskCreatedV2({
-    id: taskId,
-    projectId: input.projectId,
-    title: input.title,
-    description: input.description,
-    status: input.status || 'todo',
-    assigneeIds: input.assigneeIds,
-    position,
-    createdAt: new Date(),
-    actorId: input.actorId,
-  }))
+  await store.commit(
+    events.taskCreatedV2({
+      id: taskId,
+      projectId: input.projectId,
+      title: input.title,
+      description: input.description,
+      status: input.status || 'todo',
+      assigneeIds: input.assigneeIds,
+      position,
+      createdAt: new Date(),
+      actorId: input.actorId,
+    })
+  )
 
   return { success: true, taskId, status: input.status || 'todo' }
 }
 
 export const moveTaskStatus = async (store: Store, input: any) => {
-  const task = await store.query(db =>
-    db.table('tasks').where({ id: input.taskId }).first()
-  )
+  const task = await store.query(db => db.table('tasks').where({ id: input.taskId }).first())
 
   if (!task) {
     throw new Error('Task not found')
@@ -726,13 +731,15 @@ export const moveTaskStatus = async (store: Store, input: any) => {
 
   const newPosition = await calculateNextPosition(store, task.projectId, input.toStatus)
 
-  await store.commit(events.taskStatusChanged({
-    taskId: input.taskId,
-    toStatus: input.toStatus,
-    position: newPosition,
-    updatedAt: new Date(),
-    actorId: input.actorId,
-  }))
+  await store.commit(
+    events.taskStatusChanged({
+      taskId: input.taskId,
+      toStatus: input.toStatus,
+      position: newPosition,
+      updatedAt: new Date(),
+      actorId: input.actorId,
+    })
+  )
 
   return { success: true, taskId: input.taskId, newStatus: input.toStatus }
 }
@@ -769,14 +776,16 @@ describe('Task Status Migration', () => {
   it('v1.TaskCreated should set status to todo', async () => {
     const store = createTestStore()
 
-    await store.commit(events.taskCreated({
-      id: 'task-1',
-      projectId: 'project-1',
-      columnId: 'old-column-id',
-      title: 'Test Task',
-      position: 0,
-      createdAt: new Date(),
-    }))
+    await store.commit(
+      events.taskCreated({
+        id: 'task-1',
+        projectId: 'project-1',
+        columnId: 'old-column-id',
+        title: 'Test Task',
+        position: 0,
+        createdAt: new Date(),
+      })
+    )
 
     const tasks = await store.query(db => db.table('tasks').all())
     expect(tasks[0].status).toBe('todo')
@@ -785,14 +794,16 @@ describe('Task Status Migration', () => {
   it('v2.TaskCreated should use provided status', async () => {
     const store = createTestStore()
 
-    await store.commit(events.taskCreatedV2({
-      id: 'task-1',
-      projectId: 'project-1',
-      title: 'Test Task',
-      status: 'doing',
-      position: 0,
-      createdAt: new Date(),
-    }))
+    await store.commit(
+      events.taskCreatedV2({
+        id: 'task-1',
+        projectId: 'project-1',
+        title: 'Test Task',
+        status: 'doing',
+        position: 0,
+        createdAt: new Date(),
+      })
+    )
 
     const tasks = await store.query(db => db.table('tasks').all())
     expect(tasks[0].status).toBe('doing')
@@ -801,25 +812,27 @@ describe('Task Status Migration', () => {
   it('v2.TaskStatusChanged should update status and position', async () => {
     const store = createTestStore()
 
-    await store.commit(events.taskCreatedV2({
-      id: 'task-1',
-      projectId: 'project-1',
-      title: 'Test Task',
-      status: 'todo',
-      position: 0,
-      createdAt: new Date(),
-    }))
-
-    await store.commit(events.taskStatusChanged({
-      taskId: 'task-1',
-      toStatus: 'done',
-      position: 5,
-      updatedAt: new Date(),
-    }))
-
-    const task = await store.query(db =>
-      db.table('tasks').where({ id: 'task-1' }).first()
+    await store.commit(
+      events.taskCreatedV2({
+        id: 'task-1',
+        projectId: 'project-1',
+        title: 'Test Task',
+        status: 'todo',
+        position: 0,
+        createdAt: new Date(),
+      })
     )
+
+    await store.commit(
+      events.taskStatusChanged({
+        taskId: 'task-1',
+        toStatus: 'done',
+        position: 5,
+        updatedAt: new Date(),
+      })
+    )
+
+    const task = await store.query(db => db.table('tasks').where({ id: 'task-1' }).first())
     expect(task.status).toBe('done')
     expect(task.position).toBe(5)
   })
@@ -828,24 +841,28 @@ describe('Task Status Migration', () => {
     const store = createTestStore()
 
     // Create with v1
-    await store.commit(events.taskCreated({
-      id: 'task-1',
-      projectId: 'project-1',
-      columnId: 'old-column',
-      title: 'V1 Task',
-      position: 0,
-      createdAt: new Date(),
-    }))
+    await store.commit(
+      events.taskCreated({
+        id: 'task-1',
+        projectId: 'project-1',
+        columnId: 'old-column',
+        title: 'V1 Task',
+        position: 0,
+        createdAt: new Date(),
+      })
+    )
 
     // Create with v2
-    await store.commit(events.taskCreatedV2({
-      id: 'task-2',
-      projectId: 'project-1',
-      title: 'V2 Task',
-      status: 'doing',
-      position: 0,
-      createdAt: new Date(),
-    }))
+    await store.commit(
+      events.taskCreatedV2({
+        id: 'task-2',
+        projectId: 'project-1',
+        title: 'V2 Task',
+        status: 'doing',
+        position: 0,
+        createdAt: new Date(),
+      })
+    )
 
     const tasks = await store.query(db => db.table('tasks').all())
     expect(tasks).toHaveLength(2)
@@ -862,23 +879,27 @@ describe('Status-based Queries', () => {
   it('should get tasks by status', async () => {
     const store = createTestStore()
 
-    await store.commit(events.taskCreatedV2({
-      id: 'task-1',
-      projectId: 'project-1',
-      title: 'Todo Task',
-      status: 'todo',
-      position: 0,
-      createdAt: new Date(),
-    }))
+    await store.commit(
+      events.taskCreatedV2({
+        id: 'task-1',
+        projectId: 'project-1',
+        title: 'Todo Task',
+        status: 'todo',
+        position: 0,
+        createdAt: new Date(),
+      })
+    )
 
-    await store.commit(events.taskCreatedV2({
-      id: 'task-2',
-      projectId: 'project-1',
-      title: 'Doing Task',
-      status: 'doing',
-      position: 0,
-      createdAt: new Date(),
-    }))
+    await store.commit(
+      events.taskCreatedV2({
+        id: 'task-2',
+        projectId: 'project-1',
+        title: 'Doing Task',
+        status: 'doing',
+        position: 0,
+        createdAt: new Date(),
+      })
+    )
 
     const todoTasks = await store.query(getTasksByStatus$('project-1', 'todo'))
     const doingTasks = await store.query(getTasksByStatus$('project-1', 'doing'))
@@ -892,6 +913,7 @@ describe('Status-based Queries', () => {
 #### 7.3 Integration Tests
 
 Test UI components with status-based queries:
+
 - Test KanbanBoard renders 4 status columns
 - Test drag and drop between statuses
 - Test task creation with status
@@ -974,5 +996,6 @@ function mapColumnIdToStatus(columnId: string): TaskStatus {
 ## Next Steps
 
 After this PR is merged:
+
 - **PR2**: Add task attributes system with `task_type` field
 - **PR3**: Remove columns table completely

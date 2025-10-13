@@ -323,6 +323,7 @@ export type Column = never // No longer exists
 ## Implementation Order
 
 Each phase is a separate PR that results in a fully working, testable system. After each phase, we run:
+
 - `pnpm lint-all`
 - `pnpm test`
 - `CI=true pnpm test:e2e`
@@ -333,6 +334,7 @@ Each phase is a separate PR that results in a fully working, testable system. Af
 **Goal**: Replace `columnId` with `status` field. Tasks now have status instead of belonging to columns.
 
 **Changes**:
+
 1. **Schema** (packages/shared/src/livestore/schema.ts)
    - Add `status` field to `tasks` table (default: 'todo')
    - Keep `columnId` temporarily for v1 compatibility
@@ -370,6 +372,7 @@ Each phase is a separate PR that results in a fully working, testable system. Af
    - Update tool schemas and formatters
 
 **Testing**:
+
 - Create tasks with status
 - Move tasks between statuses
 - Drag and drop tasks
@@ -386,6 +389,7 @@ Each phase is a separate PR that results in a fully working, testable system. Af
 **Goal**: Add flexible attributes system to tasks, starting with one concrete example: `task_type`.
 
 **Changes**:
+
 1. **Schema** (packages/shared/src/livestore/schema.ts)
    - Add `attributes` field to `tasks` table (JSON, default: '{}')
    - Update `Task` type export
@@ -416,6 +420,7 @@ Each phase is a separate PR that results in a fully working, testable system. Af
    - Update formatters to show task type
 
 **Testing**:
+
 - Create task with task_type
 - Update task's task_type
 - Verify task_type persists across reloads
@@ -432,6 +437,7 @@ Each phase is a separate PR that results in a fully working, testable system. Af
 **Goal**: Clean up columns table and all column-related code now that tasks use status.
 
 **Changes**:
+
 1. **Schema** (packages/shared/src/livestore/schema.ts)
    - Remove `columns` table from exports
    - Remove `columnId` from tasks table (migration complete)
@@ -455,6 +461,7 @@ Each phase is a separate PR that results in a fully working, testable system. Af
    - Remove column-related tools if any exist
 
 **Testing**:
+
 - Verify old v1 column events don't break event replay
 - Verify everything still works without columns
 - Full regression testing of task CRUD
@@ -468,6 +475,7 @@ Each phase is a separate PR that results in a fully working, testable system. Af
 **Goal**: Add 8 predefined life area categories to projects.
 
 **Changes**:
+
 1. **Schema** (packages/shared/src/livestore/schema.ts)
    - Add `projectCategories` table
    - Add `category` field to `projects` table (references projectCategories.id)
@@ -508,6 +516,7 @@ Each phase is a separate PR that results in a fully working, testable system. Af
    - Update formatters
 
 **Testing**:
+
 - Create project with category
 - Update project category
 - View projects by category
@@ -523,6 +532,7 @@ Each phase is a separate PR that results in a fully working, testable system. Af
 **Goal**: Add flexible attributes system to projects.
 
 **Changes**:
+
 1. **Schema** (packages/shared/src/livestore/schema.ts)
    - Add `attributes` field to `projects` table (JSON, default: '{}')
    - Update `Project` type export
@@ -545,6 +555,7 @@ Each phase is a separate PR that results in a fully working, testable system. Af
    - Update project tools to support custom attributes
 
 **Testing**:
+
 - Add custom attributes to project
 - Update attributes incrementally
 - Verify attribute merge semantics
@@ -561,6 +572,7 @@ Each phase is a separate PR that results in a fully working, testable system. Af
 **Note**: The `archivedAt` field is already in the projects table from PR 4, but no events/UI exist to use it yet.
 
 **Changes**:
+
 1. **Events** (packages/shared/src/livestore/events.ts)
    - Add `v2.ProjectArchived`
    - Add `v2.ProjectUnarchived`
@@ -580,6 +592,7 @@ Each phase is a separate PR that results in a fully working, testable system. Af
    - Add archive/unarchive tools
 
 **Testing**:
+
 - Archive projects
 - Unarchive projects
 - Verify archived projects hidden from main views
@@ -606,6 +619,7 @@ Each phase is a separate PR that results in a fully working, testable system. Af
 ### Data Migration
 
 No manual data migration needed - LiveStore's event replay will automatically:
+
 1. Process old v1 events through updated materializers
 2. Map columnId references to status='todo'
 3. Initialize empty attributes objects

@@ -349,7 +349,10 @@ export const getProjectTasksByStatus$ = (projectId: string) =>
     tables.tasks
       .select()
       .where({ projectId, archivedAt: null })
-      .orderBy([{ col: 'status', direction: 'asc' }, { col: 'position', direction: 'asc' }]),
+      .orderBy([
+        { col: 'status', direction: 'asc' },
+        { col: 'position', direction: 'asc' },
+      ]),
     {
       label: `getProjectTasksByStatus:${projectId}`,
     }
