@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFileNavigation } from './useFileNavigation.js'
+import { useStore } from '@livestore/react'
+import { getTaskById$ } from '@work-squared/shared/queries'
 
 /**
  * Global hook that handles clicks on CHORUS_TAG elements via event delegation
@@ -9,6 +11,7 @@ import { useFileNavigation } from './useFileNavigation.js'
 export const useChorusNavigation = () => {
   const { navigateToFile } = useFileNavigation()
   const navigate = useNavigate()
+  const { store } = useStore()
 
   useEffect(() => {
     const handleChorusClick = async (event: MouseEvent) => {
@@ -31,12 +34,23 @@ export const useChorusNavigation = () => {
         const [type, id] = path.split(':', 2)
 
         switch (type) {
-          case 'task':
-            // TODO: For now, just navigate to the tasks page.
-            // In the future, we could look up the task's project and navigate there,
-            // or open a task detail modal.
-            navigate('/tasks')
+          case 'task': {
+            if (!id) break
+            // Look up the task to find its project, then navigate to that project
+            try {
+              const task = await store.query(getTaskById$(id))
+              if (task && 'projectId' in task && task.projectId) {
+                navigate(`/project/${task.projectId}`)
+              } else {
+                // Navigate to orphaned tasks view
+                navigate('/tasks')
+              }
+            } catch (error) {
+              console.error('Error looking up task:', error)
+              navigate('/tasks')
+            }
             break
+          }
           case 'project':
             navigate(`/project/${id}`)
             break
@@ -66,5 +80,5 @@ export const useChorusNavigation = () => {
     return () => {
       document.removeEventListener('click', handleChorusClick, true)
     }
-  }, [navigateToFile, navigate])
+  }, [navigateToFile, navigate, store])
 }

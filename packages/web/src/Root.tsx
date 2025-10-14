@@ -39,6 +39,12 @@ const adapter = makePersistedAdapter({
   sharedWorker: LiveStoreSharedWorker,
 })
 
+// Component that initializes CHORUS navigation inside LiveStore context
+const ChorusNavigationInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  useChorusNavigation()
+  return <>{children}</>
+}
+
 // LiveStore wrapper with auth integration
 const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Determine storeId once on mount - prioritize URL over localStorage
@@ -73,7 +79,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       batchUpdates={batchUpdates}
       storeId={storeId}
     >
-      {children}
+      <ChorusNavigationInitializer>{children}</ChorusNavigationInitializer>
     </LiveStoreProvider>
   )
 }
@@ -112,9 +118,6 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // Protected app wrapper - includes LiveStore and all protected routes
 const ProtectedApp: React.FC = () => {
-  // Initialize global CHORUS navigation handling
-  useChorusNavigation()
-
   return (
     <AuthGuard>
       <LiveStoreWrapper>
