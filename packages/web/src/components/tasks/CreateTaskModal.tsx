@@ -1,22 +1,23 @@
 import React, { useState } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { getProjects$, getProjectColumns$, getOrphanedColumns$ } from '@work-squared/shared/queries'
-import type { Project, Column } from '@work-squared/shared/schema'
+import { getProjects$ } from '@work-squared/shared/queries'
+import type { Project, TaskStatus } from '@work-squared/shared/schema'
 import { events } from '@work-squared/shared/schema'
+import { STATUS_COLUMNS } from '@work-squared/shared'
 import { AssigneeSelector } from '../ui/AssigneeSelector/AssigneeSelector.js'
 
 interface CreateTaskModalProps {
   isOpen: boolean
   onClose: () => void
   projectId?: string | null // Default project selection
-  defaultColumnId?: string // Default column selection
+  defaultStatus?: TaskStatus // Default status selection
 }
 
 export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   isOpen,
   onClose,
   projectId = null,
-  defaultColumnId,
+  defaultStatus = 'todo',
 }) => {
   const { store } = useStore()
   const projects = useQuery(getProjects$) ?? []
@@ -25,15 +26,9 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(projectId)
-  const [selectedColumnId, setSelectedColumnId] = useState<string>(defaultColumnId || '')
+  const [selectedStatus, setSelectedStatus] = useState<TaskStatus>(defaultStatus)
   const [selectedAssigneeIds, setSelectedAssigneeIds] = useState<string[]>([])
   const [titleError, setTitleError] = useState('')
-
-  // Get columns for selected project (or orphaned columns)
-  const projectColumns = selectedProjectId ? useQuery(getProjectColumns$(selectedProjectId)) : null
-  const orphanedColumns = !selectedProjectId ? useQuery(getOrphanedColumns$) : null
-
-  const columns = selectedProjectId ? (projectColumns ?? []) : (orphanedColumns ?? [])
 
   // Reset form when modal opens/closes
   React.useEffect(() => {
@@ -41,22 +36,11 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       setTitle('')
       setDescription('')
       setSelectedProjectId(projectId)
-      setSelectedColumnId(defaultColumnId || '')
+      setSelectedStatus(defaultStatus)
       setSelectedAssigneeIds([])
       setTitleError('')
     }
-  }, [isOpen, projectId, defaultColumnId])
-
-  // Update column selection when project changes
-  React.useEffect(() => {
-    if (columns.length > 0 && !selectedColumnId) {
-      setSelectedColumnId(columns[0]?.id || '')
-    } else if (columns.length === 0) {
-      setSelectedColumnId('')
-    } else if (!columns.find(col => col.id === selectedColumnId)) {
-      setSelectedColumnId(columns[0]?.id || '')
-    }
-  }, [columns, selectedColumnId])
+  }, [isOpen, projectId, defaultStatus])
 
   if (!isOpen) return null
 
@@ -84,20 +68,17 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       return
     }
 
-    if (!selectedColumnId) {
-      return // Should not happen if columns are loaded
-    }
+    // Calculate next position (add at the end)
+    const nextPosition = 0
 
-    // Calculate next position in the selected column
-    const nextPosition = 0 // For simplicity, add at the beginning
-
+    // Use v2.TaskCreated event with status
     store.commit(
-      events.taskCreated({
+      events.taskCreatedV2({
         id: crypto.randomUUID(),
         projectId: selectedProjectId || undefined,
-        columnId: selectedColumnId,
         title: trimmedTitle,
         description: description.trim() || undefined,
+        status: selectedStatus,
         assigneeIds: selectedAssigneeIds.length > 0 ? selectedAssigneeIds : undefined,
         position: nextPosition,
         createdAt: new Date(),
@@ -218,30 +199,25 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               </select>
             </div>
 
-            {/* Column Selection */}
-            {columns.length > 0 && (
-              <div>
-                <label
-                  htmlFor='task-column'
-                  className='block text-sm font-medium text-gray-900 mb-2'
-                >
-                  Column
-                </label>
-                <select
-                  id='task-column'
-                  value={selectedColumnId}
-                  onChange={e => setSelectedColumnId(e.target.value)}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                  required
-                >
-                  {columns.map((column: Column) => (
-                    <option key={column.id} value={column.id}>
-                      {column.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+            {/* Status Selection */}
+            <div>
+              <label htmlFor='task-status' className='block text-sm font-medium text-gray-900 mb-2'>
+                Status
+              </label>
+              <select
+                id='task-status'
+                value={selectedStatus}
+                onChange={e => setSelectedStatus(e.target.value as TaskStatus)}
+                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                required
+              >
+                {STATUS_COLUMNS.map(statusColumn => (
+                  <option key={statusColumn.id} value={statusColumn.status}>
+                    {statusColumn.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             {/* Assignees Selection */}
             <div>
@@ -252,19 +228,13 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                 placeholder='Select assignees (optional)'
               />
             </div>
-
-            {selectedProjectId && columns.length === 0 && (
-              <div className='text-sm text-gray-500 bg-gray-50 p-3 rounded-md'>
-                This project has no columns yet. Columns will be created automatically.
-              </div>
-            )}
           </div>
 
           {/* Footer */}
           <div className='flex gap-3 px-6 py-4 border-t border-gray-200'>
             <button
               type='submit'
-              disabled={!title.trim() || !selectedColumnId}
+              disabled={!title.trim()}
               className='flex-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md font-medium transition-colors'
             >
               Create Task

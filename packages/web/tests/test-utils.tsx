@@ -2,6 +2,7 @@ import '@testing-library/jest-dom'
 import React, { type ReactElement } from 'react'
 import { render, type RenderOptions } from '@testing-library/react'
 import type { Task, Column, Project, Contact } from '@work-squared/shared/schema'
+import type { StatusColumn } from '@work-squared/shared'
 
 // Simple test wrapper for basic component testing
 interface TestProviderProps {
@@ -198,6 +199,15 @@ export const createMockColumn = (overrides: Partial<Column> = {}): Column => ({
   updatedAt: new Date('2023-01-01'),
   ...overrides,
 })
+
+export const createMockStatusColumn = (overrides: Partial<StatusColumn> = {}): StatusColumn =>
+  ({
+    id: 'todo',
+    name: 'Test Column',
+    status: 'todo',
+    position: 0,
+    ...overrides,
+  }) as StatusColumn
 
 export const createMockProject = (overrides: Partial<Project> = {}): Project => ({
   id: 'test-project',
