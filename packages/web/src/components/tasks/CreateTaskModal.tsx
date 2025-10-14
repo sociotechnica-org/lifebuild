@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { getProjects$ } from '@work-squared/shared/queries'
-import type { Project, TaskStatus } from '@work-squared/shared/schema'
+import { getProjects$, getProjectTasks$, getOrphanedTasks$ } from '@work-squared/shared/queries'
+import type { Project, TaskStatus, Task } from '@work-squared/shared/schema'
 import { events } from '@work-squared/shared/schema'
 import { STATUS_COLUMNS } from '@work-squared/shared'
 import { AssigneeSelector } from '../ui/AssigneeSelector/AssigneeSelector.js'
@@ -29,6 +29,12 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   const [selectedStatus, setSelectedStatus] = useState<TaskStatus>(defaultStatus)
   const [selectedAssigneeIds, setSelectedAssigneeIds] = useState<string[]>([])
   const [titleError, setTitleError] = useState('')
+
+  // Query tasks based on selected project
+  const projectTasks = useQuery(
+    selectedProjectId ? getProjectTasks$(selectedProjectId) : getOrphanedTasks$
+  )
+  const tasksInScope = projectTasks ?? []
 
   // Reset form when modal opens/closes
   React.useEffect(() => {
@@ -68,8 +74,15 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       return
     }
 
-    // Calculate next position (add at the end)
-    const nextPosition = 0
+    // Calculate next position based on existing tasks with the same status
+    const tasksWithStatus = tasksInScope.filter((t: Task) => t.status === selectedStatus)
+
+    // Get valid numeric positions and calculate next position
+    const validPositions = tasksWithStatus
+      .map((t: Task) => t.position)
+      .filter((pos: number) => typeof pos === 'number' && !isNaN(pos))
+
+    const nextPosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 0
 
     // Use v2.TaskCreated event with status
     store.commit(
