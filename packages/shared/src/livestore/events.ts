@@ -475,6 +475,9 @@ export const projectContactRemoved = Events.synced({
 // V2 TASK EVENTS - Status-based
 // ============================================================================
 
+// Task status literal type
+const TaskStatusLiteral = Schema.Literal('todo', 'doing', 'in_review', 'done')
+
 export const taskCreatedV2 = Events.synced({
   name: 'v2.TaskCreated',
   schema: Schema.Struct({
@@ -482,7 +485,7 @@ export const taskCreatedV2 = Events.synced({
     projectId: Schema.optional(Schema.String),
     title: Schema.String,
     description: Schema.Union(Schema.String, Schema.Undefined),
-    status: Schema.optional(Schema.String), // 'todo' | 'doing' | 'in_review' | 'done'
+    status: Schema.optional(TaskStatusLiteral),
     assigneeIds: Schema.Union(Schema.Array(Schema.String), Schema.Undefined),
     position: Schema.Number,
     createdAt: Schema.Date,
@@ -494,7 +497,7 @@ export const taskStatusChanged = Events.synced({
   name: 'v2.TaskStatusChanged',
   schema: Schema.Struct({
     taskId: Schema.String,
-    toStatus: Schema.String, // 'todo' | 'doing' | 'in_review' | 'done'
+    toStatus: TaskStatusLiteral,
     position: Schema.Number, // Position within the new status
     updatedAt: Schema.Date,
     actorId: Schema.optional(Schema.String),

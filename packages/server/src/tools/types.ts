@@ -70,7 +70,7 @@ export interface MoveTaskToProjectResult {
   task?: {
     id: string
     projectId: string
-    status?: string
+    status: string
     position: number
   }
 }
@@ -86,7 +86,7 @@ export interface OrphanTaskResult {
   error?: string
   task?: {
     id: string
-    status?: string
+    status: string
     position: number
   }
 }
@@ -126,7 +126,7 @@ export interface GetTaskByIdResult {
   task?: {
     id: string
     projectId?: string
-    status?: string
+    status: string
     title: string
     description?: string
     assigneeIds?: string[]
@@ -166,7 +166,7 @@ export interface GetOrphanedTasksResult {
   tasks?: Array<{
     id: string
     projectId?: string
-    status?: string
+    status: string
     title: string
     description?: string
     assigneeIds?: string[]

@@ -36,16 +36,18 @@ import type {
  * Creates a task using the provided parameters
  */
 function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResult {
-  const { title, description, projectId, status = 'todo', assigneeIds } = params
+  const { title, description, projectId, assigneeIds } = params
 
   // Validate title
   if (!title || title.trim().length === 0) {
     throw new Error('Task title is required')
   }
 
-  // Validate status
-  const validStatuses = ['todo', 'doing', 'in_review', 'done']
-  if (status && !validStatuses.includes(status)) {
+  // Validate and normalize status
+  const validStatuses = ['todo', 'doing', 'in_review', 'done'] as const
+  type TaskStatus = (typeof validStatuses)[number]
+  const status: TaskStatus = (params.status || 'todo') as TaskStatus
+  if (!validStatuses.includes(status)) {
     throw new Error(`Invalid status: ${status}. Must be one of: ${validStatuses.join(', ')}`)
   }
 
@@ -164,8 +166,9 @@ function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
   const { taskId, toStatus, position } = params
 
   // Validate status
-  const validStatuses = ['todo', 'doing', 'in_review', 'done']
-  if (!validStatuses.includes(toStatus)) {
+  const validStatuses = ['todo', 'doing', 'in_review', 'done'] as const
+  type TaskStatus = (typeof validStatuses)[number]
+  if (!validStatuses.includes(toStatus as TaskStatus)) {
     throw new Error(`Invalid status: ${toStatus}. Must be one of: ${validStatuses.join(', ')}`)
   }
 
@@ -193,7 +196,7 @@ function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
   store.commit(
     events.taskStatusChanged({
       taskId: taskId,
-      toStatus: toStatus,
+      toStatus: toStatus as TaskStatus,
       position: movePosition,
       updatedAt: new Date(),
     })
@@ -229,15 +232,12 @@ function moveTaskToProjectCore(
     throw new Error(`Project with ID ${toProjectId} not found`)
   }
 
-  // Determine the status to use (provided status or task's current status)
-  const targetStatus = status || task.status || 'todo'
-
-  // Validate status if provided
-  if (status) {
-    const validStatuses = ['todo', 'doing', 'in_review', 'done']
-    if (!validStatuses.includes(status)) {
-      throw new Error(`Invalid status: ${status}. Must be one of: ${validStatuses.join(', ')}`)
-    }
+  // Validate and normalize status
+  const validStatuses = ['todo', 'doing', 'in_review', 'done'] as const
+  type TaskStatus = (typeof validStatuses)[number]
+  const targetStatus: TaskStatus = (status || task.status || 'todo') as TaskStatus
+  if (!validStatuses.includes(targetStatus)) {
+    throw new Error(`Invalid status: ${targetStatus}. Must be one of: ${validStatuses.join(', ')}`)
   }
 
   // Calculate position if not provided
@@ -262,11 +262,14 @@ function moveTaskToProjectCore(
   )
 
   // If status was provided and different, also update status
+  // Note: We use two separate events here intentionally for LiveStore event sourcing.
+  // This allows independent replay and better granularity. The events are committed
+  // synchronously in sequence, so they will be processed atomically.
   if (status && status !== task.status) {
     store.commit(
       events.taskStatusChanged({
         taskId: taskId,
-        toStatus: status,
+        toStatus: status as TaskStatus,
         position: movePosition,
         updatedAt: new Date(),
       })
@@ -294,15 +297,12 @@ function orphanTaskCore(store: Store, params: OrphanTaskParams): OrphanTaskResul
   const tasks = store.query(getTaskById$(taskId))
   const task = validators.requireEntity(tasks, 'Task', taskId)
 
-  // Determine the status to use (provided status or task's current status)
-  const targetStatus = status || task.status || 'todo'
-
-  // Validate status if provided
-  if (status) {
-    const validStatuses = ['todo', 'doing', 'in_review', 'done']
-    if (!validStatuses.includes(status)) {
-      throw new Error(`Invalid status: ${status}. Must be one of: ${validStatuses.join(', ')}`)
-    }
+  // Validate and normalize status
+  const validStatuses = ['todo', 'doing', 'in_review', 'done'] as const
+  type TaskStatus = (typeof validStatuses)[number]
+  const targetStatus: TaskStatus = (status || task.status || 'todo') as TaskStatus
+  if (!validStatuses.includes(targetStatus)) {
+    throw new Error(`Invalid status: ${targetStatus}. Must be one of: ${validStatuses.join(', ')}`)
   }
 
   // Calculate position if not provided (orphaned tasks start at 0)
@@ -319,11 +319,14 @@ function orphanTaskCore(store: Store, params: OrphanTaskParams): OrphanTaskResul
   )
 
   // If status was provided and different, also update status
+  // Note: We use two separate events here intentionally for LiveStore event sourcing.
+  // This allows independent replay and better granularity. The events are committed
+  // synchronously in sequence, so they will be processed atomically.
   if (status && status !== task.status) {
     store.commit(
       events.taskStatusChanged({
         taskId: taskId,
-        toStatus: status,
+        toStatus: status as TaskStatus,
         position: movePosition,
         updatedAt: new Date(),
       })
