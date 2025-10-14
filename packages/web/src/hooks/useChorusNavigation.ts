@@ -38,8 +38,9 @@ export const useChorusNavigation = () => {
             if (!id) break
             // Look up the task to find its project, then navigate to that project
             try {
-              const task = await store.query(getTaskById$(id))
-              if (task && 'projectId' in task && task.projectId) {
+              const taskResult = await store.query(getTaskById$(id))
+              const task = taskResult?.[0]
+              if (task?.projectId) {
                 navigate(`/project/${task.projectId}`)
               } else {
                 // Navigate to orphaned tasks view
