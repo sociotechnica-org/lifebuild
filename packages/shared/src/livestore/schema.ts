@@ -835,25 +835,6 @@ const materializers = State.SQLite.materializers(events, {
       createdAt: updatedAt,
     }),
   ],
-
-  'v2.TaskUpdated': ({ taskId, updates, updatedAt, actorId }) => {
-    const updateData: Record<string, any> = { updatedAt }
-    if (updates.title !== undefined) updateData.title = updates.title
-    if (updates.description !== undefined) updateData.description = updates.description
-    if (updates.assigneeIds !== undefined)
-      updateData.assigneeIds = JSON.stringify(updates.assigneeIds)
-
-    return [
-      tasks.update(updateData).where({ id: taskId }),
-      eventsLog.insert({
-        id: `task_updated_${taskId}_${updatedAt.getTime()}`,
-        eventType: 'v2.TaskUpdated',
-        eventData: JSON.stringify({ taskId, updates }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
-  },
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

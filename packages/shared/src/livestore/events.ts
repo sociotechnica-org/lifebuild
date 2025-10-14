@@ -524,17 +524,3 @@ export const taskMovedToProjectV2 = Events.synced({
     actorId: Schema.optional(Schema.String),
   }),
 })
-
-export const taskUpdatedV2 = Events.synced({
-  name: 'v2.TaskUpdated',
-  schema: Schema.Struct({
-    taskId: Schema.String,
-    updates: Schema.Struct({
-      title: Schema.optional(Schema.String),
-      description: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
-      assigneeIds: Schema.optional(Schema.Array(Schema.String)),
-    }),
-    updatedAt: Schema.Date,
-    actorId: Schema.optional(Schema.String),
-  }),
-})
