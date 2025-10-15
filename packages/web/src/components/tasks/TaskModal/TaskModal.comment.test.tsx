@@ -40,6 +40,7 @@ describe('TaskModal Comments', () => {
     description: 'Test description',
     status: 'todo',
     assigneeIds: '[]',
+    attributes: null,
     position: 1,
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-01'),

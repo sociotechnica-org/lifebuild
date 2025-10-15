@@ -183,6 +183,7 @@ export const createMockTask = (overrides: Partial<Task> = {}): Task => ({
   description: null,
   status: 'todo',
   assigneeIds: '[]',
+  attributes: null,
   position: 0,
   createdAt: new Date('2023-01-01'),
   updatedAt: new Date('2023-01-01'),

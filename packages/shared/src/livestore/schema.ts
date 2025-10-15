@@ -99,6 +99,16 @@ const tasks = State.SQLite.table({
     description: State.SQLite.text({ nullable: true }),
     status: State.SQLite.text({ default: 'todo' }), // NEW: 'todo' | 'doing' | 'in_review' | 'done'
     assigneeIds: State.SQLite.text({ default: '[]' }), // JSON array of user IDs
+    attributes: State.SQLite.text({
+      // PR2: Flexible attributes system - stores JSON object with optional priority, etc.
+      nullable: true,
+      schema: Schema.parseJson(
+        Schema.Struct({
+          priority: Schema.optional(Schema.Literal('low', 'normal', 'high', 'critical')),
+          // Future attributes can be added here
+        })
+      ),
+    }),
     position: State.SQLite.integer({ default: 0 }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
@@ -317,6 +327,7 @@ export type Column = State.SQLite.FromTable.RowDecoded<typeof columns>
 export type User = State.SQLite.FromTable.RowDecoded<typeof users>
 export type Task = State.SQLite.FromTable.RowDecoded<typeof tasks>
 export type TaskStatus = 'todo' | 'doing' | 'in_review' | 'done'
+export type TaskPriority = 'low' | 'normal' | 'high' | 'critical'
 export type Conversation = State.SQLite.FromTable.RowDecoded<typeof conversations>
 export type Comment = State.SQLite.FromTable.RowDecoded<typeof comments>
 export type Document = State.SQLite.FromTable.RowDecoded<typeof documents>
@@ -399,6 +410,7 @@ const materializers = State.SQLite.materializers(events, {
         description,
         status, // NEW: Map to status
         assigneeIds: assigneeIds ? JSON.stringify(assigneeIds) : undefined,
+        attributes: null, // PR2: v1 tasks have no attributes
         position,
         createdAt,
         updatedAt: createdAt,
@@ -778,6 +790,7 @@ const materializers = State.SQLite.materializers(events, {
     description,
     status,
     assigneeIds,
+    attributes,
     position,
     createdAt,
     actorId,
@@ -790,6 +803,7 @@ const materializers = State.SQLite.materializers(events, {
       description,
       status: status || 'todo',
       assigneeIds: assigneeIds ? JSON.stringify(assigneeIds) : '[]',
+      attributes: attributes || null, // PR2: Default to null if not provided
       position,
       createdAt,
       updatedAt: createdAt,
@@ -797,7 +811,7 @@ const materializers = State.SQLite.materializers(events, {
     eventsLog.insert({
       id: `task_created_${id}_${createdAt.getTime()}`,
       eventType: 'v2.TaskCreated',
-      eventData: JSON.stringify({ id, title, projectId, status }),
+      eventData: JSON.stringify({ id, title, projectId, status, attributes }),
       actorId,
       createdAt,
     }),
@@ -831,6 +845,24 @@ const materializers = State.SQLite.materializers(events, {
       id: `task_moved_to_project_${taskId}_${updatedAt.getTime()}`,
       eventType: 'v2.TaskMovedToProject',
       eventData: JSON.stringify({ taskId, toProjectId, position }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  'v2.TaskAttributesUpdated': ({ taskId, attributes, updatedAt, actorId }) => [
+    tasks
+      .update({
+        // Note: This replaces the entire attributes object
+        // Merge logic should be handled in the application layer before emitting the event
+        attributes,
+        updatedAt,
+      })
+      .where({ id: taskId }),
+    eventsLog.insert({
+      id: `task_attributes_updated_${taskId}_${updatedAt.getTime()}`,
+      eventType: 'v2.TaskAttributesUpdated',
+      eventData: JSON.stringify({ taskId, attributes }),
       actorId,
       createdAt: updatedAt,
     }),
