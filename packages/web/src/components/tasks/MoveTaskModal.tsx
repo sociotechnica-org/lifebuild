@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { getProjects$, getProjectColumns$, getOrphanedColumns$ } from '@work-squared/shared/queries'
-import type { Project, Column, Task } from '@work-squared/shared/schema'
+import { getProjects$, getProjectTasks$, getOrphanedTasks$ } from '@work-squared/shared/queries'
+import type { Project, Task, TaskStatus } from '@work-squared/shared/schema'
 import { events } from '@work-squared/shared/schema'
+import { STATUS_COLUMNS } from '@work-squared/shared'
 
 interface MoveTaskModalProps {
   isOpen: boolean
@@ -16,28 +17,23 @@ export const MoveTaskModal: React.FC<MoveTaskModalProps> = ({ isOpen, onClose, t
 
   // States
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(task.projectId)
-  const [selectedColumnId, setSelectedColumnId] = useState<string>(task.columnId)
+  const [selectedStatus, setSelectedStatus] = useState<TaskStatus>(
+    (task.status as TaskStatus) || 'todo'
+  )
 
-  // Get columns for selected project (or orphaned columns)
-  const projectColumns = selectedProjectId ? useQuery(getProjectColumns$(selectedProjectId)) : null
-  const orphanedColumns = !selectedProjectId ? useQuery(getOrphanedColumns$) : null
-
-  const columns = selectedProjectId ? (projectColumns ?? []) : (orphanedColumns ?? [])
+  // Query tasks for position calculation
+  const projectTasks = useQuery(
+    selectedProjectId ? getProjectTasks$(selectedProjectId) : getOrphanedTasks$
+  )
+  const tasksInScope = projectTasks ?? []
 
   // Reset form when modal opens/closes
   React.useEffect(() => {
     if (isOpen) {
       setSelectedProjectId(task.projectId)
-      setSelectedColumnId(task.columnId)
+      setSelectedStatus((task.status as TaskStatus) || 'todo')
     }
-  }, [isOpen, task.projectId, task.columnId])
-
-  // Update column selection when project changes
-  React.useEffect(() => {
-    if (columns.length > 0 && !columns.find(col => col.id === selectedColumnId)) {
-      setSelectedColumnId(columns[0]?.id || '')
-    }
-  }, [columns, selectedColumnId])
+  }, [isOpen, task.projectId, task.status])
 
   if (!isOpen) return null
 
@@ -50,35 +46,48 @@ export const MoveTaskModal: React.FC<MoveTaskModalProps> = ({ isOpen, onClose, t
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!selectedColumnId) {
-      return // Should not happen if columns are loaded
-    }
-
     // Check if anything changed
     const projectChanged = selectedProjectId !== task.projectId
-    const columnChanged = selectedColumnId !== task.columnId
+    const statusChanged = selectedStatus !== task.status
 
-    if (projectChanged || columnChanged) {
-      // Calculate next position in the destination column (add at the beginning)
-      const nextPosition = 0 // For simplicity, add at the beginning
+    if (projectChanged || statusChanged) {
+      // Calculate next position in the destination status (add at the end)
+      const tasksWithStatus = tasksInScope.filter((t: Task) => t.status === selectedStatus)
+      const validPositions = tasksWithStatus
+        .map((t: Task) => t.position)
+        .filter((pos: number) => typeof pos === 'number' && !isNaN(pos))
+      const POSITION_GAP = 1000
+      const nextPosition =
+        validPositions.length > 0 ? Math.max(...validPositions) + POSITION_GAP : POSITION_GAP
 
       if (projectChanged) {
-        // Use the new cross-project move event
+        // Use the v2 cross-project move event
         store.commit(
-          events.taskMovedToProject({
+          events.taskMovedToProjectV2({
             taskId: task.id,
             toProjectId: selectedProjectId || undefined,
-            toColumnId: selectedColumnId,
             position: nextPosition,
             updatedAt: new Date(),
           })
         )
-      } else {
-        // Use the regular move event for within-project moves
+
+        // If status also changed, update it separately
+        if (statusChanged) {
+          store.commit(
+            events.taskStatusChanged({
+              taskId: task.id,
+              toStatus: selectedStatus,
+              position: nextPosition,
+              updatedAt: new Date(),
+            })
+          )
+        }
+      } else if (statusChanged) {
+        // Use the v2 status change event for within-project moves
         store.commit(
-          events.taskMoved({
+          events.taskStatusChanged({
             taskId: task.id,
-            toColumnId: selectedColumnId,
+            toStatus: selectedStatus,
             position: nextPosition,
             updatedAt: new Date(),
           })
@@ -173,36 +182,28 @@ export const MoveTaskModal: React.FC<MoveTaskModalProps> = ({ isOpen, onClose, t
                 </select>
               </div>
 
-              {/* Column Selection */}
-              {columns.length > 0 && (
-                <div>
-                  <label
-                    htmlFor='move-column'
-                    className='block text-sm font-medium text-gray-900 mb-2'
-                  >
-                    List
-                  </label>
-                  <select
-                    id='move-column'
-                    value={selectedColumnId}
-                    onChange={e => setSelectedColumnId(e.target.value)}
-                    className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                    required
-                  >
-                    {columns.map((column: Column) => (
-                      <option key={column.id} value={column.id}>
-                        {column.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {selectedProjectId && columns.length === 0 && (
-                <div className='text-sm text-gray-500 bg-gray-50 p-3 rounded-md'>
-                  This project has no columns yet. Columns will be created automatically.
-                </div>
-              )}
+              {/* Status Selection */}
+              <div>
+                <label
+                  htmlFor='move-status'
+                  className='block text-sm font-medium text-gray-900 mb-2'
+                >
+                  Status
+                </label>
+                <select
+                  id='move-status'
+                  value={selectedStatus}
+                  onChange={e => setSelectedStatus(e.target.value as TaskStatus)}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  required
+                >
+                  {STATUS_COLUMNS.map(statusColumn => (
+                    <option key={statusColumn.id} value={statusColumn.status}>
+                      {statusColumn.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
@@ -210,8 +211,7 @@ export const MoveTaskModal: React.FC<MoveTaskModalProps> = ({ isOpen, onClose, t
           <div className='flex gap-3 px-6 py-4 border-t border-gray-200'>
             <button
               type='submit'
-              disabled={!selectedColumnId}
-              className='bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md font-medium transition-colors'
+              className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-medium transition-colors'
             >
               Move
             </button>
