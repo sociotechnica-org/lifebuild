@@ -35,7 +35,7 @@ describe('TaskModal Comments', () => {
   const mockTask: Task = {
     id: 'task-1',
     projectId: 'board-1',
-    columnId: 'column-1',
+    // PR3: columnId removed - migration to status-based tasks complete
     title: 'Test Task',
     description: 'Test description',
     status: 'todo',

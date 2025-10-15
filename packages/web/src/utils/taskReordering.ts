@@ -209,18 +209,19 @@ export function calculateDropTarget(
 
   if (!targetTask) return null
 
-  const tasksInColumn = tasksByColumn[targetTask.columnId] || []
+  // PR3: Use status instead of columnId
+  const tasksInColumn = tasksByColumn[targetTask.status] || []
   const sortedTasks = [...tasksInColumn].sort((a, b) => a.position - b.position)
   const targetIndex = sortedTasks.findIndex(t => t.id === targetTask.id)
 
-  // If dropping on a task in the same column and below the dragged task,
+  // If dropping on a task in the same status column and below the dragged task,
   // we want to place it after the target
-  if (targetTask.columnId === draggedTask.columnId) {
+  if (targetTask.status === draggedTask.status) {
     const draggedIndex = sortedTasks.findIndex(t => t.id === draggedTask.id)
     if (draggedIndex < targetIndex) {
-      return { columnId: targetTask.columnId, index: targetIndex }
+      return { columnId: targetTask.status, index: targetIndex }
     }
   }
 
-  return { columnId: targetTask.columnId, index: targetIndex }
+  return { columnId: targetTask.status, index: targetIndex }
 }

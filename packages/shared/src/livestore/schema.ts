@@ -55,6 +55,9 @@ const boards = State.SQLite.table({
   },
 })
 
+// PR3: columns table definition removed - migration to status-based tasks complete
+// Kept as comment for reference - columns functionality replaced by task.status field
+/*
 const columns = State.SQLite.table({
   name: 'columns',
   columns: {
@@ -70,6 +73,7 @@ const columns = State.SQLite.table({
     }),
   },
 })
+*/
 
 const users = State.SQLite.table({
   name: 'users',
@@ -94,10 +98,10 @@ const tasks = State.SQLite.table({
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
     projectId: State.SQLite.text({ nullable: true }),
-    columnId: State.SQLite.text(), // Keep for v1 compatibility - will remove in PR3
+    // PR3: columnId removed - migration to status-based tasks complete
     title: State.SQLite.text({ default: '' }),
     description: State.SQLite.text({ nullable: true }),
-    status: State.SQLite.text({ default: 'todo' }), // NEW: 'todo' | 'doing' | 'in_review' | 'done'
+    status: State.SQLite.text({ default: 'todo' }), // 'todo' | 'doing' | 'in_review' | 'done'
     assigneeIds: State.SQLite.text({ default: '[]' }), // JSON array of user IDs
     attributes: State.SQLite.text({
       // PR2: Flexible attributes system - stores JSON object with optional priority, etc.
@@ -323,7 +327,7 @@ const uiState = State.SQLite.clientDocument({
 export type ChatMessage = State.SQLite.FromTable.RowDecoded<typeof chatMessages>
 export type Board = State.SQLite.FromTable.RowDecoded<typeof boards>
 export type Project = Board // New terminology alias
-export type Column = State.SQLite.FromTable.RowDecoded<typeof columns>
+// Column type removed - PR3: migration to status-based tasks complete
 export type User = State.SQLite.FromTable.RowDecoded<typeof users>
 export type Task = State.SQLite.FromTable.RowDecoded<typeof tasks>
 export type TaskStatus = 'todo' | 'doing' | 'in_review' | 'done'
@@ -351,7 +355,7 @@ export const tables = {
   uiState,
   chatMessages,
   boards,
-  columns,
+  // columns removed - PR3: migration to status-based tasks complete
   users,
   tasks,
   conversations,
@@ -381,16 +385,14 @@ const materializers = State.SQLite.materializers(events, {
       createdAt,
     }),
   ],
-  'v1.ColumnCreated': ({ id, projectId, name, position, createdAt }) =>
-    columns.insert({ id, projectId, name, position, createdAt, updatedAt: createdAt }),
-  'v1.ColumnRenamed': ({ id, name, updatedAt }) =>
-    columns.update({ name, updatedAt }).where({ id }),
-  'v1.ColumnReordered': ({ id, position, updatedAt }) =>
-    columns.update({ position, updatedAt }).where({ id }),
+  // PR3: Column materializers converted to no-ops - preserves event history without side effects
+  'v1.ColumnCreated': () => [], // No-op - columns no longer exist
+  'v1.ColumnRenamed': () => [], // No-op - columns no longer exist
+  'v1.ColumnReordered': () => [], // No-op - columns no longer exist
   'v1.TaskCreated': ({
     id,
     projectId,
-    columnId,
+    columnId, // PR3: Still accept columnId parameter but don't use it
     title,
     description,
     assigneeIds,
@@ -405,10 +407,10 @@ const materializers = State.SQLite.materializers(events, {
       tasks.insert({
         id,
         projectId,
-        columnId, // Keep for v1 compatibility
+        // PR3: columnId field removed from tasks table
         title,
         description,
-        status, // NEW: Map to status
+        status, // Map to status
         assigneeIds: assigneeIds ? JSON.stringify(assigneeIds) : undefined,
         attributes: null, // PR2: v1 tasks have no attributes
         position,
@@ -425,13 +427,11 @@ const materializers = State.SQLite.materializers(events, {
     ]
   },
   'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt, actorId }) => {
-    // Map column movement to status (default to 'todo')
+    // PR3: Accept toColumnId parameter but don't use it - map to status
     const toStatus = 'todo'
 
     return [
-      tasks
-        .update({ columnId: toColumnId, status: toStatus, position, updatedAt })
-        .where({ id: taskId }),
+      tasks.update({ status: toStatus, position, updatedAt }).where({ id: taskId }),
       eventsLog.insert({
         id: `task_moved_${taskId}_${updatedAt.getTime()}`,
         eventType: 'v1.TaskMoved',
@@ -442,14 +442,13 @@ const materializers = State.SQLite.materializers(events, {
     ]
   },
   'v1.TaskMovedToProject': ({ taskId, toProjectId, toColumnId, position, updatedAt, actorId }) => {
-    // Map column to status (default to 'todo')
+    // PR3: Accept toColumnId parameter but don't use it - map to status
     const toStatus = 'todo'
 
     return [
       tasks
         .update({
           projectId: toProjectId,
-          columnId: toColumnId,
           status: toStatus,
           position,
           updatedAt,
@@ -798,7 +797,7 @@ const materializers = State.SQLite.materializers(events, {
     tasks.insert({
       id,
       projectId,
-      columnId: '', // Empty for v2 tasks - will be removed in PR3
+      // PR3: columnId field removed from tasks table
       title,
       description,
       status: status || 'todo',

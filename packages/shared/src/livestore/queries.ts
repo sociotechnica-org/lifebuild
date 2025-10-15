@@ -16,30 +16,8 @@ export const getBoards$ = queryDb(
 // New terminology alias
 export const getProjects$ = getBoards$
 
-export const getBoardColumns$ = (boardId: string) =>
-  queryDb(
-    tables.columns
-      .select()
-      .where({ projectId: boardId })
-      .orderBy([{ col: 'position', direction: 'asc' }]),
-    {
-      label: `getBoardColumns:${boardId}`,
-    }
-  )
-
-// New project terminology alias
-export const getProjectColumns$ = getBoardColumns$
-
-export const getBoardColumnsOptional$ = (boardId: string | null) =>
-  queryDb(
-    tables.columns
-      .select()
-      .where(boardId !== null ? { projectId: boardId } : { projectId: '__impossible__' }) // Impossible condition returns no results when boardId is null
-      .orderBy([{ col: 'position', direction: 'asc' }]),
-    {
-      label: `getBoardColumnsOptional:${boardId || 'null'}`,
-    }
-  )
+// PR3: Column queries removed - migration to status-based tasks complete
+// Removed: getBoardColumns$, getProjectColumns$, getBoardColumnsOptional$
 
 export const getBoardTasks$ = (boardId: string) =>
   queryDb(
@@ -147,15 +125,7 @@ export const getOrphanedTasks$ = queryDb(
   }
 )
 
-export const getOrphanedColumns$ = queryDb(
-  tables.columns
-    .select()
-    .where({ projectId: null }) // Use null for orphaned columns
-    .orderBy([{ col: 'position', direction: 'asc' }]),
-  {
-    label: 'getOrphanedColumns',
-  }
-)
+// PR3: getOrphanedColumns$ removed - columns no longer exist
 
 export const getDocumentList$ = queryDb(
   tables.documents

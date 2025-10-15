@@ -11,7 +11,7 @@ describe('Task Reordering', () => {
       {
         id: 'task-1',
         projectId: 'proj-1',
-        columnId: 'col-1',
+        // PR3: columnId removed - migration to status-based tasks complete
         title: 'Task 1',
         description: '',
         status: 'todo',
@@ -25,7 +25,6 @@ describe('Task Reordering', () => {
       {
         id: 'task-2',
         projectId: 'proj-1',
-        columnId: 'col-1',
         title: 'Task 2',
         description: '',
         status: 'todo',
@@ -39,7 +38,6 @@ describe('Task Reordering', () => {
       {
         id: 'task-3',
         projectId: 'proj-1',
-        columnId: 'col-1',
         title: 'Task 3',
         description: '',
         status: 'todo',
@@ -53,7 +51,6 @@ describe('Task Reordering', () => {
       {
         id: 'task-4',
         projectId: 'proj-1',
-        columnId: 'col-2',
         title: 'Task 4',
         description: '',
         status: 'doing',
@@ -200,20 +197,21 @@ describe('Task Reordering', () => {
       const task3 = mockTasks[2]
       const task4 = mockTasks[3]
 
+      // PR3: Use status values instead of column IDs
       tasksByColumn = {
-        'col-1': task1 && task2 && task3 ? [task1, task2, task3] : [],
-        'col-2': task4 ? [task4] : [],
-        'col-3': [],
+        todo: task1 && task2 && task3 ? [task1, task2, task3] : [],
+        doing: task4 ? [task4] : [],
+        in_review: [],
       }
     })
 
     it('should handle empty column drop', () => {
       const task = mockTasks[0]
       if (!task) throw new Error('Task not found')
-      const result = calculateDropTarget('empty-column-col-3', task, tasksByColumn)
+      const result = calculateDropTarget('empty-column-in_review', task, tasksByColumn)
 
       expect(result).toEqual({
-        columnId: 'col-3',
+        columnId: 'in_review',
         index: 0,
       })
     })
@@ -221,10 +219,10 @@ describe('Task Reordering', () => {
     it('should handle add card button drop', () => {
       const task = mockTasks[3]
       if (!task) throw new Error('Task not found')
-      const result = calculateDropTarget('add-card-col-1', task, tasksByColumn)
+      const result = calculateDropTarget('add-card-todo', task, tasksByColumn)
 
       expect(result).toEqual({
-        columnId: 'col-1',
+        columnId: 'todo',
         index: 3, // After all existing tasks
       })
     })
@@ -235,7 +233,7 @@ describe('Task Reordering', () => {
       const result = calculateDropTarget('task-2', task, tasksByColumn)
 
       expect(result).toEqual({
-        columnId: 'col-1',
+        columnId: 'todo',
         index: 1, // At task-2's position
       })
     })
@@ -246,7 +244,7 @@ describe('Task Reordering', () => {
       const result = calculateDropTarget('task-1', task, tasksByColumn)
 
       expect(result).toEqual({
-        columnId: 'col-1',
+        columnId: 'todo',
         index: 0, // At task-1's position
       })
     })
@@ -257,7 +255,7 @@ describe('Task Reordering', () => {
       const result = calculateDropTarget('task-3', task, tasksByColumn)
 
       expect(result).toEqual({
-        columnId: 'col-1',
+        columnId: 'todo',
         index: 2, // After task-3 since we're moving down
       })
     })
