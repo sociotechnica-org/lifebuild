@@ -181,15 +181,23 @@ function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
     throw new Error('Cannot move orphaned task. Use orphan_task to move orphaned tasks.')
   }
 
-  // Calculate position if not provided
+  // Calculate position if not provided, using Large Integer Positioning strategy
   let movePosition = position
   if (movePosition === undefined) {
     const existingTasks = store.query(getBoardTasks$(task.projectId))
     const tasksWithStatus = existingTasks.filter((t: any) => t.status === toStatus)
+    const POSITION_GAP = 1000
     const validPositions = tasksWithStatus
       .map((t: any) => t.position)
       .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
-    movePosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 0
+
+    // If no existing tasks, start at 1000
+    if (validPositions.length === 0) {
+      movePosition = POSITION_GAP
+    } else {
+      // Add a large gap between the max position and the new task's position
+      movePosition = Math.max(...validPositions) + POSITION_GAP
+    }
   }
 
   // Create move event using v2 status change event
@@ -240,15 +248,23 @@ function moveTaskToProjectCore(
     throw new Error(`Invalid status: ${targetStatus}. Must be one of: ${validStatuses.join(', ')}`)
   }
 
-  // Calculate position if not provided
+  // Calculate position if not provided, using Large Integer Positioning strategy
   let movePosition = position
   if (movePosition === undefined) {
     const existingTasks = store.query(getBoardTasks$(toProjectId))
     const tasksWithStatus = existingTasks.filter((t: any) => t.status === targetStatus)
+    const POSITION_GAP = 1000
     const validPositions = tasksWithStatus
       .map((t: any) => t.position)
       .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
-    movePosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 0
+
+    // If no existing tasks, start at 1000
+    if (validPositions.length === 0) {
+      movePosition = POSITION_GAP
+    } else {
+      // Add a large gap between the max position and the new task's position
+      movePosition = Math.max(...validPositions) + POSITION_GAP
+    }
   }
 
   // Create move to project event using v2
