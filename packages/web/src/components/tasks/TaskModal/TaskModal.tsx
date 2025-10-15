@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery, useStore } from '@livestore/react'
 import { formatDateTime } from '../../../util/dates.js'
-import type { Task, Column, User, Comment } from '@work-squared/shared/schema'
-import {
-  getTaskById$,
-  getBoardColumnsOptional$,
-  getUsers$,
-  getTaskComments$,
-} from '@work-squared/shared/queries'
+import type { Task, User, Comment } from '@work-squared/shared/schema'
+import { getTaskById$, getUsers$, getTaskComments$ } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
 import { AssigneeSelector } from '../../ui/AssigneeSelector/AssigneeSelector.js'
 import { getInitials } from '../../../util/initials.js'
@@ -33,9 +28,6 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
 
   // Don't render if task not found
   if (!task) return null
-
-  const columns = useQuery(getBoardColumnsOptional$(task.projectId)) ?? []
-  const column = columns.find((col: Column) => col.id === task.columnId)
 
   const users = useQuery(getUsers$) ?? []
   const comments = useQuery(getTaskComments$(taskId)) ?? []
@@ -291,7 +283,9 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
                 {task.title}
               </h1>
             )}
-            <p className='text-sm text-gray-500 mt-1'>in {column?.name || 'Unknown Column'}</p>
+            <p className='text-sm text-gray-500 mt-1'>
+              Status: {task.status.charAt(0).toUpperCase() + task.status.slice(1).replace('_', ' ')}
+            </p>
           </div>
           <div className='flex items-center gap-2'>
             {isEditing ? (
