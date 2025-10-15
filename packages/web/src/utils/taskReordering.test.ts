@@ -72,7 +72,7 @@ describe('Task Reordering', () => {
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-1',
-        toColumnId: 'col-3',
+        toStatus: 'col-3',
         position: 1000,
       })
     })
@@ -86,7 +86,7 @@ describe('Task Reordering', () => {
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-3',
-        toColumnId: 'col-1',
+        toStatus: 'col-1',
         position: 500, // Half of first task's position
       })
     })
@@ -100,7 +100,7 @@ describe('Task Reordering', () => {
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-1',
-        toColumnId: 'col-1',
+        toStatus: 'col-1',
         position: 4000, // Last task position + 1000
       })
     })
@@ -114,7 +114,7 @@ describe('Task Reordering', () => {
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-4',
-        toColumnId: 'col-1',
+        toStatus: 'col-1',
         position: 2000, // Average of 1000 and 3000
       })
     })
@@ -128,7 +128,7 @@ describe('Task Reordering', () => {
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-3',
-        toColumnId: 'col-1',
+        toStatus: 'col-1',
         position: 1500, // Between task-1 (1000) and task-2 (2000)
       })
     })
@@ -142,7 +142,7 @@ describe('Task Reordering', () => {
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-1',
-        toColumnId: 'col-1',
+        toStatus: 'col-1',
         // When moving to index 2, it goes after the last task (task-3 at 3000)
         position: 4000, // After task-3 (3000) + 1000
       })
@@ -180,7 +180,7 @@ describe('Task Reordering', () => {
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-2',
-        toColumnId: 'col-1',
+        toStatus: 'col-1',
         // When dropping at original position, it stays at the same value
         // The algorithm filters out the dragged task, so index 1 means between task-1 and task-3
         position: 2000, // Average of task-1 (1000) and task-3 (3000)

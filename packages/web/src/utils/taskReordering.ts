@@ -2,7 +2,7 @@ import type { Task } from '@work-squared/shared/schema'
 
 export interface ReorderResult {
   taskId: string
-  toColumnId: string
+  toStatus: string // PR3: Renamed from toColumnId - now holds status value
   position: number
   updatedAt: Date
 }
@@ -93,7 +93,7 @@ export function calculateTaskReorder(
   // Only update the dragged task
   results.push({
     taskId: draggedTask.id,
-    toColumnId: targetColumnId,
+    toStatus: targetColumnId, // targetColumnId is actually the status value
     position: newPosition,
     updatedAt: now,
   })
@@ -170,7 +170,7 @@ function normalizeColumnPositions(
     if (task.id === draggedTask.id || task.position !== newPosition) {
       results.push({
         taskId: task.id,
-        toColumnId: targetColumnId,
+        toStatus: targetColumnId, // targetColumnId is actually the status value
         position: newPosition,
         updatedAt,
       })
@@ -182,7 +182,9 @@ function normalizeColumnPositions(
 
 /**
  * Simplified drop target calculation for drag and drop
- * Returns the target column and index where the task should be inserted
+ * Returns the target status column and index where the task should be inserted
+ *
+ * Note: columnId property contains status value ('todo', 'doing', etc.) for backwards compatibility
  */
 export function calculateDropTarget(
   overId: string,

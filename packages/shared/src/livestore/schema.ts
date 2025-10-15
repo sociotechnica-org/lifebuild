@@ -372,6 +372,16 @@ export const tables = {
   taskExecutions,
 }
 
+// PR3: Helper function to map v1 columnId to status for backwards compatibility
+// This preserves the original column state when replaying old v1 events
+function mapColumnIdToStatus(columnId: string): 'todo' | 'doing' | 'in_review' | 'done' {
+  const columnName = columnId.toLowerCase()
+  if (columnName.includes('doing') || columnName.includes('progress')) return 'doing'
+  if (columnName.includes('review')) return 'in_review'
+  if (columnName.includes('done') || columnName.includes('complete')) return 'done'
+  return 'todo' // Default to todo for unknown columns
+}
+
 const materializers = State.SQLite.materializers(events, {
   'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) =>
     chatMessages.insert({ id, conversationId, message, role, createdAt }),
@@ -392,7 +402,7 @@ const materializers = State.SQLite.materializers(events, {
   'v1.TaskCreated': ({
     id,
     projectId,
-    columnId, // PR3: Still accept columnId parameter but don't use it
+    columnId, // PR3: Accept columnId and map to appropriate status
     title,
     description,
     assigneeIds,
@@ -400,8 +410,8 @@ const materializers = State.SQLite.materializers(events, {
     createdAt,
     actorId,
   }) => {
-    // Map v1 column-based tasks to status 'todo' by default
-    const status = 'todo'
+    // Map v1 columnId to status to preserve original column state
+    const status = mapColumnIdToStatus(columnId)
 
     return [
       tasks.insert({
@@ -427,8 +437,8 @@ const materializers = State.SQLite.materializers(events, {
     ]
   },
   'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt, actorId }) => {
-    // PR3: Accept toColumnId parameter but don't use it - map to status
-    const toStatus = 'todo'
+    // PR3: Map toColumnId to status to preserve original column state
+    const toStatus = mapColumnIdToStatus(toColumnId)
 
     return [
       tasks.update({ status: toStatus, position, updatedAt }).where({ id: taskId }),
@@ -442,8 +452,8 @@ const materializers = State.SQLite.materializers(events, {
     ]
   },
   'v1.TaskMovedToProject': ({ taskId, toProjectId, toColumnId, position, updatedAt, actorId }) => {
-    // PR3: Accept toColumnId parameter but don't use it - map to status
-    const toStatus = 'todo'
+    // PR3: Map toColumnId to status to preserve original column state
+    const toStatus = mapColumnIdToStatus(toColumnId)
 
     return [
       tasks
