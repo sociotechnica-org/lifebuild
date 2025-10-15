@@ -38,6 +38,7 @@ describe('TaskModal Comments', () => {
     columnId: 'column-1',
     title: 'Test Task',
     description: 'Test description',
+    status: 'todo',
     assigneeIds: '[]',
     position: 1,
     createdAt: new Date('2023-01-01'),

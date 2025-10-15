@@ -1,13 +1,11 @@
 import type { Store } from '@livestore/livestore'
 import { events } from '@work-squared/shared/schema'
 import {
-  getBoardColumns$,
   getBoardTasks$,
   getUsers$,
   getTaskById$,
   getOrphanedTasks$,
   getProjects$,
-  getOrphanedColumns$,
 } from '@work-squared/shared/queries'
 import {
   validators,
@@ -38,11 +36,19 @@ import type {
  * Creates a task using the provided parameters
  */
 function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResult {
-  const { title, description, projectId, columnId, assigneeIds } = params
+  const { title, description, projectId, assigneeIds } = params
 
   // Validate title
   if (!title || title.trim().length === 0) {
     throw new Error('Task title is required')
+  }
+
+  // Validate and normalize status
+  const validStatuses = ['todo', 'doing', 'in_review', 'done'] as const
+  type TaskStatus = (typeof validStatuses)[number]
+  const status: TaskStatus = (params.status || 'todo') as TaskStatus
+  if (!validStatuses.includes(status)) {
+    throw new Error(`Invalid status: ${status}. Must be one of: ${validStatuses.join(', ')}`)
   }
 
   // Verify project exists
@@ -50,18 +56,6 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
   const targetProject = projects.find((p: any) => p.id === projectId)
   if (!targetProject) {
     throw new Error(`Project with ID ${projectId} not found`)
-  }
-
-  // Get columns for the target board
-  const columns = store.query(getBoardColumns$(projectId))
-  if (columns.length === 0) {
-    throw new Error(`Project "${targetProject.name}" has no columns. Please add columns first.`)
-  }
-
-  // Verify column exists and belongs to project
-  const targetColumn = columns.find((c: any) => c.id === columnId)
-  if (!targetColumn) {
-    throw new Error(`Column with ID ${columnId} not found in project ${projectId}`)
   }
 
   // Validate assignees if provided
@@ -75,12 +69,12 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
     })
   }
 
-  // Get existing tasks in the column to calculate position
+  // Get existing tasks with the same status to calculate position
   const existingTasks = store.query(getBoardTasks$(targetProject.id))
-  const tasksInColumn = existingTasks.filter((t: any) => t.columnId === targetColumn.id)
+  const tasksWithStatus = existingTasks.filter((t: any) => t.status === status)
 
   // Calculate next position, ensuring we handle non-numeric positions safely
-  const validPositions = tasksInColumn
+  const validPositions = tasksWithStatus
     .map((t: any) => t.position)
     .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
 
@@ -94,22 +88,21 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
       id: taskId,
       projectId: targetProject.id,
       projectName: targetProject.name,
-      columnId: targetColumn.id,
-      columnName: targetColumn.name,
+      status,
       title: title.trim(),
       position: nextPosition,
-      existingTasksInColumn: tasksInColumn.length,
+      existingTasksWithStatus: tasksWithStatus.length,
     },
     'Creating task with data'
   )
 
   store.commit(
-    events.taskCreated({
+    events.taskCreatedV2({
       id: taskId,
       projectId: targetProject.id,
-      columnId: targetColumn.id,
       title: title.trim(),
       description: description?.trim() || undefined,
+      status,
       assigneeIds: assigneeIds,
       position: nextPosition,
       createdAt: new Date(),
@@ -123,7 +116,7 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
     taskId,
     taskTitle: title.trim(),
     projectName: targetProject.name,
-    columnName: targetColumn.name,
+    status,
     assigneeNames,
   }
 }
@@ -167,42 +160,51 @@ function updateTaskCore(store: Store, params: UpdateTaskParams): UpdateTaskResul
 }
 
 /**
- * Moves a task to a different column (core implementation)
+ * Moves a task to a different status (core implementation)
  */
 function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
-  const { taskId, toColumnId, position } = params
+  const { taskId, toStatus, position } = params
+
+  // Validate status
+  const validStatuses = ['todo', 'doing', 'in_review', 'done'] as const
+  type TaskStatus = (typeof validStatuses)[number]
+  if (!validStatuses.includes(toStatus as TaskStatus)) {
+    throw new Error(`Invalid status: ${toStatus}. Must be one of: ${validStatuses.join(', ')}`)
+  }
 
   // Verify task exists
   const tasks = store.query(getTaskById$(taskId))
   const task = validators.requireEntity(tasks, 'Task', taskId)
 
-  // Get project to verify column exists
+  // Verify task has a project
   if (!task.projectId) {
-    throw new Error('Cannot move orphaned task')
+    throw new Error('Cannot move orphaned task. Use orphan_task to move orphaned tasks.')
   }
 
-  const columns = store.query(getBoardColumns$(task.projectId))
-  const targetColumn = columns.find((c: any) => c.id === toColumnId)
-  if (!targetColumn) {
-    throw new Error(`Column with ID ${toColumnId} not found`)
-  }
-
-  // Calculate position if not provided
+  // Calculate position if not provided, using Large Integer Positioning strategy
   let movePosition = position
   if (movePosition === undefined) {
     const existingTasks = store.query(getBoardTasks$(task.projectId))
-    const tasksInColumn = existingTasks.filter((t: any) => t.columnId === toColumnId)
-    const validPositions = tasksInColumn
+    const tasksWithStatus = existingTasks.filter((t: any) => t.status === toStatus)
+    const POSITION_GAP = 1000
+    const validPositions = tasksWithStatus
       .map((t: any) => t.position)
       .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
-    movePosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 0
+
+    // If no existing tasks, start at 1000
+    if (validPositions.length === 0) {
+      movePosition = POSITION_GAP
+    } else {
+      // Add a large gap between the max position and the new task's position
+      movePosition = Math.max(...validPositions) + POSITION_GAP
+    }
   }
 
-  // Create move event
+  // Create move event using v2 status change event
   store.commit(
-    events.taskMoved({
+    events.taskStatusChanged({
       taskId: taskId,
-      toColumnId: toColumnId,
+      toStatus: toStatus as TaskStatus,
       position: movePosition,
       updatedAt: new Date(),
     })
@@ -212,7 +214,7 @@ function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
     success: true,
     task: {
       id: taskId,
-      columnId: toColumnId,
+      status: toStatus,
       position: movePosition,
     },
   }
@@ -225,11 +227,11 @@ function moveTaskToProjectCore(
   store: Store,
   params: MoveTaskToProjectParams
 ): MoveTaskToProjectResult {
-  const { taskId, toProjectId, toColumnId, position } = params
+  const { taskId, toProjectId, status, position } = params
 
   // Verify task exists
   const tasks = store.query(getTaskById$(taskId))
-  validators.requireEntity(tasks, 'Task', taskId)
+  const task = validators.requireEntity(tasks, 'Task', taskId)
 
   // Verify target project exists
   const projects = store.query(getProjects$)
@@ -238,41 +240,64 @@ function moveTaskToProjectCore(
     throw new Error(`Project with ID ${toProjectId} not found`)
   }
 
-  // Verify column belongs to target project
-  const columns = store.query(getBoardColumns$(toProjectId))
-  const targetColumn = columns.find((c: any) => c.id === toColumnId)
-  if (!targetColumn) {
-    throw new Error(`Column with ID ${toColumnId} not found in project ${toProjectId}`)
+  // Validate and normalize status
+  const validStatuses = ['todo', 'doing', 'in_review', 'done'] as const
+  type TaskStatus = (typeof validStatuses)[number]
+  const targetStatus: TaskStatus = (status || task.status || 'todo') as TaskStatus
+  if (!validStatuses.includes(targetStatus)) {
+    throw new Error(`Invalid status: ${targetStatus}. Must be one of: ${validStatuses.join(', ')}`)
   }
 
-  // Calculate position if not provided
+  // Calculate position if not provided, using Large Integer Positioning strategy
   let movePosition = position
   if (movePosition === undefined) {
     const existingTasks = store.query(getBoardTasks$(toProjectId))
-    const tasksInColumn = existingTasks.filter((t: any) => t.columnId === toColumnId)
-    const validPositions = tasksInColumn
+    const tasksWithStatus = existingTasks.filter((t: any) => t.status === targetStatus)
+    const POSITION_GAP = 1000
+    const validPositions = tasksWithStatus
       .map((t: any) => t.position)
       .filter((pos: any) => typeof pos === 'number' && !isNaN(pos))
-    movePosition = validPositions.length > 0 ? Math.max(...validPositions) + 1 : 0
+
+    // If no existing tasks, start at 1000
+    if (validPositions.length === 0) {
+      movePosition = POSITION_GAP
+    } else {
+      // Add a large gap between the max position and the new task's position
+      movePosition = Math.max(...validPositions) + POSITION_GAP
+    }
   }
 
-  // Create move to project event
+  // Create move to project event using v2
   store.commit(
-    events.taskMovedToProject({
+    events.taskMovedToProjectV2({
       taskId: taskId,
       toProjectId: toProjectId.trim(),
-      toColumnId: toColumnId,
       position: movePosition,
       updatedAt: new Date(),
     })
   )
+
+  // If status was provided and different, also update status
+  // Note: We use two separate events here intentionally for LiveStore event sourcing.
+  // This allows independent replay and better granularity. The events are committed
+  // synchronously in sequence, so they will be processed atomically.
+  if (status && status !== task.status) {
+    store.commit(
+      events.taskStatusChanged({
+        taskId: taskId,
+        toStatus: status as TaskStatus,
+        position: movePosition,
+        updatedAt: new Date(),
+      })
+    )
+  }
 
   return {
     success: true,
     task: {
       id: taskId,
       projectId: toProjectId,
-      columnId: toColumnId,
+      status: targetStatus,
       position: movePosition,
     },
   }
@@ -282,43 +307,53 @@ function moveTaskToProjectCore(
  * Orphans a task (removes it from its current project)
  */
 function orphanTaskCore(store: Store, params: OrphanTaskParams): OrphanTaskResult {
-  const { taskId, toColumnId, position } = params
+  const { taskId, status, position } = params
 
   // Verify task exists
   const tasks = store.query(getTaskById$(taskId))
-  validators.requireEntity(tasks, 'Task', taskId)
+  const task = validators.requireEntity(tasks, 'Task', taskId)
 
-  // Verify column is orphaned
-  const orphanedColumns = store.query(getOrphanedColumns$)
-  const targetColumn = orphanedColumns.find((c: any) => c.id === toColumnId)
-  if (!targetColumn) {
-    throw new Error(`Orphaned column with ID ${toColumnId} not found`)
-  }
-  if (targetColumn.projectId) {
-    throw new Error(
-      `Column ${toColumnId} belongs to project ${targetColumn.projectId}, cannot use for orphaned task`
-    )
+  // Validate and normalize status
+  const validStatuses = ['todo', 'doing', 'in_review', 'done'] as const
+  type TaskStatus = (typeof validStatuses)[number]
+  const targetStatus: TaskStatus = (status || task.status || 'todo') as TaskStatus
+  if (!validStatuses.includes(targetStatus)) {
+    throw new Error(`Invalid status: ${targetStatus}. Must be one of: ${validStatuses.join(', ')}`)
   }
 
-  // Calculate position if not provided
+  // Calculate position if not provided (orphaned tasks start at 0)
   const movePosition = position ?? 0
 
-  // Create move to project event (with null projectId for orphaning)
+  // Create move to project event (with undefined projectId for orphaning)
   store.commit(
-    events.taskMovedToProject({
+    events.taskMovedToProjectV2({
       taskId: taskId,
       toProjectId: undefined,
-      toColumnId: toColumnId,
       position: movePosition,
       updatedAt: new Date(),
     })
   )
 
+  // If status was provided and different, also update status
+  // Note: We use two separate events here intentionally for LiveStore event sourcing.
+  // This allows independent replay and better granularity. The events are committed
+  // synchronously in sequence, so they will be processed atomically.
+  if (status && status !== task.status) {
+    store.commit(
+      events.taskStatusChanged({
+        taskId: taskId,
+        toStatus: status as TaskStatus,
+        position: movePosition,
+        updatedAt: new Date(),
+      })
+    )
+  }
+
   return {
     success: true,
     task: {
       id: taskId,
-      columnId: toColumnId,
+      status: targetStatus,
       position: movePosition,
     },
   }
@@ -392,7 +427,7 @@ function getTaskByIdCore(store: Store, taskId: string): GetTaskByIdResult {
     task: {
       id: task.id,
       projectId: task.projectId,
-      columnId: task.columnId,
+      status: task.status,
       title: task.title,
       description: task.description,
       assigneeIds: task.assigneeIds,
@@ -414,10 +449,6 @@ function getProjectTasksCore(store: Store, projectId: string): GetProjectTasksRe
     throw new Error(`Project with ID ${projectId} not found`)
   }
 
-  // Get columns for mapping IDs to names
-  const columns = store.query(getBoardColumns$(projectId))
-  const columnMap = new Map(columns.map((c: any) => [c.id, c.name]))
-
   const tasks = store.query(getBoardTasks$(projectId)) as any[]
   return {
     success: true,
@@ -425,8 +456,7 @@ function getProjectTasksCore(store: Store, projectId: string): GetProjectTasksRe
     tasks: tasks.map((t: any) => ({
       id: t.id,
       projectId: t.projectId,
-      columnId: t.columnId,
-      columnName: columnMap.get(t.columnId) || 'Unknown',
+      status: t.status,
       title: t.title,
       description: t.description,
       assigneeIds: t.assigneeIds,
@@ -446,7 +476,7 @@ function getOrphanedTasksCore(store: Store): GetOrphanedTasksResult {
     tasks: tasks.map((t: any) => ({
       id: t.id,
       projectId: t.projectId,
-      columnId: t.columnId,
+      status: t.status,
       title: t.title,
       description: t.description,
       assigneeIds: t.assigneeIds,

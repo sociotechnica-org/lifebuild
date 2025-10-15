@@ -470,3 +470,57 @@ export const projectContactRemoved = Events.synced({
     contactId: Schema.String,
   }),
 })
+
+// ============================================================================
+// V2 TASK EVENTS - Status-based
+// ============================================================================
+
+// Task status literal type
+const TaskStatusLiteral = Schema.Literal('todo', 'doing', 'in_review', 'done')
+
+export const taskCreatedV2 = Events.synced({
+  name: 'v2.TaskCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    projectId: Schema.optional(Schema.String),
+    title: Schema.String,
+    description: Schema.Union(Schema.String, Schema.Undefined),
+    status: Schema.optional(TaskStatusLiteral),
+    assigneeIds: Schema.Union(Schema.Array(Schema.String), Schema.Undefined),
+    position: Schema.Number,
+    createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const taskStatusChanged = Events.synced({
+  name: 'v2.TaskStatusChanged',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    toStatus: TaskStatusLiteral,
+    position: Schema.Number, // Position within the new status
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const taskReordered = Events.synced({
+  name: 'v2.TaskReordered',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    position: Schema.Number, // New position within same status
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const taskMovedToProjectV2 = Events.synced({
+  name: 'v2.TaskMovedToProject',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    toProjectId: Schema.optional(Schema.String),
+    position: Schema.Number,
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})

@@ -1,19 +1,21 @@
 import React, { useState } from 'react'
 import { useDroppable } from '@dnd-kit/core'
 import { useStore } from '@livestore/react'
-import type { Column, Task } from '@work-squared/shared/schema'
+import type { Task } from '@work-squared/shared/schema'
+import type { StatusColumn } from '@work-squared/shared'
 import { TaskCard } from '../../TaskCard/TaskCard.js'
 import { AddTaskForm } from '../../AddTaskForm/AddTaskForm.js'
 import { events } from '@work-squared/shared/schema'
 
 interface KanbanColumnProps {
-  column: Column
+  column: StatusColumn
   tasks: Task[]
   insertionPreview: number | null // Position where insertion preview should show, null if none
   draggedTaskHeight: number // Height of the task being dragged for placeholder sizing
   draggedTaskId: string | null // ID of task currently being dragged
   showAddCardPreview: boolean // Whether to show insertion preview above Add Card button
   onTaskClick?: (taskId: string) => void // Handler for task click events
+  projectId?: string | null // Project ID for task creation (null for orphaned tasks)
 }
 
 export function KanbanColumn({
@@ -24,6 +26,7 @@ export function KanbanColumn({
   draggedTaskId,
   showAddCardPreview,
   onTaskClick,
+  projectId,
 }: KanbanColumnProps) {
   const { store } = useStore()
   const [isAddingTask, setIsAddingTask] = useState(false)
@@ -51,13 +54,14 @@ export function KanbanColumn({
   const handleAddTask = (title: string) => {
     const nextPosition = tasks.length === 0 ? 0 : Math.max(...tasks.map(t => t.position)) + 1
 
+    // Use v2.TaskCreated event with status
     store.commit(
-      events.taskCreated({
+      events.taskCreatedV2({
         id: crypto.randomUUID(),
-        projectId: column.projectId || undefined,
-        columnId: column.id,
+        projectId: projectId || undefined,
         title,
         description: undefined,
+        status: column.status,
         assigneeIds: undefined,
         position: nextPosition,
         createdAt: new Date(),

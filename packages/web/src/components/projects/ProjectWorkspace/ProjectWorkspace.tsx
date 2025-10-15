@@ -5,15 +5,15 @@ import { useQuery, useStore } from '@livestore/react'
 import { useParams, Link } from 'react-router-dom'
 import { preserveStoreIdInUrl } from '../../../util/navigation.js'
 import {
-  getProjectColumns$,
   getProjectTasks$,
   getAllDocuments$,
   getDocumentProjectsByProject$,
   getProjectWorkers$,
   getWorkers$,
 } from '@work-squared/shared/queries'
-import type { Task, Document, Worker } from '@work-squared/shared/schema'
+import type { Task, Document, Worker, TaskStatus } from '@work-squared/shared/schema'
 import { events } from '@work-squared/shared/schema'
+import { STATUS_COLUMNS } from '@work-squared/shared'
 import { ProjectProvider, useProject } from '../../../contexts/ProjectContext.js'
 import { KanbanBoard } from '../../tasks/kanban/KanbanBoard.js'
 import { TaskModal } from '../../tasks/TaskModal/TaskModal.js'
@@ -22,7 +22,10 @@ import { AddExistingDocumentModal } from '../../documents/AddExistingDocumentMod
 import { LoadingState } from '../../ui/LoadingState.js'
 import { WorkerCard } from '../../workers/WorkerCard/WorkerCard.js'
 import { ProjectContacts } from '../ProjectContacts.js'
-import { calculateTaskReorder, calculateDropTarget } from '../../../utils/taskReordering.js'
+import {
+  calculateStatusTaskReorder,
+  calculateStatusDropTarget,
+} from '../../../utils/statusTaskReordering.js'
 
 // Component for the actual workspace content
 const ProjectWorkspaceContent: React.FC = () => {
@@ -30,7 +33,7 @@ const ProjectWorkspaceContent: React.FC = () => {
   const { store } = useStore()
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [insertionPreview, setInsertionPreview] = useState<{
-    columnId: string
+    statusId: string
     position: number
   } | null>(null)
   const [dragOverAddCard, setDragOverAddCard] = useState<string | null>(null)
@@ -47,7 +50,6 @@ const ProjectWorkspaceContent: React.FC = () => {
     return <LoadingState message='Project not found' />
   }
 
-  const columns = useQuery(getProjectColumns$(projectId)) ?? []
   const tasks = useQuery(getProjectTasks$(projectId)) ?? []
 
   // Get documents for project using client-side filtering for now
@@ -61,16 +63,14 @@ const ProjectWorkspaceContent: React.FC = () => {
   const allWorkers = useQuery(getWorkers$) ?? []
   const team: Worker[] = allWorkers.filter(w => workerProjects.some(wp => wp.workerId === w.id))
 
-  // Group tasks by column
-  const tasksByColumn = (tasks || []).reduce((acc: Record<string, Task[]>, task: Task) => {
-    if (task?.columnId && !acc[task.columnId]) {
-      acc[task.columnId] = []
-    }
-    if (task?.columnId) {
-      acc[task.columnId]?.push(task)
-    }
-    return acc
-  }, {})
+  // Group tasks by status
+  const tasksByStatus = React.useMemo(() => {
+    const grouped: Record<string, Task[]> = {}
+    STATUS_COLUMNS.forEach(statusColumn => {
+      grouped[statusColumn.status] = tasks.filter(task => task.status === statusColumn.status)
+    })
+    return grouped
+  }, [tasks])
 
   // Find task by ID helper
   const findTask = (taskId: string): Task | undefined => {
@@ -113,17 +113,17 @@ const ProjectWorkspaceContent: React.FC = () => {
 
     // Handle dropping over Add Card buttons
     if (overId.startsWith('add-card-')) {
-      const targetColumnId = overId.replace('add-card-', '')
-      setDragOverAddCard(targetColumnId)
+      const targetStatusId = overId.replace('add-card-', '')
+      setDragOverAddCard(targetStatusId)
       setInsertionPreview(null)
       return
     }
 
-    // Handle dropping over task cards - show preview for both same and different columns
-    const dropTarget = calculateDropTarget(overId, draggedTask, tasksByColumn)
+    // Handle dropping over task cards - show preview for both same and different statuses
+    const dropTarget = calculateStatusDropTarget(overId, draggedTask, tasksByStatus)
     if (dropTarget) {
       setInsertionPreview({
-        columnId: dropTarget.columnId,
+        statusId: dropTarget.statusId,
         position: dropTarget.index,
       })
       setDragOverAddCard(null)
@@ -150,36 +150,36 @@ const ProjectWorkspaceContent: React.FC = () => {
     const overId = over.id as string
 
     // Calculate drop target
-    const dropTarget = calculateDropTarget(overId, task, tasksByColumn)
+    const dropTarget = calculateStatusDropTarget(overId, task, tasksByStatus)
     if (!dropTarget) return
 
-    const { columnId: targetColumnId, index: targetIndex } = dropTarget
+    const { statusId: targetStatusId, index: targetIndex } = dropTarget
 
     // Don't move if dropping in same position
-    if (targetColumnId === task.columnId) {
-      const columnTasks = tasksByColumn[targetColumnId]
-      if (!columnTasks) return
-      const sortedTasks = [...columnTasks].sort((a, b) => a.position - b.position)
+    if (targetStatusId === task.status) {
+      const statusTasks = tasksByStatus[targetStatusId]
+      if (!statusTasks) return
+      const sortedTasks = [...statusTasks].sort((a, b) => a.position - b.position)
       const currentIndex = sortedTasks.findIndex(t => t.id === task.id)
       if (currentIndex === targetIndex) return
     }
 
     // Calculate reorder operations
-    const targetColumnTasks = tasksByColumn[targetColumnId] || []
-    const sortedTargetTasks = [...targetColumnTasks].sort((a, b) => a.position - b.position)
-    const reorderResults = calculateTaskReorder(
+    const targetStatusTasks = tasksByStatus[targetStatusId] || []
+    const sortedTargetTasks = [...targetStatusTasks].sort((a, b) => a.position - b.position)
+    const reorderResults = calculateStatusTaskReorder(
       task,
-      targetColumnId,
+      targetStatusId as TaskStatus,
       targetIndex,
       sortedTargetTasks
     )
 
-    // Commit all position updates
+    // Commit all position updates using v2.TaskStatusChanged
     reorderResults.forEach(result => {
       store.commit(
-        events.taskMoved({
+        events.taskStatusChanged({
           taskId: result.taskId,
-          toColumnId: result.toColumnId,
+          toStatus: result.toStatus,
           position: result.position,
           updatedAt: result.updatedAt,
         })
@@ -285,8 +285,8 @@ const ProjectWorkspaceContent: React.FC = () => {
         {activeTab === 'tasks' && (
           <>
             <KanbanBoard
-              columns={columns || []}
-              tasksByColumn={tasksByColumn}
+              statusColumns={STATUS_COLUMNS}
+              tasksByStatus={tasksByStatus}
               enableDragAndDrop={true}
               onDragStart={handleDragStart}
               onDragOver={handleDragOver}

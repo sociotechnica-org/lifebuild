@@ -9,7 +9,7 @@ export interface CreateTaskParams {
   title: string
   description?: string
   projectId: string
-  columnId: string
+  status?: string // 'todo' | 'doing' | 'in_review' | 'done' (defaults to 'todo')
   assigneeIds?: string[]
 }
 
@@ -19,7 +19,7 @@ export interface CreateTaskResult {
   error?: string
   taskTitle?: string
   projectName?: string
-  columnName?: string
+  status?: string
   assigneeNames?: string[]
 }
 
@@ -43,7 +43,7 @@ export interface UpdateTaskResult {
 
 export interface MoveTaskParams {
   taskId: string
-  toColumnId: string
+  toStatus: string // 'todo' | 'doing' | 'in_review' | 'done'
   position?: number
 }
 
@@ -52,7 +52,7 @@ export interface MoveTaskResult {
   error?: string
   task?: {
     id: string
-    columnId: string
+    status: string
     position: number
   }
 }
@@ -60,7 +60,7 @@ export interface MoveTaskResult {
 export interface MoveTaskToProjectParams {
   taskId: string
   toProjectId: string
-  toColumnId: string
+  status?: string // Optional: task keeps its current status if not specified
   position?: number
 }
 
@@ -70,14 +70,14 @@ export interface MoveTaskToProjectResult {
   task?: {
     id: string
     projectId: string
-    columnId: string
+    status: string
     position: number
   }
 }
 
 export interface OrphanTaskParams {
   taskId: string
-  toColumnId: string
+  status?: string // Optional: task keeps its current status if not specified
   position?: number
 }
 
@@ -86,7 +86,7 @@ export interface OrphanTaskResult {
   error?: string
   task?: {
     id: string
-    columnId: string
+    status: string
     position: number
   }
 }
@@ -126,7 +126,7 @@ export interface GetTaskByIdResult {
   task?: {
     id: string
     projectId?: string
-    columnId?: string
+    status: string
     title: string
     description?: string
     assigneeIds?: string[]
@@ -147,8 +147,7 @@ export interface GetProjectTasksResult {
   tasks?: Array<{
     id: string
     projectId: string
-    columnId: string
-    columnName?: string
+    status: string
     title: string
     description?: string
     assigneeIds?: string[]
@@ -167,7 +166,7 @@ export interface GetOrphanedTasksResult {
   tasks?: Array<{
     id: string
     projectId?: string
-    columnId?: string
+    status: string
     title: string
     description?: string
     assigneeIds?: string[]

@@ -2,7 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { KanbanColumn } from './KanbanColumn.js'
-import { createMockColumn, createMockTasks } from '../../../../../tests/test-utils.js'
+import { createMockStatusColumn, createMockTasks } from '../../../../../tests/test-utils.js'
 
 // Hoisted mocks
 const { mockCommit, mockUseDroppable, mockUseDraggable } = vi.hoisted(() => {
@@ -38,9 +38,9 @@ vi.mock('@dnd-kit/core', () => ({
 }))
 
 describe('KanbanColumn', () => {
-  const mockColumn = createMockColumn()
+  const mockColumn = createMockStatusColumn()
   const mockTasks = createMockTasks(2, {
-    columnId: 'test-column',
+    status: 'todo',
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-01'),
   })
@@ -55,6 +55,7 @@ describe('KanbanColumn', () => {
         draggedTaskHeight={0}
         draggedTaskId={null}
         showAddCardPreview={false}
+        projectId={null}
         {...props}
       />
     )

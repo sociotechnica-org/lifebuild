@@ -2,11 +2,7 @@ import React from 'react'
 import { render, screen, act } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ProjectWorkspace } from './ProjectWorkspace.js'
-import {
-  createMockProject,
-  createMockColumn,
-  createMockTask,
-} from '../../../../tests/test-utils.js'
+import { createMockProject, createMockTask } from '../../../../tests/test-utils.js'
 import type { Worker } from '@work-squared/shared/schema'
 import { DEFAULT_MODEL } from '@work-squared/shared'
 
@@ -67,8 +63,15 @@ describe('ProjectWorkspace', () => {
     name: 'Test Project',
     description: 'Test project description',
   })
-  const mockColumns = [createMockColumn({ id: 'col-1', name: 'Todo' })]
-  const mockTasks = [createMockTask({ id: 'task-1', columnId: 'col-1', title: 'Test Task' })]
+  const mockTasks = [
+    createMockTask({
+      id: 'task-1',
+      title: 'Test Task',
+      status: 'todo',
+      createdAt: new Date('2023-01-01'),
+      updatedAt: new Date('2023-01-01'),
+    }),
+  ]
   const mockWorkers = [
     {
       id: 'worker-1',
@@ -96,17 +99,15 @@ describe('ProjectWorkspace', () => {
       if (callCount === 1) {
         return [mockProject] // First call is for project data in context
       } else if (callCount === 2) {
-        return mockColumns // Second call is for columns
+        return mockTasks // Second call is for tasks (no columns query anymore)
       } else if (callCount === 3) {
-        return mockTasks // Third call is for tasks
+        return [] // Third call is for document-project links
       } else if (callCount === 4) {
-        return [] // Fourth call is for document-project links
+        return [] // Fourth call is for documents
       } else if (callCount === 5) {
-        return [] // Fifth call is for documents
+        return [] // Fifth call is for project workers (none)
       } else if (callCount === 6) {
-        return [] // Sixth call is for project workers (none)
-      } else if (callCount === 7) {
-        return mockWorkers // Seventh call is for all workers
+        return mockWorkers // Sixth call is for all workers
       }
       return []
     })

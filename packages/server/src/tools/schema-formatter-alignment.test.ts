@@ -5,16 +5,16 @@ import { ContactToolFormatter } from '../services/agentic-loop/tool-formatters/c
 
 describe('Schema-Formatter Alignment', () => {
   describe('Task Formatters', () => {
-    it('create_task formatter uses projectName not boardName', () => {
+    it('create_task formatter uses projectName and status', () => {
       const formatter = new TaskToolFormatter()
 
-      // Test with new parameter names
+      // Test with status-based task creation
       const result = {
         success: true,
         taskId: 'task-123',
         taskTitle: 'Test Task',
         projectName: 'Test Project',
-        columnName: 'To Do',
+        status: 'todo',
         assigneeNames: ['John', 'Jane'],
       }
 
@@ -23,19 +23,20 @@ describe('Schema-Formatter Alignment', () => {
       })
 
       expect(formatted).toContain('Test Project')
-      expect(formatted).toContain('To Do')
+      expect(formatted).toContain('status "todo"')
       expect(formatted).toContain('John, Jane')
       expect(formatted).not.toContain('board')
+      expect(formatted).not.toContain('column')
     })
 
-    it('move_task_within_project formatter describes within-project move', () => {
+    it('move_task_within_project formatter describes status change', () => {
       const formatter = new TaskToolFormatter()
 
       const result = {
         success: true,
         task: {
           id: 'task-123',
-          columnId: 'column-2',
+          status: 'doing',
           position: 0,
         },
       }
@@ -46,7 +47,8 @@ describe('Schema-Formatter Alignment', () => {
 
       expect(formatted).toContain('within project')
       expect(formatted).toContain('task-123')
-      expect(formatted).toContain('column-2')
+      expect(formatted).toContain('doing')
+      expect(formatted).not.toContain('column')
     })
 
     it('orphan_task formatter describes orphaning', () => {
@@ -56,7 +58,7 @@ describe('Schema-Formatter Alignment', () => {
         success: true,
         task: {
           id: 'task-123',
-          columnId: 'orphan-column',
+          status: 'todo',
           position: 0,
         },
       }
@@ -67,10 +69,10 @@ describe('Schema-Formatter Alignment', () => {
 
       expect(formatted).toContain('orphaned')
       expect(formatted).toContain('task-123')
-      expect(formatted).toContain('orphan-column')
+      expect(formatted).not.toContain('column')
     })
 
-    it('get_project_tasks includes project name and column names', () => {
+    it('get_project_tasks includes project name and task statuses', () => {
       const formatter = new TaskToolFormatter()
 
       const result = {
@@ -80,15 +82,13 @@ describe('Schema-Formatter Alignment', () => {
           {
             id: 'task-1',
             title: 'Task 1',
-            columnId: 'col-1',
-            columnName: 'To Do',
+            status: 'todo',
             position: 0,
           },
           {
             id: 'task-2',
             title: 'Task 2',
-            columnId: 'col-2',
-            columnName: 'In Progress',
+            status: 'doing',
             position: 1,
           },
         ],
@@ -99,10 +99,9 @@ describe('Schema-Formatter Alignment', () => {
       })
 
       expect(formatted).toContain('Test Project')
-      expect(formatted).toContain('To Do')
-      expect(formatted).toContain('In Progress')
-      expect(formatted).not.toContain('col-1')
-      expect(formatted).not.toContain('col-2')
+      expect(formatted).toContain('todo')
+      expect(formatted).toContain('doing')
+      expect(formatted).not.toContain('column')
     })
   })
 
