@@ -108,7 +108,7 @@ describe('TaskModal', () => {
 
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.getByText('Test Task')).toBeInTheDocument()
-    expect(screen.getByText('in Todo')).toBeInTheDocument()
+    expect(screen.getByText('Status: Todo')).toBeInTheDocument()
     expect(screen.getByText('This is a test task description')).toBeInTheDocument()
   })
 

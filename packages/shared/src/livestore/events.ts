@@ -478,6 +478,15 @@ export const projectContactRemoved = Events.synced({
 // Task status literal type
 const TaskStatusLiteral = Schema.Literal('todo', 'doing', 'in_review', 'done')
 
+// Task priority literal type (PR2)
+const TaskPriorityLiteral = Schema.Literal('low', 'normal', 'high', 'critical')
+
+// Task attributes schema (PR2)
+const TaskAttributesSchema = Schema.Struct({
+  priority: Schema.optional(TaskPriorityLiteral),
+  // Future attributes can be added here
+})
+
 export const taskCreatedV2 = Events.synced({
   name: 'v2.TaskCreated',
   schema: Schema.Struct({
@@ -487,6 +496,7 @@ export const taskCreatedV2 = Events.synced({
     description: Schema.Union(Schema.String, Schema.Undefined),
     status: Schema.optional(TaskStatusLiteral),
     assigneeIds: Schema.Union(Schema.Array(Schema.String), Schema.Undefined),
+    attributes: Schema.optional(TaskAttributesSchema), // PR2: Optional attributes
     position: Schema.Number,
     createdAt: Schema.Date,
     actorId: Schema.optional(Schema.String),
@@ -520,6 +530,16 @@ export const taskMovedToProjectV2 = Events.synced({
     taskId: Schema.String,
     toProjectId: Schema.optional(Schema.String),
     position: Schema.Number,
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const taskAttributesUpdated = Events.synced({
+  name: 'v2.TaskAttributesUpdated',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    attributes: TaskAttributesSchema, // Full replacement - caller must merge before emitting
     updatedAt: Schema.Date,
     actorId: Schema.optional(Schema.String),
   }),
