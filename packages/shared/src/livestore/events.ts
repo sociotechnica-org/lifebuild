@@ -539,7 +539,7 @@ export const taskAttributesUpdated = Events.synced({
   name: 'v2.TaskAttributesUpdated',
   schema: Schema.Struct({
     taskId: Schema.String,
-    attributes: TaskAttributesSchema, // Partial update - merges with existing
+    attributes: TaskAttributesSchema, // Full replacement - caller must merge before emitting
     updatedAt: Schema.Date,
     actorId: Schema.optional(Schema.String),
   }),

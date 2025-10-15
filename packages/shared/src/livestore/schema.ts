@@ -853,8 +853,11 @@ const materializers = State.SQLite.materializers(events, {
   'v2.TaskAttributesUpdated': ({ taskId, attributes, updatedAt, actorId }) => [
     tasks
       .update({
-        // Note: This replaces the entire attributes object
-        // Merge logic should be handled in the application layer before emitting the event
+        // IMPORTANT: This replaces the entire attributes object.
+        // To preserve existing attributes, the caller MUST:
+        // 1. Read current task.attributes
+        // 2. Merge: { ...task.attributes, ...newAttributes }
+        // 3. Emit this event with the merged result
         attributes,
         updatedAt,
       })
