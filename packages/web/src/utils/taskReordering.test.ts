@@ -67,12 +67,12 @@ describe('Task Reordering', () => {
   describe('calculateTaskReorder', () => {
     it('should move task to empty column', () => {
       const draggedTask = mockTasks[0]!
-      const results = calculateTaskReorder(draggedTask, 'col-3', 0, [])
+      const results = calculateTaskReorder(draggedTask, 'in_review', 0, [])
 
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-1',
-        toStatus: 'col-3',
+        toStatus: 'in_review',
         position: 1000,
       })
     })
@@ -81,12 +81,12 @@ describe('Task Reordering', () => {
       const draggedTask = mockTasks[2]! // task-3
       const tasksInColumn = [mockTasks[0]!, mockTasks[1]!] // task-1, task-2
 
-      const results = calculateTaskReorder(draggedTask, 'col-1', 0, tasksInColumn)
+      const results = calculateTaskReorder(draggedTask, 'todo', 0, tasksInColumn)
 
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-3',
-        toStatus: 'col-1',
+        toStatus: 'todo',
         position: 500, // Half of first task's position
       })
     })
@@ -95,54 +95,54 @@ describe('Task Reordering', () => {
       const draggedTask = mockTasks[0]! // task-1
       const tasksInColumn = [mockTasks[1]!, mockTasks[2]!] // task-2, task-3
 
-      const results = calculateTaskReorder(draggedTask, 'col-1', 2, tasksInColumn)
+      const results = calculateTaskReorder(draggedTask, 'todo', 2, tasksInColumn)
 
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-1',
-        toStatus: 'col-1',
+        toStatus: 'todo',
         position: 4000, // Last task position + 1000
       })
     })
 
     it('should move task between two tasks', () => {
-      const draggedTask = mockTasks[3]! // task-4 from col-2
+      const draggedTask = mockTasks[3]! // task-4 from doing
       const tasksInColumn = [mockTasks[0]!, mockTasks[2]!] // task-1 (1000), task-3 (3000)
 
-      const results = calculateTaskReorder(draggedTask, 'col-1', 1, tasksInColumn)
+      const results = calculateTaskReorder(draggedTask, 'todo', 1, tasksInColumn)
 
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-4',
-        toStatus: 'col-1',
+        toStatus: 'todo',
         position: 2000, // Average of 1000 and 3000
       })
     })
 
     it('should handle moving within same column upward', () => {
       const draggedTask = mockTasks[2]! // task-3
-      const tasksInColumn = [mockTasks[0]!, mockTasks[1]!, mockTasks[2]!] // All col-1 tasks
+      const tasksInColumn = [mockTasks[0]!, mockTasks[1]!, mockTasks[2]!] // All todo tasks
 
-      const results = calculateTaskReorder(draggedTask, 'col-1', 1, tasksInColumn)
+      const results = calculateTaskReorder(draggedTask, 'todo', 1, tasksInColumn)
 
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-3',
-        toStatus: 'col-1',
+        toStatus: 'todo',
         position: 1500, // Between task-1 (1000) and task-2 (2000)
       })
     })
 
     it('should handle moving within same column downward', () => {
       const draggedTask = mockTasks[0]! // task-1
-      const tasksInColumn = [mockTasks[0]!, mockTasks[1]!, mockTasks[2]!] // All col-1 tasks
+      const tasksInColumn = [mockTasks[0]!, mockTasks[1]!, mockTasks[2]!] // All todo tasks
 
-      const results = calculateTaskReorder(draggedTask, 'col-1', 2, tasksInColumn)
+      const results = calculateTaskReorder(draggedTask, 'todo', 2, tasksInColumn)
 
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-1',
-        toStatus: 'col-1',
+        toStatus: 'todo',
         // When moving to index 2, it goes after the last task (task-3 at 3000)
         position: 4000, // After task-3 (3000) + 1000
       })
@@ -157,7 +157,7 @@ describe('Task Reordering', () => {
       ]
 
       const draggedTask = mockTasks[3]! // task-4
-      const results = calculateTaskReorder(draggedTask, 'col-1', 1, tasksWithSmallGaps)
+      const results = calculateTaskReorder(draggedTask, 'todo', 1, tasksWithSmallGaps)
 
       // Should normalize all positions
       expect(results.length).toBeGreaterThan(1)
@@ -175,12 +175,12 @@ describe('Task Reordering', () => {
       const tasksInColumn = [mockTasks[0]!, mockTasks[1]!, mockTasks[2]!]
 
       // Dropping back at index 1 (its original position)
-      const results = calculateTaskReorder(draggedTask, 'col-1', 1, tasksInColumn)
+      const results = calculateTaskReorder(draggedTask, 'todo', 1, tasksInColumn)
 
       expect(results).toHaveLength(1)
       expect(results[0]).toMatchObject({
         taskId: 'task-2',
-        toStatus: 'col-1',
+        toStatus: 'todo',
         // When dropping at original position, it stays at the same value
         // The algorithm filters out the dragged task, so index 1 means between task-1 and task-3
         position: 2000, // Average of task-1 (1000) and task-3 (3000)

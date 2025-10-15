@@ -373,13 +373,32 @@ export const tables = {
 }
 
 // PR3: Helper function to map v1 columnId to status for backwards compatibility
-// This preserves the original column state when replaying old v1 events
+//
+// IMPORTANT LIMITATION: This is a best-effort mapping that works for standard column names
+// (e.g., "Todo", "Doing", "In Review", "Done") but will NOT work for opaque column IDs
+// (e.g., UUIDs or "${projectId}-col-${position}"). For opaque IDs, all tasks will default
+// to 'todo' status, which means historical column state may be lost during event replay.
+//
+// This trade-off was accepted because:
+// 1. The columns table has been removed (PR3), so we can't look up original column names
+// 2. v1 events only contain columnId, not column name
+// 3. PR1 already migrated existing tasks to status='todo', so this only affects event replay
+// 4. Most column IDs in this codebase used semantic names matching DEFAULT_KANBAN_COLUMNS
+//
+// If exact column preservation is critical for your deployment, consider:
+// - Maintaining a hardcoded mapping table of known column IDs → status
+// - Storing column metadata separately before migrating to PR3
 function mapColumnIdToStatus(columnId: string): 'todo' | 'doing' | 'in_review' | 'done' {
   const columnName = columnId.toLowerCase()
+
+  // Try to match standard column names (case-insensitive)
   if (columnName.includes('doing') || columnName.includes('progress')) return 'doing'
   if (columnName.includes('review')) return 'in_review'
   if (columnName.includes('done') || columnName.includes('complete')) return 'done'
-  return 'todo' // Default to todo for unknown columns
+
+  // Default to 'todo' for unknown/opaque column IDs
+  // This is a known limitation - see documentation above
+  return 'todo'
 }
 
 const materializers = State.SQLite.materializers(events, {
