@@ -36,12 +36,22 @@ const chatMessages = State.SQLite.table({
   },
 })
 
-const boards = State.SQLite.table({
+const projects = State.SQLite.table({
   name: 'projects',
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
     name: State.SQLite.text({ default: '' }),
-    description: State.SQLite.text({ nullable: true }), // Add description field
+    description: State.SQLite.text({ nullable: true }),
+    category: State.SQLite.text({ nullable: true }), // PR4: 'health' | 'relationships' | 'finances' | etc.
+    attributes: State.SQLite.text({
+      // PR4: Flexible attributes for future extensibility (PR5)
+      nullable: true,
+      schema: Schema.parseJson(
+        Schema.Struct({
+          // Future: scale, complexity, urgency, etc.
+        })
+      ),
+    }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
@@ -49,6 +59,11 @@ const boards = State.SQLite.table({
       schema: Schema.DateFromNumber,
     }),
     deletedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+    archivedAt: State.SQLite.integer({
+      // PR4: For project archiving (used in PR6)
       nullable: true,
       schema: Schema.DateFromNumber,
     }),
@@ -325,8 +340,9 @@ const uiState = State.SQLite.clientDocument({
 })
 
 export type ChatMessage = State.SQLite.FromTable.RowDecoded<typeof chatMessages>
-export type Board = State.SQLite.FromTable.RowDecoded<typeof boards>
-export type Project = Board // New terminology alias
+export type Project = State.SQLite.FromTable.RowDecoded<typeof projects>
+// ProjectCategory type defined in constants.ts
+export type Board = Project // Backwards compatibility alias (deprecated)
 // Column type removed - PR3: migration to status-based tasks complete
 export type User = State.SQLite.FromTable.RowDecoded<typeof users>
 export type Task = State.SQLite.FromTable.RowDecoded<typeof tasks>
@@ -354,7 +370,7 @@ export const events = {
 export const tables = {
   uiState,
   chatMessages,
-  boards,
+  projects,
   // columns removed - PR3: migration to status-based tasks complete
   users,
   tasks,
@@ -405,7 +421,15 @@ const materializers = State.SQLite.materializers(events, {
   'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) =>
     chatMessages.insert({ id, conversationId, message, role, createdAt }),
   'v1.ProjectCreated': ({ id, name, description, createdAt, actorId }) => [
-    boards.insert({ id, name, description, createdAt, updatedAt: createdAt }),
+    projects.insert({
+      id,
+      name,
+      description,
+      category: null, // PR4: v1 projects have no category
+      attributes: null, // PR4: v1 projects have no attributes
+      createdAt,
+      updatedAt: createdAt,
+    }),
     eventsLog.insert({
       id: `project_created_${id}`,
       eventType: 'v1.ProjectCreated',
@@ -896,6 +920,87 @@ const materializers = State.SQLite.materializers(events, {
       eventData: JSON.stringify({ taskId, attributes }),
       actorId,
       createdAt: updatedAt,
+    }),
+  ],
+
+  // ============================================================================
+  // V2 PROJECT MATERIALIZERS - With Categories & Attributes
+  // ============================================================================
+
+  'v2.ProjectCreated': ({ id, name, description, category, attributes, createdAt, actorId }) => [
+    projects.insert({
+      id,
+      name,
+      description,
+      category: category || null,
+      attributes: attributes || null,
+      createdAt,
+      updatedAt: createdAt,
+      archivedAt: null,
+    }),
+    eventsLog.insert({
+      id: `project_created_${id}_${createdAt.getTime()}`,
+      eventType: 'v2.ProjectCreated',
+      eventData: JSON.stringify({ id, name, description, category }),
+      actorId,
+      createdAt,
+    }),
+  ],
+
+  'v2.ProjectUpdated': ({ id, updates, updatedAt, actorId }) => {
+    const updateData: Record<string, any> = { updatedAt }
+    if (updates.name !== undefined) updateData.name = updates.name
+    if (updates.description !== undefined) updateData.description = updates.description
+    if (updates.category !== undefined) updateData.category = updates.category
+
+    return [
+      projects.update(updateData).where({ id }),
+      eventsLog.insert({
+        id: `project_updated_${id}_${updatedAt.getTime()}`,
+        eventType: 'v2.ProjectUpdated',
+        eventData: JSON.stringify({ id, updates }),
+        actorId,
+        createdAt: updatedAt,
+      }),
+    ]
+  },
+
+  'v2.ProjectAttributesUpdated': ({ id, attributes, updatedAt, actorId }) => [
+    projects
+      .update({
+        // Full replacement - caller must merge before emitting
+        attributes,
+        updatedAt,
+      })
+      .where({ id }),
+    eventsLog.insert({
+      id: `project_attributes_updated_${id}_${updatedAt.getTime()}`,
+      eventType: 'v2.ProjectAttributesUpdated',
+      eventData: JSON.stringify({ id, attributes }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  'v2.ProjectArchived': ({ id, archivedAt, actorId }) => [
+    projects.update({ archivedAt }).where({ id }),
+    eventsLog.insert({
+      id: `project_archived_${id}_${archivedAt.getTime()}`,
+      eventType: 'v2.ProjectArchived',
+      eventData: JSON.stringify({ id }),
+      actorId,
+      createdAt: archivedAt,
+    }),
+  ],
+
+  'v2.ProjectUnarchived': ({ id, unarchivedAt, actorId }) => [
+    projects.update({ archivedAt: null, updatedAt: unarchivedAt }).where({ id }),
+    eventsLog.insert({
+      id: `project_unarchived_${id}_${unarchivedAt.getTime()}`,
+      eventType: 'v2.ProjectUnarchived',
+      eventData: JSON.stringify({ id }),
+      actorId,
+      createdAt: unarchivedAt,
     }),
   ],
 })

@@ -65,3 +65,83 @@ export const STATUS_COLUMNS = [
  * Type for status column definition
  */
 export type StatusColumn = (typeof STATUS_COLUMNS)[number]
+
+// ============================================================================
+// PROJECT CATEGORIES
+// ============================================================================
+
+/**
+ * Project category type
+ */
+export type ProjectCategory =
+  | 'health'
+  | 'relationships'
+  | 'finances'
+  | 'growth'
+  | 'leisure'
+  | 'spirituality'
+  | 'home'
+  | 'contribution'
+
+/**
+ * Default project categories for UI display
+ * These are hardcoded options - no database table needed
+ */
+export const PROJECT_CATEGORIES = [
+  {
+    value: 'health' as const,
+    name: 'Health & Well-Being',
+    description: 'Physical health, fitness, mental wellness, self-care',
+    colorHex: '#10B981',
+  },
+  {
+    value: 'relationships' as const,
+    name: 'Relationships',
+    description: 'Family, friends, romantic relationships, social connections',
+    colorHex: '#EC4899',
+  },
+  {
+    value: 'finances' as const,
+    name: 'Finances',
+    description: 'Income, expenses, investments, financial planning',
+    colorHex: '#3B82F6',
+  },
+  {
+    value: 'growth' as const,
+    name: 'Personal Growth & Learning',
+    description: 'Education, skills, personal development, hobbies',
+    colorHex: '#8B5CF6',
+  },
+  {
+    value: 'leisure' as const,
+    name: 'Leisure & Lifestyle',
+    description: 'Recreation, entertainment, travel, fun activities',
+    colorHex: '#F59E0B',
+  },
+  {
+    value: 'spirituality' as const,
+    name: 'Spirituality & Meaning',
+    description: 'Religion, philosophy, purpose, values, mindfulness',
+    colorHex: '#6366F1',
+  },
+  {
+    value: 'home' as const,
+    name: 'Home & Environment',
+    description: 'Living space, organization, home projects, environment',
+    colorHex: '#14B8A6',
+  },
+  {
+    value: 'contribution' as const,
+    name: 'Contribution & Service',
+    description: 'Community service, volunteering, giving back, impact',
+    colorHex: '#EF4444',
+  },
+] as const
+
+/**
+ * Helper to get category display information
+ */
+export function getCategoryInfo(category: ProjectCategory | null | undefined) {
+  if (!category) return null
+  return PROJECT_CATEGORIES.find(c => c.value === category) || null
+}

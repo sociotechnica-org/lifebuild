@@ -4,6 +4,7 @@ import { formatDate } from '../../../util/dates.js'
 import type { Project, Worker } from '@work-squared/shared/schema'
 import { getProjectWorkers$, getWorkers$ } from '@work-squared/shared/queries'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
+import { ProjectCategoryBadge } from '../ProjectCategoryBadge.js'
 
 interface ProjectCardProps {
   project: Project
@@ -39,6 +40,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
       onClick={onClick}
     >
       <h3 className='text-lg font-semibold text-gray-900 mb-2'>{project.name}</h3>
+      {project.category && (
+        <div className='mb-2'>
+          <ProjectCategoryBadge category={project.category as any} size='sm' />
+        </div>
+      )}
       {project.description && (
         <p className='text-sm text-gray-600 mb-3 line-clamp-2'>{project.description}</p>
       )}

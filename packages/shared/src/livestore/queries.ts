@@ -6,7 +6,7 @@ export const app$ = queryDb(tables.uiState.get(), { label: 'app' })
 
 export const getBoards$ = queryDb(
   _get => {
-    return tables.boards.select().where({
+    return tables.projects.select().where({
       deletedAt: undefined,
     })
   },
@@ -39,7 +39,7 @@ export const getTaskById$ = (taskId: string) =>
   })
 
 export const getBoardById$ = (boardId: string) =>
-  queryDb(tables.boards.select().where({ id: boardId }), {
+  queryDb(tables.projects.select().where({ id: boardId }), {
     label: `getBoardById:${boardId}`,
   })
 
@@ -201,7 +201,7 @@ export const getAllEvents$ = queryDb(
 
 // Query to get project details with document and task counts (for LLM tools)
 export const getProjectDetails$ = (projectId: string) =>
-  queryDb(tables.boards.select().where({ id: projectId }), {
+  queryDb(tables.projects.select().where({ id: projectId }), {
     label: `getProjectDetails:${projectId}`,
   })
 
@@ -349,4 +349,16 @@ export const getOrphanedTasksByStatus$ = (status: string) =>
     {
       label: `getOrphanedTasksByStatus:${status}`,
     }
+  )
+
+/**
+ * Get projects by category
+ */
+export const getProjectsByCategory$ = (category: string) =>
+  queryDb(
+    tables.projects
+      .select()
+      .where({ category, deletedAt: null })
+      .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
+    { label: `getProjectsByCategory:${category}` }
   )

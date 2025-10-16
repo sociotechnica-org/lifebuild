@@ -181,6 +181,7 @@ export interface GetOrphanedTasksResult {
 export interface CreateProjectParams {
   name: string
   description?: string
+  category?: string
 }
 
 export interface CreateProjectResult {
