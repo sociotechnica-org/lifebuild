@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import React, { type ReactElement } from 'react'
 import { render, type RenderOptions } from '@testing-library/react'
-import type { Task, Column, Project, Contact } from '@work-squared/shared/schema'
+import type { Task, Project, Contact } from '@work-squared/shared/schema'
 import type { StatusColumn } from '@work-squared/shared'
 
 // Simple test wrapper for basic component testing
@@ -178,7 +178,7 @@ const createTestStore = () => {
 export const createMockTask = (overrides: Partial<Task> = {}): Task => ({
   id: 'test-task',
   projectId: 'test-project',
-  columnId: 'test-column',
+  // PR3: columnId removed - migration to status-based tasks complete
   title: 'Test Task',
   description: null,
   status: 'todo',
@@ -191,15 +191,8 @@ export const createMockTask = (overrides: Partial<Task> = {}): Task => ({
   ...overrides,
 })
 
-export const createMockColumn = (overrides: Partial<Column> = {}): Column => ({
-  id: 'test-column',
-  projectId: 'test-project',
-  name: 'Test Column',
-  position: 0,
-  createdAt: new Date('2023-01-01'),
-  updatedAt: new Date('2023-01-01'),
-  ...overrides,
-})
+// PR3: createMockColumn removed - columns no longer exist
+// Use createMockStatusColumn for status-based columns instead
 
 export const createMockStatusColumn = (overrides: Partial<StatusColumn> = {}): StatusColumn =>
   ({

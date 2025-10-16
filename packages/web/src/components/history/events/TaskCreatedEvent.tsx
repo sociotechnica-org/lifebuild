@@ -12,7 +12,7 @@ export const TaskCreatedEvent: React.FC<TaskCreatedEventProps> = ({ event, times
   const data = event.data as {
     id: string
     projectId?: string
-    columnId: string
+    // PR3: columnId may exist in v1 events but is no longer used
     title: string
     description?: string
   }

@@ -3,7 +3,7 @@ import { render, screen, fireEvent, within } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { TaskModal } from './TaskModal.js'
 import { SnackbarProvider } from '../../ui/Snackbar/Snackbar.js'
-import { createMockTask, createMockColumn } from '../../../../tests/test-utils.js'
+import { createMockTask } from '../../../../tests/test-utils.js'
 
 // Hoisted mocks
 const { mockUseQuery, mockStore, mockUseAuth } = vi.hoisted(() => {
@@ -32,7 +32,7 @@ describe('TaskModal', () => {
     updatedAt: new Date('2023-01-01T10:00:00Z'),
   })
 
-  const mockColumns = [createMockColumn({ name: 'Todo' })]
+  // PR3: mockColumns removed - columns no longer exist
   const mockUsers = [
     {
       id: 'user-1',
@@ -75,9 +75,7 @@ describe('TaskModal', () => {
       if (query.label?.includes('getTaskById')) {
         return [mockTask]
       }
-      if (query.label?.includes('getBoardColumns')) {
-        return mockColumns
-      }
+      // PR3: getBoardColumns query removed - columns no longer exist
       if (query.label?.includes('getUsers')) {
         return mockUsers
       }
@@ -96,7 +94,7 @@ describe('TaskModal', () => {
       if (query.label?.includes('getTaskById')) {
         return []
       }
-      return mockColumns
+      return []
     })
 
     renderWithProviders(<TaskModal taskId='non-existent' onClose={mockOnClose} />)
@@ -118,9 +116,6 @@ describe('TaskModal', () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.label?.includes('getTaskById')) {
         return [taskWithoutDesc]
-      }
-      if (query.label?.includes('getBoardColumns')) {
-        return mockColumns
       }
       return []
     })
@@ -391,9 +386,6 @@ describe('TaskModal', () => {
       mockUseQuery.mockImplementation((query: any) => {
         if (query.label?.includes('getTaskById')) {
           return [mockTask]
-        }
-        if (query.label?.includes('getBoardColumns')) {
-          return mockColumns
         }
         if (query.label?.includes('app')) {
           return { filter: 'all' }

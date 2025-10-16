@@ -55,26 +55,8 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
         })
       )
 
-      // Create default columns
-      const defaultColumns = [
-        { name: 'Todo', position: 0 },
-        { name: 'Doing', position: 1 },
-        { name: 'In Review', position: 2 },
-        { name: 'Done', position: 3 },
-      ]
-
-      defaultColumns.forEach(column => {
-        const columnId = `${projectId}-col-${column.position}`
-        store.commit(
-          events.columnCreated({
-            id: columnId,
-            projectId: projectId,
-            name: column.name,
-            position: column.position,
-            createdAt,
-          })
-        )
-      })
+      // PR3: Default column creation removed - migration to status-based tasks complete
+      // Tasks now use status field ('todo', 'doing', 'in_review', 'done') instead of columns
 
       // Reset form and close modal
       setName('')
