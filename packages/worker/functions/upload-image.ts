@@ -155,10 +155,14 @@ export async function handleImageUpload(request: Request, env: Env): Promise<Res
 
     console.log(`Image uploaded successfully: ${key}`)
 
-    // Generate public URL
-    // In production, this should be configured to use a custom domain or R2 public URL
-    // For now, we'll use a relative path that can be served via the worker
-    const url = `/api/images/${key}`
+    // Generate public URL from R2 bucket
+    // Production: https://pub-ba02e69d43994624a2a8249954243cb5.r2.dev
+    // Preview: https://pub-1faa28003e4b4318b33ddcb15112beba.r2.dev
+    const baseUrl =
+      env.ENVIRONMENT === 'production'
+        ? 'https://pub-ba02e69d43994624a2a8249954243cb5.r2.dev'
+        : 'https://pub-1faa28003e4b4318b33ddcb15112beba.r2.dev'
+    const url = `${baseUrl}/${key}`
 
     return new Response(JSON.stringify({ url, key }), {
       headers: {
