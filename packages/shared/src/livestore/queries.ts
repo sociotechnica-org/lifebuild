@@ -364,13 +364,8 @@ export const getProjectsByCategory$ = (category: string) =>
     { label: `getProjectsByCategory:${category}` }
   )
 
-/**
- * Get archived projects (PR5+6)
- */
-export const getArchivedProjects$ = queryDb(
-  tables.projects
-    .select()
-    .where({ deletedAt: null })
-    .orderBy([{ col: 'archivedAt', direction: 'desc' }]),
-  { label: 'getArchivedProjects' }
-)
+// TODO(PR5+6): getArchivedProjects$ query removed - LiveStore's query API doesn't support
+// "IS NOT NULL" filters. When needed, clients should:
+// 1. Query all projects without archivedAt filter
+// 2. Filter client-side for projects where archivedAt is not null
+// Or wait for LiveStore to support more complex where clauses

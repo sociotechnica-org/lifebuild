@@ -241,6 +241,10 @@ function unarchiveProjectCore(
   actorId?: string
 ): UnarchiveProjectResult {
   try {
+    // Validate project exists
+    const projects = store.query(getProjectDetails$(params.projectId)) as any[]
+    validators.requireEntity(projects, 'Project', params.projectId)
+
     const now = new Date()
 
     store.commit(

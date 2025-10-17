@@ -94,7 +94,17 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onCl
 
       // Check if attributes changed and commit separately
       const currentAttributes = (project.attributes as Record<string, string>) || {}
-      const attributesChanged = JSON.stringify(currentAttributes) !== JSON.stringify(attributes)
+
+      // Deep equality check for attributes (handles key ordering)
+      const attributesChanged = (() => {
+        const currentKeys = Object.keys(currentAttributes).sort()
+        const newKeys = Object.keys(attributes).sort()
+
+        if (currentKeys.length !== newKeys.length) return true
+        if (currentKeys.join(',') !== newKeys.join(',')) return true
+
+        return currentKeys.some(key => currentAttributes[key] !== attributes[key])
+      })()
 
       if (attributesChanged) {
         store.commit(
