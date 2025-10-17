@@ -16,19 +16,21 @@ export const ProjectAttributesEditor: React.FC<ProjectAttributesEditorProps> = (
   const [error, setError] = useState<string>()
 
   const handleAddAttribute = () => {
-    if (!newKey.trim()) {
+    const trimmedKey = newKey.trim()
+
+    if (!trimmedKey) {
       setError('Key is required')
       return
     }
 
-    if (attributes[newKey]) {
+    if (attributes[trimmedKey]) {
       setError('Key already exists')
       return
     }
 
     onChange({
       ...attributes,
-      [newKey.trim()]: newValue.trim(),
+      [trimmedKey]: newValue.trim(),
     })
 
     setNewKey('')

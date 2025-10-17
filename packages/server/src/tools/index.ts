@@ -40,7 +40,14 @@ export async function executeLLMTool(
     getOrphanedTasks,
   } = await import('./tasks.js')
 
-  const { createProject, listProjects, getProjectDetails } = await import('./projects.js')
+  const {
+    createProject,
+    listProjects,
+    getProjectDetails,
+    updateProject,
+    archiveProject,
+    unarchiveProject,
+  } = await import('./projects.js')
 
   const {
     listDocuments,
@@ -121,6 +128,15 @@ export async function executeLLMTool(
 
     case 'list_projects':
       return listProjects(store)
+
+    case 'update_project':
+      return updateProject(store, toolCall.parameters, workerId)
+
+    case 'archive_project':
+      return archiveProject(store, toolCall.parameters, workerId)
+
+    case 'unarchive_project':
+      return unarchiveProject(store, toolCall.parameters, workerId)
 
     case 'list_documents':
       return listDocuments(store)
