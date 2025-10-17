@@ -54,8 +54,10 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       const token = await getCurrentToken()
 
       // Upload to worker endpoint
+      // Convert WebSocket URL to HTTP if needed
       const syncUrl = import.meta.env.VITE_LIVESTORE_SYNC_URL || 'http://localhost:8787'
-      const response = await fetch(`${syncUrl}/api/upload-image`, {
+      const httpUrl = syncUrl.replace(/^ws:/, 'http:').replace(/^wss:/, 'https:')
+      const response = await fetch(`${httpUrl}/api/upload-image`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
