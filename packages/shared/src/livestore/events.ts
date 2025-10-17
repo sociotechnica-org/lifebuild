@@ -640,6 +640,7 @@ export const projectCoverImageSet = Events.synced({
   schema: Schema.Struct({
     projectId: Schema.String,
     coverImageUrl: Schema.String,
+    attributes: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })), // Full attributes with coverImage merged
     updatedAt: Schema.Date,
     actorId: Schema.optional(Schema.String),
   }),

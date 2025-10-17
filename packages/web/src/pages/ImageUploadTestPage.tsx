@@ -18,11 +18,17 @@ export const ImageUploadTestPage: React.FC = () => {
     setUploadedUrl(url)
 
     if (url) {
+      // Merge the coverImage into attributes
+      const attributes = {
+        coverImage: url,
+      }
+
       // Commit the event to test the full flow
       await store.commit(
         events.projectCoverImageSet({
           projectId: testProjectId,
           coverImageUrl: url,
+          attributes, // Pass merged attributes
           updatedAt: new Date(),
           actorId: user?.id,
         })

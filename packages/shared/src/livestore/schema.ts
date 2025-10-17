@@ -1004,16 +1004,16 @@ const materializers = State.SQLite.materializers(events, {
     }),
   ],
 
-  'v1.ProjectCoverImageSet': ({ projectId, coverImageUrl, updatedAt }) => {
-    // Use raw SQL to merge coverImage into the JSON attributes field
+  'v1.ProjectCoverImageSet': ({ projectId, attributes, updatedAt }) => {
+    // Use the provided attributes (already merged by client)
+    // If no attributes provided, create a new object with just coverImage
     return [
-      State.SQLite.raw(
-        `UPDATE projects
-         SET attributes = json_set(COALESCE(attributes, '{}'), '$.coverImage', ?),
-             updatedAt = ?
-         WHERE id = ?`,
-        [coverImageUrl, updatedAt.getTime(), projectId]
-      ),
+      projects
+        .update({
+          attributes: attributes || {},
+          updatedAt,
+        })
+        .where({ id: projectId }),
     ]
   },
 })
