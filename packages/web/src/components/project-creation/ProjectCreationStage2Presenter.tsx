@@ -264,9 +264,9 @@ export const ProjectCreationStage2Presenter: React.FC<ProjectCreationStage2Prese
           <button
             onClick={onContinue}
             disabled={!canContinue || isSaving}
-            className='px-8 py-2 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+            className='px-8 py-2 text-white rounded-lg font-medium disabled:cursor-not-allowed transition-colors'
             style={{
-              backgroundColor: canContinue && !isSaving ? categoryColor : undefined,
+              backgroundColor: canContinue && !isSaving ? categoryColor : '#9CA3AF',
             }}
           >
             {isSaving ? 'Saving...' : 'Continue to Stage 3'}
