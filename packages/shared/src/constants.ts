@@ -86,6 +86,10 @@ export type ProjectCategory =
 /**
  * Default project categories for UI display
  * These are hardcoded options - no database table needed
+ *
+ * Life Map Grid (2x4 layout):
+ * Row 1: Health, Relationships, Finances, Growth
+ * Row 2: Leisure, Spirituality, Home, Contribution
  */
 export const PROJECT_CATEGORIES = [
   {
@@ -93,48 +97,64 @@ export const PROJECT_CATEGORIES = [
     name: 'Health & Well-Being',
     description: 'Physical health, fitness, mental wellness, self-care',
     colorHex: '#10B981',
+    icon: '🧘‍♀️',
+    sortOrder: 1,
   },
   {
     value: 'relationships' as const,
     name: 'Relationships',
     description: 'Family, friends, romantic relationships, social connections',
     colorHex: '#EC4899',
+    icon: '💗',
+    sortOrder: 2,
   },
   {
     value: 'finances' as const,
     name: 'Finances',
     description: 'Income, expenses, investments, financial planning',
     colorHex: '#3B82F6',
+    icon: '💰',
+    sortOrder: 3,
   },
   {
     value: 'growth' as const,
     name: 'Personal Growth & Learning',
     description: 'Education, skills, personal development, hobbies',
     colorHex: '#8B5CF6',
+    icon: '🧠',
+    sortOrder: 4,
   },
   {
     value: 'leisure' as const,
     name: 'Leisure & Lifestyle',
     description: 'Recreation, entertainment, travel, fun activities',
     colorHex: '#F59E0B',
+    icon: '🌴',
+    sortOrder: 5,
   },
   {
     value: 'spirituality' as const,
     name: 'Spirituality & Meaning',
     description: 'Religion, philosophy, purpose, values, mindfulness',
     colorHex: '#6366F1',
+    icon: '🔮',
+    sortOrder: 6,
   },
   {
     value: 'home' as const,
     name: 'Home & Environment',
     description: 'Living space, organization, home projects, environment',
     colorHex: '#14B8A6',
+    icon: '🏡',
+    sortOrder: 7,
   },
   {
     value: 'contribution' as const,
     name: 'Contribution & Service',
     description: 'Community service, volunteering, giving back, impact',
     colorHex: '#EF4444',
+    icon: '🌍',
+    sortOrder: 8,
   },
 ] as const
 
