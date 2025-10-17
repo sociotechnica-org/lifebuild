@@ -251,8 +251,8 @@ export const ProjectCreationView: React.FC = () => {
     saveProject(2)
   }
 
-  const handleStage2Continue = () => {
-    saveProject(2, 3)
+  const handleStage2Continue = async () => {
+    await saveProject(2, 3)
   }
 
   // Stage 3 handlers
@@ -260,8 +260,15 @@ export const ProjectCreationView: React.FC = () => {
     setCurrentStage(2)
   }
 
-  const handleStage3OpenProject = () => {
-    if (!projectId) return
+  const handleStage3OpenProject = async () => {
+    // Ensure project is saved at stage 3 before navigating
+    await saveProject(3)
+
+    if (!projectId) {
+      console.error('No project ID available after saving')
+      return
+    }
+
     // Navigate to project page (kanban view)
     navigate(`/project/${projectId}`)
   }
