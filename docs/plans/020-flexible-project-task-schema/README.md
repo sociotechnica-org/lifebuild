@@ -680,6 +680,7 @@ Once this migration is complete, we can easily add:
 All PRs completed between 2025-10-14 and 2025-10-17:
 
 ✅ **PR #239 (PR1)**: Task Column → Status Migration
+
 - Commit: 4796be9
 - Added `status` field to tasks replacing `columnId`
 - Added v2 task events (TaskCreated, TaskStatusChanged, TaskReordered)
@@ -688,6 +689,7 @@ All PRs completed between 2025-10-14 and 2025-10-17:
 - All 316 tests passing
 
 ✅ **PR #241 (PR2)**: Task Attributes - Flexible Fields
+
 - Commit: c1d794f
 - Added `attributes` JSON field to tasks
 - Added v2.TaskAttributesUpdated event
@@ -696,6 +698,7 @@ All PRs completed between 2025-10-14 and 2025-10-17:
 - All tests passing
 
 ✅ **PR #242 (PR3)**: Remove Columns Completely
+
 - Commit: c5f3572
 - Removed columns table from schema exports
 - Made column event materializers no-ops
@@ -704,6 +707,7 @@ All PRs completed between 2025-10-14 and 2025-10-17:
 - All tests passing
 
 ✅ **PR #243 (PR4)**: Project Categories
+
 - Commit: 9a21c65
 - Added 9 predefined project categories (health, relationships, growth, work, finance, home, creative, community, learning)
 - Added `category` and `archivedAt` fields to projects table
@@ -715,6 +719,7 @@ All PRs completed between 2025-10-14 and 2025-10-17:
 - All tests passing
 
 ✅ **PR #247 (PR5+6)**: Project Attributes & Archiving (COMBINED)
+
 - Commit: 2a4863b (merged 2025-10-17)
 - Added `attributes` JSON field to projects
 - Added v2.ProjectAttributesUpdated event
@@ -733,17 +738,20 @@ All PRs completed between 2025-10-14 and 2025-10-17:
 ### Final State
 
 **Schema Changes**:
+
 - ✅ Tasks: Added `status` (replaces columnId), `attributes` JSON
 - ✅ Projects: Added `category`, `attributes` JSON, `archivedAt`
 - ✅ Columns: Removed completely
 - ✅ Boards: Fully renamed to Projects throughout codebase
 
 **Event System**:
+
 - ✅ All v1 events preserved and working
 - ✅ All v2 events implemented and tested
 - ✅ Event replay works correctly with mixed v1/v2 events
 
 **UI Components**:
+
 - ✅ Status-based kanban board
 - ✅ Project category selector with 9 predefined categories
 - ✅ Project attributes editor (flexible key-value pairs)
@@ -752,6 +760,7 @@ All PRs completed between 2025-10-14 and 2025-10-17:
 - ✅ All forms updated to use new events
 
 **LLM Tools**:
+
 - ✅ create_task with status
 - ✅ update_task with attributes
 - ✅ move_task_within_project with status
@@ -762,6 +771,7 @@ All PRs completed between 2025-10-14 and 2025-10-17:
 - ✅ All tools registered in executor and schema
 
 **Testing**:
+
 - ✅ All 316 unit tests passing
 - ✅ All E2E tests passing
 - ✅ Manual QA completed for each PR

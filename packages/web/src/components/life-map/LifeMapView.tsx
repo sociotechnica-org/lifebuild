@@ -1,15 +1,18 @@
 import { useQuery } from '@livestore/react'
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getProjects$ } from '@work-squared/shared/queries'
-import { PROJECT_CATEGORIES } from '@work-squared/shared'
+import { PROJECT_CATEGORIES, type ProjectCategory } from '@work-squared/shared'
 import { CategoryCard } from './CategoryCard.js'
+import { QuickAddProjectModal } from './QuickAddProjectModal.js'
 import { preserveStoreIdInUrl } from '../../util/navigation.js'
 import { generateRoute } from '../../constants/routes.js'
 
 export const LifeMapView: React.FC = () => {
   const navigate = useNavigate()
   const projects = useQuery(getProjects$) ?? []
+  const [quickAddModalOpen, setQuickAddModalOpen] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<ProjectCategory | null>(null)
 
   // Compute category stats by combining hardcoded categories with project counts
   const categoriesWithStats = useMemo(() => {
@@ -51,6 +54,16 @@ export const LifeMapView: React.FC = () => {
     navigate(preserveStoreIdInUrl(generateRoute.category(categoryValue)))
   }
 
+  const handleQuickAdd = (categoryValue: ProjectCategory) => {
+    setSelectedCategory(categoryValue)
+    setQuickAddModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setQuickAddModalOpen(false)
+    setSelectedCategory(null)
+  }
+
   return (
     <div className='h-full bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col'>
       {/* Header */}
@@ -74,11 +87,21 @@ export const LifeMapView: React.FC = () => {
                 planningProjectCount={category.planningProjectCount}
                 lastActivityAt={category.lastActivityAt}
                 onClick={() => handleCategoryClick(category.value)}
+                onQuickAdd={() => handleQuickAdd(category.value)}
               />
             ))}
           </div>
         </div>
       </div>
+
+      {/* Quick Add Modal */}
+      {selectedCategory && (
+        <QuickAddProjectModal
+          isOpen={quickAddModalOpen}
+          onClose={handleCloseModal}
+          categoryId={selectedCategory}
+        />
+      )}
     </div>
   )
 }

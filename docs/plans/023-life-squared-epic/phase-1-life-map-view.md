@@ -103,7 +103,7 @@ What is an "active" project versus an "inactive" project
 - [x] UI: Categories with zero active projects show "No active projects" or similar text
 - [x] DoD: Each Life Category square displays a count of active projects that updates automatically when project states change.
 
-**Status**: ✅ **Completed** (implemented with Stories 2.2 and 2.3)
+**Status**: ✅ **Completed in PR #249** (merged 2025-10-17)
 
 ---
 
@@ -121,7 +121,7 @@ What is an "active" project versus an "inactive" project
 - [x] UI: Count updates when projects move between planning and other states
 - [x] DoD: Each category square shows the count of projects in planning state, visually distinct from the active project count.
 
-**Status**: ✅ **Completed** (implemented with Stories 2.1 and 2.3)
+**Status**: ✅ **Completed in PR #249** (merged 2025-10-17)
 
 ---
 
@@ -141,7 +141,7 @@ What is an "active" project versus an "inactive" project
 - [x] Logic: Activity can be from operator or any assigned support staff/AI agents
 - [x] DoD: Each category shows when it was last active with human-readable relative time, with visual warnings for neglected categories.
 
-**Status**: ✅ **Completed** (implemented with Stories 2.1 and 2.2)
+**Status**: ✅ **Completed in PR #249** (merged 2025-10-17)
 
 ---
 
