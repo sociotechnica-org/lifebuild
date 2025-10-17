@@ -24,8 +24,6 @@ export const LifeMapView: React.FC = () => {
   }, [projects])
 
   const handleCategoryClick = (categoryValue: string) => {
-    // TODO: Navigate to category detail view when implemented in PR2
-    // For now, just navigate to projects page with category filter
     navigate(preserveStoreIdInUrl(`/category/${categoryValue}`))
   }
 
