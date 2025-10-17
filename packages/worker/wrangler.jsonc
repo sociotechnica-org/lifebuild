@@ -41,4 +41,11 @@
       ],
     },
   ],
+  "r2_buckets": [
+    {
+      "binding": "IMAGES",
+      "bucket_name": "work-squared-images",
+      "preview_bucket_name": "work-squared-images-preview",
+    },
+  ],
 }

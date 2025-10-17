@@ -1003,6 +1003,21 @@ const materializers = State.SQLite.materializers(events, {
       createdAt: unarchivedAt,
     }),
   ],
+
+  'v1.ProjectCoverImageSet': ({ projectId, coverImageUrl, updatedAt }) => {
+    return [
+      projects
+        .update({
+          // Merge coverImage into attributes JSON field
+          // Using json_set to add/update the coverImage property
+          // @ts-expect-error - LiveStore doesn't have typed SQL helpers yet
+          attributes: sql =>
+            sql`json_set(COALESCE(attributes, '{}'), '$.coverImage', ${coverImageUrl})`,
+          updatedAt,
+        })
+        .where({ id: projectId }),
+    ]
+  },
 })
 
 const state = State.SQLite.makeState({ tables, materializers })
