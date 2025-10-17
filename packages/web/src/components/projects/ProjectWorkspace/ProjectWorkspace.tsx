@@ -24,6 +24,7 @@ import { ProjectCategoryBadge } from '../ProjectCategoryBadge.js'
 import { LoadingState } from '../../ui/LoadingState.js'
 import { WorkerCard } from '../../workers/WorkerCard/WorkerCard.js'
 import { ProjectContacts } from '../ProjectContacts.js'
+import { useAuth } from '../../../contexts/AuthContext.js'
 import {
   calculateStatusTaskReorder,
   calculateStatusDropTarget,
@@ -33,6 +34,7 @@ import {
 const ProjectWorkspaceContent: React.FC = () => {
   const { project, projectId, isLoading } = useProject()
   const { store } = useStore()
+  const { user } = useAuth()
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [insertionPreview, setInsertionPreview] = useState<{
     statusId: string
@@ -244,21 +246,54 @@ const ProjectWorkspaceContent: React.FC = () => {
                 <p className='text-gray-600 text-sm'>{project.description}</p>
               )}
             </div>
-            <button
-              onClick={() => setIsEditProjectModalOpen(true)}
-              className='flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors'
-              aria-label='Edit project'
-            >
-              <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
-                />
-              </svg>
-              Edit
-            </button>
+            <div className='flex items-center gap-2'>
+              <button
+                onClick={() => setIsEditProjectModalOpen(true)}
+                className='flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors'
+                aria-label='Edit project'
+              >
+                <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+                  />
+                </svg>
+                Edit
+              </button>
+              <button
+                onClick={() => {
+                  if (
+                    confirm(
+                      'Are you sure you want to archive this project? It will be hidden from the main view.'
+                    )
+                  ) {
+                    store.commit(
+                      events.projectArchived({
+                        id: projectId,
+                        archivedAt: new Date(),
+                        actorId: user?.id,
+                      })
+                    )
+                    // Navigate back to projects page
+                    window.location.href = preserveStoreIdInUrl('/projects')
+                  }
+                }}
+                className='flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 border border-red-300 rounded-md hover:bg-red-50 transition-colors'
+                aria-label='Archive project'
+              >
+                <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4'
+                  />
+                </svg>
+                Archive
+              </button>
+            </div>
           </div>
         </div>
 

@@ -8,6 +8,7 @@ export const getBoards$ = queryDb(
   _get => {
     return tables.projects.select().where({
       deletedAt: undefined,
+      archivedAt: null, // PR5+6: Filter archived projects by default
     })
   },
   { label: 'getBoards' }
@@ -358,7 +359,18 @@ export const getProjectsByCategory$ = (category: string) =>
   queryDb(
     tables.projects
       .select()
-      .where({ category, deletedAt: null })
+      .where({ category, deletedAt: null, archivedAt: null }) // PR5+6: Filter archived projects
       .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
     { label: `getProjectsByCategory:${category}` }
   )
+
+/**
+ * Get archived projects (PR5+6)
+ */
+export const getArchivedProjects$ = queryDb(
+  tables.projects
+    .select()
+    .where({ deletedAt: null })
+    .orderBy([{ col: 'archivedAt', direction: 'desc' }]),
+  { label: 'getArchivedProjects' }
+)

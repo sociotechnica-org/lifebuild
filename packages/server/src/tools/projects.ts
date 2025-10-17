@@ -19,6 +19,12 @@ import type {
   CreateProjectResult,
   ListProjectsResult,
   GetProjectDetailsResult,
+  UpdateProjectParams,
+  UpdateProjectResult,
+  ArchiveProjectParams,
+  ArchiveProjectResult,
+  UnarchiveProjectParams,
+  UnarchiveProjectResult,
 } from './types.js'
 
 /**
@@ -122,6 +128,139 @@ function getProjectDetailsCore(store: Store, projectId: string): GetProjectDetai
   }
 }
 
+/**
+ * Update an existing project (PR5+6: core implementation)
+ */
+function updateProjectCore(
+  store: Store,
+  params: UpdateProjectParams,
+  actorId?: string
+): UpdateProjectResult {
+  try {
+    // Validate project exists
+    const projects = store.query(getProjectDetails$(params.projectId)) as any[]
+    validators.requireEntity(projects, 'Project', params.projectId)
+
+    // Validate category if provided
+    if (params.category !== undefined && params.category !== null) {
+      const validCategory = PROJECT_CATEGORIES.find(c => c.value === params.category)
+      if (!validCategory) {
+        return {
+          success: false,
+          error: `Invalid category: ${params.category}. Must be one of: ${PROJECT_CATEGORIES.map(c => c.value).join(', ')}`,
+        }
+      }
+    }
+
+    const now = new Date()
+
+    // Build updates object for basic fields
+    const updates: {
+      name?: string
+      description?: string | null
+      category?: string | null
+    } = {}
+
+    if (params.name !== undefined) updates.name = params.name
+    if (params.description !== undefined) updates.description = params.description
+    if (params.category !== undefined) updates.category = params.category as any
+
+    // Commit basic field updates if any exist
+    if (Object.keys(updates).length > 0) {
+      store.commit(
+        events.projectUpdated({
+          id: params.projectId,
+          updates: updates as any,
+          updatedAt: now,
+          actorId,
+        })
+      )
+    }
+
+    // Commit attributes update separately if provided
+    if (params.attributes !== undefined) {
+      store.commit(
+        events.projectAttributesUpdated({
+          id: params.projectId,
+          attributes: params.attributes as any,
+          updatedAt: now,
+          actorId,
+        })
+      )
+    }
+
+    return { success: true }
+  } catch (error) {
+    logger.error({ error }, 'Error updating project')
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
+/**
+ * Archive a project (PR5+6: core implementation)
+ */
+function archiveProjectCore(
+  store: Store,
+  params: ArchiveProjectParams,
+  actorId?: string
+): ArchiveProjectResult {
+  try {
+    // Validate project exists
+    const projects = store.query(getProjectDetails$(params.projectId)) as any[]
+    validators.requireEntity(projects, 'Project', params.projectId)
+
+    const now = new Date()
+
+    store.commit(
+      events.projectArchived({
+        id: params.projectId,
+        archivedAt: now,
+        actorId,
+      })
+    )
+
+    return { success: true }
+  } catch (error) {
+    logger.error({ error }, 'Error archiving project')
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
+/**
+ * Unarchive a project (PR5+6: core implementation)
+ */
+function unarchiveProjectCore(
+  store: Store,
+  params: UnarchiveProjectParams,
+  actorId?: string
+): UnarchiveProjectResult {
+  try {
+    const now = new Date()
+
+    store.commit(
+      events.projectUnarchived({
+        id: params.projectId,
+        unarchivedAt: now,
+        actorId,
+      })
+    )
+
+    return { success: true }
+  } catch (error) {
+    logger.error({ error }, 'Error unarchiving project')
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
 // Export wrapped versions for external use
 export const createProject = (store: Store, params: any, actorId?: string) =>
   wrapToolFunction((store: Store, params: any) => createProjectCore(store, params, actorId))(
@@ -130,3 +269,20 @@ export const createProject = (store: Store, params: any, actorId?: string) =>
   )
 export const listProjects = wrapNoParamFunction(listProjectsCore)
 export const getProjectDetails = wrapStringParamFunction(getProjectDetailsCore)
+
+// PR5+6: Export new project tools
+export const updateProject = (store: Store, params: any, actorId?: string) =>
+  wrapToolFunction((store: Store, params: any) => updateProjectCore(store, params, actorId))(
+    store,
+    params
+  )
+export const archiveProject = (store: Store, params: any, actorId?: string) =>
+  wrapToolFunction((store: Store, params: any) => archiveProjectCore(store, params, actorId))(
+    store,
+    params
+  )
+export const unarchiveProject = (store: Store, params: any, actorId?: string) =>
+  wrapToolFunction((store: Store, params: any) => unarchiveProjectCore(store, params, actorId))(
+    store,
+    params
+  )

@@ -57,6 +57,14 @@ vi.mock('@dnd-kit/core', () => ({
   })),
 }))
 
+// Mock AuthContext
+vi.mock('../../../contexts/AuthContext.js', () => ({
+  useAuth: () => ({
+    user: { id: 'test-user', name: 'Test User', email: 'test@example.com' },
+    isLoading: false,
+  }),
+}))
+
 describe('ProjectWorkspace', () => {
   const mockProject = createMockProject({
     id: 'test-project',

@@ -112,6 +112,7 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 #### Implementation Notes
 
 **Local Development Setup for R2:**
+
 - Use Wrangler's local R2 preview: `wrangler r2 bucket create work-squared-images-local`
 - Or fallback to local filesystem storage during development
 - Images uploaded in local development won't persist to production R2
