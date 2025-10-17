@@ -70,108 +70,159 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 ### Story 2.1 – Create project Stage 1 (Identified)
 
-**User story**: _As an operator, I want to capture a project idea with title, description, and cover image so I can start planning without overthinking details._
+**User story**: _As an operator, I want to capture a project idea with title and description so I can start planning without overthinking details._
 
 **Dependencies**: Story 1.3
 
 #### Tasks
 
-- [ ] Schema: Ensure `projects` table has fields: `title`, `description`, `coverImage`, `planningStage` (1-4), `categoryId`, `status`
-- [ ] Event: Define `project.created` event with payload `{ categoryId, title, description, coverImage?, createdAt }`
-- [ ] UI: Project Creation sub-tab displays Stage 1 form with fields: Title (required), Description (textarea), Cover Image (upload or AI-generate button)
+- [ ] Schema: Use PR4 schema with `projects.attributes` containing `status`, `planningStage` fields
+- [ ] Event: Use existing `v1.ProjectCreated` event with `category` field
+- [ ] UI: Project Creation sub-tab displays Stage 1 form with fields: Title (required), Description (textarea)
 - [ ] UI: Show stage progress indicator (1/4) at top
 - [ ] UI: "Save & Continue to Stage 2" (primary) and "Save Draft" (secondary) buttons
-- [ ] Logic: On save, fire `project.created` event, set `status = 'planning'` and `planningStage = 1`
+- [ ] Logic: On save, commit `projectCreated` event with `attributes: { status: 'planning', planningStage: 1 }`
 - [ ] Logic: "Save Draft" keeps project at Stage 1, "Save & Continue" advances to Stage 2
-- [ ] DoD: Operators can create Stage 1 projects with title, description, and cover image, saving as draft or advancing to Stage 2.
+- [ ] DoD: Operators can create Stage 1 projects with title and description, saving as draft or advancing to Stage 2.
 
 **Status**:
 
 ---
 
-### Story 2.2 – Create project Stage 2 (Scoped)
+### Story 2.2 – Add cover image via upload
 
-**User story**: _As an operator, I want to define project objective and deadline, and archetype so I establish clear parameters before detailed planning._
+**User story**: _As an operator, I want to upload a cover image for my project so I can visually distinguish projects at a glance._
 
 **Dependencies**: Story 2.1
 
 #### Tasks
 
-- [ ] Schema: Add fields to `projects`: `objectives` (array/text), `deadline`, `archetype`, `estimatedDuration`, `urgency`, `importance`, `complexity`, `scale`
-- [ ] Event: Define `project.stageAdvanced` event with payload `{ projectId, newStage: 2, updatedAt }`
-- [ ] UI: Stage 2 form displays: Objective (plain text), Deadline (date picker), Archetype (dropdown: Quick Task, Discovery Mission, Critical Response, Maintenance Loop, System Build, Major Initiative)
-- [ ] UI: Include trait selectors: Urgency, Importance, Complexity, Scale (dropdowns with predefined values)
-- [ ] UI: Show stage progress indicator (2/4)
-- [ ] UI: "Back to Stage 1", "Save Draft", "Continue to Stage 3" buttons
-- [ ] Logic: On continue, fire `project.stageAdvanced` event with `newStage = 2`
-- [ ] DoD: Operators can define objectives, deadlines, archetype, and traits in Stage 2, with ability to navigate back or advance to Stage 3.
-
-**Status**:
-
----
-
-### Story 2.3 – Create project Stage 3 (Drafted)
-
-**User story**: _As an operator, I want to review and edit an AI-generated task list so I can ensure the project plan matches my vision._
-
-**Dependencies**: Story 2.2
-
-#### Tasks
-
-- [ ] Event: Define `tasks.generated` event with payload `{ projectId, tasks: Task[], generatedAt }`
-- [ ] Logic: On entering Stage 3, trigger AI to generate task list based on Stage 1-2 data (title, objectives, archetype)
-- [ ] UI: Stage 3 displays: AI-generated task list (editable), each task shows title, type, estimated duration
-- [ ] UI: Operators can add, remove, reorder, or edit tasks
-- [ ] UI: Show stage progress indicator (3/4)
-- [ ] UI: "Regenerate Tasks" button (asks AI to create new list), "Back to Stage 2", "Save Draft", "Continue to Stage 4" buttons
-- [ ] Logic: On continue, fire `project.stageAdvanced` event with `newStage = 3`, tasks associated with project
-- [ ] DoD: Operators review an AI-generated task list in Stage 3, with full editing capabilities and the option to regenerate before advancing to Stage 4.
+- [ ] Schema: Add `coverImage` field to `projects.attributes` JSON (stores R2 URL or key)
+- [ ] Event: Create `v1.ProjectCoverImageSet` event with payload `{ projectId, coverImageUrl, updatedAt, actorId }`
+- [ ] Backend: Set up Cloudflare R2 bucket for image storage (production)
+- [ ] Backend: Configure local development setup using Wrangler R2 preview or local file storage
+- [ ] API: Create image upload endpoint that accepts file, uploads to R2, returns URL
+- [ ] UI: Add "Upload Cover Image" button in Stage 1 form (optional field)
+- [ ] UI: Show image preview after upload with option to remove/replace
+- [ ] Logic: On upload, commit `projectCoverImageSet` event with R2 URL
+- [ ] DoD: Operators can upload cover images that are stored in R2 and displayed on project cards.
 
 **Status**:
 
 #### Implementation Notes
 
-- **AI Integration**: Initial implementation can use simple template-based task generation based on archetype. Full AI integration with LLM can be added later.
-- **Task Schema**: Tasks created here should match the schema from Phase 3, starting in 'todo' status.
+**Local Development Setup for R2:**
+- Use Wrangler's local R2 preview: `wrangler r2 bucket create work-squared-images-local`
+- Or fallback to local filesystem storage during development
+- Images uploaded in local development won't persist to production R2
 
 ---
 
-### Story 2.4 – Create project Stage 4 (Prioritized)
+### Story 2.3 – AI-generate cover image
 
-**User story**: _As an operator, I want to set my project's priority relative to other projects so it gets placed appropriately in my backlog._
+**User story**: _As an operator, I want to AI-generate a cover image for my project so I can quickly add visual appeal without sourcing images._
 
-**Dependencies**: Story 2.3
+**Dependencies**: Story 2.2
 
 #### Tasks
 
-- [ ] Schema: Add `priority` field to `projects` table (number representing rank)
-- [ ] Query: Create `getProjectsForPrioritization$` query returning all active and backlog projects for category ordered by priority
-- [ ] UI: Stage 4 displays list of existing projects with priority ranks
+- [ ] API: Integrate with image generation service (DALL-E, Midjourney, or Stable Diffusion)
+- [ ] Logic: Generate prompt from project title + description (e.g., "A minimalist icon representing [project title]")
+- [ ] UI: Add "AI Generate Image" button in Stage 1 form alongside upload button
+- [ ] UI: Show loading state while generating (typically 5-15 seconds)
+- [ ] UI: Display generated image with "Regenerate" and "Accept" options
+- [ ] Logic: On accept, upload generated image to R2 and commit `projectCoverImageSet` event
+- [ ] DoD: Operators can AI-generate cover images that are stored in R2 and displayed on project cards.
+
+**Status**:
+
+---
+
+### Story 2.4 – Create project Stage 2 (Scoped)
+
+**User story**: _As an operator, I want to define project objective, deadline, archetype, and traits so I establish clear parameters before detailed planning._
+
+**Dependencies**: Story 2.1
+
+#### Tasks
+
+- [ ] Schema: Add fields to `projects.attributes`: `objectives`, `deadline`, `archetype`, `estimatedDuration`, `urgency`, `importance`, `complexity`, `scale`
+- [ ] Event: Create `v1.ProjectAttributesUpdated` event with payload `{ projectId, attributes, updatedAt, actorId }`
+- [ ] UI: Stage 2 form displays: Objective (plain text), Deadline (date picker)
+- [ ] UI: Trait selectors: Urgency, Importance, Complexity, Scale (dropdowns with predefined values)
+- [ ] UI: Archetype selector (dropdown: Quick Task, Discovery Mission, Critical Response, Maintenance Loop, System Build, Major Initiative) - auto-suggested based on traits but can be overridden
+- [ ] UI: Show stage progress indicator (2/4)
+- [ ] UI: "Back to Stage 1", "Save Draft", "Continue to Stage 3" buttons
+- [ ] Logic: On continue, commit `projectAttributesUpdated` event with `planningStage: 2` and all Stage 2 fields
+- [ ] DoD: Operators can define objectives, deadlines, traits, and archetype in Stage 2, with ability to navigate back or advance to Stage 3.
+
+**Status**:
+
+#### Implementation Notes
+
+- Traits influence archetype suggestion, but archetype can be manually overridden
+- Archetype and traits relationship may be refined in future iterations
+
+**Status**:
+
+---
+
+### Story 2.5 – Create project Stage 3 (Drafted - Task Planning)
+
+**User story**: _As an operator, I want to plan my project tasks using the existing project page so I can leverage familiar tools and workflows._
+
+**Dependencies**: Story 2.4
+
+#### Tasks
+
+- [ ] UI: Stage 3 displays message: "Now let's plan your tasks" with "Open Project" button
+- [ ] Navigation: "Open Project" button navigates to existing project detail page (kanban board)
+- [ ] UI: Project page shows existing task management interface (from current Work Squared)
+- [ ] UI: Add "Approve Plan" or "Done Planning" button to project page header (visible when `planningStage = 3`)
+- [ ] Event: Use `v1.ProjectAttributesUpdated` to update `planningStage: 4` when approved
+- [ ] UI: Show stage progress indicator (3/4) on project page when in planning mode
+- [ ] Logic: On approve, commit event advancing to Stage 4, navigate back to Planning tab
+- [ ] DoD: Operators navigate to the existing project page to plan tasks, then approve the plan to advance to Stage 4.
+
+**Status**:
+
+---
+
+### Story 2.6 – Create project Stage 4 (Prioritized)
+
+**User story**: _As an operator, I want to set my project's priority relative to other projects so it gets placed appropriately in my backlog._
+
+**Dependencies**: Story 2.5
+
+#### Tasks
+
+- [ ] Schema: Add `priority` field to `projects.attributes` (number representing rank)
+- [ ] Query: Filter projects by category and `attributes.status = 'backlog'`, order by `attributes.priority`
+- [ ] UI: Stage 4 displays list of existing backlog projects with priority ranks
 - [ ] UI: Show new project card with drag handle for positioning
 - [ ] UI: Operators drag new project into desired position in priority list
 - [ ] UI: Show stage progress indicator (4/4)
 - [ ] UI: "Back to Stage 3", "Save as Low Priority", "Set Priority & Add to Backlog" buttons
-- [ ] Logic: On complete, fire `project.stageAdvanced` event with `newStage = 4` and `project.prioritized` event with priority value
+- [ ] Logic: On complete, commit `projectAttributesUpdated` event with `planningStage: 4` and `priority` value
 - [ ] DoD: Operators drag their Stage 4 project into priority order relative to existing projects, with visual positioning and clear completion action.
 
 **Status**:
 
 ---
 
-### Story 2.5 – Move Stage 4 project to Backlog
+### Story 2.7 – Move Stage 4 project to Backlog
 
 **User story**: _As an operator, I want Stage 4 completed projects to automatically move to the Backlog sub-tab so they're ready for activation._
 
-**Dependencies**: Story 2.4
+**Dependencies**: Story 2.6
 
 #### Tasks
 
-- [ ] Event: Define `project.movedToBacklog` event with payload `{ projectId, movedAt }`
-- [ ] Logic: After completing Stage 4, trigger `project.movedToBacklog` event
-- [ ] Logic: Set project `status = 'backlog'` (remains distinct from 'planning' and 'active')
+- [ ] Logic: After completing Stage 4, update `attributes.status = 'backlog'` via `projectAttributesUpdated` event
 - [ ] UI: Show confirmation modal: "Ready to add [Project Name] to your backlog?"
 - [ ] UI: Modal options: "Add to Backlog" (primary), "Keep Planning" (secondary), "Cancel"
-- [ ] UI: On add, project moves from Project Plans to Backlog sub-tab
+- [ ] UI: On add, commit event updating status to 'backlog'
+- [ ] UI: Project moves from Project Plans to Backlog sub-tab (filtered by status)
 - [ ] UI: Toast notification: "[Project] added to backlog at position #X"
 - [ ] DoD: Completing Stage 4 prompts the operator to move the project to Backlog, which changes its status and relocates it to the Backlog sub-tab.
 
@@ -189,7 +240,7 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Query: Create `getProjectPlansInProgress$` query filtering projects where `status = 'planning'` and `planningStage < 4`
+- [ ] Query: Filter projects by category and `attributes.status = 'planning'` and `attributes.planningStage < 4`
 - [ ] UI: Project Plans sub-tab displays cards for all in-progress projects
 - [ ] UI: Each card shows: Cover image (thumbnail), Title, Current stage indicator (1/4, 2/4, or 3/4), Last modified date
 - [ ] UI: "Continue Planning" button on each card
@@ -251,13 +302,13 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Event: Define `project.abandoned` event with payload `{ projectId, abandonedAt }`
+- [ ] Event: Use existing `v1.ProjectArchived` event (sets `archivedAt` timestamp)
 - [ ] UI: Add "⋮" menu button on project plan cards
 - [ ] UI: Menu options: "Archive Plan", "Delete Plan"
 - [ ] UI: "Archive Plan" confirmation: "Archive [Project]? You can restore it later."
 - [ ] UI: "Delete Plan" confirmation: "Delete [Project]? This cannot be undone." (shows warning if project has tasks or documents)
-- [ ] Logic: Archive sets `archivedAt` timestamp, removes from Project Plans view
-- [ ] Logic: Delete fires project deletion event, permanently removes
+- [ ] Logic: Archive commits event setting `archivedAt` timestamp, removes from Project Plans view
+- [ ] Logic: Delete updates `deletedAt` timestamp (soft delete), permanently removes from view
 - [ ] UI: Show "View Archived Plans" link in Project Plans header with count
 - [ ] DoD: Operators can archive or delete project plans from the Project Plans sub-tab with appropriate confirmations and warnings.
 
@@ -273,7 +324,7 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Query: Calculate days since `lastModifiedAt` for each project plan
+- [ ] Query: Calculate days since `updatedAt` for each project plan
 - [ ] UI: Plans idle >7 days show visual indicator (amber dot or "Stale" badge)
 - [ ] UI: Plans idle >30 days show stronger indicator (red dot or "Abandoned?" badge)
 - [ ] UI: Hover tooltip shows: "Last worked on [date]" with suggestion "Resume or archive?"
@@ -294,7 +345,7 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Query: Create `getBacklogProjects$` query filtering projects where `status = 'backlog'` ordered by `priority`
+- [ ] Query: Filter projects by category and `attributes.status = 'backlog'`, order by `attributes.priority`
 - [ ] UI: Backlog sub-tab displays project cards in vertical list
 - [ ] UI: Each card shows: Cover thumbnail, Title, Archetype badge, Estimated duration, Objectives preview (2 lines)
 - [ ] UI: Cards numbered with priority position (#1, #2, #3...)
@@ -313,11 +364,11 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Event: Define `project.reprioritized` event with payload `{ projectId, newPriority, reprioritizedAt }`
+- [ ] Event: Use `v1.ProjectAttributesUpdated` to update `attributes.priority` field
 - [ ] UI: Enable drag-and-drop on backlog project cards (vertical reordering)
 - [ ] UI: Show blue line indicator at drop position
 - [ ] UI: Other cards shift to show insertion point
-- [ ] Logic: On drop, fire `project.reprioritized` event updating `priority` values for affected projects
+- [ ] Logic: On drop, commit event updating `priority` values for affected projects
 - [ ] Logic: Priority order persists across sessions
 - [ ] UI: Subtle toast: "[Project] moved to position #X"
 - [ ] DoD: Operators can drag backlog projects to reorder priority, with visual feedback and persistent changes.
@@ -334,12 +385,12 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Event: Define `project.activated` event with payload `{ projectId, activatedAt }`
+- [ ] Event: Use `v1.ProjectAttributesUpdated` to update `attributes.status = 'active'` and `attributes.activatedAt`
 - [ ] UI: Add "Activate" button on backlog project cards
 - [ ] UI: Confirmation modal: "Activate [Project Name]? It will move to your Active projects."
 - [ ] UI: Modal shows: Project title, archetype, task count, estimated duration
-- [ ] Logic: On confirm, fire `project.activated` event, set `status = 'active'`, set `activatedAt` timestamp
-- [ ] Logic: Project removed from Backlog sub-tab
+- [ ] Logic: On confirm, commit event setting `status = 'active'` and `activatedAt` timestamp
+- [ ] Logic: Project removed from Backlog sub-tab (filtered by status)
 - [ ] Logic: Project appears in Active tab
 - [ ] UI: Toast: "[Project] is now active! Start working on tasks."
 - [ ] DoD: Backlog projects can be activated with confirmation, moving them from Backlog to Active tab and enabling task work.
@@ -376,7 +427,7 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 #### Tasks
 
 - [ ] UI: Add search bar at top of Backlog sub-tab
-- [ ] Query: Create `searchBacklogProjects$` query searching `title` and `objectives` fields
+- [ ] Query: Filter projects client-side by searching `name` and `attributes.objectives` fields
 - [ ] UI: Add filter dropdown: All Archetypes, By Deadline (Next Week, Next Month, No Deadline), By Importance
 - [ ] Logic: Search with debounce (300ms) as user types
 - [ ] UI: Display count: "Showing X of Y backlog projects"
@@ -392,49 +443,94 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 ### Database Schema
 
 ```typescript
-// Projects table additions for planning
+// Projects table (PR4 schema)
 projects: {
-  // ... existing fields
-  status: 'planning' | 'backlog' | 'active' | 'completed' | 'archived'
-  planningStage: 1 | 2 | 3 | 4 // Only relevant when status = 'planning'
-  title: string
-  description: string
-  coverImage?: string
-  objectives: string // JSON array or newline-separated
-  deadline?: number
-  archetype: 'quicktask' | 'discovery' | 'critical' | 'maintenance' | 'systembuild' | 'initiative'
-  estimatedDuration?: number
-  urgency: 'low' | 'normal' | 'high' | 'critical'
-  importance: 'low' | 'normal' | 'high' | 'critical'
-  complexity: 'simple' | 'complicated' | 'complex' | 'chaotic'
-  scale: 'micro' | 'minor' | 'major' | 'epic'
-  priority: number // Lower number = higher priority
-  lastModifiedAt: number
-  movedToBacklogAt?: number
-  activatedAt?: number
-  abandonedAt?: number
+  id: string
+  name: string // Project title
+  description: string | null
+  category: string | null // 'health' | 'relationships' | 'finances' | etc.
+  attributes: {
+    // Planning workflow
+    status?: 'planning' | 'backlog' | 'active' | 'completed'
+    planningStage?: 1 | 2 | 3 | 4 // Only relevant when status = 'planning'
+
+    // Stage 1 fields
+    coverImage?: string // R2 URL
+
+    // Stage 2 fields
+    objectives?: string
+    deadline?: number
+    archetype?: 'quicktask' | 'discovery' | 'critical' | 'maintenance' | 'systembuild' | 'initiative'
+    estimatedDuration?: number
+    urgency?: 'low' | 'normal' | 'high' | 'critical'
+    importance?: 'low' | 'normal' | 'high' | 'critical'
+    complexity?: 'simple' | 'complicated' | 'complex' | 'chaotic'
+    scale?: 'micro' | 'minor' | 'major' | 'epic'
+
+    // Stage 4 fields
+    priority?: number // Lower number = higher priority
+
+    // Activity tracking
+    activatedAt?: number
+    lastActivityAt?: number
+  } | null
+  createdAt: number
+  updatedAt: number
+  deletedAt: number | null
+  archivedAt: number | null
 }
 ```
 
 ### Event System
 
 ```typescript
-type PlanningEvent =
-  | {
-      type: 'project.created'
-      categoryId: string
-      title: string
-      description: string
-      coverImage?: string
-      createdAt: number
-    }
-  | { type: 'project.stageAdvanced'; projectId: string; newStage: 1 | 2 | 3 | 4; updatedAt: number }
-  | { type: 'tasks.generated'; projectId: string; tasks: Task[]; generatedAt: number }
-  | { type: 'project.prioritized'; projectId: string; priority: number; prioritizedAt: number }
-  | { type: 'project.movedToBacklog'; projectId: string; movedAt: number }
-  | { type: 'project.reprioritized'; projectId: string; newPriority: number; reprioritizedAt: number }
-  | { type: 'project.activated'; projectId: string; activatedAt: number }
-  | { type: 'project.abandoned'; projectId: string; abandonedAt: number }
+// Use existing v1.ProjectCreated event with category field
+export const projectCreated = Events.synced({
+  name: 'v1.ProjectCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+    description: Schema.optional(Schema.String),
+    category: Schema.optional(Schema.String), // Category id
+    createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+// New event for updating project attributes (planning stages, status, etc.)
+export const projectAttributesUpdated = Events.synced({
+  name: 'v1.ProjectAttributesUpdated',
+  schema: Schema.Struct({
+    projectId: Schema.String,
+    attributes: Schema.Record({ key: Schema.String, value: Schema.Unknown }), // Full attributes replacement
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+// New event for cover image uploads
+export const projectCoverImageSet = Events.synced({
+  name: 'v1.ProjectCoverImageSet',
+  schema: Schema.Struct({
+    projectId: Schema.String,
+    coverImageUrl: Schema.String, // R2 URL
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+// Materializer examples
+'v1.ProjectAttributesUpdated': ({ projectId, attributes, updatedAt }) => [
+  projects.update({
+    attributes, // Replace entire attributes object
+    updatedAt
+  }).where({ id: projectId }),
+]
+
+'v1.ProjectCoverImageSet': ({ projectId, coverImageUrl, updatedAt }) => {
+  // Read current attributes, merge in coverImage, update project
+  // Implementation handled by materializer logic
+}
 ```
 
 ### State Management Patterns
@@ -457,9 +553,9 @@ type PlanningEvent =
 
 Stories 1.1-1.3 establish the three-tab Life Category structure with smart default selection and Planning sub-tabs for organizing project development.
 
-### Section 2: Project Creation Sub-Tab (5 stories)
+### Section 2: Project Creation Sub-Tab (7 stories)
 
-Stories 2.1-2.5 implement the 4-stage project planning workflow from initial idea through prioritization and backlog placement.
+Stories 2.1-2.7 implement the 4-stage project planning workflow from initial idea through prioritization and backlog placement, including cover image upload and AI generation.
 
 ### Section 3: Project Plans Sub-Tab (5 stories)
 
@@ -469,4 +565,4 @@ Stories 3.1-3.5 enable managing in-progress plans with full persistence, visual 
 
 Stories 4.1-4.5 provide priority-ordered backlog management with reordering, activation, editing, and filtering capabilities.
 
-**Total: 18 user stories**
+**Total: 20 user stories** (was 18, added 2 cover image stories)

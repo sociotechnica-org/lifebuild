@@ -14,9 +14,9 @@ This phase establishes the foundational "home screen" of the life management sys
 
 #### Tasks
 
-- [ ] Schema: Ensure `lifeCategories` table exists with fields: `id`, `name`, `description`, `color`, `icon`, `sortOrder`
-- [ ] Schema: Seed database with 8 predefined Life Categories: Health & Well-Being, Relationships, Finances, Personal Growth & Learning, Leisure & Lifestyle, Spirituality & Meaning, Home & Environment, Contribution & Service
-- [ ] Query: Create `getLifeCategories$` query returning all categories ordered by `sortOrder`
+- [ ] Schema: Define hardcoded `LIFE_CATEGORIES` constant array with 8 categories: Health & Well-Being, Relationships, Finances, Personal Growth & Learning, Leisure & Lifestyle, Spirituality & Meaning, Home & Environment, Contribution & Service
+- [ ] Schema: Each category object includes: `id` (slug), `name`, `description`, `color` (hex), `icon` (emoji), `sortOrder` (1-8)
+- [ ] Query: Create helper function `getLifeCategoriesWithStats()` that combines hardcoded categories with project counts from `getProjects$` query
 - [ ] UI: Create `LifeMapView` component displaying 2x4 grid layout (desktop)
 - [ ] UI: Each grid square shows: category title, seal/icon (40x40px minimum), signature color
 - [ ] Routing: Create `/life-map` route as primary landing page after login
@@ -55,10 +55,10 @@ If life category has no projects, inactive
 
 #### Tasks
 
-- [ ] Query: Modify `getLifeCategories$` to join with projects data and include `activeProjectCount` for each category
-- [ ] UI: Categories with `activeProjectCount > 0` display in full signature color
-- [ ] UI: Categories with `activeProjectCount = 0` display in muted gray (Warm Stone #D4CCC8)
-- [ ] UI: Add visual indicator (dot, badge, or border) if category has active projects
+- [ ] Query: Modify `getLifeCategoriesWithStats()` to filter projects by category field and count projects where `category` matches category id
+- [ ] UI: Categories with `projectCount > 0` display in full signature color
+- [ ] UI: Categories with `projectCount = 0` display in muted gray (Warm Stone #D4CCC8)
+- [ ] UI: Add visual indicator (dot, badge, or border) if category has projects
 - [ ] DoD: Life Category squares display in full color when active (have projects) and in muted gray when inactive (no projects yet).
 
 **Status**:
@@ -96,10 +96,10 @@ What is an “active” project versus an “inactive” project
 
 #### Tasks
 
-- [ ] Query: Ensure `getLifeCategories$` includes count of projects where `status = 'active'` per category
+- [ ] Query: Filter projects by `category` field and `attributes.status = 'active'` (or absence of archived/deleted status)
 - [ ] UI: Display text-based count on each category square (e.g., "3 Active")
 - [ ] UI: Position count prominently (bottom-center or corner of square)
-- [ ] UI: Count updates in real-time as projects change state (via event system or reactive query)
+- [ ] UI: Count updates in real-time as projects change (via LiveStore reactive queries)
 - [ ] UI: Categories with zero active projects show "No active projects" or similar text
 - [ ] DoD: Each Life Category square displays a count of active projects that updates automatically when project states change.
 
@@ -115,7 +115,7 @@ What is an “active” project versus an “inactive” project
 
 #### Tasks
 
-- [ ] Query: Modify `getLifeCategories$` to include count of projects where `status = 'planning'` per category
+- [ ] Query: Filter projects by `category` field and `attributes.status = 'planning'` per category
 - [ ] UI: Display planning count in smaller text (e.g., "2 Planning")
 - [ ] UI: Visually distinguish from active count (smaller size, lighter color, or different position)
 - [ ] UI: Count updates when projects move between planning and other states
@@ -133,8 +133,8 @@ What is an “active” project versus an “inactive” project
 
 #### Tasks
 
-- [ ] Schema: Track `lastActivityAt` timestamp for each category (updated when projects created/modified or tasks completed)
-- [ ] Query: Include `lastActivityAt` in `getLifeCategories$` results
+- [ ] Logic: Compute `lastActivityAt` by finding the most recent `updatedAt` timestamp from projects in the category, OR most recent task `updatedAt` for projects in the category
+- [ ] Logic: Store computed `lastActivityAt` in category's computed stats (can cache in `project.attributes.lastActivityAt` if needed for performance)
 - [ ] Logic: Create helper function to format timestamps as relative time ("Active today", "3 days ago", "2 weeks ago")
 - [ ] UI: Display formatted timestamp on category square (bottom or corner)
 - [ ] UI: Add subtle visual cue (amber/yellow indicator) for categories inactive >1 week
@@ -155,11 +155,11 @@ What is an “active” project versus an “inactive” project
 
 #### Tasks
 
-- [ ] Event: Define `project.quickCreated` event with payload `{ categoryId, title, createdAt }`
+- [ ] Event: Use existing `v1.ProjectCreated` event, adding `category` field to payload
 - [ ] UI: Show "+" icon on category square hover (top-right corner)
 - [ ] UI: Create `QuickAddProjectModal` component with fields: Project title (required), Category (pre-filled, read-only)
 - [ ] UI: Modal includes "Create" and "Cancel" buttons
-- [ ] Logic: On create, fire `project.quickCreated` event, project enters Planning state Stage 1
+- [ ] Logic: On create, commit `projectCreated` event with `category` field set, project attributes include `status: 'planning'` and `planningStage: 1`
 - [ ] UI: After creation, show toast: "[Project] added to [Category] Planning" with "Edit Now" link
 - [ ] DoD: Hovering over a category reveals a plus icon that opens a quick-add modal for creating projects directly from the Life Map.
 
@@ -175,7 +175,7 @@ What is an “active” project versus an “inactive” project
 
 #### Tasks
 
-- [ ] UI: When category has no projects (`activeProjectCount = 0` and `planningCount = 0`), show "Get Started" message on square
+- [ ] UI: When category has no projects (`projectCount = 0`), show "Get Started" message on square
 - [ ] UI: Replace or overlay standard indicators with "Add First Project" call-to-action
 - [ ] Logic: Clicking "Get Started" navigates to category's Planning tab
 - [ ] UI: Alternatively, show enlarged "+" icon inviting project creation
@@ -195,7 +195,7 @@ What is an “active” project versus an “inactive” project
 
 #### Tasks
 
-- [ ] Schema: Ensure `lifeCategories` table has `icon` field storing icon identifier or emoji
+- [ ] Schema: Include `icon` field (emoji) in hardcoded `LIFE_CATEGORIES` constant
 - [ ] UI: Each category displays its distinct icon/seal (emoji for MVP: 🧘‍♀️ for Health, 💗 for Relationships, etc.)
 - [ ] UI: Icons sized at minimum 40x40px for recognizability
 - [ ] UI: Icons maintain consistent visual style (same size, similar visual weight)
@@ -240,9 +240,9 @@ What is an “active” project versus an “inactive” project
 
 #### Tasks
 
-- [ ] Schema: Add `lastVisitedCategoryId` field to user settings or session storage
-- [ ] Logic: On category navigation, update `lastVisitedCategoryId` in user preferences
-- [ ] Query: Create `getUserPreferences$` query including last visited category
+- [ ] Schema: Use existing `settings` table or browser localStorage to store `lastVisitedCategoryId`
+- [ ] Logic: On category navigation, update `lastVisitedCategoryId` using `settingUpdated` event or localStorage
+- [ ] Query: Use `getSettingByKey$('lastVisitedCategoryId')` query or read from localStorage
 - [ ] UI: Add "Return to [Category Name]" quick action button on Life Map (if recent visit within 24 hours)
 - [ ] Navigation: Clicking button navigates directly to last visited category
 - [ ] DoD: The system remembers the last category visited and optionally provides a quick return button on the Life Map.
@@ -256,41 +256,86 @@ What is an “active” project versus an “inactive” project
 ### Database Schema
 
 ```typescript
-// Life Categories table
-lifeCategories: {
+// Life Categories - HARDCODED CONSTANTS (not in database)
+export const LIFE_CATEGORIES = [
+  { id: 'health', name: 'Health & Well-Being', description: '...', color: '#...', icon: '🧘‍♀️', sortOrder: 1 },
+  { id: 'relationships', name: 'Relationships', description: '...', color: '#...', icon: '💗', sortOrder: 2 },
+  // ... 6 more categories
+] as const
+
+// Projects table (PR4 schema changes)
+projects: {
   id: string
   name: string
-  description: string
-  color: string // hex color code
-  icon: string // emoji or icon identifier
-  sortOrder: number // 1-8 for consistent ordering
+  description: string | null
+  category: string | null // 'health' | 'relationships' | 'finances' | etc.
+  attributes: {
+    status?: 'planning' | 'backlog' | 'active' | 'completed'
+    planningStage?: 1 | 2 | 3 | 4
+    lastActivityAt?: number
+    // ... future attributes from Phase 2
+  } | null
+  createdAt: number
+  updatedAt: number
+  deletedAt: number | null
+  archivedAt: number | null
 }
 
-// Category activity tracking (derived from projects/tasks)
+// Category activity tracking (computed on-the-fly)
 // lastActivityAt calculated from:
-// - project.updatedAt
-// - task.completedAt
-// - Any operator or AI agent interaction
+// - MAX(project.updatedAt) for projects in category
+// - MAX(task.updatedAt) for tasks in projects in category
 ```
 
 ### Query Patterns
 
 ```typescript
-// Example query structure
-getLifeCategories$: Observable<LifeCategoryWithStats[]>
-// Returns categories with computed fields:
-// - activeProjectCount
-// - planningProjectCount
-// - featuredProjectCount (from Phase 2)
-// - lastActivityAt
+// Helper function that combines hardcoded categories with project data
+function getLifeCategoriesWithStats(): LifeCategoryWithStats[] {
+  const projects = useQuery(getProjects$) // Returns all projects
+
+  return LIFE_CATEGORIES.map(category => {
+    const categoryProjects = projects.filter(p => p.category === category.id)
+    const activeCount = categoryProjects.filter(p => p.attributes?.status === 'active').length
+    const planningCount = categoryProjects.filter(p => p.attributes?.status === 'planning').length
+    const lastActivityAt = Math.max(...categoryProjects.map(p => p.updatedAt))
+
+    return {
+      ...category,
+      projectCount: categoryProjects.length,
+      activeProjectCount: activeCount,
+      planningProjectCount: planningCount,
+      lastActivityAt,
+    }
+  })
+}
 ```
 
 ### Event System
 
 ```typescript
-type LifeMapEvent =
-  | { type: 'project.quickCreated'; categoryId: string; title: string; createdAt: number }
-  | { type: 'category.visited'; categoryId: string; visitedAt: number }
+// Use existing v1.ProjectCreated event with category field
+export const projectCreated = Events.synced({
+  name: 'v1.ProjectCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+    description: Schema.optional(Schema.String),
+    category: Schema.optional(Schema.String), // Category id from LIFE_CATEGORIES
+    createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+// Use existing settings events for navigation tracking
+export const settingUpdated = Events.synced({
+  name: 'v1.SettingUpdated',
+  schema: Schema.Struct({
+    key: Schema.String, // 'lastVisitedCategoryId'
+    value: Schema.String, // category id
+    updatedAt: Schema.Date,
+  }),
+})
 ```
 
 ### Performance Considerations

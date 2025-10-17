@@ -37,7 +37,7 @@ This epic plan provides an overview of all user stories organized across three s
 
 **Story Count**: 12 stories across 5 sections
 
-### Phase 2: Life Category Planning (18 stories)
+### Phase 2: Life Category Planning (20 stories)
 
 [View Phase 2 Document](phase-2-life-category-view.md)
 
@@ -53,9 +53,10 @@ This epic plan provides an overview of all user stories organized across three s
 
 **4-Stage Project Creation**:
 
-- Stage 1 (Identified): Title, description, cover image
+- Stage 1 (Identified): Title, description
+- Cover Images: Upload or AI-generate cover images (2 separate stories)
 - Stage 2 (Scoped): Objectives, deadlines, archetype, traits
-- Stage 3 (Drafted): AI-generated task list with editing
+- Stage 3 (Drafted): Navigate to existing project page for task planning, approve plan
 - Stage 4 (Prioritized): Priority ranking and backlog placement
 
 **Project Plans Management**:
@@ -81,7 +82,7 @@ This epic plan provides an overview of all user stories organized across three s
 - AI-assisted task generation
 - Flexible priority management
 
-**Story Count**: 18 stories across 4 sections
+**Story Count**: 20 stories across 4 sections
 
 ### Phase 3: Active Projects, Completion & Task Management (35 stories)
 
