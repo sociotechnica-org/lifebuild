@@ -42,11 +42,12 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
     <button
       onClick={onClick}
       className={`
-        relative w-full aspect-square rounded-xl p-6
+        relative w-full aspect-square rounded-lg sm:rounded-xl p-4 sm:p-6
         flex flex-col items-center justify-center
         transition-all duration-200
         cursor-pointer
         group
+        min-h-[120px] sm:min-h-0
         ${
           isActive
             ? 'shadow-md hover:shadow-xl hover:-translate-y-1'
@@ -58,46 +59,52 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       }}
     >
       {/* Icon */}
-      <div className='text-5xl mb-4'>{category.icon}</div>
+      <div className='text-4xl sm:text-5xl mb-2 sm:mb-4'>{category.icon}</div>
 
       {/* Category Name */}
-      <h3 className='text-white font-semibold text-center text-lg mb-2'>{category.name}</h3>
+      <h3 className='text-white font-semibold text-center text-sm sm:text-lg mb-2 leading-tight'>
+        {category.name}
+      </h3>
 
       {/* Status Indicators - Bottom Left */}
-      <div className='absolute bottom-4 left-4 flex flex-col gap-1'>
+      <div className='absolute bottom-2 sm:bottom-4 left-2 sm:left-4 flex flex-col gap-1'>
         {/* Active Project Count */}
         {activeProjectCount > 0 && (
-          <div className='bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5'>
-            <span className='text-xs font-semibold text-gray-900'>{activeProjectCount} Active</span>
+          <div className='bg-white/90 backdrop-blur-sm rounded-full px-1.5 sm:px-2 py-0.5'>
+            <span className='text-[10px] sm:text-xs font-semibold text-gray-900'>
+              {activeProjectCount} Active
+            </span>
           </div>
         )}
 
         {/* Planning Count */}
         {planningProjectCount > 0 && (
-          <div className='bg-white/70 backdrop-blur-sm rounded-full px-2 py-0.5'>
-            <span className='text-xs font-medium text-gray-700'>
+          <div className='bg-white/70 backdrop-blur-sm rounded-full px-1.5 sm:px-2 py-0.5'>
+            <span className='text-[10px] sm:text-xs font-medium text-gray-700'>
               {planningProjectCount} Planning
             </span>
           </div>
         )}
 
-        {/* No Projects Message */}
+        {/* Empty State Guidance */}
         {projectCount === 0 && (
-          <div className='bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5'>
-            <span className='text-xs font-medium text-gray-700'>No projects</span>
+          <div className='bg-white/90 backdrop-blur-sm rounded-full px-2 sm:px-3 py-0.5 sm:py-1'>
+            <span className='text-[10px] sm:text-xs font-medium text-gray-700'>Get Started →</span>
           </div>
         )}
       </div>
 
       {/* Last Activity - Bottom Right */}
-      <div className='absolute bottom-4 right-4'>
+      <div className='absolute bottom-2 sm:bottom-4 right-2 sm:right-4'>
         <div
           className={`
-          backdrop-blur-sm rounded-full px-2 py-0.5
+          backdrop-blur-sm rounded-full px-1.5 sm:px-2 py-0.5
           ${neglected ? 'bg-amber-100/90' : 'bg-white/70'}
         `}
         >
-          <span className={`text-xs font-medium ${neglected ? 'text-amber-800' : 'text-gray-600'}`}>
+          <span
+            className={`text-[10px] sm:text-xs font-medium ${neglected ? 'text-amber-800' : 'text-gray-600'}`}
+          >
             {relativeTime}
           </span>
         </div>
@@ -105,16 +112,16 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
 
       {/* Active Indicator Dot */}
       {isActive && (
-        <div className='absolute top-4 right-4 w-3 h-3 bg-white rounded-full shadow-md'></div>
+        <div className='absolute top-2 sm:top-4 right-2 sm:right-4 w-2 sm:w-3 h-2 sm:h-3 bg-white rounded-full shadow-md'></div>
       )}
 
       {/* Neglected Warning Indicator */}
       {neglected && isActive && (
-        <div className='absolute top-4 left-4 w-3 h-3 bg-amber-400 rounded-full shadow-md'></div>
+        <div className='absolute top-2 sm:top-4 left-2 sm:left-4 w-2 sm:w-3 h-2 sm:h-3 bg-amber-400 rounded-full shadow-md'></div>
       )}
 
-      {/* Quick Add Button - Shows on hover (top-right to avoid overlap with neglected indicator) */}
-      {onQuickAdd && (
+      {/* Quick Add Button - Shows on hover */}
+      {onQuickAdd && projectCount > 0 && (
         <button
           onClick={handleQuickAddClick}
           className='absolute top-4 right-12 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-50'
@@ -128,6 +135,31 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           >
             <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 4v16m8-8H4' />
           </svg>
+        </button>
+      )}
+
+      {/* Larger Quick Add for Empty Categories */}
+      {onQuickAdd && projectCount === 0 && (
+        <button
+          onClick={handleQuickAddClick}
+          className='absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200'
+          aria-label='Add first project'
+        >
+          <div className='w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors'>
+            <svg
+              className='w-10 h-10 text-gray-700'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M12 4v16m8-8H4'
+              />
+            </svg>
+          </div>
         </button>
       )}
     </button>
