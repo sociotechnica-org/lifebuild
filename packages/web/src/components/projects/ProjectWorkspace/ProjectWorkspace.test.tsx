@@ -19,6 +19,7 @@ const { mockUseQuery, mockStore, mockUseParams } = vi.hoisted(() => {
 // Mock react-router-dom
 vi.mock('react-router-dom', () => ({
   useParams: mockUseParams,
+  useNavigate: () => vi.fn(),
   Link: ({ children, to, ...props }: any) => (
     <a href={to} {...props}>
       {children}
