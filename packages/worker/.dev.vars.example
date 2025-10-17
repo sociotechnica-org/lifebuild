@@ -9,8 +9,8 @@ GRACE_PERIOD_SECONDS=86400
 SERVER_BYPASS_TOKEN=dev-server-bypass-token-change-me
 
 # R2 Image Storage
-# Preview bucket public URL: https://pub-1faa28003e4b4318b33ddcb15112beba.r2.dev
-R2_PUBLIC_URL=https://pub-1faa28003e4b4318b33ddcb15112beba.r2.dev
+# For local development, use worker endpoint to serve images
+R2_PUBLIC_URL=http://localhost:8787/api/images
 
 # Braintrust LLM API credentials (required for chat functionality)
 # Get these from https://www.braintrust.dev/
