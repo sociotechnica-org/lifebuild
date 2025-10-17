@@ -26,8 +26,9 @@ export const ProjectCreationView: React.FC = () => {
 
   // Get project ID from URL if editing existing project
   const projectId = searchParams.get('projectId')
-  const projectQueryResult = projectId ? useQuery(getProjectDetails$(projectId)) : []
-  const existingProject = projectQueryResult?.[0] as any
+  // Always call useQuery unconditionally - use dummy ID when none exists to avoid hooks violations
+  const projectQueryResult = useQuery(getProjectDetails$(projectId || '__dummy__'))
+  const existingProject = projectId ? (projectQueryResult?.[0] as any) : null
 
   // Stage management
   const [currentStage, setCurrentStage] = useState<1 | 2>(1)
