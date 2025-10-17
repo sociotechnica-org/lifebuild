@@ -231,7 +231,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path="/test-image-upload"
+                      path='/test-image-upload'
                       element={
                         <Layout>
                           <ErrorBoundary>

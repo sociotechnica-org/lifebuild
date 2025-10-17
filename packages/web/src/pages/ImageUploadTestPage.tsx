@@ -108,7 +108,14 @@ export const ImageUploadTestPage: React.FC = () => {
           </li>
         </ul>
 
-        <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#fff3cd', borderRadius: '4px' }}>
+        <div
+          style={{
+            marginTop: '1.5rem',
+            padding: '1rem',
+            backgroundColor: '#fff3cd',
+            borderRadius: '4px',
+          }}
+        >
           <p style={{ margin: 0, fontSize: '0.875rem' }}>
             <strong>Note:</strong> In local development, images are stored in Wrangler's ephemeral
             R2 simulator. They will be cleared when you restart the dev server.

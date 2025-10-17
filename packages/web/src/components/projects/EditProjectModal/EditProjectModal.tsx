@@ -4,6 +4,7 @@ import { events } from '@work-squared/shared/schema'
 import { PROJECT_CATEGORIES } from '@work-squared/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { ProjectAttributesEditor } from '../ProjectAttributesEditor/ProjectAttributesEditor.js'
+import { ImageUpload } from '../../common/ImageUpload.js'
 import type { Project } from '@work-squared/shared/schema'
 
 interface EditProjectModalProps {
@@ -35,6 +36,9 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onCl
   const [name, setName] = useState(project.name)
   const [description, setDescription] = useState(project.description || '')
   const [category, setCategory] = useState<string>(project.category || '')
+  const [coverImageUrl, setCoverImageUrl] = useState<string>(
+    (project.attributes as any)?.coverImage || ''
+  )
   const [attributes, setAttributes] = useState<Record<string, string>>(() =>
     safeExtractStringAttributes(project.attributes)
   )
@@ -46,6 +50,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onCl
     setName(project.name)
     setDescription(project.description || '')
     setCategory(project.category || '')
+    setCoverImageUrl((project.attributes as any)?.coverImage || '')
     setAttributes(safeExtractStringAttributes(project.attributes))
   }, [project])
 
@@ -109,8 +114,35 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onCl
         )
       }
 
-      // Check if attributes changed and commit separately
-      const currentAttributes = (project.attributes as Record<string, string>) || {}
+      // Handle cover image update separately if it changed
+      const currentCoverImage = (project.attributes as any)?.coverImage || ''
+      if (coverImageUrl !== currentCoverImage) {
+        // Merge coverImage into full attributes
+        const mergedAttributes: Record<string, unknown> = {
+          ...(project.attributes as Record<string, unknown>),
+          ...attributes,
+          coverImage: coverImageUrl || undefined,
+        }
+        // Remove undefined values
+        Object.keys(mergedAttributes).forEach(key => {
+          if (mergedAttributes[key] === undefined) {
+            delete mergedAttributes[key]
+          }
+        })
+
+        store.commit(
+          events.projectCoverImageSet({
+            projectId: project.id,
+            coverImageUrl: coverImageUrl,
+            attributes: mergedAttributes as any,
+            updatedAt,
+            actorId: user?.id,
+          })
+        )
+      }
+
+      // Check if other attributes changed and commit separately
+      const currentAttributes = safeExtractStringAttributes(project.attributes)
 
       // Deep equality check for attributes (handles key ordering)
       const attributesChanged = (() => {
@@ -123,11 +155,16 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onCl
         return currentKeys.some(key => currentAttributes[key] !== attributes[key])
       })()
 
-      if (attributesChanged) {
+      if (attributesChanged && coverImageUrl === currentCoverImage) {
+        // Only update attributes if cover image didn't change (to avoid duplicate updates)
+        const mergedAttributes = {
+          ...(project.attributes as Record<string, unknown>),
+          ...attributes,
+        }
         store.commit(
           events.projectAttributesUpdated({
             id: project.id,
-            attributes: attributes as any,
+            attributes: mergedAttributes as any,
             updatedAt,
             actorId: user?.id,
           })
@@ -147,6 +184,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onCl
     setName(project.name)
     setDescription(project.description || '')
     setCategory(project.category || '')
+    setCoverImageUrl((project.attributes as any)?.coverImage || '')
     setAttributes(safeExtractStringAttributes(project.attributes))
     setErrors({})
     onClose()
@@ -279,6 +317,12 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onCl
                   {PROJECT_CATEGORIES.find(c => c.value === category)?.description}
                 </p>
               )}
+            </div>
+
+            {/* Cover Image */}
+            <div>
+              <label className='block text-sm font-medium text-gray-900 mb-2'>Cover Image</label>
+              <ImageUpload onUploadComplete={setCoverImageUrl} currentImageUrl={coverImageUrl} />
             </div>
 
             {/* Custom Attributes */}
