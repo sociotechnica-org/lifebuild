@@ -197,7 +197,7 @@ export const ProjectCreationView: React.FC = () => {
       if (stage === 2) {
         attributes.objectives = objectives
         attributes.deadline = deadline ? new Date(deadline).getTime() : undefined
-        attributes.archetype = archetype as ProjectArchetype
+        attributes.archetype = archetype ? (archetype as ProjectArchetype) : undefined
         attributes.estimatedDuration = estimatedDuration || undefined
         attributes.urgency = urgency
         attributes.importance = importance
