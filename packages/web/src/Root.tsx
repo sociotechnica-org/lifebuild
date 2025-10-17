@@ -31,6 +31,7 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary/ErrorBoundary.js'
 import { UserInitializer } from './components/utils/UserInitializer/UserInitializer.js'
 import { AuthUserSync } from './components/utils/AuthUserSync/AuthUserSync.js'
 import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
+import { LifeMapView } from './components/life-map/LifeMapView.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
 
@@ -133,7 +134,17 @@ const ProtectedApp: React.FC = () => {
                       element={
                         <Layout>
                           <ErrorBoundary>
-                            <ProjectsPage />
+                            <LifeMapView />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.LIFE_MAP}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <LifeMapView />
                           </ErrorBoundary>
                         </Layout>
                       }
