@@ -17,6 +17,7 @@ export interface CategoryCardProps {
   planningProjectCount: number
   lastActivityAt: number | null
   onClick: () => void
+  onQuickAdd?: () => void
 }
 
 export const CategoryCard: React.FC<CategoryCardProps> = ({
@@ -26,10 +27,16 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   planningProjectCount,
   lastActivityAt,
   onClick,
+  onQuickAdd,
 }) => {
   const isActive = projectCount > 0
   const neglected = isNeglected(lastActivityAt)
   const relativeTime = formatRelativeTime(lastActivityAt)
+
+  const handleQuickAddClick = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent card click
+    onQuickAdd?.()
+  }
 
   return (
     <button
@@ -39,6 +46,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         flex flex-col items-center justify-center
         transition-all duration-200
         cursor-pointer
+        group
         ${
           isActive
             ? 'shadow-md hover:shadow-xl hover:-translate-y-1'
@@ -103,6 +111,24 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       {/* Neglected Warning Indicator */}
       {neglected && isActive && (
         <div className='absolute top-4 left-4 w-3 h-3 bg-amber-400 rounded-full shadow-md'></div>
+      )}
+
+      {/* Quick Add Button - Shows on hover */}
+      {onQuickAdd && (
+        <button
+          onClick={handleQuickAddClick}
+          className='absolute top-4 left-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-50'
+          aria-label='Quick add project'
+        >
+          <svg
+            className='w-5 h-5 text-gray-700'
+            fill='none'
+            stroke='currentColor'
+            viewBox='0 0 24 24'
+          >
+            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 4v16m8-8H4' />
+          </svg>
+        </button>
       )}
     </button>
   )
