@@ -1,4 +1,6 @@
 import React from 'react'
+import type { Project } from '@work-squared/shared/schema'
+import { ProjectCard } from '../projects/ProjectCard/ProjectCard.js'
 
 export type CategoryTab = 'planning' | 'active' | 'completed'
 export type PlanningSubTab = 'project-creation' | 'project-plans' | 'backlog'
@@ -9,8 +11,11 @@ export interface LifeCategoryPresenterProps {
   categoryColor: string
   selectedTab: CategoryTab
   selectedSubTab: PlanningSubTab | null
+  activeProjects: Project[]
+  completedProjects: Project[]
   onTabChange: (tab: CategoryTab) => void
   onSubTabChange: (subTab: PlanningSubTab) => void
+  onProjectClick: (project: Project) => void
 }
 
 export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
@@ -18,8 +23,11 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
   categoryColor,
   selectedTab,
   selectedSubTab,
+  activeProjects,
+  completedProjects,
   onTabChange,
   onSubTabChange,
+  onProjectClick,
 }) => {
   const tabs: { id: CategoryTab; label: string }[] = [
     { id: 'planning', label: 'Planning' },
@@ -101,15 +109,45 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
 
         {selectedTab === 'active' && (
           <div>
-            <h2 className='text-lg font-semibold mb-4'>Active Projects</h2>
-            <p className='text-gray-600'>Active projects content will go here.</p>
+            {activeProjects.length === 0 ? (
+              <div className='text-center py-12'>
+                <h2 className='text-xl font-semibold text-gray-600 mb-2'>No active projects</h2>
+                <p className='text-gray-500'>Create projects in the Planning tab to get started.</p>
+              </div>
+            ) : (
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                {activeProjects.map(project => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    onClick={() => onProjectClick(project)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {selectedTab === 'completed' && (
           <div>
-            <h2 className='text-lg font-semibold mb-4'>Completed Projects</h2>
-            <p className='text-gray-600'>Completed projects content will go here.</p>
+            {completedProjects.length === 0 ? (
+              <div className='text-center py-12'>
+                <h2 className='text-xl font-semibold text-gray-600 mb-2'>No completed projects</h2>
+                <p className='text-gray-500'>
+                  Completed projects will appear here when you finish them.
+                </p>
+              </div>
+            ) : (
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                {completedProjects.map(project => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    onClick={() => onProjectClick(project)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

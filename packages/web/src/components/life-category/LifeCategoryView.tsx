@@ -1,6 +1,6 @@
 import { useQuery } from '@livestore/react'
 import React, { useEffect, useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { getProjects$ } from '@work-squared/shared/queries'
 import type { Project } from '@work-squared/shared/schema'
 import {
@@ -8,6 +8,8 @@ import {
   type CategoryTab,
   type PlanningSubTab,
 } from './LifeCategoryPresenter.js'
+import { generateRoute } from '../../constants/routes.js'
+import { preserveStoreIdInUrl } from '../../util/navigation.js'
 
 // Life category definitions (will be moved to a constants file later)
 const LIFE_CATEGORIES = {
@@ -24,6 +26,7 @@ const LIFE_CATEGORIES = {
 export const LifeCategoryView: React.FC = () => {
   const { categoryId } = useParams<{ categoryId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const allProjects = useQuery(getProjects$) ?? []
 
   // Filter projects for this category
@@ -31,12 +34,20 @@ export const LifeCategoryView: React.FC = () => {
     (p: Project) => p.category === categoryId && !p.archivedAt && !p.deletedAt
   )
 
-  // Get active project count for smart default tab selection
-  const activeProjectCount = categoryProjects.filter((p: Project) => {
+  // Separate projects by status
+  const activeProjects = categoryProjects.filter((p: Project) => {
     const attributes = p.attributes as { status?: string } | null
     const status = attributes?.status
     return status === 'active' || (!status && !p.archivedAt && !p.deletedAt)
-  }).length
+  })
+
+  const completedProjects = categoryProjects.filter((p: Project) => {
+    const attributes = p.attributes as { status?: string } | null
+    return attributes?.status === 'completed'
+  })
+
+  // Get active project count for smart default tab selection
+  const activeProjectCount = activeProjects.length
 
   // Determine initial tab from URL or smart default
   const getInitialTab = (): CategoryTab => {
@@ -108,6 +119,10 @@ export const LifeCategoryView: React.FC = () => {
 
   const category = LIFE_CATEGORIES[categoryId as keyof typeof LIFE_CATEGORIES]
 
+  const handleProjectClick = (project: Project) => {
+    navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
+  }
+
   return (
     <LifeCategoryPresenter
       categoryId={categoryId}
@@ -115,8 +130,11 @@ export const LifeCategoryView: React.FC = () => {
       categoryColor={category.color}
       selectedTab={selectedTab}
       selectedSubTab={selectedTab === 'planning' ? selectedSubTab : null}
+      activeProjects={activeProjects}
+      completedProjects={completedProjects}
       onTabChange={handleTabChange}
       onSubTabChange={handleSubTabChange}
+      onProjectClick={handleProjectClick}
     />
   )
 }
