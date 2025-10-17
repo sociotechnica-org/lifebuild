@@ -6,7 +6,7 @@ import {
   getDocumentProjectsByProject$,
 } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
-import { DEFAULT_KANBAN_COLUMNS } from '@work-squared/shared'
+import { PROJECT_CATEGORIES } from '@work-squared/shared'
 import {
   validators,
   wrapStringParamFunction,
@@ -30,32 +30,36 @@ function createProjectCore(
   actorId?: string
 ): CreateProjectResult {
   try {
+    // Validate category if provided
+    if (params.category) {
+      const validCategory = PROJECT_CATEGORIES.find(c => c.value === params.category)
+      if (!validCategory) {
+        return {
+          success: false,
+          error: `Invalid category: ${params.category}. Must be one of: ${PROJECT_CATEGORIES.map(c => c.value).join(', ')}`,
+        }
+      }
+    }
+
     const projectId = crypto.randomUUID()
     const now = new Date()
 
-    // Emit project creation event
+    // PR4: Use v2.ProjectCreated event with category support
     store.commit(
-      events.projectCreated({
+      events.projectCreatedV2({
         id: projectId,
         name: params.name,
         description: params.description,
+        category: params.category as any,
+        attributes: undefined,
         createdAt: now,
         actorId,
       })
     )
 
-    // Create default Kanban columns for the new project
-    for (const column of DEFAULT_KANBAN_COLUMNS) {
-      store.commit(
-        events.columnCreated({
-          id: crypto.randomUUID(),
-          projectId: projectId,
-          name: column.name,
-          position: column.position,
-          createdAt: now,
-        })
-      )
-    }
+    // PR4: Column creation REMOVED
+    // Columns table no longer exists after PR3
+    // Tasks use status field directly
 
     return {
       success: true,

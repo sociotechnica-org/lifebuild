@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { RecurringTaskFormPresentation } from './RecurringTaskFormPresentation'
 import type { Project } from '@work-squared/shared'
+import { createMockProject } from '../../../tests/test-utils.js'
 
 // Mock the AssigneeSelector component
 vi.mock('../ui/AssigneeSelector/AssigneeSelector.js', () => ({
@@ -20,22 +21,16 @@ vi.mock('../ui/AssigneeSelector/AssigneeSelector.js', () => ({
 
 describe('RecurringTaskFormPresentation', () => {
   const mockProjects: Project[] = [
-    {
+    createMockProject({
       id: 'project-1',
       name: 'Test Project 1',
       description: 'First test project',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null,
-    },
-    {
+    }),
+    createMockProject({
       id: 'project-2',
       name: 'Test Project 2',
       description: 'Second test project',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null,
-    },
+    }),
   ]
 
   const defaultProps = {

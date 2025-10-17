@@ -2,6 +2,7 @@ import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ProjectCard } from './ProjectCard.js'
+import { createMockProject } from '../../../../tests/test-utils.js'
 
 // Hoisted mocks
 const { mockStore } = vi.hoisted(() => {
@@ -18,14 +19,11 @@ vi.mock('@livestore/react', () => ({
 }))
 
 describe('ProjectCard', () => {
-  const mockProject = {
-    id: 'test-project',
+  const mockProject = createMockProject({
     name: 'Test Project',
     description: 'Test project description',
-    createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-02'),
-    deletedAt: null,
-  }
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

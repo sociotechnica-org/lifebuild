@@ -1,22 +1,31 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useStore } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
 import { PROJECT_CATEGORIES } from '@work-squared/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
+import type { Project } from '@work-squared/shared/schema'
 
-interface CreateProjectModalProps {
+interface EditProjectModalProps {
   isOpen: boolean
   onClose: () => void
+  project: Project
 }
 
-export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose }) => {
+export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, project }) => {
   const { store } = useStore()
   const { user } = useAuth()
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [category, setCategory] = useState<string>('')
+  const [name, setName] = useState(project.name)
+  const [description, setDescription] = useState(project.description || '')
+  const [category, setCategory] = useState<string>(project.category || '')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<{ name?: string; description?: string }>({})
+
+  // Update form when project changes
+  useEffect(() => {
+    setName(project.name)
+    setDescription(project.description || '')
+    setCategory(project.category || '')
+  }, [project])
 
   const validateForm = () => {
     const newErrors: { name?: string; description?: string } = {}
@@ -43,39 +52,54 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
     setIsSubmitting(true)
 
     try {
-      const projectId = crypto.randomUUID()
-      const createdAt = new Date()
+      const updatedAt = new Date()
 
-      // PR4: Create the project using v2 event with category support
-      store.commit(
-        events.projectCreatedV2({
-          id: projectId,
-          name: name.trim(),
-          description: description.trim() || undefined,
-          category: (category || undefined) as any,
-          attributes: undefined,
-          createdAt,
-          actorId: user?.id,
-        })
-      )
+      // Build updates object with only changed fields
+      const updates: {
+        name?: string
+        description?: string | null
+        category?: string | null
+      } = {}
 
-      // Reset form and close modal
-      setName('')
-      setDescription('')
-      setCategory('')
-      setErrors({})
+      if (name.trim() !== project.name) {
+        updates.name = name.trim()
+      }
+
+      const newDescription = description.trim() || null
+      if (newDescription !== project.description) {
+        updates.description = newDescription
+      }
+
+      const newCategory = category || null
+      if (newCategory !== project.category) {
+        updates.category = newCategory as any
+      }
+
+      // Only commit if there are actual changes
+      if (Object.keys(updates).length > 0) {
+        store.commit(
+          events.projectUpdated({
+            id: project.id,
+            updates: updates as any,
+            updatedAt,
+            actorId: user?.id,
+          })
+        )
+      }
+
       onClose()
     } catch (error) {
-      console.error('Error creating project:', error)
+      console.error('Error updating project:', error)
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const handleClose = () => {
-    setName('')
-    setDescription('')
-    setCategory('')
+    // Reset to original values
+    setName(project.name)
+    setDescription(project.description || '')
+    setCategory(project.category || '')
     setErrors({})
     onClose()
   }
@@ -110,7 +134,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
       <div className='bg-white rounded-lg shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto'>
         {/* Header */}
         <div className='flex items-start justify-between p-6 border-b border-gray-200'>
-          <h3 className='text-lg font-semibold leading-6 text-gray-900'>Create New Project</h3>
+          <h3 className='text-lg font-semibold leading-6 text-gray-900'>Edit Project</h3>
           <button
             onClick={handleClose}
             className='text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100'
@@ -133,14 +157,14 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
             {/* Project Name */}
             <div>
               <label
-                htmlFor='project-name'
+                htmlFor='edit-project-name'
                 className='block text-sm font-medium text-gray-900 mb-2'
               >
                 Project Name *
               </label>
               <input
                 type='text'
-                id='project-name'
+                id='edit-project-name'
                 value={name}
                 onChange={handleNameChange}
                 className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
@@ -155,13 +179,13 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
             {/* Project Description */}
             <div>
               <label
-                htmlFor='project-description'
+                htmlFor='edit-project-description'
                 className='block text-sm font-medium text-gray-900 mb-2'
               >
                 Description
               </label>
               <textarea
-                id='project-description'
+                id='edit-project-description'
                 rows={4}
                 value={description}
                 onChange={handleDescriptionChange}
@@ -184,13 +208,13 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
             {/* Project Category */}
             <div>
               <label
-                htmlFor='project-category'
+                htmlFor='edit-project-category'
                 className='block text-sm font-medium text-gray-900 mb-2'
               >
                 Category
               </label>
               <select
-                id='project-category'
+                id='edit-project-category'
                 value={category}
                 onChange={e => setCategory(e.target.value)}
                 className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
@@ -223,7 +247,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
                 disabled={isSubmitting}
                 className='px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors'
               >
-                {isSubmitting ? 'Creating...' : 'Create Project'}
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </form>

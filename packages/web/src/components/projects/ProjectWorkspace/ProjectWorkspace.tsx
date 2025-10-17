@@ -19,6 +19,8 @@ import { KanbanBoard } from '../../tasks/kanban/KanbanBoard.js'
 import { TaskModal } from '../../tasks/TaskModal/TaskModal.js'
 import { DocumentCreateModal } from '../../documents/DocumentCreateModal/DocumentCreateModal.js'
 import { AddExistingDocumentModal } from '../../documents/AddExistingDocumentModal/AddExistingDocumentModal.js'
+import { EditProjectModal } from '../EditProjectModal/EditProjectModal.js'
+import { ProjectCategoryBadge } from '../ProjectCategoryBadge.js'
 import { LoadingState } from '../../ui/LoadingState.js'
 import { WorkerCard } from '../../workers/WorkerCard/WorkerCard.js'
 import { ProjectContacts } from '../ProjectContacts.js'
@@ -41,6 +43,7 @@ const ProjectWorkspaceContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'tasks' | 'documents' | 'team' | 'contacts'>('tasks')
   const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false)
   const [isAddExistingDocumentModalOpen, setIsAddExistingDocumentModalOpen] = useState(false)
+  const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false)
 
   if (isLoading) {
     return <LoadingState message='Loading project...' />
@@ -229,10 +232,34 @@ const ProjectWorkspaceContent: React.FC = () => {
 
         {/* Project Title and Description */}
         <div className='mb-4'>
-          <h1 className='text-xl font-semibold text-gray-900 mb-1'>
-            {project?.name || 'Loading...'}
-          </h1>
-          {project?.description && <p className='text-gray-600 text-sm'>{project.description}</p>}
+          <div className='flex items-start justify-between gap-4'>
+            <div className='flex-1'>
+              <div className='flex items-center gap-3 mb-2'>
+                <h1 className='text-xl font-semibold text-gray-900'>
+                  {project?.name || 'Loading...'}
+                </h1>
+                {project?.category && <ProjectCategoryBadge category={project.category as any} />}
+              </div>
+              {project?.description && (
+                <p className='text-gray-600 text-sm'>{project.description}</p>
+              )}
+            </div>
+            <button
+              onClick={() => setIsEditProjectModalOpen(true)}
+              className='flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors'
+              aria-label='Edit project'
+            >
+              <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+                />
+              </svg>
+              Edit
+            </button>
+          </div>
         </div>
 
         {/* Tab Navigation */}
@@ -473,6 +500,15 @@ const ProjectWorkspaceContent: React.FC = () => {
         onClose={() => setIsAddExistingDocumentModalOpen(false)}
         projectId={projectId}
       />
+
+      {/* Edit Project Modal */}
+      {project && isEditProjectModalOpen && (
+        <EditProjectModal
+          isOpen={isEditProjectModalOpen}
+          onClose={() => setIsEditProjectModalOpen(false)}
+          project={project}
+        />
+      )}
     </div>
   )
 }

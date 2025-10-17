@@ -8,8 +8,8 @@ describe('Board Events and Materialization', () => {
     expect(typeof events.projectCreated).toBe('function')
   })
 
-  it('should define boards table', () => {
-    expect(tables.boards).toBeDefined()
+  it('should define projects table', () => {
+    expect(tables.projects).toBeDefined()
   })
 
   it('should define getBoards query', () => {

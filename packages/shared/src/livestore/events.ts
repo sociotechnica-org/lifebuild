@@ -544,3 +544,93 @@ export const taskAttributesUpdated = Events.synced({
     actorId: Schema.optional(Schema.String),
   }),
 })
+
+// ============================================================================
+// V2 PROJECT EVENTS - With Categories & Attributes
+// ============================================================================
+
+export const projectCreatedV2 = Events.synced({
+  name: 'v2.ProjectCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+    description: Schema.optional(Schema.String),
+    category: Schema.optional(
+      Schema.Literal(
+        'health',
+        'relationships',
+        'finances',
+        'growth',
+        'leisure',
+        'spirituality',
+        'home',
+        'contribution'
+      )
+    ),
+    attributes: Schema.optional(
+      Schema.Struct({
+        // Future: scale, complexity, urgency, etc.
+      })
+    ),
+    createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const projectUpdated = Events.synced({
+  name: 'v2.ProjectUpdated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    updates: Schema.Struct({
+      name: Schema.optional(Schema.String),
+      description: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+      category: Schema.optional(
+        Schema.Union(
+          Schema.Literal(
+            'health',
+            'relationships',
+            'finances',
+            'growth',
+            'leisure',
+            'spirituality',
+            'home',
+            'contribution'
+          ),
+          Schema.Null
+        )
+      ),
+    }),
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const projectAttributesUpdated = Events.synced({
+  name: 'v2.ProjectAttributesUpdated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    attributes: Schema.Struct({
+      // Future: scale, complexity, urgency, etc.
+    }),
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const projectArchived = Events.synced({
+  name: 'v2.ProjectArchived',
+  schema: Schema.Struct({
+    id: Schema.String,
+    archivedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const projectUnarchived = Events.synced({
+  name: 'v2.ProjectUnarchived',
+  schema: Schema.Struct({
+    id: Schema.String,
+    unarchivedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
