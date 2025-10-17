@@ -14,15 +14,15 @@ This phase establishes the foundational "home screen" of the life management sys
 
 #### Tasks
 
-- [ ] Schema: Define hardcoded `LIFE_CATEGORIES` constant array with 8 categories: Health & Well-Being, Relationships, Finances, Personal Growth & Learning, Leisure & Lifestyle, Spirituality & Meaning, Home & Environment, Contribution & Service
-- [ ] Schema: Each category object includes: `id` (slug), `name`, `description`, `color` (hex), `icon` (emoji), `sortOrder` (1-8)
-- [ ] Query: Create helper function `getLifeCategoriesWithStats()` that combines hardcoded categories with project counts from `getProjects$` query
-- [ ] UI: Create `LifeMapView` component displaying 2x4 grid layout (desktop)
-- [ ] UI: Each grid square shows: category title, seal/icon (40x40px minimum), signature color
-- [ ] Routing: Create `/life-map` route as primary landing page after login
-- [ ] DoD: Logging in displays a 2x4 grid of 8 Life Category squares, each showing its title, icon, and color.
+- [x] Schema: Define hardcoded `LIFE_CATEGORIES` constant array with 8 categories: Health & Well-Being, Relationships, Finances, Personal Growth & Learning, Leisure & Lifestyle, Spirituality & Meaning, Home & Environment, Contribution & Service
+- [x] Schema: Each category object includes: `id` (slug), `name`, `description`, `color` (hex), `icon` (emoji), `sortOrder` (1-8)
+- [x] Query: Create helper function `getLifeCategoriesWithStats()` that combines hardcoded categories with project counts from `getProjects$` query
+- [x] UI: Create `LifeMapView` component displaying 2x4 grid layout (desktop)
+- [x] UI: Each grid square shows: category title, seal/icon (40x40px minimum), signature color
+- [x] Routing: Create `/life-map` route as primary landing page after login
+- [x] DoD: Logging in displays a 2x4 grid of 8 Life Category squares, each showing its title, icon, and color.
 
-**Status**:
+**Status**: ✅ **Completed in PR #248** (merged 2025-10-17)
 
 ---
 
@@ -41,7 +41,7 @@ This phase establishes the foundational "home screen" of the life management sys
 - [ ] UI: Tooltip appears after 300ms hover delay, dismisses on mouse leave
 - [ ] DoD: Each category square has an info icon that, when hovered, displays a tooltip with the category's description.
 
-**Status**:
+**Status**: ⏭️ **Deferred** (descriptions available in category detail view)
 
 ---
 
@@ -55,13 +55,13 @@ If life category has no projects, inactive
 
 #### Tasks
 
-- [ ] Query: Modify `getLifeCategoriesWithStats()` to filter projects by category field and count projects where `category` matches category id
-- [ ] UI: Categories with `projectCount > 0` display in full signature color
-- [ ] UI: Categories with `projectCount = 0` display in muted gray (Warm Stone #D4CCC8)
-- [ ] UI: Add visual indicator (dot, badge, or border) if category has projects
-- [ ] DoD: Life Category squares display in full color when active (have projects) and in muted gray when inactive (no projects yet).
+- [x] Query: Modify `getLifeCategoriesWithStats()` to filter projects by category field and count projects where `category` matches category id
+- [x] UI: Categories with `projectCount > 0` display in full signature color
+- [x] UI: Categories with `projectCount = 0` display in muted gray (Warm Stone #D4CCC8)
+- [x] UI: Add visual indicator (dot, badge, or border) if category has projects
+- [x] DoD: Life Category squares display in full color when active (have projects) and in muted gray when inactive (no projects yet).
 
-**Status**:
+**Status**: ✅ **Completed in PR #248** (merged 2025-10-17)
 
 ---
 
@@ -73,14 +73,14 @@ If life category has no projects, inactive
 
 #### Tasks
 
-- [ ] Routing: Create `/category/:categoryId` route for Life Category detail view
-- [ ] UI: Make entire Life Category square clickable
-- [ ] UI: Add hover state with visual feedback (slight elevation, cursor pointer, subtle glow)
-- [ ] Navigation: Clicking square navigates to `/category/:categoryId` route
-- [ ] Logic: Navigation is instant with no loading delays for MVP (data prefetched or loaded quickly)
-- [ ] DoD: Clicking anywhere on a Life Category square navigates to that category's detail view with clear hover feedback.
+- [x] Routing: Create `/category/:categoryId` route for Life Category detail view
+- [x] UI: Make entire Life Category square clickable
+- [x] UI: Add hover state with visual feedback (slight elevation, cursor pointer, subtle glow)
+- [x] Navigation: Clicking square navigates to `/category/:categoryId` route
+- [x] Logic: Navigation is instant with no loading delays for MVP (data prefetched or loaded quickly)
+- [x] DoD: Clicking anywhere on a Life Category square navigates to that category's detail view with clear hover feedback.
 
-**Status**:
+**Status**: ✅ **Completed in PR #248** (merged 2025-10-17)
 
 ---
 
