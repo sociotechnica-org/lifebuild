@@ -1,6 +1,6 @@
 import * as SyncBackend from '@livestore/sync-cf/cf-worker'
 
-import type { CfTypes, Env } from '@livestore/sync-cf/cf-worker'
+import type { CfTypes, Env as SyncEnv } from '@livestore/sync-cf/cf-worker'
 import {
   verifyJWT,
   isWithinGracePeriod,
@@ -9,6 +9,17 @@ import {
   ENV_VARS,
   AuthErrorCode,
 } from '@work-squared/shared/auth'
+
+// Extend the Env type to include R2 bucket binding and other environment variables
+export interface Env extends SyncEnv {
+  IMAGES: CfTypes.R2Bucket
+  REQUIRE_AUTH?: string
+  ENVIRONMENT?: string
+  JWT_SECRET?: string
+  GRACE_PERIOD_SECONDS?: string
+  SERVER_BYPASS_TOKEN?: string
+  R2_PUBLIC_URL?: string
+}
 
 export class SyncBackendDO extends SyncBackend.makeDurableObject({
   onPush: async (message, context) => {
@@ -154,15 +165,32 @@ const fetchHandler = async (
   env: Env,
   ctx: CfTypes.ExecutionContext
 ): Promise<Response> => {
-  // Handle CORS preflight
+  const url = new URL(request.url)
+
+  // Handle CORS preflight for all routes
   if (request.method === 'OPTIONS') {
     return new Response(null, {
+      status: 204,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Max-Age': '86400',
       },
     })
+  }
+
+  // Handle image upload endpoint
+  if (url.pathname === '/api/upload-image' && request.method === 'POST') {
+    const { handleImageUpload } = await import('./upload-image.js')
+    return handleImageUpload(request as unknown as Request, env)
+  }
+
+  // Handle image retrieval endpoint
+  const imageMatch = url.pathname.match(/^\/api\/images\/(.+)$/)
+  if (imageMatch && request.method === 'GET') {
+    const { handleImageGet } = await import('./upload-image.js')
+    return handleImageGet(request as unknown as Request, env, imageMatch[1])
   }
 
   const requestParamsResult = SyncBackend.getSyncRequestSearchParams(request)

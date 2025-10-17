@@ -3,6 +3,7 @@ import { useStore } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
 import { PROJECT_CATEGORIES } from '@work-squared/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
+import { ImageUpload } from '../../common/ImageUpload.js'
 
 interface CreateProjectModalProps {
   isOpen: boolean
@@ -15,6 +16,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState<string>('')
+  const [coverImageUrl, setCoverImageUrl] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<{ name?: string; description?: string }>({})
 
@@ -46,6 +48,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
       const projectId = crypto.randomUUID()
       const createdAt = new Date()
 
+      // Build attributes with cover image if provided
+      const attributes = coverImageUrl ? { coverImage: coverImageUrl } : undefined
+
       // PR4: Create the project using v2 event with category support
       store.commit(
         events.projectCreatedV2({
@@ -53,7 +58,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
           name: name.trim(),
           description: description.trim() || undefined,
           category: (category || undefined) as any,
-          attributes: undefined,
+          attributes,
           createdAt,
           actorId: user?.id,
         })
@@ -63,6 +68,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
       setName('')
       setDescription('')
       setCategory('')
+      setCoverImageUrl('')
       setErrors({})
       onClose()
     } catch (error) {
@@ -76,6 +82,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
     setName('')
     setDescription('')
     setCategory('')
+    setCoverImageUrl('')
     setErrors({})
     onClose()
   }
@@ -207,6 +214,14 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
                   {PROJECT_CATEGORIES.find(c => c.value === category)?.description}
                 </p>
               )}
+            </div>
+
+            {/* Cover Image */}
+            <div>
+              <label className='block text-sm font-medium text-gray-900 mb-2'>
+                Cover Image (Optional)
+              </label>
+              <ImageUpload onUploadComplete={setCoverImageUrl} currentImageUrl={coverImageUrl} />
             </div>
 
             {/* Actions */}

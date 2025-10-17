@@ -1003,6 +1003,19 @@ const materializers = State.SQLite.materializers(events, {
       createdAt: unarchivedAt,
     }),
   ],
+
+  'v1.ProjectCoverImageSet': ({ projectId, attributes, updatedAt }) => {
+    // Use the provided attributes (already merged by client)
+    // If no attributes provided, create a new object with just coverImage
+    return [
+      projects
+        .update({
+          attributes: attributes || {},
+          updatedAt,
+        })
+        .where({ id: projectId }),
+    ]
+  },
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

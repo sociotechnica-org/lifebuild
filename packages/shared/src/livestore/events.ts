@@ -634,3 +634,14 @@ export const projectUnarchived = Events.synced({
     actorId: Schema.optional(Schema.String),
   }),
 })
+
+export const projectCoverImageSet = Events.synced({
+  name: 'v1.ProjectCoverImageSet',
+  schema: Schema.Struct({
+    projectId: Schema.String,
+    coverImageUrl: Schema.String,
+    attributes: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })), // Full attributes with coverImage merged
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
