@@ -33,6 +33,7 @@ export const ProjectCreationView: React.FC = () => {
   // Stage management
   const [currentStage, setCurrentStage] = useState<1 | 2>(1)
   const [isSaving, setIsSaving] = useState(false)
+  const [hasLoadedProject, setHasLoadedProject] = useState(false)
 
   // Stage 1 state
   const [title, setTitle] = useState('')
@@ -48,9 +49,9 @@ export const ProjectCreationView: React.FC = () => {
   const [complexity, setComplexity] = useState<ComplexityLevel>('simple')
   const [scale, setScale] = useState<ScaleLevel>('minor')
 
-  // Load existing project data if editing
+  // Load existing project data if editing (only on initial load)
   useEffect(() => {
-    if (existingProject) {
+    if (existingProject && !hasLoadedProject) {
       setTitle(existingProject.name || '')
       setDescription(existingProject.description || null)
 
@@ -69,8 +70,9 @@ export const ProjectCreationView: React.FC = () => {
         setComplexity(attrs.complexity || 'simple')
         setScale(attrs.scale || 'minor')
       }
+      setHasLoadedProject(true)
     }
-  }, [existingProject])
+  }, [existingProject, hasLoadedProject])
 
   // Get category color
   const category = PROJECT_CATEGORIES.find(c => c.value === categoryId)
