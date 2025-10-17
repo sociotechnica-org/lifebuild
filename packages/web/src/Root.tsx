@@ -17,6 +17,7 @@ import { DocumentsPage } from './components/documents/DocumentsPage/DocumentsPag
 import { DocumentPage } from './components/documents/DocumentPage.js'
 import { ContactList } from './components/contacts/ContactList.js'
 import { ContactDetail } from './components/contacts/ContactDetail.js'
+import { LifeCategoryView } from './components/life-category/LifeCategoryView.js'
 import { HistoryPage } from './pages/HistoryPage.js'
 import { LoginPage } from './pages/LoginPage.js'
 import { SignupPage } from './pages/SignupPage.js'
@@ -233,6 +234,16 @@ const ProtectedApp: React.FC = () => {
                         <Layout>
                           <ErrorBoundary>
                             <ProjectWorkspace />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.CATEGORY}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <LifeCategoryView />
                           </ErrorBoundary>
                         </Layout>
                       }
