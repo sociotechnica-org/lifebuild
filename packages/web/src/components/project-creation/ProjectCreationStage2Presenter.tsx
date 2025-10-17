@@ -17,6 +17,7 @@ export interface ProjectCreationStage2PresenterProps {
   importance: ImportanceLevel
   complexity: ComplexityLevel
   scale: ScaleLevel
+  isArchetypeEditable: boolean
   onObjectivesChange: (objectives: string) => void
   onDeadlineChange: (deadline: string) => void
   onArchetypeChange: (archetype: ProjectArchetype) => void
@@ -25,6 +26,7 @@ export interface ProjectCreationStage2PresenterProps {
   onImportanceChange: (importance: ImportanceLevel) => void
   onComplexityChange: (complexity: ComplexityLevel) => void
   onScaleChange: (scale: ScaleLevel) => void
+  onArchetypeEditToggle: () => void
   onBack: () => void
   onSaveDraft: () => void
   onContinue: () => void
@@ -45,6 +47,7 @@ export const ProjectCreationStage2Presenter: React.FC<ProjectCreationStage2Prese
   importance,
   complexity,
   scale,
+  isArchetypeEditable,
   onObjectivesChange,
   onDeadlineChange,
   onArchetypeChange,
@@ -53,6 +56,7 @@ export const ProjectCreationStage2Presenter: React.FC<ProjectCreationStage2Prese
   onImportanceChange,
   onComplexityChange,
   onScaleChange,
+  onArchetypeEditToggle,
   onBack,
   onSaveDraft,
   onContinue,
@@ -139,26 +143,51 @@ export const ProjectCreationStage2Presenter: React.FC<ProjectCreationStage2Prese
 
         {/* Archetype */}
         <div>
-          <label htmlFor='archetype' className='block text-sm font-medium text-gray-700 mb-2'>
+          <label className='block text-sm font-medium text-gray-700 mb-2'>
             Project Archetype <span className='text-red-500'>*</span>
           </label>
-          <select
-            id='archetype'
-            value={archetype}
-            onChange={e => onArchetypeChange(e.target.value as ProjectArchetype)}
-            disabled={isSaving}
-            className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500'
-          >
-            <option value=''>Select archetype...</option>
-            {Object.entries(ARCHETYPE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-          <p className='mt-2 text-sm text-gray-500'>
-            Choose the type that best describes this project
-          </p>
+          {isArchetypeEditable ? (
+            <div className='space-y-2'>
+              <select
+                id='archetype'
+                value={archetype}
+                onChange={e => onArchetypeChange(e.target.value as ProjectArchetype)}
+                disabled={isSaving}
+                className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500'
+              >
+                <option value=''>Select archetype...</option>
+                {Object.entries(ARCHETYPE_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              <p className='text-sm text-gray-500'>
+                Manually selecting an archetype will disable auto-suggestion
+              </p>
+            </div>
+          ) : (
+            <div className='flex items-center justify-between px-4 py-3 border border-gray-200 rounded-lg bg-gray-50'>
+              <div>
+                <div className='text-lg font-medium text-gray-900'>
+                  {archetype
+                    ? ARCHETYPE_LABELS[archetype as ProjectArchetype]
+                    : 'Not yet determined'}
+                </div>
+                <p className='text-sm text-gray-500 mt-1'>
+                  Auto-suggested based on your project traits
+                </p>
+              </div>
+              <button
+                type='button'
+                onClick={onArchetypeEditToggle}
+                disabled={isSaving}
+                className='ml-4 px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+              >
+                Edit
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Traits */}

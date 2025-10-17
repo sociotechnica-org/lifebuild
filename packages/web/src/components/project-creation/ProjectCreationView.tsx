@@ -281,6 +281,7 @@ export const ProjectCreationView: React.FC = () => {
           importance={importance}
           complexity={complexity}
           scale={scale}
+          isArchetypeEditable={isArchetypeManuallySet}
           onObjectivesChange={setObjectives}
           onDeadlineChange={setDeadline}
           onArchetypeChange={value => {
@@ -292,6 +293,7 @@ export const ProjectCreationView: React.FC = () => {
           onImportanceChange={setImportance}
           onComplexityChange={setComplexity}
           onScaleChange={setScale}
+          onArchetypeEditToggle={() => setIsArchetypeManuallySet(!isArchetypeManuallySet)}
           onBack={handleStage2Back}
           onSaveDraft={handleStage2SaveDraft}
           onContinue={handleStage2Continue}
