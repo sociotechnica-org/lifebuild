@@ -6,8 +6,15 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 ## Progress Overview
 
-- ✅ **Section 1: Planning Tab Structure & Navigation** (Stories 1.1-1.3) - COMPLETED in PR#246 (merged 2025-10-17)
+- ✅ **Section 1: Planning Tab Structure & Navigation** (Stories 1.1-1.3) - COMPLETED in PR #246 (merged 2025-10-17)
 - 🔄 **Section 2: Project Creation Sub-Tab** (Stories 2.1-2.7) - IN PROGRESS
+  - ✅ Story 2.1 (Stage 1) - COMPLETED in PR #250 (merged 2025-10-17)
+  - 🔄 Story 2.2 (Cover Upload) - IN PROGRESS in PR #252
+  - ⏸️ Story 2.3 (AI Cover) - NOT STARTED
+  - ✅ Story 2.4 (Stage 2) - COMPLETED in PR #250 (merged 2025-10-17)
+  - ⏸️ Story 2.5 (Stage 3) - NOT STARTED
+  - ⏸️ Story 2.6 (Stage 4) - NOT STARTED
+  - ⏸️ Story 2.7 (Move to Backlog) - NOT STARTED
 - ⏸️ **Section 3: Project Plans Sub-Tab** (Stories 3.1-3.5) - NOT STARTED
 - ⏸️ **Section 4: Backlog Sub-Tab** (Stories 4.1-4.5) - NOT STARTED
 
@@ -101,7 +108,7 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 - [x] Logic: "Save Draft" keeps project at Stage 1, "Save & Continue" advances to Stage 2
 - [x] DoD: Operators can create Stage 1 projects with title and description, saving as draft or advancing to Stage 2.
 
-**Status**: 🔄 **IN PROGRESS** - PR pending
+**Status**: ✅ **Completed in PR #250** (merged 2025-10-17)
 
 ---
 
@@ -113,17 +120,17 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Schema: Add `coverImage` field to `projects.attributes` JSON (stores R2 URL or key)
-- [ ] Event: Create `v1.ProjectCoverImageSet` event with payload `{ projectId, coverImageUrl, updatedAt, actorId }`
-- [ ] Backend: Set up Cloudflare R2 bucket for image storage (production)
-- [ ] Backend: Configure local development setup using Wrangler R2 preview or local file storage
-- [ ] API: Create image upload endpoint that accepts file, uploads to R2, returns URL
-- [ ] UI: Add "Upload Cover Image" button in Stage 1 form (optional field)
-- [ ] UI: Show image preview after upload with option to remove/replace
-- [ ] Logic: On upload, commit `projectCoverImageSet` event with R2 URL
-- [ ] DoD: Operators can upload cover images that are stored in R2 and displayed on project cards.
+- [x] Schema: Add `coverImage` field to `projects.attributes` JSON (stores R2 URL or key)
+- [x] Event: Create `v1.ProjectCoverImageSet` event with payload `{ projectId, coverImageUrl, updatedAt, actorId }`
+- [x] Backend: Set up Cloudflare R2 bucket for image storage (production)
+- [x] Backend: Configure local development setup using Wrangler R2 preview or local file storage
+- [x] API: Create image upload endpoint that accepts file, uploads to R2, returns URL
+- [x] UI: Add "Upload Cover Image" button in Stage 1 form (optional field)
+- [x] UI: Show image preview after upload with option to remove/replace
+- [x] Logic: On upload, commit `projectCoverImageSet` event with R2 URL
+- [x] DoD: Operators can upload cover images that are stored in R2 and displayed on project cards.
 
-**Status**:
+**Status**: 🔄 **In Progress in PR #252**
 
 #### Implementation Notes
 
@@ -173,14 +180,12 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 - [x] Logic: On continue, commit `projectAttributesUpdated` event with `planningStage: 2` and all Stage 2 fields
 - [x] DoD: Operators can define objectives, deadlines, traits, and archetype in Stage 2, with ability to navigate back or advance to Stage 3.
 
-**Status**: 🔄 **IN PROGRESS** - PR pending
+**Status**: ✅ **Completed in PR #250** (merged 2025-10-17)
 
 #### Implementation Notes
 
 - Traits influence archetype suggestion, but archetype can be manually overridden
 - Archetype and traits relationship may be refined in future iterations
-
-**Status**:
 
 ---
 

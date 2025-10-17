@@ -155,15 +155,15 @@ What is an "active" project versus an "inactive" project
 
 #### Tasks
 
-- [ ] Event: Use existing `v1.ProjectCreated` event, adding `category` field to payload
-- [ ] UI: Show "+" icon on category square hover (top-right corner)
-- [ ] UI: Create `QuickAddProjectModal` component with fields: Project title (required), Category (pre-filled, read-only)
-- [ ] UI: Modal includes "Create" and "Cancel" buttons
-- [ ] Logic: On create, commit `projectCreated` event with `category` field set, project attributes include `status: 'planning'` and `planningStage: 1`
-- [ ] UI: After creation, show toast: "[Project] added to [Category] Planning" with "Edit Now" link
-- [ ] DoD: Hovering over a category reveals a plus icon that opens a quick-add modal for creating projects directly from the Life Map.
+- [x] Event: Use existing `v1.ProjectCreated` event, adding `category` field to payload
+- [x] UI: Show "+" icon on category square hover (top-left corner)
+- [x] UI: Create `QuickAddProjectModal` component with fields: Project title (required), Category (pre-filled, read-only)
+- [x] UI: Modal includes "Create" and "Cancel" buttons
+- [x] Logic: On create, commit `projectCreated` event with `category` field set, project attributes include `status: 'planning'` and `planningStage: 1`
+- [x] UI: After creation, show toast: "[Project] added to [Category] Planning"
+- [x] DoD: Hovering over a category reveals a plus icon that opens a quick-add modal for creating projects directly from the Life Map.
 
-**Status**:
+**Status**: ✅ **Completed in PR #251** (merged 2025-10-17)
 
 ---
 

@@ -12,77 +12,64 @@ This epic plan provides an overview of all user stories organized across three s
 
 ## Phase Structure
 
-### Phase 1: Life Map View
+### Phase 1: Life Map View - **Mostly Complete**
 
 [View Phase 1 Document](phase-1-life-map-view.md)
 
 **Purpose**: Build the primary navigation interface showing all 8 Life Categories as an interactive grid.
 
-**What's Included**:
+**Completed** (PRs #248, #249, #251):
+- ✅ 8-square grid display with colors and navigation
+- ✅ Active vs. inactive category visualization
+- ✅ Project count indicators (active, planning)
+- ✅ Last activity timestamps
+- ✅ Quick project creation from Life Map
 
-- 8-square grid display with colors, icons, and descriptions
-- Active vs. inactive category visualization
-- Project count indicators (active, planning, featured)
-- Last activity timestamps
-- Quick project creation from Life Map
-- Responsive layouts for desktop, tablet, mobile
-- Navigation to category detail views
+**Remaining Work**:
+- Category description tooltips (deferred)
+- Empty category guidance
+- Category icons/seals
+- Responsive layouts for tablet/mobile
+- Last visited category persistence
 
 **Key Features**:
+- Real-time project count updates via LiveStore
+- Smart tab selection based on category state
+- Container/Presenter component architecture
 
-- Real-time project count updates
-- Visual guidance for empty categories
-- Smart state persistence
-- Cross-device compatibility
+**Story Count**: 12 stories (7 completed, 5 remaining)
 
-**Story Count**: 12 stories across 5 sections
-
-### Phase 2: Life Category Planning (20 stories)
+### Phase 2: Life Category Planning - **Early Stage**
 
 [View Phase 2 Document](phase-2-life-category-view.md)
 
 **Purpose**: Build the project planning system with structured 4-stage development and backlog management.
 
-**What's Included**:
+**Completed** (PRs #246, #250):
+- ✅ Three main tabs (Planning, Active, Completed)
+- ✅ Smart default tab selection
+- ✅ Three Planning sub-tabs (Project Creation, Project Plans, Backlog)
+- ✅ Stage 1 (Identified): Title, description
+- ✅ Stage 2 (Scoped): Objectives, deadlines, archetype, traits
 
-**Planning Tab Structure**:
+**In Progress** (PR #252):
+- 🔄 Cover image upload to Cloudflare R2
 
-- Three main tabs (Planning, Active, Completed)
-- Smart default tab selection
-- Three Planning sub-tabs (Project Creation, Project Plans, Backlog)
+**Remaining Work**:
+- AI-generated cover images
+- Stage 3 (Task planning integration)
+- Stage 4 (Priority ranking and backlog placement)
+- Move completed plans to Backlog
+- Project Plans sub-tab (view/resume in-progress plans)
+- Backlog sub-tab (priority management, activation)
 
-**4-Stage Project Creation**:
+**Key Features Implemented**:
+- Container/Presenter component architecture
+- LiveStore event-driven state management
+- Progressive planning workflow (Stages 1-2)
+- Archetype auto-suggestion based on traits
 
-- Stage 1 (Identified): Title, description
-- Cover Images: Upload or AI-generate cover images (2 separate stories)
-- Stage 2 (Scoped): Objectives, deadlines, archetype, traits
-- Stage 3 (Drafted): Navigate to existing project page for task planning, approve plan
-- Stage 4 (Prioritized): Priority ranking and backlog placement
-
-**Project Plans Management**:
-
-- View all in-progress plans (Stages 1-3)
-- Resume planning with full state persistence
-- Dynamic card visuals showing stage progress
-- Archive or delete abandoned plans
-- Idle plan indicators
-
-**Backlog Management**:
-
-- Priority-ordered project display
-- Drag-to-reorder prioritization
-- Project activation to Active state
-- Edit backlog projects before activation
-- Search and filter capabilities
-
-**Key Features**:
-
-- Complete state persistence ("pick up/put down" metaphor)
-- Progressive enhancement through stages
-- AI-assisted task generation
-- Flexible priority management
-
-**Story Count**: 20 stories across 4 sections
+**Story Count**: 20 stories (5 completed, 1 in progress, 14 remaining)
 
 ### Phase 3: Active Projects, Completion & Task Management (35 stories)
 
