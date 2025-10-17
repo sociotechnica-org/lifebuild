@@ -92,7 +92,7 @@ export const ProjectCreationView: React.FC = () => {
 
   // Stage 1 state
   const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
+  const [description, setDescription] = useState<string>('')
 
   // Stage 2 state
   const [objectives, setObjectives] = useState('')
@@ -109,7 +109,7 @@ export const ProjectCreationView: React.FC = () => {
   useEffect(() => {
     if (existingProject && !hasLoadedProject) {
       setTitle(existingProject.name || '')
-      setDescription(existingProject.description || null)
+      setDescription(existingProject.description || '')
 
       const attrs = existingProject.attributes as PlanningAttributes | null
       if (attrs) {
@@ -185,8 +185,10 @@ export const ProjectCreationView: React.FC = () => {
         }
       }
 
-      // Build attributes object based on stage
+      // Build attributes object - preserve existing attributes and update based on stage
+      const existingAttrs = (existingProject?.attributes as PlanningAttributes) || {}
       const attributes: PlanningAttributes = {
+        ...existingAttrs, // Preserve all existing attributes
         status: 'planning',
         planningStage: stage,
       }
