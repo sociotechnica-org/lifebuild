@@ -119,7 +119,10 @@ export async function handleImageUpload(request: Request, env: Env): Promise<Res
     if (!file) {
       return new Response(JSON.stringify({ error: 'No file provided', code: 'NO_FILE' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
       })
     }
 
@@ -128,7 +131,10 @@ export async function handleImageUpload(request: Request, env: Env): Promise<Res
     if (!validation.valid) {
       return new Response(JSON.stringify({ error: validation.error!, code: 'INVALID_FILE' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
       })
     }
 
@@ -162,6 +168,10 @@ export async function handleImageUpload(request: Request, env: Env): Promise<Res
     })
   } catch (error) {
     console.error('Image upload error:', error)
+    // Log more details for debugging
+    if (error instanceof Error) {
+      console.error('Error details:', error.message, error.stack)
+    }
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     const isAuthError = errorMessage.includes(AuthErrorCode.TOKEN_MISSING)
@@ -170,10 +180,14 @@ export async function handleImageUpload(request: Request, env: Env): Promise<Res
       JSON.stringify({
         error: isAuthError ? 'Authentication required' : 'Upload failed',
         code: isAuthError ? 'AUTH_REQUIRED' : 'UPLOAD_FAILED',
+        details: errorMessage, // Include error message for debugging
       }),
       {
         status: isAuthError ? 401 : 500,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
       }
     )
   }
