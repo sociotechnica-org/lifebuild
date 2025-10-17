@@ -32,7 +32,6 @@ import { UserInitializer } from './components/utils/UserInitializer/UserInitiali
 import { AuthUserSync } from './components/utils/AuthUserSync/AuthUserSync.js'
 import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
 import { LifeMapView } from './components/life-map/LifeMapView.js'
-import { ImageUploadTestPage } from './pages/ImageUploadTestPage.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
 
@@ -226,16 +225,6 @@ const ProtectedApp: React.FC = () => {
                         <Layout>
                           <ErrorBoundary>
                             <SettingsPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path='/test-image-upload'
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <ImageUploadTestPage />
                           </ErrorBoundary>
                         </Layout>
                       }
