@@ -46,17 +46,16 @@ export const QuickAddProjectModal: React.FC<QuickAddProjectModalProps> = ({
       const projectId = crypto.randomUUID()
       const createdAt = new Date()
 
-      // Create project with planning status and stage 1
+      // Create project with category pre-filled
+      // Note: attributes are not set here as the schema currently defines an empty struct
+      // Projects will default to 'planning' status in future phase when attributes are extended
       store.commit(
         events.projectCreatedV2({
           id: projectId,
           name: name.trim(),
           description: undefined,
           category: categoryId as any,
-          attributes: {
-            status: 'planning',
-            planningStage: 1,
-          } as any,
+          attributes: undefined,
           createdAt,
           actorId: user?.id,
         })
@@ -64,7 +63,7 @@ export const QuickAddProjectModal: React.FC<QuickAddProjectModalProps> = ({
 
       // Show success notification
       showSnackbar({
-        message: `${name.trim()} added to ${category?.name} Planning`,
+        message: `${name.trim()} added to ${category?.name}`,
         type: 'success',
         duration: 3000,
       })

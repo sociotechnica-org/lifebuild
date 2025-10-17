@@ -87,7 +87,7 @@ describe('QuickAddProjectModal', () => {
     await waitFor(() => {
       expect(mockCommit).toHaveBeenCalled()
       expect(mockShowSnackbar).toHaveBeenCalledWith({
-        message: 'New Health Project added to Health & Well-Being Planning',
+        message: 'New Health Project added to Health & Well-Being',
         type: 'success',
         duration: 3000,
       })

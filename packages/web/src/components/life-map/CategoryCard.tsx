@@ -113,11 +113,11 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         <div className='absolute top-4 left-4 w-3 h-3 bg-amber-400 rounded-full shadow-md'></div>
       )}
 
-      {/* Quick Add Button - Shows on hover */}
+      {/* Quick Add Button - Shows on hover (top-right to avoid overlap with neglected indicator) */}
       {onQuickAdd && (
         <button
           onClick={handleQuickAddClick}
-          className='absolute top-4 left-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-50'
+          className='absolute top-4 right-12 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-50'
           aria-label='Quick add project'
         >
           <svg
