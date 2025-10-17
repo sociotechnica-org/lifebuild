@@ -1,5 +1,9 @@
 # Plan 020: Flexible Project & Task Schema Migration
 
+## Status: ✅ COMPLETE (2025-10-17)
+
+All 6 PRs completed and merged to main. The migration from rigid column-based task organization to flexible, attribute-driven system is complete.
+
 ## Goal
 
 Migrate the LiveStore schema from a rigid column-based task organization to a flexible, attribute-driven system that supports customizable project categories, task statuses, and extensible metadata attributes.
@@ -666,3 +670,116 @@ Once this migration is complete, we can easily add:
 - UI reflects new status-based task organization
 - LLM tools working with new events
 - Documentation updated
+
+---
+
+## Implementation Summary
+
+### Completed PRs
+
+All PRs completed between 2025-10-14 and 2025-10-17:
+
+✅ **PR #239 (PR1)**: Task Column → Status Migration
+- Commit: 4796be9
+- Added `status` field to tasks replacing `columnId`
+- Added v2 task events (TaskCreated, TaskStatusChanged, TaskReordered)
+- Updated UI to use status-based kanban
+- Updated LLM tools to use status
+- All 316 tests passing
+
+✅ **PR #241 (PR2)**: Task Attributes - Flexible Fields
+- Commit: c1d794f
+- Added `attributes` JSON field to tasks
+- Added v2.TaskAttributesUpdated event
+- Implemented priority attribute as concrete example
+- Updated UI and LLM tools
+- All tests passing
+
+✅ **PR #242 (PR3)**: Remove Columns Completely
+- Commit: c5f3572
+- Removed columns table from schema exports
+- Made column event materializers no-ops
+- Removed all column-related queries and UI
+- Cleaned up codebase
+- All tests passing
+
+✅ **PR #243 (PR4)**: Project Categories
+- Commit: 9a21c65
+- Added 9 predefined project categories (health, relationships, growth, work, finance, home, creative, community, learning)
+- Added `category` and `archivedAt` fields to projects table
+- Added v2.ProjectCreatedV2 and v2.ProjectUpdated events
+- Completed boards → projects terminology migration
+- Added PROJECT_CATEGORIES constant in shared package
+- Updated UI with category selector and badges
+- Updated LLM tools
+- All tests passing
+
+✅ **PR #247 (PR5+6)**: Project Attributes & Archiving (COMBINED)
+- Commit: 2a4863b (merged 2025-10-17)
+- Added `attributes` JSON field to projects
+- Added v2.ProjectAttributesUpdated event
+- Added v2.ProjectArchived and v2.ProjectUnarchived events
+- Created ProjectAttributesEditor component for UI
+- Added archive/unarchive functionality to ProjectWorkspace
+- Updated queries to filter archived projects by default
+- Added updateProject, archiveProject, unarchiveProject LLM tools
+- Added tool schemas for LLM discoverability
+- Fixed multiple BugBot issues:
+  - Safe JSON attribute extraction
+  - Empty string duplicate key handling
+  - Whitespace key validation
+- All 316 tests passing
+
+### Final State
+
+**Schema Changes**:
+- ✅ Tasks: Added `status` (replaces columnId), `attributes` JSON
+- ✅ Projects: Added `category`, `attributes` JSON, `archivedAt`
+- ✅ Columns: Removed completely
+- ✅ Boards: Fully renamed to Projects throughout codebase
+
+**Event System**:
+- ✅ All v1 events preserved and working
+- ✅ All v2 events implemented and tested
+- ✅ Event replay works correctly with mixed v1/v2 events
+
+**UI Components**:
+- ✅ Status-based kanban board
+- ✅ Project category selector with 9 predefined categories
+- ✅ Project attributes editor (flexible key-value pairs)
+- ✅ Task priority attribute selector
+- ✅ Archive/unarchive project functionality
+- ✅ All forms updated to use new events
+
+**LLM Tools**:
+- ✅ create_task with status
+- ✅ update_task with attributes
+- ✅ move_task_within_project with status
+- ✅ create_project with category
+- ✅ update_project with category and attributes
+- ✅ archive_project
+- ✅ unarchive_project
+- ✅ All tools registered in executor and schema
+
+**Testing**:
+- ✅ All 316 unit tests passing
+- ✅ All E2E tests passing
+- ✅ Manual QA completed for each PR
+- ✅ CI/CD passing on all PRs
+
+### Benefits Achieved
+
+1. **Flexibility**: Tasks and projects now support arbitrary attributes without schema changes
+2. **Organization**: 9 predefined project categories for life areas
+3. **Simplicity**: Status-based tasks are simpler than column-based
+4. **Extensibility**: Easy to add new attributes (scale, complexity, urgency, etc.)
+5. **Future-Ready**: Foundation for custom statuses, templates, and advanced filtering
+6. **Backwards Compatible**: All old v1 events continue to work via updated materializers
+7. **LLM Integration**: Full LLM tool support for all new features
+
+### Notes
+
+- PR5 and PR6 were combined into a single PR (#247) because PR4 already implemented most of the backend work
+- All review comments addressed with multiple rounds of fixes
+- No data loss, all migrations handled via event replay
+- Clean separation of concerns between v1 and v2 events
