@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
 import { formatDate } from '../../../util/dates.js'
 import { useQuery, useStore } from '@livestore/react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { preserveStoreIdInUrl } from '../../../util/navigation.js'
 import {
   getProjectTasks$,
@@ -35,6 +35,7 @@ const ProjectWorkspaceContent: React.FC = () => {
   const { project, projectId, isLoading } = useProject()
   const { store } = useStore()
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [insertionPreview, setInsertionPreview] = useState<{
     statusId: string
@@ -276,8 +277,8 @@ const ProjectWorkspaceContent: React.FC = () => {
                         actorId: user?.id,
                       })
                     )
-                    // Navigate back to projects page
-                    window.location.href = preserveStoreIdInUrl('/projects')
+                    // Navigate back to projects page using React Router
+                    navigate(preserveStoreIdInUrl('/projects'))
                   }
                 }}
                 className='flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 border border-red-300 rounded-md hover:bg-red-50 transition-colors'
