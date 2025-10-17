@@ -156,13 +156,11 @@ export async function handleImageUpload(request: Request, env: Env): Promise<Res
     console.log(`Image uploaded successfully: ${key}`)
 
     // Generate public URL from R2 bucket
-    // Production: https://pub-ba02e69d43994624a2a8249954243cb5.r2.dev
-    // Preview: https://pub-1faa28003e4b4318b33ddcb15112beba.r2.dev
-    const baseUrl =
-      env.ENVIRONMENT === 'production'
-        ? 'https://pub-ba02e69d43994624a2a8249954243cb5.r2.dev'
-        : 'https://pub-1faa28003e4b4318b33ddcb15112beba.r2.dev'
-    const url = `${baseUrl}/${key}`
+    const r2PublicUrl = env.R2_PUBLIC_URL
+    if (!r2PublicUrl) {
+      throw new Error('R2_PUBLIC_URL not configured')
+    }
+    const url = `${r2PublicUrl}/${key}`
 
     return new Response(JSON.stringify({ url, key }), {
       headers: {
