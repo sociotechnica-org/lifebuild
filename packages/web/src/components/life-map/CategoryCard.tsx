@@ -142,7 +142,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       {onQuickAdd && projectCount === 0 && (
         <button
           onClick={handleQuickAddClick}
-          className='absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200'
+          className='absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto'
           aria-label='Add first project'
         >
           <div className='w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors'>

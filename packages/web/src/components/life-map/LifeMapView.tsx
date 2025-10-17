@@ -22,13 +22,22 @@ export const LifeMapView: React.FC = () => {
 
   // Load last visited category from localStorage on mount
   useEffect(() => {
-    const lastCategory = localStorage.getItem(LAST_VISITED_CATEGORY_KEY) as ProjectCategory | null
+    const lastCategory = localStorage.getItem(LAST_VISITED_CATEGORY_KEY)
     const lastTimestamp = localStorage.getItem(LAST_VISIT_TIMESTAMP_KEY)
 
     if (lastCategory && lastTimestamp) {
+      // Validate that the category exists in our constants
+      const categoryInfo = getCategoryInfo(lastCategory as ProjectCategory)
+      if (!categoryInfo) {
+        // Invalid category, clear localStorage
+        localStorage.removeItem(LAST_VISITED_CATEGORY_KEY)
+        localStorage.removeItem(LAST_VISIT_TIMESTAMP_KEY)
+        return
+      }
+
       const timeSinceVisit = Date.now() - parseInt(lastTimestamp, 10)
       if (timeSinceVisit < RECENT_VISIT_THRESHOLD) {
-        setLastVisitedCategory(lastCategory)
+        setLastVisitedCategory(lastCategory as ProjectCategory)
         setShowReturnButton(true)
       }
     }
