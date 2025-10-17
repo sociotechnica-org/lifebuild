@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useStore, useQuery } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
 import { getProjectDetails$ } from '@work-squared/shared/queries'
@@ -13,6 +13,7 @@ import type {
 } from '@work-squared/shared'
 import { ProjectCreationStage1Presenter } from './ProjectCreationStage1Presenter'
 import { ProjectCreationStage2Presenter } from './ProjectCreationStage2Presenter'
+import { ProjectCreationStage3Presenter } from './ProjectCreationStage3Presenter'
 import { PROJECT_CATEGORIES } from '@work-squared/shared'
 
 /**
@@ -77,6 +78,7 @@ function suggestArchetype(
 export const ProjectCreationView: React.FC = () => {
   const { categoryId } = useParams<{ categoryId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const store = useStore()
 
   // Get project ID from URL if editing existing project
@@ -86,7 +88,7 @@ export const ProjectCreationView: React.FC = () => {
   const existingProject = projectId ? (projectQueryResult?.[0] as any) : null
 
   // Stage management
-  const [currentStage, setCurrentStage] = useState<1 | 2>(1)
+  const [currentStage, setCurrentStage] = useState<1 | 2 | 3>(1)
   const [isSaving, setIsSaving] = useState(false)
   const [hasLoadedProject, setHasLoadedProject] = useState(false)
 
@@ -113,7 +115,7 @@ export const ProjectCreationView: React.FC = () => {
 
       const attrs = existingProject.attributes as PlanningAttributes | null
       if (attrs) {
-        setCurrentStage((attrs.planningStage as 1 | 2) || 1)
+        setCurrentStage((attrs.planningStage as 1 | 2 | 3) || 1)
         setObjectives(attrs.objectives || '')
         if (attrs.deadline) {
           const dateStr = new Date(attrs.deadline).toISOString().split('T')[0]
@@ -146,7 +148,7 @@ export const ProjectCreationView: React.FC = () => {
   const categoryColor = category?.colorHex || '#3B82F6'
 
   // Save project (create or update)
-  const saveProject = async (stage: 1 | 2, navigateToStage?: 1 | 2) => {
+  const saveProject = async (stage: 1 | 2 | 3, navigateToStage?: 1 | 2 | 3) => {
     if (!categoryId) return
 
     setIsSaving(true)
@@ -250,9 +252,18 @@ export const ProjectCreationView: React.FC = () => {
   }
 
   const handleStage2Continue = () => {
-    // Stage 3 will be implemented in next PR
-    saveProject(2)
-    alert('Stage 3 (Task Planning) coming in next PR!')
+    saveProject(2, 3)
+  }
+
+  // Stage 3 handlers
+  const handleStage3Back = () => {
+    setCurrentStage(2)
+  }
+
+  const handleStage3OpenProject = () => {
+    if (!projectId) return
+    // Navigate to project page (kanban view)
+    navigate(`/project/${projectId}`)
   }
 
   if (!categoryId) {
@@ -300,6 +311,15 @@ export const ProjectCreationView: React.FC = () => {
           onSaveDraft={handleStage2SaveDraft}
           onContinue={handleStage2Continue}
           isSaving={isSaving}
+          categoryColor={categoryColor}
+        />
+      )}
+      {currentStage === 3 && (
+        <ProjectCreationStage3Presenter
+          projectId={projectId || ''}
+          projectTitle={title}
+          onBack={handleStage3Back}
+          onOpenProject={handleStage3OpenProject}
           categoryColor={categoryColor}
         />
       )}

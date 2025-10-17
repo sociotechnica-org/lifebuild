@@ -29,6 +29,7 @@ import {
   calculateStatusTaskReorder,
   calculateStatusDropTarget,
 } from '../../../utils/statusTaskReordering.js'
+import type { PlanningAttributes } from '@work-squared/shared'
 
 // Component for the actual workspace content
 const ProjectWorkspaceContent: React.FC = () => {
@@ -57,6 +58,37 @@ const ProjectWorkspaceContent: React.FC = () => {
   }
 
   const tasks = useQuery(getProjectTasks$(projectId)) ?? []
+
+  // Check if project is in planning stage 3
+  const projectAttrs = project?.attributes as PlanningAttributes | null
+  const isInPlanningStage3 =
+    projectAttrs?.status === 'planning' && projectAttrs?.planningStage === 3
+
+  // Handle completing planning stage 3
+  const handleDonePlanning = () => {
+    if (!projectId || !project) return
+
+    // Update project attributes to advance to stage 4
+    const updatedAttributes: PlanningAttributes = {
+      ...(projectAttrs || {}),
+      status: 'planning',
+      planningStage: 4,
+    }
+
+    store.commit(
+      events.projectAttributesUpdated({
+        id: projectId,
+        attributes: updatedAttributes as any,
+        updatedAt: new Date(),
+        actorId: user?.id,
+      })
+    )
+
+    // Navigate back to category planning view
+    if (project.category) {
+      navigate(preserveStoreIdInUrl(`/category/${project.category}?tab=planning`))
+    }
+  }
 
   // Get documents for project using client-side filtering for now
   const documentProjects = useQuery(getDocumentProjectsByProject$(projectId)) ?? []
@@ -233,6 +265,31 @@ const ProjectWorkspaceContent: React.FC = () => {
           </nav>
         </div>
 
+        {/* Planning Stage Indicator */}
+        {isInPlanningStage3 && (
+          <div className='mb-4 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg'>
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-3'>
+                <div className='flex items-center gap-2'>
+                  <div className='w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold'>
+                    3
+                  </div>
+                  <span className='text-sm font-medium text-blue-900'>Stage 3: Task Planning</span>
+                </div>
+                <div className='flex gap-1'>
+                  <div className='h-2 w-2 rounded-full bg-blue-400' />
+                  <div className='h-2 w-2 rounded-full bg-blue-400' />
+                  <div className='h-2 w-2 rounded-full bg-blue-600' />
+                  <div className='h-2 w-2 rounded-full bg-gray-300' />
+                </div>
+              </div>
+              <p className='text-sm text-blue-700'>
+                Add and organize your tasks, then click "Done Planning" when ready
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Project Title and Description */}
         <div className='mb-4'>
           <div className='flex items-start justify-between gap-4'>
@@ -248,6 +305,23 @@ const ProjectWorkspaceContent: React.FC = () => {
               )}
             </div>
             <div className='flex items-center gap-2'>
+              {isInPlanningStage3 && (
+                <button
+                  onClick={handleDonePlanning}
+                  className='flex items-center gap-1.5 px-4 py-1.5 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors'
+                  aria-label='Done planning'
+                >
+                  <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M5 13l4 4L19 7'
+                    />
+                  </svg>
+                  Done Planning
+                </button>
+              )}
               <button
                 onClick={() => setIsEditProjectModalOpen(true)}
                 className='flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors'
