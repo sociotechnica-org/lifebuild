@@ -7,6 +7,19 @@ interface ImageUploadProps {
   maxSizeMB?: number
 }
 
+// Helper to get full image URL from relative path
+const getFullImageUrl = (url: string): string => {
+  if (!url) return ''
+  // If already a full URL, return as-is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url
+  }
+  // Otherwise, prepend the worker URL
+  const syncUrl = import.meta.env.VITE_LIVESTORE_SYNC_URL || 'http://localhost:8787'
+  const httpUrl = syncUrl.replace(/^ws:/, 'http:').replace(/^wss:/, 'https:')
+  return `${httpUrl}${url}`
+}
+
 export const ImageUpload: React.FC<ImageUploadProps> = ({
   onUploadComplete,
   currentImageUrl,
@@ -100,12 +113,15 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     fileInputRef.current?.click()
   }
 
+  // Get full URL for preview (handles relative paths from R2)
+  const previewUrl = preview && !preview.startsWith('data:') ? getFullImageUrl(preview) : preview
+
   return (
     <div className='image-upload'>
-      {preview && (
+      {previewUrl && (
         <div className='image-preview' style={{ marginBottom: '1rem' }}>
           <img
-            src={preview}
+            src={previewUrl}
             alt='Cover preview'
             style={{
               maxWidth: '100%',
