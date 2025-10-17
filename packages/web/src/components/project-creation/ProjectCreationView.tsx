@@ -16,6 +16,61 @@ import { ProjectCreationStage2Presenter } from './ProjectCreationStage2Presenter
 import { PROJECT_CATEGORIES } from '@work-squared/shared'
 
 /**
+ * Auto-suggest project archetype based on traits
+ * Based on the Life Squared glossary logic
+ */
+function suggestArchetype(
+  urgency: UrgencyLevel,
+  importance: ImportanceLevel,
+  complexity: ComplexityLevel,
+  scale: ScaleLevel
+): ProjectArchetype | null {
+  // Critical Response: Urgency = Critical
+  if (urgency === 'critical') {
+    return 'critical'
+  }
+
+  // Quick Task: Micro-Minor scale + Simple complexity
+  if ((scale === 'micro' || scale === 'minor') && complexity === 'simple') {
+    return 'quicktask'
+  }
+
+  // Major Initiative: Major-Epic scale + High-Critical importance
+  if (
+    (scale === 'major' || scale === 'epic') &&
+    (importance === 'high' || importance === 'critical')
+  ) {
+    return 'initiative'
+  }
+
+  // System Build: Minor-Major scale + Complicated-Complex + Low-Normal urgency
+  if (
+    (scale === 'minor' || scale === 'major') &&
+    (complexity === 'complicated' || complexity === 'complex') &&
+    (urgency === 'low' || urgency === 'normal')
+  ) {
+    return 'systembuild'
+  }
+
+  // Maintenance Loop: Simple-Complicated + Normal urgency
+  if (
+    (complexity === 'simple' || complexity === 'complicated') &&
+    urgency === 'normal' &&
+    importance === 'normal'
+  ) {
+    return 'maintenance'
+  }
+
+  // Discovery Mission: Minor scale + Complex/Chaotic complexity
+  if (scale === 'minor' && (complexity === 'complex' || complexity === 'chaotic')) {
+    return 'discovery'
+  }
+
+  // Default: Let user choose
+  return null
+}
+
+/**
  * Container component for project creation workflow
  * Manages state, stage navigation, and event commits
  */
@@ -73,6 +128,17 @@ export const ProjectCreationView: React.FC = () => {
       setHasLoadedProject(true)
     }
   }, [existingProject, hasLoadedProject])
+
+  // Auto-suggest archetype based on traits
+  useEffect(() => {
+    // Only auto-suggest if archetype hasn't been manually set
+    if (currentStage === 2 && !archetype) {
+      const suggested = suggestArchetype(urgency, importance, complexity, scale)
+      if (suggested) {
+        setArchetype(suggested)
+      }
+    }
+  }, [urgency, importance, complexity, scale, currentStage, archetype])
 
   // Get category color
   const category = PROJECT_CATEGORIES.find(c => c.value === categoryId)
