@@ -11,3 +11,16 @@ export type {
   AuthUser,
   AuthInstance,
 } from './auth/types.js'
+
+// Export planning types
+export type {
+  ProjectStatus,
+  PlanningStage,
+  ProjectArchetype,
+  UrgencyLevel,
+  ImportanceLevel,
+  ComplexityLevel,
+  ScaleLevel,
+  PlanningAttributes,
+} from './types/planning.js'
+export { ARCHETYPE_LABELS, STAGE_LABELS } from './types/planning.js'

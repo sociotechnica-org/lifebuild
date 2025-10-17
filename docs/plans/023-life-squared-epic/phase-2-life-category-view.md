@@ -4,6 +4,13 @@
 
 This phase introduces the Planning tab with three sub-tabs (Project Creation, Project Plans, Backlog) and implements the complete project planning workflow from initial idea to activation-ready projects. It emphasizes progressive planning with state persistence and intelligent tab selection.
 
+## Progress Overview
+
+- ✅ **Section 1: Planning Tab Structure & Navigation** (Stories 1.1-1.3) - COMPLETED in PR#246 (merged 2025-10-17)
+- 🔄 **Section 2: Project Creation Sub-Tab** (Stories 2.1-2.7) - IN PROGRESS
+- ⏸️ **Section 3: Project Plans Sub-Tab** (Stories 3.1-3.5) - NOT STARTED
+- ⏸️ **Section 4: Backlog Sub-Tab** (Stories 4.1-4.5) - NOT STARTED
+
 ---
 
 ## Section 1: Planning Tab Structure & Navigation
@@ -14,15 +21,15 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Routing: Ensure `/category/:categoryId` route supports tab parameter (e.g., `/category/:categoryId?tab=planning`)
-- [ ] UI: Create tabbed interface in Life Category view with three tabs: Planning, Active, Completed
-- [ ] UI: Selected tab visually distinct (bold, underline, category color accent)
-- [ ] UI: Unselected tabs use muted styling
-- [ ] Logic: Tab selection persists during session within that category
-- [ ] Navigation: Clicking tab updates URL parameter and displays corresponding content
-- [ ] DoD: Life Category views display three prominent tabs (Planning, Active, Completed) with clear visual distinction for the active tab.
+- [x] Routing: Ensure `/category/:categoryId` route supports tab parameter (e.g., `/category/:categoryId?tab=planning`)
+- [x] UI: Create tabbed interface in Life Category view with three tabs: Planning, Active, Completed
+- [x] UI: Selected tab visually distinct (bold, underline, category color accent)
+- [x] UI: Unselected tabs use muted styling
+- [x] Logic: Tab selection persists during session within that category
+- [x] Navigation: Clicking tab updates URL parameter and displays corresponding content
+- [x] DoD: Life Category views display three prominent tabs (Planning, Active, Completed) with clear visual distinction for the active tab.
 
-**Status**:
+**Status**: ✅ **COMPLETED** in PR#246 (merged 2025-10-17)
 
 ---
 
@@ -34,15 +41,15 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Query: When loading category, check if any projects have `status = 'active'`
-- [ ] Logic: If `activeProjectCount > 0`, pre-select Active tab
-- [ ] Logic: If `activeProjectCount = 0`, pre-select Planning tab
-- [ ] Logic: User can manually override by clicking any tab
-- [ ] Logic: Manual tab selection persists for that category during session
-- [ ] Logic: Selection logic only applies on initial category entry (not when returning from project detail)
-- [ ] DoD: When entering a category, the system automatically selects Active tab if projects are active, otherwise Planning tab, with manual override capability.
+- [x] Query: When loading category, check if any projects have `status = 'active'`
+- [x] Logic: If `activeProjectCount > 0`, pre-select Active tab
+- [x] Logic: If `activeProjectCount = 0`, pre-select Planning tab
+- [x] Logic: User can manually override by clicking any tab
+- [x] Logic: Manual tab selection persists for that category during session
+- [x] Logic: Selection logic only applies on initial category entry (not when returning from project detail)
+- [x] DoD: When entering a category, the system automatically selects Active tab if projects are active, otherwise Planning tab, with manual override capability.
 
-**Status**:
+**Status**: ✅ **COMPLETED** in PR#246 (merged 2025-10-17)
 
 ---
 
@@ -54,19 +61,28 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] UI: When Planning tab active, display three sub-tabs: Project Creation, Project Plans, Backlog
-- [ ] UI: Sub-tabs positioned below main tabs with smaller, secondary styling
-- [ ] UI: Each sub-tab clearly labeled
-- [ ] UI: Navigation between sub-tabs is instant (no loading)
-- [ ] UI: Visual indicator shows current sub-tab selection (underline or highlight)
-- [ ] Logic: Sub-tab selection persists during session within Planning tab
-- [ ] DoD: The Planning tab contains three distinct sub-tabs with instant navigation and clear selection indicators.
+- [x] UI: When Planning tab active, display three sub-tabs: Project Creation, Project Plans, Backlog
+- [x] UI: Sub-tabs positioned below main tabs with smaller, secondary styling
+- [x] UI: Each sub-tab clearly labeled
+- [x] UI: Navigation between sub-tabs is instant (no loading)
+- [x] UI: Visual indicator shows current sub-tab selection (underline or highlight)
+- [x] Logic: Sub-tab selection persists during session within Planning tab
+- [x] DoD: The Planning tab contains three distinct sub-tabs with instant navigation and clear selection indicators.
 
-**Status**:
+**Status**: ✅ **COMPLETED** in PR#246 (merged 2025-10-17)
 
 ---
 
 ## Section 2: Project Creation Sub-Tab (Stage 1-4)
+
+**Implementation Strategy**: Breaking into small, focused PRs for easier review:
+
+- **PR #1**: Stories 2.1 + 2.4 (Stage 1 & 2) - Schema, events, basic planning forms
+- **PR #2**: Story 2.5 (Stage 3) - Task planning integration
+- **PR #3**: Stories 2.6 + 2.7 (Stage 4 & Backlog transition) - Priority + status changes
+- **PR #4**: Stories 2.2 + 2.3 (Cover images) - Upload + AI generation
+
+---
 
 ### Story 2.1 – Create project Stage 1 (Identified)
 
@@ -76,16 +92,16 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Schema: Use PR4 schema with `projects.attributes` containing `status`, `planningStage` fields
-- [ ] Event: Use existing `v1.ProjectCreated` event with `category` field
-- [ ] UI: Project Creation sub-tab displays Stage 1 form with fields: Title (required), Description (textarea)
-- [ ] UI: Show stage progress indicator (1/4) at top
-- [ ] UI: "Save & Continue to Stage 2" (primary) and "Save Draft" (secondary) buttons
-- [ ] Logic: On save, commit `projectCreated` event with `attributes: { status: 'planning', planningStage: 1 }`
-- [ ] Logic: "Save Draft" keeps project at Stage 1, "Save & Continue" advances to Stage 2
-- [ ] DoD: Operators can create Stage 1 projects with title and description, saving as draft or advancing to Stage 2.
+- [x] Schema: Use PR4 schema with `projects.attributes` containing `status`, `planningStage` fields
+- [x] Event: Use existing `v2.ProjectCreated` event with `category` field
+- [x] UI: Project Creation sub-tab displays Stage 1 form with fields: Title (required), Description (textarea)
+- [x] UI: Show stage progress indicator (1/4) at top
+- [x] UI: "Save & Continue to Stage 2" (primary) and "Save Draft" (secondary) buttons
+- [x] Logic: On save, commit `projectCreated` event with `attributes: { status: 'planning', planningStage: 1 }`
+- [x] Logic: "Save Draft" keeps project at Stage 1, "Save & Continue" advances to Stage 2
+- [x] DoD: Operators can create Stage 1 projects with title and description, saving as draft or advancing to Stage 2.
 
-**Status**:
+**Status**: 🔄 **IN PROGRESS** - PR pending
 
 ---
 
@@ -147,17 +163,17 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Schema: Add fields to `projects.attributes`: `objectives`, `deadline`, `archetype`, `estimatedDuration`, `urgency`, `importance`, `complexity`, `scale`
-- [ ] Event: Create `v1.ProjectAttributesUpdated` event with payload `{ projectId, attributes, updatedAt, actorId }`
-- [ ] UI: Stage 2 form displays: Objective (plain text), Deadline (date picker)
-- [ ] UI: Trait selectors: Urgency, Importance, Complexity, Scale (dropdowns with predefined values)
-- [ ] UI: Archetype selector (dropdown: Quick Task, Discovery Mission, Critical Response, Maintenance Loop, System Build, Major Initiative) - auto-suggested based on traits but can be overridden
-- [ ] UI: Show stage progress indicator (2/4)
-- [ ] UI: "Back to Stage 1", "Save Draft", "Continue to Stage 3" buttons
-- [ ] Logic: On continue, commit `projectAttributesUpdated` event with `planningStage: 2` and all Stage 2 fields
-- [ ] DoD: Operators can define objectives, deadlines, traits, and archetype in Stage 2, with ability to navigate back or advance to Stage 3.
+- [x] Schema: Add fields to `projects.attributes`: `objectives`, `deadline`, `archetype`, `estimatedDuration`, `urgency`, `importance`, `complexity`, `scale`
+- [x] Event: Use `v2.ProjectAttributesUpdated` event with payload `{ projectId, attributes, updatedAt, actorId }`
+- [x] UI: Stage 2 form displays: Objective (plain text), Deadline (date picker)
+- [x] UI: Trait selectors: Urgency, Importance, Complexity, Scale (dropdowns with predefined values)
+- [x] UI: Archetype selector (dropdown: Quick Task, Discovery Mission, Critical Response, Maintenance Loop, System Build, Major Initiative)
+- [x] UI: Show stage progress indicator (2/4)
+- [x] UI: "Back to Stage 1", "Save Draft", "Continue to Stage 3" buttons
+- [x] Logic: On continue, commit `projectAttributesUpdated` event with `planningStage: 2` and all Stage 2 fields
+- [x] DoD: Operators can define objectives, deadlines, traits, and archetype in Stage 2, with ability to navigate back or advance to Stage 3.
 
-**Status**:
+**Status**: 🔄 **IN PROGRESS** - PR pending
 
 #### Implementation Notes
 
