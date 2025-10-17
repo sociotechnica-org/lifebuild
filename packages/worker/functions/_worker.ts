@@ -18,6 +18,7 @@ export interface Env extends SyncEnv {
   JWT_SECRET?: string
   GRACE_PERIOD_SECONDS?: string
   SERVER_BYPASS_TOKEN?: string
+  R2_PUBLIC_URL?: string
 }
 
 export class SyncBackendDO extends SyncBackend.makeDurableObject({
