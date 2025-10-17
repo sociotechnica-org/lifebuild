@@ -76,6 +76,7 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 ## Section 2: Project Creation Sub-Tab (Stage 1-4)
 
 **Implementation Strategy**: Breaking into small, focused PRs for easier review:
+
 - **PR #1**: Stories 2.1 + 2.4 (Stage 1 & 2) - Schema, events, basic planning forms
 - **PR #2**: Story 2.5 (Stage 3) - Task planning integration
 - **PR #3**: Stories 2.6 + 2.7 (Stage 4 & Backlog transition) - Priority + status changes
@@ -91,16 +92,16 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Schema: Use PR4 schema with `projects.attributes` containing `status`, `planningStage` fields
-- [ ] Event: Use existing `v1.ProjectCreated` event with `category` field
-- [ ] UI: Project Creation sub-tab displays Stage 1 form with fields: Title (required), Description (textarea)
-- [ ] UI: Show stage progress indicator (1/4) at top
-- [ ] UI: "Save & Continue to Stage 2" (primary) and "Save Draft" (secondary) buttons
-- [ ] Logic: On save, commit `projectCreated` event with `attributes: { status: 'planning', planningStage: 1 }`
-- [ ] Logic: "Save Draft" keeps project at Stage 1, "Save & Continue" advances to Stage 2
-- [ ] DoD: Operators can create Stage 1 projects with title and description, saving as draft or advancing to Stage 2.
+- [x] Schema: Use PR4 schema with `projects.attributes` containing `status`, `planningStage` fields
+- [x] Event: Use existing `v2.ProjectCreated` event with `category` field
+- [x] UI: Project Creation sub-tab displays Stage 1 form with fields: Title (required), Description (textarea)
+- [x] UI: Show stage progress indicator (1/4) at top
+- [x] UI: "Save & Continue to Stage 2" (primary) and "Save Draft" (secondary) buttons
+- [x] Logic: On save, commit `projectCreated` event with `attributes: { status: 'planning', planningStage: 1 }`
+- [x] Logic: "Save Draft" keeps project at Stage 1, "Save & Continue" advances to Stage 2
+- [x] DoD: Operators can create Stage 1 projects with title and description, saving as draft or advancing to Stage 2.
 
-**Status**:
+**Status**: 🔄 **IN PROGRESS** - PR pending
 
 ---
 
@@ -162,17 +163,17 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Schema: Add fields to `projects.attributes`: `objectives`, `deadline`, `archetype`, `estimatedDuration`, `urgency`, `importance`, `complexity`, `scale`
-- [ ] Event: Create `v1.ProjectAttributesUpdated` event with payload `{ projectId, attributes, updatedAt, actorId }`
-- [ ] UI: Stage 2 form displays: Objective (plain text), Deadline (date picker)
-- [ ] UI: Trait selectors: Urgency, Importance, Complexity, Scale (dropdowns with predefined values)
-- [ ] UI: Archetype selector (dropdown: Quick Task, Discovery Mission, Critical Response, Maintenance Loop, System Build, Major Initiative) - auto-suggested based on traits but can be overridden
-- [ ] UI: Show stage progress indicator (2/4)
-- [ ] UI: "Back to Stage 1", "Save Draft", "Continue to Stage 3" buttons
-- [ ] Logic: On continue, commit `projectAttributesUpdated` event with `planningStage: 2` and all Stage 2 fields
-- [ ] DoD: Operators can define objectives, deadlines, traits, and archetype in Stage 2, with ability to navigate back or advance to Stage 3.
+- [x] Schema: Add fields to `projects.attributes`: `objectives`, `deadline`, `archetype`, `estimatedDuration`, `urgency`, `importance`, `complexity`, `scale`
+- [x] Event: Use `v2.ProjectAttributesUpdated` event with payload `{ projectId, attributes, updatedAt, actorId }`
+- [x] UI: Stage 2 form displays: Objective (plain text), Deadline (date picker)
+- [x] UI: Trait selectors: Urgency, Importance, Complexity, Scale (dropdowns with predefined values)
+- [x] UI: Archetype selector (dropdown: Quick Task, Discovery Mission, Critical Response, Maintenance Loop, System Build, Major Initiative)
+- [x] UI: Show stage progress indicator (2/4)
+- [x] UI: "Back to Stage 1", "Save Draft", "Continue to Stage 3" buttons
+- [x] Logic: On continue, commit `projectAttributesUpdated` event with `planningStage: 2` and all Stage 2 fields
+- [x] DoD: Operators can define objectives, deadlines, traits, and archetype in Stage 2, with ability to navigate back or advance to Stage 3.
 
-**Status**:
+**Status**: 🔄 **IN PROGRESS** - PR pending
 
 #### Implementation Notes
 

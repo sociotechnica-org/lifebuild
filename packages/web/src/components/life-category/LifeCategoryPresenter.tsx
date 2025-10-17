@@ -1,6 +1,7 @@
 import React from 'react'
 import type { Project } from '@work-squared/shared/schema'
 import { ProjectCard } from '../projects/ProjectCard/ProjectCard.js'
+import { ProjectCreationView } from '../project-creation/ProjectCreationView.js'
 
 export type CategoryTab = 'planning' | 'active' | 'completed'
 export type PlanningSubTab = 'project-creation' | 'project-plans' | 'backlog'
@@ -97,9 +98,13 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
       )}
 
       {/* Content Area */}
-      <div className='flex-1 overflow-y-auto p-6'>
-        {selectedTab === 'planning' && selectedSubTab && (
-          <div>
+      <div className='flex-1 overflow-y-auto'>
+        {selectedTab === 'planning' && selectedSubTab === 'project-creation' && (
+          <ProjectCreationView />
+        )}
+
+        {selectedTab === 'planning' && selectedSubTab && selectedSubTab !== 'project-creation' && (
+          <div className='p-6'>
             <h2 className='text-lg font-semibold mb-4'>
               {planningSubTabs.find(t => t.id === selectedSubTab)?.label}
             </h2>
@@ -108,7 +113,7 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
         )}
 
         {selectedTab === 'active' && (
-          <div>
+          <div className='p-6'>
             {activeProjects.length === 0 ? (
               <div className='text-center py-12'>
                 <h2 className='text-xl font-semibold text-gray-600 mb-2'>No active projects</h2>
@@ -129,7 +134,7 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
         )}
 
         {selectedTab === 'completed' && (
-          <div>
+          <div className='p-6'>
             {completedProjects.length === 0 ? (
               <div className='text-center py-12'>
                 <h2 className='text-xl font-semibold text-gray-600 mb-2'>No completed projects</h2>
