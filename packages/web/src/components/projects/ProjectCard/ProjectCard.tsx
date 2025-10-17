@@ -66,36 +66,36 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
       )}
       <div className='p-6'>
         <h3 className='text-lg font-semibold text-gray-900 mb-2'>{project.name}</h3>
-      {project.category && (
-        <div className='mb-2'>
-          <ProjectCategoryBadge category={project.category as any} size='sm' />
-        </div>
-      )}
-      {project.description && (
-        <p className='text-sm text-gray-600 mb-3 line-clamp-2'>{project.description}</p>
-      )}
-
-      {assignedWorkers.length > 0 && (
-        <div className='mb-3'>
-          <div className='text-xs text-gray-500 mb-1'>Assigned Team:</div>
-          <div className='flex flex-wrap gap-1'>
-            {assignedWorkers.slice(0, 3).map(worker => (
-              <span
-                key={worker.id}
-                className={`inline-flex items-center px-2 py-1 text-xs ${getAvatarColor(worker.id)} text-white rounded-full`}
-              >
-                {worker.avatar && <span className='mr-1'>{worker.avatar}</span>}
-                {worker.name}
-              </span>
-            ))}
-            {assignedWorkers.length > 3 && (
-              <span className='inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full'>
-                +{assignedWorkers.length - 3} more
-              </span>
-            )}
+        {project.category && (
+          <div className='mb-2'>
+            <ProjectCategoryBadge category={project.category as any} size='sm' />
           </div>
-        </div>
-      )}
+        )}
+        {project.description && (
+          <p className='text-sm text-gray-600 mb-3 line-clamp-2'>{project.description}</p>
+        )}
+
+        {assignedWorkers.length > 0 && (
+          <div className='mb-3'>
+            <div className='text-xs text-gray-500 mb-1'>Assigned Team:</div>
+            <div className='flex flex-wrap gap-1'>
+              {assignedWorkers.slice(0, 3).map(worker => (
+                <span
+                  key={worker.id}
+                  className={`inline-flex items-center px-2 py-1 text-xs ${getAvatarColor(worker.id)} text-white rounded-full`}
+                >
+                  {worker.avatar && <span className='mr-1'>{worker.avatar}</span>}
+                  {worker.name}
+                </span>
+              ))}
+              {assignedWorkers.length > 3 && (
+                <span className='inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full'>
+                  +{assignedWorkers.length - 3} more
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className='text-sm text-gray-500'>
           <p>Created: {formatDate(project.createdAt)}</p>
