@@ -19,6 +19,7 @@ const { mockUseQuery, mockStore, mockUseParams } = vi.hoisted(() => {
 // Mock react-router-dom
 vi.mock('react-router-dom', () => ({
   useParams: mockUseParams,
+  useNavigate: () => vi.fn(),
   Link: ({ children, to, ...props }: any) => (
     <a href={to} {...props}>
       {children}
@@ -55,6 +56,14 @@ vi.mock('@dnd-kit/core', () => ({
     transform: null,
     isDragging: false,
   })),
+}))
+
+// Mock AuthContext
+vi.mock('../../../contexts/AuthContext.js', () => ({
+  useAuth: () => ({
+    user: { id: 'test-user', name: 'Test User', email: 'test@example.com' },
+    isLoading: false,
+  }),
 }))
 
 describe('ProjectWorkspace', () => {

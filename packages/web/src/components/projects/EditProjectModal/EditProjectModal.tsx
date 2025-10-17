@@ -3,6 +3,7 @@ import { useStore } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
 import { PROJECT_CATEGORIES } from '@work-squared/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
+import { ProjectAttributesEditor } from '../ProjectAttributesEditor/ProjectAttributesEditor.js'
 import type { Project } from '@work-squared/shared/schema'
 
 interface EditProjectModalProps {
@@ -11,12 +12,32 @@ interface EditProjectModalProps {
   project: Project
 }
 
+/**
+ * Safely extract only string key-value pairs from project attributes.
+ * The schema allows any JSON, but the UI only supports string pairs.
+ */
+function safeExtractStringAttributes(attrs: unknown): Record<string, string> {
+  if (!attrs || typeof attrs !== 'object' || Array.isArray(attrs)) {
+    return {}
+  }
+  const result: Record<string, string> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    if (typeof key === 'string' && typeof value === 'string') {
+      result[key] = value
+    }
+  }
+  return result
+}
+
 export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, project }) => {
   const { store } = useStore()
   const { user } = useAuth()
   const [name, setName] = useState(project.name)
   const [description, setDescription] = useState(project.description || '')
   const [category, setCategory] = useState<string>(project.category || '')
+  const [attributes, setAttributes] = useState<Record<string, string>>(() =>
+    safeExtractStringAttributes(project.attributes)
+  )
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<{ name?: string; description?: string }>({})
 
@@ -25,6 +46,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onCl
     setName(project.name)
     setDescription(project.description || '')
     setCategory(project.category || '')
+    setAttributes(safeExtractStringAttributes(project.attributes))
   }, [project])
 
   const validateForm = () => {
@@ -75,12 +97,37 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onCl
         updates.category = newCategory as any
       }
 
-      // Only commit if there are actual changes
+      // Commit basic field updates if there are changes
       if (Object.keys(updates).length > 0) {
         store.commit(
           events.projectUpdated({
             id: project.id,
             updates: updates as any,
+            updatedAt,
+            actorId: user?.id,
+          })
+        )
+      }
+
+      // Check if attributes changed and commit separately
+      const currentAttributes = (project.attributes as Record<string, string>) || {}
+
+      // Deep equality check for attributes (handles key ordering)
+      const attributesChanged = (() => {
+        const currentKeys = Object.keys(currentAttributes).sort()
+        const newKeys = Object.keys(attributes).sort()
+
+        if (currentKeys.length !== newKeys.length) return true
+        if (currentKeys.join(',') !== newKeys.join(',')) return true
+
+        return currentKeys.some(key => currentAttributes[key] !== attributes[key])
+      })()
+
+      if (attributesChanged) {
+        store.commit(
+          events.projectAttributesUpdated({
+            id: project.id,
+            attributes: attributes as any,
             updatedAt,
             actorId: user?.id,
           })
@@ -100,6 +147,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onCl
     setName(project.name)
     setDescription(project.description || '')
     setCategory(project.category || '')
+    setAttributes(safeExtractStringAttributes(project.attributes))
     setErrors({})
     onClose()
   }
@@ -231,6 +279,18 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onCl
                   {PROJECT_CATEGORIES.find(c => c.value === category)?.description}
                 </p>
               )}
+            </div>
+
+            {/* Custom Attributes */}
+            <div>
+              <label className='block text-sm font-medium text-gray-900 mb-2'>
+                Custom Attributes
+              </label>
+              <ProjectAttributesEditor
+                attributes={attributes}
+                onChange={setAttributes}
+                disabled={isSubmitting}
+              />
             </div>
 
             {/* Actions */}

@@ -228,6 +228,39 @@ export interface GetProjectDetailsResult {
   error?: string
 }
 
+// PR5+6: Update project with attributes
+export interface UpdateProjectParams {
+  projectId: string
+  name?: string
+  description?: string | null
+  category?: string | null
+  attributes?: Record<string, string>
+}
+
+export interface UpdateProjectResult {
+  success: boolean
+  error?: string
+}
+
+// PR5+6: Archive/unarchive project
+export interface ArchiveProjectParams {
+  projectId: string
+}
+
+export interface ArchiveProjectResult {
+  success: boolean
+  error?: string
+}
+
+export interface UnarchiveProjectParams {
+  projectId: string
+}
+
+export interface UnarchiveProjectResult {
+  success: boolean
+  error?: string
+}
+
 // ===== DOCUMENT TOOL TYPES =====
 
 export interface ListDocumentsParams {
