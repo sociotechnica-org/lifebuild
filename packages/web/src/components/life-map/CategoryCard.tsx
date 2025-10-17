@@ -1,5 +1,7 @@
 import React from 'react'
 import type { ProjectCategory } from '@work-squared/shared'
+import { formatRelativeTime } from '../../util/dates.js'
+import { isNeglected } from '../../util/categoryHelpers.js'
 
 export interface CategoryCardProps {
   category: {
@@ -15,41 +17,6 @@ export interface CategoryCardProps {
   planningProjectCount: number
   lastActivityAt: number | null
   onClick: () => void
-}
-
-/**
- * Format a timestamp as relative time (e.g., "Active today", "3 days ago")
- */
-function formatRelativeTime(timestamp: number | null): string {
-  if (!timestamp) return 'No activity'
-
-  const now = Date.now()
-  const diffMs = now - timestamp
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-  const diffWeeks = Math.floor(diffDays / 7)
-
-  if (diffDays === 0) return 'Active today'
-  if (diffDays === 1) return 'Yesterday'
-  if (diffDays < 7) return `${diffDays} days ago`
-  if (diffWeeks === 1) return '1 week ago'
-  if (diffWeeks < 4) return `${diffWeeks} weeks ago`
-
-  const diffMonths = Math.floor(diffDays / 30)
-  if (diffMonths === 1) return '1 month ago'
-  if (diffMonths < 12) return `${diffMonths} months ago`
-
-  return 'Over a year ago'
-}
-
-/**
- * Check if a category should show a warning for being neglected (>1 week since activity)
- */
-function isNeglected(timestamp: number | null): boolean {
-  if (!timestamp) return false
-  const now = Date.now()
-  const diffMs = now - timestamp
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-  return diffDays > 7
 }
 
 export const CategoryCard: React.FC<CategoryCardProps> = ({
