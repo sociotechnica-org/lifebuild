@@ -12,7 +12,6 @@ export const ROUTES = {
   DOCUMENTS: '/documents',
   CONTACTS: '/contacts',
   CONTACT: '/contacts/:contactId',
-  CATEGORY: '/category/:categoryId',
   HISTORY: '/history',
   SETTINGS: '/settings',
   ADMIN: '/admin',
@@ -27,11 +26,10 @@ export const ROUTES = {
  * Route generators for dynamic routes
  */
 export const generateRoute = {
-  category: (categoryId: string) => `/category/${categoryId}`,
+  category: (id: string, tab?: string) => (tab ? `/category/${id}?tab=${tab}` : `/category/${id}`),
   document: (id: string) => `/document/${id}`,
   project: (id: string) => `/project/${id}`,
   contact: (id: string) => `/contacts/${id}`,
-  category: (id: string, tab?: string) => (tab ? `/category/${id}?tab=${tab}` : `/category/${id}`),
   adminUser: (userEmail: string) => `/admin/users/${encodeURIComponent(userEmail)}`,
 } as const
 
@@ -43,5 +41,4 @@ export const ROUTE_PATTERNS = {
   DOCUMENT: '/document/',
   PROJECT: '/project/',
   CONTACT: '/contacts/',
-  CATEGORY: '/category/',
 } as const

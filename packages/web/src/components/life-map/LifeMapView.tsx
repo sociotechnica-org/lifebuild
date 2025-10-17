@@ -5,6 +5,7 @@ import { getProjects$ } from '@work-squared/shared/queries'
 import { PROJECT_CATEGORIES } from '@work-squared/shared'
 import { CategoryCard } from './CategoryCard.js'
 import { preserveStoreIdInUrl } from '../../util/navigation.js'
+import { generateRoute } from '../../constants/routes.js'
 
 export const LifeMapView: React.FC = () => {
   const navigate = useNavigate()
@@ -24,7 +25,7 @@ export const LifeMapView: React.FC = () => {
   }, [projects])
 
   const handleCategoryClick = (categoryValue: string) => {
-    navigate(preserveStoreIdInUrl(`/category/${categoryValue}`))
+    navigate(preserveStoreIdInUrl(generateRoute.category(categoryValue)))
   }
 
   return (

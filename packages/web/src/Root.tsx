@@ -32,7 +32,6 @@ import { UserInitializer } from './components/utils/UserInitializer/UserInitiali
 import { AuthUserSync } from './components/utils/AuthUserSync/AuthUserSync.js'
 import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
 import { LifeMapView } from './components/life-map/LifeMapView.js'
-import { CategoryDetailView } from './components/life-map/CategoryDetailView.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
 
@@ -146,16 +145,6 @@ const ProtectedApp: React.FC = () => {
                         <Layout>
                           <ErrorBoundary>
                             <LifeMapView />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.CATEGORY}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <CategoryDetailView />
                           </ErrorBoundary>
                         </Layout>
                       }
