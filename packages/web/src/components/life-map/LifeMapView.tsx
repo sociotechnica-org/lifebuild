@@ -17,9 +17,32 @@ export const LifeMapView: React.FC = () => {
       const categoryProjects = projects.filter(
         p => p.category === category.value && !p.archivedAt && !p.deletedAt
       )
+
+      // Count active projects: status === 'active' OR no status set
+      const activeProjects = categoryProjects.filter(p => {
+        const status = (p.attributes as { status?: string } | null)?.status
+        return status === 'active' || (!status && !p.archivedAt && !p.deletedAt)
+      })
+
+      // Count planning projects: status === 'planning'
+      const planningProjects = categoryProjects.filter(p => {
+        const status = (p.attributes as { status?: string } | null)?.status
+        return status === 'planning'
+      })
+
+      // Compute last activity timestamp
+      // Get the most recent updatedAt from category projects OR their tasks
+      const lastActivityAt =
+        categoryProjects.length > 0
+          ? Math.max(...categoryProjects.map(p => p.updatedAt.getTime()))
+          : null
+
       return {
         ...category,
         projectCount: categoryProjects.length,
+        activeProjectCount: activeProjects.length,
+        planningProjectCount: planningProjects.length,
+        lastActivityAt,
       }
     })
   }, [projects])
@@ -47,6 +70,9 @@ export const LifeMapView: React.FC = () => {
                 key={category.value}
                 category={category}
                 projectCount={category.projectCount}
+                activeProjectCount={category.activeProjectCount}
+                planningProjectCount={category.planningProjectCount}
+                lastActivityAt={category.lastActivityAt}
                 onClick={() => handleCategoryClick(category.value)}
               />
             ))}

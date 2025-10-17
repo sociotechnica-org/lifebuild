@@ -90,20 +90,20 @@ If life category has no projects, inactive
 
 **User story**: _As an operator, I want to see how many active projects exist in each category so I understand my workload distribution across life areas._
 
-What is an “active” project versus an “inactive” project
+What is an "active" project versus an "inactive" project
 
 **Dependencies**: Story 1.3
 
 #### Tasks
 
-- [ ] Query: Filter projects by `category` field and `attributes.status = 'active'` (or absence of archived/deleted status)
-- [ ] UI: Display text-based count on each category square (e.g., "3 Active")
-- [ ] UI: Position count prominently (bottom-center or corner of square)
-- [ ] UI: Count updates in real-time as projects change (via LiveStore reactive queries)
-- [ ] UI: Categories with zero active projects show "No active projects" or similar text
-- [ ] DoD: Each Life Category square displays a count of active projects that updates automatically when project states change.
+- [x] Query: Filter projects by `category` field and `attributes.status = 'active'` (or absence of archived/deleted status)
+- [x] UI: Display text-based count on each category square (e.g., "3 Active")
+- [x] UI: Position count prominently (bottom-center or corner of square)
+- [x] UI: Count updates in real-time as projects change (via LiveStore reactive queries)
+- [x] UI: Categories with zero active projects show "No active projects" or similar text
+- [x] DoD: Each Life Category square displays a count of active projects that updates automatically when project states change.
 
-**Status**:
+**Status**: ✅ **Completed** (implemented with Stories 2.2 and 2.3)
 
 ---
 
@@ -115,13 +115,13 @@ What is an “active” project versus an “inactive” project
 
 #### Tasks
 
-- [ ] Query: Filter projects by `category` field and `attributes.status = 'planning'` per category
-- [ ] UI: Display planning count in smaller text (e.g., "2 Planning")
-- [ ] UI: Visually distinguish from active count (smaller size, lighter color, or different position)
-- [ ] UI: Count updates when projects move between planning and other states
-- [ ] DoD: Each category square shows the count of projects in planning state, visually distinct from the active project count.
+- [x] Query: Filter projects by `category` field and `attributes.status = 'planning'` per category
+- [x] UI: Display planning count in smaller text (e.g., "2 Planning")
+- [x] UI: Visually distinguish from active count (smaller size, lighter color, or different position)
+- [x] UI: Count updates when projects move between planning and other states
+- [x] DoD: Each category square shows the count of projects in planning state, visually distinct from the active project count.
 
-**Status**:
+**Status**: ✅ **Completed** (implemented with Stories 2.1 and 2.3)
 
 ---
 
@@ -133,15 +133,15 @@ What is an “active” project versus an “inactive” project
 
 #### Tasks
 
-- [ ] Logic: Compute `lastActivityAt` by finding the most recent `updatedAt` timestamp from projects in the category, OR most recent task `updatedAt` for projects in the category
-- [ ] Logic: Store computed `lastActivityAt` in category's computed stats (can cache in `project.attributes.lastActivityAt` if needed for performance)
-- [ ] Logic: Create helper function to format timestamps as relative time ("Active today", "3 days ago", "2 weeks ago")
-- [ ] UI: Display formatted timestamp on category square (bottom or corner)
-- [ ] UI: Add subtle visual cue (amber/yellow indicator) for categories inactive >1 week
-- [ ] Logic: Activity can be from operator or any assigned support staff/AI agents
-- [ ] DoD: Each category shows when it was last active with human-readable relative time, with visual warnings for neglected categories.
+- [x] Logic: Compute `lastActivityAt` by finding the most recent `updatedAt` timestamp from projects in the category, OR most recent task `updatedAt` for projects in the category
+- [x] Logic: Store computed `lastActivityAt` in category's computed stats (can cache in `project.attributes.lastActivityAt` if needed for performance)
+- [x] Logic: Create helper function to format timestamps as relative time ("Active today", "3 days ago", "2 weeks ago")
+- [x] UI: Display formatted timestamp on category square (bottom or corner)
+- [x] UI: Add subtle visual cue (amber/yellow indicator) for categories inactive >1 week
+- [x] Logic: Activity can be from operator or any assigned support staff/AI agents
+- [x] DoD: Each category shows when it was last active with human-readable relative time, with visual warnings for neglected categories.
 
-**Status**:
+**Status**: ✅ **Completed** (implemented with Stories 2.1 and 2.2)
 
 ---
 
