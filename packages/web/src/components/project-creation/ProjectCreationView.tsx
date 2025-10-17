@@ -98,6 +98,7 @@ export const ProjectCreationView: React.FC = () => {
   const [objectives, setObjectives] = useState('')
   const [deadline, setDeadline] = useState('')
   const [archetype, setArchetype] = useState<ProjectArchetype | ''>('')
+  const [isArchetypeManuallySet, setIsArchetypeManuallySet] = useState(false)
   const [estimatedDuration, setEstimatedDuration] = useState(0)
   const [urgency, setUrgency] = useState<UrgencyLevel>('normal')
   const [importance, setImportance] = useState<ImportanceLevel>('normal')
@@ -131,14 +132,14 @@ export const ProjectCreationView: React.FC = () => {
 
   // Auto-suggest archetype based on traits
   useEffect(() => {
-    // Only auto-suggest if archetype hasn't been manually set
-    if (currentStage === 2 && !archetype) {
+    // Only auto-suggest if archetype hasn't been manually set by user
+    if (currentStage === 2 && !isArchetypeManuallySet) {
       const suggested = suggestArchetype(urgency, importance, complexity, scale)
       if (suggested) {
         setArchetype(suggested)
       }
     }
-  }, [urgency, importance, complexity, scale, currentStage, archetype])
+  }, [urgency, importance, complexity, scale, currentStage, isArchetypeManuallySet])
 
   // Get category color
   const category = PROJECT_CATEGORIES.find(c => c.value === categoryId)
@@ -282,7 +283,10 @@ export const ProjectCreationView: React.FC = () => {
           scale={scale}
           onObjectivesChange={setObjectives}
           onDeadlineChange={setDeadline}
-          onArchetypeChange={setArchetype}
+          onArchetypeChange={value => {
+            setArchetype(value)
+            setIsArchetypeManuallySet(true)
+          }}
           onEstimatedDurationChange={setEstimatedDuration}
           onUrgencyChange={setUrgency}
           onImportanceChange={setImportance}
