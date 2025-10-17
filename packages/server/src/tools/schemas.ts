@@ -146,6 +146,47 @@ export const llmToolSchemas = [
     }
   ),
 
+  toolDef(
+    'update_project',
+    'Update an existing project with new name, description, category, or attributes',
+    {
+      type: 'object',
+      properties: {
+        projectId: requiredString('The ID of the project to update'),
+        name: optionalString('New name for the project'),
+        description: optionalString('New description for the project'),
+        category: optionalString(
+          'Project category: "health", "relationships", "growth", "work", "finance", "home", "creative", "community", or "learning"'
+        ),
+        attributes: {
+          type: 'object',
+          description:
+            'Custom attributes as key-value string pairs (e.g., {"scale": "medium", "complexity": "high"})',
+          additionalProperties: {
+            type: 'string',
+          },
+        },
+      },
+      required: ['projectId'],
+    }
+  ),
+
+  toolDef('archive_project', 'Archive a project to remove it from active view', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('The ID of the project to archive'),
+    },
+    required: ['projectId'],
+  }),
+
+  toolDef('unarchive_project', 'Unarchive a project to restore it to active view', {
+    type: 'object',
+    properties: {
+      projectId: requiredString('The ID of the project to unarchive'),
+    },
+    required: ['projectId'],
+  }),
+
   // Document Management Tools
   toolDef(
     'list_documents',
