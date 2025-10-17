@@ -23,7 +23,7 @@ export const ProjectAttributesEditor: React.FC<ProjectAttributesEditorProps> = (
       return
     }
 
-    if (attributes[trimmedKey]) {
+    if (trimmedKey in attributes) {
       setError('Key already exists')
       return
     }

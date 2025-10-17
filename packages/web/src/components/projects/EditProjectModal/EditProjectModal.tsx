@@ -12,14 +12,31 @@ interface EditProjectModalProps {
   project: Project
 }
 
+/**
+ * Safely extract only string key-value pairs from project attributes.
+ * The schema allows any JSON, but the UI only supports string pairs.
+ */
+function safeExtractStringAttributes(attrs: unknown): Record<string, string> {
+  if (!attrs || typeof attrs !== 'object' || Array.isArray(attrs)) {
+    return {}
+  }
+  const result: Record<string, string> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    if (typeof key === 'string' && typeof value === 'string') {
+      result[key] = value
+    }
+  }
+  return result
+}
+
 export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, project }) => {
   const { store } = useStore()
   const { user } = useAuth()
   const [name, setName] = useState(project.name)
   const [description, setDescription] = useState(project.description || '')
   const [category, setCategory] = useState<string>(project.category || '')
-  const [attributes, setAttributes] = useState<Record<string, string>>(
-    (project.attributes as Record<string, string>) || {}
+  const [attributes, setAttributes] = useState<Record<string, string>>(() =>
+    safeExtractStringAttributes(project.attributes)
   )
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<{ name?: string; description?: string }>({})
@@ -29,7 +46,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onCl
     setName(project.name)
     setDescription(project.description || '')
     setCategory(project.category || '')
-    setAttributes((project.attributes as Record<string, string>) || {})
+    setAttributes(safeExtractStringAttributes(project.attributes))
   }, [project])
 
   const validateForm = () => {
@@ -130,7 +147,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onCl
     setName(project.name)
     setDescription(project.description || '')
     setCategory(project.category || '')
-    setAttributes((project.attributes as Record<string, string>) || {})
+    setAttributes(safeExtractStringAttributes(project.attributes))
     setErrors({})
     onClose()
   }
