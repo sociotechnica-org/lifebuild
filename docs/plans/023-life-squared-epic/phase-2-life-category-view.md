@@ -75,6 +75,14 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 ## Section 2: Project Creation Sub-Tab (Stage 1-4)
 
+**Implementation Strategy**: Breaking into small, focused PRs for easier review:
+- **PR #1**: Stories 2.1 + 2.4 (Stage 1 & 2) - Schema, events, basic planning forms
+- **PR #2**: Story 2.5 (Stage 3) - Task planning integration
+- **PR #3**: Stories 2.6 + 2.7 (Stage 4 & Backlog transition) - Priority + status changes
+- **PR #4**: Stories 2.2 + 2.3 (Cover images) - Upload + AI generation
+
+---
+
 ### Story 2.1 – Create project Stage 1 (Identified)
 
 **User story**: _As an operator, I want to capture a project idea with title and description so I can start planning without overthinking details._
