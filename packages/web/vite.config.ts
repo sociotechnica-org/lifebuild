@@ -54,6 +54,10 @@ export default defineConfig({
           authToken: process.env.SENTRY_AUTH_TOKEN,
           org: process.env.SENTRY_ORG,
           project: process.env.SENTRY_PROJECT,
+          // Use same release identifier as runtime to ensure source maps are matched
+          release: {
+            name: `${packageJson.name}@${packageJson.version}`,
+          },
           telemetry: false,
         })
       : undefined,
