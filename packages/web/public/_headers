@@ -1,0 +1,2 @@
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'nonce-*'; img-src 'self' data: https:; connect-src 'self' ws: wss: https://o4510114888220672.ingest.us.sentry.io https://us.i.posthog.com; font-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
