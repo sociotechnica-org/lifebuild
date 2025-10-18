@@ -1,4 +1,6 @@
 import './index.css'
+// IMPORTANT: Import Sentry instrumentation first, before React
+import './instrument.js'
 
 import React from 'react'
 import ReactDOM from 'react-dom/client'
