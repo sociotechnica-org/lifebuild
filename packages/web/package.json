@@ -44,6 +44,7 @@
     "@opentelemetry/sdk-trace-base": "^2.0.1",
     "@opentelemetry/sdk-trace-web": "^2.0.1",
     "@phosphor-icons/react": "^2.1.10",
+    "@sentry/react": "^10.20.0",
     "@work-squared/shared": "workspace:*",
     "dompurify": "^3.2.6",
     "highlight.js": "^11.11.1",
@@ -56,6 +57,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.32.0",
+    "@sentry/vite-plugin": "^4.4.0",
     "@storybook/addon-docs": "^9.0.18",
     "@storybook/addon-onboarding": "^9.0.18",
     "@storybook/react": "^9.0.18",
