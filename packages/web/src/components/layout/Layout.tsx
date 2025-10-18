@@ -52,39 +52,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     <SnackbarProvider>
       <div className='flex flex-col h-screen'>
         {/* Top Navigation */}
-        <Navigation />
+        <Navigation isChatOpen={isChatOpen} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
 
         <div className='flex flex-1 overflow-hidden relative'>
           {/* Main Content Area */}
-          <div className='relative flex-1 overflow-auto'>
-            {children}
-
-            {!isChatOpen && (
-              <button
-                type='button'
-                onClick={() => setIsChatOpen(true)}
-                className='fixed bottom-4 right-4 z-30 inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-lg transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 lg:absolute lg:bottom-auto lg:top-4 lg:right-4'
-              >
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  className='h-5 w-5'
-                >
-                  <path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' />
-                </svg>
-                Open chat
-              </button>
-            )}
-          </div>
+          <div className='relative flex-1 overflow-auto'>{children}</div>
 
           {/* Chat Panel - Fixed width */}
           {isDesktop && isChatOpen && (
-            <div className='hidden w-96 flex-shrink-0 lg:flex'>
+            <div className='w-96'>
               <ChatInterface onClose={() => setIsChatOpen(false)} />
             </div>
           )}
@@ -98,7 +74,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               onClick={() => setIsChatOpen(false)}
               aria-label='Close chat overlay'
             />
-            <div className='relative ml-auto flex h-full w-full max-w-md bg-white shadow-xl'>
+            <div className='relative ml-auto h-full w-full bg-white shadow-xl'>
               <ChatInterface onClose={() => setIsChatOpen(false)} />
             </div>
           </div>

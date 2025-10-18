@@ -8,7 +8,12 @@ import { ROUTES, ROUTE_PATTERNS } from '../../constants/routes.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { isCurrentUserAdmin } from '../../utils/adminCheck.jsx'
 
-export const Navigation: React.FC = () => {
+interface NavigationProps {
+  isChatOpen?: boolean
+  onChatToggle?: () => void
+}
+
+export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onChatToggle }) => {
   const location = useLocation()
   const users = useQuery(getUsers$) ?? []
   const legacyUser = users[0] // Get first user as fallback for non-auth systems
@@ -87,7 +92,7 @@ export const Navigation: React.FC = () => {
   return (
     <nav className='bg-white border-b border-gray-200'>
       <div className='px-4 sm:px-6 lg:px-8'>
-        <div className='flex justify-between h-16'>
+        <div className='flex justify-between h-16 overflow-y-scroll'>
           <div className='flex space-x-8'>
             <Link
               to={preserveStoreIdInUrl(ROUTES.LIFE_MAP)}
@@ -163,6 +168,37 @@ export const Navigation: React.FC = () => {
 
           {/* User Profile / Auth */}
           <div className='flex items-center relative'>
+            {/* Chat Toggle Button */}
+            {onChatToggle && (
+              <button
+                type='button'
+                onClick={onChatToggle}
+                className={`inline-flex items-center justify-center h-8 w-8 rounded-md mr-4 transition ${
+                  isChatOpen
+                    ? 'bg-gray-100 text-blue-600'
+                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+                title={isChatOpen ? 'Close chat' : 'Open chat'}
+                aria-label={isChatOpen ? 'Close chat sidebar' : 'Open chat sidebar'}
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  className='h-5 w-5'
+                >
+                  <path d='M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'></path>
+                  <circle cx='9' cy='7' r='4'></circle>
+                  <path d='M23 21v-2a4 4 0 0 0-3-3.87'></path>
+                  <path d='M16 3.13a4 4 0 0 1 0 7.75'></path>
+                </svg>
+              </button>
+            )}
+
             {isAuthenticated && currentUser ? (
               <div className='relative' ref={dropdownRef}>
                 <button
