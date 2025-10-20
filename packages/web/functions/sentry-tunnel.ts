@@ -45,13 +45,29 @@ export const onRequest: PagesFunction = async context => {
   }
 
   try {
-    // Read the request body
-    const body = await context.request.text()
+    // Read the request body as binary to preserve attachments
+    // Sentry envelopes have format: {header}\n{payload items}
+    // Payload items can include binary data (attachments, minidumps, replay blobs)
+    const bodyBuffer = await context.request.arrayBuffer()
+    const bodyBytes = new Uint8Array(bodyBuffer)
 
-    // Extract the envelope header to get the DSN
-    // Sentry envelopes have the format: {header}\n{payload}
-    const lines = body.split('\n')
-    const header = JSON.parse(lines[0]) as SentryTunnelRequest
+    // Find the first newline to extract just the header
+    let headerEndIndex = 0
+    for (let i = 0; i < bodyBytes.length; i++) {
+      if (bodyBytes[i] === 10) {
+        // 10 is ASCII newline
+        headerEndIndex = i
+        break
+      }
+    }
+
+    if (headerEndIndex === 0) {
+      return new Response('Invalid envelope: missing header', { status: 400 })
+    }
+
+    // Decode only the header line as UTF-8 to extract DSN
+    const headerText = new TextDecoder().decode(bodyBytes.slice(0, headerEndIndex))
+    const header = JSON.parse(headerText) as SentryTunnelRequest
 
     // Get DSN from the request header (Sentry includes it)
     const dsn = header.dsn
@@ -81,13 +97,13 @@ export const onRequest: PagesFunction = async context => {
     // Build Sentry endpoint with authentication query parameters
     const sentryEndpoint = `${dsnUrl.protocol}//${dsnUrl.host}/api/${projectId}/envelope/?sentry_key=${publicKey}&sentry_version=7`
 
-    // Forward the request to Sentry
+    // Forward the request to Sentry with the complete binary body
     const response = await fetch(sentryEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-sentry-envelope',
       },
-      body,
+      body: bodyBuffer,
     })
 
     // Preserve Sentry's response headers
