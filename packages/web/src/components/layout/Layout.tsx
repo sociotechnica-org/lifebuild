@@ -54,9 +54,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Top Navigation */}
         <Navigation isChatOpen={isChatOpen} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
 
-        <div className='flex flex-1 overflow-hidden relative'>
+        <div className='flex flex-1 overflow-hidden'>
           {/* Main Content Area */}
-          <div className='relative flex-1 overflow-auto'>{children}</div>
+          <div className='flex-1 overflow-auto'>{children}</div>
 
           {/* Chat Panel - Fixed width */}
           {isDesktop && isChatOpen && (

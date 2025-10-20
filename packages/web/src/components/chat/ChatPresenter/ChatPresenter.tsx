@@ -116,7 +116,7 @@ export const ChatPresenter: React.FC<ChatPresenterProps> = ({
           <select
             value={selectedConversationId || ''}
             onChange={e => onConversationChange(e.target.value)}
-            className='flex-1 p-2 border border-gray-200 rounded text-sm'
+            className='flex-1 min-w-0 p-2 border border-gray-200 rounded text-sm truncate'
           >
             <option value=''>Chat with {assistantName}</option>
             {conversations.map(conversation => {
@@ -135,7 +135,7 @@ export const ChatPresenter: React.FC<ChatPresenterProps> = ({
 
           <button
             onClick={onShowChatPicker}
-            className='w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors'
+            className='flex-shrink-0 w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors'
             aria-label='New chat'
           >
             <svg
