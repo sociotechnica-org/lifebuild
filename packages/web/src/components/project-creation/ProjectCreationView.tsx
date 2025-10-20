@@ -238,8 +238,9 @@ export const ProjectCreationView: React.FC = () => {
     saveProject(1)
   }
 
-  const handleStage1Continue = () => {
-    saveProject(1, 2)
+  const handleStage1Continue = async () => {
+    // Advance project to stage 2 (both in DB and UI)
+    await saveProject(2, 2)
   }
 
   // Stage 2 handlers
