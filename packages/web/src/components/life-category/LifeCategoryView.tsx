@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { getProjects$ } from '@work-squared/shared/queries'
 import type { Project } from '@work-squared/shared/schema'
+import { getCategoryInfo, type ProjectCategory } from '@work-squared/shared'
 import {
   LifeCategoryPresenter,
   type CategoryTab,
@@ -11,7 +12,8 @@ import {
 import { generateRoute } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../util/navigation.js'
 
-// Life category definitions (will be moved to a constants file later)
+// Life category definitions - using colors from local design
+// Icons come from shared PROJECT_CATEGORIES via getCategoryInfo
 const LIFE_CATEGORIES = {
   health: { name: 'Health & Well-Being', color: '#E57373' },
   relationships: { name: 'Relationships', color: '#F06292' },
@@ -139,6 +141,7 @@ export const LifeCategoryView: React.FC = () => {
   }
 
   const category = LIFE_CATEGORIES[categoryId as keyof typeof LIFE_CATEGORIES]
+  const categoryInfo = getCategoryInfo(categoryId as ProjectCategory)
 
   const handleProjectClick = (project: Project) => {
     const attrs = project.attributes as { planningStage?: number; status?: string } | null
@@ -164,6 +167,7 @@ export const LifeCategoryView: React.FC = () => {
       categoryId={categoryId}
       categoryName={category.name}
       categoryColor={category.color}
+      categoryIcon={categoryInfo?.icon}
       selectedTab={selectedTab}
       selectedSubTab={selectedTab === 'planning' ? selectedSubTab : null}
       activeProjects={activeProjects}

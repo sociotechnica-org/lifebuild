@@ -10,6 +10,7 @@ export interface LifeCategoryPresenterProps {
   categoryId: string
   categoryName: string
   categoryColor: string
+  categoryIcon?: string
   selectedTab: CategoryTab
   selectedSubTab: PlanningSubTab | null
   activeProjects: Project[]
@@ -24,6 +25,7 @@ export interface LifeCategoryPresenterProps {
 export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
   categoryName,
   categoryColor,
+  categoryIcon,
   selectedTab,
   selectedSubTab,
   activeProjects,
@@ -51,7 +53,10 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
       {/* Header */}
       <div className='border-b border-gray-200 bg-white px-6 py-4'>
         <div className='mb-4'>
-          <h1 className='text-xl font-semibold text-gray-900 mb-1'>{categoryName}</h1>
+          <h1 className='text-xl font-semibold text-gray-900 mb-1 flex items-center gap-2'>
+            {categoryIcon && <span className='text-2xl'>{categoryIcon}</span>}
+            {categoryName}
+          </h1>
           <p className='text-gray-600 text-sm'>Manage projects in this life category</p>
         </div>
 
