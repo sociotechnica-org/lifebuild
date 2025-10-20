@@ -13,7 +13,6 @@ import type {
 } from '@work-squared/shared'
 import { ProjectCreationStage1Presenter } from './ProjectCreationStage1Presenter'
 import { ProjectCreationStage2Presenter } from './ProjectCreationStage2Presenter'
-import { ProjectCreationStage3Presenter } from './ProjectCreationStage3Presenter'
 import { PROJECT_CATEGORIES } from '@work-squared/shared'
 
 /**
@@ -87,8 +86,8 @@ export const ProjectCreationView: React.FC = () => {
   const projectQueryResult = useQuery(getProjectDetails$(projectId || '__dummy__'))
   const existingProject = projectId ? (projectQueryResult?.[0] as any) : null
 
-  // Stage management
-  const [currentStage, setCurrentStage] = useState<1 | 2 | 3>(1)
+  // Stage management (only stages 1-2 are shown in UI, stage 3 navigates to workspace)
+  const [currentStage, setCurrentStage] = useState<1 | 2>(1)
   const [isSaving, setIsSaving] = useState(false)
   const [hasLoadedProject, setHasLoadedProject] = useState(false)
 
@@ -115,7 +114,9 @@ export const ProjectCreationView: React.FC = () => {
 
       const attrs = existingProject.attributes as PlanningAttributes | null
       if (attrs) {
-        setCurrentStage((attrs.planningStage as 1 | 2 | 3) || 1)
+        // Only show stages 1-2 in UI (stage 3+ navigates to workspace)
+        const stage = attrs.planningStage || 1
+        setCurrentStage((stage < 3 ? stage : 2) as 1 | 2)
         setObjectives(attrs.objectives || '')
         if (attrs.deadline) {
           const dateStr = new Date(attrs.deadline).toISOString().split('T')[0]
@@ -148,7 +149,8 @@ export const ProjectCreationView: React.FC = () => {
   const categoryColor = category?.colorHex || '#3B82F6'
 
   // Save project (create or update)
-  const saveProject = async (stage: 1 | 2 | 3, navigateToStage?: 1 | 2 | 3) => {
+  // Stage 3+ doesn't navigate to UI stage, it saves the data stage only
+  const saveProject = async (stage: 1 | 2 | 3, navigateToStage?: 1 | 2) => {
     if (!categoryId) return
 
     setIsSaving(true)
@@ -253,16 +255,7 @@ export const ProjectCreationView: React.FC = () => {
   }
 
   const handleStage2Continue = async () => {
-    await saveProject(2, 3)
-  }
-
-  // Stage 3 handlers
-  const handleStage3Back = () => {
-    setCurrentStage(2)
-  }
-
-  const handleStage3OpenProject = async () => {
-    // Ensure project is saved at stage 3 before navigating
+    // Save at stage 3 and navigate directly to project workspace for task planning
     await saveProject(3)
 
     if (!projectId) {
@@ -270,7 +263,7 @@ export const ProjectCreationView: React.FC = () => {
       return
     }
 
-    // Navigate to project page (kanban view)
+    // Navigate directly to project workspace (kanban view)
     navigate(`/project/${projectId}`)
   }
 
@@ -319,15 +312,6 @@ export const ProjectCreationView: React.FC = () => {
           onSaveDraft={handleStage2SaveDraft}
           onContinue={handleStage2Continue}
           isSaving={isSaving}
-          categoryColor={categoryColor}
-        />
-      )}
-      {currentStage === 3 && (
-        <ProjectCreationStage3Presenter
-          projectId={projectId || ''}
-          projectTitle={title}
-          onBack={handleStage3Back}
-          onOpenProject={handleStage3OpenProject}
           categoryColor={categoryColor}
         />
       )}
