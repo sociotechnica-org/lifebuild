@@ -4,13 +4,37 @@
  * This function proxies Sentry events from the client to Sentry's ingest endpoint.
  * It bypasses browser tracking prevention by routing through the same domain.
  *
- * The Sentry JavaScript SDK will POST to /.sentry-tunnel, and this function
+ * The Sentry JavaScript SDK will POST to /sentry-tunnel, and this function
  * forwards the request to the actual Sentry endpoint.
  */
 
 interface SentryTunnelRequest {
   dsn?: string
   [key: string]: unknown
+}
+
+// Whitelist of allowed Sentry ingest hosts to prevent SSRF attacks
+const ALLOWED_SENTRY_HOSTS = ['o4510114888220672.ingest.us.sentry.io', 'ingest.sentry.io']
+
+/**
+ * Extracts the project ID from a Sentry DSN pathname
+ * DSN format: https://<key>@<host>/api/<project>/
+ */
+function extractProjectId(pathname: string): string {
+  // Remove leading/trailing slashes and split
+  const parts = pathname.split('/').filter(p => p.length > 0)
+  // Should be: ['api', '<project>']
+  if (parts.length >= 2 && parts[0] === 'api') {
+    return parts[1]
+  }
+  throw new Error(`Invalid DSN pathname: ${pathname}`)
+}
+
+/**
+ * Validates that the DSN host is a known Sentry host
+ */
+function isAllowedSentryHost(host: string): boolean {
+  return ALLOWED_SENTRY_HOSTS.some(allowed => host === allowed || host.endsWith(`.${allowed}`))
 }
 
 export const onRequest: PagesFunction = async context => {
@@ -35,10 +59,17 @@ export const onRequest: PagesFunction = async context => {
       return new Response('Missing DSN', { status: 400 })
     }
 
-    // Parse DSN to extract the endpoint
-    // DSN format: https://<key>@<host>/api/<project>/
+    // Parse DSN and validate host to prevent SSRF
     const dsnUrl = new URL(dsn)
-    const sentryEndpoint = `${dsnUrl.protocol}//${dsnUrl.host}/api/${dsnUrl.pathname.split('/').pop()}/envelope/`
+
+    if (!isAllowedSentryHost(dsnUrl.host)) {
+      console.error(`Rejected unauthorized Sentry host: ${dsnUrl.host}`)
+      return new Response('Unauthorized Sentry host', { status: 403 })
+    }
+
+    // Extract project ID from DSN pathname
+    const projectId = extractProjectId(dsnUrl.pathname)
+    const sentryEndpoint = `${dsnUrl.protocol}//${dsnUrl.host}/api/${projectId}/envelope/`
 
     // Forward the request to Sentry
     const response = await fetch(sentryEndpoint, {
@@ -49,12 +80,16 @@ export const onRequest: PagesFunction = async context => {
       body,
     })
 
-    // Return Sentry's response
+    // Preserve Sentry's response headers
+    const responseHeaders = new Headers()
+    response.headers.forEach((value, key) => {
+      responseHeaders.set(key, value)
+    })
+
+    // Return Sentry's response with original headers
     return new Response(response.body, {
       status: response.status,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: responseHeaders,
     })
   } catch (error) {
     console.error('Sentry tunnel error:', error)
