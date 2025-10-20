@@ -114,6 +114,28 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
 
         {selectedTab === 'planning' && selectedSubTab === 'project-plans' && (
           <div className='p-6'>
+            {/* Stage Header */}
+            <div className='max-w-2xl mx-auto mb-8'>
+              <div className='flex items-center gap-2 mb-2'>
+                <div
+                  className='w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold'
+                  style={{ backgroundColor: categoryColor }}
+                >
+                  1-3
+                </div>
+                <div>
+                  <h2 className='text-lg font-semibold text-gray-900'>In-Progress Plans</h2>
+                  <p className='text-sm text-gray-500'>Continue planning your projects</p>
+                </div>
+              </div>
+              <div className='flex gap-2 mt-4'>
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+                <div className='h-2 flex-1 bg-gray-200 rounded' />
+              </div>
+            </div>
+
             {inProgressPlans.length === 0 ? (
               <div className='text-center py-12'>
                 <h2 className='text-xl font-semibold text-gray-600 mb-2'>
@@ -139,6 +161,28 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
 
         {selectedTab === 'planning' && selectedSubTab === 'backlog' && (
           <div className='p-6'>
+            {/* Stage Header */}
+            <div className='max-w-2xl mx-auto mb-8'>
+              <div className='flex items-center gap-2 mb-2'>
+                <div
+                  className='w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold'
+                  style={{ backgroundColor: categoryColor }}
+                >
+                  4
+                </div>
+                <div>
+                  <h2 className='text-lg font-semibold text-gray-900'>Stage 4: Backlog</h2>
+                  <p className='text-sm text-gray-500'>Projects ready for prioritization</p>
+                </div>
+              </div>
+              <div className='flex gap-2 mt-4'>
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+              </div>
+            </div>
+
             {backlogProjects.length === 0 ? (
               <div className='text-center py-12'>
                 <h2 className='text-xl font-semibold text-gray-600 mb-2'>No projects in backlog</h2>
