@@ -1,0 +1,12 @@
+name = "work-squared-posthog"
+main = "src/index.ts"
+compatibility_date = "2024-05-12"
+
+# PostHog analytics proxy on a non-generic subdomain to avoid ad blocker lists
+route = "coconut.worksquared.ai/*"
+zone_name = "worksquared.ai"
+
+[env.production]
+name = "work-squared-posthog-prod"
+route = "coconut.app.worksquared.ai/*"
+zone_name = "worksquared.ai"
