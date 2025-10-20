@@ -10,6 +10,7 @@ export async function sendDiscordNotification(message: string, webhookUrl?: stri
   }
 
   try {
+    console.log('Sending to Discord webhook:', webhookUrl.substring(0, 50) + '...')
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -17,7 +18,12 @@ export async function sendDiscordNotification(message: string, webhookUrl?: stri
     })
 
     if (!response.ok) {
-      console.error('Discord webhook failed:', response.status, response.statusText)
+      const errorText = await response.text()
+      console.error('Discord webhook failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+      })
     } else {
       console.log('Discord notification sent successfully')
     }
