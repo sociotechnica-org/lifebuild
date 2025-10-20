@@ -19,7 +19,9 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
   const legacyUser = users[0] // Get first user as fallback for non-auth systems
   const { user: authUser, isAuthenticated, logout } = useAuth()
   const [showDropdown, setShowDropdown] = useState(false)
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 })
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   // Use auth user if available, otherwise fall back to legacy user system
   const currentUser = authUser || legacyUser
@@ -36,10 +38,27 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
     return '' // Legacy users don't have email addresses
   }
 
+  // Handle dropdown toggle with position calculation
+  const handleToggleDropdown = () => {
+    if (!showDropdown && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setDropdownPosition({
+        top: rect.bottom + 8, // 8px gap (mt-2)
+        right: window.innerWidth - rect.right,
+      })
+    }
+    setShowDropdown(!showDropdown)
+  }
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
         setShowDropdown(false)
       }
     }
@@ -200,9 +219,10 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
             )}
 
             {isAuthenticated && currentUser ? (
-              <div className='relative' ref={dropdownRef}>
+              <>
                 <button
-                  onClick={() => setShowDropdown(!showDropdown)}
+                  ref={buttonRef}
+                  onClick={handleToggleDropdown}
                   className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
                   title={getDisplayName()}
                   data-testid='user-menu-button'
@@ -211,7 +231,14 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
                 </button>
 
                 {showDropdown && (
-                  <div className='absolute right-0 mt-2 min-w-64 max-w-80 bg-white rounded-md shadow-lg py-1 z-[60] border border-gray-200'>
+                  <div
+                    ref={dropdownRef}
+                    className='fixed min-w-64 max-w-80 bg-white rounded-md shadow-lg py-1 z-[9999] border border-gray-200'
+                    style={{
+                      top: `${dropdownPosition.top}px`,
+                      right: `${dropdownPosition.right}px`,
+                    }}
+                  >
                     <div className='px-4 py-2 text-sm text-gray-700 border-b border-gray-100'>
                       <div className='font-medium truncate'>{getDisplayName()}</div>
                       <div className='text-gray-500 truncate'>{getEmail()}</div>
@@ -243,7 +270,7 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
                     </button>
                   </div>
                 )}
-              </div>
+              </>
             ) : (
               <Link
                 to={ROUTES.LOGIN}
