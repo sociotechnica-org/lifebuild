@@ -14,6 +14,7 @@ import type {
 import { ProjectCreationStage1Presenter } from './ProjectCreationStage1Presenter'
 import { ProjectCreationStage2Presenter } from './ProjectCreationStage2Presenter'
 import { PROJECT_CATEGORIES } from '@work-squared/shared'
+import { preserveStoreIdInUrl } from '../../util/navigation.js'
 
 /**
  * Auto-suggest project archetype based on traits
@@ -267,8 +268,8 @@ export const ProjectCreationView: React.FC = () => {
       return
     }
 
-    // Navigate directly to project workspace (kanban view)
-    navigate(`/project/${savedProjectId}`)
+    // Navigate directly to project workspace (kanban view), preserving storeId
+    navigate(preserveStoreIdInUrl(`/project/${savedProjectId}`))
   }
 
   if (!categoryId) {
