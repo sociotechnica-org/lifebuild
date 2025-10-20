@@ -90,7 +90,7 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
   }
 
   return (
-    <nav className='relative z-10 bg-white border-b border-gray-200'>
+    <nav className='relative z-50 bg-white border-b border-gray-200'>
       <div className='px-4 sm:px-6 lg:px-8'>
         <div className='flex justify-between h-16 overflow-x-auto'>
           <div className='flex space-x-8'>
