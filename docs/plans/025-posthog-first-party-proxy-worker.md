@@ -13,11 +13,13 @@ Create a dedicated Cloudflare Worker to act as a first-party reverse proxy for P
 ### Current Issue
 
 Users with strict privacy filters are unable to send analytics to PostHog:
+
 - **Brave Browser**: Blocks third-party analytics domains by default
 - **Arc Browser**: Has built-in privacy features that block tracking domains
 - **Ad Blockers**: PostHog domains are on many blocklists (EasyList, etc.)
 
 **Current Architecture** (broken for privacy-filtered users):
+
 ```
 Browser → (blocked) → us.i.posthog.com
 ```
@@ -54,6 +56,7 @@ Browser (with privacy filters)
 ```
 
 **Key Benefits:**
+
 - Requests appear to come from first-party domain → not blocked
 - Static assets still cached efficiently
 - Clean separation from sync worker
@@ -65,6 +68,7 @@ Browser (with privacy filters)
 ### 1. Create `packages/posthog-worker` Package
 
 New dedicated package structure:
+
 ```
 packages/posthog-worker/
 ├── src/
@@ -75,6 +79,7 @@ packages/posthog-worker/
 ```
 
 **Why separate worker?**
+
 - Follows PostHog's official architecture
 - Single responsibility (only handles analytics)
 - Independent deployment
@@ -102,6 +107,7 @@ Implementation based on [PostHog's official Cloudflare guide](https://posthog.co
 **Critical**: PostHog docs warn: "Avoid using generic paths like `/analytics`, `/tracking`, `/ingest`, `/posthog`. They will most likely be blocked."
 
 **Solution**: Use unique subdomain `coconut.app.worksquared.ai`
+
 - Random, non-generic name
 - Unlikely to appear in ad blocker filter lists
 - Can be changed without code changes (just wrangler.toml + frontend env var)
@@ -109,16 +115,19 @@ Implementation based on [PostHog's official Cloudflare guide](https://posthog.co
 ### 4. Deployment Configuration
 
 **GitHub Actions Updates:**
+
 - Add deploy step for `@work-squared/posthog-worker`
 - Set correct environment variables
 - Deploy before main worker (no dependencies)
 
 **Frontend Configuration:**
+
 ```
 VITE_PUBLIC_POSTHOG_HOST=https://coconut.app.worksquared.ai
 ```
 
 **CSP Headers Update:**
+
 ```
 connect-src: add coconut.app.worksquared.ai (or keep as 'self' in root domain)
 ```
@@ -130,6 +139,7 @@ connect-src: add coconut.app.worksquared.ai (or keep as 'self' in root domain)
 Current: `coconut` (non-generic, random)
 
 **Options:**
+
 - `🍍 Keep coconut` - clear, random, memorable
 - Use other random name: `pineapple`, `watermelon`, `blueberry`, `mushroom`, etc.
 - Suggestion: Vote on name
@@ -137,12 +147,14 @@ Current: `coconut` (non-generic, random)
 ### 2. CSP Header Strategy
 
 **Option A** (recommended): Keep PostHog script/assets allowed, API goes through proxy
+
 ```
 script-src: allow 'us-assets.i.posthog.com'
 connect-src: remove 'us.i.posthog.com', add first-party proxy domain
 ```
 
 **Option B**: Only allow proxy domain in connect-src
+
 ```
 connect-src: only 'coconut.app.worksquared.ai'
 ```
@@ -154,6 +166,7 @@ Current approach: **Option A** (allows JS but requires proxy for API)
 **Current**: Hardcoded to `us.i.posthog.com`
 
 **Future consideration**: Could add environment variable to switch regions
+
 ```
 US: us.i.posthog.com
 EU: eu.i.posthog.com
@@ -164,6 +177,7 @@ Current: US region only (can add later if needed)
 ### 4. Monitoring & Observability
 
 **Options:**
+
 - Add Sentry integration (could cause recursion?)
 - Add basic logging to CloudFlare Workers
 - Monitor via PostHog dashboard only
@@ -173,20 +187,24 @@ Current: US region only (can add later if needed)
 ## Testing Plan
 
 ### Phase 1: Chrome (baseline)
+
 - [ ] Verify analytics events captured in PostHog dashboard
 - [ ] Check performance (should be transparent)
 
 ### Phase 2: Brave (target)
+
 - [ ] Test with user (coworker with Brave)
 - [ ] Verify events in PostHog dashboard
 - [ ] Check no console errors
 
 ### Phase 3: Arc (target)
+
 - [ ] Test with browser
 - [ ] Verify analytics working
 - [ ] Performance check
 
 ### Phase 4: Production
+
 - [ ] Deploy to production
 - [ ] Monitor for errors in worker logs
 - [ ] Verify real-world analytics
@@ -226,6 +244,7 @@ If issues arise:
 ## Success Criteria
 
 ✅ Analytics events captured for:
+
 - Chrome users (baseline)
 - Brave users (coworker)
 - Arc users (optional)
