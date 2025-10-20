@@ -65,25 +65,27 @@ export const LifeCategoryView: React.FC = () => {
     return attributes?.planningStage === 4
   })
 
-  // Get active project count for smart default tab selection
-  const activeProjectCount = activeProjects.length
-
   // Determine initial tab from URL or smart default
   const getInitialTab = (): CategoryTab => {
     const urlTab = searchParams.get('tab') as CategoryTab | null
     if (urlTab && ['planning', 'active', 'completed'].includes(urlTab)) {
       return urlTab
     }
-    // Smart default: Active if there are active projects, otherwise Planning
-    return activeProjectCount > 0 ? 'active' : 'planning'
+    // Smart default priority: Active > Planning (never Completed)
+    if (activeProjects.length > 0) return 'active'
+    if (planningProjects.length > 0) return 'planning'
+    return 'planning' // Default to planning if no projects
   }
 
-  // Determine initial sub-tab (default to 'project-creation')
+  // Determine initial sub-tab with smart defaults
   const getInitialSubTab = (): PlanningSubTab => {
     const urlSubTab = searchParams.get('subtab') as PlanningSubTab | null
     if (urlSubTab && ['project-creation', 'project-plans', 'backlog'].includes(urlSubTab)) {
       return urlSubTab
     }
+    // Smart default priority: Backlog > Project Plans > Project Creation
+    if (backlogProjects.length > 0) return 'backlog'
+    if (inProgressPlans.length > 0) return 'project-plans'
     return 'project-creation'
   }
 

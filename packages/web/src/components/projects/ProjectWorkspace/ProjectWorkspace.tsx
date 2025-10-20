@@ -245,9 +245,7 @@ const ProjectWorkspaceContent: React.FC = () => {
   }
 
   // Get category information for breadcrumb
-  const categoryInfo = project?.category
-    ? getCategoryInfo(project.category as any)
-    : null
+  const categoryInfo = project?.category ? getCategoryInfo(project.category as any) : null
   const categoryBackUrl = project?.category
     ? `/category/${project.category}?tab=active`
     : '/projects'
