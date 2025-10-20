@@ -147,19 +147,24 @@ export const LifeCategoryView: React.FC = () => {
     const attrs = project.attributes as { planningStage?: number; status?: string } | null
 
     // Route based on planning stage:
-    // - Stages 1-2: Project Creation form (to continue editing details/objectives)
+    // - Stages undefined, 0, 1-2: Project Creation form (to continue editing details/objectives)
     // - Stages 3-4: Project workspace (task planning done, work on project)
-    if (attrs?.status === 'planning' && attrs.planningStage && attrs.planningStage < 3) {
-      // Stages 1-2: Navigate to Project Creation form to continue planning
-      navigate(
-        preserveStoreIdInUrl(
-          `/category/${categoryId}?tab=planning&subtab=project-creation&projectId=${project.id}`
+    if (attrs?.status === 'planning') {
+      const stage = attrs.planningStage ?? 1 // Default to stage 1 if undefined
+
+      if (stage < 3) {
+        // Stages 0, 1, 2: Navigate to Project Creation form to continue planning
+        navigate(
+          preserveStoreIdInUrl(
+            `/category/${categoryId}?tab=planning&subtab=project-creation&projectId=${project.id}`
+          )
         )
-      )
-    } else {
-      // Stages 3-4, active, or completed projects: Navigate to project workspace
-      navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
+        return
+      }
     }
+
+    // Stages 3-4, active, or completed projects: Navigate to project workspace
+    navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
   }
 
   return (
