@@ -14,6 +14,8 @@ Sentry.init({
   environment,
   // Release tracking helps identify which version had which errors
   release: `@work-squared/web@${packageVersion}`,
+  // Use tunnel to proxy events through same domain, bypassing tracking prevention
+  tunnel: '/sentry-tunnel',
   // Set tracesSampleRate based on environment
   // Lower sampling in production to reduce volume
   tracesSampleRate: environment === 'production' ? 0.1 : 1.0,
