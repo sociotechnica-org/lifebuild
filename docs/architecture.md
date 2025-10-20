@@ -68,15 +68,16 @@ As of October 2025, Work Squared uses a **separated deployment architecture** wi
 
 **Service Details:**
 
-| Service | Type | URL | Purpose |
-|---------|------|-----|---------|
-| Web App | Cloudflare Pages | https://app.worksquared.ai | React SPA, static assets |
-| Sync Worker | Cloudflare Worker | wss://work-squared.jessmartin.workers.dev | WebSocket sync, event relay |
-| Auth Worker | Cloudflare Worker | https://work-squared-auth.jessmartin.workers.dev | JWT authentication |
-| PostHog Worker | Cloudflare Worker | https://coconut.app.worksquared.ai | Analytics proxy (first-party) |
-| Server | Node.js (Render.com) | Internal | Event processing, LLM |
+| Service        | Type                 | URL                                              | Purpose                       |
+| -------------- | -------------------- | ------------------------------------------------ | ----------------------------- |
+| Web App        | Cloudflare Pages     | https://app.worksquared.ai                       | React SPA, static assets      |
+| Sync Worker    | Cloudflare Worker    | wss://work-squared.jessmartin.workers.dev        | WebSocket sync, event relay   |
+| Auth Worker    | Cloudflare Worker    | https://work-squared-auth.jessmartin.workers.dev | JWT authentication            |
+| PostHog Worker | Cloudflare Worker    | https://coconut.app.worksquared.ai               | Analytics proxy (first-party) |
+| Server         | Node.js (Render.com) | Internal                                         | Event processing, LLM         |
 
 **PostHog Proxy Details:**
+
 - Routes analytics through first-party domain to bypass privacy filters
 - Caches static assets for performance
 - Works with Brave, Arc, and other privacy-focused browsers

@@ -132,6 +132,7 @@ GitHub Actions automatically executes the following steps on every push to `main
 The PostHog worker is deployed as part of the standard pipeline. Key details:
 
 **Configuration** (`packages/posthog-worker/wrangler.toml`):
+
 ```toml
 name = "work-squared-posthog"
 main = "src/index.ts"
@@ -145,13 +146,16 @@ zone_name = "worksquared.ai"
 ```
 
 **Frontend Configuration** (set by GitHub Actions):
+
 - `VITE_PUBLIC_POSTHOG_HOST=https://coconut.app.worksquared.ai`
 
 **CSP Headers** (`packages/web/public/_headers`):
+
 - Added `coconut.app.worksquared.ai` to `connect-src` directive
 - PostHog API calls now route through first-party domain
 
 **How It Works**:
+
 1. Browser requests analytics → `coconut.app.worksquared.ai/decide`
 2. PostHog Worker receives request at first-party domain
 3. Worker strips cookies, validates request

@@ -85,7 +85,7 @@ The worker is configured through:
 The worker caches PostHog's static assets (JavaScript, CSS) using Cloudflare's cache:
 
 ```typescript
-if (pathname.startsWith("/static/")) {
+if (pathname.startsWith('/static/')) {
   // Check cache first
   let response = await caches.default.match(request)
   if (!response) {
@@ -106,6 +106,7 @@ The proxy uses `coconut.app.worksquared.ai` (random, non-generic name) as the su
 - ✅ Easy to change if needed (just update `wrangler.toml` and frontend env var)
 
 **If blocked in the future**, simply change to a different random subdomain:
+
 - `pineapple.app.worksquared.ai`
 - `mushroom.app.worksquared.ai`
 - `watermelon.app.worksquared.ai`

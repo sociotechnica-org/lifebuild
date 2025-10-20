@@ -55,6 +55,7 @@ Initially deployed direct PostHog integration using their standard JavaScript SD
 After discovering that team members using privacy-focused browsers couldn't send analytics, we implemented **Option 2 as a dedicated Cloudflare Worker** to enable first-party analytics collection:
 
 **New Architecture:**
+
 - Dedicated `packages/posthog-worker` Cloudflare Worker
 - Routes all analytics through first-party domain: `coconut.app.worksquared.ai`
 - Clean separation from main sync server
@@ -65,6 +66,7 @@ After discovering that team members using privacy-focused browsers couldn't send
 **Business Driver**: Team members using Brave browser couldn't send analytics data
 
 **Technical Benefits**:
+
 - ✅ Bypasses ad blockers and privacy filters (works in Brave, Arc, Firefox Strict Tracking Protection)
 - ✅ First-party domain appears trustworthy to browser privacy features
 - ✅ Minimal complexity (simple reverse proxy)
@@ -72,6 +74,7 @@ After discovering that team members using privacy-focused browsers couldn't send
 - ✅ Can easily migrate to other solutions later
 
 **Why Separate Worker**:
+
 - Single responsibility principle (analytics only)
 - Independent scaling and deployment
 - No path conflicts with sync server
@@ -80,12 +83,14 @@ After discovering that team members using privacy-focused browsers couldn't send
 ### Key Implementation Details
 
 **Proxy Design:**
+
 - `/static/*` requests cached for performance
 - Request cookies removed for security
 - All requests forwarded to `us.i.posthog.com`
 - Unique non-generic subdomain (`coconut`) to avoid ad blocker blocklists
 
 **Configuration:**
+
 - Frontend points `VITE_PUBLIC_POSTHOG_HOST` to first-party proxy URL
 - CSP headers updated to allow proxy domain
 - GitHub Actions deploys PostHog worker in deployment pipeline
