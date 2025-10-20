@@ -149,9 +149,9 @@ export const ProjectCreationView: React.FC = () => {
   const categoryColor = category?.colorHex || '#3B82F6'
 
   // Save project (create or update)
-  // Stage 3+ doesn't navigate to UI stage, it saves the data stage only
-  const saveProject = async (stage: 1 | 2 | 3, navigateToStage?: 1 | 2) => {
-    if (!categoryId) return
+  // Returns the project ID (useful for new projects)
+  const saveProject = async (stage: 1 | 2 | 3, navigateToStage?: 1 | 2): Promise<string | null> => {
+    if (!categoryId) return null
 
     setIsSaving(true)
     try {
@@ -197,8 +197,8 @@ export const ProjectCreationView: React.FC = () => {
         planningStage: stage,
       }
 
-      // Include Stage 2 fields if we're on Stage 2
-      if (stage === 2) {
+      // Include Stage 2 fields if we're at stage 2 or higher (always save stage 2 data when present)
+      if (stage >= 2) {
         attributes.objectives = objectives
         attributes.deadline = deadline ? new Date(deadline).getTime() : undefined
         attributes.archetype = archetype ? (archetype as ProjectArchetype) : undefined
@@ -228,8 +228,12 @@ export const ProjectCreationView: React.FC = () => {
       if (navigateToStage) {
         setCurrentStage(navigateToStage)
       }
+
+      // Return the project ID
+      return currentProjectId
     } catch (error) {
       console.error('Error saving project:', error)
+      return null
     } finally {
       setIsSaving(false)
     }
@@ -255,16 +259,16 @@ export const ProjectCreationView: React.FC = () => {
   }
 
   const handleStage2Continue = async () => {
-    // Save at stage 3 and navigate directly to project workspace for task planning
-    await saveProject(3)
+    // Save stage 2 data and advance to stage 3, then navigate to project workspace
+    const savedProjectId = await saveProject(3)
 
-    if (!projectId) {
-      console.error('No project ID available after saving')
+    if (!savedProjectId) {
+      console.error('Failed to save project')
       return
     }
 
     // Navigate directly to project workspace (kanban view)
-    navigate(`/project/${projectId}`)
+    navigate(`/project/${savedProjectId}`)
   }
 
   if (!categoryId) {
