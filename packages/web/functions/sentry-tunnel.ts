@@ -68,9 +68,18 @@ export const onRequest: PagesFunction = async context => {
       return new Response('Unauthorized Sentry host', { status: 403 })
     }
 
-    // Extract project ID from DSN pathname
+    // Extract authentication credentials and project ID from DSN
+    // DSN format: https://<public_key>@<host>/<project_id>
+    const publicKey = dsnUrl.username
     const projectId = extractProjectId(dsnUrl.pathname)
-    const sentryEndpoint = `${dsnUrl.protocol}//${dsnUrl.host}/api/${projectId}/envelope/`
+
+    if (!publicKey) {
+      console.error('Missing public key in DSN')
+      return new Response('Invalid DSN: missing public key', { status: 400 })
+    }
+
+    // Build Sentry endpoint with authentication query parameters
+    const sentryEndpoint = `${dsnUrl.protocol}//${dsnUrl.host}/api/${projectId}/envelope/?sentry_key=${publicKey}&sentry_version=7`
 
     // Forward the request to Sentry
     const response = await fetch(sentryEndpoint, {
