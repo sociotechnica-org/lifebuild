@@ -2,14 +2,26 @@
   "name": "@work-squared/posthog-worker",
   "version": "0.1.0",
   "type": "module",
+  "private": true,
+  "license": "FSL-1.1-ALv2",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --env production",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250823.0",
-    "typescript": "^5.3.3",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-prettier": "^5.5.3",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
     "wrangler": "^4.38.0"
   }
 }
