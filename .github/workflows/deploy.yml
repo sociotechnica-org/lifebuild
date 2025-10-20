@@ -51,6 +51,8 @@ jobs:
           VITE_AUTH_SERVICE_URL: https://work-squared-auth.jessmartin.workers.dev
           VITE_LIVESTORE_SYNC_URL: wss://work-squared.jessmartin.workers.dev
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.VITE_PUBLIC_POSTHOG_KEY }}
+          VITE_PUBLIC_POSTHOG_HOST: https://us.i.posthog.com
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
