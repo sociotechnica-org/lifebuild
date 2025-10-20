@@ -20,7 +20,6 @@ import { TaskModal } from '../../tasks/TaskModal/TaskModal.js'
 import { DocumentCreateModal } from '../../documents/DocumentCreateModal/DocumentCreateModal.js'
 import { AddExistingDocumentModal } from '../../documents/AddExistingDocumentModal/AddExistingDocumentModal.js'
 import { EditProjectModal } from '../EditProjectModal/EditProjectModal.js'
-import { ProjectCategoryBadge } from '../ProjectCategoryBadge.js'
 import { LoadingState } from '../../ui/LoadingState.js'
 import { WorkerCard } from '../../workers/WorkerCard/WorkerCard.js'
 import { ProjectContacts } from '../ProjectContacts.js'
@@ -280,8 +279,9 @@ const ProjectWorkspaceContent: React.FC = () => {
           <nav className='flex items-center text-sm text-gray-500'>
             <Link
               to={preserveStoreIdInUrl(categoryBackUrl)}
-              className='hover:text-gray-700 transition-colors'
+              className='hover:text-gray-700 transition-colors flex items-center gap-1.5'
             >
+              {categoryInfo?.icon && <span className='text-base'>{categoryInfo.icon}</span>}
               {categoryLabel}
             </Link>
             <svg className='w-4 h-4 mx-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -334,12 +334,9 @@ const ProjectWorkspaceContent: React.FC = () => {
         <div className='mb-4'>
           <div className='flex items-start justify-between gap-4'>
             <div className='flex-1'>
-              <div className='flex items-center gap-3 mb-2'>
-                <h1 className='text-xl font-semibold text-gray-900'>
-                  {project?.name || 'Loading...'}
-                </h1>
-                {project?.category && <ProjectCategoryBadge category={project.category as any} />}
-              </div>
+              <h1 className='text-xl font-semibold text-gray-900 mb-2'>
+                {project?.name || 'Loading...'}
+              </h1>
               {project?.description && (
                 <p className='text-gray-600 text-sm'>{project.description}</p>
               )}
