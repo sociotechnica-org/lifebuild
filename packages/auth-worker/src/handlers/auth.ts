@@ -131,7 +131,7 @@ export async function handleSignup(request: Request, env: Env): Promise<Response
     const userData = await userResponse.json()
     const user = userData.user
 
-    sendDiscordNotification(
+    await sendDiscordNotification(
       `🅆 New Work Squared account created: \`${email}\``,
       env.DISCORD_WEBHOOK_URL
     )
