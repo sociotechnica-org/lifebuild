@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 
 interface AddTaskFormProps {
   onSubmit: (title: string) => void
@@ -7,12 +7,15 @@ interface AddTaskFormProps {
 
 export function AddTaskForm({ onSubmit, onCancel }: AddTaskFormProps) {
   const [title, setTitle] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (title.trim()) {
       onSubmit(title.trim())
       setTitle('')
+      // Refocus input immediately for rapid card entry
+      setTimeout(() => inputRef.current?.focus(), 0)
     }
   }
 
@@ -25,6 +28,7 @@ export function AddTaskForm({ onSubmit, onCancel }: AddTaskFormProps) {
   return (
     <form onSubmit={handleSubmit} className='mb-2'>
       <input
+        ref={inputRef}
         type='text'
         value={title}
         onChange={e => setTitle(e.target.value)}
