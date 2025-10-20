@@ -13,14 +13,13 @@ import {
 } from '@work-squared/shared/queries'
 import type { Task, Document, Worker, TaskStatus } from '@work-squared/shared/schema'
 import { events } from '@work-squared/shared/schema'
-import { STATUS_COLUMNS } from '@work-squared/shared'
+import { STATUS_COLUMNS, getCategoryInfo } from '@work-squared/shared'
 import { ProjectProvider, useProject } from '../../../contexts/ProjectContext.js'
 import { KanbanBoard } from '../../tasks/kanban/KanbanBoard.js'
 import { TaskModal } from '../../tasks/TaskModal/TaskModal.js'
 import { DocumentCreateModal } from '../../documents/DocumentCreateModal/DocumentCreateModal.js'
 import { AddExistingDocumentModal } from '../../documents/AddExistingDocumentModal/AddExistingDocumentModal.js'
 import { EditProjectModal } from '../EditProjectModal/EditProjectModal.js'
-import { ProjectCategoryBadge } from '../ProjectCategoryBadge.js'
 import { LoadingState } from '../../ui/LoadingState.js'
 import { WorkerCard } from '../../workers/WorkerCard/WorkerCard.js'
 import { ProjectContacts } from '../ProjectContacts.js'
@@ -29,6 +28,7 @@ import {
   calculateStatusTaskReorder,
   calculateStatusDropTarget,
 } from '../../../utils/statusTaskReordering.js'
+import type { PlanningAttributes } from '@work-squared/shared'
 
 // Component for the actual workspace content
 const ProjectWorkspaceContent: React.FC = () => {
@@ -57,6 +57,56 @@ const ProjectWorkspaceContent: React.FC = () => {
   }
 
   const tasks = useQuery(getProjectTasks$(projectId)) ?? []
+
+  // Check if project is in planning status
+  const projectAttrs = project?.attributes as PlanningAttributes | null
+  const isInPlanning = projectAttrs?.status === 'planning'
+  const planningStage = projectAttrs?.planningStage
+
+  // Only show "Done Planning" button for stage 3 (task planning stage)
+  const showDonePlanningButton = isInPlanning && planningStage === 3
+
+  // Handle completing planning stage 3
+  const handleDonePlanning = () => {
+    if (!projectId || !project) return
+
+    // Update project attributes to advance to stage 4
+    const updatedAttributes: PlanningAttributes = {
+      ...(projectAttrs || {}),
+      status: 'planning',
+      planningStage: 4,
+    }
+
+    store.commit(
+      events.projectAttributesUpdated({
+        id: projectId,
+        attributes: updatedAttributes as any,
+        updatedAt: new Date(),
+        actorId: user?.id,
+      })
+    )
+
+    // Navigate back to category backlog view
+    if (project.category) {
+      navigate(preserveStoreIdInUrl(`/category/${project.category}?tab=planning&subtab=backlog`))
+    }
+  }
+
+  // Get stage label for planning indicator
+  const getPlanningStageLabel = (stage?: number) => {
+    switch (stage) {
+      case 1:
+        return 'Stage 1: Basic Details'
+      case 2:
+        return 'Stage 2: Scoped'
+      case 3:
+        return 'Stage 3: Task Planning'
+      case 4:
+        return 'Stage 4: Ready for Backlog'
+      default:
+        return 'Planning'
+    }
+  }
 
   // Get documents for project using client-side filtering for now
   const documentProjects = useQuery(getDocumentProjectsByProject$(projectId)) ?? []
@@ -193,15 +243,22 @@ const ProjectWorkspaceContent: React.FC = () => {
     })
   }
 
+  // Get category information for breadcrumb
+  const categoryInfo = project?.category ? getCategoryInfo(project.category as any) : null
+  const categoryBackUrl = project?.category
+    ? `/category/${project.category}` // No tab param - use smart defaults
+    : '/projects'
+  const categoryLabel = categoryInfo?.name || 'Projects'
+
   return (
     <div className='h-full bg-white flex flex-col'>
       {/* Project Header with Breadcrumb */}
       <div className='border-b border-gray-200 bg-white px-6 py-4'>
         <div className='flex items-center gap-4 mb-3'>
           <Link
-            to={preserveStoreIdInUrl('/projects')}
+            to={preserveStoreIdInUrl(categoryBackUrl)}
             className='flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'
-            aria-label='Back to projects'
+            aria-label={`Back to ${categoryLabel}`}
           >
             <svg
               className='w-4 h-4 text-gray-600'
@@ -221,10 +278,11 @@ const ProjectWorkspaceContent: React.FC = () => {
           {/* Breadcrumb */}
           <nav className='flex items-center text-sm text-gray-500'>
             <Link
-              to={preserveStoreIdInUrl('/projects')}
-              className='hover:text-gray-700 transition-colors'
+              to={preserveStoreIdInUrl(categoryBackUrl)}
+              className='hover:text-gray-700 transition-colors flex items-center gap-1.5'
             >
-              Projects
+              {categoryInfo?.icon && <span className='text-base'>{categoryInfo.icon}</span>}
+              {categoryLabel}
             </Link>
             <svg className='w-4 h-4 mx-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
@@ -233,21 +291,74 @@ const ProjectWorkspaceContent: React.FC = () => {
           </nav>
         </div>
 
+        {/* Planning Stage Indicator */}
+        {isInPlanning && planningStage && (
+          <div className='mb-4 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg'>
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-3'>
+                <div className='flex items-center gap-2'>
+                  <div className='w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold'>
+                    {planningStage}
+                  </div>
+                  <span className='text-sm font-medium text-blue-900'>
+                    {getPlanningStageLabel(planningStage)}
+                  </span>
+                </div>
+                <div className='flex gap-1'>
+                  {[1, 2, 3, 4].map(stage => (
+                    <div
+                      key={stage}
+                      className={`h-2 w-2 rounded-full ${
+                        stage < planningStage
+                          ? 'bg-blue-400'
+                          : stage === planningStage
+                            ? 'bg-blue-600'
+                            : 'bg-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+              <p className='text-sm text-blue-700'>
+                {planningStage === 3
+                  ? 'Add and organize your tasks, then click "Done Planning" when ready'
+                  : planningStage === 4
+                    ? 'Project ready for backlog - set priority in planning view'
+                    : 'Continue planning in the Project Creation form'}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Project Title and Description */}
         <div className='mb-4'>
           <div className='flex items-start justify-between gap-4'>
             <div className='flex-1'>
-              <div className='flex items-center gap-3 mb-2'>
-                <h1 className='text-xl font-semibold text-gray-900'>
-                  {project?.name || 'Loading...'}
-                </h1>
-                {project?.category && <ProjectCategoryBadge category={project.category as any} />}
-              </div>
+              <h1 className='text-xl font-semibold text-gray-900 mb-2'>
+                {project?.name || 'Loading...'}
+              </h1>
               {project?.description && (
                 <p className='text-gray-600 text-sm'>{project.description}</p>
               )}
             </div>
             <div className='flex items-center gap-2'>
+              {showDonePlanningButton && (
+                <button
+                  onClick={handleDonePlanning}
+                  className='flex items-center gap-1.5 px-4 py-1.5 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors'
+                  aria-label='Done planning'
+                >
+                  <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M5 13l4 4L19 7'
+                    />
+                  </svg>
+                  Done Planning
+                </button>
+              )}
               <button
                 onClick={() => setIsEditProjectModalOpen(true)}
                 className='flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors'

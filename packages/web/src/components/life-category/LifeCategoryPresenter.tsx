@@ -10,10 +10,13 @@ export interface LifeCategoryPresenterProps {
   categoryId: string
   categoryName: string
   categoryColor: string
+  categoryIcon?: string
   selectedTab: CategoryTab
   selectedSubTab: PlanningSubTab | null
   activeProjects: Project[]
   completedProjects: Project[]
+  inProgressPlans: Project[]
+  backlogProjects: Project[]
   onTabChange: (tab: CategoryTab) => void
   onSubTabChange: (subTab: PlanningSubTab) => void
   onProjectClick: (project: Project) => void
@@ -22,10 +25,13 @@ export interface LifeCategoryPresenterProps {
 export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
   categoryName,
   categoryColor,
+  categoryIcon,
   selectedTab,
   selectedSubTab,
   activeProjects,
   completedProjects,
+  inProgressPlans,
+  backlogProjects,
   onTabChange,
   onSubTabChange,
   onProjectClick,
@@ -47,7 +53,10 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
       {/* Header */}
       <div className='border-b border-gray-200 bg-white px-6 py-4'>
         <div className='mb-4'>
-          <h1 className='text-xl font-semibold text-gray-900 mb-1'>{categoryName}</h1>
+          <h1 className='text-xl font-semibold text-gray-900 mb-1 flex items-center gap-2'>
+            {categoryIcon && <span className='text-2xl'>{categoryIcon}</span>}
+            {categoryName}
+          </h1>
           <p className='text-gray-600 text-sm'>Manage projects in this life category</p>
         </div>
 
@@ -57,7 +66,7 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`pb-3 px-1 text-sm font-medium transition-colors relative ${
+              className={`pb-3 px-1 text-sm font-medium transition-colors relative cursor-pointer ${
                 selectedTab === tab.id
                   ? 'text-gray-900 border-b-2'
                   : 'text-gray-500 hover:text-gray-700'
@@ -84,7 +93,7 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
               <button
                 key={subTab.id}
                 onClick={() => onSubTabChange(subTab.id)}
-                className={`pb-2 px-1 text-xs font-medium transition-colors ${
+                className={`pb-2 px-1 text-xs font-medium transition-colors cursor-pointer ${
                   selectedSubTab === subTab.id
                     ? 'text-gray-900 border-b-2 border-gray-900'
                     : 'text-gray-500 hover:text-gray-700'
@@ -103,12 +112,108 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
           <ProjectCreationView />
         )}
 
-        {selectedTab === 'planning' && selectedSubTab && selectedSubTab !== 'project-creation' && (
+        {selectedTab === 'planning' && selectedSubTab === 'project-plans' && (
           <div className='p-6'>
-            <h2 className='text-lg font-semibold mb-4'>
-              {planningSubTabs.find(t => t.id === selectedSubTab)?.label}
-            </h2>
-            <p className='text-gray-600'>Content for {selectedSubTab} will go here.</p>
+            {/* Stage Header */}
+            <div className='max-w-2xl mx-auto mb-8'>
+              <div className='flex items-center gap-2 mb-2'>
+                <div
+                  className='w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold'
+                  style={{ backgroundColor: categoryColor }}
+                >
+                  1-3
+                </div>
+                <div>
+                  <h2 className='text-lg font-semibold text-gray-900'>In-Progress Plans</h2>
+                  <p className='text-sm text-gray-500'>Continue planning your projects</p>
+                </div>
+              </div>
+              <div className='flex gap-2 mt-4'>
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+                <div className='h-2 flex-1 bg-gray-200 rounded' />
+              </div>
+            </div>
+
+            {inProgressPlans.length === 0 ? (
+              <div className='text-center py-12'>
+                <h2 className='text-xl font-semibold text-gray-600 mb-2'>
+                  No projects in planning
+                </h2>
+                <p className='text-gray-500'>
+                  Start a new project in Project Creation to begin planning.
+                </p>
+              </div>
+            ) : (
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                {inProgressPlans.map(project => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    onClick={() => onProjectClick(project)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {selectedTab === 'planning' && selectedSubTab === 'backlog' && (
+          <div className='p-6'>
+            {/* Stage Header */}
+            <div className='max-w-2xl mx-auto mb-8'>
+              <div className='flex items-center gap-2 mb-2'>
+                <div
+                  className='w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold'
+                  style={{ backgroundColor: categoryColor }}
+                >
+                  4
+                </div>
+                <div>
+                  <h2 className='text-lg font-semibold text-gray-900'>Stage 4: Backlog</h2>
+                  <p className='text-sm text-gray-500'>Projects ready for prioritization</p>
+                </div>
+              </div>
+              <div className='flex gap-2 mt-4'>
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+                <div className='h-2 flex-1 rounded' style={{ backgroundColor: categoryColor }} />
+              </div>
+            </div>
+
+            {backlogProjects.length === 0 ? (
+              <div className='text-center py-12'>
+                <h2 className='text-xl font-semibold text-gray-600 mb-2'>No projects in backlog</h2>
+                <p className='text-gray-500'>
+                  Complete planning (Stage 4) for a project to add it to the backlog.
+                </p>
+              </div>
+            ) : (
+              <div className='space-y-3'>
+                {backlogProjects.map((project, index) => (
+                  <div
+                    key={project.id}
+                    className='flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors cursor-pointer'
+                    onClick={() => onProjectClick(project)}
+                  >
+                    <div className='flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-600'>
+                      {index + 1}
+                    </div>
+                    <div className='flex-1'>
+                      <h3 className='font-medium text-gray-900'>{project.name}</h3>
+                      {project.description && (
+                        <p className='text-sm text-gray-500 mt-1'>{project.description}</p>
+                      )}
+                    </div>
+                    <div className='text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-md'>
+                      Stage 4
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

@@ -192,7 +192,9 @@ describe('ProjectWorkspace', () => {
   it('should render back to projects link', () => {
     render(<ProjectWorkspace />)
 
-    const backLink = screen.getByLabelText('Back to projects')
+    // Back link now shows category name (or "Projects" if no category)
+    // Since mock project has no category, it defaults to "Projects"
+    const backLink = screen.getByLabelText('Back to Projects')
     expect(backLink).toBeInTheDocument()
     expect(backLink).toHaveAttribute('href', '/projects')
   })
@@ -200,7 +202,7 @@ describe('ProjectWorkspace', () => {
   it('should show project name in breadcrumb navigation', () => {
     render(<ProjectWorkspace />)
 
-    // Should have breadcrumb link to projects
+    // Should have breadcrumb link (shows category name or "Projects")
     const projectsLink = screen.getByRole('link', { name: 'Projects' })
     expect(projectsLink).toHaveAttribute('href', '/projects')
 

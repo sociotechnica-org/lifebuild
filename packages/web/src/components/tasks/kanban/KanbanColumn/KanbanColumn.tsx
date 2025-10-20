@@ -68,7 +68,8 @@ export function KanbanColumn({
       })
     )
 
-    setIsAddingTask(false)
+    // Keep form open for rapid entry - don't call setIsAddingTask(false)
+    // The AddTaskForm component handles clearing and refocusing the input
   }
 
   return (

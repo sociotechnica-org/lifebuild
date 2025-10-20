@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useStore, useQuery } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
 import { getProjectDetails$ } from '@work-squared/shared/queries'
@@ -14,6 +14,7 @@ import type {
 import { ProjectCreationStage1Presenter } from './ProjectCreationStage1Presenter'
 import { ProjectCreationStage2Presenter } from './ProjectCreationStage2Presenter'
 import { PROJECT_CATEGORIES } from '@work-squared/shared'
+import { preserveStoreIdInUrl } from '../../util/navigation.js'
 
 /**
  * Auto-suggest project archetype based on traits
@@ -77,6 +78,7 @@ function suggestArchetype(
 export const ProjectCreationView: React.FC = () => {
   const { categoryId } = useParams<{ categoryId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const store = useStore()
 
   // Get project ID from URL if editing existing project
@@ -85,7 +87,7 @@ export const ProjectCreationView: React.FC = () => {
   const projectQueryResult = useQuery(getProjectDetails$(projectId || '__dummy__'))
   const existingProject = projectId ? (projectQueryResult?.[0] as any) : null
 
-  // Stage management
+  // Stage management (only stages 1-2 are shown in UI, stage 3 navigates to workspace)
   const [currentStage, setCurrentStage] = useState<1 | 2>(1)
   const [isSaving, setIsSaving] = useState(false)
   const [hasLoadedProject, setHasLoadedProject] = useState(false)
@@ -113,7 +115,9 @@ export const ProjectCreationView: React.FC = () => {
 
       const attrs = existingProject.attributes as PlanningAttributes | null
       if (attrs) {
-        setCurrentStage((attrs.planningStage as 1 | 2) || 1)
+        // Only show stages 1-2 in UI (stage 3+ navigates to workspace)
+        const stage = attrs.planningStage || 1
+        setCurrentStage((stage < 3 ? stage : 2) as 1 | 2)
         setObjectives(attrs.objectives || '')
         if (attrs.deadline) {
           const dateStr = new Date(attrs.deadline).toISOString().split('T')[0]
@@ -146,8 +150,9 @@ export const ProjectCreationView: React.FC = () => {
   const categoryColor = category?.colorHex || '#3B82F6'
 
   // Save project (create or update)
-  const saveProject = async (stage: 1 | 2, navigateToStage?: 1 | 2) => {
-    if (!categoryId) return
+  // Returns the project ID (useful for new projects)
+  const saveProject = async (stage: 1 | 2 | 3, navigateToStage?: 1 | 2): Promise<string | null> => {
+    if (!categoryId) return null
 
     setIsSaving(true)
     try {
@@ -193,8 +198,8 @@ export const ProjectCreationView: React.FC = () => {
         planningStage: stage,
       }
 
-      // Include Stage 2 fields if we're on Stage 2
-      if (stage === 2) {
+      // Include Stage 2 fields if we're at stage 2 or higher (always save stage 2 data when present)
+      if (stage >= 2) {
         attributes.objectives = objectives
         attributes.deadline = deadline ? new Date(deadline).getTime() : undefined
         attributes.archetype = archetype ? (archetype as ProjectArchetype) : undefined
@@ -224,8 +229,12 @@ export const ProjectCreationView: React.FC = () => {
       if (navigateToStage) {
         setCurrentStage(navigateToStage)
       }
+
+      // Return the project ID
+      return currentProjectId
     } catch (error) {
       console.error('Error saving project:', error)
+      return null
     } finally {
       setIsSaving(false)
     }
@@ -236,8 +245,9 @@ export const ProjectCreationView: React.FC = () => {
     saveProject(1)
   }
 
-  const handleStage1Continue = () => {
-    saveProject(1, 2)
+  const handleStage1Continue = async () => {
+    // Advance project to stage 2 (both in DB and UI)
+    await saveProject(2, 2)
   }
 
   // Stage 2 handlers
@@ -249,10 +259,17 @@ export const ProjectCreationView: React.FC = () => {
     saveProject(2)
   }
 
-  const handleStage2Continue = () => {
-    // Stage 3 will be implemented in next PR
-    saveProject(2)
-    alert('Stage 3 (Task Planning) coming in next PR!')
+  const handleStage2Continue = async () => {
+    // Save stage 2 data and advance to stage 3, then navigate to project workspace
+    const savedProjectId = await saveProject(3)
+
+    if (!savedProjectId) {
+      console.error('Failed to save project')
+      return
+    }
+
+    // Navigate directly to project workspace (kanban view), preserving storeId
+    navigate(preserveStoreIdInUrl(`/project/${savedProjectId}`))
   }
 
   if (!categoryId) {

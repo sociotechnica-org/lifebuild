@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { getProjects$ } from '@work-squared/shared/queries'
 import type { Project } from '@work-squared/shared/schema'
+import { getCategoryInfo, type ProjectCategory } from '@work-squared/shared'
 import {
   LifeCategoryPresenter,
   type CategoryTab,
@@ -11,7 +12,8 @@ import {
 import { generateRoute } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../util/navigation.js'
 
-// Life category definitions (will be moved to a constants file later)
+// Life category definitions - using colors from local design
+// Icons come from shared PROJECT_CATEGORIES via getCategoryInfo
 const LIFE_CATEGORIES = {
   health: { name: 'Health & Well-Being', color: '#E57373' },
   relationships: { name: 'Relationships', color: '#F06292' },
@@ -46,8 +48,24 @@ export const LifeCategoryView: React.FC = () => {
     return attributes?.status === 'completed'
   })
 
-  // Get active project count for smart default tab selection
-  const activeProjectCount = activeProjects.length
+  // Separate planning projects by stage
+  const planningProjects = categoryProjects.filter((p: Project) => {
+    const attributes = p.attributes as { status?: string; planningStage?: number } | null
+    return attributes?.status === 'planning'
+  })
+
+  // Projects in stages 1-3 (in progress)
+  const inProgressPlans = planningProjects.filter((p: Project) => {
+    const attributes = p.attributes as { planningStage?: number } | null
+    const stage = attributes?.planningStage ?? 1
+    return stage < 4
+  })
+
+  // Projects in stage 4 (ready for backlog - awaiting priority)
+  const backlogProjects = planningProjects.filter((p: Project) => {
+    const attributes = p.attributes as { planningStage?: number } | null
+    return attributes?.planningStage === 4
+  })
 
   // Determine initial tab from URL or smart default
   const getInitialTab = (): CategoryTab => {
@@ -55,16 +73,21 @@ export const LifeCategoryView: React.FC = () => {
     if (urlTab && ['planning', 'active', 'completed'].includes(urlTab)) {
       return urlTab
     }
-    // Smart default: Active if there are active projects, otherwise Planning
-    return activeProjectCount > 0 ? 'active' : 'planning'
+    // Smart default priority: Active > Planning (never Completed)
+    if (activeProjects.length > 0) return 'active'
+    if (planningProjects.length > 0) return 'planning'
+    return 'planning' // Default to planning if no projects
   }
 
-  // Determine initial sub-tab (default to 'project-creation')
+  // Determine initial sub-tab with smart defaults
   const getInitialSubTab = (): PlanningSubTab => {
     const urlSubTab = searchParams.get('subtab') as PlanningSubTab | null
     if (urlSubTab && ['project-creation', 'project-plans', 'backlog'].includes(urlSubTab)) {
       return urlSubTab
     }
+    // Smart default priority: Backlog > Project Plans > Project Creation
+    if (backlogProjects.length > 0) return 'backlog'
+    if (inProgressPlans.length > 0) return 'project-plans'
     return 'project-creation'
   }
 
@@ -118,8 +141,29 @@ export const LifeCategoryView: React.FC = () => {
   }
 
   const category = LIFE_CATEGORIES[categoryId as keyof typeof LIFE_CATEGORIES]
+  const categoryInfo = getCategoryInfo(categoryId as ProjectCategory)
 
   const handleProjectClick = (project: Project) => {
+    const attrs = project.attributes as { planningStage?: number; status?: string } | null
+
+    // Route based on planning stage:
+    // - Stages undefined, 0, 1-2: Project Creation form (to continue editing details/objectives)
+    // - Stages 3-4: Project workspace (task planning done, work on project)
+    if (attrs?.status === 'planning') {
+      const stage = attrs.planningStage ?? 1 // Default to stage 1 if undefined
+
+      if (stage < 3) {
+        // Stages 0, 1, 2: Navigate to Project Creation form to continue planning
+        navigate(
+          preserveStoreIdInUrl(
+            `/category/${categoryId}?tab=planning&subtab=project-creation&projectId=${project.id}`
+          )
+        )
+        return
+      }
+    }
+
+    // Stages 3-4, active, or completed projects: Navigate to project workspace
     navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
   }
 
@@ -128,10 +172,13 @@ export const LifeCategoryView: React.FC = () => {
       categoryId={categoryId}
       categoryName={category.name}
       categoryColor={category.color}
+      categoryIcon={categoryInfo?.icon}
       selectedTab={selectedTab}
       selectedSubTab={selectedTab === 'planning' ? selectedSubTab : null}
       activeProjects={activeProjects}
       completedProjects={completedProjects}
+      inProgressPlans={inProgressPlans}
+      backlogProjects={backlogProjects}
       onTabChange={handleTabChange}
       onSubTabChange={handleSubTabChange}
       onProjectClick={handleProjectClick}
