@@ -84,9 +84,9 @@ const ProjectWorkspaceContent: React.FC = () => {
       })
     )
 
-    // Navigate back to category planning view
+    // Navigate back to category backlog view
     if (project.category) {
-      navigate(preserveStoreIdInUrl(`/category/${project.category}?tab=planning`))
+      navigate(preserveStoreIdInUrl(`/category/${project.category}?tab=planning&subtab=backlog`))
     }
   }
 

@@ -46,6 +46,25 @@ export const LifeCategoryView: React.FC = () => {
     return attributes?.status === 'completed'
   })
 
+  // Separate planning projects by stage
+  const planningProjects = categoryProjects.filter((p: Project) => {
+    const attributes = p.attributes as { status?: string; planningStage?: number } | null
+    return attributes?.status === 'planning'
+  })
+
+  // Projects in stages 1-3 (in progress)
+  const inProgressPlans = planningProjects.filter((p: Project) => {
+    const attributes = p.attributes as { planningStage?: number } | null
+    const stage = attributes?.planningStage ?? 1
+    return stage < 4
+  })
+
+  // Projects in stage 4 (ready for backlog - awaiting priority)
+  const backlogProjects = planningProjects.filter((p: Project) => {
+    const attributes = p.attributes as { planningStage?: number } | null
+    return attributes?.planningStage === 4
+  })
+
   // Get active project count for smart default tab selection
   const activeProjectCount = activeProjects.length
 
@@ -132,6 +151,8 @@ export const LifeCategoryView: React.FC = () => {
       selectedSubTab={selectedTab === 'planning' ? selectedSubTab : null}
       activeProjects={activeProjects}
       completedProjects={completedProjects}
+      inProgressPlans={inProgressPlans}
+      backlogProjects={backlogProjects}
       onTabChange={handleTabChange}
       onSubTabChange={handleSubTabChange}
       onProjectClick={handleProjectClick}

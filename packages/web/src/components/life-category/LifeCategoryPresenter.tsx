@@ -14,6 +14,8 @@ export interface LifeCategoryPresenterProps {
   selectedSubTab: PlanningSubTab | null
   activeProjects: Project[]
   completedProjects: Project[]
+  inProgressPlans: Project[]
+  backlogProjects: Project[]
   onTabChange: (tab: CategoryTab) => void
   onSubTabChange: (subTab: PlanningSubTab) => void
   onProjectClick: (project: Project) => void
@@ -26,6 +28,8 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
   selectedSubTab,
   activeProjects,
   completedProjects,
+  inProgressPlans,
+  backlogProjects,
   onTabChange,
   onSubTabChange,
   onProjectClick,
@@ -103,12 +107,64 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
           <ProjectCreationView />
         )}
 
-        {selectedTab === 'planning' && selectedSubTab && selectedSubTab !== 'project-creation' && (
+        {selectedTab === 'planning' && selectedSubTab === 'project-plans' && (
           <div className='p-6'>
-            <h2 className='text-lg font-semibold mb-4'>
-              {planningSubTabs.find(t => t.id === selectedSubTab)?.label}
-            </h2>
-            <p className='text-gray-600'>Content for {selectedSubTab} will go here.</p>
+            {inProgressPlans.length === 0 ? (
+              <div className='text-center py-12'>
+                <h2 className='text-xl font-semibold text-gray-600 mb-2'>
+                  No projects in planning
+                </h2>
+                <p className='text-gray-500'>
+                  Start a new project in Project Creation to begin planning.
+                </p>
+              </div>
+            ) : (
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                {inProgressPlans.map(project => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    onClick={() => onProjectClick(project)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {selectedTab === 'planning' && selectedSubTab === 'backlog' && (
+          <div className='p-6'>
+            {backlogProjects.length === 0 ? (
+              <div className='text-center py-12'>
+                <h2 className='text-xl font-semibold text-gray-600 mb-2'>No projects in backlog</h2>
+                <p className='text-gray-500'>
+                  Complete planning (Stage 4) for a project to add it to the backlog.
+                </p>
+              </div>
+            ) : (
+              <div className='space-y-3'>
+                {backlogProjects.map((project, index) => (
+                  <div
+                    key={project.id}
+                    className='flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors cursor-pointer'
+                    onClick={() => onProjectClick(project)}
+                  >
+                    <div className='flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-600'>
+                      {index + 1}
+                    </div>
+                    <div className='flex-1'>
+                      <h3 className='font-medium text-gray-900'>{project.name}</h3>
+                      {project.description && (
+                        <p className='text-sm text-gray-500 mt-1'>{project.description}</p>
+                      )}
+                    </div>
+                    <div className='text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-md'>
+                      Stage 4
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
