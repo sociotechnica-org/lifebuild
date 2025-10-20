@@ -196,7 +196,7 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
                   isChatOpen
                     ? 'bg-gray-100 text-blue-600'
                     : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-                } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+                }`}
                 title={isChatOpen ? 'Close chat' : 'Open chat'}
                 aria-label={isChatOpen ? 'Close chat sidebar' : 'Open chat sidebar'}
               >
@@ -223,7 +223,7 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
                 <button
                   ref={buttonRef}
                   onClick={handleToggleDropdown}
-                  className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                  className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium hover:bg-blue-600'
                   title={getDisplayName()}
                   data-testid='user-menu-button'
                 >
@@ -274,7 +274,7 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
             ) : (
               <Link
                 to={ROUTES.LOGIN}
-                className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700'
               >
                 Sign in
               </Link>
