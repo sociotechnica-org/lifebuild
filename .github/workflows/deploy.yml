@@ -40,6 +40,8 @@ jobs:
           pnpm --filter @work-squared/auth-worker test
 
       - name: Deploy Auth Worker
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: pnpm --filter @work-squared/auth-worker run deploy
 
       - name: Deploy PostHog Analytics Proxy Worker

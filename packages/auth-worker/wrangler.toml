@@ -5,6 +5,9 @@ main = "./src/index.ts"
 [vars]
 ENVIRONMENT = "development"
 
+# Note: DISCORD_WEBHOOK_URL is set as a secret via GitHub Actions
+# wrangler secret put DISCORD_WEBHOOK_URL
+
 [[durable_objects.bindings]]
 name = "USER_STORE"
 class_name = "UserStore"
