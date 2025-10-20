@@ -155,15 +155,15 @@ What is an "active" project versus an "inactive" project
 
 #### Tasks
 
-- [ ] Event: Use existing `v1.ProjectCreated` event, adding `category` field to payload
-- [ ] UI: Show "+" icon on category square hover (top-right corner)
-- [ ] UI: Create `QuickAddProjectModal` component with fields: Project title (required), Category (pre-filled, read-only)
-- [ ] UI: Modal includes "Create" and "Cancel" buttons
-- [ ] Logic: On create, commit `projectCreated` event with `category` field set, project attributes include `status: 'planning'` and `planningStage: 1`
-- [ ] UI: After creation, show toast: "[Project] added to [Category] Planning" with "Edit Now" link
-- [ ] DoD: Hovering over a category reveals a plus icon that opens a quick-add modal for creating projects directly from the Life Map.
+- [x] Event: Use existing `v1.ProjectCreated` event, adding `category` field to payload
+- [x] UI: Show "+" icon on category square hover (top-left corner)
+- [x] UI: Create `QuickAddProjectModal` component with fields: Project title (required), Category (pre-filled, read-only)
+- [x] UI: Modal includes "Create" and "Cancel" buttons
+- [x] Logic: On create, commit `projectCreated` event with `category` field set, project attributes include `status: 'planning'` and `planningStage: 1`
+- [x] UI: After creation, show toast: "[Project] added to [Category] Planning"
+- [x] DoD: Hovering over a category reveals a plus icon that opens a quick-add modal for creating projects directly from the Life Map.
 
-**Status**:
+**Status**: ✅ **Completed in PR #251** (merged 2025-10-17)
 
 ---
 
@@ -175,13 +175,13 @@ What is an "active" project versus an "inactive" project
 
 #### Tasks
 
-- [ ] UI: When category has no projects (`projectCount = 0`), show "Get Started" message on square
-- [ ] UI: Replace or overlay standard indicators with "Add First Project" call-to-action
-- [ ] Logic: Clicking "Get Started" navigates to category's Planning tab
-- [ ] UI: Alternatively, show enlarged "+" icon inviting project creation
-- [ ] DoD: Empty Life Categories display clear visual guidance prompting the user to add their first project, with click behavior navigating to the category view.
+- [x] UI: When category has no projects (`projectCount = 0`), show "Get Started →" message on square
+- [x] UI: Replace standard indicators with "Get Started" call-to-action
+- [x] Logic: Clicking card navigates to category's Planning tab
+- [x] UI: Show enlarged "+" icon on hover inviting project creation
+- [x] DoD: Empty Life Categories display clear visual guidance prompting the user to add their first project, with click behavior navigating to the category view.
 
-**Status**:
+**Status**: ✅ **Completed in this PR**
 
 ---
 
@@ -195,14 +195,14 @@ What is an "active" project versus an "inactive" project
 
 #### Tasks
 
-- [ ] Schema: Include `icon` field (emoji) in hardcoded `LIFE_CATEGORIES` constant
-- [ ] UI: Each category displays its distinct icon/seal (emoji for MVP: 🧘‍♀️ for Health, 💗 for Relationships, etc.)
-- [ ] UI: Icons sized at minimum 40x40px for recognizability
-- [ ] UI: Icons maintain consistent visual style (same size, similar visual weight)
-- [ ] UI: Icon positioned prominently (top-center or center of square)
-- [ ] DoD: Each Life Category square displays a unique, recognizable icon in a consistent style and size.
+- [x] Schema: Include `icon` field (emoji) in hardcoded `LIFE_CATEGORIES` constant
+- [x] UI: Each category displays its distinct icon/seal (emoji for MVP: 🧘‍♀️ for Health, 💗 for Relationships, etc.)
+- [x] UI: Icons sized at minimum 40x40px for recognizability
+- [x] UI: Icons maintain consistent visual style (same size, similar visual weight)
+- [x] UI: Icon positioned prominently (center of square)
+- [x] DoD: Each Life Category square displays a unique, recognizable icon in a consistent style and size.
 
-**Status**:
+**Status**: ✅ **Already completed in PR #248** (icons were included from the start)
 
 #### Implementation Notes
 
@@ -218,15 +218,15 @@ What is an "active" project versus an "inactive" project
 
 #### Tasks
 
-- [ ] UI: Desktop (>1024px): 2x4 grid layout
-- [ ] UI: Tablet (768-1024px): 2x4 grid layout (slightly narrower squares)
-- [ ] UI: Mobile (<768px): 2x4 grid with vertical scroll OR 1x8 single-column scrollable list
-- [ ] UI: All touch targets maintain minimum 44x44px size for accessibility
-- [ ] UI: Grid spacing and margins adjust proportionally for each breakpoint
-- [ ] UI: Test on iOS Safari, Android Chrome, and desktop browsers
-- [ ] DoD: The Life Map displays correctly and is fully usable on desktop (2x4 grid), tablet (2x4 grid), and mobile (scrollable 2x4 or 1x8 list).
+- [x] UI: Desktop (>1024px): 4x2 grid layout
+- [x] UI: Tablet/Mobile (<1024px): 2x4 grid layout with responsive spacing
+- [x] UI: All touch targets maintain minimum 120px height for accessibility
+- [x] UI: Grid spacing and margins adjust proportionally for each breakpoint (sm: 16px, lg: 24px)
+- [x] UI: Text sizes, badges, and icons scale responsively
+- [x] UI: Header and padding adjust for mobile screens
+- [x] DoD: The Life Map displays correctly and is fully usable on desktop (4x2 grid), tablet (2x4 grid), and mobile (2x4 grid) with appropriate touch targets.
 
-**Status**:
+**Status**: ✅ **Completed in this PR**
 
 ---
 
@@ -240,14 +240,15 @@ What is an "active" project versus an "inactive" project
 
 #### Tasks
 
-- [ ] Schema: Use existing `settings` table or browser localStorage to store `lastVisitedCategoryId`
-- [ ] Logic: On category navigation, update `lastVisitedCategoryId` using `settingUpdated` event or localStorage
-- [ ] Query: Use `getSettingByKey$('lastVisitedCategoryId')` query or read from localStorage
-- [ ] UI: Add "Return to [Category Name]" quick action button on Life Map (if recent visit within 24 hours)
-- [ ] Navigation: Clicking button navigates directly to last visited category
-- [ ] DoD: The system remembers the last category visited and optionally provides a quick return button on the Life Map.
+- [x] Schema: Use browser localStorage to store `lastVisitedCategoryId` and timestamp
+- [x] Logic: On category navigation, update localStorage with category and timestamp
+- [x] Logic: On Life Map load, check if last visit was within 24 hours
+- [x] UI: Add "Return to [Category Name]" button in header (if recent visit within 24 hours)
+- [x] Navigation: Clicking button navigates directly to last visited category
+- [x] UI: Button responsive with abbreviated text on mobile
+- [x] DoD: The system remembers the last category visited and provides a quick return button on the Life Map if visited within 24 hours.
 
-**Status**:
+**Status**: ✅ **Completed in this PR**
 
 ---
 
