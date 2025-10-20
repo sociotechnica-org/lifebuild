@@ -18,16 +18,17 @@ const ALLOWED_SENTRY_HOSTS = ['o4510114888220672.ingest.us.sentry.io', 'ingest.s
 
 /**
  * Extracts the project ID from a Sentry DSN pathname
- * DSN format: https://<key>@<host>/api/<project>/
+ * Sentry DSN format: https://<key>@<host>/<project>
+ * Example: https://abc123@o123.ingest.sentry.io/456789
+ * Pathname: /456789
  */
 function extractProjectId(pathname: string): string {
-  // Remove leading/trailing slashes and split
+  // Remove leading/trailing slashes and get first segment (the project ID)
   const parts = pathname.split('/').filter(p => p.length > 0)
-  // Should be: ['api', '<project>']
-  if (parts.length >= 2 && parts[0] === 'api') {
-    return parts[1]
+  if (parts.length === 0) {
+    throw new Error(`Invalid DSN pathname: ${pathname}`)
   }
-  throw new Error(`Invalid DSN pathname: ${pathname}`)
+  return parts[0]
 }
 
 /**
