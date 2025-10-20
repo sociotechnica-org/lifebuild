@@ -140,12 +140,12 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
 
       {/* Larger Quick Add for Empty Categories */}
       {onQuickAdd && projectCount === 0 && (
-        <button
-          onClick={handleQuickAddClick}
-          className='absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto'
-          aria-label='Add first project'
-        >
-          <div className='w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors'>
+        <div className='absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none'>
+          <button
+            onClick={handleQuickAddClick}
+            className='w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors pointer-events-auto'
+            aria-label='Add first project'
+          >
             <svg
               className='w-10 h-10 text-gray-700'
               fill='none'
@@ -159,8 +159,8 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
                 d='M12 4v16m8-8H4'
               />
             </svg>
-          </div>
-        </button>
+          </button>
+        </div>
       )}
     </button>
   )
