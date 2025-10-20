@@ -66,7 +66,7 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`pb-3 px-1 text-sm font-medium transition-colors relative ${
+              className={`pb-3 px-1 text-sm font-medium transition-colors relative cursor-pointer ${
                 selectedTab === tab.id
                   ? 'text-gray-900 border-b-2'
                   : 'text-gray-500 hover:text-gray-700'
@@ -93,7 +93,7 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
               <button
                 key={subTab.id}
                 onClick={() => onSubTabChange(subTab.id)}
-                className={`pb-2 px-1 text-xs font-medium transition-colors ${
+                className={`pb-2 px-1 text-xs font-medium transition-colors cursor-pointer ${
                   selectedSubTab === subTab.id
                     ? 'text-gray-900 border-b-2 border-gray-900'
                     : 'text-gray-500 hover:text-gray-700'
