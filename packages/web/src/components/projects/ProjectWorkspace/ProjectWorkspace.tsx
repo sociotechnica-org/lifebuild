@@ -59,10 +59,13 @@ const ProjectWorkspaceContent: React.FC = () => {
 
   const tasks = useQuery(getProjectTasks$(projectId)) ?? []
 
-  // Check if project is in planning stage 3
+  // Check if project is in planning status
   const projectAttrs = project?.attributes as PlanningAttributes | null
-  const isInPlanningStage3 =
-    projectAttrs?.status === 'planning' && projectAttrs?.planningStage === 3
+  const isInPlanning = projectAttrs?.status === 'planning'
+  const planningStage = projectAttrs?.planningStage
+
+  // Only show "Done Planning" button for stage 3 (task planning stage)
+  const showDonePlanningButton = isInPlanning && planningStage === 3
 
   // Handle completing planning stage 3
   const handleDonePlanning = () => {
@@ -87,6 +90,22 @@ const ProjectWorkspaceContent: React.FC = () => {
     // Navigate back to category backlog view
     if (project.category) {
       navigate(preserveStoreIdInUrl(`/category/${project.category}?tab=planning&subtab=backlog`))
+    }
+  }
+
+  // Get stage label for planning indicator
+  const getPlanningStageLabel = (stage?: number) => {
+    switch (stage) {
+      case 1:
+        return 'Stage 1: Basic Details'
+      case 2:
+        return 'Stage 2: Scoped'
+      case 3:
+        return 'Stage 3: Task Planning'
+      case 4:
+        return 'Stage 4: Ready for Backlog'
+      default:
+        return 'Planning'
     }
   }
 
@@ -266,25 +285,39 @@ const ProjectWorkspaceContent: React.FC = () => {
         </div>
 
         {/* Planning Stage Indicator */}
-        {isInPlanningStage3 && (
+        {isInPlanning && planningStage && (
           <div className='mb-4 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-3'>
                 <div className='flex items-center gap-2'>
                   <div className='w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold'>
-                    3
+                    {planningStage}
                   </div>
-                  <span className='text-sm font-medium text-blue-900'>Stage 3: Task Planning</span>
+                  <span className='text-sm font-medium text-blue-900'>
+                    {getPlanningStageLabel(planningStage)}
+                  </span>
                 </div>
                 <div className='flex gap-1'>
-                  <div className='h-2 w-2 rounded-full bg-blue-400' />
-                  <div className='h-2 w-2 rounded-full bg-blue-400' />
-                  <div className='h-2 w-2 rounded-full bg-blue-600' />
-                  <div className='h-2 w-2 rounded-full bg-gray-300' />
+                  {[1, 2, 3, 4].map(stage => (
+                    <div
+                      key={stage}
+                      className={`h-2 w-2 rounded-full ${
+                        stage < planningStage
+                          ? 'bg-blue-400'
+                          : stage === planningStage
+                            ? 'bg-blue-600'
+                            : 'bg-gray-300'
+                      }`}
+                    />
+                  ))}
                 </div>
               </div>
               <p className='text-sm text-blue-700'>
-                Add and organize your tasks, then click "Done Planning" when ready
+                {planningStage === 3
+                  ? 'Add and organize your tasks, then click "Done Planning" when ready'
+                  : planningStage === 4
+                    ? 'Project ready for backlog - set priority in planning view'
+                    : 'Continue planning in the Project Creation form'}
               </p>
             </div>
           </div>
@@ -305,7 +338,7 @@ const ProjectWorkspaceContent: React.FC = () => {
               )}
             </div>
             <div className='flex items-center gap-2'>
-              {isInPlanningStage3 && (
+              {showDonePlanningButton && (
                 <button
                   onClick={handleDonePlanning}
                   className='flex items-center gap-1.5 px-4 py-1.5 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors'
