@@ -56,7 +56,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         <div className='flex flex-1 overflow-hidden'>
           {/* Main Content Area */}
-          <div className='relative flex-1 overflow-auto'>{children}</div>
+          <div className='flex-1 overflow-auto'>{children}</div>
 
           {/* Chat Panel - Fixed width */}
           {isDesktop && isChatOpen && (
