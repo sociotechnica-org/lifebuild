@@ -839,14 +839,22 @@ export class EventProcessor {
     }
 
     // Extract and enrich navigation context from user message
+    logger.info(
+      { hasNavigationContext: !!userMessage.navigationContext },
+      'Checking for navigation context in user message'
+    )
     if (userMessage.navigationContext) {
+      logger.info({ rawContext: userMessage.navigationContext }, 'Raw navigation context from message')
       try {
         const parsedContext = JSON.parse(userMessage.navigationContext)
+        logger.info({ parsedContext }, 'Parsed navigation context')
         navigationContext = await this.enrichNavigationContext(store, parsedContext)
-        logger.debug({ navigationContext }, 'Enriched navigation context')
+        logger.info({ navigationContext }, 'Enriched navigation context')
       } catch (error) {
         logger.warn({ error }, 'Failed to parse/enrich navigation context from user message')
       }
+    } else {
+      logger.warn('No navigationContext field in user message')
     }
 
     // Convert chat messages to conversation history format and sanitize tool calls.
