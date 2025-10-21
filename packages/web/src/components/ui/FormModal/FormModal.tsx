@@ -68,9 +68,15 @@ export const FormModal: React.FC<FormModalProps> = ({
   footer,
   hideFooter = false,
 }) => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit?.(e)
+    try {
+      await onSubmit?.(e)
+    } catch (error) {
+      // Error handling should be done by the onSubmit handler
+      // This catch prevents unhandled promise rejection
+      console.error('Form submission error:', error)
+    }
   }
 
   // Use provided ariaLabel, or title if it's a string, or a default

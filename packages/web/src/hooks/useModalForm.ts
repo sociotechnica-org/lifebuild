@@ -74,18 +74,24 @@ export function useModalForm<T extends Record<string, any>>({
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Reset form when modal opens/closes
+  // Reset form when modal opens/closes or when initialValues change
+  // Use JSON.stringify to create a stable reference for deep comparison
+  const initialValuesKey = JSON.stringify(initialValues)
+
   useEffect(() => {
+    // Parse the key back to get current initial values
+    const currentInitialValues = JSON.parse(initialValuesKey) as T
+
     if (isOpen) {
-      setValues(initialValues)
+      setValues(currentInitialValues)
       setErrors({})
       setIsSubmitting(false)
     } else if (resetOnClose) {
-      setValues(initialValues)
+      setValues(currentInitialValues)
       setErrors({})
       setIsSubmitting(false)
     }
-  }, [isOpen, resetOnClose]) // intentionally not including initialValues to avoid infinite loops
+  }, [isOpen, resetOnClose, initialValuesKey])
 
   const reset = useCallback(() => {
     setValues(initialValues)
