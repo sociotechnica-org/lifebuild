@@ -69,6 +69,10 @@ const usersEqual = (a: AuthUser | null, b: AuthUser | null) => {
     const instanceA = aInstances[i]
     const instanceB = bInstances[i]
 
+    if (!instanceA || !instanceB) {
+      return false
+    }
+
     if (
       instanceA.id !== instanceB.id ||
       instanceA.name !== instanceB.name ||
