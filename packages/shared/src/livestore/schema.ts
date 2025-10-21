@@ -46,12 +46,7 @@ const projects = State.SQLite.table({
     attributes: State.SQLite.text({
       // PR4: Flexible attributes for future extensibility (PR5)
       nullable: true,
-      schema: Schema.parseJson(
-        Schema.Struct({
-          priority: Schema.optional(Schema.Number),
-          // Future: scale, complexity, urgency, etc.
-        })
-      ),
+      schema: Schema.parseJson(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
     }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
