@@ -39,8 +39,16 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   }
 
   return (
-    <button
+    <div
       onClick={onClick}
+      role='button'
+      tabIndex={0}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick()
+        }
+      }}
       className={`
         relative w-full aspect-square rounded-lg sm:rounded-xl p-4 sm:p-6
         flex flex-col items-center justify-center
@@ -162,6 +170,6 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           </button>
         </div>
       )}
-    </button>
+    </div>
   )
 }
