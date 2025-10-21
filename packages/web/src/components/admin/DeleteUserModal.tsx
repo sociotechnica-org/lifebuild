@@ -1,4 +1,5 @@
 import React from 'react'
+import { ConfirmModal } from '../ui/ConfirmModal/index.js'
 
 interface DeleteUserModalProps {
   isOpen: boolean
@@ -15,34 +16,15 @@ export const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
   onCancel,
   isDeleting = false,
 }) => {
-  if (!isOpen) return null
-
   return (
-    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]'>
-      <div className='bg-white rounded-lg max-w-md w-full mx-4 p-6'>
-        <div className='flex items-center mb-4'>
-          <div className='flex-shrink-0'>
-            <svg
-              className='h-6 w-6 text-red-600'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth='2'
-                d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z'
-              />
-            </svg>
-          </div>
-          <div className='ml-3'>
-            <h3 className='text-lg font-medium text-gray-900'>Delete User</h3>
-          </div>
-        </div>
-
-        <div className='mb-6'>
-          <p className='text-gray-600 mb-4'>
+    <ConfirmModal
+      isOpen={isOpen}
+      onClose={onCancel}
+      onConfirm={onConfirm}
+      title='Delete User'
+      message={
+        <div>
+          <p className='mb-4'>
             Are you sure you want to delete the user <strong>{userEmail}</strong>?
           </p>
           <div className='bg-yellow-50 border border-yellow-200 rounded-md p-4'>
@@ -66,31 +48,10 @@ export const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
             </div>
           </div>
         </div>
-
-        <div className='flex justify-end space-x-3'>
-          <button
-            onClick={onCancel}
-            disabled={isDeleting}
-            className='px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors'
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isDeleting}
-            className='px-4 py-2 bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors flex items-center'
-          >
-            {isDeleting ? (
-              <>
-                <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
-                Deleting...
-              </>
-            ) : (
-              'Delete User'
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
+      }
+      confirmText='Delete User'
+      destructive
+      isLoading={isDeleting}
+    />
   )
 }
