@@ -28,56 +28,68 @@ export const useNavigationContext = (): NavigationContext | null => {
   }
 
   // Detect current entity from route params
+  // Always send the entity ID if we're on an entity route, even if the local query hasn't loaded yet
+  // The backend will enrich with full data from the database
   if (params.projectId) {
     const project = projects.find(p => p.id === params.projectId)
 
-    if (project) {
-      context.currentEntity = {
-        type: 'project',
-        id: project.id,
-        attributes: {
-          name: project.name,
-          description: project.description || '(none)',
-          created: formatDate(project.createdAt),
-          updated: formatDate(project.updatedAt),
-        },
-      }
+    // Send project ID regardless of whether we found it locally
+    context.currentEntity = {
+      type: 'project',
+      id: params.projectId,
+      attributes: project
+        ? {
+            name: project.name,
+            description: project.description || '(none)',
+            created: formatDate(project.createdAt),
+            updated: formatDate(project.updatedAt),
+          }
+        : {
+            // Placeholder - backend will enrich from database
+            name: params.projectId,
+          },
     }
   } else if (params.documentId) {
     const document = documents.find(d => d.id === params.documentId)
 
-    if (document) {
-      context.currentEntity = {
-        type: 'document',
-        id: document.id,
-        attributes: {
-          title: document.title,
-          created: formatDate(document.createdAt),
-          updated: formatDate(document.updatedAt),
-        },
-      }
-
-      // TODO: Add related project if document belongs to one
-      // This would require querying documentProjects table
+    context.currentEntity = {
+      type: 'document',
+      id: params.documentId,
+      attributes: document
+        ? {
+            title: document.title,
+            created: formatDate(document.createdAt),
+            updated: formatDate(document.updatedAt),
+          }
+        : {
+            // Placeholder - backend will enrich from database
+            title: params.documentId,
+          },
     }
+
+    // TODO: Add related project if document belongs to one
+    // This would require querying documentProjects table
   } else if (params.contactId) {
     const contact = contacts.find(c => c.id === params.contactId)
 
-    if (contact) {
-      context.currentEntity = {
-        type: 'contact',
-        id: contact.id,
-        attributes: {
-          name: contact.name,
-          email: contact.email || '(none)',
-          created: formatDate(contact.createdAt),
-          updated: formatDate(contact.updatedAt),
-        },
-      }
-
-      // TODO: Add related projects if contact is associated with any
-      // This would require querying projectContacts table
+    context.currentEntity = {
+      type: 'contact',
+      id: params.contactId,
+      attributes: contact
+        ? {
+            name: contact.name,
+            email: contact.email || '(none)',
+            created: formatDate(contact.createdAt),
+            updated: formatDate(contact.updatedAt),
+          }
+        : {
+            // Placeholder - backend will enrich from database
+            name: params.contactId,
+          },
     }
+
+    // TODO: Add related projects if contact is associated with any
+    // This would require querying projectContacts table
   }
 
   // Return null if no meaningful context (user on home page, settings, etc.)
