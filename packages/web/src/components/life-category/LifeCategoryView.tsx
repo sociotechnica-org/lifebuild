@@ -1,8 +1,9 @@
-import { useQuery } from '@livestore/react'
+import { useQuery, useStore } from '@livestore/react'
 import React, { useEffect, useState } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { getProjects$ } from '@work-squared/shared/queries'
 import type { Project } from '@work-squared/shared/schema'
+import { events } from '@work-squared/shared/schema'
 import { getCategoryInfo, type ProjectCategory } from '@work-squared/shared'
 import {
   LifeCategoryPresenter,
@@ -12,6 +13,8 @@ import {
 import { generateRoute } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../util/navigation.js'
 import { useCategoryAdvisorConversation } from '../../hooks/useCategoryAdvisor.js'
+import type { DragEndEvent } from '@dnd-kit/core'
+import { useSnackbar } from '../ui/Snackbar/Snackbar.js'
 
 // Life category definitions - using colors from local design
 // Icons come from shared PROJECT_CATEGORIES via getCategoryInfo
@@ -30,6 +33,8 @@ export const LifeCategoryView: React.FC = () => {
   const { categoryId } = useParams<{ categoryId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
+  const { store } = useStore()
+  const { showSnackbar } = useSnackbar()
   const allProjects = useQuery(getProjects$) ?? []
 
   // Validate categoryId before using it
@@ -72,10 +77,18 @@ export const LifeCategoryView: React.FC = () => {
   })
 
   // Projects in stage 4 (ready for backlog - awaiting priority)
-  const backlogProjects = planningProjects.filter((p: Project) => {
-    const attributes = p.attributes as { planningStage?: number } | null
-    return attributes?.planningStage === 4
-  })
+  const backlogProjects = planningProjects
+    .filter((p: Project) => {
+      const attributes = p.attributes as { planningStage?: number } | null
+      return attributes?.planningStage === 4
+    })
+    .sort((a: Project, b: Project) => {
+      const aAttrs = a.attributes as { priority?: number } | null
+      const bAttrs = b.attributes as { priority?: number } | null
+      const aPriority = aAttrs?.priority ?? Number.MAX_SAFE_INTEGER
+      const bPriority = bAttrs?.priority ?? Number.MAX_SAFE_INTEGER
+      return aPriority - bPriority // Lower number = higher priority
+    })
 
   // Determine initial tab from URL or smart default
   const getInitialTab = (): CategoryTab => {
@@ -192,6 +205,59 @@ export const LifeCategoryView: React.FC = () => {
     navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
   }
 
+  const handleBacklogReorder = (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (!over || active.id === over.id) {
+      return
+    }
+
+    const oldIndex = backlogProjects.findIndex(p => p.id === active.id)
+    const newIndex = backlogProjects.findIndex(p => p.id === over.id)
+
+    if (oldIndex === -1 || newIndex === -1) {
+      return
+    }
+
+    // Reorder the array
+    const reorderedProjects = [...backlogProjects]
+    const [movedProject] = reorderedProjects.splice(oldIndex, 1)
+    if (!movedProject) {
+      return
+    }
+    reorderedProjects.splice(newIndex, 0, movedProject)
+
+    // Update priorities for all affected projects
+    // Priority values are just sequential numbers (0, 1, 2, 3, ...)
+    const updates = reorderedProjects.map((project, index) => ({
+      project,
+      priority: index,
+    }))
+
+    // Commit all priority updates
+    updates.forEach(({ project, priority }) => {
+      const currentAttrs = (project.attributes as Record<string, any>) || {}
+      store.commit(
+        events.projectAttributesUpdated({
+          id: project.id,
+          attributes: {
+            ...currentAttrs,
+            priority,
+          },
+          updatedAt: new Date(),
+          actorId: undefined,
+        })
+      )
+    })
+
+    // Show success notification
+    showSnackbar({
+      message: `${movedProject.name} moved to position #${newIndex + 1}`,
+      type: 'success',
+      duration: 3000,
+    })
+  }
+
   return (
     <LifeCategoryPresenter
       categoryId={categoryId}
@@ -207,6 +273,7 @@ export const LifeCategoryView: React.FC = () => {
       onTabChange={handleTabChange}
       onSubTabChange={handleSubTabChange}
       onProjectClick={handleProjectClick}
+      onBacklogReorder={handleBacklogReorder}
     />
   )
 }
