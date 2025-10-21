@@ -1,26 +1,24 @@
 import React from 'react'
 import type { Worker } from '@work-squared/shared/schema'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
+import { Modal } from '../../ui/Modal/index.js'
 
 interface ChatTypeModalProps {
+  isOpen: boolean
   availableWorkers: readonly Worker[]
   onClose: () => void
   onSelectChatType: (workerId?: string) => void
 }
 
 export const ChatTypeModal: React.FC<ChatTypeModalProps> = ({
+  isOpen,
   availableWorkers,
   onClose,
   onSelectChatType,
 }) => {
   return (
-    <div
-      className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'
-      onClick={e => {
-        if (e.target === e.currentTarget) onClose()
-      }}
-    >
-      <div className='bg-white rounded-lg shadow-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto'>
+    <Modal isOpen={isOpen} onClose={onClose} ariaLabel='Choose Chat Type'>
+      <div className='p-6'>
         <h3 className='text-lg font-medium text-gray-900 mb-4'>Choose Chat Type</h3>
 
         <div className='space-y-2'>
@@ -67,6 +65,6 @@ export const ChatTypeModal: React.FC<ChatTypeModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   )
 }

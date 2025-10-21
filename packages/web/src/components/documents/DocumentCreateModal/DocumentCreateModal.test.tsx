@@ -92,7 +92,7 @@ describe('DocumentCreateModal', () => {
   it('should close modal when close button is clicked', () => {
     render(<DocumentCreateModal isOpen={true} onClose={mockOnClose} projectId={mockProjectId} />)
 
-    const closeButton = screen.getByRole('button', { name: 'Close' })
+    const closeButton = screen.getByLabelText('Close modal')
     fireEvent.click(closeButton)
 
     expect(mockOnClose).toHaveBeenCalled()

@@ -173,13 +173,12 @@ export const ChatPresenter: React.FC<ChatPresenterProps> = ({
       />
 
       {/* Chat Type Picker Modal */}
-      {showChatPicker && (
-        <ChatTypeModal
-          availableWorkers={availableWorkers}
-          onClose={onHideChatPicker}
-          onSelectChatType={onChatTypeSelect}
-        />
-      )}
+      <ChatTypeModal
+        isOpen={showChatPicker}
+        availableWorkers={availableWorkers}
+        onClose={onHideChatPicker}
+        onSelectChatType={onChatTypeSelect}
+      />
     </div>
   )
 }

@@ -67,7 +67,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({ onClose, onSuc
   const existingContactCount = previewData.willSkip.length
 
   return (
-    <div className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'>
+    <div className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-[9999]'>
       <div className='bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto'>
         {/* Header */}
         <div className='flex items-start justify-between p-6 border-b border-gray-200'>
