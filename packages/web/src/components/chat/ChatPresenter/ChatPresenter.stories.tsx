@@ -125,6 +125,7 @@ const mockMessages: ChatMessage[] = [
     conversationId: 'conv-1',
     message: 'Hello! How can I help you with your project today?',
     role: 'assistant',
+    navigationContext: null,
     createdAt: new Date('2024-01-01T10:00:00'),
     modelId: 'claude-sonnet-4-20250514',
     responseToMessageId: null,
@@ -135,6 +136,7 @@ const mockMessages: ChatMessage[] = [
     conversationId: 'conv-1',
     message: 'I need help planning the architecture for a new feature',
     role: 'user',
+    navigationContext: null,
     createdAt: new Date('2024-01-01T10:01:00'),
     modelId: null,
     responseToMessageId: null,
@@ -146,6 +148,7 @@ const mockMessages: ChatMessage[] = [
     message:
       "I'd be happy to help you plan the architecture. Let's start by understanding the requirements...",
     role: 'assistant',
+    navigationContext: null,
     createdAt: new Date('2024-01-01T10:02:00'),
     modelId: 'claude-sonnet-4-20250514',
     responseToMessageId: 'msg-2',
@@ -304,6 +307,7 @@ export const LongConversation: Story = {
             ? `User message ${i}: This is a longer message to demonstrate scrolling behavior in the message list.`
             : `Assistant response ${i}: This is a detailed response with multiple paragraphs.\n\nIt includes line breaks and formatting to show how the component handles longer content.`,
         role: (i % 2 === 0 ? 'user' : 'assistant') as 'user' | 'assistant',
+        navigationContext: null,
         createdAt: new Date(`2024-01-01T10:${10 + i}:00`),
         modelId: i % 2 === 1 ? 'claude-sonnet-4-20250514' : null,
         responseToMessageId: i > 0 ? `msg-long-${i - 1}` : null,

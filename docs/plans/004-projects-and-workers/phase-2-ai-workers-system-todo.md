@@ -410,14 +410,17 @@ The user is looking at the documents subtab within this project.
 ### Example Scenarios
 
 **Scenario 1: Worker assigned to 2 projects**
+
 - Worker searches documents → Only returns docs from those 2 projects
 - Worker tries to read doc from different project → Access denied
 
 **Scenario 2: Worker with no assignments**
+
 - Worker has global access to all content (current behavior)
 - Useful for general-purpose assistants
 
 **Scenario 3: Worker viewing project page**
+
 - Navigation context shows current project
 - Worker can still only access assigned projects via tools
 - If current project is not assigned, tools return empty results
