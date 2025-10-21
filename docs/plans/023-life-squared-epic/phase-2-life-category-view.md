@@ -9,10 +9,10 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 - ✅ **Section 1: Planning Tab Structure & Navigation** (Stories 1.1-1.3) - COMPLETED in PR #246 (merged 2025-10-17)
 - 🔄 **Section 2: Project Creation Sub-Tab** (Stories 2.1-2.7) - IN PROGRESS
   - ✅ Story 2.1 (Stage 1) - COMPLETED in PR #250 (merged 2025-10-17)
-  - 🔄 Story 2.2 (Cover Upload) - IN PROGRESS in PR #252
+  - ✅ Story 2.2 (Cover Upload) - COMPLETED in PR #252 (merged 2025-10-21)
   - ⏸️ Story 2.3 (AI Cover) - NOT STARTED
   - ✅ Story 2.4 (Stage 2) - COMPLETED in PR #250 (merged 2025-10-17)
-  - ⏸️ Story 2.5 (Stage 3) - NOT STARTED
+  - ✅ Story 2.5 (Stage 3) - COMPLETED in PR #254 (merged 2025-10-21)
   - ⏸️ Story 2.6 (Stage 4) - NOT STARTED
   - ⏸️ Story 2.7 (Move to Backlog) - NOT STARTED
 - ⏸️ **Section 3: Project Plans Sub-Tab** (Stories 3.1-3.5) - NOT STARTED
@@ -130,14 +130,13 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 - [x] Logic: On upload, commit `projectCoverImageSet` event with R2 URL
 - [x] DoD: Operators can upload cover images that are stored in R2 and displayed on project cards.
 
-**Status**: 🔄 **In Progress in PR #252**
+**Status**: ✅ **COMPLETED** in PR #252 (merged 2025-10-21)
 
 #### Implementation Notes
 
-**Local Development Setup for R2:**
-
-- Use Wrangler's local R2 preview: `wrangler r2 bucket create work-squared-images-local`
-- Or fallback to local filesystem storage during development
+**R2 Image Storage:**
+- Production: Uses Cloudflare R2 bucket for persistent image storage
+- Local Development: Uses Wrangler's local R2 preview (`wrangler r2 bucket create work-squared-images-local`)
 - Images uploaded in local development won't persist to production R2
 
 ---
@@ -197,16 +196,16 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] UI: Stage 3 displays message: "Now let's plan your tasks" with "Open Project" button
-- [ ] Navigation: "Open Project" button navigates to existing project detail page (kanban board)
-- [ ] UI: Project page shows existing task management interface (from current Work Squared)
-- [ ] UI: Add "Approve Plan" or "Done Planning" button to project page header (visible when `planningStage = 3`)
-- [ ] Event: Use `v1.ProjectAttributesUpdated` to update `planningStage: 4` when approved
-- [ ] UI: Show stage progress indicator (3/4) on project page when in planning mode
-- [ ] Logic: On approve, commit event advancing to Stage 4, navigate back to Planning tab
-- [ ] DoD: Operators navigate to the existing project page to plan tasks, then approve the plan to advance to Stage 4.
+- [x] UI: Stage 3 displays message: "Now let's plan your tasks" with "Open Project" button
+- [x] Navigation: "Open Project" button navigates to existing project detail page (kanban board)
+- [x] UI: Project page shows existing task management interface (from current Work Squared)
+- [x] UI: Add "Approve Plan" or "Done Planning" button to project page header (visible when `planningStage = 3`)
+- [x] Event: Use `v1.ProjectAttributesUpdated` to update `planningStage: 4` when approved
+- [x] UI: Show stage progress indicator (3/4) on project page when in planning mode
+- [x] Logic: On approve, commit event advancing to Stage 4, navigate back to Planning tab
+- [x] DoD: Operators navigate to the existing project page to plan tasks, then approve the plan to advance to Stage 4.
 
-**Status**:
+**Status**: ✅ **COMPLETED** in PR #254 (merged 2025-10-21)
 
 ---
 
