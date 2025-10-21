@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { isCurrentUserAdmin } from '../../utils/adminCheck.jsx'
@@ -14,25 +14,12 @@ interface AdminUser {
 }
 
 export const AdminUsersPage: React.FC = () => {
-  const { user, getCurrentToken, isAuthenticated } = useAuth()
+  const { user, getCurrentToken, isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const [users, setUsers] = useState<AdminUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchUsers()
-  }, [])
-
-  // Check admin access - redirect if not authenticated or not admin
-  if (!isAuthenticated) {
-    return <Navigate to={ROUTES.LOGIN} replace />
-  }
-
-  if (!isCurrentUserAdmin(user)) {
-    return <Navigate to={ROUTES.PROJECTS} replace />
-  }
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -66,6 +53,37 @@ export const AdminUsersPage: React.FC = () => {
     } finally {
       setLoading(false)
     }
+  }, [getCurrentToken])
+
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated && isCurrentUserAdmin(user)) {
+      void fetchUsers()
+    }
+  }, [fetchUsers, isAuthLoading, isAuthenticated, user])
+
+  // Check admin access - redirect if not authenticated or not admin
+  if (!isAuthenticated) {
+    if (isAuthLoading) {
+      return (
+        <div className='p-6 bg-white min-h-screen'>
+          <div className='max-w-7xl mx-auto'>
+            <div className='mb-6'>
+              <h1 className='text-2xl font-bold text-gray-900'>Admin Users</h1>
+              <p className='text-gray-600 mt-1'>Manage registered users and their admin status</p>
+            </div>
+            <div className='flex justify-center items-center py-12'>
+              <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
+              <span className='ml-2 text-gray-600'>Verifying access...</span>
+            </div>
+          </div>
+        </div>
+      )
+    }
+    return <Navigate to={ROUTES.LOGIN} replace />
+  }
+
+  if (!isCurrentUserAdmin(user)) {
+    return <Navigate to={ROUTES.PROJECTS} replace />
   }
 
   if (loading) {
