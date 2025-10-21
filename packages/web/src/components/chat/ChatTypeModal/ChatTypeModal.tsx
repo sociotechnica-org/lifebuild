@@ -4,18 +4,20 @@ import { getAvatarColor } from '../../../utils/avatarColors.js'
 import { Modal } from '../../ui/Modal/index.js'
 
 interface ChatTypeModalProps {
+  isOpen: boolean
   availableWorkers: readonly Worker[]
   onClose: () => void
   onSelectChatType: (workerId?: string) => void
 }
 
 export const ChatTypeModal: React.FC<ChatTypeModalProps> = ({
+  isOpen,
   availableWorkers,
   onClose,
   onSelectChatType,
 }) => {
   return (
-    <Modal isOpen={true} onClose={onClose} ariaLabel='Choose Chat Type'>
+    <Modal isOpen={isOpen} onClose={onClose} ariaLabel='Choose Chat Type'>
       <div className='p-6'>
         <h3 className='text-lg font-medium text-gray-900 mb-4'>Choose Chat Type</h3>
 
