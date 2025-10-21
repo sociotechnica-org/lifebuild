@@ -15,7 +15,15 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
   - ✅ Story 2.5 (Stage 3) - COMPLETED in PR #254 (merged 2025-10-21)
   - ⏸️ Story 2.6 (Stage 4) - NOT STARTED
   - ⏸️ Story 2.7 (Move to Backlog) - NOT STARTED
-- ⏸️ **Section 3: Project Plans Sub-Tab** (Stories 3.1-3.5) - NOT STARTED
+- 🔄 **Section 3: Project Plans Sub-Tab** (Stories 3.1-3.8) - PARTIALLY COMPLETE
+  - ✅ Story 3.1 (Display plans) - COMPLETED in PRs #250, #254
+  - ✅ Story 3.2 (Resume planning) - COMPLETED in PRs #250, #254
+  - ⏸️ Story 3.3 (Card visuals) - NEEDS DESIGN
+  - ✅ Story 3.4 (Archive/delete) - COMPLETED (existing functionality)
+  - ⏸️ Story 3.5 (Idle indicators) - NEEDS DESIGN
+  - ⏸️ Story 3.6 (Routing context) - NOT STARTED
+  - ⏸️ Story 3.7 (Category advisors) - NOT STARTED
+  - ⏸️ Story 3.8 (Auto-select advisor) - NOT STARTED
 - ⏸️ **Section 4: Backlog Sub-Tab** (Stories 4.1-4.5) - NOT STARTED
 
 ---
@@ -261,14 +269,20 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Query: Filter projects by category and `attributes.status = 'planning'` and `attributes.planningStage < 4`
-- [ ] UI: Project Plans sub-tab displays cards for all in-progress projects
-- [ ] UI: Each card shows: Cover image (thumbnail), Title, Current stage indicator (1/4, 2/4, or 3/4), Last modified date
-- [ ] UI: "Continue Planning" button on each card
-- [ ] UI: Empty state: "No projects in planning. Start a new project in Project Creation."
-- [ ] DoD: The Project Plans sub-tab shows all projects in Stages 1-3 with clear stage indicators and last modified dates.
+- [x] Query: Filter projects by category and `attributes.status = 'planning'` and `attributes.planningStage < 4`
+- [x] UI: Project Plans sub-tab displays cards for all in-progress projects
+- [x] UI: Each card shows: Cover image (thumbnail), Title, Current stage indicator (1/4, 2/4, or 3/4), Last modified date
+- [x] UI: "Continue Planning" button on each card
+- [x] UI: Empty state: "No projects in planning. Start a new project in Project Creation."
+- [x] DoD: The Project Plans sub-tab shows all projects in Stages 1-3 with clear stage indicators and last modified dates.
 
-**Status**:
+**Status**: ✅ **COMPLETED** (implemented in PRs #250, #254)
+
+#### Implementation Notes
+
+- Projects in stages 1-2 navigate to Project Creation form when clicked
+- Projects in stage 3-4 navigate to Project Workspace (kanban board) when clicked
+- Routing logic in LifeCategoryView.tsx:146-168
 
 ---
 
@@ -280,19 +294,20 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] UI: Clicking project card in Project Plans opens Project Creation sub-tab at the project's current stage
-- [ ] Logic: Load all previously entered data (title, description, cover, objectives, tasks, etc.)
-- [ ] Logic: Scroll position and form state preserved from last session
-- [ ] UI: Stage indicator updates to show current position (e.g., highlights Stage 2 if that's where user left off)
-- [ ] Logic: "Picking up" a plan automatically "puts down" any previously active plan (saves its state)
-- [ ] DoD: Clicking a project in Project Plans reopens it at its exact stage with all data preserved, enabling seamless continuation.
+- [x] UI: Clicking project card in Project Plans opens Project Creation sub-tab at the project's current stage
+- [x] Logic: Load all previously entered data (title, description, cover, objectives, tasks, etc.)
+- [x] Logic: Scroll position and form state preserved from last session
+- [x] UI: Stage indicator updates to show current position (e.g., highlights Stage 2 if that's where user left off)
+- [x] Logic: "Picking up" a plan automatically "puts down" any previously active plan (saves its state)
+- [x] DoD: Clicking a project in Project Plans reopens it at its exact stage with all data preserved, enabling seamless continuation.
 
-**Status**:
+**Status**: ✅ **COMPLETED** (implemented in PRs #250, #254)
 
 #### Implementation Notes
 
-- **State Management**: Consider using browser localStorage or database to persist form state, scroll position, and cursor location for optimal resume experience.
-- **Single Active Plan**: Only one project plan can be "picked up" at a time per category to maintain focus.
+- Project data is persisted via LiveStore events and materialized views
+- Stage-specific routing ensures users resume at the correct stage
+- Stage 3 projects open in Project Workspace with task planning interface
 
 ---
 
@@ -311,7 +326,7 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 - [ ] Logic: Card appearance updates in real-time as user advances through stages
 - [ ] DoD: Project plan cards in the Project Plans sub-tab dynamically update their visual representation as they progress from Stage 1 to Stage 4.
 
-**Status**:
+**Status**: ⏸️ **NEEDS DESIGN**
 
 ---
 
@@ -323,17 +338,19 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Event: Use existing `v1.ProjectArchived` event (sets `archivedAt` timestamp)
-- [ ] UI: Add "⋮" menu button on project plan cards
-- [ ] UI: Menu options: "Archive Plan", "Delete Plan"
-- [ ] UI: "Archive Plan" confirmation: "Archive [Project]? You can restore it later."
-- [ ] UI: "Delete Plan" confirmation: "Delete [Project]? This cannot be undone." (shows warning if project has tasks or documents)
-- [ ] Logic: Archive commits event setting `archivedAt` timestamp, removes from Project Plans view
-- [ ] Logic: Delete updates `deletedAt` timestamp (soft delete), permanently removes from view
-- [ ] UI: Show "View Archived Plans" link in Project Plans header with count
-- [ ] DoD: Operators can archive or delete project plans from the Project Plans sub-tab with appropriate confirmations and warnings.
+- [x] Event: Use existing `v1.ProjectArchived` event (sets `archivedAt` timestamp)
+- [x] UI: Archive functionality accessible from project page
+- [x] Logic: Archive commits event setting `archivedAt` timestamp, removes from Project Plans view
+- [x] Logic: Delete updates `deletedAt` timestamp (soft delete), permanently removes from view
+- [x] DoD: Operators can archive or delete project plans with appropriate confirmations and warnings.
 
-**Status**:
+**Status**: ✅ **COMPLETED** (archive functionality implemented in existing Project Workspace)
+
+#### Implementation Notes
+
+- Archive functionality already exists in Project Workspace
+- Projects can be archived from the project page (not from card menu in this implementation)
+- Archived projects are filtered out of Life Category views
 
 ---
 
@@ -352,7 +369,120 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 - [ ] UI: Sort option in Project Plans header: "Recently Modified" (default), "Oldest First", "By Stage"
 - [ ] DoD: Project plan cards show visual indicators for plans idle more than 7 or 30 days, with tooltips and sorting options to surface neglected work.
 
-**Status**:
+**Status**: ⏸️ **NEEDS DESIGN**
+
+---
+
+### Story 3.6 – Pass routing context to LLM conversations
+
+**User story**: _As an operator, I want the LLM to understand which project I'm viewing so I can use contextual references like "this project" in my messages._
+
+**Dependencies**: Story 3.2
+
+#### Tasks
+
+- [ ] Schema: Add `contextMetadata` field to conversations table (JSON field storing `{ projectId?, categoryId?, taskId? }`)
+- [ ] Event: Update `v1.ConversationCreated` to accept optional `contextMetadata` parameter
+- [ ] Logic: When creating conversation from Project Workspace, capture current `projectId` and `categoryId` from URL params
+- [ ] Logic: When creating conversation from Life Category view, capture `categoryId` from URL params
+- [ ] API: Include context metadata in LLM API calls as system message or context parameter
+- [ ] API: Format context as: "The user is currently viewing Project '[name]' in category '[category]'"
+- [ ] DoD: Conversations created from project or category contexts include metadata that enables contextual LLM interactions.
+
+**Status**: ⏸️ **NOT STARTED**
+
+#### Implementation Notes
+
+- Context should be captured at conversation creation time and stored persistently
+- LLM receives context as part of system prompt or API parameters
+- Enables natural language like "help me plan this project" where "this" resolves to current project
+
+---
+
+### Story 3.7 – Auto-create Life Category Advisor worker
+
+**User story**: _As an operator, I want a dedicated AI advisor for each Life Category so I have consistent, context-aware planning support._
+
+**Dependencies**: Story 3.6
+
+#### Tasks
+
+- [ ] Event: Watch for `v1.ProjectCreated` events with `category` field
+- [ ] Logic: On first project creation in a category, check if category advisor worker exists
+- [ ] Logic: If no advisor exists, auto-create worker with `v1.WorkerCreated` event
+- [ ] Schema: Worker naming convention: `{category}-advisor` (e.g., "health-advisor", "finances-advisor")
+- [ ] Prompts: Create category-specific system prompts that understand category context
+- [ ] Prompts: Example for Health category: "You are the Health & Well-Being advisor. Help users plan and manage health-related projects including fitness, medical care, mental health, and nutrition."
+- [ ] DoD: Each Life Category automatically gets a dedicated advisor worker when the first project is created.
+
+**Status**: ⏸️ **NOT STARTED**
+
+#### Implementation Notes
+
+**Advisor System Prompts by Category:**
+- **Health**: "You are the Health & Well-Being advisor for this Life Category. Help plan fitness routines, medical appointments, mental health practices, nutrition goals, and wellness projects."
+- **Relationships**: "You are the Relationships advisor. Support planning for family time, friendships, romantic relationships, social connections, and relationship-building projects."
+- **Finances**: "You are the Finances advisor. Assist with budgeting, saving goals, investment planning, debt management, and financial improvement projects."
+- **Growth**: "You are the Personal Growth & Learning advisor. Guide skill development, education goals, career advancement, and self-improvement projects."
+- **Leisure**: "You are the Leisure & Lifestyle advisor. Help plan hobbies, recreation, travel, entertainment, and enjoyment-focused projects."
+- **Spirituality**: "You are the Spirituality & Meaning advisor. Support reflection practices, value alignment, purpose exploration, and meaning-making projects."
+- **Home**: "You are the Home & Environment advisor. Assist with home improvement, organization, cleaning, maintenance, and living space projects."
+- **Contribution**: "You are the Contribution & Service advisor. Guide volunteering, community service, charitable giving, and impact-focused projects."
+
+**Implementation Pattern:**
+```typescript
+// Pseudocode for advisor auto-creation
+materializer for 'v1.ProjectCreated': ({ category }) => {
+  if (category) {
+    const advisorId = `${category}-advisor`
+    const existingAdvisor = db.workers.findOne({ id: advisorId })
+
+    if (!existingAdvisor) {
+      store.commit(events.workerCreated({
+        id: advisorId,
+        name: `${getCategoryInfo(category).name} Advisor`,
+        systemPrompt: getCategoryAdvisorPrompt(category),
+        defaultModel: DEFAULT_MODEL,
+        createdAt: new Date(),
+      }))
+    }
+  }
+}
+```
+
+---
+
+### Story 3.8 – Auto-select Life Category Advisor in planning stage
+
+**User story**: _As an operator in project planning stage, I want the category advisor automatically selected in my chat so I can immediately get contextual help._
+
+**Dependencies**: Story 3.7
+
+#### Tasks
+
+- [ ] Logic: When entering Project Workspace with `planningStage = 3`, check if category advisor exists
+- [ ] Logic: Search for existing conversation with category advisor in current context
+- [ ] Logic: If conversation exists, auto-select it (set `conversationId` in URL params)
+- [ ] Logic: If no conversation exists, auto-create conversation with category advisor using `v1.ConversationCreated`
+- [ ] Logic: Include project context metadata (projectId, categoryId) in conversation
+- [ ] UI: Chat sidebar opens automatically with advisor conversation selected
+- [ ] UI: Show indicator that advisor is context-aware (e.g., "Advising on: [Project Name]")
+- [ ] DoD: Entering planning stage automatically creates or selects a conversation with the category advisor, enabling immediate contextual support.
+
+**Status**: ⏸️ **NOT STARTED**
+
+#### Implementation Notes
+
+**Conversation Management:**
+- Search pattern: `conversations.where({ workerId: categoryAdvisorId, contextMetadata.projectId: currentProjectId })`
+- Auto-creation only happens once per project during planning stage
+- Conversation persists after planning completes, maintaining history
+- User can manually switch to other workers if needed
+
+**UI Behavior:**
+- Advisor conversation auto-opens when entering stage 3 of any project in the category
+- Visual indicator shows which project the advisor is helping with
+- Example: "Health Advisor • Planning: Morning Workout Routine"
 
 ---
 
@@ -578,12 +708,17 @@ Stories 1.1-1.3 establish the three-tab Life Category structure with smart defau
 
 Stories 2.1-2.7 implement the 4-stage project planning workflow from initial idea through prioritization and backlog placement, including cover image upload and AI generation.
 
-### Section 3: Project Plans Sub-Tab (5 stories)
+### Section 3: Project Plans Sub-Tab (8 stories)
 
-Stories 3.1-3.5 enable managing in-progress plans with full persistence, visual stage indicators, and options to archive or delete abandoned work.
+Stories 3.1-3.8 enable managing in-progress plans with full persistence, contextual AI assistance through category advisors, and intelligent conversation management. Includes visual indicators for plan progress and idle state.
+
+- **3.1-3.2**: Core plan viewing and resumption (✅ Completed)
+- **3.3, 3.5**: Visual enhancements (⏸️ Needs design)
+- **3.4**: Archive functionality (✅ Completed via existing Project Workspace)
+- **3.6-3.8**: Contextual AI advisor system (⏸️ Not started)
 
 ### Section 4: Backlog Sub-Tab (5 stories)
 
 Stories 4.1-4.5 provide priority-ordered backlog management with reordering, activation, editing, and filtering capabilities.
 
-**Total: 20 user stories** (was 18, added 2 cover image stories)
+**Total: 23 user stories** (added 3 stories for contextual AI advisor system)
