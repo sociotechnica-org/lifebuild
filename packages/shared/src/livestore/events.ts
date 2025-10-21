@@ -610,6 +610,7 @@ export const projectAttributesUpdated = Events.synced({
   schema: Schema.Struct({
     id: Schema.String,
     attributes: Schema.Struct({
+      priority: Schema.optional(Schema.Number),
       // Future: scale, complexity, urgency, etc.
     }),
     updatedAt: Schema.Date,

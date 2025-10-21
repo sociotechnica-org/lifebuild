@@ -1,7 +1,19 @@
-import React from 'react'
+import React, { useState } from 'react'
 import type { Project } from '@work-squared/shared/schema'
 import { ProjectCard } from '../projects/ProjectCard/ProjectCard.js'
 import { ProjectCreationView } from '../project-creation/ProjectCreationView.js'
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  useSensor,
+  useSensors,
+  PointerSensor,
+  KeyboardSensor,
+} from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 export type CategoryTab = 'planning' | 'active' | 'completed'
 export type PlanningSubTab = 'project-creation' | 'project-plans' | 'backlog'
@@ -20,6 +32,55 @@ export interface LifeCategoryPresenterProps {
   onTabChange: (tab: CategoryTab) => void
   onSubTabChange: (subTab: PlanningSubTab) => void
   onProjectClick: (project: Project) => void
+  onBacklogReorder?: (event: DragEndEvent) => void
+}
+
+// Sortable backlog project card component
+interface SortableBacklogProjectProps {
+  project: Project
+  index: number
+  categoryColor: string
+  onProjectClick: (project: Project) => void
+}
+
+const SortableBacklogProject: React.FC<SortableBacklogProjectProps> = ({
+  project,
+  index,
+  categoryColor,
+  onProjectClick,
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: project.id,
+  })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes}>
+      <div
+        className='flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors cursor-pointer'
+        onClick={() => onProjectClick(project)}
+      >
+        <div
+          {...listeners}
+          className='flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-600 cursor-grab active:cursor-grabbing'
+        >
+          {index + 1}
+        </div>
+        <div className='flex-1'>
+          <h3 className='font-medium text-gray-900'>{project.name}</h3>
+          {project.description && (
+            <p className='text-sm text-gray-500 mt-1'>{project.description}</p>
+          )}
+        </div>
+        <div className='text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-md'>Stage 4</div>
+      </div>
+    </div>
+  )
 }
 
 export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
@@ -35,7 +96,30 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
   onTabChange,
   onSubTabChange,
   onProjectClick,
+  onBacklogReorder,
 }) => {
+  const [activeProject, setActiveProject] = useState<Project | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor)
+  )
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const project = backlogProjects.find(p => p.id === event.active.id)
+    setActiveProject(project || null)
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveProject(null)
+    if (onBacklogReorder) {
+      onBacklogReorder(event)
+    }
+  }
   const tabs: { id: CategoryTab; label: string }[] = [
     { id: 'planning', label: 'Planning' },
     { id: 'active', label: 'Active' },
@@ -172,7 +256,9 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
                 </div>
                 <div>
                   <h2 className='text-lg font-semibold text-gray-900'>Stage 4: Backlog</h2>
-                  <p className='text-sm text-gray-500'>Projects ready for prioritization</p>
+                  <p className='text-sm text-gray-500'>
+                    Projects ready for prioritization - drag to reorder
+                  </p>
                 </div>
               </div>
               <div className='flex gap-2 mt-4'>
@@ -191,28 +277,42 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
                 </p>
               </div>
             ) : (
-              <div className='space-y-3'>
-                {backlogProjects.map((project, index) => (
-                  <div
-                    key={project.id}
-                    className='flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors cursor-pointer'
-                    onClick={() => onProjectClick(project)}
-                  >
-                    <div className='flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-600'>
-                      {index + 1}
-                    </div>
-                    <div className='flex-1'>
-                      <h3 className='font-medium text-gray-900'>{project.name}</h3>
-                      {project.description && (
-                        <p className='text-sm text-gray-500 mt-1'>{project.description}</p>
-                      )}
-                    </div>
-                    <div className='text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-md'>
-                      Stage 4
-                    </div>
+              <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+                <SortableContext
+                  items={backlogProjects.map(p => p.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className='space-y-3'>
+                    {backlogProjects.map((project, index) => (
+                      <SortableBacklogProject
+                        key={project.id}
+                        project={project}
+                        index={index}
+                        categoryColor={categoryColor}
+                        onProjectClick={onProjectClick}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </SortableContext>
+                <DragOverlay>
+                  {activeProject ? (
+                    <div className='flex items-center gap-4 p-4 bg-white border-2 border-blue-400 rounded-lg shadow-lg'>
+                      <div className='flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-600'>
+                        {backlogProjects.findIndex(p => p.id === activeProject.id) + 1}
+                      </div>
+                      <div className='flex-1'>
+                        <h3 className='font-medium text-gray-900'>{activeProject.name}</h3>
+                        {activeProject.description && (
+                          <p className='text-sm text-gray-500 mt-1'>{activeProject.description}</p>
+                        )}
+                      </div>
+                      <div className='text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-md'>
+                        Stage 4
+                      </div>
+                    </div>
+                  ) : null}
+                </DragOverlay>
+              </DndContext>
             )}
           </div>
         )}

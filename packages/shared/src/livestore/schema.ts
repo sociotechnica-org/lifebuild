@@ -48,6 +48,7 @@ const projects = State.SQLite.table({
       nullable: true,
       schema: Schema.parseJson(
         Schema.Struct({
+          priority: Schema.optional(Schema.Number),
           // Future: scale, complexity, urgency, etc.
         })
       ),
