@@ -37,6 +37,52 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
+const tokensEqual = (a: AuthTokens | null, b: AuthTokens | null) => {
+  if (a === b) {
+    return true
+  }
+  if (!a || !b) {
+    return false
+  }
+  return a.accessToken === b.accessToken && a.refreshToken === b.refreshToken
+}
+
+const usersEqual = (a: AuthUser | null, b: AuthUser | null) => {
+  if (a === b) {
+    return true
+  }
+  if (!a || !b) {
+    return false
+  }
+
+  if (a.id !== b.id || a.email !== b.email || a.isAdmin !== b.isAdmin) {
+    return false
+  }
+
+  const aInstances = a.instances ?? []
+  const bInstances = b.instances ?? []
+  if (aInstances.length !== bInstances.length) {
+    return false
+  }
+
+  for (let i = 0; i < aInstances.length; i++) {
+    const instanceA = aInstances[i]
+    const instanceB = bInstances[i]
+
+    if (
+      instanceA.id !== instanceB.id ||
+      instanceA.name !== instanceB.name ||
+      String(instanceA.createdAt) !== String(instanceB.createdAt) ||
+      String(instanceA.lastAccessedAt) !== String(instanceB.lastAccessedAt) ||
+      instanceA.isDefault !== instanceB.isDefault
+    ) {
+      return false
+    }
+  }
+
+  return true
+}
+
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (!context) {
@@ -218,6 +264,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     scheduleAccessTokenRefresh(accessToken)
   }, [scheduleAccessTokenRefresh, clearRefreshTimer, refreshToken])
 
+  const syncAuthStateFromStorage = useCallback(() => {
+    const storedTokens = getStoredTokens()
+    const storedUser = getStoredUser()
+
+    setTokens(prev => {
+      if (tokensEqual(prev, storedTokens)) {
+        return prev
+      }
+      return storedTokens ?? null
+    })
+
+    setUser(prev => {
+      if (usersEqual(prev, storedUser)) {
+        return prev
+      }
+      return storedUser ?? null
+    })
+
+    if (!storedTokens?.accessToken || !storedTokens?.refreshToken) {
+      setConnectionState(ConnectionState.DISCONNECTED)
+    }
+  }, [setTokens, setUser, setConnectionState])
+
   useEffect(() => {
     if (!tokens?.accessToken) {
       clearRefreshTimer()
@@ -261,8 +330,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [tokens?.accessToken, checkTokenFreshness])
 
   const getCurrentToken = useCallback(async (): Promise<string | null> => {
-    return getCurrentAccessToken()
-  }, [])
+    try {
+      return await getCurrentAccessToken()
+    } finally {
+      syncAuthStateFromStorage()
+    }
+  }, [syncAuthStateFromStorage])
 
   const handleConnectionError = useCallback(
     async (error: any): Promise<boolean> => {

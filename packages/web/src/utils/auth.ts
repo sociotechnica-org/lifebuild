@@ -261,12 +261,12 @@ export function getAuthServiceUrl(): string {
  * Refresh access token using refresh token
  */
 export async function refreshAccessToken(): Promise<AuthTokens | null> {
-  const tokens = getStoredTokens()
+  let tokens = getStoredTokens()
   if (!tokens?.refreshToken) {
     return null
   }
 
-  const lockAcquired = await acquireRefreshLock()
+  let lockAcquired = await acquireRefreshLock()
 
   try {
     if (!lockAcquired) {
@@ -278,6 +278,16 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
         !isAccessTokenExpiringSoon(updatedTokens.accessToken, ACCESS_TOKEN_REFRESH_BUFFER_SECONDS)
       ) {
         return updatedTokens
+      }
+
+      lockAcquired = await acquireRefreshLock()
+      if (!lockAcquired) {
+        return null
+      }
+
+      tokens = getStoredTokens()
+      if (!tokens?.refreshToken) {
+        return null
       }
     }
 
