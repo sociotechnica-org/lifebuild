@@ -2,11 +2,7 @@ import React from 'react'
 import { render, screen, act } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ProjectWorkspace } from './ProjectWorkspace.js'
-import {
-  createMockProject,
-  createMockColumn,
-  createMockTask,
-} from '../../../../tests/test-utils.js'
+import { createMockProject, createMockTask } from '../../../../tests/test-utils.js'
 import type { Worker } from '@work-squared/shared/schema'
 import { DEFAULT_MODEL } from '@work-squared/shared'
 
@@ -23,6 +19,7 @@ const { mockUseQuery, mockStore, mockUseParams } = vi.hoisted(() => {
 // Mock react-router-dom
 vi.mock('react-router-dom', () => ({
   useParams: mockUseParams,
+  useNavigate: () => vi.fn(),
   Link: ({ children, to, ...props }: any) => (
     <a href={to} {...props}>
       {children}
@@ -61,14 +58,29 @@ vi.mock('@dnd-kit/core', () => ({
   })),
 }))
 
+// Mock AuthContext
+vi.mock('../../../contexts/AuthContext.js', () => ({
+  useAuth: () => ({
+    user: { id: 'test-user', name: 'Test User', email: 'test@example.com' },
+    isLoading: false,
+  }),
+}))
+
 describe('ProjectWorkspace', () => {
   const mockProject = createMockProject({
     id: 'test-project',
     name: 'Test Project',
     description: 'Test project description',
   })
-  const mockColumns = [createMockColumn({ id: 'col-1', name: 'Todo' })]
-  const mockTasks = [createMockTask({ id: 'task-1', columnId: 'col-1', title: 'Test Task' })]
+  const mockTasks = [
+    createMockTask({
+      id: 'task-1',
+      title: 'Test Task',
+      status: 'todo',
+      createdAt: new Date('2023-01-01'),
+      updatedAt: new Date('2023-01-01'),
+    }),
+  ]
   const mockWorkers = [
     {
       id: 'worker-1',
@@ -96,17 +108,15 @@ describe('ProjectWorkspace', () => {
       if (callCount === 1) {
         return [mockProject] // First call is for project data in context
       } else if (callCount === 2) {
-        return mockColumns // Second call is for columns
+        return mockTasks // Second call is for tasks (no columns query anymore)
       } else if (callCount === 3) {
-        return mockTasks // Third call is for tasks
+        return [] // Third call is for document-project links
       } else if (callCount === 4) {
-        return [] // Fourth call is for document-project links
+        return [] // Fourth call is for documents
       } else if (callCount === 5) {
-        return [] // Fifth call is for documents
+        return [] // Fifth call is for project workers (none)
       } else if (callCount === 6) {
-        return [] // Sixth call is for project workers (none)
-      } else if (callCount === 7) {
-        return mockWorkers // Seventh call is for all workers
+        return mockWorkers // Sixth call is for all workers
       }
       return []
     })
@@ -182,7 +192,9 @@ describe('ProjectWorkspace', () => {
   it('should render back to projects link', () => {
     render(<ProjectWorkspace />)
 
-    const backLink = screen.getByLabelText('Back to projects')
+    // Back link now shows category name (or "Projects" if no category)
+    // Since mock project has no category, it defaults to "Projects"
+    const backLink = screen.getByLabelText('Back to Projects')
     expect(backLink).toBeInTheDocument()
     expect(backLink).toHaveAttribute('href', '/projects')
   })
@@ -190,7 +202,7 @@ describe('ProjectWorkspace', () => {
   it('should show project name in breadcrumb navigation', () => {
     render(<ProjectWorkspace />)
 
-    // Should have breadcrumb link to projects
+    // Should have breadcrumb link (shows category name or "Projects")
     const projectsLink = screen.getByRole('link', { name: 'Projects' })
     expect(projectsLink).toHaveAttribute('href', '/projects')
 

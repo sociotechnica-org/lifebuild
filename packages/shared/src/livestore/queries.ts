@@ -6,8 +6,9 @@ export const app$ = queryDb(tables.uiState.get(), { label: 'app' })
 
 export const getBoards$ = queryDb(
   _get => {
-    return tables.boards.select().where({
+    return tables.projects.select().where({
       deletedAt: undefined,
+      archivedAt: null, // PR5+6: Filter archived projects by default
     })
   },
   { label: 'getBoards' }
@@ -16,30 +17,8 @@ export const getBoards$ = queryDb(
 // New terminology alias
 export const getProjects$ = getBoards$
 
-export const getBoardColumns$ = (boardId: string) =>
-  queryDb(
-    tables.columns
-      .select()
-      .where({ projectId: boardId })
-      .orderBy([{ col: 'position', direction: 'asc' }]),
-    {
-      label: `getBoardColumns:${boardId}`,
-    }
-  )
-
-// New project terminology alias
-export const getProjectColumns$ = getBoardColumns$
-
-export const getBoardColumnsOptional$ = (boardId: string | null) =>
-  queryDb(
-    tables.columns
-      .select()
-      .where(boardId !== null ? { projectId: boardId } : { projectId: '__impossible__' }) // Impossible condition returns no results when boardId is null
-      .orderBy([{ col: 'position', direction: 'asc' }]),
-    {
-      label: `getBoardColumnsOptional:${boardId || 'null'}`,
-    }
-  )
+// PR3: Column queries removed - migration to status-based tasks complete
+// Removed: getBoardColumns$, getProjectColumns$, getBoardColumnsOptional$
 
 export const getBoardTasks$ = (boardId: string) =>
   queryDb(
@@ -61,7 +40,7 @@ export const getTaskById$ = (taskId: string) =>
   })
 
 export const getBoardById$ = (boardId: string) =>
-  queryDb(tables.boards.select().where({ id: boardId }), {
+  queryDb(tables.projects.select().where({ id: boardId }), {
     label: `getBoardById:${boardId}`,
   })
 
@@ -147,15 +126,7 @@ export const getOrphanedTasks$ = queryDb(
   }
 )
 
-export const getOrphanedColumns$ = queryDb(
-  tables.columns
-    .select()
-    .where({ projectId: null }) // Use null for orphaned columns
-    .orderBy([{ col: 'position', direction: 'asc' }]),
-  {
-    label: 'getOrphanedColumns',
-  }
-)
+// PR3: getOrphanedColumns$ removed - columns no longer exist
 
 export const getDocumentList$ = queryDb(
   tables.documents
@@ -231,7 +202,7 @@ export const getAllEvents$ = queryDb(
 
 // Query to get project details with document and task counts (for LLM tools)
 export const getProjectDetails$ = (projectId: string) =>
-  queryDb(tables.boards.select().where({ id: projectId }), {
+  queryDb(tables.projects.select().where({ id: projectId }), {
     label: `getProjectDetails:${projectId}`,
   })
 
@@ -321,3 +292,80 @@ export const getLatestExecution$ = (recurringTaskId: string) =>
       label: `getLatestExecution:${recurringTaskId}`,
     }
   )
+
+// ============================================================================
+// STATUS-BASED TASK QUERIES
+// ============================================================================
+
+/**
+ * Get tasks by status for a project
+ */
+export const getTasksByStatus$ = (projectId: string, status: string) =>
+  queryDb(
+    tables.tasks
+      .select()
+      .where({ projectId, status, archivedAt: null })
+      .orderBy([{ col: 'position', direction: 'asc' }]),
+    {
+      label: `getTasksByStatus:${projectId}:${status}`,
+    }
+  )
+
+/**
+ * Get all tasks grouped by status for a project
+ * Returns tasks organized by status
+ */
+export const getProjectTasksByStatus$ = (projectId: string) =>
+  queryDb(
+    tables.tasks
+      .select()
+      .where({ projectId, archivedAt: null })
+      .orderBy([
+        { col: 'status', direction: 'asc' },
+        { col: 'position', direction: 'asc' },
+      ]),
+    {
+      label: `getProjectTasksByStatus:${projectId}`,
+    }
+  )
+
+/**
+ * Get task count summary by status for a project
+ * Note: Returns all tasks, filtering done client-side
+ */
+export const getProjectStatusSummary$ = (projectId: string) =>
+  queryDb(tables.tasks.select().where({ projectId, archivedAt: null }), {
+    label: `getProjectStatusSummary:${projectId}`,
+  })
+
+/**
+ * Get orphaned tasks by status (no project)
+ */
+export const getOrphanedTasksByStatus$ = (status: string) =>
+  queryDb(
+    tables.tasks
+      .select()
+      .where({ projectId: null, status, archivedAt: null })
+      .orderBy([{ col: 'position', direction: 'asc' }]),
+    {
+      label: `getOrphanedTasksByStatus:${status}`,
+    }
+  )
+
+/**
+ * Get projects by category
+ */
+export const getProjectsByCategory$ = (category: string) =>
+  queryDb(
+    tables.projects
+      .select()
+      .where({ category, deletedAt: null, archivedAt: null }) // PR5+6: Filter archived projects
+      .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
+    { label: `getProjectsByCategory:${category}` }
+  )
+
+// TODO(PR5+6): getArchivedProjects$ query removed - LiveStore's query API doesn't support
+// "IS NOT NULL" filters. When needed, clients should:
+// 1. Query all projects without archivedAt filter
+// 2. Filter client-side for projects where archivedAt is not null
+// Or wait for LiveStore to support more complex where clauses

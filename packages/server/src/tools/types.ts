@@ -8,9 +8,9 @@
 export interface CreateTaskParams {
   title: string
   description?: string
-  boardId?: string
-  columnId?: string
-  assigneeId?: string
+  projectId: string
+  status?: string // 'todo' | 'doing' | 'in_review' | 'done' (defaults to 'todo')
+  assigneeIds?: string[]
 }
 
 export interface CreateTaskResult {
@@ -18,10 +18,9 @@ export interface CreateTaskResult {
   taskId?: string
   error?: string
   taskTitle?: string
-  boardName?: string
   projectName?: string
-  columnName?: string
-  assigneeName?: string
+  status?: string
+  assigneeNames?: string[]
 }
 
 export interface UpdateTaskParams {
@@ -44,7 +43,7 @@ export interface UpdateTaskResult {
 
 export interface MoveTaskParams {
   taskId: string
-  toColumnId: string
+  toStatus: string // 'todo' | 'doing' | 'in_review' | 'done'
   position?: number
 }
 
@@ -53,15 +52,15 @@ export interface MoveTaskResult {
   error?: string
   task?: {
     id: string
-    columnId: string
+    status: string
     position: number
   }
 }
 
 export interface MoveTaskToProjectParams {
   taskId: string
-  toProjectId?: string
-  toColumnId: string
+  toProjectId: string
+  status?: string // Optional: task keeps its current status if not specified
   position?: number
 }
 
@@ -70,8 +69,24 @@ export interface MoveTaskToProjectResult {
   error?: string
   task?: {
     id: string
-    projectId?: string
-    columnId: string
+    projectId: string
+    status: string
+    position: number
+  }
+}
+
+export interface OrphanTaskParams {
+  taskId: string
+  status?: string // Optional: task keeps its current status if not specified
+  position?: number
+}
+
+export interface OrphanTaskResult {
+  success: boolean
+  error?: string
+  task?: {
+    id: string
+    status: string
     position: number
   }
 }
@@ -111,7 +126,7 @@ export interface GetTaskByIdResult {
   task?: {
     id: string
     projectId?: string
-    columnId?: string
+    status: string
     title: string
     description?: string
     assigneeIds?: string[]
@@ -128,10 +143,11 @@ export interface GetProjectTasksParams {
 
 export interface GetProjectTasksResult {
   success: boolean
+  projectName?: string
   tasks?: Array<{
     id: string
     projectId: string
-    columnId: string
+    status: string
     title: string
     description?: string
     assigneeIds?: string[]
@@ -150,7 +166,7 @@ export interface GetOrphanedTasksResult {
   tasks?: Array<{
     id: string
     projectId?: string
-    columnId?: string
+    status: string
     title: string
     description?: string
     assigneeIds?: string[]
@@ -165,6 +181,7 @@ export interface GetOrphanedTasksResult {
 export interface CreateProjectParams {
   name: string
   description?: string
+  category?: string
 }
 
 export interface CreateProjectResult {
@@ -208,6 +225,39 @@ export interface GetProjectDetailsResult {
     documentCount: number
     taskCount: number
   }
+  error?: string
+}
+
+// PR5+6: Update project with attributes
+export interface UpdateProjectParams {
+  projectId: string
+  name?: string
+  description?: string | null
+  category?: string | null
+  attributes?: Record<string, string>
+}
+
+export interface UpdateProjectResult {
+  success: boolean
+  error?: string
+}
+
+// PR5+6: Archive/unarchive project
+export interface ArchiveProjectParams {
+  projectId: string
+}
+
+export interface ArchiveProjectResult {
+  success: boolean
+  error?: string
+}
+
+export interface UnarchiveProjectParams {
+  projectId: string
+}
+
+export interface UnarchiveProjectResult {
+  success: boolean
   error?: string
 }
 

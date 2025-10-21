@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import { useStore } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
+import { PROJECT_CATEGORIES } from '@work-squared/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
+import { ImageUpload } from '../../common/ImageUpload.js'
 
 interface CreateProjectModalProps {
   isOpen: boolean
@@ -13,6 +15,8 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
   const { user } = useAuth()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [category, setCategory] = useState<string>('')
+  const [coverImageUrl, setCoverImageUrl] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<{ name?: string; description?: string }>({})
 
@@ -44,41 +48,27 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
       const projectId = crypto.randomUUID()
       const createdAt = new Date()
 
-      // Create the project
+      // Build attributes with cover image if provided
+      const attributes = coverImageUrl ? { coverImage: coverImageUrl } : undefined
+
+      // PR4: Create the project using v2 event with category support
       store.commit(
-        events.projectCreated({
+        events.projectCreatedV2({
           id: projectId,
           name: name.trim(),
           description: description.trim() || undefined,
+          category: (category || undefined) as any,
+          attributes,
           createdAt,
-          actorId: user?.id, // Track who created the project
+          actorId: user?.id,
         })
       )
-
-      // Create default columns
-      const defaultColumns = [
-        { name: 'Todo', position: 0 },
-        { name: 'Doing', position: 1 },
-        { name: 'In Review', position: 2 },
-        { name: 'Done', position: 3 },
-      ]
-
-      defaultColumns.forEach(column => {
-        const columnId = `${projectId}-col-${column.position}`
-        store.commit(
-          events.columnCreated({
-            id: columnId,
-            projectId: projectId,
-            name: column.name,
-            position: column.position,
-            createdAt,
-          })
-        )
-      })
 
       // Reset form and close modal
       setName('')
       setDescription('')
+      setCategory('')
+      setCoverImageUrl('')
       setErrors({})
       onClose()
     } catch (error) {
@@ -91,6 +81,8 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
   const handleClose = () => {
     setName('')
     setDescription('')
+    setCategory('')
+    setCoverImageUrl('')
     setErrors({})
     onClose()
   }
@@ -194,6 +186,42 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
                 </div>
                 <p className='text-sm text-gray-500'>{description.length}/500 characters</p>
               </div>
+            </div>
+
+            {/* Project Category */}
+            <div>
+              <label
+                htmlFor='project-category'
+                className='block text-sm font-medium text-gray-900 mb-2'
+              >
+                Category
+              </label>
+              <select
+                id='project-category'
+                value={category}
+                onChange={e => setCategory(e.target.value)}
+                className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+              >
+                <option value=''>No category</option>
+                {PROJECT_CATEGORIES.map(cat => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              {category && (
+                <p className='mt-1 text-sm text-gray-500'>
+                  {PROJECT_CATEGORIES.find(c => c.value === category)?.description}
+                </p>
+              )}
+            </div>
+
+            {/* Cover Image */}
+            <div>
+              <label className='block text-sm font-medium text-gray-900 mb-2'>
+                Cover Image (Optional)
+              </label>
+              <ImageUpload onUploadComplete={setCoverImageUrl} currentImageUrl={coverImageUrl} />
             </div>
 
             {/* Actions */}

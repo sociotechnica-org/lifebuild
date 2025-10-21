@@ -17,6 +17,7 @@ import { DocumentsPage } from './components/documents/DocumentsPage/DocumentsPag
 import { DocumentPage } from './components/documents/DocumentPage.js'
 import { ContactList } from './components/contacts/ContactList.js'
 import { ContactDetail } from './components/contacts/ContactDetail.js'
+import { LifeCategoryView } from './components/life-category/LifeCategoryView.js'
 import { HistoryPage } from './pages/HistoryPage.js'
 import { LoginPage } from './pages/LoginPage.js'
 import { SignupPage } from './pages/SignupPage.js'
@@ -30,6 +31,7 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary/ErrorBoundary.js'
 import { UserInitializer } from './components/utils/UserInitializer/UserInitializer.js'
 import { AuthUserSync } from './components/utils/AuthUserSync/AuthUserSync.js'
 import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
+import { LifeMapView } from './components/life-map/LifeMapView.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
 
@@ -38,6 +40,12 @@ const adapter = makePersistedAdapter({
   worker: LiveStoreWorker,
   sharedWorker: LiveStoreSharedWorker,
 })
+
+// Component that initializes CHORUS navigation inside LiveStore context
+const ChorusNavigationInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  useChorusNavigation()
+  return <>{children}</>
+}
 
 // LiveStore wrapper with auth integration
 const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -73,7 +81,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       batchUpdates={batchUpdates}
       storeId={storeId}
     >
-      {children}
+      <ChorusNavigationInitializer>{children}</ChorusNavigationInitializer>
     </LiveStoreProvider>
   )
 }
@@ -112,9 +120,6 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // Protected app wrapper - includes LiveStore and all protected routes
 const ProtectedApp: React.FC = () => {
-  // Initialize global CHORUS navigation handling
-  useChorusNavigation()
-
   return (
     <AuthGuard>
       <LiveStoreWrapper>
@@ -129,7 +134,17 @@ const ProtectedApp: React.FC = () => {
                       element={
                         <Layout>
                           <ErrorBoundary>
-                            <ProjectsPage />
+                            <LifeMapView />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.LIFE_MAP}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <LifeMapView />
                           </ErrorBoundary>
                         </Layout>
                       }
@@ -230,6 +245,16 @@ const ProtectedApp: React.FC = () => {
                         <Layout>
                           <ErrorBoundary>
                             <ProjectWorkspace />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.CATEGORY}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <LifeCategoryView />
                           </ErrorBoundary>
                         </Layout>
                       }

@@ -2,35 +2,43 @@ import React, { useState } from 'react'
 import { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
 import { formatDate } from '../../../util/dates.js'
 import { useQuery, useStore } from '@livestore/react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { preserveStoreIdInUrl } from '../../../util/navigation.js'
 import {
-  getProjectColumns$,
   getProjectTasks$,
   getAllDocuments$,
   getDocumentProjectsByProject$,
   getProjectWorkers$,
   getWorkers$,
 } from '@work-squared/shared/queries'
-import type { Task, Document, Worker } from '@work-squared/shared/schema'
+import type { Task, Document, Worker, TaskStatus } from '@work-squared/shared/schema'
 import { events } from '@work-squared/shared/schema'
+import { STATUS_COLUMNS, getCategoryInfo } from '@work-squared/shared'
 import { ProjectProvider, useProject } from '../../../contexts/ProjectContext.js'
 import { KanbanBoard } from '../../tasks/kanban/KanbanBoard.js'
 import { TaskModal } from '../../tasks/TaskModal/TaskModal.js'
 import { DocumentCreateModal } from '../../documents/DocumentCreateModal/DocumentCreateModal.js'
 import { AddExistingDocumentModal } from '../../documents/AddExistingDocumentModal/AddExistingDocumentModal.js'
+import { EditProjectModal } from '../EditProjectModal/EditProjectModal.js'
 import { LoadingState } from '../../ui/LoadingState.js'
 import { WorkerCard } from '../../workers/WorkerCard/WorkerCard.js'
 import { ProjectContacts } from '../ProjectContacts.js'
-import { calculateTaskReorder, calculateDropTarget } from '../../../utils/taskReordering.js'
+import { useAuth } from '../../../contexts/AuthContext.js'
+import {
+  calculateStatusTaskReorder,
+  calculateStatusDropTarget,
+} from '../../../utils/statusTaskReordering.js'
+import type { PlanningAttributes } from '@work-squared/shared'
 
 // Component for the actual workspace content
 const ProjectWorkspaceContent: React.FC = () => {
   const { project, projectId, isLoading } = useProject()
   const { store } = useStore()
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [insertionPreview, setInsertionPreview] = useState<{
-    columnId: string
+    statusId: string
     position: number
   } | null>(null)
   const [dragOverAddCard, setDragOverAddCard] = useState<string | null>(null)
@@ -38,6 +46,7 @@ const ProjectWorkspaceContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'tasks' | 'documents' | 'team' | 'contacts'>('tasks')
   const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false)
   const [isAddExistingDocumentModalOpen, setIsAddExistingDocumentModalOpen] = useState(false)
+  const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false)
 
   if (isLoading) {
     return <LoadingState message='Loading project...' />
@@ -47,8 +56,57 @@ const ProjectWorkspaceContent: React.FC = () => {
     return <LoadingState message='Project not found' />
   }
 
-  const columns = useQuery(getProjectColumns$(projectId)) ?? []
   const tasks = useQuery(getProjectTasks$(projectId)) ?? []
+
+  // Check if project is in planning status
+  const projectAttrs = project?.attributes as PlanningAttributes | null
+  const isInPlanning = projectAttrs?.status === 'planning'
+  const planningStage = projectAttrs?.planningStage
+
+  // Only show "Done Planning" button for stage 3 (task planning stage)
+  const showDonePlanningButton = isInPlanning && planningStage === 3
+
+  // Handle completing planning stage 3
+  const handleDonePlanning = () => {
+    if (!projectId || !project) return
+
+    // Update project attributes to advance to stage 4
+    const updatedAttributes: PlanningAttributes = {
+      ...(projectAttrs || {}),
+      status: 'planning',
+      planningStage: 4,
+    }
+
+    store.commit(
+      events.projectAttributesUpdated({
+        id: projectId,
+        attributes: updatedAttributes as any,
+        updatedAt: new Date(),
+        actorId: user?.id,
+      })
+    )
+
+    // Navigate back to category backlog view
+    if (project.category) {
+      navigate(preserveStoreIdInUrl(`/category/${project.category}?tab=planning&subtab=backlog`))
+    }
+  }
+
+  // Get stage label for planning indicator
+  const getPlanningStageLabel = (stage?: number) => {
+    switch (stage) {
+      case 1:
+        return 'Stage 1: Basic Details'
+      case 2:
+        return 'Stage 2: Scoped'
+      case 3:
+        return 'Stage 3: Task Planning'
+      case 4:
+        return 'Stage 4: Ready for Backlog'
+      default:
+        return 'Planning'
+    }
+  }
 
   // Get documents for project using client-side filtering for now
   const documentProjects = useQuery(getDocumentProjectsByProject$(projectId)) ?? []
@@ -61,16 +119,14 @@ const ProjectWorkspaceContent: React.FC = () => {
   const allWorkers = useQuery(getWorkers$) ?? []
   const team: Worker[] = allWorkers.filter(w => workerProjects.some(wp => wp.workerId === w.id))
 
-  // Group tasks by column
-  const tasksByColumn = (tasks || []).reduce((acc: Record<string, Task[]>, task: Task) => {
-    if (task?.columnId && !acc[task.columnId]) {
-      acc[task.columnId] = []
-    }
-    if (task?.columnId) {
-      acc[task.columnId]?.push(task)
-    }
-    return acc
-  }, {})
+  // Group tasks by status
+  const tasksByStatus = React.useMemo(() => {
+    const grouped: Record<string, Task[]> = {}
+    STATUS_COLUMNS.forEach(statusColumn => {
+      grouped[statusColumn.status] = tasks.filter(task => task.status === statusColumn.status)
+    })
+    return grouped
+  }, [tasks])
 
   // Find task by ID helper
   const findTask = (taskId: string): Task | undefined => {
@@ -113,17 +169,17 @@ const ProjectWorkspaceContent: React.FC = () => {
 
     // Handle dropping over Add Card buttons
     if (overId.startsWith('add-card-')) {
-      const targetColumnId = overId.replace('add-card-', '')
-      setDragOverAddCard(targetColumnId)
+      const targetStatusId = overId.replace('add-card-', '')
+      setDragOverAddCard(targetStatusId)
       setInsertionPreview(null)
       return
     }
 
-    // Handle dropping over task cards - show preview for both same and different columns
-    const dropTarget = calculateDropTarget(overId, draggedTask, tasksByColumn)
+    // Handle dropping over task cards - show preview for both same and different statuses
+    const dropTarget = calculateStatusDropTarget(overId, draggedTask, tasksByStatus)
     if (dropTarget) {
       setInsertionPreview({
-        columnId: dropTarget.columnId,
+        statusId: dropTarget.statusId,
         position: dropTarget.index,
       })
       setDragOverAddCard(null)
@@ -150,36 +206,36 @@ const ProjectWorkspaceContent: React.FC = () => {
     const overId = over.id as string
 
     // Calculate drop target
-    const dropTarget = calculateDropTarget(overId, task, tasksByColumn)
+    const dropTarget = calculateStatusDropTarget(overId, task, tasksByStatus)
     if (!dropTarget) return
 
-    const { columnId: targetColumnId, index: targetIndex } = dropTarget
+    const { statusId: targetStatusId, index: targetIndex } = dropTarget
 
     // Don't move if dropping in same position
-    if (targetColumnId === task.columnId) {
-      const columnTasks = tasksByColumn[targetColumnId]
-      if (!columnTasks) return
-      const sortedTasks = [...columnTasks].sort((a, b) => a.position - b.position)
+    if (targetStatusId === task.status) {
+      const statusTasks = tasksByStatus[targetStatusId]
+      if (!statusTasks) return
+      const sortedTasks = [...statusTasks].sort((a, b) => a.position - b.position)
       const currentIndex = sortedTasks.findIndex(t => t.id === task.id)
       if (currentIndex === targetIndex) return
     }
 
     // Calculate reorder operations
-    const targetColumnTasks = tasksByColumn[targetColumnId] || []
-    const sortedTargetTasks = [...targetColumnTasks].sort((a, b) => a.position - b.position)
-    const reorderResults = calculateTaskReorder(
+    const targetStatusTasks = tasksByStatus[targetStatusId] || []
+    const sortedTargetTasks = [...targetStatusTasks].sort((a, b) => a.position - b.position)
+    const reorderResults = calculateStatusTaskReorder(
       task,
-      targetColumnId,
+      targetStatusId as TaskStatus,
       targetIndex,
       sortedTargetTasks
     )
 
-    // Commit all position updates
+    // Commit all position updates using v2.TaskStatusChanged
     reorderResults.forEach(result => {
       store.commit(
-        events.taskMoved({
+        events.taskStatusChanged({
           taskId: result.taskId,
-          toColumnId: result.toColumnId,
+          toStatus: result.toStatus,
           position: result.position,
           updatedAt: result.updatedAt,
         })
@@ -187,15 +243,22 @@ const ProjectWorkspaceContent: React.FC = () => {
     })
   }
 
+  // Get category information for breadcrumb
+  const categoryInfo = project?.category ? getCategoryInfo(project.category as any) : null
+  const categoryBackUrl = project?.category
+    ? `/category/${project.category}` // No tab param - use smart defaults
+    : '/projects'
+  const categoryLabel = categoryInfo?.name || 'Projects'
+
   return (
     <div className='h-full bg-white flex flex-col'>
       {/* Project Header with Breadcrumb */}
       <div className='border-b border-gray-200 bg-white px-6 py-4'>
         <div className='flex items-center gap-4 mb-3'>
           <Link
-            to={preserveStoreIdInUrl('/projects')}
+            to={preserveStoreIdInUrl(categoryBackUrl)}
             className='flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'
-            aria-label='Back to projects'
+            aria-label={`Back to ${categoryLabel}`}
           >
             <svg
               className='w-4 h-4 text-gray-600'
@@ -215,10 +278,11 @@ const ProjectWorkspaceContent: React.FC = () => {
           {/* Breadcrumb */}
           <nav className='flex items-center text-sm text-gray-500'>
             <Link
-              to={preserveStoreIdInUrl('/projects')}
-              className='hover:text-gray-700 transition-colors'
+              to={preserveStoreIdInUrl(categoryBackUrl)}
+              className='hover:text-gray-700 transition-colors flex items-center gap-1.5'
             >
-              Projects
+              {categoryInfo?.icon && <span className='text-base'>{categoryInfo.icon}</span>}
+              {categoryLabel}
             </Link>
             <svg className='w-4 h-4 mx-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
@@ -227,12 +291,122 @@ const ProjectWorkspaceContent: React.FC = () => {
           </nav>
         </div>
 
+        {/* Planning Stage Indicator */}
+        {isInPlanning && planningStage && (
+          <div className='mb-4 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg'>
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-3'>
+                <div className='flex items-center gap-2'>
+                  <div className='w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold'>
+                    {planningStage}
+                  </div>
+                  <span className='text-sm font-medium text-blue-900'>
+                    {getPlanningStageLabel(planningStage)}
+                  </span>
+                </div>
+                <div className='flex gap-1'>
+                  {[1, 2, 3, 4].map(stage => (
+                    <div
+                      key={stage}
+                      className={`h-2 w-2 rounded-full ${
+                        stage < planningStage
+                          ? 'bg-blue-400'
+                          : stage === planningStage
+                            ? 'bg-blue-600'
+                            : 'bg-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+              <p className='text-sm text-blue-700'>
+                {planningStage === 3
+                  ? 'Add and organize your tasks, then click "Done Planning" when ready'
+                  : planningStage === 4
+                    ? 'Project ready for backlog - set priority in planning view'
+                    : 'Continue planning in the Project Creation form'}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Project Title and Description */}
         <div className='mb-4'>
-          <h1 className='text-xl font-semibold text-gray-900 mb-1'>
-            {project?.name || 'Loading...'}
-          </h1>
-          {project?.description && <p className='text-gray-600 text-sm'>{project.description}</p>}
+          <div className='flex items-start justify-between gap-4'>
+            <div className='flex-1'>
+              <h1 className='text-xl font-semibold text-gray-900 mb-2'>
+                {project?.name || 'Loading...'}
+              </h1>
+              {project?.description && (
+                <p className='text-gray-600 text-sm'>{project.description}</p>
+              )}
+            </div>
+            <div className='flex items-center gap-2'>
+              {showDonePlanningButton && (
+                <button
+                  onClick={handleDonePlanning}
+                  className='flex items-center gap-1.5 px-4 py-1.5 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors'
+                  aria-label='Done planning'
+                >
+                  <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M5 13l4 4L19 7'
+                    />
+                  </svg>
+                  Done Planning
+                </button>
+              )}
+              <button
+                onClick={() => setIsEditProjectModalOpen(true)}
+                className='flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors'
+                aria-label='Edit project'
+              >
+                <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+                  />
+                </svg>
+                Edit
+              </button>
+              <button
+                onClick={() => {
+                  if (
+                    confirm(
+                      'Are you sure you want to archive this project? It will be hidden from the main view.'
+                    )
+                  ) {
+                    store.commit(
+                      events.projectArchived({
+                        id: projectId,
+                        archivedAt: new Date(),
+                        actorId: user?.id,
+                      })
+                    )
+                    // Navigate back to projects page using React Router
+                    navigate(preserveStoreIdInUrl('/projects'))
+                  }
+                }}
+                className='flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 border border-red-300 rounded-md hover:bg-red-50 transition-colors'
+                aria-label='Archive project'
+              >
+                <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4'
+                  />
+                </svg>
+                Archive
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Tab Navigation */}
@@ -285,8 +459,8 @@ const ProjectWorkspaceContent: React.FC = () => {
         {activeTab === 'tasks' && (
           <>
             <KanbanBoard
-              columns={columns || []}
-              tasksByColumn={tasksByColumn}
+              statusColumns={STATUS_COLUMNS}
+              tasksByStatus={tasksByStatus}
               enableDragAndDrop={true}
               onDragStart={handleDragStart}
               onDragOver={handleDragOver}
@@ -473,6 +647,15 @@ const ProjectWorkspaceContent: React.FC = () => {
         onClose={() => setIsAddExistingDocumentModalOpen(false)}
         projectId={projectId}
       />
+
+      {/* Edit Project Modal */}
+      {project && isEditProjectModalOpen && (
+        <EditProjectModal
+          isOpen={isEditProjectModalOpen}
+          onClose={() => setIsEditProjectModalOpen(false)}
+          project={project}
+        />
+      )}
     </div>
   )
 }

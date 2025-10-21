@@ -8,6 +8,7 @@
   "vars": {
     "REQUIRE_AUTH": "true",
     "ENVIRONMENT": "production",
+    "R2_PUBLIC_URL": "https://pub-ba02e69d43994624a2a8249954243cb5.r2.dev",
   },
   // Note: JWT_SECRET must be set as a Cloudflare Worker secret:
   // wrangler secret put JWT_SECRET
@@ -39,6 +40,13 @@
           "to": "SyncBackendDO",
         },
       ],
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "IMAGES",
+      "bucket_name": "work-squared-images",
+      "preview_bucket_name": "work-squared-images-preview",
     },
   ],
 }

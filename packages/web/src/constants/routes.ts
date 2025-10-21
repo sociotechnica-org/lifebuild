@@ -4,6 +4,8 @@
  */
 export const ROUTES = {
   HOME: '/',
+  LIFE_MAP: '/life-map',
+  CATEGORY: '/category/:categoryId',
   PROJECTS: '/projects',
   TASKS: '/tasks',
   TEAM: '/team',
@@ -24,6 +26,7 @@ export const ROUTES = {
  * Route generators for dynamic routes
  */
 export const generateRoute = {
+  category: (id: string, tab?: string) => (tab ? `/category/${id}?tab=${tab}` : `/category/${id}`),
   document: (id: string) => `/document/${id}`,
   project: (id: string) => `/project/${id}`,
   contact: (id: string) => `/contacts/${id}`,
@@ -34,6 +37,7 @@ export const generateRoute = {
  * Route patterns for matching
  */
 export const ROUTE_PATTERNS = {
+  CATEGORY: '/category/',
   DOCUMENT: '/document/',
   PROJECT: '/project/',
   CONTACT: '/contacts/',

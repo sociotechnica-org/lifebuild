@@ -30,8 +30,9 @@ export async function executeLLMTool(
   const {
     createTask,
     updateTask,
-    moveTask,
+    moveTaskWithinProject,
     moveTaskToProject,
+    orphanTask,
     archiveTask,
     unarchiveTask,
     getTaskById,
@@ -39,7 +40,14 @@ export async function executeLLMTool(
     getOrphanedTasks,
   } = await import('./tasks.js')
 
-  const { createProject, listProjects, getProjectDetails } = await import('./projects.js')
+  const {
+    createProject,
+    listProjects,
+    getProjectDetails,
+    updateProject,
+    archiveProject,
+    unarchiveProject,
+  } = await import('./projects.js')
 
   const {
     listDocuments,
@@ -91,11 +99,14 @@ export async function executeLLMTool(
     case 'update_task':
       return updateTask(store, toolCall.parameters)
 
-    case 'move_task':
-      return moveTask(store, toolCall.parameters)
+    case 'move_task_within_project':
+      return moveTaskWithinProject(store, toolCall.parameters)
 
     case 'move_task_to_project':
       return moveTaskToProject(store, toolCall.parameters)
+
+    case 'orphan_task':
+      return orphanTask(store, toolCall.parameters)
 
     case 'archive_task':
       return archiveTask(store, toolCall.parameters.taskId)
@@ -117,6 +128,15 @@ export async function executeLLMTool(
 
     case 'list_projects':
       return listProjects(store)
+
+    case 'update_project':
+      return updateProject(store, toolCall.parameters, workerId)
+
+    case 'archive_project':
+      return archiveProject(store, toolCall.parameters, workerId)
+
+    case 'unarchive_project':
+      return unarchiveProject(store, toolCall.parameters, workerId)
 
     case 'list_documents':
       return listDocuments(store)

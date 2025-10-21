@@ -37,12 +37,22 @@ const chatMessages = State.SQLite.table({
   },
 })
 
-const boards = State.SQLite.table({
+const projects = State.SQLite.table({
   name: 'projects',
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
     name: State.SQLite.text({ default: '' }),
-    description: State.SQLite.text({ nullable: true }), // Add description field
+    description: State.SQLite.text({ nullable: true }),
+    category: State.SQLite.text({ nullable: true }), // PR4: 'health' | 'relationships' | 'finances' | etc.
+    attributes: State.SQLite.text({
+      // PR4: Flexible attributes for future extensibility (PR5)
+      nullable: true,
+      schema: Schema.parseJson(
+        Schema.Struct({
+          // Future: scale, complexity, urgency, etc.
+        })
+      ),
+    }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
@@ -53,9 +63,17 @@ const boards = State.SQLite.table({
       nullable: true,
       schema: Schema.DateFromNumber,
     }),
+    archivedAt: State.SQLite.integer({
+      // PR4: For project archiving (used in PR6)
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
   },
 })
 
+// PR3: columns table definition removed - migration to status-based tasks complete
+// Kept as comment for reference - columns functionality replaced by task.status field
+/*
 const columns = State.SQLite.table({
   name: 'columns',
   columns: {
@@ -71,6 +89,7 @@ const columns = State.SQLite.table({
     }),
   },
 })
+*/
 
 const users = State.SQLite.table({
   name: 'users',
@@ -95,10 +114,21 @@ const tasks = State.SQLite.table({
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
     projectId: State.SQLite.text({ nullable: true }),
-    columnId: State.SQLite.text(),
+    // PR3: columnId removed - migration to status-based tasks complete
     title: State.SQLite.text({ default: '' }),
     description: State.SQLite.text({ nullable: true }),
+    status: State.SQLite.text({ default: 'todo' }), // 'todo' | 'doing' | 'in_review' | 'done'
     assigneeIds: State.SQLite.text({ default: '[]' }), // JSON array of user IDs
+    attributes: State.SQLite.text({
+      // PR2: Flexible attributes system - stores JSON object with optional priority, etc.
+      nullable: true,
+      schema: Schema.parseJson(
+        Schema.Struct({
+          priority: Schema.optional(Schema.Literal('low', 'normal', 'high', 'critical')),
+          // Future attributes can be added here
+        })
+      ),
+    }),
     position: State.SQLite.integer({ default: 0 }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
@@ -311,11 +341,14 @@ const uiState = State.SQLite.clientDocument({
 })
 
 export type ChatMessage = State.SQLite.FromTable.RowDecoded<typeof chatMessages>
-export type Board = State.SQLite.FromTable.RowDecoded<typeof boards>
-export type Project = Board // New terminology alias
-export type Column = State.SQLite.FromTable.RowDecoded<typeof columns>
+export type Project = State.SQLite.FromTable.RowDecoded<typeof projects>
+// ProjectCategory type defined in constants.ts
+export type Board = Project // Backwards compatibility alias (deprecated)
+// Column type removed - PR3: migration to status-based tasks complete
 export type User = State.SQLite.FromTable.RowDecoded<typeof users>
 export type Task = State.SQLite.FromTable.RowDecoded<typeof tasks>
+export type TaskStatus = 'todo' | 'doing' | 'in_review' | 'done'
+export type TaskPriority = 'low' | 'normal' | 'high' | 'critical'
 export type Conversation = State.SQLite.FromTable.RowDecoded<typeof conversations>
 export type Comment = State.SQLite.FromTable.RowDecoded<typeof comments>
 export type Document = State.SQLite.FromTable.RowDecoded<typeof documents>
@@ -338,8 +371,8 @@ export const events = {
 export const tables = {
   uiState,
   chatMessages,
-  boards,
-  columns,
+  projects,
+  // columns removed - PR3: migration to status-based tasks complete
   users,
   tasks,
   conversations,
@@ -356,11 +389,48 @@ export const tables = {
   taskExecutions,
 }
 
+// PR3: Helper function to map v1 columnId to status for backwards compatibility
+//
+// IMPORTANT LIMITATION: This is a best-effort mapping that works for standard column names
+// (e.g., "Todo", "Doing", "In Review", "Done") but will NOT work for opaque column IDs
+// (e.g., UUIDs or "${projectId}-col-${position}"). For opaque IDs, all tasks will default
+// to 'todo' status, which means historical column state may be lost during event replay.
+//
+// This trade-off was accepted because:
+// 1. The columns table has been removed (PR3), so we can't look up original column names
+// 2. v1 events only contain columnId, not column name
+// 3. PR1 already migrated existing tasks to status='todo', so this only affects event replay
+// 4. Most column IDs in this codebase used semantic names matching DEFAULT_KANBAN_COLUMNS
+//
+// If exact column preservation is critical for your deployment, consider:
+// - Maintaining a hardcoded mapping table of known column IDs → status
+// - Storing column metadata separately before migrating to PR3
+function mapColumnIdToStatus(columnId: string): 'todo' | 'doing' | 'in_review' | 'done' {
+  const columnName = columnId.toLowerCase()
+
+  // Try to match standard column names (case-insensitive)
+  if (columnName.includes('doing') || columnName.includes('progress')) return 'doing'
+  if (columnName.includes('review')) return 'in_review'
+  if (columnName.includes('done') || columnName.includes('complete')) return 'done'
+
+  // Default to 'todo' for unknown/opaque column IDs
+  // This is a known limitation - see documentation above
+  return 'todo'
+}
+
 const materializers = State.SQLite.materializers(events, {
   'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) =>
     chatMessages.insert({ id, conversationId, message, role, createdAt }),
   'v1.ProjectCreated': ({ id, name, description, createdAt, actorId }) => [
-    boards.insert({ id, name, description, createdAt, updatedAt: createdAt }),
+    projects.insert({
+      id,
+      name,
+      description,
+      category: null, // PR4: v1 projects have no category
+      attributes: null, // PR4: v1 projects have no attributes
+      createdAt,
+      updatedAt: createdAt,
+    }),
     eventsLog.insert({
       id: `project_created_${id}`,
       eventType: 'v1.ProjectCreated',
@@ -369,64 +439,84 @@ const materializers = State.SQLite.materializers(events, {
       createdAt,
     }),
   ],
-  'v1.ColumnCreated': ({ id, projectId, name, position, createdAt }) =>
-    columns.insert({ id, projectId, name, position, createdAt, updatedAt: createdAt }),
-  'v1.ColumnRenamed': ({ id, name, updatedAt }) =>
-    columns.update({ name, updatedAt }).where({ id }),
-  'v1.ColumnReordered': ({ id, position, updatedAt }) =>
-    columns.update({ position, updatedAt }).where({ id }),
+  // PR3: Column materializers converted to no-ops - preserves event history without side effects
+  'v1.ColumnCreated': () => [], // No-op - columns no longer exist
+  'v1.ColumnRenamed': () => [], // No-op - columns no longer exist
+  'v1.ColumnReordered': () => [], // No-op - columns no longer exist
   'v1.TaskCreated': ({
     id,
     projectId,
-    columnId,
+    columnId, // PR3: Accept columnId and map to appropriate status
     title,
     description,
     assigneeIds,
     position,
     createdAt,
     actorId,
-  }) => [
-    tasks.insert({
-      id,
-      projectId,
-      columnId,
-      title,
-      description,
-      assigneeIds: assigneeIds ? JSON.stringify(assigneeIds) : undefined,
-      position,
-      createdAt,
-      updatedAt: createdAt,
-    }),
-    eventsLog.insert({
-      id: `task_created_${id}`,
-      eventType: 'v1.TaskCreated',
-      eventData: JSON.stringify({ id, title, description, projectId, columnId }),
-      actorId,
-      createdAt,
-    }),
-  ],
-  'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt, actorId }) => [
-    tasks.update({ columnId: toColumnId, position, updatedAt }).where({ id: taskId }),
-    eventsLog.insert({
-      id: `task_moved_${taskId}_${updatedAt.getTime()}`,
-      eventType: 'v1.TaskMoved',
-      eventData: JSON.stringify({ taskId, toColumnId, position }),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
-  'v1.TaskMovedToProject': ({ taskId, toProjectId, toColumnId, position, updatedAt, actorId }) => [
-    tasks
-      .update({ projectId: toProjectId, columnId: toColumnId, position, updatedAt })
-      .where({ id: taskId }),
-    eventsLog.insert({
-      id: `task_moved_to_project_${taskId}_${updatedAt.getTime()}`,
-      eventType: 'v1.TaskMovedToProject',
-      eventData: JSON.stringify({ taskId, toProjectId, toColumnId, position }),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
+  }) => {
+    // Map v1 columnId to status to preserve original column state
+    const status = mapColumnIdToStatus(columnId)
+
+    return [
+      tasks.insert({
+        id,
+        projectId,
+        // PR3: columnId field removed from tasks table
+        title,
+        description,
+        status, // Map to status
+        assigneeIds: assigneeIds ? JSON.stringify(assigneeIds) : undefined,
+        attributes: null, // PR2: v1 tasks have no attributes
+        position,
+        createdAt,
+        updatedAt: createdAt,
+      }),
+      eventsLog.insert({
+        id: `task_created_${id}`,
+        eventType: 'v1.TaskCreated',
+        eventData: JSON.stringify({ id, title, description, projectId, columnId }),
+        actorId,
+        createdAt,
+      }),
+    ]
+  },
+  'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt, actorId }) => {
+    // PR3: Map toColumnId to status to preserve original column state
+    const toStatus = mapColumnIdToStatus(toColumnId)
+
+    return [
+      tasks.update({ status: toStatus, position, updatedAt }).where({ id: taskId }),
+      eventsLog.insert({
+        id: `task_moved_${taskId}_${updatedAt.getTime()}`,
+        eventType: 'v1.TaskMoved',
+        eventData: JSON.stringify({ taskId, toColumnId, position }),
+        actorId,
+        createdAt: updatedAt,
+      }),
+    ]
+  },
+  'v1.TaskMovedToProject': ({ taskId, toProjectId, toColumnId, position, updatedAt, actorId }) => {
+    // PR3: Map toColumnId to status to preserve original column state
+    const toStatus = mapColumnIdToStatus(toColumnId)
+
+    return [
+      tasks
+        .update({
+          projectId: toProjectId,
+          status: toStatus,
+          position,
+          updatedAt,
+        })
+        .where({ id: taskId }),
+      eventsLog.insert({
+        id: `task_moved_to_project_${taskId}_${updatedAt.getTime()}`,
+        eventType: 'v1.TaskMovedToProject',
+        eventData: JSON.stringify({ taskId, toProjectId, toColumnId, position }),
+        actorId,
+        createdAt: updatedAt,
+      }),
+    ]
+  },
   'v1.TaskUpdated': ({ taskId, title, description, assigneeIds, updatedAt, actorId }) => {
     const updates: Record<string, any> = { updatedAt }
     if (title !== undefined) updates.title = title
@@ -741,6 +831,192 @@ const materializers = State.SQLite.materializers(events, {
     projectContacts.insert({ id, projectId, contactId, createdAt }),
   'v1.ProjectContactRemoved': ({ projectId, contactId }) =>
     projectContacts.delete().where({ projectId, contactId }),
+
+  // ============================================================================
+  // V2 TASK MATERIALIZERS - Status-based
+  // ============================================================================
+
+  'v2.TaskCreated': ({
+    id,
+    projectId,
+    title,
+    description,
+    status,
+    assigneeIds,
+    attributes,
+    position,
+    createdAt,
+    actorId,
+  }) => [
+    tasks.insert({
+      id,
+      projectId,
+      // PR3: columnId field removed from tasks table
+      title,
+      description,
+      status: status || 'todo',
+      assigneeIds: assigneeIds ? JSON.stringify(assigneeIds) : '[]',
+      attributes: attributes || null, // PR2: Default to null if not provided
+      position,
+      createdAt,
+      updatedAt: createdAt,
+    }),
+    eventsLog.insert({
+      id: `task_created_${id}_${createdAt.getTime()}`,
+      eventType: 'v2.TaskCreated',
+      eventData: JSON.stringify({ id, title, projectId, status, attributes }),
+      actorId,
+      createdAt,
+    }),
+  ],
+
+  'v2.TaskStatusChanged': ({ taskId, toStatus, position, updatedAt, actorId }) => [
+    tasks.update({ status: toStatus, position, updatedAt }).where({ id: taskId }),
+    eventsLog.insert({
+      id: `task_status_changed_${taskId}_${updatedAt.getTime()}`,
+      eventType: 'v2.TaskStatusChanged',
+      eventData: JSON.stringify({ taskId, toStatus, position }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  'v2.TaskReordered': ({ taskId, position, updatedAt, actorId }) => [
+    tasks.update({ position, updatedAt }).where({ id: taskId }),
+    eventsLog.insert({
+      id: `task_reordered_${taskId}_${updatedAt.getTime()}`,
+      eventType: 'v2.TaskReordered',
+      eventData: JSON.stringify({ taskId, position }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  'v2.TaskMovedToProject': ({ taskId, toProjectId, position, updatedAt, actorId }) => [
+    tasks.update({ projectId: toProjectId, position, updatedAt }).where({ id: taskId }),
+    eventsLog.insert({
+      id: `task_moved_to_project_${taskId}_${updatedAt.getTime()}`,
+      eventType: 'v2.TaskMovedToProject',
+      eventData: JSON.stringify({ taskId, toProjectId, position }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  'v2.TaskAttributesUpdated': ({ taskId, attributes, updatedAt, actorId }) => [
+    tasks
+      .update({
+        // IMPORTANT: This replaces the entire attributes object.
+        // To preserve existing attributes, the caller MUST:
+        // 1. Read current task.attributes
+        // 2. Merge: { ...task.attributes, ...newAttributes }
+        // 3. Emit this event with the merged result
+        attributes,
+        updatedAt,
+      })
+      .where({ id: taskId }),
+    eventsLog.insert({
+      id: `task_attributes_updated_${taskId}_${updatedAt.getTime()}`,
+      eventType: 'v2.TaskAttributesUpdated',
+      eventData: JSON.stringify({ taskId, attributes }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  // ============================================================================
+  // V2 PROJECT MATERIALIZERS - With Categories & Attributes
+  // ============================================================================
+
+  'v2.ProjectCreated': ({ id, name, description, category, attributes, createdAt, actorId }) => [
+    projects.insert({
+      id,
+      name,
+      description,
+      category: category || null,
+      attributes: attributes || null,
+      createdAt,
+      updatedAt: createdAt,
+      archivedAt: null,
+    }),
+    eventsLog.insert({
+      id: `project_created_${id}_${createdAt.getTime()}`,
+      eventType: 'v2.ProjectCreated',
+      eventData: JSON.stringify({ id, name, description, category }),
+      actorId,
+      createdAt,
+    }),
+  ],
+
+  'v2.ProjectUpdated': ({ id, updates, updatedAt, actorId }) => {
+    const updateData: Record<string, any> = { updatedAt }
+    if (updates.name !== undefined) updateData.name = updates.name
+    if (updates.description !== undefined) updateData.description = updates.description
+    if (updates.category !== undefined) updateData.category = updates.category
+
+    return [
+      projects.update(updateData).where({ id }),
+      eventsLog.insert({
+        id: `project_updated_${id}_${updatedAt.getTime()}`,
+        eventType: 'v2.ProjectUpdated',
+        eventData: JSON.stringify({ id, updates }),
+        actorId,
+        createdAt: updatedAt,
+      }),
+    ]
+  },
+
+  'v2.ProjectAttributesUpdated': ({ id, attributes, updatedAt, actorId }) => [
+    projects
+      .update({
+        // Full replacement - caller must merge before emitting
+        attributes,
+        updatedAt,
+      })
+      .where({ id }),
+    eventsLog.insert({
+      id: `project_attributes_updated_${id}_${updatedAt.getTime()}`,
+      eventType: 'v2.ProjectAttributesUpdated',
+      eventData: JSON.stringify({ id, attributes }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  'v2.ProjectArchived': ({ id, archivedAt, actorId }) => [
+    projects.update({ archivedAt }).where({ id }),
+    eventsLog.insert({
+      id: `project_archived_${id}_${archivedAt.getTime()}`,
+      eventType: 'v2.ProjectArchived',
+      eventData: JSON.stringify({ id }),
+      actorId,
+      createdAt: archivedAt,
+    }),
+  ],
+
+  'v2.ProjectUnarchived': ({ id, unarchivedAt, actorId }) => [
+    projects.update({ archivedAt: null, updatedAt: unarchivedAt }).where({ id }),
+    eventsLog.insert({
+      id: `project_unarchived_${id}_${unarchivedAt.getTime()}`,
+      eventType: 'v2.ProjectUnarchived',
+      eventData: JSON.stringify({ id }),
+      actorId,
+      createdAt: unarchivedAt,
+    }),
+  ],
+
+  'v1.ProjectCoverImageSet': ({ projectId, attributes, updatedAt }) => {
+    // Use the provided attributes (already merged by client)
+    // If no attributes provided, create a new object with just coverImage
+    return [
+      projects
+        .update({
+          attributes: attributes || {},
+          updatedAt,
+        })
+        .where({ id: projectId }),
+    ]
+  },
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

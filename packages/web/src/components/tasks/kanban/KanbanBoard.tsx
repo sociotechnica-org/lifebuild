@@ -1,20 +1,21 @@
 import React from 'react'
 import { DndContext, DragOverlay, DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
 import { useSensors, useSensor, PointerSensor, KeyboardSensor } from '@dnd-kit/core'
-import type { Column, Task } from '@work-squared/shared/schema'
+import type { Task } from '@work-squared/shared/schema'
+import type { StatusColumn } from '@work-squared/shared'
 import { KanbanColumn } from './KanbanColumn/KanbanColumn.js'
 import { TaskCard } from '../TaskCard/TaskCard.js'
 import { RecurringTasksColumn } from '../../recurring-tasks/RecurringTasksColumn.js'
 
 interface KanbanBoardProps {
-  columns: readonly Column[]
-  tasksByColumn: Record<string, Task[]>
+  statusColumns: readonly StatusColumn[]
+  tasksByStatus: Record<string, Task[]>
   onTaskClick?: (taskId: string) => void
   enableDragAndDrop?: boolean
   onDragStart?: (event: DragStartEvent) => void
   onDragOver?: (event: DragOverEvent) => void
   onDragEnd?: (event: DragEndEvent) => void
-  insertionPreview?: { columnId: string; position: number } | null
+  insertionPreview?: { statusId: string; position: number } | null
   activeTask?: Task | null
   dragOverAddCard?: string | null
   showRecurringTasks?: boolean
@@ -22,8 +23,8 @@ interface KanbanBoardProps {
 }
 
 export const KanbanBoard: React.FC<KanbanBoardProps> = ({
-  columns,
-  tasksByColumn,
+  statusColumns,
+  tasksByStatus,
   onTaskClick,
   enableDragAndDrop = false,
   onDragStart,
@@ -47,18 +48,19 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const kanbanContent = (
     <div className='flex h-full overflow-x-auto p-6 gap-6 pb-6'>
       {showRecurringTasks && <RecurringTasksColumn projectId={projectId} />}
-      {columns.map((column: Column) => (
+      {statusColumns.map(statusColumn => (
         <KanbanColumn
-          key={column.id}
-          column={column}
-          tasks={tasksByColumn[column.id] || []}
+          key={statusColumn.id}
+          column={statusColumn}
+          tasks={tasksByStatus[statusColumn.status] || []}
           insertionPreview={
-            insertionPreview?.columnId === column.id ? insertionPreview.position : null
+            insertionPreview?.statusId === statusColumn.id ? insertionPreview.position : null
           }
           draggedTaskHeight={activeTask ? 76 : 0} // Approximate task card height
           draggedTaskId={activeTask?.id || null}
-          showAddCardPreview={dragOverAddCard === column.id}
+          showAddCardPreview={dragOverAddCard === statusColumn.id}
           onTaskClick={onTaskClick}
+          projectId={projectId}
         />
       ))}
     </div>

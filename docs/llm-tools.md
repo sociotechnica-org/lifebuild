@@ -10,6 +10,30 @@ Work Squared uses LiveStore's event-sourced architecture where:
 - **Queries** represent read operations
 - **LLM Tools** provide AI assistants access to these operations
 
+## Recent Changes (January 2025)
+
+### Breaking Changes
+
+- **Task Tools:**
+  - `create_task`: Now requires `projectId` and `columnId` (no defaults)
+  - `create_task`: Changed `assigneeId` → `assigneeIds` (array)
+  - Renamed `move_task` → `move_task_within_project`
+  - New `orphan_task` tool for orphaning tasks
+  - `move_task_to_project` now requires `toProjectId`
+
+### Improvements
+
+- **Formatters:**
+  - Added `ContactToolFormatter` for contact tool responses
+  - Standardized date formatting to ISO strings
+  - Enriched query results with human-readable names
+  - Added TypeScript interfaces for formatter contracts
+
+- **Schema Alignment:**
+  - Fixed terminology drift (board → project)
+  - Improved schema descriptions with side effects documented
+  - Aligned parameter requirements with actual behavior
+
 ## Architecture
 
 The LLM tools system has been fully refactored with a modular architecture:
@@ -44,8 +68,9 @@ src/utils/llm-tools/
 |                   | columnRenamed               | ❌   | -                            |
 |                   | columnReordered             | ❌   | -                            |
 | **Tasks**         | taskCreated                 | ✅   | create_task                  |
-|                   | taskMoved                   | ✅   | move_task                    |
+|                   | taskMoved                   | ✅   | move_task_within_project     |
 |                   | taskMovedToProject          | ✅   | move_task_to_project         |
+|                   | taskMovedToProject (orphan) | ✅   | orphan_task                  |
 |                   | taskUpdated                 | ✅   | update_task                  |
 |                   | taskArchived                | ✅   | archive_task                 |
 |                   | taskUnarchived              | ✅   | unarchive_task               |

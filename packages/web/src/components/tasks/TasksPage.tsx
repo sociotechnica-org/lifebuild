@@ -1,56 +1,38 @@
 import { useQuery, useStore } from '@livestore/react'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
-import { getOrphanedTasks$, getOrphanedColumns$ } from '@work-squared/shared/queries'
-import type { Task } from '@work-squared/shared/schema'
+import { getOrphanedTasks$ } from '@work-squared/shared/queries'
+import type { Task, TaskStatus } from '@work-squared/shared/schema'
 import { events } from '@work-squared/shared/schema'
-import { DEFAULT_KANBAN_COLUMNS } from '@work-squared/shared'
+import { STATUS_COLUMNS } from '@work-squared/shared'
 import { KanbanBoard } from './kanban/KanbanBoard.js'
 import { CreateTaskModal } from './CreateTaskModal.js'
 import { TaskModal } from './TaskModal/TaskModal.js'
-import { calculateTaskReorder, calculateDropTarget } from '../../utils/taskReordering.js'
+import {
+  calculateStatusTaskReorder,
+  calculateStatusDropTarget,
+} from '../../utils/statusTaskReordering.js'
 
 export const TasksPage: React.FC = () => {
   const { store } = useStore()
   const tasks = useQuery(getOrphanedTasks$) ?? []
-  const columns = useQuery(getOrphanedColumns$) ?? []
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false)
-  const [hasInitializedColumns, setHasInitializedColumns] = useState(false)
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [insertionPreview, setInsertionPreview] = useState<{
-    columnId: string
+    statusId: string
     position: number
   } | null>(null)
   const [dragOverAddCard, setDragOverAddCard] = useState<string | null>(null)
 
-  // Initialize default columns for orphaned tasks if none exist
-  useEffect(() => {
-    if (columns.length === 0 && !hasInitializedColumns) {
-      setHasInitializedColumns(true)
-
-      DEFAULT_KANBAN_COLUMNS.forEach(column => {
-        store.commit(
-          events.columnCreated({
-            id: `orphaned-${column.name.toLowerCase().replace(/\s+/g, '-')}`,
-            projectId: undefined, // undefined for orphaned columns
-            name: column.name,
-            position: column.position,
-            createdAt: new Date(),
-          })
-        )
-      })
-    }
-  }, [columns.length, hasInitializedColumns, store])
-
-  // Group tasks by column
-  const tasksByColumn = React.useMemo(() => {
+  // Group tasks by status
+  const tasksByStatus = React.useMemo(() => {
     const grouped: Record<string, Task[]> = {}
-    columns.forEach(column => {
-      grouped[column.id] = tasks.filter(task => task.columnId === column.id)
+    STATUS_COLUMNS.forEach(statusColumn => {
+      grouped[statusColumn.status] = tasks.filter(task => task.status === statusColumn.status)
     })
     return grouped
-  }, [tasks, columns])
+  }, [tasks])
 
   // Find task by ID helper
   const findTask = (taskId: string): Task | undefined => {
@@ -93,17 +75,17 @@ export const TasksPage: React.FC = () => {
 
     // Handle dropping over Add Card buttons
     if (overId.startsWith('add-card-')) {
-      const targetColumnId = overId.replace('add-card-', '')
-      setDragOverAddCard(targetColumnId)
+      const targetStatusId = overId.replace('add-card-', '')
+      setDragOverAddCard(targetStatusId)
       setInsertionPreview(null)
       return
     }
 
-    // Handle dropping over task cards - show preview for both same and different columns
-    const dropTarget = calculateDropTarget(overId, draggedTask, tasksByColumn)
+    // Handle dropping over task cards - show preview for both same and different statuses
+    const dropTarget = calculateStatusDropTarget(overId, draggedTask, tasksByStatus)
     if (dropTarget) {
       setInsertionPreview({
-        columnId: dropTarget.columnId,
+        statusId: dropTarget.statusId,
         position: dropTarget.index,
       })
       setDragOverAddCard(null)
@@ -130,36 +112,36 @@ export const TasksPage: React.FC = () => {
     const overId = over.id as string
 
     // Calculate drop target
-    const dropTarget = calculateDropTarget(overId, task, tasksByColumn)
+    const dropTarget = calculateStatusDropTarget(overId, task, tasksByStatus)
     if (!dropTarget) return
 
-    const { columnId: targetColumnId, index: targetIndex } = dropTarget
+    const { statusId: targetStatusId, index: targetIndex } = dropTarget
 
     // Don't move if dropping in same position
-    if (targetColumnId === task.columnId) {
-      const columnTasks = tasksByColumn[targetColumnId]
-      if (!columnTasks) return
-      const sortedTasks = [...columnTasks].sort((a, b) => a.position - b.position)
+    if (targetStatusId === task.status) {
+      const statusTasks = tasksByStatus[targetStatusId]
+      if (!statusTasks) return
+      const sortedTasks = [...statusTasks].sort((a, b) => a.position - b.position)
       const currentIndex = sortedTasks.findIndex(t => t.id === task.id)
       if (currentIndex === targetIndex) return
     }
 
     // Calculate reorder operations
-    const targetColumnTasks = tasksByColumn[targetColumnId] || []
-    const sortedTargetTasks = [...targetColumnTasks].sort((a, b) => a.position - b.position)
-    const reorderResults = calculateTaskReorder(
+    const targetStatusTasks = tasksByStatus[targetStatusId] || []
+    const sortedTargetTasks = [...targetStatusTasks].sort((a, b) => a.position - b.position)
+    const reorderResults = calculateStatusTaskReorder(
       task,
-      targetColumnId,
+      targetStatusId as TaskStatus,
       targetIndex,
       sortedTargetTasks
     )
 
-    // Commit all position updates
+    // Commit all position updates using v2.TaskStatusChanged
     reorderResults.forEach(result => {
       store.commit(
-        events.taskMoved({
+        events.taskStatusChanged({
           taskId: result.taskId,
-          toColumnId: result.toColumnId,
+          toStatus: result.toStatus,
           position: result.position,
           updatedAt: result.updatedAt,
         })
@@ -187,39 +169,28 @@ export const TasksPage: React.FC = () => {
 
       {/* Content */}
       <div className='flex-1 overflow-hidden'>
-        {columns.length === 0 ? (
-          <div className='flex items-center justify-center h-full text-gray-500'>
-            <div className='text-center'>
-              <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto'></div>
-              <p className='text-gray-500 mt-4'>Setting up columns...</p>
-            </div>
-          </div>
-        ) : (
-          <>
-            <KanbanBoard
-              columns={columns}
-              tasksByColumn={tasksByColumn}
-              enableDragAndDrop={true}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDragEnd={handleDragEnd}
-              insertionPreview={insertionPreview}
-              activeTask={activeTask}
-              dragOverAddCard={dragOverAddCard}
-              onTaskClick={handleTaskClick}
-              showRecurringTasks={true}
-              projectId={null}
-            />
-            <TaskModal taskId={selectedTaskId} onClose={handleModalClose} />
-          </>
-        )}
+        <KanbanBoard
+          statusColumns={STATUS_COLUMNS}
+          tasksByStatus={tasksByStatus}
+          enableDragAndDrop={true}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          insertionPreview={insertionPreview}
+          activeTask={activeTask}
+          dragOverAddCard={dragOverAddCard}
+          onTaskClick={handleTaskClick}
+          showRecurringTasks={true}
+          projectId={null}
+        />
+        <TaskModal taskId={selectedTaskId} onClose={handleModalClose} />
       </div>
 
       <CreateTaskModal
         isOpen={isCreateTaskModalOpen}
         onClose={() => setIsCreateTaskModalOpen(false)}
         projectId={null} // null for orphaned tasks
-        defaultColumnId={columns[0]?.id}
+        defaultStatus='todo'
       />
     </div>
   )

@@ -53,7 +53,7 @@ export class DocumentToolFormatter implements ToolResultFormatter {
       result.documents
         ?.map(
           (d: any) =>
-            `${d.title} (ID: ${ChorusFormatter.document(d.id)}) - Updated: ${new Date(d.updatedAt).toLocaleDateString()}`
+            `${d.title} (ID: ${ChorusFormatter.document(d.id)}) - Updated: ${new Date(d.updatedAt).toISOString()}`
         )
         .join('\n• ') || 'No documents found'
     return `Available documents:\n• ${documentList}`
@@ -82,7 +82,7 @@ export class DocumentToolFormatter implements ToolResultFormatter {
       result.documents
         ?.map(
           (d: any) =>
-            `${d.title} (ID: ${ChorusFormatter.document(d.id)}) - Created: ${new Date(d.createdAt).toLocaleDateString()}`
+            `${d.title} (ID: ${ChorusFormatter.document(d.id)}) - Created: ${new Date(d.createdAt).toISOString()}`
         )
         .join('\n• ') || 'No documents found in project'
     return `Project documents:\n• ${documentList}`

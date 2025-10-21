@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery, useStore } from '@livestore/react'
 import { formatDateTime } from '../../../util/dates.js'
-import type { Task, Column, User, Comment } from '@work-squared/shared/schema'
-import {
-  getTaskById$,
-  getBoardColumnsOptional$,
-  getUsers$,
-  getTaskComments$,
-} from '@work-squared/shared/queries'
+import type { Task, User, Comment } from '@work-squared/shared/schema'
+import { getTaskById$, getUsers$, getTaskComments$ } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
 import { AssigneeSelector } from '../../ui/AssigneeSelector/AssigneeSelector.js'
 import { getInitials } from '../../../util/initials.js'
 import { useSnackbar } from '../../ui/Snackbar/Snackbar.js'
 import { Markdown } from '../../markdown/Markdown.js'
 import { MoveTaskModal } from '../MoveTaskModal.js'
+import { useAuth } from '../../../contexts/AuthContext.js'
 
 interface TaskModalProps {
   taskId: string | null
@@ -25,6 +21,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   if (!taskId) return null
 
   const { store } = useStore()
+  const { user: authUser } = useAuth()
   const { showSnackbar } = useSnackbar()
   const taskResult = useQuery(getTaskById$(taskId))
   const task = taskResult?.[0] as Task | undefined
@@ -32,14 +29,20 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   // Don't render if task not found
   if (!task) return null
 
-  const columns = useQuery(getBoardColumnsOptional$(task.projectId)) ?? []
-  const column = columns.find((col: Column) => col.id === task.columnId)
-
   const users = useQuery(getUsers$) ?? []
   const comments = useQuery(getTaskComments$(taskId)) ?? []
 
-  // Get first user as current user (for comments)
-  const currentUser = users[0]
+  // Prefer authenticated user for comment composer, fallback to first available user
+  const currentUser = React.useMemo(() => {
+    if (authUser) {
+      const matchedUser = users.find((user: User) => user.id === authUser.id)
+      if (matchedUser) {
+        return matchedUser
+      }
+    }
+
+    return users[0]
+  }, [authUser, users])
 
   // Parse assigneeIds from JSON string safely
   let currentAssigneeIds: string[] = []
@@ -280,7 +283,9 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
                 {task.title}
               </h1>
             )}
-            <p className='text-sm text-gray-500 mt-1'>in {column?.name || 'Unknown Column'}</p>
+            <p className='text-sm text-gray-500 mt-1'>
+              Status: {task.status.charAt(0).toUpperCase() + task.status.slice(1).replace('_', ' ')}
+            </p>
           </div>
           <div className='flex items-center gap-2'>
             {isEditing ? (

@@ -1,16 +1,22 @@
+// Load environment variables FIRST, before anything else (including Sentry)
 import dotenv from 'dotenv'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
-import { storeManager } from './services/store-manager.js'
-import { EventProcessor } from './services/event-processor.js'
-import { loadStoresConfig } from './config/stores.js'
-import { logger } from './utils/logger.js'
 
-// Load environment variables from package-local .env file
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const packageRoot = resolve(__dirname, '..')
 dotenv.config({ path: resolve(packageRoot, '.env') })
+
+// IMPORTANT: Import Sentry instrumentation after env vars are loaded
+// Using dynamic import to ensure it happens after dotenv.config()
+await import('./instrument.js')
+import * as Sentry from '@sentry/node'
+
+import { storeManager } from './services/store-manager.js'
+import { EventProcessor } from './services/event-processor.js'
+import { loadStoresConfig } from './config/stores.js'
+import { logger } from './utils/logger.js'
 
 async function main() {
   logger.info('Starting Work Squared Multi-Store Server...')
@@ -163,6 +169,11 @@ async function main() {
     healthServer.close()
     eventProcessor.stopAll()
     await storeManager.shutdown()
+
+    // Flush any pending Sentry events before exiting
+    logger.info('Flushing Sentry events...')
+    await Sentry.flush(2000)
+
     process.exit(0)
   }
 
@@ -172,5 +183,10 @@ async function main() {
 
 main().catch(error => {
   logger.error({ error }, 'Failed to start server')
-  process.exit(1)
+  // Capture the error in Sentry before exiting
+  Sentry.captureException(error)
+  // Ensure the error is sent to Sentry before process exits
+  Sentry.flush(2000).finally(() => {
+    process.exit(1)
+  })
 })
