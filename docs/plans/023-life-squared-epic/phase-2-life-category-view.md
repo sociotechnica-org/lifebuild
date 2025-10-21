@@ -15,15 +15,16 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
   - ✅ Story 2.5 (Stage 3) - COMPLETED in PR #254 (merged 2025-10-21)
   - ⏸️ Story 2.6 (Stage 4) - NOT STARTED
   - ⏸️ Story 2.7 (Move to Backlog) - NOT STARTED
-- 🔄 **Section 3: Project Plans Sub-Tab** (Stories 3.1-3.8) - PARTIALLY COMPLETE
+- 🔄 **Section 3: Project Plans Sub-Tab** (Stories 3.1-3.9) - PARTIALLY COMPLETE
   - ✅ Story 3.1 (Display plans) - COMPLETED in PRs #250, #254
   - ✅ Story 3.2 (Resume planning) - COMPLETED in PRs #250, #254
   - ⏸️ Story 3.3 (Card visuals) - NEEDS DESIGN
   - ✅ Story 3.4 (Archive/delete) - COMPLETED (existing functionality)
   - ⏸️ Story 3.5 (Idle indicators) - NEEDS DESIGN
-  - ⏸️ Story 3.6 (Routing context) - NOT STARTED
+  - ⏸️ Story 3.6 (Dynamic routing context) - NOT STARTED
   - ⏸️ Story 3.7 (Category advisors) - NOT STARTED
-  - ⏸️ Story 3.8 (Auto-select advisor) - NOT STARTED
+  - ⏸️ Story 3.8 (Auto-select in category) - NOT STARTED
+  - ⏸️ Story 3.9 (Auto-select in planning) - NOT STARTED
 - ⏸️ **Section 4: Backlog Sub-Tab** (Stories 4.1-4.5) - NOT STARTED
 
 ---
@@ -373,29 +374,57 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 ---
 
-### Story 3.6 – Pass routing context to LLM conversations
+### Story 3.6 – Pass routing context to LLM on every message
 
-**User story**: _As an operator, I want the LLM to understand which project I'm viewing so I can use contextual references like "this project" in my messages._
+**User story**: _As an operator, I want the LLM to understand which page I'm viewing when I send each message so I can use contextual references like "this project" naturally across different views._
 
 **Dependencies**: Story 3.2
 
 #### Tasks
 
-- [ ] Schema: Add `contextMetadata` field to conversations table (JSON field storing `{ projectId?, categoryId?, taskId? }`)
-- [ ] Event: Update `v1.ConversationCreated` to accept optional `contextMetadata` parameter
-- [ ] Logic: When creating conversation from Project Workspace, capture current `projectId` and `categoryId` from URL params
-- [ ] Logic: When creating conversation from Life Category view, capture `categoryId` from URL params
-- [ ] API: Include context metadata in LLM API calls as system message or context parameter
-- [ ] API: Format context as: "The user is currently viewing Project '[name]' in category '[category]'"
-- [ ] DoD: Conversations created from project or category contexts include metadata that enables contextual LLM interactions.
+- [ ] Logic: Capture routing context (URL params, pathname) when user sends a message
+- [ ] Logic: Extract `projectId`, `categoryId`, `taskId` from current route dynamically
+- [ ] Query: Fetch current project/category/task details based on extracted IDs
+- [ ] API: Include routing context in each LLM API call as system message or context parameter
+- [ ] API: Format context dynamically based on current view:
+  - Project Workspace: "The user is currently viewing Project '[name]' (ID: [id]) in category '[category]'"
+  - Life Category: "The user is currently viewing the '[category]' Life Category"
+  - Task view: "The user is currently viewing Task '[name]' in Project '[project]'"
+- [ ] Logic: Context is calculated fresh for every message, not stored in conversation
+- [ ] DoD: Every message sent to LLM includes current routing context, enabling contextual references across different views within the same conversation.
 
 **Status**: ⏸️ **NOT STARTED**
 
 #### Implementation Notes
 
-- Context should be captured at conversation creation time and stored persistently
-- LLM receives context as part of system prompt or API parameters
-- Enables natural language like "help me plan this project" where "this" resolves to current project
+**Dynamic Context Capture:**
+- Read routing state from `useLocation()` and `useParams()` at message send time
+- Parse current URL to extract relevant IDs (projectId, categoryId, taskId)
+- Query LiveStore for entity details (names, descriptions) to enrich context
+- Include context as part of message payload or system prompt for each API call
+
+**Benefits:**
+- Same conversation can be used across multiple projects in a category
+- Advisor maintains context awareness as user navigates between views
+- No need to create/switch conversations when moving between projects
+- Natural UX: "help me plan this project" works regardless of which project is open
+
+**Example Implementation:**
+```typescript
+const handleSendMessage = async (message: string) => {
+  const routingContext = extractRoutingContext(location, params) // { projectId, categoryId, taskId }
+  const contextDetails = await fetchContextDetails(store, routingContext)
+
+  const contextPrompt = formatContextPrompt(contextDetails)
+  // "The user is currently viewing Project 'Morning Workout Routine' in Health & Well-Being category"
+
+  await sendToLLM({
+    message,
+    conversationId,
+    contextPrompt, // Included with this specific message
+  })
+}
+```
 
 ---
 
@@ -452,37 +481,76 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 
 ---
 
-### Story 3.8 – Auto-select Life Category Advisor in planning stage
+### Story 3.8 – Auto-select Life Category Advisor when navigating to Life Category
 
-**User story**: _As an operator in project planning stage, I want the category advisor automatically selected in my chat so I can immediately get contextual help._
+**User story**: _As an operator viewing a Life Category, I want the category advisor automatically selected in my chat so I can immediately get contextual help for planning._
 
 **Dependencies**: Story 3.7
 
 #### Tasks
 
-- [ ] Logic: When entering Project Workspace with `planningStage = 3`, check if category advisor exists
-- [ ] Logic: Search for existing conversation with category advisor in current context
+- [ ] Logic: When navigating to Life Category view, check if category advisor exists
+- [ ] Logic: Search for existing conversation with category advisor (by `workerId`)
 - [ ] Logic: If conversation exists, auto-select it (set `conversationId` in URL params)
 - [ ] Logic: If no conversation exists, auto-create conversation with category advisor using `v1.ConversationCreated`
-- [ ] Logic: Include project context metadata (projectId, categoryId) in conversation
-- [ ] UI: Chat sidebar opens automatically with advisor conversation selected
-- [ ] UI: Show indicator that advisor is context-aware (e.g., "Advising on: [Project Name]")
-- [ ] DoD: Entering planning stage automatically creates or selects a conversation with the category advisor, enabling immediate contextual support.
+- [ ] Logic: Conversation title: "[Category Name] Planning" (e.g., "Health & Well-Being Planning")
+- [ ] UI: Chat sidebar auto-selects advisor conversation when entering category view
+- [ ] UI: Show indicator that advisor is context-aware (e.g., "Health Advisor")
+- [ ] DoD: Entering a Life Category view automatically creates or selects a conversation with the category advisor, enabling immediate contextual support.
 
 **Status**: ⏸️ **NOT STARTED**
 
 #### Implementation Notes
 
 **Conversation Management:**
-- Search pattern: `conversations.where({ workerId: categoryAdvisorId, contextMetadata.projectId: currentProjectId })`
-- Auto-creation only happens once per project during planning stage
-- Conversation persists after planning completes, maintaining history
+- One conversation per category advisor across all projects in that category
+- Search pattern: `conversations.where({ workerId: categoryAdvisorId })`
+- Auto-creation happens once per category (when first navigating to category view after advisor is created)
+- Conversation is reused across all projects in the category
 - User can manually switch to other workers if needed
 
 **UI Behavior:**
-- Advisor conversation auto-opens when entering stage 3 of any project in the category
-- Visual indicator shows which project the advisor is helping with
-- Example: "Health Advisor • Planning: Morning Workout Routine"
+- Advisor conversation auto-selects when entering any Life Category view
+- Same conversation works across Project Creation, Project Plans, and Backlog sub-tabs
+- Context is dynamic (Story 3.6), so advisor understands which project/view user is in
+- Example: User can say "help me plan this project" in stage 3, and advisor knows which project based on routing context
+
+---
+
+### Story 3.9 – Auto-select Life Category Advisor in planning stage
+
+**User story**: _As an operator in project planning stage, I want the category advisor automatically selected when I navigate to my project so I can immediately get task planning help._
+
+**Dependencies**: Story 3.7, Story 3.8
+
+#### Tasks
+
+- [ ] Logic: When entering Project Workspace with `planningStage = 3`, check if category advisor exists
+- [ ] Logic: Search for existing conversation with category advisor (by `workerId`)
+- [ ] Logic: If conversation exists, auto-select it (set `conversationId` in URL params)
+- [ ] Logic: If no conversation exists, auto-create conversation using pattern from Story 3.8
+- [ ] UI: Chat sidebar auto-selects advisor conversation when entering stage 3
+- [ ] UI: Routing context (Story 3.6) provides project awareness to advisor
+- [ ] DoD: Entering planning stage 3 automatically selects the category advisor conversation, with dynamic context awareness of current project.
+
+**Status**: ⏸️ **NOT STARTED**
+
+#### Implementation Notes
+
+**Conversation Reuse:**
+- Same conversation as Story 3.8 - shared across category view and all projects in category
+- No need to create project-specific conversations
+- Context switching handled dynamically via routing context (Story 3.6)
+
+**UI Behavior:**
+- Advisor conversation auto-selects when entering stage 3 of any project
+- User sees same conversation history from category-level planning
+- Dynamic context makes it clear which project advisor is helping with
+- Example flow:
+  1. User navigates to Health category → Health Advisor auto-selected
+  2. User creates "Morning Workout" project, advances to stage 3
+  3. Same Health Advisor conversation auto-selected
+  4. User says "help me create tasks for this" → Advisor knows it's Morning Workout project via routing context
 
 ---
 
@@ -708,17 +776,21 @@ Stories 1.1-1.3 establish the three-tab Life Category structure with smart defau
 
 Stories 2.1-2.7 implement the 4-stage project planning workflow from initial idea through prioritization and backlog placement, including cover image upload and AI generation.
 
-### Section 3: Project Plans Sub-Tab (8 stories)
+### Section 3: Project Plans Sub-Tab (9 stories)
 
-Stories 3.1-3.8 enable managing in-progress plans with full persistence, contextual AI assistance through category advisors, and intelligent conversation management. Includes visual indicators for plan progress and idle state.
+Stories 3.1-3.9 enable managing in-progress plans with full persistence, contextual AI assistance through category advisors, and intelligent conversation management. Includes visual indicators for plan progress and idle state.
 
 - **3.1-3.2**: Core plan viewing and resumption (✅ Completed)
 - **3.3, 3.5**: Visual enhancements (⏸️ Needs design)
 - **3.4**: Archive functionality (✅ Completed via existing Project Workspace)
-- **3.6-3.8**: Contextual AI advisor system (⏸️ Not started)
+- **3.6-3.9**: Contextual AI advisor system (⏸️ Not started)
+  - Dynamic routing context on every message
+  - Auto-created category advisors
+  - Auto-selection in category view and planning stage
+  - Single reusable conversation per category
 
 ### Section 4: Backlog Sub-Tab (5 stories)
 
 Stories 4.1-4.5 provide priority-ordered backlog management with reordering, activation, editing, and filtering capabilities.
 
-**Total: 23 user stories** (added 3 stories for contextual AI advisor system)
+**Total: 24 user stories** (added 4 stories for contextual AI advisor system with dynamic routing context)
