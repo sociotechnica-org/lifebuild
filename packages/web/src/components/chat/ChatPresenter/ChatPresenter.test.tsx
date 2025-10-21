@@ -39,6 +39,7 @@ describe('ChatPresenter', () => {
       conversationId: 'conversation-1',
       message: 'Hello',
       role: 'user',
+      navigationContext: null,
       createdAt: new Date('2024-01-01T02:00:00Z'),
       modelId: null,
       responseToMessageId: null,

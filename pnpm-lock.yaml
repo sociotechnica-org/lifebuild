@@ -340,7 +340,7 @@ importers:
         specifier: ^16.1.1
         version: 16.3.0
       posthog-js:
-        specifier: ^1.261.0
+        specifier: ^1.275.0
         version: 1.275.0
       react:
         specifier: 19.1.1

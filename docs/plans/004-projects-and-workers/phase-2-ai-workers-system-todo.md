@@ -334,39 +334,104 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 
 ---
 
-## Story 7 – Worker tools for project access
+## Story 7 – Navigation context passing to LLM
 
-**User story**: _As a user, I want workers to have access to documents and tasks from their assigned projects when chatting with them so they can provide contextual assistance._
+**User story**: _As a user, I want the LLM to know what page/entity I'm currently viewing so it can provide contextually relevant assistance without me having to explain what I'm looking at._
 
-**Dependencies**: Story 5 (need project assignments), Story 6 (need worker chat)
+**Dependencies**: Story 6 (need worker chat)
 
 ### Tasks
 
-- [ ] Tool: Create `list_assigned_projects` tool for workers to see their projects
-- [ ] Tool: Create `get_project_documents` tool to access project-specific documents
-- [ ] Tool: Create `get_project_tasks` tool to access project-specific tasks
-- [ ] Tool: Update existing document tools to respect project assignments:
-  - `search_documents` - filter by worker's assigned projects
-  - `read_document` - verify document is in assigned project
+- [ ] Types: Add `NavigationContext` interface to track current page/entity
+- [ ] Schema: Add `navigationContext` field to `chatMessages` table (nullable, JSON)
+- [ ] Frontend: Create `useNavigationContext` hook to extract route, entity, and subtab
+- [ ] Frontend: Update `useChatData` to capture navigation context when sending messages
+- [ ] Backend: Extract navigation context from user messages in event processor
+- [ ] Backend: Enrich context with full entity attributes from database
+- [ ] Backend: Update system prompt builder to include navigation context
+- [ ] Backend: Pass navigation context through agentic loop to LLM provider
+- [ ] Tests: Navigation context capture, extraction, enrichment, and prompt building
+- [ ] DoD: LLM system prompt includes detailed current context (entity type, attributes, subtab)
+
+### Implementation Notes
+
+- **Context Format**: Simple bullet list of entity attributes in system prompt
+- **Entity Coverage**: Projects, documents, contacts, tasks
+- **Subtab Support**: Capture `subtab` query parameter (e.g., `&subtab=documents`)
+- **Multiple Entities**: Show both document AND project if viewing doc in project context
+- **No URL Structure**: Don't expose routing patterns to LLM, just entity data
+- **Backward Compatible**: Navigation context is optional, missing context = no current page info
+
+### Example System Prompt Enhancement
+
+```
+CURRENT CONTEXT:
+User is viewing: "Q1 Marketing Campaign" (ID: proj-123)
+- Type: Project
+- Description: Launch new product line
+- Created: 2025-01-15
+- Updated: 2025-01-20
+- Subtab: documents
+
+The user is looking at the documents subtab within this project.
+```
+
+---
+
+## Story 8 – Worker project-scoped tool access
+
+**User story**: _As a user, I want workers to only access documents and tasks from their assigned projects so they maintain focused expertise and don't get overwhelmed with irrelevant data._
+
+**Dependencies**: Story 5 (need project assignments), Story 7 (need navigation context)
+
+### Tasks
+
+- [ ] Tool: Create `get_worker_projects` tool for workers to see their assigned projects
+- [ ] Tool: Update `search_documents` to filter by worker's assigned projects
+- [ ] Tool: Update `read_document` to verify document is in worker's assigned project
+- [ ] Tool: Update `get_project_tasks` to filter by worker's assigned projects
+- [ ] Tool: Update `get_project_documents` to filter by worker's assigned projects
+- [ ] Backend: Add `getWorkerProjectIds` helper function
+- [ ] Backend: Update tool executor to pass `workerId` to all tool functions
+- [ ] Backend: Update `executeLLMTool` to pass `workerId` parameter
 - [ ] Logic: Workers can only access documents/tasks from assigned projects
-- [ ] Logic: Unassigned workers have access to all documents/tasks (backward compatibility)
-- [ ] Backend: Update tool implementations to check worker-project assignments
-- [ ] Tests: Project-scoped tool access, permission validation, context filtering
-- [ ] DoD: Workers can access and work with content from their assigned projects
+- [ ] Logic: Unassigned workers have access to all content (backward compatibility)
+- [ ] Tests: Project-scoped tool access, permission validation, filtering logic
+- [ ] DoD: Workers with assignments only see content from their assigned projects
 
 ### Implementation Notes
 
 - **Permission Model**: Workers can only access content from projects they're assigned to
+- **Server-Side Enforcement**: ALL filtering happens server-side for security
+- **Backward Compatibility**: Unassigned workers maintain full global access
+- **No Client Trust**: Client cannot bypass project restrictions
 - **Tool Evolution**: Existing tools are enhanced rather than replaced
-- **Backward Compatibility**: Unassigned workers maintain full access like current system
+
+### Example Scenarios
+
+**Scenario 1: Worker assigned to 2 projects**
+
+- Worker searches documents → Only returns docs from those 2 projects
+- Worker tries to read doc from different project → Access denied
+
+**Scenario 2: Worker with no assignments**
+
+- Worker has global access to all content (current behavior)
+- Useful for general-purpose assistants
+
+**Scenario 3: Worker viewing project page**
+
+- Navigation context shows current project
+- Worker can still only access assigned projects via tools
+- If current project is not assigned, tools return empty results
 
 ---
 
-## Story 8 – Worker management tools
+## Story 9 – Worker management tools
 
 **User story**: _As a user, I want workers to be able to see information about other workers and collaborate on project assignments so the system can coordinate multi-agent workflows._
 
-**Dependencies**: Story 5 (need project assignments), Story 7 (need worker tools)
+**Dependencies**: Story 5 (need project assignments), Story 8 (need worker tools)
 
 ### Tasks
 
@@ -387,11 +452,11 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 
 ---
 
-## Story 9 – Node.js backend setup for workers
+## Story 10 – Node.js backend setup for workers
 
 **User story**: _As a system administrator, I want a Node.js backend that can handle long-running worker tasks so workers can perform complex operations without Cloudflare Worker timeouts._
 
-**Dependencies**: All frontend worker stories (1-8)
+**Dependencies**: All frontend worker stories (1-9)
 
 ### Tasks
 
@@ -419,15 +484,15 @@ This phase transforms Work Squared from a single-chat system into a multi-agent 
 
 ## ⏳ Deferred to Phase 3
 
-### Story 10 – Worker memory and conversation history
+### Story 11 – Worker memory and conversation history
 
 **Reason**: Complex feature requiring careful design of what workers should remember across conversations. Better suited for Phase 3 when core worker functionality is stable.
 
-### Story 11 – Worker scheduling and automation
+### Story 12 – Worker scheduling and automation
 
 **Reason**: Advanced feature requiring cron-like scheduling infrastructure. Phase 3 can focus on automated worker behaviors.
 
-### Story 12 – Advanced worker permissions and tool restrictions
+### Story 13 – Advanced worker permissions and tool restrictions
 
 **Reason**: Current "all tools" approach is sufficient for Phase 2. Granular permissions can be added in Phase 3.
 
@@ -564,17 +629,22 @@ const supportedModels = [
 
 1. **Event-Driven Architecture**: All worker operations flow through LiveStore events
 2. **Conversation Isolation**: Each worker maintains separate, persistent conversation history
-3. **Project-Scoped Access**: Workers can only access content from assigned projects
+3. **Navigation Context Awareness**: LLM always knows what the user is viewing
 4. **Progressive Enhancement**: Build on existing chat and project systems
 5. **Tool Evolution**: Enhance existing tools rather than replacing them
 
 ## Success Metrics
 
 - [x] **Workers can be created with custom system prompts and specializations** ✅ Story 1 Complete
-- [ ] Workers can be assigned to multiple projects with appropriate access controls
-- [ ] Each worker maintains separate conversation history with model selection
-- [ ] Workers can access and work with project-specific documents and tasks
-- [ ] Node.js backend supports long-running worker operations
+- [x] **Workers can select and switch AI models per conversation** ✅ Story 2 Complete
+- [x] **Workers can be edited to refine behavior over time** ✅ Story 3 Complete
+- [x] **Workers are listed and manageable in dedicated interface** ✅ Story 4 Complete
+- [x] **Workers can be assigned to multiple projects** ✅ Story 5 Complete
+- [x] **Workers maintain dedicated chat conversations with context** ✅ Story 6 Complete
+- [ ] **LLM understands current navigation context (page, entity, subtab)** - Story 7
+- [ ] **Workers with project assignments have scoped tool access** - Story 8
+- [ ] **Workers can discover and coordinate with other workers** - Story 9
+- [ ] **Node.js backend supports long-running worker operations** - Story 10
 - [ ] System supports multiple concurrent worker conversations
 
 This foundation transforms Work Squared from a single-assistant system into a multi-agent platform while maintaining the existing project and document management capabilities.
