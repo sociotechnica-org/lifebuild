@@ -3,7 +3,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react'
-import { SyncPayload, DEV_AUTH } from '@work-squared/shared/auth'
+import { SyncPayload } from '@work-squared/shared/auth'
 import { useAuth } from '../contexts/AuthContext.js'
 
 interface UseSyncPayloadOptions {
@@ -11,20 +11,37 @@ interface UseSyncPayloadOptions {
 }
 
 export function useSyncPayload({ instanceId }: UseSyncPayloadOptions) {
-  const { getCurrentToken, isAuthenticated, refreshToken, handleConnectionError } = useAuth()
+  const { getCurrentToken, isAuthenticated, handleConnectionError } = useAuth()
   const [syncPayload, setSyncPayload] = useState<SyncPayload>({
     instanceId,
-    authToken: DEV_AUTH.INSECURE_TOKEN, // Fallback for development
+    authToken: undefined,
   })
-
-  // Debug logs - remove after testing
-  // console.log('useSyncPayload - instanceId:', instanceId)
-  // console.log('useSyncPayload - current syncPayload:', syncPayload)
 
   const updateSyncPayload = useCallback(async () => {
     try {
-      if (isAuthenticated) {
-        const token = await getCurrentToken()
+      if (!isAuthenticated) {
+        setSyncPayload({
+          instanceId,
+          authToken: undefined,
+        })
+        return
+      }
+
+      let token = await getCurrentToken()
+      if (token) {
+        setSyncPayload({
+          instanceId,
+          authToken: token,
+        })
+        return
+      }
+
+      const handled = await handleConnectionError(
+        new Error('TOKEN_MISSING: Unable to retrieve access token for sync')
+      )
+
+      if (handled) {
+        token = await getCurrentToken()
         if (token) {
           setSyncPayload({
             instanceId,
@@ -32,38 +49,24 @@ export function useSyncPayload({ instanceId }: UseSyncPayloadOptions) {
           })
           return
         }
-
-        // Try to refresh token
-        const refreshed = await refreshToken()
-        if (refreshed) {
-          const newToken = await getCurrentToken()
-          if (newToken) {
-            setSyncPayload({
-              instanceId,
-              authToken: newToken,
-            })
-            return
-          }
-        }
       }
 
-      // Fallback to insecure token for development
       setSyncPayload({
         instanceId,
-        authToken: DEV_AUTH.INSECURE_TOKEN,
+        authToken: undefined,
+        authError: 'TOKEN_MISSING',
       })
     } catch (error) {
       console.error('Error updating sync payload:', error)
-      // Try to handle connection error
       await handleConnectionError(error)
 
-      // Fallback to insecure token
       setSyncPayload({
         instanceId,
-        authToken: DEV_AUTH.INSECURE_TOKEN,
+        authToken: undefined,
+        authError: (error as Error).message,
       })
     }
-  }, [instanceId, isAuthenticated, getCurrentToken, refreshToken, handleConnectionError])
+  }, [instanceId, isAuthenticated, getCurrentToken, handleConnectionError])
 
   // Update payload when auth state changes
   useEffect(() => {
