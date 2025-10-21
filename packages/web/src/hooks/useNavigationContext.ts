@@ -11,6 +11,11 @@ export const useNavigationContext = (): NavigationContext | null => {
   const location = useLocation()
   const params = useParams<{ projectId?: string; documentId?: string; contactId?: string }>()
 
+  // Call all hooks unconditionally (Rules of Hooks requirement)
+  const projects = useQuery(getProjects$) ?? []
+  const documents = useQuery(getDocumentList$) ?? []
+  const contacts = useQuery(getContacts$) ?? []
+
   // Extract subtab from query parameters
   const searchParams = new URLSearchParams(location.search)
   const subtab = searchParams.get('subtab') || undefined
@@ -24,7 +29,6 @@ export const useNavigationContext = (): NavigationContext | null => {
 
   // Detect current entity from route params
   if (params.projectId) {
-    const projects = useQuery(getProjects$) ?? []
     const project = projects.find(p => p.id === params.projectId)
 
     if (project) {
@@ -40,7 +44,6 @@ export const useNavigationContext = (): NavigationContext | null => {
       }
     }
   } else if (params.documentId) {
-    const documents = useQuery(getDocumentList$) ?? []
     const document = documents.find(d => d.id === params.documentId)
 
     if (document) {
@@ -58,7 +61,6 @@ export const useNavigationContext = (): NavigationContext | null => {
       // This would require querying documentProjects table
     }
   } else if (params.contactId) {
-    const contacts = useQuery(getContacts$) ?? []
     const contact = contacts.find(c => c.id === params.contactId)
 
     if (contact) {
