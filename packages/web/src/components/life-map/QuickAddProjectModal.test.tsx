@@ -9,6 +9,7 @@ const mockStore = { commit: mockCommit }
 
 vi.mock('@livestore/react', () => ({
   useStore: () => ({ store: mockStore }),
+  useQuery: () => null, // Mock useQuery for useCategoryAdvisor hook
 }))
 
 // Mock AuthContext

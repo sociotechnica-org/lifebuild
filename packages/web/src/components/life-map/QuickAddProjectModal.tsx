@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext.js'
 import { useSnackbar } from '../ui/Snackbar/Snackbar.js'
 import { FormModal } from '../ui/FormModal/index.js'
 import { useModalForm } from '../../hooks/useModalForm.js'
+import { useCategoryAdvisor } from '../../hooks/useCategoryAdvisor.js'
 
 interface QuickAddProjectModalProps {
   isOpen: boolean
@@ -27,6 +28,9 @@ export const QuickAddProjectModal: React.FC<QuickAddProjectModalProps> = ({
   const { showSnackbar } = useSnackbar()
 
   const category = PROJECT_CATEGORIES.find(c => c.value === categoryId)
+
+  // Ensure category advisor exists (auto-creates if needed)
+  useCategoryAdvisor(categoryId)
 
   const { values, errors, handleChange, handleSubmit, isSubmitting } =
     useModalForm<QuickAddFormValues>({
