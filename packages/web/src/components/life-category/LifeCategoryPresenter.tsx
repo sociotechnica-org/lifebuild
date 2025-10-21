@@ -41,6 +41,7 @@ interface SortableBacklogProjectProps {
   index: number
   categoryColor: string
   onProjectClick: (project: Project) => void
+  isDragInProgress: boolean
 }
 
 const SortableBacklogProject: React.FC<SortableBacklogProjectProps> = ({
@@ -48,6 +49,7 @@ const SortableBacklogProject: React.FC<SortableBacklogProjectProps> = ({
   index,
   categoryColor,
   onProjectClick,
+  isDragInProgress,
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: project.id,
@@ -59,11 +61,21 @@ const SortableBacklogProject: React.FC<SortableBacklogProjectProps> = ({
     opacity: isDragging ? 0.5 : 1,
   }
 
+  const handleClick = (e: React.MouseEvent) => {
+    // Prevent navigation if we just finished dragging
+    if (isDragInProgress) {
+      e.preventDefault()
+      e.stopPropagation()
+      return
+    }
+    onProjectClick(project)
+  }
+
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <div
         className='flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors cursor-pointer'
-        onClick={() => onProjectClick(project)}
+        onClick={handleClick}
       >
         <div
           {...listeners}
@@ -99,6 +111,7 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
   onBacklogReorder,
 }) => {
   const [activeProject, setActiveProject] = useState<Project | null>(null)
+  const [isDragInProgress, setIsDragInProgress] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -110,6 +123,7 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
   )
 
   const handleDragStart = (event: DragStartEvent) => {
+    setIsDragInProgress(true)
     const project = backlogProjects.find(p => p.id === event.active.id)
     setActiveProject(project || null)
   }
@@ -119,6 +133,8 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
     if (onBacklogReorder) {
       onBacklogReorder(event)
     }
+    // Reset drag state after a brief delay to prevent immediate click
+    setTimeout(() => setIsDragInProgress(false), 100)
   }
   const tabs: { id: CategoryTab; label: string }[] = [
     { id: 'planning', label: 'Planning' },
@@ -290,6 +306,7 @@ export const LifeCategoryPresenter: React.FC<LifeCategoryPresenterProps> = ({
                         index={index}
                         categoryColor={categoryColor}
                         onProjectClick={onProjectClick}
+                        isDragInProgress={isDragInProgress}
                       />
                     ))}
                   </div>
