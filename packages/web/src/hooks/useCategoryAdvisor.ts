@@ -2,15 +2,14 @@ import { useEffect, useRef } from 'react'
 import { useStore, useQuery } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
 import { getWorkerById$, getConversations$ } from '@work-squared/shared/queries'
-import { type ProjectCategory, DEFAULT_MODEL } from '@work-squared/shared'
-import { useAuth } from '../contexts/AuthContext.js'
-
-// Import from server package - these prompts will be bundled into the web build
 import {
+  type ProjectCategory,
+  DEFAULT_MODEL,
   getCategoryAdvisorPrompt,
   getCategoryAdvisorName,
   getCategoryAdvisorRole,
-} from '../../../server/src/prompts/category-advisors.js'
+} from '@work-squared/shared'
+import { useAuth } from '../contexts/AuthContext.js'
 
 /**
  * Hook to ensure a category advisor exists and get its ID
