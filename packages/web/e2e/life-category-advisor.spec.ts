@@ -71,7 +71,9 @@ test.describe('Life Category Advisor', () => {
 
     // Verify that the chat interface is visible
     // Look for chat input or message list
-    const chatInput = page.locator('textarea[placeholder*="message" i], textarea[placeholder*="chat" i], input[placeholder*="message" i]')
+    const chatInput = page.locator(
+      'textarea[placeholder*="message" i], textarea[placeholder*="chat" i], input[placeholder*="message" i]'
+    )
 
     // Wait for chat interface to be ready
     try {
