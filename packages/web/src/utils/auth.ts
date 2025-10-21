@@ -278,10 +278,7 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
 
         if (
           updatedTokens?.accessToken &&
-          !isAccessTokenExpiringSoon(
-            updatedTokens.accessToken,
-            ACCESS_TOKEN_REFRESH_BUFFER_SECONDS
-          )
+          !isAccessTokenExpiringSoon(updatedTokens.accessToken, ACCESS_TOKEN_REFRESH_BUFFER_SECONDS)
         ) {
           return updatedTokens
         }
