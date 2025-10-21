@@ -90,6 +90,8 @@ export const useChatData = (): ChatData => {
   // Get current navigation context for LLM
   const navigationContext = useNavigationContext()
 
+  console.log('[useChatData] navigationContext:', navigationContext)
+
   // Action handlers
   const handleConversationChange = React.useCallback(
     (conversationId: string) => {
@@ -156,6 +158,12 @@ export const useChatData = (): ChatData => {
       if (!messageText.trim() || !selectedConversationId) return
 
       const messageId = crypto.randomUUID()
+
+      console.log('[useChatData] handleSendMessage - navigationContext:', navigationContext)
+      console.log(
+        '[useChatData] handleSendMessage - stringified:',
+        navigationContext ? JSON.stringify(navigationContext) : undefined
+      )
 
       store.commit(
         events.chatMessageSent({
