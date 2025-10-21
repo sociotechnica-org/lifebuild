@@ -15,7 +15,7 @@ export const ChatTypeModal: React.FC<ChatTypeModalProps> = ({
 }) => {
   return (
     <div
-      className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'
+      className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-[9999]'
       onClick={e => {
         if (e.target === e.currentTarget) onClose()
       }}

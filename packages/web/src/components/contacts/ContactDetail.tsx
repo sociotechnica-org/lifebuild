@@ -234,7 +234,7 @@ export const ContactDetail: React.FC = () => {
       {/* Delete Confirmation Modal */}
       {showDeleteConfirmation && (
         <div
-          className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'
+          className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-[9999]'
           onClick={e => e.target === e.currentTarget && setShowDeleteConfirmation(false)}
         >
           <div className='bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto'>

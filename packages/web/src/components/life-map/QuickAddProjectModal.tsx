@@ -103,7 +103,7 @@ export const QuickAddProjectModal: React.FC<QuickAddProjectModalProps> = ({
 
   return (
     <div
-      className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-20 px-4 z-50'
+      className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-20 px-4 z-[9999]'
       onClick={handleBackdropClick}
     >
       <div className='bg-white rounded-lg shadow-lg max-w-md w-full'>

@@ -112,7 +112,7 @@ export const MoveTaskModal: React.FC<MoveTaskModalProps> = ({ isOpen, onClose, t
 
   return (
     <div
-      className='fixed inset-0 backdrop-blur-sm flex items-center justify-center p-4 z-50'
+      className='fixed inset-0 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]'
       onClick={handleBackdropClick}
     >
       <div

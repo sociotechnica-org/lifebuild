@@ -92,7 +92,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
   if (!isOpen) return null
 
   return (
-    <div className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'>
+    <div className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-[9999]'>
       <div className='bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-hidden'>
         <div className='px-6 py-4 border-b border-gray-200'>
           <div className='flex items-center justify-between'>
