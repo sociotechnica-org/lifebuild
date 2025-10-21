@@ -436,13 +436,17 @@ const handleSendMessage = async (message: string) => {
 
 #### Tasks
 
+- [ ] Schema: Add `workerCategories` table with columns: `workerId`, `category`
+- [ ] Event: Create `v1.WorkerAssignedToCategory` event with payload `{ workerId, category, assignedAt, actorId }`
+- [ ] Event: Create `v1.WorkerUnassignedFromCategory` event with payload `{ workerId, category }`
 - [ ] Event: Watch for `v1.ProjectCreated` events with `category` field
 - [ ] Logic: On first project creation in a category, check if category advisor worker exists
 - [ ] Logic: If no advisor exists, auto-create worker with `v1.WorkerCreated` event
+- [ ] Logic: After worker creation, commit `v1.WorkerAssignedToCategory` to link worker to category
 - [ ] Schema: Worker naming convention: `{category}-advisor` (e.g., "health-advisor", "finances-advisor")
 - [ ] Prompts: Create category-specific system prompts that understand category context
 - [ ] Prompts: Example for Health category: "You are the Health & Well-Being advisor. Help users plan and manage health-related projects including fitness, medical care, mental health, and nutrition."
-- [ ] DoD: Each Life Category automatically gets a dedicated advisor worker when the first project is created.
+- [ ] DoD: Each Life Category automatically gets a dedicated advisor worker when the first project is created, with proper category assignment tracking.
 
 **Status**: ⏸️ **NOT STARTED**
 
@@ -698,6 +702,17 @@ projects: {
   deletedAt: number | null
   archivedAt: number | null
 }
+
+// Worker Categories table (NEW - for Story 3.7)
+workerCategories: {
+  workerId: string
+  category: string // 'health' | 'relationships' | 'finances' | etc.
+}
+
+// Note: Existing tables used by advisor system
+// - workers: Stores worker metadata (name, systemPrompt, etc.)
+// - workerProjects: Links workers to projects
+// - conversations: Stores chat conversations with workers
 ```
 
 ### Event System
@@ -738,6 +753,25 @@ export const projectCoverImageSet = Events.synced({
   }),
 })
 
+// NEW EVENTS for Story 3.7 - Worker Category Assignment
+export const workerAssignedToCategory = Events.synced({
+  name: 'v1.WorkerAssignedToCategory',
+  schema: Schema.Struct({
+    workerId: Schema.String,
+    category: Schema.String, // 'health' | 'relationships' | 'finances' | etc.
+    assignedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const workerUnassignedFromCategory = Events.synced({
+  name: 'v1.WorkerUnassignedFromCategory',
+  schema: Schema.Struct({
+    workerId: Schema.String,
+    category: Schema.String,
+  }),
+})
+
 // Materializer examples
 'v1.ProjectAttributesUpdated': ({ projectId, attributes, updatedAt }) => [
   projects.update({
@@ -750,6 +784,51 @@ export const projectCoverImageSet = Events.synced({
   // Read current attributes, merge in coverImage, update project
   // Implementation handled by materializer logic
 }
+
+'v1.WorkerAssignedToCategory': ({ workerId, category, assignedAt, actorId }) => [
+  workerCategories.insert({ workerId, category }),
+  eventsLog.insert({
+    id: crypto.randomUUID(),
+    eventType: 'v1.WorkerAssignedToCategory',
+    eventData: JSON.stringify({ workerId, category }),
+    actorId,
+    createdAt: assignedAt,
+  }),
+]
+
+'v1.WorkerUnassignedFromCategory': ({ workerId, category }) => [
+  workerCategories.delete().where({ workerId, category }),
+]
+```
+
+### Query Patterns for Category Advisors
+
+```typescript
+// Query to get category advisor worker
+export const getCategoryAdvisor$ = (category: string) =>
+  db
+    .table('workers')
+    .join('workerCategories', 'workers.id', 'workerCategories.workerId')
+    .where('workerCategories.category', category)
+    .where('workers.isActive', true)
+    .select('workers.*')
+    .first()
+
+// Query to get conversation with category advisor
+export const getCategoryAdvisorConversation$ = (workerId: string) =>
+  db
+    .table('conversations')
+    .where('workerId', workerId)
+    .orderBy('createdAt', 'desc')
+    .first()
+
+// Check if category advisor exists
+export const categoryAdvisorExists$ = (category: string) =>
+  db
+    .table('workerCategories')
+    .where('category', category)
+    .count()
+    .then(count => count > 0)
 ```
 
 ### State Management Patterns
@@ -757,6 +836,7 @@ export const projectCoverImageSet = Events.synced({
 - **Single Active Plan**: Only one project plan can be "picked up" at a time within a category. Opening a new plan auto-saves the previous plan's state.
 - **Stage Persistence**: All form data, scroll position, and UI state should persist when switching between plans or leaving the planning interface.
 - **Real-time Updates**: Project plan cards should reactively update as stage progresses without page refresh.
+- **Category Advisor Lifecycle**: Advisors are created once per category and persist indefinitely, maintaining conversation history across all projects in that category.
 
 ### Testing Strategy
 
