@@ -267,27 +267,38 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
   }
 
   let lockAcquired = await acquireRefreshLock()
+  let ownsLock = lockAcquired
 
   try {
     if (!lockAcquired) {
-      // Another tab is refreshing; wait briefly and reuse stored tokens if valid
-      await new Promise(resolve => setTimeout(resolve, REFRESH_LOCK_POLL_INTERVAL_MS))
-      const updatedTokens = getStoredTokens()
-      if (
-        updatedTokens?.accessToken &&
-        !isAccessTokenExpiringSoon(updatedTokens.accessToken, ACCESS_TOKEN_REFRESH_BUFFER_SECONDS)
-      ) {
-        return updatedTokens
-      }
+      // Another tab is refreshing; keep polling until their refresh completes or tokens disappear
+      while (true) {
+        await new Promise(resolve => setTimeout(resolve, REFRESH_LOCK_POLL_INTERVAL_MS))
+        const updatedTokens = getStoredTokens()
 
-      lockAcquired = await acquireRefreshLock()
-      if (!lockAcquired) {
-        return null
-      }
+        if (
+          updatedTokens?.accessToken &&
+          !isAccessTokenExpiringSoon(
+            updatedTokens.accessToken,
+            ACCESS_TOKEN_REFRESH_BUFFER_SECONDS
+          )
+        ) {
+          return updatedTokens
+        }
 
-      tokens = getStoredTokens()
-      if (!tokens?.refreshToken) {
-        return null
+        if (!updatedTokens?.refreshToken) {
+          return null
+        }
+
+        lockAcquired = await acquireRefreshLock()
+        if (lockAcquired) {
+          ownsLock = true
+          tokens = getStoredTokens()
+          if (!tokens?.refreshToken) {
+            return null
+          }
+          break
+        }
       }
     }
 
@@ -324,7 +335,9 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
     clearStoredAuth()
     return null
   } finally {
-    releaseRefreshLock()
+    if (ownsLock) {
+      releaseRefreshLock()
+    }
   }
 }
 
