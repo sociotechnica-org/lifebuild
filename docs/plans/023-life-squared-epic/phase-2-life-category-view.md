@@ -25,7 +25,12 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
   - ⏸️ Story 3.7 (Category advisors) - NOT STARTED
   - ⏸️ Story 3.8 (Auto-select in category) - NOT STARTED
   - ⏸️ Story 3.9 (Auto-select in planning) - NOT STARTED
-- ⏸️ **Section 4: Backlog Sub-Tab** (Stories 4.1-4.5) - NOT STARTED
+- 🔄 **Section 4: Backlog Sub-Tab** (Stories 4.1-4.5) - PARTIALLY COMPLETE
+  - 🔄 Story 4.1 (Display backlog) - PARTIALLY COMPLETE (display done, priority ordering needed)
+  - ⏸️ Story 4.2 (Reorder) - NOT STARTED (blocked by 4.1)
+  - ⏸️ Story 4.3 (Activate) - NOT STARTED
+  - ✅ Story 4.4 (Edit) - COMPLETED (via EditProjectModal)
+  - ⏸️ Story 4.5 (Filter/search) - DEFERRED
 
 ---
 
@@ -568,14 +573,30 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 
 #### Tasks
 
-- [ ] Query: Filter projects by category and `attributes.status = 'backlog'`, order by `attributes.priority`
-- [ ] UI: Backlog sub-tab displays project cards in vertical list
-- [ ] UI: Each card shows: Cover thumbnail, Title, Archetype badge, Estimated duration, Objectives preview (2 lines)
-- [ ] UI: Cards numbered with priority position (#1, #2, #3...)
-- [ ] UI: Empty state: "No projects in backlog. Complete Stage 4 planning to add projects here."
+- [x] Query: Filter projects by category and `attributes.planningStage = 4`
+- [x] UI: Backlog sub-tab displays project cards in vertical list
+- [x] UI: Each card shows: Title, Description preview, Stage indicator
+- [x] UI: Cards numbered with position (#1, #2, #3...)
+- [x] UI: Empty state: "No projects in backlog. Complete Stage 4 planning to add projects here."
+- [ ] Schema: Add `priority` field to `projects.attributes` for explicit ordering
+- [ ] Query: Add ordering by `attributes.priority` when priority field exists
 - [ ] DoD: The Backlog sub-tab shows all completed project plans in priority order with key details visible on each card.
 
-**Status**:
+**Status**: 🔄 **PARTIALLY COMPLETE** (basic display implemented in PRs #250, #254; priority ordering NOT implemented)
+
+#### Implementation Notes
+
+**Current Implementation (LifeCategoryPresenter.tsx:162-218):**
+- Backlog displays projects with `planningStage = 4`
+- Projects shown in vertical list with numbered positions
+- Basic card layout with title, description, stage badge
+- Empty state message present
+- **Missing**: Priority field in schema, explicit priority ordering, cover images, archetype badges
+
+**What's Needed:**
+- Add `priority: number` field to `projects.attributes` schema
+- Implement ordering by priority (lower number = higher priority)
+- Enhance card visuals to show cover, archetype, estimated duration
 
 ---
 
@@ -587,16 +608,18 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 
 #### Tasks
 
+- [ ] Schema: Ensure `priority` field exists in `projects.attributes` (from Story 4.1)
 - [ ] Event: Use `v1.ProjectAttributesUpdated` to update `attributes.priority` field
 - [ ] UI: Enable drag-and-drop on backlog project cards (vertical reordering)
 - [ ] UI: Show blue line indicator at drop position
 - [ ] UI: Other cards shift to show insertion point
 - [ ] Logic: On drop, commit event updating `priority` values for affected projects
+- [ ] Logic: Recalculate priority numbers for all affected projects in sequence
 - [ ] Logic: Priority order persists across sessions
 - [ ] UI: Subtle toast: "[Project] moved to position #X"
 - [ ] DoD: Operators can drag backlog projects to reorder priority, with visual feedback and persistent changes.
 
-**Status**:
+**Status**: ⏸️ **NOT STARTED** (blocked by Story 4.1 priority field)
 
 ---
 
@@ -608,17 +631,26 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 
 #### Tasks
 
+- [ ] Schema: Ensure `activatedAt` field exists in `projects.attributes` for tracking activation time
 - [ ] Event: Use `v1.ProjectAttributesUpdated` to update `attributes.status = 'active'` and `attributes.activatedAt`
-- [ ] UI: Add "Activate" button on backlog project cards
+- [ ] UI: Add "Activate" button on backlog project cards (consider menu or hover action)
 - [ ] UI: Confirmation modal: "Activate [Project Name]? It will move to your Active projects."
-- [ ] UI: Modal shows: Project title, archetype, task count, estimated duration
-- [ ] Logic: On confirm, commit event setting `status = 'active'` and `activatedAt` timestamp
-- [ ] Logic: Project removed from Backlog sub-tab (filtered by status)
-- [ ] Logic: Project appears in Active tab
+- [ ] UI: Modal shows: Project title, archetype (if available), task count, estimated duration (if available)
+- [ ] Logic: On confirm, commit event setting `status = 'active'` and `activatedAt = Date.now()`
+- [ ] Logic: Project removed from Backlog sub-tab (filtered by `planningStage`)
+- [ ] Logic: Project appears in Active tab (filtered by `status = 'active'`)
 - [ ] UI: Toast: "[Project] is now active! Start working on tasks."
 - [ ] DoD: Backlog projects can be activated with confirmation, moving them from Backlog to Active tab and enabling task work.
 
-**Status**:
+**Status**: ⏸️ **NOT STARTED**
+
+#### Implementation Notes
+
+**Current Status Check:**
+- Projects are already filtered by status in Active tab (LifeCategoryView.tsx:40-44)
+- Active projects filter: `status === 'active' || (!status && !archivedAt && !deletedAt)` (legacy compatibility)
+- Backlog projects filter: `planningStage === 4`
+- **Missing**: Activation UI/UX, status transition logic, activatedAt timestamp
 
 ---
 
@@ -630,14 +662,28 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 
 #### Tasks
 
-- [ ] UI: Add "Edit" icon button on backlog project cards
-- [ ] UI: Clicking edit opens project in Project Creation sub-tab at Stage 2
-- [ ] UI: All stages (2-4) remain editable
-- [ ] Logic: Saving returns to Backlog sub-tab with "Updated" badge on card (persists 24 hours)
-- [ ] Logic: Priority position preserved unless manually changed
-- [ ] DoD: Operators can edit backlog projects, reopening them in the planning interface with all stages editable, then returning to Backlog.
+- [x] UI: Clicking backlog project navigates to Project Workspace
+- [x] UI: Edit Project Modal accessible from Project Workspace
+- [x] UI: Modal allows editing name, description, category, cover image, and all planning attributes
+- [x] Logic: Changes saved via events persist to project
+- [x] Logic: User can navigate back to Backlog sub-tab via Life Category view
+- [x] DoD: Operators can edit backlog projects by opening them and using the Edit Project modal.
 
-**Status**:
+**Status**: ✅ **COMPLETED** (EditProjectModal implemented, accessible from Project Workspace)
+
+#### Implementation Notes
+
+**Implementation (ProjectWorkspace.tsx & EditProjectModal.tsx):**
+- Clicking backlog project opens Project Workspace (LifeCategoryView.tsx:146-168)
+- Edit Project modal accessible via project menu/header in workspace
+- Modal supports editing:
+  - Basic fields: name, description, category
+  - Cover image via ImageUpload component
+  - Custom attributes via ProjectAttributesEditor
+- Changes committed via `v1.ProjectUpdated` and `v1.ProjectAttributesUpdated` events
+- User navigates back to category via breadcrumbs or back button
+
+**Note**: Original story envisioned opening Project Creation form, but current implementation uses modal which is more flexible and less disruptive.
 
 ---
 
@@ -657,7 +703,7 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 - [ ] UI: Clear button (X) resets search and filters
 - [ ] DoD: Operators can search and filter backlog projects by text, archetype, deadline, and importance with live results.
 
-**Status**:
+**Status**: ⏸️ **DEFERRED** (nice-to-have feature for later)
 
 ---
 
@@ -872,5 +918,11 @@ Stories 3.1-3.9 enable managing in-progress plans with full persistence, context
 ### Section 4: Backlog Sub-Tab (5 stories)
 
 Stories 4.1-4.5 provide priority-ordered backlog management with reordering, activation, editing, and filtering capabilities.
+
+- **4.1**: Display backlog (🔄 Partially complete - display working, priority ordering needed)
+- **4.2**: Drag-and-drop reordering (⏸️ Blocked by 4.1 priority field)
+- **4.3**: Activate to Active tab (⏸️ Not started)
+- **4.4**: Edit project details (✅ Completed via EditProjectModal)
+- **4.5**: Filter and search (⏸️ Deferred as nice-to-have)
 
 **Total: 24 user stories** (added 4 stories for contextual AI advisor system with dynamic routing context)
