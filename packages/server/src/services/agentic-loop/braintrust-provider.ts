@@ -68,21 +68,15 @@ export class BraintrustProvider implements LLMProvider {
 
     // Build navigation context prompt (new approach) or fallback to board context (legacy)
     const navigationContext = _options?.navigationContext
-    console.log('[BraintrustProvider] navigationContext from options:', navigationContext)
-
     // Only use navigation context if it has meaningful data (currentEntity or relatedEntities)
     const hasNavigationContext =
       navigationContext &&
       (navigationContext.currentEntity || navigationContext.relatedEntities?.length)
-    console.log('[BraintrustProvider] hasNavigationContext:', hasNavigationContext)
-
     const currentContextPrompt = hasNavigationContext
       ? this.buildNavigationContextPrompt(navigationContext)
       : sanitizedBoardContext
         ? `\n\nCURRENT CONTEXT:\nYou are currently viewing the "${sanitizedBoardContext.name}" project (ID: ${sanitizedBoardContext.id}). When creating tasks, they will be created on this project automatically. You do NOT need to call list_projects since you already know the current project.`
         : `\n\nCURRENT CONTEXT:\nNo specific project is currently selected. Use the list_projects tool to see available projects, or tasks will be created on the default project.`
-
-    console.log('[BraintrustProvider] currentContextPrompt:', currentContextPrompt)
 
     let systemPrompt = ''
 

@@ -17,17 +17,10 @@ export const useNavigationContext = (): NavigationContext | null => {
     categoryId?: string
   }>()
 
-  console.log('[useNavigationContext] location.pathname:', location.pathname)
-  console.log('[useNavigationContext] params:', params)
-
   // Call all hooks unconditionally (Rules of Hooks requirement)
   const projects = useQuery(getProjects$) ?? []
   const documents = useQuery(getDocumentList$) ?? []
   const contacts = useQuery(getContacts$) ?? []
-
-  console.log('[useNavigationContext] projects count:', projects.length)
-  console.log('[useNavigationContext] documents count:', documents.length)
-  console.log('[useNavigationContext] contacts count:', contacts.length)
 
   // Extract subtab from query parameters
   const searchParams = new URLSearchParams(location.search)
@@ -125,11 +118,9 @@ export const useNavigationContext = (): NavigationContext | null => {
 
   // Return null if no meaningful context (user on home page, settings, etc.)
   if (!context.currentEntity && !context.subtab) {
-    console.log('[useNavigationContext] Returning null - no entity or subtab')
     return null
   }
 
-  console.log('[useNavigationContext] Returning context:', JSON.stringify(context, null, 2))
   return context
 }
 

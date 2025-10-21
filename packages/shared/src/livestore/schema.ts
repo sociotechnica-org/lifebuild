@@ -419,8 +419,8 @@ function mapColumnIdToStatus(columnId: string): 'todo' | 'doing' | 'in_review' |
 }
 
 const materializers = State.SQLite.materializers(events, {
-  'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) =>
-    chatMessages.insert({ id, conversationId, message, role, createdAt }),
+  'v1.ChatMessageSent': ({ id, conversationId, message, role, navigationContext, createdAt }) =>
+    chatMessages.insert({ id, conversationId, message, role, navigationContext, createdAt }),
   'v1.ProjectCreated': ({ id, name, description, createdAt, actorId }) => [
     projects.insert({
       id,
