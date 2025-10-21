@@ -6,8 +6,10 @@ export interface FormModalProps {
   isOpen: boolean
   /** Callback when modal should close */
   onClose: () => void
-  /** Modal title */
-  title: string
+  /** Modal title (can be a string or React element) */
+  title: string | React.ReactNode
+  /** ARIA label for accessibility (optional, uses title if title is a string) */
+  ariaLabel?: string
   /** Form content */
   children: React.ReactNode
   /** Form submit handler */
@@ -55,6 +57,7 @@ export const FormModal: React.FC<FormModalProps> = ({
   isOpen,
   onClose,
   title,
+  ariaLabel,
   children,
   onSubmit,
   submitText = 'Submit',
@@ -70,12 +73,15 @@ export const FormModal: React.FC<FormModalProps> = ({
     onSubmit?.(e)
   }
 
+  // Use provided ariaLabel, or title if it's a string, or a default
+  const modalAriaLabel = ariaLabel || (typeof title === 'string' ? title : 'Form Modal')
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       maxWidth={maxWidth}
-      ariaLabel={title}
+      ariaLabel={modalAriaLabel}
       closeOnBackdropClick={!isSubmitting}
       closeOnEscape={!isSubmitting}
     >

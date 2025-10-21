@@ -79,6 +79,7 @@ export const QuickAddProjectModal: React.FC<QuickAddProjectModalProps> = ({
           <p className='text-sm text-gray-500 mt-1 font-normal'>{category?.name}</p>
         </div>
       }
+      ariaLabel={`Add Project to ${category?.name || 'Category'}`}
       onSubmit={handleSubmit}
       submitText='Create'
       isSubmitting={isSubmitting}

@@ -74,7 +74,6 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
       title='Create New Project'
       onSubmit={handleSubmit}
       submitText='Create Project'
-      submitDisabled={!values.name.trim()}
       isSubmitting={isSubmitting}
       maxWidth='max-w-lg'
     >
