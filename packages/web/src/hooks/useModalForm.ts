@@ -149,9 +149,6 @@ export function useModalForm<T extends Record<string, any>>({
         await onSubmit(values)
         // Don't reset here - let the parent component close the modal
         // which will trigger the reset via the isOpen effect
-      } catch (error) {
-        // Let the error bubble up to the parent component
-        throw error
       } finally {
         setIsSubmitting(false)
       }
