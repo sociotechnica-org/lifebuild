@@ -26,6 +26,7 @@ const chatMessages = State.SQLite.table({
     role: State.SQLite.text({ default: 'user' }),
     modelId: State.SQLite.text({ nullable: true }),
     responseToMessageId: State.SQLite.text({ nullable: true }), // For assistant responses only
+    navigationContext: State.SQLite.text({ nullable: true }), // JSON string of NavigationContext
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),

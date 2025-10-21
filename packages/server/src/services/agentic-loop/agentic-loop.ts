@@ -43,7 +43,7 @@ export class AgenticLoop {
       : 15 // Prevent infinite loops - increased from 5 to 15 for complex multi-step operations
 
     this.maxIterations = context.maxIterations || envMaxIterations
-    const { boardContext, workerContext, workerId, model } = context
+    const { boardContext, navigationContext, workerContext, workerId, model } = context
 
     // Set worker ID on tool executor for proper actor tracking
     this.toolExecutor.setWorkerId(workerId)
@@ -72,6 +72,7 @@ export class AgenticLoop {
           model,
           workerContext,
           {
+            navigationContext,
             onRetry: (attempt, maxRetries, delayMs, error) =>
               this.events.onRetry?.(attempt, maxRetries, delayMs, error),
           }

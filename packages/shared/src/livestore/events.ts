@@ -20,6 +20,7 @@ export const chatMessageSent = Events.synced({
       Schema.Literal('assistant'),
       Schema.Literal('system')
     ),
+    navigationContext: Schema.optional(Schema.String), // JSON string of NavigationContext
     createdAt: Schema.Date,
   }),
 })

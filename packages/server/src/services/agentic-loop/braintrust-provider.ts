@@ -4,6 +4,7 @@ import type {
   LLMMessage,
   BoardContext,
   WorkerContext,
+  NavigationContext,
   LLMCallOptions,
 } from './types.js'
 import { llmToolSchemas } from '../../tools/schemas.js'
@@ -64,9 +65,14 @@ export class BraintrustProvider implements LLMProvider {
         ? (JSON.parse(workerValidation.sanitizedContent) as WorkerContext)
         : workerContext
     }
-    const currentBoardContext = sanitizedBoardContext
-      ? `\n\nCURRENT CONTEXT:\nYou are currently viewing the "${sanitizedBoardContext.name}" project (ID: ${sanitizedBoardContext.id}). When creating tasks, they will be created on this project automatically. You do NOT need to call list_projects since you already know the current project.`
-      : `\n\nCURRENT CONTEXT:\nNo specific project is currently selected. Use the list_projects tool to see available projects, or tasks will be created on the default project.`
+
+    // Build navigation context prompt (new approach) or fallback to board context (legacy)
+    const navigationContext = _options?.navigationContext
+    const currentContextPrompt = navigationContext
+      ? this.buildNavigationContextPrompt(navigationContext)
+      : sanitizedBoardContext
+        ? `\n\nCURRENT CONTEXT:\nYou are currently viewing the "${sanitizedBoardContext.name}" project (ID: ${sanitizedBoardContext.id}). When creating tasks, they will be created on this project automatically. You do NOT need to call list_projects since you already know the current project.`
+        : `\n\nCURRENT CONTEXT:\nNo specific project is currently selected. Use the list_projects tool to see available projects, or tasks will be created on the default project.`
 
     let systemPrompt = ''
 
@@ -87,7 +93,7 @@ You have access to tools for:
 - Viewing documents (list_documents, read_document, get_project_documents)
 - Searching through document content (search_documents, search_project_documents)
 
-When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed.${currentBoardContext}`
+When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed.${currentContextPrompt}`
     } else {
       // Use default system prompt
       const baseSystemPrompt = `You are an AI assistant for Work Squared, a powerful consultancy workflow management platform. You excel at helping consultants, project managers, and teams by:
@@ -121,7 +127,7 @@ You have access to tools for:
 - Viewing documents (list_documents, read_document, get_project_documents)
 - Searching through document content (search_documents, search_project_documents)
 
-When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed. If you need to know what projects are available, use the list_projects tool first.${currentBoardContext}`
+When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed. If you need to know what projects are available, use the list_projects tool first.${currentContextPrompt}`
     }
 
     // Build messages array with system prompt using validated messages
@@ -190,5 +196,58 @@ When users describe project requirements or ask you to create tasks, use the cre
         throw error
       }
     })
+  }
+
+  /**
+   * Build navigation context prompt for system message
+   */
+  private buildNavigationContextPrompt(navContext: NavigationContext): string {
+    const parts: string[] = ['\n\nCURRENT CONTEXT:']
+
+    // Current entity context
+    if (navContext.currentEntity) {
+      const entity = navContext.currentEntity
+      const entityType = entity.type.charAt(0).toUpperCase() + entity.type.slice(1)
+
+      parts.push(`User is viewing: "${entity.attributes.name || entity.id}" (ID: ${entity.id})`)
+      parts.push(`- Type: ${entityType}`)
+
+      // Add all attributes as bullet points
+      for (const [key, value] of Object.entries(entity.attributes)) {
+        if (key !== 'name') {
+          // Skip name since we already showed it
+          const displayKey = key.charAt(0).toUpperCase() + key.slice(1)
+          parts.push(`- ${displayKey}: ${value}`)
+        }
+      }
+
+      // Add subtab info if present
+      if (navContext.subtab) {
+        parts.push(`- Subtab: ${navContext.subtab}`)
+        parts.push(
+          `\nThe user is looking at the "${navContext.subtab}" subtab within this ${entity.type}.`
+        )
+      }
+    }
+
+    // Related entities context
+    if (navContext.relatedEntities && navContext.relatedEntities.length > 0) {
+      parts.push('\n')
+      for (const related of navContext.relatedEntities) {
+        parts.push(
+          `This ${navContext.currentEntity?.type || 'item'} belongs to ${related.relationship}: "${related.attributes.name || related.id}" (ID: ${related.id})`
+        )
+
+        // Add key attributes
+        for (const [key, value] of Object.entries(related.attributes)) {
+          if (key !== 'name') {
+            const displayKey = key.charAt(0).toUpperCase() + key.slice(1)
+            parts.push(`  - ${displayKey}: ${value}`)
+          }
+        }
+      }
+    }
+
+    return parts.join('\n')
   }
 }

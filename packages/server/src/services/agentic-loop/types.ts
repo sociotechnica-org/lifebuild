@@ -30,7 +30,32 @@ export interface WorkerContext {
   roleDescription?: string
 }
 
+/**
+ * Navigation context - captures what the user is currently viewing
+ */
+export interface NavigationContext {
+  // Current entity being viewed (if any)
+  currentEntity?: {
+    type: 'project' | 'document' | 'contact' | 'task'
+    id: string
+    // All user-facing attributes of the entity
+    attributes: Record<string, unknown>
+  }
+
+  // Related entities (e.g., document's parent project)
+  relatedEntities?: Array<{
+    type: 'project' | 'document' | 'contact' | 'task'
+    id: string
+    relationship: string // e.g., "parent project", "associated contact"
+    attributes: Record<string, unknown>
+  }>
+
+  // Current subtab within the page (e.g., "documents", "team", "project-creation")
+  subtab?: string
+}
+
 export interface LLMCallOptions {
+  navigationContext?: NavigationContext
   onRetry?: (attempt: number, maxRetries: number, delayMs: number, error: Error) => void
 }
 
@@ -46,6 +71,7 @@ export interface LLMProvider {
 
 export interface AgenticLoopContext {
   boardContext?: BoardContext
+  navigationContext?: NavigationContext
   workerContext?: WorkerContext
   workerId?: string
   model: string
@@ -82,6 +108,7 @@ export interface ChatMessage {
   conversationId: string
   role: 'user' | 'assistant' | 'system'
   message: string
+  navigationContext?: string // JSON string of NavigationContext
   createdAt: Date
   llmMetadata?: {
     source?: string

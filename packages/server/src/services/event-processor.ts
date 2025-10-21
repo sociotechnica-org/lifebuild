@@ -16,6 +16,7 @@ import type {
   LLMMessage,
   BoardContext,
   WorkerContext,
+  NavigationContext,
 } from './agentic-loop/types.js'
 
 const toTimestamp = (value: unknown): number | null => {
@@ -826,6 +827,7 @@ export class EventProcessor {
 
     let workerContext: WorkerContext | undefined = undefined
     const boardContext: BoardContext | undefined = undefined
+    let navigationContext: NavigationContext | undefined = undefined
 
     // Set worker context if worker data is available
     if (worker) {
@@ -833,6 +835,17 @@ export class EventProcessor {
         systemPrompt: worker.systemPrompt,
         name: worker.name,
         roleDescription: worker.roleDescription || undefined,
+      }
+    }
+
+    // Extract and enrich navigation context from user message
+    if (userMessage.navigationContext) {
+      try {
+        const parsedContext = JSON.parse(userMessage.navigationContext)
+        navigationContext = await this.enrichNavigationContext(store, parsedContext)
+        logger.debug({ navigationContext }, 'Enriched navigation context')
+      } catch (error) {
+        logger.warn({ error }, 'Failed to parse/enrich navigation context from user message')
       }
     }
 
@@ -1006,6 +1019,7 @@ export class EventProcessor {
     // Run the agentic loop
     await agenticLoop.run(userMessage.message, {
       boardContext,
+      navigationContext,
       workerContext,
       workerId: worker?.id,
       model: conversation?.model || DEFAULT_MODEL,
@@ -1625,5 +1639,136 @@ export class EventProcessor {
     }
 
     return sanitized
+  }
+
+  /**
+   * Enrich navigation context with full entity attributes from database
+   */
+  private async enrichNavigationContext(
+    store: LiveStore,
+    clientContext: NavigationContext
+  ): Promise<NavigationContext> {
+    const enriched: NavigationContext = { ...clientContext }
+
+    // If there's a current entity, enrich with full database attributes
+    if (clientContext.currentEntity) {
+      const { type, id } = clientContext.currentEntity
+
+      try {
+        if (type === 'project') {
+          const projects = store.query(queryDb(tables.boards.select().where('id', '=', id)))
+          const project = projects[0]
+
+          if (project) {
+            enriched.currentEntity = {
+              type: 'project',
+              id: project.id,
+              attributes: {
+                name: project.name || '(none)',
+                description: project.description || '(none)',
+                created: this.formatDate(project.createdAt),
+                updated: this.formatDate(project.updatedAt),
+              },
+            }
+          }
+        } else if (type === 'document') {
+          const documents = store.query(queryDb(tables.documents.select().where('id', '=', id)))
+          const document = documents[0]
+
+          if (document) {
+            enriched.currentEntity = {
+              type: 'document',
+              id: document.id,
+              attributes: {
+                title: document.title || '(none)',
+                created: this.formatDate(document.createdAt),
+                updated: this.formatDate(document.updatedAt),
+              },
+            }
+
+            // Add related project(s) if document belongs to any
+            const docProjects = store.query(
+              queryDb(tables.documentProjects.select().where('documentId', '=', id))
+            )
+
+            if (docProjects && docProjects.length > 0) {
+              const projectIds = new Set(docProjects.map((dp: any) => dp.projectId))
+              const allProjects = store.query(queryDb(tables.boards.select()))
+              const projects = allProjects.filter((p: any) => projectIds.has(p.id))
+
+              enriched.relatedEntities = projects.map((p: any) => ({
+                type: 'project' as const,
+                id: p.id,
+                relationship: 'parent project',
+                attributes: {
+                  name: p.name || '(none)',
+                  description: p.description || '(none)',
+                },
+              }))
+            }
+          }
+        } else if (type === 'contact') {
+          const contacts = store.query(queryDb(tables.contacts.select().where('id', '=', id)))
+          const contact = contacts[0]
+
+          if (contact) {
+            enriched.currentEntity = {
+              type: 'contact',
+              id: contact.id,
+              attributes: {
+                name: contact.name || '(none)',
+                email: contact.email || '(none)',
+                created: this.formatDate(contact.createdAt),
+                updated: this.formatDate(contact.updatedAt),
+              },
+            }
+
+            // Add related project(s) if contact is associated with any
+            const contactProjects = store.query(
+              queryDb(tables.projectContacts.select().where('contactId', '=', id))
+            )
+
+            if (contactProjects && contactProjects.length > 0) {
+              const projectIds = new Set(contactProjects.map((cp: any) => cp.projectId))
+              const allProjects = store.query(queryDb(tables.boards.select()))
+              const projects = allProjects.filter((p: any) => projectIds.has(p.id))
+
+              enriched.relatedEntities = projects.map((p: any) => ({
+                type: 'project' as const,
+                id: p.id,
+                relationship: 'associated project',
+                attributes: {
+                  name: p.name || '(none)',
+                  description: p.description || '(none)',
+                },
+              }))
+            }
+          }
+        }
+      } catch (error) {
+        logger.error(
+          { error, entityType: type, entityId: id },
+          'Error enriching navigation context'
+        )
+      }
+    }
+
+    return enriched
+  }
+
+  /**
+   * Format date to YYYY-MM-DD for navigation context
+   */
+  private formatDate(date: Date | number | string | null | undefined): string {
+    if (!date) return '(none)'
+
+    const d = date instanceof Date ? date : new Date(date)
+    if (isNaN(d.getTime())) return '(none)'
+
+    const year = d.getFullYear()
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+
+    return `${year}-${month}-${day}`
   }
 }
