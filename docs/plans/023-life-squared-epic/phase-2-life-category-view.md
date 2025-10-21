@@ -149,6 +149,7 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 #### Implementation Notes
 
 **R2 Image Storage:**
+
 - Production: Uses Cloudflare R2 bucket for persistent image storage
 - Local Development: Uses Wrangler's local R2 preview (`wrangler r2 bucket create work-squared-images-local`)
 - Images uploaded in local development won't persist to production R2
@@ -403,18 +404,21 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 #### Implementation Notes
 
 **Dynamic Context Capture:**
+
 - Read routing state from `useLocation()` and `useParams()` at message send time
 - Parse current URL to extract relevant IDs (projectId, categoryId, taskId)
 - Query LiveStore for entity details (names, descriptions) to enrich context
 - Include context as part of message payload or system prompt for each API call
 
 **Benefits:**
+
 - Same conversation can be used across multiple projects in a category
 - Advisor maintains context awareness as user navigates between views
 - No need to create/switch conversations when moving between projects
 - Natural UX: "help me plan this project" works regardless of which project is open
 
 **Example Implementation:**
+
 ```typescript
 const handleSendMessage = async (message: string) => {
   const routingContext = extractRoutingContext(location, params) // { projectId, categoryId, taskId }
@@ -458,6 +462,7 @@ const handleSendMessage = async (message: string) => {
 #### Implementation Notes
 
 **Advisor System Prompts by Category:**
+
 - **Health**: "You are the Health & Well-Being advisor for this Life Category. Help plan fitness routines, medical appointments, mental health practices, nutrition goals, and wellness projects."
 - **Relationships**: "You are the Relationships advisor. Support planning for family time, friendships, romantic relationships, social connections, and relationship-building projects."
 - **Finances**: "You are the Finances advisor. Assist with budgeting, saving goals, investment planning, debt management, and financial improvement projects."
@@ -468,6 +473,7 @@ const handleSendMessage = async (message: string) => {
 - **Contribution**: "You are the Contribution & Service advisor. Guide volunteering, community service, charitable giving, and impact-focused projects."
 
 **Implementation Pattern:**
+
 ```typescript
 // Pseudocode for advisor auto-creation
 materializer for 'v1.ProjectCreated': ({ category }) => {
@@ -512,6 +518,7 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 #### Implementation Notes
 
 **Conversation Management:**
+
 - One conversation per category advisor across all projects in that category
 - Search pattern: `conversations.where({ workerId: categoryAdvisorId })`
 - Auto-creation happens once per category (when first navigating to category view after advisor is created)
@@ -519,6 +526,7 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 - User can manually switch to other workers if needed
 
 **UI Behavior:**
+
 - Advisor conversation auto-selects when entering any Life Category view
 - Same conversation works across Project Creation, Project Plans, and Backlog sub-tabs
 - Context is dynamic (Story 3.6), so advisor understands which project/view user is in
@@ -547,11 +555,13 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 #### Implementation Notes
 
 **Conversation Reuse:**
+
 - Same conversation as Story 3.8 - shared across category view and all projects in category
 - No need to create project-specific conversations
 - Context switching handled dynamically via routing context (Story 3.6)
 
 **UI Behavior:**
+
 - Advisor conversation auto-selects when entering stage 3 of any project
 - User sees same conversation history from category-level planning
 - Dynamic context makes it clear which project advisor is helping with
@@ -587,6 +597,7 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 #### Implementation Notes
 
 **Current Implementation (LifeCategoryPresenter.tsx:162-218):**
+
 - Backlog displays projects with `planningStage = 4`
 - Projects shown in vertical list with numbered positions
 - Basic card layout with title, description, stage badge
@@ -594,6 +605,7 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 - **Missing**: Priority field in schema, explicit priority ordering, cover images, archetype badges
 
 **What's Needed:**
+
 - Add `priority: number` field to `projects.attributes` schema
 - Implement ordering by priority (lower number = higher priority)
 - Enhance card visuals to show cover, archetype, estimated duration
@@ -647,6 +659,7 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 #### Implementation Notes
 
 **Current Status Check:**
+
 - Projects are already filtered by status in Active tab (LifeCategoryView.tsx:40-44)
 - Active projects filter: `status === 'active' || (!status && !archivedAt && !deletedAt)` (legacy compatibility)
 - Backlog projects filter: `planningStage === 4`
@@ -674,6 +687,7 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 #### Implementation Notes
 
 **Implementation (ProjectWorkspace.tsx & EditProjectModal.tsx):**
+
 - Clicking backlog project opens Project Workspace (LifeCategoryView.tsx:146-168)
 - Edit Project modal accessible via project menu/header in workspace
 - Modal supports editing:
@@ -862,11 +876,7 @@ export const getCategoryAdvisor$ = (category: string) =>
 
 // Query to get conversation with category advisor
 export const getCategoryAdvisorConversation$ = (workerId: string) =>
-  db
-    .table('conversations')
-    .where('workerId', workerId)
-    .orderBy('createdAt', 'desc')
-    .first()
+  db.table('conversations').where('workerId', workerId).orderBy('createdAt', 'desc').first()
 
 // Check if category advisor exists
 export const categoryAdvisorExists$ = (category: string) =>
