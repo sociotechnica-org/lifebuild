@@ -1,4 +1,5 @@
 import React from 'react'
+import { Modal } from './Modal/index.js'
 
 interface ArchiveConfirmModalProps {
   isOpen: boolean
@@ -11,11 +12,15 @@ export const ArchiveConfirmModal: React.FC<ArchiveConfirmModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
-  if (!isOpen) return null
-
   return (
-    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]'>
-      <div className='bg-white rounded-lg max-w-md w-full mx-4 p-6'>
+    <Modal
+      isOpen={isOpen}
+      onClose={onCancel}
+      backdropBlur={false}
+      align='center'
+      ariaLabel='Archive Document Confirmation'
+    >
+      <div className='p-6'>
         <h3 className='text-lg font-medium text-gray-900 mb-4'>Archive Document</h3>
         <p className='text-gray-600 mb-6'>
           Are you sure you want to archive this document? It will be removed from all lists but can
@@ -36,6 +41,6 @@ export const ArchiveConfirmModal: React.FC<ArchiveConfirmModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   )
 }
