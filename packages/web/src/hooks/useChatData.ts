@@ -10,6 +10,7 @@ import {
 import { events } from '@work-squared/shared/schema'
 import type { Conversation, ChatMessage, Worker } from '@work-squared/shared/schema'
 import { DEFAULT_MODEL } from '../util/models.js'
+import { useNavigationContext } from './useNavigationContext.js'
 
 export interface ChatData {
   // Data
@@ -86,6 +87,9 @@ export const useChatData = (): ChatData => {
   const allMessages = useQuery(getConversationMessages$(queryConversationId)) ?? []
   const messages = selectedConversationId ? allMessages : []
 
+  // Get current navigation context for LLM
+  const navigationContext = useNavigationContext()
+
   // Action handlers
   const handleConversationChange = React.useCallback(
     (conversationId: string) => {
@@ -159,13 +163,14 @@ export const useChatData = (): ChatData => {
           conversationId: selectedConversationId,
           message: messageText.trim(),
           role: 'user',
+          navigationContext: navigationContext ? JSON.stringify(navigationContext) : undefined,
           createdAt: new Date(),
         })
       )
 
       setMessageText('')
     },
-    [messageText, selectedConversationId, store]
+    [messageText, selectedConversationId, store, navigationContext]
   )
 
   const handleShowChatPicker = React.useCallback(() => {

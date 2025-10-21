@@ -26,6 +26,7 @@ const chatMessages = State.SQLite.table({
     role: State.SQLite.text({ default: 'user' }),
     modelId: State.SQLite.text({ nullable: true }),
     responseToMessageId: State.SQLite.text({ nullable: true }), // For assistant responses only
+    navigationContext: State.SQLite.text({ nullable: true }), // JSON string of NavigationContext
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
@@ -424,8 +425,8 @@ function mapColumnIdToStatus(columnId: string): 'todo' | 'doing' | 'in_review' |
 }
 
 const materializers = State.SQLite.materializers(events, {
-  'v1.ChatMessageSent': ({ id, conversationId, message, role, createdAt }) =>
-    chatMessages.insert({ id, conversationId, message, role, createdAt }),
+  'v1.ChatMessageSent': ({ id, conversationId, message, role, navigationContext, createdAt }) =>
+    chatMessages.insert({ id, conversationId, message, role, navigationContext, createdAt }),
   'v1.ProjectCreated': ({ id, name, description, createdAt, actorId }) => [
     projects.insert({
       id,
