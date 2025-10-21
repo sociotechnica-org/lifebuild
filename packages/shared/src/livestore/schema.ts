@@ -227,6 +227,14 @@ const workerProjects = State.SQLite.table({
   },
 })
 
+const workerCategories = State.SQLite.table({
+  name: 'workerCategories',
+  columns: {
+    workerId: State.SQLite.text(),
+    category: State.SQLite.text(), // 'health' | 'relationships' | 'finances' | etc.
+  },
+})
+
 const eventsLog = State.SQLite.table({
   name: 'eventsLog',
   columns: {
@@ -354,6 +362,7 @@ export type Document = State.SQLite.FromTable.RowDecoded<typeof documents>
 export type DocumentProject = State.SQLite.FromTable.RowDecoded<typeof documentProjects>
 export type Worker = State.SQLite.FromTable.RowDecoded<typeof workers>
 export type WorkerProject = State.SQLite.FromTable.RowDecoded<typeof workerProjects>
+export type WorkerCategory = State.SQLite.FromTable.RowDecoded<typeof workerCategories>
 export type RecurringTask = State.SQLite.FromTable.RowDecoded<typeof recurringTasks>
 export type EventsLog = State.SQLite.FromTable.RowDecoded<typeof eventsLog>
 export type Setting = State.SQLite.FromTable.RowDecoded<typeof settings>
@@ -380,6 +389,7 @@ export const tables = {
   documentProjects,
   workers,
   workerProjects,
+  workerCategories,
   recurringTasks,
   eventsLog,
   settings,
@@ -698,6 +708,18 @@ const materializers = State.SQLite.materializers(events, {
   ],
   'v1.WorkerUnassignedFromProject': ({ workerId, projectId }) =>
     workerProjects.delete().where({ workerId, projectId }),
+  'v1.WorkerAssignedToCategory': ({ workerId, category, assignedAt, actorId }) => [
+    workerCategories.insert({ workerId, category }),
+    eventsLog.insert({
+      id: `worker_assigned_category_${workerId}_${category}_${assignedAt.getTime()}`,
+      eventType: 'v1.WorkerAssignedToCategory',
+      eventData: JSON.stringify({ workerId, category }),
+      actorId,
+      createdAt: assignedAt,
+    }),
+  ],
+  'v1.WorkerUnassignedFromCategory': ({ workerId, category }) =>
+    workerCategories.delete().where({ workerId, category }),
   'v1.RecurringTaskCreated': ({
     id,
     name,

@@ -13,8 +13,9 @@ import type {
 } from '@work-squared/shared'
 import { ProjectCreationStage1Presenter } from './ProjectCreationStage1Presenter'
 import { ProjectCreationStage2Presenter } from './ProjectCreationStage2Presenter'
-import { PROJECT_CATEGORIES } from '@work-squared/shared'
+import { PROJECT_CATEGORIES, type ProjectCategory } from '@work-squared/shared'
 import { preserveStoreIdInUrl } from '../../util/navigation.js'
+import { useCategoryAdvisor } from '../../hooks/useCategoryAdvisor.js'
 
 /**
  * Auto-suggest project archetype based on traits
@@ -80,6 +81,9 @@ export const ProjectCreationView: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const store = useStore()
+
+  // Ensure category advisor exists (auto-creates if needed)
+  useCategoryAdvisor(categoryId as ProjectCategory)
 
   // Get project ID from URL if editing existing project
   const projectId = searchParams.get('projectId')

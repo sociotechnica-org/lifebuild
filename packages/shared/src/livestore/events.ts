@@ -317,6 +317,42 @@ export const workerUnassignedFromProject = Events.synced({
   }),
 })
 
+export const workerAssignedToCategory = Events.synced({
+  name: 'v1.WorkerAssignedToCategory',
+  schema: Schema.Struct({
+    workerId: Schema.String,
+    category: Schema.Literal(
+      'health',
+      'relationships',
+      'finances',
+      'growth',
+      'leisure',
+      'spirituality',
+      'home',
+      'contribution'
+    ),
+    assignedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const workerUnassignedFromCategory = Events.synced({
+  name: 'v1.WorkerUnassignedFromCategory',
+  schema: Schema.Struct({
+    workerId: Schema.String,
+    category: Schema.Literal(
+      'health',
+      'relationships',
+      'finances',
+      'growth',
+      'leisure',
+      'spirituality',
+      'home',
+      'contribution'
+    ),
+  }),
+})
+
 export const recurringTaskCreated = Events.synced({
   name: 'v1.RecurringTaskCreated',
   schema: Schema.Struct({

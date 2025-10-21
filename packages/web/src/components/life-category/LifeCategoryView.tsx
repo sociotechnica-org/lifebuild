@@ -11,6 +11,7 @@ import {
 } from './LifeCategoryPresenter.js'
 import { generateRoute } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../util/navigation.js'
+import { useCategoryAdvisorConversation } from '../../hooks/useCategoryAdvisor.js'
 
 // Life category definitions - using colors from local design
 // Icons come from shared PROJECT_CATEGORIES via getCategoryInfo
@@ -30,6 +31,9 @@ export const LifeCategoryView: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const allProjects = useQuery(getProjects$) ?? []
+
+  // Auto-create/select category advisor conversation (Story 3.8)
+  const { conversationId, isReady } = useCategoryAdvisorConversation(categoryId as ProjectCategory)
 
   // Filter projects for this category
   const categoryProjects = allProjects.filter(
@@ -128,6 +132,21 @@ export const LifeCategoryView: React.FC = () => {
       setSelectedSubTab(urlSubTab)
     }
   }, [searchParams])
+
+  // Auto-select category advisor conversation when ready (Story 3.8)
+  useEffect(() => {
+    if (!conversationId || !isReady) return
+
+    const currentConversationId = searchParams.get('conversationId')
+
+    // Only auto-select if no conversation is currently selected
+    // This prevents overriding user's manual conversation selection
+    if (!currentConversationId) {
+      const newParams = new URLSearchParams(searchParams)
+      newParams.set('conversationId', conversationId)
+      setSearchParams(newParams, { replace: true })
+    }
+  }, [conversationId, isReady, searchParams, setSearchParams])
 
   if (!categoryId || !(categoryId in LIFE_CATEGORIES)) {
     return (
