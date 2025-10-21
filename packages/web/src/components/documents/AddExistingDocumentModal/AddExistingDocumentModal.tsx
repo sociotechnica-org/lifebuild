@@ -102,7 +102,7 @@ export const AddExistingDocumentModal: React.FC<AddExistingDocumentModalProps> =
 
   return (
     <div
-      className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'
+      className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-[9999]'
       onClick={handleBackdropClick}
     >
       <div className='bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col'>

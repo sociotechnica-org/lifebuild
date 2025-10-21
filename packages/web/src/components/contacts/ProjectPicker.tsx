@@ -80,7 +80,7 @@ export const ProjectPicker: React.FC<ProjectPickerProps> = ({
 
   return (
     <div
-      className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-50'
+      className='fixed inset-0 backdrop-blur-sm flex items-start justify-center pt-5 px-4 z-[9999]'
       onClick={onClose}
     >
       <div
