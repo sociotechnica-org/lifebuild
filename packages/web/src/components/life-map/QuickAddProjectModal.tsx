@@ -4,6 +4,7 @@ import { events } from '@work-squared/shared/schema'
 import { PROJECT_CATEGORIES, type ProjectCategory } from '@work-squared/shared'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { useSnackbar } from '../ui/Snackbar/Snackbar.js'
+import { useCategoryAdvisor } from '../../hooks/useCategoryAdvisor.js'
 
 interface QuickAddProjectModalProps {
   isOpen: boolean
@@ -24,6 +25,9 @@ export const QuickAddProjectModal: React.FC<QuickAddProjectModalProps> = ({
   const [error, setError] = useState<string | undefined>()
 
   const category = PROJECT_CATEGORIES.find(c => c.value === categoryId)
+
+  // Ensure category advisor exists (auto-creates if needed)
+  useCategoryAdvisor(categoryId)
 
   const validateForm = () => {
     if (!name.trim()) {
