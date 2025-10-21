@@ -82,8 +82,12 @@ export const ProjectCreationView: React.FC = () => {
   const navigate = useNavigate()
   const store = useStore()
 
+  // Validate categoryId before using it
+  const isValidCategory = PROJECT_CATEGORIES.some(c => c.value === categoryId)
+
   // Ensure category advisor exists (auto-creates if needed)
-  useCategoryAdvisor(categoryId as ProjectCategory)
+  // Only call hook if category is valid to prevent runtime errors
+  useCategoryAdvisor(isValidCategory ? (categoryId as ProjectCategory) : null)
 
   // Get project ID from URL if editing existing project
   const projectId = searchParams.get('projectId')

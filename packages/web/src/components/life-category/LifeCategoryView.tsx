@@ -32,8 +32,14 @@ export const LifeCategoryView: React.FC = () => {
   const navigate = useNavigate()
   const allProjects = useQuery(getProjects$) ?? []
 
+  // Validate categoryId before using it
+  const isValidCategory = categoryId && categoryId in LIFE_CATEGORIES
+
   // Auto-create/select category advisor conversation (Story 3.8)
-  const { conversationId, isReady } = useCategoryAdvisorConversation(categoryId as ProjectCategory)
+  // Only call hook if category is valid to prevent runtime errors
+  const { conversationId, isReady } = useCategoryAdvisorConversation(
+    isValidCategory ? (categoryId as ProjectCategory) : null
+  )
 
   // Filter projects for this category
   const categoryProjects = allProjects.filter(
