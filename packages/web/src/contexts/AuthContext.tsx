@@ -11,8 +11,10 @@ import {
   refreshAccessToken,
   login as authLogin,
   logout as authLogout,
-  isAuthenticated,
   getCurrentAccessToken,
+  getAccessTokenExpiry,
+  isAccessTokenExpiringSoon,
+  ACCESS_TOKEN_REFRESH_BUFFER_SECONDS,
 } from '../utils/auth.js'
 
 interface AuthContextType {
@@ -34,6 +36,56 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
+
+const tokensEqual = (a: AuthTokens | null, b: AuthTokens | null) => {
+  if (a === b) {
+    return true
+  }
+  if (!a || !b) {
+    return false
+  }
+  return a.accessToken === b.accessToken && a.refreshToken === b.refreshToken
+}
+
+const usersEqual = (a: AuthUser | null, b: AuthUser | null) => {
+  if (a === b) {
+    return true
+  }
+  if (!a || !b) {
+    return false
+  }
+
+  if (a.id !== b.id || a.email !== b.email || a.isAdmin !== b.isAdmin) {
+    return false
+  }
+
+  const aInstances = a.instances ?? []
+  const bInstances = b.instances ?? []
+  if (aInstances.length !== bInstances.length) {
+    return false
+  }
+
+  for (let i = 0; i < aInstances.length; i++) {
+    const instanceA = aInstances[i]
+    const instanceB = bInstances[i]
+
+    if (!instanceA || !instanceB) {
+      return false
+    }
+
+    if (
+      instanceA.id !== instanceB.id ||
+      instanceA.name !== instanceB.name ||
+      String(instanceA.createdAt) !== String(instanceB.createdAt) ||
+      String(instanceA.lastAccessedAt) !== String(instanceB.lastAccessedAt) ||
+      instanceA.isDefault !== instanceB.isDefault
+    ) {
+      return false
+    }
+  }
+
+  return true
+}
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
@@ -58,6 +110,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Track retry attempts to prevent infinite loops
   const retryCountRef = useRef(0)
   const maxRetries = 3
+  const refreshTimerRef = useRef<number | null>(null)
+
+  const clearRefreshTimer = useCallback(() => {
+    if (refreshTimerRef.current !== null) {
+      window.clearTimeout(refreshTimerRef.current)
+      refreshTimerRef.current = null
+    }
+  }, [])
 
   // Initialize auth state from localStorage and listen for changes
   useEffect(() => {
@@ -127,6 +187,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = useCallback(async (): Promise<void> => {
     setIsLoading(true)
+    clearRefreshTimer()
+    retryCountRef.current = 0
     try {
       await authLogout()
       setUser(null)
@@ -137,13 +199,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [clearRefreshTimer])
 
   const refreshToken = useCallback(async (): Promise<boolean> => {
     try {
       const newTokens = await refreshAccessToken()
       if (newTokens) {
         setTokens(newTokens)
+        retryCountRef.current = 0
         return true
       }
 
@@ -157,9 +220,126 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [logout])
 
+  const scheduleAccessTokenRefresh = useCallback(
+    (accessToken?: string | null) => {
+      if (typeof window === 'undefined') {
+        return
+      }
+
+      clearRefreshTimer()
+
+      if (!accessToken) {
+        return
+      }
+
+      const expiry = getAccessTokenExpiry(accessToken)
+      if (!expiry) {
+        void refreshToken()
+        return
+      }
+
+      const refreshAt = expiry - ACCESS_TOKEN_REFRESH_BUFFER_SECONDS * 1000
+      const delay = Math.max(refreshAt - Date.now(), 0)
+
+      refreshTimerRef.current = window.setTimeout(async () => {
+        refreshTimerRef.current = null
+        const refreshed = await refreshToken()
+        if (!refreshed) {
+          console.warn('Scheduled token refresh failed; user will be logged out.')
+        }
+      }, delay)
+    },
+    [clearRefreshTimer, refreshToken]
+  )
+
+  const checkTokenFreshness = useCallback(async () => {
+    const stored = getStoredTokens()
+    const accessToken = stored?.accessToken
+    if (!accessToken) {
+      clearRefreshTimer()
+      return
+    }
+
+    if (isAccessTokenExpiringSoon(accessToken, ACCESS_TOKEN_REFRESH_BUFFER_SECONDS)) {
+      await refreshToken()
+      return
+    }
+
+    scheduleAccessTokenRefresh(accessToken)
+  }, [scheduleAccessTokenRefresh, clearRefreshTimer, refreshToken])
+
+  const syncAuthStateFromStorage = useCallback(() => {
+    const storedTokens = getStoredTokens()
+    const storedUser = getStoredUser()
+
+    setTokens(prev => {
+      if (tokensEqual(prev, storedTokens)) {
+        return prev
+      }
+      return storedTokens ?? null
+    })
+
+    setUser(prev => {
+      if (usersEqual(prev, storedUser)) {
+        return prev
+      }
+      return storedUser ?? null
+    })
+
+    if (!storedTokens?.accessToken || !storedTokens?.refreshToken) {
+      setConnectionState(ConnectionState.DISCONNECTED)
+    }
+  }, [setTokens, setUser, setConnectionState])
+
+  useEffect(() => {
+    if (!tokens?.accessToken) {
+      clearRefreshTimer()
+      return
+    }
+
+    scheduleAccessTokenRefresh(tokens.accessToken)
+
+    return () => {
+      clearRefreshTimer()
+    }
+  }, [tokens?.accessToken, scheduleAccessTokenRefresh, clearRefreshTimer])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return
+    }
+
+    if (!tokens?.accessToken) {
+      return
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void checkTokenFreshness()
+      }
+    }
+
+    const handleOnline = () => {
+      void checkTokenFreshness()
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('online', handleOnline)
+    void checkTokenFreshness()
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('online', handleOnline)
+    }
+  }, [tokens?.accessToken, checkTokenFreshness])
+
   const getCurrentToken = useCallback(async (): Promise<string | null> => {
-    return getCurrentAccessToken()
-  }, [])
+    try {
+      return await getCurrentAccessToken()
+    } finally {
+      syncAuthStateFromStorage()
+    }
+  }, [syncAuthStateFromStorage])
 
   const handleConnectionError = useCallback(
     async (error: any): Promise<boolean> => {
@@ -222,7 +402,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     refreshToken,
     getCurrentToken,
     handleConnectionError,
-    isAuthenticated: isAuthenticated(),
+    isAuthenticated: Boolean(tokens?.accessToken && tokens?.refreshToken),
   }
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
