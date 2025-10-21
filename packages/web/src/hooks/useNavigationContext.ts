@@ -1,6 +1,7 @@
 import { useLocation, useParams } from 'react-router-dom'
 import { useQuery } from '@livestore/react'
 import { getProjects$, getDocumentList$, getContacts$ } from '@work-squared/shared/queries'
+import { getCategoryInfo, type ProjectCategory } from '@work-squared/shared'
 import type { NavigationContext } from '../../../server/src/services/agentic-loop/types.js'
 
 /**
@@ -9,7 +10,12 @@ import type { NavigationContext } from '../../../server/src/services/agentic-loo
  */
 export const useNavigationContext = (): NavigationContext | null => {
   const location = useLocation()
-  const params = useParams<{ projectId?: string; documentId?: string; contactId?: string }>()
+  const params = useParams<{
+    projectId?: string
+    documentId?: string
+    contactId?: string
+    categoryId?: string
+  }>()
 
   // Call all hooks unconditionally (Rules of Hooks requirement)
   const projects = useQuery(getProjects$) ?? []
@@ -90,6 +96,24 @@ export const useNavigationContext = (): NavigationContext | null => {
 
     // TODO: Add related projects if contact is associated with any
     // This would require querying projectContacts table
+  } else if (params.categoryId) {
+    const categoryInfo = getCategoryInfo(params.categoryId as ProjectCategory)
+
+    context.currentEntity = {
+      type: 'category',
+      id: params.categoryId,
+      attributes: categoryInfo
+        ? {
+            name: categoryInfo.name,
+            description: categoryInfo.description,
+            icon: categoryInfo.icon,
+            colorHex: categoryInfo.colorHex,
+          }
+        : {
+            // Placeholder - categoryId might be invalid
+            name: params.categoryId,
+          },
+    }
   }
 
   // Return null if no meaningful context (user on home page, settings, etc.)

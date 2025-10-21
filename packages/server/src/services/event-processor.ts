@@ -1800,6 +1800,10 @@ export class EventProcessor {
               }))
             }
           }
+        } else if (type === 'category') {
+          // Categories are static constants, not database entities
+          // The frontend already provides the full category info, so just pass it through
+          enriched.currentEntity = clientContext.currentEntity
         }
       } catch (error) {
         logger.error(

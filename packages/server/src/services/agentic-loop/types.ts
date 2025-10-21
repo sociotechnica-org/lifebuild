@@ -36,7 +36,7 @@ export interface WorkerContext {
 export interface NavigationContext {
   // Current entity being viewed (if any)
   currentEntity?: {
-    type: 'project' | 'document' | 'contact' | 'task'
+    type: 'project' | 'document' | 'contact' | 'task' | 'category'
     id: string
     // All user-facing attributes of the entity
     attributes: Record<string, unknown>
@@ -44,7 +44,7 @@ export interface NavigationContext {
 
   // Related entities (e.g., document's parent project)
   relatedEntities?: Array<{
-    type: 'project' | 'document' | 'contact' | 'task'
+    type: 'project' | 'document' | 'contact' | 'task' | 'category'
     id: string
     relationship: string // e.g., "parent project", "associated contact"
     attributes: Record<string, unknown>
