@@ -1,6 +1,8 @@
 import { UserStore } from './durable-objects/UserStore.js'
 import { handleSignup, handleLogin, handleRefresh, handleLogout } from './handlers/auth.js'
 import { verifyAdminAccess } from './utils/adminAuth.js'
+import { verifyToken, isTokenExpired } from './utils/jwt.js'
+import type { JWTPayload } from './types.js'
 
 /**
  * Handle admin list users request
@@ -62,12 +64,188 @@ async function verifyAdminAccessOrReturnError(
   return null
 }
 
+async function verifyUserAccess(
+  request: Request,
+  env: Env
+): Promise<{ valid: boolean; user?: JWTPayload; error?: string; statusCode?: number }> {
+  const authHeader = request.headers.get('Authorization')
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { valid: false, error: 'Authorization header missing', statusCode: 401 }
+  }
+
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim()
+  if (!token) {
+    return { valid: false, error: 'Invalid Authorization header format', statusCode: 401 }
+  }
+
+  const payload = await verifyToken<JWTPayload>(token, env)
+  if (!payload) {
+    return { valid: false, error: 'Invalid token', statusCode: 401 }
+  }
+
+  if (isTokenExpired(payload)) {
+    return { valid: false, error: 'Token expired', statusCode: 401 }
+  }
+
+  return { valid: true, user: payload }
+}
+
 /**
  * Get UserStore instance
  */
 function getUserStore(env: Env) {
   const userStoreId = env.USER_STORE.idFromName('user-store')
   return env.USER_STORE.get(userStoreId)
+}
+
+async function forwardToUserStore(
+  env: Env,
+  path: string,
+  body: Record<string, unknown>
+): Promise<Response> {
+  const userStore = getUserStore(env)
+  const requestInit: RequestInit = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }
+
+  return userStore.fetch(new Request(`http://userstore${path}`, requestInit))
+}
+
+async function parseRequestBody(request: Request): Promise<any> {
+  try {
+    return await request.json()
+  } catch {
+    return {}
+  }
+}
+
+async function handleWorkspaceList(request: Request, env: Env): Promise<Response> {
+  const authCheck = await verifyUserAccess(request, env)
+  if (!authCheck.valid) {
+    return createErrorResponse(authCheck.error || 'Unauthorized', authCheck.statusCode || 401)
+  }
+
+  return forwardToUserStore(env, '/workspaces/list', {
+    userId: authCheck.user!.userId,
+  })
+}
+
+async function handleWorkspaceCreate(request: Request, env: Env): Promise<Response> {
+  const authCheck = await verifyUserAccess(request, env)
+  if (!authCheck.valid) {
+    return createErrorResponse(authCheck.error || 'Unauthorized', authCheck.statusCode || 401)
+  }
+
+  const body = await parseRequestBody(request)
+  const name = typeof body.name === 'string' ? body.name : undefined
+
+  return forwardToUserStore(env, '/workspaces/create', {
+    userId: authCheck.user!.userId,
+    name,
+  })
+}
+
+async function handleWorkspaceRename(
+  request: Request,
+  env: Env,
+  instanceId: string
+): Promise<Response> {
+  const authCheck = await verifyUserAccess(request, env)
+  if (!authCheck.valid) {
+    return createErrorResponse(authCheck.error || 'Unauthorized', authCheck.statusCode || 401)
+  }
+
+  const body = await parseRequestBody(request)
+  if (typeof body.name !== 'string') {
+    return createErrorResponse('Workspace name is required', 400)
+  }
+
+  return forwardToUserStore(env, '/workspaces/rename', {
+    userId: authCheck.user!.userId,
+    instanceId,
+    name: body.name,
+  })
+}
+
+async function handleWorkspaceSetDefault(
+  request: Request,
+  env: Env,
+  instanceId: string
+): Promise<Response> {
+  const authCheck = await verifyUserAccess(request, env)
+  if (!authCheck.valid) {
+    return createErrorResponse(authCheck.error || 'Unauthorized', authCheck.statusCode || 401)
+  }
+
+  return forwardToUserStore(env, '/workspaces/set-default', {
+    userId: authCheck.user!.userId,
+    instanceId,
+  })
+}
+
+async function handleWorkspaceDelete(
+  request: Request,
+  env: Env,
+  instanceId: string
+): Promise<Response> {
+  const authCheck = await verifyUserAccess(request, env)
+  if (!authCheck.valid) {
+    return createErrorResponse(authCheck.error || 'Unauthorized', authCheck.statusCode || 401)
+  }
+
+  return forwardToUserStore(env, '/workspaces/delete', {
+    userId: authCheck.user!.userId,
+    instanceId,
+  })
+}
+
+async function handleWorkspaceTouch(
+  request: Request,
+  env: Env,
+  instanceId: string
+): Promise<Response> {
+  const authCheck = await verifyUserAccess(request, env)
+  if (!authCheck.valid) {
+    return createErrorResponse(authCheck.error || 'Unauthorized', authCheck.statusCode || 401)
+  }
+
+  return forwardToUserStore(env, '/workspaces/touch', {
+    userId: authCheck.user!.userId,
+    instanceId,
+  })
+}
+
+function verifyServerBypassToken(request: Request, env: Env): Response | null {
+  if (!env.SERVER_BYPASS_TOKEN) {
+    return createErrorResponse('Server bypass token not configured', 500)
+  }
+
+  const authHeader = request.headers.get('Authorization')
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return createErrorResponse('Forbidden', 403)
+  }
+
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim()
+  if (token !== env.SERVER_BYPASS_TOKEN) {
+    return createErrorResponse('Forbidden', 403)
+  }
+
+  return null
+}
+
+async function handleInternalUserInstances(
+  request: Request,
+  env: Env,
+  userId: string
+): Promise<Response> {
+  const authError = verifyServerBypassToken(request, env)
+  if (authError) {
+    return authError
+  }
+
+  return forwardToUserStore(env, '/internal/instances', { userId })
 }
 
 /**
@@ -333,6 +511,15 @@ export default {
           }
           return addCorsHeaders(await handleAdminListUsers(request, env))
 
+        case '/workspaces':
+          if (method === 'GET') {
+            return addCorsHeaders(await handleWorkspaceList(request, env))
+          }
+          if (method === 'POST') {
+            return addCorsHeaders(await handleWorkspaceCreate(request, env))
+          }
+          return createErrorResponse('Method not allowed', 405)
+
         default:
           // Handle dynamic admin routes
           if (path.startsWith('/admin/users/') && path.includes('/store-ids')) {
@@ -366,6 +553,53 @@ export default {
             }
           }
 
+          if (path.startsWith('/workspaces/')) {
+            const segments = path.split('/').filter(Boolean)
+            if (segments.length === 2) {
+              const instanceId = decodeURIComponent(segments[1])
+              if (method === 'DELETE') {
+                return addCorsHeaders(await handleWorkspaceDelete(request, env, instanceId))
+              }
+              return createErrorResponse('Method not allowed', 405)
+            }
+
+            if (segments.length === 3) {
+              const instanceId = decodeURIComponent(segments[1])
+              const action = segments[2]
+              if (method !== 'POST') {
+                return createErrorResponse('Method not allowed', 405)
+              }
+
+              if (action === 'rename') {
+                return addCorsHeaders(await handleWorkspaceRename(request, env, instanceId))
+              }
+              if (action === 'set-default') {
+                return addCorsHeaders(await handleWorkspaceSetDefault(request, env, instanceId))
+              }
+              if (action === 'access') {
+                return addCorsHeaders(await handleWorkspaceTouch(request, env, instanceId))
+              }
+
+              return createErrorResponse('Not found', 404)
+            }
+          }
+
+          if (path.startsWith('/internal/users/')) {
+            const segments = path.split('/').filter(Boolean)
+            if (
+              segments.length === 4 &&
+              segments[0] === 'internal' &&
+              segments[1] === 'users' &&
+              segments[3] === 'instances'
+            ) {
+              const userId = decodeURIComponent(segments[2])
+              if (method !== 'GET') {
+                return createErrorResponse('Method not allowed', 405)
+              }
+              return addCorsHeaders(await handleInternalUserInstances(request, env, userId))
+            }
+          }
+
           return createErrorResponse('Not found', 404)
       }
     } catch (error) {
@@ -385,4 +619,6 @@ interface Env {
   ENVIRONMENT?: string
   BOOTSTRAP_ADMIN_EMAIL?: string
   DISCORD_WEBHOOK_URL?: string
+  SERVER_BYPASS_TOKEN?: string
+  MAX_INSTANCES_PER_USER?: string | number
 }

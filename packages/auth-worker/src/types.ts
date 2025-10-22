@@ -40,6 +40,7 @@ export interface AuthResponse {
     email: string
     instances: Instance[]
     isAdmin: boolean
+    defaultInstanceId?: string | null
   }
   accessToken?: string
   refreshToken?: string

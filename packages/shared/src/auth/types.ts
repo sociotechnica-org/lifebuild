@@ -22,6 +22,11 @@ export interface AuthInstance {
   isDefault?: boolean
 }
 
+export interface AuthWorkspaceSelection {
+  instances: AuthInstance[]
+  defaultInstanceId: string | null
+}
+
 export interface SyncPayload {
   instanceId: string
   authToken?: string
@@ -42,6 +47,7 @@ export enum AuthErrorCode {
   USER_NOT_FOUND = 'USER_NOT_FOUND',
   GRACE_PERIOD_EXPIRED = 'GRACE_PERIOD_EXPIRED',
   AUTH_SERVICE_ERROR = 'AUTH_SERVICE_ERROR',
+  FORBIDDEN = 'FORBIDDEN',
 }
 
 export interface AuthError {
