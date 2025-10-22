@@ -285,13 +285,13 @@ Auth success responses now include the user’s instances and the server-selecte
 
 ## Environment Variables
 
-| Variable              | Description                                     | Default                                  |
-| --------------------- | ----------------------------------------------- | ---------------------------------------- |
-| `JWT_SECRET`          | Secret key for JWT signing                      | `dev-secret-please-change-in-production` |
-| `ENVIRONMENT`         | Environment setting                             | `development`                            |
-| `DISCORD_WEBHOOK_URL` | Webhook URL for signup notifications (optional) | -                                        |
-| `SERVER_BYPASS_TOKEN` | Shared secret for internal workspace lookups    | _none (required for `/internal`)_        |
-| `MAX_INSTANCES_PER_USER` | Override per-user workspace quota            | `10`                                     |
+| Variable                 | Description                                     | Default                                  |
+| ------------------------ | ----------------------------------------------- | ---------------------------------------- |
+| `JWT_SECRET`             | Secret key for JWT signing                      | `dev-secret-please-change-in-production` |
+| `ENVIRONMENT`            | Environment setting                             | `development`                            |
+| `DISCORD_WEBHOOK_URL`    | Webhook URL for signup notifications (optional) | -                                        |
+| `SERVER_BYPASS_TOKEN`    | Shared secret for internal workspace lookups    | _none (required for `/internal`)_        |
+| `MAX_INSTANCES_PER_USER` | Override per-user workspace quota               | `10`                                     |
 
 ⚠️ **Important**: Always use a strong, random `JWT_SECRET` in production!
 
