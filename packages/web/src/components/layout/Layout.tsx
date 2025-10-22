@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { ChatInterface } from '../chat/ChatInterface/ChatInterface.js'
 import { Navigation } from './Navigation.js'
 import { SnackbarProvider } from '../ui/Snackbar/Snackbar.js'
+import { AuthStatusBanner } from '../auth/AuthStatusBanner.js'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -51,6 +52,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <SnackbarProvider>
       <div className='flex flex-col h-screen'>
+        <AuthStatusBanner />
         {/* Top Navigation */}
         <Navigation isChatOpen={isChatOpen} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
 
