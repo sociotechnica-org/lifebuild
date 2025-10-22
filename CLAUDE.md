@@ -112,6 +112,71 @@ CI=true pnpm test:e2e  # Run E2E tests
 3. Run `gh pr checks --watch` and wait for all checks (up to 10 minutes)
 4. Fix any issues (including neutral BugBot feedback)
 
+## GitHub CLI (`gh`) Commands
+
+Use the `gh` command to interact with GitHub pull requests, issues, and checks. This is the preferred method for GitHub operations in Claude Code.
+
+### Pull Request Commands
+
+```bash
+# View PR details
+gh pr view <number>              # View PR summary
+gh pr view <number> --comments   # View PR with comments and reviews
+gh pr view <number> --web        # Open PR in browser
+
+# Check PR status
+gh pr status                     # View all your PRs and review requests
+gh pr checks <number>            # View check status for a specific PR
+gh pr checks --watch             # Monitor checks in real-time (wait up to 10 minutes)
+
+# List PRs
+gh pr list                       # List all open PRs
+gh pr list --author @me          # List your PRs
+gh pr list --state merged        # List merged PRs
+
+# Create PR (see "Creating a PR" section for full workflow)
+gh pr create --title "Title" --body "Description"
+```
+
+### Issue Commands
+
+```bash
+# List issues
+gh issue list                    # List all open issues
+gh issue list --limit 10         # List first 10 issues
+gh issue list --assignee @me     # List issues assigned to you
+
+# View issue details
+gh issue view <number>           # View issue summary
+gh issue view <number> --web     # Open issue in browser
+
+# Create issue
+gh issue create --title "Title" --body "Description"
+gh issue create --assignee @me   # Create and self-assign
+```
+
+### Common Workflows
+
+```bash
+# After creating a PR, monitor checks
+gh pr checks --watch
+
+# View PR with all comments and reviews
+gh pr view 272 --comments
+
+# Check status of all your PRs
+gh pr status
+
+# View specific check details
+gh pr checks 272
+```
+
+### Notes
+
+- PR numbers are shown in `gh pr status` or on GitHub
+- Use `--web` flag to open items in browser for complex interactions
+- `gh pr checks --watch` is essential for monitoring CI/CD pipelines
+
 ## Important Guidelines
 
 - **Quality before committing**: Always run `pnpm lint-all` and `pnpm test`
