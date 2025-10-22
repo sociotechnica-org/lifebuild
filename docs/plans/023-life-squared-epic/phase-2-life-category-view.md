@@ -7,27 +7,27 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 ## Progress Overview
 
 - ✅ **Section 1: Planning Tab Structure & Navigation** (Stories 1.1-1.3) - COMPLETED in PR #246 (merged 2025-10-17)
-- 🔄 **Section 2: Project Creation Sub-Tab** (Stories 2.1-2.7) - IN PROGRESS
+- 🔄 **Section 2: Project Creation Sub-Tab** (Stories 2.1-2.7) - IN PROGRESS (AI cover outstanding)
   - ✅ Story 2.1 (Stage 1) - COMPLETED in PR #250 (merged 2025-10-17)
   - ✅ Story 2.2 (Cover Upload) - COMPLETED in PR #252 (merged 2025-10-21)
   - ⏸️ Story 2.3 (AI Cover) - NOT STARTED
   - ✅ Story 2.4 (Stage 2) - COMPLETED in PR #250 (merged 2025-10-17)
   - ✅ Story 2.5 (Stage 3) - COMPLETED in PR #254 (merged 2025-10-21)
-  - ⏸️ Story 2.6 (Stage 4) - NOT STARTED
-  - ⏸️ Story 2.7 (Move to Backlog) - NOT STARTED
+  - ✅ Story 2.6 (Stage 4) - COMPLETED in PRs #254, #267 (merged 2025-10-21)
+  - ✅ Story 2.7 (Move to Backlog) - COMPLETED in PR #254 (merged 2025-10-21)
 - 🔄 **Section 3: Project Plans Sub-Tab** (Stories 3.1-3.9) - PARTIALLY COMPLETE
   - ✅ Story 3.1 (Display plans) - COMPLETED in PRs #250, #254
   - ✅ Story 3.2 (Resume planning) - COMPLETED in PRs #250, #254
   - ⏸️ Story 3.3 (Card visuals) - NEEDS DESIGN
   - ✅ Story 3.4 (Archive/delete) - COMPLETED (existing functionality)
   - ⏸️ Story 3.5 (Idle indicators) - NEEDS DESIGN
-  - ⏸️ Story 3.6 (Dynamic routing context) - NOT STARTED
-  - ⏸️ Story 3.7 (Category advisors) - NOT STARTED
-  - ⏸️ Story 3.8 (Auto-select in category) - NOT STARTED
+  - ✅ Story 3.6 (Dynamic routing context) - COMPLETED in PR #268 (merged 2025-10-21)
+  - ✅ Story 3.7 (Category advisors) - COMPLETED in PR #266 (merged 2025-10-21)
+  - ✅ Story 3.8 (Auto-select in category) - COMPLETED in PR #266 (merged 2025-10-21)
   - ⏸️ Story 3.9 (Auto-select in planning) - NOT STARTED
 - 🔄 **Section 4: Backlog Sub-Tab** (Stories 4.1-4.5) - PARTIALLY COMPLETE
-  - 🔄 Story 4.1 (Display backlog) - PARTIALLY COMPLETE (display done, priority ordering needed)
-  - ⏸️ Story 4.2 (Reorder) - NOT STARTED (blocked by 4.1)
+  - ✅ Story 4.1 (Display backlog) - COMPLETED in PR #267 (merged 2025-10-21)
+  - ✅ Story 4.2 (Reorder) - COMPLETED in PR #267 (merged 2025-10-21)
   - ⏸️ Story 4.3 (Activate) - NOT STARTED
   - ✅ Story 4.4 (Edit) - COMPLETED (via EditProjectModal)
   - ⏸️ Story 4.5 (Filter/search) - DEFERRED
@@ -232,17 +232,19 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Schema: Add `priority` field to `projects.attributes` (number representing rank)
-- [ ] Query: Filter projects by category and `attributes.status = 'backlog'`, order by `attributes.priority`
-- [ ] UI: Stage 4 displays list of existing backlog projects with priority ranks
-- [ ] UI: Show new project card with drag handle for positioning
-- [ ] UI: Operators drag new project into desired position in priority list
-- [ ] UI: Show stage progress indicator (4/4)
-- [ ] UI: "Back to Stage 3", "Save as Low Priority", "Set Priority & Add to Backlog" buttons
-- [ ] Logic: On complete, commit `projectAttributesUpdated` event with `planningStage: 4` and `priority` value
-- [ ] DoD: Operators drag their Stage 4 project into priority order relative to existing projects, with visual positioning and clear completion action.
+- [x] Schema: Add `priority` field to `projects.attributes` for explicit ranking
+- [x] Query/UI: Filter Stage 4 projects (`planningStage = 4`) within the category and order by `attributes.priority` (fallback to append order when unset)
+- [x] UI: Stage 4 backlog sub-tab displays prioritized list with numeric badges and stage indicator
+- [x] UI: Provide drag handles/overlays so operators can reposition projects with DnD Kit
+- [x] Logic: Persist reordered positions by updating `attributes.priority` for all affected projects
+- [x] DoD: Stage 4 projects appear in backlog with a reorderable priority list; newly advanced projects land at the end until repositioned.
 
-**Status**:
+**Status**: ✅ **COMPLETED** in PRs #254, #267 (merged 2025-10-21)
+
+#### Implementation Notes
+
+- Dedicated Stage 4 confirmation buttons from the original concept are deferred; prioritization now happens directly within the backlog tab.
+- Priority is stored on the project record and respected anywhere backlog ordering is required.
 
 ---
 
@@ -254,15 +256,17 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Logic: After completing Stage 4, update `attributes.status = 'backlog'` via `projectAttributesUpdated` event
-- [ ] UI: Show confirmation modal: "Ready to add [Project Name] to your backlog?"
-- [ ] UI: Modal options: "Add to Backlog" (primary), "Keep Planning" (secondary), "Cancel"
-- [ ] UI: On add, commit event updating status to 'backlog'
-- [ ] UI: Project moves from Project Plans to Backlog sub-tab (filtered by status)
-- [ ] UI: Toast notification: "[Project] added to backlog at position #X"
-- [ ] DoD: Completing Stage 4 prompts the operator to move the project to Backlog, which changes its status and relocates it to the Backlog sub-tab.
+- [x] Logic: Clicking "Done Planning" in Stage 3 commits `planningStage: 4` for the project
+- [x] Navigation: Redirect operators to Planning → Backlog sub-tab immediately after advancing
+- [x] UI: Newly advanced project appears in backlog list with Stage 4 badge and inherits reorder controls
+- [x] DoD: Completing Stage 3 moves the project into the backlog-ready queue without manual intervention.
 
-**Status**:
+**Status**: ✅ **COMPLETED** in PR #254 (merged 2025-10-21)
+
+#### Implementation Notes & Follow-ups
+
+- Backlog membership keys off `planningStage = 4`; status remains `'planning'` until activation (Story 4.3 will flip to `'active'`).
+- Original plan called for a confirmation modal and toast—defer until we validate whether the streamlined auto-move needs additional UX affordances.
 
 ---
 
@@ -388,51 +392,29 @@ This phase introduces the Planning tab with three sub-tabs (Project Creation, Pr
 
 #### Tasks
 
-- [ ] Logic: Capture routing context (URL params, pathname) when user sends a message
-- [ ] Logic: Extract `projectId`, `categoryId`, `taskId` from current route dynamically
-- [ ] Query: Fetch current project/category/task details based on extracted IDs
-- [ ] API: Include routing context in each LLM API call as system message or context parameter
-- [ ] API: Format context dynamically based on current view:
-  - Project Workspace: "The user is currently viewing Project '[name]' (ID: [id]) in category '[category]'"
-  - Life Category: "The user is currently viewing the '[category]' Life Category"
-  - Task view: "The user is currently viewing Task '[name]' in Project '[project]'"
-- [ ] Logic: Context is calculated fresh for every message, not stored in conversation
-- [ ] DoD: Every message sent to LLM includes current routing context, enabling contextual references across different views within the same conversation.
+- [x] Capture routing context (URL params, pathname, subtabs) whenever the operator sends a message
+- [x] Extract `projectId`, `categoryId`, `taskId`, etc., and hydrate metadata from LiveStore
+- [x] Attach navigation context to each `chatMessageSent` event and persist it to the database
+- [x] Format navigation-aware system prompt inside the agentic loop for every LLM call
+- [x] DoD: Every message sent to the LLM includes fresh routing context so operators can reference "this project" or "this category" naturally.
 
-**Status**: ⏸️ **NOT STARTED**
+**Status**: ✅ **COMPLETED** in PR #268 (merged 2025-10-21)
 
 #### Implementation Notes
 
-**Dynamic Context Capture:**
+- Introduced `useNavigationContext` hook in the web app to centralize context gathering.
+- `chatMessageSent` event schema and materializer persist `navigationContext` per message.
+- Agentic loop builds a contextual system prompt including current entity + related entities before invoking the provider.
+- Handles Life Category views, project workspace (including subtabs), documents, and contacts; gracefully falls back when no contextual entity exists.
 
-- Read routing state from `useLocation()` and `useParams()` at message send time
-- Parse current URL to extract relevant IDs (projectId, categoryId, taskId)
-- Query LiveStore for entity details (names, descriptions) to enrich context
-- Include context as part of message payload or system prompt for each API call
-
-**Benefits:**
-
-- Same conversation can be used across multiple projects in a category
-- Advisor maintains context awareness as user navigates between views
-- No need to create/switch conversations when moving between projects
-- Natural UX: "help me plan this project" works regardless of which project is open
-
-**Example Implementation:**
+**Example Usage:**
 
 ```typescript
-const handleSendMessage = async (message: string) => {
-  const routingContext = extractRoutingContext(location, params) // { projectId, categoryId, taskId }
-  const contextDetails = await fetchContextDetails(store, routingContext)
-
-  const contextPrompt = formatContextPrompt(contextDetails)
-  // "The user is currently viewing Project 'Morning Workout Routine' in Health & Well-Being category"
-
-  await sendToLLM({
-    message,
-    conversationId,
-    contextPrompt, // Included with this specific message
-  })
-}
+const navigationContext = useNavigationContext()
+await sendMessage({
+  body: draftMessage,
+  navigationContext,
+})
 ```
 
 ---
@@ -445,19 +427,15 @@ const handleSendMessage = async (message: string) => {
 
 #### Tasks
 
-- [ ] Schema: Add `workerCategories` table with columns: `workerId`, `category`
-- [ ] Event: Create `v1.WorkerAssignedToCategory` event with payload `{ workerId, category, assignedAt, actorId }`
-- [ ] Event: Create `v1.WorkerUnassignedFromCategory` event with payload `{ workerId, category }`
-- [ ] Event: Watch for `v1.ProjectCreated` events with `category` field
-- [ ] Logic: On first project creation in a category, check if category advisor worker exists
-- [ ] Logic: If no advisor exists, auto-create worker with `v1.WorkerCreated` event
-- [ ] Logic: After worker creation, commit `v1.WorkerAssignedToCategory` to link worker to category
-- [ ] Schema: Worker naming convention: `{category}-advisor` (e.g., "health-advisor", "finances-advisor")
-- [ ] Prompts: Create category-specific system prompts that understand category context
-- [ ] Prompts: Example for Health category: "You are the Health & Well-Being advisor. Help users plan and manage health-related projects including fitness, medical care, mental health, and nutrition."
-- [ ] DoD: Each Life Category automatically gets a dedicated advisor worker when the first project is created, with proper category assignment tracking.
+- [x] Schema: Added `workerCategories` table to persist advisor assignments
+- [x] Events: Created `v1.WorkerAssignedToCategory` / `v1.WorkerUnassignedFromCategory`
+- [x] Logic: `useCategoryAdvisor` hook auto-creates advisors the first time a category needs one
+- [x] Logic: Automatically links advisors to categories immediately after creation
+- [x] Conventions: `{category}-advisor` IDs with shared name, role, and prompt helpers
+- [x] Prompts: Category-specific system prompts deliver tailored guidance
+- [x] DoD: Each Life Category automatically gains a dedicated advisor with assignment tracking once projects exist.
 
-**Status**: ⏸️ **NOT STARTED**
+**Status**: ✅ **COMPLETED** in PR #266 (merged 2025-10-21)
 
 #### Implementation Notes
 
@@ -475,22 +453,9 @@ const handleSendMessage = async (message: string) => {
 **Implementation Pattern:**
 
 ```typescript
-// Pseudocode for advisor auto-creation
-materializer for 'v1.ProjectCreated': ({ category }) => {
-  if (category) {
-    const advisorId = `${category}-advisor`
-    const existingAdvisor = db.workers.findOne({ id: advisorId })
-
-    if (!existingAdvisor) {
-      store.commit(events.workerCreated({
-        id: advisorId,
-        name: `${getCategoryInfo(category).name} Advisor`,
-        systemPrompt: getCategoryAdvisorPrompt(category),
-        defaultModel: DEFAULT_MODEL,
-        createdAt: new Date(),
-      }))
-    }
-  }
+const { advisorId, isReady } = useCategoryAdvisor(category)
+if (isReady) {
+  // Advisor worker and category assignment now exist for downstream features
 }
 ```
 
@@ -504,16 +469,13 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 
 #### Tasks
 
-- [ ] Logic: When navigating to Life Category view, check if category advisor exists
-- [ ] Logic: Search for existing conversation with category advisor (by `workerId`)
-- [ ] Logic: If conversation exists, auto-select it (set `conversationId` in URL params)
-- [ ] Logic: If no conversation exists, auto-create conversation with category advisor using `v1.ConversationCreated`
-- [ ] Logic: Conversation title: "[Category Name] Planning" (e.g., "Health & Well-Being Planning")
-- [ ] UI: Chat sidebar auto-selects advisor conversation when entering category view
-- [ ] UI: Show indicator that advisor is context-aware (e.g., "Health Advisor")
-- [ ] DoD: Entering a Life Category view automatically creates or selects a conversation with the category advisor, enabling immediate contextual support.
+- [x] Ensure category advisor exists (Story 3.7) before attempting selection
+- [x] Search for existing advisor conversation by `workerId`; reuse if found
+- [x] Auto-create advisor conversation with standardized title when missing
+- [x] Auto-select advisor conversation by updating `conversationId` URL param on category entry
+- [x] DoD: Navigating to a Life Category ensures the advisor conversation exists and is selected for immediate use.
 
-**Status**: ⏸️ **NOT STARTED**
+**Status**: ✅ **COMPLETED** in PR #266 (merged 2025-10-21)
 
 #### Implementation Notes
 
@@ -524,6 +486,7 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 - Auto-creation happens once per category (when first navigating to category view after advisor is created)
 - Conversation is reused across all projects in the category
 - User can manually switch to other workers if needed
+- Implemented via `useCategoryAdvisorConversation`, which only sets `conversationId` when the URL does not already specify one.
 
 **UI Behavior:**
 
@@ -588,27 +551,21 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 - [x] UI: Each card shows: Title, Description preview, Stage indicator
 - [x] UI: Cards numbered with position (#1, #2, #3...)
 - [x] UI: Empty state: "No projects in backlog. Complete Stage 4 planning to add projects here."
-- [ ] Schema: Add `priority` field to `projects.attributes` for explicit ordering
-- [ ] Query: Add ordering by `attributes.priority` when priority field exists
-- [ ] DoD: The Backlog sub-tab shows all completed project plans in priority order with key details visible on each card.
+- [x] Schema: Add `priority` field to `projects.attributes` for explicit ordering
+- [x] Query/UI: Order backlog list by `attributes.priority` with sensible fallback when unset
+- [x] DoD: The Backlog sub-tab shows all completed project plans in priority order with key details visible on each card.
 
-**Status**: 🔄 **PARTIALLY COMPLETE** (basic display implemented in PRs #250, #254; priority ordering NOT implemented)
+**Status**: ✅ **COMPLETED** in PR #267 (merged 2025-10-21)
 
 #### Implementation Notes
 
-**Current Implementation (LifeCategoryPresenter.tsx:162-218):**
+- Projects with `planningStage = 4` are sorted by `attributes.priority` (defaults to list order when undefined) and rendered with numbered badges.
+- Newly advanced projects drop to the end of the list until the operator reorders them (Story 4.2).
+- Empty-state messaging guides operators to complete Stage 4 planning.
 
-- Backlog displays projects with `planningStage = 4`
-- Projects shown in vertical list with numbered positions
-- Basic card layout with title, description, stage badge
-- Empty state message present
-- **Missing**: Priority field in schema, explicit priority ordering, cover images, archetype badges
+**Remaining Enhancements (nice-to-have):**
 
-**What's Needed:**
-
-- Add `priority: number` field to `projects.attributes` schema
-- Implement ordering by priority (lower number = higher priority)
-- Enhance card visuals to show cover, archetype, estimated duration
+- Surface additional metadata (cover thumbnail, archetype badge, estimates) on backlog cards for richer context.
 
 ---
 
@@ -620,18 +577,22 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 
 #### Tasks
 
-- [ ] Schema: Ensure `priority` field exists in `projects.attributes` (from Story 4.1)
-- [ ] Event: Use `v1.ProjectAttributesUpdated` to update `attributes.priority` field
-- [ ] UI: Enable drag-and-drop on backlog project cards (vertical reordering)
-- [ ] UI: Show blue line indicator at drop position
-- [ ] UI: Other cards shift to show insertion point
-- [ ] Logic: On drop, commit event updating `priority` values for affected projects
-- [ ] Logic: Recalculate priority numbers for all affected projects in sequence
-- [ ] Logic: Priority order persists across sessions
-- [ ] UI: Subtle toast: "[Project] moved to position #X"
-- [ ] DoD: Operators can drag backlog projects to reorder priority, with visual feedback and persistent changes.
+- [x] Leverage `priority` field from Story 4.1 to determine ordering
+- [x] Update `v1.ProjectAttributesUpdated` usage to persist new priority values
+- [x] Enable drag-and-drop reordering with @dnd-kit/sortable
+- [x] Provide insertion indicators / overlays during drag operations
+- [x] Recalculate and commit sequential priorities for all affected projects on drop
+- [x] Persist ordering so refreshes retain operator-defined priorities
+- [x] Show toast notification confirming new position (e.g., "`Project` moved to position #3")
+- [x] DoD: Operators can reorder backlog projects with clear feedback and durable priority changes.
 
-**Status**: ⏸️ **NOT STARTED** (blocked by Story 4.1 priority field)
+**Status**: ✅ **COMPLETED** in PR #267 (merged 2025-10-21)
+
+#### Implementation Notes
+
+- Uses `@dnd-kit/sortable` for vertical list reordering with drag overlays.
+- `isDragInProgress` guard prevents accidental navigation clicks immediately after dropping.
+- Priorities are stored as zero-based integers and recalculated for the entire list on each drop.
 
 ---
 
@@ -643,27 +604,25 @@ materializer for 'v1.ProjectCreated': ({ category }) => {
 
 #### Tasks
 
-- [ ] Schema: Ensure `activatedAt` field exists in `projects.attributes` for tracking activation time
-- [ ] Event: Use `v1.ProjectAttributesUpdated` to update `attributes.status = 'active'` and `attributes.activatedAt`
-- [ ] UI: Add "Activate" button on backlog project cards (consider menu or hover action)
-- [ ] UI: Confirmation modal: "Activate [Project Name]? It will move to your Active projects."
-- [ ] UI: Modal shows: Project title, archetype (if available), task count, estimated duration (if available)
-- [ ] Logic: On confirm, commit event setting `status = 'active'` and `activatedAt = Date.now()`
-- [ ] Logic: Project removed from Backlog sub-tab (filtered by `planningStage`)
-- [ ] Logic: Project appears in Active tab (filtered by `status = 'active'`)
-- [ ] UI: Toast: "[Project] is now active! Start working on tasks."
-- [ ] DoD: Backlog projects can be activated with confirmation, moving them from Backlog to Active tab and enabling task work.
+- [x] Schema: Ensure `activatedAt` field exists in `projects.attributes` for tracking activation time
+- [x] Event/UI: Use `v2.ProjectAttributesUpdated` on activation to set `status = 'active'`, `activatedAt`, and clear backlog-only fields
+- [x] UI: Add "Activate" CTA on backlog project cards
+- [x] UI: Confirmation modal: "Activate [Project Name]? It will move to your Active projects."
+- [x] UI: Modal surfaces project objective, archetype, deadline, and estimated duration when available
+- [x] Logic: On confirm, commit attributes update, show success toast, and navigate to Active tab
+- [x] Logic: Activated project disappears from Backlog (filtered by planning stage) and is visible under Active tab
+- [x] UI: Error toast surfaces if activation fails
+- [x] DoD: Backlog projects can be activated with confirmation, transition to the Active tab, and record activation timing.
 
-**Status**: ⏸️ **NOT STARTED**
+**Status**: ✅ **COMPLETED** (this PR, 2025-10-22)
 
 #### Implementation Notes
 
 **Current Status Check:**
 
-- Projects are already filtered by status in Active tab (LifeCategoryView.tsx:40-44)
-- Active projects filter: `status === 'active' || (!status && !archivedAt && !deletedAt)` (legacy compatibility)
-- Backlog projects filter: `planningStage === 4`
-- **Missing**: Activation UI/UX, status transition logic, activatedAt timestamp
+- Projects in Stage 4 now expose an Activate button with modal confirmation.
+- Activation updates project attributes, records `activatedAt`, and removes backlog-only priority field.
+- Post-activation, the view automatically pivots to the Active tab and shows a success toast.
 
 ---
 
