@@ -44,41 +44,39 @@ This epic plan provides an overview of all user stories organized across three s
 
 **Story Count**: 12 stories (11 completed, 1 deferred)
 
-### Phase 2: Life Category Planning - **Early Stage**
+### Phase 2: Life Category Planning - **In Progress**
 
 [View Phase 2 Document](phase-2-life-category-view.md)
 
 **Purpose**: Build the project planning system with structured 4-stage development and backlog management.
 
-**Completed** (PRs #246, #250):
+**Completed** (PRs #246, #250, #252, #254, #266, #267, #268, #271):
 
-- ✅ Three main tabs (Planning, Active, Completed)
-- ✅ Smart default tab selection
-- ✅ Three Planning sub-tabs (Project Creation, Project Plans, Backlog)
-- ✅ Stage 1 (Identified): Title, description
-- ✅ Stage 2 (Scoped): Objectives, deadlines, archetype, traits
+- ✅ Planning/Active/Completed tab set with smart defaults
+- ✅ Project Creation Stages 1-3 (idea capture → scoping → task planning via workspace)
+- ✅ Cover image uploads backed by Cloudflare R2
+- ✅ Stage 4 backlog pipeline with drag-to-reorder prioritization
+- ✅ Activate backlog projects directly into Active tab with confirmation flow
+- ✅ Project Plans sub-tab for resuming in-progress plans (Stages 1-3)
+- ✅ Category advisors auto-create and auto-select in Life Category view
+- ✅ Navigation context attached to every LLM message for advisor awareness
 
-**In Progress** (PR #252):
+**Outstanding / Next Up**:
 
-- 🔄 Cover image upload to Cloudflare R2
-
-**Remaining Work**:
-
-- AI-generated cover images
-- Stage 3 (Task planning integration)
-- Stage 4 (Priority ranking and backlog placement)
-- Move completed plans to Backlog
-- Project Plans sub-tab (view/resume in-progress plans)
-- Backlog sub-tab (priority management, activation)
+- AI-generated cover images (Story 2.3)
+- Project Plans card visual polish + idle indicators once design lands (Stories 3.3, 3.5)
+- Auto-select advisor when entering planning Stage 3 workspace (Story 3.9)
+- Backlog search/filter (Story 4.5 – deferred / nice-to-have)
 
 **Key Features Implemented**:
 
 - Container/Presenter component architecture
 - LiveStore event-driven state management
-- Progressive planning workflow (Stages 1-2)
-- Archetype auto-suggestion based on traits
+- Progressive planning workflow (Stages 1-4) with backlog priority ordering
+- Archetype auto-suggestion based on traits and category AI advisor guidance
+- Context-aware AI assistance via navigation-aware messaging
 
-**Story Count**: 20 stories (5 completed, 1 in progress, 14 remaining)
+**Story Count**: 24 stories (18 completed, 1 deferred, 5 remaining)
 
 ### Phase 3: Active Projects, Completion & Task Management (35 stories)
 

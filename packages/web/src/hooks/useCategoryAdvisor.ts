@@ -11,6 +11,16 @@ import {
 } from '@work-squared/shared'
 import { useAuth } from '../contexts/AuthContext.js'
 
+const pendingAdvisorCreation = new Map<string, Promise<void>>()
+
+const isUniqueConstraintError = (error: unknown, constraint: string): boolean => {
+  if (!error) return false
+  const message =
+    (error instanceof Error && error.message) ||
+    (typeof error === 'object' && 'toString' in error ? String(error) : '')
+  return typeof message === 'string' && message.includes(constraint)
+}
+
 /**
  * Hook to ensure a category advisor exists and get its ID
  *
@@ -52,45 +62,58 @@ export function useCategoryAdvisor(category: ProjectCategory | null | undefined)
     creationAttempted.current = true
 
     const createAdvisor = async () => {
-      // Double-check component is still mounted
       if (!isMountedRef.current) return
 
-      const now = new Date()
-
-      try {
-        // Create the worker
-        await store.commit(
-          events.workerCreated({
-            id: advisorId,
-            name: getCategoryAdvisorName(category),
-            roleDescription: getCategoryAdvisorRole(category),
-            systemPrompt: getCategoryAdvisorPrompt(category),
-            avatar: undefined,
-            defaultModel: DEFAULT_MODEL,
-            createdAt: now,
-            actorId: user.id,
-          })
-        )
-
-        // Check again before second commit
-        if (!isMountedRef.current) return
-
-        // Assign worker to category
-        await store.commit(
-          events.workerAssignedToCategory({
-            workerId: advisorId,
-            category: category as any, // Type assertion needed due to literal types
-            assignedAt: now,
-            actorId: user.id,
-          })
-        )
-      } catch (error) {
-        // Only log error if component is still mounted
-        if (isMountedRef.current) {
-          console.error(`Failed to create category advisor for ${category}:`, error)
-          creationAttempted.current = false // Allow retry on error
-        }
+      const existingPromise = pendingAdvisorCreation.get(advisorId)
+      if (existingPromise) {
+        await existingPromise
+        return
       }
+
+      const creationPromise = (async () => {
+        const now = new Date()
+
+        try {
+          await store.commit(
+            events.workerCreated({
+              id: advisorId,
+              name: getCategoryAdvisorName(category),
+              roleDescription: getCategoryAdvisorRole(category),
+              systemPrompt: getCategoryAdvisorPrompt(category),
+              avatar: undefined,
+              defaultModel: DEFAULT_MODEL,
+              createdAt: now,
+              actorId: user.id,
+            })
+          )
+
+          if (!isMountedRef.current) return
+
+          await store.commit(
+            events.workerAssignedToCategory({
+              workerId: advisorId,
+              category: category as any,
+              assignedAt: now,
+              actorId: user.id,
+            })
+          )
+        } catch (error) {
+          if (isUniqueConstraintError(error, 'UNIQUE constraint failed: workers.id')) {
+            // Advisor already exists, so it's safe to proceed.
+            return
+          }
+
+          if (isMountedRef.current) {
+            console.error(`Failed to create category advisor for ${category}:`, error)
+            creationAttempted.current = false
+          }
+        } finally {
+          pendingAdvisorCreation.delete(advisorId)
+        }
+      })()
+
+      pendingAdvisorCreation.set(advisorId, creationPromise)
+      await creationPromise
     }
 
     createAdvisor()

@@ -4,7 +4,8 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { getProjects$ } from '@work-squared/shared/queries'
 import type { Project } from '@work-squared/shared/schema'
 import { events } from '@work-squared/shared/schema'
-import { getCategoryInfo, type ProjectCategory } from '@work-squared/shared'
+import { getCategoryInfo } from '@work-squared/shared'
+import type { PlanningAttributes, ProjectCategory } from '@work-squared/shared'
 import {
   LifeCategoryPresenter,
   type CategoryTab,
@@ -258,6 +259,52 @@ export const LifeCategoryView: React.FC = () => {
     })
   }
 
+  const handleActivateProject = async (project: Project) => {
+    if (!store) {
+      throw new Error('Store is unavailable')
+    }
+
+    const now = new Date()
+    const currentAttrs = (project.attributes as PlanningAttributes | null) || {}
+    const { priority: _priority, ...restAttrs } = currentAttrs
+    void _priority
+
+    const updatedAttributes: PlanningAttributes = {
+      ...restAttrs,
+      status: 'active',
+      planningStage: restAttrs.planningStage ?? 4,
+      activatedAt: now.getTime(),
+      lastActivityAt: now.getTime(),
+    }
+
+    try {
+      await store.commit(
+        events.projectAttributesUpdated({
+          id: project.id,
+          attributes: updatedAttributes as Record<string, unknown>,
+          updatedAt: now,
+          actorId: undefined,
+        })
+      )
+
+      showSnackbar({
+        message: `${project.name} is now active!`,
+        type: 'success',
+        duration: 3000,
+      })
+
+      handleTabChange('active')
+    } catch (error) {
+      console.error('Failed to activate project', error)
+      showSnackbar({
+        message: `Couldn't activate ${project.name}. Please try again.`,
+        type: 'error',
+        duration: 4000,
+      })
+      throw error
+    }
+  }
+
   return (
     <LifeCategoryPresenter
       categoryId={categoryId}
@@ -274,6 +321,7 @@ export const LifeCategoryView: React.FC = () => {
       onSubTabChange={handleSubTabChange}
       onProjectClick={handleProjectClick}
       onBacklogReorder={handleBacklogReorder}
+      onActivateProject={handleActivateProject}
     />
   )
 }
