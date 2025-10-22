@@ -53,6 +53,77 @@ curl -X POST http://localhost:8788/logout \
   -d '{"refreshToken": "your-refresh-token"}'
 ```
 
+### Authenticated Workspace APIs
+
+All workspace endpoints require an `Authorization: Bearer <accessToken>` header. Responses include the updated `instances` array and a `defaultInstanceId` so clients can persist the server-selected workspace.
+
+#### GET /workspaces
+
+List all workspaces for the current user.
+
+```bash
+curl http://localhost:8788/workspaces \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+#### POST /workspaces
+
+Create a workspace (names are optional; defaults are auto-generated and deduplicated).
+
+```bash
+curl -X POST http://localhost:8788/workspaces \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Team Space"}'
+```
+
+#### POST /workspaces/:id/rename
+
+Rename a workspace. Names are trimmed and must be unique per user.
+
+```bash
+curl -X POST http://localhost:8788/workspaces/$WORKSPACE_ID/rename \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Client Hub"}'
+```
+
+#### POST /workspaces/:id/set-default
+
+Set the default workspace; all others are cleared.
+
+```bash
+curl -X POST http://localhost:8788/workspaces/$WORKSPACE_ID/set-default \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+#### POST /workspaces/:id/access
+
+Touch a workspace to refresh its `lastAccessedAt` timestamp (used when switching in the UI).
+
+```bash
+curl -X POST http://localhost:8788/workspaces/$WORKSPACE_ID/access \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+#### DELETE /workspaces/:id
+
+Delete a non-default workspace. Attempting to delete the default or last workspace returns `400`.
+
+```bash
+curl -X DELETE http://localhost:8788/workspaces/$WORKSPACE_ID \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+#### GET /internal/users/:userId/instances
+
+Internal ownership lookup guarded by `SERVER_BYPASS_TOKEN`. Other services use this to confirm workspace membership before issuing tokens or connections.
+
+```bash
+curl http://localhost:8788/internal/users/$USER_ID/instances \
+  -H "Authorization: Bearer $SERVER_BYPASS_TOKEN"
+```
+
 ### GET /health
 
 Health check endpoint.
@@ -176,6 +247,30 @@ User data is stored in Durable Objects with the following structure:
 - `user:{email}` - User lookup by email
 - `user:id:{userId}` - User lookup by ID
 
+Auth success responses now include the user’s instances and the server-selected default workspace:
+
+```json
+{
+  "user": {
+    "id": "user-id",
+    "email": "user@example.com",
+    "instances": [
+      {
+        "id": "workspace-id",
+        "name": "Personal Workspace",
+        "createdAt": "2024-10-22T17:00:00.000Z",
+        "lastAccessedAt": "2024-10-22T17:05:00.000Z",
+        "isDefault": true
+      }
+    ],
+    "defaultInstanceId": "workspace-id",
+    "isAdmin": false
+  },
+  "accessToken": "...",
+  "refreshToken": "..."
+}
+```
+
 ### Token Structure
 
 ```json
@@ -195,6 +290,8 @@ User data is stored in Durable Objects with the following structure:
 | `JWT_SECRET`          | Secret key for JWT signing                      | `dev-secret-please-change-in-production` |
 | `ENVIRONMENT`         | Environment setting                             | `development`                            |
 | `DISCORD_WEBHOOK_URL` | Webhook URL for signup notifications (optional) | -                                        |
+| `SERVER_BYPASS_TOKEN` | Shared secret for internal workspace lookups    | _none (required for `/internal`)_        |
+| `MAX_INSTANCES_PER_USER` | Override per-user workspace quota            | `10`                                     |
 
 ⚠️ **Important**: Always use a strong, random `JWT_SECRET` in production!
 
