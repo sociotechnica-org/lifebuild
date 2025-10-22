@@ -32,6 +32,16 @@ function createSuccessResponse(data: Partial<AuthResponse>): Response {
   })
 }
 
+function selectDefaultInstanceId(
+  instances: Array<{ id: string; isDefault?: boolean }> = []
+): string | null {
+  if (!Array.isArray(instances) || instances.length === 0) {
+    return null
+  }
+  const preferred = instances.find(instance => instance.isDefault)
+  return (preferred ?? instances[0]).id ?? null
+}
+
 /**
  * Validate email format
  */
@@ -77,6 +87,7 @@ async function createAuthSuccessResponse(
   // Generate tokens
   const accessToken = await createAccessToken(user.id, user.email, adminStatus, env)
   const newRefreshToken = refreshToken || (await createRefreshToken(user.id, env))
+  const defaultInstanceId = selectDefaultInstanceId(user.instances)
 
   return createSuccessResponse({
     user: {
@@ -84,6 +95,7 @@ async function createAuthSuccessResponse(
       email: user.email,
       instances: user.instances,
       isAdmin: adminStatus,
+      defaultInstanceId,
     },
     accessToken,
     refreshToken: newRefreshToken,

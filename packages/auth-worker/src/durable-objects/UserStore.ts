@@ -1,14 +1,286 @@
 import { User, Instance } from '../types.js'
 import { hashPassword, verifyPassword } from '../utils/crypto.js'
 
+const DEFAULT_MAX_INSTANCES = 10
+const DEFAULT_INSTANCE_NAME = 'Personal Workspace'
+
+class DurableObjectError extends Error {
+  status: number
+
+  constructor(message: string, status = 400) {
+    super(message)
+    this.name = 'DurableObjectError'
+    this.status = status
+  }
+}
+
 /**
  * UserStore Durable Object handles user data persistence and operations
  */
 export class UserStore implements DurableObject {
   private storage: DurableObjectStorage
+  private maxInstances: number
 
-  constructor(state: DurableObjectState, _env: Env) {
+  constructor(state: DurableObjectState, env: Env) {
     this.storage = state.storage
+    const configuredMax = Number(env?.MAX_INSTANCES_PER_USER)
+    this.maxInstances =
+      Number.isFinite(configuredMax) && configuredMax > 0 ? configuredMax : DEFAULT_MAX_INSTANCES
+  }
+
+  private async getUserByEmail(email: string): Promise<User | undefined> {
+    return this.storage.get<User>(`user:${email}`)
+  }
+
+  private async getUserById(userId: string): Promise<User | undefined> {
+    return this.storage.get<User>(`user:id:${userId}`)
+  }
+
+  private async requireUserById(userId: string): Promise<User> {
+    const user = await this.getUserById(userId)
+    if (!user) {
+      throw new DurableObjectError('User not found', 404)
+    }
+    return structuredClone(user)
+  }
+
+  private async requireUserByEmail(email: string): Promise<User> {
+    const user = await this.getUserByEmail(email)
+    if (!user) {
+      throw new DurableObjectError('User not found', 404)
+    }
+    return structuredClone(user)
+  }
+
+  private async saveUser(user: User): Promise<void> {
+    await this.storage.put(`user:${user.email}`, user)
+    await this.storage.put(`user:id:${user.id}`, user)
+  }
+
+  private getDefaultInstanceId(user: User): string | null {
+    const defaultInstance = user.instances.find(instance => instance.isDefault)
+    return defaultInstance?.id ?? user.instances[0]?.id ?? null
+  }
+
+  private buildWorkspacePayload(user: User) {
+    return {
+      instances: user.instances,
+      defaultInstanceId: this.getDefaultInstanceId(user),
+    }
+  }
+
+  private ensureInstanceLimit(user: User): void {
+    if (user.instances.length >= this.maxInstances) {
+      throw new DurableObjectError(`Instance limit reached (max ${this.maxInstances})`, 400)
+    }
+  }
+
+  private normalizeName(name: string | undefined, fallback: string): string {
+    const trimmed = (name ?? '').trim()
+    const candidate = trimmed.length > 0 ? trimmed : fallback
+    return candidate
+  }
+
+  private assertUniqueName(user: User, name: string, ignoreId?: string): void {
+    const lowerName = name.toLowerCase()
+    const conflict = user.instances.find(
+      instance => instance.id !== ignoreId && instance.name.toLowerCase() === lowerName
+    )
+    if (conflict) {
+      throw new DurableObjectError('Workspace name already in use', 400)
+    }
+  }
+
+  private appendInstance(user: User, name?: string): Instance {
+    this.ensureInstanceLimit(user)
+    const fallbackName =
+      name ??
+      (user.instances.length === 0
+        ? DEFAULT_INSTANCE_NAME
+        : `Workspace ${user.instances.length + 1}`)
+    const resolvedName = this.normalizeName(fallbackName, fallbackName)
+    this.assertUniqueName(user, resolvedName)
+
+    const now = new Date()
+    const instance: Instance = {
+      id: crypto.randomUUID(),
+      name: resolvedName,
+      createdAt: now,
+      lastAccessedAt: now,
+      isDefault: user.instances.length === 0 || user.instances.every(i => !i.isDefault),
+    }
+
+    if (instance.isDefault) {
+      user.instances.forEach(existing => {
+        existing.isDefault = false
+      })
+    }
+
+    user.instances.push(instance)
+    return instance
+  }
+
+  private renameInstance(user: User, instanceId: string, name: string): Instance {
+    const target = user.instances.find(instance => instance.id === instanceId)
+    if (!target) {
+      throw new DurableObjectError('Instance not found', 404)
+    }
+
+    const resolvedName = this.normalizeName(name, target.name)
+    this.assertUniqueName(user, resolvedName, target.id)
+    target.name = resolvedName
+    return target
+  }
+
+  private setDefaultInstance(user: User, instanceId: string): Instance {
+    const target = user.instances.find(instance => instance.id === instanceId)
+    if (!target) {
+      throw new DurableObjectError('Instance not found', 404)
+    }
+
+    user.instances.forEach(instance => {
+      instance.isDefault = instance.id === instanceId
+    })
+
+    target.lastAccessedAt = new Date()
+    return target
+  }
+
+  private deleteInstance(user: User, instanceId: string): void {
+    const index = user.instances.findIndex(instance => instance.id === instanceId)
+    if (index === -1) {
+      throw new DurableObjectError('Instance not found', 404)
+    }
+
+    if (user.instances[index].isDefault) {
+      throw new DurableObjectError('Cannot remove default instance', 400)
+    }
+
+    if (user.instances.length <= 1) {
+      throw new DurableObjectError('Cannot remove the last instance', 400)
+    }
+
+    user.instances.splice(index, 1)
+  }
+
+  private touchInstance(user: User, instanceId: string): Instance {
+    const target = user.instances.find(instance => instance.id === instanceId)
+    if (!target) {
+      throw new DurableObjectError('Instance not found', 404)
+    }
+    target.lastAccessedAt = new Date()
+    return target
+  }
+
+  private jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  private errorResponse(message: string, status = 400): Response {
+    return this.jsonResponse({ error: message }, status)
+  }
+
+  private async handleListWorkspaces(request: Request): Promise<Response> {
+    const { userId } = await request.json()
+    if (!userId) {
+      return this.errorResponse('userId is required', 400)
+    }
+
+    const user = await this.requireUserById(userId)
+    return this.jsonResponse(this.buildWorkspacePayload(user))
+  }
+
+  private async handleCreateWorkspace(request: Request): Promise<Response> {
+    const { userId, name } = await request.json()
+    if (!userId) {
+      return this.errorResponse('userId is required', 400)
+    }
+
+    const user = await this.requireUserById(userId)
+    const instance = this.appendInstance(user, name)
+    await this.saveUser(user)
+
+    return this.jsonResponse(
+      {
+        instance,
+        ...this.buildWorkspacePayload(user),
+      },
+      201
+    )
+  }
+
+  private async handleRenameWorkspace(request: Request): Promise<Response> {
+    const { userId, instanceId, name } = await request.json()
+    if (!userId || !instanceId || typeof name !== 'string') {
+      return this.errorResponse('userId, instanceId, and name are required', 400)
+    }
+
+    const user = await this.requireUserById(userId)
+    const instance = this.renameInstance(user, instanceId, name)
+    await this.saveUser(user)
+
+    return this.jsonResponse({
+      instance,
+      ...this.buildWorkspacePayload(user),
+    })
+  }
+
+  private async handleSetDefaultWorkspace(request: Request): Promise<Response> {
+    const { userId, instanceId } = await request.json()
+    if (!userId || !instanceId) {
+      return this.errorResponse('userId and instanceId are required', 400)
+    }
+
+    const user = await this.requireUserById(userId)
+    const instance = this.setDefaultInstance(user, instanceId)
+    await this.saveUser(user)
+
+    return this.jsonResponse({
+      instance,
+      ...this.buildWorkspacePayload(user),
+    })
+  }
+
+  private async handleDeleteWorkspace(request: Request): Promise<Response> {
+    const { userId, instanceId } = await request.json()
+    if (!userId || !instanceId) {
+      return this.errorResponse('userId and instanceId are required', 400)
+    }
+
+    const user = await this.requireUserById(userId)
+    this.deleteInstance(user, instanceId)
+    await this.saveUser(user)
+
+    return this.jsonResponse(this.buildWorkspacePayload(user))
+  }
+
+  private async handleTouchWorkspace(request: Request): Promise<Response> {
+    const { userId, instanceId } = await request.json()
+    if (!userId || !instanceId) {
+      return this.errorResponse('userId and instanceId are required', 400)
+    }
+
+    const user = await this.requireUserById(userId)
+    const instance = this.touchInstance(user, instanceId)
+    await this.saveUser(user)
+
+    return this.jsonResponse({
+      instance,
+      ...this.buildWorkspacePayload(user),
+    })
+  }
+
+  private async handleInternalInstances(request: Request): Promise<Response> {
+    const { userId } = await request.json()
+    if (!userId) {
+      return this.errorResponse('userId is required', 400)
+    }
+
+    const user = await this.requireUserById(userId)
+    return this.jsonResponse(this.buildWorkspacePayload(user))
   }
 
   /**
@@ -38,10 +310,27 @@ export class UserStore implements DurableObject {
           return await this.handleUpdateUserAdminStatus(request)
         case '/delete-user':
           return await this.handleDeleteUser(request)
+        case '/workspaces/list':
+          return await this.handleListWorkspaces(request)
+        case '/workspaces/create':
+          return await this.handleCreateWorkspace(request)
+        case '/workspaces/rename':
+          return await this.handleRenameWorkspace(request)
+        case '/workspaces/set-default':
+          return await this.handleSetDefaultWorkspace(request)
+        case '/workspaces/delete':
+          return await this.handleDeleteWorkspace(request)
+        case '/workspaces/touch':
+          return await this.handleTouchWorkspace(request)
+        case '/internal/instances':
+          return await this.handleInternalInstances(request)
         default:
-          return new Response('Not found', { status: 404 })
+          return this.errorResponse('Not found', 404)
       }
     } catch (error) {
+      if (error instanceof DurableObjectError) {
+        return this.errorResponse(error.message, error.status)
+      }
       console.error('UserStore error:', error)
       return new Response('Internal error', { status: 500 })
     }
@@ -54,7 +343,7 @@ export class UserStore implements DurableObject {
     const { email, password } = await request.json()
 
     // Check if user already exists
-    const existingUser = await this.storage.get<User>(`user:${email}`)
+    const existingUser = await this.getUserByEmail(email)
     if (existingUser) {
       return new Response(JSON.stringify({ error: 'User already exists' }), {
         status: 409,
@@ -70,7 +359,7 @@ export class UserStore implements DurableObject {
     // Create default instance
     const defaultInstance: Instance = {
       id: crypto.randomUUID(),
-      name: 'Personal Workspace',
+      name: DEFAULT_INSTANCE_NAME,
       createdAt: now,
       lastAccessedAt: now,
       isDefault: true,
@@ -85,8 +374,7 @@ export class UserStore implements DurableObject {
     }
 
     // Store user by email and by ID
-    await this.storage.put(`user:${email}`, user)
-    await this.storage.put(`user:id:${userId}`, user)
+    await this.saveUser(user)
 
     // Return user without password
     const { hashedPassword: _, ...userResponse } = user
@@ -100,13 +388,10 @@ export class UserStore implements DurableObject {
    */
   private async handleGetUserByEmail(request: Request): Promise<Response> {
     const { email } = await request.json()
-    const user = await this.storage.get<User>(`user:${email}`)
+    const user = await this.getUserByEmail(email)
 
     if (!user) {
-      return new Response(JSON.stringify({ error: 'User not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      return this.errorResponse('User not found', 404)
     }
 
     const { hashedPassword: _, ...userResponse } = user
@@ -120,13 +405,10 @@ export class UserStore implements DurableObject {
    */
   private async handleGetUserById(request: Request): Promise<Response> {
     const { userId } = await request.json()
-    const user = await this.storage.get<User>(`user:id:${userId}`)
+    const user = await this.getUserById(userId)
 
     if (!user) {
-      return new Response(JSON.stringify({ error: 'User not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      return this.errorResponse('User not found', 404)
     }
 
     const { hashedPassword: _, ...userResponse } = user
@@ -140,7 +422,7 @@ export class UserStore implements DurableObject {
    */
   private async handleVerifyCredentials(request: Request): Promise<Response> {
     const { email, password } = await request.json()
-    const user = await this.storage.get<User>(`user:${email}`)
+    const user = await this.getUserByEmail(email)
 
     if (!user) {
       return new Response(JSON.stringify({ valid: false }), {
@@ -167,21 +449,17 @@ export class UserStore implements DurableObject {
    */
   private async handleUpdateUser(request: Request): Promise<Response> {
     const { userId, updates } = await request.json()
-    const user = await this.storage.get<User>(`user:id:${userId}`)
+    const user = await this.getUserById(userId)
 
     if (!user) {
-      return new Response(JSON.stringify({ error: 'User not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      return this.errorResponse('User not found', 404)
     }
 
     // Update user data
     const updatedUser = { ...user, ...updates }
 
     // Store updated user by both email and ID
-    await this.storage.put(`user:${user.email}`, updatedUser)
-    await this.storage.put(`user:id:${userId}`, updatedUser)
+    await this.saveUser(updatedUser)
 
     const { hashedPassword: _, ...userResponse } = updatedUser
     return new Response(JSON.stringify({ user: userResponse }), {
@@ -243,6 +521,9 @@ export class UserStore implements DurableObject {
     let updatedInstances = [...user.instances]
 
     if (action === 'add') {
+      if (updatedInstances.length >= this.maxInstances) {
+        return this.errorResponse(`Instance limit reached (max ${this.maxInstances})`, 400)
+      }
       // Check if instance already exists
       if (updatedInstances.some(instance => instance.id === storeId)) {
         return new Response(JSON.stringify({ error: 'Instance already exists' }), {
@@ -285,8 +566,7 @@ export class UserStore implements DurableObject {
     const updatedUser: User = { ...user, instances: updatedInstances }
 
     // Store updated user by both email and ID
-    await this.storage.put(`user:${email}`, updatedUser)
-    await this.storage.put(`user:id:${user.id}`, updatedUser)
+    await this.saveUser(updatedUser)
 
     const { hashedPassword: _, ...userResponse } = updatedUser
     return new Response(
@@ -314,7 +594,7 @@ export class UserStore implements DurableObject {
       })
     }
 
-    const user = await this.storage.get<User>(`user:${email}`)
+    const user = await this.getUserByEmail(email)
     if (!user) {
       return new Response(JSON.stringify({ error: 'User not found' }), {
         status: 404,
@@ -326,8 +606,7 @@ export class UserStore implements DurableObject {
     const updatedUser: User = { ...user, isAdmin }
 
     // Store updated user by both email and ID
-    await this.storage.put(`user:${email}`, updatedUser)
-    await this.storage.put(`user:id:${user.id}`, updatedUser)
+    await this.saveUser(updatedUser)
 
     const { hashedPassword: _, ...userResponse } = updatedUser
     return new Response(
@@ -382,6 +661,7 @@ export class UserStore implements DurableObject {
 // Environment interface for TypeScript
 interface Env {
   USER_STORE: any
+  MAX_INSTANCES_PER_USER?: string | number
 }
 
 interface DurableObject {
