@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 pnpm lint-all          # Runs lint, format, AND typecheck in one command
 pnpm test              # Runs unit tests
-CI=true pnpm test:e2e  # Runs E2E tests
+CI=true pnpm test:e2e  # Runs E2E tests (required before committing)
 ```
 
 `lint-all` replaces:
@@ -46,8 +46,8 @@ pnpm lint-all      # ✅ Use this! Runs lint, format, and typecheck
 
 # Testing
 pnpm test          # Unit tests
-pnpm test:e2e      # E2E tests
-CI=true pnpm test:e2e  # Verify E2E tests work (for Claude)
+pnpm test:e2e      # E2E tests (watch mode for development)
+CI=true pnpm test:e2e  # E2E tests in CI mode (required before committing)
 
 # Building
 pnpm --filter @work-squared/web build    # Build web package
@@ -89,7 +89,7 @@ Work Squared is a real-time collaborative web application built as a monorepo wi
 
 1. Review requirements thoroughly
 2. Ask clarifying questions
-3. Create descriptive branch (e.g., `feature/documents-tab`)
+3. Create descriptive branch with your username prefix (e.g., `jessmartin/add-feature-name`)
 
 ### While Developing
 
@@ -108,9 +108,77 @@ CI=true pnpm test:e2e  # Run E2E tests
 ### Creating a PR
 
 1. Write clear commit messages
-2. Open PR with detailed description
-3. Run `gh pr checks --watch` and wait for all checks (up to 10 minutes)
-4. Fix any issues (including neutral BugBot feedback)
+2. Push your branch to GitHub
+3. Create PR: `gh pr create --title "Title" --body "Description"` (or use GitHub web UI)
+4. Monitor checks: `gh pr checks --watch` and wait for all checks (up to 10 minutes)
+5. Check for feedback: `gh pr view <number> --comments` to see reviews and comments
+6. Fix any issues (including neutral BugBot feedback)
+
+## GitHub CLI (`gh`) Commands
+
+Use the `gh` command to interact with GitHub pull requests, issues, and checks. This is the preferred method for GitHub operations in Claude Code.
+
+### Pull Request Commands
+
+```bash
+# View PR details
+gh pr view <number>              # View PR summary
+gh pr view <number> --comments   # View PR with comments and reviews
+gh pr view <number> --web        # Open PR in browser
+
+# Check PR status
+gh pr status                     # View all your PRs and review requests
+gh pr checks <number>            # View check status for a specific PR
+gh pr checks --watch             # Monitor checks in real-time (wait up to 10 minutes)
+
+# List PRs
+gh pr list                       # List all open PRs
+gh pr list --author @me          # List your PRs
+gh pr list --state merged        # List merged PRs
+
+# Create PR
+gh pr create --title "Title" --body "Description"
+gh pr create --web   # Open browser to create PR with full editor
+```
+
+### Issue Commands
+
+```bash
+# List issues
+gh issue list                    # List all open issues
+gh issue list --limit 10         # List first 10 issues
+gh issue list --assignee @me     # List issues assigned to you
+
+# View issue details
+gh issue view <number>           # View issue summary
+gh issue view <number> --web     # Open issue in browser
+
+# Create issue
+gh issue create --title "Title" --body "Description"
+gh issue create --assignee @me   # Create and self-assign
+```
+
+### Common Workflows
+
+```bash
+# After creating a PR, monitor checks
+gh pr checks --watch
+
+# View PR with all comments and reviews
+gh pr view 272 --comments
+
+# Check status of all your PRs
+gh pr status
+
+# View specific check details
+gh pr checks 272
+```
+
+### Notes
+
+- PR numbers are shown in `gh pr status` or on GitHub
+- Use `--web` flag to open items in browser for complex interactions
+- `gh pr checks --watch` is essential for monitoring CI/CD pipelines
 
 ## Important Guidelines
 
@@ -325,6 +393,14 @@ const emptySetup = (store: Store) => {
 
 ## Deployment
 
-Deployments happen automatically when you push to the main branch.
+Deployments happen automatically via GitHub Actions when PRs are merged to the main branch.
 
-1. Deploy worker + assets to Cloudflare `pnpm --filter @work-squared/worker deploy`
+### Manual Deployment (if needed)
+
+Use these commands only when you need to deploy manually outside the normal CI/CD pipeline:
+
+```bash
+pnpm --filter @work-squared/auth-worker run deploy  # Deploy auth worker to Cloudflare
+pnpm --filter @work-squared/worker run deploy       # Deploy sync server to Cloudflare
+pnpm --filter @work-squared/web run deploy          # Deploy web app to Cloudflare Pages
+```
