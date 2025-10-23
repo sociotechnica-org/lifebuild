@@ -8,5 +8,5 @@ zone_name = "worksquared.ai"
 
 [env.production]
 name = "work-squared-posthog-prod"
-route = "coconut.app.worksquared.ai/*"
+route = "coconut.worksquared.ai/*"
 zone_name = "worksquared.ai"
