@@ -16,6 +16,7 @@ work-squared/
 │   ├── web/              # React frontend application
 │   ├── worker/           # Cloudflare Worker backend for sync
 │   ├── auth-worker/      # JWT authentication service
+│   ├── posthog-worker/   # PostHog analytics proxy (first-party)
 │   ├── server/           # Node.js backend server
 │   └── shared/           # Shared schemas and utilities
 ├── docs/                 # Architecture and planning documents
@@ -27,41 +28,60 @@ work-squared/
 - **`@work-squared/web`**: React frontend deployed to **Cloudflare Pages** with LiveStore integration, UI components, and real-time collaboration features
 - **`@work-squared/worker`**: Cloudflare Worker handling **WebSocket sync only** with Durable Objects for connection state management
 - **`@work-squared/auth-worker`**: JWT authentication service with user management and token generation
+- **`@work-squared/posthog-worker`**: PostHog analytics reverse proxy enabling first-party analytics collection via unique subdomain
 - **`@work-squared/server`**: Node.js backend server for event processing and server-side LLM operations
 - **`@work-squared/shared`**: Type-safe schemas, event definitions, and utilities shared across packages
 
 ### Deployment Architecture (Separated Services)
 
-As of September 2025, Work Squared uses a **separated deployment architecture** for better scalability and maintainability:
+As of October 2025, Work Squared uses a **separated deployment architecture** with independent workers for each concern:
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   React SPA     │────▶│ CF Worker       │────▶│ Node.js Server  │
-│ (Cloudflare     │     │ (WebSocket)     │     │ (Event Process) │
-│  Pages)         │     │                 │     │                 │
-├─────────────────┤     ├─────────────────┤     ├─────────────────┤
-│ • Static CDN    │     │ • Event relay   │     │ • Event process │
-│ • SPA routing   │     │ • WebSocket hub │     │ • LLM calls     │
-│ • UI components │     │ • JWT validation│     │ • Tool execution│
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-         │                       │                       │
-         │               ┌───────▼───────┐               │
-         │               │  Auth Worker  │               │
-         └──────────────▶│ (CF Worker)   │               │
-                         ├───────────────┤               │
-                         │ • User mgmt   │               │
-                         │ • JWT tokens  │               │
-                         │ • Auth flows  │               │
-                         └───────────────┘               │
-                                 │                       │
-                                 └───────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                     Browser User                                 │
+└─────────────────────────────────────────────────────────────────┘
+         │                    │                    │
+         │                    │                    │
+    ┌────▼────┐         ┌─────▼──────┐      ┌─────▼──────┐
+    │ Web App │         │ Analytics  │      │ Auth API   │
+    │ (Pages) │         │ (1st-party)│      │ (JWT)      │
+    └────┬────┘         └─────┬──────┘      └─────┬──────┘
+         │                    │                    │
+         │                    │ routes to           │
+         │                    └─────────┐           │
+         │                    PostHog   │           │
+    ┌────▼────────────────────────┐    │      ┌────▼──────┐
+    │  CF Worker (Sync Server)    │    │      │Auth Worker│
+    │  wss://work-squared...dev   │    │      │ (JWT svc) │
+    │                             │    │      └───────────┘
+    │ • WebSocket hub             │    │
+    │ • Event relay               │    │     ┌──────────────┐
+    │ • Connection mgmt           │    │     │ Node.js      │
+    │ • JWT validation            │    │     │ Server       │
+    └─────────────────────────────┘    │     │              │
+                   │                   │     │ • Processing │
+                   └───────────────────┤     │ • LLM calls  │
+                                   (3)  │     │ • Tools      │
+                                       └─────┤              │
+                                             └──────────────┘
 ```
 
-**Production URLs:**
+**Service Details:**
 
-- **Web App**: https://app.worksquared.ai (Cloudflare Pages)
-- **Sync Worker**: https://work-squared.jessmartin.workers.dev (WebSocket)
-- **Auth Worker**: https://work-squared-auth.jessmartin.workers.dev (Authentication)
+| Service        | Type                 | URL                                              | Purpose                       |
+| -------------- | -------------------- | ------------------------------------------------ | ----------------------------- |
+| Web App        | Cloudflare Pages     | https://app.worksquared.ai                       | React SPA, static assets      |
+| Sync Worker    | Cloudflare Worker    | wss://work-squared.jessmartin.workers.dev        | WebSocket sync, event relay   |
+| Auth Worker    | Cloudflare Worker    | https://work-squared-auth.jessmartin.workers.dev | JWT authentication            |
+| PostHog Worker | Cloudflare Worker    | https://coconut.app.worksquared.ai               | Analytics proxy (first-party) |
+| Server         | Node.js (Render.com) | Internal                                         | Event processing, LLM         |
+
+**PostHog Proxy Details:**
+
+- Routes analytics through first-party domain to bypass privacy filters
+- Caches static assets for performance
+- Works with Brave, Arc, and other privacy-focused browsers
+- Independent deployment and scaling
 
 ## Core Architecture Principles
 
