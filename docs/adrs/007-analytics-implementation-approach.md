@@ -2,11 +2,11 @@
 
 ## Status
 
-Accepted
+Accepted & **Updated** - October 20, 2025
 
 ## Last Updated
 
-2025-08-29
+2025-10-20
 
 ## Context
 
@@ -44,46 +44,82 @@ Run PostHog instance on our own infrastructure.
 
 ## Decision
 
-We chose **Option 1: Direct PostHog Integration** using their standard JavaScript SDK.
+We chose **Option 2: First-Party Proxy via Dedicated Cloudflare Worker** (evolved from Option 1).
 
-### Focus on Core Value
+### Initial Implementation (Option 1)
 
-Engineering time is better spent building project management features rather than analytics infrastructure. PostHog's SDK provides proven reliability and handles edge cases we haven't considered.
+Initially deployed direct PostHog integration using their standard JavaScript SDK. This approach worked well but had a critical limitation: analytics requests were blocked by privacy-focused browsers (Brave, Arc) and some ad blockers.
 
-### Complexity vs. Benefit Analysis
+### Evolution to Option 2 (Current Implementation - October 2025)
 
-The benefits of first-party data collection don't justify the complexity for our use case:
+After discovering that team members using privacy-focused browsers couldn't send analytics, we implemented **Option 2 as a dedicated Cloudflare Worker** to enable first-party analytics collection:
 
-- Work Squared is primarily used by internal teams, not consumer-facing applications where ad-blockers and privacy concerns are critical
-- PostHog's SDK already includes automatic offline queueing, retry logic, and intelligent batching
-- Custom infrastructure would require significant testing, monitoring, and maintenance
+**New Architecture:**
 
-### Migration Flexibility
+- Dedicated `packages/posthog-worker` Cloudflare Worker
+- Routes all analytics through first-party domain: `coconut.app.worksquared.ai`
+- Clean separation from main sync server
+- Based on [PostHog's official Cloudflare proxy guide](https://posthog.com/docs/advanced/proxy/cloudflare)
 
-Direct PostHog integration is easier to migrate from if requirements change. We can always add a proxy layer or move to self-hosted PostHog later if needed.
+### Why This Approach (vs. staying with Option 1)
+
+**Business Driver**: Team members using Brave browser couldn't send analytics data
+
+**Technical Benefits**:
+
+- ✅ Bypasses ad blockers and privacy filters (works in Brave, Arc, Firefox Strict Tracking Protection)
+- ✅ First-party domain appears trustworthy to browser privacy features
+- ✅ Minimal complexity (simple reverse proxy)
+- ✅ Independent deployment lifecycle
+- ✅ Can easily migrate to other solutions later
+
+**Why Separate Worker**:
+
+- Single responsibility principle (analytics only)
+- Independent scaling and deployment
+- No path conflicts with sync server
+- Matches PostHog's recommended architecture
+
+### Key Implementation Details
+
+**Proxy Design:**
+
+- `/static/*` requests cached for performance
+- Request cookies removed for security
+- All requests forwarded to `us.i.posthog.com`
+- Unique non-generic subdomain (`coconut`) to avoid ad blocker blocklists
+
+**Configuration:**
+
+- Frontend points `VITE_PUBLIC_POSTHOG_HOST` to first-party proxy URL
+- CSP headers updated to allow proxy domain
+- GitHub Actions deploys PostHog worker in deployment pipeline
 
 ## Consequences
 
-### Downsides
+### Downsides (Previous Option 1)
 
-- **Third-party domain**: Analytics requests go to `us.i.posthog.com` instead of our domain
-- **Less control**: Cannot customize request handling or add custom logic
-- **Dependency**: Reliant on PostHog's infrastructure and SDK stability
+- ~~Third-party domain blocks analytics in privacy-focused browsers~~
+- ~~Less control over requests~~
 
-### Benefits
+### Benefits (Current Option 2)
 
-- **Zero infrastructure maintenance**: No workers, queues, or custom logic to maintain
-- **Proven reliability**: PostHog SDK handles offline scenarios, retries, and edge cases
-- **Feature completeness**: Access to all PostHog features (session replay, feature flags, etc.)
-- **Faster development**: Integration takes minutes instead of days
-- **Easier debugging**: Standard PostHog tooling and documentation
+- **Works everywhere**: Analytics captured in Brave, Arc, and other privacy-focused browsers
+- **Minimal complexity**: Simple reverse proxy based on proven pattern
+- **First-party trust**: Requests appear to come from app domain
+- **Independent deployment**: Separate worker, separate deployment lifecycle
+- **Security**: Cookies removed, Cloudflare edge protection
+- **Performance**: Static assets cached efficiently
+- **Backward compatible**: PostHog SDK unchanged, works seamlessly
+- **Easy to migrate**: Can switch to other solutions without code changes
 
-## Future Considerations
+## Migration Path
 
-If first-party data collection becomes critical (e.g., for compliance, ad-blocker avoidance, or custom analytics), we can:
+If requirements change in the future:
 
-1. **Simple proxy approach**: Minimal Cloudflare Worker that forwards requests without custom logic
-2. **PostHog Cloud EU**: Use PostHog's EU hosting for data residency requirements
-3. **Self-hosted PostHog**: Full control with managed complexity
+1. **PostHog Managed Proxy**: Switch to their managed service
+2. **PostHog EU Hosting**: Change proxy target to `eu.i.posthog.com`
+3. **Different Analytics**: Replace proxy target without touching frontend code
+4. **Turn off analytics**: Simply remove worker deployment
 
-The direct integration approach doesn't prevent us from implementing these alternatives later if requirements change.
+The first-party proxy approach is flexible and doesn't lock us into any specific provider.

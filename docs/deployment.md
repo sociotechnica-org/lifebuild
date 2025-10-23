@@ -51,13 +51,19 @@ wrangler auth login
 # Deploy auth worker
 pnpm --filter @work-squared/auth-worker run deploy
 
-# Deploy main worker (includes frontend)
+# Deploy PostHog analytics proxy worker
+pnpm --filter @work-squared/posthog-worker run deploy
+
+# Deploy main worker (WebSocket sync)
 pnpm --filter @work-squared/worker run deploy
+
+# Deploy web app to Cloudflare Pages
+pnpm --filter @work-squared/web run deploy
 ```
 
 ## Deployment Architecture
 
-Work Squared consists of two Cloudflare Workers:
+Work Squared consists of multiple Cloudflare Workers and a Pages deployment:
 
 ### 1. Auth Worker
 
@@ -66,12 +72,27 @@ Work Squared consists of two Cloudflare Workers:
 - **Deploy command**: `pnpm --filter @work-squared/auth-worker run deploy`
 - **Configuration**: `packages/auth-worker/wrangler.toml`
 
-### 2. Main Worker
+### 2. PostHog Analytics Worker
 
-- **Purpose**: Serves frontend app + WebSocket LiveStore sync server
-- **URL**: `https://work-squared.jessmartin.workers.dev`
+- **Purpose**: Reverse proxy for PostHog analytics (first-party domain)
+- **URL**: `https://coconut.app.worksquared.ai`
+- **Deploy command**: `pnpm --filter @work-squared/posthog-worker run deploy`
+- **Configuration**: `packages/posthog-worker/wrangler.toml`
+- **Details**: Routes analytics to PostHog via first-party domain to bypass ad blockers and privacy filters
+
+### 3. Sync Worker
+
+- **Purpose**: WebSocket sync server for real-time event relay
+- **URL**: `https://work-squared.jessmartin.workers.dev` (WebSocket)
 - **Deploy command**: `pnpm --filter @work-squared/worker run deploy`
 - **Configuration**: `packages/worker/wrangler.jsonc`
+
+### 4. Web App
+
+- **Purpose**: React frontend application
+- **URL**: `https://app.worksquared.ai`
+- **Deploy command**: `pnpm --filter @work-squared/web run deploy`
+- **Deployed to**: Cloudflare Pages
 
 ## Environment Variables
 
@@ -92,11 +113,56 @@ For local development:
 
 ## Deployment Process
 
+GitHub Actions automatically executes the following steps on every push to `main`:
+
 1. **Trigger**: Push or merge to `main` branch
-2. **Pre-deployment**: Run unit tests for both packages
-3. **Deploy Auth Worker**: Deploy authentication service first
-4. **Deploy Main Worker**: Deploy main application with frontend
-5. **Verification**: Check deployment URLs for success
+2. **Install**: Install dependencies for all packages
+3. **Pre-deployment**:
+   - Run unit tests (`pnpm test`)
+   - Run linting and typecheck (`pnpm lint-all`)
+4. **Deploy Services** (in order):
+   - Deploy Auth Worker (`@work-squared/auth-worker`)
+   - Deploy PostHog Analytics Worker (`@work-squared/posthog-worker`)
+   - Deploy Sync Worker (`@work-squared/worker`)
+   - Deploy Web App to Pages (`@work-squared/web`)
+5. **Verification**: GitHub Actions reports success/failure
+
+## PostHog Analytics Worker Deployment
+
+The PostHog worker is deployed as part of the standard pipeline. Key details:
+
+**Configuration** (`packages/posthog-worker/wrangler.toml`):
+
+```toml
+name = "work-squared-posthog"
+main = "src/index.ts"
+route = "coconut.worksquared.ai/*"
+zone_name = "worksquared.ai"
+
+[env.production]
+name = "work-squared-posthog-prod"
+route = "coconut.app.worksquared.ai/*"
+zone_name = "worksquared.ai"
+```
+
+**Frontend Configuration** (set by GitHub Actions):
+
+- `VITE_PUBLIC_POSTHOG_HOST=https://coconut.app.worksquared.ai`
+
+**CSP Headers** (`packages/web/public/_headers`):
+
+- Added `coconut.app.worksquared.ai` to `connect-src` directive
+- PostHog API calls now route through first-party domain
+
+**How It Works**:
+
+1. Browser requests analytics → `coconut.app.worksquared.ai/decide`
+2. PostHog Worker receives request at first-party domain
+3. Worker strips cookies, validates request
+4. Forwards to `us.i.posthog.com`
+5. Response cached and returned to browser
+
+This approach allows analytics to work in privacy-focused browsers (Brave, Arc) that block third-party analytics domains.
 
 ## Troubleshooting
 
@@ -118,6 +184,20 @@ For local development:
 - Check Cloudflare status page for service issues
 - Verify worker configuration in `wrangler.toml` / `wrangler.jsonc`
 
+**PostHog Analytics Not Working**
+
+- Verify PostHog worker is deployed: check `https://coconut.app.worksquared.ai/status` (should return CloudFlare error, not 502)
+- Check browser console for blocked analytics requests
+- Verify CSP headers allow `coconut.app.worksquared.ai` in `connect-src`
+- Check that `VITE_PUBLIC_POSTHOG_KEY` secret is set
+- Verify `VITE_PUBLIC_POSTHOG_HOST` env var is set to `https://coconut.app.worksquared.ai` in GitHub Actions
+
+**Analytics Blocked in Brave/Arc**
+
+- If analytics still blocked despite proxy: ad blocker may have been updated with `coconut` in blocklist
+- Solution: Change subdomain in `wrangler.toml` to different random name (e.g., `pineapple`, `mushroom`)
+- Update frontend env var and redeploy
+
 ### Debug Commands
 
 ```bash
@@ -129,6 +209,14 @@ wrangler deploy --dry-run
 
 # View worker logs
 wrangler tail <worker-name>
+
+# Test PostHog proxy endpoint (development)
+pnpm --filter @work-squared/posthog-worker dev
+# Then: curl http://localhost:8787/decide (should proxy to PostHog)
+
+# Check PostHog analytics in production
+# Open DevTools Network tab and filter for "coconut.app.worksquared.ai"
+# Should see POST requests to /decide endpoint with 200 response
 ```
 
 ## Node.js Server Deployment (Render.com)
