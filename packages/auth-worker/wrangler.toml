@@ -4,6 +4,8 @@ main = "./src/index.ts"
 
 [vars]
 ENVIRONMENT = "development"
+SERVER_WEBHOOK_URL = ""
+WEBHOOK_SECRET = ""
 
 [[durable_objects.bindings]]
 name = "USER_STORE"
