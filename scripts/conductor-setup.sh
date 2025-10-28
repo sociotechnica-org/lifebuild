@@ -45,7 +45,8 @@ echo "🔧 Updating STORE_IDS to match branch name..."
 BRANCH_NAME=$(git branch --show-current)
 if [ -f "packages/server/.env" ]; then
     # Replace STORE_IDS line with branch-specific value
-    sed -i.bak "s/^STORE_IDS=.*/STORE_IDS=${BRANCH_NAME}/" packages/server/.env
+    # Use | as delimiter instead of / to handle branch names with slashes
+    sed -i.bak "s|^STORE_IDS=.*|STORE_IDS=${BRANCH_NAME}|" packages/server/.env
     rm packages/server/.env.bak
     echo "✅ Set STORE_IDS=${BRANCH_NAME}"
 else
