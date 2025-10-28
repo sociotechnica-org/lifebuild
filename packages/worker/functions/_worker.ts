@@ -216,6 +216,22 @@ function createWorkerWithAuth(env: any) {
     console.log('Auth disabled - accepting both dev tokens and JWT tokens for development')
     return SyncBackend.makeWorker({
       validatePayload: async (payload: any, context?: any) => {
+        // CRITICAL: Even in dev mode, enforce workspace isolation
+        const requestedStoreId = context?.storeId || payload?.storeId
+        const authenticatedInstanceId = payload?.instanceId
+
+        // Require instanceId to be present and match storeId
+        if (!authenticatedInstanceId) {
+          throw new Error('Workspace ID (instanceId) required even in development mode')
+        }
+
+        if (requestedStoreId && requestedStoreId !== authenticatedInstanceId) {
+          console.error(
+            `StoreId mismatch (dev mode): requested=${requestedStoreId}, authenticated=${authenticatedInstanceId}`
+          )
+          throw new Error('Workspace mismatch')
+        }
+
         // Accept the insecure dev token
         if (payload?.authToken === DEV_AUTH.INSECURE_TOKEN) {
           return
@@ -224,22 +240,6 @@ function createWorkerWithAuth(env: any) {
         // Also try to validate as JWT for logged-in users
         try {
           await validateSyncPayload(payload, env)
-
-          // Even in dev mode, enforce storeId/instanceId match for JWT users
-          const requestedStoreId = context?.storeId || payload?.storeId
-          const authenticatedInstanceId = payload?.instanceId
-
-          if (
-            requestedStoreId &&
-            authenticatedInstanceId &&
-            requestedStoreId !== authenticatedInstanceId
-          ) {
-            console.error(
-              `StoreId mismatch (dev mode): requested=${requestedStoreId}, authenticated=${authenticatedInstanceId}`
-            )
-            throw new Error('Workspace mismatch')
-          }
-
           // If JWT validation succeeds, allow it
           return
         } catch {
