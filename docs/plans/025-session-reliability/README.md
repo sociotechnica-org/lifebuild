@@ -76,6 +76,7 @@ Keep sessions trustworthy by refreshing JWTs before they expire, removing insecu
 ### Completed Work
 
 **PR #269 - Session Reliability & Auto-Logout** (merged 2025-10-21)
+
 - ✅ JWT introspection with 2-minute refresh buffer (`packages/web/src/utils/auth.ts`)
 - ✅ Proactive token refresh in `AuthContext` with timer scheduling
 - ✅ Cross-tab coordination via `localStorage` lock to prevent duplicate refreshes
@@ -83,6 +84,7 @@ Keep sessions trustworthy by refreshing JWTs before they expire, removing insecu
 - ✅ Comprehensive unit tests: `auth.test.ts` and `useSyncPayload.test.ts`
 
 **PR #274 - Auth Session Status Banner** (merged 2025-10-22)
+
 - ✅ UI component (`AuthStatusBanner`) to surface auth failures
 - ✅ Reconnect/warning/error states with retry and logout actions
 - ✅ Unit tests and Storybook stories
@@ -90,12 +92,14 @@ Keep sessions trustworthy by refreshing JWTs before they expire, removing insecu
 ### Testing Strategy
 
 **Unit Tests** (comprehensive coverage)
+
 - JWT decode, expiry detection, buffer logic
 - Token refresh flow and error handling
 - Cross-tab lock acquisition and polling
 - Auth error propagation in `useSyncPayload`
 
 **Existing E2E Tests** (sufficient coverage)
+
 - `auth-integration.spec.ts` - Full login/logout/signup flows
 - `session-persistence.spec.ts` - Multi-tab coordination for storeId
 - Auth banner integration in main layout
