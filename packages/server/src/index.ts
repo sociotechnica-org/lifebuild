@@ -15,6 +15,7 @@ import * as Sentry from '@sentry/node'
 
 import { storeManager } from './services/store-manager.js'
 import { EventProcessor } from './services/event-processor.js'
+import { WorkspaceOrchestrator } from './services/workspace-orchestrator.js'
 import { loadStoresConfig } from './config/stores.js'
 import { logger } from './utils/logger.js'
 
@@ -31,10 +32,11 @@ async function main() {
 
   // Set up event processor
   const eventProcessor = new EventProcessor(storeManager)
+  const workspaceOrchestrator = new WorkspaceOrchestrator(storeManager, eventProcessor)
 
-  // Start monitoring all stores
-  for (const [storeId, store] of storeManager.getAllStores()) {
-    await eventProcessor.startMonitoring(storeId, store)
+  // Start monitoring all stores (legacy bootstrap support)
+  for (const storeId of config.storeIds) {
+    await workspaceOrchestrator.ensureMonitored(storeId)
   }
 
   logger.info('Event monitoring started for all stores')
@@ -60,6 +62,7 @@ async function main() {
         userMessages: liveStoreStats.totals.userMessages,
       })
       const processedStats = await eventProcessor.getProcessedMessageStats()
+      const orchestratorSummary = workspaceOrchestrator.getSummary()
 
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(
@@ -79,11 +82,13 @@ async function main() {
           liveStoreTotals: liveStoreStats.totals,
           liveStorePerStore: Object.fromEntries(liveStoreStats.perStore),
           processedMessages: processedStats,
+          orchestrator: orchestratorSummary,
         })
       )
     } else if (req.url === '/stores') {
       const storeInfo = storeManager.getAllStoreInfo()
       const processingStats = eventProcessor.getProcessingStats()
+      const orchestratorSummary = workspaceOrchestrator.getSummary()
       const stores = Array.from(storeInfo.entries()).map(([id, info]) => ({
         id,
         status: info.status,
@@ -92,10 +97,22 @@ async function main() {
         errorCount: info.errorCount,
         reconnectAttempts: info.reconnectAttempts,
         processing: processingStats.get(id) || null,
+        orchestrator: orchestratorSummary.stores.find(store => store.storeId === id) || null,
       }))
 
       res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ stores }))
+      res.end(
+        JSON.stringify({
+          stores,
+          orchestrator: {
+            monitoredStoreIds: orchestratorSummary.monitoredStoreIds,
+            lastProvisionedAt: orchestratorSummary.lastProvisionedAt,
+            lastDeprovisionedAt: orchestratorSummary.lastDeprovisionedAt,
+            totalProvisioned: orchestratorSummary.totalProvisioned,
+            totalDeprovisioned: orchestratorSummary.totalDeprovisioned,
+          },
+        })
+      )
     } else if (req.url === '/') {
       const healthStatus = storeManager.getHealthStatus()
 
@@ -167,8 +184,7 @@ async function main() {
   const shutdown = async () => {
     logger.info('Shutting down server...')
     healthServer.close()
-    eventProcessor.stopAll()
-    await storeManager.shutdown()
+    await workspaceOrchestrator.shutdown()
 
     // Flush any pending Sentry events before exiting
     logger.info('Flushing Sentry events...')
