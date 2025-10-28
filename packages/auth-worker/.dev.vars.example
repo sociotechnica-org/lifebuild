@@ -4,9 +4,20 @@
 # Environment setting (development/production)
 ENVIRONMENT=development
 
-# JWT secret key for signing tokens  
+# JWT secret key for signing tokens
 # IMPORTANT: Change this to a strong, random secret in production!
+# Must match the sync worker's JWT_SECRET
 JWT_SECRET=dev-jwt-secret-change-me-in-production
+
+# Server bypass token for internal service-to-service calls
+# Used by sync worker to verify workspace ownership
+# IMPORTANT: Change this to a strong, random secret in production!
+# Must match the sync worker's SERVER_BYPASS_TOKEN
+SERVER_BYPASS_TOKEN=dev-server-bypass-token-change-me
+
+# Workspace management
+# Maximum number of workspaces per user (default: 10)
+# MAX_INSTANCES_PER_USER=10
 
 # Bootstrap admin email for admin privileges (optional)
 # BOOTSTRAP_ADMIN_EMAIL=admin@example.com

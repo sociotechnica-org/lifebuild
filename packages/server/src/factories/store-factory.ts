@@ -70,6 +70,7 @@ export function getStoreConfig(storeId: string): StoreConfig {
 /**
  * Creates the sync payload for server-worker authentication
  * Uses serverBypass in production, authToken in development
+ * Always includes instanceId for workspace isolation
  */
 function getSyncPayload(config: StoreConfig): Record<string, string> | undefined {
   const isProduction = process.env.NODE_ENV === 'production'
@@ -85,6 +86,7 @@ function getSyncPayload(config: StoreConfig): Record<string, string> | undefined
     logger.info('Using server bypass authentication for production')
     return {
       serverBypass: serverBypassToken,
+      instanceId: config.storeId, // Explicitly specify workspace for security
     }
   }
 
@@ -93,6 +95,7 @@ function getSyncPayload(config: StoreConfig): Record<string, string> | undefined
     logger.info('Using authToken authentication for development')
     return {
       authToken: config.authToken,
+      instanceId: config.storeId, // Explicitly specify workspace for security
     }
   }
 
