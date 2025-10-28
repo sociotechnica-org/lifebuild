@@ -22,7 +22,12 @@ export interface Env extends SyncEnv {
   AUTH_WORKER_URL?: string
 }
 
-// Cache for workspace ownership validation (in-memory per execution context)
+// Cache for workspace ownership validation (persists across requests within worker lifetime)
+// Note: This is intentionally cross-request to handle rapid reconnects efficiently.
+// Trade-off: Revoked access may be cached up to CACHE_TTL_MS. This is acceptable because:
+// 1. Access revocation is rare and typically requires immediate logout/token refresh
+// 2. The 60s window is bounded and prevents auth worker overload during reconnects
+// 3. All connections still require valid JWT tokens (independent of workspace cache)
 interface WorkspaceValidationCache {
   [key: string]: {
     isValid: boolean
@@ -31,7 +36,7 @@ interface WorkspaceValidationCache {
 }
 
 const workspaceCache: WorkspaceValidationCache = {}
-const CACHE_TTL_MS = 60000 // 1 minute
+const CACHE_TTL_MS = 60000 // 60 seconds - balance between performance and access revocation lag
 
 export class SyncBackendDO extends SyncBackend.makeDurableObject({
   onPush: async (message, context) => {
@@ -201,7 +206,7 @@ function createWorkerWithAuth(env: any) {
   if (!requireAuth) {
     console.log('Auth disabled - accepting both dev tokens and JWT tokens for development')
     return SyncBackend.makeWorker({
-      validatePayload: async (payload: any) => {
+      validatePayload: async (payload: any, context?: any) => {
         // Accept the insecure dev token
         if (payload?.authToken === DEV_AUTH.INSECURE_TOKEN) {
           return
@@ -210,6 +215,22 @@ function createWorkerWithAuth(env: any) {
         // Also try to validate as JWT for logged-in users
         try {
           await validateSyncPayload(payload, env)
+
+          // Even in dev mode, enforce storeId/instanceId match for JWT users
+          const requestedStoreId = context?.storeId || payload?.storeId
+          const authenticatedInstanceId = payload?.instanceId
+
+          if (
+            requestedStoreId &&
+            authenticatedInstanceId &&
+            requestedStoreId !== authenticatedInstanceId
+          ) {
+            console.error(
+              `StoreId mismatch (dev mode): requested=${requestedStoreId}, authenticated=${authenticatedInstanceId}`
+            )
+            throw new Error('Workspace mismatch')
+          }
+
           // If JWT validation succeeds, allow it
           return
         } catch {
@@ -223,7 +244,7 @@ function createWorkerWithAuth(env: any) {
 
   // Auth is enabled - use full JWT validation
   return SyncBackend.makeWorker({
-    validatePayload: async (payload: any) => {
+    validatePayload: async (payload: any, context?: any) => {
       console.log('Validating sync payload:', Object.keys(payload || {}))
 
       try {
@@ -231,6 +252,24 @@ function createWorkerWithAuth(env: any) {
         console.log(`Authentication successful for user: ${authResult.userId}`)
         if (authResult.isGracePeriod) {
           console.log('User authenticated within grace period')
+        }
+
+        // CRITICAL SECURITY: Ensure instanceId matches the storeId being accessed
+        // This prevents a user from authenticating with workspace A but accessing workspace B
+        const requestedStoreId = context?.storeId || payload?.storeId
+        const authenticatedInstanceId = payload?.instanceId
+
+        if (
+          requestedStoreId &&
+          authenticatedInstanceId &&
+          requestedStoreId !== authenticatedInstanceId
+        ) {
+          console.error(
+            `StoreId mismatch: requested=${requestedStoreId}, authenticated=${authenticatedInstanceId}`
+          )
+          throw new Error(
+            `${AuthErrorCode.FORBIDDEN}: Workspace mismatch - cannot access workspace ${requestedStoreId} with credentials for ${authenticatedInstanceId}`
+          )
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
