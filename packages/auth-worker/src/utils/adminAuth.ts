@@ -43,4 +43,7 @@ interface Env {
   JWT_SECRET?: string
   USER_STORE: any
   BOOTSTRAP_ADMIN_EMAIL?: string
+  DISCORD_WEBHOOK_URL?: string
+  SERVER_WEBHOOK_URL?: string
+  WEBHOOK_SECRET?: string
 }

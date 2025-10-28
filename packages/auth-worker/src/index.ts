@@ -3,6 +3,11 @@ import { handleSignup, handleLogin, handleRefresh, handleLogout } from './handle
 import { verifyAdminAccess } from './utils/adminAuth.js'
 import { verifyToken, isTokenExpired } from './utils/jwt.js'
 import type { JWTPayload } from './types.js'
+import { notifyWorkspaceEvent } from './workspace-notifier.js'
+
+type WorkerExecutionContext = {
+  waitUntil(promise: Promise<unknown>): void
+}
 
 /**
  * Handle admin list users request
@@ -132,7 +137,11 @@ async function handleWorkspaceList(request: Request, env: Env): Promise<Response
   })
 }
 
-async function handleWorkspaceCreate(request: Request, env: Env): Promise<Response> {
+async function handleWorkspaceCreate(
+  request: Request,
+  env: Env,
+  ctx?: WorkerExecutionContext
+): Promise<Response> {
   const authCheck = await verifyUserAccess(request, env)
   if (!authCheck.valid) {
     return createErrorResponse(authCheck.error || 'Unauthorized', authCheck.statusCode || 401)
@@ -141,10 +150,32 @@ async function handleWorkspaceCreate(request: Request, env: Env): Promise<Respon
   const body = await parseRequestBody(request)
   const name = typeof body.name === 'string' ? body.name : undefined
 
-  return forwardToUserStore(env, '/workspaces/create', {
+  const response = await forwardToUserStore(env, '/workspaces/create', {
     userId: authCheck.user!.userId,
     name,
   })
+
+  if (response.ok) {
+    ctx?.waitUntil(
+      (async () => {
+        try {
+          const data = await response.clone().json()
+          const instanceId = data?.instance?.id
+          if (!instanceId) return
+          await notifyWorkspaceEvent(env, {
+            event: 'workspace.created',
+            instanceId,
+            userId: authCheck.user!.userId,
+            timestamp: new Date().toISOString(),
+          })
+        } catch (error) {
+          console.error('Workspace create webhook scheduling failed', { error })
+        }
+      })()
+    )
+  }
+
+  return response
 }
 
 async function handleWorkspaceRename(
@@ -188,17 +219,33 @@ async function handleWorkspaceSetDefault(
 async function handleWorkspaceDelete(
   request: Request,
   env: Env,
-  instanceId: string
+  instanceId: string,
+  ctx?: WorkerExecutionContext
 ): Promise<Response> {
   const authCheck = await verifyUserAccess(request, env)
   if (!authCheck.valid) {
     return createErrorResponse(authCheck.error || 'Unauthorized', authCheck.statusCode || 401)
   }
 
-  return forwardToUserStore(env, '/workspaces/delete', {
+  const response = await forwardToUserStore(env, '/workspaces/delete', {
     userId: authCheck.user!.userId,
     instanceId,
   })
+
+  if (response.ok) {
+    ctx?.waitUntil(
+      notifyWorkspaceEvent(env, {
+        event: 'workspace.deleted',
+        instanceId,
+        userId: authCheck.user!.userId,
+        timestamp: new Date().toISOString(),
+      }).catch(error => {
+        console.error('Workspace delete webhook scheduling failed', { error })
+      })
+    )
+  }
+
+  return response
 }
 
 async function handleWorkspaceTouch(
@@ -449,7 +496,7 @@ function checkRateLimit(clientIP: string, maxRequests = 10, windowMs = 60000): b
  * Main Worker fetch handler
  */
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: WorkerExecutionContext): Promise<Response> {
     const url = new URL(request.url)
     const path = url.pathname
     const method = request.method
@@ -516,7 +563,7 @@ export default {
             return addCorsHeaders(await handleWorkspaceList(request, env))
           }
           if (method === 'POST') {
-            return addCorsHeaders(await handleWorkspaceCreate(request, env))
+            return addCorsHeaders(await handleWorkspaceCreate(request, env, ctx))
           }
           return createErrorResponse('Method not allowed', 405)
 
@@ -558,7 +605,7 @@ export default {
             if (segments.length === 2) {
               const instanceId = decodeURIComponent(segments[1])
               if (method === 'DELETE') {
-                return addCorsHeaders(await handleWorkspaceDelete(request, env, instanceId))
+                return addCorsHeaders(await handleWorkspaceDelete(request, env, instanceId, ctx))
               }
               return createErrorResponse('Method not allowed', 405)
             }
@@ -621,4 +668,6 @@ interface Env {
   DISCORD_WEBHOOK_URL?: string
   SERVER_BYPASS_TOKEN?: string
   MAX_INSTANCES_PER_USER?: string | number
+  SERVER_WEBHOOK_URL?: string
+  WEBHOOK_SECRET?: string
 }

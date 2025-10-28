@@ -18,6 +18,7 @@ import { EventProcessor } from './services/event-processor.js'
 import { WorkspaceOrchestrator } from './services/workspace-orchestrator.js'
 import { loadStoresConfig } from './config/stores.js'
 import { logger } from './utils/logger.js'
+import { handleWorkspaceWebhook } from './api/workspace-webhooks.js'
 
 async function main() {
   logger.info('Starting Work Squared Multi-Store Server...')
@@ -33,6 +34,11 @@ async function main() {
   // Set up event processor
   const eventProcessor = new EventProcessor(storeManager)
   const workspaceOrchestrator = new WorkspaceOrchestrator(storeManager, eventProcessor)
+  const webhookSecret = process.env.WEBHOOK_SECRET
+
+  if (!webhookSecret) {
+    logger.warn('WEBHOOK_SECRET not configured. Workspace webhooks will be rejected.')
+  }
 
   // Start monitoring all stores (legacy bootstrap support)
   for (const storeId of config.storeIds) {
@@ -44,8 +50,8 @@ async function main() {
   const http = await import('http')
   const healthServer = http.createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Webhook-Secret')
 
     if (req.method === 'OPTIONS') {
       res.writeHead(200)
@@ -53,7 +59,17 @@ async function main() {
       return
     }
 
-    if (req.url === '/health') {
+    const pathname = req.url?.split('?')[0] ?? ''
+
+    if (pathname === '/webhooks/workspaces') {
+      await handleWorkspaceWebhook(req, res, {
+        orchestrator: workspaceOrchestrator,
+        secret: webhookSecret,
+      })
+      return
+    }
+
+    if (pathname === '/health') {
       const healthStatus = storeManager.getHealthStatus()
       const processingStats = eventProcessor.getProcessingStats()
       const liveStoreStats = await eventProcessor.getLiveStoreStats()
@@ -85,7 +101,7 @@ async function main() {
           orchestrator: orchestratorSummary,
         })
       )
-    } else if (req.url === '/stores') {
+    } else if (pathname === '/stores') {
       const storeInfo = storeManager.getAllStoreInfo()
       const processingStats = eventProcessor.getProcessingStats()
       const orchestratorSummary = workspaceOrchestrator.getSummary()
@@ -113,7 +129,7 @@ async function main() {
           },
         })
       )
-    } else if (req.url === '/') {
+    } else if (pathname === '/') {
       const healthStatus = storeManager.getHealthStatus()
 
       res.writeHead(200, { 'Content-Type': 'text/html' })
