@@ -103,13 +103,45 @@ Key configuration for the Cloudflare Worker:
 
 ### Environment Variables
 
-The worker requires these environment variables (configured via `.dev.vars`):
+The worker requires these environment variables (configured via `.dev.vars` for development):
 
 ```bash
+# Environment
+ENVIRONMENT=development                          # development or production
+REQUIRE_AUTH=true                               # Enable JWT authentication
+
+# Authentication & Security
+JWT_SECRET=dev-jwt-secret-change-me-in-production  # JWT signing secret (CRITICAL: use strong secret in production)
+GRACE_PERIOD_SECONDS=86400                      # Token grace period (24 hours for development)
+SERVER_BYPASS_TOKEN=dev-server-bypass-token      # Token for internal service-to-service calls
+
+# Workspace Management
+AUTH_WORKER_URL=http://localhost:8788           # Auth worker URL (defaults to http://localhost:8788 in dev, https://auth.coconut.app in production)
+
+# R2 Image Storage
+R2_PUBLIC_URL=http://localhost:8787/api/images  # Public URL for R2 image access
+
 # Required for LLM functionality
 BRAINTRUST_API_KEY="your-braintrust-api-key"
 BRAINTRUST_PROJECT_ID="your-braintrust-project-id"
 ```
+
+**Important Security Notes:**
+
+- `JWT_SECRET`: Must be identical to the auth worker's JWT secret. Change from default in production.
+- `SERVER_BYPASS_TOKEN`: Used for internal workspace validation calls to the auth worker. Must match auth worker configuration.
+- `AUTH_WORKER_URL`: Optional. Defaults to `http://localhost:8788` in development and `https://auth.coconut.app` in production.
+
+**Workspace Enforcement:**
+
+The sync worker validates workspace ownership for all authenticated connections:
+
+1. Extracts `instanceId` from the sync payload
+2. Calls auth worker's internal endpoint to verify user owns the workspace
+3. Rejects connections with `FORBIDDEN` error if validation fails
+4. Caches validation results for 1 minute to reduce auth worker load
+
+Each workspace (instanceId) is automatically routed to its own Durable Object instance, ensuring complete data isolation between workspaces.
 
 ## Features
 
