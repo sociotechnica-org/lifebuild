@@ -19,7 +19,24 @@ export interface Env extends SyncEnv {
   GRACE_PERIOD_SECONDS?: string
   SERVER_BYPASS_TOKEN?: string
   R2_PUBLIC_URL?: string
+  AUTH_WORKER_URL?: string
 }
+
+// Cache for workspace ownership validation (persists across requests within worker lifetime)
+// Note: This is intentionally cross-request to handle rapid reconnects efficiently.
+// Trade-off: Revoked access may be cached up to CACHE_TTL_MS. This is acceptable because:
+// 1. Access revocation is rare and typically requires immediate logout/token refresh
+// 2. The 60s window is bounded and prevents auth worker overload during reconnects
+// 3. All connections still require valid JWT tokens (independent of workspace cache)
+interface WorkspaceValidationCache {
+  [key: string]: {
+    isValid: boolean
+    timestamp: number
+  }
+}
+
+const workspaceCache: WorkspaceValidationCache = {}
+const CACHE_TTL_MS = 60000 // 60 seconds - balance between performance and access revocation lag
 
 export class SyncBackendDO extends SyncBackend.makeDurableObject({
   onPush: async (message, context) => {
@@ -39,6 +56,64 @@ export class SyncBackendDO extends SyncBackend.makeDurableObject({
 }) {}
 
 /**
+ * Verify that a user owns a specific workspace by calling the auth worker's internal endpoint
+ */
+async function verifyWorkspaceOwnership(
+  userId: string,
+  instanceId: string,
+  env: Env
+): Promise<boolean> {
+  // Check cache first
+  const cacheKey = `${userId}:${instanceId}`
+  const cached = workspaceCache[cacheKey]
+  const now = Date.now()
+
+  if (cached && now - cached.timestamp < CACHE_TTL_MS) {
+    console.log(`Cache hit for workspace validation: ${cacheKey}`)
+    return cached.isValid
+  }
+
+  // Call auth worker internal endpoint
+  const authWorkerUrl =
+    env.AUTH_WORKER_URL ||
+    (env.ENVIRONMENT === 'production' ? 'https://auth.coconut.app' : 'http://localhost:8788')
+  const serverBypassToken = env.SERVER_BYPASS_TOKEN
+
+  if (!serverBypassToken) {
+    console.error('SERVER_BYPASS_TOKEN not configured for workspace verification')
+    throw new Error(`${AuthErrorCode.AUTH_SERVICE_ERROR}: Server bypass token not configured`)
+  }
+
+  try {
+    const response = await fetch(`${authWorkerUrl}/internal/users/${userId}/instances`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${serverBypassToken}`,
+      },
+    })
+
+    if (!response.ok) {
+      console.error(`Auth worker returned ${response.status} for user ${userId}`)
+      // Cache negative result briefly to avoid hammering the auth worker
+      workspaceCache[cacheKey] = { isValid: false, timestamp: now }
+      return false
+    }
+
+    const data = (await response.json()) as { instances: Array<{ id: string }> }
+    const hasAccess = data.instances.some(inst => inst.id === instanceId)
+
+    // Cache the result
+    workspaceCache[cacheKey] = { isValid: hasAccess, timestamp: now }
+
+    console.log(`Workspace validation for ${cacheKey}: ${hasAccess}`)
+    return hasAccess
+  } catch (error) {
+    console.error('Error verifying workspace ownership:', error)
+    throw new Error(`${AuthErrorCode.AUTH_SERVICE_ERROR}: Failed to verify workspace ownership`)
+  }
+}
+
+/**
  * Validate sync payload and authenticate user
  */
 async function validateSyncPayload(
@@ -48,15 +123,24 @@ async function validateSyncPayload(
   const requireAuth =
     env[ENV_VARS.REQUIRE_AUTH] === 'true' || env[ENV_VARS.ENVIRONMENT] === 'production'
 
-  // Development mode - allow unauthenticated access
+  // Development mode - allow unauthenticated access (skip workspace validation)
   if (!requireAuth) {
     console.log('Auth disabled in development mode')
     return { userId: DEV_AUTH.DEFAULT_USER_ID }
   }
 
   // Server bypass - allow internal server connections without JWT
+  // However, still require explicit instanceId to prevent unrestricted access
   if (payload?.serverBypass === env[ENV_VARS.SERVER_BYPASS_TOKEN]) {
-    console.log('Server bypass authenticated')
+    const instanceId = payload?.instanceId
+    if (!instanceId) {
+      throw new Error(
+        `${AuthErrorCode.TOKEN_MISSING}: Workspace ID (instanceId) required even for server bypass`
+      )
+    }
+    console.log(`Server bypass authenticated for workspace: ${instanceId}`)
+    // Server bypass is trusted, so skip auth worker validation
+    // But we still enforce explicit workspace selection
     return { userId: 'server-internal' }
   }
 
@@ -66,7 +150,7 @@ async function validateSyncPayload(
     throw new Error(`${AuthErrorCode.TOKEN_MISSING}: Authentication required`)
   }
 
-  // Handle legacy insecure token during transition
+  // Handle legacy insecure token during transition (skip workspace validation in dev)
   if (authToken === DEV_AUTH.INSECURE_TOKEN) {
     if (env[ENV_VARS.ENVIRONMENT] === 'development') {
       console.log('Using legacy insecure token in development')
@@ -103,6 +187,19 @@ async function validateSyncPayload(
     )
   }
 
+  // Verify workspace ownership
+  const instanceId = payload?.instanceId
+  if (!instanceId) {
+    throw new Error(`${AuthErrorCode.TOKEN_MISSING}: Workspace ID (instanceId) required`)
+  }
+
+  const hasAccess = await verifyWorkspaceOwnership(payload_decoded.userId, instanceId, env)
+  if (!hasAccess) {
+    throw new Error(
+      `${AuthErrorCode.FORBIDDEN}: User ${payload_decoded.userId} does not have access to workspace ${instanceId}`
+    )
+  }
+
   return {
     userId: payload_decoded.userId,
     isGracePeriod,
@@ -118,7 +215,23 @@ function createWorkerWithAuth(env: any) {
   if (!requireAuth) {
     console.log('Auth disabled - accepting both dev tokens and JWT tokens for development')
     return SyncBackend.makeWorker({
-      validatePayload: async (payload: any) => {
+      validatePayload: async (payload: any, context?: any) => {
+        // CRITICAL: Even in dev mode, enforce workspace isolation
+        const requestedStoreId = context?.storeId || payload?.storeId
+        const authenticatedInstanceId = payload?.instanceId
+
+        // Require instanceId to be present and match storeId
+        if (!authenticatedInstanceId) {
+          throw new Error('Workspace ID (instanceId) required even in development mode')
+        }
+
+        if (requestedStoreId && requestedStoreId !== authenticatedInstanceId) {
+          console.error(
+            `StoreId mismatch (dev mode): requested=${requestedStoreId}, authenticated=${authenticatedInstanceId}`
+          )
+          throw new Error('Workspace mismatch')
+        }
+
         // Accept the insecure dev token
         if (payload?.authToken === DEV_AUTH.INSECURE_TOKEN) {
           return
@@ -140,7 +253,7 @@ function createWorkerWithAuth(env: any) {
 
   // Auth is enabled - use full JWT validation
   return SyncBackend.makeWorker({
-    validatePayload: async (payload: any) => {
+    validatePayload: async (payload: any, context?: any) => {
       console.log('Validating sync payload:', Object.keys(payload || {}))
 
       try {
@@ -148,6 +261,24 @@ function createWorkerWithAuth(env: any) {
         console.log(`Authentication successful for user: ${authResult.userId}`)
         if (authResult.isGracePeriod) {
           console.log('User authenticated within grace period')
+        }
+
+        // CRITICAL SECURITY: Ensure instanceId matches the storeId being accessed
+        // This prevents a user from authenticating with workspace A but accessing workspace B
+        const requestedStoreId = context?.storeId || payload?.storeId
+        const authenticatedInstanceId = payload?.instanceId
+
+        if (
+          requestedStoreId &&
+          authenticatedInstanceId &&
+          requestedStoreId !== authenticatedInstanceId
+        ) {
+          console.error(
+            `StoreId mismatch: requested=${requestedStoreId}, authenticated=${authenticatedInstanceId}`
+          )
+          throw new Error(
+            `${AuthErrorCode.FORBIDDEN}: Workspace mismatch - cannot access workspace ${requestedStoreId} with credentials for ${authenticatedInstanceId}`
+          )
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
@@ -196,6 +327,9 @@ const fetchHandler = async (
   const requestParamsResult = SyncBackend.getSyncRequestSearchParams(request)
 
   if (requestParamsResult._tag === 'Some') {
+    // Extract storeId from search params for workspace-based routing
+    // LiveStore already routes by storeId to separate Durable Object instances
+    // The validatePayload callback ensures the user owns the workspace (instanceId)
     return (await SyncBackend.handleSyncRequest({
       request,
       searchParams: requestParamsResult.value,

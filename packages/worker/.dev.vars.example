@@ -8,6 +8,10 @@ JWT_SECRET=dev-jwt-secret-change-me-in-production
 GRACE_PERIOD_SECONDS=86400
 SERVER_BYPASS_TOKEN=dev-server-bypass-token-change-me
 
+# Auth Worker (for workspace validation)
+# Optional - defaults to http://localhost:8788 in development
+# AUTH_WORKER_URL=http://localhost:8788
+
 # R2 Image Storage
 # For local development, use worker endpoint to serve images
 R2_PUBLIC_URL=http://localhost:8787/api/images
