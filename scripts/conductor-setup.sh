@@ -59,7 +59,7 @@ echo "👤 Creating test user..."
 # Start auth-worker in background
 echo "   Starting auth-worker..."
 cd packages/auth-worker
-pnpm wrangler dev --port 8788 > /tmp/auth-worker.log 2>&1 &
+pnpm exec wrangler dev --port 8788 > /tmp/auth-worker.log 2>&1 &
 AUTH_WORKER_PID=$!
 cd ../..
 
