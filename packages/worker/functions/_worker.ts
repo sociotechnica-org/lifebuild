@@ -129,9 +129,18 @@ async function validateSyncPayload(
     return { userId: DEV_AUTH.DEFAULT_USER_ID }
   }
 
-  // Server bypass - allow internal server connections without JWT (skip workspace validation)
+  // Server bypass - allow internal server connections without JWT
+  // However, still require explicit instanceId to prevent unrestricted access
   if (payload?.serverBypass === env[ENV_VARS.SERVER_BYPASS_TOKEN]) {
-    console.log('Server bypass authenticated')
+    const instanceId = payload?.instanceId
+    if (!instanceId) {
+      throw new Error(
+        `${AuthErrorCode.TOKEN_MISSING}: Workspace ID (instanceId) required even for server bypass`
+      )
+    }
+    console.log(`Server bypass authenticated for workspace: ${instanceId}`)
+    // Server bypass is trusted, so skip auth worker validation
+    // But we still enforce explicit workspace selection
     return { userId: 'server-internal' }
   }
 
