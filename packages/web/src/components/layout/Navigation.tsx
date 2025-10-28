@@ -68,6 +68,9 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
   }, [])
 
   const isActive = (path: string) => {
+    if (path === ROUTES.HOME_NEW) {
+      return location.pathname === ROUTES.HOME_NEW
+    }
     if (path === ROUTES.LIFE_MAP) {
       return (
         location.pathname === ROUTES.LIFE_MAP ||
@@ -113,6 +116,16 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
       <div className='px-4 sm:px-6 lg:px-8'>
         <div className='flex justify-between h-16 overflow-x-auto'>
           <div className='flex space-x-8'>
+            <Link
+              to={preserveStoreIdInUrl(ROUTES.HOME_NEW)}
+              className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                isActive(ROUTES.HOME_NEW)
+                  ? 'border-blue-500 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Home
+            </Link>
             <Link
               to={preserveStoreIdInUrl(ROUTES.LIFE_MAP)}
               className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${

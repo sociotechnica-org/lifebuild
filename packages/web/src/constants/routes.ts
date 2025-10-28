@@ -4,6 +4,7 @@
  */
 export const ROUTES = {
   HOME: '/',
+  HOME_NEW: '/home',
   LIFE_MAP: '/life-map',
   CATEGORY: '/category/:categoryId',
   PROJECTS: '/projects',
