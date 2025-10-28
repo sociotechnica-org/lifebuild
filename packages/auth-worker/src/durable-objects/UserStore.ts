@@ -283,6 +283,55 @@ export class UserStore implements DurableObject {
     return this.jsonResponse(this.buildWorkspacePayload(user))
   }
 
+  private async handleInternalListWorkspaces(request: Request): Promise<Response> {
+    // Consume and ignore the request body to keep the interface consistent with other handlers
+    try {
+      await request.json()
+    } catch {
+      // Ignore JSON parse errors for empty bodies
+    }
+
+    const userList = await this.storage.list({ prefix: 'user:' })
+    const workspaces: Array<{
+      instanceId: string
+      userId: string
+      name: string
+      createdAt: string
+      lastAccessedAt: string
+      isDefault?: boolean
+    }> = []
+
+    for (const [key, value] of userList) {
+      if (key.startsWith('user:id:')) {
+        continue
+      }
+
+      const user = value as User | undefined
+      if (!user) {
+        continue
+      }
+
+      for (const instance of user.instances ?? []) {
+        workspaces.push({
+          instanceId: instance.id,
+          userId: user.id,
+          name: instance.name,
+          createdAt: new Date(instance.createdAt).toISOString(),
+          lastAccessedAt: new Date(instance.lastAccessedAt).toISOString(),
+          isDefault: instance.isDefault,
+        })
+      }
+    }
+
+    return this.jsonResponse({
+      workspaces,
+      metadata: {
+        totalUsers: workspaces.length === 0 ? 0 : new Set(workspaces.map(ws => ws.userId)).size,
+        totalWorkspaces: workspaces.length,
+      },
+    })
+  }
+
   /**
    * Handle HTTP requests to the UserStore
    */
@@ -324,6 +373,8 @@ export class UserStore implements DurableObject {
           return await this.handleTouchWorkspace(request)
         case '/internal/instances':
           return await this.handleInternalInstances(request)
+        case '/internal/workspaces':
+          return await this.handleInternalListWorkspaces(request)
         default:
           return this.errorResponse('Not found', 404)
       }
