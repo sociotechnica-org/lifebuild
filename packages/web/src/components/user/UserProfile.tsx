@@ -104,53 +104,85 @@ export const UserProfile: React.FC<UserProfileProps> = ({ isChatOpen = false, on
           <button
             ref={buttonRef}
             onClick={handleToggleDropdown}
-            className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium hover:bg-blue-600'
+            className='w-8 h-8 text-white rounded-full flex items-center justify-center text-sm font-medium transition-all cursor-pointer'
+            style={{
+              background:
+                'linear-gradient(135deg, rgba(203, 184, 157, 0.85), rgba(203, 184, 157, 0.65))',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
+              backdropFilter: 'blur(8px)',
+            }}
             title={getDisplayName()}
             data-testid='user-menu-button'
+            onMouseEnter={e => {
+              e.currentTarget.style.boxShadow =
+                '0 6px 16px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15)'
+              e.currentTarget.style.transform = 'translateY(-1px)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.boxShadow =
+                '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+            }}
+            onMouseDown={e => {
+              e.currentTarget.style.transform = 'translateY(0) scale(0.95)'
+              e.currentTarget.style.boxShadow =
+                '0 2px 6px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.15)'
+            }}
+            onMouseUp={e => {
+              e.currentTarget.style.transform = 'translateY(-1px) scale(1)'
+              e.currentTarget.style.boxShadow =
+                '0 6px 16px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15)'
+            }}
           >
             {getInitials(getDisplayName())}
           </button>
 
-          {showDropdown && (
-            <div
-              ref={dropdownRef}
-              className='fixed min-w-64 max-w-80 bg-white rounded-md shadow-lg py-1 z-[9999] border border-gray-200'
-              style={{
-                top: `${dropdownPosition.top}px`,
-                right: `${dropdownPosition.right}px`,
-              }}
+          <div
+            ref={dropdownRef}
+            className='fixed min-w-64 max-w-80 bg-white rounded-md shadow-lg py-1 z-[9999] border border-gray-200'
+            style={{
+              top: `${dropdownPosition.top}px`,
+              right: `${dropdownPosition.right}px`,
+              transformOrigin: 'top right',
+              opacity: showDropdown ? 1 : 0,
+              transform: showDropdown ? 'scale(1)' : 'scale(0.95)',
+              transition: showDropdown
+                ? 'opacity 0.2s ease, transform 0.2s ease'
+                : 'opacity 0.2s ease, transform 0.2s ease, visibility 0s 0.2s',
+              pointerEvents: showDropdown ? 'auto' : 'none',
+              visibility: showDropdown ? 'visible' : 'hidden',
+            }}
+          >
+            <div className='px-4 py-2 text-sm text-gray-700 border-b border-gray-100'>
+              <div className='font-medium truncate'>{getDisplayName()}</div>
+              <div className='text-gray-500 truncate'>{getEmail()}</div>
+            </div>
+            <Link
+              to={preserveStoreIdInUrl(ROUTES.SETTINGS)}
+              onClick={() => setShowDropdown(false)}
+              className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
             >
-              <div className='px-4 py-2 text-sm text-gray-700 border-b border-gray-100'>
-                <div className='font-medium truncate'>{getDisplayName()}</div>
-                <div className='text-gray-500 truncate'>{getEmail()}</div>
-              </div>
+              Settings
+            </Link>
+            {isCurrentUserAdmin(authUser) && (
               <Link
-                to={preserveStoreIdInUrl(ROUTES.SETTINGS)}
+                to={ROUTES.ADMIN}
                 onClick={() => setShowDropdown(false)}
                 className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
               >
-                Settings
+                Admin
               </Link>
-              {isCurrentUserAdmin(authUser) && (
-                <Link
-                  to={ROUTES.ADMIN}
-                  onClick={() => setShowDropdown(false)}
-                  className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
-                >
-                  Admin
-                </Link>
-              )}
-              <button
-                onClick={async () => {
-                  await logout()
-                  setShowDropdown(false)
-                }}
-                className='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
-              >
-                Sign out
-              </button>
-            </div>
-          )}
+            )}
+            <button
+              onClick={async () => {
+                await logout()
+                setShowDropdown(false)
+              }}
+              className='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+            >
+              Sign out
+            </button>
+          </div>
         </>
       ) : (
         <Link
