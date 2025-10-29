@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "@effect/ai": "0.27.1",
-    "@effect/cluster": "0.48.15"
+    "@effect/cluster": "0.48.15",
+    "framer-motion": "^12.23.24"
   }
 }

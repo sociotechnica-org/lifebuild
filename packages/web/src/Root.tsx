@@ -32,7 +32,7 @@ import { UserInitializer } from './components/utils/UserInitializer/UserInitiali
 import { AuthUserSync } from './components/utils/AuthUserSync/AuthUserSync.js'
 import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
 import { LifeMapView } from './components/life-map/LifeMapView.js'
-import { LifeMap } from './components/life-map/LifeMap.js'
+import { AnimatedHomeView } from './components/home/AnimatedHomeView.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
 
@@ -144,7 +144,7 @@ const ProtectedApp: React.FC = () => {
                       path={ROUTES.HOME_NEW}
                       element={
                         <ErrorBoundary>
-                          <LifeMap />
+                          <AnimatedHomeView />
                         </ErrorBoundary>
                       }
                     />
