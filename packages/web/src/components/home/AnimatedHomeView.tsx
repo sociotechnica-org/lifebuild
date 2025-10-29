@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LifeMap } from '../life-map/LifeMap.js'
+import { LifeMap, CategoryId, CATEGORIES } from '../life-map/LifeMap.js'
 import { StrategyStudio } from '../strategy-studio/StrategyStudio.js'
 import { AuthStatusBanner } from '../auth/AuthStatusBanner.js'
 import { UserProfile } from '../user/UserProfile.js'
@@ -14,6 +14,8 @@ type View = 'lifemap' | 'strategy'
 export const AnimatedHomeView: React.FC = () => {
   const [currentView, setCurrentView] = React.useState<View>('lifemap')
   const [isLogoHovered, setIsLogoHovered] = React.useState(false)
+  const [expandedCategoryId, setExpandedCategoryId] = React.useState<CategoryId | null>(null)
+  const closeLifeMapCategoryRef = React.useRef<(() => void) | null>(null)
 
   // Expose navigation functions globally for easy access
   // This allows clicking elements in LifeMap or StrategyStudio to trigger navigation
@@ -96,7 +98,13 @@ export const AnimatedHomeView: React.FC = () => {
                 height: '100%',
               }}
             >
-              <LifeMap hideNavbar />
+              <LifeMap
+                hideNavbar
+                onCategoryChange={setExpandedCategoryId}
+                onRegisterCloseHandler={handler => {
+                  closeLifeMapCategoryRef.current = handler
+                }}
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -121,11 +129,38 @@ export const AnimatedHomeView: React.FC = () => {
             }}
             onMouseEnter={() => setIsLogoHovered(true)}
             onMouseLeave={() => setIsLogoHovered(false)}
+            onClick={() => {
+              if (expandedCategoryId) {
+                // Close category with animation
+                closeLifeMapCategoryRef.current?.()
+              } else {
+                // Just navigate to lifemap
+                setCurrentView('lifemap')
+              }
+            }}
           >
             LB
-            <span className='text-lg ml-2 text-gray-600'>
-              {currentView === 'strategy' ? ' > Strategy Studio' : ''}
-            </span>
+            <motion.span
+              style={{
+                fontSize: '1.125rem', // text-lg
+                marginLeft: '0.5rem',
+                color: '#4b5563', // text-gray-600
+              }}
+              initial={{ opacity: 0 }}
+              animate={{
+                opacity: currentView === 'strategy' || expandedCategoryId ? 1 : 0,
+                transition:
+                  currentView === 'strategy' || expandedCategoryId
+                    ? { duration: 0.3, delay: 0.2, ease: 'easeOut' }
+                    : { duration: 0.2, ease: 'easeIn' },
+              }}
+            >
+              {currentView === 'strategy'
+                ? ' > Strategy Studio'
+                : expandedCategoryId
+                  ? ` > ${CATEGORIES.find(c => c.id === expandedCategoryId)?.label}`
+                  : ''}
+            </motion.span>
           </div>
 
           {/* Right side - User Profile */}

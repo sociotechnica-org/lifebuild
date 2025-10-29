@@ -8,7 +8,7 @@ import { UserProfile } from '../user/UserProfile.js'
  * This component is for exploring a completely new UI and layout
  * Now powered by Framer Motion for smooth, declarative animations
  */
-type CategoryId = 'finances' | 'health'
+export type CategoryId = 'finances' | 'health'
 
 interface CategoryConfig {
   id: CategoryId
@@ -18,32 +18,55 @@ interface CategoryConfig {
 
 interface LifeMapProps {
   hideNavbar?: boolean
+  onCategoryChange?: (categoryId: CategoryId | null) => void
+  onRegisterCloseHandler?: (handler: () => void) => void
 }
 
-const CATEGORIES: CategoryConfig[] = [
+export const CATEGORIES: CategoryConfig[] = [
   { id: 'finances', label: 'Finances', color: 'rgba(203, 184, 157, 0.75)' },
   { id: 'health', label: 'Health', color: 'rgba(204, 183, 154, 0.75)' },
 ]
 
-export const LifeMap: React.FC<LifeMapProps> = ({ hideNavbar = false }) => {
+export const LifeMap: React.FC<LifeMapProps> = ({
+  hideNavbar = false,
+  onCategoryChange,
+  onRegisterCloseHandler,
+}) => {
   const [isLogoHovered, setIsLogoHovered] = React.useState(false)
   const [expandedCategoryId, setExpandedCategoryId] = React.useState<CategoryId | null>(null)
   const [morphingCategoryId, setMorphingCategoryId] = React.useState<CategoryId | null>(null)
 
   const anyExpanded = expandedCategoryId !== null
 
+  // Close handler that can be called by parent
+  const handleClose = React.useCallback(() => {
+    if (expandedCategoryId) {
+      setMorphingCategoryId(expandedCategoryId)
+      setExpandedCategoryId(null)
+      setTimeout(() => setMorphingCategoryId(null), 800)
+    }
+  }, [expandedCategoryId])
+
+  // Register close handler with parent
+  React.useEffect(() => {
+    onRegisterCloseHandler?.(handleClose)
+  }, [handleClose, onRegisterCloseHandler])
+
+  // Notify parent of category changes
+  React.useEffect(() => {
+    onCategoryChange?.(expandedCategoryId)
+  }, [expandedCategoryId, onCategoryChange])
+
   // Handle escape key to close expanded view
   React.useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && expandedCategoryId) {
-        setMorphingCategoryId(expandedCategoryId)
-        setExpandedCategoryId(null)
-        setTimeout(() => setMorphingCategoryId(null), 800)
+      if (e.key === 'Escape') {
+        handleClose()
       }
     }
     window.addEventListener('keydown', handleEscape)
     return () => window.removeEventListener('keydown', handleEscape)
-  }, [expandedCategoryId])
+  }, [handleClose])
 
   const handleCategoryClick = (categoryId: CategoryId) => {
     if (expandedCategoryId === categoryId) {
@@ -109,7 +132,7 @@ export const LifeMap: React.FC<LifeMapProps> = ({ hideNavbar = false }) => {
               }}
               onMouseEnter={() => setIsLogoHovered(true)}
               onMouseLeave={() => setIsLogoHovered(false)}
-              onClick={() => setExpandedCategoryId(null)}
+              onClick={handleClose}
             >
               LB
               <motion.span
