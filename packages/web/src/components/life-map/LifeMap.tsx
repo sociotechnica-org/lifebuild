@@ -28,6 +28,7 @@ const CATEGORIES: CategoryConfig[] = [
 export const LifeMap: React.FC<LifeMapProps> = ({ hideNavbar = false }) => {
   const [isLogoHovered, setIsLogoHovered] = React.useState(false)
   const [expandedCategoryId, setExpandedCategoryId] = React.useState<CategoryId | null>(null)
+  const [morphingCategoryId, setMorphingCategoryId] = React.useState<CategoryId | null>(null)
 
   const anyExpanded = expandedCategoryId !== null
 
@@ -35,7 +36,9 @@ export const LifeMap: React.FC<LifeMapProps> = ({ hideNavbar = false }) => {
   React.useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && expandedCategoryId) {
+        setMorphingCategoryId(expandedCategoryId)
         setExpandedCategoryId(null)
+        setTimeout(() => setMorphingCategoryId(null), 800)
       }
     }
     window.addEventListener('keydown', handleEscape)
@@ -44,9 +47,13 @@ export const LifeMap: React.FC<LifeMapProps> = ({ hideNavbar = false }) => {
 
   const handleCategoryClick = (categoryId: CategoryId) => {
     if (expandedCategoryId === categoryId) {
+      setMorphingCategoryId(categoryId)
       setExpandedCategoryId(null)
+      setTimeout(() => setMorphingCategoryId(null), 800)
     } else if (!expandedCategoryId) {
+      setMorphingCategoryId(categoryId)
       setExpandedCategoryId(categoryId)
+      setTimeout(() => setMorphingCategoryId(null), 800)
     }
   }
 
@@ -155,7 +162,10 @@ export const LifeMap: React.FC<LifeMapProps> = ({ hideNavbar = false }) => {
                 }}
                 initial={{ opacity: 1 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                exit={{
+                  opacity: morphingCategoryId === category.id ? 1 : 0,
+                  transition: { duration: 0.2 },
+                }}
                 transition={{
                   layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
                 }}
