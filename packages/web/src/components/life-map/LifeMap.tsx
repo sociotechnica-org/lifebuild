@@ -6,113 +6,217 @@ import { UserProfile } from '../user/UserProfile.js'
  * LifeMap - Experimental new homepage UI
  * This component is for exploring a completely new UI and layout
  */
+type CategoryId = 'finances' | 'health'
+
+interface CategoryConfig {
+  id: CategoryId
+  label: string
+  color: string
+}
+
+const CATEGORIES: CategoryConfig[] = [
+  { id: 'finances', label: 'Finances', color: 'rgba(203, 184, 157, 0.75)' },
+  { id: 'health', label: 'Health', color: 'rgba(204, 183, 154, 0.75)' },
+]
+
 export const LifeMap: React.FC = () => {
   const [isLogoHovered, setIsLogoHovered] = React.useState(false)
-  const [isFinancesExpanded, setIsFinancesExpanded] = React.useState(false)
-  const [isHealthExpanded, setIsHealthExpanded] = React.useState(false)
-  const [isCollapsing, setIsCollapsing] = React.useState(false)
+  const [expandedCategoryId, setExpandedCategoryId] = React.useState<CategoryId | null>(null)
+  const [collapsingCategoryId, setCollapsingCategoryId] = React.useState<CategoryId | null>(null)
   const [categoriesVisible, setCategoriesVisible] = React.useState(true)
-  const [financesStartPosition, setFinancesStartPosition] = React.useState<{
+  const [expandStartPosition, setExpandStartPosition] = React.useState<{
     top: number
     left: number
   } | null>(null)
-  const [healthStartPosition, setHealthStartPosition] = React.useState<{
+  const [collapseTargetPosition, setCollapseTargetPosition] = React.useState<{
     top: number
     left: number
   } | null>(null)
+
+  // Create refs for each category
   const financesRef = React.useRef<HTMLDivElement>(null)
   const healthRef = React.useRef<HTMLDivElement>(null)
+  const categoryRefs = {
+    finances: financesRef,
+    health: healthRef,
+  } as const
 
-  const anyExpanded = isFinancesExpanded || isHealthExpanded
+  const anyExpanded = expandedCategoryId !== null
+
+  const handleCollapse = React.useCallback(() => {
+    if (!expandedCategoryId) return
+
+    const categoryId = expandedCategoryId
+
+    // Calculate target position mathematically
+    // The cards are centered in a flex container with gap-8 (32px)
+    const cardWidth = 240
+    const cardHeight = 240
+    const gap = 32
+    const numCards = CATEGORIES.length
+    const totalWidth = numCards * cardWidth + (numCards - 1) * gap
+
+    // Nav height is approximately 60px (py-3 = 12px top + 12px bottom + text height)
+    const navHeight = 60
+    const availableHeight = window.innerHeight - navHeight
+
+    // Calculate center position for this card
+    const categoryIndex = CATEGORIES.findIndex(c => c.id === categoryId)
+    const left = (window.innerWidth - totalWidth) / 2 + categoryIndex * (cardWidth + gap)
+    const top = navHeight + (availableHeight - cardHeight) / 2
+
+    setCollapseTargetPosition({ top, left })
+    setExpandedCategoryId(null)
+    setCollapsingCategoryId(categoryId)
+    setCategoriesVisible(false)
+
+    // Wait for collapse animation to complete (400ms)
+    setTimeout(() => {
+      setCollapsingCategoryId(null)
+      setCollapseTargetPosition(null)
+      // Small delay before fading in other categories (100ms)
+      setTimeout(() => {
+        setCategoriesVisible(true)
+      }, 100)
+    }, 400)
+  }, [expandedCategoryId])
 
   // Handle escape key to close expanded view
   React.useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && (isFinancesExpanded || isHealthExpanded)) {
-        // Start collapse animation (keep expanded state true during animation)
-        setIsCollapsing(true)
-        // Wait for collapse animation to complete (400ms), THEN change expanded state
-        setTimeout(() => {
-          setIsFinancesExpanded(false)
-          setIsHealthExpanded(false)
-          // Delay clearing isCollapsing so other categories don't render immediately
-          setTimeout(() => {
-            setIsCollapsing(false)
-            // Then trigger fade-in
-            setTimeout(() => setCategoriesVisible(true), 0)
-          }, 0)
-        }, 400)
+      if (e.key === 'Escape' && expandedCategoryId) {
+        handleCollapse()
       }
     }
     window.addEventListener('keydown', handleEscape)
     return () => window.removeEventListener('keydown', handleEscape)
-  }, [isFinancesExpanded, isHealthExpanded])
+  }, [expandedCategoryId, handleCollapse])
 
-  const handleFinancesClick = () => {
-    if (!isFinancesExpanded && financesRef.current) {
-      // Hide other categories and capture position before expanding
-      setCategoriesVisible(false)
-      const rect = financesRef.current.getBoundingClientRect()
-      setFinancesStartPosition({ top: rect.top, left: rect.left })
-      setIsFinancesExpanded(true)
-      // Reset position after animation starts
-      setTimeout(() => setFinancesStartPosition(null), 50)
-    } else {
-      // Start collapse animation (keep expanded state true during animation)
-      setIsCollapsing(true)
-      // Wait for collapse animation to complete (400ms), THEN change expanded state
-      setTimeout(() => {
-        setIsFinancesExpanded(false)
-        // Delay clearing isCollapsing so other categories don't render immediately
-        setTimeout(() => {
-          setIsCollapsing(false)
-          // Then trigger fade-in
-          setTimeout(() => setCategoriesVisible(true), 0)
-        }, 0)
-      }, 400)
-    }
+  const handleCategoryClick = React.useCallback(
+    (categoryId: CategoryId) => {
+      const categoryRef = categoryRefs[categoryId]
+
+      if (expandedCategoryId === categoryId) {
+        // Collapse this category
+        handleCollapse()
+      } else if (!expandedCategoryId && categoryRef.current) {
+        // Expand this category
+        setCategoriesVisible(false)
+        const rect = categoryRef.current.getBoundingClientRect()
+        setExpandStartPosition({ top: rect.top, left: rect.left })
+        setExpandedCategoryId(categoryId)
+        // Reset position after animation starts
+        setTimeout(() => setExpandStartPosition(null), 50)
+      }
+    },
+    [expandedCategoryId, handleCollapse, categoryRefs]
+  )
+
+  const getBackgroundColor = () => {
+    const category = CATEGORIES.find(c => c.id === expandedCategoryId)
+    return category ? category.color : '#f5f1e8'
   }
 
-  const handleHealthClick = () => {
-    if (!isHealthExpanded && healthRef.current) {
-      // Hide other categories and capture position before expanding
-      setCategoriesVisible(false)
-      const rect = healthRef.current.getBoundingClientRect()
-      setHealthStartPosition({ top: rect.top, left: rect.left })
-      setIsHealthExpanded(true)
-      // Reset position after animation starts
-      setTimeout(() => setHealthStartPosition(null), 50)
-    } else {
-      // Start collapse animation (keep expanded state true during animation)
-      setIsCollapsing(true)
-      // Wait for collapse animation to complete (400ms), THEN change expanded state
-      setTimeout(() => {
-        setIsHealthExpanded(false)
-        // Delay clearing isCollapsing so other categories don't render immediately
-        setTimeout(() => {
-          setIsCollapsing(false)
-          // Then trigger fade-in
-          setTimeout(() => setCategoriesVisible(true), 0)
-        }, 0)
-      }, 400)
-    }
+  // Determine if a category should be rendered in the DOM
+  const shouldRenderCategory = (categoryId: CategoryId) => {
+    // Always render if this is the expanded or collapsing category
+    if (expandedCategoryId === categoryId || collapsingCategoryId === categoryId) return true
+    // When collapsing, render all categories (they'll be invisible)
+    if (collapsingCategoryId !== null) return true
+    // Don't render if another category is expanded
+    if (expandedCategoryId !== null) return false
+    // Otherwise render
+    return true
   }
 
-  const handleLogoClick = () => {
-    if (isFinancesExpanded || isHealthExpanded) {
-      // Start collapse animation (keep expanded state true during animation)
-      setIsCollapsing(true)
-      // Wait for collapse animation to complete (400ms), THEN change expanded state
-      setTimeout(() => {
-        setIsFinancesExpanded(false)
-        setIsHealthExpanded(false)
-        // Delay clearing isCollapsing so other categories don't render immediately
-        setTimeout(() => {
-          setIsCollapsing(false)
-          // Then trigger fade-in
-          setTimeout(() => setCategoriesVisible(true), 0)
-        }, 0)
-      }, 400)
+  // Get styles for a category based on its state
+  const getCategoryStyle = (categoryId: CategoryId, color: string) => {
+    const isExpanded = expandedCategoryId === categoryId
+    const isCollapsing = collapsingCategoryId === categoryId
+    const isActive = isExpanded || isCollapsing
+
+    // Determine position based on state
+    let top: string | number = 'auto'
+    let left: string | number = 'auto'
+    let width = '240px'
+    let height = '240px'
+
+    if (isExpanded) {
+      // Expanding: start from expandStartPosition, animate to fullscreen
+      if (expandStartPosition) {
+        top = `${expandStartPosition.top}px`
+        left = `${expandStartPosition.left}px`
+        width = '240px'
+        height = '240px'
+      } else {
+        top = '0'
+        left = '0'
+        width = '100vw'
+        height = '100vh'
+      }
+    } else if (isCollapsing) {
+      // Collapsing: start from fullscreen, animate to collapseTargetPosition
+      if (collapseTargetPosition) {
+        top = `${collapseTargetPosition.top}px`
+        left = `${collapseTargetPosition.left}px`
+        width = '240px'
+        height = '240px'
+      } else {
+        top = '0'
+        left = '0'
+        width = '100vw'
+        height = '100vh'
+      }
+    }
+
+    // Determine background and styling based on state
+    let background: string
+    let borderRadius: string
+    let boxShadow: string
+    let backdropFilter: string
+
+    if (isExpanded) {
+      // When expanded: transparent (page background shows)
+      background = 'transparent'
+      borderRadius = '0'
+      boxShadow = 'none'
+      backdropFilter = 'none'
+    } else if (isCollapsing) {
+      // When collapsing: show card background so you can see it shrink
+      background = `linear-gradient(135deg, ${color.replace('0.75', '0.85')}, ${color.replace('0.75', '0.65')})`
+      // Animate border radius from 0 to 16px as it collapses
+      borderRadius = collapseTargetPosition ? '16px' : '0'
+      boxShadow = collapseTargetPosition
+        ? '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)'
+        : 'none'
+      backdropFilter = collapseTargetPosition ? 'blur(8px)' : 'none'
+    } else {
+      // Normal state
+      background = `linear-gradient(135deg, ${color.replace('0.75', '0.85')}, ${color.replace('0.75', '0.65')})`
+      borderRadius = '16px'
+      boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)'
+      backdropFilter = 'blur(8px)'
+    }
+
+    return {
+      opacity: isActive || categoriesVisible ? 1 : 0,
+      position: isActive ? ('fixed' as const) : ('relative' as const),
+      top,
+      left,
+      width,
+      height,
+      background,
+      borderRadius,
+      boxShadow,
+      backdropFilter,
+      fontFamily: 'Georgia, serif',
+      fontSize: isExpanded ? '64px' : '32px',
+      fontWeight: 400,
+      color: 'white',
+      transition: isExpanded
+        ? 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1), background 0.8s ease, border-radius 0.8s ease, opacity 0.15s ease'
+        : 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, border-radius 0.4s ease, opacity 0.15s ease',
+      zIndex: isActive ? 10 : 1,
     }
   }
 
@@ -120,11 +224,7 @@ export const LifeMap: React.FC = () => {
     <div
       className='w-full h-screen flex flex-col'
       style={{
-        backgroundColor: isFinancesExpanded
-          ? 'rgba(203, 184, 157, 0.75)'
-          : isHealthExpanded
-            ? 'rgba(204, 183, 154, 0.75)'
-            : '#f5f1e8',
+        backgroundColor: getBackgroundColor(),
         transition: anyExpanded ? 'background-color 0.7s ease' : 'background-color 0.35s ease',
         backgroundImage: anyExpanded
           ? 'none'
@@ -158,7 +258,7 @@ export const LifeMap: React.FC = () => {
           }}
           onMouseEnter={() => setIsLogoHovered(true)}
           onMouseLeave={() => setIsLogoHovered(false)}
-          onClick={handleLogoClick}
+          onClick={handleCollapse}
         >
           LB
           <span
@@ -167,7 +267,9 @@ export const LifeMap: React.FC = () => {
               transition: anyExpanded ? 'opacity 0.8s ease' : 'opacity 0.4s ease',
             }}
           >
-            {isFinancesExpanded ? ' > Finances' : isHealthExpanded ? ' > Health' : ''}
+            {expandedCategoryId
+              ? ` > ${CATEGORIES.find(c => c.id === expandedCategoryId)?.label}`
+              : ''}
           </span>
         </div>
 
@@ -177,119 +279,37 @@ export const LifeMap: React.FC = () => {
 
       {/* Main content */}
       <div className='flex-1 flex items-center justify-center gap-8 relative'>
-        {/* Finances life category square */}
-        {!isHealthExpanded && (
-          <div
-            ref={financesRef}
-            className='flex items-center justify-center cursor-pointer'
-            style={{
-              opacity: isFinancesExpanded || categoriesVisible ? 1 : 0,
-              position: isFinancesExpanded ? 'fixed' : 'relative',
-              top: isFinancesExpanded
-                ? financesStartPosition
-                  ? `${financesStartPosition.top}px`
-                  : '0'
-                : 'auto',
-              left: isFinancesExpanded
-                ? financesStartPosition
-                  ? `${financesStartPosition.left}px`
-                  : '0'
-                : 'auto',
-              width: isFinancesExpanded ? (financesStartPosition ? '240px' : '100vw') : '240px',
-              height: isFinancesExpanded ? (financesStartPosition ? '240px' : '100vh') : '240px',
-              background: isFinancesExpanded
-                ? 'transparent'
-                : 'linear-gradient(135deg, rgba(203, 184, 157, 0.85), rgba(203, 184, 157, 0.65))',
-              borderRadius: isFinancesExpanded ? '0' : '16px',
-              boxShadow: isFinancesExpanded
-                ? 'none'
-                : '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
-              backdropFilter: isFinancesExpanded ? 'none' : 'blur(8px)',
-              fontFamily: 'Georgia, serif',
-              fontSize: isFinancesExpanded ? '64px' : '32px',
-              fontWeight: 400,
-              color: 'white',
-              transition: isFinancesExpanded
-                ? 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1), background 0.8s ease, border-radius 0.8s ease, opacity 0.15s ease'
-                : 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, border-radius 0.4s ease, opacity 0.15s ease',
-              zIndex: isFinancesExpanded ? 10 : 1,
-            }}
-            onMouseEnter={e => {
-              if (!isFinancesExpanded) {
-                e.currentTarget.style.boxShadow =
-                  '0 6px 16px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15)'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }
-            }}
-            onMouseLeave={e => {
-              if (!isFinancesExpanded) {
-                e.currentTarget.style.boxShadow =
-                  '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)'
-                e.currentTarget.style.transform = 'translateY(0)'
-              }
-            }}
-            onClick={handleFinancesClick}
-          >
-            {isFinancesExpanded ? '' : 'Finances'}
-          </div>
-        )}
+        {CATEGORIES.map(category => {
+          if (!shouldRenderCategory(category.id)) return null
 
-        {/* Health life category square */}
-        {!isFinancesExpanded && !isCollapsing && (
-          <div
-            ref={healthRef}
-            className='flex items-center justify-center cursor-pointer'
-            style={{
-              opacity: isHealthExpanded || categoriesVisible ? 1 : 0,
-              position: isHealthExpanded ? 'fixed' : 'relative',
-              top: isHealthExpanded
-                ? healthStartPosition
-                  ? `${healthStartPosition.top}px`
-                  : '0'
-                : 'auto',
-              left: isHealthExpanded
-                ? healthStartPosition
-                  ? `${healthStartPosition.left}px`
-                  : '0'
-                : 'auto',
-              width: isHealthExpanded ? (healthStartPosition ? '240px' : '100vw') : '240px',
-              height: isHealthExpanded ? (healthStartPosition ? '240px' : '100vh') : '240px',
-              background: isHealthExpanded
-                ? 'transparent'
-                : 'linear-gradient(135deg, rgba(204, 183, 154, 0.85), rgba(204, 183, 154, 0.65))',
-              borderRadius: isHealthExpanded ? '0' : '16px',
-              boxShadow: isHealthExpanded
-                ? 'none'
-                : '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
-              backdropFilter: isHealthExpanded ? 'none' : 'blur(8px)',
-              fontFamily: 'Georgia, serif',
-              fontSize: isHealthExpanded ? '64px' : '32px',
-              fontWeight: 400,
-              color: 'white',
-              transition: isHealthExpanded
-                ? 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1), background 0.8s ease, border-radius 0.8s ease, opacity 0.15s ease'
-                : 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, border-radius 0.4s ease, opacity 0.15s ease',
-              zIndex: isHealthExpanded ? 10 : 1,
-            }}
-            onMouseEnter={e => {
-              if (!isHealthExpanded) {
-                e.currentTarget.style.boxShadow =
-                  '0 6px 16px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15)'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }
-            }}
-            onMouseLeave={e => {
-              if (!isHealthExpanded) {
-                e.currentTarget.style.boxShadow =
-                  '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)'
-                e.currentTarget.style.transform = 'translateY(0)'
-              }
-            }}
-            onClick={handleHealthClick}
-          >
-            {isHealthExpanded ? '' : 'Health'}
-          </div>
-        )}
+          const isExpanded = expandedCategoryId === category.id
+
+          return (
+            <div
+              key={category.id}
+              ref={categoryRefs[category.id]}
+              className='flex items-center justify-center cursor-pointer'
+              style={getCategoryStyle(category.id, category.color)}
+              onMouseEnter={e => {
+                if (!isExpanded) {
+                  e.currentTarget.style.boxShadow =
+                    '0 6px 16px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15)'
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                }
+              }}
+              onMouseLeave={e => {
+                if (!isExpanded) {
+                  e.currentTarget.style.boxShadow =
+                    '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }
+              }}
+              onClick={() => handleCategoryClick(category.id)}
+            >
+              {isExpanded ? '' : category.label}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
