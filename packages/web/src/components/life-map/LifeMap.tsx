@@ -41,7 +41,7 @@ export const LifeMap: React.FC = () => {
     health: healthRef,
   } as const
 
-  const anyExpanded = expandedCategoryId !== null
+  const anyExpanded = expandedCategoryId !== null || collapsingCategoryId !== null
 
   const handleCollapse = React.useCallback(() => {
     if (!expandedCategoryId) return
@@ -226,7 +226,7 @@ export const LifeMap: React.FC = () => {
       style={{
         backgroundColor: getBackgroundColor(),
         transition: anyExpanded ? 'background-color 0.7s ease' : 'background-color 0.35s ease',
-        backgroundImage: anyExpanded
+        backgroundImage: expandedCategoryId
           ? 'none'
           : `
           radial-gradient(ellipse 1200px 900px at 15% 25%, rgba(0,0,0,.08) 0%, transparent 60%),
@@ -264,11 +264,11 @@ export const LifeMap: React.FC = () => {
           <span
             style={{
               opacity: anyExpanded ? 1 : 0,
-              transition: anyExpanded ? 'opacity 0.8s ease' : 'opacity 0.4s ease',
+              transition: expandedCategoryId ? 'opacity 0.8s ease' : 'opacity 0.4s ease',
             }}
           >
-            {expandedCategoryId
-              ? ` > ${CATEGORIES.find(c => c.id === expandedCategoryId)?.label}`
+            {expandedCategoryId || collapsingCategoryId
+              ? ` > ${CATEGORIES.find(c => c.id === (expandedCategoryId || collapsingCategoryId))?.label}`
               : ''}
           </span>
         </div>
@@ -283,6 +283,7 @@ export const LifeMap: React.FC = () => {
           if (!shouldRenderCategory(category.id)) return null
 
           const isExpanded = expandedCategoryId === category.id
+          const isCollapsing = collapsingCategoryId === category.id
 
           return (
             <div
@@ -306,7 +307,7 @@ export const LifeMap: React.FC = () => {
               }}
               onClick={() => handleCategoryClick(category.id)}
             >
-              {isExpanded ? '' : category.label}
+              {isExpanded || isCollapsing ? '' : category.label}
             </div>
           )
         })}
