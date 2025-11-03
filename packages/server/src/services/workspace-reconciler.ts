@@ -160,13 +160,15 @@ export class WorkspaceReconciler {
       this.lastRunCompletedAt = completedAt
       this.lastDurationMs = durationMs
 
+      const monitoredCount = new Set(this.orchestrator.listMonitored()).size
+
       const result: ReconciliationResult & { driftCount: number } = {
         added,
         removed,
         failedAdds,
         failedRemovals,
         authoritativeCount: authoritativeIds.size,
-        monitoredCount: monitored.size,
+        monitoredCount,
         driftCount: added.length + removed.length + failedAdds.length + failedRemovals.length,
       }
 
