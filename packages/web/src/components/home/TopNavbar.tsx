@@ -22,7 +22,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   const [isLogoHovered, setIsLogoHovered] = React.useState(false)
 
   return (
-    <div className='absolute top-0 left-0 right-0 z-50 pointer-events-none'>
+    <div className='absolute top-0 left-0 right-0 z-[200] pointer-events-none'>
       {/* Auth Status Banner - centered when shown */}
       <div className='flex justify-center pointer-events-auto'>
         <AuthStatusBanner />
@@ -40,7 +40,10 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           }}
           onMouseEnter={() => setIsLogoHovered(true)}
           onMouseLeave={() => setIsLogoHovered(false)}
-          onClick={onLogoClick}
+          onClick={e => {
+            e.stopPropagation()
+            onLogoClick()
+          }}
         >
           LB
           <motion.span

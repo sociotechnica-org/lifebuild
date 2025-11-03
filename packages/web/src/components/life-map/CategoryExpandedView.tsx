@@ -11,6 +11,8 @@ import {
   PROJECT_CARDS_FADE_DURATION,
   EASE_SMOOTH,
 } from './animationTimings.js'
+import { useChatContext } from '../home/ChatContext.js'
+import { CHAT_WINDOW_WIDTH, CHAT_WINDOW_SPACING } from '../home/chatConstants.js'
 
 /**
  * Color mixing configuration - same as LifeCategoryCard
@@ -81,8 +83,15 @@ export const CategoryExpandedView: React.FC<CategoryExpandedViewProps> = ({
   const categoryInfo = getCategoryInfo(categoryId)
   const [expandedProjectId, setExpandedProjectId] = React.useState<string | null>(null)
   const [showProjects, setShowProjects] = React.useState(false)
+  const { isChatOpen } = useChatContext()
 
   if (!categoryInfo) return null
+
+  // Chat window padding when open: left rail (4rem) + chat window + spacing
+  // When closed: just left rail (4rem)
+  const paddingLeft = isChatOpen
+    ? `calc(4rem + ${CHAT_WINDOW_WIDTH} + ${CHAT_WINDOW_SPACING})`
+    : '4rem'
 
   // Filter projects for this category
   const categoryProjects = projects.filter(
@@ -143,12 +152,12 @@ export const CategoryExpandedView: React.FC<CategoryExpandedViewProps> = ({
       style={{
         position: 'fixed',
         top: 0,
-        left: 0,
+        left: 0, // Always start at left edge to cover area under chat
         width: '100vw',
         height: '100vh',
-        background: backgroundColor,
         borderRadius: '0',
         zIndex: 10,
+        background: backgroundColor, // Same mixed color as LifeCategoryCard
       }}
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
@@ -165,8 +174,23 @@ export const CategoryExpandedView: React.FC<CategoryExpandedViewProps> = ({
     >
       {/* Projects Grid and Modal - both rendered together for layoutId animation */}
       <AnimatePresence mode='popLayout'>
-        {/* Always render the grid container */}
-        <div key='grid-container' className='flex-1 overflow-y-auto pl-16 pr-8 pt-16 pb-8'>
+        {/* Always render the grid container - shift content, not the background */}
+        <motion.div
+          key='grid-container'
+          className='flex-1 overflow-y-auto pr-8 pt-16 pb-8'
+          style={{
+            paddingLeft: paddingLeft,
+          }}
+          animate={{
+            paddingLeft: paddingLeft,
+          }}
+          transition={{
+            paddingLeft: {
+              duration: 0.3,
+              ease: [0.4, 0, 0.2, 1],
+            },
+          }}
+        >
           <div className='max-w-7xl mx-auto'>
             {categoryProjects.length === 0 ? (
               <motion.div
@@ -206,7 +230,7 @@ export const CategoryExpandedView: React.FC<CategoryExpandedViewProps> = ({
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Project Expanded Modal */}
         <AnimatePresence>

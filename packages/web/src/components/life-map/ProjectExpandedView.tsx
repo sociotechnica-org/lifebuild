@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import type { Project } from '@work-squared/shared/schema'
 import { formatDate } from '../../util/dates.js'
 import { PROJECT_MODAL_DURATION, PROJECT_MODAL_SCALE, EASE_SMOOTH } from './animationTimings.js'
+import { useChatContext } from '../home/ChatContext.js'
+import { CHAT_WINDOW_WIDTH, CHAT_WINDOW_SPACING } from '../home/chatConstants.js'
 
 interface ProjectExpandedViewProps {
   project: Project
@@ -14,9 +16,15 @@ interface ProjectExpandedViewProps {
  * Shows full project details in a zoomed-up modal overlay
  */
 export const ProjectExpandedView: React.FC<ProjectExpandedViewProps> = ({ project, onClose }) => {
+  const { isChatOpen } = useChatContext()
+  // Chat window left offset when open: base left (4rem) + chat window + spacing
+  const leftOffset = isChatOpen
+    ? `calc(4rem + ${CHAT_WINDOW_WIDTH} + ${CHAT_WINDOW_SPACING})`
+    : '4rem'
+
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop - covers full screen including area under chat */}
       <motion.div
         className='fixed inset-0 bg-black/20 backdrop-blur-sm z-40'
         initial={{ opacity: 0 }}
@@ -31,17 +39,27 @@ export const ProjectExpandedView: React.FC<ProjectExpandedViewProps> = ({ projec
         className='fixed z-50 pointer-events-none'
         style={{
           top: '4rem', // pt-16
-          left: '4rem', // pl-16
           bottom: '1rem', // pb-8
           right: '1rem', // pr-8
           width: 'auto',
           height: 'auto',
           maxWidth: '1200px',
         }}
-        initial={{ opacity: 0, scale: PROJECT_MODAL_SCALE }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, scale: PROJECT_MODAL_SCALE, left: '4rem' }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          left: leftOffset,
+        }}
         exit={{ opacity: 0, scale: PROJECT_MODAL_SCALE }}
-        transition={{ duration: PROJECT_MODAL_DURATION, ease: EASE_SMOOTH }}
+        transition={{
+          opacity: { duration: PROJECT_MODAL_DURATION, ease: EASE_SMOOTH },
+          scale: { duration: PROJECT_MODAL_DURATION, ease: EASE_SMOOTH },
+          left: {
+            duration: 0.3,
+            ease: [0.4, 0, 0.2, 1],
+          },
+        }}
       >
         <motion.div
           className='backdrop-blur-sm rounded-xl shadow-2xl border border-white/20 pointer-events-auto overflow-hidden flex flex-col h-full w-full'
