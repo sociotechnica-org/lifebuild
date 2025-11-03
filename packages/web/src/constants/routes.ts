@@ -5,6 +5,7 @@
 export const ROUTES = {
   HOME: '/',
   HOME_NEW: '/home',
+  HOME_CATEGORY: '/home/:categoryName',
   LIFE_MAP: '/life-map',
   CATEGORY: '/category/:categoryId',
   PROJECTS: '/projects',
@@ -28,6 +29,7 @@ export const ROUTES = {
  */
 export const generateRoute = {
   category: (id: string, tab?: string) => (tab ? `/category/${id}?tab=${tab}` : `/category/${id}`),
+  homeCategory: (categoryName: string) => `/home/${categoryName}`,
   document: (id: string) => `/document/${id}`,
   project: (id: string) => `/project/${id}`,
   contact: (id: string) => `/contacts/${id}`,

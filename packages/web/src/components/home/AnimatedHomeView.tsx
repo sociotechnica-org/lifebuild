@@ -1,9 +1,9 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LifeMap, CategoryId, CATEGORIES } from '../life-map/LifeMap.js'
+import { LifeMap, CategoryId } from '../life-map/LifeMap.js'
 import { StrategyStudio } from '../strategy-studio/StrategyStudio.js'
-import { AuthStatusBanner } from '../auth/AuthStatusBanner.js'
-import { UserProfile } from '../user/UserProfile.js'
+import { TopNavbar } from './TopNavbar.js'
+import { LeftRail } from './LeftRail.js'
 
 type View = 'lifemap' | 'strategy'
 
@@ -13,7 +13,6 @@ type View = 'lifemap' | 'strategy'
  */
 export const AnimatedHomeView: React.FC = () => {
   const [currentView, setCurrentView] = React.useState<View>('lifemap')
-  const [isLogoHovered, setIsLogoHovered] = React.useState(false)
   const [expandedCategoryId, setExpandedCategoryId] = React.useState<CategoryId | null>(null)
   const closeLifeMapCategoryRef = React.useRef<(() => void) | null>(null)
 
@@ -110,63 +109,23 @@ export const AnimatedHomeView: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Fixed navbar - positioned absolutely over the content */}
-      <div className='absolute top-0 left-0 right-0 z-50 pointer-events-none'>
-        {/* Auth Status Banner - centered when shown */}
-        <div className='flex justify-center pointer-events-auto'>
-          <AuthStatusBanner />
-        </div>
+      {/* Top navbar */}
+      <TopNavbar
+        currentView={currentView}
+        expandedCategoryId={expandedCategoryId}
+        onLogoClick={() => {
+          if (expandedCategoryId) {
+            // Close category with animation
+            closeLifeMapCategoryRef.current?.()
+          } else {
+            // Just navigate to lifemap
+            setCurrentView('lifemap')
+          }
+        }}
+      />
 
-        {/* Top navbar */}
-        <nav className='flex items-center justify-between px-4 py-3 pointer-events-auto'>
-          {/* Left side - LB logo */}
-          <div
-            className='text-2xl cursor-pointer transition-transform'
-            style={{
-              fontFamily: 'Georgia, serif',
-              fontWeight: 400,
-              transform: isLogoHovered ? 'translateY(-2px)' : 'translateY(0)',
-            }}
-            onMouseEnter={() => setIsLogoHovered(true)}
-            onMouseLeave={() => setIsLogoHovered(false)}
-            onClick={() => {
-              if (expandedCategoryId) {
-                // Close category with animation
-                closeLifeMapCategoryRef.current?.()
-              } else {
-                // Just navigate to lifemap
-                setCurrentView('lifemap')
-              }
-            }}
-          >
-            LB
-            <motion.span
-              style={{
-                fontSize: '1.125rem', // text-lg
-                marginLeft: '0.5rem',
-                color: '#4b5563', // text-gray-600
-              }}
-              initial={{ opacity: 0 }}
-              animate={{
-                opacity: currentView === 'strategy' || expandedCategoryId ? 1 : 0,
-                transition:
-                  currentView === 'strategy' || expandedCategoryId
-                    ? { duration: 0.3, delay: 0.2, ease: 'easeOut' }
-                    : { duration: 0.2, ease: 'easeIn' },
-              }}
-            >
-              {currentView === 'strategy'
-                ? ' > Strategy Studio'
-                : expandedCategoryId
-                  ? ` > ${CATEGORIES.find(c => c.id === expandedCategoryId)?.label}`
-                  : ''}
-            </motion.span>
-          </div>
-
-          {/* Right side - User Profile */}
-          <UserProfile />
-        </nav>
-      </div>
+      {/* Left rail sidebar */}
+      <LeftRail />
     </div>
   )
 }
