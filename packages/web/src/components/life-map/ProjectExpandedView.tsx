@@ -32,8 +32,8 @@ export const ProjectExpandedView: React.FC<ProjectExpandedViewProps> = ({ projec
         style={{
           top: '4rem', // pt-16
           left: '4rem', // pl-16
-          bottom: '2rem', // pb-8
-          right: '2rem', // pr-8
+          bottom: '1rem', // pb-8
+          right: '1rem', // pr-8
           width: 'auto',
           height: 'auto',
           maxWidth: '1200px',
