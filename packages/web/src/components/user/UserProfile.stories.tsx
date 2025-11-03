@@ -6,7 +6,6 @@ import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'
 import { schema, events } from '@work-squared/shared/schema'
-import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from '../../contexts/AuthContext.js'
 
 const adapter = makeInMemoryAdapter()
@@ -46,20 +45,18 @@ export const Authenticated: Story = {
   args: {},
   decorators: [
     Story => (
-      <BrowserRouter>
-        <AuthProvider>
-          <LiveStoreProvider
-            schema={schema}
-            adapter={adapter}
-            batchUpdates={batchUpdates}
-            boot={authenticatedUserSetup}
-          >
-            <div className='w-64'>
-              <Story />
-            </div>
-          </LiveStoreProvider>
-        </AuthProvider>
-      </BrowserRouter>
+      <AuthProvider>
+        <LiveStoreProvider
+          schema={schema}
+          adapter={adapter}
+          batchUpdates={batchUpdates}
+          boot={authenticatedUserSetup}
+        >
+          <div className='w-64'>
+            <Story />
+          </div>
+        </LiveStoreProvider>
+      </AuthProvider>
     ),
   ],
   parameters: {
@@ -75,15 +72,13 @@ export const NotAuthenticated: Story = {
   args: {},
   decorators: [
     Story => (
-      <BrowserRouter>
-        <AuthProvider>
-          <LiveStoreProvider schema={schema} adapter={adapter} batchUpdates={batchUpdates}>
-            <div className='w-64'>
-              <Story />
-            </div>
-          </LiveStoreProvider>
-        </AuthProvider>
-      </BrowserRouter>
+      <AuthProvider>
+        <LiveStoreProvider schema={schema} adapter={adapter} batchUpdates={batchUpdates}>
+          <div className='w-64'>
+            <Story />
+          </div>
+        </LiveStoreProvider>
+      </AuthProvider>
     ),
   ],
   parameters: {
@@ -102,20 +97,18 @@ export const WithChatToggle: Story = {
   },
   decorators: [
     Story => (
-      <BrowserRouter>
-        <AuthProvider>
-          <LiveStoreProvider
-            schema={schema}
-            adapter={adapter}
-            batchUpdates={batchUpdates}
-            boot={authenticatedUserSetup}
-          >
-            <div className='w-64'>
-              <Story />
-            </div>
-          </LiveStoreProvider>
-        </AuthProvider>
-      </BrowserRouter>
+      <AuthProvider>
+        <LiveStoreProvider
+          schema={schema}
+          adapter={adapter}
+          batchUpdates={batchUpdates}
+          boot={authenticatedUserSetup}
+        >
+          <div className='w-64'>
+            <Story />
+          </div>
+        </LiveStoreProvider>
+      </AuthProvider>
     ),
   ],
   parameters: {
@@ -134,20 +127,18 @@ export const ChatOpen: Story = {
   },
   decorators: [
     Story => (
-      <BrowserRouter>
-        <AuthProvider>
-          <LiveStoreProvider
-            schema={schema}
-            adapter={adapter}
-            batchUpdates={batchUpdates}
-            boot={authenticatedUserSetup}
-          >
-            <div className='w-64'>
-              <Story />
-            </div>
-          </LiveStoreProvider>
-        </AuthProvider>
-      </BrowserRouter>
+      <AuthProvider>
+        <LiveStoreProvider
+          schema={schema}
+          adapter={adapter}
+          batchUpdates={batchUpdates}
+          boot={authenticatedUserSetup}
+        >
+          <div className='w-64'>
+            <Story />
+          </div>
+        </LiveStoreProvider>
+      </AuthProvider>
     ),
   ],
   parameters: {

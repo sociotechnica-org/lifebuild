@@ -32,7 +32,7 @@ describe('QuickAddProjectModal', () => {
     render(<QuickAddProjectModal isOpen={true} onClose={() => {}} categoryId='health' />)
 
     expect(screen.getByText('Add Project')).toBeInTheDocument()
-    expect(screen.getByText('Health & Well-Being')).toBeInTheDocument()
+    expect(screen.getByText('Health')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Enter project name')).toBeInTheDocument()
   })
 
@@ -88,7 +88,7 @@ describe('QuickAddProjectModal', () => {
     await waitFor(() => {
       expect(mockCommit).toHaveBeenCalled()
       expect(mockShowSnackbar).toHaveBeenCalledWith({
-        message: 'New Health Project added to Health & Well-Being',
+        message: 'New Health Project added to Health',
         type: 'success',
         duration: 3000,
       })
