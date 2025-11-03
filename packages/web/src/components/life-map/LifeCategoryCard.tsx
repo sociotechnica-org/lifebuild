@@ -171,7 +171,9 @@ export const LifeCategoryCard: React.FC<LifeCategoryCardProps> = ({
   }, [isHovered, glowOpacity])
 
   // Transform opacity to box-shadow string
-  const boxShadow = useTransform(glowOpacity, opacity => getBoxShadow(categoryInfo.colorHex, opacity))
+  const boxShadow = useTransform(glowOpacity, opacity =>
+    getBoxShadow(categoryInfo.colorHex, opacity)
+  )
 
   // Use static shadow for hover (base opacity)
   const hoverBoxShadow = getHoverBoxShadow(categoryInfo.colorHex, GLOW_OPACITY)
@@ -256,4 +258,3 @@ export const LifeCategoryCard: React.FC<LifeCategoryCardProps> = ({
     </motion.div>
   )
 }
-
