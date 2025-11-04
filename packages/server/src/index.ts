@@ -16,9 +16,18 @@ import * as Sentry from '@sentry/node'
 import { storeManager } from './services/store-manager.js'
 import { EventProcessor } from './services/event-processor.js'
 import { WorkspaceOrchestrator } from './services/workspace-orchestrator.js'
+import {
+  AuthWorkerWorkspaceDirectory,
+  type WorkspaceDirectory,
+} from './services/workspace-directory.js'
 import { loadStoresConfig } from './config/stores.js'
 import { logger } from './utils/logger.js'
 import { handleWorkspaceWebhook } from './api/workspace-webhooks.js'
+import {
+  WorkspaceReconciler,
+  getDisabledReconcilerStatus,
+  type WorkspaceReconcilerStatus,
+} from './services/workspace-reconciler.js'
 
 async function main() {
   logger.info('Starting Work Squared Multi-Store Server...')
@@ -46,6 +55,33 @@ async function main() {
   }
 
   logger.info('Event monitoring started for all stores')
+
+  const authWorkerUrl =
+    process.env.AUTH_WORKER_INTERNAL_URL || process.env.AUTH_WORKER_URL || undefined
+  const serverBypassToken = process.env.SERVER_BYPASS_TOKEN
+  const reconcileIntervalRaw = Number(process.env.WORKSPACE_RECONCILE_INTERVAL_MS)
+  const reconcileInterval = Number.isFinite(reconcileIntervalRaw) ? reconcileIntervalRaw : undefined
+
+  let workspaceReconciler: WorkspaceReconciler | null = null
+  let disabledReconcilerStatus: WorkspaceReconcilerStatus | null = null
+
+  if (authWorkerUrl && serverBypassToken) {
+    const directory: WorkspaceDirectory = new AuthWorkerWorkspaceDirectory({
+      baseUrl: authWorkerUrl,
+      serverBypassToken,
+    })
+    workspaceReconciler = new WorkspaceReconciler({
+      orchestrator: workspaceOrchestrator,
+      directory,
+      intervalMs: reconcileInterval,
+    })
+    workspaceReconciler.start()
+  } else {
+    const reason = !authWorkerUrl
+      ? 'AUTH_WORKER_INTERNAL_URL not configured'
+      : 'SERVER_BYPASS_TOKEN not configured'
+    disabledReconcilerStatus = getDisabledReconcilerStatus(reason)
+  }
 
   const http = await import('http')
   const healthServer = http.createServer(async (req, res) => {
@@ -79,6 +115,10 @@ async function main() {
       })
       const processedStats = await eventProcessor.getProcessedMessageStats()
       const orchestratorSummary = workspaceOrchestrator.getSummary()
+      const reconciliationStatus: WorkspaceReconcilerStatus = workspaceReconciler
+        ? workspaceReconciler.getStatus()
+        : (disabledReconcilerStatus ??
+          getDisabledReconcilerStatus('Workspace reconciler not configured'))
 
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(
@@ -99,12 +139,17 @@ async function main() {
           liveStorePerStore: Object.fromEntries(liveStoreStats.perStore),
           processedMessages: processedStats,
           orchestrator: orchestratorSummary,
+          reconciliation: reconciliationStatus,
         })
       )
     } else if (pathname === '/stores') {
       const storeInfo = storeManager.getAllStoreInfo()
       const processingStats = eventProcessor.getProcessingStats()
       const orchestratorSummary = workspaceOrchestrator.getSummary()
+      const reconciliationStatus: WorkspaceReconcilerStatus = workspaceReconciler
+        ? workspaceReconciler.getStatus()
+        : (disabledReconcilerStatus ??
+          getDisabledReconcilerStatus('Workspace reconciler not configured'))
       const stores = Array.from(storeInfo.entries()).map(([id, info]) => ({
         id,
         status: info.status,
@@ -127,6 +172,7 @@ async function main() {
             totalProvisioned: orchestratorSummary.totalProvisioned,
             totalDeprovisioned: orchestratorSummary.totalDeprovisioned,
           },
+          reconciliation: reconciliationStatus,
         })
       )
     } else if (pathname === '/') {
@@ -200,6 +246,7 @@ async function main() {
   const shutdown = async () => {
     logger.info('Shutting down server...')
     healthServer.close()
+    workspaceReconciler?.stop()
     await workspaceOrchestrator.shutdown()
 
     // Flush any pending Sentry events before exiting

@@ -223,6 +223,13 @@ pnpm --filter @work-squared/posthog-worker dev
 
 The `packages/server` backend service is deployed separately to Render.com. See [ADR 002: Node.js Hosting Platform](adrs/002-nodejs-hosting-platform.md) for the architecture decision.
 
+The server now maintains parity with the Auth Worker via two mechanisms:
+
+- **Webhooks** provision stores immediately when workspaces are created or deleted.
+- **Workspace reconciliation** (default every 5 minutes) polls the Auth Worker to repair any drift that may result from missed webhooks.
+
+Ensure both services share the same `SERVER_BYPASS_TOKEN`, and configure `AUTH_WORKER_INTERNAL_URL` so the server can access the internal workspace listing endpoint.
+
 ### Required Environment Variables (Render.com)
 
 Configure these in your Render service dashboard:
@@ -234,6 +241,7 @@ Configure these in your Render service dashboard:
 - `AUTH_TOKEN` - Authentication token for LiveStore
 - `LIVESTORE_SYNC_URL` - WebSocket URL (e.g., `wss://work-squared.jessmartin.workers.dev`)
 - `SERVER_BYPASS_TOKEN` - Token for internal worker communication
+- `AUTH_WORKER_INTERNAL_URL` - Base URL for the Auth Worker (used for webhook reconciliation)
 
 **Sentry (Optional but Recommended):**
 
@@ -246,6 +254,10 @@ Configure these in your Render service dashboard:
 
 - `BRAINTRUST_API_KEY` - For LLM agentic loop functionality
 - `BRAINTRUST_PROJECT_ID` - Braintrust project identifier
+
+**Reconciliation (Optional overrides):**
+
+- `WORKSPACE_RECONCILE_INTERVAL_MS` - Override the default 5 minute reconciliation cadence.
 
 ### Source Maps
 

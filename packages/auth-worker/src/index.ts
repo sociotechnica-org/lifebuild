@@ -295,6 +295,15 @@ async function handleInternalUserInstances(
   return forwardToUserStore(env, '/internal/instances', { userId })
 }
 
+async function handleInternalListWorkspaces(request: Request, env: Env): Promise<Response> {
+  const authError = verifyServerBypassToken(request, env)
+  if (authError) {
+    return authError
+  }
+
+  return forwardToUserStore(env, '/internal/workspaces', {})
+}
+
 /**
  * Handle admin get user details request
  */
@@ -645,6 +654,13 @@ export default {
               }
               return addCorsHeaders(await handleInternalUserInstances(request, env, userId))
             }
+          }
+
+          if (path === '/internal/workspaces') {
+            if (method !== 'GET') {
+              return createErrorResponse('Method not allowed', 405)
+            }
+            return addCorsHeaders(await handleInternalListWorkspaces(request, env))
           }
 
           return createErrorResponse('Not found', 404)
