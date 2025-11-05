@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
-import { formatRegistrationDate } from '../../util/dates.js'
+import { formatRegistrationDate } from '../../utils/dates.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { isCurrentUserAdmin } from '../../utils/adminCheck.jsx'
 import { ROUTES } from '../../constants/routes.js'

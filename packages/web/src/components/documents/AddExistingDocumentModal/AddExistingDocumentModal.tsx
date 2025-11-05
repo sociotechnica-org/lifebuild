@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { formatDate } from '../../../util/dates.js'
+import { formatDate } from '../../../utils/dates.js'
 import { getAllDocuments$, getDocumentProjectsByProject$ } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
 import { LoadingSpinner } from '../../ui/LoadingSpinner.js'

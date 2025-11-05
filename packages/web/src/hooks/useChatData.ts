@@ -9,7 +9,7 @@ import {
 } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
 import type { Conversation, ChatMessage, Worker } from '@work-squared/shared/schema'
-import { DEFAULT_MODEL } from '../util/models.js'
+import { DEFAULT_MODEL } from '../utils/models.js'
 import { useNavigationContext } from './useNavigationContext.js'
 
 export interface ChatData {

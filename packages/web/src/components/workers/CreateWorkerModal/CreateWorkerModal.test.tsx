@@ -16,7 +16,7 @@ vi.mock('@livestore/react', () => ({
 }))
 
 // Mock random worker name generation
-vi.mock('../../../util/workerNames.js', () => ({
+vi.mock('../../../utils/workerNames.js', () => ({
   generateRandomWorkerName: () => 'Test Worker',
   systemPromptTemplates: [
     {

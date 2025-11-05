@@ -17,7 +17,7 @@ vi.mock('@livestore/react', () => ({
 }))
 
 // Mock system prompt templates
-vi.mock('../../../util/workerNames.js', () => ({
+vi.mock('../../../utils/workerNames.js', () => ({
   systemPromptTemplates: [
     {
       name: 'General Assistant',

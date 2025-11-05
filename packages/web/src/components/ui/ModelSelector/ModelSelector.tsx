@@ -1,5 +1,5 @@
 import React from 'react'
-import { supportedModels, getModelById } from '../../../util/models.js'
+import { supportedModels, getModelById } from '../../../utils/models.js'
 
 interface ModelSelectorProps {
   selectedModel: string

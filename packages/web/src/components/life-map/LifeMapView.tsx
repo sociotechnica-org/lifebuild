@@ -5,7 +5,7 @@ import { getProjects$ } from '@work-squared/shared/queries'
 import { PROJECT_CATEGORIES, type ProjectCategory, getCategoryInfo } from '@work-squared/shared'
 import { CategoryCard } from './CategoryCard.js'
 import { QuickAddProjectModal } from './QuickAddProjectModal.js'
-import { preserveStoreIdInUrl } from '../../util/navigation.js'
+import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { generateRoute } from '../../constants/routes.js'
 
 const LAST_VISITED_CATEGORY_KEY = 'lifemap:lastVisitedCategory'

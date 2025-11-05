@@ -1,7 +1,7 @@
 import React from 'react'
 import type { ProjectCategory } from '@work-squared/shared'
-import { formatRelativeTime } from '../../util/dates.js'
-import { isNeglected } from '../../util/categoryHelpers.js'
+import { formatRelativeTime } from '../../utils/dates.js'
+import { isNeglected } from '../../utils/categoryHelpers.js'
 
 export interface CategoryCardProps {
   category: {

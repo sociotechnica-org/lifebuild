@@ -4,7 +4,7 @@ import { useQuery } from '@livestore/react'
 import { Contact } from '@work-squared/shared/schema'
 import { getContactProjects$ } from '@work-squared/shared/queries'
 import { generateRoute } from '../../constants/routes.js'
-import { getInitials } from '../../util/initials.js'
+import { getInitials } from '../../utils/initials.js'
 
 interface ContactItemProps {
   contact: Contact
