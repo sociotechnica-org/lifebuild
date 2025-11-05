@@ -2,6 +2,7 @@
 import dotenv from 'dotenv'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import type { IncomingMessage, ServerResponse } from 'http'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -31,6 +32,11 @@ const { WorkspaceReconciler, getDisabledReconcilerStatus } = await import(
 // Type imports must remain static - they're erased at runtime and don't affect module loading
 import type { WorkspaceReconciler as WorkspaceReconcilerType } from './services/workspace-reconciler.js'
 import type { WorkspaceReconcilerStatus } from './services/workspace-reconciler.js'
+const { createManualReconcileHandler, createManualReconcileState } = await import(
+  './api/manual-reconcile.js'
+)
+import type { ManualReconcileState } from './api/manual-reconcile.js'
+const { getIncidentDashboardUrl } = await import('./utils/orchestration-telemetry.js')
 const { getMessageLifecycleTracker } = await import('./services/message-lifecycle-tracker.js')
 
 /**
@@ -85,6 +91,11 @@ async function main() {
 
   let workspaceReconciler: WorkspaceReconcilerType | null = null
   let disabledReconcilerStatus: WorkspaceReconcilerStatus | null = null
+  const manualReconcileIntervalRaw = Number(process.env.MANUAL_RECONCILE_MIN_INTERVAL_MS)
+  const manualReconcileMinIntervalMs = Number.isFinite(manualReconcileIntervalRaw)
+    ? manualReconcileIntervalRaw
+    : 60_000
+  const manualReconcileState: ManualReconcileState = createManualReconcileState()
 
   if (authWorkerUrl && serverBypassToken) {
     const directory: WorkspaceDirectory = new AuthWorkerWorkspaceDirectory({
@@ -104,11 +115,24 @@ async function main() {
     disabledReconcilerStatus = getDisabledReconcilerStatus(reason)
   }
 
+  const manualReconcileHandler =
+    workspaceReconciler && serverBypassToken
+      ? createManualReconcileHandler({
+          workspaceReconciler,
+          serverBypassToken,
+          minIntervalMs: manualReconcileMinIntervalMs,
+          state: manualReconcileState,
+        })
+      : null
+
   const http = await import('http')
   const healthServer = http.createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Webhook-Secret')
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, X-Webhook-Secret, Authorization, X-Server-Token'
+    )
 
     if (req.method === 'OPTIONS') {
       res.writeHead(200)
@@ -123,6 +147,16 @@ async function main() {
         orchestrator: workspaceOrchestrator,
         secret: webhookSecret,
       })
+      return
+    }
+
+    if (pathname === '/admin/reconcile') {
+      if (!manualReconcileHandler) {
+        res.writeHead(503, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Workspace reconciler is not available' }))
+      } else {
+        await manualReconcileHandler(req, res)
+      }
       return
     }
 
@@ -161,6 +195,14 @@ async function main() {
           processedMessages: processedStats,
           orchestrator: orchestratorSummary,
           reconciliation: reconciliationStatus,
+          manualReconcile: {
+            lastTriggeredAt: manualReconcileState.lastTriggeredAt
+              ? new Date(manualReconcileState.lastTriggeredAt).toISOString()
+              : null,
+            minIntervalMs: manualReconcileMinIntervalMs,
+            inFlight: manualReconcileState.inFlight,
+            incidentDashboardUrl: getIncidentDashboardUrl(),
+          },
         })
       )
     } else if (pathname === '/stores') {
@@ -194,6 +236,14 @@ async function main() {
             totalDeprovisioned: orchestratorSummary.totalDeprovisioned,
           },
           reconciliation: reconciliationStatus,
+          manualReconcile: {
+            lastTriggeredAt: manualReconcileState.lastTriggeredAt
+              ? new Date(manualReconcileState.lastTriggeredAt).toISOString()
+              : null,
+            minIntervalMs: manualReconcileMinIntervalMs,
+            inFlight: manualReconcileState.inFlight,
+            incidentDashboardUrl: getIncidentDashboardUrl(),
+          },
         })
       )
     } else if (pathname === '/') {

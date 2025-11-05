@@ -37,6 +37,10 @@ services:
         value: 3
       - key: WORKSPACE_RECONCILE_INTERVAL_MS
         value: 300000
+      - key: MANUAL_RECONCILE_MIN_INTERVAL_MS
+        value: 60000
+      - key: ORCHESTRATION_INCIDENT_DASHBOARD_URL
+        sync: false # Populate with the Render/observability dashboard URL
       # DevTools (disabled in production)
       - key: DISABLE_DEVTOOLS
         value: true

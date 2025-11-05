@@ -1,4 +1,8 @@
 import { operationLogger, storeLogger } from '../utils/logger.js'
+import {
+  createOrchestrationTelemetry,
+  getIncidentDashboardUrl,
+} from '../utils/orchestration-telemetry.js'
 import type { StoreManager } from './store-manager.js'
 import type { EventProcessor } from './event-processor.js'
 import type { Store as LiveStore } from '@livestore/livestore'
@@ -42,6 +46,11 @@ export class WorkspaceOrchestrator {
 
   async ensureMonitored(storeId: string): Promise<void> {
     const log = operationLogger('workspace_orchestrator.ensure_monitored', { storeId })
+    const telemetry = createOrchestrationTelemetry({
+      operation: 'workspace_orchestrator.ensure_monitored',
+      storeId,
+      captureOnError: true,
+    })
 
     const existingMetadata = this.storeMetadata.get(storeId)
     const alreadyMonitoring = existingMetadata?.status === 'monitoring'
@@ -73,15 +82,32 @@ export class WorkspaceOrchestrator {
       metadata.lastStoppedAt = existingMetadata?.lastStoppedAt
       this.storeMetadata.set(storeId, metadata)
 
-      log.info({ status: alreadyMonitoring ? 'already_monitoring' : 'monitoring_started' })
+      const status = alreadyMonitoring ? 'already_monitoring' : 'monitoring_started'
+      const { durationMs } = telemetry.recordSuccess({ status })
+
+      log.info({
+        status,
+        durationMs,
+        incidentDashboardUrl: getIncidentDashboardUrl(),
+      })
     } catch (error) {
-      log.error({ error }, 'Failed to ensure store is monitored')
+      const { durationMs } = telemetry.recordFailure(error, { phase: 'ensureMonitored' })
+
+      log.error(
+        { error, durationMs, incidentDashboardUrl: getIncidentDashboardUrl() },
+        'Failed to ensure store is monitored'
+      )
       throw error
     }
   }
 
   async stopMonitoring(storeId: string): Promise<void> {
     const log = operationLogger('workspace_orchestrator.stop_monitoring', { storeId })
+    const telemetry = createOrchestrationTelemetry({
+      operation: 'workspace_orchestrator.stop_monitoring',
+      storeId,
+      captureOnError: true,
+    })
 
     const metadata = this.storeMetadata.get(storeId)
     const wasMonitoring = metadata?.status === 'monitoring'
@@ -105,9 +131,21 @@ export class WorkspaceOrchestrator {
         status: 'stopped',
       })
 
-      log.info({ status: wasMonitoring ? 'monitoring_stopped' : 'already_stopped' })
+      const status = wasMonitoring ? 'monitoring_stopped' : 'already_stopped'
+      const { durationMs } = telemetry.recordSuccess({ status })
+
+      log.info({
+        status,
+        durationMs,
+        incidentDashboardUrl: getIncidentDashboardUrl(),
+      })
     } catch (error) {
-      log.error({ error }, 'Failed to stop monitoring store')
+      const { durationMs } = telemetry.recordFailure(error, { phase: 'stopMonitoring' })
+
+      log.error(
+        { error, durationMs, incidentDashboardUrl: getIncidentDashboardUrl() },
+        'Failed to stop monitoring store'
+      )
       throw error
     }
   }
@@ -138,20 +176,42 @@ export class WorkspaceOrchestrator {
 
   async shutdown(): Promise<void> {
     const log = operationLogger('workspace_orchestrator.shutdown')
+    const telemetry = createOrchestrationTelemetry({
+      operation: 'workspace_orchestrator.shutdown',
+    })
+
     log.info('Shutting down workspace orchestrator')
 
-    const monitoredStores = this.listMonitored()
-    for (const storeId of monitoredStores) {
-      try {
-        await this.stopMonitoring(storeId)
-      } catch (error) {
-        storeLogger(storeId).error({ error }, 'Failed to stop monitoring during shutdown')
+    try {
+      const monitoredStores = this.listMonitored()
+      for (const storeId of monitoredStores) {
+        try {
+          await this.stopMonitoring(storeId)
+        } catch (error) {
+          storeLogger(storeId).error({ error }, 'Failed to stop monitoring during shutdown')
+        }
       }
-    }
 
-    this.eventProcessor.stopAll()
-    await this.storeManager.shutdown()
-    log.info('Workspace orchestrator shutdown complete')
+      this.eventProcessor.stopAll()
+      await this.storeManager.shutdown()
+      const { durationMs } = telemetry.recordSuccess({
+        monitoredStores: monitoredStores.length,
+      })
+      log.info(
+        {
+          durationMs,
+          incidentDashboardUrl: getIncidentDashboardUrl(),
+        },
+        'Workspace orchestrator shutdown complete'
+      )
+    } catch (error) {
+      const { durationMs } = telemetry.recordFailure(error, { phase: 'shutdown' })
+      log.error(
+        { error, durationMs, incidentDashboardUrl: getIncidentDashboardUrl() },
+        'Workspace orchestrator shutdown failed'
+      )
+      throw error
+    }
   }
 
   private async resolveStore(storeId: string): Promise<LiveStore> {

@@ -1,6 +1,10 @@
 import type { Store as LiveStore } from '@livestore/livestore'
 import { type StoreConfig, createStore } from '../factories/store-factory.js'
 import { logger, storeLogger, operationLogger } from '../utils/logger.js'
+import {
+  createOrchestrationTelemetry,
+  getIncidentDashboardUrl,
+} from '../utils/orchestration-telemetry.js'
 
 export interface StoreInfo {
   store: LiveStore
@@ -32,7 +36,13 @@ export class StoreManager {
       storeCount: storeIds.length,
       storeIds,
     })
+    const telemetry = createOrchestrationTelemetry({
+      operation: 'store_manager.initialize',
+      metadata: { storeCount: storeIds.length },
+    })
     log.info('Initializing stores')
+
+    let failureCount = 0
 
     const initPromises = storeIds.map(async storeId => {
       try {
@@ -40,19 +50,48 @@ export class StoreManager {
         storeLogger(storeId).info('Store initialized successfully')
       } catch (error) {
         storeLogger(storeId).error({ error }, 'Failed to initialize store')
+        failureCount += 1
       }
     })
 
     await Promise.allSettled(initPromises)
 
     this.startHealthChecks()
-    logger.info({ activeStores: this.stores.size }, 'Store manager initialization complete')
+    const status = failureCount > 0 ? 'completed_with_failures' : 'completed'
+    const { durationMs } = telemetry.recordSuccess({
+      initializedStores: this.stores.size,
+      failedStores: failureCount,
+      status,
+    })
+    logger.info(
+      {
+        activeStores: this.stores.size,
+        durationMs,
+        status,
+        failedStores: failureCount,
+        incidentDashboardUrl: getIncidentDashboardUrl(),
+      },
+      'Store manager initialization complete'
+    )
   }
 
   async addStore(storeId: string): Promise<LiveStore> {
+    const telemetry = createOrchestrationTelemetry({
+      operation: 'store_manager.add_store',
+      storeId,
+      captureOnError: true,
+    })
+
     if (this.stores.has(storeId)) {
       const existing = this.stores.get(storeId)!
-      storeLogger(storeId).warn('Store already exists, returning existing instance')
+      const { durationMs } = telemetry.recordSuccess({ status: 'already_exists' })
+      storeLogger(storeId).warn(
+        {
+          durationMs,
+          incidentDashboardUrl: getIncidentDashboardUrl(),
+        },
+        'Store already exists, returning existing instance'
+      )
       return existing.store
     }
 
@@ -72,18 +111,45 @@ export class StoreManager {
       this.stores.set(storeId, storeInfo)
       this.setupStoreEventHandlers(storeId, store)
 
-      storeLogger(storeId).info({ config: config.storeId }, 'Store added successfully')
+      const { durationMs } = telemetry.recordSuccess({
+        status: 'connected',
+      })
+      storeLogger(storeId).info(
+        {
+          config: config.storeId,
+          durationMs,
+          incidentDashboardUrl: getIncidentDashboardUrl(),
+        },
+        'Store added successfully'
+      )
       return store
     } catch (error) {
-      storeLogger(storeId).error({ error }, 'Failed to add store')
+      const { durationMs } = telemetry.recordFailure(error, { phase: 'addStore' })
+      storeLogger(storeId).error(
+        { error, durationMs, incidentDashboardUrl: getIncidentDashboardUrl() },
+        'Failed to add store'
+      )
       throw error
     }
   }
 
   async removeStore(storeId: string): Promise<void> {
+    const telemetry = createOrchestrationTelemetry({
+      operation: 'store_manager.remove_store',
+      storeId,
+      captureOnError: true,
+    })
+
     const storeInfo = this.stores.get(storeId)
     if (!storeInfo) {
-      storeLogger(storeId).warn('Store not found for removal')
+      const { durationMs } = telemetry.recordSuccess({ status: 'not_found' })
+      storeLogger(storeId).warn(
+        {
+          durationMs,
+          incidentDashboardUrl: getIncidentDashboardUrl(),
+        },
+        'Store not found for removal'
+      )
       return
     }
 
@@ -93,15 +159,40 @@ export class StoreManager {
       this.reconnectTimeouts.delete(storeId)
     }
 
+    let failureRecorded = false
+
     try {
       await storeInfo.store.shutdownPromise()
       storeLogger(storeId).info('Store shutdown complete')
     } catch (error) {
-      storeLogger(storeId).error({ error }, 'Error shutting down store')
+      failureRecorded = true
+      const { durationMs } = telemetry.recordFailure(error, { phase: 'shutdown' })
+      storeLogger(storeId).error(
+        { error, durationMs, incidentDashboardUrl: getIncidentDashboardUrl() },
+        'Error shutting down store'
+      )
     }
 
     this.stores.delete(storeId)
-    storeLogger(storeId).info('Store removed successfully')
+    if (!failureRecorded) {
+      const { durationMs } = telemetry.recordSuccess({ status: 'removed' })
+      storeLogger(storeId).info(
+        {
+          status: 'removed',
+          durationMs,
+          incidentDashboardUrl: getIncidentDashboardUrl(),
+        },
+        'Store removed successfully'
+      )
+    } else {
+      storeLogger(storeId).warn(
+        {
+          status: 'removed_with_errors',
+          incidentDashboardUrl: getIncidentDashboardUrl(),
+        },
+        'Store removed with errors'
+      )
+    }
   }
 
   getStore(storeId: string): LiveStore | null {
@@ -220,7 +311,12 @@ export class StoreManager {
   }
 
   async shutdown(): Promise<void> {
-    operationLogger('store_manager_shutdown').info('Shutting down store manager')
+    const log = operationLogger('store_manager_shutdown')
+    const telemetry = createOrchestrationTelemetry({
+      operation: 'store_manager.shutdown',
+      metadata: { activeStores: this.stores.size },
+    })
+    log.info('Shutting down store manager')
 
     if (this.healthCheckInterval) {
       clearInterval(this.healthCheckInterval)
@@ -236,7 +332,16 @@ export class StoreManager {
     )
 
     await Promise.allSettled(shutdownPromises)
-    logger.info('Store manager shutdown complete')
+    const { durationMs } = telemetry.recordSuccess({
+      shutdownStores: shutdownPromises.length,
+    })
+    logger.info(
+      {
+        durationMs,
+        incidentDashboardUrl: getIncidentDashboardUrl(),
+      },
+      'Store manager shutdown complete'
+    )
   }
 
   updateActivity(storeId: string): void {

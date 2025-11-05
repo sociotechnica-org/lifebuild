@@ -27,3 +27,20 @@ vi.mock('pino', () => {
 vi.mock('pino-pretty', () => ({
   default: vi.fn(),
 }))
+
+vi.mock('@sentry/node', () => {
+  const mockScope = {
+    setTag: vi.fn(),
+    setContext: vi.fn(),
+    setLevel: vi.fn(),
+  }
+
+  return {
+    init: vi.fn(),
+    addBreadcrumb: vi.fn(),
+    withScope: (callback: (scope: typeof mockScope) => unknown) => callback(mockScope),
+    captureException: vi.fn(),
+    flush: vi.fn().mockResolvedValue(undefined),
+    consoleLoggingIntegration: vi.fn(),
+  }
+})
