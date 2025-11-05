@@ -38,6 +38,35 @@ create_env_file_if_missing "packages/server/.env" "packages/server/.env.example"
 create_env_file_if_missing "packages/worker/.dev.vars" "packages/worker/.dev.vars.example"
 create_env_file_if_missing "packages/auth-worker/.dev.vars" "packages/auth-worker/.dev.vars.example"
 
+# Set consistent JWT secrets for dev environment
+# These are not real secrets - just internal dev values that need to match across services
+echo "🔑 Configuring JWT secrets for development..."
+DEV_JWT_SECRET="claude-web-dev-jwt-secret-$(date +%s)"
+DEV_BYPASS_TOKEN="claude-web-dev-bypass-token-$(date +%s)"
+
+# Update worker .dev.vars with secrets
+if [ -f "packages/worker/.dev.vars" ]; then
+    sed -i.bak "s|^JWT_SECRET=.*|JWT_SECRET=${DEV_JWT_SECRET}|" packages/worker/.dev.vars
+    sed -i.bak "s|^SERVER_BYPASS_TOKEN=.*|SERVER_BYPASS_TOKEN=${DEV_BYPASS_TOKEN}|" packages/worker/.dev.vars
+    rm -f packages/worker/.dev.vars.bak
+    echo "✅ Updated worker JWT secrets"
+fi
+
+# Update auth-worker .dev.vars with matching secrets
+if [ -f "packages/auth-worker/.dev.vars" ]; then
+    sed -i.bak "s|^JWT_SECRET=.*|JWT_SECRET=${DEV_JWT_SECRET}|" packages/auth-worker/.dev.vars
+    sed -i.bak "s|^SERVER_BYPASS_TOKEN=.*|SERVER_BYPASS_TOKEN=${DEV_BYPASS_TOKEN}|" packages/auth-worker/.dev.vars
+    rm -f packages/auth-worker/.dev.vars.bak
+    echo "✅ Updated auth-worker JWT secrets"
+fi
+
+# Update server .env with matching bypass token
+if [ -f "packages/server/.env" ]; then
+    sed -i.bak "s|^SERVER_BYPASS_TOKEN=.*|SERVER_BYPASS_TOKEN=${DEV_BYPASS_TOKEN}|" packages/server/.env
+    rm -f packages/server/.env.bak
+    echo "✅ Updated server bypass token"
+fi
+
 # Update STORE_IDS in packages/server/.env to match branch name if it exists
 echo "🔧 Updating STORE_IDS to match branch name..."
 BRANCH_NAME=$(git branch --show-current)
