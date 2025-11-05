@@ -7,6 +7,8 @@ import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
 import { AuthProvider, useAuth } from './contexts/AuthContext.js'
+import { WorkspaceProvider, useWorkspace } from './contexts/WorkspaceContext.js'
+import { SnackbarProvider } from './components/ui/Snackbar/Snackbar.js'
 import { useChorusNavigation } from './hooks/useChorusNavigation.js'
 
 import { ProjectsPage } from './components/projects/ProjectsPage.js'
@@ -50,31 +52,36 @@ const ChorusNavigationInitializer: React.FC<{ children: React.ReactNode }> = ({ 
   return <>{children}</>
 }
 
-// LiveStore wrapper with auth integration
+// LiveStore wrapper with workspace integration
 const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Determine storeId once on mount - prioritize URL over localStorage
+  const { currentWorkspaceId } = useWorkspace()
+  const { isAuthenticated } = useAuth()
+
+  // Determine storeId from workspace context or fall back to legacy behavior
   const storeId = useMemo(() => {
     if (typeof window === 'undefined') return 'unused'
 
-    // Check URL first (using window.location for initial mount)
+    // If authenticated and we have a workspace, use it
+    if (isAuthenticated && currentWorkspaceId) {
+      return currentWorkspaceId
+    }
+
+    // Fall back to legacy behavior for non-authenticated users
     const urlParams = new URLSearchParams(window.location.search)
     const urlStoreId = urlParams.get('storeId')
 
     if (urlStoreId) {
-      // URL has storeId - use it and sync to localStorage
       localStorage.setItem('storeId', urlStoreId)
       return urlStoreId
     }
 
-    // No URL storeId - fall back to localStorage
     let storedId = localStorage.getItem('storeId')
     if (!storedId) {
-      // No localStorage either - create new one
       storedId = crypto.randomUUID()
       localStorage.setItem('storeId', storedId)
     }
     return storedId
-  }, []) // Empty deps - calculated once on mount, stable during navigation
+  }, [currentWorkspaceId, isAuthenticated])
 
   return (
     <LiveStoreProvider
@@ -83,6 +90,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       adapter={adapter}
       batchUpdates={batchUpdates}
       storeId={storeId}
+      key={storeId} // Remount LiveStore when workspace changes
     >
       <ChorusNavigationInitializer>{children}</ChorusNavigationInitializer>
     </LiveStoreProvider>
@@ -125,170 +133,172 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 const ProtectedApp: React.FC = () => {
   return (
     <AuthGuard>
-      <LiveStoreWrapper>
-        <EnsureStoreId>
-          <UserInitializer>
-            <AuthUserSync>
-              <SettingsInitializer>
-                <ErrorBoundary>
-                  <Routes>
-                    <Route
-                      path={ROUTES.HOME}
-                      element={
-                        <Layout>
+      <WorkspaceProvider>
+        <LiveStoreWrapper>
+          <EnsureStoreId>
+            <UserInitializer>
+              <AuthUserSync>
+                <SettingsInitializer>
+                  <ErrorBoundary>
+                    <Routes>
+                      <Route
+                        path={ROUTES.HOME}
+                        element={
+                          <Layout>
+                            <ErrorBoundary>
+                              <LifeMapView />
+                            </ErrorBoundary>
+                          </Layout>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.LIFE_MAP}
+                        element={
+                          <Layout>
+                            <ErrorBoundary>
+                              <LifeMapView />
+                            </ErrorBoundary>
+                          </Layout>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.PROJECTS}
+                        element={
+                          <Layout>
+                            <ErrorBoundary>
+                              <ProjectsPage />
+                            </ErrorBoundary>
+                          </Layout>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.NEW_PROJECTS}
+                        element={
                           <ErrorBoundary>
-                            <LifeMapView />
+                            <NewUiShell>
+                              <ProjectsListPage />
+                            </NewUiShell>
                           </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.LIFE_MAP}
-                      element={
-                        <Layout>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.TASKS}
+                        element={
+                          <Layout>
+                            <ErrorBoundary>
+                              <TasksPage />
+                            </ErrorBoundary>
+                          </Layout>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.TEAM}
+                        element={
+                          <Layout>
+                            <ErrorBoundary>
+                              <WorkersPage />
+                            </ErrorBoundary>
+                          </Layout>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.DOCUMENTS}
+                        element={
+                          <Layout>
+                            <ErrorBoundary>
+                              <DocumentsPage />
+                            </ErrorBoundary>
+                          </Layout>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.CONTACTS}
+                        element={
+                          <Layout>
+                            <ErrorBoundary>
+                              <ContactList />
+                            </ErrorBoundary>
+                          </Layout>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.CONTACT}
+                        element={
+                          <Layout>
+                            <ErrorBoundary>
+                              <ContactDetail />
+                            </ErrorBoundary>
+                          </Layout>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.HISTORY}
+                        element={
+                          <Layout>
+                            <ErrorBoundary>
+                              <HistoryPage />
+                            </ErrorBoundary>
+                          </Layout>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.SETTINGS}
+                        element={
+                          <Layout>
+                            <ErrorBoundary>
+                              <SettingsPage />
+                            </ErrorBoundary>
+                          </Layout>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.DOCUMENT}
+                        element={
+                          <Layout>
+                            <ErrorBoundary>
+                              <DocumentPage />
+                            </ErrorBoundary>
+                          </Layout>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.PROJECT}
+                        element={
+                          <Layout>
+                            <ErrorBoundary>
+                              <ProjectWorkspace />
+                            </ErrorBoundary>
+                          </Layout>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.NEW_PROJECT}
+                        element={
                           <ErrorBoundary>
-                            <LifeMapView />
+                            <NewUiShell>
+                              <ProjectDetailPage />
+                            </NewUiShell>
                           </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.PROJECTS}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <ProjectsPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.NEW_PROJECTS}
-                      element={
-                        <ErrorBoundary>
-                          <NewUiShell>
-                            <ProjectsListPage />
-                          </NewUiShell>
-                        </ErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.TASKS}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <TasksPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.TEAM}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <WorkersPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.DOCUMENTS}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <DocumentsPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.CONTACTS}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <ContactList />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.CONTACT}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <ContactDetail />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.HISTORY}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <HistoryPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.SETTINGS}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <SettingsPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.DOCUMENT}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <DocumentPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.PROJECT}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <ProjectWorkspace />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.NEW_PROJECT}
-                      element={
-                        <ErrorBoundary>
-                          <NewUiShell>
-                            <ProjectDetailPage />
-                          </NewUiShell>
-                        </ErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.CATEGORY}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <LifeCategoryView />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                  </Routes>
-                </ErrorBoundary>
-              </SettingsInitializer>
-            </AuthUserSync>
-          </UserInitializer>
-        </EnsureStoreId>
-      </LiveStoreWrapper>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.CATEGORY}
+                        element={
+                          <Layout>
+                            <ErrorBoundary>
+                              <LifeCategoryView />
+                            </ErrorBoundary>
+                          </Layout>
+                        }
+                      />
+                    </Routes>
+                  </ErrorBoundary>
+                </SettingsInitializer>
+              </AuthUserSync>
+            </UserInitializer>
+          </EnsureStoreId>
+        </LiveStoreWrapper>
+      </WorkspaceProvider>
     </AuthGuard>
   )
 }
