@@ -6,7 +6,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { AuthInstance } from '@work-squared/shared/auth'
 import { useAuth } from './AuthContext.js'
-import { useSnackbar } from '../components/ui/Snackbar/Snackbar.js'
 
 const WORKSPACE_STORAGE_KEY = 'work-squared-current-workspace'
 
@@ -44,7 +43,6 @@ const AUTH_WORKER_URL = import.meta.env.VITE_AUTH_WORKER_URL || 'http://localhos
 
 export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({ children }) => {
   const { user, isAuthenticated, getCurrentToken, refreshToken } = useAuth()
-  const { showSnackbar } = useSnackbar()
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null)
   const [workspaces, setWorkspaces] = useState<AuthInstance[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -125,10 +123,6 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({ children }
     async (workspaceId: string): Promise<boolean> => {
       // Verify workspace exists
       if (!workspaces.find(w => w.id === workspaceId)) {
-        showSnackbar({
-          message: 'Workspace not found',
-          type: 'error',
-        })
         return false
       }
 
@@ -157,16 +151,12 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({ children }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to switch workspace'
         setError(message)
-        showSnackbar({
-          message,
-          type: 'error',
-        })
         return false
       } finally {
         setIsLoading(false)
       }
     },
-    [workspaces, makeAuthenticatedRequest, showSnackbar]
+    [workspaces, makeAuthenticatedRequest]
   )
 
   const createWorkspace = useCallback(
@@ -190,34 +180,21 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({ children }
         // Refresh workspaces to get the new one
         await refreshWorkspaces()
 
-        showSnackbar({
-          message: `Workspace "${data.instance?.name || 'New workspace'}" created`,
-          type: 'success',
-        })
-
         return true
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to create workspace'
         setError(message)
-        showSnackbar({
-          message,
-          type: 'error',
-        })
         return false
       } finally {
         setIsLoading(false)
       }
     },
-    [makeAuthenticatedRequest, showSnackbar]
+    [makeAuthenticatedRequest]
   )
 
   const renameWorkspace = useCallback(
     async (workspaceId: string, name: string): Promise<boolean> => {
       if (!name.trim()) {
-        showSnackbar({
-          message: 'Workspace name cannot be empty',
-          type: 'error',
-        })
         return false
       }
 
@@ -238,25 +215,16 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({ children }
         // Refresh workspaces to get the updated name
         await refreshWorkspaces()
 
-        showSnackbar({
-          message: `Workspace renamed to "${name}"`,
-          type: 'success',
-        })
-
         return true
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to rename workspace'
         setError(message)
-        showSnackbar({
-          message,
-          type: 'error',
-        })
         return false
       } finally {
         setIsLoading(false)
       }
     },
-    [makeAuthenticatedRequest, showSnackbar]
+    [makeAuthenticatedRequest]
   )
 
   const setDefaultWorkspace = useCallback(
@@ -277,35 +245,22 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({ children }
         // Refresh workspaces to get updated default status
         await refreshWorkspaces()
 
-        showSnackbar({
-          message: 'Default workspace updated',
-          type: 'success',
-        })
-
         return true
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to set default workspace'
         setError(message)
-        showSnackbar({
-          message,
-          type: 'error',
-        })
         return false
       } finally {
         setIsLoading(false)
       }
     },
-    [makeAuthenticatedRequest, showSnackbar]
+    [makeAuthenticatedRequest]
   )
 
   const deleteWorkspace = useCallback(
     async (workspaceId: string): Promise<boolean> => {
       // Prevent deleting current workspace
       if (workspaceId === currentWorkspaceId) {
-        showSnackbar({
-          message: 'Cannot delete the current workspace. Switch to another workspace first.',
-          type: 'error',
-        })
         return false
       }
 
@@ -325,25 +280,16 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({ children }
         // Refresh workspaces to remove the deleted one
         await refreshWorkspaces()
 
-        showSnackbar({
-          message: 'Workspace deleted',
-          type: 'success',
-        })
-
         return true
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to delete workspace'
         setError(message)
-        showSnackbar({
-          message,
-          type: 'error',
-        })
         return false
       } finally {
         setIsLoading(false)
       }
     },
-    [currentWorkspaceId, makeAuthenticatedRequest, showSnackbar]
+    [currentWorkspaceId, makeAuthenticatedRequest]
   )
 
   const refreshWorkspaces = useCallback(async (): Promise<boolean> => {

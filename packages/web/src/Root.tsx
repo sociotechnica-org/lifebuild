@@ -8,7 +8,6 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 
 import { AuthProvider, useAuth } from './contexts/AuthContext.js'
 import { WorkspaceProvider, useWorkspace } from './contexts/WorkspaceContext.js'
-import { SnackbarProvider } from './components/ui/Snackbar/Snackbar.js'
 import { useChorusNavigation } from './hooks/useChorusNavigation.js'
 
 import { ProjectsPage } from './components/projects/ProjectsPage.js'
