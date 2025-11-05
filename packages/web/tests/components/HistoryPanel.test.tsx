@@ -35,7 +35,7 @@ vi.mock('react-router-dom', () => ({
 }))
 
 // Mock navigation utilities
-vi.mock('../../src/util/navigation.js', () => ({
+vi.mock('../../src/utils/navigation.js', () => ({
   preserveStoreIdInUrl: vi.fn(url => url),
   generateRoute: {
     project: vi.fn(id => `/project/${id}`),

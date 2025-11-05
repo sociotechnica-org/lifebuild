@@ -2,7 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { ModelSelector } from './ModelSelector.js'
-import { DEFAULT_MODEL, MODEL_IDS } from '../../../util/models.js'
+import { DEFAULT_MODEL, MODEL_IDS } from '../../../utils/models.js'
 
 describe('ModelSelector', () => {
   it('should display the selected model and allow changing it', () => {

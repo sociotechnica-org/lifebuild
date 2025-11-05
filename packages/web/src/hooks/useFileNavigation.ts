@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { generateRoute } from '../constants/routes.js'
-import { preserveStoreIdInUrl } from '../util/navigation.js'
+import { preserveStoreIdInUrl } from '../utils/navigation.js'
 
 export type FileNavigationType = 'project' | 'document' | 'external' | 'unknown'
 

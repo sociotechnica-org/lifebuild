@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getInitials } from '../../src/util/initials.js'
+import { getInitials } from './initials.js'
 
 describe('getInitials', () => {
   it('should generate initials from normal names', () => {

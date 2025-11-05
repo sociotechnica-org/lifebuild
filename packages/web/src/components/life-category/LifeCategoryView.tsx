@@ -12,7 +12,7 @@ import {
   type PlanningSubTab,
 } from './LifeCategoryPresenter.js'
 import { generateRoute } from '../../constants/routes.js'
-import { preserveStoreIdInUrl } from '../../util/navigation.js'
+import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useCategoryAdvisorConversation } from '../../hooks/useCategoryAdvisor.js'
 import type { DragEndEvent } from '@dnd-kit/core'
 import { useSnackbar } from '../ui/Snackbar/Snackbar.js'

@@ -5,7 +5,7 @@ import { getProjects$ } from '@work-squared/shared/queries'
 import type { Project } from '@work-squared/shared/schema'
 import { ProjectCard } from './ProjectCard/ProjectCard.js'
 import { CreateProjectModal } from './CreateProjectModal/CreateProjectModal.js'
-import { preserveStoreIdInUrl } from '../../util/navigation.js'
+import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { generateRoute } from '../../constants/routes.js'
 
 export const ProjectsPage: React.FC = () => {

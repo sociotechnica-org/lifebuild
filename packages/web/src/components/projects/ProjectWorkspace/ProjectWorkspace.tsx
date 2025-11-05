@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
-import { formatDate } from '../../../util/dates.js'
+import { formatDate } from '../../../utils/dates.js'
 import { useQuery, useStore } from '@livestore/react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { preserveStoreIdInUrl } from '../../../util/navigation.js'
+import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import {
   getProjectTasks$,
   getAllDocuments$,
