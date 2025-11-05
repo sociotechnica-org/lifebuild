@@ -3,7 +3,7 @@ import { ConnectionState } from '@work-squared/shared/auth'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { useSyncPayload } from '../../hooks/useSyncPayload.js'
 import { LoadingSpinner } from '../ui/LoadingSpinner.js'
-import { getStoreIdFromUrl } from '../../util/navigation.js'
+import { getStoreIdFromUrl } from '../../utils/navigation.js'
 
 const DEFAULT_INSTANCE_ID = 'ui-session-status'
 

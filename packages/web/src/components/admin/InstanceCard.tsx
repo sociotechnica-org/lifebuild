@@ -1,5 +1,5 @@
 import React from 'react'
-import { formatRegistrationDate } from '../../util/dates.js'
+import { formatRegistrationDate } from '../../utils/dates.js'
 
 export interface Instance {
   id: string

@@ -1,8 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { formatDate } from '../../util/dates.js'
+import { formatDate } from '../../utils/dates.js'
 import type { Document } from '@work-squared/shared/schema'
-import { preserveStoreIdInUrl } from '../../util/navigation.js'
+import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { generateRoute } from '../../constants/routes.js'
 import { useDocumentProjects } from '../../hooks/useDocumentProjects.js'
 

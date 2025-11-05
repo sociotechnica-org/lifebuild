@@ -4,7 +4,7 @@ import { FileText } from '@phosphor-icons/react'
 import { BaseEventItem } from './BaseEventItem.js'
 import { HistoryEvent } from '../types.js'
 import { generateRoute } from '../../../constants/routes.js'
-import { preserveStoreIdInUrl } from '../../../util/navigation.js'
+import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 
 interface DocumentCreatedEventProps {
   event: HistoryEvent

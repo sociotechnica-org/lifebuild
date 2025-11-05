@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { formatRegistrationDate } from '../../util/dates.js'
+import { formatRegistrationDate } from '../../utils/dates.js'
 import { generateRoute } from '../../constants/routes.js'
 
 export interface AdminUser {

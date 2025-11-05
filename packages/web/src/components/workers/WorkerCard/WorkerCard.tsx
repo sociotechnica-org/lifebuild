@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from '@livestore/react'
-import { formatDate } from '../../../util/dates.js'
+import { formatDate } from '../../../utils/dates.js'
 import type { Worker, Project } from '@work-squared/shared/schema'
 import { getWorkerProjects$, getProjects$ } from '@work-squared/shared/queries'
 import { EditWorkerModal } from '../EditWorkerModal/EditWorkerModal.js'
-import { getModelById, DEFAULT_MODEL } from '../../../util/models.js'
+import { getModelById, DEFAULT_MODEL } from '../../../utils/models.js'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
 
 interface WorkerCardProps {

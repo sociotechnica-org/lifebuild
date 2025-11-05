@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
-import { generateRandomWorkerName, systemPromptTemplates } from '../../../util/workerNames.js'
+import { generateRandomWorkerName, systemPromptTemplates } from '../../../utils/workerNames.js'
 import { ModelSelector } from '../../ui/ModelSelector/ModelSelector.js'
-import { DEFAULT_MODEL } from '../../../util/models.js'
+import { DEFAULT_MODEL } from '../../../utils/models.js'
 import { EmojiPicker } from '../EmojiPicker/EmojiPicker.js'
 
 interface CreateWorkerModalProps {
