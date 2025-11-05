@@ -2,7 +2,15 @@
  * Auth utilities for frontend token management
  */
 
-import { AuthTokens, AuthUser, TOKEN_STORAGE_KEYS, AUTH_ENDPOINTS } from '@work-squared/shared/auth'
+import {
+  AuthTokens,
+  AuthUser,
+  TOKEN_STORAGE_KEYS,
+  AUTH_ENDPOINTS,
+  WORKSPACE_ENDPOINTS,
+  WorkspaceRole,
+  AuthWorkspaceSelection,
+} from '@work-squared/shared/auth'
 
 export interface DecodedAccessToken {
   exp?: number
@@ -257,6 +265,41 @@ export function getAuthServiceUrl(): string {
   return authUrl
 }
 
+async function authedRequest(path: string, init: RequestInit = {}): Promise<Response> {
+  const accessToken = await getCurrentAccessToken()
+  if (!accessToken) {
+    throw new Error('Not authenticated')
+  }
+
+  const headers = new Headers(init.headers ?? {})
+  headers.set('Authorization', `Bearer ${accessToken}`)
+  if (init.body && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json')
+  }
+
+  return fetch(`${getAuthServiceUrl()}${path}`, {
+    ...init,
+    headers,
+  })
+}
+
+async function parseWorkspaceResponse(response: Response) {
+  let data: any = null
+  try {
+    data = await response.json()
+  } catch {
+    data = null
+  }
+
+  if (!response.ok) {
+    const message =
+      data?.error?.message || data?.error || data?.message || `Request failed with ${response.status}`
+    throw new Error(typeof message === 'string' ? message : 'Workspace request failed')
+  }
+
+  return data
+}
+
 /**
  * Refresh access token using refresh token
  */
@@ -426,6 +469,74 @@ export async function getCurrentAccessToken(): Promise<string | null> {
   }
 
   return tokens.accessToken
+}
+
+// Workspace membership utilities
+
+export async function fetchWorkspaceSnapshot(): Promise<AuthWorkspaceSelection> {
+  const response = await authedRequest(WORKSPACE_ENDPOINTS.LIST, { method: 'GET' })
+  return (await parseWorkspaceResponse(response)) as AuthWorkspaceSelection
+}
+
+export async function inviteWorkspaceMember(options: {
+  workspaceId: string
+  email: string
+  role: WorkspaceRole
+}): Promise<AuthWorkspaceSelection> {
+  const response = await authedRequest(WORKSPACE_ENDPOINTS.INVITE(options.workspaceId), {
+    method: 'POST',
+    body: JSON.stringify({ email: options.email, role: options.role }),
+  })
+  return (await parseWorkspaceResponse(response)) as AuthWorkspaceSelection
+}
+
+export async function revokeWorkspaceInvitation(options: {
+  workspaceId: string
+  invitationId: string
+}): Promise<AuthWorkspaceSelection> {
+  const response = await authedRequest(
+    WORKSPACE_ENDPOINTS.REVOKE_INVITATION(options.workspaceId, options.invitationId),
+    {
+      method: 'DELETE',
+    }
+  )
+  return (await parseWorkspaceResponse(response)) as AuthWorkspaceSelection
+}
+
+export async function acceptWorkspaceInvitation(token: string): Promise<AuthWorkspaceSelection> {
+  const response = await authedRequest(WORKSPACE_ENDPOINTS.ACCEPT_INVITATION, {
+    method: 'POST',
+    body: JSON.stringify({ token }),
+  })
+  return (await parseWorkspaceResponse(response)) as AuthWorkspaceSelection
+}
+
+export async function removeWorkspaceMember(options: {
+  workspaceId: string
+  userId: string
+}): Promise<AuthWorkspaceSelection> {
+  const response = await authedRequest(
+    WORKSPACE_ENDPOINTS.REMOVE_MEMBER(options.workspaceId, options.userId),
+    {
+      method: 'DELETE',
+    }
+  )
+  return (await parseWorkspaceResponse(response)) as AuthWorkspaceSelection
+}
+
+export async function updateWorkspaceMemberRole(options: {
+  workspaceId: string
+  userId: string
+  role: WorkspaceRole
+}): Promise<AuthWorkspaceSelection> {
+  const response = await authedRequest(
+    WORKSPACE_ENDPOINTS.UPDATE_MEMBER_ROLE(options.workspaceId, options.userId),
+    {
+      method: 'POST',
+      body: JSON.stringify({ role: options.role }),
+    }
+  )
+  return (await parseWorkspaceResponse(response)) as AuthWorkspaceSelection
 }
 
 /**
