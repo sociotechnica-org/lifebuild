@@ -133,7 +133,8 @@ test.describe('Authentication Integration E2E', () => {
     await page.click('button[type="submit"]')
 
     // Should show error message and stay on login page
-    await expect(page.locator('text=Invalid email or password')).toBeVisible()
+    // Wait for the error message to appear (with increased timeout for network request)
+    await expect(page.locator('text=Invalid email or password')).toBeVisible({ timeout: 10000 })
     await expect(page).toHaveURL(/\/login/)
 
     // Form should still be functional
@@ -202,7 +203,7 @@ test.describe('Authentication Integration E2E', () => {
     await page.click('button[type="submit"]')
 
     // Should show password mismatch error
-    await expect(page.locator('text=Passwords do not match')).toBeVisible()
+    await expect(page.locator('text=Passwords do not match')).toBeVisible({ timeout: 5000 })
 
     // Test short password
     await page.fill('input[name="password"]', '123')
@@ -210,7 +211,9 @@ test.describe('Authentication Integration E2E', () => {
     await page.click('button[type="submit"]')
 
     // Should show password length error
-    await expect(page.locator('text=Password must be at least 8 characters')).toBeVisible()
+    await expect(page.locator('text=Password must be at least 8 characters')).toBeVisible({
+      timeout: 5000,
+    })
 
     // Test invalid email - this should trigger browser validation
     await page.fill('input[name="email"]', 'invalid-email')
