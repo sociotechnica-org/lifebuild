@@ -56,8 +56,32 @@ update_config_value() {
 # Helper function to check if a value is a placeholder
 is_placeholder() {
     local value="$1"
-    # Check if value contains common placeholder patterns
-    [[ "$value" =~ (change-me|your-|placeholder|example|test-store|workspace-) ]]
+
+    # Check if value is empty
+    if [ -z "$value" ]; then
+        return 0  # true - empty is a placeholder
+    fi
+
+    # Check for exact matches to known placeholder values from .example files
+    case "$value" in
+        "workspace-123,workspace-456,workspace-789"|"workspace-123,workspace-456"|"workspace-123")
+            return 0  # true - matches example STORE_IDS
+            ;;
+        "dev-jwt-secret-change-me-in-production")
+            return 0  # true - matches example JWT_SECRET
+            ;;
+        "dev-server-bypass-token-change-me")
+            return 0  # true - matches example SERVER_BYPASS_TOKEN
+            ;;
+        *)
+            # Check for generic placeholder patterns
+            if [[ "$value" =~ (change-me|your-.*-here|placeholder|example-) ]]; then
+                return 0  # true - contains placeholder pattern
+            fi
+            ;;
+    esac
+
+    return 1  # false - not a placeholder
 }
 
 # Set consistent JWT secrets for dev environment
