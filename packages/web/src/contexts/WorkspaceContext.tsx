@@ -47,39 +47,88 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({ children }
   const [workspaces, setWorkspaces] = useState<AuthInstance[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
 
-  // Initialize workspace state from user instances
+  // Initialize workspace state from user instances (only once)
   useEffect(() => {
     if (!isAuthenticated || !user?.instances) {
       setWorkspaces([])
       setCurrentWorkspaceId(null)
       localStorage.removeItem(WORKSPACE_STORAGE_KEY)
+      setIsInitialized(false)
       return
     }
 
-    // Update workspace list from user
-    setWorkspaces(user.instances)
+    // Only initialize once when user first becomes available
+    if (!isInitialized) {
+      // Update workspace list from user
+      setWorkspaces(user.instances)
 
-    // Determine current workspace
-    const storedWorkspaceId = localStorage.getItem(WORKSPACE_STORAGE_KEY)
+      // Determine current workspace
+      const storedWorkspaceId = localStorage.getItem(WORKSPACE_STORAGE_KEY)
 
-    // Verify stored workspace ID is still valid
-    const isValidWorkspace =
-      storedWorkspaceId && user.instances.some(w => w.id === storedWorkspaceId)
+      // Verify stored workspace ID is still valid
+      const isValidWorkspace =
+        storedWorkspaceId && user.instances.some(w => w.id === storedWorkspaceId)
 
-    if (isValidWorkspace) {
-      setCurrentWorkspaceId(storedWorkspaceId)
-    } else {
-      // Fall back to default or first workspace
-      const defaultWorkspace = user.instances.find(w => w.isDefault)
-      const workspaceId = defaultWorkspace?.id || user.instances[0]?.id || null
+      if (isValidWorkspace) {
+        setCurrentWorkspaceId(storedWorkspaceId)
+      } else {
+        // Fall back to default or first workspace
+        const defaultWorkspace = user.instances.find(w => w.isDefault)
+        const workspaceId = defaultWorkspace?.id || user.instances[0]?.id || null
 
-      if (workspaceId) {
-        setCurrentWorkspaceId(workspaceId)
-        localStorage.setItem(WORKSPACE_STORAGE_KEY, workspaceId)
+        if (workspaceId) {
+          setCurrentWorkspaceId(workspaceId)
+          localStorage.setItem(WORKSPACE_STORAGE_KEY, workspaceId)
+        }
       }
+
+      setIsInitialized(true)
+
+      // Immediately refresh from server to get latest data
+      // This ensures we have up-to-date workspace names after reload
+      void refreshWorkspacesInternal()
     }
-  }, [user, isAuthenticated])
+  }, [user, isAuthenticated, isInitialized])
+
+  // Internal function for refreshing workspaces that can be called from useEffect
+  const refreshWorkspacesInternal = async () => {
+    if (!isAuthenticated) {
+      return false
+    }
+
+    try {
+      const token = await getCurrentToken()
+      if (!token) {
+        return false
+      }
+
+      const response = await fetch(`${AUTH_WORKER_URL}/workspaces`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        return false
+      }
+
+      const data = await response.json()
+
+      // Update workspaces from response
+      if (data.instances && Array.isArray(data.instances)) {
+        setWorkspaces(data.instances)
+      }
+
+      return true
+    } catch (err) {
+      console.error('Failed to refresh workspaces:', err)
+      return false
+    }
+  }
 
   const makeAuthenticatedRequest = useCallback(
     async (path: string, options: RequestInit = {}): Promise<Response> => {
@@ -174,8 +223,6 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({ children }
           const data = await response.json()
           throw new Error(data.error?.message || 'Failed to create workspace')
         }
-
-        const data = await response.json()
 
         // Refresh workspaces to get the new one
         await refreshWorkspaces()

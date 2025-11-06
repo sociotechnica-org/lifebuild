@@ -21,8 +21,7 @@ export const WorkspaceSwitcher: React.FC = () => {
   const { showSnackbar } = useSnackbar()
 
   const handleSwitchWorkspace = async (workspaceId: string) => {
-    const success = await switchWorkspace(workspaceId)
-    // Snackbar is shown by the context itself for now
+    await switchWorkspace(workspaceId)
   }
 
   const handleCreateWorkspace = async () => {
