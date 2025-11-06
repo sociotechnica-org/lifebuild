@@ -49,6 +49,44 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({ children }
   const [error, setError] = useState<string | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
 
+  // Function to refresh workspaces from server
+  const refreshWorkspacesFromServer = useCallback(async () => {
+    if (!isAuthenticated) {
+      return false
+    }
+
+    try {
+      const token = await getCurrentToken()
+      if (!token) {
+        return false
+      }
+
+      const response = await fetch(`${AUTH_WORKER_URL}/workspaces`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        return false
+      }
+
+      const data = await response.json()
+
+      // Update workspaces from response
+      if (data.instances && Array.isArray(data.instances)) {
+        setWorkspaces(data.instances)
+      }
+
+      return true
+    } catch (err) {
+      console.error('Failed to refresh workspaces:', err)
+      return false
+    }
+  }, [isAuthenticated, getCurrentToken])
+
   // Initialize workspace state from user instances (only once)
   useEffect(() => {
     if (!isAuthenticated || !user?.instances) {
@@ -88,47 +126,9 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({ children }
 
       // Immediately refresh from server to get latest data
       // This ensures we have up-to-date workspace names after reload
-      void refreshWorkspacesInternal()
+      void refreshWorkspacesFromServer()
     }
-  }, [user, isAuthenticated, isInitialized])
-
-  // Internal function for refreshing workspaces that can be called from useEffect
-  const refreshWorkspacesInternal = async () => {
-    if (!isAuthenticated) {
-      return false
-    }
-
-    try {
-      const token = await getCurrentToken()
-      if (!token) {
-        return false
-      }
-
-      const response = await fetch(`${AUTH_WORKER_URL}/workspaces`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.ok) {
-        return false
-      }
-
-      const data = await response.json()
-
-      // Update workspaces from response
-      if (data.instances && Array.isArray(data.instances)) {
-        setWorkspaces(data.instances)
-      }
-
-      return true
-    } catch (err) {
-      console.error('Failed to refresh workspaces:', err)
-      return false
-    }
-  }
+  }, [user, isAuthenticated, isInitialized, refreshWorkspacesFromServer])
 
   const makeAuthenticatedRequest = useCallback(
     async (path: string, options: RequestInit = {}): Promise<Response> => {
