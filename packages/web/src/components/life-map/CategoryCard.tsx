@@ -55,7 +55,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         transition-all duration-200
         cursor-pointer
         group
-        min-h-[120px] sm:min-h-0
+        min-h-[120px] sm:min-h-[160px] md:min-h-[180px] lg:min-h-0
         ${
           isActive
             ? 'shadow-md hover:shadow-xl hover:-translate-y-1'
@@ -67,54 +67,59 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       }}
     >
       {/* Icon */}
-      <div className='text-4xl sm:text-5xl mb-2 sm:mb-4'>{category.icon}</div>
+      <div className='text-4xl sm:text-[2.75rem] md:text-5xl mb-2 sm:mb-4'>{category.icon}</div>
 
       {/* Category Name */}
       <h3 className='text-white font-semibold text-center text-sm sm:text-lg mb-2 leading-tight'>
         {category.name}
       </h3>
 
-      {/* Status Indicators - Bottom Left */}
-      <div className='absolute bottom-2 sm:bottom-4 left-2 sm:left-4 flex flex-col gap-1'>
-        {/* Active Project Count */}
-        {activeProjectCount > 0 && (
-          <div className='bg-white/90 backdrop-blur-sm rounded-full px-1.5 sm:px-2 py-0.5'>
-            <span className='text-[10px] sm:text-xs font-semibold text-gray-900'>
-              {activeProjectCount} Active
-            </span>
-          </div>
-        )}
+      {/* Bottom Status Bar - Responsive stacking to prevent overlap */}
+      <div className='absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4'>
+        <div className='flex flex-col gap-1 items-start'>
+          {/* Active Project Count */}
+          {activeProjectCount > 0 && (
+            <div className='bg-white/90 backdrop-blur-sm rounded-full px-1.5 sm:px-2 py-0.5 flex items-center justify-center'>
+              <span className='text-[10px] sm:text-xs font-semibold text-gray-900 whitespace-nowrap'>
+                {activeProjectCount} Active
+              </span>
+            </div>
+          )}
 
-        {/* Planning Count */}
-        {planningProjectCount > 0 && (
-          <div className='bg-white/70 backdrop-blur-sm rounded-full px-1.5 sm:px-2 py-0.5'>
-            <span className='text-[10px] sm:text-xs font-medium text-gray-700'>
-              {planningProjectCount} Planning
-            </span>
-          </div>
-        )}
+          {/* Planning Count */}
+          {planningProjectCount > 0 && (
+            <div className='bg-white/70 backdrop-blur-sm rounded-full px-1.5 sm:px-2 py-0.5 flex items-center justify-center'>
+              <span className='text-[10px] sm:text-xs font-medium text-gray-700 whitespace-nowrap'>
+                {planningProjectCount} Planning
+              </span>
+            </div>
+          )}
 
-        {/* Empty State Guidance */}
-        {projectCount === 0 && (
-          <div className='bg-white/90 backdrop-blur-sm rounded-full px-2 sm:px-3 py-0.5 sm:py-1'>
-            <span className='text-[10px] sm:text-xs font-medium text-gray-700'>Get Started →</span>
-          </div>
-        )}
-      </div>
+          {/* Bottom row: Get Started or spacer + Last Activity */}
+          <div className='flex items-center justify-between gap-1.5 sm:gap-2 w-full'>
+            {/* Empty State Guidance - Only show when no other badges */}
+            {projectCount === 0 ? (
+              <div className='bg-white/90 backdrop-blur-sm rounded-full px-2 sm:px-3 py-0.5 sm:py-1 flex items-center justify-center'>
+                <span className='text-[10px] sm:text-xs font-medium text-gray-700 whitespace-nowrap'>Get Started</span>
+              </div>
+            ) : (
+              <div className='flex-shrink-0' />
+            )}
 
-      {/* Last Activity - Bottom Right */}
-      <div className='absolute bottom-2 sm:bottom-4 right-2 sm:right-4'>
-        <div
-          className={`
-          backdrop-blur-sm rounded-full px-1.5 sm:px-2 py-0.5
-          ${neglected ? 'bg-amber-100/90' : 'bg-white/70'}
-        `}
-        >
-          <span
-            className={`text-[10px] sm:text-xs font-medium ${neglected ? 'text-amber-800' : 'text-gray-600'}`}
-          >
-            {relativeTime}
-          </span>
+            {/* Last Activity - Always on the right */}
+            <div
+              className={`
+              backdrop-blur-sm rounded-full px-1.5 sm:px-2 py-0.5 flex items-center justify-center flex-shrink-0
+              ${neglected ? 'bg-amber-100/90' : 'bg-white/70'}
+            `}
+            >
+              <span
+                className={`text-[10px] sm:text-xs font-medium whitespace-nowrap ${neglected ? 'text-amber-800' : 'text-gray-600'}`}
+              >
+                {relativeTime}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
