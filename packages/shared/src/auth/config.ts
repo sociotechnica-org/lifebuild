@@ -21,6 +21,20 @@ export const AUTH_ENDPOINTS = {
   HEALTH: '/health',
 } as const
 
+export const WORKSPACE_ENDPOINTS = {
+  LIST: '/workspaces',
+  INVITE: (workspaceId: string) => `/workspaces/${workspaceId}/invite`,
+  REVOKE_INVITATION: (workspaceId: string, invitationId: string) =>
+    `/workspaces/${workspaceId}/invitations/${invitationId}`,
+  ACCEPT_INVITATION: '/workspaces/invitations/accept',
+  REMOVE_MEMBER: (workspaceId: string, memberId: string) =>
+    `/workspaces/${workspaceId}/members/${memberId}`,
+  UPDATE_MEMBER_ROLE: (workspaceId: string, memberId: string) =>
+    `/workspaces/${workspaceId}/members/${memberId}/role`,
+  SET_DEFAULT: (workspaceId: string) => `/workspaces/${workspaceId}/set-default`,
+  TOUCH: (workspaceId: string) => `/workspaces/${workspaceId}/access`,
+}
+
 // Development auth settings
 export const DEV_AUTH = {
   // Default user ID for development mode when auth is disabled

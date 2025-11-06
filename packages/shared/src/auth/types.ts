@@ -7,11 +7,35 @@ export interface AuthTokens {
   refreshToken: string
 }
 
-export interface AuthUser {
-  id: string
+export type WorkspaceRole = 'owner' | 'admin' | 'member'
+
+export type WorkspaceInvitationStatus = 'pending' | 'accepted' | 'revoked' | 'expired'
+
+export interface AuthWorkspaceMember {
+  userId: string
   email: string
-  instances: AuthInstance[]
-  isAdmin?: boolean
+  role: WorkspaceRole
+  joinedAt: Date
+}
+
+export interface AuthWorkspaceInvitation {
+  id: string
+  workspaceId: string
+  email: string
+  role: WorkspaceRole
+  invitedBy: string
+  invitedByEmail: string
+  workspaceName: string
+  createdAt: Date
+  expiresAt: Date
+  status: WorkspaceInvitationStatus
+  token?: string
+}
+
+export interface AuthWorkspaceSnapshot {
+  workspaceId: string
+  members: AuthWorkspaceMember[]
+  invitations: AuthWorkspaceInvitation[]
 }
 
 export interface AuthInstance {
@@ -19,12 +43,25 @@ export interface AuthInstance {
   name: string
   createdAt: Date
   lastAccessedAt: Date
+  role: WorkspaceRole
   isDefault?: boolean
+}
+
+export interface AuthUser {
+  id: string
+  email: string
+  instances: AuthInstance[]
+  isAdmin?: boolean
+  workspaces?: Record<string, AuthWorkspaceSnapshot>
+  pendingInvitations?: AuthWorkspaceInvitation[]
+  defaultInstanceId?: string | null
 }
 
 export interface AuthWorkspaceSelection {
   instances: AuthInstance[]
   defaultInstanceId: string | null
+  workspaces?: Record<string, AuthWorkspaceSnapshot>
+  pendingInvitations?: AuthWorkspaceInvitation[]
 }
 
 export interface SyncPayload {

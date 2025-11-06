@@ -38,6 +38,7 @@ const sampleInstance = {
   name: 'Personal Workspace',
   createdAt: '2025-01-15T10:00:00Z',
   lastAccessedAt: '2025-01-15T12:00:00Z',
+  role: 'member',
   isDefault: false,
 }
 
@@ -45,6 +46,7 @@ const defaultInstance = {
   ...sampleInstance,
   id: 'store_default',
   name: 'Default Workspace',
+  role: 'owner',
   isDefault: true,
 }
 

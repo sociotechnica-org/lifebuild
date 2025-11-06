@@ -1,3 +1,7 @@
+export type WorkspaceRole = 'owner' | 'admin' | 'member'
+
+export type WorkspaceInvitationStatus = 'pending' | 'accepted' | 'revoked' | 'expired'
+
 export interface User {
   id: string
   email: string
@@ -12,6 +16,7 @@ export interface Instance {
   name: string
   createdAt: Date
   lastAccessedAt: Date
+  role: WorkspaceRole
   isDefault?: boolean
 }
 
@@ -41,6 +46,15 @@ export interface AuthResponse {
     instances: Instance[]
     isAdmin: boolean
     defaultInstanceId?: string | null
+    workspaces?: Record<
+      string,
+      {
+        workspaceId: string
+        members: WorkspaceMember[]
+        invitations: WorkspaceInvitationSummary[]
+      }
+    >
+    pendingInvitations?: WorkspaceInvitation[]
   }
   accessToken?: string
   refreshToken?: string
@@ -49,6 +63,29 @@ export interface AuthResponse {
     message: string
   }
 }
+
+export interface WorkspaceMember {
+  userId: string
+  email: string
+  role: WorkspaceRole
+  joinedAt: Date
+}
+
+export interface WorkspaceInvitation {
+  id: string
+  workspaceId: string
+  email: string
+  role: WorkspaceRole
+  invitedBy: string
+  invitedByEmail: string
+  workspaceName: string
+  createdAt: Date
+  expiresAt: Date
+  status: WorkspaceInvitationStatus
+  token: string
+}
+
+export type WorkspaceInvitationSummary = Omit<WorkspaceInvitation, 'token'>
 
 export interface SignupRequest {
   email: string
@@ -77,4 +114,5 @@ export enum ErrorCode {
   INTERNAL_ERROR = 'INTERNAL_ERROR',
   USER_NOT_FOUND = 'USER_NOT_FOUND',
   WEAK_PASSWORD = 'WEAK_PASSWORD',
+  FORBIDDEN = 'FORBIDDEN',
 }

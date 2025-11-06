@@ -1,4 +1,12 @@
-import { AuthResponse, SignupRequest, LoginRequest, RefreshRequest, ErrorCode } from '../types.js'
+import {
+  AuthResponse,
+  SignupRequest,
+  LoginRequest,
+  RefreshRequest,
+  ErrorCode,
+  Instance,
+  WorkspaceInvitation,
+} from '../types.js'
 import { validatePasswordStrength } from '../utils/crypto.js'
 import { createAccessToken, createRefreshToken, verifyToken, isTokenExpired } from '../utils/jwt.js'
 import { isUserAdmin } from '../utils/admin.js'
@@ -32,9 +40,7 @@ function createSuccessResponse(data: Partial<AuthResponse>): Response {
   })
 }
 
-function selectDefaultInstanceId(
-  instances: Array<{ id: string; isDefault?: boolean }> = []
-): string | null {
+function selectDefaultInstanceId(instances: Instance[] = []): string | null {
   if (!Array.isArray(instances) || instances.length === 0) {
     return null
   }
@@ -73,6 +79,37 @@ function getUserStore(env: Env): DurableObjectStub {
   return env.USER_STORE.get(id)
 }
 
+type WorkspaceSnapshotResponse = {
+  instances?: Instance[]
+  defaultInstanceId?: string | null
+  workspaces?: Record<string, any>
+  pendingInvitations?: WorkspaceInvitation[]
+}
+
+async function fetchWorkspaceSnapshot(
+  userId: string,
+  env: Env
+): Promise<WorkspaceSnapshotResponse | null> {
+  try {
+    const userStore = getUserStore(env)
+    const response = await userStore.fetch(
+      new Request('http://userstore/workspaces/list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      })
+    )
+
+    if (!response.ok) {
+      return null
+    }
+    return (await response.json()) as WorkspaceSnapshotResponse
+  } catch (error) {
+    console.error('Failed to fetch workspace snapshot', error)
+    return null
+  }
+}
+
 /**
  * Create auth success response with tokens
  */
@@ -87,15 +124,21 @@ async function createAuthSuccessResponse(
   // Generate tokens
   const accessToken = await createAccessToken(user.id, user.email, adminStatus, env)
   const newRefreshToken = refreshToken || (await createRefreshToken(user.id, env))
-  const defaultInstanceId = selectDefaultInstanceId(user.instances)
+
+  const workspaceSnapshot = await fetchWorkspaceSnapshot(user.id, env)
+  const instances = workspaceSnapshot?.instances ?? user.instances
+  const defaultInstanceId =
+    workspaceSnapshot?.defaultInstanceId ?? selectDefaultInstanceId(instances)
 
   return createSuccessResponse({
     user: {
       id: user.id,
       email: user.email,
-      instances: user.instances,
+      instances,
       isAdmin: adminStatus,
       defaultInstanceId,
+      workspaces: workspaceSnapshot?.workspaces,
+      pendingInvitations: workspaceSnapshot?.pendingInvitations,
     },
     accessToken,
     refreshToken: newRefreshToken,

@@ -4,7 +4,13 @@
  */
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
-import { AuthUser, AuthTokens, ConnectionState } from '@work-squared/shared/auth'
+import {
+  AuthUser,
+  AuthTokens,
+  ConnectionState,
+  AuthWorkspaceSnapshot,
+  AuthWorkspaceInvitation,
+} from '@work-squared/shared/auth'
 import {
   getStoredTokens,
   getStoredUser,
@@ -15,6 +21,8 @@ import {
   getAccessTokenExpiry,
   isAccessTokenExpiringSoon,
   ACCESS_TOKEN_REFRESH_BUFFER_SECONDS,
+  storeUser,
+  fetchWorkspaceSnapshot,
 } from '../utils/auth.js'
 
 interface AuthContextType {
@@ -30,6 +38,7 @@ interface AuthContextType {
   refreshToken: () => Promise<boolean>
   getCurrentToken: () => Promise<string | null>
   handleConnectionError: (error: any) => Promise<boolean>
+  refreshUser: () => Promise<boolean>
 
   // Status
   isAuthenticated: boolean
@@ -47,6 +56,77 @@ const tokensEqual = (a: AuthTokens | null, b: AuthTokens | null) => {
   return a.accessToken === b.accessToken && a.refreshToken === b.refreshToken
 }
 
+const serializeInstances = (instances: AuthUser['instances'] = []) =>
+  JSON.stringify(
+    [...instances]
+      .map(instance => ({
+        id: instance.id,
+        name: instance.name,
+        role: instance.role,
+        isDefault: !!instance.isDefault,
+        createdAt: String(instance.createdAt),
+        lastAccessedAt: String(instance.lastAccessedAt),
+      }))
+      .sort((a, b) => a.id.localeCompare(b.id))
+  )
+
+const serializeWorkspaces = (workspaces?: Record<string, AuthWorkspaceSnapshot>) => {
+  if (!workspaces) {
+    return ''
+  }
+  const normalized = Object.entries(workspaces)
+    .map(([workspaceId, snapshot]) => ({
+      workspaceId,
+      members: snapshot.members
+        .map(member => ({
+          userId: member.userId,
+          email: member.email,
+          role: member.role,
+          joinedAt: String(member.joinedAt),
+        }))
+        .sort((a, b) => a.userId.localeCompare(b.userId)),
+      invitations: snapshot.invitations
+        .map(invitation => ({
+          id: invitation.id,
+          email: invitation.email,
+          role: invitation.role,
+          invitedBy: invitation.invitedBy,
+          invitedByEmail: invitation.invitedByEmail,
+          createdAt: String(invitation.createdAt),
+          expiresAt: String(invitation.expiresAt),
+          status: invitation.status,
+          workspaceName: invitation.workspaceName,
+        }))
+        .sort((a, b) => a.id.localeCompare(b.id)),
+    }))
+    .sort((a, b) => a.workspaceId.localeCompare(b.workspaceId))
+
+  return JSON.stringify(normalized)
+}
+
+const serializePendingInvitations = (invitations: AuthWorkspaceInvitation[] | undefined) => {
+  if (!invitations || invitations.length === 0) {
+    return ''
+  }
+  const normalized = [...invitations]
+    .map(invitation => ({
+      id: invitation.id,
+      workspaceId: invitation.workspaceId,
+      email: invitation.email,
+      role: invitation.role,
+      invitedBy: invitation.invitedBy,
+      invitedByEmail: invitation.invitedByEmail,
+      createdAt: String(invitation.createdAt),
+      expiresAt: String(invitation.expiresAt),
+      status: invitation.status,
+      token: invitation.token ?? null,
+      workspaceName: invitation.workspaceName,
+    }))
+    .sort((a, b) => a.id.localeCompare(b.id))
+
+  return JSON.stringify(normalized)
+}
+
 const usersEqual = (a: AuthUser | null, b: AuthUser | null) => {
   if (a === b) {
     return true
@@ -58,30 +138,23 @@ const usersEqual = (a: AuthUser | null, b: AuthUser | null) => {
   if (a.id !== b.id || a.email !== b.email || a.isAdmin !== b.isAdmin) {
     return false
   }
-
-  const aInstances = a.instances ?? []
-  const bInstances = b.instances ?? []
-  if (aInstances.length !== bInstances.length) {
+  if ((a.defaultInstanceId ?? null) !== (b.defaultInstanceId ?? null)) {
     return false
   }
 
-  for (let i = 0; i < aInstances.length; i++) {
-    const instanceA = aInstances[i]
-    const instanceB = bInstances[i]
+  if (serializeInstances(a.instances) !== serializeInstances(b.instances)) {
+    return false
+  }
 
-    if (!instanceA || !instanceB) {
-      return false
-    }
+  if (serializeWorkspaces(a.workspaces) !== serializeWorkspaces(b.workspaces)) {
+    return false
+  }
 
-    if (
-      instanceA.id !== instanceB.id ||
-      instanceA.name !== instanceB.name ||
-      String(instanceA.createdAt) !== String(instanceB.createdAt) ||
-      String(instanceA.lastAccessedAt) !== String(instanceB.lastAccessedAt) ||
-      instanceA.isDefault !== instanceB.isDefault
-    ) {
-      return false
-    }
+  if (
+    serializePendingInvitations(a.pendingInvitations) !==
+    serializePendingInvitations(b.pendingInvitations)
+  ) {
+    return false
   }
 
   return true
@@ -200,6 +273,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(false)
     }
   }, [clearRefreshTimer])
+
+  const refreshUser = useCallback(async (): Promise<boolean> => {
+    try {
+      const snapshot = await fetchWorkspaceSnapshot()
+      if (!snapshot) {
+        return false
+      }
+
+      let nextUser: AuthUser | null = null
+      setUser(prev => {
+        if (!prev) {
+          return prev
+        }
+
+        nextUser = {
+          ...prev,
+          instances: snapshot.instances ?? prev.instances,
+          workspaces: snapshot.workspaces,
+          pendingInvitations: snapshot.pendingInvitations,
+          defaultInstanceId: snapshot.defaultInstanceId ?? prev.defaultInstanceId,
+        }
+        return nextUser
+      })
+
+      if (nextUser) {
+        storeUser(nextUser)
+        return true
+      }
+
+      return false
+    } catch (error) {
+      console.error('Failed to refresh user from server:', error)
+      return false
+    }
+  }, [])
 
   const refreshToken = useCallback(async (): Promise<boolean> => {
     try {
@@ -402,6 +510,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     refreshToken,
     getCurrentToken,
     handleConnectionError,
+    refreshUser,
     isAuthenticated: Boolean(tokens?.accessToken && tokens?.refreshToken),
   }
 

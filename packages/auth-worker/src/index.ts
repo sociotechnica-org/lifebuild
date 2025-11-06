@@ -264,6 +264,108 @@ async function handleWorkspaceTouch(
   })
 }
 
+async function handleWorkspaceInviteMember(
+  request: Request,
+  env: Env,
+  instanceId: string
+): Promise<Response> {
+  const authCheck = await verifyUserAccess(request, env)
+  if (!authCheck.valid) {
+    return createErrorResponse(authCheck.error || 'Unauthorized', authCheck.statusCode || 401)
+  }
+
+  const body = await parseRequestBody(request)
+  if (typeof body.email !== 'string' || body.email.trim().length === 0) {
+    return createErrorResponse('Invitation email is required', 400)
+  }
+
+  const role = typeof body.role === 'string' ? body.role : undefined
+
+  return forwardToUserStore(env, '/workspaces/invite-member', {
+    userId: authCheck.user!.userId,
+    instanceId,
+    email: body.email,
+    role,
+  })
+}
+
+async function handleWorkspaceRevokeInvitation(
+  request: Request,
+  env: Env,
+  instanceId: string,
+  invitationId: string
+): Promise<Response> {
+  const authCheck = await verifyUserAccess(request, env)
+  if (!authCheck.valid) {
+    return createErrorResponse(authCheck.error || 'Unauthorized', authCheck.statusCode || 401)
+  }
+
+  return forwardToUserStore(env, '/workspaces/revoke-invitation', {
+    userId: authCheck.user!.userId,
+    instanceId,
+    invitationId,
+  })
+}
+
+async function handleWorkspaceRemoveMember(
+  request: Request,
+  env: Env,
+  instanceId: string,
+  targetUserId: string
+): Promise<Response> {
+  const authCheck = await verifyUserAccess(request, env)
+  if (!authCheck.valid) {
+    return createErrorResponse(authCheck.error || 'Unauthorized', authCheck.statusCode || 401)
+  }
+
+  return forwardToUserStore(env, '/workspaces/remove-member', {
+    userId: authCheck.user!.userId,
+    instanceId,
+    targetUserId,
+  })
+}
+
+async function handleWorkspaceUpdateMemberRole(
+  request: Request,
+  env: Env,
+  instanceId: string,
+  targetUserId: string
+): Promise<Response> {
+  const authCheck = await verifyUserAccess(request, env)
+  if (!authCheck.valid) {
+    return createErrorResponse(authCheck.error || 'Unauthorized', authCheck.statusCode || 401)
+  }
+
+  const body = await parseRequestBody(request)
+  if (typeof body.role !== 'string') {
+    return createErrorResponse('Role is required', 400)
+  }
+
+  return forwardToUserStore(env, '/workspaces/update-role', {
+    userId: authCheck.user!.userId,
+    instanceId,
+    targetUserId,
+    role: body.role,
+  })
+}
+
+async function handleWorkspaceAcceptInvitation(request: Request, env: Env): Promise<Response> {
+  const authCheck = await verifyUserAccess(request, env)
+  if (!authCheck.valid) {
+    return createErrorResponse(authCheck.error || 'Unauthorized', authCheck.statusCode || 401)
+  }
+
+  const body = await parseRequestBody(request)
+  if (typeof body.token !== 'string' || body.token.trim().length === 0) {
+    return createErrorResponse('Invitation token is required', 400)
+  }
+
+  return forwardToUserStore(env, '/workspaces/accept-invitation', {
+    userId: authCheck.user!.userId,
+    token: body.token,
+  })
+}
+
 function verifyServerBypassToken(request: Request, env: Env): Response | null {
   if (!env.SERVER_BYPASS_TOKEN) {
     return createErrorResponse('Server bypass token not configured', 500)
@@ -575,6 +677,11 @@ export default {
             return addCorsHeaders(await handleWorkspaceCreate(request, env, ctx))
           }
           return createErrorResponse('Method not allowed', 405)
+        case '/workspaces/invitations/accept':
+          if (method !== 'POST') {
+            return createErrorResponse('Method not allowed', 405)
+          }
+          return addCorsHeaders(await handleWorkspaceAcceptInvitation(request, env))
 
         default:
           // Handle dynamic admin routes
@@ -611,32 +718,75 @@ export default {
 
           if (path.startsWith('/workspaces/')) {
             const segments = path.split('/').filter(Boolean)
-            if (segments.length === 2) {
+            if (segments.length >= 2) {
               const instanceId = decodeURIComponent(segments[1])
-              if (method === 'DELETE') {
-                return addCorsHeaders(await handleWorkspaceDelete(request, env, instanceId, ctx))
-              }
-              return createErrorResponse('Method not allowed', 405)
-            }
 
-            if (segments.length === 3) {
-              const instanceId = decodeURIComponent(segments[1])
-              const action = segments[2]
-              if (method !== 'POST') {
+              if (segments.length === 2) {
+                if (method === 'DELETE') {
+                  return addCorsHeaders(await handleWorkspaceDelete(request, env, instanceId, ctx))
+                }
                 return createErrorResponse('Method not allowed', 405)
               }
 
-              if (action === 'rename') {
-                return addCorsHeaders(await handleWorkspaceRename(request, env, instanceId))
-              }
-              if (action === 'set-default') {
-                return addCorsHeaders(await handleWorkspaceSetDefault(request, env, instanceId))
-              }
-              if (action === 'access') {
-                return addCorsHeaders(await handleWorkspaceTouch(request, env, instanceId))
+              if (segments.length === 3) {
+                if (method !== 'POST') {
+                  return createErrorResponse('Method not allowed', 405)
+                }
+
+                const action = segments[2]
+                if (action === 'rename') {
+                  return addCorsHeaders(await handleWorkspaceRename(request, env, instanceId))
+                }
+                if (action === 'set-default') {
+                  return addCorsHeaders(await handleWorkspaceSetDefault(request, env, instanceId))
+                }
+                if (action === 'access') {
+                  return addCorsHeaders(await handleWorkspaceTouch(request, env, instanceId))
+                }
+                if (action === 'invite') {
+                  return addCorsHeaders(await handleWorkspaceInviteMember(request, env, instanceId))
+                }
+
+                return createErrorResponse('Not found', 404)
               }
 
-              return createErrorResponse('Not found', 404)
+              if (segments.length === 4) {
+                const resource = segments[2]
+                const resourceId = decodeURIComponent(segments[3])
+
+                if (resource === 'invitations' && method === 'DELETE') {
+                  return addCorsHeaders(
+                    await handleWorkspaceRevokeInvitation(request, env, instanceId, resourceId)
+                  )
+                }
+
+                if (resource === 'members' && method === 'DELETE') {
+                  return addCorsHeaders(
+                    await handleWorkspaceRemoveMember(request, env, instanceId, resourceId)
+                  )
+                }
+
+                return createErrorResponse('Not found', 404)
+              }
+
+              if (segments.length === 5) {
+                const [_, __, resource, memberId, action] = segments
+                if (resource === 'members' && action === 'role') {
+                  if (method !== 'POST') {
+                    return createErrorResponse('Method not allowed', 405)
+                  }
+                  return addCorsHeaders(
+                    await handleWorkspaceUpdateMemberRole(
+                      request,
+                      env,
+                      instanceId,
+                      decodeURIComponent(memberId)
+                    )
+                  )
+                }
+
+                return createErrorResponse('Not found', 404)
+              }
             }
           }
 
