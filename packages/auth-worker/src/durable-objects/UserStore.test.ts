@@ -49,12 +49,16 @@ function createRequest(path: string, body: Record<string, unknown>) {
 const USER_ID = 'user-1'
 const USER_EMAIL = 'owner@example.com'
 const DEFAULT_INSTANCE_ID = 'instance-default'
+const MEMBER_USER_ID = 'user-2'
+const MEMBER_EMAIL = 'member@example.com'
+const MEMBER_DEFAULT_INSTANCE_ID = 'member-instance-default'
 type SerializedInstance = {
   id: string
   name: string
   createdAt: string
   lastAccessedAt: string
   isDefault?: boolean
+  role?: string
 }
 
 describe('UserStore workspace operations', () => {
@@ -68,6 +72,7 @@ describe('UserStore workspace operations', () => {
       name: 'Personal Workspace',
       createdAt: now,
       lastAccessedAt: now,
+      role: 'owner',
       isDefault: true,
     }
 
@@ -89,6 +94,60 @@ describe('UserStore workspace operations', () => {
     return user
   }
 
+  const createMemberUser = async (): Promise<User> => {
+    const now = new Date()
+    const defaultInstance: Instance = {
+      id: MEMBER_DEFAULT_INSTANCE_ID,
+      name: 'Member Personal Workspace',
+      createdAt: now,
+      lastAccessedAt: now,
+      role: 'owner',
+      isDefault: true,
+    }
+
+    const member: User = {
+      id: MEMBER_USER_ID,
+      email: MEMBER_EMAIL,
+      hashedPassword: 'hashed-member',
+      createdAt: now,
+      instances: [defaultInstance],
+    }
+
+    await storage.put(`user:${MEMBER_EMAIL}`, member)
+    await storage.put(`user:id:${MEMBER_USER_ID}`, member)
+    return member
+  }
+
+  const inviteMember = async (role: string = 'member') => {
+    await createMemberUser()
+    const inviteResponse = await userStore.fetch(
+      createRequest('/workspaces/invite-member', {
+        userId: USER_ID,
+        instanceId: DEFAULT_INSTANCE_ID,
+        email: MEMBER_EMAIL,
+        role,
+      })
+    )
+    const payload = await inviteResponse.json()
+    return { inviteResponse, payload }
+  }
+
+  const inviteAndAcceptMember = async (role: string = 'member') => {
+    const { payload } = await inviteMember(role)
+    const invitation = payload.invitation
+    expect(invitation?.token).toBeDefined()
+    expect(invitation.workspaceName).toBe('Personal Workspace')
+
+    const acceptResponse = await userStore.fetch(
+      createRequest('/workspaces/accept-invitation', {
+        userId: MEMBER_USER_ID,
+        token: invitation.token,
+      })
+    )
+    const acceptPayload = await acceptResponse.json()
+    return { invitation, acceptResponse, acceptPayload }
+  }
+
   beforeEach(async () => {
     await setup()
   })
@@ -99,6 +158,10 @@ describe('UserStore workspace operations', () => {
     const payload = await response.json()
     expect(payload.instances).toHaveLength(1)
     expect(payload.defaultInstanceId).toBe(DEFAULT_INSTANCE_ID)
+    expect(payload.workspaces).toBeDefined()
+    expect(payload.workspaces[DEFAULT_INSTANCE_ID].members).toHaveLength(1)
+    expect(payload.workspaces[DEFAULT_INSTANCE_ID].members[0].role).toBe('owner')
+    expect(payload.pendingInvitations).toEqual([])
   })
 
   it('creates additional workspaces until the instance limit is reached', async () => {
@@ -109,6 +172,9 @@ describe('UserStore workspace operations', () => {
     expect(createResponse.status).toBe(201)
     const createdPayload = await createResponse.json()
     expect(createdPayload.instances).toHaveLength(2)
+    const newWorkspaceId = createdPayload.instance.id
+    expect(createdPayload.workspaces[newWorkspaceId].members).toHaveLength(1)
+    expect(createdPayload.workspaces[newWorkspaceId].members[0].role).toBe('owner')
 
     const limitResponse = await userStore.fetch(
       createRequest('/workspaces/create', { userId: USER_ID, name: 'Overflow Workspace' })
@@ -191,5 +257,106 @@ describe('UserStore workspace operations', () => {
     const deletePayload = await deleteResponse.json()
     expect(deletePayload.instances).toHaveLength(1)
     expect((deletePayload.instances as SerializedInstance[])[0].id).toBe(DEFAULT_INSTANCE_ID)
+    expect(deletePayload.workspaces[DEFAULT_INSTANCE_ID].members).toHaveLength(1)
+  })
+
+  it('invites members and prevents duplicate pending invitations', async () => {
+    const { inviteResponse, payload } = await inviteMember()
+    expect(inviteResponse.status).toBe(201)
+    expect(payload.workspaces[DEFAULT_INSTANCE_ID].invitations).toHaveLength(1)
+    expect(payload.invitation.workspaceName).toBe('Personal Workspace')
+
+    const duplicateInvite = await userStore.fetch(
+      createRequest('/workspaces/invite-member', {
+        userId: USER_ID,
+        instanceId: DEFAULT_INSTANCE_ID,
+        email: MEMBER_EMAIL,
+        role: 'member',
+      })
+    )
+    expect(duplicateInvite.status).toBe(400)
+  })
+
+  it('accepts invitation and syncs membership for invitee and owner', async () => {
+    const { invitation, acceptResponse } = await inviteAndAcceptMember()
+    expect(acceptResponse.status).toBe(200)
+
+    const memberListResponse = await userStore.fetch(
+      createRequest('/workspaces/list', { userId: MEMBER_USER_ID })
+    )
+    const memberPayload = await memberListResponse.json()
+    expect(
+      memberPayload.instances.some(
+        (instance: SerializedInstance) => instance.id === DEFAULT_INSTANCE_ID
+      )
+    ).toBe(true)
+
+    const ownerListResponse = await userStore.fetch(
+      createRequest('/workspaces/list', { userId: USER_ID })
+    )
+    const ownerPayload = await ownerListResponse.json()
+    const members = ownerPayload.workspaces[DEFAULT_INSTANCE_ID].members
+    expect(members.some((member: any) => member.userId === MEMBER_USER_ID)).toBe(true)
+    expect(invitation.role).toBe('member')
+  })
+
+  it('allows workspace owners to update member roles with safeguards', async () => {
+    await inviteAndAcceptMember()
+
+    const updateResponse = await userStore.fetch(
+      createRequest('/workspaces/update-role', {
+        userId: USER_ID,
+        instanceId: DEFAULT_INSTANCE_ID,
+        targetUserId: MEMBER_USER_ID,
+        role: 'admin',
+      })
+    )
+    expect(updateResponse.status).toBe(200)
+    const updatePayload = await updateResponse.json()
+    const members = updatePayload.workspaces[DEFAULT_INSTANCE_ID].members
+    const updatedMember = members.find((member: any) => member.userId === MEMBER_USER_ID)
+    expect(updatedMember?.role).toBe('admin')
+  })
+
+  it('allows workspace owners to remove members while preserving invariants', async () => {
+    await inviteAndAcceptMember()
+
+    const removeResponse = await userStore.fetch(
+      createRequest('/workspaces/remove-member', {
+        userId: USER_ID,
+        instanceId: DEFAULT_INSTANCE_ID,
+        targetUserId: MEMBER_USER_ID,
+      })
+    )
+    expect(removeResponse.status).toBe(200)
+    const removePayload = await removeResponse.json()
+    const members = removePayload.workspaces[DEFAULT_INSTANCE_ID].members
+    expect(members.some((member: any) => member.userId === MEMBER_USER_ID)).toBe(false)
+
+    const memberListResponse = await userStore.fetch(
+      createRequest('/workspaces/list', { userId: MEMBER_USER_ID })
+    )
+    const memberPayload = await memberListResponse.json()
+    expect(
+      memberPayload.instances.some(
+        (instance: SerializedInstance) => instance.id === DEFAULT_INSTANCE_ID
+      )
+    ).toBe(false)
+  })
+
+  it('allows workspace owners to revoke pending invitations', async () => {
+    const { payload } = await inviteMember()
+    const invitationId = payload.invitation.id
+
+    const revokeResponse = await userStore.fetch(
+      createRequest('/workspaces/revoke-invitation', {
+        userId: USER_ID,
+        instanceId: DEFAULT_INSTANCE_ID,
+        invitationId,
+      })
+    )
+    expect(revokeResponse.status).toBe(200)
+    const revokePayload = await revokeResponse.json()
+    expect(revokePayload.workspaces[DEFAULT_INSTANCE_ID].invitations).toHaveLength(0)
   })
 })

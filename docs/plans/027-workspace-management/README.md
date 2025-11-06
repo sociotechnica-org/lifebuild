@@ -94,6 +94,14 @@ Deliver user-managed workspaces (instances) with reliable switching, creation, a
 - WorkspaceContext, updated LiveStore integration, and UI components that allow end users to manage workspaces.
 - Automated test coverage (unit, integration, E2E) plus documentation for operations and monitoring.
 
+## Membership Roles & Invitations
+
+- **Roles:** Workspaces now support `owner`, `admin`, and `member` roles. Owners retain full control (including membership management), admins can manage settings without editing membership, and members participate without management privileges. At least one owner must always remain.
+- **Invitations:** Owners can invite collaborators by email from the Settings page. Invites carry the workspace name, expire after 7 days, and are rate limited (10 sends/hour per actor). Pending invites appear to owners and invitees; owners can revoke them before acceptance.
+- **Acceptance:** Authenticated users can accept invitations directly in-app. Acceptance provisions membership, updates the auth context, and unlocks LiveStore access for the workspace.
+- **Audit & notifications:** All membership mutations append to the workspace audit log and flow through the webhook notifier for external monitoring.
+- **UI placement:** Membership management (member list, role selector, pending invites, and invitations for the current user) lives under Settings ➝ Workspace Members.
+
 ## Dependencies & Coordination
 
 - Ensure plan 026 (email and password reset) is complete to support account recovery.

@@ -39,6 +39,7 @@ const sampleInstances = [
     name: 'Personal Workspace',
     createdAt: '2025-01-15T10:00:00Z',
     lastAccessedAt: '2025-01-15T12:00:00Z',
+    role: 'owner',
     isDefault: true,
   },
   {
@@ -46,6 +47,7 @@ const sampleInstances = [
     name: 'Project Alpha',
     createdAt: '2025-01-16T10:00:00Z',
     lastAccessedAt: '2025-01-16T12:00:00Z',
+    role: 'admin',
     isDefault: false,
   },
   {
@@ -53,6 +55,7 @@ const sampleInstances = [
     name: 'Project Beta',
     createdAt: '2025-01-17T10:00:00Z',
     lastAccessedAt: '2025-01-17T12:00:00Z',
+    role: 'member',
     isDefault: false,
   },
 ]
@@ -108,6 +111,7 @@ export const ManyInstances: Story = {
         name: 'Project Gamma',
         createdAt: '2025-01-18T10:00:00Z',
         lastAccessedAt: '2025-01-18T12:00:00Z',
+        role: 'member',
         isDefault: false,
       },
       {
@@ -115,6 +119,7 @@ export const ManyInstances: Story = {
         name: 'Project Delta',
         createdAt: '2025-01-19T10:00:00Z',
         lastAccessedAt: '2025-01-19T12:00:00Z',
+        role: 'member',
         isDefault: false,
       },
     ],

@@ -130,6 +130,7 @@ describe('auth utils', () => {
           name: 'Test Workspace',
           createdAt: new Date(),
           lastAccessedAt: new Date(),
+          role: 'owner',
           isDefault: true,
         },
       ],
