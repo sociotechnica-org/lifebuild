@@ -10,9 +10,8 @@ test.describe('Workspace Management', () => {
   })
 
   test('workspace rename persists after browser reload', async ({ page }) => {
-    // Skip in CI if auth is not configured
-    const requireAuth = process.env.VITE_REQUIRE_AUTH === 'true'
-    if (requireAuth && process.env.CI) {
+    // Skip in CI - workspace switcher only shows when authenticated
+    if (process.env.CI) {
       test.skip()
       return
     }
