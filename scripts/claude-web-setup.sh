@@ -38,10 +38,19 @@ create_env_file_if_missing "packages/server/.env" "packages/server/.env.example"
 create_env_file_if_missing "packages/worker/.dev.vars" "packages/worker/.dev.vars.example"
 create_env_file_if_missing "packages/auth-worker/.dev.vars" "packages/auth-worker/.dev.vars.example"
 
-# Helper function to escape strings for use in sed replacement
-escape_for_sed() {
-    # Escape backslashes, forward slashes, and ampersands for sed replacement string
-    printf '%s' "$1" | sed 's/[&/\]/\\&/g'
+# Helper function to safely update a config value
+# Uses a temp file approach instead of sed to avoid escaping issues
+update_config_value() {
+    local file="$1"
+    local key="$2"
+    local value="$3"
+
+    if [ -f "$file" ]; then
+        # Use grep -v to remove the old line, then append the new one
+        grep -v "^${key}=" "$file" > "${file}.tmp" || true
+        echo "${key}=${value}" >> "${file}.tmp"
+        mv "${file}.tmp" "$file"
+    fi
 }
 
 # Helper function to check if a value is a placeholder
@@ -63,16 +72,14 @@ if [ -f "packages/worker/.dev.vars" ]; then
     CURRENT_BYPASS=$(grep "^SERVER_BYPASS_TOKEN=" packages/worker/.dev.vars 2>/dev/null | cut -d'=' -f2- || echo "")
 
     if is_placeholder "$CURRENT_JWT"; then
-        sed -i.bak "s|^JWT_SECRET=.*|JWT_SECRET=${DEV_JWT_SECRET}|" packages/worker/.dev.vars
+        update_config_value "packages/worker/.dev.vars" "JWT_SECRET" "${DEV_JWT_SECRET}"
         echo "✅ Updated worker JWT_SECRET (was placeholder)"
     fi
 
     if is_placeholder "$CURRENT_BYPASS"; then
-        sed -i.bak "s|^SERVER_BYPASS_TOKEN=.*|SERVER_BYPASS_TOKEN=${DEV_BYPASS_TOKEN}|" packages/worker/.dev.vars
+        update_config_value "packages/worker/.dev.vars" "SERVER_BYPASS_TOKEN" "${DEV_BYPASS_TOKEN}"
         echo "✅ Updated worker SERVER_BYPASS_TOKEN (was placeholder)"
     fi
-
-    rm -f packages/worker/.dev.vars.bak
 fi
 
 # Update auth-worker .dev.vars with matching secrets (only if placeholders)
@@ -81,16 +88,14 @@ if [ -f "packages/auth-worker/.dev.vars" ]; then
     CURRENT_BYPASS=$(grep "^SERVER_BYPASS_TOKEN=" packages/auth-worker/.dev.vars 2>/dev/null | cut -d'=' -f2- || echo "")
 
     if is_placeholder "$CURRENT_JWT"; then
-        sed -i.bak "s|^JWT_SECRET=.*|JWT_SECRET=${DEV_JWT_SECRET}|" packages/auth-worker/.dev.vars
+        update_config_value "packages/auth-worker/.dev.vars" "JWT_SECRET" "${DEV_JWT_SECRET}"
         echo "✅ Updated auth-worker JWT_SECRET (was placeholder)"
     fi
 
     if is_placeholder "$CURRENT_BYPASS"; then
-        sed -i.bak "s|^SERVER_BYPASS_TOKEN=.*|SERVER_BYPASS_TOKEN=${DEV_BYPASS_TOKEN}|" packages/auth-worker/.dev.vars
+        update_config_value "packages/auth-worker/.dev.vars" "SERVER_BYPASS_TOKEN" "${DEV_BYPASS_TOKEN}"
         echo "✅ Updated auth-worker SERVER_BYPASS_TOKEN (was placeholder)"
     fi
-
-    rm -f packages/auth-worker/.dev.vars.bak
 fi
 
 # Update server .env with matching bypass token (only if placeholder)
@@ -98,11 +103,9 @@ if [ -f "packages/server/.env" ]; then
     CURRENT_BYPASS=$(grep "^SERVER_BYPASS_TOKEN=" packages/server/.env 2>/dev/null | cut -d'=' -f2- || echo "")
 
     if is_placeholder "$CURRENT_BYPASS"; then
-        sed -i.bak "s|^SERVER_BYPASS_TOKEN=.*|SERVER_BYPASS_TOKEN=${DEV_BYPASS_TOKEN}|" packages/server/.env
+        update_config_value "packages/server/.env" "SERVER_BYPASS_TOKEN" "${DEV_BYPASS_TOKEN}"
         echo "✅ Updated server SERVER_BYPASS_TOKEN (was placeholder)"
     fi
-
-    rm -f packages/server/.env.bak
 fi
 
 # Update STORE_IDS in packages/server/.env to match branch name if it exists
@@ -116,22 +119,13 @@ if [ -z "$BRANCH_NAME" ]; then
     echo "⚠️  Detached HEAD detected, using: $BRANCH_NAME"
 fi
 
-# Escape branch name for safe use in sed
-ESCAPED_BRANCH=$(escape_for_sed "$BRANCH_NAME")
-
 if [ -f "packages/server/.env" ]; then
     CURRENT_STORE_IDS=$(grep "^STORE_IDS=" packages/server/.env 2>/dev/null | cut -d'=' -f2- || echo "")
 
     # Only update if it's a placeholder value
     if is_placeholder "$CURRENT_STORE_IDS"; then
-        if grep -q "^STORE_IDS=" packages/server/.env; then
-            sed -i.bak "s|^STORE_IDS=.*|STORE_IDS=${ESCAPED_BRANCH}|" packages/server/.env
-            rm -f packages/server/.env.bak
-            echo "✅ Set STORE_IDS=${BRANCH_NAME} (was placeholder)"
-        else
-            echo "STORE_IDS=${BRANCH_NAME}" >> packages/server/.env
-            echo "✅ Added STORE_IDS=${BRANCH_NAME}"
-        fi
+        update_config_value "packages/server/.env" "STORE_IDS" "${BRANCH_NAME}"
+        echo "✅ Set STORE_IDS=${BRANCH_NAME} (was placeholder)"
     else
         echo "ℹ️  STORE_IDS already configured, skipping update"
     fi
