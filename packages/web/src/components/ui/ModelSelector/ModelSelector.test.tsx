@@ -28,8 +28,8 @@ describe('ModelSelector', () => {
     render(<ModelSelector selectedModel={DEFAULT_MODEL} onModelChange={onModelChange} />)
 
     // Check that all models are available as options
-    expect(screen.getByRole('option', { name: 'Claude 4 Sonnet' })).toBeInTheDocument()
-    expect(screen.getByRole('option', { name: 'Claude 4.1 Opus' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Claude 4.5 Sonnet' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Claude 4.5 Haiku' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: 'GPT-5' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: 'OpenAI O3' })).toBeInTheDocument()
   })

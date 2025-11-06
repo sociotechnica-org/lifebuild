@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { ChatPresenter } from './ChatPresenter.js'
 import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
+import { DEFAULT_MODEL_STRING } from '@work-squared/shared'
 
 // Mock scrollIntoView for tests
 Object.defineProperty(window.Element.prototype, 'scrollIntoView', {
@@ -17,7 +18,7 @@ describe('ChatPresenter', () => {
     avatar: '🤖',
     roleDescription: 'AI Assistant',
     systemPrompt: 'Be helpful',
-    defaultModel: 'claude-sonnet-4-20250514',
+    defaultModel: DEFAULT_MODEL_STRING,
     isActive: true,
     createdAt: new Date('2024-01-01T00:00:00Z'),
     updatedAt: null,
@@ -28,7 +29,7 @@ describe('ChatPresenter', () => {
     title: 'Strategy Session',
     createdAt: new Date('2024-01-01T01:00:00Z'),
     updatedAt: new Date('2024-01-01T01:05:00Z'),
-    model: 'claude-sonnet-4-20250514',
+    model: DEFAULT_MODEL_STRING,
     workerId: 'worker-1',
     processingState: 'idle',
   }
