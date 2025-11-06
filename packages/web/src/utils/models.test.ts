@@ -5,7 +5,7 @@ import {
   getModelById,
   isValidModelId,
   MODEL_IDS,
-} from '../../src/util/models.js'
+} from './models.js'
 
 describe('Models utility', () => {
   it('should have claude-sonnet-4-20250514 as default model', () => {

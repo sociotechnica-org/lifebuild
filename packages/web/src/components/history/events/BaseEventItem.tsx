@@ -1,5 +1,5 @@
 import React from 'react'
-import { formatDate } from '../../../util/dates.js'
+import { formatDate } from '../../../utils/dates.js'
 
 interface BaseEventItemProps {
   timestamp: Date

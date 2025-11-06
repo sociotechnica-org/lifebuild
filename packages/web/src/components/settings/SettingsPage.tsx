@@ -15,7 +15,7 @@ import {
   removeWorkspaceMember,
   updateWorkspaceMemberRole,
 } from '../../utils/auth.js'
-import { getStoreIdFromUrl } from '../../util/navigation.js'
+import { getStoreIdFromUrl } from '../../utils/navigation.js'
 import type {
   WorkspaceRole,
   AuthWorkspaceInvitation,

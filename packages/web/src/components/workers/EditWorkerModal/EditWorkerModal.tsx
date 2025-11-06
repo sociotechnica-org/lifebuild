@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
-import { systemPromptTemplates } from '../../../util/workerNames.js'
+import { systemPromptTemplates } from '../../../utils/workerNames.js'
 import { ProjectAssignmentModal } from '../../ProjectAssignmentModal.js'
 import { ModelSelector } from '../../ui/ModelSelector/ModelSelector.js'
-import { DEFAULT_MODEL } from '../../../util/models.js'
+import { DEFAULT_MODEL } from '../../../utils/models.js'
 import type { Worker } from '@work-squared/shared/schema'
 import { EmojiPicker } from '../EmojiPicker/EmojiPicker.js'
 

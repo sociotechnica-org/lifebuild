@@ -7,8 +7,12 @@ import {
   isAccessTokenExpiringSoon,
   storeTokens,
   clearStoredAuth,
+  getStoredTokens,
+  storeUser,
+  getStoredUser,
+  isAuthenticated,
 } from './auth.js'
-import { TOKEN_STORAGE_KEYS } from '@work-squared/shared/auth'
+import { TOKEN_STORAGE_KEYS, type AuthTokens, type AuthUser } from '@work-squared/shared/auth'
 
 const encodeSegment = (input: object) =>
   Buffer.from(JSON.stringify(input))
@@ -82,5 +86,130 @@ describe('auth utils', () => {
     expect(token).toBe(newAccessToken)
     expect(localStorage.getItem(TOKEN_STORAGE_KEYS.ACCESS_TOKEN)).toBe(newAccessToken)
     expect(localStorage.getItem(TOKEN_STORAGE_KEYS.REFRESH_TOKEN)).toBe(newRefreshToken)
+  })
+
+  describe('token storage helpers', () => {
+    const mockTokens: AuthTokens = {
+      accessToken: 'access-token-123',
+      refreshToken: 'refresh-token-456',
+    }
+
+    it('stores and retrieves both tokens', () => {
+      storeTokens(mockTokens)
+      expect(getStoredTokens()).toEqual(mockTokens)
+    })
+
+    it('returns null when tokens are missing or incomplete', () => {
+      expect(getStoredTokens()).toBeNull()
+      localStorage.setItem(TOKEN_STORAGE_KEYS.ACCESS_TOKEN, 'access-only')
+      expect(getStoredTokens()).toBeNull()
+    })
+
+    it('guards against storage failures', () => {
+      const originalGetItem = localStorage.getItem
+      const originalConsoleError = console.error
+      console.error = vi.fn()
+      localStorage.getItem = vi.fn(() => {
+        throw new Error('storage error')
+      })
+
+      expect(getStoredTokens()).toBeNull()
+
+      localStorage.getItem = originalGetItem
+      console.error = originalConsoleError
+    })
+  })
+
+  describe('user storage helpers', () => {
+    const mockUser: AuthUser = {
+      id: 'user-123',
+      email: 'test@example.com',
+      instances: [
+        {
+          id: 'instance-456',
+          name: 'Test Workspace',
+          createdAt: new Date(),
+          lastAccessedAt: new Date(),
+          role: 'owner',
+          isDefault: true,
+        },
+      ],
+    }
+
+    it('stores and retrieves the serialized user', () => {
+      storeUser(mockUser)
+      const retrieved = getStoredUser()
+
+      const expectedInstances = mockUser.instances.map(instance => ({
+        ...instance,
+        createdAt: instance.createdAt.toISOString(),
+        lastAccessedAt: instance.lastAccessedAt.toISOString(),
+      }))
+
+      expect(retrieved).toEqual({ ...mockUser, instances: expectedInstances })
+    })
+
+    it('returns null when no user data exists', () => {
+      expect(getStoredUser()).toBeNull()
+    })
+
+    it('handles malformed JSON gracefully', () => {
+      const originalConsoleError = console.error
+      console.error = vi.fn()
+
+      localStorage.setItem(TOKEN_STORAGE_KEYS.USER_INFO, 'not-json')
+      expect(getStoredUser()).toBeNull()
+
+      console.error = originalConsoleError
+    })
+  })
+
+  describe('clearStoredAuth', () => {
+    it('removes persisted tokens and user data', () => {
+      const mockTokens: AuthTokens = {
+        accessToken: 'access-token',
+        refreshToken: 'refresh-token',
+      }
+      const mockUser: AuthUser = {
+        id: 'user-123',
+        email: 'test@example.com',
+        instances: [],
+      }
+
+      storeTokens(mockTokens)
+      storeUser(mockUser)
+
+      expect(getStoredTokens()).toEqual(mockTokens)
+      expect(getStoredUser()).toEqual({
+        ...mockUser,
+        instances: [],
+      })
+
+      clearStoredAuth()
+
+      expect(getStoredTokens()).toBeNull()
+      expect(getStoredUser()).toBeNull()
+    })
+  })
+
+  describe('isAuthenticated', () => {
+    const tokens: AuthTokens = {
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+    }
+
+    it('returns true when both tokens exist', () => {
+      storeTokens(tokens)
+      expect(isAuthenticated()).toBe(true)
+    })
+
+    it('returns false when tokens are missing', () => {
+      expect(isAuthenticated()).toBe(false)
+      localStorage.setItem(TOKEN_STORAGE_KEYS.ACCESS_TOKEN, 'access-only')
+      expect(isAuthenticated()).toBe(false)
+      localStorage.clear()
+      localStorage.setItem(TOKEN_STORAGE_KEYS.REFRESH_TOKEN, 'refresh-only')
+      expect(isAuthenticated()).toBe(false)
+    })
   })
 })
