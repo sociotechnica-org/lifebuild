@@ -7,6 +7,7 @@ import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { ROUTES, ROUTE_PATTERNS } from '../../constants/routes.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { isCurrentUserAdmin } from '../../utils/adminCheck.jsx'
+import { CreateProjectModal } from '../projects/CreateProjectModal/CreateProjectModal.js'
 
 interface NavigationProps {
   isChatOpen?: boolean
@@ -20,6 +21,7 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
   const { user: authUser, isAuthenticated, logout } = useAuth()
   const [showDropdown, setShowDropdown] = useState(false)
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 })
+  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
@@ -187,6 +189,30 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
 
           {/* User Profile / Auth */}
           <div className='flex items-center relative'>
+            {/* New Project Button */}
+            <button
+              type='button'
+              onClick={() => setIsCreateProjectModalOpen(true)}
+              className='inline-flex items-center bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors mr-4'
+              title='Create new project'
+              aria-label='Create new project'
+            >
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                className='h-4 w-4 mr-1.5'
+              >
+                <line x1='12' y1='5' x2='12' y2='19'></line>
+                <line x1='5' y1='12' x2='19' y2='12'></line>
+              </svg>
+              New Project
+            </button>
+
             {/* Chat Toggle Button */}
             {onChatToggle && (
               <button
@@ -282,6 +308,12 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
           </div>
         </div>
       </div>
+
+      {/* Create Project Modal */}
+      <CreateProjectModal
+        isOpen={isCreateProjectModalOpen}
+        onClose={() => setIsCreateProjectModalOpen(false)}
+      />
     </nav>
   )
 }
