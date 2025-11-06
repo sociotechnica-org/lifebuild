@@ -874,7 +874,9 @@ export class UserStore implements DurableObject {
       await this.unindexInvitation(invitation)
       const invitations = await this.getWorkspaceInvitations(workspaceId)
       const updated = invitations.map(invite =>
-        invite.id === invitation.id ? { ...invite, status: 'expired' as WorkspaceInvitationStatus } : invite
+        invite.id === invitation.id
+          ? { ...invite, status: 'expired' as WorkspaceInvitationStatus }
+          : invite
       )
       await this.saveWorkspaceInvitations(workspaceId, updated)
       return this.errorResponse('Invitation has expired', 410)
@@ -891,7 +893,9 @@ export class UserStore implements DurableObject {
 
     const invitations = await this.getWorkspaceInvitations(workspaceId)
     const updatedInvitations = invitations.map(invite =>
-      invite.id === invitation.id ? { ...invite, status: 'accepted' as WorkspaceInvitationStatus } : invite
+      invite.id === invitation.id
+        ? { ...invite, status: 'accepted' as WorkspaceInvitationStatus }
+        : invite
     )
     await this.saveWorkspaceInvitations(workspaceId, updatedInvitations)
     await this.unindexInvitation(invitation)
@@ -936,7 +940,9 @@ export class UserStore implements DurableObject {
     }
 
     const updatedInvitations = invitations.map(invite =>
-      invite.id === invitationId ? { ...invite, status: 'revoked' as WorkspaceInvitationStatus } : invite
+      invite.id === invitationId
+        ? { ...invite, status: 'revoked' as WorkspaceInvitationStatus }
+        : invite
     )
     await this.saveWorkspaceInvitations(instanceId, updatedInvitations)
     await this.unindexInvitation(target)

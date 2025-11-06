@@ -293,7 +293,10 @@ async function parseWorkspaceResponse(response: Response) {
 
   if (!response.ok) {
     const message =
-      data?.error?.message || data?.error || data?.message || `Request failed with ${response.status}`
+      data?.error?.message ||
+      data?.error ||
+      data?.message ||
+      `Request failed with ${response.status}`
     throw new Error(typeof message === 'string' ? message : 'Workspace request failed')
   }
 

@@ -285,7 +285,11 @@ describe('UserStore workspace operations', () => {
       createRequest('/workspaces/list', { userId: MEMBER_USER_ID })
     )
     const memberPayload = await memberListResponse.json()
-    expect(memberPayload.instances.some((instance: SerializedInstance) => instance.id === DEFAULT_INSTANCE_ID)).toBe(true)
+    expect(
+      memberPayload.instances.some(
+        (instance: SerializedInstance) => instance.id === DEFAULT_INSTANCE_ID
+      )
+    ).toBe(true)
 
     const ownerListResponse = await userStore.fetch(
       createRequest('/workspaces/list', { userId: USER_ID })
@@ -333,7 +337,11 @@ describe('UserStore workspace operations', () => {
       createRequest('/workspaces/list', { userId: MEMBER_USER_ID })
     )
     const memberPayload = await memberListResponse.json()
-    expect(memberPayload.instances.some((instance: SerializedInstance) => instance.id === DEFAULT_INSTANCE_ID)).toBe(false)
+    expect(
+      memberPayload.instances.some(
+        (instance: SerializedInstance) => instance.id === DEFAULT_INSTANCE_ID
+      )
+    ).toBe(false)
   })
 
   it('allows workspace owners to revoke pending invitations', async () => {

@@ -150,7 +150,10 @@ const usersEqual = (a: AuthUser | null, b: AuthUser | null) => {
     return false
   }
 
-  if (serializePendingInvitations(a.pendingInvitations) !== serializePendingInvitations(b.pendingInvitations)) {
+  if (
+    serializePendingInvitations(a.pendingInvitations) !==
+    serializePendingInvitations(b.pendingInvitations)
+  ) {
     return false
   }
 
@@ -500,16 +503,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const contextValue: AuthContextType = {
     user,
     tokens,
-  connectionState,
-  isLoading,
-  login,
-  logout,
-  refreshToken,
-  getCurrentToken,
-  handleConnectionError,
-  refreshUser,
-  isAuthenticated: Boolean(tokens?.accessToken && tokens?.refreshToken),
-}
+    connectionState,
+    isLoading,
+    login,
+    logout,
+    refreshToken,
+    getCurrentToken,
+    handleConnectionError,
+    refreshUser,
+    isAuthenticated: Boolean(tokens?.accessToken && tokens?.refreshToken),
+  }
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
 }

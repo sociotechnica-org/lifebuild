@@ -61,6 +61,7 @@ export interface AuthWorkspaceSelection {
   instances: AuthInstance[]
   defaultInstanceId: string | null
   workspaces?: Record<string, AuthWorkspaceSnapshot>
+  pendingInvitations?: AuthWorkspaceInvitation[]
 }
 
 export interface SyncPayload {
