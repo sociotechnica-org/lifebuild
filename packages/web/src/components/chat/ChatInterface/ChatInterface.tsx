@@ -8,10 +8,11 @@ import { ChatPresenter } from '../ChatPresenter/ChatPresenter.js'
  */
 interface ChatInterfaceProps {
   onClose?: () => void
+  projectId?: string // Optional: scope conversations to a specific project
 }
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
-  const chatData = useChatData()
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, projectId }) => {
+  const chatData = useChatData({ projectId })
 
   return <ChatPresenter {...chatData} onClose={onClose} />
 }

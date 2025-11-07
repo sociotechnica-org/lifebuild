@@ -149,6 +149,18 @@ export const conversationCreated = Events.synced({
   }),
 })
 
+export const conversationCreatedV2 = Events.synced({
+  name: 'v2.ConversationCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    title: Schema.String,
+    model: Schema.String,
+    workerId: Schema.optional(Schema.String),
+    projectId: Schema.optional(Schema.String), // Scope conversation to a project
+    createdAt: Schema.Date,
+  }),
+})
+
 export const conversationModelUpdated = Events.synced({
   name: 'v1.ConversationModelUpdated',
   schema: Schema.Struct({

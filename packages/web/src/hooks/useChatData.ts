@@ -3,6 +3,8 @@ import React from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
   getConversations$,
+  getProjectConversations$,
+  getGlobalConversations$,
   getConversationMessages$,
   getWorkerById$,
   getWorkers$,
@@ -11,6 +13,10 @@ import { events } from '@work-squared/shared/schema'
 import type { Conversation, ChatMessage, Worker } from '@work-squared/shared/schema'
 import { DEFAULT_MODEL } from '../utils/models.js'
 import { useNavigationContext } from './useNavigationContext.js'
+
+export interface ChatDataOptions {
+  projectId?: string // If provided, only show project-scoped conversations
+}
 
 export interface ChatData {
   // Data
@@ -36,13 +42,16 @@ export interface ChatData {
   onChatTypeSelect: (workerId?: string) => void
 }
 
-export const useChatData = (): ChatData => {
+export const useChatData = (options?: ChatDataOptions): ChatData => {
   const { store } = useStore()
   const location = useLocation()
   const navigate = useNavigate()
+  const { projectId } = options || {}
 
-  // Basic queries
-  const conversations = useQuery(getConversations$) ?? []
+  // Query conversations based on project context
+  const allConversations =
+    useQuery(projectId ? getProjectConversations$(projectId) : getConversations$) ?? []
+  const conversations = allConversations
   const availableWorkers = useQuery(getWorkers$) ?? []
 
   // Local state
@@ -121,12 +130,14 @@ export const useChatData = (): ChatData => {
         ? `Chat with ${availableWorkers.find(w => w.id === workerId)?.name || 'Worker'} - ${new Date().toLocaleTimeString()}`
         : `New Chat ${new Date().toLocaleTimeString()}`
 
+      // Use v2 event to support project scoping
       store.commit(
-        events.conversationCreated({
+        events.conversationCreatedV2({
           id,
           title,
           model: DEFAULT_MODEL,
           workerId,
+          projectId, // Scope conversation to current project (if in project context)
           createdAt: new Date(),
         })
       )
@@ -146,7 +157,7 @@ export const useChatData = (): ChatData => {
 
       navigate(`${location.pathname}?${params.toString()}`, { replace: true })
     },
-    [store, availableWorkers, location, navigate]
+    [store, availableWorkers, location, navigate, projectId]
   )
 
   const handleSendMessage = React.useCallback(

@@ -1,20 +1,47 @@
-import { useQuery } from '@livestore/react'
+import { useQuery, useStore } from '@livestore/react'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getProjects$ } from '@work-squared/shared/queries'
 import type { Project } from '@work-squared/shared/schema'
+import { events } from '@work-squared/shared/schema'
 import { ProjectCard } from './ProjectCard/ProjectCard.js'
 import { CreateProjectModal } from './CreateProjectModal/CreateProjectModal.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { generateRoute } from '../../constants/routes.js'
+import { useAuth } from '../../contexts/AuthContext.js'
 
 export const ProjectsPage: React.FC = () => {
   const navigate = useNavigate()
+  const { store } = useStore()
+  const { user } = useAuth()
   const projects = useQuery(getProjects$) ?? []
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const handleProjectClick = (project: Project) => {
     navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
+  }
+
+  const handleCreateNewProject = () => {
+    // Create minimal project with conversational setup mode
+    const projectId = crypto.randomUUID()
+    const createdAt = new Date()
+
+    store.commit(
+      events.projectCreatedV2({
+        id: projectId,
+        name: 'New Project', // Placeholder name - will be updated via chat
+        description: undefined,
+        category: undefined,
+        attributes: {
+          conversationalSetup: true, // Mark for conversational setup flow
+        } as any,
+        createdAt,
+        actorId: user?.id,
+      })
+    )
+
+    // Navigate immediately to the project with chat open
+    navigate(preserveStoreIdInUrl(`${generateRoute.project(projectId)}?setupMode=conversational`))
   }
 
   if (projects.length === 0) {
@@ -28,7 +55,7 @@ export const ProjectsPage: React.FC = () => {
               <p className='text-gray-600 text-sm'>Organize your work into projects</p>
             </div>
             <button
-              onClick={() => setIsCreateModalOpen(true)}
+              onClick={handleCreateNewProject}
               className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors'
             >
               Create Project
@@ -44,7 +71,7 @@ export const ProjectsPage: React.FC = () => {
               Create your first project to get started organizing your work.
             </p>
             <button
-              onClick={() => setIsCreateModalOpen(true)}
+              onClick={handleCreateNewProject}
               className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors'
             >
               Create Project
@@ -70,7 +97,7 @@ export const ProjectsPage: React.FC = () => {
             <p className='text-gray-600 text-sm'>Organize your work into projects</p>
           </div>
           <button
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={handleCreateNewProject}
             className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors'
           >
             Create Project

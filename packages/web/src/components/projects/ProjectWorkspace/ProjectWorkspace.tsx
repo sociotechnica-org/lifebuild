@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
 import { formatDate } from '../../../utils/dates.js'
 import { useQuery, useStore } from '@livestore/react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import {
   getProjectTasks$,
@@ -29,6 +29,7 @@ import {
   calculateStatusDropTarget,
 } from '../../../utils/statusTaskReordering.js'
 import type { PlanningAttributes } from '@work-squared/shared'
+import { ConversationalProjectSetup } from '../ConversationalProjectSetup/ConversationalProjectSetup.js'
 
 // Component for the actual workspace content
 const ProjectWorkspaceContent: React.FC = () => {
@@ -36,6 +37,7 @@ const ProjectWorkspaceContent: React.FC = () => {
   const { store } = useStore()
   const { user } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [insertionPreview, setInsertionPreview] = useState<{
     statusId: string
@@ -54,6 +56,15 @@ const ProjectWorkspaceContent: React.FC = () => {
 
   if (!projectId || !project) {
     return <LoadingState message='Project not found' />
+  }
+
+  // Check if we're in conversational setup mode
+  const params = new URLSearchParams(location.search)
+  const setupMode = params.get('setupMode')
+  const projectAttributes = (project.attributes as any) || {}
+
+  if (setupMode === 'conversational' || projectAttributes.conversationalSetup) {
+    return <ConversationalProjectSetup project={project} />
   }
 
   const tasks = useQuery(getProjectTasks$(projectId)) ?? []

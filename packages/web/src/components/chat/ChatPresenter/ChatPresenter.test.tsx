@@ -30,6 +30,7 @@ describe('ChatPresenter', () => {
     updatedAt: new Date('2024-01-01T01:05:00Z'),
     model: 'claude-sonnet-4-20250514',
     workerId: 'worker-1',
+    projectId: null,
     processingState: 'idle',
   }
 

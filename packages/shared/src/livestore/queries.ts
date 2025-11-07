@@ -52,6 +52,25 @@ export const getConversations$ = queryDb(
   { label: 'getConversations' }
 )
 
+// Get conversations for a specific project
+export const getProjectConversations$ = (projectId: string) =>
+  queryDb(
+    tables.conversations
+      .select()
+      .where({ projectId })
+      .orderBy([{ col: 'createdAt', direction: 'desc' }]),
+    { label: `getProjectConversations:${projectId}` }
+  )
+
+// Get global conversations (not scoped to any project)
+export const getGlobalConversations$ = queryDb(
+  tables.conversations
+    .select()
+    .where({ projectId: null })
+    .orderBy([{ col: 'createdAt', direction: 'desc' }]),
+  { label: 'getGlobalConversations' }
+)
+
 export const getConversation$ = (conversationId: string) =>
   queryDb(tables.conversations.select().where({ id: conversationId }), {
     label: `getConversation:${conversationId}`,

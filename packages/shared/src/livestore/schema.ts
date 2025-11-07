@@ -146,6 +146,7 @@ const conversations = State.SQLite.table({
     title: State.SQLite.text({ default: '' }),
     model: State.SQLite.text({ default: DEFAULT_MODEL }),
     workerId: State.SQLite.text({ nullable: true }),
+    projectId: State.SQLite.text({ nullable: true }), // Link conversation to a specific project
     processingState: State.SQLite.text({ default: 'idle' }), // 'idle' | 'processing'
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
@@ -556,6 +557,16 @@ const materializers = State.SQLite.materializers(events, {
   ],
   'v1.ConversationCreated': ({ id, title, model, workerId, createdAt }) =>
     conversations.insert({ id, title, model, workerId, createdAt, updatedAt: createdAt }),
+  'v2.ConversationCreated': ({ id, title, model, workerId, projectId, createdAt }) =>
+    conversations.insert({
+      id,
+      title,
+      model,
+      workerId,
+      projectId,
+      createdAt,
+      updatedAt: createdAt,
+    }),
   'v1.ConversationModelUpdated': ({ id, model, updatedAt }) =>
     conversations.update({ model, updatedAt }).where({ id }),
   'v1.LLMResponseReceived': ({
