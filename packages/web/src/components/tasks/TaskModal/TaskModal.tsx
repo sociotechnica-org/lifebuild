@@ -10,6 +10,8 @@ import { useSnackbar } from '../../ui/Snackbar/Snackbar.js'
 import { Markdown } from '../../markdown/Markdown.js'
 import { MoveTaskModal } from '../MoveTaskModal.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
+import { InlineEditText } from '../../common/InlineEditText.js'
+import { InlineEditTextarea } from '../../common/InlineEditTextarea.js'
 
 interface TaskModalProps {
   taskId: string | null
@@ -52,12 +54,8 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
     currentAssigneeIds = []
   }
 
-  // Edit mode state
-  const [isEditing, setIsEditing] = useState(false)
-  const [editTitle, setEditTitle] = useState(task.title)
-  const [editDescription, setEditDescription] = useState(task.description || '')
+  // Edit mode state (assignees only - title/description now use inline editing)
   const [editAssigneeIds, setEditAssigneeIds] = useState<string[]>(currentAssigneeIds)
-  const [titleError, setTitleError] = useState('')
 
   // Comment state
   const [newComment, setNewComment] = useState('')
@@ -72,10 +70,8 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
 
   // Update form fields when task changes (for optimistic updates)
   useEffect(() => {
-    setEditTitle(task.title)
-    setEditDescription(task.description || '')
     setEditAssigneeIds(currentAssigneeIds)
-  }, [task.title, task.description, task.assigneeIds])
+  }, [task.assigneeIds])
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -85,66 +81,32 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
-      if (isEditing) {
-        handleCancelEdit()
-      } else {
-        onClose()
-      }
+      onClose()
     }
   }
 
-  const validateTitle = (title: string): boolean => {
-    const trimmed = title.trim()
-    if (!trimmed) {
-      setTitleError('Title is required')
-      return false
-    }
-    setTitleError('')
-    return true
+  const handleTitleSave = (newTitle: string) => {
+    store.commit(
+      events.taskUpdated({
+        taskId: task.id,
+        title: newTitle.trim(),
+        description: undefined,
+        assigneeIds: undefined,
+        updatedAt: new Date(),
+      })
+    )
   }
 
-  const handleSave = () => {
-    const trimmedTitle = editTitle.trim()
-
-    if (!validateTitle(trimmedTitle)) {
-      return
-    }
-
-    // Only update if values have changed (assignees are saved immediately)
-    const titleChanged = trimmedTitle !== task.title
-    const descriptionChanged = editDescription !== (task.description || '')
-
-    if (titleChanged || descriptionChanged) {
-      store.commit(
-        events.taskUpdated({
-          taskId: task.id,
-          title: titleChanged ? trimmedTitle : undefined,
-          description: descriptionChanged ? editDescription : undefined,
-          assigneeIds: undefined, // Assignees are saved immediately
-          updatedAt: new Date(),
-        })
-      )
-    }
-
-    setIsEditing(false)
-  }
-
-  const handleCancelEdit = () => {
-    setEditTitle(task.title)
-    setEditDescription(task.description || '')
-    // Don't reset assignees since they save immediately
-    setTitleError('')
-    setIsEditing(false)
-  }
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setEditTitle(value)
-
-    // Real-time validation
-    if (titleError && value.trim()) {
-      setTitleError('')
-    }
+  const handleDescriptionSave = (newDescription: string) => {
+    store.commit(
+      events.taskUpdated({
+        taskId: task.id,
+        title: undefined,
+        description: newDescription,
+        assigneeIds: undefined,
+        updatedAt: new Date(),
+      })
+    )
   }
 
   // Handle click outside more actions dropdown
@@ -158,7 +120,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
   React.useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isEditing, handleCancelEdit, onClose])
+  }, [onClose])
 
   // Set up click outside listener for more actions dropdown
   React.useEffect(() => {
@@ -264,90 +226,59 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
         {/* Header */}
         <div className='flex items-start justify-between p-6 border-b border-gray-200'>
           <div className='flex-1 min-w-0'>
-            {isEditing ? (
-              <div>
-                <input
-                  type='text'
-                  value={editTitle}
-                  onChange={handleTitleChange}
-                  className={`text-xl font-semibold text-gray-900 bg-transparent border-b-2 focus:outline-none focus:border-blue-500 w-full pr-8 ${
-                    titleError ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder='Task title'
-                  autoFocus
-                />
-                {titleError && <p className='text-red-500 text-sm mt-1'>{titleError}</p>}
-              </div>
-            ) : (
-              <h1 id='task-modal-title' className='text-xl font-semibold text-gray-900 pr-8'>
-                {task.title}
-              </h1>
-            )}
+            <InlineEditText
+              value={task.title}
+              onSave={handleTitleSave}
+              placeholder='Task title'
+              required={true}
+              className='mb-1'
+              displayClassName='text-xl font-semibold text-gray-900 pr-8 p-2 rounded-md transition-colors'
+              inputClassName='text-xl font-semibold text-gray-900 bg-transparent border-b-2 focus:outline-none focus:border-blue-500 w-full pr-8 border-gray-300'
+              renderDisplay={value => (
+                <h1 id='task-modal-title' className='text-xl font-semibold text-gray-900'>
+                  {value}
+                </h1>
+              )}
+            />
             <p className='text-sm text-gray-500 mt-1'>
               Status: {task.status.charAt(0).toUpperCase() + task.status.slice(1).replace('_', ' ')}
             </p>
           </div>
           <div className='flex items-center gap-2'>
-            {isEditing ? (
-              <>
-                <button
-                  onClick={handleSave}
-                  className='px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors'
-                >
-                  Save
-                </button>
-                <button
-                  onClick={handleCancelEdit}
-                  className='px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors'
-                >
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className='px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors'
-                  aria-label='Edit task'
-                >
-                  Edit
-                </button>
-                {/* More actions dropdown */}
-                <div className='relative' ref={moreActionsRef}>
-                  <button
-                    onClick={() => setMoreActionsOpen(!moreActionsOpen)}
-                    className='p-1 text-gray-400 hover:text-gray-600 transition-colors rounded-md hover:bg-gray-100'
-                    aria-label='More actions'
-                  >
-                    <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 20 20'>
-                      <path d='M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z' />
-                    </svg>
-                  </button>
+            {/* More actions dropdown */}
+            <div className='relative' ref={moreActionsRef}>
+              <button
+                onClick={() => setMoreActionsOpen(!moreActionsOpen)}
+                className='p-1 text-gray-400 hover:text-gray-600 transition-colors rounded-md hover:bg-gray-100'
+                aria-label='More actions'
+              >
+                <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 20 20'>
+                  <path d='M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z' />
+                </svg>
+              </button>
 
-                  {moreActionsOpen && (
-                    <div className='absolute right-0 top-full mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10'>
-                      <div className='py-1'>
-                        <button
-                          onClick={() => {
-                            setMoveModalOpen(true)
-                            setMoreActionsOpen(false)
-                          }}
-                          className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors'
-                        >
-                          Move to Project
-                        </button>
-                        <button
-                          onClick={handleArchiveTask}
-                          className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors'
-                        >
-                          Archive Task
-                        </button>
-                      </div>
-                    </div>
-                  )}
+              {moreActionsOpen && (
+                <div className='absolute right-0 top-full mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10'>
+                  <div className='py-1'>
+                    <button
+                      onClick={() => {
+                        setMoveModalOpen(true)
+                        setMoreActionsOpen(false)
+                      }}
+                      className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors'
+                    >
+                      Move to Project
+                    </button>
+                    <button
+                      onClick={handleArchiveTask}
+                      className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors'
+                    >
+                      Archive Task
+                    </button>
+                  </div>
                 </div>
-              </>
-            )}
+              )}
+            </div>
             <button
               onClick={onClose}
               className='text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100'
@@ -374,21 +305,19 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
               selectedIds={editAssigneeIds}
               onSelectionChange={assigneeIds => {
                 setEditAssigneeIds(assigneeIds)
-                // Save immediately when not in edit mode
-                if (!isEditing) {
-                  const assigneesChanged =
-                    JSON.stringify(assigneeIds) !== JSON.stringify(currentAssigneeIds)
-                  if (assigneesChanged) {
-                    store.commit(
-                      events.taskUpdated({
-                        taskId: task.id,
-                        title: undefined,
-                        description: undefined,
-                        assigneeIds,
-                        updatedAt: new Date(),
-                      })
-                    )
-                  }
+                // Save immediately
+                const assigneesChanged =
+                  JSON.stringify(assigneeIds) !== JSON.stringify(currentAssigneeIds)
+                if (assigneesChanged) {
+                  store.commit(
+                    events.taskUpdated({
+                      taskId: task.id,
+                      title: undefined,
+                      description: undefined,
+                      assigneeIds,
+                      updatedAt: new Date(),
+                    })
+                  )
                 }
               }}
               placeholder='Select assignees...'
@@ -398,25 +327,16 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
           {/* Description */}
           <div>
             <h2 className='text-sm font-medium text-gray-900 mb-2'>Description</h2>
-            {isEditing ? (
-              <textarea
-                value={editDescription}
-                onChange={e => setEditDescription(e.target.value)}
-                className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical min-h-[100px]'
-                placeholder='Add a description...'
-                rows={4}
-              />
-            ) : (
-              <>
-                {task.description ? (
-                  <div className='text-sm text-gray-700 whitespace-pre-wrap'>
-                    {task.description}
-                  </div>
-                ) : (
-                  <div className='text-sm text-gray-500 italic'>No description provided.</div>
-                )}
-              </>
-            )}
+            <InlineEditTextarea
+              value={task.description || ''}
+              onSave={handleDescriptionSave}
+              placeholder='Click to add a description...'
+              className='w-full'
+              displayClassName='text-sm text-gray-700 p-3 rounded-md transition-colors min-h-[60px]'
+              textareaClassName='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical min-h-[100px]'
+              rows={4}
+              autoResize={true}
+            />
           </div>
 
           {/* Comments */}
