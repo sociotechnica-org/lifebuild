@@ -156,19 +156,20 @@ console.log('Hello from code block!');
     // Wait for the projects page to load fully
     await page.waitForSelector('h1', { timeout: 10000 })
 
-    // First create a project
+    // First create a project - now navigates directly
     const createProjectButton = page.locator('button:has-text("Create Project")')
     await expect(createProjectButton.first()).toBeVisible()
     await createProjectButton.first().click()
 
-    const projectName = `Test Project ${Date.now()}`
-    await page.fill('input[id="project-name"]', projectName)
-    await page.click('form button[type="submit"]:has-text("Create Project")')
-
-    // Navigate to the project
-    await expect(page.locator(`text=${projectName}`)).toBeVisible()
-    await page.click(`text=${projectName}`)
+    // Wait for navigation to the new project with conversational setup
     await waitForLiveStoreReady(page)
+
+    // Should be on the project page with conversational setup mode
+    await expect(page).toHaveURL(/\/project\/.*setupMode=conversational/)
+
+    // Skip the conversational setup to get to the project
+    await page.click('button:has-text("Skip Setup")')
+    await page.waitForURL(/\/project\/[^?]+\?(?!.*setupMode)/)
 
     // Should be on the project page
     await expect(page).toHaveURL(/\/project\/.*/)

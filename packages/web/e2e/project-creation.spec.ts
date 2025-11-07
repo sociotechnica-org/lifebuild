@@ -26,44 +26,32 @@ test.describe('Project Creation and Task Management', () => {
     const createProjectButton = page.locator('button:has-text("Create Project")')
     await expect(createProjectButton.first()).toBeVisible()
 
-    // Click the Create Project button
+    // Click the Create Project button - this now navigates directly to the project
     await createProjectButton.first().click()
-
-    // Verify the modal opened
-    await expect(page.locator('text=Create New Project')).toBeVisible()
-
-    // Fill in project details
-    const projectName = `Test Project ${Date.now()}`
-    const projectDescription =
-      'This is an automated test project with a detailed description for testing purposes.'
-
-    await page.fill('input[id="project-name"]', projectName)
-    await page.fill('textarea[id="project-description"]', projectDescription)
-
-    // Verify character counter is working
-    await expect(page.locator('text=/\\d+\\/500 characters/')).toBeVisible()
-
-    // Submit the form - click the submit button specifically, not the page button
-    const submitButton = page.locator('form button[type="submit"]:has-text("Create Project")')
-    await submitButton.click()
-
-    // Wait for modal to close and project to be created
-    await expect(page.locator('text=Create New Project')).not.toBeVisible()
-
-    // Should now see the project in the list
-    await expect(page.locator(`text=${projectName}`)).toBeVisible()
-
-    // Verify we can navigate to the project
-    await page.click(`text=${projectName}`)
 
     // Wait for navigation and LiveStore to be ready
     await waitForLiveStoreReady(page)
 
-    // Should be on the project board page
+    // Should now be on the project page with conversational setup mode
+    await expect(page).toHaveURL(/\/project\/.*setupMode=conversational/)
+
+    // Verify conversational setup UI is visible
+    await expect(page.locator('text=Let\'s set up your project')).toBeVisible({ timeout: 10000 })
+
+    // Verify the Skip Setup button is present
+    await expect(page.locator('button:has-text("Skip Setup")')).toBeVisible()
+
+    // For now, skip the conversational setup to test the regular project view
+    await page.click('button:has-text("Skip Setup")')
+
+    // Wait for the URL to update (setupMode param should be removed)
+    await page.waitForURL(/\/project\/[^?]+\?(?!.*setupMode)/)
+
+    // Should now be on the project board page
     await expect(page).toHaveURL(/\/project\/.*/)
 
-    // Verify the project name appears as the page title
-    await expect(page.locator('h1')).toContainText(projectName)
+    // Verify the project name appears (it will be "New Project" as placeholder)
+    await expect(page.locator('h1')).toContainText('New Project')
 
     // For CI environments, just verify basic structure without specific columns
     try {
@@ -77,7 +65,7 @@ test.describe('Project Creation and Task Management', () => {
     }
   })
 
-  test('validates project creation form', async ({ page }) => {
+  test('validates conversational project setup', async ({ page }) => {
     // Navigate to app with unique store ID
     await navigateToAppWithUniqueStore(page)
 
@@ -91,36 +79,33 @@ test.describe('Project Creation and Task Management', () => {
     // Should be on root page (which shows projects interface)
     await expect(page).toHaveURL(/\/projects\?storeId=[^&]+/)
 
-    // Click Create Project button
+    // Click Create Project button - navigates to conversational setup
     const createProjectButton = page.locator('button:has-text("Create Project")')
     await createProjectButton.first().click()
 
-    // Verify modal opened
-    await expect(page.locator('text=Create New Project')).toBeVisible()
+    // Wait for navigation
+    await waitForLiveStoreReady(page)
 
-    // Try to submit without a name (should show validation error)
-    const submitButton = page.locator('form button[type="submit"]:has-text("Create Project")')
-    await submitButton.click()
+    // Should be on the project page with conversational setup mode
+    await expect(page).toHaveURL(/\/project\/.*setupMode=conversational/)
 
-    // Should see validation error
-    await expect(page.locator('text=Project name is required')).toBeVisible()
+    // Verify conversational setup UI elements are present
+    await expect(page.locator('text=Let\'s set up your project')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('button:has-text("Skip Setup")')).toBeVisible()
 
-    // Fill in a name to clear the error
-    await page.fill('input[id="project-name"]', 'Valid Project Name')
+    // Verify progress indicator is present
+    await expect(page.locator('text=Conversational Setup')).toBeVisible()
 
-    // Validation error should clear
-    await expect(page.locator('text=Project name is required')).not.toBeVisible()
+    // Verify helpful tips footer is present
+    await expect(page.locator('text=Tip:')).toBeVisible()
 
-    // Test character counter by filling description
-    await page.fill('textarea[id="project-description"]', 'Valid description under 500 characters')
+    // Test Skip Setup functionality
+    await page.click('button:has-text("Skip Setup")')
 
-    // Verify character counter is working
-    await expect(page.locator('text=/\\d+\\/500 characters/')).toBeVisible()
+    // Should navigate to regular project view (setupMode removed from URL)
+    await page.waitForURL(/\/project\/[^?]+\?(?!.*setupMode)/)
 
-    // Submit should now work
-    await submitButton.click()
-
-    // Modal should close
-    await expect(page.locator('text=Create New Project')).not.toBeVisible()
+    // Verify we're now in the regular project view
+    await expect(page.locator('h1')).toContainText('New Project')
   })
 })
