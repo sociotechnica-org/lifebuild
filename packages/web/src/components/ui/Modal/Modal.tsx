@@ -1,4 +1,5 @@
 import React from 'react'
+import { useFocusTrap } from '../../../hooks/useFocusTrap.js'
 
 export interface ModalProps {
   /** Whether the modal is open */
@@ -25,6 +26,7 @@ export interface ModalProps {
 
 /**
  * Reusable modal component with consistent z-index and backdrop styling.
+ * Includes focus trap for keyboard accessibility and focus restoration on close.
  *
  * Usage:
  * ```tsx
@@ -47,6 +49,9 @@ export const Modal: React.FC<ModalProps> = ({
   contentClassName = '',
   ariaLabel,
 }) => {
+  // Trap focus within modal and restore focus on close
+  const modalRef = useFocusTrap<HTMLDivElement>(isOpen, true)
+
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (closeOnBackdropClick && e.target === e.currentTarget) {
       onClose()
@@ -71,6 +76,7 @@ export const Modal: React.FC<ModalProps> = ({
       onKeyDown={handleKeyDown}
     >
       <div
+        ref={modalRef}
         className={`bg-white rounded-lg shadow-lg ${maxWidth} w-full max-h-[90vh] overflow-y-auto ${contentClassName}`}
         role='dialog'
         aria-modal='true'

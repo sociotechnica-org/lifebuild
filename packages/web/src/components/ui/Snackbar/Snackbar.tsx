@@ -2,9 +2,11 @@ import React, { useState, useEffect, createContext, useContext, useCallback } fr
 import { useStore } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
 
+export type SnackbarType = 'success' | 'error' | 'warning' | 'info' | 'archive-undo' | string
+
 interface SnackbarData {
   message: string
-  type: string
+  type: SnackbarType
   actionLabel?: string
   actionData?: Record<string, any>
   showUntil: Date
@@ -107,10 +109,18 @@ function SnackbarComponent({
     onHide()
   }
 
+  // Determine if this is a critical error that needs assertive announcement
+  const isError = snackbar.type === 'error'
+  const ariaLive = isError ? 'assertive' : 'polite'
+  const role = isError ? 'alert' : 'status'
+
   return (
     <div className='fixed bottom-4 left-4 right-4 flex justify-center z-50'>
       <div
-        className={`bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 max-w-md transition-all duration-100 ease-out ${
+        role={role}
+        aria-live={ariaLive}
+        aria-atomic='true'
+        className={`bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 max-w-md transition-all duration-100 ease-out motion-reduce:transition-none ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
         }`}
       >
@@ -119,14 +129,14 @@ function SnackbarComponent({
           {snackbar.actionLabel && (
             <button
               onClick={handleAction}
-              className='text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors'
+              className='text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800 rounded'
             >
               {snackbar.actionLabel}
             </button>
           )}
           <button
             onClick={handleClose}
-            className='text-gray-400 hover:text-gray-300 transition-colors'
+            className='text-gray-400 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800 rounded'
             aria-label='Close notification'
           >
             <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>

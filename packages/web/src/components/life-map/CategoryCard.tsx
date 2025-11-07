@@ -39,32 +39,26 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   }
 
   return (
-    <div
+    <button
       onClick={onClick}
-      role='button'
-      tabIndex={0}
-      onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick()
-        }
-      }}
       className={`
         relative w-full aspect-square rounded-lg sm:rounded-xl p-4 sm:p-6
         flex flex-col items-center justify-center
-        transition-all duration-200
+        transition-all duration-200 motion-reduce:transition-none
         cursor-pointer
         group
         min-h-[120px] sm:min-h-0
+        focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white focus-visible:ring-opacity-50
         ${
           isActive
-            ? 'shadow-md hover:shadow-xl hover:-translate-y-1'
+            ? 'shadow-md hover:shadow-xl hover:-translate-y-1 motion-reduce:hover:translate-y-0'
             : 'shadow-sm hover:shadow-md opacity-60 hover:opacity-80'
         }
       `}
       style={{
         backgroundColor: isActive ? category.colorHex : '#D4CCC8',
       }}
+      aria-label={`${category.name} category, ${projectCount} ${projectCount === 1 ? 'project' : 'projects'}, ${activeProjectCount} active, last activity ${relativeTime}`}
     >
       {/* Icon */}
       <div className='text-4xl sm:text-5xl mb-2 sm:mb-4'>{category.icon}</div>
@@ -170,6 +164,6 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           </button>
         </div>
       )}
-    </div>
+    </button>
   )
 }
