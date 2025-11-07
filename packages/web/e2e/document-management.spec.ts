@@ -167,12 +167,18 @@ console.log('Hello from code block!');
     // Should be on the project page with conversational setup mode
     await expect(page).toHaveURL(/\/project\/.*setupMode=conversational/)
 
-    // Skip the conversational setup to get to the project
-    await page.click('button:has-text("Skip Setup")')
-    await page.waitForURL(/\/project\/[^?]+\?(?!.*setupMode)/)
+    // For this test, we need to bypass the conversational setup
+    // Navigate directly by removing the setup mode from URL
+    const currentUrl = page.url()
+    const projectUrl = currentUrl.replace(/[?&]setupMode=conversational/, '')
+    await page.goto(projectUrl)
+    await waitForLiveStoreReady(page)
 
-    // Should be on the project page
+    // Should now be on the project page
     await expect(page).toHaveURL(/\/project\/.*/)
+
+    // Wait for the project page to fully load
+    await page.waitForSelector('h1', { timeout: 10000 })
 
     // Click on Documents tab
     await page.click('button:has-text("Documents")')
