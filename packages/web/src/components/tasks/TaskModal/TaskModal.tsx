@@ -231,14 +231,9 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
               onSave={handleTitleSave}
               placeholder='Task title'
               required={true}
-              className='mb-1'
-              displayClassName='text-xl font-semibold text-gray-900 pr-8 p-2 rounded-md transition-colors'
-              inputClassName='text-xl font-semibold text-gray-900 bg-transparent border-b-2 focus:outline-none focus:border-blue-500 w-full pr-8 border-gray-300'
-              renderDisplay={value => (
-                <h1 id='task-modal-title' className='text-xl font-semibold text-gray-900'>
-                  {value}
-                </h1>
-              )}
+              className='mb-1 -mx-3'
+              displayClassName='text-xl font-semibold text-gray-900 pr-8 px-3 py-2 rounded-md transition-colors border-2 border-transparent'
+              inputClassName='text-xl font-semibold text-gray-900 bg-white border-2 focus:outline-none focus:border-blue-500 w-full pr-8 border-gray-300 px-3 py-2 rounded-md'
             />
             <p className='text-sm text-gray-500 mt-1'>
               Status: {task.status.charAt(0).toUpperCase() + task.status.slice(1).replace('_', ' ')}
@@ -331,9 +326,9 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
               value={task.description || ''}
               onSave={handleDescriptionSave}
               placeholder='Click to add a description...'
-              className='w-full'
-              displayClassName='text-sm text-gray-700 p-3 rounded-md transition-colors min-h-[60px]'
-              textareaClassName='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical min-h-[100px]'
+              className='w-full -mx-3'
+              displayClassName='text-sm text-gray-700 p-3 rounded-md transition-colors min-h-[100px] border-2 border-transparent'
+              textareaClassName='w-full p-3 border-2 border-gray-300 rounded-md focus:outline-none focus:border-blue-500 resize-vertical min-h-[100px]'
               rows={4}
               autoResize={true}
             />

@@ -173,12 +173,12 @@ export const InlineEditTextarea: React.FC<InlineEditTextareaProps> = ({
           disabled={disabled}
         />
         {showCharCount && maxLength && (
-          <div className='text-xs text-gray-500 mt-1'>
+          <div className='text-xs text-gray-500 mt-1 px-3'>
             {editValue.length} / {maxLength}
           </div>
         )}
-        {error && <div className='text-xs text-red-500 mt-1'>{error}</div>}
-        <div className='text-xs text-gray-500 mt-1'>
+        {error && <div className='text-xs text-red-500 mt-1 px-3'>{error}</div>}
+        <div className='text-xs text-gray-500 mt-1 px-3'>
           Press Ctrl+Enter (Cmd+Enter on Mac) to save, Esc to cancel
         </div>
       </div>
@@ -191,19 +191,25 @@ export const InlineEditTextarea: React.FC<InlineEditTextareaProps> = ({
   } ${!value ? 'text-gray-400 italic' : ''} whitespace-pre-wrap`
 
   return (
-    <div
-      onClick={handleClick}
-      className={`${className} ${displayClasses}`}
-      role='button'
-      tabIndex={disabled ? -1 : 0}
-      onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          handleClick()
-        }
-      }}
-    >
-      {renderDisplay ? renderDisplay(displayValue) : displayValue}
+    <div className={className}>
+      <div
+        onClick={handleClick}
+        className={displayClasses}
+        role='button'
+        tabIndex={disabled ? -1 : 0}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            handleClick()
+          }
+        }}
+      >
+        {renderDisplay ? renderDisplay(displayValue) : displayValue}
+      </div>
+      {/* Reserve space for help text to prevent jumping */}
+      <div className='text-xs text-gray-500 mt-1 px-3 invisible'>
+        Press Ctrl+Enter (Cmd+Enter on Mac) to save, Esc to cancel
+      </div>
     </div>
   )
 }
