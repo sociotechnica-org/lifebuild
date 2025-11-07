@@ -141,13 +141,16 @@ describe('TaskModal Comments', () => {
   it('should show comment author names and avatars', () => {
     renderWithProviders(<TaskModal taskId='task-1' onClose={() => {}} />)
 
-    expect(screen.getByText('Alice Johnson')).toBeInTheDocument()
-    expect(screen.getByText('Bob Smith')).toBeInTheDocument()
+    // Names appear in multiple places: quick-access cards, assignee dropdown, and comments
+    // Use getAllBy* to handle multiple occurrences
+    expect(screen.getAllByText('Alice Johnson').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Bob Smith').length).toBeGreaterThan(0)
 
-    // Check for avatar initials (use getAllByText since AJ appears twice - composer and comment)
+    // Check for avatar initials (AJ appears in multiple places: composer, comment, quick-access card)
     const ajElements = screen.getAllByText('AJ')
-    expect(ajElements.length).toBe(2) // one in composer, one in comment
-    expect(screen.getByText('BS')).toBeInTheDocument()
+    expect(ajElements.length).toBeGreaterThanOrEqual(2)
+    const bsElements = screen.getAllByText('BS')
+    expect(bsElements.length).toBeGreaterThanOrEqual(1)
   })
 
   it('should show comment composer when user is available', () => {

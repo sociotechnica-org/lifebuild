@@ -392,6 +392,7 @@ export function TaskModal({ taskId, onClose }: TaskModalProps) {
                 }
               }}
               placeholder='Select assignees...'
+              currentUserId={currentUser?.id}
             />
           </div>
 
