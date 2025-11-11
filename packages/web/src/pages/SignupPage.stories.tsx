@@ -12,7 +12,7 @@ const SignupPageStory = () => {
 }
 
 const meta: Meta<typeof SignupPageStory> = {
-  title: 'Pages/SignupPage',
+  title: 'Components/Pages/SignupPage',
   component: SignupPageStory,
   parameters: {
     layout: 'fullscreen',

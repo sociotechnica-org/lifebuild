@@ -6,7 +6,7 @@ import {
 } from './AuthStatusBanner.js'
 
 const meta: Meta<typeof AuthStatusBannerPresenter> = {
-  title: 'Auth/AuthStatusBanner',
+  title: 'Components/Auth/AuthStatusBanner',
   component: AuthStatusBannerPresenter,
   parameters: {
     layout: 'fullscreen',
