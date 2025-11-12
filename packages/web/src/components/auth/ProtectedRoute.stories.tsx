@@ -32,7 +32,7 @@ const ProtectedRouteStory = () => {
 }
 
 const meta: Meta<typeof ProtectedRouteStory> = {
-  title: 'Components/Auth/ProtectedRoute',
+  title: 'Auth/ProtectedRoute',
   component: ProtectedRouteStory,
   parameters: {
     layout: 'centered',

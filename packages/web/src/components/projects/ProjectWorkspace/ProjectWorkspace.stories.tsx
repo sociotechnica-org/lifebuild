@@ -147,7 +147,7 @@ const ProjectWorkspaceStory = ({
 }
 
 const meta: Meta<typeof ProjectWorkspaceStory> = {
-  title: 'Pages/ProjectWorkspace',
+  title: 'Components/ProjectWorkspace',
   component: ProjectWorkspaceStory,
   parameters: {
     layout: 'fullscreen',

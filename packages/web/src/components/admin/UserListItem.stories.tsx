@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { UserListItem } from './UserListItem.js'
 
 const meta = {
-  title: 'Components/Admin/UserListItem',
+  title: 'Admin/UserListItem',
   component: UserListItem,
   decorators: [
     Story => (

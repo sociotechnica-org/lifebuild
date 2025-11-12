@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { InstanceCard } from './InstanceCard.js'
 
 const meta = {
-  title: 'Components/Admin/InstanceCard',
+  title: 'Admin/InstanceCard',
   component: InstanceCard,
   parameters: {
     layout: 'centered',
