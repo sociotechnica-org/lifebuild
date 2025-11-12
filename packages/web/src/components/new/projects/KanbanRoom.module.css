@@ -59,10 +59,10 @@
   cursor: none; /* Custom cursor */
 }
 
-/* Concrete texture - layered noise patterns */
+/* Concrete texture - layered noise patterns (responsive) */
 .kanbanRoom::before {
   content: '';
-  position: absolute;
+  position: fixed; /* Fixed to viewport for consistent background */
   inset: 0;
   background-image:
     /* Micro irregularities */
@@ -77,8 +77,43 @@
     200px 200px,
     100% 100%,
     100% 100%;
+  background-position: center;
+  background-attachment: fixed; /* Keeps texture stationary during scroll */
   pointer-events: none;
   mix-blend-mode: overlay;
+}
+
+/* Mobile optimization - reduce texture complexity */
+@media (max-width: 768px) {
+  .kanbanRoom::before {
+    background-size:
+      80px 80px,
+      150px 150px,
+      100% 100%,
+      100% 100%;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .kanbanRoom::before {
+    background-size:
+      90px 90px,
+      175px 175px,
+      100% 100%,
+      100% 100%;
+  }
+}
+
+/* Large screens - enhance detail */
+@media (min-width: 1920px) {
+  .kanbanRoom::before {
+    background-size:
+      120px 120px,
+      240px 240px,
+      100% 100%,
+      100% 100%;
+  }
 }
 
 /* ==========================================
@@ -587,4 +622,359 @@
 
 .modalClose:hover {
   transform: scale(1.1);
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+/* Mobile devices (portrait) */
+@media (max-width: 480px) {
+  :root {
+    --kr-space-xs: 6px;
+    --kr-space-sm: 10px;
+    --kr-space-md: 16px;
+    --kr-space-lg: 24px;
+    --kr-space-xl: 36px;
+    --kr-card-width: 100%;
+    --kr-card-height: 140px;
+  }
+
+  .kanbanRoom {
+    cursor: auto; /* Restore normal cursor on mobile */
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .cursor,
+  .lightingLayer {
+    display: none; /* Hide custom cursor and lighting on mobile */
+  }
+
+  .shelvesContainer {
+    padding: var(--kr-space-md) var(--kr-space-sm);
+    gap: var(--kr-space-lg);
+    align-items: stretch; /* Full width on mobile */
+  }
+
+  .shelf {
+    width: 100% !important; /* Override asymmetry on mobile */
+    min-height: 180px;
+    padding: var(--kr-space-sm) var(--kr-space-md);
+  }
+
+  .shelfHeader {
+    position: static;
+    margin-bottom: var(--kr-space-sm);
+    font-size: 16px;
+    opacity: 0.9;
+  }
+
+  .cardsContainer {
+    flex-direction: column;
+    gap: var(--kr-space-sm);
+    min-height: auto;
+  }
+
+  .card {
+    width: 100%;
+    height: auto;
+    min-height: 120px;
+  }
+
+  .cardContent {
+    padding: var(--kr-space-md);
+  }
+
+  .cardTitle {
+    font-size: 15px;
+  }
+
+  .modal {
+    padding: var(--kr-space-md);
+  }
+
+  .modalContent {
+    max-width: 100%;
+    max-height: 90vh;
+    padding: var(--kr-space-lg);
+  }
+
+  .modalTitle {
+    font-size: 22px;
+  }
+
+  .bambooShadows {
+    display: none; /* Hide decorative shadows on mobile */
+  }
+}
+
+/* Mobile devices (landscape) and small tablets */
+@media (min-width: 481px) and (max-width: 768px) {
+  :root {
+    --kr-space-xs: 7px;
+    --kr-space-sm: 12px;
+    --kr-space-md: 20px;
+    --kr-space-lg: 32px;
+    --kr-space-xl: 48px;
+    --kr-card-width: 240px;
+    --kr-card-height: 160px;
+  }
+
+  .kanbanRoom {
+    cursor: auto;
+  }
+
+  .cursor,
+  .lightingLayer {
+    display: none;
+  }
+
+  .shelvesContainer {
+    padding: var(--kr-space-lg) var(--kr-space-md);
+    gap: var(--kr-space-xl);
+  }
+
+  .shelf {
+    width: 95% !important;
+    padding: var(--kr-space-md);
+  }
+
+  .shelfHeader {
+    font-size: 17px;
+  }
+
+  .cardsContainer {
+    gap: var(--kr-space-sm);
+  }
+
+  .card {
+    flex-shrink: 0;
+  }
+
+  .modalContent {
+    max-width: 90%;
+    padding: var(--kr-space-xl);
+  }
+
+  .modalTitle {
+    font-size: 24px;
+  }
+}
+
+/* Tablets (portrait) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --kr-card-width: 260px;
+    --kr-card-height: 170px;
+  }
+
+  .shelvesContainer {
+    padding: var(--kr-space-xl) var(--kr-space-lg);
+  }
+
+  .shelf {
+    width: 90%;
+  }
+
+  .shelf:nth-child(2n) {
+    width: 85%;
+  }
+
+  .shelf:nth-child(3n) {
+    width: 95%;
+  }
+
+  .cursor {
+    width: 50px;
+    height: 50px;
+  }
+
+  .lightSpot {
+    width: 500px;
+    height: 500px;
+  }
+
+  .bambooShadows {
+    width: 300px;
+    opacity: 0.2;
+  }
+}
+
+/* Tablets (landscape) and small desktops */
+@media (min-width: 1025px) and (max-width: 1366px) {
+  :root {
+    --kr-card-width: 270px;
+    --kr-card-height: 175px;
+  }
+
+  .shelf {
+    width: 87%;
+  }
+
+  .shelf:nth-child(2n) {
+    width: 80%;
+  }
+
+  .shelf:nth-child(3n) {
+    width: 94%;
+  }
+}
+
+/* Large desktops */
+@media (min-width: 1920px) {
+  :root {
+    --kr-space-xs: 10px;
+    --kr-space-sm: 16px;
+    --kr-space-md: 28px;
+    --kr-space-lg: 52px;
+    --kr-space-xl: 80px;
+    --kr-card-width: 320px;
+    --kr-card-height: 200px;
+  }
+
+  .shelvesContainer {
+    padding: var(--kr-space-xl) var(--kr-space-lg);
+  }
+
+  .cursor {
+    width: 70px;
+    height: 70px;
+  }
+
+  .lightSpot {
+    width: 700px;
+    height: 700px;
+  }
+
+  .bambooShadows {
+    width: 500px;
+  }
+
+  .modalContent {
+    max-width: 1000px;
+  }
+
+  .modalTitle {
+    font-size: 32px;
+  }
+}
+
+/* Ultra-wide displays */
+@media (min-width: 2560px) {
+  :root {
+    --kr-card-width: 360px;
+    --kr-card-height: 220px;
+  }
+
+  .shelvesContainer {
+    max-width: 2400px;
+    margin: 0 auto;
+  }
+
+  .lightSpot {
+    width: 800px;
+    height: 800px;
+  }
+}
+
+/* High DPI displays - enhance texture sharpness */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .kanbanRoom::before {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+
+  .card {
+    background-size:
+      100% 100%,
+      100% 100%,
+      150px 100px;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .cursor,
+  .lightingLayer,
+  .bambooShadows {
+    display: none;
+  }
+
+  .card:hover,
+  .card:active,
+  .cardDragging {
+    transform: none;
+  }
+}
+
+/* Dark mode enhancements (if system prefers dark) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --kr-concrete-dark: #1a1a1a;
+    --kr-concrete-mid: #2a2826;
+    --kr-concrete-light: #3a3634;
+  }
+
+  .kanbanRoom::before {
+    opacity: 0.9;
+  }
+}
+
+/* Light mode adjustments (if system prefers light) */
+@media (prefers-color-scheme: light) {
+  :root {
+    --kr-concrete-dark: #3a3a3a;
+    --kr-lamp-glow: rgba(255, 235, 205, 0.3);
+  }
+
+  .kanbanRoom::before {
+    mix-blend-mode: soft-light;
+  }
+
+  .lightingLayer {
+    opacity: 0.3;
+  }
+}
+
+/* Print styles */
+@media print {
+  .kanbanRoom {
+    background: white;
+    cursor: default;
+  }
+
+  .kanbanRoom::before,
+  .cursor,
+  .lightingLayer,
+  .bambooShadows,
+  .ripple {
+    display: none;
+  }
+
+  .shelf {
+    width: 100% !important;
+    background: #f5f5f5;
+    box-shadow: none;
+    border: 1px solid #ddd;
+    page-break-inside: avoid;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: white;
+    border: 1px solid #ddd;
+    box-shadow: none;
+    page-break-inside: avoid;
+  }
+
+  .modal {
+    display: none;
+  }
 }
