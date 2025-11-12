@@ -16,42 +16,34 @@ Deliver a reliable authentication experience and multi-workspace features for al
 
 ### 1. Session Reliability & Auto-Logout (`025-session-reliability`)
 
-- Decode stored JWTs client-side and refresh when the access token is within 2 minutes of expiry.
-- Use a single timeout scheduled from the decoded `exp`, and reschedule on login, `visibilitychange`, or `online` events.
-- Remove the insecure development token path; development must authenticate just like production.
-- On refresh failure, call the shared `logout()` flow so users are redirected and see why they lost access.
-- Harden `useSyncPayload` so it only publishes authenticated payloads and surfaces auth errors through UI copy (banner/toast) before disconnecting.
-- Tests: token decode helper, proactive refresh behaviour, multi-tab storage events, and a Playwright happy-path/expiry regression suite.
+**Status:** ✅ Complete (merged October 2025)  
+**Evidence:** `packages/web/src/utils/auth.ts`, `packages/web/src/contexts/AuthContext.tsx`, `packages/web/src/hooks/useSyncPayload.ts`, PRs #269 and #274 logged in plan 025.
+
+- Shipped: proactive refresh buffer, cross-tab locking, shared logout handling, hardened sync payload, and AuthStatusBanner UI with unit coverage.
+- Outstanding: Sentry breadcrumbs/metrics around refresh attempts remain open follow-up (see plan 025 “Future Enhancements”).
 
 ### 2. Email and Password Reset (`026-email-and-password-reset`)
 
-- Add templated transactional emails for signup confirmation, password reset, and login alerts.
-- Implement password reset flow end-to-end (request, token issuance, form, final login).
-- Integrate email provider configuration for staging and production and add smoke tests.
-- Guard all reset endpoints with rate limiting and audit logging.
-- Tests: unit coverage on token issuance/validation, integration walkthrough in Playwright.
+**Status:** ⏳ Not Started  
+No password reset endpoints, email templates, or UI flows exist yet in the repo. Auth worker only exposes login/signup/refresh/logout, and there is no mail provider integration.
 
 ### 3. Workspace Management (`027-workspace-management`)
 
-- Ship workspace switcher UI and persistence so users see the same workspace across sessions.
-- Provide workspace settings page for membership, roles, and invitations.
-- Ensure LiveStore bootstraps the correct workspace data after authentication and on switch.
-- Add optimistic updates with rollback for membership mutations.
-- Tests: unit coverage on selectors/hooks, E2E coverage for switching and invite acceptance.
+**Status:** 🚧 In Progress  
+- Shipped backend: Auth worker CRUD routes (`packages/auth-worker/src/index.ts`), Durable Object helpers + tests, `defaultInstanceId` in auth responses, workspace webhook notifier, and sync worker enforcement (`packages/worker/functions/_worker.ts`).  
+- Outstanding frontend: no `WorkspaceContext`, switcher UI, or LiveStore bootstrapping; `EnsureStoreId` still fabricates UUIDs. Need optimistic membership flows, local persistence, and Storybook/reporting coverage.  
+- Next: implement container/presenter workspace components, wire Auth/Workspace contexts, add toast messaging, and write RTL + Playwright coverage.
 
 ### 4. Backup and Restore (`029-backup-and-restore`)
 
-- Implement automated exports to Cloudflare R2 with environment-specific schedules.
-- Provide a manual export trigger with status feedback in admin tools.
-- Create restore documentation and scripts validated in staging.
-- Sentry/metrics around backup runs and failures.
+**Status:** ⏳ Not Started  
+Render cron entry (`packages/server/render.yaml`) is still a placeholder, and there is no R2 integration nor snapshot tooling. ADR-003 defines strategy but no code exists.
 
 ### 5. Dynamic Store Orchestration (`028-dynamic-store-orchestration`)
 
-- Introduce provisioning worker that creates LiveStore instances on demand.
-- Manage lifecycle events (create, suspend, delete) with durable state tracking.
-- Hook into workspace creation flow once management UI is stable.
-- Add synthetic monitoring to verify new stores are reachable within SLA.
+**Status:** ✅ Substantially Complete  
+- Shipped orchestrator + reconciler services, webhook ingestion, auth-worker notifier, and `/health` / `/stores` reporting (`packages/server/src/index.ts`, `packages/server/src/services/workspace-orchestrator.ts`, `packages/auth-worker/src/workspace-notifier.ts`).  
+- Outstanding polish: manual reconcile trigger/CLI, production runbooks, and expanded SLO dashboards still need to be documented (see plan 028 follow-ups).
 
 ## Sequencing
 

@@ -3,7 +3,7 @@
 ## Overview
 
 **Goal**  
-Provision and monitor Workspace stores automatically inside the Node.js multi-store server as soon as users create or delete workspaces. No environment variable edits, deploys, or restarts should be required. Plan 027 (Workspace Creation & Switching) is considered complete and provides the user-facing workspace APIs, default selection, and sync worker enforcement.
+Provision and monitor Workspace stores automatically inside the Node.js multi-store server as soon as users create or delete workspaces. No environment variable edits, deploys, or restarts should be required. Plan 027 (Workspace Creation & Switching) supplies the backend workspace CRUD + sync enforcement; frontend UX is still in flight.
 
 **Value**
 
@@ -11,20 +11,22 @@ Provision and monitor Workspace stores automatically inside the Node.js multi-st
 - The server always watches the correct set of stores.
 - Operations can observe, reconcile, and recover from drift quickly.
 
-**Status**: Not Started ⭕  
+**Status**: 🚧 In Progress — backend orchestration + webhooks landed; manual controls & runbooks pending.  
 **Priority**: Medium – Required for production scale and operational safety.
 
 ---
 
 ## Current State
 
-- `packages/server/src/index.ts:24-38` loads store IDs once from `process.env.STORE_IDS` and starts monitoring each store during boot.
-- `StoreManager` (`packages/server/src/services/store-manager.ts`) supports `addStore`, `removeStore`, and health tracking, but callers never invoke them after startup.
-- `EventProcessor` (`packages/server/src/services/event-processor.ts`) exposes `startMonitoring` and `stopMonitoring`; only the boot loop uses `startMonitoring`.
-- Auth Worker now owns workspace CRUD, exposes `/workspaces` and `/internal/users/:userId/instances`, and enforces quotas (Plan 027).
-- Sync Worker validates workspace membership per connection and routes traffic per workspace (Plan 027).
+- `WorkspaceOrchestrator` dynamically provisions/tears down stores at runtime (`packages/server/src/services/workspace-orchestrator.ts`) and exposes summaries via `/health` + `/stores`.
+- Auth worker emits workspace lifecycle webhooks with retries (`packages/auth-worker/src/workspace-notifier.ts`), and the server ingests them via `/webhooks/workspaces` (`packages/server/src/api/workspace-webhooks.ts`).
+- `WorkspaceReconciler` runs on startup and at configurable intervals, comparing auth worker state to monitored stores (`packages/server/src/services/workspace-reconciler.ts`); status surfaces in `/health`.
+- Tests cover orchestrator, reconciler, and webhook paths; logs use `operationLogger` namespaces.
 
-**Gap**: There is no automation that connects workspace lifecycle events to the server’s store registry, nor any reconciliation safety net if events are missed.
+**Remaining Gaps**
+- Manual reconciliation trigger/CLI for ops incidents.
+- Runbooks + SLO dashboards for provisioning failures and backlog monitoring.
+- Optional synthetic monitoring and load/chaos exercises still TBD.
 
 ---
 
@@ -51,79 +53,50 @@ Provision and monitor Workspace stores automatically inside the Node.js multi-st
 
 ### Phase 1 – Orchestration Core
 
+**Status:** ✅ Complete — `WorkspaceOrchestrator` landed with summary reporting and tests.  
 **Deliverable**: `WorkspaceOrchestrator` service orchestrating `StoreManager` and `EventProcessor`.
 
-- Create `packages/server/src/services/workspace-orchestrator.ts` exporting an idempotent API:
-  - `ensureMonitored(storeId: string)`: checks if monitoring is active, calls `storeManager.addStore`, and `eventProcessor.startMonitoring`.
-  - `stopMonitoring(storeId: string)`: stops the event processor and removes the store.
-  - `listMonitored(): string[]`: returns current IDs for reconciliation and metrics.
-- Refactor `packages/server/src/index.ts` to:
-  - Instantiate `WorkspaceOrchestrator`.
-  - Replace the boot-time `for` loop with calls to `ensureMonitored` for any `STORE_IDS` defined (supports legacy deployment but no longer required).
-  - Expose orchestrator stats via `/health` and `/stores` responses (add `monitoredStoreIds`, `lastProvisionedAt`, etc.).
-- Ensure shutdown flow invokes orchestrator to stop all monitoring gracefully.
+- ✅ Created `packages/server/src/services/workspace-orchestrator.ts` with idempotent `ensureMonitored`, `stopMonitoring`, and `listMonitored`.
+- ✅ `packages/server/src/index.ts` instantiates the orchestrator, calls `ensureMonitored` for legacy `STORE_IDS`, and exposes summary data via `/health` + `/stores`.
+- ✅ Shutdown path delegates to `WorkspaceOrchestrator.shutdown()` to stop monitoring and flush dependencies.
 
 ### Phase 2 – Webhook Ingestion
 
+**Status:** ✅ Complete — notifier + handler merged with unit tests.  
 **Deliverable**: Auth Worker pushes workspace lifecycle events; server validates and applies them.
 
-- **Auth Worker**
-  - Extend the Plan 027 workspace creation/deletion handlers to call `notifyServerOfWorkspaceEvent(eventType, instanceId, userId, env)`.
-  - Implement the notifier with retries (e.g., exponential backoff capped at 3 attempts) and log failures without blocking the user flow.
-  - Configure `SERVER_WEBHOOK_URL` and `WEBHOOK_SECRET` in `wrangler.toml`, leaving them optional in development.
-- **Server**
-  - Introduce an HTTP handler module (e.g., `packages/server/src/api/workspace-webhooks.ts`) that:
-    - Verifies `X-Webhook-Secret`.
-    - Validates payload shape (`event`, `instanceId`, `userId`, `timestamp`).
-    - Delegates to `WorkspaceOrchestrator.ensureMonitored` or `stopMonitoring`.
-    - Returns idempotent responses (`already_monitored`, `monitoring_started`, `monitoring_stopped`).
-  - Wire the handler into the HTTP server. Either:
-    - Add a lightweight router atop the existing `http` server, or
-    - Introduce Express/Koa (with careful dependency management). Document the choice.
-  - Emit Pino logs and Sentry breadcrumbs for every event, noting duration and outcome.
+- ✅ Auth worker workspace handlers invoke `notifyWorkspaceEvent` with retries; configuration optional in development.
+- ✅ Server exposes `/webhooks/workspaces`, validates secrets/payloads, and delegates to `WorkspaceOrchestrator`.
+- ✅ Responses distinguish `monitoring_started`, `already_monitored`, `monitoring_stopped`, `already_stopped`; Vitest suite covers happy/error paths.
 
 ### Phase 3 – Reconciliation & Drift Repair
 
+**Status:** ✅ Complete — reconciler running with status reporting.  
 **Deliverable**: Periodic reconciliation job that guarantees eventual correctness.
 
-- Add `WorkspaceReconciler` (`packages/server/src/services/workspace-reconciler.ts`) with:
-  - Configurable interval (default 5 minutes, env override).
-  - `start()`/`stop()` lifecycle methods.
-  - `reconcile()` that fetches the authoritative instance list using the Plan 027 internal endpoint (`GET /internal/users/:userId/instances` or a new bulk listing if required), using `SERVER_BYPASS_TOKEN`.
-  - Diff logic:
-    - For each missing monitored store, call `stopMonitoring` (optionally with a grace period).
-    - For each unmonitored store in the authoritative list, call `ensureMonitored`.
-  - Metrics capture: counts of added/removed stores, reconcile duration, last success timestamp.
-- Invoke `workspaceReconciler.start()` during server startup after Sentry initialization and stop it during shutdown.
-- Update `/health` to include reconciliation details (last run, success status, mismatched counts).
+- ✅ Added `WorkspaceReconciler` with configurable interval, lifecycle, diff logic, and metrics (`packages/server/src/services/workspace-reconciler.ts`).
+- ✅ Server starts/stops reconciler alongside orchestrator and surfaces status via `/health` + `/stores`.
+- ✅ Tests cover add/remove/partial failure scenarios.
 
 ### Phase 4 – Observability & Operations
 
+**Status:** 🚧 In Progress — endpoints expose stats, but Sentry + manual controls outstanding.  
 **Deliverable**: Metrics, logging, and manual controls.
 
-- Enhance `StoreManager.addStore` and `EventProcessor.startMonitoring` to measure elapsed time, log success/failure, and add Sentry breadcrumbs (category: `workspace_orchestration`).
-- Track provisioning failures and reconciliation errors with Sentry tags (`storeId`, `operation`, `phase`).
-- Extend `/stores` JSON output to include provisioning timestamps, reconcile status, and error counters.
-- Document a manual reconciliation trigger (CLI script or authenticated HTTP endpoint) to assist operations during incidents.
+- 🚧 Need additional instrumentation: add duration metrics and Sentry breadcrumbs/tags in `StoreManager` + `EventProcessor`.
+- ✅ `/stores` and `/health` now include orchestrator timestamps, counts, and reconciliation status (`packages/server/src/index.ts`).
+- ⏳ Manual reconciliation trigger/CLI not yet implemented.
+- ⏳ Runbooks + dashboard updates still required.
 
 ### Phase 5 – Validation & Rollout
 
+**Status:** 🚧 In Progress — backend unit tests merged; integration load tests + docs pending.  
 **Deliverable**: Automated coverage and deployment readiness.
 
-- **Unit Tests**
-  - Orchestrator happy path & idempotency.
-  - Webhook handler secret validation and duplicate protection.
-  - Reconciler diff logic (add missing, remove orphaned, error handling).
-- **Integration Tests**
-  - End-to-end: create workspace → webhook fired → server monitors new store.
-  - Simulate webhook failure, ensure reconciler eventually adds the store.
-  - Workspace deletion flow stops monitoring within reconciliation window.
-- **Load / Resilience Tests**
-  - Burst of workspace creations (e.g., 10 in parallel) to confirm queueing/backpressure.
-  - Reconcile against 100+ workspaces to validate performance.
-- **Docs & Ops**
-  - Update architecture and runbooks (docs/architecture.md, ops guides) with webhook URLs, secrets, reconcile intervals, and manual commands.
-  - Final deployment checklist (see below).
+- ✅ **Unit Tests**: orchestrator, webhook handler, reconciler, and notifier suites in `packages/server/tests` and `packages/auth-worker/src/test`.
+- 🚧 **Integration Tests**: need end-to-end workspace creation/deletion exercises across auth worker ↔ server.
+- ⏳ **Load / Resilience Tests**: chaos/burst scenarios not yet scripted.
+- ⏳ **Docs & Ops**: architecture/runbook updates and deployment checklist still to be expanded.
 
 ---
 

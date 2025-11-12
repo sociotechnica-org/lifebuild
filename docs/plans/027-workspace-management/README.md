@@ -1,115 +1,100 @@
 # Workspace Creation & Switching
 
-## Goal
+**Status:** 🚧 In Progress  
+- ✅ Auth worker workspace CRUD + Durable Object helpers are merged and unit-tested (`packages/auth-worker/src/index.ts`, `.../durable-objects/UserStore.ts`, `UserStore.test.ts`).  
+- ✅ Sync worker enforces workspace ownership and per-instance routing with caching (`packages/worker/functions/_worker.ts`).  
+- ⏳ Frontend workspace selection, switcher UX, and optimistic LiveStore integration are still missing.  
+- ⏳ Operational polish (dashboards, rollout docs, Playwright coverage) outstanding.
 
-Deliver user-managed workspaces (instances) with reliable switching, creation, and authorization. The auth worker must remain the source of truth for workspace ownership, the sync worker must refuse unauthorized connections, and the frontend must select, display, and persist the active workspace without fabricating IDs.
+---
 
-## Current Capabilities
+## Current State Snapshot
 
-- **Durable Object storage:** `packages/auth-worker/src/durable-objects/UserStore.ts:53` seeds a default instance at signup and stores `User.instances[]`. Admin-only instance management already exists in `handleUpdateUserStoreIds` (`packages/auth-worker/src/durable-objects/UserStore.ts:225`).
-- **Auth responses:** Login/signup/refresh return the user record (including instances) via `createAuthSuccessResponse` (`packages/auth-worker/src/handlers/auth.ts:81`), and the frontend caches it inside `AuthContext` (`packages/web/src/contexts/AuthContext.tsx:50`).
-- **URL scaffolding:** `packages/web/src/util/navigation.ts` preserves `storeId` in links, and `EnsureStoreId` injects a value when missing (`packages/web/src/components/utils/EnsureStoreId.tsx`).
-- **Sync worker JWT validation:** `packages/worker/functions/_worker.ts:44` verifies tokens and applies an expiry grace period, but it does not check workspace ownership or route by workspace.
+- **Backend ownership:** Auth responses now include `defaultInstanceId`, and `/workspaces` routes let authenticated users create, rename, delete, and set defaults.
+- **Sync enforcement:** WebSocket payloads must supply a workspace owned by the user; mismatches throw `AuthErrorCode.FORBIDDEN`.
+- **Client gap:** `EnsureStoreId` and LiveStore bootstrapping still fabricate UUIDs, so the UI never surfaces real workspace IDs.
+- **Observability:** Orchestrator/reconciler metrics live in plan 028; no dashboards or alerts specifically cover workspace UX yet.
 
-## Gaps To Close
+---
 
-1. **No user-facing workspace API:** `packages/auth-worker/src/index.ts` only exposes admin routes; end users cannot list or manage their own instances.
-2. **Missing workspace context in sessions:** Tokens (`packages/auth-worker/src/utils/jwt.ts:55`) omit workspace data, and the frontend fabricates IDs instead of respecting `user.instances`.
-3. **Frontend selection UX:** There is no WorkspaceContext, switcher UI, or guard against stale IDs. `Root.tsx` (`packages/web/src/Root.tsx:52`) generates random UUIDs, and `EnsureStoreId` mirrors that behavior.
-4. **Sync worker enforcement:** `validateSyncPayload` trusts `payload.instanceId`, enabling cross-tenant access if someone guesses another UUID. Connections also land on the same Durable Object regardless of workspace.
-5. **User experience:** There is no UI for create/rename/default operations, no quota feedback, and no persistence of the active workspace between sessions beyond raw localStorage.
+## What’s Shipped
 
-## Plan of Record
+### Auth Worker
+- Workspace CRUD endpoints available to end users with CORS + rate limiting.
+- Durable Object helpers enforce quotas, uniqueness, and default selection; `touch` updates `lastAccessedAt`.
+- Internal endpoints supply instance ownership checks for other services.
 
-### Phase 1 – Auth Worker Contract
+### Sync Worker
+- `validateSyncPayload` verifies JWTs, confirms workspace ownership via auth worker, and enforces storeId ↔ instanceId parity.
+- Development bypass remains opt-in and still requires explicit workspace IDs.
+- Errors propagate with consistent `AuthErrorCode` values so UI layers can surface auth problems.
 
-**Objective:** Empower authenticated users to manage workspaces through the existing auth worker while enforcing invariants in the Durable Object.
+### Tests & Tooling
+- `UserStore.test.ts` covers CRUD invariants and quotas.
+- `workspace-notifier.test.ts` validates webhook retries; server webhook/orchestrator/reconciler suites exercised in plan 028 coverage.
 
-- **Durable Object helpers:** Extend `packages/auth-worker/src/durable-objects/UserStore.ts` with reusable methods to:
-  - Fetch users by ID and by email (`user:id:${id}`, `user:${email}`).
-  - Append instances (respecting a configurable max, default 10) and populate `name`, `createdAt`, `lastAccessedAt`.
-  - Rename instances, ensuring trimmed unique names per user.
-  - Toggle defaults so exactly one instance has `isDefault === true`.
-  - Update `lastAccessedAt` on switch and persist via both lookup keys.
-- **Workspace routes:** Add authenticated endpoints in `packages/auth-worker/src/index.ts`:
-  - `GET /workspaces` → list instances.
-  - `POST /workspaces` → create new instance (auto default if none).
-  - `POST /workspaces/:id/rename` → rename.
-  - `POST /workspaces/:id/set-default` → set default and clear others.
-  - `DELETE /workspaces/:id` → remove non-default instance (with server-side safety checks).
-    Reuse `verifyAdminAccess` patterns for token validation: extract the `Authorization` header, verify via existing JWT utilities, and pass the user ID to the DO helpers. Return JSON with standard CORS headers.
-- **Internal verification route:** Add `GET /internal/users/:userId/instances` guarded by `SERVER_BYPASS_TOKEN` so other services can confirm ownership without re-implementing DO queries.
-- **Shared types:** Update `packages/shared/src/auth/types.ts` to add `AuthErrorCode.FORBIDDEN` and, if helpful, a lightweight `AuthWorkspaceSelection` type for the default instance ID. Ensure `AuthResponse` continues to return the `instances` array and expose the server-selected default ID.
-- **Auth responses:** Modify `createAuthSuccessResponse` (`packages/auth-worker/src/handlers/auth.ts:81`) to include `defaultInstanceId`, derived from the first instance with `isDefault` or the first entry as a fallback.
+---
 
-### Phase 2 – Sync Worker Enforcement
+## Outstanding Scope
 
-**Objective:** Block unauthorized workspace access and isolate connections per workspace.
+1. **Workspace context & persistence**
+   - Build `WorkspaceContext` to derive the active workspace from `AuthContext`, prefer server default, and persist to storage.
+   - Remove UUID fabrication in `EnsureStoreId` and ensure LiveStore boot uses real instance IDs.
 
-- **Access validation:** Enhance `validateSyncPayload` in `packages/worker/functions/_worker.ts` to:
-  - Extract the requested workspace (`payload.instanceId`).
-  - Call the new auth worker internal endpoint with the bearer bypass token.
-  - Reject the request with `AuthErrorCode.FORBIDDEN` if the instance is absent.
-  - Cache validation results briefly (per execution context) to limit repeated fetches during rapid reconnects.
-- **Durable Object routing:** Pass the validated instance ID to `SyncBackend.makeWorker` so each workspace maps to its own Durable Object (e.g., `env.STORE_INSTANCE_NAMESPACE.idFromName(instanceId)`), preventing state bleed at the infrastructure layer.
-- **Configuration:** Document required env vars for deployment (`JWT_SECRET`, `SERVER_BYPASS_TOKEN`, workspace quota) and ensure defaults are sensible in development (e.g., bypass when `REQUIRE_AUTH !== 'true'`).
+2. **Switcher + management UX**
+   - Presenter/container pair for switching workspaces, creating, renaming, deleting, and setting defaults.
+   - Toast/loading states, quota error copy, and optimistic updates wired through contexts.
 
-### Phase 3 – Frontend Workspace State
+3. **Membership flows**
+   - Roles/invitations UI, optimistic membership mutations, and guardrails around default workspace removal.
 
-**Objective:** Centralize workspace selection and wire it into LiveStore without page reloads.
+4. **Testing & rollout**
+   - RTL tests for contexts + switcher, Playwright flow that exercises create/switch lifecycle, and Storybook coverage.
+   - Operational checklist + dashboards for denied workspace access and webhook failures.
 
-- **WorkspaceContext:** Create `packages/web/src/contexts/WorkspaceContext.tsx` that provides:
-  - `workspaces: AuthInstance[]`
-  - `currentWorkspaceId: string | null`
-  - Actions: `switchWorkspace`, `createWorkspace`, `renameWorkspace`, `setDefaultWorkspace`, `deleteWorkspace`, `refreshWorkspaces`
-    Initialize from `AuthContext.user.instances`, prefer the server-provided `defaultInstanceId`, fall back to the first instance, and persist the selection to localStorage (`work-squared-current-workspace`). Guard against stale IDs by verifying membership before accepting stored values.
-- **Auth integration:** When auth responses update (login, refresh), patch `AuthContext` so WorkspaceContext re-renders with the latest `instances`. On logout, clear stored workspace state.
-- **LiveStore provider:** Replace the UUID memoization in `packages/web/src/Root.tsx:52` with a wrapper that reads `currentWorkspaceId`. Key the `LiveStoreProvider` by that ID so switching remounts LiveStore bindings without forcing a full reload.
-- **URL handling:** Retire the current `EnsureStoreId` logic. Instead, synchronize query parameters inside WorkspaceContext: when switching workspaces, update `?storeId=` to match the new ID; when a URL is opened with a `storeId`, validate ownership before accepting it.
-- **Sync payload:** Update `packages/web/src/hooks/useSyncPayload.ts` to observe `currentWorkspaceId`, request fresh tokens as needed, and surface errors back to WorkspaceContext so the UI can reset gracefully.
+---
 
-### Phase 4 – Workspace UX
+## Phase Tracker
 
-**Objective:** Ship intuitive UI for managing workspaces.
+### Phase 1 – Auth Worker Contract  
+**Status:** ✅ Complete  
+Deliverables (done):
+- Reusable DO helpers for list/create/rename/set-default/delete/touch.
+- `/workspaces` REST endpoints plus internal ownership/listing APIs.
+- Shared types updated with `AuthWorkspaceSelection` + `AuthErrorCode.FORBIDDEN`.
+- `defaultInstanceId` returned in every auth success response.
 
-- **Switcher component:** Build `packages/web/src/components/workspace/WorkspaceSwitcher.tsx` that lists available workspaces, highlights the active one, displays default badges, and supports keyboard interaction. Integrate into the header via `packages/web/src/components/layout/Navigation.tsx`.
-- **Management flows:** Provide create, rename, delete, and set-default affordances (modal or inline). Hook them into WorkspaceContext actions so state updates propagate throughout the app, including `AuthContext` and LiveStore (for `lastAccessedAt` updates).
-- **Feedback:** Use the existing `SnackbarProvider` to communicate success and error states. Add loading indicators while workspace mutations are in flight and ensure quotas/validation errors are human-readable.
-- **Storybook & accessibility:** Add presenter stories that bootstrap LiveStore with real events, and confirm the dropdown meets focus and aria guidelines.
+### Phase 2 – Sync Worker Enforcement  
+**Status:** ✅ Complete  
+Deliverables (done):
+- Workspace ownership validation against auth worker with 60 s cache.
+- Rejection of mismatched storeId vs instanceId attempts.
+- Grace-period logging + consistent auth error propagation.
 
-### Phase 5 – Testing & Rollout
+### Phase 3 – Frontend Workspace Alignment  
+**Status:** ⏳ Not Started  
+Needs:
+- `WorkspaceContext` with persistence + validation.
+- Router/URL integration that respects server-selected IDs.
+- LiveStore adapter updates to swap stores on switch and handle pending mutations.
 
-**Objective:** Validate the full stack and document operational steps.
+### Phase 4 – Workspace Management UX  
+**Status:** ⏳ Not Started  
+Needs:
+- Switcher UI, create/rename/delete flows, copywriting, and accessibility audit.
+- Presenter stories bootstrapped with LiveStore events.
+- Snackbar + dialog patterns for quota/errors.
 
-- **Unit & integration tests:** Cover Durable Object helpers, auth worker routes, and sync worker validation. Reuse `packages/auth-worker/scripts/integration-test.ts` patterns to verify instance quotas and default toggling.
-- **Frontend tests:** Write React Testing Library tests for WorkspaceContext (initial state, switching, stale ID handling) and the switcher component. Ensure navigation utilities keep the correct query parameter.
-- **E2E coverage:** Add an end-to-end test that creates an additional workspace, switches between them, refreshes the page, and verifies data isolation (projects/tasks/events appear only in the active workspace).
-- **Operational checklist:** Document required environment variables, deployment order (auth worker → sync worker → web), and monitoring (e.g., log counts of `AuthErrorCode.FORBIDDEN`).
-- **Quality gates:** Run `pnpm lint-all`, `pnpm test`, and `CI=true pnpm test:e2e` prior to release.
+### Phase 5 – Testing & Rollout  
+**Status:** 🚧 Partially Complete  
+- ✅ Backend suites (DO, notifier, webhook, orchestrator/reconciler).  
+- ⏳ Frontend unit tests, Storybook stories, and E2E coverage.  
+- ⏳ Operational checklist (env flags, deployment order, monitoring, incident drills).
 
-## Deliverables
+---
 
-- Workspace CRUD routes and helpers in the auth worker with enforced invariants.
-- Sync worker validation and per-instance routing preventing cross-tenant access.
-- WorkspaceContext, updated LiveStore integration, and UI components that allow end users to manage workspaces.
-- Automated test coverage (unit, integration, E2E) plus documentation for operations and monitoring.
+## Immediate Next Steps
 
-## Dependencies & Coordination
-
-- Ensure plan 026 (email and password reset) is complete to support account recovery.
-- Coordinate with plan 028 (dynamic store orchestration) once workspace creation is user-driven.
-- Align deployment sequencing so backend enforcement lands before the new UI ships.
-
-## Risks & Mitigations
-
-- **Unauthorized access:** Mitigate with sync worker verification, per-instance routing, and monitoring of auth worker logs for denied requests.
-- **State drift between contexts:** Always update both `AuthContext` and WorkspaceContext, and invalidate cached selections when tokens refresh or instances mutate.
-- **Quota abuse:** Enforce limits server-side and surface clear UI feedback; consider adding telemetry for workspace creation rates.
-- **Legacy dev mode:** When `REQUIRE_AUTH` is false, continue supporting the insecure token path but hide workspace management UI behind authentication to avoid inconsistent states.
-
-## Success Metrics
-
-- ≥90% of authenticated sessions land in the expected default workspace (tracked via client telemetry or logs).
-- 0 successful cross-user workspace connections after enforcement goes live.
-- Workspace create/rename/delete APIs maintain <1% error rate outside quota violations.
-- Workspace switching completes and reconnects LiveStore in <500 ms median round trip.
+1. Implement `WorkspaceContext` with default selection + local persistence, then delete `EnsureStoreId` UUID fallback.  
+2. Build workspace switcher + management presenters/containers, including optimistic updates and Snackbar feedback.  
+3. Add RTL + Playwright coverage plus rollout checklist before enabling the UI for alpha users.
