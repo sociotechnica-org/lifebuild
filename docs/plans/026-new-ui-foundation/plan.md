@@ -31,12 +31,13 @@ Need to examine:
 - How tasks are currently displayed
 - Existing data fetching patterns
 
-### Key Files to Review
+### Key Files
 
-- `packages/web/src/App.tsx` - Routing configuration
-- `packages/shared/src/queries.ts` - Query functions for projects and tasks
-- `packages/shared/src/schema.ts` - Schema definitions
-- `packages/web/src/components/` - Existing component patterns
+- `packages/web/src/Root.tsx` - Main app routing with React Router (BrowserRouter, Routes, Route)
+- `packages/web/src/constants/routes.ts` - Route constants and generators
+- `packages/shared/src/livestore/queries.ts` - LiveStore query functions
+- `packages/shared/src/livestore/schema.ts` - Schema definitions and types
+- `packages/web/src/components/` - Existing component patterns (using Link from react-router-dom)
 
 ## Technical Implementation Plan
 
@@ -58,23 +59,26 @@ Need to examine:
 
 3. **Build ProjectsListPage component:**
    - Display simple text-based list of projects
-   - Show project name
-   - Link to project detail page
+   - Show project name using `<Link>` from react-router-dom (not `<a>` tags)
    - Handle empty state (no projects)
-   - Fetch all projects using `getProjects$()` via `useQuery`
+   - Fetch all projects using `useQuery(getProjects$)` with `?? []` fallback
+   - Note: `useQuery` returns data synchronously; LiveStore handles loading internally
    - Create Storybook stories: Default (3-5 projects), Empty state, Single project
 
 4. **Build ProjectDetailPage component:**
    - Display project name and description (if exists)
    - Display list of tasks (simple list, not kanban)
-   - Show task info: title, status, assignee(s), description indicator, comments indicator
+   - Show task info: title, status, assignee name(s), description indicator, comments indicator
    - Handle empty state (no tasks)
-   - Link back to projects list
-   - Fetch project by ID using `getProjectById$()` via `useQuery`
-   - Fetch tasks for project using `getProjectTasks$()` via `useQuery`
-   - Fetch users for assignee lookup via `useQuery`
-   - Query comments to determine which tasks have comments
-   - Handle loading/error states
+   - Use `<Link>` back to projects list
+   - Data fetching strategy (avoid N+1 queries):
+     - Fetch project: `useQuery(getProjectById$(projectId))` → single Project or undefined
+     - Fetch all tasks: `useQuery(getProjectTasks$(projectId))` → Task[] (already filtered by projectId)
+     - Fetch all users once: `useQuery(getUsers$)` → User[] (memoized by LiveStore)
+     - Client-side join: Parse task.assigneeIds JSON, map to user names from users array
+     - For comment counts: For each task, `useQuery(getTaskComments$(task.id))` returns memoized results
+     - Note: LiveStore memoizes queries, so multiple useQuery calls don't cause N+1 DB hits
+   - Handle not found: Check if project is undefined and show message
    - Create Storybook stories: Default (project + 5-10 tasks), Empty state, Single task, Many tasks (20+)
 
 5. **Create README.md in `src/components/new/`:**
@@ -87,43 +91,64 @@ Need to examine:
    - Run `pnpm test`
    - Verify Storybook builds
 
-## Data Requirements
+## Data Requirements & Query Contract
 
-### Projects List Page
+### Available Queries (from `packages/shared/src/livestore/queries.ts`)
 
+All queries are already implemented and ready to use:
+
+1. **`getProjects$`** - Query object (not a function)
+   - Returns: `Project[]` (non-deleted, non-archived projects)
+   - Type: `{ id, name, description, category, attributes, createdAt, updatedAt, archivedAt, deletedAt }`
+
+2. **`getProjectById$(projectId: string)`** - Query factory function
+   - Returns: `Project | undefined` (single project or undefined if not found)
+
+3. **`getProjectTasks$(projectId: string)`** - Query factory function
+   - Returns: `Task[]` (non-archived tasks for this project, ordered by position)
+   - Type: `{ id, projectId, title, description, status, assigneeIds, attributes, position, createdAt, updatedAt, archivedAt }`
+   - Note: `assigneeIds` is a JSON string array that needs parsing: `JSON.parse(task.assigneeIds || '[]')`
+
+4. **`getUsers$`** - Query object (not a function)
+   - Returns: `User[]` (all users, ordered by name)
+   - Type: `{ id, email, name, avatarUrl, isAdmin, createdAt, syncedAt }`
+
+5. **`getTaskComments$(taskId: string)`** - Query factory function
+   - Returns: `Comment[]` (all comments for a task, ordered by createdAt desc)
+   - Type: `{ id, taskId, authorId, content, createdAt }`
+
+### Data Fetching Strategy
+
+**Projects List Page:**
 ```typescript
-interface Project {
-  id: string
-  name: string
-  description?: string
-  createdAt: Date
-  updatedAt: Date
-}
+const projects = useQuery(getProjects$) ?? []
 ```
 
-Query: Use existing `getAllProjects$()` or similar from queries.ts
-
-### Project Detail Page
-
+**Project Detail Page:**
 ```typescript
-interface ProjectWithTasks {
-  project: Project
-  tasks: Task[]
-}
+// Single queries - memoized by LiveStore
+const project = useQuery(getProjectById$(projectId))
+const tasks = useQuery(getProjectTasks$(projectId)) ?? []
+const users = useQuery(getUsers$) ?? []
 
-interface Task {
-  id: string
-  title: string
-  status: string
-  columnId?: string
-  createdAt: Date
-  updatedAt: Date
-}
+// Client-side processing
+const enrichedTasks = tasks.map(task => {
+  const assigneeIds = JSON.parse(task.assigneeIds || '[]') as string[]
+  const assignees = assigneeIds
+    .map(id => users.find(u => u.id === id))
+    .filter(Boolean)
+  const comments = useQuery(getTaskComments$(task.id)) ?? []
+
+  return {
+    ...task,
+    assigneeNames: assignees.map(a => a.name).join(', '),
+    hasDescription: !!task.description,
+    hasComments: comments.length > 0,
+  }
+})
 ```
 
-Queries needed:
-- Get project by ID
-- Get tasks for project (may need to examine existing kanban queries)
+Note: Each `useQuery` call is memoized by LiveStore, so querying comments for each task doesn't cause performance issues.
 
 ## UI Specifications (Minimal)
 
@@ -168,11 +193,14 @@ Following CLAUDE.md patterns (using LiveStore directly in components and stories
 
 ```typescript
 // ProjectsListPage.tsx
+import React from 'react'
+import { Link } from 'react-router-dom'
 import { useQuery } from '@livestore/react'
 import { getProjects$ } from '@work-squared/shared/livestore/queries'
 
 export const ProjectsListPage: React.FC = () => {
-  const projects = useQuery(getProjects$)
+  // useQuery returns data synchronously; LiveStore handles loading internally
+  const projects = useQuery(getProjects$) ?? []
 
   return (
     <div>
@@ -183,9 +211,75 @@ export const ProjectsListPage: React.FC = () => {
         <ul>
           {projects.map(project => (
             <li key={project.id}>
-              <a href={`/new/projects/${project.id}`}>{project.name}</a>
+              {/* Use Link from react-router-dom, not <a> tags */}
+              <Link to={`/new/projects/${project.id}`}>{project.name}</Link>
             </li>
           ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+// ProjectDetailPage.tsx - Full example with data fetching
+import React from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { useQuery } from '@livestore/react'
+import {
+  getProjectById$,
+  getProjectTasks$,
+  getUsers$,
+  getTaskComments$,
+} from '@work-squared/shared/livestore/queries'
+
+export const ProjectDetailPage: React.FC = () => {
+  const { projectId } = useParams<{ projectId: string }>()
+
+  if (!projectId) {
+    return <div>Invalid project ID</div>
+  }
+
+  const project = useQuery(getProjectById$(projectId))
+  const tasks = useQuery(getProjectTasks$(projectId)) ?? []
+  const users = useQuery(getUsers$) ?? []
+
+  if (!project) {
+    return <div>Project not found</div>
+  }
+
+  return (
+    <div>
+      <Link to="/new/projects">← Back to projects</Link>
+      <h1>{project.name}</h1>
+      {project.description && <p>{project.description}</p>}
+
+      <h2>Tasks</h2>
+      {tasks.length === 0 ? (
+        <p>No tasks in this project</p>
+      ) : (
+        <ul>
+          {tasks.map(task => {
+            // Parse assignee IDs and look up user names
+            const assigneeIds = JSON.parse(task.assigneeIds || '[]') as string[]
+            const assignees = assigneeIds
+              .map(id => users.find(u => u.id === id))
+              .filter(Boolean)
+            const assigneeNames = assignees.map(a => a.name).join(', ')
+
+            // Check for comments (memoized by LiveStore)
+            const comments = useQuery(getTaskComments$(task.id)) ?? []
+            const hasComments = comments.length > 0
+
+            return (
+              <li key={task.id}>
+                <strong>{task.title}</strong>
+                <span> [{task.status}]</span>
+                {assigneeNames && <span> - {assigneeNames}</span>}
+                {task.description && <span> 📝</span>}
+                {hasComments && <span> 💬</span>}
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>
@@ -249,13 +343,60 @@ export const Default: Story = {
 
 ## Routing Setup
 
-Using React Router (already in use). Routes to add to `Root.tsx`:
-- `/new/projects` - Projects list page
-- `/new/projects/:projectId` - Project detail page
+### React Router Architecture
 
-Also need to add route constants to `constants/routes.ts`:
-- `NEW_PROJECTS: '/new/projects'`
-- `NEW_PROJECT: '/new/projects/:projectId'`
+The app uses React Router v6 with the following structure:
+- **Main router:** `Root.tsx` exports the `<App>` component
+- **Component tree:** `<BrowserRouter>` → `<Routes>` → `<Route>` elements
+- **Protected routes:** Most routes are wrapped in `<ProtectedApp>` which includes `<LiveStoreProvider>`
+- **Route constants:** Defined in `constants/routes.ts` for consistency
+
+### Routes to Add
+
+**In `Root.tsx`** (inside the `<ProtectedApp>` Routes block):
+```typescript
+<Route
+  path={ROUTES.NEW_PROJECTS}
+  element={
+    <Layout>
+      <ErrorBoundary>
+        <ProjectsListPage />
+      </ErrorBoundary>
+    </Layout>
+  }
+/>
+<Route
+  path={ROUTES.NEW_PROJECT}
+  element={
+    <Layout>
+      <ErrorBoundary>
+        <ProjectDetailPage />
+      </ErrorBoundary>
+    </Layout>
+  }
+/>
+```
+
+**In `constants/routes.ts`:**
+```typescript
+export const ROUTES = {
+  // ... existing routes
+  NEW_PROJECTS: '/new/projects',
+  NEW_PROJECT: '/new/projects/:projectId',
+} as const
+
+export const generateRoute = {
+  // ... existing generators
+  newProject: (id: string) => `/new/projects/${id}`,
+} as const
+```
+
+### Navigation Access
+
+For this foundation PR, the new pages are **accessed manually**:
+- Navigate directly to `/new/projects` in the browser
+- No sidebar/nav links added yet (future PR)
+- Use browser back/forward or the "Back to projects" link in the UI
 
 ## Task Display Fields
 
