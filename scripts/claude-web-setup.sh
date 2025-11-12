@@ -12,6 +12,9 @@ if [ "$CLAUDE_CODE_REMOTE" != "true" ]; then
   exit 0
 fi
 
+# Change to project root to ensure relative paths work
+cd "$CLAUDE_PROJECT_DIR"
+
 # Function to create env file if it doesn't exist
 create_env_file_if_missing() {
     local dest_file="$1"
@@ -143,6 +146,7 @@ if [ -z "$BRANCH_NAME" ]; then
     echo "⚠️  Detached HEAD detected, using: $BRANCH_NAME"
 fi
 
+ACTUAL_STORE_IDS=""
 if [ -f "packages/server/.env" ]; then
     CURRENT_STORE_IDS=$(grep "^STORE_IDS=" packages/server/.env 2>/dev/null | cut -d'=' -f2- || echo "")
 
@@ -150,11 +154,14 @@ if [ -f "packages/server/.env" ]; then
     if is_placeholder "$CURRENT_STORE_IDS"; then
         update_config_value "packages/server/.env" "STORE_IDS" "${BRANCH_NAME}"
         echo "✅ Set STORE_IDS=${BRANCH_NAME} (was placeholder)"
+        ACTUAL_STORE_IDS="${BRANCH_NAME}"
     else
         echo "ℹ️  STORE_IDS already configured, skipping update"
+        ACTUAL_STORE_IDS="${CURRENT_STORE_IDS}"
     fi
 else
     echo "⚠️  Warning: packages/server/.env not found, skipping STORE_IDS update"
+    ACTUAL_STORE_IDS="(not configured)"
 fi
 
 # Install dependencies
@@ -176,6 +183,6 @@ echo "✨ Environment setup complete!"
 echo ""
 echo "🔧 Configuration summary:"
 echo "   - Branch: $BRANCH_NAME"
-echo "   - STORE_IDS: $BRANCH_NAME"
+echo "   - STORE_IDS: $ACTUAL_STORE_IDS"
 echo ""
 echo "🚀 Environment is ready for Claude Code!"
