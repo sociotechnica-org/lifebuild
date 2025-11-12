@@ -139,7 +139,7 @@ The sync worker validates workspace ownership for all authenticated connections:
 1. Extracts `instanceId` from the sync payload
 2. Calls auth worker's internal endpoint to verify user owns the workspace
 3. Rejects connections with `FORBIDDEN` error if validation fails
-4. Caches positive validation results for 15 minutes (negative results re-check after ~60s) to avoid hammering the auth worker while still honoring role changes quickly
+4. Caches positive validation results for up to 15 minutes but forces a refresh every ~2 minutes (and negative results re-check after ~60s) to avoid hammering the auth worker while still honoring role changes quickly
 
 Each workspace (instanceId) is automatically routed to its own Durable Object instance, ensuring complete data isolation between workspaces.
 

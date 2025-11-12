@@ -37,6 +37,7 @@ interface WorkspaceOwnershipCacheEntry {
 const workspaceCache: Record<string, WorkspaceOwnershipCacheEntry> = {}
 const pendingWorkspaceFetches: Record<string, Promise<WorkspaceOwnershipCacheEntry>> = {}
 const POSITIVE_CACHE_TTL_MS = 15 * 60 * 1000 // 15 minutes – workspace membership rarely changes
+const POSITIVE_REFRESH_INTERVAL_MS = 2 * 60 * 1000 // Revalidate positive cache entries every 2 minutes
 const NEGATIVE_RECHECK_INTERVAL_MS = 60 * 1000 // Reconfirm missing workspaces every minute
 
 export class SyncBackendDO extends SyncBackend.makeDurableObject({
@@ -68,12 +69,16 @@ async function verifyWorkspaceOwnership(
   const cacheEntry = workspaceCache[userId]
 
   if (cacheEntry && now < cacheEntry.expiresAt) {
-    if (cacheEntry.instances.has(instanceId)) {
+    const hasWorkspace = cacheEntry.instances.has(instanceId)
+    const positiveRefreshDue =
+      hasWorkspace && now - cacheEntry.lastFetchedAt >= POSITIVE_REFRESH_INTERVAL_MS
+
+    if (hasWorkspace && !positiveRefreshDue) {
       console.log(`Workspace validation cache hit for ${userId} → ${instanceId}`)
       return true
     }
 
-    if (now - cacheEntry.lastFetchedAt < NEGATIVE_RECHECK_INTERVAL_MS) {
+    if (!hasWorkspace && now - cacheEntry.lastFetchedAt < NEGATIVE_RECHECK_INTERVAL_MS) {
       console.log(
         `Workspace validation negative cache hit for ${userId} → ${instanceId} (checked ${
           now - cacheEntry.lastFetchedAt
@@ -105,37 +110,42 @@ async function fetchWorkspaceMembership(
         throw new Error(`${AuthErrorCode.AUTH_SERVICE_ERROR}: Server bypass token not configured`)
       }
 
-      const response = await fetch(`${authWorkerUrl}/internal/users/${userId}/instances`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${serverBypassToken}`,
-        },
-      })
+      try {
+        const response = await fetch(`${authWorkerUrl}/internal/users/${userId}/instances`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${serverBypassToken}`,
+          },
+        })
 
-      if (!response.ok) {
-        console.error(`Auth worker returned ${response.status} for user ${userId}`)
-        throw new Error(
-          `${AuthErrorCode.AUTH_SERVICE_ERROR}: Auth worker responded with ${response.status}`
-        )
-      }
-
-      const payload = (await response.json()) as { instances: Array<{ id: string }> }
-      const instances = new Set<string>()
-      for (const instance of payload.instances ?? []) {
-        if (typeof instance.id === 'string') {
-          instances.add(instance.id)
+        if (!response.ok) {
+          const message = `Auth worker responded with ${response.status}`
+          return handleMembershipFetchFailure(
+            userId,
+            new Error(`${AuthErrorCode.AUTH_SERVICE_ERROR}: ${message}`)
+          )
         }
-      }
 
-      const fetchedAt = Date.now()
-      const entry: WorkspaceOwnershipCacheEntry = {
-        instances,
-        expiresAt: fetchedAt + POSITIVE_CACHE_TTL_MS,
-        lastFetchedAt: fetchedAt,
-      }
+        const payload = (await response.json()) as { instances: Array<{ id: string }> }
+        const instances = new Set<string>()
+        for (const instance of payload.instances ?? []) {
+          if (typeof instance.id === 'string') {
+            instances.add(instance.id)
+          }
+        }
 
-      workspaceCache[userId] = entry
-      return entry
+        const fetchedAt = Date.now()
+        const entry: WorkspaceOwnershipCacheEntry = {
+          instances,
+          expiresAt: fetchedAt + POSITIVE_CACHE_TTL_MS,
+          lastFetchedAt: fetchedAt,
+        }
+
+        workspaceCache[userId] = entry
+        return entry
+      } catch (error) {
+        return handleMembershipFetchFailure(userId, error)
+      }
     })()
   }
 
@@ -144,6 +154,29 @@ async function fetchWorkspaceMembership(
   } finally {
     delete pendingWorkspaceFetches[userId]
   }
+}
+
+function handleMembershipFetchFailure(
+  userId: string,
+  reason: unknown
+): WorkspaceOwnershipCacheEntry {
+  console.error({ userId, reason }, 'Failed to refresh workspace membership; using cached data')
+  const now = Date.now()
+  const existing = workspaceCache[userId]
+  if (existing) {
+    existing.lastFetchedAt = now
+    existing.expiresAt = Math.max(existing.expiresAt, now + NEGATIVE_RECHECK_INTERVAL_MS)
+    return existing
+  }
+
+  const fallbackEntry: WorkspaceOwnershipCacheEntry = {
+    instances: new Set(),
+    expiresAt: now + NEGATIVE_RECHECK_INTERVAL_MS,
+    lastFetchedAt: now,
+  }
+
+  workspaceCache[userId] = fallbackEntry
+  return fallbackEntry
 }
 
 /**
