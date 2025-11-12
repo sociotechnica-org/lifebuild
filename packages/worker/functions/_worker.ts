@@ -28,15 +28,17 @@ export interface Env extends SyncEnv {
 // 1. Access revocation is rare and typically requires immediate logout/token refresh
 // 2. The 60s window is bounded and prevents auth worker overload during reconnects
 // 3. All connections still require valid JWT tokens (independent of workspace cache)
-interface WorkspaceValidationCache {
-  [key: string]: {
-    isValid: boolean
-    timestamp: number
-  }
+interface WorkspaceOwnershipCacheEntry {
+  instances: Set<string>
+  expiresAt: number
+  lastFetchedAt: number
 }
 
-const workspaceCache: WorkspaceValidationCache = {}
-const CACHE_TTL_MS = 60000 // 60 seconds - balance between performance and access revocation lag
+const workspaceCache: Record<string, WorkspaceOwnershipCacheEntry> = {}
+const pendingWorkspaceFetches: Record<string, Promise<WorkspaceOwnershipCacheEntry>> = {}
+const POSITIVE_CACHE_TTL_MS = 15 * 60 * 1000 // 15 minutes – workspace membership rarely changes
+const POSITIVE_REFRESH_INTERVAL_MS = 2 * 60 * 1000 // Revalidate positive cache entries every 2 minutes
+const NEGATIVE_RECHECK_INTERVAL_MS = 60 * 1000 // Reconfirm missing workspaces every minute
 
 export class SyncBackendDO extends SyncBackend.makeDurableObject({
   onPush: async (message, context) => {
@@ -63,54 +65,118 @@ async function verifyWorkspaceOwnership(
   instanceId: string,
   env: Env
 ): Promise<boolean> {
-  // Check cache first
-  const cacheKey = `${userId}:${instanceId}`
-  const cached = workspaceCache[cacheKey]
   const now = Date.now()
+  const cacheEntry = workspaceCache[userId]
 
-  if (cached && now - cached.timestamp < CACHE_TTL_MS) {
-    console.log(`Cache hit for workspace validation: ${cacheKey}`)
-    return cached.isValid
+  if (cacheEntry && now < cacheEntry.expiresAt) {
+    const hasWorkspace = cacheEntry.instances.has(instanceId)
+    const positiveRefreshDue =
+      hasWorkspace && now - cacheEntry.lastFetchedAt >= POSITIVE_REFRESH_INTERVAL_MS
+
+    if (hasWorkspace && !positiveRefreshDue) {
+      console.log(`Workspace validation cache hit for ${userId} → ${instanceId}`)
+      return true
+    }
+
+    if (!hasWorkspace && now - cacheEntry.lastFetchedAt < NEGATIVE_RECHECK_INTERVAL_MS) {
+      console.log(
+        `Workspace validation negative cache hit for ${userId} → ${instanceId} (checked ${
+          now - cacheEntry.lastFetchedAt
+        }ms ago)`
+      )
+      return false
+    }
   }
 
-  // Call auth worker internal endpoint
-  const authWorkerUrl =
-    env.AUTH_WORKER_URL ||
-    (env.ENVIRONMENT === 'production' ? 'https://auth.coconut.app' : 'http://localhost:8788')
-  const serverBypassToken = env.SERVER_BYPASS_TOKEN
+  const refreshedEntry = await fetchWorkspaceMembership(userId, env)
+  const hasAccess = refreshedEntry.instances.has(instanceId)
+  console.log(`Workspace validation (refreshed) for ${userId} → ${instanceId}: ${hasAccess}`)
+  return hasAccess
+}
 
-  if (!serverBypassToken) {
-    console.error('SERVER_BYPASS_TOKEN not configured for workspace verification')
-    throw new Error(`${AuthErrorCode.AUTH_SERVICE_ERROR}: Server bypass token not configured`)
+async function fetchWorkspaceMembership(
+  userId: string,
+  env: Env
+): Promise<WorkspaceOwnershipCacheEntry> {
+  if (!pendingWorkspaceFetches[userId]) {
+    pendingWorkspaceFetches[userId] = (async () => {
+      const authWorkerUrl =
+        env.AUTH_WORKER_URL ||
+        (env.ENVIRONMENT === 'production' ? 'https://auth.coconut.app' : 'http://localhost:8788')
+      const serverBypassToken = env.SERVER_BYPASS_TOKEN
+
+      if (!serverBypassToken) {
+        console.error('SERVER_BYPASS_TOKEN not configured for workspace verification')
+        throw new Error(`${AuthErrorCode.AUTH_SERVICE_ERROR}: Server bypass token not configured`)
+      }
+
+      try {
+        const response = await fetch(`${authWorkerUrl}/internal/users/${userId}/instances`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${serverBypassToken}`,
+          },
+        })
+
+        if (!response.ok) {
+          const message = `Auth worker responded with ${response.status}`
+          return handleMembershipFetchFailure(
+            userId,
+            new Error(`${AuthErrorCode.AUTH_SERVICE_ERROR}: ${message}`)
+          )
+        }
+
+        const payload = (await response.json()) as { instances: Array<{ id: string }> }
+        const instances = new Set<string>()
+        for (const instance of payload.instances ?? []) {
+          if (typeof instance.id === 'string') {
+            instances.add(instance.id)
+          }
+        }
+
+        const fetchedAt = Date.now()
+        const entry: WorkspaceOwnershipCacheEntry = {
+          instances,
+          expiresAt: fetchedAt + POSITIVE_CACHE_TTL_MS,
+          lastFetchedAt: fetchedAt,
+        }
+
+        workspaceCache[userId] = entry
+        return entry
+      } catch (error) {
+        return handleMembershipFetchFailure(userId, error)
+      }
+    })()
   }
 
   try {
-    const response = await fetch(`${authWorkerUrl}/internal/users/${userId}/instances`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${serverBypassToken}`,
-      },
-    })
-
-    if (!response.ok) {
-      console.error(`Auth worker returned ${response.status} for user ${userId}`)
-      // Cache negative result briefly to avoid hammering the auth worker
-      workspaceCache[cacheKey] = { isValid: false, timestamp: now }
-      return false
-    }
-
-    const data = (await response.json()) as { instances: Array<{ id: string }> }
-    const hasAccess = data.instances.some(inst => inst.id === instanceId)
-
-    // Cache the result
-    workspaceCache[cacheKey] = { isValid: hasAccess, timestamp: now }
-
-    console.log(`Workspace validation for ${cacheKey}: ${hasAccess}`)
-    return hasAccess
-  } catch (error) {
-    console.error('Error verifying workspace ownership:', error)
-    throw new Error(`${AuthErrorCode.AUTH_SERVICE_ERROR}: Failed to verify workspace ownership`)
+    return await pendingWorkspaceFetches[userId]
+  } finally {
+    delete pendingWorkspaceFetches[userId]
   }
+}
+
+function handleMembershipFetchFailure(
+  userId: string,
+  reason: unknown
+): WorkspaceOwnershipCacheEntry {
+  console.error({ userId, reason }, 'Failed to refresh workspace membership; using cached data')
+  const now = Date.now()
+  const existing = workspaceCache[userId]
+  if (existing) {
+    existing.lastFetchedAt = now
+    existing.expiresAt = Math.max(existing.expiresAt, now + NEGATIVE_RECHECK_INTERVAL_MS)
+    return existing
+  }
+
+  const fallbackEntry: WorkspaceOwnershipCacheEntry = {
+    instances: new Set(),
+    expiresAt: now + NEGATIVE_RECHECK_INTERVAL_MS,
+    lastFetchedAt: now,
+  }
+
+  workspaceCache[userId] = fallbackEntry
+  return fallbackEntry
 }
 
 /**
