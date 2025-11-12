@@ -213,49 +213,9 @@ const projects = await store.query(db => db.table('projects').all())
 
 ## Component Architecture Patterns
 
-### Container/Presenter Pattern
-
-**ALWAYS follow the Container/Presenter pattern for components that need data:**
-
-- **Container Components**: Handle data fetching, state management, and LiveStore integration
-- **Presenter Components**: Pure components that receive data via props and handle presentation
-
-**Example:**
-
-```typescript
-// ChatInterface.tsx (Container)
-export const ChatInterface: React.FC = () => {
-  const chatData = useChatData()
-  return <ChatPresenter {...chatData} />
-}
-
-// ChatPresenter.tsx (Presenter)
-export interface ChatPresenterProps {
-  conversations: Conversation[]
-  messages: ChatMessage[]
-  onSendMessage: (e: React.FormEvent) => void
-  // ... all needed data and callbacks
-}
-
-export const ChatPresenter: React.FC<ChatPresenterProps> = ({
-  conversations,
-  messages,
-  onSendMessage,
-}) => {
-  // Pure presentation logic only
-  return <div>...</div>
-}
-```
-
-**Benefits:**
-
-- Presenter components can be easily tested in Storybook without LiveStore context
-- Clear separation of data and presentation concerns
-- Reusable presenter components with different data sources
-
 ### Storybook Stories
 
-Create Storybook stories for **Presenter components only** following these patterns.
+**ALWAYS create Storybook stories for UI components.** Stories should use LiveStore directly with real events to create state.
 
 **IMPORTANT**: Use **real LiveStore events** to create state, not mock data. This ensures stories accurately reflect how components work in production.
 
@@ -264,45 +224,28 @@ Create Storybook stories for **Presenter components only** following these patte
 ```typescript
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
-import { ComponentPresenter } from './ComponentPresenter.js'
-import { getDataQuery$ } from '@work-squared/shared/queries'
+import { MyComponent } from './MyComponent.js'
 import { schema, events } from '@work-squared/shared/schema'
-import { LiveStoreProvider, useQuery } from '@livestore/react'
+import { LiveStoreProvider } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'
 
-type ComponentProps = React.ComponentProps<typeof ComponentPresenter>
-
-// Define props that the helper provides via LiveStore
-type ProvidedProps = 'data' | 'relatedData'
-
-// Stories provide remaining props
-type HelperProps = Omit<ComponentProps, ProvidedProps> & {
-  dataId?: string  // Pass IDs, not data
-}
-
 const adapter = makeInMemoryAdapter()
 
-// Helper fetches data from LiveStore
-const ComponentHelper = (props: HelperProps) => {
-  const data = props.dataId ? useQuery(getDataQuery$(props.dataId)) : []
-  return <ComponentPresenter {...props} data={data} />
-}
-
-const meta: Meta<typeof ComponentHelper> = {
-  title: 'Category/ComponentName',
-  component: ComponentHelper,
+const meta: Meta<typeof MyComponent> = {
+  title: 'Category/MyComponent',
+  component: MyComponent,
   parameters: {
     layout: 'centered',
     docs: {
       description: {
-        component: 'Brief description',
+        component: 'Brief description of what this component does',
       },
     },
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof ComponentHelper>
+} satisfies Meta<typeof MyComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
@@ -310,9 +253,10 @@ type Story = StoryObj<typeof meta>
 // Boot function creates state via events
 const defaultSetup = (store: Store) => {
   store.commit(
-    events.dataCreated({
+    events.projectCreated({
       id: '1',
-      name: 'Test Data',
+      name: 'Test Project',
+      description: 'A test project',
       createdAt: new Date(),
       actorId: '1',
     })
@@ -321,8 +265,7 @@ const defaultSetup = (store: Store) => {
 
 export const Default: Story = {
   args: {
-    dataId: '1',
-    onAction: () => {},
+    projectId: '1',
   },
   decorators: [
     Story => (
@@ -342,10 +285,9 @@ export const Default: Story = {
 #### Key Principles
 
 1. **No Mock Data**: Always use real LiveStore events via `store.commit(events.eventName({...}))`
-2. **Helper Components**: Create helpers that use `useQuery` to fetch data from LiveStore
-3. **Type Safety**: Use `Omit` to define which props the helper provides vs stories provide
-4. **Boot Functions**: Each story has its own `boot` function that creates the necessary state
-5. **Decorators**: Wrap each story in `LiveStoreProvider` with its boot function
+2. **LiveStore in Stories**: Wrap stories in `LiveStoreProvider` so components can use `useQuery` hooks directly
+3. **Boot Functions**: Each story has its own `boot` function that creates the necessary state
+4. **Real Component Testing**: Test the actual component with real data fetching, not a separate presenter
 
 #### Story Categories
 
