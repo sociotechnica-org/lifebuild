@@ -33,6 +33,7 @@ const mockWorkspaces: AuthInstance[] = [
     name: 'Personal',
     createdAt: new Date('2024-01-01'),
     lastAccessedAt: new Date('2024-01-15'),
+    role: 'owner',
     isDefault: true,
   },
   {
@@ -40,6 +41,7 @@ const mockWorkspaces: AuthInstance[] = [
     name: 'Work',
     createdAt: new Date('2024-01-02'),
     lastAccessedAt: new Date('2024-01-14'),
+    role: 'admin',
     isDefault: false,
   },
   {
@@ -47,6 +49,7 @@ const mockWorkspaces: AuthInstance[] = [
     name: 'Side Project',
     createdAt: new Date('2024-01-03'),
     lastAccessedAt: new Date('2024-01-13'),
+    role: 'member',
     isDefault: false,
   },
 ]
@@ -80,6 +83,7 @@ export const SingleWorkspace: Story = {
         name: 'My Workspace',
         createdAt: new Date('2024-01-01'),
         lastAccessedAt: new Date('2024-01-15'),
+        role: 'owner',
         isDefault: true,
       },
     ],
@@ -108,6 +112,7 @@ export const ManyWorkspaces: Story = {
       name: `Workspace ${i + 1}`,
       createdAt: new Date(`2024-01-0${i + 1}`),
       lastAccessedAt: new Date(`2024-01-${10 + i}`),
+      role: (i === 0 ? 'owner' : i < 3 ? 'admin' : 'member') as 'owner' | 'admin' | 'member',
       isDefault: i === 0,
     })),
     currentWorkspaceId: '1',
@@ -136,6 +141,7 @@ export const LongWorkspaceNames: Story = {
         name: 'My Personal Workspace with a Very Long Name That Should Truncate',
         createdAt: new Date('2024-01-01'),
         lastAccessedAt: new Date('2024-01-15'),
+        role: 'owner',
         isDefault: true,
       },
       {
@@ -143,6 +149,7 @@ export const LongWorkspaceNames: Story = {
         name: 'Work Project - Client A - Marketing Campaign Q1 2024',
         createdAt: new Date('2024-01-02'),
         lastAccessedAt: new Date('2024-01-14'),
+        role: 'admin',
         isDefault: false,
       },
     ],

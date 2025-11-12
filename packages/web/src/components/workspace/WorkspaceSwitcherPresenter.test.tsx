@@ -10,6 +10,7 @@ const mockWorkspaces: AuthInstance[] = [
     name: 'Personal',
     createdAt: new Date('2024-01-01'),
     lastAccessedAt: new Date('2024-01-15'),
+    role: 'owner',
     isDefault: true,
   },
   {
@@ -17,6 +18,7 @@ const mockWorkspaces: AuthInstance[] = [
     name: 'Work',
     createdAt: new Date('2024-01-02'),
     lastAccessedAt: new Date('2024-01-14'),
+    role: 'admin',
     isDefault: false,
   },
   {
@@ -24,6 +26,7 @@ const mockWorkspaces: AuthInstance[] = [
     name: 'Side Project',
     createdAt: new Date('2024-01-03'),
     lastAccessedAt: new Date('2024-01-13'),
+    role: 'member',
     isDefault: false,
   },
 ]
