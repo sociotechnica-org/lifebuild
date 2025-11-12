@@ -85,77 +85,61 @@ We can start with option 1 (simpler) and add versioning later if needed.
 
 ---
 
-## Work Breakdown
+## Implementation Plan
 
-### Phase 1 – Schema & Token Updates
+Because we have no active production sessions, we can ship this as a single PR with a hard cut-over. The PR will:
 
-1. Update `packages/shared/src/auth/types.ts` with the new JWT payload interface (workspace list, versions).
-2. Extend Auth Worker token issuance (`packages/auth-worker/src/handlers/auth.ts`) to hydrate the claim by querying the `UserStore` in-memory data.
-3. Adjust frontend AuthContext to expect/work with the new claim (update TypeScript types, handle fallback for old tokens).
-4. Add migration script to invalidate existing tokens (e.g., bump JWT signing key or enforce re-login).
+1. **Extend shared auth schema and types**
+   - Update `packages/shared/src/auth/types.ts` with the new JWT payload shape: `workspaces` array and `workspaceClaimsVersion`.
+   - Add helpers for serializing/deserializing claims and validating payload size.
 
-**Validation:** Unit tests covering token issuance for owners, admins, invited-but-not-accepted states.
+2. **Auth Worker updates**
+   - `packages/auth-worker/src/durable-objects/UserStore.ts`: maintain a per-user `workspaceClaimsVersion` counter (increment on any membership mutation) and persist it alongside user data.
+   - Push the version to Cloudflare KV after each mutation for low-latency reads (key: `workspace-claims-version:${userId}`).
+   - `packages/auth-worker/src/handlers/auth.ts`: when issuing JWTs (login/refresh), embed `workspaces` (id + role + optional `rev`) and `workspaceClaimsVersion`. Remove the old endpoints used by the sync worker (`/internal/users/:userId/instances`).
+   - Provide an authenticated endpoint (used by the frontend) to force-refresh tokens after receiving a `FORBIDDEN` error.
 
-### Phase 2 – Sync Worker Validation Path
+3. **Frontend updates**
+   - `packages/web/src/contexts/AuthContext.tsx` and related utils: expect the new JWT structure, surface `workspaces` + `workspaceClaimsVersion`, and trigger a refresh cycle every 10–12 minutes (before expiry). On `FORBIDDEN` responses from the sync worker, log out and re-initiate login.
 
-1. Modify `verifyWorkspaceOwnership` in `packages/worker/functions/_worker.ts` to:
-   - Inspect JWT `workspaces` claim.
-   - Ensure the target `instanceId` is present and the role is not revoked.
-   - Only fall back to Auth Worker call if the claim is missing (graceful deployment).
-2. Remove fetch path once >95 % of tokens include claims.
-3. Add logging & Sentry breadcrumbs when tokens lack claims to track rollout progress.
+4. **Sync worker updates**
+   - Replace `verifyWorkspaceOwnership` in `packages/worker/functions/_worker.ts` with JWT-claim validation that never calls the Auth Worker.
+   - Add a lightweight cache of `workspaceClaimsVersion` values fetched from KV so tokens with stale versions are rejected immediately.
+   - Remove all code paths that fetched `/internal/users/:userId/instances` and delete related config/env docs.
 
-**Validation:** Integration test (or unit test with mocked JWT) to assert unauthorized access is blocked without hitting the Auth Worker.
+5. **Observability**
+   - Emit Sentry breadcrumbs/tags when tokens are rejected due to missing claims, stale versions, or oversize payloads.
+   - Log claim payload sizes to watch for users approaching header limits.
 
-### Phase 3 – Revocation Strategy
+6. **Docs and runbooks**
+   - Update `docs/architecture.md`, package READMEs, and ops runbooks to describe the new flow.
 
-1. Decide refresh cadence (e.g., JWT exp 15 min, refresh token 7 days).
-2. For immediate revocations:
-   - Auth Worker increments `workspaceClaimsVersion`.
-   - Sync worker rejects tokens with stale version (needs minimal storage, maybe durable KV keyed by user).
-   - Alternatively, the frontend receives a LiveStore event telling it to refresh auth.
-3. Update AuthContext to refresh token when server responds with `FORBIDDEN` due to stale claims.
-
-**Validation:** End-to-end test removing a member and ensuring they lose access within the SLA.
-
-### Phase 4 – Cleanup & Observability
-
-1. Remove legacy `/internal/users/:userId/instances` dependency from sync worker after rollout.
-2. Document new claim format in `docs/architecture.md`, `packages/worker/README.md`, and `packages/auth-worker/README.md`.
-3. Add dashboards/metrics (Sentry tags, Cloudflare logs) for:
-   - Tokens missing claims,
-   - Rejected due to stale version,
-   - Average token refresh latency.
-
----
+**Testing / Validation**
+- Unit tests for new shared types, version bump logic, and sync worker validators.
+- Integration tests that:
+  - Issue a token, connect to LiveStore, and confirm no network call happens during validation.
+  - Remove a user and ensure the next connection is rejected until the token is refreshed.
+- Manual test: simulate 100 concurrent reconnects to confirm the Auth Worker sees zero validation requests.
 
 ## Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 | --- | --- | --- |
-| Token size grows beyond header limits for users with many workspaces | Failed logins or sync connects | Store only workspace IDs + role (short strings). Consider compressing or encrypting claim if >50 workspaces. |
-| Revocations delayed due to longer JWT expiry | Unauthorized access persists | Use shorter JWT exp with silent refresh and/or versioned revocation map. |
-| Clock skew affects per-claim expirations | Legit users get kicked | Use server-generated timestamps only; rely on `iat` rather than client clocks. |
-| Mixed-token rollout causes failures | Clients without claims blocked | Keep fallback path (Auth Worker fetch) until adoption completes; log to monitor. |
-
----
+| Token size grows beyond header limits for users with many workspaces | Failed logins or sync connects | Store only workspace IDs + role (short strings). Log claim sizes; consider chunking or secondary fetch if someone exceeds ~4 KB. |
+| Version map out-of-sync (KV write fails) | Revocations delayed | Retry KV writes with backoff, emit Sentry errors, and fall back to forcing JWT expiration if KV is unavailable. |
+| Token issued without incremented version | Revoked users keep access | Centralize membership mutations through helpers that always bump version + write KV; add test coverage + Sentry assertions. |
+| KV read failures in sync worker | Users blocked or allowed when they shouldn’t be | Cache last known version and treat KV failure as “stale” (force refresh) while logging and alerting. |
+| Client refresh loop bugs | Users stuck refreshing | Provide explicit error codes so AuthContext can differentiate “stale version” from other failures and show actionable UI. |
 
 ## Deliverables
 
-- Updated shared auth schema and token issuance pipeline.
-- Sync worker validation logic relying on JWT claims.
-- Revocation strategy implementation with documented SLAs.
-- Observability dashboards & alerts for claim-related failures.
-- Migration/runbook outlining rollout, toggles, and rollback steps.
+- Single PR implementing the schema, Auth Worker, frontend, and sync worker changes.
+- Updated docs and observability dashboards.
+- Migration/runbook describing the hard cut-over (invalidate existing tokens, redeploy worker + auth + web).
 
----
+## Decisions / Clarifications
 
-## Open Questions
-
-1. Should we include additional metadata (workspace name, permissions) in the JWT claim or fetch separately?
-2. Do we need per-workspace scopes/permissions beyond role? (e.g., read-only vs. write).
-3. What’s the acceptable maximum JWT size for existing clients (browser headers, WebSockets)?
-4. How do we handle invite acceptance? Does the user need to re-login immediately or can we issue a provisional token with pending invitations?
-
-Answers to these will refine the scope before implementation.
-
+1. **Workspace name in JWT?** No; omit to keep tokens small. Clients still fetch names via existing APIs.
+2. **Additional scopes/permissions?** Not needed yet—`owner/admin/member` is sufficient.
+3. **JWT size limits?** Target <4 KB payloads (browser header limit ≈8 KB). Log claim sizes to monitor growth.
+4. **Invite support?** Not yet planned—users will log out/in after role changes until an invite flow exists.
