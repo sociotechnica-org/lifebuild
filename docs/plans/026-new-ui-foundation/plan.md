@@ -44,13 +44,11 @@ Need to examine:
    ```
    packages/web/src/components/new/
    ├── projects/
-   │   ├── ProjectsListPage.tsx        # Container for /new/projects
-   │   ├── ProjectsListPresenter.tsx   # Presenter component
-   │   ├── ProjectsListPresenter.stories.tsx
-   │   ├── ProjectDetailPage.tsx       # Container for /new/projects/:projectId
-   │   ├── ProjectDetailPresenter.tsx  # Presenter component
-   │   └── ProjectDetailPresenter.stories.tsx
-   └── README.md                        # Documentation for new UI structure
+   │   ├── ProjectsListPage.tsx           # /new/projects page
+   │   ├── ProjectsListPage.stories.tsx   # Storybook stories
+   │   ├── ProjectDetailPage.tsx          # /new/projects/:projectId page
+   │   └── ProjectDetailPage.stories.tsx  # Storybook stories
+   └── README.md                           # Documentation for new UI structure
    ```
 
 2. **Add new routes to Root.tsx:**
@@ -58,40 +56,33 @@ Need to examine:
    - `/new/projects/:projectId` - View specific project with tasks
    - Add route constants to `constants/routes.ts`
 
-3. **Build ProjectsListPresenter component:**
+3. **Build ProjectsListPage component:**
    - Display simple text-based list of projects
    - Show project name
    - Link to project detail page
    - Handle empty state (no projects)
+   - Fetch all projects using `getProjects$()` via `useQuery`
    - Create Storybook stories: Default (3-5 projects), Empty state, Single project
 
-4. **Build ProjectsListPage container:**
-   - Fetch all projects using `getProjects$()`
-   - Pass data to presenter
-   - Follow Container/Presenter pattern
-
-5. **Build ProjectDetailPresenter component:**
+4. **Build ProjectDetailPage component:**
    - Display project name and description (if exists)
    - Display list of tasks (simple list, not kanban)
    - Show task info: title, status, assignee(s), description indicator, comments indicator
    - Handle empty state (no tasks)
    - Link back to projects list
+   - Fetch project by ID using `getProjectById$()` via `useQuery`
+   - Fetch tasks for project using `getProjectTasks$()` via `useQuery`
+   - Fetch users for assignee lookup via `useQuery`
+   - Query comments to determine which tasks have comments
+   - Handle loading/error states
    - Create Storybook stories: Default (project + 5-10 tasks), Empty state, Single task, Many tasks (20+)
 
-6. **Build ProjectDetailPage container:**
-   - Fetch project by ID using `getProjectById$()`
-   - Fetch tasks for project using `getProjectTasks$()`
-   - Fetch users for assignee lookup
-   - Query comments to determine which tasks have comments
-   - Pass data to presenter
-   - Handle loading/error states
-
-7. **Create README.md in `src/components/new/`:**
+5. **Create README.md in `src/components/new/`:**
    - Explain purpose of new UI directory
    - Document structure and patterns
    - Link to this plan document
 
-8. **Run quality checks:**
+6. **Run quality checks:**
    - Run `pnpm lint-all`
    - Run `pnpm test`
    - Verify Storybook builds
@@ -160,11 +151,11 @@ Queries needed:
 ```
 New UI/
 └── Projects/
-    ├── ProjectsListPresenter
+    ├── ProjectsListPage
     │   ├── Default
     │   ├── Empty State
     │   └── Single Project
-    └── ProjectDetailPresenter
+    └── ProjectDetailPage
         ├── Default
         ├── Empty State
         ├── Single Task
@@ -173,25 +164,16 @@ New UI/
 
 ## Component Pattern Example
 
-Following CLAUDE.md patterns:
+Following CLAUDE.md patterns (using LiveStore directly in components and stories):
 
 ```typescript
-// ProjectsListPage.tsx (Container)
+// ProjectsListPage.tsx
+import { useQuery } from '@livestore/react'
+import { getProjects$ } from '@work-squared/shared/livestore/queries'
+
 export const ProjectsListPage: React.FC = () => {
-  const projects = useQuery(getAllProjects$())
+  const projects = useQuery(getProjects$)
 
-  return <ProjectsListPresenter projects={projects} />
-}
-
-// ProjectsListPresenter.tsx (Presenter)
-export interface ProjectsListPresenterProps {
-  projects: Project[]
-}
-
-export const ProjectsListPresenter: React.FC<ProjectsListPresenterProps> = ({
-  projects
-}) => {
-  // Pure presentation logic
   return (
     <div>
       <h1>Projects</h1>
@@ -210,16 +192,41 @@ export const ProjectsListPresenter: React.FC<ProjectsListPresenterProps> = ({
   )
 }
 
-// ProjectsListPresenter.stories.tsx
+// ProjectsListPage.stories.tsx
+import type { Meta, StoryObj } from '@storybook/react'
+import { ProjectsListPage } from './ProjectsListPage.js'
+import { schema, events } from '@work-squared/shared/livestore/schema'
+import { LiveStoreProvider } from '@livestore/react'
+import { makeInMemoryAdapter } from '@livestore/adapter-web'
+import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
+import { Store } from '@livestore/livestore'
+
+const adapter = makeInMemoryAdapter()
+
+const meta: Meta<typeof ProjectsListPage> = {
+  title: 'New UI/Projects/ProjectsListPage',
+  component: ProjectsListPage,
+  tags: ['autodocs'],
+} satisfies Meta<typeof ProjectsListPage>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
 const defaultSetup = (store: Store) => {
   store.commit(events.projectCreated({
     id: '1',
     name: 'Project Alpha',
+    description: 'First project',
+    category: 'work',
+    createdAt: new Date(),
     actorId: '1'
   }))
   store.commit(events.projectCreated({
     id: '2',
     name: 'Project Beta',
+    description: 'Second project',
+    category: 'work',
+    createdAt: new Date(),
     actorId: '1'
   }))
 }
@@ -272,7 +279,7 @@ Display for each task:
 - ✅ Routes work: `/new/projects` and `/new/projects/:projectId`
 - ✅ Projects list displays all projects in workspace
 - ✅ Project detail displays project info and tasks
-- ✅ All components follow Container/Presenter pattern
+- ✅ Components use LiveStore directly via `useQuery` hooks
 - ✅ Storybook stories created under "New UI" category
 - ✅ Stories use real LiveStore events, not mock data
 - ✅ All tests pass (`pnpm lint-all` and `pnpm test`)
@@ -297,8 +304,7 @@ Display for each task:
 - Basic data fetching with existing queries
 
 **Medium Risk:**
-- Ensuring Container/Presenter pattern is followed correctly
-- Storybook setup with LiveStore events
+- Storybook setup with LiveStore events (first time using this pattern extensively)
 
 **No Identified High Risks** - This is a straightforward foundation-laying PR
 
@@ -307,8 +313,8 @@ Display for each task:
 1. **Review and approve this plan** with clarifications
 2. **Examine existing routing and queries** to understand patterns
 3. **Create directory structure and basic files**
-4. **Implement Projects list page** (container + presenter + stories)
-5. **Implement Project detail page** (container + presenter + stories)
+4. **Implement Projects list page** (component + stories)
+5. **Implement Project detail page** (component + stories)
 6. **Run quality checks** (lint-all, tests)
 7. **Create PR** following CLAUDE.md workflow
 
