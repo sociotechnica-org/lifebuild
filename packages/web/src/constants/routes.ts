@@ -7,6 +7,8 @@ export const ROUTES = {
   LIFE_MAP: '/life-map',
   CATEGORY: '/category/:categoryId',
   PROJECTS: '/projects',
+  NEW_PROJECTS: '/new/projects',
+  NEW_PROJECT: '/new/projects/:projectId',
   TASKS: '/tasks',
   TEAM: '/team',
   DOCUMENTS: '/documents',
@@ -29,6 +31,7 @@ export const generateRoute = {
   category: (id: string, tab?: string) => (tab ? `/category/${id}?tab=${tab}` : `/category/${id}`),
   document: (id: string) => `/document/${id}`,
   project: (id: string) => `/project/${id}`,
+  newProject: (id: string) => `/new/projects/${id}`,
   contact: (id: string) => `/contacts/${id}`,
   adminUser: (userEmail: string) => `/admin/users/${encodeURIComponent(userEmail)}`,
 } as const

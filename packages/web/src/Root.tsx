@@ -34,6 +34,9 @@ import { SettingsInitializer } from './components/utils/SettingsInitializer/Sett
 import { LifeMapView } from './components/life-map/LifeMapView.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
+import { ProjectsListPage } from './components/new/projects/ProjectsListPage.js'
+import { ProjectDetailPage } from './components/new/projects/ProjectDetailPage.js'
+import { NewUiShell } from './components/new/layout/NewUiShell.js'
 
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
@@ -160,6 +163,16 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
+                      path={ROUTES.NEW_PROJECTS}
+                      element={
+                        <ErrorBoundary>
+                          <NewUiShell>
+                            <ProjectsListPage />
+                          </NewUiShell>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
                       path={ROUTES.TASKS}
                       element={
                         <Layout>
@@ -247,6 +260,16 @@ const ProtectedApp: React.FC = () => {
                             <ProjectWorkspace />
                           </ErrorBoundary>
                         </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.NEW_PROJECT}
+                      element={
+                        <ErrorBoundary>
+                          <NewUiShell>
+                            <ProjectDetailPage />
+                          </NewUiShell>
+                        </ErrorBoundary>
                       }
                     />
                     <Route
