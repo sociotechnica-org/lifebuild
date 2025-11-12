@@ -110,8 +110,8 @@ export const ManyWorkspaces: Story = {
     workspaces: Array.from({ length: 10 }, (_, i) => ({
       id: `${i + 1}`,
       name: `Workspace ${i + 1}`,
-      createdAt: new Date(`2024-01-0${i + 1}`),
-      lastAccessedAt: new Date(`2024-01-${10 + i}`),
+      createdAt: new Date(2024, 0, i + 1), // Month is 0-indexed, so 0 = January
+      lastAccessedAt: new Date(2024, 0, 10 + i),
       role: (i === 0 ? 'owner' : i < 3 ? 'admin' : 'member') as 'owner' | 'admin' | 'member',
       isDefault: i === 0,
     })),
