@@ -19,6 +19,13 @@
       "database_id": "3e3e5640-b41f-4838-8892-f5362e865e2d",
     },
   ],
+  "kv_namespaces": [
+    {
+      "binding": "WORKSPACE_CLAIMS_VERSION",
+      "id": "00000000000000000000000000000000",
+      "preview_id": "11111111111111111111111111111111",
+    },
+  ],
   "durable_objects": {
     "bindings": [
       {

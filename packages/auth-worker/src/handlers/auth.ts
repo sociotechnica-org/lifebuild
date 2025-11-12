@@ -12,6 +12,11 @@ import { createAccessToken, createRefreshToken, verifyToken, isTokenExpired } fr
 import { isUserAdmin } from '../utils/admin.js'
 import type { RefreshTokenPayload } from '../types.js'
 import { sendDiscordNotification } from '../utils/discord.js'
+import {
+  buildWorkspaceClaims,
+  isWorkspaceClaimsPayloadWithinLimit,
+  WORKSPACE_CLAIMS_MAX_BYTES,
+} from '@work-squared/shared/auth'
 
 /**
  * Utility to create error responses
@@ -84,6 +89,7 @@ type WorkspaceSnapshotResponse = {
   defaultInstanceId?: string | null
   workspaces?: Record<string, any>
   pendingInvitations?: WorkspaceInvitation[]
+  workspaceClaimsVersion?: number
 }
 
 async function fetchWorkspaceSnapshot(
@@ -122,13 +128,41 @@ async function createAuthSuccessResponse(
   const adminStatus = isUserAdmin(user, env.BOOTSTRAP_ADMIN_EMAIL)
 
   // Generate tokens
-  const accessToken = await createAccessToken(user.id, user.email, adminStatus, env)
-  const newRefreshToken = refreshToken || (await createRefreshToken(user.id, env))
-
   const workspaceSnapshot = await fetchWorkspaceSnapshot(user.id, env)
   const instances = workspaceSnapshot?.instances ?? user.instances
   const defaultInstanceId =
     workspaceSnapshot?.defaultInstanceId ?? selectDefaultInstanceId(instances)
+  const workspaceClaimsVersion =
+    workspaceSnapshot?.workspaceClaimsVersion ?? user.workspaceClaimsVersion ?? 0
+
+  const workspaceClaims = buildWorkspaceClaims(instances ?? [])
+  const claimsSize = isWorkspaceClaimsPayloadWithinLimit(
+    workspaceClaims,
+    WORKSPACE_CLAIMS_MAX_BYTES
+  )
+  if (!claimsSize.withinLimit) {
+    console.warn(
+      `Workspace claims payload exceeded limit (${claimsSize.byteSize} bytes) for user ${user.id}`
+    )
+  } else if (claimsSize.byteSize > WORKSPACE_CLAIMS_MAX_BYTES * 0.75) {
+    console.warn(
+      `Workspace claims payload approaching limit (${claimsSize.byteSize} bytes) for user ${user.id}`
+    )
+  }
+
+  const accessToken = await createAccessToken(
+    {
+      userId: user.id,
+      email: user.email,
+      isAdmin: adminStatus,
+      defaultInstanceId,
+      workspaces: workspaceClaims,
+      workspaceClaimsVersion,
+      workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000),
+    },
+    env
+  )
+  const newRefreshToken = refreshToken || (await createRefreshToken(user.id, env))
 
   return createSuccessResponse({
     user: {
@@ -139,6 +173,7 @@ async function createAuthSuccessResponse(
       defaultInstanceId,
       workspaces: workspaceSnapshot?.workspaces,
       pendingInvitations: workspaceSnapshot?.pendingInvitations,
+      workspaceClaimsVersion,
     },
     accessToken,
     refreshToken: newRefreshToken,

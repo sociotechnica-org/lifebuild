@@ -116,7 +116,6 @@ GRACE_PERIOD_SECONDS=86400                      # Token grace period (24 hours f
 SERVER_BYPASS_TOKEN=dev-server-bypass-token      # Token for internal service-to-service calls
 
 # Workspace Management
-AUTH_WORKER_URL=http://localhost:8788           # Auth worker URL (defaults to http://localhost:8788 in dev, https://auth.coconut.app in production)
 
 # R2 Image Storage
 R2_PUBLIC_URL=http://localhost:8787/api/images  # Public URL for R2 image access
@@ -130,18 +129,27 @@ BRAINTRUST_PROJECT_ID="your-braintrust-project-id"
 
 - `JWT_SECRET`: Must be identical to the auth worker's JWT secret. Change from default in production.
 - `SERVER_BYPASS_TOKEN`: Used for internal workspace validation calls to the auth worker. Must match auth worker configuration.
-- `AUTH_WORKER_URL`: Optional. Defaults to `http://localhost:8788` in development and `https://auth.coconut.app` in production.
+- `WORKSPACE_CLAIMS_VERSION`: KV namespace binding used to read workspace membership versions for JWT revocation.
+
+Create the KV namespace once per environment:
+
+```bash
+wrangler kv:namespace create WORKSPACE_CLAIMS_VERSION
+wrangler kv:namespace create WORKSPACE_CLAIMS_VERSION --preview
+```
+
+Copy the generated IDs into `wrangler.jsonc` so the worker can read the authoritative version map.
 
 **Workspace Enforcement:**
 
-The sync worker validates workspace ownership for all authenticated connections:
+The sync worker validates workspace ownership purely from JWT claims:
 
-1. Extracts `instanceId` from the sync payload
-2. Calls auth worker's internal endpoint to verify user owns the workspace
-3. Rejects connections with `FORBIDDEN` error if validation fails
-4. Caches positive validation results for up to 15 minutes but forces a refresh every ~2 minutes (and negative results re-check after ~60s) to avoid hammering the auth worker while still honoring role changes quickly
+1. Extracts `instanceId` from the sync payload.
+2. Verifies the `workspaces` claim in the JWT contains the requested workspace.
+3. Reads the user's latest `workspaceClaimsVersion` from the shared KV namespace (with a short in-memory cache) and rejects tokens whose version is stale.
+4. Logs payload sizes so oversized tokens can be trimmed before browsers hit header limits.
 
-Each workspace (instanceId) is automatically routed to its own Durable Object instance, ensuring complete data isolation between workspaces.
+Each workspace (`instanceId`) is automatically routed to its own Durable Object instance, ensuring complete data isolation between workspaces—now without any per-connection calls to the Auth Worker.
 
 ## Features
 

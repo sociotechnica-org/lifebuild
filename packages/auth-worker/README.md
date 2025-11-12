@@ -115,14 +115,16 @@ curl -X DELETE http://localhost:8788/workspaces/$WORKSPACE_ID \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
-#### GET /internal/users/:userId/instances
+### Workspace Claims in JWTs
 
-Internal ownership lookup guarded by `SERVER_BYPASS_TOKEN`. Other services use this to confirm workspace membership before issuing tokens or connections.
+Access tokens now embed a `workspaces` claim so the sync worker can validate ownership without making per-connection API calls. Each token contains:
 
-```bash
-curl http://localhost:8788/internal/users/$USER_ID/instances \
-  -H "Authorization: Bearer $SERVER_BYPASS_TOKEN"
-```
+- `workspaces`: Array of `{ id, role }` entries for every workspace the user belongs to
+- `defaultInstanceId`: The server-selected default workspace
+- `workspaceClaimsVersion`: Monotonic counter that increments whenever membership or roles change
+- `workspaceClaimsIssuedAt`: Timestamp indicating when claims were generated
+
+When a workspace membership update occurs (invite acceptance, role change, removal, etc.), the Auth Worker increments the user's `workspaceClaimsVersion` and writes it to the `WORKSPACE_CLAIMS_VERSION` KV namespace. The sync worker compares the version embedded in incoming JWTs with the authoritative value in KV and rejects stale tokens, forcing the client to refresh credentials.
 
 ### GET /health
 
@@ -154,6 +156,17 @@ pnpm dev
 ```
 
 The service will be available at `http://localhost:8788`.
+
+### Workspace Claims KV Namespace
+
+Workspace membership versions are stored in the `WORKSPACE_CLAIMS_VERSION` KV namespace so other services can quickly invalidate stale tokens. Create the namespace (and its preview equivalent) before running locally:
+
+```bash
+wrangler kv:namespace create WORKSPACE_CLAIMS_VERSION
+wrangler kv:namespace create WORKSPACE_CLAIMS_VERSION --preview
+```
+
+Copy the generated IDs into `packages/auth-worker/wrangler.toml` so both development and production environments share the correct namespace bindings.
 
 ### Testing
 

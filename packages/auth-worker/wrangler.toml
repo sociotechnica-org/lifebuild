@@ -12,6 +12,11 @@ name = "USER_STORE"
 class_name = "UserStore"
 script_name = "work-squared-auth"
 
+[[kv_namespaces]]
+binding = "WORKSPACE_CLAIMS_VERSION"
+id = "00000000000000000000000000000000"
+preview_id = "11111111111111111111111111111111"
+
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["UserStore"]

@@ -11,6 +11,13 @@ export type WorkspaceRole = 'owner' | 'admin' | 'member'
 
 export type WorkspaceInvitationStatus = 'pending' | 'accepted' | 'revoked' | 'expired'
 
+export interface WorkspaceJWTClaim {
+  id: string
+  role: WorkspaceRole
+  rev?: number
+  exp?: number
+}
+
 export interface AuthWorkspaceMember {
   userId: string
   email: string
@@ -55,6 +62,7 @@ export interface AuthUser {
   workspaces?: Record<string, AuthWorkspaceSnapshot>
   pendingInvitations?: AuthWorkspaceInvitation[]
   defaultInstanceId?: string | null
+  workspaceClaimsVersion?: number
 }
 
 export interface AuthWorkspaceSelection {
@@ -62,6 +70,7 @@ export interface AuthWorkspaceSelection {
   defaultInstanceId: string | null
   workspaces?: Record<string, AuthWorkspaceSnapshot>
   pendingInvitations?: AuthWorkspaceInvitation[]
+  workspaceClaimsVersion?: number
 }
 
 export interface SyncPayload {
@@ -81,6 +90,7 @@ export enum AuthErrorCode {
   TOKEN_INVALID = 'TOKEN_INVALID',
   TOKEN_EXPIRED = 'TOKEN_EXPIRED',
   TOKEN_MALFORMED = 'TOKEN_MALFORMED',
+  TOKEN_VERSION_STALE = 'TOKEN_VERSION_STALE',
   USER_NOT_FOUND = 'USER_NOT_FOUND',
   GRACE_PERIOD_EXPIRED = 'GRACE_PERIOD_EXPIRED',
   AUTH_SERVICE_ERROR = 'AUTH_SERVICE_ERROR',
