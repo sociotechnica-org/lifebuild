@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { AddInstanceForm } from './AddInstanceForm.js'
 
 const meta = {
-  title: 'Components/Admin/AddInstanceForm',
+  title: 'Admin/AddInstanceForm',
   component: AddInstanceForm,
   parameters: {
     layout: 'centered',

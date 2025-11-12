@@ -32,7 +32,7 @@ const LoginPageStory = ({ hasSuccessMessage = false }: { hasSuccessMessage?: boo
 }
 
 const meta: Meta<typeof LoginPageStory> = {
-  title: 'Pages/LoginPage',
+  title: 'Auth/LoginPage',
   component: LoginPageStory,
   parameters: {
     layout: 'fullscreen',

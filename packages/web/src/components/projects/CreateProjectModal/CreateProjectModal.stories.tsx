@@ -167,7 +167,7 @@ const CreateProjectModalStory = ({ isOpen, onClose }: { isOpen: boolean; onClose
 }
 
 const meta: Meta<typeof CreateProjectModalStory> = {
-  title: 'Modals/CreateProjectModal',
+  title: 'Components/Modals/CreateProjectModal',
   component: CreateProjectModalStory,
   parameters: {
     layout: 'fullscreen',
