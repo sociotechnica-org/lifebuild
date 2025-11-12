@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { AdminToggle } from './AdminToggle.js'
 
 const meta = {
-  title: 'Components/Admin/AdminToggle',
+  title: 'Admin/AdminToggle',
   component: AdminToggle,
   parameters: {
     layout: 'centered',

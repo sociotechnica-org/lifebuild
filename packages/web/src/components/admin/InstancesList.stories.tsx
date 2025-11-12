@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { InstancesList } from './InstancesList.js'
 
 const meta = {
-  title: 'Components/Admin/InstancesList',
+  title: 'Admin/InstancesList',
   component: InstancesList,
   parameters: {
     layout: 'centered',

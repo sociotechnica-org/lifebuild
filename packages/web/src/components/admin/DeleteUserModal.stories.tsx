@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { DeleteUserModal } from './DeleteUserModal.js'
 
 const meta = {
-  title: 'Components/Admin/DeleteUserModal',
+  title: 'Admin/DeleteUserModal',
   component: DeleteUserModal,
   parameters: {
     layout: 'centered',
