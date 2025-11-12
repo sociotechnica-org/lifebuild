@@ -1,5 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'http'
-import type { WorkspaceReconciler } from '../services/workspace-reconciler.js'
+import type {
+  WorkspaceReconciler,
+  WorkspaceReconcilerStatus,
+} from '../services/workspace-reconciler.js'
 import { operationLogger } from '../utils/logger.js'
 import {
   createOrchestrationTelemetry,
@@ -46,6 +49,11 @@ export const createManualReconcileHandler = (options: ManualReconcileHandlerOpti
     source: 'http',
   })
 
+  const getEnabledStatus = (): Extract<WorkspaceReconcilerStatus, { enabled: true }> | null => {
+    const status = workspaceReconciler.getStatus()
+    return status.enabled ? status : null
+  }
+
   return async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     if (req.method !== 'POST') {
       respondJson(res, 405, { error: 'Method not allowed' })
@@ -58,7 +66,13 @@ export const createManualReconcileHandler = (options: ManualReconcileHandlerOpti
       return
     }
 
-    if (state.inFlight) {
+    const statusBefore = getEnabledStatus()
+    if (!statusBefore) {
+      respondJson(res, 503, { error: 'Workspace reconciler is not available' })
+      return
+    }
+
+    if (statusBefore.isRunning || state.inFlight) {
       respondJson(res, 409, { error: 'Manual reconciliation already in progress' })
       return
     }
@@ -89,22 +103,29 @@ export const createManualReconcileHandler = (options: ManualReconcileHandlerOpti
       const result = await workspaceReconciler.reconcile()
 
       if (!result) {
-        const { durationMs } = telemetry.recordSuccess({
-          status: 'skipped_already_running',
-        })
-        log.warn(
-          {
+        const statusSnapshot = getEnabledStatus()
+        if (statusSnapshot?.isRunning) {
+          const { durationMs } = telemetry.recordSuccess({
+            status: 'skipped_already_running',
+          })
+          log.warn(
+            {
+              durationMs,
+              incidentDashboardUrl: getIncidentDashboardUrl(),
+            },
+            'Manual reconciliation skipped because another run is in progress'
+          )
+          respondJson(res, 409, {
+            status: 'skipped',
+            reason: 'reconcile_in_progress',
             durationMs,
-            incidentDashboardUrl: getIncidentDashboardUrl(),
-          },
-          'Manual reconciliation skipped because another run is in progress'
-        )
-        respondJson(res, 409, {
-          status: 'skipped',
-          reason: 'reconcile_in_progress',
-          durationMs,
-        })
-        return
+          })
+          return
+        }
+
+        const failureMessage =
+          statusSnapshot?.lastError?.message ?? 'Workspace reconciliation failed'
+        throw new Error(failureMessage)
       }
 
       state.lastTriggeredAt = Date.now()
@@ -147,7 +168,7 @@ export const createManualReconcileHandler = (options: ManualReconcileHandlerOpti
       )
       respondJson(res, 500, {
         status: 'failed',
-        error: 'Internal server error',
+        error: error instanceof Error ? error.message : 'Internal server error',
         durationMs,
       })
     } finally {

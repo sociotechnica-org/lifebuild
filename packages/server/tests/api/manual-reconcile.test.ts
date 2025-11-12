@@ -3,12 +3,29 @@ import type { IncomingMessage, ServerResponse } from 'http'
 import type {
   ReconciliationResult,
   WorkspaceReconciler,
+  WorkspaceReconcilerStatus,
 } from '../../src/services/workspace-reconciler.js'
 import {
   createManualReconcileHandler,
   createManualReconcileState,
   type ManualReconcileState,
 } from '../../src/api/manual-reconcile.js'
+
+type EnabledStatus = Extract<WorkspaceReconcilerStatus, { enabled: true }>
+
+const createEnabledStatus = (overrides: Partial<EnabledStatus> = {}): EnabledStatus => ({
+  enabled: true,
+  intervalMs: 60_000,
+  isRunning: false,
+  lastRunStartedAt: undefined,
+  lastRunCompletedAt: undefined,
+  lastSuccessAt: undefined,
+  lastDurationMs: undefined,
+  totals: { runs: 0, successes: 0, failures: 0 },
+  lastResult: undefined,
+  lastError: undefined,
+  ...overrides,
+})
 
 const createRequest = (options?: {
   method?: string
@@ -61,6 +78,7 @@ const createResponse = () => {
 describe('manual reconcile handler', () => {
   let reconciler: WorkspaceReconciler
   let state: ManualReconcileState
+  let status: EnabledStatus
   const token = 'secret-token'
   const minIntervalMs = 60_000
 
@@ -76,11 +94,12 @@ describe('manual reconcile handler', () => {
 
   beforeEach(() => {
     state = createManualReconcileState()
+    status = createEnabledStatus()
     reconciler = {
       reconcile: vi.fn().mockResolvedValue(mockResult),
       stop: vi.fn(),
       start: vi.fn(),
-      getStatus: vi.fn(),
+      getStatus: vi.fn(() => status),
     } as unknown as WorkspaceReconciler
   })
 
@@ -142,15 +161,36 @@ describe('manual reconcile handler', () => {
     await handler(authRequest, firstResponse.res)
 
     const secondResponse = createResponse()
-    expect(typeof secondResponse.res.writeHead).toBe('function')
     await handler(authRequest, secondResponse.res)
 
     expect(secondResponse.getStatus()).toBe(429)
     expect(secondResponse.getHeader('retry-after')).toBeDefined()
   })
 
-  it('returns conflict when reconciliation is already running', async () => {
-    ;(reconciler.reconcile as any).mockResolvedValueOnce(null)
+  it('returns conflict when reconciliation is already running before request', async () => {
+    status.isRunning = true
+
+    const handler = createManualReconcileHandler({
+      workspaceReconciler: reconciler,
+      serverBypassToken: token,
+      minIntervalMs,
+      state,
+    })
+
+    const { res, getStatus } = createResponse()
+    const request = createRequest({ headers: { Authorization: `Bearer ${token}` } })
+
+    await handler(request, res)
+
+    expect(getStatus()).toBe(409)
+    expect((reconciler.reconcile as any)).not.toHaveBeenCalled()
+  })
+
+  it('returns conflict when a concurrent run starts mid-flight', async () => {
+    ;(reconciler.reconcile as any).mockImplementationOnce(async () => {
+      status.isRunning = true
+      return null
+    })
 
     const handler = createManualReconcileHandler({
       workspaceReconciler: reconciler,
@@ -166,6 +206,27 @@ describe('manual reconcile handler', () => {
 
     expect(getStatus()).toBe(409)
     expect(getBody<{ status: string }>()?.status).toBe('skipped')
+    expect(state.lastTriggeredAt).toBeNull()
+  })
+
+  it('returns failure when reconciliation finishes with an error', async () => {
+    status.lastError = { timestamp: new Date().toISOString(), message: 'boom' }
+    ;(reconciler.reconcile as any).mockResolvedValueOnce(null)
+
+    const handler = createManualReconcileHandler({
+      workspaceReconciler: reconciler,
+      serverBypassToken: token,
+      minIntervalMs,
+      state,
+    })
+
+    const { res, getStatus, getBody } = createResponse()
+    const request = createRequest({ headers: { Authorization: `Bearer ${token}` } })
+
+    await handler(request, res)
+
+    expect(getStatus()).toBe(500)
+    expect(getBody<{ status: string }>()?.status).toBe('failed')
     expect(state.lastTriggeredAt).toBeNull()
   })
 })
