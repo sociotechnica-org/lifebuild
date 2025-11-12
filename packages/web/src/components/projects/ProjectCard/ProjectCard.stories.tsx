@@ -3,6 +3,7 @@ import React from 'react'
 import { ProjectCard } from './ProjectCard.js'
 import { getProjects$ } from '@work-squared/shared/queries'
 import { schema, events } from '@work-squared/shared/schema'
+import { DEFAULT_MODEL_STRING } from '@work-squared/shared'
 import { LiveStoreProvider, useQuery } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
@@ -93,7 +94,7 @@ const withTeamSetup = (store: Store) => {
       avatar: '👩‍💼',
       createdAt: new Date(),
       systemPrompt: 'You are a helpful assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       actorId: '1',
     })
   )
@@ -104,7 +105,7 @@ const withTeamSetup = (store: Store) => {
       avatar: '👨‍💻',
       createdAt: new Date(),
       systemPrompt: 'You are a helpful assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       actorId: '1',
     })
   )
@@ -115,7 +116,7 @@ const withTeamSetup = (store: Store) => {
       avatar: '👩‍🎨',
       createdAt: new Date(),
       systemPrompt: 'You are a helpful assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       actorId: '1',
     })
   )
@@ -183,7 +184,7 @@ const largeTeamSetup = (store: Store) => {
         avatar: worker.avatar,
         createdAt: new Date(),
         systemPrompt: 'You are a helpful assistant.',
-        defaultModel: 'claude-sonnet-4-20250514',
+        defaultModel: DEFAULT_MODEL_STRING,
         actorId: '1',
       })
     )
@@ -222,7 +223,7 @@ const longNameSetup = (store: Store) => {
       avatar: '👩‍💼',
       createdAt: new Date(),
       systemPrompt: 'You are a helpful assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       actorId: '1',
     })
   )

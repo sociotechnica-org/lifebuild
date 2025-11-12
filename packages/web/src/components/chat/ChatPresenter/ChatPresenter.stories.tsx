@@ -8,6 +8,7 @@ import {
   getWorkers$,
 } from '@work-squared/shared/queries'
 import { schema, events, type Worker } from '@work-squared/shared/schema'
+import { DEFAULT_MODEL_STRING } from '@work-squared/shared'
 import { LiveStoreProvider, useQuery } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
@@ -79,7 +80,7 @@ const storySetup = (store: Store) => {
       name: 'New Assistant',
       createdAt: new Date(),
       systemPrompt: 'You are a helpful assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       actorId: '1',
     })
   )
@@ -89,7 +90,7 @@ const storySetup = (store: Store) => {
       id: '1',
       title: 'Conversation with New Assistant',
       createdAt: new Date(),
-      model: 'claude-sonnet-4-20250514',
+      model: DEFAULT_MODEL_STRING,
       workerId: '1',
     })
   )
@@ -144,7 +145,7 @@ const withConversationsSetup = (store: Store) => {
       avatar: '✨',
       createdAt: new Date(),
       systemPrompt: 'You are a helpful assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       actorId: '1',
     })
   )
@@ -152,7 +153,7 @@ const withConversationsSetup = (store: Store) => {
     events.conversationCreated({
       id: '1',
       title: 'Conversation with Sample Assistant',
-      model: 'claude-sonnet-4-20250514',
+      model: DEFAULT_MODEL_STRING,
       createdAt: new Date(),
       workerId: '1',
     })
@@ -200,7 +201,7 @@ const processingSetup = (store: Store) => {
       avatar: '⚡',
       createdAt: new Date(),
       systemPrompt: 'You are a helpful assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       actorId: '1',
     })
   )
@@ -208,7 +209,7 @@ const processingSetup = (store: Store) => {
     events.conversationCreated({
       id: '1',
       title: 'Processing Conversation',
-      model: 'claude-sonnet-4-20250514',
+      model: DEFAULT_MODEL_STRING,
       createdAt: new Date(),
       workerId: '1',
     })
@@ -267,7 +268,7 @@ const chatPickerSetup = (store: Store) => {
       avatar: '🤖',
       createdAt: new Date(),
       systemPrompt: 'You are a helpful assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       actorId: '1',
     })
   )
@@ -279,7 +280,7 @@ const chatPickerSetup = (store: Store) => {
       roleDescription: 'Specialized in code reviews',
       createdAt: new Date(),
       systemPrompt: 'You are a code review specialist.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       actorId: '1',
     })
   )
@@ -291,7 +292,7 @@ const chatPickerSetup = (store: Store) => {
       roleDescription: 'Project planning and management',
       createdAt: new Date(),
       systemPrompt: 'You are a project management expert.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       actorId: '1',
     })
   )
@@ -299,7 +300,7 @@ const chatPickerSetup = (store: Store) => {
     events.conversationCreated({
       id: '1',
       title: 'Sample Conversation',
-      model: 'claude-sonnet-4-20250514',
+      model: DEFAULT_MODEL_STRING,
       createdAt: new Date(),
       workerId: '1',
     })
@@ -331,7 +332,7 @@ const longConversationSetup = (store: Store) => {
       avatar: '💬',
       createdAt: new Date(),
       systemPrompt: 'You are a helpful assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       actorId: '1',
     })
   )
@@ -339,7 +340,7 @@ const longConversationSetup = (store: Store) => {
     events.conversationCreated({
       id: '1',
       title: 'Long Conversation',
-      model: 'claude-sonnet-4-20250514',
+      model: DEFAULT_MODEL_STRING,
       createdAt: new Date(),
       workerId: '1',
     })

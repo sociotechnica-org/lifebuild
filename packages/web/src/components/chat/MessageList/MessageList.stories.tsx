@@ -3,6 +3,7 @@ import React from 'react'
 import { MessageList } from './MessageList.js'
 import { getConversationMessages$, getWorkerById$ } from '@work-squared/shared/queries'
 import { schema, events } from '@work-squared/shared/schema'
+import { DEFAULT_MODEL_STRING } from '@work-squared/shared'
 import { LiveStoreProvider, useQuery } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
@@ -74,7 +75,7 @@ const basicMessagesSetup = (store: Store) => {
       avatar: '☀️',
       roleDescription: 'Project Manager',
       systemPrompt: 'You are a helpful project management assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       createdAt: new Date('2024-01-01'),
       actorId: '1',
     })
@@ -83,7 +84,7 @@ const basicMessagesSetup = (store: Store) => {
     events.conversationCreated({
       id: 'conv1',
       title: 'Test Conversation',
-      model: 'claude-sonnet-4-20250514',
+      model: DEFAULT_MODEL_STRING,
       createdAt: new Date('2025-01-01T12:00:00'),
       workerId: 'worker-1',
     })
@@ -127,7 +128,7 @@ const toolCallMessagesSetup = (store: Store) => {
       avatar: '☀️',
       roleDescription: 'Project Manager',
       systemPrompt: 'You are a helpful project management assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       createdAt: new Date('2024-01-01'),
       actorId: '1',
     })
@@ -136,7 +137,7 @@ const toolCallMessagesSetup = (store: Store) => {
     events.conversationCreated({
       id: 'conv1',
       title: 'Tool Call Example',
-      model: 'claude-sonnet-4-20250514',
+      model: DEFAULT_MODEL_STRING,
       createdAt: new Date('2025-01-01T12:00:00'),
       workerId: 'worker-1',
     })
@@ -189,7 +190,7 @@ const processingSetup = (store: Store) => {
       avatar: '☀️',
       roleDescription: 'Project Manager',
       systemPrompt: 'You are a helpful project management assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       createdAt: new Date('2024-01-01'),
       actorId: '1',
     })
@@ -198,7 +199,7 @@ const processingSetup = (store: Store) => {
     events.conversationCreated({
       id: 'conv1',
       title: 'Processing...',
-      model: 'claude-sonnet-4-20250514',
+      model: DEFAULT_MODEL_STRING,
       createdAt: new Date('2025-01-01T12:00:00'),
       workerId: 'worker-1',
     })
@@ -242,7 +243,7 @@ const emptySetup = (store: Store) => {
       avatar: '☀️',
       roleDescription: 'Project Manager',
       systemPrompt: 'You are a helpful project management assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       createdAt: new Date('2024-01-01'),
       actorId: '1',
     })
@@ -251,7 +252,7 @@ const emptySetup = (store: Store) => {
     events.conversationCreated({
       id: 'conv1',
       title: 'New Conversation',
-      model: 'claude-sonnet-4-20250514',
+      model: DEFAULT_MODEL_STRING,
       createdAt: new Date('2025-01-01T12:00:00'),
       workerId: 'worker-1',
     })
@@ -276,7 +277,7 @@ const longConversationSetup = (store: Store) => {
       avatar: '☀️',
       roleDescription: 'Project Manager',
       systemPrompt: 'You are a helpful project management assistant.',
-      defaultModel: 'claude-sonnet-4-20250514',
+      defaultModel: DEFAULT_MODEL_STRING,
       createdAt: new Date('2024-01-01'),
       actorId: '1',
     })
@@ -285,7 +286,7 @@ const longConversationSetup = (store: Store) => {
     events.conversationCreated({
       id: 'conv1',
       title: 'Long Conversation',
-      model: 'claude-sonnet-4-20250514',
+      model: DEFAULT_MODEL_STRING,
       createdAt: new Date('2025-01-01T12:00:00'),
       workerId: 'worker-1',
     })
