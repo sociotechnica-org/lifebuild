@@ -35,7 +35,8 @@ vi.mock('../../ui/ModelSelector/ModelSelector.js', () => ({
       value={selectedModel}
       onChange={e => onModelChange(e.target.value)}
     >
-      <option value={MODEL_IDS.CLAUDE_SONNET}>Claude 4 Sonnet</option>
+      <option value={MODEL_IDS.CLAUDE_SONNET}>Claude 4.5 Sonnet</option>
+      <option value={MODEL_IDS.CLAUDE_HAIKU}>Claude 4.5 Haiku</option>
       <option value={MODEL_IDS.GPT_5}>GPT-5</option>
     </select>
   ),
