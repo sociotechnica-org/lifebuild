@@ -1,0 +1,590 @@
+/* Kanban Room - Skeuomorphic Design System */
+
+/* ==========================================
+   DESIGN TOKENS
+   ========================================== */
+
+:root {
+  /* Wabi-sabi color palette - desaturated earth tones */
+  --kr-concrete-dark: #2a2a2a;
+  --kr-concrete-mid: #3a3836;
+  --kr-concrete-light: #4a4644;
+  --kr-wood-dark: #3d2f2a;
+  --kr-wood-mid: #5c4a3f;
+  --kr-wood-warm: #7d6555;
+  --kr-zellige-base: #d4c9b8;
+  --kr-zellige-shadow: #a89885;
+  --kr-zellige-highlight: #e8e0d0;
+  --kr-terracotta: #b87860;
+  --kr-slate: #6a7178;
+  --kr-paper: #f5f1e8;
+  --kr-ink: #1a1614;
+
+  /* Lighting */
+  --kr-lamp-glow: rgba(255, 235, 205, 0.4);
+  --kr-lamp-warmth: rgba(255, 200, 140, 0.15);
+  --kr-shadow-deep: rgba(0, 0, 0, 0.6);
+  --kr-shadow-soft: rgba(0, 0, 0, 0.25);
+  --kr-shadow-ambient: rgba(0, 0, 0, 0.15);
+
+  /* Physics & timing */
+  --kr-friction: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --kr-settle: cubic-bezier(0.33, 0, 0.2, 1);
+  --kr-slow: 800ms;
+  --kr-medium: 500ms;
+  --kr-quick: 250ms;
+
+  /* Spacing - asymmetric & organic */
+  --kr-space-xs: 8px;
+  --kr-space-sm: 14px;
+  --kr-space-md: 24px;
+  --kr-space-lg: 42px;
+  --kr-space-xl: 68px;
+
+  /* Card dimensions */
+  --kr-card-width: 280px;
+  --kr-card-height: 180px;
+  --kr-card-elevation: 12px;
+}
+
+/* ==========================================
+   BASE ROOM CONTAINER
+   ========================================== */
+
+.kanbanRoom {
+  position: relative;
+  min-height: 100vh;
+  background: var(--kr-concrete-dark);
+  overflow: hidden;
+  cursor: none; /* Custom cursor */
+}
+
+/* Concrete texture - layered noise patterns */
+.kanbanRoom::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    /* Micro irregularities */
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="n"><feTurbulence baseFrequency="0.9" numOctaves="3"/></filter><rect width="100" height="100" filter="url(%23n)" opacity="0.03"/></svg>'),
+    /* Larger concrete grain */
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="n2"><feTurbulence baseFrequency="0.4" numOctaves="4"/></filter><rect width="200" height="200" filter="url(%23n2)" opacity="0.05"/></svg>'),
+    /* Subtle variations */
+      radial-gradient(circle at 20% 30%, var(--kr-concrete-mid) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, var(--kr-concrete-light) 0%, transparent 35%);
+  background-size:
+    100px 100px,
+    200px 200px,
+    100% 100%,
+    100% 100%;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* ==========================================
+   CUSTOM CURSOR - SOFT RIPPLE
+   ========================================== */
+
+.cursor {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: screen;
+  opacity: 0.6;
+}
+
+.cursorCore {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle,
+    var(--kr-lamp-glow) 0%,
+    var(--kr-lamp-warmth) 40%,
+    transparent 70%
+  );
+  filter: blur(12px);
+  animation: cursorPulse 3s ease-in-out infinite;
+}
+
+@keyframes cursorPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.8;
+  }
+}
+
+/* ==========================================
+   WOODEN SHELVES - ASYMMETRIC GRID
+   ========================================== */
+
+.shelvesContainer {
+  position: relative;
+  padding: var(--kr-space-xl) var(--kr-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--kr-space-xl);
+  align-items: flex-end; /* Right-aligned */
+}
+
+.shelf {
+  position: relative;
+  width: 85%; /* Asymmetric - not full width */
+  min-height: 240px;
+  padding: var(--kr-space-md) var(--kr-space-lg);
+  background: linear-gradient(
+    180deg,
+    var(--kr-wood-dark) 0%,
+    var(--kr-wood-mid) 40%,
+    var(--kr-wood-warm) 100%
+  );
+  border-radius: 2px;
+  box-shadow:
+    /* Top highlight */
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    /* Bottom depth */ 0 8px 16px var(--kr-shadow-deep),
+    /* Ambient occlusion */ 0 2px 8px var(--kr-shadow-soft);
+
+  /* Wood grain texture */
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    ),
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="100"><filter id="wood"><feTurbulence baseFrequency="0.05,0.8" numOctaves="3" seed="7"/></filter><rect width="400" height="100" filter="url(%23wood)" opacity="0.08"/></svg>');
+  background-size:
+    4px 100%,
+    400px 100%;
+}
+
+/* Alternate shelf widths for asymmetry */
+.shelf:nth-child(2n) {
+  width: 78%;
+}
+
+.shelf:nth-child(3n) {
+  width: 92%;
+}
+
+/* Column header - Japanese calligraphy effect */
+.shelfHeader {
+  position: absolute;
+  top: -32px;
+  left: var(--kr-space-md);
+  font-family: 'Georgia', serif;
+  font-size: 18px;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  color: var(--kr-paper);
+  opacity: 0.7;
+  text-transform: lowercase;
+  font-style: italic;
+
+  /* Revealed by grazing light */
+  text-shadow:
+    1px 1px 0 var(--kr-shadow-ambient),
+    -1px -1px 0 rgba(255, 255, 255, 0.02);
+
+  transition: opacity var(--kr-medium) var(--kr-settle);
+}
+
+.shelf:hover .shelfHeader {
+  opacity: 0.95;
+}
+
+/* ==========================================
+   CARDS CONTAINER - HORIZONTAL STACKING
+   ========================================== */
+
+.cardsContainer {
+  display: flex;
+  gap: var(--kr-space-sm);
+  flex-wrap: wrap;
+  padding: var(--kr-space-sm) 0;
+  min-height: 200px;
+}
+
+/* Empty state */
+.emptyShelf {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 160px;
+  color: var(--kr-zellige-shadow);
+  font-size: 14px;
+  font-style: italic;
+  opacity: 0.5;
+}
+
+/* ==========================================
+   ZELLIGE TILE CARD
+   ========================================== */
+
+.card {
+  position: relative;
+  width: var(--kr-card-width);
+  height: var(--kr-card-height);
+  background: var(--kr-zellige-base);
+  border-radius: 3px;
+
+  /* Depth layering - cards rise toward user */
+  transform: translateZ(0);
+  transition:
+    transform var(--kr-medium) var(--kr-settle),
+    box-shadow var(--kr-medium) var(--kr-settle);
+
+  /* Tile texture - slightly uneven glaze */
+  background-image:
+    /* Glaze variations */
+    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 80%, rgba(0, 0, 0, 0.08) 0%, transparent 35%),
+    /* Fine crackle */
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><filter id="crack"><feTurbulence baseFrequency="2.5" numOctaves="2"/></filter><rect width="300" height="200" filter="url(%23crack)" opacity="0.02"/></svg>');
+  background-size:
+    100% 100%,
+    100% 100%,
+    300px 200px;
+
+  /* Shadows for ambient occlusion */
+  box-shadow:
+    /* Contact shadow */
+    0 1px 3px var(--kr-shadow-ambient),
+    /* Elevation */ 0 var(--kr-card-elevation) 24px var(--kr-shadow-soft),
+    /* Inner bevel */ inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+
+  cursor: grab;
+  user-select: none;
+}
+
+/* Each card slightly unique */
+.card:nth-child(2n) {
+  background-color: #d8cdb9;
+}
+
+.card:nth-child(3n) {
+  background-color: #d0c5b5;
+  transform: rotate(-0.3deg);
+}
+
+.card:nth-child(5n) {
+  background-color: #d7cfbd;
+  transform: rotate(0.4deg);
+}
+
+/* Hover state - card rises */
+.card:hover {
+  transform: translateY(-4px) translateZ(8px);
+  box-shadow:
+    0 2px 4px var(--kr-shadow-ambient),
+    0 20px 32px var(--kr-shadow-soft),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Active/dragging state */
+.card:active,
+.cardDragging {
+  cursor: grabbing;
+  transform: translateY(-8px) translateZ(16px) scale(1.02);
+  box-shadow:
+    0 4px 8px var(--kr-shadow-ambient),
+    0 28px 48px var(--kr-shadow-deep),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  z-index: 100;
+}
+
+/* ==========================================
+   CARD CONTENT
+   ========================================== */
+
+.cardContent {
+  position: relative;
+  height: 100%;
+  padding: var(--kr-space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--kr-space-xs);
+  color: var(--kr-ink);
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 0;
+  color: var(--kr-ink);
+  opacity: 0.9;
+}
+
+.cardMeta {
+  display: flex;
+  gap: var(--kr-space-xs);
+  align-items: center;
+  font-size: 12px;
+  color: var(--kr-ink);
+  opacity: 0.6;
+  margin-top: auto;
+}
+
+.cardDescription {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--kr-ink);
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.cardAssignees {
+  display: flex;
+  gap: 4px;
+  margin-top: var(--kr-space-xs);
+}
+
+.assigneeBubble {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--kr-wood-mid);
+  color: var(--kr-paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px var(--kr-shadow-ambient);
+}
+
+.cardIcons {
+  display: flex;
+  gap: var(--kr-space-xs);
+  font-size: 14px;
+  opacity: 0.5;
+}
+
+/* ==========================================
+   RIPPLE EFFECT - WATER DROP
+   ========================================== */
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.1) 30%,
+    transparent 70%
+  );
+  pointer-events: none;
+  animation: rippleExpand 1200ms var(--kr-settle) forwards;
+}
+
+@keyframes rippleExpand {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    width: 200px;
+    height: 200px;
+    opacity: 0;
+  }
+}
+
+/* ==========================================
+   LIGHTING EFFECTS - CURSOR FOLLOW
+   ========================================== */
+
+.lightingLayer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  mix-blend-mode: soft-light;
+  opacity: 0.4;
+}
+
+.lightSpot {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(
+    circle,
+    var(--kr-lamp-glow) 0%,
+    var(--kr-lamp-warmth) 30%,
+    transparent 60%
+  );
+  filter: blur(80px);
+  transform: translate(-50%, -50%);
+  transition:
+    left var(--kr-quick) ease-out,
+    top var(--kr-quick) ease-out;
+}
+
+/* ==========================================
+   BAMBOO SHADOW ANIMATION - SUBTLE
+   ========================================== */
+
+.bambooShadows {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 100%;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="800"><line x1="50" y1="0" x2="50" y2="800" stroke="rgba(0,0,0,0.1)" stroke-width="2"/><line x1="150" y1="0" x2="145" y2="800" stroke="rgba(0,0,0,0.08)" stroke-width="3"/><line x1="280" y1="0" x2="285" y2="800" stroke="rgba(0,0,0,0.06)" stroke-width="2"/></svg>');
+  opacity: 0.3;
+  pointer-events: none;
+  animation: bambooSway 12s ease-in-out infinite;
+}
+
+@keyframes bambooSway {
+  0%,
+  100% {
+    transform: translateX(0) skewX(0deg);
+  }
+  25% {
+    transform: translateX(-3px) skewX(-0.5deg);
+  }
+  75% {
+    transform: translateX(3px) skewX(0.5deg);
+  }
+}
+
+/* ==========================================
+   TEMPORAL AGING EFFECT
+   ========================================== */
+
+@keyframes subtleAge {
+  0% {
+    filter: sepia(0%) brightness(1);
+  }
+  100% {
+    filter: sepia(2%) brightness(0.98);
+  }
+}
+
+.aged {
+  animation: subtleAge 60s linear infinite alternate;
+}
+
+/* ==========================================
+   MODAL - RICE PAPER EXPANSION
+   ========================================== */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--kr-space-xl);
+}
+
+.modalBackdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  animation: backdropFade var(--kr-slow) var(--kr-settle);
+}
+
+@keyframes backdropFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modalContent {
+  position: relative;
+  max-width: 800px;
+  width: 100%;
+  max-height: 80vh;
+  background: var(--kr-paper);
+  border-radius: 4px;
+  padding: var(--kr-space-xl);
+  box-shadow:
+    0 24px 64px var(--kr-shadow-deep),
+    inset 0 0 40px rgba(255, 240, 200, 0.3);
+
+  /* Rice paper texture */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><filter id="paper"><feTurbulence baseFrequency="0.8" numOctaves="4"/></filter><rect width="300" height="300" filter="url(%23paper)" opacity="0.03"/></svg>');
+  background-size: 300px 300px;
+
+  animation: modalExpand var(--kr-slow) var(--kr-settle);
+  overflow-y: auto;
+}
+
+@keyframes modalExpand {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Translucent warm glow when "held" */
+.modalContent::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 220, 150, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.modalTitle {
+  font-size: 28px;
+  font-weight: 400;
+  margin: 0 0 var(--kr-space-md) 0;
+  color: var(--kr-ink);
+}
+
+.modalBody {
+  color: var(--kr-ink);
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+.modalClose {
+  position: absolute;
+  top: var(--kr-space-md);
+  right: var(--kr-space-md);
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--kr-wood-dark);
+  color: var(--kr-paper);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: transform var(--kr-quick) var(--kr-settle);
+}
+
+.modalClose:hover {
+  transform: scale(1.1);
+}

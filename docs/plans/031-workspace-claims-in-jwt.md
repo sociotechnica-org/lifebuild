@@ -120,6 +120,7 @@ Because we have no active production sessions, we can ship this as a single PR w
    - Document the provisioning commands in `docs/deployment.md` and ensure `pnpm install` steps don’t try to create namespaces automatically.
 
 **Testing / Validation**
+
 - Unit tests for new shared types, version bump logic, and sync worker validators.
 - Integration tests that:
   - Issue a token, connect to LiveStore, and confirm no network call happens during validation.
@@ -128,13 +129,13 @@ Because we have no active production sessions, we can ship this as a single PR w
 
 ## Risks & Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| Token size grows beyond header limits for users with many workspaces | Failed logins or sync connects | Store only workspace IDs + role (short strings). Log claim sizes; consider chunking or secondary fetch if someone exceeds ~4 KB. |
-| Version map out-of-sync (KV write fails) | Revocations delayed | Retry KV writes with backoff, emit Sentry errors, and fall back to forcing JWT expiration if KV is unavailable. |
-| Token issued without incremented version | Revoked users keep access | Centralize membership mutations through helpers that always bump version + write KV; add test coverage + Sentry assertions. |
-| KV read failures in sync worker | Users blocked or allowed when they shouldn’t be | Cache last known version and treat KV failure as “stale” (force refresh) while logging and alerting. |
-| Client refresh loop bugs | Users stuck refreshing | Provide explicit error codes so AuthContext can differentiate “stale version” from other failures and show actionable UI. |
+| Risk                                                                 | Impact                                          | Mitigation                                                                                                                       |
+| -------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Token size grows beyond header limits for users with many workspaces | Failed logins or sync connects                  | Store only workspace IDs + role (short strings). Log claim sizes; consider chunking or secondary fetch if someone exceeds ~4 KB. |
+| Version map out-of-sync (KV write fails)                             | Revocations delayed                             | Retry KV writes with backoff, emit Sentry errors, and fall back to forcing JWT expiration if KV is unavailable.                  |
+| Token issued without incremented version                             | Revoked users keep access                       | Centralize membership mutations through helpers that always bump version + write KV; add test coverage + Sentry assertions.      |
+| KV read failures in sync worker                                      | Users blocked or allowed when they shouldn’t be | Cache last known version and treat KV failure as “stale” (force refresh) while logging and alerting.                             |
+| Client refresh loop bugs                                             | Users stuck refreshing                          | Provide explicit error codes so AuthContext can differentiate “stale version” from other failures and show actionable UI.        |
 
 ## Deliverables
 
