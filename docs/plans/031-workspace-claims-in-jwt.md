@@ -95,7 +95,7 @@ Because we have no active production sessions, we can ship this as a single PR w
 
 2. **Auth Worker updates**
    - `packages/auth-worker/src/durable-objects/UserStore.ts`: maintain a per-user `workspaceClaimsVersion` counter (increment on any membership mutation) and persist it alongside user data.
-   - Push the version to Cloudflare KV after each mutation for low-latency reads (key: `workspace-claims-version:${userId}`).
+   - Provision a dedicated Cloudflare KV namespace (e.g., `WORKSPACE_CLAIMS_VERSION`) and push the latest version there after each mutation for low-latency reads (key: `workspace-claims-version:${userId}`). Update `wrangler.toml` and `.dev.vars`/deployment docs to bind this namespace to both the Auth Worker and Sync Worker.
    - `packages/auth-worker/src/handlers/auth.ts`: when issuing JWTs (login/refresh), embed `workspaces` (id + role + optional `rev`) and `workspaceClaimsVersion`. Remove the old endpoints used by the sync worker (`/internal/users/:userId/instances`).
    - Provide an authenticated endpoint (used by the frontend) to force-refresh tokens after receiving a `FORBIDDEN` error.
 
@@ -104,7 +104,7 @@ Because we have no active production sessions, we can ship this as a single PR w
 
 4. **Sync worker updates**
    - Replace `verifyWorkspaceOwnership` in `packages/worker/functions/_worker.ts` with JWT-claim validation that never calls the Auth Worker.
-   - Add a lightweight cache of `workspaceClaimsVersion` values fetched from KV so tokens with stale versions are rejected immediately.
+   - Bind the same `WORKSPACE_CLAIMS_VERSION` KV namespace in `wrangler.toml` and add a lightweight cache of values fetched from KV so tokens with stale versions are rejected immediately.
    - Remove all code paths that fetched `/internal/users/:userId/instances` and delete related config/env docs.
 
 5. **Observability**
@@ -113,6 +113,11 @@ Because we have no active production sessions, we can ship this as a single PR w
 
 6. **Docs and runbooks**
    - Update `docs/architecture.md`, package READMEs, and ops runbooks to describe the new flow.
+
+7. **Infrastructure & deployment**
+   - Provision the Cloudflare KV namespace in each environment (`wrangler kv:namespace create WORKSPACE_CLAIMS_VERSION --preview`) and wire bindings into both the Auth Worker and Sync Worker `wrangler.toml` files.
+   - Store namespace IDs/preview IDs in Conductor/infra configs so deployments remain reproducible.
+   - Document the provisioning commands in `docs/deployment.md` and ensure `pnpm install` steps don’t try to create namespaces automatically.
 
 **Testing / Validation**
 - Unit tests for new shared types, version bump logic, and sync worker validators.
