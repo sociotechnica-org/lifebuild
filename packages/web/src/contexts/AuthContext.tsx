@@ -468,6 +468,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         errorMessage.includes('TOKEN_EXPIRED') ||
         errorMessage.includes('TOKEN_INVALID') ||
         errorMessage.includes('TOKEN_MISSING') ||
+        errorMessage.includes('TOKEN_VERSION_STALE') ||
         errorMessage.includes('authentication') ||
         errorMessage.includes('unauthorized')
 
