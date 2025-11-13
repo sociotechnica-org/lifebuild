@@ -42,11 +42,13 @@ This package contains the **WebSocket sync server only** for Work Squared (as of
 ```bash
 # Start worker dev server (from root)
 pnpm dev
-# or run worker only
+# or run worker only (local Miniflare with persisted DO/KV state)
 pnpm --filter @work-squared/worker dev
 
 # Worker will be available at http://localhost:8787
 ```
+
+Local runs use Wrangler/Miniflare with `--persist-to .wrangler/state/sync`, so Durable Objects, KV, and D1 data survive restarts. Delete that directory if you need a clean environment.
 
 ### Development Commands
 
@@ -131,14 +133,12 @@ BRAINTRUST_PROJECT_ID="your-braintrust-project-id"
 - `SERVER_BYPASS_TOKEN`: Used for internal workspace validation calls to the auth worker. Must match auth worker configuration.
 - `WORKSPACE_CLAIMS_VERSION`: KV namespace binding used to read workspace membership versions for JWT revocation.
 
-Create the KV namespace once per environment:
+Local development uses Miniflare, so no extra KV provisioning is required and state is persisted under `.wrangler/state/sync`. For staging/production deployments, create the namespace and copy the IDs into `wrangler.jsonc`:
 
 ```bash
 wrangler kv:namespace create WORKSPACE_CLAIMS_VERSION
 wrangler kv:namespace create WORKSPACE_CLAIMS_VERSION --preview
 ```
-
-Copy the generated IDs into `wrangler.jsonc` so the worker can read the authoritative version map.
 
 **Workspace Enforcement:**
 

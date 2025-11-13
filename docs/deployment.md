@@ -63,7 +63,10 @@ pnpm --filter @work-squared/web run deploy
 
 ### Workspace Claims KV Namespace
 
-Workspace membership versions are stored in a shared Cloudflare KV namespace so the sync worker can reject stale JWTs instantly. Create the namespace once per environment and copy the generated IDs into both `packages/auth-worker/wrangler.toml` and `packages/worker/wrangler.jsonc`:
+Workspace membership versions are stored in a shared Cloudflare KV namespace so the sync worker can reject stale JWTs instantly.
+
+- **Local development:** Miniflare automatically provisions a local KV store (persisted under each package’s `.wrangler/state/...` directory) when you run `pnpm dev`, so no additional setup is required.
+- **Staging/production:** Create the namespace once per environment and copy the generated IDs into both `packages/auth-worker/wrangler.toml` and `packages/worker/wrangler.jsonc`:
 
 ```bash
 wrangler kv:namespace create WORKSPACE_CLAIMS_VERSION

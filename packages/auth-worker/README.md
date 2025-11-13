@@ -151,22 +151,29 @@ pnpm install
 # Copy environment file
 cp .dev.vars.example .dev.vars
 
-# Start development server
+# Start development server (local Miniflare with persisted DO/KV state)
 pnpm dev
 ```
 
 The service will be available at `http://localhost:8788`.
 
+### Local KV & Durable Object persistence
+
+`pnpm dev` runs Wrangler/Miniflare locally and uses `--persist-to .wrangler/state/auth`, so both Durable Objects and KV survive restarts. Remove that directory if you need a clean slate.
+
 ### Workspace Claims KV Namespace
 
-Workspace membership versions are stored in the `WORKSPACE_CLAIMS_VERSION` KV namespace so other services can quickly invalidate stale tokens. Create the namespace (and its preview equivalent) before running locally:
+Workspace membership versions are stored in the `WORKSPACE_CLAIMS_VERSION` KV namespace so other services can quickly invalidate stale tokens.
+
+- **Local development:** nothing extra to do—Miniflare provides a local KV store automatically and persists it under `.wrangler/state/auth`.
+- **Remote/production:** create real namespaces and copy the IDs into `packages/auth-worker/wrangler.toml`:
 
 ```bash
 wrangler kv:namespace create WORKSPACE_CLAIMS_VERSION
 wrangler kv:namespace create WORKSPACE_CLAIMS_VERSION --preview
 ```
 
-Copy the generated IDs into `packages/auth-worker/wrangler.toml` so both development and production environments share the correct namespace bindings.
+This ensures staging/production deployments share the same binding names as local dev.
 
 ### Testing
 
