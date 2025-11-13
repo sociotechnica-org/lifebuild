@@ -2,24 +2,12 @@ import React, { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@livestore/react'
 import { getProjectsByCategory$, getAllWorkerProjects$ } from '@work-squared/shared/queries'
-import { getCategoryInfo } from '@work-squared/shared'
+import { PROJECT_CATEGORIES, getCategoryInfo } from '@work-squared/shared'
 import type { ProjectCategory } from '@work-squared/shared'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 
-const LIFE_CATEGORIES = {
-  health: { name: 'Health' },
-  relationships: { name: 'Relationships' },
-  finances: { name: 'Finances' },
-  growth: { name: 'Learning' },
-  leisure: { name: 'Leisure' },
-  spirituality: { name: 'Purpose' },
-  home: { name: 'Home' },
-  contribution: { name: 'Service' },
-} as const
-
 export const LifeMap: React.FC = () => {
-  const lifeCategories = Object.entries(LIFE_CATEGORIES)
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
 
   // Query projects for each category
@@ -58,31 +46,30 @@ export const LifeMap: React.FC = () => {
   // Calculate workers for each category
   const categoryWorkersMap = useMemo(() => {
     const workersMap: Record<string, number> = {}
-    lifeCategories.forEach(([categoryId]) => {
-      const projects = categoryProjectsMap[categoryId as keyof typeof categoryProjectsMap] || []
+    PROJECT_CATEGORIES.forEach(category => {
+      const projects = categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
       const projectIds = projects.map(p => p.id)
       const workerIds = new Set<string>()
       projectIds.forEach(projectId => {
         const projectWorkers = allWorkerProjects.filter(wp => wp.projectId === projectId)
         projectWorkers.forEach(wp => workerIds.add(wp.workerId))
       })
-      workersMap[categoryId] = workerIds.size
+      workersMap[category.value] = workerIds.size
     })
     return workersMap
-  }, [categoryProjectsMap, allWorkerProjects, lifeCategories])
+  }, [categoryProjectsMap, allWorkerProjects])
 
   return (
     <div>
       <ul>
-        {lifeCategories.map(([categoryId, category]) => {
-          const projects = categoryProjectsMap[categoryId as keyof typeof categoryProjectsMap] || []
-          const workers = categoryWorkersMap[categoryId] || 0
-          const categoryInfo = getCategoryInfo(categoryId as ProjectCategory)
+        {PROJECT_CATEGORIES.map(category => {
+          const projects = categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
+          const workers = categoryWorkersMap[category.value] || 0
           return (
-            <li key={categoryId} className='mb-2'>
-              <Link to={preserveStoreIdInUrl(generateRoute.newCategory(categoryId))}>
+            <li key={category.value} className='mb-2'>
+              <Link to={preserveStoreIdInUrl(generateRoute.newCategory(category.value))}>
                 <strong>
-                  {categoryInfo?.icon && <span>{categoryInfo.icon}</span>} {category.name}
+                  {category.icon && <span>{category.icon}</span>} {category.name}
                 </strong>
               </Link>
               <div>

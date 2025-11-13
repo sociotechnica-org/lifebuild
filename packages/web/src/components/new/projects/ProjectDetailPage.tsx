@@ -8,6 +8,12 @@ import {
   getTaskComments$,
 } from '@work-squared/shared/queries'
 import type { Project, Task, User } from '@work-squared/shared/schema'
+import {
+  ARCHETYPE_LABELS,
+  STAGE_LABELS,
+  type PlanningAttributes,
+  getCategoryInfo,
+} from '@work-squared/shared'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 
@@ -62,7 +68,21 @@ export const ProjectDetailPage: React.FC = () => {
   const usersById = useMemo(() => new Map(users.map(user => [user.id, user])), [users])
   const project = (projectRows[0] ?? undefined) as Project | undefined
 
-  // Determine back link based on project category
+  // Parse project attributes
+  const attributes = useMemo(() => {
+    if (!project?.attributes) return null
+    try {
+      const parsed =
+        typeof project.attributes === 'string'
+          ? JSON.parse(project.attributes)
+          : (project.attributes as PlanningAttributes)
+      return parsed as PlanningAttributes
+    } catch {
+      return null
+    }
+  }, [project?.attributes])
+
+  // Determine back link and label based on project category
   const backLink = useMemo(() => {
     if (project?.category) {
       return preserveStoreIdInUrl(generateRoute.newCategory(project.category))
@@ -70,9 +90,34 @@ export const ProjectDetailPage: React.FC = () => {
     return preserveStoreIdInUrl('/new')
   }, [project?.category])
 
+  const backLabel = useMemo(() => {
+    if (project?.category) {
+      const categoryInfo = getCategoryInfo(project.category)
+      return categoryInfo ? `← Back to ${categoryInfo.name}` : `← Back to ${project.category}`
+    }
+    return '← Back to Life Map'
+  }, [project?.category])
+
+  // Format date helper
+  const formatDate = (timestamp?: number) => {
+    if (!timestamp) return null
+    return new Date(timestamp).toLocaleDateString()
+  }
+
+  // Format duration helper
+  const formatDuration = (hours?: number) => {
+    if (!hours) return null
+    if (hours < 1) return `${Math.round(hours * 60)} minutes`
+    if (hours < 24) return `${hours.toFixed(1)} hours`
+    const days = Math.floor(hours / 24)
+    const remainingHours = hours % 24
+    if (remainingHours === 0) return `${days} day${days !== 1 ? 's' : ''}`
+    return `${days} day${days !== 1 ? 's' : ''}, ${remainingHours.toFixed(1)} hours`
+  }
+
   return (
     <div>
-      <Link to={backLink}>← Back</Link>
+      <Link to={backLink}>{backLabel}</Link>
 
       {!projectId ? (
         <p>Invalid project ID</p>
@@ -88,8 +133,96 @@ export const ProjectDetailPage: React.FC = () => {
             {project.description && <p>{project.description}</p>}
           </header>
 
-          <section>
-            <h2 className='text-lg font-semibold mt-4'>Tasks</h2>
+          {attributes && (
+            <section className='mt-6'>
+              <h2 className='text-lg font-semibold mb-4'>Project Attributes</h2>
+              <dl className='space-y-2'>
+                {attributes.status && (
+                  <div>
+                    <dt className='font-medium inline'>Status:</dt>
+                    <dd className='inline ml-2 capitalize'>{attributes.status}</dd>
+                  </div>
+                )}
+                {attributes.planningStage && (
+                  <div>
+                    <dt className='font-medium inline'>Planning Stage:</dt>
+                    <dd className='inline ml-2'>
+                      {STAGE_LABELS[attributes.planningStage]} (Stage {attributes.planningStage})
+                    </dd>
+                  </div>
+                )}
+                {attributes.archetype && (
+                  <div>
+                    <dt className='font-medium inline'>Archetype:</dt>
+                    <dd className='inline ml-2'>{ARCHETYPE_LABELS[attributes.archetype]}</dd>
+                  </div>
+                )}
+                {attributes.objectives && (
+                  <div>
+                    <dt className='font-medium block mb-1'>Objectives:</dt>
+                    <dd className='ml-4'>{attributes.objectives}</dd>
+                  </div>
+                )}
+                {attributes.deadline && (
+                  <div>
+                    <dt className='font-medium inline'>Deadline:</dt>
+                    <dd className='inline ml-2'>{formatDate(attributes.deadline)}</dd>
+                  </div>
+                )}
+                {attributes.estimatedDuration && (
+                  <div>
+                    <dt className='font-medium inline'>Estimated Duration:</dt>
+                    <dd className='inline ml-2'>{formatDuration(attributes.estimatedDuration)}</dd>
+                  </div>
+                )}
+                {attributes.urgency && (
+                  <div>
+                    <dt className='font-medium inline'>Urgency:</dt>
+                    <dd className='inline ml-2 capitalize'>{attributes.urgency}</dd>
+                  </div>
+                )}
+                {attributes.importance && (
+                  <div>
+                    <dt className='font-medium inline'>Importance:</dt>
+                    <dd className='inline ml-2 capitalize'>{attributes.importance}</dd>
+                  </div>
+                )}
+                {attributes.complexity && (
+                  <div>
+                    <dt className='font-medium inline'>Complexity:</dt>
+                    <dd className='inline ml-2 capitalize'>{attributes.complexity}</dd>
+                  </div>
+                )}
+                {attributes.scale && (
+                  <div>
+                    <dt className='font-medium inline'>Scale:</dt>
+                    <dd className='inline ml-2 capitalize'>{attributes.scale}</dd>
+                  </div>
+                )}
+                {attributes.priority !== undefined && (
+                  <div>
+                    <dt className='font-medium inline'>Priority:</dt>
+                    <dd className='inline ml-2'>{attributes.priority}</dd>
+                  </div>
+                )}
+                {attributes.activatedAt && (
+                  <div>
+                    <dt className='font-medium inline'>Activated At:</dt>
+                    <dd className='inline ml-2'>{formatDate(attributes.activatedAt)}</dd>
+                  </div>
+                )}
+                {attributes.lastActivityAt && (
+                  <div>
+                    <dt className='font-medium inline'>Last Activity:</dt>
+                    <dd className='inline ml-2'>{formatDate(attributes.lastActivityAt)}</dd>
+                  </div>
+                )}
+              </dl>
+            </section>
+          )}
+
+          <section className='mt-6'>
+            <h2 className='text-lg font-semibold mb-4'>Tasks</h2>
             {tasks.length === 0 ? (
               <p>No tasks in this project</p>
             ) : (

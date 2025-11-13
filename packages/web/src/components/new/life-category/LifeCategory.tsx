@@ -6,22 +6,11 @@ import {
   getAllTasksByCategoryId$,
   getAllWorkerProjects$,
 } from '@work-squared/shared/queries'
-import { getCategoryInfo } from '@work-squared/shared'
-import type { ProjectCategory } from '@work-squared/shared'
+import { ProjectCard } from '../projects/ProjectCard.js'
+import { PROJECT_CATEGORIES } from '@work-squared/shared'
 import { ROUTES } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
-
-const LIFE_CATEGORIES = {
-  health: { name: 'Health' },
-  relationships: { name: 'Relationships' },
-  finances: { name: 'Finances' },
-  growth: { name: 'Learning' },
-  leisure: { name: 'Leisure' },
-  spirituality: { name: 'Purpose' },
-  home: { name: 'Home' },
-  contribution: { name: 'Service' },
-} as const
 
 const parseAssigneeIds = (raw: string | null | undefined): string[] => {
   if (!raw) return []
@@ -39,7 +28,8 @@ export const LifeCategory: React.FC = () => {
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
 
   // Validate categoryId
-  if (!categoryId || !(categoryId in LIFE_CATEGORIES)) {
+  const category = PROJECT_CATEGORIES.find(c => c.value === categoryId)
+  if (!categoryId || !category) {
     return (
       <div>
         <Link to={preserveStoreIdInUrl(ROUTES.NEW)}>← Back to life map</Link>
@@ -49,12 +39,13 @@ export const LifeCategory: React.FC = () => {
     )
   }
 
-  const category = LIFE_CATEGORIES[categoryId as keyof typeof LIFE_CATEGORIES]
-  const categoryInfo = getCategoryInfo(categoryId as ProjectCategory)
-
-  // Get projects for this category
-  const categoryProjects = useQuery(getProjectsByCategory$(categoryId)) ?? []
-  const categoryProjectIds = categoryProjects.map(p => p.id)
+  // Get projects for this category, filtered by status (filtering happens at database level)
+  const activeProjects = useQuery(getProjectsByCategory$(categoryId, 'active')) ?? []
+  const planningProjects = useQuery(getProjectsByCategory$(categoryId, 'planning')) ?? []
+  
+  // Combine all projects for statistics and task filtering
+  const allCategoryProjects = useMemo(() => [...activeProjects, ...planningProjects], [activeProjects, planningProjects])
+  const categoryProjectIds = allCategoryProjects.map(p => p.id)
 
   // Get tasks for this category, optionally filtered by assigneeId
   const currentUserId = authUser?.id
@@ -95,7 +86,7 @@ export const LifeCategory: React.FC = () => {
 
       <header>
         <h1 className='text-2xl font-bold'>
-          {categoryInfo?.icon && <span>{categoryInfo.icon}</span>} {category.name}
+          {category.icon && <span>{category.icon}</span>} {category.name}
         </h1>
       </header>
 
@@ -103,7 +94,13 @@ export const LifeCategory: React.FC = () => {
         <h2 className='text-lg font-semibold mt-4'>Statistics</h2>
         <ul>
           <li>
-            <strong>Projects:</strong> {categoryProjects.length}
+            <strong>Active Projects:</strong> {activeProjects.length}
+          </li>
+          <li>
+            <strong>Planning Projects:</strong> {planningProjects.length}
+          </li>
+          <li>
+            <strong>Total Projects:</strong> {allCategoryProjects.length}
           </li>
           <li>
             <strong>Workers:</strong> {categoryWorkers}
@@ -121,7 +118,7 @@ export const LifeCategory: React.FC = () => {
           <h2 className='text-lg font-semibold mt-4'>My Tasks</h2>
           <ul>
             {userTasks.map(task => {
-              const project = categoryProjects.find(p => p.id === task.projectId)
+              const project = allCategoryProjects.find(p => p.id === task.projectId)
               return (
                 <li key={task.id}>
                   <div>
@@ -151,23 +148,34 @@ export const LifeCategory: React.FC = () => {
         </section>
       )}
 
-      <section>
-        <h2 className='text-lg font-semibold mt-4'>Projects</h2>
-        {categoryProjects.length === 0 ? (
-          <p>No projects in this category yet.</p>
-        ) : (
-          <ul>
-            {categoryProjects.map(project => (
-              <li key={project.id}>
-                <Link to={preserveStoreIdInUrl(`/new/projects/${project.id}`)}>
-                  {project.name || 'Untitled project'}
-                </Link>
-                {project.description && <p>{project.description}</p>}
-              </li>
+      {activeProjects.length > 0 && (
+        <section>
+          <h2 className='text-lg font-semibold mt-4'>Active Projects</h2>
+          <div>
+            {activeProjects.map(project => (
+              <ProjectCard key={project.id} project={project} />
             ))}
-          </ul>
-        )}
-      </section>
+          </div>
+        </section>
+      )}
+
+      {planningProjects.length > 0 && (
+        <section>
+          <h2 className='text-lg font-semibold mt-4'>Planning Projects</h2>
+          <div>
+            {planningProjects.map(project => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {activeProjects.length === 0 && planningProjects.length === 0 && (
+        <section>
+          <h2 className='text-lg font-semibold mt-4'>Projects</h2>
+          <p>No projects in this category yet.</p>
+        </section>
+      )}
     </div>
   )
 }
