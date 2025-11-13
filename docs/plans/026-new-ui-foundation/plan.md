@@ -26,7 +26,6 @@ This plan establishes the foundation for a complete UI revamp of Work Squared. T
 ### Existing Project Page Structure
 
 Need to examine:
-
 - Current routing setup
 - How projects are currently queried
 - How tasks are currently displayed
@@ -43,7 +42,6 @@ Need to examine:
 ## Technical Implementation Plan
 
 1. **Create new directory structure:**
-
    ```
    packages/web/src/components/new/
    ├── projects/
@@ -122,13 +120,11 @@ All queries are already implemented and ready to use:
 ### Data Fetching Strategy
 
 **Projects List Page:**
-
 ```typescript
 const projects = useQuery(getProjects$) ?? []
 ```
 
 **Project Detail Page:**
-
 ```typescript
 // Single queries - memoized by LiveStore
 const project = useQuery(getProjectById$(projectId))
@@ -138,7 +134,9 @@ const users = useQuery(getUsers$) ?? []
 // Client-side processing
 const enrichedTasks = tasks.map(task => {
   const assigneeIds = JSON.parse(task.assigneeIds || '[]') as string[]
-  const assignees = assigneeIds.map(id => users.find(u => u.id === id)).filter(Boolean)
+  const assignees = assigneeIds
+    .map(id => users.find(u => u.id === id))
+    .filter(Boolean)
   const comments = useQuery(getTaskComments$(task.id)) ?? []
 
   return {
@@ -155,14 +153,12 @@ Note: Each `useQuery` call is memoized by LiveStore, so querying comments for ea
 ## UI Specifications (Minimal)
 
 ### Projects List Page
-
 - Page title: "Projects"
 - Unordered list of project names
 - Each project links to `/new/projects/:projectId`
 - Empty state: "No projects yet"
 
 ### Project Detail Page
-
 - Back link to projects list
 - Project name as heading
 - Project description (if exists)
@@ -350,7 +346,6 @@ export const Default: Story = {
 ### React Router Architecture
 
 The app uses React Router v6 with the following structure:
-
 - **Main router:** `Root.tsx` exports the `<App>` component
 - **Component tree:** `<BrowserRouter>` → `<Routes>` → `<Route>` elements
 - **Protected routes:** Most routes are wrapped in `<ProtectedApp>` which includes `<LiveStoreProvider>`
@@ -359,7 +354,6 @@ The app uses React Router v6 with the following structure:
 ### Routes to Add
 
 **In `Root.tsx`** (inside the `<ProtectedApp>` Routes block):
-
 ```typescript
 <Route
   path={ROUTES.NEW_PROJECTS}
@@ -384,7 +378,6 @@ The app uses React Router v6 with the following structure:
 ```
 
 **In `constants/routes.ts`:**
-
 ```typescript
 export const ROUTES = {
   // ... existing routes
@@ -401,7 +394,6 @@ export const generateRoute = {
 ### Navigation Access
 
 For this foundation PR, the new pages are **accessed manually**:
-
 - Navigate directly to `/new/projects` in the browser
 - No sidebar/nav links added yet (future PR)
 - Use browser back/forward or the "Back to projects" link in the UI
@@ -409,7 +401,6 @@ For this foundation PR, the new pages are **accessed manually**:
 ## Task Display Fields
 
 Based on schema analysis, tasks have:
-
 - `title` - Main display
 - `status` - 'todo' | 'doing' | 'in_review' | 'done'
 - `assigneeIds` - JSON array of user IDs (need to look up names)
@@ -417,7 +408,6 @@ Based on schema analysis, tasks have:
 - Comments - Need to query comments table by taskId to check if any exist
 
 Display for each task:
-
 - Title
 - Status badge/text
 - Assignee name(s) (if any)
@@ -450,13 +440,11 @@ Display for each task:
 ## Risk Assessment
 
 **Low Risk:**
-
 - Creating new directory structure
 - Adding new routes
 - Basic data fetching with existing queries
 
 **Medium Risk:**
-
 - Storybook setup with LiveStore events (first time using this pattern extensively)
 
 **No Identified High Risks** - This is a straightforward foundation-laying PR

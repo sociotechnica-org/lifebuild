@@ -27,6 +27,25 @@ copy_env_file() {
     fi
 }
 
+# Helper to ensure env vars are set consistently
+set_env_var() {
+    local file="$1"
+    local key="$2"
+    local value="$3"
+
+    if [ ! -f "$file" ]; then
+        echo "⚠️  Warning: $file not found, cannot set $key"
+        return
+    fi
+
+    if grep -q "^${key}=" "$file"; then
+        sed -i.bak "s|^${key}=.*|${key}=${value}|" "$file" && rm "${file}.bak"
+    else
+        echo "${key}=${value}" >> "$file"
+    fi
+    echo "✅ Set ${key}=${value} in ${file}"
+}
+
 # Copy environment files from root repo to worktree
 echo "📁 Copying environment files from root repo..."
 
@@ -43,6 +62,7 @@ copy_env_file "packages/auth-worker/.dev.vars" "packages/auth-worker/.dev.vars"
 # Update STORE_IDS in packages/server/.env to match branch name
 echo "🔧 Updating STORE_IDS to match branch name..."
 BRANCH_NAME=$(git branch --show-current)
+SANITIZED_BRANCH=${BRANCH_NAME//\//-}
 if [ -f "packages/server/.env" ]; then
     # Replace STORE_IDS line with branch-specific value
     # Use | as delimiter instead of / to handle branch names with slashes
@@ -52,6 +72,10 @@ if [ -f "packages/server/.env" ]; then
 else
     echo "⚠️  Warning: packages/server/.env not found, skipping STORE_IDS update"
 fi
+
+# Ensure server + worker share a stable backend id locally
+set_env_var "packages/server/.env" "BACKEND_ID" "${SANITIZED_BRANCH}-backend"
+set_env_var "packages/worker/.dev.vars" "BACKEND_ID" "${SANITIZED_BRANCH}-backend"
 
 # Create test user on auth server
 echo "👤 Creating test user..."
