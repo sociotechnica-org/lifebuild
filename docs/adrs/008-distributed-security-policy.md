@@ -41,17 +41,20 @@ Adopt a “distributed claims + version map” policy:
 ## Consequences
 
 **Positives**
+
 - Per-connection workspace validation no longer hits the Auth Worker Durable Object, eliminating the largest source of DO duration usage.
 - Revocation is deterministic: bump version → write KV → clients with stale tokens are rejected immediately.
 - Each component can continue operating even if another is degraded, as long as JWT signing keys remain trusted.
 - Operational load drops because there is no need to reconcile caches or restart services after membership changes.
 
 **Negatives / Trade-offs**
+
 - Requires additional infrastructure (Cloudflare KV) and careful consistency handling between DO storage and KV.
 - Bugs in version increment logic could allow stale tokens to persist until JWT expiry.
 - Clients must implement refresh-on-rejection flows to recover gracefully when versions mismatch.
 
 **Follow-up Actions**
+
 - Implement the JWT claim + version map plan (Plan 031).
 - Update deployment runbooks to include KV namespace provisioning and secret rotation procedures.
 - Instrument dashboards to track JWT claim sizes, version skew, and rejection rates.
