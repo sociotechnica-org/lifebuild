@@ -34,9 +34,10 @@ import { SettingsInitializer } from './components/utils/SettingsInitializer/Sett
 import { LifeMapView } from './components/life-map/LifeMapView.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
-import { ProjectsListPage } from './components/new/projects/ProjectsListPage.js'
 import { ProjectDetailPage } from './components/new/projects/ProjectDetailPage.js'
 import { NewUiShell } from './components/new/layout/NewUiShell.js'
+import { LifeMap } from './components/new/life-map/LifeMap.js'
+import { LifeCategory } from './components/new/life-category/LifeCategory.js'
 
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
@@ -163,11 +164,11 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.NEW_PROJECTS}
+                      path={ROUTES.NEW}
                       element={
                         <ErrorBoundary>
                           <NewUiShell>
-                            <ProjectsListPage />
+                            <LifeMap />
                           </NewUiShell>
                         </ErrorBoundary>
                       }
@@ -268,6 +269,16 @@ const ProtectedApp: React.FC = () => {
                         <ErrorBoundary>
                           <NewUiShell>
                             <ProjectDetailPage />
+                          </NewUiShell>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.NEW_CATEGORY}
+                      element={
+                        <ErrorBoundary>
+                          <NewUiShell>
+                            <LifeCategory />
                           </NewUiShell>
                         </ErrorBoundary>
                       }

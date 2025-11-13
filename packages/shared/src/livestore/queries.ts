@@ -126,6 +126,23 @@ export const getOrphanedTasks$ = queryDb(
   }
 )
 
+/**
+ * Get all non-archived tasks
+ * Useful for filtering by project IDs or other criteria client-side
+ */
+export const getAllTasks$ = queryDb(
+  tables.tasks
+    .select()
+    .where({ archivedAt: null })
+    .orderBy([
+      { col: 'projectId', direction: 'asc' },
+      { col: 'position', direction: 'asc' },
+    ]),
+  {
+    label: 'getAllTasks',
+  }
+)
+
 // PR3: getOrphanedColumns$ removed - columns no longer exist
 
 export const getDocumentList$ = queryDb(
@@ -362,6 +379,25 @@ export const getProjectsByCategory$ = (category: string) =>
       .where({ category, deletedAt: null, archivedAt: null }) // PR5+6: Filter archived projects
       .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
     { label: `getProjectsByCategory:${category}` }
+  )
+
+/**
+ * Get all tasks for projects in a specific category
+ * Optionally filter by assigneeId
+ * Note: Filtering by assigneeId happens client-side as LiveStore doesn't support JSON filtering in queries
+ */
+export const getAllTasksByCategoryId$ = (categoryId: string, assigneeId?: string) =>
+  queryDb(
+    tables.tasks
+      .select()
+      .where({ archivedAt: null })
+      .orderBy([
+        { col: 'projectId', direction: 'asc' },
+        { col: 'position', direction: 'asc' },
+      ]),
+    {
+      label: `getAllTasksByCategoryId:${categoryId}${assigneeId ? `:${assigneeId}` : ''}`,
+    }
   )
 
 // TODO(PR5+6): getArchivedProjects$ query removed - LiveStore's query API doesn't support

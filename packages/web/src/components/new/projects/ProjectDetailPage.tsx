@@ -8,7 +8,7 @@ import {
   getTaskComments$,
 } from '@work-squared/shared/queries'
 import type { Project, Task, User } from '@work-squared/shared/schema'
-import { ROUTES } from '../../../constants/routes.js'
+import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 
 const parseAssigneeIds = (raw: string | null | undefined): string[] => {
@@ -34,9 +34,9 @@ const TaskListItem: React.FC<{ task: Task; usersById: UsersById }> = ({ task, us
   const hasComments = comments.length > 0
 
   return (
-    <li>
+    <li className='mb-2'>
       <div>
-        <strong>{task.title || 'Untitled task'}</strong>
+        <strong className='font-semibold'>{task.title || 'Untitled task'}</strong>
         <span> [{task.status}]</span>
       </div>
       <div>
@@ -62,9 +62,17 @@ export const ProjectDetailPage: React.FC = () => {
   const usersById = useMemo(() => new Map(users.map(user => [user.id, user])), [users])
   const project = (projectRows[0] ?? undefined) as Project | undefined
 
+  // Determine back link based on project category
+  const backLink = useMemo(() => {
+    if (project?.category) {
+      return preserveStoreIdInUrl(generateRoute.newCategory(project.category))
+    }
+    return preserveStoreIdInUrl('/new')
+  }, [project?.category])
+
   return (
     <div>
-      <Link to={preserveStoreIdInUrl(ROUTES.NEW_PROJECTS)}>← Back to projects</Link>
+      <Link to={backLink}>← Back</Link>
 
       {!projectId ? (
         <p>Invalid project ID</p>
@@ -76,12 +84,12 @@ export const ProjectDetailPage: React.FC = () => {
       ) : (
         <div>
           <header>
-            <h1>{project.name || 'Untitled project'}</h1>
+            <h1 className='text-2xl font-bold'>{project.name || 'Untitled project'}</h1>
             {project.description && <p>{project.description}</p>}
           </header>
 
           <section>
-            <h2>Tasks</h2>
+            <h2 className='text-lg font-semibold mt-4'>Tasks</h2>
             {tasks.length === 0 ? (
               <p>No tasks in this project</p>
             ) : (
