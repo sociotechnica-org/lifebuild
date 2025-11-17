@@ -10,6 +10,7 @@ import {
   ConnectionState,
   AuthWorkspaceSnapshot,
   AuthWorkspaceInvitation,
+  AuthErrorCode,
 } from '@work-squared/shared/auth'
 import {
   getStoredTokens,
@@ -45,6 +46,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
+const MAX_ACCESS_TOKEN_AGE_MS = 10 * 60 * 1000
 
 const tokensEqual = (a: AuthTokens | null, b: AuthTokens | null) => {
   if (a === b) {
@@ -139,6 +141,10 @@ const usersEqual = (a: AuthUser | null, b: AuthUser | null) => {
     return false
   }
   if ((a.defaultInstanceId ?? null) !== (b.defaultInstanceId ?? null)) {
+    return false
+  }
+
+  if ((a.workspaceClaimsVersion ?? null) !== (b.workspaceClaimsVersion ?? null)) {
     return false
   }
 
@@ -293,6 +299,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           workspaces: snapshot.workspaces,
           pendingInvitations: snapshot.pendingInvitations,
           defaultInstanceId: snapshot.defaultInstanceId ?? prev.defaultInstanceId,
+          workspaceClaimsVersion: snapshot.workspaceClaimsVersion ?? prev.workspaceClaimsVersion,
         }
         return nextUser
       })
@@ -347,7 +354,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const refreshAt = expiry - ACCESS_TOKEN_REFRESH_BUFFER_SECONDS * 1000
-      const delay = Math.max(refreshAt - Date.now(), 0)
+      const proactiveRefreshAt = Date.now() + MAX_ACCESS_TOKEN_AGE_MS
+      const nextRefreshAt = Math.min(refreshAt, proactiveRefreshAt)
+      const delay = Math.max(nextRefreshAt - Date.now(), 0)
 
       refreshTimerRef.current = window.setTimeout(async () => {
         refreshTimerRef.current = null
@@ -459,8 +468,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         errorMessage.includes('TOKEN_EXPIRED') ||
         errorMessage.includes('TOKEN_INVALID') ||
         errorMessage.includes('TOKEN_MISSING') ||
+        errorMessage.includes('TOKEN_VERSION_STALE') ||
         errorMessage.includes('authentication') ||
         errorMessage.includes('unauthorized')
+
+      if (
+        errorMessage.includes(AuthErrorCode.FORBIDDEN) ||
+        errorMessage.toUpperCase().includes('FORBIDDEN')
+      ) {
+        console.warn('Workspace access forbidden; logging out to refresh credentials')
+        await logout()
+        return false
+      }
 
       if (!isAuthError) {
         console.log('Non-auth error, not attempting token refresh')

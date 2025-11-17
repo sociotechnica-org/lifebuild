@@ -6,6 +6,7 @@ import {
   isTokenExpired,
   decodeTokenPayload,
 } from '../utils/jwt.js'
+import type { AccessTokenClaimsInput } from '../utils/jwt.js'
 import type { JWTPayload, RefreshTokenPayload } from '../types.js'
 
 // Mock environment for testing
@@ -15,13 +16,27 @@ const mockEnv = {
   BOOTSTRAP_ADMIN_EMAIL: 'admin@example.com',
 }
 
+function buildAccessTokenClaims(
+  overrides: Partial<AccessTokenClaimsInput> = {}
+): AccessTokenClaimsInput {
+  return {
+    userId: overrides.userId ?? 'user-123',
+    email: overrides.email ?? 'test@example.com',
+    isAdmin: overrides.isAdmin ?? false,
+    defaultInstanceId: overrides.defaultInstanceId ?? null,
+    workspaces: overrides.workspaces ?? [],
+    workspaceClaimsVersion: overrides.workspaceClaimsVersion ?? 1,
+    workspaceClaimsIssuedAt: overrides.workspaceClaimsIssuedAt,
+  }
+}
+
 describe('JWT utilities', () => {
   describe('token creation', () => {
     it('should create valid access tokens', async () => {
       const userId = 'user-123'
       const email = 'test@example.com'
 
-      const token = await createAccessToken(userId, email, false, mockEnv)
+      const token = await createAccessToken(buildAccessTokenClaims({ userId, email }), mockEnv)
       expect(token).toBeDefined()
       expect(typeof token).toBe('string')
       expect(token.split('.')).toHaveLength(3) // JWT format: header.payload.signature
@@ -53,7 +68,7 @@ describe('JWT utilities', () => {
       const userId = 'user-123'
       const email = 'test@example.com'
 
-      const token = await createAccessToken(userId, email, false, mockEnv)
+      const token = await createAccessToken(buildAccessTokenClaims({ userId, email }), mockEnv)
       const payload = await verifyToken<JWTPayload>(token, mockEnv)
 
       expect(payload).toBeDefined()
@@ -110,7 +125,7 @@ describe('JWT utilities', () => {
       const userId = 'user-123'
       const email = 'test@example.com'
 
-      const token = await createAccessToken(userId, email, false, mockEnv)
+      const token = await createAccessToken(buildAccessTokenClaims({ userId, email }), mockEnv)
       const parts = token.split('.')
       const tamperedToken = parts[0] + '.' + parts[1] + '.tampered-signature'
 
@@ -127,6 +142,10 @@ describe('JWT utilities', () => {
         iat: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
         exp: Math.floor(Date.now() / 1000) - 1800, // 30 minutes ago
         iss: 'work-squared-auth',
+        workspaces: [],
+        workspaceClaimsVersion: 1,
+        workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000) - 3600,
+        defaultInstanceId: null,
       }
 
       expect(isTokenExpired(expiredPayload)).toBe(true)
@@ -139,6 +158,10 @@ describe('JWT utilities', () => {
         iat: Math.floor(Date.now() / 1000) - 300, // 5 minutes ago
         exp: Math.floor(Date.now() / 1000) + 600, // 10 minutes from now
         iss: 'work-squared-auth',
+        workspaces: [],
+        workspaceClaimsVersion: 1,
+        workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000) - 300,
+        defaultInstanceId: null,
       }
 
       expect(isTokenExpired(validPayload)).toBe(false)
@@ -151,6 +174,10 @@ describe('JWT utilities', () => {
         iat: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
         exp: Math.floor(Date.now() / 1000) - 60, // 1 minute ago
         iss: 'work-squared-auth',
+        workspaces: [],
+        workspaceClaimsVersion: 1,
+        workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000) - 3600,
+        defaultInstanceId: null,
       }
 
       // Without grace period - expired
@@ -166,7 +193,7 @@ describe('JWT utilities', () => {
       const userId = 'user-123'
       const email = 'test@example.com'
 
-      const token = await createAccessToken(userId, email, false, mockEnv)
+      const token = await createAccessToken(buildAccessTokenClaims({ userId, email }), mockEnv)
       const payload = decodeTokenPayload<JWTPayload>(token)
 
       expect(payload).toBeDefined()

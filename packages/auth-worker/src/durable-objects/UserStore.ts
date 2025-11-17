@@ -8,6 +8,7 @@ import {
   WorkspaceInvitationStatus,
 } from '../types.js'
 import { hashPassword, verifyPassword } from '../utils/crypto.js'
+import { getWorkspaceClaimsVersionKey } from '@work-squared/shared/auth'
 
 const DEFAULT_MAX_INSTANCES = 10
 const DEFAULT_INSTANCE_NAME = 'Personal Workspace'
@@ -53,9 +54,11 @@ class DurableObjectError extends Error {
 export class UserStore implements DurableObject {
   private storage: DurableObjectStorage
   private maxInstances: number
+  private env: Env
 
   constructor(state: DurableObjectState, env: Env) {
     this.storage = state.storage
+    this.env = env
     const configuredMax = Number(env?.MAX_INSTANCES_PER_USER)
     this.maxInstances =
       Number.isFinite(configuredMax) && configuredMax > 0 ? configuredMax : DEFAULT_MAX_INSTANCES
@@ -116,6 +119,36 @@ export class UserStore implements DurableObject {
   private async saveUser(user: User): Promise<void> {
     await this.storage.put(`user:${user.email}`, user)
     await this.storage.put(`user:id:${user.id}`, user)
+  }
+
+  private async persistUser(
+    user: User,
+    options: { bumpWorkspaceClaimsVersion?: boolean; syncWorkspaceClaimsVersion?: boolean } = {}
+  ): Promise<void> {
+    if (options.bumpWorkspaceClaimsVersion) {
+      user.workspaceClaimsVersion = (user.workspaceClaimsVersion ?? 0) + 1
+    }
+
+    await this.saveUser(user)
+
+    if (options.bumpWorkspaceClaimsVersion || options.syncWorkspaceClaimsVersion) {
+      await this.writeWorkspaceClaimsVersion(user.id, user.workspaceClaimsVersion ?? 0)
+    }
+  }
+
+  private async writeWorkspaceClaimsVersion(userId: string, version: number): Promise<void> {
+    if (!this.env.WORKSPACE_CLAIMS_VERSION) {
+      return
+    }
+
+    try {
+      await this.env.WORKSPACE_CLAIMS_VERSION.put(
+        getWorkspaceClaimsVersionKey(userId),
+        version.toString()
+      )
+    } catch (error) {
+      console.error({ userId, error }, 'Failed to sync workspace claims version to KV namespace')
+    }
   }
 
   private normalizeMember(member: WorkspaceMember): WorkspaceMember {
@@ -375,7 +408,7 @@ export class UserStore implements DurableObject {
     const existing = user.instances.find(instance => instance.id === workspaceId)
     if (existing) {
       existing.role = role
-      await this.saveUser(user)
+      await this.persistUser(user, { bumpWorkspaceClaimsVersion: true })
       return existing
     }
 
@@ -397,7 +430,7 @@ export class UserStore implements DurableObject {
     }
 
     user.instances.push(instance)
-    await this.saveUser(user)
+    await this.persistUser(user, { bumpWorkspaceClaimsVersion: true })
     return instance
   }
 
@@ -417,7 +450,7 @@ export class UserStore implements DurableObject {
 
     if (mutated) {
       user.instances = updatedInstances
-      await this.saveUser(user)
+      await this.persistUser(user, { bumpWorkspaceClaimsVersion: true })
     }
 
     return user
@@ -461,6 +494,7 @@ export class UserStore implements DurableObject {
       defaultInstanceId: this.getDefaultInstanceId(normalizedUser),
       workspaces,
       pendingInvitations,
+      workspaceClaimsVersion: normalizedUser.workspaceClaimsVersion ?? 0,
     }
   }
 
@@ -612,7 +646,7 @@ export class UserStore implements DurableObject {
 
     const user = await this.requireUserById(userId)
     const instance = this.appendInstance(user, name)
-    await this.saveUser(user)
+    await this.persistUser(user, { bumpWorkspaceClaimsVersion: true })
     await this.saveWorkspaceInvitations(instance.id, [])
     await this.upsertWorkspaceMember(instance.id, {
       userId: user.id,
@@ -677,7 +711,7 @@ export class UserStore implements DurableObject {
 
     const user = await this.requireUserById(userId)
     const instance = this.setDefaultInstance(user, instanceId)
-    await this.saveUser(user)
+    await this.persistUser(user, { bumpWorkspaceClaimsVersion: true })
     const workspacePayload = await this.buildWorkspacePayload(user)
 
     return this.jsonResponse({
@@ -713,7 +747,7 @@ export class UserStore implements DurableObject {
     }
 
     this.deleteInstance(user, instanceId)
-    await this.saveUser(user)
+    await this.persistUser(user, { bumpWorkspaceClaimsVersion: true })
 
     for (const member of members) {
       if (member.userId === user.id) {
@@ -721,7 +755,7 @@ export class UserStore implements DurableObject {
       }
       const memberUser = await this.requireUserById(member.userId)
       memberUser.instances = memberUser.instances.filter(inst => inst.id !== instanceId)
-      await this.saveUser(memberUser)
+      await this.persistUser(memberUser, { bumpWorkspaceClaimsVersion: true })
     }
 
     for (const invitation of invitations) {
@@ -1003,7 +1037,7 @@ export class UserStore implements DurableObject {
     }
 
     targetUser.instances = remainingInstances
-    await this.saveUser(targetUser)
+    await this.persistUser(targetUser, { bumpWorkspaceClaimsVersion: true })
     await this.removeWorkspaceMember(instanceId, targetUserId)
 
     await this.logWorkspaceEvent({
@@ -1062,7 +1096,7 @@ export class UserStore implements DurableObject {
     }
 
     targetUser.instances[instanceIndex].role = targetRole
-    await this.saveUser(targetUser)
+    await this.persistUser(targetUser, { bumpWorkspaceClaimsVersion: true })
     await this.upsertWorkspaceMember(instanceId, {
       userId: targetUser.id,
       email: targetUser.email,
@@ -1087,16 +1121,6 @@ export class UserStore implements DurableObject {
       role: targetRole,
       ...workspacePayload,
     })
-  }
-
-  private async handleInternalInstances(request: Request): Promise<Response> {
-    const { userId } = await request.json()
-    if (!userId) {
-      return this.errorResponse('userId is required', 400)
-    }
-
-    const user = await this.requireUserById(userId)
-    return this.jsonResponse(await this.buildWorkspacePayload(user))
   }
 
   private async handleInternalListWorkspaces(request: Request): Promise<Response> {
@@ -1197,8 +1221,6 @@ export class UserStore implements DurableObject {
           return await this.handleRemoveWorkspaceMember(request)
         case '/workspaces/update-role':
           return await this.handleUpdateWorkspaceMemberRole(request)
-        case '/internal/instances':
-          return await this.handleInternalInstances(request)
         case '/internal/workspaces':
           return await this.handleInternalListWorkspaces(request)
         default:
@@ -1249,10 +1271,11 @@ export class UserStore implements DurableObject {
       hashedPassword,
       createdAt: now,
       instances: [defaultInstance],
+      workspaceClaimsVersion: 1,
     }
 
     // Store user by email and by ID
-    await this.saveUser(user)
+    await this.persistUser(user, { syncWorkspaceClaimsVersion: true })
     await this.saveWorkspaceInvitations(defaultInstance.id, [])
     await this.upsertWorkspaceMember(defaultInstance.id, {
       userId,
@@ -1461,7 +1484,7 @@ export class UserStore implements DurableObject {
     const updatedUser: User = { ...user, instances: updatedInstances }
 
     // Store updated user by both email and ID
-    await this.saveUser(updatedUser)
+    await this.persistUser(updatedUser, { bumpWorkspaceClaimsVersion: true })
 
     const { hashedPassword: _, ...userResponse } = updatedUser
     return new Response(
@@ -1558,9 +1581,15 @@ export class UserStore implements DurableObject {
 }
 
 // Environment interface for TypeScript
+type WorkspaceClaimsKVNamespace = {
+  get(key: string): Promise<string | null>
+  put(key: string, value: string): Promise<void>
+}
+
 interface Env {
   USER_STORE: any
   MAX_INSTANCES_PER_USER?: string | number
+  WORKSPACE_CLAIMS_VERSION?: WorkspaceClaimsKVNamespace
 }
 
 interface DurableObject {

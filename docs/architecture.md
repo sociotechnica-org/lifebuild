@@ -159,6 +159,7 @@ The current production architecture spans multiple services:
 - **Durable Objects**: Maintains connection state and message ordering
 - **Authentication**: JWT validation for WebSocket connections with configurable enforcement
 - **Server Bypass**: Internal service authentication via bypass tokens
+- **Workspace Claims**: Validates `workspaces` claim contents locally and checks the `WORKSPACE_CLAIMS_VERSION` KV namespace to reject stale tokens without calling the Auth Worker
 
 ### Auth Worker (JWT Service)
 
@@ -166,6 +167,7 @@ The current production architecture spans multiple services:
 - **JWT Generation**: Secure token generation and validation
 - **Durable Objects**: User store for persistent user data
 - **Password Security**: Bcrypt hashing with salt
+- **Workspace Claims Issuance**: Embeds workspace membership arrays plus a per-user `workspaceClaimsVersion` in each JWT and writes the latest version to the shared Cloudflare KV namespace for rapid revocation
 
 ### Node.js Server (Backend Processing)
 

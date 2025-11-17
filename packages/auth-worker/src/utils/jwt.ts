@@ -49,15 +49,20 @@ function generateTokenId(): string {
   return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
 }
 
+export interface AccessTokenClaimsInput {
+  userId: string
+  email: string
+  isAdmin: boolean
+  defaultInstanceId?: string | null
+  workspaces: NonNullable<JWTPayload['workspaces']>
+  workspaceClaimsVersion: number
+  workspaceClaimsIssuedAt?: number
+}
+
 /**
  * Create a JWT access token
  */
-export async function createAccessToken(
-  userId: string,
-  email: string,
-  isAdmin: boolean,
-  env: Env
-): Promise<string> {
+export async function createAccessToken(claims: AccessTokenClaimsInput, env: Env): Promise<string> {
   const now = Math.floor(Date.now() / 1000)
   const jti = generateTokenId() // Add unique token ID
 
@@ -67,13 +72,17 @@ export async function createAccessToken(
   }
 
   const payload: JWTPayload = {
-    userId,
-    email,
-    isAdmin,
+    userId: claims.userId,
+    email: claims.email,
+    isAdmin: claims.isAdmin,
     jti, // Add unique token ID to ensure uniqueness
     iat: now,
     exp: now + ACCESS_TOKEN_EXPIRES_IN,
     iss: ISSUER,
+    defaultInstanceId: claims.defaultInstanceId,
+    workspaces: claims.workspaces,
+    workspaceClaimsIssuedAt: claims.workspaceClaimsIssuedAt ?? now,
+    workspaceClaimsVersion: claims.workspaceClaimsVersion,
   }
 
   const encoder = new TextEncoder()

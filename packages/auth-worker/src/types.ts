@@ -9,6 +9,7 @@ export interface User {
   createdAt: Date
   instances: Instance[]
   isAdmin?: boolean
+  workspaceClaimsVersion?: number
 }
 
 export interface Instance {
@@ -28,6 +29,15 @@ export interface JWTPayload {
   iat: number
   exp: number
   iss: string
+  defaultInstanceId?: string | null
+  workspaces?: Array<{
+    id: string
+    role: WorkspaceRole
+    rev?: number
+    exp?: number
+  }>
+  workspaceClaimsIssuedAt?: number
+  workspaceClaimsVersion?: number
 }
 
 export interface RefreshTokenPayload {
@@ -55,6 +65,7 @@ export interface AuthResponse {
       }
     >
     pendingInvitations?: WorkspaceInvitation[]
+    workspaceClaimsVersion?: number
   }
   accessToken?: string
   refreshToken?: string

@@ -384,19 +384,6 @@ function verifyServerBypassToken(request: Request, env: Env): Response | null {
   return null
 }
 
-async function handleInternalUserInstances(
-  request: Request,
-  env: Env,
-  userId: string
-): Promise<Response> {
-  const authError = verifyServerBypassToken(request, env)
-  if (authError) {
-    return authError
-  }
-
-  return forwardToUserStore(env, '/internal/instances', { userId })
-}
-
 async function handleInternalListWorkspaces(request: Request, env: Env): Promise<Response> {
   const authError = verifyServerBypassToken(request, env)
   if (authError) {
@@ -787,22 +774,6 @@ export default {
 
                 return createErrorResponse('Not found', 404)
               }
-            }
-          }
-
-          if (path.startsWith('/internal/users/')) {
-            const segments = path.split('/').filter(Boolean)
-            if (
-              segments.length === 4 &&
-              segments[0] === 'internal' &&
-              segments[1] === 'users' &&
-              segments[3] === 'instances'
-            ) {
-              const userId = decodeURIComponent(segments[2])
-              if (method !== 'GET') {
-                return createErrorResponse('Method not allowed', 405)
-              }
-              return addCorsHeaders(await handleInternalUserInstances(request, env, userId))
             }
           }
 
