@@ -22,8 +22,8 @@
   "kv_namespaces": [
     {
       "binding": "WORKSPACE_CLAIMS_VERSION",
-      "id": "00000000000000000000000000000000",
-      "preview_id": "11111111111111111111111111111111",
+      "id": "26a53466bc6c4ea78acbd675fd4996e7",
+      "preview_id": "26a53466bc6c4ea78acbd675fd4996e7",
     },
   ],
   "durable_objects": {
