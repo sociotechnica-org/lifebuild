@@ -7,6 +7,7 @@ import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { ROUTES, ROUTE_PATTERNS } from '../../constants/routes.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { isCurrentUserAdmin } from '../../utils/adminCheck.jsx'
+import { WorkspaceSwitcher } from '../workspace/WorkspaceSwitcher.js'
 
 interface NavigationProps {
   isChatOpen?: boolean
@@ -186,7 +187,10 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
           </div>
 
           {/* User Profile / Auth */}
-          <div className='flex items-center relative'>
+          <div className='flex items-center gap-4 relative'>
+            {/* Workspace Switcher - only show when authenticated */}
+            {isAuthenticated && <WorkspaceSwitcher />}
+
             {/* Chat Toggle Button */}
             {onChatToggle && (
               <button
