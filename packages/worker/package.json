@@ -5,7 +5,7 @@
   "private": true,
   "license": "FSL-1.1-ALv2",
   "scripts": {
-    "dev": "wrangler dev --port 8787",
+    "dev": "wrangler dev --port 8787 --persist-to .wrangler/state/sync",
     "deploy": "wrangler deploy",
     "lint": "eslint . --ext .ts,.js",
     "lint:fix": "eslint . --ext .ts,.js --fix",
