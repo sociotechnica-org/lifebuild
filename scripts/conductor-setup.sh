@@ -46,6 +46,46 @@ set_env_var() {
     echo "✅ Set ${key}=${value} in ${file}"
 }
 
+STORE_ID_REGEX='^[a-zA-Z0-9][a-zA-Z0-9-_]{2,63}$'
+DEFAULT_STORE_ID="workspace-dev"
+
+is_valid_store_id() {
+    local value="$1"
+    if [[ -z "$value" ]]; then
+        return 1
+    fi
+    if [[ "$value" =~ $STORE_ID_REGEX ]]; then
+        return 0
+    fi
+    return 1
+}
+
+sanitize_branch_name_for_store_id() {
+    local raw="$1"
+    local sanitized="${raw//[^a-zA-Z0-9-_]/-}"
+
+    while [[ -n "$sanitized" && ! "$sanitized" =~ ^[a-zA-Z0-9] ]]; do
+        sanitized="${sanitized:1}"
+    done
+
+    if [ -z "$sanitized" ]; then
+        echo "$DEFAULT_STORE_ID"
+        return
+    fi
+
+    sanitized="${sanitized:0:64}"
+
+    while [ ${#sanitized} -lt 3 ]; do
+        sanitized="${sanitized}x"
+    done
+
+    if is_valid_store_id "$sanitized"; then
+        echo "$sanitized"
+    else
+        echo "$DEFAULT_STORE_ID"
+    fi
+}
+
 # Copy environment files from root repo to worktree
 echo "📁 Copying environment files from root repo..."
 
@@ -62,13 +102,18 @@ copy_env_file "packages/auth-worker/.dev.vars" "packages/auth-worker/.dev.vars"
 # Update STORE_IDS in packages/server/.env to match branch name
 echo "🔧 Updating STORE_IDS to match branch name..."
 BRANCH_NAME=$(git branch --show-current)
+SANITIZED_STORE_ID=$(sanitize_branch_name_for_store_id "$BRANCH_NAME")
 SANITIZED_BRANCH=${BRANCH_NAME//\//-}
 if [ -f "packages/server/.env" ]; then
     # Replace STORE_IDS line with branch-specific value
     # Use | as delimiter instead of / to handle branch names with slashes
-    sed -i.bak "s|^STORE_IDS=.*|STORE_IDS=${BRANCH_NAME}|" packages/server/.env
+    sed -i.bak "s|^STORE_IDS=.*|STORE_IDS=${SANITIZED_STORE_ID}|" packages/server/.env
     rm packages/server/.env.bak
-    echo "✅ Set STORE_IDS=${BRANCH_NAME}"
+    if [ "$SANITIZED_STORE_ID" != "$BRANCH_NAME" ]; then
+        echo "✅ Set STORE_IDS=${SANITIZED_STORE_ID} (sanitized from ${BRANCH_NAME})"
+    else
+        echo "✅ Set STORE_IDS=${SANITIZED_STORE_ID}"
+    fi
 else
     echo "⚠️  Warning: packages/server/.env not found, skipping STORE_IDS update"
 fi
@@ -134,7 +179,7 @@ echo "✨ Worktree setup complete!"
 echo ""
 echo "🔧 Configuration summary:"
 echo "   - Branch: $BRANCH_NAME"
-echo "   - STORE_IDS: $BRANCH_NAME"
+echo "   - STORE_IDS: $SANITIZED_STORE_ID"
 echo "   - Test user: jessmartin+tester@gmail.com / testing123"
 echo ""
 echo "🚀 Next steps:"
