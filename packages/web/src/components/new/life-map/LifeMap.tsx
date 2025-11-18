@@ -63,7 +63,8 @@ export const LifeMap: React.FC = () => {
     <div>
       <ul>
         {PROJECT_CATEGORIES.map(category => {
-          const projects = categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
+          const projects =
+            categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
           const workers = categoryWorkersMap[category.value] || 0
           return (
             <li key={category.value} className='mb-2'>

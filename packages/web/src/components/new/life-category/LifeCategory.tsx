@@ -42,9 +42,12 @@ export const LifeCategory: React.FC = () => {
   // Get projects for this category, filtered by status (filtering happens at database level)
   const activeProjects = useQuery(getProjectsByCategory$(categoryId, 'active')) ?? []
   const planningProjects = useQuery(getProjectsByCategory$(categoryId, 'planning')) ?? []
-  
+
   // Combine all projects for statistics and task filtering
-  const allCategoryProjects = useMemo(() => [...activeProjects, ...planningProjects], [activeProjects, planningProjects])
+  const allCategoryProjects = useMemo(
+    () => [...activeProjects, ...planningProjects],
+    [activeProjects, planningProjects]
+  )
   const categoryProjectIds = allCategoryProjects.map(p => p.id)
 
   // Get tasks for this category, optionally filtered by assigneeId

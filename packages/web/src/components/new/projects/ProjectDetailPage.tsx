@@ -12,6 +12,8 @@ import {
   ARCHETYPE_LABELS,
   STAGE_LABELS,
   type PlanningAttributes,
+  type ProjectCategory,
+  PROJECT_CATEGORIES,
   getCategoryInfo,
 } from '@work-squared/shared'
 import { generateRoute } from '../../../constants/routes.js'
@@ -82,21 +84,29 @@ export const ProjectDetailPage: React.FC = () => {
     }
   }, [project?.attributes])
 
-  // Determine back link and label based on project category
-  const backLink = useMemo(() => {
-    if (project?.category) {
-      return preserveStoreIdInUrl(generateRoute.newCategory(project.category))
-    }
-    return preserveStoreIdInUrl('/new')
+  const projectCategory = useMemo<ProjectCategory | null>(() => {
+    const category = project?.category
+    if (!category) return null
+    return PROJECT_CATEGORIES.some(({ value }) => value === category)
+      ? (category as ProjectCategory)
+      : null
   }, [project?.category])
 
+  // Determine back link and label based on project category
+  const backLink = useMemo(() => {
+    if (projectCategory) {
+      return preserveStoreIdInUrl(generateRoute.newCategory(projectCategory))
+    }
+    return preserveStoreIdInUrl('/new')
+  }, [projectCategory])
+
   const backLabel = useMemo(() => {
-    if (project?.category) {
-      const categoryInfo = getCategoryInfo(project.category)
-      return categoryInfo ? `← Back to ${categoryInfo.name}` : `← Back to ${project.category}`
+    if (projectCategory) {
+      const categoryInfo = getCategoryInfo(projectCategory)
+      return categoryInfo ? `← Back to ${categoryInfo.name}` : `← Back to ${projectCategory}`
     }
     return '← Back to Life Map'
-  }, [project?.category])
+  }, [projectCategory])
 
   // Format date helper
   const formatDate = (timestamp?: number) => {
