@@ -87,6 +87,46 @@ is_placeholder() {
     return 1  # false - not a placeholder
 }
 
+STORE_ID_REGEX='^[a-zA-Z0-9][a-zA-Z0-9-_]{2,63}$'
+DEFAULT_STORE_ID="workspace-dev"
+
+is_valid_store_id() {
+    local value="$1"
+    if [[ -z "$value" ]]; then
+        return 1
+    fi
+    if [[ "$value" =~ $STORE_ID_REGEX ]]; then
+        return 0
+    fi
+    return 1
+}
+
+sanitize_branch_name_for_store_id() {
+    local raw="$1"
+    local sanitized="${raw//[^a-zA-Z0-9-_]/-}"
+
+    while [[ -n "$sanitized" && ! "$sanitized" =~ ^[a-zA-Z0-9] ]]; do
+        sanitized="${sanitized:1}"
+    done
+
+    if [ -z "$sanitized" ]; then
+        echo "$DEFAULT_STORE_ID"
+        return
+    fi
+
+    sanitized="${sanitized:0:64}"
+
+    while [ ${#sanitized} -lt 3 ]; do
+        sanitized="${sanitized}x"
+    done
+
+    if is_valid_store_id "$sanitized"; then
+        echo "$sanitized"
+    else
+        echo "$DEFAULT_STORE_ID"
+    fi
+}
+
 # Set consistent JWT secrets for dev environment
 # These are not real secrets - just internal dev values that need to match across services
 echo "🔑 Configuring JWT secrets for development..."
@@ -145,16 +185,30 @@ if [ -z "$BRANCH_NAME" ]; then
     BRANCH_NAME="detached-$(git rev-parse --short HEAD)"
     echo "⚠️  Detached HEAD detected, using: $BRANCH_NAME"
 fi
+SANITIZED_STORE_ID=$(sanitize_branch_name_for_store_id "$BRANCH_NAME")
 
 ACTUAL_STORE_IDS=""
 if [ -f "packages/server/.env" ]; then
     CURRENT_STORE_IDS=$(grep "^STORE_IDS=" packages/server/.env 2>/dev/null | cut -d'=' -f2- || echo "")
 
-    # Only update if it's a placeholder value
+    SHOULD_UPDATE=0
+    UPDATE_REASON=""
     if is_placeholder "$CURRENT_STORE_IDS"; then
-        update_config_value "packages/server/.env" "STORE_IDS" "${BRANCH_NAME}"
-        echo "✅ Set STORE_IDS=${BRANCH_NAME} (was placeholder)"
-        ACTUAL_STORE_IDS="${BRANCH_NAME}"
+        SHOULD_UPDATE=1
+        UPDATE_REASON="was placeholder"
+    elif ! is_valid_store_id "$CURRENT_STORE_IDS"; then
+        SHOULD_UPDATE=1
+        UPDATE_REASON="was invalid"
+    fi
+
+    if [ "$SHOULD_UPDATE" -eq 1 ]; then
+        update_config_value "packages/server/.env" "STORE_IDS" "${SANITIZED_STORE_ID}"
+        if [ "$SANITIZED_STORE_ID" != "$BRANCH_NAME" ]; then
+            echo "✅ Set STORE_IDS=${SANITIZED_STORE_ID} (${UPDATE_REASON}; sanitized from ${BRANCH_NAME})"
+        else
+            echo "✅ Set STORE_IDS=${SANITIZED_STORE_ID} (${UPDATE_REASON})"
+        fi
+        ACTUAL_STORE_IDS="${SANITIZED_STORE_ID}"
     else
         echo "ℹ️  STORE_IDS already configured, skipping update"
         ACTUAL_STORE_IDS="${CURRENT_STORE_IDS}"
