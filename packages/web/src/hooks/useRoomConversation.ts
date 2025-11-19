@@ -19,11 +19,14 @@ export const useRoomConversation = (room?: StaticRoomDefinition | null) => {
   const roomId = room?.roomId ?? FALLBACK_ROOM_ID
 
   const conversationQuery = React.useMemo(() => getConversationByRoom$(roomId), [roomId])
-  const conversationResult = useQuery(conversationQuery) ?? []
-  const conversation = roomId === FALLBACK_ROOM_ID ? null : (conversationResult[0] ?? null)
+  const conversationResult = useQuery(conversationQuery)
+  const conversationQueryReady = conversationResult !== undefined
+  const conversation = roomId === FALLBACK_ROOM_ID ? null : (conversationResult?.[0] ?? null)
 
   React.useEffect(() => {
-    if (!room || conversation || roomId === FALLBACK_ROOM_ID) return
+    if (!room || roomId === FALLBACK_ROOM_ID) return
+    if (!conversationQueryReady) return
+    if (conversation) return
     if (pendingConversationCreations.has(roomId)) return
 
     const promise = Promise.resolve(
@@ -44,7 +47,7 @@ export const useRoomConversation = (room?: StaticRoomDefinition | null) => {
     promise.finally(() => {
       pendingConversationCreations.delete(roomId)
     })
-  }, [room, conversation, store, roomId])
+  }, [room, conversation, conversationQueryReady, store, roomId])
 
   return {
     conversation,

@@ -14,11 +14,14 @@ export const useRoomAgent = (room?: StaticRoomDefinition | null) => {
   const workerId = room?.worker.id ?? FALLBACK_WORKER_ID
 
   const workerQuery = getWorkerById$(workerId)
-  const workerResult = useQuery(workerQuery) ?? []
-  const worker = workerId === FALLBACK_WORKER_ID ? null : (workerResult[0] ?? null)
+  const workerResult = useQuery(workerQuery)
+  const workerQueryReady = workerResult !== undefined
+  const worker = workerId === FALLBACK_WORKER_ID ? null : (workerResult?.[0] ?? null)
 
   useEffect(() => {
-    if (!room || worker || workerId === FALLBACK_WORKER_ID) return
+    if (!room || workerId === FALLBACK_WORKER_ID) return
+    if (!workerQueryReady) return
+    if (worker) return
     if (pendingWorkerCreations.has(workerId)) return
 
     const creationPromise = Promise.resolve(
@@ -43,7 +46,7 @@ export const useRoomAgent = (room?: StaticRoomDefinition | null) => {
     creationPromise.finally(() => {
       pendingWorkerCreations.delete(workerId)
     })
-  }, [room, worker, store, workerId])
+  }, [room, worker, workerQueryReady, store, workerId])
 
   return {
     worker,
