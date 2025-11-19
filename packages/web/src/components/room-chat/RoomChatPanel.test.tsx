@@ -20,7 +20,6 @@ describe('RoomChatPanel', () => {
   it('renders worker metadata and messages', () => {
     render(
       <RoomChatPanel
-        roomTitle='Life Map'
         worker={{
           id: 'worker',
           name: 'MESA',
@@ -43,8 +42,8 @@ describe('RoomChatPanel', () => {
       />
     )
 
-    expect(screen.getByText('Life Map')).toBeInTheDocument()
-    expect(screen.getByText(/MESA · Navigator/)).toBeInTheDocument()
+    expect(screen.getByText('MESA')).toBeInTheDocument()
+    expect(screen.getByText('Navigator')).toBeInTheDocument()
     expect(screen.getByText('Ping')).toBeInTheDocument()
   })
 })
