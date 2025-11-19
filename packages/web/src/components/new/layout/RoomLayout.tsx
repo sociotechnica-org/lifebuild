@@ -1,0 +1,64 @@
+import React from 'react'
+import type { StaticRoomDefinition } from '@work-squared/shared/rooms'
+import { NewUiShell } from './NewUiShell.js'
+import { isRoomChatEnabled } from '../../../constants/featureFlags.js'
+import { RoomChatToggle } from '../../room-chat/RoomChatToggle.js'
+import { RoomChatPanel } from '../../room-chat/RoomChatPanel.js'
+import { useRoomChat } from '../../../hooks/useRoomChat.js'
+
+type RoomLayoutProps = {
+  room: StaticRoomDefinition
+  children: React.ReactNode
+}
+
+const usePersistentChatToggle = (roomId: string) => {
+  const storageKey = React.useMemo(() => `room-chat:${roomId}:open`, [roomId])
+  const [isOpen, setIsOpen] = React.useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.localStorage.getItem(storageKey) === 'true'
+  })
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(storageKey, String(isOpen))
+  }, [storageKey, isOpen])
+
+  return [isOpen, setIsOpen] as const
+}
+
+export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children }) => {
+  if (!isRoomChatEnabled) {
+    return <NewUiShell>{children}</NewUiShell>
+  }
+
+  const [isChatOpen, setIsChatOpen] = usePersistentChatToggle(room.roomId)
+  const chat = useRoomChat(room)
+  const showChatPanel = isChatOpen
+
+  return (
+    <NewUiShell>
+      <div className='space-y-4'>
+        <div className='flex justify-end'>
+          <RoomChatToggle isOpen={isChatOpen} onToggle={() => setIsChatOpen(open => !open)} />
+        </div>
+
+        <div className='flex gap-6'>
+          <div className='flex-1 min-w-0'>{children}</div>
+          {showChatPanel && (
+            <div className='w-96 flex-shrink-0'>
+              <RoomChatPanel
+                worker={chat.worker}
+                conversation={chat.conversation}
+                messages={chat.messages}
+                isProcessing={chat.isProcessing}
+                messageText={chat.messageText}
+                onMessageTextChange={chat.setMessageText}
+                onSendMessage={chat.sendMessage}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </NewUiShell>
+  )
+}

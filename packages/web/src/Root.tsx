@@ -38,6 +38,8 @@ import { ProjectDetailPage } from './components/new/projects/ProjectDetailPage.j
 import { NewUiShell } from './components/new/layout/NewUiShell.js'
 import { LifeMap } from './components/new/life-map/LifeMap.js'
 import { LifeCategory } from './components/new/life-category/LifeCategory.js'
+import { RoomLayout } from './components/new/layout/RoomLayout.js'
+import { LIFE_MAP_ROOM } from '@work-squared/shared/rooms'
 
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
@@ -167,9 +169,19 @@ const ProtectedApp: React.FC = () => {
                       path={ROUTES.NEW}
                       element={
                         <ErrorBoundary>
-                          <NewUiShell>
+                          <RoomLayout room={LIFE_MAP_ROOM}>
                             <LifeMap />
-                          </NewUiShell>
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.NEW_LIFE_MAP}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={LIFE_MAP_ROOM}>
+                            <LifeMap />
+                          </RoomLayout>
                         </ErrorBoundary>
                       }
                     />
