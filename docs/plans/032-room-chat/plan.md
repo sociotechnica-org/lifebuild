@@ -38,6 +38,13 @@ The existing layout (`packages/web/src/components/layout/Layout.tsx`) always ren
 
 ## Target Experience
 
+### Key Constraints
+
+- One worker per room (Life Map, category, project) stored as workspace-level records with deterministic IDs.
+- One conversation per room per workspace for this release (shared). Personalized histories are explicitly out of scope.
+- Worker lifecycle mirrors the parent room entity; archiving/deleting a project must deactivate its worker + conversation.
+- Room chat surfaces ship behind a feature flag so we can roll out route-by-route and disable quickly if needed.
+
 ### Agent Roster
 
 _Lightweight prompts for each room agent (replace with richer copy later)._
@@ -63,24 +70,99 @@ Each room associates with exactly one of these agents (projects mint their own d
   - Input box with submit button.
 - **Visibility**: Conversations remain shared across everyone in the workspace/store (current LiveStore behavior). Authentication / personalization changes come later.
 - **Auto-initialization**:
-  - When a room loads, ensure the worker exists (creating via `events.workerCreated`) and is linked to the relevant record (e.g., category assignment via `events.workerAssignedToCategory` or a room metadata record).
+  - When a user opens the chat toggle, ensure the worker exists (creating via `events.workerCreated`) and is linked to the room metadata.
   - Ensure a conversation exists for that room (by `roomId`) and automatically load it into the sidebar; that conversation is shared workspace-wide to keep everyone in sync.
   - On first message, include `navigationContext` (already provided by `useNavigationContext`) plus new room metadata so the worker knows which room is in play.
 - **Minimal styling**: Raw HTML, stack layout, and maybe monospace separators are acceptable if they differentiate roles/tool lines. All final polish happens later.
 
+### Message Metadata Example
+
+```jsonc
+{
+  "role": "user",
+  "message": "What should I focus on this week?",
+  "roomId": "category:health",
+  "roomKind": "category",
+  "navigationContext": {
+    "path": "/new/category/health",
+    "subtab": "planning"
+  },
+  "roomContext": {
+    "categoryId": "health",
+    "categoryName": "Health & Well-Being"
+  }
+}
+```
+
+## Data Model & Schema
+
+| Room Kind | `roomId` Format       | Example             | Worker ID Pattern         | Conversation Scope | Notes                                    |
+|-----------|-----------------------|---------------------|---------------------------|--------------------|------------------------------------------|
+| life-map  | `life-map`            | `life-map`          | `life-map-mesa`          | workspace          | Singleton room                           |
+| category  | `category:<slug>`     | `category:health`   | `category-health-maya`   | workspace          | Eight fixed categories                   |
+| project   | `project:<projectId>` | `project:abc123`    | `project-abc123-guide`   | workspace          | Dynamic per project (template-based)     |
+
+- `conversations` table gains nullable `roomId` (text), `roomKind` (text enum), and `scope` (default `'workspace'`). Legacy conversations remain `NULL`.
+- `workers` table gains nullable `roomId`, `roomKind`, and `status` (`'active' | 'inactive' | 'archived'`), allowing 1:1 binding between worker and room.
+- Add indexes on `conversations.roomId` and `workers.roomId` to keep lookups fast.
+- Migration strategy (PR1):
+  - Add new columns with `NULL` defaults to avoid locking existing rows.
+  - Backfill `scope = 'workspace'` for all current conversations.
+  - Leave `roomId` `NULL` for legacy chat so new queries can filter on `roomId IS NOT NULL`.
+  - Add validation within provisioning hooks that new room-bound conversations must include both `roomId` and `roomKind`.
+- Prompt templating for projects happens client-side before emitting `events.workerCreated`:
+
+```ts
+const prompt = PROJECT_PROMPT_TEMPLATE.replace('{{projectName}}', project.name ?? 'this project')
+```
+
+## Lifecycle & Provisioning Flow
+
+```
+RoomChatToggle opens →
+  useRoomAgent(room) →
+    getWorkerByRoomId(roomId)
+    if missing → emit events.workerCreated + workerRoomBound
+  useRoomConversation(room) →
+    getConversationByRoom(roomId)
+    if missing → emit events.conversationCreated with room metadata
+  useRoomChat() →
+    subscribe to getConversationMessages$(conversationId)
+    send messages with room + navigation metadata
+```
+
+- Provisioning hooks store pending promises in module scope to dedupe concurrent tabs/users.
+- Workers are created lazily on first chat open to avoid unnecessary work when users just browse the page.
+- Worker lifecycle:
+  - **Project archived** → mark worker `status = 'inactive'`, emit `events.conversationArchived`.
+  - **Project restored** → mark worker `status = 'active'`, emit `events.conversationUnarchived`.
+  - **Project deleted** → emit deletion events and optionally purge associated conversation once history is exported.
+- Conversations inherit the existing `processingState` column; new `scope` column positions us for per-user conversations later even though scope remains `'workspace'` for now.
+
+## Launch Controls & Rollback
+
+- Global feature flag (`VITE_ENABLE_ROOM_CHAT`) plus per-room toggle in LiveStore settings.
+- Rolling back only requires flipping the flag because schema changes are additive and nullable.
+- Monitoring includes worker creation failures, conversation provisioning duration, and LLM response errors per room.
+
 ## Pull Request Breakdown (Horizontal Slices)
 
-Each PR creates a usable end-to-end scenario (UI, data, backend, tests) so we can ship incrementally without landing half-implemented pieces.
+Each PR creates a usable end-to-end scenario (UI, data, backend, tests) so we can ship incrementally without landing half-implemented pieces. We briefly considered splitting PR1 into backend/ frontend tracks, but to honor the “horizontal slice” requirement we keep it as a single feature-flagged delivery that already exercises the full pipeline (albeit with mock room descriptors).
 
 ### PR1 – Room Metadata & Infrastructure
 
 **Scope**
-- Add `roomId`/`roomKind` columns to `conversations` (schema + events + migrations) and extend queries (`getConversationsByRoom$`, helpers for room lookups).
+- Add `roomId`/`roomKind`/`scope` columns to `conversations` + indexes, update `events.conversationCreated` to accept them, and extend queries (`getConversationsByRoom$`, `getConversationByRoom$`).
+- Add `roomId`/`roomKind`/`status` to `workers` plus deterministic ID helper + prompt templating utilities.
 - Introduce shared room definitions (`packages/shared/src/rooms.ts`) containing the Life Map agent plus the eight Life Category agents listed above (names, prompts, role descriptions, default models).
 - Extract reusable provisioning hooks (`useRoomAgent`, `useRoomConversation`) and utilities (promise de-duplication, worker creation helpers). Refactor `useCategoryAdvisorConversation` to rely on them.
 - Build core room chat primitives (`useRoomChat`, `RoomChatPanel`, `RoomChatInput`, `RoomChatMessageList`, `RoomChatToggle`) and wire them to LiveStore queries/messages. Minimal styling only.
-- Backend alignment: ensure server event processor logs and payloads include `roomId` when available.
-- Tests for schema, hooks, and room chat components; Storybook stories for the new primitives.
+- Backend alignment: ensure server event processor logs and payloads include `roomId`/`roomKind` metadata.
+- Tests & stories:
+  - Unit: room definition validation, prompt templating, hook idempotency.
+  - Integration: LiveStore provisioning flow using test adapter.
+  - Storybook: RoomChatPanel states (empty, processing, tool call).
+  - E2E: none (feature flag off).
 
 **Deliverable**  
 A hidden (behind feature flag) room chat system that can be mounted in future PRs but already pulls data end-to-end with a mock room descriptor.
@@ -92,6 +174,11 @@ A hidden (behind feature flag) room chat system that can be mounted in future PR
 - Add a header-level Chat toggle that opens the sidebar. Persist toggle state per room via `localStorage`.
 - Ensure entering the Life Map auto-creates the MESA worker (if missing), the associated conversation (shared across the workspace), and renders real chat history/messages using the new components.
 - Add instrumentation/tests verifying the Life Map route renders chat, sends messages, and streaming states work.
+- Telemetry: count worker creations, conversation provisioning time, and user-open events for `/new/life-map`.
+- Tests:
+  - Integration: toggle state persistence and lazy worker creation.
+  - E2E: Cypress spec hitting `/new/life-map`, sending a message, ensuring assistant response renders (with mock).
+  - Regression: ensure legacy layout chat still renders (smoke test).
 
 **Deliverable**  
 `/new/life-map` becomes the first publicly usable room chat surface. Users can open/close the chat and converse with MESA without touching other rooms.
@@ -103,6 +190,11 @@ A hidden (behind feature flag) room chat system that can be mounted in future PR
 - Seed the roster into `rooms.ts` (Health→Maya, Purpose→Atlas, Finances→Brooks, Relationships→Grace, Home→Reed, Contribution→Finn, Leisure→Indie, Learning→Sage). Include per-agent prompts/role descriptions.
 - Ensure visiting each category auto-creates the correct worker (tied to category) and conversation, reusing the shared workspace conversation.
 - Provide targeted tests/stories showing at least two categories in action, plus manual test instructions covering the entire roster.
+- Document known limitation: category chats are workspace-shared even though they may feel personal; plan follow-up research item.
+- Tests:
+  - Unit: verify category roster definitions.
+  - Integration: `useRoomAgent` handles repeated mounts without duplication.
+  - E2E: sample spec covering `/new/category/health`.
 
 **Deliverable**  
 All `/new/category/:categoryId` pages gain their dedicated chat, so users can talk to Maya/Atlas/etc. while reviewing category dashboards.
@@ -113,10 +205,17 @@ All `/new/category/:categoryId` pages gain their dedicated chat, so users can ta
 - Wrap `ProjectDetailPage` (new UI) with `RoomLayout`, set `roomId: project:<projectId>`, and ensure the chat toggle appears on every project page.
 - Implement per-project worker provisioning:
   - `workerId = project-${projectId}-guide`.
-  - Prompt template referencing project metadata.
-  - Lifecycle hooks to mark workers inactive / conversations archived when a project is archived/deleted.
+  - Prompt template referencing project metadata (title, description, objectives, deadlines).
+  - Lifecycle hooks:
+    - On project archive → set worker `status = 'inactive'`, emit `events.conversationArchived`.
+    - On project unarchive → restore worker/conversation to `active`.
+    - On project delete → emit worker deletion + conversation archival events (soft-delete) with nightly cleanup job.
 - Ensure project conversations are shared per workspace (multiple teammates can review the same project chat).
 - Add regression tests verifying new worker creation and cleanup logic, plus Storybook/RTL coverage for the project chat variant.
+- Tests:
+  - Unit: prompt templating uses latest project metadata.
+  - Integration: archiving/unarchiving fires correct lifecycle events.
+  - E2E: `/new/projects/:projectId` chat happy path.
 
 **Deliverable**  
 Every project page under `/new/projects/:projectId` now includes an agent that understands that project’s context, completing the room chat rollout.
@@ -126,6 +225,8 @@ Every project page under `/new/projects/:projectId` now includes an agent that u
 **Scope**
 - Refine layout (left sidebar toggle, align with forthcoming toolbar), add analytics/telemetry for chat usage per room, and backfill Storybook stories for combined layouts.
 - Address feedback from earlier PRs (performance, accessibility, additional tests).
+- Ship dashboards for worker creation latency, conversation processing failures, and engagement per room.
+- Evaluate prefetch vs. lazy worker creation for frequently accessed rooms; keep default lazy.
 
 **Deliverable**  
 Production-ready room chat experience with metrics and UX refinements.
@@ -146,6 +247,11 @@ Production-ready room chat experience with metrics and UX refinements.
 
 Each milestone can ship behind a feature flag or `/new`-only route to keep production stable.
 
+## Known Limitations
+
+- Room conversations are shared across the workspace even for personal-feeling rooms (Life Map, categories). We will monitor feedback and consider per-user scopes once the shared model proves stable.
+- Prompt copy is intentionally lightweight placeholder text; expect follow-up prompts work once product finalizes voice & tone.
+
 ## Risks & Mitigations
 
 - **Explosion of worker records (one per project)**  
@@ -159,6 +265,9 @@ Each milestone can ship behind a feature flag or `/new`-only route to keep produ
 
 - **UI regressions in legacy chat**  
   Mitigation: Keep new hooks/components scoped to `/new`. Legacy `ChatInterface` continues to rely on `useChatData`.
+
+- **Shared conversation expectations**  
+  Mitigation: Document prominently (chat header tooltip, release notes) that room chats are workspace-visible and collect feedback to inform future scoped conversations.
 
 ## Open Questions / Clarifications Needed
 
