@@ -153,6 +153,7 @@ Each PR creates a usable end-to-end scenario (UI, data, backend, tests) so we ca
 
 **Scope**
 - Add `roomId`/`roomKind`/`scope` columns to `conversations` + indexes, update `events.conversationCreated` to accept them, and extend queries (`getConversationsByRoom$`, `getConversationByRoom$`).
+- Per event-versioning standards, introduce `v2.ConversationCreated` (and subsequent handlers) that include the new room metadata fields while keeping `v1` untouched for backwards compatibility (similar to `v2.ProjectCreated`); schema columns remain optional with sensible defaults so legacy events continue to materialize.
 - Add `roomId`/`roomKind`/`status` to `workers` plus deterministic ID helper + prompt templating utilities.
 - Introduce shared room definitions (`packages/shared/src/rooms.ts`) containing the Life Map agent plus the eight Life Category agents listed above (names, prompts, role descriptions, default models).
 - Extract reusable provisioning hooks (`useRoomAgent`, `useRoomConversation`) and utilities (promise de-duplication, worker creation helpers). Refactor `useCategoryAdvisorConversation` to rely on them.
