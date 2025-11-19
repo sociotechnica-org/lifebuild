@@ -23,6 +23,25 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   onSendMessage,
 }) => {
   const workerName = worker?.name ?? 'Assistant'
+  const scrollContainerRef = React.useRef<HTMLDivElement | null>(null)
+
+  const scrollToBottom = React.useCallback(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+    const targetTop = container.scrollHeight
+    if (typeof container.scrollTo === 'function') {
+      container.scrollTo({
+        top: targetTop,
+        behavior: 'smooth',
+      })
+    } else {
+      container.scrollTop = targetTop
+    }
+  }, [])
+
+  React.useEffect(() => {
+    scrollToBottom()
+  }, [scrollToBottom, conversation?.id, messages.length])
 
   return (
     <div
@@ -37,7 +56,7 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
         <p className='text-xs font-medium uppercase tracking-wide text-gray-400'>Preparing chat…</p>
       )}
 
-      <section className='flex-1 min-h-0 overflow-y-auto'>
+      <section ref={scrollContainerRef} className='flex-1 min-h-0 overflow-y-auto'>
         <RoomChatMessageList
           messages={messages}
           workerName={workerName}
