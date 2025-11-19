@@ -62,6 +62,22 @@ _Lightweight prompts for each room agent (replace with richer copy later)._
 
 Each room associates with exactly one of these agents (projects mint their own derived worker per project).
 
+### Category Slug Map
+
+Room IDs must follow the canonical slugs defined in `PROJECT_CATEGORIES`. The table below aligns display names, slugs, and assigned agents to avoid ambiguity:
+
+| Slug           | Display Name                    | Agent  |
+| -------------- | -------------------------------- | ------ |
+| `health`       | Health & Well-Being              | Maya   |
+| `relationships`| Relationships                    | Grace  |
+| `finances`     | Finances                         | Brooks |
+| `growth`       | Learning & Growth                | Sage   |
+| `leisure`      | Leisure & Joy                    | Indie  |
+| `spirituality` | Purpose & Meaning                | Atlas  |
+| `home`         | Home & Environment               | Reed   |
+| `contribution` | Contribution & Service           | Finn   |
+
+- **Rooms**: Life Map (“MESA”), the eight category rooms listed above (Maya, Atlas, Brooks, Grace, Reed, Finn, Indie, Sage), and every Project room. Each project room mints its own dedicated worker (namespaced by project) so the resulting prompt history and metadata can travel with that project.
 - **Rooms**: Life Map (“MESA”), the eight category rooms listed above (Maya, Atlas, Brooks, Grace, Reed, Finn, Indie, Sage), and every Project room. Each project room mints its own dedicated worker (namespaced by project) so the resulting prompt history and metadata can travel with that project.
 - **Entry point**: Each room view rendered under the new UI shell includes a slim left-side toolbar with at least a `Chat` button, but per guidance we can start with the button in the room header until the toolbar exists. Clicking the button slides in (or reveals) the chat sidebar; clicking again collapses it. Desktop/mobile behavior can stay simple (no animation required).
 - **Chat content**: The panel shows:
