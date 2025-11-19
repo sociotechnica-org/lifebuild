@@ -52,6 +52,25 @@ export const getConversations$ = queryDb(
   { label: 'getConversations' }
 )
 
+export const getConversationsByRoom$ = (roomId: string) =>
+  queryDb(
+    tables.conversations
+      .select()
+      .where({ roomId })
+      .orderBy([{ col: 'createdAt', direction: 'desc' }]),
+    { label: `getConversationsByRoom:${roomId}` }
+  )
+
+export const getConversationByRoom$ = (roomId: string) =>
+  queryDb(
+    tables.conversations
+      .select()
+      .where({ roomId })
+      .orderBy([{ col: 'createdAt', direction: 'desc' }])
+      .limit(1),
+    { label: `getConversationByRoom:${roomId}` }
+  )
+
 export const getConversation$ = (conversationId: string) =>
   queryDb(tables.conversations.select().where({ id: conversationId }), {
     label: `getConversation:${conversationId}`,
@@ -169,6 +188,11 @@ export const getWorkers$ = queryDb(
 export const getWorkerById$ = (workerId: string) =>
   queryDb(tables.workers.select().where({ id: workerId }), {
     label: `getWorkerById:${workerId}`,
+  })
+
+export const getWorkerByRoom$ = (roomId: string) =>
+  queryDb(tables.workers.select().where({ roomId }), {
+    label: `getWorkerByRoom:${roomId}`,
   })
 
 export const getWorkerProjects$ = (workerId: string) =>

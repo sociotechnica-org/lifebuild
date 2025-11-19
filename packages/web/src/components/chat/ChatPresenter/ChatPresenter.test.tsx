@@ -20,6 +20,9 @@ describe('ChatPresenter', () => {
     systemPrompt: 'Be helpful',
     defaultModel: DEFAULT_MODEL_STRING,
     isActive: true,
+    roomId: null,
+    roomKind: null,
+    status: 'active',
     createdAt: new Date('2024-01-01T00:00:00Z'),
     updatedAt: null,
   }
@@ -31,6 +34,9 @@ describe('ChatPresenter', () => {
     updatedAt: new Date('2024-01-01T01:05:00Z'),
     model: DEFAULT_MODEL_STRING,
     workerId: 'worker-1',
+    roomId: null,
+    roomKind: null,
+    scope: 'workspace',
     processingState: 'idle',
   }
 

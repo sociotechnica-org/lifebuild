@@ -42,6 +42,9 @@ describe('EditWorkerModal', () => {
     defaultModel: DEFAULT_MODEL,
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-01'),
+    roomId: null,
+    roomKind: null,
+    status: 'active',
     isActive: true,
   }
 

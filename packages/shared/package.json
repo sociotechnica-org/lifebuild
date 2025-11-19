@@ -71,6 +71,11 @@
       "require": "./dist/llm-tools/projects.js",
       "default": "./dist/llm-tools/projects.js"
     },
+    "./rooms": {
+      "import": "./src/rooms.ts",
+      "require": "./dist/rooms.js",
+      "default": "./dist/rooms.js"
+    },
     "./llm-tools/base": {
       "import": "./src/llm-tools/base.ts",
       "require": "./dist/llm-tools/base.js",

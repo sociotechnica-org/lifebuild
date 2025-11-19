@@ -1,4 +1,9 @@
 import { Events, Schema } from '@livestore/livestore'
+import { DEFAULT_ROOM_SCOPE, ROOM_KIND_VALUES } from '../rooms.js'
+
+const roomKindSchema = Schema.Literal(...ROOM_KIND_VALUES)
+const roomScopeSchema = Schema.Literal(DEFAULT_ROOM_SCOPE)
+const workerStatusSchema = Schema.Literal('active', 'inactive', 'archived')
 
 /**
  * LiveStore embraces event sourcing, so data changes are defined as events
@@ -149,6 +154,20 @@ export const conversationCreated = Events.synced({
   }),
 })
 
+export const conversationCreatedV2 = Events.synced({
+  name: 'v2.ConversationCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    title: Schema.String,
+    model: Schema.String,
+    workerId: Schema.optional(Schema.String),
+    roomId: Schema.optional(Schema.String),
+    roomKind: Schema.optional(roomKindSchema),
+    scope: Schema.optional(roomScopeSchema),
+    createdAt: Schema.Date,
+  }),
+})
+
 export const conversationModelUpdated = Events.synced({
   name: 'v1.ConversationModelUpdated',
   schema: Schema.Struct({
@@ -283,6 +302,23 @@ export const workerCreated = Events.synced({
   }),
 })
 
+export const workerCreatedV2 = Events.synced({
+  name: 'v2.WorkerCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+    roleDescription: Schema.optional(Schema.String),
+    systemPrompt: Schema.String,
+    avatar: Schema.optional(Schema.String),
+    defaultModel: Schema.String,
+    createdAt: Schema.Date,
+    roomId: Schema.optional(Schema.String),
+    roomKind: Schema.optional(roomKindSchema),
+    status: Schema.optional(workerStatusSchema),
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
 export const workerUpdated = Events.synced({
   name: 'v1.WorkerUpdated',
   schema: Schema.Struct({
@@ -297,6 +333,26 @@ export const workerUpdated = Events.synced({
     }),
     updatedAt: Schema.Date,
     actorId: Schema.optional(Schema.String), // Track who updated the worker
+  }),
+})
+
+export const workerUpdatedV2 = Events.synced({
+  name: 'v2.WorkerUpdated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    updates: Schema.Struct({
+      name: Schema.optional(Schema.String),
+      roleDescription: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+      systemPrompt: Schema.optional(Schema.String),
+      avatar: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+      defaultModel: Schema.optional(Schema.String),
+      isActive: Schema.optional(Schema.Boolean),
+      roomId: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+      roomKind: Schema.optional(Schema.Union(roomKindSchema, Schema.Null)),
+      status: Schema.optional(workerStatusSchema),
+    }),
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
   }),
 })
 

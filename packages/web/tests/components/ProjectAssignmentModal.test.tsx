@@ -12,6 +12,9 @@ describe('ProjectAssignmentModal', () => {
     defaultModel: DEFAULT_MODEL,
     createdAt: new Date(),
     updatedAt: new Date(),
+    roomId: null,
+    roomKind: null,
+    status: 'active',
     isActive: true,
   }
 
