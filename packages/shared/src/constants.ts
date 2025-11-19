@@ -94,7 +94,7 @@ export type ProjectCategory =
 export const PROJECT_CATEGORIES = [
   {
     value: 'health' as const,
-    name: 'Health & Well-Being',
+    name: 'Health',
     description: 'Physical health, fitness, mental wellness, self-care',
     colorHex: '#10B981',
     icon: '🧘‍♀️',
@@ -118,7 +118,7 @@ export const PROJECT_CATEGORIES = [
   },
   {
     value: 'growth' as const,
-    name: 'Personal Growth & Learning',
+    name: 'Learning',
     description: 'Education, skills, personal development, hobbies',
     colorHex: '#8B5CF6',
     icon: '🧠',
@@ -126,7 +126,7 @@ export const PROJECT_CATEGORIES = [
   },
   {
     value: 'leisure' as const,
-    name: 'Leisure & Lifestyle',
+    name: 'Leisure',
     description: 'Recreation, entertainment, travel, fun activities',
     colorHex: '#F59E0B',
     icon: '🌴',
@@ -134,7 +134,7 @@ export const PROJECT_CATEGORIES = [
   },
   {
     value: 'spirituality' as const,
-    name: 'Spirituality & Meaning',
+    name: 'Purpose',
     description: 'Religion, philosophy, purpose, values, mindfulness',
     colorHex: '#6366F1',
     icon: '🔮',
@@ -142,7 +142,7 @@ export const PROJECT_CATEGORIES = [
   },
   {
     value: 'home' as const,
-    name: 'Home & Environment',
+    name: 'Home',
     description: 'Living space, organization, home projects, environment',
     colorHex: '#14B8A6',
     icon: '🏡',
@@ -150,7 +150,7 @@ export const PROJECT_CATEGORIES = [
   },
   {
     value: 'contribution' as const,
-    name: 'Contribution & Service',
+    name: 'Service',
     description: 'Community service, volunteering, giving back, impact',
     colorHex: '#EF4444',
     icon: '🌍',

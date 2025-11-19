@@ -1,4 +1,5 @@
 import React from 'react'
+import '../new-ui.css'
 
 type NewUiShellProps = {
   children: React.ReactNode
@@ -11,8 +12,8 @@ type NewUiShellProps = {
  */
 export const NewUiShell: React.FC<NewUiShellProps> = ({ children }) => {
   return (
-    <div className='min-h-screen bg-white text-gray-900'>
-      <main className='mx-auto w-full max-w-5xl px-6 py-8 space-y-8'>{children}</main>
+    <div className='new-ui-container'>
+      <main className='new-ui-main'>{children}</main>
     </div>
   )
 }

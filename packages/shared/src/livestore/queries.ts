@@ -1,4 +1,4 @@
-import { queryDb } from '@livestore/livestore'
+import { queryDb, Schema, sql } from '@livestore/livestore'
 
 import { tables } from './schema'
 
@@ -123,6 +123,23 @@ export const getOrphanedTasks$ = queryDb(
     .orderBy([{ col: 'position', direction: 'asc' }]),
   {
     label: 'getOrphanedTasks',
+  }
+)
+
+/**
+ * Get all non-archived tasks
+ * Useful for filtering by project IDs or other criteria client-side
+ */
+export const getAllTasks$ = queryDb(
+  tables.tasks
+    .select()
+    .where({ archivedAt: null })
+    .orderBy([
+      { col: 'projectId', direction: 'asc' },
+      { col: 'position', direction: 'asc' },
+    ]),
+  {
+    label: 'getAllTasks',
   }
 )
 
@@ -354,14 +371,49 @@ export const getOrphanedTasksByStatus$ = (status: string) =>
 
 /**
  * Get projects by category
+ * Optionally filter by status using raw SQL with SQLite JSON functions
  */
-export const getProjectsByCategory$ = (category: string) =>
-  queryDb(
+export const getProjectsByCategory$ = (category: string, status?: string) => {
+  if (status) {
+    // Use raw SQL to filter by JSON status field
+    // Escape single quotes to prevent SQL injection and manually quote string values
+    const categoryEscaped = category.replace(/'/g, "''")
+    const statusEscaped = status.replace(/'/g, "''")
+    return queryDb(
+      {
+        query: sql`SELECT * FROM projects WHERE category = '${categoryEscaped}' AND deletedAt IS NULL AND archivedAt IS NULL AND json_extract(attributes, '$.status') = '${statusEscaped}' ORDER BY updatedAt DESC`,
+        schema: Schema.Array(tables.projects.rowSchema),
+      },
+      { label: `getProjectsByCategory:${category}:${status}` }
+    )
+  }
+  // Use query builder when no status filter needed
+  return queryDb(
     tables.projects
       .select()
       .where({ category, deletedAt: null, archivedAt: null }) // PR5+6: Filter archived projects
       .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
     { label: `getProjectsByCategory:${category}` }
+  )
+}
+
+/**
+ * Get all tasks for projects in a specific category
+ * Optionally filter by assigneeId
+ * Note: Filtering by assigneeId happens client-side as LiveStore doesn't support JSON filtering in queries
+ */
+export const getAllTasksByCategoryId$ = (categoryId: string, assigneeId?: string) =>
+  queryDb(
+    tables.tasks
+      .select()
+      .where({ archivedAt: null })
+      .orderBy([
+        { col: 'projectId', direction: 'asc' },
+        { col: 'position', direction: 'asc' },
+      ]),
+    {
+      label: `getAllTasksByCategoryId:${categoryId}${assigneeId ? `:${assigneeId}` : ''}`,
+    }
   )
 
 // TODO(PR5+6): getArchivedProjects$ query removed - LiveStore's query API doesn't support
