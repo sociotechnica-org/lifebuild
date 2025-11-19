@@ -20,7 +20,7 @@ test.describe('Life Map room chat', () => {
 
     const message = 'Hello from Playwright'
     await textarea.fill(message)
-    await page.getByRole('button', { name: 'Send' }).click()
+    await textarea.press('Enter')
 
     await expect(chatPanel.getByText(message)).toBeVisible()
   })

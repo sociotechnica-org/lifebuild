@@ -27,7 +27,7 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   return (
     <div
       data-testid='room-chat-panel'
-      className='flex h-full flex-col gap-4 rounded border border-gray-200 bg-white p-4 text-sm'
+      className='flex h-full flex-col gap-4 overflow-hidden rounded border border-gray-200 bg-white p-4 text-sm'
     >
       <header className='border-b border-gray-200 pb-3'>
         <h2 className='text-lg font-semibold text-gray-900'>{workerName}</h2>
@@ -37,7 +37,7 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
         <p className='text-xs font-medium uppercase tracking-wide text-gray-400'>Preparing chat…</p>
       )}
 
-      <section className='flex-1 overflow-y-auto'>
+      <section className='flex-1 min-h-0 overflow-y-auto'>
         <RoomChatMessageList
           messages={messages}
           workerName={workerName}
@@ -52,6 +52,7 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
           onSend={onSendMessage}
           disabled={!conversation}
         />
+        <p className='mt-2 text-xs text-gray-400'>Enter to send · Shift+Enter for a new line</p>
       </section>
     </div>
   )

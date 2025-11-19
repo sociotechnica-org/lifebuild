@@ -1,5 +1,6 @@
 import React from 'react'
 import type { ChatMessage } from '@work-squared/shared/schema'
+import { MarkdownRenderer } from '../markdown/MarkdownRenderer.js'
 
 export type RoomChatMessageListProps = {
   messages: readonly ChatMessage[]
@@ -28,7 +29,16 @@ export const RoomChatMessageList: React.FC<RoomChatMessageListProps> = ({
           <div className='mb-1 text-xs font-semibold text-gray-500'>
             {message.role === 'user' ? 'You' : workerName}
           </div>
-          <div className='whitespace-pre-line text-gray-800'>{message.message}</div>
+          <div className='text-gray-800'>
+            {message.role === 'assistant' ? (
+              <MarkdownRenderer
+                content={message.message}
+                className='prose prose-sm max-w-none text-gray-800'
+              />
+            ) : (
+              <div className='whitespace-pre-wrap'>{message.message}</div>
+            )}
+          </div>
         </div>
       ))}
 

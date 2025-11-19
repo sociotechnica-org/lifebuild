@@ -53,24 +53,26 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children }) => {
 
   return (
     <NewUiShell>
-      <div className='space-y-4'>
+      <div className='space-y-4 min-h-screen'>
         <div className='flex justify-end'>
           <RoomChatToggle isOpen={isChatOpen} onToggle={() => setIsChatOpen(open => !open)} />
         </div>
 
-        <div className='flex gap-6'>
+        <div className='flex items-start gap-6'>
           <div className='flex-1 min-w-0'>{children}</div>
           {showChatPanel && (
-            <div className='w-96 flex-shrink-0'>
-              <RoomChatPanel
-                worker={chat.worker}
-                conversation={chat.conversation}
-                messages={chat.messages}
-                isProcessing={chat.isProcessing}
-                messageText={chat.messageText}
-                onMessageTextChange={chat.setMessageText}
-                onSendMessage={chat.sendMessage}
-              />
+            <div className='sticky top-8 w-96 flex-shrink-0'>
+              <div className='h-[calc(100vh-6rem)]'>
+                <RoomChatPanel
+                  worker={chat.worker}
+                  conversation={chat.conversation}
+                  messages={chat.messages}
+                  isProcessing={chat.isProcessing}
+                  messageText={chat.messageText}
+                  onMessageTextChange={chat.setMessageText}
+                  onSendMessage={chat.sendMessage}
+                />
+              </div>
             </div>
           )}
         </div>
