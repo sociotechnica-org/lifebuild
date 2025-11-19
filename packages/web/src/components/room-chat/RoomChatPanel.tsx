@@ -4,7 +4,7 @@ import { RoomChatInput } from './RoomChatInput.js'
 import { RoomChatMessageList } from './RoomChatMessageList.js'
 
 export type RoomChatPanelProps = {
-  roomTitle: string
+  roomTitle?: string
   worker?: Worker | null
   conversation?: Conversation | null
   messages: readonly ChatMessage[]
@@ -15,7 +15,7 @@ export type RoomChatPanelProps = {
 }
 
 export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
-  roomTitle,
+  roomTitle: _roomTitle,
   worker,
   conversation,
   messages,
@@ -30,11 +30,8 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   return (
     <div className='flex h-full flex-col gap-4 rounded border border-gray-200 bg-white p-4 text-sm'>
       <header className='space-y-1 border-b border-gray-200 pb-3'>
-        <p className='text-xs uppercase tracking-wide text-gray-500'>Room</p>
-        <h2 className='text-lg font-semibold text-gray-900'>{roomTitle}</h2>
-        <p className='text-gray-600'>
-          {workerName} · {workerRole}
-        </p>
+        <h2 className='text-lg font-semibold text-gray-900'>{workerName}</h2>
+        <p className='text-gray-600'>{workerRole}</p>
         {!conversation && <p className='text-xs text-gray-500'>Creating workspace conversation…</p>}
       </header>
 

@@ -44,10 +44,9 @@ const baseWorker = {
 }
 
 const meta: Meta<typeof RoomChatPanel> = {
-  title: 'RoomChat/RoomChatPanel',
+  title: 'New UI/RoomChat/RoomChatPanel',
   component: RoomChatPanel,
   args: {
-    roomTitle: 'Life Map · MESA',
     worker: baseWorker,
     messages: sampleMessages,
     isProcessing: false,
