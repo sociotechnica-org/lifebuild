@@ -43,11 +43,25 @@ const baseWorker = {
   avatar: null,
 }
 
+const sampleConversation = {
+  id: 'conv',
+  title: 'Life Map · MESA',
+  model: 'gpt-4o-mini',
+  workerId: 'life-map-mesa',
+  roomId: 'life-map',
+  roomKind: 'life-map',
+  scope: 'workspace' as const,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  processingState: 'idle' as const,
+}
+
 const meta: Meta<typeof RoomChatPanel> = {
-  title: 'New UI/RoomChat/RoomChatPanel',
+  title: 'New UI/Room Chat/RoomChatPanel',
   component: RoomChatPanel,
   args: {
     worker: baseWorker,
+    conversation: sampleConversation,
     messages: sampleMessages,
     isProcessing: false,
     messageText: '',
@@ -75,6 +89,24 @@ export const ProcessingState: Story = {
   args: {
     messages: sampleMessages,
     isProcessing: true,
+    conversation: sampleConversation,
   },
   render: Default.render,
+}
+
+export const ProvisioningState: Story = {
+  args: {
+    worker: baseWorker,
+    conversation: null,
+    messages: [],
+  },
+  render: Default.render,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Displays the provisioning hint shown while the LifeBuild workspace chat is initializing.',
+      },
+    },
+  },
 }

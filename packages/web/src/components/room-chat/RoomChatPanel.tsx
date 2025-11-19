@@ -4,7 +4,6 @@ import { RoomChatInput } from './RoomChatInput.js'
 import { RoomChatMessageList } from './RoomChatMessageList.js'
 
 export type RoomChatPanelProps = {
-  roomTitle?: string
   worker?: Worker | null
   conversation?: Conversation | null
   messages: readonly ChatMessage[]
@@ -15,7 +14,6 @@ export type RoomChatPanelProps = {
 }
 
 export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
-  roomTitle: _roomTitle,
   worker,
   conversation,
   messages,
@@ -25,17 +23,40 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   onSendMessage,
 }) => {
   const workerName = worker?.name ?? 'Assistant'
-  const workerRole = worker?.roleDescription ?? 'AI Assistant'
+  const scrollContainerRef = React.useRef<HTMLDivElement | null>(null)
+
+  const scrollToBottom = React.useCallback(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+    const targetTop = container.scrollHeight
+    if (typeof container.scrollTo === 'function') {
+      container.scrollTo({
+        top: targetTop,
+        behavior: 'smooth',
+      })
+    } else {
+      container.scrollTop = targetTop
+    }
+  }, [])
+
+  React.useEffect(() => {
+    scrollToBottom()
+  }, [scrollToBottom, conversation?.id, messages.length])
 
   return (
-    <div className='flex h-full flex-col gap-4 rounded border border-gray-200 bg-white p-4 text-sm'>
-      <header className='space-y-1 border-b border-gray-200 pb-3'>
+    <div
+      data-testid='room-chat-panel'
+      className='flex h-full flex-col gap-4 overflow-hidden rounded border border-gray-200 bg-white p-4 text-sm'
+    >
+      <header className='border-b border-gray-200 pb-3'>
         <h2 className='text-lg font-semibold text-gray-900'>{workerName}</h2>
-        <p className='text-gray-600'>{workerRole}</p>
-        {!conversation && <p className='text-xs text-gray-500'>Creating workspace conversation…</p>}
       </header>
 
-      <section className='flex-1 overflow-y-auto'>
+      {!conversation && (
+        <p className='text-xs font-medium uppercase tracking-wide text-gray-400'>Preparing chat…</p>
+      )}
+
+      <section ref={scrollContainerRef} className='flex-1 min-h-0 overflow-y-auto'>
         <RoomChatMessageList
           messages={messages}
           workerName={workerName}
@@ -50,6 +71,7 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
           onSend={onSendMessage}
           disabled={!conversation}
         />
+        <p className='mt-2 text-xs text-gray-400'>Enter to send · Shift+Enter for a new line</p>
       </section>
     </div>
   )

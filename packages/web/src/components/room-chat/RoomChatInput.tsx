@@ -13,10 +13,21 @@ export const RoomChatInput: React.FC<RoomChatInputProps> = ({
   onSend,
   disabled,
 }) => {
+  const attemptSend = React.useCallback(() => {
+    if (disabled) return
+    if (!value.trim()) return
+    onSend()
+  }, [disabled, onSend, value])
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
-    if (!disabled) {
-      onSend()
+    attemptSend()
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      attemptSend()
     }
   }
 
@@ -27,6 +38,7 @@ export const RoomChatInput: React.FC<RoomChatInputProps> = ({
         placeholder='Ask something…'
         value={value}
         onChange={event => onChange(event.target.value)}
+        onKeyDown={handleKeyDown}
         disabled={disabled}
       />
       <div className='flex justify-end'>

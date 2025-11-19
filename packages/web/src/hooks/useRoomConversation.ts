@@ -3,6 +3,7 @@ import { useQuery, useStore } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
 import { getConversationByRoom$ } from '@work-squared/shared/queries'
 import type { StaticRoomDefinition } from '@work-squared/shared/rooms'
+import { usePostHog } from '../lib/analytics.js'
 
 const pendingConversationCreations = new Map<string, Promise<void>>()
 const FALLBACK_ROOM_ID = '__room_chat_no_room__'
@@ -16,6 +17,7 @@ const generateId = () => {
 
 export const useRoomConversation = (room?: StaticRoomDefinition | null) => {
   const { store } = useStore()
+  const posthog = usePostHog()
   const roomId = room?.roomId ?? FALLBACK_ROOM_ID
 
   const conversationQuery = React.useMemo(() => getConversationByRoom$(roomId), [roomId])
@@ -23,11 +25,16 @@ export const useRoomConversation = (room?: StaticRoomDefinition | null) => {
   const conversationQueryReady = conversationResult !== undefined
   const conversation = roomId === FALLBACK_ROOM_ID ? null : (conversationResult?.[0] ?? null)
 
+  const provisioningStartRef = React.useRef<number | null>(null)
+
   React.useEffect(() => {
     if (!room || roomId === FALLBACK_ROOM_ID) return
     if (!conversationQueryReady) return
     if (conversation) return
     if (pendingConversationCreations.has(roomId)) return
+
+    provisioningStartRef.current =
+      typeof performance !== 'undefined' ? performance.now() : Date.now()
 
     const promise = Promise.resolve(
       store.commit(
@@ -48,6 +55,22 @@ export const useRoomConversation = (room?: StaticRoomDefinition | null) => {
       pendingConversationCreations.delete(roomId)
     })
   }, [room, conversation, conversationQueryReady, store, roomId])
+
+  React.useEffect(() => {
+    if (!room) return
+    if (!conversation) return
+    if (provisioningStartRef.current === null) return
+
+    const startedAt = provisioningStartRef.current
+    provisioningStartRef.current = null
+    const finishedAt = typeof performance !== 'undefined' ? performance.now() : Date.now()
+
+    posthog?.capture('room_chat_conversation_ready', {
+      roomId: room.roomId,
+      roomKind: room.roomKind,
+      durationMs: Math.max(0, Math.round(finishedAt - startedAt)),
+    })
+  }, [conversation, posthog, room])
 
   return {
     conversation,
