@@ -81,9 +81,9 @@ export const ChatPresenter: React.FC<ChatPresenterProps> = ({
               <div className='font-semibold text-gray-900'>
                 {currentWorker?.name || 'Assistant'}
               </div>
-              <div className='text-sm text-gray-500'>
-                {currentWorker?.roleDescription || 'AI Assistant'}
-              </div>
+              {currentWorker?.roleDescription ? (
+                <div className='text-sm text-gray-500'>{currentWorker.roleDescription}</div>
+              ) : null}
             </div>
           </div>
 

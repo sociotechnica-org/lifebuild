@@ -146,6 +146,9 @@ const conversations = State.SQLite.table({
     title: State.SQLite.text({ default: '' }),
     model: State.SQLite.text({ default: DEFAULT_MODEL }),
     workerId: State.SQLite.text({ nullable: true }),
+    roomId: State.SQLite.text({ nullable: true }),
+    roomKind: State.SQLite.text({ nullable: true }),
+    scope: State.SQLite.text({ default: 'workspace' }),
     processingState: State.SQLite.text({ default: 'idle' }), // 'idle' | 'processing'
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
@@ -205,6 +208,9 @@ const workers = State.SQLite.table({
     systemPrompt: State.SQLite.text({ default: '' }),
     avatar: State.SQLite.text({ nullable: true }),
     defaultModel: State.SQLite.text({ default: DEFAULT_MODEL }),
+    roomId: State.SQLite.text({ nullable: true }),
+    roomKind: State.SQLite.text({ nullable: true }),
+    status: State.SQLite.text({ default: 'active' }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
@@ -555,7 +561,27 @@ const materializers = State.SQLite.materializers(events, {
     users.insert({ id, email, name, avatarUrl, isAdmin, createdAt: syncedAt, syncedAt }),
   ],
   'v1.ConversationCreated': ({ id, title, model, workerId, createdAt }) =>
-    conversations.insert({ id, title, model, workerId, createdAt, updatedAt: createdAt }),
+    conversations.insert({
+      id,
+      title,
+      model,
+      workerId,
+      scope: 'workspace',
+      createdAt,
+      updatedAt: createdAt,
+    }),
+  'v2.ConversationCreated': ({ id, title, model, workerId, roomId, roomKind, scope, createdAt }) =>
+    conversations.insert({
+      id,
+      title,
+      model,
+      workerId,
+      roomId,
+      roomKind,
+      scope: scope ?? 'workspace',
+      createdAt,
+      updatedAt: createdAt,
+    }),
   'v1.ConversationModelUpdated': ({ id, model, updatedAt }) =>
     conversations.update({ model, updatedAt }).where({ id }),
   'v1.LLMResponseReceived': ({
@@ -662,6 +688,7 @@ const materializers = State.SQLite.materializers(events, {
       systemPrompt,
       avatar,
       defaultModel,
+      status: 'active',
       createdAt,
       updatedAt: createdAt,
       isActive: true,
@@ -670,6 +697,41 @@ const materializers = State.SQLite.materializers(events, {
       id: `worker_created_${id}`,
       eventType: 'v1.WorkerCreated',
       eventData: JSON.stringify({ id, name, roleDescription }),
+      actorId,
+      createdAt,
+    }),
+  ],
+  'v2.WorkerCreated': ({
+    id,
+    name,
+    roleDescription,
+    systemPrompt,
+    avatar,
+    defaultModel,
+    createdAt,
+    actorId,
+    roomId,
+    roomKind,
+    status,
+  }) => [
+    workers.insert({
+      id,
+      name,
+      roleDescription,
+      systemPrompt,
+      avatar,
+      defaultModel,
+      roomId,
+      roomKind,
+      status: status ?? 'active',
+      createdAt,
+      updatedAt: createdAt,
+      isActive: (status ?? 'active') === 'active',
+    }),
+    eventsLog.insert({
+      id: `worker_created_${id}`,
+      eventType: 'v2.WorkerCreated',
+      eventData: JSON.stringify({ id, name, roleDescription, roomId, roomKind }),
       actorId,
       createdAt,
     }),
@@ -687,6 +749,26 @@ const materializers = State.SQLite.materializers(events, {
       eventsLog.insert({
         id: `worker_updated_${id}_${updatedAt.getTime()}`,
         eventType: 'v1.WorkerUpdated',
+        eventData: JSON.stringify({ id, updates }),
+        actorId,
+        createdAt: updatedAt,
+      }),
+    ]
+  },
+  'v2.WorkerUpdated': ({ id, updates, updatedAt, actorId }) => {
+    const processedUpdates: Record<string, any> = Object.fromEntries(
+      Object.entries(updates).filter(([_, value]) => value !== undefined)
+    )
+    processedUpdates.updatedAt = updatedAt
+    if (updates.status !== undefined) {
+      processedUpdates.isActive = updates.status === 'active'
+    }
+
+    return [
+      workers.update(processedUpdates).where({ id }),
+      eventsLog.insert({
+        id: `worker_updated_${id}_${updatedAt.getTime()}`,
+        eventType: 'v2.WorkerUpdated',
         eventData: JSON.stringify({ id, updates }),
         actorId,
         createdAt: updatedAt,
