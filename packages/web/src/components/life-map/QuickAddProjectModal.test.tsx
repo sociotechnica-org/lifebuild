@@ -1,6 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { PROJECT_CATEGORIES } from '@work-squared/shared'
 import { QuickAddProjectModal } from './QuickAddProjectModal.js'
 
 // Mock LiveStore hooks
@@ -23,6 +24,9 @@ vi.mock('../ui/Snackbar/Snackbar.js', () => ({
   useSnackbar: () => ({ showSnackbar: mockShowSnackbar }),
 }))
 
+const HEALTH_CATEGORY = PROJECT_CATEGORIES.find(category => category.value === 'health')
+const HEALTH_CATEGORY_NAME = HEALTH_CATEGORY?.name ?? 'Health'
+
 describe('QuickAddProjectModal', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -32,7 +36,7 @@ describe('QuickAddProjectModal', () => {
     render(<QuickAddProjectModal isOpen={true} onClose={() => {}} categoryId='health' />)
 
     expect(screen.getByText('Add Project')).toBeInTheDocument()
-    expect(screen.getByText('Health & Well-Being')).toBeInTheDocument()
+    expect(screen.getByText(HEALTH_CATEGORY_NAME)).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Enter project name')).toBeInTheDocument()
   })
 
@@ -88,7 +92,7 @@ describe('QuickAddProjectModal', () => {
     await waitFor(() => {
       expect(mockCommit).toHaveBeenCalled()
       expect(mockShowSnackbar).toHaveBeenCalledWith({
-        message: 'New Health Project added to Health & Well-Being',
+        message: `New Health Project added to ${HEALTH_CATEGORY_NAME}`,
         type: 'success',
         duration: 3000,
       })

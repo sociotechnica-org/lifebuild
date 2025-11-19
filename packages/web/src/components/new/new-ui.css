@@ -1,0 +1,61 @@
+@import 'tailwindcss';
+
+@layer components {
+  /* New UI Layout Styles */
+  .new-ui-container {
+    @apply min-h-screen bg-white text-gray-900;
+  }
+
+  .new-ui-main {
+    @apply mx-auto w-full max-w-5xl px-6 py-8 space-y-8;
+  }
+
+  /* Typography */
+  .new-ui-heading {
+    @apply text-2xl font-bold text-gray-900;
+  }
+
+  .new-ui-heading-lg {
+    @apply text-3xl font-bold text-gray-900;
+  }
+
+  .new-ui-subheading {
+    @apply text-lg font-semibold text-gray-700;
+  }
+
+  /* Links - scoped to new-ui-container only */
+  .new-ui-container a {
+    @apply hover:underline;
+  }
+
+  .new-ui-link {
+    @apply text-blue-600 hover:text-blue-800 underline;
+  }
+
+  /* Lists */
+  .new-ui-list {
+    @apply space-y-2;
+  }
+
+  .new-ui-list-item {
+    @apply py-2 border-b border-gray-200 last:border-b-0;
+  }
+
+  /* Stats/Counts */
+  .new-ui-stat {
+    @apply text-sm text-gray-600;
+  }
+
+  .new-ui-stat-label {
+    @apply font-semibold;
+  }
+
+  /* Sections */
+  .new-ui-section {
+    @apply space-y-4;
+  }
+
+  .new-ui-section-title {
+    @apply text-xl font-semibold text-gray-900 mb-4;
+  }
+}
