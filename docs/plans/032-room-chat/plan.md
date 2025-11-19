@@ -85,22 +85,22 @@ Each room associates with exactly one of these agents (projects mint their own d
   "roomKind": "category",
   "navigationContext": {
     "path": "/new/category/health",
-    "subtab": "planning"
+    "subtab": "planning",
   },
   "roomContext": {
     "categoryId": "health",
-    "categoryName": "Health & Well-Being"
-  }
+    "categoryName": "Health & Well-Being",
+  },
 }
 ```
 
 ## Data Model & Schema
 
-| Room Kind | `roomId` Format       | Example             | Worker ID Pattern         | Conversation Scope | Notes                                    |
-|-----------|-----------------------|---------------------|---------------------------|--------------------|------------------------------------------|
-| life-map  | `life-map`            | `life-map`          | `life-map-mesa`          | workspace          | Singleton room                           |
-| category  | `category:<slug>`     | `category:health`   | `category-health-maya`   | workspace          | Eight fixed categories                   |
-| project   | `project:<projectId>` | `project:abc123`    | `project-abc123-guide`   | workspace          | Dynamic per project (template-based)     |
+| Room Kind | `roomId` Format       | Example           | Worker ID Pattern      | Conversation Scope | Notes                                |
+| --------- | --------------------- | ----------------- | ---------------------- | ------------------ | ------------------------------------ |
+| life-map  | `life-map`            | `life-map`        | `life-map-mesa`        | workspace          | Singleton room                       |
+| category  | `category:<slug>`     | `category:health` | `category-health-maya` | workspace          | Eight fixed categories               |
+| project   | `project:<projectId>` | `project:abc123`  | `project-abc123-guide` | workspace          | Dynamic per project (template-based) |
 
 - `conversations` table gains nullable `roomId` (text), `roomKind` (text enum), and `scope` (default `'workspace'`). Legacy conversations remain `NULL`.
 - `workers` table gains nullable `roomId`, `roomKind`, and `status` (`'active' | 'inactive' | 'archived'`), allowing 1:1 binding between worker and room.
@@ -152,6 +152,7 @@ Each PR creates a usable end-to-end scenario (UI, data, backend, tests) so we ca
 ### PR1 – Room Metadata & Infrastructure
 
 **Scope**
+
 - Add `roomId`/`roomKind`/`scope` columns to `conversations` + indexes, update `events.conversationCreated` to accept them, and extend queries (`getConversationsByRoom$`, `getConversationByRoom$`).
 - Per event-versioning standards, introduce `v2.ConversationCreated` (and subsequent handlers) that include the new room metadata fields while keeping `v1` untouched for backwards compatibility (similar to `v2.ProjectCreated`); schema columns remain optional with sensible defaults so legacy events continue to materialize.
 - Add `roomId`/`roomKind`/`status` to `workers` plus deterministic ID helper + prompt templating utilities.
@@ -171,6 +172,7 @@ A hidden (behind feature flag) room chat system that can be mounted in future PR
 ### PR2 – Life Map Room (MESA) Slice
 
 **Scope**
+
 - Wrap the new Life Map concept component (`packages/web/src/components/new/life-map/LifeMap.tsx`) in `RoomLayout` using `roomId: 'life-map'` and the MESA agent definition.
 - Add a header-level Chat toggle that opens the sidebar. Persist toggle state per room via `localStorage`.
 - Ensure entering the Life Map auto-creates the MESA worker (if missing), the associated conversation (shared across the workspace), and renders real chat history/messages using the new components.
@@ -187,6 +189,7 @@ A hidden (behind feature flag) room chat system that can be mounted in future PR
 ### PR3 – Life Category Rooms with Agent Roster
 
 **Scope**
+
 - Update `packages/web/src/components/new/life-category/LifeCategory.tsx` to use `RoomLayout` and define `roomId: category:<slug>` for all eight categories.
 - Seed the roster into `rooms.ts` (Health→Maya, Purpose→Atlas, Finances→Brooks, Relationships→Grace, Home→Reed, Contribution→Finn, Leisure→Indie, Learning→Sage). Include per-agent prompts/role descriptions.
 - Ensure visiting each category auto-creates the correct worker (tied to category) and conversation, reusing the shared workspace conversation.
@@ -203,6 +206,7 @@ All `/new/category/:categoryId` pages gain their dedicated chat, so users can ta
 ### PR4 – Project Rooms & Per-Project Workers
 
 **Scope**
+
 - Wrap `ProjectDetailPage` (new UI) with `RoomLayout`, set `roomId: project:<projectId>`, and ensure the chat toggle appears on every project page.
 - Implement per-project worker provisioning:
   - `workerId = project-${projectId}-guide`.
@@ -224,6 +228,7 @@ Every project page under `/new/projects/:projectId` now includes an agent that u
 ### PR5 – Polishing & Telemetry (optional follow-up)
 
 **Scope**
+
 - Refine layout (left sidebar toggle, align with forthcoming toolbar), add analytics/telemetry for chat usage per room, and backfill Storybook stories for combined layouts.
 - Address feedback from earlier PRs (performance, accessibility, additional tests).
 - Ship dashboards for worker creation latency, conversation processing failures, and engagement per room.
@@ -234,16 +239,16 @@ Production-ready room chat experience with metrics and UX refinements.
 
 ## Milestones
 
-1. **Foundation (Room model + schema)**  
-   - Implement `rooms.ts`, schema updates, new queries, and hook scaffolding.  
+1. **Foundation (Room model + schema)**
+   - Implement `rooms.ts`, schema updates, new queries, and hook scaffolding.
    - Deliver tests proving worker/conversation provisioning works for static rooms.
 
-2. **Life Map vertical slice**  
-   - Wire `/new/life-map` (or `/new` landing) to render `RoomLayout` with chat toggle.  
+2. **Life Map vertical slice**
+   - Wire `/new/life-map` (or `/new` landing) to render `RoomLayout` with chat toggle.
    - Verify MESA auto-creates, chat works end-to-end, and UI is minimally usable.
 
-3. **Category + Project rollout**  
-   - Generalize hook usage for category/project descriptors, handle dynamic project worker creation/cleanup, and ensure toggles appear across the relevant pages.  
+3. **Category + Project rollout**
+   - Generalize hook usage for category/project descriptors, handle dynamic project worker creation/cleanup, and ensure toggles appear across the relevant pages.
    - Capture telemetry (logs) for room chat usage to guide future iterations.
 
 Each milestone can ship behind a feature flag or `/new`-only route to keep production stable.
