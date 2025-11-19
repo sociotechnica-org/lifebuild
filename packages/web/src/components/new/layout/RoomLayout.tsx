@@ -1,10 +1,11 @@
 import React from 'react'
 import type { StaticRoomDefinition } from '@work-squared/shared/rooms'
 import { NewUiShell } from './NewUiShell.js'
-import { isRoomChatEnabled } from '../../../constants/featureFlags.js'
+import { shouldEnableRoomChat } from '../../../constants/featureFlags.js'
 import { RoomChatToggle } from '../../room-chat/RoomChatToggle.js'
 import { RoomChatPanel } from '../../room-chat/RoomChatPanel.js'
 import { useRoomChat } from '../../../hooks/useRoomChat.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 type RoomLayoutProps = {
   room: StaticRoomDefinition
@@ -27,13 +28,28 @@ const usePersistentChatToggle = (roomId: string) => {
 }
 
 export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children }) => {
-  if (!isRoomChatEnabled) {
+  const posthog = usePostHog()
+  const featureEnabled = shouldEnableRoomChat()
+  const [isChatOpen, setIsChatOpen] = usePersistentChatToggle(room.roomId)
+  const chat = useRoomChat(featureEnabled ? room : null)
+  const previousOpenRef = React.useRef(isChatOpen)
+
+  const showChatPanel = featureEnabled && isChatOpen
+
+  React.useEffect(() => {
+    if (!featureEnabled) return
+    if (isChatOpen && !previousOpenRef.current) {
+      posthog?.capture('room_chat_opened', {
+        roomId: room.roomId,
+        roomKind: room.roomKind,
+      })
+    }
+    previousOpenRef.current = isChatOpen
+  }, [featureEnabled, isChatOpen, posthog, room.roomId, room.roomKind])
+
+  if (!featureEnabled) {
     return <NewUiShell>{children}</NewUiShell>
   }
-
-  const [isChatOpen, setIsChatOpen] = usePersistentChatToggle(room.roomId)
-  const chat = useRoomChat(room)
-  const showChatPanel = isChatOpen
 
   return (
     <NewUiShell>

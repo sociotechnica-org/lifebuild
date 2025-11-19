@@ -4,8 +4,16 @@ import { describe, expect, it, beforeEach, vi } from 'vitest'
 import { RoomLayout } from './RoomLayout.js'
 import { LIFE_MAP_ROOM } from '@work-squared/shared/rooms'
 
+const mockShouldEnableRoomChat = vi.fn(() => true)
+
 vi.mock('../../../constants/featureFlags.js', () => ({
-  isRoomChatEnabled: true,
+  shouldEnableRoomChat: () => mockShouldEnableRoomChat(),
+}))
+
+vi.mock('../../../lib/analytics.js', () => ({
+  usePostHog: () => ({
+    capture: vi.fn(),
+  }),
 }))
 
 const mockSendMessage = vi.fn()
@@ -53,6 +61,7 @@ describe('RoomLayout', () => {
     window.localStorage.clear()
     mockSendMessage.mockReset()
     mockSetMessageText.mockReset()
+    mockShouldEnableRoomChat.mockReturnValue(true)
   })
 
   it('renders children and toggles chat panel', () => {
@@ -69,5 +78,18 @@ describe('RoomLayout', () => {
 
     expect(screen.getByRole('button', { name: /hide chat/i })).toBeInTheDocument()
     expect(screen.getByText('Send')).toBeInTheDocument()
+  })
+
+  it('falls back to NewUiShell when feature disabled', () => {
+    mockShouldEnableRoomChat.mockReturnValue(false)
+
+    render(
+      <RoomLayout room={LIFE_MAP_ROOM}>
+        <div>Life Map Content</div>
+      </RoomLayout>
+    )
+
+    expect(screen.getByText('Life Map Content')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /chat/i })).not.toBeInTheDocument()
   })
 })
