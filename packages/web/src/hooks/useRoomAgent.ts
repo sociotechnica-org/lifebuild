@@ -3,6 +3,7 @@ import { useQuery, useStore } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
 import { getWorkerById$ } from '@work-squared/shared/queries'
 import type { StaticRoomDefinition } from '@work-squared/shared/rooms'
+import { usePostHog } from '../lib/analytics.js'
 
 const pendingWorkerCreations = new Map<string, Promise<void>>()
 const FALLBACK_WORKER_ID = '__room_chat_no_worker__'
@@ -11,6 +12,7 @@ const generateStatus = (status?: 'active' | 'inactive' | 'archived') => status ?
 
 export const useRoomAgent = (room?: StaticRoomDefinition | null) => {
   const { store } = useStore()
+  const posthog = usePostHog()
   const workerId = room?.worker.id ?? FALLBACK_WORKER_ID
 
   const workerQuery = getWorkerById$(workerId)
@@ -43,10 +45,18 @@ export const useRoomAgent = (room?: StaticRoomDefinition | null) => {
 
     pendingWorkerCreations.set(workerId, creationPromise)
 
-    creationPromise.finally(() => {
-      pendingWorkerCreations.delete(workerId)
-    })
-  }, [room, worker, workerQueryReady, store, workerId])
+    creationPromise
+      .then(() => {
+        posthog?.capture('room_chat_worker_created', {
+          workerId: room.worker.id,
+          roomId: room.roomId,
+          roomKind: room.roomKind,
+        })
+      })
+      .finally(() => {
+        pendingWorkerCreations.delete(workerId)
+      })
+  }, [room, worker, workerQueryReady, store, workerId, posthog])
 
   return {
     worker,

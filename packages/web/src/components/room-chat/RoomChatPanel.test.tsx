@@ -17,7 +17,7 @@ const makeMessage = (overrides: Partial<ChatMessage>): ChatMessage => ({
 })
 
 describe('RoomChatPanel', () => {
-  it('renders worker metadata and messages', () => {
+  it('renders worker name and messages', () => {
     render(
       <RoomChatPanel
         worker={{
@@ -43,7 +43,34 @@ describe('RoomChatPanel', () => {
     )
 
     expect(screen.getByText('MESA')).toBeInTheDocument()
-    expect(screen.getByText('Navigator')).toBeInTheDocument()
     expect(screen.getByText('Ping')).toBeInTheDocument()
+  })
+
+  it('shows provisioning hint while conversation is missing', () => {
+    render(
+      <RoomChatPanel
+        worker={{
+          id: 'worker',
+          name: 'MESA',
+          roleDescription: 'Navigator',
+          systemPrompt: '',
+          defaultModel: 'gpt-4o-mini',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          roomId: null,
+          roomKind: null,
+          status: 'active',
+          isActive: true,
+          avatar: null,
+        }}
+        messages={[]}
+        isProcessing={false}
+        messageText=''
+        onMessageTextChange={() => {}}
+        onSendMessage={() => {}}
+      />
+    )
+
+    expect(screen.getByText(/preparing chat/i)).toBeInTheDocument()
   })
 })

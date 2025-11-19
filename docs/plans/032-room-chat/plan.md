@@ -158,6 +158,7 @@ RoomChatToggle opens →
 ## Launch Controls & Rollback
 
 - Global feature flag (`VITE_ENABLE_ROOM_CHAT`) plus per-room toggle in LiveStore settings.
+- Developer override: append `?roomChat=1` to URLs (or set `localStorage['room-chat:override']='true'`) to enable the sidebar without rebuilding when dogfooding or running Storybook/E2E specs.
 - Rolling back only requires flipping the flag because schema changes are additive and nullable.
 - Monitoring includes worker creation failures, conversation provisioning duration, and LLM response errors per room.
 
