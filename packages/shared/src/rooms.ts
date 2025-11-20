@@ -146,8 +146,11 @@ export type ProjectRoomParameters = {
 const sanitize = (value?: string | null, fallback = 'Not provided.') =>
   value && value.trim().length > 0 ? value.trim() : fallback
 
-const formatDate = (value?: number | null, fallback = 'Not provided.') =>
-  value ? new Date(value).toISOString() : fallback
+const formatDate = (value?: number | null, fallback = 'Not provided.') => {
+  if (value === null || value === undefined) return fallback
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? fallback : date.toISOString()
+}
 
 const formatPlanningDetails = (attributes?: Partial<PlanningAttributes> | null) => {
   if (!attributes) return 'Not provided.'
