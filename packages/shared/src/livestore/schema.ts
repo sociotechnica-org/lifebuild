@@ -150,6 +150,10 @@ const conversations = State.SQLite.table({
     roomKind: State.SQLite.text({ nullable: true }),
     scope: State.SQLite.text({ default: 'workspace' }),
     processingState: State.SQLite.text({ default: 'idle' }), // 'idle' | 'processing'
+    archivedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
     }),
@@ -567,6 +571,7 @@ const materializers = State.SQLite.materializers(events, {
       model,
       workerId,
       scope: 'workspace',
+      archivedAt: null,
       createdAt,
       updatedAt: createdAt,
     }),
@@ -579,11 +584,34 @@ const materializers = State.SQLite.materializers(events, {
       roomId,
       roomKind,
       scope: scope ?? 'workspace',
+      archivedAt: null,
       createdAt,
       updatedAt: createdAt,
     }),
   'v1.ConversationModelUpdated': ({ id, model, updatedAt }) =>
     conversations.update({ model, updatedAt }).where({ id }),
+  'v1.ConversationArchived': ({ conversationId, archivedAt, actorId }) => [
+    conversations.update({ archivedAt, updatedAt: archivedAt }).where({ id: conversationId }),
+    eventsLog.insert({
+      id: `conversation_archived_${conversationId}_${archivedAt.getTime()}`,
+      eventType: 'v1.ConversationArchived',
+      eventData: JSON.stringify({ conversationId }),
+      actorId,
+      createdAt: archivedAt,
+    }),
+  ],
+  'v1.ConversationUnarchived': ({ conversationId, unarchivedAt, actorId }) => [
+    conversations
+      .update({ archivedAt: null, updatedAt: unarchivedAt })
+      .where({ id: conversationId }),
+    eventsLog.insert({
+      id: `conversation_unarchived_${conversationId}_${unarchivedAt.getTime()}`,
+      eventType: 'v1.ConversationUnarchived',
+      eventData: JSON.stringify({ conversationId }),
+      actorId,
+      createdAt: unarchivedAt,
+    }),
+  ],
   'v1.LLMResponseReceived': ({
     id,
     conversationId,
@@ -1085,6 +1113,10 @@ const materializers = State.SQLite.materializers(events, {
 
   'v2.ProjectArchived': ({ id, archivedAt, actorId }) => [
     projects.update({ archivedAt }).where({ id }),
+    workers
+      .update({ status: 'inactive', isActive: false, updatedAt: archivedAt })
+      .where({ roomId: `project:${id}` }),
+    conversations.update({ archivedAt, updatedAt: archivedAt }).where({ roomId: `project:${id}` }),
     eventsLog.insert({
       id: `project_archived_${id}_${archivedAt.getTime()}`,
       eventType: 'v2.ProjectArchived',
@@ -1096,6 +1128,12 @@ const materializers = State.SQLite.materializers(events, {
 
   'v2.ProjectUnarchived': ({ id, unarchivedAt, actorId }) => [
     projects.update({ archivedAt: null, updatedAt: unarchivedAt }).where({ id }),
+    workers
+      .update({ status: 'active', isActive: true, updatedAt: unarchivedAt })
+      .where({ roomId: `project:${id}` }),
+    conversations
+      .update({ archivedAt: null, updatedAt: unarchivedAt })
+      .where({ roomId: `project:${id}` }),
     eventsLog.insert({
       id: `project_unarchived_${id}_${unarchivedAt.getTime()}`,
       eventType: 'v2.ProjectUnarchived',

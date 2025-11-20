@@ -35,7 +35,6 @@ import { LifeMapView } from './components/life-map/LifeMapView.js'
 import { schema } from '@work-squared/shared/schema'
 import { ROUTES } from './constants/routes.js'
 import { ProjectDetailPage } from './components/new/projects/ProjectDetailPage.js'
-import { NewUiShell } from './components/new/layout/NewUiShell.js'
 import { LifeMap } from './components/new/life-map/LifeMap.js'
 import { LifeCategory } from './components/new/life-category/LifeCategory.js'
 import { RoomLayout } from './components/new/layout/RoomLayout.js'
@@ -279,9 +278,7 @@ const ProtectedApp: React.FC = () => {
                       path={ROUTES.NEW_PROJECT}
                       element={
                         <ErrorBoundary>
-                          <NewUiShell>
-                            <ProjectDetailPage />
-                          </NewUiShell>
+                          <ProjectDetailPage />
                         </ErrorBoundary>
                       }
                     />

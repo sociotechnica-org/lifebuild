@@ -177,6 +177,24 @@ export const conversationModelUpdated = Events.synced({
   }),
 })
 
+export const conversationArchived = Events.synced({
+  name: 'v1.ConversationArchived',
+  schema: Schema.Struct({
+    conversationId: Schema.String,
+    archivedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const conversationUnarchived = Events.synced({
+  name: 'v1.ConversationUnarchived',
+  schema: Schema.Struct({
+    conversationId: Schema.String,
+    unarchivedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
 export const llmResponseReceived = Events.synced({
   name: 'v1.LLMResponseReceived',
   schema: Schema.Struct({

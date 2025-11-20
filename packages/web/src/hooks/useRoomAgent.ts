@@ -58,6 +58,34 @@ export const useRoomAgent = (room?: StaticRoomDefinition | null) => {
       })
   }, [room, worker, workerQueryReady, store, workerId, posthog])
 
+  useEffect(() => {
+    if (!room || !worker) return
+
+    const updates: Record<string, any> = {}
+    const normalizedRoleDescription = room.worker.roleDescription ?? null
+    const normalizedAvatar = room.worker.avatar ?? null
+
+    if (worker.name !== room.worker.name) updates.name = room.worker.name
+    if ((worker.roleDescription ?? null) !== normalizedRoleDescription)
+      updates.roleDescription = normalizedRoleDescription
+    if (worker.systemPrompt !== room.worker.prompt) updates.systemPrompt = room.worker.prompt
+    if ((worker.avatar ?? null) !== normalizedAvatar) updates.avatar = normalizedAvatar
+    if (worker.defaultModel !== room.worker.defaultModel)
+      updates.defaultModel = room.worker.defaultModel
+    if (worker.roomId !== room.roomId) updates.roomId = room.roomId
+    if (worker.roomKind !== room.roomKind) updates.roomKind = room.roomKind
+
+    if (Object.keys(updates).length === 0) return
+
+    store.commit(
+      events.workerUpdatedV2({
+        id: worker.id,
+        updates,
+        updatedAt: new Date(),
+      })
+    )
+  }, [room, store, worker])
+
   return {
     worker,
     isProvisioning: Boolean(room) && !worker,

@@ -1,5 +1,6 @@
 import { DEFAULT_MODEL } from './models.js'
 import type { ProjectCategory } from './constants.js'
+import type { PlanningAttributes } from './types/planning.js'
 
 export const ROOM_KIND_VALUES = ['life-map', 'category', 'project'] as const
 export type RoomKind = (typeof ROOM_KIND_VALUES)[number]
@@ -124,6 +125,14 @@ Project Description:
 Objectives:
 {{projectObjectives}}
 
+Key Dates:
+- Deadline: {{projectDeadline}}
+- Activated At: {{projectActivatedAt}}
+- Last Activity: {{projectLastActivityAt}}
+
+Planning Snapshot:
+{{projectPlanningDetails}}
+
 Use the project details to suggest next actions, unblock work, and keep the project aligned with its intended outcome. Highlight risks, dependencies, and lightweight experiments.`
 
 export type ProjectRoomParameters = {
@@ -131,21 +140,49 @@ export type ProjectRoomParameters = {
   name?: string | null
   description?: string | null
   objectives?: string | null
+  attributes?: Partial<PlanningAttributes> | null
 }
 
 const sanitize = (value?: string | null, fallback = 'Not provided.') =>
   value && value.trim().length > 0 ? value.trim() : fallback
+
+const formatDate = (value?: number | null, fallback = 'Not provided.') =>
+  value ? new Date(value).toISOString() : fallback
+
+const formatPlanningDetails = (attributes?: Partial<PlanningAttributes> | null) => {
+  if (!attributes) return 'Not provided.'
+  const parts: string[] = []
+
+  if (attributes.status) parts.push(`Status: ${attributes.status}`)
+  if (attributes.planningStage) parts.push(`Planning Stage: ${attributes.planningStage}`)
+  if (attributes.priority !== undefined) parts.push(`Priority: ${attributes.priority}`)
+  if (attributes.archetype) parts.push(`Archetype: ${attributes.archetype}`)
+  if (attributes.estimatedDuration !== undefined)
+    parts.push(`Estimated Duration: ${attributes.estimatedDuration}h`)
+  if (attributes.urgency) parts.push(`Urgency: ${attributes.urgency}`)
+  if (attributes.importance) parts.push(`Importance: ${attributes.importance}`)
+  if (attributes.complexity) parts.push(`Complexity: ${attributes.complexity}`)
+  if (attributes.scale) parts.push(`Scale: ${attributes.scale}`)
+
+  return parts.length > 0 ? parts.join('\n') : 'Not provided.'
+}
 
 export const createProjectRoomDefinition = ({
   projectId,
   name,
   description,
   objectives,
+  attributes,
 }: ProjectRoomParameters): StaticRoomDefinition => {
   const workerId = `project-${projectId}-guide`
+  const resolvedObjectives = attributes?.objectives ?? objectives
   const prompt = PROJECT_PROMPT_TEMPLATE.replace('{{projectName}}', sanitize(name, 'this project'))
     .replace('{{projectDescription}}', sanitize(description))
-    .replace('{{projectObjectives}}', sanitize(objectives))
+    .replace('{{projectObjectives}}', sanitize(resolvedObjectives))
+    .replace('{{projectDeadline}}', formatDate(attributes?.deadline))
+    .replace('{{projectActivatedAt}}', formatDate(attributes?.activatedAt))
+    .replace('{{projectLastActivityAt}}', formatDate(attributes?.lastActivityAt))
+    .replace('{{projectPlanningDetails}}', formatPlanningDetails(attributes))
 
   return {
     roomId: `project:${projectId}`,

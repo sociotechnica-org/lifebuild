@@ -11,6 +11,8 @@ export type RoomChatPanelProps = {
   messageText: string
   onMessageTextChange: (value: string) => void
   onSendMessage: () => void
+  isReadOnly?: boolean
+  statusMessage?: string | null
 }
 
 export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
@@ -21,9 +23,12 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   messageText,
   onMessageTextChange,
   onSendMessage,
+  isReadOnly = false,
+  statusMessage,
 }) => {
   const workerName = worker?.name ?? 'Assistant'
   const scrollContainerRef = React.useRef<HTMLDivElement | null>(null)
+  const isInputDisabled = isReadOnly || !conversation
 
   const scrollToBottom = React.useCallback(() => {
     const container = scrollContainerRef.current
@@ -64,12 +69,18 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
         />
       </section>
 
+      {statusMessage && (
+        <p className='text-xs text-gray-500' data-testid='room-chat-status'>
+          {statusMessage}
+        </p>
+      )}
+
       <section>
         <RoomChatInput
           value={messageText}
           onChange={onMessageTextChange}
           onSend={onSendMessage}
-          disabled={!conversation}
+          disabled={isInputDisabled}
         />
       </section>
     </div>

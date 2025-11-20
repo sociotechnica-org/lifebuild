@@ -18,6 +18,10 @@ import {
 } from '@work-squared/shared'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
+import { RoomLayout } from '../layout/RoomLayout.js'
+import { createProjectRoomDefinition } from '@work-squared/shared/rooms'
+import { NewUiShell } from '../layout/NewUiShell.js'
+import { useProjectChatLifecycle } from '../../../hooks/useProjectChatLifecycle.js'
 
 const parseAssigneeIds = (raw: string | null | undefined): string[] => {
   if (!raw) return []
@@ -64,7 +68,9 @@ const TaskListItem: React.FC<{ task: Task; usersById: UsersById }> = ({ task, us
 export const ProjectDetailPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>()
   const resolvedProjectId = projectId ?? '__invalid__'
-  const projectRows = useQuery(getProjectById$(resolvedProjectId)) ?? []
+  const projectResult = useQuery(getProjectById$(resolvedProjectId))
+  const projectRows = projectResult ?? []
+  const projectQueryReady = projectResult !== undefined
   const tasks = useQuery(getProjectTasks$(resolvedProjectId)) ?? []
   const users = useQuery(getUsers$) ?? []
   const usersById = useMemo(() => new Map(users.map(user => [user.id, user])), [users])
@@ -125,18 +131,62 @@ export const ProjectDetailPage: React.FC = () => {
     return `${days} day${days !== 1 ? 's' : ''}, ${remainingHours.toFixed(1)} hours`
   }
 
-  return (
-    <div>
-      <Link to={backLink}>{backLabel}</Link>
+  const room = useMemo(
+    () =>
+      project
+        ? createProjectRoomDefinition({
+            projectId: resolvedProjectId,
+            name: project.name,
+            description: project.description,
+            objectives: attributes?.objectives,
+            attributes,
+          })
+        : null,
+    [attributes, project, resolvedProjectId]
+  )
 
-      {!projectId ? (
+  useProjectChatLifecycle(project ?? null, room)
+
+  if (!projectId) {
+    return (
+      <NewUiShell>
         <p>Invalid project ID</p>
-      ) : !project ? (
+      </NewUiShell>
+    )
+  }
+
+  if (!projectQueryReady) {
+    return (
+      <NewUiShell>
+        <p>Loading project...</p>
+      </NewUiShell>
+    )
+  }
+
+  if (!project) {
+    return (
+      <NewUiShell>
         <div>
           <h1>Project not found</h1>
           <p>The requested project ({projectId}) does not exist.</p>
         </div>
-      ) : (
+      </NewUiShell>
+    )
+  }
+
+  if (!room) {
+    return (
+      <NewUiShell>
+        <p>Preparing project room...</p>
+      </NewUiShell>
+    )
+  }
+
+  return (
+    <RoomLayout room={room}>
+      <div>
+        <Link to={backLink}>{backLabel}</Link>
+
         <div>
           <header>
             <h1 className='text-2xl font-bold'>{project.name || 'Untitled project'}</h1>
@@ -244,7 +294,7 @@ export const ProjectDetailPage: React.FC = () => {
             )}
           </section>
         </div>
-      )}
-    </div>
+      </div>
+    </RoomLayout>
   )
 }

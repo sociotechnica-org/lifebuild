@@ -25,8 +25,11 @@ export const useRoomChat = (room: StaticRoomDefinition | null) => {
   const messages = useQuery(getConversationMessages$(conversationId)) ?? []
   const [messageText, setMessageText] = React.useState('')
 
-  const isReady = Boolean(worker) && Boolean(conversation)
-  const visibleMessages = isReady ? messages : []
+  const isConversationArchived = Boolean(conversation?.archivedAt)
+  const isWorkerInactive = worker ? worker.status !== 'active' : false
+  const isReady =
+    Boolean(worker) && Boolean(conversation) && !isWorkerInactive && !isConversationArchived
+  const visibleMessages = conversation ? messages : []
 
   const handleSend = React.useCallback(() => {
     if (!isReady || !room || !messageText.trim()) return
@@ -48,8 +51,10 @@ export const useRoomChat = (room: StaticRoomDefinition | null) => {
     worker,
     conversation,
     messages: visibleMessages,
-    isProcessing: conversation?.processingState === 'processing',
+    isProcessing: conversation?.processingState === 'processing' && !isConversationArchived,
     isProvisioning: workerPending || conversationPending,
+    isConversationArchived,
+    isWorkerInactive,
     messageText,
     setMessageText,
     sendMessage: handleSend,
