@@ -139,6 +139,8 @@ export const ProjectDetailPage: React.FC = () => {
             name: project.name,
             description: project.description,
             objectives: attributes?.objectives,
+            archivedAt: project.archivedAt ? project.archivedAt.getTime() : null,
+            deletedAt: project.deletedAt ? project.deletedAt.getTime() : null,
             attributes,
           })
         : null,

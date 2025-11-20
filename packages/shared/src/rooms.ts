@@ -15,6 +15,7 @@ export type RoomWorkerDefinition = {
   prompt: string
   defaultModel: string
   avatar?: string
+  status?: 'active' | 'inactive' | 'archived'
 }
 
 export type StaticRoomDefinition = {
@@ -140,6 +141,8 @@ export type ProjectRoomParameters = {
   name?: string | null
   description?: string | null
   objectives?: string | null
+  archivedAt?: number | null
+  deletedAt?: number | null
   attributes?: Partial<PlanningAttributes> | null
 }
 
@@ -175,10 +178,17 @@ export const createProjectRoomDefinition = ({
   name,
   description,
   objectives,
+  archivedAt,
+  deletedAt,
   attributes,
 }: ProjectRoomParameters): StaticRoomDefinition => {
   const workerId = `project-${projectId}-guide`
   const resolvedObjectives = attributes?.objectives ?? objectives
+  const workerStatus: 'active' | 'inactive' | 'archived' = deletedAt
+    ? 'archived'
+    : archivedAt
+      ? 'inactive'
+      : 'active'
   const prompt = PROJECT_PROMPT_TEMPLATE.replace('{{projectName}}', sanitize(name, 'this project'))
     .replace('{{projectDescription}}', sanitize(description))
     .replace('{{projectObjectives}}', sanitize(resolvedObjectives))
@@ -198,6 +208,7 @@ export const createProjectRoomDefinition = ({
       roleDescription: 'Project Execution Partner',
       prompt,
       defaultModel: DEFAULT_MODEL,
+      status: workerStatus,
     },
   }
 }

@@ -38,7 +38,7 @@ export const useRoomAgent = (room?: StaticRoomDefinition | null) => {
           createdAt: new Date(),
           roomId: room.roomId,
           roomKind: room.roomKind,
-          status: generateStatus(),
+          status: generateStatus(room.worker.status),
         })
       )
     )
@@ -74,6 +74,10 @@ export const useRoomAgent = (room?: StaticRoomDefinition | null) => {
       updates.defaultModel = room.worker.defaultModel
     if (worker.roomId !== room.roomId) updates.roomId = room.roomId
     if (worker.roomKind !== room.roomKind) updates.roomKind = room.roomKind
+    if (room.worker.status && worker.status && worker.status !== room.worker.status) {
+      updates.status = room.worker.status
+      updates.isActive = room.worker.status === 'active'
+    }
 
     if (Object.keys(updates).length === 0) return
 
