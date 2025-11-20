@@ -7,10 +7,13 @@ import {
   getAllWorkerProjects$,
 } from '@work-squared/shared/queries'
 import { ProjectCard } from '../projects/ProjectCard.js'
-import { PROJECT_CATEGORIES } from '@work-squared/shared'
+import { PROJECT_CATEGORIES, type ProjectCategory } from '@work-squared/shared'
 import { ROUTES } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
+import { RoomLayout } from '../layout/RoomLayout.js'
+import { getCategoryRoomDefinition } from '@work-squared/shared/rooms'
+import { NewUiShell } from '../layout/NewUiShell.js'
 
 const parseAssigneeIds = (raw: string | null | undefined): string[] => {
   if (!raw) return []
@@ -23,21 +26,24 @@ const parseAssigneeIds = (raw: string | null | undefined): string[] => {
 }
 
 export const LifeCategory: React.FC = () => {
-  const { categoryId } = useParams<{ categoryId: string }>()
+  const { categoryId } = useParams<{ categoryId: ProjectCategory }>()
   const { user: authUser } = useAuth()
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
 
   // Validate categoryId
-  const category = PROJECT_CATEGORIES.find(c => c.value === categoryId)
+  const category = categoryId ? PROJECT_CATEGORIES.find(c => c.value === categoryId) : undefined
   if (!categoryId || !category) {
     return (
-      <div>
-        <Link to={preserveStoreIdInUrl(ROUTES.NEW)}>← Back to life map</Link>
-        <h1>Category not found</h1>
-        <p>The category you're looking for doesn't exist.</p>
-      </div>
+      <NewUiShell>
+        <div>
+          <Link to={preserveStoreIdInUrl(ROUTES.NEW)}>← Back to life map</Link>
+          <h1>Category not found</h1>
+          <p>The category you're looking for doesn't exist.</p>
+        </div>
+      </NewUiShell>
     )
   }
+  const room = getCategoryRoomDefinition(category.value)
 
   // Get projects for this category, filtered by status (filtering happens at database level)
   const activeProjects = useQuery(getProjectsByCategory$(categoryId, 'active')) ?? []
@@ -83,7 +89,7 @@ export const LifeCategory: React.FC = () => {
     return workerIds.size
   }, [categoryProjectIds, allWorkerProjects])
 
-  return (
+  const categoryContent = (
     <div>
       <Link to={preserveStoreIdInUrl(ROUTES.NEW)}>← Back to life map</Link>
 
@@ -181,4 +187,6 @@ export const LifeCategory: React.FC = () => {
       )}
     </div>
   )
+
+  return <RoomLayout room={room}>{categoryContent}</RoomLayout>
 }

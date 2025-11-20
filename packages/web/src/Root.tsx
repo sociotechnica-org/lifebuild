@@ -289,9 +289,7 @@ const ProtectedApp: React.FC = () => {
                       path={ROUTES.NEW_CATEGORY}
                       element={
                         <ErrorBoundary>
-                          <NewUiShell>
-                            <LifeCategory />
-                          </NewUiShell>
+                          <LifeCategory />
                         </ErrorBoundary>
                       }
                     />

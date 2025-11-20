@@ -211,6 +211,7 @@ A hidden (behind feature flag) room chat system that can be mounted in future PR
 - Seed the roster into `rooms.ts` (Health→Maya, Purpose→Atlas, Finances→Brooks, Relationships→Grace, Home→Reed, Contribution→Finn, Leisure→Indie, Learning→Sage). Include per-agent prompts/role descriptions.
 - Ensure visiting each category auto-creates the correct worker (tied to category) and conversation, reusing the shared workspace conversation.
 - Provide targeted tests/stories showing at least two categories in action, plus manual test instructions covering the entire roster.
+- Manual QA: enable the chat flag (or append `?roomChat=1`) and visit every `/new/category/<slug>` route to confirm the correct worker name, shared conversation note, and functional toggle/send flow.
 - Document known limitation: category chats are workspace-shared even though they may feel personal; plan follow-up research item.
 - Tests:
   - Unit: verify category roster definitions.

@@ -71,7 +71,6 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
           onSend={onSendMessage}
           disabled={!conversation}
         />
-        <p className='mt-2 text-xs text-gray-400'>Enter to send · Shift+Enter for a new line</p>
       </section>
     </div>
   )
