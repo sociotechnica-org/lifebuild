@@ -24,6 +24,13 @@ const usePersistentChatToggle = (roomId: string) => {
     window.localStorage.setItem(storageKey, String(isOpen))
   }, [storageKey, isOpen])
 
+  React.useEffect(() => {
+    return () => {
+      if (typeof window === 'undefined') return
+      window.localStorage.setItem(storageKey, 'false')
+    }
+  }, [storageKey])
+
   return [isOpen, setIsOpen] as const
 }
 
@@ -61,8 +68,8 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children }) => {
         <div className='flex items-start gap-6'>
           <div className='flex-1 min-w-0'>{children}</div>
           {showChatPanel && (
-            <div className='sticky top-8 w-96 flex-shrink-0'>
-              <div className='h-[calc(100vh-6rem)]'>
+            <div className='sticky top-4 w-96 flex-shrink-0'>
+              <div className='h-[calc(100vh-4rem)]'>
                 <RoomChatPanel
                   worker={chat.worker}
                   conversation={chat.conversation}
