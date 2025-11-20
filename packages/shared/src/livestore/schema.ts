@@ -1112,7 +1112,7 @@ const materializers = State.SQLite.materializers(events, {
   ],
 
   'v2.ProjectArchived': ({ id, archivedAt, actorId }) => [
-    projects.update({ archivedAt }).where({ id }),
+    projects.update({ archivedAt, updatedAt: archivedAt }).where({ id }),
     workers
       .update({ status: 'inactive', isActive: false, updatedAt: archivedAt })
       .where({ roomId: `project:${id}` }),

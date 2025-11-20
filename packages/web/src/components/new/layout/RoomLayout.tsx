@@ -41,7 +41,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children }) => {
   const chat = useRoomChat(featureEnabled ? room : null)
   const previousOpenRef = React.useRef(isChatOpen)
   const disabledReason = chat.isConversationArchived
-    ? 'Project chat is archived.'
+    ? 'This chat is archived.'
     : chat.isWorkerInactive
       ? "This room's agent is inactive."
       : null
