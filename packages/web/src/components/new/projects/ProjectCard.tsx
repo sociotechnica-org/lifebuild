@@ -3,10 +3,26 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@livestore/react'
 import { getProjectTasks$, getProjectWorkers$ } from '@work-squared/shared/queries'
 import type { Project as ProjectType } from '@work-squared/shared/schema'
-import { ARCHETYPE_LABELS } from '@work-squared/shared'
-import type { PlanningAttributes } from '@work-squared/shared'
+import {
+  ARCHETYPE_LABELS,
+  describeProjectLifecycleState,
+  getCategoryInfo,
+  resolveLifecycleState,
+  type PlanningAttributes,
+  type ProjectCategory,
+  type ProjectLifecycleState,
+} from '@work-squared/shared'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
+import { UrushiVisual, lifecycleToUrushiStage, type UrushiStage } from './UrushiVisual.js'
+
+const URUSHI_STAGE_LABELS: Record<UrushiStage, string> = {
+  sketch: 'Sketch',
+  foundation: 'Foundation',
+  color: 'Color',
+  polish: 'Polish',
+  decoration: 'Decoration',
+}
 
 const parseAssigneeIds = (raw: string | null | undefined): string[] => {
   if (!raw) return []
@@ -18,6 +34,47 @@ const parseAssigneeIds = (raw: string | null | undefined): string[] => {
   }
 }
 
+const safeParseAttributes = (attributes: ProjectType['attributes']): PlanningAttributes | null => {
+  if (!attributes) return null
+  if (typeof attributes === 'object') return attributes as PlanningAttributes
+  if (typeof attributes === 'string') {
+    try {
+      return JSON.parse(attributes) as PlanningAttributes
+    } catch {
+      return null
+    }
+  }
+  return null
+}
+
+const hexToRgba = (hex: string, alpha: number) => {
+  const normalized = hex.replace('#', '')
+  const normalizedHex =
+    normalized.length === 3
+      ? normalized
+          .split('')
+          .map(char => char.repeat(2))
+          .join('')
+      : normalized
+  const bigint = Number.parseInt(normalizedHex, 16)
+  if (Number.isNaN(bigint)) return `rgba(14,165,233,${alpha})`
+  const r = (bigint >> 16) & 255
+  const g = (bigint >> 8) & 255
+  const b = bigint & 255
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
+const lifecycleBadgeLabel = (lifecycle: ProjectLifecycleState, stage: UrushiStage) => {
+  if (lifecycle.status === 'plans') {
+    return `${lifecycle.stream.charAt(0).toUpperCase()}${lifecycle.stream.slice(1)} plan`
+  }
+  if (lifecycle.status === 'work_at_hand') return `${lifecycle.slot.toUpperCase()} slot`
+  if (lifecycle.status === 'paused') return 'Paused'
+  if (lifecycle.status === 'live') return 'Live'
+  if (lifecycle.status === 'completed') return 'Completed'
+  return URUSHI_STAGE_LABELS[stage]
+}
+
 interface ProjectCardProps {
   project: ProjectType
 }
@@ -27,29 +84,32 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   const tasks = useQuery(getProjectTasks$(project.id)) ?? []
   const workerProjects = useQuery(getProjectWorkers$(project.id)) ?? []
 
-  // Parse project attributes
-  const attributes = useMemo(() => {
-    if (!project.attributes) return null
-    try {
-      const parsed =
-        typeof project.attributes === 'string' ? JSON.parse(project.attributes) : project.attributes
-      return parsed as PlanningAttributes
-    } catch {
-      return null
-    }
-  }, [project.attributes])
+  const attributes = useMemo(() => safeParseAttributes(project.attributes), [project.attributes])
 
-  // Get archetype label
+  const lifecycleState = useMemo(
+    () => resolveLifecycleState(project.projectLifecycleState, attributes),
+    [project.projectLifecycleState, attributes]
+  )
+
+  const { stage, progress } = useMemo(
+    () => lifecycleToUrushiStage(lifecycleState),
+    [lifecycleState]
+  )
+  const lifecycleLabel = describeProjectLifecycleState(lifecycleState)
   const archetypeLabel = attributes?.archetype ? ARCHETYPE_LABELS[attributes.archetype] : null
+  const categoryInfo = useMemo(
+    () => getCategoryInfo(project.category as ProjectCategory),
+    [project.category]
+  )
+  const accentColor = categoryInfo?.colorHex ?? '#0ea5e9'
+  const progressPercent = Math.max(8, Math.min(100, Math.round(progress * 100)))
 
-  // Calculate task stats
   const taskStats = useMemo(() => {
     const total = tasks.length
     const done = tasks.filter(task => task.status === 'done').length
     return { total, done }
   }, [tasks])
 
-  // Count tasks assigned to current user
   const currentUserId = authUser?.id
   const userTaskCount = useMemo(() => {
     if (!currentUserId) return 0
@@ -59,51 +119,93 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
     }).length
   }, [tasks, currentUserId])
 
-  // Count unique workers assigned to this project
-  // workerProjects is an array of { workerId, projectId } rows from the workerProjects table
   const workerCount = useMemo(() => {
     const uniqueWorkerIds = new Set(workerProjects.map(wp => wp.workerId))
     return uniqueWorkerIds.size
   }, [workerProjects])
 
+  const badgeLabel = lifecycleBadgeLabel(lifecycleState, stage)
+  const paused = lifecycleState.status === 'paused'
+
   return (
-    <div className='mb-4'>
-      <div className='mb-2'>
-        <Link
-          to={preserveStoreIdInUrl(`/new/projects/${project.id}`)}
-          className='text-lg font-semibold'
-        >
-          {project.name || 'Untitled project'}
-        </Link>
+    <Link
+      to={preserveStoreIdInUrl(`/new/projects/${project.id}`)}
+      className={`new-project-card block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg ${paused ? 'opacity-90' : ''}`}
+    >
+      <div className='flex gap-4 p-4 sm:p-5'>
+        <UrushiVisual
+          lifecycle={lifecycleState}
+          categoryColor={accentColor}
+          className='hidden w-28 shrink-0 sm:block'
+        />
+        <div className='flex-1 space-y-3'>
+          <div className='flex items-start justify-between gap-2'>
+            <div className='space-y-1'>
+              <div className='text-[11px] font-semibold uppercase tracking-wide text-slate-500'>
+                {categoryInfo?.name ?? 'Uncategorized'}
+              </div>
+              <h3 className='text-lg font-semibold leading-snug text-slate-900'>
+                {project.name || 'Untitled project'}
+              </h3>
+              {project.description && (
+                <p className='line-clamp-2 text-sm text-slate-600'>{project.description}</p>
+              )}
+            </div>
+            <span
+              className='inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700'
+              style={{ color: accentColor, backgroundColor: hexToRgba(accentColor, 0.14) }}
+            >
+              {badgeLabel}
+            </span>
+          </div>
+
+          <div className='flex flex-wrap items-center gap-2 text-xs text-slate-600'>
+            <span className='rounded-full bg-slate-100 px-2 py-1 font-semibold text-slate-700'>
+              {lifecycleLabel}
+            </span>
+            {archetypeLabel && (
+              <span className='rounded-full bg-slate-50 px-2 py-1 font-semibold text-slate-600'>
+                {archetypeLabel}
+              </span>
+            )}
+            {lifecycleState.status === 'plans' && (
+              <span className='rounded-full bg-slate-50 px-2 py-1'>
+                Queue #{lifecycleState.queuePosition + 1}
+              </span>
+            )}
+          </div>
+
+          <div className='h-2 overflow-hidden rounded-full bg-slate-100'>
+            <div
+              className='h-full rounded-full'
+              style={{
+                width: `${progressPercent}%`,
+                background: `linear-gradient(90deg, ${hexToRgba(accentColor, 0.4)}, ${accentColor})`,
+              }}
+            />
+          </div>
+
+          <div className='grid grid-cols-3 gap-3 text-xs'>
+            <div className='rounded-xl border border-slate-100 bg-slate-50/60 p-3'>
+              <div className='font-semibold text-slate-700'>Tasks</div>
+              <div className='text-sm text-slate-900'>
+                {taskStats.done} / {taskStats.total || 0}
+              </div>
+              <div className='text-[11px] uppercase tracking-wide text-slate-500'>Completed</div>
+            </div>
+            <div className='rounded-xl border border-slate-100 bg-slate-50/60 p-3'>
+              <div className='font-semibold text-slate-700'>Your load</div>
+              <div className='text-sm text-slate-900'>{userTaskCount}</div>
+              <div className='text-[11px] uppercase tracking-wide text-slate-500'>Assigned</div>
+            </div>
+            <div className='rounded-xl border border-slate-100 bg-slate-50/60 p-3'>
+              <div className='font-semibold text-slate-700'>Team</div>
+              <div className='text-sm text-slate-900'>{workerCount}</div>
+              <div className='text-[11px] uppercase tracking-wide text-slate-500'>Workers</div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      {archetypeLabel && (
-        <div className='text-sm text-gray-600 mb-2'>
-          <span className='font-medium'>Archetype:</span> {archetypeLabel}
-        </div>
-      )}
-
-      <div className='text-sm text-gray-600 mb-2'>
-        {taskStats.total === 0 ? (
-          <span>No Tasks</span>
-        ) : (
-          <span>
-            {taskStats.done} of {taskStats.total} tasks complete
-          </span>
-        )}
-      </div>
-
-      {userTaskCount > 0 && (
-        <div className='text-sm text-gray-600 mb-2'>
-          <span className='font-medium'>Your tasks:</span> {userTaskCount}
-        </div>
-      )}
-
-      {workerCount > 0 && (
-        <div className='text-sm text-gray-600'>
-          <span className='font-medium'>Workers:</span> {workerCount}
-        </div>
-      )}
-    </div>
+    </Link>
   )
 }

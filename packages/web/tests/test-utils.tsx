@@ -209,6 +209,7 @@ export const createMockProject = (overrides: Partial<Project> = {}): Project => 
   description: null,
   category: null,
   attributes: null,
+  projectLifecycleState: null,
   createdAt: new Date('2023-01-01'),
   updatedAt: new Date('2023-01-01'),
   deletedAt: null,

@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useStore } from '@livestore/react'
 import { formatDate } from '../../../utils/dates.js'
 import type { Project, Worker } from '@work-squared/shared/schema'
 import { getProjectWorkers$, getWorkers$ } from '@work-squared/shared/queries'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
 import { ProjectCategoryBadge } from '../ProjectCategoryBadge.js'
+import { describeProjectLifecycleState, resolveLifecycleState } from '@work-squared/shared'
+import type { PlanningAttributes } from '@work-squared/shared'
+import { PROJECT_CATEGORIES } from '@work-squared/shared'
 
 interface ProjectCardProps {
   project: Project
@@ -47,60 +50,138 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
     loadAssignedWorkers()
   }, [project.id, store])
 
+  const attributes = useMemo(() => {
+    try {
+      return (project.attributes as PlanningAttributes | null) ?? null
+    } catch {
+      return null
+    }
+  }, [project.attributes])
+
+  const lifecycleLabel = useMemo(
+    () =>
+      describeProjectLifecycleState(
+        resolveLifecycleState(project.projectLifecycleState, attributes ?? null)
+      ),
+    [project.projectLifecycleState, attributes]
+  )
+
+  const category = PROJECT_CATEGORIES.find(c => c.value === project.category)
+  const accentColor = category?.colorHex ?? '#c56b45'
+
   const coverImageUrl = (project.attributes as any)?.coverImage
   const fullImageUrl = coverImageUrl ? getFullImageUrl(coverImageUrl) : null
 
   return (
     <div
-      className='bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 overflow-hidden'
+      className='relative overflow-hidden rounded-2xl border border-amber-100/80 bg-gradient-to-br from-amber-50 via-white to-stone-100 shadow-lg shadow-amber-100/40 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl cursor-pointer'
       onClick={onClick}
     >
+      <div
+        className='pointer-events-none absolute inset-0 opacity-50 mix-blend-multiply'
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 10% 20%, rgba(255,238,210,0.5), transparent 25%), radial-gradient(circle at 80% 10%, rgba(196,181,150,0.35), transparent 30%), radial-gradient(circle at 40% 80%, rgba(255,255,255,0.45), transparent 35%)',
+        }}
+      />
+      <div className='absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_center,_#0f172a_0,_transparent_35%)] mix-blend-soft-light pointer-events-none' />
+      <div className='absolute left-6 top-6 z-10 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-700'>
+        <span
+          className='inline-flex items-center rounded-full px-3 py-1 shadow-sm'
+          style={{
+            backgroundColor: '#fff8f0',
+            color: accentColor,
+            border: `1px solid ${accentColor}30`,
+          }}
+        >
+          {lifecycleLabel}
+        </span>
+      </div>
       {fullImageUrl && (
-        <div className='w-full h-48 overflow-hidden'>
+        <div className='relative w-full h-44 overflow-hidden'>
+          <div className='absolute inset-0 bg-gradient-to-b from-black/10 via-black/0 to-black/25 z-10' />
           <img
             src={fullImageUrl}
             alt={`${project.name} cover`}
-            className='w-full h-full object-cover'
+            className='w-full h-full object-cover scale-[1.02]'
           />
         </div>
       )}
-      <div className='p-6'>
-        <h3 className='text-lg font-semibold text-gray-900 mb-2'>{project.name}</h3>
-        {project.category && (
-          <div className='mb-2'>
-            <ProjectCategoryBadge category={project.category as any} size='sm' />
+      <div className='relative z-10 p-6 space-y-4'>
+        <div className='flex items-start justify-between gap-3'>
+          <div className='space-y-1'>
+            <div className='text-xs font-semibold uppercase tracking-[0.16em] text-slate-500'>
+              {project.category ? (
+                <ProjectCategoryBadge category={project.category as any} size='sm' />
+              ) : (
+                'Uncategorized'
+              )}
+            </div>
+            <h3 className='text-xl font-semibold text-slate-900 leading-tight'>{project.name}</h3>
+            {project.description && (
+              <p className='text-sm text-slate-700/80 leading-relaxed line-clamp-2'>
+                {project.description}
+              </p>
+            )}
           </div>
-        )}
-        {project.description && (
-          <p className='text-sm text-gray-600 mb-3 line-clamp-2'>{project.description}</p>
-        )}
+          <div
+            className='flex h-12 w-12 items-center justify-center rounded-xl bg-white/80 shadow-inner'
+            style={{ border: `1px solid ${accentColor}30` }}
+          >
+            <div className='text-[10px] font-semibold text-slate-500 leading-tight'>
+              Created
+              <div className='text-sm text-slate-900'>{formatDate(project.createdAt)}</div>
+            </div>
+          </div>
+        </div>
 
         {assignedWorkers.length > 0 && (
-          <div className='mb-3'>
-            <div className='text-xs text-gray-500 mb-1'>Assigned Team:</div>
-            <div className='flex flex-wrap gap-1'>
-              {assignedWorkers.slice(0, 3).map(worker => (
+          <div className='rounded-xl border border-amber-100/70 bg-white/80 p-3 shadow-inner'>
+            <div className='text-xs font-semibold uppercase tracking-[0.12em] text-slate-500 mb-2'>
+              Assigned Team
+            </div>
+            <div className='flex flex-wrap gap-2'>
+              {assignedWorkers.slice(0, 4).map(worker => (
                 <span
                   key={worker.id}
-                  className={`inline-flex items-center px-2 py-1 text-xs ${getAvatarColor(worker.id)} text-white rounded-full`}
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold text-white shadow-sm ${getAvatarColor(worker.id)}`}
                 >
-                  {worker.avatar && <span className='mr-1'>{worker.avatar}</span>}
+                  {worker.avatar && <span className='text-base leading-none'>{worker.avatar}</span>}
                   {worker.name}
                 </span>
               ))}
-              {assignedWorkers.length > 3 && (
-                <span className='inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full'>
-                  +{assignedWorkers.length - 3} more
+              {assignedWorkers.length > 4 && (
+                <span className='inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 shadow-sm'>
+                  +{assignedWorkers.length - 4} more
                 </span>
               )}
             </div>
           </div>
         )}
 
-        <div className='text-sm text-gray-500'>
-          <p>Created: {formatDate(project.createdAt)}</p>
-          <p>Updated: {formatDate(project.updatedAt)}</p>
-          <p>Team: {assignedWorkers.length > 0 ? assignedWorkers.length : 'None assigned'}</p>
+        <div className='grid grid-cols-3 gap-3'>
+          <div className='rounded-xl bg-white/80 p-3 shadow-inner border border-amber-100/70'>
+            <div className='text-[11px] uppercase tracking-[0.12em] text-slate-500 font-semibold'>
+              Updated
+            </div>
+            <div className='text-sm font-semibold text-slate-900'>
+              {formatDate(project.updatedAt)}
+            </div>
+          </div>
+          <div className='rounded-xl bg-white/80 p-3 shadow-inner border border-amber-100/70'>
+            <div className='text-[11px] uppercase tracking-[0.12em] text-slate-500 font-semibold'>
+              Team
+            </div>
+            <div className='text-sm font-semibold text-slate-900'>
+              {assignedWorkers.length > 0 ? assignedWorkers.length : 'None'}
+            </div>
+          </div>
+          <div className='rounded-xl bg-white/80 p-3 shadow-inner border border-amber-100/70'>
+            <div className='text-[11px] uppercase tracking-[0.12em] text-slate-500 font-semibold'>
+              Lifecycle
+            </div>
+            <div className='text-sm font-semibold text-slate-900'>{lifecycleLabel}</div>
+          </div>
         </div>
       </div>
     </div>

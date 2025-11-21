@@ -24,3 +24,18 @@ export type {
   PlanningAttributes,
 } from './types/planning.js'
 export { ARCHETYPE_LABELS, STAGE_LABELS } from './types/planning.js'
+export type {
+  DraftingPayload,
+  LifecycleSlot,
+  LifecycleStream,
+  ProjectLifecycleState,
+} from './lifecycle.js'
+export {
+  DraftingPayloadSchema,
+  ProjectLifecycleStateSchema,
+  createDefaultLifecycleState,
+  describeProjectLifecycleState,
+  deriveLifecycleFromAttributes,
+  parseProjectLifecycleState,
+  resolveLifecycleState,
+} from './lifecycle.js'

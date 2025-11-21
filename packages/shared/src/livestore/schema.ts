@@ -1,6 +1,12 @@
 import { makeSchema, Schema, SessionIdSymbol, State } from '@livestore/livestore'
 import { DEFAULT_MODEL } from '../models.js'
-
+import {
+  createDefaultLifecycleState,
+  deriveLifecycleFromAttributes,
+  parseProjectLifecycleState,
+  ProjectLifecycleStateSchema,
+} from '../lifecycle.js'
+import type { PlanningAttributes } from '../types.js'
 import { Filter } from '../types'
 import * as eventsDefs from './events'
 
@@ -48,6 +54,10 @@ const projects = State.SQLite.table({
       // PR4: Flexible attributes for future extensibility (PR5)
       nullable: true,
       schema: Schema.parseJson(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
+    }),
+    projectLifecycleState: State.SQLite.text({
+      nullable: true,
+      schema: Schema.parseJson(ProjectLifecycleStateSchema),
     }),
     createdAt: State.SQLite.integer({
       schema: Schema.DateFromNumber,
@@ -401,6 +411,17 @@ export const tables = {
   taskExecutions,
 }
 
+const buildLifecycleState = (lifecycleState: unknown, attributes: unknown, timestamp: Date) => {
+  const parsedLifecycle = parseProjectLifecycleState(lifecycleState)
+  if (parsedLifecycle) return parsedLifecycle
+
+  return deriveLifecycleFromAttributes(
+    (attributes as PlanningAttributes | null | undefined) ?? null,
+    createDefaultLifecycleState({ lastEditedAt: timestamp.getTime() }),
+    timestamp.getTime()
+  )
+}
+
 // PR3: Helper function to map v1 columnId to status for backwards compatibility
 //
 // IMPORTANT LIMITATION: This is a best-effort mapping that works for standard column names
@@ -433,13 +454,14 @@ function mapColumnIdToStatus(columnId: string): 'todo' | 'doing' | 'in_review' |
 const materializers = State.SQLite.materializers(events, {
   'v1.ChatMessageSent': ({ id, conversationId, message, role, navigationContext, createdAt }) =>
     chatMessages.insert({ id, conversationId, message, role, navigationContext, createdAt }),
-  'v1.ProjectCreated': ({ id, name, description, createdAt, actorId }) => [
+  'v1.ProjectCreated': ({ id, name, description, createdAt, actorId, lifecycleState }) => [
     projects.insert({
       id,
       name,
       description,
       category: null, // PR4: v1 projects have no category
       attributes: null, // PR4: v1 projects have no attributes
+      projectLifecycleState: buildLifecycleState(lifecycleState, null, createdAt),
       createdAt,
       updatedAt: createdAt,
     }),
@@ -1028,13 +1050,23 @@ const materializers = State.SQLite.materializers(events, {
   // V2 PROJECT MATERIALIZERS - With Categories & Attributes
   // ============================================================================
 
-  'v2.ProjectCreated': ({ id, name, description, category, attributes, createdAt, actorId }) => [
+  'v2.ProjectCreated': ({
+    id,
+    name,
+    description,
+    category,
+    attributes,
+    lifecycleState,
+    createdAt,
+    actorId,
+  }) => [
     projects.insert({
       id,
       name,
       description,
       category: category || null,
       attributes: attributes || null,
+      projectLifecycleState: buildLifecycleState(lifecycleState, attributes, createdAt),
       createdAt,
       updatedAt: createdAt,
       archivedAt: null,
@@ -1071,6 +1103,11 @@ const materializers = State.SQLite.materializers(events, {
       .update({
         // Full replacement - caller must merge before emitting
         attributes,
+        projectLifecycleState: deriveLifecycleFromAttributes(
+          (attributes as PlanningAttributes | null | undefined) ?? null,
+          createDefaultLifecycleState({ lastEditedAt: updatedAt.getTime() }),
+          updatedAt.getTime()
+        ),
         updatedAt,
       })
       .where({ id }),
@@ -1078,6 +1115,22 @@ const materializers = State.SQLite.materializers(events, {
       id: `project_attributes_updated_${id}_${updatedAt.getTime()}`,
       eventType: 'v2.ProjectAttributesUpdated',
       eventData: JSON.stringify({ id, attributes }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  'v3.ProjectLifecycleUpdated': ({ projectId, lifecycleState, updatedAt, actorId }) => [
+    projects
+      .update({
+        projectLifecycleState: lifecycleState,
+        updatedAt,
+      })
+      .where({ id: projectId }),
+    eventsLog.insert({
+      id: `project_lifecycle_updated_${projectId}_${updatedAt.getTime()}`,
+      eventType: 'v3.ProjectLifecycleUpdated',
+      eventData: JSON.stringify({ projectId }),
       actorId,
       createdAt: updatedAt,
     }),
