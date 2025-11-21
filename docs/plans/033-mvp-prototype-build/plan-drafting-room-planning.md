@@ -41,7 +41,7 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
    - Provide “Pause for now” action that returns to queue but keeps progress (emits `draft_paused` event referencing the latest version).
 5. **Abandon/Complete Actions**
    - Allow directors to archive drafts they no longer need (moves to `deletedAt`).
-   - When Stage 3 completes and Director confirms “Move to Stage 4”, emit event that transitions project to Priority Queue (Stage 4 handled in next plan).
+   - When Stage 3 completes and Director confirms “Move to Stage 4”, emit an event marking the draft as Stage-3-complete (`status: 'ready_for_stage4'`) but defer inserting into the Priority Queue until the Stage 4 workflow explicitly places it (handled in the next plan).
 6. **Storybook & Fixtures**
    - Create Storybook scenarios for each stage flow, queue with multiple drafts, empty queue, and error validation states.
    - Boot LiveStore stories with events representing mixed stages to ensure UI fidelity.

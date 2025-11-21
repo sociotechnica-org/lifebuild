@@ -25,8 +25,8 @@ This plan addresses Stage 4 (“Prioritized”) and the Priority Queue inside th
    - Add `/new/drafting/priority` subroute or integrate within Drafting Room layout via tabs.
    - Provide filter tabs or segmented controls per stream, showing counts and heuristics (e.g., “2 Gold candidates”).
 2. **State Machine Integration**
-   - Use the `ProjectLifecycleState` union to determine eligibility: only `{ status: 'plans' }` entries appear here; paused entries reuse the `paused` variant.
-   - Introduce LiveStore query helpers: `getPriorityQueueProjects$(stream)` returning ordered lists referencing the shared `priority_position` field.
+   - Use the `ProjectLifecycleState` union to determine eligibility: only `{ status: 'plans' }` entries appear here for Gold/Silver, while Bronze candidates pull from a `priority_bronze_tasks` view that exposes decomposed tasks flagged as Bronze-ready (with references back to their parent projects).
+   - Introduce LiveStore query helpers: `getPriorityQueueProjects$(stream)` returning ordered lists referencing the shared `priority_position` field, plus `getPriorityBronzeTasks$()` for Bronze task candidates.
    - Ensure paused metadata (`pausedAt`, `pausedReason`) is stored per the state machine spec rather than bespoke fields.
 3. **Stage 4 Workflow**
    - Stage 4 panel shows summary of Stage 1–3 data, allows selecting stream, entering placement (top, specific index), and capturing Stage 4 confirmation (notes, date).

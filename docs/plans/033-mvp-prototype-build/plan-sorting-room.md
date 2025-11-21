@@ -29,6 +29,7 @@ This plan builds Cameron’s Sorting Room: the space where Directors review Prio
 3. **Selection Mechanics**
    - Gold & Silver selectors: radio list of candidates with metadata (category, archetype, stage) plus option “Leave empty intentionally”.
    - Bronze selector: list of candidate tasks; allow multi-select with due date indicators and reorder to set stack order that will become entries in `table_bronze_stack`.
+   - Bronze candidates are canonical tasks emitted from Stage 3 (the Drafted stage commits tasks into the core `tasks` table); Sorting never mutates task definitions, only references the already-materialized records.
    - Provide inline warnings when Bronze selection <3 tasks or duplicates existing Table items.
    - Bronze mode control: segmented buttons with explanation, input for `Target +X`, and preview of `getNextBronzeTasks` output so Directors see what will auto-pull next.
 4. **Validation & Confirmation**

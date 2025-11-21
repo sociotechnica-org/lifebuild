@@ -33,7 +33,7 @@ This plan implements Devin’s Roster Room: the four-stage workflow for staffing
    - Stage 4: Confirmation – review worker summary, confirm assignment, optionally set review reminder.
    - Provide progress indicator and autosave per stage.
 4. **Persistence & Editing**
-   - Create or update worker entity, link via `workerProjects` join table, and store synopsis/prompt text plus template metadata.
+   - Create or update worker entity, store synopsis/prompt text plus template metadata, and set the project’s `assignedWorkerId` (single-worker constraint per MVP).
    - “Edit Worker” entry point from Project Board should deep-link into Stage 2/3 with existing data.
    - Enforce rule from doc: synopsis/prompt editable only within Roster Room.
 5. **AI Integration**

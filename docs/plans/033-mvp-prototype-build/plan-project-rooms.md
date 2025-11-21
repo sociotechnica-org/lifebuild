@@ -38,7 +38,7 @@ This plan focuses on the execution altitude described in the source doc: the Pro
    - “Assign Tasks to Worker” button triggers Roster Room deep-link (Stage 2/3) for adjustments.
 5. **Pause/Complete Logic**
    - Pause: confirm dialog, set `ProjectLifecycleState` to the `paused` variant, record reason, return to Life Map and update Priority Queue (project to top of stream).
-   - Complete: ensure all tasks done, set `completedAt`, update Urushi stage to Decoration, remove from Table and queues.
+   - Complete: support both automatic completion when all tasks are Done and manual “Confirm Completion” even if tasks remain (per `mvp-source-of-truth-doc.md:1231-1245`); in both cases set `completedAt`, update Urushi stage to Decoration, remove from Table and queues.
 6. **Task Details**
    - Inline task edit drawer for description, assignees, due dates, CODAD type.
    - Comments panel referencing existing comment queries.
