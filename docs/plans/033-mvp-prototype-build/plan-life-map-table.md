@@ -64,3 +64,16 @@ This plan delivers the Life Map surface described in `docs/plans/033-mvp-prototy
 - Sorting Room plan will drive how Table state is mutated; this plan focuses on rendering + read paths.
 - Drafting Room plans will set `workState` and feed Planning vs Priority counts consumed here.
 - Subsequent visual polish and animation work can layer on top of this baseline.
+
+## Proposed PR Breakdown
+1. **PR4 – Empty Table Shell**  
+   *Title:* “Life Map: Add empty Table with persistent shell”  
+   *Scope:* Introduce the Table component with empty Gold/Silver/Bronze slots, integrate it into `/new/life-map`, and ensure it persists during navigation per `mvp-source-of-truth-doc.md:241-330`. Provides guidance/CTA to Sorting Room when no work is activated.
+
+2. **PR5 – Populate Table with Work at Hand**  
+   *Title:* “Life Map: Render Gold/Silver/Bronze streams”  
+   *Scope:* Wire the Table to `table_configuration`/`table_bronze_stack`, render Gold/Silver slots with Polish-stage Urushi, show interactive Bronze stack per `mvp-source-of-truth-doc.md:705-751`, and provide click-through to existing project detail.
+
+3. **PR6 – Category Cards & Dual Presence**  
+   *Title:* “Life Map: Category grid with dual presence”  
+   *Scope:* Replace the list with the eight-card grid, show counts (Work at Hand/Live/Plans/Paused), draw dual presence badges per `mvp-source-of-truth-doc.md:288-310`, and add domain altitude navigation.

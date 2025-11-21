@@ -63,3 +63,12 @@ This plan implements Devin’s Roster Room: the four-stage workflow for staffing
 - Requires Life Map/Table plan to flag Work-at-Hand projects needing staffing.
 - Project Rooms plan must pull worker info to display in Project Board + chat.
 - Future work: multi-worker per project, automation settings.
+
+## Proposed PR Breakdown
+1. **PR15 – Staffing Queue & Worker Wizard**  
+   *Title:* “Roster: Staff projects with AI workers (end-to-end)”  
+   *Scope:* Add `/new/roster`, the Work-at-Hand staffing queue, and the full four-stage worker wizard (Project Review → Profile → Prompt → Confirmation) with Devin integration per `mvp-source-of-truth-doc.md:451-494` and `1311-1424`.
+
+2. **PR16 – Templates & Editing Enhancements**  
+   *Title:* “Roster: Worker templates and editing”  
+   *Scope:* Add template selection, worker library view, and editing flows (synopsis/prompt regeneration) so Directors can quickly reuse or adjust workers per the “Worker Templates” guidance.

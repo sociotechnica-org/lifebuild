@@ -87,3 +87,16 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
 - Must land before Life Map, Drafting, Sorting, and Project Rooms workstreams.
 - Later plans depend on the hooks/components exported here; document API stability expectations.
 - Consider future server-side enforcement of state transitions once telemetry confirms correctness.
+
+## Proposed PR Breakdown
+1. **PR1 – Lifecycle & Initial Visuals**  
+   *Title:* “Foundation: Project state machine + basic ProjectCard”  
+   *Scope:* Introduce `ProjectLifecycleState`, migrate `project_lifecycle_state` column, upgrade `ProjectCard` to consume the new state, and add a minimal `UrushiVisual` with Storybook coverage. Ensures developers immediately see state-driven visuals in action.
+
+2. **PR2 – Table State Persistence**  
+   *Title:* “Foundation: Table configuration & Bronze stack persistence”  
+   *Scope:* Add `table_configuration` (with versioning) and `table_bronze_stack` tables, related LiveStore queries/hooks (`getTableConfiguration$`, `useTableState`), and an admin script for manual setup. Establishes durable Gold/Silver/Bronze storage.
+
+3. **PR3 – Shared Hooks & Visual Toolkit**  
+   *Title:* “Foundation: Shared lifecycle hooks and visual system”  
+   *Scope:* Deliver `ProgressRing`, full `UrushiVisual` variants, `useLifeMapState`, `useProjectStateMachine`, RoomLayout context plumbing, and design tokens. Enables downstream streams to render/consume lifecycle-aware UI immediately.

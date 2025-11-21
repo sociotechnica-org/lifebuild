@@ -68,3 +68,16 @@ This plan focuses on the execution altitude described in the source doc: the Pro
 - Relies on Life Map/Table plan for entry points and Table state.
 - Sorting Room plan feeds Bronze stack sources; Roster Room plan provides worker data.
 - Future work: multi-project concurrency UI, animation polish.
+
+## Proposed PR Breakdown
+1. **PR12 – Project Board Overlay & Kanban**  
+   *Title:* “Project Board: Work on tasks with Kanban overlay”  
+   *Scope:* Implement the overlay shell, header with `UrushiVisual`/progress ring, and Kanban drag-and-drop columns per `mvp-source-of-truth-doc.md:260-360`.
+
+2. **PR13 – Pause/Complete & Slot Updates**  
+   *Title:* “Project Board: Complete or pause projects”  
+   *Scope:* Add pause/complete actions that update lifecycle state, remove projects from Table, and push paused work back to Priority Queue per `mvp-source-of-truth-doc.md:1192-1238`.
+
+3. **PR14 – Worker Panel & Bronze Auto-Pull**  
+   *Title:* “Project Board: Workers and Bronze task management”  
+   *Scope:* Integrate worker panel + “Assign tasks” link, render Bronze stack side rail, and handle auto-pull/removal events per `mvp-source-of-truth-doc.md:705-751` and `810-840`.
