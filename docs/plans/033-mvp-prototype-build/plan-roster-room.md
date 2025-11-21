@@ -52,6 +52,10 @@ This plan implements Devin’s Roster Room: the four-stage workflow for staffing
 - Integration tests ensuring worker creation links to project and surfaces in Project Board/Room Chat, including verifying the staffing queue updates when worker assignments change.
 - Manual QA: deep-link from Project Board to edit worker, confirm worker data persists and cannot be edited elsewhere.
 
+## Source References
+- `mvp-source-of-truth-doc.md:451-494` – Roster Room overview, staffing queue expectations, Devin’s persona, and one-worker-per-project constraint.
+- `mvp-source-of-truth-doc.md:1311-1424` – Detailed 4-stage worker staffing workflow (Project Review → Profile → Prompt → Confirmation) that this plan implements.
+
 ## Room Chat Context
 - Supply Devin with `{ staffingQueue, activeWorkerDraft, selectedProjectId }` so assistant guidance references the exact synopsis/prompt currently being edited (“Let’s expand the discovery responsibilities section by 2 sentences”).
 

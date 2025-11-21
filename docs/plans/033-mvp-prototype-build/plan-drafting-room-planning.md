@@ -56,6 +56,11 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
 - Integration tests simulating Stage 1→3 progression using LiveStore test harness.
 - Manual QA checklist: autosave indicator, pause/resume, multi-project queue behavior, Stage 3 AI task generation, read-only Priority Queue strip accuracy.
 
+## Source References
+- `mvp-source-of-truth-doc.md:374-409` – Drafting Room overview, Planning vs Priority Queue layout, and Marvin’s role in guiding the four stages.
+- `mvp-source-of-truth-doc.md:755-775` – Planning Queue definition and “workspace, not storage” philosophy that keeps Stages 1–3 lean.
+- `mvp-source-of-truth-doc.md:1044-1163` – Detailed requirements for Stages 1–3 (Identified, Scoped, Drafted) including Marvin prompts, CODAD balance, and autosave expectations.
+
 ## Room Chat Context
 - Supply Marvin with `{ activeProjectId, stage, draftingData }` via `RoomLayout` contextBuilder so AI assistance can reference the exact step (and even form field contents) when responding.
 

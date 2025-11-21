@@ -56,6 +56,11 @@ This plan focuses on the execution altitude described in the source doc: the Pro
 - Integration tests simulating drag/drop and verifying LiveStore updates.
 - Manual QA: open from Table vs category, pause/resume cycle, worker chat link, Urushi stage transitions.
 
+## Source References
+- `mvp-source-of-truth-doc.md:265-360` – Execution altitude description covering Project Board layout, Kanban columns, and worker controls surfaced within the overlay.
+- `mvp-source-of-truth-doc.md:705-751` – Table + Bronze behavior dictating how Work-at-Hand projects and Bronze tasks should appear simultaneously on the Life Map and in the overlay.
+- `mvp-source-of-truth-doc.md:810-840` – Execution model for working from The Table, completing Bronze tasks, and delegating via “Assign Tasks to Worker,” which this plan must support.
+
 ## Room Chat Context
 - Feed Devin/Cameron with `{ projectId, slot, taskCounts, workerStatus }` whenever the Project Board is open so the assistant can reference current column counts or worker handoffs (“You have 2 tasks in progress; shall we focus on clearing them before pulling new Bronze work?”).
 

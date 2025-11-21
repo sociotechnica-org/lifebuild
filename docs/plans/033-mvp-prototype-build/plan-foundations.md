@@ -75,6 +75,14 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
 - Visual regression tests for `UrushiVisual` via Storybook screenshot tests.
 - Manual QA checklist verifying table configuration CRUD via temporary admin script.
 
+## Source References
+- `mvp-source-of-truth-doc.md:560-604` – Project archetypes, lifecycle states, and Urushi stages the state machine + visual system must encode.
+- `mvp-source-of-truth-doc.md:374-452` – Descriptions of the Drafting, Sorting, and Roster Rooms that rely on shared navigation context and data contracts.
+- `mvp-source-of-truth-doc.md:705-751` – Table slots, Bronze modes, and dual presence behavior informing the `table_configuration`/`table_bronze_stack` schema.
+- `mvp-source-of-truth-doc.md:755-800` – Planning/Priority Queue definitions driving queue metadata and version tracking.
+- `mvp-source-of-truth-doc.md:1044-1188` – Four-stage project creation process whose states map directly to `ProjectLifecycleState` variants.
+- `mvp-source-of-truth-doc.md:1311-1424` – Worker staffing workflow that motivates shared hooks/components for Roster Room + Project Board integrations.
+
 ## Dependencies & Follow-ups
 - Must land before Life Map, Drafting, Sorting, and Project Rooms workstreams.
 - Later plans depend on the hooks/components exported here; document API stability expectations.

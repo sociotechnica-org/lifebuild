@@ -57,6 +57,11 @@ This plan addresses Stage 4 (“Prioritized”) and the Priority Queue inside th
 - Integration tests ensuring Stage 4 moves project from Planning Queue to Priority Queue and updates Life Map selectors.
 - Manual QA: reordering persistence, paused projects pinned, Sorting Room CTA gating.
 
+## Source References
+- `mvp-source-of-truth-doc.md:392-400` – Priority Queue description (filters, paused-project behavior, reorder expectations) surfaced in the Drafting Room.
+- `mvp-source-of-truth-doc.md:755-800` – Deeper explanation of Planning vs Priority Queues, contents, and filter rules.
+- `mvp-source-of-truth-doc.md:1164-1188` – Stage 4 “Prioritized” workflow, including Marvin’s prompts and the drag-to-position confirmation.
+
 ## Room Chat Context
 - Surface `{ streamFilter, visibleProjects, pausedCount }` through `RoomLayout` so Marvin can proactively coach Directors (“You currently have 4 Gold candidates; consider trimming before activating”).
 

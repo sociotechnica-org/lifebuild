@@ -52,6 +52,11 @@ This plan delivers the Life Map surface described in `docs/plans/033-mvp-prototy
 - Add Storybook coverage for each Table state for regression detection.
 - Manual QA checklist: Table persistent across navigation, Bronze min-3 enforcement messaging, dual presence updates when toggling stream assignments, Table state updates reflected in `table_configuration`.
 
+## Source References
+- `mvp-source-of-truth-doc.md:241-330` – Life Map layout, category card behavior, navigation altitudes, and Project Board entry points this plan must honor.
+- `mvp-source-of-truth-doc.md:705-751` – Definition of Gold/Silver/Bronze streams, Bronze mode constraints, and dual presence requirements.
+- `mvp-source-of-truth-doc.md:810-833` – Execution model expectations for working from The Table and Kanban, informing how Life Map surfaces status + entry points.
+
 ## Room Chat Context
 - Provide Life Map–specific context to `RoomLayout`, e.g., `{ goldProject, silverProject, bronzeMode, categoryOverview }`, so surface-level assistants can reference the current setup when Directors ask for guidance.
 

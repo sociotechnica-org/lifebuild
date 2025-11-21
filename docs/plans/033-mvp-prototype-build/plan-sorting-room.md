@@ -56,6 +56,11 @@ This plan builds Cameron’s Sorting Room: the space where Directors review Prio
 - Integration test simulating selection + activation, verifying LiveStore updates and `table_configuration` persistence.
 - Manual QA: ensure Table updates instantly, Bronze stack matches selection, re-enter Sorting Room shows current selection, Room chat context reflects the latest counts.
 
+## Source References
+- `mvp-source-of-truth-doc.md:411-448` – Sorting Room purpose, cadence, three-stream filtering steps, and activation validation rules.
+- `mvp-source-of-truth-doc.md:705-751` – The Table’s Gold/Silver/Bronze semantics and minimum Bronze stack requirements enforced here.
+- `mvp-source-of-truth-doc.md:1192-1218` – Activation flow from Priority Queue to The Table, including state transitions for Gold/Silver projects and Bronze stack expectations.
+
 ## Room Chat Context
 - Provide Cameron with `{ goldSelected, silverSelected, bronzeMode, bronzeCount, queueStats }` so the assistant can highlight gaps (e.g., “Bronze stack only has 2 tasks; add one more before activating”). Include Bronze stack revisions so the AI can confirm when entries are appended.
 
