@@ -150,8 +150,18 @@ export const parseProjectLifecycleState = (value: unknown): ProjectLifecycleStat
 
 export const deriveLifecycleFromAttributes = (
   attributes?: PlanningAttributes | null,
-  fallback?: ProjectLifecycleState
+  fallback?: ProjectLifecycleState,
+  fallbackTimestampMs?: number
 ): ProjectLifecycleState => {
+  const fallbackTimestamp =
+    fallbackTimestampMs ??
+    (fallback?.status === 'live'
+      ? fallback.lastActiveAt
+      : fallback?.status === 'completed'
+        ? fallback.completedAt
+        : fallback?.status === 'work_at_hand'
+          ? fallback.activatedAt
+          : undefined)
   if (!attributes) return fallback ?? createDefaultLifecycleState()
 
   const stage = clampPlanningStage(attributes.planningStage ?? 1)
@@ -180,14 +190,14 @@ export const deriveLifecycleFromAttributes = (
     return {
       status: 'work_at_hand',
       slot: 'gold',
-      activatedAt: attributes.activatedAt ?? Date.now(),
+      activatedAt: attributes.activatedAt ?? fallbackTimestamp ?? Date.now(),
     }
   }
 
   if (attributes.status === 'completed') {
     return {
       status: 'completed',
-      completedAt: attributes.lastActivityAt ?? Date.now(),
+      completedAt: attributes.lastActivityAt ?? fallbackTimestamp ?? Date.now(),
     }
   }
 

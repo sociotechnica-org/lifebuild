@@ -30,7 +30,13 @@ export const lifecycleToUrushiStage = (
 
 const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
   const normalized = hex.replace('#', '')
-  const normalizedHex = normalized.length === 3 ? normalized.repeat(2) : normalized
+  const normalizedHex =
+    normalized.length === 3
+      ? normalized
+          .split('')
+          .map(char => char.repeat(2))
+          .join('')
+      : normalized
   const bigint = Number.parseInt(normalizedHex, 16)
   if (Number.isNaN(bigint)) {
     return { r: 14, g: 165, b: 233 }

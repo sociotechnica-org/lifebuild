@@ -49,7 +49,13 @@ const safeParseAttributes = (attributes: ProjectType['attributes']): PlanningAtt
 
 const hexToRgba = (hex: string, alpha: number) => {
   const normalized = hex.replace('#', '')
-  const normalizedHex = normalized.length === 3 ? normalized.repeat(2) : normalized
+  const normalizedHex =
+    normalized.length === 3
+      ? normalized
+          .split('')
+          .map(char => char.repeat(2))
+          .join('')
+      : normalized
   const bigint = Number.parseInt(normalizedHex, 16)
   if (Number.isNaN(bigint)) return `rgba(14,165,233,${alpha})`
   const r = (bigint >> 16) & 255

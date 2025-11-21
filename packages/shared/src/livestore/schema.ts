@@ -417,15 +417,10 @@ const buildLifecycleState = (lifecycleState: unknown, attributes: unknown, times
 
   return deriveLifecycleFromAttributes(
     (attributes as PlanningAttributes | null | undefined) ?? null,
-    createDefaultLifecycleState({ lastEditedAt: timestamp.getTime() })
+    createDefaultLifecycleState({ lastEditedAt: timestamp.getTime() }),
+    timestamp.getTime()
   )
 }
-
-const deriveLifecycleOnAttributeUpdate = (attributes: unknown, updatedAt: Date) =>
-  deriveLifecycleFromAttributes(
-    (attributes as PlanningAttributes | null | undefined) ?? null,
-    createDefaultLifecycleState({ lastEditedAt: updatedAt.getTime() })
-  )
 
 // PR3: Helper function to map v1 columnId to status for backwards compatibility
 //
@@ -1108,7 +1103,6 @@ const materializers = State.SQLite.materializers(events, {
       .update({
         // Full replacement - caller must merge before emitting
         attributes,
-        projectLifecycleState: deriveLifecycleOnAttributeUpdate(attributes, updatedAt),
         updatedAt,
       })
       .where({ id }),
