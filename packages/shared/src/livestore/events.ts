@@ -1,5 +1,6 @@
 import { Events, Schema } from '@livestore/livestore'
 import { DEFAULT_ROOM_SCOPE, ROOM_KIND_VALUES } from '../rooms.js'
+import { ProjectLifecycleStateSchema } from '../lifecycle.js'
 
 const roomKindSchema = Schema.Literal(...ROOM_KIND_VALUES)
 const roomScopeSchema = Schema.Literal(DEFAULT_ROOM_SCOPE)
@@ -36,6 +37,7 @@ export const projectCreated = Events.synced({
     id: Schema.String,
     name: Schema.String,
     description: Schema.optional(Schema.String), // Added description field
+    lifecycleState: Schema.optional(ProjectLifecycleStateSchema),
     createdAt: Schema.Date,
     actorId: Schema.optional(Schema.String), // Track who created the project
   }),
@@ -660,6 +662,7 @@ export const projectCreatedV2 = Events.synced({
         'contribution'
       )
     ),
+    lifecycleState: Schema.optional(ProjectLifecycleStateSchema),
     attributes: Schema.optional(
       Schema.Struct({
         // Future: scale, complexity, urgency, etc.
@@ -732,6 +735,16 @@ export const projectCoverImageSet = Events.synced({
     projectId: Schema.String,
     coverImageUrl: Schema.String,
     attributes: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })), // Full attributes with coverImage merged
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const projectLifecycleUpdated = Events.synced({
+  name: 'v3.ProjectLifecycleUpdated',
+  schema: Schema.Struct({
+    projectId: Schema.String,
+    lifecycleState: ProjectLifecycleStateSchema,
     updatedAt: Schema.Date,
     actorId: Schema.optional(Schema.String),
   }),
