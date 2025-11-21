@@ -36,6 +36,7 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
      - Stage 3 (Drafted): integrate Marvin (LLM worker) to generate tasks via existing AI tooling; allow editing/reordering tasks.
    - Each stage enforces validation before enabling “Next”.
    - Autosaves emit discrete `draft_saved` events carrying `{ projectId, stage, payload, version }` so multiple clients can merge changes without overwriting each other. Mutations must check the previous version and bail if stale.
+   - When the Director approves the Stage 3 task list, immediately materialize those tasks into the canonical `tasks` table (with CODAD metadata); the `project_draft_tasks` store becomes read-only history so downstream surfaces (Sorting, Project Board) always consume the canonical rows.
 4. **Autosave & Resume**
    - Persist stage drafts to LiveStore after every meaningful change (debounced) with metadata `currentStage`, `stepProgress`, `lastUpdatedAt`, and optimistic concurrency versioning.
    - Provide “Pause for now” action that returns to queue but keeps progress (emits `draft_paused` event referencing the latest version).

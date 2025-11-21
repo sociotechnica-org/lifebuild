@@ -28,6 +28,7 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
      ```ts
      type ProjectLifecycleState =
        | { status: 'planning'; stage: 1 | 2 | 3; draftingData: DraftingPayload }
+       | { status: 'ready_for_stage4'; stage: 4; draftingData: DraftingPayload }
        | { status: 'plans'; stream: 'gold' | 'silver' | 'bronze'; queuePosition: number }
        | { status: 'work_at_hand'; slot: 'gold' | 'silver'; activatedAt: number }
        | { status: 'live'; lastActiveAt: number }
