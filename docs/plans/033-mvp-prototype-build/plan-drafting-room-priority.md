@@ -71,10 +71,10 @@ This plan addresses Stage 4 (“Prioritized”) and the Priority Queue inside th
 - Later optimization: virtualization for large queues if needed.
 
 ## Proposed PR Breakdown
-1. **PR8 (continued) – Stage 4 Prioritization & Queue Entry**  
+1. **PR1 – Stage 4 Prioritization & Queue Entry**  
    *Title:* “Drafting: Draft tasks and prioritize projects (Stages 3–4)”  
    *Scope:* Same as noted in DR plan—completes Stage 4 by inserting projects into the Priority Queue using the new state-machine fields.
 
-2. **PR9b – Priority Queue View & Reordering**  
+2. **PR2 – Priority Queue View & Reordering**  
    *Title:* “Drafting: Manage Priority Queue ordering”  
    *Scope:* Implement the full Priority Queue view with Gold/Silver/Bronze filters, paused-project highlighting, and drag-to-reorder emitting `priority_queue.reordered` events as described in `mvp-source-of-truth-doc.md:392-400` and `755-800`.

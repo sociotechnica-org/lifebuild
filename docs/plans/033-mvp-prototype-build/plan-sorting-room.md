@@ -70,10 +70,10 @@ This plan builds Cameron’s Sorting Room: the space where Directors review Prio
 - Later work: add “resume previous activation” view or history log.
 
 ## Proposed PR Breakdown
-1. **PR10 – Selection UI & Activation Flow**  
+1. **PR1 – Selection UI & Activation Flow**  
    *Title:* “Sorting: Activate Gold/Silver projects and Bronze tasks”  
    *Scope:* Build `/new/sorting`, Gold/Silver/Bronze selectors, validation for stream constraints, and activation mutations updating table configuration + Bronze stack in line with `mvp-source-of-truth-doc.md:411-448`.
 
-2. **PR11 – Bronze Modes & Paused Project Handling**  
+2. **PR2 – Bronze Modes & Paused Project Handling**  
    *Title:* “Sorting: Configure Bronze modes and manage paused projects”  
    *Scope:* Add Bronze mode picker (Minimal/Target/Maximal), Bronze task reordering, paused-project surfacing, confirmation dialog, and intentionally-empty slot handling per `mvp-source-of-truth-doc.md:433-447` and `705-751`.

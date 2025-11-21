@@ -70,14 +70,14 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
 - Later plans may add analytics instrumentation for stage dwell time.
 
 ## Proposed PR Breakdown
-1. **PR7 – Stage 1–2 Capture & Planning Queue Basics**  
+1. **PR1 – Stage 1–2 Capture & Planning Queue Basics**  
    *Title:* “Drafting: Capture and scope projects (Stages 1–2)”  
    *Scope:* Add `/new/drafting`, the Stage 1–2 wizard with autosave, and a basic Planning Queue list showing in-progress drafts per `mvp-source-of-truth-doc.md:374-409` and `1044-1109`.
 
-2. **PR8 – Stage 3 Task Drafting & Stage 4 Prioritization**  
+2. **PR2 – Stage 3 Task Drafting & Stage 4 Prioritization**  
    *Title:* “Drafting: Draft tasks and prioritize projects (Stages 3–4)”  
    *Scope:* Layer Stage 3 task generation (CODAD balance, Marvin integration) and Stage 4 placement, moving projects into the Priority Queue in line with `mvp-source-of-truth-doc.md:1110-1188`.
 
-3. **PR9 – Planning Queue Management Enhancements**  
+3. **PR3 – Planning Queue Management Enhancements**  
    *Title:* “Drafting: Manage in-progress Planning Queue”  
    *Scope:* Enhance the queue with stage indicators, resume/pause/abandon actions, stale draft warnings, and improved autosave handling to keep the queue lean per `mvp-source-of-truth-doc.md:384-409`.
