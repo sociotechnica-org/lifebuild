@@ -97,7 +97,7 @@ export const UrushiVisual: React.FC<UrushiVisualProps> = ({
   const { stage, progress } = useMemo(() => lifecycleToUrushiStage(lifecycle), [lifecycle])
 
   const palette = useMemo(() => {
-    const base = categoryColor || '#0ea5e9'
+    const base = categoryColor || '#c56b45'
     const highlightMix =
       stage === 'sketch'
         ? 0.18
@@ -111,7 +111,7 @@ export const UrushiVisual: React.FC<UrushiVisualProps> = ({
     return {
       base,
       highlight: mixWithWhite(base, highlightMix),
-      stroke: withAlpha(base, 0.92),
+      stroke: withAlpha(base, 0.75),
       glow: withAlpha(base, 0.1 + progress * 0.1 + (stage === 'decoration' ? 0.05 : 0)),
       accent: withAlpha(base, stage === 'sketch' ? 0.45 : 0.55),
     }
@@ -142,22 +142,20 @@ export const UrushiVisual: React.FC<UrushiVisualProps> = ({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-xl border border-slate-100 bg-gradient-to-br from-white via-slate-50 to-slate-100 shadow-inner ${className ?? ''}`}
+      className={`relative overflow-hidden rounded-xl border border-amber-100/70 bg-gradient-to-br from-amber-50 via-stone-50 to-white shadow-inner ${className ?? ''}`}
     >
+      <div className='pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-multiply bg-[radial-gradient(circle_at_20%_30%,_rgba(197,107,69,0.35),_transparent_35%),radial-gradient(circle_at_80%_10%,_rgba(120,90,60,0.25),_transparent_30%)]' />
       <svg viewBox='0 0 200 140' role='presentation' aria-hidden='true' className='block w-full'>
         <defs>
           <linearGradient id={`${visualId}-bg`} x1='0%' y1='0%' x2='100%' y2='100%'>
-            <stop offset='0%' stopColor={palette.highlight} />
-            <stop offset='100%' stopColor={withAlpha(palette.base, 0.2)} />
+            <stop offset='0%' stopColor={mixWithWhite(palette.base, 0.65)} />
+            <stop offset='35%' stopColor={withAlpha(palette.base, 0.15)} />
+            <stop offset='100%' stopColor={mixWithWhite('#fdf4e3', 0.3)} />
           </linearGradient>
-          <radialGradient id={`${visualId}-halo`} cx='50%' cy='35%' r='65%'>
-            <stop offset='0%' stopColor={palette.glow} />
-            <stop offset='100%' stopColor='rgba(255,255,255,0)' />
-          </radialGradient>
         </defs>
 
         <rect x='0' y='0' width='200' height='140' fill={`url(#${visualId}-bg)`} />
-        <rect x='-20' y='-10' width='240' height='180' fill={`url(#${visualId}-halo)`} />
+        <rect x='-20' y='-10' width='240' height='180' fill={withAlpha(palette.glow, 0.8)} />
 
         {orbs.map((orb, index) => (
           <circle
@@ -187,7 +185,7 @@ export const UrushiVisual: React.FC<UrushiVisualProps> = ({
           cx={160}
           cy={30}
           r={10 + progress * 8}
-          fill={withAlpha(palette.base, 0.16)}
+          fill={withAlpha(palette.base, 0.2)}
           stroke={palette.stroke}
           strokeWidth={2}
         />

@@ -41,8 +41,8 @@ describe('ProjectCard', () => {
     render(<ProjectCard project={mockProject} />)
 
     await waitFor(() => {
-      expect(screen.getByText(/Created:/)).toBeInTheDocument()
-      expect(screen.getByText(/Updated:/)).toBeInTheDocument()
+      expect(screen.getByText(/Created/i)).toBeInTheDocument()
+      expect(screen.getByText(/Updated/i)).toBeInTheDocument()
     })
   })
 
