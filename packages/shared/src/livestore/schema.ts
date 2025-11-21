@@ -1103,6 +1103,11 @@ const materializers = State.SQLite.materializers(events, {
       .update({
         // Full replacement - caller must merge before emitting
         attributes,
+        projectLifecycleState: deriveLifecycleFromAttributes(
+          (attributes as PlanningAttributes | null | undefined) ?? null,
+          createDefaultLifecycleState({ lastEditedAt: updatedAt.getTime() }),
+          updatedAt.getTime()
+        ),
         updatedAt,
       })
       .where({ id }),

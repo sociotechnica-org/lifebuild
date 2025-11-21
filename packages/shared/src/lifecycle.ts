@@ -82,11 +82,14 @@ const clampPlanningStage = (stage: number | undefined | null): 1 | 2 | 3 | 4 => 
   return 1
 }
 
-const ensureDraftingPayload = (draftingData?: DraftingPayload): DraftingPayload => {
+const ensureDraftingPayload = (
+  draftingData?: DraftingPayload,
+  fallbackTimestamp?: number
+): DraftingPayload => {
   const base = draftingData || {}
   return {
     ...base,
-    lastEditedAt: base.lastEditedAt ?? Date.now(),
+    lastEditedAt: base.lastEditedAt ?? fallbackTimestamp ?? Date.now(),
   }
 }
 
@@ -175,13 +178,13 @@ export const deriveLifecycleFromAttributes = (
       return {
         status: 'ready_for_stage4',
         stage,
-        draftingData: ensureDraftingPayload(draftingData),
+        draftingData: ensureDraftingPayload(draftingData, fallbackTimestamp),
       }
     }
     return {
       status: 'planning',
       stage,
-      draftingData: ensureDraftingPayload(draftingData),
+      draftingData: ensureDraftingPayload(draftingData, fallbackTimestamp),
     }
   }
 
