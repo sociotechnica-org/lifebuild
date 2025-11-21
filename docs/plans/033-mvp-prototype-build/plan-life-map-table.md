@@ -1,9 +1,11 @@
 # Life Map & Table Foundation Plan
 
 ## Overview
+
 This plan delivers the Life Map surface described in `docs/plans/033-mvp-prototype-build/mvp-source-of-truth-doc.md`. The work covers the persistent Table (Gold/Silver/Bronze), the eight-category grid, and dual-presence rendering for Work at Hand. We will keep the work isolated to `packages/web/src/components/new` and wire it to existing LiveStore data while carving out any schema extensions needed for stream state.
 
 ## Goals
+
 1. Implement The Table with three slots, Urushi stage treatments, and Bronze stack behavior using the shared state machine from the Foundations plan.
 2. Render the eight category cards with dual presence for Work at Hand projects and planning/live indicators.
 3. Keep The Table visible while navigating category/detail routes.
@@ -11,17 +13,20 @@ This plan delivers the Life Map surface described in `docs/plans/033-mvp-prototy
 5. Provide Storybook coverage for Life Map scenarios (empty, partially populated, full streams) leveraging the new `UrushiVisual` and `ProjectCard` primitives.
 
 ## Non-Goals
+
 - Implement Project Board or task-level execution (covered by Project Rooms plan).
 - Build queue management UI (handled by Drafting Room plans).
 - Sorting interactions (handled by Sorting Room plan).
 - Visual polish beyond layout tokens defined in `new-ui.css` (high-fidelity styling can follow later).
 
 ## Current State
+
 - `LifeMap.tsx` renders a basic list of categories with counts; no Table, no dual presence.
 - Category routes exist but lack awareness of Table status.
 - LiveStore schema exposes project attributes but no dedicated fields for Gold/Silver/Bronze activation or Bronze stack metadata.
 
 ## Technical Implementation Plan
+
 1. **State/Configuration Consumption**
    - Rely on the `ProjectLifecycleState` union and `table_configuration` table established in the Foundations plan; do not introduce ad-hoc fields.
    - Provide selectors in `useLifeMapState` that derive Table slots, Bronze stack, and category segmentation from those shared sources.
@@ -48,32 +53,37 @@ This plan delivers the Life Map surface described in `docs/plans/033-mvp-prototy
 - Update worker/project queries to include new state-machine-derived fields for UI consumption.
 
 ## Testing & QA
+
 - Unit-test new hooks/selectors (e.g., `useLifeMapState`) with mocked LiveStore data that simulate each state-machine variant.
 - Add Storybook coverage for each Table state for regression detection.
 - Manual QA checklist: Table persistent across navigation, Bronze min-3 enforcement messaging, dual presence updates when toggling stream assignments, Table state updates reflected in `table_configuration`.
 
 ## Source References
+
 - `mvp-source-of-truth-doc.md:241-330` – Life Map layout, category card behavior, navigation altitudes, and Project Board entry points this plan must honor.
 - `mvp-source-of-truth-doc.md:705-751` – Definition of Gold/Silver/Bronze streams, Bronze mode constraints, and dual presence requirements.
 - `mvp-source-of-truth-doc.md:810-833` – Execution model expectations for working from The Table and Kanban, informing how Life Map surfaces status + entry points.
 
 ## Room Chat Context
+
 - Provide Life Map–specific context to `RoomLayout`, e.g., `{ goldProject, silverProject, bronzeMode, categoryOverview }`, so surface-level assistants can reference the current setup when Directors ask for guidance.
 
 ## Dependencies & Follow-ups
+
 - Sorting Room plan will drive how Table state is mutated; this plan focuses on rendering + read paths.
 - Drafting Room plans will set `workState` and feed Planning vs Priority counts consumed here.
 - Subsequent visual polish and animation work can layer on top of this baseline.
 
 ## Proposed PR Breakdown
+
 1. **PR1 – Empty Table Shell**  
-   *Title:* “Life Map: Add empty Table with persistent shell”  
-   *Scope:* Introduce the Table component with empty Gold/Silver/Bronze slots, integrate it into `/new/life-map`, and ensure it persists during navigation per `mvp-source-of-truth-doc.md:241-330`. Provides guidance/CTA to Sorting Room when no work is activated.
+   _Title:_ “Life Map: Add empty Table with persistent shell”  
+   _Scope:_ Introduce the Table component with empty Gold/Silver/Bronze slots, integrate it into `/new/life-map`, and ensure it persists during navigation per `mvp-source-of-truth-doc.md:241-330`. Provides guidance/CTA to Sorting Room when no work is activated.
 
 2. **PR2 – Populate Table with Work at Hand**  
-   *Title:* “Life Map: Render Gold/Silver/Bronze streams”  
-   *Scope:* Wire the Table to `table_configuration`/`table_bronze_stack`, render Gold/Silver slots with Polish-stage Urushi, show interactive Bronze stack per `mvp-source-of-truth-doc.md:705-751`, and provide click-through to existing project detail.
+   _Title:_ “Life Map: Render Gold/Silver/Bronze streams”  
+   _Scope:_ Wire the Table to `table_configuration`/`table_bronze_stack`, render Gold/Silver slots with Polish-stage Urushi, show interactive Bronze stack per `mvp-source-of-truth-doc.md:705-751`, and provide click-through to existing project detail.
 
 3. **PR3 – Category Cards & Dual Presence**  
-   *Title:* “Life Map: Category grid with dual presence”  
-   *Scope:* Replace the list with the eight-card grid, show counts (Work at Hand/Live/Plans/Paused), draw dual presence badges per `mvp-source-of-truth-doc.md:288-310`, and add domain altitude navigation.
+   _Title:_ “Life Map: Category grid with dual presence”  
+   _Scope:_ Replace the list with the eight-card grid, show counts (Work at Hand/Live/Plans/Paused), draw dual presence badges per `mvp-source-of-truth-doc.md:288-310`, and add domain altitude navigation.

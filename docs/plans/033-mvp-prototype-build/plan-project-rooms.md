@@ -1,9 +1,11 @@
 # Project Execution Rooms – Project Board & Bronze Stack
 
 ## Overview
+
 This plan focuses on the execution altitude described in the source doc: the Project Board overlay, Kanban behavior, Bronze stack interactions, pause/complete flows, and integration with workers. It ensures Directors can actually work on projects once The Table is populated.
 
 ## Goals
+
 1. Build Project Board overlay UI with Kanban columns (To Do, In Progress, Done), progress ring, worker panel, and Bronze stack controls.
 2. Support dual entry points (Life Map card, Table slot) and maintain context when closing or switching projects.
 3. Implement task drag/drop, status updates, completion rules, and Bronze auto-pull behavior.
@@ -11,15 +13,18 @@ This plan focuses on the execution altitude described in the source doc: the Pro
 5. Integrate “Assign Tasks to Worker” action that opens Roster Room and reflects worker status updates.
 
 ## Non-Goals
+
 - Planning Queue / Sorting interactions.
 - Worker creation flows (covered by Roster Room plan).
 - Advanced analytics or automation beyond MVP scope.
 
 ## Current State
+
 - `ProjectDetailPage` is read-only; no Kanban or execution controls exist in the new UI.
 - Task drag/drop and Bronze management still tied to legacy components.
 
 ## Technical Implementation Plan
+
 1. **Overlay Infrastructure**
    - Create `ProjectBoardOverlay` rendered via portal when a project is opened from Life Map/Table.
    - Provide breadcrumb header (Table slot or category) plus actions: Close (esc), Pause, Complete, Edit Worker.
@@ -47,37 +52,43 @@ This plan focuses on the execution altitude described in the source doc: the Pro
    - Tests covering drag/drop events, bronze auto-pull logic, pause/resume transitions.
 
 ## Data & Schema Impact
+
 - Tasks: ensure `status`, `position`, `codadType`, `assignedWorkerId` fields exposed via LiveStore.
 - Projects: add `pausedReason`, `completedAt`, `decorationMetadata` for Urushi stage.
 - Bronze stack operations consume `table_bronze_stack` events to remove/append entries rather than editing arrays.
 
 ## Testing & QA
+
 - Unit tests for Bronze stack reducer and auto-pull logic (including integration with `table_configuration`).
 - Integration tests simulating drag/drop and verifying LiveStore updates.
 - Manual QA: open from Table vs category, pause/resume cycle, worker chat link, Urushi stage transitions.
 
 ## Source References
+
 - `mvp-source-of-truth-doc.md:265-360` – Execution altitude description covering Project Board layout, Kanban columns, and worker controls surfaced within the overlay.
 - `mvp-source-of-truth-doc.md:705-751` – Table + Bronze behavior dictating how Work-at-Hand projects and Bronze tasks should appear simultaneously on the Life Map and in the overlay.
 - `mvp-source-of-truth-doc.md:810-840` – Execution model for working from The Table, completing Bronze tasks, and delegating via “Assign Tasks to Worker,” which this plan must support.
 
 ## Room Chat Context
+
 - Feed Devin/Cameron with `{ projectId, slot, taskCounts, workerStatus }` whenever the Project Board is open so the assistant can reference current column counts or worker handoffs (“You have 2 tasks in progress; shall we focus on clearing them before pulling new Bronze work?”).
 
 ## Dependencies & Follow-ups
+
 - Relies on Life Map/Table plan for entry points and Table state.
 - Sorting Room plan feeds Bronze stack sources; Roster Room plan provides worker data.
 - Future work: multi-project concurrency UI, animation polish.
 
 ## Proposed PR Breakdown
+
 1. **PR1 – Project Board Overlay & Kanban**  
-   *Title:* “Project Board: Work on tasks with Kanban overlay”  
-   *Scope:* Implement the overlay shell, header with `UrushiVisual`/progress ring, and Kanban drag-and-drop columns per `mvp-source-of-truth-doc.md:260-360`.
+   _Title:_ “Project Board: Work on tasks with Kanban overlay”  
+   _Scope:_ Implement the overlay shell, header with `UrushiVisual`/progress ring, and Kanban drag-and-drop columns per `mvp-source-of-truth-doc.md:260-360`.
 
 2. **PR2 – Pause/Complete & Slot Updates**  
-   *Title:* “Project Board: Complete or pause projects”  
-   *Scope:* Add pause/complete actions that update lifecycle state, remove projects from Table, and push paused work back to Priority Queue per `mvp-source-of-truth-doc.md:1192-1238`.
+   _Title:_ “Project Board: Complete or pause projects”  
+   _Scope:_ Add pause/complete actions that update lifecycle state, remove projects from Table, and push paused work back to Priority Queue per `mvp-source-of-truth-doc.md:1192-1238`.
 
 3. **PR3 – Worker Panel & Bronze Auto-Pull**  
-   *Title:* “Project Board: Workers and Bronze task management”  
-   *Scope:* Integrate worker panel + “Assign tasks” link, render Bronze stack side rail, and handle auto-pull/removal events per `mvp-source-of-truth-doc.md:705-751` and `810-840`.
+   _Title:_ “Project Board: Workers and Bronze task management”  
+   _Scope:_ Integrate worker panel + “Assign tasks” link, render Bronze stack side rail, and handle auto-pull/removal events per `mvp-source-of-truth-doc.md:705-751` and `810-840`.
