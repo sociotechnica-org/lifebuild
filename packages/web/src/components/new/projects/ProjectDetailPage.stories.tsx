@@ -7,6 +7,7 @@ import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'
 import { schema, events } from '@work-squared/shared/schema'
 import { ProjectDetailPage } from './ProjectDetailPage.js'
+import { NewUiShell } from '../layout/NewUiShell.js'
 
 type TaskSeed = {
   id: string
@@ -33,9 +34,11 @@ const withProjectProviders =
           boot?.(store)
         }}
       >
-        <Routes>
-          <Route path='/new/projects/:projectId' element={<Story />} />
-        </Routes>
+        <NewUiShell>
+          <Routes>
+            <Route path='/new/projects/:projectId' element={<Story />} />
+          </Routes>
+        </NewUiShell>
       </LiveStoreProvider>
     )
   }
@@ -214,14 +217,17 @@ export const Default: Story = {
 
 export const EmptyState: Story = {
   decorators: [withProjectProviders('project-empty', emptyProjectSetup)],
+  name: 'Empty State',
 }
 
 export const SingleTask: Story = {
   decorators: [withProjectProviders('project-single-task', singleTaskSetup)],
+  name: 'Single Task',
 }
 
 export const ManyTasks: Story = {
   decorators: [withProjectProviders('project-many', manyTasksSetup)],
+  name: 'Many Tasks',
   parameters: {
     docs: {
       description: {
