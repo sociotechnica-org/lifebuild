@@ -166,7 +166,6 @@ export const deriveLifecycleFromAttributes = (
 
   const stage = clampPlanningStage(attributes.planningStage ?? 1)
   const draftingData: DraftingPayload = {
-    summary: attributes.objectives,
     objectives: attributes.objectives ? [attributes.objectives] : undefined,
     lastEditedAt: attributes.lastActivityAt,
   }
