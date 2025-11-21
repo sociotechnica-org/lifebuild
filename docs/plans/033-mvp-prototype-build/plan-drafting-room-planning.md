@@ -1,0 +1,65 @@
+# Drafting Room – Planning Queue & Stages 1–3
+
+## Overview
+This plan delivers the Drafting Room experience for capturing and shaping projects through Stages 1–3 (Identified, Scoped, Drafted) and managing the Planning Queue described in `docs/plans/033-mvp-prototype-build/mvp-source-of-truth-doc.md`. The focus is on Marvin’s workspace: fast idea capture, guided scoping, task drafting, autosave, and keeping the queue lean.
+
+## Goals
+1. Implement Planning Queue UI showing Stage 1–3 projects with Urushi progression and metadata.
+2. Build the multi-stage creation flow with Marvin-guided prompts and autosave checkpoints.
+3. Support pausing/abandoning drafts, with clear affordances for resume/delete.
+4. Persist partial stage data and validation rules in LiveStore.
+5. Provide Storybook coverage and integration tests for the stage wizard.
+
+## Non-Goals
+- Stage 4 prioritization and Priority Queue management (separate plan).
+- Sorting Room activation or Table updates.
+- Worker staffing (Roster Room plan).
+- Final Kanban/task execution (Project Rooms plan).
+
+## Current State
+- No Drafting Room route exists; project creation still happens via legacy UI.
+- Data schema lacks dedicated fields for “stage in progress” metadata and Autosave states.
+
+## Technical Implementation Plan
+1. **Routing & Layout**
+   - Add `/new/drafting` route under `NewUiShell`, reusing `RoomLayout` for header navigation and Marvin chat placement.
+   - Provide quick navigation links (Life Map, Drafting, Sorting, Roster) consistent with Section 2.3.4 and show a read-only Priority Queue strip (fetched via Stage 4 selectors) so Directors always see downstream context.
+2. **Planning Queue View**
+   - Create `PlanningQueue.tsx` listing Stage 1–3 projects with the shared `UrushiVisual`, stage badge (“Stage 2 of 4 – Scoped”), category seal, last modified timestamp, resume CTA.
+   - Derive project state entirely from the `ProjectLifecycleState` union; the queue should render only items with `status: 'planning'`.
+   - Add empty-state guidance encouraging new project capture when queue is empty.
+3. **Stage Wizard Infrastructure**
+   - Build `useDraftingSession` hook to manage stage transitions, form state, autosave timers, and LiveStore mutations.
+   - Stage-specific components:
+     - Stage 1 (Identified): fields for title, description, category; 2-minute checklist.
+     - Stage 2 (Scoped): objectives, archetype, traits, urgency/importance selectors.
+     - Stage 3 (Drafted): integrate Marvin (LLM worker) to generate tasks via existing AI tooling; allow editing/reordering tasks.
+   - Each stage enforces validation before enabling “Next”.
+   - Autosaves emit discrete `draft_saved` events carrying `{ projectId, stage, payload, version }` so multiple clients can merge changes without overwriting each other. Mutations must check the previous version and bail if stale.
+4. **Autosave & Resume**
+   - Persist stage drafts to LiveStore after every meaningful change (debounced) with metadata `currentStage`, `stepProgress`, `lastUpdatedAt`, and optimistic concurrency versioning.
+   - Provide “Pause for now” action that returns to queue but keeps progress (emits `draft_paused` event referencing the latest version).
+5. **Abandon/Complete Actions**
+   - Allow directors to archive drafts they no longer need (moves to `deletedAt`).
+   - When Stage 3 completes and Director confirms “Move to Stage 4”, emit event that transitions project to Priority Queue (Stage 4 handled in next plan).
+6. **Storybook & Fixtures**
+   - Create Storybook scenarios for each stage flow, queue with multiple drafts, empty queue, and error validation states.
+   - Boot LiveStore stories with events representing mixed stages to ensure UI fidelity.
+
+## Data & Schema Impact
+- Extend project schema with `draftingState` containing `currentStage`, partial form payload, `autosaveVersion`.
+- Persist Stage 3 task drafts (before they become canonical tasks) in a new `project_drafts` table or JSON field.
+- Add Marvin conversation history reference for Stage 3 to support resume.
+
+## Testing & QA
+- Component tests covering stage validation and autosave events across each `ProjectLifecycleState` variant.
+- Integration tests simulating Stage 1→3 progression using LiveStore test harness.
+- Manual QA checklist: autosave indicator, pause/resume, multi-project queue behavior, Stage 3 AI task generation, read-only Priority Queue strip accuracy.
+
+## Room Chat Context
+- Supply Marvin with `{ activeProjectId, stage, draftingData }` via `RoomLayout` contextBuilder so AI assistance can reference the exact step (and even form field contents) when responding.
+
+## Dependencies & Follow-ups
+- Requires base navigation/header from Life Map plan for consistent room switching.
+- Stage 4 priority placement and Sorting Room integration depend on this plan’s “Move to Stage 4” emit.
+- Later plans may add analytics instrumentation for stage dwell time.
