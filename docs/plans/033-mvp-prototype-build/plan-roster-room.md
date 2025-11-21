@@ -1,9 +1,11 @@
 # Roster Room – AI Worker Staffing
 
 ## Overview
+
 This plan implements Devin’s Roster Room: the four-stage workflow for staffing AI workers onto projects that are currently on The Table. It covers worker templates, synopsis/prompt editing, staffing queue display, and integration with the Project Board and worker chat infrastructure.
 
 ## Goals
+
 1. Create Roster Room route showing staffing queue of Work-at-Hand projects (Gold first, then Silver) with “1 empty position” indicators.
 2. Build the four-stage staffing flow (Project Review, Worker Profile, Prompt Configuration, Confirmation) with Devin guidance.
 3. Support template selection plus customization for synopsis and prompt fields (with length guidance).
@@ -11,15 +13,18 @@ This plan implements Devin’s Roster Room: the four-stage workflow for staffing
 5. Provide Storybook coverage for queue states and each stage of staffing.
 
 ## Non-Goals
+
 - Life Map/Table rendering (handled elsewhere).
 - Sorting Room activation logic.
 - Multi-agent team support (future).
 
 ## Current State
+
 - Existing worker infrastructure supports creation but lacks the guided multi-stage UI described in the source doc.
 - No dedicated Roster Room route; worker editing occurs via legacy components.
 
 ## Technical Implementation Plan
+
 1. **Routing & Layout**
    - Add `/new/roster` route using `RoomLayout`, with Devin persona panel and quick links back to Life Map.
    - Display summary banner showing current staffed projects vs open slots.
@@ -44,31 +49,37 @@ This plan implements Devin’s Roster Room: the four-stage workflow for staffing
    - Tests verifying template selection, word count validation, worker creation event payloads.
 
 ## Data & Schema Impact
+
 - Extend worker schema with `templateKey`, `synopsis`, `prompt`, `lastEditedAt`, `createdBy`.
 - Possibly add `worker_requests` table for AI generation audit (optional but useful for debugging).
 
 ## Testing & QA
+
 - Unit tests for stage form validation and template logic.
 - Integration tests ensuring worker creation links to project and surfaces in Project Board/Room Chat, including verifying the staffing queue updates when worker assignments change.
 - Manual QA: deep-link from Project Board to edit worker, confirm worker data persists and cannot be edited elsewhere.
 
 ## Source References
+
 - `mvp-source-of-truth-doc.md:451-494` – Roster Room overview, staffing queue expectations, Devin’s persona, and one-worker-per-project constraint.
 - `mvp-source-of-truth-doc.md:1311-1424` – Detailed 4-stage worker staffing workflow (Project Review → Profile → Prompt → Confirmation) that this plan implements.
 
 ## Room Chat Context
+
 - Supply Devin with `{ staffingQueue, activeWorkerDraft, selectedProjectId }` so assistant guidance references the exact synopsis/prompt currently being edited (“Let’s expand the discovery responsibilities section by 2 sentences”).
 
 ## Dependencies & Follow-ups
+
 - Requires Life Map/Table plan to flag Work-at-Hand projects needing staffing.
 - Project Rooms plan must pull worker info to display in Project Board + chat.
 - Future work: multi-worker per project, automation settings.
 
 ## Proposed PR Breakdown
+
 1. **PR1 – Staffing Queue & Worker Wizard**  
-   *Title:* “Roster: Staff projects with AI workers (end-to-end)”  
-   *Scope:* Add `/new/roster`, the Work-at-Hand staffing queue, and the full four-stage worker wizard (Project Review → Profile → Prompt → Confirmation) with Devin integration per `mvp-source-of-truth-doc.md:451-494` and `1311-1424`.
+   _Title:_ “Roster: Staff projects with AI workers (end-to-end)”  
+   _Scope:_ Add `/new/roster`, the Work-at-Hand staffing queue, and the full four-stage worker wizard (Project Review → Profile → Prompt → Confirmation) with Devin integration per `mvp-source-of-truth-doc.md:451-494` and `1311-1424`.
 
 2. **PR2 – Templates & Editing Enhancements**  
-   *Title:* “Roster: Worker templates and editing”  
-   *Scope:* Add template selection, worker library view, and editing flows (synopsis/prompt regeneration) so Directors can quickly reuse or adjust workers per the “Worker Templates” guidance.
+   _Title:_ “Roster: Worker templates and editing”  
+   _Scope:_ Add template selection, worker library view, and editing flows (synopsis/prompt regeneration) so Directors can quickly reuse or adjust workers per the “Worker Templates” guidance.

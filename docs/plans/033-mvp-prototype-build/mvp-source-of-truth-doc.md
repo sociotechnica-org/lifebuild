@@ -6,13 +6,13 @@
 
 **The bets we're making:**
 
-* Visual representation of work creates agency, quality & velocity  
-* Directors live better lives when they outsource to AI agents
+- Visual representation of work creates agency, quality & velocity
+- Directors live better lives when they outsource to AI agents
 
 **The bets we're mostly tabling**:
 
-* Superior Process \= Superior Results  
-* Building a Lifetime Relationship with a Team of Super Agents
+- Superior Process \= Superior Results
+- Building a Lifetime Relationship with a Team of Super Agents
 
 ---
 
@@ -22,9 +22,9 @@
 
 **The Table** — Persistent priority spotlight showing current commitments:
 
-* Gold slot: One transformative project (or empty)  
-* Silver slot: One infrastructure project (or empty)  
-* Bronze stack: Operational tasks (min 3 to activate / get started)
+- Gold slot: One transformative project (or empty)
+- Silver slot: One infrastructure project (or empty)
+- Bronze stack: Operational tasks (min 3 to activate / get started)
 
 **Project Creation** — Guided 4-stage flow (Identified → Scoped → Drafted → Prioritized) turns vague ideas into fully-planned projects with task lists.
 
@@ -41,12 +41,12 @@
 LIFE MAP (where you work)  
 ├── The Table (Gold \+ Silver \+ Bronze)  
 └── 8 Category Cards (all projects in each domain)  
-    ↑ reads from
+ ↑ reads from
 
 WORK STATE SYSTEM  
 ├── Planning Queue (Stages 1-3, in-progress)  
 └── Priority Queue (Stage 4, ready to activate)  
-    ↑ creates/modifies
+ ↑ creates/modifies
 
 PROJECT MANAGEMENT ROOMS  
 ├── Drafting Room (4-stage project creation)  
@@ -57,11 +57,11 @@ PROJECT MANAGEMENT ROOMS
 
 **Key Constraints:**
 
-* Projects progress 1→2→3→4 sequentially (no skipping)  
-* Max 1 Gold, max 1 Silver on Table  
-* Min 3 Bronze tasks to activate priorities  
-* One Worker per project (MVP limitation)  
-* Work at Hand appears two places: Table \+ Category Card (same object)
+- Projects progress 1→2→3→4 sequentially (no skipping)
+- Max 1 Gold, max 1 Silver on Table
+- Min 3 Bronze tasks to activate priorities
+- One Worker per project (MVP limitation)
+- Work at Hand appears two places: Table \+ Category Card (same object)
 
 ---
 
@@ -73,14 +73,14 @@ Strategic simplification for faster delivery and testing the most important part
 
 **Excluded:**
 
-* Personal charter creation (vision, values, themes)  
-* Quarterly goals and milestone tracking  
-* Director Attributes (Energy, Processing Power, Agency, etc.)  
-* Structured planning rhythms or ceremonies  
-* Council Chamber "Strategize" phase  
-* Category Advisor consultations  
-* Sprint retrospectives  
-* WIP Limits enforcement
+- Personal charter creation (vision, values, themes)
+- Quarterly goals and milestone tracking
+- Director Attributes (Energy, Processing Power, Agency, etc.)
+- Structured planning rhythms or ceremonies
+- Council Chamber "Strategize" phase
+- Category Advisor consultations
+- Sprint retrospectives
+- WIP Limits enforcement
 
 **Result:** Directors just create projects and do them. No process tax, no guardrails for under or over processing.
 
@@ -88,12 +88,12 @@ Strategic simplification for faster delivery and testing the most important part
 
 **Excluded:**
 
-* Agent personality development and fancy art  
-* Pattern recognition and learning over time  
-* Proactive suggestions based on behavior  
-* Natural language project creation  
-* Agent-to-agent coordination  
-* Memory building across sessions
+- Agent personality development and fancy art
+- Pattern recognition and learning over time
+- Proactive suggestions based on behavior
+- Natural language project creation
+- Agent-to-agent coordination
+- Memory building across sessions
 
 **Result:** Agents are functional chat windows. They help when asked, don't anticipate needs. Much simpler state management.
 
@@ -101,11 +101,11 @@ Strategic simplification for faster delivery and testing the most important part
 
 **Excluded:**
 
-* Historical repository with search  
-* Performance metrics and trends  
-* Pattern recognition ("you abandon Health projects in December")  
-* Conan the Librarian  
-* Completion rate tracking
+- Historical repository with search
+- Performance metrics and trends
+- Pattern recognition ("you abandon Health projects in December")
+- Conan the Librarian
+- Completion rate tracking
 
 **Result:** Completed projects disappear. No retrospective analysis. System doesn't get smarter over time.
 
@@ -113,11 +113,11 @@ Strategic simplification for faster delivery and testing the most important part
 
 **Excluded:**
 
-* Human delegation configuration  
-* Automation setup for recurring work  
-* Multi-agent teams with coordination  
-* Worker performance tracking  
-* Delegation effectiveness analysis
+- Human delegation configuration
+- Automation setup for recurring work
+- Multi-agent teams with coordination
+- Worker performance tracking
+- Delegation effectiveness analysis
 
 **Result:** Simple AI Worker assignment only. One worker per project. No human delegation complexity. No automation infrastructure.
 
@@ -125,21 +125,21 @@ Strategic simplification for faster delivery and testing the most important part
 
 This is the main bet & differentiation:
 
-* Urushi image evolution (5 stages: Sketch → Foundation → Color → Polish → Decoration)  
-* Progress rings (colored borders filling as tasks complete)  
-* Category color system (8 distinct colors)  
-* The Table three-position layout (Gold/Silver/Bronze spatial metaphor)  
-* Dual presence rendering (Work at Hand on Table \+ Category Card)  
-* State-based visual treatment (glow, saturation, animation)  
-* Category Cards as spatial containers  
-* Overview/Domain/Execution altitude navigation  
-* Real AI Worker delegation with custom staffing workflow
+- Urushi image evolution (5 stages: Sketch → Foundation → Color → Polish → Decoration)
+- Progress rings (colored borders filling as tasks complete)
+- Category color system (8 distinct colors)
+- The Table three-position layout (Gold/Silver/Bronze spatial metaphor)
+- Dual presence rendering (Work at Hand on Table \+ Category Card)
+- State-based visual treatment (glow, saturation, animation)
+- Category Cards as spatial containers
+- Overview/Domain/Execution altitude navigation
+- Real AI Worker delegation with custom staffing workflow
 
 ---
 
 # **SECTION 1: INTRODUCTION**
 
-*This section establishes core concepts and design philosophy.*
+_This section establishes core concepts and design philosophy._
 
 ## **1.1 What is LifeBuild?**
 
@@ -163,13 +163,13 @@ The person using LifeBuild. Decision-maker, strategist, executor. Not just task-
 
 Work divides spatially into eight categories representing major life domains:
 
-1. **Health** — Physical fitness, nutrition, medical care, mental health  
-2. **Purpose** — Career, calling, meaningful contribution, professional development  
-3. **Finances** — Income, expenses, investments, financial planning  
-4. **Relationships** — Family, friendships, romantic partnerships, social connections  
-5. **Home & Environment** — Living space, maintenance, organization, comfort  
-6. **Community** — Civic engagement, volunteering, neighborhood, causes  
-7. **Leisure** — Recreation, hobbies, entertainment, play  
+1. **Health** — Physical fitness, nutrition, medical care, mental health
+2. **Purpose** — Career, calling, meaningful contribution, professional development
+3. **Finances** — Income, expenses, investments, financial planning
+4. **Relationships** — Family, friendships, romantic partnerships, social connections
+5. **Home & Environment** — Living space, maintenance, organization, comfort
+6. **Community** — Civic engagement, volunteering, neighborhood, causes
+7. **Leisure** — Recreation, hobbies, entertainment, play
 8. **Personal Growth** — Learning, skills development, self-reflection, character
 
 Each category gets a **Category Card** on the Life Map—a visual container showing all projects in that domain.
@@ -226,7 +226,7 @@ The director isn't just completing tasks—they're developing judgment and build
 
 # **SECTION 2: THE WORKSPACES**
 
-*This section provides spatial orientation—where everything happens and how to navigate between spaces.*
+_This section provides spatial orientation—where everything happens and how to navigate between spaces._
 
 ## **2.1 Two Workspace Types**
 
@@ -246,9 +246,9 @@ The Life Map is the primary execution interface—the space where directors spen
 
 **Layout:**
 
-* **The Table** at top: Current priorities (Gold \+ Silver \+ Bronze)  
-* **8 Category Cards** below: All projects organized by domain  
-* Clean grid arrangement with breathing room between elements
+- **The Table** at top: Current priorities (Gold \+ Silver \+ Bronze)
+- **8 Category Cards** below: All projects organized by domain
+- Clean grid arrangement with breathing room between elements
 
 **Always visible:** The Table remains at top regardless of navigation depth. Current priorities never disappear from view.
 
@@ -260,28 +260,28 @@ The Life Map is the primary execution interface—the space where directors spen
 
 **Gold Slot (left):**
 
-* One transformative project OR intentionally empty  
-* Enhanced visual treatment: Polish-stage Urushi image, gold accent glow, breathing animation  
-* Clicking opens Project Board overlay
+- One transformative project OR intentionally empty
+- Enhanced visual treatment: Polish-stage Urushi image, gold accent glow, breathing animation
+- Clicking opens Project Board overlay
 
 **Silver Slot (center):**
 
-* One infrastructure project OR intentionally empty  
-* Enhanced visual treatment: Polish-stage Urushi image, silver accent glow, breathing animation  
-* Clicking opens Project Board overlay
+- One infrastructure project OR intentionally empty
+- Enhanced visual treatment: Polish-stage Urushi image, silver accent glow, breathing animation
+- Clicking opens Project Board overlay
 
 **Bronze Stack (right):**
 
-* Minimum 3 tasks, scales based on mode  
-* Tasks displayed as stacked cards with "+X more" notation  
-* Clicking individual task marks complete  
-* Clicking stack expands to show all tasks
+- Minimum 3 tasks, scales based on mode
+- Tasks displayed as stacked cards with "+X more" notation
+- Clicking individual task marks complete
+- Clicking stack expands to show all tasks
 
 **Three Bronze Modes:**
 
-* **Minimal** — Only tasks with due dates or critical responses (could be 3, could be 40\)  
-* **Target \+X** — Minimal tasks plus X discretionary tasks from queue (Director sets X)  
-* **Maximal** — Minimal tasks plus continuous queue pull (all high-priority Bronze work)
+- **Minimal** — Only tasks with due dates or critical responses (could be 3, could be 40\)
+- **Target \+X** — Minimal tasks plus X discretionary tasks from queue (Director sets X)
+- **Maximal** — Minimal tasks plus continuous queue pull (all high-priority Bronze work)
 
 **Visual Distinction:** The Table uses enhanced contrast, stronger glows, and breathing animations to distinguish current priorities from other work. These aren't just any projects—they're what matters most right now.
 
@@ -291,19 +291,19 @@ The Life Map is the primary execution interface—the space where directors spen
 
 **Each Category Card displays:**
 
-* Category name and color accent  
-* Count summaries by project status:  
-  * "3 Work at Hand" (projects also on The Table)  
-  * "5 Live" (active projects not on Table)  
-  * "8 Plans" (fully-planned, waiting to activate)  
-  * "2 Paused" (temporarily stopped projects)
+- Category name and color accent
+- Count summaries by project status:
+  - "3 Work at Hand" (projects also on The Table)
+  - "5 Live" (active projects not on Table)
+  - "8 Plans" (fully-planned, waiting to activate)
+  - "2 Paused" (temporarily stopped projects)
 
 **Visual States:**
 
-* **Work at Hand projects:** Full saturation, standard glow, progress ring, subtle pulse matching stream color (dual presence—also appears on Table)  
-* **Live projects:** Full saturation, standard glow, progress ring  
-* **Plans:** Reduced saturation (70%), no glow, Color Emergence stage image  
-* **Paused:** Further reduced saturation (50%), muted glow, Polish stage image (preserved)
+- **Work at Hand projects:** Full saturation, standard glow, progress ring, subtle pulse matching stream color (dual presence—also appears on Table)
+- **Live projects:** Full saturation, standard glow, progress ring
+- **Plans:** Reduced saturation (70%), no glow, Color Emergence stage image
+- **Paused:** Further reduced saturation (50%), muted glow, Polish stage image (preserved)
 
 **Collapsed stacks:** When category has many projects in one status (e.g., 8 Plans), they collapse with "+X" notation. Click to expand and see all cards.
 
@@ -313,59 +313,59 @@ The Life Map is the primary execution interface—the space where directors spen
 
 **Overview Altitude (default Life Map view):**
 
-* All 8 Category Cards visible in grid layout  
-* Each card shows summary counts: "3 Live, 5 Plans, 1 Paused"  
-* The Table persistent at top of screen  
-* Click card background → zoom to Domain Altitude
+- All 8 Category Cards visible in grid layout
+- Each card shows summary counts: "3 Live, 5 Plans, 1 Paused"
+- The Table persistent at top of screen
+- Click card background → zoom to Domain Altitude
 
 **Domain Altitude (single category focus):**
 
-* Selected category card fills 80% of screen  
-* Adjacent categories dimmed in background (spatial context)  
-* The Table remains visible at top  
-* Shows expanded view: all project cards visible (not just counts)  
-* Collapsed stacks can expand: "+5 Plans" → fans out 5 cards  
-* Click individual Project Card → opens Project Board overlay  
-* Click outside or ESC → return to Overview Altitude
+- Selected category card fills 80% of screen
+- Adjacent categories dimmed in background (spatial context)
+- The Table remains visible at top
+- Shows expanded view: all project cards visible (not just counts)
+- Collapsed stacks can expand: "+5 Plans" → fans out 5 cards
+- Click individual Project Card → opens Project Board overlay
+- Click outside or ESC → return to Overview Altitude
 
 **Execution Altitude (Project Board overlay):**
 
-* Project Board fills 80% of screen  
-* Background (Life Map) dimmed to 30% but still visible (spatial memory)  
-* The Table remains visible at very top (slightly dimmed)
+- Project Board fills 80% of screen
+- Background (Life Map) dimmed to 30% but still visible (spatial memory)
+- The Table remains visible at very top (slightly dimmed)
 
 **Project Board Contents:**
 
 **Project Header:**
 
-* Urushi image (current evolution stage)  
-* Project title and category color accent  
-* Progress indicator: "5 of 12 tasks complete (42%)"  
-* Progress ring around Urushi image filling clockwise  
-* Category seal (subtle watermark)
+- Urushi image (current evolution stage)
+- Project title and category color accent
+- Progress indicator: "5 of 12 tasks complete (42%)"
+- Progress ring around Urushi image filling clockwise
+- Category seal (subtle watermark)
 
 **Kanban Board** (three columns):
 
-* To Do | In Progress | Done  
-* Drag tasks between columns  
-* In Progress suggests 3-task focus (visual cue, not enforced)  
-* Check Done moves task to Done column  
-* All tasks Done triggers project completion
+- To Do | In Progress | Done
+- Drag tasks between columns
+- In Progress suggests 3-task focus (visual cue, not enforced)
+- Check Done moves task to Done column
+- All tasks Done triggers project completion
 
 **Team Assignment** (sidebar or bottom):
 
-* "Team Members: \[Worker avatar/name\]"  
-* Shows assigned worker profile (click to view full synopsis)  
-* Button: "Edit Worker" → returns to Roster Room  
-* Button: "Assign Tasks to Worker" → delegation interface  
-* Worker status indicator (Available / Working / Awaiting Review)
+- "Team Members: \[Worker avatar/name\]"
+- Shows assigned worker profile (click to view full synopsis)
+- Button: "Edit Worker" → returns to Roster Room
+- Button: "Assign Tasks to Worker" → delegation interface
+- Worker status indicator (Available / Working / Awaiting Review)
 
 **Interaction:**
 
-* Drag tasks between columns  
-* Click task to see details and assigned Worker  
-* Click "Edit Worker" → Roster Room for modifications  
-* Click outside or ESC → return to previous altitude
+- Drag tasks between columns
+- Click task to see details and assigned Worker
+- Click "Edit Worker" → Roster Room for modifications
+- Click outside or ESC → return to previous altitude
 
 The flow: Overview altitude → Domain altitude → Execution altitude → back to Domain or Overview as needed.
 
@@ -383,28 +383,28 @@ Three specialized spaces for planning work. Directors access these when planning
 
 **The Planning Queue** (top section):
 
-* Holds projects currently moving through Stages 1-3 of creation  
-* These are projects in development—not yet fully planned  
-* Each project shows: image in early stage (sketch/foundation/color), stage indicator ("Stage 2 of 4 \- Scoped"), category seal, last modified date  
-* Directors can click any project to resume work, pause and return later (autosave preserves progress), or abandon projects no longer relevant  
-* Typical state: 0-3 projects (temporary workspace)
+- Holds projects currently moving through Stages 1-3 of creation
+- These are projects in development—not yet fully planned
+- Each project shows: image in early stage (sketch/foundation/color), stage indicator ("Stage 2 of 4 \- Scoped"), category seal, last modified date
+- Directors can click any project to resume work, pause and return later (autosave preserves progress), or abandon projects no longer relevant
+- Typical state: 0-3 projects (temporary workspace)
 
 **The Priority Queue** (main section):
 
-* Displays all fully-planned work (Stage 4 complete) ready to activate  
-* Three filter views: Gold Candidates, Silver Candidates, Bronze Candidates  
-* Gold Candidates: Shows only Major Initiatives and Epic-scale projects  
-* Silver Candidates: Shows only System Builds, Discovery Missions, and capacity-building projects  
-* Bronze Candidates: Shows only tasks and micro-projects  
-* Paused projects automatically jump to top of appropriate filter  
-* Directors can reorder priorities within each filter
+- Displays all fully-planned work (Stage 4 complete) ready to activate
+- Three filter views: Gold Candidates, Silver Candidates, Bronze Candidates
+- Gold Candidates: Shows only Major Initiatives and Epic-scale projects
+- Silver Candidates: Shows only System Builds, Discovery Missions, and capacity-building projects
+- Bronze Candidates: Shows only tasks and micro-projects
+- Paused projects automatically jump to top of appropriate filter
+- Directors can reorder priorities within each filter
 
 **The 4-Stage Creation Process** (detailed in Section 4.3):
 
-* Stage 1: Identified (2 min) \- Title, description, category  
-* Stage 2: Scoped (10 min) \- Objectives, archetype, traits  
-* Stage 3: Drafted (30 min) \- Task generation with Marvin, refinement  
-* Stage 4: Prioritized (5 min) \- Position in Priority Queue
+- Stage 1: Identified (2 min) \- Title, description, category
+- Stage 2: Scoped (10 min) \- Objectives, archetype, traits
+- Stage 3: Drafted (30 min) \- Task generation with Marvin, refinement
+- Stage 4: Prioritized (5 min) \- Position in Priority Queue
 
 Once Stage 4 completes, project exits Planning Queue and enters Priority Queue.
 
@@ -416,35 +416,35 @@ Once Stage 4 completes, project exits Planning Queue and enters Priority Queue.
 
 **When to use:**
 
-* Table is empty and Director wants to activate work  
-* Current Gold or Silver project completes  
-* Director wants to swap priorities (pause current, activate different)  
-* Director wants to adjust Bronze mode/task count  
-* Ready to start working after creating several projects
+- Table is empty and Director wants to activate work
+- Current Gold or Silver project completes
+- Director wants to swap priorities (pause current, activate different)
+- Director wants to adjust Bronze mode/task count
+- Ready to start working after creating several projects
 
 **The Process:**
 
-1. View Priority Queue with three-stream filtering  
-2. Apply Gold Candidates filter → Select Gold project (or leave empty)  
-3. Apply Silver Candidates filter → Select Silver project (or leave empty)  
-4. Apply Bronze Candidates filter → Review tasks, configure Bronze mode  
+1. View Priority Queue with three-stream filtering
+2. Apply Gold Candidates filter → Select Gold project (or leave empty)
+3. Apply Silver Candidates filter → Select Silver project (or leave empty)
+4. Apply Bronze Candidates filter → Review tasks, configure Bronze mode
 5. Activate selections (validates min 3 Bronze tasks)
 
 **Bronze Mode Configuration:**
 
-* Set Minimal / Target \+X / Maximal  
-* If Target, specify X (number of discretionary tasks)  
-* See which tasks have due dates (Minimal requirement)  
-* Reorder Bronze candidates if priorities shifted
+- Set Minimal / Target \+X / Maximal
+- If Target, specify X (number of discretionary tasks)
+- See which tasks have due dates (Minimal requirement)
+- Reorder Bronze candidates if priorities shifted
 
 **Activation:**
 
-* Review selected Gold project (or note intentionally empty)  
-* Review selected Silver project (or note intentionally empty)  
-* Confirm Bronze mode and task count (minimum 3\)  
-* Validate: Can't activate without 3+ Bronze tasks  
-* Button: "Activate Priorities"  
-* On activation: Returns to Life Map, Work at Hand updated
+- Review selected Gold project (or note intentionally empty)
+- Review selected Silver project (or note intentionally empty)
+- Confirm Bronze mode and task count (minimum 3\)
+- Validate: Can't activate without 3+ Bronze tasks
+- Button: "Activate Priorities"
+- On activation: Returns to Life Map, Work at Hand updated
 
 **No forced schedule:** Directors can activate priorities whenever they want—daily, weekly, monthly, or only when current work completes. The system doesn't enforce a cadence.
 
@@ -456,39 +456,39 @@ Once Stage 4 completes, project exits Planning Queue and enters Priority Queue.
 
 **The Staffing Queue:**
 
-* Displays Work at Hand projects (Gold/Silver) eligible for AI delegation  
-* Shows projects in priority order (Gold first, then Silver)  
-* Each project shows: Urushi image, title, category, "1 empty position" indicator  
-* Directors select which project to staff first
+- Displays Work at Hand projects (Gold/Silver) eligible for AI delegation
+- Shows projects in priority order (Gold first, then Silver)
+- Each project shows: Urushi image, title, category, "1 empty position" indicator
+- Directors select which project to staff first
 
 **The Staffing Process** (detailed in Section 4.5):
 
-* **Stage 1: Project Review** (2 min) \- Devin presents project context, objectives, task breakdown  
-* **Stage 2: Worker Profile** (5 min) \- Devin drafts recommended worker synopsis based on project needs  
-* **Stage 3: Prompt Configuration** (10 min) \- Devin generates corresponding worker prompt, Director refines  
-* **Stage 4: Confirmation** (2 min) \- Review and officially staff the project
+- **Stage 1: Project Review** (2 min) \- Devin presents project context, objectives, task breakdown
+- **Stage 2: Worker Profile** (5 min) \- Devin drafts recommended worker synopsis based on project needs
+- **Stage 3: Prompt Configuration** (10 min) \- Devin generates corresponding worker prompt, Director refines
+- **Stage 4: Confirmation** (2 min) \- Review and officially staff the project
 
 **Worker Templates:**
 
 Devin maintains 10 pre-configured worker templates for common roles:
 
-* Research Specialist  
-* Content Creator  
-* Data Analyst  
-* Project Coordinator  
-* Communication Manager  
-* Design Assistant  
-* Technical Reviewer  
-* Quality Controller  
-* Administrative Support  
-* Learning Facilitator
+- Research Specialist
+- Content Creator
+- Data Analyst
+- Project Coordinator
+- Communication Manager
+- Design Assistant
+- Technical Reviewer
+- Quality Controller
+- Administrative Support
+- Learning Facilitator
 
 **Post-Staffing:**
 
-* Worker appears in Project Board under "Team" section  
-* Worker available for task assignment within that project  
-* Director can click "Edit Worker" to return to Roster Room and modify worker profile/prompt  
-* Worker remains assigned until project completes or is explicitly removed
+- Worker appears in Project Board under "Team" section
+- Worker available for task assignment within that project
+- Director can click "Edit Worker" to return to Roster Room and modify worker profile/prompt
+- Worker remains assigned until project completes or is explicitly removed
 
 **MVP Constraint:** One worker per project. Future versions will support multi-agent teams with specialized roles.
 
@@ -498,16 +498,16 @@ Devin maintains 10 pre-configured worker templates for common roles:
 
 **Keyboard shortcuts:**
 
-* L for Life Map  
-* D for Drafting Room  
-* S for Sorting Room  
-* R for Roster Room
+- L for Life Map
+- D for Drafting Room
+- S for Sorting Room
+- R for Roster Room
 
 **Context preservation:**
 
-* ESC or ← back returns to previous space  
-* "Activate Priorities" in Sorting Room returns to Life Map  
-* Director's place always preserved
+- ESC or ← back returns to previous space
+- "Activate Priorities" in Sorting Room returns to Life Map
+- Director's place always preserved
 
 **Visual consistency:** Same warm neutrals, humanist typography, tactile materials, and category colors throughout. Moving between spaces feels like moving between rooms in the same workshop, not switching applications.
 
@@ -515,7 +515,7 @@ Devin maintains 10 pre-configured worker templates for common roles:
 
 # **SECTION 3: THE GAME PIECES**
 
-*This section catalogs the fundamental building blocks that exist in LifeBuild. You've seen where they live (Section 2). Now you'll understand what they are and what properties they have. Section 4 will show how these pieces move through the system.*
+_This section catalogs the fundamental building blocks that exist in LifeBuild. You've seen where they live (Section 2). Now you'll understand what they are and what properties they have. Section 4 will show how these pieces move through the system._
 
 ---
 
@@ -529,33 +529,33 @@ Every project has:
 
 **Identity & Classification:**
 
-* **Title** \- Short, specific name (e.g., "Kitchen Renovation")  
-* **Description** \- 1-3 sentence overview of intent  
-* **Category** \- Which of 8 life domains this belongs to (Health, Purpose, Finances, etc.)  
-* **Archetype** \- Fundamental nature: Initiative, System Build, Discovery Mission, Quick Task, or Critical Response
+- **Title** \- Short, specific name (e.g., "Kitchen Renovation")
+- **Description** \- 1-3 sentence overview of intent
+- **Category** \- Which of 8 life domains this belongs to (Health, Purpose, Finances, etc.)
+- **Archetype** \- Fundamental nature: Initiative, System Build, Discovery Mission, Quick Task, or Critical Response
 
 **Planning Data:**
 
-* **Objectives** \- 1-3 specific, measurable outcomes that define success  
-* **Deadline** (optional) \- When project must complete  
-* **Traits** \- Five dimensions describing project characteristics:  
-  * **Scale:** Micro, Minor, Moderate, Major, Epic  
-  * **Urgency:** Low, Medium, High, Critical  
-  * **Importance:** Low, Medium, High, Critical  
-  * **Complexity:** Simple, Moderate, Complex, Highly Complex  
-  * **Uncertainty:** Known, Some Unknowns, Highly Uncertain, Exploratory
+- **Objectives** \- 1-3 specific, measurable outcomes that define success
+- **Deadline** (optional) \- When project must complete
+- **Traits** \- Five dimensions describing project characteristics:
+  - **Scale:** Micro, Minor, Moderate, Major, Epic
+  - **Urgency:** Low, Medium, High, Critical
+  - **Importance:** Low, Medium, High, Critical
+  - **Complexity:** Simple, Moderate, Complex, Highly Complex
+  - **Uncertainty:** Known, Some Unknowns, Highly Uncertain, Exploratory
 
 **Execution Data:**
 
-* **Tasks** \- Concrete actions that comprise the work (generated in Stage 3\)  
-* **Progress** \- Percentage complete (tasks done / total tasks)  
-* **Assigned Worker** (optional) \- AI Worker helping with execution
+- **Tasks** \- Concrete actions that comprise the work (generated in Stage 3\)
+- **Progress** \- Percentage complete (tasks done / total tasks)
+- **Assigned Worker** (optional) \- AI Worker helping with execution
 
 **Visual Representation:**
 
-* **Urushi Image** \- Evolving artwork showing project maturity (5 stages)  
-* **Progress Ring** \- Colored border that fills clockwise as tasks complete  
-* **Category Color** \- Accent color matching life domain
+- **Urushi Image** \- Evolving artwork showing project maturity (5 stages)
+- **Progress Ring** \- Colored border that fills clockwise as tasks complete
+- **Category Color** \- Accent color matching life domain
 
 ### **3.1.2 Project Archetypes**
 
@@ -611,11 +611,11 @@ Projects are represented visually as Japanese lacquerware (Urushi) that matures 
 
 Every task has:
 
-* **Title** \- Clear action statement (verb \+ object)  
-* **Parent Project** \- Which project this task belongs to  
-* **Status** \- To Do / In Progress / Done  
-* **Worker Assignment** (optional) \- Which AI Worker is executing this task  
-* **Due Date** (optional) \- When task must complete
+- **Title** \- Clear action statement (verb \+ object)
+- **Parent Project** \- Which project this task belongs to
+- **Status** \- To Do / In Progress / Done
+- **Worker Assignment** (optional) \- Which AI Worker is executing this task
+- **Due Date** (optional) \- When task must complete
 
 ### **3.2.2 Task Types (CODAD Framework)**
 
@@ -655,24 +655,24 @@ Every Worker has:
 
 **Identity & Definition:**
 
-* **Name/Title** \- Role descriptor (e.g., "Research & Analysis Specialist")  
-* **Synopsis** \- 150-300 word description of role, capabilities, and approach (Director-facing)  
-* **Prompt** \- 500-1000 word detailed instructions governing behavior (system-level)  
-* **Template Origin** \- May derive from one of Devin's 10 standard templates
+- **Name/Title** \- Role descriptor (e.g., "Research & Analysis Specialist")
+- **Synopsis** \- 150-300 word description of role, capabilities, and approach (Director-facing)
+- **Prompt** \- 500-1000 word detailed instructions governing behavior (system-level)
+- **Template Origin** \- May derive from one of Devin's 10 standard templates
 
 **Assignment & Scope:**
 
-* **Project Assignment** \- Bound to single project, persists until completion  
-* **Task Assignments** \- Which tasks within project this Worker is handling  
-* **Status** \- Available / Working / Awaiting Review
+- **Project Assignment** \- Bound to single project, persists until completion
+- **Task Assignments** \- Which tasks within project this Worker is handling
+- **Status** \- Available / Working / Awaiting Review
 
 ### **3.3.2 Worker Creation**
 
 Workers are created through 4-stage guided process in Roster Room:
 
-1. Project Review \- Devin analyzes project needs  
-2. Worker Profile \- Collaborative synopsis drafting  
-3. Prompt Configuration \- Technical prompt generation and refinement  
+1. Project Review \- Devin analyzes project needs
+2. Worker Profile \- Collaborative synopsis drafting
+3. Prompt Configuration \- Technical prompt generation and refinement
 4. Confirmation \- Official staffing
 
 **Bidirectional editing:** If Director edits synopsis, Devin offers to regenerate prompt. If Director edits prompt, Devin checks if synopsis should update. Maintains alignment.
@@ -681,18 +681,18 @@ Workers are created through 4-stage guided process in Roster Room:
 
 **What Workers do:**
 
-* Execute specific tasks assigned by Director  
-* Operate within project boundaries (can't access other projects)  
-* Follow customized prompt defining their role and approach  
-* Report task completion for Director review  
-* Work independently without constant supervision
+- Execute specific tasks assigned by Director
+- Operate within project boundaries (can't access other projects)
+- Follow customized prompt defining their role and approach
+- Report task completion for Director review
+- Work independently without constant supervision
 
 **What Workers don't do (MVP):**
 
-* Learn across projects or persist beyond project completion  
-* Coordinate with other Workers  
-* Proactively suggest work or anticipate needs  
-* Develop sophisticated personalities or memory
+- Learn across projects or persist beyond project completion
+- Coordinate with other Workers
+- Proactively suggest work or anticipate needs
+- Develop sophisticated personalities or memory
 
 **Personality:** Workers are professional, capable, and responsive. They execute assigned work without personality flourishes—efficiency over charm. They're colleagues you can rely on, not friends you chat with.
 
@@ -710,32 +710,32 @@ One worker per project. Future versions will support multi-agent teams with spec
 
 **Gold Slot (left):**
 
-* Contains zero or one Initiative/Major-scale project  
-* Visual treatment: Gold accent glow, Polish-stage Urushi, breathing animation  
-* Represents transformative frontier-opening work  
-* Can be strategically empty
+- Contains zero or one Initiative/Major-scale project
+- Visual treatment: Gold accent glow, Polish-stage Urushi, breathing animation
+- Represents transformative frontier-opening work
+- Can be strategically empty
 
 **Silver Slot (center):**
 
-* Contains zero or one System Build/Discovery Mission project  
-* Visual treatment: Silver accent glow, Polish-stage Urushi, breathing animation  
-* Represents infrastructure and capability-building work  
-* Can be strategically empty
+- Contains zero or one System Build/Discovery Mission project
+- Visual treatment: Silver accent glow, Polish-stage Urushi, breathing animation
+- Represents infrastructure and capability-building work
+- Can be strategically empty
 
 **Bronze Stack (right):**
 
-* Contains 3+ tasks from Bronze-eligible projects  
-* Visual treatment: Stacked cards with task icons, expandable  
-* Represents operational execution  
-* Three modes: Minimal (due dates only) / Target \+X (due dates \+ X discretionary) / Maximal (due dates \+ continuous queue pull)  
-* Minimum 3 tasks enforced (can't activate priorities with fewer)
+- Contains 3+ tasks from Bronze-eligible projects
+- Visual treatment: Stacked cards with task icons, expandable
+- Represents operational execution
+- Three modes: Minimal (due dates only) / Target \+X (due dates \+ X discretionary) / Maximal (due dates \+ continuous queue pull)
+- Minimum 3 tasks enforced (can't activate priorities with fewer)
 
 ### **3.4.2 Dual Presence Pattern**
 
 Work at Hand projects appear in two places simultaneously:
 
-* Their slot on The Table (enhanced treatment)  
-* Their home Category Card (standard Live treatment \+ subtle stream color pulse)
+- Their slot on The Table (enhanced treatment)
+- Their home Category Card (standard Live treatment \+ subtle stream color pulse)
 
 Both views render the same Project object. State changes update both automatically. This creates strong spatial awareness: you can see Gold project both in "current priorities" spotlight AND within "Health projects" context.
 
@@ -743,10 +743,10 @@ Both views render the same Project object. State changes update both automatical
 
 Gold and Silver can be intentionally empty—this is valid strategic choice, not system failure. Reasons to leave empty:
 
-* Building Bronze capability before tackling transformation  
-* Current life season doesn't support major work  
-* Recovering from period of over-commitment  
-* Focusing all energy on one stream
+- Building Bronze capability before tackling transformation
+- Current life season doesn't support major work
+- Recovering from period of over-commitment
+- Focusing all energy on one stream
 
 Bronze must have minimum 3 tasks to activate priorities. This ensures directors always have concrete next actions.
 
@@ -762,15 +762,15 @@ Bronze must have minimum 3 tasks to activate priorities. This ensures directors 
 
 **Contents:**
 
-* Projects in Stage 1 (Identified)  
-* Projects in Stage 2 (Scoped)  
-* Projects in Stage 3 (Drafted)
+- Projects in Stage 1 (Identified)
+- Projects in Stage 2 (Scoped)
+- Projects in Stage 3 (Drafted)
 
 **Not in Planning Queue:**
 
-* Projects that completed Stage 4 (moved to Priority Queue)  
-* Projects on The Table (Work at Hand)  
-* Completed or abandoned projects
+- Projects that completed Stage 4 (moved to Priority Queue)
+- Projects on The Table (Work at Hand)
+- Completed or abandoned projects
 
 **Typical state:** 0-3 projects. This is workspace, not storage. Projects move through relatively quickly (50 minutes total at normal pace), then graduate.
 
@@ -782,20 +782,20 @@ Bronze must have minimum 3 tasks to activate priorities. This ensures directors 
 
 **Contents:**
 
-* Projects with Stage 4 complete (Plans)  
-* Projects that were paused from Work at Hand (return to top of appropriate filter)
+- Projects with Stage 4 complete (Plans)
+- Projects that were paused from Work at Hand (return to top of appropriate filter)
 
 **Not in Priority Queue:**
 
-* Projects still in Stages 1-3 (still in Planning Queue)  
-* Projects currently on The Table (Work at Hand)  
-* Completed projects
+- Projects still in Stages 1-3 (still in Planning Queue)
+- Projects currently on The Table (Work at Hand)
+- Completed projects
 
 **Three filter views:**
 
-* **Gold Candidates:** Initiative archetype, Major/Epic scale  
-* **Silver Candidates:** System Build, Discovery Mission, capacity-building  
-* **Bronze Candidates:** Quick Tasks, Micro scale, decomposed tasks
+- **Gold Candidates:** Initiative archetype, Major/Epic scale
+- **Silver Candidates:** System Build, Discovery Mission, capacity-building
+- **Bronze Candidates:** Quick Tasks, Micro scale, decomposed tasks
 
 **Paused project behavior:** When project is paused, it jumps to top of appropriate filter automatically. This makes it easy to resume high-priority work.
 
@@ -803,7 +803,7 @@ Bronze must have minimum 3 tasks to activate priorities. This ensures directors 
 
 # **SECTION 4: HOW THE PIECES MOVE**
 
-*This section describes workflows: how Directors use the system, how projects move through states, and how the queues operate.*
+_This section describes workflows: how Directors use the system, how projects move through states, and how the queues operate._
 
 ---
 
@@ -815,29 +815,29 @@ Directors spend most of their time on the Life Map, working on active projects:
 
 **Working from The Table:**
 
-* Gold project (if active): Open Project Board, move tasks through kanban  
-* Silver project (if active): Open Project Board, move tasks through kanban  
-* Bronze tasks: Click to complete, new tasks auto-pull based on mode
+- Gold project (if active): Open Project Board, move tasks through kanban
+- Silver project (if active): Open Project Board, move tasks through kanban
+- Bronze tasks: Click to complete, new tasks auto-pull based on mode
 
 **Working from Category Cards:**
 
-* Can also access Gold/Silver projects through home category card (dual presence)  
-* Can work on other Live projects not currently on The Table  
-* Projects remain accessible whether or not they're current priorities
+- Can also access Gold/Silver projects through home category card (dual presence)
+- Can work on other Live projects not currently on The Table
+- Projects remain accessible whether or not they're current priorities
 
 **Task Execution:**
 
-* Open Project Board for any Live project  
-* Drag tasks between To Do / In Progress / Done columns  
-* Check tasks complete → moves to Done, progress ring fills  
-* All tasks Done → Project automatically completes
+- Open Project Board for any Live project
+- Drag tasks between To Do / In Progress / Done columns
+- Check tasks complete → moves to Done, progress ring fills
+- All tasks Done → Project automatically completes
 
 **AI Worker Delegation:**
 
-* From Project Board, click "Assign Tasks to Worker"  
-* Select which tasks to delegate  
-* Worker executes independently  
-* Worker reports completion, Director reviews and approves
+- From Project Board, click "Assign Tasks to Worker"
+- Select which tasks to delegate
+- Worker executes independently
+- Worker reports completion, Director reviews and approves
 
 ### **4.1.2 Planning When Needed**
 
@@ -845,11 +845,11 @@ Directors plan new work whenever it makes sense—when Table is empty, when read
 
 **When to plan:**
 
-* The Table is empty and you want to activate work  
-* Current project completes and slot is available  
-* You want to deliberately swap what you're focused on  
-* You've created several new projects and want to prioritize them  
-* Life circumstances change and current priorities no longer fit
+- The Table is empty and you want to activate work
+- Current project completes and slot is available
+- You want to deliberately swap what you're focused on
+- You've created several new projects and want to prioritize them
+- Life circumstances change and current priorities no longer fit
 
 **No required cadence:** Some Directors plan weekly (habit/rhythm), others plan monthly (slower project pace), others plan only when current work finishes (completion-driven). The system doesn't enforce any schedule.
 
@@ -857,56 +857,56 @@ Directors plan new work whenever it makes sense—when Table is empty, when read
 
 **Step 1: Drafting Room \- Queue Management** (optional, 5-15 min)
 
-* Review Planning Queue: Any stuck projects? Complete or abandon?  
-* Review Priority Queue: Overall pipeline health? Category balance?  
-* Create any new projects if inspired  
-* Advance in-progress projects through remaining creation stages
+- Review Planning Queue: Any stuck projects? Complete or abandon?
+- Review Priority Queue: Overall pipeline health? Category balance?
+- Create any new projects if inspired
+- Advance in-progress projects through remaining creation stages
 
 **Step 2: Sorting Room \- Priority Selection** (5-15 min)
 
 **Gold Candidate Selection:**
 
-1. Click "Gold Candidates" filter  
-2. View: Only Major Initiatives/Epic-scale projects (typically 2-8)  
-3. Paused Gold projects appear at top (if any)  
-4. Decide: Activate Gold or leave empty  
+1. Click "Gold Candidates" filter
+2. View: Only Major Initiatives/Epic-scale projects (typically 2-8)
+3. Paused Gold projects appear at top (if any)
+4. Decide: Activate Gold or leave empty
 5. Key question: "Which frontier-opening work matters most right now?"
 
 **Silver Candidate Selection:**
 
-1. Click "Silver Candidates" filter  
-2. View: Only System Builds, Discovery Missions, capacity-building (typically 5-15)  
-3. Paused Silver projects appear at top (if any)  
-4. Decide: Activate Silver or leave empty  
+1. Click "Silver Candidates" filter
+2. View: Only System Builds, Discovery Missions, capacity-building (typically 5-15)
+3. Paused Silver projects appear at top (if any)
+4. Decide: Activate Silver or leave empty
 5. Key question: "Which infrastructure investment will buy the most future time?"
 
 **Bronze Settings and Review:**
 
-1. Click "Bronze Candidates" filter  
-2. View: All Bronze tasks/micro-projects (typically 10-100+)  
-3. Review which tasks have due dates (Minimal requirement)  
-4. Count Minimal tasks (could be 3, could be 40\)  
-5. Decide Bronze mode: Minimal, Target \+X, or Maximal  
-6. If Target, choose X based on realistic capacity  
+1. Click "Bronze Candidates" filter
+2. View: All Bronze tasks/micro-projects (typically 10-100+)
+3. Review which tasks have due dates (Minimal requirement)
+4. Count Minimal tasks (could be 3, could be 40\)
+5. Decide Bronze mode: Minimal, Target \+X, or Maximal
+6. If Target, choose X based on realistic capacity
 7. Reorder Bronze candidates if priorities shifted
 
 **Step 2.5: Roster Room \- Worker Staffing** (optional, 10-20 min)
 
-* Review newly activated Gold/Silver projects  
-* Decide which projects need AI assistance  
-* For each project requiring staffing:  
-  * Run through 4-stage worker creation  
-  * Finalize worker synopsis and prompt  
-  * Officially staff the project  
-* Can skip if projects don't need delegation  
-* Can return anytime to staff as needs emerge
+- Review newly activated Gold/Silver projects
+- Decide which projects need AI assistance
+- For each project requiring staffing:
+  - Run through 4-stage worker creation
+  - Finalize worker synopsis and prompt
+  - Officially staff the project
+- Can skip if projects don't need delegation
+- Can return anytime to staff as needs emerge
 
 **Step 3: Activate selections**
 
-* Review Gold/Silver selections and Bronze mode  
-* Validate minimum 3 Bronze tasks  
-* Click "Activate Priorities"  
-* Return to Life Map to execute
+- Review Gold/Silver selections and Bronze mode
+- Validate minimum 3 Bronze tasks
+- Click "Activate Priorities"
+- Return to Life Map to execute
 
 ### **4.1.3 Adapting Anytime**
 
@@ -914,28 +914,28 @@ Directors plan new work whenever it makes sense—when Table is empty, when read
 
 **Pausing Projects:**
 
-* From Project Board: Click "Pause" button in header  
-* Project immediately: Exits The Table, returns to Priority Queue (top of appropriate filter), preserves kanban state and all progress, image retains Polish stage (doesn't regress)  
-* Can activate different project immediately or leave slot empty
+- From Project Board: Click "Pause" button in header
+- Project immediately: Exits The Table, returns to Priority Queue (top of appropriate filter), preserves kanban state and all progress, image retains Polish stage (doesn't regress)
+- Can activate different project immediately or leave slot empty
 
 **Any-Time Project Creation:**
 
-* Access Drafting Room anytime  
-* Create project through 4-stage process  
-* Can immediately activate to Table if urgent
+- Access Drafting Room anytime
+- Create project through 4-stage process
+- Can immediately activate to Table if urgent
 
 **Any-time Project Activation:**
 
-* When Gold or Silver slot empties (completes or pauses)  
-* Director can immediately activate next Priority Queue candidate  
-* No need to wait for any planning cycle
+- When Gold or Silver slot empties (completes or pauses)
+- Director can immediately activate next Priority Queue candidate
+- No need to wait for any planning cycle
 
 **Adjusting Bronze Mode:**
 
-* Click Bronze settings gear on The Table  
-* Change mode (Minimal / Target \+X / Maximal)  
-* Adjust X value if in Target mode  
-* Changes take effect immediately
+- Click Bronze settings gear on The Table
+- Change mode (Minimal / Target \+X / Maximal)
+- Adjust X value if in Target mode
+- Changes take effect immediately
 
 ---
 
@@ -955,25 +955,25 @@ The separation creates psychological safety: Capture ideas quickly (Stage 1, 2 m
 
 **What you can do:**
 
-* Click any project → Resume work through creation stages with Marvin  
-* Pause and return later (autosave preserves progress at each stage)  
-* Abandon projects no longer relevant (delete from queue)  
-* See at-a-glance: how many projects in development, which stages
+- Click any project → Resume work through creation stages with Marvin
+- Pause and return later (autosave preserves progress at each stage)
+- Abandon projects no longer relevant (delete from queue)
+- See at-a-glance: how many projects in development, which stages
 
 **Typical state:** Most Directors have 0-3 projects here. Planning Queue is temporary workspace—projects move through relatively quickly, then graduate to Priority Queue.
 
 **Queue Maintenance:**
 
-* If Planning Queue grows to 5+ projects: Suggests review ("Want to clean up before adding more?")  
-* For each stale project (\>2 weeks in same stage), Director chooses:  
-  * Complete it now (accelerate through remaining stages)  
-  * Abandon it (delete from queue)  
-  * Keep it (still relevant, just not ready)
+- If Planning Queue grows to 5+ projects: Suggests review ("Want to clean up before adding more?")
+- For each stale project (\>2 weeks in same stage), Director chooses:
+  - Complete it now (accelerate through remaining stages)
+  - Abandon it (delete from queue)
+  - Keep it (still relevant, just not ready)
 
 **Exit Conditions:**
 
-* Projects exit Planning Queue when:  
-  1. Stage 4 completes (move to Priority Queue)  
+- Projects exit Planning Queue when:
+  1. Stage 4 completes (move to Priority Queue)
   2. Director abandons/deletes project
 
 ### **4.2.3 Planning with Priority Queue**
@@ -982,36 +982,36 @@ The separation creates psychological safety: Capture ideas quickly (Stage 1, 2 m
 
 **Gold Candidates Filter logic:**
 
-* Archetype \= Initiative AND scale ≥ Major, OR  
-* Manual tag "Gold-eligible" (Director can override archetype classification)  
-* Shows only Plans and Paused projects meeting these criteria  
-* Paused Gold projects always appear at top of filtered view  
-* Hides everything else temporarily
+- Archetype \= Initiative AND scale ≥ Major, OR
+- Manual tag "Gold-eligible" (Director can override archetype classification)
+- Shows only Plans and Paused projects meeting these criteria
+- Paused Gold projects always appear at top of filtered view
+- Hides everything else temporarily
 
 **Silver Candidates Filter logic:**
 
-* Archetype \= System Build, OR  
-* Archetype \= Discovery Mission, OR  
-* Manual tag "capacity-building" or "Silver-eligible", OR  
-* Traits indicate infrastructure/delegation/organization focus  
-* Shows only Plans and Paused projects meeting these criteria  
-* Paused Silver projects always appear at top of filtered view
+- Archetype \= System Build, OR
+- Archetype \= Discovery Mission, OR
+- Manual tag "capacity-building" or "Silver-eligible", OR
+- Traits indicate infrastructure/delegation/organization focus
+- Shows only Plans and Paused projects meeting these criteria
+- Paused Silver projects always appear at top of filtered view
 
 **Bronze Candidates Filter logic:**
 
-* Archetype \= Quick Task, OR  
-* Scale \= Micro, OR  
-* Source \= Decomposed from larger project, OR  
-* Critical Response with Scale \= Micro or Minor  
-* Shows all tasks and micro-projects meeting these criteria  
-* Hides full projects
+- Archetype \= Quick Task, OR
+- Scale \= Micro, OR
+- Source \= Decomposed from larger project, OR
+- Critical Response with Scale \= Micro or Minor
+- Shows all tasks and micro-projects meeting these criteria
+- Hides full projects
 
 **Bronze Automatic Prioritization:**
 
 Within Bronze candidates, tasks are ordered by:
 
-1. Due date urgency (soonest first, imminent dates flagged)  
-2. Manual priority (Director can reorder)  
+1. Due date urgency (soonest first, imminent dates flagged)
+2. Manual priority (Director can reorder)
 3. Time estimate (quick tasks sometimes clustered)
 
 Director can drag Bronze tasks up or down. This determines which tasks appear in Bronze stack when Target or Maximal modes activate.
@@ -1020,24 +1020,24 @@ Director can drag Bronze tasks up or down. This determines which tasks appear in
 
 **Planning Queue check (during planning sessions):**
 
-* Any stuck projects? (been in Stage 2 for weeks?)  
-* Complete or abandon projects no longer relevant  
-* Advance promising projects through next stage if time available  
-* Keep Planning Queue lean (0-3 projects typically)
+- Any stuck projects? (been in Stage 2 for weeks?)
+- Complete or abandon projects no longer relevant
+- Advance promising projects through next stage if time available
+- Keep Planning Queue lean (0-3 projects typically)
 
 **Priority Queue reordering (during planning sessions):**
 
-* Does current order reflect priorities?  
-* Should Paused projects (at top of filters) stay high or descend?  
-* Approaching deadlines that should elevate priorities?  
-* Category balance appropriate?  
-* For Bronze: Due dates correct? Tasks that should be promoted to full projects?
+- Does current order reflect priorities?
+- Should Paused projects (at top of filters) stay high or descend?
+- Approaching deadlines that should elevate priorities?
+- Category balance appropriate?
+- For Bronze: Due dates correct? Tasks that should be promoted to full projects?
 
 **Continuous queue access:**
 
-* Priority Queue updates dynamically (Paused projects jump to top)  
-* Can access Drafting Room anytime for planning  
-* Can reorder as priorities evolve
+- Priority Queue updates dynamically (Paused projects jump to top)
+- Can access Drafting Room anytime for planning
+- Can reorder as priorities evolve
 
 ---
 
@@ -1051,22 +1051,22 @@ Projects move through four creation stages in the Drafting Room with Marvin's as
 
 **Marvin asks:**
 
-* "What's the project?" (title)  
-* "Tell me a bit about it" (1-2 sentence description)  
-* "Which Life Category?" (Health, Finances, Relationships, etc.)
+- "What's the project?" (title)
+- "Tell me a bit about it" (1-2 sentence description)
+- "Which Life Category?" (Health, Finances, Relationships, etc.)
 
 **Example:**
 
-* Title: "Kitchen Renovation"  
-* Description: "Update kitchen with new cabinets, countertops, and appliances"  
-* Category: Home & Environment
+- Title: "Kitchen Renovation"
+- Description: "Update kitchen with new cabinets, countertops, and appliances"
+- Category: Home & Environment
 
 **Result:**
 
-* Project created, enters Planning Queue  
-* Status: "Stage 1 of 4 \- Identified"  
-* Image: Sketch stage (light pencil outlines)  
-* Can pause here for days or weeks OR continue immediately to Stage 2
+- Project created, enters Planning Queue
+- Status: "Stage 1 of 4 \- Identified"
+- Image: Sketch stage (light pencil outlines)
+- Can pause here for days or weeks OR continue immediately to Stage 2
 
 **Key principle:** Ultra-low friction. Two minutes. If capture takes 20 minutes, ideas won't get captured.
 
@@ -1076,34 +1076,34 @@ Projects move through four creation stages in the Drafting Room with Marvin's as
 
 **Marvin asks:**
 
-* "What are the objectives?" (1-3 specific outcomes)  
-* "When does this need to be done?" (deadline if applicable)  
-* "What type of project is this?" (archetype selection)  
-* "How would you characterize it?" (trait values)
+- "What are the objectives?" (1-3 specific outcomes)
+- "When does this need to be done?" (deadline if applicable)
+- "What type of project is this?" (archetype selection)
+- "How would you characterize it?" (trait values)
 
 **Example:**
 
-* Objectives:  
-  1. Install new cabinets with soft-close drawers  
-  2. Replace laminate countertops with quartz  
-  3. Upgrade to energy-efficient appliances  
-* Deadline: "Before holidays" (3 months)  
-* Archetype: Initiative  
-* Traits: Scale=Major, Urgency=Medium, Importance=High, Complexity=Complex, Uncertainty=Some Unknowns
+- Objectives:
+  1. Install new cabinets with soft-close drawers
+  2. Replace laminate countertops with quartz
+  3. Upgrade to energy-efficient appliances
+- Deadline: "Before holidays" (3 months)
+- Archetype: Initiative
+- Traits: Scale=Major, Urgency=Medium, Importance=High, Complexity=Complex, Uncertainty=Some Unknowns
 
 **Marvin's role:**
 
-* Reflects understanding: "So you want a functional, modern kitchen ready for holiday hosting?"  
-* Suggests trait values based on archetype: "Initiatives are typically Moderate to Epic scale..."  
-* Asks clarifying questions: "Will you hire contractors or DIY?"  
-* Validates achievability without being prescriptive
+- Reflects understanding: "So you want a functional, modern kitchen ready for holiday hosting?"
+- Suggests trait values based on archetype: "Initiatives are typically Moderate to Epic scale..."
+- Asks clarifying questions: "Will you hire contractors or DIY?"
+- Validates achievability without being prescriptive
 
 **Result:**
 
-* Objectives defined, archetype set, traits established  
-* Image continues evolution: Foundation (dark base layer)  
-* Status: "Stage 2 of 4 \- Scoped"  
-* Can pause here or continue to Stage 3
+- Objectives defined, archetype set, traits established
+- Image continues evolution: Foundation (dark base layer)
+- Status: "Stage 2 of 4 \- Scoped"
+- Can pause here or continue to Stage 3
 
 **Key principle:** Clarity before execution. Know what "done" looks like before planning how to get there.
 
@@ -1113,40 +1113,40 @@ Projects move through four creation stages in the Drafting Room with Marvin's as
 
 **Marvin generates initial task list:**
 
-* Based on objectives from Stage 2  
-* Based on archetype patterns (Initiatives need certain task types)  
-* Balanced across CODAD framework (Connect/Operate/Discover/Advance/Design)  
-* Sequenced by dependencies and optimal order
+- Based on objectives from Stage 2
+- Based on archetype patterns (Initiatives need certain task types)
+- Balanced across CODAD framework (Connect/Operate/Discover/Advance/Design)
+- Sequenced by dependencies and optimal order
 
 **Example Marvin presents:** "Based on your kitchen renovation objectives, here's a suggested task list (18 tasks):
 
-1. Research cabinet styles and prices  
-2. Get quotes from 3 cabinet installers  
-3. Research quartz countertop options  
-4. Visit showroom to see samples  
-5. Measure countertop dimensions  
-6. Get quotes from 3 countertop fabricators  
-7. Research energy-efficient appliance models  
-8. Compare appliance prices across retailers  
-9. Create detailed budget spreadsheet  
-10. Select cabinet style and vendor  
-11. Select countertop material and fabricator  
-12. Select and order appliances  
-13. Schedule cabinet installation  
-14. Schedule countertop templating  
-15. Schedule countertop installation  
-16. Schedule appliance delivery  
-17. Coordinate installation timing  
+1. Research cabinet styles and prices
+2. Get quotes from 3 cabinet installers
+3. Research quartz countertop options
+4. Visit showroom to see samples
+5. Measure countertop dimensions
+6. Get quotes from 3 countertop fabricators
+7. Research energy-efficient appliance models
+8. Compare appliance prices across retailers
+9. Create detailed budget spreadsheet
+10. Select cabinet style and vendor
+11. Select countertop material and fabricator
+12. Select and order appliances
+13. Schedule cabinet installation
+14. Schedule countertop templating
+15. Schedule countertop installation
+16. Schedule appliance delivery
+17. Coordinate installation timing
 18. Final walkthrough and punch list"
 
 **Director iteration:**
 
-* Review list: "Add, remove, reorder anything?"  
-* Director: "I already have a cabinet vendor, so skip \#1 and \#2"  
-* Marvin removes, adjusts sequence  
-* Director: "Add task: 'Remove old appliances and dispose'"  
-* Marvin adds at appropriate position  
-* Continue iterating until Director approves
+- Review list: "Add, remove, reorder anything?"
+- Director: "I already have a cabinet vendor, so skip \#1 and \#2"
+- Marvin removes, adjusts sequence
+- Director: "Add task: 'Remove old appliances and dispose'"
+- Marvin adds at appropriate position
+- Continue iterating until Director approves
 
 **Marvin checks CODAD balance:** "Your task list has: 6 Discover, 4 Operate, 3 Connect, 3 Advance, 2 Design. Good balance—you'll research thoroughly, coordinate effectively, and execute decisively."
 
@@ -1154,10 +1154,10 @@ Projects move through four creation stages in the Drafting Room with Marvin's as
 
 **Result:**
 
-* Complete task list (will populate kanban board when activated)  
-* Image continues evolution: Color Emergence (muted category colors seep in)  
-* Status: "Stage 3 of 4 \- Drafted"  
-* Can pause here or continue to Stage 4
+- Complete task list (will populate kanban board when activated)
+- Image continues evolution: Color Emergence (muted category colors seep in)
+- Status: "Stage 3 of 4 \- Drafted"
+- Can pause here or continue to Stage 4
 
 **Key principle:** When this project activates, these tasks populate the kanban board. Work begins immediately. No wondering "what do I actually do?"
 
@@ -1169,21 +1169,21 @@ Projects move through four creation stages in the Drafting Room with Marvin's as
 
 **Process:**
 
-1. Marvin shows current Priority Queue (appropriate filter based on archetype)  
-2. If Initiative/Major: Shows Gold Candidates  
-3. If System Build/Discovery: Shows Silver Candidates  
-4. If Quick Task/Micro: Shows Bronze Candidates  
-5. Director drags new project to desired position  
-6. Marvin: "This will be \#3 in your Gold candidates. Confirm?"  
+1. Marvin shows current Priority Queue (appropriate filter based on archetype)
+2. If Initiative/Major: Shows Gold Candidates
+3. If System Build/Discovery: Shows Silver Candidates
+4. If Quick Task/Micro: Shows Bronze Candidates
+5. Director drags new project to desired position
+6. Marvin: "This will be \#3 in your Gold candidates. Confirm?"
 7. Director: "Confirmed" or adjusts position
 
 **Result:**
 
-* Project exits Planning Queue  
-* Project enters Priority Queue at specified position  
-* Status: "Stage 4 of 4 \- Prioritized" (also labeled "Plans")  
-* Image retains Color Emergence stage  
-* Ready to activate whenever Director returns to Sorting Room
+- Project exits Planning Queue
+- Project enters Priority Queue at specified position
+- Status: "Stage 4 of 4 \- Prioritized" (also labeled "Plans")
+- Image retains Color Emergence stage
+- Ready to activate whenever Director returns to Sorting Room
 
 **Key principle:** Prioritization happens AFTER planning is complete. This prevents the pressure of "should I do this?" from interfering with the clarity of "what would this entail?"
 
@@ -1197,39 +1197,39 @@ Projects move through four creation stages in the Drafting Room with Marvin's as
 
 When ready to activate new priorities:
 
-1. Director enters Sorting Room  
-2. Views Gold Candidates filter  
-3. Selects Gold project (or leaves empty)  
-4. Views Silver Candidates filter  
-5. Selects Silver project (or leaves empty)  
-6. Configures Bronze mode  
-7. Validates minimum 3 Bronze tasks  
+1. Director enters Sorting Room
+2. Views Gold Candidates filter
+3. Selects Gold project (or leaves empty)
+4. Views Silver Candidates filter
+5. Selects Silver project (or leaves empty)
+6. Configures Bronze mode
+7. Validates minimum 3 Bronze tasks
 8. Clicks "Activate Priorities"
 
 **On activation:**
 
 **Selected Gold project (if any):**
 
-* Status changes to "work\_at\_hand"  
-* tablePosition \= "gold"  
-* Image evolves to Polish stage (vibrant colors, glossy finish)  
-* Tasks populate kanban board  
-* Appears on Table \+ home Category Card (dual presence)
+- Status changes to "work_at_hand"
+- tablePosition \= "gold"
+- Image evolves to Polish stage (vibrant colors, glossy finish)
+- Tasks populate kanban board
+- Appears on Table \+ home Category Card (dual presence)
 
 **Selected Silver project (if any):**
 
-* Status changes to "work\_at\_hand"  
-* tablePosition \= "silver"  
-* Image evolves to Polish stage  
-* Tasks populate kanban board  
-* Appears on Table \+ home Category Card (dual presence)
+- Status changes to "work_at_hand"
+- tablePosition \= "silver"
+- Image evolves to Polish stage
+- Tasks populate kanban board
+- Appears on Table \+ home Category Card (dual presence)
 
 **Bronze tasks:**
 
-* Tasks display in Bronze stack based on mode  
-* Minimal mode: Only due dates and Critical Response  
-* Target mode: Minimal \+ X discretionary from queue  
-* Maximal mode: Minimal \+ continuous queue pull
+- Tasks display in Bronze stack based on mode
+- Minimal mode: Only due dates and Critical Response
+- Target mode: Minimal \+ X discretionary from queue
+- Maximal mode: Minimal \+ continuous queue pull
 
 **Director returns to Life Map** ready to execute.
 
@@ -1237,74 +1237,74 @@ When ready to activate new priorities:
 
 **From The Table:**
 
-* Click Gold/Silver project card → Project Board opens  
-* See kanban board with all tasks  
-* Drag tasks: To Do → In Progress → Done  
-* Progress ring fills as tasks complete  
-* Close Project Board (ESC or click outside) → return to Life Map
+- Click Gold/Silver project card → Project Board opens
+- See kanban board with all tasks
+- Drag tasks: To Do → In Progress → Done
+- Progress ring fills as tasks complete
+- Close Project Board (ESC or click outside) → return to Life Map
 
 **From Category Cards:**
 
-* Gold/Silver projects also visible in home category (dual presence)  
-* Can access Project Board from either location  
-* Both views show same object, same progress
+- Gold/Silver projects also visible in home category (dual presence)
+- Can access Project Board from either location
+- Both views show same object, same progress
 
 **Bronze task completion:**
 
-* Click task on Bronze stack → marks complete  
-* Task moves off stack  
-* Based on mode:  
-  * Minimal: Stack shrinks (no replacement)  
-  * Target \+X: Next Priority Queue task auto-pulls  
-  * Maximal: Continuous queue pull maintains capacity
+- Click task on Bronze stack → marks complete
+- Task moves off stack
+- Based on mode:
+  - Minimal: Stack shrinks (no replacement)
+  - Target \+X: Next Priority Queue task auto-pulls
+  - Maximal: Continuous queue pull maintains capacity
 
 ### **4.4.3 Completing Projects**
 
 **Automatic completion:**
 
-* When last task moves to Done → Project status changes to "completed"  
-* Project automatically: Exits The Table, exits all queues, image evolves to Decoration stage (gold/silver accents)  
-* Gold/Silver slot now empty (ready for new activation)
+- When last task moves to Done → Project status changes to "completed"
+- Project automatically: Exits The Table, exits all queues, image evolves to Decoration stage (gold/silver accents)
+- Gold/Silver slot now empty (ready for new activation)
 
 **Manual completion:**
 
-* If tasks aren't comprehensive but project is done: Click "Mark Complete" button  
-* Director confirms: "Some tasks incomplete. Mark project complete anyway?"  
-* Same result: Project completes, exits Table
+- If tasks aren't comprehensive but project is done: Click "Mark Complete" button
+- Director confirms: "Some tasks incomplete. Mark project complete anyway?"
+- Same result: Project completes, exits Table
 
 **Post-completion:**
 
-* Completed projects no longer visible (MVP simplification)  
-* Future: Archives Workspace will store completion history
+- Completed projects no longer visible (MVP simplification)
+- Future: Archives Workspace will store completion history
 
 ### **4.4.4 Pausing Projects**
 
 **From Project Board:**
 
-* Click "Pause" button in header  
-* Confirm: "Pause this project and return to Priority Queue?"
+- Click "Pause" button in header
+- Confirm: "Pause this project and return to Priority Queue?"
 
 **Immediate effects:**
 
-* Project exits The Table (slot now empty)  
-* Status changes to "paused"  
-* Returns to Priority Queue at top of appropriate filter  
-* Image retains Polish stage (doesn't regress)  
-* All kanban state preserved (tasks stay in columns)  
-* All Worker assignments preserved
+- Project exits The Table (slot now empty)
+- Status changes to "paused"
+- Returns to Priority Queue at top of appropriate filter
+- Image retains Polish stage (doesn't regress)
+- All kanban state preserved (tasks stay in columns)
+- All Worker assignments preserved
 
 **Why pause:**
 
-* Circumstances changed, no longer priority  
-* Need focus on different work  
-* Realized project needs rethinking  
-* Emergency arose requiring attention elsewhere
+- Circumstances changed, no longer priority
+- Need focus on different work
+- Realized project needs rethinking
+- Emergency arose requiring attention elsewhere
 
 **Resuming paused projects:**
 
-* Project sits at top of appropriate filter in Priority Queue  
-* Next time Director activates priorities, can select paused project  
-* All progress intact, pick up where left off
+- Project sits at top of appropriate filter in Priority Queue
+- Next time Director activates priorities, can select paused project
+- All progress intact, pick up where left off
 
 ---
 
@@ -1320,10 +1320,10 @@ When ready to activate new priorities:
 
 **Devin presents:**
 
-* Project title, objectives, and key outcomes  
-* Task breakdown with types (CODAD analysis)  
-* Project archetype and scale  
-* Estimated timeline and complexity
+- Project title, objectives, and key outcomes
+- Task breakdown with types (CODAD analysis)
+- Project archetype and scale
+- Estimated timeline and complexity
 
 **Devin asks:** "I see this is a \[archetype\] project with \[X\] tasks spanning \[timeframe\]. I'm thinking about what kind of Worker would be most helpful here. Does this look right?"
 
@@ -1331,9 +1331,9 @@ When ready to activate new priorities:
 
 **Result:**
 
-* Shared understanding of project scope  
-* Identified delegation opportunities  
-* Ready to design worker profile
+- Shared understanding of project scope
+- Identified delegation opportunities
+- Ready to design worker profile
 
 ### **4.5.2 Stage 2: Worker Profile Drafting**
 
@@ -1341,11 +1341,11 @@ When ready to activate new priorities:
 
 **Devin suggests:** Based on project analysis, Devin drafts a worker synopsis (150-300 words):
 
-* Worker role and primary responsibilities  
-* Key capabilities required for this project  
-* Work style and communication approach  
-* Domain expertise needed  
-* How they'll collaborate with Director
+- Worker role and primary responsibilities
+- Key capabilities required for this project
+- Work style and communication approach
+- Domain expertise needed
+- How they'll collaborate with Director
 
 **Example synopsis:**
 
@@ -1353,16 +1353,16 @@ When ready to activate new priorities:
 
 **Interaction:**
 
-* Devin presents draft synopsis  
-* Director edits directly (like editing project description)  
-* Can request templates: "Show me your Content Creator template"  
-* Can reference past workers: "Similar to the researcher from my last project"
+- Devin presents draft synopsis
+- Director edits directly (like editing project description)
+- Can request templates: "Show me your Content Creator template"
+- Can reference past workers: "Similar to the researcher from my last project"
 
 **Result:**
 
-* Finalized worker synopsis  
-* Clear role definition  
-* Ready for prompt generation
+- Finalized worker synopsis
+- Clear role definition
+- Ready for prompt generation
 
 ### **4.5.3 Stage 3: Prompt Configuration**
 
@@ -1370,34 +1370,34 @@ When ready to activate new priorities:
 
 **Devin generates initial prompt:** Based on the approved synopsis, Devin creates a detailed prompt (500-1000 words) including:
 
-* Core identity and role  
-* Specific capabilities and constraints  
-* Communication style and formatting preferences  
-* Task execution methodology  
-* Quality standards and checkpoints  
-* How to handle edge cases  
-* Collaboration protocols with Director
+- Core identity and role
+- Specific capabilities and constraints
+- Communication style and formatting preferences
+- Task execution methodology
+- Quality standards and checkpoints
+- How to handle edge cases
+- Collaboration protocols with Director
 
 **Devin presents:** "Here's the prompt I've drafted. I've focused on \[key aspects\]. The prompt emphasizes \[specific behaviors\]. Want to review and refine?"
 
 **Director can:**
 
-* Edit prompt directly (full text editing)  
-* Request adjustments: "Make them more proactive about suggesting alternatives"  
-* Test specifics: "How would they handle a task with ambiguous requirements?"  
-* Regenerate sections: "Rewrite the communication style part"
+- Edit prompt directly (full text editing)
+- Request adjustments: "Make them more proactive about suggesting alternatives"
+- Test specifics: "How would they handle a task with ambiguous requirements?"
+- Regenerate sections: "Rewrite the communication style part"
 
 **Bidirectional editing:**
 
-* If Director edits synopsis → Devin offers to regenerate prompt to match  
-* If Director edits prompt → Devin checks if synopsis should update  
-* Maintains alignment between high-level description and detailed instructions
+- If Director edits synopsis → Devin offers to regenerate prompt to match
+- If Director edits prompt → Devin checks if synopsis should update
+- Maintains alignment between high-level description and detailed instructions
 
 **Result:**
 
-* Complete, tested worker prompt  
-* Aligned synopsis and prompt  
-* Ready to activate worker
+- Complete, tested worker prompt
+- Aligned synopsis and prompt
+- Ready to activate worker
 
 ### **4.5.4 Stage 4: Confirmation & Staffing**
 
@@ -1405,10 +1405,10 @@ When ready to activate new priorities:
 
 **Devin confirms:**
 
-* Worker name/title  
-* Final synopsis (what Director will see)  
-* Key responsibilities  
-* Which project they're joining
+- Worker name/title
+- Final synopsis (what Director will see)
+- Key responsibilities
+- Which project they're joining
 
 **Devin asks:** "Ready to add \[Worker Name\] to the \[Project Name\] team?"
 
@@ -1416,10 +1416,10 @@ When ready to activate new priorities:
 
 **Result:**
 
-* Worker created and linked to project  
-* Worker appears in Project Board "Team" section  
-* Worker available for immediate task assignment  
-* Can access Roster Room to modify worker at any time
+- Worker created and linked to project
+- Worker appears in Project Board "Team" section
+- Worker available for immediate task assignment
+- Can access Roster Room to modify worker at any time
 
 **Special note:** Unlike project creation, staffing can happen mid-project if Director realizes they need delegation help partway through execution.
 
@@ -1427,7 +1427,7 @@ When ready to activate new priorities:
 
 # **SECTION 5: SYSTEM CONSTRAINTS**
 
-*These are non-negotiable rules that protect the integrity of the LifeBuild model.*
+_These are non-negotiable rules that protect the integrity of the LifeBuild model._
 
 ---
 
@@ -1437,17 +1437,17 @@ When ready to activate new priorities:
 
 **Enforcement:**
 
-* Cannot skip stages (e.g., cannot go 1 → 3\)  
-* Cannot regress stages once completed  
-* Stage transitions triggered only by explicit user completion action  
-* Stage completion requirements must be validated before allowing progression
+- Cannot skip stages (e.g., cannot go 1 → 3\)
+- Cannot regress stages once completed
+- Stage transitions triggered only by explicit user completion action
+- Stage completion requirements must be validated before allowing progression
 
 **Stage Completion Requirements:**
 
-* Stage 1 → Stage 2: Requires title, description, category (all fields validated, none empty)  
-* Stage 2 → Stage 3: Requires ≥1 objective, archetype selected, all 5 traits set  
-* Stage 3 → Stage 4: Requires ≥1 task created and approved by Director  
-* Stage 4 → Work at Hand: Requires selection in Sorting Room \+ activation confirmation
+- Stage 1 → Stage 2: Requires title, description, category (all fields validated, none empty)
+- Stage 2 → Stage 3: Requires ≥1 objective, archetype selected, all 5 traits set
+- Stage 3 → Stage 4: Requires ≥1 task created and approved by Director
+- Stage 4 → Work at Hand: Requires selection in Sorting Room \+ activation confirmation
 
 ## **5.2 Table Constraints**
 
@@ -1455,34 +1455,34 @@ When ready to activate new priorities:
 
 **Enforcement:**
 
-* Only Gold-eligible projects can occupy Gold slot (Initiative archetype, scale ≥ Major)  
-* Attempting to add 2nd Gold project → system blocks \+ shows message  
-* Empty slot is valid state (strategic choice)
+- Only Gold-eligible projects can occupy Gold slot (Initiative archetype, scale ≥ Major)
+- Attempting to add 2nd Gold project → system blocks \+ shows message
+- Empty slot is valid state (strategic choice)
 
 **Rule:** Max 1 Silver project simultaneously (hard limit)
 
 **Enforcement:**
 
-* Only Silver-eligible projects can occupy Silver slot (System Build, Discovery Mission, capacity-building)  
-* Attempting to add 2nd Silver project → system blocks \+ shows message  
-* Empty slot is valid state (strategic choice)
+- Only Silver-eligible projects can occupy Silver slot (System Build, Discovery Mission, capacity-building)
+- Attempting to add 2nd Silver project → system blocks \+ shows message
+- Empty slot is valid state (strategic choice)
 
 **Rule:** Min 3 Bronze tasks to activate priorities (hard requirement)
 
 **Enforcement:**
 
-* Cannot activate priorities unless bronzeStack.length \>= 3  
-* Sorting Room validates this constraint before allowing "Activate Priorities"  
-* If constraint fails: System blocks activation \+ provides clear message \+ suggests creating Bronze tasks
+- Cannot activate priorities unless bronzeStack.length \>= 3
+- Sorting Room validates this constraint before allowing "Activate Priorities"
+- If constraint fails: System blocks activation \+ provides clear message \+ suggests creating Bronze tasks
 
 **Rule:** No duplicate work on The Table
 
 **Enforcement:**
 
-* Same project cannot occupy both Gold and Silver slots  
-* Same project cannot appear in both slot and Bronze stack  
-* System validates at activation confirmation  
-* Duplicate attempt → system blocks \+ shows message
+- Same project cannot occupy both Gold and Silver slots
+- Same project cannot appear in both slot and Bronze stack
+- System validates at activation confirmation
+- Duplicate attempt → system blocks \+ shows message
 
 ## **5.3 Queue Exclusivity**
 
@@ -1490,19 +1490,19 @@ When ready to activate new priorities:
 
 **Enforcement:**
 
-* Stages 1-3: Project in Planning Queue  
-* Stage 4 complete: Project exits Planning Queue, enters Priority Queue  
-* Work at Hand: Project exits Priority Queue (not in any queue)  
-* Paused: Project returns to Priority Queue (top of appropriate filter)  
-* Completed: Project exits all queues
+- Stages 1-3: Project in Planning Queue
+- Stage 4 complete: Project exits Planning Queue, enters Priority Queue
+- Work at Hand: Project exits Priority Queue (not in any queue)
+- Paused: Project returns to Priority Queue (top of appropriate filter)
+- Completed: Project exits all queues
 
 **Rule:** Cannot be in multiple places simultaneously (except dual presence)
 
 **Enforcement:**
 
-* Project cannot be in Planning Queue AND Priority Queue  
-* Project cannot be in queue AND on The Table (except via dual presence rendering)  
-* Orphaned projects (no queue) only exist in completed state
+- Project cannot be in Planning Queue AND Priority Queue
+- Project cannot be in queue AND on The Table (except via dual presence rendering)
+- Orphaned projects (no queue) only exist in completed state
 
 ## **5.4 Category Assignment**
 
@@ -1510,10 +1510,10 @@ When ready to activate new priorities:
 
 **Enforcement:**
 
-* Category required at Stage 1 (cannot create project without selecting category)  
-* Cannot be orphaned (category field cannot be null)  
-* Cannot change category after creation (in MVP \- this is a simplification)  
-* Category determines which Category Card displays the project
+- Category required at Stage 1 (cannot create project without selecting category)
+- Cannot be orphaned (category field cannot be null)
+- Cannot change category after creation (in MVP \- this is a simplification)
+- Category determines which Category Card displays the project
 
 ## **5.5 Bronze Mode Behaviors**
 
@@ -1523,21 +1523,21 @@ When ready to activate new priorities:
 
 **Minimal Mode:**
 
-* Only due dates \+ Critical Response populate Bronze stack  
-* Task completion → stack shrinks, no replacement  
-* Stack size varies naturally
+- Only due dates \+ Critical Response populate Bronze stack
+- Task completion → stack shrinks, no replacement
+- Stack size varies naturally
 
 **Target \+X Mode:**
 
-* Due dates \+ Critical Response \+ X discretionary tasks from Priority Queue  
-* Task completion → next Priority Queue task auto-pulls to maintain stack size  
-* X value set by Director at activation, can adjust anytime
+- Due dates \+ Critical Response \+ X discretionary tasks from Priority Queue
+- Task completion → next Priority Queue task auto-pulls to maintain stack size
+- X value set by Director at activation, can adjust anytime
 
 **Maximal Mode:**
 
-* Due dates \+ Critical Response \+ continuous Priority Queue pull  
-* Task completion → always pulls next highest-priority Bronze task  
-* Stack size grows as long as Priority Queue has Bronze candidates
+- Due dates \+ Critical Response \+ continuous Priority Queue pull
+- Task completion → always pulls next highest-priority Bronze task
+- Stack size grows as long as Priority Queue has Bronze candidates
 
 ## **5.6 Worker Assignment Rules**
 
@@ -1545,34 +1545,34 @@ When ready to activate new priorities:
 
 **Enforcement:**
 
-* Project.assignedWorker can be null or single Worker ID  
-* Cannot assign multiple Workers to same project in MVP  
-* Worker cannot be assigned to multiple projects  
-* Worker assignment persists until project completion or explicit removal
+- Project.assignedWorker can be null or single Worker ID
+- Cannot assign multiple Workers to same project in MVP
+- Worker cannot be assigned to multiple projects
+- Worker assignment persists until project completion or explicit removal
 
 **Rule:** Workers bound to projects, not tasks directly
 
 **Enforcement:**
 
-* Workers exist at project level  
-* Tasks are assigned to Workers through project relationship  
-* Worker can see all project tasks but only executes assigned ones  
-* When project completes, Worker is archived with project
+- Workers exist at project level
+- Tasks are assigned to Workers through project relationship
+- Worker can see all project tasks but only executes assigned ones
+- When project completes, Worker is archived with project
 
 **Rule:** Worker modifications must go through Roster Room
 
 **Enforcement:**
 
-* Synopsis and Prompt are immutable outside Roster Room  
-* "Edit Worker" button redirects to Roster Room  
-* Devin mediates all worker modifications  
-* No direct worker prompt editing from Project Board
+- Synopsis and Prompt are immutable outside Roster Room
+- "Edit Worker" button redirects to Roster Room
+- Devin mediates all worker modifications
+- No direct worker prompt editing from Project Board
 
 ---
 
 # **SECTION 6: TECHNICAL ARCHITECTURE**
 
-*This section provides technical guidance for implementation without prescribing specific technologies.*
+_This section provides technical guidance for implementation without prescribing specific technologies._
 
 ---
 
@@ -1580,74 +1580,74 @@ When ready to activate new priorities:
 
 **Single Source of Truth:**
 
-* Project object is canonical  
-* The Table slots, Category Cards, queues all reference same Project instances  
-* UI updates propagate from Project status changes, not duplicated state  
-* No data synchronization needed between views—all read from same source
+- Project object is canonical
+- The Table slots, Category Cards, queues all reference same Project instances
+- UI updates propagate from Project status changes, not duplicated state
+- No data synchronization needed between views—all read from same source
 
 **Reactive Updates:**
 
-* When Project.status changes → all UI views update automatically  
-* When Task.status changes → Project.progressPercent recalculates → progress ring updates  
-* When Bronze mode changes → Bronze stack repopulates immediately  
-* State machine enforcement at database level, not just UI validation
+- When Project.status changes → all UI views update automatically
+- When Task.status changes → Project.progressPercent recalculates → progress ring updates
+- When Bronze mode changes → Bronze stack repopulates immediately
+- State machine enforcement at database level, not just UI validation
 
 **State Machine Enforcement:**
 
-* Project status transitions must follow valid paths (defined in Section 5.1)  
-* Cannot skip stages, cannot regress stages  
-* Transitions enforced at database/backend level with validation  
-* Invalid transitions rejected before reaching UI
+- Project status transitions must follow valid paths (defined in Section 5.1)
+- Cannot skip stages, cannot regress stages
+- Transitions enforced at database/backend level with validation
+- Invalid transitions rejected before reaching UI
 
 **Queue Exclusivity Constraints:**
 
-* Database constraint: Project cannot have both inPlanningQueue=true AND inPriorityQueue=true  
-* Work at Hand projects have both queue flags=false  
-* Completed projects have both queue flags=false  
-* Orphaned projects (no queue, not Work at Hand, not Complete) should be impossible state
+- Database constraint: Project cannot have both inPlanningQueue=true AND inPriorityQueue=true
+- Work at Hand projects have both queue flags=false
+- Completed projects have both queue flags=false
+- Orphaned projects (no queue, not Work at Hand, not Complete) should be impossible state
 
 ## **6.2 Critical Performance Considerations**
 
 **Real-Time Project Board Updates:**
 
-* Kanban column changes must feel instant (\<100ms)  
-* Progress ring updates must be immediate (\<50ms)  
-* Consider optimistic UI updates with backend sync
+- Kanban column changes must feel instant (\<100ms)
+- Progress ring updates must be immediate (\<50ms)
+- Consider optimistic UI updates with backend sync
 
 **Efficient Category Card Aggregation:**
 
-* Category Cards aggregate all projects in category (could be 30+ projects)  
-* Need efficient queries: SELECT \* FROM projects WHERE category\_id \= X AND status IN (work\_at\_hand, live, plans, paused)  
-* Consider caching category counts to avoid repeated aggregation queries
+- Category Cards aggregate all projects in category (could be 30+ projects)
+- Need efficient queries: SELECT \* FROM projects WHERE category_id \= X AND status IN (work_at_hand, live, plans, paused)
+- Consider caching category counts to avoid repeated aggregation queries
 
 **Priority Queue Filtering Performance:**
 
-* Three-stream filtering operates on potentially 100+ projects/tasks  
-* Need indexed queries on archetype, scale, status  
-* Consider materialized views or denormalized filter eligibility flags
+- Three-stream filtering operates on potentially 100+ projects/tasks
+- Need indexed queries on archetype, scale, status
+- Consider materialized views or denormalized filter eligibility flags
 
 **Image Asset Management:**
 
-* Urushi images at 5 evolution stages per project  
-* Could be 100+ project images loaded on Life Map Overview  
-* Need: lazy loading, progressive enhancement, optimized image formats  
-* Consider: rendering images on-demand vs. pre-generating all stages
+- Urushi images at 5 evolution stages per project
+- Could be 100+ project images loaded on Life Map Overview
+- Need: lazy loading, progressive enhancement, optimized image formats
+- Consider: rendering images on-demand vs. pre-generating all stages
 
 ## **6.3 Dual Presence Rendering**
 
 **How to implement:**
 
-* Work at Hand projects appear on The Table AND home Category Card  
-* Both views render the same Project object  
-* The Table: Enhanced visual treatment (enhanced glow, breathing animation, stream color)  
-* Category Card: Standard Live treatment (full saturation, standard glow, progress ring) \+ subtle pulse matching stream color
+- Work at Hand projects appear on The Table AND home Category Card
+- Both views render the same Project object
+- The Table: Enhanced visual treatment (enhanced glow, breathing animation, stream color)
+- Category Card: Standard Live treatment (full saturation, standard glow, progress ring) \+ subtle pulse matching stream color
 
 **Technical approach:**
 
-* Single Project component that accepts displayContext prop: "table" | "category"  
-* Component adjusts visual treatment based on context  
-* Both contexts subscribe to same Project state  
-* State change → both views update automatically
+- Single Project component that accepts displayContext prop: "table" | "category"
+- Component adjusts visual treatment based on context
+- Both contexts subscribe to same Project state
+- State change → both views update automatically
 
 ## **6.4 Future-Proofing Considerations**
 
@@ -1655,109 +1655,109 @@ When ready to activate new priorities:
 
 **Strategic Planning Layer (Excluded from MVP):**
 
-* Council Chamber room UI (Jarvis conversations)  
-* Director Attributes tracking (Energy Reserve, Processing Power, Agency, Momentum, Support Infrastructure)  
-* Personal Charter (vision, values, strategic themes)  
-* Quarterly goals and milestone tracking  
-* Category Advisor rooms (8 specialized AI agents)
+- Council Chamber room UI (Jarvis conversations)
+- Director Attributes tracking (Energy Reserve, Processing Power, Agency, Momentum, Support Infrastructure)
+- Personal Charter (vision, values, strategic themes)
+- Quarterly goals and milestone tracking
+- Category Advisor rooms (8 specialized AI agents)
 
 **Data structures to accommodate:**
 
-* Add fields: Project.quarterlyGoalId, Project.strategicThemeId (nullable)  
-* Add tables: DirectorAttributes, Charter, QuarterlyGoals, Milestones  
-* Add agent conversation logging infrastructure
+- Add fields: Project.quarterlyGoalId, Project.strategicThemeId (nullable)
+- Add tables: DirectorAttributes, Charter, QuarterlyGoals, Milestones
+- Add agent conversation logging infrastructure
 
 **Archives Workspace (Excluded from MVP):**
 
-* Conan the Librarian agent  
-* Historical repository with search  
-* Performance metrics and trend analysis  
-* Pattern recognition system
+- Conan the Librarian agent
+- Historical repository with search
+- Performance metrics and trend analysis
+- Pattern recognition system
 
 **Data structures to accommodate:**
 
-* Don't delete completed projects—archive them  
-* Add fields: Project.completedAt, Project.actualTimeSpent, Project.lessonsLearned  
-* Add tables: ArchivedProjects, CompletionMetrics, Patterns
+- Don't delete completed projects—archive them
+- Add fields: Project.completedAt, Project.actualTimeSpent, Project.lessonsLearned
+- Add tables: ArchivedProjects, CompletionMetrics, Patterns
 
 **Sophisticated AI Behavior (Excluded from MVP):**
 
-* Agent personality development  
-* Pattern recognition and learning  
-* Proactive suggestions  
-* Agent-to-agent coordination  
-* Memory building across sessions
+- Agent personality development
+- Pattern recognition and learning
+- Proactive suggestions
+- Agent-to-agent coordination
+- Memory building across sessions
 
 **Data structures to accommodate:**
 
-* Add tables: AgentMemory, AgentLearning, DirectorPatterns  
-* Add fields: Project.marvinSuggestionQuality, Project.directorFeedback
+- Add tables: AgentMemory, AgentLearning, DirectorPatterns
+- Add fields: Project.marvinSuggestionQuality, Project.directorFeedback
 
 **Advanced Delegation (Excluded from MVP):**
 
-* Human delegation configuration  
-* Automation setup for recurring work  
-* Multi-agent teams with coordination  
-* Worker performance tracking  
-* Maintenance Loops (recurring tasks that auto-plant)
+- Human delegation configuration
+- Automation setup for recurring work
+- Multi-agent teams with coordination
+- Worker performance tracking
+- Maintenance Loops (recurring tasks that auto-plant)
 
 **Data structures to accommodate:**
 
-* Modify: Project.assignedWorker → Project.assignedWorkers (one-to-many)  
-* Add fields: Worker.teamRole, Worker.coordinatesWith, Worker.performanceMetrics  
-* Add tables: HumanDelegates, RecurringTasks, WorkerPerformance, WorkerInteractions  
-* Add fields: Task.recurringPattern, Task.delegatedToHuman
+- Modify: Project.assignedWorker → Project.assignedWorkers (one-to-many)
+- Add fields: Worker.teamRole, Worker.coordinatesWith, Worker.performanceMetrics
+- Add tables: HumanDelegates, RecurringTasks, WorkerPerformance, WorkerInteractions
+- Add fields: Task.recurringPattern, Task.delegatedToHuman
 
 **Structured Rhythms (Excluded from MVP):**
 
-* Optional weekly/monthly planning prompts  
-* Sprint retrospectives  
-* Quarterly review ceremonies  
-* Goal milestone tracking
+- Optional weekly/monthly planning prompts
+- Sprint retrospectives
+- Quarterly review ceremonies
+- Goal milestone tracking
 
 **Data structures to accommodate:**
 
-* Add tables: PlanningRhythms, Retrospectives, MilestoneProgress  
-* Add fields: Director.preferredPlanningCadence, Project.sprintId
+- Add tables: PlanningRhythms, Retrospectives, MilestoneProgress
+- Add fields: Director.preferredPlanningCadence, Project.sprintId
 
 ## **6.5 What's Intentionally Simplified for MVP**
 
 **No WIP Limits Enforcement:**
 
-* System suggests 3-task In Progress focus (visual cue)  
-* But doesn't block exceeding 3 tasks (Director can override)  
-* Post-MVP: Could add hard WIP limits as configurable setting
+- System suggests 3-task In Progress focus (visual cue)
+- But doesn't block exceeding 3 tasks (Director can override)
+- Post-MVP: Could add hard WIP limits as configurable setting
 
 **No Maintenance Loops:**
 
-* Bronze tasks are manually created or come from projects  
-* No automated recurring task planting  
-* Post-MVP: System Builds can generate Maintenance Loops that auto-plant Bronze tasks
+- Bronze tasks are manually created or come from projects
+- No automated recurring task planting
+- Post-MVP: System Builds can generate Maintenance Loops that auto-plant Bronze tasks
 
 **No Agent Learning:**
 
-* AI Workers execute assigned tasks, don't learn patterns  
-* Marvin doesn't improve suggestions based on Director feedback  
-* No memory building across sessions  
-* Post-MVP: Agent learning and pattern recognition layer
+- AI Workers execute assigned tasks, don't learn patterns
+- Marvin doesn't improve suggestions based on Director feedback
+- No memory building across sessions
+- Post-MVP: Agent learning and pattern recognition layer
 
 **No Category Advisors:**
 
-* Only Marvin (Drafting Room), Cameron (Sorting Room), and Devin (Roster Room) present in MVP  
-* No specialized domain advisors (Maya, Atlas, Brooks, etc.)  
-* Post-MVP: 8 Category Advisors with domain expertise
+- Only Marvin (Drafting Room), Cameron (Sorting Room), and Devin (Roster Room) present in MVP
+- No specialized domain advisors (Maya, Atlas, Brooks, etc.)
+- Post-MVP: 8 Category Advisors with domain expertise
 
 **No Human Delegation:**
 
-* Only AI Worker delegation in MVP  
-* No configuration for delegating to family/team members  
-* Post-MVP: Human delegation tracking and coordination
+- Only AI Worker delegation in MVP
+- No configuration for delegating to family/team members
+- Post-MVP: Human delegation tracking and coordination
 
 **No Structured Rhythms:**
 
-* No enforced planning cadence (Director chooses when to plan)  
-* No formal ceremonies or rituals  
-* Post-MVP: Optional structured rhythms for Directors who want them (weekly reviews, monthly planning, quarterly goals)
+- No enforced planning cadence (Director chooses when to plan)
+- No formal ceremonies or rituals
+- Post-MVP: Optional structured rhythms for Directors who want them (weekly reviews, monthly planning, quarterly goals)
 
 ---
 
@@ -1853,60 +1853,60 @@ She clicks "Get Started" and is guided to Drafting Room. With Marvin's help:
 
 **Creates "Start Morning Exercise Routine" (Health category):**
 
-* Stage 1 (2 min): Title, description, category  
-* Stage 2 (10 min): Objectives, System Build archetype, traits  
-* Stage 3 (30 min): Marvin generates 8 tasks, Sarah refines  
-* Stage 4 (5 min): Places in Silver Candidates position \#1
+- Stage 1 (2 min): Title, description, category
+- Stage 2 (10 min): Objectives, System Build archetype, traits
+- Stage 3 (30 min): Marvin generates 8 tasks, Sarah refines
+- Stage 4 (5 min): Places in Silver Candidates position \#1
 
 **Creates "Organize Home Office" (Home category):**
 
-* Completes all 4 stages (50 min total)  
-* Places in Silver Candidates position \#2
+- Completes all 4 stages (50 min total)
+- Places in Silver Candidates position \#2
 
 **Creates "Schedule Dentist Appointment" (Health category):**
 
-* Quick Task archetype  
-* Marvin suggests keeping it simple (5 min total)  
-* Goes to Bronze Candidates
+- Quick Task archetype
+- Marvin suggests keeping it simple (5 min total)
+- Goes to Bronze Candidates
 
 **When Ready to Activate Work:**
 
 Sarah visits Sorting Room:
 
-* Reviews Priority Queue: 2 Silver projects, 1 Bronze task  
-* Leaves Gold empty (strategically \- wants to build foundation first)  
-* Selects "Start Morning Exercise Routine" for Silver  
-* Sets Bronze to Minimal mode (only has 1 due-date task)  
-* Needs 2 more Bronze tasks minimum
+- Reviews Priority Queue: 2 Silver projects, 1 Bronze task
+- Leaves Gold empty (strategically \- wants to build foundation first)
+- Selects "Start Morning Exercise Routine" for Silver
+- Sets Bronze to Minimal mode (only has 1 due-date task)
+- Needs 2 more Bronze tasks minimum
 
 Returns to Drafting Room:
 
-* Creates "Pay Utility Bills" (Finances) \- Quick Task  
-* Creates "Respond to Mom's Email" (Relationships) \- Quick Task  
-* Both go to Bronze Candidates
+- Creates "Pay Utility Bills" (Finances) \- Quick Task
+- Creates "Respond to Mom's Email" (Relationships) \- Quick Task
+- Both go to Bronze Candidates
 
 Returns to Sorting Room:
 
-* Now has 3 Bronze tasks  
-* Clicks "Activate Priorities"  
-* Returns to Life Map
+- Now has 3 Bronze tasks
+- Clicks "Activate Priorities"
+- Returns to Life Map
 
 **Executing Priorities:**
 
 Life Map now shows:
 
-* The Table: Silver slot with "Start Morning Exercise," Bronze stack with 3 tasks  
-* Health Category Card: Shows same "Morning Exercise" project \+ "Dentist" task  
-* Home Category Card: Shows "Organize Office" as Plans (dimmed)  
-* Finances Category Card: Shows "Pay Bills" task  
-* Relationships Category Card: Shows "Email Mom" task
+- The Table: Silver slot with "Start Morning Exercise," Bronze stack with 3 tasks
+- Health Category Card: Shows same "Morning Exercise" project \+ "Dentist" task
+- Home Category Card: Shows "Organize Office" as Plans (dimmed)
+- Finances Category Card: Shows "Pay Bills" task
+- Relationships Category Card: Shows "Email Mom" task
 
 Sarah clicks "Start Morning Exercise" from Table → Project Board opens:
 
-* Sees 8 tasks in To Do column  
-* Moves "Research 10-minute workout videos" to In Progress  
-* Completes it, moves to Done  
-* Progress ring fills 12% (1 of 8 tasks)
+- Sees 8 tasks in To Do column
+- Moves "Research 10-minute workout videos" to In Progress
+- Completes it, moves to Done
+- Progress ring fills 12% (1 of 8 tasks)
 
 Continues working, completes 5 of 8 tasks over the next several days. Good progress for first project.
 
@@ -1916,9 +1916,9 @@ Continues working, completes 5 of 8 tasks over the next several days. Good progr
 
 Marcus begins with:
 
-* Gold: "Launch Photography Side Business" (Major Initiative, Week 3 of 8\)  
-* Silver: "Build Automated Bill Payment System" (System Build, Week 2 of 3\)  
-* Bronze: 12 tasks (Target \+4 mode)
+- Gold: "Launch Photography Side Business" (Major Initiative, Week 3 of 8\)
+- Silver: "Build Automated Bill Payment System" (System Build, Week 2 of 3\)
+- Bronze: 12 tasks (Target \+4 mode)
 
 He opens "Launch Photography Side Business" Project Board, moves tasks through kanban, makes good progress Monday and Tuesday.
 
@@ -1934,14 +1934,14 @@ Opens "Build Automated Bill Payment System" Project Board → Clicks "Pause" →
 
 Both projects:
 
-* Exit The Table (now empty)  
-* Return to Priority Queue at top of appropriate filters  
-* All progress preserved, images stay Polish stage
+- Exit The Table (now empty)
+- Return to Priority Queue at top of appropriate filters
+- All progress preserved, images stay Polish stage
 
 Clicks Bronze settings gear → Changes from Target \+4 (12 tasks) to Minimal (3 tasks)
 
-* 9 discretionary tasks return to Priority Queue  
-* Only keeps 3 highest-priority due-date tasks
+- 9 discretionary tasks return to Priority Queue
+- Only keeps 3 highest-priority due-date tasks
 
 **Creating Emergency Response:**
 
@@ -1949,10 +1949,10 @@ Accesses Drafting Room → "Create Emergency Project"
 
 Marvin switches to fast mode:
 
-* Stage 1 (2 min): "Mom's Hip Surgery Coordination"  
-* Stage 2 (3 min): Critical Response archetype, objectives suggested  
-* Stage 3 (5 min): Marvin generates emergency task list from templates  
-* Stage 4 (2 min): "Should this activate immediately?"
+- Stage 1 (2 min): "Mom's Hip Surgery Coordination"
+- Stage 2 (3 min): Critical Response archetype, objectives suggested
+- Stage 3 (5 min): Marvin generates emergency task list from templates
+- Stage 4 (2 min): "Should this activate immediately?"
 
 Marcus: "Yes, put it in Silver"
 
@@ -1960,9 +1960,9 @@ Marcus: "Yes, put it in Silver"
 
 Life Map now shows:
 
-* Gold: Empty (strategically)  
-* Silver: "Mom's Hip Surgery Coordination" (emergency)  
-* Bronze: 3 minimal tasks
+- Gold: Empty (strategically)
+- Silver: "Mom's Hip Surgery Coordination" (emergency)
+- Bronze: 3 minimal tasks
 
 Marcus works on this for two weeks, completes the emergency project.
 
@@ -1970,12 +1970,12 @@ Marcus works on this for two weeks, completes the emergency project.
 
 Returns to Sorting Room when ready:
 
-* Views Silver Candidates  
-* Both paused projects at top: "Photography Business" and "Bill Payment System"  
-* Selects "Photography Business" for Gold (promotes from Silver to Gold)  
-* Selects "Bill Payment System" for Silver (resumes where it was)  
-* Changes Bronze back to Target \+4  
-* Activates priorities
+- Views Silver Candidates
+- Both paused projects at top: "Photography Business" and "Bill Payment System"
+- Selects "Photography Business" for Gold (promotes from Silver to Gold)
+- Selects "Bill Payment System" for Silver (resumes where it was)
+- Changes Bronze back to Target \+4
+- Activates priorities
 
 Both projects resume exactly where he left off. No progress lost, no rework needed.
 
@@ -1993,10 +1993,10 @@ Clicks "Assign Workers" in Project Board → Opens Roster Room → Devin appears
 
 Devin: "Let's look at your 'Research Investment Strategy' project. I see 15 tasks:
 
-* 6 Discover tasks (researching index funds, comparing brokerages, reading investment guides)  
-* 4 Design tasks (creating comparison spreadsheets, drafting strategy outline)  
-* 3 Connect tasks (scheduling financial advisor consultation)  
-* 2 Advance tasks (opening brokerage account, initial investment)
+- 6 Discover tasks (researching index funds, comparing brokerages, reading investment guides)
+- 4 Design tasks (creating comparison spreadsheets, drafting strategy outline)
+- 3 Connect tasks (scheduling financial advisor consultation)
+- 2 Advance tasks (opening brokerage account, initial investment)
 
 This is a research-heavy Discovery Mission. The delegation opportunity is strong—those 6 Discover tasks and 4 Design tasks could be handled by a Research Specialist. Sound right?"
 
@@ -2016,13 +2016,13 @@ Devin updates synopsis: "Added preferences for low-cost approaches and tax optim
 
 Devin generates 800-word prompt covering:
 
-* Core identity as research specialist  
-* Financial research methodology  
-* How to present comparative analyses  
-* Communication style (data tables, bullet summaries)  
-* Constraints (never give specific investment advice, always show trade-offs)  
-* Emphasis on low-cost index funds and tax-advantaged accounts  
-* Collaboration protocol (complete research → summarize → present → await Director's decision)
+- Core identity as research specialist
+- Financial research methodology
+- How to present comparative analyses
+- Communication style (data tables, bullet summaries)
+- Constraints (never give specific investment advice, always show trade-offs)
+- Emphasis on low-cost index funds and tax-advantaged accounts
+- Collaboration protocol (complete research → summarize → present → await Director's decision)
 
 Lisa reviews prompt, edits one section: "When presenting options, rank by Lisa's stated priorities: lowest fees first, then historical performance, then ease of use."
 
@@ -2032,10 +2032,10 @@ Devin: "Good refinement. This ensures the Worker understands your decision frame
 
 Devin: "Here's what we have:
 
-* Worker: Investment Research Specialist  
-* Role: Handle 10 research and analysis tasks  
-* Approach: Data-driven, objective, low-cost focused  
-* Project: Research Investment Strategy
+- Worker: Investment Research Specialist
+- Role: Handle 10 research and analysis tasks
+- Approach: Data-driven, objective, low-cost focused
+- Project: Research Investment Strategy
 
 Ready to add this Worker to your team?"
 
@@ -2045,30 +2045,29 @@ Lisa: "Yes, staff them."
 
 Returns to Project Board for "Research Investment Strategy"
 
-* Team section now shows: "Investment Research Specialist" with avatar  
-* Lisa clicks first Discover task → "Assign to Worker" → Selects Investment Research Specialist  
-* Repeats for 9 more research/analysis tasks  
-* Keeps 5 decision/action tasks for herself
+- Team section now shows: "Investment Research Specialist" with avatar
+- Lisa clicks first Discover task → "Assign to Worker" → Selects Investment Research Specialist
+- Repeats for 9 more research/analysis tasks
+- Keeps 5 decision/action tasks for herself
 
 **Over Next Week:**
 
 Worker completes research tasks:
 
-* Creates comparison spreadsheet of index fund options  
-* Writes summary of brokerage features  
-* Analyzes tax-advantaged account types  
-* Each completion appears in Lisa's "Review" queue
+- Creates comparison spreadsheet of index fund options
+- Writes summary of brokerage features
+- Analyzes tax-advantaged account types
+- Each completion appears in Lisa's "Review" queue
 
 Lisa reviews each deliverable:
 
-* Approves comparison spreadsheet (moves to Done)  
-* Requests revision on brokerage analysis: "Add info about transfer fees"  
-* Worker updates and resubmits  
-* Lisa approves
+- Approves comparison spreadsheet (moves to Done)
+- Requests revision on brokerage analysis: "Add info about transfer fees"
+- Worker updates and resubmits
+- Lisa approves
 
 **Two Weeks Later:**
 
 Lisa has used Worker's research to make informed decisions, opened account, made initial investment. Project completes. Worker archived with project.
 
 Next time Lisa has a research project, she can reference this Worker: "Similar to my Investment Research Specialist from last time."
-

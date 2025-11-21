@@ -1,9 +1,11 @@
 # Drafting Room – Priority Queue & Stage 4
 
 ## Overview
+
 This plan addresses Stage 4 (“Prioritized”) and the Priority Queue inside the Drafting Room, covering Gold/Silver/Bronze filters, paused project behavior, and integrations with Sorting Room + Life Map. It builds on the Planning Queue work by taking fully drafted projects and preparing them for activation.
 
 ## Goals
+
 1. Implement Priority Queue UI with three filter tabs (Gold Candidates, Silver Candidates, Bronze Candidates) and drag-to-reorder interactions.
 2. Provide Stage 4 workflow for selecting queue position, confirming readiness, and capturing notes.
 3. Surface paused projects at the top of their respective filters automatically.
@@ -11,16 +13,19 @@ This plan addresses Stage 4 (“Prioritized”) and the Priority Queue inside th
 5. Cover edge cases (empty filters, validation, duel presence) via Storybook and tests.
 
 ## Non-Goals
+
 - Choosing current Table priorities (Sorting Room plan handles activation).
 - Managing Planning Queue or Stage 1–3 (covered separately).
 - Rendering Life Map visuals (handled in Life Map plan).
 
 ## Current State
+
 - No Priority Queue route/component exists.
 - Data schema lacks ordering metadata per stream and paused-project flags.
 - Stage 4 action currently undefined in new UI.
 
 ## Technical Implementation Plan
+
 1. **Routing & Layout**
    - Add `/new/drafting/priority` subroute or integrate within Drafting Room layout via tabs.
    - Provide filter tabs or segmented controls per stream, showing counts and heuristics (e.g., “2 Gold candidates”).
@@ -47,34 +52,40 @@ This plan addresses Stage 4 (“Prioritized”) and the Priority Queue inside th
    - Tests for Stage 4 validation, reorder operations, paused project insertion.
 
 ## Data & Schema Impact
+
 - `projects` table gains `priority_stream`, `priority_position`, and the paused metadata already defined in the Foundations plan.
 - Introduce a `priority_queue_version` counter per store (or per stream) to support optimistic concurrency during reorder events.
 - Possible `priority_queue_history` table for auditing reorder events.
 - Update shared queries/types and LiveStore events for Stage 4 completion.
 
 ## Testing & QA
+
 - Unit tests for reorder reducer and Stage 4 form validation using canonical state machine fixtures.
 - Integration tests ensuring Stage 4 moves project from Planning Queue to Priority Queue and updates Life Map selectors.
 - Manual QA: reordering persistence, paused projects pinned, Sorting Room CTA gating.
 
 ## Source References
+
 - `mvp-source-of-truth-doc.md:392-400` – Priority Queue description (filters, paused-project behavior, reorder expectations) surfaced in the Drafting Room.
 - `mvp-source-of-truth-doc.md:755-800` – Deeper explanation of Planning vs Priority Queues, contents, and filter rules.
 - `mvp-source-of-truth-doc.md:1164-1188` – Stage 4 “Prioritized” workflow, including Marvin’s prompts and the drag-to-position confirmation.
 
 ## Room Chat Context
+
 - Surface `{ streamFilter, visibleProjects, pausedCount }` through `RoomLayout` so Marvin can proactively coach Directors (“You currently have 4 Gold candidates; consider trimming before activating”).
 
 ## Dependencies & Follow-ups
+
 - Relies on Stage 1–3 plan for project creation and `draftingState` data.
 - Sorting Room plan depends on the ordered queue produced here.
 - Later optimization: virtualization for large queues if needed.
 
 ## Proposed PR Breakdown
+
 1. **PR1 – Stage 4 Prioritization & Queue Entry**  
-   *Title:* “Drafting: Draft tasks and prioritize projects (Stages 3–4)”  
-   *Scope:* Same as noted in DR plan—completes Stage 4 by inserting projects into the Priority Queue using the new state-machine fields.
+   _Title:_ “Drafting: Draft tasks and prioritize projects (Stages 3–4)”  
+   _Scope:_ Same as noted in DR plan—completes Stage 4 by inserting projects into the Priority Queue using the new state-machine fields.
 
 2. **PR2 – Priority Queue View & Reordering**  
-   *Title:* “Drafting: Manage Priority Queue ordering”  
-   *Scope:* Implement the full Priority Queue view with Gold/Silver/Bronze filters, paused-project highlighting, and drag-to-reorder emitting `priority_queue.reordered` events as described in `mvp-source-of-truth-doc.md:392-400` and `755-800`.
+   _Title:_ “Drafting: Manage Priority Queue ordering”  
+   _Scope:_ Implement the full Priority Queue view with Gold/Silver/Bronze filters, paused-project highlighting, and drag-to-reorder emitting `priority_queue.reordered` events as described in `mvp-source-of-truth-doc.md:392-400` and `755-800`.
