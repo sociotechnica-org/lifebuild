@@ -4,6 +4,29 @@ import { tables } from './schema'
 
 export const app$ = queryDb(tables.uiState.get(), { label: 'app' })
 
+export const getTableConfiguration$ = (storeId: string) =>
+  queryDb(tables.tableConfiguration.select().where({ storeId }).limit(1), {
+    label: `getTableConfiguration:${storeId}`,
+  })
+
+export const getTableBronzeStack$ = (storeId: string) =>
+  queryDb(
+    tables.tableBronzeStack
+      .select()
+      .where({ storeId })
+      .orderBy([{ col: 'position', direction: 'asc' }]),
+    { label: `getTableBronzeStack:${storeId}` }
+  )
+
+export const getActiveBronzeStack$ = (storeId: string) =>
+  queryDb(
+    tables.tableBronzeStack
+      .select()
+      .where({ storeId, status: 'active' })
+      .orderBy([{ col: 'position', direction: 'asc' }]),
+    { label: `getActiveBronzeStack:${storeId}` }
+  )
+
 export const getBoards$ = queryDb(
   _get => {
     return tables.projects.select().where({

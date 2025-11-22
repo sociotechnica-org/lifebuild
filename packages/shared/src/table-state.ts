@@ -1,0 +1,106 @@
+import { events } from './livestore/schema.js'
+import type { TableBronzeStackEntry, TableConfiguration } from './livestore/schema.js'
+
+export const BRONZE_MODES = ['minimal', 'target', 'maximal'] as const
+export type BronzeMode = (typeof BRONZE_MODES)[number]
+
+export const BRONZE_STACK_STATUSES = ['active', 'removed'] as const
+export type BronzeStackStatus = (typeof BRONZE_STACK_STATUSES)[number]
+
+export interface PriorityQueueItem {
+  taskId: string
+  position?: number
+}
+
+export interface BronzeStackPlanOptions {
+  storeId: string
+  queue: PriorityQueueItem[]
+  stack: TableBronzeStackEntry[]
+  desiredCount: number
+  config?: Pick<TableConfiguration, 'priorityQueueVersion'>
+  actorId?: string
+  insertedBy?: string
+  timestamp?: Date
+  idFactory?: (item: PriorityQueueItem) => string
+  nextQueueVersion?: number
+}
+
+export interface BronzeStackPlanResult {
+  events: Array<
+    ReturnType<typeof events.bronzeTaskAdded> | ReturnType<typeof events.bronzeTaskRemoved>
+  >
+  nextQueueVersion: number
+  expectedQueueVersion?: number
+}
+
+const generateId = () =>
+  typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2)
+
+export const nextConfigurationVersion = (config?: Pick<TableConfiguration, 'version'>): number =>
+  (config?.version ?? 0) + 1
+
+export const nextPriorityQueueVersion = (
+  config?: Pick<TableConfiguration, 'priorityQueueVersion'>,
+  override?: number
+): number => override ?? (config?.priorityQueueVersion ?? 0) + 1
+
+export const normalizeBronzeStack = (stack: TableBronzeStackEntry[]): TableBronzeStackEntry[] =>
+  [...stack].sort((a, b) => a.position - b.position)
+
+export const activeBronzeEntries = (stack: TableBronzeStackEntry[]): TableBronzeStackEntry[] =>
+  stack.filter(entry => entry.status === 'active')
+
+export function getNextBronzeTasks(options: BronzeStackPlanOptions): BronzeStackPlanResult {
+  const now = options.timestamp ?? new Date()
+  const activeStack = normalizeBronzeStack(activeBronzeEntries(options.stack))
+  const targetCount = Math.max(0, options.desiredCount)
+  const expectedQueueVersion = options.config?.priorityQueueVersion
+  const nextQueueVersion = nextPriorityQueueVersion(options.config, options.nextQueueVersion)
+  const eventsToEmit: BronzeStackPlanResult['events'] = []
+
+  if (activeStack.length > targetCount) {
+    const toRemove = activeStack.slice(targetCount)
+    toRemove.forEach(entry => {
+      eventsToEmit.push(
+        events.bronzeTaskRemoved({
+          id: entry.id,
+          storeId: options.storeId,
+          removedAt: now,
+          expectedQueueVersion,
+          nextQueueVersion,
+          actorId: options.actorId,
+        })
+      )
+    })
+  } else if (activeStack.length < targetCount) {
+    const missing = targetCount - activeStack.length
+    const activeTaskIds = new Set(activeStack.map(entry => entry.taskId))
+    const additions = options.queue
+      .filter(item => !activeTaskIds.has(item.taskId))
+      .slice(0, missing)
+
+    additions.forEach((item, index) => {
+      eventsToEmit.push(
+        events.bronzeTaskAdded({
+          id: options.idFactory?.(item) ?? generateId(),
+          storeId: options.storeId,
+          taskId: item.taskId,
+          position: activeStack.length + index,
+          insertedAt: now,
+          insertedBy: options.insertedBy ?? options.actorId,
+          expectedQueueVersion,
+          nextQueueVersion,
+          actorId: options.actorId,
+        })
+      )
+    })
+  }
+
+  return {
+    events: eventsToEmit,
+    nextQueueVersion,
+    expectedQueueVersion,
+  }
+}
