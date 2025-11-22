@@ -121,7 +121,7 @@ export function getNextBronzeTasks(options: BronzeStackPlanOptions): BronzeStack
 
   return {
     events: eventsToEmit,
-    nextQueueVersion: eventsToEmit.length > 0 ? lastQueueVersion : initialQueueVersion ?? 0,
+    nextQueueVersion: eventsToEmit.length > 0 ? lastQueueVersion : (initialQueueVersion ?? 0),
     expectedQueueVersion: initialQueueVersion,
   }
 }
