@@ -54,7 +54,7 @@ This plan addresses Stage 4 (“Prioritized”) and the Priority Queue inside th
 ## Data & Schema Impact
 
 - `projects` table gains `priority_stream`, `priority_position`, and the paused metadata already defined in the Foundations plan.
-- Introduce a `priority_queue_version` counter per store (or per stream) to support optimistic concurrency during reorder events.
+- Rely on LiveStore's default last-write-wins behavior for priority queue reorders; the shared helper should simply emit the latest ordering without extra version counters.
 - Possible `priority_queue_history` table for auditing reorder events.
 - Update shared queries/types and LiveStore events for Stage 4 completion.
 

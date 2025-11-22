@@ -8,7 +8,7 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
 
 1. Define a discriminated union for `ProjectAttributes` that encodes every lifecycle state (Planning Stages 1–3, Ready/Plans, Work at Hand, Live, Paused, Completed) without overlap.
 2. Persist `table_configuration` (singleton record inside each LiveStore instance) with Gold/Silver selections, Bronze mode, and Bronze target counts, plus an append-only `table_bronze_stack` table that tracks the ordered Bronze task stack without array clobbering.
-3. Define event contracts (`table.gold_assigned`, `table.gold_cleared`, `bronze_task_added`, etc.) and optimistic concurrency/versioning requirements so multiple writers can mutate shared state safely.
+3. Define event contracts (`table.gold_assigned`, `table.gold_cleared`, `bronze_task_added`, etc.) so multiple writers can mutate shared state; rely on LiveStore’s built-in last-write-wins semantics rather than custom optimistic locking.
 4. Build shared components (`UrushiVisual`, `ProjectCard`, `ProgressRing`) and hooks (`useLifeMapState`, `useTableState`, `useProjectStateMachine`) that other workstreams consume.
 5. Extend `RoomLayout` + navigation context so Marvin/Cameron/Devin chats receive structured payloads from each room.
 6. Document tokens/patterns in `new-ui.css` for Table grid, card layouts, and procedural visuals.
@@ -47,10 +47,8 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
      - `bronzeMode` ('minimal' | 'target' | 'maximal')
      - `bronzeTargetExtra` (for Target +X)
    - Add `table_bronze_stack` table with rows `{ id, taskId, position, insertedAt, insertedBy, status }` that captures the Bronze stack as ordered entries instead of a mutable array.
-   - Store a `version` column on `table_configuration`; gold/silver assignments emit events (`table.gold_assigned`, `table.gold_cleared`, `table.silver_assigned`, etc.) that increment the version so concurrent updates can detect conflicts. Because LiveStore state is already scoped per workspace, no `storeId` column or event field is necessary.
-   - Bronze stack mutations become discrete events (`bronze_task_added`, `bronze_task_removed`, `bronze_stack_reordered`) operating on individual rows to avoid multiplayer clobbering.
-   - Implement utilities in `@work-squared/shared/tableState.ts` including `getNextBronzeTasks` that reads from Priority Queue data, emits append/remove events atomically, and respects the configuration version.
-   - Add `priority_queue_version` tracking (per store or per stream) so reorder events can safely detect conflicts.
+   - Bronze stack mutations become discrete events (`bronze_task_added`, `bronze_task_removed`, `bronze_stack_reordered`) operating on individual rows so multiplayer changes don’t require array clobbering.
+   - Implement utilities in `@work-squared/shared/tableState.ts` including `getNextBronzeTasks` that reads from Priority Queue data and emits append/remove events atomically; if two clients race, the latest write simply wins.
    - Define event payload interfaces for `priority_queue.reordered` and table mutations so LiveStore has a consistent audit log.
 3. **Shared Visual Components**
    - `UrushiVisual`: procedural SVG/CSS rendering for the five stages (Sketch, Foundation, Color, Polish, Decoration) driven by project category + lifecycle state.
@@ -72,7 +70,7 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
    - Extend `new-ui.css` with classes for Table grid, card paddings, Bronze stack badges, and Urushi visuals.
    - Add README section describing how to consume the shared components/hooks.
 
-- Database migration adding `project_lifecycle_state` structured column, `table_configuration`, `table_bronze_stack`, and `priority_queue_version` tracking columns (plus supporting indexes).
+- Database migration adding `project_lifecycle_state` structured column plus the `table_configuration` and `table_bronze_stack` tables (plus supporting indexes).
 - Update LiveStore events and queries to read/write the new structures.
 - Provide backfill/migration script mapping existing attributes into the state machine.
 
@@ -87,7 +85,7 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
 - `mvp-source-of-truth-doc.md:560-604` – Project archetypes, lifecycle states, and Urushi stages the state machine + visual system must encode.
 - `mvp-source-of-truth-doc.md:374-452` – Descriptions of the Drafting, Sorting, and Roster Rooms that rely on shared navigation context and data contracts.
 - `mvp-source-of-truth-doc.md:705-751` – Table slots, Bronze modes, and dual presence behavior informing the `table_configuration`/`table_bronze_stack` schema.
-- `mvp-source-of-truth-doc.md:755-800` – Planning/Priority Queue definitions driving queue metadata and version tracking.
+- `mvp-source-of-truth-doc.md:755-800` – Planning/Priority Queue definitions driving queue metadata.
 - `mvp-source-of-truth-doc.md:1044-1188` – Four-stage project creation process whose states map directly to `ProjectLifecycleState` variants.
 - `mvp-source-of-truth-doc.md:1311-1424` – Worker staffing workflow that motivates shared hooks/components for Roster Room + Project Board integrations.
 
@@ -105,7 +103,7 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
 
 2. **PR2 – Table State Persistence**  
    _Title:_ “Foundation: Table configuration & Bronze stack persistence”  
-   _Scope:_ Add `table_configuration` (with versioning) and `table_bronze_stack` tables, related LiveStore queries/hooks (`getTableConfiguration$`, `useTableState`), and an admin script for manual setup. Establishes durable Gold/Silver/Bronze storage.
+   _Scope:_ Add `table_configuration` and `table_bronze_stack` tables, related LiveStore queries/hooks (`getTableConfiguration$`, `useTableState`), and an admin script for manual setup. Establishes durable Gold/Silver/Bronze storage with default last-write-wins behavior.
 
 3. **PR3 – Shared Hooks & Visual Toolkit**  
    _Title:_ “Foundation: Shared lifecycle hooks and visual system”  

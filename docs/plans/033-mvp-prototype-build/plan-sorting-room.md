@@ -41,7 +41,7 @@ This plan builds Cameron’s Sorting Room: the space where Directors review Prio
    - “Activate Priorities” button disabled until constraints met.
    - Confirmation modal summarizing Gold/Silver choices (or “Intentionally empty”), Bronze mode, Bronze task count, expected runtime.
    - On confirm, call mutation that:
-   - Sets selected projects’ state to `work_at_hand` and updates Table state via `table.gold_assigned` / `table.silver_assigned` events with optimistic `table_configuration.version` checks (singleton row per LiveStore).
+     - Sets selected projects’ state to `work_at_hand` and updates Table state via `table.gold_assigned` / `table.silver_assigned` events (singleton row per LiveStore, last-write-wins).
    - Removes them from Priority Queue (or marks active) while preserving reorder data for unselected items.
    - Emits `bronze_task_added` events that append the ordered Bronze selections into `table_bronze_stack`.
 5. **Post-Activation Flow**

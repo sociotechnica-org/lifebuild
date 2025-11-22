@@ -45,7 +45,7 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
 - When the Director approves the Stage 3 task list, immediately materialize those tasks into the canonical `tasks` table (with CODAD metadata); the `project_draft_tasks` store becomes read-only history so downstream surfaces (Sorting, Project Board) always consume the canonical rows.
 
 4. **Autosave & Resume**
-   - Persist stage drafts to LiveStore after every meaningful change (debounced) with metadata `currentStage`, `stepProgress`, `lastUpdatedAt`, and optimistic concurrency versioning.
+  - Persist stage drafts to LiveStore after every meaningful change (debounced) with metadata `currentStage`, `stepProgress`, and `lastUpdatedAt`. Let LiveStore’s last-write-wins semantics resolve any conflicting edits.
 
 - Provide “Pause for now” action that simply routes the user away while keeping the autosaved project data intact—no extra persistence layer or events required.
 
