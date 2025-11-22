@@ -40,11 +40,15 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
      - Stage 2 (Scoped): objectives, archetype, traits, urgency/importance selectors.
      - Stage 3 (Drafted): integrate Marvin (LLM worker) to generate tasks via existing AI tooling; allow editing/reordering tasks.
    - Each stage enforces validation before enabling “Next”.
-   - Autosaves emit discrete `draft_saved` events carrying `{ projectId, stage, payload, version }` so multiple clients can merge changes without overwriting each other. Mutations must check the previous version and bail if stale.
-   - When the Director approves the Stage 3 task list, immediately materialize those tasks into the canonical `tasks` table (with CODAD metadata); the `project_draft_tasks` store becomes read-only history so downstream surfaces (Sorting, Project Board) always consume the canonical rows.
+
+- Autosave every edit directly into the canonical LiveStore tables (projects/tasks) so the UI can safely drop explicit “Save Draft” semantics; the UX only needs to communicate that progress is preserved when leaving the flow.
+- When the Director approves the Stage 3 task list, immediately materialize those tasks into the canonical `tasks` table (with CODAD metadata); the `project_draft_tasks` store becomes read-only history so downstream surfaces (Sorting, Project Board) always consume the canonical rows.
+
 4. **Autosave & Resume**
    - Persist stage drafts to LiveStore after every meaningful change (debounced) with metadata `currentStage`, `stepProgress`, `lastUpdatedAt`, and optimistic concurrency versioning.
-   - Provide “Pause for now” action that returns to queue but keeps progress (emits `draft_paused` event referencing the latest version).
+
+- Provide “Pause for now” action that simply routes the user away while keeping the autosaved project data intact—no extra persistence layer or events required.
+
 5. **Abandon/Complete Actions**
    - Allow directors to archive drafts they no longer need (moves to `deletedAt`).
    - When Stage 3 completes and Director confirms “Move to Stage 4”, emit an event marking the draft as Stage-3-complete (`status: 'ready_for_stage4'`) but defer inserting into the Priority Queue until the Stage 4 workflow explicitly places it (handled in the next plan).

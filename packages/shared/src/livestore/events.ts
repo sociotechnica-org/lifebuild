@@ -878,26 +878,3 @@ export const priorityQueueReordered = Events.synced({
     actorId: Schema.optional(Schema.String),
   }),
 })
-
-export const draftSaved = Events.synced({
-  name: 'draft_saved',
-  schema: Schema.Struct({
-    projectId: Schema.String,
-    stage: Schema.Number,
-    payload: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
-    savedAt: Schema.Date,
-    actorId: Schema.optional(Schema.String),
-  }),
-})
-
-export const draftPaused = Events.synced({
-  name: 'draft_paused',
-  schema: Schema.Struct({
-    projectId: Schema.String,
-    stage: Schema.Number,
-    reason: Schema.optional(Schema.String),
-    payload: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
-    pausedAt: Schema.Date,
-    actorId: Schema.optional(Schema.String),
-  }),
-})

@@ -1533,26 +1533,6 @@ const materializers = State.SQLite.materializers(events, {
       }),
     ]
   },
-
-  draft_saved: ({ projectId, stage, payload, savedAt, actorId }) => [
-    eventsLog.insert({
-      id: `draft_saved_${projectId}_${savedAt.getTime()}`,
-      eventType: 'draft_saved',
-      eventData: JSON.stringify({ projectId, stage, payload }),
-      actorId,
-      createdAt: savedAt,
-    }),
-  ],
-
-  draft_paused: ({ projectId, stage, reason, payload, pausedAt, actorId }) => [
-    eventsLog.insert({
-      id: `draft_paused_${projectId}_${pausedAt.getTime()}`,
-      eventType: 'draft_paused',
-      eventData: JSON.stringify({ projectId, stage, reason, payload }),
-      actorId,
-      createdAt: pausedAt,
-    }),
-  ],
 })
 
 const state = State.SQLite.makeState({ tables, materializers })
