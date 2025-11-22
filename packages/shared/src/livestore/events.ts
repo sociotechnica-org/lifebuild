@@ -756,7 +756,6 @@ export const projectLifecycleUpdated = Events.synced({
 
 const BronzeModeLiteral = Schema.Literal('minimal', 'target', 'maximal')
 const BronzeStackStatusLiteral = Schema.Literal('active', 'removed')
-const StreamLiteral = Schema.Literal('gold', 'silver', 'bronze')
 
 export const tableConfigurationInitialized = Events.synced({
   name: 'table.configuration_initialized',
@@ -765,8 +764,6 @@ export const tableConfigurationInitialized = Events.synced({
     silverProjectId: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
     bronzeMode: Schema.optional(BronzeModeLiteral),
     bronzeTargetExtra: Schema.optional(Schema.Number),
-    version: Schema.Number,
-    priorityQueueVersion: Schema.optional(Schema.Number),
     updatedAt: Schema.Date,
     actorId: Schema.optional(Schema.String),
   }),
@@ -776,8 +773,6 @@ export const tableGoldAssigned = Events.synced({
   name: 'table.gold_assigned',
   schema: Schema.Struct({
     projectId: Schema.String,
-    expectedVersion: Schema.optional(Schema.Number),
-    nextVersion: Schema.Number,
     updatedAt: Schema.Date,
     actorId: Schema.optional(Schema.String),
   }),
@@ -786,8 +781,6 @@ export const tableGoldAssigned = Events.synced({
 export const tableGoldCleared = Events.synced({
   name: 'table.gold_cleared',
   schema: Schema.Struct({
-    expectedVersion: Schema.optional(Schema.Number),
-    nextVersion: Schema.Number,
     updatedAt: Schema.Date,
     actorId: Schema.optional(Schema.String),
   }),
@@ -797,8 +790,6 @@ export const tableSilverAssigned = Events.synced({
   name: 'table.silver_assigned',
   schema: Schema.Struct({
     projectId: Schema.String,
-    expectedVersion: Schema.optional(Schema.Number),
-    nextVersion: Schema.Number,
     updatedAt: Schema.Date,
     actorId: Schema.optional(Schema.String),
   }),
@@ -807,8 +798,6 @@ export const tableSilverAssigned = Events.synced({
 export const tableSilverCleared = Events.synced({
   name: 'table.silver_cleared',
   schema: Schema.Struct({
-    expectedVersion: Schema.optional(Schema.Number),
-    nextVersion: Schema.Number,
     updatedAt: Schema.Date,
     actorId: Schema.optional(Schema.String),
   }),
@@ -819,8 +808,6 @@ export const tableBronzeModeUpdated = Events.synced({
   schema: Schema.Struct({
     bronzeMode: BronzeModeLiteral,
     bronzeTargetExtra: Schema.optional(Schema.Number),
-    expectedVersion: Schema.optional(Schema.Number),
-    nextVersion: Schema.Number,
     updatedAt: Schema.Date,
     actorId: Schema.optional(Schema.String),
   }),
@@ -835,8 +822,6 @@ export const bronzeTaskAdded = Events.synced({
     insertedAt: Schema.Date,
     insertedBy: Schema.optional(Schema.String),
     status: Schema.optional(BronzeStackStatusLiteral),
-    expectedQueueVersion: Schema.optional(Schema.Number),
-    nextQueueVersion: Schema.optional(Schema.Number),
     actorId: Schema.optional(Schema.String),
   }),
 })
@@ -846,8 +831,6 @@ export const bronzeTaskRemoved = Events.synced({
   schema: Schema.Struct({
     id: Schema.String,
     removedAt: Schema.Date,
-    expectedQueueVersion: Schema.optional(Schema.Number),
-    nextQueueVersion: Schema.optional(Schema.Number),
     actorId: Schema.optional(Schema.String),
   }),
 })
@@ -861,19 +844,6 @@ export const bronzeStackReordered = Events.synced({
         position: Schema.Number,
       })
     ),
-    expectedQueueVersion: Schema.optional(Schema.Number),
-    nextQueueVersion: Schema.Number,
-    updatedAt: Schema.Date,
-    actorId: Schema.optional(Schema.String),
-  }),
-})
-
-export const priorityQueueReordered = Events.synced({
-  name: 'priority_queue.reordered',
-  schema: Schema.Struct({
-    stream: Schema.optional(StreamLiteral),
-    expectedVersion: Schema.optional(Schema.Number),
-    nextVersion: Schema.Number,
     updatedAt: Schema.Date,
     actorId: Schema.optional(Schema.String),
   }),

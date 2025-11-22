@@ -49,7 +49,7 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
    - Add `table_bronze_stack` table with rows `{ id, taskId, position, insertedAt, insertedBy, status }` that captures the Bronze stack as ordered entries instead of a mutable array.
    - Bronze stack mutations become discrete events (`bronze_task_added`, `bronze_task_removed`, `bronze_stack_reordered`) operating on individual rows so multiplayer changes don’t require array clobbering.
    - Implement utilities in `@work-squared/shared/tableState.ts` including `getNextBronzeTasks` that reads from Priority Queue data and emits append/remove events atomically; if two clients race, the latest write simply wins.
-   - Define event payload interfaces for `priority_queue.reordered` and table mutations so LiveStore has a consistent audit log.
+   - Define event payload interfaces for the `table.*` mutations (`table_configuration_initialized`, `table.gold_assigned`, `table.bronze_stack_reordered`, etc.) so LiveStore has a consistent audit log without any optimistic-lock metadata.
 3. **Shared Visual Components**
    - `UrushiVisual`: procedural SVG/CSS rendering for the five stages (Sketch, Foundation, Color, Polish, Decoration) driven by project category + lifecycle state.
    - `ProgressRing`: reusable circular progress indicator for tasks completed vs total.

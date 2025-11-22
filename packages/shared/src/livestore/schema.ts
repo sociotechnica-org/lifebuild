@@ -162,8 +162,6 @@ const tableConfiguration = State.SQLite.table({
       schema: Schema.Literal('minimal', 'target', 'maximal'),
     }),
     bronzeTargetExtra: State.SQLite.integer({ default: 0 }),
-    version: State.SQLite.integer({ default: 0 }),
-    priorityQueueVersion: State.SQLite.integer({ default: 0 }),
     updatedAt: State.SQLite.integer({
       nullable: true,
       schema: Schema.DateFromNumber,
@@ -1223,8 +1221,6 @@ const materializers = State.SQLite.materializers(events, {
     silverProjectId,
     bronzeMode,
     bronzeTargetExtra,
-    version,
-    priorityQueueVersion = 0,
     updatedAt,
     actorId,
   }) => [
@@ -1235,8 +1231,6 @@ const materializers = State.SQLite.materializers(events, {
       silverProjectId: silverProjectId ?? null,
       bronzeMode: bronzeMode ?? 'minimal',
       bronzeTargetExtra: bronzeTargetExtra ?? 0,
-      version,
-      priorityQueueVersion,
       updatedAt,
     }),
     eventsLog.insert({
@@ -1247,141 +1241,92 @@ const materializers = State.SQLite.materializers(events, {
         silverProjectId,
         bronzeMode,
         bronzeTargetExtra,
-        version,
-        priorityQueueVersion,
       }),
       actorId,
       createdAt: updatedAt,
     }),
   ],
 
-  'table.gold_assigned': ({ projectId, expectedVersion, nextVersion, updatedAt, actorId }) => {
-    const whereClause =
-      expectedVersion !== undefined
-        ? { id: TABLE_CONFIGURATION_ID, version: expectedVersion }
-        : { id: TABLE_CONFIGURATION_ID }
+  'table.gold_assigned': ({ projectId, updatedAt, actorId }) => [
+    tableConfiguration
+      .update({
+        goldProjectId: projectId,
+        updatedAt,
+      })
+      .where({ id: TABLE_CONFIGURATION_ID }),
+    eventsLog.insert({
+      id: `table_gold_assigned_${updatedAt.getTime()}`,
+      eventType: 'table.gold_assigned',
+      eventData: JSON.stringify({ projectId }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
 
-    return [
-      tableConfiguration
-        .update({
-          goldProjectId: projectId,
-          version: nextVersion,
-          updatedAt,
-        })
-        .where(whereClause),
-      eventsLog.insert({
-        id: `table_gold_assigned_${updatedAt.getTime()}`,
-        eventType: 'table.gold_assigned',
-        eventData: JSON.stringify({ projectId, nextVersion }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
-  },
+  'table.gold_cleared': ({ updatedAt, actorId }) => [
+    tableConfiguration
+      .update({
+        goldProjectId: null,
+        updatedAt,
+      })
+      .where({ id: TABLE_CONFIGURATION_ID }),
+    eventsLog.insert({
+      id: `table_gold_cleared_${updatedAt.getTime()}`,
+      eventType: 'table.gold_cleared',
+      eventData: JSON.stringify({}),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
 
-  'table.gold_cleared': ({ expectedVersion, nextVersion, updatedAt, actorId }) => {
-    const whereClause =
-      expectedVersion !== undefined
-        ? { id: TABLE_CONFIGURATION_ID, version: expectedVersion }
-        : { id: TABLE_CONFIGURATION_ID }
+  'table.silver_assigned': ({ projectId, updatedAt, actorId }) => [
+    tableConfiguration
+      .update({
+        silverProjectId: projectId,
+        updatedAt,
+      })
+      .where({ id: TABLE_CONFIGURATION_ID }),
+    eventsLog.insert({
+      id: `table_silver_assigned_${updatedAt.getTime()}`,
+      eventType: 'table.silver_assigned',
+      eventData: JSON.stringify({ projectId }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
 
-    return [
-      tableConfiguration
-        .update({
-          goldProjectId: null,
-          version: nextVersion,
-          updatedAt,
-        })
-        .where(whereClause),
-      eventsLog.insert({
-        id: `table_gold_cleared_${updatedAt.getTime()}`,
-        eventType: 'table.gold_cleared',
-        eventData: JSON.stringify({ nextVersion }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
-  },
+  'table.silver_cleared': ({ updatedAt, actorId }) => [
+    tableConfiguration
+      .update({
+        silverProjectId: null,
+        updatedAt,
+      })
+      .where({ id: TABLE_CONFIGURATION_ID }),
+    eventsLog.insert({
+      id: `table_silver_cleared_${updatedAt.getTime()}`,
+      eventType: 'table.silver_cleared',
+      eventData: JSON.stringify({}),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
 
-  'table.silver_assigned': ({ projectId, expectedVersion, nextVersion, updatedAt, actorId }) => {
-    const whereClause =
-      expectedVersion !== undefined
-        ? { id: TABLE_CONFIGURATION_ID, version: expectedVersion }
-        : { id: TABLE_CONFIGURATION_ID }
-
-    return [
-      tableConfiguration
-        .update({
-          silverProjectId: projectId,
-          version: nextVersion,
-          updatedAt,
-        })
-        .where(whereClause),
-      eventsLog.insert({
-        id: `table_silver_assigned_${updatedAt.getTime()}`,
-        eventType: 'table.silver_assigned',
-        eventData: JSON.stringify({ projectId, nextVersion }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
-  },
-
-  'table.silver_cleared': ({ expectedVersion, nextVersion, updatedAt, actorId }) => {
-    const whereClause =
-      expectedVersion !== undefined
-        ? { id: TABLE_CONFIGURATION_ID, version: expectedVersion }
-        : { id: TABLE_CONFIGURATION_ID }
-
-    return [
-      tableConfiguration
-        .update({
-          silverProjectId: null,
-          version: nextVersion,
-          updatedAt,
-        })
-        .where(whereClause),
-      eventsLog.insert({
-        id: `table_silver_cleared_${updatedAt.getTime()}`,
-        eventType: 'table.silver_cleared',
-        eventData: JSON.stringify({ nextVersion }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
-  },
-
-  'table.bronze_mode_updated': ({
-    bronzeMode,
-    bronzeTargetExtra,
-    expectedVersion,
-    nextVersion,
-    updatedAt,
-    actorId,
-  }) => {
-    const whereClause =
-      expectedVersion !== undefined
-        ? { id: TABLE_CONFIGURATION_ID, version: expectedVersion }
-        : { id: TABLE_CONFIGURATION_ID }
-
-    return [
-      tableConfiguration
-        .update({
-          bronzeMode,
-          bronzeTargetExtra: bronzeTargetExtra ?? 0,
-          version: nextVersion,
-          updatedAt,
-        })
-        .where(whereClause),
-      eventsLog.insert({
-        id: `table_bronze_mode_updated_${updatedAt.getTime()}`,
-        eventType: 'table.bronze_mode_updated',
-        eventData: JSON.stringify({ bronzeMode, bronzeTargetExtra, nextVersion }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
-  },
+  'table.bronze_mode_updated': ({ bronzeMode, bronzeTargetExtra, updatedAt, actorId }) => [
+    tableConfiguration
+      .update({
+        bronzeMode,
+        bronzeTargetExtra: bronzeTargetExtra ?? 0,
+        updatedAt,
+      })
+      .where({ id: TABLE_CONFIGURATION_ID }),
+    eventsLog.insert({
+      id: `table_bronze_mode_updated_${updatedAt.getTime()}`,
+      eventType: 'table.bronze_mode_updated',
+      eventData: JSON.stringify({ bronzeMode, bronzeTargetExtra }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
 
   'table.bronze_task_added': ({
     id,
@@ -1390,149 +1335,58 @@ const materializers = State.SQLite.materializers(events, {
     insertedAt,
     insertedBy,
     status,
-    expectedQueueVersion,
-    nextQueueVersion,
     actorId,
-  }) => {
-    const operations: any[] = [
-      tableBronzeStack.delete().where({ id }),
-      tableBronzeStack.insert({
-        id,
+  }) => [
+    tableBronzeStack.delete().where({ id }),
+    tableBronzeStack.insert({
+      id,
+      taskId,
+      position,
+      insertedAt,
+      insertedBy: insertedBy ?? null,
+      status: status ?? 'active',
+      removedAt: null,
+    }),
+    eventsLog.insert({
+      id: `bronze_task_added_${id}`,
+      eventType: 'table.bronze_task_added',
+      eventData: JSON.stringify({
         taskId,
         position,
-        insertedAt,
-        insertedBy: insertedBy ?? null,
-        status: status ?? 'active',
-        removedAt: null,
       }),
-    ]
+      actorId,
+      createdAt: insertedAt,
+    }),
+  ],
 
-    if (nextQueueVersion !== undefined) {
-      const whereClause =
-        expectedQueueVersion !== undefined
-          ? { id: TABLE_CONFIGURATION_ID, priorityQueueVersion: expectedQueueVersion }
-          : { id: TABLE_CONFIGURATION_ID }
-
-      operations.push(
-        tableConfiguration
-          .update({ priorityQueueVersion: nextQueueVersion, updatedAt: insertedAt })
-          .where(whereClause)
-      )
-    }
-
-    operations.push(
-      eventsLog.insert({
-        id: `bronze_task_added_${id}`,
-        eventType: 'table.bronze_task_added',
-        eventData: JSON.stringify({
-          taskId,
-          position,
-          nextQueueVersion,
-        }),
-        actorId,
-        createdAt: insertedAt,
+  'table.bronze_task_removed': ({ id, removedAt, actorId }) => [
+    tableBronzeStack
+      .update({
+        status: 'removed',
+        removedAt,
       })
-    )
+      .where({ id }),
+    eventsLog.insert({
+      id: `bronze_task_removed_${id}_${removedAt.getTime()}`,
+      eventType: 'table.bronze_task_removed',
+      eventData: JSON.stringify({ id }),
+      actorId,
+      createdAt: removedAt,
+    }),
+  ],
 
-    return operations
-  },
-
-  'table.bronze_task_removed': ({
-    id,
-    removedAt,
-    expectedQueueVersion,
-    nextQueueVersion,
-    actorId,
-  }) => {
-    const operations: any[] = [
-      tableBronzeStack
-        .update({
-          status: 'removed',
-          removedAt,
-        })
-        .where({ id }),
-    ]
-
-    if (nextQueueVersion !== undefined) {
-      const whereClause =
-        expectedQueueVersion !== undefined
-          ? { id: TABLE_CONFIGURATION_ID, priorityQueueVersion: expectedQueueVersion }
-          : { id: TABLE_CONFIGURATION_ID }
-
-      operations.push(
-        tableConfiguration
-          .update({ priorityQueueVersion: nextQueueVersion, updatedAt: removedAt })
-          .where(whereClause)
-      )
-    }
-
-    operations.push(
-      eventsLog.insert({
-        id: `bronze_task_removed_${id}_${removedAt.getTime()}`,
-        eventType: 'table.bronze_task_removed',
-        eventData: JSON.stringify({ nextQueueVersion }),
-        actorId,
-        createdAt: removedAt,
-      })
-    )
-
-    return operations
-  },
-
-  'table.bronze_stack_reordered': ({
-    ordering,
-    expectedQueueVersion,
-    nextQueueVersion,
-    updatedAt,
-    actorId,
-  }) => {
-    const operations: any[] = ordering.map(order =>
+  'table.bronze_stack_reordered': ({ ordering, updatedAt, actorId }) => [
+    ...ordering.map(order =>
       tableBronzeStack.update({ position: order.position }).where({ id: order.id })
-    )
-
-    const whereClause =
-      expectedQueueVersion !== undefined
-        ? { id: TABLE_CONFIGURATION_ID, priorityQueueVersion: expectedQueueVersion }
-        : { id: TABLE_CONFIGURATION_ID }
-
-    operations.push(
-      tableConfiguration
-        .update({ priorityQueueVersion: nextQueueVersion, updatedAt })
-        .where(whereClause)
-    )
-
-    operations.push(
-      eventsLog.insert({
-        id: `bronze_stack_reordered_${updatedAt.getTime()}`,
-        eventType: 'table.bronze_stack_reordered',
-        eventData: JSON.stringify({ nextQueueVersion }),
-        actorId,
-        createdAt: updatedAt,
-      })
-    )
-
-    return operations
-  },
-
-  'priority_queue.reordered': ({ stream, expectedVersion, nextVersion, updatedAt, actorId }) => {
-    const whereClause =
-      expectedVersion !== undefined
-        ? { id: TABLE_CONFIGURATION_ID, priorityQueueVersion: expectedVersion }
-        : { id: TABLE_CONFIGURATION_ID }
-
-    return [
-      tableConfiguration
-        .update({ priorityQueueVersion: nextVersion, updatedAt })
-        .where(whereClause),
-      eventsLog.insert({
-        id: `priority_queue_reordered_${updatedAt.getTime()}`,
-        eventType: 'priority_queue.reordered',
-        eventData: JSON.stringify({ stream, nextVersion }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
-  },
+    ),
+    eventsLog.insert({
+      id: `bronze_stack_reordered_${updatedAt.getTime()}`,
+      eventType: 'table.bronze_stack_reordered',
+      eventData: JSON.stringify({ ordering }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

@@ -1,6 +1,5 @@
 import { createStore } from '../packages/server/src/factories/store-factory.js'
 import { events } from '../packages/shared/src/livestore/schema.js'
-import { nextPriorityQueueVersion } from '../packages/shared/src/table-state.js'
 
 interface BootstrapOptions {
   store: string
@@ -54,15 +53,12 @@ async function main() {
       silverProjectId: options.silver ?? null,
       bronzeMode: options.bronzeMode,
       bronzeTargetExtra: options.bronzeTargetExtra,
-      version: 0,
-      priorityQueueVersion: 0,
       updatedAt: now,
+      actorId: 'setup-script',
     })
   )
 
-  let queueVersion = 0
   for (const [index, taskId] of options.bronzeTasks.entries()) {
-    const nextQueueVersion = nextPriorityQueueVersion({ priorityQueueVersion: queueVersion })
     await store.commit(
       events.bronzeTaskAdded({
         id: crypto.randomUUID(),
@@ -70,11 +66,9 @@ async function main() {
         position: index,
         insertedAt: new Date(now.getTime() + index),
         insertedBy: 'setup-script',
-        expectedQueueVersion: queueVersion,
-        nextQueueVersion,
+        actorId: 'setup-script',
       })
     )
-    queueVersion = nextQueueVersion
   }
 
   console.log(

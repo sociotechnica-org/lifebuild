@@ -38,7 +38,7 @@ This plan addresses Stage 4 (“Prioritized”) and the Priority Queue inside th
    - On submission, update attributes to `plans` state, set queue position, and remove from Planning Queue.
 4. **Queue Interaction**
    - Implement drag-and-drop list per stream (e.g., `@dnd-kit`) with accessible reorder controls for keyboard users.
-   - Reordering persists new positions atomically by emitting `priority_queue.reordered` events that only touch affected IDs and require a `queueVersion` check to avoid clobbering concurrent updates.
+   - Reordering persists new positions by emitting simple LiveStore events that patch the affected project IDs; rely on last-write-wins behavior instead of any optimistic-lock queue versioning.
    - Paused projects pinned at top with visible “Paused” label; they can be reordered after other paused items.
 5. **Integrations**
    - Provide `Go to Sorting Room` CTA when user is ready to activate.
@@ -88,4 +88,4 @@ This plan addresses Stage 4 (“Prioritized”) and the Priority Queue inside th
 
 2. **PR2 – Priority Queue View & Reordering**  
    _Title:_ “Drafting: Manage Priority Queue ordering”  
-   _Scope:_ Implement the full Priority Queue view with Gold/Silver/Bronze filters, paused-project highlighting, and drag-to-reorder emitting `priority_queue.reordered` events as described in `mvp-source-of-truth-doc.md:392-400` and `755-800`.
+   _Scope:_ Implement the full Priority Queue view with Gold/Silver/Bronze filters, paused-project highlighting, and drag-to-reorder emitting last-write-wins reorder events as described in `mvp-source-of-truth-doc.md:392-400` and `755-800`.
