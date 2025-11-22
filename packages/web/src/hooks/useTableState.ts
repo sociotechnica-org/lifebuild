@@ -8,9 +8,6 @@ import {
   type PriorityQueueItem,
 } from '@work-squared/shared/table-state'
 import type { TableBronzeStackEntry, TableConfiguration } from '@work-squared/shared/schema'
-import { getStoreIdFromUrl } from '../utils/navigation.js'
-
-const DEFAULT_STORE_ID = 'default'
 
 export interface UseTableStateResult {
   configuration: TableConfiguration | null
@@ -29,13 +26,11 @@ export interface UseTableStateResult {
   ) => Promise<void>
 }
 
-export function useTableState(storeId?: string): UseTableStateResult {
-  const resolvedStoreId = storeId || getStoreIdFromUrl() || DEFAULT_STORE_ID
+export function useTableState(): UseTableStateResult {
   const { store } = useStore()
 
-  const configurationRow = useQuery(getTableConfiguration$(resolvedStoreId))
-  const bronzeStack = (useQuery(getTableBronzeStack$(resolvedStoreId)) ??
-    []) as TableBronzeStackEntry[]
+  const configurationRow = useQuery(getTableConfiguration$)
+  const bronzeStack = (useQuery(getTableBronzeStack$) ?? []) as TableBronzeStackEntry[]
 
   const configuration = useMemo<TableConfiguration | null>(() => {
     if (!configurationRow || configurationRow.length === 0) return null
@@ -62,7 +57,6 @@ export function useTableState(storeId?: string): UseTableStateResult {
       const now = new Date()
       return store.commit(
         events.tableConfigurationInitialized({
-          storeId: resolvedStoreId,
           goldProjectId: overrides?.goldProjectId ?? null,
           silverProjectId: overrides?.silverProjectId ?? null,
           bronzeMode: overrides?.bronzeMode ?? 'minimal',
@@ -74,7 +68,7 @@ export function useTableState(storeId?: string): UseTableStateResult {
         })
       )
     },
-    [configuration?.priorityQueueVersion, configuration?.version, resolvedStoreId, store]
+    [configuration?.priorityQueueVersion, configuration?.version, store]
   )
 
   const assignGold = useCallback(
@@ -83,7 +77,6 @@ export function useTableState(storeId?: string): UseTableStateResult {
       const now = new Date()
       return store.commit(
         events.tableGoldAssigned({
-          storeId: resolvedStoreId,
           projectId,
           expectedVersion: loadedConfiguration.version,
           nextVersion: nextConfigurationVersion(loadedConfiguration),
@@ -91,7 +84,7 @@ export function useTableState(storeId?: string): UseTableStateResult {
         })
       )
     },
-    [ensureConfigurationLoaded, resolvedStoreId, store]
+    [ensureConfigurationLoaded, store]
   )
 
   const clearGold = useCallback(async () => {
@@ -99,13 +92,12 @@ export function useTableState(storeId?: string): UseTableStateResult {
     const now = new Date()
     return store.commit(
       events.tableGoldCleared({
-        storeId: resolvedStoreId,
         expectedVersion: loadedConfiguration.version,
         nextVersion: nextConfigurationVersion(loadedConfiguration),
         updatedAt: now,
       })
     )
-  }, [ensureConfigurationLoaded, resolvedStoreId, store])
+  }, [ensureConfigurationLoaded, store])
 
   const assignSilver = useCallback(
     async (projectId: string) => {
@@ -113,7 +105,6 @@ export function useTableState(storeId?: string): UseTableStateResult {
       const now = new Date()
       return store.commit(
         events.tableSilverAssigned({
-          storeId: resolvedStoreId,
           projectId,
           expectedVersion: loadedConfiguration.version,
           nextVersion: nextConfigurationVersion(loadedConfiguration),
@@ -121,7 +112,7 @@ export function useTableState(storeId?: string): UseTableStateResult {
         })
       )
     },
-    [ensureConfigurationLoaded, resolvedStoreId, store]
+    [ensureConfigurationLoaded, store]
   )
 
   const clearSilver = useCallback(async () => {
@@ -129,13 +120,12 @@ export function useTableState(storeId?: string): UseTableStateResult {
     const now = new Date()
     return store.commit(
       events.tableSilverCleared({
-        storeId: resolvedStoreId,
         expectedVersion: loadedConfiguration.version,
         nextVersion: nextConfigurationVersion(loadedConfiguration),
         updatedAt: now,
       })
     )
-  }, [ensureConfigurationLoaded, resolvedStoreId, store])
+  }, [ensureConfigurationLoaded, store])
 
   const setBronzeMode = useCallback(
     async (mode: TableConfiguration['bronzeMode'], extra = 0) => {
@@ -143,7 +133,6 @@ export function useTableState(storeId?: string): UseTableStateResult {
       const now = new Date()
       return store.commit(
         events.tableBronzeModeUpdated({
-          storeId: resolvedStoreId,
           bronzeMode: mode,
           bronzeTargetExtra: extra,
           expectedVersion: loadedConfiguration.version,
@@ -152,7 +141,7 @@ export function useTableState(storeId?: string): UseTableStateResult {
         })
       )
     },
-    [ensureConfigurationLoaded, resolvedStoreId, store]
+    [ensureConfigurationLoaded, store]
   )
 
   const addBronzeTask = useCallback(
@@ -166,7 +155,6 @@ export function useTableState(storeId?: string): UseTableStateResult {
       return store.commit(
         events.bronzeTaskAdded({
           id: crypto.randomUUID(),
-          storeId: resolvedStoreId,
           taskId,
           position: resolvedPosition,
           insertedAt: now,
@@ -176,7 +164,7 @@ export function useTableState(storeId?: string): UseTableStateResult {
         })
       )
     },
-    [activeBronzeStack, ensureConfigurationLoaded, resolvedStoreId, store]
+    [activeBronzeStack, ensureConfigurationLoaded, store]
   )
 
   const removeBronzeTask = useCallback(
@@ -187,14 +175,13 @@ export function useTableState(storeId?: string): UseTableStateResult {
       return store.commit(
         events.bronzeTaskRemoved({
           id: entryId,
-          storeId: resolvedStoreId,
           removedAt: now,
           expectedQueueVersion: loadedConfiguration.priorityQueueVersion,
           nextQueueVersion,
         })
       )
     },
-    [ensureConfigurationLoaded, resolvedStoreId, store]
+    [ensureConfigurationLoaded, store]
   )
 
   const reorderBronzeStack = useCallback(
@@ -209,7 +196,6 @@ export function useTableState(storeId?: string): UseTableStateResult {
 
       return store.commit(
         events.bronzeStackReordered({
-          storeId: resolvedStoreId,
           ordering,
           expectedQueueVersion: loadedConfiguration.priorityQueueVersion,
           nextQueueVersion,
@@ -217,7 +203,7 @@ export function useTableState(storeId?: string): UseTableStateResult {
         })
       )
     },
-    [ensureConfigurationLoaded, resolvedStoreId, store]
+    [ensureConfigurationLoaded, store]
   )
 
   return {

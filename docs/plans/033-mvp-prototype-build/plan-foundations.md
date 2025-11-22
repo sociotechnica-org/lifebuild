@@ -7,7 +7,7 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
 ## Goals
 
 1. Define a discriminated union for `ProjectAttributes` that encodes every lifecycle state (Planning Stages 1–3, Ready/Plans, Work at Hand, Live, Paused, Completed) without overlap.
-2. Persist `table_configuration` (singleton per store) with Gold/Silver selections, Bronze mode, and Bronze target counts, plus an append-only `table_bronze_stack` table that tracks the ordered Bronze task stack without array clobbering.
+2. Persist `table_configuration` (singleton record inside each LiveStore instance) with Gold/Silver selections, Bronze mode, and Bronze target counts, plus an append-only `table_bronze_stack` table that tracks the ordered Bronze task stack without array clobbering.
 3. Define event contracts (`table.gold_assigned`, `table.gold_cleared`, `bronze_task_added`, etc.) and optimistic concurrency/versioning requirements so multiple writers can mutate shared state safely.
 4. Build shared components (`UrushiVisual`, `ProjectCard`, `ProgressRing`) and hooks (`useLifeMapState`, `useTableState`, `useProjectStateMachine`) that other workstreams consume.
 5. Extend `RoomLayout` + navigation context so Marvin/Cameron/Devin chats receive structured payloads from each room.
@@ -42,12 +42,12 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
      ```
    - Store this in a structured column (JSON with schema validation) and expose helper guards in shared utils.
 2. **Table Configuration Entity**
-   - Create `table_configuration` table keyed by `storeId` storing:
+   - Create `table_configuration` table with a single row (e.g., `id = 'table'`) storing:
      - `goldProjectId`, `silverProjectId`
      - `bronzeMode` ('minimal' | 'target' | 'maximal')
      - `bronzeTargetExtra` (for Target +X)
    - Add `table_bronze_stack` table with rows `{ id, taskId, position, insertedAt, insertedBy, status }` that captures the Bronze stack as ordered entries instead of a mutable array.
-   - Store a `version` column on `table_configuration`; gold/silver assignments emit events (`table.gold_assigned`, `table.gold_cleared`, `table.silver_assigned`, etc.) that increment the version so concurrent updates can detect conflicts.
+   - Store a `version` column on `table_configuration`; gold/silver assignments emit events (`table.gold_assigned`, `table.gold_cleared`, `table.silver_assigned`, etc.) that increment the version so concurrent updates can detect conflicts. Because LiveStore state is already scoped per workspace, no `storeId` column or event field is necessary.
    - Bronze stack mutations become discrete events (`bronze_task_added`, `bronze_task_removed`, `bronze_stack_reordered`) operating on individual rows to avoid multiplayer clobbering.
    - Implement utilities in `@work-squared/shared/tableState.ts` including `getNextBronzeTasks` that reads from Priority Queue data, emits append/remove events atomically, and respects the configuration version.
    - Add `priority_queue_version` tracking (per store or per stream) so reorder events can safely detect conflicts.
@@ -72,7 +72,7 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
    - Extend `new-ui.css` with classes for Table grid, card paddings, Bronze stack badges, and Urushi visuals.
    - Add README section describing how to consume the shared components/hooks.
 
-- Database migration adding `project_lifecycle_state` structured column, `table_configuration`, `table_bronze_stack`, and `priority_queue_version` tracking tables/columns (plus supporting indexes).
+- Database migration adding `project_lifecycle_state` structured column, `table_configuration`, `table_bronze_stack`, and `priority_queue_version` tracking columns (plus supporting indexes).
 - Update LiveStore events and queries to read/write the new structures.
 - Provide backfill/migration script mapping existing attributes into the state machine.
 

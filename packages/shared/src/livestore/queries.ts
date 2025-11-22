@@ -4,28 +4,22 @@ import { tables } from './schema'
 
 export const app$ = queryDb(tables.uiState.get(), { label: 'app' })
 
-export const getTableConfiguration$ = (storeId: string) =>
-  queryDb(tables.tableConfiguration.select().where({ storeId }).limit(1), {
-    label: `getTableConfiguration:${storeId}`,
-  })
+export const getTableConfiguration$ = queryDb(tables.tableConfiguration.select().limit(1), {
+  label: 'getTableConfiguration',
+})
 
-export const getTableBronzeStack$ = (storeId: string) =>
-  queryDb(
-    tables.tableBronzeStack
-      .select()
-      .where({ storeId })
-      .orderBy([{ col: 'position', direction: 'asc' }]),
-    { label: `getTableBronzeStack:${storeId}` }
-  )
+export const getTableBronzeStack$ = queryDb(
+  tables.tableBronzeStack.select().orderBy([{ col: 'position', direction: 'asc' }]),
+  { label: 'getTableBronzeStack' }
+)
 
-export const getActiveBronzeStack$ = (storeId: string) =>
-  queryDb(
-    tables.tableBronzeStack
-      .select()
-      .where({ storeId, status: 'active' })
-      .orderBy([{ col: 'position', direction: 'asc' }]),
-    { label: `getActiveBronzeStack:${storeId}` }
-  )
+export const getActiveBronzeStack$ = queryDb(
+  tables.tableBronzeStack
+    .select()
+    .where({ status: 'active' })
+    .orderBy([{ col: 'position', direction: 'asc' }]),
+  { label: 'getActiveBronzeStack' }
+)
 
 export const getBoards$ = queryDb(
   _get => {

@@ -13,7 +13,6 @@ export interface PriorityQueueItem {
 }
 
 export interface BronzeStackPlanOptions {
-  storeId: string
   queue: PriorityQueueItem[]
   stack: TableBronzeStackEntry[]
   desiredCount: number
@@ -86,7 +85,6 @@ export function getNextBronzeTasks(options: BronzeStackPlanOptions): BronzeStack
       eventsToEmit.push(
         events.bronzeTaskRemoved({
           id: entry.id,
-          storeId: options.storeId,
           removedAt: now,
           expectedQueueVersion,
           nextQueueVersion,
@@ -106,7 +104,6 @@ export function getNextBronzeTasks(options: BronzeStackPlanOptions): BronzeStack
       eventsToEmit.push(
         events.bronzeTaskAdded({
           id: options.idFactory?.(item) ?? generateId(),
-          storeId: options.storeId,
           taskId: item.taskId,
           position: activeStack.length + index,
           insertedAt: now,

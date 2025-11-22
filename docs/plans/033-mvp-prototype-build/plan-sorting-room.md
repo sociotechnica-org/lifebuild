@@ -41,9 +41,9 @@ This plan builds Cameron’s Sorting Room: the space where Directors review Prio
    - “Activate Priorities” button disabled until constraints met.
    - Confirmation modal summarizing Gold/Silver choices (or “Intentionally empty”), Bronze mode, Bronze task count, expected runtime.
    - On confirm, call mutation that:
-     - Sets selected projects’ state to `work_at_hand` and updates Table state store via `table.gold_assigned` / `table.silver_assigned` events with optimistic `table_configuration.version` checks.
-     - Removes them from Priority Queue (or marks active) while preserving reorder data for unselected items.
-     - Emits `bronze_task_added` events that append the ordered Bronze selections into `table_bronze_stack`.
+   - Sets selected projects’ state to `work_at_hand` and updates Table state via `table.gold_assigned` / `table.silver_assigned` events with optimistic `table_configuration.version` checks (singleton row per LiveStore).
+   - Removes them from Priority Queue (or marks active) while preserving reorder data for unselected items.
+   - Emits `bronze_task_added` events that append the ordered Bronze selections into `table_bronze_stack`.
 5. **Post-Activation Flow**
    - Navigate back to Life Map (or display success screen with “Go to Life Map”).
    - Fire analytics events for activation type, Bronze mode chosen.
@@ -54,7 +54,7 @@ This plan builds Cameron’s Sorting Room: the space where Directors review Prio
 
 ## Data & Schema Impact
 
-- Persist `table_configuration` record capturing `goldProjectId`, `silverProjectId`, `bronzeMode`, `bronzeTargetExtra`, and emit Bronze stack events into `table_bronze_stack`.
+- Persist the singleton `table_configuration` record capturing `goldProjectId`, `silverProjectId`, `bronzeMode`, `bronzeTargetExtra`, and emit Bronze stack events into `table_bronze_stack`.
 - Update project attributes: set `workState = 'work_at_hand'`, `activatedAt`, `lastActivationId`.
 - Bronze tasks need `bronzeStackOrder` metadata (likely on tasks table or a join table) and should leverage the shared Bronze auto-pull helper for consistency with Project Board behavior.
 

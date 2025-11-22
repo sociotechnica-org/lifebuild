@@ -16,7 +16,6 @@ describe('table-state helpers', () => {
 
   it('builds bronze task add events when the stack has room', () => {
     const { events, nextQueueVersion, expectedQueueVersion } = getNextBronzeTasks({
-      storeId: 'store-1',
       queue: [{ taskId: 'task-a' }, { taskId: 'task-b' }, { taskId: 'task-c' }],
       stack: [],
       desiredCount: 2,
@@ -63,7 +62,6 @@ describe('table-state helpers', () => {
     ]
 
     const { events, nextQueueVersion, expectedQueueVersion } = getNextBronzeTasks({
-      storeId: 'store-1',
       queue: [],
       stack,
       desiredCount: 1,

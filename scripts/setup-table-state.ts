@@ -50,7 +50,6 @@ async function main() {
   console.log('Seeding table configuration...')
   await store.commit(
     events.tableConfigurationInitialized({
-      storeId: options.store,
       goldProjectId: options.gold ?? null,
       silverProjectId: options.silver ?? null,
       bronzeMode: options.bronzeMode,
@@ -67,7 +66,6 @@ async function main() {
     await store.commit(
       events.bronzeTaskAdded({
         id: crypto.randomUUID(),
-        storeId: options.store,
         taskId,
         position: index,
         insertedAt: new Date(now.getTime() + index),

@@ -35,7 +35,7 @@ This plan delivers the Life Map surface described in `docs/plans/033-mvp-prototy
    - Reuse `getProjectsByCategory$` queries but add new selectors for `getWorkAtHandProjects$` and `getBronzeTasks$`.
 3. **Table Componentry**
    - Build `Table.tsx` with subcomponents for GoldSlot, SilverSlot, BronzeStack. Each slot renders the shared `UrushiVisual`, status labels, worker count, and call-to-action buttons (open project / go to Sorting Room when empty).
-   - Bronze stack lists the current operational tasks by querying `table_bronze_stack`, displays Bronze mode state from `table_configuration`, and surfaces min-3 validation messaging.
+   - Bronze stack lists the current operational tasks by querying `table_bronze_stack`, displays Bronze mode state from the singleton `table_configuration`, and surfaces min-3 validation messaging.
    - Include “Activate priorities” CTA linking to Sorting Room for first-time setup.
 4. **Category Grid**
    - Replace existing unordered list with a responsive grid showing each category card.

@@ -149,10 +149,12 @@ const tasks = State.SQLite.table({
   },
 })
 
+const TABLE_CONFIGURATION_ID = 'singleton-table-configuration'
+
 const tableConfiguration = State.SQLite.table({
   name: 'tableConfiguration',
   columns: {
-    storeId: State.SQLite.text({ primaryKey: true }),
+    id: State.SQLite.text({ primaryKey: true }),
     goldProjectId: State.SQLite.text({ nullable: true }),
     silverProjectId: State.SQLite.text({ nullable: true }),
     bronzeMode: State.SQLite.text({
@@ -173,7 +175,6 @@ const tableBronzeStack = State.SQLite.table({
   name: 'tableBronzeStack',
   columns: {
     id: State.SQLite.text({ primaryKey: true }),
-    storeId: State.SQLite.text(),
     taskId: State.SQLite.text(),
     position: State.SQLite.integer({ default: 0 }),
     insertedAt: State.SQLite.integer({
@@ -1218,7 +1219,6 @@ const materializers = State.SQLite.materializers(events, {
   },
 
   'table.configuration_initialized': ({
-    storeId,
     goldProjectId,
     silverProjectId,
     bronzeMode,
@@ -1228,9 +1228,9 @@ const materializers = State.SQLite.materializers(events, {
     updatedAt,
     actorId,
   }) => [
-    tableConfiguration.delete().where({ storeId }),
+    tableConfiguration.delete().where({ id: TABLE_CONFIGURATION_ID }),
     tableConfiguration.insert({
-      storeId,
+      id: TABLE_CONFIGURATION_ID,
       goldProjectId: goldProjectId ?? null,
       silverProjectId: silverProjectId ?? null,
       bronzeMode: bronzeMode ?? 'minimal',
@@ -1240,10 +1240,9 @@ const materializers = State.SQLite.materializers(events, {
       updatedAt,
     }),
     eventsLog.insert({
-      id: `table_configuration_initialized_${storeId}_${updatedAt.getTime()}`,
+      id: `table_configuration_initialized_${updatedAt.getTime()}`,
       eventType: 'table.configuration_initialized',
       eventData: JSON.stringify({
-        storeId,
         goldProjectId,
         silverProjectId,
         bronzeMode,
@@ -1256,16 +1255,11 @@ const materializers = State.SQLite.materializers(events, {
     }),
   ],
 
-  'table.gold_assigned': ({
-    storeId,
-    projectId,
-    expectedVersion,
-    nextVersion,
-    updatedAt,
-    actorId,
-  }) => {
+  'table.gold_assigned': ({ projectId, expectedVersion, nextVersion, updatedAt, actorId }) => {
     const whereClause =
-      expectedVersion !== undefined ? { storeId, version: expectedVersion } : { storeId }
+      expectedVersion !== undefined
+        ? { id: TABLE_CONFIGURATION_ID, version: expectedVersion }
+        : { id: TABLE_CONFIGURATION_ID }
 
     return [
       tableConfiguration
@@ -1276,18 +1270,20 @@ const materializers = State.SQLite.materializers(events, {
         })
         .where(whereClause),
       eventsLog.insert({
-        id: `table_gold_assigned_${storeId}_${updatedAt.getTime()}`,
+        id: `table_gold_assigned_${updatedAt.getTime()}`,
         eventType: 'table.gold_assigned',
-        eventData: JSON.stringify({ storeId, projectId, nextVersion }),
+        eventData: JSON.stringify({ projectId, nextVersion }),
         actorId,
         createdAt: updatedAt,
       }),
     ]
   },
 
-  'table.gold_cleared': ({ storeId, expectedVersion, nextVersion, updatedAt, actorId }) => {
+  'table.gold_cleared': ({ expectedVersion, nextVersion, updatedAt, actorId }) => {
     const whereClause =
-      expectedVersion !== undefined ? { storeId, version: expectedVersion } : { storeId }
+      expectedVersion !== undefined
+        ? { id: TABLE_CONFIGURATION_ID, version: expectedVersion }
+        : { id: TABLE_CONFIGURATION_ID }
 
     return [
       tableConfiguration
@@ -1298,25 +1294,20 @@ const materializers = State.SQLite.materializers(events, {
         })
         .where(whereClause),
       eventsLog.insert({
-        id: `table_gold_cleared_${storeId}_${updatedAt.getTime()}`,
+        id: `table_gold_cleared_${updatedAt.getTime()}`,
         eventType: 'table.gold_cleared',
-        eventData: JSON.stringify({ storeId, nextVersion }),
+        eventData: JSON.stringify({ nextVersion }),
         actorId,
         createdAt: updatedAt,
       }),
     ]
   },
 
-  'table.silver_assigned': ({
-    storeId,
-    projectId,
-    expectedVersion,
-    nextVersion,
-    updatedAt,
-    actorId,
-  }) => {
+  'table.silver_assigned': ({ projectId, expectedVersion, nextVersion, updatedAt, actorId }) => {
     const whereClause =
-      expectedVersion !== undefined ? { storeId, version: expectedVersion } : { storeId }
+      expectedVersion !== undefined
+        ? { id: TABLE_CONFIGURATION_ID, version: expectedVersion }
+        : { id: TABLE_CONFIGURATION_ID }
 
     return [
       tableConfiguration
@@ -1327,18 +1318,20 @@ const materializers = State.SQLite.materializers(events, {
         })
         .where(whereClause),
       eventsLog.insert({
-        id: `table_silver_assigned_${storeId}_${updatedAt.getTime()}`,
+        id: `table_silver_assigned_${updatedAt.getTime()}`,
         eventType: 'table.silver_assigned',
-        eventData: JSON.stringify({ storeId, projectId, nextVersion }),
+        eventData: JSON.stringify({ projectId, nextVersion }),
         actorId,
         createdAt: updatedAt,
       }),
     ]
   },
 
-  'table.silver_cleared': ({ storeId, expectedVersion, nextVersion, updatedAt, actorId }) => {
+  'table.silver_cleared': ({ expectedVersion, nextVersion, updatedAt, actorId }) => {
     const whereClause =
-      expectedVersion !== undefined ? { storeId, version: expectedVersion } : { storeId }
+      expectedVersion !== undefined
+        ? { id: TABLE_CONFIGURATION_ID, version: expectedVersion }
+        : { id: TABLE_CONFIGURATION_ID }
 
     return [
       tableConfiguration
@@ -1349,9 +1342,9 @@ const materializers = State.SQLite.materializers(events, {
         })
         .where(whereClause),
       eventsLog.insert({
-        id: `table_silver_cleared_${storeId}_${updatedAt.getTime()}`,
+        id: `table_silver_cleared_${updatedAt.getTime()}`,
         eventType: 'table.silver_cleared',
-        eventData: JSON.stringify({ storeId, nextVersion }),
+        eventData: JSON.stringify({ nextVersion }),
         actorId,
         createdAt: updatedAt,
       }),
@@ -1359,7 +1352,6 @@ const materializers = State.SQLite.materializers(events, {
   },
 
   'table.bronze_mode_updated': ({
-    storeId,
     bronzeMode,
     bronzeTargetExtra,
     expectedVersion,
@@ -1368,7 +1360,9 @@ const materializers = State.SQLite.materializers(events, {
     actorId,
   }) => {
     const whereClause =
-      expectedVersion !== undefined ? { storeId, version: expectedVersion } : { storeId }
+      expectedVersion !== undefined
+        ? { id: TABLE_CONFIGURATION_ID, version: expectedVersion }
+        : { id: TABLE_CONFIGURATION_ID }
 
     return [
       tableConfiguration
@@ -1380,9 +1374,9 @@ const materializers = State.SQLite.materializers(events, {
         })
         .where(whereClause),
       eventsLog.insert({
-        id: `table_bronze_mode_updated_${storeId}_${updatedAt.getTime()}`,
+        id: `table_bronze_mode_updated_${updatedAt.getTime()}`,
         eventType: 'table.bronze_mode_updated',
-        eventData: JSON.stringify({ storeId, bronzeMode, bronzeTargetExtra, nextVersion }),
+        eventData: JSON.stringify({ bronzeMode, bronzeTargetExtra, nextVersion }),
         actorId,
         createdAt: updatedAt,
       }),
@@ -1391,7 +1385,6 @@ const materializers = State.SQLite.materializers(events, {
 
   'table.bronze_task_added': ({
     id,
-    storeId,
     taskId,
     position,
     insertedAt,
@@ -1405,7 +1398,6 @@ const materializers = State.SQLite.materializers(events, {
       tableBronzeStack.delete().where({ id }),
       tableBronzeStack.insert({
         id,
-        storeId,
         taskId,
         position,
         insertedAt,
@@ -1418,8 +1410,8 @@ const materializers = State.SQLite.materializers(events, {
     if (nextQueueVersion !== undefined) {
       const whereClause =
         expectedQueueVersion !== undefined
-          ? { storeId, priorityQueueVersion: expectedQueueVersion }
-          : { storeId }
+          ? { id: TABLE_CONFIGURATION_ID, priorityQueueVersion: expectedQueueVersion }
+          : { id: TABLE_CONFIGURATION_ID }
 
       operations.push(
         tableConfiguration
@@ -1433,7 +1425,6 @@ const materializers = State.SQLite.materializers(events, {
         id: `bronze_task_added_${id}`,
         eventType: 'table.bronze_task_added',
         eventData: JSON.stringify({
-          storeId,
           taskId,
           position,
           nextQueueVersion,
@@ -1448,7 +1439,6 @@ const materializers = State.SQLite.materializers(events, {
 
   'table.bronze_task_removed': ({
     id,
-    storeId,
     removedAt,
     expectedQueueVersion,
     nextQueueVersion,
@@ -1460,14 +1450,14 @@ const materializers = State.SQLite.materializers(events, {
           status: 'removed',
           removedAt,
         })
-        .where({ id, storeId }),
+        .where({ id }),
     ]
 
     if (nextQueueVersion !== undefined) {
       const whereClause =
         expectedQueueVersion !== undefined
-          ? { storeId, priorityQueueVersion: expectedQueueVersion }
-          : { storeId }
+          ? { id: TABLE_CONFIGURATION_ID, priorityQueueVersion: expectedQueueVersion }
+          : { id: TABLE_CONFIGURATION_ID }
 
       operations.push(
         tableConfiguration
@@ -1480,7 +1470,7 @@ const materializers = State.SQLite.materializers(events, {
       eventsLog.insert({
         id: `bronze_task_removed_${id}_${removedAt.getTime()}`,
         eventType: 'table.bronze_task_removed',
-        eventData: JSON.stringify({ storeId, nextQueueVersion }),
+        eventData: JSON.stringify({ nextQueueVersion }),
         actorId,
         createdAt: removedAt,
       })
@@ -1490,7 +1480,6 @@ const materializers = State.SQLite.materializers(events, {
   },
 
   'table.bronze_stack_reordered': ({
-    storeId,
     ordering,
     expectedQueueVersion,
     nextQueueVersion,
@@ -1498,13 +1487,13 @@ const materializers = State.SQLite.materializers(events, {
     actorId,
   }) => {
     const operations: any[] = ordering.map(order =>
-      tableBronzeStack.update({ position: order.position }).where({ id: order.id, storeId })
+      tableBronzeStack.update({ position: order.position }).where({ id: order.id })
     )
 
     const whereClause =
       expectedQueueVersion !== undefined
-        ? { storeId, priorityQueueVersion: expectedQueueVersion }
-        : { storeId }
+        ? { id: TABLE_CONFIGURATION_ID, priorityQueueVersion: expectedQueueVersion }
+        : { id: TABLE_CONFIGURATION_ID }
 
     operations.push(
       tableConfiguration
@@ -1514,9 +1503,9 @@ const materializers = State.SQLite.materializers(events, {
 
     operations.push(
       eventsLog.insert({
-        id: `bronze_stack_reordered_${storeId}_${updatedAt.getTime()}`,
+        id: `bronze_stack_reordered_${updatedAt.getTime()}`,
         eventType: 'table.bronze_stack_reordered',
-        eventData: JSON.stringify({ storeId, nextQueueVersion }),
+        eventData: JSON.stringify({ nextQueueVersion }),
         actorId,
         createdAt: updatedAt,
       })
@@ -1525,27 +1514,20 @@ const materializers = State.SQLite.materializers(events, {
     return operations
   },
 
-  'priority_queue.reordered': ({
-    storeId,
-    stream,
-    expectedVersion,
-    nextVersion,
-    updatedAt,
-    actorId,
-  }) => {
+  'priority_queue.reordered': ({ stream, expectedVersion, nextVersion, updatedAt, actorId }) => {
     const whereClause =
       expectedVersion !== undefined
-        ? { storeId, priorityQueueVersion: expectedVersion }
-        : { storeId }
+        ? { id: TABLE_CONFIGURATION_ID, priorityQueueVersion: expectedVersion }
+        : { id: TABLE_CONFIGURATION_ID }
 
     return [
       tableConfiguration
         .update({ priorityQueueVersion: nextVersion, updatedAt })
         .where(whereClause),
       eventsLog.insert({
-        id: `priority_queue_reordered_${storeId}_${updatedAt.getTime()}`,
+        id: `priority_queue_reordered_${updatedAt.getTime()}`,
         eventType: 'priority_queue.reordered',
-        eventData: JSON.stringify({ storeId, stream, nextVersion }),
+        eventData: JSON.stringify({ stream, nextVersion }),
         actorId,
         createdAt: updatedAt,
       }),
