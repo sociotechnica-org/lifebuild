@@ -56,13 +56,33 @@ export function getNextBronzeTasks(options: BronzeStackPlanOptions): BronzeStack
   const now = options.timestamp ?? new Date()
   const activeStack = normalizeBronzeStack(activeBronzeEntries(options.stack))
   const targetCount = Math.max(0, options.desiredCount)
-  const expectedQueueVersion = options.config?.priorityQueueVersion
-  const nextQueueVersion = nextPriorityQueueVersion(options.config, options.nextQueueVersion)
   const eventsToEmit: BronzeStackPlanResult['events'] = []
+  const initialQueueVersion = options.config?.priorityQueueVersion
+
+  let nextExpectedVersion = initialQueueVersion
+  let nextVersionValue =
+    options.nextQueueVersion ?? nextPriorityQueueVersion(options.config, options.nextQueueVersion)
+  let lastQueueVersion = initialQueueVersion ?? 0
+
+  const allocateQueueVersion = () => {
+    const versions = {
+      expectedQueueVersion: nextExpectedVersion,
+      nextQueueVersion: nextVersionValue,
+    }
+
+    nextExpectedVersion = versions.nextQueueVersion
+    nextVersionValue = versions.nextQueueVersion + 1
+    if (versions.nextQueueVersion !== undefined) {
+      lastQueueVersion = versions.nextQueueVersion
+    }
+
+    return versions
+  }
 
   if (activeStack.length > targetCount) {
     const toRemove = activeStack.slice(targetCount)
     toRemove.forEach(entry => {
+      const { expectedQueueVersion, nextQueueVersion } = allocateQueueVersion()
       eventsToEmit.push(
         events.bronzeTaskRemoved({
           id: entry.id,
@@ -82,6 +102,7 @@ export function getNextBronzeTasks(options: BronzeStackPlanOptions): BronzeStack
       .slice(0, missing)
 
     additions.forEach((item, index) => {
+      const { expectedQueueVersion, nextQueueVersion } = allocateQueueVersion()
       eventsToEmit.push(
         events.bronzeTaskAdded({
           id: options.idFactory?.(item) ?? generateId(),
@@ -100,7 +121,7 @@ export function getNextBronzeTasks(options: BronzeStackPlanOptions): BronzeStack
 
   return {
     events: eventsToEmit,
-    nextQueueVersion,
-    expectedQueueVersion,
+    nextQueueVersion: eventsToEmit.length > 0 ? lastQueueVersion : initialQueueVersion ?? 0,
+    expectedQueueVersion: initialQueueVersion,
   }
 }

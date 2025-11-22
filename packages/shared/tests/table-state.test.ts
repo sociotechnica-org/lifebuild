@@ -26,13 +26,16 @@ describe('table-state helpers', () => {
       nextQueueVersion: 5,
     })
 
-    expect(nextQueueVersion).toBe(5)
+    expect(nextQueueVersion).toBe(6)
     expect(expectedQueueVersion).toBe(1)
     expect(events).toHaveLength(2)
     expect(events[0].name).toBe('table.bronze_task_added')
     expect(events[0].args.taskId).toBe('task-a')
     expect(events[1].args.position).toBe(1)
     expect(events[0].args.nextQueueVersion).toBe(5)
+    expect(events[0].args.expectedQueueVersion).toBe(1)
+    expect(events[1].args.expectedQueueVersion).toBe(5)
+    expect(events[1].args.nextQueueVersion).toBe(6)
   })
 
   it('emits removal events when the stack exceeds the desired size', () => {
