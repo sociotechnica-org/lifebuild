@@ -38,7 +38,7 @@ This plan addresses Stage 4 (“Prioritized”) and the Priority Queue inside th
    - On submission, update attributes to `plans` state, set queue position, and remove from Planning Queue.
 4. **Queue Interaction**
    - Implement drag-and-drop list per stream (e.g., `@dnd-kit`) with accessible reorder controls for keyboard users.
-   - Reordering persists new positions atomically by emitting `priority_queue.reordered` events that only touch affected IDs and require a `queueVersion` check to avoid clobbering concurrent updates.
+   - Reordering persists new positions by emitting simple LiveStore events that patch the affected project IDs; rely on last-write-wins behavior instead of inventing queue-specific version counters.
    - Paused projects pinned at top with visible “Paused” label; they can be reordered after other paused items.
 5. **Integrations**
    - Provide `Go to Sorting Room` CTA when user is ready to activate.
@@ -53,8 +53,8 @@ This plan addresses Stage 4 (“Prioritized”) and the Priority Queue inside th
 
 ## Data & Schema Impact
 
-- `projects` table gains `priority_stream`, `priority_position`, and the paused metadata already defined in the Foundations plan.
-- Introduce a `priority_queue_version` counter per store (or per stream) to support optimistic concurrency during reorder events.
+- Reuse the `projectLifecycleState` column to represent Stage 4 entries (`{ status: 'plans', stream, queuePosition }`) plus the paused metadata defined in the Foundations plan; no additional `priority_stream` columns are introduced.
+- Rely on LiveStore's default last-write-wins behavior for priority queue reorders; the shared helper should simply emit the latest ordering without extra version counters.
 - Possible `priority_queue_history` table for auditing reorder events.
 - Update shared queries/types and LiveStore events for Stage 4 completion.
 
@@ -76,7 +76,7 @@ This plan addresses Stage 4 (“Prioritized”) and the Priority Queue inside th
 
 ## Dependencies & Follow-ups
 
-- Relies on Stage 1–3 plan for project creation and `draftingState` data.
+- Relies on Stage 1–3 plan for project creation and the shared `projectLifecycleState` metadata.
 - Sorting Room plan depends on the ordered queue produced here.
 - Later optimization: virtualization for large queues if needed.
 
@@ -88,4 +88,4 @@ This plan addresses Stage 4 (“Prioritized”) and the Priority Queue inside th
 
 2. **PR2 – Priority Queue View & Reordering**  
    _Title:_ “Drafting: Manage Priority Queue ordering”  
-   _Scope:_ Implement the full Priority Queue view with Gold/Silver/Bronze filters, paused-project highlighting, and drag-to-reorder emitting `priority_queue.reordered` events as described in `mvp-source-of-truth-doc.md:392-400` and `755-800`.
+   _Scope:_ Implement the full Priority Queue view with Gold/Silver/Bronze filters, paused-project highlighting, and drag-to-reorder emitting last-write-wins reorder events as described in `mvp-source-of-truth-doc.md:392-400` and `755-800`.

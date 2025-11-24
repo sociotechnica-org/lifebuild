@@ -30,12 +30,13 @@ This plan delivers the Life Map surface described in `docs/plans/033-mvp-prototy
 1. **State/Configuration Consumption**
    - Rely on the `ProjectLifecycleState` union and `table_configuration` table established in the Foundations plan; do not introduce ad-hoc fields.
    - Provide selectors in `useLifeMapState` that derive Table slots, Bronze stack, and category segmentation from those shared sources.
+   - Treat `table_configuration`/`table_bronze_stack` as singletons within the current LiveStore instance—no `storeId` columns or query parameters should leak into the schema level.
 2. **Shared Hooks & Selectors**
    - Create `useLifeMapState` hook inside `packages/web/src/components/new/life-map/hooks.ts` that returns Table slots, Bronze stack tasks, and grouped category data.
    - Reuse `getProjectsByCategory$` queries but add new selectors for `getWorkAtHandProjects$` and `getBronzeTasks$`.
 3. **Table Componentry**
    - Build `Table.tsx` with subcomponents for GoldSlot, SilverSlot, BronzeStack. Each slot renders the shared `UrushiVisual`, status labels, worker count, and call-to-action buttons (open project / go to Sorting Room when empty).
-   - Bronze stack lists the current operational tasks by querying `table_bronze_stack`, displays Bronze mode state from `table_configuration`, and surfaces min-3 validation messaging.
+   - Bronze stack lists the current operational tasks by querying `table_bronze_stack`, displays Bronze mode state from the singleton `table_configuration`, and surfaces min-3 validation messaging.
    - Include “Activate priorities” CTA linking to Sorting Room for first-time setup.
 4. **Category Grid**
    - Replace existing unordered list with a responsive grid showing each category card.

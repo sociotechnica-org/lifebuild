@@ -767,3 +767,102 @@ export const projectLifecycleUpdated = Events.synced({
     actorId: Schema.optional(Schema.String),
   }),
 })
+
+// ============================================================================
+// TABLE STATE & BRONZE STACK EVENTS (PR2)
+// ============================================================================
+
+const BronzeModeLiteral = Schema.Literal('minimal', 'target', 'maximal')
+const BronzeStackStatusLiteral = Schema.Literal('active', 'removed')
+
+export const tableConfigurationInitialized = Events.synced({
+  name: 'table.configuration_initialized',
+  schema: Schema.Struct({
+    goldProjectId: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+    silverProjectId: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+    bronzeMode: Schema.optional(BronzeModeLiteral),
+    bronzeTargetExtra: Schema.optional(Schema.Number),
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const tableGoldAssigned = Events.synced({
+  name: 'table.gold_assigned',
+  schema: Schema.Struct({
+    projectId: Schema.String,
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const tableGoldCleared = Events.synced({
+  name: 'table.gold_cleared',
+  schema: Schema.Struct({
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const tableSilverAssigned = Events.synced({
+  name: 'table.silver_assigned',
+  schema: Schema.Struct({
+    projectId: Schema.String,
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const tableSilverCleared = Events.synced({
+  name: 'table.silver_cleared',
+  schema: Schema.Struct({
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const tableBronzeModeUpdated = Events.synced({
+  name: 'table.bronze_mode_updated',
+  schema: Schema.Struct({
+    bronzeMode: BronzeModeLiteral,
+    bronzeTargetExtra: Schema.optional(Schema.Number),
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const bronzeTaskAdded = Events.synced({
+  name: 'table.bronze_task_added',
+  schema: Schema.Struct({
+    id: Schema.String,
+    taskId: Schema.String,
+    position: Schema.Number,
+    insertedAt: Schema.Date,
+    insertedBy: Schema.optional(Schema.String),
+    status: Schema.optional(BronzeStackStatusLiteral),
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const bronzeTaskRemoved = Events.synced({
+  name: 'table.bronze_task_removed',
+  schema: Schema.Struct({
+    id: Schema.String,
+    removedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const bronzeStackReordered = Events.synced({
+  name: 'table.bronze_stack_reordered',
+  schema: Schema.Struct({
+    ordering: Schema.Array(
+      Schema.Struct({
+        id: Schema.String,
+        position: Schema.Number,
+      })
+    ),
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})

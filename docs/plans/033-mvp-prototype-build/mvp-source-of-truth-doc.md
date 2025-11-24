@@ -387,6 +387,7 @@ Three specialized spaces for planning work. Directors access these when planning
 - These are projects in development—not yet fully planned
 - Each project shows: image in early stage (sketch/foundation/color), stage indicator ("Stage 2 of 4 \- Scoped"), category seal, last modified date
 - Directors can click any project to resume work, pause and return later (autosave preserves progress), or abandon projects no longer relevant
+- Progress is saved immediately within LiveStore; there is no dedicated “Save Draft” button. The “Pause” affordance is purely UX reassurance that canonical project data already reflects the latest edits.
 - Typical state: 0-3 projects (temporary workspace)
 
 **The Priority Queue** (main section):

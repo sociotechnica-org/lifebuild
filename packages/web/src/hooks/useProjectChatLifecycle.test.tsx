@@ -9,19 +9,23 @@ const room = createProjectRoomDefinition({
   name: 'Project One',
 })
 
-const makeProject = (overrides: Partial<Project> = {}): Project => ({
-  id: 'project-1',
-  name: 'Project One',
-  description: 'Desc',
-  category: null,
-  attributes: null,
-  createdAt: new Date('2024-01-01T00:00:00Z'),
-  updatedAt: new Date('2024-01-01T00:00:00Z'),
-  deletedAt: null,
-  archivedAt: null,
-  projectLifecycleState: null,
-  ...overrides,
-})
+const makeProject = (overrides: Partial<Project> = {}): Project => {
+  const { projectLifecycleState: lifecycleOverride, ...restOverrides } = overrides
+
+  return {
+    id: 'project-1',
+    name: 'Project One',
+    description: 'Desc',
+    category: null,
+    attributes: null,
+    createdAt: new Date('2024-01-01T00:00:00Z'),
+    updatedAt: new Date('2024-01-01T00:00:00Z'),
+    deletedAt: null,
+    archivedAt: null,
+    projectLifecycleState: lifecycleOverride ?? null,
+    ...restOverrides,
+  }
+}
 
 const mocks = vi.hoisted(() => {
   let workerValue: unknown[] | undefined = []
