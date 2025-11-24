@@ -33,6 +33,7 @@ export const UserDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [updating, setUpdating] = useState(false)
+  const [settingDefaultInstanceId, setSettingDefaultInstanceId] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -167,6 +168,45 @@ export const UserDetailPage: React.FC = () => {
       console.error('Error updating admin status:', err)
     } finally {
       setUpdating(false)
+    }
+  }
+
+  const setDefaultInstance = async (instanceId: string) => {
+    try {
+      setSettingDefaultInstanceId(instanceId)
+      setError(null)
+
+      const token = await getCurrentToken()
+      if (!token) {
+        throw new Error('No access token available')
+      }
+
+      const authServiceUrl = import.meta.env.VITE_AUTH_SERVICE_URL || 'http://localhost:8788'
+
+      const response = await fetch(
+        `${authServiceUrl}/admin/users/${encodeURIComponent(userEmail)}/set-default-instance`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ instanceId }),
+        }
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error?.message || 'Failed to set default instance')
+      }
+
+      // Refresh user detail to reflect the change
+      await fetchUserDetail()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error occurred')
+      console.error('Error setting default instance:', err)
+    } finally {
+      setSettingDefaultInstanceId(null)
     }
   }
 
@@ -384,7 +424,9 @@ export const UserDetailPage: React.FC = () => {
           <InstancesList
             instances={userDetail.instances}
             onRemoveInstance={instanceId => updateStoreIds('remove', instanceId)}
+            onSetDefaultInstance={setDefaultInstance}
             removing={updating}
+            settingDefaultInstanceId={settingDefaultInstanceId}
           />
         </div>
 

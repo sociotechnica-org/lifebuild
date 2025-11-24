@@ -12,13 +12,17 @@ export interface Instance {
 interface InstanceCardProps {
   instance: Instance
   onRemove?: (instanceId: string) => void
+  onSetDefault?: (instanceId: string) => void
   removing?: boolean
+  settingDefault?: boolean
 }
 
 export const InstanceCard: React.FC<InstanceCardProps> = ({
   instance,
   onRemove,
+  onSetDefault,
   removing = false,
+  settingDefault = false,
 }) => {
   return (
     <div className='flex items-center justify-between p-4 border border-gray-200 rounded-lg'>
@@ -37,15 +41,26 @@ export const InstanceCard: React.FC<InstanceCardProps> = ({
           {formatRegistrationDate(instance.lastAccessedAt)}
         </p>
       </div>
-      {onRemove && (
-        <button
-          onClick={() => onRemove(instance.id)}
-          disabled={instance.isDefault || removing}
-          className='ml-4 inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed'
-        >
-          {instance.isDefault ? 'Default' : removing ? 'Removing...' : 'Remove'}
-        </button>
-      )}
+      <div className='ml-4 flex items-center gap-2'>
+        {onSetDefault && !instance.isDefault && (
+          <button
+            onClick={() => onSetDefault(instance.id)}
+            disabled={settingDefault || removing}
+            className='inline-flex items-center px-3 py-1 border border-blue-300 text-sm font-medium rounded text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed'
+          >
+            {settingDefault ? 'Setting...' : 'Set as Default'}
+          </button>
+        )}
+        {onRemove && (
+          <button
+            onClick={() => onRemove(instance.id)}
+            disabled={instance.isDefault || removing || settingDefault}
+            className='inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed'
+          >
+            {instance.isDefault ? 'Default' : removing ? 'Removing...' : 'Remove'}
+          </button>
+        )}
+      </div>
     </div>
   )
 }
