@@ -36,7 +36,7 @@ This plan implements Devin’s Roster Room: the four-stage workflow for staffing
    - Stage 2: Worker Profile – select template (Research Specialist, etc.), auto-generate synopsis, allow edits with word count guidance (150–300 words).
    - Stage 3: Prompt Configuration – generate prompt (500–1000 words) using template + project context via existing LLM tooling; allow editing with validation.
    - Stage 4: Confirmation – review worker summary, confirm assignment, optionally set review reminder.
-   - Provide progress indicator and autosave per stage.
+   - Provide progress indicator while reminding Directors that edits auto-save through LiveStore (no explicit “Save Draft” button).
 4. **Persistence & Editing**
    - Create or update worker entity, store synopsis/prompt text plus template metadata, and set the project’s `assignedWorkerId` (single-worker constraint per MVP).
    - “Edit Worker” entry point from Project Board should deep-link into Stage 2/3 with existing data.

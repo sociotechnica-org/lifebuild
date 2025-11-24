@@ -36,9 +36,10 @@ This plan focuses on the execution altitude described in the source doc: the Pro
 3. **Bronze Stack Integration**
    - For Bronze tasks currently on Table, show stack on right rail with ability to mark done or “pull next” per Bronze mode.
 
-- Auto-pull logic must use the shared `getNextBronzeTasks` helper so behavior matches Sorting Room selections, the singleton `table_configuration`, and existing `table_bronze_stack` entries.
-- When a task completes, emit `bronze_task_removed` (and optionally `bronze_task_completed`) events so the stack updates atomically before auto-pull fills the gap.
-- Provide indicators when stack falls below 3 tasks and surface Bronze mode context inline.
+   - Auto-pull logic must use the shared `getNextBronzeTasks` helper so behavior matches Sorting Room selections, the singleton `table_configuration`, and existing `table_bronze_stack` entries.
+   - Mutations run through `useTableState`/shared schema utilities—never add `storeId` params or alternate queues, since the LiveStore instance already scopes the singleton table.
+   - When a task completes, emit `bronze_task_removed` (and optionally `bronze_task_completed`) events so the stack updates atomically before auto-pull fills the gap.
+   - Provide indicators when stack falls below 3 tasks and surface Bronze mode context inline.
 
 4. **Worker Panel**
    - Show assigned worker’s synopsis summary, status (Available/Working/Awaiting Review), and quick chat link.

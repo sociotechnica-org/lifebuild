@@ -8,8 +8,8 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
 
 1. Implement Planning Queue UI showing Stage 1–3 projects with Urushi progression and metadata.
 2. Build the multi-stage creation flow with Marvin-guided prompts and autosave checkpoints.
-3. Support pausing/abandoning drafts, with clear affordances for resume/delete.
-4. Persist partial stage data and validation rules in LiveStore.
+3. Support pausing/resuming the flow without any explicit “Save Draft” concept—the UI just reassures users that everything is already saved.
+4. Persist partial stage data and validation rules directly in LiveStore’s canonical project rows.
 5. Provide Storybook coverage and integration tests for the stage wizard.
 
 ## Non-Goals
@@ -22,7 +22,7 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
 ## Current State
 
 - No Drafting Room route exists; project creation still happens via legacy UI.
-- Data schema lacks dedicated fields for “stage in progress” metadata and Autosave states.
+- `ProjectLifecycleState` persists each stage, but the Drafting Room UI still treats “saving a draft” as a separate action and doesn’t surface the automatic persistence guarantees.
 
 ## Technical Implementation Plan
 
@@ -46,8 +46,8 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
 
 4. **Autosave & Resume**
 
-- Persist stage drafts to LiveStore after every meaningful change (debounced) with metadata `currentStage`, `stepProgress`, and `lastUpdatedAt`. Let LiveStore’s last-write-wins semantics resolve any conflicting edits.
-- Provide “Pause for now” action that simply routes the user away while keeping the autosaved project data intact—no extra persistence layer or events required.
+- Every edit updates the canonical `projectLifecycleState` column (stage number + drafting payload + timestamps). No auxiliary `project_drafts` rows or version counters exist—LiveStore’s native last-write-wins semantics handle reconciliation.
+- Provide “Pause for now” action that simply routes the user away while keeping the autosaved project data intact—no extra persistence layer, explicit save button, or special events required.
 
 5. **Abandon/Complete Actions**
    - Allow directors to archive drafts they no longer need (moves to `deletedAt`).
@@ -58,9 +58,9 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
 
 ## Data & Schema Impact
 
-- Extend project schema with `draftingState` containing `currentStage`, partial form payload, `autosaveVersion`.
-- Persist Stage 3 task drafts (before they become canonical tasks) in a new `project_drafts` table or JSON field.
-- Add Marvin conversation history reference for Stage 3 to support resume.
+- Leverage the existing `projectLifecycleState` column (JSON schema) to store `stage`, `stepProgress`, and all Stage 1–3 payloads; drafts are canonical data, not a separate entity.
+- Stage 3 task edits flow straight into the shared `tasks` table; no `project_drafts` table or autosave version counter is introduced.
+- Add Marvin conversation history reference for Stage 3 to support resume, pointing at the canonical lifecycle metadata instead of bespoke draft records.
 
 ## Testing & QA
 
@@ -76,7 +76,7 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
 
 ## Room Chat Context
 
-- Supply Marvin with `{ activeProjectId, stage, draftingData }` via `RoomLayout` contextBuilder so AI assistance can reference the exact step (and even form field contents) when responding.
+- Supply Marvin with `{ activeProjectId, lifecycleState }` via `RoomLayout` contextBuilder so AI assistance can reference the exact step (and even form field contents) when responding without inventing a separate draft payload.
 
 ## Dependencies & Follow-ups
 

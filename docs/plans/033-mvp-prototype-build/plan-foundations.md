@@ -8,7 +8,7 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
 
 1. Define a discriminated union for `ProjectAttributes` that encodes every lifecycle state (Planning Stages 1–3, Ready/Plans, Work at Hand, Live, Paused, Completed) without overlap.
 2. Persist `table_configuration` (singleton record inside each LiveStore instance) with Gold/Silver selections, Bronze mode, and Bronze target counts, plus an append-only `table_bronze_stack` table that tracks the ordered Bronze task stack without array clobbering.
-3. Define event contracts (`table.gold_assigned`, `table.gold_cleared`, `bronze_task_added`, etc.) so multiple writers can mutate shared state; rely on LiveStore’s built-in last-write-wins semantics rather than custom optimistic locking.
+3. Define event contracts (`table.gold_assigned`, `table.gold_cleared`, `bronze_task_added`, etc.) so multiple writers can mutate shared state and lean entirely on LiveStore’s built-in last-write-wins semantics.
 4. Build shared components (`UrushiVisual`, `ProjectCard`, `ProgressRing`) and hooks (`useLifeMapState`, `useTableState`, `useProjectStateMachine`) that other workstreams consume.
 5. Extend `RoomLayout` + navigation context so Marvin/Cameron/Devin chats receive structured payloads from each room.
 6. Document tokens/patterns in `new-ui.css` for Table grid, card layouts, and procedural visuals.
@@ -40,7 +40,7 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
        | { status: 'paused'; stream: 'gold' | 'silver' | 'bronze'; pausedReason?: string }
        | { status: 'completed'; completedAt: number }
      ```
-   - Store this in a structured column (JSON with schema validation) and expose helper guards in shared utils.
+   - Store this in a structured column (JSON with schema validation) and expose helper guards in shared utils. Drafting data is persisted automatically as part of this state machine—no explicit “Save Draft” button or auxiliary events exist because edits immediately update the canonical project row.
 2. **Table Configuration Entity**
    - Create `table_configuration` table with a single row (e.g., `id = 'table'`) storing:
      - `goldProjectId`, `silverProjectId`
@@ -49,7 +49,7 @@ Stream 0 establishes the shared infrastructure every other workstream depends on
    - Add `table_bronze_stack` table with rows `{ id, taskId, position, insertedAt, insertedBy, status }` that captures the Bronze stack as ordered entries instead of a mutable array.
    - Bronze stack mutations become discrete events (`bronze_task_added`, `bronze_task_removed`, `bronze_stack_reordered`) operating on individual rows so multiplayer changes don’t require array clobbering.
    - Implement utilities in `@work-squared/shared/tableState.ts` including `getNextBronzeTasks` that reads from Priority Queue data and emits append/remove events atomically; if two clients race, the latest write simply wins.
-   - Define event payload interfaces for the `table.*` mutations (`table_configuration_initialized`, `table.gold_assigned`, `table.bronze_stack_reordered`, etc.) so LiveStore has a consistent audit log without any optimistic-lock metadata.
+   - Define event payload interfaces for the `table.*` mutations (`table_configuration_initialized`, `table.gold_assigned`, `table.bronze_stack_reordered`, etc.) so LiveStore has a consistent audit log without any extra version metadata or store-bound fields (each LiveStore instance already encapsulates a single store).
 3. **Shared Visual Components**
    - `UrushiVisual`: procedural SVG/CSS rendering for the five stages (Sketch, Foundation, Color, Polish, Decoration) driven by project category + lifecycle state.
    - `ProgressRing`: reusable circular progress indicator for tasks completed vs total.

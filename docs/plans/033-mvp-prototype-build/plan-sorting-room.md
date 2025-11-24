@@ -54,9 +54,9 @@ This plan builds Cameron’s Sorting Room: the space where Directors review Prio
 
 ## Data & Schema Impact
 
-- Persist the singleton `table_configuration` record capturing `goldProjectId`, `silverProjectId`, `bronzeMode`, `bronzeTargetExtra`, and emit Bronze stack events into `table_bronze_stack`.
-- Update project attributes: set `workState = 'work_at_hand'`, `activatedAt`, `lastActivationId`.
-- Bronze tasks need `bronzeStackOrder` metadata (likely on tasks table or a join table) and should leverage the shared Bronze auto-pull helper for consistency with Project Board behavior.
+- Persist the singleton `table_configuration` record capturing `goldProjectId`, `silverProjectId`, `bronzeMode`, `bronzeTargetExtra`, and emit Bronze stack events into `table_bronze_stack`; LiveStore already scopes these per store.
+- Update `projectLifecycleState` directly: set `{ status: 'work_at_hand', slot: 'gold' | 'silver', activatedAt }` when activating and revert to `{ status: 'plans', stream, queuePosition }` when returning items.
+- Bronze tasks rely on `table_bronze_stack` order; no additional `bronzeStackOrder` column is added to `tasks`. Sorting emits add/remove/reorder events through the shared helper for consistency with Project Board behavior.
 
 ## Testing & QA
 

@@ -129,6 +129,7 @@ export function useTableState(): UseTableStateResult {
 
   const addBronzeTask = useCallback(
     async (taskId: string, position?: number) => {
+      ensureConfigurationLoaded()
       const now = new Date()
       const resolvedPosition =
         position ??
@@ -146,11 +147,12 @@ export function useTableState(): UseTableStateResult {
         })
       )
     },
-    [activeBronzeStack, store]
+    [activeBronzeStack, ensureConfigurationLoaded, store]
   )
 
   const removeBronzeTask = useCallback(
     async (entryId: string) => {
+      ensureConfigurationLoaded()
       const now = new Date()
       return store.commit(
         events.bronzeTaskRemoved({
@@ -159,11 +161,12 @@ export function useTableState(): UseTableStateResult {
         })
       )
     },
-    [store]
+    [ensureConfigurationLoaded, store]
   )
 
   const reorderBronzeStack = useCallback(
     async (entries: Array<Pick<PriorityQueueItem, 'taskId'> & { id: string }>) => {
+      ensureConfigurationLoaded()
       const now = new Date()
       const ordering = entries.map((entry, index) => ({
         id: entry.id,
@@ -177,7 +180,7 @@ export function useTableState(): UseTableStateResult {
         })
       )
     },
-    [store]
+    [ensureConfigurationLoaded, store]
   )
 
   return {
