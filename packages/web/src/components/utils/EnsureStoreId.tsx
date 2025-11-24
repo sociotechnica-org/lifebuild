@@ -21,17 +21,13 @@ export const EnsureStoreId: React.FC<EnsureStoreIdProps> = ({ children }) => {
 
     // Update the storeId in the URL if:
     // 1. There's no storeId in the URL, OR
-    // 2. User just loaded and their default/first instance differs from current URL storeId
-    //    (this handles the case where we initially set a fallback storeId before user loaded)
-    const shouldUpdate =
-      !currentStoreId ||
-      (user &&
-        user.instances &&
-        user.instances.length > 0 &&
-        currentStoreId !== userPreferredStoreId &&
-        // Only update if userPreferredStoreId matches user's default or first instance
-        (userPreferredStoreId === user.defaultInstanceId ||
-          userPreferredStoreId === user.instances[0]?.id))
+    // 2. The storeId in URL is not in user's instances (invalid/fallback storeId)
+    //    This handles fallback storeIds set before user loaded, but preserves
+    //    intentional navigation to other valid instances
+    const isValidInstanceId =
+      user?.instances && currentStoreId ? user.instances.some(i => i.id === currentStoreId) : false
+
+    const shouldUpdate = !currentStoreId || (user && !isValidInstanceId)
 
     if (shouldUpdate) {
       // Store it in localStorage for future reference
