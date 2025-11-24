@@ -12,15 +12,48 @@ if [ -z "$CONDUCTOR_ROOT_PATH" ]; then
     exit 1
 fi
 
+if [ ! -d "$CONDUCTOR_ROOT_PATH" ]; then
+    echo "❌ Error: CONDUCTOR_ROOT_PATH ($CONDUCTOR_ROOT_PATH) does not exist."
+    exit 1
+fi
+
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+WORKSPACE_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
+ROOT_REPO=$(cd "$CONDUCTOR_ROOT_PATH" && pwd)
+
+cd "$WORKSPACE_ROOT"
+
+AUTH_WORKER_PID=""
+AUTH_WORKER_LOG="/tmp/auth-worker.log"
+: > "$AUTH_WORKER_LOG"
+
+stop_auth_worker() {
+    if [ -n "$AUTH_WORKER_PID" ] && kill -0 "$AUTH_WORKER_PID" 2>/dev/null; then
+        kill "$AUTH_WORKER_PID" 2>/dev/null || true
+        wait "$AUTH_WORKER_PID" 2>/dev/null || true
+    fi
+    AUTH_WORKER_PID=""
+}
+
+cleanup() {
+    stop_auth_worker
+}
+trap cleanup EXIT
+
 # Function to copy file if it exists in root repo
 copy_env_file() {
     local src_file="$1"
     local dest_file="$2"
-    local root_file="$CONDUCTOR_ROOT_PATH/$src_file"
+    local root_file="$ROOT_REPO/$src_file"
+    local dest_path="$WORKSPACE_ROOT/$dest_file"
 
     if [ -f "$root_file" ]; then
-        mkdir -p "$(dirname "$dest_file")"
-        cp "$root_file" "$dest_file"
+        mkdir -p "$(dirname "$dest_path")"
+        if [ -e "$dest_path" ] && [ "$root_file" -ef "$dest_path" ] 2>/dev/null; then
+            echo "ℹ️  Skipped $src_file (already up to date)"
+            return
+        fi
+        cp "$root_file" "$dest_path"
         echo "✅ Copied $src_file"
     else
         echo "⚠️  Warning: $src_file not found in root repo"
@@ -29,9 +62,14 @@ copy_env_file() {
 
 # Helper to ensure env vars are set consistently
 set_env_var() {
-    local file="$1"
+    local relative_file="$1"
     local key="$2"
     local value="$3"
+    local file="$relative_file"
+
+    if [[ "$file" != /* ]]; then
+        file="$WORKSPACE_ROOT/$file"
+    fi
 
     if [ ! -f "$file" ]; then
         echo "⚠️  Warning: $file not found, cannot set $key"
@@ -43,7 +81,7 @@ set_env_var() {
     else
         echo "${key}=${value}" >> "$file"
     fi
-    echo "✅ Set ${key}=${value} in ${file}"
+    echo "✅ Set ${key}=${value} in ${relative_file}"
 }
 
 STORE_ID_REGEX='^[a-zA-Z0-9][a-zA-Z0-9-_]{2,63}$'
@@ -86,6 +124,57 @@ sanitize_branch_name_for_store_id() {
     fi
 }
 
+start_auth_worker() {
+    echo "   Starting auth-worker..."
+    pushd "$WORKSPACE_ROOT/packages/auth-worker" >/dev/null
+    pnpm exec wrangler dev --port 8788 > "$AUTH_WORKER_LOG" 2>&1 &
+    AUTH_WORKER_PID=$!
+    popd >/dev/null
+}
+
+wait_for_auth_worker() {
+    echo "   Waiting for auth-worker to start..."
+    for _ in {1..30}; do
+        if curl -s http://localhost:8788 > /dev/null 2>&1; then
+            echo "   ✅ Auth-worker ready"
+            return 0
+        fi
+
+        if [ -n "$AUTH_WORKER_PID" ] && ! kill -0 "$AUTH_WORKER_PID" 2>/dev/null; then
+            break
+        fi
+
+        sleep 1
+    done
+
+    echo "   ⚠️  Auth-worker failed to start in time"
+    if [ -f "$AUTH_WORKER_LOG" ]; then
+        echo "   Last auth-worker logs:"
+        tail -n 20 "$AUTH_WORKER_LOG" | sed 's/^/      /'
+    fi
+
+    stop_auth_worker
+    return 1
+}
+
+create_test_user() {
+    echo "   Creating user account..."
+    if response=$(curl -s -X POST http://localhost:8788/signup \
+        -H "Content-Type: application/json" \
+        -d '{"email":"jessmartin+tester@gmail.com","password":"testing123"}'); then
+
+        if echo "$response" | grep -q '"success":true'; then
+            echo "   ✅ Test user created: jessmartin+tester@gmail.com"
+        elif echo "$response" | grep -q "already exists"; then
+            echo "   ℹ️  Test user already exists: jessmartin+tester@gmail.com"
+        else
+            echo "   ⚠️  Failed to create test user: $response"
+        fi
+    else
+        echo "   ⚠️  Failed to reach auth-worker signup endpoint"
+    fi
+}
+
 # Copy environment files from root repo to worktree
 echo "📁 Copying environment files from root repo..."
 
@@ -104,11 +193,12 @@ echo "🔧 Updating STORE_IDS to match branch name..."
 BRANCH_NAME=$(git branch --show-current)
 SANITIZED_STORE_ID=$(sanitize_branch_name_for_store_id "$BRANCH_NAME")
 SANITIZED_BRANCH=${BRANCH_NAME//\//-}
-if [ -f "packages/server/.env" ]; then
+SERVER_ENV="$WORKSPACE_ROOT/packages/server/.env"
+if [ -f "$SERVER_ENV" ]; then
     # Replace STORE_IDS line with branch-specific value
     # Use | as delimiter instead of / to handle branch names with slashes
-    sed -i.bak "s|^STORE_IDS=.*|STORE_IDS=${SANITIZED_STORE_ID}|" packages/server/.env
-    rm packages/server/.env.bak
+    sed -i.bak "s|^STORE_IDS=.*|STORE_IDS=${SANITIZED_STORE_ID}|" "$SERVER_ENV"
+    rm "$SERVER_ENV.bak"
     if [ "$SANITIZED_STORE_ID" != "$BRANCH_NAME" ]; then
         echo "✅ Set STORE_IDS=${SANITIZED_STORE_ID} (sanitized from ${BRANCH_NAME})"
     else
@@ -122,58 +212,23 @@ fi
 set_env_var "packages/server/.env" "BACKEND_ID" "${SANITIZED_BRANCH}-backend"
 set_env_var "packages/worker/.dev.vars" "BACKEND_ID" "${SANITIZED_BRANCH}-backend"
 
-# Create test user on auth server
-echo "👤 Creating test user..."
-
-# Start auth-worker in background
-echo "   Starting auth-worker..."
-cd packages/auth-worker
-pnpm exec wrangler dev --port 8788 > /tmp/auth-worker.log 2>&1 &
-AUTH_WORKER_PID=$!
-cd ../..
-
-# Wait for auth-worker to be ready
-echo "   Waiting for auth-worker to start..."
-for i in {1..30}; do
-    if curl -s http://localhost:8788 > /dev/null 2>&1; then
-        echo "   ✅ Auth-worker ready"
-        break
-    fi
-    if [ $i -eq 30 ]; then
-        echo "   ⚠️  Auth-worker failed to start in time"
-        kill $AUTH_WORKER_PID 2>/dev/null || true
-        break
-    fi
-    sleep 1
-done
-
-# Create user via signup endpoint
-if kill -0 $AUTH_WORKER_PID 2>/dev/null; then
-    echo "   Creating user account..."
-    SIGNUP_RESPONSE=$(curl -s -X POST http://localhost:8788/signup \
-        -H "Content-Type: application/json" \
-        -d '{"email":"jessmartin+tester@gmail.com","password":"testing123"}')
-
-    if echo "$SIGNUP_RESPONSE" | grep -q '"success":true'; then
-        echo "   ✅ Test user created: jessmartin+tester@gmail.com"
-    else
-        # Check if user already exists
-        if echo "$SIGNUP_RESPONSE" | grep -q "already exists"; then
-            echo "   ℹ️  Test user already exists: jessmartin+tester@gmail.com"
-        else
-            echo "   ⚠️  Failed to create test user: $SIGNUP_RESPONSE"
-        fi
-    fi
-
-    # Stop auth-worker
-    kill $AUTH_WORKER_PID 2>/dev/null || true
-    sleep 1
-fi
-
 # Install dependencies
 echo "📦 Installing dependencies..."
 pnpm install
 pnpm exec playwright install
+
+# Create test user on auth server
+echo "👤 Creating test user..."
+if start_auth_worker; then
+    if wait_for_auth_worker; then
+        create_test_user
+    else
+        echo "   ⚠️  Skipping test user creation. Check $AUTH_WORKER_LOG for details."
+    fi
+    stop_auth_worker
+else
+    echo "   ⚠️  Failed to start auth-worker process"
+fi
 
 echo "✨ Worktree setup complete!"
 echo ""
