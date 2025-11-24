@@ -4,6 +4,23 @@ import { tables } from './schema'
 
 export const app$ = queryDb(tables.uiState.get(), { label: 'app' })
 
+export const getTableConfiguration$ = queryDb(tables.tableConfiguration.select().limit(1), {
+  label: 'getTableConfiguration',
+})
+
+export const getTableBronzeStack$ = queryDb(
+  tables.tableBronzeStack.select().orderBy([{ col: 'position', direction: 'asc' }]),
+  { label: 'getTableBronzeStack' }
+)
+
+export const getActiveBronzeStack$ = queryDb(
+  tables.tableBronzeStack
+    .select()
+    .where({ status: 'active' })
+    .orderBy([{ col: 'position', direction: 'asc' }]),
+  { label: 'getActiveBronzeStack' }
+)
+
 export const getBoards$ = queryDb(
   _get => {
     return tables.projects.select().where({

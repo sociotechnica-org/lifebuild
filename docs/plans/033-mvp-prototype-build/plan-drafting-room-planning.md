@@ -8,8 +8,8 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
 
 1. Implement Planning Queue UI showing Stage 1–3 projects with Urushi progression and metadata.
 2. Build the multi-stage creation flow with Marvin-guided prompts and autosave checkpoints.
-3. Support pausing/abandoning drafts, with clear affordances for resume/delete.
-4. Persist partial stage data and validation rules in LiveStore.
+3. Support pausing/resuming the flow without any explicit “Save Draft” concept—the UI just reassures users that everything is already saved.
+4. Persist partial stage data and validation rules directly in LiveStore’s canonical project rows.
 5. Provide Storybook coverage and integration tests for the stage wizard.
 
 ## Non-Goals
@@ -22,7 +22,7 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
 ## Current State
 
 - No Drafting Room route exists; project creation still happens via legacy UI.
-- Data schema lacks dedicated fields for “stage in progress” metadata and Autosave states.
+- `ProjectLifecycleState` persists each stage, but the Drafting Room UI still treats “saving a draft” as a separate action and doesn’t surface the automatic persistence guarantees.
 
 ## Technical Implementation Plan
 
@@ -34,17 +34,21 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
    - Derive project state entirely from the `ProjectLifecycleState` union; the queue should render only items with `status: 'planning'`.
    - Add empty-state guidance encouraging new project capture when queue is empty.
 3. **Stage Wizard Infrastructure**
-   - Build `useDraftingSession` hook to manage stage transitions, form state, autosave timers, and LiveStore mutations.
-   - Stage-specific components:
-     - Stage 1 (Identified): fields for title, description, category; 2-minute checklist.
-     - Stage 2 (Scoped): objectives, archetype, traits, urgency/importance selectors.
-     - Stage 3 (Drafted): integrate Marvin (LLM worker) to generate tasks via existing AI tooling; allow editing/reordering tasks.
-   - Each stage enforces validation before enabling “Next”.
-   - Autosaves emit discrete `draft_saved` events carrying `{ projectId, stage, payload, version }` so multiple clients can merge changes without overwriting each other. Mutations must check the previous version and bail if stale.
-   - When the Director approves the Stage 3 task list, immediately materialize those tasks into the canonical `tasks` table (with CODAD metadata); the `project_draft_tasks` store becomes read-only history so downstream surfaces (Sorting, Project Board) always consume the canonical rows.
+
+- Build `useDraftingSession` hook to manage stage transitions, form state, autosave timers, and LiveStore mutations.
+- Stage-specific components:
+  - Stage 1 (Identified): fields for title, description, category; 2-minute checklist.
+  - Stage 2 (Scoped): objectives, archetype, traits, urgency/importance selectors.
+  - Stage 3 (Drafted): integrate Marvin (LLM worker) to generate tasks via existing AI tooling; allow editing/reordering tasks.
+- Each stage enforces validation before enabling “Next”.
+- Autosave every edit directly into the canonical LiveStore tables (projects/tasks) so the UI can safely drop explicit “Save Draft” semantics; the UX only needs to communicate that progress is preserved when leaving the flow.
+- When the Director approves the Stage 3 task list, immediately materialize those tasks into the canonical `tasks` table (with CODAD metadata); the `project_draft_tasks` store becomes read-only history so downstream surfaces (Sorting, Project Board) always consume the canonical rows.
+
 4. **Autosave & Resume**
-   - Persist stage drafts to LiveStore after every meaningful change (debounced) with metadata `currentStage`, `stepProgress`, `lastUpdatedAt`, and optimistic concurrency versioning.
-   - Provide “Pause for now” action that returns to queue but keeps progress (emits `draft_paused` event referencing the latest version).
+
+- Every edit updates the canonical `projectLifecycleState` column (stage number + drafting payload + timestamps). No auxiliary `project_drafts` rows or version counters exist—LiveStore’s native last-write-wins semantics handle reconciliation.
+- Provide “Pause for now” action that simply routes the user away while keeping the autosaved project data intact—no extra persistence layer, explicit save button, or special events required.
+
 5. **Abandon/Complete Actions**
    - Allow directors to archive drafts they no longer need (moves to `deletedAt`).
    - When Stage 3 completes and Director confirms “Move to Stage 4”, emit an event marking the draft as Stage-3-complete (`status: 'ready_for_stage4'`) but defer inserting into the Priority Queue until the Stage 4 workflow explicitly places it (handled in the next plan).
@@ -54,9 +58,9 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
 
 ## Data & Schema Impact
 
-- Extend project schema with `draftingState` containing `currentStage`, partial form payload, `autosaveVersion`.
-- Persist Stage 3 task drafts (before they become canonical tasks) in a new `project_drafts` table or JSON field.
-- Add Marvin conversation history reference for Stage 3 to support resume.
+- Leverage the existing `projectLifecycleState` column (JSON schema) to store `stage`, `stepProgress`, and all Stage 1–3 payloads; drafts are canonical data, not a separate entity.
+- Stage 3 task edits flow straight into the shared `tasks` table; no `project_drafts` table or autosave version counter is introduced.
+- Add Marvin conversation history reference for Stage 3 to support resume, pointing at the canonical lifecycle metadata instead of bespoke draft records.
 
 ## Testing & QA
 
@@ -72,7 +76,7 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
 
 ## Room Chat Context
 
-- Supply Marvin with `{ activeProjectId, stage, draftingData }` via `RoomLayout` contextBuilder so AI assistance can reference the exact step (and even form field contents) when responding.
+- Supply Marvin with `{ activeProjectId, lifecycleState }` via `RoomLayout` contextBuilder so AI assistance can reference the exact step (and even form field contents) when responding without inventing a separate draft payload.
 
 ## Dependencies & Follow-ups
 

@@ -35,9 +35,12 @@ This plan focuses on the execution altitude described in the source doc: the Pro
    - Display progress ring reflecting Done / total tasks.
 3. **Bronze Stack Integration**
    - For Bronze tasks currently on Table, show stack on right rail with ability to mark done or “pull next” per Bronze mode.
-   - Auto-pull logic must use the shared `getNextBronzeTasks` helper so behavior matches Sorting Room selections, `table_configuration`, and existing `table_bronze_stack` entries.
+
+   - Auto-pull logic must use the shared `getNextBronzeTasks` helper so behavior matches Sorting Room selections, the singleton `table_configuration`, and existing `table_bronze_stack` entries.
+   - Mutations run through `useTableState`/shared schema utilities—never add `storeId` params or alternate queues, since the LiveStore instance already scopes the singleton table.
    - When a task completes, emit `bronze_task_removed` (and optionally `bronze_task_completed`) events so the stack updates atomically before auto-pull fills the gap.
    - Provide indicators when stack falls below 3 tasks and surface Bronze mode context inline.
+
 4. **Worker Panel**
    - Show assigned worker’s synopsis summary, status (Available/Working/Awaiting Review), and quick chat link.
    - “Assign Tasks to Worker” button triggers Roster Room deep-link (Stage 2/3) for adjustments.
@@ -59,7 +62,7 @@ This plan focuses on the execution altitude described in the source doc: the Pro
 
 ## Testing & QA
 
-- Unit tests for Bronze stack reducer and auto-pull logic (including integration with `table_configuration`).
+- Unit tests for Bronze stack reducer and auto-pull logic (including integration with the singleton `table_configuration` record).
 - Integration tests simulating drag/drop and verifying LiveStore updates.
 - Manual QA: open from Table vs category, pause/resume cycle, worker chat link, Urushi stage transitions.
 

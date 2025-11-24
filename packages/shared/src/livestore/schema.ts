@@ -149,6 +149,47 @@ const tasks = State.SQLite.table({
   },
 })
 
+const TABLE_CONFIGURATION_ID = 'singleton-table-configuration'
+
+const tableConfiguration = State.SQLite.table({
+  name: 'tableConfiguration',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    goldProjectId: State.SQLite.text({ nullable: true }),
+    silverProjectId: State.SQLite.text({ nullable: true }),
+    bronzeMode: State.SQLite.text({
+      default: 'minimal',
+      schema: Schema.Literal('minimal', 'target', 'maximal'),
+    }),
+    bronzeTargetExtra: State.SQLite.integer({ default: 0 }),
+    updatedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
+const tableBronzeStack = State.SQLite.table({
+  name: 'tableBronzeStack',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    taskId: State.SQLite.text(),
+    position: State.SQLite.integer({ default: 0 }),
+    insertedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    insertedBy: State.SQLite.text({ nullable: true }),
+    status: State.SQLite.text({
+      default: 'active',
+      schema: Schema.Literal('active', 'removed'),
+    }),
+    removedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
 const conversations = State.SQLite.table({
   name: 'conversations',
   columns: {
@@ -387,6 +428,8 @@ export type Contact = State.SQLite.FromTable.RowDecoded<typeof contacts>
 export type ProjectContact = State.SQLite.FromTable.RowDecoded<typeof projectContacts>
 export type TaskExecution = State.SQLite.FromTable.RowDecoded<typeof taskExecutions>
 export type UiState = typeof uiState.default.value
+export type TableConfiguration = State.SQLite.FromTable.RowDecoded<typeof tableConfiguration>
+export type TableBronzeStackEntry = State.SQLite.FromTable.RowDecoded<typeof tableBronzeStack>
 
 export const events = {
   ...eventsDefs,
@@ -400,6 +443,8 @@ export const tables = {
   // columns removed - PR3: migration to status-based tasks complete
   users,
   tasks,
+  tableConfiguration,
+  tableBronzeStack,
   conversations,
   comments,
   documents,
@@ -1208,6 +1253,178 @@ const materializers = State.SQLite.materializers(events, {
         .where({ id: projectId }),
     ]
   },
+
+  'table.configuration_initialized': ({
+    goldProjectId,
+    silverProjectId,
+    bronzeMode,
+    bronzeTargetExtra,
+    updatedAt,
+    actorId,
+  }) => [
+    tableConfiguration.delete().where({ id: TABLE_CONFIGURATION_ID }),
+    tableConfiguration.insert({
+      id: TABLE_CONFIGURATION_ID,
+      goldProjectId: goldProjectId ?? null,
+      silverProjectId: silverProjectId ?? null,
+      bronzeMode: bronzeMode ?? 'minimal',
+      bronzeTargetExtra: bronzeTargetExtra ?? 0,
+      updatedAt,
+    }),
+    eventsLog.insert({
+      id: `table_configuration_initialized_${updatedAt.getTime()}`,
+      eventType: 'table.configuration_initialized',
+      eventData: JSON.stringify({
+        goldProjectId,
+        silverProjectId,
+        bronzeMode,
+        bronzeTargetExtra,
+      }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  'table.gold_assigned': ({ projectId, updatedAt, actorId }) => [
+    tableConfiguration
+      .update({
+        goldProjectId: projectId,
+        updatedAt,
+      })
+      .where({ id: TABLE_CONFIGURATION_ID }),
+    eventsLog.insert({
+      id: `table_gold_assigned_${updatedAt.getTime()}`,
+      eventType: 'table.gold_assigned',
+      eventData: JSON.stringify({ projectId }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  'table.gold_cleared': ({ updatedAt, actorId }) => [
+    tableConfiguration
+      .update({
+        goldProjectId: null,
+        updatedAt,
+      })
+      .where({ id: TABLE_CONFIGURATION_ID }),
+    eventsLog.insert({
+      id: `table_gold_cleared_${updatedAt.getTime()}`,
+      eventType: 'table.gold_cleared',
+      eventData: JSON.stringify({}),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  'table.silver_assigned': ({ projectId, updatedAt, actorId }) => [
+    tableConfiguration
+      .update({
+        silverProjectId: projectId,
+        updatedAt,
+      })
+      .where({ id: TABLE_CONFIGURATION_ID }),
+    eventsLog.insert({
+      id: `table_silver_assigned_${updatedAt.getTime()}`,
+      eventType: 'table.silver_assigned',
+      eventData: JSON.stringify({ projectId }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  'table.silver_cleared': ({ updatedAt, actorId }) => [
+    tableConfiguration
+      .update({
+        silverProjectId: null,
+        updatedAt,
+      })
+      .where({ id: TABLE_CONFIGURATION_ID }),
+    eventsLog.insert({
+      id: `table_silver_cleared_${updatedAt.getTime()}`,
+      eventType: 'table.silver_cleared',
+      eventData: JSON.stringify({}),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  'table.bronze_mode_updated': ({ bronzeMode, bronzeTargetExtra, updatedAt, actorId }) => [
+    tableConfiguration
+      .update({
+        bronzeMode,
+        bronzeTargetExtra: bronzeTargetExtra ?? 0,
+        updatedAt,
+      })
+      .where({ id: TABLE_CONFIGURATION_ID }),
+    eventsLog.insert({
+      id: `table_bronze_mode_updated_${updatedAt.getTime()}`,
+      eventType: 'table.bronze_mode_updated',
+      eventData: JSON.stringify({ bronzeMode, bronzeTargetExtra }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
+
+  'table.bronze_task_added': ({
+    id,
+    taskId,
+    position,
+    insertedAt,
+    insertedBy,
+    status,
+    actorId,
+  }) => [
+    tableBronzeStack.delete().where({ id }),
+    tableBronzeStack.insert({
+      id,
+      taskId,
+      position,
+      insertedAt,
+      insertedBy: insertedBy ?? null,
+      status: status ?? 'active',
+      removedAt: null,
+    }),
+    eventsLog.insert({
+      id: `bronze_task_added_${id}`,
+      eventType: 'table.bronze_task_added',
+      eventData: JSON.stringify({
+        taskId,
+        position,
+      }),
+      actorId,
+      createdAt: insertedAt,
+    }),
+  ],
+
+  'table.bronze_task_removed': ({ id, removedAt, actorId }) => [
+    tableBronzeStack
+      .update({
+        status: 'removed',
+        removedAt,
+      })
+      .where({ id }),
+    eventsLog.insert({
+      id: `bronze_task_removed_${id}_${removedAt.getTime()}`,
+      eventType: 'table.bronze_task_removed',
+      eventData: JSON.stringify({ id }),
+      actorId,
+      createdAt: removedAt,
+    }),
+  ],
+
+  'table.bronze_stack_reordered': ({ ordering, updatedAt, actorId }) => [
+    ...ordering.map(order =>
+      tableBronzeStack.update({ position: order.position }).where({ id: order.id })
+    ),
+    eventsLog.insert({
+      id: `bronze_stack_reordered_${updatedAt.getTime()}`,
+      eventType: 'table.bronze_stack_reordered',
+      eventData: JSON.stringify({ ordering }),
+      actorId,
+      createdAt: updatedAt,
+    }),
+  ],
 })
 
 const state = State.SQLite.makeState({ tables, materializers })
