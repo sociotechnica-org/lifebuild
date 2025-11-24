@@ -183,14 +183,17 @@ export const UserDetailPage: React.FC = () => {
 
       const authServiceUrl = import.meta.env.VITE_AUTH_SERVICE_URL || 'http://localhost:8788'
 
-      const response = await fetch(`${authServiceUrl}/workspaces/${instanceId}/set-default`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ userId: userDetail?.id, instanceId }),
-      })
+      const response = await fetch(
+        `${authServiceUrl}/admin/users/${encodeURIComponent(userEmail)}/set-default-instance`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ instanceId }),
+        }
+      )
 
       if (!response.ok) {
         const errorData = await response.json()

@@ -456,6 +456,40 @@ async function handleAdminUpdateStoreIds(
 }
 
 /**
+ * Handle admin set default instance request
+ */
+async function handleAdminSetDefaultInstance(
+  request: Request,
+  env: Env,
+  userEmail: string
+): Promise<Response> {
+  try {
+    // Verify admin access
+    const adminError = await verifyAdminAccessOrReturnError(request, env)
+    if (adminError) return adminError
+
+    // Validate request body
+    const { instanceId } = await request.json()
+    if (!instanceId) {
+      return createAdminErrorResponse('Invalid request: instanceId required', 400)
+    }
+
+    // Forward request to UserStore
+    const userStore = getUserStore(env)
+    const userStoreRequest = new Request(`http://localhost/admin-set-default-instance`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail, instanceId }),
+    })
+
+    return await userStore.fetch(userStoreRequest)
+  } catch (error) {
+    console.error('Admin set default instance error:', error)
+    return createAdminErrorResponse('Failed to set default instance')
+  }
+}
+
+/**
  * Handle admin update user admin status request
  */
 async function handleAdminUpdateAdminStatus(
@@ -680,6 +714,16 @@ export default {
               return createErrorResponse('Method not allowed', 405)
             }
             return addCorsHeaders(await handleAdminUpdateStoreIds(request, env, userEmail))
+          }
+
+          if (path.startsWith('/admin/users/') && path.includes('/set-default-instance')) {
+            const userEmail = decodeURIComponent(
+              path.split('/admin/users/')[1].split('/set-default-instance')[0]
+            )
+            if (method !== 'POST') {
+              return createErrorResponse('Method not allowed', 405)
+            }
+            return addCorsHeaders(await handleAdminSetDefaultInstance(request, env, userEmail))
           }
 
           if (path.startsWith('/admin/users/') && path.includes('/admin-status')) {
