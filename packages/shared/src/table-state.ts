@@ -63,17 +63,19 @@ export function getNextBronzeTasks(options: BronzeStackPlanOptions): BronzeStack
       .filter(item => !activeTaskIds.has(item.taskId))
       .slice(0, missing)
 
-    additions.forEach((item, index) => {
+    let nextPosition = activeStack.reduce((max, entry) => Math.max(max, entry.position), -1) + 1
+    additions.forEach(item => {
       eventsToEmit.push(
         events.bronzeTaskAdded({
           id: options.idFactory?.(item) ?? generateId(),
           taskId: item.taskId,
-          position: activeStack.length + index,
+          position: nextPosition,
           insertedAt: now,
           insertedBy: options.insertedBy ?? options.actorId,
           actorId: options.actorId,
         })
       )
+      nextPosition += 1
     })
   }
 

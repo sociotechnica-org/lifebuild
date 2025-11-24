@@ -24,7 +24,6 @@ describe('table-state helpers', () => {
     const stack: TableBronzeStackEntry[] = [
       {
         id: 'entry-1',
-        storeId: 'store-1',
         taskId: 'task-a',
         position: 0,
         insertedAt: new Date(),
@@ -34,7 +33,6 @@ describe('table-state helpers', () => {
       },
       {
         id: 'entry-2',
-        storeId: 'store-1',
         taskId: 'task-b',
         position: 1,
         insertedAt: new Date(),
@@ -55,5 +53,39 @@ describe('table-state helpers', () => {
     expect(events[0].name).toBe('table.bronze_task_removed')
     expect(events[0].args.id).toBe('entry-2')
     expect(events[0].args.actorId).toBe('tester')
+  })
+
+  it('assigns the next available position when gaps exist after removals', () => {
+    const stack: TableBronzeStackEntry[] = [
+      {
+        id: 'entry-1',
+        taskId: 'task-a',
+        position: 0,
+        insertedAt: new Date(),
+        insertedBy: null,
+        status: 'active',
+        removedAt: null,
+      },
+      {
+        id: 'entry-2',
+        taskId: 'task-b',
+        position: 2,
+        insertedAt: new Date(),
+        insertedBy: null,
+        status: 'active',
+        removedAt: null,
+      },
+    ]
+
+    const { events } = getNextBronzeTasks({
+      queue: [{ taskId: 'task-c' }],
+      stack,
+      desiredCount: 3,
+      actorId: 'tester',
+    })
+
+    expect(events).toHaveLength(1)
+    expect(events[0].name).toBe('table.bronze_task_added')
+    expect(events[0].args.position).toBe(3)
   })
 })

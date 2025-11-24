@@ -131,7 +131,10 @@ export function useTableState(): UseTableStateResult {
     async (taskId: string, position?: number) => {
       const now = new Date()
       const resolvedPosition =
-        position ?? activeBronzeStack.slice().sort((a, b) => a.position - b.position).length
+        position ??
+        (activeBronzeStack.length === 0
+          ? 0
+          : activeBronzeStack.reduce((max, entry) => Math.max(max, entry.position), -1) + 1)
 
       return store.commit(
         events.bronzeTaskAdded({
