@@ -53,6 +53,7 @@ const sampleConversation = {
   scope: 'workspace' as const,
   createdAt: new Date(),
   updatedAt: new Date(),
+  archivedAt: null,
   processingState: 'idle' as const,
 }
 

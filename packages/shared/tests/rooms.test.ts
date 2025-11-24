@@ -26,11 +26,23 @@ describe('rooms definitions', () => {
       name: 'My Project',
       description: 'Test description',
       objectives: 'Do great work',
+      attributes: {
+        deadline: Date.parse('2024-02-01T00:00:00Z'),
+        priority: 2,
+        planningStage: 3,
+        estimatedDuration: 12,
+        urgency: 'high',
+      },
     })
     expect(def.roomId).toBe('project:abc123')
     expect(def.worker.id).toBe('project-abc123-guide')
     expect(def.worker.prompt).toContain('My Project')
     expect(def.worker.prompt).toContain('Test description')
     expect(def.worker.prompt).toContain('Do great work')
+    expect(def.worker.prompt).toContain('2024-02-01T00:00:00.000Z')
+    expect(def.worker.prompt).toContain('Priority: 2')
+    expect(def.worker.prompt).toContain('Planning Stage: 3')
+    expect(def.worker.prompt).toContain('Estimated Duration: 12h')
+    expect(def.worker.prompt).toContain('Urgency: high')
   })
 })
