@@ -7,7 +7,7 @@ import {
   getConversationMessages$,
   getWorkers$,
 } from '@work-squared/shared/queries'
-import { schema, events, type Worker } from '@work-squared/shared/schema'
+import { schema, events } from '@work-squared/shared/schema'
 import { DEFAULT_MODEL_STRING } from '@work-squared/shared'
 import { LiveStoreProvider, useQuery } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
@@ -69,31 +69,8 @@ const withLiveStore = (boot: (store: Store) => void) => (Story: React.ComponentT
   </LiveStoreProvider>
 )
 
-const emptySetup = (store: Store) => {
+const emptySetup = (_store: Store) => {
   // Empty story - no initial data
-}
-
-const storySetup = (store: Store) => {
-  store.commit(
-    events.workerCreated({
-      id: '1',
-      name: 'New Assistant',
-      createdAt: new Date(),
-      systemPrompt: 'You are a helpful assistant.',
-      defaultModel: DEFAULT_MODEL_STRING,
-      actorId: '1',
-    })
-  )
-
-  store.commit(
-    events.conversationCreated({
-      id: '1',
-      title: 'Conversation with New Assistant',
-      createdAt: new Date(),
-      model: DEFAULT_MODEL_STRING,
-      workerId: '1',
-    })
-  )
 }
 
 const meta = {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 export interface UseModalFormOptions<T> {
   /** Initial form values */
@@ -73,6 +73,7 @@ export function useModalForm<T extends Record<string, any>>({
   const [values, setValues] = useState<T>(initialValues)
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const wasOpenRef = useRef(isOpen)
 
   // Reset form when modal opens/closes or when initialValues change
   // Use JSON.stringify to create a stable reference for deep comparison
@@ -92,6 +93,13 @@ export function useModalForm<T extends Record<string, any>>({
       setIsSubmitting(false)
     }
   }, [isOpen, resetOnClose, initialValuesKey])
+
+  useEffect(() => {
+    if (wasOpenRef.current && !isOpen) {
+      onClose?.()
+    }
+    wasOpenRef.current = isOpen
+  }, [isOpen, onClose])
 
   const reset = useCallback(() => {
     setValues(initialValues)
