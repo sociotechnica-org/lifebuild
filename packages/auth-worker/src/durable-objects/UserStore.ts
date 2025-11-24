@@ -1195,6 +1195,8 @@ export class UserStore implements DurableObject {
           return await this.handleListAllUsers(request)
         case '/update-user-store-ids':
           return await this.handleUpdateUserStoreIds(request)
+        case '/admin-set-default-instance':
+          return await this.handleAdminSetDefaultInstance(request)
         case '/update-user-admin-status':
           return await this.handleUpdateUserAdminStatus(request)
         case '/delete-user':
@@ -1497,6 +1499,55 @@ export class UserStore implements DurableObject {
         headers: { 'Content-Type': 'application/json' },
       }
     )
+  }
+
+  private async handleAdminSetDefaultInstance(request: Request): Promise<Response> {
+    const { email, instanceId } = await request.json()
+
+    if (!email || !instanceId) {
+      return new Response(JSON.stringify({ error: 'Invalid request parameters' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const storedUser = await this.storage.get<User>(`user:${email}`)
+    if (!storedUser) {
+      return new Response(JSON.stringify({ error: 'User not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Clone user object to avoid mutating storage-retrieved object
+    const user = structuredClone(storedUser)
+
+    // Set the default instance
+    try {
+      const instance = this.setDefaultInstance(user, instanceId)
+      await this.persistUser(user, { bumpWorkspaceClaimsVersion: true })
+
+      const { hashedPassword: _, ...userResponse } = user
+      return new Response(
+        JSON.stringify({
+          success: true,
+          instance,
+          user: userResponse,
+          message: 'Default instance set successfully',
+        }),
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    } catch (error) {
+      if (error instanceof DurableObjectError) {
+        return new Response(JSON.stringify({ error: { message: error.message } }), {
+          status: error.status,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      throw error
+    }
   }
 
   /**
