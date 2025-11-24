@@ -40,6 +40,11 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children }) => {
   const [isChatOpen, setIsChatOpen] = usePersistentChatToggle(room.roomId)
   const chat = useRoomChat(featureEnabled ? room : null)
   const previousOpenRef = React.useRef(isChatOpen)
+  const disabledReason = chat.isConversationArchived
+    ? 'This chat is archived.'
+    : chat.isWorkerInactive
+      ? "This room's agent is inactive."
+      : null
 
   const showChatPanel = featureEnabled && isChatOpen
 
@@ -78,6 +83,8 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children }) => {
                   messageText={chat.messageText}
                   onMessageTextChange={chat.setMessageText}
                   onSendMessage={chat.sendMessage}
+                  isReadOnly={chat.isConversationArchived || chat.isWorkerInactive}
+                  statusMessage={disabledReason}
                 />
               </div>
             </div>

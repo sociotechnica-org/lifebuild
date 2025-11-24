@@ -7,6 +7,7 @@ import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'
 import { schema, events } from '@work-squared/shared/schema'
 import { ProjectDetailPage } from './ProjectDetailPage.js'
+import { ROOM_CHAT_OVERRIDE_STORAGE_KEY } from '../../../constants/featureFlags.js'
 
 type TaskSeed = {
   id: string
@@ -39,6 +40,22 @@ const withProjectProviders =
       </LiveStoreProvider>
     )
   }
+
+const withRoomChatEnabled = (Story: React.ComponentType): React.ReactElement => {
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(ROOM_CHAT_OVERRIDE_STORAGE_KEY, 'true')
+  }
+
+  React.useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(ROOM_CHAT_OVERRIDE_STORAGE_KEY)
+      }
+    }
+  }, [])
+
+  return <Story />
+}
 
 const seedUsers = (store: Store) => {
   const now = new Date('2024-01-01T00:00:00Z')
@@ -226,6 +243,18 @@ export const ManyTasks: Story = {
     docs: {
       description: {
         story: 'Demonstrates how the page handles projects with large task counts.',
+      },
+    },
+  },
+}
+
+export const ChatEnabled: Story = {
+  decorators: [withRoomChatEnabled, withProjectProviders('project-default', defaultSetup)],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Enables the room chat override so the project guide sidebar is visible without setting env flags.',
       },
     },
   },

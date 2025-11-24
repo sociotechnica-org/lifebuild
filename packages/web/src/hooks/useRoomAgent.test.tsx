@@ -47,7 +47,19 @@ describe('useRoomAgent', () => {
 
   it('skips creation when the worker already exists', () => {
     const room = getCategoryRoomDefinition('finances')
-    mocks.setQueryValue([{ id: room.worker.id, name: room.worker.name }])
+    mocks.setQueryValue([
+      {
+        id: room.worker.id,
+        name: room.worker.name,
+        roleDescription: room.worker.roleDescription,
+        systemPrompt: room.worker.prompt,
+        avatar: null,
+        defaultModel: room.worker.defaultModel,
+        roomId: room.roomId,
+        roomKind: room.roomKind,
+        status: 'active',
+      },
+    ])
 
     const { unmount } = renderHook(() => useRoomAgent(room))
 
