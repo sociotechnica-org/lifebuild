@@ -13,22 +13,33 @@ export const EnsureStoreId: React.FC<EnsureStoreIdProps> = ({ children }) => {
   const { user } = useAuth()
 
   useEffect(() => {
-    // Only redirect if we don't have storeId in URL
     const urlParams = new URLSearchParams(location.search)
-    const hasStoreId = urlParams.get('storeId')
+    const currentStoreId = urlParams.get('storeId')
 
-    if (!hasStoreId) {
-      // Use the same logic as buildRedirectUrl to determine storeId
-      // This ensures consistency with post-login redirect
-      const currentUrl = location.pathname + location.search
-      const storeId = determineStoreId(currentUrl, user)
+    // Determine what the storeId should be based on current user data
+    const currentUrl = location.pathname + location.search
+    const correctStoreId = determineStoreId(currentUrl, user)
 
+    // Update the storeId in the URL if:
+    // 1. There's no storeId in the URL, OR
+    // 2. User just loaded and their default/first instance differs from current URL storeId
+    //    (this handles the case where we initially set a fallback storeId before user loaded)
+    const shouldUpdate =
+      !currentStoreId ||
+      (user &&
+        user.instances &&
+        user.instances.length > 0 &&
+        currentStoreId !== correctStoreId &&
+        // Only update if correctStoreId matches user's default or first instance
+        (correctStoreId === user.defaultInstanceId || correctStoreId === user.instances[0]?.id))
+
+    if (shouldUpdate) {
       // Store it in localStorage for future reference
-      localStorage.setItem('storeId', storeId)
+      localStorage.setItem('storeId', correctStoreId)
 
-      // Add storeId to URL using URLSearchParams to avoid duplicates
+      // Add/update storeId in URL
       const newParams = new URLSearchParams(location.search)
-      newParams.set('storeId', storeId)
+      newParams.set('storeId', correctStoreId)
       const newUrl = `${location.pathname}?${newParams.toString()}${location.hash}`
       navigate(newUrl, { replace: true })
     }

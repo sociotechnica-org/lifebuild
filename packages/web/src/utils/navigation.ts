@@ -89,8 +89,8 @@ export const buildRedirectUrl = (path: string, user: AuthUser | null | undefined
     // Add or update the storeId parameter
     url.searchParams.set('storeId', storeId)
 
-    // Return relative path with search params (pathname + search)
-    return url.pathname + url.search
+    // Return relative path with search params and hash (pathname + search + hash)
+    return url.pathname + url.search + url.hash
   } catch (error) {
     console.error('Error building redirect URL:', error)
     // Fallback: return original path

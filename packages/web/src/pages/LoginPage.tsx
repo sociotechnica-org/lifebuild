@@ -35,9 +35,8 @@ export const LoginPage: React.FC = () => {
     try {
       const success = await login(email, password)
       if (success) {
-        // User object is now populated after successful login
-        const redirectUrl = buildRedirectUrl(redirectTo, user)
-        navigate(redirectUrl, { replace: true })
+        // Don't navigate here - let the useEffect handle it after user state updates
+        // The useEffect will trigger once isAuthenticated becomes true and user is populated
       } else {
         setError('Invalid email or password')
       }

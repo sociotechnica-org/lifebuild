@@ -155,7 +155,13 @@ describe('navigation utils', () => {
     it('handles complex URLs with hash', () => {
       const user = createTestUser({ defaultInstanceId: 'instance-1' })
       const result = buildRedirectUrl('/page?tab=1#section', user)
-      expect(result).toBe('/page?tab=1&storeId=instance-1')
+      expect(result).toBe('/page?tab=1&storeId=instance-1#section')
+    })
+
+    it('preserves hash fragment in simple paths', () => {
+      const user = createTestUser({ defaultInstanceId: 'instance-1' })
+      const result = buildRedirectUrl('/dashboard#overview', user)
+      expect(result).toBe('/dashboard?storeId=instance-1#overview')
     })
 
     it('returns original path on error', () => {
