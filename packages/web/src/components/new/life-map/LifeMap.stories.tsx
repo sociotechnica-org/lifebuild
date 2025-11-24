@@ -14,7 +14,7 @@ const storyConversationId = 'story-conversation-life-map'
 
 const withLifeMapProviders =
   (boot?: (store: Store) => void) =>
-  (Story: React.ComponentType): React.ReactElement => {
+  (StoryComponent: React.ComponentType): React.ReactElement => {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(`room-chat:${LIFE_MAP_ROOM.roomId}:open`, 'true')
       window.history.replaceState({}, '', `/new/life-map?roomChat=1&storeId=storybook`)
@@ -35,7 +35,7 @@ const withLifeMapProviders =
             path='/new/life-map'
             element={
               <RoomLayout room={LIFE_MAP_ROOM}>
-                <LifeMap />
+                <StoryComponent />
               </RoomLayout>
             }
           />

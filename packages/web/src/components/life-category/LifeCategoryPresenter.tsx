@@ -68,6 +68,7 @@ const SortableBacklogProject: React.FC<SortableBacklogProjectProps> = ({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    borderLeft: `4px solid ${categoryColor}`,
   }
 
   const handleClick = (e: React.MouseEvent) => {
@@ -109,7 +110,12 @@ const SortableBacklogProject: React.FC<SortableBacklogProjectProps> = ({
           )}
         </div>
         <div className='flex items-center gap-3'>
-          <div className='text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-md'>Stage 4</div>
+          <div
+            className='text-xs px-2 py-1 rounded-md'
+            style={{ border: `1px solid ${categoryColor}`, color: categoryColor }}
+          >
+            Stage 4
+          </div>
           <button
             type='button'
             onClick={handleActivateClick}
