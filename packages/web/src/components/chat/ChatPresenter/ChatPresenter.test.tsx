@@ -37,6 +37,7 @@ describe('ChatPresenter', () => {
     roomId: null,
     roomKind: null,
     scope: 'workspace',
+    archivedAt: null,
     processingState: 'idle',
   }
 

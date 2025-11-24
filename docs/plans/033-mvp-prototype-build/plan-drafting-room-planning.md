@@ -34,18 +34,20 @@ This plan delivers the Drafting Room experience for capturing and shaping projec
    - Derive project state entirely from the `ProjectLifecycleState` union; the queue should render only items with `status: 'planning'`.
    - Add empty-state guidance encouraging new project capture when queue is empty.
 3. **Stage Wizard Infrastructure**
-  - Build `useDraftingSession` hook to manage stage transitions, form state, autosave timers, and LiveStore mutations.
-  - Stage-specific components:
-    - Stage 1 (Identified): fields for title, description, category; 2-minute checklist.
-    - Stage 2 (Scoped): objectives, archetype, traits, urgency/importance selectors.
-    - Stage 3 (Drafted): integrate Marvin (LLM worker) to generate tasks via existing AI tooling; allow editing/reordering tasks.
-  - Each stage enforces validation before enabling “Next”.
-  - Autosave every edit directly into the canonical LiveStore tables (projects/tasks) so the UI can safely drop explicit “Save Draft” semantics; the UX only needs to communicate that progress is preserved when leaving the flow.
-  - When the Director approves the Stage 3 task list, immediately materialize those tasks into the canonical `tasks` table (with CODAD metadata); the `project_draft_tasks` store becomes read-only history so downstream surfaces (Sorting, Project Board) always consume the canonical rows.
+
+- Build `useDraftingSession` hook to manage stage transitions, form state, autosave timers, and LiveStore mutations.
+- Stage-specific components:
+  - Stage 1 (Identified): fields for title, description, category; 2-minute checklist.
+  - Stage 2 (Scoped): objectives, archetype, traits, urgency/importance selectors.
+  - Stage 3 (Drafted): integrate Marvin (LLM worker) to generate tasks via existing AI tooling; allow editing/reordering tasks.
+- Each stage enforces validation before enabling “Next”.
+- Autosave every edit directly into the canonical LiveStore tables (projects/tasks) so the UI can safely drop explicit “Save Draft” semantics; the UX only needs to communicate that progress is preserved when leaving the flow.
+- When the Director approves the Stage 3 task list, immediately materialize those tasks into the canonical `tasks` table (with CODAD metadata); the `project_draft_tasks` store becomes read-only history so downstream surfaces (Sorting, Project Board) always consume the canonical rows.
 
 4. **Autosave & Resume**
-  - Persist stage drafts to LiveStore after every meaningful change (debounced) with metadata `currentStage`, `stepProgress`, and `lastUpdatedAt`. Let LiveStore’s last-write-wins semantics resolve any conflicting edits.
-  - Provide “Pause for now” action that simply routes the user away while keeping the autosaved project data intact—no extra persistence layer or events required.
+
+- Persist stage drafts to LiveStore after every meaningful change (debounced) with metadata `currentStage`, `stepProgress`, and `lastUpdatedAt`. Let LiveStore’s last-write-wins semantics resolve any conflicting edits.
+- Provide “Pause for now” action that simply routes the user away while keeping the autosaved project data intact—no extra persistence layer or events required.
 
 5. **Abandon/Complete Actions**
    - Allow directors to archive drafts they no longer need (moves to `deletedAt`).
