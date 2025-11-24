@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.js'
-import { determineStoreId } from '../../utils/navigation.js'
+import { determineStoreIdFromUser } from '../../utils/navigation.js'
 
 interface EnsureStoreIdProps {
   children: React.ReactNode
@@ -16,9 +16,8 @@ export const EnsureStoreId: React.FC<EnsureStoreIdProps> = ({ children }) => {
     const urlParams = new URLSearchParams(location.search)
     const currentStoreId = urlParams.get('storeId')
 
-    // Determine what the storeId should be based on current user data
-    const currentUrl = location.pathname + location.search
-    const correctStoreId = determineStoreId(currentUrl, user)
+    // Determine what the storeId should be based on user data (ignoring current URL)
+    const userPreferredStoreId = determineStoreIdFromUser(user)
 
     // Update the storeId in the URL if:
     // 1. There's no storeId in the URL, OR
@@ -29,17 +28,18 @@ export const EnsureStoreId: React.FC<EnsureStoreIdProps> = ({ children }) => {
       (user &&
         user.instances &&
         user.instances.length > 0 &&
-        currentStoreId !== correctStoreId &&
-        // Only update if correctStoreId matches user's default or first instance
-        (correctStoreId === user.defaultInstanceId || correctStoreId === user.instances[0]?.id))
+        currentStoreId !== userPreferredStoreId &&
+        // Only update if userPreferredStoreId matches user's default or first instance
+        (userPreferredStoreId === user.defaultInstanceId ||
+          userPreferredStoreId === user.instances[0]?.id))
 
     if (shouldUpdate) {
       // Store it in localStorage for future reference
-      localStorage.setItem('storeId', correctStoreId)
+      localStorage.setItem('storeId', userPreferredStoreId)
 
       // Add/update storeId in URL
       const newParams = new URLSearchParams(location.search)
-      newParams.set('storeId', correctStoreId)
+      newParams.set('storeId', userPreferredStoreId)
       const newUrl = `${location.pathname}?${newParams.toString()}${location.hash}`
       navigate(newUrl, { replace: true })
     }

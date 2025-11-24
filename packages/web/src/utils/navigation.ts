@@ -31,6 +31,35 @@ export const preserveStoreIdInUrl = (path: string): string => {
 }
 
 /**
+ * Determines the storeId based solely on user data (ignoring URL)
+ * Priority order:
+ * 1. User's defaultInstanceId (if it exists in their instances)
+ * 2. User's first instance
+ * 3. Stored storeId from localStorage
+ * 4. Generate new UUID
+ */
+export const determineStoreIdFromUser = (user: AuthUser | null | undefined): string => {
+  // 1. Try user's defaultInstanceId (verify it exists in their instances)
+  if (user?.defaultInstanceId && user.instances?.some(i => i.id === user.defaultInstanceId)) {
+    return user.defaultInstanceId
+  }
+
+  // 2. Try user's first instance
+  if (user?.instances && user.instances.length > 0 && user.instances[0]) {
+    return user.instances[0].id
+  }
+
+  // 3. Try localStorage as fallback
+  const storedStoreId = localStorage.getItem('storeId')
+  if (storedStoreId) {
+    return storedStoreId
+  }
+
+  // 4. Generate new UUID
+  return crypto.randomUUID()
+}
+
+/**
  * Determines the appropriate storeId to use based on user data and current context
  * Priority order:
  * 1. Existing storeId in the target URL
@@ -51,24 +80,8 @@ export const determineStoreId = (targetUrl: string, user: AuthUser | null | unde
     // If URL parsing fails, continue with other methods
   }
 
-  // 2. Try user's defaultInstanceId (verify it exists in their instances)
-  if (user?.defaultInstanceId && user.instances?.some(i => i.id === user.defaultInstanceId)) {
-    return user.defaultInstanceId
-  }
-
-  // 3. Try user's first instance
-  if (user?.instances && user.instances.length > 0 && user.instances[0]) {
-    return user.instances[0].id
-  }
-
-  // 4. Try localStorage as fallback
-  const storedStoreId = localStorage.getItem('storeId')
-  if (storedStoreId) {
-    return storedStoreId
-  }
-
-  // 5. Generate new UUID
-  return crypto.randomUUID()
+  // 2-5. Use the user-based determination for everything else
+  return determineStoreIdFromUser(user)
 }
 
 /**
