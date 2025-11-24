@@ -33,7 +33,7 @@ export const UserDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [updating, setUpdating] = useState(false)
-  const [settingDefault, setSettingDefault] = useState(false)
+  const [settingDefaultInstanceId, setSettingDefaultInstanceId] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -173,7 +173,7 @@ export const UserDetailPage: React.FC = () => {
 
   const setDefaultInstance = async (instanceId: string) => {
     try {
-      setSettingDefault(true)
+      setSettingDefaultInstanceId(instanceId)
       setError(null)
 
       const token = await getCurrentToken()
@@ -206,7 +206,7 @@ export const UserDetailPage: React.FC = () => {
       setError(err instanceof Error ? err.message : 'Unknown error occurred')
       console.error('Error setting default instance:', err)
     } finally {
-      setSettingDefault(false)
+      setSettingDefaultInstanceId(null)
     }
   }
 
@@ -426,7 +426,7 @@ export const UserDetailPage: React.FC = () => {
             onRemoveInstance={instanceId => updateStoreIds('remove', instanceId)}
             onSetDefaultInstance={setDefaultInstance}
             removing={updating}
-            settingDefault={settingDefault}
+            settingDefaultInstanceId={settingDefaultInstanceId}
           />
         </div>
 

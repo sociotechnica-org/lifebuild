@@ -1511,13 +1511,16 @@ export class UserStore implements DurableObject {
       })
     }
 
-    const user = await this.storage.get<User>(`user:${email}`)
-    if (!user) {
+    const storedUser = await this.storage.get<User>(`user:${email}`)
+    if (!storedUser) {
       return new Response(JSON.stringify({ error: 'User not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       })
     }
+
+    // Clone user object to avoid mutating storage-retrieved object
+    const user = structuredClone(storedUser)
 
     // Set the default instance
     try {
@@ -1538,7 +1541,7 @@ export class UserStore implements DurableObject {
       )
     } catch (error) {
       if (error instanceof DurableObjectError) {
-        return new Response(JSON.stringify({ error: error.message }), {
+        return new Response(JSON.stringify({ error: { message: error.message } }), {
           status: error.status,
           headers: { 'Content-Type': 'application/json' },
         })

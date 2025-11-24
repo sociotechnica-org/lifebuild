@@ -6,7 +6,7 @@ interface InstancesListProps {
   onRemoveInstance?: (instanceId: string) => void
   onSetDefaultInstance?: (instanceId: string) => void
   removing?: boolean
-  settingDefault?: boolean
+  settingDefaultInstanceId?: string | null
 }
 
 export const InstancesList: React.FC<InstancesListProps> = ({
@@ -14,7 +14,7 @@ export const InstancesList: React.FC<InstancesListProps> = ({
   onRemoveInstance,
   onSetDefaultInstance,
   removing = false,
-  settingDefault = false,
+  settingDefaultInstanceId = null,
 }) => {
   if (instances.length === 0) {
     return (
@@ -33,7 +33,7 @@ export const InstancesList: React.FC<InstancesListProps> = ({
           onRemove={onRemoveInstance}
           onSetDefault={onSetDefaultInstance}
           removing={removing}
-          settingDefault={settingDefault}
+          settingDefault={settingDefaultInstanceId === instance.id}
         />
       ))}
     </div>
