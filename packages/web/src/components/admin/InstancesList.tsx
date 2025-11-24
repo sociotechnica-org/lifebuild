@@ -4,13 +4,17 @@ import { InstanceCard, Instance } from './InstanceCard.js'
 interface InstancesListProps {
   instances: Instance[]
   onRemoveInstance?: (instanceId: string) => void
+  onSetDefaultInstance?: (instanceId: string) => void
   removing?: boolean
+  settingDefault?: boolean
 }
 
 export const InstancesList: React.FC<InstancesListProps> = ({
   instances,
   onRemoveInstance,
+  onSetDefaultInstance,
   removing = false,
+  settingDefault = false,
 }) => {
   if (instances.length === 0) {
     return (
@@ -27,7 +31,9 @@ export const InstancesList: React.FC<InstancesListProps> = ({
           key={instance.id}
           instance={instance}
           onRemove={onRemoveInstance}
+          onSetDefault={onSetDefaultInstance}
           removing={removing}
+          settingDefault={settingDefault}
         />
       ))}
     </div>
