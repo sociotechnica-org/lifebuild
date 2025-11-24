@@ -638,6 +638,7 @@ const materializers = State.SQLite.materializers(events, {
       model,
       workerId,
       scope: 'workspace',
+      archivedAt: null,
       createdAt,
       updatedAt: createdAt,
     }),

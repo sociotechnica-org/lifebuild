@@ -45,6 +45,7 @@ vi.mock('../../../hooks/useRoomChat.js', () => ({
       scope: 'workspace',
       createdAt: new Date(),
       updatedAt: new Date(),
+      archivedAt: null,
       processingState: 'idle',
     },
     messages: [],
@@ -53,6 +54,8 @@ vi.mock('../../../hooks/useRoomChat.js', () => ({
     messageText: '',
     setMessageText: mockSetMessageText,
     sendMessage: mockSendMessage,
+    isConversationArchived: false,
+    isWorkerInactive: false,
   }),
 }))
 
