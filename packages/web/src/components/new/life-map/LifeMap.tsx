@@ -67,7 +67,11 @@ export const LifeMap: React.FC = () => {
   return (
     <div className='new-ui-card'>
       <div className='new-ui-category-grid'>
-        {PROJECT_CATEGORIES.map(category => {
+        {PROJECT_CATEGORIES.filter(category => {
+          const projects =
+            categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
+          return projects.length > 0
+        }).map(category => {
           const projects =
             categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
           const workers = categoryWorkersMap[category.value] || 0

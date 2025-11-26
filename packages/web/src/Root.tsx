@@ -38,6 +38,8 @@ import { ProjectDetailPage } from './components/new/projects/ProjectDetailPage.j
 import { LifeMap } from './components/new/life-map/LifeMap.js'
 import { LifeCategory } from './components/new/life-category/LifeCategory.js'
 import { RoomLayout } from './components/new/layout/RoomLayout.js'
+import { NewUiShell } from './components/new/layout/NewUiShell.js'
+import { DraftingRoom } from './components/new/drafting-room/DraftingRoom.js'
 import { LIFE_MAP_ROOM } from '@work-squared/shared/rooms'
 
 const adapter = makePersistedAdapter({
@@ -181,6 +183,16 @@ const ProtectedApp: React.FC = () => {
                           <RoomLayout room={LIFE_MAP_ROOM}>
                             <LifeMap />
                           </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.NEW_DRAFTING_ROOM}
+                      element={
+                        <ErrorBoundary>
+                          <NewUiShell>
+                            <DraftingRoom />
+                          </NewUiShell>
                         </ErrorBoundary>
                       }
                     />

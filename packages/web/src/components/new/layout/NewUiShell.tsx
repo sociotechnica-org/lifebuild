@@ -39,11 +39,9 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
     <div className='new-ui-container'>
       <header className='new-ui-header'>
         <nav className='new-ui-nav-links'>
-          {/* TODO: Add routes for these rooms when they exist */}
           <Link
-            to='#'
+            to={generateRoute.newDraftingRoom()}
             className={isActive('/new/drafting-room') ? 'active' : ''}
-            style={{ opacity: 0.5, pointerEvents: 'none' }}
           >
             Drafting Room
           </Link>
