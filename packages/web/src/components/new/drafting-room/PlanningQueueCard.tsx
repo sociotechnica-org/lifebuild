@@ -1,5 +1,5 @@
 import React from 'react'
-import { getCategoryInfo, type ProjectCategory } from '@work-squared/shared'
+import { getCategoryInfo, type ProjectCategory, type PlanningStage } from '@work-squared/shared'
 import type { Project } from '@work-squared/shared/schema'
 import type { ProjectTier } from './DraftingRoom.js'
 
@@ -26,9 +26,32 @@ function formatCompactRelativeTime(date: Date): string {
   return '1y+ ago'
 }
 
+/**
+ * Get the action button label based on the current stage
+ * Stage 1: "Scope" (moves to Stage 2)
+ * Stage 2: "Draft" (moves to Stage 3)
+ * Stage 3: "Prioritize" (moves to Stage 4)
+ * Stage 4: "Resume" (ready for activation)
+ */
+function getActionLabel(stage: PlanningStage): string {
+  switch (stage) {
+    case 1:
+      return 'Scope'
+    case 2:
+      return 'Draft'
+    case 3:
+      return 'Prioritize'
+    case 4:
+      return 'Resume'
+    default:
+      return 'Resume'
+  }
+}
+
 interface PlanningQueueCardProps {
   project: Project
-  tier: ProjectTier
+  stage: PlanningStage
+  tier: ProjectTier | null
   objectivesCount: number
   taskCount: number
   isStale: boolean
@@ -44,6 +67,7 @@ const TIER_LABELS: Record<ProjectTier, string> = {
 
 export const PlanningQueueCard: React.FC<PlanningQueueCardProps> = ({
   project,
+  stage,
   tier,
   objectivesCount,
   taskCount,
@@ -55,9 +79,9 @@ export const PlanningQueueCard: React.FC<PlanningQueueCardProps> = ({
   const categoryColor = categoryInfo?.colorHex ?? '#888'
   const categoryLabel = categoryInfo?.name?.toUpperCase() ?? 'UNCATEGORIZED'
 
-  // Build the tier/stats line
+  // Build the tier/stats line (only show tier if determined)
   const statsLine = [
-    TIER_LABELS[tier],
+    tier ? TIER_LABELS[tier] : null,
     objectivesCount > 0 ? `${objectivesCount} obj` : null,
     taskCount > 0 ? `${taskCount} tasks` : null,
   ]
@@ -78,14 +102,20 @@ export const PlanningQueueCard: React.FC<PlanningQueueCardProps> = ({
 
       <h3 className='planning-queue-card-title'>{project.name}</h3>
 
-      <div className='planning-queue-card-stats'>
-        <span className={`planning-queue-card-tier tier-${tier}`}>{statsLine}</span>
-        {isStale && <span className='planning-queue-card-stale'>⚠️</span>}
-      </div>
+      {(statsLine || isStale) && (
+        <div className='planning-queue-card-stats'>
+          {statsLine && (
+            <span className={`planning-queue-card-tier${tier ? ` tier-${tier}` : ''}`}>
+              {statsLine}
+            </span>
+          )}
+          {isStale && <span className='planning-queue-card-stale'>⚠️</span>}
+        </div>
+      )}
 
       <div className='planning-queue-card-actions'>
         <button type='button' className='planning-queue-card-btn primary' onClick={onResume}>
-          Resume
+          {getActionLabel(stage)}
         </button>
         <button type='button' className='planning-queue-card-btn secondary' onClick={onAbandon}>
           Abandon

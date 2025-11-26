@@ -1,0 +1,329 @@
+/* Stage Form Styles */
+
+.stage-form {
+  min-height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+
+.stage-form-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+  width: 100%;
+  max-width: 700px;
+}
+
+/* Header */
+.stage-form-header {
+  margin-bottom: 2rem;
+}
+
+.stage-form-title {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--ink);
+  margin: 0 0 0.25rem 0;
+}
+
+.stage-form-subtitle {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Form Fields */
+.stage-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stage-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stage-form-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.stage-form-input {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: var(--ink);
+  background: #fff;
+  transition: border-color 160ms ease;
+}
+
+.stage-form-input:focus {
+  outline: none;
+  border-color: var(--muted);
+}
+
+.stage-form-input::placeholder {
+  color: var(--muted);
+}
+
+.stage-form-textarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: var(--ink);
+  background: #fff;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  transition: border-color 160ms ease;
+}
+
+.stage-form-textarea:focus {
+  outline: none;
+  border-color: var(--muted);
+}
+
+.stage-form-textarea::placeholder {
+  color: var(--muted);
+}
+
+/* Category Pills */
+.stage-form-category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.stage-form-category-pill {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.stage-form-category-pill:hover {
+  border-color: var(--muted);
+}
+
+.stage-form-category-pill.active {
+  /* Color set inline via style prop */
+}
+
+/* Actions */
+.stage-form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.stage-form-btn {
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    opacity 120ms ease;
+}
+
+.stage-form-btn.secondary {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.stage-form-btn.secondary:hover {
+  border-color: var(--muted);
+}
+
+.stage-form-btn.primary {
+  background: var(--muted);
+  color: #fff;
+  border: none;
+  flex: 1;
+}
+
+.stage-form-btn.primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stage-form-btn.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.stage-form-btn.tertiary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.stage-form-btn.tertiary:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* Wide card variant for Stage 2+ */
+.stage-form-card-wide {
+  max-width: 800px;
+}
+
+/* Hint text */
+.stage-form-hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Objectives list */
+.stage-form-objectives {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stage-form-add-btn {
+  align-self: flex-start;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  margin-top: 0.25rem;
+}
+
+.stage-form-add-btn:hover {
+  border-color: var(--muted);
+}
+
+/* Archetype cards */
+.stage-form-archetype-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stage-form-archetype-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.stage-form-archetype-card:hover {
+  border-color: var(--muted);
+}
+
+.stage-form-archetype-card.active {
+  border-color: var(--ink);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.stage-form-archetype-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.stage-form-archetype-desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* Tier cards */
+.stage-form-tier-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .stage-form-tier-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stage-form-tier-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: #fff;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.stage-form-tier-card:hover {
+  border-color: var(--muted);
+}
+
+.stage-form-tier-card.active {
+  border-width: 2px;
+}
+
+.stage-form-tier-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.stage-form-tier-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* 3-button footer layout */
+.stage-form-actions-3 {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.stage-form-actions-3 .stage-form-btn.tertiary,
+.stage-form-actions-3 .stage-form-btn.secondary {
+  flex: 0 0 auto;
+}
+
+.stage-form-actions-3 .stage-form-btn.primary {
+  flex: 1;
+}
+

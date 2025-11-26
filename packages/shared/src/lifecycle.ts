@@ -12,6 +12,10 @@ export interface DraftingPayload {
   notes?: string
   risks?: string[]
   ownerId?: string | null
+  /**
+   * @deprecated Use project.updatedAt instead. This field is redundant and will be removed.
+   * @see https://github.com/sociotechnica-org/work-squared/issues/344
+   */
   lastEditedAt?: number
 }
 

@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react'
-import { useQuery } from '@livestore/react'
+import { useNavigate } from 'react-router-dom'
+import { useQuery, useStore } from '@livestore/react'
 import { getProjects$ } from '@work-squared/shared/queries'
+import { events } from '@work-squared/shared/schema'
 import {
   PROJECT_CATEGORIES,
   type ProjectCategory,
@@ -8,6 +10,8 @@ import {
   type PlanningStage,
 } from '@work-squared/shared'
 import type { Project } from '@work-squared/shared/schema'
+import { generateRoute } from '../../../constants/routes.js'
+import { useAuth } from '../../../contexts/AuthContext.js'
 import { StageColumn } from './StageColumn.js'
 import { PlanningQueueCard } from './PlanningQueueCard.js'
 import './drafting-room.css'
@@ -18,12 +22,16 @@ export type ProjectTier = 'gold' | 'silver' | 'bronze'
  * Derive tier from project attributes (archetype + scale)
  * Gold: Initiative + Major/Epic scale
  * Silver: System Build or Discovery Mission
- * Bronze: Everything else
+ * Bronze: Quick Task or explicitly micro scale
+ * Returns null if tier cannot be determined (e.g., Stage 1 projects with no archetype)
  */
-export function deriveTier(attributes: PlanningAttributes | null): ProjectTier {
-  if (!attributes) return 'bronze'
+export function deriveTier(attributes: PlanningAttributes | null): ProjectTier | null {
+  if (!attributes) return null
 
   const { archetype, scale } = attributes
+
+  // No archetype set yet - can't determine tier
+  if (!archetype) return null
 
   // Gold: Initiative + Major/Epic scale
   if (archetype === 'initiative' && (scale === 'major' || scale === 'epic')) {
@@ -35,8 +43,13 @@ export function deriveTier(attributes: PlanningAttributes | null): ProjectTier {
     return 'silver'
   }
 
-  // Bronze: Everything else
-  return 'bronze'
+  // Bronze: Quick Task, maintenance, or micro scale
+  if (archetype === 'quicktask' || archetype === 'maintenance' || scale === 'micro') {
+    return 'bronze'
+  }
+
+  // Default to null if we can't determine (e.g., initiative without scale)
+  return null
 }
 
 /**
@@ -84,6 +97,9 @@ const TIER_FILTERS: { value: ProjectTier | 'all'; label: string }[] = [
 ]
 
 export const DraftingRoom: React.FC = () => {
+  const navigate = useNavigate()
+  const { store } = useStore()
+  const { user } = useAuth()
   const allProjects = useQuery(getProjects$) ?? []
 
   // Filter state
@@ -153,14 +169,42 @@ export const DraftingRoom: React.FC = () => {
     setTierFilter('all')
   }
 
-  const handleResume = (projectId: string) => {
-    // TODO: Navigate to stage-specific form
-    console.log('Resume project:', projectId)
+  const handleResume = (projectId: string, stage: PlanningStage) => {
+    // Navigate to the appropriate stage form
+    switch (stage) {
+      case 1:
+        // Stage 1 → Stage 2 (Scoping)
+        navigate(generateRoute.newProjectStage2(projectId))
+        break
+      case 2:
+        // TODO: Stage 2 → Stage 3 (Drafting)
+        navigate(generateRoute.newProjectStage2(projectId))
+        break
+      case 3:
+        // TODO: Stage 3 → Stage 4 (Prioritizing)
+        navigate(generateRoute.newProjectStage2(projectId))
+        break
+      case 4:
+        // TODO: Stage 4 → Ready for activation
+        navigate(generateRoute.newProjectStage2(projectId))
+        break
+    }
   }
 
-  const handleAbandon = (projectId: string) => {
-    // TODO: Show confirmation dialog, then archive
-    console.log('Abandon project:', projectId)
+  const handleAbandon = (projectId: string, projectName: string) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to abandon "${projectName}"?\n\nThis will archive the project and remove it from the planning queue.`
+    )
+
+    if (confirmed) {
+      store.commit(
+        events.projectArchived({
+          id: projectId,
+          archivedAt: new Date(),
+          actorId: user?.id,
+        })
+      )
+    }
   }
 
   return (
@@ -240,12 +284,13 @@ export const DraftingRoom: React.FC = () => {
                   <PlanningQueueCard
                     key={project.id}
                     project={project}
+                    stage={stage}
                     tier={deriveTier(attrs)}
                     objectivesCount={getObjectivesCount(attrs)}
                     taskCount={0} // TODO: Query tasks for this project
                     isStale={isStale(project.updatedAt)}
-                    onResume={() => handleResume(project.id)}
-                    onAbandon={() => handleAbandon(project.id)}
+                    onResume={() => handleResume(project.id, stage)}
+                    onAbandon={() => handleAbandon(project.id, project.name)}
                   />
                 )
               })}
@@ -256,7 +301,11 @@ export const DraftingRoom: React.FC = () => {
 
       {/* Start New Project Button */}
       <div className='drafting-room-footer'>
-        <button type='button' className='drafting-room-new-project-btn'>
+        <button
+          type='button'
+          className='drafting-room-new-project-btn'
+          onClick={() => navigate(generateRoute.newProjectCreate())}
+        >
           + Start New Project
         </button>
       </div>
