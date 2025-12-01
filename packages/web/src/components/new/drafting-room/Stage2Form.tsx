@@ -19,9 +19,24 @@ const ARCHETYPES: { value: ProjectArchetype; label: string; description: string 
 ]
 
 const TIERS: { value: ProjectTier; label: string; description: string; color: string }[] = [
-  { value: 'gold', label: 'Gold', description: 'Major life-changing initiatives', color: '#d8a650' },
-  { value: 'silver', label: 'Silver', description: 'System builds and capacity work', color: '#9ca3af' },
-  { value: 'bronze', label: 'Bronze', description: 'Quick tasks and maintenance', color: '#c48b5a' },
+  {
+    value: 'gold',
+    label: 'Gold',
+    description: 'Major life-changing initiatives',
+    color: '#d8a650',
+  },
+  {
+    value: 'silver',
+    label: 'Silver',
+    description: 'System builds and capacity work',
+    color: '#9ca3af',
+  },
+  {
+    value: 'bronze',
+    label: 'Bronze',
+    description: 'Quick tasks and maintenance',
+    color: '#c48b5a',
+  },
 ]
 
 export const Stage2Form: React.FC = () => {
@@ -262,4 +277,3 @@ export const Stage2Form: React.FC = () => {
     </div>
   )
 }
-

@@ -5,8 +5,8 @@ import {
   deriveLifecycleFromAttributes,
   parseProjectLifecycleState,
   ProjectLifecycleStateSchema,
-} from '../lifecycle.js'
-import type { PlanningAttributes } from '../types.js'
+  type PlanningAttributes,
+} from '../types/planning.js'
 import { Filter } from '../types'
 import * as eventsDefs from './events'
 
@@ -460,14 +460,13 @@ export const tables = {
   taskExecutions,
 }
 
-const buildLifecycleState = (lifecycleState: unknown, attributes: unknown, timestamp: Date) => {
+const buildLifecycleState = (lifecycleState: unknown, attributes: unknown) => {
   const parsedLifecycle = parseProjectLifecycleState(lifecycleState)
   if (parsedLifecycle) return parsedLifecycle
 
   return deriveLifecycleFromAttributes(
     (attributes as PlanningAttributes | null | undefined) ?? null,
-    createDefaultLifecycleState({ lastEditedAt: timestamp.getTime() }),
-    timestamp.getTime()
+    createDefaultLifecycleState()
   )
 }
 
@@ -510,7 +509,7 @@ const materializers = State.SQLite.materializers(events, {
       description,
       category: null, // PR4: v1 projects have no category
       attributes: null, // PR4: v1 projects have no attributes
-      projectLifecycleState: buildLifecycleState(lifecycleState, null, createdAt),
+      projectLifecycleState: buildLifecycleState(lifecycleState, null),
       createdAt,
       updatedAt: createdAt,
     }),
@@ -1139,7 +1138,7 @@ const materializers = State.SQLite.materializers(events, {
       description,
       category: category || null,
       attributes: attributes || null,
-      projectLifecycleState: buildLifecycleState(lifecycleState, attributes, createdAt),
+      projectLifecycleState: buildLifecycleState(lifecycleState, attributes),
       createdAt,
       updatedAt: createdAt,
       archivedAt: null,
@@ -1178,8 +1177,7 @@ const materializers = State.SQLite.materializers(events, {
         attributes,
         projectLifecycleState: deriveLifecycleFromAttributes(
           (attributes as PlanningAttributes | null | undefined) ?? null,
-          createDefaultLifecycleState({ lastEditedAt: updatedAt.getTime() }),
-          updatedAt.getTime()
+          createDefaultLifecycleState()
         ),
         updatedAt,
       })

@@ -91,7 +91,7 @@ const planningSetup = (store: Store) => {
       lifecycleState: {
         status: 'planning',
         stage: 2,
-        draftingData: { summary: 'Scoping work', lastEditedAt: createdAt.getTime() },
+        planningData: { objectives: 'Scoping work' },
       },
       attributes: { status: 'planning', planningStage: 2, objectives: 'Frame the MVP' },
       createdAt,
@@ -102,25 +102,31 @@ const planningSetup = (store: Store) => {
   seedWorkers(store, 'project-planning', 2)
 }
 
-const plansSetup = (store: Store) => {
+const backlogSetup = (store: Store) => {
   const createdAt = new Date('2024-02-03T00:00:00Z')
   store.commit(
     events.projectCreatedV2({
-      id: 'project-plans',
+      id: 'project-backlog',
       name: 'Gold Stream Contenders',
       description: 'Shortlist of projects queued for Gold.',
       category: 'finances',
-      lifecycleState: { status: 'plans', stream: 'gold', queuePosition: 1 },
+      lifecycleState: {
+        status: 'backlog',
+        stage: 4,
+        planningData: {},
+        stream: 'gold',
+        queuePosition: 1,
+      },
       attributes: { status: 'backlog', priority: 1 },
       createdAt,
       actorId: 'storybook',
     })
   )
-  seedTasks(store, 'project-plans', ['p1', 'p2'], ['todo', 'todo'])
-  seedWorkers(store, 'project-plans', 3)
+  seedTasks(store, 'project-backlog', ['p1', 'p2'], ['todo', 'todo'])
+  seedWorkers(store, 'project-backlog', 3)
 }
 
-const workAtHandSetup = (store: Store) => {
+const activeSetup = (store: Store) => {
   const createdAt = new Date('2024-02-05T00:00:00Z')
   store.commit(
     events.projectCreatedV2({
@@ -129,7 +135,7 @@ const workAtHandSetup = (store: Store) => {
       description: 'Actively working in the Gold slot.',
       category: 'health',
       lifecycleState: {
-        status: 'work_at_hand',
+        status: 'active',
         slot: 'gold',
         activatedAt: createdAt.getTime(),
       },
@@ -147,22 +153,22 @@ const workAtHandSetup = (store: Store) => {
   seedWorkers(store, 'project-active', 4)
 }
 
-const pausedSetup = (store: Store) => {
+const completedSetup = (store: Store) => {
   const createdAt = new Date('2024-02-06T00:00:00Z')
   store.commit(
     events.projectCreatedV2({
-      id: 'project-paused',
-      name: 'Waiting on Review',
-      description: 'Paused while feedback lands.',
+      id: 'project-completed',
+      name: 'Finished Project',
+      description: 'A completed project.',
       category: 'relationships',
-      lifecycleState: { status: 'paused', stream: 'silver', pausedReason: 'Awaiting approvals' },
-      attributes: { status: 'backlog', priority: 3, lastActivityAt: createdAt.getTime() },
+      lifecycleState: { status: 'completed', completedAt: createdAt.getTime() },
+      attributes: { status: 'completed', lastActivityAt: createdAt.getTime() },
       createdAt,
       actorId: 'storybook',
     })
   )
-  seedTasks(store, 'project-paused', ['s1', 's2'], ['todo', 'todo'])
-  seedWorkers(store, 'project-paused', 1)
+  seedTasks(store, 'project-completed', ['s1', 's2'], ['done', 'done'])
+  seedWorkers(store, 'project-completed', 1)
 }
 
 const meta: Meta<typeof ProjectCardHelper> = {
@@ -191,17 +197,17 @@ export const Planning: Story = {
   decorators: [withLiveStore(planningSetup)],
 }
 
-export const PlansStream: Story = {
-  args: { projectId: 'project-plans' },
-  decorators: [withLiveStore(plansSetup)],
+export const Backlog: Story = {
+  args: { projectId: 'project-backlog' },
+  decorators: [withLiveStore(backlogSetup)],
 }
 
-export const WorkAtHand: Story = {
+export const Active: Story = {
   args: { projectId: 'project-active' },
-  decorators: [withLiveStore(workAtHandSetup)],
+  decorators: [withLiveStore(activeSetup)],
 }
 
-export const Paused: Story = {
-  args: { projectId: 'project-paused' },
-  decorators: [withLiveStore(pausedSetup)],
+export const Completed: Story = {
+  args: { projectId: 'project-completed' },
+  decorators: [withLiveStore(completedSetup)],
 }
