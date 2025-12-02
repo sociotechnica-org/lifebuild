@@ -97,11 +97,60 @@ const seedLifeMap = (store: Store) => {
   )
 
   const projectSeeds = [
-    { id: 'proj-health', name: 'Dial-in sleep routine', category: 'health' },
-    { id: 'proj-purpose', name: 'Define 2025 North Star', category: 'growth' },
-    { id: 'proj-finances', name: 'Quarterly budget reset', category: 'finances' },
-    { id: 'proj-home', name: 'Declutter studio', category: 'home' },
-    { id: 'proj-contribution', name: 'Mentor two founders', category: 'contribution' },
+    {
+      id: 'proj-health',
+      name: 'Dial-in sleep routine',
+      category: 'health',
+      description: 'Improve sleep quality',
+    },
+    {
+      id: 'proj-health-2',
+      name: 'Morning workout routine',
+      category: 'health',
+      description: 'Exercise daily',
+    },
+    {
+      id: 'proj-health-3',
+      name: 'Meal prep Sundays',
+      category: 'health',
+      description: 'Plan healthy meals',
+    },
+    {
+      id: 'proj-purpose',
+      name: 'Define 2025 North Star',
+      category: 'growth',
+      description: 'Set long-term goals',
+    },
+    {
+      id: 'proj-finances',
+      name: 'Quarterly budget reset',
+      category: 'finances',
+      description: 'Review spending',
+    },
+    {
+      id: 'proj-finances-2',
+      name: 'Investment portfolio review',
+      category: 'finances',
+      description: 'Check investments',
+    },
+    {
+      id: 'proj-home',
+      name: 'Declutter studio',
+      category: 'home',
+      description: 'Organize workspace',
+    },
+    {
+      id: 'proj-home-2',
+      name: 'Fix leaky kitchen faucet',
+      category: 'home',
+      description: 'Home repair',
+    },
+    {
+      id: 'proj-contribution',
+      name: 'Mentor two founders',
+      category: 'contribution',
+      description: 'Help others',
+    },
   ] as const
 
   projectSeeds.forEach((project, index) => {
@@ -109,9 +158,66 @@ const seedLifeMap = (store: Store) => {
       events.projectCreatedV2({
         id: project.id,
         name: project.name,
-        description: 'Seeded via Life Map story.',
+        description: project.description,
         category: project.category,
         createdAt: new Date(now.getTime() + index * 60000),
+        actorId: 'storybook',
+      })
+    )
+  })
+
+  // Create tasks for some projects to demonstrate active vs tabled
+  const taskSeeds = [
+    { id: 'task-health-1', projectId: 'proj-health', title: 'Research sleep trackers' },
+    { id: 'task-health-2', projectId: 'proj-health-2', title: 'Buy gym equipment' },
+    { id: 'task-finances-1', projectId: 'proj-finances', title: 'Review bank statements' },
+    { id: 'task-home-1', projectId: 'proj-home-2', title: 'Call plumber' },
+  ]
+
+  taskSeeds.forEach((task, index) => {
+    store.commit(
+      events.taskCreatedV2({
+        id: task.id,
+        projectId: task.projectId,
+        title: task.title,
+        description: undefined,
+        assigneeIds: undefined,
+        status: 'todo',
+        position: index,
+        createdAt: new Date(now.getTime() + index * 60000),
+        actorId: 'storybook',
+      })
+    )
+  })
+
+  // Initialize table configuration with Gold and Silver projects
+  store.commit(
+    events.tableConfigurationInitialized({
+      goldProjectId: 'proj-finances', // Finances project is Gold
+      silverProjectId: 'proj-purpose', // Growth project is Silver
+      bronzeMode: 'target',
+      bronzeTargetExtra: 0,
+      updatedAt: now,
+      actorId: 'storybook',
+    })
+  )
+
+  // Add some tasks to bronze stack to make projects "active"
+  // This simulates projects that have tasks in the active bronze queue
+  const bronzeTaskSeeds = [
+    { id: 'bronze-1', taskId: 'task-health-1', position: 0 },
+    { id: 'bronze-2', taskId: 'task-finances-1', position: 1 },
+  ]
+
+  bronzeTaskSeeds.forEach(entry => {
+    store.commit(
+      events.bronzeTaskAdded({
+        id: entry.id,
+        taskId: entry.taskId,
+        position: entry.position,
+        insertedAt: now,
+        insertedBy: 'storybook',
+        status: 'active',
         actorId: 'storybook',
       })
     )

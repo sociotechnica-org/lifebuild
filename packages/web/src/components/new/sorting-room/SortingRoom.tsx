@@ -173,6 +173,27 @@ export const SortingRoom: React.FC = () => {
     [silverProject, allTasks]
   )
 
+  // Calculate completion percentage for tabled projects
+  const getProjectCompletionPercentage = useCallback(
+    (projectId: string): number => {
+      const projectTasks = allTasks.filter(t => t.projectId === projectId && t.archivedAt === null)
+      if (projectTasks.length === 0) return 0
+      const completedTasks = projectTasks.filter(t => t.status === 'done').length
+      return Math.round((completedTasks / projectTasks.length) * 100)
+    },
+    [allTasks]
+  )
+
+  const goldProjectCompletionPercentage = useMemo(
+    () => (goldProject ? getProjectCompletionPercentage(goldProject.id) : 0),
+    [goldProject, getProjectCompletionPercentage]
+  )
+
+  const silverProjectCompletionPercentage = useMemo(
+    () => (silverProject ? getProjectCompletionPercentage(silverProject.id) : 0),
+    [silverProject, getProjectCompletionPercentage]
+  )
+
   // Get top bronze task for summary
   const topBronzeTask = useMemo(() => {
     if (activeBronzeStack.length === 0) return null
@@ -460,6 +481,7 @@ export const SortingRoom: React.FC = () => {
               draggedProject={draggedGoldProject}
               setDraggedProject={setDraggedGoldProject}
               outgoingProjectHasProgress={goldProjectHasProgress}
+              tabledProjectCompletionPercentage={goldProjectCompletionPercentage}
             />
           )}
           {expandedStream === 'silver' && (
@@ -474,6 +496,7 @@ export const SortingRoom: React.FC = () => {
               draggedProject={draggedSilverProject}
               setDraggedProject={setDraggedSilverProject}
               outgoingProjectHasProgress={silverProjectHasProgress}
+              tabledProjectCompletionPercentage={silverProjectCompletionPercentage}
             />
           )}
           {expandedStream === 'bronze' && (
