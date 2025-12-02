@@ -71,7 +71,7 @@ export const Stage1Form: React.FC = () => {
           updates: {
             name: title.trim(),
             description: description.trim() || undefined,
-            category: category as ProjectCategory,
+            category: category ?? undefined,
           },
           updatedAt: now,
           actorId: user?.id,
@@ -89,7 +89,7 @@ export const Stage1Form: React.FC = () => {
           id: projectId,
           name: title.trim(),
           description: description.trim() || undefined,
-          category: category as ProjectCategory,
+          category: category ?? undefined,
           lifecycleState: newLifecycleState,
           createdAt: now,
           actorId: user?.id,
