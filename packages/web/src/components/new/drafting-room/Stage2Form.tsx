@@ -3,10 +3,16 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useStore, useQuery } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
 import { getProjectById$ } from '@work-squared/shared/queries'
-import type { ProjectArchetype, PlanningAttributes } from '@work-squared/shared'
+import {
+  type ProjectArchetype,
+  type ProjectLifecycleState,
+  type ScaleLevel,
+  resolveLifecycleState,
+} from '@work-squared/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { deriveTier, type ProjectTier } from './DraftingRoom.js'
+import { StageWizard, type WizardStage } from './StageWizard.js'
 import './stage-form.css'
 
 const ARCHETYPES: { value: ProjectArchetype; label: string; description: string }[] = [
@@ -39,6 +45,15 @@ const TIERS: { value: ProjectTier; label: string; description: string; color: st
   },
 ]
 
+/**
+ * Convert tier to scale level for lifecycle state
+ */
+function tierToScale(tier: ProjectTier | null): ScaleLevel | undefined {
+  if (tier === 'gold') return 'major'
+  if (tier === 'bronze') return 'micro'
+  return undefined
+}
+
 export const Stage2Form: React.FC = () => {
   const navigate = useNavigate()
   const { projectId } = useParams<{ projectId: string }>()
@@ -56,27 +71,37 @@ export const Stage2Form: React.FC = () => {
   const [tier, setTier] = useState<ProjectTier | null>(null)
   const [initialized, setInitialized] = useState(false)
 
-  // Load existing data from project when it becomes available
+  // Get current lifecycle state
+  const lifecycleState: ProjectLifecycleState | null = project
+    ? resolveLifecycleState(project.projectLifecycleState, null)
+    : null
+
+  // Load existing data from lifecycle state when it becomes available
   useEffect(() => {
-    if (project && !initialized) {
-      const attrs = project.attributes as PlanningAttributes | null
-      if (attrs) {
-        setObjectives(attrs.objectives ?? '')
-        setDeadline(attrs.deadline ? String(attrs.deadline) : '')
-        setArchetype(attrs.archetype ?? null)
-        // Derive tier from existing attributes
-        setTier(deriveTier(attrs))
-      }
+    if (lifecycleState && !initialized) {
+      setObjectives(lifecycleState.objectives ?? '')
+      setDeadline(lifecycleState.deadline ? String(lifecycleState.deadline) : '')
+      setArchetype(lifecycleState.archetype ?? null)
+      // Derive tier from existing lifecycle state
+      setTier(deriveTier(lifecycleState))
       setInitialized(true)
     }
-  }, [project, initialized])
+  }, [lifecycleState, initialized])
 
-  // Check if all required fields are filled to advance to Stage 2
+  // Get max accessible stage - if stage is N, user can access stages 1 through N+1
+  const maxAccessibleStage: WizardStage = (() => {
+    if (!lifecycleState) return 2 // Default to stage 2 since we're on this form
+    const stage = lifecycleState.stage ?? 1
+    // Allow access to current stage + 1 (capped at 3), but at least 2 since we're on this form
+    return Math.min(3, Math.max(2, stage + 1)) as WizardStage
+  })()
+
+  // Check if all required fields are filled to advance to Stage 3
   const hasObjective = objectives.trim().length > 0
   const isComplete = hasObjective && archetype !== null && tier !== null
 
   /**
-   * Auto-save current form state (keeps in Stage 1)
+   * Save current form state to lifecycle (keeps current stage)
    * Called on blur of any field or selection change
    */
   const autoSave = (
@@ -85,7 +110,7 @@ export const Stage2Form: React.FC = () => {
     overrideArchetype?: ProjectArchetype | null,
     overrideTier?: ProjectTier | null
   ) => {
-    if (!projectId) return
+    if (!projectId || !lifecycleState) return
 
     const now = new Date()
     const currentObjectives = overrideObjectives ?? objectives
@@ -93,17 +118,19 @@ export const Stage2Form: React.FC = () => {
     const currentArchetype = overrideArchetype !== undefined ? overrideArchetype : archetype
     const currentTier = overrideTier !== undefined ? overrideTier : tier
 
+    // Build updated lifecycle state (preserving current stage)
+    const updatedLifecycle: ProjectLifecycleState = {
+      ...lifecycleState,
+      objectives: currentObjectives.trim() || undefined,
+      deadline: currentDeadline ? Number(currentDeadline) : undefined,
+      archetype: currentArchetype ?? undefined,
+      scale: tierToScale(currentTier),
+    }
+
     store.commit(
-      events.projectAttributesUpdated({
-        id: projectId,
-        attributes: {
-          planningStage: 1, // Keep in Stage 1 until explicitly advanced
-          status: 'planning',
-          objectives: currentObjectives.trim() || undefined,
-          deadline: currentDeadline || undefined,
-          archetype: currentArchetype ?? undefined,
-          scale: currentTier === 'gold' ? 'major' : currentTier === 'bronze' ? 'micro' : undefined,
-        },
+      events.projectLifecycleUpdated({
+        projectId,
+        lifecycleState: updatedLifecycle,
         updatedAt: now,
         actorId: user?.id,
       })
@@ -115,21 +142,24 @@ export const Stage2Form: React.FC = () => {
    * Only called when all required fields are complete
    */
   const saveAndAdvance = () => {
-    if (!projectId || !isComplete) return
+    if (!projectId || !isComplete || !lifecycleState) return
 
     const now = new Date()
 
+    // Build updated lifecycle state with stage 2
+    const updatedLifecycle: ProjectLifecycleState = {
+      ...lifecycleState,
+      stage: 2, // Advance to Stage 2 (Scoped)
+      objectives: objectives.trim(),
+      deadline: deadline ? Number(deadline) : undefined,
+      archetype: archetype!,
+      scale: tierToScale(tier),
+    }
+
     store.commit(
-      events.projectAttributesUpdated({
-        id: projectId,
-        attributes: {
-          planningStage: 2, // Advance to Stage 2
-          status: 'planning',
-          objectives: objectives.trim(),
-          deadline: deadline || undefined,
-          archetype: archetype!,
-          scale: tier === 'gold' ? 'major' : tier === 'bronze' ? 'micro' : undefined,
-        },
+      events.projectLifecycleUpdated({
+        projectId,
+        lifecycleState: updatedLifecycle,
         updatedAt: now,
         actorId: user?.id,
       })
@@ -157,7 +187,7 @@ export const Stage2Form: React.FC = () => {
     if (!isComplete) return
     // Save and advance to Stage 2
     saveAndAdvance()
-    // TODO: Navigate to Stage 3
+    // TODO: Navigate to Stage 3 when it exists
     navigate(generateRoute.newDraftingRoom())
   }
 
@@ -174,9 +204,18 @@ export const Stage2Form: React.FC = () => {
   return (
     <div className='stage-form'>
       <div className='stage-form-card stage-form-card-wide'>
+        {/* Wizard Navigation */}
+        {projectId && (
+          <StageWizard
+            projectId={projectId}
+            currentStage={2}
+            maxAccessibleStage={maxAccessibleStage}
+          />
+        )}
+
         {/* Header */}
         <div className='stage-form-header'>
-          <h1 className='stage-form-title'>Stage 2: Scoped</h1>
+          <h1 className='stage-form-title'>Stage 2: Scoping</h1>
           <p className='stage-form-subtitle'>Define what success looks like - 10 minutes</p>
         </div>
 

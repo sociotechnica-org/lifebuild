@@ -66,7 +66,8 @@ const hexToRgba = (hex: string, alpha: number) => {
 
 const lifecycleBadgeLabel = (lifecycle: ProjectLifecycleState, stage: UrushiStage) => {
   if (lifecycle.status === 'backlog') {
-    return `${lifecycle.stream.charAt(0).toUpperCase()}${lifecycle.stream.slice(1)} plan`
+    const stream = lifecycle.stream ?? 'bronze'
+    return `${stream.charAt(0).toUpperCase()}${stream.slice(1)} plan`
   }
   if (lifecycle.status === 'active') {
     return lifecycle.slot ? `${lifecycle.slot.toUpperCase()} slot` : 'Active'
@@ -167,11 +168,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
                 {archetypeLabel}
               </span>
             )}
-            {lifecycleState.status === 'backlog' && (
-              <span className='rounded-full bg-slate-50 px-2 py-1'>
-                Queue #{lifecycleState.queuePosition + 1}
-              </span>
-            )}
+            {lifecycleState.status === 'backlog' &&
+              lifecycleState.queuePosition != null && ( // Check for both null and undefined
+                <span className='rounded-full bg-slate-50 px-2 py-1'>
+                  Queue #{lifecycleState.queuePosition + 1}
+                </span>
+              )}
           </div>
 
           <div className='h-2 overflow-hidden rounded-full bg-slate-100'>

@@ -209,6 +209,16 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
+                      path={ROUTES.NEW_PROJECT_STAGE1}
+                      element={
+                        <ErrorBoundary>
+                          <NewUiShell>
+                            <Stage1Form />
+                          </NewUiShell>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
                       path={ROUTES.NEW_PROJECT_STAGE2}
                       element={
                         <ErrorBoundary>

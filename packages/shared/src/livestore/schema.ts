@@ -2,9 +2,9 @@ import { makeSchema, Schema, SessionIdSymbol, State } from '@livestore/livestore
 import { DEFAULT_MODEL } from '../models.js'
 import {
   createDefaultLifecycleState,
-  deriveLifecycleFromAttributes,
   parseProjectLifecycleState,
   ProjectLifecycleStateSchema,
+  type ProjectLifecycleState,
   type PlanningAttributes,
 } from '../types/planning.js'
 import { Filter } from '../types'
@@ -460,14 +460,19 @@ export const tables = {
   taskExecutions,
 }
 
-const buildLifecycleState = (lifecycleState: unknown, attributes: unknown) => {
+/**
+ * Build lifecycle state from raw data.
+ * Handles both new flattened format and old nested format via parseProjectLifecycleState.
+ */
+const buildLifecycleState = (
+  lifecycleState: unknown,
+  _attributes: unknown // Legacy parameter, kept for backwards compatibility
+): ProjectLifecycleState => {
   const parsedLifecycle = parseProjectLifecycleState(lifecycleState)
   if (parsedLifecycle) return parsedLifecycle
 
-  return deriveLifecycleFromAttributes(
-    (attributes as PlanningAttributes | null | undefined) ?? null,
-    createDefaultLifecycleState()
-  )
+  // For truly new projects with no lifecycle state, create default
+  return createDefaultLifecycleState()
 }
 
 // PR3: Helper function to map v1 columnId to status for backwards compatibility
@@ -1170,15 +1175,14 @@ const materializers = State.SQLite.materializers(events, {
     ]
   },
 
+  // @deprecated - Use v3.ProjectLifecycleUpdated instead.
+  // This event is kept for backwards compatibility with the old UI.
+  // It only updates the legacy `attributes` column, NOT `projectLifecycleState`.
   'v2.ProjectAttributesUpdated': ({ id, attributes, updatedAt, actorId }) => [
     projects
       .update({
-        // Full replacement - caller must merge before emitting
+        // Only update attributes column (legacy)
         attributes,
-        projectLifecycleState: deriveLifecycleFromAttributes(
-          (attributes as PlanningAttributes | null | undefined) ?? null,
-          createDefaultLifecycleState()
-        ),
         updatedAt,
       })
       .where({ id }),

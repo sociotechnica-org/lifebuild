@@ -91,9 +91,8 @@ const planningSetup = (store: Store) => {
       lifecycleState: {
         status: 'planning',
         stage: 2,
-        planningData: { objectives: 'Scoping work' },
+        objectives: 'Scoping work',
       },
-      attributes: { status: 'planning', planningStage: 2, objectives: 'Frame the MVP' },
       createdAt,
       actorId: 'storybook',
     })
@@ -113,11 +112,9 @@ const backlogSetup = (store: Store) => {
       lifecycleState: {
         status: 'backlog',
         stage: 4,
-        planningData: {},
         stream: 'gold',
         queuePosition: 1,
       },
-      attributes: { status: 'backlog', priority: 1 },
       createdAt,
       actorId: 'storybook',
     })
@@ -136,10 +133,10 @@ const activeSetup = (store: Store) => {
       category: 'health',
       lifecycleState: {
         status: 'active',
+        stage: 4, // Preserve stage from planning
         slot: 'gold',
         activatedAt: createdAt.getTime(),
       },
-      attributes: { status: 'active', activatedAt: createdAt.getTime() },
       createdAt,
       actorId: 'storybook',
     })
@@ -161,8 +158,11 @@ const completedSetup = (store: Store) => {
       name: 'Finished Project',
       description: 'A completed project.',
       category: 'relationships',
-      lifecycleState: { status: 'completed', completedAt: createdAt.getTime() },
-      attributes: { status: 'completed', lastActivityAt: createdAt.getTime() },
+      lifecycleState: {
+        status: 'completed',
+        stage: 4, // Preserve stage from planning
+        completedAt: createdAt.getTime(),
+      },
       createdAt,
       actorId: 'storybook',
     })

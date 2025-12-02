@@ -2,6 +2,7 @@
  * Project Planning - Types, Schemas, and Lifecycle State Machine
  *
  * This module defines how projects progress through planning stages and lifecycle states.
+ * All project lifecycle data is stored in the `projectLifecycleState` JSON column.
  */
 
 import { Schema } from '@livestore/livestore'
@@ -31,12 +32,132 @@ export type LifecycleStream = 'gold' | 'silver' | 'bronze'
 export type LifecycleSlot = 'gold' | 'silver'
 
 // =============================================================================
-// Planning Attributes (stored in projects.attributes JSON field)
+// Project Lifecycle State (stored in projects.projectLifecycleState JSON field)
+//
+// This is the SINGLE SOURCE OF TRUTH for all project planning/lifecycle data.
+// The structure is FLAT - all planning fields are at the top level, not nested.
 // =============================================================================
 
 /**
- * Schema for PlanningAttributes - used for JSON parsing/validation in LiveStore
- * All fields are optional to allow partial updates
+ * Flattened Project Lifecycle State
+ *
+ * All planning attributes are stored at the top level alongside status info.
+ * This eliminates duplication between `attributes` and `projectLifecycleState`.
+ *
+ * NOTE: Optional fields can be `null` due to JSON serialization.
+ * JSON doesn't have `undefined`, so when data round-trips through JSON,
+ * `undefined` can become `null`. Always check for both when reading.
+ */
+export interface ProjectLifecycleState {
+  // Core lifecycle status (required)
+  status: ProjectStatus
+  stage: PlanningStage
+
+  // Planning fields (preserved across all statuses)
+  // Can be undefined (missing) or null (JSON serialization)
+  objectives?: string | null
+  deadline?: number | null // Timestamp
+  archetype?: ProjectArchetype | null
+  estimatedDuration?: number | null // Hours
+  urgency?: UrgencyLevel | null
+  importance?: ImportanceLevel | null
+  complexity?: ComplexityLevel | null
+  scale?: ScaleLevel | null
+  priority?: number | null // Lower number = higher priority
+
+  // Backlog-specific fields
+  stream?: LifecycleStream | null
+  queuePosition?: number | null
+
+  // Active-specific fields
+  slot?: LifecycleSlot | null
+  activatedAt?: number | null // Timestamp when moved to active
+
+  // Completed-specific field
+  completedAt?: number | null // Timestamp when completed
+}
+
+// Schema for LiveStore JSON parsing/validation
+const StatusLiteral = Schema.Literal('planning', 'backlog', 'active', 'completed')
+const StageLiteral = Schema.Literal(1, 2, 3, 4)
+const ArchetypeLiteral = Schema.Literal(
+  'quicktask',
+  'discovery',
+  'critical',
+  'maintenance',
+  'systembuild',
+  'initiative'
+)
+const UrgencyLiteral = Schema.Literal('low', 'normal', 'high', 'critical')
+const ImportanceLiteral = Schema.Literal('low', 'normal', 'high', 'critical')
+const ComplexityLiteral = Schema.Literal('simple', 'complicated', 'complex', 'chaotic')
+const ScaleLiteral = Schema.Literal('micro', 'minor', 'major', 'epic')
+const StreamLiteral = Schema.Literal('gold', 'silver', 'bronze')
+const SlotLiteral = Schema.Literal('gold', 'silver')
+
+/**
+ * Helper to create an optional field that also accepts null.
+ * JSON doesn't have undefined, so when data round-trips through JSON,
+ * undefined becomes null. This schema accepts both.
+ */
+const optionalNullable = <A, I, R>(schema: Schema.Schema<A, I, R>) =>
+  Schema.optional(Schema.Union(schema, Schema.Null))
+
+export const ProjectLifecycleStateSchema = Schema.Struct({
+  // Core lifecycle (required)
+  status: StatusLiteral,
+  stage: StageLiteral,
+
+  // Planning fields (all optional, accept null from JSON)
+  objectives: optionalNullable(Schema.String),
+  deadline: optionalNullable(Schema.Number),
+  archetype: optionalNullable(ArchetypeLiteral),
+  estimatedDuration: optionalNullable(Schema.Number),
+  urgency: optionalNullable(UrgencyLiteral),
+  importance: optionalNullable(ImportanceLiteral),
+  complexity: optionalNullable(ComplexityLiteral),
+  scale: optionalNullable(ScaleLiteral),
+  priority: optionalNullable(Schema.Number),
+
+  // Backlog fields
+  stream: optionalNullable(StreamLiteral),
+  queuePosition: optionalNullable(Schema.Number),
+
+  // Active fields
+  slot: optionalNullable(SlotLiteral),
+  activatedAt: optionalNullable(Schema.Number),
+
+  // Completed fields
+  completedAt: optionalNullable(Schema.Number),
+})
+
+// =============================================================================
+// Legacy PlanningAttributes type (for backwards compatibility during migration)
+// @deprecated - Use ProjectLifecycleState instead
+// =============================================================================
+
+/**
+ * @deprecated Use ProjectLifecycleState directly instead.
+ * This type is kept for backwards compatibility with the old `attributes` column.
+ */
+export interface PlanningAttributes {
+  status?: ProjectStatus
+  planningStage?: PlanningStage
+  objectives?: string
+  deadline?: number
+  archetype?: ProjectArchetype
+  estimatedDuration?: number
+  urgency?: UrgencyLevel
+  importance?: ImportanceLevel
+  complexity?: ComplexityLevel
+  scale?: ScaleLevel
+  priority?: number
+  activatedAt?: number
+  lastActivityAt?: number
+}
+
+/**
+ * @deprecated Use ProjectLifecycleStateSchema instead
  */
 export const PlanningAttributesSchema = Schema.Struct({
   status: Schema.optional(Schema.Literal('planning', 'backlog', 'active', 'completed')),
@@ -56,143 +177,90 @@ export const PlanningAttributesSchema = Schema.Struct({
   lastActivityAt: Schema.optional(Schema.Number),
 })
 
-/**
- * Project attributes for the planning workflow
- * These are stored in projects.attributes JSON field
- */
-export interface PlanningAttributes {
-  // Planning workflow state
-  status?: ProjectStatus
-  planningStage?: PlanningStage
-
-  // Stage 2 fields (Scoped)
-  objectives?: string
-  deadline?: number // Timestamp
-  archetype?: ProjectArchetype
-  estimatedDuration?: number // Hours
-  urgency?: UrgencyLevel
-  importance?: ImportanceLevel
-  complexity?: ComplexityLevel
-  scale?: ScaleLevel
-
-  // Stage 4 fields (Prioritized)
-  priority?: number // Lower number = higher priority
-
-  // Activity tracking
-  activatedAt?: number // Timestamp when moved to active
-  lastActivityAt?: number // Timestamp of last update
-}
-
-// =============================================================================
-// Project Lifecycle State (stored in projects.projectLifecycleState JSON field)
-// =============================================================================
-
-export type ProjectLifecycleState =
-  | { status: 'planning'; stage: 1 | 2 | 3; planningData: PlanningAttributes }
-  | {
-      status: 'backlog'
-      stage: 4
-      planningData: PlanningAttributes
-      stream: LifecycleStream
-      queuePosition: number
-    }
-  | {
-      status: 'active'
-      activatedAt: number
-      slot?: LifecycleSlot
-    }
-  | { status: 'completed'; completedAt: number }
-
-const PlanningOnlyStageLiteral = Schema.Literal(1, 2, 3)
-const StreamLiteral = Schema.Literal('gold', 'silver', 'bronze')
-const SlotLiteral = Schema.Literal('gold', 'silver')
-
-export const ProjectLifecycleStateSchema = Schema.Union(
-  Schema.Struct({
-    status: Schema.Literal('planning'),
-    stage: PlanningOnlyStageLiteral,
-    planningData: PlanningAttributesSchema,
-  }),
-  Schema.Struct({
-    status: Schema.Literal('backlog'),
-    stage: Schema.Literal(4),
-    planningData: PlanningAttributesSchema,
-    stream: StreamLiteral,
-    queuePosition: Schema.Number,
-  }),
-  Schema.Struct({
-    status: Schema.Literal('active'),
-    activatedAt: Schema.Number,
-    slot: Schema.optional(SlotLiteral),
-  }),
-  Schema.Struct({
-    status: Schema.Literal('completed'),
-    completedAt: Schema.Number,
-  })
-)
-
 // =============================================================================
 // Lifecycle Helper Functions
 // =============================================================================
 
-const clampPlanningStage = (stage: number | undefined | null): 1 | 2 | 3 | 4 => {
-  if (stage === 2) return 2
-  if (stage === 3) return 3
-  if (stage === 4) return 4
-  return 1
-}
-
+/**
+ * Create a default lifecycle state for a new project
+ */
 export const createDefaultLifecycleState = (
-  planningData: PlanningAttributes = {}
+  overrides: Partial<ProjectLifecycleState> = {}
 ): ProjectLifecycleState => ({
   status: 'planning',
   stage: 1,
-  planningData,
+  ...overrides,
 })
 
+/**
+ * Type guard to check if a value is a valid ProjectLifecycleState
+ */
 const isProjectLifecycleState = (value: unknown): value is ProjectLifecycleState => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false
   const state = value as Record<string, unknown>
-  switch (state.status) {
-    case 'planning':
-      return (
-        typeof state.stage === 'number' &&
-        (state.stage === 1 || state.stage === 2 || state.stage === 3) &&
-        typeof state.planningData === 'object' &&
-        state.planningData !== null
-      )
-    case 'backlog':
-      return (
-        state.stage === 4 &&
-        typeof state.planningData === 'object' &&
-        state.planningData !== null &&
-        (state.stream === 'gold' || state.stream === 'silver' || state.stream === 'bronze') &&
-        typeof state.queuePosition === 'number'
-      )
-    case 'active':
-      return (
-        typeof state.activatedAt === 'number' &&
-        (state.slot === undefined || state.slot === 'gold' || state.slot === 'silver')
-      )
-    case 'completed':
-      return typeof state.completedAt === 'number'
-    default:
-      return false
-  }
+
+  // Must have status and stage
+  if (!state.status || !state.stage) return false
+
+  const validStatuses = ['planning', 'backlog', 'active', 'completed']
+  const validStages = [1, 2, 3, 4]
+
+  if (!validStatuses.includes(state.status as string)) return false
+  if (!validStages.includes(state.stage as number)) return false
+
+  return true
 }
 
+/**
+ * Parse a raw value (string or object) into a ProjectLifecycleState
+ */
 export const parseProjectLifecycleState = (value: unknown): ProjectLifecycleState | null => {
   if (value === null || value === undefined) return null
 
   try {
     const maybeState =
       typeof value === 'string' ? (JSON.parse(value) as unknown) : (value as unknown)
+
+    // Handle old nested format with planningData
+    if (
+      maybeState &&
+      typeof maybeState === 'object' &&
+      'planningData' in (maybeState as Record<string, unknown>)
+    ) {
+      const oldState = maybeState as Record<string, unknown>
+      const planningData = oldState.planningData as Record<string, unknown> | undefined
+
+      // Flatten the old format into new format
+      return {
+        status: (oldState.status as ProjectStatus) ?? 'planning',
+        stage: (oldState.stage as PlanningStage) ?? 1,
+        objectives: planningData?.objectives as string | null | undefined,
+        deadline: planningData?.deadline as number | null | undefined,
+        archetype: planningData?.archetype as ProjectArchetype | null | undefined,
+        estimatedDuration: planningData?.estimatedDuration as number | null | undefined,
+        urgency: planningData?.urgency as UrgencyLevel | null | undefined,
+        importance: planningData?.importance as ImportanceLevel | null | undefined,
+        complexity: planningData?.complexity as ComplexityLevel | null | undefined,
+        scale: planningData?.scale as ScaleLevel | null | undefined,
+        priority: planningData?.priority as number | null | undefined,
+        stream: oldState.stream as LifecycleStream | null | undefined,
+        queuePosition: oldState.queuePosition as number | null | undefined,
+        slot: oldState.slot as LifecycleSlot | null | undefined,
+        activatedAt: oldState.activatedAt as number | null | undefined,
+        completedAt: oldState.completedAt as number | null | undefined,
+      }
+    }
+
     return isProjectLifecycleState(maybeState) ? maybeState : null
   } catch {
     return null
   }
 }
 
+/**
+ * @deprecated Use createDefaultLifecycleState or parse from existing state
+ * Derives lifecycle state from legacy PlanningAttributes
+ */
 export const deriveLifecycleFromAttributes = (
   attributes?: PlanningAttributes | null,
   fallback?: ProjectLifecycleState
@@ -201,36 +269,35 @@ export const deriveLifecycleFromAttributes = (
 
   const stage = clampPlanningStage(attributes.planningStage ?? 1)
 
-  if (attributes.status === 'planning' || !attributes.status) {
-    if (stage === 4) {
-      // Stage 4 in planning status means ready to be prioritized (backlog)
-      return {
-        status: 'backlog',
-        stage: 4,
-        planningData: attributes,
-        stream: 'bronze', // Default stream
-        queuePosition: attributes.priority ?? 0,
-      }
-    }
-    return {
-      status: 'planning',
-      stage,
-      planningData: attributes,
-    }
+  // Build base state with all planning data
+  const baseState: ProjectLifecycleState = {
+    status: attributes.status ?? 'planning',
+    stage,
+    objectives: attributes.objectives,
+    deadline: attributes.deadline,
+    archetype: attributes.archetype,
+    estimatedDuration: attributes.estimatedDuration,
+    urgency: attributes.urgency,
+    importance: attributes.importance,
+    complexity: attributes.complexity,
+    scale: attributes.scale,
+    priority: attributes.priority,
   }
 
-  if (attributes.status === 'backlog') {
+  // Handle specific status transitions
+  if (attributes.status === 'backlog' || (attributes.status === 'planning' && stage === 4)) {
     return {
+      ...baseState,
       status: 'backlog',
       stage: 4,
-      planningData: attributes,
-      stream: 'bronze',
+      stream: 'bronze', // Default stream
       queuePosition: attributes.priority ?? 0,
     }
   }
 
   if (attributes.status === 'active') {
     return {
+      ...baseState,
       status: 'active',
       activatedAt: attributes.activatedAt ?? Date.now(),
       slot: 'gold', // Default slot
@@ -239,26 +306,39 @@ export const deriveLifecycleFromAttributes = (
 
   if (attributes.status === 'completed') {
     return {
+      ...baseState,
       status: 'completed',
       completedAt: Date.now(),
     }
   }
 
-  // Fallback for unknown status
-  return createDefaultLifecycleState(attributes)
+  return baseState
 }
 
+const clampPlanningStage = (stage: number | undefined | null): PlanningStage => {
+  if (stage === 2) return 2
+  if (stage === 3) return 3
+  if (stage === 4) return 4
+  return 1
+}
+
+/**
+ * Resolve lifecycle state from raw data, with fallbacks
+ */
 export const resolveLifecycleState = (
   rawLifecycle: unknown,
-  attributes?: PlanningAttributes | null
+  legacyAttributes?: PlanningAttributes | null
 ): ProjectLifecycleState => {
   return (
     parseProjectLifecycleState(rawLifecycle) ??
-    deriveLifecycleFromAttributes(attributes, undefined) ??
+    deriveLifecycleFromAttributes(legacyAttributes, undefined) ??
     createDefaultLifecycleState()
   )
 }
 
+/**
+ * Get a human-readable description of a lifecycle state
+ */
 export const describeProjectLifecycleState = (
   lifecycle: ProjectLifecycleState | null | undefined
 ): string => {
@@ -267,7 +347,7 @@ export const describeProjectLifecycleState = (
     case 'planning':
       return `Planning · Stage ${lifecycle.stage}`
     case 'backlog':
-      return `Backlog · ${lifecycle.stream.toUpperCase()}`
+      return `Backlog · ${(lifecycle.stream ?? 'bronze').toUpperCase()}`
     case 'active':
       return `Active${lifecycle.slot ? ` · ${lifecycle.slot.toUpperCase()} slot` : ''}`
     case 'completed':
@@ -291,8 +371,8 @@ export const ARCHETYPE_LABELS: Record<ProjectArchetype, string> = {
 }
 
 export const STAGE_LABELS: Record<PlanningStage, string> = {
-  1: 'Identified',
-  2: 'Scoped',
-  3: 'Drafted',
-  4: 'Prioritized',
+  1: 'Identifying',
+  2: 'Scoping',
+  3: 'Drafting',
+  4: 'Prioritizing',
 }

@@ -1,80 +1,135 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useStore } from '@livestore/react'
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useStore, useQuery } from '@livestore/react'
 import { events } from '@work-squared/shared/schema'
-import { PROJECT_CATEGORIES, type ProjectCategory } from '@work-squared/shared'
+import { getProjectById$ } from '@work-squared/shared/queries'
+import {
+  PROJECT_CATEGORIES,
+  type ProjectCategory,
+  type ProjectLifecycleState,
+  resolveLifecycleState,
+} from '@work-squared/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
+import { StageWizard, type WizardStage } from './StageWizard.js'
 import './stage-form.css'
 
-interface Stage1FormProps {
-  /** Initial data for editing existing project */
-  initialData?: {
-    id?: string
-    title?: string
-    description?: string
-    category?: ProjectCategory | null
-  }
-}
-
-export const Stage1Form: React.FC<Stage1FormProps> = ({ initialData }) => {
+export const Stage1Form: React.FC = () => {
   const navigate = useNavigate()
+  const { projectId: urlProjectId } = useParams<{ projectId: string }>()
   const { store } = useStore()
   const { user } = useAuth()
 
-  const [title, setTitle] = useState(initialData?.title ?? '')
-  const [description, setDescription] = useState(initialData?.description ?? '')
-  const [category, setCategory] = useState<ProjectCategory | null>(initialData?.category ?? null)
+  // Load existing project if editing
+  const projectResults = useQuery(getProjectById$(urlProjectId ?? ''))
+  const existingProject = urlProjectId ? (projectResults?.[0] ?? null) : null
+
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [category, setCategory] = useState<ProjectCategory | null>(null)
+  const [initialized, setInitialized] = useState(false)
+
+  // Load existing data from project when it becomes available
+  useEffect(() => {
+    if (existingProject && !initialized) {
+      setTitle(existingProject.name ?? '')
+      setDescription(existingProject.description ?? '')
+      setCategory((existingProject.category as ProjectCategory) ?? null)
+      setInitialized(true)
+    }
+  }, [existingProject, initialized])
 
   const isValid = title.trim().length > 0 && category !== null
+  const isEditing = !!urlProjectId && !!existingProject
 
-  const createProject = () => {
+  // Get lifecycle state for max accessible stage calculation
+  const lifecycleState: ProjectLifecycleState | null = existingProject
+    ? resolveLifecycleState(existingProject.projectLifecycleState, null)
+    : null
+
+  // If stage is N, user can access stages 1 through N+1 (since they're transitioning to the next stage)
+  const maxAccessibleStage: WizardStage = (() => {
+    if (!lifecycleState) return 1
+    const stage = lifecycleState.stage ?? 1
+    return Math.min(3, Math.max(1, stage + 1)) as WizardStage
+  })()
+
+  /**
+   * Create or update project
+   */
+  const saveProject = () => {
     if (!title.trim()) return null
 
-    const projectId = initialData?.id ?? crypto.randomUUID()
+    const projectId = urlProjectId ?? crypto.randomUUID()
     const now = new Date()
 
-    // Create project with planningStage: 1 and status: 'planning'
-    store.commit(
-      events.projectCreatedV2({
-        id: projectId,
-        name: title.trim(),
-        description: description.trim() || undefined,
-        category: category as any,
-        attributes: {
-          planningStage: 1,
-          status: 'planning',
-        } as any,
-        createdAt: now,
-        actorId: user?.id,
-      })
-    )
+    if (isEditing && lifecycleState) {
+      // Update existing project - preserve lifecycle state and just update name/description/category
+      store.commit(
+        events.projectUpdated({
+          id: projectId,
+          updates: {
+            name: title.trim(),
+            description: description.trim() || undefined,
+            category: category as ProjectCategory,
+          },
+          updatedAt: now,
+          actorId: user?.id,
+        })
+      )
+    } else {
+      // Create new project with stage 1 lifecycle state
+      const newLifecycleState: ProjectLifecycleState = {
+        status: 'planning',
+        stage: 1,
+      }
+
+      store.commit(
+        events.projectCreatedV2({
+          id: projectId,
+          name: title.trim(),
+          description: description.trim() || undefined,
+          category: category as ProjectCategory,
+          lifecycleState: newLifecycleState,
+          createdAt: now,
+          actorId: user?.id,
+        })
+      )
+    }
 
     return projectId
   }
 
   const handleSaveAndExit = () => {
     if (title.trim()) {
-      createProject()
+      saveProject()
     }
     navigate(generateRoute.newDraftingRoom())
   }
 
   const handleContinue = () => {
     if (!isValid) return
-    const projectId = createProject()
+    const projectId = saveProject()
     if (projectId) {
-      // TODO: Navigate to Stage 2 with the project ID
-      navigate(generateRoute.newDraftingRoom())
+      navigate(generateRoute.newProjectStage2(projectId))
     }
   }
 
   return (
     <div className='stage-form'>
       <div className='stage-form-card'>
+        {/* Wizard Navigation (only show when editing existing project) */}
+        {isEditing && urlProjectId && (
+          <StageWizard
+            projectId={urlProjectId}
+            currentStage={1}
+            maxAccessibleStage={maxAccessibleStage}
+          />
+        )}
+
         {/* Header */}
         <div className='stage-form-header'>
-          <h1 className='stage-form-title'>Stage 1: Identified</h1>
+          <h1 className='stage-form-title'>Stage 1: Identifying</h1>
           <p className='stage-form-subtitle'>Quick capture - 2 minutes</p>
         </div>
 

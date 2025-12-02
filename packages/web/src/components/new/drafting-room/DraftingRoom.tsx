@@ -6,8 +6,9 @@ import { events } from '@work-squared/shared/schema'
 import {
   PROJECT_CATEGORIES,
   type ProjectCategory,
-  type PlanningAttributes,
   type PlanningStage,
+  type ProjectLifecycleState,
+  resolveLifecycleState,
 } from '@work-squared/shared'
 import type { Project } from '@work-squared/shared/schema'
 import { generateRoute } from '../../../constants/routes.js'
@@ -19,16 +20,16 @@ import './drafting-room.css'
 export type ProjectTier = 'gold' | 'silver' | 'bronze'
 
 /**
- * Derive tier from project attributes (archetype + scale)
+ * Derive tier from project lifecycle state (archetype + scale)
  * Gold: Initiative + Major/Epic scale
  * Silver: System Build or Discovery Mission
  * Bronze: Quick Task or explicitly micro scale
  * Returns null if tier cannot be determined (e.g., Stage 1 projects with no archetype)
  */
-export function deriveTier(attributes: PlanningAttributes | null): ProjectTier | null {
-  if (!attributes) return null
+export function deriveTier(lifecycle: ProjectLifecycleState | null): ProjectTier | null {
+  if (!lifecycle) return null
 
-  const { archetype, scale } = attributes
+  const { archetype, scale } = lifecycle
 
   // No archetype set yet - can't determine tier
   if (!archetype) return null
@@ -55,10 +56,10 @@ export function deriveTier(attributes: PlanningAttributes | null): ProjectTier |
 /**
  * Parse objectives string and return count
  */
-function getObjectivesCount(attributes: PlanningAttributes | null): number {
-  if (!attributes?.objectives) return 0
+function getObjectivesCount(lifecycle: ProjectLifecycleState | null): number {
+  if (!lifecycle?.objectives) return 0
   // Objectives might be newline or semicolon separated
-  const objectives = attributes.objectives
+  const objectives = lifecycle.objectives
     .split(/[;\n]/)
     .map((o: string) => o.trim())
     .filter((o: string) => o.length > 0)
@@ -74,12 +75,19 @@ function isStale(updatedAt: Date): boolean {
   return updatedAt < fourteenDaysAgo
 }
 
+/**
+ * Get lifecycle state from project, handling both old and new formats
+ */
+function getLifecycleState(project: Project): ProjectLifecycleState {
+  return resolveLifecycleState(project.projectLifecycleState, null)
+}
+
 // Stage configuration
 const STAGES: { stage: PlanningStage; name: string; emptyMessage: string }[] = [
-  { stage: 1, name: 'Identified', emptyMessage: "Click 'Start New Project' to begin" },
-  { stage: 2, name: 'Scoped', emptyMessage: 'Complete Stage 1 projects to move them here' },
-  { stage: 3, name: 'Drafted', emptyMessage: 'Define objectives to advance projects' },
-  { stage: 4, name: 'Prioritized', emptyMessage: 'Draft task lists to advance projects' },
+  { stage: 1, name: 'Identifying', emptyMessage: "Click 'Start New Project' to begin" },
+  { stage: 2, name: 'Scoping', emptyMessage: 'Complete Stage 1 projects to move them here' },
+  { stage: 3, name: 'Drafting', emptyMessage: 'Define objectives to advance projects' },
+  { stage: 4, name: 'Prioritizing', emptyMessage: 'Draft task lists to advance projects' },
 ]
 
 // Category filter options (All + categories)
@@ -106,17 +114,18 @@ export const DraftingRoom: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<ProjectCategory | 'all'>('all')
   const [tierFilter, setTierFilter] = useState<ProjectTier | 'all'>('all')
 
-  // Get projects in planning queue (have planningStage 1-4, not archived, not active)
+  // Get projects in planning queue (status = planning or backlog, not archived)
   const planningProjects = useMemo(() => {
     return allProjects.filter(project => {
-      const attrs = project.attributes as PlanningAttributes | null
-      const stage = attrs?.planningStage
-      const status = attrs?.status
-
-      // Must have a planning stage and be in planning status
-      if (!stage || stage < 1 || stage > 4) return false
-      if (status && status !== 'planning' && status !== 'backlog') return false
       if (project.archivedAt) return false
+
+      const lifecycle = getLifecycleState(project)
+
+      // Must be in planning or backlog status
+      if (lifecycle.status !== 'planning' && lifecycle.status !== 'backlog') return false
+
+      // Must have a valid stage 1-4
+      if (lifecycle.stage < 1 || lifecycle.stage > 4) return false
 
       return true
     })
@@ -125,7 +134,7 @@ export const DraftingRoom: React.FC = () => {
   // Apply filters
   const filteredProjects = useMemo(() => {
     return planningProjects.filter(project => {
-      const attrs = project.attributes as PlanningAttributes | null
+      const lifecycle = getLifecycleState(project)
 
       // Category filter
       if (categoryFilter !== 'all' && project.category !== categoryFilter) {
@@ -134,7 +143,7 @@ export const DraftingRoom: React.FC = () => {
 
       // Tier filter
       if (tierFilter !== 'all') {
-        const tier = deriveTier(attrs)
+        const tier = deriveTier(lifecycle)
         if (tier !== tierFilter) return false
       }
 
@@ -147,9 +156,9 @@ export const DraftingRoom: React.FC = () => {
     const grouped: Record<PlanningStage, Project[]> = { 1: [], 2: [], 3: [], 4: [] }
 
     filteredProjects.forEach(project => {
-      const attrs = project.attributes as PlanningAttributes | null
-      const stage = attrs?.planningStage
-      if (stage && stage >= 1 && stage <= 4) {
+      const lifecycle = getLifecycleState(project)
+      const stage = lifecycle.stage
+      if (stage >= 1 && stage <= 4) {
         grouped[stage as PlanningStage].push(project)
       }
     })
@@ -279,14 +288,14 @@ export const DraftingRoom: React.FC = () => {
               emptyMessage={emptyMessage}
             >
               {stageProjects.map(project => {
-                const attrs = project.attributes as PlanningAttributes | null
+                const lifecycle = getLifecycleState(project)
                 return (
                   <PlanningQueueCard
                     key={project.id}
                     project={project}
                     stage={stage}
-                    tier={deriveTier(attrs)}
-                    objectivesCount={getObjectivesCount(attrs)}
+                    tier={deriveTier(lifecycle)}
+                    objectivesCount={getObjectivesCount(lifecycle)}
                     taskCount={0} // TODO: Query tasks for this project
                     isStale={isStale(project.updatedAt)}
                     onResume={() => handleResume(project.id, stage)}
