@@ -31,6 +31,7 @@ export interface GoldSilverPanelProps {
   draggedProject: Project | null
   setDraggedProject: (project: Project | null) => void
   outgoingProjectHasProgress: boolean
+  tabledProjectCompletionPercentage?: number
 }
 
 /**
@@ -48,6 +49,7 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
   draggedProject,
   setDraggedProject,
   outgoingProjectHasProgress,
+  tabledProjectCompletionPercentage = 0,
 }) => {
   const navigate = useNavigate()
   const [queueView, setQueueView] = useState<QueueView>('backlog')
@@ -170,6 +172,20 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
                     <div className='sorting-room-project-meta'>
                       {tabledProject.category && <span>{tabledProject.category}</span>}
                     </div>
+                    {/* Progress bar or Unstarted label */}
+                    {outgoingProjectHasProgress ? (
+                      <div className='sorting-room-progress'>
+                        <div
+                          className='sorting-room-progress-bar'
+                          style={{
+                            width: `${tabledProjectCompletionPercentage}%`,
+                            backgroundColor: stream === 'gold' ? 'var(--gold)' : 'var(--silver)',
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className='sorting-room-unstarted'>Unstarted</div>
+                    )}
                   </div>
                   <div className='sorting-room-action-buttons'>
                     <button
