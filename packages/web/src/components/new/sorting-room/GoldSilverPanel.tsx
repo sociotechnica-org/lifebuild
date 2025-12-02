@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { Project } from '@work-squared/shared/schema'
 import {
   DndContext,
@@ -14,6 +15,8 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { SortableProjectCard } from './SortableProjectCard.js'
 import { TableDropZone } from './TableDropZone.js'
 import { TableConfirmDialog, type DialogMode } from './TableConfirmDialog.js'
+import { generateRoute } from '../../../constants/routes.js'
+import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 
 export type QueueView = 'backlog' | 'active'
 
@@ -46,9 +49,16 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
   setDraggedProject,
   outgoingProjectHasProgress,
 }) => {
+  const navigate = useNavigate()
   const [queueView, setQueueView] = useState<QueueView>('backlog')
   const [pendingProject, setPendingProject] = useState<Project | null>(null)
   const [dialogMode, setDialogMode] = useState<DialogMode>('activate')
+
+  const handleViewTabledProject = () => {
+    if (tabledProject) {
+      navigate(preserveStoreIdInUrl(generateRoute.newProject(tabledProject.id)))
+    }
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -161,13 +171,22 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
                       {tabledProject.category && <span>{tabledProject.category}</span>}
                     </div>
                   </div>
-                  <button
-                    type='button'
-                    className='sorting-room-action-btn release'
-                    onClick={handleReleaseClick}
-                  >
-                    Release to Queue
-                  </button>
+                  <div className='sorting-room-action-buttons'>
+                    <button
+                      type='button'
+                      className='sorting-room-action-btn view'
+                      onClick={handleViewTabledProject}
+                    >
+                      View
+                    </button>
+                    <button
+                      type='button'
+                      className='sorting-room-action-btn release'
+                      onClick={handleReleaseClick}
+                    >
+                      Release
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className='sorting-room-empty-slot'>

@@ -1,7 +1,10 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { Project } from '@work-squared/shared/schema'
+import { generateRoute } from '../../../constants/routes.js'
+import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 
 export interface SortableProjectCardProps {
   project: Project
@@ -19,8 +22,9 @@ export const SortableProjectCard: React.FC<SortableProjectCardProps> = ({
   index,
   stream,
   onActivateToTable,
-  isActiveView = false,
+  isActiveView: _isActiveView = false,
 }) => {
+  const navigate = useNavigate()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: project.id,
   })
@@ -29,6 +33,10 @@ export const SortableProjectCard: React.FC<SortableProjectCardProps> = ({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+  }
+
+  const handleView = () => {
+    navigate(preserveStoreIdInUrl(generateRoute.newProject(project.id)))
   }
 
   return (
@@ -47,13 +55,18 @@ export const SortableProjectCard: React.FC<SortableProjectCardProps> = ({
           {project.category && <span>{project.category}</span>}
         </div>
       </div>
-      <button
-        type='button'
-        className='sorting-room-action-btn activate'
-        onClick={() => onActivateToTable(project)}
-      >
-        Activate to Table
-      </button>
+      <div className='sorting-room-action-buttons'>
+        <button type='button' className='sorting-room-action-btn view' onClick={handleView}>
+          View
+        </button>
+        <button
+          type='button'
+          className='sorting-room-action-btn activate'
+          onClick={() => onActivateToTable(project)}
+        >
+          Activate
+        </button>
+      </div>
     </div>
   )
 }

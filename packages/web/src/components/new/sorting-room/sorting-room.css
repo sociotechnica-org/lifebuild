@@ -418,6 +418,25 @@
   color: var(--ink);
 }
 
+.sorting-room-action-btn.view {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.sorting-room-action-btn.view:hover {
+  background: var(--cream);
+  border-color: var(--muted);
+  color: var(--ink);
+}
+
+/* Action Buttons Container */
+.sorting-room-action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
 /* Dragging State */
 .sorting-room-project-card.dragging {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
