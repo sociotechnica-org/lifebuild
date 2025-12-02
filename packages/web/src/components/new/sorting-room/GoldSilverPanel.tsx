@@ -130,10 +130,12 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
       onReleaseFromTable()
     }
     setPendingProject(null)
+    setDialogMode('activate') // Reset to default mode
   }
 
   const handleCancel = () => {
     setPendingProject(null)
+    setDialogMode('activate') // Reset to default mode to close release dialog
   }
 
   // Dialog is open when:
