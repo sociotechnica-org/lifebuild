@@ -13,8 +13,10 @@ import {
   STAGE_LABELS,
   type PlanningAttributes,
   type ProjectCategory,
+  type ProjectLifecycleState,
   PROJECT_CATEGORIES,
   getCategoryInfo,
+  resolveLifecycleState,
 } from '@work-squared/shared'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
@@ -76,7 +78,7 @@ export const ProjectDetailPage: React.FC = () => {
   const usersById = useMemo(() => new Map(users.map(user => [user.id, user])), [users])
   const project = (projectRows[0] ?? undefined) as Project | undefined
 
-  // Parse project attributes
+  // Parse project attributes (for legacy support and room definition)
   const attributes = useMemo(() => {
     if (!project?.attributes) return null
     try {
@@ -89,6 +91,12 @@ export const ProjectDetailPage: React.FC = () => {
       return null
     }
   }, [project?.attributes])
+
+  // Get lifecycle state (source of truth for display)
+  const lifecycleState = useMemo<ProjectLifecycleState | null>(() => {
+    if (!project) return null
+    return resolveLifecycleState(project.projectLifecycleState, attributes)
+  }, [project, attributes])
 
   const projectCategory = useMemo<ProjectCategory | null>(() => {
     const category = project?.category
@@ -138,13 +146,13 @@ export const ProjectDetailPage: React.FC = () => {
             projectId: resolvedProjectId,
             name: project.name,
             description: project.description,
-            objectives: attributes?.objectives,
+            objectives: lifecycleState?.objectives,
             archivedAt: project.archivedAt ? project.archivedAt.getTime() : null,
             deletedAt: project.deletedAt ? project.deletedAt.getTime() : null,
             attributes,
           })
         : null,
-    [attributes, project, resolvedProjectId]
+    [attributes, lifecycleState?.objectives, project, resolvedProjectId]
   )
 
   useProjectChatLifecycle(project ?? null, room)
@@ -195,88 +203,90 @@ export const ProjectDetailPage: React.FC = () => {
             {project.description && <p>{project.description}</p>}
           </header>
 
-          {attributes && (
+          {lifecycleState && (
             <section className='mt-6'>
-              <h2 className='text-lg font-semibold mb-4'>Project Attributes</h2>
+              <h2 className='text-lg font-semibold mb-4'>Project Details</h2>
               <dl className='space-y-2'>
-                {attributes.status && (
+                {lifecycleState.status && (
                   <div>
                     <dt className='font-medium inline'>Status:</dt>
-                    <dd className='inline ml-2 capitalize'>{attributes.status}</dd>
+                    <dd className='inline ml-2 capitalize'>{lifecycleState.status}</dd>
                   </div>
                 )}
-                {attributes.planningStage && (
+                {lifecycleState.stage && (
                   <div>
                     <dt className='font-medium inline'>Planning Stage:</dt>
                     <dd className='inline ml-2'>
-                      {STAGE_LABELS[attributes.planningStage]} (Stage {attributes.planningStage})
+                      {STAGE_LABELS[lifecycleState.stage]} (Stage {lifecycleState.stage})
                     </dd>
                   </div>
                 )}
-                {attributes.archetype && (
+                {lifecycleState.archetype && (
                   <div>
                     <dt className='font-medium inline'>Archetype:</dt>
-                    <dd className='inline ml-2'>{ARCHETYPE_LABELS[attributes.archetype]}</dd>
+                    <dd className='inline ml-2'>{ARCHETYPE_LABELS[lifecycleState.archetype]}</dd>
                   </div>
                 )}
-                {attributes.objectives && (
+                {lifecycleState.objectives && (
                   <div>
                     <dt className='font-medium block mb-1'>Objectives:</dt>
-                    <dd className='ml-4'>{attributes.objectives}</dd>
+                    <dd className='ml-4'>{lifecycleState.objectives}</dd>
                   </div>
                 )}
-                {attributes.deadline && (
+                {lifecycleState.deadline && (
                   <div>
                     <dt className='font-medium inline'>Deadline:</dt>
-                    <dd className='inline ml-2'>{formatDate(attributes.deadline)}</dd>
+                    <dd className='inline ml-2'>{formatDate(lifecycleState.deadline)}</dd>
                   </div>
                 )}
-                {attributes.estimatedDuration && (
+                {lifecycleState.estimatedDuration && (
                   <div>
                     <dt className='font-medium inline'>Estimated Duration:</dt>
-                    <dd className='inline ml-2'>{formatDuration(attributes.estimatedDuration)}</dd>
+                    <dd className='inline ml-2'>
+                      {formatDuration(lifecycleState.estimatedDuration)}
+                    </dd>
                   </div>
                 )}
-                {attributes.urgency && (
+                {lifecycleState.urgency && (
                   <div>
                     <dt className='font-medium inline'>Urgency:</dt>
-                    <dd className='inline ml-2 capitalize'>{attributes.urgency}</dd>
+                    <dd className='inline ml-2 capitalize'>{lifecycleState.urgency}</dd>
                   </div>
                 )}
-                {attributes.importance && (
+                {lifecycleState.importance && (
                   <div>
                     <dt className='font-medium inline'>Importance:</dt>
-                    <dd className='inline ml-2 capitalize'>{attributes.importance}</dd>
+                    <dd className='inline ml-2 capitalize'>{lifecycleState.importance}</dd>
                   </div>
                 )}
-                {attributes.complexity && (
+                {lifecycleState.complexity && (
                   <div>
                     <dt className='font-medium inline'>Complexity:</dt>
-                    <dd className='inline ml-2 capitalize'>{attributes.complexity}</dd>
+                    <dd className='inline ml-2 capitalize'>{lifecycleState.complexity}</dd>
                   </div>
                 )}
-                {attributes.scale && (
+                {lifecycleState.scale && (
                   <div>
                     <dt className='font-medium inline'>Scale:</dt>
-                    <dd className='inline ml-2 capitalize'>{attributes.scale}</dd>
+                    <dd className='inline ml-2 capitalize'>{lifecycleState.scale}</dd>
                   </div>
                 )}
-                {attributes.priority !== undefined && (
+                {lifecycleState.priority !== undefined && (
                   <div>
                     <dt className='font-medium inline'>Priority:</dt>
-                    <dd className='inline ml-2'>{attributes.priority}</dd>
+                    <dd className='inline ml-2'>{lifecycleState.priority}</dd>
                   </div>
                 )}
-                {attributes.activatedAt && (
+                {lifecycleState.activatedAt && (
                   <div>
                     <dt className='font-medium inline'>Activated At:</dt>
-                    <dd className='inline ml-2'>{formatDate(attributes.activatedAt)}</dd>
+                    <dd className='inline ml-2'>{formatDate(lifecycleState.activatedAt)}</dd>
                   </div>
                 )}
-                {attributes.lastActivityAt && (
+                {lifecycleState.completedAt && (
                   <div>
-                    <dt className='font-medium inline'>Last Activity:</dt>
-                    <dd className='inline ml-2'>{formatDate(attributes.lastActivityAt)}</dd>
+                    <dt className='font-medium inline'>Completed At:</dt>
+                    <dd className='inline ml-2'>{formatDate(lifecycleState.completedAt)}</dd>
                   </div>
                 )}
               </dl>

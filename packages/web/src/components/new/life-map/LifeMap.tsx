@@ -1,11 +1,17 @@
 import React, { useMemo } from 'react'
-import { Link } from 'react-router-dom'
 import { useQuery } from '@livestore/react'
 import { getProjectsByCategory$, getAllWorkerProjects$ } from '@work-squared/shared/queries'
 import { PROJECT_CATEGORIES } from '@work-squared/shared'
-import { generateRoute } from '../../../constants/routes.js'
-import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
+import { CategoryCard } from './CategoryCard.js'
 
+/**
+ * Life Map - The overview of all eight life categories
+ * Displays categories in a responsive grid with project/worker stats.
+ *
+ * Grid layout (2x4 on desktop):
+ * Row 1: Health, Relationships, Finances, Growth
+ * Row 2: Leisure, Spirituality, Home, Contribution
+ */
 export const LifeMap: React.FC = () => {
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
 
@@ -59,27 +65,29 @@ export const LifeMap: React.FC = () => {
   }, [categoryProjectsMap, allWorkerProjects])
 
   return (
-    <div>
-      <ul>
-        {PROJECT_CATEGORIES.map(category => {
+    <div className='new-ui-card'>
+      <div className='new-ui-category-grid'>
+        {PROJECT_CATEGORIES.filter(category => {
+          const projects =
+            categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
+          return projects.length > 0
+        }).map(category => {
           const projects =
             categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
           const workers = categoryWorkersMap[category.value] || 0
           return (
-            <li key={category.value} className='mb-2'>
-              <Link to={preserveStoreIdInUrl(generateRoute.newCategory(category.value))}>
-                <strong>
-                  {category.icon && <span>{category.icon}</span>} {category.name}
-                </strong>
-              </Link>
-              <div>
-                <div>Projects: {projects.length}</div>
-                <div>Workers: {workers}</div>
-              </div>
-            </li>
+            <CategoryCard
+              key={category.value}
+              categoryValue={category.value}
+              categoryName={category.name}
+              categoryIcon={category.icon}
+              categoryColor={category.colorHex}
+              projectCount={projects.length}
+              workerCount={workers}
+            />
           )
         })}
-      </ul>
+      </div>
     </div>
   )
 }

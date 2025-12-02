@@ -12,7 +12,7 @@ export type {
   AuthInstance,
 } from './auth/types.js'
 
-// Export planning types
+// Export planning types and lifecycle
 export type {
   ProjectStatus,
   PlanningStage,
@@ -22,20 +22,18 @@ export type {
   ComplexityLevel,
   ScaleLevel,
   PlanningAttributes,
-} from './types/planning.js'
-export { ARCHETYPE_LABELS, STAGE_LABELS } from './types/planning.js'
-export type {
-  DraftingPayload,
   LifecycleSlot,
   LifecycleStream,
   ProjectLifecycleState,
-} from './lifecycle.js'
+} from './types/planning.js'
 export {
-  DraftingPayloadSchema,
+  ARCHETYPE_LABELS,
+  STAGE_LABELS,
+  PlanningAttributesSchema,
   ProjectLifecycleStateSchema,
   createDefaultLifecycleState,
   describeProjectLifecycleState,
   deriveLifecycleFromAttributes,
   parseProjectLifecycleState,
   resolveLifecycleState,
-} from './lifecycle.js'
+} from './types/planning.js'

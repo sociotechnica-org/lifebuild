@@ -2,11 +2,11 @@ import { makeSchema, Schema, SessionIdSymbol, State } from '@livestore/livestore
 import { DEFAULT_MODEL } from '../models.js'
 import {
   createDefaultLifecycleState,
-  deriveLifecycleFromAttributes,
   parseProjectLifecycleState,
   ProjectLifecycleStateSchema,
-} from '../lifecycle.js'
-import type { PlanningAttributes } from '../types.js'
+  type ProjectLifecycleState,
+  type PlanningAttributes,
+} from '../types/planning.js'
 import { Filter } from '../types'
 import * as eventsDefs from './events'
 
@@ -460,15 +460,19 @@ export const tables = {
   taskExecutions,
 }
 
-const buildLifecycleState = (lifecycleState: unknown, attributes: unknown, timestamp: Date) => {
+/**
+ * Build lifecycle state from raw data.
+ * Handles both new flattened format and old nested format via parseProjectLifecycleState.
+ */
+const buildLifecycleState = (
+  lifecycleState: unknown,
+  _attributes: unknown // Legacy parameter, kept for backwards compatibility
+): ProjectLifecycleState => {
   const parsedLifecycle = parseProjectLifecycleState(lifecycleState)
   if (parsedLifecycle) return parsedLifecycle
 
-  return deriveLifecycleFromAttributes(
-    (attributes as PlanningAttributes | null | undefined) ?? null,
-    createDefaultLifecycleState({ lastEditedAt: timestamp.getTime() }),
-    timestamp.getTime()
-  )
+  // For truly new projects with no lifecycle state, create default
+  return createDefaultLifecycleState()
 }
 
 // PR3: Helper function to map v1 columnId to status for backwards compatibility
@@ -510,7 +514,7 @@ const materializers = State.SQLite.materializers(events, {
       description,
       category: null, // PR4: v1 projects have no category
       attributes: null, // PR4: v1 projects have no attributes
-      projectLifecycleState: buildLifecycleState(lifecycleState, null, createdAt),
+      projectLifecycleState: buildLifecycleState(lifecycleState, null),
       createdAt,
       updatedAt: createdAt,
     }),
@@ -726,6 +730,16 @@ const materializers = State.SQLite.materializers(events, {
     }),
   ],
   'v1.TaskUnarchived': ({ taskId }) => tasks.update({ archivedAt: null }).where({ id: taskId }),
+  'v1.TaskDeleted': ({ taskId, deletedAt, actorId }) => [
+    tasks.delete().where({ id: taskId }),
+    eventsLog.insert({
+      id: `task_deleted_${taskId}_${deletedAt.getTime()}`,
+      eventType: 'v1.TaskDeleted',
+      eventData: JSON.stringify({ taskId }),
+      actorId,
+      createdAt: deletedAt,
+    }),
+  ],
   'v1.DocumentCreated': ({ id, title, content, createdAt, actorId }) => [
     documents.insert({ id, title, content, createdAt, updatedAt: createdAt, archivedAt: null }),
     eventsLog.insert({
@@ -1139,7 +1153,7 @@ const materializers = State.SQLite.materializers(events, {
       description,
       category: category || null,
       attributes: attributes || null,
-      projectLifecycleState: buildLifecycleState(lifecycleState, attributes, createdAt),
+      projectLifecycleState: buildLifecycleState(lifecycleState, attributes),
       createdAt,
       updatedAt: createdAt,
       archivedAt: null,
@@ -1171,16 +1185,14 @@ const materializers = State.SQLite.materializers(events, {
     ]
   },
 
+  // @deprecated - Use v3.ProjectLifecycleUpdated instead.
+  // This event is kept for backwards compatibility with the old UI.
+  // It only updates the legacy `attributes` column, NOT `projectLifecycleState`.
   'v2.ProjectAttributesUpdated': ({ id, attributes, updatedAt, actorId }) => [
     projects
       .update({
-        // Full replacement - caller must merge before emitting
+        // Only update attributes column (legacy)
         attributes,
-        projectLifecycleState: deriveLifecycleFromAttributes(
-          (attributes as PlanningAttributes | null | undefined) ?? null,
-          createDefaultLifecycleState({ lastEditedAt: updatedAt.getTime() }),
-          updatedAt.getTime()
-        ),
         updatedAt,
       })
       .where({ id }),

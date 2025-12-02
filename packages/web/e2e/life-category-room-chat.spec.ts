@@ -8,7 +8,7 @@ test.describe('Life Category room chat', () => {
     await page.goto(`/new/category/health?storeId=${storeId}&roomChat=1`)
     await waitForLiveStoreReady(page)
 
-    const toggle = page.getByRole('button', { name: /show chat/i })
+    const toggle = page.getByRole('button', { name: /open chat/i })
     await expect(toggle).toBeVisible()
     await toggle.click()
 

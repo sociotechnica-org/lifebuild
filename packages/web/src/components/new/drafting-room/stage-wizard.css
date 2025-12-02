@@ -1,0 +1,104 @@
+.stage-wizard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+}
+
+.stage-wizard-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.stage-wizard-connector {
+  width: 3rem;
+  height: 2px;
+  background: #e2e8f0;
+  transition: background-color 0.2s ease;
+}
+
+.stage-wizard-connector.filled {
+  background: #3b82f6;
+}
+
+.stage-wizard-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  background: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stage-wizard-dot:hover:not(.disabled) {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.stage-wizard-dot.active {
+  border-color: #3b82f6;
+  background: #3b82f6;
+  color: white;
+}
+
+.stage-wizard-dot.completed {
+  border-color: #3b82f6;
+  background: #3b82f6;
+  color: white;
+}
+
+.stage-wizard-dot.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.stage-wizard-number {
+  font-size: 0.75rem;
+}
+
+.stage-wizard-check {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.stage-wizard-labels {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.stage-wizard-label {
+  width: calc(2rem + 3rem); /* dot width + connector width */
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.stage-wizard-label:first-child {
+  width: 2rem;
+  margin-right: 1.5rem; /* half connector width */
+}
+
+.stage-wizard-label:last-child {
+  width: 2rem;
+  margin-left: 1.5rem; /* half connector width */
+}
+
+.stage-wizard-label.active {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.stage-wizard-label.disabled {
+  opacity: 0.5;
+}
