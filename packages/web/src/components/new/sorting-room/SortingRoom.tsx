@@ -1,9 +1,13 @@
-import React, { useState, useMemo } from 'react'
-import { useQuery } from '@livestore/react'
+import React, { useState, useMemo, useCallback } from 'react'
+import { useQuery, useStore } from '@livestore/react'
 import { getProjects$, getAllTasks$ } from '@work-squared/shared/queries'
 import { resolveLifecycleState, type ProjectLifecycleState } from '@work-squared/shared'
-import type { Project, Task, TableBronzeStackEntry } from '@work-squared/shared/schema'
+import type { Project, Task } from '@work-squared/shared/schema'
+import { events } from '@work-squared/shared/schema'
 import { useTableState } from '../../../hooks/useTableState.js'
+import { useAuth } from '../../../contexts/AuthContext.js'
+import { GoldSilverPanel } from './GoldSilverPanel.js'
+import { BronzePanel } from './BronzePanel.js'
 import './sorting-room.css'
 
 export type Stream = 'gold' | 'silver' | 'bronze'
@@ -16,82 +20,77 @@ interface StreamSummary {
   queueCount: number
 }
 
-/**
- * Get lifecycle state from project
- */
 function getLifecycleState(project: Project): ProjectLifecycleState {
   return resolveLifecycleState(project.projectLifecycleState, null)
 }
 
 /**
- * SortingRoom - Manage Gold, Silver, Bronze priority streams
+ * SortingRoom - The main Sorting Room component
  *
- * Tab-style interface where only one stream is expanded at a time.
- * Changes update The Table immediately in real-time.
+ * Displays three stream tabs (Gold, Silver, Bronze) that can be expanded
+ * to show and manage queued projects/tasks with drag-and-drop reordering.
  */
 export const SortingRoom: React.FC = () => {
   const [expandedStream, setExpandedStream] = useState<Stream | null>(null)
+  const [draggedGoldProject, setDraggedGoldProject] = useState<Project | null>(null)
+  const [draggedSilverProject, setDraggedSilverProject] = useState<Project | null>(null)
 
-  // Data queries
-  const allProjects = useQuery(getProjects$) ?? []
-  const allTasks = useQuery(getAllTasks$) ?? []
-  const { configuration, activeBronzeStack } = useTableState()
+  const allProjects = (useQuery(getProjects$) ?? []) as Project[]
+  const allTasks = (useQuery(getAllTasks$) ?? []) as Task[]
+  const {
+    configuration,
+    activeBronzeStack,
+    initializeConfiguration,
+    assignGold,
+    assignSilver,
+    clearGold,
+    clearSilver,
+  } = useTableState()
+  const { store } = useStore()
+  const { user } = useAuth()
+  const actorId = user?.id
 
-  // Get Stage 4 backlog projects by stream
+  // Filter and sort Gold/Silver projects (Stage 4, backlog status, sorted by queuePosition)
+  // Exclude projects that are currently on the table
   const projectsByStream = useMemo(() => {
-    const gold: Project[] = []
-    const silver: Project[] = []
-
-    allProjects.forEach(project => {
-      if (project.archivedAt) return
-
+    const stage4Projects = allProjects.filter(project => {
       const lifecycle = getLifecycleState(project)
-
-      // Must be backlog status, stage 4
-      if (lifecycle.status !== 'backlog' || lifecycle.stage !== 4) return
-
-      // Sort into streams
-      if (lifecycle.stream === 'gold') {
-        gold.push(project)
-      } else if (lifecycle.stream === 'silver') {
-        silver.push(project)
-      }
+      return lifecycle.status === 'backlog' && lifecycle.stage === 4
     })
 
-    // Sort by queue position
-    const sortByQueuePosition = (a: Project, b: Project) => {
-      const aPos = getLifecycleState(a).queuePosition ?? 999
-      const bPos = getLifecycleState(b).queuePosition ?? 999
-      return aPos - bPos
-    }
+    const goldProjects = stage4Projects
+      .filter(p => getLifecycleState(p).stream === 'gold' && p.id !== configuration?.goldProjectId)
+      .sort((a, b) => {
+        const aPos = getLifecycleState(a).queuePosition ?? 999
+        const bPos = getLifecycleState(b).queuePosition ?? 999
+        return aPos - bPos
+      })
 
-    return {
-      gold: gold.sort(sortByQueuePosition),
-      silver: silver.sort(sortByQueuePosition),
-    }
-  }, [allProjects])
+    const silverProjects = stage4Projects
+      .filter(
+        p => getLifecycleState(p).stream === 'silver' && p.id !== configuration?.silverProjectId
+      )
+      .sort((a, b) => {
+        const aPos = getLifecycleState(a).queuePosition ?? 999
+        const bPos = getLifecycleState(b).queuePosition ?? 999
+        return aPos - bPos
+      })
 
-  // Get active projects (for Bronze tasks)
+    return { gold: goldProjects, silver: silverProjects }
+  }, [allProjects, configuration?.goldProjectId, configuration?.silverProjectId])
+
+  // Get all tasks from active projects for bronze
   const activeProjectIds = useMemo(() => {
-    return new Set(
-      allProjects
-        .filter(p => !p.archivedAt && getLifecycleState(p).status === 'active')
-        .map(p => p.id)
-    )
+    return new Set(allProjects.filter(p => getLifecycleState(p).status === 'active').map(p => p.id))
   }, [allProjects])
 
-  // Get Bronze tasks (from active projects, not done, not archived)
   const bronzeTasks = useMemo(() => {
     return allTasks.filter(
-      t =>
-        t.projectId &&
-        activeProjectIds.has(t.projectId) &&
-        t.archivedAt === null &&
-        t.status !== 'done'
+      t => t.projectId && activeProjectIds.has(t.projectId) && t.archivedAt === null
     )
   }, [allTasks, activeProjectIds])
 
-  // Split bronze tasks into tabled vs available
+  // Separate tabled vs available bronze tasks
   const tabledTaskIds = useMemo(
     () => new Set(activeBronzeStack.map(entry => entry.taskId)),
     [activeBronzeStack]
@@ -102,7 +101,7 @@ export const SortingRoom: React.FC = () => {
     [bronzeTasks, tabledTaskIds]
   )
 
-  // Get tabled project details
+  // Get tabled projects for Gold/Silver
   const goldProject = useMemo(
     () => allProjects.find(p => p.id === configuration?.goldProjectId) ?? null,
     [allProjects, configuration?.goldProjectId]
@@ -113,34 +112,35 @@ export const SortingRoom: React.FC = () => {
     [allProjects, configuration?.silverProjectId]
   )
 
-  // Get top tabled bronze task
+  // Get top bronze task for summary
   const topBronzeTask = useMemo(() => {
     if (activeBronzeStack.length === 0) return null
     const topEntry = activeBronzeStack[0]
-    return allTasks.find(t => t.id === topEntry?.taskId) ?? null
+    return topEntry ? (allTasks.find(t => t.id === topEntry.taskId) ?? null) : null
   }, [activeBronzeStack, allTasks])
 
-  // Build stream summaries
+  // Build stream summaries for collapsed view
   const streamSummaries: StreamSummary[] = [
     {
       stream: 'gold',
-      label: 'Gold * Expansion',
+      label: 'Gold',
       tabledName: goldProject?.name ?? null,
       tabledMeta: goldProject?.category ?? null,
       queueCount: projectsByStream.gold.length,
     },
     {
       stream: 'silver',
-      label: 'Silver * Capacity',
+      label: 'Silver',
       tabledName: silverProject?.name ?? null,
       tabledMeta: silverProject?.category ?? null,
       queueCount: projectsByStream.silver.length,
     },
     {
       stream: 'bronze',
-      label: 'Bronze * Execution',
+      label: 'Bronze',
       tabledName: topBronzeTask?.title ?? null,
-      tabledMeta: activeBronzeStack.length > 1 ? `+${activeBronzeStack.length - 1} tabled` : null,
+      tabledMeta:
+        activeBronzeStack.length > 1 ? `+${activeBronzeStack.length - 1} more tabled` : null,
       queueCount: availableBronzeTasks.length,
     },
   ]
@@ -149,33 +149,174 @@ export const SortingRoom: React.FC = () => {
     setExpandedStream(prev => (prev === stream ? null : stream))
   }
 
+  // Handler for activating a project to the table
+  const handleActivateGold = useCallback(
+    async (project: Project) => {
+      // Update lifecycle to mark as slotted
+      const currentLifecycle = getLifecycleState(project)
+      store.commit(
+        events.projectLifecycleUpdated({
+          projectId: project.id,
+          lifecycleState: {
+            ...currentLifecycle,
+            slot: 'gold',
+          },
+          updatedAt: new Date(),
+          actorId,
+        })
+      )
+
+      // If configuration doesn't exist, initialize with this project
+      // Otherwise, assign to existing configuration
+      if (!configuration) {
+        await initializeConfiguration({ goldProjectId: project.id })
+      } else {
+        await assignGold(project.id)
+      }
+    },
+    [store, actorId, assignGold, configuration, initializeConfiguration]
+  )
+
+  const handleActivateSilver = useCallback(
+    async (project: Project) => {
+      const currentLifecycle = getLifecycleState(project)
+      store.commit(
+        events.projectLifecycleUpdated({
+          projectId: project.id,
+          lifecycleState: {
+            ...currentLifecycle,
+            slot: 'silver',
+          },
+          updatedAt: new Date(),
+          actorId,
+        })
+      )
+
+      // If configuration doesn't exist, initialize with this project
+      // Otherwise, assign to existing configuration
+      if (!configuration) {
+        await initializeConfiguration({ silverProjectId: project.id })
+      } else {
+        await assignSilver(project.id)
+      }
+    },
+    [store, actorId, assignSilver, configuration, initializeConfiguration]
+  )
+
+  // Handler for releasing a project from the table
+  const handleReleaseGold = useCallback(async () => {
+    if (!configuration) return
+    if (goldProject) {
+      const currentLifecycle = getLifecycleState(goldProject)
+      store.commit(
+        events.projectLifecycleUpdated({
+          projectId: goldProject.id,
+          lifecycleState: {
+            ...currentLifecycle,
+            slot: undefined,
+            queuePosition: 0, // Move to top of queue
+          },
+          updatedAt: new Date(),
+          actorId,
+        })
+      )
+    }
+    await clearGold()
+  }, [goldProject, store, actorId, clearGold, configuration])
+
+  const handleReleaseSilver = useCallback(async () => {
+    if (!configuration) return
+    if (silverProject) {
+      const currentLifecycle = getLifecycleState(silverProject)
+      store.commit(
+        events.projectLifecycleUpdated({
+          projectId: silverProject.id,
+          lifecycleState: {
+            ...currentLifecycle,
+            slot: undefined,
+            queuePosition: 0,
+          },
+          updatedAt: new Date(),
+          actorId,
+        })
+      )
+    }
+    await clearSilver()
+  }, [silverProject, store, actorId, clearSilver, configuration])
+
+  // Handler for reordering queue
+  const handleReorderGold = useCallback(
+    (reorderedProjects: Project[]) => {
+      // Emit lifecycle updates with new queue positions
+      reorderedProjects.forEach((project, index) => {
+        const currentLifecycle = getLifecycleState(project)
+        if (currentLifecycle.queuePosition !== index + 1) {
+          store.commit(
+            events.projectLifecycleUpdated({
+              projectId: project.id,
+              lifecycleState: {
+                ...currentLifecycle,
+                queuePosition: index + 1,
+              },
+              updatedAt: new Date(),
+              actorId,
+            })
+          )
+        }
+      })
+    },
+    [store, actorId]
+  )
+
+  const handleReorderSilver = useCallback(
+    (reorderedProjects: Project[]) => {
+      reorderedProjects.forEach((project, index) => {
+        const currentLifecycle = getLifecycleState(project)
+        if (currentLifecycle.queuePosition !== index + 1) {
+          store.commit(
+            events.projectLifecycleUpdated({
+              projectId: project.id,
+              lifecycleState: {
+                ...currentLifecycle,
+                queuePosition: index + 1,
+              },
+              updatedAt: new Date(),
+              actorId,
+            })
+          )
+        }
+      })
+    },
+    [store, actorId]
+  )
+
   return (
     <div className='sorting-room'>
-      {/* Stream Tabs */}
       <div className='sorting-room-tabs'>
         {streamSummaries.map(summary => (
           <div
             key={summary.stream}
             className={`sorting-room-tab ${summary.stream} ${expandedStream === summary.stream ? 'expanded' : ''}`}
           >
-            <div className='sorting-room-tab-header'>
+            <div className='sorting-room-tab-header' onClick={() => handleTabClick(summary.stream)}>
               <span className={`sorting-room-stream-dot ${summary.stream}`} />
               <span className='sorting-room-tab-label'>{summary.label}</span>
               <span className='sorting-room-tab-count'>
                 {summary.stream === 'bronze'
-                  ? `${activeBronzeStack.length} tabled · ${summary.queueCount} available`
+                  ? `${activeBronzeStack.length} tabled / ${summary.queueCount} available`
                   : `${summary.queueCount} waiting in queue`}
               </span>
               <button
                 type='button'
                 className='sorting-room-expand-btn'
-                onClick={() => handleTabClick(summary.stream)}
+                onClick={e => {
+                  e.stopPropagation()
+                  handleTabClick(summary.stream)
+                }}
               >
-                {expandedStream === summary.stream ? 'Hide queue' : 'Expand queue'}
+                {expandedStream === summary.stream ? 'Hide' : 'Expand'}
               </button>
             </div>
-
-            {/* Collapsed Summary - always visible */}
             <div className='sorting-room-tab-summary'>
               <div className='sorting-room-on-table'>
                 <span className='sorting-room-on-table-label'>ON TABLE</span>
@@ -195,7 +336,6 @@ export const SortingRoom: React.FC = () => {
         ))}
       </div>
 
-      {/* Expanded Panel */}
       {expandedStream && (
         <div className={`sorting-room-panel ${expandedStream}`}>
           {expandedStream === 'gold' && (
@@ -203,6 +343,11 @@ export const SortingRoom: React.FC = () => {
               stream='gold'
               tabledProject={goldProject}
               queuedProjects={projectsByStream.gold}
+              onActivateToTable={handleActivateGold}
+              onReleaseFromTable={handleReleaseGold}
+              onReorder={handleReorderGold}
+              draggedProject={draggedGoldProject}
+              setDraggedProject={setDraggedGoldProject}
             />
           )}
           {expandedStream === 'silver' && (
@@ -210,6 +355,11 @@ export const SortingRoom: React.FC = () => {
               stream='silver'
               tabledProject={silverProject}
               queuedProjects={projectsByStream.silver}
+              onActivateToTable={handleActivateSilver}
+              onReleaseFromTable={handleReleaseSilver}
+              onReorder={handleReorderSilver}
+              draggedProject={draggedSilverProject}
+              setDraggedProject={setDraggedSilverProject}
             />
           )}
           {expandedStream === 'bronze' && (
@@ -222,162 +372,6 @@ export const SortingRoom: React.FC = () => {
           )}
         </div>
       )}
-    </div>
-  )
-}
-
-/**
- * Gold/Silver Panel - Shows tabled project and queue
- */
-interface GoldSilverPanelProps {
-  stream: 'gold' | 'silver'
-  tabledProject: Project | null
-  queuedProjects: Project[]
-}
-
-const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
-  stream,
-  tabledProject,
-  queuedProjects,
-}) => {
-  return (
-    <div className='sorting-room-stream-panel'>
-      {/* On Table Section */}
-      <div className='sorting-room-section'>
-        <h3 className='sorting-room-section-title'>ON TABLE</h3>
-        {tabledProject ? (
-          <div className={`sorting-room-project-card tabled ${stream}`}>
-            <div className='sorting-room-project-name'>{tabledProject.name}</div>
-            <div className='sorting-room-project-meta'>
-              {tabledProject.category && <span>{tabledProject.category}</span>}
-            </div>
-          </div>
-        ) : (
-          <div className='sorting-room-empty-slot'>
-            <span>No {stream} project on table</span>
-            <span className='sorting-room-empty-hint'>
-              Drag a project here or click "Activate to Table"
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Queue Section */}
-      <div className='sorting-room-section'>
-        <h3 className='sorting-room-section-title'>QUEUE ({queuedProjects.length})</h3>
-        {queuedProjects.length === 0 ? (
-          <div className='sorting-room-empty-queue'>
-            No projects in {stream} queue. Complete Stage 4 in the Drafting Room to add projects.
-          </div>
-        ) : (
-          <div className='sorting-room-queue-list'>
-            {queuedProjects.map((project, index) => (
-              <div key={project.id} className={`sorting-room-project-card queued ${stream}`}>
-                <span className='sorting-room-queue-position'>#{index + 1}</span>
-                <div className='sorting-room-project-info'>
-                  <div className='sorting-room-project-name'>{project.name}</div>
-                  <div className='sorting-room-project-meta'>
-                    {project.category && <span>{project.category}</span>}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-/**
- * Bronze Panel - Shows tabled tasks and available pool
- */
-interface BronzePanelProps {
-  tabledStack: readonly TableBronzeStackEntry[]
-  availableTasks: readonly Task[]
-  allTasks: readonly Task[]
-  allProjects: readonly Project[]
-}
-
-const BronzePanel: React.FC<BronzePanelProps> = ({
-  tabledStack,
-  availableTasks,
-  allTasks,
-  allProjects,
-}) => {
-  // Get task details for tabled items
-  const tabledTasksWithDetails = useMemo(() => {
-    return tabledStack.map(entry => {
-      const task = allTasks.find(t => t.id === entry.taskId)
-      const project = task?.projectId ? allProjects.find(p => p.id === task.projectId) : null
-      return { entry, task, project }
-    })
-  }, [tabledStack, allTasks, allProjects])
-
-  // Get project details for available tasks
-  const availableTasksWithDetails = useMemo(() => {
-    return availableTasks.map(task => {
-      const project = task.projectId ? allProjects.find(p => p.id === task.projectId) : null
-      return { task, project }
-    })
-  }, [availableTasks, allProjects])
-
-  return (
-    <div className='sorting-room-stream-panel'>
-      {/* Tabled Section */}
-      <div className='sorting-room-section'>
-        <h3 className='sorting-room-section-title'>TABLED ({tabledStack.length})</h3>
-        {tabledStack.length === 0 ? (
-          <div className='sorting-room-empty-slot'>
-            <span>No bronze tasks on table</span>
-            <span className='sorting-room-empty-hint'>Add tasks from the available pool below</span>
-          </div>
-        ) : (
-          <div className='sorting-room-queue-list'>
-            {tabledTasksWithDetails.map(({ entry, task, project }, index) => (
-              <div key={entry.id} className='sorting-room-task-card tabled bronze'>
-                <span className='sorting-room-queue-position'>#{index + 1}</span>
-                <div className='sorting-room-task-info'>
-                  <div className='sorting-room-task-title'>{task?.title ?? 'Unknown task'}</div>
-                  <div className='sorting-room-task-meta'>
-                    {project?.name && <span>{project.name}</span>}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Validation warning */}
-        {tabledStack.length < 3 && tabledStack.length > 0 && (
-          <div className='sorting-room-warning'>
-            ⚠️ Minimum 3 bronze tasks recommended. Add {3 - tabledStack.length} more.
-          </div>
-        )}
-      </div>
-
-      {/* Available Section */}
-      <div className='sorting-room-section'>
-        <h3 className='sorting-room-section-title'>AVAILABLE ({availableTasks.length})</h3>
-        {availableTasks.length === 0 ? (
-          <div className='sorting-room-empty-queue'>
-            No available tasks. Tasks from active projects will appear here.
-          </div>
-        ) : (
-          <div className='sorting-room-queue-list'>
-            {availableTasksWithDetails.map(({ task, project }) => (
-              <div key={task.id} className='sorting-room-task-card available bronze'>
-                <div className='sorting-room-task-info'>
-                  <div className='sorting-room-task-title'>{task.title}</div>
-                  <div className='sorting-room-task-meta'>
-                    {project?.name && <span>{project.name}</span>}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   )
 }

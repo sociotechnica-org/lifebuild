@@ -349,3 +349,131 @@
   font-size: 0.85rem;
   color: #856404;
 }
+
+/* Table Drop Zone */
+.sorting-room-table-drop-zone {
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.sorting-room-table-drop-zone.drag-over {
+  background: rgba(0, 128, 0, 0.08);
+  border: 2px dashed rgba(0, 128, 0, 0.4);
+}
+
+.sorting-room-table-drop-zone.drag-over .sorting-room-empty-slot {
+  border-color: rgba(0, 128, 0, 0.4);
+  background: transparent;
+}
+
+/* Drag Handle */
+.sorting-room-drag-handle {
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: background 0.15s ease;
+}
+
+.sorting-room-drag-handle:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.sorting-room-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Action Buttons */
+.sorting-room-action-btn {
+  font-size: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sorting-room-action-btn.activate {
+  background: var(--ink);
+  color: #fff;
+  border: none;
+}
+
+.sorting-room-action-btn.activate:hover {
+  background: #000;
+}
+
+.sorting-room-action-btn.release {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.sorting-room-action-btn.release:hover {
+  background: var(--cream);
+  border-color: var(--muted);
+  color: var(--ink);
+}
+
+/* Dragging State */
+.sorting-room-project-card.dragging {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transform: rotate(2deg);
+}
+
+/* Queue Position Badge */
+.sorting-room-queue-position {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--cream);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  min-width: 2rem;
+  text-align: center;
+}
+
+/* Project Info Section */
+.sorting-room-project-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sorting-room-project-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sorting-room-project-meta {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.125rem;
+}
+
+/* Task Card Styling (Bronze) */
+.sorting-room-task-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sorting-room-task-title {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sorting-room-task-meta {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.125rem;
+}
