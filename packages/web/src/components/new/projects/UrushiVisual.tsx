@@ -12,7 +12,12 @@ export const lifecycleToUrushiStage = (
       if (lifecycle.stage === 2) return { stage: 'foundation', progress: 0.35 }
       return { stage: 'color', progress: 0.5 }
     case 'backlog':
-      return { stage: lifecycle.stream === 'bronze' ? 'foundation' : 'polish', progress: 0.7 }
+      // Default to bronze (foundation) when stream is not explicitly set to gold/silver
+      return {
+        stage:
+          lifecycle.stream === 'gold' || lifecycle.stream === 'silver' ? 'polish' : 'foundation',
+        progress: 0.7,
+      }
     case 'active':
       return { stage: 'polish', progress: 0.82 }
     case 'completed':
