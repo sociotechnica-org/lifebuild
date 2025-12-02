@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.js'
+import { buildRedirectUrl } from '../utils/navigation.js'
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const { login, isAuthenticated, isLoading: authLoading } = useAuth()
+  const { login, isAuthenticated, isLoading: authLoading, user } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -21,9 +22,10 @@ export const LoginPage: React.FC = () => {
   // Redirect if already authenticated (but only after auth loading is complete)
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      navigate(redirectTo, { replace: true })
+      const redirectUrl = buildRedirectUrl(redirectTo, user)
+      navigate(redirectUrl, { replace: true })
     }
-  }, [authLoading, isAuthenticated, navigate, redirectTo])
+  }, [authLoading, isAuthenticated, navigate, redirectTo, user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,7 +35,8 @@ export const LoginPage: React.FC = () => {
     try {
       const success = await login(email, password)
       if (success) {
-        navigate(redirectTo, { replace: true })
+        // Don't navigate here - let the useEffect handle it after user state updates
+        // The useEffect will trigger once isAuthenticated becomes true and user is populated
       } else {
         setError('Invalid email or password')
       }
