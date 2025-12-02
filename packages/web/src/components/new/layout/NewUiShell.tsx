@@ -46,9 +46,8 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
             Drafting Room
           </Link>
           <Link
-            to='#'
+            to={generateRoute.newSortingRoom()}
             className={isActive('/new/sorting-room') ? 'active' : ''}
-            style={{ opacity: 0.5, pointerEvents: 'none' }}
           >
             Sorting Room
           </Link>
