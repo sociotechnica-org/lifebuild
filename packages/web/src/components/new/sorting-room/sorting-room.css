@@ -418,6 +418,48 @@
   color: var(--ink);
 }
 
+.sorting-room-action-btn.view {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.sorting-room-action-btn.view:hover {
+  background: var(--cream);
+  border-color: var(--muted);
+  color: var(--ink);
+}
+
+/* Action Buttons Container */
+.sorting-room-action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Progress Bar for tabled projects */
+.sorting-room-progress {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.sorting-room-progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Unstarted label */
+.sorting-room-unstarted {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 0.25rem;
+}
+
 /* Dragging State */
 .sorting-room-project-card.dragging {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);

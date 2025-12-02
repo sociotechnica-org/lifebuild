@@ -1,7 +1,14 @@
 import React, { useMemo } from 'react'
 import { useQuery } from '@livestore/react'
-import { getProjectsByCategory$, getAllWorkerProjects$ } from '@work-squared/shared/queries'
+import {
+  getProjectsByCategory$,
+  getAllWorkerProjects$,
+  getActiveBronzeStack$,
+  getAllTasks$,
+  getTableConfiguration$,
+} from '@work-squared/shared/queries'
 import { PROJECT_CATEGORIES } from '@work-squared/shared'
+import type { Project } from '@work-squared/shared/schema'
 import { CategoryCard } from './CategoryCard.js'
 
 /**
@@ -14,6 +21,10 @@ import { CategoryCard } from './CategoryCard.js'
  */
 export const LifeMap: React.FC = () => {
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
+  const activeBronzeStack = useQuery(getActiveBronzeStack$) ?? []
+  const allTasks = useQuery(getAllTasks$) ?? []
+  const tableConfiguration = useQuery(getTableConfiguration$) ?? []
+  const tableConfig = tableConfiguration[0]
 
   // Query projects for each category
   const healthProjects = useQuery(getProjectsByCategory$('health')) ?? []
@@ -48,6 +59,34 @@ export const LifeMap: React.FC = () => {
     contributionProjects,
   ])
 
+  // Build a set of project IDs that are "active" (on the table or have bronze tasks)
+  const activeProjectIds = useMemo(() => {
+    const projectIds = new Set<string>()
+
+    // Gold and Silver projects are active (they're "on the table")
+    if (tableConfig?.goldProjectId) {
+      projectIds.add(tableConfig.goldProjectId)
+    }
+    if (tableConfig?.silverProjectId) {
+      projectIds.add(tableConfig.silverProjectId)
+    }
+
+    // Projects with tasks in the bronze stack are also active
+    const taskIdToProjectId = new Map<string, string | null>()
+    allTasks.forEach(task => {
+      taskIdToProjectId.set(task.id, task.projectId)
+    })
+
+    activeBronzeStack.forEach(entry => {
+      const projectId = taskIdToProjectId.get(entry.taskId)
+      if (projectId) {
+        projectIds.add(projectId)
+      }
+    })
+
+    return projectIds
+  }, [activeBronzeStack, allTasks, tableConfig])
+
   // Calculate workers for each category
   const categoryWorkersMap = useMemo(() => {
     const workersMap: Record<string, number> = {}
@@ -64,6 +103,34 @@ export const LifeMap: React.FC = () => {
     return workersMap
   }, [categoryProjectsMap, allWorkerProjects])
 
+  // Build a map of projectId -> task completion percentage
+  const projectCompletionMap = useMemo(() => {
+    const completionMap = new Map<string, number>()
+
+    // Group tasks by project (excluding archived tasks for consistency with SortingRoom)
+    const tasksByProject = new Map<string, (typeof allTasks)[number][]>()
+    allTasks.forEach(task => {
+      if (task.projectId && task.archivedAt === null) {
+        const existing = tasksByProject.get(task.projectId) ?? []
+        tasksByProject.set(task.projectId, [...existing, task])
+      }
+    })
+
+    // Calculate completion for each project
+    tasksByProject.forEach((tasks, projectId) => {
+      const totalTasks = tasks.length
+      if (totalTasks === 0) {
+        completionMap.set(projectId, 0)
+        return
+      }
+      const completedTasks = tasks.filter(t => t.status === 'done').length
+      const percentage = Math.round((completedTasks / totalTasks) * 100)
+      completionMap.set(projectId, percentage)
+    })
+
+    return completionMap
+  }, [allTasks])
+
   return (
     <div className='new-ui-card'>
       <div className='new-ui-category-grid'>
@@ -75,6 +142,11 @@ export const LifeMap: React.FC = () => {
           const projects =
             categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
           const workers = categoryWorkersMap[category.value] || 0
+
+          // Split projects into active (has bronze task) and tabled (no bronze task)
+          const activeProjects = projects.filter(p => activeProjectIds.has(p.id))
+          const tabledProjects = projects.filter(p => !activeProjectIds.has(p.id))
+
           return (
             <CategoryCard
               key={category.value}
@@ -84,6 +156,9 @@ export const LifeMap: React.FC = () => {
               categoryColor={category.colorHex}
               projectCount={projects.length}
               workerCount={workers}
+              activeProjects={activeProjects}
+              tabledProjects={tabledProjects}
+              projectCompletionMap={projectCompletionMap}
             />
           )
         })}

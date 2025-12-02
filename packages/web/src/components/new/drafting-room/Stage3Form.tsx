@@ -187,8 +187,8 @@ export const Stage3Form: React.FC = () => {
   const handleContinue = () => {
     if (!hasAtLeastOneTask) return
     saveAndAdvance()
-    // Project moves to backlog, navigate back to Drafting Room
-    navigate(generateRoute.newDraftingRoom())
+    // Project moves to backlog, navigate to Sorting Room
+    navigate(generateRoute.newSortingRoom())
   }
 
   if (!project) {

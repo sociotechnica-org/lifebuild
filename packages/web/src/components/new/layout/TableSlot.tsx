@@ -1,4 +1,7 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
+import { generateRoute } from '../../../constants/routes.js'
+import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 
 export type Stream = 'gold' | 'silver' | 'bronze'
 
@@ -14,6 +17,7 @@ export type TableSlotProps = {
 /**
  * TableSlot component - Represents a single slot in The Table (Gold, Silver, or Bronze).
  * Shows the current project in that stream with progress indication.
+ * Gold and Silver slots are clickable and navigate to the project detail page.
  */
 export const TableSlot: React.FC<TableSlotProps> = ({
   stream,
@@ -36,9 +40,10 @@ export const TableSlot: React.FC<TableSlotProps> = ({
   }
 
   const isEmpty = !projectId && !projectName
+  const isClickable = projectId && (stream === 'gold' || stream === 'silver')
 
-  return (
-    <div className={`new-ui-table-slot ${stream}`}>
+  const slotContent = (
+    <>
       <h4>{streamLabels[stream]}</h4>
       {isEmpty ? (
         <div className='meta'>Empty</div>
@@ -62,6 +67,20 @@ export const TableSlot: React.FC<TableSlotProps> = ({
           )}
         </>
       )}
-    </div>
+    </>
   )
+
+  if (isClickable) {
+    return (
+      <Link
+        to={preserveStoreIdInUrl(generateRoute.newProject(projectId))}
+        className={`new-ui-table-slot ${stream}`}
+        style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+      >
+        {slotContent}
+      </Link>
+    )
+  }
+
+  return <div className={`new-ui-table-slot ${stream}`}>{slotContent}</div>
 }
