@@ -18,7 +18,7 @@ function formatCompactRelativeTime(date: Date): string {
   if (diffMinutes < 60) return `${diffMinutes} min ago`
   if (diffHours < 24) return `${diffHours}h ago`
   if (diffDays < 7) return `${diffDays}d ago`
-  if (diffWeeks < 4) return `${diffWeeks}w ago`
+  if (diffWeeks < 5) return `${diffWeeks}w ago`
 
   const diffMonths = Math.floor(diffDays / 30)
   if (diffMonths < 12) return `${diffMonths}mo ago`
