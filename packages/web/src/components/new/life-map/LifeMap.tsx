@@ -107,10 +107,10 @@ export const LifeMap: React.FC = () => {
   const projectCompletionMap = useMemo(() => {
     const completionMap = new Map<string, number>()
 
-    // Group tasks by project
+    // Group tasks by project (excluding archived tasks for consistency with SortingRoom)
     const tasksByProject = new Map<string, (typeof allTasks)[number][]>()
     allTasks.forEach(task => {
-      if (task.projectId) {
+      if (task.projectId && task.archivedAt === null) {
         const existing = tasksByProject.get(task.projectId) ?? []
         tasksByProject.set(task.projectId, [...existing, task])
       }
