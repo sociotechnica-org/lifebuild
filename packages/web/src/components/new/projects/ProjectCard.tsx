@@ -97,7 +97,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
     [lifecycleState]
   )
   const lifecycleLabel = describeProjectLifecycleState(lifecycleState)
-  const archetypeLabel = attributes?.archetype ? ARCHETYPE_LABELS[attributes.archetype] : null
+  const archetypeLabel = lifecycleState.archetype
+    ? ARCHETYPE_LABELS[lifecycleState.archetype]
+    : null
   const categoryInfo = useMemo(
     () => getCategoryInfo(project.category as ProjectCategory),
     [project.category]
