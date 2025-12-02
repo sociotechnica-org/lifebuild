@@ -111,9 +111,10 @@ export const Stage1Form: React.FC = () => {
     if (!isValid) return
     const projectId = saveProject()
     if (projectId) {
-      // Update lifecycle to stage 2 before navigating
+      // Update lifecycle to stage 2 before navigating, preserving any existing lifecycle data
       const now = new Date()
       const updatedLifecycle: ProjectLifecycleState = {
+        ...(lifecycleState ?? {}),
         status: 'planning',
         stage: 2,
       }
