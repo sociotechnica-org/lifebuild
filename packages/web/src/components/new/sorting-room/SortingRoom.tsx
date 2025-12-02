@@ -132,7 +132,11 @@ export const SortingRoom: React.FC = () => {
 
   const bronzeTasks = useMemo(() => {
     return allTasks.filter(
-      t => t.projectId && activeProjectIds.has(t.projectId) && t.archivedAt === null
+      t =>
+        t.projectId &&
+        activeProjectIds.has(t.projectId) &&
+        t.archivedAt === null &&
+        t.status !== 'done'
     )
   }, [allTasks, activeProjectIds])
 
