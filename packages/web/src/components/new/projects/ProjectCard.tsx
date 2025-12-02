@@ -65,12 +65,13 @@ const hexToRgba = (hex: string, alpha: number) => {
 }
 
 const lifecycleBadgeLabel = (lifecycle: ProjectLifecycleState, stage: UrushiStage) => {
-  if (lifecycle.status === 'plans') {
-    return `${lifecycle.stream.charAt(0).toUpperCase()}${lifecycle.stream.slice(1)} plan`
+  if (lifecycle.status === 'backlog') {
+    const stream = lifecycle.stream ?? 'bronze'
+    return `${stream.charAt(0).toUpperCase()}${stream.slice(1)} plan`
   }
-  if (lifecycle.status === 'work_at_hand') return `${lifecycle.slot.toUpperCase()} slot`
-  if (lifecycle.status === 'paused') return 'Paused'
-  if (lifecycle.status === 'live') return 'Live'
+  if (lifecycle.status === 'active') {
+    return lifecycle.slot ? `${lifecycle.slot.toUpperCase()} slot` : 'Active'
+  }
   if (lifecycle.status === 'completed') return 'Completed'
   return URUSHI_STAGE_LABELS[stage]
 }
@@ -96,7 +97,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
     [lifecycleState]
   )
   const lifecycleLabel = describeProjectLifecycleState(lifecycleState)
-  const archetypeLabel = attributes?.archetype ? ARCHETYPE_LABELS[attributes.archetype] : null
+  const archetypeLabel = lifecycleState.archetype
+    ? ARCHETYPE_LABELS[lifecycleState.archetype]
+    : null
   const categoryInfo = useMemo(
     () => getCategoryInfo(project.category as ProjectCategory),
     [project.category]
@@ -125,12 +128,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   }, [workerProjects])
 
   const badgeLabel = lifecycleBadgeLabel(lifecycleState, stage)
-  const paused = lifecycleState.status === 'paused'
 
   return (
     <Link
       to={preserveStoreIdInUrl(`/new/projects/${project.id}`)}
-      className={`new-project-card block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg ${paused ? 'opacity-90' : ''}`}
+      className='new-project-card block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg'
     >
       <div className='flex gap-4 p-4 sm:p-5'>
         <UrushiVisual
@@ -168,11 +170,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
                 {archetypeLabel}
               </span>
             )}
-            {lifecycleState.status === 'plans' && (
-              <span className='rounded-full bg-slate-50 px-2 py-1'>
-                Queue #{lifecycleState.queuePosition + 1}
-              </span>
-            )}
+            {lifecycleState.status === 'backlog' &&
+              lifecycleState.queuePosition != null && ( // Check for both null and undefined
+                <span className='rounded-full bg-slate-50 px-2 py-1'>
+                  Queue #{lifecycleState.queuePosition + 1}
+                </span>
+              )}
           </div>
 
           <div className='h-2 overflow-hidden rounded-full bg-slate-100'>

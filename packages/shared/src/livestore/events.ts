@@ -1,6 +1,6 @@
 import { Events, Schema } from '@livestore/livestore'
 import { DEFAULT_ROOM_SCOPE, ROOM_KIND_VALUES } from '../rooms.js'
-import { ProjectLifecycleStateSchema } from '../lifecycle.js'
+import { ProjectLifecycleStateSchema } from '../types/planning.js'
 
 const roomKindSchema = Schema.Literal(...ROOM_KIND_VALUES)
 const roomScopeSchema = Schema.Literal(DEFAULT_ROOM_SCOPE)
@@ -256,6 +256,15 @@ export const taskUnarchived = Events.synced({
   name: 'v1.TaskUnarchived',
   schema: Schema.Struct({
     taskId: Schema.String,
+  }),
+})
+
+export const taskDeleted = Events.synced({
+  name: 'v1.TaskDeleted',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    deletedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
   }),
 })
 

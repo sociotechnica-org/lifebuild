@@ -19,3 +19,6 @@ llm-test-*/
 work-squared-default/
 playwright-report/
 test-results/
+
+# Examples
+examples/

@@ -38,6 +38,11 @@ import { ProjectDetailPage } from './components/new/projects/ProjectDetailPage.j
 import { LifeMap } from './components/new/life-map/LifeMap.js'
 import { LifeCategory } from './components/new/life-category/LifeCategory.js'
 import { RoomLayout } from './components/new/layout/RoomLayout.js'
+import { NewUiShell } from './components/new/layout/NewUiShell.js'
+import { DraftingRoom } from './components/new/drafting-room/DraftingRoom.js'
+import { Stage1Form } from './components/new/drafting-room/Stage1Form.js'
+import { Stage2Form } from './components/new/drafting-room/Stage2Form.js'
+import { Stage3Form } from './components/new/drafting-room/Stage3Form.js'
 import { LIFE_MAP_ROOM } from '@work-squared/shared/rooms'
 
 const adapter = makePersistedAdapter({
@@ -181,6 +186,56 @@ const ProtectedApp: React.FC = () => {
                           <RoomLayout room={LIFE_MAP_ROOM}>
                             <LifeMap />
                           </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.NEW_DRAFTING_ROOM}
+                      element={
+                        <ErrorBoundary>
+                          <NewUiShell>
+                            <DraftingRoom />
+                          </NewUiShell>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.NEW_PROJECT_CREATE}
+                      element={
+                        <ErrorBoundary>
+                          <NewUiShell>
+                            <Stage1Form />
+                          </NewUiShell>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.NEW_PROJECT_STAGE1}
+                      element={
+                        <ErrorBoundary>
+                          <NewUiShell>
+                            <Stage1Form />
+                          </NewUiShell>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.NEW_PROJECT_STAGE2}
+                      element={
+                        <ErrorBoundary>
+                          <NewUiShell>
+                            <Stage2Form />
+                          </NewUiShell>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.NEW_PROJECT_STAGE3}
+                      element={
+                        <ErrorBoundary>
+                          <NewUiShell>
+                            <Stage3Form />
+                          </NewUiShell>
                         </ErrorBoundary>
                       }
                     />

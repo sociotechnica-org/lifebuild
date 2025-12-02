@@ -1,19 +1,29 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, beforeEach, vi } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
 import { RoomLayout } from './RoomLayout.js'
 import { LIFE_MAP_ROOM } from '@work-squared/shared/rooms'
-
-const mockShouldEnableRoomChat = vi.fn(() => true)
-
-vi.mock('../../../constants/featureFlags.js', () => ({
-  shouldEnableRoomChat: () => mockShouldEnableRoomChat(),
-}))
 
 vi.mock('../../../lib/analytics.js', () => ({
   usePostHog: () => ({
     capture: vi.fn(),
   }),
+}))
+
+vi.mock('../../../contexts/AuthContext.js', () => ({
+  useAuth: () => ({
+    user: { id: 'test-user', email: 'test@example.com', name: 'Test User' },
+    isAuthenticated: true,
+    isLoading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    checkAuth: vi.fn(),
+  }),
+}))
+
+vi.mock('@livestore/react', () => ({
+  useQuery: () => [],
 }))
 
 const mockSendMessage = vi.fn()
@@ -64,35 +74,38 @@ describe('RoomLayout', () => {
     window.localStorage.clear()
     mockSendMessage.mockReset()
     mockSetMessageText.mockReset()
-    mockShouldEnableRoomChat.mockReturnValue(true)
   })
 
   it('renders children and toggles chat panel', () => {
     render(
-      <RoomLayout room={LIFE_MAP_ROOM}>
-        <div>Life Map Content</div>
-      </RoomLayout>
+      <MemoryRouter>
+        <RoomLayout room={LIFE_MAP_ROOM}>
+          <div>Life Map Content</div>
+        </RoomLayout>
+      </MemoryRouter>
     )
 
     expect(screen.getByText('Life Map Content')).toBeInTheDocument()
 
-    const toggle = screen.getByRole('button', { name: /show chat/i })
+    const toggle = screen.getByRole('button', { name: /open chat/i })
     fireEvent.click(toggle)
 
-    expect(screen.getByRole('button', { name: /hide chat/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /close chat/i })).toBeInTheDocument()
     expect(screen.getByText('Send')).toBeInTheDocument()
   })
 
-  it('falls back to NewUiShell when feature disabled', () => {
-    mockShouldEnableRoomChat.mockReturnValue(false)
-
+  it('renders chat panel in closed state by default', () => {
     render(
-      <RoomLayout room={LIFE_MAP_ROOM}>
-        <div>Life Map Content</div>
-      </RoomLayout>
+      <MemoryRouter>
+        <RoomLayout room={LIFE_MAP_ROOM}>
+          <div>Life Map Content</div>
+        </RoomLayout>
+      </MemoryRouter>
     )
 
     expect(screen.getByText('Life Map Content')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /chat/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /open chat/i })).toBeInTheDocument()
+    // Chat panel should not be visible when closed
+    expect(screen.queryByText('Send')).not.toBeInTheDocument()
   })
 })

@@ -11,16 +11,15 @@ export const lifecycleToUrushiStage = (
       if (lifecycle.stage === 1) return { stage: 'sketch', progress: 0.2 }
       if (lifecycle.stage === 2) return { stage: 'foundation', progress: 0.35 }
       return { stage: 'color', progress: 0.5 }
-    case 'ready_for_stage4':
-      return { stage: 'color', progress: 0.6 }
-    case 'plans':
-      return { stage: lifecycle.stream === 'bronze' ? 'foundation' : 'polish', progress: 0.7 }
-    case 'work_at_hand':
+    case 'backlog':
+      // Default to bronze (foundation) when stream is not explicitly set to gold/silver
+      return {
+        stage:
+          lifecycle.stream === 'gold' || lifecycle.stream === 'silver' ? 'polish' : 'foundation',
+        progress: 0.7,
+      }
+    case 'active':
       return { stage: 'polish', progress: 0.82 }
-    case 'live':
-      return { stage: 'decoration', progress: 0.92 }
-    case 'paused':
-      return { stage: 'polish', progress: 0.65 }
     case 'completed':
       return { stage: 'decoration', progress: 1 }
     default:
@@ -137,7 +136,6 @@ export const UrushiVisual: React.FC<UrushiVisualProps> = ({
   }, [progress, stage])
 
   const orbs = useMemo(() => makeOrbs(progress), [progress])
-  const paused = lifecycle.status === 'paused'
   const completed = lifecycle.status === 'completed'
 
   return (
@@ -199,8 +197,6 @@ export const UrushiVisual: React.FC<UrushiVisualProps> = ({
             strokeLinecap='round'
           />
         )}
-
-        {paused && <rect x='0' y='0' width='200' height='140' fill='rgba(255,255,255,0.45)' />}
       </svg>
       <div className='pointer-events-none absolute inset-0 mix-blend-overlay opacity-70'>
         <div className='absolute inset-0 bg-gradient-to-tr from-white/40 via-transparent to-white/20' />
