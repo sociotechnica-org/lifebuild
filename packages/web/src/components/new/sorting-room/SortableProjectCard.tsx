@@ -8,6 +8,7 @@ export interface SortableProjectCardProps {
   index: number
   stream: 'gold' | 'silver'
   onActivateToTable: (project: Project) => void
+  isActiveView?: boolean
 }
 
 /**
@@ -18,6 +19,7 @@ export const SortableProjectCard: React.FC<SortableProjectCardProps> = ({
   index,
   stream,
   onActivateToTable,
+  isActiveView = false,
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: project.id,
