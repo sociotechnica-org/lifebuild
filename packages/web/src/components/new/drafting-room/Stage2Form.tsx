@@ -138,7 +138,7 @@ export const Stage2Form: React.FC = () => {
   }
 
   /**
-   * Save and advance to Stage 2 (Scoped)
+   * Save and advance to Stage 3 (Drafting)
    * Only called when all required fields are complete
    */
   const saveAndAdvance = () => {
@@ -146,10 +146,10 @@ export const Stage2Form: React.FC = () => {
 
     const now = new Date()
 
-    // Build updated lifecycle state with stage 2
+    // Build updated lifecycle state with stage 3
     const updatedLifecycle: ProjectLifecycleState = {
       ...lifecycleState,
-      stage: 2, // Advance to Stage 2 (Scoped)
+      stage: 3, // Advance to Stage 3 (Drafting)
       objectives: objectives.trim(),
       deadline: deadline ? Number(deadline) : undefined,
       archetype: archetype!,
@@ -184,11 +184,11 @@ export const Stage2Form: React.FC = () => {
   }
 
   const handleContinue = () => {
-    if (!isComplete) return
+    if (!isComplete || !projectId) return
     // Save and advance to Stage 2
     saveAndAdvance()
-    // TODO: Navigate to Stage 3 when it exists
-    navigate(generateRoute.newDraftingRoom())
+    // Navigate to Stage 3
+    navigate(generateRoute.newProjectStage3(projectId))
   }
 
   if (!project) {

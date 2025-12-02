@@ -143,12 +143,12 @@
 /* Stage Columns Grid */
 .drafting-room-stages {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .drafting-room-stages {
     grid-template-columns: repeat(2, 1fr);
   }

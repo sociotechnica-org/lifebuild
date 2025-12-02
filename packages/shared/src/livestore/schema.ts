@@ -730,6 +730,16 @@ const materializers = State.SQLite.materializers(events, {
     }),
   ],
   'v1.TaskUnarchived': ({ taskId }) => tasks.update({ archivedAt: null }).where({ id: taskId }),
+  'v1.TaskDeleted': ({ taskId, deletedAt, actorId }) => [
+    tasks.delete().where({ id: taskId }),
+    eventsLog.insert({
+      id: `task_deleted_${taskId}_${deletedAt.getTime()}`,
+      eventType: 'v1.TaskDeleted',
+      eventData: JSON.stringify({ taskId }),
+      actorId,
+      createdAt: deletedAt,
+    }),
+  ],
   'v1.DocumentCreated': ({ id, title, content, createdAt, actorId }) => [
     documents.insert({ id, title, content, createdAt, updatedAt: createdAt, archivedAt: null }),
     eventsLog.insert({

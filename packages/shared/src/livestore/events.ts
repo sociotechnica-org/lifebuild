@@ -259,6 +259,15 @@ export const taskUnarchived = Events.synced({
   }),
 })
 
+export const taskDeleted = Events.synced({
+  name: 'v1.TaskDeleted',
+  schema: Schema.Struct({
+    taskId: Schema.String,
+    deletedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
 export const documentCreated = Events.synced({
   name: 'v1.DocumentCreated',
   schema: Schema.Struct({

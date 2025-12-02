@@ -82,12 +82,11 @@ function getLifecycleState(project: Project): ProjectLifecycleState {
   return resolveLifecycleState(project.projectLifecycleState, null)
 }
 
-// Stage configuration
+// Stage configuration (3 stages - Stage 4 happens in the Sorting Room)
 const STAGES: { stage: PlanningStage; name: string; emptyMessage: string }[] = [
   { stage: 1, name: 'Identifying', emptyMessage: "Click 'Start New Project' to begin" },
   { stage: 2, name: 'Scoping', emptyMessage: 'Complete Stage 1 projects to move them here' },
   { stage: 3, name: 'Drafting', emptyMessage: 'Define objectives to advance projects' },
-  { stage: 4, name: 'Prioritizing', emptyMessage: 'Draft task lists to advance projects' },
 ]
 
 // Category filter options (All + categories)
@@ -179,23 +178,19 @@ export const DraftingRoom: React.FC = () => {
   }
 
   const handleResume = (projectId: string, stage: PlanningStage) => {
-    // Navigate to the appropriate stage form
+    // Navigate to the current stage form to continue working on it
     switch (stage) {
       case 1:
-        // Stage 1 → Stage 2 (Scoping)
-        navigate(generateRoute.newProjectStage2(projectId))
+        navigate(generateRoute.newProjectStage1(projectId))
         break
       case 2:
-        // TODO: Stage 2 → Stage 3 (Drafting)
         navigate(generateRoute.newProjectStage2(projectId))
         break
       case 3:
-        // TODO: Stage 3 → Stage 4 (Prioritizing)
-        navigate(generateRoute.newProjectStage2(projectId))
+        navigate(generateRoute.newProjectStage3(projectId))
         break
-      case 4:
-        // TODO: Stage 4 → Ready for activation
-        navigate(generateRoute.newProjectStage2(projectId))
+      default:
+        // Stage 4+ projects should be in the Sorting Room, not here
         break
     }
   }

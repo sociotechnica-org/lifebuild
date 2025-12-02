@@ -42,6 +42,7 @@ import { NewUiShell } from './components/new/layout/NewUiShell.js'
 import { DraftingRoom } from './components/new/drafting-room/DraftingRoom.js'
 import { Stage1Form } from './components/new/drafting-room/Stage1Form.js'
 import { Stage2Form } from './components/new/drafting-room/Stage2Form.js'
+import { Stage3Form } from './components/new/drafting-room/Stage3Form.js'
 import { LIFE_MAP_ROOM } from '@work-squared/shared/rooms'
 
 const adapter = makePersistedAdapter({
@@ -224,6 +225,16 @@ const ProtectedApp: React.FC = () => {
                         <ErrorBoundary>
                           <NewUiShell>
                             <Stage2Form />
+                          </NewUiShell>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.NEW_PROJECT_STAGE3}
+                      element={
+                        <ErrorBoundary>
+                          <NewUiShell>
+                            <Stage3Form />
                           </NewUiShell>
                         </ErrorBoundary>
                       }

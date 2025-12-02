@@ -38,8 +38,7 @@ export const StageWizard: React.FC<StageWizardProps> = ({
         navigate(generateRoute.newProjectStage2(projectId))
         break
       case 3:
-        // Stage 3 form doesn't exist yet
-        // navigate(generateRoute.newProjectStage3(projectId))
+        navigate(generateRoute.newProjectStage3(projectId))
         break
     }
   }
