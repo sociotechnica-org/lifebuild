@@ -94,12 +94,12 @@ export const Stage2Form: React.FC = () => {
     }
   }, [lifecycleState, initialized])
 
-  // Get max accessible stage - if stage is N, user can access stages 1 through N+1
+  // User can only navigate back to stages they've already completed (current stage or earlier)
   const maxAccessibleStage: WizardStage = (() => {
     if (!lifecycleState) return 2 // Default to stage 2 since we're on this form
     const stage = lifecycleState.stage ?? 1
-    // Allow access to current stage + 1 (capped at 3), but at least 2 since we're on this form
-    return Math.min(3, Math.max(2, stage + 1)) as WizardStage
+    // Allow access to current stage, but at least 2 since we're on this form
+    return Math.min(3, Math.max(2, stage)) as WizardStage
   })()
 
   // Check if all required fields are filled to advance to Stage 3

@@ -47,11 +47,11 @@ export const Stage1Form: React.FC = () => {
     ? resolveLifecycleState(existingProject.projectLifecycleState, null)
     : null
 
-  // If stage is N, user can access stages 1 through N+1 (since they're transitioning to the next stage)
+  // User can only navigate back to stages they've already completed (current stage or earlier)
   const maxAccessibleStage: WizardStage = (() => {
     if (!lifecycleState) return 1
     const stage = lifecycleState.stage ?? 1
-    return Math.min(3, Math.max(1, stage + 1)) as WizardStage
+    return Math.min(3, Math.max(1, stage)) as WizardStage
   })()
 
   // Track the project ID for auto-save (created on first save)
