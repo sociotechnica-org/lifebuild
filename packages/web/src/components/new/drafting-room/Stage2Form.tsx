@@ -11,7 +11,7 @@ import {
 } from '@work-squared/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
-import { deriveTier, type ProjectTier } from './DraftingRoom.js'
+import { type ProjectTier } from './DraftingRoom.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
 import './stage-form.css'
 
@@ -88,8 +88,9 @@ export const Stage2Form: React.FC = () => {
         setDeadline('')
       }
       setArchetype(lifecycleState.archetype ?? null)
-      // Derive tier from existing lifecycle state
-      setTier(deriveTier(lifecycleState))
+      // Only load tier if explicitly saved (stream field), don't derive from archetype
+      // This prevents auto-saving a derived tier the user never explicitly chose
+      setTier((lifecycleState.stream as ProjectTier) ?? null)
       setInitialized(true)
     }
   }, [lifecycleState, initialized])
