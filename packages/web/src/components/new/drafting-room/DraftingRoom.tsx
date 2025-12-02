@@ -20,14 +20,21 @@ import './drafting-room.css'
 export type ProjectTier = 'gold' | 'silver' | 'bronze'
 
 /**
- * Derive tier from project lifecycle state (archetype + scale)
- * Gold: Initiative + Major/Epic scale
- * Silver: System Build or Discovery Mission
- * Bronze: Quick Task or explicitly micro scale
+ * Derive tier from project lifecycle state
+ * First checks if tier is explicitly stored in `stream` field.
+ * Falls back to deriving from archetype + scale:
+ *   Gold: Initiative + Major/Epic scale
+ *   Silver: System Build or Discovery Mission
+ *   Bronze: Quick Task or explicitly micro scale
  * Returns null if tier cannot be determined (e.g., Stage 1 projects with no archetype)
  */
 export function deriveTier(lifecycle: ProjectLifecycleState | null): ProjectTier | null {
   if (!lifecycle) return null
+
+  // If tier is explicitly stored in stream field, use that
+  if (lifecycle.stream) {
+    return lifecycle.stream as ProjectTier
+  }
 
   const { archetype, scale } = lifecycle
 
@@ -123,8 +130,8 @@ export const DraftingRoom: React.FC = () => {
       // Must be in planning or backlog status
       if (lifecycle.status !== 'planning' && lifecycle.status !== 'backlog') return false
 
-      // Must have a valid stage 1-4
-      if (lifecycle.stage < 1 || lifecycle.stage > 4) return false
+      // Must have a valid stage 1-3 (Stage 4 projects go to Sorting Room)
+      if (lifecycle.stage < 1 || lifecycle.stage > 3) return false
 
       return true
     })
@@ -165,10 +172,10 @@ export const DraftingRoom: React.FC = () => {
     return grouped
   }, [filteredProjects])
 
-  // Count stale projects
+  // Count stale projects (from filtered view so it matches what's visible)
   const staleCount = useMemo(() => {
-    return planningProjects.filter(p => isStale(p.updatedAt)).length
-  }, [planningProjects])
+    return filteredProjects.filter(p => isStale(p.updatedAt)).length
+  }, [filteredProjects])
 
   const hasActiveFilters = categoryFilter !== 'all' || tierFilter !== 'all'
 

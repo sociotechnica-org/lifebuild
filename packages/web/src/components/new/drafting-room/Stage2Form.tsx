@@ -66,7 +66,7 @@ export const Stage2Form: React.FC = () => {
 
   // Form state - initialized empty, will be populated from project
   const [objectives, setObjectives] = useState('')
-  const [deadline, setDeadline] = useState('')
+  const [deadline, setDeadline] = useState<string>('') // ISO date string for input[type=date]
   const [archetype, setArchetype] = useState<ProjectArchetype | null>(null)
   const [tier, setTier] = useState<ProjectTier | null>(null)
   const [initialized, setInitialized] = useState(false)
@@ -80,7 +80,13 @@ export const Stage2Form: React.FC = () => {
   useEffect(() => {
     if (lifecycleState && !initialized) {
       setObjectives(lifecycleState.objectives ?? '')
-      setDeadline(lifecycleState.deadline ? String(lifecycleState.deadline) : '')
+      // Convert timestamp to ISO date string for the date input
+      if (lifecycleState.deadline) {
+        const date = new Date(lifecycleState.deadline)
+        setDeadline(date.toISOString().split('T')[0] ?? '')
+      } else {
+        setDeadline('')
+      }
       setArchetype(lifecycleState.archetype ?? null)
       // Derive tier from existing lifecycle state
       setTier(deriveTier(lifecycleState))
@@ -119,12 +125,15 @@ export const Stage2Form: React.FC = () => {
     const currentTier = overrideTier !== undefined ? overrideTier : tier
 
     // Build updated lifecycle state (preserving current stage)
+    // Convert ISO date string to timestamp
+    const deadlineTimestamp = currentDeadline ? new Date(currentDeadline).getTime() : undefined
     const updatedLifecycle: ProjectLifecycleState = {
       ...lifecycleState,
       objectives: currentObjectives.trim() || undefined,
-      deadline: currentDeadline ? Number(currentDeadline) : undefined,
+      deadline: deadlineTimestamp,
       archetype: currentArchetype ?? undefined,
       scale: tierToScale(currentTier),
+      stream: currentTier ?? undefined, // Store tier directly for reliable persistence
     }
 
     store.commit(
@@ -147,13 +156,16 @@ export const Stage2Form: React.FC = () => {
     const now = new Date()
 
     // Build updated lifecycle state with stage 3
+    // Convert ISO date string to timestamp
+    const deadlineTimestamp = deadline ? new Date(deadline).getTime() : undefined
     const updatedLifecycle: ProjectLifecycleState = {
       ...lifecycleState,
       stage: 3, // Advance to Stage 3 (Drafting)
       objectives: objectives.trim(),
-      deadline: deadline ? Number(deadline) : undefined,
+      deadline: deadlineTimestamp,
       archetype: archetype!,
       scale: tierToScale(tier),
+      stream: tier ?? undefined, // Store tier directly for reliable persistence
     }
 
     store.commit(
@@ -241,9 +253,8 @@ export const Stage2Form: React.FC = () => {
           <div className='stage-form-field'>
             <label className='stage-form-label'>Deadline (Optional)</label>
             <input
-              type='text'
+              type='date'
               className='stage-form-input'
-              placeholder="e.g., 'before holidays' or 'by June'"
               value={deadline}
               onChange={e => setDeadline(e.target.value)}
               onBlur={() => autoSave()}

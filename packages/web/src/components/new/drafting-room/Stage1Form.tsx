@@ -111,6 +111,20 @@ export const Stage1Form: React.FC = () => {
     if (!isValid) return
     const projectId = saveProject()
     if (projectId) {
+      // Update lifecycle to stage 2 before navigating
+      const now = new Date()
+      const updatedLifecycle: ProjectLifecycleState = {
+        status: 'planning',
+        stage: 2,
+      }
+      store.commit(
+        events.projectLifecycleUpdated({
+          projectId,
+          lifecycleState: updatedLifecycle,
+          updatedAt: now,
+          actorId: user?.id,
+        })
+      )
       navigate(generateRoute.newProjectStage2(projectId))
     }
   }
