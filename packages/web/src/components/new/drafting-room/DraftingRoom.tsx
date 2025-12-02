@@ -61,19 +61,6 @@ export function deriveTier(lifecycle: ProjectLifecycleState | null): ProjectTier
 }
 
 /**
- * Parse objectives string and return count
- */
-function getObjectivesCount(lifecycle: ProjectLifecycleState | null): number {
-  if (!lifecycle?.objectives) return 0
-  // Objectives might be newline or semicolon separated
-  const objectives = lifecycle.objectives
-    .split(/[;\n]/)
-    .map((o: string) => o.trim())
-    .filter((o: string) => o.length > 0)
-  return objectives.length
-}
-
-/**
  * Check if project is stale (not updated in 14+ days)
  */
 function isStale(updatedAt: Date): boolean {
@@ -297,7 +284,6 @@ export const DraftingRoom: React.FC = () => {
                     project={project}
                     stage={stage}
                     tier={deriveTier(lifecycle)}
-                    objectivesCount={getObjectivesCount(lifecycle)}
                     taskCount={0} // TODO: Query tasks for this project
                     isStale={isStale(project.updatedAt)}
                     onResume={() => handleResume(project.id, stage)}

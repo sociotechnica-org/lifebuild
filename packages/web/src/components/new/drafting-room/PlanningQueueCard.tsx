@@ -52,7 +52,6 @@ interface PlanningQueueCardProps {
   project: Project
   stage: PlanningStage
   tier: ProjectTier | null
-  objectivesCount: number
   taskCount: number
   isStale: boolean
   onResume: () => void
@@ -69,7 +68,6 @@ export const PlanningQueueCard: React.FC<PlanningQueueCardProps> = ({
   project,
   stage,
   tier,
-  objectivesCount,
   taskCount,
   isStale,
   onResume,
@@ -80,11 +78,7 @@ export const PlanningQueueCard: React.FC<PlanningQueueCardProps> = ({
   const categoryLabel = categoryInfo?.name?.toUpperCase() ?? 'UNCATEGORIZED'
 
   // Build the tier/stats line (only show tier if determined)
-  const statsLine = [
-    tier ? TIER_LABELS[tier] : null,
-    objectivesCount > 0 ? `${objectivesCount} obj` : null,
-    taskCount > 0 ? `${taskCount} tasks` : null,
-  ]
+  const statsLine = [tier ? TIER_LABELS[tier] : null, taskCount > 0 ? `${taskCount} tasks` : null]
     .filter(Boolean)
     .join(' · ')
 
