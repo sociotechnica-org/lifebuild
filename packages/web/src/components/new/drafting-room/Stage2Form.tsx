@@ -226,6 +226,11 @@ export const Stage2Form: React.FC = () => {
           />
         )}
 
+        {/* Project Title */}
+        {project && (
+          <div className='stage-form-project-title'>{project.name || 'Untitled Project'}</div>
+        )}
+
         {/* Header */}
         <div className='stage-form-header'>
           <h1 className='stage-form-title'>Stage 2: Scoping</h1>

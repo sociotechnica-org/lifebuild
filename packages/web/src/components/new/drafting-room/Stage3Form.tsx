@@ -208,6 +208,11 @@ export const Stage3Form: React.FC = () => {
           />
         )}
 
+        {/* Project Title */}
+        {project && (
+          <div className='stage-form-project-title'>{project.name || 'Untitled Project'}</div>
+        )}
+
         {/* Header */}
         <div className='stage-form-header'>
           <h1 className='stage-form-title'>Stage 3: Drafting</h1>
