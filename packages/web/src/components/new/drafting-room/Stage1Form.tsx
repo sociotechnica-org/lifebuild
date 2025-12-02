@@ -39,7 +39,7 @@ export const Stage1Form: React.FC = () => {
     }
   }, [existingProject, initialized])
 
-  const isValid = title.trim().length > 0 && category !== null
+  const canAdvance = title.trim().length > 0 && category !== null
   const isEditing = !!urlProjectId && !!existingProject
 
   // Get lifecycle state for max accessible stage calculation
@@ -54,13 +54,27 @@ export const Stage1Form: React.FC = () => {
     return Math.min(3, Math.max(1, stage + 1)) as WizardStage
   })()
 
-  /**
-   * Create or update project
-   */
-  const saveProject = () => {
-    if (!title.trim()) return null
+  // Track the project ID for auto-save (created on first save)
+  const [createdProjectId, setCreatedProjectId] = useState<string | null>(null)
+  const effectiveProjectId = urlProjectId ?? createdProjectId
 
-    const projectId = urlProjectId ?? crypto.randomUUID()
+  /**
+   * Auto-save current form state
+   * Called on blur of any field or category selection
+   */
+  const autoSave = (
+    overrideTitle?: string,
+    overrideDescription?: string,
+    overrideCategory?: ProjectCategory | null
+  ) => {
+    const currentTitle = overrideTitle ?? title
+    const currentDescription = overrideDescription ?? description
+    const currentCategory = overrideCategory !== undefined ? overrideCategory : category
+
+    // Need at least a title to save
+    if (!currentTitle.trim()) return null
+
+    const projectId = effectiveProjectId ?? crypto.randomUUID()
     const now = new Date()
 
     if (isEditing && lifecycleState) {
@@ -69,9 +83,23 @@ export const Stage1Form: React.FC = () => {
         events.projectUpdated({
           id: projectId,
           updates: {
-            name: title.trim(),
-            description: description.trim() || undefined,
-            category: category ?? undefined,
+            name: currentTitle.trim(),
+            description: currentDescription.trim() || undefined,
+            category: currentCategory ?? undefined,
+          },
+          updatedAt: now,
+          actorId: user?.id,
+        })
+      )
+    } else if (effectiveProjectId) {
+      // Update already-created project
+      store.commit(
+        events.projectUpdated({
+          id: projectId,
+          updates: {
+            name: currentTitle.trim(),
+            description: currentDescription.trim() || undefined,
+            category: currentCategory ?? undefined,
           },
           updatedAt: now,
           actorId: user?.id,
@@ -87,29 +115,36 @@ export const Stage1Form: React.FC = () => {
       store.commit(
         events.projectCreatedV2({
           id: projectId,
-          name: title.trim(),
-          description: description.trim() || undefined,
-          category: category ?? undefined,
+          name: currentTitle.trim(),
+          description: currentDescription.trim() || undefined,
+          category: currentCategory ?? undefined,
           lifecycleState: newLifecycleState,
           createdAt: now,
           actorId: user?.id,
         })
       )
+      setCreatedProjectId(projectId)
     }
 
     return projectId
   }
 
-  const handleSaveAndExit = () => {
-    if (title.trim()) {
-      saveProject()
-    }
+  // Handle category selection with auto-save
+  const handleCategorySelect = (value: ProjectCategory) => {
+    setCategory(value)
+    autoSave(undefined, undefined, value)
+  }
+
+  const handleExit = () => {
+    // Auto-save already handles saving on blur, just navigate
     navigate(generateRoute.newDraftingRoom())
   }
 
   const handleContinue = () => {
-    if (!isValid) return
-    const projectId = saveProject()
+    if (!canAdvance) return
+
+    // Ensure we have a project ID (auto-save should have created one, but fallback just in case)
+    const projectId = effectiveProjectId ?? autoSave()
     if (projectId) {
       // Update lifecycle to stage 2 before navigating, preserving any existing lifecycle data
       const now = new Date()
@@ -159,6 +194,7 @@ export const Stage1Form: React.FC = () => {
               placeholder="What's this project called?"
               value={title}
               onChange={e => setTitle(e.target.value)}
+              onBlur={() => autoSave()}
               autoFocus
             />
           </div>
@@ -171,6 +207,7 @@ export const Stage1Form: React.FC = () => {
               placeholder="1-2 sentences about what you're trying to do"
               value={description}
               onChange={e => setDescription(e.target.value)}
+              onBlur={() => autoSave()}
               rows={3}
             />
           </div>
@@ -189,7 +226,7 @@ export const Stage1Form: React.FC = () => {
                       ? { backgroundColor: cat.colorHex, borderColor: cat.colorHex, color: '#fff' }
                       : undefined
                   }
-                  onClick={() => setCategory(cat.value)}
+                  onClick={() => handleCategorySelect(cat.value)}
                 >
                   {cat.name}
                 </button>
@@ -200,14 +237,14 @@ export const Stage1Form: React.FC = () => {
 
         {/* Footer Actions */}
         <div className='stage-form-actions'>
-          <button type='button' className='stage-form-btn secondary' onClick={handleSaveAndExit}>
-            Save & Exit
+          <button type='button' className='stage-form-btn secondary' onClick={handleExit}>
+            Exit
           </button>
           <button
             type='button'
             className='stage-form-btn primary'
             onClick={handleContinue}
-            disabled={!isValid}
+            disabled={!canAdvance}
           >
             Continue to Stage 2
           </button>
