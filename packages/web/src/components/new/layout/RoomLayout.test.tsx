@@ -24,6 +24,7 @@ vi.mock('../../../contexts/AuthContext.js', () => ({
 
 vi.mock('@livestore/react', () => ({
   useQuery: () => [],
+  useStore: () => ({ store: { commit: vi.fn() } }),
 }))
 
 const mockSendMessage = vi.fn()
