@@ -190,15 +190,31 @@
   max-width: 800px;
 }
 
-/* Project title display */
+/* Project title and category header */
+.stage-form-project-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
 .stage-form-project-title {
   font-family: 'Source Serif 4', Georgia, serif;
   font-weight: 600;
   font-size: 1.1rem;
   color: var(--muted);
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border);
+}
+
+.stage-form-category-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
 }
 
 /* Hint text */

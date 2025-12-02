@@ -5,8 +5,10 @@ import { events } from '@work-squared/shared/schema'
 import { getProjectById$ } from '@work-squared/shared/queries'
 import {
   type ProjectArchetype,
+  type ProjectCategory,
   type ProjectLifecycleState,
   type ScaleLevel,
+  getCategoryInfo,
   resolveLifecycleState,
 } from '@work-squared/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
@@ -226,9 +228,21 @@ export const Stage2Form: React.FC = () => {
           />
         )}
 
-        {/* Project Title */}
+        {/* Project Title and Category */}
         {project && (
-          <div className='stage-form-project-title'>{project.name || 'Untitled Project'}</div>
+          <div className='stage-form-project-header'>
+            <div className='stage-form-project-title'>{project.name || 'Untitled Project'}</div>
+            {project.category && getCategoryInfo(project.category as ProjectCategory) && (
+              <span
+                className='stage-form-category-badge'
+                style={{
+                  backgroundColor: getCategoryInfo(project.category as ProjectCategory)!.colorHex,
+                }}
+              >
+                {getCategoryInfo(project.category as ProjectCategory)!.name}
+              </span>
+            )}
+          </div>
         )}
 
         {/* Header */}

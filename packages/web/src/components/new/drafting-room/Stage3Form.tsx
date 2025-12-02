@@ -3,7 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useStore, useQuery } from '@livestore/react'
 import { events, type Task } from '@work-squared/shared/schema'
 import { getProjectById$, getProjectTasks$ } from '@work-squared/shared/queries'
-import { type ProjectLifecycleState, resolveLifecycleState } from '@work-squared/shared'
+import {
+  type ProjectCategory,
+  type ProjectLifecycleState,
+  getCategoryInfo,
+  resolveLifecycleState,
+} from '@work-squared/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
@@ -208,9 +213,21 @@ export const Stage3Form: React.FC = () => {
           />
         )}
 
-        {/* Project Title */}
+        {/* Project Title and Category */}
         {project && (
-          <div className='stage-form-project-title'>{project.name || 'Untitled Project'}</div>
+          <div className='stage-form-project-header'>
+            <div className='stage-form-project-title'>{project.name || 'Untitled Project'}</div>
+            {project.category && getCategoryInfo(project.category as ProjectCategory) && (
+              <span
+                className='stage-form-category-badge'
+                style={{
+                  backgroundColor: getCategoryInfo(project.category as ProjectCategory)!.colorHex,
+                }}
+              >
+                {getCategoryInfo(project.category as ProjectCategory)!.name}
+              </span>
+            )}
+          </div>
         )}
 
         {/* Header */}
