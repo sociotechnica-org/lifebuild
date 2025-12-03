@@ -551,7 +551,7 @@ const ProjectWorkspaceContent: React.FC = () => {
                 {documents.map((document: Document) => (
                   <Link
                     key={document.id}
-                    to={preserveStoreIdInUrl(`/document/${document.id}`)}
+                    to={preserveStoreIdInUrl(`/old/document/${document.id}`)}
                     className='block bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors cursor-pointer'
                   >
                     <div className='flex items-start justify-between'>
