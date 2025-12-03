@@ -318,8 +318,20 @@
   border-left: 3px solid var(--bronze);
 }
 
+.sorting-room-task-card.tabled:hover {
+  border-color: var(--muted);
+  border-left-color: var(--bronze);
+  background: var(--cream);
+}
+
+.sorting-room-task-card.available {
+  /* Ensure consistent left border for all available tasks */
+  border-left: 3px solid var(--border);
+}
+
 .sorting-room-task-card.available:hover {
   border-color: var(--muted);
+  border-left-color: var(--muted);
   background: var(--cream);
 }
 
@@ -383,6 +395,151 @@
 
 .sorting-room-drag-handle:active {
   cursor: grabbing;
+}
+
+/* Grip icon for available tasks */
+.sorting-room-grip-icon {
+  color: var(--muted);
+  padding: 0.5rem 0.25rem;
+  margin-left: -0.25rem;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.sorting-room-grip-icon:hover {
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* Drop indicator for dragging from Available to Table */
+.sorting-room-drop-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  min-height: 44px;
+  background: rgba(196, 139, 90, 0.15);
+  border: 2px dashed var(--bronze);
+  border-radius: 0.5rem;
+  box-sizing: border-box;
+  animation: pulse-bronze 1s ease-in-out infinite alternate;
+}
+
+/* Drop indicator when inside the queue list (between tasks) */
+.sorting-room-queue-list .sorting-room-drop-indicator {
+  margin-top: 0.5rem;
+}
+
+.sorting-room-drop-indicator .sorting-room-queue-position {
+  color: var(--bronze);
+  opacity: 0.7;
+}
+
+.sorting-room-drop-placeholder {
+  color: var(--bronze);
+  font-style: italic;
+  opacity: 0.8;
+}
+
+@keyframes pulse-bronze {
+  from {
+    background: rgba(196, 139, 90, 0.1);
+  }
+  to {
+    background: rgba(196, 139, 90, 0.2);
+  }
+}
+
+/* Remove variant - shows in available section when dragging from tabled */
+.sorting-room-drop-indicator.remove {
+  background: rgba(150, 150, 150, 0.1);
+  border-color: var(--muted);
+  animation: pulse-muted 1s ease-in-out infinite alternate;
+}
+
+.sorting-room-drop-indicator.remove .sorting-room-drop-placeholder {
+  color: var(--muted);
+}
+
+@keyframes pulse-muted {
+  from {
+    background: rgba(150, 150, 150, 0.05);
+  }
+  to {
+    background: rgba(150, 150, 150, 0.15);
+  }
+}
+
+/* Quick Add Form */
+/* Consistent height for quick add form and drop indicator */
+.sorting-room-footer-height,
+.sorting-room-quick-add {
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.sorting-room-quick-add {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.sorting-room-quick-add-input {
+  flex: 1;
+  padding: 0 0.75rem;
+  height: 44px;
+  border: 2px dashed var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  font-size: 0.875rem;
+  color: var(--text);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.sorting-room-quick-add-input:focus {
+  outline: none;
+  border-color: var(--bronze);
+  border-style: solid;
+  background: var(--background);
+}
+
+.sorting-room-quick-add-input::placeholder {
+  color: var(--muted);
+}
+
+.sorting-room-quick-add-btn {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 0.5rem;
+  background: var(--bronze);
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    transform 0.1s ease;
+}
+
+.sorting-room-quick-add-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--bronze) 85%, black);
+}
+
+.sorting-room-quick-add-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.sorting-room-quick-add-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* Action Buttons */
@@ -518,6 +675,28 @@
   font-size: 0.75rem;
   color: var(--muted);
   margin-top: 0.125rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.sorting-room-task-meta .sorting-room-stream-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+}
+
+/* Status Badge */
+.sorting-room-status-badge {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  text-transform: lowercase;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* Queue Toggle */
