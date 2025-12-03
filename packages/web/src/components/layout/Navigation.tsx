@@ -114,7 +114,7 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
         <div className='flex justify-between h-16 overflow-x-auto'>
           <div className='flex space-x-8'>
             <Link
-              to={preserveStoreIdInUrl(ROUTES.LIFE_MAP)}
+              to={preserveStoreIdInUrl(ROUTES.OLD_LIFE_MAP)}
               className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                 isActive(ROUTES.LIFE_MAP)
                   ? 'border-blue-500 text-gray-900'
@@ -124,7 +124,7 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
               Life Map
             </Link>
             <Link
-              to={preserveStoreIdInUrl(ROUTES.PROJECTS)}
+              to={preserveStoreIdInUrl(ROUTES.OLD_PROJECTS)}
               className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                 isActive(ROUTES.PROJECTS)
                   ? 'border-blue-500 text-gray-900'

@@ -195,7 +195,7 @@ export const LifeCategoryView: React.FC = () => {
         // Stages 0, 1, 2: Navigate to Project Creation form to continue planning
         navigate(
           preserveStoreIdInUrl(
-            `/category/${categoryId}?tab=planning&subtab=project-creation&projectId=${project.id}`
+            `/old/category/${categoryId}?tab=planning&subtab=project-creation&projectId=${project.id}`
           )
         )
         return

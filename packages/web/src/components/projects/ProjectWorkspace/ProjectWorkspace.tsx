@@ -88,7 +88,9 @@ const ProjectWorkspaceContent: React.FC = () => {
 
     // Navigate back to category backlog view
     if (project.category) {
-      navigate(preserveStoreIdInUrl(`/category/${project.category}?tab=planning&subtab=backlog`))
+      navigate(
+        preserveStoreIdInUrl(`/old/category/${project.category}?tab=planning&subtab=backlog`)
+      )
     }
   }
 
@@ -246,8 +248,8 @@ const ProjectWorkspaceContent: React.FC = () => {
   // Get category information for breadcrumb
   const categoryInfo = project?.category ? getCategoryInfo(project.category as any) : null
   const categoryBackUrl = project?.category
-    ? `/category/${project.category}` // No tab param - use smart defaults
-    : '/projects'
+    ? `/old/category/${project.category}` // No tab param - use smart defaults
+    : '/old/projects'
   const categoryLabel = categoryInfo?.name || 'Projects'
 
   return (
@@ -389,7 +391,7 @@ const ProjectWorkspaceContent: React.FC = () => {
                       })
                     )
                     // Navigate back to projects page using React Router
-                    navigate(preserveStoreIdInUrl('/projects'))
+                    navigate(preserveStoreIdInUrl('/old/projects'))
                   }
                 }}
                 className='flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 border border-red-300 rounded-md hover:bg-red-50 transition-colors'
