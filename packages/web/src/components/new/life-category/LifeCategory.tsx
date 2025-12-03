@@ -36,7 +36,7 @@ export const LifeCategory: React.FC = () => {
     return (
       <NewUiShell>
         <div>
-          <Link to={preserveStoreIdInUrl(ROUTES.NEW)}>← Back to life map</Link>
+          <Link to={preserveStoreIdInUrl(ROUTES.HOME)}>← Back to life map</Link>
           <h1>Category not found</h1>
           <p>The category you're looking for doesn't exist.</p>
         </div>
@@ -91,7 +91,7 @@ export const LifeCategory: React.FC = () => {
 
   const categoryContent = (
     <div>
-      <Link to={preserveStoreIdInUrl(ROUTES.NEW)}>← Back to life map</Link>
+      <Link to={preserveStoreIdInUrl(ROUTES.HOME)}>← Back to life map</Link>
 
       <header>
         <h1 className='text-2xl font-bold'>

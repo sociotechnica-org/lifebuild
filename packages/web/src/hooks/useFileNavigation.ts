@@ -102,10 +102,10 @@ export const useFileNavigation = () => {
           if (analysis.path.startsWith('document:')) {
             const documentId = analysis.path.split(':')[1]
             if (documentId) {
-              navigate(preserveStoreIdInUrl(generateRoute.document(documentId)))
+              navigate(preserveStoreIdInUrl(generateRoute.oldDocument(documentId)))
             }
           } else if (options?.documentId) {
-            navigate(preserveStoreIdInUrl(generateRoute.document(options.documentId)))
+            navigate(preserveStoreIdInUrl(generateRoute.oldDocument(options.documentId)))
           } else {
             // Copy to clipboard as fallback
             if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {

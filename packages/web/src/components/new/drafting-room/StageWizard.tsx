@@ -32,13 +32,13 @@ export const StageWizard: React.FC<StageWizardProps> = ({
 
     switch (stage) {
       case 1:
-        navigate(generateRoute.newProjectStage1(projectId))
+        navigate(generateRoute.projectStage1(projectId))
         break
       case 2:
-        navigate(generateRoute.newProjectStage2(projectId))
+        navigate(generateRoute.projectStage2(projectId))
         break
       case 3:
-        navigate(generateRoute.newProjectStage3(projectId))
+        navigate(generateRoute.projectStage3(projectId))
         break
     }
   }

@@ -69,7 +69,7 @@ export async function navigateToAppWithUniqueStore(page: Page) {
     await page.waitForLoadState('networkidle', { timeout: 15000 })
   }
 
-  await page.goto(`/projects?storeId=${storeId}`)
+  await page.goto(`/old/projects?storeId=${storeId}`)
   await waitForLiveStoreReady(page)
 
   if (REQUIRE_AUTH) {

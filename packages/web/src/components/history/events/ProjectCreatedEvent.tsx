@@ -22,7 +22,7 @@ export const ProjectCreatedEvent: React.FC<ProjectCreatedEventProps> = ({ event,
   }
 
   const handleViewProject = () => {
-    navigate(preserveStoreIdInUrl(generateRoute.project(data.id)))
+    navigate(preserveStoreIdInUrl(generateRoute.oldProject(data.id)))
   }
 
   const icon = <FolderPlus size={16} className='text-blue-600' />

@@ -84,7 +84,7 @@ export const LifeMapView: React.FC = () => {
     localStorage.setItem(LAST_VISITED_CATEGORY_KEY, categoryValue)
     localStorage.setItem(LAST_VISIT_TIMESTAMP_KEY, Date.now().toString())
 
-    navigate(preserveStoreIdInUrl(generateRoute.category(categoryValue)))
+    navigate(preserveStoreIdInUrl(generateRoute.oldCategory(categoryValue)))
   }
 
   const handleReturnToCategory = () => {

@@ -109,9 +109,9 @@ export const ProjectDetailPage: React.FC = () => {
   // Determine back link and label based on project category
   const backLink = useMemo(() => {
     if (projectCategory) {
-      return preserveStoreIdInUrl(generateRoute.newCategory(projectCategory))
+      return preserveStoreIdInUrl(generateRoute.category(projectCategory))
     }
-    return preserveStoreIdInUrl('/new')
+    return preserveStoreIdInUrl('/')
   }, [projectCategory])
 
   const backLabel = useMemo(() => {

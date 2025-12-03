@@ -18,7 +18,7 @@ test.describe('Document Management', () => {
     await waitForLiveStoreReady(page)
 
     // Should be on documents page
-    await expect(page).toHaveURL(/\/documents\?storeId=[^&]+/)
+    await expect(page).toHaveURL(/\/old\/documents\?storeId=[^&]+/)
     await expect(page.locator('h1')).toContainText('Documents')
 
     // Should see New Document button
@@ -66,7 +66,7 @@ console.log('Hello from code block!');
     await waitForLiveStoreReady(page)
 
     // Should be on the document page
-    await expect(page).toHaveURL(/\/document\/.*/)
+    await expect(page).toHaveURL(/\/old\/document\/.*/)
 
     // Verify the document title appears as the page title
     await expect(page.locator('h1.text-2xl')).toContainText(documentTitle)
@@ -171,7 +171,7 @@ console.log('Hello from code block!');
     await waitForLiveStoreReady(page)
 
     // Should be on the project page
-    await expect(page).toHaveURL(/\/project\/.*/)
+    await expect(page).toHaveURL(/\/old\/project\/.*/)
 
     // Click on Documents tab
     await page.click('button:has-text("Documents")')
@@ -203,7 +203,7 @@ console.log('Hello from code block!');
     await waitForLiveStoreReady(page)
 
     // Should navigate to the document page
-    await expect(page).toHaveURL(/\/document\/.*/)
+    await expect(page).toHaveURL(/\/old\/document\/.*/)
     await expect(page.locator('h1.text-2xl')).toContainText(documentTitle)
 
     // Verify breadcrumb navigation back to documents
@@ -212,7 +212,7 @@ console.log('Hello from code block!');
     await documentsLink.click()
 
     // Should be on the main documents page now
-    await expect(page).toHaveURL(/\/documents\?storeId=[^&]+/)
+    await expect(page).toHaveURL(/\/old\/documents\?storeId=[^&]+/)
     await expect(page.locator('h1:has-text("Documents")')).toBeVisible()
 
     // The document should appear in the main documents list too

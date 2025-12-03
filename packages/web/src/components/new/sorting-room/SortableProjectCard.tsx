@@ -36,7 +36,7 @@ export const SortableProjectCard: React.FC<SortableProjectCardProps> = ({
   }
 
   const handleView = () => {
-    navigate(preserveStoreIdInUrl(generateRoute.newProject(project.id)))
+    navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
   }
 
   return (

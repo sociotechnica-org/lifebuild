@@ -5,7 +5,7 @@ test.describe('Life Category room chat', () => {
   test('Health room provisions Maya and sends a message', async ({ page }) => {
     const storeId = await navigateToAppWithUniqueStore(page)
 
-    await page.goto(`/new/category/health?storeId=${storeId}&roomChat=1`)
+    await page.goto(`/category/health?storeId=${storeId}&roomChat=1`)
     await waitForLiveStoreReady(page)
 
     const toggle = page.getByRole('button', { name: /open chat/i })

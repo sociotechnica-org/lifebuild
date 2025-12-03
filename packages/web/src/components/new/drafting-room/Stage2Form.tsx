@@ -195,7 +195,7 @@ export const Stage2Form: React.FC = () => {
 
   const handleExit = () => {
     // Auto-save already handles saving on blur, just navigate
-    navigate(generateRoute.newDraftingRoom())
+    navigate(generateRoute.draftingRoom())
   }
 
   const handleContinue = () => {
@@ -203,7 +203,7 @@ export const Stage2Form: React.FC = () => {
     // Save and advance to Stage 2
     saveAndAdvance()
     // Navigate to Stage 3
-    navigate(generateRoute.newProjectStage3(projectId))
+    navigate(generateRoute.projectStage3(projectId))
   }
 
   if (!project) {

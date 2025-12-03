@@ -203,7 +203,7 @@ export const LifeCategoryView: React.FC = () => {
     }
 
     // Stages 3-4, active, or completed projects: Navigate to project workspace
-    navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
+    navigate(preserveStoreIdInUrl(generateRoute.oldProject(project.id)))
   }
 
   const handleBacklogReorder = (event: DragEndEvent) => {

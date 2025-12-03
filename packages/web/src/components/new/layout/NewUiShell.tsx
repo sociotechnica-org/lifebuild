@@ -40,28 +40,25 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
       <header className='new-ui-header'>
         <nav className='new-ui-nav-links'>
           <Link
-            to={generateRoute.newDraftingRoom()}
-            className={isActive('/new/drafting-room') ? 'active' : ''}
+            to={generateRoute.draftingRoom()}
+            className={isActive('/drafting-room') ? 'active' : ''}
           >
             Drafting Room
           </Link>
           <Link
-            to={generateRoute.newSortingRoom()}
-            className={isActive('/new/sorting-room') ? 'active' : ''}
+            to={generateRoute.sortingRoom()}
+            className={isActive('/sorting-room') ? 'active' : ''}
           >
             Sorting Room
           </Link>
           <Link
             to='#'
-            className={isActive('/new/roster-room') ? 'active' : ''}
+            className={isActive('/roster-room') ? 'active' : ''}
             style={{ opacity: 0.5, pointerEvents: 'none' }}
           >
             Roster Room
           </Link>
-          <Link
-            to={generateRoute.newLifeMap()}
-            className={isActive('/new/life-map') ? 'active' : ''}
-          >
+          <Link to={generateRoute.lifeMap()} className={isActive('/life-map') ? 'active' : ''}>
             Life Map
           </Link>
         </nav>

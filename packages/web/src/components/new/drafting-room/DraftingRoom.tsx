@@ -175,13 +175,13 @@ export const DraftingRoom: React.FC = () => {
     // Navigate to the current stage form to continue working on it
     switch (stage) {
       case 1:
-        navigate(generateRoute.newProjectStage1(projectId))
+        navigate(generateRoute.projectStage1(projectId))
         break
       case 2:
-        navigate(generateRoute.newProjectStage2(projectId))
+        navigate(generateRoute.projectStage2(projectId))
         break
       case 3:
-        navigate(generateRoute.newProjectStage3(projectId))
+        navigate(generateRoute.projectStage3(projectId))
         break
       default:
         // Stage 4+ projects should be in the Sorting Room, not here
@@ -301,7 +301,7 @@ export const DraftingRoom: React.FC = () => {
         <button
           type='button'
           className='drafting-room-new-project-btn'
-          onClick={() => navigate(generateRoute.newProjectCreate())}
+          onClick={() => navigate(generateRoute.projectCreate())}
         >
           + Start New Project
         </button>
