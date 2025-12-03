@@ -28,6 +28,8 @@ export function useTableState(): UseTableStateResult {
   const configurationRow = useQuery(getTableConfiguration$)
   const bronzeStack = (useQuery(getTableBronzeStack$) ?? []) as TableBronzeStackEntry[]
 
+  // Distinguish between "loading" (undefined) vs "no config exists" (empty array)
+  const isConfigurationLoaded = configurationRow !== undefined
   const configuration = useMemo<TableConfiguration | null>(() => {
     if (!configurationRow || configurationRow.length === 0) return null
     return configurationRow[0] ?? null
@@ -129,12 +131,17 @@ export function useTableState(): UseTableStateResult {
 
   const addBronzeTask = useCallback(
     async (taskId: string, position?: number, initializeIfNeeded = false) => {
-      // If initializeIfNeeded is true and no configuration exists, initialize first
-      if (initializeIfNeeded && !configuration) {
+      // If initializeIfNeeded is true, only initialize if the query has loaded AND no config exists.
+      // This prevents accidentally reinitializing an existing config during the initial hydration period.
+      if (initializeIfNeeded && isConfigurationLoaded && !configuration) {
         await initializeConfiguration({})
-      } else {
+      } else if (!initializeIfNeeded) {
+        // Only throw if we're not in auto-initialize mode
         ensureConfigurationLoaded()
       }
+      // If initializeIfNeeded is true but query hasn't loaded yet, we proceed
+      // without initialization - the bronzeTaskAdded event will still be committed
+      // and will work once the config is available.
 
       const now = new Date()
       const resolvedPosition =
@@ -153,7 +160,14 @@ export function useTableState(): UseTableStateResult {
         })
       )
     },
-    [activeBronzeStack, configuration, ensureConfigurationLoaded, initializeConfiguration, store]
+    [
+      activeBronzeStack,
+      configuration,
+      ensureConfigurationLoaded,
+      initializeConfiguration,
+      isConfigurationLoaded,
+      store,
+    ]
   )
 
   const removeBronzeTask = useCallback(
