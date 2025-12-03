@@ -75,8 +75,16 @@ export const MoveTaskModal: React.FC<MoveTaskModalProps> = ({ isOpen, onClose, t
 
         // If status also changed, update it separately
         // Use changeTaskStatus to handle auto-activation of bronze projects
+        // Pass selectedProjectId as override since task.projectId still points to source
         if (statusChanged) {
-          changeTaskStatus(task, selectedStatus, nextPosition)
+          changeTaskStatus(
+            task,
+            selectedStatus,
+            nextPosition,
+            new Date(),
+            undefined,
+            selectedProjectId
+          )
         }
       } else if (statusChanged) {
         // Use changeTaskStatus for within-project moves

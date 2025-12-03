@@ -21,12 +21,19 @@ export function useTaskStatusChange() {
       toStatus: TaskStatus,
       position: number,
       updatedAt: Date = new Date(),
-      actorId?: string
+      actorId?: string,
+      /**
+       * Override project ID to use for auto-activation check.
+       * Use this when the task is being moved to a different project,
+       * since task.projectId still points to the source project.
+       */
+      overrideProjectId?: string | null
     ) => {
       // Check if we need to auto-activate a bronze project
       // Condition: task was 'todo' and is moving to a different status
-      if (task.status === 'todo' && toStatus !== 'todo' && task.projectId) {
-        const project = allProjects.find(p => p.id === task.projectId)
+      const projectIdToCheck = overrideProjectId !== undefined ? overrideProjectId : task.projectId
+      if (task.status === 'todo' && toStatus !== 'todo' && projectIdToCheck) {
+        const project = allProjects.find(p => p.id === projectIdToCheck)
         if (project) {
           const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
 
