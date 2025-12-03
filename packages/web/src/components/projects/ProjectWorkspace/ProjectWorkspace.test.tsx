@@ -108,15 +108,17 @@ describe('ProjectWorkspace', () => {
       if (callCount === 1) {
         return [mockProject] // First call is for project data in context
       } else if (callCount === 2) {
-        return mockTasks // Second call is for tasks (no columns query anymore)
+        return [mockProject] // Second call is for useTaskStatusChange hook (getProjects$)
       } else if (callCount === 3) {
-        return [] // Third call is for document-project links
+        return mockTasks // Third call is for tasks (no columns query anymore)
       } else if (callCount === 4) {
-        return [] // Fourth call is for documents
+        return [] // Fourth call is for document-project links
       } else if (callCount === 5) {
-        return [] // Fifth call is for project workers (none)
+        return [] // Fifth call is for documents
       } else if (callCount === 6) {
-        return mockWorkers // Sixth call is for all workers
+        return [] // Sixth call is for project workers (none)
+      } else if (callCount === 7) {
+        return mockWorkers // Seventh call is for all workers
       }
       return []
     })

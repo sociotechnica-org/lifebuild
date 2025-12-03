@@ -29,6 +29,7 @@ import {
   calculateStatusDropTarget,
 } from '../../../utils/statusTaskReordering.js'
 import type { PlanningAttributes } from '@work-squared/shared'
+import { useTaskStatusChange } from '../../../hooks/useTaskStatusChange.js'
 
 // Component for the actual workspace content
 const ProjectWorkspaceContent: React.FC = () => {
@@ -36,6 +37,7 @@ const ProjectWorkspaceContent: React.FC = () => {
   const { store } = useStore()
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { changeTaskStatus } = useTaskStatusChange()
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [insertionPreview, setInsertionPreview] = useState<{
     statusId: string
@@ -230,16 +232,24 @@ const ProjectWorkspaceContent: React.FC = () => {
       sortedTargetTasks
     )
 
-    // Commit all position updates using v2.TaskStatusChanged
+    // Commit position updates
+    // For the primary dragged task, use changeTaskStatus to handle auto-activation of bronze projects
+    // For other tasks (affected by normalization), use direct events
     reorderResults.forEach(result => {
-      store.commit(
-        events.taskStatusChanged({
-          taskId: result.taskId,
-          toStatus: result.toStatus,
-          position: result.position,
-          updatedAt: result.updatedAt,
-        })
-      )
+      if (result.taskId === task.id) {
+        // Use the hook for the dragged task to trigger auto-activation if needed
+        changeTaskStatus(task, result.toStatus, result.position, result.updatedAt)
+      } else {
+        // Use direct event for other tasks (position normalization)
+        store.commit(
+          events.taskStatusChanged({
+            taskId: result.taskId,
+            toStatus: result.toStatus,
+            position: result.position,
+            updatedAt: result.updatedAt,
+          })
+        )
+      }
     })
   }
 
