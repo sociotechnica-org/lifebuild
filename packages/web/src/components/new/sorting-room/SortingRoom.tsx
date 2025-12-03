@@ -452,18 +452,16 @@ export const SortingRoom: React.FC = () => {
 
   const handleRemoveBronzeTask = useCallback(
     async (entryId: string) => {
-      if (!configuration) return
       await removeBronzeTask(entryId)
     },
-    [configuration, removeBronzeTask]
+    [removeBronzeTask]
   )
 
   const handleReorderBronze = useCallback(
     async (entries: Array<{ id: string; taskId: string }>) => {
-      if (!configuration) return
       await reorderBronzeStack(entries)
     },
-    [configuration, reorderBronzeStack]
+    [reorderBronzeStack]
   )
 
   // Handler for quick adding an orphaned task directly to the bronze table

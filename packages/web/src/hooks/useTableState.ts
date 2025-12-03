@@ -172,7 +172,11 @@ export function useTableState(): UseTableStateResult {
 
   const removeBronzeTask = useCallback(
     async (entryId: string) => {
-      ensureConfigurationLoaded()
+      // If query is still loading, proceed anyway - the event will work once config loads.
+      // Only throw if query has loaded but no config exists.
+      if (isConfigurationLoaded && !configuration) {
+        throw new Error('Table configuration has not been initialized')
+      }
       const now = new Date()
       return store.commit(
         events.bronzeTaskRemoved({
@@ -181,12 +185,16 @@ export function useTableState(): UseTableStateResult {
         })
       )
     },
-    [ensureConfigurationLoaded, store]
+    [configuration, isConfigurationLoaded, store]
   )
 
   const reorderBronzeStack = useCallback(
     async (entries: Array<Pick<PriorityQueueItem, 'taskId'> & { id: string }>) => {
-      ensureConfigurationLoaded()
+      // If query is still loading, proceed anyway - the event will work once config loads.
+      // Only throw if query has loaded but no config exists.
+      if (isConfigurationLoaded && !configuration) {
+        throw new Error('Table configuration has not been initialized')
+      }
       const now = new Date()
       const ordering = entries.map((entry, index) => ({
         id: entry.id,
@@ -200,7 +208,7 @@ export function useTableState(): UseTableStateResult {
         })
       )
     },
-    [ensureConfigurationLoaded, store]
+    [configuration, isConfigurationLoaded, store]
   )
 
   return {
