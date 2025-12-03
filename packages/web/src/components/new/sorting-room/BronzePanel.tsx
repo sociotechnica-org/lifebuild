@@ -496,19 +496,19 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
     >
       <div className='sorting-room-stream-panel'>
         {/* Validation warning - above tabled section */}
-        {tabledStack.length < 3 && (
+        {tabledTasksWithDetails.length < 3 && (
           <div className='sorting-room-warning'>
             ⚠️ Minimum 3 bronze tasks recommended.{' '}
-            {tabledStack.length === 0
+            {tabledTasksWithDetails.length === 0
               ? 'Add tasks to get started.'
-              : `Add ${3 - tabledStack.length} more.`}
+              : `Add ${3 - tabledTasksWithDetails.length} more.`}
           </div>
         )}
 
         {/* Tabled Section with drag-and-drop */}
         <div className='sorting-room-section'>
-          <h3 className='sorting-room-section-title'>TABLED ({tabledStack.length})</h3>
-          {tabledStack.length === 0 ? (
+          <h3 className='sorting-room-section-title'>TABLED ({tabledTasksWithDetails.length})</h3>
+          {tabledTasksWithDetails.length === 0 ? (
             <TabledDropZone isEmpty={true}>
               <div className='sorting-room-empty-slot'>
                 <span>No bronze tasks on table</span>
@@ -537,7 +537,7 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
           {/* Footer: Quick add form OR drop indicator when dragging */}
           <TabledFooter
             isDraggingFromAvailable={activeType === 'available'}
-            nextPosition={tabledStack.length + 1}
+            nextPosition={tabledTasksWithDetails.length + 1}
             onQuickAddTask={onQuickAddTask}
           />
         </div>
