@@ -15,7 +15,7 @@ export interface UseTableStateResult {
   assignSilver: (projectId: string) => Promise<void>
   clearSilver: () => Promise<void>
   setBronzeMode: (mode: TableConfiguration['bronzeMode'], extra?: number) => Promise<void>
-  addBronzeTask: (taskId: string, position?: number) => Promise<void>
+  addBronzeTask: (taskId: string, position?: number, initializeIfNeeded?: boolean) => Promise<void>
   removeBronzeTask: (entryId: string) => Promise<void>
   reorderBronzeStack: (
     entries: Array<Pick<PriorityQueueItem, 'taskId'> & { id: string }>
@@ -128,8 +128,14 @@ export function useTableState(): UseTableStateResult {
   )
 
   const addBronzeTask = useCallback(
-    async (taskId: string, position?: number) => {
-      ensureConfigurationLoaded()
+    async (taskId: string, position?: number, initializeIfNeeded = false) => {
+      // If initializeIfNeeded is true and no configuration exists, initialize first
+      if (initializeIfNeeded && !configuration) {
+        await initializeConfiguration({})
+      } else {
+        ensureConfigurationLoaded()
+      }
+
       const now = new Date()
       const resolvedPosition =
         position ??
@@ -147,7 +153,7 @@ export function useTableState(): UseTableStateResult {
         })
       )
     },
-    [activeBronzeStack, ensureConfigurationLoaded, store]
+    [activeBronzeStack, configuration, ensureConfigurationLoaded, initializeConfiguration, store]
   )
 
   const removeBronzeTask = useCallback(

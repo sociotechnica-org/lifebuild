@@ -387,15 +387,18 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
     })
   )
 
-  // Get task details for tabled items
+  // Get task details for tabled items, filtering out entries with missing tasks
   const tabledTasksWithDetails = useMemo(() => {
-    return tabledStack.map(entry => {
-      const task = allTasks.find(t => t.id === entry.taskId)
-      const project = task?.projectId ? allProjects.find(p => p.id === task.projectId) : null
-      const stream = getProjectStream(project)
-      const categoryColor = getCategoryColor(project)
-      return { entry, task: task!, project, stream, categoryColor }
-    })
+    return tabledStack
+      .map(entry => {
+        const task = allTasks.find(t => t.id === entry.taskId)
+        if (!task) return null
+        const project = task.projectId ? allProjects.find(p => p.id === task.projectId) : null
+        const stream = getProjectStream(project)
+        const categoryColor = getCategoryColor(project)
+        return { entry, task, project, stream, categoryColor }
+      })
+      .filter((item): item is TabledTaskWithDetails => item !== null)
   }, [tabledStack, allTasks, allProjects])
 
   // Get project details for available tasks

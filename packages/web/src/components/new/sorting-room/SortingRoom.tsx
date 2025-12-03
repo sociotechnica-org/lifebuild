@@ -442,15 +442,12 @@ export const SortingRoom: React.FC = () => {
     [store, actorId]
   )
 
-  // Bronze handlers - initialize configuration if needed
+  // Bronze handlers - use initializeIfNeeded to avoid race condition
   const handleAddBronzeTask = useCallback(
     async (taskId: string) => {
-      if (!configuration) {
-        await initializeConfiguration({})
-      }
-      await addBronzeTask(taskId)
+      await addBronzeTask(taskId, undefined, true)
     },
-    [configuration, initializeConfiguration, addBronzeTask]
+    [addBronzeTask]
   )
 
   const handleRemoveBronzeTask = useCallback(
@@ -490,13 +487,10 @@ export const SortingRoom: React.FC = () => {
         })
       )
 
-      // Add to bronze table
-      if (!configuration) {
-        await initializeConfiguration({})
-      }
-      await addBronzeTask(taskId)
+      // Add to bronze table with initializeIfNeeded to avoid race condition
+      await addBronzeTask(taskId, undefined, true)
     },
-    [store, actorId, configuration, initializeConfiguration, addBronzeTask]
+    [store, actorId, addBronzeTask]
   )
 
   return (

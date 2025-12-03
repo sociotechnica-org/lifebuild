@@ -121,14 +121,12 @@ const seedTask = (
 // Note: Table configuration is initialized automatically when needed.
 // We don't need to seed it for the BronzePanel stories.
 
-let bronzePosition = 0
-const seedBronzeStackEntry = (store: Store, entryId: string, taskId: string) => {
-  bronzePosition += 1000
+const seedBronzeStackEntry = (store: Store, entryId: string, taskId: string, position: number) => {
   store.commit(
     events.bronzeTaskAdded({
       id: entryId,
       taskId,
-      position: bronzePosition,
+      position,
       insertedAt: new Date(),
       actorId: 'storybook',
     })
@@ -151,10 +149,10 @@ const withTabledTasksSetup = (store: Store) => {
   seedTask(store, 'task-4', 'Update budget spreadsheet', 'proj-bronze')
 
   // Add to bronze stack
-  seedBronzeStackEntry(store, 'entry-1', 'task-1')
-  seedBronzeStackEntry(store, 'entry-2', 'task-2')
-  seedBronzeStackEntry(store, 'entry-3', 'task-3')
-  seedBronzeStackEntry(store, 'entry-4', 'task-4')
+  seedBronzeStackEntry(store, 'entry-1', 'task-1', 1000)
+  seedBronzeStackEntry(store, 'entry-2', 'task-2', 2000)
+  seedBronzeStackEntry(store, 'entry-3', 'task-3', 3000)
+  seedBronzeStackEntry(store, 'entry-4', 'task-4', 4000)
 }
 
 const mixedSetup = (store: Store) => {
@@ -179,9 +177,9 @@ const mixedSetup = (store: Store) => {
   seedTask(store, 'task-7', 'Pick up dry cleaning', undefined)
 
   // Add some to bronze stack
-  seedBronzeStackEntry(store, 'entry-1', 'task-1')
-  seedBronzeStackEntry(store, 'entry-2', 'task-2')
-  seedBronzeStackEntry(store, 'entry-3', 'task-6')
+  seedBronzeStackEntry(store, 'entry-1', 'task-1', 1000)
+  seedBronzeStackEntry(store, 'entry-2', 'task-2', 2000)
+  seedBronzeStackEntry(store, 'entry-3', 'task-6', 3000)
 }
 
 const withStatusesSetup = (store: Store) => {
@@ -197,9 +195,9 @@ const withStatusesSetup = (store: Store) => {
   seedTask(store, 'task-5', 'Send email', undefined, 'todo')
 
   // Add to stack
-  seedBronzeStackEntry(store, 'entry-1', 'task-1')
-  seedBronzeStackEntry(store, 'entry-2', 'task-2')
-  seedBronzeStackEntry(store, 'entry-3', 'task-3')
+  seedBronzeStackEntry(store, 'entry-1', 'task-1', 1000)
+  seedBronzeStackEntry(store, 'entry-2', 'task-2', 2000)
+  seedBronzeStackEntry(store, 'entry-3', 'task-3', 3000)
 }
 
 const meta: Meta<typeof BronzePanelHelper> = {
