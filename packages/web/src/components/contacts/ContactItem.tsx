@@ -16,7 +16,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({ contact }) => {
 
   return (
     <Link
-      to={generateRoute.contact(contact.id)}
+      to={generateRoute.oldContact(contact.id)}
       className='block px-6 py-4 hover:bg-gray-50 transition-colors border-b border-gray-200 last:border-b-0'
     >
       <div className='flex items-center justify-between'>

@@ -102,10 +102,10 @@ export const useFileNavigation = () => {
           if (analysis.path.startsWith('document:')) {
             const documentId = analysis.path.split(':')[1]
             if (documentId) {
-              navigate(preserveStoreIdInUrl(generateRoute.document(documentId)))
+              navigate(preserveStoreIdInUrl(generateRoute.oldDocument(documentId)))
             }
           } else if (options?.documentId) {
-            navigate(preserveStoreIdInUrl(generateRoute.document(options.documentId)))
+            navigate(preserveStoreIdInUrl(generateRoute.oldDocument(options.documentId)))
           } else {
             // Copy to clipboard as fallback
             if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
@@ -121,7 +121,7 @@ export const useFileNavigation = () => {
           if (analysis.path.startsWith('project:')) {
             const projectId = analysis.path.split(':')[1]
             if (projectId) {
-              navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
+              navigate(preserveStoreIdInUrl(generateRoute.oldProject(projectId)))
             }
           } else if (analysis.path.startsWith('task:')) {
             // For tasks, we need to find the project they belong to
@@ -133,7 +133,7 @@ export const useFileNavigation = () => {
               })
             }
           } else if (options?.projectId) {
-            navigate(preserveStoreIdInUrl(generateRoute.project(options.projectId)))
+            navigate(preserveStoreIdInUrl(generateRoute.oldProject(options.projectId)))
           } else {
             // Copy to clipboard as fallback
             if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {

@@ -15,7 +15,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({ document, onArchive 
   const associatedProjects = useDocumentProjects(document.id)
   return (
     <Link
-      to={preserveStoreIdInUrl(generateRoute.document(document.id))}
+      to={preserveStoreIdInUrl(generateRoute.oldDocument(document.id))}
       className='bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer block'
     >
       <div className='flex items-start justify-between'>

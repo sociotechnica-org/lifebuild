@@ -58,7 +58,7 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
 
   const handleViewTabledProject = () => {
     if (tabledProject) {
-      navigate(preserveStoreIdInUrl(generateRoute.newProject(tabledProject.id)))
+      navigate(preserveStoreIdInUrl(generateRoute.project(tabledProject.id)))
     }
   }
 

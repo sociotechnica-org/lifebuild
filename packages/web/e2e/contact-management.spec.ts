@@ -6,7 +6,7 @@ async function openContactsSection(page, storeId: string) {
   if ((await contactsNav.count()) > 0) {
     await contactsNav.first().click()
   } else {
-    await page.goto(`/contacts?storeId=${storeId}`)
+    await page.goto(`/old/contacts?storeId=${storeId}`)
   }
   await waitForLiveStoreReady(page)
 }
@@ -48,7 +48,7 @@ test.describe('Contact Management', () => {
     await waitForLiveStoreReady(page)
 
     // Should be on the contact detail page
-    await expect(page).toHaveURL(/\/contacts\/.*/)
+    await expect(page).toHaveURL(/\/old\/contacts\/.*/)
 
     // Verify contact details are displayed
     await expect(page.locator(`h1:has-text("${contactName}")`)).toBeVisible()
@@ -60,7 +60,7 @@ test.describe('Contact Management', () => {
 
     // Verify back button works
     await page.click('text=← Back to Contacts')
-    await expect(page).toHaveURL(/\/contacts/)
+    await expect(page).toHaveURL(/\/old\/contacts/)
     await expect(page.locator(`text=${contactName}`).first()).toBeVisible()
   })
 
@@ -149,7 +149,7 @@ test.describe('Contact Management', () => {
     await page.locator('.fixed.inset-0 button:has-text("Delete")').click({ force: true })
 
     // Should be redirected back to contacts list
-    await expect(page).toHaveURL(/\/contacts/)
+    await expect(page).toHaveURL(/\/old\/contacts/)
 
     // Contact should no longer exist
     await expect(page.locator(`text=${contactName}`)).not.toBeVisible()

@@ -140,39 +140,20 @@ const ProtectedApp: React.FC = () => {
               <SettingsInitializer>
                 <ErrorBoundary>
                   <Routes>
+                    {/* New UI routes (default) */}
                     <Route
                       path={ROUTES.HOME}
                       element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <LifeMapView />
-                          </ErrorBoundary>
-                        </Layout>
+                        <ErrorBoundary>
+                          <RoomLayout room={LIFE_MAP_ROOM}>
+                            <LifeMap />
+                          </RoomLayout>
+                        </ErrorBoundary>
                       }
                     />
                     <Route
                       path={ROUTES.LIFE_MAP}
                       element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <LifeMapView />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.PROJECTS}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <ProjectsPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.NEW}
-                      element={
                         <ErrorBoundary>
                           <RoomLayout room={LIFE_MAP_ROOM}>
                             <LifeMap />
@@ -181,17 +162,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.NEW_LIFE_MAP}
-                      element={
-                        <ErrorBoundary>
-                          <RoomLayout room={LIFE_MAP_ROOM}>
-                            <LifeMap />
-                          </RoomLayout>
-                        </ErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.NEW_DRAFTING_ROOM}
+                      path={ROUTES.DRAFTING_ROOM}
                       element={
                         <ErrorBoundary>
                           <NewUiShell>
@@ -201,7 +172,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.NEW_PROJECT_CREATE}
+                      path={ROUTES.PROJECT_CREATE}
                       element={
                         <ErrorBoundary>
                           <NewUiShell>
@@ -211,7 +182,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.NEW_PROJECT_STAGE1}
+                      path={ROUTES.PROJECT_STAGE1}
                       element={
                         <ErrorBoundary>
                           <NewUiShell>
@@ -221,7 +192,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.NEW_PROJECT_STAGE2}
+                      path={ROUTES.PROJECT_STAGE2}
                       element={
                         <ErrorBoundary>
                           <NewUiShell>
@@ -231,7 +202,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.NEW_PROJECT_STAGE3}
+                      path={ROUTES.PROJECT_STAGE3}
                       element={
                         <ErrorBoundary>
                           <NewUiShell>
@@ -241,7 +212,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.NEW_SORTING_ROOM}
+                      path={ROUTES.SORTING_ROOM}
                       element={
                         <ErrorBoundary>
                           <NewUiShell>
@@ -251,7 +222,65 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.TASKS}
+                      path={ROUTES.CATEGORY}
+                      element={
+                        <ErrorBoundary>
+                          <LifeCategory />
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.PROJECTS}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={LIFE_MAP_ROOM}>
+                            <LifeMap />
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.PROJECT}
+                      element={
+                        <ErrorBoundary>
+                          <ProjectDetailPage />
+                        </ErrorBoundary>
+                      }
+                    />
+
+                    {/* Old UI routes (under /old) */}
+                    <Route
+                      path={ROUTES.OLD}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <LifeMapView />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.OLD_LIFE_MAP}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <LifeMapView />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.OLD_PROJECTS}
+                      element={
+                        <Layout>
+                          <ErrorBoundary>
+                            <ProjectsPage />
+                          </ErrorBoundary>
+                        </Layout>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.OLD_TASKS}
                       element={
                         <Layout>
                           <ErrorBoundary>
@@ -261,7 +290,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.TEAM}
+                      path={ROUTES.OLD_TEAM}
                       element={
                         <Layout>
                           <ErrorBoundary>
@@ -271,7 +300,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.DOCUMENTS}
+                      path={ROUTES.OLD_DOCUMENTS}
                       element={
                         <Layout>
                           <ErrorBoundary>
@@ -281,7 +310,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.CONTACTS}
+                      path={ROUTES.OLD_CONTACTS}
                       element={
                         <Layout>
                           <ErrorBoundary>
@@ -291,7 +320,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.CONTACT}
+                      path={ROUTES.OLD_CONTACT}
                       element={
                         <Layout>
                           <ErrorBoundary>
@@ -301,7 +330,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.HISTORY}
+                      path={ROUTES.OLD_HISTORY}
                       element={
                         <Layout>
                           <ErrorBoundary>
@@ -311,7 +340,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.SETTINGS}
+                      path={ROUTES.OLD_SETTINGS}
                       element={
                         <Layout>
                           <ErrorBoundary>
@@ -321,7 +350,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.DOCUMENT}
+                      path={ROUTES.OLD_DOCUMENT}
                       element={
                         <Layout>
                           <ErrorBoundary>
@@ -331,7 +360,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.PROJECT}
+                      path={ROUTES.OLD_PROJECT}
                       element={
                         <Layout>
                           <ErrorBoundary>
@@ -341,23 +370,7 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
-                      path={ROUTES.NEW_PROJECT}
-                      element={
-                        <ErrorBoundary>
-                          <ProjectDetailPage />
-                        </ErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.NEW_CATEGORY}
-                      element={
-                        <ErrorBoundary>
-                          <LifeCategory />
-                        </ErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.CATEGORY}
+                      path={ROUTES.OLD_CATEGORY}
                       element={
                         <Layout>
                           <ErrorBoundary>

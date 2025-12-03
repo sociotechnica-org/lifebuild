@@ -73,7 +73,7 @@ export const TableSlot: React.FC<TableSlotProps> = ({
   if (isClickable) {
     return (
       <Link
-        to={preserveStoreIdInUrl(generateRoute.newProject(projectId))}
+        to={preserveStoreIdInUrl(generateRoute.project(projectId))}
         className={`new-ui-table-slot ${stream}`}
         style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
       >
