@@ -68,17 +68,16 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
   }, [])
 
   const isActive = (path: string) => {
-    if (path === ROUTES.LIFE_MAP) {
+    if (path === ROUTES.OLD_LIFE_MAP) {
       return (
-        location.pathname === ROUTES.LIFE_MAP ||
-        location.pathname === ROUTES.HOME ||
-        location.pathname.startsWith(ROUTE_PATTERNS.CATEGORY)
+        location.pathname === ROUTES.OLD_LIFE_MAP ||
+        location.pathname.startsWith(ROUTE_PATTERNS.OLD_CATEGORY)
       )
     }
-    if (path === ROUTES.PROJECTS) {
+    if (path === ROUTES.OLD_PROJECTS) {
       return (
-        location.pathname === ROUTES.PROJECTS ||
-        location.pathname.startsWith(ROUTE_PATTERNS.PROJECT)
+        location.pathname === ROUTES.OLD_PROJECTS ||
+        location.pathname.startsWith(ROUTE_PATTERNS.OLD_PROJECT)
       )
     }
     if (path === ROUTES.TASKS) {
@@ -94,7 +93,10 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
       )
     }
     if (path === ROUTES.CONTACTS) {
-      return location.pathname === ROUTES.CONTACTS
+      return (
+        location.pathname === ROUTES.CONTACTS ||
+        location.pathname.startsWith(ROUTE_PATTERNS.CONTACT)
+      )
     }
     if (path === ROUTES.HISTORY) {
       return location.pathname === ROUTES.HISTORY
@@ -116,7 +118,7 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
             <Link
               to={preserveStoreIdInUrl(ROUTES.OLD_LIFE_MAP)}
               className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                isActive(ROUTES.LIFE_MAP)
+                isActive(ROUTES.OLD_LIFE_MAP)
                   ? 'border-blue-500 text-gray-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
@@ -126,7 +128,7 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
             <Link
               to={preserveStoreIdInUrl(ROUTES.OLD_PROJECTS)}
               className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                isActive(ROUTES.PROJECTS)
+                isActive(ROUTES.OLD_PROJECTS)
                   ? 'border-blue-500 text-gray-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
