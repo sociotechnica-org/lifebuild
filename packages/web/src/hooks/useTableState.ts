@@ -15,7 +15,7 @@ export interface UseTableStateResult {
   assignSilver: (projectId: string) => Promise<void>
   clearSilver: () => Promise<void>
   setBronzeMode: (mode: TableConfiguration['bronzeMode'], extra?: number) => Promise<void>
-  addBronzeTask: (taskId: string, position?: number) => Promise<void>
+  addBronzeTask: (taskId: string, position?: number, initializeIfNeeded?: boolean) => Promise<void>
   removeBronzeTask: (entryId: string) => Promise<void>
   reorderBronzeStack: (
     entries: Array<Pick<PriorityQueueItem, 'taskId'> & { id: string }>
@@ -28,6 +28,8 @@ export function useTableState(): UseTableStateResult {
   const configurationRow = useQuery(getTableConfiguration$)
   const bronzeStack = (useQuery(getTableBronzeStack$) ?? []) as TableBronzeStackEntry[]
 
+  // Distinguish between "loading" (undefined) vs "no config exists" (empty array)
+  const isConfigurationLoaded = configurationRow !== undefined
   const configuration = useMemo<TableConfiguration | null>(() => {
     if (!configurationRow || configurationRow.length === 0) return null
     return configurationRow[0] ?? null
@@ -128,8 +130,19 @@ export function useTableState(): UseTableStateResult {
   )
 
   const addBronzeTask = useCallback(
-    async (taskId: string, position?: number) => {
-      ensureConfigurationLoaded()
+    async (taskId: string, position?: number, initializeIfNeeded = false) => {
+      // If initializeIfNeeded is true, only initialize if the query has loaded AND no config exists.
+      // This prevents accidentally reinitializing an existing config during the initial hydration period.
+      if (initializeIfNeeded && isConfigurationLoaded && !configuration) {
+        await initializeConfiguration({})
+      } else if (!initializeIfNeeded) {
+        // Only throw if we're not in auto-initialize mode
+        ensureConfigurationLoaded()
+      }
+      // If initializeIfNeeded is true but query hasn't loaded yet, we proceed
+      // without initialization - the bronzeTaskAdded event will still be committed
+      // and will work once the config is available.
+
       const now = new Date()
       const resolvedPosition =
         position ??
@@ -147,12 +160,23 @@ export function useTableState(): UseTableStateResult {
         })
       )
     },
-    [activeBronzeStack, ensureConfigurationLoaded, store]
+    [
+      activeBronzeStack,
+      configuration,
+      ensureConfigurationLoaded,
+      initializeConfiguration,
+      isConfigurationLoaded,
+      store,
+    ]
   )
 
   const removeBronzeTask = useCallback(
     async (entryId: string) => {
-      ensureConfigurationLoaded()
+      // If query is still loading, proceed anyway - the event will work once config loads.
+      // Only throw if query has loaded but no config exists.
+      if (isConfigurationLoaded && !configuration) {
+        throw new Error('Table configuration has not been initialized')
+      }
       const now = new Date()
       return store.commit(
         events.bronzeTaskRemoved({
@@ -161,12 +185,16 @@ export function useTableState(): UseTableStateResult {
         })
       )
     },
-    [ensureConfigurationLoaded, store]
+    [configuration, isConfigurationLoaded, store]
   )
 
   const reorderBronzeStack = useCallback(
     async (entries: Array<Pick<PriorityQueueItem, 'taskId'> & { id: string }>) => {
-      ensureConfigurationLoaded()
+      // If query is still loading, proceed anyway - the event will work once config loads.
+      // Only throw if query has loaded but no config exists.
+      if (isConfigurationLoaded && !configuration) {
+        throw new Error('Table configuration has not been initialized')
+      }
       const now = new Date()
       const ordering = entries.map((entry, index) => ({
         id: entry.id,
@@ -180,7 +208,7 @@ export function useTableState(): UseTableStateResult {
         })
       )
     },
-    [ensureConfigurationLoaded, store]
+    [configuration, isConfigurationLoaded, store]
   )
 
   return {
