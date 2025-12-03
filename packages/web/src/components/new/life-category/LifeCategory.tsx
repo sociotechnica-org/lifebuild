@@ -8,7 +8,7 @@ import {
 } from '@work-squared/shared/queries'
 import { ProjectCard } from '../projects/ProjectCard.js'
 import { PROJECT_CATEGORIES, type ProjectCategory } from '@work-squared/shared'
-import { ROUTES } from '../../../constants/routes.js'
+import { ROUTES, generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { RoomLayout } from '../layout/RoomLayout.js'
@@ -36,7 +36,7 @@ export const LifeCategory: React.FC = () => {
     return (
       <NewUiShell>
         <div>
-          <Link to={preserveStoreIdInUrl(ROUTES.NEW)}>← Back to life map</Link>
+          <Link to={preserveStoreIdInUrl(ROUTES.HOME)}>← Back to life map</Link>
           <h1>Category not found</h1>
           <p>The category you're looking for doesn't exist.</p>
         </div>
@@ -91,7 +91,7 @@ export const LifeCategory: React.FC = () => {
 
   const categoryContent = (
     <div>
-      <Link to={preserveStoreIdInUrl(ROUTES.NEW)}>← Back to life map</Link>
+      <Link to={preserveStoreIdInUrl(ROUTES.HOME)}>← Back to life map</Link>
 
       <header>
         <h1 className='text-2xl font-bold'>
@@ -136,7 +136,7 @@ export const LifeCategory: React.FC = () => {
                       <span>
                         {' '}
                         in{' '}
-                        <Link to={preserveStoreIdInUrl(`/new/projects/${project.id}`)}>
+                        <Link to={preserveStoreIdInUrl(generateRoute.project(project.id))}>
                           {project.name}
                         </Link>
                       </span>

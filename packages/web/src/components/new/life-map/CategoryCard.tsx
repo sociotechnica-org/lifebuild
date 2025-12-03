@@ -26,7 +26,7 @@ const ProjectItem: React.FC<{
 }> = ({ project, categoryColor, completionPercentage }) => {
   return (
     <Link
-      to={preserveStoreIdInUrl(generateRoute.newProject(project.id))}
+      to={preserveStoreIdInUrl(generateRoute.project(project.id))}
       className='new-ui-project-card'
       style={{ textDecoration: 'none', display: 'block' }}
       onClick={e => e.stopPropagation()}
@@ -65,7 +65,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   return (
     <div className='new-ui-category-card' style={{ borderColor: categoryColor }}>
       <Link
-        to={preserveStoreIdInUrl(generateRoute.newCategory(categoryValue))}
+        to={preserveStoreIdInUrl(generateRoute.category(categoryValue))}
         style={{ textDecoration: 'none', color: 'inherit' }}
       >
         <h3>
@@ -97,7 +97,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
             {tabledProjects.slice(0, 6).map(project => (
               <Link
                 key={project.id}
-                to={preserveStoreIdInUrl(generateRoute.newProject(project.id))}
+                to={preserveStoreIdInUrl(generateRoute.project(project.id))}
                 className='new-ui-planted-card'
                 style={{ textDecoration: 'none' }}
                 onClick={e => e.stopPropagation()}

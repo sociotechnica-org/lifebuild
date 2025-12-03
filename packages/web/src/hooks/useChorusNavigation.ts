@@ -41,25 +41,25 @@ export const useChorusNavigation = () => {
               const taskResult = await store.query(getTaskById$(id))
               const task = taskResult?.[0]
               if (task?.projectId) {
-                navigate(`/project/${task.projectId}`)
+                navigate(`/old/project/${task.projectId}`)
               } else {
                 // Navigate to orphaned tasks view
-                navigate('/tasks')
+                navigate('/old/tasks')
               }
             } catch (error) {
               console.error('Error looking up task:', error)
-              navigate('/tasks')
+              navigate('/old/tasks')
             }
             break
           }
           case 'project':
-            navigate(`/project/${id}`)
+            navigate(`/old/project/${id}`)
             break
           case 'document':
-            navigate(`/document/${id}`)
+            navigate(`/old/document/${id}`)
             break
           case 'contact':
-            navigate(`/contacts/${id}`)
+            navigate(`/old/contacts/${id}`)
             break
           case 'file':
             if (id) {

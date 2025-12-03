@@ -20,7 +20,7 @@ export const DocumentCreatedEvent: React.FC<DocumentCreatedEventProps> = ({ even
   }
 
   const handleViewDocument = () => {
-    navigate(preserveStoreIdInUrl(generateRoute.document(data.id)))
+    navigate(preserveStoreIdInUrl(generateRoute.oldDocument(data.id)))
   }
 
   const icon = <FileText size={16} className='text-amber-600' />

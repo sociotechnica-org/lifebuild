@@ -83,7 +83,7 @@ test.describe('Authentication Flow E2E', () => {
     await logoutViaUI(page)
 
     // Step 7: Verify protection is restored
-    await page.goto(`${APP_URL}/projects`)
+    await page.goto(`${APP_URL}/old/projects`)
     await page.waitForURL(/\/login/, { timeout: 10000 })
   })
 
@@ -94,7 +94,7 @@ test.describe('Authentication Flow E2E', () => {
     // Testing development mode behavior
 
     // In dev mode, should be able to access protected routes
-    await page.goto(`${APP_URL}/projects`)
+    await page.goto(`${APP_URL}/old/projects`)
     await page.waitForLoadState('load', { timeout: 30000 })
 
     // Should NOT redirect to login in dev mode

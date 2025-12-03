@@ -5,7 +5,7 @@ test.describe('Life Map room chat', () => {
   test('enables chat via feature override and sends a user message', async ({ page }) => {
     const storeId = await navigateToAppWithUniqueStore(page)
 
-    await page.goto(`/new/life-map?storeId=${storeId}&roomChat=1`)
+    await page.goto(`/life-map?storeId=${storeId}&roomChat=1`)
     await waitForLiveStoreReady(page)
 
     const toggle = page.getByRole('button', { name: /open chat/i })
