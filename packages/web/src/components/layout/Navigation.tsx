@@ -98,9 +98,6 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
         location.pathname.startsWith(ROUTE_PATTERNS.CONTACT)
       )
     }
-    if (path === ROUTES.HISTORY) {
-      return location.pathname === ROUTES.HISTORY
-    }
     if (path === ROUTES.SETTINGS) {
       return location.pathname === ROUTES.SETTINGS
     }
@@ -174,16 +171,6 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
               }`}
             >
               Contacts
-            </Link>
-            <Link
-              to={preserveStoreIdInUrl(ROUTES.HISTORY)}
-              className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                isActive(ROUTES.HISTORY)
-                  ? 'border-blue-500 text-gray-900'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              History
             </Link>
           </div>
 

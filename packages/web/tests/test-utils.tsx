@@ -77,21 +77,6 @@ const createTestStore = () => {
           deletedAt: null,
         })
         mockData.set('projects', projects)
-
-        // Also create the eventsLog entry (like the real materializer)
-        const eventsLog = mockData.get('eventsLog') || []
-        eventsLog.push({
-          id: `project_created_${event.args.id}`,
-          eventType: 'v1.ProjectCreated',
-          eventData: JSON.stringify({
-            id: event.args.id,
-            name: event.args.name,
-            description: event.args.description,
-          }),
-          actorId: event.args.actorId || null,
-          createdAt: event.args.createdAt,
-        })
-        mockData.set('eventsLog', eventsLog)
       }
       if (event.name === 'v1.WorkerAssignedToProject') {
         const assignments = mockData.get('workerProjects') || []
@@ -145,10 +130,6 @@ const createTestStore = () => {
         const projectId = queryObj.label.split(':')[1]
         const assignments = mockData.get('workerProjects') || []
         return assignments.filter((wp: any) => wp.projectId === projectId)
-      }
-      // Handle eventsLog queries
-      if (queryObj && queryObj.label === 'getAllEvents') {
-        return mockData.get('eventsLog') || []
       }
       // Handle direct table queries (SQLite-style queries)
       if (typeof queryObj === 'function') {

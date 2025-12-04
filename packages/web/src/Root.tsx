@@ -18,7 +18,6 @@ import { DocumentPage } from './components/documents/DocumentPage.js'
 import { ContactList } from './components/contacts/ContactList.js'
 import { ContactDetail } from './components/contacts/ContactDetail.js'
 import { LifeCategoryView } from './components/life-category/LifeCategoryView.js'
-import { HistoryPage } from './pages/HistoryPage.js'
 import { LoginPage } from './pages/LoginPage.js'
 import { SignupPage } from './pages/SignupPage.js'
 import { SettingsPage } from './components/settings/SettingsPage.js'
@@ -325,16 +324,6 @@ const ProtectedApp: React.FC = () => {
                         <Layout>
                           <ErrorBoundary>
                             <ContactDetail />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.OLD_HISTORY}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <HistoryPage />
                           </ErrorBoundary>
                         </Layout>
                       }
