@@ -199,8 +199,11 @@ export const DraftingRoom: React.FC = () => {
   const hasActiveFilters = categoryFilter !== 'all' || tierFilter !== 'all'
 
   const clearFilters = () => {
-    setCategoryFilter('all')
-    setTierFilter('all')
+    // Clear both filters in a single setSearchParams call to avoid race condition
+    const newParams = new URLSearchParams(searchParams)
+    newParams.delete('category')
+    newParams.delete('tier')
+    setSearchParams(newParams, { replace: true })
   }
 
   const handleResume = (projectId: string, stage: PlanningStage) => {
