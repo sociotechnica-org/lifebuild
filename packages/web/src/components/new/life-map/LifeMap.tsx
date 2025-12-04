@@ -161,10 +161,14 @@ export const LifeMap: React.FC = () => {
             return lifecycle.status === 'backlog' && lifecycle.stage === 4
           })
 
-          // Count planning projects (status='planning', stages 1-3)
+          // Count planning projects (status='planning' OR 'backlog' in stages 1-3 - matches DraftingRoom filter)
           const planningProjects = projects.filter(p => {
             const lifecycle = resolveLifecycleState(p.projectLifecycleState, null)
-            return lifecycle.status === 'planning' && lifecycle.stage >= 1 && lifecycle.stage <= 3
+            return (
+              (lifecycle.status === 'planning' || lifecycle.status === 'backlog') &&
+              lifecycle.stage >= 1 &&
+              lifecycle.stage <= 3
+            )
           })
 
           return (
