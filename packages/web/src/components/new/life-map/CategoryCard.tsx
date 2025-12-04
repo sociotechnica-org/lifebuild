@@ -128,7 +128,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
               style={{ textDecoration: 'none' }}
               onClick={e => e.stopPropagation()}
             >
-              PLANNING ({planningCount})
+              DRAFTING ({planningCount})
             </Link>
           )}
           {backlogCount > 0 && (
@@ -138,7 +138,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
               style={{ textDecoration: 'none' }}
               onClick={e => e.stopPropagation()}
             >
-              BACKLOG ({backlogCount})
+              SORTING ({backlogCount})
             </Link>
           )}
         </div>
