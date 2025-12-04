@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery, useStore } from '@livestore/react'
 import { getProjects$, getAllTasks$ } from '@work-squared/shared/queries'
@@ -73,25 +73,23 @@ export const SortingRoom: React.FC = () => {
   const [draggedGoldProject, setDraggedGoldProject] = useState<Project | null>(null)
   const [draggedSilverProject, setDraggedSilverProject] = useState<Project | null>(null)
 
-  // Category filter from URL (or 'all' by default)
+  // Derive category filter directly from URL (single source of truth)
   const categoryFromUrl = searchParams.get('category') as ProjectCategory | null
-  const [categoryFilter, setCategoryFilter] = useState<ProjectCategory | 'all'>(
+  const categoryFilter: ProjectCategory | 'all' =
     categoryFromUrl && PROJECT_CATEGORIES.some(c => c.value === categoryFromUrl)
       ? categoryFromUrl
       : 'all'
-  )
 
-  // Sync category filter to URL
-  useEffect(() => {
-    const currentCategory = searchParams.get('category')
-    if (categoryFilter === 'all' && currentCategory) {
-      searchParams.delete('category')
-      setSearchParams(searchParams, { replace: true })
-    } else if (categoryFilter !== 'all' && currentCategory !== categoryFilter) {
-      searchParams.set('category', categoryFilter)
-      setSearchParams(searchParams, { replace: true })
+  // Update URL when category filter changes (called by UI handlers)
+  const setCategoryFilter = (value: ProjectCategory | 'all') => {
+    const newParams = new URLSearchParams(searchParams)
+    if (value === 'all') {
+      newParams.delete('category')
+    } else {
+      newParams.set('category', value)
     }
-  }, [categoryFilter, searchParams, setSearchParams])
+    setSearchParams(newParams, { replace: true })
+  }
 
   const allProjects = (useQuery(getProjects$) ?? []) as Project[]
   const allTasks = (useQuery(getAllTasks$) ?? []) as Task[]

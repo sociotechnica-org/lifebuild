@@ -155,10 +155,10 @@ export const LifeMap: React.FC = () => {
             return lifecycle.status === 'active'
           })
 
-          // Count backlog projects (status='backlog')
+          // Count backlog projects (status='backlog', stage 4 only - matches SortingRoom filter)
           const backlogProjects = projects.filter(p => {
             const lifecycle = resolveLifecycleState(p.projectLifecycleState, null)
-            return lifecycle.status === 'backlog'
+            return lifecycle.status === 'backlog' && lifecycle.stage === 4
           })
 
           // Count planning projects (status='planning', stages 1-3)
