@@ -7,8 +7,7 @@ import {
   getAllTasks$,
   getTableConfiguration$,
 } from '@work-squared/shared/queries'
-import { PROJECT_CATEGORIES } from '@work-squared/shared'
-import type { Project } from '@work-squared/shared/schema'
+import { PROJECT_CATEGORIES, resolveLifecycleState } from '@work-squared/shared'
 import { CategoryCard } from './CategoryCard.js'
 
 /**
@@ -143,9 +142,30 @@ export const LifeMap: React.FC = () => {
             categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
           const workers = categoryWorkersMap[category.value] || 0
 
-          // Split projects into active (has bronze task) and tabled (no bronze task)
+          // Split projects based on lifecycle status:
+          // - Active: projects that are on the table OR have bronze tasks (already filtered by activeProjectIds)
+          // - Ongoing: projects with status='active' but NOT currently on the table
+          // - Backlog: projects with status='backlog'
           const activeProjects = projects.filter(p => activeProjectIds.has(p.id))
-          const tabledProjects = projects.filter(p => !activeProjectIds.has(p.id))
+
+          // For ongoing, show active-status projects that aren't currently on the table
+          const ongoingProjects = projects.filter(p => {
+            if (activeProjectIds.has(p.id)) return false // Already shown as "Active"
+            const lifecycle = resolveLifecycleState(p.projectLifecycleState, null)
+            return lifecycle.status === 'active'
+          })
+
+          // Count backlog projects (status='backlog')
+          const backlogProjects = projects.filter(p => {
+            const lifecycle = resolveLifecycleState(p.projectLifecycleState, null)
+            return lifecycle.status === 'backlog'
+          })
+
+          // Count planning projects (status='planning', stages 1-3)
+          const planningProjects = projects.filter(p => {
+            const lifecycle = resolveLifecycleState(p.projectLifecycleState, null)
+            return lifecycle.status === 'planning' && lifecycle.stage >= 1 && lifecycle.stage <= 3
+          })
 
           return (
             <CategoryCard
@@ -157,7 +177,9 @@ export const LifeMap: React.FC = () => {
               projectCount={projects.length}
               workerCount={workers}
               activeProjects={activeProjects}
-              tabledProjects={tabledProjects}
+              ongoingProjects={ongoingProjects}
+              backlogCount={backlogProjects.length}
+              planningCount={planningProjects.length}
               projectCompletionMap={projectCompletionMap}
             />
           )

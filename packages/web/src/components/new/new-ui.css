@@ -296,6 +296,28 @@
     color: #5f574d;
   }
 
+  /* Backlog Link */
+  .new-ui-backlog-link {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 0.35rem 0.6rem;
+    border-radius: 0.5rem;
+    background: rgba(0, 0, 0, 0.03);
+    transition:
+      background 160ms ease,
+      color 160ms ease;
+  }
+
+  .new-ui-backlog-link:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--ink);
+    text-decoration: none !important;
+  }
+
   /* Table Bar */
   .new-ui-table-bar {
     position: fixed;

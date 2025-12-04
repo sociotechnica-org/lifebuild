@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useMemo, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useStore } from '@livestore/react'
 import { getProjects$ } from '@work-squared/shared/queries'
 import { events } from '@work-squared/shared/schema'
@@ -99,13 +99,54 @@ const TIER_FILTERS: { value: ProjectTier | 'all'; label: string }[] = [
 
 export const DraftingRoom: React.FC = () => {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { store } = useStore()
   const { user } = useAuth()
   const allProjects = useQuery(getProjects$) ?? []
 
-  // Filter state
-  const [categoryFilter, setCategoryFilter] = useState<ProjectCategory | 'all'>('all')
-  const [tierFilter, setTierFilter] = useState<ProjectTier | 'all'>('all')
+  // Category filter from URL (or 'all' by default)
+  const categoryFromUrl = searchParams.get('category') as ProjectCategory | null
+  const [categoryFilter, setCategoryFilter] = useState<ProjectCategory | 'all'>(
+    categoryFromUrl && PROJECT_CATEGORIES.some(c => c.value === categoryFromUrl)
+      ? categoryFromUrl
+      : 'all'
+  )
+
+  // Tier filter from URL (or 'all' by default)
+  const tierFromUrl = searchParams.get('tier') as ProjectTier | null
+  const validTiers: (ProjectTier | 'all')[] = ['all', 'gold', 'silver', 'bronze']
+  const [tierFilter, setTierFilter] = useState<ProjectTier | 'all'>(
+    tierFromUrl && validTiers.includes(tierFromUrl) ? tierFromUrl : 'all'
+  )
+
+  // Sync filters to URL
+  useEffect(() => {
+    let changed = false
+
+    // Category filter
+    const currentCategory = searchParams.get('category')
+    if (categoryFilter === 'all' && currentCategory) {
+      searchParams.delete('category')
+      changed = true
+    } else if (categoryFilter !== 'all' && currentCategory !== categoryFilter) {
+      searchParams.set('category', categoryFilter)
+      changed = true
+    }
+
+    // Tier filter
+    const currentTier = searchParams.get('tier')
+    if (tierFilter === 'all' && currentTier) {
+      searchParams.delete('tier')
+      changed = true
+    } else if (tierFilter !== 'all' && currentTier !== tierFilter) {
+      searchParams.set('tier', tierFilter)
+      changed = true
+    }
+
+    if (changed) {
+      setSearchParams(searchParams, { replace: true })
+    }
+  }, [categoryFilter, tierFilter, searchParams, setSearchParams])
 
   // Get projects in planning queue (status = planning or backlog, not archived)
   const planningProjects = useMemo(() => {

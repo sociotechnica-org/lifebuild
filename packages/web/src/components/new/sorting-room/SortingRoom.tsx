@@ -1,7 +1,13 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery, useStore } from '@livestore/react'
 import { getProjects$, getAllTasks$ } from '@work-squared/shared/queries'
-import { resolveLifecycleState, type ProjectLifecycleState } from '@work-squared/shared'
+import {
+  resolveLifecycleState,
+  type ProjectLifecycleState,
+  PROJECT_CATEGORIES,
+  type ProjectCategory,
+} from '@work-squared/shared'
 import type { Project, Task } from '@work-squared/shared/schema'
 import { events } from '@work-squared/shared/schema'
 import { useTableState } from '../../../hooks/useTableState.js'
@@ -55,10 +61,37 @@ function getLastActivityTime(projectId: string, tasks: readonly Task[]): number 
  * Displays three stream tabs (Gold, Silver, Bronze) that can be expanded
  * to show and manage queued projects/tasks with drag-and-drop reordering.
  */
+// Category filter options
+const CATEGORY_FILTERS: { value: ProjectCategory | 'all'; label: string; colorHex?: string }[] = [
+  { value: 'all', label: 'All' },
+  ...PROJECT_CATEGORIES.map(c => ({ value: c.value, label: c.name, colorHex: c.colorHex })),
+]
+
 export const SortingRoom: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [expandedStream, setExpandedStream] = useState<Stream | null>(null)
   const [draggedGoldProject, setDraggedGoldProject] = useState<Project | null>(null)
   const [draggedSilverProject, setDraggedSilverProject] = useState<Project | null>(null)
+
+  // Category filter from URL (or 'all' by default)
+  const categoryFromUrl = searchParams.get('category') as ProjectCategory | null
+  const [categoryFilter, setCategoryFilter] = useState<ProjectCategory | 'all'>(
+    categoryFromUrl && PROJECT_CATEGORIES.some(c => c.value === categoryFromUrl)
+      ? categoryFromUrl
+      : 'all'
+  )
+
+  // Sync category filter to URL
+  useEffect(() => {
+    const currentCategory = searchParams.get('category')
+    if (categoryFilter === 'all' && currentCategory) {
+      searchParams.delete('category')
+      setSearchParams(searchParams, { replace: true })
+    } else if (categoryFilter !== 'all' && currentCategory !== categoryFilter) {
+      searchParams.set('category', categoryFilter)
+      setSearchParams(searchParams, { replace: true })
+    }
+  }, [categoryFilter, searchParams, setSearchParams])
 
   const allProjects = (useQuery(getProjects$) ?? []) as Project[]
   const allTasks = (useQuery(getAllTasks$) ?? []) as Task[]
@@ -80,10 +113,14 @@ export const SortingRoom: React.FC = () => {
 
   // Filter and sort backlog projects (Stage 4, backlog status, sorted by queuePosition)
   // Exclude projects that are currently on the table
+  // Apply category filter if set
   const backlogProjectsByStream = useMemo(() => {
     const stage4Projects = allProjects.filter(project => {
       const lifecycle = getLifecycleState(project)
-      return lifecycle.status === 'backlog' && lifecycle.stage === 4
+      if (lifecycle.status !== 'backlog' || lifecycle.stage !== 4) return false
+      // Apply category filter
+      if (categoryFilter !== 'all' && project.category !== categoryFilter) return false
+      return true
     })
 
     const goldProjects = stage4Projects
@@ -105,14 +142,18 @@ export const SortingRoom: React.FC = () => {
       })
 
     return { gold: goldProjects, silver: silverProjects }
-  }, [allProjects, configuration?.goldProjectId, configuration?.silverProjectId])
+  }, [allProjects, configuration?.goldProjectId, configuration?.silverProjectId, categoryFilter])
 
   // Filter and sort active projects by stream (sorted by last activity time)
   // Exclude projects that are currently on the table
+  // Apply category filter if set
   const activeProjectsByStream = useMemo(() => {
     const activeProjects = allProjects.filter(project => {
       const lifecycle = getLifecycleState(project)
-      return lifecycle.status === 'active'
+      if (lifecycle.status !== 'active') return false
+      // Apply category filter
+      if (categoryFilter !== 'all' && project.category !== categoryFilter) return false
+      return true
     })
 
     const goldProjects = activeProjects
@@ -126,7 +167,13 @@ export const SortingRoom: React.FC = () => {
       .sort((a, b) => getLastActivityTime(b.id, allTasks) - getLastActivityTime(a.id, allTasks))
 
     return { gold: goldProjects, silver: silverProjects }
-  }, [allProjects, allTasks, configuration?.goldProjectId, configuration?.silverProjectId])
+  }, [
+    allProjects,
+    allTasks,
+    configuration?.goldProjectId,
+    configuration?.silverProjectId,
+    categoryFilter,
+  ])
 
   // Get eligible bronze tasks:
   // - Orphaned tasks (no projectId)
@@ -491,8 +538,41 @@ export const SortingRoom: React.FC = () => {
     [store, actorId, addBronzeTask]
   )
 
+  const hasActiveFilters = categoryFilter !== 'all'
+
+  const clearFilters = () => {
+    setCategoryFilter('all')
+  }
+
   return (
     <div className='sorting-room'>
+      {/* Category Filter Bar */}
+      <div className='sorting-room-filters'>
+        <div className='sorting-room-category-filters'>
+          <span className='sorting-room-filter-label'>Category:</span>
+          {CATEGORY_FILTERS.map(cat => (
+            <button
+              key={cat.value}
+              type='button'
+              className={`sorting-room-category-pill ${categoryFilter === cat.value ? 'active' : ''}`}
+              style={
+                categoryFilter === cat.value && cat.colorHex
+                  ? { backgroundColor: cat.colorHex, borderColor: cat.colorHex, color: '#fff' }
+                  : undefined
+              }
+              onClick={() => setCategoryFilter(cat.value)}
+            >
+              {cat.label}
+            </button>
+          ))}
+          {hasActiveFilters && (
+            <button type='button' className='sorting-room-clear-filters' onClick={clearFilters}>
+              Clear
+            </button>
+          )}
+        </div>
+      </div>
+
       <div className='sorting-room-tabs'>
         {streamSummaries.map(summary => (
           <div
