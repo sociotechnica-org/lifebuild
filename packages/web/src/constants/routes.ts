@@ -27,7 +27,6 @@ export const ROUTES = {
   OLD_DOCUMENT: '/old/document/:documentId',
   OLD_CONTACTS: '/old/contacts',
   OLD_CONTACT: '/old/contacts/:contactId',
-  OLD_HISTORY: '/old/history',
   OLD_SETTINGS: '/old/settings',
   // Legacy aliases for old route constants (for backwards compatibility with Navigation.tsx etc)
   TASKS: '/old/tasks',
@@ -36,7 +35,6 @@ export const ROUTES = {
   DOCUMENT: '/old/document/:documentId',
   CONTACTS: '/old/contacts',
   CONTACT: '/old/contacts/:contactId',
-  HISTORY: '/old/history',
   SETTINGS: '/old/settings',
   // Auth and admin routes (unchanged)
   ADMIN: '/admin',

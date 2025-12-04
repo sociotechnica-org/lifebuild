@@ -293,19 +293,6 @@ const workerCategories = State.SQLite.table({
   },
 })
 
-const eventsLog = State.SQLite.table({
-  name: 'eventsLog',
-  columns: {
-    id: State.SQLite.text({ primaryKey: true }),
-    eventType: State.SQLite.text(),
-    eventData: State.SQLite.text(), // JSON string of the event data
-    actorId: State.SQLite.text({ nullable: true }), // Who performed the action
-    createdAt: State.SQLite.integer({
-      schema: Schema.DateFromNumber,
-    }),
-  },
-})
-
 const recurringTasks = State.SQLite.table({
   name: 'recurringTasks',
   columns: {
@@ -422,7 +409,6 @@ export type Worker = State.SQLite.FromTable.RowDecoded<typeof workers>
 export type WorkerProject = State.SQLite.FromTable.RowDecoded<typeof workerProjects>
 export type WorkerCategory = State.SQLite.FromTable.RowDecoded<typeof workerCategories>
 export type RecurringTask = State.SQLite.FromTable.RowDecoded<typeof recurringTasks>
-export type EventsLog = State.SQLite.FromTable.RowDecoded<typeof eventsLog>
 export type Setting = State.SQLite.FromTable.RowDecoded<typeof settings>
 export type Contact = State.SQLite.FromTable.RowDecoded<typeof contacts>
 export type ProjectContact = State.SQLite.FromTable.RowDecoded<typeof projectContacts>
@@ -453,7 +439,6 @@ export const tables = {
   workerProjects,
   workerCategories,
   recurringTasks,
-  eventsLog,
   settings,
   contacts,
   projectContacts,
@@ -507,7 +492,7 @@ function mapColumnIdToStatus(columnId: string): 'todo' | 'doing' | 'in_review' |
 const materializers = State.SQLite.materializers(events, {
   'v1.ChatMessageSent': ({ id, conversationId, message, role, navigationContext, createdAt }) =>
     chatMessages.insert({ id, conversationId, message, role, navigationContext, createdAt }),
-  'v1.ProjectCreated': ({ id, name, description, createdAt, actorId, lifecycleState }) => [
+  'v1.ProjectCreated': ({ id, name, description, createdAt, lifecycleState }) =>
     projects.insert({
       id,
       name,
@@ -518,14 +503,6 @@ const materializers = State.SQLite.materializers(events, {
       createdAt,
       updatedAt: createdAt,
     }),
-    eventsLog.insert({
-      id: `project_created_${id}`,
-      eventType: 'v1.ProjectCreated',
-      eventData: JSON.stringify({ id, name, description }),
-      actorId,
-      createdAt,
-    }),
-  ],
   // PR3: Column materializers converted to no-ops - preserves event history without side effects
   'v1.ColumnCreated': () => [], // No-op - columns no longer exist
   'v1.ColumnRenamed': () => [], // No-op - columns no longer exist
@@ -539,98 +516,53 @@ const materializers = State.SQLite.materializers(events, {
     assigneeIds,
     position,
     createdAt,
-    actorId,
   }) => {
     // Map v1 columnId to status to preserve original column state
     const status = mapColumnIdToStatus(columnId)
 
-    return [
-      tasks.insert({
-        id,
-        projectId,
-        // PR3: columnId field removed from tasks table
-        title,
-        description,
-        status, // Map to status
-        assigneeIds: assigneeIds ? JSON.stringify(assigneeIds) : undefined,
-        attributes: null, // PR2: v1 tasks have no attributes
+    return tasks.insert({
+      id,
+      projectId,
+      // PR3: columnId field removed from tasks table
+      title,
+      description,
+      status, // Map to status
+      assigneeIds: assigneeIds ? JSON.stringify(assigneeIds) : undefined,
+      attributes: null, // PR2: v1 tasks have no attributes
+      position,
+      createdAt,
+      updatedAt: createdAt,
+    })
+  },
+  'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt }) => {
+    // PR3: Map toColumnId to status to preserve original column state
+    const toStatus = mapColumnIdToStatus(toColumnId)
+
+    return tasks.update({ status: toStatus, position, updatedAt }).where({ id: taskId })
+  },
+  'v1.TaskMovedToProject': ({ taskId, toProjectId, toColumnId, position, updatedAt }) => {
+    // PR3: Map toColumnId to status to preserve original column state
+    const toStatus = mapColumnIdToStatus(toColumnId)
+
+    return tasks
+      .update({
+        projectId: toProjectId,
+        status: toStatus,
         position,
-        createdAt,
-        updatedAt: createdAt,
-      }),
-      eventsLog.insert({
-        id: `task_created_${id}`,
-        eventType: 'v1.TaskCreated',
-        eventData: JSON.stringify({ id, title, description, projectId, columnId }),
-        actorId,
-        createdAt,
-      }),
-    ]
+        updatedAt,
+      })
+      .where({ id: taskId })
   },
-  'v1.TaskMoved': ({ taskId, toColumnId, position, updatedAt, actorId }) => {
-    // PR3: Map toColumnId to status to preserve original column state
-    const toStatus = mapColumnIdToStatus(toColumnId)
-
-    return [
-      tasks.update({ status: toStatus, position, updatedAt }).where({ id: taskId }),
-      eventsLog.insert({
-        id: `task_moved_${taskId}_${updatedAt.getTime()}`,
-        eventType: 'v1.TaskMoved',
-        eventData: JSON.stringify({ taskId, toColumnId, position }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
-  },
-  'v1.TaskMovedToProject': ({ taskId, toProjectId, toColumnId, position, updatedAt, actorId }) => {
-    // PR3: Map toColumnId to status to preserve original column state
-    const toStatus = mapColumnIdToStatus(toColumnId)
-
-    return [
-      tasks
-        .update({
-          projectId: toProjectId,
-          status: toStatus,
-          position,
-          updatedAt,
-        })
-        .where({ id: taskId }),
-      eventsLog.insert({
-        id: `task_moved_to_project_${taskId}_${updatedAt.getTime()}`,
-        eventType: 'v1.TaskMovedToProject',
-        eventData: JSON.stringify({ taskId, toProjectId, toColumnId, position }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
-  },
-  'v1.TaskUpdated': ({ taskId, title, description, assigneeIds, updatedAt, actorId }) => {
+  'v1.TaskUpdated': ({ taskId, title, description, assigneeIds, updatedAt }) => {
     const updates: Record<string, any> = { updatedAt }
     if (title !== undefined) updates.title = title
     if (description !== undefined) updates.description = description
     if (assigneeIds !== undefined) updates.assigneeIds = JSON.stringify(assigneeIds)
 
-    return [
-      tasks.update(updates).where({ id: taskId }),
-      eventsLog.insert({
-        id: `task_updated_${taskId}_${updatedAt.getTime()}`,
-        eventType: 'v1.TaskUpdated',
-        eventData: JSON.stringify({ taskId, title, description, assigneeIds }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
+    return tasks.update(updates).where({ id: taskId })
   },
-  'v1.UserCreated': ({ id, name, avatarUrl, createdAt, actorId }) => [
+  'v1.UserCreated': ({ id, name, avatarUrl, createdAt }) =>
     users.insert({ id, name, avatarUrl, createdAt }),
-    eventsLog.insert({
-      id: `user_created_${id}`,
-      eventType: 'v1.UserCreated',
-      eventData: JSON.stringify({ id, name }),
-      actorId,
-      createdAt,
-    }),
-  ],
   'v1.UserSynced': ({ id, email, name, avatarUrl, isAdmin, syncedAt }) => [
     users.delete().where({ id }),
     users.insert({ id, email, name, avatarUrl, isAdmin, createdAt: syncedAt, syncedAt }),
@@ -661,28 +593,12 @@ const materializers = State.SQLite.materializers(events, {
     }),
   'v1.ConversationModelUpdated': ({ id, model, updatedAt }) =>
     conversations.update({ model, updatedAt }).where({ id }),
-  'v1.ConversationArchived': ({ conversationId, archivedAt, actorId }) => [
+  'v1.ConversationArchived': ({ conversationId, archivedAt }) =>
     conversations.update({ archivedAt, updatedAt: archivedAt }).where({ id: conversationId }),
-    eventsLog.insert({
-      id: `conversation_archived_${conversationId}_${archivedAt.getTime()}`,
-      eventType: 'v1.ConversationArchived',
-      eventData: JSON.stringify({ conversationId }),
-      actorId,
-      createdAt: archivedAt,
-    }),
-  ],
-  'v1.ConversationUnarchived': ({ conversationId, unarchivedAt, actorId }) => [
+  'v1.ConversationUnarchived': ({ conversationId, unarchivedAt }) =>
     conversations
       .update({ archivedAt: null, updatedAt: unarchivedAt })
       .where({ id: conversationId }),
-    eventsLog.insert({
-      id: `conversation_unarchived_${conversationId}_${unarchivedAt.getTime()}`,
-      eventType: 'v1.ConversationUnarchived',
-      eventData: JSON.stringify({ conversationId }),
-      actorId,
-      createdAt: unarchivedAt,
-    }),
-  ],
   'v1.LLMResponseReceived': ({
     id,
     conversationId,
@@ -709,73 +625,21 @@ const materializers = State.SQLite.materializers(events, {
   'v1.LLMResponseCompleted': ({ conversationId }) => [
     conversations.update({ processingState: 'idle' }).where({ id: conversationId }),
   ],
-  'v1.CommentAdded': ({ id, taskId, authorId, content, createdAt, actorId }) => [
+  'v1.CommentAdded': ({ id, taskId, authorId, content, createdAt }) =>
     comments.insert({ id, taskId, authorId, content, createdAt }),
-    eventsLog.insert({
-      id: `comment_added_${id}`,
-      eventType: 'v1.CommentAdded',
-      eventData: JSON.stringify({ id, taskId, authorId, content }),
-      actorId,
-      createdAt,
-    }),
-  ],
-  'v1.TaskArchived': ({ taskId, archivedAt, actorId }) => [
-    tasks.update({ archivedAt }).where({ id: taskId }),
-    eventsLog.insert({
-      id: `task_archived_${taskId}_${archivedAt.getTime()}`,
-      eventType: 'v1.TaskArchived',
-      eventData: JSON.stringify({ taskId }),
-      actorId,
-      createdAt: archivedAt,
-    }),
-  ],
+  'v1.TaskArchived': ({ taskId, archivedAt }) => tasks.update({ archivedAt }).where({ id: taskId }),
   'v1.TaskUnarchived': ({ taskId }) => tasks.update({ archivedAt: null }).where({ id: taskId }),
-  'v1.TaskDeleted': ({ taskId, deletedAt, actorId }) => [
-    tasks.delete().where({ id: taskId }),
-    eventsLog.insert({
-      id: `task_deleted_${taskId}_${deletedAt.getTime()}`,
-      eventType: 'v1.TaskDeleted',
-      eventData: JSON.stringify({ taskId }),
-      actorId,
-      createdAt: deletedAt,
-    }),
-  ],
-  'v1.DocumentCreated': ({ id, title, content, createdAt, actorId }) => [
+  'v1.TaskDeleted': ({ taskId }) => tasks.delete().where({ id: taskId }),
+  'v1.DocumentCreated': ({ id, title, content, createdAt }) =>
     documents.insert({ id, title, content, createdAt, updatedAt: createdAt, archivedAt: null }),
-    eventsLog.insert({
-      id: `document_created_${id}`,
-      eventType: 'v1.DocumentCreated',
-      eventData: JSON.stringify({ id, title }),
-      actorId,
-      createdAt,
-    }),
-  ],
-  'v1.DocumentUpdated': ({ id, updates, updatedAt, actorId }) => {
+  'v1.DocumentUpdated': ({ id, updates, updatedAt }) => {
     const updateData: Record<string, any> = { updatedAt }
     if (updates.title !== undefined) updateData.title = updates.title
     if (updates.content !== undefined) updateData.content = updates.content
 
-    return [
-      documents.update(updateData).where({ id }),
-      eventsLog.insert({
-        id: `document_updated_${id}_${updatedAt.getTime()}`,
-        eventType: 'v1.DocumentUpdated',
-        eventData: JSON.stringify({ id, updates }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
+    return documents.update(updateData).where({ id })
   },
-  'v1.DocumentArchived': ({ id, archivedAt, actorId }) => [
-    documents.update({ archivedAt }).where({ id }),
-    eventsLog.insert({
-      id: `document_archived_${id}_${archivedAt.getTime()}`,
-      eventType: 'v1.DocumentArchived',
-      eventData: JSON.stringify({ id }),
-      actorId,
-      createdAt: archivedAt,
-    }),
-  ],
+  'v1.DocumentArchived': ({ id, archivedAt }) => documents.update({ archivedAt }).where({ id }),
   'v1.DocumentAddedToProject': ({ documentId, projectId }) =>
     documentProjects.insert({ documentId, projectId }),
   'v1.DocumentRemovedFromProject': ({ documentId, projectId }) =>
@@ -788,8 +652,7 @@ const materializers = State.SQLite.materializers(events, {
     avatar,
     defaultModel,
     createdAt,
-    actorId,
-  }) => [
+  }) =>
     workers.insert({
       id,
       name,
@@ -802,14 +665,6 @@ const materializers = State.SQLite.materializers(events, {
       updatedAt: createdAt,
       isActive: true,
     }),
-    eventsLog.insert({
-      id: `worker_created_${id}`,
-      eventType: 'v1.WorkerCreated',
-      eventData: JSON.stringify({ id, name, roleDescription }),
-      actorId,
-      createdAt,
-    }),
-  ],
   'v2.WorkerCreated': ({
     id,
     name,
@@ -818,11 +673,10 @@ const materializers = State.SQLite.materializers(events, {
     avatar,
     defaultModel,
     createdAt,
-    actorId,
     roomId,
     roomKind,
     status,
-  }) => [
+  }) =>
     workers.insert({
       id,
       name,
@@ -837,15 +691,7 @@ const materializers = State.SQLite.materializers(events, {
       updatedAt: createdAt,
       isActive: (status ?? 'active') === 'active',
     }),
-    eventsLog.insert({
-      id: `worker_created_${id}`,
-      eventType: 'v2.WorkerCreated',
-      eventData: JSON.stringify({ id, name, roleDescription, roomId, roomKind }),
-      actorId,
-      createdAt,
-    }),
-  ],
-  'v1.WorkerUpdated': ({ id, updates, updatedAt, actorId }) => {
+  'v1.WorkerUpdated': ({ id, updates, updatedAt }) => {
     // Allow null values to clear optional fields, but filter out undefined values
     const processedUpdates: Record<string, any> = Object.fromEntries(
       Object.entries(updates).filter(([_, value]) => value !== undefined)
@@ -853,18 +699,9 @@ const materializers = State.SQLite.materializers(events, {
     // Always include the updatedAt timestamp
     processedUpdates.updatedAt = updatedAt
 
-    return [
-      workers.update(processedUpdates).where({ id }),
-      eventsLog.insert({
-        id: `worker_updated_${id}_${updatedAt.getTime()}`,
-        eventType: 'v1.WorkerUpdated',
-        eventData: JSON.stringify({ id, updates }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
+    return workers.update(processedUpdates).where({ id })
   },
-  'v2.WorkerUpdated': ({ id, updates, updatedAt, actorId }) => {
+  'v2.WorkerUpdated': ({ id, updates, updatedAt }) => {
     const processedUpdates: Record<string, any> = Object.fromEntries(
       Object.entries(updates).filter(([_, value]) => value !== undefined)
     )
@@ -873,39 +710,14 @@ const materializers = State.SQLite.materializers(events, {
       processedUpdates.isActive = updates.status === 'active'
     }
 
-    return [
-      workers.update(processedUpdates).where({ id }),
-      eventsLog.insert({
-        id: `worker_updated_${id}_${updatedAt.getTime()}`,
-        eventType: 'v2.WorkerUpdated',
-        eventData: JSON.stringify({ id, updates }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
+    return workers.update(processedUpdates).where({ id })
   },
-  'v1.WorkerAssignedToProject': ({ workerId, projectId, assignedAt, actorId }) => [
+  'v1.WorkerAssignedToProject': ({ workerId, projectId }) =>
     workerProjects.insert({ workerId, projectId }),
-    eventsLog.insert({
-      id: `worker_assigned_${workerId}_${projectId}_${assignedAt.getTime()}`,
-      eventType: 'v1.WorkerAssignedToProject',
-      eventData: JSON.stringify({ workerId, projectId }),
-      actorId,
-      createdAt: assignedAt,
-    }),
-  ],
   'v1.WorkerUnassignedFromProject': ({ workerId, projectId }) =>
     workerProjects.delete().where({ workerId, projectId }),
-  'v1.WorkerAssignedToCategory': ({ workerId, category, assignedAt, actorId }) => [
+  'v1.WorkerAssignedToCategory': ({ workerId, category }) =>
     workerCategories.insert({ workerId, category }),
-    eventsLog.insert({
-      id: `worker_assigned_category_${workerId}_${category}_${assignedAt.getTime()}`,
-      eventType: 'v1.WorkerAssignedToCategory',
-      eventData: JSON.stringify({ workerId, category }),
-      actorId,
-      createdAt: assignedAt,
-    }),
-  ],
   'v1.WorkerUnassignedFromCategory': ({ workerId, category }) =>
     workerCategories.delete().where({ workerId, category }),
   'v1.RecurringTaskCreated': ({
@@ -919,8 +731,7 @@ const materializers = State.SQLite.materializers(events, {
     projectId,
     nextExecutionAt,
     createdAt,
-    actorId,
-  }) => [
+  }) =>
     recurringTasks.insert({
       id,
       name,
@@ -935,14 +746,6 @@ const materializers = State.SQLite.materializers(events, {
       createdAt,
       updatedAt: createdAt,
     }),
-    eventsLog.insert({
-      id: `recurring_task_created_${id}`,
-      eventType: 'v1.RecurringTaskCreated',
-      eventData: JSON.stringify({ id, name, description, intervalHours, projectId }),
-      actorId,
-      createdAt,
-    }),
-  ],
   'v1.RecurringTaskUpdated': ({ id, updates, updatedAt, nextExecutionAt }) => {
     const updateData: Record<string, any> = { updatedAt }
 
@@ -990,7 +793,7 @@ const materializers = State.SQLite.materializers(events, {
     }),
     recurringTasks.update({ lastExecutedAt: startedAt }).where({ id: recurringTaskId }),
   ],
-  'v1.TaskExecutionCompleted': ({ id, completedAt, output, createdTaskIds, actorId }) => [
+  'v1.TaskExecutionCompleted': ({ id, completedAt, output, createdTaskIds }) =>
     taskExecutions
       .update({
         completedAt,
@@ -999,14 +802,6 @@ const materializers = State.SQLite.materializers(events, {
         createdTaskIds: createdTaskIds ? JSON.stringify(createdTaskIds) : '[]',
       })
       .where({ id }),
-    eventsLog.insert({
-      id: `task_execution_completed_${id}_${completedAt.getTime()}`,
-      eventType: 'v1.TaskExecutionCompleted',
-      eventData: JSON.stringify({ id, output, createdTaskIds }),
-      actorId,
-      createdAt: completedAt,
-    }),
-  ],
   'v1.TaskExecutionFailed': ({ id, failedAt, error }) =>
     taskExecutions
       .update({
@@ -1019,16 +814,8 @@ const materializers = State.SQLite.materializers(events, {
     settings.delete().where({ key }),
     settings.insert({ key, value, updatedAt }),
   ],
-  'v1.ContactCreated': ({ id, name, email, createdAt, actorId }) => [
+  'v1.ContactCreated': ({ id, name, email, createdAt }) =>
     contacts.insert({ id, name, email, createdAt, updatedAt: createdAt }),
-    eventsLog.insert({
-      id: `contact_created_${id}`,
-      eventType: 'v1.ContactCreated',
-      eventData: JSON.stringify({ id, name, email }),
-      actorId,
-      createdAt,
-    }),
-  ],
   'v1.ContactUpdated': ({ id, updates, updatedAt }) => {
     const updateData: Record<string, any> = { updatedAt }
     if (updates.name !== undefined) updateData.name = updates.name
@@ -1055,8 +842,7 @@ const materializers = State.SQLite.materializers(events, {
     attributes,
     position,
     createdAt,
-    actorId,
-  }) => [
+  }) =>
     tasks.insert({
       id,
       projectId,
@@ -1070,49 +856,17 @@ const materializers = State.SQLite.materializers(events, {
       createdAt,
       updatedAt: createdAt,
     }),
-    eventsLog.insert({
-      id: `task_created_${id}_${createdAt.getTime()}`,
-      eventType: 'v2.TaskCreated',
-      eventData: JSON.stringify({ id, title, projectId, status, attributes }),
-      actorId,
-      createdAt,
-    }),
-  ],
 
-  'v2.TaskStatusChanged': ({ taskId, toStatus, position, updatedAt, actorId }) => [
+  'v2.TaskStatusChanged': ({ taskId, toStatus, position, updatedAt }) =>
     tasks.update({ status: toStatus, position, updatedAt }).where({ id: taskId }),
-    eventsLog.insert({
-      id: `task_status_changed_${taskId}_${updatedAt.getTime()}`,
-      eventType: 'v2.TaskStatusChanged',
-      eventData: JSON.stringify({ taskId, toStatus, position }),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
 
-  'v2.TaskReordered': ({ taskId, position, updatedAt, actorId }) => [
+  'v2.TaskReordered': ({ taskId, position, updatedAt }) =>
     tasks.update({ position, updatedAt }).where({ id: taskId }),
-    eventsLog.insert({
-      id: `task_reordered_${taskId}_${updatedAt.getTime()}`,
-      eventType: 'v2.TaskReordered',
-      eventData: JSON.stringify({ taskId, position }),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
 
-  'v2.TaskMovedToProject': ({ taskId, toProjectId, position, updatedAt, actorId }) => [
+  'v2.TaskMovedToProject': ({ taskId, toProjectId, position, updatedAt }) =>
     tasks.update({ projectId: toProjectId, position, updatedAt }).where({ id: taskId }),
-    eventsLog.insert({
-      id: `task_moved_to_project_${taskId}_${updatedAt.getTime()}`,
-      eventType: 'v2.TaskMovedToProject',
-      eventData: JSON.stringify({ taskId, toProjectId, position }),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
 
-  'v2.TaskAttributesUpdated': ({ taskId, attributes, updatedAt, actorId }) => [
+  'v2.TaskAttributesUpdated': ({ taskId, attributes, updatedAt }) =>
     tasks
       .update({
         // IMPORTANT: This replaces the entire attributes object.
@@ -1124,14 +878,6 @@ const materializers = State.SQLite.materializers(events, {
         updatedAt,
       })
       .where({ id: taskId }),
-    eventsLog.insert({
-      id: `task_attributes_updated_${taskId}_${updatedAt.getTime()}`,
-      eventType: 'v2.TaskAttributesUpdated',
-      eventData: JSON.stringify({ taskId, attributes }),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
 
   // ============================================================================
   // V2 PROJECT MATERIALIZERS - With Categories & Attributes
@@ -1145,8 +891,7 @@ const materializers = State.SQLite.materializers(events, {
     attributes,
     lifecycleState,
     createdAt,
-    actorId,
-  }) => [
+  }) =>
     projects.insert({
       id,
       name,
@@ -1158,37 +903,20 @@ const materializers = State.SQLite.materializers(events, {
       updatedAt: createdAt,
       archivedAt: null,
     }),
-    eventsLog.insert({
-      id: `project_created_${id}_${createdAt.getTime()}`,
-      eventType: 'v2.ProjectCreated',
-      eventData: JSON.stringify({ id, name, description, category }),
-      actorId,
-      createdAt,
-    }),
-  ],
 
-  'v2.ProjectUpdated': ({ id, updates, updatedAt, actorId }) => {
+  'v2.ProjectUpdated': ({ id, updates, updatedAt }) => {
     const updateData: Record<string, any> = { updatedAt }
     if (updates.name !== undefined) updateData.name = updates.name
     if (updates.description !== undefined) updateData.description = updates.description
     if (updates.category !== undefined) updateData.category = updates.category
 
-    return [
-      projects.update(updateData).where({ id }),
-      eventsLog.insert({
-        id: `project_updated_${id}_${updatedAt.getTime()}`,
-        eventType: 'v2.ProjectUpdated',
-        eventData: JSON.stringify({ id, updates }),
-        actorId,
-        createdAt: updatedAt,
-      }),
-    ]
+    return projects.update(updateData).where({ id })
   },
 
   // @deprecated - Use v3.ProjectLifecycleUpdated instead.
   // This event is kept for backwards compatibility with the old UI.
   // It only updates the legacy `attributes` column, NOT `projectLifecycleState`.
-  'v2.ProjectAttributesUpdated': ({ id, attributes, updatedAt, actorId }) => [
+  'v2.ProjectAttributesUpdated': ({ id, attributes, updatedAt }) =>
     projects
       .update({
         // Only update attributes column (legacy)
@@ -1196,47 +924,24 @@ const materializers = State.SQLite.materializers(events, {
         updatedAt,
       })
       .where({ id }),
-    eventsLog.insert({
-      id: `project_attributes_updated_${id}_${updatedAt.getTime()}`,
-      eventType: 'v2.ProjectAttributesUpdated',
-      eventData: JSON.stringify({ id, attributes }),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
 
-  'v3.ProjectLifecycleUpdated': ({ projectId, lifecycleState, updatedAt, actorId }) => [
+  'v3.ProjectLifecycleUpdated': ({ projectId, lifecycleState, updatedAt }) =>
     projects
       .update({
         projectLifecycleState: lifecycleState,
         updatedAt,
       })
       .where({ id: projectId }),
-    eventsLog.insert({
-      id: `project_lifecycle_updated_${projectId}_${updatedAt.getTime()}`,
-      eventType: 'v3.ProjectLifecycleUpdated',
-      eventData: JSON.stringify({ projectId }),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
 
-  'v2.ProjectArchived': ({ id, archivedAt, actorId }) => [
+  'v2.ProjectArchived': ({ id, archivedAt }) => [
     projects.update({ archivedAt, updatedAt: archivedAt }).where({ id }),
     workers
       .update({ status: 'inactive', isActive: false, updatedAt: archivedAt })
       .where({ roomId: `project:${id}` }),
     conversations.update({ archivedAt, updatedAt: archivedAt }).where({ roomId: `project:${id}` }),
-    eventsLog.insert({
-      id: `project_archived_${id}_${archivedAt.getTime()}`,
-      eventType: 'v2.ProjectArchived',
-      eventData: JSON.stringify({ id }),
-      actorId,
-      createdAt: archivedAt,
-    }),
   ],
 
-  'v2.ProjectUnarchived': ({ id, unarchivedAt, actorId }) => [
+  'v2.ProjectUnarchived': ({ id, unarchivedAt }) => [
     projects.update({ archivedAt: null, updatedAt: unarchivedAt }).where({ id }),
     workers
       .update({ status: 'active', isActive: true, updatedAt: unarchivedAt })
@@ -1244,13 +949,6 @@ const materializers = State.SQLite.materializers(events, {
     conversations
       .update({ archivedAt: null, updatedAt: unarchivedAt })
       .where({ roomId: `project:${id}` }),
-    eventsLog.insert({
-      id: `project_unarchived_${id}_${unarchivedAt.getTime()}`,
-      eventType: 'v2.ProjectUnarchived',
-      eventData: JSON.stringify({ id }),
-      actorId,
-      createdAt: unarchivedAt,
-    }),
   ],
 
   'v1.ProjectCoverImageSet': ({ projectId, attributes, updatedAt }) => {
@@ -1272,7 +970,6 @@ const materializers = State.SQLite.materializers(events, {
     bronzeMode,
     bronzeTargetExtra,
     updatedAt,
-    actorId,
   }) => [
     tableConfiguration.delete().where({ id: TABLE_CONFIGURATION_ID }),
     tableConfiguration.insert({
@@ -1283,85 +980,41 @@ const materializers = State.SQLite.materializers(events, {
       bronzeTargetExtra: bronzeTargetExtra ?? 0,
       updatedAt,
     }),
-    eventsLog.insert({
-      id: `table_configuration_initialized_${updatedAt.getTime()}`,
-      eventType: 'table.configuration_initialized',
-      eventData: JSON.stringify({
-        goldProjectId,
-        silverProjectId,
-        bronzeMode,
-        bronzeTargetExtra,
-      }),
-      actorId,
-      createdAt: updatedAt,
-    }),
   ],
 
-  'table.gold_assigned': ({ projectId, updatedAt, actorId }) => [
+  'table.gold_assigned': ({ projectId, updatedAt }) =>
     tableConfiguration
       .update({
         goldProjectId: projectId,
         updatedAt,
       })
       .where({ id: TABLE_CONFIGURATION_ID }),
-    eventsLog.insert({
-      id: `table_gold_assigned_${updatedAt.getTime()}`,
-      eventType: 'table.gold_assigned',
-      eventData: JSON.stringify({ projectId }),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
 
-  'table.gold_cleared': ({ updatedAt, actorId }) => [
+  'table.gold_cleared': ({ updatedAt }) =>
     tableConfiguration
       .update({
         goldProjectId: null,
         updatedAt,
       })
       .where({ id: TABLE_CONFIGURATION_ID }),
-    eventsLog.insert({
-      id: `table_gold_cleared_${updatedAt.getTime()}`,
-      eventType: 'table.gold_cleared',
-      eventData: JSON.stringify({}),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
 
-  'table.silver_assigned': ({ projectId, updatedAt, actorId }) => [
+  'table.silver_assigned': ({ projectId, updatedAt }) =>
     tableConfiguration
       .update({
         silverProjectId: projectId,
         updatedAt,
       })
       .where({ id: TABLE_CONFIGURATION_ID }),
-    eventsLog.insert({
-      id: `table_silver_assigned_${updatedAt.getTime()}`,
-      eventType: 'table.silver_assigned',
-      eventData: JSON.stringify({ projectId }),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
 
-  'table.silver_cleared': ({ updatedAt, actorId }) => [
+  'table.silver_cleared': ({ updatedAt }) =>
     tableConfiguration
       .update({
         silverProjectId: null,
         updatedAt,
       })
       .where({ id: TABLE_CONFIGURATION_ID }),
-    eventsLog.insert({
-      id: `table_silver_cleared_${updatedAt.getTime()}`,
-      eventType: 'table.silver_cleared',
-      eventData: JSON.stringify({}),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
 
-  'table.bronze_mode_updated': ({ bronzeMode, bronzeTargetExtra, updatedAt, actorId }) => [
+  'table.bronze_mode_updated': ({ bronzeMode, bronzeTargetExtra, updatedAt }) =>
     tableConfiguration
       .update({
         bronzeMode,
@@ -1369,24 +1022,8 @@ const materializers = State.SQLite.materializers(events, {
         updatedAt,
       })
       .where({ id: TABLE_CONFIGURATION_ID }),
-    eventsLog.insert({
-      id: `table_bronze_mode_updated_${updatedAt.getTime()}`,
-      eventType: 'table.bronze_mode_updated',
-      eventData: JSON.stringify({ bronzeMode, bronzeTargetExtra }),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
 
-  'table.bronze_task_added': ({
-    id,
-    taskId,
-    position,
-    insertedAt,
-    insertedBy,
-    status,
-    actorId,
-  }) => [
+  'table.bronze_task_added': ({ id, taskId, position, insertedAt, insertedBy, status }) => [
     tableBronzeStack.delete().where({ id }),
     tableBronzeStack.insert({
       id,
@@ -1397,46 +1034,20 @@ const materializers = State.SQLite.materializers(events, {
       status: status ?? 'active',
       removedAt: null,
     }),
-    eventsLog.insert({
-      id: `bronze_task_added_${id}`,
-      eventType: 'table.bronze_task_added',
-      eventData: JSON.stringify({
-        taskId,
-        position,
-      }),
-      actorId,
-      createdAt: insertedAt,
-    }),
   ],
 
-  'table.bronze_task_removed': ({ id, removedAt, actorId }) => [
+  'table.bronze_task_removed': ({ id, removedAt }) =>
     tableBronzeStack
       .update({
         status: 'removed',
         removedAt,
       })
       .where({ id }),
-    eventsLog.insert({
-      id: `bronze_task_removed_${id}_${removedAt.getTime()}`,
-      eventType: 'table.bronze_task_removed',
-      eventData: JSON.stringify({ id }),
-      actorId,
-      createdAt: removedAt,
-    }),
-  ],
 
-  'table.bronze_stack_reordered': ({ ordering, updatedAt, actorId }) => [
-    ...ordering.map(order =>
+  'table.bronze_stack_reordered': ({ ordering }) =>
+    ordering.map(order =>
       tableBronzeStack.update({ position: order.position }).where({ id: order.id })
     ),
-    eventsLog.insert({
-      id: `bronze_stack_reordered_${updatedAt.getTime()}`,
-      eventType: 'table.bronze_stack_reordered',
-      eventData: JSON.stringify({ ordering }),
-      actorId,
-      createdAt: updatedAt,
-    }),
-  ],
 })
 
 const state = State.SQLite.makeState({ tables, materializers })
