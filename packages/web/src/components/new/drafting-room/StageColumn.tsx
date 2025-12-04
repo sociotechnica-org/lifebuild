@@ -31,9 +31,7 @@ export const StageColumn: React.FC<StageColumnProps> = ({
       <div className='stage-column-divider' />
       <div className='stage-column-content'>
         {isEmpty ? (
-          <div className='stage-column-empty'>
-            {emptyAction || emptyMessage}
-          </div>
+          <div className='stage-column-empty'>{emptyAction || emptyMessage}</div>
         ) : (
           <div className='stage-column-cards'>{children}</div>
         )}

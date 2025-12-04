@@ -120,9 +120,7 @@ export const useNavigationContext = (): NavigationContext | null => {
   // The backend will enrich with full data from the database
   if (params.projectId) {
     const project = projects.find(p => p.id === params.projectId)
-    const lifecycle = project
-      ? resolveLifecycleState(project.projectLifecycleState, null)
-      : null
+    const lifecycle = project ? resolveLifecycleState(project.projectLifecycleState, null) : null
 
     // Build comprehensive project attributes
     const baseAttributes: Record<string, string> = project
@@ -140,9 +138,7 @@ export const useNavigationContext = (): NavigationContext | null => {
 
     // Merge in lifecycle attributes
     const lifecycleAttrs = formatLifecycleAttributes(lifecycle)
-    const allAttributes = lifecycleAttrs
-      ? { ...baseAttributes, ...lifecycleAttrs }
-      : baseAttributes
+    const allAttributes = lifecycleAttrs ? { ...baseAttributes, ...lifecycleAttrs } : baseAttributes
 
     // Send project ID regardless of whether we found it locally
     context.currentEntity = {

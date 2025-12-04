@@ -134,8 +134,7 @@ export const LifeMap: React.FC = () => {
 
   // Check if there are any categories with projects
   const categoriesWithProjects = PROJECT_CATEGORIES.filter(category => {
-    const projects =
-      categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
+    const projects = categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
     return projects.length > 0
   })
 

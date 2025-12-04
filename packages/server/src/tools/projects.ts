@@ -355,7 +355,9 @@ function updateProjectLifecycleCore(
       ...(params.importance !== undefined && { importance: params.importance as any }),
       ...(params.objectives !== undefined && { objectives: params.objectives }),
       ...(params.deadline !== undefined && { deadline: params.deadline }),
-      ...(params.estimatedDuration !== undefined && { estimatedDuration: params.estimatedDuration }),
+      ...(params.estimatedDuration !== undefined && {
+        estimatedDuration: params.estimatedDuration,
+      }),
       ...(params.stream !== undefined && { stream: params.stream as any }),
       ...(params.priority !== undefined && { priority: params.priority }),
     }
@@ -407,7 +409,6 @@ export const unarchiveProject = (store: Store, params: any, actorId?: string) =>
     params
   )
 export const updateProjectLifecycle = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => updateProjectLifecycleCore(store, params, actorId))(
-    store,
-    params
-  )
+  wrapToolFunction((store: Store, params: any) =>
+    updateProjectLifecycleCore(store, params, actorId)
+  )(store, params)
