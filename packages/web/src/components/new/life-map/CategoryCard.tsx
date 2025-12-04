@@ -12,7 +12,9 @@ export type CategoryCardProps = {
   projectCount: number
   workerCount: number
   activeProjects?: Project[]
-  tabledProjects?: Project[]
+  ongoingProjects?: Project[]
+  backlogCount?: number
+  planningCount?: number
   projectCompletionMap?: Map<string, number>
 }
 
@@ -59,7 +61,9 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   projectCount: _projectCount,
   workerCount: _workerCount,
   activeProjects = [],
-  tabledProjects = [],
+  ongoingProjects = [],
+  backlogCount = 0,
+  planningCount = 0,
   projectCompletionMap = new Map(),
 }) => {
   return (
@@ -89,12 +93,12 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         </div>
       )}
 
-      {/* Tabled/Ongoing Projects Section */}
-      {tabledProjects.length > 0 && (
+      {/* Ongoing Projects Section (active status, not on table) */}
+      {ongoingProjects.length > 0 && (
         <div style={{ marginTop: '0.5rem' }}>
           <div className='new-ui-planted-label'>Ongoing</div>
           <div className='new-ui-planted-grid'>
-            {tabledProjects.slice(0, 6).map(project => (
+            {ongoingProjects.slice(0, 6).map(project => (
               <Link
                 key={project.id}
                 to={preserveStoreIdInUrl(generateRoute.project(project.id))}
@@ -106,10 +110,36 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
               </Link>
             ))}
           </div>
-          {tabledProjects.length > 6 && (
+          {ongoingProjects.length > 6 && (
             <div className='count' style={{ marginTop: '0.25rem' }}>
-              +{tabledProjects.length - 6} more
+              +{ongoingProjects.length - 6} more
             </div>
+          )}
+        </div>
+      )}
+
+      {/* Planning and Backlog links */}
+      {(planningCount > 0 || backlogCount > 0) && (
+        <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          {planningCount > 0 && (
+            <Link
+              to={preserveStoreIdInUrl(`${generateRoute.draftingRoom()}?category=${categoryValue}`)}
+              className='new-ui-backlog-link'
+              style={{ textDecoration: 'none' }}
+              onClick={e => e.stopPropagation()}
+            >
+              PLANNING ({planningCount})
+            </Link>
+          )}
+          {backlogCount > 0 && (
+            <Link
+              to={preserveStoreIdInUrl(`${generateRoute.sortingRoom()}?category=${categoryValue}`)}
+              className='new-ui-backlog-link'
+              style={{ textDecoration: 'none' }}
+              onClick={e => e.stopPropagation()}
+            >
+              BACKLOG ({backlogCount})
+            </Link>
           )}
         </div>
       )}
