@@ -155,10 +155,15 @@ export const LifeMap: React.FC = () => {
             return lifecycle.status === 'active'
           })
 
-          // Count backlog projects (status='backlog', stage 4 only - matches SortingRoom filter)
+          // Count backlog projects (status='backlog', stage 4, gold/silver stream only - matches SortingRoom)
+          // Bronze-stream projects don't appear as projects in SortingRoom (only their tasks show)
           const backlogProjects = projects.filter(p => {
             const lifecycle = resolveLifecycleState(p.projectLifecycleState, null)
-            return lifecycle.status === 'backlog' && lifecycle.stage === 4
+            return (
+              lifecycle.status === 'backlog' &&
+              lifecycle.stage === 4 &&
+              (lifecycle.stream === 'gold' || lifecycle.stream === 'silver')
+            )
           })
 
           // Count planning projects (status='planning' OR 'backlog' in stages 1-3 - matches DraftingRoom filter)
