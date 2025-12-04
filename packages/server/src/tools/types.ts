@@ -220,10 +220,28 @@ export interface GetProjectDetailsResult {
     id: string
     name: string
     description?: string
+    category?: string
     createdAt: Date
     updatedAt?: Date
     documentCount: number
     taskCount: number
+    // Lifecycle state
+    lifecycle?: {
+      status: string
+      stage: number
+      stageName: string
+      objectives?: string
+      archetype?: string
+      archetypeName?: string
+      stream?: string
+      scale?: string
+      complexity?: string
+      urgency?: string
+      importance?: string
+      deadline?: string
+      estimatedDuration?: number
+      priority?: number
+    }
   }
   error?: string
 }

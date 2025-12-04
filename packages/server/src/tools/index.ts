@@ -45,6 +45,7 @@ export async function executeLLMTool(
     listProjects,
     getProjectDetails,
     updateProject,
+    updateProjectLifecycle,
     archiveProject,
     unarchiveProject,
   } = await import('./projects.js')
@@ -137,6 +138,9 @@ export async function executeLLMTool(
 
     case 'unarchive_project':
       return unarchiveProject(store, toolCall.parameters, workerId)
+
+    case 'update_project_lifecycle':
+      return updateProjectLifecycle(store, toolCall.parameters, workerId)
 
     case 'list_documents':
       return listDocuments(store)

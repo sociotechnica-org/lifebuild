@@ -34,6 +34,9 @@ export interface WorkerContext {
  * Navigation context - captures what the user is currently viewing
  */
 export interface NavigationContext {
+  // Human-readable description of the current view/page
+  currentView?: string
+
   // Current entity being viewed (if any)
   currentEntity?: {
     type: 'project' | 'document' | 'contact' | 'task' | 'category'

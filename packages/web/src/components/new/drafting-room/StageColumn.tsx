@@ -5,7 +5,8 @@ interface StageColumnProps {
   stage: PlanningStage
   stageName: string
   projectCount: number
-  emptyMessage: string
+  emptyMessage?: string
+  emptyAction?: React.ReactNode
   children: React.ReactNode
 }
 
@@ -14,6 +15,7 @@ export const StageColumn: React.FC<StageColumnProps> = ({
   stageName,
   projectCount,
   emptyMessage,
+  emptyAction,
   children,
 }) => {
   const isEmpty = projectCount === 0
@@ -29,7 +31,9 @@ export const StageColumn: React.FC<StageColumnProps> = ({
       <div className='stage-column-divider' />
       <div className='stage-column-content'>
         {isEmpty ? (
-          <div className='stage-column-empty'>{emptyMessage}</div>
+          <div className='stage-column-empty'>
+            {emptyAction || emptyMessage}
+          </div>
         ) : (
           <div className='stage-column-cards'>{children}</div>
         )}

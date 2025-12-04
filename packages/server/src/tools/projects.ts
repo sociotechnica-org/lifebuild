@@ -26,6 +26,35 @@ import type {
   UnarchiveProjectParams,
   UnarchiveProjectResult,
 } from './types.js'
+import {
+  resolveLifecycleState,
+  STAGE_LABELS,
+  ARCHETYPE_LABELS,
+  type ProjectLifecycleState,
+  type PlanningStage,
+} from '@work-squared/shared'
+
+// Type for update_project_lifecycle tool parameters
+export interface UpdateProjectLifecycleParams {
+  projectId: string
+  stage?: PlanningStage
+  status?: 'planning' | 'backlog' | 'active' | 'completed'
+  archetype?: string
+  scale?: string
+  complexity?: string
+  urgency?: string
+  importance?: string
+  objectives?: string
+  deadline?: number
+  estimatedDuration?: number
+  stream?: string
+  priority?: number
+}
+
+export interface UpdateProjectLifecycleResult {
+  success: boolean
+  error?: string
+}
 
 /**
  * Create a new project (core implementation)
@@ -114,16 +143,44 @@ function getProjectDetailsCore(store: Store, projectId: string): GetProjectDetai
   const documentProjects = store.query(getDocumentProjectsByProject$(projectId)) as any[]
   const tasks = store.query(getBoardTasks$(projectId)) as any[]
 
+  // Get lifecycle state
+  const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
+
+  // Format deadline if present
+  const formatDeadline = (timestamp?: number | null): string | undefined => {
+    if (!timestamp) return undefined
+    const date = new Date(timestamp)
+    if (isNaN(date.getTime())) return undefined
+    return date.toISOString().split('T')[0]
+  }
+
   return {
     success: true,
     project: {
       id: project.id,
       name: project.name,
       description: project.description,
+      category: project.category,
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
       documentCount: documentProjects.length,
       taskCount: tasks.length,
+      lifecycle: {
+        status: lifecycle.status,
+        stage: lifecycle.stage,
+        stageName: STAGE_LABELS[lifecycle.stage] || 'Unknown',
+        objectives: lifecycle.objectives ?? undefined,
+        archetype: lifecycle.archetype ?? undefined,
+        archetypeName: lifecycle.archetype ? ARCHETYPE_LABELS[lifecycle.archetype] : undefined,
+        stream: lifecycle.stream ?? undefined,
+        scale: lifecycle.scale ?? undefined,
+        complexity: lifecycle.complexity ?? undefined,
+        urgency: lifecycle.urgency ?? undefined,
+        importance: lifecycle.importance ?? undefined,
+        deadline: formatDeadline(lifecycle.deadline),
+        estimatedDuration: lifecycle.estimatedDuration ?? undefined,
+        priority: lifecycle.priority ?? undefined,
+      },
     },
   }
 }
@@ -265,6 +322,65 @@ function unarchiveProjectCore(
   }
 }
 
+/**
+ * Update a project's lifecycle state (stage, status, planning attributes)
+ * This is the correct way to update planning data - NOT the old 'attributes' field
+ */
+function updateProjectLifecycleCore(
+  store: Store,
+  params: UpdateProjectLifecycleParams,
+  actorId?: string
+): UpdateProjectLifecycleResult {
+  try {
+    // Validate project exists
+    const projects = store.query(getProjectDetails$(params.projectId)) as any[]
+    const project = validators.requireEntity(projects, 'Project', params.projectId)
+
+    // Get current lifecycle state or create default
+    const currentLifecycle: ProjectLifecycleState = project.projectLifecycleState ?? {
+      status: 'planning',
+      stage: 1,
+    }
+
+    // Build updated lifecycle state, preserving existing values
+    const updatedLifecycle: ProjectLifecycleState = {
+      ...currentLifecycle,
+      // Only update fields that were provided
+      ...(params.stage !== undefined && { stage: params.stage }),
+      ...(params.status !== undefined && { status: params.status }),
+      ...(params.archetype !== undefined && { archetype: params.archetype as any }),
+      ...(params.scale !== undefined && { scale: params.scale as any }),
+      ...(params.complexity !== undefined && { complexity: params.complexity as any }),
+      ...(params.urgency !== undefined && { urgency: params.urgency as any }),
+      ...(params.importance !== undefined && { importance: params.importance as any }),
+      ...(params.objectives !== undefined && { objectives: params.objectives }),
+      ...(params.deadline !== undefined && { deadline: params.deadline }),
+      ...(params.estimatedDuration !== undefined && { estimatedDuration: params.estimatedDuration }),
+      ...(params.stream !== undefined && { stream: params.stream as any }),
+      ...(params.priority !== undefined && { priority: params.priority }),
+    }
+
+    const now = new Date()
+
+    store.commit(
+      events.projectLifecycleUpdated({
+        projectId: params.projectId,
+        lifecycleState: updatedLifecycle,
+        updatedAt: now,
+        actorId,
+      })
+    )
+
+    return { success: true }
+  } catch (error) {
+    logger.error({ error }, 'Error updating project lifecycle')
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
+}
+
 // Export wrapped versions for external use
 export const createProject = (store: Store, params: any, actorId?: string) =>
   wrapToolFunction((store: Store, params: any) => createProjectCore(store, params, actorId))(
@@ -287,6 +403,11 @@ export const archiveProject = (store: Store, params: any, actorId?: string) =>
   )
 export const unarchiveProject = (store: Store, params: any, actorId?: string) =>
   wrapToolFunction((store: Store, params: any) => unarchiveProjectCore(store, params, actorId))(
+    store,
+    params
+  )
+export const updateProjectLifecycle = (store: Store, params: any, actorId?: string) =>
+  wrapToolFunction((store: Store, params: any) => updateProjectLifecycleCore(store, params, actorId))(
     store,
     params
   )

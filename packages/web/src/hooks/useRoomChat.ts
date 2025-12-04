@@ -47,6 +47,26 @@ export const useRoomChat = (room: StaticRoomDefinition | null) => {
     setMessageText('')
   }, [conversation, isReady, messageText, navigationContext, room, store])
 
+  // Send a message directly without going through state
+  const sendDirectMessage = React.useCallback(
+    (message: string) => {
+      if (!isReady || !room || !message.trim()) return false
+
+      store.commit(
+        events.chatMessageSent({
+          id: generateMessageId(),
+          conversationId: conversation!.id,
+          message: message.trim(),
+          role: 'user',
+          navigationContext: navigationContext ? JSON.stringify(navigationContext) : undefined,
+          createdAt: new Date(),
+        })
+      )
+      return true
+    },
+    [conversation, isReady, navigationContext, room, store]
+  )
+
   return {
     worker,
     conversation,
@@ -58,5 +78,6 @@ export const useRoomChat = (room: StaticRoomDefinition | null) => {
     messageText,
     setMessageText,
     sendMessage: handleSend,
+    sendDirectMessage,
   }
 }

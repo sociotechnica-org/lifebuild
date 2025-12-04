@@ -187,6 +187,30 @@ export const llmToolSchemas = [
     required: ['projectId'],
   }),
 
+  toolDef(
+    'update_project_lifecycle',
+    'Update a project\'s planning stage, status, or planning attributes. Use this to advance projects through planning stages (1=Identifying, 2=Scoping, 3=Drafting, 4=Prioritizing) or update archetype, scale, complexity, etc.',
+    {
+      type: 'object',
+      properties: {
+        projectId: requiredString('The ID of the project to update'),
+        stage: optionalNumber('Planning stage: 1 (Identifying), 2 (Scoping), 3 (Drafting), or 4 (Prioritizing)'),
+        status: optionalString('Project status: "planning", "backlog", "active", or "completed"'),
+        archetype: optionalString('Project archetype: "quicktask", "discovery", "critical", "maintenance", "systembuild", or "initiative"'),
+        scale: optionalString('Project scale: "micro", "minor", "major", or "epic"'),
+        complexity: optionalString('Project complexity: "simple", "complicated", "complex", or "chaotic"'),
+        urgency: optionalString('Urgency level: "low", "normal", "high", or "critical"'),
+        importance: optionalString('Importance level: "low", "normal", "high", or "critical"'),
+        objectives: optionalString('Project objectives/goals'),
+        deadline: optionalNumber('Deadline as Unix timestamp in milliseconds'),
+        estimatedDuration: optionalNumber('Estimated duration in hours'),
+        stream: optionalString('Stream assignment: "gold", "silver", or "bronze"'),
+        priority: optionalNumber('Priority number (lower = higher priority)'),
+      },
+      required: ['projectId'],
+    }
+  ),
+
   // Document Management Tools
   toolDef(
     'list_documents',

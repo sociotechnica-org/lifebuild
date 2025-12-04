@@ -1,13 +1,9 @@
 /* Drafting Room Styles */
 
 .drafting-room {
-  padding: 0 1.5rem 1.5rem;
-  /* Break out of parent max-width constraint */
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-bottom: 1.5rem;
   box-sizing: border-box;
+  max-width: 100%;
 }
 
 /* Header */
@@ -32,10 +28,14 @@
 
 /* Filter Bar */
 .drafting-room-filters {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
   margin-bottom: 1rem;
+}
+
+.drafting-room-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .drafting-room-category-filters {
@@ -45,19 +45,12 @@
   gap: 0.5rem;
 }
 
-.drafting-room-filter-label {
-  color: var(--muted);
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-right: 0.25rem;
-}
-
 .drafting-room-category-pill {
-  padding: 0.4rem 0.85rem;
+  padding: 0.25rem 0.6rem;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: #fff;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--ink);
   cursor: pointer;
@@ -68,7 +61,8 @@
 }
 
 .drafting-room-category-pill:hover {
-  border-color: var(--muted);
+  border-color: var(--pill-color, var(--muted));
+  color: var(--pill-color, var(--ink));
 }
 
 .drafting-room-category-pill.active {
@@ -77,26 +71,20 @@
   color: #fff;
 }
 
-.drafting-room-tier-filters {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .drafting-room-tier-select {
-  padding: 0.4rem 0.75rem;
-  padding-right: 2rem;
+  padding: 0.3rem 0.6rem;
+  padding-right: 1.75rem;
   border-radius: 0.5rem;
   border: 1px solid var(--border);
   background: #fff;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--ink);
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b8680' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%238b8680' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.6rem center;
+  background-position: right 0.5rem center;
 }
 
 .drafting-room-tier-select:focus {
@@ -104,28 +92,78 @@
   border-color: var(--muted);
 }
 
+/* Filter status row (shown when filters are active) */
+.drafting-room-filter-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
 .drafting-room-filter-count {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: var(--muted);
   font-weight: 500;
 }
 
 .drafting-room-clear-filters {
-  padding: 0.4rem 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--border);
-  background: #fff;
-  font-size: 0.875rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.375rem;
+  border: none;
+  background: transparent;
+  font-size: 0.8rem;
   color: var(--muted);
   cursor: pointer;
-  transition:
-    border-color 160ms ease,
-    color 160ms ease;
+  text-decoration: underline;
+  transition: color 160ms ease;
 }
 
 .drafting-room-clear-filters:hover {
-  border-color: var(--muted);
   color: var(--ink);
+}
+
+/* New Project button in header (aligned right) */
+.drafting-room-new-project-btn-header {
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.drafting-room-new-project-btn-header:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+/* Empty state new project link */
+.drafting-room-empty-new-project {
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.drafting-room-empty-new-project:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+  background: rgba(0, 0, 0, 0.02);
 }
 
 /* Stale Projects Banner */
@@ -330,30 +368,4 @@
 
 .planning-queue-card-btn.secondary:hover {
   border-color: var(--muted);
-}
-
-/* Footer */
-.drafting-room-footer {
-  margin-top: 1rem;
-}
-
-.drafting-room-new-project-btn {
-  width: 100%;
-  padding: 1rem;
-  background: var(--ink);
-  color: #fff;
-  border: none;
-  border-radius: 0.75rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-  transition:
-    transform 140ms ease,
-    box-shadow 140ms ease;
-}
-
-.drafting-room-new-project-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
 }
