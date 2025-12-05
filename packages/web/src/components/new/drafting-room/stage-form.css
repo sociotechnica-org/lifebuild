@@ -464,3 +464,28 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* Ask Marvin Button */
+.stage-form-ask-marvin-btn {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #f5f3f0 0%, #e8e4de 100%);
+  border: 1px dashed var(--border);
+  border-radius: 0.75rem;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 120ms ease;
+}
+
+.stage-form-ask-marvin-btn:hover {
+  background: linear-gradient(135deg, #fff 0%, #f5f3f0 100%);
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}

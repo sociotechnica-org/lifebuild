@@ -12,6 +12,7 @@ import {
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
+import { useRoomChatControl } from '../layout/RoomLayout.js'
 import './stage-form.css'
 
 export const Stage3Form: React.FC = () => {
@@ -19,6 +20,7 @@ export const Stage3Form: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>()
   const { store } = useStore()
   const { user } = useAuth()
+  const { openChat, sendDirectMessage } = useRoomChatControl()
 
   // Load existing project
   const projectResults = useQuery(getProjectById$(projectId ?? ''))
@@ -289,6 +291,29 @@ export const Stage3Form: React.FC = () => {
                 Add
               </button>
             </div>
+
+            {/* Ask Marvin button */}
+            <button
+              type='button'
+              className='stage-form-ask-marvin-btn'
+              onClick={() => {
+                const existingTasks = tasks.map(t => t.title).join(', ')
+
+                let message = `Please help me draft a task list for this project.`
+                if (existingTasks) {
+                  message += ` I already have these tasks: ${existingTasks}.`
+                }
+                message += ` Please suggest additional tasks to complete this project. Ask me clarifying questions if you need more context about the project scope or goals.`
+
+                // Open the chat panel
+                openChat()
+
+                // Send the message with navigation context attached
+                sendDirectMessage(message)
+              }}
+            >
+              ✨ Ask Marvin to draft tasks
+            </button>
           </div>
         </div>
 

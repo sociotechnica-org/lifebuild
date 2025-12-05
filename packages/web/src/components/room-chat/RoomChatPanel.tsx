@@ -51,7 +51,7 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   return (
     <div
       data-testid='room-chat-panel'
-      className='flex h-full flex-col gap-4 overflow-hidden rounded border border-gray-200 bg-white p-4 text-sm'
+      className='flex h-full flex-col gap-4 overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 text-sm'
     >
       <header className='border-b border-gray-200 pb-3'>
         <h2 className='text-lg font-semibold text-gray-900'>{workerName}</h2>

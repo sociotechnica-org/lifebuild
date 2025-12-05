@@ -187,6 +187,36 @@ export const llmToolSchemas = [
     required: ['projectId'],
   }),
 
+  toolDef(
+    'update_project_lifecycle',
+    "Update a project's planning stage, status, or planning attributes. Use this to advance projects through planning stages (1=Identifying, 2=Scoping, 3=Drafting, 4=Prioritizing) or update archetype, scale, complexity, etc.",
+    {
+      type: 'object',
+      properties: {
+        projectId: requiredString('The ID of the project to update'),
+        stage: optionalNumber(
+          'Planning stage: 1 (Identifying), 2 (Scoping), 3 (Drafting), or 4 (Prioritizing)'
+        ),
+        status: optionalString('Project status: "planning", "backlog", "active", or "completed"'),
+        archetype: optionalString(
+          'Project archetype: "quicktask", "discovery", "critical", "maintenance", "systembuild", or "initiative"'
+        ),
+        scale: optionalString('Project scale: "micro", "minor", "major", or "epic"'),
+        complexity: optionalString(
+          'Project complexity: "simple", "complicated", "complex", or "chaotic"'
+        ),
+        urgency: optionalString('Urgency level: "low", "normal", "high", or "critical"'),
+        importance: optionalString('Importance level: "low", "normal", "high", or "critical"'),
+        objectives: optionalString('Project objectives/goals'),
+        deadline: optionalNumber('Deadline as Unix timestamp in milliseconds'),
+        estimatedDuration: optionalNumber('Estimated duration in hours'),
+        stream: optionalString('Stream assignment: "gold", "silver", or "bronze"'),
+        priority: optionalNumber('Priority number (lower = higher priority)'),
+      },
+      required: ['projectId'],
+    }
+  ),
+
   // Document Management Tools
   toolDef(
     'list_documents',
@@ -498,5 +528,107 @@ export const llmToolSchemas = [
       workerId: requiredString('The ID of the worker to get projects for'),
     },
     required: ['workerId'],
+  }),
+
+  // ===== TABLE MANAGEMENT TOOLS (Sorting Room) =====
+
+  toolDef(
+    'get_table_configuration',
+    'Get the current table configuration including Gold/Silver project assignments and Bronze mode settings',
+    {
+      type: 'object',
+      properties: {},
+      required: [],
+    }
+  ),
+
+  toolDef(
+    'assign_table_gold',
+    'Assign a project to the Gold slot on the table. Only one Gold project can be active at a time.',
+    {
+      type: 'object',
+      properties: {
+        projectId: requiredString('The ID of the project to assign to the Gold slot'),
+      },
+      required: ['projectId'],
+    }
+  ),
+
+  toolDef('clear_table_gold', 'Remove the current project from the Gold slot', {
+    type: 'object',
+    properties: {},
+    required: [],
+  }),
+
+  toolDef(
+    'assign_table_silver',
+    'Assign a project to the Silver slot on the table. Only one Silver project can be active at a time.',
+    {
+      type: 'object',
+      properties: {
+        projectId: requiredString('The ID of the project to assign to the Silver slot'),
+      },
+      required: ['projectId'],
+    }
+  ),
+
+  toolDef('clear_table_silver', 'Remove the current project from the Silver slot', {
+    type: 'object',
+    properties: {},
+    required: [],
+  }),
+
+  toolDef(
+    'update_bronze_mode',
+    'Update the Bronze mode setting. Minimal = only required tasks, Target = minimal + X extra tasks, Maximal = fill table with tasks.',
+    {
+      type: 'object',
+      properties: {
+        bronzeMode: {
+          type: 'string',
+          enum: ['minimal', 'target', 'maximal'],
+          description: 'The bronze mode to set',
+        },
+        bronzeTargetExtra: optionalNumber(
+          'Number of extra tasks to add when in "target" mode (only used when bronzeMode is "target")'
+        ),
+      },
+      required: ['bronzeMode'],
+    }
+  ),
+
+  toolDef('add_bronze_task', 'Add a task to the bronze stack on the table', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('The ID of the task to add to the bronze stack'),
+    },
+    required: ['taskId'],
+  }),
+
+  toolDef('remove_bronze_task', 'Remove a task entry from the bronze stack', {
+    type: 'object',
+    properties: {
+      entryId: requiredString('The ID of the bronze stack entry to remove'),
+    },
+    required: ['entryId'],
+  }),
+
+  toolDef('reorder_bronze_stack', 'Reorder the entire bronze stack', {
+    type: 'object',
+    properties: {
+      ordering: {
+        type: 'array',
+        description: 'Array of entry IDs with their new positions',
+        items: {
+          type: 'object',
+          properties: {
+            id: requiredString('The bronze stack entry ID'),
+            position: { type: 'number', description: 'The new position (0-indexed)' },
+          },
+          required: ['id', 'position'],
+        },
+      },
+    },
+    required: ['ordering'],
   }),
 ]

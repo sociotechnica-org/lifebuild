@@ -43,7 +43,7 @@ import { Stage1Form } from './components/new/drafting-room/Stage1Form.js'
 import { Stage2Form } from './components/new/drafting-room/Stage2Form.js'
 import { Stage3Form } from './components/new/drafting-room/Stage3Form.js'
 import { SortingRoom } from './components/new/sorting-room/SortingRoom.js'
-import { LIFE_MAP_ROOM } from '@work-squared/shared/rooms'
+import { LIFE_MAP_ROOM, DRAFTING_ROOM, SORTING_ROOM } from '@work-squared/shared/rooms'
 
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
@@ -164,9 +164,9 @@ const ProtectedApp: React.FC = () => {
                       path={ROUTES.DRAFTING_ROOM}
                       element={
                         <ErrorBoundary>
-                          <NewUiShell>
+                          <RoomLayout room={DRAFTING_ROOM}>
                             <DraftingRoom />
-                          </NewUiShell>
+                          </RoomLayout>
                         </ErrorBoundary>
                       }
                     />
@@ -174,9 +174,9 @@ const ProtectedApp: React.FC = () => {
                       path={ROUTES.PROJECT_CREATE}
                       element={
                         <ErrorBoundary>
-                          <NewUiShell>
+                          <RoomLayout room={DRAFTING_ROOM}>
                             <Stage1Form />
-                          </NewUiShell>
+                          </RoomLayout>
                         </ErrorBoundary>
                       }
                     />
@@ -184,9 +184,9 @@ const ProtectedApp: React.FC = () => {
                       path={ROUTES.PROJECT_STAGE1}
                       element={
                         <ErrorBoundary>
-                          <NewUiShell>
+                          <RoomLayout room={DRAFTING_ROOM}>
                             <Stage1Form />
-                          </NewUiShell>
+                          </RoomLayout>
                         </ErrorBoundary>
                       }
                     />
@@ -194,9 +194,9 @@ const ProtectedApp: React.FC = () => {
                       path={ROUTES.PROJECT_STAGE2}
                       element={
                         <ErrorBoundary>
-                          <NewUiShell>
+                          <RoomLayout room={DRAFTING_ROOM}>
                             <Stage2Form />
-                          </NewUiShell>
+                          </RoomLayout>
                         </ErrorBoundary>
                       }
                     />
@@ -204,9 +204,9 @@ const ProtectedApp: React.FC = () => {
                       path={ROUTES.PROJECT_STAGE3}
                       element={
                         <ErrorBoundary>
-                          <NewUiShell>
+                          <RoomLayout room={DRAFTING_ROOM}>
                             <Stage3Form />
-                          </NewUiShell>
+                          </RoomLayout>
                         </ErrorBoundary>
                       }
                     />
@@ -214,9 +214,9 @@ const ProtectedApp: React.FC = () => {
                       path={ROUTES.SORTING_ROOM}
                       element={
                         <ErrorBoundary>
-                          <NewUiShell>
+                          <RoomLayout room={SORTING_ROOM}>
                             <SortingRoom />
-                          </NewUiShell>
+                          </RoomLayout>
                         </ErrorBoundary>
                       }
                     />

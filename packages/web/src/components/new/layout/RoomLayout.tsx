@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { createContext, useContext, useCallback } from 'react'
 import type { StaticRoomDefinition } from '@work-squared/shared/rooms'
 import { NewUiShell } from './NewUiShell.js'
 import { RoomChatPanel } from '../../room-chat/RoomChatPanel.js'
@@ -8,6 +8,24 @@ import { usePostHog } from '../../../lib/analytics.js'
 type RoomLayoutProps = {
   room: StaticRoomDefinition
   children: React.ReactNode
+}
+
+// Context for child components to control the chat
+type RoomChatContextValue = {
+  openChat: () => void
+  isChatOpen: boolean
+  conversationId: string | null
+  sendDirectMessage: (message: string) => boolean
+}
+
+const RoomChatContext = createContext<RoomChatContextValue | null>(null)
+
+export const useRoomChatControl = () => {
+  const context = useContext(RoomChatContext)
+  if (!context) {
+    throw new Error('useRoomChatControl must be used within a RoomLayout')
+  }
+  return context
 }
 
 const usePersistentChatToggle = (roomId: string) => {
@@ -22,12 +40,8 @@ const usePersistentChatToggle = (roomId: string) => {
     window.localStorage.setItem(storageKey, String(isOpen))
   }, [storageKey, isOpen])
 
-  React.useEffect(() => {
-    return () => {
-      if (typeof window === 'undefined') return
-      window.localStorage.setItem(storageKey, 'false')
-    }
-  }, [storageKey])
+  // Note: We intentionally don't reset to 'false' on unmount
+  // so that chat state persists across page transitions within the same room
 
   return [isOpen, setIsOpen] as const
 }
@@ -53,28 +67,39 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children }) => {
     previousOpenRef.current = isChatOpen
   }, [isChatOpen, posthog, room.roomId, room.roomKind])
 
+  const openChat = useCallback(() => {
+    setIsChatOpen(true)
+  }, [setIsChatOpen])
+
+  const chatContextValue: RoomChatContextValue = {
+    openChat,
+    isChatOpen,
+    conversationId: chat.conversation?.id ?? null,
+    sendDirectMessage: chat.sendDirectMessage,
+  }
+
   return (
-    <NewUiShell isChatOpen={isChatOpen} onChatToggle={() => setIsChatOpen(open => !open)}>
-      <div className='flex items-start gap-6'>
-        <div className='flex-1 min-w-0'>{children}</div>
+    <RoomChatContext.Provider value={chatContextValue}>
+      <NewUiShell isChatOpen={isChatOpen} onChatToggle={() => setIsChatOpen(open => !open)}>
+        <div className={`flex gap-4 ${isChatOpen ? 'mr-[25rem]' : ''}`}>
+          <div className='flex-1 min-w-0'>{children}</div>
+        </div>
         {isChatOpen && (
-          <div className='sticky top-4 w-96 flex-shrink-0'>
-            <div className='h-[calc(100vh-10rem)]'>
-              <RoomChatPanel
-                worker={chat.worker}
-                conversation={chat.conversation}
-                messages={chat.messages}
-                isProcessing={chat.isProcessing}
-                messageText={chat.messageText}
-                onMessageTextChange={chat.setMessageText}
-                onSendMessage={chat.sendMessage}
-                isReadOnly={chat.isConversationArchived || chat.isWorkerInactive}
-                statusMessage={disabledReason}
-              />
-            </div>
+          <div className='fixed right-4 top-[86px] bottom-[156px] w-96'>
+            <RoomChatPanel
+              worker={chat.worker}
+              conversation={chat.conversation}
+              messages={chat.messages}
+              isProcessing={chat.isProcessing}
+              messageText={chat.messageText}
+              onMessageTextChange={chat.setMessageText}
+              onSendMessage={chat.sendMessage}
+              isReadOnly={chat.isConversationArchived || chat.isWorkerInactive}
+              statusMessage={disabledReason}
+            />
           </div>
         )}
-      </div>
-    </NewUiShell>
+      </NewUiShell>
+    </RoomChatContext.Provider>
   )
 }
