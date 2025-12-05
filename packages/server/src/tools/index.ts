@@ -45,6 +45,7 @@ export async function executeLLMTool(
     listProjects,
     getProjectDetails,
     updateProject,
+    updateProjectLifecycle,
     archiveProject,
     unarchiveProject,
   } = await import('./projects.js')
@@ -92,6 +93,18 @@ export async function executeLLMTool(
     getWorkerProjects,
   } = await import('./workers.js')
 
+  const {
+    assignTableGold,
+    clearTableGold,
+    assignTableSilver,
+    clearTableSilver,
+    updateBronzeMode,
+    addBronzeTask,
+    removeBronzeTask,
+    reorderBronzeStack,
+    getTableConfiguration,
+  } = await import('./table.js')
+
   switch (toolCall.name) {
     case 'create_task':
       return createTask(store, toolCall.parameters)
@@ -137,6 +150,9 @@ export async function executeLLMTool(
 
     case 'unarchive_project':
       return unarchiveProject(store, toolCall.parameters, workerId)
+
+    case 'update_project_lifecycle':
+      return updateProjectLifecycle(store, toolCall.parameters, workerId)
 
     case 'list_documents':
       return listDocuments(store)
@@ -244,6 +260,34 @@ export async function executeLLMTool(
 
     case 'get_worker_projects':
       return getWorkerProjects(store, toolCall.parameters.workerId)
+
+    // Table management tools (Sorting Room)
+    case 'get_table_configuration':
+      return getTableConfiguration(store, toolCall.parameters, workerId)
+
+    case 'assign_table_gold':
+      return assignTableGold(store, toolCall.parameters, workerId)
+
+    case 'clear_table_gold':
+      return clearTableGold(store, toolCall.parameters, workerId)
+
+    case 'assign_table_silver':
+      return assignTableSilver(store, toolCall.parameters, workerId)
+
+    case 'clear_table_silver':
+      return clearTableSilver(store, toolCall.parameters, workerId)
+
+    case 'update_bronze_mode':
+      return updateBronzeMode(store, toolCall.parameters, workerId)
+
+    case 'add_bronze_task':
+      return addBronzeTask(store, toolCall.parameters, workerId)
+
+    case 'remove_bronze_task':
+      return removeBronzeTask(store, toolCall.parameters, workerId)
+
+    case 'reorder_bronze_stack':
+      return reorderBronzeStack(store, toolCall.parameters, workerId)
 
     default:
       throw new Error(`Unknown tool: ${toolCall.name}`)

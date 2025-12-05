@@ -240,33 +240,36 @@ export const DraftingRoom: React.FC = () => {
     }
   }
 
+  const stage1Projects = projectsByStage[1] ?? []
+  const isIdentifyingEmpty = stage1Projects.length === 0
+
   return (
     <div className='drafting-room'>
       {/* Filter Bar */}
       <div className='drafting-room-filters'>
-        {/* Category Pills */}
-        <div className='drafting-room-category-filters'>
-          <span className='drafting-room-filter-label'>Category:</span>
-          {CATEGORY_FILTERS.map(cat => (
-            <button
-              key={cat.value}
-              type='button'
-              className={`drafting-room-category-pill ${categoryFilter === cat.value ? 'active' : ''}`}
-              style={
-                categoryFilter === cat.value && cat.colorHex
-                  ? { backgroundColor: cat.colorHex, borderColor: cat.colorHex, color: '#fff' }
-                  : undefined
-              }
-              onClick={() => setCategoryFilter(cat.value)}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
+        {/* Category Pills + Tier Dropdown + New Project on same row */}
+        <div className='drafting-room-filter-row'>
+          <div className='drafting-room-category-filters'>
+            {CATEGORY_FILTERS.map(cat => (
+              <button
+                key={cat.value}
+                type='button'
+                className={`drafting-room-category-pill ${categoryFilter === cat.value ? 'active' : ''}`}
+                style={
+                  {
+                    '--pill-color': cat.colorHex || 'var(--ink)',
+                    ...(categoryFilter === cat.value && cat.colorHex
+                      ? { backgroundColor: cat.colorHex, borderColor: cat.colorHex, color: '#fff' }
+                      : {}),
+                  } as React.CSSProperties
+                }
+                onClick={() => setCategoryFilter(cat.value)}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
 
-        {/* Tier Dropdown + Clear Filters */}
-        <div className='drafting-room-tier-filters'>
-          <span className='drafting-room-filter-label'>Tier:</span>
           <select
             className='drafting-room-tier-select'
             value={tierFilter}
@@ -279,17 +282,27 @@ export const DraftingRoom: React.FC = () => {
             ))}
           </select>
 
-          {hasActiveFilters && (
-            <>
-              <span className='drafting-room-filter-count'>
-                {filteredProjects.length} of {planningProjects.length} projects
-              </span>
-              <button type='button' className='drafting-room-clear-filters' onClick={clearFilters}>
-                Clear Filters
-              </button>
-            </>
-          )}
+          {/* New Project button - always right-aligned */}
+          <button
+            type='button'
+            className='drafting-room-new-project-btn-header'
+            onClick={() => navigate(generateRoute.projectCreate())}
+          >
+            + New Project
+          </button>
         </div>
+
+        {/* Filter status on separate line */}
+        {hasActiveFilters && (
+          <div className='drafting-room-filter-status'>
+            <span className='drafting-room-filter-count'>
+              Showing {filteredProjects.length} of {planningProjects.length} projects
+            </span>
+            <button type='button' className='drafting-room-clear-filters' onClick={clearFilters}>
+              Clear filters
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Stale Projects Banner */}
@@ -303,13 +316,25 @@ export const DraftingRoom: React.FC = () => {
       <div className='drafting-room-stages'>
         {STAGES.map(({ stage, name, emptyMessage }) => {
           const stageProjects = projectsByStage[stage] ?? []
+          const showNewProjectLink = stage === 1 && isIdentifyingEmpty
           return (
             <StageColumn
               key={stage}
               stage={stage}
               stageName={name}
               projectCount={stageProjects.length}
-              emptyMessage={emptyMessage}
+              emptyMessage={showNewProjectLink ? undefined : emptyMessage}
+              emptyAction={
+                showNewProjectLink ? (
+                  <button
+                    type='button'
+                    className='drafting-room-empty-new-project'
+                    onClick={() => navigate(generateRoute.projectCreate())}
+                  >
+                    + Start a new project
+                  </button>
+                ) : undefined
+              }
             >
               {stageProjects.map(project => {
                 const lifecycle = getLifecycleState(project)
@@ -329,17 +354,6 @@ export const DraftingRoom: React.FC = () => {
             </StageColumn>
           )
         })}
-      </div>
-
-      {/* Start New Project Button */}
-      <div className='drafting-room-footer'>
-        <button
-          type='button'
-          className='drafting-room-new-project-btn'
-          onClick={() => navigate(generateRoute.projectCreate())}
-        >
-          + Start New Project
-        </button>
       </div>
     </div>
   )

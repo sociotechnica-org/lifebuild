@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import { useQuery } from '@livestore/react'
+import { Link } from 'react-router-dom'
 import {
   getProjectsByCategory$,
   getAllWorkerProjects$,
@@ -9,6 +10,7 @@ import {
 } from '@work-squared/shared/queries'
 import { PROJECT_CATEGORIES, resolveLifecycleState } from '@work-squared/shared'
 import { CategoryCard } from './CategoryCard.js'
+import { generateRoute } from '../../../constants/routes.js'
 
 /**
  * Life Map - The overview of all eight life categories
@@ -130,14 +132,31 @@ export const LifeMap: React.FC = () => {
     return completionMap
   }, [allTasks])
 
+  // Check if there are any categories with projects
+  const categoriesWithProjects = PROJECT_CATEGORIES.filter(category => {
+    const projects = categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
+    return projects.length > 0
+  })
+
+  const hasNoProjects = categoriesWithProjects.length === 0
+
+  if (hasNoProjects) {
+    return (
+      <div className='flex min-h-[calc(100vh-300px)] items-center justify-center'>
+        <div className='text-center'>
+          <p className='mb-4 text-lg text-gray-500'>No projects yet</p>
+          <Link to={generateRoute.draftingRoom()} className='new-ui-btn'>
+            Go to Drafting Room to create projects
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className='new-ui-card'>
       <div className='new-ui-category-grid'>
-        {PROJECT_CATEGORIES.filter(category => {
-          const projects =
-            categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
-          return projects.length > 0
-        }).map(category => {
+        {categoriesWithProjects.map(category => {
           const projects =
             categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
           const workers = categoryWorkersMap[category.value] || 0
