@@ -64,6 +64,16 @@ const TIER_LABELS: Record<ProjectTier, string> = {
   bronze: 'Bronze',
 }
 
+const getTierClassName = (tier: ProjectTier | null): string => {
+  if (!tier) return ''
+  const tierColors: Record<ProjectTier, string> = {
+    gold: 'text-[#d8a650]',
+    silver: 'text-[#c5ced8]',
+    bronze: 'text-[#c48b5a]',
+  }
+  return tierColors[tier]
+}
+
 export const PlanningQueueCard: React.FC<PlanningQueueCardProps> = ({
   project,
   stage,
@@ -83,35 +93,47 @@ export const PlanningQueueCard: React.FC<PlanningQueueCardProps> = ({
     .join(' · ')
 
   return (
-    <div className='planning-queue-card' style={{ borderLeftColor: categoryColor }}>
-      <div className='planning-queue-card-header'>
-        <span className='planning-queue-card-category' style={{ backgroundColor: categoryColor }}>
+    <div
+      className='border border-[#e8e4de] rounded-xl p-3 bg-white border-l-[3px]'
+      style={{ borderLeftColor: categoryColor }}
+    >
+      <div className='flex items-center justify-between mb-1.5'>
+        <span
+          className='text-[10px] font-semibold tracking-wide text-white py-0.5 px-1.5 rounded'
+          style={{ backgroundColor: categoryColor }}
+        >
           {categoryLabel}
         </span>
-        <span className='planning-queue-card-time'>
-          <span className='planning-queue-card-time-icon'>⏱</span>
+        <span className='text-[11px] text-[#8b8680] flex items-center gap-1'>
+          <span className='text-[10px]'>⏱</span>
           {formatCompactRelativeTime(project.updatedAt)}
         </span>
       </div>
 
-      <h3 className='planning-queue-card-title'>{project.name}</h3>
+      <h3 className='font-semibold text-[#2f2b27] text-sm mb-2 leading-snug'>{project.name}</h3>
 
       {(statsLine || isStale) && (
-        <div className='planning-queue-card-stats'>
+        <div className='flex items-center gap-2 mb-2 text-xs'>
           {statsLine && (
-            <span className={`planning-queue-card-tier${tier ? ` tier-${tier}` : ''}`}>
-              {statsLine}
-            </span>
+            <span className={`font-medium ${getTierClassName(tier)}`}>{statsLine}</span>
           )}
-          {isStale && <span className='planning-queue-card-stale'>⚠️</span>}
+          {isStale && <span>⚠️</span>}
         </div>
       )}
 
-      <div className='planning-queue-card-actions'>
-        <button type='button' className='planning-queue-card-btn primary' onClick={onResume}>
+      <div className='flex gap-2'>
+        <button
+          type='button'
+          className='flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold bg-[#2f2b27] text-[#faf9f7] cursor-pointer border-none transition-all duration-200 hover:bg-[#4a4540]'
+          onClick={onResume}
+        >
           {getActionLabel(stage)}
         </button>
-        <button type='button' className='planning-queue-card-btn secondary' onClick={onAbandon}>
+        <button
+          type='button'
+          className='flex-1 py-1.5 px-3 rounded-lg text-xs font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-200 hover:border-[#d0ccc5] hover:text-[#2f2b27]'
+          onClick={onAbandon}
+        >
           Abandon
         </button>
       </div>

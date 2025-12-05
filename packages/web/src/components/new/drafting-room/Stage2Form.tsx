@@ -15,7 +15,6 @@ import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { type ProjectTier } from './DraftingRoom.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
-import './stage-form.css'
 
 const ARCHETYPES: { value: ProjectArchetype; label: string; description: string }[] = [
   { value: 'quicktask', label: 'Quick Task', description: 'One-shot, minimal planning' },
@@ -208,8 +207,8 @@ export const Stage2Form: React.FC = () => {
 
   if (!project) {
     return (
-      <div className='stage-form'>
-        <div className='stage-form-card'>
+      <div className='flex items-start justify-center min-h-[calc(100vh-200px)] py-8'>
+        <div className='bg-white rounded-2xl border border-[#e8e4de] shadow-sm p-6 w-full max-w-2xl'>
           <p>Project not found</p>
         </div>
       </div>
@@ -217,8 +216,8 @@ export const Stage2Form: React.FC = () => {
   }
 
   return (
-    <div className='stage-form'>
-      <div className='stage-form-card stage-form-card-wide'>
+    <div className='flex items-start justify-center min-h-[calc(100vh-200px)] py-8'>
+      <div className='bg-white rounded-2xl border border-[#e8e4de] shadow-sm p-6 w-full max-w-2xl'>
         {/* Wizard Navigation */}
         {projectId && (
           <StageWizard
@@ -230,11 +229,13 @@ export const Stage2Form: React.FC = () => {
 
         {/* Project Title and Category */}
         {project && (
-          <div className='stage-form-project-header'>
-            <div className='stage-form-project-title'>{project.name || 'Untitled Project'}</div>
+          <div className='flex items-center gap-2 mb-4'>
+            <div className='font-semibold text-lg text-[#2f2b27]'>
+              {project.name || 'Untitled Project'}
+            </div>
             {project.category && getCategoryInfo(project.category as ProjectCategory) && (
               <span
-                className='stage-form-category-badge'
+                className='text-[10px] font-semibold tracking-wide text-white py-0.5 px-1.5 rounded'
                 style={{
                   backgroundColor: getCategoryInfo(project.category as ProjectCategory)!.colorHex,
                 }}
@@ -246,21 +247,23 @@ export const Stage2Form: React.FC = () => {
         )}
 
         {/* Header */}
-        <div className='stage-form-header'>
-          <h1 className='stage-form-title'>Stage 2: Scoping</h1>
-          <p className='stage-form-subtitle'>Define what success looks like - 10 minutes</p>
+        <div className='mb-6'>
+          <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27] mb-1">
+            Stage 2: Scoping
+          </h1>
+          <p className='text-sm text-[#8b8680]'>Define what success looks like - 10 minutes</p>
         </div>
 
         {/* Form Fields */}
-        <div className='stage-form-fields'>
+        <div className='flex flex-col gap-5'>
           {/* Objectives */}
-          <div className='stage-form-field'>
-            <label className='stage-form-label'>Objectives</label>
-            <p className='stage-form-hint'>
+          <div>
+            <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>Objectives</label>
+            <p className='text-xs text-[#8b8680] mb-2'>
               What specific outcomes would mean this project succeeded?
             </p>
             <textarea
-              className='stage-form-textarea'
+              className='w-full border border-[#e8e4de] rounded-lg py-2.5 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5] placeholder:text-[#8b8680] resize-y min-h-[80px]'
               placeholder='Describe what success looks like for this project...'
               value={objectives}
               onChange={e => setObjectives(e.target.value)}
@@ -270,11 +273,13 @@ export const Stage2Form: React.FC = () => {
           </div>
 
           {/* Deadline */}
-          <div className='stage-form-field'>
-            <label className='stage-form-label'>Deadline (Optional)</label>
+          <div>
+            <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>
+              Deadline (Optional)
+            </label>
             <input
               type='date'
-              className='stage-form-input'
+              className='w-full border border-[#e8e4de] rounded-lg py-2.5 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5]'
               value={deadline}
               onChange={e => setDeadline(e.target.value)}
               onBlur={() => autoSave()}
@@ -282,33 +287,57 @@ export const Stage2Form: React.FC = () => {
           </div>
 
           {/* Project Archetype */}
-          <div className='stage-form-field'>
-            <label className='stage-form-label'>Project Archetype</label>
-            <div className='stage-form-archetype-list'>
+          <div>
+            <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>
+              Project Archetype
+            </label>
+            <div className='grid grid-cols-2 sm:grid-cols-3 gap-2'>
               {ARCHETYPES.map(arch => (
                 <button
                   key={arch.value}
                   type='button'
-                  className={`stage-form-archetype-card ${archetype === arch.value ? 'active' : ''}`}
+                  className={`p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                    archetype === arch.value
+                      ? 'bg-[#2f2b27] border-[#2f2b27]'
+                      : 'bg-white border-[#e8e4de] hover:border-[#d0ccc5]'
+                  }`}
                   onClick={() => handleArchetypeSelect(arch.value)}
                 >
-                  <span className='stage-form-archetype-label'>{arch.label}</span>
-                  <span className='stage-form-archetype-desc'>{arch.description}</span>
+                  <span
+                    className={`block text-sm font-semibold ${
+                      archetype === arch.value ? 'text-[#faf9f7]' : 'text-[#2f2b27]'
+                    }`}
+                  >
+                    {arch.label}
+                  </span>
+                  <span
+                    className={`block text-xs ${
+                      archetype === arch.value ? 'text-[#d0ccc5]' : 'text-[#8b8680]'
+                    }`}
+                  >
+                    {arch.description}
+                  </span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Project Tier */}
-          <div className='stage-form-field'>
-            <label className='stage-form-label'>Project Tier</label>
-            <p className='stage-form-hint'>Select the priority tier for this project</p>
-            <div className='stage-form-tier-list'>
+          <div>
+            <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>
+              Project Tier
+            </label>
+            <p className='text-xs text-[#8b8680] mb-2'>Select the priority tier for this project</p>
+            <div className='grid grid-cols-3 gap-2'>
               {TIERS.map(t => (
                 <button
                   key={t.value}
                   type='button'
-                  className={`stage-form-tier-card ${tier === t.value ? 'active' : ''}`}
+                  className={`p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                    tier === t.value
+                      ? 'border-2'
+                      : 'bg-white border-[#e8e4de] hover:border-[#d0ccc5]'
+                  }`}
                   style={
                     tier === t.value
                       ? { borderColor: t.color, backgroundColor: `${t.color}15` }
@@ -317,12 +346,12 @@ export const Stage2Form: React.FC = () => {
                   onClick={() => handleTierSelect(t.value)}
                 >
                   <span
-                    className='stage-form-tier-label'
-                    style={tier === t.value ? { color: t.color } : undefined}
+                    className='block text-sm font-semibold'
+                    style={tier === t.value ? { color: t.color } : { color: '#2f2b27' }}
                   >
                     {t.label}
                   </span>
-                  <span className='stage-form-tier-desc'>{t.description}</span>
+                  <span className='block text-xs text-[#8b8680]'>{t.description}</span>
                 </button>
               ))}
             </div>
@@ -330,13 +359,17 @@ export const Stage2Form: React.FC = () => {
         </div>
 
         {/* Footer Actions */}
-        <div className='stage-form-actions'>
-          <button type='button' className='stage-form-btn secondary' onClick={handleExit}>
+        <div className='flex gap-3 mt-6 pt-4 border-t border-[#e8e4de]'>
+          <button
+            type='button'
+            className='flex-1 py-2.5 px-4 rounded-lg text-sm font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-200 hover:border-[#d0ccc5] hover:text-[#2f2b27]'
+            onClick={handleExit}
+          >
             Save & Exit
           </button>
           <button
             type='button'
-            className='stage-form-btn primary'
+            className='flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold bg-[#2f2b27] text-[#faf9f7] cursor-pointer border-none transition-all duration-200 hover:bg-[#4a4540] disabled:opacity-50 disabled:cursor-not-allowed'
             onClick={handleContinue}
             disabled={!isComplete}
           >

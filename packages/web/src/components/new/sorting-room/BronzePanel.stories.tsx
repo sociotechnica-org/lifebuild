@@ -7,7 +7,6 @@ import { Store } from '@livestore/livestore'
 import { events, schema } from '@work-squared/shared/schema'
 import { getProjects$, getAllTasks$, getTableBronzeStack$ } from '@work-squared/shared/queries'
 import { BronzePanel } from './BronzePanel.js'
-import './sorting-room.css'
 
 /**
  * Helper component that fetches data from LiveStore and renders BronzePanel
@@ -34,7 +33,7 @@ const BronzePanelHelper: React.FC = () => {
   const availableTasks = bronzeTasks.filter(t => !tabledTaskIds.has(t.id))
 
   return (
-    <div style={{ width: '600px', padding: '1rem', background: 'var(--cream, #f5f0e8)' }}>
+    <div style={{ width: '600px', padding: '1rem', background: '#faf9f7' }}>
       <BronzePanel
         tabledStack={bronzeStack}
         availableTasks={availableTasks}

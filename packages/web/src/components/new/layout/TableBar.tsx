@@ -39,8 +39,8 @@ export const TableBar: React.FC = () => {
   }, [topBronzeTask, allProjects])
 
   return (
-    <div className='new-ui-table-bar'>
-      <div className='new-ui-table-grid'>
+    <div className='fixed left-0 right-0 bottom-0 bg-white/95 border-t border-[#e8e4de] shadow-[0_-12px_24px_rgba(0,0,0,0.06)] py-3.5 px-6 z-[9]'>
+      <div className='grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3 items-center'>
         <TableSlot
           stream='gold'
           projectId={goldProject?.id}

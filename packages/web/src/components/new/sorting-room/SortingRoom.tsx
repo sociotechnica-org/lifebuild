@@ -14,7 +14,6 @@ import { useTableState } from '../../../hooks/useTableState.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { GoldSilverPanel } from './GoldSilverPanel.js'
 import { BronzePanel } from './BronzePanel.js'
-import './sorting-room.css'
 
 export type Stream = 'gold' | 'silver' | 'bronze'
 
@@ -66,6 +65,15 @@ const CATEGORY_FILTERS: { value: ProjectCategory | 'all'; label: string; colorHe
   { value: 'all', label: 'All' },
   ...PROJECT_CATEGORIES.map(c => ({ value: c.value, label: c.name, colorHex: c.colorHex })),
 ]
+
+const getStreamDotClass = (stream: Stream): string => {
+  const colors: Record<Stream, string> = {
+    gold: 'bg-[#d8a650]',
+    silver: 'bg-[#c5ced8]',
+    bronze: 'bg-[#c48b5a]',
+  }
+  return `w-3 h-3 rounded-full ${colors[stream]}`
+}
 
 export const SortingRoom: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -543,51 +551,64 @@ export const SortingRoom: React.FC = () => {
   }
 
   return (
-    <div className='sorting-room'>
+    <div className='py-4'>
       {/* Category Filter Bar */}
-      <div className='sorting-room-filters'>
-        <div className='sorting-room-category-filters'>
-          <span className='sorting-room-filter-label'>Category:</span>
-          {CATEGORY_FILTERS.map(cat => (
-            <button
-              key={cat.value}
-              type='button'
-              className={`sorting-room-category-pill ${categoryFilter === cat.value ? 'active' : ''}`}
-              style={
-                categoryFilter === cat.value && cat.colorHex
-                  ? { backgroundColor: cat.colorHex, borderColor: cat.colorHex, color: '#fff' }
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
+        <span className='text-xs font-semibold text-[#8b8680]'>Category:</span>
+        {CATEGORY_FILTERS.map(cat => (
+          <button
+            key={cat.value}
+            type='button'
+            className={`py-1 px-2.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer ${
+              categoryFilter === cat.value
+                ? 'text-white'
+                : 'bg-transparent border-[#e8e4de] text-[#8b8680] hover:border-[#d0ccc5] hover:text-[#2f2b27]'
+            }`}
+            style={
+              categoryFilter === cat.value && cat.colorHex
+                ? { backgroundColor: cat.colorHex, borderColor: cat.colorHex, color: '#fff' }
+                : categoryFilter === cat.value
+                  ? { backgroundColor: '#2f2b27', borderColor: '#2f2b27', color: '#fff' }
                   : undefined
-              }
-              onClick={() => setCategoryFilter(cat.value)}
-            >
-              {cat.label}
-            </button>
-          ))}
-          {hasActiveFilters && (
-            <button type='button' className='sorting-room-clear-filters' onClick={clearFilters}>
-              Clear
-            </button>
-          )}
-        </div>
+            }
+            onClick={() => setCategoryFilter(cat.value)}
+          >
+            {cat.label}
+          </button>
+        ))}
+        {hasActiveFilters && (
+          <button
+            type='button'
+            className='text-xs text-[#8b8680] bg-transparent border-none cursor-pointer underline hover:text-[#2f2b27]'
+            onClick={clearFilters}
+          >
+            Clear
+          </button>
+        )}
       </div>
 
-      <div className='sorting-room-tabs'>
+      <div className='flex flex-col gap-2'>
         {streamSummaries.map(summary => (
           <div
             key={summary.stream}
-            className={`sorting-room-tab ${summary.stream} ${expandedStream === summary.stream ? 'expanded' : ''}`}
+            className={`border border-[#e8e4de] rounded-xl bg-white overflow-hidden ${
+              expandedStream === summary.stream ? 'border-[#d0ccc5]' : ''
+            }`}
           >
-            <div className='sorting-room-tab-header' onClick={() => handleTabClick(summary.stream)}>
-              <span className={`sorting-room-stream-dot ${summary.stream}`} />
-              <span className='sorting-room-tab-label'>{summary.label}</span>
-              <span className='sorting-room-tab-count'>
+            <div
+              className='flex items-center gap-3 p-3 cursor-pointer hover:bg-[#faf9f7]'
+              onClick={() => handleTabClick(summary.stream)}
+            >
+              <span className={getStreamDotClass(summary.stream)} />
+              <span className='font-semibold text-sm text-[#2f2b27]'>{summary.label}</span>
+              <span className='text-xs text-[#8b8680]'>
                 {summary.stream === 'bronze'
                   ? `${activeBronzeStack.length} tabled / ${summary.queueCount} available`
                   : `${summary.queueCount} in backlog`}
               </span>
               <button
                 type='button'
-                className='sorting-room-expand-btn'
+                className='ml-auto text-xs py-1 px-2 rounded bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer hover:border-[#d0ccc5] hover:text-[#2f2b27]'
                 onClick={e => {
                   e.stopPropagation()
                   handleTabClick(summary.stream)
@@ -596,18 +617,22 @@ export const SortingRoom: React.FC = () => {
                 {expandedStream === summary.stream ? 'Hide' : 'Expand'}
               </button>
             </div>
-            <div className='sorting-room-tab-summary'>
-              <div className='sorting-room-on-table'>
-                <span className='sorting-room-on-table-label'>ON TABLE</span>
+            <div className='px-3 pb-3 border-t border-[#e8e4de]'>
+              <div className='flex items-center gap-2 pt-2'>
+                <span className='text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide'>
+                  ON TABLE
+                </span>
                 {summary.tabledName ? (
                   <>
-                    <span className='sorting-room-on-table-name'>{summary.tabledName}</span>
+                    <span className='text-sm font-semibold text-[#2f2b27]'>
+                      {summary.tabledName}
+                    </span>
                     {summary.tabledMeta && (
-                      <span className='sorting-room-on-table-meta'>{summary.tabledMeta}</span>
+                      <span className='text-xs text-[#8b8680]'>{summary.tabledMeta}</span>
                     )}
                   </>
                 ) : (
-                  <span className='sorting-room-on-table-empty'>Empty</span>
+                  <span className='text-sm text-[#8b8680]'>Empty</span>
                 )}
               </div>
             </div>
@@ -616,7 +641,7 @@ export const SortingRoom: React.FC = () => {
       </div>
 
       {expandedStream && (
-        <div className={`sorting-room-panel ${expandedStream}`}>
+        <div className='mt-4 bg-white rounded-xl border border-[#e8e4de] p-4'>
           {expandedStream === 'gold' && (
             <GoldSilverPanel
               stream='gold'

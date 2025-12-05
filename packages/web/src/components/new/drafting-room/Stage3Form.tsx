@@ -13,7 +13,6 @@ import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
 import { useRoomChatControl } from '../layout/RoomLayout.js'
-import './stage-form.css'
 
 export const Stage3Form: React.FC = () => {
   const navigate = useNavigate()
@@ -195,8 +194,8 @@ export const Stage3Form: React.FC = () => {
 
   if (!project) {
     return (
-      <div className='stage-form'>
-        <div className='stage-form-card'>
+      <div className='flex items-start justify-center min-h-[calc(100vh-200px)] py-8'>
+        <div className='bg-white rounded-2xl border border-[#e8e4de] shadow-sm p-6 w-full max-w-2xl'>
           <p>Project not found</p>
         </div>
       </div>
@@ -204,8 +203,8 @@ export const Stage3Form: React.FC = () => {
   }
 
   return (
-    <div className='stage-form'>
-      <div className='stage-form-card stage-form-card-wide'>
+    <div className='flex items-start justify-center min-h-[calc(100vh-200px)] py-8'>
+      <div className='bg-white rounded-2xl border border-[#e8e4de] shadow-sm p-6 w-full max-w-2xl'>
         {/* Wizard Navigation */}
         {projectId && (
           <StageWizard
@@ -217,11 +216,13 @@ export const Stage3Form: React.FC = () => {
 
         {/* Project Title and Category */}
         {project && (
-          <div className='stage-form-project-header'>
-            <div className='stage-form-project-title'>{project.name || 'Untitled Project'}</div>
+          <div className='flex items-center gap-2 mb-4'>
+            <div className='font-semibold text-lg text-[#2f2b27]'>
+              {project.name || 'Untitled Project'}
+            </div>
             {project.category && getCategoryInfo(project.category as ProjectCategory) && (
               <span
-                className='stage-form-category-badge'
+                className='text-[10px] font-semibold tracking-wide text-white py-0.5 px-1.5 rounded'
                 style={{
                   backgroundColor: getCategoryInfo(project.category as ProjectCategory)!.colorHex,
                 }}
@@ -233,20 +234,25 @@ export const Stage3Form: React.FC = () => {
         )}
 
         {/* Header */}
-        <div className='stage-form-header'>
-          <h1 className='stage-form-title'>Stage 3: Drafting</h1>
-          <p className='stage-form-subtitle'>Create actionable task list - 30 minutes</p>
+        <div className='mb-6'>
+          <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27] mb-1">
+            Stage 3: Drafting
+          </h1>
+          <p className='text-sm text-[#8b8680]'>Create actionable task list - 30 minutes</p>
         </div>
 
         {/* Task List */}
-        <div className='stage-form-fields'>
-          <div className='stage-form-task-list'>
+        <div className='flex flex-col gap-5'>
+          <div className='flex flex-col gap-2'>
             {tasks.map(task => (
-              <div key={task.id} className='stage-form-task-item'>
+              <div
+                key={task.id}
+                className='flex items-center gap-2 p-3 bg-[#faf9f7] rounded-lg border border-[#e8e4de]'
+              >
                 {editingTaskId === task.id ? (
                   <input
                     type='text'
-                    className='stage-form-task-edit-input'
+                    className='flex-1 border border-[#e8e4de] rounded-lg py-2 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5]'
                     value={editingTitle}
                     onChange={e => setEditingTitle(e.target.value)}
                     onBlur={handleSaveEdit}
@@ -255,7 +261,7 @@ export const Stage3Form: React.FC = () => {
                   />
                 ) : (
                   <span
-                    className='stage-form-task-title'
+                    className='flex-1 text-sm text-[#2f2b27] cursor-pointer hover:text-[#4a4540]'
                     onClick={() => handleStartEdit(task)}
                     title='Click to edit'
                   >
@@ -264,7 +270,7 @@ export const Stage3Form: React.FC = () => {
                 )}
                 <button
                   type='button'
-                  className='stage-form-task-remove-btn'
+                  className='text-xs text-[#8b8680] bg-transparent border-none cursor-pointer hover:text-red-600'
                   onClick={() => handleRemoveTask(task.id)}
                 >
                   Remove
@@ -273,10 +279,10 @@ export const Stage3Form: React.FC = () => {
             ))}
 
             {/* Add new task input */}
-            <div className='stage-form-task-add'>
+            <div className='flex gap-2'>
               <input
                 type='text'
-                className='stage-form-task-add-input'
+                className='flex-1 border border-[#e8e4de] rounded-lg py-2.5 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5] placeholder:text-[#8b8680]'
                 placeholder='Add a new task...'
                 value={newTaskTitle}
                 onChange={e => setNewTaskTitle(e.target.value)}
@@ -284,7 +290,7 @@ export const Stage3Form: React.FC = () => {
               />
               <button
                 type='button'
-                className='stage-form-task-add-btn'
+                className='py-2.5 px-4 rounded-lg text-sm font-semibold bg-[#2f2b27] text-[#faf9f7] cursor-pointer border-none transition-all duration-200 hover:bg-[#4a4540] disabled:opacity-50 disabled:cursor-not-allowed'
                 onClick={handleAddTask}
                 disabled={!newTaskTitle.trim()}
               >
@@ -295,7 +301,7 @@ export const Stage3Form: React.FC = () => {
             {/* Ask Marvin button */}
             <button
               type='button'
-              className='stage-form-ask-marvin-btn'
+              className='w-full py-2.5 px-4 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-500 to-indigo-500 text-white cursor-pointer border-none transition-all duration-200 hover:from-purple-600 hover:to-indigo-600'
               onClick={() => {
                 const existingTasks = tasks.map(t => t.title).join(', ')
 
@@ -318,13 +324,17 @@ export const Stage3Form: React.FC = () => {
         </div>
 
         {/* Footer Actions */}
-        <div className='stage-form-actions'>
-          <button type='button' className='stage-form-btn secondary' onClick={handleExit}>
+        <div className='flex gap-3 mt-6 pt-4 border-t border-[#e8e4de]'>
+          <button
+            type='button'
+            className='flex-1 py-2.5 px-4 rounded-lg text-sm font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-200 hover:border-[#d0ccc5] hover:text-[#2f2b27]'
+            onClick={handleExit}
+          >
             Save & Exit
           </button>
           <button
             type='button'
-            className='stage-form-btn primary'
+            className='flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold bg-[#2f2b27] text-[#faf9f7] cursor-pointer border-none transition-all duration-200 hover:bg-[#4a4540] disabled:opacity-50 disabled:cursor-not-allowed'
             onClick={handleContinue}
             disabled={!hasAtLeastOneTask}
           >

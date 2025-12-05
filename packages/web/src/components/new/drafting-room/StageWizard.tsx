@@ -1,7 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { generateRoute } from '../../../constants/routes.js'
-import './stage-wizard.css'
 
 export type WizardStage = 1 | 2 | 3
 
@@ -44,8 +43,8 @@ export const StageWizard: React.FC<StageWizardProps> = ({
   }
 
   return (
-    <div className='stage-wizard'>
-      <div className='stage-wizard-track'>
+    <div className='my-4'>
+      <div className='flex items-center justify-center gap-0'>
         {STAGES.map(({ stage, label }, index) => {
           const isActive = stage === currentStage
           const isAccessible = stage <= maxAccessibleStage
@@ -56,21 +55,31 @@ export const StageWizard: React.FC<StageWizardProps> = ({
               {/* Connector line (before each dot except first) */}
               {index > 0 && (
                 <div
-                  className={`stage-wizard-connector ${stage <= currentStage ? 'filled' : ''}`}
+                  className={`h-0.5 w-12 transition-colors duration-200 ${
+                    stage <= currentStage ? 'bg-[#2f2b27]' : 'bg-[#e8e4de]'
+                  }`}
                 />
               )}
 
               {/* Stage dot */}
               <button
                 type='button'
-                className={`stage-wizard-dot ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${!isAccessible ? 'disabled' : ''}`}
+                className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-200 text-xs font-semibold ${
+                  isActive
+                    ? 'bg-[#2f2b27] border-[#2f2b27] text-[#faf9f7]'
+                    : isCompleted
+                      ? 'bg-[#2f2b27] border-[#2f2b27] text-[#faf9f7]'
+                      : isAccessible
+                        ? 'bg-white border-[#d0ccc5] text-[#2f2b27] cursor-pointer hover:border-[#2f2b27]'
+                        : 'bg-[#f1efe9] border-[#e8e4de] text-[#8b8680] cursor-not-allowed'
+                }`}
                 onClick={() => handleStageClick(stage)}
                 disabled={!isAccessible}
                 title={isAccessible ? label : `Complete earlier stages to unlock ${label}`}
               >
                 {isCompleted ? (
                   <svg
-                    className='stage-wizard-check'
+                    className='w-4 h-4'
                     viewBox='0 0 16 16'
                     fill='none'
                     stroke='currentColor'
@@ -79,7 +88,7 @@ export const StageWizard: React.FC<StageWizardProps> = ({
                     <path d='M3 8l4 4 6-7' strokeLinecap='round' strokeLinejoin='round' />
                   </svg>
                 ) : (
-                  <span className='stage-wizard-number'>{stage}</span>
+                  <span>{stage}</span>
                 )}
               </button>
             </React.Fragment>
@@ -88,7 +97,7 @@ export const StageWizard: React.FC<StageWizardProps> = ({
       </div>
 
       {/* Stage labels */}
-      <div className='stage-wizard-labels'>
+      <div className='flex justify-between mt-2 px-0'>
         {STAGES.map(({ stage, label }) => {
           const isActive = stage === currentStage
           const isAccessible = stage <= maxAccessibleStage
@@ -96,7 +105,9 @@ export const StageWizard: React.FC<StageWizardProps> = ({
           return (
             <span
               key={stage}
-              className={`stage-wizard-label ${isActive ? 'active' : ''} ${!isAccessible ? 'disabled' : ''}`}
+              className={`text-xs font-medium flex-1 text-center ${
+                isActive ? 'text-[#2f2b27]' : isAccessible ? 'text-[#8b8680]' : 'text-[#d0ccc5]'
+              }`}
             >
               {label}
             </span>
