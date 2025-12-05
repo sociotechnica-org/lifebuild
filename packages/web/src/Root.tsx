@@ -43,7 +43,7 @@ import { Stage1Form } from './components/new/drafting-room/Stage1Form.js'
 import { Stage2Form } from './components/new/drafting-room/Stage2Form.js'
 import { Stage3Form } from './components/new/drafting-room/Stage3Form.js'
 import { SortingRoom } from './components/new/sorting-room/SortingRoom.js'
-import { LIFE_MAP_ROOM, DRAFTING_ROOM } from '@work-squared/shared/rooms'
+import { LIFE_MAP_ROOM, DRAFTING_ROOM, SORTING_ROOM } from '@work-squared/shared/rooms'
 
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
@@ -214,9 +214,9 @@ const ProtectedApp: React.FC = () => {
                       path={ROUTES.SORTING_ROOM}
                       element={
                         <ErrorBoundary>
-                          <NewUiShell>
+                          <RoomLayout room={SORTING_ROOM}>
                             <SortingRoom />
-                          </NewUiShell>
+                          </RoomLayout>
                         </ErrorBoundary>
                       }
                     />

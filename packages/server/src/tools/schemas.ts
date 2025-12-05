@@ -529,4 +529,106 @@ export const llmToolSchemas = [
     },
     required: ['workerId'],
   }),
+
+  // ===== TABLE MANAGEMENT TOOLS (Sorting Room) =====
+
+  toolDef(
+    'get_table_configuration',
+    'Get the current table configuration including Gold/Silver project assignments and Bronze mode settings',
+    {
+      type: 'object',
+      properties: {},
+      required: [],
+    }
+  ),
+
+  toolDef(
+    'assign_table_gold',
+    'Assign a project to the Gold slot on the table. Only one Gold project can be active at a time.',
+    {
+      type: 'object',
+      properties: {
+        projectId: requiredString('The ID of the project to assign to the Gold slot'),
+      },
+      required: ['projectId'],
+    }
+  ),
+
+  toolDef('clear_table_gold', 'Remove the current project from the Gold slot', {
+    type: 'object',
+    properties: {},
+    required: [],
+  }),
+
+  toolDef(
+    'assign_table_silver',
+    'Assign a project to the Silver slot on the table. Only one Silver project can be active at a time.',
+    {
+      type: 'object',
+      properties: {
+        projectId: requiredString('The ID of the project to assign to the Silver slot'),
+      },
+      required: ['projectId'],
+    }
+  ),
+
+  toolDef('clear_table_silver', 'Remove the current project from the Silver slot', {
+    type: 'object',
+    properties: {},
+    required: [],
+  }),
+
+  toolDef(
+    'update_bronze_mode',
+    'Update the Bronze mode setting. Minimal = only required tasks, Target = minimal + X extra tasks, Maximal = fill table with tasks.',
+    {
+      type: 'object',
+      properties: {
+        bronzeMode: {
+          type: 'string',
+          enum: ['minimal', 'target', 'maximal'],
+          description: 'The bronze mode to set',
+        },
+        bronzeTargetExtra: optionalNumber(
+          'Number of extra tasks to add when in "target" mode (only used when bronzeMode is "target")'
+        ),
+      },
+      required: ['bronzeMode'],
+    }
+  ),
+
+  toolDef('add_bronze_task', 'Add a task to the bronze stack on the table', {
+    type: 'object',
+    properties: {
+      taskId: requiredString('The ID of the task to add to the bronze stack'),
+    },
+    required: ['taskId'],
+  }),
+
+  toolDef('remove_bronze_task', 'Remove a task entry from the bronze stack', {
+    type: 'object',
+    properties: {
+      entryId: requiredString('The ID of the bronze stack entry to remove'),
+    },
+    required: ['entryId'],
+  }),
+
+  toolDef('reorder_bronze_stack', 'Reorder the entire bronze stack', {
+    type: 'object',
+    properties: {
+      ordering: {
+        type: 'array',
+        description: 'Array of entry IDs with their new positions',
+        items: {
+          type: 'object',
+          properties: {
+            id: requiredString('The bronze stack entry ID'),
+            position: { type: 'number', description: 'The new position (0-indexed)' },
+          },
+          required: ['id', 'position'],
+        },
+      },
+    },
+    required: ['ordering'],
+  }),
 ]
