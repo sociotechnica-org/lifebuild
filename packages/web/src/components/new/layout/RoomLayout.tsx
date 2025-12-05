@@ -15,6 +15,7 @@ type RoomChatContextValue = {
   openChat: () => void
   isChatOpen: boolean
   conversationId: string | null
+  sendDirectMessage: (message: string) => boolean
 }
 
 const RoomChatContext = createContext<RoomChatContextValue | null>(null)
@@ -74,6 +75,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children }) => {
     openChat,
     isChatOpen,
     conversationId: chat.conversation?.id ?? null,
+    sendDirectMessage: chat.sendDirectMessage,
   }
 
   return (

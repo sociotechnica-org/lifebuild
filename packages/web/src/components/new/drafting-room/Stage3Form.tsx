@@ -20,7 +20,7 @@ export const Stage3Form: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>()
   const { store } = useStore()
   const { user } = useAuth()
-  const { openChat, conversationId } = useRoomChatControl()
+  const { openChat, sendDirectMessage } = useRoomChatControl()
 
   // Load existing project
   const projectResults = useQuery(getProjectById$(projectId ?? ''))
@@ -296,18 +296,10 @@ export const Stage3Form: React.FC = () => {
             <button
               type='button'
               className='stage-form-ask-marvin-btn'
-              disabled={!conversationId}
               onClick={() => {
-                if (!conversationId) return
-
-                const projectName = project?.name || 'this project'
-                const projectDescription = project?.description || ''
                 const existingTasks = tasks.map(t => t.title).join(', ')
 
-                let message = `Please help me draft a task list for the project "${projectName}".`
-                if (projectDescription) {
-                  message += ` The project description is: ${projectDescription}`
-                }
+                let message = `Please help me draft a task list for this project.`
                 if (existingTasks) {
                   message += ` I already have these tasks: ${existingTasks}.`
                 }
@@ -316,16 +308,8 @@ export const Stage3Form: React.FC = () => {
                 // Open the chat panel
                 openChat()
 
-                // Send the message directly via LiveStore
-                store.commit(
-                  events.chatMessageSent({
-                    id: crypto.randomUUID(),
-                    conversationId,
-                    message,
-                    role: 'user',
-                    createdAt: new Date(),
-                  })
-                )
+                // Send the message with navigation context attached
+                sendDirectMessage(message)
               }}
             >
               ✨ Ask Marvin to draft tasks
