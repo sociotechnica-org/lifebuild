@@ -208,7 +208,7 @@ export const useNavigationContext = (): NavigationContext | null => {
   }
 
   // Return null if no meaningful context (user on home page, settings, etc.)
-  if (!context.currentEntity && !context.subtab) {
+  if (!context.currentEntity && !context.subtab && !context.currentView) {
     return null
   }
 
