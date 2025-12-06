@@ -18,7 +18,11 @@ export const TableDropZone: React.FC<TableDropZoneProps> = ({ stream, hasProject
   return (
     <div
       ref={setNodeRef}
-      className={`sorting-room-table-drop-zone ${isOver ? 'drag-over' : ''} ${hasProject ? 'has-project' : ''}`}
+      className={`rounded-xl transition-all duration-200 ${
+        isOver && !hasProject
+          ? 'bg-green-500/[0.08] border-2 border-dashed border-green-500/40'
+          : ''
+      }`}
     >
       {children}
     </div>

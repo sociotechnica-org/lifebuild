@@ -157,47 +157,64 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
     (dialogMode === 'activate' && !!pendingProject) ||
     (dialogMode === 'release' && !!tabledProject && !pendingProject)
 
+  // Stream-specific styles
+  const streamColor = stream === 'gold' ? '#d8a650' : '#c5ced8'
+  const streamBgGradient =
+    stream === 'gold'
+      ? 'linear-gradient(145deg, rgba(216, 166, 80, 0.1), #fff)'
+      : 'linear-gradient(145deg, rgba(197, 206, 216, 0.12), #fff)'
+
   return (
     <>
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className='sorting-room-stream-panel'>
+        <div className='flex flex-col gap-6'>
           {/* On Table Section with Drop Zone */}
-          <div className='sorting-room-section'>
-            <h3 className='sorting-room-section-title'>ON TABLE</h3>
+          <div className='flex flex-col gap-3'>
+            <h3 className='text-xs font-semibold uppercase tracking-wide text-[#8b8680] m-0'>
+              ON TABLE
+            </h3>
             <TableDropZone stream={stream} hasProject={!!tabledProject}>
               {tabledProject ? (
-                <div className={`sorting-room-project-card tabled ${stream}`}>
-                  <div className='sorting-room-project-info'>
-                    <div className='sorting-room-project-name'>{tabledProject.name}</div>
-                    <div className='sorting-room-project-meta'>
+                <div
+                  className='flex items-start gap-3 p-4 bg-white border-2 rounded-xl transition-all duration-150'
+                  style={{
+                    borderColor: streamColor,
+                    background: streamBgGradient,
+                  }}
+                >
+                  <div className='flex-1 min-w-0'>
+                    <div className='font-semibold text-[#2f2b27] text-[0.95rem]'>
+                      {tabledProject.name}
+                    </div>
+                    <div className='text-xs text-[#8b8680] mt-0.5'>
                       {tabledProject.category && <span>{tabledProject.category}</span>}
                     </div>
                     {/* Progress bar or Unstarted label */}
                     {outgoingProjectHasProgress ? (
-                      <div className='sorting-room-progress'>
+                      <div className='h-1 bg-[#e8e4de] rounded mt-2 overflow-hidden'>
                         <div
-                          className='sorting-room-progress-bar'
+                          className='h-full rounded transition-all duration-300'
                           style={{
                             width: `${tabledProjectCompletionPercentage}%`,
-                            backgroundColor: stream === 'gold' ? 'var(--gold)' : 'var(--silver)',
+                            backgroundColor: streamColor,
                           }}
                         />
                       </div>
                     ) : (
-                      <div className='sorting-room-unstarted'>Unstarted</div>
+                      <div className='text-xs text-[#8b8680] italic mt-1'>Unstarted</div>
                     )}
                   </div>
-                  <div className='sorting-room-action-buttons'>
+                  <div className='flex gap-2 flex-shrink-0'>
                     <button
                       type='button'
-                      className='sorting-room-action-btn view'
+                      className='text-xs py-1.5 px-3 rounded-lg bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] whitespace-nowrap'
                       onClick={handleViewTabledProject}
                     >
                       View
                     </button>
                     <button
                       type='button'
-                      className='sorting-room-action-btn release'
+                      className='text-xs py-1.5 px-3 rounded-lg bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] whitespace-nowrap'
                       onClick={handleReleaseClick}
                     >
                       Release
@@ -205,9 +222,9 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className='sorting-room-empty-slot'>
+                <div className='flex flex-col items-center justify-center p-8 bg-black/[0.02] border-2 border-dashed border-[#e8e4de] rounded-xl text-center text-[#8b8680]'>
                   <span>No {stream} project on table</span>
-                  <span className='sorting-room-empty-hint'>
+                  <span className='text-sm mt-1 opacity-70'>
                     Drag a project here or click "Activate to Table"
                   </span>
                 </div>
@@ -216,19 +233,30 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
           </div>
 
           {/* Queue Section with Toggle */}
-          <div className='sorting-room-section'>
+          <div className='flex flex-col gap-3'>
             {/* Toggle between Backlog and Active */}
-            <div className='sorting-room-queue-toggle'>
+            <div className='flex gap-0 mb-4 border border-[#e8e4de] rounded-lg overflow-hidden'>
               <button
                 type='button'
-                className={`sorting-room-toggle-btn ${queueView === 'backlog' ? 'active' : ''}`}
+                className={`flex-1 py-2 px-4 border-none text-sm font-medium cursor-pointer transition-all duration-150 ${
+                  queueView === 'backlog'
+                    ? 'bg-[#2f2b27] text-white'
+                    : 'bg-transparent text-[#8b8680] hover:bg-[#faf9f7]'
+                }`}
+                style={{
+                  borderRight: '1px solid #e8e4de',
+                }}
                 onClick={() => setQueueView('backlog')}
               >
                 Backlog ({backlogProjects.length})
               </button>
               <button
                 type='button'
-                className={`sorting-room-toggle-btn ${queueView === 'active' ? 'active' : ''}`}
+                className={`flex-1 py-2 px-4 border-none text-sm font-medium cursor-pointer transition-all duration-150 ${
+                  queueView === 'active'
+                    ? 'bg-[#2f2b27] text-white'
+                    : 'bg-transparent text-[#8b8680] hover:bg-[#faf9f7]'
+                }`}
                 onClick={() => setQueueView('active')}
               >
                 Active ({activeProjects.length})
@@ -236,7 +264,7 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
             </div>
 
             {displayedProjects.length === 0 ? (
-              <div className='sorting-room-empty-queue'>
+              <div className='p-4 text-[#8b8680] text-sm italic'>
                 {queueView === 'backlog'
                   ? `No projects in ${stream} backlog. Complete Stage 4 in the Drafting Room to add projects.`
                   : `No active ${stream} projects.`}
@@ -246,7 +274,7 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
                 items={displayedProjects.map(p => p.id)}
                 strategy={verticalListSortingStrategy}
               >
-                <div className='sorting-room-queue-list'>
+                <div className='flex flex-col gap-2'>
                   {displayedProjects.map((project, index) => (
                     <SortableProjectCard
                       key={project.id}
@@ -266,13 +294,21 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
         {/* Drag Overlay */}
         <DragOverlay>
           {draggedProject && (
-            <div className={`sorting-room-project-card queued ${stream} dragging`}>
-              <span className='sorting-room-queue-position'>
+            <div
+              className='flex items-start gap-3 p-4 bg-white border border-[#e8e4de] rounded-xl shadow-lg rotate-2'
+              style={{
+                borderLeftWidth: '4px',
+                borderLeftColor: streamColor,
+              }}
+            >
+              <span className='text-xs font-semibold text-[#8b8680] bg-[#faf9f7] py-1 px-2 rounded min-w-[2rem] text-center'>
                 #{displayedProjects.findIndex(p => p.id === draggedProject.id) + 1}
               </span>
-              <div className='sorting-room-project-info'>
-                <div className='sorting-room-project-name'>{draggedProject.name}</div>
-                <div className='sorting-room-project-meta'>
+              <div className='flex-1 min-w-0'>
+                <div className='font-medium text-sm text-[#2f2b27] truncate'>
+                  {draggedProject.name}
+                </div>
+                <div className='text-xs text-[#8b8680] mt-0.5'>
                   {draggedProject.category && <span>{draggedProject.category}</span>}
                 </div>
               </div>

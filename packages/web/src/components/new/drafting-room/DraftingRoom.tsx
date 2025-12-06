@@ -15,7 +15,6 @@ import { generateRoute } from '../../../constants/routes.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { StageColumn } from './StageColumn.js'
 import { PlanningQueueCard } from './PlanningQueueCard.js'
-import './drafting-room.css'
 
 export type ProjectTier = 'gold' | 'silver' | 'bronze'
 
@@ -244,24 +243,27 @@ export const DraftingRoom: React.FC = () => {
   const isIdentifyingEmpty = stage1Projects.length === 0
 
   return (
-    <div className='drafting-room'>
+    <div className='py-4'>
       {/* Filter Bar */}
-      <div className='drafting-room-filters'>
+      <div className='mb-4 flex flex-col gap-3'>
         {/* Category Pills + Tier Dropdown + New Project on same row */}
-        <div className='drafting-room-filter-row'>
-          <div className='drafting-room-category-filters'>
+        <div className='flex flex-wrap items-center gap-2'>
+          <div className='flex flex-wrap items-center gap-1.5'>
             {CATEGORY_FILTERS.map(cat => (
               <button
                 key={cat.value}
                 type='button'
-                className={`drafting-room-category-pill ${categoryFilter === cat.value ? 'active' : ''}`}
+                className={`py-1 px-2.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer ${
+                  categoryFilter === cat.value
+                    ? 'text-white'
+                    : 'bg-transparent border-[#e8e4de] text-[#8b8680] hover:border-[#d0ccc5] hover:text-[#2f2b27]'
+                }`}
                 style={
-                  {
-                    '--pill-color': cat.colorHex || 'var(--ink)',
-                    ...(categoryFilter === cat.value && cat.colorHex
-                      ? { backgroundColor: cat.colorHex, borderColor: cat.colorHex, color: '#fff' }
-                      : {}),
-                  } as React.CSSProperties
+                  categoryFilter === cat.value && cat.colorHex
+                    ? { backgroundColor: cat.colorHex, borderColor: cat.colorHex, color: '#fff' }
+                    : categoryFilter === cat.value
+                      ? { backgroundColor: '#2f2b27', borderColor: '#2f2b27', color: '#fff' }
+                      : undefined
                 }
                 onClick={() => setCategoryFilter(cat.value)}
               >
@@ -271,7 +273,7 @@ export const DraftingRoom: React.FC = () => {
           </div>
 
           <select
-            className='drafting-room-tier-select'
+            className='py-1 px-2.5 rounded-lg text-xs border border-[#e8e4de] bg-white text-[#2f2b27] cursor-pointer font-medium focus:outline-none focus:border-[#d0ccc5]'
             value={tierFilter}
             onChange={e => setTierFilter(e.target.value as ProjectTier | 'all')}
           >
@@ -285,7 +287,7 @@ export const DraftingRoom: React.FC = () => {
           {/* New Project button - always right-aligned */}
           <button
             type='button'
-            className='drafting-room-new-project-btn-header'
+            className='ml-auto py-1.5 px-3 rounded-lg text-xs font-semibold bg-[#2f2b27] text-[#faf9f7] cursor-pointer border-none transition-all duration-200 hover:bg-[#4a4540]'
             onClick={() => navigate(generateRoute.projectCreate())}
           >
             + New Project
@@ -294,11 +296,15 @@ export const DraftingRoom: React.FC = () => {
 
         {/* Filter status on separate line */}
         {hasActiveFilters && (
-          <div className='drafting-room-filter-status'>
-            <span className='drafting-room-filter-count'>
+          <div className='flex items-center gap-2 text-xs text-[#8b8680]'>
+            <span>
               Showing {filteredProjects.length} of {planningProjects.length} projects
             </span>
-            <button type='button' className='drafting-room-clear-filters' onClick={clearFilters}>
+            <button
+              type='button'
+              className='text-[#8b8680] bg-transparent border-none cursor-pointer underline hover:text-[#2f2b27]'
+              onClick={clearFilters}
+            >
               Clear filters
             </button>
           </div>
@@ -307,13 +313,13 @@ export const DraftingRoom: React.FC = () => {
 
       {/* Stale Projects Banner */}
       {staleCount > 0 && (
-        <div className='drafting-room-stale-banner'>
+        <div className='bg-[#fef3cd] border border-[#f5e6a3] text-[#856404] py-2 px-3 rounded-lg text-sm mb-4'>
           ⚠️ {staleCount} project{staleCount !== 1 ? 's' : ''} haven't been touched in 2+ weeks
         </div>
       )}
 
       {/* Stage Columns */}
-      <div className='drafting-room-stages'>
+      <div className='grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 items-start'>
         {STAGES.map(({ stage, name, emptyMessage }) => {
           const stageProjects = projectsByStage[stage] ?? []
           const showNewProjectLink = stage === 1 && isIdentifyingEmpty
@@ -328,7 +334,7 @@ export const DraftingRoom: React.FC = () => {
                 showNewProjectLink ? (
                   <button
                     type='button'
-                    className='drafting-room-empty-new-project'
+                    className='bg-transparent border border-dashed border-[#d0ccc5] text-[#8b8680] py-2 px-4 rounded-lg text-sm cursor-pointer transition-all duration-200 w-full hover:border-[#2f2b27] hover:text-[#2f2b27] hover:bg-[rgba(47,43,39,0.03)]'
                     onClick={() => navigate(generateRoute.projectCreate())}
                   >
                     + Start a new project

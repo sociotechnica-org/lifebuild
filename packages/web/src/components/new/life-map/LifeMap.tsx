@@ -145,7 +145,10 @@ export const LifeMap: React.FC = () => {
       <div className='flex min-h-[calc(100vh-300px)] items-center justify-center'>
         <div className='text-center'>
           <p className='mb-4 text-lg text-gray-500'>No projects yet</p>
-          <Link to={generateRoute.draftingRoom()} className='new-ui-btn'>
+          <Link
+            to={generateRoute.draftingRoom()}
+            className='py-2.5 px-4 rounded-lg text-sm font-semibold bg-[#2f2b27] text-[#faf9f7] no-underline inline-block'
+          >
             Go to Drafting Room to create projects
           </Link>
         </div>
@@ -154,8 +157,8 @@ export const LifeMap: React.FC = () => {
   }
 
   return (
-    <div className='new-ui-card'>
-      <div className='new-ui-category-grid'>
+    <div className='bg-white rounded-2xl p-4 border border-[#e8e4de]'>
+      <div className='grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4'>
         {categoriesWithProjects.map(category => {
           const projects =
             categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []

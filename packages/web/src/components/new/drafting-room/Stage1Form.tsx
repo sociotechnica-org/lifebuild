@@ -12,7 +12,6 @@ import {
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
-import './stage-form.css'
 
 export const Stage1Form: React.FC = () => {
   const navigate = useNavigate()
@@ -166,8 +165,8 @@ export const Stage1Form: React.FC = () => {
   }
 
   return (
-    <div className='stage-form'>
-      <div className='stage-form-card'>
+    <div className='flex items-start justify-center min-h-[calc(100vh-200px)] py-8'>
+      <div className='bg-white rounded-2xl border border-[#e8e4de] shadow-sm p-6 w-full max-w-md'>
         {/* Wizard Navigation (only show when editing existing project) */}
         {isEditing && urlProjectId && (
           <StageWizard
@@ -178,19 +177,23 @@ export const Stage1Form: React.FC = () => {
         )}
 
         {/* Header */}
-        <div className='stage-form-header'>
-          <h1 className='stage-form-title'>Stage 1: Identifying</h1>
-          <p className='stage-form-subtitle'>Quick capture - 2 minutes</p>
+        <div className='mb-6'>
+          <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27] mb-1">
+            Stage 1: Identifying
+          </h1>
+          <p className='text-sm text-[#8b8680]'>Quick capture - 2 minutes</p>
         </div>
 
         {/* Form Fields */}
-        <div className='stage-form-fields'>
+        <div className='flex flex-col gap-5'>
           {/* Project Title */}
-          <div className='stage-form-field'>
-            <label className='stage-form-label'>Project Title</label>
+          <div>
+            <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>
+              Project Title
+            </label>
             <input
               type='text'
-              className='stage-form-input'
+              className='w-full border border-[#e8e4de] rounded-lg py-2.5 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5] placeholder:text-[#8b8680]'
               placeholder="What's this project called?"
               value={title}
               onChange={e => setTitle(e.target.value)}
@@ -200,10 +203,12 @@ export const Stage1Form: React.FC = () => {
           </div>
 
           {/* Brief Description */}
-          <div className='stage-form-field'>
-            <label className='stage-form-label'>Brief Description</label>
+          <div>
+            <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>
+              Brief Description
+            </label>
             <textarea
-              className='stage-form-textarea'
+              className='w-full border border-[#e8e4de] rounded-lg py-2.5 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5] placeholder:text-[#8b8680] resize-y min-h-[80px]'
               placeholder="1-2 sentences about what you're trying to do"
               value={description}
               onChange={e => setDescription(e.target.value)}
@@ -213,14 +218,18 @@ export const Stage1Form: React.FC = () => {
           </div>
 
           {/* Category */}
-          <div className='stage-form-field'>
-            <label className='stage-form-label'>Category</label>
-            <div className='stage-form-category-pills'>
+          <div>
+            <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>Category</label>
+            <div className='flex flex-wrap gap-1.5'>
               {PROJECT_CATEGORIES.map(cat => (
                 <button
                   key={cat.value}
                   type='button'
-                  className={`stage-form-category-pill ${category === cat.value ? 'active' : ''}`}
+                  className={`py-1 px-2.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer ${
+                    category === cat.value
+                      ? 'text-white'
+                      : 'bg-transparent border-[#e8e4de] text-[#8b8680] hover:border-[#d0ccc5] hover:text-[#2f2b27]'
+                  }`}
                   style={
                     category === cat.value
                       ? { backgroundColor: cat.colorHex, borderColor: cat.colorHex, color: '#fff' }
@@ -236,13 +245,17 @@ export const Stage1Form: React.FC = () => {
         </div>
 
         {/* Footer Actions */}
-        <div className='stage-form-actions'>
-          <button type='button' className='stage-form-btn secondary' onClick={handleExit}>
+        <div className='flex gap-3 mt-6 pt-4 border-t border-[#e8e4de]'>
+          <button
+            type='button'
+            className='flex-1 py-2.5 px-4 rounded-lg text-sm font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-200 hover:border-[#d0ccc5] hover:text-[#2f2b27]'
+            onClick={handleExit}
+          >
             Exit
           </button>
           <button
             type='button'
-            className='stage-form-btn primary'
+            className='flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold bg-[#2f2b27] text-[#faf9f7] cursor-pointer border-none transition-all duration-200 hover:bg-[#4a4540] disabled:opacity-50 disabled:cursor-not-allowed'
             onClick={handleContinue}
             disabled={!canAdvance}
           >
