@@ -2,7 +2,7 @@
 
 **New Domain:** lifebuild.me
 **Status:** Planning
-**Last Updated:** 2025-10-21
+**Last Updated:** 2025-12-06
 
 ## Executive Summary
 
@@ -30,8 +30,8 @@ This document outlines a comprehensive plan to rebrand WorkSquared to LifeBuild.
 - **Files to modify:** 200+
 - **Package imports to update:** 146+ files
 - **Documentation files:** 50+ files
-- **Infrastructure resources:** 7 (workers, databases, buckets)
-- **Domain changes:** 4+ URLs
+- **Infrastructure resources:** 8 (workers, databases, buckets) including the PostHog proxy worker
+- **Domain changes:** 5+ URLs (app, auth, sync, analytics/proxy, marketing)
 
 ### Key Changes
 
@@ -43,6 +43,7 @@ This document outlines a comprehensive plan to rebrand WorkSquared to LifeBuild.
 | **App Domain** | app.worksquared.ai | app.lifebuild.me |
 | **Sync Worker** | work-squared.jessmartin.workers.dev | lifebuild.jessmartin.workers.dev |
 | **Auth Worker** | work-squared-auth.jessmartin.workers.dev | lifebuild-auth.jessmartin.workers.dev |
+| **Analytics Proxy Worker** | coconut.worksquared.ai (work-squared-posthog[-prod]) | coconut.lifebuild.me (lifebuild-posthog[-prod]) |
 | **D1 Database** | work-squared-prod | lifebuild-prod |
 | **R2 Bucket (prod)** | work-squared-images | lifebuild-images |
 | **R2 Bucket (dev)** | work-squared-images-preview | lifebuild-images-preview |
@@ -90,6 +91,25 @@ script_name = "work-squared-auth" → "lifebuild-auth"
 ```
 
 **Impact:** Changes auth worker deployment name
+
+---
+
+#### packages/posthog-worker/wrangler.toml
+
+**Changes required:**
+
+```toml
+# Worker names
+name = "work-squared-posthog"           → "lifebuild-posthog"
+[env.production]
+name = "work-squared-posthog-prod"      → "lifebuild-posthog-prod"
+
+# Routes / zone
+route = "coconut.worksquared.ai/*"      → "coconut.lifebuild.me/*" (or another lifebuild.me subdomain)
+zone_name = "worksquared.ai"            → "lifebuild.me"
+```
+
+**Impact:** Keeps analytics proxy on first-party lifebuild.me subdomain; update frontend env `VITE_PUBLIC_POSTHOG_HOST` and CSP `connect-src`.
 
 ---
 
@@ -162,6 +182,8 @@ name: work-squared-data → lifebuild-data
 ### 2.1 Root Package Configuration
 
 #### package.json (root)
+#### pnpm-workspace.yaml
+#### pnpm-lock.yaml
 
 **Changes required:**
 
@@ -182,6 +204,13 @@ name: work-squared-data → lifebuild-data
 ```
 
 **Impact:** Changes workspace root and all script commands
+
+**Note:** Update `pnpm-workspace.yaml` scope entries and regenerate `pnpm-lock.yaml` after renaming packages to avoid stale lockfile entries.
+
+**Tooling configs to update:**
+
+- `turbo.json` / task runner filters referencing `@work-squared/*`
+- Changesets/release config if present (`.changeset/config.json`)
 
 ---
 
@@ -249,7 +278,17 @@ name: work-squared-data → lifebuild-data
 }
 ```
 
-**Total:** 6 package.json files
+---
+
+#### packages/posthog-worker/package.json
+
+```json
+{
+  "name": "@work-squared/posthog-worker" → "@lifebuild/posthog-worker"
+}
+```
+
+**Total:** 7 package.json files
 
 ---
 
@@ -278,8 +317,8 @@ import { ... } from '@lifebuild/shared/...'
 Use global find-and-replace:
 
 ```bash
-# Find all TypeScript/TSX files with @work-squared imports
-find packages -type f \( -name "*.ts" -o -name "*.tsx" \) -exec sed -i 's/@work-squared\//@lifebuild\//g' {} +
+# macOS-safe in-place replace for TS/TSX/JS/JSON files
+find packages -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.json" \) -exec sed -i '' 's/@work-squared\\//@lifebuild\\//g' {} +
 ```
 
 ---
@@ -294,6 +333,7 @@ find packages -type f \( -name "*.ts" -o -name "*.tsx" \) -exec sed -i 's/@work-
 - `app.worksquared.ai`
 - `work-squared.jessmartin.workers.dev`
 - `work-squared-auth.jessmartin.workers.dev`
+- `coconut.worksquared.ai` (PostHog proxy)
 
 **New domains:**
 
@@ -301,6 +341,7 @@ find packages -type f \( -name "*.ts" -o -name "*.tsx" \) -exec sed -i 's/@work-
 - `app.lifebuild.me`
 - `lifebuild.jessmartin.workers.dev` (or custom domain)
 - `lifebuild-auth.jessmartin.workers.dev` (or custom domain)
+- `coconut.lifebuild.me` (or another lifebuild.me subdomain for PostHog proxy)
 
 ---
 
@@ -375,7 +416,15 @@ Access-Control-Allow-Origin: https://work-squared-auth.jessmartin.workers.dev �
 
 ---
 
-### 3.3 Git Configuration
+### 3.3 SEO, Sitemaps, and Canonical Tags
+
+- Update canonical URLs, OpenGraph/Twitter meta tags, and titles in `packages/web/index.html`, layout components, and any marketing pages.
+- Regenerate or update `sitemap.xml` and `robots.txt` to reflect `lifebuild.me`.
+- Update hreflang tags if present; ensure OG images point to LifeBuild assets.
+
+---
+
+### 3.4 Git Configuration
 
 #### .gitignore
 
@@ -397,7 +446,24 @@ work-squared-default/ → lifebuild-default/
 url = https://github.com/sociotechnica-org/work-squared → lifebuild
 ```
 
-**Decision needed:** Are we renaming the GitHub repository?
+**Decision:** Yes, rename repo to `lifebuild`; existing clones impact is negligible (single fork) and GitHub will auto-redirect.
+
+---
+
+### 3.5 Auth Flows & Communications
+
+- Update OAuth redirect URIs in provider consoles (Google, GitHub, etc.) to use `lifebuild.me` domains.
+- Update email templates (magic links, password reset, invites) to LifeBuild branding and URLs.
+- Ensure new sending domain has DKIM/SPF configured; adjust From/Reply-To addresses.
+- Update in-app copy and error messages that mention WorkSquared.
+
+---
+
+### 3.6 Analytics Proxy (PostHog) References
+
+- Update `VITE_PUBLIC_POSTHOG_HOST` wherever defined (e.g., `packages/web/.env.example`, `packages/web/src/main.tsx`, `packages/web/src/ambient.d.ts`) to `https://coconut.lifebuild.me` (or chosen lifebuild subdomain).
+- Update CSP `connect-src` / `script-src` in `_headers` or meta tags to allow the new PostHog host.
+- Update docs mentioning `coconut.worksquared.ai` (e.g., `packages/posthog-worker/README.md`, `docs/adrs/007-analytics-implementation-approach.md`, `docs/plans/025-posthog-first-party-proxy-worker.md`).
 
 ---
 
@@ -411,6 +477,7 @@ url = https://github.com/sociotechnica-org/work-squared → lifebuild
 
 - Any URL references to local or production domains
 - Comments mentioning WorkSquared
+- `VITE_PUBLIC_POSTHOG_HOST` → `https://coconut.lifebuild.me` (or chosen lifebuild subdomain)
 
 ---
 
@@ -438,7 +505,16 @@ url = https://github.com/sociotechnica-org/work-squared → lifebuild
 
 ---
 
-### 4.2 Other Configuration Files
+### 4.2 Tooling & Build Configs
+
+- `tsconfig.json` (root and package-level): Update path aliases from `@work-squared/*` → `@lifebuild/*`.
+- ESLint/Prettier configs: Update import resolvers or alias settings referencing old scope.
+- Vite config, Storybook config, Jest/Vitest config, Playwright config: adjust base URLs, aliases, or project names.
+- Cache keys in CI pipelines that include project names to avoid cache misses or collisions.
+
+---
+
+### 4.3 Other Configuration Files
 
 #### packages/web/index.html
 
@@ -558,7 +634,15 @@ Update all package-specific README files:
 - `docs/plans/017-deployment-separation-migration.md`
 - `docs/plans/023-life-squared-epic/*.md` (multiple files)
 
-**Decision needed:** Which planning docs should be updated vs. archived?
+**Decision:** Defer updating any files under `/docs` for now; a separate PR will handle planning docs/archival.
+
+---
+
+### 5.4 Legal & User Communication
+
+- Update Terms of Service, Privacy Policy, and any in-app legal links to LifeBuild.
+- Update support email addresses and FAQ/Help content.
+- User communication: not required for this launch.
 
 ---
 
@@ -573,10 +657,11 @@ Update all package-specific README files:
 **Action items:**
 
 1. Create new LifeBuild logo
-2. Decide logo location:
+2. Danvers will create the new logo; use a fill-in/placeholder logo until final asset is ready.
+3. Decide logo location:
    - Host on lifebuild.me domain
    - Store in repo: `docs/images/lifebuild-logo.png`
-3. Update README.md reference
+4. Update README.md reference
 
 ---
 
@@ -604,6 +689,12 @@ Update all package-specific README files:
 - Twitter card images
 - Any social preview images in `public/`
 
+### 6.4 App-Theming & Client Storage
+
+- CSS variables/theme tokens that embed the brand name.
+- PWA manifest `name` and `short_name` to avoid cache/key collisions.
+- Service worker cache names, localStorage keys, and cookies that include `work-squared`—rename to avoid stale state crossing the rebrand boundary.
+
 ---
 
 ## Phase 7: Cloudflare Infrastructure Migration
@@ -616,7 +707,8 @@ Update all package-specific README files:
 
 1. Create new database: `lifebuild-prod`
 2. Run migrations on new database
-3. **Data migration:** Export from `work-squared-prod` and import to `lifebuild-prod`
+3. **Data migration:** Optional; no data needs to be migrated for launch. Default to start fresh.
+   - If migrating later, rewrite stored URLs (shared links, invites) to `lifebuild.me` during import.
 4. Update wrangler.jsonc binding
 
 **Commands:**
@@ -640,7 +732,7 @@ wrangler d1 execute lifebuild-prod --file=backup.sql
 
 1. Create bucket: `lifebuild-images` (production)
 2. Create bucket: `lifebuild-images-preview` (development)
-3. **Data migration:** Copy images from old buckets to new buckets
+3. **Data migration:** Optional; no images need to be migrated for launch. Skip unless required later.
 4. Update wrangler.jsonc bindings
 
 **Commands:**
@@ -663,7 +755,11 @@ wrangler r2 bucket create lifebuild-images-preview
 1. Deploy new workers with new names:
    - `lifebuild` (sync worker)
    - `lifebuild-auth` (auth worker)
-2. Update custom domains/routes if applicable
+   - `lifebuild-posthog` / `lifebuild-posthog-prod` (analytics proxy)
+2. Update custom domains/routes:
+   - `sync.lifebuild.me` (or workers.dev)
+   - `auth.lifebuild.me` (or workers.dev)
+   - `coconut.lifebuild.me` (or unique lifebuild subdomain for analytics)
 3. Test new workers before switching traffic
 
 **Commands:**
@@ -674,6 +770,9 @@ pnpm --filter @lifebuild/auth-worker deploy
 
 # Deploy sync worker
 pnpm --filter @lifebuild/worker deploy
+
+# Deploy PostHog proxy worker
+pnpm --filter @lifebuild/posthog-worker deploy
 ```
 
 ---
@@ -684,22 +783,23 @@ pnpm --filter @lifebuild/worker deploy
 
 1. **lifebuild.me** - Main marketing site
    - Type: A/CNAME records
-   - Points to: TBD (hosting provider)
+   - Points to: new marketing site (repo: sociotechnica-org/life-build-site)
 
 2. **app.lifebuild.me** - Web application
    - Type: CNAME
    - Points to: Cloudflare Pages domain
 
-3. **Optional:** Custom worker domains (instead of *.workers.dev)
+3. **Preferred:** Custom worker subdomains (avoid *.workers.dev)
    - `sync.lifebuild.me` → sync worker
    - `auth.lifebuild.me` → auth worker
+   - `coconut.lifebuild.me` (or similar unique name) → PostHog proxy worker
 
 **Action items:**
 
 1. Purchase/configure lifebuild.me domain
 2. Set up DNS records in Cloudflare
 3. Configure SSL certificates
-4. Set up redirects from worksquared.ai → lifebuild.me
+4. Set up redirects from worksquared.ai → lifebuild.me (marketing and app)
 
 ---
 
@@ -719,269 +819,56 @@ pnpm --filter @lifebuild/worker deploy
 
 ---
 
-### 7.4 Migration Timeline
+### 7.4 Observability & Monitoring
+
+- Update Sentry/PostHog/LogRocket project names and DSNs/environment tags to LifeBuild.
+- Update alert routing channels, uptime checks, and dashboards to new domains.
+- Keep old projects temporarily for comparison; ensure env vars in Pages/Workers point to the new DSNs.
+
+---
+
+### 7.5 Migration Timeline
 
 **Recommended approach:**
 
-1. **Parallel deployment:** Deploy new infrastructure alongside old
-2. **Testing phase:** Test new deployment thoroughly
-3. **Traffic switch:** Update DNS to point to new infrastructure
-4. **Monitoring:** Watch for errors after switch
-5. **Cleanup:** Deprecate old infrastructure after stable period
+1. **Fast path (no users / disposable data):** Stand up new infra, deploy, switch DNS, retire old infra—skip data migration.
+2. **Parallel deployment (if keeping data):** Deploy new infra alongside old, migrate data, then switch DNS.
+3. **Testing phase:** Smoke-test auth, WebSockets, uploads on new stack.
+4. **Traffic switch:** Update DNS to point to new infrastructure.
+5. **Monitoring:** Watch for errors after switch.
+6. **Cleanup:** Deprecate old infrastructure after stable period.
 
 ---
 
-## Recommended Execution Order
-
-### Prerequisites (Before Code Changes)
-
-- [ ] Purchase and configure lifebuild.me domain
-- [ ] Create new Cloudflare resources (D1, R2, workers)
-- [ ] Set up DNS records
-- [ ] Create new logo and branding assets
-- [ ] Plan data migration strategy
-
----
-
-### Implementation (Code Changes)
-
-#### Step 1: Create Feature Branch
-
-```bash
-git checkout -b rebrand/worksquared-to-lifebuild
-```
-
----
-
-#### Step 2: Package Names & Imports (Bulk Changes)
-
-Execute these changes together for consistency:
-
-1. Update root `package.json`
-2. Update all `packages/*/package.json` files (6 files)
-3. Global find-replace in source files:
-   ```bash
-   find packages -type f \( -name "*.ts" -o -name "*.tsx" \) -exec sed -i 's/@work-squared\//@lifebuild\//g' {} +
-   ```
-4. Run `pnpm install` to update lock files
-
-**Verification:**
-
-```bash
-# Check for any remaining @work-squared references
-grep -r "@work-squared" packages/ --include="*.ts" --include="*.tsx"
-```
-
----
-
-#### Step 3: Infrastructure Configuration
-
-Update in this order:
-
-1. `packages/worker/wrangler.jsonc`
-2. `packages/auth-worker/wrangler.toml`
-3. `packages/server/render.yaml`
-4. `.github/workflows/deploy.yml`
-5. `.github/workflows/ci.yml`
-
----
-
-#### Step 4: Domain References
-
-1. `README.md`
-2. `docs/architecture.md`
-3. `docs/deployment.md`
-4. `packages/web/public/_headers`
-5. `packages/web/src/pages/SignupPage.tsx`
-6. `packages/web/src/utils/auth.ts`
-
----
-
-#### Step 5: HTML & Branding
-
-1. `packages/web/index.html` (title tag)
-2. Update favicon files
-3. Update manifest.json
-
----
-
-#### Step 6: Documentation
-
-1. Primary docs (README, CLAUDE.md, CONTRIBUTING.md)
-2. Architecture docs
-3. Package READMEs (6 files)
-4. Review planning docs (selective updates)
-
----
-
-#### Step 7: Environment Files
-
-1. `.gitignore`
-2. `.env.example` files (4 files)
-3. Review `.env.production` carefully
-
----
-
-#### Step 8: Quality Checks
-
-Run all quality checks before committing:
-
-```bash
-# Reinstall dependencies with new package names
-pnpm install
-
-# Run linting and formatting
-pnpm lint-all
-
-# Run unit tests
-pnpm test
-
-# Run E2E tests (if possible without deployment)
-CI=true pnpm test:e2e
-```
-
----
-
-#### Step 9: Commit & Push
-
-```bash
-# Stage all changes
-git add .
-
-# Commit with descriptive message
-git commit -m "Rebrand WorkSquared to LifeBuild
-
-- Update all package names from @work-squared/* to @lifebuild/*
-- Update domain references from worksquared.ai to lifebuild.me
-- Update Cloudflare worker configurations and infrastructure names
-- Update all documentation and README files
-- Update HTML title and branding assets
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
-
-# Push to remote
-git push -u origin rebrand/worksquared-to-lifebuild
-```
-
----
-
-#### Step 10: Create Pull Request
-
-```bash
-gh pr create --title "Rebrand WorkSquared to LifeBuild" --body "$(cat <<'EOF'
-## Summary
-
-Complete rebranding from WorkSquared to LifeBuild, including:
-
-- ✅ Package names: `@work-squared/*` → `@lifebuild/*` (6 packages)
-- ✅ Domain references: `worksquared.ai` → `lifebuild.me`
-- ✅ Worker configurations: Updated Cloudflare infrastructure names
-- ✅ Source code imports: 146+ files updated
-- ✅ Documentation: 50+ files updated
-- ✅ HTML title and meta tags
-- ✅ Environment configuration examples
-
-## Impact
-
-- **Files changed:** 200+
-- **No breaking changes to user data or functionality**
-- **Requires new Cloudflare infrastructure** (see Phase 7 in plan)
-
-## Testing
-
-- ✅ `pnpm lint-all` - All linting and formatting checks pass
-- ✅ `pnpm test` - All unit tests pass
-- ⚠️ `pnpm test:e2e` - E2E tests will need updated URLs after deployment
-
-## Deployment Checklist
-
-Before merging and deploying, ensure:
-
-- [ ] New domain `lifebuild.me` is purchased and DNS configured
-- [ ] Cloudflare D1 database `lifebuild-prod` created
-- [ ] Cloudflare R2 buckets created (`lifebuild-images`, `lifebuild-images-preview`)
-- [ ] Data migrated from old database and buckets
-- [ ] New logo and branding assets created
-- [ ] Environment variables updated in Cloudflare Pages
-- [ ] Redirects configured from old domain to new domain
-
-## Rollout Strategy
-
-Recommended approach:
-
-1. Deploy new infrastructure in parallel
-2. Test thoroughly on staging/preview
-3. Switch DNS to new infrastructure
-4. Monitor for issues
-5. Deprecate old infrastructure after stable period
-
-## Related Documentation
-
-See `docs/plans/rebrand-worksquared-to-lifebuild.md` for complete rebranding plan.
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-EOF
-)"
-```
-
----
-
-### Post-Merge (Deployment)
-
-#### Step 11: Infrastructure Deployment
-
-1. Deploy auth worker:
-   ```bash
-   pnpm --filter @lifebuild/auth-worker deploy
-   ```
-
-2. Deploy sync worker:
-   ```bash
-   pnpm --filter @lifebuild/worker deploy
-   ```
-
-3. Deploy web app to Cloudflare Pages:
-   ```bash
-   pnpm --filter @lifebuild/web deploy
-   ```
-
-4. Verify deployments at new URLs
-
----
-
-#### Step 12: Data Migration
-
-1. Export data from `work-squared-prod` D1 database
-2. Import to `lifebuild-prod` D1 database
-3. Copy images from old R2 buckets to new buckets
-4. Verify data integrity
-
----
-
-#### Step 13: DNS Switch
-
-1. Update DNS records to point to new infrastructure
-2. Configure SSL certificates
-3. Test all endpoints
-
----
-
-#### Step 14: Monitoring
-
-1. Monitor error rates
-2. Check WebSocket connections
-3. Verify authentication flows
-4. Monitor user feedback
-
----
-
-#### Step 15: Cleanup (After Stable Period)
-
-1. Set up redirects: `worksquared.ai` → `lifebuild.me`
-2. Deprecate old Cloudflare resources (workers, database, buckets)
-3. Archive old domain (or redirect indefinitely)
+## Recommended Execution Order (speed-first, downtime acceptable)
+
+**Prep (same day)**
+- Purchase/configure `lifebuild.me` in Cloudflare; set `app.lifebuild.me` (Pages) and `lifebuild`/`lifebuild-auth` worker domains (or workers.dev).
+- Stand up fresh resources: D1 `lifebuild-prod`, R2 `lifebuild-images` + `lifebuild-images-preview`, new workers. Skip data migration if no live users; treat WorkSquared data as disposable.
+- Produce/choose LifeBuild logo + favicon/OG image set.
+- Point `worksquared.ai` marketing domain to redirect to `lifebuild.me` once new site (sociotechnica-org/life-build-site) is live.
+
+**Code changes (fast path)**
+1) Rename packages/tooling: root & package `package.json`, `pnpm-workspace.yaml`, regenerate `pnpm-lock.yaml`, update `tsconfig` path aliases, ESLint/Vite/Storybook/Jest/Playwright configs, turbo/changesets, CI cache keys.
+2) Replace imports: mac-safe find/replace `@work-squared/` → `@lifebuild/` (includes posthog worker package).
+3) Configs: wrangler files (worker, auth-worker, posthog-worker), render.yaml, GitHub workflows (filters/env/caches), `_headers`, manifests, PWA names/cache keys/localStorage keys/cookies.
+4) Domains/branding: README/docs, marketing/meta tags (canonical/OG/Twitter), sitemap/robots, titles, Storybook branding.
+5) Auth/comms: OAuth redirect URIs, email templates/senders (SPF/DKIM), in-app copy.
+6) Analytics/monitoring: Sentry/PostHog project names, DSNs, alert routes, uptime checks.
+
+**Verification (minimal viable to ship)**
+- Run `pnpm install` (regens lockfile), `pnpm lint-all`, `pnpm test`.  
+- Smoke locally/staging: login/signup, WebSocket sync, file upload.
+
+**Deploy & cutover**
+- Deploy auth worker, sync worker, web (Pages) pointing at new URLs.
+- Deploy PostHog proxy worker with new lifebuild subdomain and update `VITE_PUBLIC_POSTHOG_HOST` env in web/Pages.
+- Update DNS to new stack; set redirects from worksquared.ai → lifebuild.me (and app subdomain).
+- Monitor logs/alerts; if issues arise, revert DNS or redeploy.
+
+**Post-cutover**
+- Optionally migrate or delete old WorkSquared resources after a short stable window.
+- Publish updated sitemap, verify search console (if used), and keep monitoring.
 
 ---
 
@@ -998,6 +885,7 @@ Use these patterns for bulk updates:
 # Worker names (in config files)
 work-squared-auth → lifebuild-auth
 work-squared → lifebuild
+work-squared-posthog → lifebuild-posthog
 
 # Database/bucket names (in wrangler files)
 work-squared-prod → lifebuild-prod
@@ -1009,6 +897,7 @@ worksquared.ai → lifebuild.me
 app.worksquared.ai → app.lifebuild.me
 work-squared.jessmartin.workers.dev → lifebuild.jessmartin.workers.dev
 work-squared-auth.jessmartin.workers.dev → lifebuild-auth.jessmartin.workers.dev
+coconut.worksquared.ai → coconut.lifebuild.me
 
 # Display names (in docs and UI)
 Work Squared → LifeBuild
@@ -1059,6 +948,12 @@ grep -r "Work Squared\|WorkSquared" . --include="*.md" --include="*.tsx" --inclu
 - **Mitigation:** Set up redirects, communicate changes to users
 - **Rollback:** DNS can be reverted, but causes downtime
 
+**Auth flows & communications:**
+
+- **Risk:** OAuth redirect URIs and email links pointing to old domains will block sign-in or send users to dead pages
+- **Mitigation:** Update provider consoles, email templates, DKIM/SPF, and in-app copy; verify magic-link flows on staging
+- **Rollback:** Temporarily re-enable old redirect URIs and sender domain while finishing cutover
+
 ---
 
 ### Medium Risk Changes
@@ -1075,7 +970,18 @@ grep -r "Work Squared\|WorkSquared" . --include="*.md" --include="*.tsx" --inclu
 - **Mitigation:** Update all .env.example files, document required changes
 - **Rollback:** Update environment variables in Cloudflare Pages
 
----
+**Analytics/monitoring:**
+
+- **Risk:** Losing observability if DSNs/keys not updated
+- **Mitigation:** Update DSNs and alert routes with the rebrand; keep old projects for fallback
+- **Rollback:** Point env vars back to previous project keys
+
+**Client storage/caches:**
+
+- **Risk:** Stale localStorage/cookies/service-worker caches keyed to WorkSquared causing mixed sessions
+- **Mitigation:** Rename keys/cache names and bump versions; prompt logout/login if needed
+- **Rollback:** Clear client storage via versioned cache names or forced logout
+
 
 ### Low Risk Changes
 
@@ -1093,78 +999,17 @@ grep -r "Work Squared\|WorkSquared" . --include="*.md" --include="*.tsx" --inclu
 
 ---
 
-## Open Questions
-
-1. **GitHub Repository:**
-   - Should the repo be renamed from `work-squared` to `lifebuild`?
-   - How will this affect existing clones and links?
-
-2. **Logo & Branding:**
-   - Who is creating the new LifeBuild logo?
-   - What's the timeline for logo/branding assets?
-
-3. **Custom Domains:**
-   - Use `*.jessmartin.workers.dev` subdomains or custom domains like `auth.lifebuild.me`?
-
-4. **Planning Docs:**
-   - Which historical planning documents should be updated vs. archived?
-   - Should we create a `docs/archive/` folder for old branding?
-
-5. **Data Migration:**
-   - What's the acceptable downtime window for database migration?
-   - Should we do a phased migration or all at once?
-
-6. **User Communication:**
-   - How will we notify existing users about the rebrand?
-   - Will we maintain worksquared.ai with redirects indefinitely?
-
-7. **Marketing Site:**
-   - Is there an existing marketing site at worksquared.ai?
-   - What content needs to be created for lifebuild.me?
-
----
-
-## Estimated Timeline
-
-**Preparation:** 1-2 days
-
-- Domain setup
-- Logo creation
-- Infrastructure planning
-
-**Implementation:** 1 day
-
-- Code changes
-- Testing
-- PR review
-
-**Deployment:** 1 day
-
-- Infrastructure creation
-- Code deployment
-- Data migration
-- DNS switch
-
-**Monitoring:** 1 week
-
-- Error monitoring
-- User feedback
-- Issue resolution
-
-**Total:** ~2 weeks from start to stable
-
----
-
 ## Success Criteria
 
 - [ ] All package names updated to `@lifebuild/*`
 - [ ] All domain references updated to `lifebuild.me`
 - [ ] All Cloudflare resources deployed with new names
 - [ ] Application runs successfully at `app.lifebuild.me`
+- [ ] PostHog proxy served from lifebuild subdomain and web env `VITE_PUBLIC_POSTHOG_HOST` updated
 - [ ] All tests pass (`lint-all`, `test`, `test:e2e`)
 - [ ] Documentation is consistent and accurate
 - [ ] No broken links or references
-- [ ] User data migrated successfully
+- [ ] Data migration completed if chosen, or intentionally skipped for fresh start
 - [ ] Redirects configured from old domain
 - [ ] Zero user-facing bugs related to rebrand
 
@@ -1180,55 +1025,60 @@ grep -r "Work Squared\|WorkSquared" . --include="*.md" --include="*.tsx" --inclu
 4. `packages/auth-worker/package.json`
 5. `packages/shared/package.json`
 6. `packages/server/package.json`
-7. `packages/worker/wrangler.jsonc`
-8. `packages/auth-worker/wrangler.toml`
-9. `packages/server/render.yaml`
-10. `.github/workflows/deploy.yml`
-11. `.github/workflows/ci.yml`
-12. `.gitignore`
+7. `packages/posthog-worker/package.json`
+8. `packages/worker/wrangler.jsonc`
+9. `packages/auth-worker/wrangler.toml`
+10. `packages/posthog-worker/wrangler.toml`
+11. `packages/server/render.yaml`
+12. `.github/workflows/deploy.yml`
+13. `.github/workflows/ci.yml`
+14. `.gitignore`
+    - Also review: `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `turbo.json` (if present), `.changeset/config.json` (if present), root `tsconfig.json`, and package-level `tsconfig.json` files for alias updates.
 
 ### HTML & Branding
 
-13. `packages/web/index.html`
-14. `packages/web/public/_headers`
-15. `packages/web/public/manifest.json` (if exists)
+15. `packages/web/index.html`
+16. `packages/web/public/_headers`
+17. `packages/web/public/manifest.json` (if exists)
+    - Plus: `packages/web/public/robots.txt`, `packages/web/public/sitemap.xml` (or marketing-site equivalents) for domains/canonicals.
 
 ### Documentation (Primary)
 
-16. `README.md`
-17. `CONTRIBUTING.md`
-18. `CLAUDE.md`
-19. `docs/architecture.md`
-20. `docs/deployment.md`
-21. `docs/README.md`
+18. `README.md`
+19. `CONTRIBUTING.md`
+20. `CLAUDE.md`
+21. `docs/architecture.md`
+22. `docs/deployment.md`
+23. `docs/README.md`
 
 ### Documentation (Package READMEs)
 
-22. `packages/web/README.md`
-23. `packages/worker/README.md`
-24. `packages/auth-worker/README.md`
-25. `packages/server/README.md`
-26. `packages/shared/README.md`
-27. `packages/shared/src/auth/README.md`
+24. `packages/web/README.md`
+25. `packages/worker/README.md`
+26. `packages/auth-worker/README.md`
+27. `packages/posthog-worker/README.md`
+28. `packages/server/README.md`
+29. `packages/shared/README.md`
+30. `packages/shared/src/auth/README.md`
 
 ### Environment Files
 
-28. `packages/web/.env.example`
-29. `packages/worker/.dev.vars.example`
-30. `packages/auth-worker/.dev.vars.example`
-31. `packages/server/.env.example`
-32. `packages/server/.env.production` (handle carefully)
+31. `packages/web/.env.example`
+32. `packages/worker/.dev.vars.example`
+33. `packages/auth-worker/.dev.vars.example`
+34. `packages/server/.env.example`
+35. `packages/server/.env.production` (handle carefully)
 
 ### Source Files (146+ files with imports)
 
-33-178. `packages/web/src/**/*.tsx` (100+ files)
-179-198. `packages/server/src/**/*.ts` (20+ files)
-199-228. `packages/*/test/**/*.test.ts` (30+ test files)
-229-238. `packages/*/**/*.stories.tsx` (Storybook files)
+36-181. `packages/web/src/**/*.tsx` (100+ files)
+182-201. `packages/server/src/**/*.ts` (20+ files)
+202-231. `packages/*/test/**/*.test.ts` (30+ test files)
+232-241. `packages/*/**/*.stories.tsx` (Storybook files)
 
 ### Planning Documents (Selective updates)
 
-239-258. Various files in `docs/plans/` (20+ files)
+242-261. Various files in `docs/plans/` (20+ files)
 
 ---
 
@@ -1243,5 +1093,5 @@ For questions about this rebranding plan, contact:
 ---
 
 **Document Version:** 1.0
-**Last Updated:** 2025-10-21
+**Last Updated:** 2025-12-06
 **Status:** Planning Phase
