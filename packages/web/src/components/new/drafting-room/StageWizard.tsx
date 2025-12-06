@@ -66,9 +66,9 @@ export const StageWizard: React.FC<StageWizardProps> = ({
                 type='button'
                 className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-200 text-xs font-semibold ${
                   isActive
-                    ? 'bg-[#2f2b27] border-[#2f2b27] text-[#faf9f7]'
+                    ? 'bg-[#2f2b27] border-[#2f2b27] text-[#faf9f7] cursor-pointer'
                     : isCompleted
-                      ? 'bg-[#2f2b27] border-[#2f2b27] text-[#faf9f7]'
+                      ? 'bg-[#2f2b27] border-[#2f2b27] text-[#faf9f7] cursor-pointer'
                       : isAccessible
                         ? 'bg-white border-[#d0ccc5] text-[#2f2b27] cursor-pointer hover:border-[#2f2b27]'
                         : 'bg-[#f1efe9] border-[#e8e4de] text-[#8b8680] cursor-not-allowed'

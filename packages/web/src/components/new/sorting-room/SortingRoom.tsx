@@ -613,9 +613,9 @@ export const SortingRoom: React.FC = () => {
                 isExpanded ? 'border-2' : 'border'
               }`}
               style={{
+                borderColor: isExpanded ? colors.border : '#e8e4de',
                 borderLeftWidth: '4px',
                 borderLeftColor: colors.border,
-                borderColor: isExpanded ? colors.border : '#e8e4de',
                 background: isExpanded ? colors.bg : undefined,
               }}
             >
