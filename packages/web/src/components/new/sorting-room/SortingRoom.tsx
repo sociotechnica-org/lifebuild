@@ -643,7 +643,7 @@ export const SortingRoom: React.FC = () => {
                   {expandedStream === summary.stream ? 'Hide' : 'Expand'}
                 </button>
               </div>
-              <div className='px-3 pb-3 border-t border-[#e8e4de]'>
+              <div className='px-3 pb-3 border-t' style={{ borderTopColor: colors.border }}>
                 <div className='flex items-center gap-2 pt-2'>
                   <span className='text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide'>
                     ON TABLE
