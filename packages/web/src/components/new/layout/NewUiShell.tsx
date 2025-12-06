@@ -35,7 +35,13 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
   }
 
   return (
-    <div className='min-h-screen text-[#2f2b27] leading-relaxed pb-36 bg-[radial-gradient(circle_at_15%_20%,rgba(255,255,255,0.8),transparent_40%),#f5f3f0]'>
+    <div
+      className='min-h-screen text-[#2f2b27] leading-relaxed pb-36'
+      style={{
+        background:
+          'radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.8), transparent 40%), #f5f3f0',
+      }}
+    >
       <header className='sticky top-0 z-[8] backdrop-blur-[10px] bg-[rgba(250,249,247,0.88)] border-b border-[#e8e4de] py-3.5 px-6 flex items-center justify-between'>
         <nav className='flex gap-4 items-center font-semibold'>
           <Link
