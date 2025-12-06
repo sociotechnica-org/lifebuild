@@ -158,7 +158,7 @@ export const LifeMap: React.FC = () => {
 
   return (
     <div className='bg-white rounded-2xl p-4 border border-[#e8e4de]'>
-      <div className='grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4'>
+      <div className='grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4'>
         {categoriesWithProjects.map(category => {
           const projects =
             categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []

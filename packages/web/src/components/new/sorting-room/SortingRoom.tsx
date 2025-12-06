@@ -587,7 +587,7 @@ export const SortingRoom: React.FC = () => {
         )}
       </div>
 
-      <div className='grid grid-cols-3 gap-3'>
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
         {streamSummaries.map(summary => {
           const streamColors: Record<Stream, { border: string; bg: string }> = {
             gold: {

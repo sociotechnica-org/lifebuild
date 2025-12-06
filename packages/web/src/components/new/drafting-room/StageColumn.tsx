@@ -21,7 +21,7 @@ export const StageColumn: React.FC<StageColumnProps> = ({
   const isEmpty = projectCount === 0
 
   return (
-    <div className='bg-white rounded-2xl p-4 border border-[#e8e4de]'>
+    <div className='bg-white rounded-2xl p-4 border border-[#e8e4de] min-h-[300px]'>
       <div className='flex items-center justify-between mb-2'>
         <h2 className="font-['Source_Serif_4',Georgia,serif] text-xl font-semibold text-[#2f2b27]">
           {stageName}

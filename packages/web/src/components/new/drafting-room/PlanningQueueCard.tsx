@@ -68,7 +68,7 @@ const getTierClassName = (tier: ProjectTier | null): string => {
   if (!tier) return ''
   const tierColors: Record<ProjectTier, string> = {
     gold: 'text-[#d8a650]',
-    silver: 'text-[#c5ced8]',
+    silver: 'text-[#708090]',
     bronze: 'text-[#c48b5a]',
   }
   return tierColors[tier]

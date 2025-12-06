@@ -229,7 +229,7 @@ export const Stage2Form: React.FC = () => {
 
         {/* Project Title and Category */}
         {project && (
-          <div className='flex items-center gap-2 mb-4'>
+          <div className='flex items-center justify-between gap-2 pb-4 mb-4 border-b border-[#e8e4de]'>
             <div className='font-semibold text-lg text-[#2f2b27]'>
               {project.name || 'Untitled Project'}
             </div>
