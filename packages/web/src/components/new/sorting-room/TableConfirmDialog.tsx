@@ -37,26 +37,34 @@ export const TableConfirmDialog: React.FC<TableConfirmDialogProps> = ({
   const streamLabel = stream.charAt(0).toUpperCase() + stream.slice(1)
 
   return (
-    <div className='sorting-room-dialog-overlay' onClick={onCancel}>
-      <div className='sorting-room-dialog' onClick={e => e.stopPropagation()}>
+    <div
+      className='fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]'
+      onClick={onCancel}
+    >
+      <div
+        className='bg-white rounded-xl p-6 max-w-[480px] w-[90%] shadow-[0_8px_32px_rgba(0,0,0,0.2)]'
+        onClick={e => e.stopPropagation()}
+      >
         {mode === 'activate' ? (
           <>
-            <h3 className='sorting-room-dialog-title'>Activate {streamLabel} Project</h3>
+            <h3 className='m-0 mb-4 text-lg font-semibold text-[#2f2b27]'>
+              Activate {streamLabel} Project
+            </h3>
 
-            <div className='sorting-room-dialog-content'>
-              <p>
+            <div className='mb-6'>
+              <p className='m-0 mb-3 text-sm text-[#2f2b27] leading-relaxed'>
                 <strong>{incomingProject!.name}</strong> will become your active {stream} project.
               </p>
 
               {outgoingProject && (
-                <div className='sorting-room-dialog-info'>
+                <div className='bg-[#faf9f7] rounded-lg p-4 mt-4'>
                   {outgoingHasProgress ? (
-                    <p>
+                    <p className='m-0 text-sm text-[#2f2b27] leading-relaxed'>
                       <strong>{outgoingProject.name}</strong> has tasks in progress and will remain
                       active. It will be moved to the top of your active projects list.
                     </p>
                   ) : (
-                    <p>
+                    <p className='m-0 text-sm text-[#2f2b27] leading-relaxed'>
                       <strong>{outgoingProject.name}</strong> has no tasks in progress. It will be
                       moved back to the top of your backlog queue.
                     </p>
@@ -67,21 +75,23 @@ export const TableConfirmDialog: React.FC<TableConfirmDialogProps> = ({
           </>
         ) : (
           <>
-            <h3 className='sorting-room-dialog-title'>Release {streamLabel} Project</h3>
+            <h3 className='m-0 mb-4 text-lg font-semibold text-[#2f2b27]'>
+              Release {streamLabel} Project
+            </h3>
 
-            <div className='sorting-room-dialog-content'>
-              <p>
+            <div className='mb-6'>
+              <p className='m-0 mb-3 text-sm text-[#2f2b27] leading-relaxed'>
                 <strong>{outgoingProject!.name}</strong> will be removed from the {stream} table.
               </p>
 
-              <div className='sorting-room-dialog-info'>
+              <div className='bg-[#faf9f7] rounded-lg p-4 mt-4'>
                 {outgoingHasProgress ? (
-                  <p>
+                  <p className='m-0 text-sm text-[#2f2b27] leading-relaxed'>
                     This project has tasks in progress and will remain active. It will be moved to
                     the top of your active projects list.
                   </p>
                 ) : (
-                  <p>
+                  <p className='m-0 text-sm text-[#2f2b27] leading-relaxed'>
                     This project has no tasks in progress. It will be moved back to the top of your
                     backlog queue.
                   </p>
@@ -91,11 +101,19 @@ export const TableConfirmDialog: React.FC<TableConfirmDialogProps> = ({
           </>
         )}
 
-        <div className='sorting-room-dialog-actions'>
-          <button type='button' className='sorting-room-dialog-btn cancel' onClick={onCancel}>
+        <div className='flex gap-3 justify-end'>
+          <button
+            type='button'
+            className='py-2 px-5 rounded-lg text-sm font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27]'
+            onClick={onCancel}
+          >
             Cancel
           </button>
-          <button type='button' className='sorting-room-dialog-btn confirm' onClick={onConfirm}>
+          <button
+            type='button'
+            className='py-2 px-5 rounded-lg text-sm font-medium bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black'
+            onClick={onConfirm}
+          >
             {mode === 'activate' ? 'Activate' : 'Release'}
           </button>
         </div>

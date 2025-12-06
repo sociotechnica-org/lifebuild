@@ -68,6 +68,13 @@ function getCategoryColor(project: Project | null | undefined): string | null {
   return info?.colorHex ?? null
 }
 
+// Stream colors
+const STREAM_COLORS: Record<LifecycleStream, string> = {
+  gold: '#d8a650',
+  silver: '#c5ced8',
+  bronze: '#c48b5a',
+}
+
 /**
  * Sortable task card for tabled items (can be reordered)
  */
@@ -85,7 +92,7 @@ const SortableTabledTaskCard: React.FC<{
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    borderLeftColor: categoryColor || 'var(--bronze)',
+    borderLeftColor: categoryColor || '#c48b5a',
     borderLeftWidth: '4px',
   }
 
@@ -93,27 +100,40 @@ const SortableTabledTaskCard: React.FC<{
     <div
       ref={setNodeRef}
       style={style}
-      className={`sorting-room-task-card tabled ${isDragging ? 'dragging' : ''}`}
+      className={`flex items-start gap-3 py-3.5 px-4 bg-white border border-[#e8e4de] rounded-xl transition-all duration-150 hover:border-[#8b8680] hover:bg-[#faf9f7] ${
+        isDragging ? 'shadow-lg rotate-2' : ''
+      }`}
     >
       <span
-        className='sorting-room-queue-position sorting-room-drag-handle'
+        className='text-xs font-semibold text-[#8b8680] bg-[#faf9f7] py-1 px-2 rounded min-w-[2rem] text-center cursor-grab hover:bg-black/5 active:cursor-grabbing'
         {...attributes}
         {...listeners}
       >
         #{index + 1}
       </span>
-      <div className='sorting-room-task-info'>
-        <div className='sorting-room-task-title'>{task?.title ?? 'Unknown task'}</div>
-        <div className='sorting-room-task-meta'>
-          <span className={`sorting-room-stream-dot ${stream}`} />
+      <div className='flex-1 min-w-0'>
+        <div className='font-medium text-sm text-[#2f2b27] truncate'>
+          {task?.title ?? 'Unknown task'}
+        </div>
+        <div className='text-xs text-[#8b8680] mt-0.5 flex items-center gap-1.5'>
+          <span
+            className='w-2 h-2 rounded-full flex-shrink-0'
+            style={{ backgroundColor: STREAM_COLORS[stream] }}
+          />
           <span>{project?.name ?? 'Quick task'}</span>
         </div>
       </div>
       {task?.status && task.status !== 'todo' && (
-        <span className='sorting-room-status-badge'>{task.status.replace('_', ' ')}</span>
+        <span className='text-[0.65rem] py-0.5 px-2 bg-[#faf9f7] border border-[#e8e4de] rounded-full text-[#8b8680] lowercase flex-shrink-0 whitespace-nowrap'>
+          {task.status.replace('_', ' ')}
+        </span>
       )}
       {onRemove && (
-        <button type='button' className='sorting-room-action-btn release' onClick={onRemove}>
+        <button
+          type='button'
+          className='text-xs py-1.5 px-3 rounded-lg bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] whitespace-nowrap flex-shrink-0'
+          onClick={onRemove}
+        >
           Remove
         </button>
       )}
@@ -151,39 +171,44 @@ const DraggableAvailableTaskCard: React.FC<{
   const style: React.CSSProperties = {
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.5 : 1,
-    ...(categoryColor && {
-      borderLeftColor: categoryColor,
-      borderLeftWidth: '4px',
-    }),
+    borderLeftColor: categoryColor || '#e8e4de',
+    borderLeftWidth: '4px',
   }
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`sorting-room-task-card available ${isDragging ? 'dragging' : ''}`}
+      className={`flex items-start gap-3 py-3.5 px-4 bg-white border border-[#e8e4de] rounded-xl transition-all duration-150 hover:border-[#8b8680] hover:bg-[#faf9f7] ${
+        isDragging ? 'shadow-lg rotate-2' : ''
+      }`}
     >
       <span
-        className='sorting-room-drag-handle sorting-room-grip-icon'
+        className='text-[#8b8680] py-2 px-1 -ml-1 cursor-grab hover:text-[#2f2b27] hover:bg-black/[0.08] rounded transition-all duration-150 active:cursor-grabbing'
         {...attributes}
         {...listeners}
       >
         <DragGripIcon />
       </span>
-      <div className='sorting-room-task-info'>
-        <div className='sorting-room-task-title'>{task.title}</div>
-        <div className='sorting-room-task-meta'>
-          <span className={`sorting-room-stream-dot ${stream}`} />
+      <div className='flex-1 min-w-0'>
+        <div className='font-medium text-sm text-[#2f2b27] truncate'>{task.title}</div>
+        <div className='text-xs text-[#8b8680] mt-0.5 flex items-center gap-1.5'>
+          <span
+            className='w-2 h-2 rounded-full flex-shrink-0'
+            style={{ backgroundColor: STREAM_COLORS[stream] }}
+          />
           <span>{project?.name ?? 'Quick task'}</span>
         </div>
       </div>
       {task.status !== 'todo' && (
-        <span className='sorting-room-status-badge'>{task.status.replace('_', ' ')}</span>
+        <span className='text-[0.65rem] py-0.5 px-2 bg-[#faf9f7] border border-[#e8e4de] rounded-full text-[#8b8680] lowercase flex-shrink-0 whitespace-nowrap'>
+          {task.status.replace('_', ' ')}
+        </span>
       )}
       {onAdd && (
         <button
           type='button'
-          className='sorting-room-action-btn activate'
+          className='text-xs py-1.5 px-3 rounded-lg bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black whitespace-nowrap flex-shrink-0'
           onClick={e => {
             e.stopPropagation()
             onAdd()
@@ -210,7 +235,7 @@ const TabledDropZone: React.FC<{
   return (
     <div
       ref={setNodeRef}
-      className='sorting-room-queue-list'
+      className='flex flex-col gap-2'
       style={{
         minHeight: isEmpty ? '100px' : undefined,
       }}
@@ -231,10 +256,12 @@ const TabledFooter: React.FC<{
   // When dragging from available, show drop indicator instead of quick add form
   if (isDraggingFromAvailable) {
     return (
-      <div className='sorting-room-drop-indicator sorting-room-footer-height'>
-        <span className='sorting-room-queue-position'>#{nextPosition}</span>
-        <div className='sorting-room-task-info'>
-          <div className='sorting-room-task-title sorting-room-drop-placeholder'>
+      <div className='flex items-center gap-3 px-4 min-h-[44px] bg-[#c48b5a]/15 border-2 border-dashed border-[#c48b5a] rounded-lg animate-pulse'>
+        <span className='text-xs font-semibold text-[#c48b5a]/70 bg-[#faf9f7] py-1 px-2 rounded min-w-[2rem] text-center'>
+          #{nextPosition}
+        </span>
+        <div className='flex-1 min-w-0'>
+          <div className='font-medium text-sm text-[#c48b5a] italic opacity-80'>
             Drop to add to table
           </div>
         </div>
@@ -262,12 +289,12 @@ const AvailableDropZone: React.FC<{
   })
 
   return (
-    <div ref={setNodeRef} className='sorting-room-queue-list'>
+    <div ref={setNodeRef} className='flex flex-col gap-2'>
       {/* Drop indicator when dragging from tabled */}
       {isDraggingFromTabled && (
-        <div className='sorting-room-drop-indicator remove'>
-          <div className='sorting-room-task-info'>
-            <div className='sorting-room-task-title sorting-room-drop-placeholder'>
+        <div className='flex items-center gap-3 px-4 min-h-[44px] bg-[#8b8680]/10 border-2 border-dashed border-[#8b8680] rounded-lg animate-pulse'>
+          <div className='flex-1 min-w-0'>
+            <div className='font-medium text-sm text-[#8b8680] italic opacity-80'>
               Drop to remove from table
             </div>
           </div>
@@ -292,20 +319,27 @@ const TaskDragOverlay: React.FC<{
 
   return (
     <div
-      className={`sorting-room-task-card ${isAvailable ? 'available' : 'tabled'} dragging`}
+      className='flex items-start gap-3 py-3.5 px-4 bg-white border border-[#e8e4de] rounded-xl shadow-lg'
       style={{
-        borderLeftColor: categoryColor || (isAvailable ? 'var(--border)' : 'var(--bronze)'),
+        borderLeftColor: categoryColor || (isAvailable ? '#e8e4de' : '#c48b5a'),
         borderLeftWidth: '4px',
         boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
       }}
     >
       {!isAvailable && index !== undefined && (
-        <span className='sorting-room-queue-position'>#{index + 1}</span>
+        <span className='text-xs font-semibold text-[#8b8680] bg-[#faf9f7] py-1 px-2 rounded min-w-[2rem] text-center'>
+          #{index + 1}
+        </span>
       )}
-      <div className='sorting-room-task-info'>
-        <div className='sorting-room-task-title'>{task?.title ?? 'Unknown task'}</div>
-        <div className='sorting-room-task-meta'>
-          <span className={`sorting-room-stream-dot ${stream}`} />
+      <div className='flex-1 min-w-0'>
+        <div className='font-medium text-sm text-[#2f2b27] truncate'>
+          {task?.title ?? 'Unknown task'}
+        </div>
+        <div className='text-xs text-[#8b8680] mt-0.5 flex items-center gap-1.5'>
+          <span
+            className='w-2 h-2 rounded-full flex-shrink-0'
+            style={{ backgroundColor: STREAM_COLORS[stream] }}
+          />
           <span>{project?.name ?? 'Quick task'}</span>
         </div>
       </div>
@@ -340,10 +374,10 @@ const QuickTaskEntry: React.FC<{
   )
 
   return (
-    <form className='sorting-room-quick-add' onSubmit={handleSubmit}>
+    <form className='flex items-stretch gap-2 min-h-[44px]' onSubmit={handleSubmit}>
       <input
         type='text'
-        className='sorting-room-quick-add-input'
+        className='flex-1 px-3 h-[44px] border-2 border-dashed border-[#e8e4de] rounded-lg bg-[#faf9f7] text-sm text-[#2f2b27] transition-all duration-150 focus:outline-none focus:border-[#c48b5a] focus:border-solid focus:bg-white placeholder:text-[#8b8680]'
         placeholder='Quick add task to table...'
         value={title}
         onChange={e => setTitle(e.target.value)}
@@ -351,7 +385,7 @@ const QuickTaskEntry: React.FC<{
       />
       <button
         type='submit'
-        className='sorting-room-quick-add-btn'
+        className='w-[44px] h-[44px] flex-shrink-0 flex items-center justify-center border-none rounded-lg bg-[#c48b5a] text-white text-xl font-semibold cursor-pointer transition-all duration-150 hover:bg-[#a97548] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed'
         disabled={!title.trim() || isSubmitting}
       >
         {isSubmitting ? '...' : '+'}
@@ -494,11 +528,11 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className='sorting-room-stream-panel'>
+      <div className='flex flex-col gap-6'>
         {/* Validation warning - above tabled section */}
         {tabledTasksWithDetails.length < 3 && (
-          <div className='sorting-room-warning'>
-            ⚠️ Minimum 3 bronze tasks recommended.{' '}
+          <div className='py-3 px-4 bg-[#ffc107]/10 border border-[#ffc107]/30 rounded-lg text-sm text-[#856404]'>
+            Warning: Minimum 3 bronze tasks recommended.{' '}
             {tabledTasksWithDetails.length === 0
               ? 'Add tasks to get started.'
               : `Add ${3 - tabledTasksWithDetails.length} more.`}
@@ -506,13 +540,15 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
         )}
 
         {/* Tabled Section with drag-and-drop */}
-        <div className='sorting-room-section'>
-          <h3 className='sorting-room-section-title'>TABLED ({tabledTasksWithDetails.length})</h3>
+        <div className='flex flex-col gap-3'>
+          <h3 className='text-xs font-semibold uppercase tracking-wide text-[#8b8680] m-0'>
+            TABLED ({tabledTasksWithDetails.length})
+          </h3>
           {tabledTasksWithDetails.length === 0 ? (
             <TabledDropZone isEmpty={true}>
-              <div className='sorting-room-empty-slot'>
+              <div className='flex flex-col items-center justify-center p-8 bg-black/[0.02] border-2 border-dashed border-[#e8e4de] rounded-xl text-center text-[#8b8680]'>
                 <span>No bronze tasks on table</span>
-                <span className='sorting-room-empty-hint'>
+                <span className='text-sm mt-1 opacity-70'>
                   Drag tasks here or click "Add to Table"
                 </span>
               </div>
@@ -543,11 +579,13 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
         </div>
 
         {/* Available Section */}
-        <div className='sorting-room-section'>
-          <h3 className='sorting-room-section-title'>AVAILABLE ({availableTasks.length})</h3>
+        <div className='flex flex-col gap-3'>
+          <h3 className='text-xs font-semibold uppercase tracking-wide text-[#8b8680] m-0'>
+            AVAILABLE ({availableTasks.length})
+          </h3>
           <AvailableDropZone isDraggingFromTabled={activeType === 'tabled'}>
             {availableTasks.length === 0 && activeType !== 'tabled' ? (
-              <div className='sorting-room-empty-queue'>
+              <div className='p-4 text-[#8b8680] text-sm italic'>
                 No available tasks. Tasks from active projects will appear here.
               </div>
             ) : (

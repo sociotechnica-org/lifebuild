@@ -14,6 +14,12 @@ export interface SortableProjectCardProps {
   isActiveView?: boolean
 }
 
+// Stream colors
+const STREAM_COLORS = {
+  gold: '#d8a650',
+  silver: '#c5ced8',
+}
+
 /**
  * Sortable Project Card - Draggable project in the queue
  */
@@ -42,26 +48,41 @@ export const SortableProjectCard: React.FC<SortableProjectCardProps> = ({
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      className={`sorting-room-project-card queued ${stream}`}
+      style={{
+        ...style,
+        borderLeftWidth: '4px',
+        borderLeftColor: STREAM_COLORS[stream],
+      }}
+      className={`flex items-start gap-3 p-4 bg-white border border-[#e8e4de] rounded-xl transition-all duration-150 hover:border-[#8b8680] hover:bg-[#faf9f7] ${
+        isDragging ? 'shadow-lg rotate-2' : ''
+      }`}
       {...attributes}
     >
-      <div className='sorting-room-drag-handle' {...listeners}>
-        <span className='sorting-room-queue-position'>#{index + 1}</span>
+      <div
+        className='cursor-grab flex items-center justify-center p-1 rounded transition-colors duration-150 hover:bg-black/5 active:cursor-grabbing'
+        {...listeners}
+      >
+        <span className='text-xs font-semibold text-[#8b8680] bg-[#faf9f7] py-1 px-2 rounded min-w-[2rem] text-center'>
+          #{index + 1}
+        </span>
       </div>
-      <div className='sorting-room-project-info'>
-        <div className='sorting-room-project-name'>{project.name}</div>
-        <div className='sorting-room-project-meta'>
+      <div className='flex-1 min-w-0'>
+        <div className='font-medium text-sm text-[#2f2b27] truncate'>{project.name}</div>
+        <div className='text-xs text-[#8b8680] mt-0.5'>
           {project.category && <span>{project.category}</span>}
         </div>
       </div>
-      <div className='sorting-room-action-buttons'>
-        <button type='button' className='sorting-room-action-btn view' onClick={handleView}>
+      <div className='flex gap-2 flex-shrink-0'>
+        <button
+          type='button'
+          className='text-xs py-1.5 px-3 rounded-lg bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] whitespace-nowrap'
+          onClick={handleView}
+        >
           View
         </button>
         <button
           type='button'
-          className='sorting-room-action-btn activate'
+          className='text-xs py-1.5 px-3 rounded-lg bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black whitespace-nowrap'
           onClick={() => onActivateToTable(project)}
         >
           Activate

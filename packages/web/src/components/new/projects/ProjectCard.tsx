@@ -132,7 +132,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   return (
     <Link
       to={preserveStoreIdInUrl(`/new/projects/${project.id}`)}
-      className='new-project-card block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg'
+      className='block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg'
     >
       <div className='flex gap-4 p-4 sm:p-5'>
         <UrushiVisual

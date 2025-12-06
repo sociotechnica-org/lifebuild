@@ -29,14 +29,13 @@ const ProjectItem: React.FC<{
   return (
     <Link
       to={preserveStoreIdInUrl(generateRoute.project(project.id))}
-      className='new-ui-project-card'
-      style={{ textDecoration: 'none', display: 'block' }}
+      className='block no-underline mb-2 p-2 rounded-lg bg-[#faf9f7] hover:bg-[#f5f3f0] transition-colors duration-200'
       onClick={e => e.stopPropagation()}
     >
-      <div className='title'>{project.name}</div>
-      <div className='progress'>
+      <div className='font-semibold text-sm text-[#2f2b27] mb-1'>{project.name}</div>
+      <div className='h-2 bg-[#f1efe9] rounded-full overflow-hidden'>
         <div
-          className='bar'
+          className='h-full rounded-full'
           style={{
             width: `${completionPercentage}%`,
             backgroundColor: categoryColor,
@@ -67,12 +66,12 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   projectCompletionMap = new Map(),
 }) => {
   return (
-    <div className='new-ui-category-card' style={{ borderColor: categoryColor }}>
+    <div className='border-2 rounded-2xl p-4 bg-white' style={{ borderColor: categoryColor }}>
       <Link
         to={preserveStoreIdInUrl(generateRoute.category(categoryValue))}
-        style={{ textDecoration: 'none', color: 'inherit' }}
+        className='no-underline text-inherit'
       >
-        <h3>
+        <h3 className="font-['Source_Serif_4',Georgia,serif] text-lg font-semibold mb-2 flex items-center gap-1">
           <span style={{ color: categoryColor }}>●</span>
           {categoryIcon && <span> {categoryIcon}</span>} {categoryName}
         </h3>
@@ -80,8 +79,10 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
 
       {/* Active Projects Section */}
       {activeProjects.length > 0 && (
-        <div style={{ marginTop: '0.5rem' }}>
-          <div className='new-ui-planted-label'>Active</div>
+        <div className='mt-2'>
+          <div className='text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide mb-1'>
+            Active
+          </div>
           {activeProjects.map(project => (
             <ProjectItem
               key={project.id}
@@ -95,37 +96,35 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
 
       {/* Ongoing Projects Section (active status, not on table) */}
       {ongoingProjects.length > 0 && (
-        <div style={{ marginTop: '0.5rem' }}>
-          <div className='new-ui-planted-label'>Ongoing</div>
-          <div className='new-ui-planted-grid'>
+        <div className='mt-2'>
+          <div className='text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide mb-1'>
+            Ongoing
+          </div>
+          <div className='grid grid-cols-2 gap-1'>
             {ongoingProjects.slice(0, 6).map(project => (
               <Link
                 key={project.id}
                 to={preserveStoreIdInUrl(generateRoute.project(project.id))}
-                className='new-ui-planted-card'
-                style={{ textDecoration: 'none' }}
+                className='no-underline p-1.5 rounded bg-[#faf9f7] hover:bg-[#f5f3f0] transition-colors duration-200'
                 onClick={e => e.stopPropagation()}
               >
-                <div className='new-ui-planted-title'>{project.name}</div>
+                <div className='text-xs text-[#2f2b27] truncate'>{project.name}</div>
               </Link>
             ))}
           </div>
           {ongoingProjects.length > 6 && (
-            <div className='count' style={{ marginTop: '0.25rem' }}>
-              +{ongoingProjects.length - 6} more
-            </div>
+            <div className='text-xs text-[#8b8680] mt-1'>+{ongoingProjects.length - 6} more</div>
           )}
         </div>
       )}
 
       {/* Planning and Backlog links */}
       {(planningCount > 0 || backlogCount > 0) && (
-        <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div className='mt-2 flex gap-2 flex-wrap'>
           {planningCount > 0 && (
             <Link
               to={preserveStoreIdInUrl(`${generateRoute.draftingRoom()}?category=${categoryValue}`)}
-              className='new-ui-backlog-link'
-              style={{ textDecoration: 'none' }}
+              className='no-underline text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide hover:text-[#2f2b27]'
               onClick={e => e.stopPropagation()}
             >
               DRAFTING ({planningCount})
@@ -134,8 +133,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           {backlogCount > 0 && (
             <Link
               to={preserveStoreIdInUrl(`${generateRoute.sortingRoom()}?category=${categoryValue}`)}
-              className='new-ui-backlog-link'
-              style={{ textDecoration: 'none' }}
+              className='no-underline text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide hover:text-[#2f2b27]'
               onClick={e => e.stopPropagation()}
             >
               SORTING ({backlogCount})
