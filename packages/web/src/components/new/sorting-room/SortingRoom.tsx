@@ -624,7 +624,9 @@ export const SortingRoom: React.FC = () => {
                 onClick={() => handleTabClick(summary.stream)}
               >
                 <span className={getStreamDotClass(summary.stream)} />
-                <span className='font-semibold text-sm text-[#2f2b27]'>{summary.label}</span>
+                <span className="font-['Source_Serif_4',Georgia,serif] font-semibold text-base text-[#2f2b27]">
+                  {summary.label}
+                </span>
                 <span className='text-xs text-[#8b8680]'>
                   {summary.stream === 'bronze'
                     ? `${activeBronzeStack.length} tabled / ${summary.queueCount} available`
