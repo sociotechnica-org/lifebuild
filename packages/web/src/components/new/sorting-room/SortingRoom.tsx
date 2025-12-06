@@ -587,57 +587,82 @@ export const SortingRoom: React.FC = () => {
         )}
       </div>
 
-      <div className='flex flex-col gap-2'>
-        {streamSummaries.map(summary => (
-          <div
-            key={summary.stream}
-            className={`border border-[#e8e4de] rounded-xl bg-white overflow-hidden ${
-              expandedStream === summary.stream ? 'border-[#d0ccc5]' : ''
-            }`}
-          >
+      <div className='grid grid-cols-3 gap-3'>
+        {streamSummaries.map(summary => {
+          const streamColors: Record<Stream, { border: string; bg: string }> = {
+            gold: {
+              border: '#d8a650',
+              bg: 'linear-gradient(145deg, rgba(216, 166, 80, 0.08), #fff)',
+            },
+            silver: {
+              border: '#c5ced8',
+              bg: 'linear-gradient(145deg, rgba(197, 206, 216, 0.1), #fff)',
+            },
+            bronze: {
+              border: '#c48b5a',
+              bg: 'linear-gradient(145deg, rgba(196, 139, 90, 0.08), #fff)',
+            },
+          }
+          const colors = streamColors[summary.stream]
+          const isExpanded = expandedStream === summary.stream
+
+          return (
             <div
-              className='flex items-center gap-3 p-3 cursor-pointer hover:bg-[#faf9f7]'
-              onClick={() => handleTabClick(summary.stream)}
+              key={summary.stream}
+              className={`border rounded-xl bg-white overflow-hidden ${
+                isExpanded ? 'border-2' : 'border'
+              }`}
+              style={{
+                borderLeftWidth: '4px',
+                borderLeftColor: colors.border,
+                borderColor: isExpanded ? colors.border : '#e8e4de',
+                background: isExpanded ? colors.bg : undefined,
+              }}
             >
-              <span className={getStreamDotClass(summary.stream)} />
-              <span className='font-semibold text-sm text-[#2f2b27]'>{summary.label}</span>
-              <span className='text-xs text-[#8b8680]'>
-                {summary.stream === 'bronze'
-                  ? `${activeBronzeStack.length} tabled / ${summary.queueCount} available`
-                  : `${summary.queueCount} in backlog`}
-              </span>
-              <button
-                type='button'
-                className='ml-auto text-xs py-1 px-2 rounded bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer hover:border-[#d0ccc5] hover:text-[#2f2b27]'
-                onClick={e => {
-                  e.stopPropagation()
-                  handleTabClick(summary.stream)
-                }}
+              <div
+                className='flex items-center gap-3 p-3 cursor-pointer hover:bg-[#faf9f7]'
+                onClick={() => handleTabClick(summary.stream)}
               >
-                {expandedStream === summary.stream ? 'Hide' : 'Expand'}
-              </button>
-            </div>
-            <div className='px-3 pb-3 border-t border-[#e8e4de]'>
-              <div className='flex items-center gap-2 pt-2'>
-                <span className='text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide'>
-                  ON TABLE
+                <span className={getStreamDotClass(summary.stream)} />
+                <span className='font-semibold text-sm text-[#2f2b27]'>{summary.label}</span>
+                <span className='text-xs text-[#8b8680]'>
+                  {summary.stream === 'bronze'
+                    ? `${activeBronzeStack.length} tabled / ${summary.queueCount} available`
+                    : `${summary.queueCount} in backlog`}
                 </span>
-                {summary.tabledName ? (
-                  <>
-                    <span className='text-sm font-semibold text-[#2f2b27]'>
-                      {summary.tabledName}
-                    </span>
-                    {summary.tabledMeta && (
-                      <span className='text-xs text-[#8b8680]'>{summary.tabledMeta}</span>
-                    )}
-                  </>
-                ) : (
-                  <span className='text-sm text-[#8b8680]'>Empty</span>
-                )}
+                <button
+                  type='button'
+                  className='ml-auto text-xs py-1 px-2 rounded bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer hover:border-[#d0ccc5] hover:text-[#2f2b27]'
+                  onClick={e => {
+                    e.stopPropagation()
+                    handleTabClick(summary.stream)
+                  }}
+                >
+                  {expandedStream === summary.stream ? 'Hide' : 'Expand'}
+                </button>
+              </div>
+              <div className='px-3 pb-3 border-t border-[#e8e4de]'>
+                <div className='flex items-center gap-2 pt-2'>
+                  <span className='text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide'>
+                    ON TABLE
+                  </span>
+                  {summary.tabledName ? (
+                    <>
+                      <span className='text-sm font-semibold text-[#2f2b27]'>
+                        {summary.tabledName}
+                      </span>
+                      {summary.tabledMeta && (
+                        <span className='text-xs text-[#8b8680]'>{summary.tabledMeta}</span>
+                      )}
+                    </>
+                  ) : (
+                    <span className='text-sm text-[#8b8680]'>Empty</span>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {expandedStream && (
