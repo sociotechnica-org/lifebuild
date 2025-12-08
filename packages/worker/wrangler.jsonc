@@ -5,6 +5,12 @@
   "observability": {
     "enabled": true,
   },
+  "routes": [
+    {
+      "pattern": "sync.lifebuild.me/*",
+      "zone_name": "lifebuild.me",
+    },
+  ],
   "vars": {
     "REQUIRE_AUTH": "true",
     "ENVIRONMENT": "production",

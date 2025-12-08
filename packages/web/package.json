@@ -25,7 +25,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck",
-    "deploy": "wrangler pages deploy dist --project-name work-squared-web"
+    "deploy": "wrangler pages deploy dist --project-name lifebuild-web"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
