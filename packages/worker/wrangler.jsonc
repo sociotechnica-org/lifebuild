@@ -1,5 +1,5 @@
 {
-  "name": "lifebuild",
+  "name": "lifebuild-sync",
   "compatibility_date": "2024-05-12",
   "main": "./functions/_worker.ts",
   "observability": {
