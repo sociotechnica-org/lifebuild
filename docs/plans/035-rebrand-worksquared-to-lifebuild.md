@@ -1,8 +1,8 @@
 # Rebranding Plan: WorkSquared → LifeBuild
 
 **New Domain:** lifebuild.me
-**Status:** Planning
-**Last Updated:** 2025-12-06
+**Status:** In Progress (Phase 1 Complete)
+**Last Updated:** 2025-12-08
 
 ## Executive Summary
 
@@ -41,12 +41,12 @@ This document outlines a comprehensive plan to rebrand WorkSquared to LifeBuild.
 | **Package Scope** | @work-squared/* | @lifebuild/* |
 | **Primary Domain** | worksquared.ai | lifebuild.me |
 | **App Domain** | app.worksquared.ai | app.lifebuild.me |
-| **Sync Worker** | work-squared.jessmartin.workers.dev | lifebuild.jessmartin.workers.dev |
-| **Auth Worker** | work-squared-auth.jessmartin.workers.dev | lifebuild-auth.jessmartin.workers.dev |
-| **Analytics Proxy Worker** | coconut.worksquared.ai (work-squared-posthog[-prod]) | coconut.lifebuild.me (lifebuild-posthog[-prod]) |
-| **D1 Database** | work-squared-prod | lifebuild-prod |
-| **R2 Bucket (prod)** | work-squared-images | lifebuild-images |
-| **R2 Bucket (dev)** | work-squared-images-preview | lifebuild-images-preview |
+| **Sync Worker** | work-squared.jessmartin.workers.dev | sync.lifebuild.me ✅ |
+| **Auth Worker** | work-squared-auth.jessmartin.workers.dev | auth.lifebuild.me ✅ |
+| **Analytics Proxy Worker** | coconut.worksquared.ai (work-squared-posthog[-prod]) | coconut.lifebuild.me (lifebuild-posthog[-prod]) ✅ |
+| **D1 Database** | work-squared-prod | lifebuild-prod ✅ |
+| **R2 Bucket (prod)** | work-squared-images | lifebuild-images ✅ |
+| **R2 Bucket (dev)** | work-squared-images-preview | lifebuild-images-preview ✅ |
 
 ---
 
@@ -54,62 +54,71 @@ This document outlines a comprehensive plan to rebrand WorkSquared to LifeBuild.
 
 ### 1.1 Cloudflare Workers Configuration
 
-#### packages/worker/wrangler.jsonc
+#### packages/worker/wrangler.jsonc ✅ DONE
 
-**Changes required:**
+**Changes implemented:**
 
 ```jsonc
 {
-  // Line 2: Worker name
-  "name": "work-squared" → "lifebuild"
-
-  // Line 18: D1 database binding
-  "database_name": "work-squared-prod" → "lifebuild-prod"
-
-  // Line 48: R2 bucket binding
-  "bucket_name": "work-squared-images" → "lifebuild-images"
-
-  // Line 49: R2 preview bucket binding
-  "preview_bucket_name": "work-squared-images-preview" → "lifebuild-images-preview"
+  "name": "lifebuild-sync",
+  "routes": [
+    {
+      "pattern": "sync.lifebuild.me/*",
+      "zone_name": "lifebuild.me"
+    }
+  ],
+  "database_name": "lifebuild-prod",
+  "database_id": "dd699f4f-45d8-4152-9427-4067883a4382",
+  "bucket_name": "lifebuild-images",
+  "preview_bucket_name": "lifebuild-images-preview"
 }
 ```
 
-**Impact:** Changes worker deployment name and database/storage bindings
+**Impact:** Worker deployed to sync.lifebuild.me with LifeBuild D1/R2 bindings
 
 ---
 
-#### packages/auth-worker/wrangler.toml
+#### packages/auth-worker/wrangler.toml ✅ DONE
 
-**Changes required:**
+**Changes implemented:**
 
 ```toml
-# Line 1: Worker name
-name = "work-squared-auth" → "lifebuild-auth"
+name = "lifebuild-auth"
 
-# Line 11: Script name (in routes section)
-script_name = "work-squared-auth" → "lifebuild-auth"
+[[routes]]
+pattern = "auth.lifebuild.me/*"
+zone_name = "lifebuild.me"
+
+[vars]
+ENVIRONMENT = "production"
+
+script_name = "lifebuild-auth"
 ```
 
-**Impact:** Changes auth worker deployment name
+**Impact:** Auth worker deployed to auth.lifebuild.me
 
 ---
 
-#### packages/posthog-worker/wrangler.toml
+#### packages/posthog-worker/wrangler.toml ✅ DONE
 
-**Changes required:**
+**Changes implemented:**
 
 ```toml
-# Worker names
-name = "work-squared-posthog"           → "lifebuild-posthog"
+name = "lifebuild-posthog"
+
+[[routes]]
+pattern = "coconut.lifebuild.me/*"
+zone_name = "lifebuild.me"
+
 [env.production]
-name = "work-squared-posthog-prod"      → "lifebuild-posthog-prod"
+name = "lifebuild-posthog-prod"
 
-# Routes / zone
-route = "coconut.worksquared.ai/*"      → "coconut.lifebuild.me/*" (or another lifebuild.me subdomain)
-zone_name = "worksquared.ai"            → "lifebuild.me"
+[[env.production.routes]]
+pattern = "coconut.lifebuild.me/*"
+zone_name = "lifebuild.me"
 ```
 
-**Impact:** Keeps analytics proxy on first-party lifebuild.me subdomain; update frontend env `VITE_PUBLIC_POSTHOG_HOST` and CSP `connect-src`.
+**Impact:** PostHog proxy deployed to coconut.lifebuild.me
 
 ---
 
@@ -117,14 +126,16 @@ zone_name = "worksquared.ai"            → "lifebuild.me"
 
 #### packages/server/render.yaml
 
-**Changes required:**
+**Note:** Server is not currently used - skip for now.
+
+**Changes required (if needed later):**
 
 ```yaml
 # Line 3: Service name
 name: work-squared-server → lifebuild-server
 
 # Line 21: WebSocket URL environment variable
-value: wss://app.worksquared.ai → wss://app.lifebuild.me
+value: wss://sync.lifebuild.me
 
 # Line 57: Database name
 name: work-squared-data → lifebuild-data
@@ -136,24 +147,24 @@ name: work-squared-data → lifebuild-data
 
 ### 1.3 GitHub Workflows
 
-#### .github/workflows/deploy.yml
+#### .github/workflows/deploy.yml ✅ DONE (URLs only)
 
-**Changes required:**
+**Changes implemented:**
 
-- **Package filter commands** (Lines 31, 35, 42, 46):
-  - `--filter @work-squared/auth-worker` → `--filter @lifebuild/auth-worker`
-  - `--filter @work-squared/worker` → `--filter @lifebuild/worker`
-  - `--filter @work-squared/web` → `--filter @lifebuild/web`
+- **Environment variables updated to LifeBuild URLs:**
+  ```yaml
+  VITE_AUTH_SERVICE_URL: https://auth.lifebuild.me
+  VITE_LIVESTORE_SYNC_URL: wss://sync.lifebuild.me
+  VITE_PUBLIC_POSTHOG_HOST: https://coconut.lifebuild.me
+  ```
 
-- **Environment variables** (Lines 51-52, 69-71):
-  - `VITE_AUTH_WORKER_URL: https://work-squared-auth.jessmartin.workers.dev`
-    → `VITE_AUTH_WORKER_URL: https://lifebuild-auth.jessmartin.workers.dev`
-  - `VITE_LIVESTORE_SYNC_URL: https://work-squared.jessmartin.workers.dev`
-    → `VITE_LIVESTORE_SYNC_URL: https://lifebuild.jessmartin.workers.dev`
-  - `VITE_BASE_URL: https://app.worksquared.ai`
-    → `VITE_BASE_URL: https://app.lifebuild.me`
+- **Success notification URLs updated**
 
-**Impact:** Changes CI/CD deployment process
+- **Package filter commands** - NOT changed yet (Phase 2):
+  - Still using `@work-squared/*` filters which work because package.json names haven't changed
+  - Wrangler deploys use wrangler config names, not package.json names
+
+**Impact:** Web app builds with LifeBuild URLs, workers deploy to LifeBuild domains
 
 ---
 
