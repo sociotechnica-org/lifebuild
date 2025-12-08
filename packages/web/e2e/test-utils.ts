@@ -250,9 +250,9 @@ export async function logoutViaUI(page: Page) {
   } else {
     // Fallback: clear localStorage
     await page.evaluate(() => {
-      localStorage.removeItem('work-squared-access-token')
-      localStorage.removeItem('work-squared-refresh-token')
-      localStorage.removeItem('work-squared-user-info')
+      localStorage.removeItem('lifebuild-access-token')
+      localStorage.removeItem('lifebuild-refresh-token')
+      localStorage.removeItem('lifebuild-user-info')
     })
     await page.reload()
   }
