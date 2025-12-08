@@ -16,7 +16,7 @@ import {
   buildWorkspaceClaims,
   isWorkspaceClaimsPayloadWithinLimit,
   WORKSPACE_CLAIMS_MAX_BYTES,
-} from '@work-squared/shared/auth'
+} from '@lifebuild/shared/auth'
 
 /**
  * Utility to create error responses

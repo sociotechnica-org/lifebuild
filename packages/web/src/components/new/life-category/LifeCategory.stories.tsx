@@ -5,10 +5,10 @@ import { LiveStoreProvider } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'
-import { events, schema } from '@work-squared/shared/schema'
-import type { ProjectCategory } from '@work-squared/shared'
+import { events, schema } from '@lifebuild/shared/schema'
+import type { ProjectCategory } from '@lifebuild/shared'
 import { LifeCategory } from './LifeCategory.js'
-import { getCategoryRoomDefinition } from '@work-squared/shared/rooms'
+import { getCategoryRoomDefinition } from '@lifebuild/shared/rooms'
 
 type Story = StoryObj<typeof LifeCategory>
 

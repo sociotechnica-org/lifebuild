@@ -36,17 +36,17 @@ jobs:
 
       - name: Run tests before deployment
         run: |
-          pnpm --filter @work-squared/web test
-          pnpm --filter @work-squared/auth-worker test
+          pnpm --filter @lifebuild/web test
+          pnpm --filter @lifebuild/auth-worker test
 
       - name: Deploy Auth Worker
-        run: pnpm --filter @work-squared/auth-worker run deploy
+        run: pnpm --filter @lifebuild/auth-worker run deploy
 
       - name: Deploy PostHog Analytics Proxy Worker
-        run: pnpm --filter @work-squared/posthog-worker run deploy
+        run: pnpm --filter @lifebuild/posthog-worker run deploy
 
       - name: Deploy Main Worker
-        run: pnpm --filter @work-squared/worker run deploy
+        run: pnpm --filter @lifebuild/worker run deploy
 
       - name: Build and Deploy Web App to Pages
         env:

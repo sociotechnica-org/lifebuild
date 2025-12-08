@@ -1,6 +1,6 @@
 import { useLocation, useParams } from 'react-router-dom'
 import { useQuery } from '@livestore/react'
-import { getProjects$, getDocumentList$, getContacts$ } from '@work-squared/shared/queries'
+import { getProjects$, getDocumentList$, getContacts$ } from '@lifebuild/shared/queries'
 import {
   getCategoryInfo,
   resolveLifecycleState,
@@ -8,7 +8,7 @@ import {
   ARCHETYPE_LABELS,
   type ProjectCategory,
   type ProjectLifecycleState,
-} from '@work-squared/shared'
+} from '@lifebuild/shared'
 import type { NavigationContext } from '../../../server/src/services/agentic-loop/types.js'
 
 /**

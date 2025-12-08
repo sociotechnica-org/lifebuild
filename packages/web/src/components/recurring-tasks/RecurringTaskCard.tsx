@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useQuery } from '@livestore/react'
-import { getProjects$ } from '@work-squared/shared/queries'
-import { formatInterval, formatRelativeTime } from '@work-squared/shared'
-import type { RecurringTask } from '@work-squared/shared/schema'
+import { getProjects$ } from '@lifebuild/shared/queries'
+import { formatInterval, formatRelativeTime } from '@lifebuild/shared'
+import type { RecurringTask } from '@lifebuild/shared/schema'
 import { ExecutionHistory } from './ExecutionHistory'
 import { AssigneeAvatars } from '../ui/AssigneeSelector/AssigneeSelector.js'
 

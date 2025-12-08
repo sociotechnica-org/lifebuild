@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { getAllSettings$ } from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
-import { DEFAULT_SETTINGS } from '@work-squared/shared'
+import { getAllSettings$ } from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import { DEFAULT_SETTINGS } from '@lifebuild/shared'
 
 interface SettingsInitializerProps {
   children: React.ReactNode

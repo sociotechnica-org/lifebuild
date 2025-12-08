@@ -5,8 +5,8 @@ import {
   getWorkerProjects$,
   getProjectWorkers$,
   getProjects$,
-} from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
+} from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
 import {
   validators,
   wrapStringParamFunction,

@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDraggable, useDroppable } from '@dnd-kit/core'
-import type { Task } from '@work-squared/shared/schema'
+import type { Task } from '@lifebuild/shared/schema'
 import { AssigneeAvatars } from '../../ui/AssigneeSelector/AssigneeSelector.js'
 
 interface TaskCardProps {

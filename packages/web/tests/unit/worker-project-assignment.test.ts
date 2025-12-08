@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { createTestStore } from '../test-utils.js'
-import { events } from '@work-squared/shared/schema'
-import { DEFAULT_MODEL } from '@work-squared/shared'
+import { events } from '@lifebuild/shared/schema'
+import { DEFAULT_MODEL } from '@lifebuild/shared'
 import {
   getWorkerProjects$,
   getProjectWorkers$,
   getAllWorkerProjects$,
-} from '@work-squared/shared/queries'
+} from '@lifebuild/shared/queries'
 
 describe('Worker Project Assignment', () => {
   let store: ReturnType<typeof createTestStore>

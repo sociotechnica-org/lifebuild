@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import type { ProjectLifecycleState } from '@work-squared/shared'
+import type { ProjectLifecycleState } from '@lifebuild/shared'
 
 export type UrushiStage = 'sketch' | 'foundation' | 'color' | 'polish' | 'decoration'
 

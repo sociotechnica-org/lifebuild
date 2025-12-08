@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { RoomChatMessageList } from './RoomChatMessageList.js'
-import type { ChatMessage } from '@work-squared/shared/schema'
+import type { ChatMessage } from '@lifebuild/shared/schema'
 
 const baseMessage: ChatMessage = {
   id: 'msg',

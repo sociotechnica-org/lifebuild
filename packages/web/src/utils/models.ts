@@ -6,4 +6,4 @@ export {
   getModelById,
   isValidModelId,
   type SupportedModel,
-} from '@work-squared/shared'
+} from '@lifebuild/shared'

@@ -3,8 +3,8 @@ import { render, screen, act } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ProjectWorkspace } from './ProjectWorkspace.js'
 import { createMockProject, createMockTask } from '../../../../tests/test-utils.js'
-import type { Worker } from '@work-squared/shared/schema'
-import { DEFAULT_MODEL } from '@work-squared/shared'
+import type { Worker } from '@lifebuild/shared/schema'
+import { DEFAULT_MODEL } from '@lifebuild/shared'
 
 // Hoisted mocks
 const { mockUseQuery, mockStore, mockUseParams } = vi.hoisted(() => {

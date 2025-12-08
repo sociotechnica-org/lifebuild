@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom'
 import React, { type ReactElement } from 'react'
 import { render, type RenderOptions } from '@testing-library/react'
-import type { Task, Project, Contact } from '@work-squared/shared/schema'
-import type { StatusColumn } from '@work-squared/shared'
+import type { Task, Project, Contact } from '@lifebuild/shared/schema'
+import type { StatusColumn } from '@lifebuild/shared'
 
 // Simple test wrapper for basic component testing
 interface TestProviderProps {

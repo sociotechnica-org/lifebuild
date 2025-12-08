@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { Contact, events } from '@work-squared/shared/schema'
-import { getProjectContacts$, getContacts$ } from '@work-squared/shared/queries'
+import { Contact, events } from '@lifebuild/shared/schema'
+import { getProjectContacts$, getContacts$ } from '@lifebuild/shared/queries'
 import { ContactPicker } from '../contacts/ContactPicker'
 
 interface ProjectContactsProps {

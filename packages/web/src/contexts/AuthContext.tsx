@@ -11,7 +11,7 @@ import {
   AuthWorkspaceSnapshot,
   AuthWorkspaceInvitation,
   AuthErrorCode,
-} from '@work-squared/shared/auth'
+} from '@lifebuild/shared/auth'
 import {
   getStoredTokens,
   getStoredUser,

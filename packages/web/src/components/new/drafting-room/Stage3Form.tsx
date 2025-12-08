@@ -1,14 +1,14 @@
 import React, { useState, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore, useQuery } from '@livestore/react'
-import { events, type Task } from '@work-squared/shared/schema'
-import { getProjectById$, getProjectTasks$ } from '@work-squared/shared/queries'
+import { events, type Task } from '@lifebuild/shared/schema'
+import { getProjectById$, getProjectTasks$ } from '@lifebuild/shared/queries'
 import {
   type ProjectCategory,
   type ProjectLifecycleState,
   getCategoryInfo,
   resolveLifecycleState,
-} from '@work-squared/shared'
+} from '@lifebuild/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { events, tables } from '@work-squared/shared/schema'
-import { getBoardTasks$ } from '@work-squared/shared/queries'
+import { events, tables } from '@lifebuild/shared/schema'
+import { getBoardTasks$ } from '@lifebuild/shared/queries'
 
 describe('Kanban Events and Materialization', () => {
   // PR3: Column events removed - migration to status-based tasks complete

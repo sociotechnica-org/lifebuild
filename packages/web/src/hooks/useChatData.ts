@@ -6,9 +6,9 @@ import {
   getConversationMessages$,
   getWorkerById$,
   getWorkers$,
-} from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
-import type { Conversation, ChatMessage, Worker } from '@work-squared/shared/schema'
+} from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import type { Conversation, ChatMessage, Worker } from '@lifebuild/shared/schema'
 import { DEFAULT_MODEL } from '../utils/models.js'
 import { useNavigationContext } from './useNavigationContext.js'
 

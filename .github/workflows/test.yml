@@ -52,6 +52,6 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run auth service integration tests
-        run: pnpm --filter @work-squared/auth-worker test:integration
+        run: pnpm --filter @lifebuild/auth-worker test:integration
         env:
           AUTO_START_SERVER: true

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
-import type { ChatMessage } from '@work-squared/shared/schema'
+import type { ChatMessage } from '@lifebuild/shared/schema'
 import { RoomChatPanel } from './RoomChatPanel.js'
 
 const sampleMessages: ChatMessage[] = [

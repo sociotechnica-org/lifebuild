@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { contactCreated, contactUpdated, contactDeleted } from '@work-squared/shared/events'
+import { contactCreated, contactUpdated, contactDeleted } from '@lifebuild/shared/events'
 
 describe('Contact Events', () => {
   describe('contactCreated', () => {

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { parseEmailList, ParsedContact } from '@work-squared/shared'
+import { parseEmailList, ParsedContact } from '@lifebuild/shared'
 import { useContacts } from '../../hooks/useContacts.js'
 
 interface BulkImportModalProps {

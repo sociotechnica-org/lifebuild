@@ -1,5 +1,5 @@
 import React from 'react'
-import type { Project } from '@work-squared/shared/schema'
+import type { Project } from '@lifebuild/shared/schema'
 
 interface DocumentsPageHeaderProps {
   searchQuery: string

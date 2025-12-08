@@ -4,9 +4,9 @@ import {
   getProjectDetails$,
   getBoardTasks$,
   getDocumentProjectsByProject$,
-} from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
-import { PROJECT_CATEGORIES } from '@work-squared/shared'
+} from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import { PROJECT_CATEGORIES } from '@lifebuild/shared'
 import {
   validators,
   wrapStringParamFunction,
@@ -32,7 +32,7 @@ import {
   ARCHETYPE_LABELS,
   type ProjectLifecycleState,
   type PlanningStage,
-} from '@work-squared/shared'
+} from '@lifebuild/shared'
 
 // Type for update_project_lifecycle tool parameters
 export interface UpdateProjectLifecycleParams {

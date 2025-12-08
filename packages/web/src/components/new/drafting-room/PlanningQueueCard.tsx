@@ -1,6 +1,6 @@
 import React from 'react'
-import { getCategoryInfo, type ProjectCategory, type PlanningStage } from '@work-squared/shared'
-import type { Project } from '@work-squared/shared/schema'
+import { getCategoryInfo, type ProjectCategory, type PlanningStage } from '@lifebuild/shared'
+import type { Project } from '@lifebuild/shared/schema'
 import type { ProjectTier } from './DraftingRoom.js'
 
 /**

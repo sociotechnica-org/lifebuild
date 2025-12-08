@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 import { useStore, useQuery } from '@livestore/react'
-import { events } from '@work-squared/shared/schema'
-import type { Task, Project, TaskStatus } from '@work-squared/shared/schema'
-import { getProjects$ } from '@work-squared/shared/queries'
-import { resolveLifecycleState } from '@work-squared/shared'
+import { events } from '@lifebuild/shared/schema'
+import type { Task, Project, TaskStatus } from '@lifebuild/shared/schema'
+import { getProjects$ } from '@lifebuild/shared/queries'
+import { resolveLifecycleState } from '@lifebuild/shared'
 
 /**
  * Hook that provides a task status change function with automatic bronze project activation.

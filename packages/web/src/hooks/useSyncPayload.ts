@@ -3,7 +3,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react'
-import { SyncPayload } from '@work-squared/shared/auth'
+import { SyncPayload } from '@lifebuild/shared/auth'
 import { useAuth } from '../contexts/AuthContext.js'
 
 interface UseSyncPayloadOptions {

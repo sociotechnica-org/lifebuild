@@ -1,16 +1,16 @@
 import React, { useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useStore } from '@livestore/react'
-import { getProjects$ } from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
+import { getProjects$ } from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
 import {
   PROJECT_CATEGORIES,
   type ProjectCategory,
   type PlanningStage,
   type ProjectLifecycleState,
   resolveLifecycleState,
-} from '@work-squared/shared'
-import type { Project } from '@work-squared/shared/schema'
+} from '@lifebuild/shared'
+import type { Project } from '@lifebuild/shared/schema'
 import { generateRoute } from '../../../constants/routes.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { StageColumn } from './StageColumn.js'

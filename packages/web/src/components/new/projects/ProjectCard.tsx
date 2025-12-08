@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@livestore/react'
-import { getProjectTasks$, getProjectWorkers$ } from '@work-squared/shared/queries'
-import type { Project as ProjectType } from '@work-squared/shared/schema'
+import { getProjectTasks$, getProjectWorkers$ } from '@lifebuild/shared/queries'
+import type { Project as ProjectType } from '@lifebuild/shared/schema'
 import {
   ARCHETYPE_LABELS,
   describeProjectLifecycleState,
@@ -11,7 +11,7 @@ import {
   type PlanningAttributes,
   type ProjectCategory,
   type ProjectLifecycleState,
-} from '@work-squared/shared'
+} from '@lifebuild/shared'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { UrushiVisual, lifecycleToUrushiStage, type UrushiStage } from './UrushiVisual.js'

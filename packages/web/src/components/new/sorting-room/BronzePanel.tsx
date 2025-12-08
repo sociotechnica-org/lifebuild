@@ -20,13 +20,13 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import type { Project, Task, TableBronzeStackEntry } from '@work-squared/shared/schema'
+import type { Project, Task, TableBronzeStackEntry } from '@lifebuild/shared/schema'
 import {
   getCategoryInfo,
   type ProjectCategory,
   resolveLifecycleState,
   type LifecycleStream,
-} from '@work-squared/shared'
+} from '@lifebuild/shared'
 
 export interface BronzePanelProps {
   tabledStack: readonly TableBronzeStackEntry[]

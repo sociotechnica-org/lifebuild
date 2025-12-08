@@ -1,5 +1,5 @@
 import React from 'react'
-import type { Conversation } from '@work-squared/shared/schema'
+import type { Conversation } from '@lifebuild/shared/schema'
 
 interface ConversationSelectorProps {
   conversations: readonly Conversation[]

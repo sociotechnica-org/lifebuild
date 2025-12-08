@@ -5,7 +5,7 @@ import { LiveStoreProvider } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'
-import { schema, events } from '@work-squared/shared/schema'
+import { schema, events } from '@lifebuild/shared/schema'
 import { ProjectDetailPage } from './ProjectDetailPage.js'
 import { ROOM_CHAT_OVERRIDE_STORAGE_KEY } from '../../../constants/featureFlags.js'
 

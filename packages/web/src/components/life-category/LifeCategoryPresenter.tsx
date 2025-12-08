@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
-import type { PlanningAttributes } from '@work-squared/shared'
-import type { Project } from '@work-squared/shared/schema'
+import type { PlanningAttributes } from '@lifebuild/shared'
+import type { Project } from '@lifebuild/shared/schema'
 import { ProjectCard } from '../projects/ProjectCard/ProjectCard.js'
 import { ProjectCreationView } from '../project-creation/ProjectCreationView.js'
 import {

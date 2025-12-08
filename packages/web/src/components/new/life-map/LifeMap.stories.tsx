@@ -5,10 +5,10 @@ import { LiveStoreProvider } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'
-import { events, schema } from '@work-squared/shared/schema'
+import { events, schema } from '@lifebuild/shared/schema'
 import { LifeMap } from './LifeMap.js'
 import { RoomLayout } from '../layout/RoomLayout.js'
-import { LIFE_MAP_ROOM } from '@work-squared/shared/rooms'
+import { LIFE_MAP_ROOM } from '@lifebuild/shared/rooms'
 
 const storyConversationId = 'story-conversation-life-map'
 

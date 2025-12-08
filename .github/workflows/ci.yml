@@ -79,6 +79,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Install Playwright browsers
-        run: pnpm --filter @work-squared/web exec playwright install --with-deps
+        run: pnpm --filter @lifebuild/web exec playwright install --with-deps
       - name: Run Storybook tests
-        run: pnpm --filter @work-squared/web test:storybook:ci
+        run: pnpm --filter @lifebuild/web test:storybook:ci

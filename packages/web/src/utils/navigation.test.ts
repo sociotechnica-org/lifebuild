@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import { determineStoreId, buildRedirectUrl, getStoreIdFromUrl } from './navigation.js'
-import type { AuthUser } from '@work-squared/shared/auth'
+import type { AuthUser } from '@lifebuild/shared/auth'
 
 // Mock crypto.randomUUID
 const mockUUID = 'mock-uuid-1234'

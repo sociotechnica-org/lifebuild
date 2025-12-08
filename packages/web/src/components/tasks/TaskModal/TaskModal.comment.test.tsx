@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { TaskModal } from './TaskModal.js'
 import { SnackbarProvider } from '../../ui/Snackbar/Snackbar.js'
-import type { Task, User, Comment } from '@work-squared/shared/schema'
+import type { Task, User, Comment } from '@lifebuild/shared/schema'
 
 // Mock LiveStore hooks
 const { mockUseAuth } = vi.hoisted(() => ({

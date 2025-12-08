@@ -1,6 +1,6 @@
 import { useQuery } from '@livestore/react'
 import React, { useState } from 'react'
-import { getWorkers$ } from '@work-squared/shared/queries'
+import { getWorkers$ } from '@lifebuild/shared/queries'
 import { WorkerCard } from './WorkerCard/WorkerCard.js'
 import { CreateWorkerModal } from './CreateWorkerModal/CreateWorkerModal.js'
 

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFileNavigation } from './useFileNavigation.js'
 import { useStore } from '@livestore/react'
-import { getTaskById$ } from '@work-squared/shared/queries'
+import { getTaskById$ } from '@lifebuild/shared/queries'
 
 /**
  * Global hook that handles clicks on CHORUS_TAG elements via event delegation

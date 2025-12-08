@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ProjectCategory } from '@work-squared/shared'
+import type { ProjectCategory } from '@lifebuild/shared'
 import { formatRelativeTime } from '../../utils/dates.js'
 import { isNeglected } from '../../utils/categoryHelpers.js'
 

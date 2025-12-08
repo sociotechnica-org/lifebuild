@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { useStore, useQuery } from '@livestore/react'
-import { events } from '@work-squared/shared/schema'
-import { getUsers$ } from '@work-squared/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import { getUsers$ } from '@lifebuild/shared/queries'
 
 interface AuthUserSyncProps {
   children: React.ReactNode

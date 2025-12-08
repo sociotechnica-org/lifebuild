@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { PROJECT_CATEGORIES } from '@work-squared/shared'
+import { PROJECT_CATEGORIES } from '@lifebuild/shared'
 import { QuickAddProjectModal } from './QuickAddProjectModal.js'
 
 // Mock LiveStore hooks

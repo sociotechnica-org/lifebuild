@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e  # Exit on any error
 
-echo "🏗️ Starting Work Squared server build..."
+echo "🏗️ Starting LifeBuild server build..."
 
 # Store the initial directory
 INITIAL_DIR=$(pwd)
@@ -42,6 +42,6 @@ fi
 
 # Build the server
 echo "🚀 Building server..."
-pnpm --filter @work-squared/server build
+pnpm --filter @lifebuild/server build
 
 echo "✅ Build complete!"

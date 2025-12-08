@@ -3,11 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { DocumentsPage } from './DocumentsPage.js'
-import {
-  getAllDocuments$,
-  getProjects$,
-  getAllDocumentProjects$,
-} from '@work-squared/shared/queries'
+import { getAllDocuments$, getProjects$, getAllDocumentProjects$ } from '@lifebuild/shared/queries'
 import { useQuery } from '@livestore/react'
 
 // Hoisted mocks
@@ -39,7 +35,7 @@ const { mockStore, mockDocuments, mockProjects } = vi.hoisted(() => {
 })
 
 // Mock queries first
-vi.mock('@work-squared/shared/queries', () => ({
+vi.mock('@lifebuild/shared/queries', () => ({
   getAllDocuments$: vi.fn(),
   getProjects$: vi.fn(),
   getAllDocumentProjects$: vi.fn(),

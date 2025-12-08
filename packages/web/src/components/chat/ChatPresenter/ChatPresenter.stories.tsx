@@ -6,9 +6,9 @@ import {
   getWorkerById$,
   getConversationMessages$,
   getWorkers$,
-} from '@work-squared/shared/queries'
-import { schema, events } from '@work-squared/shared/schema'
-import { DEFAULT_MODEL_STRING } from '@work-squared/shared'
+} from '@lifebuild/shared/queries'
+import { schema, events } from '@lifebuild/shared/schema'
+import { DEFAULT_MODEL_STRING } from '@lifebuild/shared'
 import { LiveStoreProvider, useQuery } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'

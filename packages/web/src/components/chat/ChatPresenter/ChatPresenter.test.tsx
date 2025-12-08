@@ -2,8 +2,8 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { ChatPresenter } from './ChatPresenter.js'
-import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
-import { DEFAULT_MODEL_STRING } from '@work-squared/shared'
+import type { ChatMessage, Conversation, Worker } from '@lifebuild/shared/schema'
+import { DEFAULT_MODEL_STRING } from '@lifebuild/shared'
 
 // Mock scrollIntoView for tests
 Object.defineProperty(window.Element.prototype, 'scrollIntoView', {

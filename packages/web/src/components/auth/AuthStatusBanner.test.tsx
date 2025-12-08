@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import React from 'react'
-import { ConnectionState, type SyncPayload } from '@work-squared/shared/auth'
+import { ConnectionState, type SyncPayload } from '@lifebuild/shared/auth'
 
 const hoistedMocks = vi.hoisted(() => ({
   useAuth: vi.fn(),

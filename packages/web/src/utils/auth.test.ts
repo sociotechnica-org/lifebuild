@@ -12,7 +12,7 @@ import {
   getStoredUser,
   isAuthenticated,
 } from './auth.js'
-import { TOKEN_STORAGE_KEYS, type AuthTokens, type AuthUser } from '@work-squared/shared/auth'
+import { TOKEN_STORAGE_KEYS, type AuthTokens, type AuthUser } from '@lifebuild/shared/auth'
 
 const encodeSegment = (input: object) =>
   Buffer.from(JSON.stringify(input))

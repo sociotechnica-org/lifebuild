@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { events, tables } from '@work-squared/shared/schema'
-import { MODEL_IDS } from '@work-squared/shared'
+import { events, tables } from '@lifebuild/shared/schema'
+import { MODEL_IDS } from '@lifebuild/shared'
 import {
   getConversations$,
   getConversation$,
   getConversationMessages$,
-} from '@work-squared/shared/queries'
+} from '@lifebuild/shared/queries'
 
 describe('Conversation Events and Materialization', () => {
   it('should have conversation creation event function', () => {

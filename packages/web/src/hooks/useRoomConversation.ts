@@ -1,8 +1,8 @@
 import React from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { events } from '@work-squared/shared/schema'
-import { getConversationByRoom$ } from '@work-squared/shared/queries'
-import type { StaticRoomDefinition } from '@work-squared/shared/rooms'
+import { events } from '@lifebuild/shared/schema'
+import { getConversationByRoom$ } from '@lifebuild/shared/queries'
+import type { StaticRoomDefinition } from '@lifebuild/shared/rooms'
 import { usePostHog } from '../lib/analytics.js'
 
 const pendingConversationCreations = new Map<string, Promise<void>>()

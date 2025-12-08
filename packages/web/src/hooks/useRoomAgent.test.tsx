@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { describe, expect, it, beforeEach, vi } from 'vitest'
-import { getCategoryRoomDefinition } from '@work-squared/shared/rooms'
+import { getCategoryRoomDefinition } from '@lifebuild/shared/rooms'
 import { useRoomAgent } from './useRoomAgent.js'
 
 const mocks = vi.hoisted(() => {
@@ -22,7 +22,7 @@ vi.mock('@livestore/react', () => ({
   useQuery: mocks.mockUseQuery,
 }))
 
-vi.mock('@work-squared/shared/queries', () => ({
+vi.mock('@lifebuild/shared/queries', () => ({
   getWorkerById$: vi.fn(() => ({ label: 'worker-query' })),
 }))
 

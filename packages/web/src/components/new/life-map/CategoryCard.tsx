@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
-import type { Project } from '@work-squared/shared/schema'
+import type { Project } from '@lifebuild/shared/schema'
 
 export type CategoryCardProps = {
   categoryValue: string

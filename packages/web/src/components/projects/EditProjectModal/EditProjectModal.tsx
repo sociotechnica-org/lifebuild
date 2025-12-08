@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from '@livestore/react'
-import { events } from '@work-squared/shared/schema'
-import { PROJECT_CATEGORIES } from '@work-squared/shared'
+import { events } from '@lifebuild/shared/schema'
+import { PROJECT_CATEGORIES } from '@lifebuild/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { ProjectAttributesEditor } from '../ProjectAttributesEditor/ProjectAttributesEditor.js'
 import { ImageUpload } from '../../common/ImageUpload.js'
-import type { Project } from '@work-squared/shared/schema'
+import type { Project } from '@lifebuild/shared/schema'
 
 interface EditProjectModalProps {
   isOpen: boolean

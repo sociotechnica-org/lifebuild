@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { useQuery } from '@livestore/react'
-import { getProjects$, getAllTasks$ } from '@work-squared/shared/queries'
+import { getProjects$, getAllTasks$ } from '@lifebuild/shared/queries'
 import { useTableState } from '../../../hooks/useTableState.js'
 import { TableSlot } from './TableSlot.js'
 

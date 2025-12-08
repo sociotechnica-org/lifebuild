@@ -1,7 +1,7 @@
 import { makeWorker } from '@livestore/adapter-web/worker'
 import { makeWsSync } from '@livestore/sync-cf/client'
 
-import { schema } from '@work-squared/shared/schema'
+import { schema } from '@lifebuild/shared/schema'
 import { makeTracer } from './otel.js'
 
 const getSyncUrl = () => {

@@ -1,8 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useProjectChatLifecycle } from './useProjectChatLifecycle.js'
-import { createProjectRoomDefinition } from '@work-squared/shared/rooms'
-import type { Project } from '@work-squared/shared/schema'
+import { createProjectRoomDefinition } from '@lifebuild/shared/rooms'
+import type { Project } from '@lifebuild/shared/schema'
 
 const room = createProjectRoomDefinition({
   projectId: 'project-1',
@@ -53,7 +53,7 @@ vi.mock('@livestore/react', () => ({
   useQuery: (query: any) => mocks.mockUseQuery(query),
 }))
 
-vi.mock('@work-squared/shared/queries', () => ({
+vi.mock('@lifebuild/shared/queries', () => ({
   getWorkerById$: vi.fn(() => ({ label: 'worker-query' })),
   getConversationByRoom$: vi.fn(() => ({ label: 'conversation-query' })),
 }))

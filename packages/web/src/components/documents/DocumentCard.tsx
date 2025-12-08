@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { formatDate } from '../../utils/dates.js'
-import type { Document } from '@work-squared/shared/schema'
+import type { Document } from '@lifebuild/shared/schema'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { generateRoute } from '../../constants/routes.js'
 import { useDocumentProjects } from '../../hooks/useDocumentProjects.js'

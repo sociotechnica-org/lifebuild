@@ -1,11 +1,11 @@
 import { useQuery, useStore } from '@livestore/react'
 import React, { useEffect, useState } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
-import { getProjects$ } from '@work-squared/shared/queries'
-import type { Project } from '@work-squared/shared/schema'
-import { events } from '@work-squared/shared/schema'
-import { getCategoryInfo } from '@work-squared/shared'
-import type { PlanningAttributes, ProjectCategory } from '@work-squared/shared'
+import { getProjects$ } from '@lifebuild/shared/queries'
+import type { Project } from '@lifebuild/shared/schema'
+import { events } from '@lifebuild/shared/schema'
+import { getCategoryInfo } from '@lifebuild/shared'
+import type { PlanningAttributes, ProjectCategory } from '@lifebuild/shared'
 import {
   LifeCategoryPresenter,
   type CategoryTab,

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useStore } from '@livestore/react'
 import { formatDate } from '../../../utils/dates.js'
-import type { Project, Worker } from '@work-squared/shared/schema'
-import { getProjectWorkers$, getWorkers$ } from '@work-squared/shared/queries'
+import type { Project, Worker } from '@lifebuild/shared/schema'
+import { getProjectWorkers$, getWorkers$ } from '@lifebuild/shared/queries'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
 import { ProjectCategoryBadge } from '../ProjectCategoryBadge.js'
-import { describeProjectLifecycleState, resolveLifecycleState } from '@work-squared/shared'
-import type { PlanningAttributes } from '@work-squared/shared'
-import { PROJECT_CATEGORIES } from '@work-squared/shared'
+import { describeProjectLifecycleState, resolveLifecycleState } from '@lifebuild/shared'
+import type { PlanningAttributes } from '@lifebuild/shared'
+import { PROJECT_CATEGORIES } from '@lifebuild/shared'
 
 interface ProjectCardProps {
   project: Project

@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, beforeEach, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { RoomLayout } from './RoomLayout.js'
-import { LIFE_MAP_ROOM } from '@work-squared/shared/rooms'
+import { LIFE_MAP_ROOM } from '@lifebuild/shared/rooms'
 
 vi.mock('../../../lib/analytics.js', () => ({
   usePostHog: () => ({

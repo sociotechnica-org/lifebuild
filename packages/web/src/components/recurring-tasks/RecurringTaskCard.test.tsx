@@ -2,10 +2,10 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { RecurringTaskCard } from './RecurringTaskCard'
-import type { RecurringTask } from '@work-squared/shared/schema'
+import type { RecurringTask } from '@lifebuild/shared/schema'
 
 // Mock formatInterval and formatRelativeTime
-vi.mock('@work-squared/shared', () => ({
+vi.mock('@lifebuild/shared', () => ({
   formatInterval: vi.fn((hours: number) => `${hours} hours`),
   formatRelativeTime: vi.fn((_timestamp: number) => 'in 2 hours'),
 }))

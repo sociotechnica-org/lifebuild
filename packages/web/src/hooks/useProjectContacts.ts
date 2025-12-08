@@ -1,6 +1,6 @@
 import { useQuery, useStore } from '@livestore/react'
-import { getProjectContacts$, getContactProjects$ } from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
+import { getProjectContacts$, getContactProjects$ } from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
 
 export function useProjectContacts(projectId?: string) {
   const { store } = useStore()

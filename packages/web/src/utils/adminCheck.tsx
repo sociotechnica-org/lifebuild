@@ -3,7 +3,7 @@
  */
 
 import React from 'react'
-import { AuthUser } from '@work-squared/shared/auth'
+import { AuthUser } from '@lifebuild/shared/auth'
 
 /**
  * Check if the current user is an admin

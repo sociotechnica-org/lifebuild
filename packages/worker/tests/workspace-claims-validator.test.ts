@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import type { JWTPayload } from '@work-squared/shared/auth'
+import type { JWTPayload } from '@lifebuild/shared/auth'
 import {
   getWorkspaceClaimForInstance,
   getWorkspaceClaimsByteSize,

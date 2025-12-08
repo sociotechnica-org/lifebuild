@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { getProjects$, getProjectTasks$, getOrphanedTasks$ } from '@work-squared/shared/queries'
-import type { Project, Task, TaskStatus } from '@work-squared/shared/schema'
-import { events } from '@work-squared/shared/schema'
-import { STATUS_COLUMNS } from '@work-squared/shared'
+import { getProjects$, getProjectTasks$, getOrphanedTasks$ } from '@lifebuild/shared/queries'
+import type { Project, Task, TaskStatus } from '@lifebuild/shared/schema'
+import { events } from '@lifebuild/shared/schema'
+import { STATUS_COLUMNS } from '@lifebuild/shared'
 import { useTaskStatusChange } from '../../hooks/useTaskStatusChange.js'
 
 interface MoveTaskModalProps {
