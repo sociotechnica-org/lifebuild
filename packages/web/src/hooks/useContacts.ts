@@ -1,7 +1,7 @@
 import { useQuery, useStore } from '@livestore/react'
-import { getContacts$, getContactById$, getContactByEmail$ } from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
-import { ParsedContact } from '@work-squared/shared'
+import { getContacts$, getContactById$, getContactByEmail$ } from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import { ParsedContact } from '@lifebuild/shared'
 
 /**
  * Custom hook for contact management operations

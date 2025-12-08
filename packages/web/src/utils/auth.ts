@@ -10,7 +10,7 @@ import {
   WORKSPACE_ENDPOINTS,
   WorkspaceRole,
   AuthWorkspaceSelection,
-} from '@work-squared/shared/auth'
+} from '@lifebuild/shared/auth'
 
 export interface DecodedAccessToken {
   exp?: number

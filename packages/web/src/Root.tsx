@@ -31,7 +31,7 @@ import { UserInitializer } from './components/utils/UserInitializer/UserInitiali
 import { AuthUserSync } from './components/utils/AuthUserSync/AuthUserSync.js'
 import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
 import { LifeMapView } from './components/life-map/LifeMapView.js'
-import { schema } from '@work-squared/shared/schema'
+import { schema } from '@lifebuild/shared/schema'
 import { ROUTES } from './constants/routes.js'
 import { ProjectDetailPage } from './components/new/projects/ProjectDetailPage.js'
 import { LifeMap } from './components/new/life-map/LifeMap.js'
@@ -43,7 +43,7 @@ import { Stage1Form } from './components/new/drafting-room/Stage1Form.js'
 import { Stage2Form } from './components/new/drafting-room/Stage2Form.js'
 import { Stage3Form } from './components/new/drafting-room/Stage3Form.js'
 import { SortingRoom } from './components/new/sorting-room/SortingRoom.js'
-import { LIFE_MAP_ROOM, DRAFTING_ROOM, SORTING_ROOM } from '@work-squared/shared/rooms'
+import { LIFE_MAP_ROOM, DRAFTING_ROOM, SORTING_ROOM } from '@lifebuild/shared/rooms'
 
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },

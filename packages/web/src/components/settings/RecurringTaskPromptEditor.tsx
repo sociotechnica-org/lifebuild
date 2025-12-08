@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { validatePromptTemplate, getAvailableVariables } from '@work-squared/shared'
+import { validatePromptTemplate, getAvailableVariables } from '@lifebuild/shared'
 
 interface RecurringTaskPromptEditorProps {
   value: string

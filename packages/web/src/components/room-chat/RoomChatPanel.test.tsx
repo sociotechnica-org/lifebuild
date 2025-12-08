@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import type { ChatMessage } from '@work-squared/shared/schema'
+import type { ChatMessage } from '@lifebuild/shared/schema'
 import { RoomChatPanel } from './RoomChatPanel.js'
 
 const makeMessage = (overrides: Partial<ChatMessage>): ChatMessage => ({

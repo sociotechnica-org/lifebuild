@@ -1,5 +1,5 @@
 import React from 'react'
-import { getCategoryInfo, type ProjectCategory } from '@work-squared/shared'
+import { getCategoryInfo, type ProjectCategory } from '@lifebuild/shared'
 
 interface ProjectCategoryBadgeProps {
   category: ProjectCategory

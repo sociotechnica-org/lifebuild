@@ -1,9 +1,9 @@
 import React from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { events } from '@work-squared/shared/schema'
-import { getConversationByRoom$, getWorkerById$ } from '@work-squared/shared/queries'
-import type { Project } from '@work-squared/shared/schema'
-import type { StaticRoomDefinition } from '@work-squared/shared/rooms'
+import { events } from '@lifebuild/shared/schema'
+import { getConversationByRoom$, getWorkerById$ } from '@lifebuild/shared/queries'
+import type { Project } from '@lifebuild/shared/schema'
+import type { StaticRoomDefinition } from '@lifebuild/shared/rooms'
 
 const FALLBACK_ROOM_ID = '__project_room_missing__'
 const FALLBACK_WORKER_ID = '__project_worker_missing__'

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { Contact, events } from '@work-squared/shared/schema'
-import { getContacts$ } from '@work-squared/shared/queries'
+import { Contact, events } from '@lifebuild/shared/schema'
+import { getContacts$ } from '@lifebuild/shared/queries'
 
 type Event = ReturnType<(typeof events)[keyof typeof events]>
 

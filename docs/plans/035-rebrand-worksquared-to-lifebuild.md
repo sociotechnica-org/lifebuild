@@ -35,18 +35,18 @@ This document outlines a comprehensive plan to rebrand WorkSquared to LifeBuild.
 
 ### Key Changes
 
-| Category | Old | New |
-|----------|-----|-----|
-| **Product Name** | Work Squared | LifeBuild |
-| **Package Scope** | @work-squared/* | @lifebuild/* |
-| **Primary Domain** | worksquared.ai | lifebuild.me |
-| **App Domain** | app.worksquared.ai | app.lifebuild.me |
-| **Sync Worker** | work-squared.jessmartin.workers.dev | sync.lifebuild.me ✅ |
-| **Auth Worker** | work-squared-auth.jessmartin.workers.dev | auth.lifebuild.me ✅ |
+| Category                   | Old                                                  | New                                                |
+| -------------------------- | ---------------------------------------------------- | -------------------------------------------------- |
+| **Product Name**           | Work Squared                                         | LifeBuild                                          |
+| **Package Scope**          | @work-squared/\*                                     | @lifebuild/\*                                      |
+| **Primary Domain**         | worksquared.ai                                       | lifebuild.me                                       |
+| **App Domain**             | app.worksquared.ai                                   | app.lifebuild.me                                   |
+| **Sync Worker**            | work-squared.jessmartin.workers.dev                  | sync.lifebuild.me ✅                               |
+| **Auth Worker**            | work-squared-auth.jessmartin.workers.dev             | auth.lifebuild.me ✅                               |
 | **Analytics Proxy Worker** | coconut.worksquared.ai (work-squared-posthog[-prod]) | coconut.lifebuild.me (lifebuild-posthog[-prod]) ✅ |
-| **D1 Database** | work-squared-prod | lifebuild-prod ✅ |
-| **R2 Bucket (prod)** | work-squared-images | lifebuild-images ✅ |
-| **R2 Bucket (dev)** | work-squared-images-preview | lifebuild-images-preview ✅ |
+| **D1 Database**            | work-squared-prod                                    | lifebuild-prod ✅                                  |
+| **R2 Bucket (prod)**       | work-squared-images                                  | lifebuild-images ✅                                |
+| **R2 Bucket (dev)**        | work-squared-images-preview                          | lifebuild-images-preview ✅                        |
 
 ---
 
@@ -64,13 +64,13 @@ This document outlines a comprehensive plan to rebrand WorkSquared to LifeBuild.
   "routes": [
     {
       "pattern": "sync.lifebuild.me/*",
-      "zone_name": "lifebuild.me"
-    }
+      "zone_name": "lifebuild.me",
+    },
   ],
   "database_name": "lifebuild-prod",
   "database_id": "dd699f4f-45d8-4152-9427-4067883a4382",
   "bucket_name": "lifebuild-images",
-  "preview_bucket_name": "lifebuild-images-preview"
+  "preview_bucket_name": "lifebuild-images-preview",
 }
 ```
 
@@ -152,6 +152,7 @@ name: work-squared-data → lifebuild-data
 **Changes implemented:**
 
 - **Environment variables updated to LifeBuild URLs:**
+
   ```yaml
   VITE_AUTH_SERVICE_URL: https://auth.lifebuild.me
   VITE_LIVESTORE_SYNC_URL: wss://sync.lifebuild.me
@@ -193,7 +194,9 @@ name: work-squared-data → lifebuild-data
 ### 2.1 Root Package Configuration
 
 #### package.json (root)
+
 #### pnpm-workspace.yaml
+
 #### pnpm-lock.yaml
 
 **Changes required:**
@@ -397,7 +400,7 @@ find packages -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name 
 
 ---
 
-#### packages/web/public/_headers
+#### packages/web/public/\_headers
 
 **Changes required:**
 
@@ -800,7 +803,7 @@ pnpm --filter @lifebuild/posthog-worker deploy
    - Type: CNAME
    - Points to: Cloudflare Pages domain
 
-3. **Preferred:** Custom worker subdomains (avoid *.workers.dev)
+3. **Preferred:** Custom worker subdomains (avoid \*.workers.dev)
    - `sync.lifebuild.me` → sync worker
    - `auth.lifebuild.me` → auth worker
    - `coconut.lifebuild.me` (or similar unique name) → PostHog proxy worker
@@ -854,30 +857,35 @@ pnpm --filter @lifebuild/posthog-worker deploy
 ## Recommended Execution Order (speed-first, downtime acceptable)
 
 **Prep (same day)**
+
 - Purchase/configure `lifebuild.me` in Cloudflare; set `app.lifebuild.me` (Pages) and `lifebuild`/`lifebuild-auth` worker domains (or workers.dev).
 - Stand up fresh resources: D1 `lifebuild-prod`, R2 `lifebuild-images` + `lifebuild-images-preview`, new workers. Skip data migration if no live users; treat WorkSquared data as disposable.
 - Produce/choose LifeBuild logo + favicon/OG image set.
 - Point `worksquared.ai` marketing domain to redirect to `lifebuild.me` once new site (sociotechnica-org/life-build-site) is live.
 
 **Code changes (fast path)**
-1) Rename packages/tooling: root & package `package.json`, `pnpm-workspace.yaml`, regenerate `pnpm-lock.yaml`, update `tsconfig` path aliases, ESLint/Vite/Storybook/Jest/Playwright configs, turbo/changesets, CI cache keys.
-2) Replace imports: mac-safe find/replace `@work-squared/` → `@lifebuild/` (includes posthog worker package).
-3) Configs: wrangler files (worker, auth-worker, posthog-worker), render.yaml, GitHub workflows (filters/env/caches), `_headers`, manifests, PWA names/cache keys/localStorage keys/cookies.
-4) Domains/branding: README/docs, marketing/meta tags (canonical/OG/Twitter), sitemap/robots, titles, Storybook branding.
-5) Auth/comms: OAuth redirect URIs, email templates/senders (SPF/DKIM), in-app copy.
-6) Analytics/monitoring: Sentry/PostHog project names, DSNs, alert routes, uptime checks.
+
+1. Rename packages/tooling: root & package `package.json`, `pnpm-workspace.yaml`, regenerate `pnpm-lock.yaml`, update `tsconfig` path aliases, ESLint/Vite/Storybook/Jest/Playwright configs, turbo/changesets, CI cache keys.
+2. Replace imports: mac-safe find/replace `@work-squared/` → `@lifebuild/` (includes posthog worker package).
+3. Configs: wrangler files (worker, auth-worker, posthog-worker), render.yaml, GitHub workflows (filters/env/caches), `_headers`, manifests, PWA names/cache keys/localStorage keys/cookies.
+4. Domains/branding: README/docs, marketing/meta tags (canonical/OG/Twitter), sitemap/robots, titles, Storybook branding.
+5. Auth/comms: OAuth redirect URIs, email templates/senders (SPF/DKIM), in-app copy.
+6. Analytics/monitoring: Sentry/PostHog project names, DSNs, alert routes, uptime checks.
 
 **Verification (minimal viable to ship)**
-- Run `pnpm install` (regens lockfile), `pnpm lint-all`, `pnpm test`.  
+
+- Run `pnpm install` (regens lockfile), `pnpm lint-all`, `pnpm test`.
 - Smoke locally/staging: login/signup, WebSocket sync, file upload.
 
 **Deploy & cutover**
+
 - Deploy auth worker, sync worker, web (Pages) pointing at new URLs.
 - Deploy PostHog proxy worker with new lifebuild subdomain and update `VITE_PUBLIC_POSTHOG_HOST` env in web/Pages.
 - Update DNS to new stack; set redirects from worksquared.ai → lifebuild.me (and app subdomain).
 - Monitor logs/alerts; if issues arise, revert DNS or redeploy.
 
 **Post-cutover**
+
 - Optionally migrate or delete old WorkSquared resources after a short stable window.
 - Publish updated sitemap, verify search console (if used), and keep monitoring.
 
@@ -992,7 +1000,6 @@ grep -r "Work Squared\|WorkSquared" . --include="*.md" --include="*.tsx" --inclu
 - **Risk:** Stale localStorage/cookies/service-worker caches keyed to WorkSquared causing mixed sessions
 - **Mitigation:** Rename keys/cache names and bump versions; prompt logout/login if needed
 - **Rollback:** Clear client storage via versioned cache names or forced logout
-
 
 ### Low Risk Changes
 

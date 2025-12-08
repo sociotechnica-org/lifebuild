@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { ConnectionState } from '@work-squared/shared/auth'
+import { ConnectionState } from '@lifebuild/shared/auth'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { useSyncPayload } from '../../hooks/useSyncPayload.js'
 import { LoadingSpinner } from '../ui/LoadingSpinner.js'

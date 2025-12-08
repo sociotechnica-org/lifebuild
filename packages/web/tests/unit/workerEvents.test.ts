@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_MODEL } from '@work-squared/shared'
-import { workerCreated, workerUpdated } from '@work-squared/shared/events'
+import { DEFAULT_MODEL } from '@lifebuild/shared'
+import { workerCreated, workerUpdated } from '@lifebuild/shared/events'
 
 describe('Worker Events', () => {
   describe('workerCreated', () => {

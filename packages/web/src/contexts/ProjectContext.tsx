@@ -1,7 +1,7 @@
 import React, { createContext, useContext, ReactNode } from 'react'
 import { useQuery } from '@livestore/react'
-import { getProjectById$ } from '@work-squared/shared/queries'
-import type { Project } from '@work-squared/shared/schema'
+import { getProjectById$ } from '@lifebuild/shared/queries'
+import type { Project } from '@lifebuild/shared/schema'
 
 interface ProjectContextValue {
   project: Project | undefined

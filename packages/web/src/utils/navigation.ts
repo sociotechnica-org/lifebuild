@@ -1,6 +1,6 @@
 // Navigation utilities that preserve storeId query parameter
 
-import type { AuthUser } from '@work-squared/shared/auth'
+import type { AuthUser } from '@lifebuild/shared/auth'
 
 export const getStoreIdFromUrl = (): string | null => {
   if (typeof window === 'undefined') return null

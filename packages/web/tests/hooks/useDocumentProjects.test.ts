@@ -4,7 +4,7 @@ import {
   useDocumentProjects,
   useDocumentProjectsTargeted,
 } from '../../src/hooks/useDocumentProjects.js'
-import { getAllDocumentProjects$, getProjects$ } from '@work-squared/shared/queries'
+import { getAllDocumentProjects$, getProjects$ } from '@lifebuild/shared/queries'
 import { useQuery } from '@livestore/react'
 
 // Hoisted mocks
@@ -23,7 +23,7 @@ const { mockDocumentProjects, mockProjects } = vi.hoisted(() => {
 })
 
 // Mock queries first
-vi.mock('@work-squared/shared/queries', () => ({
+vi.mock('@lifebuild/shared/queries', () => ({
   getAllDocumentProjects$: vi.fn(),
   getDocumentProjectsByDocument$: vi.fn(),
   getProjects$: vi.fn(),

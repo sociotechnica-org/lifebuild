@@ -10,7 +10,7 @@ import {
   AuthErrorCode,
   getWorkspaceClaimsVersionKey,
   type JWTPayload,
-} from '@work-squared/shared/auth'
+} from '@lifebuild/shared/auth'
 import {
   getWorkspaceClaimForInstance,
   getWorkspaceClaimsByteSize,

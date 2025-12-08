@@ -1,5 +1,5 @@
 {
-  "name": "@work-squared/web",
+  "name": "@lifebuild/web",
   "version": "0.1.0",
   "type": "module",
   "private": true,
@@ -45,7 +45,7 @@
     "@opentelemetry/sdk-trace-web": "^2.0.1",
     "@phosphor-icons/react": "^2.1.10",
     "@sentry/react": "^10.20.0",
-    "@work-squared/shared": "workspace:*",
+    "@lifebuild/shared": "workspace:*",
     "dompurify": "^3.2.6",
     "highlight.js": "^11.11.1",
     "marked": "^16.1.1",

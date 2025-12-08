@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Contact } from '@work-squared/shared/schema'
+import { Contact } from '@lifebuild/shared/schema'
 import { useContacts } from '../../hooks/useContacts.js'
 
 interface EditContactModalProps {

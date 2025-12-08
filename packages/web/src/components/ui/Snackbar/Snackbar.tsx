@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createContext, useContext, useCallback } from 'react'
 import { useStore } from '@livestore/react'
-import { events } from '@work-squared/shared/schema'
+import { events } from '@lifebuild/shared/schema'
 
 interface SnackbarData {
   message: string

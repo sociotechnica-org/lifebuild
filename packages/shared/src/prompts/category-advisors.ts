@@ -5,7 +5,7 @@
  * to help with planning and managing projects in that category.
  */
 
-import type { ProjectCategory } from '@work-squared/shared'
+import type { ProjectCategory } from '@lifebuild/shared'
 
 /**
  * Get the system prompt for a specific Life Category advisor

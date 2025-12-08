@@ -1,5 +1,5 @@
 {
-  "name": "@work-squared/server",
+  "name": "@lifebuild/server",
   "version": "0.1.0",
   "type": "module",
   "license": "FSL-1.1-ALv2",
@@ -24,7 +24,7 @@
     "@livestore/livestore": "catalog:",
     "@livestore/sync-cf": "catalog:",
     "@sentry/node": "^10.17.0",
-    "@work-squared/shared": "workspace:*",
+    "@lifebuild/shared": "workspace:*",
     "better-sqlite3": "^12.2.0",
     "dotenv": "^17.2.1",
     "pino": "^9.10.0",

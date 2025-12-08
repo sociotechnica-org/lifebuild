@@ -1,5 +1,5 @@
-import type { JWTPayload, WorkspaceJWTClaim } from '@work-squared/shared/auth'
-import { measureWorkspaceClaimsBytes } from '@work-squared/shared/auth'
+import type { JWTPayload, WorkspaceJWTClaim } from '@lifebuild/shared/auth'
+import { measureWorkspaceClaimsBytes } from '@lifebuild/shared/auth'
 
 export type WorkspaceClaimValidation =
   | { ok: true; claim: WorkspaceJWTClaim }

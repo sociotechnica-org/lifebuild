@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { useDroppable } from '@dnd-kit/core'
 import { useStore } from '@livestore/react'
-import type { Task } from '@work-squared/shared/schema'
-import type { StatusColumn } from '@work-squared/shared'
+import type { Task } from '@lifebuild/shared/schema'
+import type { StatusColumn } from '@lifebuild/shared'
 import { TaskCard } from '../../TaskCard/TaskCard.js'
 import { AddTaskForm } from '../../AddTaskForm/AddTaskForm.js'
-import { events } from '@work-squared/shared/schema'
+import { events } from '@lifebuild/shared/schema'
 
 interface KanbanColumnProps {
   column: StatusColumn

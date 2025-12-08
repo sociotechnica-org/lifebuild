@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useCallback } from 'react'
-import type { StaticRoomDefinition } from '@work-squared/shared/rooms'
+import type { StaticRoomDefinition } from '@lifebuild/shared/rooms'
 import { NewUiShell } from './NewUiShell.js'
 import { RoomChatPanel } from '../../room-chat/RoomChatPanel.js'
 import { useRoomChat } from '../../../hooks/useRoomChat.js'

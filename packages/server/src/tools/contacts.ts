@@ -12,9 +12,9 @@ import {
   getProjectContactAssociations$,
   getContactProjectAssociations$,
   getProjects$,
-} from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
-import { parseEmailList } from '@work-squared/shared'
+} from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import { parseEmailList } from '@lifebuild/shared'
 
 // ===== BASIC CONTACT OPERATIONS =====
 

@@ -4,8 +4,8 @@ import { LiveStoreProvider, useQuery } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'
-import { events, schema } from '@work-squared/shared/schema'
-import { getProjects$, getAllTasks$, getTableBronzeStack$ } from '@work-squared/shared/queries'
+import { events, schema } from '@lifebuild/shared/schema'
+import { getProjects$, getAllTasks$, getTableBronzeStack$ } from '@lifebuild/shared/queries'
 import { BronzePanel } from './BronzePanel.js'
 
 /**

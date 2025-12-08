@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { ExecutionHistory } from '../ExecutionHistory'
-import type { TaskExecution } from '@work-squared/shared/schema'
+import type { TaskExecution } from '@lifebuild/shared/schema'
 
 // Mock the useQuery hook
 vi.mock('@livestore/react', () => ({

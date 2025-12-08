@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import type { Project } from '@work-squared/shared'
+import type { Project } from '@lifebuild/shared'
 import { AssigneeSelector } from '../ui/AssigneeSelector/AssigneeSelector.js'
 
 interface RecurringTaskFormPresentationProps {

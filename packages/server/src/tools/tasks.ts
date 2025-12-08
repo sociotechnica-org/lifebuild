@@ -1,12 +1,12 @@
 import type { Store } from '@livestore/livestore'
-import { events } from '@work-squared/shared/schema'
+import { events } from '@lifebuild/shared/schema'
 import {
   getBoardTasks$,
   getUsers$,
   getTaskById$,
   getOrphanedTasks$,
   getProjects$,
-} from '@work-squared/shared/queries'
+} from '@lifebuild/shared/queries'
 import {
   validators,
   wrapToolFunction,

@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react'
 import { useQuery, useStore } from '@livestore/react'
 import { formatDate } from '../../../utils/dates.js'
-import { getAllDocuments$, getDocumentProjectsByProject$ } from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
+import { getAllDocuments$, getDocumentProjectsByProject$ } from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
 import { LoadingSpinner } from '../../ui/LoadingSpinner.js'
 
 interface AddExistingDocumentModalProps {

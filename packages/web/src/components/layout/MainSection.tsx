@@ -2,7 +2,7 @@ import { queryDb } from '@livestore/livestore'
 import { useQuery, useStore } from '@livestore/react'
 import React from 'react'
 
-import { events, tables, type ChatMessage } from '@work-squared/shared/schema'
+import { events, tables, type ChatMessage } from '@lifebuild/shared/schema'
 
 const chatMessages$ = queryDb(
   _get => {

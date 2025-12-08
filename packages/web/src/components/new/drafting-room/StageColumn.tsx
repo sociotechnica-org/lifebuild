@@ -1,5 +1,5 @@
 import React from 'react'
-import type { PlanningStage } from '@work-squared/shared'
+import type { PlanningStage } from '@lifebuild/shared'
 
 interface StageColumnProps {
   stage: PlanningStage

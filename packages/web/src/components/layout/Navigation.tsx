@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useQuery } from '@livestore/react'
-import { getUsers$ } from '@work-squared/shared/queries'
+import { getUsers$ } from '@lifebuild/shared/queries'
 import { getInitials } from '../../utils/initials.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { ROUTES, ROUTE_PATTERNS } from '../../constants/routes.js'

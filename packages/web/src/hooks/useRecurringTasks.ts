@@ -5,10 +5,10 @@ import {
   getRecurringTaskById$,
   getTaskExecutions$,
   getLatestExecution$,
-} from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
-import { calculateNextExecution } from '@work-squared/shared'
-import type { RecurringTask, TaskExecution } from '@work-squared/shared/schema'
+} from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import { calculateNextExecution } from '@lifebuild/shared'
+import type { RecurringTask, TaskExecution } from '@lifebuild/shared/schema'
 
 export interface CreateRecurringTaskParams {
   name: string

@@ -4,9 +4,9 @@ import { LiveStoreProvider, useQuery } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'
-import { events, schema } from '@work-squared/shared/schema'
-import { getProjects$ } from '@work-squared/shared/queries'
-import { DEFAULT_MODEL_STRING } from '@work-squared/shared'
+import { events, schema } from '@lifebuild/shared/schema'
+import { getProjects$ } from '@lifebuild/shared/queries'
+import { DEFAULT_MODEL_STRING } from '@lifebuild/shared'
 import { ProjectCard } from './ProjectCard.js'
 
 const ProjectCardHelper: React.FC<{ projectId: string }> = ({ projectId }) => {

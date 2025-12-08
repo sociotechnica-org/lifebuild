@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { getProjects$, getProjectTasks$, getOrphanedTasks$ } from '@work-squared/shared/queries'
-import type { Project, TaskStatus, Task } from '@work-squared/shared/schema'
-import { events } from '@work-squared/shared/schema'
-import { STATUS_COLUMNS } from '@work-squared/shared'
+import { getProjects$, getProjectTasks$, getOrphanedTasks$ } from '@lifebuild/shared/queries'
+import type { Project, TaskStatus, Task } from '@lifebuild/shared/schema'
+import { events } from '@lifebuild/shared/schema'
+import { STATUS_COLUMNS } from '@lifebuild/shared'
 import { AssigneeSelector } from '../ui/AssigneeSelector/AssigneeSelector.js'
 import { Modal } from '../ui/Modal/index.js'
 

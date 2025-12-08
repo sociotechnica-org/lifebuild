@@ -1,5 +1,5 @@
 import type { Store } from '@livestore/livestore'
-import { events } from '@work-squared/shared/schema'
+import { events } from '@lifebuild/shared/schema'
 import {
   getDocumentList$,
   getDocumentById$,
@@ -8,7 +8,7 @@ import {
   getAllDocuments$,
   getDocumentProjectsByProject$,
   getProjects$,
-} from '@work-squared/shared/queries'
+} from '@lifebuild/shared/queries'
 import {
   validators,
   wrapStringParamFunction,

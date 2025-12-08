@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ChatMessage, Worker } from '@work-squared/shared/schema'
+import type { ChatMessage, Worker } from '@lifebuild/shared/schema'
 import { MarkdownRenderer } from '../../markdown/MarkdownRenderer.js'
 
 interface MessageListProps {

@@ -1,8 +1,8 @@
 import React from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { getProjects$ } from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
-import { calculateNextExecution } from '@work-squared/shared'
+import { getProjects$ } from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import { calculateNextExecution } from '@lifebuild/shared'
 import { RecurringTaskFormPresentation } from './RecurringTaskFormPresentation.js'
 
 interface RecurringTaskFormProps {

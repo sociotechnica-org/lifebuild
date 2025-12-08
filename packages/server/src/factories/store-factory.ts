@@ -1,7 +1,7 @@
 import { createStorePromise, type Store as LiveStore } from '@livestore/livestore'
 import { makeAdapter } from '@livestore/adapter-node'
 import { makeWsSync } from '@livestore/sync-cf/client'
-import { schema } from '@work-squared/shared/schema'
+import { schema } from '@lifebuild/shared/schema'
 import path from 'path'
 import { logger } from '../utils/logger.js'
 

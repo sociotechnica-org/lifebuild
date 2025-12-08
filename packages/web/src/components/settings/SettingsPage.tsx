@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { getAllSettings$ } from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
-import { SETTINGS_KEYS, DEFAULT_SETTINGS } from '@work-squared/shared'
+import { getAllSettings$ } from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import { SETTINGS_KEYS, DEFAULT_SETTINGS } from '@lifebuild/shared'
 import { SystemPromptEditor } from './SystemPromptEditor.js'
 import { RecurringTaskPromptEditor } from './RecurringTaskPromptEditor.js'
 import { LoadingSpinner } from '../ui/LoadingSpinner.js'
@@ -20,7 +20,7 @@ import type {
   WorkspaceRole,
   AuthWorkspaceInvitation,
   AuthWorkspaceMember,
-} from '@work-squared/shared/auth'
+} from '@lifebuild/shared/auth'
 
 const ROLE_OPTIONS: WorkspaceRole[] = ['owner', 'admin', 'member']
 const ROLE_LABELS: Record<WorkspaceRole, string> = {

@@ -5,14 +5,14 @@ import {
   getProjectsByCategory$,
   getAllTasksByCategoryId$,
   getAllWorkerProjects$,
-} from '@work-squared/shared/queries'
+} from '@lifebuild/shared/queries'
 import { ProjectCard } from '../projects/ProjectCard.js'
-import { PROJECT_CATEGORIES, type ProjectCategory } from '@work-squared/shared'
+import { PROJECT_CATEGORIES, type ProjectCategory } from '@lifebuild/shared'
 import { ROUTES, generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { RoomLayout } from '../layout/RoomLayout.js'
-import { getCategoryRoomDefinition } from '@work-squared/shared/rooms'
+import { getCategoryRoomDefinition } from '@lifebuild/shared/rooms'
 import { NewUiShell } from '../layout/NewUiShell.js'
 
 const parseAssigneeIds = (raw: string | null | undefined): string[] => {

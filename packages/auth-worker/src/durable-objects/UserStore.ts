@@ -8,7 +8,7 @@ import {
   WorkspaceInvitationStatus,
 } from '../types.js'
 import { hashPassword, verifyPassword } from '../utils/crypto.js'
-import { getWorkspaceClaimsVersionKey } from '@work-squared/shared/auth'
+import { getWorkspaceClaimsVersionKey } from '@lifebuild/shared/auth'
 
 const DEFAULT_MAX_INSTANCES = 10
 const DEFAULT_INSTANCE_NAME = 'Personal Workspace'

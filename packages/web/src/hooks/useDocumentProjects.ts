@@ -4,7 +4,7 @@ import {
   getAllDocumentProjects$,
   getDocumentProjectsByDocument$,
   getProjects$,
-} from '@work-squared/shared/queries'
+} from '@lifebuild/shared/queries'
 
 /**
  * Custom hook to get projects associated with a document

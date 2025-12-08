@@ -3,7 +3,7 @@ import { MessageList } from '../MessageList/MessageList.js'
 import { ChatInput } from '../ChatInput/ChatInput.js'
 import { ChatTypeModal } from '../ChatTypeModal/ChatTypeModal.js'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
-import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
+import type { ChatMessage, Conversation, Worker } from '@lifebuild/shared/schema'
 
 interface ChatPresenterProps {
   // Data

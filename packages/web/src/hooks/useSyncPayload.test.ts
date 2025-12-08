@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { SyncPayload } from '@work-squared/shared/auth'
+import type { SyncPayload } from '@lifebuild/shared/auth'
 
 const mockUseAuth = vi.fn()
 

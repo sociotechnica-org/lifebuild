@@ -1,8 +1,8 @@
 import React from 'react'
 import { useQuery } from '@livestore/react'
-import { getTaskExecutions$ } from '@work-squared/shared/queries'
-import { formatRelativeTime } from '@work-squared/shared'
-import type { TaskExecution } from '@work-squared/shared/schema'
+import { getTaskExecutions$ } from '@lifebuild/shared/queries'
+import { formatRelativeTime } from '@lifebuild/shared'
+import type { TaskExecution } from '@lifebuild/shared/schema'
 
 interface ExecutionHistoryProps {
   recurringTaskId: string

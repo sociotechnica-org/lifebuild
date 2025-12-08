@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { Project } from '@work-squared/shared/schema'
+import type { Project } from '@lifebuild/shared/schema'
 import {
   DndContext,
   DragEndEvent,

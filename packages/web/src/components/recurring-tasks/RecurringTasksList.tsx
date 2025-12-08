@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { useQuery } from '@livestore/react'
-import { getRecurringTasks$ } from '@work-squared/shared/queries'
+import { getRecurringTasks$ } from '@lifebuild/shared/queries'
 import { useRecurringTasks } from '../../hooks/useRecurringTasks.js'
 import { RecurringTaskCard } from './RecurringTaskCard.js'
 import { EditRecurringTaskModal } from './EditRecurringTaskModal.js'
-import type { RecurringTask } from '@work-squared/shared/schema'
+import type { RecurringTask } from '@lifebuild/shared/schema'
 
 interface RecurringTasksListProps {
   onCreateTask: () => void

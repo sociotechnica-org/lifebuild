@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import type { Project } from '@work-squared/shared/schema'
+import type { Project } from '@lifebuild/shared/schema'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 

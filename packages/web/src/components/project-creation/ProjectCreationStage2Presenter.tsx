@@ -5,8 +5,8 @@ import type {
   ImportanceLevel,
   ComplexityLevel,
   ScaleLevel,
-} from '@work-squared/shared'
-import { ARCHETYPE_LABELS } from '@work-squared/shared'
+} from '@lifebuild/shared'
+import { ARCHETYPE_LABELS } from '@lifebuild/shared'
 
 export interface ProjectCreationStage2PresenterProps {
   objectives: string

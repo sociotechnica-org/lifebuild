@@ -1,11 +1,7 @@
 import { useQuery, useStore } from '@livestore/react'
 import React, { useState, useMemo } from 'react'
-import {
-  getAllDocuments$,
-  getProjects$,
-  getAllDocumentProjects$,
-} from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
+import { getAllDocuments$, getProjects$, getAllDocumentProjects$ } from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
 import { DocumentCreateModal } from '../DocumentCreateModal/DocumentCreateModal.js'
 import { DocumentsPageHeader } from '../DocumentsPageHeader.js'
 import { DocumentsEmptyState } from '../DocumentsEmptyState.js'

@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { getTableBronzeStack$, getTableConfiguration$ } from '@work-squared/shared/queries'
-import { events } from '@work-squared/shared/schema'
-import { type PriorityQueueItem } from '@work-squared/shared/table-state'
-import type { TableBronzeStackEntry, TableConfiguration } from '@work-squared/shared/schema'
+import { getTableBronzeStack$, getTableConfiguration$ } from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import { type PriorityQueueItem } from '@lifebuild/shared/table-state'
+import type { TableBronzeStackEntry, TableConfiguration } from '@lifebuild/shared/schema'
 
 export interface UseTableStateResult {
   configuration: TableConfiguration | null

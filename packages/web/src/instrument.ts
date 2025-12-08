@@ -13,7 +13,7 @@ Sentry.init({
   // Environment helps separate events in Sentry dashboard (development, staging, production)
   environment,
   // Release tracking helps identify which version had which errors
-  release: `@work-squared/web@${packageVersion}`,
+  release: `@lifebuild/web@${packageVersion}`,
   // Use tunnel to proxy events through same domain, bypassing tracking prevention
   tunnel: '/sentry-tunnel',
   // Set tracesSampleRate based on environment

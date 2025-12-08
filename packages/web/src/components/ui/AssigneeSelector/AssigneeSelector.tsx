@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react'
 import { useQuery } from '@livestore/react'
-import { getUsers$, getWorkers$ } from '@work-squared/shared/queries'
+import { getUsers$, getWorkers$ } from '@lifebuild/shared/queries'
 import { Combobox } from '../Combobox/Combobox.js'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
-import type { User, Worker } from '@work-squared/shared/schema'
+import type { User, Worker } from '@lifebuild/shared/schema'
 
 interface AssigneeSelectorProps {
   selectedIds: string[]

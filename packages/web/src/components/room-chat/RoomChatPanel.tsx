@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ChatMessage, Conversation, Worker } from '@work-squared/shared/schema'
+import type { ChatMessage, Conversation, Worker } from '@lifebuild/shared/schema'
 import { RoomChatInput } from './RoomChatInput.js'
 import { RoomChatMessageList } from './RoomChatMessageList.js'
 

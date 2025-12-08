@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from '@livestore/react'
-import { events } from '@work-squared/shared/schema'
+import { events } from '@lifebuild/shared/schema'
 import { generateRandomWorkerName, systemPromptTemplates } from '../../../utils/workerNames.js'
 import { ModelSelector } from '../../ui/ModelSelector/ModelSelector.js'
 import { DEFAULT_MODEL } from '../../../utils/models.js'

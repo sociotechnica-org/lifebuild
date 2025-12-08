@@ -1,14 +1,14 @@
 import { useEffect, useRef } from 'react'
 import { useStore, useQuery } from '@livestore/react'
-import { events } from '@work-squared/shared/schema'
-import { getWorkerById$, getConversations$ } from '@work-squared/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import { getWorkerById$, getConversations$ } from '@lifebuild/shared/queries'
 import {
   type ProjectCategory,
   DEFAULT_MODEL,
   getCategoryAdvisorPrompt,
   getCategoryAdvisorName,
   getCategoryAdvisorRole,
-} from '@work-squared/shared'
+} from '@lifebuild/shared'
 import { useAuth } from '../contexts/AuthContext.js'
 
 const pendingAdvisorCreation = new Map<string, Promise<void>>()

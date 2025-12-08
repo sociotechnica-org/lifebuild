@@ -1,4 +1,4 @@
-import type { Task, TaskStatus } from '@work-squared/shared/schema'
+import type { Task, TaskStatus } from '@lifebuild/shared/schema'
 
 export interface StatusReorderResult {
   taskId: string

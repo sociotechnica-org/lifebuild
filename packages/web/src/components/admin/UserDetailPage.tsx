@@ -8,7 +8,7 @@ import { AdminToggle } from './AdminToggle.js'
 import { InstancesList } from './InstancesList.js'
 import { AddInstanceForm } from './AddInstanceForm.js'
 import { DeleteUserModal } from './DeleteUserModal.js'
-import type { WorkspaceRole } from '@work-squared/shared/auth'
+import type { WorkspaceRole } from '@lifebuild/shared/auth'
 
 interface UserDetail {
   id: string

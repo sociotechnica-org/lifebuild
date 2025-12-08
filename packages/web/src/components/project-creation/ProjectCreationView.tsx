@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useStore, useQuery } from '@livestore/react'
-import { events } from '@work-squared/shared/schema'
-import { getProjectDetails$ } from '@work-squared/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import { getProjectDetails$ } from '@lifebuild/shared/queries'
 import type {
   PlanningAttributes,
   ProjectArchetype,
@@ -10,10 +10,10 @@ import type {
   ImportanceLevel,
   ComplexityLevel,
   ScaleLevel,
-} from '@work-squared/shared'
+} from '@lifebuild/shared'
 import { ProjectCreationStage1Presenter } from './ProjectCreationStage1Presenter'
 import { ProjectCreationStage2Presenter } from './ProjectCreationStage2Presenter'
-import { PROJECT_CATEGORIES, type ProjectCategory } from '@work-squared/shared'
+import { PROJECT_CATEGORIES, type ProjectCategory } from '@lifebuild/shared'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useCategoryAdvisor } from '../../hooks/useCategoryAdvisor.js'
 import { generateRoute } from '../../constants/routes.js'

@@ -5,7 +5,7 @@ import {
   DEFAULT_GRACE_PERIOD_SECONDS,
   DEV_AUTH,
   AuthErrorCode,
-} from '@work-squared/shared/auth'
+} from '@lifebuild/shared/auth'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']

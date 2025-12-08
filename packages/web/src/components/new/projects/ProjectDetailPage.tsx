@@ -6,8 +6,8 @@ import {
   getProjectTasks$,
   getUsers$,
   getTaskComments$,
-} from '@work-squared/shared/queries'
-import type { Project, Task, User } from '@work-squared/shared/schema'
+} from '@lifebuild/shared/queries'
+import type { Project, Task, User } from '@lifebuild/shared/schema'
 import {
   ARCHETYPE_LABELS,
   STAGE_LABELS,
@@ -17,11 +17,11 @@ import {
   PROJECT_CATEGORIES,
   getCategoryInfo,
   resolveLifecycleState,
-} from '@work-squared/shared'
+} from '@lifebuild/shared'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import { RoomLayout } from '../layout/RoomLayout.js'
-import { createProjectRoomDefinition } from '@work-squared/shared/rooms'
+import { createProjectRoomDefinition } from '@lifebuild/shared/rooms'
 import { NewUiShell } from '../layout/NewUiShell.js'
 import { useProjectChatLifecycle } from '../../../hooks/useProjectChatLifecycle.js'
 

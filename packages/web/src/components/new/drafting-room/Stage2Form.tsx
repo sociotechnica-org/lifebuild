@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore, useQuery } from '@livestore/react'
-import { events } from '@work-squared/shared/schema'
-import { getProjectById$ } from '@work-squared/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import { getProjectById$ } from '@lifebuild/shared/queries'
 import {
   type ProjectArchetype,
   type ProjectCategory,
@@ -10,7 +10,7 @@ import {
   type ScaleLevel,
   getCategoryInfo,
   resolveLifecycleState,
-} from '@work-squared/shared'
+} from '@lifebuild/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { type ProjectTier } from './DraftingRoom.js'

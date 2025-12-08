@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach } from 'vitest'
 import { calculateTaskReorder, calculateDropTarget } from './taskReordering'
-import type { Task } from '@work-squared/shared/schema'
+import type { Task } from '@lifebuild/shared/schema'
 
 describe('Task Reordering', () => {
   let mockTasks: Task[]

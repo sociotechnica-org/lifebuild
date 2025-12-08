@@ -1,5 +1,5 @@
 import React from 'react'
-import type { Worker } from '@work-squared/shared/schema'
+import type { Worker } from '@lifebuild/shared/schema'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
 import { Modal } from '../../ui/Modal/index.js'
 

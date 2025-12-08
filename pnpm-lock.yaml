@@ -141,7 +141,7 @@ importers:
 
   packages/auth-worker:
     dependencies:
-      '@work-squared/shared':
+      '@lifebuild/shared':
         specifier: workspace:*
         version: link:../shared
     devDependencies:
@@ -199,6 +199,9 @@ importers:
 
   packages/server:
     dependencies:
+      '@lifebuild/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@livestore/adapter-node':
         specifier: 'catalog:'
         version: 0.4.0-dev.8(19d402f754e76ee3662281eb72c3f6a1)
@@ -211,9 +214,6 @@ importers:
       '@sentry/node':
         specifier: ^10.17.0
         version: 10.17.0
-      '@work-squared/shared':
-        specifier: workspace:*
-        version: link:../shared
       better-sqlite3:
         specifier: ^12.2.0
         version: 12.4.1
@@ -312,6 +312,9 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@19.1.1)
+      '@lifebuild/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@livestore/adapter-web':
         specifier: 'catalog:'
         version: 0.4.0-dev.8(404beceeec1873db4d14643b31da0a95)
@@ -354,9 +357,6 @@ importers:
       '@sentry/react':
         specifier: ^10.20.0
         version: 10.20.0(react@19.1.1)
-      '@work-squared/shared':
-        specifier: workspace:*
-        version: link:../shared
       dompurify:
         specifier: ^3.2.6
         version: 3.2.7
@@ -523,6 +523,9 @@ importers:
 
   packages/worker:
     dependencies:
+      '@lifebuild/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@livestore/adapter-web':
         specifier: 'catalog:'
         version: 0.4.0-dev.8(404beceeec1873db4d14643b31da0a95)
@@ -541,9 +544,6 @@ importers:
       '@opentelemetry/sdk-trace-web':
         specifier: 2.0.1
         version: 2.0.1(@opentelemetry/api@1.9.0)
-      '@work-squared/shared':
-        specifier: workspace:*
-        version: link:../shared
     devDependencies:
       '@types/node':
         specifier: 'catalog:'

@@ -10,10 +10,10 @@ import {
   getDocumentProjectsByProject$,
   getProjectWorkers$,
   getWorkers$,
-} from '@work-squared/shared/queries'
-import type { Task, Document, Worker, TaskStatus } from '@work-squared/shared/schema'
-import { events } from '@work-squared/shared/schema'
-import { STATUS_COLUMNS, getCategoryInfo } from '@work-squared/shared'
+} from '@lifebuild/shared/queries'
+import type { Task, Document, Worker, TaskStatus } from '@lifebuild/shared/schema'
+import { events } from '@lifebuild/shared/schema'
+import { STATUS_COLUMNS, getCategoryInfo } from '@lifebuild/shared'
 import { ProjectProvider, useProject } from '../../../contexts/ProjectContext.js'
 import { KanbanBoard } from '../../tasks/kanban/KanbanBoard.js'
 import { TaskModal } from '../../tasks/TaskModal/TaskModal.js'
@@ -28,7 +28,7 @@ import {
   calculateStatusTaskReorder,
   calculateStatusDropTarget,
 } from '../../../utils/statusTaskReordering.js'
-import type { PlanningAttributes } from '@work-squared/shared'
+import type { PlanningAttributes } from '@lifebuild/shared'
 import { useTaskStatusChange } from '../../../hooks/useTaskStatusChange.js'
 
 // Component for the actual workspace content

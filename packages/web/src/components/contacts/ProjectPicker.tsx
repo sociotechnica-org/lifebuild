@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useQuery, useStore } from '@livestore/react'
-import { Project, events } from '@work-squared/shared/schema'
-import { getProjects$ } from '@work-squared/shared/queries'
+import { Project, events } from '@lifebuild/shared/schema'
+import { getProjects$ } from '@lifebuild/shared/queries'
 
 type Event = ReturnType<(typeof events)[keyof typeof events]>
 

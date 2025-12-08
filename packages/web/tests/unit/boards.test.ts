@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { events, tables } from '@work-squared/shared/schema'
-import { getBoards$ } from '@work-squared/shared/queries'
+import { events, tables } from '@lifebuild/shared/schema'
+import { getBoards$ } from '@lifebuild/shared/queries'
 
 describe('Board Events and Materialization', () => {
   it('should have project creation event function', () => {

@@ -1,5 +1,5 @@
 import type { ToolResultFormatter } from './types.js'
-import { DEFAULT_KANBAN_COLUMNS } from '@work-squared/shared'
+import { DEFAULT_KANBAN_COLUMNS } from '@lifebuild/shared'
 import { ChorusFormatter } from './chorus-formatter.js'
 
 export class ProjectToolFormatter implements ToolResultFormatter {

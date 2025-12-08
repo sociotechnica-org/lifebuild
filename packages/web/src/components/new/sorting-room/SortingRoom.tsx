@@ -1,15 +1,15 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery, useStore } from '@livestore/react'
-import { getProjects$, getAllTasks$ } from '@work-squared/shared/queries'
+import { getProjects$, getAllTasks$ } from '@lifebuild/shared/queries'
 import {
   resolveLifecycleState,
   type ProjectLifecycleState,
   PROJECT_CATEGORIES,
   type ProjectCategory,
-} from '@work-squared/shared'
-import type { Project, Task } from '@work-squared/shared/schema'
-import { events } from '@work-squared/shared/schema'
+} from '@lifebuild/shared'
+import type { Project, Task } from '@lifebuild/shared/schema'
+import { events } from '@lifebuild/shared/schema'
 import { useTableState } from '../../../hooks/useTableState.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { GoldSilverPanel } from './GoldSilverPanel.js'

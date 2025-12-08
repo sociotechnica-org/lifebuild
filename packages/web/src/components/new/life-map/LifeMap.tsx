@@ -7,8 +7,8 @@ import {
   getActiveBronzeStack$,
   getAllTasks$,
   getTableConfiguration$,
-} from '@work-squared/shared/queries'
-import { PROJECT_CATEGORIES, resolveLifecycleState } from '@work-squared/shared'
+} from '@lifebuild/shared/queries'
+import { PROJECT_CATEGORIES, resolveLifecycleState } from '@lifebuild/shared'
 import { CategoryCard } from './CategoryCard.js'
 import { generateRoute } from '../../../constants/routes.js'
 

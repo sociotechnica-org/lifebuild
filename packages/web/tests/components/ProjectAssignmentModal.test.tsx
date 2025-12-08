@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import type { Worker } from '@work-squared/shared/schema'
-import { DEFAULT_MODEL } from '@work-squared/shared'
+import type { Worker } from '@lifebuild/shared/schema'
+import { DEFAULT_MODEL } from '@lifebuild/shared'
 
 describe('ProjectAssignmentModal', () => {
   const mockWorker: Worker = {
