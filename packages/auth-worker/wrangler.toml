@@ -1,16 +1,20 @@
-name = "work-squared-auth"
+name = "lifebuild-auth"
 compatibility_date = "2024-05-12"
 main = "./src/index.ts"
 
+[[routes]]
+pattern = "auth.lifebuild.me/*"
+zone_name = "lifebuild.me"
+
 [vars]
-ENVIRONMENT = "development"
+ENVIRONMENT = "production"
 SERVER_WEBHOOK_URL = ""
 WEBHOOK_SECRET = ""
 
 [[durable_objects.bindings]]
 name = "USER_STORE"
 class_name = "UserStore"
-script_name = "work-squared-auth"
+script_name = "lifebuild-auth"
 
 [[kv_namespaces]]
 binding = "WORKSPACE_CLAIMS_VERSION"

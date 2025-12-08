@@ -51,11 +51,11 @@ jobs:
       - name: Build and Deploy Web App to Pages
         env:
           VITE_REQUIRE_AUTH: true
-          VITE_AUTH_SERVICE_URL: https://work-squared-auth.jessmartin.workers.dev
-          VITE_LIVESTORE_SYNC_URL: wss://work-squared.jessmartin.workers.dev
+          VITE_AUTH_SERVICE_URL: https://auth.lifebuild.me
+          VITE_LIVESTORE_SYNC_URL: wss://sync.lifebuild.me
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
           VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.VITE_PUBLIC_POSTHOG_KEY }}
-          VITE_PUBLIC_POSTHOG_HOST: https://coconut.worksquared.ai
+          VITE_PUBLIC_POSTHOG_HOST: https://coconut.lifebuild.me
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
@@ -69,9 +69,9 @@ jobs:
         if: success()
         run: |
           echo "✅ Deployment successful!"
-          echo "Auth Worker: https://work-squared-auth.jessmartin.workers.dev"
-          echo "Sync Worker: https://work-squared.jessmartin.workers.dev"
-          echo "Web App: https://app.worksquared.ai"
+          echo "Auth Worker: https://auth.lifebuild.me"
+          echo "Sync Worker: https://sync.lifebuild.me"
+          echo "Web App: https://app.lifebuild.me"
 
       - name: Deployment Failure Notification
         if: failure()
