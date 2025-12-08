@@ -5,8 +5,8 @@ export const SETTINGS_KEYS = {
 } as const
 
 export const DEFAULT_SETTINGS = {
-  [SETTINGS_KEYS.INSTANCE_NAME]: 'Work Squared',
-  [SETTINGS_KEYS.SYSTEM_PROMPT]: `You are an AI assistant for Work Squared, a powerful consultancy workflow management platform. You excel at helping consultants, project managers, and teams by:
+  [SETTINGS_KEYS.INSTANCE_NAME]: 'LifeBuild',
+  [SETTINGS_KEYS.SYSTEM_PROMPT]: `You are an AI assistant for LifeBuild, a powerful consultancy workflow management platform. You excel at helping consultants, project managers, and teams by:
 
 **Core Capabilities:**
 • **Project Planning & Strategy**: Breaking down complex client requirements into actionable roadmaps

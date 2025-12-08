@@ -22,7 +22,7 @@ test.describe('Authentication Integration E2E', () => {
     await page.waitForURL(/\/login/, { timeout: 10000 })
 
     // Should see login page
-    await expect(page.locator('h1')).toContainText('Work Squared')
+    await expect(page.locator('h1')).toContainText('LifeBuild')
     await expect(page.locator('h2')).toContainText('Sign in to your account')
 
     // 2. Navigate to signup page
@@ -150,7 +150,7 @@ test.describe('Authentication Integration E2E', () => {
     await page.waitForLoadState('load')
 
     // Should show proper login page structure
-    await expect(page.locator('h1')).toContainText('Work Squared')
+    await expect(page.locator('h1')).toContainText('LifeBuild')
     await expect(page.locator('h2')).toContainText('Sign in to your account')
     await expect(page.locator('input[name="email"]')).toBeVisible()
     await expect(page.locator('input[name="password"]')).toBeVisible()

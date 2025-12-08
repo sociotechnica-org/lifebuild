@@ -1,6 +1,6 @@
-# Web Package (@work-squared/web)
+# Web Package (@lifebuild/web)
 
-The React frontend application for Work Squared, featuring real-time collaborative Kanban boards.
+The React frontend application for LifeBuild, featuring real-time collaborative Kanban boards.
 
 ## Overview
 
@@ -54,36 +54,36 @@ BRAINTRUST_API_KEY=your-key-here
 # Start development server (from root)
 pnpm dev
 # or run web package only
-pnpm --filter @work-squared/web dev
+pnpm --filter @lifebuild/web dev
 
 # Build for production
-pnpm --filter @work-squared/web build
+pnpm --filter @lifebuild/web build
 
 # Run tests
-pnpm --filter @work-squared/web test
-pnpm --filter @work-squared/web test:watch
-pnpm --filter @work-squared/web test:coverage
+pnpm --filter @lifebuild/web test
+pnpm --filter @lifebuild/web test:watch
+pnpm --filter @lifebuild/web test:coverage
 
 # E2E tests
-pnpm --filter @work-squared/web test:e2e
+pnpm --filter @lifebuild/web test:e2e
 # With authentication enforcement (production mode)
-REQUIRE_AUTH=true pnpm --filter @work-squared/web test:e2e
+REQUIRE_AUTH=true pnpm --filter @lifebuild/web test:e2e
 
 # Linting and formatting
-pnpm --filter @work-squared/web lint
-pnpm --filter @work-squared/web lint:fix
-pnpm --filter @work-squared/web format
+pnpm --filter @lifebuild/web lint
+pnpm --filter @lifebuild/web lint:fix
+pnpm --filter @lifebuild/web format
 
 # Type checking
-pnpm --filter @work-squared/web typecheck
+pnpm --filter @lifebuild/web typecheck
 
 # Storybook for component development
-pnpm --filter @work-squared/web storybook
-pnpm --filter @work-squared/web build-storybook
+pnpm --filter @lifebuild/web storybook
+pnpm --filter @lifebuild/web build-storybook
 
 # Storybook tests (check for rendering failures)
-pnpm --filter @work-squared/web test:storybook
-pnpm --filter @work-squared/web test:storybook:ci
+pnpm --filter @lifebuild/web test:storybook
+pnpm --filter @lifebuild/web test:storybook:ci
 ```
 
 ## Architecture
@@ -199,7 +199,7 @@ pnpm test:e2e --grep "validate.*form"
 
 ### LiveStore Integration
 
-- **Schema Import**: Shared types from `@work-squared/shared`
+- **Schema Import**: Shared types from `@lifebuild/shared`
 - **Web Worker**: Background processing for sync operations
 - **Shared Worker**: Multi-tab synchronization
 - **OPFS Storage**: Persistent local storage
@@ -217,13 +217,13 @@ As of September 2025, the web package is deployed to **Cloudflare Pages** as a s
 
 ### Production Deployment
 
-The web app is deployed to **Cloudflare Pages** with the custom domain `app.worksquared.ai`:
+The web app is deployed to **Cloudflare Pages** with the custom domain `app.lifebuild.me`:
 
 ```bash
 # Build with production environment variables
 VITE_REQUIRE_AUTH=true \
-VITE_AUTH_SERVICE_URL=https://work-squared-auth.jessmartin.workers.dev \
-VITE_LIVESTORE_SYNC_URL=wss://work-squared.jessmartin.workers.dev \
+VITE_AUTH_SERVICE_URL=https://auth.lifebuild.me \
+VITE_LIVESTORE_SYNC_URL=wss://sync.lifebuild.me \
 pnpm build
 
 # Deploy to Cloudflare Pages
@@ -232,8 +232,8 @@ pnpm run deploy
 
 ### Deployment Configuration
 
-- **Project Name**: `work-squared-web`
-- **Custom Domain**: `app.worksquared.ai`
+- **Project Name**: `lifebuild-web`
+- **Custom Domain**: `app.lifebuild.me`
 - **Build Output**: `dist/` directory
 - **Deployment Method**: Wrangler CLI (`wrangler pages deploy`)
 
@@ -243,8 +243,8 @@ Production builds require these environment variables:
 
 ```bash
 VITE_REQUIRE_AUTH=true
-VITE_AUTH_SERVICE_URL=https://work-squared-auth.jessmartin.workers.dev
-VITE_LIVESTORE_SYNC_URL=wss://work-squared.jessmartin.workers.dev
+VITE_AUTH_SERVICE_URL=https://auth.lifebuild.me
+VITE_LIVESTORE_SYNC_URL=wss://sync.lifebuild.me
 ```
 
 ### Automated Deployment

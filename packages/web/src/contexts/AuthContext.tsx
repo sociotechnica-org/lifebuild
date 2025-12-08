@@ -1,5 +1,5 @@
 /**
- * Basic Auth Context for Work Squared
+ * Basic Auth Context for LifeBuild
  * Manages authentication state and token refresh
  */
 
@@ -219,7 +219,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Multi-tab sync: listen for localStorage changes
     const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'work-squared-access-token') {
+      if (event.key === 'lifebuild-access-token') {
         // Auth state changed in another tab
         const storedTokens = getStoredTokens()
         const storedUser = getStoredUser()

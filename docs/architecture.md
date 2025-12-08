@@ -1,17 +1,17 @@
-# Work Squared Architecture
+# LifeBuild Architecture
 
 ## Overview
 
-Work Squared is an AI-powered consultancy workflow automation platform built on LiveStore's event-sourcing architecture. The system demonstrates how LLMs can interact with real-world tools (Kanban boards, documents, chat) through a unified event-driven interface.
+LifeBuild is an AI-powered consultancy workflow automation platform built on LiveStore's event-sourcing architecture. The system demonstrates how LLMs can interact with real-world tools (Kanban boards, documents, chat) through a unified event-driven interface.
 
 The platform has evolved from a demo application to a production system supporting persistent AI workers, document management, and collaborative project planning, now organized as a modern monorepo architecture.
 
 ## Monorepo Architecture
 
-As of 2025, Work Squared has been migrated to a pnpm workspace monorepo structure with clear separation of concerns:
+As of 2025, LifeBuild has been migrated to a pnpm workspace monorepo structure with clear separation of concerns:
 
 ```
-work-squared/
+lifebuild/
 ├── packages/
 │   ├── web/              # React frontend application
 │   ├── worker/           # Cloudflare Worker backend for sync
@@ -25,16 +25,16 @@ work-squared/
 
 ### Package Responsibilities
 
-- **`@work-squared/web`**: React frontend deployed to **Cloudflare Pages** with LiveStore integration, UI components, and real-time collaboration features
-- **`@work-squared/worker`**: Cloudflare Worker handling **WebSocket sync only** with Durable Objects for connection state management
-- **`@work-squared/auth-worker`**: JWT authentication service with user management and token generation
-- **`@work-squared/posthog-worker`**: PostHog analytics reverse proxy enabling first-party analytics collection via unique subdomain
-- **`@work-squared/server`**: Node.js backend server for event processing and server-side LLM operations
-- **`@work-squared/shared`**: Type-safe schemas, event definitions, and utilities shared across packages
+- **`@lifebuild/web`**: React frontend deployed to **Cloudflare Pages** with LiveStore integration, UI components, and real-time collaboration features
+- **`@lifebuild/worker`**: Cloudflare Worker handling **WebSocket sync only** with Durable Objects for connection state management
+- **`@lifebuild/auth-worker`**: JWT authentication service with user management and token generation
+- **`@lifebuild/posthog-worker`**: PostHog analytics reverse proxy enabling first-party analytics collection via unique subdomain
+- **`@lifebuild/server`**: Node.js backend server for event processing and server-side LLM operations
+- **`@lifebuild/shared`**: Type-safe schemas, event definitions, and utilities shared across packages
 
 ### Deployment Architecture (Separated Services)
 
-As of October 2025, Work Squared uses a **separated deployment architecture** with independent workers for each concern:
+LifeBuild uses a **separated deployment architecture** with independent workers for each concern:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -52,7 +52,7 @@ As of October 2025, Work Squared uses a **separated deployment architecture** wi
          │                    PostHog   │           │
     ┌────▼────────────────────────┐    │      ┌────▼──────┐
     │  CF Worker (Sync Server)    │    │      │Auth Worker│
-    │  wss://work-squared...dev   │    │      │ (JWT svc) │
+    │  wss://sync.lifebuild.me    │    │      │ (JWT svc) │
     │                             │    │      └───────────┘
     │ • WebSocket hub             │    │
     │ • Event relay               │    │     ┌──────────────┐
@@ -68,13 +68,13 @@ As of October 2025, Work Squared uses a **separated deployment architecture** wi
 
 **Service Details:**
 
-| Service        | Type                 | URL                                              | Purpose                       |
-| -------------- | -------------------- | ------------------------------------------------ | ----------------------------- |
-| Web App        | Cloudflare Pages     | https://app.worksquared.ai                       | React SPA, static assets      |
-| Sync Worker    | Cloudflare Worker    | wss://work-squared.jessmartin.workers.dev        | WebSocket sync, event relay   |
-| Auth Worker    | Cloudflare Worker    | https://work-squared-auth.jessmartin.workers.dev | JWT authentication            |
-| PostHog Worker | Cloudflare Worker    | https://coconut.app.worksquared.ai               | Analytics proxy (first-party) |
-| Server         | Node.js (Render.com) | Internal                                         | Event processing, LLM         |
+| Service        | Type                 | URL                          | Purpose                       |
+| -------------- | -------------------- | ---------------------------- | ----------------------------- |
+| Web App        | Cloudflare Pages     | https://app.lifebuild.me     | React SPA, static assets      |
+| Sync Worker    | Cloudflare Worker    | wss://sync.lifebuild.me      | WebSocket sync, event relay   |
+| Auth Worker    | Cloudflare Worker    | https://auth.lifebuild.me    | JWT authentication            |
+| PostHog Worker | Cloudflare Worker    | https://coconut.lifebuild.me | Analytics proxy (first-party) |
+| Server         | Node.js (Render.com) | Internal                     | Event processing, LLM         |
 
 **PostHog Proxy Details:**
 
@@ -87,7 +87,7 @@ As of October 2025, Work Squared uses a **separated deployment architecture** wi
 
 ### 1. Event-First Design
 
-Every action in Work Squared is an event flowing through LiveStore's event stream:
+Every action in LifeBuild is an event flowing through LiveStore's event stream:
 
 - Chat messages and LLM responses
 - Task creation, updates, and moves
@@ -186,7 +186,7 @@ The current production architecture spans multiple services:
 
 ### Core Event Types
 
-Work Squared uses event sourcing with events defined in `packages/shared/src/events.ts`.
+LifeBuild uses event sourcing with events defined in `packages/shared/src/events.ts`.
 
 ### LiveStore Schema
 
@@ -222,7 +222,7 @@ Events are materialized into core tables listed in `packages/shared/src/schema.t
 
 ### Current Implementation
 
-Work Squared implements AI integration through a hybrid client-server approach:
+LifeBuild implements AI integration through a hybrid client-server approach:
 
 1. **Cloudflare Worker Proxy**: Handles LLM API calls securely via Braintrust
 2. **Client-Side Agentic Loop**: Executes tools and manages conversation flow
@@ -280,7 +280,7 @@ The system supports specialized AI workers with custom system prompts:
 
 ### Evolution from Demo to Production
 
-Work Squared has evolved through several architectural phases:
+LifeBuild has evolved through several architectural phases:
 
 1. **Demo Phase**: Frontend-only LLM calls for simplicity
 2. **Feature Development**: Added Kanban system and real-time sync

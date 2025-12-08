@@ -16,7 +16,7 @@ storybook-static
 **/eventlog@*.db
 **/state-*.db
 llm-test-*/
-work-squared-default/
+lifebuild-default/
 playwright-report/
 test-results/
 

@@ -1,10 +1,10 @@
-# Work Squared Server
+# LifeBuild Server
 
-Node.js backend server for Work Squared that provides centralized agentic loop processing and multi-user coordination.
+Node.js backend server for LifeBuild that provides centralized agentic loop processing and multi-user coordination.
 
 ## Overview
 
-The Work Squared Server is a Node.js service that connects to LiveStore instances via WebSocket and processes AI assistant interactions in a centralized manner. This eliminates race conditions and duplicate processing that would occur with client-side AI processing in multi-user scenarios.
+The LifeBuild Server is a Node.js service that connects to LiveStore instances via WebSocket and processes AI assistant interactions in a centralized manner. This eliminates race conditions and duplicate processing that would occur with client-side AI processing in multi-user scenarios.
 
 ## Architecture
 
@@ -54,7 +54,7 @@ Create a `.env` file with the following variables:
 
 ```env
 # LiveStore Configuration
-STORE_ID=work-squared-default           # Unique identifier for this workspace
+STORE_ID=lifebuild-default           # Unique identifier for this workspace
 AUTH_TOKEN=your-secure-token           # Auth token for sync (change in production)
 LIVESTORE_SYNC_URL=ws://localhost:8787  # WebSocket URL to Cloudflare Worker
 
@@ -69,7 +69,7 @@ NODE_ENV=development
 
 | Variable             | Description                   | Default                    | Required |
 | -------------------- | ----------------------------- | -------------------------- | -------- |
-| `STORE_ID`           | Unique workspace identifier   | `work-squared-default`     | No       |
+| `STORE_ID`           | Unique workspace identifier   | `lifebuild-default`        | No       |
 | `AUTH_TOKEN`         | Authentication token for sync | `insecure-token-change-me` | No       |
 | `LIVESTORE_SYNC_URL` | WebSocket connection URL      | `ws://localhost:8787`      | No       |
 | `PORT`               | HTTP server port              | `3003`                     | No       |
@@ -98,11 +98,11 @@ This package follows the monorepo script conventions. All scripts are available 
 
 ```bash
 # Run from monorepo root
-pnpm --filter @work-squared/server <script>
+pnpm --filter @lifebuild/server <script>
 
 # Examples
-pnpm --filter @work-squared/server dev
-pnpm --filter @work-squared/server lint-all
+pnpm --filter @lifebuild/server dev
+pnpm --filter @lifebuild/server lint-all
 ```
 
 ## Usage
@@ -136,7 +136,7 @@ Example health response:
 ```json
 {
   "status": "healthy",
-  "storeId": "work-squared-default",
+  "storeId": "lifebuild-default",
   "timestamp": "2025-01-15T10:30:00.000Z",
   "uptime": 3600,
   "storage": "filesystem",
@@ -230,7 +230,7 @@ Returns HTML status page for browser viewing.
 
 ## Related Documentation
 
-- [Work Squared Architecture](../../docs/architecture.md)
+- [LifeBuild Architecture](../../docs/architecture.md)
 - [LiveStore Documentation](https://docs.livestore.dev)
 - [Multi-Store Support Plan](../../docs/plans/007-multiplayer/multi-store-server-support.md)
 - [Distributed Agentic Processing ADR](../../docs/adrs/004-distributed-agentic-loop-processing.md)

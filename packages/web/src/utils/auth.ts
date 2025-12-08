@@ -24,7 +24,7 @@ interface RefreshLockPayload {
 }
 
 export const ACCESS_TOKEN_REFRESH_BUFFER_SECONDS = 120
-const REFRESH_LOCK_KEY = 'work-squared-refresh-lock'
+const REFRESH_LOCK_KEY = 'lifebuild-refresh-lock'
 const REFRESH_LOCK_TTL_MS = 5000
 const REFRESH_LOCK_WAIT_MS = 4000
 const REFRESH_LOCK_POLL_INTERVAL_MS = 150
@@ -260,7 +260,7 @@ export function getAuthServiceUrl(): string {
   const authUrl =
     import.meta.env.VITE_AUTH_SERVICE_URL ||
     import.meta.env.AUTH_SERVICE_URL ||
-    'https://work-squared-auth.jessmartin.workers.dev' // Fallback to deployed service
+    'https://auth.lifebuild.me' // Fallback to deployed service
 
   return authUrl
 }

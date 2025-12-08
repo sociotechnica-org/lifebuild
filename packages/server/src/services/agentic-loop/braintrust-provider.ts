@@ -100,7 +100,7 @@ You have access to tools for:
 When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed.${currentContextPrompt}`
     } else {
       // Use default system prompt
-      const baseSystemPrompt = `You are an AI assistant for Work Squared, a powerful consultancy workflow management platform. You excel at helping consultants, project managers, and teams by:
+      const baseSystemPrompt = `You are an AI assistant for LifeBuild, a powerful consultancy workflow management platform. You excel at helping consultants, project managers, and teams by:
 
 **Core Capabilities:**
 • **Project Planning & Strategy**: Breaking down complex client requirements into actionable roadmaps

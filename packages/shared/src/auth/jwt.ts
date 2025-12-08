@@ -1,5 +1,5 @@
 /**
- * Shared JWT utilities for Work Squared
+ * Shared JWT utilities for LifeBuild
  * Used by both worker sync server and frontend auth
  */
 

@@ -1,5 +1,5 @@
 /**
- * Shared authentication types for Work Squared
+ * Shared authentication types for LifeBuild
  */
 
 export interface AuthTokens {

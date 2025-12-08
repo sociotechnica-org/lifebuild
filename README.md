@@ -1,21 +1,21 @@
 <div align="center">
-  <img src="https://worksquared.ai/worksquared-logo.png" alt="Work Squared Logo" style="width: 111px; height: 111px;" />
-  
- <h1>Work Squared</h1>
+  <img src="https://lifebuild.me/lifebuild-logo.png" alt="LifeBuild Logo" style="width: 111px; height: 111px;" />
+
+ <h1>LifeBuild</h1>
 </div>
 
-[Work Squared](https://worksquared.ai) (W²) is an AI-enabled work environment where users and AI agents can collaborate on projects and documents.
+[LifeBuild](https://lifebuild.me) is an AI-enabled work environment where users and AI agents can collaborate on projects and documents.
 
-## Why Work Squared?
+## Why LifeBuild?
 
-W² reimagines project management with:
+LifeBuild reimagines project management with:
 
 - **Real-time collaboration** - See changes instantly across all users
 - **AI-powered workflows** - Integrated LLM capabilities
 - **Local-first architecture** - Works offline with automatic sync when reconnected
 - **Event-driven architecture** - Built on [LiveStore](https://livestore.dev)
 
-Read some of [the thinking behind the technical foundations underpinning Work Squared](https://sociotechnica.org/notebook/ws-tech-foundations/).
+Read some of [the thinking behind the technical foundations underpinning LifeBuild](https://sociotechnica.org/notebook/ws-tech-foundations/).
 
 ## Building in Public
 
@@ -91,11 +91,11 @@ This project is organized as a pnpm workspace with the following packages:
 
 ## Deployment
 
-As of September 2025, Work Squared uses a **separated deployment architecture** with three services:
+LifeBuild uses a **separated deployment architecture** with three services:
 
-- **Web Frontend**: Deployed to **Cloudflare Pages** at `app.worksquared.ai`
-- **WebSocket Sync**: Cloudflare Worker at `work-squared.jessmartin.workers.dev`
-- **Authentication**: Cloudflare Worker at `work-squared-auth.jessmartin.workers.dev`
+- **Web Frontend**: Deployed to **Cloudflare Pages** at `app.lifebuild.me`
+- **WebSocket Sync**: Cloudflare Worker at `sync.lifebuild.me`
+- **Authentication**: Cloudflare Worker at `auth.lifebuild.me`
 
 ### Automated Deployment
 
@@ -111,12 +111,12 @@ To deploy individual services manually (requires `wrangler` authentication):
 
 ```bash
 # Deploy all services
-pnpm --filter @work-squared/auth-worker run deploy  # Auth service
-pnpm --filter @work-squared/worker run deploy       # Sync server
-pnpm --filter @work-squared/web run deploy          # Frontend to Pages
+pnpm --filter @lifebuild/auth-worker run deploy  # Auth service
+pnpm --filter @lifebuild/worker run deploy       # Sync server
+pnpm --filter @lifebuild/web run deploy          # Frontend to Pages
 
 # Or deploy specific service
-pnpm --filter @work-squared/web run deploy         # Just the web app
+pnpm --filter @lifebuild/web run deploy         # Just the web app
 ```
 
 ### First-Time Setup
@@ -126,7 +126,7 @@ Before the first deployment, you need to create the production D1 database and c
 1.  Run the following command to create the database on Cloudflare:
 
     ```bash
-    pnpm --filter @work-squared/worker wrangler d1 create work-squared-prod
+    pnpm --filter @lifebuild/worker wrangler d1 create lifebuild-prod
     ```
 
 2.  Copy the `database_id` from the command's output.
@@ -246,7 +246,7 @@ pnpm test:storybook    # Run Storybook tests
 
 ## Architecture
 
-Work Squared is built with a modern monorepo architecture featuring real-time collaboration and AI integration.
+LifeBuild is built with a modern monorepo architecture featuring real-time collaboration and AI integration.
 
 **📖 For detailed technical architecture, see [docs/architecture.md](./docs/architecture.md)**
 
