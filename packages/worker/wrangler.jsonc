@@ -1,5 +1,5 @@
 {
-  "name": "work-squared",
+  "name": "lifebuild",
   "compatibility_date": "2024-05-12",
   "main": "./functions/_worker.ts",
   "observability": {
@@ -15,8 +15,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "work-squared-prod",
-      "database_id": "3e3e5640-b41f-4838-8892-f5362e865e2d",
+      "database_name": "lifebuild-prod",
+      "database_id": "dd699f4f-45d8-4152-9427-4067883a4382",
     },
   ],
   "kv_namespaces": [
@@ -52,8 +52,8 @@
   "r2_buckets": [
     {
       "binding": "IMAGES",
-      "bucket_name": "work-squared-images",
-      "preview_bucket_name": "work-squared-images-preview",
+      "bucket_name": "lifebuild-images",
+      "preview_bucket_name": "lifebuild-images-preview",
     },
   ],
 }
