@@ -124,24 +124,38 @@ zone_name = "lifebuild.me"
 
 ### 1.2 Server Deployment Configuration
 
-#### packages/server/render.yaml
+#### packages/server/render.yaml ✅ DONE
 
-**Note:** Server is not currently used - skip for now.
-
-**Changes required (if needed later):**
+**Changes implemented:**
 
 ```yaml
-# Line 3: Service name
-name: work-squared-server → lifebuild-server
+# Service name
+name: lifebuild-server
 
-# Line 21: WebSocket URL environment variable
-value: wss://sync.lifebuild.me
+# Start command
+startCommand: pnpm --filter @lifebuild/server start
 
-# Line 57: Database name
-name: work-squared-data → lifebuild-data
+# Environment variables
+LIVESTORE_SYNC_URL: wss://sync.lifebuild.me
+AUTH_WORKER_INTERNAL_URL: https://auth.lifebuild.me
+
+# Disk name
+name: lifebuild-data
 ```
 
 **Impact:** Changes Render.com service and database names
+
+---
+
+#### packages/server/scripts/build.sh ✅ DONE
+
+**Changes implemented:**
+
+```bash
+pnpm --filter @lifebuild/server build
+```
+
+**Impact:** Server build script uses correct package filter
 
 ---
 

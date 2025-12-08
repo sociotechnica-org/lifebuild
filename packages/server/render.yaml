@@ -1,28 +1,28 @@
 services:
   - type: web
-    name: work-squared-server
+    name: lifebuild-server
     runtime: node
     plan: starter
     # Build from monorepo root to access workspace dependencies
     rootDir: .
     buildCommand: ./packages/server/scripts/build.sh
-    startCommand: pnpm --filter @work-squared/server start
+    startCommand: pnpm --filter @lifebuild/server start
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         fromService:
           type: web
-          name: work-squared-server
+          name: lifebuild-server
           property: port
       - key: AUTH_TOKEN
         generateValue: true
       - key: LIVESTORE_SYNC_URL
-        value: wss://app.worksquared.ai
+        value: wss://sync.lifebuild.me
       - key: SERVER_BYPASS_TOKEN
         sync: false
       - key: AUTH_WORKER_INTERNAL_URL
-        value: https://work-squared-auth.jessmartin.workers.dev
+        value: https://auth.lifebuild.me
       - key: STORE_IDS
         value: work-squared-production,885773a8-b433-47bd-8ee4-a907a79922d8,11d1a22c-3462-43aa-988a-3cf11b95f03b,d56d28db-bc17-406d-8204-4dd24d17c5ac,70fb4e45-7677-4b70-9e46-3c2e4f3cbd0a
       - key: STORE_DATA_PATH
@@ -58,7 +58,7 @@ services:
         sync: false # Your Sentry project slug
     healthCheckPath: /health
     disk:
-      name: work-squared-data
+      name: lifebuild-data
       mountPath: /var/data
       sizeGB: 10
     # Scaling configuration from ADR-002
