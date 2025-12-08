@@ -42,7 +42,7 @@ export async function notifyWorkspaceEvent(
         headers: {
           'Content-Type': 'application/json',
           [WEBHOOK_SECRET_HEADER]: secret,
-          [CLIENT_HEADER]: 'work-squared-auth-worker',
+          [CLIENT_HEADER]: 'lifebuild-auth-worker',
         },
         body: JSON.stringify(payload),
       })

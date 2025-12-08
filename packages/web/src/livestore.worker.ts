@@ -25,5 +25,5 @@ makeWorker({
     backend: makeWsSync({ url: getSyncUrl() }),
     initialSyncOptions: { _tag: 'Blocking', timeout: 5000 },
   },
-  otelOptions: { tracer: makeTracer('work-squared-worker') },
+  otelOptions: { tracer: makeTracer('lifebuild-worker') },
 })

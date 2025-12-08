@@ -12,7 +12,7 @@ const isProduction = process.env.NODE_ENV === 'production'
 const plugins = [
   nodeExternalsPlugin({
     // Bundle workspace dependencies but not external ones
-    allowList: ['@work-squared/shared']
+    allowList: ['@lifebuild/shared']
   })
 ]
 

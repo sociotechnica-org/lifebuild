@@ -76,7 +76,7 @@ export const logger = pino({
   level: getLogLevel(),
   transport: getTransport(),
   base: {
-    service: 'work-squared-server',
+    service: 'lifebuild-server',
     version: process.env.npm_package_version || '0.1.0',
   },
   timestamp: pino.stdTimeFunctions.isoTime,
