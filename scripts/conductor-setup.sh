@@ -1,10 +1,10 @@
 #!/bin/bash
-# Conductor setup script for Work Squared
+# Conductor setup script for LifeBuild
 # This script sets up a new worktree environment with proper configuration
 
 set -e  # Exit on any error
 
-echo "🚀 Setting up Work Squared worktree environment..."
+echo "🚀 Setting up LifeBuild worktree environment..."
 
 # Check if we're in a worktree (CONDUCTOR_ROOT_PATH should be set)
 if [ -z "$CONDUCTOR_ROOT_PATH" ]; then
