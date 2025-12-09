@@ -8,8 +8,7 @@ zone_name = "lifebuild.me"
 
 [vars]
 ENVIRONMENT = "production"
-SERVER_WEBHOOK_URL = ""
-WEBHOOK_SECRET = ""
+# SERVER_WEBHOOK_URL and WEBHOOK_SECRET are set via `wrangler secret put`
 
 [[durable_objects.bindings]]
 name = "USER_STORE"
