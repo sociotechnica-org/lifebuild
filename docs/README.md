@@ -1,6 +1,6 @@
-# Work Squared Documentation
+# LifeBuild Documentation
 
-This directory contains the technical documentation for Work Squared, organized by purpose and chronological development.
+This directory contains the technical documentation for LifeBuild, organized by purpose and chronological development.
 
 ## Architecture
 

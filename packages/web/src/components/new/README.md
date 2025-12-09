@@ -1,6 +1,6 @@
 # New UI Components
 
-This directory contains the in-progress reimplementation of the Work Squared interface. Pages and components that live here are intentionally minimal – their primary goal is to establish routing, data-fetching patterns, and baseline rendering for the new `/new` route hierarchy.
+This directory contains the in-progress reimplementation of the LifeBuild interface. Pages and components that live here are intentionally minimal – their primary goal is to establish routing, data-fetching patterns, and baseline rendering for the new `/new` route hierarchy.
 
 ## Structure
 

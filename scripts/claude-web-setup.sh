@@ -1,10 +1,10 @@
 #!/bin/bash
-# Claude Code on the Web setup script for Work Squared
+# Claude Code on the Web setup script for LifeBuild
 # This script runs as a SessionStart hook to configure the environment
 
 set -e  # Exit on any error
 
-echo "🚀 Setting up Work Squared environment for Claude Code on the web..."
+echo "🚀 Setting up LifeBuild environment for Claude Code on the web..."
 
 # Only run in remote (web) environments
 if [ "$CLAUDE_CODE_REMOTE" != "true" ]; then
@@ -229,8 +229,8 @@ pnpm exec playwright install
 # Persist environment variables for subsequent bash commands
 # This makes NODE_ENV and branch info available to Claude Code
 if [ -n "$CLAUDE_ENV_FILE" ]; then
-    echo "export WORK_SQUARED_BRANCH=${BRANCH_NAME}" >> "$CLAUDE_ENV_FILE"
-    echo "✅ Persisted WORK_SQUARED_BRANCH environment variable"
+    echo "export LIFEBUILD_BRANCH=${BRANCH_NAME}" >> "$CLAUDE_ENV_FILE"
+    echo "✅ Persisted LIFEBUILD_BRANCH environment variable"
 fi
 
 echo "✨ Environment setup complete!"
