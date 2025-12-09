@@ -1,10 +1,10 @@
 # Deployment Guide
 
-This document covers deployment setup and processes for Work Squared.
+This document covers deployment setup and processes for LifeBuild.
 
 ## Automatic Deployment
 
-Work Squared uses GitHub Actions for automatic deployment to Cloudflare Workers when code is merged to the `main` branch. Deployments typically complete within 2-3 minutes after push.
+LifeBuild uses GitHub Actions for automatic deployment to Cloudflare Workers when code is merged to the `main` branch. Deployments typically complete within 2-3 minutes after push.
 
 ### GitHub Secrets Setup
 
@@ -49,16 +49,16 @@ For manual deployment, use these commands:
 wrangler auth login
 
 # Deploy auth worker
-pnpm --filter @work-squared/auth-worker run deploy
+pnpm --filter @lifebuild/auth-worker run deploy
 
 # Deploy PostHog analytics proxy worker
-pnpm --filter @work-squared/posthog-worker run deploy
+pnpm --filter @lifebuild/posthog-worker run deploy
 
 # Deploy main worker (WebSocket sync)
-pnpm --filter @work-squared/worker run deploy
+pnpm --filter @lifebuild/worker run deploy
 
 # Deploy web app to Cloudflare Pages
-pnpm --filter @work-squared/web run deploy
+pnpm --filter @lifebuild/web run deploy
 ```
 
 ### Workspace Claims KV Namespace
@@ -75,35 +75,35 @@ wrangler kv:namespace create WORKSPACE_CLAIMS_VERSION --preview
 
 ## Deployment Architecture
 
-Work Squared consists of multiple Cloudflare Workers and a Pages deployment:
+LifeBuild consists of multiple Cloudflare Workers and a Pages deployment:
 
 ### 1. Auth Worker
 
 - **Purpose**: Handles user authentication, signup, login, token management
-- **URL**: `https://work-squared-auth.jessmartin.workers.dev`
-- **Deploy command**: `pnpm --filter @work-squared/auth-worker run deploy`
+- **URL**: `https://auth.lifebuild.me`
+- **Deploy command**: `pnpm --filter @lifebuild/auth-worker run deploy`
 - **Configuration**: `packages/auth-worker/wrangler.toml`
 
 ### 2. PostHog Analytics Worker
 
 - **Purpose**: Reverse proxy for PostHog analytics (first-party domain)
-- **URL**: `https://coconut.app.worksquared.ai`
-- **Deploy command**: `pnpm --filter @work-squared/posthog-worker run deploy`
+- **URL**: `https://coconut.lifebuild.me`
+- **Deploy command**: `pnpm --filter @lifebuild/posthog-worker run deploy`
 - **Configuration**: `packages/posthog-worker/wrangler.toml`
 - **Details**: Routes analytics to PostHog via first-party domain to bypass ad blockers and privacy filters
 
 ### 3. Sync Worker
 
 - **Purpose**: WebSocket sync server for real-time event relay
-- **URL**: `https://work-squared.jessmartin.workers.dev` (WebSocket)
-- **Deploy command**: `pnpm --filter @work-squared/worker run deploy`
+- **URL**: `https://sync.lifebuild.me` (WebSocket)
+- **Deploy command**: `pnpm --filter @lifebuild/worker run deploy`
 - **Configuration**: `packages/worker/wrangler.jsonc`
 
 ### 4. Web App
 
 - **Purpose**: React frontend application
-- **URL**: `https://app.worksquared.ai`
-- **Deploy command**: `pnpm --filter @work-squared/web run deploy`
+- **URL**: `https://app.lifebuild.me`
+- **Deploy command**: `pnpm --filter @lifebuild/web run deploy`
 - **Deployed to**: Cloudflare Pages
 
 ## Environment Variables
@@ -133,10 +133,10 @@ GitHub Actions automatically executes the following steps on every push to `main
    - Run unit tests (`pnpm test`)
    - Run linting and typecheck (`pnpm lint-all`)
 4. **Deploy Services** (in order):
-   - Deploy Auth Worker (`@work-squared/auth-worker`)
-   - Deploy PostHog Analytics Worker (`@work-squared/posthog-worker`)
-   - Deploy Sync Worker (`@work-squared/worker`)
-   - Deploy Web App to Pages (`@work-squared/web`)
+   - Deploy Auth Worker (`@lifebuild/auth-worker`)
+   - Deploy PostHog Analytics Worker (`@lifebuild/posthog-worker`)
+   - Deploy Sync Worker (`@lifebuild/worker`)
+   - Deploy Web App to Pages (`@lifebuild/web`)
 5. **Verification**: GitHub Actions reports success/failure
 
 ## PostHog Analytics Worker Deployment
@@ -146,29 +146,29 @@ The PostHog worker is deployed as part of the standard pipeline. Key details:
 **Configuration** (`packages/posthog-worker/wrangler.toml`):
 
 ```toml
-name = "work-squared-posthog"
+name = "lifebuild-posthog"
 main = "src/index.ts"
-route = "coconut.worksquared.ai/*"
-zone_name = "worksquared.ai"
+route = "coconut.lifebuild.me/*"
+zone_name = "lifebuild.me"
 
 [env.production]
-name = "work-squared-posthog-prod"
-route = "coconut.app.worksquared.ai/*"
-zone_name = "worksquared.ai"
+name = "lifebuild-posthog-prod"
+route = "coconut.lifebuild.me/*"
+zone_name = "lifebuild.me"
 ```
 
 **Frontend Configuration** (set by GitHub Actions):
 
-- `VITE_PUBLIC_POSTHOG_HOST=https://coconut.app.worksquared.ai`
+- `VITE_PUBLIC_POSTHOG_HOST=https://coconut.lifebuild.me`
 
 **CSP Headers** (`packages/web/public/_headers`):
 
-- Added `coconut.app.worksquared.ai` to `connect-src` directive
+- Added `coconut.lifebuild.me` to `connect-src` directive
 - PostHog API calls now route through first-party domain
 
 **How It Works**:
 
-1. Browser requests analytics → `coconut.app.worksquared.ai/decide`
+1. Browser requests analytics → `coconut.lifebuild.me/decide`
 2. PostHog Worker receives request at first-party domain
 3. Worker strips cookies, validates request
 4. Forwards to `us.i.posthog.com`
@@ -198,11 +198,11 @@ This approach allows analytics to work in privacy-focused browsers (Brave, Arc) 
 
 **PostHog Analytics Not Working**
 
-- Verify PostHog worker is deployed: check `https://coconut.app.worksquared.ai/status` (should return CloudFlare error, not 502)
+- Verify PostHog worker is deployed: check `https://coconut.lifebuild.me/status` (should return CloudFlare error, not 502)
 - Check browser console for blocked analytics requests
-- Verify CSP headers allow `coconut.app.worksquared.ai` in `connect-src`
+- Verify CSP headers allow `coconut.lifebuild.me` in `connect-src`
 - Check that `VITE_PUBLIC_POSTHOG_KEY` secret is set
-- Verify `VITE_PUBLIC_POSTHOG_HOST` env var is set to `https://coconut.app.worksquared.ai` in GitHub Actions
+- Verify `VITE_PUBLIC_POSTHOG_HOST` env var is set to `https://coconut.lifebuild.me` in GitHub Actions
 
 **Analytics Blocked in Brave/Arc**
 
@@ -223,11 +223,11 @@ wrangler deploy --dry-run
 wrangler tail <worker-name>
 
 # Test PostHog proxy endpoint (development)
-pnpm --filter @work-squared/posthog-worker dev
+pnpm --filter @lifebuild/posthog-worker dev
 # Then: curl http://localhost:8787/decide (should proxy to PostHog)
 
 # Check PostHog analytics in production
-# Open DevTools Network tab and filter for "coconut.app.worksquared.ai"
+# Open DevTools Network tab and filter for "coconut.lifebuild.me"
 # Should see POST requests to /decide endpoint with 200 response
 ```
 
@@ -251,7 +251,7 @@ Configure these in your Render service dashboard:
 - `NODE_ENV=production`
 - `STORE_IDS` - Comma-separated workspace IDs to monitor
 - `AUTH_TOKEN` - Authentication token for LiveStore
-- `LIVESTORE_SYNC_URL` - WebSocket URL (e.g., `wss://work-squared.jessmartin.workers.dev`)
+- `LIVESTORE_SYNC_URL` - WebSocket URL (e.g., `wss://sync.lifebuild.me`)
 - `SERVER_BYPASS_TOKEN` - Token for internal worker communication
 - `AUTH_WORKER_INTERNAL_URL` - Base URL for the Auth Worker (used for webhook reconciliation)
 

@@ -36,10 +36,10 @@ test.describe('Admin Access Control', () => {
     await page.evaluate(
       ({ token }) => {
         // Mock localStorage tokens for non-admin user
-        localStorage.setItem('work-squared-access-token', token)
-        localStorage.setItem('work-squared-refresh-token', 'mock-refresh-token')
+        localStorage.setItem('lifebuild-access-token', token)
+        localStorage.setItem('lifebuild-refresh-token', 'mock-refresh-token')
         localStorage.setItem(
-          'work-squared-user-info',
+          'lifebuild-user-info',
           JSON.stringify({
             id: 'test-user',
             email: 'test@example.com',
@@ -66,10 +66,10 @@ test.describe('Admin Access Control', () => {
     await page.goto('/')
     await page.evaluate(() => {
       // Mock localStorage tokens for admin user - the auth logic checks for these tokens
-      localStorage.setItem('work-squared-access-token', 'mock-admin-token')
-      localStorage.setItem('work-squared-refresh-token', 'mock-admin-refresh')
+      localStorage.setItem('lifebuild-access-token', 'mock-admin-token')
+      localStorage.setItem('lifebuild-refresh-token', 'mock-admin-refresh')
       localStorage.setItem(
-        'work-squared-user-info',
+        'lifebuild-user-info',
         JSON.stringify({
           id: 'admin-user',
           email: 'admin@example.com',

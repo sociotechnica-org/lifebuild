@@ -4,14 +4,14 @@ A dedicated Cloudflare Worker that acts as a first-party reverse proxy for PostH
 
 ## Overview
 
-This worker routes all PostHog analytics requests through a first-party domain (`coconut.worksquared.ai`) instead of directly to PostHog's domain, bypassing browser privacy filters and ad blockers that typically block third-party analytics services.
+This worker routes all PostHog analytics requests through a first-party domain (`coconut.lifebuild.me`) instead of directly to PostHog's domain, bypassing browser privacy filters and ad blockers that typically block third-party analytics services.
 
 ## Architecture
 
 ```
 Browser with privacy filters
          ↓
-coconut.worksquared.ai (first-party ✅)
+coconut.lifebuild.me (first-party ✅)
          ↓
 PostHog Analytics Worker
          ↓
@@ -49,9 +49,9 @@ Configure in `wrangler.toml`:
 
 ```toml
 [env.production]
-name = "work-squared-posthog-prod"
-route = "coconut.worksquared.ai/*"
-zone_name = "worksquared.ai"
+name = "lifebuild-posthog-prod"
+route = "coconut.lifebuild.me/*"
+zone_name = "lifebuild.me"
 ```
 
 ## Configuration
@@ -59,8 +59,8 @@ zone_name = "worksquared.ai"
 The worker is configured through:
 
 1. **`wrangler.toml`**: Cloudflare Worker routing and environment setup
-2. **Frontend env var**: `VITE_PUBLIC_POSTHOG_HOST=https://coconut.worksquared.ai`
-3. **CSP Headers**: `connect-src` allows `coconut.worksquared.ai`
+2. **Frontend env var**: `VITE_PUBLIC_POSTHOG_HOST=https://coconut.lifebuild.me`
+3. **CSP Headers**: `connect-src` allows `coconut.lifebuild.me`
 
 ## How It Works
 
@@ -68,7 +68,7 @@ The worker is configured through:
 
 ```
 1. Browser sends analytics request:
-   POST https://coconut.worksquared.ai/decide
+   POST https://coconut.lifebuild.me/decide
 
 2. PostHog Worker intercepts
    - Routes `/static/*` through cache
@@ -99,7 +99,7 @@ if (pathname.startsWith('/static/')) {
 
 ## Subdomain Choice
 
-The proxy uses `coconut.worksquared.ai` (random, non-generic name) as the subdomain because:
+The proxy uses `coconut.lifebuild.me` (random, non-generic name) as the subdomain because:
 
 - ✅ Unlikely to appear in ad blocker filter lists
 - ✅ Non-obvious, not a generic term like "analytics", "tracking", or "posthog"
@@ -107,9 +107,9 @@ The proxy uses `coconut.worksquared.ai` (random, non-generic name) as the subdom
 
 **If blocked in the future**, simply change to a different random subdomain:
 
-- `pineapple.app.worksquared.ai`
-- `mushroom.app.worksquared.ai`
-- `watermelon.app.worksquared.ai`
+- `pineapple.lifebuild.me`
+- `mushroom.lifebuild.me`
+- `watermelon.lifebuild.me`
 
 ## Local Development
 
@@ -134,7 +134,7 @@ wrangler deploy --dry-run
 
 ## Production URLs
 
-- **Production**: `https://coconut.worksquared.ai`
+- **Production**: `https://coconut.lifebuild.me`
 - **Worker Status**: Check in [Cloudflare Dashboard](https://dash.cloudflare.com) → Workers
 
 ## Related Documentation
@@ -148,9 +148,9 @@ wrangler deploy --dry-run
 
 ### Analytics Not Captured
 
-1. **Check worker deployment**: Visit `https://coconut.worksquared.ai/status`
+1. **Check worker deployment**: Visit `https://coconut.lifebuild.me/status`
 2. **Verify frontend config**: Check that `VITE_PUBLIC_POSTHOG_HOST` is set correctly
-3. **Check CSP headers**: Browser console should show analytics requests to `coconut.worksquared.ai`
+3. **Check CSP headers**: Browser console should show analytics requests to `coconut.lifebuild.me`
 4. **Check PostHog key**: Verify `VITE_PUBLIC_POSTHOG_KEY` secret is set in GitHub
 
 ### Analytics Still Blocked in Privacy Browser
@@ -165,7 +165,7 @@ If ad blocker still blocks requests:
 
 - Check Cloudflare status page for incidents
 - Verify `us.i.posthog.com` is reachable
-- Check worker logs: `wrangler tail work-squared-posthog-prod`
+- Check worker logs: `wrangler tail lifebuild-posthog-prod`
 
 ## Implementation Reference
 

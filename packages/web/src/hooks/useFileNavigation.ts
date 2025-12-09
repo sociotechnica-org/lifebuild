@@ -25,7 +25,7 @@ export const useFileNavigation = () => {
     // Remove any leading/trailing whitespace
     const cleanPath = filePath.trim()
 
-    // Check for Work Squared entity references
+    // Check for LifeBuild entity references
     if (cleanPath.startsWith('document:')) {
       return {
         type: 'document',

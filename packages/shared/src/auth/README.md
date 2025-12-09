@@ -1,6 +1,6 @@
-# Work Squared Authentication
+# LifeBuild Authentication
 
-This directory contains shared authentication utilities for Work Squared, implementing JWT-based authentication with WebSocket sync integration.
+This directory contains shared authentication utilities for LifeBuild, implementing JWT-based authentication with WebSocket sync integration.
 
 ## Overview
 
@@ -54,7 +54,7 @@ function MyComponent() {
 ### Worker (Sync Server)
 
 ```typescript
-import { verifyJWT, isWithinGracePeriod } from '@work-squared/shared/auth'
+import { verifyJWT, isWithinGracePeriod } from '@lifebuild/shared/auth'
 
 // JWT verification happens automatically in validatePayload
 const payload = await verifyJWT(token, secret)

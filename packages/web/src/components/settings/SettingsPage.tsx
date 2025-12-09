@@ -374,7 +374,7 @@ export const SettingsPage: React.FC = () => {
           {/* Header */}
           <div>
             <h1 className='text-3xl font-bold text-gray-900'>Settings</h1>
-            <p className='mt-2 text-gray-600'>Configure your Work Squared instance</p>
+            <p className='mt-2 text-gray-600'>Configure your LifeBuild instance</p>
           </div>
 
           {/* Settings Form */}
@@ -389,7 +389,7 @@ export const SettingsPage: React.FC = () => {
                   Instance Name
                 </label>
                 <p className='text-sm text-gray-500 mb-3'>
-                  The name displayed for your Work Squared instance
+                  The name displayed for your LifeBuild instance
                 </p>
                 <input
                   type='text'

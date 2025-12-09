@@ -30,7 +30,7 @@ import {
 } from './services/workspace-reconciler.js'
 
 async function main() {
-  logger.info('Starting Work Squared Multi-Store Server...')
+  logger.info('Starting LifeBuild Multi-Store Server...')
 
   const config = loadStoresConfig()
 
@@ -182,7 +182,7 @@ async function main() {
       res.end(`
         <html>
           <head>
-            <title>Work Squared Multi-Store Server</title>
+            <title>LifeBuild Multi-Store Server</title>
             <style>
               body { font-family: system-ui; padding: 20px; }
               .store { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
@@ -196,7 +196,7 @@ async function main() {
             </style>
           </head>
           <body>
-            <h1>Work Squared Multi-Store Server</h1>
+            <h1>LifeBuild Multi-Store Server</h1>
             <p>✅ Server is running</p>
             <p>Storage: Filesystem (${process.env.STORE_DATA_PATH || './data'})</p>
             <p>Monitoring ${healthStatus.stores.length} store(s)</p>

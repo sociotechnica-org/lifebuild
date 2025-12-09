@@ -50,18 +50,18 @@ pnpm test:e2e      # E2E tests (watch mode for development)
 CI=true pnpm test:e2e  # E2E tests in CI mode (required before committing)
 
 # Building
-pnpm --filter @work-squared/web build    # Build web package
+pnpm --filter @lifebuild/web build    # Build web package
 pnpm build         # Build all packages (if needed)
 
 # Deployment (Separated Architecture)
-pnpm --filter @work-squared/auth-worker run deploy  # Deploy auth worker to Cloudflare
-pnpm --filter @work-squared/worker run deploy       # Deploy sync server to Cloudflare
-pnpm --filter @work-squared/web run deploy          # Deploy web app to Cloudflare Pages
+pnpm --filter @lifebuild/auth-worker run deploy  # Deploy auth worker to Cloudflare
+pnpm --filter @lifebuild/worker run deploy       # Deploy sync server to Cloudflare
+pnpm --filter @lifebuild/web run deploy          # Deploy web app to Cloudflare Pages
 ```
 
 ## Architecture
 
-Work Squared is a real-time collaborative web application built as a monorepo with separated deployments:
+LifeBuild is a real-time collaborative web application built as a monorepo with separated deployments:
 
 - **LiveStore**: Event-sourced state management with SQLite materialized views
 - **React 19** with TypeScript frontend deployed to **Cloudflare Pages** (`packages/web`)
@@ -81,7 +81,7 @@ Work Squared is a real-time collaborative web application built as a monorepo wi
 ## Documentation
 
 - LiveStore patterns: https://docs.livestore.dev/llms.txt
-- Work Squared Architecture: [docs/architecture.md](docs/architecture.md)
+- LifeBuild Architecture: [docs/architecture.md](docs/architecture.md)
 
 ## Development Workflow
 
@@ -225,7 +225,7 @@ const projects = await store.query(db => db.table('projects').all())
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
 import { MyComponent } from './MyComponent.js'
-import { schema, events } from '@work-squared/shared/schema'
+import { schema, events } from '@lifebuild/shared/schema'
 import { LiveStoreProvider } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
@@ -342,7 +342,7 @@ Deployments happen automatically via GitHub Actions when PRs are merged to the m
 Use these commands only when you need to deploy manually outside the normal CI/CD pipeline:
 
 ```bash
-pnpm --filter @work-squared/auth-worker run deploy  # Deploy auth worker to Cloudflare
-pnpm --filter @work-squared/worker run deploy       # Deploy sync server to Cloudflare
-pnpm --filter @work-squared/web run deploy          # Deploy web app to Cloudflare Pages
+pnpm --filter @lifebuild/auth-worker run deploy  # Deploy auth worker to Cloudflare
+pnpm --filter @lifebuild/worker run deploy       # Deploy sync server to Cloudflare
+pnpm --filter @lifebuild/web run deploy          # Deploy web app to Cloudflare Pages
 ```

@@ -8,7 +8,7 @@ test.describe('Smoke Tests', () => {
     await waitForLiveStoreReady(page)
 
     // Verify the app loaded correctly
-    await expect(page).toHaveTitle(/Work Squared/)
+    await expect(page).toHaveTitle(/LifeBuild/)
 
     // In CI, the app may not fully load due to LiveStore sync issues
     // Check if we have basic app structure or if it's still loading
@@ -96,7 +96,7 @@ test.describe('Smoke Tests', () => {
     await page.goto('/')
 
     // Test that the main app loads (Vite dev server)
-    await expect(page).toHaveTitle(/Work Squared/)
+    await expect(page).toHaveTitle(/LifeBuild/)
 
     // Wait for initial load
     await waitForLiveStoreReady(page)

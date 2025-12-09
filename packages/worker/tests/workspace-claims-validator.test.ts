@@ -11,7 +11,7 @@ function makePayload(overrides: Partial<JWTPayload> = {}): JWTPayload {
     email: 'test@example.com',
     iat: Math.floor(Date.now() / 1000),
     exp: Math.floor(Date.now() / 1000) + 600,
-    iss: 'work-squared-auth',
+    iss: 'lifebuild-auth',
     workspaces: [],
     workspaceClaimsVersion: 1,
     workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000),

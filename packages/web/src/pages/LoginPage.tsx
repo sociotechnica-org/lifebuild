@@ -54,7 +54,7 @@ export const LoginPage: React.FC = () => {
     <div className='min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8'>
       <div className='sm:mx-auto sm:w-full sm:max-w-md'>
         <div className='text-center'>
-          <h1 className='text-3xl font-bold text-gray-900'>Work Squared</h1>
+          <h1 className='text-3xl font-bold text-gray-900'>LifeBuild</h1>
           <h2 className='mt-4 text-2xl font-semibold text-gray-700'>Sign in to your account</h2>
           {isDevelopmentMode && (
             <div className='mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800'>

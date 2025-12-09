@@ -7,9 +7,9 @@ export const DEFAULT_GRACE_PERIOD_SECONDS = 24 * 60 * 60 // 24 hours
 
 // Token storage keys
 export const TOKEN_STORAGE_KEYS = {
-  ACCESS_TOKEN: 'work-squared-access-token',
-  REFRESH_TOKEN: 'work-squared-refresh-token',
-  USER_INFO: 'work-squared-user-info',
+  ACCESS_TOKEN: 'lifebuild-access-token',
+  REFRESH_TOKEN: 'lifebuild-refresh-token',
+  USER_INFO: 'lifebuild-user-info',
 } as const
 
 // Auth service endpoints

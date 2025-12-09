@@ -74,7 +74,7 @@ describe('JWT utilities', () => {
       expect(payload).toBeDefined()
       expect(payload!.userId).toBe(userId)
       expect(payload!.email).toBe(email)
-      expect(payload!.iss).toBe('work-squared-auth')
+      expect(payload!.iss).toBe('lifebuild-auth')
       expect(payload!.iat).toBeDefined()
       expect(payload!.exp).toBeDefined()
     })
@@ -88,7 +88,7 @@ describe('JWT utilities', () => {
       expect(payload).toBeDefined()
       expect(payload!.userId).toBe(userId)
       expect(payload!.tokenId).toBeDefined()
-      expect(payload!.iss).toBe('work-squared-auth')
+      expect(payload!.iss).toBe('lifebuild-auth')
       expect(payload!.iat).toBeDefined()
       expect(payload!.exp).toBeDefined()
     })
@@ -141,7 +141,7 @@ describe('JWT utilities', () => {
         email: 'test@example.com',
         iat: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
         exp: Math.floor(Date.now() / 1000) - 1800, // 30 minutes ago
-        iss: 'work-squared-auth',
+        iss: 'lifebuild-auth',
         workspaces: [],
         workspaceClaimsVersion: 1,
         workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000) - 3600,
@@ -157,7 +157,7 @@ describe('JWT utilities', () => {
         email: 'test@example.com',
         iat: Math.floor(Date.now() / 1000) - 300, // 5 minutes ago
         exp: Math.floor(Date.now() / 1000) + 600, // 10 minutes from now
-        iss: 'work-squared-auth',
+        iss: 'lifebuild-auth',
         workspaces: [],
         workspaceClaimsVersion: 1,
         workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000) - 300,
@@ -173,7 +173,7 @@ describe('JWT utilities', () => {
         email: 'test@example.com',
         iat: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
         exp: Math.floor(Date.now() / 1000) - 60, // 1 minute ago
-        iss: 'work-squared-auth',
+        iss: 'lifebuild-auth',
         workspaces: [],
         workspaceClaimsVersion: 1,
         workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000) - 3600,

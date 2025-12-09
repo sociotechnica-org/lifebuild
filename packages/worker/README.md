@@ -1,10 +1,10 @@
-# Worker Package (@work-squared/worker)
+# Worker Package (@lifebuild/worker)
 
-The Cloudflare Worker backend for Work Squared, providing WebSocket-based real-time sync and event relay services.
+The Cloudflare Worker backend for LifeBuild, providing WebSocket-based real-time sync and event relay services.
 
 ## Overview
 
-This package contains the **WebSocket sync server only** for Work Squared (as of September 2025):
+This package contains the **WebSocket sync server only** for LifeBuild:
 
 - **WebSocket Server**: Real-time synchronization using Cloudflare Durable Objects
 - **Event Relay**: LiveStore event distribution across connected clients
@@ -43,7 +43,7 @@ This package contains the **WebSocket sync server only** for Work Squared (as of
 # Start worker dev server (from root)
 pnpm dev
 # or run worker only (local Miniflare with persisted DO/KV state)
-pnpm --filter @work-squared/worker dev
+pnpm --filter @lifebuild/worker dev
 
 # Worker will be available at http://localhost:8787
 ```
@@ -54,19 +54,19 @@ Local runs use Wrangler/Miniflare with `--persist-to .wrangler/state/sync`, so D
 
 ```bash
 # Start development server
-pnpm --filter @work-squared/worker dev
+pnpm --filter @lifebuild/worker dev
 
 # Deploy to Cloudflare
-pnpm --filter @work-squared/worker deploy
+pnpm --filter @lifebuild/worker deploy
 
 # Type checking
-pnpm --filter @work-squared/worker typecheck
+pnpm --filter @lifebuild/worker typecheck
 
 # Create D1 database
-pnpm --filter @work-squared/worker wrangler d1 create work-squared-prod
+pnpm --filter @lifebuild/worker wrangler d1 create lifebuild-prod
 
 # Manage D1 database
-pnpm --filter @work-squared/worker wrangler d1 execute work-squared-prod --command "SELECT * FROM sqlite_master"
+pnpm --filter @lifebuild/worker wrangler d1 execute lifebuild-prod --command "SELECT * FROM sqlite_master"
 ```
 
 ## Configuration
@@ -77,14 +77,14 @@ Key configuration for the Cloudflare Worker:
 
 ```jsonc
 {
-  "name": "work-squared",
+  "name": "lifebuild",
   "main": "./functions/_worker.ts",
   "assets": {
     "directory": "../web/dist", // Serves built React app
     "binding": "ASSETS",
   },
   "build": {
-    "command": "pnpm --filter @work-squared/web build", // Builds web first
+    "command": "pnpm --filter @lifebuild/web build", // Builds web first
   },
   "durable_objects": {
     "bindings": [
@@ -97,7 +97,7 @@ Key configuration for the Cloudflare Worker:
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "work-squared-prod",
+      "database_name": "lifebuild-prod",
     },
   ],
 }
@@ -200,7 +200,7 @@ package.json              # Package dependencies and scripts
 1. **Create D1 Database**:
 
    ```bash
-   pnpm --filter @work-squared/worker wrangler d1 create work-squared-prod
+   pnpm --filter @lifebuild/worker wrangler d1 create lifebuild-prod
    ```
 
 2. **Update Configuration**:
@@ -210,7 +210,7 @@ package.json              # Package dependencies and scripts
    "d1_databases": [
      {
        "binding": "DB",
-       "database_name": "work-squared-prod",
+       "database_name": "lifebuild-prod",
        "database_id": "your-database-id-here"
      }
    ]
@@ -219,15 +219,15 @@ package.json              # Package dependencies and scripts
 3. **Set Environment Variables**:
    Configure Braintrust credentials:
    ```bash
-   pnpm --filter @work-squared/worker wrangler secret put BRAINTRUST_API_KEY
-   pnpm --filter @work-squared/worker wrangler secret put BRAINTRUST_PROJECT_ID
+   pnpm --filter @lifebuild/worker wrangler secret put BRAINTRUST_API_KEY
+   pnpm --filter @lifebuild/worker wrangler secret put BRAINTRUST_PROJECT_ID
    ```
 
 ### Deployment Process
 
 ```bash
 # Manual deployment
-pnpm --filter @work-squared/worker deploy
+pnpm --filter @lifebuild/worker deploy
 
 # Via GitHub Actions (automatic on main branch)
 git push origin main
@@ -237,7 +237,7 @@ git push origin main
 
 The worker build automatically:
 
-1. Builds the web package (`pnpm --filter @work-squared/web build`)
+1. Builds the web package (`pnpm --filter @lifebuild/web build`)
 2. Copies built assets to be served by the worker
 3. Bundles the worker code with all dependencies
 4. Deploys to Cloudflare's global network
@@ -269,10 +269,10 @@ The worker build automatically:
 
 ```bash
 # View live logs
-pnpm --filter @work-squared/worker wrangler tail
+pnpm --filter @lifebuild/worker wrangler tail
 
 # Inspect D1 database
-pnpm --filter @work-squared/worker wrangler d1 execute work-squared-prod --command "SELECT * FROM events LIMIT 10"
+pnpm --filter @lifebuild/worker wrangler d1 execute lifebuild-prod --command "SELECT * FROM events LIMIT 10"
 
 # Test local worker
 curl http://localhost:8787/websocket

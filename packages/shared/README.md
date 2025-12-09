@@ -1,10 +1,10 @@
-# Shared Package (@work-squared/shared)
+# Shared Package (@lifebuild/shared)
 
 Common schemas, event definitions, and utilities shared between the web frontend and worker backend packages.
 
 ## Overview
 
-This package provides the foundation for type-safe communication and data consistency across the Work Squared application. It contains:
+This package provides the foundation for type-safe communication and data consistency across the LifeBuild application. It contains:
 
 - **Event Definitions**: LiveStore event schemas for real-time synchronization
 - **Database Schema**: Materialized view definitions for data storage
@@ -86,7 +86,7 @@ Pre-built database queries for common operations:
 ### In Web Package
 
 ```typescript
-import { schema, queries } from '@work-squared/shared'
+import { schema, queries } from '@lifebuild/shared'
 import { useQuery, useMutation } from '@livestore/react'
 
 // Use shared schema for LiveStore provider
@@ -102,7 +102,7 @@ const createProject = useMutation('project.create')
 ### In Worker Package
 
 ```typescript
-import { schema } from '@work-squared/shared'
+import { schema } from '@lifebuild/shared'
 import { makeWorker } from '@livestore/adapter-web/worker'
 
 // Use shared schema for worker configuration
@@ -116,7 +116,7 @@ makeWorker({
 
 ## Event Sourcing
 
-Work Squared uses event sourcing as its primary data architecture:
+LifeBuild uses event sourcing as its primary data architecture:
 
 ### Benefits
 

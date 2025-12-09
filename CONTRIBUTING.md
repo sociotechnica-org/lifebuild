@@ -1,6 +1,6 @@
-# Contributing to Work Squared
+# Contributing to LifeBuild
 
-Thank you for your interest in contributing to Work Squared!
+Thank you for your interest in contributing to LifeBuild!
 
 ## License
 

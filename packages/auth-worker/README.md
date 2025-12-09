@@ -1,6 +1,6 @@
-# Work Squared Auth Service
+# LifeBuild Auth Service
 
-JWT-based authentication service for Work Squared, built as a Cloudflare Worker with Durable Objects.
+JWT-based authentication service for LifeBuild, built as a Cloudflare Worker with Durable Objects.
 
 ## Features
 
@@ -299,7 +299,7 @@ Auth success responses now include the user’s instances and the server-selecte
   "email": "user@example.com",
   "iat": 1234567890,
   "exp": 1234567890,
-  "iss": "work-squared-auth"
+  "iss": "lifebuild-auth"
 }
 ```
 

@@ -30,7 +30,7 @@ describe('JWT utilities', () => {
         email: 'test@example.com',
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 3600,
-        iss: 'work-squared-auth',
+        iss: 'lifebuild-auth',
         workspaces: [],
         workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000),
         workspaceClaimsVersion: 1,
@@ -62,7 +62,7 @@ describe('JWT utilities', () => {
         email: 'user@example.com',
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 3600,
-        iss: 'work-squared-auth',
+        iss: 'lifebuild-auth',
         workspaces: [],
         workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000),
         workspaceClaimsVersion: 1,
@@ -87,7 +87,7 @@ describe('JWT utilities', () => {
         email: 'test@example.com',
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
-        iss: 'work-squared-auth',
+        iss: 'lifebuild-auth',
         workspaces: [],
         workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000),
         workspaceClaimsVersion: 1,
@@ -102,7 +102,7 @@ describe('JWT utilities', () => {
         email: 'test@example.com',
         iat: Math.floor(Date.now() / 1000) - 7200, // 2 hours ago
         exp: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
-        iss: 'work-squared-auth',
+        iss: 'lifebuild-auth',
         workspaces: [],
         workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000),
         workspaceClaimsVersion: 1,
@@ -117,7 +117,7 @@ describe('JWT utilities', () => {
         email: 'test@example.com',
         iat: Math.floor(Date.now() / 1000) - 3600,
         exp: Math.floor(Date.now() / 1000) - 1800, // 30 minutes ago
-        iss: 'work-squared-auth',
+        iss: 'lifebuild-auth',
         workspaces: [],
         workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000),
         workspaceClaimsVersion: 1,
@@ -138,7 +138,7 @@ describe('JWT utilities', () => {
         email: 'test@example.com',
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
-        iss: 'work-squared-auth',
+        iss: 'lifebuild-auth',
         workspaces: [],
         workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000),
         workspaceClaimsVersion: 1,
@@ -153,7 +153,7 @@ describe('JWT utilities', () => {
         email: 'test@example.com',
         iat: Math.floor(Date.now() / 1000) - 3600,
         exp: Math.floor(Date.now() / 1000) - 1800, // 30 minutes ago
-        iss: 'work-squared-auth',
+        iss: 'lifebuild-auth',
         workspaces: [],
         workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000),
         workspaceClaimsVersion: 1,
@@ -169,7 +169,7 @@ describe('JWT utilities', () => {
         email: 'test@example.com',
         iat: Math.floor(Date.now() / 1000) - 7200,
         exp: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
-        iss: 'work-squared-auth',
+        iss: 'lifebuild-auth',
         workspaces: [],
         workspaceClaimsIssuedAt: Math.floor(Date.now() / 1000),
         workspaceClaimsVersion: 1,

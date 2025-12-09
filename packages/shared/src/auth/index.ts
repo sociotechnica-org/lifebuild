@@ -1,5 +1,5 @@
 /**
- * Shared authentication utilities for Work Squared
+ * Shared authentication utilities for LifeBuild
  */
 
 export * from './jwt.js'
