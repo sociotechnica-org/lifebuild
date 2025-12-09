@@ -18,13 +18,15 @@ const plugins = [
 
 // Add Sentry plugin for production builds if auth token is available
 if (isProduction && process.env.SENTRY_AUTH_TOKEN) {
+  // Sentry doesn't allow slashes in release names, so we convert @lifebuild/server to lifebuild-server
+  const releaseName = `${packageJson.name.replace('@', '').replace('/', '-')}@${packageJson.version}`
   plugins.push(
     sentryEsbuildPlugin({
       authToken: process.env.SENTRY_AUTH_TOKEN,
       org: process.env.SENTRY_ORG,
       project: process.env.SENTRY_PROJECT,
       release: {
-        name: `${packageJson.name}@${packageJson.version}`,
+        name: releaseName,
       },
       // Automatically create and upload source maps
       sourcemaps: {
@@ -34,7 +36,7 @@ if (isProduction && process.env.SENTRY_AUTH_TOKEN) {
     })
   )
   console.log(`📦 Building for production with Sentry source maps upload`)
-  console.log(`   Release: ${packageJson.name}@${packageJson.version}`)
+  console.log(`   Release: ${releaseName}`)
 } else if (isProduction) {
   console.warn('⚠️  Production build without Sentry source maps (SENTRY_AUTH_TOKEN not set)')
 } else {
