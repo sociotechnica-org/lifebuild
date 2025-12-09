@@ -65,7 +65,6 @@ describe('Store Factory', () => {
       const config = getStoreConfig('test-store')
 
       expect(config.storeId).toBe('test-store')
-      expect(config.authToken).toBe('token-test-store')
       expect(config.syncUrl).toBe('ws://localhost:8787')
       expect(config.dataPath).toBe('./data')
       expect(config.connectionTimeout).toBe(30000)
@@ -74,7 +73,6 @@ describe('Store Factory', () => {
     })
 
     it('should use global environment variables', () => {
-      process.env.AUTH_TOKEN = 'global-token'
       process.env.LIVESTORE_SYNC_URL = 'ws://global:8787'
       process.env.STORE_DATA_PATH = './global-data'
       process.env.STORE_CONNECTION_TIMEOUT = '60000'
@@ -82,7 +80,6 @@ describe('Store Factory', () => {
 
       const config = getStoreConfig('test-store')
 
-      expect(config.authToken).toBe('global-token')
       expect(config.syncUrl).toBe('ws://global:8787')
       expect(config.dataPath).toBe('./global-data')
       expect(config.connectionTimeout).toBe(60000)
@@ -90,26 +87,15 @@ describe('Store Factory', () => {
     })
 
     it('should prioritize store-specific environment variables', () => {
-      process.env.AUTH_TOKEN = 'global-token'
-      process.env.STORE_TEST_STORE_AUTH_TOKEN = 'specific-token'
       process.env.STORE_TEST_STORE_SYNC_URL = 'ws://specific:8787'
       process.env.STORE_TEST_STORE_DATA_PATH = './specific-data'
       process.env.STORE_TEST_STORE_DEVTOOLS_URL = 'http://localhost:4500'
 
       const config = getStoreConfig('test-store')
 
-      expect(config.authToken).toBe('specific-token')
       expect(config.syncUrl).toBe('ws://specific:8787')
       expect(config.dataPath).toBe('./specific-data')
       expect(config.devtoolsUrl).toBe('http://localhost:4500')
-    })
-
-    it('should handle store IDs with hyphens in env vars', () => {
-      process.env.STORE_MY_SPECIAL_STORE_AUTH_TOKEN = 'special-token'
-
-      const config = getStoreConfig('my-special-store')
-
-      expect(config.authToken).toBe('special-token')
     })
 
     it('should support store-specific devtools URL override', () => {
@@ -156,19 +142,17 @@ describe('Store Factory', () => {
         const config = factory.getConfig('test-store')
 
         expect(config.storeId).toBe('test-store')
-        expect(config.authToken).toBe('token-test-store')
+        expect(config.syncUrl).toBe('ws://localhost:8787')
       })
 
       it('should merge with default config', () => {
         factory = new StoreFactory({
-          authToken: 'factory-default-token',
           connectionTimeout: 45000,
         })
 
         const config = factory.getConfig('test-store')
 
         expect(config.storeId).toBe('test-store')
-        expect(config.authToken).toBe('factory-default-token')
         expect(config.connectionTimeout).toBe(45000)
         expect(config.syncUrl).toBe('ws://localhost:8787')
       })

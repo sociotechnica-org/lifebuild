@@ -105,10 +105,10 @@ describe('Store Configuration', () => {
 
   describe('getStoreSpecificEnvVar', () => {
     it('should get store-specific environment variable', () => {
-      process.env.STORE_WORKSPACE_123_AUTH_TOKEN = 'custom-token'
+      process.env.STORE_WORKSPACE_123_SYNC_URL = 'ws://custom:8787'
 
-      const value = getStoreSpecificEnvVar('workspace-123', 'AUTH_TOKEN')
-      expect(value).toBe('custom-token')
+      const value = getStoreSpecificEnvVar('workspace-123', 'SYNC_URL')
+      expect(value).toBe('ws://custom:8787')
     })
 
     it('should handle store IDs with hyphens', () => {
@@ -126,8 +126,8 @@ describe('Store Configuration', () => {
 
   describe('hasStoreSpecificConfig', () => {
     it('should return true if store has specific config', () => {
-      process.env.STORE_WORKSPACE_123_AUTH_TOKEN = 'custom-token'
       process.env.STORE_WORKSPACE_123_SYNC_URL = 'ws://custom:8787'
+      process.env.STORE_WORKSPACE_123_DATA_PATH = './custom-path'
 
       expect(hasStoreSpecificConfig('workspace-123')).toBe(true)
     })

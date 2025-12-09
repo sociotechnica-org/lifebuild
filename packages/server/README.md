@@ -55,8 +55,10 @@ Create a `.env` file with the following variables:
 ```env
 # LiveStore Configuration
 STORE_ID=lifebuild-default           # Unique identifier for this workspace
-AUTH_TOKEN=your-secure-token           # Auth token for sync (change in production)
 LIVESTORE_SYNC_URL=ws://localhost:8787  # WebSocket URL to Cloudflare Worker
+
+# Server Bypass Token (required for production)
+SERVER_BYPASS_TOKEN=dev-server-bypass-token  # Must match worker's SERVER_BYPASS_TOKEN
 
 # Server Configuration
 PORT=3003                              # HTTP health check port
@@ -67,13 +69,13 @@ NODE_ENV=development
 
 ### Environment Variables
 
-| Variable             | Description                   | Default                    | Required |
-| -------------------- | ----------------------------- | -------------------------- | -------- |
-| `STORE_ID`           | Unique workspace identifier   | `lifebuild-default`        | No       |
-| `AUTH_TOKEN`         | Authentication token for sync | `insecure-token-change-me` | No       |
-| `LIVESTORE_SYNC_URL` | WebSocket connection URL      | `ws://localhost:8787`      | No       |
-| `PORT`               | HTTP server port              | `3003`                     | No       |
-| `NODE_ENV`           | Node environment              | `development`              | No       |
+| Variable              | Description                  | Default               | Required   |
+| --------------------- | ---------------------------- | --------------------- | ---------- |
+| `STORE_ID`            | Unique workspace identifier  | `lifebuild-default`   | No         |
+| `LIVESTORE_SYNC_URL`  | WebSocket connection URL     | `ws://localhost:8787` | No         |
+| `SERVER_BYPASS_TOKEN` | Token for server-worker auth | -                     | Production |
+| `PORT`                | HTTP server port             | `3003`                | No         |
+| `NODE_ENV`            | Node environment             | `development`         | No         |
 
 ## Development
 
@@ -182,7 +184,7 @@ Coming soon.
 
 For production deployments:
 
-1. **Generate secure AUTH_TOKEN**: Use a strong random string
+1. **Set SERVER_BYPASS_TOKEN**: Use a strong random string that matches the worker's token
 2. **Configure STORE_ID**: Set to your workspace identifier
 3. **Set LIVESTORE_SYNC_URL**: Point to your Cloudflare Worker
 4. **Ensure data persistence**: Mount `./data` directory

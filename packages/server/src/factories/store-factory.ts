@@ -7,7 +7,6 @@ import { logger } from '../utils/logger.js'
 
 export interface StoreConfig {
   storeId: string
-  authToken?: string
   syncUrl?: string
   dataPath?: string
   connectionTimeout?: number
@@ -36,7 +35,6 @@ export function validateStoreId(storeId: string): boolean {
 export function getStoreConfig(storeId: string): StoreConfig {
   const baseConfig: StoreConfig = {
     storeId,
-    authToken: process.env.AUTH_TOKEN || `token-${storeId}`,
     syncUrl: process.env.LIVESTORE_SYNC_URL || 'ws://localhost:8787',
     dataPath: process.env.STORE_DATA_PATH || './data',
     connectionTimeout: Number(process.env.STORE_CONNECTION_TIMEOUT) || 30000,
@@ -46,14 +44,10 @@ export function getStoreConfig(storeId: string): StoreConfig {
   }
 
   const storeSpecificEnvPrefix = `STORE_${storeId.toUpperCase().replace(/-/g, '_')}_`
-  const authTokenKey = `${storeSpecificEnvPrefix}AUTH_TOKEN`
   const syncUrlKey = `${storeSpecificEnvPrefix}SYNC_URL`
   const dataPathKey = `${storeSpecificEnvPrefix}DATA_PATH`
   const devtoolsUrlKey = `${storeSpecificEnvPrefix}DEVTOOLS_URL`
 
-  if (process.env[authTokenKey]) {
-    baseConfig.authToken = process.env[authTokenKey]
-  }
   if (process.env[syncUrlKey]) {
     baseConfig.syncUrl = process.env[syncUrlKey]
   }
@@ -69,36 +63,30 @@ export function getStoreConfig(storeId: string): StoreConfig {
 
 /**
  * Creates the sync payload for server-worker authentication
- * Uses serverBypass in production, authToken in development
+ * Uses SERVER_BYPASS_TOKEN for both production and development
  * Always includes instanceId for workspace isolation
  */
 function getSyncPayload(config: StoreConfig): Record<string, string> | undefined {
   const isProduction = process.env.NODE_ENV === 'production'
   const serverBypassToken = process.env.SERVER_BYPASS_TOKEN
 
-  if (isProduction) {
-    if (!serverBypassToken) {
-      throw new Error(
-        'SERVER_BYPASS_TOKEN is required for production deployment but not configured. ' +
-          'Please set this environment variable in your production environment.'
-      )
-    }
-    logger.info('Using server bypass authentication for production')
+  if (isProduction && !serverBypassToken) {
+    throw new Error(
+      'SERVER_BYPASS_TOKEN is required for production deployment but not configured. ' +
+        'Please set this environment variable in your production environment.'
+    )
+  }
+
+  if (serverBypassToken) {
+    logger.info('Using server bypass authentication')
     return {
       serverBypass: serverBypassToken,
       instanceId: config.storeId, // Explicitly specify workspace for security
     }
   }
 
-  // Development mode - use authToken
-  if (config.authToken) {
-    logger.info('Using authToken authentication for development')
-    return {
-      authToken: config.authToken,
-      instanceId: config.storeId, // Explicitly specify workspace for security
-    }
-  }
-
+  // Development mode without SERVER_BYPASS_TOKEN - proceed without auth
+  logger.info('No SERVER_BYPASS_TOKEN configured, proceeding without sync authentication')
   return undefined
 }
 
