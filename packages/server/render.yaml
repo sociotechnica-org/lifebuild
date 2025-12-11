@@ -15,8 +15,6 @@ services:
           type: web
           name: lifebuild-server
           property: port
-      - key: AUTH_TOKEN
-        generateValue: true
       - key: LIVESTORE_SYNC_URL
         value: wss://sync.lifebuild.me
       - key: SERVER_BYPASS_TOKEN
