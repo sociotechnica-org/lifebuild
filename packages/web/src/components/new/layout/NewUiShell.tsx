@@ -12,6 +12,8 @@ type NewUiShellProps = {
   children: React.ReactNode
   isChatOpen?: boolean
   onChatToggle?: () => void
+  /** When true, uses h-screen flex layout for full-height content like kanban boards */
+  fullHeight?: boolean
 }
 
 /**
@@ -23,6 +25,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
   children,
   isChatOpen = false,
   onChatToggle,
+  fullHeight = false,
 }) => {
   const location = useLocation()
   const { user: authUser } = useAuth()
@@ -34,15 +37,24 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
     return location.pathname === path || location.pathname.startsWith(path + '/')
   }
 
+  // Choose layout classes based on fullHeight mode
+  const outerClasses = fullHeight
+    ? 'h-screen flex flex-col overflow-hidden text-[#2f2b27] leading-relaxed'
+    : 'min-h-screen text-[#2f2b27] leading-relaxed pb-36'
+
+  const mainClasses = fullHeight
+    ? 'flex-1 min-h-0 max-w-[1200px] w-full mx-auto p-2 pb-36'
+    : 'max-w-[1200px] mx-auto p-2'
+
   return (
     <div
-      className='min-h-screen text-[#2f2b27] leading-relaxed pb-36'
+      className={outerClasses}
       style={{
         background:
           'radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.8), transparent 40%), #f5f3f0',
       }}
     >
-      <header className='sticky top-0 z-[8] backdrop-blur-[10px] bg-[rgba(250,249,247,0.88)] border-b border-[#e8e4de] py-3.5 px-6 flex items-center justify-between'>
+      <header className='sticky top-0 z-[8] backdrop-blur-[10px] bg-[rgba(250,249,247,0.88)] border-b border-[#e8e4de] py-3.5 px-6 flex items-center justify-between flex-shrink-0'>
         <nav className='flex gap-4 items-center font-semibold'>
           <Link
             to={generateRoute.draftingRoom()}
@@ -98,7 +110,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
           </div>
         </div>
       </header>
-      <main className='max-w-[1200px] mx-auto p-2'>{children}</main>
+      <main className={mainClasses}>{children}</main>
       <TableBar />
     </div>
   )
