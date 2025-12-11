@@ -130,9 +130,9 @@ export function ProjectKanbanColumn({
   }
 
   return (
-    <div className='flex-shrink-0 w-72 min-w-72 bg-[#faf9f7] border border-[#e5e2dc] rounded-2xl p-4'>
+    <div className='flex-shrink-0 w-72 min-w-72 h-full flex flex-col bg-[#faf9f7] border border-[#e5e2dc] rounded-2xl p-4'>
       {/* Column Header */}
-      <div className='flex items-center justify-between mb-4'>
+      <div className='flex items-center justify-between mb-4 flex-shrink-0'>
         <h2 className='text-sm font-semibold text-[#2f2b27] uppercase tracking-wide'>
           {column.name}
         </h2>
@@ -141,8 +141,8 @@ export function ProjectKanbanColumn({
         </span>
       </div>
 
-      {/* Column Content */}
-      <div className='space-y-2 min-h-24'>
+      {/* Column Content - Scrollable */}
+      <div className='flex-1 overflow-y-auto space-y-2 min-h-0'>
         {(() => {
           const elements: React.ReactNode[] = []
 

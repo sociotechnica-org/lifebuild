@@ -119,12 +119,12 @@ export const ProjectDetailPage: React.FC = () => {
 
   return (
     <RoomLayout room={room}>
-      <div className='h-full flex flex-col bg-gray-100'>
+      <div className='h-full flex flex-col bg-[#f5f3f0]'>
         {/* Project Header */}
         <ProjectHeader project={project} />
 
-        {/* Kanban Board */}
-        <div className='flex-1 overflow-hidden'>
+        {/* Kanban Board - fills remaining space */}
+        <div className='flex-1 min-h-0 overflow-hidden'>
           <ProjectKanban
             tasks={tasks}
             projectId={resolvedProjectId}

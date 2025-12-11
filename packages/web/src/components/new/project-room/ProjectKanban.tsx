@@ -164,7 +164,7 @@ export function ProjectKanban({ tasks, projectId, onTaskClick }: ProjectKanbanPr
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className='flex overflow-x-auto p-4 gap-4 pb-4'>
+      <div className='h-full flex gap-4 p-4 overflow-x-auto'>
         {STATUS_COLUMNS.map(statusColumn => (
           <ProjectKanbanColumn
             key={statusColumn.id}
