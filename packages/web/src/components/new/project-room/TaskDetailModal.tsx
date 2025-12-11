@@ -30,7 +30,40 @@ export function TaskDetailModal({ task, onClose }: TaskDetailModalProps) {
     }
   }, [task])
 
-  // Don't render if no task
+  // Set up escape key listener
+  useEffect(() => {
+    if (!task) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isEditing) {
+          // Reset form fields
+          setEditTitle(task.title)
+          setEditDescription(task.description || '')
+          setEditStatus(task.status as TaskStatus)
+          setTitleError('')
+          setIsEditing(false)
+        } else {
+          onClose()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [task, isEditing, onClose])
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (!task) return
+
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [task])
+
+  // Don't render if no task (after all hooks)
   if (!task) return null
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -38,30 +71,6 @@ export function TaskDetailModal({ task, onClose }: TaskDetailModalProps) {
       onClose()
     }
   }
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      if (isEditing) {
-        handleCancelEdit()
-      } else {
-        onClose()
-      }
-    }
-  }
-
-  // Set up escape key listener
-  React.useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isEditing])
-
-  // Prevent body scroll when modal is open
-  React.useEffect(() => {
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
-  }, [])
 
   const validateTitle = (title: string): boolean => {
     const trimmed = title.trim()
