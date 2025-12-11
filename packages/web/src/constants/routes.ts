@@ -12,7 +12,6 @@ export const ROUTES = {
   PROJECT_STAGE1: '/drafting-room/:projectId/stage1',
   PROJECT_STAGE2: '/drafting-room/:projectId/stage2',
   PROJECT_STAGE3: '/drafting-room/:projectId/stage3',
-  CATEGORY: '/category/:categoryId',
   PROJECTS: '/projects',
   PROJECT: '/projects/:projectId',
   // Old UI routes (now under /old)
@@ -55,7 +54,6 @@ export const generateRoute = {
   projectStage1: (projectId: string) => `/drafting-room/${projectId}/stage1`,
   projectStage2: (projectId: string) => `/drafting-room/${projectId}/stage2`,
   projectStage3: (projectId: string) => `/drafting-room/${projectId}/stage3`,
-  category: (id: string, tab?: string) => (tab ? `/category/${id}?tab=${tab}` : `/category/${id}`),
   project: (id: string) => `/projects/${id}`,
   // Old UI routes
   oldLifeMap: () => '/old/life-map',
@@ -72,7 +70,6 @@ export const generateRoute = {
  * Route patterns for matching
  */
 export const ROUTE_PATTERNS = {
-  CATEGORY: '/category/',
   PROJECT: '/projects/',
   OLD_CATEGORY: '/old/category/',
   OLD_DOCUMENT: '/old/document/',

@@ -134,7 +134,7 @@ const meta: Meta<typeof ProjectDetailPage> = {
     docs: {
       description: {
         component:
-          'Baseline project detail page that lists high-level project data and a simple task list.',
+          'Project detail page with a kanban board for task management. Features drag-and-drop between columns, inline task creation in To Do, and a task detail modal for editing.',
       },
     },
   },
