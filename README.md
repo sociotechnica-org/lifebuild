@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://lifebuild.me/lifebuild-logo.png" alt="LifeBuild Logo" style="width: 111px; height: 111px;" />
+  <img src="https://lifebuild.me/lifebuild-logo.png" alt="LifeBuild Logo" width="350" height="67" />
 
  <h1>LifeBuild</h1>
 </div>

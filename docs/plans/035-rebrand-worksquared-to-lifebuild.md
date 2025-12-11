@@ -1,8 +1,8 @@
 # Rebranding Plan: WorkSquared → LifeBuild
 
 **New Domain:** lifebuild.me
-**Status:** In Progress (Phase 1 Complete)
-**Last Updated:** 2025-12-08
+**Status:** Complete (Phases 1-7 Done; repo rename & redirects pending)
+**Last Updated:** 2025-12-11
 
 ## Executive Summary
 
@@ -674,197 +674,88 @@ Update all package-specific README files:
 
 ---
 
-## Phase 6: Branding Assets
+## Phase 6: Branding Assets ✅ COMPLETE
 
-### 6.1 Logo & Images
+### 6.1 Logo & Images ✅ DONE
 
-**Current:**
+**Completed:**
 
-- Logo URL: `https://worksquared.ai/worksquared-logo.png` (external)
-
-**Action items:**
-
-1. Create new LifeBuild logo
-2. Danvers will create the new logo; use a fill-in/placeholder logo until final asset is ready.
-3. Decide logo location:
-   - Host on lifebuild.me domain
-   - Store in repo: `docs/images/lifebuild-logo.png`
-4. Update README.md reference
+- Logo hosted at `https://lifebuild.me/lifebuild-logo.png`
+- README.md updated with correct aspect ratio (width="350" height="67")
 
 ---
 
-### 6.2 Favicons & App Icons
+### 6.2 Favicons & App Icons ✅ DONE
 
-**Files to check and update:**
+**Completed:**
 
-- `packages/web/public/favicon.ico`
-- `packages/web/public/favicon-*.png` (if exists)
-- `packages/web/public/manifest.json` (PWA manifest)
-- Any app icon files in `public/`
-
-**Action items:**
-
-1. Generate new favicon set with LifeBuild branding
-2. Update manifest.json with new app name
+- Added `packages/web/public/favicon.svg` from lifebuild.me
+- Updated `packages/web/index.html` with favicon link
 
 ---
 
-### 6.3 Social Media Images
+### 6.3 Social Media Images — SKIPPED
 
-**Check for:**
+OpenGraph/Twitter card images not implemented (not previously present).
 
-- OpenGraph images (og:image)
-- Twitter card images
-- Any social preview images in `public/`
+### 6.4 App-Theming & Client Storage — SKIPPED
 
-### 6.4 App-Theming & Client Storage
-
-- CSS variables/theme tokens that embed the brand name.
-- PWA manifest `name` and `short_name` to avoid cache/key collisions.
-- Service worker cache names, localStorage keys, and cookies that include `work-squared`—rename to avoid stale state crossing the rebrand boundary.
+No brand-specific localStorage keys, cookies, or cache names existed. No changes needed.
 
 ---
 
-## Phase 7: Cloudflare Infrastructure Migration
+## Phase 7: Cloudflare Infrastructure Migration ✅ COMPLETE
 
-### 7.1 Cloudflare Resources to Create
+### 7.1 Cloudflare Resources ✅ DONE
 
-#### D1 Database
+**Completed:**
 
-**Action items:**
-
-1. Create new database: `lifebuild-prod`
-2. Run migrations on new database
-3. **Data migration:** Optional; no data needs to be migrated for launch. Default to start fresh.
-   - If migrating later, rewrite stored URLs (shared links, invites) to `lifebuild.me` during import.
-4. Update wrangler.jsonc binding
-
-**Commands:**
-
-```bash
-# Create new database
-wrangler d1 create lifebuild-prod
-
-# Export data from old database
-wrangler d1 export work-squared-prod --output=backup.sql
-
-# Import to new database
-wrangler d1 execute lifebuild-prod --file=backup.sql
-```
+- D1 Database: `lifebuild-prod` created and configured
+- R2 Buckets: `lifebuild-images` and `lifebuild-images-preview` created
+- Workers deployed:
+  - `lifebuild-sync` at `sync.lifebuild.me`
+  - `lifebuild-auth` at `auth.lifebuild.me`
+  - `lifebuild-posthog` at `coconut.lifebuild.me`
 
 ---
 
-#### R2 Buckets
+### 7.2 DNS Configuration ✅ DONE
 
-**Action items:**
+**Completed:**
 
-1. Create bucket: `lifebuild-images` (production)
-2. Create bucket: `lifebuild-images-preview` (development)
-3. **Data migration:** Optional; no images need to be migrated for launch. Skip unless required later.
-4. Update wrangler.jsonc bindings
-
-**Commands:**
-
-```bash
-# Create new buckets
-wrangler r2 bucket create lifebuild-images
-wrangler r2 bucket create lifebuild-images-preview
-
-# Copy objects (may need to use rclone or similar tool)
-# This is a manual process - coordinate with ops team
-```
+- `lifebuild.me` - Marketing site live
+- `app.lifebuild.me` - Web application on Cloudflare Pages
+- `sync.lifebuild.me` - Sync worker
+- `auth.lifebuild.me` - Auth worker
+- `coconut.lifebuild.me` - PostHog proxy
 
 ---
 
-#### Workers
+### 7.3 Cloudflare Pages ✅ DONE
 
-**Action items:**
+**Completed:**
 
-1. Deploy new workers with new names:
-   - `lifebuild` (sync worker)
-   - `lifebuild-auth` (auth worker)
-   - `lifebuild-posthog` / `lifebuild-posthog-prod` (analytics proxy)
-2. Update custom domains/routes:
-   - `sync.lifebuild.me` (or workers.dev)
-   - `auth.lifebuild.me` (or workers.dev)
-   - `coconut.lifebuild.me` (or unique lifebuild subdomain for analytics)
-3. Test new workers before switching traffic
-
-**Commands:**
-
-```bash
-# Deploy auth worker
-pnpm --filter @lifebuild/auth-worker deploy
-
-# Deploy sync worker
-pnpm --filter @lifebuild/worker deploy
-
-# Deploy PostHog proxy worker
-pnpm --filter @lifebuild/posthog-worker deploy
-```
+- App deployed at `app.lifebuild.me`
+- Environment variables configured for LifeBuild domains
 
 ---
 
-### 7.2 DNS Configuration
+### 7.4 Observability & Monitoring — DEFERRED
 
-**New domains to configure:**
-
-1. **lifebuild.me** - Main marketing site
-   - Type: A/CNAME records
-   - Points to: new marketing site (repo: sociotechnica-org/life-build-site)
-
-2. **app.lifebuild.me** - Web application
-   - Type: CNAME
-   - Points to: Cloudflare Pages domain
-
-3. **Preferred:** Custom worker subdomains (avoid \*.workers.dev)
-   - `sync.lifebuild.me` → sync worker
-   - `auth.lifebuild.me` → auth worker
-   - `coconut.lifebuild.me` (or similar unique name) → PostHog proxy worker
-
-**Action items:**
-
-1. Purchase/configure lifebuild.me domain
-2. Set up DNS records in Cloudflare
-3. Configure SSL certificates
-4. Set up redirects from worksquared.ai → lifebuild.me (marketing and app)
+Sentry/PostHog project name updates deferred for future cleanup.
 
 ---
 
-### 7.3 Cloudflare Pages
+### 7.5 Final Steps — PENDING
 
-**Action items:**
+**Action required:**
 
-1. Update Pages project configuration:
-   - Project name (if renaming)
-   - Custom domain: app.lifebuild.me
-   - Build configuration (already uses monorepo)
+1. **Rename GitHub repo** from `work-squared` to `lifebuild`:
+   - Go to https://github.com/sociotechnica-org/work-squared/settings
+   - Change repository name to `lifebuild`
+   - GitHub will auto-redirect old URLs
 
-2. Update environment variables:
-   - `VITE_AUTH_WORKER_URL`
-   - `VITE_LIVESTORE_SYNC_URL`
-   - `VITE_BASE_URL`
-
----
-
-### 7.4 Observability & Monitoring
-
-- Update Sentry/PostHog/LogRocket project names and DSNs/environment tags to LifeBuild.
-- Update alert routing channels, uptime checks, and dashboards to new domains.
-- Keep old projects temporarily for comparison; ensure env vars in Pages/Workers point to the new DSNs.
-
----
-
-### 7.5 Migration Timeline
-
-**Recommended approach:**
-
-1. **Fast path (no users / disposable data):** Stand up new infra, deploy, switch DNS, retire old infra—skip data migration.
-2. **Parallel deployment (if keeping data):** Deploy new infra alongside old, migrate data, then switch DNS.
-3. **Testing phase:** Smoke-test auth, WebSockets, uploads on new stack.
-4. **Traffic switch:** Update DNS to point to new infrastructure.
-5. **Monitoring:** Watch for errors after switch.
-6. **Cleanup:** Deprecate old infrastructure after stable period.
+2. **Set up redirects** from worksquared.ai → lifebuild.me
 
 ---
 
