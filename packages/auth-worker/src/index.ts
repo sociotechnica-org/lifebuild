@@ -651,7 +651,7 @@ export default {
           if (method !== 'POST') {
             return createErrorResponse('Method not allowed', 405)
           }
-          return addCorsHeaders(await handleSignup(request, env))
+          return addCorsHeaders(await handleSignup(request, env, ctx))
 
         case '/login':
           if (method !== 'POST') {

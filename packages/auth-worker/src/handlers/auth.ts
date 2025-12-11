@@ -12,11 +12,16 @@ import { createAccessToken, createRefreshToken, verifyToken, isTokenExpired } fr
 import { isUserAdmin } from '../utils/admin.js'
 import type { RefreshTokenPayload } from '../types.js'
 import { sendDiscordNotification } from '../utils/discord.js'
+import { notifyWorkspaceEvent } from '../workspace-notifier.js'
 import {
   buildWorkspaceClaims,
   isWorkspaceClaimsPayloadWithinLimit,
   WORKSPACE_CLAIMS_MAX_BYTES,
 } from '@lifebuild/shared/auth'
+
+type WorkerExecutionContext = {
+  waitUntil(promise: Promise<unknown>): void
+}
 
 /**
  * Utility to create error responses
@@ -183,7 +188,11 @@ async function createAuthSuccessResponse(
 /**
  * Handle user signup
  */
-export async function handleSignup(request: Request, env: Env): Promise<Response> {
+export async function handleSignup(
+  request: Request,
+  env: Env,
+  ctx?: WorkerExecutionContext
+): Promise<Response> {
   try {
     const body: SignupRequest = await request.json()
     const { email, password } = body
@@ -225,6 +234,21 @@ export async function handleSignup(request: Request, env: Env): Promise<Response
       `🏠 New LifeBuild account created: \`${email}\``,
       env.DISCORD_WEBHOOK_URL
     )
+
+    // Notify the server about the new default workspace so it can start monitoring
+    const defaultInstance = user.instances?.find((inst: Instance) => inst.isDefault)
+    if (defaultInstance?.id) {
+      ctx?.waitUntil(
+        notifyWorkspaceEvent(env, {
+          event: 'workspace.created',
+          instanceId: defaultInstance.id,
+          userId: user.id,
+          timestamp: new Date().toISOString(),
+        }).catch(error => {
+          console.error('Signup workspace webhook scheduling failed', { error })
+        })
+      )
+    }
 
     return await createAuthSuccessResponse(user, env)
   } catch (error) {
