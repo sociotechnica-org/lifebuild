@@ -164,22 +164,24 @@ export function ProjectKanban({ tasks, projectId, onTaskClick }: ProjectKanbanPr
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className='h-full flex gap-4 p-4 overflow-x-auto'>
-        {STATUS_COLUMNS.map(statusColumn => (
-          <ProjectKanbanColumn
-            key={statusColumn.id}
-            column={statusColumn}
-            tasks={tasksByStatus[statusColumn.status] || []}
-            insertionPreview={
-              insertionPreview?.statusId === statusColumn.id ? insertionPreview.position : null
-            }
-            draggedTaskHeight={activeTask ? 60 : 0}
-            draggedTaskId={activeTask?.id || null}
-            showAddCardPreview={dragOverAddCard === statusColumn.id}
-            onTaskClick={onTaskClick}
-            projectId={projectId}
-          />
-        ))}
+      <div className='h-full m-4 border border-[#e5e2dc] rounded-2xl bg-white overflow-hidden'>
+        <div className='h-full flex gap-4 p-4 overflow-x-auto'>
+          {STATUS_COLUMNS.map(statusColumn => (
+            <ProjectKanbanColumn
+              key={statusColumn.id}
+              column={statusColumn}
+              tasks={tasksByStatus[statusColumn.status] || []}
+              insertionPreview={
+                insertionPreview?.statusId === statusColumn.id ? insertionPreview.position : null
+              }
+              draggedTaskHeight={activeTask ? 60 : 0}
+              draggedTaskId={activeTask?.id || null}
+              showAddCardPreview={dragOverAddCard === statusColumn.id}
+              onTaskClick={onTaskClick}
+              projectId={projectId}
+            />
+          ))}
+        </div>
       </div>
       <DragOverlay>
         {activeTask ? <SimpleTaskCard task={activeTask} isDragOverlay /> : null}
