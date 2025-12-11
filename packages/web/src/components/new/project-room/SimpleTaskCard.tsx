@@ -50,11 +50,11 @@ export function SimpleTaskCard({ task, isDragOverlay = false, onClick }: SimpleT
       {...dragListeners}
       {...dragAttributes}
       onClick={handleClick}
-      className={`bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-2 transition-shadow cursor-grab active:cursor-grabbing ${
-        isDragging ? 'opacity-50' : 'hover:shadow-md'
+      className={`bg-white rounded-lg border border-[#e5e2dc] p-3 mb-2 transition-all cursor-grab active:cursor-grabbing ${
+        isDragging ? 'opacity-50' : 'hover:bg-[#f5f3f0]'
       } ${isDragOverlay ? 'shadow-lg rotate-2' : ''}`}
     >
-      <h3 className='text-sm font-medium text-gray-900 line-clamp-2'>{task.title}</h3>
+      <h3 className='text-sm font-medium text-[#2f2b27] line-clamp-2'>{task.title}</h3>
     </div>
   )
 }

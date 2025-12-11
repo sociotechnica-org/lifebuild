@@ -53,21 +53,21 @@ function InlineAddTaskForm({
         onChange={e => setTitle(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder='Task name'
-        className='w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+        className='w-full p-3 border border-[#e5e2dc] rounded-lg text-sm text-[#2f2b27] bg-white focus:outline-none focus:ring-2 focus:ring-[#8b8680] focus:border-transparent'
         autoFocus
       />
       <div className='flex gap-2 mt-2'>
         <button
           type='submit'
           disabled={!title.trim()}
-          className='px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed'
+          className='px-3 py-1 bg-[#2f2b27] text-white text-sm rounded-lg hover:bg-[#3d3832] disabled:bg-[#d4d0c8] disabled:cursor-not-allowed transition-colors'
         >
           Add
         </button>
         <button
           type='button'
           onClick={onCancel}
-          className='px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300'
+          className='px-3 py-1 bg-[#f1efe9] text-[#2f2b27] text-sm rounded-lg hover:bg-[#e5e2dc] transition-colors'
         >
           Cancel
         </button>
@@ -100,10 +100,10 @@ export function ProjectKanbanColumn({
   // Insertion preview placeholder
   const InsertionPlaceholder = () => (
     <div
-      className='bg-blue-100 border-2 border-dashed border-blue-300 rounded-lg mb-2 transition-all duration-200'
+      className='bg-[#f5f3f0] border-2 border-dashed border-[#d4d0c8] rounded-lg mb-2 transition-all duration-200'
       style={{ height: `${draggedTaskHeight}px` }}
     >
-      <div className='flex items-center justify-center h-full text-blue-500 text-sm opacity-75'>
+      <div className='flex items-center justify-center h-full text-[#8b8680] text-sm opacity-75'>
         Drop here
       </div>
     </div>
@@ -130,13 +130,13 @@ export function ProjectKanbanColumn({
   }
 
   return (
-    <div className='flex-shrink-0 w-72 min-w-72 bg-gray-50 rounded-lg p-4'>
+    <div className='flex-shrink-0 w-72 min-w-72 bg-[#faf9f7] border border-[#e5e2dc] rounded-2xl p-4'>
       {/* Column Header */}
       <div className='flex items-center justify-between mb-4'>
-        <h2 className='text-sm font-semibold text-gray-900 uppercase tracking-wide'>
+        <h2 className='text-sm font-semibold text-[#2f2b27] uppercase tracking-wide'>
           {column.name}
         </h2>
-        <span className='text-xs text-gray-500 bg-gray-200 rounded-full px-2 py-1'>
+        <span className='text-xs text-[#8b8680] bg-[#f1efe9] rounded-full px-2 py-1'>
           {tasks.length}
         </span>
       </div>
@@ -175,7 +175,7 @@ export function ProjectKanbanColumn({
               <button
                 ref={setAddCardRef}
                 onClick={() => setIsAddingTask(true)}
-                className='w-full p-3 text-left text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors text-sm'
+                className='w-full p-3 text-left text-[#8b8680] hover:text-[#2f2b27] hover:bg-[#f5f3f0] rounded-lg border-2 border-dashed border-[#d4d0c8] hover:border-[#8b8680] transition-colors text-sm'
               >
                 + Add task
               </button>
