@@ -92,9 +92,14 @@ export function ProjectKanbanColumn({
   // Only allow adding tasks in the To Do column
   const canAddTask = column.status === 'todo'
 
-  // Set up droppable for the Add Card button area
+  // Set up droppable for the Add Card button area (To Do column)
   const { setNodeRef: setAddCardRef } = useDroppable({
     id: `add-card-${column.id}`,
+  })
+
+  // Set up droppable for the entire column (for empty non-To Do columns)
+  const { setNodeRef: setColumnRef, isOver: isOverColumn } = useDroppable({
+    id: `column-${column.id}`,
   })
 
   // Insertion preview placeholder
@@ -142,7 +147,12 @@ export function ProjectKanbanColumn({
       </div>
 
       {/* Column Content - Scrollable */}
-      <div className='flex-1 overflow-y-auto space-y-2 min-h-0'>
+      <div
+        ref={setColumnRef}
+        className={`flex-1 overflow-y-auto space-y-2 min-h-0 ${
+          isOverColumn && visibleTasks.length === 0 ? 'bg-[#f1efe9] rounded-lg' : ''
+        }`}
+      >
         {(() => {
           const elements: React.ReactNode[] = []
 

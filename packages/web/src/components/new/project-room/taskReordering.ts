@@ -92,7 +92,8 @@ function shouldNormalizePositions(
 
   if (targetIndex === 0 && otherTasks.length > 0) {
     const firstTask = otherTasks[0]
-    if (firstTask && newPosition <= 0) {
+    // Normalize if new position would be <= 0 OR would collide with first task's position
+    if (firstTask && (newPosition <= 0 || newPosition >= firstTask.position)) {
       return true
     }
   }
@@ -154,6 +155,12 @@ export function calculateStatusDropTarget(
     const statusId = overId.replace('add-card-', '')
     const tasks = tasksByStatus[statusId] || []
     return { statusId, index: tasks.length }
+  }
+
+  // Handle column drops (for empty columns)
+  if (overId.startsWith('column-')) {
+    const statusId = overId.replace('column-', '')
+    return { statusId, index: 0 }
   }
 
   // Handle task card drops
