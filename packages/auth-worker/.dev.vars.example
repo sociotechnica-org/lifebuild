@@ -24,3 +24,9 @@ SERVER_BYPASS_TOKEN=dev-server-bypass-token-change-me
 
 # Discord webhook URL for signup notifications (optional)
 # DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/xxx
+
+# Server webhook configuration for workspace lifecycle events
+# When a workspace is created or deleted, a webhook is sent to the server
+# so it can start/stop monitoring that workspace
+SERVER_WEBHOOK_URL=http://localhost:3003/webhooks/workspaces
+WEBHOOK_SECRET=dev-webhook-secret-change-me
