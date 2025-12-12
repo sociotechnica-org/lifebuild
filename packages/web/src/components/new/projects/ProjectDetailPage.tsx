@@ -127,7 +127,7 @@ export const ProjectDetailPage: React.FC = () => {
         <ProjectKanban tasks={tasks} projectId={resolvedProjectId} onTaskClick={handleTaskClick} />
 
         {/* Task Detail Modal */}
-        <TaskDetailModal task={selectedTask ?? null} onClose={handleModalClose} />
+        <TaskDetailModal task={selectedTask ?? null} allTasks={tasks} onClose={handleModalClose} />
       </div>
     </RoomLayout>
   )

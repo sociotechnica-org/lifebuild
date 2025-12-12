@@ -6,10 +6,11 @@ import { STATUS_COLUMNS, type TaskStatus } from '@lifebuild/shared'
 
 interface TaskDetailModalProps {
   task: Task | null
+  allTasks: readonly Task[]
   onClose: () => void
 }
 
-export function TaskDetailModal({ task, onClose }: TaskDetailModalProps) {
+export function TaskDetailModal({ task, allTasks, onClose }: TaskDetailModalProps) {
   const { store } = useStore()
 
   // Edit mode state
@@ -107,11 +108,16 @@ export function TaskDetailModal({ task, onClose }: TaskDetailModalProps) {
 
     // Update status if changed
     if (editStatus !== task.status) {
+      // Calculate position at end of target column to avoid collisions
+      const tasksInTargetStatus = allTasks.filter(t => t.status === editStatus && t.id !== task.id)
+      const maxPosition = tasksInTargetStatus.reduce((max, t) => Math.max(max, t.position), 0)
+      const newPosition = maxPosition + 1000
+
       store.commit(
         events.taskStatusChanged({
           taskId: task.id,
           toStatus: editStatus,
-          position: task.position,
+          position: newPosition,
           updatedAt: new Date(),
         })
       )

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import React, { useState } from 'react'
+import React from 'react'
+import { useState } from 'react'
 import { LiveStoreProvider } from '@livestore/react'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
@@ -10,9 +11,11 @@ import { TaskDetailModal } from './TaskDetailModal.js'
 
 const PROJECT_ID = 'modal-project'
 
+// All sample tasks for position calculation in stories
+const allSampleTasks: Task[] = []
+
 // Wrapper component to show the modal with a toggle button
 function TaskDetailModalDemo({ initialTask }: { initialTask: Task | null }) {
-  const [task, setTask] = useState<Task | null>(initialTask)
   const [isOpen, setIsOpen] = useState(true)
 
   return (
@@ -26,7 +29,8 @@ function TaskDetailModalDemo({ initialTask }: { initialTask: Task | null }) {
         </button>
       )}
       <TaskDetailModal
-        task={isOpen ? task : null}
+        task={isOpen ? initialTask : null}
+        allTasks={allSampleTasks}
         onClose={() => {
           setIsOpen(false)
         }}

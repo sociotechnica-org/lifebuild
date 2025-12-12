@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@livestore/react'
 import type { Project } from '@lifebuild/shared/schema'
@@ -7,6 +7,7 @@ import {
   resolveLifecycleState,
   describeProjectLifecycleState,
   type ProjectLifecycleState,
+  type PlanningAttributes,
 } from '@lifebuild/shared'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
@@ -20,10 +21,24 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   const tableConfiguration = useQuery(getTableConfiguration$) ?? []
   const tableConfig = tableConfiguration[0]
 
-  // Get lifecycle state
+  // Parse project attributes for legacy lifecycle data
+  const attributes = useMemo(() => {
+    if (!project?.attributes) return null
+    try {
+      const parsed =
+        typeof project.attributes === 'string'
+          ? JSON.parse(project.attributes)
+          : (project.attributes as PlanningAttributes)
+      return parsed as PlanningAttributes
+    } catch {
+      return null
+    }
+  }, [project?.attributes])
+
+  // Get lifecycle state, passing legacy attributes as fallback
   const lifecycleState: ProjectLifecycleState = resolveLifecycleState(
     project.projectLifecycleState,
-    null
+    attributes
   )
 
   // Check if project is on the table
