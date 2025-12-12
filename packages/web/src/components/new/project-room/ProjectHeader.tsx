@@ -42,7 +42,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   }
 
   return (
-    <div className='bg-white border-b border-gray-200 px-6 py-4'>
+    <div className='bg-white border-b border-[#e5e2dc] px-6 py-4 rounded-t-2xl'>
       <div className='flex items-start justify-between'>
         <div className='flex-1 min-w-0'>
           {/* Project name */}

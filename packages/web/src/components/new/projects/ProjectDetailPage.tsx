@@ -119,18 +119,12 @@ export const ProjectDetailPage: React.FC = () => {
 
   return (
     <RoomLayout room={room}>
-      <div className='h-full flex flex-col bg-[#f5f3f0]'>
+      <div className='h-full flex flex-col bg-[#f5f3f0] rounded-2xl border border-[#e5e2dc]'>
         {/* Project Header */}
         <ProjectHeader project={project} />
 
         {/* Kanban Board - fills remaining space */}
-        <div className='flex-1 min-h-0 overflow-hidden'>
-          <ProjectKanban
-            tasks={tasks}
-            projectId={resolvedProjectId}
-            onTaskClick={handleTaskClick}
-          />
-        </div>
+        <ProjectKanban tasks={tasks} projectId={resolvedProjectId} onTaskClick={handleTaskClick} />
 
         {/* Task Detail Modal */}
         <TaskDetailModal task={selectedTask ?? null} onClose={handleModalClose} />

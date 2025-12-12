@@ -105,12 +105,12 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
               💬
             </button>
           )}
-          <div className='bg-[#2f2b27] text-[#faf9f7] py-[0.45rem] px-3 rounded-full font-semibold text-sm shadow-[0_8px_16px_rgba(0,0,0,0.12)]'>
+          <div className='bg-[#2f2b27] text-[#faf9f7] p-3 rounded-full font-semibold text-sm shadow-[0_8px_16px_rgba(0,0,0,0.12)]'>
             {getInitials(currentUser?.name || 'User')}
           </div>
         </div>
       </header>
-      <main className={mainClasses}>{children}</main>
+      <main className={`${mainClasses} p-3.5`}>{children}</main>
       <TableBar />
     </div>
   )
