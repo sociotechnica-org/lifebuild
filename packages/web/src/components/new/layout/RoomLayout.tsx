@@ -80,9 +80,13 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children }) => {
 
   return (
     <RoomChatContext.Provider value={chatContextValue}>
-      <NewUiShell isChatOpen={isChatOpen} onChatToggle={() => setIsChatOpen(open => !open)}>
-        <div className={`flex gap-4 ${isChatOpen ? 'mr-[25rem]' : ''}`}>
-          <div className='flex-1 min-w-0'>{children}</div>
+      <NewUiShell
+        isChatOpen={isChatOpen}
+        onChatToggle={() => setIsChatOpen(open => !open)}
+        fullHeight
+      >
+        <div className={`h-full flex gap-4 ${isChatOpen ? 'mr-[25rem]' : ''}`}>
+          <div className='h-full flex-1 min-w-0'>{children}</div>
         </div>
         {isChatOpen && (
           <div className='fixed right-4 top-[86px] bottom-[156px] w-96'>

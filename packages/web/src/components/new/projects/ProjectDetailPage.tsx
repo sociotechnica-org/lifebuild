@@ -1,84 +1,38 @@
-import React, { useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import React, { useState, useMemo } from 'react'
+import { useParams } from 'react-router-dom'
 import { useQuery } from '@livestore/react'
-import {
-  getProjectById$,
-  getProjectTasks$,
-  getUsers$,
-  getTaskComments$,
-} from '@lifebuild/shared/queries'
-import type { Project, Task, User } from '@lifebuild/shared/schema'
-import {
-  ARCHETYPE_LABELS,
-  STAGE_LABELS,
-  type PlanningAttributes,
-  type ProjectCategory,
-  type ProjectLifecycleState,
-  PROJECT_CATEGORIES,
-  getCategoryInfo,
-  resolveLifecycleState,
-} from '@lifebuild/shared'
-import { generateRoute } from '../../../constants/routes.js'
-import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
+import { getProjectById$, getProjectTasks$ } from '@lifebuild/shared/queries'
+import type { Project, Task } from '@lifebuild/shared/schema'
+import { type PlanningAttributes, resolveLifecycleState } from '@lifebuild/shared'
 import { RoomLayout } from '../layout/RoomLayout.js'
 import { createProjectRoomDefinition } from '@lifebuild/shared/rooms'
 import { NewUiShell } from '../layout/NewUiShell.js'
 import { useProjectChatLifecycle } from '../../../hooks/useProjectChatLifecycle.js'
-
-const parseAssigneeIds = (raw: string | null | undefined): string[] => {
-  if (!raw) return []
-  try {
-    const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []
-  } catch {
-    return []
-  }
-}
-
-type UsersById = Map<string, User>
-
-const TaskListItem: React.FC<{ task: Task; usersById: UsersById }> = ({ task, usersById }) => {
-  const comments = useQuery(getTaskComments$(task.id)) ?? []
-  const assigneeIds = parseAssigneeIds(task.assigneeIds)
-  const assignees = assigneeIds
-    .map(id => usersById.get(id))
-    .filter((user): user is User => Boolean(user))
-  const assigneeNames = assignees.map(user => user.name || user.email || user.id)
-  const hasDescription = Boolean(task.description && task.description.trim().length > 0)
-  const hasComments = comments.length > 0
-
-  return (
-    <li className='mb-2'>
-      <div>
-        <strong className='font-semibold'>{task.title || 'Untitled task'}</strong>
-        <span> [{task.status}]</span>
-      </div>
-      <div>
-        <span>Assignees: {assigneeNames.length > 0 ? assigneeNames.join(', ') : 'Unassigned'}</span>
-        {hasDescription && <span> 📝</span>}
-        {hasComments && <span> 💬 ({comments.length})</span>}
-      </div>
-      {task.description && (
-        <div>
-          <small>{task.description}</small>
-        </div>
-      )}
-    </li>
-  )
-}
+import { ProjectHeader } from '../project-room/ProjectHeader.js'
+import { ProjectKanban } from '../project-room/ProjectKanban.js'
+import { TaskDetailModal } from '../project-room/TaskDetailModal.js'
 
 export const ProjectDetailPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>()
   const resolvedProjectId = projectId ?? '__invalid__'
+
+  // Query project and tasks
   const projectResult = useQuery(getProjectById$(resolvedProjectId))
   const projectRows = projectResult ?? []
   const projectQueryReady = projectResult !== undefined
   const tasks = useQuery(getProjectTasks$(resolvedProjectId)) ?? []
-  const users = useQuery(getUsers$) ?? []
-  const usersById = useMemo(() => new Map(users.map(user => [user.id, user])), [users])
   const project = (projectRows[0] ?? undefined) as Project | undefined
 
-  // Parse project attributes (for legacy support and room definition)
+  // Task modal state
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
+
+  // Find selected task from the already-fetched tasks list
+  const selectedTask = useMemo(() => {
+    if (!selectedTaskId) return null
+    return (tasks as Task[]).find(t => t.id === selectedTaskId) ?? null
+  }, [selectedTaskId, tasks])
+
+  // Parse project attributes (for room definition)
   const attributes = useMemo(() => {
     if (!project?.attributes) return null
     try {
@@ -92,53 +46,13 @@ export const ProjectDetailPage: React.FC = () => {
     }
   }, [project?.attributes])
 
-  // Get lifecycle state (source of truth for display)
-  const lifecycleState = useMemo<ProjectLifecycleState | null>(() => {
+  // Get lifecycle state for room definition
+  const lifecycleState = useMemo(() => {
     if (!project) return null
     return resolveLifecycleState(project.projectLifecycleState, attributes)
   }, [project, attributes])
 
-  const projectCategory = useMemo<ProjectCategory | null>(() => {
-    const category = project?.category
-    if (!category) return null
-    return PROJECT_CATEGORIES.some(({ value }) => value === category)
-      ? (category as ProjectCategory)
-      : null
-  }, [project?.category])
-
-  // Determine back link and label based on project category
-  const backLink = useMemo(() => {
-    if (projectCategory) {
-      return preserveStoreIdInUrl(generateRoute.category(projectCategory))
-    }
-    return preserveStoreIdInUrl('/')
-  }, [projectCategory])
-
-  const backLabel = useMemo(() => {
-    if (projectCategory) {
-      const categoryInfo = getCategoryInfo(projectCategory)
-      return categoryInfo ? `← Back to ${categoryInfo.name}` : `← Back to ${projectCategory}`
-    }
-    return '← Back to Life Map'
-  }, [projectCategory])
-
-  // Format date helper
-  const formatDate = (timestamp?: number) => {
-    if (!timestamp) return null
-    return new Date(timestamp).toLocaleDateString()
-  }
-
-  // Format duration helper
-  const formatDuration = (hours?: number) => {
-    if (!hours) return null
-    if (hours < 1) return `${Math.round(hours * 60)} minutes`
-    if (hours < 24) return `${hours.toFixed(1)} hours`
-    const days = Math.floor(hours / 24)
-    const remainingHours = hours % 24
-    if (remainingHours === 0) return `${days} day${days !== 1 ? 's' : ''}`
-    return `${days} day${days !== 1 ? 's' : ''}, ${remainingHours.toFixed(1)} hours`
-  }
-
+  // Create room definition for chat
   const room = useMemo(
     () =>
       project
@@ -157,10 +71,21 @@ export const ProjectDetailPage: React.FC = () => {
 
   useProjectChatLifecycle(project ?? null, room)
 
+  // Handle task click - open modal
+  const handleTaskClick = (taskId: string) => {
+    setSelectedTaskId(taskId)
+  }
+
+  // Handle modal close
+  const handleModalClose = () => {
+    setSelectedTaskId(null)
+  }
+
+  // Loading and error states
   if (!projectId) {
     return (
       <NewUiShell>
-        <p>Invalid project ID</p>
+        <p className='p-6 text-gray-500'>Invalid project ID</p>
       </NewUiShell>
     )
   }
@@ -168,7 +93,7 @@ export const ProjectDetailPage: React.FC = () => {
   if (!projectQueryReady) {
     return (
       <NewUiShell>
-        <p>Loading project...</p>
+        <p className='p-6 text-gray-500'>Loading project...</p>
       </NewUiShell>
     )
   }
@@ -176,9 +101,9 @@ export const ProjectDetailPage: React.FC = () => {
   if (!project) {
     return (
       <NewUiShell>
-        <div>
-          <h1>Project not found</h1>
-          <p>The requested project ({projectId}) does not exist.</p>
+        <div className='p-6'>
+          <h1 className='text-xl font-semibold text-gray-900'>Project not found</h1>
+          <p className='text-gray-500 mt-2'>The requested project ({projectId}) does not exist.</p>
         </div>
       </NewUiShell>
     )
@@ -187,125 +112,22 @@ export const ProjectDetailPage: React.FC = () => {
   if (!room) {
     return (
       <NewUiShell>
-        <p>Preparing project room...</p>
+        <p className='p-6 text-gray-500'>Preparing project room...</p>
       </NewUiShell>
     )
   }
 
   return (
     <RoomLayout room={room}>
-      <div>
-        <Link to={backLink}>{backLabel}</Link>
+      <div className='h-full flex flex-col bg-[#f5f3f0] rounded-2xl border border-[#e5e2dc]'>
+        {/* Project Header */}
+        <ProjectHeader project={project} />
 
-        <div>
-          <header>
-            <h1 className='text-2xl font-bold'>{project.name || 'Untitled project'}</h1>
-            {project.description && <p>{project.description}</p>}
-          </header>
+        {/* Kanban Board - fills remaining space */}
+        <ProjectKanban tasks={tasks} projectId={resolvedProjectId} onTaskClick={handleTaskClick} />
 
-          {lifecycleState && (
-            <section className='mt-6'>
-              <h2 className='text-lg font-semibold mb-4'>Project Details</h2>
-              <dl className='space-y-2'>
-                {lifecycleState.status && (
-                  <div>
-                    <dt className='font-medium inline'>Status:</dt>
-                    <dd className='inline ml-2 capitalize'>{lifecycleState.status}</dd>
-                  </div>
-                )}
-                {lifecycleState.stage && (
-                  <div>
-                    <dt className='font-medium inline'>Planning Stage:</dt>
-                    <dd className='inline ml-2'>
-                      {STAGE_LABELS[lifecycleState.stage]} (Stage {lifecycleState.stage})
-                    </dd>
-                  </div>
-                )}
-                {lifecycleState.archetype && (
-                  <div>
-                    <dt className='font-medium inline'>Archetype:</dt>
-                    <dd className='inline ml-2'>{ARCHETYPE_LABELS[lifecycleState.archetype]}</dd>
-                  </div>
-                )}
-                {lifecycleState.objectives && (
-                  <div>
-                    <dt className='font-medium block mb-1'>Objectives:</dt>
-                    <dd className='ml-4'>{lifecycleState.objectives}</dd>
-                  </div>
-                )}
-                {lifecycleState.deadline && (
-                  <div>
-                    <dt className='font-medium inline'>Deadline:</dt>
-                    <dd className='inline ml-2'>{formatDate(lifecycleState.deadline)}</dd>
-                  </div>
-                )}
-                {lifecycleState.estimatedDuration && (
-                  <div>
-                    <dt className='font-medium inline'>Estimated Duration:</dt>
-                    <dd className='inline ml-2'>
-                      {formatDuration(lifecycleState.estimatedDuration)}
-                    </dd>
-                  </div>
-                )}
-                {lifecycleState.urgency && (
-                  <div>
-                    <dt className='font-medium inline'>Urgency:</dt>
-                    <dd className='inline ml-2 capitalize'>{lifecycleState.urgency}</dd>
-                  </div>
-                )}
-                {lifecycleState.importance && (
-                  <div>
-                    <dt className='font-medium inline'>Importance:</dt>
-                    <dd className='inline ml-2 capitalize'>{lifecycleState.importance}</dd>
-                  </div>
-                )}
-                {lifecycleState.complexity && (
-                  <div>
-                    <dt className='font-medium inline'>Complexity:</dt>
-                    <dd className='inline ml-2 capitalize'>{lifecycleState.complexity}</dd>
-                  </div>
-                )}
-                {lifecycleState.scale && (
-                  <div>
-                    <dt className='font-medium inline'>Scale:</dt>
-                    <dd className='inline ml-2 capitalize'>{lifecycleState.scale}</dd>
-                  </div>
-                )}
-                {lifecycleState.priority !== undefined && (
-                  <div>
-                    <dt className='font-medium inline'>Priority:</dt>
-                    <dd className='inline ml-2'>{lifecycleState.priority}</dd>
-                  </div>
-                )}
-                {lifecycleState.activatedAt && (
-                  <div>
-                    <dt className='font-medium inline'>Activated At:</dt>
-                    <dd className='inline ml-2'>{formatDate(lifecycleState.activatedAt)}</dd>
-                  </div>
-                )}
-                {lifecycleState.completedAt && (
-                  <div>
-                    <dt className='font-medium inline'>Completed At:</dt>
-                    <dd className='inline ml-2'>{formatDate(lifecycleState.completedAt)}</dd>
-                  </div>
-                )}
-              </dl>
-            </section>
-          )}
-
-          <section className='mt-6'>
-            <h2 className='text-lg font-semibold mb-4'>Tasks</h2>
-            {tasks.length === 0 ? (
-              <p>No tasks in this project</p>
-            ) : (
-              <ul>
-                {tasks.map(task => (
-                  <TaskListItem key={task.id} task={task} usersById={usersById} />
-                ))}
-              </ul>
-            )}
-          </section>
-        </div>
+        {/* Task Detail Modal */}
+        <TaskDetailModal task={selectedTask ?? null} allTasks={tasks} onClose={handleModalClose} />
       </div>
     </RoomLayout>
   )

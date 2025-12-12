@@ -12,6 +12,8 @@ type NewUiShellProps = {
   children: React.ReactNode
   isChatOpen?: boolean
   onChatToggle?: () => void
+  /** When true, uses h-screen flex layout for full-height content like kanban boards */
+  fullHeight?: boolean
 }
 
 /**
@@ -23,6 +25,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
   children,
   isChatOpen = false,
   onChatToggle,
+  fullHeight = false,
 }) => {
   const location = useLocation()
   const { user: authUser } = useAuth()
@@ -34,15 +37,24 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
     return location.pathname === path || location.pathname.startsWith(path + '/')
   }
 
+  // Choose layout classes based on fullHeight mode
+  // fullHeight mode: full viewport height and width (for room pages with chat panels)
+  // normal mode: min-height with centered max-width content
+  const outerClasses = fullHeight
+    ? 'h-screen flex flex-col overflow-hidden text-[#2f2b27] leading-relaxed'
+    : 'min-h-screen text-[#2f2b27] leading-relaxed pb-36'
+
+  const mainClasses = fullHeight ? 'flex-1 min-h-0 w-full pb-36' : 'max-w-[1200px] mx-auto p-2'
+
   return (
     <div
-      className='min-h-screen text-[#2f2b27] leading-relaxed pb-36'
+      className={outerClasses}
       style={{
         background:
           'radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.8), transparent 40%), #f5f3f0',
       }}
     >
-      <header className='sticky top-0 z-[8] backdrop-blur-[10px] bg-[rgba(250,249,247,0.88)] border-b border-[#e8e4de] py-3.5 px-6 flex items-center justify-between'>
+      <header className='sticky top-0 z-[8] backdrop-blur-[10px] bg-[rgba(250,249,247,0.88)] border-b border-[#e8e4de] py-3.5 px-6 flex items-center justify-between flex-shrink-0'>
         <nav className='flex gap-4 items-center font-semibold'>
           <Link
             to={generateRoute.draftingRoom()}
@@ -93,12 +105,12 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
               💬
             </button>
           )}
-          <div className='bg-[#2f2b27] text-[#faf9f7] py-[0.45rem] px-3 rounded-full font-semibold text-sm shadow-[0_8px_16px_rgba(0,0,0,0.12)]'>
+          <div className='bg-[#2f2b27] text-[#faf9f7] p-3 rounded-full font-semibold text-sm shadow-[0_8px_16px_rgba(0,0,0,0.12)]'>
             {getInitials(currentUser?.name || 'User')}
           </div>
         </div>
       </header>
-      <main className='max-w-[1200px] mx-auto p-2'>{children}</main>
+      <main className={`${mainClasses} p-3.5`}>{children}</main>
       <TableBar />
     </div>
   )
