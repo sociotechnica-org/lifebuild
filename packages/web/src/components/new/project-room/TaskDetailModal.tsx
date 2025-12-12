@@ -20,16 +20,24 @@ export function TaskDetailModal({ task, allTasks, onClose }: TaskDetailModalProp
   const [editStatus, setEditStatus] = useState<TaskStatus>('todo')
   const [titleError, setTitleError] = useState('')
 
-  // Update form fields when viewing a different task (based on task ID, not reference)
+  // Update form fields when task changes externally (for optimistic updates and sync)
+  // Uses actual field values as dependencies following the existing TaskModal pattern
   useEffect(() => {
     if (task) {
       setEditTitle(task.title)
       setEditDescription(task.description || '')
       setEditStatus(task.status as TaskStatus)
+      // Only reset editing state when opening a different task
+    }
+  }, [task?.title, task?.description, task?.status])
+
+  // Reset editing state only when viewing a different task
+  useEffect(() => {
+    if (task) {
       setIsEditing(false)
       setTitleError('')
     }
-  }, [task?.id]) // Only reset when viewing a different task, not on every reference change
+  }, [task?.id])
 
   // Set up escape key listener
   useEffect(() => {

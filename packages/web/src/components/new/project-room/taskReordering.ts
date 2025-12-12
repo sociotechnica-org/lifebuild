@@ -174,12 +174,8 @@ export function calculateStatusDropTarget(
   const sortedTasks = [...tasksInStatus].sort((a, b) => a.position - b.position)
   const targetIndex = sortedTasks.findIndex(t => t.id === targetTask.id)
 
-  if (targetTask.status === draggedTask.status) {
-    const draggedIndex = sortedTasks.findIndex(t => t.id === draggedTask.id)
-    if (draggedIndex < targetIndex) {
-      return { statusId: targetTask.status, index: targetIndex }
-    }
-  }
-
+  // When dropping within the same status, the index calculation in calculateStatusTaskReorder
+  // already filters out the dragged task, so we don't need to adjust the index.
+  // Always return the target task's index - the reorder function handles the rest.
   return { statusId: targetTask.status, index: targetIndex }
 }
