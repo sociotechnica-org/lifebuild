@@ -6,9 +6,7 @@ import { useAuth } from '../../../contexts/AuthContext.js'
 import { getUsers$ } from '@lifebuild/shared/queries'
 import type { User } from '@lifebuild/shared/schema'
 import { TableBar } from './TableBar.js'
-import { getInitials } from '../../../utils/initials.js'
-import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
-import { isCurrentUserAdmin } from '../../../utils/adminCheck.jsx'
+import { getInitials, preserveStoreIdInUrl, isCurrentUserAdmin } from '../utils/index.js'
 
 type NewUiShellProps = {
   children: React.ReactNode
