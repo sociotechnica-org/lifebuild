@@ -1,12 +1,14 @@
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { generateRoute } from '../../../constants/routes.js'
+import { generateRoute, ROUTES } from '../../../constants/routes.js'
 import { useQuery } from '@livestore/react'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { getUsers$ } from '@lifebuild/shared/queries'
 import type { User } from '@lifebuild/shared/schema'
 import { TableBar } from './TableBar.js'
 import { getInitials } from '../../../utils/initials.js'
+import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
+import { isCurrentUserAdmin } from '../../../utils/adminCheck.jsx'
 
 type NewUiShellProps = {
   children: React.ReactNode
@@ -31,10 +33,55 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
   noScroll = false,
 }) => {
   const location = useLocation()
-  const { user: authUser } = useAuth()
+  const { user: authUser, isAuthenticated, logout } = useAuth()
   const users = useQuery(getUsers$) ?? []
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 })
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   const currentUser = users.find((user: User) => user.id === authUser?.id)
+
+  // Helper to get display name and email
+  const getDisplayName = () => {
+    if (authUser) return authUser.email
+    if (currentUser) return currentUser.name
+    return 'User'
+  }
+
+  const getEmail = () => {
+    if (authUser) return authUser.email
+    return ''
+  }
+
+  // Handle dropdown toggle with position calculation
+  const handleToggleDropdown = () => {
+    if (!showDropdown && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setDropdownPosition({
+        top: rect.bottom + 8,
+        right: window.innerWidth - rect.right,
+      })
+    }
+    setShowDropdown(!showDropdown)
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(path + '/')
@@ -112,9 +159,69 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
               💬
             </button>
           )}
-          <div className='bg-[#2f2b27] text-[#faf9f7] p-3 rounded-full font-semibold text-sm shadow-[0_8px_16px_rgba(0,0,0,0.12)]'>
-            {getInitials(currentUser?.name || 'User')}
-          </div>
+          {isAuthenticated ? (
+            <>
+              <button
+                ref={buttonRef}
+                type='button'
+                onClick={handleToggleDropdown}
+                className='bg-[#2f2b27] text-[#faf9f7] p-3 rounded-full font-semibold text-sm shadow-[0_8px_16px_rgba(0,0,0,0.12)] cursor-pointer border-none hover:bg-[#3f3b37] transition-colors duration-[160ms]'
+                title={getDisplayName()}
+                data-testid='user-menu-button'
+              >
+                {getInitials(currentUser?.name || getDisplayName())}
+              </button>
+
+              {showDropdown && (
+                <div
+                  ref={dropdownRef}
+                  className='fixed min-w-64 max-w-80 bg-white rounded-md shadow-lg py-1 z-[9999] border border-[#e8e4de]'
+                  style={{
+                    top: `${dropdownPosition.top}px`,
+                    right: `${dropdownPosition.right}px`,
+                  }}
+                >
+                  <div className='px-4 py-2 text-sm text-[#2f2b27] border-b border-[#e8e4de]'>
+                    <div className='font-medium truncate'>{getDisplayName()}</div>
+                    <div className='text-[#8b8680] truncate'>{getEmail()}</div>
+                  </div>
+                  <Link
+                    to={preserveStoreIdInUrl(ROUTES.SETTINGS)}
+                    onClick={() => setShowDropdown(false)}
+                    className='block px-4 py-2 text-sm text-[#2f2b27] hover:bg-black/[0.04] no-underline'
+                  >
+                    Settings
+                  </Link>
+                  {isCurrentUserAdmin(authUser) && (
+                    <Link
+                      to={ROUTES.ADMIN}
+                      onClick={() => setShowDropdown(false)}
+                      className='block px-4 py-2 text-sm text-[#2f2b27] hover:bg-black/[0.04] no-underline'
+                    >
+                      Admin
+                    </Link>
+                  )}
+                  <button
+                    type='button'
+                    onClick={async () => {
+                      await logout()
+                      setShowDropdown(false)
+                    }}
+                    className='block w-full text-left px-4 py-2 text-sm text-[#2f2b27] hover:bg-black/[0.04] bg-transparent border-none cursor-pointer'
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <Link
+              to={ROUTES.LOGIN}
+              className='bg-[#2f2b27] text-[#faf9f7] py-2 px-4 rounded-xl font-semibold text-sm no-underline hover:bg-[#3f3b37] transition-colors duration-[160ms]'
+            >
+              Sign in
+            </Link>
+          )}
         </div>
       </header>
       <main className={`${mainClasses} p-3.5`}>
