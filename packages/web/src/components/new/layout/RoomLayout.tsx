@@ -8,6 +8,8 @@ import { usePostHog } from '../../../lib/analytics.js'
 type RoomLayoutProps = {
   room: StaticRoomDefinition
   children: React.ReactNode
+  /** When true, disables scrolling on main content (children handle their own scrolling) */
+  noScroll?: boolean
 }
 
 // Context for child components to control the chat
@@ -46,7 +48,7 @@ const usePersistentChatToggle = (roomId: string) => {
   return [isOpen, setIsOpen] as const
 }
 
-export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children }) => {
+export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children, noScroll = false }) => {
   const posthog = usePostHog()
   const [isChatOpen, setIsChatOpen] = usePersistentChatToggle(room.roomId)
   const chat = useRoomChat(room)
@@ -84,6 +86,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children }) => {
         isChatOpen={isChatOpen}
         onChatToggle={() => setIsChatOpen(open => !open)}
         fullHeight
+        noScroll={noScroll}
       >
         <div className={`h-full flex gap-4 ${isChatOpen ? 'mr-[25rem]' : ''}`}>
           <div className='h-full flex-1 min-w-0'>{children}</div>

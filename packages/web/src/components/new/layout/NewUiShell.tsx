@@ -14,6 +14,8 @@ type NewUiShellProps = {
   onChatToggle?: () => void
   /** When true, uses h-screen flex layout for full-height content like kanban boards */
   fullHeight?: boolean
+  /** When true, disables scrolling on main content (children handle their own scrolling, e.g. kanban boards) */
+  noScroll?: boolean
 }
 
 /**
@@ -26,6 +28,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
   isChatOpen = false,
   onChatToggle,
   fullHeight = false,
+  noScroll = false,
 }) => {
   const location = useLocation()
   const { user: authUser } = useAuth()
@@ -37,16 +40,18 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
     return location.pathname === path || location.pathname.startsWith(path + '/')
   }
 
-  // Choose layout classes based on fullHeight mode
-  // fullHeight mode: full viewport height and width (for room pages with chat panels)
-  // normal mode: min-height with centered max-width content
-  const outerClasses = fullHeight
-    ? 'h-screen flex flex-col overflow-hidden text-[#2f2b27] leading-relaxed'
-    : 'min-h-screen text-[#2f2b27] leading-relaxed pb-36'
+  // Always use h-screen flex layout to keep TableBar at the bottom
+  // The main content area scrolls, TableBar stays fixed at bottom via flexbox
+  const outerClasses = 'h-screen flex flex-col overflow-hidden text-[#2f2b27] leading-relaxed'
 
+  // fullHeight mode: full width content area
+  // noScroll mode: children handle their own scrolling (e.g. kanban boards with scrollable columns)
+  // normal mode: content scrolls within the main area
   const mainClasses = fullHeight
-    ? 'flex-1 min-h-0 w-full pb-36 overflow-y-auto'
-    : 'max-w-[1200px] mx-auto p-2'
+    ? `flex-1 min-h-0 w-full ${noScroll ? 'overflow-hidden' : 'overflow-y-auto'}`
+    : 'flex-1 min-h-0 overflow-y-auto'
+
+  const contentClasses = fullHeight ? 'h-full' : 'max-w-[1200px] mx-auto p-2'
 
   return (
     <div
@@ -112,7 +117,9 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
           </div>
         </div>
       </header>
-      <main className={`${mainClasses} p-3.5`}>{children}</main>
+      <main className={`${mainClasses} p-3.5`}>
+        <div className={contentClasses}>{children}</div>
+      </main>
       <TableBar />
     </div>
   )

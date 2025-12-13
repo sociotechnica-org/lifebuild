@@ -1,6 +1,20 @@
 @import 'tailwindcss';
 @import 'highlight.js/styles/github.css';
 
+/* Prevent outer scrollbar on the page */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+}
+
+#react-app {
+  height: 100%;
+  overflow: hidden;
+}
+
 /* Markdown Chat Styles - Inspired by ChatGPT/Claude */
 .markdown-content {
   /* Typography */
