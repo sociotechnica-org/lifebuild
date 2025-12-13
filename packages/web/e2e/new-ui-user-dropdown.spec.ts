@@ -56,7 +56,7 @@ test.describe('New UI Shell User Dropdown', () => {
     await page.waitForURL(/\/login/, { timeout: 10000 })
   })
 
-  test('should show Sign in link when not authenticated in new UI', async ({ page }) => {
+  test('should redirect to login when not authenticated in new UI', async ({ page }) => {
     // Skip this test if auth is not required
     test.skip(!REQUIRE_AUTH, 'This test requires REQUIRE_AUTH=true environment')
 
@@ -68,11 +68,13 @@ test.describe('New UI Shell User Dropdown', () => {
       localStorage.removeItem('lifebuild-user-info')
     })
 
-    // Navigate to login page
-    await page.goto(`${APP_URL}/login`)
-    await page.waitForLoadState('load')
+    // Navigate to a new UI route (drafting-room uses NewUiShell)
+    await page.goto(`${APP_URL}/drafting-room`)
 
-    // Should show sign in form
+    // Should redirect to login since not authenticated
+    await page.waitForURL(/\/login/, { timeout: 10000 })
+
+    // Verify we're on the login page
     await expect(page.locator('h2')).toContainText('Sign in to your account')
   })
 

@@ -42,8 +42,10 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
 
   // Helper to get display name and email
   const getDisplayName = () => {
+    // Prefer currentUser.name if available (comes from LiveStore user record)
+    if (currentUser?.name) return currentUser.name
+    // Fall back to authUser email
     if (authUser) return authUser.email
-    if (currentUser) return currentUser.name
     return 'User'
   }
 
