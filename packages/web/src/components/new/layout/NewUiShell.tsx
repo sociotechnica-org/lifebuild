@@ -44,7 +44,9 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
     ? 'h-screen flex flex-col overflow-hidden text-[#2f2b27] leading-relaxed'
     : 'min-h-screen text-[#2f2b27] leading-relaxed pb-36'
 
-  const mainClasses = fullHeight ? 'flex-1 min-h-0 w-full pb-36' : 'max-w-[1200px] mx-auto p-2'
+  const mainClasses = fullHeight
+    ? 'flex-1 min-h-0 w-full pb-36 overflow-y-auto'
+    : 'max-w-[1200px] mx-auto p-2'
 
   return (
     <div
