@@ -174,7 +174,7 @@ export const Stage2Form: React.FC = () => {
       stage: 3, // Advance to Stage 3 (Drafting)
       objectives: objectives.trim(),
       deadline: deadlineTimestamp,
-      archetype: archetype!,
+      archetype: archetype ?? undefined,
       scale: tierToScale(tier),
       stream: tier ?? undefined, // Store tier directly for reliable persistence
     }

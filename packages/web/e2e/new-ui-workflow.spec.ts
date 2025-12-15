@@ -132,17 +132,17 @@ test.describe('New UI Workflow', () => {
     // =====================
 
     // Wait for Sorting Room to load
-    await expect(page.getByRole('heading', { name: 'Gold' })).toBeVisible({ timeout: 10000 })
-    await expect(page.getByRole('heading', { name: 'Silver' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Bronze' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Initiative' })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('heading', { name: 'Optimization' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'To-Do' })).toBeVisible()
 
-    // Expand Gold stream (since we selected Gold tier)
-    const goldExpandButton = page
+    // Expand Initiative stream (since we selected Initiative tier)
+    const initiativeExpandButton = page
       .locator('div')
-      .filter({ hasText: /Gold.*in backlog/i })
+      .filter({ hasText: /Initiative.*in backlog/i })
       .locator('button', { hasText: 'Expand' })
       .first()
-    await goldExpandButton.click()
+    await initiativeExpandButton.click()
 
     // Wait for panel to expand
     await expect(page.getByText('ON TABLE', { exact: true }).first()).toBeVisible({ timeout: 5000 })
@@ -156,7 +156,7 @@ test.describe('New UI Workflow', () => {
     await activateButton.click()
 
     // Confirm in the dialog (dialog doesn't have role="dialog", look for the dialog content)
-    await expect(page.getByText('Activate Gold Project')).toBeVisible({ timeout: 5000 })
+    await expect(page.getByText('Activate Initiative Project')).toBeVisible({ timeout: 5000 })
 
     // Click the Activate button in the dialog (the second "Activate" button)
     const confirmActivateButton = page.getByRole('button', { name: 'Activate', exact: true }).last()
@@ -295,9 +295,9 @@ test.describe('New UI Workflow', () => {
     await waitForLiveStoreReady(page)
 
     // Verify Sorting Room elements
-    await expect(page.getByRole('heading', { name: 'Gold' })).toBeVisible({ timeout: 10000 })
-    await expect(page.getByRole('heading', { name: 'Silver' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Bronze' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Initiative' })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('heading', { name: 'Optimization' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'To-Do' })).toBeVisible()
 
     // Navigate to Life Map via nav
     await page.click('text=Life Map')
