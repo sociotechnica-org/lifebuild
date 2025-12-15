@@ -321,12 +321,21 @@ export class MessageLifecycleTracker {
   }
 
   /**
-   * Get messages currently in progress (not completed or errored)
+   * Get messages currently in progress (not completed, errored, or filtered by deduplication)
    */
   getInProgressLifecycles(): MessageLifecycle[] {
-    return this.getAllLifecycles().filter(
-      l => l.currentStage !== 'completed' && l.currentStage !== 'error'
-    )
+    return this.getAllLifecycles().filter(l => {
+      // Exclude completed and errored messages
+      if (l.currentStage === 'completed' || l.currentStage === 'error') {
+        return false
+      }
+      // Exclude messages that were filtered out by deduplication
+      // These get stuck in dedupe_checked stage but aren't actually in progress
+      if (l.currentStage === 'dedupe_checked' && l.stages.dedupe_checked?.wasDuplicate) {
+        return false
+      }
+      return true
+    })
   }
 
   /**

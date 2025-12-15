@@ -327,7 +327,7 @@ async function main() {
                 </div>
                 <div class="stat-row">
                   <span class="stat-label">In Progress</span>
-                  <span class="stat-value badge badge-warning">${lifecycleStats.byStage.processing_started + lifecycleStats.byStage.iteration}</span>
+                  <span class="stat-value badge badge-warning">${inProgressLifecycles.length}</span>
                 </div>
                 <div class="stat-row">
                   <span class="stat-label">Errors</span>

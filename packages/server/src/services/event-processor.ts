@@ -852,6 +852,23 @@ export class EventProcessor {
       completionEventEmitted = await this.runAgenticLoop(storeId, chatMessage, storeState)
       const responseTime = Date.now() - startTime
 
+      // Check if runAgenticLoop returned false (store disconnected or LLM not available)
+      if (!completionEventEmitted) {
+        // This means the store or LLM provider was unavailable - treat as error
+        this.endLLMCall(llmCallId, true)
+        llmCallCompleted = true
+        this.lifecycleTracker.recordError(
+          messageId,
+          'Store disconnected or LLM provider unavailable during queued message processing',
+          'STORE_UNAVAILABLE'
+        )
+        logger.warn(
+          { conversationId, correlationId, messageId },
+          'Agentic loop returned false for queued message - store or LLM unavailable'
+        )
+        return
+      }
+
       // Track successful completion
       this.endLLMCall(llmCallId, false, responseTime)
       llmCallCompleted = true
