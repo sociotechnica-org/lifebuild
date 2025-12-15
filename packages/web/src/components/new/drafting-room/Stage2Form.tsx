@@ -249,7 +249,7 @@ export const Stage2Form: React.FC = () => {
         {/* Header */}
         <div className='mb-6'>
           <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27] mb-1">
-            Stage 2: Scoping
+            Stage 2: Scope
           </h1>
           <p className='text-sm text-[#8b8680]'>Define what success looks like - 10 minutes</p>
         </div>

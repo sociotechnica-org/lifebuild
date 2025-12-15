@@ -123,6 +123,10 @@ export const Stage1Form: React.FC = () => {
         })
       )
       setCreatedProjectId(projectId)
+
+      // Navigate to the project-specific URL so browser back button works correctly
+      // This prevents creating duplicate projects when using browser back button
+      navigate(generateRoute.projectStage1(projectId), { replace: true })
     }
 
     return projectId
@@ -179,7 +183,7 @@ export const Stage1Form: React.FC = () => {
         {/* Header */}
         <div className='mb-6'>
           <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27] mb-1">
-            Stage 1: Identifying
+            Stage 1: Identify
           </h1>
           <p className='text-sm text-[#8b8680]'>Quick capture - 2 minutes</p>
         </div>

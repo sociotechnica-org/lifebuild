@@ -77,9 +77,9 @@ function getLifecycleState(project: Project): ProjectLifecycleState {
 
 // Stage configuration (3 stages - Stage 4 happens in the Sorting Room)
 const STAGES: { stage: PlanningStage; name: string; emptyMessage: string }[] = [
-  { stage: 1, name: 'Identifying', emptyMessage: "Click 'Start New Project' to begin" },
-  { stage: 2, name: 'Scoping', emptyMessage: 'Complete Stage 1 projects to move them here' },
-  { stage: 3, name: 'Drafting', emptyMessage: 'Define objectives to advance projects' },
+  { stage: 1, name: 'Identify', emptyMessage: "Click 'Start New Project' to begin" },
+  { stage: 2, name: 'Scope', emptyMessage: 'Complete Stage 1 projects to move them here' },
+  { stage: 3, name: 'Draft', emptyMessage: 'Define objectives to advance projects' },
 ]
 
 // Category filter options (All + categories)
