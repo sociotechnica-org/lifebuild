@@ -123,6 +123,10 @@ export const Stage1Form: React.FC = () => {
         })
       )
       setCreatedProjectId(projectId)
+
+      // Navigate to the project-specific URL so browser back button works correctly
+      // This prevents creating duplicate projects when using browser back button
+      navigate(generateRoute.projectStage1(projectId), { replace: true })
     }
 
     return projectId
