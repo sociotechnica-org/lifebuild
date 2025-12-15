@@ -21,12 +21,13 @@ Sentry.init({
   // Setting this option to true will send default PII data to Sentry.
   // For example, automatic IP address collection on events
   sendDefaultPii: true,
-  // Enable logging
+  // Enable Sentry Logs feature (structured logging)
   enableLogs: true,
-  // Add console logging integration
+  // Add integrations for logging
   integrations: [
-    // send console.log, console.warn, and console.error calls as logs to Sentry
-    Sentry.consoleLoggingIntegration({ levels: ['log', 'warn', 'error'] }),
+    // Pino integration sends pino logs to Sentry Logs (requires SDK 10.18.0+)
+    // This automatically instruments pino loggers created after Sentry.init()
+    Sentry.pinoIntegration(),
   ],
   // Set tracesSampleRate based on environment
   // 100% sampling in dev/staging, lower in production to reduce volume

@@ -24,32 +24,15 @@ function getLogLevel(): pino.Level {
 }
 
 // Determine transport configuration
+// NOTE: Sentry integration is handled by pinoIntegration() in instrument.ts,
+// which automatically instruments pino loggers to send logs to Sentry Logs.
+// No separate pino transport is needed for Sentry.
 function getTransport() {
   const env = process.env.NODE_ENV
-  const sentryDsn = process.env.SENTRY_DSN
-
-  // Build transports array
-  const transports: Array<{ target: string; options: any; level?: string }> = []
-
-  // Add Sentry transport if DSN is configured
-  if (sentryDsn) {
-    transports.push({
-      target: 'pino-sentry-transport',
-      options: {
-        sentry: {
-          dsn: sentryDsn,
-          environment: env || 'development',
-        },
-        // Only send warnings and errors to Sentry to reduce noise
-        minLevel: 'warn',
-      },
-      level: 'warn',
-    })
-  }
 
   // Add pretty printing for development/test
   if (env !== 'production') {
-    transports.push({
+    return {
       target: 'pino-pretty',
       options: {
         colorize: true,
@@ -57,28 +40,11 @@ function getTransport() {
         ignore: 'pid,hostname',
         singleLine: false,
       },
-    })
-  } else if (transports.length > 0) {
-    // Production with other transports (e.g., Sentry): add stdout explicitly
-    // so logs appear in Render/cloud logging platforms
-    transports.push({
-      target: 'pino/file',
-      options: { destination: 1 }, // 1 = stdout
-    })
-  }
-
-  // Return transport configuration
-  // If we have multiple transports, return as array
-  // If only one transport, return it directly
-  // If no transports, return undefined (JSON output)
-  if (transports.length > 1) {
-    return {
-      targets: transports,
     }
-  } else if (transports.length === 1) {
-    return transports[0]
   }
 
+  // Production: use default JSON output to stdout (no transport needed)
+  // Cloud logging platforms (Render, etc.) will capture stdout
   return undefined
 }
 
