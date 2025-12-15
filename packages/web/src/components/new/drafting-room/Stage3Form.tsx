@@ -12,14 +12,12 @@ import {
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
-import { useRoomChatControl } from '../layout/RoomLayout.js'
 
 export const Stage3Form: React.FC = () => {
   const navigate = useNavigate()
   const { projectId } = useParams<{ projectId: string }>()
   const { store } = useStore()
   const { user } = useAuth()
-  const { openChat, sendDirectMessage } = useRoomChatControl()
 
   // Load existing project
   const projectResults = useQuery(getProjectById$(projectId ?? ''))
@@ -236,7 +234,7 @@ export const Stage3Form: React.FC = () => {
         {/* Header */}
         <div className='mb-6'>
           <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27] mb-1">
-            Stage 3: Drafting
+            Stage 3: Draft
           </h1>
           <p className='text-sm text-[#8b8680]'>Create actionable task list - 30 minutes</p>
         </div>
@@ -297,29 +295,6 @@ export const Stage3Form: React.FC = () => {
                 Add
               </button>
             </div>
-
-            {/* Ask Marvin button */}
-            <button
-              type='button'
-              className='w-full py-2.5 px-4 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-500 to-indigo-500 text-white cursor-pointer border-none transition-all duration-200 hover:from-purple-600 hover:to-indigo-600'
-              onClick={() => {
-                const existingTasks = tasks.map(t => t.title).join(', ')
-
-                let message = `Please help me draft a task list for this project.`
-                if (existingTasks) {
-                  message += ` I already have these tasks: ${existingTasks}.`
-                }
-                message += ` Please suggest additional tasks to complete this project. Ask me clarifying questions if you need more context about the project scope or goals.`
-
-                // Open the chat panel
-                openChat()
-
-                // Send the message with navigation context attached
-                sendDirectMessage(message)
-              }}
-            >
-              ✨ Ask Marvin to draft tasks
-            </button>
           </div>
         </div>
 
