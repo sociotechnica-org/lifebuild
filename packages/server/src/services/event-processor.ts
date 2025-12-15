@@ -648,6 +648,11 @@ export class EventProcessor {
     // Check conversation limits per store
     if (storeState.activeConversations.size >= 50) {
       storeLogger(storeId).warn(`Too many active conversations`)
+      this.lifecycleTracker.recordError(
+        messageId,
+        `Too many active conversations (${storeState.activeConversations.size}/50)`,
+        'CONVERSATION_LIMIT'
+      )
       return
     }
 
