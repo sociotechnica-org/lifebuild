@@ -117,6 +117,13 @@ export class MessageLifecycleTracker {
     storeId: string,
     conversationId: string
   ): { lifecycle: MessageLifecycle; correlationId: string } {
+    // If message is already being tracked, return the existing lifecycle and correlationId
+    // to maintain consistent log correlation across subscription updates
+    const existing = this.lifecycles.get(messageId)
+    if (existing) {
+      return { lifecycle: existing, correlationId: existing.correlationId }
+    }
+
     const correlationId = generateCorrelationId(messageId)
 
     const lifecycle: MessageLifecycle = {
