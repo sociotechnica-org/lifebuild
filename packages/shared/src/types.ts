@@ -29,6 +29,7 @@ export type {
 export {
   ARCHETYPE_LABELS,
   STAGE_LABELS,
+  STREAM_LABELS,
   PlanningAttributesSchema,
   ProjectLifecycleStateSchema,
   createDefaultLifecycleState,

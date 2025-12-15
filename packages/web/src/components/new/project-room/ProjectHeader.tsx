@@ -47,7 +47,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   const isOnTable = isOnGoldTable || isOnSilverTable
 
   // Get table slot label
-  const tableSlotLabel = isOnGoldTable ? 'Gold' : isOnSilverTable ? 'Silver' : null
+  const tableSlotLabel = isOnGoldTable ? 'Initiative' : isOnSilverTable ? 'Optimization' : null
 
   // Get lifecycle description
   const lifecycleDescription = describeProjectLifecycleState(lifecycleState)

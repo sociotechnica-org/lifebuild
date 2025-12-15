@@ -337,19 +337,29 @@ export const resolveLifecycleState = (
 }
 
 /**
+ * Stream display labels (Gold → Initiative, Silver → Optimization, Bronze → To-Do)
+ */
+export const STREAM_LABELS: Record<LifecycleStream, string> = {
+  gold: 'Initiative',
+  silver: 'Optimization',
+  bronze: 'To-Do',
+}
+
+/**
  * Get a human-readable description of a lifecycle state
  */
 export const describeProjectLifecycleState = (
   lifecycle: ProjectLifecycleState | null | undefined
 ): string => {
   if (!lifecycle) return 'Lifecycle unknown'
+  const streamLabel = STREAM_LABELS[lifecycle.stream ?? 'bronze']
   switch (lifecycle.status) {
     case 'planning':
       return `Planning · Stage ${lifecycle.stage}`
     case 'backlog':
-      return `Backlog · ${(lifecycle.stream ?? 'bronze').toUpperCase()}`
+      return `Backlog · ${streamLabel}`
     case 'active':
-      return `Active${lifecycle.slot ? ` · ${lifecycle.slot.toUpperCase()} slot` : ''}`
+      return `Active${lifecycle.slot ? ` · ${STREAM_LABELS[lifecycle.slot]} slot` : ''}`
     case 'completed':
       return 'Completed'
     default:

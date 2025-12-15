@@ -73,7 +73,7 @@ test.describe('New UI Workflow', () => {
     await expect(page.getByText(projectName)).toBeVisible()
 
     // Fill in objectives
-    const objectivesTextarea = page.locator('textarea[placeholder*="success looks like"]')
+    const objectivesTextarea = page.locator('textarea[placeholder*="specific outcomes"]')
     await objectivesTextarea.fill('Complete all test tasks successfully')
     await objectivesTextarea.blur()
 
@@ -85,13 +85,9 @@ test.describe('New UI Workflow', () => {
     await deadlineInput.fill(dateString!)
     await deadlineInput.blur()
 
-    // Select archetype (Initiative - for Gold tier)
+    // Select project type (Initiative = Gold tier)
     const initiativeButton = page.getByRole('button', { name: /^Initiative/ })
     await initiativeButton.click()
-
-    // Select tier (Gold)
-    const goldTierButton = page.locator('button').filter({ hasText: 'Gold' }).first()
-    await goldTierButton.click()
 
     // Wait for auto-save
     await page.waitForTimeout(500)

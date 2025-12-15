@@ -12,12 +12,14 @@ import {
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
+import { useRoomChatControl } from '../layout/RoomLayout.js'
 
 export const Stage3Form: React.FC = () => {
   const navigate = useNavigate()
   const { projectId } = useParams<{ projectId: string }>()
   const { store } = useStore()
   const { user } = useAuth()
+  const { openChat, sendDirectMessage } = useRoomChatControl()
 
   // Load existing project
   const projectResults = useQuery(getProjectById$(projectId ?? ''))
@@ -295,6 +297,29 @@ export const Stage3Form: React.FC = () => {
                 Add
               </button>
             </div>
+
+            {/* Ask Marvin button */}
+            <button
+              type='button'
+              className='w-full py-2.5 px-4 rounded-lg text-sm font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-200 hover:border-[#d0ccc5] hover:text-[#2f2b27]'
+              onClick={() => {
+                const existingTasks = tasks.map(t => t.title).join(', ')
+
+                let message = `Please help me draft a task list for this project.`
+                if (existingTasks) {
+                  message += ` I already have these tasks: ${existingTasks}.`
+                }
+                message += ` Please suggest additional tasks to complete this project. Ask me clarifying questions if you need more context about the project scope or goals.`
+
+                // Open the chat panel
+                openChat()
+
+                // Send the message with navigation context attached
+                sendDirectMessage(message)
+              }}
+            >
+              Ask Marvin to draft tasks
+            </button>
           </div>
         </div>
 

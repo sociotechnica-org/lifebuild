@@ -90,10 +90,10 @@ const CATEGORY_FILTERS: { value: ProjectCategory | 'all'; label: string; colorHe
 
 // Tier filter options
 const TIER_FILTERS: { value: ProjectTier | 'all'; label: string }[] = [
-  { value: 'all', label: 'All Tiers' },
-  { value: 'gold', label: 'Gold' },
-  { value: 'silver', label: 'Silver' },
-  { value: 'bronze', label: 'Bronze' },
+  { value: 'all', label: 'All Types' },
+  { value: 'gold', label: 'Initiative' },
+  { value: 'silver', label: 'Optimization' },
+  { value: 'bronze', label: 'To-Do' },
 ]
 
 export const DraftingRoom: React.FC = () => {

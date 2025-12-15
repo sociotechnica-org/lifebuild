@@ -223,7 +223,7 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
                 </div>
               ) : (
                 <div className='flex flex-col items-center justify-center p-8 bg-black/[0.02] border-2 border-dashed border-[#e8e4de] rounded-xl text-center text-[#8b8680]'>
-                  <span>No {stream} project on table</span>
+                  <span>No project on table</span>
                   <span className='text-sm mt-1 opacity-70'>
                     Drag a project here or click "Activate to Table"
                   </span>
@@ -266,8 +266,8 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
             {displayedProjects.length === 0 ? (
               <div className='p-4 text-[#8b8680] text-sm italic'>
                 {queueView === 'backlog'
-                  ? `No projects in ${stream} backlog. Complete Stage 4 in the Drafting Room to add projects.`
-                  : `No active ${stream} projects.`}
+                  ? `No projects in backlog. Complete Stage 4 in the Drafting Room to add projects.`
+                  : `No active projects.`}
               </div>
             ) : (
               <SortableContext
