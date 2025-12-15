@@ -36,7 +36,7 @@ test.describe('Drafting Room - Browser Back Button', () => {
     await page.goto(`/drafting-room/new?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
 
-    await expect(page.getByText('Stage 1: Identifying')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('Stage 1: Identify')).toBeVisible({ timeout: 10000 })
 
     // Fill in initial project title
     const titleInput = page.locator('input[placeholder*="project called"]')
@@ -64,7 +64,7 @@ test.describe('Drafting Room - Browser Back Button', () => {
     // STAGE 2: Verify we're on Stage 2
     // =====================
 
-    await expect(page.getByText('Stage 2: Scoping')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('Stage 2: Scope')).toBeVisible({ timeout: 10000 })
     await expect(page.getByText(initialTitle)).toBeVisible()
 
     // =====================
@@ -77,7 +77,7 @@ test.describe('Drafting Room - Browser Back Button', () => {
     // STAGE 1: Change the title
     // =====================
 
-    await expect(page.getByText('Stage 1: Identifying')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('Stage 1: Identify')).toBeVisible({ timeout: 10000 })
 
     // Wait for LiveStore to load the project data
     await page.waitForTimeout(500)
@@ -105,7 +105,7 @@ test.describe('Drafting Room - Browser Back Button', () => {
     // STAGE 2: Verify updated title shows (not both titles)
     // =====================
 
-    await expect(page.getByText('Stage 2: Scoping')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('Stage 2: Scope')).toBeVisible({ timeout: 10000 })
 
     // Should show the updated title
     await expect(page.getByText(updatedTitle)).toBeVisible()
@@ -136,7 +136,7 @@ test.describe('Drafting Room - Browser Back Button', () => {
     // STAGE 3: Verify we only have ONE project with the updated title
     // =====================
 
-    await expect(page.getByText('Stage 3: Drafting')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('Stage 3: Draft')).toBeVisible({ timeout: 10000 })
     await expect(page.getByText(updatedTitle)).toBeVisible()
 
     // Exit to Drafting Room to verify only one project exists
