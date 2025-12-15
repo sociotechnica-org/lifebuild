@@ -58,6 +58,13 @@ function getTransport() {
         singleLine: false,
       },
     })
+  } else if (transports.length > 0) {
+    // Production with other transports (e.g., Sentry): add stdout explicitly
+    // so logs appear in Render/cloud logging platforms
+    transports.push({
+      target: 'pino/file',
+      options: { destination: 1 }, // 1 = stdout
+    })
   }
 
   // Return transport configuration

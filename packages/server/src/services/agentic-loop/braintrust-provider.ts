@@ -190,6 +190,11 @@ When users describe project requirements or ask you to create tasks, use the cre
           throw new Error('No response generated from LLM')
         }
 
+        logger.info(
+          { model: model || DEFAULT_MODEL, hasToolCalls: !!responseMessage.tool_calls?.length },
+          'Braintrust API call successful'
+        )
+
         return {
           message: responseMessage.content || '',
           toolCalls: responseMessage.tool_calls || [],

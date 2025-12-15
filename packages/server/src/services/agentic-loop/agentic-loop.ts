@@ -85,7 +85,7 @@ export class AgenticLoop {
       const iterationStartTime = Date.now()
       try {
         this.events.onIterationStart?.(iteration)
-        log.debug({ iteration, maxIterations: this.maxIterations }, `Agentic loop iteration`)
+        log.info({ iteration, maxIterations: this.maxIterations }, `Agentic loop iteration`)
 
         // Call LLM with current history
         const response = await this.llmProvider.call(
@@ -103,7 +103,7 @@ export class AgenticLoop {
         const iterationDurationMs = Date.now() - iterationStartTime
         const toolNames = response.toolCalls?.map(tc => tc.function.name)
 
-        log.debug(
+        log.info(
           {
             iteration,
             hasMessage: !!response.message?.trim(),
