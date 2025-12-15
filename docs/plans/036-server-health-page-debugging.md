@@ -10,11 +10,11 @@ This plan outlines improvements to the health page, debug endpoints, and logging
 
 ### Health Endpoints (packages/server/src/index.ts)
 
-| Endpoint | Purpose |
-|----------|---------|
-| `GET /` | HTML dashboard with basic store status |
+| Endpoint      | Purpose                                |
+| ------------- | -------------------------------------- |
+| `GET /`       | HTML dashboard with basic store status |
 | `GET /health` | JSON health status with global metrics |
-| `GET /stores` | Detailed per-store information |
+| `GET /stores` | Detailed per-store information         |
 
 ### What's Available Today
 
@@ -26,7 +26,7 @@ This plan outlines improvements to the health page, debug endpoints, and logging
 ### What's Missing
 
 1. **Message-level tracing** - Cannot follow a specific message through the pipeline
-2. **Non-response diagnostics** - No visibility into *why* a message wasn't processed
+2. **Non-response diagnostics** - No visibility into _why_ a message wasn't processed
 3. **Real-time loop visibility** - Cannot see agentic loop iteration state mid-flight
 4. **Actionable error context** - Errors lack sufficient context for diagnosis
 5. **Conversation state inspection** - No way to examine active conversation details
@@ -54,9 +54,9 @@ interface MessageLifecycle {
   createdAt: Date
   stages: {
     received?: { timestamp: Date }
-    buffered?: { timestamp: Date, bufferSize: number }
-    dedupeChecked?: { timestamp: Date, wasDuplicate: boolean }
-    queued?: { timestamp: Date, queuePosition: number }
+    buffered?: { timestamp: Date; bufferSize: number }
+    dedupeChecked?: { timestamp: Date; wasDuplicate: boolean }
+    queued?: { timestamp: Date; queuePosition: number }
     processingStarted?: { timestamp: Date }
     iterations?: Array<{
       number: number
@@ -65,8 +65,8 @@ interface MessageLifecycle {
       toolNames?: string[]
       durationMs: number
     }>
-    completed?: { timestamp: Date, responseMessageId?: string }
-    error?: { timestamp: Date, message: string, code: string, stack?: string }
+    completed?: { timestamp: Date; responseMessageId?: string }
+    error?: { timestamp: Date; message: string; code: string; stack?: string }
   }
   currentStage: string
   elapsedMs: number
@@ -74,6 +74,7 @@ interface MessageLifecycle {
 ```
 
 Configuration:
+
 - `DEBUG_MESSAGE_HISTORY_SIZE` env var (default: 100) - messages to retain
 - `DEBUG_MESSAGE_TTL_MS` env var (default: 300000 / 5 min) - auto-cleanup threshold
 - Ring buffer implementation to bound memory usage
@@ -84,15 +85,15 @@ For each pending user message, diagnose why it hasn't been responded to:
 
 ```typescript
 type NonResponseReason =
-  | { reason: 'message_too_old', cutoffTimestamp: string }
-  | { reason: 'already_processed', processedAt: string }
-  | { reason: 'queued_waiting', position: number, aheadCount: number }
-  | { reason: 'rate_limited', activeCalls: number, maxCalls: number }
-  | { reason: 'store_disconnected', lastConnectedAt: string }
-  | { reason: 'llm_disabled', missingConfig: string[] }
-  | { reason: 'processing_in_progress', iteration: number, elapsedMs: number }
-  | { reason: 'stuck_in_loop', repeatedToolCall: string, count: number }
-  | { reason: 'error_occurred', error: string, occurredAt: string }
+  | { reason: 'message_too_old'; cutoffTimestamp: string }
+  | { reason: 'already_processed'; processedAt: string }
+  | { reason: 'queued_waiting'; position: number; aheadCount: number }
+  | { reason: 'rate_limited'; activeCalls: number; maxCalls: number }
+  | { reason: 'store_disconnected'; lastConnectedAt: string }
+  | { reason: 'llm_disabled'; missingConfig: string[] }
+  | { reason: 'processing_in_progress'; iteration: number; elapsedMs: number }
+  | { reason: 'stuck_in_loop'; repeatedToolCall: string; count: number }
+  | { reason: 'error_occurred'; error: string; occurredAt: string }
   | { reason: 'unknown' }
 ```
 
@@ -100,14 +101,14 @@ type NonResponseReason =
 
 **Add to `packages/server/src/index.ts`:**
 
-| Endpoint | Purpose | Response |
-|----------|---------|----------|
-| `GET /debug/messages` | List recent message lifecycles | Array of MessageLifecycle (last N) |
-| `GET /debug/messages/:messageId` | Trace specific message | Single MessageLifecycle with full detail |
-| `GET /debug/pending` | Pending messages with non-response reasons | Array of { messageId, reason, details } |
-| `GET /debug/conversations` | Active conversations with state | Array of conversation summaries |
-| `GET /debug/conversations/:id` | Deep dive into conversation | Full conversation state including history |
-| `GET /debug/errors` | Recent errors with context | Array of enriched error objects |
+| Endpoint                         | Purpose                                    | Response                                  |
+| -------------------------------- | ------------------------------------------ | ----------------------------------------- |
+| `GET /debug/messages`            | List recent message lifecycles             | Array of MessageLifecycle (last N)        |
+| `GET /debug/messages/:messageId` | Trace specific message                     | Single MessageLifecycle with full detail  |
+| `GET /debug/pending`             | Pending messages with non-response reasons | Array of { messageId, reason, details }   |
+| `GET /debug/conversations`       | Active conversations with state            | Array of conversation summaries           |
+| `GET /debug/conversations/:id`   | Deep dive into conversation                | Full conversation state including history |
+| `GET /debug/errors`              | Recent errors with context                 | Array of enriched error objects           |
 
 Security consideration: These endpoints should be protected in production (e.g., require `SERVER_BYPASS_TOKEN` header or disable via `DISABLE_DEBUG_ENDPOINTS=true`).
 
@@ -155,26 +156,33 @@ Add correlation ID support that flows through the entire pipeline:
 const correlationId = `msg_${messageId}_${Date.now()}`
 
 // All subsequent logs include it
-logger.info({
-  correlationId,
-  stage: 'event_processor',
-  action: 'message_received',
-  storeId,
-  conversationId,
-  messageId,
-}, 'User message received')
+logger.info(
+  {
+    correlationId,
+    stage: 'event_processor',
+    action: 'message_received',
+    storeId,
+    conversationId,
+    messageId,
+  },
+  'User message received'
+)
 
 // Later in agentic loop
-logger.info({
-  correlationId,
-  stage: 'agentic_loop',
-  iteration: 3,
-  toolCalls: ['createProject'],
-  durationMs: 1234,
-}, 'Completed iteration with tool calls')
+logger.info(
+  {
+    correlationId,
+    stage: 'agentic_loop',
+    iteration: 3,
+    toolCalls: ['createProject'],
+    durationMs: 1234,
+  },
+  'Completed iteration with tool calls'
+)
 ```
 
 **Key log points to instrument:**
+
 - Message received in EventProcessor
 - Message buffered
 - Dedupe check result
@@ -202,7 +210,7 @@ interface EnrichedError {
     conversationId: string
     messageId: string
     iteration: number
-    lastToolCall?: { name: string, args: unknown }
+    lastToolCall?: { name: string; args: unknown }
     historyLength: number
     elapsedMs: number
     retryCount: number
@@ -287,12 +295,12 @@ Store last N errors in memory (configurable, default 50) for `/debug/errors` end
 
 New environment variables:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DEBUG_MESSAGE_HISTORY_SIZE` | 100 | Number of message lifecycles to retain |
-| `DEBUG_MESSAGE_TTL_MS` | 300000 | Auto-cleanup threshold (5 min) |
-| `DEBUG_ERROR_HISTORY_SIZE` | 50 | Number of errors to retain |
-| `DISABLE_DEBUG_ENDPOINTS` | false | Disable /debug/* in production |
+| Variable                     | Default | Description                            |
+| ---------------------------- | ------- | -------------------------------------- |
+| `DEBUG_MESSAGE_HISTORY_SIZE` | 100     | Number of message lifecycles to retain |
+| `DEBUG_MESSAGE_TTL_MS`       | 300000  | Auto-cleanup threshold (5 min)         |
+| `DEBUG_ERROR_HISTORY_SIZE`   | 50      | Number of errors to retain             |
+| `DISABLE_DEBUG_ENDPOINTS`    | false   | Disable /debug/\* in production        |
 
 ## Open Questions & Follow-Up
 

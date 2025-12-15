@@ -85,11 +85,21 @@ export class MessageLifecycleTracker {
   private cleanupTimer?: NodeJS.Timeout
 
   constructor(config?: Partial<RingBufferConfig>) {
+    const parsePositiveInt = (value: string | undefined, fallback: number): number => {
+      const parsed = Number.parseInt(value ?? '', 10)
+      if (!Number.isFinite(parsed) || parsed <= 0) return fallback
+      return parsed
+    }
+
     this.config = {
-      maxSize: parseInt(process.env.DEBUG_MESSAGE_HISTORY_SIZE || '100', 10),
-      ttlMs: parseInt(process.env.DEBUG_MESSAGE_TTL_MS || '300000', 10), // 5 minutes default
+      maxSize: parsePositiveInt(process.env.DEBUG_MESSAGE_HISTORY_SIZE, 100),
+      ttlMs: parsePositiveInt(process.env.DEBUG_MESSAGE_TTL_MS, 300_000), // 5 minutes default
       ...config,
     }
+
+    // Ensure sensible minimums even if overridden via config param
+    this.config.maxSize = Math.max(1, this.config.maxSize)
+    this.config.ttlMs = Math.max(1_000, this.config.ttlMs) // at least 1s TTL to avoid busy cleanup loops
 
     // Start periodic cleanup
     this.cleanupTimer = setInterval(() => this.cleanup(), 60_000) // Every minute
