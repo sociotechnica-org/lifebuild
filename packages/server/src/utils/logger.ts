@@ -1,4 +1,8 @@
 import pino from 'pino'
+import { AsyncLocalStorage } from 'async_hooks'
+
+// Async local storage for correlation ID propagation
+const correlationStorage = new AsyncLocalStorage<string>()
 
 // Determine log level based on environment
 function getLogLevel(): pino.Level {
@@ -103,6 +107,115 @@ export function createContextLogger(context: {
 export const storeLogger = (storeId: string) => createContextLogger({ storeId })
 export const operationLogger = (operation: string, context: object = {}) =>
   createContextLogger({ operation, ...context })
+
+/**
+ * Get the current correlation ID from async local storage
+ */
+export function getCurrentCorrelationId(): string | undefined {
+  return correlationStorage.getStore()
+}
+
+/**
+ * Run a function with a correlation ID in context.
+ * All logs within the callback will automatically include the correlation ID.
+ */
+export function withCorrelationId<T>(correlationId: string, fn: () => T): T {
+  return correlationStorage.run(correlationId, fn)
+}
+
+/**
+ * Run an async function with a correlation ID in context.
+ * All logs within the callback will automatically include the correlation ID.
+ */
+export async function withCorrelationIdAsync<T>(
+  correlationId: string,
+  fn: () => Promise<T>
+): Promise<T> {
+  return correlationStorage.run(correlationId, fn)
+}
+
+/**
+ * Create a logger that includes correlation ID automatically.
+ * Uses the correlation ID from async local storage if available,
+ * or accepts an explicit correlation ID.
+ */
+export function createCorrelatedLogger(context: {
+  correlationId?: string
+  storeId?: string
+  messageId?: string
+  conversationId?: string
+  operation?: string
+  stage?: string
+  [key: string]: unknown
+}) {
+  const currentCorrelationId = context.correlationId || getCurrentCorrelationId()
+
+  return logger.child({
+    ...context,
+    ...(currentCorrelationId ? { correlationId: currentCorrelationId } : {}),
+  })
+}
+
+/**
+ * Log a message processing event with structured data.
+ * This creates consistent log entries for message lifecycle events.
+ */
+export function logMessageEvent(
+  level: 'debug' | 'info' | 'warn' | 'error',
+  event: {
+    correlationId: string
+    messageId: string
+    storeId: string
+    conversationId?: string
+    stage: string
+    action: string
+    durationMs?: number
+    iteration?: number
+    toolNames?: string[]
+    error?: string
+    [key: string]: unknown
+  },
+  message: string
+): void {
+  const log = createCorrelatedLogger({
+    correlationId: event.correlationId,
+    messageId: event.messageId,
+    storeId: event.storeId,
+    conversationId: event.conversationId,
+    stage: event.stage,
+  })
+
+  const logData: Record<string, unknown> = {
+    action: event.action,
+  }
+
+  if (event.durationMs !== undefined) logData.durationMs = event.durationMs
+  if (event.iteration !== undefined) logData.iteration = event.iteration
+  if (event.toolNames !== undefined) logData.toolNames = event.toolNames
+  if (event.error !== undefined) logData.error = event.error
+
+  // Include any additional properties
+  for (const [key, value] of Object.entries(event)) {
+    if (
+      ![
+        'correlationId',
+        'messageId',
+        'storeId',
+        'conversationId',
+        'stage',
+        'action',
+        'durationMs',
+        'iteration',
+        'toolNames',
+        'error',
+      ].includes(key)
+    ) {
+      logData[key] = value
+    }
+  }
+
+  log[level](logData, message)
+}
 
 // Export the configured logger as default
 export default logger
