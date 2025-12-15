@@ -59,9 +59,9 @@ interface PlanningQueueCardProps {
 }
 
 const TIER_LABELS: Record<ProjectTier, string> = {
-  gold: 'Gold',
-  silver: 'Silver',
-  bronze: 'Bronze',
+  gold: 'Initiative',
+  silver: 'Optimization',
+  bronze: 'To-Do',
 }
 
 const getTierClassName = (tier: ProjectTier | null): string => {

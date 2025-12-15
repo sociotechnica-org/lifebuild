@@ -34,7 +34,7 @@ export const TableConfirmDialog: React.FC<TableConfirmDialogProps> = ({
   if (mode === 'activate' && !incomingProject) return null
   if (mode === 'release' && !outgoingProject) return null
 
-  const streamLabel = stream.charAt(0).toUpperCase() + stream.slice(1)
+  const streamLabel = stream === 'gold' ? 'Initiative' : 'Optimization'
 
   return (
     <div
@@ -53,7 +53,8 @@ export const TableConfirmDialog: React.FC<TableConfirmDialogProps> = ({
 
             <div className='mb-6'>
               <p className='m-0 mb-3 text-sm text-[#2f2b27] leading-relaxed'>
-                <strong>{incomingProject!.name}</strong> will become your active {stream} project.
+                <strong>{incomingProject!.name}</strong> will become your active{' '}
+                {streamLabel.toLowerCase()} project.
               </p>
 
               {outgoingProject && (
@@ -81,7 +82,8 @@ export const TableConfirmDialog: React.FC<TableConfirmDialogProps> = ({
 
             <div className='mb-6'>
               <p className='m-0 mb-3 text-sm text-[#2f2b27] leading-relaxed'>
-                <strong>{outgoingProject!.name}</strong> will be removed from the {stream} table.
+                <strong>{outgoingProject!.name}</strong> will be removed from the{' '}
+                {streamLabel.toLowerCase()} table.
               </p>
 
               <div className='bg-[#faf9f7] rounded-lg p-4 mt-4'>

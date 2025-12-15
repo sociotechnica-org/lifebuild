@@ -279,21 +279,21 @@ export const SortingRoom: React.FC = () => {
   const streamSummaries: StreamSummary[] = [
     {
       stream: 'gold',
-      label: 'Gold',
+      label: 'Initiative',
       tabledName: goldProject?.name ?? null,
       tabledMeta: goldProject?.category ?? null,
       queueCount: backlogProjectsByStream.gold.length,
     },
     {
       stream: 'silver',
-      label: 'Silver',
+      label: 'Optimization',
       tabledName: silverProject?.name ?? null,
       tabledMeta: silverProject?.category ?? null,
       queueCount: backlogProjectsByStream.silver.length,
     },
     {
       stream: 'bronze',
-      label: 'Bronze',
+      label: 'To-Do',
       tabledName: topBronzeTask?.title ?? null,
       tabledMeta:
         activeBronzeStack.length > 1 ? `+${activeBronzeStack.length - 1} more tabled` : null,

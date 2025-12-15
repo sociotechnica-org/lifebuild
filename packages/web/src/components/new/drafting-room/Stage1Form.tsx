@@ -171,21 +171,18 @@ export const Stage1Form: React.FC = () => {
   return (
     <div className='flex items-start justify-center min-h-[calc(100vh-200px)] py-8'>
       <div className='bg-white rounded-2xl border border-[#e8e4de] shadow-sm p-6 w-full max-w-md'>
-        {/* Wizard Navigation (only show when editing existing project) */}
-        {isEditing && urlProjectId && (
-          <StageWizard
-            projectId={urlProjectId}
-            currentStage={1}
-            maxAccessibleStage={maxAccessibleStage}
-          />
-        )}
+        {/* Wizard Navigation (always show for visual consistency) */}
+        <StageWizard
+          projectId={effectiveProjectId ?? ''}
+          currentStage={1}
+          maxAccessibleStage={maxAccessibleStage}
+        />
 
         {/* Header */}
         <div className='mb-6'>
-          <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27] mb-1">
+          <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27]">
             Stage 1: Identify
           </h1>
-          <p className='text-sm text-[#8b8680]'>Quick capture - 2 minutes</p>
         </div>
 
         {/* Form Fields */}
@@ -193,7 +190,7 @@ export const Stage1Form: React.FC = () => {
           {/* Project Title */}
           <div>
             <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>
-              Project Title
+              Project Title<span className='text-red-500 ml-0.5'>*</span>
             </label>
             <input
               type='text'
@@ -209,11 +206,11 @@ export const Stage1Form: React.FC = () => {
           {/* Brief Description */}
           <div>
             <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>
-              Brief Description
+              Brief Description <span className='font-normal text-[#8b8680]'>(optional)</span>
             </label>
             <textarea
               className='w-full border border-[#e8e4de] rounded-lg py-2.5 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5] placeholder:text-[#8b8680] resize-y min-h-[80px]'
-              placeholder="1-2 sentences about what you're trying to do"
+              placeholder='1-2 sentences about what you are trying to do'
               value={description}
               onChange={e => setDescription(e.target.value)}
               onBlur={() => autoSave()}
@@ -223,7 +220,9 @@ export const Stage1Form: React.FC = () => {
 
           {/* Category */}
           <div>
-            <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>Category</label>
+            <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>
+              Category<span className='text-red-500 ml-0.5'>*</span>
+            </label>
             <div className='flex flex-wrap gap-1.5'>
               {PROJECT_CATEGORIES.map(cat => (
                 <button

@@ -25,23 +25,32 @@ const ARCHETYPES: { value: ProjectArchetype; label: string; description: string 
   { value: 'initiative', label: 'Initiative', description: 'Move life forward, transformative' },
 ]
 
-const TIERS: { value: ProjectTier; label: string; description: string; color: string }[] = [
+const TIERS: {
+  value: ProjectTier
+  label: string
+  description: string
+  secondLine: string
+  color: string
+}[] = [
   {
     value: 'gold',
-    label: 'Gold',
-    description: 'Major life-changing initiatives',
+    label: 'Initiative',
+    description: 'Move your life forward.',
+    secondLine: "That project you've been meaning to do.",
     color: '#d8a650',
   },
   {
     value: 'silver',
-    label: 'Silver',
-    description: 'System builds and capacity work',
+    label: 'Optimization',
+    description: "Improve how you're doing something.",
+    secondLine: 'Organization, automation, delegation and/or deletion.',
     color: '#9ca3af',
   },
   {
     value: 'bronze',
-    label: 'Bronze',
-    description: 'Quick tasks and maintenance',
+    label: 'To-Do',
+    description: 'Get it done!',
+    secondLine: 'The simple stewardship of daily life.',
     color: '#c48b5a',
   },
 ]
@@ -106,7 +115,7 @@ export const Stage2Form: React.FC = () => {
 
   // Check if all required fields are filled to advance to Stage 3
   const hasObjective = objectives.trim().length > 0
-  const isComplete = hasObjective && archetype !== null && tier !== null
+  const isComplete = hasObjective && tier !== null
 
   /**
    * Save current form state to lifecycle (keeps current stage)
@@ -165,7 +174,7 @@ export const Stage2Form: React.FC = () => {
       stage: 3, // Advance to Stage 3 (Drafting)
       objectives: objectives.trim(),
       deadline: deadlineTimestamp,
-      archetype: archetype!,
+      archetype: archetype ?? undefined,
       scale: tierToScale(tier),
       stream: tier ?? undefined, // Store tier directly for reliable persistence
     }
@@ -227,6 +236,13 @@ export const Stage2Form: React.FC = () => {
           />
         )}
 
+        {/* Header */}
+        <div className='mb-4'>
+          <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27]">
+            Stage 2: Scope
+          </h1>
+        </div>
+
         {/* Project Title and Category */}
         {project && (
           <div className='flex items-center justify-between gap-2 pb-4 mb-4 border-b border-[#e8e4de]'>
@@ -246,25 +262,16 @@ export const Stage2Form: React.FC = () => {
           </div>
         )}
 
-        {/* Header */}
-        <div className='mb-6'>
-          <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27] mb-1">
-            Stage 2: Scope
-          </h1>
-          <p className='text-sm text-[#8b8680]'>Define what success looks like - 10 minutes</p>
-        </div>
-
         {/* Form Fields */}
         <div className='flex flex-col gap-5'>
           {/* Objectives */}
           <div>
-            <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>Objectives</label>
-            <p className='text-xs text-[#8b8680] mb-2'>
-              What specific outcomes would mean this project succeeded?
-            </p>
+            <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>
+              Objectives<span className='text-red-500 ml-0.5'>*</span>
+            </label>
             <textarea
               className='w-full border border-[#e8e4de] rounded-lg py-2.5 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5] placeholder:text-[#8b8680] resize-y min-h-[80px]'
-              placeholder='Describe what success looks like for this project...'
+              placeholder='What specific outcomes would mean this project succeeded?'
               value={objectives}
               onChange={e => setObjectives(e.target.value)}
               onBlur={() => autoSave()}
@@ -286,48 +293,11 @@ export const Stage2Form: React.FC = () => {
             />
           </div>
 
-          {/* Project Archetype */}
+          {/* Project Type */}
           <div>
             <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>
-              Project Archetype
+              Project Type<span className='text-red-500 ml-0.5'>*</span>
             </label>
-            <div className='grid grid-cols-2 sm:grid-cols-3 gap-2'>
-              {ARCHETYPES.map(arch => (
-                <button
-                  key={arch.value}
-                  type='button'
-                  className={`p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
-                    archetype === arch.value
-                      ? 'bg-[#2f2b27] border-[#2f2b27]'
-                      : 'bg-white border-[#e8e4de] hover:border-[#d0ccc5]'
-                  }`}
-                  onClick={() => handleArchetypeSelect(arch.value)}
-                >
-                  <span
-                    className={`block text-sm font-semibold ${
-                      archetype === arch.value ? 'text-[#faf9f7]' : 'text-[#2f2b27]'
-                    }`}
-                  >
-                    {arch.label}
-                  </span>
-                  <span
-                    className={`block text-xs ${
-                      archetype === arch.value ? 'text-[#d0ccc5]' : 'text-[#8b8680]'
-                    }`}
-                  >
-                    {arch.description}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Project Tier */}
-          <div>
-            <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>
-              Project Tier
-            </label>
-            <p className='text-xs text-[#8b8680] mb-2'>Select the priority tier for this project</p>
             <div className='grid grid-cols-3 gap-2'>
               {TIERS.map(t => (
                 <button
@@ -352,6 +322,7 @@ export const Stage2Form: React.FC = () => {
                     {t.label}
                   </span>
                   <span className='block text-xs text-[#8b8680]'>{t.description}</span>
+                  <span className='block text-xs text-[#8b8680]'>{t.secondLine}</span>
                 </button>
               ))}
             </div>

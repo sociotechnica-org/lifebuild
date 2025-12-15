@@ -114,17 +114,13 @@ test.describe('Drafting Room - Browser Back Button', () => {
     await expect(page.getByText(initialTitle)).not.toBeVisible()
 
     // Fill in objectives to complete Stage 2
-    const objectivesTextarea = page.locator('textarea[placeholder*="success looks like"]')
+    const objectivesTextarea = page.locator('textarea[placeholder*="specific outcomes"]')
     await objectivesTextarea.fill('Test objectives')
     await objectivesTextarea.blur()
 
-    // Select archetype
+    // Select project type (Initiative = Gold tier)
     const initiativeButton = page.getByRole('button', { name: /^Initiative/ })
     await initiativeButton.click()
-
-    // Select tier
-    const goldTierButton = page.locator('button').filter({ hasText: 'Gold' }).first()
-    await goldTierButton.click()
 
     await page.waitForTimeout(500)
 

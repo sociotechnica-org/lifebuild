@@ -28,6 +28,7 @@ export const StageWizard: React.FC<StageWizardProps> = ({
 
   const handleStageClick = (stage: WizardStage) => {
     if (stage > maxAccessibleStage) return // Can't navigate to inaccessible stages
+    if (!projectId) return // Can't navigate without a project ID (unsaved new project)
 
     switch (stage) {
       case 1:
@@ -47,7 +48,7 @@ export const StageWizard: React.FC<StageWizardProps> = ({
       <div className='flex items-center justify-center gap-0'>
         {STAGES.map(({ stage, label }, index) => {
           const isActive = stage === currentStage
-          const isAccessible = stage <= maxAccessibleStage
+          const isAccessible = stage <= maxAccessibleStage && !!projectId
           const isCompleted = stage < currentStage
 
           return (
@@ -75,7 +76,13 @@ export const StageWizard: React.FC<StageWizardProps> = ({
                 }`}
                 onClick={() => handleStageClick(stage)}
                 disabled={!isAccessible}
-                title={isAccessible ? label : `Complete earlier stages to unlock ${label}`}
+                title={
+                  !projectId
+                    ? `Save this project to navigate stages`
+                    : isAccessible
+                      ? label
+                      : `Complete earlier stages to unlock ${label}`
+                }
               >
                 {isCompleted ? (
                   <svg

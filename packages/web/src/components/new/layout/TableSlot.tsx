@@ -46,9 +46,9 @@ export const TableSlot: React.FC<TableSlotProps> = ({
   bronzeCount,
 }) => {
   const streamLabels = {
-    gold: 'Gold',
-    silver: 'Silver',
-    bronze: 'Bronze',
+    gold: 'Initiative',
+    silver: 'Optimization',
+    bronze: 'To-Do',
   }
 
   const isEmpty = !projectId && !projectName
