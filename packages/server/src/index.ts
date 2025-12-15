@@ -28,6 +28,24 @@ import {
   getDisabledReconcilerStatus,
   type WorkspaceReconcilerStatus,
 } from './services/workspace-reconciler.js'
+import { getMessageLifecycleTracker } from './services/message-lifecycle-tracker.js'
+
+/**
+ * Check if dashboard access is authorized.
+ * In development: always allowed
+ * In production: requires ?token=<SERVER_BYPASS_TOKEN> query param
+ */
+function isDashboardAuthorized(req: { url?: string }): boolean {
+  const isDev = process.env.NODE_ENV !== 'production'
+  if (isDev) return true
+
+  const serverBypassToken = process.env.SERVER_BYPASS_TOKEN
+  if (!serverBypassToken) return false
+
+  const url = new URL(req.url || '/', 'http://localhost')
+  const providedToken = url.searchParams.get('token')
+  return providedToken === serverBypassToken
+}
 
 async function main() {
   logger.info('Starting LifeBuild Multi-Store Server...')
@@ -176,15 +194,67 @@ async function main() {
         })
       )
     } else if (pathname === '/') {
+      // Check dashboard authorization
+      if (!isDashboardAuthorized(req)) {
+        res.writeHead(401, { 'Content-Type': 'text/html' })
+        res.end(`
+          <html>
+            <head><title>Unauthorized</title></head>
+            <body style="font-family: system-ui; padding: 40px; text-align: center;">
+              <h1>Dashboard Access Denied</h1>
+              <p>Add <code>?token=YOUR_SERVER_BYPASS_TOKEN</code> to the URL to access the dashboard.</p>
+            </body>
+          </html>
+        `)
+        return
+      }
+
       const healthStatus = storeManager.getHealthStatus()
+      const lifecycleTracker = getMessageLifecycleTracker()
+      const lifecycleStats = lifecycleTracker.getStats()
+      const recentLifecycles = lifecycleTracker.getAllLifecycles().slice(0, 20)
+      const inProgressLifecycles = lifecycleTracker.getInProgressLifecycles()
+      const errorLifecycles = lifecycleTracker.getLifecyclesByStage('error').slice(0, 10)
+
+      // Preserve token in links for production
+      const tokenParam =
+        process.env.NODE_ENV === 'production'
+          ? `?token=${new URL(req.url || '/', 'http://localhost').searchParams.get('token') || ''}`
+          : ''
+
+      // Helper to format elapsed time
+      const formatElapsed = (ms: number) => {
+        if (ms < 1000) return `${ms}ms`
+        if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`
+        return `${(ms / 60000).toFixed(1)}m`
+      }
+
+      // Helper to get stage badge color
+      const getStageBadgeClass = (stage: string) => {
+        switch (stage) {
+          case 'completed':
+            return 'badge-success'
+          case 'error':
+            return 'badge-error'
+          case 'processing_started':
+          case 'iteration':
+            return 'badge-warning'
+          default:
+            return 'badge-info'
+        }
+      }
 
       res.writeHead(200, { 'Content-Type': 'text/html' })
       res.end(`
         <html>
           <head>
             <title>LifeBuild Multi-Store Server</title>
+            <meta http-equiv="refresh" content="10">
             <style>
-              body { font-family: system-ui; padding: 20px; }
+              body { font-family: system-ui; padding: 20px; max-width: 1400px; margin: 0 auto; }
+              .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
+              .panel { border: 1px solid #ddd; border-radius: 8px; padding: 15px; }
+              .panel h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
               .store { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
               .healthy { background: #e8f5e9; }
               .degraded { background: #fff3e0; }
@@ -193,39 +263,209 @@ async function main() {
               .status-connecting { color: orange; }
               .status-disconnected { color: red; }
               .status-error { color: darkred; }
+              .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+              .badge-success { background: #d4edda; color: #155724; }
+              .badge-error { background: #f8d7da; color: #721c24; }
+              .badge-warning { background: #fff3cd; color: #856404; }
+              .badge-info { background: #d1ecf1; color: #0c5460; }
+              .stat-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f0f0f0; }
+              .stat-label { color: #666; }
+              .stat-value { font-weight: 600; }
+              .message-item { padding: 10px; margin: 8px 0; background: #f8f9fa; border-radius: 6px; font-size: 13px; }
+              .message-item.in-progress { background: #fff3cd; border-left: 3px solid #ffc107; }
+              .message-item.error { background: #f8d7da; border-left: 3px solid #dc3545; }
+              .message-id { font-family: monospace; font-size: 11px; color: #666; }
+              .tool-list { font-size: 11px; color: #666; margin-top: 4px; }
+              .error-message { color: #721c24; font-size: 12px; margin-top: 4px; word-break: break-word; }
+              .timestamp { font-size: 11px; color: #999; }
+              .refresh-note { font-size: 12px; color: #666; font-style: italic; }
+              details { margin: 5px 0; }
+              summary { cursor: pointer; }
+              pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 11px; }
             </style>
           </head>
           <body>
             <h1>LifeBuild Multi-Store Server</h1>
-            <p>✅ Server is running</p>
-            <p>Storage: Filesystem (${process.env.STORE_DATA_PATH || './data'})</p>
-            <p>Monitoring ${healthStatus.stores.length} store(s)</p>
-            
-            <h2>Store Status</h2>
-            <div id="stores">
+            <p class="refresh-note">Auto-refreshes every 10 seconds</p>
+
+            <div class="grid">
+              <!-- System Overview Panel -->
+              <div class="panel">
+                <h3>System Overview</h3>
+                <div class="stat-row">
+                  <span class="stat-label">Status</span>
+                  <span class="stat-value">${healthStatus.healthy ? '✅ Healthy' : '⚠️ Degraded'}</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Storage</span>
+                  <span class="stat-value">${process.env.STORE_DATA_PATH || './data'}</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Active Stores</span>
+                  <span class="stat-value">${healthStatus.stores.length}</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Uptime</span>
+                  <span class="stat-value">${formatElapsed(process.uptime() * 1000)}</span>
+                </div>
+                <p style="margin-top: 15px;">
+                  <a href="/health${tokenParam}">Health JSON</a> |
+                  <a href="/stores${tokenParam}">Stores JSON</a>
+                </p>
+              </div>
+
+              <!-- Message Lifecycle Stats Panel -->
+              <div class="panel">
+                <h3>Message Lifecycle Stats</h3>
+                <div class="stat-row">
+                  <span class="stat-label">Total Tracked</span>
+                  <span class="stat-value">${lifecycleStats.total}</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Completed</span>
+                  <span class="stat-value badge badge-success">${lifecycleStats.byStage.completed}</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">In Progress</span>
+                  <span class="stat-value badge badge-warning">${lifecycleStats.byStage.processing_started + lifecycleStats.byStage.iteration}</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Errors</span>
+                  <span class="stat-value badge badge-error">${lifecycleStats.byStage.error}</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Avg Processing Time</span>
+                  <span class="stat-value">${lifecycleStats.avgProcessingTimeMs ? formatElapsed(lifecycleStats.avgProcessingTimeMs) : 'N/A'}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Store Status -->
+            <div class="panel" style="margin-top: 20px;">
+              <h3>Store Status</h3>
+              <div id="stores">
+                ${
+                  healthStatus.stores.length === 0
+                    ? '<p>No stores configured</p>'
+                    : healthStatus.stores
+                        .map(
+                          store => `
+                          <div class="store ${store.status === 'connected' ? 'healthy' : store.status === 'connecting' ? 'degraded' : 'error'}">
+                            <strong>${store.storeId}</strong>
+                            <span class="status-${store.status}">● ${store.status}</span>
+                            <br>
+                            <small>
+                              Connected: ${new Date(store.connectedAt).toLocaleString()}<br>
+                              Last Activity: ${new Date(store.lastActivity).toLocaleString()}<br>
+                              Errors: ${store.errorCount} | Reconnect Attempts: ${store.reconnectAttempts}
+                            </small>
+                          </div>
+                        `
+                        )
+                        .join('')
+                }
+              </div>
+            </div>
+
+            <div class="grid" style="margin-top: 20px;">
+              <!-- In-Progress Messages Panel -->
+              <div class="panel">
+                <h3>In-Progress Messages (${inProgressLifecycles.length})</h3>
+                ${
+                  inProgressLifecycles.length === 0
+                    ? '<p style="color: #666;">No messages currently processing</p>'
+                    : inProgressLifecycles
+                        .map(
+                          lc => `
+                          <div class="message-item in-progress">
+                            <div>
+                              <span class="badge ${getStageBadgeClass(lc.currentStage)}">${lc.currentStage}</span>
+                              <span class="timestamp">${formatElapsed(Date.now() - lc.createdAt.getTime())} ago</span>
+                            </div>
+                            <div class="message-id">ID: ${lc.messageId}</div>
+                            <div class="message-id">Store: ${lc.storeId}</div>
+                            ${lc.stages.iterations.length > 0 ? `<div class="tool-list">Iterations: ${lc.stages.iterations.length}</div>` : ''}
+                            ${
+                              lc.stages.iterations.length > 0 &&
+                              lc.stages.iterations[lc.stages.iterations.length - 1].toolNames
+                                ? `<div class="tool-list">Last tools: ${lc.stages.iterations[lc.stages.iterations.length - 1].toolNames?.join(', ')}</div>`
+                                : ''
+                            }
+                          </div>
+                        `
+                        )
+                        .join('')
+                }
+              </div>
+
+              <!-- Recent Errors Panel -->
+              <div class="panel">
+                <h3>Recent Errors (${errorLifecycles.length})</h3>
+                ${
+                  errorLifecycles.length === 0
+                    ? '<p style="color: #666;">No recent errors</p>'
+                    : errorLifecycles
+                        .map(
+                          lc => `
+                          <div class="message-item error">
+                            <div>
+                              <span class="badge badge-error">${lc.stages.error?.code || 'ERROR'}</span>
+                              <span class="timestamp">${lc.stages.error?.timestamp ? new Date(lc.stages.error.timestamp).toLocaleString() : ''}</span>
+                            </div>
+                            <div class="message-id">ID: ${lc.messageId}</div>
+                            <div class="message-id">Store: ${lc.storeId}</div>
+                            <div class="error-message">${lc.stages.error?.message || 'Unknown error'}</div>
+                            ${
+                              lc.stages.error?.stack
+                                ? `<details><summary>Stack trace</summary><pre>${lc.stages.error.stack}</pre></details>`
+                                : ''
+                            }
+                          </div>
+                        `
+                        )
+                        .join('')
+                }
+              </div>
+            </div>
+
+            <!-- Recent Messages Panel -->
+            <div class="panel" style="margin-top: 20px;">
+              <h3>Recent Messages (Last 20)</h3>
               ${
-                healthStatus.stores.length === 0
-                  ? '<p>No stores configured</p>'
-                  : healthStatus.stores
-                      .map(
-                        store => `
-                        <div class="store ${store.status === 'connected' ? 'healthy' : store.status === 'connecting' ? 'degraded' : 'error'}">
-                          <strong>${store.storeId}</strong>
-                          <span class="status-${store.status}">● ${store.status}</span>
-                          <br>
-                          <small>
-                            Connected: ${new Date(store.connectedAt).toLocaleString()}<br>
-                            Last Activity: ${new Date(store.lastActivity).toLocaleString()}<br>
-                            Errors: ${store.errorCount} | Reconnect Attempts: ${store.reconnectAttempts}
-                          </small>
-                        </div>
-                      `
-                      )
-                      .join('')
+                recentLifecycles.length === 0
+                  ? '<p style="color: #666;">No messages tracked yet</p>'
+                  : `
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                      <thead>
+                        <tr style="text-align: left; border-bottom: 2px solid #ddd;">
+                          <th style="padding: 8px;">Message ID</th>
+                          <th style="padding: 8px;">Store</th>
+                          <th style="padding: 8px;">Stage</th>
+                          <th style="padding: 8px;">Iterations</th>
+                          <th style="padding: 8px;">Duration</th>
+                          <th style="padding: 8px;">Time</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${recentLifecycles
+                          .map(
+                            lc => `
+                            <tr style="border-bottom: 1px solid #eee;">
+                              <td style="padding: 8px; font-family: monospace; font-size: 11px;">${lc.messageId.substring(0, 12)}...</td>
+                              <td style="padding: 8px; font-family: monospace; font-size: 11px;">${lc.storeId.substring(0, 12)}...</td>
+                              <td style="padding: 8px;"><span class="badge ${getStageBadgeClass(lc.currentStage)}">${lc.currentStage}</span></td>
+                              <td style="padding: 8px;">${lc.stages.iterations.length}</td>
+                              <td style="padding: 8px;">${lc.stages.completed ? formatElapsed(lc.stages.completed.timestamp.getTime() - lc.createdAt.getTime()) : formatElapsed(Date.now() - lc.createdAt.getTime()) + ' (ongoing)'}</td>
+                              <td style="padding: 8px; font-size: 11px;">${new Date(lc.createdAt).toLocaleTimeString()}</td>
+                            </tr>
+                          `
+                          )
+                          .join('')}
+                      </tbody>
+                    </table>
+                  `
               }
             </div>
-            
-            <p><a href="/health">Health Check (JSON)</a> | <a href="/stores">Store Details (JSON)</a></p>
           </body>
         </html>
       `)
