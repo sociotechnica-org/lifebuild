@@ -13,22 +13,25 @@ dotenv.config({ path: resolve(packageRoot, '.env') })
 await import('./instrument.js')
 import * as Sentry from '@sentry/node'
 
-import { storeManager } from './services/store-manager.js'
-import { EventProcessor } from './services/event-processor.js'
-import { WorkspaceOrchestrator } from './services/workspace-orchestrator.js'
-import {
-  AuthWorkerWorkspaceDirectory,
-  type WorkspaceDirectory,
-} from './services/workspace-directory.js'
-import { loadStoresConfig } from './config/stores.js'
-import { logger } from './utils/logger.js'
-import { handleWorkspaceWebhook } from './api/workspace-webhooks.js'
-import {
-  WorkspaceReconciler,
-  getDisabledReconcilerStatus,
-  type WorkspaceReconcilerStatus,
-} from './services/workspace-reconciler.js'
-import { getMessageLifecycleTracker } from './services/message-lifecycle-tracker.js'
+// IMPORTANT: ALL app modules must be dynamically imported AFTER Sentry.init()
+// This ensures pinoIntegration() can instrument the pino logger.
+// Static imports are hoisted and resolved before any code runs, so
+// any module that transitively imports logger.js would defeat the purpose.
+const { logger } = await import('./utils/logger.js')
+const { storeManager } = await import('./services/store-manager.js')
+const { EventProcessor } = await import('./services/event-processor.js')
+const { WorkspaceOrchestrator } = await import('./services/workspace-orchestrator.js')
+const { AuthWorkerWorkspaceDirectory } = await import('./services/workspace-directory.js')
+import type { WorkspaceDirectory } from './services/workspace-directory.js'
+const { loadStoresConfig } = await import('./config/stores.js')
+const { handleWorkspaceWebhook } = await import('./api/workspace-webhooks.js')
+const { WorkspaceReconciler, getDisabledReconcilerStatus } = await import(
+  './services/workspace-reconciler.js'
+)
+// Type imports must remain static - they're erased at runtime and don't affect module loading
+import type { WorkspaceReconciler as WorkspaceReconcilerType } from './services/workspace-reconciler.js'
+import type { WorkspaceReconcilerStatus } from './services/workspace-reconciler.js'
+const { getMessageLifecycleTracker } = await import('./services/message-lifecycle-tracker.js')
 
 /**
  * Check if dashboard access is authorized.
@@ -80,7 +83,7 @@ async function main() {
   const reconcileIntervalRaw = Number(process.env.WORKSPACE_RECONCILE_INTERVAL_MS)
   const reconcileInterval = Number.isFinite(reconcileIntervalRaw) ? reconcileIntervalRaw : undefined
 
-  let workspaceReconciler: WorkspaceReconciler | null = null
+  let workspaceReconciler: WorkspaceReconcilerType | null = null
   let disabledReconcilerStatus: WorkspaceReconcilerStatus | null = null
 
   if (authWorkerUrl && serverBypassToken) {

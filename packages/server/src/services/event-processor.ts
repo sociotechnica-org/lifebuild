@@ -297,7 +297,7 @@ export class EventProcessor {
     }
 
     const log = createContextLogger({ storeId, operation: 'buffer_messages' })
-    log.debug({ messageCount: userRecords.length }, 'Buffering user messages for processing')
+    log.info({ messageCount: userRecords.length }, 'Buffering user messages for processing')
 
     // Convert records to ProcessedEvent objects for buffering
     // Start lifecycle tracking for each message
@@ -310,7 +310,7 @@ export class EventProcessor {
       )
 
       logMessageEvent(
-        'debug',
+        'info',
         {
           correlationId,
           messageId: record.id,
@@ -356,7 +356,7 @@ export class EventProcessor {
       conversationId: message.conversationId,
       correlationId,
     })
-    log.debug({ messagePreview }, 'Processing chat message')
+    log.info({ messagePreview }, 'Processing chat message')
 
     // CRITICAL: If database is not initialized, stop all processing to prevent infinite loops
     if (!this.databaseInitialized) {
