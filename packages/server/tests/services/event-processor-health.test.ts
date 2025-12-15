@@ -37,14 +37,39 @@ import type { StoreManager } from '../../src/services/store-manager.js'
 class MockStore {
   constructor(private readonly tables: Record<string, any[]>) {}
 
-  async query(handler: (db: any) => any) {
-    const db = {
-      table: (name: string) => ({
-        all: () => [...(this.tables[name] ?? [])],
-      }),
+  // Updated to work with queryDb pattern: store.query(queryDb(tables.xxx.select()))
+  // The query object from queryDb has internal structure with table reference
+  query(queryDescriptor: any) {
+    // Extract table name from the query descriptor
+    // The queryDb wraps a query built from tables.xxx.select()
+    // Try to find table name in the query structure or stringify it
+    const tableName = this.extractTableName(queryDescriptor)
+    if (tableName && this.tables[tableName]) {
+      return [...this.tables[tableName]]
     }
+    return []
+  }
 
-    return handler(db)
+  private extractTableName(query: any): string | null {
+    // Try to find the table name by inspecting the query object
+    // LiveStore query descriptors have the table reference embedded
+    try {
+      // Check common locations where table info might be stored
+      if (query?._query?._from?.name) return query._query._from.name
+      if (query?.query?._from?.name) return query.query._from.name
+      if (query?._from?.name) return query._from.name
+
+      // Fallback: try to find table name in stringified query
+      const str = JSON.stringify(query)
+      for (const tableName of Object.keys(this.tables)) {
+        if (str.includes(`"${tableName}"`) || str.includes(`'${tableName}'`)) {
+          return tableName
+        }
+      }
+    } catch {
+      // Ignore stringify errors for circular references
+    }
+    return null
   }
 }
 
@@ -123,7 +148,7 @@ describe('EventProcessor live store stats', () => {
     const failingStoreId = 'store-error'
 
     const failingStore = {
-      async query() {
+      query() {
         throw new Error('LiveStore unavailable')
       },
     } as unknown as LiveStore

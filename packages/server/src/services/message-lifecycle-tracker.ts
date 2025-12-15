@@ -117,6 +117,13 @@ export class MessageLifecycleTracker {
     storeId: string,
     conversationId: string
   ): { lifecycle: MessageLifecycle; correlationId: string } {
+    // If message is already being tracked, return the existing lifecycle and correlationId
+    // to maintain consistent log correlation across subscription updates
+    const existing = this.lifecycles.get(messageId)
+    if (existing) {
+      return { lifecycle: existing, correlationId: existing.correlationId }
+    }
+
     const correlationId = generateCorrelationId(messageId)
 
     const lifecycle: MessageLifecycle = {
@@ -399,9 +406,9 @@ export class MessageLifecycleTracker {
    * Add a lifecycle to the ring buffer
    */
   private addLifecycle(messageId: string, lifecycle: MessageLifecycle): void {
-    // If message already exists, update it instead
+    // If message already exists, don't overwrite it - preserve the existing lifecycle state
+    // This prevents completed messages from being reset when the subscription fires again
     if (this.lifecycles.has(messageId)) {
-      this.lifecycles.set(messageId, lifecycle)
       return
     }
 

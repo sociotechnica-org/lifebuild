@@ -1473,16 +1473,10 @@ export class EventProcessor {
 
     for (const [storeId, store] of stores) {
       try {
-        const query = (handler: (db: any) => any) =>
-          (store as unknown as { query: (cb: (db: any) => any) => Promise<any> | any }).query(
-            handler
-          )
-
-        const [rawMessages, rawConversations, processedUserMessages] = await Promise.all([
-          query((db: any) => db.table('chatMessages').all()),
-          query((db: any) => db.table('conversations').all()),
-          this.processedTracker.getProcessedCount(storeId),
-        ])
+        // Use the same queryDb pattern as the rest of the codebase
+        const rawMessages = store.query(queryDb(tables.chatMessages.select()))
+        const rawConversations = store.query(queryDb(tables.conversations.select()))
+        const processedUserMessages = await this.processedTracker.getProcessedCount(storeId)
 
         const chatMessages = Array.isArray(rawMessages) ? rawMessages : []
         const conversations = Array.isArray(rawConversations) ? rawConversations : []
