@@ -13,6 +13,10 @@ dotenv.config({ path: resolve(packageRoot, '.env') })
 await import('./instrument.js')
 import * as Sentry from '@sentry/node'
 
+// IMPORTANT: Import logger AFTER Sentry init so pinoIntegration() can instrument it
+// Sentry's pinoIntegration only captures loggers created after Sentry.init()
+const { logger } = await import('./utils/logger.js')
+
 import { storeManager } from './services/store-manager.js'
 import { EventProcessor } from './services/event-processor.js'
 import { WorkspaceOrchestrator } from './services/workspace-orchestrator.js'
@@ -21,7 +25,6 @@ import {
   type WorkspaceDirectory,
 } from './services/workspace-directory.js'
 import { loadStoresConfig } from './config/stores.js'
-import { logger } from './utils/logger.js'
 import { handleWorkspaceWebhook } from './api/workspace-webhooks.js'
 import {
   WorkspaceReconciler,
