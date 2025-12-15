@@ -79,6 +79,10 @@ export interface AgenticLoopContext {
   workerId?: string
   model: string
   maxIterations?: number
+  // Message tracking context for debugging
+  messageId?: string
+  correlationId?: string
+  storeId?: string
 }
 
 export interface ToolMessage {

@@ -8,7 +8,11 @@ import { DEFAULT_MODEL } from '@lifebuild/shared'
 import { MessageQueueManager } from './message-queue-manager.js'
 import { AsyncQueueProcessor } from './async-queue-processor.js'
 import { ProcessedMessageTracker } from './processed-message-tracker.js'
-import { logger, storeLogger, createContextLogger } from '../utils/logger.js'
+import { logger, storeLogger, createContextLogger, logMessageEvent } from '../utils/logger.js'
+import {
+  getMessageLifecycleTracker,
+  type MessageLifecycleTracker,
+} from './message-lifecycle-tracker.js'
 import type {
   EventBuffer,
   ProcessedEvent,
@@ -91,6 +95,7 @@ export class EventProcessor {
   private readonly flushInterval = 5000 // 5 seconds
   private flushTimer?: NodeJS.Timeout
   private processedTracker: ProcessedMessageTracker
+  private lifecycleTracker: MessageLifecycleTracker
   private databaseInitialized = false
 
   // LLM configuration from environment
@@ -121,6 +126,7 @@ export class EventProcessor {
   constructor(storeManager: StoreManager) {
     this.storeManager = storeManager
     this.processedTracker = new ProcessedMessageTracker()
+    this.lifecycleTracker = getMessageLifecycleTracker()
     this.startFlushTimer()
 
     const parsePositiveInt = (
@@ -294,12 +300,44 @@ export class EventProcessor {
     log.debug({ messageCount: userRecords.length }, 'Buffering user messages for processing')
 
     // Convert records to ProcessedEvent objects for buffering
-    const events: ProcessedEvent[] = userRecords.map((record: any) => ({
-      type: 'chatMessage',
-      storeId,
-      data: record,
-      timestamp: new Date(),
-    }))
+    // Start lifecycle tracking for each message
+    const events: ProcessedEvent[] = userRecords.map((record: any) => {
+      // Start tracking this message's lifecycle
+      const { correlationId } = this.lifecycleTracker.startTracking(
+        record.id,
+        storeId,
+        record.conversationId
+      )
+
+      logMessageEvent(
+        'debug',
+        {
+          correlationId,
+          messageId: record.id,
+          storeId,
+          conversationId: record.conversationId,
+          stage: 'event_processor',
+          action: 'message_received',
+        },
+        'User message received'
+      )
+
+      return {
+        type: 'chatMessage',
+        storeId,
+        data: record,
+        timestamp: new Date(),
+      }
+    })
+
+    // Record buffering for each message
+    for (const event of events) {
+      const record = event.data as any
+      this.lifecycleTracker.recordBuffered(
+        record.id,
+        storeState.eventBuffer.events.length + events.length
+      )
+    }
 
     // Buffer events for async processing (uses existing event pipeline)
     this.bufferEvents(storeId, events, storeState)
@@ -312,18 +350,21 @@ export class EventProcessor {
   ): Promise<void> {
     const messagePreview =
       message.message?.slice(0, 50) + (message.message?.length > 50 ? '...' : '')
+    const correlationId = this.lifecycleTracker.getCorrelationId(message.id)
     const log = createContextLogger({
       messageId: message.id,
       conversationId: message.conversationId,
+      correlationId,
     })
     log.debug({ messagePreview }, 'Processing chat message')
 
     // CRITICAL: If database is not initialized, stop all processing to prevent infinite loops
     if (!this.databaseInitialized) {
       logger.error(
-        { messageId: message.id },
+        { messageId: message.id, correlationId },
         `CRITICAL: Database not initialized - SKIPPING message to prevent duplicate processing. Fix database initialization issue and restart server`
       )
+      this.lifecycleTracker.recordError(message.id, 'Database not initialized', 'DB_NOT_INIT')
       return
     }
 
@@ -333,6 +374,7 @@ export class EventProcessor {
 
       if (isAlreadyProcessed) {
         log.debug('Message already processed, skipping LLM call')
+        this.lifecycleTracker.recordDedupeChecked(message.id, true, 'already_processed')
         return
       }
 
@@ -341,27 +383,43 @@ export class EventProcessor {
         const messageDate = new Date(message.createdAt)
         if (messageDate < this.messageCutoffTimestamp) {
           logger.info(
-            { messageId: message.id, messageDate: messageDate.toISOString() },
+            { messageId: message.id, messageDate: messageDate.toISOString(), correlationId },
             `Message before cutoff - no LLM call`
           )
+          this.lifecycleTracker.recordDedupeChecked(message.id, true, 'before_cutoff')
           // Mark as processed in SQLite but don't actually process it
           await this.processedTracker.markProcessed(message.id, storeId)
           return
         }
       }
 
+      // Record dedupe check passed
+      this.lifecycleTracker.recordDedupeChecked(message.id, false)
+
       // Attempt to claim processing rights atomically
       const claimedProcessing = await this.processedTracker.markProcessed(message.id, storeId)
 
       if (!claimedProcessing) {
         logger.info(
-          { messageId: message.id },
+          { messageId: message.id, correlationId },
           `Another instance claimed processing for message - no LLM call`
         )
+        this.lifecycleTracker.recordDedupeChecked(message.id, true, 'claimed_by_other_instance')
         return
       }
 
-      log.info('Sending LLM call for message processing')
+      logMessageEvent(
+        'info',
+        {
+          correlationId: correlationId || message.id,
+          messageId: message.id,
+          storeId,
+          conversationId: message.conversationId,
+          stage: 'event_processor',
+          action: 'processing_claimed',
+        },
+        'Message processing claimed, sending to LLM'
+      )
 
       // Defer processing to avoid committing during reactive update cycle
       setImmediate(() => {
@@ -369,8 +427,13 @@ export class EventProcessor {
       })
     } catch (error) {
       logger.error(
-        { error, messageId: message.id },
+        { error, messageId: message.id, correlationId },
         `CRITICAL: Database operation failed - SKIPPING message to prevent infinite loops`
+      )
+      this.lifecycleTracker.recordError(
+        message.id,
+        error instanceof Error ? error : String(error),
+        'DB_ERROR'
       )
       // DO NOT process the message - this could cause infinite loops if DB is broken
       return
@@ -476,16 +539,22 @@ export class EventProcessor {
     storeState: StoreProcessingState
   ): Promise<void> {
     const { conversationId, id: messageId } = chatMessage
+    const correlationId = this.lifecycleTracker.getCorrelationId(messageId)
 
     // Skip if LLM is not configured
     if (!storeState.llmProvider) {
       storeLogger(storeId).debug(`Skipping chat message processing: LLM not configured`)
+      this.lifecycleTracker.recordError(messageId, 'LLM not configured', 'LLM_DISABLED')
       return
     }
 
     // Check resource limits before processing
     if (!this.canStartLLMCall()) {
-      logger.warn({ conversationId, storeId }, `Rejecting LLM call: Resource limits exceeded`)
+      logger.warn(
+        { conversationId, storeId, correlationId },
+        `Rejecting LLM call: Resource limits exceeded`
+      )
+      this.lifecycleTracker.recordError(messageId, 'Resource limits exceeded', 'RATE_LIMITED')
       const store = this.storeManager.getStore(storeId)
       if (store) {
         store.commit(
@@ -507,7 +576,15 @@ export class EventProcessor {
     // Check if we can queue more messages
     const queueCheck = this.canAcceptIncomingMessage()
     if (!queueCheck.allowed) {
-      logger.warn({ conversationId, reason: queueCheck.reason }, `Message intake limited`)
+      logger.warn(
+        { conversationId, reason: queueCheck.reason, correlationId },
+        `Message intake limited`
+      )
+      this.lifecycleTracker.recordError(
+        messageId,
+        `Message intake limited: ${queueCheck.reason}`,
+        'INTAKE_LIMITED'
+      )
       return
     }
 
@@ -516,16 +593,23 @@ export class EventProcessor {
 
     // Skip if this conversation is already being processed - queue the message instead
     if (storeState.activeConversations.has(conversationId)) {
-      logger.debug({ conversationId }, `Queueing message (already processing)`)
+      logger.debug({ conversationId, correlationId }, `Queueing message (already processing)`)
 
       try {
         storeState.messageQueue.enqueue(conversationId, chatMessage)
+        const queuePosition = storeState.messageQueue.getQueueLength(conversationId)
+        this.lifecycleTracker.recordQueued(messageId, queuePosition)
         logger.debug(
-          { conversationId, queueLength: storeState.messageQueue.getQueueLength(conversationId) },
+          { conversationId, queueLength: queuePosition, correlationId },
           `Message queued`
         )
       } catch (error) {
-        logger.error({ error, conversationId }, `Failed to queue message`)
+        logger.error({ error, conversationId, correlationId }, `Failed to queue message`)
+        this.lifecycleTracker.recordError(
+          messageId,
+          error instanceof Error ? error : String(error),
+          'QUEUE_ERROR'
+        )
         // Emit error to conversation if queue is full
         const store = this.storeManager.getStore(storeId)
         if (store) {
@@ -546,11 +630,29 @@ export class EventProcessor {
       return
     }
 
-    logger.info({ conversationId }, `Starting agentic loop for user message`)
+    // Record that processing is starting
+    this.lifecycleTracker.recordProcessingStarted(messageId)
+    logMessageEvent(
+      'info',
+      {
+        correlationId: correlationId || messageId,
+        messageId,
+        storeId,
+        conversationId,
+        stage: 'event_processor',
+        action: 'processing_started',
+      },
+      'Starting agentic loop for user message'
+    )
 
     // Check conversation limits per store
     if (storeState.activeConversations.size >= 50) {
       storeLogger(storeId).warn(`Too many active conversations`)
+      this.lifecycleTracker.recordError(
+        messageId,
+        `Too many active conversations (${storeState.activeConversations.size}/50)`,
+        'CONVERSATION_LIMIT'
+      )
       return
     }
 
@@ -579,16 +681,56 @@ export class EventProcessor {
       completionEventEmitted = await this.runAgenticLoop(storeId, chatMessage, storeState)
       const responseTime = Date.now() - startTime
 
+      // Check if runAgenticLoop returned false (store disconnected or LLM not available)
+      if (!completionEventEmitted) {
+        // This means the store or LLM provider was unavailable - treat as error
+        this.endLLMCall(llmCallId, true)
+        llmCallCompleted = true
+        this.lifecycleTracker.recordError(
+          messageId,
+          'Store disconnected or LLM provider unavailable during processing',
+          'STORE_UNAVAILABLE'
+        )
+        logger.warn(
+          { conversationId, correlationId, messageId },
+          'Agentic loop returned false - store or LLM unavailable'
+        )
+        return
+      }
+
       // Track successful completion
       this.endLLMCall(llmCallId, false, responseTime)
       llmCallCompleted = true
+
+      // Record lifecycle completion
+      this.lifecycleTracker.recordCompleted(messageId)
+      logMessageEvent(
+        'info',
+        {
+          correlationId: correlationId || messageId,
+          messageId,
+          storeId,
+          conversationId,
+          stage: 'event_processor',
+          action: 'processing_completed',
+          durationMs: responseTime,
+        },
+        'Message processing completed successfully'
+      )
     } catch (error) {
       // Track error and ensure LLM call is properly cleaned up
       this.recordError()
       if (!llmCallCompleted) {
         this.endLLMCall(llmCallId, true) // Mark as timeout/error
       }
-      logger.error({ error, conversationId }, `Error in agentic loop`)
+      logger.error({ error, conversationId, correlationId }, `Error in agentic loop`)
+
+      // Record lifecycle error
+      this.lifecycleTracker.recordError(
+        messageId,
+        error instanceof Error ? error : String(error),
+        'AGENTIC_LOOP_ERROR'
+      )
 
       // Emit error message to conversation
       if (store) {
@@ -655,12 +797,33 @@ export class EventProcessor {
   ): Promise<void> {
     const conversationId = chatMessage.conversationId
     const messageId = chatMessage.id
+    const correlationId = this.lifecycleTracker.getCorrelationId(messageId) || messageId
 
-    logger.info({ conversationId }, `Processing queued message`)
+    logger.info({ conversationId, correlationId }, `Processing queued message`)
+
+    // Record that processing is starting for queued message
+    this.lifecycleTracker.recordProcessingStarted(messageId)
+    logMessageEvent(
+      'info',
+      {
+        correlationId,
+        messageId,
+        storeId,
+        conversationId,
+        stage: 'event_processor',
+        action: 'processing_started_queued',
+      },
+      'Starting agentic loop for queued user message'
+    )
 
     // Check conversation limits per store
     if (storeState.activeConversations.size >= 50) {
       storeLogger(storeId).warn(`Too many active conversations`)
+      this.lifecycleTracker.recordError(
+        messageId,
+        'Too many active conversations while dequeuing',
+        'ACTIVE_CONVERSATION_LIMIT'
+      )
       return
     }
 
@@ -689,16 +852,70 @@ export class EventProcessor {
       completionEventEmitted = await this.runAgenticLoop(storeId, chatMessage, storeState)
       const responseTime = Date.now() - startTime
 
+      // Check if runAgenticLoop returned false (store disconnected or LLM not available)
+      if (!completionEventEmitted) {
+        // This means the store or LLM provider was unavailable - treat as error
+        this.endLLMCall(llmCallId, true)
+        llmCallCompleted = true
+        this.lifecycleTracker.recordError(
+          messageId,
+          'Store disconnected or LLM provider unavailable during queued message processing',
+          'STORE_UNAVAILABLE'
+        )
+        logger.warn(
+          { conversationId, correlationId, messageId },
+          'Agentic loop returned false for queued message - store or LLM unavailable'
+        )
+        return
+      }
+
       // Track successful completion
       this.endLLMCall(llmCallId, false, responseTime)
       llmCallCompleted = true
+
+      // Record lifecycle completion and log correlated event
+      this.lifecycleTracker.recordCompleted(messageId)
+      logMessageEvent(
+        'info',
+        {
+          correlationId,
+          messageId,
+          storeId,
+          conversationId,
+          stage: 'event_processor',
+          action: 'processing_completed_queued',
+          durationMs: responseTime,
+        },
+        'Queued message processed successfully'
+      )
     } catch (error) {
       // Track error and ensure LLM call is properly cleaned up
       this.recordError()
       if (!llmCallCompleted) {
         this.endLLMCall(llmCallId, true) // Mark as timeout/error
       }
-      logger.error({ error, conversationId }, `Error in agentic loop`)
+      logger.error({ error, conversationId, correlationId }, `Error in agentic loop`)
+
+      // Record lifecycle error
+      this.lifecycleTracker.recordError(
+        messageId,
+        error instanceof Error ? error : String(error),
+        'AGENTIC_LOOP_ERROR'
+      )
+
+      logMessageEvent(
+        'error',
+        {
+          correlationId,
+          messageId,
+          storeId,
+          conversationId,
+          stage: 'event_processor',
+          action: 'processing_error_queued',
+          error: error instanceof Error ? error.message : String(error),
+        },
+        'Queued message processing failed'
+      )
 
       // Emit error message to conversation
       if (store) {
@@ -1010,13 +1227,20 @@ export class EventProcessor {
 
     // Conversation history is now set in the AgenticLoop constructor
 
-    // Run the agentic loop
+    // Get correlation ID for this message
+    const correlationId = this.lifecycleTracker.getCorrelationId(userMessage.id)
+
+    // Run the agentic loop with message tracking context
     await agenticLoop.run(userMessage.message, {
       boardContext,
       navigationContext,
       workerContext,
       workerId: worker?.id,
       model: conversation?.model || DEFAULT_MODEL,
+      // Message tracking context for debugging
+      messageId: userMessage.id,
+      correlationId,
+      storeId,
     })
 
     return completionEmitted
@@ -1426,6 +1650,13 @@ export class EventProcessor {
       userMessages: options?.userMessages ?? null,
       notes: noteSegments.join(' '),
     }
+  }
+
+  /**
+   * Get the message lifecycle tracker for debugging endpoints
+   */
+  getLifecycleTracker(): MessageLifecycleTracker {
+    return this.lifecycleTracker
   }
 
   /**

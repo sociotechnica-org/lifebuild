@@ -2,7 +2,8 @@ import type { Store } from '@livestore/livestore'
 import { ConversationHistory } from './conversation-history.js'
 import { ToolExecutor } from './tool-executor.js'
 import type { LLMProvider, AgenticLoopContext, AgenticLoopEvents, LLMMessage } from './types.js'
-import { logger } from '../../utils/logger.js'
+import { logger, createCorrelatedLogger } from '../../utils/logger.js'
+import { getMessageLifecycleTracker } from '../message-lifecycle-tracker.js'
 
 export class AgenticLoop {
   private history: ConversationHistory
@@ -43,14 +44,34 @@ export class AgenticLoop {
       : 15 // Prevent infinite loops - increased from 5 to 15 for complex multi-step operations
 
     this.maxIterations = context.maxIterations || envMaxIterations
-    const { boardContext, navigationContext, workerContext, workerId, model } = context
+    const {
+      boardContext,
+      navigationContext,
+      workerContext,
+      workerId,
+      model,
+      messageId,
+      correlationId,
+      storeId,
+    } = context
+
+    // Get lifecycle tracker for iteration recording
+    const lifecycleTracker = messageId ? getMessageLifecycleTracker() : null
+
+    // Create correlated logger for this run
+    const log = correlationId
+      ? createCorrelatedLogger({ correlationId, messageId, storeId, stage: 'agentic_loop' })
+      : logger
 
     // Set worker ID on tool executor for proper actor tracking
     this.toolExecutor.setWorkerId(workerId)
 
     // Add user message to history
     this.history.addUserMessage(userMessage)
-    logger.info({ message: userMessage.substring(0, 100) }, `Starting agentic loop`)
+    log.info(
+      { message: userMessage.substring(0, 100), maxIterations: this.maxIterations },
+      `Starting agentic loop`
+    )
 
     // Track tool calls to detect stuck/infinite loops
     const toolCallHistory: Array<{ name: string; args: string; iteration: number }> = []
@@ -61,9 +82,10 @@ export class AgenticLoop {
     let completedSuccessfully = false
     for (let iteration = 1; iteration <= this.maxIterations; iteration++) {
       let retryAttempts = 0 // Reset retry counter for each iteration
+      const iterationStartTime = Date.now()
       try {
         this.events.onIterationStart?.(iteration)
-        logger.debug({ iteration, maxIterations: this.maxIterations }, `Agentic loop iteration`)
+        log.debug({ iteration, maxIterations: this.maxIterations }, `Agentic loop iteration`)
 
         // Call LLM with current history
         const response = await this.llmProvider.call(
@@ -78,15 +100,31 @@ export class AgenticLoop {
           }
         )
 
-        logger.debug(
+        const iterationDurationMs = Date.now() - iterationStartTime
+        const toolNames = response.toolCalls?.map(tc => tc.function.name)
+
+        log.debug(
           {
             iteration,
             hasMessage: !!response.message?.trim(),
             hasToolCalls: (response.toolCalls?.length || 0) > 0,
             messagePreview: response.message?.substring(0, 100),
+            durationMs: iterationDurationMs,
+            toolNames,
           },
           `Iteration LLM response`
         )
+
+        // Record iteration in lifecycle tracker
+        if (lifecycleTracker && messageId) {
+          lifecycleTracker.recordIteration(
+            messageId,
+            iteration,
+            (response.toolCalls?.length || 0) > 0,
+            toolNames,
+            iterationDurationMs
+          )
+        }
 
         this.events.onIterationComplete?.(iteration, response)
 
@@ -107,14 +145,14 @@ export class AgenticLoop {
             if (recentIdenticalCall) {
               const currentCount = (consecutiveCallCounts.get(toolSignature) || 0) + 1
               consecutiveCallCounts.set(toolSignature, currentCount)
-              logger.warn(
+              log.warn(
                 { tool: toolCall.function.name, count: currentCount },
                 `Detected repeated tool call`
               )
 
               if (currentCount >= 3) {
                 isStuckLoop = true
-                logger.error(`Detected stuck loop - breaking out`)
+                log.error(`Detected stuck loop - breaking out`)
                 this.events.onError?.(
                   new Error('Stuck loop detected: Repeating same tool calls'),
                   iteration
@@ -141,7 +179,7 @@ export class AgenticLoop {
 
           // Warn when approaching iteration limit
           if (iteration === warningThreshold) {
-            logger.warn(
+            log.warn(
               { iteration, maxIterations: this.maxIterations },
               `Approaching iteration limit`
             )
@@ -165,18 +203,18 @@ export class AgenticLoop {
 
         // No tool calls - handle final message
         if (response.message && response.message.trim()) {
-          logger.info({ message: response.message.substring(0, 100) }, `Final LLM message`)
+          log.info({ message: response.message.substring(0, 100) }, `Final LLM message`)
           this.history.addAssistantMessage(response.message)
           this.events.onFinalMessage?.(response.message)
         }
 
         // Exit loop - we're done
-        logger.info({ iterations: iteration }, `Agentic loop completed`)
+        log.info({ iterations: iteration }, `Agentic loop completed`)
         this.events.onComplete?.(iteration)
         completedSuccessfully = true
         break
       } catch (error) {
-        logger.error({ error, iteration }, `Error in iteration`)
+        log.error({ error, iteration }, `Error in iteration`)
 
         // Check if this is a transient error that we should retry
         const isTransientError = this.isTransientError(error)
@@ -185,7 +223,7 @@ export class AgenticLoop {
 
         if (shouldRetry) {
           retryAttempts++
-          logger.info({ attempt: retryAttempts, maxAttempts: 3 }, `Retrying after transient error`)
+          log.info({ attempt: retryAttempts, maxAttempts: 3 }, `Retrying after transient error`)
 
           // Exponential backoff: 1s, 2s, 4s
           await this.delay(1000 * Math.pow(2, retryAttempts - 1))
@@ -196,7 +234,7 @@ export class AgenticLoop {
         }
 
         // For non-transient errors or after max retries, emit error and complete gracefully
-        logger.error(`Fatal error or max retries reached, aborting loop`)
+        log.error(`Fatal error or max retries reached, aborting loop`)
         this.events.onError?.(error as Error, iteration)
 
         // Send user-friendly error message
@@ -209,7 +247,7 @@ export class AgenticLoop {
 
     // Only report max iterations error if we didn't complete successfully
     if (!completedSuccessfully) {
-      logger.warn(
+      log.warn(
         { maxIterations: this.maxIterations, toolCallHistory: toolCallHistory.slice(-5) },
         `Hit max iterations - loop may be incomplete`
       )
