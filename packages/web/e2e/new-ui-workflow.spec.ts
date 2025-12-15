@@ -30,7 +30,7 @@ test.describe('New UI Workflow', () => {
     const taskNames = ['First test task', 'Second test task', 'Third test task']
 
     // =====================
-    // STAGE 1: Identifying
+    // STAGE 1: Identify
     // =====================
 
     // Navigate to create new project
@@ -38,7 +38,7 @@ test.describe('New UI Workflow', () => {
     await waitForLiveStoreReady(page)
 
     // Wait for Stage 1 form to load
-    await expect(page.getByText('Stage 1: Identifying')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('Stage 1: Identify')).toBeVisible({ timeout: 10000 })
 
     // Fill in project title
     const titleInput = page.locator('input[placeholder*="project called"]')
@@ -63,11 +63,11 @@ test.describe('New UI Workflow', () => {
     await continueToStage2Button.click()
 
     // =====================
-    // STAGE 2: Scoping
+    // STAGE 2: Scope
     // =====================
 
     // Wait for Stage 2 form to load
-    await expect(page.getByText('Stage 2: Scoping')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('Stage 2: Scope')).toBeVisible({ timeout: 10000 })
 
     // Verify project name shows in header
     await expect(page.getByText(projectName)).toBeVisible()
@@ -102,11 +102,11 @@ test.describe('New UI Workflow', () => {
     await continueToStage3Button.click()
 
     // =====================
-    // STAGE 3: Drafting
+    // STAGE 3: Draft
     // =====================
 
     // Wait for Stage 3 form to load
-    await expect(page.getByText('Stage 3: Drafting')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('Stage 3: Draft')).toBeVisible({ timeout: 10000 })
 
     // Verify project name shows in header
     await expect(page.getByText(projectName)).toBeVisible()
@@ -258,7 +258,7 @@ test.describe('New UI Workflow', () => {
     await waitForLiveStoreReady(page)
 
     // Wait for Stage 1 form
-    await expect(page.getByText('Stage 1: Identifying')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('Stage 1: Identify')).toBeVisible({ timeout: 10000 })
 
     // Fill in title and category only (minimum required)
     const titleInput = page.locator('input[placeholder*="project called"]')

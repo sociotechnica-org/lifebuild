@@ -14,9 +14,9 @@ interface StageWizardProps {
 }
 
 const STAGES: { stage: WizardStage; label: string }[] = [
-  { stage: 1, label: 'Identifying' },
-  { stage: 2, label: 'Scoping' },
-  { stage: 3, label: 'Drafting' },
+  { stage: 1, label: 'Identify' },
+  { stage: 2, label: 'Scope' },
+  { stage: 3, label: 'Draft' },
 ]
 
 export const StageWizard: React.FC<StageWizardProps> = ({
@@ -92,25 +92,6 @@ export const StageWizard: React.FC<StageWizardProps> = ({
                 )}
               </button>
             </React.Fragment>
-          )
-        })}
-      </div>
-
-      {/* Stage labels */}
-      <div className='flex justify-between mt-2 px-0'>
-        {STAGES.map(({ stage, label }) => {
-          const isActive = stage === currentStage
-          const isAccessible = stage <= maxAccessibleStage
-
-          return (
-            <span
-              key={stage}
-              className={`text-xs font-medium flex-1 text-center ${
-                isActive ? 'text-[#2f2b27]' : isAccessible ? 'text-[#8b8680]' : 'text-[#d0ccc5]'
-              }`}
-            >
-              {label}
-            </span>
           )
         })}
       </div>
