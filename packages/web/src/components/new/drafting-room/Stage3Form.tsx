@@ -9,10 +9,120 @@ import {
   getCategoryInfo,
   resolveLifecycleState,
 } from '@lifebuild/shared'
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
 import { useRoomChatControl } from '../layout/RoomLayout.js'
+
+/**
+ * Drag grip icon SVG (6 dots in 2x3 grid)
+ */
+const DragGripIcon: React.FC = () => (
+  <svg width='16' height='16' viewBox='0 0 16 16' fill='currentColor' style={{ display: 'block' }}>
+    <circle cx='5' cy='3' r='1.5' />
+    <circle cx='11' cy='3' r='1.5' />
+    <circle cx='5' cy='8' r='1.5' />
+    <circle cx='11' cy='8' r='1.5' />
+    <circle cx='5' cy='13' r='1.5' />
+    <circle cx='11' cy='13' r='1.5' />
+  </svg>
+)
+
+/**
+ * Sortable task row component
+ */
+const SortableTaskRow: React.FC<{
+  task: Task
+  isEditing: boolean
+  editingTitle: string
+  onStartEdit: () => void
+  onEditChange: (value: string) => void
+  onSaveEdit: () => void
+  onEditKeyDown: (e: React.KeyboardEvent) => void
+  onRemove: () => void
+}> = ({
+  task,
+  isEditing,
+  editingTitle,
+  onStartEdit,
+  onEditChange,
+  onSaveEdit,
+  onEditKeyDown,
+  onRemove,
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: task.id,
+  })
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-2 p-3 bg-[#faf9f7] rounded-lg border border-[#e8e4de] ${
+        isDragging ? 'shadow-lg rotate-1' : ''
+      }`}
+    >
+      <span
+        className='text-[#8b8680] py-1.5 px-1 cursor-grab hover:text-[#2f2b27] hover:bg-black/[0.08] rounded transition-all duration-150 active:cursor-grabbing flex-shrink-0'
+        {...attributes}
+        {...listeners}
+      >
+        <DragGripIcon />
+      </span>
+      {isEditing ? (
+        <input
+          type='text'
+          className='flex-1 border border-[#e8e4de] rounded-lg py-2 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5]'
+          value={editingTitle}
+          onChange={e => onEditChange(e.target.value)}
+          onBlur={onSaveEdit}
+          onKeyDown={onEditKeyDown}
+          autoFocus
+        />
+      ) : (
+        <span
+          className='flex-1 text-sm text-[#2f2b27] cursor-pointer hover:text-[#4a4540]'
+          onClick={onStartEdit}
+          title='Click to edit'
+        >
+          {task.title}
+        </span>
+      )}
+      <button
+        type='button'
+        className='text-xs text-[#8b8680] bg-transparent border-none cursor-pointer hover:text-red-600 flex-shrink-0'
+        onClick={onRemove}
+      >
+        Remove
+      </button>
+    </div>
+  )
+}
 
 export const Stage3Form: React.FC = () => {
   const navigate = useNavigate()
@@ -54,6 +164,71 @@ export const Stage3Form: React.FC = () => {
 
   // Check if we have at least one task to advance
   const hasAtLeastOneTask = tasks.length > 0
+
+  // Drag-and-drop state
+  const [activeId, setActiveId] = useState<string | null>(null)
+
+  // Configure sensors for drag activation
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Requires 8px movement before drag starts
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
+  // Get sortable IDs for SortableContext
+  const sortableIds = useMemo(() => tasks.map(t => t.id), [tasks])
+
+  // Find the active task for drag overlay
+  const activeTask = useMemo(
+    () => (activeId ? tasks.find(t => t.id === activeId) : null),
+    [activeId, tasks]
+  )
+
+  /**
+   * Handle drag start - track which item is being dragged
+   */
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string)
+  }
+
+  /**
+   * Handle drag end - update task positions in LiveStore
+   */
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    setActiveId(null)
+
+    if (!over || active.id === over.id) return
+
+    const oldIndex = tasks.findIndex(t => t.id === active.id)
+    const newIndex = tasks.findIndex(t => t.id === over.id)
+
+    if (oldIndex === -1 || newIndex === -1) return
+
+    // Calculate new order using arrayMove
+    const reorderedTasks = arrayMove(tasks, oldIndex, newIndex)
+
+    // Update positions for all affected tasks
+    const now = new Date()
+    reorderedTasks.forEach((task, index) => {
+      // Only update tasks whose position changed
+      if (task.position !== index) {
+        store.commit(
+          events.taskReordered({
+            taskId: task.id,
+            position: index,
+            updatedAt: now,
+            actorId: user?.id,
+          })
+        )
+      }
+    })
+  }
 
   /**
    * Add a new task
@@ -243,84 +418,86 @@ export const Stage3Form: React.FC = () => {
 
         {/* Task List */}
         <div className='flex flex-col gap-5'>
-          <div className='flex flex-col gap-2'>
-            {tasks.map(task => (
-              <div
-                key={task.id}
-                className='flex items-center gap-2 p-3 bg-[#faf9f7] rounded-lg border border-[#e8e4de]'
-              >
-                {editingTaskId === task.id ? (
-                  <input
-                    type='text'
-                    className='flex-1 border border-[#e8e4de] rounded-lg py-2 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5]'
-                    value={editingTitle}
-                    onChange={e => setEditingTitle(e.target.value)}
-                    onBlur={handleSaveEdit}
-                    onKeyDown={handleEditKeyDown}
-                    autoFocus
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+              <div className='flex flex-col gap-2'>
+                {tasks.map(task => (
+                  <SortableTaskRow
+                    key={task.id}
+                    task={task}
+                    isEditing={editingTaskId === task.id}
+                    editingTitle={editingTitle}
+                    onStartEdit={() => handleStartEdit(task)}
+                    onEditChange={setEditingTitle}
+                    onSaveEdit={handleSaveEdit}
+                    onEditKeyDown={handleEditKeyDown}
+                    onRemove={() => handleRemoveTask(task.id)}
                   />
-                ) : (
-                  <span
-                    className='flex-1 text-sm text-[#2f2b27] cursor-pointer hover:text-[#4a4540]'
-                    onClick={() => handleStartEdit(task)}
-                    title='Click to edit'
-                  >
-                    {task.title}
-                  </span>
-                )}
-                <button
-                  type='button'
-                  className='text-xs text-[#8b8680] bg-transparent border-none cursor-pointer hover:text-red-600'
-                  onClick={() => handleRemoveTask(task.id)}
-                >
-                  Remove
-                </button>
+                ))}
               </div>
-            ))}
+            </SortableContext>
 
-            {/* Add new task input */}
-            <div className='flex gap-2'>
-              <input
-                type='text'
-                className='flex-1 border border-[#e8e4de] rounded-lg py-2.5 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5] placeholder:text-[#8b8680]'
-                placeholder='Add a new task...'
-                value={newTaskTitle}
-                onChange={e => setNewTaskTitle(e.target.value)}
-                onKeyDown={handleNewTaskKeyDown}
-              />
-              <button
-                type='button'
-                className='py-2.5 px-4 rounded-lg text-sm font-semibold bg-[#2f2b27] text-[#faf9f7] cursor-pointer border-none transition-all duration-200 hover:bg-[#4a4540] disabled:opacity-50 disabled:cursor-not-allowed'
-                onClick={handleAddTask}
-                disabled={!newTaskTitle.trim()}
-              >
-                Add
-              </button>
-            </div>
+            {/* Drag overlay - shows ghosted copy during drag */}
+            <DragOverlay>
+              {activeTask && (
+                <div className='flex items-center gap-2 p-3 bg-[#faf9f7] rounded-lg border border-[#e8e4de] shadow-lg rotate-2'>
+                  <span className='text-[#8b8680] py-1.5 px-1 flex-shrink-0'>
+                    <DragGripIcon />
+                  </span>
+                  <span className='flex-1 text-sm text-[#2f2b27]'>{activeTask.title}</span>
+                  <span className='text-xs text-[#8b8680] flex-shrink-0'>Remove</span>
+                </div>
+              )}
+            </DragOverlay>
+          </DndContext>
 
-            {/* Ask Marvin button */}
+          {/* Add new task input */}
+          <div className='flex gap-2'>
+            <input
+              type='text'
+              className='flex-1 border border-[#e8e4de] rounded-lg py-2.5 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5] placeholder:text-[#8b8680]'
+              placeholder='Add a new task...'
+              value={newTaskTitle}
+              onChange={e => setNewTaskTitle(e.target.value)}
+              onKeyDown={handleNewTaskKeyDown}
+            />
             <button
               type='button'
-              className='w-full py-2.5 px-4 rounded-lg text-sm font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-200 hover:border-[#d0ccc5] hover:text-[#2f2b27]'
-              onClick={() => {
-                const existingTasks = tasks.map(t => t.title).join(', ')
-
-                let message = `Please help me draft a task list for this project.`
-                if (existingTasks) {
-                  message += ` I already have these tasks: ${existingTasks}.`
-                }
-                message += ` Please suggest additional tasks to complete this project. Ask me clarifying questions if you need more context about the project scope or goals.`
-
-                // Open the chat panel
-                openChat()
-
-                // Send the message with navigation context attached
-                sendDirectMessage(message)
-              }}
+              className='py-2.5 px-4 rounded-lg text-sm font-semibold bg-[#2f2b27] text-[#faf9f7] cursor-pointer border-none transition-all duration-200 hover:bg-[#4a4540] disabled:opacity-50 disabled:cursor-not-allowed'
+              onClick={handleAddTask}
+              disabled={!newTaskTitle.trim()}
             >
-              Ask Marvin to draft tasks
+              Add
             </button>
           </div>
+
+          {/* Ask Marvin button */}
+          <button
+            type='button'
+            className='w-full py-2.5 px-4 rounded-lg text-sm font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-200 hover:border-[#d0ccc5] hover:text-[#2f2b27]'
+            onClick={() => {
+              const existingTasks = tasks.map(t => t.title).join(', ')
+
+              let message = `Please help me draft a task list for this project.`
+              if (existingTasks) {
+                message += ` I already have these tasks: ${existingTasks}.`
+              }
+              message += ` Please suggest additional tasks to complete this project. Ask me clarifying questions if you need more context about the project scope or goals.`
+
+              // Open the chat panel
+              openChat()
+
+              // Send the message with navigation context attached
+              sendDirectMessage(message)
+            }}
+          >
+            Ask Marvin to draft tasks
+          </button>
         </div>
 
         {/* Footer Actions */}
