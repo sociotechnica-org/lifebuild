@@ -39,6 +39,10 @@ Initial demo application planning and parallel development strategy for chat + K
 
 **[README.md](./plans/007-multiplayer/README.md)** - Multiplayer release plan for transitioning to server-side architecture with Node.js backend, event sync, and LLM processing migration.
 
+## Runbooks
+
+- **[workspace-orchestration.md](./runbooks/workspace-orchestration.md)** – Operational procedures for workspace provisioning, manual reconciliation, and incident escalation.
+
 ## Architecture Decision Records (ADRs)
 
 The `adrs/` directory contains formal architecture decisions:

@@ -13,6 +13,10 @@ import {
   getMessageLifecycleTracker,
   type MessageLifecycleTracker,
 } from './message-lifecycle-tracker.js'
+import {
+  createOrchestrationTelemetry,
+  getIncidentDashboardUrl,
+} from '../utils/orchestration-telemetry.js'
 import type {
   EventBuffer,
   ProcessedEvent,
@@ -193,6 +197,10 @@ export class EventProcessor {
 
   async startMonitoring(storeId: string, store: LiveStore): Promise<void> {
     storeLogger(storeId).info('Starting comprehensive event monitoring')
+    const telemetry = createOrchestrationTelemetry({
+      operation: 'event_processor.start_monitoring',
+      storeId,
+    })
 
     const existingState = this.storeStates.get(storeId)
     if (existingState) {
@@ -201,6 +209,9 @@ export class EventProcessor {
       } else {
         storeLogger(storeId).warn('Store is already being monitored')
       }
+      telemetry.recordSuccess({
+        status: existingState.stopping ? 'stopping' : 'already_monitoring',
+      })
       return
     }
 
@@ -229,8 +240,40 @@ export class EventProcessor {
     storeLogger(storeId).debug('Using persistent message tracking')
 
     // Monitor all important tables
+    let successfulSubscriptions = 0
     for (const tableName of this.monitoredTables) {
-      this.setupTableSubscription(storeId, store, tableName, storeState)
+      if (this.setupTableSubscription(storeId, store, tableName, storeState)) {
+        successfulSubscriptions += 1
+      }
+    }
+
+    if (successfulSubscriptions > 0) {
+      const { durationMs } = telemetry.recordSuccess({
+        status: 'monitoring_started',
+        subscriptions: successfulSubscriptions,
+      })
+      storeLogger(storeId).info(
+        {
+          status: 'monitoring_started',
+          durationMs,
+          subscriptions: successfulSubscriptions,
+          incidentDashboardUrl: getIncidentDashboardUrl(),
+        },
+        'Event monitoring ready'
+      )
+    } else {
+      const failure = new Error('Failed to create any subscriptions')
+      const { durationMs } = telemetry.recordFailure(failure, {
+        status: 'no_subscriptions',
+      })
+      storeLogger(storeId).error(
+        {
+          durationMs,
+          incidentDashboardUrl: getIncidentDashboardUrl(),
+        },
+        'Failed to start event monitoring'
+      )
+      throw failure
     }
   }
 
@@ -239,12 +282,12 @@ export class EventProcessor {
     store: LiveStore,
     tableName: string,
     storeState: StoreProcessingState
-  ): void {
+  ): boolean {
     try {
       // We only monitor chatMessages now for processing user messages
       if (tableName !== 'chatMessages') {
         logger.warn(`Unexpected table ${tableName} - only chatMessages should be monitored`)
-        return
+        return false
       }
 
       // Subscribe to chatMessages table with recent filter to reduce volume
@@ -262,9 +305,11 @@ export class EventProcessor {
 
       storeState.subscriptions.push(unsubscribe)
       storeLogger(storeId).debug({ tableName }, 'Subscribed to table')
+      return true
     } catch (error) {
       storeLogger(storeId).error({ error, tableName }, `Failed to subscribe to ${tableName}`)
       this.incrementErrorCount(storeId, error as Error)
+      return false
     }
   }
 
