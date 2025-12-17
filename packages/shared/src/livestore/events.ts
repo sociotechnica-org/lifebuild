@@ -606,7 +606,7 @@ const TaskPriorityLiteral = Schema.Literal('low', 'normal', 'high', 'critical')
 // Task attributes schema (PR2)
 const TaskAttributesSchema = Schema.Struct({
   priority: Schema.optional(TaskPriorityLiteral),
-  // Future attributes can be added here
+  deadline: Schema.optional(Schema.Number), // Timestamp in milliseconds
 })
 
 export const taskCreatedV2 = Events.synced({

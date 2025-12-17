@@ -15,7 +15,17 @@ const PROJECT_ID = 'modal-project'
 const allSampleTasks: Task[] = []
 
 // Wrapper component to show the modal with a toggle button
-function TaskDetailModalDemo({ initialTask }: { initialTask: Task | null }) {
+function TaskDetailModalDemo({
+  initialTask,
+  isCreating = false,
+  hideStatus = false,
+  projectId = PROJECT_ID,
+}: {
+  initialTask: Task | null
+  isCreating?: boolean
+  hideStatus?: boolean
+  projectId?: string
+}) {
   const [isOpen, setIsOpen] = useState(true)
 
   return (
@@ -25,16 +35,24 @@ function TaskDetailModalDemo({ initialTask }: { initialTask: Task | null }) {
           onClick={() => setIsOpen(true)}
           className='px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600'
         >
-          Open Modal
+          {isCreating ? 'Create New Task' : 'Open Modal'}
         </button>
       )}
-      <TaskDetailModal
-        task={isOpen ? initialTask : null}
-        allTasks={allSampleTasks}
-        onClose={() => {
-          setIsOpen(false)
-        }}
-      />
+      {isOpen && (
+        <TaskDetailModal
+          task={initialTask}
+          allTasks={allSampleTasks}
+          onClose={() => {
+            setIsOpen(false)
+          }}
+          projectId={projectId}
+          isCreating={isCreating}
+          hideStatus={hideStatus}
+          onTaskCreated={taskId => {
+            console.log('Task created:', taskId)
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -141,6 +159,40 @@ const taskLongTitle: Task = {
   archivedAt: null,
 }
 
+// Task with deadline - attributes stored as JSON string since that's how it comes from DB
+const taskWithDeadline: Task = {
+  id: 'task-deadline',
+  projectId: PROJECT_ID,
+  title: 'Complete quarterly report',
+  description: 'Prepare and submit the Q4 quarterly report with all financial data.',
+  status: 'todo',
+  assigneeIds: '[]',
+  // Attributes are stored as JSON string in the database
+  attributes:
+    `{"deadline":${new Date('2024-12-31T00:00:00Z').getTime()}}` as unknown as Task['attributes'],
+  position: 6000,
+  createdAt: new Date('2024-01-02T00:00:00Z'),
+  updatedAt: new Date('2024-01-02T00:00:00Z'),
+  archivedAt: null,
+}
+
+// Task with deadline in a different year
+const taskWithFutureYearDeadline: Task = {
+  id: 'task-future-deadline',
+  projectId: PROJECT_ID,
+  title: 'Plan annual conference',
+  description: 'Organize and plan the annual company conference for next year.',
+  status: 'todo',
+  assigneeIds: '[]',
+  // Attributes are stored as JSON string in the database
+  attributes:
+    `{"deadline":${new Date('2026-06-15T00:00:00Z').getTime()}}` as unknown as Task['attributes'],
+  position: 7000,
+  createdAt: new Date('2024-01-02T00:00:00Z'),
+  updatedAt: new Date('2024-01-02T00:00:00Z'),
+  archivedAt: null,
+}
+
 const meta: Meta<typeof TaskDetailModalDemo> = {
   title: 'New UI/Project Room/TaskDetailModal',
   component: TaskDetailModalDemo,
@@ -149,7 +201,7 @@ const meta: Meta<typeof TaskDetailModalDemo> = {
     docs: {
       description: {
         component:
-          'Modal for viewing and editing task details including title, description, and status. Click "Edit" to enter edit mode.',
+          'Modal for viewing, editing, and creating tasks. Supports title, description, status, and deadline fields. Click "Edit" to enter edit mode, or use creation mode for new tasks.',
       },
     },
   },
@@ -224,6 +276,86 @@ export const LongContent: Story = {
     docs: {
       description: {
         story: 'Task with a long title and multi-line description to test text wrapping.',
+      },
+    },
+  },
+}
+
+export const WithDeadline: Story = {
+  args: {
+    initialTask: taskWithDeadline,
+  },
+  decorators: [withModalProviders()],
+  parameters: {
+    docs: {
+      description: {
+        story: 'Task with a deadline set. Shows deadline in "Dec 31" format for current year.',
+      },
+    },
+  },
+}
+
+export const WithFutureYearDeadline: Story = {
+  args: {
+    initialTask: taskWithFutureYearDeadline,
+  },
+  decorators: [withModalProviders()],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Task with a deadline in a future year. Shows deadline in "Jun 15, 2026" format with year.',
+      },
+    },
+  },
+}
+
+export const CreationMode: Story = {
+  args: {
+    initialTask: null,
+    isCreating: true,
+    projectId: PROJECT_ID,
+  },
+  decorators: [withModalProviders()],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Task creation mode. Opens directly in edit mode with empty fields. Used when adding new tasks.',
+      },
+    },
+  },
+}
+
+export const CreationModeHideStatus: Story = {
+  args: {
+    initialTask: null,
+    isCreating: true,
+    hideStatus: true,
+    projectId: PROJECT_ID,
+  },
+  decorators: [withModalProviders()],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Task creation mode with status hidden (used in Stage 3 drafting where all tasks are "todo").',
+      },
+    },
+  },
+}
+
+export const EditModeHideStatus: Story = {
+  args: {
+    initialTask: taskWithDescription,
+    hideStatus: true,
+  },
+  decorators: [withModalProviders()],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Edit mode with status hidden. Status is not displayed or editable (used in Stage 3 drafting).',
       },
     },
   },
