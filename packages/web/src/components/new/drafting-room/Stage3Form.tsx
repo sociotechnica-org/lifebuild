@@ -346,6 +346,13 @@ export const Stage3Form: React.FC = () => {
           />
         )}
 
+        {/* Header */}
+        <div className='mb-4'>
+          <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27]">
+            Stage 3: Draft
+          </h1>
+        </div>
+
         {/* Project Title and Category */}
         {project && (
           <div className='flex items-center justify-between gap-2 pb-4 mb-4 border-b border-[#e8e4de]'>
@@ -364,14 +371,6 @@ export const Stage3Form: React.FC = () => {
             )}
           </div>
         )}
-
-        {/* Header */}
-        <div className='mb-6'>
-          <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27] mb-1">
-            Stage 3: Draft
-          </h1>
-          <p className='text-sm text-[#8b8680]'>Create actionable task list - 30 minutes</p>
-        </div>
 
         {/* Task List with Drag-and-Drop */}
         <div className='flex flex-col gap-5'>

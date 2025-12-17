@@ -319,11 +319,12 @@ export function TaskDetailModal({
     return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')
   }
 
-  // Display values for view mode
-  const displayTitle = task?.title || ''
-  const displayDescription = task?.description || ''
-  const displayStatus = task?.status || 'todo'
-  const displayDeadline = getTaskDeadline(task)
+  // Display values for view mode - use edit fields as they contain the latest saved values
+  // This ensures the modal shows correct state immediately after save, before LiveStore updates the task prop
+  const displayTitle = editTitle || task?.title || ''
+  const displayDescription = editDescription || task?.description || ''
+  const displayStatus = editStatus || (task?.status as TaskStatus) || 'todo'
+  const displayDeadline = editDeadline ? dateStringToTimestamp(editDeadline) : getTaskDeadline(task)
 
   return (
     <div
