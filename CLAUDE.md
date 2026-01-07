@@ -31,6 +31,10 @@ cp packages/auth-worker/.dev.vars.example packages/auth-worker/.dev.vars
 cp packages/server/.env.example packages/server/.env
 # Edit the respective .env and .dev.vars files with your credentials
 
+# GitHub CLI extensions for project management
+gh extension install yahsan2/gh-sub-issue  # Sub-issue management
+gh auth refresh -h github.com -s project   # Add project scope to gh auth
+
 # Start development (monorepo - runs both web and worker)
 pnpm dev          # Vite + Wrangler
 
@@ -210,6 +214,98 @@ gh pr checks 272
 - PR numbers are shown in `gh pr status` or on GitHub
 - Use `--web` flag to open items in browser for complex interactions
 - `gh pr checks --watch` is essential for monitoring CI/CD pipelines
+
+## Project Management
+
+We use GitHub Issues and Projects for all project management across the SocioTechnica organization.
+
+### Key Concepts
+
+- **Project**: A timebound, goal-oriented unit of work. Projects start and complete (unlike Areas, which are ongoing). A Project is represented as a GitHub Issue with type "Project".
+- **Sub-issues**: Tasks that belong to a Project are linked as sub-issues to the parent Project issue. Sub-issues can come from any repository.
+- **GitHub Project Board**: [SocioTechnica Project Board](https://github.com/orgs/sociotechnica-org/projects/2/) - central view of all work in progress.
+
+### Project Issue Structure
+
+Project issues use the "Project" issue type and follow this template:
+
+```markdown
+## Goal
+[One sentence describing the outcome]
+
+## Success Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+```
+
+### Working with Projects
+
+```bash
+# List all Project issues
+gh issue list --label "type:project" -R sociotechnica-org/work-squared
+
+# Create a new Project issue (requires GraphQL for issue type)
+gh issue create --title "Project: Name" --body "## Goal\n..."
+```
+
+#### Sub-issues with gh-sub-issue extension
+
+Install the community extension for easier sub-issue management:
+
+```bash
+# Install the extension (one-time)
+gh extension install yahsan2/gh-sub-issue
+
+# List sub-issues of a project
+gh sub-issue list 410
+
+# Add an existing issue as a sub-issue
+gh sub-issue add 410 415  # Add issue 415 as sub-issue of 410
+
+# Create a new sub-issue directly
+gh sub-issue create --parent 410 --title "New task for this project"
+
+# Remove a sub-issue from a project (keeps the issue, just unlinks it)
+gh sub-issue remove 410 415
+
+# When not in the repo directory, use -R flag
+gh sub-issue list 410 -R sociotechnica-org/work-squared
+```
+
+#### Sub-issues with REST API (no extension needed)
+
+```bash
+# Add a sub-issue to a project (using REST API)
+# Use -F (not -f) to pass integer values
+CHILD_ID=$(gh api repos/sociotechnica-org/work-squared/issues/123 --jq '.id')
+gh api repos/sociotechnica-org/work-squared/issues/100/sub_issues \
+  -X POST -F sub_issue_id="$CHILD_ID"
+
+# List sub-issues of a project
+gh api repos/sociotechnica-org/work-squared/issues/100/sub_issues
+
+# View project in GitHub Project board
+# Filter: parent-issue:"sociotechnica-org/work-squared#100"
+```
+
+### GitHub Project Views
+
+Views must be created via the GitHub UI (no API available). Recommended views:
+
+- **All Projects**: Filter `type:Project` - shows all active projects
+- **[Project Name]**: Filter `parent-issue:"sociotechnica-org/work-squared#N"` - shows work for a specific project
+
+To create a view:
+1. Go to https://github.com/orgs/sociotechnica-org/projects/2/
+2. Click **+ New view** → Table or Board
+3. Add filter using the syntax above
+
+### Project Statuses
+
+Projects use the same status workflow as other issues:
+- **Backlog**: Not yet started
+- **In Progress**: Actively being worked on
+- **Done**: Completed
 
 ## Important Guidelines
 
