@@ -1,5 +1,6 @@
 import type { Store as LiveStore } from '@livestore/livestore'
 import { queryDb } from '@livestore/livestore'
+import * as Sentry from '@sentry/node'
 import type { StoreManager } from './store-manager.js'
 import { tables, events } from '@lifebuild/shared/schema'
 import { AgenticLoop, classifyError } from './agentic-loop/agentic-loop.js'
@@ -1234,6 +1235,16 @@ export class EventProcessor {
             `Agentic loop error: ${classified.type}`
           )
 
+          // DIAGNOSTIC: Also try Sentry's direct logging API
+          Sentry.logger.error('DIAGNOSTIC: Agentic loop error (Sentry.logger direct)', {
+            errorMessage: error.message,
+            errorType: classified.type,
+            iteration,
+            storeId,
+            messageId: userMessage.id,
+            _diagnostic: 'agentic_loop_error_sentry_direct',
+          })
+
           // Use max_iterations message directly if that's the error type
           const displayMessage = error.message.includes('Maximum iterations')
             ? error.message
@@ -1302,6 +1313,14 @@ export class EventProcessor {
       'DIAGNOSTIC: Starting agentic loop (base logger)'
     )
 
+    // DIAGNOSTIC: Also try Sentry's direct logging API (bypasses pino entirely)
+    Sentry.logger.info('DIAGNOSTIC: Starting agentic loop (Sentry.logger direct)', {
+      storeId,
+      messageId: userMessage.id,
+      correlationId,
+      _diagnostic: 'agentic_loop_start_sentry_direct',
+    })
+
     // Run the agentic loop with message tracking context
     await agenticLoop.run(userMessage.message, {
       boardContext,
@@ -1320,6 +1339,14 @@ export class EventProcessor {
       { storeId, messageId: userMessage.id, correlationId, _diagnostic: 'agentic_loop_complete' },
       'DIAGNOSTIC: Agentic loop completed (base logger)'
     )
+
+    // DIAGNOSTIC: Also try Sentry's direct logging API
+    Sentry.logger.info('DIAGNOSTIC: Agentic loop completed (Sentry.logger direct)', {
+      storeId,
+      messageId: userMessage.id,
+      correlationId,
+      _diagnostic: 'agentic_loop_complete_sentry_direct',
+    })
 
     return completionEmitted
   }
