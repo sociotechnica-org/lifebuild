@@ -94,13 +94,57 @@ Enable StoreManager to notify EventProcessor when stores are reconnected, so sub
 - Emit `storeReconnected` event when store is replaced
 - EventProcessor listens and re-subscribes to the new store instance
 
-### Long-term Fixes (Requires Research)
+### Long-term Fixes (Native Sync Status API)
 
-#### 4. LiveStore Sync Status API
+#### 4. LiveStore Sync Status API Integration
 
-Research if LiveStore exposes any sync status or event APIs that could be used to detect disconnections natively.
+**Research Complete:** LiveStore 0.4.0 added a native Sync Status API (PR #967, merged Jan 7, 2026) that provides exactly what we need for disconnect detection.
 
-**Status:** Separate research project (user handling)
+**Available APIs:**
+
+```typescript
+// Synchronous getter - returns current sync state immediately
+store.syncStatus(): SyncStatus
+
+// Subscription-based updates for monitoring changes
+store.subscribeSyncStatus(callback: (status: SyncStatus) => void): () => void
+
+// Effect stream for Effect-based workflows
+store.syncStatusStream(): Stream<SyncStatus>
+```
+
+**SyncStatus Type:**
+
+```typescript
+type SyncStatus = {
+  localHead: string // e.g., "e5.2" or "e5.2r1"
+  upstreamHead: string // e.g., "e3"
+  pendingCount: number // Number of unsynced events
+  isSynced: boolean // Quick check if fully synced
+}
+```
+
+**Version Requirement:** `0.4.0-dev.22` or later (current project is on `0.4.0-dev.8`)
+
+**Why This Is Better Than Query Probing:**
+
+- Tracks actual sync pipeline state, not just query responsiveness
+- Native to LiveStore - no additional overhead from probe queries
+- Detects stuck sync (high `pendingCount` without progress) before queries would fail
+- Provides `isSynced` boolean for simple health checks
+
+**Files to modify:**
+
+- `pnpm-workspace.yaml` (upgrade LiveStore version)
+- `packages/server/src/services/store-manager.ts`
+
+**Implementation:**
+
+- Upgrade LiveStore to `0.4.0-dev.22+`
+- Use `store.subscribeSyncStatus()` to monitor sync state changes
+- Detect stuck sync: `pendingCount > 0 && !isSynced` for extended period (e.g., 60s)
+- Trigger reconnection when sync appears stuck
+- Remove query-based `probeStoreConnection()` method (superseded by native API)
 
 ## Implementation Plan
 
@@ -119,11 +163,28 @@ Research if LiveStore exposes any sync status or event APIs that could be used t
 3. EventProcessor subscribes to reconnection events
 4. Implement automatic re-subscription on reconnection
 
-### Phase 3: Testing
+### Phase 3: Native Sync Status API Integration
+
+1. Upgrade LiveStore to `0.4.0-dev.22+` in `pnpm-workspace.yaml`
+2. Add `subscribeSyncStatus()` monitoring to StoreManager:
+   - Subscribe to sync status on store creation
+   - Track `lastSyncStatusUpdate` timestamp per store
+   - Detect stuck sync: `pendingCount > 0 && !isSynced` for >60s
+   - Mark store as disconnected and trigger reconnection when stuck
+3. Remove query-based probing:
+   - Delete `probeStoreConnection()` method
+   - Remove probe logic from `startHealthChecks()`
+4. Update health metrics to include sync status:
+   - Add `syncStatus` (localHead, upstreamHead, pendingCount, isSynced)
+   - Add `lastSyncStatusUpdate` timestamp
+5. Update health endpoint to expose sync status metrics
+
+### Phase 4: Testing
 
 1. Unit tests for new health monitoring methods
-2. Manual testing with simulated disconnects
-3. Verify health endpoint exposes new metrics
+2. Unit tests for sync status monitoring
+3. Manual testing with simulated disconnects
+4. Verify health endpoint exposes new metrics
 
 ## New Health Metrics
 
@@ -136,7 +197,15 @@ After implementation, the health endpoint should expose:
       lastUpdateAt: string,
       silenceDurationMs: number,
       isHealthy: boolean,
-      probeResult: boolean
+      // Phase 3: Native sync status (replaces probeResult)
+      syncStatus: {
+        localHead: string,
+        upstreamHead: string,
+        pendingCount: number,
+        isSynced: boolean,
+        lastSyncStatusUpdate: string,
+        syncStaleDurationMs: number
+      }
     }
   }
 }
@@ -151,8 +220,21 @@ After implementation, the health endpoint should expose:
 
 ## Risks and Mitigations
 
-| Risk                                | Mitigation                                         |
-| ----------------------------------- | -------------------------------------------------- |
-| False positives during low activity | Use reasonable silence threshold (e.g., 5 minutes) |
-| Reconnection storm                  | Add backoff/jitter to reconnection logic           |
-| Query probe adds load               | Use lightweight query, rate-limit probes           |
+| Risk                                       | Mitigation                                                                |
+| ------------------------------------------ | ------------------------------------------------------------------------- |
+| False positives during low activity        | Use reasonable silence threshold (e.g., 5 minutes)                        |
+| Reconnection storm                         | Add backoff/jitter to reconnection logic                                  |
+| LiveStore upgrade breaks compatibility     | Test thoroughly in dev before deploying; review LiveStore changelog       |
+| Sync status API behavior differs from docs | Verify API behavior with integration tests before removing probe fallback |
+
+## Related Research
+
+### LiveStore GitHub Issues
+
+| Issue                                                       | Description                                                |
+| ----------------------------------------------------------- | ---------------------------------------------------------- |
+| [#967](https://github.com/livestorejs/livestore/pull/967)   | PR that added the Sync Status API                          |
+| [#966](https://github.com/livestorejs/livestore/issues/966) | Feature request for sync head comparison                   |
+| [#961](https://github.com/livestorejs/livestore/issues/961) | WebSocket connections persist after unmount                |
+| [#955](https://github.com/livestorejs/livestore/issues/955) | Leader handoff sync deadlock - shows internal sync metrics |
+| [#714](https://github.com/livestorejs/livestore/issues/714) | Cloudflare DO 30s CPU eviction closes WebSocket            |

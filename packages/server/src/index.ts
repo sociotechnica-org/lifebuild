@@ -215,7 +215,7 @@ async function main() {
       }
 
       const subscriptionHealth = eventProcessor.getSubscriptionHealthStatus()
-      const connectionProbes = storeManager.probeAllConnections()
+      // Use getConnectionStatus for read-only status instead of probeAllConnections which has side effects
       const storeHealth = storeManager.getHealthStatus()
 
       // Combine subscription and connection health
@@ -225,11 +225,12 @@ async function main() {
           subscription: {
             lastUpdateAt: string | null
             silenceDurationMs: number
+            monitoringStartedAt: string | null
+            monitoringDurationMs: number
             isHealthy: boolean
             thresholdMs: number
           }
           connection: {
-            probeResult: boolean
             status: string
             errorCount: number
           }
@@ -238,20 +239,22 @@ async function main() {
       > = {}
 
       for (const [storeId, subHealth] of subscriptionHealth) {
-        const connHealth = connectionProbes.get(storeId)
+        // Find matching store status from health check (read-only)
+        const storeStatus = storeHealth.stores.find(s => s.storeId === storeId)
         combinedHealth[storeId] = {
           subscription: {
             lastUpdateAt: subHealth.lastUpdateAt,
             silenceDurationMs: subHealth.silenceDurationMs,
+            monitoringStartedAt: subHealth.monitoringStartedAt,
+            monitoringDurationMs: subHealth.monitoringDurationMs,
             isHealthy: subHealth.isHealthy,
             thresholdMs: subHealth.thresholdMs,
           },
           connection: {
-            probeResult: connHealth?.healthy ?? false,
-            status: connHealth?.status ?? 'unknown',
-            errorCount: connHealth?.errorCount ?? 0,
+            status: storeStatus?.status ?? 'unknown',
+            errorCount: storeStatus?.errorCount ?? 0,
           },
-          overallHealthy: subHealth.isHealthy && (connHealth?.healthy ?? false),
+          overallHealthy: subHealth.isHealthy && storeStatus?.status === 'connected',
         }
       }
 
