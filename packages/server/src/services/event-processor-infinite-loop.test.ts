@@ -35,6 +35,10 @@ const mockStore = {
 const mockStoreManager = {
   getStore: vi.fn(() => mockStore),
   updateActivity: vi.fn(),
+  on: vi.fn(),
+  emit: vi.fn(),
+  removeListener: vi.fn(),
+  getAllStores: vi.fn(() => new Map()),
 }
 
 // Track subscription callbacks for table updates

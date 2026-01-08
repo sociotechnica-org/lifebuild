@@ -205,6 +205,71 @@ async function main() {
           },
         })
       )
+    } else if (pathname === '/debug/subscription-health') {
+      // Debug endpoint for subscription health monitoring
+      // Requires authorization in production
+      if (!isDashboardAuthorized(req)) {
+        res.writeHead(401, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Unauthorized - add ?token=YOUR_SERVER_BYPASS_TOKEN' }))
+        return
+      }
+
+      const subscriptionHealth = eventProcessor.getSubscriptionHealthStatus()
+      const connectionProbes = storeManager.probeAllConnections()
+      const storeHealth = storeManager.getHealthStatus()
+
+      // Combine subscription and connection health
+      const combinedHealth: Record<
+        string,
+        {
+          subscription: {
+            lastUpdateAt: string | null
+            silenceDurationMs: number
+            isHealthy: boolean
+            thresholdMs: number
+          }
+          connection: {
+            probeResult: boolean
+            status: string
+            errorCount: number
+          }
+          overallHealthy: boolean
+        }
+      > = {}
+
+      for (const [storeId, subHealth] of subscriptionHealth) {
+        const connHealth = connectionProbes.get(storeId)
+        combinedHealth[storeId] = {
+          subscription: {
+            lastUpdateAt: subHealth.lastUpdateAt,
+            silenceDurationMs: subHealth.silenceDurationMs,
+            isHealthy: subHealth.isHealthy,
+            thresholdMs: subHealth.thresholdMs,
+          },
+          connection: {
+            probeResult: connHealth?.healthy ?? false,
+            status: connHealth?.status ?? 'unknown',
+            errorCount: connHealth?.errorCount ?? 0,
+          },
+          overallHealthy: subHealth.isHealthy && (connHealth?.healthy ?? false),
+        }
+      }
+
+      // Calculate overall system health
+      const allHealthy = Object.values(combinedHealth).every(h => h.overallHealthy)
+      const anyUnhealthy = Object.values(combinedHealth).some(h => !h.overallHealthy)
+
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          systemHealthy: allHealthy,
+          hasUnhealthyStores: anyUnhealthy,
+          storeCount: Object.keys(combinedHealth).length,
+          stores: combinedHealth,
+          storeStatuses: storeHealth.stores,
+        })
+      )
     } else if (pathname === '/stores') {
       const storeInfo = storeManager.getAllStoreInfo()
       const processingStats = eventProcessor.getProcessingStats()
