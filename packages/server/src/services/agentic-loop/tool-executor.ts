@@ -55,7 +55,8 @@ export class ToolExecutor {
       this.options.onToolComplete?.(result)
       return result
     } catch (error) {
-      logger.error({ error, toolName: toolCall.function.name }, 'Tool execution error')
+      // Use 'err' key for proper pino error serialization
+      logger.error({ err: error, toolName: toolCall.function.name }, 'Tool execution error')
       const errorObj = error as Error
       this.options.onToolError?.(errorObj, toolCall)
 

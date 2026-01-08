@@ -1218,7 +1218,18 @@ export class EventProcessor {
           )
         },
         onError: (error, iteration) => {
-          logger.error({ error, iteration }, `Agentic loop error`)
+          // DIAGNOSTIC: Use 'err' key for proper pino error serialization
+          // Also added _diagnostic marker to help identify in Sentry
+          logger.error(
+            {
+              err: error,
+              iteration,
+              storeId,
+              messageId: userMessage.id,
+              _diagnostic: 'agentic_loop_error',
+            },
+            `DIAGNOSTIC: Agentic loop error (base logger with err key)`
+          )
           store.commit(
             events.llmResponseReceived({
               id: crypto.randomUUID(),
@@ -1275,6 +1286,12 @@ export class EventProcessor {
     // Get correlation ID for this message
     const correlationId = this.lifecycleTracker.getCorrelationId(userMessage.id)
 
+    // DIAGNOSTIC: Log with base logger to verify Sentry receives logs during request processing
+    logger.info(
+      { storeId, messageId: userMessage.id, correlationId, _diagnostic: 'agentic_loop_start' },
+      'DIAGNOSTIC: Starting agentic loop (base logger)'
+    )
+
     // Run the agentic loop with message tracking context
     await agenticLoop.run(userMessage.message, {
       boardContext,
@@ -1287,6 +1304,12 @@ export class EventProcessor {
       correlationId,
       storeId,
     })
+
+    // DIAGNOSTIC: Log with base logger after agentic loop completes
+    logger.info(
+      { storeId, messageId: userMessage.id, correlationId, _diagnostic: 'agentic_loop_complete' },
+      'DIAGNOSTIC: Agentic loop completed (base logger)'
+    )
 
     return completionEmitted
   }

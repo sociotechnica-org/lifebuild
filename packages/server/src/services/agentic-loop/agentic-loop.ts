@@ -214,7 +214,8 @@ export class AgenticLoop {
         completedSuccessfully = true
         break
       } catch (error) {
-        log.error({ error, iteration }, `Error in iteration`)
+        // Use 'err' key for proper pino error serialization
+        log.error({ err: error, iteration, _diagnostic: 'iteration_error' }, `Error in iteration`)
 
         // Check if this is a transient error that we should retry
         const isTransientError = this.isTransientError(error)
@@ -234,7 +235,10 @@ export class AgenticLoop {
         }
 
         // For non-transient errors or after max retries, emit error and complete gracefully
-        log.error(`Fatal error or max retries reached, aborting loop`)
+        log.error(
+          { err: error, iteration, retryAttempts, _diagnostic: 'fatal_error' },
+          `Fatal error or max retries reached, aborting loop`
+        )
         this.events.onError?.(error as Error, iteration)
 
         // Send user-friendly error message
