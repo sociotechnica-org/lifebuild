@@ -133,6 +133,14 @@ type SyncStatus = {
 - Detects stuck sync (high `pendingCount` without progress) before queries would fail
 - Provides `isSynced` boolean for simple health checks
 
+**Alternative API - `store.events({ source })`:**
+
+Per [#966](https://github.com/livestorejs/livestore/issues/966), LiveStore also exposes `store.events({ source: 'client' | 'backend' })` which returns a live-updating array of events filtered by source. While useful for debugging and understanding sync state, `subscribeSyncStatus()` is preferred for health monitoring because:
+
+- It provides structured status data (`isSynced`, `pendingCount`) rather than raw events
+- It's purpose-built for monitoring sync health
+- It requires less processing to determine connection state
+
 **Files to modify:**
 
 - `pnpm-workspace.yaml` (upgrade LiveStore version)
