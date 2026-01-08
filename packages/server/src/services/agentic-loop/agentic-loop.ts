@@ -1,9 +1,114 @@
 import type { Store } from '@livestore/livestore'
+import * as Sentry from '@sentry/node'
 import { ConversationHistory } from './conversation-history.js'
 import { ToolExecutor } from './tool-executor.js'
 import type { LLMProvider, AgenticLoopContext, AgenticLoopEvents, LLMMessage } from './types.js'
 import { logger, createCorrelatedLogger } from '../../utils/logger.js'
 import { getMessageLifecycleTracker } from '../message-lifecycle-tracker.js'
+
+/**
+ * Error classification for determining which errors should be reported to Sentry.
+ *
+ * Sentry exceptions (actionable issues):
+ * - stuck_loop: Bug indicator - LLM/tool logic is broken
+ * - auth_error: Configuration problem - needs immediate fix
+ * - persistent_failure: Non-transient error after retries exhausted
+ * - unknown: Catch-all for unexpected errors
+ *
+ * Logs only (expected behavior):
+ * - transient: Rate limits, temp network issues - handled by retry
+ * - max_iterations: User request was too complex - not a bug
+ */
+export type AgenticErrorType =
+  | 'stuck_loop'
+  | 'auth_error'
+  | 'persistent_failure'
+  | 'transient'
+  | 'max_iterations'
+  | 'unknown'
+
+export interface ClassifiedError {
+  type: AgenticErrorType
+  shouldCaptureException: boolean
+  error: Error
+  userMessage: string
+}
+
+export function classifyError(error: unknown, isAfterRetries: boolean = false): ClassifiedError {
+  const err = error instanceof Error ? error : new Error(String(error))
+  const message = err.message?.toLowerCase() || ''
+
+  // Stuck loop - always report
+  if (message.includes('stuck loop')) {
+    return {
+      type: 'stuck_loop',
+      shouldCaptureException: true,
+      error: err,
+      userMessage: 'The assistant got stuck in a loop. Please try rephrasing your request.',
+    }
+  }
+
+  // Auth errors - always report (configuration issue)
+  if (message.includes('unauthorized') || message.includes('401') || message.includes('403')) {
+    return {
+      type: 'auth_error',
+      shouldCaptureException: true,
+      error: err,
+      userMessage: 'Authentication failed. Please contact support.',
+    }
+  }
+
+  // Max iterations - expected behavior, not a bug (user request was too complex)
+  if (message.includes('maximum iterations')) {
+    return {
+      type: 'max_iterations',
+      shouldCaptureException: false,
+      error: err,
+      userMessage: err.message, // Use the original message which has helpful context
+    }
+  }
+
+  // Transient errors
+  const isTransient =
+    message.includes('timeout') ||
+    message.includes('network') ||
+    message.includes('econnrefused') ||
+    message.includes('socket hang up') ||
+    message.includes('rate limit') ||
+    message.includes('429') ||
+    message.includes('too many requests') ||
+    message.includes('503') ||
+    message.includes('service unavailable') ||
+    message.includes('502') ||
+    message.includes('bad gateway')
+
+  if (isTransient) {
+    // If we're after retries, this becomes a persistent failure
+    if (isAfterRetries) {
+      return {
+        type: 'persistent_failure',
+        shouldCaptureException: true,
+        error: err,
+        userMessage: 'The service is temporarily unavailable. Please try again later.',
+      }
+    }
+    return {
+      type: 'transient',
+      shouldCaptureException: false,
+      error: err,
+      userMessage: 'A temporary error occurred. Please try again.',
+    }
+  }
+
+  // Unknown error - report to help identify new error patterns
+  return {
+    type: 'unknown',
+    shouldCaptureException: true,
+    error: err,
+    userMessage:
+      'An error occurred while processing your request. Please try again or contact support if the issue persists.',
+  }
+}
 
 export class AgenticLoop {
   private history: ConversationHistory
@@ -25,7 +130,7 @@ export class AgenticLoop {
         logger.debug({ tool: result.toolCall.function.name }, `Tool completed`)
       },
       onToolError: (error, toolCall) => {
-        logger.error({ error, tool: toolCall.function.name }, `Tool error`)
+        logger.error({ err: error, tool: toolCall.function.name }, `Tool error`)
       },
     })
     this.maxIterations = 10 // Default max iterations
@@ -80,8 +185,8 @@ export class AgenticLoop {
 
     // Run the loop
     let completedSuccessfully = false
+    let retryAttempts = 0 // Track retry attempts across the retry cycle (persists across iteration decrements)
     for (let iteration = 1; iteration <= this.maxIterations; iteration++) {
-      let retryAttempts = 0 // Reset retry counter for each iteration
       const iterationStartTime = Date.now()
       try {
         this.events.onIterationStart?.(iteration)
@@ -99,6 +204,9 @@ export class AgenticLoop {
               this.events.onRetry?.(attempt, maxRetries, delayMs, error),
           }
         )
+
+        // Reset retry counter on successful LLM call
+        retryAttempts = 0
 
         const iterationDurationMs = Date.now() - iterationStartTime
         const toolNames = response.toolCalls?.map(tc => tc.function.name)
@@ -152,11 +260,29 @@ export class AgenticLoop {
 
               if (currentCount >= 3) {
                 isStuckLoop = true
-                log.error(`Detected stuck loop - breaking out`)
-                this.events.onError?.(
-                  new Error('Stuck loop detected: Repeating same tool calls'),
-                  iteration
+                const stuckError = new Error('Stuck loop detected: Repeating same tool calls')
+                log.error(
+                  { err: stuckError, tool: toolCall.function.name },
+                  `Detected stuck loop - breaking out`
                 )
+
+                // Capture stuck loop to Sentry - this is a bug indicator
+                Sentry.withScope(scope => {
+                  scope.setTag('agentic_loop.error_type', 'stuck_loop')
+                  scope.setTag('agentic_loop.iteration', String(iteration))
+                  if (storeId) scope.setTag('store_id', storeId)
+                  if (messageId) scope.setTag('message_id', messageId)
+                  if (correlationId) scope.setTag('correlation_id', correlationId)
+                  scope.setContext('agentic_loop', {
+                    iteration,
+                    maxIterations: this.maxIterations,
+                    stuckOnTool: toolCall.function.name,
+                    recentToolCalls: toolCallHistory.slice(-5),
+                  })
+                  Sentry.captureException(stuckError)
+                })
+
+                this.events.onError?.(stuckError, iteration)
                 break
               }
             } else {
@@ -214,13 +340,25 @@ export class AgenticLoop {
         completedSuccessfully = true
         break
       } catch (error) {
+        // Classify the error to determine handling strategy
+        const isAfterMaxRetries = retryAttempts >= 3
+        const classified = classifyError(error, isAfterMaxRetries)
+
         // Use 'err' key for proper pino error serialization
-        log.error({ err: error, iteration, _diagnostic: 'iteration_error' }, `Error in iteration`)
+        log.error(
+          {
+            err: classified.error,
+            iteration,
+            errorType: classified.type,
+            retryAttempts,
+            _diagnostic: 'iteration_error',
+          },
+          `Error in iteration`
+        )
 
         // Check if this is a transient error that we should retry
-        const isTransientError = this.isTransientError(error)
         const shouldRetry =
-          isTransientError && iteration < this.maxIterations - 1 && retryAttempts < 3
+          classified.type === 'transient' && iteration < this.maxIterations - 1 && retryAttempts < 3
 
         if (shouldRetry) {
           retryAttempts++
@@ -236,14 +374,41 @@ export class AgenticLoop {
 
         // For non-transient errors or after max retries, emit error and complete gracefully
         log.error(
-          { err: error, iteration, retryAttempts, _diagnostic: 'fatal_error' },
+          {
+            err: classified.error,
+            iteration,
+            retryAttempts,
+            errorType: classified.type,
+            shouldCapture: classified.shouldCaptureException,
+            _diagnostic: 'fatal_error',
+          },
           `Fatal error or max retries reached, aborting loop`
         )
-        this.events.onError?.(error as Error, iteration)
+
+        // Capture actionable errors to Sentry
+        if (classified.shouldCaptureException) {
+          Sentry.withScope(scope => {
+            scope.setTag('agentic_loop.error_type', classified.type)
+            scope.setTag('agentic_loop.iteration', String(iteration))
+            scope.setTag('agentic_loop.retry_attempts', String(retryAttempts))
+            if (storeId) scope.setTag('store_id', storeId)
+            if (messageId) scope.setTag('message_id', messageId)
+            if (correlationId) scope.setTag('correlation_id', correlationId)
+            scope.setContext('agentic_loop', {
+              iteration,
+              maxIterations: this.maxIterations,
+              retryAttempts,
+              errorType: classified.type,
+              recentToolCalls: toolCallHistory.slice(-5),
+            })
+            Sentry.captureException(classified.error)
+          })
+        }
+
+        this.events.onError?.(classified.error, iteration)
 
         // Send user-friendly error message
-        const userMessage = this.getUserFriendlyError(error)
-        this.events.onFinalMessage?.(userMessage)
+        this.events.onFinalMessage?.(classified.userMessage)
         this.events.onComplete?.(iteration)
         break
       }
@@ -293,69 +458,6 @@ export class AgenticLoop {
    */
   getLLMProvider(): LLMProvider {
     return this.llmProvider
-  }
-
-  /**
-   * Check if an error is transient and should be retried
-   */
-  private isTransientError(error: unknown): boolean {
-    const message = (error as Error).message?.toLowerCase() || ''
-
-    // Network/timeout errors
-    if (
-      message.includes('timeout') ||
-      message.includes('network') ||
-      message.includes('econnrefused') ||
-      message.includes('socket hang up')
-    ) {
-      return true
-    }
-
-    // Rate limiting errors
-    if (
-      message.includes('rate limit') ||
-      message.includes('429') ||
-      message.includes('too many requests')
-    ) {
-      return true
-    }
-
-    // Temporary API errors
-    if (
-      message.includes('503') ||
-      message.includes('service unavailable') ||
-      message.includes('502') ||
-      message.includes('bad gateway')
-    ) {
-      return true
-    }
-
-    return false
-  }
-
-  /**
-   * Get user-friendly error message
-   */
-  private getUserFriendlyError(error: unknown): string {
-    const message = (error as Error).message?.toLowerCase() || ''
-
-    if (message.includes('timeout')) {
-      return 'The request took too long to complete. Please try again with a simpler request.'
-    }
-
-    if (message.includes('rate limit')) {
-      return "We're experiencing high demand. Please wait a moment and try again."
-    }
-
-    if (message.includes('network')) {
-      return 'There was a network issue. Please check your connection and try again.'
-    }
-
-    if (message.includes('unauthorized') || message.includes('401')) {
-      return 'Authentication failed. Please check your API credentials.'
-    }
-
-    return 'An error occurred while processing your request. Please try again or contact support if the issue persists.'
   }
 
   /**

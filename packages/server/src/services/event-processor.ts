@@ -2,7 +2,7 @@ import type { Store as LiveStore } from '@livestore/livestore'
 import { queryDb } from '@livestore/livestore'
 import type { StoreManager } from './store-manager.js'
 import { tables, events } from '@lifebuild/shared/schema'
-import { AgenticLoop } from './agentic-loop/agentic-loop.js'
+import { AgenticLoop, classifyError } from './agentic-loop/agentic-loop.js'
 import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
 import { DEFAULT_MODEL } from '@lifebuild/shared'
 import { MessageQueueManager } from './message-queue-manager.js'
@@ -1218,25 +1218,32 @@ export class EventProcessor {
           )
         },
         onError: (error, iteration) => {
-          // DIAGNOSTIC: Use 'err' key for proper pino error serialization
-          // Also added _diagnostic marker to help identify in Sentry
+          // Use the classification for consistent error typing
+          // Pass isAfterRetries=true since onError is only called after retries are exhausted
+          const classified = classifyError(error, true)
+          // Use 'err' key for proper pino error serialization with _diagnostic marker
           logger.error(
             {
-              err: error,
+              err: classified.error,
               iteration,
               storeId,
               messageId: userMessage.id,
+              errorType: classified.type,
               _diagnostic: 'agentic_loop_error',
             },
-            `DIAGNOSTIC: Agentic loop error (base logger with err key)`
+            `Agentic loop error: ${classified.type}`
           )
+
+          // Use max_iterations message directly if that's the error type
+          const displayMessage = error.message.includes('Maximum iterations')
+            ? error.message
+            : classified.userMessage
+
           store.commit(
             events.llmResponseReceived({
               id: crypto.randomUUID(),
               conversationId: userMessage.conversationId,
-              message: error.message.includes('Maximum iterations')
-                ? error.message
-                : 'I encountered an error while processing your request. Please try again.',
+              message: displayMessage,
               role: 'assistant',
               modelId: 'error',
               responseToMessageId: userMessage.id,
@@ -1244,9 +1251,7 @@ export class EventProcessor {
               llmMetadata: {
                 source: 'error',
                 agenticIteration: iteration,
-                errorType: error.message.includes('stuck loop')
-                  ? 'stuck_loop_detected'
-                  : 'processing_error',
+                errorType: classified.type,
               },
             })
           )
@@ -1265,6 +1270,11 @@ export class EventProcessor {
         },
         onComplete: iterations => {
           // Send completion event to indicate the agentic loop has finished
+          // Skip if already emitted (e.g., from onError handler)
+          if (completionEmitted) {
+            logger.info({ iterations }, `Agentic loop completed (completion already emitted)`)
+            return
+          }
           logger.info({ iterations }, `Agentic loop completed`)
           store.commit(
             events.llmResponseCompleted({
