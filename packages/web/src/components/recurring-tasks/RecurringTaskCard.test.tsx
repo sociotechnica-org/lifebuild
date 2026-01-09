@@ -101,7 +101,7 @@ describe('RecurringTaskCard', () => {
   })
 
   it('should show action buttons on hover', async () => {
-    const { container } = render(
+    render(
       <RecurringTaskCard
         task={mockTask}
         onEdit={mockOnEdit}
@@ -111,15 +111,17 @@ describe('RecurringTaskCard', () => {
       />
     )
 
-    const card = container.firstChild as HTMLElement
+    // Find the actual card element by its text content
+    const card = screen.getByText('Test Task').closest('div[class*="bg-white"]')!
 
-    // Initially actions should be hidden
-    expect(container.querySelector('.opacity-0')).toBeInTheDocument()
+    // Initially actions should be hidden (opacity-0)
+    const actionsContainer = card.querySelector('[class*="transition-opacity"]')
+    expect(actionsContainer).toHaveClass('opacity-0')
 
     // Hover should show buttons
     fireEvent.mouseEnter(card)
     await waitFor(() => {
-      expect(container.querySelector('.opacity-100')).toBeInTheDocument()
+      expect(actionsContainer).toHaveClass('opacity-100')
     })
   })
 

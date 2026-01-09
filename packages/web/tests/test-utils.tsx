@@ -14,7 +14,7 @@ interface TestProviderProps {
 }
 
 function TestProvider({ children }: TestProviderProps) {
-  return <div data-testid="test-wrapper">{children}</div>
+  return <div data-testid='test-wrapper'>{children}</div>
 }
 
 const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) => {

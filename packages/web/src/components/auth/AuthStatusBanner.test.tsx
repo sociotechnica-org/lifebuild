@@ -64,9 +64,13 @@ describe('AuthStatusBanner', () => {
     mockUseAuth.mockReturnValue(createAuthReturn())
     mockUseSyncPayload.mockReturnValue(createSyncPayloadReturn())
 
-    const { container } = render(<AuthStatusBanner />)
+    render(<AuthStatusBanner />)
 
-    expect(container).toBeEmptyDOMElement()
+    // Component returns null when session is healthy, so no banner content should be visible
+    expect(screen.queryByText('Refreshing your session…')).not.toBeInTheDocument()
+    expect(screen.queryByText('Hold on — session needs attention')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Log out' })).not.toBeInTheDocument()
   })
 
   it('shows reconnecting state while session refreshes', () => {

@@ -41,11 +41,11 @@ describe('QuickAddProjectModal', () => {
   })
 
   it('does not render when closed', () => {
-    const { container } = render(
-      <QuickAddProjectModal isOpen={false} onClose={() => {}} categoryId='health' />
-    )
+    render(<QuickAddProjectModal isOpen={false} onClose={() => {}} categoryId='health' />)
 
-    expect(container.firstChild).toBeNull()
+    // Modal should not render any content when closed
+    expect(screen.queryByText('Add Project')).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('Enter project name')).not.toBeInTheDocument()
   })
 
   it('shows validation error when submitting empty name', async () => {

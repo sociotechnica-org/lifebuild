@@ -54,10 +54,11 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     processedMessages.clear() // Clear the mock processed messages
 
     // Mock subscribe to capture table update callbacks
-    mockStore.subscribe.mockImplementation((query, { onUpdate }) => {
+    // New LiveStore API: callback is passed directly as second argument
+    mockStore.subscribe.mockImplementation((query, callback) => {
       // For table subscriptions, use the query label as the key
       const queryLabel = query?.label || 'unknown'
-      tableUpdateCallbacks.set(queryLabel, onUpdate)
+      tableUpdateCallbacks.set(queryLabel, callback)
       return () => {} // unsubscribe function
     })
   })
