@@ -321,9 +321,10 @@ export function TaskDetailModal({
 
   // Display values for view mode - use edit fields as they contain the latest saved values
   // This ensures the modal shows correct state immediately after save, before LiveStore updates the task prop
-  const displayTitle = editTitle || task?.title || ''
-  const displayDescription = editDescription || task?.description || ''
-  const displayStatus = editStatus || (task?.status as TaskStatus) || 'todo'
+  // Use ?? (nullish coalescing) to allow empty strings to display correctly (e.g., after clearing a description)
+  const displayTitle = editTitle ?? task?.title ?? ''
+  const displayDescription = editDescription ?? task?.description ?? ''
+  const displayStatus = editStatus ?? (task?.status as TaskStatus) ?? 'todo'
   const displayDeadline = editDeadline ? dateStringToTimestamp(editDeadline) : getTaskDeadline(task)
 
   return (
