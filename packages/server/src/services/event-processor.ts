@@ -298,10 +298,8 @@ export class EventProcessor {
         label: `monitor-${tableName}-${storeId}`,
       })
 
-      const unsubscribe = store.subscribe(query as any, {
-        onUpdate: (records: any[]) => {
-          this.handleTableUpdate(storeId, tableName, records, storeState)
-        },
+      const unsubscribe = store.subscribe(query as any, (records: any[]) => {
+        this.handleTableUpdate(storeId, tableName, records, storeState)
       })
 
       storeState.subscriptions.push(unsubscribe)

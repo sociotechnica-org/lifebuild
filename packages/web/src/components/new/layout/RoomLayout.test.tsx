@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent } from '../../../../tests/test-utils.js'
 import { describe, expect, it, beforeEach, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { RoomLayout } from './RoomLayout.js'
@@ -22,7 +22,7 @@ vi.mock('../../../contexts/AuthContext.js', () => ({
   }),
 }))
 
-vi.mock('@livestore/react', () => ({
+vi.mock('../../../livestore-compat.js', () => ({
   useQuery: () => [],
   useStore: () => ({ store: { commit: vi.fn() } }),
 }))

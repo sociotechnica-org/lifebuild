@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode } from 'react'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../livestore-compat.js'
 import { getProjectById$ } from '@lifebuild/shared/queries'
 import type { Project } from '@lifebuild/shared/schema'
 

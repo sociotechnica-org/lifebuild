@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen } from '../../../tests/test-utils.js'
 import type { ChatMessage } from '@lifebuild/shared/schema'
 import { RoomChatPanel } from './RoomChatPanel.js'
 

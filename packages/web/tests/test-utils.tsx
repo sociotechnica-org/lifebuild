@@ -4,13 +4,16 @@ import { render, type RenderOptions } from '@testing-library/react'
 import type { Task, Project, Contact } from '@lifebuild/shared/schema'
 import type { StatusColumn } from '@lifebuild/shared'
 
-// Simple test wrapper for basic component testing
+// Note: livestore-compat.js is aliased to @livestore/react in vitest.config.ts
+// This allows tests that mock @livestore/react to work correctly with components
+// that import from livestore-compat.js
+
+// Simple test wrapper - no LiveStoreProvider needed since tests mock the hooks
 interface TestProviderProps {
   children: React.ReactNode
 }
 
 function TestProvider({ children }: TestProviderProps) {
-  // Simple wrapper for now - can be enhanced later for LiveStore
   return <div data-testid='test-wrapper'>{children}</div>
 }
 

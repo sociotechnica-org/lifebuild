@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent } from '../../../../tests/test-utils.js'
 import { describe, expect, it, vi } from 'vitest'
 import { ModelSelector } from './ModelSelector.js'
 import { DEFAULT_MODEL, MODEL_IDS } from '../../../utils/models.js'

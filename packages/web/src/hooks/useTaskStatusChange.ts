@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useStore, useQuery } from '@livestore/react'
+import { useStore, useQuery } from '../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
 import type { Task, Project, TaskStatus } from '@lifebuild/shared/schema'
 import { getProjects$ } from '@lifebuild/shared/queries'

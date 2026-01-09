@@ -1,15 +1,15 @@
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen } from '../../../../tests/test-utils.js'
 import { ExecutionHistory } from '../ExecutionHistory'
 import type { TaskExecution } from '@lifebuild/shared/schema'
 
-// Mock the useQuery hook
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../../livestore-compat.js', () => ({
   useQuery: vi.fn(),
 }))
 
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../../livestore-compat.js'
 
 describe('ExecutionHistory', () => {
   it('should display empty state when no executions', () => {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useStore } from '@livestore/react'
+import { useStore } from '../../../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
 import { FormModal } from '../../ui/FormModal/index.js'
 import { useModalForm } from '../../../hooks/useModalForm.js'

@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '../../../tests/test-utils.js'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ContactForm } from './ContactForm.js'
 

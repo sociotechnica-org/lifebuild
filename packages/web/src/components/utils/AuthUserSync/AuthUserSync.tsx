@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { useAuth } from '../../../contexts/AuthContext.js'
-import { useStore, useQuery } from '@livestore/react'
+import { useStore, useQuery } from '../../../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
 import { getUsers$ } from '@lifebuild/shared/queries'
 

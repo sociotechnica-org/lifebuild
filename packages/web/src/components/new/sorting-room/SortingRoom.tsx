@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../../../livestore-compat.js'
 import { getProjects$, getAllTasks$ } from '@lifebuild/shared/queries'
 import {
   resolveLifecycleState,

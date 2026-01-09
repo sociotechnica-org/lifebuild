@@ -1,4 +1,4 @@
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../../livestore-compat.js'
 import React, { useState } from 'react'
 import { getContacts$ } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'

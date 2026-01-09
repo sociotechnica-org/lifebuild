@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '../../../tests/test-utils.js'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { PROJECT_CATEGORIES } from '@lifebuild/shared'
 import { QuickAddProjectModal } from './QuickAddProjectModal.js'
@@ -8,7 +8,7 @@ import { QuickAddProjectModal } from './QuickAddProjectModal.js'
 const mockCommit = vi.fn()
 const mockStore = { commit: mockCommit }
 
-vi.mock('@livestore/react', () => ({
+vi.mock('../../livestore-compat.js', () => ({
   useStore: () => ({ store: mockStore }),
   useQuery: () => null, // Mock useQuery for useCategoryAdvisor hook
 }))
@@ -41,11 +41,11 @@ describe('QuickAddProjectModal', () => {
   })
 
   it('does not render when closed', () => {
-    const { container } = render(
-      <QuickAddProjectModal isOpen={false} onClose={() => {}} categoryId='health' />
-    )
+    render(<QuickAddProjectModal isOpen={false} onClose={() => {}} categoryId='health' />)
 
-    expect(container.firstChild).toBeNull()
+    // Modal should not render any content when closed
+    expect(screen.queryByText('Add Project')).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('Enter project name')).not.toBeInTheDocument()
   })
 
   it('shows validation error when submitting empty name', async () => {

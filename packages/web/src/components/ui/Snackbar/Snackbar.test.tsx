@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '../../../../tests/test-utils.js'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { SnackbarProvider, useSnackbar } from './Snackbar.js'
 
@@ -8,9 +8,10 @@ const mockStore = vi.hoisted(() => ({
   commit: vi.fn(),
 }))
 
-// Mock @livestore/react
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../../livestore-compat.js', () => ({
   useStore: () => ({ store: mockStore }),
+  useQuery: vi.fn(() => []),
 }))
 
 // Test component that uses the snackbar hook

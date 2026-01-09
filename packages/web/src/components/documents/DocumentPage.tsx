@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { formatDate } from '../../utils/dates.js'
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../../livestore-compat.js'
 import { getDocumentById$ } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'

@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../livestore-compat.js'
 import {
   getRecurringTasks$,
   getRecurringTaskById$,

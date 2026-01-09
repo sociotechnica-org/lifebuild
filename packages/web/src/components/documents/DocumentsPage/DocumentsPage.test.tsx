@@ -1,10 +1,10 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '../../../../tests/test-utils.js'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { DocumentsPage } from './DocumentsPage.js'
 import { getAllDocuments$, getProjects$, getAllDocumentProjects$ } from '@lifebuild/shared/queries'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../../livestore-compat.js'
 
 // Hoisted mocks
 const { mockStore, mockDocuments, mockProjects } = vi.hoisted(() => {
@@ -41,8 +41,8 @@ vi.mock('@lifebuild/shared/queries', () => ({
   getAllDocumentProjects$: vi.fn(),
 }))
 
-// Mock @livestore/react
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../../livestore-compat.js', () => ({
   useStore: () => ({ store: mockStore }),
   useQuery: vi.fn(),
 }))

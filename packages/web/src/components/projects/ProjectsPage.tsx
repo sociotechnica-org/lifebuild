@@ -1,4 +1,4 @@
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../livestore-compat.js'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getProjects$ } from '@lifebuild/shared/queries'

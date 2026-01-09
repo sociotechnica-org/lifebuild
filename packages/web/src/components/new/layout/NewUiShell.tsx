@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { generateRoute, ROUTES } from '../../../constants/routes.js'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../../livestore-compat.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { getUsers$ } from '@lifebuild/shared/queries'
 import type { User } from '@lifebuild/shared/schema'

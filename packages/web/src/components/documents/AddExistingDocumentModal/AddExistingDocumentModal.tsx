@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../../../livestore-compat.js'
 import { formatDate } from '../../../utils/dates.js'
 import { getAllDocuments$, getDocumentProjectsByProject$ } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'

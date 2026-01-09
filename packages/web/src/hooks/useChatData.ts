@@ -1,4 +1,4 @@
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../livestore-compat.js'
 import React from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {

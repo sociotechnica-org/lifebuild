@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { useStore } from '@livestore/react'
+import { useStore } from '../../../livestore-compat.js'
 import { formatDate } from '../../../utils/dates.js'
 import type { Project, Worker } from '@lifebuild/shared/schema'
 import { getProjectWorkers$, getWorkers$ } from '@lifebuild/shared/queries'

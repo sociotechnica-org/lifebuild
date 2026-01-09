@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '../../../tests/test-utils.js'
 import { RecurringTaskCard } from './RecurringTaskCard'
 import type { RecurringTask } from '@lifebuild/shared/schema'
 
@@ -10,8 +10,8 @@ vi.mock('@lifebuild/shared', () => ({
   formatRelativeTime: vi.fn((_timestamp: number) => 'in 2 hours'),
 }))
 
-// Mock useQuery hook
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../livestore-compat.js', () => ({
   useQuery: vi.fn(() => []),
 }))
 
@@ -101,7 +101,7 @@ describe('RecurringTaskCard', () => {
   })
 
   it('should show action buttons on hover', async () => {
-    const { container } = render(
+    render(
       <RecurringTaskCard
         task={mockTask}
         onEdit={mockOnEdit}
@@ -111,15 +111,17 @@ describe('RecurringTaskCard', () => {
       />
     )
 
-    const card = container.firstChild as HTMLElement
+    // Find the actual card element by its text content
+    const card = screen.getByText('Test Task').closest('div[class*="bg-white"]')!
 
-    // Initially actions should be hidden
-    expect(container.querySelector('.opacity-0')).toBeInTheDocument()
+    // Initially actions should be hidden (opacity-0)
+    const actionsContainer = card.querySelector('[class*="transition-opacity"]')
+    expect(actionsContainer).toHaveClass('opacity-0')
 
     // Hover should show buttons
     fireEvent.mouseEnter(card)
     await waitFor(() => {
-      expect(container.querySelector('.opacity-100')).toBeInTheDocument()
+      expect(actionsContainer).toHaveClass('opacity-100')
     })
   })
 

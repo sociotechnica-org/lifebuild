@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { useDroppable } from '@dnd-kit/core'
-import { useStore } from '@livestore/react'
+import { useStore } from '../../../livestore-compat.js'
 import type { Task } from '@lifebuild/shared/schema'
 import type { StatusColumn } from '@lifebuild/shared'
 import { events } from '@lifebuild/shared/schema'

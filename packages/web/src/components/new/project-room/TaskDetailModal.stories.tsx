@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
 import { useState } from 'react'
-import { LiveStoreProvider } from '@livestore/react'
+import { LiveStoreProvider } from '../../../livestore-compat.js'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'

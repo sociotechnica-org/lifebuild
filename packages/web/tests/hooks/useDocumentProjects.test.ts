@@ -5,7 +5,7 @@ import {
   useDocumentProjectsTargeted,
 } from '../../src/hooks/useDocumentProjects.js'
 import { getAllDocumentProjects$, getProjects$ } from '@lifebuild/shared/queries'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../src/livestore-compat.js'
 
 // Hoisted mocks
 const { mockDocumentProjects, mockProjects } = vi.hoisted(() => {
@@ -29,8 +29,8 @@ vi.mock('@lifebuild/shared/queries', () => ({
   getProjects$: vi.fn(),
 }))
 
-// Mock @livestore/react
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../src/livestore-compat.js', () => ({
   useQuery: vi.fn(),
 }))
 

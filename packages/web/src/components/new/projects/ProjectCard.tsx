@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../../livestore-compat.js'
 import { getProjectTasks$, getProjectWorkers$ } from '@lifebuild/shared/queries'
 import type { Project as ProjectType } from '@lifebuild/shared/schema'
 import {

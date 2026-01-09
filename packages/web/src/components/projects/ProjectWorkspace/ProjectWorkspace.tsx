@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
 import { formatDate } from '../../../utils/dates.js'
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../../../livestore-compat.js'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import {

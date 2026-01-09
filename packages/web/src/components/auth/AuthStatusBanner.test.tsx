@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '../../../tests/test-utils.js'
 import React from 'react'
 import { ConnectionState, type SyncPayload } from '@lifebuild/shared/auth'
 
@@ -64,9 +64,13 @@ describe('AuthStatusBanner', () => {
     mockUseAuth.mockReturnValue(createAuthReturn())
     mockUseSyncPayload.mockReturnValue(createSyncPayloadReturn())
 
-    const { container } = render(<AuthStatusBanner />)
+    render(<AuthStatusBanner />)
 
-    expect(container).toBeEmptyDOMElement()
+    // Component returns null when session is healthy, so no banner content should be visible
+    expect(screen.queryByText('Refreshing your session…')).not.toBeInTheDocument()
+    expect(screen.queryByText('Hold on — session needs attention')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Log out' })).not.toBeInTheDocument()
   })
 
   it('shows reconnecting state while session refreshes', () => {

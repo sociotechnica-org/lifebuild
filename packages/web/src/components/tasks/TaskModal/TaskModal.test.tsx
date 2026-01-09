@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent, within } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '../../../../tests/test-utils.js'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { TaskModal } from './TaskModal.js'
 import { SnackbarProvider } from '../../ui/Snackbar/Snackbar.js'
@@ -13,8 +13,8 @@ const { mockUseQuery, mockStore, mockUseAuth } = vi.hoisted(() => {
   return { mockUseQuery, mockStore, mockUseAuth }
 })
 
-// Mock @livestore/react
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../../livestore-compat.js', () => ({
   useQuery: mockUseQuery,
   useStore: () => ({ store: mockStore }),
 }))

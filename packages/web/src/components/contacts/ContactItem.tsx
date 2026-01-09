@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../livestore-compat.js'
 import { Contact } from '@lifebuild/shared/schema'
 import { getContactProjects$ } from '@lifebuild/shared/queries'
 import { generateRoute } from '../../constants/routes.js'

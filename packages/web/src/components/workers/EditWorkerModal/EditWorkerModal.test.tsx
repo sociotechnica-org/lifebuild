@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '../../../../tests/test-utils.js'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { EditWorkerModal } from './EditWorkerModal.js'
 import type { Worker } from '@lifebuild/shared/schema'
@@ -11,9 +11,10 @@ const { mockStore } = vi.hoisted(() => {
   return { mockStore }
 })
 
-// Mock @livestore/react
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../../livestore-compat.js', () => ({
   useStore: () => ({ store: mockStore }),
+  useQuery: vi.fn(() => []),
 }))
 
 // Mock system prompt templates

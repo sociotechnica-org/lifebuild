@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../../livestore-compat.js'
 import { getProjectById$, getProjectTasks$ } from '@lifebuild/shared/queries'
 import type { Project, Task } from '@lifebuild/shared/schema'
 import { type PlanningAttributes, resolveLifecycleState } from '@lifebuild/shared'

@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook, waitFor } from '../../tests/test-utils.js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useProjectChatLifecycle } from './useProjectChatLifecycle.js'
 import { createProjectRoomDefinition } from '@lifebuild/shared/rooms'
@@ -48,7 +48,7 @@ const mocks = vi.hoisted(() => {
   }
 })
 
-vi.mock('@livestore/react', () => ({
+vi.mock('../livestore-compat.js', () => ({
   useStore: () => ({ store: { commit: mocks.mockCommit } }),
   useQuery: (query: any) => mocks.mockUseQuery(query),
 }))

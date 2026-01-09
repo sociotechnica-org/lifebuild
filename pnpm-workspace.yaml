@@ -2,15 +2,15 @@ packages:
   - packages/*
 
 catalog:
-  '@livestore/adapter-node': 0.4.0-dev.8
-  '@livestore/adapter-web': 0.4.0-dev.8
-  '@livestore/devtools-vite': 0.4.0-dev.8
-  '@livestore/livestore': 0.4.0-dev.8
-  '@livestore/peer-deps': 0.4.0-dev.8
-  '@livestore/react': 0.4.0-dev.8
-  '@livestore/sync-cf': 0.4.0-dev.8
-  '@livestore/utils': 0.4.0-dev.8
-  '@livestore/wa-sqlite': 0.4.0-dev.8
+  '@livestore/adapter-node': 0.4.0-dev.22
+  '@livestore/adapter-web': 0.4.0-dev.22
+  '@livestore/devtools-vite': 0.4.0-dev.22
+  '@livestore/livestore': 0.4.0-dev.22
+  '@livestore/peer-deps': 0.4.0-dev.22
+  '@livestore/react': 0.4.0-dev.22
+  '@livestore/sync-cf': 0.4.0-dev.22
+  '@livestore/utils': 0.4.0-dev.22
+  '@livestore/wa-sqlite': 0.4.0-dev.22
   effect: ^3.17.13
   typescript: ^5.8.3
   '@types/node': ^24.1.0

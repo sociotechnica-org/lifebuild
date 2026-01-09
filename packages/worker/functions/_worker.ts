@@ -22,6 +22,7 @@ type WorkspaceClaimsKVNamespace = {
 
 // Extend the Env type to include R2 bucket binding and other environment variables
 export interface Env extends SyncEnv {
+  WEBSOCKET_SERVER: CfTypes.DurableObjectNamespace
   IMAGES: CfTypes.R2Bucket
   REQUIRE_AUTH?: string
   ENVIRONMENT?: string
@@ -234,6 +235,7 @@ function createWorkerWithAuth(env: any) {
   if (!requireAuth) {
     console.log('Auth disabled - accepting both dev tokens and JWT tokens for development')
     return SyncBackend.makeWorker({
+      syncBackendBinding: 'WEBSOCKET_SERVER',
       validatePayload: async (payload: any, context?: any) => {
         // CRITICAL: Even in dev mode, enforce workspace isolation
         const requestedStoreId = context?.storeId || payload?.storeId
@@ -272,6 +274,7 @@ function createWorkerWithAuth(env: any) {
 
   // Auth is enabled - use full JWT validation
   return SyncBackend.makeWorker({
+    syncBackendBinding: 'WEBSOCKET_SERVER',
     validatePayload: async (payload: any, context?: any) => {
       console.log('Validating sync payload:', Object.keys(payload || {}))
 
@@ -343,24 +346,22 @@ const fetchHandler = async (
     return handleImageGet(request as unknown as Request, env, imageMatch[1])
   }
 
-  const requestParamsResult = SyncBackend.getSyncRequestSearchParams(request)
+  const searchParams = SyncBackend.matchSyncRequest(request)
 
-  if (requestParamsResult._tag === 'Some') {
+  if (searchParams) {
     // Extract storeId from search params for workspace-based routing
     // LiveStore already routes by storeId to separate Durable Object instances
     // The validatePayload callback ensures the user owns the workspace (instanceId)
     return (await SyncBackend.handleSyncRequest({
       request,
-      searchParams: requestParamsResult.value,
+      searchParams,
       env: env as any,
       ctx,
-      options: {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-        durableObject: { name: 'WEBSOCKET_SERVER' },
+      syncBackendBinding: 'WEBSOCKET_SERVER',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
     })) as unknown as Response
   }

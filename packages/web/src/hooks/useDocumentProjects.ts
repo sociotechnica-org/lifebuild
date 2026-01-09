@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../livestore-compat.js'
 import {
   getAllDocumentProjects$,
   getDocumentProjectsByDocument$,

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../livestore-compat.js'
 import { getTaskExecutions$ } from '@lifebuild/shared/queries'
 import { formatRelativeTime } from '@lifebuild/shared'
 import type { TaskExecution } from '@lifebuild/shared/schema'

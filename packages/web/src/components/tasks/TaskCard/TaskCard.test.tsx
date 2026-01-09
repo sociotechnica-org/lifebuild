@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent } from '../../../../tests/test-utils.js'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { TaskCard } from './TaskCard.js'
 import { createMockTask } from '../../../../tests/test-utils.js'
@@ -27,8 +27,8 @@ vi.mock('@dnd-kit/core', () => ({
   useDroppable: mockUseDroppable,
 }))
 
-// Mock LiveStore React hooks
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../../livestore-compat.js', () => ({
   useQuery: mockUseQuery,
 }))
 
