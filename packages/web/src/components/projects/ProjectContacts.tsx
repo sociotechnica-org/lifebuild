@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../../livestore-compat.js'
 import { Contact, events } from '@lifebuild/shared/schema'
 import { getProjectContacts$, getContacts$ } from '@lifebuild/shared/queries'
 import { ContactPicker } from '../contacts/ContactPicker'

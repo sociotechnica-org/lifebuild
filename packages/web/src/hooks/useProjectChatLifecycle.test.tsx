@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook, waitFor } from "../../tests/test-utils.js"
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useProjectChatLifecycle } from './useProjectChatLifecycle.js'
 import { createProjectRoomDefinition } from '@lifebuild/shared/rooms'

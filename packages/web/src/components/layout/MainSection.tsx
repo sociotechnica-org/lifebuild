@@ -1,5 +1,5 @@
 import { queryDb } from '@livestore/livestore'
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../../livestore-compat.js'
 import React from 'react'
 
 import { events, tables, type ChatMessage } from '@lifebuild/shared/schema'

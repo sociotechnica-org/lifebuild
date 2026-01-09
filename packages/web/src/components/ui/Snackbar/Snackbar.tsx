@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext, useCallback } from 'react'
-import { useStore } from '@livestore/react'
+import { useStore } from '../../../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
 
 interface SnackbarData {

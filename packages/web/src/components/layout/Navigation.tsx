@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../livestore-compat.js'
 import { getUsers$ } from '@lifebuild/shared/queries'
 import { getInitials } from '../../utils/initials.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'

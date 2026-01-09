@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useStore } from '@livestore/react'
+import { useStore } from '../../../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
 import { generateRandomWorkerName, systemPromptTemplates } from '../../../utils/workerNames.js'
 import { ModelSelector } from '../../ui/ModelSelector/ModelSelector.js'

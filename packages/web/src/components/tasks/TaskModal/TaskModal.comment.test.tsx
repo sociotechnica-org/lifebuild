@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, within } from "../../../../tests/test-utils.js"
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { TaskModal } from './TaskModal.js'
 import { SnackbarProvider } from '../../ui/Snackbar/Snackbar.js'
@@ -22,7 +22,7 @@ vi.mock('../../../contexts/AuthContext.js', () => ({
 }))
 
 // Import after mocking
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../../livestore-compat.js'
 
 const mockUseQuery = useQuery as ReturnType<typeof vi.fn>
 

@@ -9,7 +9,7 @@ import {
 } from '@lifebuild/shared/queries'
 import { schema, events } from '@lifebuild/shared/schema'
 import { DEFAULT_MODEL_STRING } from '@lifebuild/shared'
-import { LiveStoreProvider, useQuery } from '@livestore/react'
+import { LiveStoreProvider, useQuery } from '../../../livestore-compat.js'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'

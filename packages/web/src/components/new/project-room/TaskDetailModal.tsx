@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useStore } from '@livestore/react'
+import { useStore } from '../../../livestore-compat.js'
 import type { Task } from '@lifebuild/shared/schema'
 import { events } from '@lifebuild/shared/schema'
 import { STATUS_COLUMNS, type TaskStatus } from '@lifebuild/shared'

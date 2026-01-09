@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from "../../../../tests/test-utils.js"
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { BrowserRouter } from 'react-router-dom'
 import { WorkerCard } from './WorkerCard.js'

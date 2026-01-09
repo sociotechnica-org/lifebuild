@@ -1,5 +1,5 @@
 import React from 'react'
-import { useStore } from '@livestore/react'
+import { useStore } from '../../../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
 import { PROJECT_CATEGORIES } from '@lifebuild/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'

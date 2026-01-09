@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../../livestore-compat.js'
 import { getAllSettings$ } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
 import { SETTINGS_KEYS, DEFAULT_SETTINGS } from '@lifebuild/shared'

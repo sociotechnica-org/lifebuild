@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useStore, useQuery } from '@livestore/react'
+import { useStore, useQuery } from '../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
 import { getWorkerById$, getConversations$ } from '@lifebuild/shared/queries'
 import {

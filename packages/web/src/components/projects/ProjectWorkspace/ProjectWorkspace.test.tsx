@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, act } from '@testing-library/react'
+import { render, screen, act } from "../../../../tests/test-utils.js"
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ProjectWorkspace } from './ProjectWorkspace.js'
 import { createMockProject, createMockTask } from '../../../../tests/test-utils.js'

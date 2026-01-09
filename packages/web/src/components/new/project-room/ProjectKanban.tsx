@@ -10,7 +10,7 @@ import {
   PointerSensor,
   KeyboardSensor,
 } from '@dnd-kit/core'
-import { useStore } from '@livestore/react'
+import { useStore } from '../../../livestore-compat.js'
 import type { Task, TaskStatus } from '@lifebuild/shared/schema'
 import { events } from '@lifebuild/shared/schema'
 import { STATUS_COLUMNS } from '@lifebuild/shared'

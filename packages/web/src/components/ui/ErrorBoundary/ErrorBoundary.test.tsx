@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent } from "../../../../tests/test-utils.js"
 import { describe, it, expect, vi } from 'vitest'
 import { ErrorBoundary } from './ErrorBoundary'
 

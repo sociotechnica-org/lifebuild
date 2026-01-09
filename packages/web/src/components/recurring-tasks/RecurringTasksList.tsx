@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../livestore-compat.js'
 import { getRecurringTasks$ } from '@lifebuild/shared/queries'
 import { useRecurringTasks } from '../../hooks/useRecurringTasks.js'
 import { RecurringTaskCard } from './RecurringTaskCard.js'

@@ -1,5 +1,5 @@
 import { useLocation, useParams } from 'react-router-dom'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../livestore-compat.js'
 import { getProjects$, getDocumentList$, getContacts$ } from '@lifebuild/shared/queries'
 import {
   getCategoryInfo,

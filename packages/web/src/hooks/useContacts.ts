@@ -1,4 +1,4 @@
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../livestore-compat.js'
 import { getContacts$, getContactById$, getContactByEmail$ } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
 import { ParsedContact } from '@lifebuild/shared'

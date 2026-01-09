@@ -1,5 +1,5 @@
 import React from 'react'
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
 import { getConversationByRoom$ } from '@lifebuild/shared/queries'
 import type { StaticRoomDefinition } from '@lifebuild/shared/rooms'

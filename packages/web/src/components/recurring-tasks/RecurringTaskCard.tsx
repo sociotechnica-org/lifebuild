@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../livestore-compat.js'
 import { getProjects$ } from '@lifebuild/shared/queries'
 import { formatInterval, formatRelativeTime } from '@lifebuild/shared'
 import type { RecurringTask } from '@lifebuild/shared/schema'

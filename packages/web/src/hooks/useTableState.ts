@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react'
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../livestore-compat.js'
 import { getTableBronzeStack$, getTableConfiguration$ } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
 import { type PriorityQueueItem } from '@lifebuild/shared/table-state'

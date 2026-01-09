@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useStore, useQuery } from '@livestore/react'
+import { useStore, useQuery } from '../../../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
 import { getProjectById$ } from '@lifebuild/shared/queries'
 import {

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../../livestore-compat.js'
 import { getUsers$, getWorkers$ } from '@lifebuild/shared/queries'
 import { Combobox } from '../Combobox/Combobox.js'
 import { getAvatarColor } from '../../../utils/avatarColors.js'

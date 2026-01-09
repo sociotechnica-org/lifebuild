@@ -1,5 +1,5 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { render } from "../../../../tests/test-utils.js"
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { UserInitializer, resetUserInitializationState } from './UserInitializer.js'
 
@@ -13,7 +13,7 @@ vi.mock('@livestore/react', () => ({
 }))
 
 // Import after mocking
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../../livestore-compat.js'
 
 const mockUseQuery = useQuery as ReturnType<typeof vi.fn>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useQuery, useStore } from '@livestore/react'
+import { useQuery, useStore } from '../../../livestore-compat.js'
 import { formatDateTime } from '../../../utils/dates.js'
 import type { Task, User, Comment } from '@lifebuild/shared/schema'
 import { getTaskById$, getUsers$, getTaskComments$ } from '@lifebuild/shared/queries'

@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent } from "../../../../tests/test-utils.js"
 import { Combobox } from './Combobox'
 
 const mockOptions = [

@@ -1,17 +1,33 @@
 import '@testing-library/jest-dom'
-import React, { type ReactElement } from 'react'
+import React, { type ReactElement, Suspense } from 'react'
 import { render, type RenderOptions } from '@testing-library/react'
 import type { Task, Project, Contact } from '@lifebuild/shared/schema'
 import type { StatusColumn } from '@lifebuild/shared'
+import { LiveStoreProvider } from '../src/livestore-compat.js'
+import { makeInMemoryAdapter } from '@livestore/adapter-web'
+import { schema } from '@lifebuild/shared/schema'
+import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 
-// Simple test wrapper for basic component testing
+// In-memory adapter for tests
+const testAdapter = makeInMemoryAdapter()
+
+// Simple test wrapper with LiveStore for basic component testing
 interface TestProviderProps {
   children: React.ReactNode
 }
 
 function TestProvider({ children }: TestProviderProps) {
-  // Simple wrapper for now - can be enhanced later for LiveStore
-  return <div data-testid='test-wrapper'>{children}</div>
+  return (
+    <Suspense fallback={<div data-testid='test-loading'>Loading...</div>}>
+      <LiveStoreProvider
+        schema={schema}
+        adapter={testAdapter}
+        batchUpdates={batchUpdates}
+      >
+        <div data-testid='test-wrapper'>{children}</div>
+      </LiveStoreProvider>
+    </Suspense>
+  )
 }
 
 const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) => {

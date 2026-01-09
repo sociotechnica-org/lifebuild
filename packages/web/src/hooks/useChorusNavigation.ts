@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFileNavigation } from './useFileNavigation.js'
-import { useStore } from '@livestore/react'
+import { useStore } from '../livestore-compat.js'
 import { getTaskById$ } from '@lifebuild/shared/queries'
 
 /**

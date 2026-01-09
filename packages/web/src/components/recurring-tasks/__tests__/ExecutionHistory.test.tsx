@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen } from "../../../../tests/test-utils.js"
 import { ExecutionHistory } from '../ExecutionHistory'
 import type { TaskExecution } from '@lifebuild/shared/schema'
 
@@ -9,7 +9,7 @@ vi.mock('@livestore/react', () => ({
   useQuery: vi.fn(),
 }))
 
-import { useQuery } from '@livestore/react'
+import { useQuery } from '../../../livestore-compat.js'
 
 describe('ExecutionHistory', () => {
   it('should display empty state when no executions', () => {
