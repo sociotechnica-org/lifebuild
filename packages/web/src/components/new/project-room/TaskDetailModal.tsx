@@ -25,20 +25,27 @@ export function formatDeadline(timestamp: number | null | undefined): string {
 }
 
 /**
- * Convert a timestamp to ISO date string for input[type="date"]
+ * Convert a timestamp to YYYY-MM-DD date string for input[type="date"]
+ * Uses local time components to avoid UTC day shifts
  */
 function timestampToDateString(timestamp: number | null | undefined): string {
   if (!timestamp) return ''
   const date = new Date(timestamp)
-  return date.toISOString().split('T')[0] ?? ''
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 /**
- * Convert an ISO date string to timestamp (midnight local time)
+ * Convert a YYYY-MM-DD date string to timestamp (midnight local time)
+ * Parses components explicitly to avoid UTC interpretation of date-only strings
  */
 function dateStringToTimestamp(dateStr: string): number | undefined {
   if (!dateStr) return undefined
-  return new Date(dateStr).getTime()
+  const [year, month, day] = dateStr.split('-').map(Number)
+  if (!year || !month || !day) return undefined
+  return new Date(year, month - 1, day).getTime()
 }
 
 interface TaskDetailModalProps {
