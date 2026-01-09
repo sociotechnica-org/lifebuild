@@ -8,15 +8,16 @@ import { useAuth } from '../../../contexts/AuthContext.js'
 /**
  * Format a deadline timestamp for display.
  * Shows "Dec 20" format, or "Dec 20, 2026" if the year differs from current year.
+ * Uses UTC to ensure consistent display across all timezones.
  */
 export function formatDeadline(timestamp: number | null | undefined): string {
   if (!timestamp) return ''
   const date = new Date(timestamp)
-  const currentYear = new Date().getFullYear()
-  const deadlineYear = date.getFullYear()
+  const currentYear = new Date().getUTCFullYear()
+  const deadlineYear = date.getUTCFullYear()
 
-  const month = date.toLocaleDateString('en-US', { month: 'short' })
-  const day = date.getDate()
+  const month = date.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })
+  const day = date.getUTCDate()
 
   if (deadlineYear !== currentYear) {
     return `${month} ${day}, ${deadlineYear}`
@@ -26,26 +27,27 @@ export function formatDeadline(timestamp: number | null | undefined): string {
 
 /**
  * Convert a timestamp to YYYY-MM-DD date string for input[type="date"]
- * Uses local time components to avoid UTC day shifts
+ * Uses UTC to ensure consistent date across all timezones.
  */
 function timestampToDateString(timestamp: number | null | undefined): string {
   if (!timestamp) return ''
   const date = new Date(timestamp)
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+  const year = date.getUTCFullYear()
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(date.getUTCDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
 }
 
 /**
- * Convert a YYYY-MM-DD date string to timestamp (midnight local time)
- * Parses components explicitly to avoid UTC interpretation of date-only strings
+ * Convert a YYYY-MM-DD date string to timestamp (UTC midnight)
+ * Uses Date.UTC to ensure consistent storage across all timezones.
+ * All collaborators will see the same deadline date regardless of their timezone.
  */
 function dateStringToTimestamp(dateStr: string): number | undefined {
   if (!dateStr) return undefined
   const [year, month, day] = dateStr.split('-').map(Number)
   if (!year || !month || !day) return undefined
-  return new Date(year, month - 1, day).getTime()
+  return Date.UTC(year, month - 1, day)
 }
 
 interface TaskDetailModalProps {
