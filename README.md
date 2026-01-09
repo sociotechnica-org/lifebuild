@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://lifebuild.me/lifebuild-logo.png" alt="LifeBuild Logo" width="350" height="67" />
+  <img src="https://lifebuild.me/lifebuild-logo.webp" alt="LifeBuild Logo" width="323" height="110" />
 </div>
 
 [LifeBuild](https://lifebuild.me) is an AI-enabled work environment where users and AI agents can collaborate on projects and documents.
