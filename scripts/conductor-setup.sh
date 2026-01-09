@@ -60,6 +60,45 @@ copy_env_file() {
     fi
 }
 
+# Merge missing variables from example file into dest file
+# This ensures new variables added to examples are available in worktrees
+# even if the developer's root env files are outdated
+merge_from_example() {
+    local dest_file="$1"
+    local example_file="$2"
+    local dest_path="$WORKSPACE_ROOT/$dest_file"
+    local example_path="$WORKSPACE_ROOT/$example_file"
+
+    # Skip if either file doesn't exist
+    if [ ! -f "$dest_path" ] || [ ! -f "$example_path" ]; then
+        return
+    fi
+
+    local added_vars=()
+
+    # Read each line from example file
+    while IFS= read -r line || [ -n "$line" ]; do
+        # Skip empty lines and comments
+        [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+
+        # Extract variable name (everything before =)
+        if [[ "$line" =~ ^([A-Za-z_][A-Za-z0-9_]*)= ]]; then
+            local var_name="${BASH_REMATCH[1]}"
+
+            # Check if this variable exists in dest file
+            if ! grep -q "^${var_name}=" "$dest_path"; then
+                # Append the line from example
+                echo "$line" >> "$dest_path"
+                added_vars+=("$var_name")
+            fi
+        fi
+    done < "$example_path"
+
+    if [ ${#added_vars[@]} -gt 0 ]; then
+        echo "✅ Added ${#added_vars[@]} missing variable(s) from $example_file: ${added_vars[*]}"
+    fi
+}
+
 # Helper to ensure env vars are set consistently
 set_env_var() {
     local relative_file="$1"
@@ -187,6 +226,15 @@ copy_env_file "packages/web/.env" "packages/web/.env"
 copy_env_file "packages/server/.env" "packages/server/.env"
 copy_env_file "packages/worker/.dev.vars" "packages/worker/.dev.vars"
 copy_env_file "packages/auth-worker/.dev.vars" "packages/auth-worker/.dev.vars"
+
+# Merge any missing variables from example files
+# This ensures new variables added to examples are picked up even if
+# the developer's root env files are outdated
+echo "🔄 Checking for missing variables from example files..."
+merge_from_example "packages/web/.env" "packages/web/.env.example"
+merge_from_example "packages/server/.env" "packages/server/.env.example"
+merge_from_example "packages/worker/.dev.vars" "packages/worker/.dev.vars.example"
+merge_from_example "packages/auth-worker/.dev.vars" "packages/auth-worker/.dev.vars.example"
 
 # Update STORE_IDS in packages/server/.env to match branch name
 echo "🔧 Updating STORE_IDS to match branch name..."
