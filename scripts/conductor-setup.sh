@@ -75,6 +75,12 @@ merge_from_example() {
     fi
 
     local added_vars=()
+    local needs_newline=false
+
+    # Check if dest file ends with a newline (to avoid corrupting last line)
+    if [ -s "$dest_path" ] && [ "$(tail -c 1 "$dest_path" | wc -l)" -eq 0 ]; then
+        needs_newline=true
+    fi
 
     # Read each line from example file
     while IFS= read -r line || [ -n "$line" ]; do
@@ -87,6 +93,11 @@ merge_from_example() {
 
             # Check if this variable exists in dest file
             if ! grep -q "^${var_name}=" "$dest_path"; then
+                # Add newline first if needed (only once, before first append)
+                if [ "$needs_newline" = true ]; then
+                    echo "" >> "$dest_path"
+                    needs_newline=false
+                fi
                 # Append the line from example
                 echo "$line" >> "$dest_path"
                 added_vars+=("$var_name")
