@@ -1,5 +1,8 @@
 import type { Store as LiveStore } from '@livestore/livestore'
+import { queryDb } from '@livestore/livestore'
+import { EventEmitter } from 'events'
 import { type StoreConfig, createStore } from '../factories/store-factory.js'
+import { tables } from '@lifebuild/shared/schema'
 import { logger, storeLogger, operationLogger } from '../utils/logger.js'
 import {
   createOrchestrationTelemetry,
@@ -16,7 +19,12 @@ export interface StoreInfo {
   reconnectAttempts: number
 }
 
-export class StoreManager {
+export interface StoreManagerEvents {
+  storeReconnected: (data: { storeId: string; store: LiveStore }) => void
+  storeDisconnected: (data: { storeId: string }) => void
+}
+
+export class StoreManager extends EventEmitter {
   private stores: Map<string, StoreInfo> = new Map()
   private reconnectTimeouts: Map<string, NodeJS.Timeout> = new Map()
   private healthCheckInterval?: NodeJS.Timeout
@@ -27,6 +35,7 @@ export class StoreManager {
     maxReconnectAttempts = Number(process.env.STORE_MAX_RECONNECT_ATTEMPTS) || 3,
     reconnectInterval = Number(process.env.STORE_RECONNECT_INTERVAL) || 5000
   ) {
+    super()
     this.maxReconnectAttempts = maxReconnectAttempts
     this.reconnectInterval = reconnectInterval
   }
@@ -227,6 +236,50 @@ export class StoreManager {
     storeLogger(storeId).debug('Store setup complete')
   }
 
+  /**
+   * Actively probe a store connection by attempting a simple query.
+   * This detects silent WebSocket disconnections that wouldn't otherwise be noticed.
+   * Returns true if the store responds, false if the probe fails.
+   */
+  probeStoreConnection(storeId: string): boolean {
+    const storeInfo = this.stores.get(storeId)
+    if (!storeInfo) {
+      storeLogger(storeId).warn('Cannot probe - store not found')
+      return false
+    }
+
+    try {
+      // Run a lightweight query to verify the store is responsive
+      // Use a simple select with limit 1 to minimize overhead
+      storeInfo.store.query(queryDb(tables.chatMessages.select().limit(1)))
+      return true
+    } catch (error) {
+      storeLogger(storeId).warn({ error }, 'Store probe failed - connection may be broken')
+      // Mark store as disconnected so health checks can trigger reconnection
+      storeInfo.status = 'disconnected'
+      storeInfo.errorCount += 1
+      return false
+    }
+  }
+
+  /**
+   * Get detailed connection probe results for all stores
+   */
+  probeAllConnections(): Map<string, { healthy: boolean; status: string; errorCount: number }> {
+    const results = new Map<string, { healthy: boolean; status: string; errorCount: number }>()
+
+    for (const [storeId, storeInfo] of this.stores) {
+      const probeResult = this.probeStoreConnection(storeId)
+      results.set(storeId, {
+        healthy: probeResult,
+        status: storeInfo.status,
+        errorCount: storeInfo.errorCount,
+      })
+    }
+
+    return results
+  }
+
   private scheduleReconnect(storeId: string): void {
     if (this.reconnectTimeouts.has(storeId)) {
       return
@@ -271,6 +324,9 @@ export class StoreManager {
 
         this.setupStoreEventHandlers(storeId, store)
         storeLogger(storeId).info('Store reconnected successfully')
+
+        // Emit event so listeners (e.g., EventProcessor) can re-subscribe
+        this.emit('storeReconnected', { storeId, store })
       } catch (error) {
         storeLogger(storeId).error(
           { error, attempt: storeInfo.reconnectAttempts },
@@ -290,22 +346,36 @@ export class StoreManager {
 
   private startHealthChecks(): void {
     const healthCheckInterval = 30000
+    // Probe interval - don't probe every health check to avoid overhead
+    let probeCounter = 0
+    const probeEveryNChecks = 4 // Probe every 2 minutes (4 * 30s)
 
     this.healthCheckInterval = setInterval(() => {
+      probeCounter++
+      const shouldProbe = probeCounter >= probeEveryNChecks
+
       for (const [storeId, storeInfo] of this.stores) {
-        // Inactive warnings disabled entirely
-        // const timeSinceActivity = Date.now() - storeInfo.lastActivity.getTime()
-        // if (timeSinceActivity > 60000 && storeInfo.status === 'connected') {
-        //   console.warn(
-        //     `⚠️ Store ${storeId} has been inactive for ${Math.round(timeSinceActivity / 1000)}s`
-        //   )
-        // }
+        // Active probing - detect silent disconnections
+        // Only probe stores that appear connected, and only periodically
+        if (shouldProbe && storeInfo.status === 'connected') {
+          const probeResult = this.probeStoreConnection(storeId)
+          if (!probeResult) {
+            storeLogger(storeId).warn(
+              { reconnectAttempts: storeInfo.reconnectAttempts },
+              'Health check probe failed - triggering reconnection'
+            )
+          }
+        }
 
         if (storeInfo.status === 'error' || storeInfo.status === 'disconnected') {
           if (storeInfo.reconnectAttempts < this.maxReconnectAttempts) {
             this.scheduleReconnect(storeId)
           }
         }
+      }
+
+      if (shouldProbe) {
+        probeCounter = 0
       }
     }, healthCheckInterval)
   }

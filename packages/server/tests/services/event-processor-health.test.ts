@@ -91,6 +91,19 @@ class MockStoreManager {
   updateActivity(): void {
     // no-op for tests
   }
+
+  // EventEmitter methods needed after store-manager extends EventEmitter
+  on(): void {
+    // no-op for tests
+  }
+
+  emit(): void {
+    // no-op for tests
+  }
+
+  removeListener(): void {
+    // no-op for tests
+  }
 }
 
 describe('EventProcessor live store stats', () => {

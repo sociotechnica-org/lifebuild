@@ -34,13 +34,23 @@ vi.mock('./processed-message-tracker.js', () => ({
   })),
 }))
 
+// Mock StoreManager with EventEmitter methods
+const createMockStoreManager = () => ({
+  on: vi.fn(),
+  emit: vi.fn(),
+  removeListener: vi.fn(),
+  getAllStores: vi.fn(() => new Map()),
+  getStore: vi.fn(),
+  updateActivity: vi.fn(),
+})
+
 describe('EventProcessor conversation history builder', () => {
   let eventProcessor: EventProcessor
 
   beforeEach(() => {
     process.env.BRAINTRUST_API_KEY = 'test-key'
     process.env.BRAINTRUST_PROJECT_ID = 'test-project'
-    eventProcessor = new EventProcessor({} as any)
+    eventProcessor = new EventProcessor(createMockStoreManager() as any)
     vi.clearAllMocks()
   })
 

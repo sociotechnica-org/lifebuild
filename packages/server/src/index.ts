@@ -205,6 +205,74 @@ async function main() {
           },
         })
       )
+    } else if (pathname === '/debug/subscription-health') {
+      // Debug endpoint for subscription health monitoring
+      // Requires authorization in production
+      if (!isDashboardAuthorized(req)) {
+        res.writeHead(401, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Unauthorized - add ?token=YOUR_SERVER_BYPASS_TOKEN' }))
+        return
+      }
+
+      const subscriptionHealth = eventProcessor.getSubscriptionHealthStatus()
+      // Use getConnectionStatus for read-only status instead of probeAllConnections which has side effects
+      const storeHealth = storeManager.getHealthStatus()
+
+      // Combine subscription and connection health
+      const combinedHealth: Record<
+        string,
+        {
+          subscription: {
+            lastUpdateAt: string | null
+            silenceDurationMs: number
+            monitoringStartedAt: string | null
+            monitoringDurationMs: number
+            isHealthy: boolean
+            thresholdMs: number
+          }
+          connection: {
+            status: string
+            errorCount: number
+          }
+          overallHealthy: boolean
+        }
+      > = {}
+
+      for (const [storeId, subHealth] of subscriptionHealth) {
+        // Find matching store status from health check (read-only)
+        const storeStatus = storeHealth.stores.find(s => s.storeId === storeId)
+        combinedHealth[storeId] = {
+          subscription: {
+            lastUpdateAt: subHealth.lastUpdateAt,
+            silenceDurationMs: subHealth.silenceDurationMs,
+            monitoringStartedAt: subHealth.monitoringStartedAt,
+            monitoringDurationMs: subHealth.monitoringDurationMs,
+            isHealthy: subHealth.isHealthy,
+            thresholdMs: subHealth.thresholdMs,
+          },
+          connection: {
+            status: storeStatus?.status ?? 'unknown',
+            errorCount: storeStatus?.errorCount ?? 0,
+          },
+          overallHealthy: subHealth.isHealthy && storeStatus?.status === 'connected',
+        }
+      }
+
+      // Calculate overall system health
+      const allHealthy = Object.values(combinedHealth).every(h => h.overallHealthy)
+      const anyUnhealthy = Object.values(combinedHealth).some(h => !h.overallHealthy)
+
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          systemHealthy: allHealthy,
+          hasUnhealthyStores: anyUnhealthy,
+          storeCount: Object.keys(combinedHealth).length,
+          stores: combinedHealth,
+          storeStatuses: storeHealth.stores,
+        })
+      )
     } else if (pathname === '/stores') {
       const storeInfo = storeManager.getAllStoreInfo()
       const processingStats = eventProcessor.getProcessingStats()

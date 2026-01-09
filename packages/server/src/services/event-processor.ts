@@ -123,6 +123,16 @@ export class EventProcessor {
   private errorTimestamps: number[] = []
   private responseTimes: number[] = []
 
+  // Subscription health monitoring - tracks when each store last received a subscription callback
+  private lastSubscriptionUpdate: Map<string, Date> = new Map()
+  // Track when monitoring started for each store - used to detect subscriptions that never receive updates
+  private monitoringStartTime: Map<string, Date> = new Map()
+  private readonly subscriptionHealthThresholdMs: number
+  // Store reference to reconnection handler so it can be removed on shutdown
+  private reconnectionHandler: ((data: { storeId: string; store: any }) => void) | null = null
+  // Flag to prevent operations after shutdown
+  private isShutdown = false
+
   // Tables to monitor for activity
   // IMPORTANT: Only monitor chatMessages to process user messages
   // Monitoring other tables is unnecessary and causes performance issues
@@ -133,6 +143,9 @@ export class EventProcessor {
     this.processedTracker = new ProcessedMessageTracker()
     this.lifecycleTracker = getMessageLifecycleTracker()
     this.startFlushTimer()
+
+    // Listen for store reconnection events to re-subscribe
+    this.setupStoreReconnectionHandler()
 
     const parsePositiveInt = (
       value: string | undefined,
@@ -157,6 +170,12 @@ export class EventProcessor {
     this.maxQueuedMessages = parsePositiveInt(process.env.MAX_QUEUED_MESSAGES, 0, true)
     this.messageRateLimit = parsePositiveInt(process.env.MESSAGE_RATE_LIMIT, 0, true)
     this.llmCallTimeoutMs = parsePositiveInt(process.env.LLM_CALL_TIMEOUT, 30_000, true)
+    // Default 5 minutes - if no subscription callback for this long, consider connection unhealthy
+    this.subscriptionHealthThresholdMs = parsePositiveInt(
+      process.env.SUBSCRIPTION_HEALTH_THRESHOLD_MS,
+      5 * 60 * 1000,
+      true
+    )
 
     // Load LLM configuration from environment
     this.braintrustApiKey = process.env.BRAINTRUST_API_KEY
@@ -237,6 +256,9 @@ export class EventProcessor {
     }
 
     this.storeStates.set(storeId, storeState)
+
+    // Record when monitoring started - used to detect subscriptions that never receive updates
+    this.monitoringStartTime.set(storeId, new Date())
 
     storeLogger(storeId).debug('Using persistent message tracking')
 
@@ -322,6 +344,9 @@ export class EventProcessor {
     if (storeState.stopping) {
       return
     }
+
+    // Track subscription health - record that we received a callback
+    this.lastSubscriptionUpdate.set(storeId, new Date())
 
     // Update activity tracker
     this.storeManager.updateActivity(storeId)
@@ -1448,6 +1473,74 @@ export class EventProcessor {
     }, this.flushInterval)
   }
 
+  /**
+   * Listen for store reconnection events from StoreManager.
+   * When a store reconnects, we need to stop monitoring the old (dead) store
+   * and start monitoring the new store instance.
+   */
+  private setupStoreReconnectionHandler(): void {
+    this.reconnectionHandler = ({ storeId, store }) => {
+      // Prevent operations after shutdown
+      if (this.isShutdown) {
+        logger.debug({ storeId }, 'Ignoring storeReconnected event - processor is shutdown')
+        return
+      }
+
+      logger.info({ storeId }, 'Received storeReconnected event - re-subscribing')
+
+      // Check if we were monitoring this store
+      const existingState = this.storeStates.get(storeId)
+      if (!existingState) {
+        logger.debug({ storeId }, 'Store was not being monitored, skipping re-subscription')
+        return
+      }
+
+      // Force immediate cleanup of old state (don't wait for async processingQueue.finally)
+      // This avoids the race condition where startMonitoring sees stopping=true
+      this.forceCleanupStoreState(storeId, existingState)
+
+      // Start fresh monitoring on the new store instance
+      this.startMonitoring(storeId, store).catch(error => {
+        logger.error({ storeId, error }, 'Failed to re-subscribe after reconnection')
+      })
+    }
+
+    this.storeManager.on('storeReconnected', this.reconnectionHandler)
+  }
+
+  /**
+   * Force immediate cleanup of store state for reconnection scenarios.
+   * This bypasses the async processingQueue.finally to avoid race conditions.
+   */
+  private forceCleanupStoreState(storeId: string, storeState: StoreProcessingState): void {
+    // Unsubscribe from old subscriptions
+    for (const unsubscribe of storeState.subscriptions) {
+      try {
+        unsubscribe()
+      } catch {
+        // Ignore errors during cleanup
+      }
+    }
+
+    // Cleanup message queue manager
+    storeState.messageQueue.destroy()
+
+    // Cleanup all conversation processors
+    for (const processor of storeState.conversationProcessors.values()) {
+      processor.destroy()
+    }
+    storeState.conversationProcessors.clear()
+
+    // Cleanup subscription health tracking
+    this.lastSubscriptionUpdate.delete(storeId)
+    this.monitoringStartTime.delete(storeId)
+
+    // Remove from state map
+    this.storeStates.delete(storeId)
+
+    storeLogger(storeId).debug('Force cleaned up store state for reconnection')
+  }
+
   private async flushAllBuffers(): Promise<void> {
     const flushPromises: Promise<void>[] = []
 
@@ -1496,12 +1589,25 @@ export class EventProcessor {
       }
       storeState.conversationProcessors.clear()
 
+      // Cleanup subscription health tracking
+      this.lastSubscriptionUpdate.delete(storeId)
+      this.monitoringStartTime.delete(storeId)
+
       this.storeStates.delete(storeId)
       storeLogger(storeId).info('Stopped event monitoring')
     })
   }
 
   stopAll(): void {
+    // Set shutdown flag first to prevent reconnection handler from starting new monitoring
+    this.isShutdown = true
+
+    // Remove reconnection event listener to prevent use-after-close
+    if (this.reconnectionHandler) {
+      this.storeManager.removeListener('storeReconnected', this.reconnectionHandler)
+      this.reconnectionHandler = null
+    }
+
     const storeIds = Array.from(this.storeStates.keys())
 
     for (const storeId of storeIds) {
@@ -1754,6 +1860,82 @@ export class EventProcessor {
    */
   getLifecycleTracker(): MessageLifecycleTracker {
     return this.lifecycleTracker
+  }
+
+  /**
+   * Check if a store's subscription is healthy based on last update time
+   * A subscription is considered unhealthy if no updates received within threshold
+   */
+  isSubscriptionHealthy(storeId: string): boolean {
+    const lastUpdate = this.lastSubscriptionUpdate.get(storeId)
+    if (!lastUpdate) {
+      // No updates ever received - check if store is being monitored
+      const storeState = this.storeStates.get(storeId)
+      if (!storeState) {
+        return false // Not monitored
+      }
+      // Store is monitored but no updates yet - check how long since monitoring started
+      const startTime = this.monitoringStartTime.get(storeId)
+      if (!startTime) {
+        return true // Just started, give it time
+      }
+      // If monitoring started more than threshold ago but no updates received,
+      // the subscription may be broken from initialization
+      const monitoringDuration = Date.now() - startTime.getTime()
+      return monitoringDuration < this.subscriptionHealthThresholdMs
+    }
+
+    const silenceDuration = Date.now() - lastUpdate.getTime()
+    return silenceDuration < this.subscriptionHealthThresholdMs
+  }
+
+  /**
+   * Get detailed subscription health status for all monitored stores
+   */
+  getSubscriptionHealthStatus(): Map<
+    string,
+    {
+      lastUpdateAt: string | null
+      silenceDurationMs: number
+      monitoringStartedAt: string | null
+      monitoringDurationMs: number
+      isHealthy: boolean
+      isMonitored: boolean
+      thresholdMs: number
+    }
+  > {
+    const status = new Map<
+      string,
+      {
+        lastUpdateAt: string | null
+        silenceDurationMs: number
+        monitoringStartedAt: string | null
+        monitoringDurationMs: number
+        isHealthy: boolean
+        isMonitored: boolean
+        thresholdMs: number
+      }
+    >()
+
+    // Include all monitored stores
+    for (const storeId of this.storeStates.keys()) {
+      const lastUpdate = this.lastSubscriptionUpdate.get(storeId)
+      const startTime = this.monitoringStartTime.get(storeId)
+      const silenceDuration = lastUpdate ? Date.now() - lastUpdate.getTime() : -1
+      const monitoringDuration = startTime ? Date.now() - startTime.getTime() : -1
+
+      status.set(storeId, {
+        lastUpdateAt: lastUpdate?.toISOString() ?? null,
+        silenceDurationMs: silenceDuration,
+        monitoringStartedAt: startTime?.toISOString() ?? null,
+        monitoringDurationMs: monitoringDuration,
+        isHealthy: this.isSubscriptionHealthy(storeId),
+        isMonitored: true,
+        thresholdMs: this.subscriptionHealthThresholdMs,
+      })
+    }
+
+    return status
   }
 
   /**
