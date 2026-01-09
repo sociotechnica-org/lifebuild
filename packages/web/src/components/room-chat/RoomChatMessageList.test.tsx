@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, expect, it } from 'vitest'
-import { render, screen } from "../../../tests/test-utils.js"
+import { render, screen } from '../../../tests/test-utils.js'
 import { RoomChatMessageList } from './RoomChatMessageList.js'
 import type { ChatMessage } from '@lifebuild/shared/schema'
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { render } from "../../../../tests/test-utils.js"
+import { render } from '../../../../tests/test-utils.js'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { UserInitializer, resetUserInitializationState } from './UserInitializer.js'
 

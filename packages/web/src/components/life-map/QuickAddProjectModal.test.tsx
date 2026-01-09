@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from "../../../tests/test-utils.js"
+import { render, screen, fireEvent, waitFor } from '../../../tests/test-utils.js'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { PROJECT_CATEGORIES } from '@lifebuild/shared'
 import { QuickAddProjectModal } from './QuickAddProjectModal.js'

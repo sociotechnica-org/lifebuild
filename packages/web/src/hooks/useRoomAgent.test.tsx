@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "../../tests/test-utils.js"
+import { renderHook, waitFor } from '../../tests/test-utils.js'
 import { describe, expect, it, beforeEach, vi } from 'vitest'
 import { getCategoryRoomDefinition } from '@lifebuild/shared/rooms'
 import { useRoomAgent } from './useRoomAgent.js'

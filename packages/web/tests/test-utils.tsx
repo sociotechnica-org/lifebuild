@@ -19,11 +19,7 @@ interface TestProviderProps {
 function TestProvider({ children }: TestProviderProps) {
   return (
     <Suspense fallback={<div data-testid='test-loading'>Loading...</div>}>
-      <LiveStoreProvider
-        schema={schema}
-        adapter={testAdapter}
-        batchUpdates={batchUpdates}
-      >
+      <LiveStoreProvider schema={schema} adapter={testAdapter} batchUpdates={batchUpdates}>
         <div data-testid='test-wrapper'>{children}</div>
       </LiveStoreProvider>
     </Suspense>

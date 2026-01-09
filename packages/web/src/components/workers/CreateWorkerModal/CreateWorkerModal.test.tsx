@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from "../../../../tests/test-utils.js"
+import { render, screen, fireEvent, waitFor } from '../../../../tests/test-utils.js'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { CreateWorkerModal } from './CreateWorkerModal.js'
 import { MODEL_IDS, DEFAULT_MODEL } from '@lifebuild/shared'

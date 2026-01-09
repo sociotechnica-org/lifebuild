@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import { fireEvent, render } from "../../../tests/test-utils.js"
+import { fireEvent, render } from '../../../tests/test-utils.js'
 import { RoomChatInput } from './RoomChatInput.js'
 
 describe('RoomChatInput', () => {

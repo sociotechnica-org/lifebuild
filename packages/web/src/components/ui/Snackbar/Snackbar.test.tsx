@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent, act } from "../../../../tests/test-utils.js"
+import { render, screen, fireEvent, act } from '../../../../tests/test-utils.js'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { SnackbarProvider, useSnackbar } from './Snackbar.js'
 
