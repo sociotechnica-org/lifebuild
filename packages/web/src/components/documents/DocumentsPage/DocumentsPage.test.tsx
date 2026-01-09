@@ -41,8 +41,8 @@ vi.mock('@lifebuild/shared/queries', () => ({
   getAllDocumentProjects$: vi.fn(),
 }))
 
-// Mock @livestore/react
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../../livestore-compat.js', () => ({
   useStore: () => ({ store: mockStore }),
   useQuery: vi.fn(),
 }))

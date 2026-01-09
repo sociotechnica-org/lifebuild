@@ -27,8 +27,8 @@ vi.mock('react-router-dom', () => ({
   ),
 }))
 
-// Mock @livestore/react
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../../livestore-compat.js', () => ({
   useQuery: mockUseQuery,
   useStore: () => ({ store: mockStore }),
 }))

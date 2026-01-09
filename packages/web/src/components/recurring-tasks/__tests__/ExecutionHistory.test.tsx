@@ -4,8 +4,8 @@ import { render, screen } from '../../../../tests/test-utils.js'
 import { ExecutionHistory } from '../ExecutionHistory'
 import type { TaskExecution } from '@lifebuild/shared/schema'
 
-// Mock the useQuery hook
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../../livestore-compat.js', () => ({
   useQuery: vi.fn(),
 }))
 

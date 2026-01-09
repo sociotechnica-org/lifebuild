@@ -13,9 +13,10 @@ const { mockStore } = vi.hoisted(() => {
   return { mockStore }
 })
 
-// Mock @livestore/react
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../../livestore-compat.js', () => ({
   useStore: () => ({ store: mockStore }),
+  useQuery: vi.fn(() => []),
 }))
 
 describe('ProjectCard', () => {

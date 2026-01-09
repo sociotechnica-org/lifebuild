@@ -27,8 +27,8 @@ vi.mock('@dnd-kit/core', () => ({
   useDroppable: mockUseDroppable,
 }))
 
-// Mock LiveStore React hooks
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../../livestore-compat.js', () => ({
   useQuery: mockUseQuery,
 }))
 

@@ -21,8 +21,8 @@ const { mockCommit, mockUseDroppable, mockUseDraggable } = vi.hoisted(() => {
   return { mockCommit, mockUseDroppable, mockUseDraggable }
 })
 
-// Mock the useStore hook
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../../../livestore-compat.js', () => ({
   useStore: () => ({
     store: {
       commit: mockCommit,

@@ -10,8 +10,8 @@ vi.mock('@lifebuild/shared', () => ({
   formatRelativeTime: vi.fn((_timestamp: number) => 'in 2 hours'),
 }))
 
-// Mock useQuery hook
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../livestore-compat.js', () => ({
   useQuery: vi.fn(() => []),
 }))
 

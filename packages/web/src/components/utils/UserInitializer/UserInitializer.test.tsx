@@ -7,7 +7,7 @@ import { UserInitializer, resetUserInitializationState } from './UserInitializer
 const mockCommit = vi.fn()
 const mockStore = { commit: mockCommit }
 
-vi.mock('@livestore/react', () => ({
+vi.mock('../../../livestore-compat.js', () => ({
   useQuery: vi.fn(),
   useStore: vi.fn(() => ({ store: mockStore })),
 }))

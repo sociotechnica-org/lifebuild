@@ -14,9 +14,10 @@ const { mockStore } = vi.hoisted(() => {
   return { mockStore }
 })
 
-// Mock @livestore/react
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat (components import from this, not @livestore/react)
+vi.mock('../../../livestore-compat.js', () => ({
   useStore: () => ({ store: mockStore }),
+  useQuery: vi.fn(() => []),
 }))
 
 // Mock system prompt templates

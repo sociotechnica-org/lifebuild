@@ -8,7 +8,7 @@ import { QuickAddProjectModal } from './QuickAddProjectModal.js'
 const mockCommit = vi.fn()
 const mockStore = { commit: mockCommit }
 
-vi.mock('@livestore/react', () => ({
+vi.mock('../../livestore-compat.js', () => ({
   useStore: () => ({ store: mockStore }),
   useQuery: () => null, // Mock useQuery for useCategoryAdvisor hook
 }))

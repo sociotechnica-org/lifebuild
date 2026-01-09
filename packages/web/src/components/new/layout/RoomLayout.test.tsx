@@ -22,7 +22,7 @@ vi.mock('../../../contexts/AuthContext.js', () => ({
   }),
 }))
 
-vi.mock('@livestore/react', () => ({
+vi.mock('../../../livestore-compat.js', () => ({
   useQuery: () => [],
   useStore: () => ({ store: { commit: vi.fn() } }),
 }))

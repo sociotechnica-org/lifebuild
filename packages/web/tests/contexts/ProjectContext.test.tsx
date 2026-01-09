@@ -10,8 +10,8 @@ const { mockUseQuery } = vi.hoisted(() => {
   return { mockUseQuery }
 })
 
-// Mock @livestore/react
-vi.mock('@livestore/react', () => ({
+// Mock livestore-compat
+vi.mock('../../src/livestore-compat.js', () => ({
   useQuery: mockUseQuery,
 }))
 

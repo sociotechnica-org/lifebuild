@@ -17,7 +17,7 @@ const mocks = vi.hoisted(() => {
   }
 })
 
-vi.mock('@livestore/react', () => ({
+vi.mock('../livestore-compat.js', () => ({
   useStore: () => ({ store: { commit: mocks.mockCommit } }),
   useQuery: mocks.mockUseQuery,
 }))
