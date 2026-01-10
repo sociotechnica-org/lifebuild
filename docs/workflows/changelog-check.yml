@@ -1,0 +1,69 @@
+name: Changelog Check
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  check-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR description for changelog entry
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prBody = context.payload.pull_request.body || '';
+
+            // Find the Changelog section
+            const changelogMatch = prBody.match(/## Changelog[\s\S]*?(?=\n## |$)/i);
+
+            if (!changelogMatch) {
+              core.setFailed('PR description must include a "## Changelog" section. Please use the PR template.');
+              return;
+            }
+
+            const changelogSection = changelogMatch[0];
+
+            // Extract bullet points from the changelog section
+            const bulletPoints = changelogSection.match(/^- .+$/gm);
+
+            if (!bulletPoints || bulletPoints.length === 0) {
+              core.setFailed('Changelog section must contain at least one bullet point entry starting with "- "');
+              return;
+            }
+
+            // Check if all entries are just empty placeholders
+            const hasRealEntry = bulletPoints.some(point => {
+              const content = point.replace(/^- /, '').trim();
+              return content.length > 0 && content !== '-';
+            });
+
+            if (!hasRealEntry) {
+              core.setFailed('Changelog section must contain at least one non-empty entry. Add a description of user-facing changes or use "No user-facing changes"');
+              return;
+            }
+
+            // Validate format - should start with action verb or "No user-facing changes"
+            const validPatterns = [
+              /^- (Add|Fix|Improve|Update|Remove|Refactor|Enable|Disable|Implement|Enhance|Optimize|Deprecate|Support|Introduce|Change|Rename|Move|Migrate|Upgrade|Downgrade|Revert|Allow|Prevent|Ensure|Handle|Show|Hide|Display|Create|Delete|Set|Get|Make|Use|Apply|Configure|Customize|Extend|Simplify|Streamline|Consolidate|Merge|Split|Extract|Inline|Replace|Swap|Adjust|Tweak|Tune|Polish|Finalize|Complete|Finish|Resolve|Address|Correct|Patch|Hotfix|Debug|Log|Track|Monitor|Measure|Bump|Release|Deploy|Integrate|Connect|Disconnect|Sync|Cache|Clear|Reset|Restore|Backup|Archive|Export|Import|Load|Save|Store|Fetch|Send|Receive|Push|Pull|Publish|Subscribe|Register|Unregister|Bind|Unbind|Listen|Trigger|Emit|Broadcast|Notify|Alert|Warn|Error|Skip|Ignore|Filter|Sort|Order|Group|Aggregate|Transform|Convert|Parse|Serialize|Deserialize|Encode|Decode|Encrypt|Decrypt|Compress|Decompress|Validate|Verify|Check|Test|Benchmark|Profile|Analyze|Audit|Review|Approve|Reject|Accept|Deny|Grant|Revoke|Lock|Unlock|Protect|Secure|Sanitize|Escape|Unescape|Normalize|Denormalize|Format|Unformat|Wrap|Unwrap|Flatten|Nest|Expand|Collapse|Open|Close|Start|Stop|Begin|End|Initialize|Terminate|Launch|Shutdown|Boot|Reboot|Wake|Sleep|Pause|Resume|Continue|Abort|Cancel|Retry|Repeat|Loop|Iterate|Recurse|Search|Find|Locate|Lookup|Query|Select|Insert|Update|Delete|Upsert|Merge|Join|Link|Unlink|Associate|Dissociate|Attach|Detach|Include|Exclude|Require|Depend|Inject|Provide|Offer|Request|Demand|Allocate|Deallocate|Assign|Unassign|Claim|Release|Acquire|Dispose|Preserve|Maintain|Sustain|Retain|Hold|Drop|Pick|Choose|Decide|Determine|Evaluate|Assess|Estimate|Calculate|Compute|Derive|Infer|Deduce|Conclude|Summarize|Outline|Describe|Explain|Document|Comment|Annotate|Label|Tag|Categorize|Classify|Identify|Recognize|Detect|Discover|Expose|Reveal|Conceal|Mask|Hide|Obscure|Blur|Focus|Highlight|Emphasize|Prioritize|Defer|Delay|Schedule|Queue|Dequeue|Enqueue|Stack|Unstack|Push|Pop|Shift|Unshift|Append|Prepend|Prefix|Suffix|Pad|Trim|Strip|Clean|Purge|Flush|Drain|Fill|Empty|Copy|Clone|Duplicate|Replicate|Mirror|Reflect|Invert|Negate|Toggle|Flip|Rotate|Shift|Scale|Resize|Crop|Cut|Paste|Undo|Redo|Forward|Backward|Navigate|Route|Redirect|Proxy|Relay|Bridge|Tunnel|Intercept|Inject|Hook|Wrap|Decorate|Extend|Override|Overload|Overwrite|Supersede|Supplant|Substitute|Alternate|Swap|Exchange|Trade|Transfer|Transmit|Convey|Carry|Bear|Bring|Take|Give|Lend|Borrow|Share|Divide|Distribute|Spread|Scatter|Gather|Collect|Accumulate|Assemble|Combine|Unite|Separate|Isolate|Detach|Disengage|Disconnect|Unplug|Plug|Wire|Rewire|Install|Uninstall|Mount|Unmount|Embed|Extract|Inject|Eject|Insert|Remove|Attach|Detach|Fasten|Unfasten|Secure|Release|Bind|Unbind|Tie|Untie|Knot|Unknot|Twist|Untwist|Wind|Unwind|Roll|Unroll|Fold|Unfold|Wrap|Unwrap|Pack|Unpack|Box|Unbox|Seal|Unseal|Close|Open|Shut|Cover|Uncover|Expose|Shield|Protect|Guard|Watch|Monitor|Observe|Witness|See|Look|View|Peek|Glance|Stare|Gaze|Inspect|Examine|Scrutinize|Survey|Scan|Probe|Explore|Investigate|Research|Study|Learn|Teach|Train|Coach|Guide|Lead|Direct|Manage|Control|Command|Order|Instruct|Advise|Recommend|Suggest|Propose|Offer|Present|Introduce|Announce|Declare|Proclaim|Pronounce|State|Assert|Claim|Maintain|Contend|Argue|Debate|Discuss|Talk|Speak|Say|Tell|Ask|Question|Answer|Reply|Respond|React|Interact|Communicate|Converse|Chat|Message|Email|Call|Ring|Dial|Connect|Disconnect|Hang|Pick|Drop|Catch|Throw|Toss|Fling|Hurl|Launch|Propel|Project|Shoot|Fire|Aim|Target|Hit|Miss|Strike|Beat|Pound|Hammer|Nail|Screw|Bolt|Rivet|Weld|Solder|Glue|Paste|Stick|Attach|Affix|Pin|Clip|Clamp|Grip|Hold|Grasp|Clutch|Seize|Grab|Snatch|Catch|Release|Let|Drop|Lose|Find|Recover|Retrieve|Rescue|Save|Preserve|Conserve|Protect|Defend|Shield|Guard|Watch|Patrol|Police|Enforce|Regulate|Control|Govern|Rule|Reign|Dominate|Subordinate|Submit|Yield|Surrender|Capitulate|Concede|Admit|Acknowledge|Recognize|Accept|Receive|Welcome|Greet|Salute|Honor|Respect|Admire|Appreciate|Value|Prize|Treasure|Cherish|Love|Like|Enjoy|Relish|Savor|Taste|Smell|Hear|Feel|Touch|Sense|Perceive|Notice|Observe|Watch|See|Look|View|Show|Display|Exhibit|Present|Demonstrate|Illustrate|Depict|Portray|Represent|Symbolize|Signify|Mean|Denote|Connote|Imply|Suggest|Indicate|Point|Signal|Mark|Note|Record|Register|Log|Track|Trace|Follow|Pursue|Chase|Hunt|Seek|Search|Look|Find|Discover|Uncover|Reveal|Disclose|Divulge|Expose|Unmask|Unveil|Unwrap|Open|Unlock|Free|Liberate|Release|Emancipate|Rescue|Save|Redeem|Recover|Regain|Reclaim|Retrieve|Restore|Return|Give|Hand|Pass|Deliver|Ship|Send|Dispatch|Forward|Relay|Transmit|Broadcast|Announce|Proclaim|Declare|State|Assert|Affirm|Confirm|Verify|Validate|Certify|Authenticate|Authorize|Approve|Sanction|Endorse|Support|Back|Advocate|Champion|Promote|Advance|Further|Foster|Nurture|Cultivate|Develop|Grow|Expand|Extend|Stretch|Spread|Scatter|Disperse|Distribute|Allocate|Assign|Apportion|Divide|Share|Split|Separate|Partition|Segment|Section|Portion|Slice|Cut|Carve|Shape|Form|Mold|Cast|Forge|Fabricate|Manufacture|Produce|Generate|Create|Build|Construct|Erect|Raise|Lift|Elevate|Hoist|Heave|Pull|Drag|Tow|Haul|Carry|Bear|Transport|Convey|Move|Shift|Transfer|Relocate|Migrate|Emigrate|Immigrate|Travel|Journey|Trip|Tour|Visit|Go|Come|Arrive|Depart|Leave|Exit|Enter|Return|Stay|Remain|Linger|Dwell|Reside|Live|Exist|Be|Become|Grow|Develop|Evolve|Progress|Advance|Improve|Enhance|Upgrade|Update|Modernize|Renovate|Refurbish|Restore|Repair|Fix|Mend|Patch|Heal|Cure|Treat|Remedy|Correct|Rectify|Amend|Revise|Edit|Modify|Alter|Change|Transform|Convert|Transmute|Metamorphose|Mutate|Vary|Differ|Deviate|Diverge|Branch|Fork|Split|Divide|Separate|Part|Sever|Disconnect|Detach|Remove|Extract|Withdraw|Retreat|Recede|Retire|Resign|Quit|Stop|Cease|End|Finish|Complete|Conclude|Close|Terminate|Dissolve|Disband|Break|Bust|Shatter|Smash|Crash|Wreck|Destroy|Demolish|Raze|Ruin|Spoil|Damage|Harm|Hurt|Injure|Wound|Maim|Kill|Slay|Murder|Assassinate|Execute|Terminate|Eliminate|Eradicate|Exterminate|Annihilate|Obliterate|Wipe|Erase|Delete|Remove|Clear|Empty|Drain|Deplete|Exhaust|Consume|Use|Spend|Expend|Waste|Squander|Lose|Miss|Fail|Err|Blunder|Bungle|Botch|Fumble|Stumble|Trip|Fall|Drop|Sink|Plunge|Dive|Dip|Immerse|Submerge|Drown|Suffocate|Choke|Strangle|Throttle|Stifle|Suppress|Repress|Oppress|Persecute|Victimize|Exploit|Abuse|Misuse|Mistreat|Maltreat|Batter|Beat|Pound|Pummel|Thrash|Whip|Lash|Flog|Cane|Spank|Slap|Smack|Hit|Strike|Punch|Kick|Stomp|Stamp|Trample|Crush|Squash|Squeeze|Press|Push|Shove|Thrust|Ram|Jam|Wedge|Force|Drive|Propel|Accelerate|Speed|Hasten|Rush|Hurry|Dash|Race|Run|Sprint|Jog|Walk|Stroll|Saunter|Amble|Wander|Roam|Rove|Drift|Float|Fly|Soar|Glide|Sail|Navigate|Pilot|Steer|Guide|Direct|Lead|Conduct|Escort|Accompany|Attend|Serve|Wait|Help|Assist|Aid|Support|Sustain|Maintain|Keep|Preserve|Conserve|Save|Store|Stock|Supply|Provide|Furnish|Equip|Outfit|Arm|Prepare|Ready|Set|Arrange|Organize|Order|Structure|Systematize|Methodize|Standardize|Normalize|Regulate|Control|Manage|Administer|Govern|Rule|Dominate|Command|Direct|Supervise|Oversee|Monitor|Watch|Observe|Check|Inspect|Examine|Review|Audit|Evaluate|Assess|Appraise|Estimate|Judge|Rate|Rank|Grade|Score|Measure|Gauge|Weigh|Balance|Compare|Contrast|Differentiate|Distinguish|Discriminate|Separate|Divide|Classify|Categorize|Group|Sort|Arrange|Order|Organize|Structure|Plan|Design|Draft|Sketch|Outline|Map|Chart|Graph|Diagram|Illustrate|Draw|Paint|Color|Shade|Tint|Dye|Stain|Mark|Brand|Label|Tag|Ticket|Price|Value|Appraise|Assess|Evaluate|Estimate|Calculate|Compute|Figure|Reckon|Count|Number|Enumerate|List|Catalog|Index|File|Archive|Store|Save|Keep|Preserve|Maintain|Sustain|Support|Uphold|Defend|Protect|Guard|Shield|Shelter|Cover|Conceal|Hide|Bury|Entomb|Inter|No) /i
+            ];
+
+            const isValidFormat = bulletPoints.every(point => {
+              const content = point.replace(/^- /, '').trim();
+              // "No user-facing changes" is always valid
+              if (content.toLowerCase() === 'no user-facing changes') {
+                return true;
+              }
+              // Check if it starts with a capital letter (action verb)
+              return /^[A-Z]/.test(content);
+            });
+
+            if (!isValidFormat) {
+              core.setFailed('Changelog entries should start with a capital letter (action verb like Add, Fix, Improve, etc.) or be "No user-facing changes"');
+              return;
+            }
+
+            console.log('Changelog check passed!');
+            console.log('Entries found:');
+            bulletPoints.forEach(point => console.log(`  ${point}`));

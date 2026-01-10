@@ -1,0 +1,202 @@
+name: Update Changelog
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+
+jobs:
+  update-changelog:
+    # Only run when PR is merged (not just closed)
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout work-squared repo
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Extract changelog and update version
+        id: extract
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const prBody = context.payload.pull_request.body || '';
+            const prNumber = context.payload.pull_request.number;
+            const prTitle = context.payload.pull_request.title;
+            const prUrl = context.payload.pull_request.html_url;
+            const mergedAt = context.payload.pull_request.merged_at;
+
+            // Extract changelog section
+            const changelogMatch = prBody.match(/## Changelog[\s\S]*?(?=\n## |$)/i);
+            if (!changelogMatch) {
+              console.log('No changelog section found, skipping');
+              core.setOutput('skip', 'true');
+              return;
+            }
+
+            const changelogSection = changelogMatch[0];
+            const bulletPoints = changelogSection.match(/^- .+$/gm) || [];
+
+            // Filter out empty entries
+            const entries = bulletPoints
+              .map(point => point.replace(/^- /, '').trim())
+              .filter(entry => entry.length > 0 && entry !== '-');
+
+            if (entries.length === 0) {
+              console.log('No changelog entries found, skipping');
+              core.setOutput('skip', 'true');
+              return;
+            }
+
+            // Check if this has user-facing changes
+            const hasUserFacingChanges = !entries.every(
+              entry => entry.toLowerCase() === 'no user-facing changes'
+            );
+
+            // Read current version from package.json
+            const packageJson = JSON.parse(fs.readFileSync('packages/web/package.json', 'utf-8'));
+            const currentVersion = packageJson.version;
+
+            let newVersion = currentVersion;
+            if (hasUserFacingChanges) {
+              // Bump patch version
+              const parts = currentVersion.split('.');
+              parts[2] = String(Number(parts[2]) + 1);
+              newVersion = parts.join('.');
+            }
+
+            // Format the date
+            const date = new Date(mergedAt);
+            const formattedDate = date.toISOString().split('T')[0];
+
+            // Create changelog entry JSON
+            const changelogEntry = {
+              version: newVersion,
+              date: formattedDate,
+              prNumber: prNumber,
+              prUrl: prUrl,
+              prTitle: prTitle,
+              entries: hasUserFacingChanges ? entries.filter(e => e.toLowerCase() !== 'no user-facing changes') : [],
+              hasUserFacingChanges: hasUserFacingChanges
+            };
+
+            console.log('Changelog entry:', JSON.stringify(changelogEntry, null, 2));
+
+            core.setOutput('skip', 'false');
+            core.setOutput('changelog_entry', JSON.stringify(changelogEntry));
+            core.setOutput('new_version', newVersion);
+            core.setOutput('current_version', currentVersion);
+            core.setOutput('has_user_facing_changes', hasUserFacingChanges.toString());
+
+      - name: Update version in package.json
+        if: steps.extract.outputs.skip != 'true' && steps.extract.outputs.has_user_facing_changes == 'true'
+        run: |
+          NEW_VERSION="${{ steps.extract.outputs.new_version }}"
+          # Update web package version
+          cd packages/web
+          npm version $NEW_VERSION --no-git-tag-version
+          cd ../..
+
+          # Also update shared package version to keep them in sync
+          cd packages/shared
+          npm version $NEW_VERSION --no-git-tag-version
+          cd ../..
+
+      - name: Commit version bump
+        if: steps.extract.outputs.skip != 'true' && steps.extract.outputs.has_user_facing_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add packages/web/package.json packages/shared/package.json
+          git commit -m "chore: bump version to ${{ steps.extract.outputs.new_version }}"
+          git push
+
+      - name: Checkout lifebuild-site repo
+        if: steps.extract.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: sociotechnica-org/lifebuild-site
+          token: ${{ secrets.LIFEBUILD_SITE_PAT }}
+          path: lifebuild-site
+
+      - name: Update changelog file
+        if: steps.extract.outputs.skip != 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const changelogEntry = JSON.parse('${{ steps.extract.outputs.changelog_entry }}'.replace(/'/g, "\\'"));
+            const changelogPath = path.join('lifebuild-site', 'src', 'content', 'changelog');
+
+            // Ensure directory exists
+            if (!fs.existsSync(changelogPath)) {
+              fs.mkdirSync(changelogPath, { recursive: true });
+            }
+
+            // Create a new changelog entry file (YAML frontmatter + markdown)
+            const filename = `${changelogEntry.date}-v${changelogEntry.version.replace(/\./g, '-')}.md`;
+            const filepath = path.join(changelogPath, filename);
+
+            // Only create entry file if there are user-facing changes
+            if (changelogEntry.hasUserFacingChanges && changelogEntry.entries.length > 0) {
+              const content = `---
+version: "${changelogEntry.version}"
+date: "${changelogEntry.date}"
+prNumber: ${changelogEntry.prNumber}
+prUrl: "${changelogEntry.prUrl}"
+---
+
+# v${changelogEntry.version}
+
+${changelogEntry.entries.map(entry => `- ${entry}`).join('\n')}
+
+[View PR #${changelogEntry.prNumber}](${changelogEntry.prUrl})
+`;
+
+              fs.writeFileSync(filepath, content);
+              console.log(`Created changelog entry: ${filename}`);
+            } else {
+              console.log('No user-facing changes, skipping changelog file creation');
+            }
+
+            // Update the latest version file
+            const versionPath = path.join('lifebuild-site', 'src', 'data', 'version.json');
+            const versionDir = path.dirname(versionPath);
+
+            if (!fs.existsSync(versionDir)) {
+              fs.mkdirSync(versionDir, { recursive: true });
+            }
+
+            const versionData = {
+              version: changelogEntry.version,
+              lastUpdated: changelogEntry.date
+            };
+            fs.writeFileSync(versionPath, JSON.stringify(versionData, null, 2) + '\n');
+            console.log(`Updated version.json to ${changelogEntry.version}`);
+
+      - name: Commit and push changelog update
+        if: steps.extract.outputs.skip != 'true'
+        working-directory: lifebuild-site
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: add changelog entry for v${{ steps.extract.outputs.new_version }} (PR #${{ github.event.pull_request.number }})"
+            git push
+          fi
