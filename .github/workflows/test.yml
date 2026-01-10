@@ -24,6 +24,8 @@ jobs:
 
       - name: Install system dependencies for native modules
         run: |
+          # Remove problematic Microsoft repositories that may cause 403 errors
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list /etc/apt/sources.list.d/azure-cli.list || true
           sudo apt-get update
           sudo apt-get install -y build-essential python3
 
