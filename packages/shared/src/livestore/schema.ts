@@ -126,12 +126,12 @@ const tasks = State.SQLite.table({
     status: State.SQLite.text({ default: 'todo' }), // 'todo' | 'doing' | 'in_review' | 'done'
     assigneeIds: State.SQLite.text({ default: '[]' }), // JSON array of user IDs
     attributes: State.SQLite.text({
-      // PR2: Flexible attributes system - stores JSON object with optional priority, etc.
+      // PR2: Flexible attributes system - stores JSON object with optional priority, deadline, etc.
       nullable: true,
       schema: Schema.parseJson(
         Schema.Struct({
           priority: Schema.optional(Schema.Literal('low', 'normal', 'high', 'critical')),
-          // Future attributes can be added here
+          deadline: Schema.optional(Schema.Number), // Timestamp in milliseconds
         })
       ),
     }),

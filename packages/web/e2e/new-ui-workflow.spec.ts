@@ -107,14 +107,26 @@ test.describe('New UI Workflow', () => {
     // Verify project name shows in header
     await expect(page.getByText(projectName)).toBeVisible()
 
-    // Add tasks
-    const taskInput = page.locator('input[placeholder*="Add a new task"]')
-    const addButton = page.getByRole('button', { name: 'Add', exact: true })
-
+    // Add tasks using the modal-based flow
     for (const taskName of taskNames) {
-      await taskInput.fill(taskName)
-      await addButton.click()
-      await page.waitForTimeout(200) // Wait for task to be added
+      // Click "+ Add Task" button to open modal
+      const addTaskButton = page.getByRole('button', { name: '+ Add Task' })
+      await addTaskButton.click()
+
+      // Wait for modal to open
+      const taskModal = page.getByRole('dialog')
+      await expect(taskModal).toBeVisible({ timeout: 5000 })
+
+      // Fill in task title
+      const titleInput = taskModal.locator('input[placeholder="Task title"]')
+      await titleInput.fill(taskName)
+
+      // Click "Create Task" button
+      const createTaskButton = taskModal.getByRole('button', { name: 'Create Task' })
+      await createTaskButton.click()
+
+      // Wait for modal to close and task to be added
+      await expect(taskModal).not.toBeVisible({ timeout: 5000 })
     }
 
     // Verify all tasks are visible

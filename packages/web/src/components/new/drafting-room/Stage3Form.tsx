@@ -32,6 +32,43 @@ import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
 import { useRoomChatControl } from '../layout/RoomLayout.js'
+import { TaskDetailModal, formatDeadline } from '../project-room/TaskDetailModal.js'
+
+/**
+ * Document icon component for indicating task has description
+ */
+function DocumentIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill='none'
+      stroke='currentColor'
+      viewBox='0 0 24 24'
+      xmlns='http://www.w3.org/2000/svg'
+    >
+      <path
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth={2}
+        d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+      />
+    </svg>
+  )
+}
+
+/**
+ * Parse task attributes to get deadline
+ */
+function getTaskDeadline(task: Task): number | undefined {
+  if (!task.attributes) return undefined
+  try {
+    const attrs =
+      typeof task.attributes === 'string' ? JSON.parse(task.attributes) : task.attributes
+    return attrs?.deadline
+  } catch {
+    return undefined
+  }
+}
 
 /**
  * Drag grip icon SVG (6 dots in 2x3 grid)
@@ -48,27 +85,13 @@ const DragGripIcon: React.FC = () => (
 )
 
 /**
- * Sortable task row component
+ * Sortable task row component with modal-based editing
  */
 const SortableTaskRow: React.FC<{
   task: Task
-  isEditing: boolean
-  editingTitle: string
-  onStartEdit: () => void
-  onEditChange: (value: string) => void
-  onSaveEdit: () => void
-  onEditKeyDown: (e: React.KeyboardEvent) => void
-  onRemove: () => void
-}> = ({
-  task,
-  isEditing,
-  editingTitle,
-  onStartEdit,
-  onEditChange,
-  onSaveEdit,
-  onEditKeyDown,
-  onRemove,
-}) => {
+  onEditTask: (task: Task) => void
+  onRemove: (e: React.MouseEvent) => void
+}> = ({ task, onEditTask, onRemove }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
   })
@@ -79,40 +102,36 @@ const SortableTaskRow: React.FC<{
     opacity: isDragging ? 0.5 : 1,
   }
 
+  const deadline = getTaskDeadline(task)
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-2 p-3 bg-[#faf9f7] rounded-lg border border-[#e8e4de] ${
+      className={`flex items-center gap-2 p-3 bg-[#faf9f7] rounded-lg border border-[#e8e4de] cursor-pointer hover:border-[#d0ccc5] transition-colors ${
         isDragging ? 'shadow-lg rotate-1' : ''
       }`}
+      onClick={() => onEditTask(task)}
+      title='Click to edit task'
     >
       <span
         className='text-[#8b8680] py-1.5 px-1 cursor-grab hover:text-[#2f2b27] hover:bg-black/[0.08] rounded transition-all duration-150 active:cursor-grabbing flex-shrink-0'
         {...attributes}
         {...listeners}
+        onClick={e => e.stopPropagation()} // Prevent click-to-edit when dragging
       >
         <DragGripIcon />
       </span>
-      {isEditing ? (
-        <input
-          type='text'
-          className='flex-1 border border-[#e8e4de] rounded-lg py-2 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5]'
-          value={editingTitle}
-          onChange={e => onEditChange(e.target.value)}
-          onBlur={onSaveEdit}
-          onKeyDown={onEditKeyDown}
-          autoFocus
-        />
-      ) : (
-        <span
-          className='flex-1 text-sm text-[#2f2b27] cursor-pointer hover:text-[#4a4540]'
-          onClick={onStartEdit}
-          title='Click to edit'
-        >
-          {task.title}
-        </span>
+      <span className='flex-1 text-sm text-[#2f2b27]'>{task.title}</span>
+
+      {/* Description indicator icon */}
+      {task.description && <DocumentIcon className='w-4 h-4 text-[#8b8680] flex-shrink-0' />}
+
+      {/* Deadline display */}
+      {deadline && (
+        <span className='text-xs text-[#8b8680] flex-shrink-0'>{formatDeadline(deadline)}</span>
       )}
+
       <button
         type='button'
         className='text-xs text-[#8b8680] bg-transparent border-none cursor-pointer hover:text-red-600 flex-shrink-0'
@@ -142,12 +161,10 @@ export const Stage3Form: React.FC = () => {
     [allTasks]
   )
 
-  // New task input
-  const [newTaskTitle, setNewTaskTitle] = useState('')
-
-  // Track which task is being edited
-  const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
-  const [editingTitle, setEditingTitle] = useState('')
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isCreatingTask, setIsCreatingTask] = useState(false)
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
 
   // Get current lifecycle state
   const lifecycleState: ProjectLifecycleState | null = project
@@ -231,36 +248,37 @@ export const Stage3Form: React.FC = () => {
   }
 
   /**
-   * Add a new task
+   * Open modal to create a new task
    */
   const handleAddTask = () => {
-    if (!projectId || !newTaskTitle.trim()) return
+    setSelectedTask(null)
+    setIsCreatingTask(true)
+    setIsModalOpen(true)
+  }
 
-    const taskId = crypto.randomUUID()
-    const now = new Date()
-    const maxPosition = tasks.length > 0 ? Math.max(...tasks.map(t => t.position)) : -1
+  /**
+   * Open modal to edit an existing task
+   */
+  const handleEditTask = (task: Task) => {
+    setSelectedTask(task)
+    setIsCreatingTask(false)
+    setIsModalOpen(true)
+  }
 
-    store.commit(
-      events.taskCreatedV2({
-        id: taskId,
-        projectId,
-        title: newTaskTitle.trim(),
-        description: undefined,
-        status: 'todo',
-        assigneeIds: undefined,
-        position: maxPosition + 1,
-        createdAt: now,
-        actorId: user?.id,
-      })
-    )
-
-    setNewTaskTitle('')
+  /**
+   * Close the modal
+   */
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setIsCreatingTask(false)
+    setSelectedTask(null)
   }
 
   /**
    * Remove a task (delete it)
    */
-  const handleRemoveTask = (taskId: string) => {
+  const handleRemoveTask = (e: React.MouseEvent, taskId: string) => {
+    e.stopPropagation() // Prevent opening the modal
     store.commit(
       events.taskDeleted({
         taskId,
@@ -268,67 +286,6 @@ export const Stage3Form: React.FC = () => {
         actorId: user?.id,
       })
     )
-  }
-
-  /**
-   * Start editing a task
-   */
-  const handleStartEdit = (task: Task) => {
-    setEditingTaskId(task.id)
-    setEditingTitle(task.title)
-  }
-
-  /**
-   * Save task edit
-   */
-  const handleSaveEdit = () => {
-    if (!editingTaskId || !editingTitle.trim()) {
-      setEditingTaskId(null)
-      setEditingTitle('')
-      return
-    }
-
-    store.commit(
-      events.taskUpdated({
-        taskId: editingTaskId,
-        title: editingTitle.trim(),
-        description: undefined,
-        assigneeIds: undefined,
-        updatedAt: new Date(),
-        actorId: user?.id,
-      })
-    )
-
-    setEditingTaskId(null)
-    setEditingTitle('')
-  }
-
-  /**
-   * Cancel editing
-   */
-  const handleCancelEdit = () => {
-    setEditingTaskId(null)
-    setEditingTitle('')
-  }
-
-  /**
-   * Handle key press in edit input
-   */
-  const handleEditKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSaveEdit()
-    } else if (e.key === 'Escape') {
-      handleCancelEdit()
-    }
-  }
-
-  /**
-   * Handle key press in new task input
-   */
-  const handleNewTaskKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleAddTask()
-    }
   }
 
   /**
@@ -389,6 +346,13 @@ export const Stage3Form: React.FC = () => {
           />
         )}
 
+        {/* Header */}
+        <div className='mb-4'>
+          <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27]">
+            Stage 3: Draft
+          </h1>
+        </div>
+
         {/* Project Title and Category */}
         {project && (
           <div className='flex items-center justify-between gap-2 pb-4 mb-4 border-b border-[#e8e4de]'>
@@ -408,15 +372,7 @@ export const Stage3Form: React.FC = () => {
           </div>
         )}
 
-        {/* Header */}
-        <div className='mb-6'>
-          <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27] mb-1">
-            Stage 3: Draft
-          </h1>
-          <p className='text-sm text-[#8b8680]'>Create actionable task list - 30 minutes</p>
-        </div>
-
-        {/* Task List */}
+        {/* Task List with Drag-and-Drop */}
         <div className='flex flex-col gap-5'>
           <DndContext
             sensors={sensors}
@@ -430,13 +386,8 @@ export const Stage3Form: React.FC = () => {
                   <SortableTaskRow
                     key={task.id}
                     task={task}
-                    isEditing={editingTaskId === task.id}
-                    editingTitle={editingTitle}
-                    onStartEdit={() => handleStartEdit(task)}
-                    onEditChange={setEditingTitle}
-                    onSaveEdit={handleSaveEdit}
-                    onEditKeyDown={handleEditKeyDown}
-                    onRemove={() => handleRemoveTask(task.id)}
+                    onEditTask={handleEditTask}
+                    onRemove={e => handleRemoveTask(e, task.id)}
                   />
                 ))}
               </div>
@@ -450,31 +401,28 @@ export const Stage3Form: React.FC = () => {
                     <DragGripIcon />
                   </span>
                   <span className='flex-1 text-sm text-[#2f2b27]'>{activeTask.title}</span>
+                  {activeTask.description && (
+                    <DocumentIcon className='w-4 h-4 text-[#8b8680] flex-shrink-0' />
+                  )}
+                  {getTaskDeadline(activeTask) && (
+                    <span className='text-xs text-[#8b8680] flex-shrink-0'>
+                      {formatDeadline(getTaskDeadline(activeTask)!)}
+                    </span>
+                  )}
                   <span className='text-xs text-[#8b8680] flex-shrink-0'>Remove</span>
                 </div>
               )}
             </DragOverlay>
           </DndContext>
 
-          {/* Add new task input */}
-          <div className='flex gap-2'>
-            <input
-              type='text'
-              className='flex-1 border border-[#e8e4de] rounded-lg py-2.5 px-3 text-sm text-[#2f2b27] focus:outline-none focus:border-[#d0ccc5] placeholder:text-[#8b8680]'
-              placeholder='Add a new task...'
-              value={newTaskTitle}
-              onChange={e => setNewTaskTitle(e.target.value)}
-              onKeyDown={handleNewTaskKeyDown}
-            />
-            <button
-              type='button'
-              className='py-2.5 px-4 rounded-lg text-sm font-semibold bg-[#2f2b27] text-[#faf9f7] cursor-pointer border-none transition-all duration-200 hover:bg-[#4a4540] disabled:opacity-50 disabled:cursor-not-allowed'
-              onClick={handleAddTask}
-              disabled={!newTaskTitle.trim()}
-            >
-              Add
-            </button>
-          </div>
+          {/* Add Task button */}
+          <button
+            type='button'
+            className='py-2.5 px-4 rounded-lg text-sm font-semibold bg-[#2f2b27] text-[#faf9f7] cursor-pointer border-none transition-all duration-200 hover:bg-[#4a4540]'
+            onClick={handleAddTask}
+          >
+            + Add Task
+          </button>
 
           {/* Ask Marvin button */}
           <button
@@ -519,6 +467,18 @@ export const Stage3Form: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Task Modal for creating/editing tasks */}
+      {isModalOpen && (
+        <TaskDetailModal
+          task={selectedTask}
+          allTasks={tasks}
+          onClose={handleCloseModal}
+          projectId={projectId}
+          isCreating={isCreatingTask}
+          hideStatus={true}
+        />
+      )}
     </div>
   )
 }
