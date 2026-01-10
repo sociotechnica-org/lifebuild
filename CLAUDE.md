@@ -111,11 +111,23 @@ CI=true pnpm test:e2e  # Run E2E tests
 1. Write clear commit messages
 2. Push your branch to GitHub
 3. Create PR: `gh pr create --title "Title" --body "Description"` (or use GitHub web UI)
-4. **Link issues**: If the PR fixes a GitHub issue, include `Closes #XXX` in the PR description to auto-close the issue on merge
-5. **Set issue status to "In Review"**: Update the GitHub issue status on the project board
-6. Monitor checks: `gh pr checks --watch` and wait for all checks (up to 10 minutes)
-7. Check for feedback: `gh pr view <number> --comments` to see reviews and comments
-8. Fix any issues (including neutral BugBot feedback)
+4. **Add a Changelog section** (optional but recommended for user-facing changes):
+   - Add a `## Changelog` section with bullet points describing changes
+   - PRs without a Changelog section won't trigger version bumps or changelog updates
+5. **Link issues**: If the PR fixes a GitHub issue, include `Closes #XXX` in the PR description to auto-close the issue on merge
+6. **Set issue status to "In Review"**: Update the GitHub issue status on the project board
+7. Monitor checks: `gh pr checks --watch` and wait for all checks (up to 10 minutes)
+8. Check for feedback: `gh pr view <number> --comments` to see reviews and comments
+9. Fix any issues (including neutral BugBot feedback)
+
+#### Changelog Entry Example
+
+```markdown
+## Changelog
+
+- Add dark mode support for all pages
+- Fix task due date not saving correctly
+```
 
 ## GitHub CLI (`gh`) Commands
 
