@@ -80,13 +80,15 @@ function createProjectCore(
     const now = new Date()
 
     // PR4: Use v2.ProjectCreated event with category support
+    // Must include lifecycleState explicitly - the materializer fallback doesn't work
+    // reliably when events are synced from server to client
     store.commit(
       events.projectCreatedV2({
         id: projectId,
         name: params.name,
         description: params.description,
         category: params.category as any,
-        attributes: undefined,
+        lifecycleState: { status: 'planning', stage: 1 },
         createdAt: now,
         actorId,
       })
