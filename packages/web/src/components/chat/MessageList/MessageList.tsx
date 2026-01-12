@@ -7,6 +7,7 @@ interface MessageListProps {
   isProcessing: boolean
   conversationTitle?: string
   currentWorker?: Worker | null
+  conversationId?: string | null
 }
 
 interface MessageItemProps {
@@ -169,13 +170,87 @@ export const MessageList: React.FC<MessageListProps> = ({
   isProcessing,
   conversationTitle,
   currentWorker,
+  conversationId,
 }) => {
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null)
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
 
-  // Auto-scroll to bottom when new messages arrive
+  // Track scroll state using refs to avoid re-renders
+  const isUserNearBottomRef = React.useRef(true)
+  const prevLastMessageIdRef = React.useRef<string | null>(null)
+  const prevIsProcessingRef = React.useRef(false)
+  const prevConversationIdRef = React.useRef<string | null | undefined>(conversationId)
+
+  // Threshold for considering user "near bottom" (in pixels)
+  const SCROLL_THRESHOLD = 100
+
+  // Check if user is near the bottom of the scroll container
+  const checkIfNearBottom = React.useCallback(() => {
+    const container = scrollContainerRef.current
+    if (!container) return true
+
+    const { scrollTop, scrollHeight, clientHeight } = container
+    return scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD
+  }, [])
+
+  // Handle scroll events to track user's scroll position
+  const handleScroll = React.useCallback(() => {
+    isUserNearBottomRef.current = checkIfNearBottom()
+  }, [checkIfNearBottom])
+
+  // Scroll to bottom helper
+  const scrollToBottom = React.useCallback((behavior: ScrollBehavior = 'smooth') => {
+    messagesEndRef.current?.scrollIntoView({ behavior })
+  }, [])
+
+  // Handle conversation changes - always scroll to bottom
   React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, isProcessing])
+    if (conversationId !== prevConversationIdRef.current) {
+      prevConversationIdRef.current = conversationId
+      // Use instant scroll for conversation changes
+      scrollToBottom('auto')
+      // Reset near-bottom state since we're now at the bottom
+      isUserNearBottomRef.current = true
+    }
+  }, [conversationId, scrollToBottom])
+
+  // Smart auto-scroll for new messages and processing state changes
+  React.useEffect(() => {
+    const lastMessage = messages[messages.length - 1]
+    const lastMessageId = lastMessage?.id ?? null
+    const prevLastMessageId = prevLastMessageIdRef.current
+    const processingJustStarted = isProcessing && !prevIsProcessingRef.current
+
+    // Update refs for next comparison
+    prevLastMessageIdRef.current = lastMessageId
+    prevIsProcessingRef.current = isProcessing
+
+    // Skip if no change in messages or processing state
+    if (lastMessageId === prevLastMessageId && !processingJustStarted) {
+      return
+    }
+
+    // Determine if we should auto-scroll
+    let shouldScroll = false
+
+    if (lastMessageId && lastMessageId !== prevLastMessageId && lastMessage) {
+      // New message arrived
+      if (lastMessage.role === 'user') {
+        // Always scroll for user's own messages (they just sent it)
+        shouldScroll = true
+      } else if (isUserNearBottomRef.current) {
+        // Only scroll for assistant/system messages if user was near bottom
+        shouldScroll = true
+      }
+    } else if (processingJustStarted && isUserNearBottomRef.current) {
+      // Processing started - scroll to show thinking indicator if user was near bottom
+      shouldScroll = true
+    }
+
+    if (shouldScroll) {
+      scrollToBottom('smooth')
+    }
+  }, [messages, isProcessing, scrollToBottom])
 
   const handleCopy = React.useCallback((text: string) => {
     if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
@@ -193,7 +268,11 @@ export const MessageList: React.FC<MessageListProps> = ({
   }, [])
 
   return (
-    <div className='flex-1 overflow-y-auto p-4 min-h-0'>
+    <div
+      ref={scrollContainerRef}
+      className='flex-1 overflow-y-auto p-4 min-h-0'
+      onScroll={handleScroll}
+    >
       {messages.length > 0 ? (
         <div className='space-y-4'>
           {messages.map(message => (
