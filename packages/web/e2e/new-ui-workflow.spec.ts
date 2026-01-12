@@ -98,11 +98,11 @@ test.describe('New UI Workflow', () => {
     await continueToStage3Button.click()
 
     // =====================
-    // STAGE 3: Draft
+    // STAGE 3: Detail
     // =====================
 
     // Wait for Stage 3 form to load
-    await expect(page.getByText('Stage 3: Draft')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('Stage 3: Detail')).toBeVisible({ timeout: 10000 })
 
     // Verify project name shows in header
     await expect(page.getByText(projectName)).toBeVisible()

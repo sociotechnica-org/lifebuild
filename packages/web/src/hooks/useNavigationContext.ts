@@ -22,7 +22,7 @@ function detectCurrentView(pathname: string): string | undefined {
     return 'Stage 2: Scoping - User is defining objectives, archetype, and tier'
   }
   if (pathname.includes('/stage3')) {
-    return 'Stage 3: Drafting - User is creating an actionable task list'
+    return 'Stage 3: Detailing - User is creating an actionable task list'
   }
   if (pathname === '/drafting-room') {
     return 'Drafting Room - Overview of all projects in planning stages 1-3'

@@ -75,7 +75,7 @@ Projects flow through these statuses:
    - **Urgency**: low, normal, high, critical
    - **Importance**: low, normal, high, critical
 
-3. **Drafting (Stage 3)**: Finalize the plan
+3. **Detailing (Stage 3)**: Finalize the plan
    - Write clear objectives
    - Set a deadline (optional)
    - Estimate duration in hours (optional)

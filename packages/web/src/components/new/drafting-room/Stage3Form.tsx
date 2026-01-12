@@ -349,7 +349,7 @@ export const Stage3Form: React.FC = () => {
         {/* Header */}
         <div className='mb-4'>
           <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27]">
-            Stage 3: Draft
+            Stage 3: Detail
           </h1>
         </div>
 

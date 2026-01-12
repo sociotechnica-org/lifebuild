@@ -79,7 +79,7 @@ function getLifecycleState(project: Project): ProjectLifecycleState {
 const STAGES: { stage: PlanningStage; name: string; emptyMessage: string }[] = [
   { stage: 1, name: 'Identify', emptyMessage: "Click 'Start New Project' to begin" },
   { stage: 2, name: 'Scope', emptyMessage: 'Complete Stage 1 projects to move them here' },
-  { stage: 3, name: 'Draft', emptyMessage: 'Define objectives to advance projects' },
+  { stage: 3, name: 'Detail', emptyMessage: 'Define objectives to advance projects' },
 ]
 
 // Category filter options (All + categories)

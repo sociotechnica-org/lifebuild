@@ -30,7 +30,7 @@ function formatCompactRelativeTime(date: Date): string {
  * Get the action button label based on the current stage (imperative verbs)
  * Stage 1: "Identify" (continue identifying)
  * Stage 2: "Scope" (continue scoping)
- * Stage 3: "Draft" (continue drafting)
+ * Stage 3: "Detail" (continue detailing)
  * Stage 4: "Prioritize" (continue prioritizing)
  */
 function getActionLabel(stage: PlanningStage): string {
@@ -40,7 +40,7 @@ function getActionLabel(stage: PlanningStage): string {
     case 2:
       return 'Scope'
     case 3:
-      return 'Draft'
+      return 'Detail'
     case 4:
       return 'Prioritize'
     default:
