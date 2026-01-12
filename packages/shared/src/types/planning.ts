@@ -355,9 +355,9 @@ export const describeProjectLifecycleState = (
   const streamLabel = STREAM_LABELS[lifecycle.stream ?? 'bronze']
   switch (lifecycle.status) {
     case 'planning':
-      return `Planning · Stage ${lifecycle.stage}`
+      return `Drafting · Stage ${lifecycle.stage}`
     case 'backlog':
-      return `Backlog · ${streamLabel}`
+      return `Sorting · ${streamLabel}`
     case 'active':
       return `Active${lifecycle.slot ? ` · ${STREAM_LABELS[lifecycle.slot]} slot` : ''}`
     case 'completed':

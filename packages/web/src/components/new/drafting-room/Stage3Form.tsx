@@ -463,7 +463,7 @@ export const Stage3Form: React.FC = () => {
             onClick={handleContinue}
             disabled={!hasAtLeastOneTask}
           >
-            Add to Backlog
+            Add to Sorting
           </button>
         </div>
       </div>

@@ -192,12 +192,12 @@ const meta: Meta<typeof ProjectCardHelper> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Planning: Story = {
+export const Drafting: Story = {
   args: { projectId: 'project-planning' },
   decorators: [withLiveStore(planningSetup)],
 }
 
-export const Backlog: Story = {
+export const Sorting: Story = {
   args: { projectId: 'project-backlog' },
   decorators: [withLiveStore(backlogSetup)],
 }

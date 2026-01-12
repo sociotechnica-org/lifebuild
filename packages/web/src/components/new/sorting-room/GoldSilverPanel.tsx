@@ -248,7 +248,7 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
                 }}
                 onClick={() => setQueueView('backlog')}
               >
-                Backlog ({backlogProjects.length})
+                Sorting ({backlogProjects.length})
               </button>
               <button
                 type='button'
@@ -266,7 +266,7 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
             {displayedProjects.length === 0 ? (
               <div className='p-4 text-[#8b8680] text-sm italic'>
                 {queueView === 'backlog'
-                  ? `No projects in backlog. Complete Stage 4 in the Drafting Room to add projects.`
+                  ? `No projects in sorting. Complete Stage 4 in the Drafting Room to add projects.`
                   : `No active projects.`}
               </div>
             ) : (
