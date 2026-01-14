@@ -70,9 +70,17 @@ jobs:
 
             let newVersion = currentVersion;
             if (hasUserFacingChanges) {
-              // Bump patch version
+              // Bump patch version, handling prerelease suffixes (e.g., "0.1.0-beta")
               const parts = currentVersion.split('.');
-              parts[2] = String(Number(parts[2]) + 1);
+              // Extract numeric portion of patch version (before any - or +)
+              const patchMatch = parts[2].match(/^(\d+)/);
+              if (patchMatch) {
+                const numericPatch = Number(patchMatch[1]) + 1;
+                parts[2] = String(numericPatch);
+              } else {
+                // Fallback: if no numeric patch found, default to 1
+                parts[2] = '1';
+              }
               newVersion = parts.join('.');
             }
 
@@ -133,12 +141,15 @@ jobs:
       - name: Update changelog file
         if: steps.extract.outputs.skip != 'true'
         uses: actions/github-script@v7
+        env:
+          CHANGELOG_ENTRY: ${{ steps.extract.outputs.changelog_entry }}
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
 
-            const changelogEntry = JSON.parse('${{ steps.extract.outputs.changelog_entry }}'.replace(/'/g, "\\'"));
+            // Use environment variable to safely pass JSON (avoids string interpolation issues with quotes)
+            const changelogEntry = JSON.parse(process.env.CHANGELOG_ENTRY);
             const changelogPath = path.join('lifebuild-site', 'src', 'content', 'changelog');
 
             // Ensure directory exists
