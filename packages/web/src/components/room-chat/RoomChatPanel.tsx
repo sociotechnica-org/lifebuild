@@ -62,9 +62,8 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
 
   // Track scroll state
   const [showScrollButton, setShowScrollButton] = React.useState(false)
-  const hasInitialScrolledRef = React.useRef(false)
-  const prevConversationIdRef = React.useRef<string | null | undefined>(conversation?.id)
-  const prevMessagesLengthRef = React.useRef(messages.length)
+  const prevConversationIdRef = React.useRef<string | null | undefined>(undefined) // Start undefined to detect first load
+  const prevMessagesLengthRef = React.useRef(0) // Start at 0 to detect initial messages
 
   const SCROLL_THRESHOLD = 100
 
@@ -87,37 +86,38 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
     setShowScrollButton(false)
   }, [])
 
-  // Scroll to bottom on initial load (when messages exist)
-  // Use requestAnimationFrame to ensure DOM has updated before scrolling
-  React.useEffect(() => {
-    if (!hasInitialScrolledRef.current && messages.length > 0) {
-      hasInitialScrolledRef.current = true
-      // Wait for DOM to update before scrolling
-      requestAnimationFrame(() => {
-        scrollToBottom()
-      })
-    }
-  }, [messages.length, scrollToBottom])
-
   // Scroll on conversation change
   React.useEffect(() => {
     if (conversation?.id !== prevConversationIdRef.current) {
       prevConversationIdRef.current = conversation?.id
-      scrollToBottom()
+      // Double RAF to ensure DOM has fully updated after conversation change
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          scrollToBottom()
+        })
+      })
     }
   }, [conversation?.id, scrollToBottom])
 
-  // Auto-scroll when new messages arrive (if near bottom)
+  // Auto-scroll when new messages arrive
   React.useEffect(() => {
+    const wasEmpty = prevMessagesLengthRef.current === 0
     const hadNewMessages = messages.length > prevMessagesLengthRef.current
     prevMessagesLengthRef.current = messages.length
 
-    if (hadNewMessages && checkIfNearBottom()) {
-      // Wait for DOM to update before scrolling
+    // Always scroll on initial load (was empty, now has messages)
+    // Or scroll if user is near bottom when new messages arrive
+    const shouldScroll = (wasEmpty && messages.length > 0) || (hadNewMessages && checkIfNearBottom())
+
+    if (shouldScroll) {
+      // Double RAF to ensure DOM has fully updated with new content
       requestAnimationFrame(() => {
-        scrollToBottom()
+        requestAnimationFrame(() => {
+          scrollToBottom()
+        })
       })
     }
+
     // Update button visibility after content changes
     requestAnimationFrame(() => {
       setShowScrollButton(!checkIfNearBottom())
