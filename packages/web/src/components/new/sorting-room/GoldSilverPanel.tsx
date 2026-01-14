@@ -27,10 +27,12 @@ export interface GoldSilverPanelProps {
   activeProjects: Project[]
   onActivateToTable: (project: Project) => void
   onReleaseFromTable: () => void
+  onCompleteProject: () => void
   onReorder: (projects: Project[]) => void
   draggedProject: Project | null
   setDraggedProject: (project: Project | null) => void
   outgoingProjectHasProgress: boolean
+  allTasksDone: boolean
   tabledProjectCompletionPercentage?: number
 }
 
@@ -45,10 +47,12 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
   activeProjects,
   onActivateToTable,
   onReleaseFromTable,
+  onCompleteProject,
   onReorder,
   draggedProject,
   setDraggedProject,
   outgoingProjectHasProgress,
+  allTasksDone,
   tabledProjectCompletionPercentage = 0,
 }) => {
   const navigate = useNavigate()
@@ -324,8 +328,10 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
         incomingProject={pendingProject}
         outgoingProject={tabledProject}
         outgoingHasProgress={outgoingProjectHasProgress}
+        allTasksDone={allTasksDone}
         stream={stream}
         onConfirm={handleConfirm}
+        onComplete={onCompleteProject}
         onCancel={handleCancel}
       />
     </>

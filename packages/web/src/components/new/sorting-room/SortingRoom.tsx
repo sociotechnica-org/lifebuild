@@ -39,6 +39,16 @@ function projectHasProgress(projectId: string, tasks: readonly Task[]): boolean 
 }
 
 /**
+ * Check if all tasks for a project are done
+ */
+function projectAllTasksDone(projectId: string, tasks: readonly Task[]): boolean {
+  const projectTasks = tasks.filter(
+    task => task.projectId === projectId && task.archivedAt === null
+  )
+  return projectTasks.length > 0 && projectTasks.every(task => task.status === 'done')
+}
+
+/**
  * Get the most recent activity timestamp for a project (from tasks)
  */
 function getLastActivityTime(projectId: string, tasks: readonly Task[]): number {
@@ -247,6 +257,17 @@ export const SortingRoom: React.FC = () => {
     [silverProject, allTasks]
   )
 
+  // Check if all tasks are done for tabled projects
+  const goldProjectAllTasksDone = useMemo(
+    () => (goldProject ? projectAllTasksDone(goldProject.id, allTasks) : false),
+    [goldProject, allTasks]
+  )
+
+  const silverProjectAllTasksDone = useMemo(
+    () => (silverProject ? projectAllTasksDone(silverProject.id, allTasks) : false),
+    [silverProject, allTasks]
+  )
+
   // Calculate completion percentage for tabled projects
   const getProjectCompletionPercentage = useCallback(
     (projectId: string): number => {
@@ -448,6 +469,45 @@ export const SortingRoom: React.FC = () => {
     }
     await clearSilver()
   }, [silverProject, silverProjectHasProgress, clearSilver, configuration, handleOutgoingProject])
+
+  // Handler for completing a project (marking as done)
+  const handleCompleteGold = useCallback(async () => {
+    if (!configuration || !goldProject) return
+    const currentLifecycle = getLifecycleState(goldProject)
+    store.commit(
+      events.projectLifecycleUpdated({
+        projectId: goldProject.id,
+        lifecycleState: {
+          ...currentLifecycle,
+          status: 'completed',
+          completedAt: Date.now(),
+          slot: undefined,
+        },
+        updatedAt: new Date(),
+        actorId,
+      })
+    )
+    await clearGold()
+  }, [goldProject, clearGold, configuration, store, actorId])
+
+  const handleCompleteSilver = useCallback(async () => {
+    if (!configuration || !silverProject) return
+    const currentLifecycle = getLifecycleState(silverProject)
+    store.commit(
+      events.projectLifecycleUpdated({
+        projectId: silverProject.id,
+        lifecycleState: {
+          ...currentLifecycle,
+          status: 'completed',
+          completedAt: Date.now(),
+          slot: undefined,
+        },
+        updatedAt: new Date(),
+        actorId,
+      })
+    )
+    await clearSilver()
+  }, [silverProject, clearSilver, configuration, store, actorId])
 
   // Handler for reordering queue
   const handleReorderGold = useCallback(
@@ -677,10 +737,12 @@ export const SortingRoom: React.FC = () => {
               activeProjects={activeProjectsByStream.gold}
               onActivateToTable={handleActivateGold}
               onReleaseFromTable={handleReleaseGold}
+              onCompleteProject={handleCompleteGold}
               onReorder={handleReorderGold}
               draggedProject={draggedGoldProject}
               setDraggedProject={setDraggedGoldProject}
               outgoingProjectHasProgress={goldProjectHasProgress}
+              allTasksDone={goldProjectAllTasksDone}
               tabledProjectCompletionPercentage={goldProjectCompletionPercentage}
             />
           )}
@@ -692,10 +754,12 @@ export const SortingRoom: React.FC = () => {
               activeProjects={activeProjectsByStream.silver}
               onActivateToTable={handleActivateSilver}
               onReleaseFromTable={handleReleaseSilver}
+              onCompleteProject={handleCompleteSilver}
               onReorder={handleReorderSilver}
               draggedProject={draggedSilverProject}
               setDraggedProject={setDraggedSilverProject}
               outgoingProjectHasProgress={silverProjectHasProgress}
+              allTasksDone={silverProjectAllTasksDone}
               tabledProjectCompletionPercentage={silverProjectCompletionPercentage}
             />
           )}

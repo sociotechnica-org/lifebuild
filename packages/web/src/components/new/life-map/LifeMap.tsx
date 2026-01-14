@@ -1,16 +1,18 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useQuery } from '../../../livestore-compat.js'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   getProjectsByCategory$,
   getAllWorkerProjects$,
   getActiveBronzeStack$,
   getAllTasks$,
   getTableConfiguration$,
+  getProjects$,
 } from '@lifebuild/shared/queries'
 import { PROJECT_CATEGORIES, resolveLifecycleState } from '@lifebuild/shared'
 import { CategoryCard } from './CategoryCard.js'
 import { generateRoute } from '../../../constants/routes.js'
+import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 
 /**
  * Life Map - The overview of all eight life categories
@@ -21,11 +23,15 @@ import { generateRoute } from '../../../constants/routes.js'
  * Row 2: Leisure, Spirituality, Home, Contribution
  */
 export const LifeMap: React.FC = () => {
+  const navigate = useNavigate()
+  const [completedExpanded, setCompletedExpanded] = useState(false)
+
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
   const activeBronzeStack = useQuery(getActiveBronzeStack$) ?? []
   const allTasks = useQuery(getAllTasks$) ?? []
   const tableConfiguration = useQuery(getTableConfiguration$) ?? []
   const tableConfig = tableConfiguration[0]
+  const allProjects = useQuery(getProjects$) ?? []
 
   // Query projects for each category
   const healthProjects = useQuery(getProjectsByCategory$('health')) ?? []
@@ -132,6 +138,21 @@ export const LifeMap: React.FC = () => {
     return completionMap
   }, [allTasks])
 
+  // Get completed projects
+  const completedProjects = useMemo(() => {
+    return allProjects
+      .filter(p => {
+        const lifecycle = resolveLifecycleState(p.projectLifecycleState, null)
+        return lifecycle.status === 'completed'
+      })
+      .sort((a, b) => {
+        // Sort by completion date, most recent first
+        const aLifecycle = resolveLifecycleState(a.projectLifecycleState, null)
+        const bLifecycle = resolveLifecycleState(b.projectLifecycleState, null)
+        return (bLifecycle.completedAt ?? 0) - (aLifecycle.completedAt ?? 0)
+      })
+  }, [allProjects])
+
   // Check if there are any categories with projects
   const categoriesWithProjects = PROJECT_CATEGORIES.filter(category => {
     const projects = categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
@@ -216,6 +237,87 @@ export const LifeMap: React.FC = () => {
           )
         })}
       </div>
+
+      {/* Completed Projects Section */}
+      {completedProjects.length > 0 && (
+        <div className='mt-4 border border-[#e8e4de] rounded-xl overflow-hidden'>
+          <button
+            type='button'
+            className='w-full flex items-center justify-between p-4 bg-[#faf9f7] hover:bg-[#f5f3f0] transition-colors cursor-pointer border-none text-left'
+            onClick={() => setCompletedExpanded(!completedExpanded)}
+          >
+            <div className='flex items-center gap-2'>
+              <span className='text-sm font-semibold text-[#2f2b27]'>
+                Completed ({completedProjects.length})
+              </span>
+            </div>
+            <svg
+              className={`w-5 h-5 text-[#8b8680] transition-transform ${completedExpanded ? 'rotate-180' : ''}`}
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M19 9l-7 7-7-7'
+              />
+            </svg>
+          </button>
+
+          {completedExpanded && (
+            <div className='bg-white divide-y divide-[#e8e4de]'>
+              {completedProjects.map(project => {
+                const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
+                const completedDate = lifecycle.completedAt
+                  ? new Date(lifecycle.completedAt).toLocaleDateString()
+                  : null
+                const category = PROJECT_CATEGORIES.find(c => c.value === project.category)
+
+                return (
+                  <div
+                    key={project.id}
+                    className='flex items-center justify-between p-4 hover:bg-[#faf9f7] cursor-pointer transition-colors'
+                    onClick={() =>
+                      navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
+                    }
+                  >
+                    <div className='flex items-center gap-3'>
+                      {category && (
+                        <span
+                          className='w-2 h-2 rounded-full flex-shrink-0'
+                          style={{ backgroundColor: category.colorHex }}
+                        />
+                      )}
+                      <div>
+                        <div className='text-sm font-medium text-[#2f2b27]'>{project.name}</div>
+                        <div className='text-xs text-[#8b8680]'>
+                          {category?.name}
+                          {completedDate && ` · Completed ${completedDate}`}
+                        </div>
+                      </div>
+                    </div>
+                    <svg
+                      className='w-5 h-5 text-green-600'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M5 13l4 4L19 7'
+                      />
+                    </svg>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
