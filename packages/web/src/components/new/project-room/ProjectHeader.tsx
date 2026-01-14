@@ -57,12 +57,12 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   const isOnSilverTable = tableConfig?.silverProjectId === project.id
   const isOnTable = isOnGoldTable || isOnSilverTable
 
-  // Check if all tasks are done
+  // Check if all tasks are done (vacuously true for projects with no tasks)
   const allTasksDone = useMemo(() => {
     const projectTasks = allTasks.filter(
       task => task.projectId === project.id && task.archivedAt === null
     )
-    return projectTasks.length > 0 && projectTasks.every(task => task.status === 'done')
+    return projectTasks.every(task => task.status === 'done')
   }, [allTasks, project.id])
 
   // Get table slot label

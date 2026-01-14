@@ -39,13 +39,13 @@ function projectHasProgress(projectId: string, tasks: readonly Task[]): boolean 
 }
 
 /**
- * Check if all tasks for a project are done
+ * Check if all tasks for a project are done (vacuously true for projects with no tasks)
  */
 function projectAllTasksDone(projectId: string, tasks: readonly Task[]): boolean {
   const projectTasks = tasks.filter(
     task => task.projectId === projectId && task.archivedAt === null
   )
-  return projectTasks.length > 0 && projectTasks.every(task => task.status === 'done')
+  return projectTasks.every(task => task.status === 'done')
 }
 
 /**
