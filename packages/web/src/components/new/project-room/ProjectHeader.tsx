@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useQuery } from '../../../livestore-compat.js'
+import { useQuery, useStore } from '../../../livestore-compat.js'
 import type { Project } from '@lifebuild/shared/schema'
-import { getTableConfiguration$ } from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
+import { getTableConfiguration$, getAllTasks$ } from '@lifebuild/shared/queries'
 import {
   resolveLifecycleState,
   describeProjectLifecycleState,
@@ -11,6 +12,8 @@ import {
 } from '@lifebuild/shared'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
+import { useTableState } from '../../../hooks/useTableState.js'
+import { useAuth } from '../../../contexts/AuthContext.js'
 
 interface ProjectHeaderProps {
   project: Project
@@ -18,8 +21,16 @@ interface ProjectHeaderProps {
 
 export function ProjectHeader({ project }: ProjectHeaderProps) {
   const navigate = useNavigate()
+  const { store } = useStore()
+  const { user } = useAuth()
+  const actorId = user?.id
+  const { clearGold, clearSilver } = useTableState()
+  const [showCompleteConfirm, setShowCompleteConfirm] = useState(false)
+  const [showUncompleteConfirm, setShowUncompleteConfirm] = useState(false)
+
   const tableConfiguration = useQuery(getTableConfiguration$) ?? []
   const tableConfig = tableConfiguration[0]
+  const allTasks = useQuery(getAllTasks$) ?? []
 
   // Parse project attributes for legacy lifecycle data
   const attributes = useMemo(() => {
@@ -46,6 +57,14 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   const isOnSilverTable = tableConfig?.silverProjectId === project.id
   const isOnTable = isOnGoldTable || isOnSilverTable
 
+  // Check if all tasks are done (vacuously true for projects with no tasks)
+  const allTasksDone = useMemo(() => {
+    const projectTasks = allTasks.filter(
+      task => task.projectId === project.id && task.archivedAt === null
+    )
+    return projectTasks.every(task => task.status === 'done')
+  }, [allTasks, project.id])
+
   // Get table slot label
   const tableSlotLabel = isOnGoldTable ? 'Initiative' : isOnSilverTable ? 'Optimization' : null
 
@@ -54,6 +73,50 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
 
   const handleClose = () => {
     navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
+  }
+
+  const handleCompleteProject = async () => {
+    // Update lifecycle to completed
+    store.commit(
+      events.projectLifecycleUpdated({
+        projectId: project.id,
+        lifecycleState: {
+          ...lifecycleState,
+          status: 'completed',
+          completedAt: Date.now(),
+          slot: undefined,
+        },
+        updatedAt: new Date(),
+        actorId,
+      })
+    )
+
+    // Clear table slot if project was on the table
+    if (isOnGoldTable) {
+      await clearGold()
+    } else if (isOnSilverTable) {
+      await clearSilver()
+    }
+
+    setShowCompleteConfirm(false)
+    navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
+  }
+
+  const handleUncompleteProject = () => {
+    // Update lifecycle back to active
+    store.commit(
+      events.projectLifecycleUpdated({
+        projectId: project.id,
+        lifecycleState: {
+          ...lifecycleState,
+          status: 'active',
+          completedAt: undefined,
+        },
+        updatedAt: new Date(),
+        actorId,
+      })
+    )
+    setShowUncompleteConfirm(false)
   }
 
   return (
@@ -84,22 +147,117 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
           )}
         </div>
 
-        {/* Close button */}
-        <button
-          onClick={handleClose}
-          className='flex-shrink-0 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors'
-          aria-label='Close and return to Life Map'
-        >
-          <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M6 18L18 6M6 6l12 12'
-            />
-          </svg>
-        </button>
+        {/* Actions */}
+        <div className='flex items-center gap-2 flex-shrink-0'>
+          {/* Mark as Completed button - only show when all tasks are done */}
+          {allTasksDone && lifecycleState.status !== 'completed' && (
+            <button
+              onClick={() => setShowCompleteConfirm(true)}
+              className='px-3 py-1.5 text-sm font-medium text-white bg-[#2f2b27] hover:bg-black rounded-md transition-colors'
+            >
+              Mark as Completed
+            </button>
+          )}
+
+          {/* Mark as not completed button - only show when project is completed */}
+          {lifecycleState.status === 'completed' && (
+            <button
+              onClick={() => setShowUncompleteConfirm(true)}
+              className='px-3 py-1.5 text-sm font-medium text-[#8b8680] bg-transparent border border-[#e8e4de] hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] rounded-md transition-colors'
+            >
+              Mark as not completed
+            </button>
+          )}
+
+          {/* Close button */}
+          <button
+            onClick={handleClose}
+            className='p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors'
+            aria-label='Close and return to Life Map'
+          >
+            <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M6 18L18 6M6 6l12 12'
+              />
+            </svg>
+          </button>
+        </div>
       </div>
+
+      {/* Completion Confirmation Dialog */}
+      {showCompleteConfirm && (
+        <div
+          className='fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]'
+          onClick={() => setShowCompleteConfirm(false)}
+        >
+          <div
+            className='bg-white rounded-xl p-6 max-w-[400px] w-[90%] shadow-[0_8px_32px_rgba(0,0,0,0.2)]'
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 className='m-0 mb-4 text-lg font-semibold text-[#2f2b27]'>Complete Project</h3>
+            <p className='m-0 mb-6 text-sm text-[#2f2b27] leading-relaxed'>
+              Are you sure you want to mark <strong>{project.name}</strong> as completed? This will
+              move it to your completed projects.
+            </p>
+            <div className='flex gap-3 justify-end'>
+              <button
+                type='button'
+                className='py-2 px-5 rounded-lg text-sm font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27]'
+                onClick={() => setShowCompleteConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type='button'
+                className='py-2 px-5 rounded-lg text-sm font-medium bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black'
+                onClick={handleCompleteProject}
+              >
+                Complete Project
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Uncomplete Confirmation Dialog */}
+      {showUncompleteConfirm && (
+        <div
+          className='fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]'
+          onClick={() => setShowUncompleteConfirm(false)}
+        >
+          <div
+            className='bg-white rounded-xl p-6 max-w-[400px] w-[90%] shadow-[0_8px_32px_rgba(0,0,0,0.2)]'
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 className='m-0 mb-4 text-lg font-semibold text-[#2f2b27]'>
+              Mark Project as Not Completed
+            </h3>
+            <p className='m-0 mb-6 text-sm text-[#2f2b27] leading-relaxed'>
+              Are you sure you want to mark <strong>{project.name}</strong> as not completed? This
+              will move it back to your active projects.
+            </p>
+            <div className='flex gap-3 justify-end'>
+              <button
+                type='button'
+                className='py-2 px-5 rounded-lg text-sm font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27]'
+                onClick={() => setShowUncompleteConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type='button'
+                className='py-2 px-5 rounded-lg text-sm font-medium bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black'
+                onClick={handleUncompleteProject}
+              >
+                Mark as Not Completed
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

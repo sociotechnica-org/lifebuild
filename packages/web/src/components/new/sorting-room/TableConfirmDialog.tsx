@@ -9,8 +9,10 @@ export interface TableConfirmDialogProps {
   incomingProject: Project | null
   outgoingProject: Project | null
   outgoingHasProgress: boolean
+  allTasksDone: boolean
   stream: 'gold' | 'silver'
   onConfirm: () => void
+  onComplete: () => void
   onCancel: () => void
 }
 
@@ -23,8 +25,10 @@ export const TableConfirmDialog: React.FC<TableConfirmDialogProps> = ({
   incomingProject,
   outgoingProject,
   outgoingHasProgress,
+  allTasksDone,
   stream,
   onConfirm,
+  onComplete,
   onCancel,
 }) => {
   if (!isOpen) return null
@@ -77,7 +81,7 @@ export const TableConfirmDialog: React.FC<TableConfirmDialogProps> = ({
         ) : (
           <>
             <h3 className='m-0 mb-4 text-lg font-semibold text-[#2f2b27]'>
-              Release {streamLabel} Project
+              {allTasksDone ? 'Complete' : 'Release'} {streamLabel} Project
             </h3>
 
             <div className='mb-6'>
@@ -87,7 +91,11 @@ export const TableConfirmDialog: React.FC<TableConfirmDialogProps> = ({
               </p>
 
               <div className='bg-[#faf9f7] rounded-lg p-4 mt-4'>
-                {outgoingHasProgress ? (
+                {allTasksDone ? (
+                  <p className='m-0 text-sm text-[#2f2b27] leading-relaxed'>
+                    All tasks are complete! Would you like to mark this project as completed?
+                  </p>
+                ) : outgoingHasProgress ? (
                   <p className='m-0 text-sm text-[#2f2b27] leading-relaxed'>
                     This project has tasks in progress and will remain active. It will be moved to
                     the top of your active projects list.
@@ -111,13 +119,32 @@ export const TableConfirmDialog: React.FC<TableConfirmDialogProps> = ({
           >
             Cancel
           </button>
-          <button
-            type='button'
-            className='py-2 px-5 rounded-lg text-sm font-medium bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black'
-            onClick={onConfirm}
-          >
-            {mode === 'activate' ? 'Activate' : 'Release'}
-          </button>
+          {mode === 'release' && allTasksDone ? (
+            <>
+              <button
+                type='button'
+                className='py-2 px-5 rounded-lg text-sm font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27]'
+                onClick={onConfirm}
+              >
+                Just Release
+              </button>
+              <button
+                type='button'
+                className='py-2 px-5 rounded-lg text-sm font-medium bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black'
+                onClick={onComplete}
+              >
+                Complete Project
+              </button>
+            </>
+          ) : (
+            <button
+              type='button'
+              className='py-2 px-5 rounded-lg text-sm font-medium bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black'
+              onClick={onConfirm}
+            >
+              {mode === 'activate' ? 'Activate' : 'Release'}
+            </button>
+          )}
         </div>
       </div>
     </div>
