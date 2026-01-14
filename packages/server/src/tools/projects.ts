@@ -327,6 +327,10 @@ function unarchiveProjectCore(
 /**
  * Update a project's lifecycle state (stage, status, planning attributes)
  * This is the correct way to update planning data - NOT the old 'attributes' field
+ *
+ * VALIDATION RULES (matching UI validation):
+ * - Stage 3+: Must have objectives (non-empty) AND stream/tier (not null)
+ * - Stage 4 OR status 'backlog': Must have at least one task
  */
 function updateProjectLifecycleCore(
   store: Store,
@@ -362,6 +366,45 @@ function updateProjectLifecycleCore(
       }),
       ...(params.stream !== undefined && { stream: params.stream as any }),
       ...(params.priority !== undefined && { priority: params.priority }),
+    }
+
+    // VALIDATION: Stage 3+ requires objectives and stream/tier
+    // Check if we're advancing TO stage 3 or higher
+    const targetStage = updatedLifecycle.stage ?? 1
+    if (targetStage >= 3) {
+      const objectives = updatedLifecycle.objectives?.trim()
+      const stream = updatedLifecycle.stream
+
+      if (!objectives || objectives.length === 0) {
+        return {
+          success: false,
+          error:
+            'Cannot advance to stage 3 or higher without objectives. Please provide project objectives first.',
+        }
+      }
+
+      if (!stream) {
+        return {
+          success: false,
+          error:
+            'Cannot advance to stage 3 or higher without a project type. Please select Initiative, Optimization, or To-Do first.',
+        }
+      }
+    }
+
+    // VALIDATION: Stage 4 or backlog status requires at least one task
+    const targetStatus = updatedLifecycle.status
+    if (targetStage >= 4 || targetStatus === 'backlog') {
+      const tasks = store.query(getBoardTasks$(params.projectId)) as any[]
+      const nonArchivedTasks = tasks.filter((t: any) => !t.archivedAt)
+
+      if (nonArchivedTasks.length === 0) {
+        return {
+          success: false,
+          error:
+            'Cannot advance to stage 4 or move to backlog without at least one task. Please create tasks for this project first.',
+        }
+      }
     }
 
     const now = new Date()
