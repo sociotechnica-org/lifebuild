@@ -1,11 +1,24 @@
 import React from 'react'
 import { useDraggable, useDroppable } from '@dnd-kit/core'
 import type { Task } from '@lifebuild/shared/schema'
+import { formatDeadline } from './TaskDetailModal.js'
 
 interface SimpleTaskCardProps {
   task: Task
   isDragOverlay?: boolean
   onClick?: (taskId: string) => void
+}
+
+// Parse deadline from task attributes, handling both string (from DB) and object formats
+function getTaskDeadline(task: Task): number | undefined {
+  if (!task.attributes) return undefined
+  try {
+    const attrs =
+      typeof task.attributes === 'string' ? JSON.parse(task.attributes) : task.attributes
+    return attrs?.deadline
+  } catch {
+    return undefined
+  }
 }
 
 export function SimpleTaskCard({ task, isDragOverlay = false, onClick }: SimpleTaskCardProps) {
@@ -55,6 +68,19 @@ export function SimpleTaskCard({ task, isDragOverlay = false, onClick }: SimpleT
       } ${isDragOverlay ? 'shadow-lg rotate-2' : ''}`}
     >
       <h3 className='text-sm font-medium text-[#2f2b27] line-clamp-2'>{task.title}</h3>
+      {(() => {
+        const deadline = getTaskDeadline(task)
+        if (!deadline) return null
+        // Deadline is stored as UTC midnight of the due date.
+        // Task is overdue only after the due date has fully passed (end of day).
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000
+        const isOverdue = Date.now() >= deadline + ONE_DAY_MS
+        return (
+          <p className={`text-xs mt-1 ${isOverdue ? 'text-orange-500' : 'text-[#8b8680]'}`}>
+            {formatDeadline(deadline)}
+          </p>
+        )
+      })()}
     </div>
   )
 }
