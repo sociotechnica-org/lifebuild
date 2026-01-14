@@ -16,7 +16,7 @@ interface StageWizardProps {
 const STAGES: { stage: WizardStage; label: string }[] = [
   { stage: 1, label: 'Identify' },
   { stage: 2, label: 'Scope' },
-  { stage: 3, label: 'Draft' },
+  { stage: 3, label: 'Detail' },
 ]
 
 export const StageWizard: React.FC<StageWizardProps> = ({

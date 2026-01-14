@@ -383,6 +383,6 @@ export const ARCHETYPE_LABELS: Record<ProjectArchetype, string> = {
 export const STAGE_LABELS: Record<PlanningStage, string> = {
   1: 'Identifying',
   2: 'Scoping',
-  3: 'Drafting',
+  3: 'Detailing',
   4: 'Prioritizing',
 }

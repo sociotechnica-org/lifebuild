@@ -132,7 +132,7 @@ test.describe('Drafting Room - Browser Back Button', () => {
     // STAGE 3: Verify we only have ONE project with the updated title
     // =====================
 
-    await expect(page.getByText('Stage 3: Draft')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('Stage 3: Detail')).toBeVisible({ timeout: 10000 })
     await expect(page.getByText(updatedTitle)).toBeVisible()
 
     // Exit to Drafting Room to verify only one project exists

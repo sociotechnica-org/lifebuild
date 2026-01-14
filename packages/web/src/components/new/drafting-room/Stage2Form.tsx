@@ -158,7 +158,7 @@ export const Stage2Form: React.FC = () => {
   }
 
   /**
-   * Save and advance to Stage 3 (Drafting)
+   * Save and advance to Stage 3 (Detailing)
    * Only called when all required fields are complete
    */
   const saveAndAdvance = () => {
