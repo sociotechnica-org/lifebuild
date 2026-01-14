@@ -62,6 +62,7 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
 
   // Track scroll state
   const [showScrollButton, setShowScrollButton] = React.useState(false)
+  const isNearBottomRef = React.useRef(true) // Track if user is near bottom (updated on scroll)
   const prevConversationIdRef = React.useRef<string | null | undefined>(undefined) // Start undefined to detect first load
   const prevMessagesLengthRef = React.useRef(0) // Start at 0 to detect initial messages
 
@@ -75,9 +76,11 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
     return scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD
   }, [])
 
-  // Handle scroll events
+  // Handle scroll events - track position BEFORE new content arrives
   const handleScroll = React.useCallback(() => {
-    setShowScrollButton(!checkIfNearBottom())
+    const nearBottom = checkIfNearBottom()
+    isNearBottomRef.current = nearBottom
+    setShowScrollButton(!nearBottom)
   }, [checkIfNearBottom])
 
   // Instant scroll to bottom
@@ -103,24 +106,30 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   React.useEffect(() => {
     const wasEmpty = prevMessagesLengthRef.current === 0
     const hadNewMessages = messages.length > prevMessagesLengthRef.current
+    // Capture the near-bottom state BEFORE updating the ref (this was set by scroll events before content changed)
+    const wasNearBottom = isNearBottomRef.current
     prevMessagesLengthRef.current = messages.length
 
     // Always scroll on initial load (was empty, now has messages)
-    // Or scroll if user is near bottom when new messages arrive
-    const shouldScroll = (wasEmpty && messages.length > 0) || (hadNewMessages && checkIfNearBottom())
+    // Or scroll if user WAS near bottom when new messages arrive
+    const shouldScroll = (wasEmpty && messages.length > 0) || (hadNewMessages && wasNearBottom)
 
     if (shouldScroll) {
       // Double RAF to ensure DOM has fully updated with new content
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           scrollToBottom()
+          // Reset near-bottom state after scrolling
+          isNearBottomRef.current = true
         })
       })
     }
 
     // Update button visibility after content changes
     requestAnimationFrame(() => {
-      setShowScrollButton(!checkIfNearBottom())
+      const nearBottom = checkIfNearBottom()
+      isNearBottomRef.current = nearBottom
+      setShowScrollButton(!nearBottom)
     })
   }, [messages.length, isProcessing, checkIfNearBottom, scrollToBottom])
 
