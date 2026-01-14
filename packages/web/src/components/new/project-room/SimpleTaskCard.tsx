@@ -9,6 +9,18 @@ interface SimpleTaskCardProps {
   onClick?: (taskId: string) => void
 }
 
+// Parse deadline from task attributes, handling both string (from DB) and object formats
+function getTaskDeadline(task: Task): number | undefined {
+  if (!task.attributes) return undefined
+  try {
+    const attrs =
+      typeof task.attributes === 'string' ? JSON.parse(task.attributes) : task.attributes
+    return attrs?.deadline
+  } catch {
+    return undefined
+  }
+}
+
 export function SimpleTaskCard({ task, isDragOverlay = false, onClick }: SimpleTaskCardProps) {
   const {
     attributes: dragAttributes,
@@ -56,15 +68,17 @@ export function SimpleTaskCard({ task, isDragOverlay = false, onClick }: SimpleT
       } ${isDragOverlay ? 'shadow-lg rotate-2' : ''}`}
     >
       <h3 className='text-sm font-medium text-[#2f2b27] line-clamp-2'>{task.title}</h3>
-      {task.attributes?.deadline && (
-        <p
-          className={`text-xs mt-1 ${
-            task.attributes.deadline < Date.now() ? 'text-orange-500' : 'text-[#8b8680]'
-          }`}
-        >
-          {formatDate(new Date(task.attributes.deadline))}
-        </p>
-      )}
+      {(() => {
+        const deadline = getTaskDeadline(task)
+        if (!deadline) return null
+        return (
+          <p
+            className={`text-xs mt-1 ${deadline < Date.now() ? 'text-orange-500' : 'text-[#8b8680]'}`}
+          >
+            {formatDate(new Date(deadline))}
+          </p>
+        )
+      })()}
     </div>
   )
 }

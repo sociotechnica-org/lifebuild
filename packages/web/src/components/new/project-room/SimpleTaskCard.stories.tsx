@@ -78,6 +78,23 @@ const taskWithLongTitle: Task = {
   archivedAt: null,
 }
 
+// Sample task with attributes as JSON string (as stored in database)
+const taskWithJsonStringDeadline: Task = {
+  id: 'task-json-string',
+  projectId: PROJECT_ID,
+  title: 'Task with JSON string attributes',
+  description: 'Tests that deadline works when attributes is a JSON string from the database.',
+  status: 'todo',
+  assigneeIds: '[]',
+  // Attributes stored as JSON string (how it comes from the database)
+  attributes:
+    `{"deadline":${new Date('2024-06-15T00:00:00Z').getTime()}}` as unknown as Task['attributes'],
+  position: 5000,
+  createdAt: new Date('2024-01-02T00:00:00Z'),
+  updatedAt: new Date('2024-01-02T00:00:00Z'),
+  archivedAt: null,
+}
+
 const meta: Meta<typeof SimpleTaskCardWrapper> = {
   title: 'New UI/Project Room/SimpleTaskCard',
   component: SimpleTaskCardWrapper,
@@ -143,6 +160,20 @@ export const LongTitle: Story = {
     docs: {
       description: {
         story: 'Task card with a long title that wraps to multiple lines (limited to 2 lines).',
+      },
+    },
+  },
+}
+
+export const WithJsonStringAttributes: Story = {
+  args: {
+    task: taskWithJsonStringDeadline,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Task with attributes stored as a JSON string (as it comes from the database). Tests that the JSON parsing logic works correctly.',
       },
     },
   },
