@@ -185,24 +185,23 @@ ${changelogEntry.entries.map(entry => `- ${entry}`).join('\n')}
 
               fs.writeFileSync(filepath, content);
               console.log(`Created changelog entry: ${filename}`);
+              // Update the latest version file (only when version changes)
+              const versionPath = path.join('lifebuild-site', 'src', 'data', 'version.json');
+              const versionDir = path.dirname(versionPath);
+
+              if (!fs.existsSync(versionDir)) {
+                fs.mkdirSync(versionDir, { recursive: true });
+              }
+
+              const versionData = {
+                version: changelogEntry.version,
+                lastUpdated: changelogEntry.date
+              };
+              fs.writeFileSync(versionPath, JSON.stringify(versionData, null, 2) + '\n');
+              console.log(`Updated version.json to ${changelogEntry.version}`);
             } else {
-              console.log('No user-facing changes, skipping changelog file creation');
+              console.log('No user-facing changes, skipping changelog and version update');
             }
-
-            // Update the latest version file
-            const versionPath = path.join('lifebuild-site', 'src', 'data', 'version.json');
-            const versionDir = path.dirname(versionPath);
-
-            if (!fs.existsSync(versionDir)) {
-              fs.mkdirSync(versionDir, { recursive: true });
-            }
-
-            const versionData = {
-              version: changelogEntry.version,
-              lastUpdated: changelogEntry.date
-            };
-            fs.writeFileSync(versionPath, JSON.stringify(versionData, null, 2) + '\n');
-            console.log(`Updated version.json to ${changelogEntry.version}`);
 
       - name: Commit and push changelog update
         if: steps.extract.outputs.skip != 'true'
