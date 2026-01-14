@@ -35,6 +35,7 @@ jobs:
         id: extract
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
             const prBody = context.payload.pull_request.body || '';
@@ -46,8 +47,9 @@ jobs:
             // Extract changelog section
             const changelogMatch = prBody.match(/## Changelog[\s\S]*?(?=\n## |$)/i);
             if (!changelogMatch) {
-              console.log('No changelog section found, skipping');
+              console.log('No changelog section found');
               core.setOutput('skip', 'true');
+              core.setOutput('no_changelog', 'true');
               return;
             }
 
@@ -60,8 +62,9 @@ jobs:
               .filter(entry => entry.length > 0 && entry !== '-');
 
             if (entries.length === 0) {
-              console.log('No changelog entries found, skipping');
+              console.log('No changelog entries found');
               core.setOutput('skip', 'true');
+              core.setOutput('no_changelog', 'true');
               return;
             }
 
@@ -108,10 +111,24 @@ jobs:
             console.log('Changelog entry:', JSON.stringify(changelogEntry, null, 2));
 
             core.setOutput('skip', 'false');
+            core.setOutput('no_changelog', 'false');
             core.setOutput('changelog_entry', JSON.stringify(changelogEntry));
             core.setOutput('new_version', newVersion);
             core.setOutput('current_version', currentVersion);
             core.setOutput('has_user_facing_changes', hasUserFacingChanges.toString());
+
+      - name: Comment on PR when no changelog section
+        if: steps.extract.outputs.no_changelog == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: '📋 **No changelog section found.** This PR will not trigger a version bump or changelog update.\n\nTo include changes in the changelog, add a `## Changelog` section to your PR description with bullet points describing the changes.'
+            });
 
       - name: Update version in package.json
         if: steps.extract.outputs.skip != 'true' && steps.extract.outputs.has_user_facing_changes == 'true'
@@ -137,15 +154,16 @@ jobs:
           git push
 
       - name: Checkout lifebuild-site repo
-        if: steps.extract.outputs.skip != 'true'
+        if: steps.extract.outputs.skip != 'true' && steps.extract.outputs.has_user_facing_changes == 'true'
         uses: actions/checkout@v4
         with:
           repository: sociotechnica-org/lifebuild-site
           token: ${{ secrets.LIFEBUILD_SITE_PAT }}
           path: lifebuild-site
 
-      - name: Update changelog file
-        if: steps.extract.outputs.skip != 'true'
+      - name: Create changelog entry file
+        if: steps.extract.outputs.skip != 'true' && steps.extract.outputs.has_user_facing_changes == 'true'
+        id: create_file
         uses: actions/github-script@v7
         env:
           CHANGELOG_ENTRY: ${{ steps.extract.outputs.changelog_entry }}
@@ -167,9 +185,7 @@ jobs:
             const filename = `${changelogEntry.date}-v${changelogEntry.version.replace(/\./g, '-')}.md`;
             const filepath = path.join(changelogPath, filename);
 
-            // Only create entry file if there are user-facing changes
-            if (changelogEntry.hasUserFacingChanges && changelogEntry.entries.length > 0) {
-              const content = `---
+            const content = `---
 version: "${changelogEntry.version}"
 date: "${changelogEntry.date}"
 prNumber: ${changelogEntry.prNumber}
@@ -183,36 +199,66 @@ ${changelogEntry.entries.map(entry => `- ${entry}`).join('\n')}
 [View PR #${changelogEntry.prNumber}](${changelogEntry.prUrl})
 `;
 
-              fs.writeFileSync(filepath, content);
-              console.log(`Created changelog entry: ${filename}`);
-              // Update the latest version file (only when version changes)
-              const versionPath = path.join('lifebuild-site', 'src', 'data', 'version.json');
-              const versionDir = path.dirname(versionPath);
+            fs.writeFileSync(filepath, content);
+            console.log(`Created changelog entry: ${filename}`);
 
-              if (!fs.existsSync(versionDir)) {
-                fs.mkdirSync(versionDir, { recursive: true });
-              }
+            // Update the latest version file
+            const versionPath = path.join('lifebuild-site', 'src', 'data', 'version.json');
+            const versionDir = path.dirname(versionPath);
 
-              const versionData = {
-                version: changelogEntry.version,
-                lastUpdated: changelogEntry.date
-              };
-              fs.writeFileSync(versionPath, JSON.stringify(versionData, null, 2) + '\n');
-              console.log(`Updated version.json to ${changelogEntry.version}`);
-            } else {
-              console.log('No user-facing changes, skipping changelog and version update');
+            if (!fs.existsSync(versionDir)) {
+              fs.mkdirSync(versionDir, { recursive: true });
             }
 
-      - name: Commit and push changelog update
-        if: steps.extract.outputs.skip != 'true'
+            const versionData = {
+              version: changelogEntry.version,
+              lastUpdated: changelogEntry.date
+            };
+            fs.writeFileSync(versionPath, JSON.stringify(versionData, null, 2) + '\n');
+            console.log(`Updated version.json to ${changelogEntry.version}`);
+
+            core.setOutput('filename', filename);
+            core.setOutput('branch_name', `changelog/v${changelogEntry.version}-pr-${changelogEntry.prNumber}`);
+
+      - name: Create PR to lifebuild-site
+        if: steps.extract.outputs.skip != 'true' && steps.extract.outputs.has_user_facing_changes == 'true'
         working-directory: lifebuild-site
+        env:
+          GH_TOKEN: ${{ secrets.LIFEBUILD_SITE_PAT }}
+          CHANGELOG_ENTRY: ${{ steps.extract.outputs.changelog_entry }}
         run: |
+          BRANCH_NAME="${{ steps.create_file.outputs.branch_name }}"
+
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+
+          # Create and checkout new branch
+          git checkout -b "$BRANCH_NAME"
+
           git add -A
           if git diff --staged --quiet; then
             echo "No changes to commit"
-          else
-            git commit -m "chore: add changelog entry for v${{ steps.extract.outputs.new_version }} (PR #${{ github.event.pull_request.number }})"
-            git push
+            exit 0
           fi
+
+          git commit -m "chore: add changelog entry for v${{ steps.extract.outputs.new_version }} (PR #${{ github.event.pull_request.number }})"
+          git push -u origin "$BRANCH_NAME"
+
+          # Create PR using gh CLI
+          gh pr create \
+            --title "Changelog: v${{ steps.extract.outputs.new_version }}" \
+            --body "$(cat <<EOF
+          ## Changelog Entry
+
+          This PR adds a changelog entry for [work-squared PR #${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }}).
+
+          **Version:** ${{ steps.extract.outputs.new_version }}
+
+          ### Changes
+          $(echo '${{ steps.extract.outputs.changelog_entry }}' | jq -r '.entries[]' | sed 's/^/- /')
+
+          ---
+          *This PR was automatically created. Review and edit the changelog entry as needed before merging.*
+          EOF
+          )" \
+            --repo sociotechnica-org/lifebuild-site

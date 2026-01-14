@@ -23,12 +23,12 @@ git push
 
 ### For `update-changelog.yml`
 
-This workflow pushes changelog entries to the `lifebuild-site` repository when PRs are merged.
+This workflow creates PRs with changelog entries in the `lifebuild-site` repository when PRs are merged.
 
 1. **Create a Personal Access Token (PAT)**:
    - Go to GitHub Settings > Developer settings > Personal access tokens > Fine-grained tokens
    - Create a token with write access to `sociotechnica-org/lifebuild-site`
-   - Required permissions: `Contents: Read and write`
+   - Required permissions: `Contents: Read and write`, `Pull requests: Read and write`
 
 2. **Add the secret to work-squared**:
    - Go to Repository Settings > Secrets and variables > Actions
@@ -48,19 +48,24 @@ This workflow pushes changelog entries to the `lifebuild-site` repository when P
 
 ### `changelog-check.yml`
 
-Runs on every PR to validate:
+Runs on every PR to validate changelog format (if present):
 
-- PR description contains a `## Changelog` section
-- At least one bullet point entry exists
-- Entries start with a capital letter (action verb format)
+- `## Changelog` section is **optional** - PRs without it will pass validation
+- If a `## Changelog` section exists, it must have at least one non-empty bullet point
 
 ### `update-changelog.yml`
 
 Runs when a PR is merged:
 
-- Extracts changelog entries from PR description
-- If there are user-facing changes:
-  - Bumps the patch version in `packages/web/package.json`
-  - Commits the version bump
-- Creates a changelog entry file in `lifebuild-site`
-- Updates `version.json` in `lifebuild-site`
+- **If no `## Changelog` section**: Comments on the PR that no version bump or changelog update will occur
+- **If `## Changelog` section with user-facing changes**:
+  - Bumps the patch version in `packages/web/package.json` and `packages/shared/package.json`
+  - Commits the version bump to work-squared
+  - Creates a PR to `lifebuild-site` with the changelog entry (for manual review before merging)
+  - Updates `version.json` in the PR
+
+The PR-based approach allows:
+
+- Review and editing of changelog entries before publishing
+- Adding images/videos to changelog posts
+- Combining multiple entries into a single post
