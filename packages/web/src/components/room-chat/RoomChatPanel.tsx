@@ -63,6 +63,7 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   // Track scroll state
   const [showScrollButton, setShowScrollButton] = React.useState(false)
   const isNearBottomRef = React.useRef(true) // Track if user is near bottom (updated on scroll)
+  const isScrollingRef = React.useRef(false) // Prevent handleScroll from updating state during smooth scroll
   const prevConversationIdRef = React.useRef<string | null | undefined>(undefined) // Start undefined to detect first load
   const prevMessagesLengthRef = React.useRef(0) // Start at 0 to detect initial messages
   const prevIsProcessingRef = React.useRef(false) // Track processing state changes
@@ -78,17 +79,25 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   }, [])
 
   // Handle scroll events - track position BEFORE new content arrives
+  // Skip updating isNearBottomRef during programmatic smooth scrolls to avoid race conditions
   const handleScroll = React.useCallback(() => {
     const nearBottom = checkIfNearBottom()
-    isNearBottomRef.current = nearBottom
+    if (!isScrollingRef.current) {
+      isNearBottomRef.current = nearBottom
+    }
     setShowScrollButton(!nearBottom)
   }, [checkIfNearBottom])
 
   // Smooth scroll to bottom
   const scrollToBottom = React.useCallback(() => {
+    isScrollingRef.current = true
+    isNearBottomRef.current = true // Set immediately so new messages trigger auto-scroll
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     setShowScrollButton(false)
-    isNearBottomRef.current = true // Reset state so next message can auto-scroll
+    // Clear scrolling flag after animation completes (smooth scroll ~300-500ms)
+    setTimeout(() => {
+      isScrollingRef.current = false
+    }, 500)
   }, [])
 
   // Scroll on conversation change
