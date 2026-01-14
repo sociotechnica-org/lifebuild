@@ -134,10 +134,10 @@ test.describe('New UI Workflow', () => {
       await expect(page.getByText(taskName)).toBeVisible()
     }
 
-    // Click Add to Backlog
-    const addToBacklogButton = page.getByRole('button', { name: 'Add to Backlog' })
-    await expect(addToBacklogButton).toBeEnabled()
-    await addToBacklogButton.click()
+    // Click Add to Sorting
+    const addToSortingButton = page.getByRole('button', { name: 'Add to Sorting' })
+    await expect(addToSortingButton).toBeEnabled()
+    await addToSortingButton.click()
 
     // =====================
     // SORTING ROOM: Put on table
