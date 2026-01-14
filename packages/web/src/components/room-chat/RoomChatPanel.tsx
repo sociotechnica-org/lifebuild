@@ -15,6 +15,35 @@ export type RoomChatPanelProps = {
   statusMessage?: string | null
 }
 
+const ScrollToBottomButton: React.FC<{ onClick: () => void; visible: boolean }> = ({
+  onClick,
+  visible,
+}) => {
+  if (!visible) return null
+
+  return (
+    <button
+      onClick={onClick}
+      className='absolute bottom-2 left-1/2 -translate-x-1/2 w-8 h-8 bg-orange-100 hover:bg-orange-200 rounded-lg flex items-center justify-center shadow-md transition-all duration-150 border border-orange-200'
+      aria-label='Scroll to bottom'
+    >
+      <svg
+        className='w-4 h-4 text-orange-600'
+        fill='none'
+        stroke='currentColor'
+        viewBox='0 0 24 24'
+      >
+        <path
+          strokeLinecap='round'
+          strokeLinejoin='round'
+          strokeWidth={2}
+          d='M19 14l-7 7m0 0l-7-7m7 7V3'
+        />
+      </svg>
+    </button>
+  )
+}
+
 export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   worker,
   conversation,
@@ -28,25 +57,54 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
 }) => {
   const workerName = worker?.name ?? 'Assistant'
   const scrollContainerRef = React.useRef<HTMLDivElement | null>(null)
+  const messagesEndRef = React.useRef<HTMLDivElement | null>(null)
   const isInputDisabled = isReadOnly || !conversation
 
-  const scrollToBottom = React.useCallback(() => {
+  // Track scroll state
+  const [showScrollButton, setShowScrollButton] = React.useState(false)
+  const prevConversationIdRef = React.useRef<string | null | undefined>(conversation?.id)
+  const prevMessagesLengthRef = React.useRef(messages.length)
+
+  const SCROLL_THRESHOLD = 100
+
+  // Check if user is near the bottom
+  const checkIfNearBottom = React.useCallback(() => {
     const container = scrollContainerRef.current
-    if (!container) return
-    const targetTop = container.scrollHeight
-    if (typeof container.scrollTo === 'function') {
-      container.scrollTo({
-        top: targetTop,
-        behavior: 'smooth',
-      })
-    } else {
-      container.scrollTop = targetTop
-    }
+    if (!container) return true
+    const { scrollTop, scrollHeight, clientHeight } = container
+    return scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD
   }, [])
 
+  // Handle scroll events
+  const handleScroll = React.useCallback(() => {
+    setShowScrollButton(!checkIfNearBottom())
+  }, [checkIfNearBottom])
+
+  // Instant scroll to bottom
+  const scrollToBottom = React.useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })
+    setShowScrollButton(false)
+  }, [])
+
+  // Scroll on conversation change
   React.useEffect(() => {
-    scrollToBottom()
-  }, [scrollToBottom, conversation?.id, messages.length])
+    if (conversation?.id !== prevConversationIdRef.current) {
+      prevConversationIdRef.current = conversation?.id
+      scrollToBottom()
+    }
+  }, [conversation?.id, scrollToBottom])
+
+  // Auto-scroll when new messages arrive (if near bottom)
+  React.useEffect(() => {
+    const hadNewMessages = messages.length > prevMessagesLengthRef.current
+    prevMessagesLengthRef.current = messages.length
+
+    if (hadNewMessages && checkIfNearBottom()) {
+      scrollToBottom()
+    }
+    // Also update button visibility after content changes
+    setShowScrollButton(!checkIfNearBottom())
+  }, [messages.length, isProcessing, checkIfNearBottom, scrollToBottom])
 
   return (
     <div
@@ -61,12 +119,16 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
         <p className='text-xs font-medium uppercase tracking-wide text-gray-400'>Preparing chat…</p>
       )}
 
-      <section ref={scrollContainerRef} className='flex-1 min-h-0 overflow-y-auto'>
-        <RoomChatMessageList
-          messages={messages}
-          workerName={workerName}
-          isProcessing={isProcessing}
-        />
+      <section className='relative flex-1 min-h-0'>
+        <div ref={scrollContainerRef} className='h-full overflow-y-auto' onScroll={handleScroll}>
+          <RoomChatMessageList
+            messages={messages}
+            workerName={workerName}
+            isProcessing={isProcessing}
+          />
+          <div ref={messagesEndRef} />
+        </div>
+        <ScrollToBottomButton onClick={scrollToBottom} visible={showScrollButton} />
       </section>
 
       {statusMessage && (
