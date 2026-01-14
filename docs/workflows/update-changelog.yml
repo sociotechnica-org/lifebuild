@@ -5,6 +5,12 @@ on:
     branches: [main]
     types: [closed]
 
+# Ensure only one changelog update runs at a time to prevent race conditions
+# when multiple PRs are merged in quick succession
+concurrency:
+  group: changelog-update
+  cancel-in-progress: false
+
 jobs:
   update-changelog:
     # Only run when PR is merged (not just closed)
