@@ -1,0 +1,51 @@
+name: Changelog Check
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  check-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR description for changelog entry
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prBody = context.payload.pull_request.body || '';
+
+            // Find the Changelog section
+            const changelogMatch = prBody.match(/## Changelog[\s\S]*?(?=\n## |$)/i);
+
+            // Changelog section is optional - if not present, PR will not bump version
+            if (!changelogMatch) {
+              console.log('No ## Changelog section found. This PR will not trigger a version bump or changelog update.');
+              return;
+            }
+
+            // Remove HTML comments (which may contain example entries from PR template)
+            const changelogSection = changelogMatch[0].replace(/<!--[\s\S]*?-->/g, '');
+
+            // Extract bullet points from the changelog section
+            const bulletPoints = changelogSection.match(/^- .+$/gm);
+
+            if (!bulletPoints || bulletPoints.length === 0) {
+              core.setFailed('Changelog section must contain at least one bullet point entry starting with "- "');
+              return;
+            }
+
+            // Check if all entries are just empty placeholders
+            const hasRealEntry = bulletPoints.some(point => {
+              const content = point.replace(/^- /, '').trim();
+              return content.length > 0 && content !== '-';
+            });
+
+            if (!hasRealEntry) {
+              core.setFailed('Changelog section must contain at least one non-empty entry');
+              return;
+            }
+
+            console.log('Changelog check passed!');
+            console.log('Entries found:');
+            bulletPoints.forEach(point => console.log(`  ${point}`));
