@@ -88,6 +88,7 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   const scrollToBottom = React.useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     setShowScrollButton(false)
+    isNearBottomRef.current = true // Reset state so next message can auto-scroll
   }, [])
 
   // Scroll on conversation change
@@ -128,8 +129,6 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           scrollToBottom()
-          // Reset near-bottom state after scrolling
-          isNearBottomRef.current = true
         })
       })
     }
