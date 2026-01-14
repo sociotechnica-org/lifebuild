@@ -3,6 +3,12 @@ import { render, screen } from '../../../tests/test-utils.js'
 import type { ChatMessage } from '@lifebuild/shared/schema'
 import { RoomChatPanel } from './RoomChatPanel.js'
 
+// Mock scrollIntoView for tests
+Object.defineProperty(window.Element.prototype, 'scrollIntoView', {
+  writable: true,
+  value: () => {},
+})
+
 const makeMessage = (overrides: Partial<ChatMessage>): ChatMessage => ({
   id: 'msg',
   conversationId: 'conv',

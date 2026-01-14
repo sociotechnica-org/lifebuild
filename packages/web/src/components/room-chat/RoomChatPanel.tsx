@@ -62,6 +62,7 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
 
   // Track scroll state
   const [showScrollButton, setShowScrollButton] = React.useState(false)
+  const hasInitialScrolledRef = React.useRef(false)
   const prevConversationIdRef = React.useRef<string | null | undefined>(conversation?.id)
   const prevMessagesLengthRef = React.useRef(messages.length)
 
@@ -85,6 +86,14 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })
     setShowScrollButton(false)
   }, [])
+
+  // Scroll to bottom on initial load (when messages exist)
+  React.useEffect(() => {
+    if (!hasInitialScrolledRef.current && messages.length > 0) {
+      hasInitialScrolledRef.current = true
+      scrollToBottom()
+    }
+  }, [messages.length, scrollToBottom])
 
   // Scroll on conversation change
   React.useEffect(() => {
