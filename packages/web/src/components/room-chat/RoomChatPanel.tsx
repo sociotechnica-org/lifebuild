@@ -88,10 +88,14 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   }, [])
 
   // Scroll to bottom on initial load (when messages exist)
+  // Use requestAnimationFrame to ensure DOM has updated before scrolling
   React.useEffect(() => {
     if (!hasInitialScrolledRef.current && messages.length > 0) {
       hasInitialScrolledRef.current = true
-      scrollToBottom()
+      // Wait for DOM to update before scrolling
+      requestAnimationFrame(() => {
+        scrollToBottom()
+      })
     }
   }, [messages.length, scrollToBottom])
 
@@ -109,10 +113,15 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
     prevMessagesLengthRef.current = messages.length
 
     if (hadNewMessages && checkIfNearBottom()) {
-      scrollToBottom()
+      // Wait for DOM to update before scrolling
+      requestAnimationFrame(() => {
+        scrollToBottom()
+      })
     }
-    // Also update button visibility after content changes
-    setShowScrollButton(!checkIfNearBottom())
+    // Update button visibility after content changes
+    requestAnimationFrame(() => {
+      setShowScrollButton(!checkIfNearBottom())
+    })
   }, [messages.length, isProcessing, checkIfNearBottom, scrollToBottom])
 
   return (
