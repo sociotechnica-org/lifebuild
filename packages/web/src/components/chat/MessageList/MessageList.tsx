@@ -7,6 +7,7 @@ interface MessageListProps {
   isProcessing: boolean
   conversationTitle?: string
   currentWorker?: Worker | null
+  conversationId?: string | null
 }
 
 interface MessageItemProps {
@@ -164,18 +165,123 @@ const EmptyState: React.FC<{ title: string }> = ({ title }) => (
   </div>
 )
 
+const ScrollToBottomButton: React.FC<{ onClick: () => void; visible: boolean }> = ({
+  onClick,
+  visible,
+}) => {
+  if (!visible) return null
+
+  return (
+    <button
+      onClick={onClick}
+      className='absolute bottom-2 left-1/2 -translate-x-1/2 w-8 h-8 bg-orange-100 hover:bg-orange-200 rounded-lg flex items-center justify-center shadow-md transition-all duration-150 border border-orange-200'
+      aria-label='Scroll to bottom'
+    >
+      <svg
+        className='w-4 h-4 text-orange-600'
+        fill='none'
+        stroke='currentColor'
+        viewBox='0 0 24 24'
+      >
+        <path
+          strokeLinecap='round'
+          strokeLinejoin='round'
+          strokeWidth={2}
+          d='M19 14l-7 7m0 0l-7-7m7 7V3'
+        />
+      </svg>
+    </button>
+  )
+}
+
 export const MessageList: React.FC<MessageListProps> = ({
   messages,
   isProcessing,
   conversationTitle,
   currentWorker,
+  conversationId,
 }) => {
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null)
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
 
-  // Auto-scroll to bottom when new messages arrive
+  // Track scroll state - use state for button visibility (needs re-render)
+  const [showScrollButton, setShowScrollButton] = React.useState(false)
+  const isUserNearBottomRef = React.useRef(true)
+  const prevLastMessageIdRef = React.useRef<string | null>(null)
+  const prevIsProcessingRef = React.useRef(false)
+  const prevConversationIdRef = React.useRef<string | null | undefined>(conversationId)
+
+  // Threshold for considering user "near bottom" (in pixels)
+  const SCROLL_THRESHOLD = 100
+
+  // Check if user is near the bottom of the scroll container
+  const checkIfNearBottom = React.useCallback(() => {
+    const container = scrollContainerRef.current
+    if (!container) return true
+
+    const { scrollTop, scrollHeight, clientHeight } = container
+    return scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD
+  }, [])
+
+  // Handle scroll events to track user's scroll position
+  const handleScroll = React.useCallback(() => {
+    const nearBottom = checkIfNearBottom()
+    isUserNearBottomRef.current = nearBottom
+    setShowScrollButton(!nearBottom)
+  }, [checkIfNearBottom])
+
+  // Scroll to bottom helper - use 'auto' for instant scroll
+  const scrollToBottom = React.useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })
+    setShowScrollButton(false)
+    isUserNearBottomRef.current = true
+  }, [])
+
+  // Handle conversation changes - always scroll to bottom
   React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, isProcessing])
+    if (conversationId !== prevConversationIdRef.current) {
+      prevConversationIdRef.current = conversationId
+      scrollToBottom()
+    }
+  }, [conversationId, scrollToBottom])
+
+  // Smart auto-scroll for new messages and processing state changes
+  React.useEffect(() => {
+    const lastMessage = messages[messages.length - 1]
+    const lastMessageId = lastMessage?.id ?? null
+    const prevLastMessageId = prevLastMessageIdRef.current
+    const processingJustStarted = isProcessing && !prevIsProcessingRef.current
+
+    // Update refs for next comparison
+    prevLastMessageIdRef.current = lastMessageId
+    prevIsProcessingRef.current = isProcessing
+
+    // Skip if no change in messages or processing state
+    if (lastMessageId === prevLastMessageId && !processingJustStarted) {
+      return
+    }
+
+    // Determine if we should auto-scroll
+    let shouldScroll = false
+
+    if (lastMessageId && lastMessageId !== prevLastMessageId && lastMessage) {
+      // New message arrived
+      if (lastMessage.role === 'user') {
+        // Always scroll for user's own messages (they just sent it)
+        shouldScroll = true
+      } else if (isUserNearBottomRef.current) {
+        // Only scroll for assistant/system messages if user was near bottom
+        shouldScroll = true
+      }
+    } else if (processingJustStarted && isUserNearBottomRef.current) {
+      // Processing started - scroll to show thinking indicator if user was near bottom
+      shouldScroll = true
+    }
+
+    if (shouldScroll) {
+      scrollToBottom()
+    }
+  }, [messages, isProcessing, scrollToBottom])
 
   const handleCopy = React.useCallback((text: string) => {
     if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
@@ -193,27 +299,32 @@ export const MessageList: React.FC<MessageListProps> = ({
   }, [])
 
   return (
-    <div className='flex-1 overflow-y-auto p-4 min-h-0'>
-      {messages.length > 0 ? (
-        <div className='space-y-4'>
-          {messages.map(message => (
-            <MessageItem
-              key={message.id}
-              message={message}
-              onCopy={handleCopy}
-              onRetry={handleRetry}
-              currentWorker={currentWorker}
-            />
-          ))}
+    <div className='relative flex-1 min-h-0'>
+      <div ref={scrollContainerRef} className='h-full overflow-y-auto p-4' onScroll={handleScroll}>
+        {messages.length > 0 ? (
+          <div className='space-y-4'>
+            {messages.map(message => (
+              <MessageItem
+                key={message.id}
+                message={message}
+                onCopy={handleCopy}
+                onRetry={handleRetry}
+                currentWorker={currentWorker}
+              />
+            ))}
 
-          {/* Loading indicator */}
-          {isProcessing && <LoadingIndicator />}
+            {/* Loading indicator */}
+            {isProcessing && <LoadingIndicator />}
 
-          <div ref={messagesEndRef} />
-        </div>
-      ) : (
-        <EmptyState title={conversationTitle || 'New Conversation'} />
-      )}
+            <div ref={messagesEndRef} />
+          </div>
+        ) : (
+          <EmptyState title={conversationTitle || 'New Conversation'} />
+        )}
+      </div>
+
+      {/* Scroll to bottom button */}
+      <ScrollToBottomButton onClick={scrollToBottom} visible={showScrollButton} />
     </div>
   )
 }

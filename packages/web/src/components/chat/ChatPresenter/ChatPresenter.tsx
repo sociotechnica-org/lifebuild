@@ -161,6 +161,7 @@ export const ChatPresenter: React.FC<ChatPresenterProps> = ({
         isProcessing={isProcessing}
         conversationTitle={selectedConversation?.title}
         currentWorker={currentWorker}
+        conversationId={selectedConversationId}
       />
 
       {/* Input area */}

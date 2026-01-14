@@ -110,9 +110,10 @@ CI=true pnpm test:e2e  # Run E2E tests
 1. Write clear commit messages
 2. Push your branch to GitHub
 3. Create PR: `gh pr create --title "Title" --body "Description"` (or use GitHub web UI)
-4. Monitor checks: `gh pr checks --watch` and wait for all checks (up to 10 minutes)
-5. Check for feedback: `gh pr view <number> --comments` to see reviews and comments
-6. Fix any issues (including neutral BugBot feedback)
+4. **Link issues**: If the PR fixes a GitHub issue, include `Closes #XXX` in the PR description to auto-close the issue on merge
+5. Monitor checks: `gh pr checks --watch` and wait for all checks (up to 10 minutes)
+6. Check for feedback: `gh pr view <number> --comments` to see reviews and comments
+7. Fix any issues (including neutral BugBot feedback)
 
 ## GitHub CLI (`gh`) Commands
 

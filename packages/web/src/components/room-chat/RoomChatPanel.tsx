@@ -15,6 +15,35 @@ export type RoomChatPanelProps = {
   statusMessage?: string | null
 }
 
+const ScrollToBottomButton: React.FC<{ onClick: () => void; visible: boolean }> = ({
+  onClick,
+  visible,
+}) => {
+  if (!visible) return null
+
+  return (
+    <button
+      onClick={onClick}
+      className='absolute bottom-2 left-1/2 -translate-x-1/2 w-8 h-8 bg-orange-100 hover:bg-orange-200 rounded-lg flex items-center justify-center shadow-md transition-all duration-150 border border-orange-200'
+      aria-label='Scroll to bottom'
+    >
+      <svg
+        className='w-4 h-4 text-orange-600'
+        fill='none'
+        stroke='currentColor'
+        viewBox='0 0 24 24'
+      >
+        <path
+          strokeLinecap='round'
+          strokeLinejoin='round'
+          strokeWidth={2}
+          d='M19 14l-7 7m0 0l-7-7m7 7V3'
+        />
+      </svg>
+    </button>
+  )
+}
+
 export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   worker,
   conversation,
@@ -28,25 +57,104 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
 }) => {
   const workerName = worker?.name ?? 'Assistant'
   const scrollContainerRef = React.useRef<HTMLDivElement | null>(null)
+  const messagesEndRef = React.useRef<HTMLDivElement | null>(null)
   const isInputDisabled = isReadOnly || !conversation
 
-  const scrollToBottom = React.useCallback(() => {
+  // Track scroll state
+  const [showScrollButton, setShowScrollButton] = React.useState(false)
+  const isNearBottomRef = React.useRef(true) // Track if user is near bottom (updated on scroll)
+  const isScrollingRef = React.useRef(false) // Prevent handleScroll from updating state during smooth scroll
+  const prevConversationIdRef = React.useRef<string | null | undefined>(undefined) // Start undefined to detect first load
+  const prevMessagesLengthRef = React.useRef(0) // Start at 0 to detect initial messages
+  const prevIsProcessingRef = React.useRef(false) // Track processing state changes
+
+  const SCROLL_THRESHOLD = 100
+
+  // Check if user is near the bottom
+  const checkIfNearBottom = React.useCallback(() => {
     const container = scrollContainerRef.current
-    if (!container) return
-    const targetTop = container.scrollHeight
-    if (typeof container.scrollTo === 'function') {
-      container.scrollTo({
-        top: targetTop,
-        behavior: 'smooth',
-      })
-    } else {
-      container.scrollTop = targetTop
-    }
+    if (!container) return true
+    const { scrollTop, scrollHeight, clientHeight } = container
+    return scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD
   }, [])
 
+  // Handle scroll events - track position BEFORE new content arrives
+  // Skip updating isNearBottomRef during programmatic smooth scrolls to avoid race conditions
+  const handleScroll = React.useCallback(() => {
+    const nearBottom = checkIfNearBottom()
+    if (!isScrollingRef.current) {
+      isNearBottomRef.current = nearBottom
+    }
+    setShowScrollButton(!nearBottom)
+  }, [checkIfNearBottom])
+
+  // Smooth scroll to bottom
+  const scrollToBottom = React.useCallback(() => {
+    isScrollingRef.current = true
+    isNearBottomRef.current = true // Set immediately so new messages trigger auto-scroll
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    setShowScrollButton(false)
+    // Clear scrolling flag after animation completes (smooth scroll ~300-500ms)
+    setTimeout(() => {
+      isScrollingRef.current = false
+    }, 500)
+  }, [])
+
+  // Scroll on conversation change
   React.useEffect(() => {
-    scrollToBottom()
-  }, [scrollToBottom, conversation?.id, messages.length])
+    if (conversation?.id !== prevConversationIdRef.current) {
+      prevConversationIdRef.current = conversation?.id
+      // Double RAF to ensure DOM has fully updated after conversation change
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          scrollToBottom()
+        })
+      })
+    }
+  }, [conversation?.id, scrollToBottom])
+
+  // Auto-scroll when new messages arrive or "thinking" indicator appears
+  React.useEffect(() => {
+    const wasEmpty = prevMessagesLengthRef.current === 0
+    const hadNewMessages = messages.length > prevMessagesLengthRef.current
+    const processingJustStarted = isProcessing && !prevIsProcessingRef.current
+    // Capture the near-bottom state BEFORE updating the refs
+    const wasNearBottom = isNearBottomRef.current
+
+    // Check if last message is from the user (they just sent it)
+    const lastMessage = messages[messages.length - 1]
+    const isUserMessage = hadNewMessages && lastMessage?.role === 'user'
+
+    // Update refs
+    prevMessagesLengthRef.current = messages.length
+    prevIsProcessingRef.current = isProcessing
+
+    // Always scroll on initial load (was empty, now has messages)
+    // Always scroll for user's own messages (they just sent it)
+    // Or scroll if user WAS near bottom when assistant messages arrive
+    // Or scroll when "thinking" indicator appears (if user was near bottom)
+    const shouldScroll =
+      (wasEmpty && messages.length > 0) ||
+      isUserMessage ||
+      (hadNewMessages && wasNearBottom) ||
+      (processingJustStarted && wasNearBottom)
+
+    if (shouldScroll) {
+      // Double RAF to ensure DOM has fully updated with new content
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          scrollToBottom()
+        })
+      })
+    }
+
+    // Update button visibility after content changes
+    requestAnimationFrame(() => {
+      const nearBottom = checkIfNearBottom()
+      isNearBottomRef.current = nearBottom
+      setShowScrollButton(!nearBottom)
+    })
+  }, [messages.length, isProcessing, checkIfNearBottom, scrollToBottom])
 
   return (
     <div
@@ -61,12 +169,16 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
         <p className='text-xs font-medium uppercase tracking-wide text-gray-400'>Preparing chat…</p>
       )}
 
-      <section ref={scrollContainerRef} className='flex-1 min-h-0 overflow-y-auto'>
-        <RoomChatMessageList
-          messages={messages}
-          workerName={workerName}
-          isProcessing={isProcessing}
-        />
+      <section className='relative flex-1 min-h-0'>
+        <div ref={scrollContainerRef} className='h-full overflow-y-auto' onScroll={handleScroll}>
+          <RoomChatMessageList
+            messages={messages}
+            workerName={workerName}
+            isProcessing={isProcessing}
+          />
+          <div ref={messagesEndRef} />
+        </div>
+        <ScrollToBottomButton onClick={scrollToBottom} visible={showScrollButton} />
       </section>
 
       {statusMessage && (
