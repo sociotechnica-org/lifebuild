@@ -1,7 +1,7 @@
 import React from 'react'
 import { useDraggable, useDroppable } from '@dnd-kit/core'
 import type { Task } from '@lifebuild/shared/schema'
-import { formatDate } from '../../../utils/dates.js'
+import { formatDeadline } from './TaskDetailModal.js'
 
 interface SimpleTaskCardProps {
   task: Task
@@ -75,7 +75,7 @@ export function SimpleTaskCard({ task, isDragOverlay = false, onClick }: SimpleT
           <p
             className={`text-xs mt-1 ${deadline < Date.now() ? 'text-orange-500' : 'text-[#8b8680]'}`}
           >
-            {formatDate(new Date(deadline))}
+            {formatDeadline(deadline)}
           </p>
         )
       })()}
