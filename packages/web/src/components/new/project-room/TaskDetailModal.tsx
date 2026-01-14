@@ -324,6 +324,13 @@ export function TaskDetailModal({
     }
   }
 
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleSave()
+    }
+  }
+
   const formatStatus = (status: string) => {
     return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')
   }
@@ -356,6 +363,7 @@ export function TaskDetailModal({
                   type='text'
                   value={editTitle}
                   onChange={handleTitleChange}
+                  onKeyDown={handleInputKeyDown}
                   className={`text-xl font-semibold text-[#2f2b27] bg-transparent border-b-2 focus:outline-none focus:border-[#8b8680] w-full pr-8 ${
                     titleError ? 'border-red-500' : 'border-[#e5e2dc]'
                   }`}
@@ -454,6 +462,7 @@ export function TaskDetailModal({
                 type='date'
                 value={editDeadline}
                 onChange={e => setEditDeadline(e.target.value)}
+                onKeyDown={handleInputKeyDown}
                 className='w-full p-2 border border-[#e5e2dc] rounded-lg text-[#2f2b27] focus:outline-none focus:ring-2 focus:ring-[#8b8680]'
               />
             ) : (
