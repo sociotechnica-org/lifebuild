@@ -65,6 +65,7 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
   const isNearBottomRef = React.useRef(true) // Track if user is near bottom (updated on scroll)
   const prevConversationIdRef = React.useRef<string | null | undefined>(undefined) // Start undefined to detect first load
   const prevMessagesLengthRef = React.useRef(0) // Start at 0 to detect initial messages
+  const prevIsProcessingRef = React.useRef(false) // Track processing state changes
 
   const SCROLL_THRESHOLD = 100
 
@@ -83,9 +84,9 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
     setShowScrollButton(!nearBottom)
   }, [checkIfNearBottom])
 
-  // Instant scroll to bottom
+  // Smooth scroll to bottom
   const scrollToBottom = React.useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     setShowScrollButton(false)
   }, [])
 
@@ -102,17 +103,25 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
     }
   }, [conversation?.id, scrollToBottom])
 
-  // Auto-scroll when new messages arrive
+  // Auto-scroll when new messages arrive or "thinking" indicator appears
   React.useEffect(() => {
     const wasEmpty = prevMessagesLengthRef.current === 0
     const hadNewMessages = messages.length > prevMessagesLengthRef.current
-    // Capture the near-bottom state BEFORE updating the ref (this was set by scroll events before content changed)
+    const processingJustStarted = isProcessing && !prevIsProcessingRef.current
+    // Capture the near-bottom state BEFORE updating the refs
     const wasNearBottom = isNearBottomRef.current
+
+    // Update refs
     prevMessagesLengthRef.current = messages.length
+    prevIsProcessingRef.current = isProcessing
 
     // Always scroll on initial load (was empty, now has messages)
     // Or scroll if user WAS near bottom when new messages arrive
-    const shouldScroll = (wasEmpty && messages.length > 0) || (hadNewMessages && wasNearBottom)
+    // Or scroll when "thinking" indicator appears (if user was near bottom)
+    const shouldScroll =
+      (wasEmpty && messages.length > 0) ||
+      (hadNewMessages && wasNearBottom) ||
+      (processingJustStarted && wasNearBottom)
 
     if (shouldScroll) {
       // Double RAF to ensure DOM has fully updated with new content
