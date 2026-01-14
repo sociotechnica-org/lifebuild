@@ -1,6 +1,7 @@
 ## Summary
 
 Implements a versioning and changelog system for LifeBuild:
+
 - Version tracking starting at 0.1.0
 - PR template requiring changelog entries
 - GitHub Actions for validation and automation
@@ -40,6 +41,7 @@ The `update-changelog.yml` workflow needs a token to push to the lifebuild-site 
 ### 3. Prepare the lifebuild-site repository
 
 Create these files/directories:
+
 - `src/content/changelog/` (directory for changelog entries)
 - `src/data/version.json`:
   ```json

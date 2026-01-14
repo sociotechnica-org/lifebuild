@@ -49,6 +49,7 @@ This workflow pushes changelog entries to the `lifebuild-site` repository when P
 ### `changelog-check.yml`
 
 Runs on every PR to validate:
+
 - PR description contains a `## Changelog` section
 - At least one bullet point entry exists
 - Entries start with a capital letter (action verb format)
@@ -56,6 +57,7 @@ Runs on every PR to validate:
 ### `update-changelog.yml`
 
 Runs when a PR is merged:
+
 - Extracts changelog entries from PR description
 - If there are user-facing changes:
   - Bumps the patch version in `packages/web/package.json`
