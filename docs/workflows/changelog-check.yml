@@ -24,7 +24,8 @@ jobs:
               return;
             }
 
-            const changelogSection = changelogMatch[0];
+            // Remove HTML comments (which may contain example entries from PR template)
+            const changelogSection = changelogMatch[0].replace(/<!--[\s\S]*?-->/g, '');
 
             // Extract bullet points from the changelog section
             const bulletPoints = changelogSection.match(/^- .+$/gm);

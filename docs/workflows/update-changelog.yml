@@ -53,7 +53,8 @@ jobs:
               return;
             }
 
-            const changelogSection = changelogMatch[0];
+            // Remove HTML comments (which may contain example entries from PR template)
+            const changelogSection = changelogMatch[0].replace(/<!--[\s\S]*?-->/g, '');
             const bulletPoints = changelogSection.match(/^- .+$/gm) || [];
 
             // Filter out empty entries
@@ -255,7 +256,7 @@ ${changelogEntry.entries.map(entry => `- ${entry}`).join('\n')}
           **Version:** ${{ steps.extract.outputs.new_version }}
 
           ### Changes
-          $(echo '${{ steps.extract.outputs.changelog_entry }}' | jq -r '.entries[]' | sed 's/^/- /')
+          $(echo "$CHANGELOG_ENTRY" | jq -r '.entries[]' | sed 's/^/- /')
 
           ---
           *This PR was automatically created. Review and edit the changelog entry as needed before merging.*
