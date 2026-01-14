@@ -112,15 +112,21 @@ export const RoomChatPanel: React.FC<RoomChatPanelProps> = ({
     // Capture the near-bottom state BEFORE updating the refs
     const wasNearBottom = isNearBottomRef.current
 
+    // Check if last message is from the user (they just sent it)
+    const lastMessage = messages[messages.length - 1]
+    const isUserMessage = hadNewMessages && lastMessage?.role === 'user'
+
     // Update refs
     prevMessagesLengthRef.current = messages.length
     prevIsProcessingRef.current = isProcessing
 
     // Always scroll on initial load (was empty, now has messages)
-    // Or scroll if user WAS near bottom when new messages arrive
+    // Always scroll for user's own messages (they just sent it)
+    // Or scroll if user WAS near bottom when assistant messages arrive
     // Or scroll when "thinking" indicator appears (if user was near bottom)
     const shouldScroll =
       (wasEmpty && messages.length > 0) ||
+      isUserMessage ||
       (hadNewMessages && wasNearBottom) ||
       (processingJustStarted && wasNearBottom)
 
