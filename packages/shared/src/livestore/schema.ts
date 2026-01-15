@@ -864,7 +864,8 @@ const materializers = State.SQLite.materializers(events, {
     tasks.update({ position, updatedAt }).where({ id: taskId }),
 
   'v2.TaskMovedToProject': ({ taskId, toProjectId, position, updatedAt }) =>
-    tasks.update({ projectId: toProjectId, position, updatedAt }).where({ id: taskId }),
+    // Use ?? null to ensure undefined toProjectId is explicitly set to null (for orphaning tasks)
+    tasks.update({ projectId: toProjectId ?? null, position, updatedAt }).where({ id: taskId }),
 
   'v2.TaskAttributesUpdated': ({ taskId, attributes, updatedAt }) =>
     tasks
