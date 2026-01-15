@@ -389,7 +389,10 @@ export const LifeMap: React.FC = () => {
                 return (
                   <div
                     key={project.id}
-                    className='flex items-center justify-between p-4 hover:bg-[#faf9f7] transition-colors'
+                    className='flex items-center justify-between p-4 hover:bg-[#faf9f7] cursor-pointer transition-colors'
+                    onClick={() =>
+                      navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
+                    }
                   >
                     <div className='flex items-center gap-3'>
                       {category && (
