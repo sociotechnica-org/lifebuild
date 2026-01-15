@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { Project } from '@lifebuild/shared/schema'
 import {
@@ -62,6 +62,11 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
   const [pendingProject, setPendingProject] = useState<Project | null>(null)
   const [dialogMode, setDialogMode] = useState<DialogMode>('activate')
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
+
+  // Reset archive dialog when tabled project changes to prevent showing dialog for wrong project
+  useEffect(() => {
+    setShowArchiveConfirm(false)
+  }, [tabledProject?.id])
 
   const handleViewTabledProject = () => {
     if (tabledProject) {

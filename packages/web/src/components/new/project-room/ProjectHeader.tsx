@@ -136,14 +136,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
       )
     }
 
-    // Clear table slot if project was on the table
-    if (isOnGoldTable) {
-      await clearGold()
-    } else if (isOnSilverTable) {
-      await clearSilver()
-    }
-
-    // Archive the project
+    // Archive the project before async operations to ensure consistent state
     store.commit(
       events.projectArchived({
         id: project.id,
@@ -151,6 +144,13 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
         actorId,
       })
     )
+
+    // Clear table slot if project was on the table
+    if (isOnGoldTable) {
+      await clearGold()
+    } else if (isOnSilverTable) {
+      await clearSilver()
+    }
 
     setShowArchiveConfirm(false)
     navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
