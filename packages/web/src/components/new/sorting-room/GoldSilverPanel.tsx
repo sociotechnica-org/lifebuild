@@ -28,6 +28,7 @@ export interface GoldSilverPanelProps {
   onActivateToTable: (project: Project) => void
   onReleaseFromTable: () => void
   onCompleteProject: () => void
+  onArchiveProject: () => void
   onReorder: (projects: Project[]) => void
   draggedProject: Project | null
   setDraggedProject: (project: Project | null) => void
@@ -48,6 +49,7 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
   onActivateToTable,
   onReleaseFromTable,
   onCompleteProject,
+  onArchiveProject,
   onReorder,
   draggedProject,
   setDraggedProject,
@@ -59,6 +61,7 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
   const [queueView, setQueueView] = useState<QueueView>('backlog')
   const [pendingProject, setPendingProject] = useState<Project | null>(null)
   const [dialogMode, setDialogMode] = useState<DialogMode>('activate')
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
 
   const handleViewTabledProject = () => {
     if (tabledProject) {
@@ -223,6 +226,13 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
                     >
                       Release
                     </button>
+                    <button
+                      type='button'
+                      className='text-xs py-1.5 px-3 rounded-lg bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] whitespace-nowrap'
+                      onClick={() => setShowArchiveConfirm(true)}
+                    >
+                      Archive
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -334,6 +344,45 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
         onComplete={onCompleteProject}
         onCancel={handleCancel}
       />
+
+      {/* Archive Confirmation Dialog */}
+      {showArchiveConfirm && tabledProject && (
+        <div
+          className='fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]'
+          onClick={() => setShowArchiveConfirm(false)}
+        >
+          <div
+            className='bg-white rounded-xl p-6 max-w-[400px] w-[90%] shadow-[0_8px_32px_rgba(0,0,0,0.2)]'
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 className='m-0 mb-4 text-lg font-semibold text-[#2f2b27]'>Archive Project</h3>
+            <p className='m-0 mb-6 text-sm text-[#2f2b27] leading-relaxed'>
+              Are you sure you want to archive <strong>{tabledProject.name}</strong>? This will
+              remove it from your active projects and release it from the table. You can unarchive
+              it later from the Life Map.
+            </p>
+            <div className='flex gap-3 justify-end'>
+              <button
+                type='button'
+                className='py-2 px-5 rounded-lg text-sm font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27]'
+                onClick={() => setShowArchiveConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type='button'
+                className='py-2 px-5 rounded-lg text-sm font-medium bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black'
+                onClick={() => {
+                  onArchiveProject()
+                  setShowArchiveConfirm(false)
+                }}
+              >
+                Archive Project
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

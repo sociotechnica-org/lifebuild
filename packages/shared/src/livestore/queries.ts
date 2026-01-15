@@ -448,8 +448,15 @@ export const getAllTasksByCategoryId$ = (categoryId: string, assigneeId?: string
     }
   )
 
-// TODO(PR5+6): getArchivedProjects$ query removed - LiveStore's query API doesn't support
-// "IS NOT NULL" filters. When needed, clients should:
-// 1. Query all projects without archivedAt filter
-// 2. Filter client-side for projects where archivedAt is not null
-// Or wait for LiveStore to support more complex where clauses
+/**
+ * Get all projects including archived ones
+ * Useful for displaying archived projects in a separate view
+ * Clients should filter by archivedAt !== null for archived projects
+ */
+export const getAllProjectsIncludingArchived$ = queryDb(
+  tables.projects
+    .select()
+    .where({ deletedAt: null })
+    .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
+  { label: 'getAllProjectsIncludingArchived' }
+)
