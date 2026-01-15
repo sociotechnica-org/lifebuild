@@ -12,6 +12,7 @@ import {
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
+import { Tooltip } from '../../ui/Tooltip/Tooltip.js'
 
 export const Stage1Form: React.FC = () => {
   const navigate = useNavigate()
@@ -219,32 +220,7 @@ export const Stage1Form: React.FC = () => {
           </div>
 
           {/* Category */}
-          <div>
-            <label className='block text-sm font-semibold text-[#2f2b27] mb-1.5'>
-              Category<span className='text-red-500 ml-0.5'>*</span>
-            </label>
-            <div className='flex flex-wrap gap-1.5'>
-              {PROJECT_CATEGORIES.map(cat => (
-                <button
-                  key={cat.value}
-                  type='button'
-                  className={`py-1 px-2.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer ${
-                    category === cat.value
-                      ? 'text-white'
-                      : 'bg-transparent border-[#e8e4de] text-[#8b8680] hover:border-[#d0ccc5] hover:text-[#2f2b27]'
-                  }`}
-                  style={
-                    category === cat.value
-                      ? { backgroundColor: cat.colorHex, borderColor: cat.colorHex, color: '#fff' }
-                      : undefined
-                  }
-                  onClick={() => handleCategorySelect(cat.value)}
-                >
-                  {cat.name}
-                </button>
-              ))}
-            </div>
-          </div>
+          <CategorySection category={category} onCategorySelect={handleCategorySelect} />
         </div>
 
         {/* Footer Actions */}
@@ -265,6 +241,89 @@ export const Stage1Form: React.FC = () => {
             Continue to Stage 2
           </button>
         </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Category section with tooltips and info popover
+ */
+interface CategorySectionProps {
+  category: ProjectCategory | null
+  onCategorySelect: (value: ProjectCategory) => void
+}
+
+const CategorySection: React.FC<CategorySectionProps> = ({ category, onCategorySelect }) => {
+  const [showInfoPopover, setShowInfoPopover] = useState(false)
+
+  return (
+    <div>
+      <div className='flex items-center gap-1.5 mb-1.5'>
+        <label className='text-sm font-semibold text-[#2f2b27]'>
+          Category<span className='text-red-500 ml-0.5'>*</span>
+        </label>
+        <div className='relative'>
+          <button
+            type='button'
+            className='flex items-center justify-center w-4 h-4 rounded-full border border-[#d0ccc5] text-[#8b8680] text-[10px] font-medium cursor-pointer hover:border-[#2f2b27] hover:text-[#2f2b27] transition-colors'
+            onClick={() => setShowInfoPopover(!showInfoPopover)}
+            aria-label='Learn about categories'
+          >
+            i
+          </button>
+          {showInfoPopover && (
+            <>
+              {/* Backdrop */}
+              <div className='fixed inset-0 z-40' onClick={() => setShowInfoPopover(false)} />
+              {/* Popover */}
+              <div className='absolute left-0 top-full mt-2 z-50 w-72 bg-white rounded-lg border border-[#e8e4de] shadow-lg p-4'>
+                <div className='mb-3'>
+                  <h4 className='text-sm font-semibold text-[#2f2b27] mb-1'>Life Categories</h4>
+                  <p className='text-xs text-[#8b8680]'>
+                    Categories help organize your projects across different areas of life.
+                  </p>
+                </div>
+                <div className='space-y-2'>
+                  {PROJECT_CATEGORIES.map(cat => (
+                    <div key={cat.value} className='flex items-start gap-2'>
+                      <span
+                        className='flex-shrink-0 w-2 h-2 rounded-full mt-1.5'
+                        style={{ backgroundColor: cat.colorHex }}
+                      />
+                      <div>
+                        <span className='text-xs font-semibold text-[#2f2b27]'>{cat.name}</span>
+                        <span className='text-xs text-[#8b8680]'> — {cat.shortDescription}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      <div className='flex flex-wrap gap-1.5'>
+        {PROJECT_CATEGORIES.map(cat => (
+          <Tooltip key={cat.value} content={cat.shortDescription}>
+            <button
+              type='button'
+              className={`py-1 px-2.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer ${
+                category === cat.value
+                  ? 'text-white'
+                  : 'bg-transparent border-[#e8e4de] text-[#8b8680] hover:border-[#d0ccc5] hover:text-[#2f2b27]'
+              }`}
+              style={
+                category === cat.value
+                  ? { backgroundColor: cat.colorHex, borderColor: cat.colorHex, color: '#fff' }
+                  : undefined
+              }
+              onClick={() => onCategorySelect(cat.value)}
+            >
+              {cat.name}
+            </button>
+          </Tooltip>
+        ))}
       </div>
     </div>
   )
