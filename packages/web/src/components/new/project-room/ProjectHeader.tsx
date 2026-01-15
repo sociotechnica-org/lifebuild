@@ -206,8 +206,8 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
             </button>
           )}
 
-          {/* Archive button - always show for non-completed projects */}
-          {lifecycleState.status !== 'completed' && (
+          {/* Archive button - show for non-completed, non-archived projects */}
+          {lifecycleState.status !== 'completed' && !project.archivedAt && (
             <button
               onClick={() => setShowArchiveConfirm(true)}
               className='px-3 py-1.5 text-sm font-medium text-[#8b8680] bg-transparent border border-[#e8e4de] hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] rounded-md transition-colors'
