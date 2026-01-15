@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Checkout work-squared repo
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
