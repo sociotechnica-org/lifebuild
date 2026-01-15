@@ -31,92 +31,21 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Extract changelog and update version
+      - name: Extract changelog and compute version
         id: extract
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const fs = require('fs');
-            const prBody = context.payload.pull_request.body || '';
-            const prNumber = context.payload.pull_request.number;
-            const prTitle = context.payload.pull_request.title;
-            const prUrl = context.payload.pull_request.html_url;
-            const mergedAt = context.payload.pull_request.merged_at;
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          MERGED_AT: ${{ github.event.pull_request.merged_at }}
+        run: |
+          # Read current version from package.json
+          CURRENT_VERSION=$(node -p "require('./packages/web/package.json').version")
+          export CURRENT_VERSION
 
-            // Extract changelog section
-            const changelogMatch = prBody.match(/## Changelog[\s\S]*?(?=\n## |$)/i);
-            if (!changelogMatch) {
-              console.log('No changelog section found');
-              core.setOutput('skip', 'true');
-              core.setOutput('no_changelog', 'true');
-              return;
-            }
-
-            // Remove HTML comments (which may contain example entries from PR template)
-            const changelogSection = changelogMatch[0].replace(/<!--[\s\S]*?-->/g, '');
-            const bulletPoints = changelogSection.match(/^- .+$/gm) || [];
-
-            // Filter out empty entries
-            const entries = bulletPoints
-              .map(point => point.replace(/^- /, '').trim())
-              .filter(entry => entry.length > 0 && entry !== '-');
-
-            if (entries.length === 0) {
-              console.log('No changelog entries found');
-              core.setOutput('skip', 'true');
-              core.setOutput('no_changelog', 'true');
-              return;
-            }
-
-            // Check if this has user-facing changes
-            const hasUserFacingChanges = !entries.every(
-              entry => entry.toLowerCase() === 'no user-facing changes'
-            );
-
-            // Read current version from package.json
-            const packageJson = JSON.parse(fs.readFileSync('packages/web/package.json', 'utf-8'));
-            const currentVersion = packageJson.version;
-
-            let newVersion = currentVersion;
-            if (hasUserFacingChanges) {
-              // Bump patch version, handling prerelease suffixes (e.g., "0.1.0-beta")
-              const parts = currentVersion.split('.');
-              // Extract numeric portion of patch version (before any - or +)
-              const patchMatch = parts[2].match(/^(\d+)/);
-              if (patchMatch) {
-                const numericPatch = Number(patchMatch[1]) + 1;
-                parts[2] = String(numericPatch);
-              } else {
-                // Fallback: if no numeric patch found, default to 1
-                parts[2] = '1';
-              }
-              newVersion = parts.join('.');
-            }
-
-            // Format the date
-            const date = new Date(mergedAt);
-            const formattedDate = date.toISOString().split('T')[0];
-
-            // Create changelog entry JSON
-            const changelogEntry = {
-              version: newVersion,
-              date: formattedDate,
-              prNumber: prNumber,
-              prUrl: prUrl,
-              prTitle: prTitle,
-              entries: hasUserFacingChanges ? entries.filter(e => e.toLowerCase() !== 'no user-facing changes') : [],
-              hasUserFacingChanges: hasUserFacingChanges
-            };
-
-            console.log('Changelog entry:', JSON.stringify(changelogEntry, null, 2));
-
-            core.setOutput('skip', 'false');
-            core.setOutput('no_changelog', 'false');
-            core.setOutput('changelog_entry', JSON.stringify(changelogEntry));
-            core.setOutput('new_version', newVersion);
-            core.setOutput('current_version', currentVersion);
-            core.setOutput('has_user_facing_changes', hasUserFacingChanges.toString());
+          # Run the changelog automation script
+          node scripts/changelog-automation.js
 
       - name: Comment on PR when no changelog section
         if: steps.extract.outputs.no_changelog == 'true'
@@ -165,61 +94,54 @@ jobs:
       - name: Create changelog entry file
         if: steps.extract.outputs.skip != 'true' && steps.extract.outputs.has_user_facing_changes == 'true'
         id: create_file
-        uses: actions/github-script@v7
         env:
           CHANGELOG_ENTRY: ${{ steps.extract.outputs.changelog_entry }}
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
+        run: |
+          # Parse the changelog entry JSON
+          VERSION=$(echo "$CHANGELOG_ENTRY" | jq -r '.version')
+          DATE=$(echo "$CHANGELOG_ENTRY" | jq -r '.date')
+          PR_NUMBER=$(echo "$CHANGELOG_ENTRY" | jq -r '.prNumber')
+          PR_URL=$(echo "$CHANGELOG_ENTRY" | jq -r '.prUrl')
 
-            // Use environment variable to safely pass JSON (avoids string interpolation issues with quotes)
-            const changelogEntry = JSON.parse(process.env.CHANGELOG_ENTRY);
-            const changelogPath = path.join('lifebuild-site', 'src', 'content', 'changelog');
+          # Create changelog directory if needed
+          mkdir -p lifebuild-site/src/content/changelog
+          mkdir -p lifebuild-site/src/data
 
-            // Ensure directory exists
-            if (!fs.existsSync(changelogPath)) {
-              fs.mkdirSync(changelogPath, { recursive: true });
-            }
+          # Generate filename
+          FILENAME="${DATE}-v${VERSION//./-}.md"
+          FILEPATH="lifebuild-site/src/content/changelog/${FILENAME}"
 
-            // Create a new changelog entry file (YAML frontmatter + markdown)
-            const filename = `${changelogEntry.date}-v${changelogEntry.version.replace(/\./g, '-')}.md`;
-            const filepath = path.join(changelogPath, filename);
+          # Generate changelog file content
+          cat > "$FILEPATH" << EOF
+          ---
+          version: "${VERSION}"
+          date: "${DATE}"
+          prNumber: ${PR_NUMBER}
+          prUrl: "${PR_URL}"
+          ---
 
-            const content = `---
-version: "${changelogEntry.version}"
-date: "${changelogEntry.date}"
-prNumber: ${changelogEntry.prNumber}
-prUrl: "${changelogEntry.prUrl}"
----
+          # v${VERSION}
 
-# v${changelogEntry.version}
+          $(echo "$CHANGELOG_ENTRY" | jq -r '.entries[]' | sed 's/^/- /')
 
-${changelogEntry.entries.map(entry => `- ${entry}`).join('\n')}
+          [View PR #${PR_NUMBER}](${PR_URL})
+          EOF
 
-[View PR #${changelogEntry.prNumber}](${changelogEntry.prUrl})
-`;
+          echo "Created changelog entry: ${FILENAME}"
 
-            fs.writeFileSync(filepath, content);
-            console.log(`Created changelog entry: ${filename}`);
+          # Update version.json
+          cat > lifebuild-site/src/data/version.json << EOF
+          {
+            "version": "${VERSION}",
+            "lastUpdated": "${DATE}"
+          }
+          EOF
 
-            // Update the latest version file
-            const versionPath = path.join('lifebuild-site', 'src', 'data', 'version.json');
-            const versionDir = path.dirname(versionPath);
+          echo "Updated version.json to ${VERSION}"
 
-            if (!fs.existsSync(versionDir)) {
-              fs.mkdirSync(versionDir, { recursive: true });
-            }
-
-            const versionData = {
-              version: changelogEntry.version,
-              lastUpdated: changelogEntry.date
-            };
-            fs.writeFileSync(versionPath, JSON.stringify(versionData, null, 2) + '\n');
-            console.log(`Updated version.json to ${changelogEntry.version}`);
-
-            core.setOutput('filename', filename);
-            core.setOutput('branch_name', `changelog/v${changelogEntry.version}-pr-${changelogEntry.prNumber}`);
+          # Set outputs for next step
+          echo "filename=${FILENAME}" >> $GITHUB_OUTPUT
+          echo "branch_name=changelog/v${VERSION}-pr-${PR_NUMBER}" >> $GITHUB_OUTPUT
 
       - name: Create PR to lifebuild-site
         if: steps.extract.outputs.skip != 'true' && steps.extract.outputs.has_user_facing_changes == 'true'
