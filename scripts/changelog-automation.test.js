@@ -203,6 +203,7 @@ describe('processChangelog', () => {
 
     expect(result.skip).toBe(true)
     expect(result.noChangelog).toBe(true)
+    expect(result.emptyChangelog).toBe(false)
     expect(result.changelogEntry).toBeNull()
   })
 
@@ -213,7 +214,8 @@ describe('processChangelog', () => {
     })
 
     expect(result.skip).toBe(true)
-    expect(result.noChangelog).toBe(true)
+    expect(result.noChangelog).toBe(false)
+    expect(result.emptyChangelog).toBe(true)
   })
 
   it('processes user-facing changes correctly', () => {
@@ -226,6 +228,7 @@ describe('processChangelog', () => {
 
     expect(result.skip).toBe(false)
     expect(result.noChangelog).toBe(false)
+    expect(result.emptyChangelog).toBe(false)
     expect(result.hasUserFacingChanges).toBe(true)
     expect(result.newVersion).toBe('0.1.1')
     expect(result.changelogEntry.entries).toEqual(['Add new feature', 'Fix important bug'])

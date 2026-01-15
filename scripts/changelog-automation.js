@@ -123,6 +123,7 @@ export function processChangelog({ prBody, prNumber, prTitle, prUrl, mergedAt, c
     return {
       skip: true,
       noChangelog: true,
+      emptyChangelog: false,
       changelogEntry: null,
       newVersion: currentVersion,
       currentVersion,
@@ -135,7 +136,8 @@ export function processChangelog({ prBody, prNumber, prTitle, prUrl, mergedAt, c
   if (entries.length === 0) {
     return {
       skip: true,
-      noChangelog: true,
+      noChangelog: false,
+      emptyChangelog: true,
       changelogEntry: null,
       newVersion: currentVersion,
       currentVersion,
@@ -160,6 +162,7 @@ export function processChangelog({ prBody, prNumber, prTitle, prUrl, mergedAt, c
   return {
     skip: false,
     noChangelog: false,
+    emptyChangelog: false,
     changelogEntry,
     newVersion,
     currentVersion,
@@ -234,6 +237,7 @@ if (isMain) {
 
   setOutput('skip', result.skip.toString())
   setOutput('no_changelog', result.noChangelog.toString())
+  setOutput('empty_changelog', result.emptyChangelog.toString())
   setOutput('new_version', result.newVersion)
   setOutput('current_version', result.currentVersion)
   setOutput('has_user_facing_changes', result.hasUserFacingChanges.toString())
