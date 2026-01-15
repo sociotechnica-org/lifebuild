@@ -512,6 +512,19 @@ export const SortingRoom: React.FC = () => {
   // Handler for archiving a project
   const handleArchiveGold = useCallback(async () => {
     if (!configuration || !goldProject) return
+    // Clear the slot from lifecycle state first
+    const currentLifecycle = getLifecycleState(goldProject)
+    store.commit(
+      events.projectLifecycleUpdated({
+        projectId: goldProject.id,
+        lifecycleState: {
+          ...currentLifecycle,
+          slot: undefined,
+        },
+        updatedAt: new Date(),
+        actorId,
+      })
+    )
     store.commit(
       events.projectArchived({
         id: goldProject.id,
@@ -524,6 +537,19 @@ export const SortingRoom: React.FC = () => {
 
   const handleArchiveSilver = useCallback(async () => {
     if (!configuration || !silverProject) return
+    // Clear the slot from lifecycle state first
+    const currentLifecycle = getLifecycleState(silverProject)
+    store.commit(
+      events.projectLifecycleUpdated({
+        projectId: silverProject.id,
+        lifecycleState: {
+          ...currentLifecycle,
+          slot: undefined,
+        },
+        updatedAt: new Date(),
+        actorId,
+      })
+    )
     store.commit(
       events.projectArchived({
         id: silverProject.id,

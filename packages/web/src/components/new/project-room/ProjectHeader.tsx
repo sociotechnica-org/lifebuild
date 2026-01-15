@@ -121,6 +121,21 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   }
 
   const handleArchiveProject = async () => {
+    // Clear the slot from lifecycle state if project was on the table
+    if (isOnTable) {
+      store.commit(
+        events.projectLifecycleUpdated({
+          projectId: project.id,
+          lifecycleState: {
+            ...lifecycleState,
+            slot: undefined,
+          },
+          updatedAt: new Date(),
+          actorId,
+        })
+      )
+    }
+
     // Clear table slot if project was on the table
     if (isOnGoldTable) {
       await clearGold()
