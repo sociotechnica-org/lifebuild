@@ -89,7 +89,8 @@ LifeBuild is a real-time collaborative web application built as a monorepo with 
 
 1. Review requirements thoroughly
 2. Ask clarifying questions
-3. Create descriptive branch with your username prefix (e.g., `jessmartin/add-feature-name`)
+3. **Set issue status to "In Progress"**: Update the GitHub issue status on the project board
+4. Create descriptive branch with your username prefix (e.g., `jessmartin/add-feature-name`)
 
 ### While Developing
 
@@ -111,9 +112,10 @@ CI=true pnpm test:e2e  # Run E2E tests
 2. Push your branch to GitHub
 3. Create PR: `gh pr create --title "Title" --body "Description"` (or use GitHub web UI)
 4. **Link issues**: If the PR fixes a GitHub issue, include `Closes #XXX` in the PR description to auto-close the issue on merge
-5. Monitor checks: `gh pr checks --watch` and wait for all checks (up to 10 minutes)
-6. Check for feedback: `gh pr view <number> --comments` to see reviews and comments
-7. Fix any issues (including neutral BugBot feedback)
+5. **Set issue status to "In Review"**: Update the GitHub issue status on the project board
+6. Monitor checks: `gh pr checks --watch` and wait for all checks (up to 10 minutes)
+7. Check for feedback: `gh pr view <number> --comments` to see reviews and comments
+8. Fix any issues (including neutral BugBot feedback)
 
 ## GitHub CLI (`gh`) Commands
 
@@ -158,6 +160,28 @@ gh issue view <number> --web     # Open issue in browser
 gh issue create --title "Title" --body "Description"
 gh issue create --assignee @me   # Create and self-assign
 ```
+
+### Project Board Commands (Issue Status)
+
+```bash
+# List projects to find project number
+gh project list
+
+# View project items and their status
+gh project item-list <project-number> --owner @me
+
+# Update issue status on project board (requires item ID and field/option IDs)
+# First, get the project field IDs:
+gh project field-list <project-number> --owner @me
+
+# Then update the status (use the Status field ID and appropriate option ID)
+gh project item-edit --project-id <PROJECT_ID> --id <ITEM_ID> --field-id <STATUS_FIELD_ID> --single-select-option-id <OPTION_ID>
+```
+
+**Common Status Workflow:**
+- When picking up an issue: Set status to "In Progress"
+- When creating a PR: Set status to "In Review"
+- Issues auto-close on merge when PR description includes `Closes #XXX`
 
 ### Common Workflows
 
