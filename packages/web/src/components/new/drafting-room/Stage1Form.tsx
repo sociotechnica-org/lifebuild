@@ -277,7 +277,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({ category, onCategoryS
               {/* Backdrop */}
               <div className='fixed inset-0 z-40' onClick={() => setShowInfoPopover(false)} />
               {/* Popover */}
-              <div className='absolute left-0 top-full mt-2 z-50 w-72 bg-white rounded-lg border border-[#e8e4de] shadow-lg p-4'>
+              <div className='absolute left-0 top-full mt-2 z-50 w-96 bg-white rounded-lg border border-[#e8e4de] shadow-lg p-4'>
                 <div className='mb-3'>
                   <h4 className='text-sm font-semibold text-[#2f2b27] mb-1'>Life Categories</h4>
                   <p className='text-xs text-[#8b8680]'>
@@ -288,7 +288,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({ category, onCategoryS
                   {PROJECT_CATEGORIES.map(cat => (
                     <div key={cat.value} className='flex items-start gap-2'>
                       <span
-                        className='flex-shrink-0 w-2 h-2 rounded-full mt-[5px]'
+                        className='flex-shrink-0 w-2 h-2 rounded-full mt-[10px]'
                         style={{ backgroundColor: cat.colorHex }}
                       />
                       <div>
