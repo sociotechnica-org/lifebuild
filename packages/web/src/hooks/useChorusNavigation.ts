@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useFileNavigation } from './useFileNavigation.js'
 import { useStore } from '../livestore-compat.js'
 import { getTaskById$ } from '@lifebuild/shared/queries'
+import { generateRoute } from '../constants/routes.js'
+import { preserveStoreIdInUrl } from '../utils/navigation.js'
 
 /**
  * Global hook that handles clicks on CHORUS_TAG elements via event delegation
@@ -41,7 +43,7 @@ export const useChorusNavigation = () => {
               const taskResult = await store.query(getTaskById$(id))
               const task = taskResult?.[0]
               if (task?.projectId) {
-                navigate(`/old/project/${task.projectId}`)
+                navigate(preserveStoreIdInUrl(generateRoute.project(task.projectId)))
               } else {
                 // Navigate to orphaned tasks view
                 navigate('/old/tasks')
@@ -53,7 +55,16 @@ export const useChorusNavigation = () => {
             break
           }
           case 'project':
-            navigate(`/old/project/${id}`)
+            navigate(preserveStoreIdInUrl(generateRoute.project(id ?? '')))
+            break
+          case 'drafting-stage1':
+            navigate(preserveStoreIdInUrl(generateRoute.projectStage1(id ?? '')))
+            break
+          case 'drafting-stage2':
+            navigate(preserveStoreIdInUrl(generateRoute.projectStage2(id ?? '')))
+            break
+          case 'drafting-stage3':
+            navigate(preserveStoreIdInUrl(generateRoute.projectStage3(id ?? '')))
             break
           case 'document':
             navigate(`/old/document/${id}`)
