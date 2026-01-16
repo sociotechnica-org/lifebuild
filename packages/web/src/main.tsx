@@ -12,22 +12,24 @@ import { App } from './Root.js'
 const version = import.meta.env.VITE_APP_VERSION || '0.1.0'
 const logLifeBuildBanner = () => {
   const asciiArt = `
-██╗     ██╗███████╗███████╗██████╗ ██╗   ██╗██╗██╗     ██████╗
-██║     ██║██╔════╝██╔════╝██╔══██╗██║   ██║██║██║     ██╔══██╗
-██║     ██║█████╗  █████╗  ██████╔╝██║   ██║██║██║     ██║  ██║
-██║     ██║██╔══╝  ██╔══╝  ██╔══██╗██║   ██║██║██║     ██║  ██║
-███████╗██║██║     ███████╗██████╔╝╚██████╔╝██║███████╗██████╔╝
-╚══════╝╚═╝╚═╝     ╚══════╝╚═════╝  ╚═════╝ ╚═╝╚══════╝╚═════╝
+██▌  ██  ██▀▀▀▀ ██▀▀▀▀ ██▀▀██▄  ██   ██  ██  ██▌    ▐██▀▀██▄
+██▌  ██  ██     ██     ██  ▐██  ██   ██  ██  ██▌    ▐██  ▐██
+██▌  ██  ██     ██     ██  ▐██  ██   ██  ██  ██▌    ▐██  ▐██
+██▌  ██  ██▀▀   ██▀▀   ██▀▀██▀  ██   ██  ██  ██▌    ▐██  ▐██
+██▌  ██  ██     ██     ██  ▐██  ██   ██  ██  ██▌    ▐██  ▐██
+██▌  ██  ██     ██     ██  ▐██  ██   ██  ██  ██▌    ▐██  ▐██
+██▌  ▀▀  ██     ██     ██  ▐██  ██   ██ ▄▄▄▄ ██▌    ▐██  ▐██
+███▄▄▄▄  ██     ██▄▄▄▄ ██▄▄██▀  ▀██▄██▀ ▄▄▄▄ ███▄▄▄ ▐██▄▄██▀
 `
 
-  console.log(`%c${asciiArt}`, 'color: #6366f1; font-family: monospace; font-weight: bold;')
+  console.log(`%c${asciiArt}`, 'color: #111111; font-family: monospace; font-weight: bold;')
   console.log(
     `%cv${version}%c | https://lifebuild.me`,
-    'color: #6366f1; font-weight: bold; font-size: 14px;',
+    'color: #111111; font-weight: bold; font-size: 14px;',
     'color: #888; font-size: 12px;'
   )
   console.log(
-    '%cBuilt with love for makers who ship.',
+    '%cBuilt by Danvers Fleury and Jess Martin, because we needed it first.',
     'color: #888; font-style: italic; font-size: 11px;'
   )
 }
