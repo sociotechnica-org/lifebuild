@@ -183,6 +183,12 @@ gh project item-edit --project-id <PROJECT_ID> --id <ITEM_ID> --field-id <STATUS
 - When creating a PR: Set status to "In Review"
 - Issues auto-close on merge when PR description includes `Closes #XXX`
 
+### Project Management
+
+- **Parent Issues**: Only use the "Parent issue" feature for issues with type "Project". Never set a parent issue on regular issues.
+- **Sub-issues**: Use the GraphQL `addSubIssue` mutation to link issues as sub-issues to Project-type issues
+- **Adding to Projects**: Use `gh project item-add <project-number> --owner sociotechnica-org --url <issue-url>`
+
 ### Common Workflows
 
 ```bash
