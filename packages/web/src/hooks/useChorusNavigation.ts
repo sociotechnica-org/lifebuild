@@ -55,16 +55,20 @@ export const useChorusNavigation = () => {
             break
           }
           case 'project':
-            navigate(preserveStoreIdInUrl(generateRoute.project(id ?? '')))
+            if (!id) break
+            navigate(preserveStoreIdInUrl(generateRoute.project(id)))
             break
           case 'drafting-stage1':
-            navigate(preserveStoreIdInUrl(generateRoute.projectStage1(id ?? '')))
+            if (!id) break
+            navigate(preserveStoreIdInUrl(generateRoute.projectStage1(id)))
             break
           case 'drafting-stage2':
-            navigate(preserveStoreIdInUrl(generateRoute.projectStage2(id ?? '')))
+            if (!id) break
+            navigate(preserveStoreIdInUrl(generateRoute.projectStage2(id)))
             break
           case 'drafting-stage3':
-            navigate(preserveStoreIdInUrl(generateRoute.projectStage3(id ?? '')))
+            if (!id) break
+            navigate(preserveStoreIdInUrl(generateRoute.projectStage3(id)))
             break
           case 'document':
             navigate(`/old/document/${id}`)
