@@ -509,6 +509,57 @@ export const SortingRoom: React.FC = () => {
     await clearSilver()
   }, [silverProject, clearSilver, configuration, store, actorId])
 
+  // Handler for archiving a project
+  const handleArchiveGold = useCallback(async () => {
+    if (!configuration || !goldProject) return
+    // Clear the slot from lifecycle state first
+    const currentLifecycle = getLifecycleState(goldProject)
+    store.commit(
+      events.projectLifecycleUpdated({
+        projectId: goldProject.id,
+        lifecycleState: {
+          ...currentLifecycle,
+          slot: undefined,
+        },
+        updatedAt: new Date(),
+        actorId,
+      })
+    )
+    store.commit(
+      events.projectArchived({
+        id: goldProject.id,
+        archivedAt: new Date(),
+        actorId,
+      })
+    )
+    await clearGold()
+  }, [goldProject, clearGold, configuration, store, actorId])
+
+  const handleArchiveSilver = useCallback(async () => {
+    if (!configuration || !silverProject) return
+    // Clear the slot from lifecycle state first
+    const currentLifecycle = getLifecycleState(silverProject)
+    store.commit(
+      events.projectLifecycleUpdated({
+        projectId: silverProject.id,
+        lifecycleState: {
+          ...currentLifecycle,
+          slot: undefined,
+        },
+        updatedAt: new Date(),
+        actorId,
+      })
+    )
+    store.commit(
+      events.projectArchived({
+        id: silverProject.id,
+        archivedAt: new Date(),
+        actorId,
+      })
+    )
+    await clearSilver()
+  }, [silverProject, clearSilver, configuration, store, actorId])
+
   // Handler for reordering queue
   const handleReorderGold = useCallback(
     (reorderedProjects: Project[]) => {
@@ -738,6 +789,7 @@ export const SortingRoom: React.FC = () => {
               onActivateToTable={handleActivateGold}
               onReleaseFromTable={handleReleaseGold}
               onCompleteProject={handleCompleteGold}
+              onArchiveProject={handleArchiveGold}
               onReorder={handleReorderGold}
               draggedProject={draggedGoldProject}
               setDraggedProject={setDraggedGoldProject}
@@ -755,6 +807,7 @@ export const SortingRoom: React.FC = () => {
               onActivateToTable={handleActivateSilver}
               onReleaseFromTable={handleReleaseSilver}
               onCompleteProject={handleCompleteSilver}
+              onArchiveProject={handleArchiveSilver}
               onReorder={handleReorderSilver}
               draggedProject={draggedSilverProject}
               setDraggedProject={setDraggedSilverProject}
