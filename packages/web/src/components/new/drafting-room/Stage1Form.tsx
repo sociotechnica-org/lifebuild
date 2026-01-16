@@ -288,7 +288,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({ category, onCategoryS
                   {PROJECT_CATEGORIES.map(cat => (
                     <div key={cat.value} className='flex items-start gap-2'>
                       <span
-                        className='flex-shrink-0 w-2 h-2 rounded-full mt-1.5'
+                        className='flex-shrink-0 w-2 h-2 rounded-full mt-[5px]'
                         style={{ backgroundColor: cat.colorHex }}
                       />
                       <div>
