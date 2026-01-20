@@ -33,10 +33,14 @@ function extractEffectError(error: unknown): Error | unknown {
     const cause = error.cause as Record<string, unknown> | undefined
     if (cause && typeof cause === 'object') {
       // Check for Fail/Die patterns
-      const failure = cause.failure as Record<string, unknown> | undefined
+      const failure = cause.failure
+      // Handle Effect.fail(new Error(...)) where failure is directly an Error
+      if (failure instanceof Error) {
+        return failure
+      }
       if (failure && typeof failure === 'object') {
-        // The actual error is in failure.cause
-        const underlyingCause = failure.cause
+        // The actual error is in failure.cause (for wrapped errors like LiveStore.UnknownError)
+        const underlyingCause = (failure as Record<string, unknown>).cause
         if (underlyingCause instanceof Error) {
           return underlyingCause
         }
@@ -44,9 +48,11 @@ function extractEffectError(error: unknown): Error | unknown {
         if (underlyingCause && typeof underlyingCause === 'object') {
           const msg =
             (underlyingCause as Record<string, unknown>).message ||
-            (failure._tag ? `${failure._tag}: ${JSON.stringify(failure)}` : String(failure))
+            ((failure as Record<string, unknown>)._tag
+              ? `${(failure as Record<string, unknown>)._tag}: ${JSON.stringify(failure)}`
+              : String(failure))
           const extractedError = new Error(String(msg))
-          extractedError.name = String(failure._tag || 'EffectError')
+          extractedError.name = String((failure as Record<string, unknown>)._tag || 'EffectError')
           return extractedError
         }
       }

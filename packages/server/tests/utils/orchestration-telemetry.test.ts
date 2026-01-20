@@ -108,6 +108,20 @@ describe('unwrapErrorForSentry', () => {
     expect(unwrapErrorForSentry(fiberFailure)).toBe(defectError)
   })
 
+  it('unwraps FiberFailure when failure is directly an Error (Effect.fail(new Error(...)))', () => {
+    const directError = new Error('direct error from Effect.fail')
+    const fiberFailure = {
+      _id: 'FiberFailure',
+      cause: {
+        _id: 'Cause',
+        _tag: 'Fail',
+        failure: directError, // failure IS the Error, not a wrapper
+      },
+    }
+
+    expect(unwrapErrorForSentry(fiberFailure)).toBe(directError)
+  })
+
   it('creates Error from failure tag when cause is not an Error', () => {
     const fiberFailure = {
       _id: 'FiberFailure',
