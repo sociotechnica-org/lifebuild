@@ -60,7 +60,27 @@ Look for:
 - Missing environment variables
 - Memory/resource issues
 
-### 1.4 Check Related Services
+### 1.4 Check Sentry for Exceptions
+
+Sentry captures exceptions with full stack traces and context.
+
+```bash
+# Check auth
+sentry-cli info
+
+# List recent issues for the server
+sentry-cli issues list --org sociotechnica --project lifebuild-server
+```
+
+Or use the dashboard: https://sociotechnica.sentry.io/issues/?project=lifebuild-server
+
+Look for:
+- Recent exceptions that correlate with the outage time
+- Error frequency spikes
+- Stack traces pointing to root cause
+- Tags like `storeId` for store-specific issues
+
+### 1.6 Check Related Services
 
 The agentic server depends on:
 
@@ -78,7 +98,7 @@ The agentic server depends on:
    curl https://auth.lifebuild.me/health
    ```
 
-### 1.5 Review Recent Code Changes
+### 1.7 Review Recent Code Changes
 
 ```bash
 # From repo root - check recent commits to packages/server
