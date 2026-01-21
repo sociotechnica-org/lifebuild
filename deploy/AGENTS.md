@@ -132,6 +132,7 @@ Playbooks are structured runbooks for common operational scenarios. Each playboo
 
 Available playbooks:
 - [001-server-down](./playbooks/001-server-down.md) - Agentic server not responding
+- [002-clear-stale-store-data](./playbooks/002-clear-stale-store-data.md) - Fix LiveStore head mismatch errors
 
 ## Agent Best Practices
 
