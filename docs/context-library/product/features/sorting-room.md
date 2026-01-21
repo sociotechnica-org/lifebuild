@@ -2,23 +2,18 @@
 title: Sorting Room
 type: feature
 ca-when: future
-
-ca-where:
-  zone: '[[strategy-studio]]'
-  parent: null
-  dependencies:
-    - '[[priority-queue]] -- provides candidates for selection'
-  dependents:
-    - '[[work-at-hand]] -- selection assigns Work at Hand'
-  components: []
-
-ca-why:
-  strategy-links:
-    - '[[visual-work]] -- makes priority selection visible'
-  pressure: null
-  signal: null
-  rationale: 'Coming soon.'
-
+ca-where-zone: '[[strategy-studio]]'
+ca-where-parent: null
+ca-where-dependencies:
+  - '[[priority-queue]] -- provides candidates for selection'
+ca-where-dependents:
+  - '[[work-at-hand]] -- selection assigns Work at Hand'
+ca-where-components: []
+ca-why-strategy-links:
+  - '[[visual-work]] -- makes priority selection visible'
+ca-why-pressure: null
+ca-why-signal: null
+ca-why-rationale: 'Coming soon.'
 last-verified: 2026-01-21
 ---
 

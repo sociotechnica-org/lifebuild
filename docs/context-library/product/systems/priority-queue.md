@@ -2,25 +2,20 @@
 title: Priority Queue
 type: system
 ca-when: present
-
-ca-where:
-  zone: null
-  spans-zones: []
-  dependencies:
-    - '[[project]] -- planned projects (coming soon)'
-    - '[[planning-queue]] -- upstream planning queue (coming soon)'
-  dependents:
-    - '[[the-table]] -- all Table items are sourced from Priority Queue'
-    - '[[work-at-hand]] -- selected items become Work at Hand'
-    - '[[three-stream-model]] -- queue is filtered by stream'
-
-ca-why:
-  strategy-links:
-    - '[[visual-work]] -- makes ready work visible and organized'
-  pressure: null
-  signal: null
-  rationale: 'Directors need a holding area for fully planned work that is ready to activate but not yet prioritized. The Priority Queue separates ready from selected so a backlog can build without immediate commitment.'
-
+ca-where-zone: null
+ca-where-spans-zones: []
+ca-where-dependencies:
+  - '[[project]] -- planned projects (coming soon)'
+  - '[[planning-queue]] -- upstream planning queue (coming soon)'
+ca-where-dependents:
+  - '[[the-table]] -- all Table items are sourced from Priority Queue'
+  - '[[work-at-hand]] -- selected items become Work at Hand'
+  - '[[three-stream-model]] -- queue is filtered by stream'
+ca-why-strategy-links:
+  - '[[visual-work]] -- makes ready work visible and organized'
+ca-why-pressure: null
+ca-why-signal: null
+ca-why-rationale: 'Directors need a holding area for fully planned work that is ready to activate but not yet prioritized. The Priority Queue separates ready from selected so a backlog can build without immediate commitment.'
 last-verified: 2026-01-21
 ---
 

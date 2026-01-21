@@ -44,9 +44,9 @@ src/
 
 > Link to relevant notes in `/context/strategy/` for the "why" behind conventions.
 
-| Convention   | Rationale             |
-| ------------ | --------------------- |
-| [Convention] | See [[strategy-note]] |
+| Convention   | Rationale               |
+| ------------ | ----------------------- |
+| [Convention] | See `[[strategy-note]]` |
 
 ---
 
@@ -58,7 +58,7 @@ Things that have bitten us before. Read before touching these areas.
 
 **The trap:** Description of what goes wrong  
 **The fix:** How to avoid it  
-**Related:** [[learning-note-if-exists]]
+**Related:** `[[learning-note-if-exists]]`
 
 ### [Another Area]
 

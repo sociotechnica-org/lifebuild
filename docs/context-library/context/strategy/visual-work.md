@@ -2,16 +2,11 @@
 title: Visual Work
 type: strategy
 ca-when: present
-
-ca-where:
-  scope: product
-
-ca-why:
-  parent-strategy: null
-  pressures: []
-  signals: []
-  rationale: "Humans think spatially. Making work visible and persistent reduces cognitive load, prevents important work from being forgotten, and creates a sense of agency over one's life."
-
+ca-where-scope: product
+ca-why-parent-strategy: null
+ca-why-pressures: []
+ca-why-signals: []
+ca-why-rationale: "Humans think spatially. Making work visible and persistent reduces cognitive load, prevents important work from being forgotten, and creates a sense of agency over one's life."
 last-verified: 2026-01-21
 ---
 

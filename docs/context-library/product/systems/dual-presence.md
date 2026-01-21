@@ -2,24 +2,19 @@
 title: Dual Presence
 type: system
 ca-when: present
-
-ca-where:
-  zone: '[[life-map]]'
-  spans-zones: []
-  dependencies:
-    - '[[work-at-hand]] -- triggers dual presence rendering'
-    - '[[the-table]] -- one of the two render locations'
-    - '[[category-cards]] -- home domain cards (coming soon)'
-  dependents:
-    - '[[life-map]] -- relies on dual rendering for context'
-
-ca-why:
-  strategy-links:
-    - '[[visual-work]] -- maintains spatial context while highlighting priority'
-  pressure: null
-  signal: null
-  rationale: "Directors need to see priorities while maintaining domain context. Dual presence solves the tension between 'show me what is important' and 'show me where things live.'"
-
+ca-where-zone: '[[life-map]]'
+ca-where-spans-zones: []
+ca-where-dependencies:
+  - '[[work-at-hand]] -- triggers dual presence rendering'
+  - '[[the-table]] -- one of the two render locations'
+  - '[[category-cards]] -- home domain cards (coming soon)'
+ca-where-dependents:
+  - '[[life-map]] -- relies on dual rendering for context'
+ca-why-strategy-links:
+  - '[[visual-work]] -- maintains spatial context while highlighting priority'
+ca-why-pressure: null
+ca-why-signal: null
+ca-why-rationale: 'Directors need to see priorities while maintaining domain context. Dual presence solves the tension between "show me what is important" and "show me where things live."'
 last-verified: 2026-01-21
 ---
 

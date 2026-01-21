@@ -5,13 +5,11 @@ ca-when: present # past | present | future
 
 pressure-type: market | customer | competitive | regulatory | technical
 
-ca-where:
-  affects:
-    - '[[zone-or-feature]] — how this pressure affects it'
+ca-where-affects:
+  - '[[zone-or-feature]] -- how this pressure affects it'
 
-ca-why:
-  urgency: low | medium | high | critical
-  confidence: low | medium | high # how certain are we this pressure is real?
+ca-why-urgency: low | medium | high | critical
+ca-why-confidence: low | medium | high # how certain are we this pressure is real?
 
 first-identified: YYYY-MM-DD
 last-verified: YYYY-MM-DD

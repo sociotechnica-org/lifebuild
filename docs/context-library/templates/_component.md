@@ -3,16 +3,14 @@ title: Component Name
 type: component
 ca-when: present # past | present | planned | future
 
-ca-where:
-  zone: '[[parent-zone]]'
-  parent-feature: '[[parent-feature]]'
-  dependencies:
-    - '[[other-component]] — what this component needs'
-  dependents:
-    - '[[other-component]] — what relies on this component'
+ca-where-zone: '[[parent-zone]]'
+ca-where-parent-feature: '[[parent-feature]]'
+ca-where-dependencies:
+  - '[[other-component]] -- what this component needs'
+ca-where-dependents:
+  - '[[other-component]] -- what relies on this component'
 
-ca-why:
-  rationale: 'Why this component exists as a distinct implementation unit'
+ca-why-rationale: 'Why this component exists as a distinct implementation unit'
 
 # Technical coordinates (for code mapping)
 code-location: 'src/components/path/to/component' # or null if not yet implemented

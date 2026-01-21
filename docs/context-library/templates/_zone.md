@@ -3,21 +3,19 @@ title: Zone Name
 type: zone
 ca-when: present # past | present | planned | future
 
-ca-where:
-  zone: null # zones are top-level, no parent zone
-  parent: null
-  adjacent-zones:
-    - '[[other-zone]] — relationship description'
-  contains:
-    - '[[feature-one]] — brief description'
-    - '[[feature-two]] — brief description'
+ca-where-zone: null # zones are top-level, no parent zone
+ca-where-parent: null
+ca-where-adjacent-zones:
+  - '[[other-zone]] -- relationship description'
+ca-where-contains:
+  - '[[feature-one]] -- brief description'
+  - '[[feature-two]] -- brief description'
 
-ca-why:
-  strategy-links:
-    - '[[strategy-name]] — how this zone implements this strategy'
-  pressure: null
-  signal: null
-  rationale: 'Why this zone exists as a distinct product area'
+ca-why-strategy-links:
+  - '[[strategy-name]] -- how this zone implements this strategy'
+ca-why-pressure: null
+ca-why-signal: null
+ca-why-rationale: 'Why this zone exists as a distinct product area'
 
 last-verified: YYYY-MM-DD
 ---

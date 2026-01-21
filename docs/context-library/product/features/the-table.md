@@ -2,28 +2,23 @@
 title: The Table
 type: feature
 ca-when: present
-
-ca-where:
-  zone: '[[life-map]]'
-  parent: null
-  dependencies:
-    - '[[priority-queue]] -- sources candidates for all three positions'
-    - '[[work-at-hand]] -- defines what projects/tasks appear here'
-    - '[[three-stream-model]] -- conceptual framework for the three positions'
-  dependents:
-    - '[[dual-presence]] -- requires The Table as one render location'
-  components:
-    - '[[gold-slot]]'
-    - '[[silver-slot]]'
-    - '[[bronze-stack]]'
-
-ca-why:
-  strategy-links:
-    - '[[visual-work]] -- makes current priorities persistently visible'
-  pressure: null
-  signal: null
-  rationale: "Directors need persistent visibility into current commitments. The Table answers 'what am I working on right now?' at a glance and reduces context switching."
-
+ca-where-zone: '[[life-map]]'
+ca-where-parent: null
+ca-where-dependencies:
+  - '[[priority-queue]] -- sources candidates for all three positions'
+  - '[[work-at-hand]] -- defines what projects/tasks appear here'
+  - '[[three-stream-model]] -- conceptual framework for the three positions'
+ca-where-dependents:
+  - '[[dual-presence]] -- requires The Table as one render location'
+ca-where-components:
+  - '[[gold-slot]]'
+  - '[[silver-slot]]'
+  - '[[bronze-stack]]'
+ca-why-strategy-links:
+  - '[[visual-work]] -- makes current priorities persistently visible'
+ca-why-pressure: null
+ca-why-signal: null
+ca-why-rationale: 'Directors need persistent visibility into current commitments. The Table answers "what am I working on right now?" at a glance and reduces context switching.'
 last-verified: 2026-01-21
 ---
 

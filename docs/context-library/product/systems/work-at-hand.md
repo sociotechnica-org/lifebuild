@@ -2,27 +2,22 @@
 title: Work at Hand
 type: system
 ca-when: present
-
-ca-where:
-  zone: null
-  spans-zones:
-    - '[[life-map]] -- Work at Hand items appear on The Table'
-  dependencies:
-    - '[[priority-queue]] -- items must be in Priority Queue before activation'
-    - '[[three-stream-model]] -- determines which slot or stack applies'
-    - '[[sorting-room]] -- selection flow in planning workspace (coming soon)'
-  dependents:
-    - '[[the-table]] -- displays Work at Hand projects and tasks'
-    - '[[dual-presence]] -- triggers dual rendering'
-    - '[[bronze-stack]] -- operational tasks appear here'
-
-ca-why:
-  strategy-links:
-    - '[[visual-work]] -- makes current priorities visually prominent'
-  pressure: null
-  signal: null
-  rationale: "Directors need clarity on what they have committed to right now. Work at Hand is the explicit designation that separates 'active priority' from other work."
-
+ca-where-zone: null
+ca-where-spans-zones:
+  - '[[life-map]] -- Work at Hand items appear on The Table'
+ca-where-dependencies:
+  - '[[priority-queue]] -- items must be in Priority Queue before activation'
+  - '[[three-stream-model]] -- determines which slot or stack applies'
+  - '[[sorting-room]] -- selection flow in planning workspace (coming soon)'
+ca-where-dependents:
+  - '[[the-table]] -- displays Work at Hand projects and tasks'
+  - '[[dual-presence]] -- triggers dual rendering'
+  - '[[bronze-stack]] -- operational tasks appear here'
+ca-why-strategy-links:
+  - '[[visual-work]] -- makes current priorities visually prominent'
+ca-why-pressure: null
+ca-why-signal: null
+ca-why-rationale: 'Directors need clarity on what they have committed to right now. Work at Hand is the explicit designation that separates "active priority" from other work.'
 last-verified: 2026-01-21
 ---
 

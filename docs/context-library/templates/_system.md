@@ -3,22 +3,20 @@ title: System Name
 type: system
 ca-when: present # past | present | planned | future
 
-ca-where:
-  zone: null # systems often span zones, or specify primary zone
-  spans-zones:
-    - '[[zone-one]]'
-    - '[[zone-two]]'
-  dependencies:
-    - '[[other-system]] — what this system needs to function'
-  dependents:
-    - '[[feature-one]] — what relies on this system'
+ca-where-zone: null # systems often span zones, or specify primary zone
+ca-where-spans-zones:
+  - '[[zone-one]]'
+  - '[[zone-two]]'
+ca-where-dependencies:
+  - '[[other-system]] -- what this system needs to function'
+ca-where-dependents:
+  - '[[feature-one]] -- what relies on this system'
 
-ca-why:
-  strategy-links:
-    - '[[strategy-name]] — how this system implements this strategy'
-  pressure: null
-  signal: null
-  rationale: 'Why this system exists as a cross-cutting mechanism'
+ca-why-strategy-links:
+  - '[[strategy-name]] -- how this system implements this strategy'
+ca-why-pressure: null
+ca-why-signal: null
+ca-why-rationale: 'Why this system exists as a cross-cutting mechanism'
 
 last-verified: YYYY-MM-DD
 ---

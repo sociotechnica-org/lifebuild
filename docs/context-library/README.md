@@ -94,6 +94,7 @@ See **CONTRIBUTING.md** for full details. Quick version:
 
 1. Copy the right template from `/templates/`
 2. Fill in frontmatter (dimensional coordinates)
+   - Frontmatter uses flat fields like `ca-where-zone` and `ca-why-rationale` so links stay clickable in Obsidian Properties
 3. Write content following template structure
 4. Establish links with context
 5. Verify links resolve
@@ -109,7 +110,7 @@ Links should include context, not be naked pointers:
 
 - Depends on: [[priority-queue]] — provides candidate tasks for Bronze stack
 - Part of: [[life-map]] — persistent element at top of workspace
-- Supersedes: [[old-bronze-mode]] — replaced single-mode with three-mode system
+- Supersedes: `[[old-bronze-mode]]` — replaced single-mode with three-mode system
 
 # Bad
 

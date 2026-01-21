@@ -3,23 +3,21 @@ title: Feature Name
 type: feature
 ca-when: present # past | present | planned | future
 
-ca-where:
-  zone: '[[parent-zone]]'
-  parent: '[[parent-feature-if-any]]' # null if top-level feature in zone
-  dependencies:
-    - '[[dependency]] — what this feature needs'
-  dependents:
-    - '[[other-feature]] — what relies on this feature'
-  components:
-    - '[[component-one]]'
-    - '[[component-two]]'
+ca-where-zone: '[[parent-zone]]'
+ca-where-parent: '[[parent-feature-if-any]]' # null if top-level feature in zone
+ca-where-dependencies:
+  - '[[dependency]] -- what this feature needs'
+ca-where-dependents:
+  - '[[other-feature]] -- what relies on this feature'
+ca-where-components:
+  - '[[component-one]]'
+  - '[[component-two]]'
 
-ca-why:
-  strategy-links:
-    - '[[strategy-name]] — how this feature implements this strategy'
-  pressure: '[[pressure-if-any]]' # or null
-  signal: '[[signal-if-any]]' # or null
-  rationale: 'Why this specific feature exists and why it works this way'
+ca-why-strategy-links:
+  - '[[strategy-name]] -- how this feature implements this strategy'
+ca-why-pressure: '[[pressure-if-any]]' # or null
+ca-why-signal: '[[signal-if-any]]' # or null
+ca-why-rationale: 'Why this specific feature exists and why it works this way'
 
 last-verified: YYYY-MM-DD
 ---

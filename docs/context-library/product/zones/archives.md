@@ -2,20 +2,15 @@
 title: Archives
 type: zone
 ca-when: future
-
-ca-where:
-  zone: null
-  parent: null
-  adjacent-zones:
-    - '[[life-map]] -- execution workspace'
-  contains: []
-
-ca-why:
-  strategy-links: []
-  pressure: null
-  signal: null
-  rationale: 'Coming soon.'
-
+ca-where-zone: null
+ca-where-parent: null
+ca-where-adjacent-zones:
+  - '[[life-map]] -- execution workspace'
+ca-where-contains: []
+ca-why-strategy-links: []
+ca-why-pressure: null
+ca-why-signal: null
+ca-why-rationale: 'Coming soon.'
 last-verified: 2026-01-21
 ---
 

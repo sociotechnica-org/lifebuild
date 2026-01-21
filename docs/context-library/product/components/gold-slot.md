@@ -2,22 +2,16 @@
 title: Gold Slot
 type: component
 ca-when: present
-
-ca-where:
-  zone: '[[life-map]]'
-  parent-feature: '[[the-table]]'
-  dependencies:
-    - '[[three-stream-model]] -- defines what Gold means'
-    - '[[work-at-hand]] -- determines what occupies this slot'
-    - '[[priority-queue]] -- sources Gold candidates'
-  dependents:
-    - '[[the-table]] -- renders the Gold Slot component'
-
-ca-why:
-  rationale: "The leftmost position on The Table dedicated to transformative, frontier-opening work. Provides visual prominence and dedicated space for the director's most important project."
-
+ca-where-zone: '[[life-map]]'
+ca-where-parent-feature: '[[the-table]]'
+ca-where-dependencies:
+  - '[[three-stream-model]] -- defines what Gold means'
+  - '[[work-at-hand]] -- determines what occupies this slot'
+  - '[[priority-queue]] -- sources Gold candidates'
+ca-where-dependents:
+  - '[[the-table]] -- renders the Gold Slot component'
+ca-why-rationale: "The leftmost position on The Table dedicated to transformative, frontier-opening work. Provides visual prominence and dedicated space for the director's most important project."
 code-location: null
-
 last-verified: 2026-01-21
 ---
 

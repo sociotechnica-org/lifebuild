@@ -7,17 +7,15 @@ ca-when: future # or planned if committed with timeline
 target: Q1-2025 # or null if future (no timeline)
 confidence: low | medium | high
 
-ca-where:
-  zone: '[[target-zone]]'
-  affects:
-    - '[[existing-feature]] — how this vision affects it'
+ca-where-zone: '[[target-zone]]'
+ca-where-affects:
+  - '[[existing-feature]] -- how this vision affects it'
 
-ca-why:
-  strategy-links:
-    - '[[strategy-name]] — how this vision serves this strategy'
-  enables:
-    - 'What this makes possible'
-  rationale: 'Why we believe this is the right future direction'
+ca-why-strategy-links:
+  - '[[strategy-name]] -- how this vision serves this strategy'
+ca-why-enables:
+  - 'What this makes possible'
+ca-why-rationale: 'Why we believe this is the right future direction'
 
 last-verified: YYYY-MM-DD
 ---

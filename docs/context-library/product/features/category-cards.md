@@ -2,22 +2,17 @@
 title: Category Cards
 type: feature
 ca-when: future
-
-ca-where:
-  zone: '[[life-map]]'
-  parent: null
-  dependencies: []
-  dependents:
-    - '[[dual-presence]] -- priorities render within category context'
-  components: []
-
-ca-why:
-  strategy-links:
-    - '[[visual-work]] -- spatial organization across life domains'
-  pressure: null
-  signal: null
-  rationale: 'Coming soon.'
-
+ca-where-zone: '[[life-map]]'
+ca-where-parent: null
+ca-where-dependencies: []
+ca-where-dependents:
+  - '[[dual-presence]] -- priorities render within category context'
+ca-where-components: []
+ca-why-strategy-links:
+  - '[[visual-work]] -- spatial organization across life domains'
+ca-why-pressure: null
+ca-why-signal: null
+ca-why-rationale: 'Coming soon.'
 last-verified: 2026-01-21
 ---
 

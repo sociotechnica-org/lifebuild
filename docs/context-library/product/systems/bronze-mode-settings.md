@@ -2,20 +2,15 @@
 title: Bronze Mode Settings
 type: system
 ca-when: future
-
-ca-where:
-  zone: '[[strategy-studio]]'
-  spans-zones: []
-  dependencies: []
-  dependents:
-    - '[[bronze-stack]] -- behavior depends on mode'
-
-ca-why:
-  strategy-links: []
-  pressure: null
-  signal: null
-  rationale: 'Coming soon.'
-
+ca-where-zone: '[[strategy-studio]]'
+ca-where-spans-zones: []
+ca-where-dependencies: []
+ca-where-dependents:
+  - '[[bronze-stack]] -- behavior depends on mode'
+ca-why-strategy-links: []
+ca-why-pressure: null
+ca-why-signal: null
+ca-why-rationale: 'Coming soon.'
 last-verified: 2026-01-21
 ---
 

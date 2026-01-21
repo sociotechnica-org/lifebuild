@@ -62,6 +62,7 @@ cp templates/_feature.md product/features/my-feature.md
 ### 3. Fill in frontmatter completely
 
 Every field matters for querying and slug assembly. Don't skip the dimensional coordinates.
+We use **flat fields** (e.g., `ca-where-zone`, `ca-why-rationale`) so links are clickable in Obsidian Properties.
 
 ### 4. Write content following the template structure
 
@@ -139,6 +140,7 @@ If a note is getting too long (>800 words), consider splitting into hub + spokes
 Before committing note changes:
 
 - [ ] Frontmatter is complete (no empty required fields)
+- [ ] Flat `ca-where-*` / `ca-why-*` fields are used (no nested objects)
 - [ ] `ca-when` status is accurate
 - [ ] `last-verified` date is today
 - [ ] All `[[links]]` resolve to existing notes

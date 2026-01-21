@@ -3,12 +3,10 @@ title: Learning Name
 type: learning
 ca-when: past # learnings are always past
 
-ca-where:
-  affected:
-    - '[[zone-or-feature]] — what this learning relates to'
+ca-where-affected:
+  - '[[zone-or-feature]] -- what this learning relates to'
 
-ca-why:
-  rationale: 'Why we tried this approach originally'
+ca-why-rationale: 'Why we tried this approach originally'
 
 superseded-by: '[[current-approach]]' # what replaced this, or null if just deprecated
 date-deprecated: YYYY-MM-DD

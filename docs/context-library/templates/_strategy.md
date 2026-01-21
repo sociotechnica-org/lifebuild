@@ -3,16 +3,14 @@ title: Strategy Name
 type: strategy
 ca-when: present # strategies are typically present (active) or past (deprecated)
 
-ca-where:
-  scope: product # product | zone | feature (how broad is this strategy?)
+ca-where-scope: product # product | zone | feature (how broad is this strategy?)
 
-ca-why:
-  parent-strategy: '[[higher-level-strategy]]' # or null if top-level
-  pressures:
-    - '[[pressure-one]] — external force this responds to'
-  signals:
-    - '[[signal-one]] — observation that informed this'
-  rationale: 'Why we believe this strategy is correct'
+ca-why-parent-strategy: '[[higher-level-strategy]]' # or null if top-level
+ca-why-pressures:
+  - '[[pressure-one]] -- external force this responds to'
+ca-why-signals:
+  - '[[signal-one]] -- observation that informed this'
+ca-why-rationale: 'Why we believe this strategy is correct'
 
 last-verified: YYYY-MM-DD
 ---

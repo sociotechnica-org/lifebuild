@@ -2,22 +2,16 @@
 title: Bronze Stack
 type: component
 ca-when: present
-
-ca-where:
-  zone: '[[life-map]]'
-  parent-feature: '[[the-table]]'
-  dependencies:
-    - '[[three-stream-model]] -- defines what Bronze means'
-    - '[[work-at-hand]] -- determines what occupies this stack'
-    - '[[priority-queue]] -- sources Bronze candidates'
-  dependents:
-    - '[[the-table]] -- renders the Bronze Stack component'
-
-ca-why:
-  rationale: 'The rightmost position on The Table containing operational tasks. Unlike Gold and Silver (single projects), Bronze holds multiple tasks in a stack, representing the ongoing operational work that keeps life running.'
-
+ca-where-zone: '[[life-map]]'
+ca-where-parent-feature: '[[the-table]]'
+ca-where-dependencies:
+  - '[[three-stream-model]] -- defines what Bronze means'
+  - '[[work-at-hand]] -- determines what occupies this stack'
+  - '[[priority-queue]] -- sources Bronze candidates'
+ca-where-dependents:
+  - '[[the-table]] -- renders the Bronze Stack component'
+ca-why-rationale: 'The rightmost position on The Table containing operational tasks. Unlike Gold and Silver (single projects), Bronze holds multiple tasks in a stack, representing the ongoing operational work that keeps life running.'
 code-location: null
-
 last-verified: 2026-01-21
 ---
 
