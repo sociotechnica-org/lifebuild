@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/node'
+import { getDefaultIntegrations } from '@sentry/node'
 import { readFileSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -24,7 +25,13 @@ Sentry.init({
   // Enable Sentry Logs feature (structured logging)
   enableLogs: true,
   // Add integrations for logging
+  // IMPORTANT: Passing an integrations array REPLACES defaults in Sentry SDK v8+.
+  // We must explicitly include getDefaultIntegrations() to preserve:
+  // - OnUncaughtExceptionIntegration (captures process.on('uncaughtException'))
+  // - OnUnhandledRejectionIntegration (captures process.on('unhandledRejection'))
+  // - HTTP tracing, console capture, etc.
   integrations: [
+    ...getDefaultIntegrations({}),
     // Pino integration sends pino logs to Sentry Logs (requires SDK 10.18.0+)
     // This automatically instruments pino loggers created after Sentry.init()
     Sentry.pinoIntegration(),

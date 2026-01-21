@@ -30,6 +30,7 @@ We track work using GitHub Issues and the [SocioTechnica Project Board](https://
 ### Creating a New Project
 
 Create a new GitHub Issue in the [work-squared repo](https://github.com/sociotechnica-org/work-squared/issues/new) with:
+
 - Issue type: **Project**
 - Title format: `Project: [Name]`
 - Body: Include a Goal and Success Criteria

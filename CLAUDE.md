@@ -183,6 +183,7 @@ gh project item-edit --project-id <PROJECT_ID> --id <ITEM_ID> --field-id <STATUS
 ```
 
 **Common Status Workflow:**
+
 - When picking up an issue: Set status to "In Progress"
 - When creating a PR: Set status to "In Review"
 - Issues auto-close on merge when PR description includes `Closes #XXX`
@@ -231,9 +232,11 @@ Project issues use the "Project" issue type and follow this template:
 
 ```markdown
 ## Goal
+
 [One sentence describing the outcome]
 
 ## Success Criteria
+
 - [ ] Criterion 1
 - [ ] Criterion 2
 ```
@@ -296,6 +299,7 @@ Views must be created via the GitHub UI (no API available). Recommended views:
 - **[Project Name]**: Filter `parent-issue:"sociotechnica-org/work-squared#N"` - shows work for a specific project
 
 To create a view:
+
 1. Go to https://github.com/orgs/sociotechnica-org/projects/2/
 2. Click **+ New view** → Table or Board
 3. Add filter using the syntax above
@@ -303,6 +307,7 @@ To create a view:
 ### Project Statuses
 
 Projects use the same status workflow as other issues:
+
 - **Backlog**: Not yet started
 - **In Progress**: Actively being worked on
 - **Done**: Completed
