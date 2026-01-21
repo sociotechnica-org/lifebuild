@@ -7,8 +7,8 @@ ca-where:
   zone: null
   spans-zones: []
   dependencies:
-    - 'Planned projects (not documented yet)'
-    - 'Planning queue (not documented yet)'
+    - '[[project]] -- planned projects (coming soon)'
+    - '[[planning-queue]] -- upstream planning queue (coming soon)'
   dependents:
     - '[[the-table]] -- all Table items are sourced from Priority Queue'
     - '[[work-at-hand]] -- selected items become Work at Hand'
@@ -34,10 +34,10 @@ A repository of fully planned work waiting to be activated. The Priority Queue i
 
 Two queues work together:
 
-| Queue              | Contains                          | Purpose                        |
-| ------------------ | --------------------------------- | ------------------------------ |
-| **Planning Queue** | Projects in early planning stages | Development workspace          |
-| **Priority Queue** | Fully planned work                | Ready items awaiting selection |
+| Queue              | Contains                                                           | Purpose                        |
+| ------------------ | ------------------------------------------------------------------ | ------------------------------ |
+| **Planning Queue** | Projects in early planning stages ([[planning-queue]] coming soon) | Development workspace          |
+| **Priority Queue** | Fully planned work                                                 | Ready items awaiting selection |
 
 The Priority Queue represents ready work -- projects that are fully planned and could be activated at any time. The director does not have to select them immediately; they wait here until the director decides to make them Work at Hand.
 
@@ -49,7 +49,7 @@ The Priority Queue represents ready work -- projects that are fully planned and 
 
 Projects enter the Priority Queue when:
 
-1. **Planning completes** -> project exits planning queue and enters Priority Queue as Plans
+1. **Planning completes** -> project exits [[planning-queue]] (coming soon) and enters Priority Queue as Plans
 2. **Work at Hand pauses** -> project returns to Priority Queue (top of appropriate filter) as Paused
 
 ### Three-Stream Filtering
@@ -76,7 +76,7 @@ The Priority Queue can be viewed through three filters:
 
 ### Selection Process
 
-In the planning workspace, the director:
+In the [[sorting-room]] (coming soon), the director:
 
 1. Reviews Gold candidates and selects one (or leaves empty)
 2. Reviews Silver candidates and selects one (or leaves empty)
@@ -105,8 +105,8 @@ Within each filter, directors can:
 
 ### Requires:
 
-- Planned projects with stream classification (not documented yet)
-- Planning queue (not documented yet)
+- [[project]] -- planned items with stream classification (coming soon)
+- [[planning-queue]] -- upstream planning queue (coming soon)
 
 ### Enables:
 

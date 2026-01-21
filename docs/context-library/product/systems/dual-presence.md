@@ -9,7 +9,7 @@ ca-where:
   dependencies:
     - '[[work-at-hand]] -- triggers dual presence rendering'
     - '[[the-table]] -- one of the two render locations'
-    - 'Home domain cards (not documented yet)'
+    - '[[category-cards]] -- home domain cards (coming soon)'
   dependents:
     - '[[life-map]] -- relies on dual rendering for context'
 
@@ -84,7 +84,7 @@ The pulse in the domain context indicates "this item is also on The Table."
 ## Where It Appears
 
 - [[the-table]] -- priority spotlight (one location of dual presence)
-- Life Map domain context -- secondary location (not documented yet)
+- [[category-cards]] -- domain context (coming soon)
 
 ---
 
@@ -94,7 +94,7 @@ The pulse in the domain context indicates "this item is also on The Table."
 
 - [[work-at-hand]] -- only Work at Hand items render in dual presence
 - [[the-table]] -- one of the two render targets
-- Domain context rendering (not documented yet)
+- [[category-cards]] -- domain context rendering (coming soon)
 
 ### Enables:
 

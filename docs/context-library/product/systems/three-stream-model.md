@@ -8,7 +8,7 @@ ca-where:
   spans-zones:
     - "[[life-map]] -- manifests as The Table's three positions"
   dependencies:
-    - 'Work items with archetype and scale metadata (not documented yet)'
+    - '[[project]] -- work items with archetype and scale metadata (coming soon)'
   dependents:
     - '[[the-table]] -- implements this model with Gold/Silver/Bronze positions'
     - '[[priority-queue]] -- filters candidates by stream'
@@ -110,7 +110,7 @@ This system manifests in:
 
 ### This system requires:
 
-- Work items with archetype and scale metadata (not documented yet)
+- [[project]] -- work items with archetype and scale metadata (coming soon)
 
 ### These depend on this system:
 

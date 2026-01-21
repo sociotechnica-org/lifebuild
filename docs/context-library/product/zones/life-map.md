@@ -7,10 +7,10 @@ ca-where:
   zone: null
   parent: null
   adjacent-zones:
-    - 'Strategy Studio -- planning workspace (not documented yet)'
+    - '[[strategy-studio]] -- planning workspace (coming soon)'
   contains:
     - '[[the-table]] -- persistent priority spotlight at top'
-    - 'Category cards -- eight domain cards (not documented yet)'
+    - '[[category-cards]] -- eight domain cards (coming soon)'
 
 ca-why:
   strategy-links:
@@ -33,7 +33,7 @@ The primary execution workspace where directors spend most of their time working
 ### Primary Elements
 
 - [[the-table]] -- persistent priority spotlight showing Gold, Silver, and Bronze work
-- Category cards -- eight cards arranged in a grid, each representing a major life domain
+- [[category-cards]] -- eight cards arranged in a grid, each representing a major life domain (coming soon)
 
 ### Navigation System
 
@@ -69,17 +69,17 @@ Three altitude levels for viewing:
 
 ### This zone is NOT responsible for:
 
-- Project creation (handled in the planning workspace)
-- Priority selection (handled in the planning workspace)
-- Worker staffing (handled in the planning workspace)
-- Historical analysis (future work)
+- Project creation -> [[drafting-room]] (coming soon)
+- Priority selection -> [[sorting-room]] (coming soon)
+- Worker staffing -> [[roster-room]] (coming soon)
+- Historical analysis -> [[archives]] (coming soon)
 
 ---
 
 ## Adjacent Zones
 
-- Strategy Studio -- planning workspace for creating projects and selecting priorities
-- Archives (future) -- historical reflection and pattern analysis
+- [[strategy-studio]] -- planning workspace for creating projects and selecting priorities (coming soon)
+- [[archives]] -- historical reflection and pattern analysis (coming soon)
 
 ---
 

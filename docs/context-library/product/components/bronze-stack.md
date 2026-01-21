@@ -92,7 +92,7 @@ Expanded:
 
 ## Bronze Modes
 
-Directors configure how Bronze behaves via mode settings (not documented yet):
+Directors configure how Bronze behaves via [[bronze-mode-settings]] (coming soon):
 
 | Mode          | Behavior                                         | Use Case                                |
 | ------------- | ------------------------------------------------ | --------------------------------------- |

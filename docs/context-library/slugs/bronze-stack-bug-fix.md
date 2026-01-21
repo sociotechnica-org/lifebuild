@@ -113,7 +113,7 @@ TBD: Priority Queue selection and auto-fill logic
 
 ### Gotchas
 
-- Auto-fill behavior varies by mode (not documented yet)
+- Auto-fill behavior varies by [[bronze-mode-settings]] (coming soon)
 - Bronze Stack renders tasks, not projects
 
 ---
@@ -122,8 +122,8 @@ TBD: Priority Queue selection and auto-fill logic
 
 ### Documentation Gaps
 
-- [ ] Bronze mode settings are not documented yet
-- [ ] Planning workspace selection flow is not documented yet
+- [ ] [[bronze-mode-settings]] is coming soon
+- [ ] [[sorting-room]] is coming soon
 
 ### Warnings
 
@@ -134,5 +134,5 @@ TBD: Priority Queue selection and auto-fill logic
 ## Assembly Notes
 
 - Included only cluster notes to keep links resolvable
-- Omitted planning workspace notes because they are not documented yet
+- Omitted planning workspace details beyond [[sorting-room]] because they are coming soon
 - Confidence: medium until Bronze mode settings are documented

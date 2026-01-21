@@ -10,7 +10,7 @@ ca-where:
   dependencies:
     - '[[priority-queue]] -- items must be in Priority Queue before activation'
     - '[[three-stream-model]] -- determines which slot or stack applies'
-    - 'Selection flow in planning workspace (not documented yet)'
+    - '[[sorting-room]] -- selection flow in planning workspace (coming soon)'
   dependents:
     - '[[the-table]] -- displays Work at Hand projects and tasks'
     - '[[dual-presence]] -- triggers dual rendering'
@@ -38,7 +38,7 @@ The distinction Work at Hand creates:
 
 | Status           | Meaning                                      | Visibility                                  |
 | ---------------- | -------------------------------------------- | ------------------------------------------- |
-| **Plans**        | Ready to activate, waiting in Priority Queue | Dimmed in planning workspace                |
+| **Plans**        | Ready to activate, waiting in Priority Queue | Dimmed in [[strategy-studio]] (coming soon) |
 | **Live**         | Active, can work on anytime                  | Normal in Life Map                          |
 | **Work at Hand** | Current priority, committed this week        | Enhanced on The Table and in domain context |
 
@@ -57,7 +57,7 @@ Priority Queue -> planning selection -> Work at Hand status -> appears on The Ta
 ```
 
 1. Project completes planning stage -> enters Priority Queue as Plans
-2. Director selects items by stream in the planning workspace
+2. Director selects items by stream in [[sorting-room]] (coming soon)
 3. Director activates priorities (enforces minimum Bronze tasks)
 4. Selected items receive Work at Hand status
 5. Items appear on The Table with enhanced visual treatment
@@ -110,7 +110,7 @@ Work at Hand items receive enhanced visual treatment:
 
 - [[priority-queue]] -- items must pass through Priority Queue
 - [[three-stream-model]] -- determines which slot or stack applies
-- Selection flow in planning workspace (not documented yet)
+- [[sorting-room]] -- selection flow in planning workspace (coming soon)
 
 ### Enables:
 
