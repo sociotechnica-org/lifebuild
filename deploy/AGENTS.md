@@ -90,25 +90,26 @@ wrangler deployments list
 ```
 
 ### Sentry (Error Tracking)
+
+**Dashboard** (recommended): https://sociotechnica.sentry.io/
+
+The dashboard is the primary way to view issues. The CLI token has limited scopes.
+
 ```bash
 # Install
 brew install getsentry/tools/sentry-cli
 # Or: npm install -g @sentry/cli
 
-# Login (interactive - opens browser)
+# Login (interactive - opens browser, gets full-permission token)
 sentry-cli login
 
-# Check auth status
+# Check auth status and scopes
 sentry-cli info
 
-# View recent issues
+# View recent issues (requires issue:read scope)
+# Note: CI token returns 403 - use dashboard or login for full token
 sentry-cli issues list --org sociotechnica --project lifebuild-server
-
-# View issue details
-sentry-cli issues show <issue-id> --org sociotechnica --project lifebuild-server
 ```
-
-Dashboard: https://sociotechnica.sentry.io/
 
 Project slugs:
 - `lifebuild-server` - Agentic server (Render)
