@@ -91,20 +91,28 @@ wrangler deployments list
 
 ### Sentry (Error Tracking)
 ```bash
-# Install if needed: brew install getsentry/tools/sentry-cli
+# Install
+brew install getsentry/tools/sentry-cli
 # Or: npm install -g @sentry/cli
 
-# Check auth
+# Login (interactive - opens browser)
+sentry-cli login
+
+# Check auth status
 sentry-cli info
 
-# View recent issues (read-only)
-sentry-cli issues list --project <project>
+# View recent issues
+sentry-cli issues list --org sociotechnica --project lifebuild-server
 
 # View issue details
-sentry-cli issues show <issue-id>
+sentry-cli issues show <issue-id> --org sociotechnica --project lifebuild-server
 ```
 
-Dashboard: https://sentry.io (check for LifeBuild project)
+Dashboard: https://sociotechnica.sentry.io/
+
+Project slugs:
+- `lifebuild-server` - Agentic server (Render)
+- `lifebuild-web` - Web frontend (if configured)
 
 ### PostHog (Product Analytics)
 No CLI - use dashboard at https://app.posthog.com
