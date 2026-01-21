@@ -133,6 +133,29 @@ Playbooks are structured runbooks for common operational scenarios. Each playboo
 Available playbooks:
 - [001-server-down](./playbooks/001-server-down.md) - Agentic server not responding
 
+## Agent Best Practices
+
+### Background Tasks for Long-Running Operations
+
+When monitoring PR checks or other long-running operations, use a **background agent** to avoid blocking the main conversation:
+
+```
+# Instead of running `gh pr checks --watch` directly, spawn a background agent
+Task tool with:
+  - run_in_background: true
+  - prompt: "Monitor PR #XXX checks and report when complete"
+  - subagent_type: Bash
+```
+
+This allows the main conversation to continue while the background agent monitors.
+
+### Read the Playbook First
+
+Before debugging an incident, read the relevant playbook in `deploy/playbooks/`. The playbooks contain:
+- Diagnostic commands specific to each service
+- Common failure modes and their fixes
+- Escalation criteria
+
 ## Working with the Human Operator
 
 This agent is designed for **collaborative debugging**, not autonomous remediation. The model:
