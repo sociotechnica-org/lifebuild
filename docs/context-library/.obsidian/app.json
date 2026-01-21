@@ -1,0 +1,17 @@
+{
+  "vimMode": false,
+  "promptDelete": true,
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "product/features",
+  "attachmentFolderPath": "assets",
+  "newLinkFormat": "relative",
+  "useMarkdownLinks": false,
+  "showUnsupportedFiles": false,
+  "showFrontmatter": true,
+  "defaultViewMode": "source",
+  "strictLineBreaks": false,
+  "autoConvertHtml": true,
+  "spellcheck": true,
+  "spellcheckLanguages": ["en"]
+}
