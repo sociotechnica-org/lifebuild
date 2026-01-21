@@ -77,11 +77,29 @@ async function main() {
   }
 
   // Start monitoring all stores (legacy bootstrap support)
-  for (const storeId of config.storeIds) {
-    await workspaceOrchestrator.ensureMonitored(storeId)
+  // Only monitor stores that were successfully initialized
+  const initializedStoreIds = Array.from(storeManager.getAllStores().keys())
+  for (const storeId of initializedStoreIds) {
+    try {
+      await workspaceOrchestrator.ensureMonitored(storeId)
+    } catch (error) {
+      logger.error({ storeId, error }, 'Failed to start monitoring store, continuing with others')
+      Sentry.captureException(error, {
+        tags: { storeId },
+        extra: { phase: 'ensureMonitored', degradedMode: true },
+      })
+    }
   }
 
-  logger.info('Event monitoring started for all stores')
+  const skippedStores = config.storeIds.filter(id => !initializedStoreIds.includes(id))
+  if (skippedStores.length > 0) {
+    logger.warn({ skippedStores }, 'Some stores failed to initialize and will not be monitored')
+  }
+
+  logger.info(
+    { monitoredCount: initializedStoreIds.length, skippedCount: skippedStores.length },
+    'Event monitoring started'
+  )
 
   const authWorkerUrl =
     process.env.AUTH_WORKER_INTERNAL_URL || process.env.AUTH_WORKER_URL || undefined
