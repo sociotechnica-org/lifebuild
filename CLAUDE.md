@@ -138,6 +138,9 @@ gh pr status                     # View all your PRs and review requests
 gh pr checks <number>            # View check status for a specific PR
 gh pr checks --watch             # Monitor checks in real-time (wait up to 10 minutes)
 
+# TIP: Use a background agent for long-running checks to avoid blocking
+# the main conversation. Spawn with run_in_background: true
+
 # List PRs
 gh pr list                       # List all open PRs
 gh pr list --author @me          # List your PRs
@@ -321,6 +324,7 @@ Projects use the same status workflow as other issues:
 - **E2E tests sparingly**: Only for vital user flows
 - **PR monitoring**: Use `gh pr checks --watch` and wait up to 10 minutes
 - **Fix all feedback**: Including neutral BugBot checks
+- **Never merge without asking**: Always ask the user before running `gh pr merge`
 
 ## Testing
 
