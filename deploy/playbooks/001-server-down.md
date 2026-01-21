@@ -64,7 +64,7 @@ Look for:
 
 Sentry captures exceptions with full stack traces and context.
 
-**Dashboard** (recommended): https://sociotechnica.sentry.io/issues/?project=lifebuild-server
+**Dashboard** (recommended): https://sociotechnica.sentry.io/issues/?project=work-squared
 
 Filter by:
 - Time range matching the outage
@@ -75,7 +75,7 @@ Filter by:
 ```bash
 # Note: Default CI token may not have issue:read scope
 # Use dashboard if CLI returns 403
-sentry-cli issues list --org sociotechnica --project lifebuild-server
+sentry-cli issues list --org sociotechnica --project work-squared
 ```
 
 Look for:

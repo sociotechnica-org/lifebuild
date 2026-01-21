@@ -91,29 +91,34 @@ wrangler deployments list
 
 ### Sentry (Error Tracking)
 
-**Dashboard** (recommended): https://sociotechnica.sentry.io/
+**Dashboard**: https://sociotechnica.sentry.io/issues/?project=work-squared
 
-The dashboard is the primary way to view issues. The CLI token has limited scopes.
-
+**CLI Setup**:
 ```bash
-# Install
+# Load credentials from deploy/.env
+cd deploy && source .env
+
+# Or install and login interactively
 brew install getsentry/tools/sentry-cli
-# Or: npm install -g @sentry/cli
-
-# Login (interactive - opens browser, gets full-permission token)
 sentry-cli login
-
-# Check auth status and scopes
-sentry-cli info
-
-# View recent issues (requires issue:read scope)
-# Note: CI token returns 403 - use dashboard or login for full token
-sentry-cli issues list --org sociotechnica --project lifebuild-server
 ```
 
-Project slugs:
-- `lifebuild-server` - Agentic server (Render)
-- `lifebuild-web` - Web frontend (if configured)
+**CLI Commands** (after loading .env):
+```bash
+# Check auth status
+sentry-cli info
+
+# List recent issues (uses SENTRY_ORG and SENTRY_PROJECT from .env)
+sentry-cli issues list
+
+# Or specify explicitly
+sentry-cli issues list --org sociotechnica --project work-squared
+
+# View specific issue
+sentry-cli issues show <issue-id>
+```
+
+Project: `work-squared` (covers all LifeBuild services)
 
 ### PostHog (Product Analytics)
 No CLI - use dashboard at https://app.posthog.com
