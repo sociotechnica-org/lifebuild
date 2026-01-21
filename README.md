@@ -3,6 +3,7 @@
 </div>
 
 [LifeBuild](https://lifebuild.me) is an AI-enabled work environment where users and AI agents can collaborate on projects and documents.
+Trivial change for PR workflow testing.
 
 ## Why LifeBuild?
 
