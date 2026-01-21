@@ -64,21 +64,26 @@ Look for:
 
 Sentry captures exceptions with full stack traces and context.
 
-```bash
-# Check auth
-sentry-cli info
+**Dashboard** (recommended): https://sociotechnica.sentry.io/issues/?project=lifebuild-server
 
-# List recent issues for the server
+Filter by:
+- Time range matching the outage
+- Environment: `production`
+- Sort by: Last Seen or Events
+
+**CLI** (requires additional token scopes):
+```bash
+# Note: Default CI token may not have issue:read scope
+# Use dashboard if CLI returns 403
 sentry-cli issues list --org sociotechnica --project lifebuild-server
 ```
-
-Or use the dashboard: https://sociotechnica.sentry.io/issues/?project=lifebuild-server
 
 Look for:
 - Recent exceptions that correlate with the outage time
 - Error frequency spikes
 - Stack traces pointing to root cause
 - Tags like `storeId` for store-specific issues
+- Breadcrumbs showing events leading to the crash
 
 ### 1.6 Check Related Services
 
