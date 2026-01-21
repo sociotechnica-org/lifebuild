@@ -84,6 +84,10 @@ async function main() {
       await workspaceOrchestrator.ensureMonitored(storeId)
     } catch (error) {
       logger.error({ storeId, error }, 'Failed to start monitoring store, continuing with others')
+      Sentry.captureException(error, {
+        tags: { storeId },
+        extra: { phase: 'ensureMonitored', degradedMode: true },
+      })
     }
   }
 
