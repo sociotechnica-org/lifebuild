@@ -76,13 +76,18 @@ async function main() {
     logger.warn('WEBHOOK_SECRET not configured. Workspace webhooks will be rejected.')
   }
 
-  // Start monitoring all stores (legacy bootstrap support)
-  // Only monitor stores that were successfully initialized
-  const initializedStoreIds = Array.from(storeManager.getAllStores().keys())
-  for (const storeId of initializedStoreIds) {
+  // Start monitoring all configured stores (legacy bootstrap support)
+  // Try to monitor all stores, even those that failed initial initialization
+  // (ensureMonitored will attempt to re-add failed stores via resolveStore)
+  const monitoredStoreIds: string[] = []
+  const failedStoreIds: string[] = []
+
+  for (const storeId of config.storeIds) {
     try {
       await workspaceOrchestrator.ensureMonitored(storeId)
+      monitoredStoreIds.push(storeId)
     } catch (error) {
+      failedStoreIds.push(storeId)
       logger.error({ storeId, error }, 'Failed to start monitoring store, continuing with others')
       Sentry.captureException(error, {
         tags: { storeId },
@@ -91,13 +96,12 @@ async function main() {
     }
   }
 
-  const skippedStores = config.storeIds.filter(id => !initializedStoreIds.includes(id))
-  if (skippedStores.length > 0) {
-    logger.warn({ skippedStores }, 'Some stores failed to initialize and will not be monitored')
+  if (failedStoreIds.length > 0) {
+    logger.warn({ failedStoreIds }, 'Some stores failed to monitor and will not be available')
   }
 
   logger.info(
-    { monitoredCount: initializedStoreIds.length, skippedCount: skippedStores.length },
+    { monitoredCount: monitoredStoreIds.length, failedCount: failedStoreIds.length },
     'Event monitoring started'
   )
 
