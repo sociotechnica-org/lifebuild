@@ -5,15 +5,15 @@ ca-when: present # past | present | planned | future
 
 ca-where-zone: null # systems often span zones, or specify primary zone
 ca-where-spans-zones:
-  - '[[zone-one]]'
-  - '[[zone-two]]'
+  - [[zone-one]]
+  - [[zone-two]]
 ca-where-dependencies:
-  - '[[other-system]] -- what this system needs to function'
+  - [[other-system]]
 ca-where-dependents:
-  - '[[feature-one]] -- what relies on this system'
+  - [[feature-one]]
 
 ca-why-strategy-links:
-  - '[[strategy-name]] -- how this system implements this strategy'
+  - [[strategy-name]]
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Why this system exists as a cross-cutting mechanism'

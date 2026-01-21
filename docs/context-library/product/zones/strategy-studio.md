@@ -5,10 +5,10 @@ ca-when: future
 ca-where-zone: null
 ca-where-parent: null
 ca-where-adjacent-zones:
-  - '[[life-map]] -- execution workspace'
+  - [[life-map]]
 ca-where-contains: []
 ca-why-strategy-links:
-  - '[[visual-work]] -- planning should preserve visual clarity'
+  - [[visual-work]]
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Coming soon.'

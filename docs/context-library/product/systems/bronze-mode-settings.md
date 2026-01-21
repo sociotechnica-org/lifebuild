@@ -6,7 +6,7 @@ ca-where-zone: '[[strategy-studio]]'
 ca-where-spans-zones: []
 ca-where-dependencies: []
 ca-where-dependents:
-  - '[[bronze-stack]] -- behavior depends on mode'
+  - [[bronze-stack]]
 ca-why-strategy-links: []
 ca-why-pressure: null
 ca-why-signal: null

@@ -6,10 +6,10 @@ ca-where-zone: '[[life-map]]'
 ca-where-parent: null
 ca-where-dependencies: []
 ca-where-dependents:
-  - '[[dual-presence]] -- priorities render within category context'
+  - [[dual-presence]]
 ca-where-components: []
 ca-why-strategy-links:
-  - '[[visual-work]] -- spatial organization across life domains'
+  - [[visual-work]]
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Coming soon.'

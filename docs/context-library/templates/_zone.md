@@ -6,13 +6,13 @@ ca-when: present # past | present | planned | future
 ca-where-zone: null # zones are top-level, no parent zone
 ca-where-parent: null
 ca-where-adjacent-zones:
-  - '[[other-zone]] -- relationship description'
+  - [[other-zone]]
 ca-where-contains:
-  - '[[feature-one]] -- brief description'
-  - '[[feature-two]] -- brief description'
+  - [[feature-one]]
+  - [[feature-two]]
 
 ca-why-strategy-links:
-  - '[[strategy-name]] -- how this zone implements this strategy'
+  - [[strategy-name]]
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Why this zone exists as a distinct product area'

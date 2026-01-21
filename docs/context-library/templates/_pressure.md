@@ -6,7 +6,7 @@ ca-when: present # past | present | future
 pressure-type: market | customer | competitive | regulatory | technical
 
 ca-where-affects:
-  - '[[zone-or-feature]] -- how this pressure affects it'
+  - [[zone-or-feature]]
 
 ca-why-urgency: low | medium | high | critical
 ca-why-confidence: low | medium | high # how certain are we this pressure is real?

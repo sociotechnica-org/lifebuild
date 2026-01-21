@@ -5,11 +5,11 @@ ca-when: present
 ca-where-zone: '[[life-map]]'
 ca-where-parent-feature: '[[the-table]]'
 ca-where-dependencies:
-  - '[[three-stream-model]] -- defines what Silver means'
-  - '[[work-at-hand]] -- determines what occupies this slot'
-  - '[[priority-queue]] -- sources Silver candidates'
+  - [[three-stream-model]]
+  - [[work-at-hand]]
+  - [[priority-queue]]
 ca-where-dependents:
-  - '[[the-table]] -- renders the Silver Slot component'
+  - [[the-table]]
 ca-why-rationale: 'The center position on The Table dedicated to infrastructure and capability-building work. Provides dedicated space for leverage-creating projects that buy future time.'
 code-location: null
 last-verified: 2026-01-21

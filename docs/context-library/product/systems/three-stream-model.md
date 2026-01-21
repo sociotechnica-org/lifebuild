@@ -4,15 +4,15 @@ type: system
 ca-when: present
 ca-where-zone: null
 ca-where-spans-zones:
-  - "[[life-map]] -- manifests as The Table's three positions"
+  - [[life-map]]
 ca-where-dependencies:
-  - '[[project]] -- work items with archetype and scale metadata (coming soon)'
+  - [[project]]
 ca-where-dependents:
-  - '[[the-table]] -- implements this model with Gold/Silver/Bronze positions'
-  - '[[priority-queue]] -- filters candidates by stream'
-  - '[[work-at-hand]] -- assigns Work at Hand by stream constraints'
+  - [[the-table]]
+  - [[priority-queue]]
+  - [[work-at-hand]]
 ca-why-strategy-links:
-  - '[[visual-work]] -- makes different work types visually distinct'
+  - [[visual-work]]
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Not all work is equal. Some work transforms, some builds leverage, some just needs doing. The three-stream model helps directors balance their portfolio across fundamentally different work types.'

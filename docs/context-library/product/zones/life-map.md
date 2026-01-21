@@ -5,12 +5,12 @@ ca-when: present
 ca-where-zone: null
 ca-where-parent: null
 ca-where-adjacent-zones:
-  - '[[strategy-studio]] -- planning workspace (coming soon)'
+  - [[strategy-studio]]
 ca-where-contains:
-  - '[[the-table]] -- persistent priority spotlight at top'
-  - '[[category-cards]] -- eight domain cards (coming soon)'
+  - [[the-table]]
+  - [[category-cards]]
 ca-why-strategy-links:
-  - '[[visual-work]] -- makes all work spatially visible'
+  - [[visual-work]]
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Directors need a primary workspace where they can see and work on projects. The Life Map provides spatial organization across life domains with persistent priority visibility.'

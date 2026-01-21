@@ -6,8 +6,8 @@ ca-where-zone: null
 ca-where-parent-feature: null
 ca-where-dependencies: []
 ca-where-dependents:
-  - '[[priority-queue]] -- projects flow into the queue'
-  - '[[three-stream-model]] -- projects carry archetype and scale metadata'
+  - [[priority-queue]]
+  - [[three-stream-model]]
 ca-why-rationale: 'Coming soon.'
 code-location: null
 last-verified: 2026-01-21

@@ -6,15 +6,15 @@ ca-when: present # past | present | planned | future
 ca-where-zone: '[[parent-zone]]'
 ca-where-parent: '[[parent-feature-if-any]]' # null if top-level feature in zone
 ca-where-dependencies:
-  - '[[dependency]] -- what this feature needs'
+  - [[dependency]]
 ca-where-dependents:
-  - '[[other-feature]] -- what relies on this feature'
+  - [[other-feature]]
 ca-where-components:
-  - '[[component-one]]'
-  - '[[component-two]]'
+  - [[component-one]]
+  - [[component-two]]
 
 ca-why-strategy-links:
-  - '[[strategy-name]] -- how this feature implements this strategy'
+  - [[strategy-name]]
 ca-why-pressure: '[[pressure-if-any]]' # or null
 ca-why-signal: '[[signal-if-any]]' # or null
 ca-why-rationale: 'Why this specific feature exists and why it works this way'

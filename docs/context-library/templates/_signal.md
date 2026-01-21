@@ -6,7 +6,7 @@ ca-when: present # past | present (signals are observations, usually current)
 signal-type: metric | feedback | behavior | technical
 
 ca-where-observed-in:
-  - '[[zone-or-feature]] -- where this signal appears'
+  - [[zone-or-feature]]
 
 ca-why-indicates: 'What this signal suggests about user needs or system health'
 ca-why-confidence: low | medium | high

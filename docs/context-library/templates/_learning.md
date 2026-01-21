@@ -4,7 +4,7 @@ type: learning
 ca-when: past # learnings are always past
 
 ca-where-affected:
-  - '[[zone-or-feature]] -- what this learning relates to'
+  - [[zone-or-feature]]
 
 ca-why-rationale: 'Why we tried this approach originally'
 

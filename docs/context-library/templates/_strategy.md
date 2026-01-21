@@ -7,9 +7,9 @@ ca-where-scope: product # product | zone | feature (how broad is this strategy?)
 
 ca-why-parent-strategy: '[[higher-level-strategy]]' # or null if top-level
 ca-why-pressures:
-  - '[[pressure-one]] -- external force this responds to'
+  - [[pressure-one]]
 ca-why-signals:
-  - '[[signal-one]] -- observation that informed this'
+  - [[signal-one]]
 ca-why-rationale: 'Why we believe this strategy is correct'
 
 last-verified: YYYY-MM-DD

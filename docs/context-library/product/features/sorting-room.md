@@ -5,12 +5,12 @@ ca-when: future
 ca-where-zone: '[[strategy-studio]]'
 ca-where-parent: null
 ca-where-dependencies:
-  - '[[priority-queue]] -- provides candidates for selection'
+  - [[priority-queue]]
 ca-where-dependents:
-  - '[[work-at-hand]] -- selection assigns Work at Hand'
+  - [[work-at-hand]]
 ca-where-components: []
 ca-why-strategy-links:
-  - '[[visual-work]] -- makes priority selection visible'
+  - [[visual-work]]
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Coming soon.'

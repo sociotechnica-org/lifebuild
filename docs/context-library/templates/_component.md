@@ -6,9 +6,9 @@ ca-when: present # past | present | planned | future
 ca-where-zone: '[[parent-zone]]'
 ca-where-parent-feature: '[[parent-feature]]'
 ca-where-dependencies:
-  - '[[other-component]] -- what this component needs'
+  - [[other-component]]
 ca-where-dependents:
-  - '[[other-component]] -- what relies on this component'
+  - [[other-component]]
 
 ca-why-rationale: 'Why this component exists as a distinct implementation unit'
 

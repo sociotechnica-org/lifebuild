@@ -6,7 +6,7 @@ ca-where-zone: '[[strategy-studio]]'
 ca-where-spans-zones: []
 ca-where-dependencies: []
 ca-where-dependents:
-  - '[[priority-queue]] -- downstream queue of ready work'
+  - [[priority-queue]]
 ca-why-strategy-links: []
 ca-why-pressure: null
 ca-why-signal: null

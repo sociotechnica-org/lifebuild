@@ -5,7 +5,7 @@ ca-when: future
 ca-where-zone: null
 ca-where-parent: null
 ca-where-adjacent-zones:
-  - '[[life-map]] -- execution workspace'
+  - [[life-map]]
 ca-where-contains: []
 ca-why-strategy-links: []
 ca-why-pressure: null

@@ -9,10 +9,10 @@ confidence: low | medium | high
 
 ca-where-zone: '[[target-zone]]'
 ca-where-affects:
-  - '[[existing-feature]] -- how this vision affects it'
+  - [[existing-feature]]
 
 ca-why-strategy-links:
-  - '[[strategy-name]] -- how this vision serves this strategy'
+  - [[strategy-name]]
 ca-why-enables:
   - 'What this makes possible'
 ca-why-rationale: 'Why we believe this is the right future direction'

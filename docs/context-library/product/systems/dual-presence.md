@@ -5,13 +5,13 @@ ca-when: present
 ca-where-zone: '[[life-map]]'
 ca-where-spans-zones: []
 ca-where-dependencies:
-  - '[[work-at-hand]] -- triggers dual presence rendering'
-  - '[[the-table]] -- one of the two render locations'
-  - '[[category-cards]] -- home domain cards (coming soon)'
+  - [[work-at-hand]]
+  - [[the-table]]
+  - [[category-cards]]
 ca-where-dependents:
-  - '[[life-map]] -- relies on dual rendering for context'
+  - [[life-map]]
 ca-why-strategy-links:
-  - '[[visual-work]] -- maintains spatial context while highlighting priority'
+  - [[visual-work]]
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Directors need to see priorities while maintaining domain context. Dual presence solves the tension between "show me what is important" and "show me where things live."'

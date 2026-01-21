@@ -4,17 +4,17 @@ type: system
 ca-when: present
 ca-where-zone: null
 ca-where-spans-zones:
-  - '[[life-map]] -- Work at Hand items appear on The Table'
+  - [[life-map]]
 ca-where-dependencies:
-  - '[[priority-queue]] -- items must be in Priority Queue before activation'
-  - '[[three-stream-model]] -- determines which slot or stack applies'
-  - '[[sorting-room]] -- selection flow in planning workspace (coming soon)'
+  - [[priority-queue]]
+  - [[three-stream-model]]
+  - [[sorting-room]]
 ca-where-dependents:
-  - '[[the-table]] -- displays Work at Hand projects and tasks'
-  - '[[dual-presence]] -- triggers dual rendering'
-  - '[[bronze-stack]] -- operational tasks appear here'
+  - [[the-table]]
+  - [[dual-presence]]
+  - [[bronze-stack]]
 ca-why-strategy-links:
-  - '[[visual-work]] -- makes current priorities visually prominent'
+  - [[visual-work]]
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Directors need clarity on what they have committed to right now. Work at Hand is the explicit designation that separates "active priority" from other work.'
