@@ -4,13 +4,13 @@ The Agentic Server is a Node.js backend that provides centralized AI/LLM process
 
 ## Overview
 
-| Property | Value |
-|----------|-------|
-| Package | `packages/server` |
-| Platform | Render.com |
-| Runtime | Node.js |
-| Health Check | `GET /health` |
-| Source | [packages/server/README.md](../../packages/server/README.md) |
+| Property     | Value                                                        |
+| ------------ | ------------------------------------------------------------ |
+| Package      | `packages/server`                                            |
+| Platform     | Render.com                                                   |
+| Runtime      | Node.js                                                      |
+| Health Check | `GET /health`                                                |
+| Source       | [packages/server/README.md](../../packages/server/README.md) |
 
 ## Architecture
 
@@ -35,6 +35,7 @@ The Agentic Server is a Node.js backend that provides centralized AI/LLM process
 ## Environment Variables
 
 ### Required
+
 - `NODE_ENV=production`
 - `STORE_IDS` - Comma-separated workspace IDs to monitor
 - `AUTH_TOKEN` - Authentication token for LiveStore
@@ -43,6 +44,7 @@ The Agentic Server is a Node.js backend that provides centralized AI/LLM process
 - `AUTH_WORKER_INTERNAL_URL` - Base URL for Auth Worker
 
 ### Optional
+
 - `SENTRY_DSN` - Error tracking
 - `BRAINTRUST_API_KEY` - LLM functionality
 - `WORKSPACE_RECONCILE_INTERVAL_MS` - Override reconciliation cadence (default 5 min)
@@ -75,6 +77,7 @@ The server exposes health endpoints:
 - `GET /` - HTML status page
 
 Expected healthy response:
+
 ```json
 {
   "status": "healthy",
@@ -89,17 +92,20 @@ Expected healthy response:
 ## Common Issues
 
 ### Server Won't Start
+
 - Check Render logs for startup errors
 - Verify environment variables are set
 - Check if sync worker (`sync.lifebuild.me`) is reachable
 - Review recent code changes that might affect startup
 
 ### WebSocket Connection Failures
+
 - Verify `LIVESTORE_SYNC_URL` is correct
 - Check sync worker status
 - Verify `SERVER_BYPASS_TOKEN` matches between server and worker
 
 ### AI Processing Not Working
+
 - Check `BRAINTRUST_API_KEY` is set
 - Review Sentry for errors
 - Check LiveStore event processing in logs

@@ -6,13 +6,13 @@ This directory contains deployment documentation, playbooks, and tooling for Lif
 
 LifeBuild is deployed across multiple platforms:
 
-| Service | Platform | Purpose | URL |
-|---------|----------|---------|-----|
-| Web App | Cloudflare Pages | React frontend | `https://app.lifebuild.me` |
-| Sync Worker | Cloudflare Workers | WebSocket real-time sync | `wss://sync.lifebuild.me` |
-| Auth Worker | Cloudflare Workers | Authentication & JWT | `https://auth.lifebuild.me` |
-| PostHog Worker | Cloudflare Workers | Analytics proxy | `https://coconut.lifebuild.me` |
-| Agentic Server | Render.com | Centralized AI/LLM processing | Internal |
+| Service        | Platform           | Purpose                       | URL                            |
+| -------------- | ------------------ | ----------------------------- | ------------------------------ |
+| Web App        | Cloudflare Pages   | React frontend                | `https://app.lifebuild.me`     |
+| Sync Worker    | Cloudflare Workers | WebSocket real-time sync      | `wss://sync.lifebuild.me`      |
+| Auth Worker    | Cloudflare Workers | Authentication & JWT          | `https://auth.lifebuild.me`    |
+| PostHog Worker | Cloudflare Workers | Analytics proxy               | `https://coconut.lifebuild.me` |
+| Agentic Server | Render.com         | Centralized AI/LLM processing | Internal                       |
 
 See [deployment.md](./deployment.md) for full deployment documentation.
 
@@ -37,6 +37,7 @@ deploy/
 When working in this directory, the agent operates under restricted permissions:
 
 ### Allowed (No approval needed)
+
 - Read any file in the codebase
 - Search/grep across the codebase
 - Read-only Render CLI commands:
@@ -46,12 +47,14 @@ When working in this directory, the agent operates under restricted permissions:
   - `render whoami`
 
 ### Requires Approval
+
 - `render restart`
 - `render deploys create`
 - Any git push or deployment commands
 - Creating/modifying environment variables
 
 ### Blocked
+
 - Direct database access in production
 - `render ssh` to production instances
 - Modifying secrets or tokens
@@ -59,6 +62,7 @@ When working in this directory, the agent operates under restricted permissions:
 ## CLI Tools
 
 ### Render CLI (Agentic Server)
+
 ```bash
 # Check auth
 render whoami
@@ -76,6 +80,7 @@ render deploys list --resources <service-id> --output json
 ```
 
 ### Cloudflare Wrangler (Workers)
+
 ```bash
 # Check auth (may need `wrangler login` first)
 wrangler whoami
@@ -94,6 +99,7 @@ wrangler deployments list
 **Dashboard**: https://sociotechnica.sentry.io/issues/?project=work-squared
 
 **CLI Setup**:
+
 ```bash
 # Load credentials from deploy/.env
 cd deploy && source .env
@@ -104,6 +110,7 @@ sentry-cli login
 ```
 
 **CLI Commands** (after loading .env):
+
 ```bash
 # Check auth status
 sentry-cli info
@@ -121,9 +128,11 @@ sentry-cli issues show <issue-id>
 Project: `work-squared` (covers all LifeBuild services)
 
 ### PostHog (Product Analytics)
+
 No CLI - use dashboard at https://app.posthog.com
 
 Useful for:
+
 - User session replays during incidents
 - Feature flag status
 - Error tracking correlation
@@ -131,12 +140,14 @@ Useful for:
 ## Playbooks
 
 Playbooks are structured runbooks for common operational scenarios. Each playbook includes:
+
 - **Symptoms**: How to identify this situation
 - **Diagnosis steps**: Read-only investigation
 - **Resolution options**: Actions that require approval
 - **Escalation**: When to involve humans
 
 Available playbooks:
+
 - [001-server-down](./playbooks/001-server-down.md) - Agentic server not responding
 - [002-clear-stale-store-data](./playbooks/002-clear-stale-store-data.md) - Fix LiveStore head mismatch errors
 
@@ -159,6 +170,7 @@ This allows the main conversation to continue while the background agent monitor
 ### Read the Playbook First
 
 Before debugging an incident, read the relevant playbook in `deploy/playbooks/`. The playbooks contain:
+
 - Diagnostic commands specific to each service
 - Common failure modes and their fixes
 - Escalation criteria

@@ -34,6 +34,7 @@ render logs --resources srv-d281c9p5pdvs7382v5g0 --output text --limit 100 | gre
 ```
 
 Look for:
+
 - Which `storeId` is failing
 - The head mismatch numbers (e.g., backend: 454, local: 453)
 
@@ -57,6 +58,7 @@ render ssh srv-d281c9p5pdvs7382v5g0
 ```
 
 Once connected:
+
 ```bash
 # List the data directory
 ls -la /var/data/
@@ -72,6 +74,7 @@ exit
 ```
 
 Then restart the service:
+
 ```bash
 # REQUIRES APPROVAL
 render restart srv-d281c9p5pdvs7382v5g0 --confirm
@@ -86,6 +89,7 @@ render ssh srv-d281c9p5pdvs7382v5g0
 ```
 
 Once connected:
+
 ```bash
 # Remove all store data (will re-sync from backend)
 rm -rf /var/data/*
@@ -94,6 +98,7 @@ exit
 ```
 
 Then restart:
+
 ```bash
 render restart srv-d281c9p5pdvs7382v5g0 --confirm
 ```
@@ -118,6 +123,7 @@ render logs --resources srv-d281c9p5pdvs7382v5g0 --output text --limit 50
 ```
 
 Look for:
+
 - `Store created successfully` for the affected store
 - `Event monitoring started` with correct counts
 - No more `backend head > local head` errors
@@ -133,6 +139,7 @@ The previously failing store should now appear.
 ## Escalation
 
 Escalate if:
+
 - SSH access is denied or unavailable
 - The store keeps failing after clearing data
 - Multiple stores are affected simultaneously

@@ -39,6 +39,7 @@ render deploys list --service-id <SERVICE_ID> --output json
 ```
 
 Look for:
+
 - Recent deploy that coincides with the outage
 - Deploy status (failed, canceled, succeeded)
 - Commit SHA of the last successful deploy
@@ -54,6 +55,7 @@ render logs --service-id <SERVICE_ID>
 ```
 
 Look for:
+
 - Startup errors
 - Unhandled exceptions
 - Connection failures to sync worker
@@ -67,11 +69,13 @@ Sentry captures exceptions with full stack traces and context.
 **Dashboard** (recommended): https://sociotechnica.sentry.io/issues/?project=work-squared
 
 Filter by:
+
 - Time range matching the outage
 - Environment: `production`
 - Sort by: Last Seen or Events
 
 **CLI** (requires additional token scopes):
+
 ```bash
 # Note: Default CI token may not have issue:read scope
 # Use dashboard if CLI returns 403
@@ -79,6 +83,7 @@ sentry-cli issues list --org sociotechnica --project work-squared
 ```
 
 Look for:
+
 - Recent exceptions that correlate with the outage time
 - Error frequency spikes
 - Stack traces pointing to root cause
@@ -90,6 +95,7 @@ Look for:
 The agentic server depends on:
 
 1. **Sync Worker** (`sync.lifebuild.me`)
+
    ```bash
    # Check if sync worker is responding
    curl -I https://sync.lifebuild.me
@@ -119,18 +125,19 @@ Based on logs and information gathered, identify the root cause:
 
 ### Common Causes
 
-| Symptom in Logs | Likely Cause | Resolution Path |
-|-----------------|--------------|-----------------|
-| `ECONNREFUSED` to sync URL | Sync worker down | Check sync worker status |
-| `Invalid token` | `SERVER_BYPASS_TOKEN` mismatch | Verify env vars |
-| `Cannot find module` | Build/dependency issue | Check package.json, rebuild |
-| `ENOMEM` | Out of memory | Check Render plan limits |
-| Crash loop with no logs | Startup crash before logging | Check env vars, review code |
-| `Sentry init failed` | Missing `SENTRY_DSN` | Check env vars |
+| Symptom in Logs            | Likely Cause                   | Resolution Path             |
+| -------------------------- | ------------------------------ | --------------------------- |
+| `ECONNREFUSED` to sync URL | Sync worker down               | Check sync worker status    |
+| `Invalid token`            | `SERVER_BYPASS_TOKEN` mismatch | Verify env vars             |
+| `Cannot find module`       | Build/dependency issue         | Check package.json, rebuild |
+| `ENOMEM`                   | Out of memory                  | Check Render plan limits    |
+| Crash loop with no logs    | Startup crash before logging   | Check env vars, review code |
+| `Sentry init failed`       | Missing `SENTRY_DSN`           | Check env vars              |
 
 ### Environment Variable Checklist
 
 Required vars (check in Render dashboard):
+
 - [ ] `NODE_ENV=production`
 - [ ] `STORE_IDS` - comma-separated workspace IDs
 - [ ] `AUTH_TOKEN`

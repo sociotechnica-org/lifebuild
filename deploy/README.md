@@ -4,12 +4,12 @@ This directory contains deployment documentation, operational playbooks, and too
 
 ## Quick Reference
 
-| Service | Platform | Status Check |
-|---------|----------|--------------|
-| Web App | Cloudflare Pages | `https://app.lifebuild.me` |
-| Sync Worker | Cloudflare Workers | `wss://sync.lifebuild.me` |
-| Auth Worker | Cloudflare Workers | `https://auth.lifebuild.me/health` |
-| Agentic Server | Render.com | Render Dashboard |
+| Service        | Platform           | Status Check                       |
+| -------------- | ------------------ | ---------------------------------- |
+| Web App        | Cloudflare Pages   | `https://app.lifebuild.me`         |
+| Sync Worker    | Cloudflare Workers | `wss://sync.lifebuild.me`          |
+| Auth Worker    | Cloudflare Workers | `https://auth.lifebuild.me/health` |
+| Agentic Server | Render.com         | Render Dashboard                   |
 
 ## Directory Contents
 
@@ -48,8 +48,8 @@ pnpm --filter @lifebuild/web run deploy
 
 ## Playbooks
 
-| Playbook | When to Use |
-|----------|-------------|
+| Playbook                                          | When to Use                                            |
+| ------------------------------------------------- | ------------------------------------------------------ |
 | [001-server-down](./playbooks/001-server-down.md) | Agentic server not responding or failing health checks |
 
 ## Getting Help
