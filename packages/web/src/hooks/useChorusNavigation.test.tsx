@@ -179,4 +179,46 @@ describe('useChorusNavigation', () => {
 
     document.body.removeChild(span)
   })
+
+  it('should not navigate when path looks like display text (missing path attribute)', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    renderHook(() => useChorusNavigation(), { wrapper })
+
+    // This simulates what happens when AI generates <CHORUS_TAG>Start planning →</CHORUS_TAG>
+    // without a path attribute - the inner content becomes the data-file-path
+    const element = createChorusElement('Start planning →', 'Start planning →')
+
+    await act(async () => {
+      simulateClick(element)
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+
+    expect(mockNavigate).not.toHaveBeenCalled()
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[CHORUS] Invalid path'),
+      'Start planning →',
+      expect.any(String)
+    )
+
+    consoleSpy.mockRestore()
+    document.body.removeChild(element)
+  })
+
+  it('should not navigate when path contains arrow characters', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    renderHook(() => useChorusNavigation(), { wrapper })
+
+    const element = createChorusElement('View project →', 'View project')
+
+    await act(async () => {
+      simulateClick(element)
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+
+    expect(mockNavigate).not.toHaveBeenCalled()
+    expect(consoleSpy).toHaveBeenCalled()
+
+    consoleSpy.mockRestore()
+    document.body.removeChild(element)
+  })
 })

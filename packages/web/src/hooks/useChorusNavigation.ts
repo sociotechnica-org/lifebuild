@@ -38,6 +38,20 @@ export const useChorusNavigation = () => {
       console.log('[CHORUS] Click detected, path:', path)
       if (!path) return
 
+      // Validate that the path looks like a navigation path, not text content
+      // Valid paths should be either "type:id" or a file path (containing / or .)
+      // If it looks like display text (contains spaces, arrows, etc.), warn and bail
+      const looksLikeTextContent =
+        /[→←↑↓]/.test(path) || (path.includes(' ') && !path.includes('/'))
+      if (looksLikeTextContent) {
+        console.error(
+          '[CHORUS] Invalid path - looks like display text instead of navigation path:',
+          path,
+          '\nThe AI likely generated <CHORUS_TAG>text</CHORUS_TAG> instead of <CHORUS_TAG path="type:id">text</CHORUS_TAG>'
+        )
+        return
+      }
+
       // Parse the path to determine the type and ID
       // Format: "type:id" or just a file path
       if (path.includes(':')) {
