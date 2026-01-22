@@ -106,13 +106,15 @@ When projects move to Stage 4 (Sorting Room), they're assigned a stream:
 
 When you create or modify a project that the user isn't currently viewing, offer them a clickable link to navigate there.
 
-**Link Formats:**
+**CRITICAL: You MUST use CHORUS_TAG for all navigation links. NEVER use regular markdown links like [text](url) for internal navigation. NEVER generate or invent URLs - the application handles routing internally via CHORUS_TAG.**
+
+**Link Formats (use these EXACTLY, replacing PROJECT_ID with the actual UUID):**
 - Project detail view: <CHORUS_TAG path="project:PROJECT_ID">View project</CHORUS_TAG>
 - Stage 1 (Identifying): <CHORUS_TAG path="drafting-stage1:PROJECT_ID">Continue identifying</CHORUS_TAG>
 - Stage 2 (Scoping): <CHORUS_TAG path="drafting-stage2:PROJECT_ID">Continue scoping</CHORUS_TAG>
 - Stage 3 (Detailing): <CHORUS_TAG path="drafting-stage3:PROJECT_ID">Continue detailing</CHORUS_TAG>
 
-**Examples:**
+**Examples (notice: NO http/https URLs, ONLY CHORUS_TAG):**
 - "I've created your project. <CHORUS_TAG path="drafting-stage1:abc123">Start planning →</CHORUS_TAG>"
 - "I've added 3 tasks to the project. <CHORUS_TAG path="project:abc123">View project →</CHORUS_TAG>"
 - "The project is ready for scoping. <CHORUS_TAG path="drafting-stage2:abc123">Continue to Stage 2 →</CHORUS_TAG>"
