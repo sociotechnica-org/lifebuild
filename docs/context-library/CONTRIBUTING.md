@@ -85,6 +85,103 @@ Check that `[[linked-note]]` actually exists. Broken links break slug assembly.
 
 ---
 
+## Linking Principles
+
+### Every Reference Should Be a WikiLink
+
+If you mention another concept that has (or should have) a note, make it a link:
+
+```markdown
+# Bad
+The Table depends on the Priority Queue for candidates.
+
+# Good
+[[the-table]] depends on [[priority-queue]] for candidates.
+```
+
+Even if the target note doesn't exist yet, create the link. Broken links are useful—they show what documentation is missing.
+
+### Links Need Context
+
+Don't drop naked links. Explain the relationship:
+
+```markdown
+# Bad
+Related:
+- [[priority-queue]]
+
+# Good
+**Requires:**
+- [[priority-queue]] — sources all candidates for The Table
+```
+
+### WHY Lives in Two Places
+
+For features and systems, capture WHY in both:
+
+1. **Metadata** (`ca-why` fields) — enables Conan to query relationships
+2. **Content section** ("Why It Exists") — enables humans to understand rationale
+
+This duplication is intentional. They serve different purposes:
+- Metadata answers: "What features implement visual-work strategy?" (query)
+- Content answers: "Why does The Table exist?" (understanding)
+
+### Lateral Links Create Discovery
+
+The "Related Features/Systems" section enables discovery of peer concepts:
+
+```markdown
+## Related Features
+
+**Prerequisites:**
+- [[sorting-room]] — where priorities are selected before appearing here
+
+**Complements:**
+- [[project-board]] — opened when clicking items on The Table
+
+**Enables:**
+- [[dual-presence]] — Work at Hand items appear in multiple places
+```
+
+Without these lateral links, notes become islands. With them, someone exploring one feature naturally discovers related features.
+
+### Temporal Links Show Evolution
+
+Even if Past/Future notes don't exist yet, include the Evolution section:
+
+```markdown
+## Evolution
+
+**Supersedes:** null (new capability)
+**Future:** [[future-bronze-quick-add]] — planned enhancement
+```
+
+This creates placeholders that:
+- Show what documentation is needed
+- Enable Conan to trace how features evolved
+- Prevent repeating past mistakes
+
+---
+
+## Section Order (Features)
+
+Follow this order for consistency:
+
+1. **Title + intro paragraph** — what this is
+2. **Why It Exists** — strategy links, drivers, rationale
+3. **How It Works** — mechanics, interactions
+4. **Related Features** — prerequisites, complements, enables
+5. **Components** — child components with links
+6. **Dependencies** — what this requires and enables
+7. **Constraints** — hard limits
+8. **Edge Cases** — unusual scenarios
+9. **Evolution** — past and future
+10. **Open Questions** — unresolved decisions
+
+Not every section needs content, but the structure should be consistent.
+
+---
+
 ## How to Update a Note
 
 ### 1. Update `last-verified` date
