@@ -11,7 +11,8 @@
     "dev:server": "pnpm --filter @lifebuild/server dev",
     "dev:auth": "pnpm --filter @lifebuild/auth-worker dev",
     "build": "pnpm -r build",
-    "test": "pnpm --filter @lifebuild/shared test && pnpm --filter @lifebuild/web test && pnpm --filter @lifebuild/auth-worker test && pnpm --filter @lifebuild/server test",
+    "test": "pnpm --filter @lifebuild/shared test && pnpm --filter @lifebuild/web test && pnpm --filter @lifebuild/auth-worker test && pnpm --filter @lifebuild/server test && pnpm test:scripts",
+    "test:scripts": "vitest run --config scripts/vitest.config.js",
     "test:watch": "pnpm --filter @lifebuild/web test:watch",
     "test:e2e": "pnpm --filter @lifebuild/web test:e2e",
     "test:e2e:ui": "pnpm --filter @lifebuild/web test:e2e:ui",
@@ -31,6 +32,7 @@
     "deploy:auth": "pnpm --filter @lifebuild/auth-worker deploy"
   },
   "devDependencies": {
+    "vitest": "^3.2.4",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.36.0",
     "@playwright/test": "^1.55.0",
