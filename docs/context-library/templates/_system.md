@@ -1,99 +1,112 @@
 ---
-title: System Name
+title:
 type: system
-ca-when: present # past | present | planned | future
+ca-when: present | planned | future
 
 ca-where:
-  zone: null # systems often span zones, or specify primary zone
+  zone: null | "[[zone-name]]"
   spans-zones:
-    - '[[zone-one]]'
-    - '[[zone-two]]'
+    - "[[zone]]"
   dependencies:
-    - '[[other-system]] — what this system needs to function'
+    - "[[system-or-entity]]"
   dependents:
-    - '[[feature-one]] — what relies on this system'
+    - "[[feature-or-system]]"
 
 ca-why:
   strategy-links:
-    - '[[strategy-name]] — how this system implements this strategy'
-  pressure: null
-  signal: null
-  rationale: 'Why this system exists as a cross-cutting mechanism'
+    - "[[strategy-note]]"
+  signal: null | "[[signal-note]]"
+  pressure: null | "[[pressure-note]]"
+  rationale: "One sentence for query results"
 
 last-verified: YYYY-MM-DD
 ---
 
-# System Name
+# [System Name]
 
-One-paragraph overview of what this system does and why it exists as a distinct mechanism.
+<!-- One paragraph: what this system is and what it does. Should stand alone. -->
 
 ---
 
 ## Core Concept
 
-What is the fundamental idea? Explain it simply enough that someone unfamiliar could understand.
+<!--
+The key insight or mechanism. What problem does this system solve?
+Why does it exist as a distinct system rather than being folded into features?
+-->
+
+---
+
+## Why It Exists
+
+**Strategy:** [[strategy-note]]
+<!-- How does this system implement the strategy? -->
+
+**Driver:** [[signal-note]] | [[pressure-note]] | "Architectural necessity"
+<!-- What caused us to create this system? -->
 
 ---
 
 ## How It Works
 
-### Key Mechanics
-
-1. Mechanic one — what happens
-2. Mechanic two — what happens
-3. Mechanic three — what happens
-
-### State Transitions (if applicable)
-
-```
-State A → State B → State C
-           ↓
-        State D
-```
+<!--
+Mechanics, rules, state transitions.
+Use diagrams (ASCII or Mermaid) for complex flows.
+-->
 
 ---
 
 ## Where It Appears
 
-This system manifests in these features:
+<!-- Which features/zones implement or use this system? -->
 
-- [[feature-one]] — how this system appears there
-- [[feature-two]] — how this system appears there
+- [[feature]] — how it uses this system
+- [[zone]] — how this system manifests here
+
+---
+
+## Related Systems
+
+**Prerequisites:**
+- [[system]] — what must exist for this to work
+
+**Complements:**
+- [[system]] — how they interact
+
+**Enables:**
+- [[system]] — what this makes possible
 
 ---
 
 ## Dependencies
 
-### This system requires:
+**Requires:**
+- [[entity-or-system]] — what this needs
 
-- [[other-system]] — why it's needed
-
-### These depend on this system:
-
-- [[feature-one]] — how it uses this system
+**Required By:**
+- [[feature-or-system]] — what depends on this
 
 ---
 
 ## Constraints & Rules
 
-- Constraint one (hard rule that cannot be violated)
-- Constraint two
-- Constraint three
+<!-- Invariants, hard limits, business rules -->
 
 ---
 
 ## Edge Cases
 
-### What happens when X?
+<!-- Unusual scenarios and how they're handled -->
 
-Answer.
+---
 
-### What happens when Y?
+## Evolution
 
-Answer.
+**Supersedes:** [[past-note]] | "null (original design)"
+**Future:** [[future-note]] | "No planned changes"
 
 ---
 
 ## Open Questions
 
-- [ ] Any unresolved questions about this system
+- [ ] Question — owner, timeline

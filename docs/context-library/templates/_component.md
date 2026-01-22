@@ -1,95 +1,84 @@
 ---
-title: Component Name
+title:
 type: component
-ca-when: present # past | present | planned | future
+ca-when: present | planned | future
 
 ca-where:
-  zone: '[[parent-zone]]'
-  parent-feature: '[[parent-feature]]'
+  zone: "[[zone-name]]"
+  parent-feature: "[[feature-name]]"
   dependencies:
-    - '[[other-component]] — what this component needs'
-  dependents:
-    - '[[other-component]] — what relies on this component'
+    - "[[system-or-component]]"
 
+# Components inherit WHY from parent feature
+# Only add rationale if there's component-specific reasoning
 ca-why:
-  rationale: 'Why this component exists as a distinct implementation unit'
+  rationale: null | "Component-specific design decision"
 
-# Technical coordinates (for code mapping)
-code-location: 'src/components/path/to/component' # or null if not yet implemented
-
+code-location: null | "src/components/path/to/file.tsx"
 last-verified: YYYY-MM-DD
 ---
 
-# Component Name
+# [Component Name]
 
-One-paragraph technical summary: what this component does in the implementation.
+<!-- One paragraph: what this component is and what it renders/does. -->
 
 ---
 
 ## Purpose
 
-What problem does this component solve? What would break or be missing without it?
+<!-- Why does this component exist separately from its parent feature? -->
 
 ---
 
 ## Implementation
 
 ### Location
+<!-- Where in the UI does this appear? -->
 
-```
-src/components/path/to/component
-```
+### Visual Treatment
+<!-- Colors, animations, states -->
 
-### Key Files
+| Property | Value |
+|----------|-------|
+| ... | ... |
 
-- `file-one.ts` — purpose
-- `file-two.ts` — purpose
+### Content Display
+<!-- What information does it show? -->
 
-### Key Functions/Methods
-
-- `functionName()` — what it does
-- `otherFunction()` — what it does
+### Interaction
+<!-- How do users interact with it? -->
 
 ---
 
-## Data Flow
+## Related Components
 
-What data comes in? What goes out? What state does it manage?
+**Siblings:** (other components of same parent feature)
+- [[component]] — relationship
 
-```
-Input → Processing → Output
-```
+**Uses:**
+- [[component]] — how it uses this
 
 ---
 
 ## Dependencies
 
-### Uses:
-
-- [[other-component]] — how it's used
-
-### Used by:
-
-- [[parent-feature]] — how this component serves the feature
+**Requires:**
+- [[system-or-component]] — what this needs
 
 ---
 
 ## Technical Constraints
 
-- Constraint one (performance, compatibility, etc.)
-- Constraint two
+<!-- Implementation limits, performance considerations -->
 
 ---
 
 ## Testing Notes
 
-How should this component be tested? Key scenarios to cover:
-
-- Scenario one
-- Scenario two
+<!-- Key scenarios to cover -->
 
 ---
 
 ## Open Questions
 
-- [ ] Any unresolved technical questions
+- [ ] Question

@@ -1,106 +1,111 @@
 ---
-title: Feature Name
+title:
 type: feature
-ca-when: present # past | present | planned | future
+ca-when: present | planned | future
 
 ca-where:
-  zone: '[[parent-zone]]'
-  parent: '[[parent-feature-if-any]]' # null if top-level feature in zone
+  zone: "[[zone-name]]"
+  parent: null | "[[parent-feature]]"
   dependencies:
-    - '[[dependency]] — what this feature needs'
-  dependents:
-    - '[[other-feature]] — what relies on this feature'
+    - "[[system-or-feature]]"
   components:
-    - '[[component-one]]'
-    - '[[component-two]]'
+    - "[[component]]"
 
 ca-why:
   strategy-links:
-    - '[[strategy-name]] — how this feature implements this strategy'
-  pressure: '[[pressure-if-any]]' # or null
-  signal: '[[signal-if-any]]' # or null
-  rationale: 'Why this specific feature exists and why it works this way'
+    - "[[strategy-note]]"
+  signal: null | "[[signal-note]]"
+  pressure: null | "[[pressure-note]]"
+  rationale: "One sentence for query results"
 
 last-verified: YYYY-MM-DD
 ---
 
-# Feature Name
+# [Feature Name]
 
-One-paragraph overview: what is this feature and what does it do for the director?
+<!-- One paragraph: what this is and what it does. Should stand alone. -->
 
 ---
 
-## What It Does
+## Why It Exists
 
-Describe the feature's behavior from the director's perspective. What can they do? What do they see?
+<!--
+This section explains the causal chain. Link to strategies and drivers.
+Metadata captures the links; this section explains the reasoning.
+-->
+
+**Strategy:** [[strategy-note]]
+<!-- How does this feature implement the strategy? What principle does it embody? -->
+
+**Driver:** [[signal-note]] | [[pressure-note]] | "No external driver—capability building"
+<!-- What caused us to build this? What problem does it solve? -->
+
+**Design Rationale:**
+<!-- Why these specific choices? What alternatives were considered? -->
 
 ---
 
 ## How It Works
 
-### User Interaction
+<!--
+Mechanics, user interactions, states.
+Use tables for complex information. Be specific.
+-->
 
-1. Director does X
-2. System responds with Y
-3. Director sees Z
+---
 
-### Visual States (if applicable)
+## Related Features
 
-- State A: description
-- State B: description
+**Prerequisites:**
+- [[feature]] — why it must exist first
+
+**Complements:**
+- [[feature]] — how they work together
+
+**Enables:**
+- [[feature]] — what this makes possible
 
 ---
 
 ## Components
 
-Technical pieces that make up this feature:
+<!-- Link to component notes. Brief description of each. -->
 
-- [[component-one]] — role in this feature
-- [[component-two]] — role in this feature
+- [[component]] — what it does
 
 ---
 
 ## Dependencies
 
-### Requires:
+**Requires:**
+- [[system-or-feature]] — what this needs and why
 
-- [[system-or-feature]] — why it's needed
-
-### Enables:
-
-- [[other-feature]] — what this makes possible
+**Enables:**
+- [[system-or-feature]] — what depends on this
 
 ---
 
 ## Constraints
 
-- Constraint one (business rule or technical limit)
-- Constraint two
+<!-- Hard limits, rules, invariants -->
 
 ---
 
 ## Edge Cases
 
-### What if X happens?
-
-Answer.
-
-### What if Y happens?
-
-Answer.
+<!-- Unusual scenarios and how they're handled -->
 
 ---
 
-## Future Evolution
+## Evolution
 
-If `ca-when: planned` or `future`, describe what's envisioned.
-
-If `ca-when: present`, note any planned enhancements:
-
-- [[future-enhancement]] — brief description
+**Supersedes:** [[past-note]] | "null (new capability)"
+**Future:** [[future-note]] | "No planned changes"
 
 ---
 
 ## Open Questions
 
-- [ ] Any unresolved questions about this feature
+<!-- Unresolved decisions. Include owner and timeline if known. -->
+
+- [ ] Question — owner, timeline

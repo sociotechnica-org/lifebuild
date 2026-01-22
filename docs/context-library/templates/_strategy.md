@@ -1,95 +1,92 @@
 ---
-title: Strategy Name
+title:
 type: strategy
-ca-when: present # strategies are typically present (active) or past (deprecated)
+ca-when: present
 
 ca-where:
-  scope: product # product | zone | feature (how broad is this strategy?)
+  applies-to:
+    - "[[zone-or-feature]]"
 
 ca-why:
-  parent-strategy: '[[higher-level-strategy]]' # or null if top-level
-  pressures:
-    - '[[pressure-one]] — external force this responds to'
-  signals:
-    - '[[signal-one]] — observation that informed this'
-  rationale: 'Why we believe this strategy is correct'
+  rationale: "One sentence capturing the core insight"
 
 last-verified: YYYY-MM-DD
 ---
 
-# Strategy Name
+# [Strategy Name]
 
-One-sentence statement of the strategic principle.
-
----
-
-## The Belief
-
-What do we believe to be true that makes this strategy correct? State the hypothesis.
+**Core Principle:** <!-- One sentence articulation of this strategy -->
 
 ---
 
-## What This Means
+## The Insight
 
-### We DO:
-
-- Concrete implication one
-- Concrete implication two
-- Concrete implication three
-
-### We DON'T:
-
-- Anti-pattern one (what this strategy prevents)
-- Anti-pattern two
+<!--
+What problem does this strategy address?
+What's the key observation or belief that drives it?
+-->
 
 ---
 
-## How It Manifests
+## How We Apply It
 
-Features and systems that implement this strategy:
-
-- [[feature-one]] — how it embodies this strategy
-- [[feature-two]] — how it embodies this strategy
-- [[system-one]] — how it embodies this strategy
-
----
-
-## Pressures & Signals
-
-### External pressures this responds to:
-
-- [[pressure-one]] — connection to strategy
-
-### Internal signals that informed this:
-
-- [[signal-one]] — connection to strategy
+<!--
+High-level implementation philosophy.
+What does following this strategy look like in practice?
+-->
 
 ---
 
-## Tradeoffs
+## Implementing Features
 
-What do we give up by following this strategy? What tensions exist?
+<!--
+Explicit links to features that embody this strategy.
+These should be bidirectional—features link back here in their WHY section.
+-->
 
-- Tradeoff one: We gain X but accept Y
-- Tradeoff two: We prioritize A over B
+- [[feature]] — how it implements this strategy
+- [[feature]] — how it implements this strategy
 
 ---
 
-## How We'd Know It's Wrong
+## What This Principle Prevents
 
-What would make us reconsider this strategy?
+<!-- What anti-patterns or problems does this strategy help us avoid? -->
 
-- Signal one that would indicate failure
-- Signal two that would indicate failure
+| Anti-Pattern | How This Strategy Prevents It |
+|--------------|------------------------------|
+| ... | ... |
+
+---
+
+## Tensions & Trade-offs
+
+<!--
+Where does this strategy create tension with other concerns?
+What do we trade off to follow this principle?
+-->
+
+---
+
+## Anti-Patterns to Avoid
+
+<!--
+Common mistakes that violate this strategy.
+What does it look like when we fail to follow this?
+-->
+
+- **[Anti-pattern name]** — description of what to avoid
 
 ---
 
 ## Related Strategies
 
-- [[related-strategy]] — how they interact or tension with each other
+<!-- How does this connect to other strategic principles? -->
+
+- [[strategy]] — relationship (complements, tensions with, depends on)
 
 ---
 
 ## Open Questions
 
-- [ ] Any unresolved questions about this strategy
+- [ ] Question

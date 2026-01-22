@@ -1,75 +1,85 @@
 ---
-title: Zone Name
+title:
 type: zone
-ca-when: present # past | present | planned | future
+ca-when: present | planned | future
 
 ca-where:
-  zone: null # zones are top-level, no parent zone
-  parent: null
+  parent: null  # zones are top-level
   adjacent-zones:
-    - '[[other-zone]] — relationship description'
+    - "[[zone]] — relationship"
   contains:
-    - '[[feature-one]] — brief description'
-    - '[[feature-two]] — brief description'
+    - "[[feature]]"
 
 ca-why:
   strategy-links:
-    - '[[strategy-name]] — how this zone implements this strategy'
-  pressure: null
-  signal: null
-  rationale: 'Why this zone exists as a distinct product area'
+    - "[[strategy-note]]"
+  rationale: "One sentence for query results"
 
 last-verified: YYYY-MM-DD
 ---
 
-# Zone Name
+# [Zone Name]
 
-One-paragraph overview of what this zone is and its primary purpose.
+<!-- One paragraph: what this zone is and its primary purpose. -->
 
 ---
 
 ## What It Contains
 
-### Features
+### Primary Elements
+<!-- Anchor features that define this zone's experience -->
+- [[feature]] — brief description
 
-- [[feature-one]] — brief description of role in this zone
-- [[feature-two]] — brief description of role in this zone
+### Supporting Elements
+<!-- Other features, systems that operate within this zone -->
+- [[feature]] — brief description
 
-### Systems (if zone-specific)
+---
 
-- [[system-one]] — brief description
+## Why It Exists
+
+**Strategy:** [[strategy-note]]
+<!-- How does this zone embody the strategy? -->
+
+**User Need:**
+<!-- What does the user accomplish in this zone? -->
 
 ---
 
 ## User Journey
 
-How does a director typically move through this zone? What's the flow?
+<!-- How does a user typically move through this zone? -->
 
-1. Step one
-2. Step two
-3. Step three
+1. **Enter** — how they arrive
+2. **Primary activity** — what they mainly do here
+3. **Exit** — where they go next
 
 ---
 
 ## Boundaries
 
 ### This zone is responsible for:
-
-- Responsibility one
-- Responsibility two
+- ...
 
 ### This zone is NOT responsible for:
-
-- Thing handled elsewhere → see [[other-zone]]
+- ... (see [[other-zone]])
 
 ---
 
 ## Adjacent Zones
 
-- [[other-zone]] — How directors move between this zone and that one
+<!-- How does this zone connect to others? What triggers movement between zones? -->
+
+- [[zone]] — when/why users move there
+
+---
+
+## Visual Design
+
+<!-- Zone-specific design principles, atmosphere, visual language -->
 
 ---
 
 ## Open Questions
 
-- [ ] Any unresolved questions about this zone's scope or behavior
+- [ ] Question
