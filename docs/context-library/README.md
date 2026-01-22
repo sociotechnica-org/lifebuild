@@ -95,7 +95,7 @@ See **CONTRIBUTING.md** for full details. Quick version:
 1. Copy the right template from `/templates/`
 2. Fill in frontmatter (dimensional coordinates)
    - Frontmatter uses flat fields like `ca-where-zone` and `ca-why-rationale` so links stay clickable in Obsidian Properties
-   - Link lists in frontmatter should be link-only (no `--` notes). Put context in the body sections.
+   - Link lists in frontmatter should be a single text value with comma-separated `[[links]]` (no `--` notes). Put context in the body sections.
 3. Write content following template structure
 4. Establish links with context
 5. Verify links resolve

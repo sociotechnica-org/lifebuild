@@ -11,8 +11,7 @@ ca-where-contains:
   - [[feature-one]]
   - [[feature-two]]
 
-ca-why-strategy-links:
-  - [[strategy-name]]
+ca-why-strategy-links: '[[strategy-name]]'
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Why this zone exists as a distinct product area'

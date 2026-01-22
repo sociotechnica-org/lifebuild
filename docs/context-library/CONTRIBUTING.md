@@ -63,7 +63,7 @@ cp templates/_feature.md product/features/my-feature.md
 
 Every field matters for querying and slug assembly. Don't skip the dimensional coordinates.
 We use **flat fields** (e.g., `ca-where-zone`, `ca-why-rationale`) so links are clickable in Obsidian Properties.
-Frontmatter link lists should be **link-only** (no `--` notes). Put descriptions in the body sections instead.
+Frontmatter link lists should be a single text value with comma-separated `[[links]]` (no `--` notes). Put descriptions in the body sections instead.
 
 ### 4. Write content following the template structure
 

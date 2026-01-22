@@ -3,19 +3,11 @@ title: The Table
 type: feature
 ca-when: present
 ca-where-zone: '[[life-map]]'
-ca-where-parent:
-ca-where-dependencies:
-  - [[priority-queue]]
-  - [[work-at-hand]]
-  - [[three-stream-model]]
-ca-where-dependents:
-  - [[dual-presence]]
-ca-where-components:
-  - [[gold-slot]]
-  - [[silver-slot]]
-  - [[bronze-stack]]
-ca-why-strategy-links:
-  - [[visual-work]]
+ca-where-parent-feature:
+ca-where-dependencies: '[[priority-queue]], [[work-at-hand]], [[three-stream-model]]'
+ca-where-dependents: '[[dual-presence]]'
+ca-where-components: '[[gold-slot]], [[silver-slot]], [[bronze-stack]]'
+ca-why-strategy-links: '[[visual-work]]'
 ca-why-pressure:
 ca-why-signal:
 ca-why-rationale: Directors need persistent visibility into current commitments. The Table answers "what am I working on right now?" at a glance and reduces context switching.

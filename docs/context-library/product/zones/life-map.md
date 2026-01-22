@@ -9,8 +9,7 @@ ca-where-adjacent-zones:
 ca-where-contains:
   - [[the-table]]
   - [[category-cards]]
-ca-why-strategy-links:
-  - [[visual-work]]
+ca-why-strategy-links: '[[visual-work]]'
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Directors need a primary workspace where they can see and work on projects. The Life Map provides spatial organization across life domains with persistent priority visibility.'

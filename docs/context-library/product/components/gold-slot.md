@@ -4,12 +4,8 @@ type: component
 ca-when: present
 ca-where-zone: '[[life-map]]'
 ca-where-parent-feature: '[[the-table]]'
-ca-where-dependencies:
-  - [[three-stream-model]]
-  - [[work-at-hand]]
-  - [[priority-queue]]
-ca-where-dependents:
-  - [[the-table]]
+ca-where-dependencies: '[[three-stream-model]], [[work-at-hand]], [[priority-queue]]'
+ca-where-dependents: '[[the-table]]'
 ca-why-rationale: "The leftmost position on The Table dedicated to transformative, frontier-opening work. Provides visual prominence and dedicated space for the director's most important project."
 code-location: null
 last-verified: 2026-01-21

@@ -4,15 +4,9 @@ type: system
 ca-when: present
 ca-where-zone: null
 ca-where-spans-zones: []
-ca-where-dependencies:
-  - [[project]]
-  - [[planning-queue]]
-ca-where-dependents:
-  - [[the-table]]
-  - [[work-at-hand]]
-  - [[three-stream-model]]
-ca-why-strategy-links:
-  - [[visual-work]]
+ca-where-dependencies: '[[project]], [[planning-queue]]'
+ca-where-dependents: '[[the-table]], [[work-at-hand]], [[three-stream-model]]'
+ca-why-strategy-links: '[[visual-work]]'
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Directors need a holding area for fully planned work that is ready to activate but not yet prioritized. The Priority Queue separates ready from selected so a backlog can build without immediate commitment.'

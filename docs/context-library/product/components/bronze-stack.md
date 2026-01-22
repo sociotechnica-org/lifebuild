@@ -4,12 +4,8 @@ type: component
 ca-when: present
 ca-where-zone: '[[life-map]]'
 ca-where-parent-feature: '[[the-table]]'
-ca-where-dependencies:
-  - [[three-stream-model]]
-  - [[work-at-hand]]
-  - [[priority-queue]]
-ca-where-dependents:
-  - [[the-table]]
+ca-where-dependencies: '[[three-stream-model]], [[work-at-hand]], [[priority-queue]]'
+ca-where-dependents: '[[the-table]]'
 ca-why-rationale: 'The rightmost position on The Table containing operational tasks. Unlike Gold and Silver (single projects), Bronze holds multiple tasks in a stack, representing the ongoing operational work that keeps life running.'
 code-location: null
 last-verified: 2026-01-21

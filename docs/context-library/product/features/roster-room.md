@@ -4,10 +4,10 @@ type: feature
 ca-when: future
 ca-where-zone: '[[strategy-studio]]'
 ca-where-parent: null
-ca-where-dependencies: []
-ca-where-dependents: []
-ca-where-components: []
-ca-why-strategy-links: []
+ca-where-dependencies:
+ca-where-dependents:
+ca-where-components:
+ca-why-strategy-links:
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Coming soon.'

@@ -5,14 +5,9 @@ ca-when: present
 ca-where-zone: null
 ca-where-spans-zones:
   - [[life-map]]
-ca-where-dependencies:
-  - [[project]]
-ca-where-dependents:
-  - [[the-table]]
-  - [[priority-queue]]
-  - [[work-at-hand]]
-ca-why-strategy-links:
-  - [[visual-work]]
+ca-where-dependencies: '[[project]]'
+ca-where-dependents: '[[the-table]], [[priority-queue]], [[work-at-hand]]'
+ca-why-strategy-links: '[[visual-work]]'
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Not all work is equal. Some work transforms, some builds leverage, some just needs doing. The three-stream model helps directors balance their portfolio across fundamentally different work types.'

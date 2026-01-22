@@ -7,13 +7,10 @@ ca-where-zone: null # systems often span zones, or specify primary zone
 ca-where-spans-zones:
   - [[zone-one]]
   - [[zone-two]]
-ca-where-dependencies:
-  - [[other-system]]
-ca-where-dependents:
-  - [[feature-one]]
+ca-where-dependencies: '[[other-system]]'
+ca-where-dependents: '[[feature-one]]'
 
-ca-why-strategy-links:
-  - [[strategy-name]]
+ca-why-strategy-links: '[[strategy-name]]'
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Why this system exists as a cross-cutting mechanism'

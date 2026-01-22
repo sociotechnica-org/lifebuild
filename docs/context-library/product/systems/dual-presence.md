@@ -4,14 +4,9 @@ type: system
 ca-when: present
 ca-where-zone: '[[life-map]]'
 ca-where-spans-zones: []
-ca-where-dependencies:
-  - [[work-at-hand]]
-  - [[the-table]]
-  - [[category-cards]]
-ca-where-dependents:
-  - [[life-map]]
-ca-why-strategy-links:
-  - [[visual-work]]
+ca-where-dependencies: '[[work-at-hand]], [[the-table]], [[category-cards]]'
+ca-where-dependents: '[[life-map]]'
+ca-why-strategy-links: '[[visual-work]]'
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Directors need to see priorities while maintaining domain context. Dual presence solves the tension between "show me what is important" and "show me where things live."'

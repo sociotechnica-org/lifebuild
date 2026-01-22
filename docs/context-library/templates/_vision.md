@@ -11,8 +11,7 @@ ca-where-zone: '[[target-zone]]'
 ca-where-affects:
   - [[existing-feature]]
 
-ca-why-strategy-links:
-  - [[strategy-name]]
+ca-why-strategy-links: '[[strategy-name]]'
 ca-why-enables:
   - 'What this makes possible'
 ca-why-rationale: 'Why we believe this is the right future direction'

@@ -4,13 +4,10 @@ type: feature
 ca-when: future
 ca-where-zone: '[[strategy-studio]]'
 ca-where-parent: null
-ca-where-dependencies:
-  - [[priority-queue]]
-ca-where-dependents:
-  - [[work-at-hand]]
-ca-where-components: []
-ca-why-strategy-links:
-  - [[visual-work]]
+ca-where-dependencies: '[[priority-queue]]'
+ca-where-dependents: '[[work-at-hand]]'
+ca-where-components:
+ca-why-strategy-links: '[[visual-work]]'
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Coming soon.'

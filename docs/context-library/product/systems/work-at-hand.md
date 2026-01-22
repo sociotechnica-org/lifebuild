@@ -5,16 +5,9 @@ ca-when: present
 ca-where-zone: null
 ca-where-spans-zones:
   - [[life-map]]
-ca-where-dependencies:
-  - [[priority-queue]]
-  - [[three-stream-model]]
-  - [[sorting-room]]
-ca-where-dependents:
-  - [[the-table]]
-  - [[dual-presence]]
-  - [[bronze-stack]]
-ca-why-strategy-links:
-  - [[visual-work]]
+ca-where-dependencies: '[[priority-queue]], [[three-stream-model]], [[sorting-room]]'
+ca-where-dependents: '[[the-table]], [[dual-presence]], [[bronze-stack]]'
+ca-why-strategy-links: '[[visual-work]]'
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Directors need clarity on what they have committed to right now. Work at Hand is the explicit designation that separates "active priority" from other work.'

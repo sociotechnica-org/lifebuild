@@ -4,10 +4,9 @@ type: system
 ca-when: future
 ca-where-zone: '[[strategy-studio]]'
 ca-where-spans-zones: []
-ca-where-dependencies: []
-ca-where-dependents:
-  - [[bronze-stack]]
-ca-why-strategy-links: []
+ca-where-dependencies:
+ca-where-dependents: '[[bronze-stack]]'
+ca-why-strategy-links:
 ca-why-pressure: null
 ca-why-signal: null
 ca-why-rationale: 'Coming soon.'
