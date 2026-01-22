@@ -1,3 +1,5 @@
+import { reportConfigurationError } from './sentry.js'
+
 /**
  * Utility to send notifications to Discord via webhook
  */
@@ -5,7 +7,7 @@ export async function sendDiscordNotification(message: string, webhookUrl?: stri
   console.log('Discord notification attempt:', { message, hasWebhookUrl: !!webhookUrl })
 
   if (!webhookUrl) {
-    console.log('No Discord webhook URL configured, skipping notification')
+    reportConfigurationError('DISCORD_WEBHOOK_URL is not configured', { message })
     return
   }
 

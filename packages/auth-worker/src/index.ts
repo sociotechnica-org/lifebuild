@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/cloudflare'
 import { UserStore } from './durable-objects/UserStore.js'
 import { handleSignup, handleLogin, handleRefresh, handleLogout } from './handlers/auth.js'
 import { verifyAdminAccess } from './utils/adminAuth.js'
@@ -627,7 +628,7 @@ function checkRateLimit(clientIP: string, maxRequests = 10, windowMs = 60000): b
 /**
  * Main Worker fetch handler
  */
-export default {
+const worker = {
   async fetch(request: Request, env: Env, ctx: WorkerExecutionContext): Promise<Response> {
     const url = new URL(request.url)
     const path = url.pathname
@@ -837,6 +838,14 @@ export default {
   },
 }
 
+export default Sentry.withSentry(
+  (env: Env) => ({
+    dsn: env.SENTRY_DSN,
+    tracesSampleRate: 1.0,
+  }),
+  worker
+)
+
 // Export Durable Object classes
 export { UserStore }
 
@@ -851,4 +860,5 @@ interface Env {
   MAX_INSTANCES_PER_USER?: string | number
   SERVER_WEBHOOK_URL?: string
   WEBHOOK_SECRET?: string
+  SENTRY_DSN?: string
 }
