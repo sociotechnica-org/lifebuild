@@ -286,7 +286,10 @@ export class EventProcessor {
       )
     } else {
       // Clean up resources before throwing - the state was already added to the map
+      // Set stopping flag for consistency with other cleanup paths
+      storeState.stopping = true
       storeState.messageQueue.destroy()
+      storeState.llmProvider = undefined
       this.storeStates.delete(storeId)
       this.monitoringStartTime.delete(storeId)
 
