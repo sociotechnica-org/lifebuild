@@ -18,13 +18,14 @@
     "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck"
   },
   "dependencies": {
-    "@lifebuild/shared": "workspace:*"
+    "@lifebuild/shared": "workspace:*",
+    "@sentry/cloudflare": "^10.35.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "eslint": "catalog:",
-    "prettier": "catalog:",
     "miniflare": "^4.20250726.0",
+    "prettier": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
