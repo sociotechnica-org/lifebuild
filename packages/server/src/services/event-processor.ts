@@ -12,6 +12,7 @@ import { ProcessedMessageTracker } from './processed-message-tracker.js'
 import { logger, storeLogger, createContextLogger, logMessageEvent } from '../utils/logger.js'
 import {
   getMessageLifecycleTracker,
+  destroyMessageLifecycleTracker,
   type MessageLifecycleTracker,
 } from './message-lifecycle-tracker.js'
 import {
@@ -1642,6 +1643,9 @@ export class EventProcessor {
     this.processedTracker.close().catch(error => {
       logger.error({ error }, 'Error closing processed message tracker')
     })
+
+    // Cleanup global message lifecycle tracker (stops its cleanup timer)
+    destroyMessageLifecycleTracker()
 
     logger.info('Stopped all event monitoring')
   }
