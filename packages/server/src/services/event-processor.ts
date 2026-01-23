@@ -285,6 +285,11 @@ export class EventProcessor {
         'Event monitoring ready'
       )
     } else {
+      // Clean up resources before throwing - the state was already added to the map
+      storeState.messageQueue.destroy()
+      this.storeStates.delete(storeId)
+      this.monitoringStartTime.delete(storeId)
+
       const failure = new Error('Failed to create any subscriptions')
       const { durationMs } = telemetry.recordFailure(failure, {
         status: 'no_subscriptions',
@@ -1513,6 +1518,9 @@ export class EventProcessor {
    * This bypasses the async processingQueue.finally to avoid race conditions.
    */
   private forceCleanupStoreState(storeId: string, storeState: StoreProcessingState): void {
+    // Mark as stopping to signal any in-flight operations to abort
+    storeState.stopping = true
+
     // Unsubscribe from old subscriptions
     for (const unsubscribe of storeState.subscriptions) {
       try {
@@ -1530,6 +1538,9 @@ export class EventProcessor {
       processor.destroy()
     }
     storeState.conversationProcessors.clear()
+
+    // Clear llmProvider reference to allow GC and prevent use after cleanup
+    storeState.llmProvider = undefined
 
     // Cleanup subscription health tracking
     this.lastSubscriptionUpdate.delete(storeId)
@@ -1588,6 +1599,9 @@ export class EventProcessor {
         processor.destroy()
       }
       storeState.conversationProcessors.clear()
+
+      // Clear llmProvider reference to allow GC and prevent use after cleanup
+      storeState.llmProvider = undefined
 
       // Cleanup subscription health tracking
       this.lastSubscriptionUpdate.delete(storeId)
