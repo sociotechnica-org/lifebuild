@@ -13,7 +13,12 @@ export async function sendDiscordNotification(message: string, webhookUrl?: stri
     // Only report this configuration error once per worker instance to avoid spam
     if (!missingWebhookReported) {
       missingWebhookReported = true
-      reportConfigurationError('DISCORD_WEBHOOK_URL is not configured')
+      try {
+        reportConfigurationError('DISCORD_WEBHOOK_URL is not configured')
+      } catch (error) {
+        // Don't let Sentry errors break the signup flow
+        console.error('Failed to report configuration error to Sentry:', error)
+      }
     }
     return
   }
