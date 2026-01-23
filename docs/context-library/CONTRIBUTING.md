@@ -93,9 +93,11 @@ If you mention another concept that has (or should have) a note, make it a link:
 
 ```markdown
 # Bad
+
 The Table depends on the Priority Queue for candidates.
 
 # Good
+
 [[the-table]] depends on [[priority-queue]] for candidates.
 ```
 
@@ -107,11 +109,15 @@ Don't drop naked links. Explain the relationship:
 
 ```markdown
 # Bad
+
 Related:
+
 - [[priority-queue]]
 
 # Good
+
 **Requires:**
+
 - [[priority-queue]] — sources all candidates for The Table
 ```
 
@@ -123,6 +129,7 @@ For features and systems, capture WHY in both:
 2. **Content section** ("Why It Exists") — enables humans to understand rationale
 
 This duplication is intentional. They serve different purposes:
+
 - Metadata answers: "What features implement visual-work strategy?" (query)
 - Content answers: "Why does The Table exist?" (understanding)
 
@@ -134,12 +141,15 @@ The "Related Features/Systems" section enables discovery of peer concepts:
 ## Related Features
 
 **Prerequisites:**
+
 - [[sorting-room]] — where priorities are selected before appearing here
 
 **Complements:**
+
 - [[project-board]] — opened when clicking items on The Table
 
 **Enables:**
+
 - [[dual-presence]] — Work at Hand items appear in multiple places
 ```
 
@@ -157,6 +167,7 @@ Even if Past/Future notes don't exist yet, include the Evolution section:
 ```
 
 This creates placeholders that:
+
 - Show what documentation is needed
 - Enable Conan to trace how features evolved
 - Prevent repeating past mistakes

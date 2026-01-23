@@ -6,19 +6,19 @@ ca-when: present
 ca-where:
   zone: null
   spans-zones:
-    - "[[life-map]] — Work at Hand projects appear on [[the-table]]"
-    - "[[strategy-studio]] — status assigned in [[sorting-room]]"
+    - '[[life-map]] — Work at Hand projects appear on [[the-table]]'
+    - '[[strategy-studio]] — status assigned in [[sorting-room]]'
   dependencies:
-    - "[[priority-queue]]"
-    - "[[sorting-room]]"
+    - '[[priority-queue]]'
+    - '[[sorting-room]]'
   dependents:
-    - "[[the-table]]"
-    - "[[dual-presence]]"
-    - "[[category-cards]]"
+    - '[[the-table]]'
+    - '[[dual-presence]]'
+    - '[[category-cards]]'
 
 ca-why:
   strategy-links:
-    - "[[visual-work]]"
+    - '[[visual-work]]'
   rationale: "Explicit commitment status separates 'active priority' from 'other work I could do'"
 
 last-verified: 2026-01-22
@@ -34,11 +34,11 @@ A project status indicating current priority—actively committed to and display
 
 The distinction [[work-at-hand]] creates:
 
-| Status | Meaning | Visibility |
-|--------|---------|------------|
-| **Plans** | In [[priority-queue]], ready to activate | Dimmed on [[category-cards|Category Card]] |
-| **Live** | Active, can work on anytime | Normal on [[category-cards|Category Card]] |
-| **[[work-at-hand]]** | Current priority, committed | Enhanced on [[the-table]] + [[category-cards|Category Card]] |
+| Status               | Meaning                                  | Visibility                                   |
+| -------------------- | ---------------------------------------- | -------------------------------------------- | --------------- |
+| **Plans**            | In [[priority-queue]], ready to activate | Dimmed on [[category-cards                   | Category Card]] |
+| **Live**             | Active, can work on anytime              | Normal on [[category-cards                   | Category Card]] |
+| **[[work-at-hand]]** | Current priority, committed              | Enhanced on [[the-table]] + [[category-cards | Category Card]] |
 
 [[work-at-hand]] answers: **"What should I be working on right now?"**
 
@@ -74,11 +74,13 @@ Directors needed a way to say "these specific items are my focus" distinct from 
 ### Leaving Work at Hand
 
 **Via Completion:**
+
 - All tasks Done → Project status → "Completed"
 - Exits [[the-table]], slot becomes empty
 - [[bronze-stack]]: task removed, replacement may auto-pull based on mode
 
 **Via Pause:**
+
 - Director clicks "Pause" on [[project-board]]
 - Project status → "Paused"
 - Returns to [[priority-queue]] (top of appropriate filter)
@@ -87,12 +89,12 @@ Directors needed a way to say "these specific items are my focus" distinct from 
 
 ### Visual Treatment
 
-| Property | Normal Live | [[work-at-hand]] |
-|----------|-------------|--------------|
-| Image | Standard stage | Polish stage (evolved) |
-| Glow | None | Stream-colored |
-| Animation | None | Breathing pulse |
-| Location | [[category-cards]] only | [[the-table]] + [[category-cards|Category Card]] |
+| Property  | Normal Live             | [[work-at-hand]]                 |
+| --------- | ----------------------- | -------------------------------- | --------------- |
+| Image     | Standard stage          | Polish stage (evolved)           |
+| Glow      | None                    | Stream-colored                   |
+| Animation | None                    | Breathing pulse                  |
+| Location  | [[category-cards]] only | [[the-table]] + [[category-cards | Category Card]] |
 
 ---
 
@@ -107,13 +109,16 @@ Directors needed a way to say "these specific items are my focus" distinct from 
 ## Related Systems
 
 **Prerequisites:**
+
 - [[priority-queue]] — items must pass through before becoming [[work-at-hand]]
 - [[sorting-room]] — selection UI assigns the status
 
 **Complements:**
+
 - [[three-stream-model]] — determines which slot ([[gold-slot]]/[[silver-slot]]/[[bronze-stack]])
 
 **Enables:**
+
 - [[the-table]] — populated by [[work-at-hand]] items
 - [[dual-presence]] — triggers dual rendering
 
@@ -143,12 +148,12 @@ Directors needed a way to say "these specific items are my focus" distinct from 
 
 ## Constraints & Rules
 
-| Constraint | Rule |
-|------------|------|
-| Source | Must come from [[priority-queue]] |
-| Eligibility | Must match stream constraints (Gold-eligible for [[gold-slot]], etc.) |
-| Bronze minimum | Cannot activate without 3+ [[bronze-stack]] tasks |
-| Slot limits | Max 1 [[gold-slot]], max 1 [[silver-slot]] (hard limits) |
+| Constraint     | Rule                                                                  |
+| -------------- | --------------------------------------------------------------------- |
+| Source         | Must come from [[priority-queue]]                                     |
+| Eligibility    | Must match stream constraints (Gold-eligible for [[gold-slot]], etc.) |
+| Bronze minimum | Cannot activate without 3+ [[bronze-stack]] tasks                     |
+| Slot limits    | Max 1 [[gold-slot]], max 1 [[silver-slot]] (hard limits)              |
 
 ---
 
@@ -170,6 +175,7 @@ Persists. [[work-at-hand]] is stored, not session-based. Director sees same [[th
 **Supersedes:** null (original design)
 
 **Future:**
+
 - Soft deadlines for [[work-at-hand]] items
 - Auto-suggest next candidate when slot empties
 

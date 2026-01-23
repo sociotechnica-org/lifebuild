@@ -6,14 +6,14 @@ ca-when: present
 ca-where:
   parent: null
   adjacent-zones:
-    - "[[strategy-studio]] — planning workspace for project creation and priority selection"
+    - '[[strategy-studio]] — planning workspace for project creation and priority selection'
   contains:
-    - "[[the-table]]"
-    - "[[category-cards]]"
+    - '[[the-table]]'
+    - '[[category-cards]]'
 
 ca-why:
   strategy-links:
-    - "[[visual-work]]"
+    - '[[visual-work]]'
   rationale: "Primary execution workspace making all of life's work spatially visible"
 
 last-verified: 2026-01-22
@@ -28,11 +28,14 @@ The primary execution workspace where Directors spend the majority of their time
 ## What It Contains
 
 ### Primary Elements
+
 - [[the-table]] — persistent priority spotlight showing work across [[three-stream-model]]; always visible at top regardless of navigation depth
 - [[category-cards]] — eight cards arranged in a grid, each representing a major life domain (Health, Purpose, Finances, Relationships, Home, Community, Leisure, Personal Growth)
 
 ### Navigation System
+
 Three altitude levels:
+
 - **Overview Altitude** — default view; all 8 [[category-cards|Category Cards]] visible with [[the-table]] at top
 - **Domain Altitude** — single category fills 80% of screen; adjacent categories dimmed; [[the-table]] remains visible
 - **Execution Altitude** — [[project-board]] overlay; background dimmed but visible for spatial context
@@ -46,6 +49,7 @@ The Life Map embodies [[visual-work]] by making all projects spatially organized
 
 **User Need:**
 Directors need a place to:
+
 1. See all their work across life domains at a glance
 2. Know what they're committed to right now ([[the-table]])
 3. Work on projects without losing context of the whole
@@ -67,6 +71,7 @@ Directors need a place to:
 ## Boundaries
 
 ### This zone is responsible for:
+
 - Displaying all projects across all life domains
 - Showing current priorities via [[the-table]]
 - Enabling project execution (kanban boards via [[project-board]] overlays)
@@ -74,6 +79,7 @@ Directors need a place to:
 - Visual state representation (Live, Plans, Paused, [[work-at-hand]])
 
 ### This zone is NOT responsible for:
+
 - Project creation → see [[strategy-studio]] / [[drafting-room]]
 - Priority selection → see [[strategy-studio]] / [[sorting-room]]
 - Worker staffing → see [[strategy-studio]] / [[roster-room]]
@@ -91,6 +97,7 @@ Directors need a place to:
 ## Visual Design
 
 The Life Map embodies LifeBuild's design philosophy:
+
 - **Contemplative aesthetics** — warm neutrals, generous spacing, calm atmosphere
 - **Dignified gamification** — progress rings, visual states, respects adult intelligence
 - **Tactile digital materials** — cards feel graspable, buttons pressable

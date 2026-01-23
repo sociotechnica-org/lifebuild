@@ -4,15 +4,15 @@ type: component
 ca-when: present
 
 ca-where:
-  zone: "[[life-map]]"
-  parent-feature: "[[the-table]]"
+  zone: '[[life-map]]'
+  parent-feature: '[[the-table]]'
   dependencies:
-    - "[[three-stream-model]]"
-    - "[[work-at-hand]]"
-    - "[[priority-queue]]"
+    - '[[three-stream-model]]'
+    - '[[work-at-hand]]'
+    - '[[priority-queue]]'
 
 ca-why:
-  rationale: "Stack format acknowledges operational work is plural (many small tasks) and completes individually rather than as single unit"
+  rationale: 'Stack format acknowledges operational work is plural (many small tasks) and completes individually rather than as single unit'
 
 code-location: null
 last-verified: 2026-01-22
@@ -29,6 +29,7 @@ The rightmost position on [[the-table]], containing operational tasks. Unlike [[
 The Bronze Stack answers: **"What operational tasks am I committed to handling?"**
 
 The Bronze stream in [[three-stream-model]] represents operations—ongoing, necessary work maintaining life. The stack format acknowledges:
+
 - Operational work is plural (many small tasks vs. one big project)
 - Tasks complete individually rather than as a single unit
 - Volume varies based on life circumstances and capacity
@@ -38,12 +39,12 @@ The Bronze stream in [[three-stream-model]] represents operations—ongoing, nec
 
 ## What Qualifies as Bronze
 
-| Archetype | Scale | Example |
-|-----------|-------|---------|
-| Quick Task | Micro | "Schedule dentist" |
-| Maintenance | Micro | "Pay utility bills" |
-| Errands | Micro | "Pick up dry cleaning" |
-| Admin | Micro | "File expense report" |
+| Archetype   | Scale | Example                |
+| ----------- | ----- | ---------------------- |
+| Quick Task  | Micro | "Schedule dentist"     |
+| Maintenance | Micro | "Pay utility bills"    |
+| Errands     | Micro | "Pick up dry cleaning" |
+| Admin       | Micro | "File expense report"  |
 
 Bronze keeps life **running**—essential but doesn't create transformation or leverage.
 
@@ -52,25 +53,28 @@ Bronze keeps life **running**—essential but doesn't create transformation or l
 ## Implementation
 
 ### Location
+
 Rightmost position on [[the-table]], approximately 1/3 width.
 
 ### Visual Treatment
 
-| Property | Value |
-|----------|-------|
-| Accent color | Warm bronze/copper |
-| Layout | Stacked cards, slight offset |
-| Animation | None (static until interaction) |
-| Expand | Click to show full list |
+| Property     | Value                           |
+| ------------ | ------------------------------- |
+| Accent color | Warm bronze/copper              |
+| Layout       | Stacked cards, slight offset    |
+| Animation    | None (static until interaction) |
+| Expand       | Click to show full list         |
 
 ### Content Display
 
 **Collapsed (default):**
+
 - Top 3 tasks visible as stacked cards
 - Count indicator if >3 ("+12 more")
 - Each card: task title, category color
 
 **Expanded:**
+
 - Full scrollable list
 - Checkbox for each task
 - Category grouping optional
@@ -88,11 +92,11 @@ Rightmost position on [[the-table]], approximately 1/3 width.
 
 Directors configure behavior via Bronze Mode Settings:
 
-| Mode | Behavior | Use Case |
-|------|----------|----------|
-| **Minimal** | Required tasks only, no auto-fill | Recovery, low capacity |
-| **Target +N** | Required + N discretionary, auto-fills | Normal operation |
-| **Maximal** | Continuous auto-fill | High capacity, clearing backlog |
+| Mode          | Behavior                               | Use Case                        |
+| ------------- | -------------------------------------- | ------------------------------- |
+| **Minimal**   | Required tasks only, no auto-fill      | Recovery, low capacity          |
+| **Target +N** | Required + N discretionary, auto-fills | Normal operation                |
+| **Maximal**   | Continuous auto-fill                   | High capacity, clearing backlog |
 
 Mode affects initial population, auto-fill behavior, and queue processing urgency.
 
@@ -101,10 +105,12 @@ Mode affects initial population, auto-fill behavior, and queue processing urgenc
 ## Related Components
 
 **Siblings:** (other components of [[the-table]])
+
 - [[gold-slot]] — left position for transformative work
 - [[silver-slot]] — center position for infrastructure work
 
 **Uses:**
+
 - [[task-card]] component — renders individual tasks
 
 ---
@@ -112,6 +118,7 @@ Mode affects initial population, auto-fill behavior, and queue processing urgenc
 ## Dependencies
 
 **Requires:**
+
 - [[three-stream-model]] — defines Bronze criteria
 - [[work-at-hand]] — tasks must have this status to appear
 - [[priority-queue]] — Bronze Candidates filter provides tasks
@@ -120,18 +127,19 @@ Mode affects initial population, auto-fill behavior, and queue processing urgenc
 
 ## Bronze vs. Gold/Silver
 
-| Dimension | [[gold-slot]] / [[silver-slot]] | [[bronze-stack]] |
-|-----------|-------------|--------|
-| Content | Single project | Multiple tasks |
-| Completion | Whole project | Individual tasks |
-| Visual | Single card with glow | Stacked cards |
-| Auto-fill | No (manual selection) | Yes (based on mode) |
+| Dimension  | [[gold-slot]] / [[silver-slot]] | [[bronze-stack]]    |
+| ---------- | ------------------------------- | ------------------- |
+| Content    | Single project                  | Multiple tasks      |
+| Completion | Whole project                   | Individual tasks    |
+| Visual     | Single card with glow           | Stacked cards       |
+| Auto-fill  | No (manual selection)           | Yes (based on mode) |
 
 ---
 
 ## Why Tasks Not Projects?
 
 Bronze holds tasks rather than projects because:
+
 1. Operational work is granular (many small things)
 2. Progress is task-by-task, not milestone-based
 3. Completion should feel continuous
@@ -141,18 +149,19 @@ Bronze holds tasks rather than projects because:
 
 ## Technical Constraints
 
-| Constraint | Rule |
-|------------|------|
-| Minimum | 3 tasks required to activate priorities |
-| Maximum | None (can have 3 or 300) |
-| Content | Tasks, not projects |
-| Auto-fill | Depends on mode setting |
+| Constraint | Rule                                    |
+| ---------- | --------------------------------------- |
+| Minimum    | 3 tasks required to activate priorities |
+| Maximum    | None (can have 3 or 300)                |
+| Content    | Tasks, not projects                     |
+| Auto-fill  | Depends on mode setting                 |
 
 ---
 
 ## Testing Notes
 
 Key scenarios:
+
 - [ ] Bronze Stack with minimum 3 tasks
 - [ ] Bronze Stack with many tasks (10+, 50+)
 - [ ] Expanding and collapsing
@@ -170,6 +179,7 @@ Must create Bronze-eligible tasks before activating. System prompts toward task 
 
 **Complete all Bronze tasks:**
 Depends on mode:
+
 - Minimal/Target: Stack empties, may need manual refill
 - Maximal: Auto-pulls until queue exhausted
 

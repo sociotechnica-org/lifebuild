@@ -4,23 +4,23 @@ type: feature
 ca-when: present
 
 ca-where:
-  zone: "[[life-map]]"
+  zone: '[[life-map]]'
   parent: null
   dependencies:
-    - "[[priority-queue]]"
-    - "[[work-at-hand]]"
-    - "[[three-stream-model]]"
+    - '[[priority-queue]]'
+    - '[[work-at-hand]]'
+    - '[[three-stream-model]]'
   components:
-    - "[[gold-slot]]"
-    - "[[silver-slot]]"
-    - "[[bronze-stack]]"
+    - '[[gold-slot]]'
+    - '[[silver-slot]]'
+    - '[[bronze-stack]]'
 
 ca-why:
   strategy-links:
-    - "[[visual-work]]"
+    - '[[visual-work]]'
   signal: null
   pressure: null
-  rationale: "Persistent visibility into current commitments reduces context switching and prevents priority drift"
+  rationale: 'Persistent visibility into current commitments reduces context switching and prevents priority drift'
 
 last-verified: 2026-01-22
 ---
@@ -41,6 +41,7 @@ Directors using list-based systems frequently lost track of weekly commitments. 
 
 **Design Rationale:**
 Three positions (not 2, not 5) balances focus with flexibility. Early testing showed:
+
 - 2 positions felt too constraining ("But I have three important things!")
 - 5 positions created decision paralysis and diluted focus
 - 3 maps naturally to [[three-stream-model]]: transformation, leverage, operations
@@ -53,25 +54,28 @@ Three positions (not 2, not 5) balances focus with flexibility. Early testing sh
 
 Three positions arranged left-to-right:
 
-| Position | Content | Visual Treatment |
-|----------|---------|------------------|
-| [[gold-slot]] (left) | One transformative project OR empty | Stream-colored accent glow tied to [[three-stream-model]], breathing animation |
+| Position                 | Content                             | Visual Treatment                                                               |
+| ------------------------ | ----------------------------------- | ------------------------------------------------------------------------------ |
+| [[gold-slot]] (left)     | One transformative project OR empty | Stream-colored accent glow tied to [[three-stream-model]], breathing animation |
 | [[silver-slot]] (center) | One infrastructure project OR empty | Stream-colored accent glow tied to [[three-stream-model]], breathing animation |
-| [[bronze-stack]] (right) | 3+ operational tasks | Stacked cards, expandable |
+| [[bronze-stack]] (right) | 3+ operational tasks                | Stacked cards, expandable                                                      |
 
 ### User Interaction
 
 **Clicking [[gold-slot]] or [[silver-slot]] project:**
+
 - Opens [[project-board]] overlay (Execution Altitude)
 - Shows kanban board with project tasks
 - Can work on tasks, mark complete, or pause project
 
 **Clicking [[bronze-stack]]:**
+
 - Expands to show all operational tasks in [[bronze-stack]]
 - Click individual tasks to mark complete
 - Can reorder tasks within stack
 
 **Empty slots:**
+
 - Display muted outline in stream color
 - Text: "No Gold/Silver work this week" (stream names from [[three-stream-model]])
 - Strategic emptiness is valid—not a failure state
@@ -80,26 +84,29 @@ Three positions arranged left-to-right:
 
 [[work-at-hand]] projects receive enhanced treatment:
 
-| Property | Normal Live | [[work-at-hand]] |
-|----------|-------------|--------------|
-| Image | Standard stage | Polish stage (evolved) |
-| Glow | None | Stream-colored based on [[three-stream-model]] |
-| Animation | None | Subtle breathing pulse |
-| Location | [[category-cards]] only | [[the-table]] + [[category-cards]] |
+| Property  | Normal Live             | [[work-at-hand]]                               |
+| --------- | ----------------------- | ---------------------------------------------- |
+| Image     | Standard stage          | Polish stage (evolved)                         |
+| Glow      | None                    | Stream-colored based on [[three-stream-model]] |
+| Animation | None                    | Subtle breathing pulse                         |
+| Location  | [[category-cards]] only | [[the-table]] + [[category-cards]]             |
 
 ---
 
 ## Related Features
 
 **Prerequisites:**
+
 - [[sorting-room]] — where directors select what appears on The Table
 - [[priority-queue]] — source of all candidates; items must complete Stage 4 before eligibility
 
 **Complements:**
+
 - [[category-cards]] — [[work-at-hand]] items appear on both The Table and their home card via [[dual-presence]]
 - [[life-map]] — The Table is the persistent anchor within this zone
 
 **Enables:**
+
 - [[dual-presence]] — the pattern of showing [[work-at-hand]] in multiple locations
 - [[project-board]] overlays — clicking [[the-table]] items opens execution interface
 
@@ -116,24 +123,26 @@ Three positions arranged left-to-right:
 ## Dependencies
 
 **Requires:**
+
 - [[priority-queue]] — all [[the-table]] items sourced from [[priority-queue]] via [[sorting-room]] selection
 - [[work-at-hand]] — status that determines what appears on [[the-table]]
 - [[three-stream-model]] — conceptual framework defining stream identities
 
 **Enables:**
+
 - [[dual-presence]] — [[work-at-hand]] items render on [[the-table]] AND home [[category-cards]]
 
 ---
 
 ## Constraints
 
-| Constraint | Limit | Rationale |
-|------------|-------|-----------|
-| [[gold-slot]] | Max 1 project | Focus on single transformative priority |
-| [[silver-slot]] | Max 1 project | Focus on single leverage-building priority |
-| [[bronze-stack]] | Min 3 tasks | Ensures operational work isn't neglected |
-| Duplicates | None | Same item cannot occupy multiple positions |
-| Empty [[gold-slot]]/[[silver-slot]] | Allowed | Strategic emptiness is valid choice |
+| Constraint                          | Limit         | Rationale                                  |
+| ----------------------------------- | ------------- | ------------------------------------------ |
+| [[gold-slot]]                       | Max 1 project | Focus on single transformative priority    |
+| [[silver-slot]]                     | Max 1 project | Focus on single leverage-building priority |
+| [[bronze-stack]]                    | Min 3 tasks   | Ensures operational work isn't neglected   |
+| Duplicates                          | None          | Same item cannot occupy multiple positions |
+| Empty [[gold-slot]]/[[silver-slot]] | Allowed       | Strategic emptiness is valid choice        |
 
 ---
 
@@ -147,6 +156,7 @@ Valid but unusual. Director needs to visit [[sorting-room]] to activate prioriti
 
 **A Gold stream project from [[three-stream-model]] completes mid-week:**
 Slot becomes empty immediately. Director can:
+
 - Visit [[sorting-room]] to activate the next Gold candidate in [[priority-queue]]
 - Leave empty until next planning session
 - No automatic replacement (intentional—maintains director agency)
@@ -161,6 +171,7 @@ Clicking Pause on [[project-board]] returns item to [[priority-queue]] (top of r
 **Supersedes:** null (original design for LifeBuild)
 
 **Future:**
+
 - Quick-add to [[bronze-stack]] directly from [[the-table]] (reduces friction for capturing small tasks)
 - Mini progress rings on [[gold-slot]]/[[silver-slot]] items showing completion percentage
 - Drag-and-drop reordering within [[bronze-stack]]
