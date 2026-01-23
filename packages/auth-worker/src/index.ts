@@ -841,7 +841,8 @@ const worker = {
 export default Sentry.withSentry(
   (env: Env) => ({
     dsn: env.SENTRY_DSN,
-    tracesSampleRate: 1.0,
+    // Use lower sampling in production to reduce volume, consistent with other packages
+    tracesSampleRate: env.ENVIRONMENT === 'production' ? 0.1 : 1.0,
   }),
   worker
 )
