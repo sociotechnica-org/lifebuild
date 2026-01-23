@@ -37,7 +37,7 @@ Marvin helps classify projects by archetype:
 
 - Select which projects go on the Table (that's Cameron's role)
 - Staff AI workers (that's Devin's role)
-- Provide strategic life advice (that's Jarvis's role)
+- Provide strategic prioritization advice (that's Cameron's role)
 
 ## Personality & Communication Style
 

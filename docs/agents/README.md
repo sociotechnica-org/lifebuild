@@ -4,12 +4,11 @@ This folder contains comprehensive documentation for each AI agent in LifeBuild.
 
 ## Agent Overview
 
-| Agent                   | Location      | Role                      | Status   |
-| ----------------------- | ------------- | ------------------------- | -------- |
-| [Jarvis](./jarvis.md)   | Life Map      | Strategic Advisor         | New      |
-| [Marvin](./marvin.md)   | Drafting Room | Project Manager           | Updated  |
-| [MESA](./mesa.md)       | Life Map      | Navigator                 | Updated  |
-| [Cameron](./cameron.md) | Sorting Room  | Priority Queue Specialist | Existing |
+| Agent                   | Location      | Role                      |
+| ----------------------- | ------------- | ------------------------- |
+| [Marvin](./marvin.md)   | Drafting Room | Project Manager           |
+| [Cameron](./cameron.md) | Sorting Room  | Priority Queue Specialist |
+| [MESA](./mesa.md)       | Life Map      | Navigator                 |
 
 ## Agent Architecture
 
@@ -17,20 +16,18 @@ This folder contains comprehensive documentation for each AI agent in LifeBuild.
 
 LifeBuild uses a room-based workspace model. Each room has a dedicated agent:
 
-- **Life Map** (execution workspace): Jarvis (strategy) + MESA (navigation)
 - **Drafting Room** (project creation): Marvin
 - **Sorting Room** (priority selection): Cameron
+- **Life Map** (execution workspace): MESA (navigation)
 - **Roster Room** (worker staffing): Devin (future)
 
 ### Agent Responsibilities
 
-**Jarvis** - Helps Directors see the big picture across all 8 life categories. Notices imbalances, celebrates progress, and guides strategic decisions.
-
-**MESA** - Helps Directors navigate and orient within the Life Map interface. Explains what they're seeing and how to get where they want to go.
-
 **Marvin** - Guides project creation through the 4-stage process (Identify, Scope, Detail, Prioritize). Helps break down ideas into actionable task lists.
 
 **Cameron** - Helps Directors select priorities through three-stream filtering (Gold, Silver, Bronze). Makes trade-offs explicit.
+
+**MESA** - Helps Directors navigate and orient within the Life Map interface. Explains what they're seeing and how to get where they want to go.
 
 ## Document Structure
 
