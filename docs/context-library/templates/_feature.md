@@ -4,19 +4,19 @@ type: feature
 ca-when: present | planned | future
 
 ca-where:
-  zone: "[[zone-name]]"
+  zone: '[[zone-name]]'
   parent: null | "[[parent-feature]]"
   dependencies:
-    - "[[system-or-feature]]"
+    - '[[system-or-feature]]'
   components:
-    - "[[component]]"
+    - '[[component]]'
 
 ca-why:
   strategy-links:
-    - "[[strategy-note]]"
+    - '[[strategy-note]]'
   signal: null | "[[signal-note]]"
   pressure: null | "[[pressure-note]]"
-  rationale: "One sentence for query results"
+  rationale: 'One sentence for query results'
 
 last-verified: YYYY-MM-DD
 ---
@@ -35,12 +35,15 @@ Metadata captures the links; this section explains the reasoning.
 -->
 
 **Strategy:** [[strategy-note]]
+
 <!-- How does this feature implement the strategy? What principle does it embody? -->
 
 **Driver:** [[signal-note]] | [[pressure-note]] | "No external driver—capability building"
+
 <!-- What caused us to build this? What problem does it solve? -->
 
 **Design Rationale:**
+
 <!-- Why these specific choices? What alternatives were considered? -->
 
 ---
@@ -57,12 +60,15 @@ Use tables for complex information. Be specific.
 ## Related Features
 
 **Prerequisites:**
+
 - [[feature]] — why it must exist first
 
 **Complements:**
+
 - [[feature]] — how they work together
 
 **Enables:**
+
 - [[feature]] — what this makes possible
 
 ---
@@ -78,9 +84,11 @@ Use tables for complex information. Be specific.
 ## Dependencies
 
 **Requires:**
+
 - [[system-or-feature]] — what this needs and why
 
 **Enables:**
+
 - [[system-or-feature]] — what depends on this
 
 ---

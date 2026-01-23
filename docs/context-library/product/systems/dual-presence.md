@@ -4,18 +4,18 @@ type: system
 ca-when: present
 
 ca-where:
-  zone: "[[life-map]]"
+  zone: '[[life-map]]'
   spans-zones: null
   dependencies:
-    - "[[work-at-hand]]"
-    - "[[the-table]]"
-    - "[[category-cards]]"
+    - '[[work-at-hand]]'
+    - '[[the-table]]'
+    - '[[category-cards]]'
   dependents: null
 
 ca-why:
   strategy-links:
-    - "[[visual-work]]"
-  rationale: "Directors need both priority visibility ([[the-table]]) and domain context ([[category-cards]]) simultaneously"
+    - '[[visual-work]]'
+  rationale: 'Directors need both priority visibility ([[the-table]]) and domain context ([[category-cards]]) simultaneously'
 
 last-verified: 2026-01-22
 ---
@@ -31,10 +31,12 @@ A rendering pattern where [[work-at-hand]] projects appear in two places simulta
 The problem Dual Presence solves:
 
 **Without Dual Presence, you must choose:**
+
 - Show priority on [[the-table]] → lose domain context (where does this live?)
 - Show project on [[category-cards|Category Card]] → lose priority visibility (is this my focus?)
 
 **With Dual Presence, you get both:**
+
 - [[the-table]] shows "here are your priorities"
 - [[category-cards]] shows "here's all work in Health, including your priority"
 - Same object, two useful views
@@ -72,16 +74,17 @@ Both render the **same object**. No duplication in data—just dual rendering.
 ### State Synchronization
 
 Changes propagate to both views automatically:
+
 - Complete task → progress ring updates in both
 - Pause project → disappears from both (moves to [[priority-queue]])
 - Project completes → removed from both
 
 ### Visual Differentiation
 
-| Location | Treatment |
-|----------|-----------|
-| [[the-table]] | Polish-stage image, stream glow, breathing animation |
-| [[category-cards]] | Standard Live + subtle stream-colored pulse |
+| Location           | Treatment                                            |
+| ------------------ | ---------------------------------------------------- |
+| [[the-table]]      | Polish-stage image, stream glow, breathing animation |
+| [[category-cards]] | Standard Live + subtle stream-colored pulse          |
 
 The pulse on [[category-cards|Category Card]] says: "This one is also on [[the-table]]."
 
@@ -97,14 +100,17 @@ The pulse on [[category-cards|Category Card]] says: "This one is also on [[the-t
 ## Related Systems
 
 **Prerequisites:**
+
 - [[work-at-hand]] — only [[work-at-hand]] items render in dual presence
 - [[the-table]] — one render target
 - [[category-cards]] — other render target
 
 **Complements:**
+
 - [[three-stream-model]] — determines stream color for pulse
 
 **Enables:**
+
 - Directors maintain spatial awareness while focusing on priorities
 
 ---
@@ -114,6 +120,7 @@ The pulse on [[category-cards|Category Card]] says: "This one is also on [[the-t
 ### Approach
 
 Project component accepts `displayContext` prop:
+
 - `displayContext: "table"` → enhanced treatment
 - `displayContext: "category"` → standard + pulse
 
@@ -124,6 +131,7 @@ Both contexts subscribe to same project state.
 Alternative considered: only show [[work-at-hand]] on [[the-table]], remove from [[category-cards|Category Card]].
 
 Rejected because:
+
 - Loses domain context ("How much work in Health?")
 - Creates confusion ("Where did my project go?")
 - Breaks spatial mental model
@@ -134,12 +142,12 @@ Dual Presence is more complex but better for understanding.
 
 ## Constraints & Rules
 
-| Constraint | Rule |
-|------------|------|
-| Same object | Not a copy; both views reference same data |
-| Sync | Automatic; no manual refresh |
-| Scope | Only [[work-at-hand]] items; Live items appear only on [[category-cards|Category Card]] |
-| Bronze | Same pattern—tasks appear on [[bronze-stack]] and home [[category-cards|Category Card]] |
+| Constraint  | Rule                                                                    |
+| ----------- | ----------------------------------------------------------------------- | --------------- |
+| Same object | Not a copy; both views reference same data                              |
+| Sync        | Automatic; no manual refresh                                            |
+| Scope       | Only [[work-at-hand]] items; Live items appear only on [[category-cards | Category Card]] |
+| Bronze      | Same pattern—tasks appear on [[bronze-stack]] and home [[category-cards | Category Card]] |
 
 ---
 
@@ -161,6 +169,7 @@ Same pattern. Bronze task appears in [[bronze-stack]] AND on home [[category-car
 **Supersedes:** null (original design)
 
 **Future:**
+
 - Tune pulse animation prominence based on user feedback
 - Consider mobile: does dual presence help or confuse on small screens?
 

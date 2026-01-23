@@ -4,10 +4,10 @@ type: component
 ca-when: present | planned | future
 
 ca-where:
-  zone: "[[zone-name]]"
-  parent-feature: "[[feature-name]]"
+  zone: '[[zone-name]]'
+  parent-feature: '[[feature-name]]'
   dependencies:
-    - "[[system-or-component]]"
+    - '[[system-or-component]]'
 
 # Components inherit WHY from parent feature
 # Only add rationale if there's component-specific reasoning
@@ -33,19 +33,23 @@ last-verified: YYYY-MM-DD
 ## Implementation
 
 ### Location
+
 <!-- Where in the UI does this appear? -->
 
 ### Visual Treatment
+
 <!-- Colors, animations, states -->
 
 | Property | Value |
-|----------|-------|
-| ... | ... |
+| -------- | ----- |
+| ...      | ...   |
 
 ### Content Display
+
 <!-- What information does it show? -->
 
 ### Interaction
+
 <!-- How do users interact with it? -->
 
 ---
@@ -53,9 +57,11 @@ last-verified: YYYY-MM-DD
 ## Related Components
 
 **Siblings:** (other components of same parent feature)
+
 - [[component]] — relationship
 
 **Uses:**
+
 - [[component]] — how it uses this
 
 ---
@@ -63,6 +69,7 @@ last-verified: YYYY-MM-DD
 ## Dependencies
 
 **Requires:**
+
 - [[system-or-component]] — what this needs
 
 ---

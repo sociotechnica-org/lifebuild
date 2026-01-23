@@ -4,18 +4,18 @@ type: system
 ca-when: present
 
 ca-where:
-  zone: "[[strategy-studio]]"
+  zone: '[[strategy-studio]]'
   spans-zones: null
   dependencies:
-    - "[[project]]"
+    - '[[project]]'
   dependents:
-    - "[[the-table]]"
-    - "[[sorting-room]]"
-    - "[[work-at-hand]]"
+    - '[[the-table]]'
+    - '[[sorting-room]]'
+    - '[[work-at-hand]]'
 
 ca-why:
   strategy-links:
-    - "[[visual-work]]"
+    - '[[visual-work]]'
   rationale: "Separates 'ready work' from 'selected work' allowing backlog accumulation without commitment"
 
 last-verified: 2026-01-22
@@ -31,10 +31,10 @@ A repository of fully-planned work (Stage 4 complete) waiting to be activated. T
 
 Two queues work together:
 
-| Queue | Contains | Purpose |
-|-------|----------|---------|
-| **Planning Queue** | Projects in Stages 1-3 | Development workspace |
-| **Priority Queue** | Stage 4 complete | Ready work, awaiting selection |
+| Queue              | Contains               | Purpose                        |
+| ------------------ | ---------------------- | ------------------------------ |
+| **Planning Queue** | Projects in Stages 1-3 | Development workspace          |
+| **Priority Queue** | Stage 4 complete       | Ready work, awaiting selection |
 
 The Priority Queue represents **ready work**—projects fully planned that could be activated anytime. Directors don't have to select immediately; items wait here until moved to [[the-table]] via [[sorting-room]].
 
@@ -55,6 +55,7 @@ Directors needed to plan work without immediately committing to it. The Priority
 ### Entering the Priority Queue
 
 Projects enter when:
+
 1. **Stage 4 completes** — exits Planning Queue, enters Priority Queue as "Plans"
 2. **[[work-at-hand]] pauses** — returns to Priority Queue (top of filter) as "Paused"
 
@@ -63,16 +64,19 @@ Projects enter when:
 View through three filters matching [[three-stream-model]]:
 
 **Gold Candidates:**
+
 - Initiative archetype, Major/Epic scale, or manually tagged Gold-eligible
 - Typical: 2-8 projects
 - Question: "Which frontier-opening work matters most?"
 
 **Silver Candidates:**
+
 - System Build, Discovery Mission, or capacity-building
 - Typical: 5-15 projects
 - Question: "Which infrastructure will buy the most future time?"
 
 **Bronze Candidates:**
+
 - Quick Tasks, Micro-scale
 - Typical: 10-100+ tasks
 - Question: "What operational work needs handling?"
@@ -80,6 +84,7 @@ View through three filters matching [[three-stream-model]]:
 ### Selection Process
 
 In [[sorting-room]]:
+
 1. View Gold Candidates → select one (or leave empty)
 2. View Silver Candidates → select one (or leave empty)
 3. View Bronze Candidates → configure mode (Minimal/Target/Maximal)
@@ -89,6 +94,7 @@ In [[sorting-room]]:
 ### Reordering
 
 Within each filter:
+
 - Drag to reorder priority
 - Paused items auto-appear at top of their filter
 - Order persists until manually changed
@@ -105,13 +111,16 @@ Within each filter:
 ## Related Systems
 
 **Prerequisites:**
+
 - [[project]] — project entity with Stage 4 complete
 
 **Complements:**
+
 - [[three-stream-model]] — provides filter structure
 - [[sorting-room]] — selection interface
 
 **Enables:**
+
 - [[work-at-hand]] — status applied to selected items
 - [[the-table]] — populated from here via selection
 
@@ -146,18 +155,19 @@ Within each filter:
 
 ## Constraints & Rules
 
-| Constraint | Rule |
-|------------|------|
-| Entry | Stage 4 required; only fully-planned projects |
-| Paused | Returns to top of filter, not original position |
+| Constraint  | Rule                                              |
+| ----------- | ------------------------------------------------- |
+| Entry       | Stage 4 required; only fully-planned projects     |
+| Paused      | Returns to top of filter, not original position   |
 | Exclusivity | Project in Queue XOR on [[the-table]], never both |
-| Filters | Views of same queue, not separate queues |
+| Filters     | Views of same queue, not separate queues          |
 
 ---
 
 ## Bronze Priority Logic
 
 Within Bronze Candidates, ordered by:
+
 1. **Due date** — soonest first, imminent flagged
 2. **Manual priority** — director drag to reorder
 3. **Time estimate** — quick tasks sometimes clustered
@@ -184,6 +194,7 @@ Goes to **top** of filter (not original position). Makes resuming high-priority 
 **Supersedes:** null (original design)
 
 **Future:**
+
 - Auto-calculated priority scores
 - Staleness detection ("Item in queue 6 weeks—still relevant?")
 

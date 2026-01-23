@@ -6,18 +6,18 @@ ca-when: present | planned | future
 ca-where:
   zone: null | "[[zone-name]]"
   spans-zones:
-    - "[[zone]]"
+    - '[[zone]]'
   dependencies:
-    - "[[system-or-entity]]"
+    - '[[system-or-entity]]'
   dependents:
-    - "[[feature-or-system]]"
+    - '[[feature-or-system]]'
 
 ca-why:
   strategy-links:
-    - "[[strategy-note]]"
+    - '[[strategy-note]]'
   signal: null | "[[signal-note]]"
   pressure: null | "[[pressure-note]]"
-  rationale: "One sentence for query results"
+  rationale: 'One sentence for query results'
 
 last-verified: YYYY-MM-DD
 ---
@@ -40,9 +40,11 @@ Why does it exist as a distinct system rather than being folded into features?
 ## Why It Exists
 
 **Strategy:** [[strategy-note]]
+
 <!-- How does this system implement the strategy? -->
 
 **Driver:** [[signal-note]] | [[pressure-note]] | "Architectural necessity"
+
 <!-- What caused us to create this system? -->
 
 ---
@@ -68,12 +70,15 @@ Use diagrams (ASCII or Mermaid) for complex flows.
 ## Related Systems
 
 **Prerequisites:**
+
 - [[system]] — what must exist for this to work
 
 **Complements:**
+
 - [[system]] — how they interact
 
 **Enables:**
+
 - [[system]] — what this makes possible
 
 ---
@@ -81,9 +86,11 @@ Use diagrams (ASCII or Mermaid) for complex flows.
 ## Dependencies
 
 **Requires:**
+
 - [[entity-or-system]] — what this needs
 
 **Required By:**
+
 - [[feature-or-system]] — what depends on this
 
 ---

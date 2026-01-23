@@ -4,16 +4,16 @@ type: zone
 ca-when: present | planned | future
 
 ca-where:
-  parent: null  # zones are top-level
+  parent: null # zones are top-level
   adjacent-zones:
-    - "[[zone]] — relationship"
+    - '[[zone]] — relationship'
   contains:
-    - "[[feature]]"
+    - '[[feature]]'
 
 ca-why:
   strategy-links:
-    - "[[strategy-note]]"
-  rationale: "One sentence for query results"
+    - '[[strategy-note]]'
+  rationale: 'One sentence for query results'
 
 last-verified: YYYY-MM-DD
 ---
@@ -27,11 +27,15 @@ last-verified: YYYY-MM-DD
 ## What It Contains
 
 ### Primary Elements
+
 <!-- Anchor features that define this zone's experience -->
+
 - [[feature]] — brief description
 
 ### Supporting Elements
+
 <!-- Other features, systems that operate within this zone -->
+
 - [[feature]] — brief description
 
 ---
@@ -39,9 +43,11 @@ last-verified: YYYY-MM-DD
 ## Why It Exists
 
 **Strategy:** [[strategy-note]]
+
 <!-- How does this zone embody the strategy? -->
 
 **User Need:**
+
 <!-- What does the user accomplish in this zone? -->
 
 ---
@@ -59,9 +65,11 @@ last-verified: YYYY-MM-DD
 ## Boundaries
 
 ### This zone is responsible for:
+
 - ...
 
 ### This zone is NOT responsible for:
+
 - ... (see [[other-zone]])
 
 ---

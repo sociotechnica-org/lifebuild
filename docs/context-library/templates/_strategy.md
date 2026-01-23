@@ -5,10 +5,10 @@ ca-when: present
 
 ca-where:
   applies-to:
-    - "[[zone-or-feature]]"
+    - '[[zone-or-feature]]'
 
 ca-why:
-  rationale: "One sentence capturing the core insight"
+  rationale: 'One sentence capturing the core insight'
 
 last-verified: YYYY-MM-DD
 ---
@@ -54,8 +54,8 @@ These should be bidirectional—features link back here in their WHY section.
 <!-- What anti-patterns or problems does this strategy help us avoid? -->
 
 | Anti-Pattern | How This Strategy Prevents It |
-|--------------|------------------------------|
-| ... | ... |
+| ------------ | ----------------------------- |
+| ...          | ...                           |
 
 ---
 
