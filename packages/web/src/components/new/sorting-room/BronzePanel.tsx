@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   DndContext,
   DragOverlay,
@@ -27,6 +28,8 @@ import {
   resolveLifecycleState,
   type LifecycleStream,
 } from '@lifebuild/shared'
+import { generateRoute } from '../../../constants/routes.js'
+import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 
 export interface BronzePanelProps {
   /** Tabled bronze projects (from tableBronzeProjects table) */
@@ -110,7 +113,8 @@ const SortableTabledProjectCard: React.FC<{
   item: TabledProjectWithDetails
   index: number
   onRemove?: () => void
-}> = ({ item, index, onRemove }) => {
+  onView?: () => void
+}> = ({ item, index, onRemove, onView }) => {
   const { entry, project, taskCount, completedCount, categoryColor } = item
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: entry.id,
@@ -146,15 +150,26 @@ const SortableTabledProjectCard: React.FC<{
             <div className='text-xs text-[#8b8680] mt-0.5 truncate'>{project.description}</div>
           )}
         </div>
-        {onRemove && (
-          <button
-            type='button'
-            className='text-xs py-1.5 px-3 rounded-lg bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] whitespace-nowrap flex-shrink-0'
-            onClick={onRemove}
-          >
-            Remove
-          </button>
-        )}
+        <div className='flex items-center gap-2 flex-shrink-0'>
+          {onView && (
+            <button
+              type='button'
+              className='text-xs py-1.5 px-3 rounded-lg bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black whitespace-nowrap'
+              onClick={onView}
+            >
+              View
+            </button>
+          )}
+          {onRemove && (
+            <button
+              type='button'
+              className='text-xs py-1.5 px-3 rounded-lg bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] whitespace-nowrap'
+              onClick={onRemove}
+            >
+              Remove
+            </button>
+          )}
+        </div>
       </div>
       {taskCount > 0 && <ProgressBar completed={completedCount} total={taskCount} />}
     </div>
@@ -181,7 +196,8 @@ const DragGripIcon: React.FC = () => (
 const DraggableAvailableProjectCard: React.FC<{
   item: ProjectWithDetails
   onAdd?: () => void
-}> = ({ item, onAdd }) => {
+  onView?: () => void
+}> = ({ item, onAdd, onView }) => {
   const { project, taskCount, completedCount, categoryColor } = item
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `available-${project.id}`,
@@ -217,18 +233,32 @@ const DraggableAvailableProjectCard: React.FC<{
             <div className='text-xs text-[#8b8680] mt-0.5 truncate'>{project.description}</div>
           )}
         </div>
-        {onAdd && (
-          <button
-            type='button'
-            className='text-xs py-1.5 px-3 rounded-lg bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black whitespace-nowrap flex-shrink-0'
-            onClick={e => {
-              e.stopPropagation()
-              onAdd()
-            }}
-          >
-            Add to Table
-          </button>
-        )}
+        <div className='flex items-center gap-2 flex-shrink-0'>
+          {onView && (
+            <button
+              type='button'
+              className='text-xs py-1.5 px-3 rounded-lg bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] whitespace-nowrap'
+              onClick={e => {
+                e.stopPropagation()
+                onView()
+              }}
+            >
+              View
+            </button>
+          )}
+          {onAdd && (
+            <button
+              type='button'
+              className='text-xs py-1.5 px-3 rounded-lg bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black whitespace-nowrap'
+              onClick={e => {
+                e.stopPropagation()
+                onAdd()
+              }}
+            >
+              Add to Table
+            </button>
+          )}
+        </div>
       </div>
       {taskCount > 0 && <ProgressBar completed={completedCount} total={taskCount} />}
     </div>
@@ -421,8 +451,16 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
   onReorder,
   onQuickAddProject,
 }) => {
+  const navigate = useNavigate()
   const [activeId, setActiveId] = useState<string | null>(null)
   const [activeType, setActiveType] = useState<'tabled' | 'available' | null>(null)
+
+  const handleViewProject = useCallback(
+    (projectId: string) => {
+      navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
+    },
+    [navigate]
+  )
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -563,6 +601,7 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
                     key={item.entry.id}
                     item={item}
                     index={index}
+                    onView={() => handleViewProject(item.project.id)}
                     onRemove={
                       onRemoveFromTable ? () => onRemoveFromTable(item.entry.id) : undefined
                     }
@@ -595,6 +634,7 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
                 <DraggableAvailableProjectCard
                   key={item.project.id}
                   item={item}
+                  onView={() => handleViewProject(item.project.id)}
                   onAdd={onAddToTable ? () => onAddToTable(item.project.id) : undefined}
                 />
               ))
