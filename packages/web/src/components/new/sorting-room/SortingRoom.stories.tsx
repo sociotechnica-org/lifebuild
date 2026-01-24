@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
-import { MemoryRouter } from 'react-router-dom'
 import { LiveStoreProvider, useQuery } from '../../../livestore-compat.js'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
@@ -64,20 +63,18 @@ const SortingRoomHelper: React.FC<{ showDebug?: boolean }> = ({ showDebug = fals
   )
 }
 
-const withLiveStore =
-  (boot: (store: Store) => void, initialRoute = '/sorting-room') =>
-  (Story: React.ComponentType) => (
-    <MemoryRouter initialEntries={[initialRoute]}>
-      <LiveStoreProvider
-        schema={schema}
-        adapter={makeInMemoryAdapter()}
-        batchUpdates={batchUpdates}
-        boot={store => boot(store)}
-      >
-        <Story />
-      </LiveStoreProvider>
-    </MemoryRouter>
-  )
+// Note: Router is provided by Storybook's preview.tsx (BrowserRouter)
+// so we don't wrap with MemoryRouter here
+const withLiveStore = (boot: (store: Store) => void) => (Story: React.ComponentType) => (
+  <LiveStoreProvider
+    schema={schema}
+    adapter={makeInMemoryAdapter()}
+    batchUpdates={batchUpdates}
+    boot={store => boot(store)}
+  >
+    <Story />
+  </LiveStoreProvider>
+)
 
 // Seed helpers
 type ProjectCategory =
@@ -360,14 +357,17 @@ export const FullSetup: Story = {
 
 /**
  * Bronze stream expanded via URL parameter
+ * Note: URL-based expansion cannot be tested in Storybook since the router is controlled by preview.tsx
+ * This story shows the same data as WithTabledBronze - test URL expansion via E2E tests
  */
 export const BronzeExpanded: Story = {
   args: { showDebug: false },
-  decorators: [withLiveStore(withTabledBronzeSetup, '/sorting-room/bronze')],
+  decorators: [withLiveStore(withTabledBronzeSetup)],
   parameters: {
     docs: {
       description: {
-        story: 'Bronze stream panel is expanded by default via URL (/sorting-room/bronze).',
+        story:
+          'Bronze stream with tabled projects. Note: URL-based expansion (/sorting-room/bronze) cannot be tested in Storybook - use E2E tests for that.',
       },
     },
   },

@@ -177,19 +177,19 @@ The Sorting Room displays all projects in "backlog" status (Stage 4) ready for a
 
 - **Gold Stream**: Major initiatives (initiative + major/epic scale). Frontier-opening, life-changing work. Only ONE Gold project can be active at a time. An empty Gold slot is a valid strategic choice.
 - **Silver Stream**: System builds and discovery missions. Infrastructure investment that buys future time. Only ONE Silver project can be active at a time. An empty Silver slot is also valid.
-- **Bronze Stream**: Quick tasks, maintenance, and micro-scale work. These are batched and worked on together.
+- **Bronze Stream**: Quick task projects, maintenance, and micro-scale work. These projects are queued and worked on together.
 
 ## The Table
 
 The Table represents what's actively being worked on:
 - **Gold slot**: One Gold project (or intentionally empty)
 - **Silver slot**: One Silver project (or intentionally empty)
-- **Bronze stack**: Multiple bronze tasks based on Bronze mode
+- **Bronze stack**: Multiple bronze projects based on Bronze mode
 
 ### Bronze Mode Options
-- **Minimal**: Only required/deadline-driven tasks
-- **Target +X**: Minimal plus X additional tasks from the queue
-- **Maximal**: Fill the table with as many bronze tasks as capacity allows
+- **Minimal**: Only required/deadline-driven projects
+- **Target +X**: Minimal plus X additional projects from the queue
+- **Maximal**: Fill the table with as many bronze projects as capacity allows
 
 ## What You Help With
 
@@ -208,7 +208,7 @@ The Table represents what's actively being worked on:
 ### Stream Management
 - Assign projects to Gold or Silver slots
 - Clear slots when completing/pausing
-- Manage the bronze stack
+- Manage the bronze project queue
 - Update Bronze mode settings
 
 ## Guidelines
