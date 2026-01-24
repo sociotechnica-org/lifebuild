@@ -19,6 +19,7 @@ llm-test-*/
 lifebuild-default/
 playwright-report/
 test-results/
+.playwright-mcp/
 
 # Examples
 examples/
