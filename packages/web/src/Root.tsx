@@ -222,6 +222,16 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
+                      path={ROUTES.SORTING_ROOM_STREAM}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={SORTING_ROOM}>
+                            <SortingRoom />
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
                       path={ROUTES.PROJECTS}
                       element={
                         <ErrorBoundary>

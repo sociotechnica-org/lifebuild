@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useStore } from '../../../livestore-compat.js'
 import { getProjects$, getAllTasks$ } from '@lifebuild/shared/queries'
+import { generateRoute } from '../../../constants/routes.js'
+import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import {
   resolveLifecycleState,
   type ProjectLifecycleState,
@@ -87,9 +89,16 @@ const getStreamDotClass = (stream: Stream): string => {
 
 export const SortingRoom: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  const [expandedStream, setExpandedStream] = useState<Stream | null>(null)
+  const { stream: streamParam } = useParams<{ stream?: string }>()
+  const navigate = useNavigate()
   const [draggedGoldProject, setDraggedGoldProject] = useState<Project | null>(null)
   const [draggedSilverProject, setDraggedSilverProject] = useState<Project | null>(null)
+
+  // Derive expanded stream from URL param (single source of truth)
+  const expandedStream: Stream | null =
+    streamParam === 'gold' || streamParam === 'silver' || streamParam === 'bronze'
+      ? streamParam
+      : null
 
   // Derive category filter directly from URL (single source of truth)
   const categoryFromUrl = searchParams.get('category') as ProjectCategory | null
@@ -354,7 +363,10 @@ export const SortingRoom: React.FC = () => {
   ]
 
   const handleTabClick = (stream: Stream) => {
-    setExpandedStream(prev => (prev === stream ? null : stream))
+    // Toggle: if clicking the already-expanded stream, collapse it
+    // Otherwise, expand the clicked stream
+    const newStream = expandedStream === stream ? undefined : stream
+    navigate(preserveStoreIdInUrl(generateRoute.sortingRoom(newStream)))
   }
 
   /**
