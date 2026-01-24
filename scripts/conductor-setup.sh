@@ -174,6 +174,32 @@ sanitize_branch_name_for_store_id() {
     fi
 }
 
+check_auth_worker_running() {
+    # Check if auth-worker is already responding on port 8788 (with timeout)
+    if curl -s --max-time 2 http://localhost:8788 > /dev/null 2>&1; then
+        return 0
+    fi
+    return 1
+}
+
+kill_stale_auth_worker() {
+    # Kill any process listening on port 8788 that isn't responding
+    local pids
+    pids=$(lsof -ti :8788 2>/dev/null || true)
+    if [ -n "$pids" ]; then
+        echo "   Killing stale process(es) on port 8788..."
+        # Try graceful kill first, then force kill after a short wait
+        echo "$pids" | xargs kill 2>/dev/null || true
+        sleep 1
+        # Check if any processes are still running and force kill them
+        pids=$(lsof -ti :8788 2>/dev/null || true)
+        if [ -n "$pids" ]; then
+            echo "$pids" | xargs kill -9 2>/dev/null || true
+            sleep 1
+        fi
+    fi
+}
+
 start_auth_worker() {
     echo "   Starting auth-worker..."
     pushd "$WORKSPACE_ROOT/packages/auth-worker" >/dev/null
@@ -185,7 +211,7 @@ start_auth_worker() {
 wait_for_auth_worker() {
     echo "   Waiting for auth-worker to start..."
     for _ in {1..30}; do
-        if curl -s http://localhost:8788 > /dev/null 2>&1; then
+        if curl -s --max-time 2 http://localhost:8788 > /dev/null 2>&1; then
             echo "   ✅ Auth-worker ready"
             return 0
         fi
@@ -278,15 +304,22 @@ pnpm exec playwright install
 
 # Create test user on auth server
 echo "👤 Creating test user..."
-if start_auth_worker; then
-    if wait_for_auth_worker; then
-        create_test_user
-    else
-        echo "   ⚠️  Skipping test user creation. Check $AUTH_WORKER_LOG for details."
-    fi
-    stop_auth_worker
+if check_auth_worker_running; then
+    echo "   ✅ Auth-worker already running on port 8788"
+    create_test_user
 else
-    echo "   ⚠️  Failed to start auth-worker process"
+    # Port might be occupied by a stale process - kill it before starting fresh
+    kill_stale_auth_worker
+    if start_auth_worker; then
+        if wait_for_auth_worker; then
+            create_test_user
+        else
+            echo "   ⚠️  Skipping test user creation. Check $AUTH_WORKER_LOG for details."
+        fi
+        stop_auth_worker
+    else
+        echo "   ⚠️  Failed to start auth-worker process"
+    fi
 fi
 
 echo "✨ Worktree setup complete!"
