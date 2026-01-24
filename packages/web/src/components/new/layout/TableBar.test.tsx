@@ -68,7 +68,9 @@ describe('TableBar', () => {
       </MemoryRouter>
     )
 
-    const bronzeSlot = screen.getByText('To-Do').closest('div')
+    // Bronze slot is now a Link when it has a project (clickable)
+    const bronzeSlotHeader = screen.getByText('To-Do')
+    const bronzeSlot = bronzeSlotHeader.closest('a') || bronzeSlotHeader.closest('div')
     expect(bronzeSlot).not.toBeNull()
 
     const bronzeScope = within(bronzeSlot as HTMLElement)
@@ -113,7 +115,9 @@ describe('TableBar', () => {
       </MemoryRouter>
     )
 
-    const bronzeSlot = screen.getByText('To-Do').closest('div')
+    // Bronze slot is now a Link when it has a project (clickable)
+    const bronzeSlotHeader = screen.getByText('To-Do')
+    const bronzeSlot = bronzeSlotHeader.closest('a') || bronzeSlotHeader.closest('div')
     expect(bronzeSlot).not.toBeNull()
 
     const bronzeScope = within(bronzeSlot as HTMLElement)
