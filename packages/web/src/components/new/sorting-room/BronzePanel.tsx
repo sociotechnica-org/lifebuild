@@ -74,15 +74,31 @@ function getCategoryColor(project: Project | null | undefined): string | null {
 const BRONZE_COLOR = '#c48b5a'
 
 /**
- * Compute task progress for a project
+ * Build a Map of projectId -> task progress for O(1) lookups
+ * This is more efficient than computing progress per-project in O(n*m)
  */
-function getProjectTaskProgress(projectId: string, allTasks: readonly Task[]) {
-  const projectTasks = allTasks.filter(t => t.projectId === projectId && !t.archivedAt)
-  const completedTasks = projectTasks.filter(t => t.status === 'done')
-  return {
-    taskCount: projectTasks.length,
-    completedCount: completedTasks.length,
+function buildTaskProgressMap(
+  allTasks: readonly Task[]
+): Map<string, { taskCount: number; completedCount: number }> {
+  const map = new Map<string, { taskCount: number; completedCount: number }>()
+  for (const task of allTasks) {
+    if (!task.projectId || task.archivedAt) continue
+    const current = map.get(task.projectId) || { taskCount: 0, completedCount: 0 }
+    current.taskCount++
+    if (task.status === 'done') current.completedCount++
+    map.set(task.projectId, current)
   }
+  return map
+}
+
+/**
+ * Get task progress for a project from pre-computed map
+ */
+function getProjectTaskProgress(
+  projectId: string,
+  progressMap: Map<string, { taskCount: number; completedCount: number }>
+) {
+  return progressMap.get(projectId) || { taskCount: 0, completedCount: 0 }
 }
 
 /**
@@ -462,6 +478,9 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
     [navigate]
   )
 
+  // Pre-compute task progress map for O(1) lookups instead of O(n*m)
+  const taskProgressMap = useMemo(() => buildTaskProgressMap(allTasks), [allTasks])
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -479,21 +498,21 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
       .map(entry => {
         const project = allProjects.find(p => p.id === entry.projectId)
         if (!project) return null
-        const { taskCount, completedCount } = getProjectTaskProgress(project.id, allTasks)
+        const { taskCount, completedCount } = getProjectTaskProgress(project.id, taskProgressMap)
         const categoryColor = getCategoryColor(project)
         return { entry, project, taskCount, completedCount, categoryColor }
       })
       .filter((item): item is TabledProjectWithDetails => item !== null)
-  }, [tabledProjects, allProjects, allTasks])
+  }, [tabledProjects, allProjects, taskProgressMap])
 
   // Get details for available projects
   const availableProjectsWithDetails = useMemo(() => {
     return availableProjects.map(project => {
-      const { taskCount, completedCount } = getProjectTaskProgress(project.id, allTasks)
+      const { taskCount, completedCount } = getProjectTaskProgress(project.id, taskProgressMap)
       const categoryColor = getCategoryColor(project)
       return { project, taskCount, completedCount, categoryColor }
     })
-  }, [availableProjects, allTasks])
+  }, [availableProjects, taskProgressMap])
 
   // Get active item for drag overlay
   const activeTabledItem = useMemo(() => {

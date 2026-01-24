@@ -151,7 +151,7 @@ test.describe('New UI Workflow', () => {
     // Check if Initiative stream is already expanded (since navigation may include stream param)
     // If not expanded, click the Expand button; if already expanded, the ON TABLE section will be visible
     const onTableText = page.getByText('ON TABLE', { exact: true }).first()
-    const isAlreadyExpanded = await onTableText.isVisible().catch(() => false)
+    const isAlreadyExpanded = await onTableText.isVisible()
 
     if (!isAlreadyExpanded) {
       // Expand Initiative stream (since we selected Initiative tier)

@@ -5,7 +5,7 @@ import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'
 import { events, schema } from '@lifebuild/shared/schema'
-import { getProjects$, getAllTasks$, getTableBronzeProjects$ } from '@lifebuild/shared/queries'
+import { getProjects$, getAllTasks$, getTabledBronzeProjects$ } from '@lifebuild/shared/queries'
 import { BronzePanel } from './BronzePanel.js'
 
 /**
@@ -14,7 +14,8 @@ import { BronzePanel } from './BronzePanel.js'
 const BronzePanelHelper: React.FC = () => {
   const allProjects = useQuery(getProjects$) ?? []
   const allTasks = useQuery(getAllTasks$) ?? []
-  const bronzeProjects = useQuery(getTableBronzeProjects$) ?? []
+  // Use getTabledBronzeProjects$ which filters for status === 'active' at query level
+  const bronzeProjects = useQuery(getTabledBronzeProjects$) ?? []
 
   // Get tabled project IDs
   const tabledProjectIds = new Set(bronzeProjects.map(entry => entry.projectId))

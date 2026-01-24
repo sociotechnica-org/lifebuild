@@ -73,7 +73,13 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   const lifecycleDescription = describeProjectLifecycleState(lifecycleState)
 
   const handleClose = () => {
-    navigate(-1)
+    // Use browser history if available, otherwise navigate to Life Map
+    // This handles deep-linking scenarios where there's no history to go back to
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else {
+      navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
+    }
   }
 
   const handleCompleteProject = async () => {

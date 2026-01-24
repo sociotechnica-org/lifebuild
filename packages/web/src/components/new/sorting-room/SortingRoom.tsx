@@ -278,6 +278,12 @@ export const SortingRoom: React.FC = () => {
     return null
   }, [tabledBronzeProjects, allProjects])
 
+  // Get count of valid (non-orphan) tabled bronze projects for consistent display
+  const validTabledBronzeCount = useMemo(
+    () => tabledBronzeProjects.filter(e => allProjects.some(p => p.id === e.projectId)).length,
+    [tabledBronzeProjects, allProjects]
+  )
+
   // Get tabled projects for Gold/Silver
   const goldProject = useMemo(
     () => allProjects.find(p => p.id === configuration?.goldProjectId) ?? null,
@@ -359,8 +365,7 @@ export const SortingRoom: React.FC = () => {
       stream: 'bronze',
       label: 'To-Do',
       tabledName: topTabledBronzeProject?.name ?? null,
-      tabledMeta:
-        tabledBronzeProjects.length > 1 ? `+${tabledBronzeProjects.length - 1} more` : null,
+      tabledMeta: validTabledBronzeCount > 1 ? `+${validTabledBronzeCount - 1} more` : null,
       queueCount: availableBronzeProjects.length,
     },
   ]
@@ -369,7 +374,13 @@ export const SortingRoom: React.FC = () => {
     // Toggle: if clicking the already-expanded stream, collapse it
     // Otherwise, expand the clicked stream
     const newStream = expandedStream === stream ? undefined : stream
-    navigate(preserveStoreIdInUrl(generateRoute.sortingRoom(newStream)))
+    // Preserve category filter when toggling streams
+    const baseUrl = preserveStoreIdInUrl(generateRoute.sortingRoom(newStream))
+    const categoryParam = searchParams.get('category')
+    const urlWithCategory = categoryParam
+      ? `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}category=${categoryParam}`
+      : baseUrl
+    navigate(urlWithCategory)
   }
 
   /**
@@ -840,7 +851,7 @@ export const SortingRoom: React.FC = () => {
                 </span>
                 <span className='text-xs text-[#8b8680]'>
                   {summary.stream === 'bronze'
-                    ? `${tabledBronzeProjects.length} on table / ${summary.queueCount} in backlog`
+                    ? `${validTabledBronzeCount} on table / ${summary.queueCount} in backlog`
                     : `${summary.queueCount} in backlog`}
                 </span>
                 <button
