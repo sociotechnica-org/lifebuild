@@ -269,10 +269,13 @@ export const SortingRoom: React.FC = () => {
   )
 
   // Get top tabled bronze project for summary
+  // Find the first tabled project that still exists in allProjects (skip orphan entries)
   const topTabledBronzeProject = useMemo(() => {
-    if (tabledBronzeProjects.length === 0) return null
-    const topEntry = tabledBronzeProjects[0]
-    return topEntry ? (allProjects.find(p => p.id === topEntry.projectId) ?? null) : null
+    for (const entry of tabledBronzeProjects) {
+      const project = allProjects.find(p => p.id === entry.projectId)
+      if (project) return project
+    }
+    return null
   }, [tabledBronzeProjects, allProjects])
 
   // Get tabled projects for Gold/Silver
