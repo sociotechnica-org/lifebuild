@@ -724,6 +724,7 @@ export const SortingRoom: React.FC = () => {
           lifecycleState: {
             status: 'backlog',
             stage: 4,
+            stream: 'bronze',
             archetype: 'quicktask',
             scale: 'micro',
           },
