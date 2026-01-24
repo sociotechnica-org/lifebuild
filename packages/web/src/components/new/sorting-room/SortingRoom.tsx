@@ -114,6 +114,7 @@ export const SortingRoom: React.FC = () => {
   const {
     configuration,
     activeBronzeStack,
+    tabledBronzeProjects,
     initializeConfiguration,
     assignGold,
     assignSilver,
@@ -122,6 +123,9 @@ export const SortingRoom: React.FC = () => {
     addBronzeTask,
     removeBronzeTask,
     reorderBronzeStack,
+    tableBronzeProject,
+    removeBronzeProject,
+    reorderBronzeProjects,
   } = useTableState()
   const { store } = useStore()
   const { user } = useAuth()
@@ -157,7 +161,16 @@ export const SortingRoom: React.FC = () => {
         return aPos - bPos
       })
 
-    return { gold: goldProjects, silver: silverProjects }
+    // Bronze projects: backlog bronze-stream projects
+    const bronzeProjects = stage4Projects
+      .filter(p => getLifecycleState(p).stream === 'bronze')
+      .sort((a, b) => {
+        const aPos = getLifecycleState(a).queuePosition ?? 999
+        const bPos = getLifecycleState(b).queuePosition ?? 999
+        return aPos - bPos
+      })
+
+    return { gold: goldProjects, silver: silverProjects, bronze: bronzeProjects }
   }, [allProjects, configuration?.goldProjectId, configuration?.silverProjectId, categoryFilter])
 
   // Filter and sort active projects by stream (sorted by last activity time)
@@ -234,6 +247,24 @@ export const SortingRoom: React.FC = () => {
     () => bronzeTasks.filter(t => !tabledTaskIds.has(t.id)),
     [bronzeTasks, tabledTaskIds]
   )
+
+  // PR1 Task Queue Redesign: Compute available bronze projects (not yet tabled)
+  const tabledBronzeProjectIds = useMemo(
+    () => new Set(tabledBronzeProjects.map(entry => entry.projectId)),
+    [tabledBronzeProjects]
+  )
+
+  const availableBronzeProjects = useMemo(
+    () => backlogProjectsByStream.bronze.filter(p => !tabledBronzeProjectIds.has(p.id)),
+    [backlogProjectsByStream.bronze, tabledBronzeProjectIds]
+  )
+
+  // Get top tabled bronze project for summary
+  const topTabledBronzeProject = useMemo(() => {
+    if (tabledBronzeProjects.length === 0) return null
+    const topEntry = tabledBronzeProjects[0]
+    return topEntry ? (allProjects.find(p => p.id === topEntry.projectId) ?? null) : null
+  }, [tabledBronzeProjects, allProjects])
 
   // Get tabled projects for Gold/Silver
   const goldProject = useMemo(
@@ -315,10 +346,10 @@ export const SortingRoom: React.FC = () => {
     {
       stream: 'bronze',
       label: 'To-Do',
-      tabledName: topBronzeTask?.title ?? null,
+      tabledName: topTabledBronzeProject?.name ?? null,
       tabledMeta:
-        activeBronzeStack.length > 1 ? `+${activeBronzeStack.length - 1} more tabled` : null,
-      queueCount: availableBronzeTasks.length,
+        tabledBronzeProjects.length > 1 ? `+${tabledBronzeProjects.length - 1} more` : null,
+      queueCount: availableBronzeProjects.length,
     },
   ]
 
@@ -629,6 +660,7 @@ export const SortingRoom: React.FC = () => {
   )
 
   // Handler for quick adding an orphaned task directly to the bronze table
+  // (Legacy - will be moved to Task Queue in PR2)
   const handleQuickAddBronzeTask = useCallback(
     async (title: string) => {
       const taskId = crypto.randomUUID()
@@ -653,6 +685,58 @@ export const SortingRoom: React.FC = () => {
       await addBronzeTask(taskId, undefined, true)
     },
     [store, actorId, addBronzeTask]
+  )
+
+  // PR1 Task Queue Redesign: Bronze project handlers
+  const handleAddBronzeProject = useCallback(
+    async (projectId: string) => {
+      await tableBronzeProject(projectId, undefined, true)
+    },
+    [tableBronzeProject]
+  )
+
+  const handleRemoveBronzeProject = useCallback(
+    async (entryId: string) => {
+      await removeBronzeProject(entryId)
+    },
+    [removeBronzeProject]
+  )
+
+  const handleReorderBronzeProjects = useCallback(
+    async (entries: Array<{ id: string; projectId: string }>) => {
+      await reorderBronzeProjects(entries)
+    },
+    [reorderBronzeProjects]
+  )
+
+  // Handler for quick adding a new bronze project directly to the table
+  const handleQuickAddBronzeProject = useCallback(
+    async (name: string) => {
+      const projectId = crypto.randomUUID()
+
+      // Create a minimal bronze project with quicktask archetype
+      store.commit(
+        events.projectCreatedV2({
+          id: projectId,
+          name,
+          description: undefined,
+          category: undefined,
+          lifecycleState: {
+            status: 'backlog',
+            stage: 4,
+            archetype: 'quicktask',
+            scale: 'micro',
+          },
+          attributes: undefined,
+          createdAt: new Date(),
+          actorId,
+        })
+      )
+
+      // Add to bronze table with initializeIfNeeded
+      await tableBronzeProject(projectId, undefined, true)
+    },
+    [store, actorId, tableBronzeProject]
   )
 
   const hasActiveFilters = categoryFilter !== 'all'
@@ -740,7 +824,7 @@ export const SortingRoom: React.FC = () => {
                 </span>
                 <span className='text-xs text-[#8b8680]'>
                   {summary.stream === 'bronze'
-                    ? `${activeBronzeStack.length} tabled / ${summary.queueCount} available`
+                    ? `${tabledBronzeProjects.length} on table / ${summary.queueCount} in backlog`
                     : `${summary.queueCount} in backlog`}
                 </span>
                 <button
@@ -818,14 +902,14 @@ export const SortingRoom: React.FC = () => {
           )}
           {expandedStream === 'bronze' && (
             <BronzePanel
-              tabledStack={activeBronzeStack}
-              availableTasks={availableBronzeTasks}
+              tabledProjects={tabledBronzeProjects}
+              availableProjects={availableBronzeProjects}
               allTasks={allTasks}
               allProjects={allProjects}
-              onAddToTable={handleAddBronzeTask}
-              onRemoveFromTable={handleRemoveBronzeTask}
-              onReorder={handleReorderBronze}
-              onQuickAddTask={handleQuickAddBronzeTask}
+              onAddToTable={handleAddBronzeProject}
+              onRemoveFromTable={handleRemoveBronzeProject}
+              onReorder={handleReorderBronzeProjects}
+              onQuickAddProject={handleQuickAddBronzeProject}
             />
           )}
         </div>

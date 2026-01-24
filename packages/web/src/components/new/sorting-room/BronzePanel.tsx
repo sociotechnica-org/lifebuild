@@ -20,7 +20,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import type { Project, Task, TableBronzeStackEntry } from '@lifebuild/shared/schema'
+import type { Project, Task, TableBronzeProjectEntry } from '@lifebuild/shared/schema'
 import {
   getCategoryInfo,
   type ProjectCategory,
@@ -29,34 +29,33 @@ import {
 } from '@lifebuild/shared'
 
 export interface BronzePanelProps {
-  tabledStack: readonly TableBronzeStackEntry[]
-  availableTasks: readonly Task[]
+  /** Tabled bronze projects (from tableBronzeProjects table) */
+  tabledProjects: readonly TableBronzeProjectEntry[]
+  /** Available bronze projects not currently tabled */
+  availableProjects: readonly Project[]
+  /** All tasks (for computing project progress) */
   allTasks: readonly Task[]
+  /** All projects (for resolving project details) */
   allProjects: readonly Project[]
-  onAddToTable?: (taskId: string) => void
+  /** Called when a project is added to the table */
+  onAddToTable?: (projectId: string) => void
+  /** Called when a project is removed from the table */
   onRemoveFromTable?: (entryId: string) => void
-  onReorder?: (entries: Array<{ id: string; taskId: string }>) => void
-  onQuickAddTask?: (title: string) => Promise<void>
+  /** Called when tabled projects are reordered */
+  onReorder?: (entries: Array<{ id: string; projectId: string }>) => void
+  /** Called when quick-adding a new bronze project */
+  onQuickAddProject?: (name: string) => Promise<void>
 }
 
-interface TaskWithDetails {
-  task: Task
-  project: Project | null | undefined
-  stream: LifecycleStream
+interface ProjectWithDetails {
+  project: Project
+  taskCount: number
+  completedCount: number
   categoryColor: string | null
 }
 
-interface TabledTaskWithDetails extends TaskWithDetails {
-  entry: TableBronzeStackEntry
-}
-
-/**
- * Get the stream from a project's lifecycle state
- */
-function getProjectStream(project: Project | null | undefined): LifecycleStream {
-  if (!project) return 'bronze'
-  const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
-  return lifecycle.stream ?? 'bronze'
+interface TabledProjectWithDetails extends ProjectWithDetails {
+  entry: TableBronzeProjectEntry
 }
 
 /**
@@ -68,22 +67,51 @@ function getCategoryColor(project: Project | null | undefined): string | null {
   return info?.colorHex ?? null
 }
 
-// Stream colors
-const STREAM_COLORS: Record<LifecycleStream, string> = {
-  gold: '#d8a650',
-  silver: '#c5ced8',
-  bronze: '#c48b5a',
+// Stream color for bronze
+const BRONZE_COLOR = '#c48b5a'
+
+/**
+ * Compute task progress for a project
+ */
+function getProjectTaskProgress(projectId: string, allTasks: readonly Task[]) {
+  const projectTasks = allTasks.filter(t => t.projectId === projectId && !t.archivedAt)
+  const completedTasks = projectTasks.filter(t => t.status === 'done')
+  return {
+    taskCount: projectTasks.length,
+    completedCount: completedTasks.length,
+  }
 }
 
 /**
- * Sortable task card for tabled items (can be reordered)
+ * Progress bar component
  */
-const SortableTabledTaskCard: React.FC<{
-  item: TabledTaskWithDetails
+const ProgressBar: React.FC<{ completed: number; total: number }> = ({ completed, total }) => {
+  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0
+
+  return (
+    <div className='flex items-center gap-2'>
+      <div className='flex-1 h-1.5 bg-[#e8e4de] rounded-full overflow-hidden'>
+        <div
+          className='h-full bg-[#c48b5a] rounded-full transition-all duration-300'
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+      <span className='text-[0.65rem] text-[#8b8680] whitespace-nowrap'>
+        {completed}/{total}
+      </span>
+    </div>
+  )
+}
+
+/**
+ * Sortable project card for tabled items (can be reordered)
+ */
+const SortableTabledProjectCard: React.FC<{
+  item: TabledProjectWithDetails
   index: number
   onRemove?: () => void
 }> = ({ item, index, onRemove }) => {
-  const { entry, task, project, stream, categoryColor } = item
+  const { entry, project, taskCount, completedCount, categoryColor } = item
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: entry.id,
   })
@@ -92,7 +120,7 @@ const SortableTabledTaskCard: React.FC<{
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    borderLeftColor: categoryColor || '#c48b5a',
+    borderLeftColor: categoryColor || BRONZE_COLOR,
     borderLeftWidth: '4px',
   }
 
@@ -100,43 +128,35 @@ const SortableTabledTaskCard: React.FC<{
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-start gap-3 py-3.5 px-4 bg-white border border-[#e8e4de] rounded-xl transition-all duration-150 hover:border-[#8b8680] hover:bg-[#faf9f7] ${
+      className={`flex flex-col gap-2 py-3.5 px-4 bg-white border border-[#e8e4de] rounded-xl transition-all duration-150 hover:border-[#8b8680] hover:bg-[#faf9f7] ${
         isDragging ? 'shadow-lg rotate-2' : ''
       }`}
     >
-      <span
-        className='text-xs font-semibold text-[#8b8680] bg-[#faf9f7] py-1 px-2 rounded min-w-[2rem] text-center cursor-grab hover:bg-black/5 active:cursor-grabbing'
-        {...attributes}
-        {...listeners}
-      >
-        #{index + 1}
-      </span>
-      <div className='flex-1 min-w-0'>
-        <div className='font-medium text-sm text-[#2f2b27] truncate'>
-          {task?.title ?? 'Unknown task'}
-        </div>
-        <div className='text-xs text-[#8b8680] mt-0.5 flex items-center gap-1.5'>
-          <span
-            className='w-2 h-2 rounded-full flex-shrink-0'
-            style={{ backgroundColor: STREAM_COLORS[stream] }}
-          />
-          <span>{project?.name ?? 'Quick task'}</span>
-        </div>
-      </div>
-      {task?.status && task.status !== 'todo' && (
-        <span className='text-[0.65rem] py-0.5 px-2 bg-[#faf9f7] border border-[#e8e4de] rounded-full text-[#8b8680] lowercase flex-shrink-0 whitespace-nowrap'>
-          {task.status.replace('_', ' ')}
-        </span>
-      )}
-      {onRemove && (
-        <button
-          type='button'
-          className='text-xs py-1.5 px-3 rounded-lg bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] whitespace-nowrap flex-shrink-0'
-          onClick={onRemove}
+      <div className='flex items-start gap-3'>
+        <span
+          className='text-xs font-semibold text-[#8b8680] bg-[#faf9f7] py-1 px-2 rounded min-w-[2rem] text-center cursor-grab hover:bg-black/5 active:cursor-grabbing'
+          {...attributes}
+          {...listeners}
         >
-          Remove
-        </button>
-      )}
+          #{index + 1}
+        </span>
+        <div className='flex-1 min-w-0'>
+          <div className='font-medium text-sm text-[#2f2b27] truncate'>{project.name}</div>
+          {project.description && (
+            <div className='text-xs text-[#8b8680] mt-0.5 truncate'>{project.description}</div>
+          )}
+        </div>
+        {onRemove && (
+          <button
+            type='button'
+            className='text-xs py-1.5 px-3 rounded-lg bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] whitespace-nowrap flex-shrink-0'
+            onClick={onRemove}
+          >
+            Remove
+          </button>
+        )}
+      </div>
+      {taskCount > 0 && <ProgressBar completed={completedCount} total={taskCount} />}
     </div>
   )
 }
@@ -156,16 +176,16 @@ const DragGripIcon: React.FC = () => (
 )
 
 /**
- * Draggable available task card (can be dragged to tabled section)
+ * Draggable available project card (can be dragged to tabled section)
  */
-const DraggableAvailableTaskCard: React.FC<{
-  item: TaskWithDetails
+const DraggableAvailableProjectCard: React.FC<{
+  item: ProjectWithDetails
   onAdd?: () => void
 }> = ({ item, onAdd }) => {
-  const { task, project, stream, categoryColor } = item
+  const { project, taskCount, completedCount, categoryColor } = item
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: `available-${task.id}`,
-    data: { type: 'available', taskId: task.id },
+    id: `available-${project.id}`,
+    data: { type: 'available', projectId: project.id },
   })
 
   const style: React.CSSProperties = {
@@ -179,44 +199,38 @@ const DraggableAvailableTaskCard: React.FC<{
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-start gap-3 py-3.5 px-4 bg-white border border-[#e8e4de] rounded-xl transition-all duration-150 hover:border-[#8b8680] hover:bg-[#faf9f7] ${
+      className={`flex flex-col gap-2 py-3.5 px-4 bg-white border border-[#e8e4de] rounded-xl transition-all duration-150 hover:border-[#8b8680] hover:bg-[#faf9f7] ${
         isDragging ? 'shadow-lg rotate-2' : ''
       }`}
     >
-      <span
-        className='text-[#8b8680] py-2 px-1 -ml-1 cursor-grab hover:text-[#2f2b27] hover:bg-black/[0.08] rounded transition-all duration-150 active:cursor-grabbing'
-        {...attributes}
-        {...listeners}
-      >
-        <DragGripIcon />
-      </span>
-      <div className='flex-1 min-w-0'>
-        <div className='font-medium text-sm text-[#2f2b27] truncate'>{task.title}</div>
-        <div className='text-xs text-[#8b8680] mt-0.5 flex items-center gap-1.5'>
-          <span
-            className='w-2 h-2 rounded-full flex-shrink-0'
-            style={{ backgroundColor: STREAM_COLORS[stream] }}
-          />
-          <span>{project?.name ?? 'Quick task'}</span>
-        </div>
-      </div>
-      {task.status !== 'todo' && (
-        <span className='text-[0.65rem] py-0.5 px-2 bg-[#faf9f7] border border-[#e8e4de] rounded-full text-[#8b8680] lowercase flex-shrink-0 whitespace-nowrap'>
-          {task.status.replace('_', ' ')}
-        </span>
-      )}
-      {onAdd && (
-        <button
-          type='button'
-          className='text-xs py-1.5 px-3 rounded-lg bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black whitespace-nowrap flex-shrink-0'
-          onClick={e => {
-            e.stopPropagation()
-            onAdd()
-          }}
+      <div className='flex items-start gap-3'>
+        <span
+          className='text-[#8b8680] py-2 px-1 -ml-1 cursor-grab hover:text-[#2f2b27] hover:bg-black/[0.08] rounded transition-all duration-150 active:cursor-grabbing'
+          {...attributes}
+          {...listeners}
         >
-          Add to Table
-        </button>
-      )}
+          <DragGripIcon />
+        </span>
+        <div className='flex-1 min-w-0'>
+          <div className='font-medium text-sm text-[#2f2b27] truncate'>{project.name}</div>
+          {project.description && (
+            <div className='text-xs text-[#8b8680] mt-0.5 truncate'>{project.description}</div>
+          )}
+        </div>
+        {onAdd && (
+          <button
+            type='button'
+            className='text-xs py-1.5 px-3 rounded-lg bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black whitespace-nowrap flex-shrink-0'
+            onClick={e => {
+              e.stopPropagation()
+              onAdd()
+            }}
+          >
+            Add to Table
+          </button>
+        )}
+      </div>
+      {taskCount > 0 && <ProgressBar completed={completedCount} total={taskCount} />}
     </div>
   )
 }
@@ -251,8 +265,8 @@ const TabledDropZone: React.FC<{
 const TabledFooter: React.FC<{
   isDraggingFromAvailable: boolean
   nextPosition: number
-  onQuickAddTask?: (title: string) => Promise<void>
-}> = ({ isDraggingFromAvailable, nextPosition, onQuickAddTask }) => {
+  onQuickAddProject?: (name: string) => Promise<void>
+}> = ({ isDraggingFromAvailable, nextPosition, onQuickAddProject }) => {
   // When dragging from available, show drop indicator instead of quick add form
   if (isDraggingFromAvailable) {
     return (
@@ -270,8 +284,8 @@ const TabledFooter: React.FC<{
   }
 
   // Otherwise show the quick add form
-  if (onQuickAddTask) {
-    return <QuickTaskEntry onSubmit={onQuickAddTask} />
+  if (onQuickAddProject) {
+    return <QuickProjectEntry onSubmit={onQuickAddProject} />
   }
 
   return null
@@ -306,71 +320,68 @@ const AvailableDropZone: React.FC<{
 }
 
 /**
- * Drag overlay for task cards
+ * Drag overlay for project cards
  */
-const TaskDragOverlay: React.FC<{
-  item: TabledTaskWithDetails | TaskWithDetails | null
+const ProjectDragOverlay: React.FC<{
+  item: TabledProjectWithDetails | ProjectWithDetails | null
   index?: number
   isAvailable?: boolean
 }> = ({ item, index, isAvailable }) => {
   if (!item) return null
 
-  const { task, project, stream, categoryColor } = item
+  const { project, taskCount, completedCount, categoryColor } = item
 
   return (
     <div
-      className='flex items-start gap-3 py-3.5 px-4 bg-white border border-[#e8e4de] rounded-xl shadow-lg'
+      className='flex flex-col gap-2 py-3.5 px-4 bg-white border border-[#e8e4de] rounded-xl shadow-lg'
       style={{
-        borderLeftColor: categoryColor || (isAvailable ? '#e8e4de' : '#c48b5a'),
+        borderLeftColor: categoryColor || (isAvailable ? '#e8e4de' : BRONZE_COLOR),
         borderLeftWidth: '4px',
         boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
       }}
     >
-      {!isAvailable && index !== undefined && (
-        <span className='text-xs font-semibold text-[#8b8680] bg-[#faf9f7] py-1 px-2 rounded min-w-[2rem] text-center'>
-          #{index + 1}
-        </span>
-      )}
-      <div className='flex-1 min-w-0'>
-        <div className='font-medium text-sm text-[#2f2b27] truncate'>
-          {task?.title ?? 'Unknown task'}
-        </div>
-        <div className='text-xs text-[#8b8680] mt-0.5 flex items-center gap-1.5'>
-          <span
-            className='w-2 h-2 rounded-full flex-shrink-0'
-            style={{ backgroundColor: STREAM_COLORS[stream] }}
-          />
-          <span>{project?.name ?? 'Quick task'}</span>
+      <div className='flex items-start gap-3'>
+        {!isAvailable && index !== undefined && (
+          <span className='text-xs font-semibold text-[#8b8680] bg-[#faf9f7] py-1 px-2 rounded min-w-[2rem] text-center'>
+            #{index + 1}
+          </span>
+        )}
+        <div className='flex-1 min-w-0'>
+          <div className='font-medium text-sm text-[#2f2b27] truncate'>{project.name}</div>
+          {project.description && (
+            <div className='text-xs text-[#8b8680] mt-0.5 truncate'>{project.description}</div>
+          )}
         </div>
       </div>
+      {taskCount > 0 && <ProgressBar completed={completedCount} total={taskCount} />}
     </div>
   )
 }
 
 /**
- * Quick task entry form for adding orphaned tasks directly to the table
+ * Quick project entry form for adding bronze projects directly to the table
  */
-const QuickTaskEntry: React.FC<{
-  onSubmit: (title: string) => Promise<void>
+const QuickProjectEntry: React.FC<{
+  onSubmit: (name: string) => Promise<void>
 }> = ({ onSubmit }) => {
-  const [title, setTitle] = useState('')
+  const [name, setName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault()
-      const trimmed = title.trim()
+      const trimmed = name.trim()
       if (!trimmed || isSubmitting) return
 
       setIsSubmitting(true)
       try {
         await onSubmit(trimmed)
-        setTitle('')
+        setName('')
       } finally {
         setIsSubmitting(false)
       }
     },
-    [title, isSubmitting, onSubmit]
+    [name, isSubmitting, onSubmit]
   )
 
   return (
@@ -378,15 +389,15 @@ const QuickTaskEntry: React.FC<{
       <input
         type='text'
         className='flex-1 px-3 h-[44px] border-2 border-dashed border-[#e8e4de] rounded-lg bg-[#faf9f7] text-sm text-[#2f2b27] transition-all duration-150 focus:outline-none focus:border-[#c48b5a] focus:border-solid focus:bg-white placeholder:text-[#8b8680]'
-        placeholder='Quick add task to table...'
-        value={title}
-        onChange={e => setTitle(e.target.value)}
+        placeholder='Quick add bronze project...'
+        value={name}
+        onChange={e => setName(e.target.value)}
         disabled={isSubmitting}
       />
       <button
         type='submit'
         className='w-[44px] h-[44px] flex-shrink-0 flex items-center justify-center border-none rounded-lg bg-[#c48b5a] text-white text-xl font-semibold cursor-pointer transition-all duration-150 hover:bg-[#a97548] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed'
-        disabled={!title.trim() || isSubmitting}
+        disabled={!name.trim() || isSubmitting}
       >
         {isSubmitting ? '...' : '+'}
       </button>
@@ -395,17 +406,20 @@ const QuickTaskEntry: React.FC<{
 }
 
 /**
- * Bronze Panel - Shows tabled tasks and available pool with drag-and-drop
+ * Bronze Panel - Shows tabled projects and available pool with drag-and-drop
+ *
+ * PR1 Task Queue Redesign: This panel now shows PROJECTS instead of tasks.
+ * Tasks are managed separately via the Task Queue (PR2).
  */
 export const BronzePanel: React.FC<BronzePanelProps> = ({
-  tabledStack,
-  availableTasks,
+  tabledProjects,
+  availableProjects,
   allTasks,
   allProjects,
   onAddToTable,
   onRemoveFromTable,
   onReorder,
-  onQuickAddTask,
+  onQuickAddProject,
 }) => {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [activeType, setActiveType] = useState<'tabled' | 'available' | null>(null)
@@ -421,46 +435,44 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
     })
   )
 
-  // Get task details for tabled items, filtering out entries with missing tasks
-  const tabledTasksWithDetails = useMemo(() => {
-    return tabledStack
+  // Get project details for tabled items, filtering out entries with missing projects
+  const tabledProjectsWithDetails = useMemo(() => {
+    return tabledProjects
       .map(entry => {
-        const task = allTasks.find(t => t.id === entry.taskId)
-        if (!task) return null
-        const project = task.projectId ? allProjects.find(p => p.id === task.projectId) : null
-        const stream = getProjectStream(project)
+        const project = allProjects.find(p => p.id === entry.projectId)
+        if (!project) return null
+        const { taskCount, completedCount } = getProjectTaskProgress(project.id, allTasks)
         const categoryColor = getCategoryColor(project)
-        return { entry, task, project, stream, categoryColor }
+        return { entry, project, taskCount, completedCount, categoryColor }
       })
-      .filter((item): item is TabledTaskWithDetails => item !== null)
-  }, [tabledStack, allTasks, allProjects])
+      .filter((item): item is TabledProjectWithDetails => item !== null)
+  }, [tabledProjects, allProjects, allTasks])
 
-  // Get project details for available tasks
-  const availableTasksWithDetails = useMemo(() => {
-    return availableTasks.map(task => {
-      const project = task.projectId ? allProjects.find(p => p.id === task.projectId) : null
-      const stream = getProjectStream(project)
+  // Get details for available projects
+  const availableProjectsWithDetails = useMemo(() => {
+    return availableProjects.map(project => {
+      const { taskCount, completedCount } = getProjectTaskProgress(project.id, allTasks)
       const categoryColor = getCategoryColor(project)
-      return { task, project, stream, categoryColor }
+      return { project, taskCount, completedCount, categoryColor }
     })
-  }, [availableTasks, allProjects])
+  }, [availableProjects, allTasks])
 
   // Get active item for drag overlay
   const activeTabledItem = useMemo(() => {
     if (!activeId || activeType !== 'tabled') return null
-    return tabledTasksWithDetails.find(item => item.entry.id === activeId)
-  }, [activeId, activeType, tabledTasksWithDetails])
+    return tabledProjectsWithDetails.find(item => item.entry.id === activeId)
+  }, [activeId, activeType, tabledProjectsWithDetails])
 
   const activeAvailableItem = useMemo(() => {
     if (!activeId || activeType !== 'available') return null
-    const taskId = activeId.replace('available-', '')
-    return availableTasksWithDetails.find(item => item.task.id === taskId)
-  }, [activeId, activeType, availableTasksWithDetails])
+    const projectId = activeId.replace('available-', '')
+    return availableProjectsWithDetails.find(item => item.project.id === projectId)
+  }, [activeId, activeType, availableProjectsWithDetails])
 
   const activeIndex = useMemo(() => {
     if (!activeId || activeType !== 'tabled') return -1
-    return tabledTasksWithDetails.findIndex(item => item.entry.id === activeId)
-  }, [activeId, activeType, tabledTasksWithDetails])
+    return tabledProjectsWithDetails.findIndex(item => item.entry.id === activeId)
+  }, [activeId, activeType, tabledProjectsWithDetails])
 
   const handleDragStart = (event: DragStartEvent) => {
     const id = event.active.id as string
@@ -486,11 +498,11 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
 
     // Case 1: Dragging from available to tabled drop zone
     if (activeIdStr.startsWith('available-')) {
-      const taskId = activeIdStr.replace('available-', '')
+      const projectId = activeIdStr.replace('available-', '')
       // Drop on tabled drop zone or on a tabled item
       if (overIdStr === 'tabled-drop-zone' || !overIdStr.startsWith('available-')) {
         if (onAddToTable) {
-          onAddToTable(taskId)
+          onAddToTable(projectId)
         }
       }
       return
@@ -498,7 +510,7 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
 
     // Case 2: Dragging from tabled to available drop zone (remove from table)
     if (overIdStr === 'available-drop-zone' || overIdStr.startsWith('available-')) {
-      const tabledItem = tabledTasksWithDetails.find(item => item.entry.id === activeIdStr)
+      const tabledItem = tabledProjectsWithDetails.find(item => item.entry.id === activeIdStr)
       if (tabledItem && onRemoveFromTable) {
         onRemoveFromTable(tabledItem.entry.id)
       }
@@ -508,18 +520,18 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
     // Case 3: Reordering within tabled
     if (activeIdStr === overIdStr) return
 
-    const oldIndex = tabledTasksWithDetails.findIndex(item => item.entry.id === activeIdStr)
-    const newIndex = tabledTasksWithDetails.findIndex(item => item.entry.id === overIdStr)
+    const oldIndex = tabledProjectsWithDetails.findIndex(item => item.entry.id === activeIdStr)
+    const newIndex = tabledProjectsWithDetails.findIndex(item => item.entry.id === overIdStr)
 
     if (oldIndex === -1 || newIndex === -1) return
 
     if (onReorder) {
-      const reordered = arrayMove(tabledTasksWithDetails, oldIndex, newIndex)
-      onReorder(reordered.map(item => ({ id: item.entry.id, taskId: item.entry.taskId })))
+      const reordered = arrayMove(tabledProjectsWithDetails, oldIndex, newIndex)
+      onReorder(reordered.map(item => ({ id: item.entry.id, projectId: item.entry.projectId })))
     }
   }
 
-  const sortableIds = tabledTasksWithDetails.map(item => item.entry.id)
+  const sortableIds = tabledProjectsWithDetails.map(item => item.entry.id)
 
   return (
     <DndContext
@@ -529,35 +541,25 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
       onDragEnd={handleDragEnd}
     >
       <div className='flex flex-col gap-6'>
-        {/* Validation warning - above tabled section */}
-        {tabledTasksWithDetails.length < 3 && (
-          <div className='py-3 px-4 bg-[#ffc107]/10 border border-[#ffc107]/30 rounded-lg text-sm text-[#856404]'>
-            Warning: Minimum 3 bronze tasks recommended.{' '}
-            {tabledTasksWithDetails.length === 0
-              ? 'Add tasks to get started.'
-              : `Add ${3 - tabledTasksWithDetails.length} more.`}
-          </div>
-        )}
-
         {/* Tabled Section with drag-and-drop */}
         <div className='flex flex-col gap-3'>
           <h3 className='text-xs font-semibold uppercase tracking-wide text-[#8b8680] m-0'>
-            TABLED ({tabledTasksWithDetails.length})
+            ON TABLE ({tabledProjectsWithDetails.length})
           </h3>
-          {tabledTasksWithDetails.length === 0 ? (
+          {tabledProjectsWithDetails.length === 0 ? (
             <TabledDropZone isEmpty={true}>
               <div className='flex flex-col items-center justify-center p-8 bg-black/[0.02] border-2 border-dashed border-[#e8e4de] rounded-xl text-center text-[#8b8680]'>
-                <span>No bronze tasks on table</span>
+                <span>No bronze projects on table</span>
                 <span className='text-sm mt-1 opacity-70'>
-                  Drag tasks here or click "Add to Table"
+                  Drag projects here or click "Add to Table"
                 </span>
               </div>
             </TabledDropZone>
           ) : (
             <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
               <TabledDropZone isEmpty={false}>
-                {tabledTasksWithDetails.map((item, index) => (
-                  <SortableTabledTaskCard
+                {tabledProjectsWithDetails.map((item, index) => (
+                  <SortableTabledProjectCard
                     key={item.entry.id}
                     item={item}
                     index={index}
@@ -573,27 +575,27 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
           {/* Footer: Quick add form OR drop indicator when dragging */}
           <TabledFooter
             isDraggingFromAvailable={activeType === 'available'}
-            nextPosition={tabledTasksWithDetails.length + 1}
-            onQuickAddTask={onQuickAddTask}
+            nextPosition={tabledProjectsWithDetails.length + 1}
+            onQuickAddProject={onQuickAddProject}
           />
         </div>
 
-        {/* Available Section */}
+        {/* Available Section (Backlog) */}
         <div className='flex flex-col gap-3'>
           <h3 className='text-xs font-semibold uppercase tracking-wide text-[#8b8680] m-0'>
-            AVAILABLE ({availableTasks.length})
+            BACKLOG ({availableProjects.length})
           </h3>
           <AvailableDropZone isDraggingFromTabled={activeType === 'tabled'}>
-            {availableTasks.length === 0 && activeType !== 'tabled' ? (
+            {availableProjects.length === 0 && activeType !== 'tabled' ? (
               <div className='p-4 text-[#8b8680] text-sm italic'>
-                No available tasks. Tasks from active projects will appear here.
+                No bronze projects in backlog. Create projects in the Drafting Room.
               </div>
             ) : (
-              availableTasksWithDetails.map(item => (
-                <DraggableAvailableTaskCard
-                  key={item.task.id}
+              availableProjectsWithDetails.map(item => (
+                <DraggableAvailableProjectCard
+                  key={item.project.id}
                   item={item}
-                  onAdd={onAddToTable ? () => onAddToTable(item.task.id) : undefined}
+                  onAdd={onAddToTable ? () => onAddToTable(item.project.id) : undefined}
                 />
               ))
             )}
@@ -602,8 +604,8 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
       </div>
 
       <DragOverlay>
-        {activeTabledItem && <TaskDragOverlay item={activeTabledItem} index={activeIndex} />}
-        {activeAvailableItem && <TaskDragOverlay item={activeAvailableItem} isAvailable />}
+        {activeTabledItem && <ProjectDragOverlay item={activeTabledItem} index={activeIndex} />}
+        {activeAvailableItem && <ProjectDragOverlay item={activeAvailableItem} isAvailable />}
       </DragOverlay>
     </DndContext>
   )

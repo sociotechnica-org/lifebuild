@@ -5,6 +5,7 @@ import {
   getProjectsByCategory$,
   getAllWorkerProjects$,
   getActiveBronzeStack$,
+  getTabledBronzeProjects$,
   getAllTasks$,
   getTableConfiguration$,
   getProjects$,
@@ -35,6 +36,7 @@ export const LifeMap: React.FC = () => {
 
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
   const activeBronzeStack = useQuery(getActiveBronzeStack$) ?? []
+  const tabledBronzeProjects = useQuery(getTabledBronzeProjects$) ?? []
   const allTasks = useQuery(getAllTasks$) ?? []
   const tableConfiguration = useQuery(getTableConfiguration$) ?? []
   const tableConfig = tableConfiguration[0]
@@ -74,7 +76,7 @@ export const LifeMap: React.FC = () => {
     contributionProjects,
   ])
 
-  // Build a set of project IDs that are "active" (on the table or have bronze tasks)
+  // Build a set of project IDs that are "active" (on the table)
   const activeProjectIds = useMemo(() => {
     const projectIds = new Set<string>()
 
@@ -86,7 +88,13 @@ export const LifeMap: React.FC = () => {
       projectIds.add(tableConfig.silverProjectId)
     }
 
-    // Projects with tasks in the bronze stack are also active
+    // PR1 Task Queue Redesign: Bronze projects that are tabled are active
+    tabledBronzeProjects.forEach(entry => {
+      projectIds.add(entry.projectId)
+    })
+
+    // Legacy: Projects with tasks in the bronze stack are also active
+    // (will be removed in PR2 when Task Queue is implemented)
     const taskIdToProjectId = new Map<string, string | null>()
     allTasks.forEach(task => {
       taskIdToProjectId.set(task.id, task.projectId)
@@ -100,7 +108,7 @@ export const LifeMap: React.FC = () => {
     })
 
     return projectIds
-  }, [activeBronzeStack, allTasks, tableConfig])
+  }, [activeBronzeStack, tabledBronzeProjects, allTasks, tableConfig])
 
   // Calculate workers for each category
   const categoryWorkersMap = useMemo(() => {

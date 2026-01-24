@@ -1,25 +1,46 @@
 import { useCallback, useMemo } from 'react'
 import { useQuery, useStore } from '../livestore-compat.js'
-import { getTableBronzeStack$, getTableConfiguration$ } from '@lifebuild/shared/queries'
+import {
+  getTableBronzeStack$,
+  getTableConfiguration$,
+  getTableBronzeProjects$,
+} from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
 import { type PriorityQueueItem } from '@lifebuild/shared/table-state'
-import type { TableBronzeStackEntry, TableConfiguration } from '@lifebuild/shared/schema'
+import type {
+  TableBronzeStackEntry,
+  TableConfiguration,
+  TableBronzeProjectEntry,
+} from '@lifebuild/shared/schema'
 
 export interface UseTableStateResult {
   configuration: TableConfiguration | null
+  // Legacy task-based bronze stack (will be migrated to Task Queue in PR2)
   bronzeStack: TableBronzeStackEntry[]
   activeBronzeStack: TableBronzeStackEntry[]
+  // New project-based bronze table (PR1 - Task Queue Redesign)
+  bronzeProjects: TableBronzeProjectEntry[]
+  tabledBronzeProjects: TableBronzeProjectEntry[]
   initializeConfiguration: (overrides?: Partial<TableConfiguration>) => Promise<void>
   assignGold: (projectId: string) => Promise<void>
   clearGold: () => Promise<void>
   assignSilver: (projectId: string) => Promise<void>
   clearSilver: () => Promise<void>
   setBronzeMode: (mode: TableConfiguration['bronzeMode'], extra?: number) => Promise<void>
+  // Legacy task operations (will be migrated to Task Queue in PR2)
   addBronzeTask: (taskId: string, position?: number, initializeIfNeeded?: boolean) => Promise<void>
   removeBronzeTask: (entryId: string) => Promise<void>
   reorderBronzeStack: (
     entries: Array<Pick<PriorityQueueItem, 'taskId'> & { id: string }>
   ) => Promise<void>
+  // New project operations (PR1 - Task Queue Redesign)
+  tableBronzeProject: (
+    projectId: string,
+    position?: number,
+    initializeIfNeeded?: boolean
+  ) => Promise<void>
+  removeBronzeProject: (entryId: string) => Promise<void>
+  reorderBronzeProjects: (entries: Array<{ id: string; projectId: string }>) => Promise<void>
 }
 
 export function useTableState(): UseTableStateResult {
@@ -27,6 +48,7 @@ export function useTableState(): UseTableStateResult {
 
   const configurationRow = useQuery(getTableConfiguration$)
   const bronzeStack = (useQuery(getTableBronzeStack$) ?? []) as TableBronzeStackEntry[]
+  const bronzeProjects = (useQuery(getTableBronzeProjects$) ?? []) as TableBronzeProjectEntry[]
 
   // Distinguish between "loading" (undefined) vs "no config exists" (empty array)
   const isConfigurationLoaded = configurationRow !== undefined
@@ -35,12 +57,22 @@ export function useTableState(): UseTableStateResult {
     return configurationRow[0] ?? null
   }, [configurationRow])
 
+  // Legacy task-based bronze stack (will be migrated to Task Queue in PR2)
   const activeBronzeStack = useMemo<TableBronzeStackEntry[]>(
     () =>
       [...bronzeStack]
         .filter(entry => entry.status === 'active')
         .sort((a, b) => a.position - b.position),
     [bronzeStack]
+  )
+
+  // New project-based bronze table (PR1 - Task Queue Redesign)
+  const tabledBronzeProjects = useMemo<TableBronzeProjectEntry[]>(
+    () =>
+      [...bronzeProjects]
+        .filter(entry => entry.status === 'active')
+        .sort((a, b) => a.position - b.position),
+    [bronzeProjects]
   )
 
   const ensureConfigurationLoaded = useCallback((): TableConfiguration => {
@@ -211,18 +243,104 @@ export function useTableState(): UseTableStateResult {
     [configuration, isConfigurationLoaded, store]
   )
 
+  // ============================================================================
+  // Bronze Project Operations (PR1 - Task Queue Redesign)
+  // ============================================================================
+
+  const tableBronzeProject = useCallback(
+    async (projectId: string, position?: number, initializeIfNeeded = false) => {
+      // If initializeIfNeeded is true, only initialize if the query has loaded AND no config exists.
+      if (initializeIfNeeded && isConfigurationLoaded && !configuration) {
+        await initializeConfiguration({})
+      } else if (!initializeIfNeeded) {
+        ensureConfigurationLoaded()
+      }
+
+      const now = new Date()
+      const resolvedPosition =
+        position ??
+        (tabledBronzeProjects.length === 0
+          ? 0
+          : tabledBronzeProjects.reduce((max, entry) => Math.max(max, entry.position), -1) + 1)
+
+      return store.commit(
+        events.bronzeProjectTabled({
+          id: crypto.randomUUID(),
+          projectId,
+          position: resolvedPosition,
+          tabledAt: now,
+          tabledBy: undefined,
+        })
+      )
+    },
+    [
+      tabledBronzeProjects,
+      configuration,
+      ensureConfigurationLoaded,
+      initializeConfiguration,
+      isConfigurationLoaded,
+      store,
+    ]
+  )
+
+  const removeBronzeProject = useCallback(
+    async (entryId: string) => {
+      if (isConfigurationLoaded && !configuration) {
+        throw new Error('Table configuration has not been initialized')
+      }
+      const now = new Date()
+      return store.commit(
+        events.bronzeProjectRemoved({
+          id: entryId,
+          removedAt: now,
+        })
+      )
+    },
+    [configuration, isConfigurationLoaded, store]
+  )
+
+  const reorderBronzeProjects = useCallback(
+    async (entries: Array<{ id: string; projectId: string }>) => {
+      if (isConfigurationLoaded && !configuration) {
+        throw new Error('Table configuration has not been initialized')
+      }
+      const now = new Date()
+      const ordering = entries.map((entry, index) => ({
+        id: entry.id,
+        position: index,
+      }))
+
+      return store.commit(
+        events.bronzeProjectsReordered({
+          ordering,
+          updatedAt: now,
+        })
+      )
+    },
+    [configuration, isConfigurationLoaded, store]
+  )
+
   return {
     configuration,
+    // Legacy task-based bronze stack
     bronzeStack,
     activeBronzeStack,
+    // New project-based bronze table
+    bronzeProjects,
+    tabledBronzeProjects,
     initializeConfiguration,
     assignGold,
     clearGold,
     assignSilver,
     clearSilver,
     setBronzeMode,
+    // Legacy task operations
     addBronzeTask,
     removeBronzeTask,
     reorderBronzeStack,
+    // New project operations
+    tableBronzeProject,
+    removeBronzeProject,
+    reorderBronzeProjects,
   }
 }

@@ -5,7 +5,7 @@ import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'
 import { events, schema } from '@lifebuild/shared/schema'
-import { getProjects$, getAllTasks$, getTableBronzeStack$ } from '@lifebuild/shared/queries'
+import { getProjects$, getAllTasks$, getTableBronzeProjects$ } from '@lifebuild/shared/queries'
 import { BronzePanel } from './BronzePanel.js'
 
 /**
@@ -14,35 +14,29 @@ import { BronzePanel } from './BronzePanel.js'
 const BronzePanelHelper: React.FC = () => {
   const allProjects = useQuery(getProjects$) ?? []
   const allTasks = useQuery(getAllTasks$) ?? []
-  const bronzeStack = useQuery(getTableBronzeStack$) ?? []
+  const bronzeProjects = useQuery(getTableBronzeProjects$) ?? []
 
-  // Get tabled task IDs
-  const tabledTaskIds = new Set(bronzeStack.map(entry => entry.taskId))
+  // Get tabled project IDs
+  const tabledProjectIds = new Set(bronzeProjects.map(entry => entry.projectId))
 
-  // Filter to bronze-eligible tasks (orphaned or from bronze projects)
-  const bronzeTasks = allTasks.filter(t => {
-    if (t.archivedAt !== null || t.status === 'done') return false
-    // Orphaned tasks
-    if (!t.projectId) return true
-    // Tasks from any active project (simplified for storybook)
-    const project = allProjects.find(p => p.id === t.projectId)
-    return !!project
+  // Filter to bronze-eligible projects (backlog bronze-stream projects)
+  const availableProjects = allProjects.filter(p => {
+    if (tabledProjectIds.has(p.id)) return false
+    const lifecycleState = p.projectLifecycleState as { stream?: string; status?: string } | null
+    return lifecycleState?.stream === 'bronze' && lifecycleState?.status === 'backlog'
   })
-
-  // Split into tabled vs available
-  const availableTasks = bronzeTasks.filter(t => !tabledTaskIds.has(t.id))
 
   return (
     <div style={{ width: '600px', padding: '1rem', background: '#faf9f7' }}>
       <BronzePanel
-        tabledStack={bronzeStack}
-        availableTasks={availableTasks}
+        tabledProjects={bronzeProjects}
+        availableProjects={availableProjects}
         allTasks={allTasks}
         allProjects={allProjects}
-        onAddToTable={taskId => console.log('Add to table:', taskId)}
+        onAddToTable={projectId => console.log('Add to table:', projectId)}
         onRemoveFromTable={entryId => console.log('Remove from table:', entryId)}
         onReorder={entries => console.log('Reorder:', entries)}
-        onQuickAddTask={async title => console.log('Quick add:', title)}
+        onQuickAddProject={async name => console.log('Quick add:', name)}
       />
     </div>
   )
@@ -75,18 +69,23 @@ const seedProject = (
   id: string,
   name: string,
   category: ProjectCategory,
-  stream: 'gold' | 'silver' | 'bronze' = 'bronze'
+  stream: 'gold' | 'silver' | 'bronze' = 'bronze',
+  status: 'backlog' | 'active' = 'backlog',
+  description?: string
 ) => {
   store.commit(
     events.projectCreatedV2({
       id,
       name,
-      description: `A ${stream} stream project`,
+      description: description ?? `A ${stream} stream project`,
       category,
       lifecycleState: {
-        status: 'active',
+        status,
         stream,
         stage: 4,
+        archetype:
+          stream === 'bronze' ? 'quicktask' : stream === 'gold' ? 'initiative' : 'systembuild',
+        scale: stream === 'bronze' ? 'micro' : 'major',
       },
       createdAt: new Date(),
       actorId: 'storybook',
@@ -117,86 +116,132 @@ const seedTask = (
   )
 }
 
-// Note: Table configuration is initialized automatically when needed.
-// We don't need to seed it for the BronzePanel stories.
-
-const seedBronzeStackEntry = (store: Store, entryId: string, taskId: string, position: number) => {
+const seedBronzeProjectEntry = (
+  store: Store,
+  entryId: string,
+  projectId: string,
+  position: number
+) => {
   store.commit(
-    events.bronzeTaskAdded({
+    events.bronzeProjectTabled({
       id: entryId,
-      taskId,
+      projectId,
       position,
-      insertedAt: new Date(),
-      actorId: 'storybook',
+      tabledAt: new Date(),
+      tabledBy: 'storybook',
     })
   )
 }
 
 // Setup functions for different scenarios
 const emptySetup = (_store: Store) => {
-  // Empty setup - no tasks
+  // Empty setup - no projects
 }
 
-const withTabledTasksSetup = (store: Store) => {
-  // Create a bronze project
-  seedProject(store, 'proj-bronze', 'Monarch re-balancing', 'finances', 'bronze')
+const withTabledProjectsSetup = (store: Store) => {
+  // Create bronze projects
+  seedProject(
+    store,
+    'proj-1',
+    'Monarch re-balancing',
+    'finances',
+    'bronze',
+    'backlog',
+    'Update all financial tracking'
+  )
+  seedProject(
+    store,
+    'proj-2',
+    'Fix leaky faucet',
+    'home',
+    'bronze',
+    'backlog',
+    'Kitchen sink needs repair'
+  )
+  seedProject(store, 'proj-3', 'Schedule annual checkup', 'health', 'bronze', 'backlog')
 
-  // Create tasks
-  seedTask(store, 'task-1', 'Hook up 401k', 'proj-bronze')
-  seedTask(store, 'task-2', 'Balance budgets from January', 'proj-bronze')
-  seedTask(store, 'task-3', 'Re-fresh PayPal', 'proj-bronze')
-  seedTask(store, 'task-4', 'Update budget spreadsheet', 'proj-bronze')
+  // Create tasks for projects (to show progress)
+  seedTask(store, 'task-1', 'Hook up 401k', 'proj-1')
+  seedTask(store, 'task-2', 'Balance budgets', 'proj-1', 'done')
+  seedTask(store, 'task-3', 'Re-fresh PayPal', 'proj-1')
+  seedTask(store, 'task-4', 'Buy replacement parts', 'proj-2')
+  seedTask(store, 'task-5', 'Watch repair video', 'proj-2', 'done')
+  seedTask(store, 'task-6', 'Call doctor office', 'proj-3')
 
-  // Add to bronze stack
-  seedBronzeStackEntry(store, 'entry-1', 'task-1', 1000)
-  seedBronzeStackEntry(store, 'entry-2', 'task-2', 2000)
-  seedBronzeStackEntry(store, 'entry-3', 'task-3', 3000)
-  seedBronzeStackEntry(store, 'entry-4', 'task-4', 4000)
+  // Add projects to bronze table
+  seedBronzeProjectEntry(store, 'entry-1', 'proj-1', 1000)
+  seedBronzeProjectEntry(store, 'entry-2', 'proj-2', 2000)
+  seedBronzeProjectEntry(store, 'entry-3', 'proj-3', 3000)
 }
 
 const mixedSetup = (store: Store) => {
-  // Create projects with different streams
-  seedProject(store, 'proj-bronze', 'Monarch re-balancing', 'finances', 'bronze')
-  seedProject(store, 'proj-gold', 'Major Initiative', 'growth', 'gold')
-  seedProject(store, 'proj-silver', 'Side Project', 'relationships', 'silver')
+  // Create tabled bronze projects
+  seedProject(store, 'proj-1', 'Monarch re-balancing', 'finances', 'bronze', 'backlog')
+  seedProject(store, 'proj-2', 'Fix leaky faucet', 'home', 'bronze', 'backlog')
 
-  // Tasks from bronze project (tabled)
-  seedTask(store, 'task-1', 'Hook up 401k', 'proj-bronze')
-  seedTask(store, 'task-2', 'Balance budgets', 'proj-bronze')
+  // Create backlog bronze projects (available)
+  seedProject(store, 'proj-3', 'Organize garage', 'home', 'bronze', 'backlog')
+  seedProject(store, 'proj-4', 'Update resume', 'growth', 'bronze', 'backlog')
+  seedProject(store, 'proj-5', 'Plan weekend trip', 'leisure', 'bronze', 'backlog')
 
-  // Tasks from gold project (available)
-  seedTask(store, 'task-3', 'Finalize proposal', 'proj-gold', 'doing')
-  seedTask(store, 'task-4', 'Review contracts', 'proj-gold')
+  // Add tasks for progress display
+  seedTask(store, 'task-1', 'Hook up 401k', 'proj-1')
+  seedTask(store, 'task-2', 'Balance budgets', 'proj-1', 'done')
+  seedTask(store, 'task-3', 'Buy replacement parts', 'proj-2')
+  seedTask(store, 'task-4', 'Sort tools', 'proj-3')
+  seedTask(store, 'task-5', 'Update work experience', 'proj-4')
+  seedTask(store, 'task-6', 'Research destinations', 'proj-5')
+  seedTask(store, 'task-7', 'Book hotels', 'proj-5')
+  seedTask(store, 'task-8', 'Pack bags', 'proj-5', 'done')
 
-  // Tasks from silver project (available)
-  seedTask(store, 'task-5', 'Schedule dinner', 'proj-silver')
-
-  // Orphaned tasks (quick tasks)
-  seedTask(store, 'task-6', 'Call the dentist', undefined)
-  seedTask(store, 'task-7', 'Pick up dry cleaning', undefined)
-
-  // Add some to bronze stack
-  seedBronzeStackEntry(store, 'entry-1', 'task-1', 1000)
-  seedBronzeStackEntry(store, 'entry-2', 'task-2', 2000)
-  seedBronzeStackEntry(store, 'entry-3', 'task-6', 3000)
+  // Add some to bronze table
+  seedBronzeProjectEntry(store, 'entry-1', 'proj-1', 1000)
+  seedBronzeProjectEntry(store, 'entry-2', 'proj-2', 2000)
 }
 
-const withStatusesSetup = (store: Store) => {
-  // Create projects
-  seedProject(store, 'proj-bronze', 'Finance Tasks', 'finances', 'bronze')
-  seedProject(store, 'proj-gold', 'Major Project', 'growth', 'gold')
+const withProgressSetup = (store: Store) => {
+  // Create projects with varying levels of completion
+  seedProject(store, 'proj-1', 'Project at 50%', 'finances', 'bronze', 'backlog')
+  seedProject(store, 'proj-2', 'Project at 75%', 'home', 'bronze', 'backlog')
+  seedProject(store, 'proj-3', 'Project at 0%', 'health', 'bronze', 'backlog')
+  seedProject(store, 'proj-4', 'No tasks yet', 'growth', 'bronze', 'backlog')
 
-  // Tasks with various statuses
-  seedTask(store, 'task-1', 'Review bank statements', 'proj-bronze', 'doing')
-  seedTask(store, 'task-2', 'Update spreadsheet', 'proj-bronze', 'in_review')
-  seedTask(store, 'task-3', 'File taxes', 'proj-bronze', 'todo')
-  seedTask(store, 'task-4', 'Write report', 'proj-gold', 'doing')
-  seedTask(store, 'task-5', 'Send email', undefined, 'todo')
+  // Tasks for proj-1 (50% - 2/4 done)
+  seedTask(store, 'task-1', 'Task 1', 'proj-1', 'done')
+  seedTask(store, 'task-2', 'Task 2', 'proj-1', 'done')
+  seedTask(store, 'task-3', 'Task 3', 'proj-1')
+  seedTask(store, 'task-4', 'Task 4', 'proj-1')
 
-  // Add to stack
-  seedBronzeStackEntry(store, 'entry-1', 'task-1', 1000)
-  seedBronzeStackEntry(store, 'entry-2', 'task-2', 2000)
-  seedBronzeStackEntry(store, 'entry-3', 'task-3', 3000)
+  // Tasks for proj-2 (75% - 3/4 done)
+  seedTask(store, 'task-5', 'Task A', 'proj-2', 'done')
+  seedTask(store, 'task-6', 'Task B', 'proj-2', 'done')
+  seedTask(store, 'task-7', 'Task C', 'proj-2', 'done')
+  seedTask(store, 'task-8', 'Task D', 'proj-2')
+
+  // Tasks for proj-3 (0% - 0/3 done)
+  seedTask(store, 'task-9', 'Task X', 'proj-3')
+  seedTask(store, 'task-10', 'Task Y', 'proj-3')
+  seedTask(store, 'task-11', 'Task Z', 'proj-3')
+
+  // proj-4 has no tasks
+
+  // Add all to bronze table
+  seedBronzeProjectEntry(store, 'entry-1', 'proj-1', 1000)
+  seedBronzeProjectEntry(store, 'entry-2', 'proj-2', 2000)
+  seedBronzeProjectEntry(store, 'entry-3', 'proj-3', 3000)
+  seedBronzeProjectEntry(store, 'entry-4', 'proj-4', 4000)
+}
+
+const onlyAvailableSetup = (store: Store) => {
+  // Create only backlog bronze projects (none tabled)
+  seedProject(store, 'proj-1', 'Organize garage', 'home', 'bronze', 'backlog')
+  seedProject(store, 'proj-2', 'Update resume', 'growth', 'bronze', 'backlog')
+  seedProject(store, 'proj-3', 'Plan weekend trip', 'leisure', 'bronze', 'backlog')
+
+  // Add some tasks
+  seedTask(store, 'task-1', 'Sort tools', 'proj-1')
+  seedTask(store, 'task-2', 'Update work experience', 'proj-2')
+  seedTask(store, 'task-3', 'Research destinations', 'proj-3')
 }
 
 const meta: Meta<typeof BronzePanelHelper> = {
@@ -207,7 +252,7 @@ const meta: Meta<typeof BronzePanelHelper> = {
     docs: {
       description: {
         component:
-          'Bronze task queue panel showing tabled tasks with drag-and-drop reordering and available tasks pool. Supports quick task entry for orphaned tasks.',
+          'Bronze project queue panel showing tabled projects with drag-and-drop reordering and available projects pool. Each project card shows task count and completion progress. Supports quick project creation.',
       },
     },
   },
@@ -218,36 +263,36 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * Empty state with no tasks
+ * Empty state with no projects
  */
 export const Empty: Story = {
   decorators: [withLiveStore(emptySetup)],
   parameters: {
     docs: {
       description: {
-        story: 'Shows the empty state when no bronze tasks exist.',
+        story: 'Shows the empty state when no bronze projects exist.',
       },
     },
   },
 }
 
 /**
- * With tabled tasks from a single bronze project
+ * With tabled projects from various categories
  */
-export const WithTabledTasks: Story = {
-  decorators: [withLiveStore(withTabledTasksSetup)],
+export const WithTabledProjects: Story = {
+  decorators: [withLiveStore(withTabledProjectsSetup)],
   parameters: {
     docs: {
       description: {
         story:
-          'Shows multiple tabled tasks from a bronze project. Tasks can be reordered by dragging.',
+          'Shows multiple tabled bronze projects. Projects can be reordered by dragging. Each project shows task completion progress.',
       },
     },
   },
 }
 
 /**
- * Mixed tasks from different streams and orphaned tasks
+ * Mixed tabled and available projects
  */
 export const MixedSources: Story = {
   decorators: [withLiveStore(mixedSetup)],
@@ -255,21 +300,36 @@ export const MixedSources: Story = {
     docs: {
       description: {
         story:
-          'Shows tasks from multiple sources: bronze project tasks on table, gold/silver project tasks in available, and orphaned quick tasks.',
+          'Shows both tabled projects and available backlog projects. Drag projects between sections to table or remove them.',
       },
     },
   },
 }
 
 /**
- * Tasks with various statuses (doing, in_review)
+ * Projects with varying progress percentages
  */
-export const WithStatuses: Story = {
-  decorators: [withLiveStore(withStatusesSetup)],
+export const WithProgress: Story = {
+  decorators: [withLiveStore(withProgressSetup)],
   parameters: {
     docs: {
       description: {
-        story: 'Shows tasks with different statuses displayed as badges (doing, in review).',
+        story: 'Shows projects with different completion percentages (0%, 50%, 75%, no tasks).',
+      },
+    },
+  },
+}
+
+/**
+ * Only available projects (none tabled yet)
+ */
+export const OnlyAvailable: Story = {
+  decorators: [withLiveStore(onlyAvailableSetup)],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Shows available backlog projects with none tabled yet. The table section shows an empty state.',
       },
     },
   },
