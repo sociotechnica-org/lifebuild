@@ -120,9 +120,8 @@ CI=true pnpm test:e2e  # Run E2E tests
    - PRs without a Changelog section won't trigger version bumps or changelog updates
 5. **Link issues**: If the PR fixes a GitHub issue, include `Closes #XXX` in the PR description to auto-close the issue on merge
 6. **Set issue status to "In Review"**: Update the GitHub issue status on the project board
-7. Monitor checks: `gh pr checks --watch` and wait for all checks (up to 10 minutes)
-8. Check for feedback: `gh pr view <number> --comments` to see reviews and comments
-9. Fix any issues (including neutral BugBot feedback)
+7. Check for feedback: `gh pr view <number> --comments` to see reviews and comments
+8. Fix any issues (including neutral BugBot feedback)
 
 #### Changelog Entry Example
 
@@ -147,11 +146,6 @@ gh pr view <number> --web        # Open PR in browser
 
 # Check PR status
 gh pr status                     # View all your PRs and review requests
-gh pr checks <number>            # View check status for a specific PR
-gh pr checks --watch             # Monitor checks in real-time (wait up to 10 minutes)
-
-# TIP: Use a background agent for long-running checks to avoid blocking
-# the main conversation. Spawn with run_in_background: true
 
 # List PRs
 gh pr list                       # List all open PRs
@@ -212,24 +206,17 @@ gh project item-edit --project-id <PROJECT_ID> --id <ITEM_ID> --field-id <STATUS
 ### Common Workflows
 
 ```bash
-# After creating a PR, monitor checks
-gh pr checks --watch
-
 # View PR with all comments and reviews
 gh pr view 272 --comments
 
 # Check status of all your PRs
 gh pr status
-
-# View specific check details
-gh pr checks 272
 ```
 
 ### Notes
 
 - PR numbers are shown in `gh pr status` or on GitHub
 - Use `--web` flag to open items in browser for complex interactions
-- `gh pr checks --watch` is essential for monitoring CI/CD pipelines
 
 ## Project Management
 
@@ -334,7 +321,6 @@ Projects use the same status workflow as other issues:
 - **No time estimates**: Focus on sequencing and dependencies
 - **Test-driven bug fixes**: Write failing test first, then fix
 - **E2E tests sparingly**: Only for vital user flows
-- **PR monitoring**: Use `gh pr checks --watch` and wait up to 10 minutes
 - **Fix all feedback**: Including neutral BugBot checks
 - **Never merge without asking**: Always ask the user before running `gh pr merge`
 
