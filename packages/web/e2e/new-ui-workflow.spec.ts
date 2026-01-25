@@ -148,16 +148,23 @@ test.describe('New UI Workflow', () => {
     await expect(page.getByRole('heading', { name: 'Optimization' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'To-Do' })).toBeVisible()
 
-    // Expand Initiative stream (since we selected Initiative tier)
-    const initiativeExpandButton = page
-      .locator('div')
-      .filter({ hasText: /Initiative.*in backlog/i })
-      .locator('button', { hasText: 'Expand' })
-      .first()
-    await initiativeExpandButton.click()
+    // Check if Initiative stream is already expanded (since navigation may include stream param)
+    // If not expanded, click the Expand button; if already expanded, the ON TABLE section will be visible
+    const onTableText = page.getByText('ON TABLE', { exact: true }).first()
+    const isAlreadyExpanded = await onTableText.isVisible()
+
+    if (!isAlreadyExpanded) {
+      // Expand Initiative stream (since we selected Initiative tier)
+      const initiativeExpandButton = page
+        .locator('div')
+        .filter({ hasText: /Initiative.*in backlog/i })
+        .locator('button', { hasText: 'Expand' })
+        .first()
+      await initiativeExpandButton.click()
+    }
 
     // Wait for panel to expand
-    await expect(page.getByText('ON TABLE', { exact: true }).first()).toBeVisible({ timeout: 5000 })
+    await expect(onTableText).toBeVisible({ timeout: 5000 })
 
     // Find our project in the backlog and click "Activate to Table"
     const projectCard = page.locator('div').filter({ hasText: projectName }).first()

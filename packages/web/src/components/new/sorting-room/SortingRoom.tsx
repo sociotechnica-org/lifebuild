@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useStore } from '../../../livestore-compat.js'
 import { getProjects$, getAllTasks$ } from '@lifebuild/shared/queries'
+import { generateRoute } from '../../../constants/routes.js'
+import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import {
   resolveLifecycleState,
   type ProjectLifecycleState,
@@ -87,9 +89,16 @@ const getStreamDotClass = (stream: Stream): string => {
 
 export const SortingRoom: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  const [expandedStream, setExpandedStream] = useState<Stream | null>(null)
+  const { stream: streamParam } = useParams<{ stream?: string }>()
+  const navigate = useNavigate()
   const [draggedGoldProject, setDraggedGoldProject] = useState<Project | null>(null)
   const [draggedSilverProject, setDraggedSilverProject] = useState<Project | null>(null)
+
+  // Derive expanded stream from URL param (single source of truth)
+  const expandedStream: Stream | null =
+    streamParam === 'gold' || streamParam === 'silver' || streamParam === 'bronze'
+      ? streamParam
+      : null
 
   // Derive category filter directly from URL (single source of truth)
   const categoryFromUrl = searchParams.get('category') as ProjectCategory | null
@@ -114,6 +123,7 @@ export const SortingRoom: React.FC = () => {
   const {
     configuration,
     activeBronzeStack,
+    tabledBronzeProjects,
     initializeConfiguration,
     assignGold,
     assignSilver,
@@ -122,6 +132,9 @@ export const SortingRoom: React.FC = () => {
     addBronzeTask,
     removeBronzeTask,
     reorderBronzeStack,
+    tableBronzeProject,
+    removeBronzeProject,
+    reorderBronzeProjects,
   } = useTableState()
   const { store } = useStore()
   const { user } = useAuth()
@@ -157,7 +170,16 @@ export const SortingRoom: React.FC = () => {
         return aPos - bPos
       })
 
-    return { gold: goldProjects, silver: silverProjects }
+    // Bronze projects: backlog bronze-stream projects
+    const bronzeProjects = stage4Projects
+      .filter(p => getLifecycleState(p).stream === 'bronze')
+      .sort((a, b) => {
+        const aPos = getLifecycleState(a).queuePosition ?? 999
+        const bPos = getLifecycleState(b).queuePosition ?? 999
+        return aPos - bPos
+      })
+
+    return { gold: goldProjects, silver: silverProjects, bronze: bronzeProjects }
   }, [allProjects, configuration?.goldProjectId, configuration?.silverProjectId, categoryFilter])
 
   // Filter and sort active projects by stream (sorted by last activity time)
@@ -233,6 +255,33 @@ export const SortingRoom: React.FC = () => {
   const availableBronzeTasks = useMemo(
     () => bronzeTasks.filter(t => !tabledTaskIds.has(t.id)),
     [bronzeTasks, tabledTaskIds]
+  )
+
+  // PR1 Task Queue Redesign: Compute available bronze projects (not yet tabled)
+  const tabledBronzeProjectIds = useMemo(
+    () => new Set(tabledBronzeProjects.map(entry => entry.projectId)),
+    [tabledBronzeProjects]
+  )
+
+  const availableBronzeProjects = useMemo(
+    () => backlogProjectsByStream.bronze.filter(p => !tabledBronzeProjectIds.has(p.id)),
+    [backlogProjectsByStream.bronze, tabledBronzeProjectIds]
+  )
+
+  // Get top tabled bronze project for summary
+  // Find the first tabled project that still exists in allProjects (skip orphan entries)
+  const topTabledBronzeProject = useMemo(() => {
+    for (const entry of tabledBronzeProjects) {
+      const project = allProjects.find(p => p.id === entry.projectId)
+      if (project) return project
+    }
+    return null
+  }, [tabledBronzeProjects, allProjects])
+
+  // Get count of valid (non-orphan) tabled bronze projects for consistent display
+  const validTabledBronzeCount = useMemo(
+    () => tabledBronzeProjects.filter(e => allProjects.some(p => p.id === e.projectId)).length,
+    [tabledBronzeProjects, allProjects]
   )
 
   // Get tabled projects for Gold/Silver
@@ -315,15 +364,23 @@ export const SortingRoom: React.FC = () => {
     {
       stream: 'bronze',
       label: 'To-Do',
-      tabledName: topBronzeTask?.title ?? null,
-      tabledMeta:
-        activeBronzeStack.length > 1 ? `+${activeBronzeStack.length - 1} more tabled` : null,
-      queueCount: availableBronzeTasks.length,
+      tabledName: topTabledBronzeProject?.name ?? null,
+      tabledMeta: validTabledBronzeCount > 1 ? `+${validTabledBronzeCount - 1} more` : null,
+      queueCount: availableBronzeProjects.length,
     },
   ]
 
   const handleTabClick = (stream: Stream) => {
-    setExpandedStream(prev => (prev === stream ? null : stream))
+    // Toggle: if clicking the already-expanded stream, collapse it
+    // Otherwise, expand the clicked stream
+    const newStream = expandedStream === stream ? undefined : stream
+    // Preserve category filter when toggling streams
+    const baseUrl = preserveStoreIdInUrl(generateRoute.sortingRoom(newStream))
+    const categoryParam = searchParams.get('category')
+    const urlWithCategory = categoryParam
+      ? `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}category=${categoryParam}`
+      : baseUrl
+    navigate(urlWithCategory)
   }
 
   /**
@@ -629,6 +686,7 @@ export const SortingRoom: React.FC = () => {
   )
 
   // Handler for quick adding an orphaned task directly to the bronze table
+  // (Legacy - will be moved to Task Queue in PR2)
   const handleQuickAddBronzeTask = useCallback(
     async (title: string) => {
       const taskId = crypto.randomUUID()
@@ -653,6 +711,59 @@ export const SortingRoom: React.FC = () => {
       await addBronzeTask(taskId, undefined, true)
     },
     [store, actorId, addBronzeTask]
+  )
+
+  // PR1 Task Queue Redesign: Bronze project handlers
+  const handleAddBronzeProject = useCallback(
+    async (projectId: string) => {
+      await tableBronzeProject(projectId, undefined, true)
+    },
+    [tableBronzeProject]
+  )
+
+  const handleRemoveBronzeProject = useCallback(
+    async (entryId: string) => {
+      await removeBronzeProject(entryId)
+    },
+    [removeBronzeProject]
+  )
+
+  const handleReorderBronzeProjects = useCallback(
+    async (entries: Array<{ id: string; projectId: string }>) => {
+      await reorderBronzeProjects(entries)
+    },
+    [reorderBronzeProjects]
+  )
+
+  // Handler for quick adding a new bronze project directly to the table
+  const handleQuickAddBronzeProject = useCallback(
+    async (name: string) => {
+      const projectId = crypto.randomUUID()
+
+      // Create a minimal bronze project with quicktask archetype
+      store.commit(
+        events.projectCreatedV2({
+          id: projectId,
+          name,
+          description: undefined,
+          category: undefined,
+          lifecycleState: {
+            status: 'backlog',
+            stage: 4,
+            stream: 'bronze',
+            archetype: 'quicktask',
+            scale: 'micro',
+          },
+          attributes: undefined,
+          createdAt: new Date(),
+          actorId,
+        })
+      )
+
+      // Add to bronze table with initializeIfNeeded
+      await tableBronzeProject(projectId, undefined, true)
+    },
+    [store, actorId, tableBronzeProject]
   )
 
   const hasActiveFilters = categoryFilter !== 'all'
@@ -740,7 +851,7 @@ export const SortingRoom: React.FC = () => {
                 </span>
                 <span className='text-xs text-[#8b8680]'>
                   {summary.stream === 'bronze'
-                    ? `${activeBronzeStack.length} tabled / ${summary.queueCount} available`
+                    ? `${validTabledBronzeCount} on table / ${summary.queueCount} in backlog`
                     : `${summary.queueCount} in backlog`}
                 </span>
                 <button
@@ -818,14 +929,14 @@ export const SortingRoom: React.FC = () => {
           )}
           {expandedStream === 'bronze' && (
             <BronzePanel
-              tabledStack={activeBronzeStack}
-              availableTasks={availableBronzeTasks}
+              tabledProjects={tabledBronzeProjects}
+              availableProjects={availableBronzeProjects}
               allTasks={allTasks}
               allProjects={allProjects}
-              onAddToTable={handleAddBronzeTask}
-              onRemoveFromTable={handleRemoveBronzeTask}
-              onReorder={handleReorderBronze}
-              onQuickAddTask={handleQuickAddBronzeTask}
+              onAddToTable={handleAddBronzeProject}
+              onRemoveFromTable={handleRemoveBronzeProject}
+              onReorder={handleReorderBronzeProjects}
+              onQuickAddProject={handleQuickAddBronzeProject}
             />
           )}
         </div>

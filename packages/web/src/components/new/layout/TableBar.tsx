@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { useQuery } from '../../../livestore-compat.js'
-import { getProjects$, getAllTasks$ } from '@lifebuild/shared/queries'
+import { getProjects$ } from '@lifebuild/shared/queries'
 import { useTableState } from '../../../hooks/useTableState.js'
 import { TableSlot } from './TableSlot.js'
 
@@ -10,8 +10,7 @@ import { TableSlot } from './TableSlot.js'
  */
 export const TableBar: React.FC = () => {
   const allProjects = useQuery(getProjects$) ?? []
-  const allTasks = useQuery(getAllTasks$) ?? []
-  const { configuration, activeBronzeStack } = useTableState()
+  const { configuration, tabledBronzeProjects } = useTableState()
 
   // Get Gold project details
   const goldProject = useMemo(
@@ -25,18 +24,20 @@ export const TableBar: React.FC = () => {
     [allProjects, configuration?.silverProjectId]
   )
 
-  // Get top Bronze task details
-  const topBronzeTask = useMemo(() => {
-    if (activeBronzeStack.length === 0) return null
-    const topEntry = activeBronzeStack[0]
-    return allTasks.find(t => t.id === topEntry?.taskId) ?? null
-  }, [activeBronzeStack, allTasks])
+  // Get top Bronze project details (skip orphan entries)
+  const topBronzeProject = useMemo(() => {
+    for (const entry of tabledBronzeProjects) {
+      const project = allProjects.find(p => p.id === entry.projectId)
+      if (project) return project
+    }
+    return null
+  }, [tabledBronzeProjects, allProjects])
 
-  // Get project name for bronze task
-  const bronzeTaskProject = useMemo(() => {
-    if (!topBronzeTask?.projectId) return null
-    return allProjects.find(p => p.id === topBronzeTask.projectId) ?? null
-  }, [topBronzeTask, allProjects])
+  const validTabledBronzeCount = useMemo(
+    () =>
+      tabledBronzeProjects.filter(entry => allProjects.some(p => p.id === entry.projectId)).length,
+    [tabledBronzeProjects, allProjects]
+  )
 
   return (
     <div className='bg-white/95 border-t border-[#e8e4de] shadow-[0_-12px_24px_rgba(0,0,0,0.06)] py-3.5 px-6 flex-shrink-0'>
@@ -55,10 +56,10 @@ export const TableBar: React.FC = () => {
         />
         <TableSlot
           stream='bronze'
-          projectId={topBronzeTask?.id}
-          projectName={topBronzeTask?.title}
-          projectMeta={bronzeTaskProject?.name ?? undefined}
-          bronzeCount={activeBronzeStack.length > 1 ? activeBronzeStack.length - 1 : undefined}
+          projectId={topBronzeProject?.id}
+          projectName={topBronzeProject?.name}
+          projectMeta={topBronzeProject?.category ?? undefined}
+          bronzeCount={validTabledBronzeCount > 1 ? validTabledBronzeCount - 1 : undefined}
         />
       </div>
     </div>

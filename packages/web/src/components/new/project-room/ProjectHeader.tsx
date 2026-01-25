@@ -73,7 +73,13 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   const lifecycleDescription = describeProjectLifecycleState(lifecycleState)
 
   const handleClose = () => {
-    navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
+    // Use browser history if available, otherwise navigate to Life Map
+    // This handles deep-linking scenarios where there's no history to go back to
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else {
+      navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
+    }
   }
 
   const handleCompleteProject = async () => {
@@ -220,7 +226,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
           <button
             onClick={handleClose}
             className='p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors'
-            aria-label='Close and return to Life Map'
+            aria-label='Close and go back'
           >
             <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path

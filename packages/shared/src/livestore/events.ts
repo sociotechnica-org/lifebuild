@@ -875,3 +875,46 @@ export const bronzeStackReordered = Events.synced({
     actorId: Schema.optional(Schema.String),
   }),
 })
+
+// ============================================================================
+// BRONZE PROJECT TABLE EVENTS (PR1 - Task Queue Redesign)
+// Bronze projects can be "tabled" (multiple at once, unlike Gold/Silver)
+// ============================================================================
+
+const BronzeProjectStatusLiteral = Schema.Literal('active', 'removed')
+
+export const bronzeProjectTabled = Events.synced({
+  name: 'table.bronze_project_tabled',
+  schema: Schema.Struct({
+    id: Schema.String, // Entry ID (not projectId)
+    projectId: Schema.String,
+    position: Schema.Number,
+    tabledAt: Schema.Date,
+    tabledBy: Schema.optional(Schema.String),
+    status: Schema.optional(BronzeProjectStatusLiteral),
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const bronzeProjectRemoved = Events.synced({
+  name: 'table.bronze_project_removed',
+  schema: Schema.Struct({
+    id: Schema.String, // Entry ID
+    removedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const bronzeProjectsReordered = Events.synced({
+  name: 'table.bronze_projects_reordered',
+  schema: Schema.Struct({
+    ordering: Schema.Array(
+      Schema.Struct({
+        id: Schema.String,
+        position: Schema.Number,
+      })
+    ),
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
