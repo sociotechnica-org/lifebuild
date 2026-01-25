@@ -1,5 +1,18 @@
 # 038: Task Queue Redesign
 
+## Current Status
+
+| PR | Status | Description |
+|----|--------|-------------|
+| PR1 | ✅ Complete | Bronze queue shows projects instead of tasks |
+| PR2 | 🔲 Not Started | Task Queue side panel |
+| PR3 | 🔲 Not Started | Project view queue integration |
+| PR4 | 🔲 Not Started | Cleanup deprecated bronze stack |
+
+**PR1 was merged on 2025-01-25** - See [PR #480](https://github.com/sociotechnica-org/work-squared/pull/480)
+
+---
+
 ## Problem Statement (Issue #387)
 
 When users create a Bronze project with multiple tasks, those tasks get split into separate items in the Bronze queue. Users want them to stay together as one project/to-do list where they can work through tasks cohesively.
@@ -186,29 +199,36 @@ This approach ensures:
 
 ## Proposed PR Breakdown
 
-### PR1: Bronze Queue Becomes Project-Based
+### PR1: Bronze Queue Becomes Project-Based ✅ Complete
 
 **Title**: "Bronze queue shows projects instead of tasks"
 
+**PR**: [#480](https://github.com/sociotechnica-org/work-squared/pull/480) - Merged 2025-01-25
+
 This PR transforms the Bronze section of the Sorting Room from task-centric to project-centric.
 
-**User-facing changes:**
+**User-facing changes delivered:**
 
 - Bronze panel in Sorting Room shows a list of Bronze _projects_ (not individual tasks)
 - Multiple Bronze projects can be "tabled" simultaneously
 - Each project card shows task count and completion progress
 - Drag-and-drop to prioritize and table Bronze projects
 - Quick-add creates a new Bronze project (not an orphan task)
+- Bronze projects in TableBar are clickable (navigate to project detail)
+- Category filter preserved when toggling between streams
 
-**Technical scope:**
+**Technical scope delivered:**
 
 - Add `tableBronzeProjects` table schema
 - Add events: `bronzeProjectTabled`, `bronzeProjectRemoved`, `bronzeProjectsReordered`
-- Add materializers and queries
+- Add materializers and queries (`getTableBronzeProjects$`, `getTabledBronzeProjects$`)
 - Update `BronzePanel.tsx` to render projects instead of tasks
 - Update `useTableState` hook to manage bronze projects
-- Update Life Map table rendering for multi-bronze
-- Storybook stories for new Bronze panel
+- Update TableBar and TableSlot for multi-bronze display
+- Update SortingRoom summary cards for bronze project count
+- Performance: O(1) task progress lookups using pre-computed Map
+- Storybook stories for BronzePanel and SortingRoom
+- Unit tests for TableBar bronze display
 
 **Data handling:**
 
@@ -304,12 +324,20 @@ This PR removes the old task-based bronze stack after the new system is stable.
 
 ## Success Criteria
 
-**PR1 - Bronze Project Queue:**
+**PR1 - Bronze Project Queue:** ✅ Complete
 
-- [ ] Bronze section in Sorting Room shows projects, not individual tasks
-- [ ] Multiple Bronze projects can be tabled simultaneously
-- [ ] Projects display task count and progress
-- [ ] Issue #387 resolved: project tasks stay grouped
+- [x] Bronze section in Sorting Room shows projects, not individual tasks
+- [x] Multiple Bronze projects can be tabled simultaneously
+- [x] Projects display task count and progress
+- [x] Issue #387 resolved: project tasks stay grouped
+
+Additional features delivered in PR1:
+- [x] Drag-and-drop reordering of tabled bronze projects
+- [x] Quick-add creates new Bronze projects directly to the table
+- [x] Bronze projects clickable in TableBar (navigates to project)
+- [x] Category filter preserved when toggling streams
+- [x] Performance optimization: O(1) task progress lookups
+- [x] Storybook stories for BronzePanel and SortingRoom
 
 **PR2 - Task Queue:**
 
