@@ -208,6 +208,21 @@ describe('useChorusNavigation', () => {
     document.body.removeChild(span)
   })
 
+  it('should allow CHORUS file paths with spaces when they look like filenames', async () => {
+    renderHook(() => useChorusNavigation(), { wrapper })
+
+    const element = createChorusElement('Meeting Notes.md', 'Meeting Notes.md')
+
+    await act(async () => {
+      simulateClick(element)
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+
+    expect(mockNavigateToFile).toHaveBeenCalledWith('Meeting Notes.md')
+
+    document.body.removeChild(element)
+  })
+
   it('should not navigate when path looks like display text (missing path attribute)', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     renderHook(() => useChorusNavigation(), { wrapper })

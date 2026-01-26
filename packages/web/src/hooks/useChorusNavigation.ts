@@ -22,28 +22,20 @@ export const useChorusNavigation = () => {
 
       // Check if the clicked element is a CHORUS element
       const chorusElement = target.closest('[data-chorus="true"]')
-      if (!chorusElement) {
-        // Only log if target looks like a chorus link (has the class)
-        if (target.classList.contains('chorus-file-link')) {
-          console.log('[CHORUS] Found chorus-file-link but no data-chorus attribute:', target)
-        }
-        return
-      }
-      console.log('[CHORUS] Element found:', chorusElement)
+      if (!chorusElement) return
 
       // Prevent default link behavior and stop propagation to avoid conflicts
       event.preventDefault()
       event.stopPropagation()
 
       const path = chorusElement.getAttribute('data-file-path')
-      console.log('[CHORUS] Click detected, path:', path)
       if (!path) return
 
       // Validate that the path looks like a navigation path, not text content
       // Valid paths should be either "type:id" or a file path (containing / or .)
       // If it looks like display text (contains spaces, arrows, etc.), warn and bail
       const looksLikeTextContent =
-        /[→←↑↓]/.test(path) || (path.includes(' ') && !path.includes('/'))
+        /[→←↑↓]/.test(path) || (path.includes(' ') && !path.includes('/') && !path.includes('.'))
       if (looksLikeTextContent) {
         console.error(
           '[CHORUS] Invalid path - looks like display text instead of navigation path:',
@@ -57,7 +49,6 @@ export const useChorusNavigation = () => {
       // Format: "type:id" or just a file path
       if (path.includes(':')) {
         const [type, id] = path.split(':', 2)
-        console.log('[CHORUS] Parsed type:', type, 'id:', id)
 
         switch (type) {
           case 'task': {
@@ -122,28 +113,24 @@ export const useChorusNavigation = () => {
             }
 
             const projectUrl = preserveStoreIdInUrl(generateRoute.project(id))
-            console.log('[CHORUS] Navigating to project:', projectUrl)
             navigate(projectUrl)
             break
           }
           case 'drafting-stage1': {
             if (!id) break
             const stage1Url = preserveStoreIdInUrl(generateRoute.projectStage1(id))
-            console.log('[CHORUS] Navigating to stage1:', stage1Url)
             navigate(stage1Url)
             break
           }
           case 'drafting-stage2': {
             if (!id) break
             const stage2Url = preserveStoreIdInUrl(generateRoute.projectStage2(id))
-            console.log('[CHORUS] Navigating to stage2:', stage2Url)
             navigate(stage2Url)
             break
           }
           case 'drafting-stage3': {
             if (!id) break
             const stage3Url = preserveStoreIdInUrl(generateRoute.projectStage3(id))
-            console.log('[CHORUS] Navigating to stage3:', stage3Url)
             navigate(stage3Url)
             break
           }
