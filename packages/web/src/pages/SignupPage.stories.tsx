@@ -19,7 +19,7 @@ const meta: Meta<typeof SignupPageStory> = {
     docs: {
       description: {
         component:
-          'Signup page with email/password registration, form validation, and password confirmation.',
+          'Signup page with email/password registration, form validation, password confirmation, and the Honest Alpha Social Contract that users must agree to before creating an account.',
       },
     },
   },
@@ -47,7 +47,19 @@ export const FormValidation: Story = {
     docs: {
       description: {
         story:
-          'Try various form validation scenarios: empty fields, invalid email, password mismatch, short password.',
+          'Try various form validation scenarios: empty fields, invalid email, password mismatch, short password, and social contract agreement.',
+      },
+    },
+  },
+}
+
+export const WithSocialContract: Story = {
+  args: {},
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The signup page now includes the Honest Alpha Social Contract. Users must agree to the contract terms before the Create Account button becomes enabled.',
       },
     },
   },
