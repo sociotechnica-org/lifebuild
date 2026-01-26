@@ -113,7 +113,7 @@ export const SocialContract: React.FC<SocialContractProps> = ({ agreed, onAgreeC
           htmlFor='social-contract-agreement'
           className='text-xs text-[#2f2b27] cursor-pointer select-none leading-relaxed'
         >
-          I understand and agree to participate in the LifeBuild Alpha program under these terms.
+          Let's do this.
         </label>
       </div>
     </div>
