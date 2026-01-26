@@ -150,7 +150,7 @@ test.describe('Authentication Integration E2E', () => {
     await page.waitForLoadState('load')
 
     // Should show proper login page structure
-    await expect(page.locator('h1')).toContainText('LifeBuild')
+    await expect(page.locator('img[alt="LifeBuild"]')).toBeVisible()
     await expect(page.locator('h2')).toContainText('Sign in to your account')
     await expect(page.locator('input[name="email"]')).toBeVisible()
     await expect(page.locator('input[name="password"]')).toBeVisible()
