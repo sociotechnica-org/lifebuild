@@ -72,6 +72,17 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   // Get lifecycle description
   const lifecycleDescription = describeProjectLifecycleState(lifecycleState)
 
+  const draftingStageUrl = useMemo(() => {
+    if (lifecycleState.status !== 'planning') return null
+    if (lifecycleState.stage === 1)
+      return preserveStoreIdInUrl(generateRoute.projectStage1(project.id))
+    if (lifecycleState.stage === 2)
+      return preserveStoreIdInUrl(generateRoute.projectStage2(project.id))
+    if (lifecycleState.stage === 3)
+      return preserveStoreIdInUrl(generateRoute.projectStage3(project.id))
+    return null
+  }, [lifecycleState.stage, lifecycleState.status, project.id])
+
   const handleClose = () => {
     // Use browser history if available, otherwise navigate to Life Map
     // This handles deep-linking scenarios where there's no history to go back to
@@ -172,9 +183,20 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
           {/* Status badges */}
           <div className='flex items-center gap-2 mt-2'>
             {/* Lifecycle status badge */}
-            <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800'>
-              {lifecycleDescription}
-            </span>
+            {draftingStageUrl ? (
+              <button
+                type='button'
+                onClick={() => navigate(draftingStageUrl)}
+                className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors cursor-pointer'
+                aria-label={`Open Drafting Stage ${lifecycleState.stage}`}
+              >
+                {lifecycleDescription}
+              </button>
+            ) : (
+              <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800'>
+                {lifecycleDescription}
+              </span>
+            )}
 
             {/* On Table badge */}
             {isOnTable && tableSlotLabel && (

@@ -148,30 +148,35 @@ test.describe('New UI Workflow', () => {
     await expect(page.getByRole('heading', { name: 'Optimization' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'To-Do' })).toBeVisible()
 
-    // Check if Initiative stream is already expanded (since navigation may include stream param)
-    // If not expanded, click the Expand button; if already expanded, the ON TABLE section will be visible
-    const onTableText = page.getByText('ON TABLE', { exact: true }).first()
-    const isAlreadyExpanded = await onTableText.isVisible()
+    // Ensure Initiative stream is expanded (we selected Initiative tier)
+    const initiativeSummaryHeader = page
+      .locator('div')
+      .filter({ hasText: /^Initiative\s*\d+\s*in backlog\s*(Expand|Hide)$/ })
+      .first()
+    const initiativeToggleButton = initiativeSummaryHeader.getByRole('button', {
+      name: /Expand|Hide/,
+    })
 
-    if (!isAlreadyExpanded) {
-      // Expand Initiative stream (since we selected Initiative tier)
-      const initiativeExpandButton = page
-        .locator('div')
-        .filter({ hasText: /Initiative.*in backlog/i })
-        .locator('button', { hasText: 'Expand' })
-        .first()
-      await initiativeExpandButton.click()
+    if ((await initiativeToggleButton.textContent())?.trim() === 'Expand') {
+      await initiativeToggleButton.click()
     }
 
-    // Wait for panel to expand
-    await expect(onTableText).toBeVisible({ timeout: 5000 })
+    // Wait for Initiative card to show as expanded
+    await expect(initiativeSummaryHeader.getByRole('button', { name: 'Hide' })).toBeVisible({
+      timeout: 5000,
+    })
 
-    // Find our project in the backlog and click "Activate to Table"
-    const projectCard = page.locator('div').filter({ hasText: projectName }).first()
+    // Find our project in the backlog and click "Activate" within that card
+    const projectCard = page
+      .locator('div')
+      .filter({ hasText: projectName })
+      .filter({ has: page.getByRole('button', { name: 'Activate', exact: true }) })
+      .first()
     await expect(projectCard).toBeVisible({ timeout: 5000 })
 
     // Click "Activate" button on the project card
-    const activateButton = page.getByRole('button', { name: 'Activate', exact: true }).first()
+    const activateButton = projectCard.getByRole('button', { name: 'Activate', exact: true })
+    await expect(activateButton).toBeEnabled()
     await activateButton.click()
 
     // Confirm in the dialog (dialog doesn't have role="dialog", look for the dialog content)

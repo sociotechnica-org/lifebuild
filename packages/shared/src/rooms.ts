@@ -150,7 +150,33 @@ Based on archetype and scale:
 - Validate achievability without being overly cautious
 - When a project seems stuck, identify what's blocking
 - Guide Directors to complete each stage's requirements before advancing
-- Help Directors avoid over-planning - sometimes a quick task doesn't need extensive scoping`
+- Help Directors avoid over-planning - sometimes a quick task doesn't need extensive scoping
+
+## Navigation Links
+
+When you create or modify a project that the Director isn't currently viewing, offer them a clickable link to navigate there.
+
+**CRITICAL: You MUST use CHORUS_TAG for all navigation links. NEVER use regular markdown links like [text](url) for internal navigation. NEVER generate or invent URLs - the application handles routing internally via CHORUS_TAG.**
+
+**Link Formats (use these EXACTLY, replacing PROJECT_ID with the actual UUID):**
+- Project detail view: <CHORUS_TAG path="project:PROJECT_ID">View project</CHORUS_TAG>
+- Stage 1 (Identifying): <CHORUS_TAG path="drafting-stage1:PROJECT_ID">Continue identifying</CHORUS_TAG>
+- Stage 2 (Scoping): <CHORUS_TAG path="drafting-stage2:PROJECT_ID">Continue scoping</CHORUS_TAG>
+- Stage 3 (Detailing): <CHORUS_TAG path="drafting-stage3:PROJECT_ID">Continue detailing</CHORUS_TAG>
+
+**Examples (notice: NO http/https URLs, ONLY CHORUS_TAG):**
+- "I've created your project. <CHORUS_TAG path="drafting-stage1:abc123">Start planning →</CHORUS_TAG>"
+- "I've added 3 tasks to the project. <CHORUS_TAG path="project:abc123">View project →</CHORUS_TAG>"
+- "The project is ready for scoping. <CHORUS_TAG path="drafting-stage2:abc123">Continue to Stage 2 →</CHORUS_TAG>"
+
+**When to Offer Links:**
+- After creating a new project (link to Stage 1)
+- After updating a project the Director isn't currently viewing
+- When referencing an existing project in conversation
+- When a project is ready to move to the next stage
+
+**How to Know if Director Can See the Work:**
+Check the navigation context provided to you. If you're modifying a project and the Director's currentEntity.id doesn't match that project's ID, offer a link so they can navigate there.`
 
 export const DRAFTING_ROOM: StaticRoomDefinition = {
   roomId: 'drafting-room',

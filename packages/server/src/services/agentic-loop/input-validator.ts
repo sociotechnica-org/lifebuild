@@ -48,8 +48,8 @@ export class InputValidator {
       /\s{20,}/g,
       // Unicode control characters
       /[\u0000-\u001F\u007F-\u009F]/g,
-      // HTML/XML-like tags
-      /<[^>]+>/g,
+      // HTML/XML-like tags (preserve CHORUS_TAG, which is used for in-app navigation links)
+      /<(?!\/?CHORUS_TAG\b)[^>]+>/g,
     ],
   }
 

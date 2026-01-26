@@ -5,6 +5,7 @@
   "private": true,
   "license": "FSL-1.1-ALv2",
   "scripts": {
+    "predev": "bash scripts/cleanup-dev-ports.sh",
     "dev": "concurrently \"pnpm --parallel --filter @lifebuild/web --filter @lifebuild/worker --filter @lifebuild/server --filter @lifebuild/auth-worker dev\" \"pnpm storybook\"",
     "dev:web": "pnpm --filter @lifebuild/web dev",
     "dev:worker": "pnpm --filter @lifebuild/worker dev",
