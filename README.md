@@ -19,6 +19,36 @@ Read some of [the thinking behind the technical foundations underpinning LifeBui
 
 Check out our [development plans](/docs/plans) to see what we're working on and where we're headed. I've been using AI to build this as well, and the plans are an interesting artifact of that process.
 
+## Project Management
+
+We track work using GitHub Issues and the [SocioTechnica Project Board](https://github.com/orgs/sociotechnica-org/projects/2/).
+
+- **Projects**: Timebound, goal-oriented work efforts tracked as GitHub Issues with type "Project"
+- **Sub-issues**: Individual tasks linked to parent Project issues
+- **Cross-repo**: Projects can contain issues from any repository in the organization
+
+### Creating a New Project
+
+Create a new GitHub Issue in the [work-squared repo](https://github.com/sociotechnica-org/work-squared/issues/new) with:
+
+- Issue type: **Project**
+- Title format: `Project: [Name]`
+- Body: Include a Goal and Success Criteria
+
+### Adding Issues to a Project
+
+1. Navigate to the Project issue (e.g., [#410](https://github.com/sociotechnica-org/work-squared/issues/410))
+2. In the right sidebar, find **Sub-issues**
+3. Click **Add sub-issue** to link existing issues or create new ones
+
+### Adding Issues to Current Iteration
+
+1. Go to the [All Items view](https://github.com/orgs/sociotechnica-org/projects/2/views/4) in the Project Board
+2. Find the issue you want to add
+3. Set the **Iteration** field to the current iteration
+
+See [CLAUDE.md](./CLAUDE.md#project-management) for CLI commands and detailed workflows.
+
 ## Monorepo Structure
 
 This project is organized as a pnpm workspace with the following packages:

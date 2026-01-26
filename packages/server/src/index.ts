@@ -76,12 +76,34 @@ async function main() {
     logger.warn('WEBHOOK_SECRET not configured. Workspace webhooks will be rejected.')
   }
 
-  // Start monitoring all stores (legacy bootstrap support)
+  // Start monitoring all configured stores (legacy bootstrap support)
+  // Try to monitor all stores, even those that failed initial initialization
+  // (ensureMonitored will attempt to re-add failed stores via resolveStore)
+  const monitoredStoreIds: string[] = []
+  const failedStoreIds: string[] = []
+
   for (const storeId of config.storeIds) {
-    await workspaceOrchestrator.ensureMonitored(storeId)
+    try {
+      await workspaceOrchestrator.ensureMonitored(storeId)
+      monitoredStoreIds.push(storeId)
+    } catch (error) {
+      failedStoreIds.push(storeId)
+      logger.error({ storeId, error }, 'Failed to start monitoring store, continuing with others')
+      Sentry.captureException(error, {
+        tags: { storeId },
+        extra: { phase: 'ensureMonitored', degradedMode: true },
+      })
+    }
   }
 
-  logger.info('Event monitoring started for all stores')
+  if (failedStoreIds.length > 0) {
+    logger.warn({ failedStoreIds }, 'Some stores failed to monitor and will not be available')
+  }
+
+  logger.info(
+    { monitoredCount: monitoredStoreIds.length, failedCount: failedStoreIds.length },
+    'Event monitoring started'
+  )
 
   const authWorkerUrl =
     process.env.AUTH_WORKER_INTERNAL_URL || process.env.AUTH_WORKER_URL || undefined

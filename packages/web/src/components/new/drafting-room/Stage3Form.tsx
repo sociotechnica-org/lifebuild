@@ -320,8 +320,9 @@ export const Stage3Form: React.FC = () => {
   const handleContinue = () => {
     if (!hasAtLeastOneTask) return
     saveAndAdvance()
-    // Project moves to backlog, navigate to Sorting Room
-    navigate(generateRoute.sortingRoom())
+    // Project moves to backlog, navigate to Sorting Room with matching stream open
+    const stream = lifecycleState?.stream as 'gold' | 'silver' | 'bronze' | undefined
+    navigate(generateRoute.sortingRoom(stream))
   }
 
   if (!project) {

@@ -174,6 +174,24 @@ sanitize_branch_name_for_store_id() {
     fi
 }
 
+kill_existing_auth_worker() {
+    # Kill any process listening on port 8788 to ensure we use this workspace's code
+    local pids
+    pids=$(lsof -ti :8788 2>/dev/null || true)
+    if [ -n "$pids" ]; then
+        echo "   Killing existing process(es) on port 8788..."
+        # Try graceful kill first, then force kill after a short wait
+        echo "$pids" | xargs kill 2>/dev/null || true
+        sleep 1
+        # Check if any processes are still running and force kill them
+        pids=$(lsof -ti :8788 2>/dev/null || true)
+        if [ -n "$pids" ]; then
+            echo "$pids" | xargs kill -9 2>/dev/null || true
+            sleep 1
+        fi
+    fi
+}
+
 start_auth_worker() {
     echo "   Starting auth-worker..."
     pushd "$WORKSPACE_ROOT/packages/auth-worker" >/dev/null
@@ -185,7 +203,7 @@ start_auth_worker() {
 wait_for_auth_worker() {
     echo "   Waiting for auth-worker to start..."
     for _ in {1..30}; do
-        if curl -s http://localhost:8788 > /dev/null 2>&1; then
+        if curl -s --max-time 2 http://localhost:8788 > /dev/null 2>&1; then
             echo "   ✅ Auth-worker ready"
             return 0
         fi
@@ -278,6 +296,8 @@ pnpm exec playwright install
 
 # Create test user on auth server
 echo "👤 Creating test user..."
+# Always kill any existing auth-worker to ensure we use this workspace's code
+kill_existing_auth_worker
 if start_auth_worker; then
     if wait_for_auth_worker; then
         create_test_user

@@ -1,18 +1,22 @@
 import React, { useMemo, useState } from 'react'
-import { useQuery } from '../../../livestore-compat.js'
+import { useQuery, useStore } from '../../../livestore-compat.js'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   getProjectsByCategory$,
   getAllWorkerProjects$,
   getActiveBronzeStack$,
+  getTabledBronzeProjects$,
   getAllTasks$,
   getTableConfiguration$,
   getProjects$,
+  getAllProjectsIncludingArchived$,
 } from '@lifebuild/shared/queries'
+import { events } from '@lifebuild/shared/schema'
 import { PROJECT_CATEGORIES, resolveLifecycleState } from '@lifebuild/shared'
 import { CategoryCard } from './CategoryCard.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
+import { useAuth } from '../../../contexts/AuthContext.js'
 
 /**
  * Life Map - The overview of all eight life categories
@@ -24,14 +28,20 @@ import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
  */
 export const LifeMap: React.FC = () => {
   const navigate = useNavigate()
+  const { store } = useStore()
+  const { user } = useAuth()
+  const actorId = user?.id
   const [completedExpanded, setCompletedExpanded] = useState(false)
+  const [archivedExpanded, setArchivedExpanded] = useState(false)
 
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
   const activeBronzeStack = useQuery(getActiveBronzeStack$) ?? []
+  const tabledBronzeProjects = useQuery(getTabledBronzeProjects$) ?? []
   const allTasks = useQuery(getAllTasks$) ?? []
   const tableConfiguration = useQuery(getTableConfiguration$) ?? []
   const tableConfig = tableConfiguration[0]
   const allProjects = useQuery(getProjects$) ?? []
+  const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []
 
   // Query projects for each category
   const healthProjects = useQuery(getProjectsByCategory$('health')) ?? []
@@ -66,7 +76,7 @@ export const LifeMap: React.FC = () => {
     contributionProjects,
   ])
 
-  // Build a set of project IDs that are "active" (on the table or have bronze tasks)
+  // Build a set of project IDs that are "active" (on the table)
   const activeProjectIds = useMemo(() => {
     const projectIds = new Set<string>()
 
@@ -78,7 +88,13 @@ export const LifeMap: React.FC = () => {
       projectIds.add(tableConfig.silverProjectId)
     }
 
-    // Projects with tasks in the bronze stack are also active
+    // PR1 Task Queue Redesign: Bronze projects that are tabled are active
+    tabledBronzeProjects.forEach(entry => {
+      projectIds.add(entry.projectId)
+    })
+
+    // Legacy: Projects with tasks in the bronze stack are also active
+    // (will be removed in PR2 when Task Queue is implemented)
     const taskIdToProjectId = new Map<string, string | null>()
     allTasks.forEach(task => {
       taskIdToProjectId.set(task.id, task.projectId)
@@ -92,7 +108,7 @@ export const LifeMap: React.FC = () => {
     })
 
     return projectIds
-  }, [activeBronzeStack, allTasks, tableConfig])
+  }, [activeBronzeStack, tabledBronzeProjects, allTasks, tableConfig])
 
   // Calculate workers for each category
   const categoryWorkersMap = useMemo(() => {
@@ -152,6 +168,29 @@ export const LifeMap: React.FC = () => {
         return (bLifecycle.completedAt ?? 0) - (aLifecycle.completedAt ?? 0)
       })
   }, [allProjects])
+
+  // Get archived projects (filter from all projects including archived)
+  const archivedProjects = useMemo(() => {
+    return allProjectsIncludingArchived
+      .filter(p => p.archivedAt !== null)
+      .sort((a, b) => {
+        // Sort by archive date, most recent first
+        const aDate = a.archivedAt ? new Date(a.archivedAt).getTime() : 0
+        const bDate = b.archivedAt ? new Date(b.archivedAt).getTime() : 0
+        return bDate - aDate
+      })
+  }, [allProjectsIncludingArchived])
+
+  // Handler for unarchiving a project
+  const handleUnarchive = (projectId: string) => {
+    store.commit(
+      events.projectUnarchived({
+        id: projectId,
+        unarchivedAt: new Date(),
+        actorId,
+      })
+    )
+  }
 
   // Check if there are any categories with projects
   const categoriesWithProjects = PROJECT_CATEGORIES.filter(category => {
@@ -311,6 +350,83 @@ export const LifeMap: React.FC = () => {
                         d='M5 13l4 4L19 7'
                       />
                     </svg>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Archived Projects Section */}
+      {archivedProjects.length > 0 && (
+        <div className='mt-4 border border-[#e8e4de] rounded-xl overflow-hidden'>
+          <button
+            type='button'
+            className='w-full flex items-center justify-between p-4 bg-[#faf9f7] hover:bg-[#f5f3f0] transition-colors cursor-pointer border-none text-left'
+            onClick={() => setArchivedExpanded(!archivedExpanded)}
+          >
+            <div className='flex items-center gap-2'>
+              <span className='text-sm font-semibold text-[#2f2b27]'>
+                Archived ({archivedProjects.length})
+              </span>
+            </div>
+            <svg
+              className={`w-5 h-5 text-[#8b8680] transition-transform ${archivedExpanded ? 'rotate-180' : ''}`}
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M19 9l-7 7-7-7'
+              />
+            </svg>
+          </button>
+
+          {archivedExpanded && (
+            <div className='bg-white divide-y divide-[#e8e4de]'>
+              {archivedProjects.map(project => {
+                const archivedDate = project.archivedAt
+                  ? new Date(project.archivedAt).toLocaleDateString()
+                  : null
+                const category = PROJECT_CATEGORIES.find(c => c.value === project.category)
+
+                return (
+                  <div
+                    key={project.id}
+                    className='flex items-center justify-between p-4 hover:bg-[#faf9f7] cursor-pointer transition-colors'
+                    onClick={() =>
+                      navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
+                    }
+                  >
+                    <div className='flex items-center gap-3'>
+                      {category && (
+                        <span
+                          className='w-2 h-2 rounded-full flex-shrink-0'
+                          style={{ backgroundColor: category.colorHex }}
+                        />
+                      )}
+                      <div>
+                        <div className='text-sm font-medium text-[#2f2b27]'>{project.name}</div>
+                        <div className='text-xs text-[#8b8680]'>
+                          {category?.name}
+                          {archivedDate && ` · Archived ${archivedDate}`}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type='button'
+                      className='text-xs py-1.5 px-3 rounded-lg bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27]'
+                      onClick={e => {
+                        e.stopPropagation()
+                        handleUnarchive(project.id)
+                      }}
+                    >
+                      Unarchive
+                    </button>
                   </div>
                 )
               })}

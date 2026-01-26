@@ -190,6 +190,29 @@ const tableBronzeStack = State.SQLite.table({
   },
 })
 
+// PR1 Task Queue Redesign: Bronze projects table
+// Stores multiple "tabled" bronze projects (unlike Gold/Silver which are single)
+const tableBronzeProjects = State.SQLite.table({
+  name: 'tableBronzeProjects',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    projectId: State.SQLite.text(),
+    position: State.SQLite.integer({ default: 0 }),
+    tabledAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    tabledBy: State.SQLite.text({ nullable: true }),
+    status: State.SQLite.text({
+      default: 'active',
+      schema: Schema.Literal('active', 'removed'),
+    }),
+    removedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
 const conversations = State.SQLite.table({
   name: 'conversations',
   columns: {
@@ -416,6 +439,7 @@ export type TaskExecution = State.SQLite.FromTable.RowDecoded<typeof taskExecuti
 export type UiState = typeof uiState.default.value
 export type TableConfiguration = State.SQLite.FromTable.RowDecoded<typeof tableConfiguration>
 export type TableBronzeStackEntry = State.SQLite.FromTable.RowDecoded<typeof tableBronzeStack>
+export type TableBronzeProjectEntry = State.SQLite.FromTable.RowDecoded<typeof tableBronzeProjects>
 
 export const events = {
   ...eventsDefs,
@@ -431,6 +455,7 @@ export const tables = {
   tasks,
   tableConfiguration,
   tableBronzeStack,
+  tableBronzeProjects,
   conversations,
   comments,
   documents,
@@ -1048,6 +1073,36 @@ const materializers = State.SQLite.materializers(events, {
   'table.bronze_stack_reordered': ({ ordering }) =>
     ordering.map(order =>
       tableBronzeStack.update({ position: order.position }).where({ id: order.id })
+    ),
+
+  // ============================================================================
+  // BRONZE PROJECT TABLE MATERIALIZERS (PR1 - Task Queue Redesign)
+  // ============================================================================
+
+  'table.bronze_project_tabled': ({ id, projectId, position, tabledAt, tabledBy, status }) => [
+    tableBronzeProjects.delete().where({ id }),
+    tableBronzeProjects.insert({
+      id,
+      projectId,
+      position,
+      tabledAt,
+      tabledBy: tabledBy ?? null,
+      status: status ?? 'active',
+      removedAt: null,
+    }),
+  ],
+
+  'table.bronze_project_removed': ({ id, removedAt }) =>
+    tableBronzeProjects
+      .update({
+        status: 'removed',
+        removedAt,
+      })
+      .where({ id }),
+
+  'table.bronze_projects_reordered': ({ ordering }) =>
+    ordering.map(order =>
+      tableBronzeProjects.update({ position: order.position }).where({ id: order.id })
     ),
 })
 

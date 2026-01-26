@@ -35,7 +35,7 @@ const getSlotClassName = (stream: Stream): string => {
 /**
  * TableSlot component - Represents a single slot in The Table (Gold, Silver, or Bronze).
  * Shows the current project in that stream with progress indication.
- * Gold and Silver slots are clickable and navigate to the project detail page.
+ * All slots with a project are clickable and navigate to the project detail page.
  */
 export const TableSlot: React.FC<TableSlotProps> = ({
   stream,
@@ -52,7 +52,7 @@ export const TableSlot: React.FC<TableSlotProps> = ({
   }
 
   const isEmpty = !projectId && !projectName
-  const isClickable = projectId && (stream === 'gold' || stream === 'silver')
+  const isClickable = !!projectId
 
   const slotContent = (
     <>

@@ -98,8 +98,8 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
         location.pathname.startsWith(ROUTE_PATTERNS.CONTACT)
       )
     }
-    if (path === ROUTES.SETTINGS) {
-      return location.pathname === ROUTES.SETTINGS
+    if (path === ROUTES.OLD_SETTINGS) {
+      return location.pathname === ROUTES.OLD_SETTINGS
     }
     if (path === ROUTES.ADMIN) {
       return location.pathname === ROUTES.ADMIN
@@ -233,7 +233,7 @@ export const Navigation: React.FC<NavigationProps> = ({ isChatOpen = false, onCh
                       <div className='text-gray-500 truncate'>{getEmail()}</div>
                     </div>
                     <Link
-                      to={preserveStoreIdInUrl(ROUTES.SETTINGS)}
+                      to={preserveStoreIdInUrl(ROUTES.OLD_SETTINGS)}
                       onClick={() => setShowDropdown(false)}
                       className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
                     >

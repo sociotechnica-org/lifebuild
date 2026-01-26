@@ -31,6 +31,10 @@ cp packages/auth-worker/.dev.vars.example packages/auth-worker/.dev.vars
 cp packages/server/.env.example packages/server/.env
 # Edit the respective .env and .dev.vars files with your credentials
 
+# GitHub CLI extensions for project management
+gh extension install yahsan2/gh-sub-issue  # Sub-issue management
+gh auth refresh -h github.com -s project   # Add project scope to gh auth
+
 # Start development (monorepo - runs both web and worker)
 pnpm dev          # Vite + Wrangler
 
@@ -89,7 +93,8 @@ LifeBuild is a real-time collaborative web application built as a monorepo with 
 
 1. Review requirements thoroughly
 2. Ask clarifying questions
-3. Create descriptive branch with your username prefix (e.g., `jessmartin/add-feature-name`)
+3. **Set issue status to "In Progress"**: Update the GitHub issue status on the project board
+4. Create descriptive branch with your username prefix (e.g., `jessmartin/add-feature-name`)
 
 ### While Developing
 
@@ -110,10 +115,22 @@ CI=true pnpm test:e2e  # Run E2E tests
 1. Write clear commit messages
 2. Push your branch to GitHub
 3. Create PR: `gh pr create --title "Title" --body "Description"` (or use GitHub web UI)
-4. **Link issues**: If the PR fixes a GitHub issue, include `Closes #XXX` in the PR description to auto-close the issue on merge
-5. Monitor checks: `gh pr checks --watch` and wait for all checks (up to 10 minutes)
-6. Check for feedback: `gh pr view <number> --comments` to see reviews and comments
-7. Fix any issues (including neutral BugBot feedback)
+4. **Add a Changelog section** (optional but recommended for user-facing changes):
+   - Add a `## Changelog` section with bullet points describing changes
+   - PRs without a Changelog section won't trigger version bumps or changelog updates
+5. **Link issues**: If the PR fixes a GitHub issue, include `Closes #XXX` in the PR description to auto-close the issue on merge
+6. **Set issue status to "In Review"**: Update the GitHub issue status on the project board
+7. Check for feedback: `gh pr view <number> --comments` to see reviews and comments
+8. Fix any issues (including neutral BugBot feedback)
+
+#### Changelog Entry Example
+
+```markdown
+## Changelog
+
+- Add dark mode support for all pages
+- Fix task due date not saving correctly
+```
 
 ## GitHub CLI (`gh`) Commands
 
@@ -129,8 +146,6 @@ gh pr view <number> --web        # Open PR in browser
 
 # Check PR status
 gh pr status                     # View all your PRs and review requests
-gh pr checks <number>            # View check status for a specific PR
-gh pr checks --watch             # Monitor checks in real-time (wait up to 10 minutes)
 
 # List PRs
 gh pr list                       # List all open PRs
@@ -159,27 +174,145 @@ gh issue create --title "Title" --body "Description"
 gh issue create --assignee @me   # Create and self-assign
 ```
 
+### Project Board Commands (Issue Status)
+
+```bash
+# List projects to find project number
+gh project list
+
+# View project items and their status
+gh project item-list <project-number> --owner @me
+
+# Update issue status on project board (requires item ID and field/option IDs)
+# First, get the project field IDs:
+gh project field-list <project-number> --owner @me
+
+# Then update the status (use the Status field ID and appropriate option ID)
+gh project item-edit --project-id <PROJECT_ID> --id <ITEM_ID> --field-id <STATUS_FIELD_ID> --single-select-option-id <OPTION_ID>
+```
+
+**Common Status Workflow:**
+
+- When picking up an issue: Set status to "In Progress"
+- When creating a PR: Set status to "In Review"
+- Issues auto-close on merge when PR description includes `Closes #XXX`
+
+### Project Management
+
+- **Parent Issues**: Only use the "Parent issue" feature for issues with type "Project". Never set a parent issue on regular issues.
+- **Sub-issues**: Use the GraphQL `addSubIssue` mutation to link issues as sub-issues to Project-type issues
+- **Adding to Projects**: Use `gh project item-add <project-number> --owner sociotechnica-org --url <issue-url>`
+
 ### Common Workflows
 
 ```bash
-# After creating a PR, monitor checks
-gh pr checks --watch
-
 # View PR with all comments and reviews
 gh pr view 272 --comments
 
 # Check status of all your PRs
 gh pr status
-
-# View specific check details
-gh pr checks 272
 ```
 
 ### Notes
 
 - PR numbers are shown in `gh pr status` or on GitHub
 - Use `--web` flag to open items in browser for complex interactions
-- `gh pr checks --watch` is essential for monitoring CI/CD pipelines
+
+## Project Management
+
+We use GitHub Issues and Projects for all project management across the SocioTechnica organization.
+
+### Key Concepts
+
+- **Project**: A timebound, goal-oriented unit of work. Projects start and complete (unlike Areas, which are ongoing). A Project is represented as a GitHub Issue with type "Project".
+- **Sub-issues**: Tasks that belong to a Project are linked as sub-issues to the parent Project issue. Sub-issues can come from any repository.
+- **GitHub Project Board**: [SocioTechnica Project Board](https://github.com/orgs/sociotechnica-org/projects/2/) - central view of all work in progress.
+
+### Project Issue Structure
+
+Project issues use the "Project" issue type and follow this template:
+
+```markdown
+## Goal
+
+[One sentence describing the outcome]
+
+## Success Criteria
+
+- [ ] Criterion 1
+- [ ] Criterion 2
+```
+
+### Working with Projects
+
+```bash
+# List all Project issues
+gh issue list --label "type:project" -R sociotechnica-org/work-squared
+
+# Create a new Project issue (requires GraphQL for issue type)
+gh issue create --title "Project: Name" --body "## Goal\n..."
+```
+
+#### Sub-issues with gh-sub-issue extension
+
+Install the community extension for easier sub-issue management:
+
+```bash
+# Install the extension (one-time)
+gh extension install yahsan2/gh-sub-issue
+
+# List sub-issues of a project
+gh sub-issue list 410
+
+# Add an existing issue as a sub-issue
+gh sub-issue add 410 415  # Add issue 415 as sub-issue of 410
+
+# Create a new sub-issue directly
+gh sub-issue create --parent 410 --title "New task for this project"
+
+# Remove a sub-issue from a project (keeps the issue, just unlinks it)
+gh sub-issue remove 410 415
+
+# When not in the repo directory, use -R flag
+gh sub-issue list 410 -R sociotechnica-org/work-squared
+```
+
+#### Sub-issues with REST API (no extension needed)
+
+```bash
+# Add a sub-issue to a project (using REST API)
+# Use -F (not -f) to pass integer values
+CHILD_ID=$(gh api repos/sociotechnica-org/work-squared/issues/123 --jq '.id')
+gh api repos/sociotechnica-org/work-squared/issues/100/sub_issues \
+  -X POST -F sub_issue_id="$CHILD_ID"
+
+# List sub-issues of a project
+gh api repos/sociotechnica-org/work-squared/issues/100/sub_issues
+
+# View project in GitHub Project board
+# Filter: parent-issue:"sociotechnica-org/work-squared#100"
+```
+
+### GitHub Project Views
+
+Views must be created via the GitHub UI (no API available). Recommended views:
+
+- **All Projects**: Filter `type:Project` - shows all active projects
+- **[Project Name]**: Filter `parent-issue:"sociotechnica-org/work-squared#N"` - shows work for a specific project
+
+To create a view:
+
+1. Go to https://github.com/orgs/sociotechnica-org/projects/2/
+2. Click **+ New view** → Table or Board
+3. Add filter using the syntax above
+
+### Project Statuses
+
+Projects use the same status workflow as other issues:
+
+- **Backlog**: Not yet started
+- **In Progress**: Actively being worked on
+- **Done**: Completed
 
 ## Important Guidelines
 
@@ -188,8 +321,8 @@ gh pr checks 272
 - **No time estimates**: Focus on sequencing and dependencies
 - **Test-driven bug fixes**: Write failing test first, then fix
 - **E2E tests sparingly**: Only for vital user flows
-- **PR monitoring**: Use `gh pr checks --watch` and wait up to 10 minutes
 - **Fix all feedback**: Including neutral BugBot checks
+- **Never merge without asking**: Always ask the user before running `gh pr merge`
 
 ## Testing
 

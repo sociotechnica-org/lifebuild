@@ -1,3 +1,8 @@
+import { reportConfigurationError } from './sentry.js'
+
+// Track if we've already reported the missing webhook configuration
+let missingWebhookReported = false
+
 /**
  * Utility to send notifications to Discord via webhook
  */
@@ -5,7 +10,16 @@ export async function sendDiscordNotification(message: string, webhookUrl?: stri
   console.log('Discord notification attempt:', { message, hasWebhookUrl: !!webhookUrl })
 
   if (!webhookUrl) {
-    console.log('No Discord webhook URL configured, skipping notification')
+    // Only report this configuration error once per worker instance to avoid spam
+    if (!missingWebhookReported) {
+      missingWebhookReported = true
+      try {
+        reportConfigurationError('DISCORD_WEBHOOK_URL is not configured')
+      } catch (error) {
+        // Don't let Sentry errors break the signup flow
+        console.error('Failed to report configuration error to Sentry:', error)
+      }
+    }
     return
   }
 

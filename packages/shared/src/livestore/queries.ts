@@ -21,6 +21,37 @@ export const getActiveBronzeStack$ = queryDb(
   { label: 'getActiveBronzeStack' }
 )
 
+// ============================================================================
+// BRONZE PROJECT TABLE QUERIES (PR1 - Task Queue Redesign)
+// ============================================================================
+
+/**
+ * Get all bronze project entries (including removed)
+ */
+export const getTableBronzeProjects$ = queryDb(
+  tables.tableBronzeProjects.select().orderBy([{ col: 'position', direction: 'asc' }]),
+  { label: 'getTableBronzeProjects' }
+)
+
+/**
+ * Get only active (tabled) bronze projects
+ */
+export const getTabledBronzeProjects$ = queryDb(
+  tables.tableBronzeProjects
+    .select()
+    .where({ status: 'active' })
+    .orderBy([{ col: 'position', direction: 'asc' }]),
+  { label: 'getTabledBronzeProjects' }
+)
+
+/**
+ * Check if a specific project is currently tabled as bronze
+ */
+export const isBronzeProjectTabled$ = (projectId: string) =>
+  queryDb(tables.tableBronzeProjects.select().where({ projectId, status: 'active' }), {
+    label: `isBronzeProjectTabled:${projectId}`,
+  })
+
 export const getBoards$ = queryDb(
   _get => {
     return tables.projects.select().where({
@@ -448,8 +479,15 @@ export const getAllTasksByCategoryId$ = (categoryId: string, assigneeId?: string
     }
   )
 
-// TODO(PR5+6): getArchivedProjects$ query removed - LiveStore's query API doesn't support
-// "IS NOT NULL" filters. When needed, clients should:
-// 1. Query all projects without archivedAt filter
-// 2. Filter client-side for projects where archivedAt is not null
-// Or wait for LiveStore to support more complex where clauses
+/**
+ * Get all projects including archived ones
+ * Useful for displaying archived projects in a separate view
+ * Clients should filter by archivedAt !== null for archived projects
+ */
+export const getAllProjectsIncludingArchived$ = queryDb(
+  tables.projects
+    .select()
+    .where({ deletedAt: null })
+    .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
+  { label: 'getAllProjectsIncludingArchived' }
+)

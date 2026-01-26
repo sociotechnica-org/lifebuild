@@ -2,6 +2,80 @@ import * as Sentry from '@sentry/node'
 
 const incidentDashboardUrl = process.env.ORCHESTRATION_INCIDENT_DASHBOARD_URL ?? null
 
+/**
+ * Checks if an error is an Effect.js FiberFailure.
+ * FiberFailure objects have a specific structure with _id and cause properties.
+ */
+function isFiberFailure(error: unknown): error is { _id: 'FiberFailure'; cause: unknown } {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    '_id' in error &&
+    (error as Record<string, unknown>)._id === 'FiberFailure' &&
+    'cause' in error
+  )
+}
+
+/**
+ * Extracts the underlying Error from an Effect.js FiberFailure or Cause structure.
+ * Effect errors have nested cause structures that need to be unwrapped for Sentry to capture them properly.
+ *
+ * Structure: FiberFailure -> Cause (Fail/Die/Interrupt) -> failure -> cause (actual Error)
+ */
+function extractEffectError(error: unknown): Error | unknown {
+  // If it's already a standard Error, return it
+  if (error instanceof Error) {
+    return error
+  }
+
+  // Handle FiberFailure from Effect.js
+  if (isFiberFailure(error)) {
+    const cause = error.cause as Record<string, unknown> | undefined
+    if (cause && typeof cause === 'object') {
+      // Check for Fail/Die patterns
+      const failure = cause.failure
+      // Handle Effect.fail(new Error(...)) where failure is directly an Error
+      if (failure instanceof Error) {
+        return failure
+      }
+      if (failure && typeof failure === 'object') {
+        // The actual error is in failure.cause (for wrapped errors like LiveStore.UnknownError)
+        const underlyingCause = (failure as Record<string, unknown>).cause
+        if (underlyingCause instanceof Error) {
+          return underlyingCause
+        }
+        // If cause is not an Error, try to create one from the message
+        if (underlyingCause && typeof underlyingCause === 'object') {
+          const msg =
+            (underlyingCause as Record<string, unknown>).message ||
+            ((failure as Record<string, unknown>)._tag
+              ? `${(failure as Record<string, unknown>)._tag}: ${JSON.stringify(failure)}`
+              : String(failure))
+          const extractedError = new Error(String(msg))
+          extractedError.name = String((failure as Record<string, unknown>)._tag || 'EffectError')
+          return extractedError
+        }
+      }
+      // For defects (Die), the error might be directly in cause.defect
+      const defect = cause.defect
+      if (defect instanceof Error) {
+        return defect
+      }
+    }
+  }
+
+  // Return the original error if we couldn't extract anything
+  return error
+}
+
+/**
+ * Unwraps an error for Sentry capture.
+ * Handles Effect.js FiberFailure errors which Sentry doesn't recognize as standard Errors.
+ */
+export function unwrapErrorForSentry(error: unknown): Error | unknown {
+  return extractEffectError(error)
+}
+
 interface TelemetryOptions {
   operation: string
   storeId?: string
@@ -42,16 +116,19 @@ export function createOrchestrationTelemetry(options: TelemetryOptions): Orchest
   }
 
   const serializeError = (error: unknown): Record<string, unknown> => {
-    if (error instanceof Error) {
+    // Unwrap Effect.js FiberFailure errors for better serialization
+    const unwrapped = unwrapErrorForSentry(error)
+
+    if (unwrapped instanceof Error) {
       return {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
+        name: unwrapped.name,
+        message: unwrapped.message,
+        stack: unwrapped.stack,
       }
     }
 
     return {
-      message: String(error),
+      message: String(unwrapped),
     }
   }
 
@@ -78,6 +155,9 @@ export function createOrchestrationTelemetry(options: TelemetryOptions): Orchest
       return
     }
 
+    // Unwrap Effect.js FiberFailure errors for proper Sentry capture
+    const unwrappedError = unwrapErrorForSentry(error)
+
     Sentry.withScope(scope => {
       scope.setTag('workspace_orchestration.operation', options.operation)
       if (options.storeId) {
@@ -85,7 +165,7 @@ export function createOrchestrationTelemetry(options: TelemetryOptions): Orchest
       }
       scope.setContext('workspace_orchestration', data)
       scope.setLevel('error')
-      Sentry.captureException(error)
+      Sentry.captureException(unwrappedError)
     })
   }
 

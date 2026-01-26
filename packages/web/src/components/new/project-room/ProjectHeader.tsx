@@ -27,6 +27,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   const { clearGold, clearSilver } = useTableState()
   const [showCompleteConfirm, setShowCompleteConfirm] = useState(false)
   const [showUncompleteConfirm, setShowUncompleteConfirm] = useState(false)
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
 
   const tableConfiguration = useQuery(getTableConfiguration$) ?? []
   const tableConfig = tableConfiguration[0]
@@ -72,7 +73,13 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   const lifecycleDescription = describeProjectLifecycleState(lifecycleState)
 
   const handleClose = () => {
-    navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
+    // Use browser history if available, otherwise navigate to Life Map
+    // This handles deep-linking scenarios where there's no history to go back to
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else {
+      navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
+    }
   }
 
   const handleCompleteProject = async () => {
@@ -117,6 +124,42 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
       })
     )
     setShowUncompleteConfirm(false)
+  }
+
+  const handleArchiveProject = async () => {
+    // Clear the slot from lifecycle state if project was on the table
+    if (isOnTable) {
+      store.commit(
+        events.projectLifecycleUpdated({
+          projectId: project.id,
+          lifecycleState: {
+            ...lifecycleState,
+            slot: undefined,
+          },
+          updatedAt: new Date(),
+          actorId,
+        })
+      )
+    }
+
+    // Archive the project before async operations to ensure consistent state
+    store.commit(
+      events.projectArchived({
+        id: project.id,
+        archivedAt: new Date(),
+        actorId,
+      })
+    )
+
+    // Clear table slot if project was on the table
+    if (isOnGoldTable) {
+      await clearGold()
+    } else if (isOnSilverTable) {
+      await clearSilver()
+    }
+
+    setShowArchiveConfirm(false)
+    navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
   }
 
   return (
@@ -169,11 +212,21 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
             </button>
           )}
 
+          {/* Archive button - show for non-completed, non-archived projects */}
+          {lifecycleState.status !== 'completed' && !project.archivedAt && (
+            <button
+              onClick={() => setShowArchiveConfirm(true)}
+              className='px-3 py-1.5 text-sm font-medium text-[#8b8680] bg-transparent border border-[#e8e4de] hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] rounded-md transition-colors'
+            >
+              Archive
+            </button>
+          )}
+
           {/* Close button */}
           <button
             onClick={handleClose}
             className='p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors'
-            aria-label='Close and return to Life Map'
+            aria-label='Close and go back'
           >
             <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path
@@ -253,6 +306,41 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
                 onClick={handleUncompleteProject}
               >
                 Mark as Not Completed
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Archive Confirmation Dialog */}
+      {showArchiveConfirm && (
+        <div
+          className='fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]'
+          onClick={() => setShowArchiveConfirm(false)}
+        >
+          <div
+            className='bg-white rounded-xl p-6 max-w-[400px] w-[90%] shadow-[0_8px_32px_rgba(0,0,0,0.2)]'
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 className='m-0 mb-4 text-lg font-semibold text-[#2f2b27]'>Archive Project</h3>
+            <p className='m-0 mb-6 text-sm text-[#2f2b27] leading-relaxed'>
+              Are you sure you want to archive <strong>{project.name}</strong>? This will remove it
+              from your active projects. You can unarchive it later from the Life Map.
+            </p>
+            <div className='flex gap-3 justify-end'>
+              <button
+                type='button'
+                className='py-2 px-5 rounded-lg text-sm font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27]'
+                onClick={() => setShowArchiveConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type='button'
+                className='py-2 px-5 rounded-lg text-sm font-medium bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black'
+                onClick={handleArchiveProject}
+              >
+                Archive Project
               </button>
             </div>
           </div>

@@ -134,8 +134,15 @@ export async function createStore(
       : undefined,
   })
 
+  const abortController = new AbortController()
+  let timeoutId: NodeJS.Timeout | null = null
+  let completed = false
   const timeoutPromise = new Promise<never>((_, reject) => {
-    setTimeout(() => {
+    timeoutId = setTimeout(() => {
+      if (completed) {
+        return
+      }
+      abortController.abort()
       reject(new Error(`Store ${storeId} connection timeout after ${config.connectionTimeout}ms`))
     }, config.connectionTimeout)
   })
@@ -147,15 +154,23 @@ export async function createStore(
         schema: schema as any,
         storeId: config.storeId,
         syncPayload: getSyncPayload(config),
+        signal: abortController.signal,
       }),
       timeoutPromise,
     ])
 
+    completed = true
     logger.info({ storeId }, 'Store created successfully')
     return { store, config }
   } catch (error) {
+    abortController.abort()
     logger.error({ storeId, error }, 'Failed to create store')
     throw error
+  } finally {
+    completed = true
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
   }
 }
 

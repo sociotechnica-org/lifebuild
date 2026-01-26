@@ -1,0 +1,202 @@
+name: Update Changelog
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+
+# Ensure only one changelog update runs at a time to prevent race conditions
+# when multiple PRs are merged in quick succession
+concurrency:
+  group: changelog-update
+  cancel-in-progress: false
+
+jobs:
+  update-changelog:
+    # Only run when PR is merged (not just closed)
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout work-squared repo
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Extract changelog and compute version
+        id: extract
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          MERGED_AT: ${{ github.event.pull_request.merged_at }}
+        run: |
+          # Read current version from package.json
+          CURRENT_VERSION=$(node -p "require('./packages/web/package.json').version")
+          export CURRENT_VERSION
+
+          # Run the changelog automation script
+          node scripts/changelog-automation.js
+
+      - name: Comment on PR when no changelog section
+        if: steps.extract.outputs.no_changelog == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: '📋 **No changelog section found.** This PR will not trigger a version bump or changelog update.\n\nTo include changes in the changelog, add a `## Changelog` section to your PR description with bullet points describing the changes.'
+            });
+
+      - name: Comment on PR when changelog section is empty
+        if: steps.extract.outputs.empty_changelog == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: '📋 **Changelog section is empty.** This PR will not trigger a version bump or changelog update.\n\nThe `## Changelog` section exists but contains no valid entries. Add bullet points starting with `- ` to describe the changes.'
+            });
+
+      - name: Update version in package.json
+        if: steps.extract.outputs.skip != 'true' && steps.extract.outputs.has_user_facing_changes == 'true'
+        run: |
+          NEW_VERSION="${{ steps.extract.outputs.new_version }}"
+          # Update web package version
+          cd packages/web
+          npm version $NEW_VERSION --no-git-tag-version
+          cd ../..
+
+          # Also update shared package version to keep them in sync
+          cd packages/shared
+          npm version $NEW_VERSION --no-git-tag-version
+          cd ../..
+
+      - name: Commit version bump
+        if: steps.extract.outputs.skip != 'true' && steps.extract.outputs.has_user_facing_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add packages/web/package.json packages/shared/package.json
+          git commit -m "chore: bump version to ${{ steps.extract.outputs.new_version }}"
+          git push
+
+      - name: Checkout lifebuild-site repo
+        if: steps.extract.outputs.skip != 'true' && steps.extract.outputs.has_user_facing_changes == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: sociotechnica-org/lifebuild-site
+          token: ${{ secrets.LIFEBUILD_SITE_PAT }}
+          path: lifebuild-site
+
+      - name: Create changelog entry file
+        if: steps.extract.outputs.skip != 'true' && steps.extract.outputs.has_user_facing_changes == 'true'
+        id: create_file
+        env:
+          CHANGELOG_ENTRY: ${{ steps.extract.outputs.changelog_entry }}
+        run: |
+          # Parse the changelog entry JSON
+          VERSION=$(echo "$CHANGELOG_ENTRY" | jq -r '.version')
+          DATE=$(echo "$CHANGELOG_ENTRY" | jq -r '.date')
+          PR_NUMBER=$(echo "$CHANGELOG_ENTRY" | jq -r '.prNumber')
+          PR_URL=$(echo "$CHANGELOG_ENTRY" | jq -r '.prUrl')
+
+          # Create changelog directory if needed
+          mkdir -p lifebuild-site/src/content/changelog
+          mkdir -p lifebuild-site/src/data
+
+          # Generate filename
+          FILENAME="${DATE}-v${VERSION//./-}.md"
+          FILEPATH="lifebuild-site/src/content/changelog/${FILENAME}"
+
+          # Generate changelog file content
+          cat > "$FILEPATH" << EOF
+          ---
+          version: "${VERSION}"
+          date: "${DATE}"
+          prNumber: ${PR_NUMBER}
+          prUrl: "${PR_URL}"
+          ---
+
+          # v${VERSION}
+
+          $(echo "$CHANGELOG_ENTRY" | jq -r '.entries[]' | sed 's/^/- /')
+
+          [View PR #${PR_NUMBER}](${PR_URL})
+          EOF
+
+          echo "Created changelog entry: ${FILENAME}"
+
+          # Update version.json
+          cat > lifebuild-site/src/data/version.json << EOF
+          {
+            "version": "${VERSION}",
+            "lastUpdated": "${DATE}"
+          }
+          EOF
+
+          echo "Updated version.json to ${VERSION}"
+
+          # Set outputs for next step
+          echo "filename=${FILENAME}" >> $GITHUB_OUTPUT
+          echo "branch_name=changelog/v${VERSION}-pr-${PR_NUMBER}" >> $GITHUB_OUTPUT
+
+      - name: Create PR to lifebuild-site
+        if: steps.extract.outputs.skip != 'true' && steps.extract.outputs.has_user_facing_changes == 'true'
+        working-directory: lifebuild-site
+        env:
+          GH_TOKEN: ${{ secrets.LIFEBUILD_SITE_PAT }}
+          CHANGELOG_ENTRY: ${{ steps.extract.outputs.changelog_entry }}
+        run: |
+          BRANCH_NAME="${{ steps.create_file.outputs.branch_name }}"
+
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          # Create and checkout new branch
+          git checkout -b "$BRANCH_NAME"
+
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "chore: add changelog entry for v${{ steps.extract.outputs.new_version }} (PR #${{ github.event.pull_request.number }})"
+          git push -u origin "$BRANCH_NAME"
+
+          # Create PR using gh CLI
+          gh pr create \
+            --title "Changelog: v${{ steps.extract.outputs.new_version }}" \
+            --body "$(cat <<EOF
+          ## Changelog Entry
+
+          This PR adds a changelog entry for [work-squared PR #${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }}).
+
+          **Version:** ${{ steps.extract.outputs.new_version }}
+
+          ### Changes
+          $(echo "$CHANGELOG_ENTRY" | jq -r '.entries[]' | sed 's/^/- /')
+
+          ---
+          *This PR was automatically created. Review and edit the changelog entry as needed before merging.*
+          EOF
+          )" \
+            --repo sociotechnica-org/lifebuild-site

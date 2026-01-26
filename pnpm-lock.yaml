@@ -138,12 +138,18 @@ importers:
       typescript-eslint:
         specifier: ^8.44.1
         version: 8.44.1(eslint@9.36.0(jiti@2.6.0))(typescript@5.9.2)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.5.2)(@vitest/ui@3.2.4)(happy-dom@17.6.3)(jiti@2.6.0)(jsdom@26.1.0)(lightningcss@1.30.1)(tsx@4.20.5)(yaml@2.8.1)
 
   packages/auth-worker:
     dependencies:
       '@lifebuild/shared':
         specifier: workspace:*
         version: link:../shared
+      '@sentry/cloudflare':
+        specifier: ^10.35.0
+        version: 10.35.0(@cloudflare/workers-types@4.20251118.0)
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -2819,12 +2825,25 @@ packages:
     engines: {node: '>= 10'}
     hasBin: true
 
+  '@sentry/cloudflare@10.35.0':
+    resolution: {integrity: sha512-Ob+ahHtB7QG4XSXNY0hXG8Y2R9scO1ipzZO7ked7OMqHq2pk/ycReJjPu358a19g1HSPa1FXFQioYclA/FL3Vw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@cloudflare/workers-types': ^4.x
+    peerDependenciesMeta:
+      '@cloudflare/workers-types':
+        optional: true
+
   '@sentry/core@10.20.0':
     resolution: {integrity: sha512-S291KihnOIB8i7mVJIJBVHBMcCfIoY/KDJBHEfBoHY9M56g2An4FVhM9+/xR85+IoMkTySdXN08k9LEyQz4FpQ==}
     engines: {node: '>=18'}
 
   '@sentry/core@10.30.0':
     resolution: {integrity: sha512-IfNuqIoGVO9pwphwbOptAEJJI1SCAfewS5LBU1iL7hjPBHYAnE8tCVzyZN+pooEkQQ47Q4rGanaG1xY8mjTT1A==}
+    engines: {node: '>=18'}
+
+  '@sentry/core@10.35.0':
+    resolution: {integrity: sha512-lEK1WFqt6oHtMq5dDLVE/FDzHDGs1PlYT5cZH4aBirYtJVyUiTf0NknKFob4a2zTywczlq7SbLv6Ba8UMU9dYg==}
     engines: {node: '>=18'}
 
   '@sentry/esbuild-plugin@4.3.0':
@@ -9747,9 +9766,18 @@ snapshots:
       - encoding
       - supports-color
 
+  '@sentry/cloudflare@10.35.0(@cloudflare/workers-types@4.20251118.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@sentry/core': 10.35.0
+    optionalDependencies:
+      '@cloudflare/workers-types': 4.20251118.0
+
   '@sentry/core@10.20.0': {}
 
   '@sentry/core@10.30.0': {}
+
+  '@sentry/core@10.35.0': {}
 
   '@sentry/esbuild-plugin@4.3.0':
     dependencies:

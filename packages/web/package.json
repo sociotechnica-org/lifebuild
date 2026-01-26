@@ -1,6 +1,6 @@
 {
   "name": "@lifebuild/web",
-  "version": "0.1.0",
+  "version": "0.1.5",
   "type": "module",
   "private": true,
   "license": "FSL-1.1-ALv2",
@@ -15,7 +15,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
-    "storybook": "storybook dev -p 6010",
+    "storybook": "storybook dev -p 6010 --no-open",
     "build-storybook": "storybook build",
     "test:storybook": "test-storybook --url http://127.0.0.1:6008",
     "test:storybook:ci": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"pnpm build-storybook --quiet && npx http-server storybook-static --port 6008 --silent\" \"wait-on tcp:6008 && pnpm test:storybook\"",

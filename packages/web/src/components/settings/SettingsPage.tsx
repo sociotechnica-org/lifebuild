@@ -750,6 +750,21 @@ export const SettingsPage: React.FC = () => {
             ) : null}
           </div>
         </div>
+
+        {/* Version Info */}
+        <div className='mt-8 text-center'>
+          <p className='text-sm text-gray-500'>
+            LifeBuild v{import.meta.env.VITE_APP_VERSION || '0.1.0'}
+          </p>
+          <a
+            href='https://lifebuild.me/updates'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='text-sm text-blue-600 hover:text-blue-700 hover:underline'
+          >
+            View changelog
+          </a>
+        </div>
       </div>
     </div>
   )
