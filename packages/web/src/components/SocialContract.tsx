@@ -14,7 +14,7 @@ export const SocialContract: React.FC<SocialContractProps> = ({ agreed, onAgreeC
           The Honest Alpha Social Contract
         </h3>
         <p className="font-['Source_Serif_4',Georgia,serif] text-sm text-[#8b8680] italic mt-1">
-          "This isn't fine print. It's a handshake."
+          This isn't fine print. It's a handshake.
         </p>
       </div>
 
