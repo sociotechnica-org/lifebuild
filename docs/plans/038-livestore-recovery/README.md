@@ -115,6 +115,35 @@ This plan restores production access for jess-personal-lb, establishes a repeata
 - [ ] Investigate web client storage and sync status; add reset flow.
 - [ ] File upstream issue comment with logs and reproduction steps.
 
+## Recovery Notes (Experiment Log)
+### 2026-01-26: Minimal wipe test for jess-personal-lb
+- Goal: validate whether deleting only /var/data/jess-personal-lb allows clean rehydrate from backend.
+- Steps:
+  - Stop service or scale to zero.
+  - Backup /var/data/jess-personal-lb (tarball).
+  - Delete only /var/data/jess-personal-lb.
+  - Restart service and observe boot logs.
+- Results:
+  - Server booted without backend head mismatch.
+  - Eventlog contains only 1 ProjectCreated event (v2.ProjectCreated).
+  - Materialized state contains 1 project (matches eventlog).
+- Observations:
+  - Missing projects are not in local eventlog after rehydrate, indicating backend history is truncated
+    or stored under a previous persistence format version (PERSISTENCE_FORMAT_VERSION) not being read.
+  - Web client mismatch is downstream of backend history, not purely a client cache issue.
+
+### 2026-01-26: Current state (freeze)
+- Front-end, server, and sync backend are now aligned and showing the same dataset.
+- Project is frozen at this state by request.
+
+## Recovery Patch (Server)
+### Backend head repair at boot
+- Added a pre-boot check in `packages/server/src/factories/store-factory.ts` that:
+  - Locates the local eventlog database for a store.
+  - Reads `__livestore_sync_status.head` and compares it to `max(seqNumGlobal)` from `eventlog`.
+  - If backend head is ahead, updates it to the local head and logs a recovery warning.
+- This is intended to prevent boot failure when backend head > local head.
+
 ## Open Questions
 - What caused the original materializer crash or state divergence?
 - Are there schema/materializer changes deployed recently that would trigger this?
