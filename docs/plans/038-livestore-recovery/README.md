@@ -124,9 +124,13 @@ This plan restores production access for jess-personal-lb, establishes a repeata
   - Delete only /var/data/jess-personal-lb.
   - Restart service and observe boot logs.
 - Results:
-  - Pending.
+  - Server booted without backend head mismatch.
+  - Eventlog contains only 1 ProjectCreated event (v2.ProjectCreated).
+  - Materialized state contains 1 project (matches eventlog).
 - Observations:
-  - Pending.
+  - Missing projects are not in local eventlog after rehydrate, indicating backend history is truncated
+    or stored under a previous persistence format version (PERSISTENCE_FORMAT_VERSION) not being read.
+  - Web client mismatch is downstream of backend history, not purely a client cache issue.
 
 ## Open Questions
 - What caused the original materializer crash or state divergence?
