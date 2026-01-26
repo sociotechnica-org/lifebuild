@@ -187,18 +187,6 @@ export const SignupPage: React.FC = () => {
               />
             </div>
 
-            <div className='text-xs text-[#8b8680]'>
-              By creating an account, you also agree to our{' '}
-              <a href='#' className='text-[#2f2b27] hover:underline'>
-                Terms of Service
-              </a>{' '}
-              and{' '}
-              <a href='#' className='text-[#2f2b27] hover:underline'>
-                Privacy Policy
-              </a>
-              .
-            </div>
-
             <div>
               <button
                 type='submit'
