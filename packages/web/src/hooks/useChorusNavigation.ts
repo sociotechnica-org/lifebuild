@@ -2,7 +2,8 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFileNavigation } from './useFileNavigation.js'
 import { useStore } from '../livestore-compat.js'
-import { getTaskById$ } from '@lifebuild/shared/queries'
+import { getProjectById$, getTaskById$ } from '@lifebuild/shared/queries'
+import { resolveLifecycleState, type PlanningAttributes } from '@lifebuild/shared'
 import { generateRoute } from '../constants/routes.js'
 import { preserveStoreIdInUrl } from '../utils/navigation.js'
 
@@ -79,6 +80,47 @@ export const useChorusNavigation = () => {
           }
           case 'project': {
             if (!id) break
+            try {
+              const projectResult = await store.query(getProjectById$(id))
+              const project = projectResult?.[0]
+
+              if (project) {
+                let attributes: PlanningAttributes | null = null
+                try {
+                  attributes =
+                    typeof project.attributes === 'string'
+                      ? (JSON.parse(project.attributes) as PlanningAttributes)
+                      : (project.attributes as PlanningAttributes | null)
+                } catch {
+                  attributes = null
+                }
+
+                const lifecycleState = resolveLifecycleState(
+                  project.projectLifecycleState,
+                  attributes
+                )
+
+                // For planning projects, "View project" should take the Director to the
+                // appropriate Drafting Room stage (where edits happen), not the read-only view.
+                if (lifecycleState.status === 'planning') {
+                  if (lifecycleState.stage === 1) {
+                    navigate(preserveStoreIdInUrl(generateRoute.projectStage1(id)))
+                    break
+                  }
+                  if (lifecycleState.stage === 2) {
+                    navigate(preserveStoreIdInUrl(generateRoute.projectStage2(id)))
+                    break
+                  }
+                  if (lifecycleState.stage === 3) {
+                    navigate(preserveStoreIdInUrl(generateRoute.projectStage3(id)))
+                    break
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('Error looking up project:', error)
+            }
+
             const projectUrl = preserveStoreIdInUrl(generateRoute.project(id))
             console.log('[CHORUS] Navigating to project:', projectUrl)
             navigate(projectUrl)

@@ -63,6 +63,34 @@ describe('useChorusNavigation', () => {
   it('should navigate to project when clicking project: link', async () => {
     renderHook(() => useChorusNavigation(), { wrapper })
 
+    mockStore.query.mockResolvedValueOnce([
+      {
+        attributes: null,
+        projectLifecycleState: { status: 'planning', stage: 1 },
+      },
+    ])
+    const element = createChorusElement('project:abc123', 'View project')
+
+    await act(async () => {
+      simulateClick(element)
+      // Allow async handlers to complete
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+
+    expect(mockNavigate).toHaveBeenCalledWith('/drafting-room/abc123/stage1?storeId=test-store-123')
+
+    document.body.removeChild(element)
+  })
+
+  it('should navigate to Project view when clicking project: link for non-planning projects', async () => {
+    renderHook(() => useChorusNavigation(), { wrapper })
+
+    mockStore.query.mockResolvedValueOnce([
+      {
+        attributes: null,
+        projectLifecycleState: { status: 'active', stage: 2 },
+      },
+    ])
     const element = createChorusElement('project:abc123', 'View project')
 
     await act(async () => {
