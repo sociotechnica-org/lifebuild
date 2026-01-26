@@ -141,7 +141,11 @@ test.describe('Authentication Flow E2E', () => {
       await passwordInput.fill('validpassword123')
       await confirmPasswordInput.fill('validpassword123')
 
-      // Button should be enabled now since all fields are filled
+      // Also agree to the social contract (required for form to be valid)
+      const socialContractCheckbox = page.locator('#social-contract-agreement')
+      await socialContractCheckbox.check()
+
+      // Button should be enabled now since all fields are filled and contract agreed
       await expect(submitButton).toBeEnabled()
 
       // Try to submit - browser validation should prevent it

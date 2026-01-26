@@ -2,12 +2,12 @@
 
 ## Current Status
 
-| PR | Status | Description |
-|----|--------|-------------|
-| PR1 | ✅ Complete | Bronze queue shows projects instead of tasks |
-| PR2 | 🔲 Not Started | Task Queue side panel |
-| PR3 | 🔲 Not Started | Project view queue integration |
-| PR4 | 🔲 Not Started | Cleanup deprecated bronze stack |
+| PR  | Status         | Description                                  |
+| --- | -------------- | -------------------------------------------- |
+| PR1 | ✅ Complete    | Bronze queue shows projects instead of tasks |
+| PR2 | 🔲 Not Started | Task Queue side panel                        |
+| PR3 | 🔲 Not Started | Project view queue integration               |
+| PR4 | 🔲 Not Started | Cleanup deprecated bronze stack              |
 
 **PR1 was merged on 2025-01-25** - See [PR #480](https://github.com/sociotechnica-org/work-squared/pull/480)
 
@@ -332,6 +332,7 @@ This PR removes the old task-based bronze stack after the new system is stable.
 - [x] Issue #387 resolved: project tasks stay grouped
 
 Additional features delivered in PR1:
+
 - [x] Drag-and-drop reordering of tabled bronze projects
 - [x] Quick-add creates new Bronze projects directly to the table
 - [x] Bronze projects clickable in TableBar (navigates to project)

@@ -150,7 +150,7 @@ test.describe('Authentication Integration E2E', () => {
     await page.waitForLoadState('load')
 
     // Should show proper login page structure
-    await expect(page.locator('h1')).toContainText('LifeBuild')
+    await expect(page.locator('img[alt="LifeBuild"]')).toBeVisible()
     await expect(page.locator('h2')).toContainText('Sign in to your account')
     await expect(page.locator('input[name="email"]')).toBeVisible()
     await expect(page.locator('input[name="password"]')).toBeVisible()
@@ -197,7 +197,10 @@ test.describe('Authentication Integration E2E', () => {
     await page.fill('input[name="password"]', 'password123')
     await page.fill('input[name="confirmPassword"]', 'different123')
 
-    // Button should now be enabled since all fields have content
+    // Also agree to the social contract (required for form to be valid)
+    await page.locator('#social-contract-agreement').check()
+
+    // Button should now be enabled since all fields have content and contract agreed
     await expect(page.locator('button[type="submit"]')).toBeEnabled()
 
     await page.click('button[type="submit"]')
