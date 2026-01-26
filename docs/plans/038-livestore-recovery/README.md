@@ -115,6 +115,19 @@ This plan restores production access for jess-personal-lb, establishes a repeata
 - [ ] Investigate web client storage and sync status; add reset flow.
 - [ ] File upstream issue comment with logs and reproduction steps.
 
+## Recovery Notes (Experiment Log)
+### 2026-01-26: Minimal wipe test for jess-personal-lb
+- Goal: validate whether deleting only /var/data/jess-personal-lb allows clean rehydrate from backend.
+- Steps:
+  - Stop service or scale to zero.
+  - Backup /var/data/jess-personal-lb (tarball).
+  - Delete only /var/data/jess-personal-lb.
+  - Restart service and observe boot logs.
+- Results:
+  - Pending.
+- Observations:
+  - Pending.
+
 ## Open Questions
 - What caused the original materializer crash or state divergence?
 - Are there schema/materializer changes deployed recently that would trigger this?
