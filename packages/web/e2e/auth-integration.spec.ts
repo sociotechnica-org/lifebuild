@@ -22,7 +22,7 @@ test.describe('Authentication Integration E2E', () => {
     await page.waitForURL(/\/login/, { timeout: 10000 })
 
     // Should see login page
-    await expect(page.locator('h1')).toContainText('LifeBuild')
+    await expect(page.locator('img[alt="LifeBuild"]')).toBeVisible()
     await expect(page.locator('h2')).toContainText('Sign in to your account')
 
     // 2. Navigate to signup page
@@ -39,6 +39,9 @@ test.describe('Authentication Integration E2E', () => {
     await page.fill('input[name="email"]', testEmail)
     await page.fill('input[name="password"]', testPassword)
     await page.fill('input[name="confirmPassword"]', testPassword)
+
+    // Agree to the social contract (required for form to be valid)
+    await page.locator('#social-contract-agreement').check()
 
     // Submit signup form
     await page.click('button[type="submit"]')
