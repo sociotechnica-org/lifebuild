@@ -139,6 +139,11 @@ async function repairBackendHeadIfAhead(storeDataPath: string, storeId: string):
   }
 }
 
+export const __test__ = {
+  findEventlogPath,
+  repairBackendHeadIfAhead,
+}
+
 /**
  * Creates the sync payload for server-worker authentication
  * Uses SERVER_BYPASS_TOKEN for both production and development
