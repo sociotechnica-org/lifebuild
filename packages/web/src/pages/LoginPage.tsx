@@ -54,9 +54,7 @@ export const LoginPage: React.FC = () => {
     <div className='min-h-screen bg-[#faf9f7] flex flex-col justify-center py-12 sm:px-6 lg:px-8'>
       <div className='sm:mx-auto sm:w-full sm:max-w-md'>
         <div className='text-center'>
-          <h1 className="font-['Source_Serif_4',Georgia,serif] text-3xl font-bold text-[#2f2b27]">
-            LifeBuild
-          </h1>
+          <img src='/lifebuild-logo.webp' alt='LifeBuild' className='h-12 mx-auto' />
           <h2 className="font-['Source_Serif_4',Georgia,serif] mt-4 text-2xl font-semibold text-[#2f2b27]">
             Sign in to your account
           </h2>
