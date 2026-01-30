@@ -5,7 +5,7 @@ import type { StoreManager } from './store-manager.js'
 import { tables, events } from '@lifebuild/shared/schema'
 import { AgenticLoop, classifyError } from './agentic-loop/agentic-loop.js'
 import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
-import { DEFAULT_MODEL } from '@lifebuild/shared'
+import { DEFAULT_MODEL, resolveLifecycleState, type PlanningAttributes } from '@lifebuild/shared'
 import {
   getRoomDefinitionByRoomId,
   createProjectRoomDefinition,
@@ -1149,31 +1149,34 @@ export class EventProcessor {
         const projects = store.query(queryDb(tables.projects.select().where('id', '=', projectId)))
         const project = projects[0]
         if (project) {
-          // Convert projectLifecycleState to PlanningAttributes, converting null to undefined
-          // PlanningAttributes doesn't accept null, only undefined, so we must explicitly convert
-          const lifecycleState = project.projectLifecycleState
-          const attributes = lifecycleState
-            ? {
-                status: lifecycleState.status,
-                planningStage: lifecycleState.stage,
-                objectives: lifecycleState.objectives ?? undefined,
-                deadline: lifecycleState.deadline ?? undefined,
-                archetype: lifecycleState.archetype ?? undefined,
-                estimatedDuration: lifecycleState.estimatedDuration ?? undefined,
-                urgency: lifecycleState.urgency ?? undefined,
-                importance: lifecycleState.importance ?? undefined,
-                complexity: lifecycleState.complexity ?? undefined,
-                scale: lifecycleState.scale ?? undefined,
-                priority: lifecycleState.priority ?? undefined,
-                activatedAt: lifecycleState.activatedAt ?? undefined,
-              }
-            : undefined
+          // Resolve lifecycle state from projectLifecycleState or fall back to legacy attributes
+          // This ensures legacy projects (created before lifecycle migration) still get proper planning context
+          const lifecycleState = resolveLifecycleState(
+            project.projectLifecycleState,
+            project.attributes as PlanningAttributes | null
+          )
+
+          // Convert to PlanningAttributes format (null → undefined for type compatibility)
+          const attributes = {
+            status: lifecycleState.status,
+            planningStage: lifecycleState.stage,
+            objectives: lifecycleState.objectives ?? undefined,
+            deadline: lifecycleState.deadline ?? undefined,
+            archetype: lifecycleState.archetype ?? undefined,
+            estimatedDuration: lifecycleState.estimatedDuration ?? undefined,
+            urgency: lifecycleState.urgency ?? undefined,
+            importance: lifecycleState.importance ?? undefined,
+            complexity: lifecycleState.complexity ?? undefined,
+            scale: lifecycleState.scale ?? undefined,
+            priority: lifecycleState.priority ?? undefined,
+            activatedAt: lifecycleState.activatedAt ?? undefined,
+          }
 
           const projectRoomParams: ProjectRoomParameters = {
             projectId: project.id,
             name: project.name,
             description: project.description,
-            objectives: (project.attributes as any)?.objectives,
+            objectives: lifecycleState.objectives ?? undefined,
             archivedAt: project.archivedAt ? project.archivedAt.getTime() : null,
             deletedAt: project.deletedAt ? project.deletedAt.getTime() : null,
             attributes,
