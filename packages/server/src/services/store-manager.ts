@@ -298,7 +298,7 @@ export class StoreManager extends EventEmitter {
 
     // Read initial network status
     Effect.runPromise(networkStatus as Effect.Effect<{ isConnected: boolean }, unknown>)
-      .then((initial) => {
+      .then(initial => {
         const now = new Date()
         storeInfo.networkStatus = {
           isConnected: initial.isConnected,
@@ -310,7 +310,7 @@ export class StoreManager extends EventEmitter {
           'Network status monitoring enabled'
         )
       })
-      .catch((error) => {
+      .catch(error => {
         storeLogger(storeId).debug({ error }, 'Could not read initial network status')
       })
   }
@@ -322,7 +322,7 @@ export class StoreManager extends EventEmitter {
     storeId: string,
     changesStream: Stream.Stream<{ isConnected: boolean }, unknown>
   ): void {
-    const streamEffect = Stream.runForEach(changesStream, (status) =>
+    const streamEffect = Stream.runForEach(changesStream, status =>
       Effect.sync(() => {
         const storeInfo = this.stores.get(storeId)
         if (!storeInfo) return
@@ -357,7 +357,7 @@ export class StoreManager extends EventEmitter {
       })
     )
 
-    Effect.runPromise(streamEffect).catch((error) => {
+    Effect.runPromise(streamEffect).catch(error => {
       storeLogger(storeId).debug({ error }, 'Network status stream ended')
     })
   }
@@ -379,7 +379,7 @@ export class StoreManager extends EventEmitter {
       }
 
       Effect.runPromise(syncState as Effect.Effect<SyncState.SyncState, unknown>)
-        .then((initialState) => {
+        .then(initialState => {
           this.handleSyncStateUpdate(storeId, initialState)
           storeLogger(storeId).info(
             {
@@ -397,7 +397,7 @@ export class StoreManager extends EventEmitter {
             this.consumeSyncStateChanges(storeId, changesStream)
           }
         })
-        .catch((error) => {
+        .catch(error => {
           storeLogger(storeId).debug({ error }, 'Could not read initial sync state')
         })
     } catch (error) {
@@ -416,7 +416,7 @@ export class StoreManager extends EventEmitter {
     if (!storeInfo) return
 
     // Use Stream.runForEach to process each sync state update
-    const streamEffect = Stream.runForEach(changesStream, (state) =>
+    const streamEffect = Stream.runForEach(changesStream, state =>
       Effect.sync(() => {
         // Check if store still exists
         if (this.stores.has(storeId)) {
@@ -426,7 +426,7 @@ export class StoreManager extends EventEmitter {
     )
 
     // Run the stream consumption in the background
-    Effect.runPromise(streamEffect).catch((error) => {
+    Effect.runPromise(streamEffect).catch(error => {
       // Stream consumption failed - this is expected when store shuts down
       storeLogger(storeId).debug({ error }, 'Sync state stream ended')
     })
@@ -529,7 +529,10 @@ export class StoreManager extends EventEmitter {
       storeInfo.reconnectAttempts++
 
       try {
-        storeLogger(storeId).info({ attempt: storeInfo.reconnectAttempts }, 'Attempting store reconnect')
+        storeLogger(storeId).info(
+          { attempt: storeInfo.reconnectAttempts },
+          'Attempting store reconnect'
+        )
 
         // Clean up old sync status subscription
         if (storeInfo.syncStatusUnsubscribe) {
@@ -552,7 +555,10 @@ export class StoreManager extends EventEmitter {
         // Emit event so listeners (e.g., EventProcessor) can re-subscribe
         this.emit('storeReconnected', { storeId, store })
       } catch (error) {
-        storeLogger(storeId).error({ error, attempt: storeInfo.reconnectAttempts }, 'Failed to reconnect store')
+        storeLogger(storeId).error(
+          { error, attempt: storeInfo.reconnectAttempts },
+          'Failed to reconnect store'
+        )
 
         if (storeInfo.reconnectAttempts < this.maxReconnectAttempts) {
           this.scheduleReconnect(storeId)
@@ -638,7 +644,9 @@ export class StoreManager extends EventEmitter {
     }
     this.reconnectTimeouts.clear()
 
-    const shutdownPromises = Array.from(this.stores.keys()).map(storeId => this.removeStore(storeId))
+    const shutdownPromises = Array.from(this.stores.keys()).map(storeId =>
+      this.removeStore(storeId)
+    )
 
     await Promise.allSettled(shutdownPromises)
     const { durationMs } = telemetry.recordSuccess({
