@@ -5,7 +5,12 @@ import type { StoreManager } from './store-manager.js'
 import { tables, events } from '@lifebuild/shared/schema'
 import { AgenticLoop, classifyError } from './agentic-loop/agentic-loop.js'
 import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
-import { DEFAULT_MODEL } from '@lifebuild/shared'
+import { DEFAULT_MODEL, resolveLifecycleState, type PlanningAttributes } from '@lifebuild/shared'
+import {
+  getRoomDefinitionByRoomId,
+  createProjectRoomDefinition,
+  type ProjectRoomParameters,
+} from '@lifebuild/shared/rooms'
 import { MessageQueueManager } from './message-queue-manager.js'
 import { AsyncQueueProcessor } from './async-queue-processor.js'
 import { ProcessedMessageTracker } from './processed-message-tracker.js'
@@ -1124,12 +1129,72 @@ export class EventProcessor {
     const boardContext: BoardContext | undefined = undefined
     let navigationContext: NavigationContext | undefined = undefined
 
-    // Set worker context if worker data is available
-    if (worker) {
+    // Resolve prompt from room definition (code) instead of worker.systemPrompt (DB)
+    // This ensures prompts are always up-to-date with code changes
+    let resolvedPrompt: string | undefined
+    let resolvedName: string | undefined
+    let resolvedRoleDescription: string | undefined
+
+    if (conversation?.roomId) {
+      const roomDef = getRoomDefinitionByRoomId(conversation.roomId)
+
+      if (roomDef) {
+        // Static room - use code-defined prompt
+        resolvedPrompt = roomDef.worker.prompt
+        resolvedName = roomDef.worker.name
+        resolvedRoleDescription = roomDef.worker.roleDescription
+      } else if (conversation.roomId.startsWith('project:')) {
+        // Dynamic project room - build from project data
+        const projectId = conversation.roomId.replace('project:', '')
+        const projects = store.query(queryDb(tables.projects.select().where('id', '=', projectId)))
+        const project = projects[0]
+        if (project) {
+          // Resolve lifecycle state from projectLifecycleState or fall back to legacy attributes
+          // This ensures legacy projects (created before lifecycle migration) still get proper planning context
+          const lifecycleState = resolveLifecycleState(
+            project.projectLifecycleState,
+            project.attributes as PlanningAttributes | null
+          )
+
+          // Convert to PlanningAttributes format (null → undefined for type compatibility)
+          const attributes = {
+            status: lifecycleState.status,
+            planningStage: lifecycleState.stage,
+            objectives: lifecycleState.objectives ?? undefined,
+            deadline: lifecycleState.deadline ?? undefined,
+            archetype: lifecycleState.archetype ?? undefined,
+            estimatedDuration: lifecycleState.estimatedDuration ?? undefined,
+            urgency: lifecycleState.urgency ?? undefined,
+            importance: lifecycleState.importance ?? undefined,
+            complexity: lifecycleState.complexity ?? undefined,
+            scale: lifecycleState.scale ?? undefined,
+            priority: lifecycleState.priority ?? undefined,
+            activatedAt: lifecycleState.activatedAt ?? undefined,
+          }
+
+          const projectRoomParams: ProjectRoomParameters = {
+            projectId: project.id,
+            name: project.name,
+            description: project.description,
+            objectives: lifecycleState.objectives ?? undefined,
+            archivedAt: project.archivedAt ? project.archivedAt.getTime() : null,
+            deletedAt: project.deletedAt ? project.deletedAt.getTime() : null,
+            attributes,
+          }
+          const projectRoomDef = createProjectRoomDefinition(projectRoomParams)
+          resolvedPrompt = projectRoomDef.worker.prompt
+          resolvedName = projectRoomDef.worker.name
+          resolvedRoleDescription = projectRoomDef.worker.roleDescription
+        }
+      }
+    }
+
+    // Build worker context - prefer resolved prompt from code, fall back to DB for custom workers
+    if (resolvedPrompt || worker) {
       workerContext = {
-        systemPrompt: worker.systemPrompt,
-        name: worker.name,
-        roleDescription: worker.roleDescription || undefined,
+        systemPrompt: resolvedPrompt ?? worker?.systemPrompt ?? '',
+        name: resolvedName ?? worker?.name ?? 'Assistant',
+        roleDescription: resolvedRoleDescription ?? (worker?.roleDescription || undefined),
       }
     }
 

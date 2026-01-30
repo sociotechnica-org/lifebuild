@@ -431,3 +431,24 @@ export const createProjectRoomDefinition = ({
 export const getCategoryRoomDefinition = (category: ProjectCategory): StaticRoomDefinition => {
   return CATEGORY_ROOMS[category]
 }
+
+/**
+ * Get the static room definition for a given roomId.
+ * Returns null for project rooms (which are dynamic) and unknown room types.
+ *
+ * @param roomId - The room ID (e.g., 'life-map', 'drafting-room', 'category:health')
+ * @returns The static room definition, or null if not found
+ */
+export function getRoomDefinitionByRoomId(roomId: string): StaticRoomDefinition | null {
+  if (roomId === 'life-map') return LIFE_MAP_ROOM
+  if (roomId === 'drafting-room') return DRAFTING_ROOM
+  if (roomId === 'sorting-room') return SORTING_ROOM
+
+  if (roomId.startsWith('category:')) {
+    const category = roomId.replace('category:', '') as ProjectCategory
+    return CATEGORY_ROOMS[category] ?? null
+  }
+
+  // Project rooms are dynamic - return null (caller should use createProjectRoomDefinition)
+  return null
+}

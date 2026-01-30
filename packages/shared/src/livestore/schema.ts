@@ -283,6 +283,11 @@ const workers = State.SQLite.table({
     id: State.SQLite.text({ primaryKey: true }),
     name: State.SQLite.text({ default: '' }),
     roleDescription: State.SQLite.text({ nullable: true }),
+    /**
+     * @deprecated For room-based workers, prompts are now resolved from static room definitions in code.
+     * This field is kept for backwards compatibility with existing events but is not used by the server
+     * for workers that have a roomId. Custom workers without a roomId may still use this field.
+     */
     systemPrompt: State.SQLite.text({ default: '' }),
     avatar: State.SQLite.text({ nullable: true }),
     defaultModel: State.SQLite.text({ default: DEFAULT_MODEL }),
