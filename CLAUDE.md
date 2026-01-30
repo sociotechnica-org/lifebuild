@@ -199,8 +199,8 @@ gh project item-edit --project-id <PROJECT_ID> --id <ITEM_ID> --field-id <STATUS
 
 ### Project Management
 
-- **Parent Issues**: Only use the "Parent issue" feature for issues with type "Project". Never set a parent issue on regular issues.
-- **Sub-issues**: Use the GraphQL `addSubIssue` mutation to link issues as sub-issues to Project-type issues
+- **Parent Issues**: Only use the "Parent issue" feature for issues with type "Project". Never set a parent issue on regular issues. Only ONE level of sub-issues - sub-issues should not have their own sub-issues.
+- **Sub-issues**: Use the REST API to link issues as sub-issues to Project-type issues. For smaller sub-tasks within an issue, use markdown checklists instead of creating separate issues.
 - **Adding to Projects**: Use `gh project item-add <project-number> --owner sociotechnica-org --url <issue-url>`
 
 ### Common Workflows
@@ -222,10 +222,16 @@ gh pr status
 
 We use GitHub Issues and Projects for all project management across the SocioTechnica organization.
 
+### Repository Organization
+
+- **`work-squared`**: Issues related to the LifeBuild app (features, bugs, technical work)
+- **`company`**: Issues related to company-level activities (social media, marketing, partnerships, operations)
+
 ### Key Concepts
 
 - **Project**: A timebound, goal-oriented unit of work. Projects start and complete (unlike Areas, which are ongoing). A Project is represented as a GitHub Issue with type "Project".
-- **Sub-issues**: Tasks that belong to a Project are linked as sub-issues to the parent Project issue. Sub-issues can come from any repository.
+- **Sub-issues**: Issues that belong to a Project are linked as sub-issues to the parent Project issue. **Only one level of sub-issues** - sub-issues should NOT have their own sub-issues.
+- **Checklists for sub-tasks**: Use GitHub markdown checklists (`- [ ]`) within an issue for smaller sub-tasks. Don't create separate issues for every small item.
 - **GitHub Project Board**: [SocioTechnica Project Board](https://github.com/orgs/sociotechnica-org/projects/2/) - central view of all work in progress.
 
 ### Project Issue Structure
@@ -243,14 +249,45 @@ Project issues use the "Project" issue type and follow this template:
 - [ ] Criterion 2
 ```
 
-### Working with Projects
+### Creating a New Project
+
+When creating a new Project issue, you MUST complete ALL of these steps:
+
+1. **Create the issue** with "Project: " prefix in the title
+2. **Set the issue type to "Project"** using GraphQL mutation
+3. **Add to the LifeBuild Planning project board**
+
+```bash
+# Step 1: Create the issue
+gh issue create -R sociotechnica-org/<repo> \
+  --title "Project: Name" \
+  --body "## Goal
+[One sentence describing the outcome]
+
+## Success Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2"
+
+# Step 2: Set issue type to Project (get the issue number from step 1)
+ISSUE_ID=$(gh api repos/sociotechnica-org/<repo>/issues/<number> --jq '.node_id')
+PROJECT_TYPE_ID="IT_kwDOBzJqv84B0qO5"
+gh api graphql -f query="
+  mutation {
+    updateIssueIssueType(input: {issueId: \"$ISSUE_ID\", issueTypeId: \"$PROJECT_TYPE_ID\"}) {
+      issue { number title }
+    }
+  }
+"
+
+# Step 3: Add to LifeBuild Planning project board
+gh project item-add 2 --owner sociotechnica-org --url <issue-url>
+```
+
+### Listing Projects
 
 ```bash
 # List all Project issues
-gh issue list --label "type:project" -R sociotechnica-org/work-squared
-
-# Create a new Project issue (requires GraphQL for issue type)
-gh issue create --title "Project: Name" --body "## Goal\n..."
+gh issue list --search "type:Project" -R sociotechnica-org/work-squared
 ```
 
 #### Sub-issues with gh-sub-issue extension
