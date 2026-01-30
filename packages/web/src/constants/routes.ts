@@ -35,7 +35,6 @@ export const ROUTES = {
   DOCUMENT: '/old/document/:documentId',
   CONTACTS: '/old/contacts',
   CONTACT: '/old/contacts/:contactId',
-  SETTINGS: '/settings',
   // Auth and admin routes (unchanged)
   ADMIN: '/admin',
   ADMIN_USER: '/admin/users/:userEmail',

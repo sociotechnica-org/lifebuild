@@ -6,7 +6,7 @@ import { useAuth } from '../../../contexts/AuthContext.js'
 import { getUsers$ } from '@lifebuild/shared/queries'
 import type { User } from '@lifebuild/shared/schema'
 import { TableBar } from './TableBar.js'
-import { getInitials, preserveStoreIdInUrl, isCurrentUserAdmin } from '../utils/index.js'
+import { getInitials, isCurrentUserAdmin } from '../utils/index.js'
 
 type NewUiShellProps = {
   children: React.ReactNode
@@ -179,13 +179,6 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
                     <div className='font-medium truncate'>{getDisplayName()}</div>
                     <div className='text-[#8b8680] truncate'>{getEmail()}</div>
                   </div>
-                  <Link
-                    to={preserveStoreIdInUrl(ROUTES.SETTINGS)}
-                    onClick={() => setShowDropdown(false)}
-                    className='block px-4 py-2 text-sm text-[#2f2b27] hover:bg-black/[0.04] no-underline'
-                  >
-                    Settings
-                  </Link>
                   {isCurrentUserAdmin(authUser) && (
                     <Link
                       to={ROUTES.ADMIN}
