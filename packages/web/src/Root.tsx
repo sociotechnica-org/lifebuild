@@ -2,12 +2,13 @@ import { makePersistedAdapter } from '@livestore/adapter-web'
 import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedworker'
 import { LiveStoreProvider } from './livestore-compat.js'
 import LiveStoreWorker from './livestore.worker.ts?worker'
-import React, { useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
 import { AuthProvider, useAuth } from './contexts/AuthContext.js'
 import { useChorusNavigation } from './hooks/useChorusNavigation.js'
+import { useSyncPayload } from './hooks/useSyncPayload.js'
 
 import { ProjectsPage } from './components/projects/ProjectsPage.js'
 import { ProjectWorkspace } from './components/projects/ProjectWorkspace/ProjectWorkspace.js'
@@ -30,6 +31,7 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary/ErrorBoundary.js'
 import { UserInitializer } from './components/utils/UserInitializer/UserInitializer.js'
 import { AuthUserSync } from './components/utils/AuthUserSync/AuthUserSync.js'
 import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
+import { LiveStoreHealthMonitor } from './components/utils/LiveStoreHealthMonitor.js'
 import { LifeMapView } from './components/life-map/LifeMapView.js'
 import { schema } from '@lifebuild/shared/schema'
 import { ROUTES } from './constants/routes.js'
@@ -44,6 +46,7 @@ import { SortingRoom } from './components/new/sorting-room/SortingRoom.js'
 import { NewUiShell } from './components/new/layout/NewUiShell.js'
 import { SnackbarProvider } from './components/ui/Snackbar/Snackbar.js'
 import { LIFE_MAP_ROOM, DRAFTING_ROOM, SORTING_ROOM } from '@lifebuild/shared/rooms'
+import { determineStoreIdFromUser } from './utils/navigation.js'
 
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
@@ -59,38 +62,83 @@ const ChorusNavigationInitializer: React.FC<{ children: React.ReactNode }> = ({ 
 
 // LiveStore wrapper with auth integration
 const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Determine storeId once on mount - prioritize URL over localStorage
+  const location = useLocation()
+  const { user } = useAuth()
+
   const storeId = useMemo(() => {
     if (typeof window === 'undefined') return 'unused'
 
-    // Check URL first (using window.location for initial mount)
-    const urlParams = new URLSearchParams(window.location.search)
+    const urlParams = new URLSearchParams(location.search)
     const urlStoreId = urlParams.get('storeId')
+    const isValidInstanceId =
+      user?.instances && urlStoreId ? user.instances.some(instance => instance.id === urlStoreId) : true
 
-    if (urlStoreId) {
-      // URL has storeId - use it and sync to localStorage
-      localStorage.setItem('storeId', urlStoreId)
+    if (urlStoreId && (!user || isValidInstanceId)) {
       return urlStoreId
     }
 
-    // No URL storeId - fall back to localStorage
-    let storedId = localStorage.getItem('storeId')
-    if (!storedId) {
-      // No localStorage either - create new one
-      storedId = crypto.randomUUID()
-      localStorage.setItem('storeId', storedId)
+    return determineStoreIdFromUser(user)
+  }, [location.search, user])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    localStorage.setItem('storeId', storeId)
+  }, [storeId])
+
+  const { syncPayload } = useSyncPayload({ instanceId: storeId })
+
+  const devtoolsParam = useMemo(() => {
+    if (typeof window === 'undefined') return null
+    const urlParams = new URLSearchParams(location.search)
+    return urlParams.get('livestoreDevtools')
+  }, [location.search])
+
+  const devtoolsEnabled = devtoolsParam === '1' || devtoolsParam === 'true'
+
+  const [restartIndex, setRestartIndex] = useState(0)
+  const previousRef = useRef<{ storeId: string; authToken?: string } | null>(null)
+
+  const triggerRestart = useCallback(
+    (reason: string) => {
+      console.warn(`[LiveStore] Restarting store '${storeId}' (${reason}).`)
+      setRestartIndex(index => index + 1)
+    },
+    [storeId]
+  )
+
+  useEffect(() => {
+    if (!previousRef.current) {
+      previousRef.current = { storeId, authToken: syncPayload.authToken }
+      return
     }
-    return storedId
-  }, []) // Empty deps - calculated once on mount, stable during navigation
+
+    const previous = previousRef.current
+    if (previous.storeId !== storeId) {
+      previousRef.current = { storeId, authToken: syncPayload.authToken }
+      triggerRestart('storeId changed')
+      return
+    }
+
+    if (previous.authToken !== syncPayload.authToken) {
+      previousRef.current = { storeId, authToken: syncPayload.authToken }
+      triggerRestart('auth token updated')
+    }
+  }, [storeId, syncPayload.authToken, triggerRestart])
+
+  const providerKey = `${storeId}:${restartIndex}:${devtoolsEnabled ? 'devtools' : 'nodevtools'}`
 
   return (
     <LiveStoreProvider
+      key={providerKey}
       schema={schema}
       renderLoading={_ => <LoadingState message={`Loading LiveStore (${_.stage})...`} fullScreen />}
       adapter={adapter}
       batchUpdates={batchUpdates}
       storeId={storeId}
+      syncPayload={syncPayload}
+      disableDevtools={devtoolsEnabled ? false : 'auto'}
     >
+      <LiveStoreHealthMonitor syncPayload={syncPayload} onRestart={triggerRestart} />
       <ChorusNavigationInitializer>{children}</ChorusNavigationInitializer>
     </LiveStoreProvider>
   )

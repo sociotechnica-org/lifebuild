@@ -22,7 +22,14 @@ const getSyncUrl = () => {
 makeWorker({
   schema,
   sync: {
-    backend: makeWsSync({ url: getSyncUrl() }),
+    backend: makeWsSync({
+      url: getSyncUrl(),
+      ping: {
+        enabled: true,
+        requestTimeout: 5000,
+        requestInterval: 15000,
+      },
+    }),
     initialSyncOptions: { _tag: 'Blocking', timeout: 5000 },
   },
   otelOptions: { tracer: makeTracer('lifebuild-worker') },
