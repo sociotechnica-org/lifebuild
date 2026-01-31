@@ -5,6 +5,7 @@
   "license": "FSL-1.1-ALv2",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "dev:dashboard": "tsx scripts/start-dashboard.ts",
     "build": "node build.js",
     "start": "node dist/index.js",
     "test": "vitest run",

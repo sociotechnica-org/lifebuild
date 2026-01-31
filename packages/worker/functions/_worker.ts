@@ -333,6 +333,10 @@ const fetchHandler = async (
     })
   }
 
+  if (url.pathname === '/health') {
+    return new Response('ok', { status: 200 })
+  }
+
   // Handle image upload endpoint
   if (url.pathname === '/api/upload-image' && request.method === 'POST') {
     const { handleImageUpload } = await import('./upload-image.js')

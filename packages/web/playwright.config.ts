@@ -15,6 +15,13 @@ const getPort = () => {
 }
 
 const port = getPort()
+const syncPort = Number.parseInt(process.env.LIVESTORE_SYNC_PORT || '8787', 10) || 8787
+const dashboardPort = Number.parseInt(process.env.SERVER_DASHBOARD_PORT || '3103', 10) || 3103
+const serverDashboardToken = process.env.SERVER_DASHBOARD_TOKEN || 'test-bypass-token'
+
+process.env.SERVER_DASHBOARD_PORT = dashboardPort.toString()
+process.env.SERVER_DASHBOARD_TOKEN = serverDashboardToken
+process.env.LIVESTORE_SYNC_PORT = syncPort.toString()
 const baseURL = `http://localhost:${port}`
 
 /**
@@ -53,12 +60,43 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: [
+    {
+      command: 'pnpm --filter @lifebuild/worker dev',
+      url: `http://localhost:${syncPort}/health`,
+      reuseExistingServer: true,
+      timeout: 60 * 1000,
+      env: {
+        ENVIRONMENT: 'development',
+        REQUIRE_AUTH: 'false',
+        JWT_SECRET: 'test-secret',
+        GRACE_PERIOD_SECONDS: '86400',
+        SERVER_BYPASS_TOKEN: serverDashboardToken,
+        R2_PUBLIC_URL: `http://localhost:${syncPort}/api/images`,
+      },
+    },
     // Always start auth worker for tests since the app always connects to it
     {
       command: 'cd ../auth-worker && pnpm dev',
       url: 'http://localhost:8788/health',
       reuseExistingServer: true,
       timeout: 60 * 1000,
+    },
+    {
+      command: 'pnpm --filter @lifebuild/server dev:dashboard',
+      url: `http://localhost:${dashboardPort}/health`,
+      reuseExistingServer: true,
+      timeout: 120 * 1000,
+      env: {
+        PORT: dashboardPort.toString(),
+        STORE_IDS: 'playwright-dashboard',
+        STORE_DATA_PATH: '.tmp-playwright-data',
+        LIVESTORE_SYNC_URL: `ws://localhost:${syncPort}`,
+        LIVESTORE_SYNC_HEALTH_URL: `http://localhost:${syncPort}/health`,
+        SERVER_BYPASS_TOKEN: serverDashboardToken,
+        LIVESTORE_PING_INTERVAL_MS: '1000',
+        LIVESTORE_PING_TIMEOUT_MS: '1000',
+        NODE_ENV: 'production',
+      },
     },
     // Start main app
     {
