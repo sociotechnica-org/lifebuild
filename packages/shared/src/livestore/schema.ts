@@ -5,7 +5,6 @@ import {
   parseProjectLifecycleState,
   ProjectLifecycleStateSchema,
   type ProjectLifecycleState,
-  type PlanningAttributes,
 } from '../types/planning.js'
 import { Filter } from '../types'
 import * as eventsDefs from './events'

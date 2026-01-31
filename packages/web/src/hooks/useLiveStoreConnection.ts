@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react'
-import type { SyncStatus } from '@livestore/livestore'
 import { Effect, Fiber, Stream } from '@livestore/utils/effect'
 import { useStore } from '../livestore-compat.js'
+
+type SyncStatus = {
+  pendingCount: number
+  isSynced: boolean
+  [key: string]: unknown
+}
 
 type NetworkStatus = {
   isConnected: boolean
@@ -20,6 +25,10 @@ export type LiveStoreConnectionStatus = {
 
 export const useLiveStoreConnection = (): LiveStoreConnectionStatus => {
   const { store } = useStore()
+  const storeAny = store as unknown as {
+    syncStatus?: () => SyncStatus
+    subscribeSyncStatus?: (onUpdate: (status: SyncStatus) => void) => () => void
+  }
   const [networkStatus, setNetworkStatus] = useState<NetworkStatus | null>(null)
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null)
   const [lastConnectedAt, setLastConnectedAt] = useState<Date | null>(null)
@@ -32,19 +41,23 @@ export const useLiveStoreConnection = (): LiveStoreConnectionStatus => {
       setLastSyncUpdateAt(new Date(timestamp))
     }
 
-    try {
-      const initialStatus = store.syncStatus()
-      setSyncStatus(initialStatus)
-      setSyncUpdateTime(Date.now())
-    } catch (error) {
-      console.warn('LiveStore sync status unavailable:', error)
+    if (storeAny.syncStatus) {
+      try {
+        const initialStatus = storeAny.syncStatus()
+        setSyncStatus(initialStatus)
+        setSyncUpdateTime(Date.now())
+      } catch (error) {
+        console.warn('LiveStore sync status unavailable:', error)
+      }
     }
 
-    const unsubscribe = store.subscribeSyncStatus((status) => {
-      if (!isActive) return
-      setSyncStatus(status)
-      setSyncUpdateTime(Date.now())
-    })
+    const unsubscribe = storeAny.subscribeSyncStatus
+      ? storeAny.subscribeSyncStatus((status: SyncStatus) => {
+          if (!isActive) return
+          setSyncStatus(status)
+          setSyncUpdateTime(Date.now())
+        })
+      : () => undefined
 
     return () => {
       isActive = false
@@ -54,6 +67,11 @@ export const useLiveStoreConnection = (): LiveStoreConnectionStatus => {
 
   useEffect(() => {
     let isActive = true
+    const networkStatusSource = (store as { networkStatus?: unknown }).networkStatus as
+      | {
+          changes?: Stream.Stream<unknown>
+        }
+      | undefined
 
     const updateNetworkStatus = (status: NetworkStatus) => {
       if (!isActive) return
@@ -63,16 +81,22 @@ export const useLiveStoreConnection = (): LiveStoreConnectionStatus => {
       }
     }
 
+    if (!networkStatusSource || !networkStatusSource.changes) {
+      return () => {
+        isActive = false
+      }
+    }
+
     Effect.runPromise(store.networkStatus)
-      .then((status) => updateNetworkStatus(status as NetworkStatus))
-      .catch((error) => console.warn('LiveStore network status unavailable:', error))
+      .then(status => updateNetworkStatus(status as NetworkStatus))
+      .catch(error => console.warn('LiveStore network status unavailable:', error))
 
     const fiber = Effect.runFork(
-      store.networkStatus.changes.pipe(
-        Stream.tap((status) => Effect.sync(() => updateNetworkStatus(status as NetworkStatus))),
+      networkStatusSource.changes.pipe(
+        Stream.tap(status => Effect.sync(() => updateNetworkStatus(status as NetworkStatus))),
         Stream.runDrain,
-        Effect.scoped,
-      ),
+        Effect.scoped
+      )
     )
 
     return () => {

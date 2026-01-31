@@ -12,18 +12,14 @@ interface UseSyncPayloadOptions {
 
 export function useSyncPayload({ instanceId }: UseSyncPayloadOptions) {
   const { getCurrentToken, isAuthenticated, handleConnectionError } = useAuth()
-  const [syncPayload, setSyncPayload] = useState<SyncPayload>({
+  const [syncPayload, setSyncPayload] = useState<SyncPayload>(() => ({
     instanceId,
-    authToken: undefined,
-  })
+  }))
 
   const updateSyncPayload = useCallback(async () => {
     try {
       if (!isAuthenticated) {
-        setSyncPayload({
-          instanceId,
-          authToken: undefined,
-        })
+        setSyncPayload({ instanceId })
         return
       }
 
@@ -53,7 +49,6 @@ export function useSyncPayload({ instanceId }: UseSyncPayloadOptions) {
 
       setSyncPayload({
         instanceId,
-        authToken: undefined,
         authError: 'TOKEN_MISSING',
       })
     } catch (error) {
@@ -62,7 +57,6 @@ export function useSyncPayload({ instanceId }: UseSyncPayloadOptions) {
 
       setSyncPayload({
         instanceId,
-        authToken: undefined,
         authError: (error as Error).message,
       })
     }

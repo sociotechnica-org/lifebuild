@@ -7,7 +7,14 @@
  * - useStore() returning { store }
  * - useQuery(query$) without explicit store parameter
  */
-import React, { createContext, useContext, useEffect, useMemo, Suspense, type ReactNode } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  Suspense,
+  type ReactNode,
+} from 'react'
 import {
   StoreRegistry,
   StoreRegistryProvider,
@@ -89,7 +96,8 @@ export const LiveStoreProvider: React.FC<LiveStoreProviderProps> = ({
 
   useEffect(() => {
     return () => {
-      void storeRegistry.dispose()
+      const registry = storeRegistry as { dispose?: () => Promise<void> }
+      void registry.dispose?.()
     }
   }, [storeRegistry])
 
