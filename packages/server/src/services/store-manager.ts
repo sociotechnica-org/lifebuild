@@ -573,10 +573,23 @@ export class StoreManager extends EventEmitter {
       this.reconnectTimeouts.delete(storeId)
     }
     const recreatePromise = (async () => {
+      if (!this.stores.has(storeId)) {
+        storeLogger(storeId).warn('Skipping recreation - store removed before start')
+        return
+      }
       this.stopNetworkStatusMonitoring(storeId)
 
       await storeInfo.store.shutdownPromise()
+      if (!this.stores.has(storeId)) {
+        storeLogger(storeId).warn('Skipping recreation - store removed after shutdown')
+        return
+      }
       const { store } = await createStore(storeId, storeInfo.config)
+      if (!this.stores.has(storeId)) {
+        storeLogger(storeId).warn('Skipping recreation - store removed after create')
+        await store.shutdownPromise()
+        return
+      }
 
       storeInfo.store = store
       storeInfo.status = 'connected'
