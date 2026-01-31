@@ -367,7 +367,23 @@ export class StoreManager extends EventEmitter {
     )
 
     Effect.runPromise(streamEffect).catch(error => {
-      storeLogger(storeId).debug({ error }, 'Network status stream ended')
+      // Stream ended - this can happen when LiveStore shuts down (e.g., onSyncError: 'shutdown')
+      // Treat this as a disconnect signal to ensure the store doesn't remain "connected" forever
+      const storeInfo = this.stores.get(storeId)
+      if (storeInfo && storeInfo.status === 'connected') {
+        storeLogger(storeId).warn({ error }, 'Network status stream ended unexpectedly - treating as disconnect')
+        const now = new Date()
+        storeInfo.networkStatus = {
+          isConnected: false,
+          lastUpdatedAt: now,
+          disconnectedSince: now,
+        }
+        storeInfo.status = 'disconnected'
+        this.emit('storeDisconnected', { storeId })
+        this.scheduleReconnect(storeId)
+      } else {
+        storeLogger(storeId).debug({ error }, 'Network status stream ended')
+      }
     })
   }
 
