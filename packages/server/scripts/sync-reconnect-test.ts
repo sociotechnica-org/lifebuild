@@ -297,14 +297,34 @@ class SyncReconnectTest {
 
   private async stopWorker(): Promise<void> {
     if (this.workerProcess) {
-      this.workerProcess.kill('SIGTERM')
-      // Wait a moment for the process to die
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      // Force kill if still running
-      if (!this.workerProcess.killed) {
-        this.workerProcess.kill('SIGKILL')
-      }
+      const proc = this.workerProcess
       this.workerProcess = null
+
+      await new Promise<void>((resolve) => {
+        let resolved = false
+        const cleanup = () => {
+          if (!resolved) {
+            resolved = true
+            resolve()
+          }
+        }
+
+        // Listen for exit event to know when process actually terminates
+        proc.once('exit', cleanup)
+
+        // Send SIGTERM first
+        proc.kill('SIGTERM')
+
+        // Set up SIGKILL fallback after 3 seconds if process doesn't exit
+        setTimeout(() => {
+          if (!resolved && proc.exitCode === null && proc.signalCode === null) {
+            proc.kill('SIGKILL')
+          }
+        }, 3000)
+
+        // Safety timeout - resolve after 5 seconds regardless
+        setTimeout(cleanup, 5000)
+      })
     }
   }
 

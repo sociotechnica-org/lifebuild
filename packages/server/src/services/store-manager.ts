@@ -308,6 +308,14 @@ export class StoreManager extends EventEmitter {
             { isConnected: initial.isConnected },
             'Network status monitoring enabled'
           )
+
+          // If initially disconnected, update status immediately (cold-start disconnect)
+          // This avoids waiting for the next health check (30s delay)
+          if (!initial.isConnected && storeInfo.status === 'connected') {
+            storeLogger(storeId).warn('Network disconnected on startup - updating status')
+            storeInfo.status = 'disconnected'
+            this.emit('storeDisconnected', { storeId })
+          }
         }
       })
       .catch(error => {
@@ -339,7 +347,8 @@ export class StoreManager extends EventEmitter {
             disconnectedSince: undefined,
           }
           // LiveStore handles reconnection automatically, just update our status
-          if (storeInfo.status === 'disconnected') {
+          // Also handle 'connecting' status - network may recover before our reconnect timeout fires
+          if (storeInfo.status === 'disconnected' || storeInfo.status === 'connecting') {
             storeInfo.status = 'connected'
             storeInfo.reconnectAttempts = 0
           }
@@ -551,6 +560,14 @@ export class StoreManager extends EventEmitter {
     storeInfo.status = 'connecting'
 
     const timeout = setTimeout(async () => {
+      // Check if network has recovered before proceeding with reconnection
+      // This avoids unnecessary shutdown/recreation if LiveStore auto-recovered
+      if (storeInfo.networkStatus?.isConnected && storeInfo.status === 'connected') {
+        storeLogger(storeId).info('Network recovered before reconnect - skipping')
+        this.reconnectTimeouts.delete(storeId)
+        return
+      }
+
       // Keep entry in reconnectTimeouts during async work to prevent duplicate scheduling
       storeInfo.reconnectAttempts++
 
@@ -626,8 +643,13 @@ export class StoreManager extends EventEmitter {
             }
 
             // Check for extended disconnects - fallback if LiveStore auto-retry fails
+            // Skip stores in 'error' status (max reconnect attempts exhausted) to avoid noisy logs
             const disconnectedSince = storeInfo.networkStatus.disconnectedSince
-            if (disconnectedSince && !storeInfo.networkStatus.isConnected) {
+            if (
+              disconnectedSince &&
+              !storeInfo.networkStatus.isConnected &&
+              storeInfo.status !== 'error'
+            ) {
               const disconnectedMs = Date.now() - disconnectedSince.getTime()
 
               if (disconnectedMs > NETWORK_DISCONNECT_FALLBACK_MS) {
@@ -637,7 +659,7 @@ export class StoreManager extends EventEmitter {
                   'Extended network disconnect - triggering manual reconnection fallback'
                 )
                 this.scheduleReconnect(storeId)
-              } else {
+              } else if (storeInfo.status !== 'connecting') {
                 storeLogger(storeId).warn(
                   { disconnectedMs, disconnectedSince: disconnectedSince.toISOString() },
                   'Store still disconnected - LiveStore auto-retry in progress'
