@@ -371,7 +371,10 @@ export class StoreManager extends EventEmitter {
       // Treat this as a disconnect signal to ensure the store doesn't remain "connected" forever
       const storeInfo = this.stores.get(storeId)
       if (storeInfo && storeInfo.status === 'connected') {
-        storeLogger(storeId).warn({ error }, 'Network status stream ended unexpectedly - treating as disconnect')
+        storeLogger(storeId).warn(
+          { error },
+          'Network status stream ended unexpectedly - treating as disconnect'
+        )
         const now = new Date()
         storeInfo.networkStatus = {
           isConnected: false,
