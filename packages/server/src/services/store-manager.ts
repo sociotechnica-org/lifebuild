@@ -44,6 +44,7 @@ export interface StoreManagerEvents {
 
 // Configuration for sync status monitoring
 const SYNC_STUCK_THRESHOLD_MS = Number(process.env.SYNC_STUCK_THRESHOLD_MS) || 60_000 // 1 minute
+const NETWORK_DISCONNECT_FALLBACK_MS = Number(process.env.NETWORK_DISCONNECT_FALLBACK_MS) || 120_000 // 2 minutes - fallback if LiveStore auto-retry fails
 
 export class StoreManager extends EventEmitter {
   private stores: Map<string, StoreInfo> = new Map()
@@ -296,19 +297,22 @@ export class StoreManager extends EventEmitter {
       this.consumeNetworkStatusChanges(storeId, changesStream)
     }
 
-    // Read initial network status
+    // Read initial network status (only if stream hasn't already updated it)
     Effect.runPromise(networkStatus as Effect.Effect<{ isConnected: boolean }, unknown>)
       .then(initial => {
-        const now = new Date()
-        storeInfo.networkStatus = {
-          isConnected: initial.isConnected,
-          lastUpdatedAt: now,
-          disconnectedSince: initial.isConnected ? undefined : now,
+        // Only set if stream hasn't already provided data (avoids race condition)
+        if (!storeInfo.networkStatus) {
+          const now = new Date()
+          storeInfo.networkStatus = {
+            isConnected: initial.isConnected,
+            lastUpdatedAt: now,
+            disconnectedSince: initial.isConnected ? undefined : now,
+          }
+          storeLogger(storeId).info(
+            { isConnected: initial.isConnected },
+            'Network status monitoring enabled'
+          )
         }
-        storeLogger(storeId).info(
-          { isConnected: initial.isConnected },
-          'Network status monitoring enabled'
-        )
       })
       .catch(error => {
         storeLogger(storeId).debug({ error }, 'Could not read initial network status')
@@ -461,19 +465,21 @@ export class StoreManager extends EventEmitter {
     const previousSyncStatus = storeInfo.syncStatus
 
     // Detect stuck sync - pending events not progressing
+    // The key indicator of progress is upstreamHead advancing, not pending count changing
+    // (pending count can increase when new events are added, but that's not sync progress)
     let stuckSince: Date | undefined = undefined
     if (pendingCount > 0) {
       if (previousSyncStatus?.stuckSince) {
-        // Already stuck - check if pending count changed
-        if (previousSyncStatus.pendingCount === pendingCount) {
-          // Still stuck with same pending count
+        // Already stuck - check if upstreamHead advanced (real progress)
+        if (previousSyncStatus.upstreamHead === upstreamHead) {
+          // No progress - upstream head hasn't moved
           stuckSince = previousSyncStatus.stuckSince
         } else {
-          // Pending count changed, so progress is happening - reset stuck timer
-          stuckSince = now
+          // upstreamHead advanced, so real sync progress is happening - reset stuck timer
+          stuckSince = undefined
         }
       } else {
-        // Newly stuck
+        // Newly have pending events - start tracking
         stuckSince = now
       }
     }
@@ -496,6 +502,7 @@ export class StoreManager extends EventEmitter {
           'Sync appears stuck - triggering reconnection'
         )
         storeInfo.status = 'disconnected'
+        this.emit('storeDisconnected', { storeId })
         this.scheduleReconnect(storeId)
       }
     }
@@ -591,14 +598,24 @@ export class StoreManager extends EventEmitter {
             storeLogger(storeId).info('Network reconnected - updating status')
           }
 
-          // Log extended disconnects for monitoring
+          // Check for extended disconnects - fallback if LiveStore auto-retry fails
           const disconnectedSince = storeInfo.networkStatus.disconnectedSince
           if (disconnectedSince && !storeInfo.networkStatus.isConnected) {
             const disconnectedMs = Date.now() - disconnectedSince.getTime()
-            storeLogger(storeId).warn(
-              { disconnectedMs, disconnectedSince: disconnectedSince.toISOString() },
-              'Store still disconnected - LiveStore auto-retry in progress'
-            )
+
+            if (disconnectedMs > NETWORK_DISCONNECT_FALLBACK_MS) {
+              // LiveStore auto-retry hasn't succeeded after threshold - trigger manual reconnection
+              storeLogger(storeId).warn(
+                { disconnectedMs, disconnectedSince: disconnectedSince.toISOString() },
+                'Extended network disconnect - triggering manual reconnection fallback'
+              )
+              this.scheduleReconnect(storeId)
+            } else {
+              storeLogger(storeId).warn(
+                { disconnectedMs, disconnectedSince: disconnectedSince.toISOString() },
+                'Store still disconnected - LiveStore auto-retry in progress'
+              )
+            }
           }
         }
 
@@ -613,8 +630,12 @@ export class StoreManager extends EventEmitter {
                 localHead: storeInfo.syncStatus.localHead,
                 upstreamHead: storeInfo.syncStatus.upstreamHead,
               },
-              'Sync stuck - events failing to push'
+              'Sync stuck - triggering recovery'
             )
+            // Trigger recovery for stuck sync
+            storeInfo.status = 'disconnected'
+            this.emit('storeDisconnected', { storeId })
+            this.scheduleReconnect(storeId)
           }
         }
       }
