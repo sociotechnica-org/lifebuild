@@ -507,6 +507,8 @@ export class StoreManager extends EventEmitter {
    */
   private handleStuckSyncRecovery(storeId: string, storeInfo: StoreInfo): void {
     if (!storeInfo.syncStatus?.stuckSince) return
+    // Only trigger recovery if store is still connected (prevent duplicate events)
+    if (storeInfo.status !== 'connected') return
 
     const stuckDurationMs = Date.now() - storeInfo.syncStatus.stuckSince.getTime()
     if (stuckDurationMs > SYNC_STUCK_THRESHOLD_MS) {
@@ -549,7 +551,7 @@ export class StoreManager extends EventEmitter {
     storeInfo.status = 'connecting'
 
     const timeout = setTimeout(async () => {
-      this.reconnectTimeouts.delete(storeId)
+      // Keep entry in reconnectTimeouts during async work to prevent duplicate scheduling
       storeInfo.reconnectAttempts++
 
       try {
@@ -574,11 +576,17 @@ export class StoreManager extends EventEmitter {
 
         // Emit event so listeners (e.g., EventProcessor) can re-subscribe
         this.emit('storeReconnected', { storeId, store })
+
+        // Delete from map only after successful reconnection
+        this.reconnectTimeouts.delete(storeId)
       } catch (error) {
         storeLogger(storeId).error(
           { error, attempt: storeInfo.reconnectAttempts },
           'Failed to reconnect store'
         )
+
+        // Delete before retry to allow new schedule
+        this.reconnectTimeouts.delete(storeId)
 
         if (storeInfo.reconnectAttempts < this.maxReconnectAttempts) {
           this.scheduleReconnect(storeId)
