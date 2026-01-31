@@ -41,6 +41,7 @@ export interface StoreManagerEvents {
 export class StoreManager extends EventEmitter {
   private stores: Map<string, StoreInfo> = new Map()
   private reconnectTimeouts: Map<string, NodeJS.Timeout> = new Map()
+  private recreateInFlight: Map<string, Promise<void>> = new Map()
   private networkStatusFibers: Map<string, Fiber.Fiber<unknown, unknown>> = new Map()
   private healthCheckInterval?: NodeJS.Timeout
   private readonly maxReconnectAttempts: number
@@ -552,11 +553,17 @@ export class StoreManager extends EventEmitter {
     return status
   }
 
-  async recreateStore(storeId: string): Promise<void> {
+  async recreateStore(storeId: string): Promise<boolean> {
     const storeInfo = this.stores.get(storeId)
     if (!storeInfo) {
       storeLogger(storeId).warn('Cannot recreate store - not found')
-      return
+      return false
+    }
+
+    const inFlight = this.recreateInFlight.get(storeId)
+    if (inFlight) {
+      await inFlight
+      return true
     }
 
     storeLogger(storeId).info('Manual store recreation requested')
@@ -565,23 +572,33 @@ export class StoreManager extends EventEmitter {
       clearTimeout(reconnectTimeout)
       this.reconnectTimeouts.delete(storeId)
     }
-    this.stopNetworkStatusMonitoring(storeId)
+    const recreatePromise = (async () => {
+      this.stopNetworkStatusMonitoring(storeId)
 
-    await storeInfo.store.shutdownPromise()
-    const { store } = await createStore(storeId, storeInfo.config)
+      await storeInfo.store.shutdownPromise()
+      const { store } = await createStore(storeId, storeInfo.config)
 
-    storeInfo.store = store
-    storeInfo.status = 'connected'
-    storeInfo.connectedAt = new Date()
-    storeInfo.errorCount = 0
-    storeInfo.reconnectAttempts = 0
-    storeInfo.networkStatusHistory = []
+      storeInfo.store = store
+      storeInfo.status = 'connected'
+      storeInfo.connectedAt = new Date()
+      storeInfo.errorCount = 0
+      storeInfo.reconnectAttempts = 0
+      storeInfo.networkStatusHistory = []
 
-    this.setupStoreEventHandlers(storeId, store)
-    this.startNetworkStatusMonitoring(storeId, store, storeInfo)
+      this.setupStoreEventHandlers(storeId, store)
+      this.startNetworkStatusMonitoring(storeId, store, storeInfo)
 
-    this.emit('storeReconnected', { storeId, store })
-    storeLogger(storeId).info('Manual store recreation complete')
+      this.emit('storeReconnected', { storeId, store })
+      storeLogger(storeId).info('Manual store recreation complete')
+    })()
+
+    this.recreateInFlight.set(storeId, recreatePromise)
+    try {
+      await recreatePromise
+      return true
+    } finally {
+      this.recreateInFlight.delete(storeId)
+    }
   }
 }
 

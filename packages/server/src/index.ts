@@ -197,7 +197,12 @@ async function main() {
       }
 
       try {
-        await storeManager.recreateStore(storeId)
+        const recreated = await storeManager.recreateStore(storeId)
+        if (!recreated) {
+          res.writeHead(404, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ error: 'Store not found', storeId }))
+          return
+        }
         res.writeHead(200, { 'Content-Type': 'application/json' })
         res.end(JSON.stringify({ ok: true, storeId }))
       } catch (error) {
