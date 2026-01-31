@@ -36,7 +36,8 @@ export interface StoreInfo {
   networkStatus?: NetworkStatusInfo
 }
 
-export interface StoreManagerEvents {
+/** Event signatures for StoreManager - used for documentation */
+interface StoreManagerEvents {
   storeReconnected: (data: { storeId: string; store: LiveStore }) => void
   storeDisconnected: (data: { storeId: string }) => void
 }
@@ -49,6 +50,7 @@ export class StoreManager extends EventEmitter {
   private stores: Map<string, StoreInfo> = new Map()
   private reconnectTimeouts: Map<string, NodeJS.Timeout> = new Map()
   private healthCheckInterval?: NodeJS.Timeout
+  private isShuttingDown = false
   private readonly maxReconnectAttempts: number
   private readonly reconnectInterval: number
 
@@ -376,23 +378,29 @@ export class StoreManager extends EventEmitter {
         return
       }
 
+      // Subscribe to sync state changes first (like networkStatus monitoring)
+      // This ensures monitoring works even if initial read fails
+      const changesStream = (syncState as any).changes as
+        | Stream.Stream<SyncState.SyncState, unknown>
+        | undefined
+      if (changesStream) {
+        this.consumeSyncStateChanges(storeId, changesStream)
+      }
+
+      // Read initial sync state (only if stream hasn't already updated it)
       Effect.runPromise(syncState as Effect.Effect<SyncState.SyncState, unknown>)
         .then(initialState => {
-          this.handleSyncStateUpdate(storeId, initialState)
-          storeLogger(storeId).info(
-            {
-              pendingCount: initialState.pending?.length ?? 0,
-              localHead: this.formatHead(initialState.localHead),
-              upstreamHead: this.formatHead(initialState.upstreamHead),
-            },
-            'Sync state monitoring enabled'
-          )
-
-          const changesStream = (syncState as any).changes as
-            | Stream.Stream<SyncState.SyncState, unknown>
-            | undefined
-          if (changesStream) {
-            this.consumeSyncStateChanges(storeId, changesStream)
+          // Only process if syncStatus hasn't been set by stream yet
+          if (!storeInfo.syncStatus) {
+            this.handleSyncStateUpdate(storeId, initialState)
+            storeLogger(storeId).info(
+              {
+                pendingCount: initialState.pending?.length ?? 0,
+                localHead: this.formatHead(initialState.localHead),
+                upstreamHead: this.formatHead(initialState.upstreamHead),
+              },
+              'Sync state monitoring enabled'
+            )
           }
         })
         .catch(error => {
@@ -638,8 +646,10 @@ export class StoreManager extends EventEmitter {
       } catch (error) {
         logger.error({ error }, 'Health check error - continuing to next interval')
       } finally {
-        // Always schedule next health check, even if an error occurred
-        this.healthCheckInterval = setTimeout(runHealthCheck, healthCheckInterval)
+        // Schedule next health check unless shutdown is in progress
+        if (!this.isShuttingDown) {
+          this.healthCheckInterval = setTimeout(runHealthCheck, healthCheckInterval)
+        }
       }
     }
 
@@ -654,6 +664,9 @@ export class StoreManager extends EventEmitter {
       metadata: { activeStores: this.stores.size },
     })
     log.info('Shutting down store manager')
+
+    // Set shutdown flag to prevent health check from rescheduling
+    this.isShuttingDown = true
 
     if (this.healthCheckInterval) {
       clearTimeout(this.healthCheckInterval)
