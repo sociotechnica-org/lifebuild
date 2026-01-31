@@ -97,6 +97,8 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
 
   const [restartIndex, setRestartIndex] = useState(0)
   const previousRef = useRef<{ storeId: string; authToken?: string } | null>(null)
+  const skipNextAuthTokenRestartRef = useRef(false)
+  const skipAuthTokenTimeoutRef = useRef<number | null>(null)
 
   const triggerRestart = useCallback(
     (reason: string) => {
@@ -115,12 +117,28 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
     const previous = previousRef.current
     if (previous.storeId !== storeId) {
       previousRef.current = { storeId, authToken: syncPayload.authToken }
+      skipNextAuthTokenRestartRef.current = true
+      if (skipAuthTokenTimeoutRef.current !== null) {
+        window.clearTimeout(skipAuthTokenTimeoutRef.current)
+      }
+      skipAuthTokenTimeoutRef.current = window.setTimeout(() => {
+        skipNextAuthTokenRestartRef.current = false
+        skipAuthTokenTimeoutRef.current = null
+      }, 10000)
       triggerRestart('storeId changed')
       return
     }
 
     if (previous.authToken !== syncPayload.authToken) {
       previousRef.current = { storeId, authToken: syncPayload.authToken }
+      if (skipNextAuthTokenRestartRef.current) {
+        skipNextAuthTokenRestartRef.current = false
+        if (skipAuthTokenTimeoutRef.current !== null) {
+          window.clearTimeout(skipAuthTokenTimeoutRef.current)
+          skipAuthTokenTimeoutRef.current = null
+        }
+        return
+      }
       triggerRestart('auth token updated')
     }
   }, [storeId, syncPayload.authToken, triggerRestart])

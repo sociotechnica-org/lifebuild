@@ -20,7 +20,14 @@ export const LiveStoreHealthMonitor: React.FC<LiveStoreHealthMonitorProps> = ({
 
   const canRestart = () => Date.now() - lastRestartAtRef.current > RESTART_COOLDOWN_MS
 
-  useEffect(() => {
+  const shouldMonitorOffline = !!networkStatus && !networkStatus.isConnected
+  const shouldMonitorSync =
+    !!syncStatus &&
+    syncStatus.pendingCount > 0 &&
+    !!lastSyncUpdateAt &&
+    networkStatus?.isConnected !== false
+
+  const checkOffline = () => {
     if (!networkStatus) return
     if (syncPayload.authError) return
     if (networkStatus.devtools?.latchClosed) return
@@ -32,9 +39,9 @@ export const LiveStoreHealthMonitor: React.FC<LiveStoreHealthMonitorProps> = ({
       lastRestartAtRef.current = Date.now()
       onRestart(`offline for ${Math.round(offlineDuration / 1000)}s`)
     }
-  }, [networkStatus, syncPayload.authError, onRestart])
+  }
 
-  useEffect(() => {
+  const checkSyncStall = () => {
     if (!syncStatus) return
     if (syncStatus.pendingCount === 0) return
     if (!lastSyncUpdateAt) return
@@ -48,7 +55,33 @@ export const LiveStoreHealthMonitor: React.FC<LiveStoreHealthMonitorProps> = ({
       lastRestartAtRef.current = Date.now()
       onRestart(`sync stalled for ${Math.round(staleDuration / 1000)}s`)
     }
-  }, [syncStatus, lastSyncUpdateAt, networkStatus, syncPayload.authError, onRestart])
+  }
+
+  useEffect(() => {
+    if (!shouldMonitorOffline && !shouldMonitorSync) return
+
+    checkOffline()
+    checkSyncStall()
+
+    const intervalId = window.setInterval(() => {
+      checkOffline()
+      checkSyncStall()
+    }, 5000)
+
+    return () => {
+      window.clearInterval(intervalId)
+    }
+  }, [
+    shouldMonitorOffline,
+    shouldMonitorSync,
+    networkStatus?.timestampMs,
+    networkStatus?.isConnected,
+    networkStatus?.devtools?.latchClosed,
+    syncStatus?.pendingCount,
+    lastSyncUpdateAt?.getTime(),
+    syncPayload.authError,
+    onRestart,
+  ])
 
   return null
 }
