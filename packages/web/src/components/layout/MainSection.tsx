@@ -5,7 +5,7 @@ import React from 'react'
 import { events, tables, type ChatMessage } from '@lifebuild/shared/schema'
 
 const chatMessages$ = queryDb(
-  _get => {
+  (_get: unknown) => {
     return tables.chatMessages.select()
   },
   { label: 'chatMessages' }

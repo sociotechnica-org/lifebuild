@@ -1,4 +1,4 @@
-import type { Store } from '@livestore/livestore'
+import type { LiveStore } from '../../types/livestore.js'
 import { executeLLMTool } from '../../tools/index.js'
 import { ToolResultFormatterService } from './tool-formatters/formatter-service.js'
 import type { ToolCall, ToolExecutionResult } from './types.js'
@@ -16,7 +16,7 @@ export class ToolExecutor {
   private workerId?: string
 
   constructor(
-    private store: Store,
+    private store: LiveStore,
     private options: ToolExecutorOptions = {}
   ) {}
 

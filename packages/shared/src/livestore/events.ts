@@ -1,4 +1,5 @@
-import { Events, Schema } from '@livestore/livestore'
+import { Events } from '@livestore/common/schema'
+import { Schema } from '@livestore/livestore'
 import { DEFAULT_ROOM_SCOPE, ROOM_KIND_VALUES } from '../rooms.js'
 import { ProjectLifecycleStateSchema } from '../types/planning.js'
 

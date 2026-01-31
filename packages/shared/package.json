@@ -93,6 +93,7 @@
     }
   },
   "dependencies": {
+    "@livestore/common": "catalog:",
     "@livestore/livestore": "catalog:",
     "@livestore/utils": "catalog:"
   },

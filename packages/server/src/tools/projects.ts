@@ -1,4 +1,4 @@
-import type { Store } from '@livestore/livestore'
+import type { LiveStore } from '../types/livestore.js'
 import {
   getProjects$,
   getProjectDetails$,
@@ -60,7 +60,7 @@ export interface UpdateProjectLifecycleResult {
  * Create a new project (core implementation)
  */
 function createProjectCore(
-  store: Store,
+  store: LiveStore,
   params: CreateProjectParams,
   actorId?: string
 ): CreateProjectResult {
@@ -119,8 +119,8 @@ function createProjectCore(
 /**
  * List all available projects (core implementation)
  */
-function listProjectsCore(store: Store): ListProjectsResult {
-  const projects = store.query(getProjects$) as any[]
+async function listProjectsCore(store: LiveStore): Promise<ListProjectsResult> {
+  const projects = (await store.query(getProjects$)) as any[]
   return {
     success: true,
     projects: projects
@@ -137,13 +137,16 @@ function listProjectsCore(store: Store): ListProjectsResult {
 /**
  * Get detailed information about a project (core implementation)
  */
-function getProjectDetailsCore(store: Store, projectId: string): GetProjectDetailsResult {
-  const projects = store.query(getProjectDetails$(projectId)) as any[]
+async function getProjectDetailsCore(
+  store: LiveStore,
+  projectId: string
+): Promise<GetProjectDetailsResult> {
+  const projects = (await store.query(getProjectDetails$(projectId))) as any[]
   const project = validators.requireEntity(projects, 'Project', projectId)
 
   // Get document and task counts using client-side filtering
-  const documentProjects = store.query(getDocumentProjectsByProject$(projectId)) as any[]
-  const tasks = store.query(getBoardTasks$(projectId)) as any[]
+  const documentProjects = (await store.query(getDocumentProjectsByProject$(projectId))) as any[]
+  const tasks = (await store.query(getBoardTasks$(projectId))) as any[]
 
   // Get lifecycle state
   const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
@@ -190,14 +193,14 @@ function getProjectDetailsCore(store: Store, projectId: string): GetProjectDetai
 /**
  * Update an existing project (PR5+6: core implementation)
  */
-function updateProjectCore(
-  store: Store,
+async function updateProjectCore(
+  store: LiveStore,
   params: UpdateProjectParams,
   actorId?: string
-): UpdateProjectResult {
+): Promise<UpdateProjectResult> {
   try {
     // Validate project exists
-    const projects = store.query(getProjectDetails$(params.projectId)) as any[]
+    const projects = (await store.query(getProjectDetails$(params.projectId))) as any[]
     validators.requireEntity(projects, 'Project', params.projectId)
 
     // Validate category if provided
@@ -261,14 +264,14 @@ function updateProjectCore(
 /**
  * Archive a project (PR5+6: core implementation)
  */
-function archiveProjectCore(
-  store: Store,
+async function archiveProjectCore(
+  store: LiveStore,
   params: ArchiveProjectParams,
   actorId?: string
-): ArchiveProjectResult {
+): Promise<ArchiveProjectResult> {
   try {
     // Validate project exists
-    const projects = store.query(getProjectDetails$(params.projectId)) as any[]
+    const projects = (await store.query(getProjectDetails$(params.projectId))) as any[]
     validators.requireEntity(projects, 'Project', params.projectId)
 
     const now = new Date()
@@ -294,14 +297,14 @@ function archiveProjectCore(
 /**
  * Unarchive a project (PR5+6: core implementation)
  */
-function unarchiveProjectCore(
-  store: Store,
+async function unarchiveProjectCore(
+  store: LiveStore,
   params: UnarchiveProjectParams,
   actorId?: string
-): UnarchiveProjectResult {
+): Promise<UnarchiveProjectResult> {
   try {
     // Validate project exists
-    const projects = store.query(getProjectDetails$(params.projectId)) as any[]
+    const projects = (await store.query(getProjectDetails$(params.projectId))) as any[]
     validators.requireEntity(projects, 'Project', params.projectId)
 
     const now = new Date()
@@ -332,14 +335,14 @@ function unarchiveProjectCore(
  * - Stage 3+: Must have objectives (non-empty) AND stream/tier (not null)
  * - Stage 4 OR status 'backlog': Must have at least one task
  */
-function updateProjectLifecycleCore(
-  store: Store,
+async function updateProjectLifecycleCore(
+  store: LiveStore,
   params: UpdateProjectLifecycleParams,
   actorId?: string
-): UpdateProjectLifecycleResult {
+): Promise<UpdateProjectLifecycleResult> {
   try {
     // Validate project exists
-    const projects = store.query(getProjectDetails$(params.projectId)) as any[]
+    const projects = (await store.query(getProjectDetails$(params.projectId))) as any[]
     const project = validators.requireEntity(projects, 'Project', params.projectId)
 
     // Get current lifecycle state or create default
@@ -395,7 +398,7 @@ function updateProjectLifecycleCore(
     // VALIDATION: Stage 4 or backlog status requires at least one task
     const targetStatus = updatedLifecycle.status
     if (targetStage >= 4 || targetStatus === 'backlog') {
-      const tasks = store.query(getBoardTasks$(params.projectId)) as any[]
+      const tasks = (await store.query(getBoardTasks$(params.projectId))) as any[]
       const nonArchivedTasks = tasks.filter((t: any) => !t.archivedAt)
 
       if (nonArchivedTasks.length === 0) {
@@ -429,8 +432,8 @@ function updateProjectLifecycleCore(
 }
 
 // Export wrapped versions for external use
-export const createProject = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => createProjectCore(store, params, actorId))(
+export const createProject = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) => createProjectCore(store, params, actorId))(
     store,
     params
   )
@@ -438,22 +441,22 @@ export const listProjects = wrapNoParamFunction(listProjectsCore)
 export const getProjectDetails = wrapStringParamFunction(getProjectDetailsCore)
 
 // PR5+6: Export new project tools
-export const updateProject = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => updateProjectCore(store, params, actorId))(
+export const updateProject = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) => updateProjectCore(store, params, actorId))(
     store,
     params
   )
-export const archiveProject = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => archiveProjectCore(store, params, actorId))(
+export const archiveProject = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) => archiveProjectCore(store, params, actorId))(
     store,
     params
   )
-export const unarchiveProject = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => unarchiveProjectCore(store, params, actorId))(
+export const unarchiveProject = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) => unarchiveProjectCore(store, params, actorId))(
     store,
     params
   )
-export const updateProjectLifecycle = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) =>
+export const updateProjectLifecycle = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) =>
     updateProjectLifecycleCore(store, params, actorId)
   )(store, params)

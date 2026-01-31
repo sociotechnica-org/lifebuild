@@ -1,4 +1,4 @@
-import type { Store } from '@livestore/livestore'
+import type { LiveStore } from '../types/livestore.js'
 import {
   wrapToolFunction,
   wrapStringParamFunction,
@@ -21,7 +21,7 @@ import { parseEmailList } from '@lifebuild/shared'
 /**
  * Get all contacts in the system
  */
-export const listContacts = wrapNoParamFunction(async (store: Store) => {
+export const listContacts = wrapNoParamFunction(async (store: LiveStore) => {
   const contacts = (await store.query(getContacts$)) as any[]
   return {
     success: true,
@@ -40,8 +40,8 @@ export const listContacts = wrapNoParamFunction(async (store: Store) => {
 /**
  * Get detailed information about a specific contact
  */
-export const getContact = wrapStringParamFunction(async (store: Store, contactId: string) => {
-  const contacts = await store.query(getContactById$(contactId))
+export const getContact = wrapStringParamFunction(async (store: LiveStore, contactId: string) => {
+  const contacts = (await store.query(getContactById$(contactId))) as any[]
   const contact = validators.requireEntity(contacts, 'Contact', contactId)
 
   if (contact.deletedAt) {
@@ -74,7 +74,7 @@ export const getContact = wrapStringParamFunction(async (store: Store, contactId
 /**
  * Search contacts by name or email
  */
-export const searchContacts = wrapStringParamFunction(async (store: Store, query: string) => {
+export const searchContacts = wrapStringParamFunction(async (store: LiveStore, query: string) => {
   const allContacts = (await store.query(getContacts$)) as any[]
   const searchTerm = query.toLowerCase()
 
@@ -104,7 +104,7 @@ export const searchContacts = wrapStringParamFunction(async (store: Store, query
  * Create a new contact with duplicate email checking
  */
 export const createContact = wrapToolFunction(
-  async (store: Store, params: { name?: string; email: string }) => {
+  async (store: LiveStore, params: { name?: string; email: string }) => {
     const { name, email } = params
 
     if (!email || typeof email !== 'string') {
@@ -118,7 +118,7 @@ export const createContact = wrapToolFunction(
     }
 
     // Check for duplicate email
-    const existingContacts = await store.query(getContactByEmail$(email.toLowerCase()))
+    const existingContacts = (await store.query(getContactByEmail$(email.toLowerCase()))) as any[]
     const existingContact = existingContacts[0]
     if (existingContacts.length > 0 && existingContact && !existingContact.deletedAt) {
       throw new Error(`Contact with email ${email} already exists`)
@@ -152,7 +152,7 @@ export const createContact = wrapToolFunction(
  * Update an existing contact's details
  */
 export const updateContact = wrapToolFunction(
-  async (store: Store, params: { contactId: string; name?: string; email?: string }) => {
+  async (store: LiveStore, params: { contactId: string; name?: string; email?: string }) => {
     const { contactId, name, email } = params
 
     if (!contactId) {
@@ -160,7 +160,7 @@ export const updateContact = wrapToolFunction(
     }
 
     // Verify contact exists
-    const contacts = await store.query(getContactById$(contactId))
+    const contacts = (await store.query(getContactById$(contactId))) as any[]
     const contact = validators.requireEntity(contacts, 'Contact', contactId)
 
     if (contact.deletedAt) {
@@ -175,7 +175,7 @@ export const updateContact = wrapToolFunction(
       }
 
       // Check for duplicate email (excluding current contact)
-      const existingContacts = await store.query(getContactByEmail$(email.toLowerCase()))
+      const existingContacts = (await store.query(getContactByEmail$(email.toLowerCase()))) as any[]
       const duplicateContact = existingContacts.find(c => c.id !== contactId && !c.deletedAt)
       if (duplicateContact) {
         throw new Error(`Contact with email ${email} already exists`)
@@ -207,28 +207,30 @@ export const updateContact = wrapToolFunction(
 /**
  * Delete a contact and all its associations
  */
-export const deleteContact = wrapStringParamFunction(async (store: Store, contactId: string) => {
-  // Verify contact exists
-  const contacts = await store.query(getContactById$(contactId))
-  const contact = validators.requireEntity(contacts, 'Contact', contactId)
+export const deleteContact = wrapStringParamFunction(
+  async (store: LiveStore, contactId: string) => {
+    // Verify contact exists
+    const contacts = (await store.query(getContactById$(contactId))) as any[]
+    const contact = validators.requireEntity(contacts, 'Contact', contactId)
 
-  if (contact.deletedAt) {
-    throw new Error(`Contact with ID ${contactId} has already been deleted`)
+    if (contact.deletedAt) {
+      throw new Error(`Contact with ID ${contactId} has already been deleted`)
+    }
+
+    // Delete the contact (this will cascade to remove project associations via materializer)
+    await store.commit(
+      events.contactDeleted({
+        id: contactId,
+        deletedAt: new Date(),
+      })
+    )
+
+    return {
+      success: true,
+      message: `Contact ${contact.name || contact.email || 'Unknown'} has been deleted`,
+    }
   }
-
-  // Delete the contact (this will cascade to remove project associations via materializer)
-  await store.commit(
-    events.contactDeleted({
-      id: contactId,
-      deletedAt: new Date(),
-    })
-  )
-
-  return {
-    success: true,
-    message: `Contact ${contact.name || contact.email || 'Unknown'} has been deleted`,
-  }
-})
+)
 
 // ===== PROJECT-CONTACT ASSOCIATION OPERATIONS =====
 
@@ -236,7 +238,7 @@ export const deleteContact = wrapStringParamFunction(async (store: Store, contac
  * Get all contacts for a specific project
  */
 export const getProjectContacts = wrapStringParamFunction(
-  async (store: Store, projectId: string) => {
+  async (store: LiveStore, projectId: string) => {
     if (!projectId) {
       throw new Error('Project ID is required')
     }
@@ -264,13 +266,13 @@ export const getProjectContacts = wrapStringParamFunction(
  * Get all projects for a specific contact
  */
 export const getContactProjects = wrapStringParamFunction(
-  async (store: Store, contactId: string) => {
+  async (store: LiveStore, contactId: string) => {
     if (!contactId) {
       throw new Error('Contact ID is required')
     }
 
     // Verify contact exists
-    const contacts = await store.query(getContactById$(contactId))
+    const contacts = (await store.query(getContactById$(contactId))) as any[]
     const contact = validators.requireEntity(contacts, 'Contact', contactId)
 
     if (contact.deletedAt) {
@@ -304,7 +306,7 @@ export const getContactProjects = wrapStringParamFunction(
  * Associate a contact with a project
  */
 export const addContactToProject = wrapToolFunction(
-  async (store: Store, params: { contactId: string; projectId: string }) => {
+  async (store: LiveStore, params: { contactId: string; projectId: string }) => {
     const { contactId, projectId } = params
 
     if (!contactId || !projectId) {
@@ -312,7 +314,7 @@ export const addContactToProject = wrapToolFunction(
     }
 
     // Verify contact exists
-    const contacts = await store.query(getContactById$(contactId))
+    const contacts = (await store.query(getContactById$(contactId))) as any[]
     const contact = validators.requireEntity(contacts, 'Contact', contactId)
 
     if (contact.deletedAt) {
@@ -352,7 +354,7 @@ export const addContactToProject = wrapToolFunction(
  * Remove a contact association from a project
  */
 export const removeContactFromProject = wrapToolFunction(
-  async (store: Store, params: { contactId: string; projectId: string }) => {
+  async (store: LiveStore, params: { contactId: string; projectId: string }) => {
     const { contactId, projectId } = params
 
     if (!contactId || !projectId) {
@@ -360,7 +362,7 @@ export const removeContactFromProject = wrapToolFunction(
     }
 
     // Verify contact exists
-    const contacts = await store.query(getContactById$(contactId))
+    const contacts = (await store.query(getContactById$(contactId))) as any[]
     const contact = validators.requireEntity(contacts, 'Contact', contactId)
 
     // Check if association exists
@@ -392,7 +394,7 @@ export const removeContactFromProject = wrapToolFunction(
  * Get formatted email list for a project (for MCP email tools)
  */
 export const getProjectEmailList = wrapStringParamFunction(
-  async (store: Store, projectId: string) => {
+  async (store: LiveStore, projectId: string) => {
     if (!projectId) {
       throw new Error('Project ID is required')
     }
@@ -419,7 +421,7 @@ export const getProjectEmailList = wrapStringParamFunction(
  * Find contacts by matching email addresses
  */
 export const findContactsByEmail = wrapToolFunction(
-  async (store: Store, params: { emails: string[] }) => {
+  async (store: LiveStore, params: { emails: string[] }) => {
     const { emails } = params
 
     if (!emails || !Array.isArray(emails)) {
@@ -467,7 +469,7 @@ export const findContactsByEmail = wrapToolFunction(
  * Get contact emails for a project (for email filtering)
  */
 export const getProjectContactEmails = wrapStringParamFunction(
-  async (store: Store, projectId: string) => {
+  async (store: LiveStore, projectId: string) => {
     return getProjectEmailList(store, projectId)
   }
 )
@@ -476,7 +478,7 @@ export const getProjectContactEmails = wrapStringParamFunction(
  * Validate and normalize email addresses
  */
 export const validateEmailList = wrapToolFunction(
-  async (store: Store, params: { emails: string[] }) => {
+  async (store: LiveStore, params: { emails: string[] }) => {
     const { emails } = params
 
     if (!emails || !Array.isArray(emails)) {
@@ -519,7 +521,7 @@ export const validateEmailList = wrapToolFunction(
  * Suggest creating contacts for unknown email addresses
  */
 export const suggestContactsFromEmails = wrapToolFunction(
-  async (store: Store, params: { emails: string[] }) => {
+  async (store: LiveStore, params: { emails: string[] }) => {
     const { emails } = params
 
     if (!emails || !Array.isArray(emails)) {

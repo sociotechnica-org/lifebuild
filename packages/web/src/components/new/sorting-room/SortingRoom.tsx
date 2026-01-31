@@ -122,16 +122,12 @@ export const SortingRoom: React.FC = () => {
   const allTasks = (useQuery(getAllTasks$) ?? []) as Task[]
   const {
     configuration,
-    activeBronzeStack,
     tabledBronzeProjects,
     initializeConfiguration,
     assignGold,
     assignSilver,
     clearGold,
     clearSilver,
-    addBronzeTask,
-    removeBronzeTask,
-    reorderBronzeStack,
     tableBronzeProject,
     removeBronzeProject,
     reorderBronzeProjects,
@@ -213,50 +209,6 @@ export const SortingRoom: React.FC = () => {
     categoryFilter,
   ])
 
-  // Get eligible bronze tasks:
-  // - Orphaned tasks (no projectId)
-  // - Tasks from bronze-stream projects (backlog OR active)
-  // - Tasks from active projects (any stream) that are NOT the tabled gold/silver projects
-  const bronzeTasks = useMemo(() => {
-    const goldId = configuration?.goldProjectId
-    const silverId = configuration?.silverProjectId
-
-    return allTasks.filter(t => {
-      if (t.archivedAt !== null || t.status === 'done') return false
-
-      // Orphaned tasks (no project) are always eligible for bronze
-      if (!t.projectId) return true
-
-      const project = allProjects.find(p => p.id === t.projectId)
-      if (!project) return false
-
-      const lifecycle = getLifecycleState(project)
-
-      // Bronze-stream projects: backlog OR active
-      if (lifecycle.stream === 'bronze') {
-        return lifecycle.status === 'backlog' || lifecycle.status === 'active'
-      }
-
-      // Non-bronze active projects: exclude tabled gold/silver
-      if (lifecycle.status === 'active') {
-        return t.projectId !== goldId && t.projectId !== silverId
-      }
-
-      return false
-    })
-  }, [allTasks, allProjects, configuration?.goldProjectId, configuration?.silverProjectId])
-
-  // Separate tabled vs available bronze tasks
-  const tabledTaskIds = useMemo(
-    () => new Set(activeBronzeStack.map(entry => entry.taskId)),
-    [activeBronzeStack]
-  )
-
-  const availableBronzeTasks = useMemo(
-    () => bronzeTasks.filter(t => !tabledTaskIds.has(t.id)),
-    [bronzeTasks, tabledTaskIds]
-  )
-
   // PR1 Task Queue Redesign: Compute available bronze projects (not yet tabled)
   const tabledBronzeProjectIds = useMemo(
     () => new Set(tabledBronzeProjects.map(entry => entry.projectId)),
@@ -337,13 +289,6 @@ export const SortingRoom: React.FC = () => {
     () => (silverProject ? getProjectCompletionPercentage(silverProject.id) : 0),
     [silverProject, getProjectCompletionPercentage]
   )
-
-  // Get top bronze task for summary
-  const topBronzeTask = useMemo(() => {
-    if (activeBronzeStack.length === 0) return null
-    const topEntry = activeBronzeStack[0]
-    return topEntry ? (allTasks.find(t => t.id === topEntry.taskId) ?? null) : null
-  }, [activeBronzeStack, allTasks])
 
   // Build stream summaries for collapsed view
   const streamSummaries: StreamSummary[] = [
@@ -661,56 +606,6 @@ export const SortingRoom: React.FC = () => {
       })
     },
     [store, actorId]
-  )
-
-  // Bronze handlers - use initializeIfNeeded to avoid race condition
-  const handleAddBronzeTask = useCallback(
-    async (taskId: string) => {
-      await addBronzeTask(taskId, undefined, true)
-    },
-    [addBronzeTask]
-  )
-
-  const handleRemoveBronzeTask = useCallback(
-    async (entryId: string) => {
-      await removeBronzeTask(entryId)
-    },
-    [removeBronzeTask]
-  )
-
-  const handleReorderBronze = useCallback(
-    async (entries: Array<{ id: string; taskId: string }>) => {
-      await reorderBronzeStack(entries)
-    },
-    [reorderBronzeStack]
-  )
-
-  // Handler for quick adding an orphaned task directly to the bronze table
-  // (Legacy - will be moved to Task Queue in PR2)
-  const handleQuickAddBronzeTask = useCallback(
-    async (title: string) => {
-      const taskId = crypto.randomUUID()
-
-      // Create orphaned task (no projectId)
-      store.commit(
-        events.taskCreatedV2({
-          id: taskId,
-          projectId: undefined,
-          title,
-          description: undefined,
-          status: 'todo',
-          assigneeIds: undefined,
-          attributes: undefined,
-          position: 0,
-          createdAt: new Date(),
-          actorId,
-        })
-      )
-
-      // Add to bronze table with initializeIfNeeded to avoid race condition
-      await addBronzeTask(taskId, undefined, true)
-    },
-    [store, actorId, addBronzeTask]
   )
 
   // PR1 Task Queue Redesign: Bronze project handlers

@@ -1,4 +1,4 @@
-import type { Store } from '@livestore/livestore'
+import type { LiveStore } from '../../types/livestore.js'
 import * as Sentry from '@sentry/node'
 import { ConversationHistory } from './conversation-history.js'
 import { ToolExecutor } from './tool-executor.js'
@@ -116,7 +116,7 @@ export class AgenticLoop {
   private maxIterations: number
 
   constructor(
-    private store: Store,
+    private store: LiveStore,
     private llmProvider: LLMProvider,
     private events: AgenticLoopEvents = {},
     initialHistory: LLMMessage[] = []

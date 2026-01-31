@@ -5,7 +5,7 @@ import {
 } from '../utils/orchestration-telemetry.js'
 import type { StoreManager } from './store-manager.js'
 import type { EventProcessor } from './event-processor.js'
-import type { Store as LiveStore } from '@livestore/livestore'
+import type { LiveStore } from '../types/livestore.js'
 
 interface MonitoredStoreMetadata {
   storeId: string

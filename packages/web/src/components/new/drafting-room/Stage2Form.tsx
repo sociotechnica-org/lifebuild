@@ -16,15 +16,6 @@ import { generateRoute } from '../../../constants/routes.js'
 import { type ProjectTier } from './DraftingRoom.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
 
-const ARCHETYPES: { value: ProjectArchetype; label: string; description: string }[] = [
-  { value: 'quicktask', label: 'Quick Task', description: 'One-shot, minimal planning' },
-  { value: 'discovery', label: 'Discovery Mission', description: 'Research, reduce uncertainty' },
-  { value: 'critical', label: 'Critical Response', description: 'Urgent, time-sensitive' },
-  { value: 'maintenance', label: 'Maintenance Loop', description: 'Recurring, perpetual' },
-  { value: 'systembuild', label: 'System Build', description: 'Infrastructure, automation' },
-  { value: 'initiative', label: 'Initiative', description: 'Move life forward, transformative' },
-]
-
 const TIERS: {
   value: ProjectTier
   label: string
@@ -187,12 +178,6 @@ export const Stage2Form: React.FC = () => {
         actorId: user?.id,
       })
     )
-  }
-
-  // Handle archetype selection with auto-save
-  const handleArchetypeSelect = (value: ProjectArchetype) => {
-    setArchetype(value)
-    autoSave(undefined, undefined, value, undefined)
   }
 
   // Handle tier selection with auto-save

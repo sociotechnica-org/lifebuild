@@ -1,10 +1,16 @@
 /**
- * Integration test for PR 0.2 Memory Management Infrastructure
- * Tests memory safety, queue overflow, race conditions, and cleanup
+ * Integration tests for server infrastructure.
+ * - Memory Management Infrastructure
+ * - WebSocket disconnect + reconnect with sync server
  */
 
 import { MessageQueueManager } from '../src/services/message-queue-manager.js'
 import { AsyncQueueProcessor } from '../src/services/async-queue-processor.js'
+import { spawn } from 'node:child_process'
+import { mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
+import { setTimeout as delay } from 'node:timers/promises'
 
 async function runMemoryManagementTests() {
   console.log('🧪 Testing Memory Management Infrastructure\n')
@@ -122,5 +128,174 @@ async function runMemoryManagementTests() {
   console.log('\n   All core functionality working beyond unit tests! 🚀')
 }
 
+type ChildProcessHandle = ReturnType<typeof spawn>
+
+const waitForCondition = async (
+  label: string,
+  timeoutMs: number,
+  intervalMs: number,
+  predicate: () => Promise<boolean>
+) => {
+  const start = Date.now()
+  while (Date.now() - start < timeoutMs) {
+    if (await predicate()) {
+      return
+    }
+    await delay(intervalMs)
+  }
+  throw new Error(`Timed out waiting for ${label} after ${timeoutMs}ms`)
+}
+
+const waitForHttp = async (url: string, timeoutMs = 30_000) =>
+  waitForCondition(`HTTP ${url}`, timeoutMs, 500, async () => {
+    try {
+      const response = await fetch(url)
+      return response.ok || response.status === 404
+    } catch {
+      return false
+    }
+  })
+
+const fetchJson = async (url: string) => {
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status} ${response.statusText}`)
+  }
+  return response.json()
+}
+
+const spawnProcess = (command: string, args: string[], env: NodeJS.ProcessEnv): ChildProcessHandle => {
+  const child = spawn(command, args, {
+    env,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+
+  child.stdout?.on('data', data => {
+    process.stdout.write(data)
+  })
+  child.stderr?.on('data', data => {
+    process.stderr.write(data)
+  })
+
+  return child
+}
+
+async function runNetworkReconnectTest() {
+  console.log('\n🧪 Testing LiveStore network reconnect with sync server\n')
+
+  const workspaceId = `integration-${Date.now()}`
+  const serverPort = 3100
+  const syncPort = 8787
+  const dataDir = mkdtempSync(path.join(tmpdir(), 'lifebuild-server-'))
+
+  let syncProcess: ChildProcessHandle | null = null
+  let serverProcess: ChildProcessHandle | null = null
+
+  const cleanup = async () => {
+    if (serverProcess) {
+      serverProcess.kill('SIGTERM')
+      serverProcess = null
+    }
+    if (syncProcess) {
+      syncProcess.kill('SIGTERM')
+      syncProcess = null
+    }
+    rmSync(dataDir, { recursive: true, force: true })
+  }
+
+  try {
+    console.log('🚀 Starting sync server (worker)...')
+    syncProcess = spawnProcess(
+      'pnpm',
+      ['--filter', '@lifebuild/worker', 'dev'],
+      {
+        ...process.env,
+        ENVIRONMENT: 'development',
+        REQUIRE_AUTH: 'false',
+        JWT_SECRET: 'test-secret',
+        GRACE_PERIOD_SECONDS: '86400',
+        SERVER_BYPASS_TOKEN: 'test-bypass-token',
+        R2_PUBLIC_URL: `http://localhost:${syncPort}/api/images`,
+      }
+    )
+
+    await waitForHttp(`http://localhost:${syncPort}/`)
+    console.log('✅ Sync server is up')
+
+    console.log('🚀 Starting server...')
+    serverProcess = spawnProcess(
+      'pnpm',
+      ['--filter', '@lifebuild/server', 'dev'],
+      {
+        ...process.env,
+        PORT: String(serverPort),
+        STORE_IDS: workspaceId,
+        STORE_DATA_PATH: dataDir,
+        LIVESTORE_SYNC_URL: `ws://localhost:${syncPort}`,
+        SERVER_BYPASS_TOKEN: 'test-bypass-token',
+        LIVESTORE_PING_INTERVAL_MS: '1000',
+        LIVESTORE_PING_TIMEOUT_MS: '1000',
+        NODE_ENV: 'development',
+      }
+    )
+
+    await waitForHttp(`http://localhost:${serverPort}/health`)
+    console.log('✅ Server is up')
+
+    const networkUrl = `http://localhost:${serverPort}/debug/network-health`
+    await waitForCondition('store to connect', 30_000, 1000, async () => {
+      const data = await fetchJson(networkUrl)
+      const store = data.stores?.[workspaceId]
+      return store?.networkStatus?.isConnected === true
+    })
+
+    console.log('✅ Store connected to sync server')
+
+    console.log('🔌 Stopping sync server to simulate disconnect...')
+    syncProcess?.kill('SIGTERM')
+    syncProcess = null
+
+    await waitForCondition('store to disconnect', 30_000, 1000, async () => {
+      const data = await fetchJson(networkUrl)
+      const store = data.stores?.[workspaceId]
+      return store?.networkStatus?.isConnected === false
+    })
+    console.log('✅ Store detected disconnect')
+
+    console.log('🔄 Restarting sync server...')
+    syncProcess = spawnProcess(
+      'pnpm',
+      ['--filter', '@lifebuild/worker', 'dev'],
+      {
+        ...process.env,
+        ENVIRONMENT: 'development',
+        REQUIRE_AUTH: 'false',
+        JWT_SECRET: 'test-secret',
+        GRACE_PERIOD_SECONDS: '86400',
+        SERVER_BYPASS_TOKEN: 'test-bypass-token',
+        R2_PUBLIC_URL: `http://localhost:${syncPort}/api/images`,
+      }
+    )
+
+    await waitForHttp(`http://localhost:${syncPort}/`)
+    console.log('✅ Sync server restarted')
+
+    await waitForCondition('store to reconnect', 30_000, 1000, async () => {
+      const data = await fetchJson(networkUrl)
+      const store = data.stores?.[workspaceId]
+      return store?.networkStatus?.isConnected === true
+    })
+
+    console.log('✅ Store reconnected automatically')
+  } finally {
+    await cleanup()
+  }
+}
+
 // Run the tests
-runMemoryManagementTests().catch(console.error)
+runMemoryManagementTests()
+  .then(() => runNetworkReconnectTest())
+  .catch(error => {
+    console.error(error)
+    process.exit(1)
+  })

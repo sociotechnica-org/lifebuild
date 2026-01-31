@@ -2,7 +2,6 @@
 import dotenv from 'dotenv'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
-import type { IncomingMessage, ServerResponse } from 'http'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -182,6 +181,34 @@ async function main() {
       return
     }
 
+    if (pathname === '/admin/recreate-store') {
+      if (!isDashboardAuthorized(req)) {
+        res.writeHead(401, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Unauthorized - add ?token=YOUR_SERVER_BYPASS_TOKEN' }))
+        return
+      }
+
+      const url = new URL(req.url || '/', 'http://localhost')
+      const storeId = url.searchParams.get('storeId')
+      if (!storeId) {
+        res.writeHead(400, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Missing storeId' }))
+        return
+      }
+
+      try {
+        await storeManager.recreateStore(storeId)
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ ok: true, storeId }))
+      } catch (error) {
+        logger.error({ error, storeId }, 'Failed to recreate store')
+        Sentry.captureException(error, { tags: { storeId, phase: 'admin_recreate_store' } })
+        res.writeHead(500, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Failed to recreate store', storeId }))
+      }
+      return
+    }
+
     if (pathname === '/health') {
       const healthStatus = storeManager.getHealthStatus()
       const processingStats = eventProcessor.getProcessingStats()
@@ -237,8 +264,8 @@ async function main() {
       }
 
       const subscriptionHealth = eventProcessor.getSubscriptionHealthStatus()
-      // Use getConnectionStatus for read-only status instead of probeAllConnections which has side effects
       const storeHealth = storeManager.getHealthStatus()
+      const networkHealth = storeManager.getNetworkHealthStatus()
 
       // Combine subscription and connection health
       const combinedHealth: Record<
@@ -255,6 +282,17 @@ async function main() {
           connection: {
             status: string
             errorCount: number
+            networkStatus: {
+              isConnected: boolean
+              timestampMs: number
+              devtools?: {
+                latchClosed?: boolean
+              }
+            } | null
+            lastNetworkStatusAt: string | null
+            lastConnectedAt: string | null
+            lastDisconnectedAt: string | null
+            offlineDurationMs: number | null
           }
           overallHealthy: boolean
         }
@@ -263,6 +301,7 @@ async function main() {
       for (const [storeId, subHealth] of subscriptionHealth) {
         // Find matching store status from health check (read-only)
         const storeStatus = storeHealth.stores.find(s => s.storeId === storeId)
+        const networkStatus = networkHealth.get(storeId)
         combinedHealth[storeId] = {
           subscription: {
             lastUpdateAt: subHealth.lastUpdateAt,
@@ -275,6 +314,11 @@ async function main() {
           connection: {
             status: storeStatus?.status ?? 'unknown',
             errorCount: storeStatus?.errorCount ?? 0,
+            networkStatus: networkStatus?.networkStatus ?? null,
+            lastNetworkStatusAt: networkStatus?.lastNetworkStatusAt ?? null,
+            lastConnectedAt: networkStatus?.lastConnectedAt ?? null,
+            lastDisconnectedAt: networkStatus?.lastDisconnectedAt ?? null,
+            offlineDurationMs: networkStatus?.offlineDurationMs ?? null,
           },
           overallHealthy: subHealth.isHealthy && storeStatus?.status === 'connected',
         }
@@ -293,6 +337,22 @@ async function main() {
           storeCount: Object.keys(combinedHealth).length,
           stores: combinedHealth,
           storeStatuses: storeHealth.stores,
+          networkStatuses: Object.fromEntries(networkHealth),
+        })
+      )
+    } else if (pathname === '/debug/network-health') {
+      if (!isDashboardAuthorized(req)) {
+        res.writeHead(401, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Unauthorized - add ?token=YOUR_SERVER_BYPASS_TOKEN' }))
+        return
+      }
+
+      const networkHealth = storeManager.getNetworkHealthStatus()
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          stores: Object.fromEntries(networkHealth),
         })
       )
     } else if (pathname === '/stores') {
@@ -310,6 +370,14 @@ async function main() {
         lastActivity: info.lastActivity.toISOString(),
         errorCount: info.errorCount,
         reconnectAttempts: info.reconnectAttempts,
+        networkStatus: info.networkStatus ?? null,
+        lastNetworkStatusAt: info.lastNetworkStatusAt?.toISOString() ?? null,
+        lastConnectedAt: info.lastConnectedAt?.toISOString() ?? null,
+        lastDisconnectedAt: info.lastDisconnectedAt?.toISOString() ?? null,
+        offlineDurationMs:
+          info.networkStatus && info.networkStatus.isConnected === false && info.lastDisconnectedAt
+            ? Date.now() - info.lastDisconnectedAt.getTime()
+            : null,
         processing: processingStats.get(id) || null,
         orchestrator: orchestratorSummary.stores.find(store => store.storeId === id) || null,
       }))
@@ -360,10 +428,12 @@ async function main() {
       const errorLifecycles = lifecycleTracker.getLifecyclesByStage('error').slice(0, 10)
 
       // Preserve token in links for production
-      const tokenParam =
+      const tokenValue =
         process.env.NODE_ENV === 'production'
-          ? `?token=${new URL(req.url || '/', 'http://localhost').searchParams.get('token') || ''}`
+          ? new URL(req.url || '/', 'http://localhost').searchParams.get('token') || ''
           : ''
+      const tokenParam = tokenValue ? `?token=${tokenValue}` : ''
+      const tokenQuery = tokenValue ? `&token=${tokenValue}` : ''
 
       // Helper to format elapsed time
       const formatElapsed = (ms: number) => {
@@ -453,7 +523,8 @@ async function main() {
                 </div>
                 <p style="margin-top: 15px;">
                   <a href="/health${tokenParam}">Health JSON</a> |
-                  <a href="/stores${tokenParam}">Stores JSON</a>
+                  <a href="/stores${tokenParam}">Stores JSON</a> |
+                  <a href="/debug/network-health${tokenParam}">Network JSON</a>
                 </p>
               </div>
 
@@ -498,10 +569,29 @@ async function main() {
                             <span class="status-${store.status}">● ${store.status}</span>
                             <br>
                             <small>
+                              Network: ${
+                                store.networkStatus?.isConnected === false
+                                  ? '<span class="status-disconnected">offline</span>'
+                                  : '<span class="status-connected">online</span>'
+                              } ${
+                                store.offlineDurationMs
+                                  ? `(${formatElapsed(store.offlineDurationMs)} offline)`
+                                  : ''
+                              }<br>
+                              Last Network Update: ${
+                                store.lastNetworkStatusAt
+                                  ? new Date(store.lastNetworkStatusAt).toLocaleString()
+                                  : 'N/A'
+                              }<br>
                               Connected: ${new Date(store.connectedAt).toLocaleString()}<br>
                               Last Activity: ${new Date(store.lastActivity).toLocaleString()}<br>
                               Errors: ${store.errorCount} | Reconnect Attempts: ${store.reconnectAttempts}
                             </small>
+                            <div style="margin-top: 8px;">
+                              <form method="POST" action="/admin/recreate-store?storeId=${store.storeId}${tokenQuery}">
+                                <button type="submit">Recreate Store</button>
+                              </form>
+                            </div>
                           </div>
                         `
                         )

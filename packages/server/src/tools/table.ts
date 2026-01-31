@@ -4,10 +4,9 @@
  * with Gold slot, Silver slot, and Bronze stack
  */
 
-import type { Store } from '@livestore/livestore'
+import type { LiveStore } from '../types/livestore.js'
 import { events } from '@lifebuild/shared/schema'
 import {
-  getProjects$,
   getTableConfiguration$,
   getTableBronzeStack$,
   getProjectById$,
@@ -39,12 +38,12 @@ const generateId = () =>
 
 // ===== GOLD SLOT MANAGEMENT =====
 
-function assignTableGoldCore(
-  store: Store,
+async function assignTableGoldCore(
+  store: LiveStore,
   params: AssignTableGoldParams,
   actorId?: string
-): AssignTableGoldResult {
-  const projects = store.query(getProjectById$(params.projectId)) as any[]
+): Promise<AssignTableGoldResult> {
+  const projects = (await store.query(getProjectById$(params.projectId))) as any[]
   const project = projects?.[0]
 
   if (!project) {
@@ -67,13 +66,13 @@ function assignTableGoldCore(
   }
 }
 
-export const assignTableGold = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => assignTableGoldCore(store, params, actorId))(
+export const assignTableGold = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) => assignTableGoldCore(store, params, actorId))(
     store,
     params
   )
 
-function clearTableGoldCore(store: Store, actorId?: string): ClearTableGoldResult {
+function clearTableGoldCore(store: LiveStore, actorId?: string): ClearTableGoldResult {
   const now = new Date()
   store.commit(
     events.tableGoldCleared({
@@ -85,17 +84,17 @@ function clearTableGoldCore(store: Store, actorId?: string): ClearTableGoldResul
   return { success: true }
 }
 
-export const clearTableGold = (store: Store, _params: any, actorId?: string) =>
-  wrapNoParamFunction((store: Store) => clearTableGoldCore(store, actorId))(store)
+export const clearTableGold = (store: LiveStore, _params: any, actorId?: string) =>
+  wrapNoParamFunction((store: LiveStore) => clearTableGoldCore(store, actorId))(store)
 
 // ===== SILVER SLOT MANAGEMENT =====
 
-function assignTableSilverCore(
-  store: Store,
+async function assignTableSilverCore(
+  store: LiveStore,
   params: AssignTableSilverParams,
   actorId?: string
-): AssignTableSilverResult {
-  const projects = store.query(getProjectById$(params.projectId)) as any[]
+): Promise<AssignTableSilverResult> {
+  const projects = (await store.query(getProjectById$(params.projectId))) as any[]
   const project = projects?.[0]
 
   if (!project) {
@@ -118,13 +117,12 @@ function assignTableSilverCore(
   }
 }
 
-export const assignTableSilver = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => assignTableSilverCore(store, params, actorId))(
-    store,
-    params
-  )
+export const assignTableSilver = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) =>
+    assignTableSilverCore(store, params, actorId)
+  )(store, params)
 
-function clearTableSilverCore(store: Store, actorId?: string): ClearTableSilverResult {
+function clearTableSilverCore(store: LiveStore, actorId?: string): ClearTableSilverResult {
   const now = new Date()
   store.commit(
     events.tableSilverCleared({
@@ -136,13 +134,13 @@ function clearTableSilverCore(store: Store, actorId?: string): ClearTableSilverR
   return { success: true }
 }
 
-export const clearTableSilver = (store: Store, _params: any, actorId?: string) =>
-  wrapNoParamFunction((store: Store) => clearTableSilverCore(store, actorId))(store)
+export const clearTableSilver = (store: LiveStore, _params: any, actorId?: string) =>
+  wrapNoParamFunction((store: LiveStore) => clearTableSilverCore(store, actorId))(store)
 
 // ===== BRONZE MODE MANAGEMENT =====
 
 function updateBronzeModeCore(
-  store: Store,
+  store: LiveStore,
   params: UpdateBronzeModeParams,
   actorId?: string
 ): UpdateBronzeModeResult {
@@ -163,21 +161,21 @@ function updateBronzeModeCore(
   }
 }
 
-export const updateBronzeMode = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => updateBronzeModeCore(store, params, actorId))(
+export const updateBronzeMode = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) => updateBronzeModeCore(store, params, actorId))(
     store,
     params
   )
 
 // ===== BRONZE STACK MANAGEMENT =====
 
-function addBronzeTaskCore(
-  store: Store,
+async function addBronzeTaskCore(
+  store: LiveStore,
   params: AddBronzeTaskParams,
   actorId?: string
-): AddBronzeTaskResult {
+): Promise<AddBronzeTaskResult> {
   // Verify task exists
-  const tasks = store.query(getTaskById$(params.taskId)) as any[]
+  const tasks = (await store.query(getTaskById$(params.taskId))) as any[]
   const task = tasks?.[0]
 
   if (!task) {
@@ -185,7 +183,7 @@ function addBronzeTaskCore(
   }
 
   // Get current stack to determine position
-  const stack = store.query(getTableBronzeStack$) as any[]
+  const stack = (await store.query(getTableBronzeStack$)) as any[]
   const activeStack = stack.filter((e: any) => e.status === 'active')
   const maxPosition = activeStack.reduce((max: number, e: any) => Math.max(max, e.position), -1)
 
@@ -211,14 +209,14 @@ function addBronzeTaskCore(
   }
 }
 
-export const addBronzeTask = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => addBronzeTaskCore(store, params, actorId))(
+export const addBronzeTask = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) => addBronzeTaskCore(store, params, actorId))(
     store,
     params
   )
 
 function removeBronzeTaskCore(
-  store: Store,
+  store: LiveStore,
   params: RemoveBronzeTaskParams,
   actorId?: string
 ): RemoveBronzeTaskResult {
@@ -237,14 +235,14 @@ function removeBronzeTaskCore(
   }
 }
 
-export const removeBronzeTask = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => removeBronzeTaskCore(store, params, actorId))(
+export const removeBronzeTask = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) => removeBronzeTaskCore(store, params, actorId))(
     store,
     params
   )
 
 function reorderBronzeStackCore(
-  store: Store,
+  store: LiveStore,
   params: ReorderBronzeStackParams,
   actorId?: string
 ): ReorderBronzeStackResult {
@@ -263,33 +261,32 @@ function reorderBronzeStackCore(
   }
 }
 
-export const reorderBronzeStack = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => reorderBronzeStackCore(store, params, actorId))(
-    store,
-    params
-  )
+export const reorderBronzeStack = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) =>
+    reorderBronzeStackCore(store, params, actorId)
+  )(store, params)
 
 // ===== TABLE CONFIGURATION QUERY =====
 
-function getTableConfigurationCore(store: Store): GetTableConfigurationResult {
-  const config = store.query(getTableConfiguration$) as any
+async function getTableConfigurationCore(store: LiveStore): Promise<GetTableConfigurationResult> {
+  const config = await store.query(getTableConfiguration$)
 
   // Get project names if assigned
   let goldProjectName: string | undefined
   let silverProjectName: string | undefined
 
   if (config?.goldProjectId) {
-    const projects = store.query(getProjectById$(config.goldProjectId)) as any[]
+    const projects = (await store.query(getProjectById$(config.goldProjectId))) as any[]
     goldProjectName = projects?.[0]?.name
   }
 
   if (config?.silverProjectId) {
-    const projects = store.query(getProjectById$(config.silverProjectId)) as any[]
+    const projects = (await store.query(getProjectById$(config.silverProjectId))) as any[]
     silverProjectName = projects?.[0]?.name
   }
 
   // Get bronze stack count
-  const stack = store.query(getTableBronzeStack$) as any[]
+  const stack = (await store.query(getTableBronzeStack$)) as any[]
   const activeStack = stack.filter((e: any) => e.status === 'active')
 
   return {
@@ -306,5 +303,5 @@ function getTableConfigurationCore(store: Store): GetTableConfigurationResult {
   }
 }
 
-export const getTableConfiguration = (store: Store, _params?: any, _actorId?: string) =>
-  wrapNoParamFunction((store: Store) => getTableConfigurationCore(store))(store)
+export const getTableConfiguration = (store: LiveStore, _params?: any, _actorId?: string) =>
+  wrapNoParamFunction((store: LiveStore) => getTableConfigurationCore(store))(store)

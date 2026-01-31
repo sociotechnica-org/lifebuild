@@ -64,8 +64,8 @@ describe('useDocumentProjects', () => {
     expect(result.current).toEqual([])
   })
 
-  it('handles null query results gracefully', () => {
-    vi.mocked(useQuery).mockReturnValue(null)
+  it('handles empty query results gracefully', () => {
+    vi.mocked(useQuery).mockReturnValue([])
 
     const { result } = renderHook(() => useDocumentProjects('doc1'))
 
@@ -115,8 +115,8 @@ describe('useDocumentProjectsTargeted', () => {
     expect(result.current).toEqual([])
   })
 
-  it('handles null query results gracefully', () => {
-    vi.mocked(useQuery).mockReturnValue(null)
+  it('handles empty query results gracefully', () => {
+    vi.mocked(useQuery).mockReturnValue([])
 
     const { result } = renderHook(() => useDocumentProjectsTargeted('doc1'))
 

@@ -1,4 +1,4 @@
-import type { Store } from '@livestore/livestore'
+import type { LiveStore } from '../types/livestore.js'
 
 // Export base types and utilities
 export * from './base.js'
@@ -22,7 +22,7 @@ export * from './workers.js'
  * Execute an LLM tool call
  */
 export async function executeLLMTool(
-  store: Store,
+  store: LiveStore,
   toolCall: { name: string; parameters: any },
   workerId?: string
 ): Promise<any> {

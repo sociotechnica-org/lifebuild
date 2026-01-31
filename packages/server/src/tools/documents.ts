@@ -1,4 +1,4 @@
-import type { Store } from '@livestore/livestore'
+import type { LiveStore } from '../types/livestore.js'
 import { events } from '@lifebuild/shared/schema'
 import {
   getDocumentList$,
@@ -35,8 +35,8 @@ import type {
 /**
  * List all available documents (core implementation)
  */
-function listDocumentsCore(store: Store): ListDocumentsResult {
-  const documents = (store.query(getDocumentList$) || []) as any[]
+async function listDocumentsCore(store: LiveStore): Promise<ListDocumentsResult> {
+  const documents = ((await store.query(getDocumentList$)) || []) as any[]
   return {
     success: true,
     documents: documents.map((d: any) => ({
@@ -50,8 +50,8 @@ function listDocumentsCore(store: Store): ListDocumentsResult {
 /**
  * Read a specific document by ID (core implementation)
  */
-function readDocumentCore(store: Store, documentId: string): ReadDocumentResult {
-  const documents = store.query(getDocumentById$(documentId)) as any[]
+async function readDocumentCore(store: LiveStore, documentId: string): Promise<ReadDocumentResult> {
+  const documents = (await store.query(getDocumentById$(documentId))) as any[]
   const document = validators.requireEntity(documents, 'Document', documentId)
 
   return {
@@ -69,7 +69,10 @@ function readDocumentCore(store: Store, documentId: string): ReadDocumentResult 
 /**
  * Search documents by query string (core implementation)
  */
-function searchDocumentsCore(store: Store, query: string): SearchDocumentsResult {
+async function searchDocumentsCore(
+  store: LiveStore,
+  query: string
+): Promise<SearchDocumentsResult> {
   // Validate query
   if (!query || query.trim().length === 0) {
     throw new Error('Search query is required')
@@ -77,7 +80,7 @@ function searchDocumentsCore(store: Store, query: string): SearchDocumentsResult
 
   const trimmedQuery = query.trim()
   const searchQuery = trimmedQuery.toLowerCase()
-  const allDocuments = (store.query(searchDocuments$(trimmedQuery)) || []) as any[]
+  const allDocuments = ((await store.query(searchDocuments$(trimmedQuery))) || []) as any[]
 
   // Filter documents that match the search query in title or content
   const results = allDocuments.filter(
@@ -98,15 +101,19 @@ function searchDocumentsCore(store: Store, query: string): SearchDocumentsResult
 /**
  * Get all documents for a specific project (core implementation)
  */
-function getProjectDocumentsCore(store: Store, projectId: string): GetProjectDocumentsResult {
+async function getProjectDocumentsCore(
+  store: LiveStore,
+  projectId: string
+): Promise<GetProjectDocumentsResult> {
   // Validate projectId
   if (!projectId || projectId.trim().length === 0) {
     throw new Error('Project ID is required')
   }
 
   // Get document-project associations and all documents, then filter
-  const documentProjects = (store.query(getDocumentProjectsByProject$(projectId)) || []) as any[]
-  const allDocuments = (store.query(getAllDocuments$) || []) as any[]
+  const documentProjects = ((await store.query(getDocumentProjectsByProject$(projectId))) ||
+    []) as any[]
+  const allDocuments = ((await store.query(getAllDocuments$)) || []) as any[]
   const documentIds = new Set(documentProjects.map(dp => dp.documentId))
   const documents = allDocuments.filter(doc => documentIds.has(doc.id))
 
@@ -125,11 +132,11 @@ function getProjectDocumentsCore(store: Store, projectId: string): GetProjectDoc
 /**
  * Search documents within a specific project (core implementation)
  */
-function searchProjectDocumentsCore(
-  store: Store,
+async function searchProjectDocumentsCore(
+  store: LiveStore,
   query: string,
   projectId?: string
-): SearchProjectDocumentsResult {
+): Promise<SearchProjectDocumentsResult> {
   // Validate query
   if (!query || query.trim().length === 0) {
     throw new Error('Search query is required')
@@ -137,11 +144,13 @@ function searchProjectDocumentsCore(
 
   const trimmedQuery = query.trim()
   const searchQuery = trimmedQuery.toLowerCase()
-  let documents = (store.query(searchDocumentsWithProject$(trimmedQuery, projectId)) || []) as any[]
+  let documents = ((await store.query(searchDocumentsWithProject$(trimmedQuery, projectId))) ||
+    []) as any[]
 
   // If projectId is provided, filter documents by project
   if (projectId) {
-    const documentProjects = (store.query(getDocumentProjectsByProject$(projectId)) || []) as any[]
+    const documentProjects = ((await store.query(getDocumentProjectsByProject$(projectId))) ||
+      []) as any[]
     const documentIds = new Set(documentProjects.map(dp => dp.documentId))
     documents = documents.filter(doc => documentIds.has(doc.id))
   }
@@ -166,7 +175,7 @@ function searchProjectDocumentsCore(
 /**
  * Create a new document (core implementation)
  */
-function createDocumentCore(store: Store, params: CreateDocumentParams): CreateDocumentResult {
+function createDocumentCore(store: LiveStore, params: CreateDocumentParams): CreateDocumentResult {
   const { title, content } = params
 
   // Validate title
@@ -197,11 +206,14 @@ function createDocumentCore(store: Store, params: CreateDocumentParams): CreateD
 /**
  * Update an existing document (core implementation)
  */
-function updateDocumentCore(store: Store, params: UpdateDocumentParams): UpdateDocumentResult {
+async function updateDocumentCore(
+  store: LiveStore,
+  params: UpdateDocumentParams
+): Promise<UpdateDocumentResult> {
   const { documentId, title, content } = params
 
   // Verify document exists
-  const documents = store.query(getDocumentById$(documentId))
+  const documents = (await store.query(getDocumentById$(documentId))) as any[]
   validators.requireEntity(documents, 'Document', documentId)
 
   // At least one field must be provided for update
@@ -243,9 +255,12 @@ function updateDocumentCore(store: Store, params: UpdateDocumentParams): UpdateD
 /**
  * Archive a document (core implementation)
  */
-function archiveDocumentCore(store: Store, documentId: string): ArchiveDocumentResult {
+async function archiveDocumentCore(
+  store: LiveStore,
+  documentId: string
+): Promise<ArchiveDocumentResult> {
   // Verify document exists
-  const documents = store.query(getDocumentById$(documentId))
+  const documents = (await store.query(getDocumentById$(documentId))) as any[]
   const document = validators.requireEntity(documents, 'Document', documentId)
 
   if (document.archivedAt) {
@@ -273,18 +288,18 @@ function archiveDocumentCore(store: Store, documentId: string): ArchiveDocumentR
 /**
  * Add a document to a project (core implementation)
  */
-function addDocumentToProjectCore(
-  store: Store,
+async function addDocumentToProjectCore(
+  store: LiveStore,
   params: AddDocumentToProjectParams
-): AddDocumentToProjectResult {
+): Promise<AddDocumentToProjectResult> {
   const { documentId, projectId } = params
 
   // Verify document exists
-  const documents = store.query(getDocumentById$(documentId))
+  const documents = (await store.query(getDocumentById$(documentId))) as any[]
   validators.requireEntity(documents, 'Document', documentId)
 
   // Verify project exists
-  const projects = store.query(getProjects$) || []
+  const projects = (await store.query(getProjects$)) || []
   if (!Array.isArray(projects)) {
     throw new Error('Failed to retrieve projects list')
   }
@@ -294,7 +309,7 @@ function addDocumentToProjectCore(
   }
 
   // Check if document is already associated with this project
-  const existingAssociations = store.query(getDocumentProjectsByProject$(projectId)) || []
+  const existingAssociations = (await store.query(getDocumentProjectsByProject$(projectId))) || []
   const alreadyAssociated =
     Array.isArray(existingAssociations) &&
     existingAssociations.some((dp: any) => dp?.documentId === documentId)
@@ -322,18 +337,18 @@ function addDocumentToProjectCore(
 /**
  * Remove a document from a project (core implementation)
  */
-function removeDocumentFromProjectCore(
-  store: Store,
+async function removeDocumentFromProjectCore(
+  store: LiveStore,
   params: RemoveDocumentFromProjectParams
-): RemoveDocumentFromProjectResult {
+): Promise<RemoveDocumentFromProjectResult> {
   const { documentId, projectId } = params
 
   // Verify document exists
-  const documents = store.query(getDocumentById$(documentId))
+  const documents = (await store.query(getDocumentById$(documentId))) as any[]
   validators.requireEntity(documents, 'Document', documentId)
 
   // Verify project exists
-  const projects = store.query(getProjects$) || []
+  const projects = (await store.query(getProjects$)) || []
   if (!Array.isArray(projects)) {
     throw new Error('Failed to retrieve projects list')
   }
@@ -343,7 +358,7 @@ function removeDocumentFromProjectCore(
   }
 
   // Check if document is associated with this project
-  const existingAssociations = store.query(getDocumentProjectsByProject$(projectId)) || []
+  const existingAssociations = (await store.query(getDocumentProjectsByProject$(projectId))) || []
   const isAssociated =
     Array.isArray(existingAssociations) &&
     existingAssociations.some((dp: any) => dp?.documentId === documentId)
@@ -380,13 +395,13 @@ export const addDocumentToProject = wrapToolFunction(addDocumentToProjectCore)
 export const removeDocumentFromProject = wrapToolFunction(removeDocumentFromProjectCore)
 
 // This function takes two parameters, so we need a custom wrapper
-export function searchProjectDocuments(
-  store: Store,
+export async function searchProjectDocuments(
+  store: LiveStore,
   query: string,
   projectId?: string
-): SearchProjectDocumentsResult {
+): Promise<SearchProjectDocumentsResult> {
   try {
-    return searchProjectDocumentsCore(store, query, projectId)
+    return await searchProjectDocumentsCore(store, query, projectId)
   } catch (error) {
     return {
       success: false,

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { StoreManager } from '../../src/services/store-manager.js'
+import { Effect, Stream, Subscribable } from '@livestore/utils/effect'
 import * as storeFactory from '../../src/factories/store-factory.js'
 
 vi.mock('../../src/factories/store-factory.js', () => ({
@@ -26,6 +27,10 @@ describe('StoreManager', () => {
       query: vi.fn(),
       shutdownPromise: vi.fn().mockResolvedValue(undefined),
       on: vi.fn(),
+      networkStatus: Subscribable.make({
+        get: Effect.succeed({ isConnected: true, timestampMs: Date.now() }),
+        changes: Stream.never,
+      }),
     }
 
     vi.mocked(storeFactory.createStore).mockResolvedValue({

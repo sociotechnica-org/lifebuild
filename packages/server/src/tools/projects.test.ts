@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 
 // Mock the logger to avoid console output during tests
 vi.mock('../utils/logger.js', () => ({
@@ -62,7 +62,7 @@ describe('updateProjectLifecycle validation', () => {
         ],
       })
 
-      const result = updateProjectLifecycle(
+      const result = await updateProjectLifecycle(
         mockStore as any,
         {
           projectId: 'project-1',
@@ -92,7 +92,7 @@ describe('updateProjectLifecycle validation', () => {
         ],
       })
 
-      const result = updateProjectLifecycle(
+      const result = await updateProjectLifecycle(
         mockStore as any,
         {
           projectId: 'project-1',
@@ -123,7 +123,7 @@ describe('updateProjectLifecycle validation', () => {
         ],
       })
 
-      const result = updateProjectLifecycle(
+      const result = await updateProjectLifecycle(
         mockStore as any,
         {
           projectId: 'project-1',
@@ -155,7 +155,7 @@ describe('updateProjectLifecycle validation', () => {
         tasks: [], // No tasks yet (not required for stage 3)
       })
 
-      const result = updateProjectLifecycle(
+      const result = await updateProjectLifecycle(
         mockStore as any,
         {
           projectId: 'project-1',
@@ -186,7 +186,7 @@ describe('updateProjectLifecycle validation', () => {
         tasks: [],
       })
 
-      const result = updateProjectLifecycle(
+      const result = await updateProjectLifecycle(
         mockStore as any,
         {
           projectId: 'project-1',
@@ -222,7 +222,7 @@ describe('updateProjectLifecycle validation', () => {
         tasks: [], // No tasks
       })
 
-      const result = updateProjectLifecycle(
+      const result = await updateProjectLifecycle(
         mockStore as any,
         {
           projectId: 'project-1',
@@ -254,7 +254,7 @@ describe('updateProjectLifecycle validation', () => {
         tasks: [], // No tasks
       })
 
-      const result = updateProjectLifecycle(
+      const result = await updateProjectLifecycle(
         mockStore as any,
         {
           projectId: 'project-1',
@@ -288,7 +288,7 @@ describe('updateProjectLifecycle validation', () => {
         ],
       })
 
-      const result = updateProjectLifecycle(
+      const result = await updateProjectLifecycle(
         mockStore as any,
         {
           projectId: 'project-1',
@@ -322,7 +322,7 @@ describe('updateProjectLifecycle validation', () => {
         ],
       })
 
-      const result = updateProjectLifecycle(
+      const result = await updateProjectLifecycle(
         mockStore as any,
         {
           projectId: 'project-1',
@@ -354,7 +354,7 @@ describe('updateProjectLifecycle validation', () => {
         tasks: [{ id: 'task-1', archivedAt: null }],
       })
 
-      const result = updateProjectLifecycle(
+      const result = await updateProjectLifecycle(
         mockStore as any,
         {
           projectId: 'project-1',
@@ -385,7 +385,7 @@ describe('updateProjectLifecycle validation', () => {
         ],
       })
 
-      const result = updateProjectLifecycle(
+      const result = await updateProjectLifecycle(
         mockStore as any,
         {
           projectId: 'project-1',
@@ -414,7 +414,7 @@ describe('updateProjectLifecycle validation', () => {
         ],
       })
 
-      const result = updateProjectLifecycle(
+      const result = await updateProjectLifecycle(
         mockStore as any,
         {
           projectId: 'project-1',

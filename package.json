@@ -33,7 +33,6 @@
     "deploy:auth": "pnpm --filter @lifebuild/auth-worker deploy"
   },
   "devDependencies": {
-    "vitest": "^3.2.4",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.36.0",
     "@playwright/test": "^1.55.0",
@@ -54,10 +53,12 @@
     "playwright-mcp": "^0.0.12",
     "prettier": "^3.6.2",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.44.1"
+    "typescript-eslint": "^8.44.1",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "@effect/ai": "0.27.1",
-    "@effect/cluster": "0.48.15"
+    "@effect/cluster": "0.48.15",
+    "@livestore/common": "catalog:"
   }
 }

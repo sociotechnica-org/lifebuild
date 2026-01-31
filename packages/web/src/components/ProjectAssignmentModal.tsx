@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useStore } from '../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
 import { getProjects$, getWorkerProjects$ } from '@lifebuild/shared/queries'
-import type { Worker, Project } from '@lifebuild/shared/schema'
+import type { Worker, Project, WorkerProject } from '@lifebuild/shared/schema'
 
 interface ProjectAssignmentModalProps {
   isOpen: boolean
@@ -26,8 +26,10 @@ export const ProjectAssignmentModal: React.FC<ProjectAssignmentModalProps> = ({
     if (isOpen) {
       // Load projects and current assignments
       const loadData = async () => {
-        const projectsResult = await store.query(getProjects$)
-        const assignmentsResult = await store.query(getWorkerProjects$(worker.id))
+        const projectsResult = (await store.query(getProjects$)) as Project[]
+        const assignmentsResult = (await store.query(
+          getWorkerProjects$(worker.id)
+        )) as WorkerProject[]
 
         setProjects([...projectsResult])
         const currentAssignedIds = new Set(assignmentsResult.map(wp => wp.projectId))

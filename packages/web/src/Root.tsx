@@ -41,8 +41,6 @@ import { Stage1Form } from './components/new/drafting-room/Stage1Form.js'
 import { Stage2Form } from './components/new/drafting-room/Stage2Form.js'
 import { Stage3Form } from './components/new/drafting-room/Stage3Form.js'
 import { SortingRoom } from './components/new/sorting-room/SortingRoom.js'
-import { NewUiShell } from './components/new/layout/NewUiShell.js'
-import { SnackbarProvider } from './components/ui/Snackbar/Snackbar.js'
 import { LIFE_MAP_ROOM, DRAFTING_ROOM, SORTING_ROOM } from '@lifebuild/shared/rooms'
 
 const adapter = makePersistedAdapter({

@@ -1,9 +1,10 @@
-import { createStorePromise, type Store as LiveStore } from '@livestore/livestore'
+import { createStorePromise } from '@livestore/livestore'
 import { makeAdapter } from '@livestore/adapter-node'
 import { makeWsSync } from '@livestore/sync-cf/client'
 import { schema } from '@lifebuild/shared/schema'
 import path from 'path'
 import { logger } from '../utils/logger.js'
+import type { LiveStore } from '../types/livestore.js'
 
 export interface StoreConfig {
   storeId: string
@@ -114,6 +115,38 @@ export async function createStore(
     `Creating store ${storeId}`
   )
 
+  const normalizeMs = (
+    value: number,
+    fallback: number,
+    min: number,
+    max: number,
+    label: string
+  ) => {
+    if (!Number.isFinite(value) || value < min || value > max) {
+      logger.warn(
+        { value, fallback, min, max, label },
+        'Invalid ping configuration, using fallback'
+      )
+      return fallback
+    }
+    return value
+  }
+
+  const pingIntervalMs = normalizeMs(
+    Number(process.env.LIVESTORE_PING_INTERVAL_MS) || 5000,
+    5000,
+    1000,
+    60000,
+    'LIVESTORE_PING_INTERVAL_MS'
+  )
+  const pingTimeoutMs = normalizeMs(
+    Number(process.env.LIVESTORE_PING_TIMEOUT_MS) || 2000,
+    2000,
+    1000,
+    60000,
+    'LIVESTORE_PING_TIMEOUT_MS'
+  )
+
   const storeDataPath = path.join(config.dataPath!, storeId)
 
   const adapter = makeAdapter({
@@ -123,8 +156,14 @@ export async function createStore(
     },
     sync: config.syncUrl
       ? {
-          backend: makeWsSync({ url: config.syncUrl }),
-          onSyncError: 'shutdown', // Revert to original behavior
+          backend: makeWsSync({
+            url: config.syncUrl,
+            ping: {
+              requestInterval: pingIntervalMs,
+              requestTimeout: pingTimeoutMs,
+            },
+          }),
+          onSyncError: 'ignore',
         }
       : undefined,
     devtools: config.enableDevtools

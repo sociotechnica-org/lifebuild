@@ -1,11 +1,11 @@
-import { makeSchema, Schema, SessionIdSymbol, State } from '@livestore/livestore'
+import { makeSchema, State } from '@livestore/common/schema'
+import { Schema, SessionIdSymbol } from '@livestore/livestore'
 import { DEFAULT_MODEL } from '../models.js'
 import {
   createDefaultLifecycleState,
   parseProjectLifecycleState,
   ProjectLifecycleStateSchema,
   type ProjectLifecycleState,
-  type PlanningAttributes,
 } from '../types/planning.js'
 import { Filter } from '../types'
 import * as eventsDefs from './events'
@@ -1076,7 +1076,7 @@ const materializers = State.SQLite.materializers(events, {
       .where({ id }),
 
   'table.bronze_stack_reordered': ({ ordering }) =>
-    ordering.map(order =>
+    ordering.map((order: { id: string; position: number }) =>
       tableBronzeStack.update({ position: order.position }).where({ id: order.id })
     ),
 
@@ -1106,7 +1106,7 @@ const materializers = State.SQLite.materializers(events, {
       .where({ id }),
 
   'table.bronze_projects_reordered': ({ ordering }) =>
-    ordering.map(order =>
+    ordering.map((order: { id: string; position: number }) =>
       tableBronzeProjects.update({ position: order.position }).where({ id: order.id })
     ),
 })

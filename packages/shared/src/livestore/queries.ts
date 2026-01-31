@@ -53,7 +53,7 @@ export const isBronzeProjectTabled$ = (projectId: string) =>
   })
 
 export const getBoards$ = queryDb(
-  _get => {
+  (_get: unknown) => {
     return tables.projects.select().where({
       deletedAt: undefined,
       archivedAt: null, // PR5+6: Filter archived projects by default

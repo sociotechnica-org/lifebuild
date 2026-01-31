@@ -1,4 +1,4 @@
-import type { Store } from '@livestore/livestore'
+import type { LiveStore } from '../types/livestore.js'
 import { events } from '@lifebuild/shared/schema'
 import {
   getBoardTasks$,
@@ -35,7 +35,10 @@ import type {
 /**
  * Creates a task using the provided parameters
  */
-function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResult {
+async function createTaskCore(
+  store: LiveStore,
+  params: CreateTaskParams
+): Promise<CreateTaskResult> {
   const { title, description, projectId, assigneeIds } = params
 
   // Validate title
@@ -52,7 +55,7 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
   }
 
   // Verify project exists
-  const projects = store.query(getProjects$)
+  const projects = await store.query(getProjects$)
   const targetProject = projects.find((p: any) => p.id === projectId)
   if (!targetProject) {
     throw new Error(`Project with ID ${projectId} not found`)
@@ -61,7 +64,7 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
   // Validate assignees if provided
   let assigneeNames: string[] = []
   if (assigneeIds && assigneeIds.length > 0) {
-    const users = store.query(getUsers$)
+    const users = await store.query(getUsers$)
     validators.validateAssignees(assigneeIds, users)
     assigneeNames = assigneeIds.map(id => {
       const user = users.find((u: any) => u.id === id)
@@ -70,7 +73,7 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
   }
 
   // Get existing tasks with the same status to calculate position
-  const existingTasks = store.query(getBoardTasks$(targetProject.id))
+  const existingTasks = await store.query(getBoardTasks$(targetProject.id))
   const tasksWithStatus = existingTasks.filter((t: any) => t.status === status)
 
   // Calculate next position, ensuring we handle non-numeric positions safely
@@ -124,16 +127,19 @@ function createTaskCore(store: Store, params: CreateTaskParams): CreateTaskResul
 /**
  * Updates a task with new information (core implementation)
  */
-function updateTaskCore(store: Store, params: UpdateTaskParams): UpdateTaskResult {
+async function updateTaskCore(
+  store: LiveStore,
+  params: UpdateTaskParams
+): Promise<UpdateTaskResult> {
   const { taskId, title, description, assigneeIds } = params
 
   // Verify task exists
-  const tasks = store.query(getTaskById$(taskId))
+  const tasks = (await store.query(getTaskById$(taskId))) as any[]
   validators.requireEntity(tasks, 'Task', taskId)
 
   // Validate assignees if provided
   if (assigneeIds && assigneeIds.length > 0) {
-    const users = store.query(getUsers$)
+    const users = await store.query(getUsers$)
     validators.validateAssignees(assigneeIds, users)
   }
 
@@ -162,7 +168,7 @@ function updateTaskCore(store: Store, params: UpdateTaskParams): UpdateTaskResul
 /**
  * Moves a task to a different status (core implementation)
  */
-function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
+async function moveTaskCore(store: LiveStore, params: MoveTaskParams): Promise<MoveTaskResult> {
   const { taskId, toStatus, position } = params
 
   // Validate status
@@ -173,7 +179,7 @@ function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
   }
 
   // Verify task exists
-  const tasks = store.query(getTaskById$(taskId))
+  const tasks = (await store.query(getTaskById$(taskId))) as any[]
   const task = validators.requireEntity(tasks, 'Task', taskId)
 
   // Verify task has a project
@@ -184,7 +190,7 @@ function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
   // Calculate position if not provided, using Large Integer Positioning strategy
   let movePosition = position
   if (movePosition === undefined) {
-    const existingTasks = store.query(getBoardTasks$(task.projectId))
+    const existingTasks = await store.query(getBoardTasks$(task.projectId))
     const tasksWithStatus = existingTasks.filter((t: any) => t.status === toStatus)
     const POSITION_GAP = 1000
     const validPositions = tasksWithStatus
@@ -223,18 +229,18 @@ function moveTaskCore(store: Store, params: MoveTaskParams): MoveTaskResult {
 /**
  * Moves a task to a different project (core implementation)
  */
-function moveTaskToProjectCore(
-  store: Store,
+async function moveTaskToProjectCore(
+  store: LiveStore,
   params: MoveTaskToProjectParams
-): MoveTaskToProjectResult {
+): Promise<MoveTaskToProjectResult> {
   const { taskId, toProjectId, status, position } = params
 
   // Verify task exists
-  const tasks = store.query(getTaskById$(taskId))
+  const tasks = (await store.query(getTaskById$(taskId))) as any[]
   const task = validators.requireEntity(tasks, 'Task', taskId)
 
   // Verify target project exists
-  const projects = store.query(getProjects$)
+  const projects = await store.query(getProjects$)
   const targetProject = projects.find((p: any) => p.id === toProjectId)
   if (!targetProject) {
     throw new Error(`Project with ID ${toProjectId} not found`)
@@ -251,7 +257,7 @@ function moveTaskToProjectCore(
   // Calculate position if not provided, using Large Integer Positioning strategy
   let movePosition = position
   if (movePosition === undefined) {
-    const existingTasks = store.query(getBoardTasks$(toProjectId))
+    const existingTasks = await store.query(getBoardTasks$(toProjectId))
     const tasksWithStatus = existingTasks.filter((t: any) => t.status === targetStatus)
     const POSITION_GAP = 1000
     const validPositions = tasksWithStatus
@@ -278,7 +284,7 @@ function moveTaskToProjectCore(
   )
 
   // If status was provided and different, also update status
-  // Note: We use two separate events here intentionally for LiveStore event sourcing.
+  // Note: We use two separate events here intentionally for LiveLiveStore event sourcing.
   // This allows independent replay and better granularity. The events are committed
   // synchronously in sequence, so they will be processed atomically.
   if (status && status !== task.status) {
@@ -306,11 +312,14 @@ function moveTaskToProjectCore(
 /**
  * Orphans a task (removes it from its current project)
  */
-function orphanTaskCore(store: Store, params: OrphanTaskParams): OrphanTaskResult {
+async function orphanTaskCore(
+  store: LiveStore,
+  params: OrphanTaskParams
+): Promise<OrphanTaskResult> {
   const { taskId, status, position } = params
 
   // Verify task exists
-  const tasks = store.query(getTaskById$(taskId))
+  const tasks = (await store.query(getTaskById$(taskId))) as any[]
   const task = validators.requireEntity(tasks, 'Task', taskId)
 
   // Validate and normalize status
@@ -335,7 +344,7 @@ function orphanTaskCore(store: Store, params: OrphanTaskParams): OrphanTaskResul
   )
 
   // If status was provided and different, also update status
-  // Note: We use two separate events here intentionally for LiveStore event sourcing.
+  // Note: We use two separate events here intentionally for LiveLiveStore event sourcing.
   // This allows independent replay and better granularity. The events are committed
   // synchronously in sequence, so they will be processed atomically.
   if (status && status !== task.status) {
@@ -362,9 +371,9 @@ function orphanTaskCore(store: Store, params: OrphanTaskParams): OrphanTaskResul
 /**
  * Archives a task (core implementation)
  */
-function archiveTaskCore(store: Store, taskId: string): ArchiveTaskResult {
+async function archiveTaskCore(store: LiveStore, taskId: string): Promise<ArchiveTaskResult> {
   // Verify task exists
-  const tasks = store.query(getTaskById$(taskId))
+  const tasks = (await store.query(getTaskById$(taskId))) as any[]
   const task = validators.requireEntity(tasks, 'Task', taskId)
   if (task.archivedAt) {
     throw new Error('Task is already archived')
@@ -390,9 +399,9 @@ function archiveTaskCore(store: Store, taskId: string): ArchiveTaskResult {
 /**
  * Unarchives a task (core implementation)
  */
-function unarchiveTaskCore(store: Store, taskId: string): UnarchiveTaskResult {
+async function unarchiveTaskCore(store: LiveStore, taskId: string): Promise<UnarchiveTaskResult> {
   // Verify task exists (need to query without archive filter)
-  const tasks = store.query(getTaskById$(taskId))
+  const tasks = (await store.query(getTaskById$(taskId))) as any[]
   const task = validators.requireEntity(tasks, 'Task', taskId)
   if (!task.archivedAt) {
     throw new Error('Task is not archived')
@@ -417,9 +426,9 @@ function unarchiveTaskCore(store: Store, taskId: string): UnarchiveTaskResult {
 /**
  * Get a specific task by ID (core implementation)
  */
-function getTaskByIdCore(store: Store, taskId: string): GetTaskByIdResult {
+async function getTaskByIdCore(store: LiveStore, taskId: string): Promise<GetTaskByIdResult> {
   // Query for the task
-  const tasks = store.query(getTaskById$(taskId)) as any[]
+  const tasks = (await store.query(getTaskById$(taskId))) as any[]
   const task = validators.requireEntity(tasks, 'Task', taskId)
 
   return {
@@ -441,15 +450,18 @@ function getTaskByIdCore(store: Store, taskId: string): GetTaskByIdResult {
 /**
  * Get all tasks for a specific project (core implementation)
  */
-function getProjectTasksCore(store: Store, projectId: string): GetProjectTasksResult {
+async function getProjectTasksCore(
+  store: LiveStore,
+  projectId: string
+): Promise<GetProjectTasksResult> {
   // Verify project exists
-  const projects = store.query(getProjects$)
+  const projects = await store.query(getProjects$)
   const project = projects.find((p: any) => p.id === projectId)
   if (!project) {
     throw new Error(`Project with ID ${projectId} not found`)
   }
 
-  const tasks = store.query(getBoardTasks$(projectId)) as any[]
+  const tasks = (await store.query(getBoardTasks$(projectId))) as any[]
   return {
     success: true,
     projectName: project.name,
@@ -469,8 +481,8 @@ function getProjectTasksCore(store: Store, projectId: string): GetProjectTasksRe
 /**
  * Get all orphaned tasks (tasks without a project) (core implementation)
  */
-function getOrphanedTasksCore(store: Store): GetOrphanedTasksResult {
-  const tasks = store.query(getOrphanedTasks$) as any[]
+async function getOrphanedTasksCore(store: LiveStore): Promise<GetOrphanedTasksResult> {
+  const tasks = (await store.query(getOrphanedTasks$)) as any[]
   return {
     success: true,
     tasks: tasks.map((t: any) => ({

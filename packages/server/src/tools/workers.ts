@@ -1,4 +1,4 @@
-import type { Store } from '@livestore/livestore'
+import type { LiveStore } from '../types/livestore.js'
 import {
   getWorkers$,
   getWorkerById$,
@@ -35,7 +35,7 @@ import type {
  * Create a new worker (core implementation)
  */
 function createWorkerCore(
-  store: Store,
+  store: LiveStore,
   params: CreateWorkerParams,
   actorId?: string
 ): CreateWorkerResult {
@@ -101,13 +101,13 @@ function createWorkerCore(
  * Update an existing worker (core implementation)
  */
 async function updateWorkerCore(
-  store: Store,
+  store: LiveStore,
   params: UpdateWorkerParams,
   actorId?: string
 ): Promise<UpdateWorkerResult> {
   try {
     // Check if worker exists
-    const workers = await store.query(getWorkerById$(params.workerId))
+    const workers = (await store.query(getWorkerById$(params.workerId))) as any[]
     const worker = validators.requireEntity(workers, 'Worker', params.workerId)
     if (!worker.isActive) {
       return { success: false, error: 'Worker not found' }
@@ -184,9 +184,9 @@ async function updateWorkerCore(
 /**
  * Get all active workers (core implementation)
  */
-async function listWorkersCore(store: Store): Promise<ListWorkersResult> {
+async function listWorkersCore(store: LiveStore): Promise<ListWorkersResult> {
   try {
-    const workers = await store.query(getWorkers$)
+    const workers = (await store.query(getWorkers$)) as any[]
 
     return {
       success: true,
@@ -214,18 +214,18 @@ async function listWorkersCore(store: Store): Promise<ListWorkersResult> {
 /**
  * Get a specific worker by ID (core implementation)
  */
-async function getWorkerByIdCore(store: Store, workerId: string): Promise<GetWorkerResult> {
+async function getWorkerByIdCore(store: LiveStore, workerId: string): Promise<GetWorkerResult> {
   try {
-    const workers = await store.query(getWorkerById$(workerId))
+    const workers = (await store.query(getWorkerById$(workerId))) as any[]
     const worker = validators.requireEntity(workers, 'Worker', workerId)
 
     // Get worker projects
-    const workerProjectRows = await store.query(getWorkerProjects$(workerId))
+    const workerProjectRows = (await store.query(getWorkerProjects$(workerId))) as any[]
     const projectIds = workerProjectRows.map(wp => wp.projectId)
 
     let projects: Array<{ id: string; name: string; description?: string }> = []
     if (projectIds.length > 0) {
-      const allProjects = await store.query(getProjects$)
+      const allProjects = (await store.query(getProjects$)) as any[]
       projects = allProjects
         .filter(p => projectIds.includes(p.id))
         .map(p => ({
@@ -263,13 +263,13 @@ async function getWorkerByIdCore(store: Store, workerId: string): Promise<GetWor
  * Deactivate a worker (core implementation)
  */
 async function deactivateWorkerCore(
-  store: Store,
+  store: LiveStore,
   params: DeactivateWorkerParams,
   actorId?: string
 ): Promise<DeactivateWorkerResult> {
   try {
     // Check if worker exists
-    const workers = await store.query(getWorkerById$(params.workerId))
+    const workers = (await store.query(getWorkerById$(params.workerId))) as any[]
     const worker = validators.requireEntity(workers, 'Worker', params.workerId)
 
     if (!worker.isActive) {
@@ -307,27 +307,27 @@ async function deactivateWorkerCore(
  * Assign a worker to a project (core implementation)
  */
 async function assignWorkerToProjectCore(
-  store: Store,
+  store: LiveStore,
   params: AssignWorkerToProjectParams,
   actorId?: string
 ): Promise<AssignWorkerToProjectResult> {
   try {
     // Check if worker exists and is active
-    const workers = await store.query(getWorkerById$(params.workerId))
+    const workers = (await store.query(getWorkerById$(params.workerId))) as any[]
     const worker = validators.requireEntity(workers, 'Worker', params.workerId)
     if (!worker.isActive) {
       return { success: false, error: 'Cannot assign inactive worker' }
     }
 
     // Check if project exists
-    const allProjects = await store.query(getProjects$)
+    const allProjects = (await store.query(getProjects$)) as any[]
     const project = allProjects.find(p => p.id === params.projectId)
     if (!project) {
       return { success: false, error: 'Project not found' }
     }
 
     // Check if already assigned
-    const existingAssignments = await store.query(getWorkerProjects$(params.workerId))
+    const existingAssignments = (await store.query(getWorkerProjects$(params.workerId))) as any[]
     if (existingAssignments.some(wp => wp.projectId === params.projectId)) {
       return { success: false, error: 'Worker is already assigned to this project' }
     }
@@ -361,24 +361,24 @@ async function assignWorkerToProjectCore(
  * Unassign a worker from a project (core implementation)
  */
 async function unassignWorkerFromProjectCore(
-  store: Store,
+  store: LiveStore,
   params: UnassignWorkerFromProjectParams,
   _actorId?: string
 ): Promise<UnassignWorkerFromProjectResult> {
   try {
     // Check if worker exists
-    const workers = await store.query(getWorkerById$(params.workerId))
+    const workers = (await store.query(getWorkerById$(params.workerId))) as any[]
     const worker = validators.requireEntity(workers, 'Worker', params.workerId)
 
     // Check if project exists
-    const allProjects = await store.query(getProjects$)
+    const allProjects = (await store.query(getProjects$)) as any[]
     const project = allProjects.find(p => p.id === params.projectId)
     if (!project) {
       return { success: false, error: 'Project not found' }
     }
 
     // Check if assigned
-    const existingAssignments = await store.query(getWorkerProjects$(params.workerId))
+    const existingAssignments = (await store.query(getWorkerProjects$(params.workerId))) as any[]
     if (!existingAssignments.some(wp => wp.projectId === params.projectId)) {
       return { success: false, error: 'Worker is not assigned to this project' }
     }
@@ -409,19 +409,19 @@ async function unassignWorkerFromProjectCore(
  * Get all workers assigned to a project (core implementation)
  */
 async function getProjectWorkersCore(
-  store: Store,
+  store: LiveStore,
   projectId: string
 ): Promise<GetProjectWorkersResult> {
   try {
     // Check if project exists
-    const allProjects = await store.query(getProjects$)
+    const allProjects = (await store.query(getProjects$)) as any[]
     const project = allProjects.find(p => p.id === projectId)
     if (!project) {
       return { success: false, error: 'Project not found' }
     }
 
     // Get worker assignments for this project
-    const workerProjectRows = await store.query(getProjectWorkers$(projectId))
+    const workerProjectRows = (await store.query(getProjectWorkers$(projectId))) as any[]
     const workerIds = workerProjectRows.map(wp => wp.workerId)
 
     let workers: Array<{
@@ -437,7 +437,7 @@ async function getProjectWorkersCore(
     }> = []
 
     if (workerIds.length > 0) {
-      const allWorkers = await store.query(getWorkers$)
+      const allWorkers = (await store.query(getWorkers$)) as any[]
       workers = allWorkers
         .filter(w => workerIds.includes(w.id))
         .map(w => ({
@@ -471,16 +471,16 @@ async function getProjectWorkersCore(
  * Get all projects a worker is assigned to (core implementation)
  */
 async function getWorkerProjectsCore(
-  store: Store,
+  store: LiveStore,
   workerId: string
 ): Promise<GetWorkerProjectsResult> {
   try {
     // Check if worker exists
-    const workers = await store.query(getWorkerById$(workerId))
+    const workers = (await store.query(getWorkerById$(workerId))) as any[]
     const worker = validators.requireEntity(workers, 'Worker', workerId)
 
     // Get project assignments for this worker
-    const workerProjectRows = await store.query(getWorkerProjects$(workerId))
+    const workerProjectRows = (await store.query(getWorkerProjects$(workerId))) as any[]
     const projectIds = workerProjectRows.map(wp => wp.projectId)
 
     let projects: Array<{
@@ -492,7 +492,7 @@ async function getWorkerProjectsCore(
     }> = []
 
     if (projectIds.length > 0) {
-      const allProjects = await store.query(getProjects$)
+      const allProjects = (await store.query(getProjects$)) as any[]
       projects = allProjects
         .filter(p => projectIds.includes(p.id))
         .map(p => ({
@@ -523,14 +523,14 @@ async function getWorkerProjectsCore(
 }
 
 // Export wrapped versions for external use
-export const createWorker = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => createWorkerCore(store, params, actorId))(
+export const createWorker = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) => createWorkerCore(store, params, actorId))(
     store,
     params
   )
 
-export const updateWorker = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => updateWorkerCore(store, params, actorId))(
+export const updateWorker = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) => updateWorkerCore(store, params, actorId))(
     store,
     params
   )
@@ -539,19 +539,19 @@ export const listWorkers = wrapNoParamFunction(listWorkersCore)
 
 export const getWorker = wrapStringParamFunction(getWorkerByIdCore)
 
-export const deactivateWorker = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) => deactivateWorkerCore(store, params, actorId))(
+export const deactivateWorker = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) => deactivateWorkerCore(store, params, actorId))(
     store,
     params
   )
 
-export const assignWorkerToProject = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) =>
+export const assignWorkerToProject = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) =>
     assignWorkerToProjectCore(store, params, actorId)
   )(store, params)
 
-export const unassignWorkerFromProject = (store: Store, params: any, actorId?: string) =>
-  wrapToolFunction((store: Store, params: any) =>
+export const unassignWorkerFromProject = (store: LiveStore, params: any, actorId?: string) =>
+  wrapToolFunction((store: LiveStore, params: any) =>
     unassignWorkerFromProjectCore(store, params, actorId)
   )(store, params)
 

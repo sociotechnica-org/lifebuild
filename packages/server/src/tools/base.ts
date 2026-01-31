@@ -1,4 +1,4 @@
-import type { Store } from '@livestore/livestore'
+import type { LiveStore } from '../types/livestore.js'
 
 // ===== TYPE DEFINITIONS =====
 
@@ -73,9 +73,9 @@ export const stringArray = (description: string) => ({
 // ===== ERROR HANDLING WRAPPER =====
 
 export function wrapToolFunction<T extends Record<string, any>>(
-  fn: (store: Store, params: T) => any
+  fn: (store: LiveStore, params: T) => any
 ) {
-  return (store: Store, params: T) => {
+  return (store: LiveStore, params: T) => {
     try {
       return fn(store, params)
     } catch (error) {
@@ -88,8 +88,8 @@ export function wrapToolFunction<T extends Record<string, any>>(
 }
 
 // Specialized wrapper for functions that take a single string parameter
-export function wrapStringParamFunction(fn: (store: Store, param: string) => any) {
-  return (store: Store, param: string) => {
+export function wrapStringParamFunction(fn: (store: LiveStore, param: string) => any) {
+  return (store: LiveStore, param: string) => {
     try {
       return fn(store, param)
     } catch (error) {
@@ -102,8 +102,8 @@ export function wrapStringParamFunction(fn: (store: Store, param: string) => any
 }
 
 // Specialized wrapper for functions that take no parameters
-export function wrapNoParamFunction(fn: (store: Store) => any) {
-  return (store: Store) => {
+export function wrapNoParamFunction(fn: (store: LiveStore) => any) {
+  return (store: LiveStore) => {
     try {
       return fn(store)
     } catch (error) {

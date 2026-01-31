@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useStore } from '../../../livestore-compat.js'
 import { formatDate } from '../../../utils/dates.js'
-import type { Project, Worker } from '@lifebuild/shared/schema'
+import type { Project, Worker, WorkerProject } from '@lifebuild/shared/schema'
 import { getProjectWorkers$, getWorkers$ } from '@lifebuild/shared/queries'
 import { getAvatarColor } from '../../../utils/avatarColors.js'
 import { ProjectCategoryBadge } from '../ProjectCategoryBadge.js'
@@ -35,8 +35,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
     const loadAssignedWorkers = async () => {
       try {
         const [projectWorkers, allWorkers] = await Promise.all([
-          store.query(getProjectWorkers$(project.id)),
-          store.query(getWorkers$),
+          store.query(getProjectWorkers$(project.id)) as WorkerProject[],
+          store.query(getWorkers$) as Worker[],
         ])
 
         const assignedWorkerIds = new Set(projectWorkers.map(pw => pw.workerId))

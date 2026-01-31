@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from '../../../livestore-compat.js'
 import { formatDate } from '../../../utils/dates.js'
-import type { Worker, Project } from '@lifebuild/shared/schema'
+import type { Worker, Project, WorkerProject } from '@lifebuild/shared/schema'
 import { getWorkerProjects$, getProjects$ } from '@lifebuild/shared/queries'
 import { EditWorkerModal } from '../EditWorkerModal/EditWorkerModal.js'
 import { getModelById, DEFAULT_MODEL } from '../../../utils/models.js'
@@ -21,8 +21,8 @@ export const WorkerCard: React.FC<WorkerCardProps> = ({ worker, onClick }) => {
     const loadAssignedProjects = async () => {
       try {
         const [workerProjects, allProjects] = await Promise.all([
-          store.query(getWorkerProjects$(worker.id)),
-          store.query(getProjects$),
+          store.query(getWorkerProjects$(worker.id)) as WorkerProject[],
+          store.query(getProjects$) as Project[],
         ])
 
         const assignedProjectIds = new Set(workerProjects.map(wp => wp.projectId))

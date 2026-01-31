@@ -15,13 +15,13 @@ import {
   storeOptions,
   useQuery as useQueryNew,
 } from '@livestore/react'
-import type { Store, RegistryStoreOptions, Queryable, LiveStoreSchema } from '@livestore/livestore'
+import type { Store, RegistryStoreOptions, Queryable } from '@livestore/livestore'
 
 // Context to store the current store instance for useQuery without explicit store
 const StoreInstanceContext = createContext<Store | null>(null)
 
 export interface LiveStoreProviderProps {
-  schema: LiveStoreSchema
+  schema: any
   adapter: RegistryStoreOptions['adapter']
   /** Store ID - defaults to a random UUID if not provided (useful for Storybook) */
   storeId?: string
@@ -112,10 +112,12 @@ export function useStore(): { store: Store } {
  * Backward-compatible useQuery hook.
  * Automatically gets the store from context if not provided.
  */
+type AnyQueryResult = any[] & Record<string, any>
+
 export function useQuery<TQueryable extends Queryable<any>>(
   queryable: TQueryable,
   options?: { store?: Store }
-): Queryable.Result<TQueryable> {
+): AnyQueryResult {
   const contextStore = useContext(StoreInstanceContext)
   const store = options?.store ?? contextStore
 
@@ -125,7 +127,7 @@ export function useQuery<TQueryable extends Queryable<any>>(
     )
   }
 
-  return useQueryNew(queryable, { store })
+  return useQueryNew(queryable, { store }) as AnyQueryResult
 }
 
 // Re-export other utilities from the new API

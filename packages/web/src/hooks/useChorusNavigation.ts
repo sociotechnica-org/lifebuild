@@ -55,7 +55,7 @@ export const useChorusNavigation = () => {
             if (!id) break
             // Look up the task to find its project, then navigate to that project
             try {
-              const taskResult = await store.query(getTaskById$(id))
+              const taskResult = (await store.query(getTaskById$(id))) as any[]
               const task = taskResult?.[0]
               if (task?.projectId) {
                 navigate(preserveStoreIdInUrl(generateRoute.project(task.projectId)))
@@ -72,7 +72,7 @@ export const useChorusNavigation = () => {
           case 'project': {
             if (!id) break
             try {
-              const projectResult = await store.query(getProjectById$(id))
+              const projectResult = (await store.query(getProjectById$(id))) as any[]
               const project = projectResult?.[0]
 
               if (project) {

@@ -4,6 +4,7 @@ packages:
 catalog:
   '@livestore/adapter-node': 0.4.0-dev.22
   '@livestore/adapter-web': 0.4.0-dev.22
+  '@livestore/common': 0.4.0-dev.22
   '@livestore/devtools-vite': 0.4.0-dev.22
   '@livestore/livestore': 0.4.0-dev.22
   '@livestore/peer-deps': 0.4.0-dev.22
@@ -11,16 +12,16 @@ catalog:
   '@livestore/sync-cf': 0.4.0-dev.22
   '@livestore/utils': 0.4.0-dev.22
   '@livestore/wa-sqlite': 0.4.0-dev.22
-  effect: ^3.17.13
-  typescript: ^5.8.3
   '@types/node': ^24.1.0
-  tsx: ^4.20.3
-  vitest: ^3.2.4
-  eslint: ^9.32.0
-  prettier: ^3.6.2
   '@typescript-eslint/eslint-plugin': ^8.38.0
   '@typescript-eslint/parser': ^8.38.0
+  effect: ^3.17.13
+  eslint: ^9.32.0
+  prettier: ^3.6.2
+  tsx: ^4.20.3
+  typescript: ^5.8.3
   vite: ^7.1.3
+  vitest: ^3.2.4
   wrangler: 4.38.0
 
 onlyBuiltDependencies:

@@ -24,6 +24,7 @@
     "@livestore/adapter-node": "catalog:",
     "@livestore/livestore": "catalog:",
     "@livestore/sync-cf": "catalog:",
+    "@livestore/utils": "catalog:",
     "@sentry/node": "^10.30.0",
     "better-sqlite3": "^12.2.0",
     "dotenv": "^17.2.1",
