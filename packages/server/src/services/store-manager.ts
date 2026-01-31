@@ -428,7 +428,7 @@ export class StoreManager extends EventEmitter {
 
     this.healthCheckInterval = setInterval(() => {
       for (const [storeId, storeInfo] of this.stores) {
-        if (storeInfo.status === 'error') {
+        if (storeInfo.status === 'error' || storeInfo.status === 'disconnected') {
           if (storeInfo.reconnectAttempts < this.maxReconnectAttempts) {
             this.scheduleReconnect(storeId)
           }
@@ -560,6 +560,11 @@ export class StoreManager extends EventEmitter {
     }
 
     storeLogger(storeId).info('Manual store recreation requested')
+    const reconnectTimeout = this.reconnectTimeouts.get(storeId)
+    if (reconnectTimeout) {
+      clearTimeout(reconnectTimeout)
+      this.reconnectTimeouts.delete(storeId)
+    }
     this.stopNetworkStatusMonitoring(storeId)
 
     await storeInfo.store.shutdownPromise()
