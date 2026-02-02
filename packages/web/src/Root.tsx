@@ -62,9 +62,14 @@ const ChorusNavigationInitializer: React.FC<{ children: React.ReactNode }> = ({ 
 const LiveStoreRestartCoordinator: React.FC<{
   restartSignal: number
   onShutdownComplete: () => void
-}> = ({ restartSignal, onShutdownComplete }) => {
+  onStoreReady: () => void
+}> = ({ restartSignal, onShutdownComplete, onStoreReady }) => {
   const { store } = useStore()
   const lastSignalRef = useRef(restartSignal)
+
+  useEffect(() => {
+    onStoreReady()
+  }, [onStoreReady])
 
   useEffect(() => {
     if (restartSignal === lastSignalRef.current) return
@@ -138,12 +143,16 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   const [restartIndex, setRestartIndex] = useState(0)
   const [isRestarting, setIsRestarting] = useState(false)
   const pendingRestartRef = useRef(false)
+  const hasStoreRef = useRef(false)
   const previousRef = useRef<{ storeId: string; authToken?: string } | null>(null)
   const skipNextAuthTokenRestartRef = useRef(false)
   const skipAuthTokenTimeoutRef = useRef<number | null>(null)
 
   const requestRestart = useCallback(
     (reason: string) => {
+      if (!hasStoreRef.current) {
+        return
+      }
       if (pendingRestartRef.current) {
         return
       }
@@ -161,6 +170,10 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
     setRestartIndex(index => index + 1)
   }, [])
 
+  const handleStoreReady = useCallback(() => {
+    hasStoreRef.current = true
+  }, [])
+
   useEffect(() => {
     if (!previousRef.current) {
       previousRef.current = { storeId, authToken: syncPayload.authToken }
@@ -168,8 +181,15 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
     }
 
     const previous = previousRef.current
-    if (previous.storeId !== storeId) {
-      previousRef.current = { storeId, authToken: syncPayload.authToken }
+    const storeIdChanged = previous.storeId !== storeId
+    const authTokenChanged = previous.authToken !== syncPayload.authToken
+    previousRef.current = { storeId, authToken: syncPayload.authToken }
+
+    if (!hasStoreRef.current) {
+      return
+    }
+
+    if (storeIdChanged) {
       skipNextAuthTokenRestartRef.current = true
       if (skipAuthTokenTimeoutRef.current !== null) {
         window.clearTimeout(skipAuthTokenTimeoutRef.current)
@@ -182,8 +202,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       return
     }
 
-    if (previous.authToken !== syncPayload.authToken) {
-      previousRef.current = { storeId, authToken: syncPayload.authToken }
+    if (authTokenChanged) {
       if (skipNextAuthTokenRestartRef.current) {
         skipNextAuthTokenRestartRef.current = false
         if (skipAuthTokenTimeoutRef.current !== null) {
@@ -217,6 +236,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       <LiveStoreRestartCoordinator
         restartSignal={restartSignal}
         onShutdownComplete={handleShutdownComplete}
+        onStoreReady={handleStoreReady}
       />
       <LiveStoreHealthMonitor syncPayload={syncPayload} onRestart={requestRestart} />
       {isRestarting ? (
