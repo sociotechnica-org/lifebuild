@@ -1,6 +1,8 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useLiveStoreConnection } from '../../../hooks/useLiveStoreConnection.js'
 import { Tooltip } from '../../ui/Tooltip/Tooltip.js'
+
+const STATUS_STALE_THRESHOLD_MS = 60_000
 
 const formatTime = (date: Date) =>
   date.toLocaleTimeString([], {
@@ -27,10 +29,25 @@ const formatLastConnected = (lastConnectedAt: Date | null) => {
 }
 
 export const LiveStoreStatus: React.FC = () => {
-  const { networkStatus, syncStatus, lastConnectedAt } = useLiveStoreConnection()
+  const { networkStatus, syncStatus, lastConnectedAt, lastSyncUpdateAt } = useLiveStoreConnection()
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setNow(Date.now())
+    }, 5000)
+
+    return () => {
+      window.clearInterval(intervalId)
+    }
+  }, [])
 
   const { label, detail, dotClass, tooltipText } = useMemo(() => {
     const lastConnectedText = formatLastConnected(lastConnectedAt)
+    const lastNetworkAt = networkStatus?.timestampMs ?? null
+    const lastSyncAt = lastSyncUpdateAt?.getTime() ?? null
+    const lastActivityAt = Math.max(lastNetworkAt ?? 0, lastSyncAt ?? 0)
+    const isStale = lastActivityAt > 0 && now - lastActivityAt >= STATUS_STALE_THRESHOLD_MS
 
     if (!networkStatus) {
       return {
@@ -50,6 +67,15 @@ export const LiveStoreStatus: React.FC = () => {
       }
     }
 
+    if (isStale) {
+      return {
+        label: 'Reconnecting',
+        detail: lastConnectedText,
+        dotClass: 'bg-[#d9a441]',
+        tooltipText: `Reconnecting · ${lastConnectedText}`,
+      }
+    }
+
     if (syncStatus && !syncStatus.isSynced) {
       return {
         label: `Syncing (${syncStatus.pendingCount})`,
@@ -65,7 +91,7 @@ export const LiveStoreStatus: React.FC = () => {
       dotClass: 'bg-[#3a8f5c]',
       tooltipText: lastConnectedText,
     }
-  }, [networkStatus, syncStatus, lastConnectedAt])
+  }, [networkStatus, syncStatus, lastConnectedAt, lastSyncUpdateAt, now])
 
   return (
     <Tooltip content={tooltipText} position='bottom'>

@@ -5,6 +5,7 @@ import { useLiveStoreConnection } from '../../hooks/useLiveStoreConnection.js'
 const OFFLINE_RESTART_THRESHOLD_MS = 30_000
 const SYNC_STALE_THRESHOLD_MS = 60_000
 const RESTART_COOLDOWN_MS = 60_000
+const STATUS_STALE_RESTART_THRESHOLD_MS = 120_000
 
 interface LiveStoreHealthMonitorProps {
   syncPayload: SyncPayload
@@ -26,6 +27,7 @@ export const LiveStoreHealthMonitor: React.FC<LiveStoreHealthMonitorProps> = ({
     syncStatus.pendingCount > 0 &&
     !!lastSyncUpdateAt &&
     networkStatus?.isConnected !== false
+  const shouldMonitorStale = !!networkStatus && networkStatus.isConnected
 
   const checkOffline = () => {
     if (!networkStatus) return
@@ -57,15 +59,36 @@ export const LiveStoreHealthMonitor: React.FC<LiveStoreHealthMonitorProps> = ({
     }
   }
 
+  const checkStatusStale = () => {
+    if (!networkStatus) return
+    if (syncPayload.authError) return
+    if (networkStatus.devtools?.latchClosed) return
+    if (!networkStatus.isConnected) return
+    if (!canRestart()) return
+
+    const lastNetworkAt = networkStatus.timestampMs
+    const lastSyncAt = lastSyncUpdateAt?.getTime() ?? 0
+    const lastActivityAt = Math.max(lastNetworkAt, lastSyncAt)
+    if (!lastActivityAt) return
+
+    const staleDuration = Date.now() - lastActivityAt
+    if (staleDuration >= STATUS_STALE_RESTART_THRESHOLD_MS) {
+      lastRestartAtRef.current = Date.now()
+      onRestart(`status stale for ${Math.round(staleDuration / 1000)}s`)
+    }
+  }
+
   useEffect(() => {
-    if (!shouldMonitorOffline && !shouldMonitorSync) return
+    if (!shouldMonitorOffline && !shouldMonitorSync && !shouldMonitorStale) return
 
     checkOffline()
     checkSyncStall()
+    checkStatusStale()
 
     const intervalId = window.setInterval(() => {
       checkOffline()
       checkSyncStall()
+      checkStatusStale()
     }, 5000)
 
     return () => {
@@ -74,6 +97,7 @@ export const LiveStoreHealthMonitor: React.FC<LiveStoreHealthMonitorProps> = ({
   }, [
     shouldMonitorOffline,
     shouldMonitorSync,
+    shouldMonitorStale,
     networkStatus?.timestampMs,
     networkStatus?.isConnected,
     networkStatus?.devtools?.latchClosed,
