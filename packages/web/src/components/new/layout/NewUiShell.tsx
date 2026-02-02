@@ -143,6 +143,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
           </Link>
         </nav>
         <div className='flex items-center gap-4'>
+          {isAuthenticated && onChatToggle && <LiveStoreStatus />}
           {onChatToggle && (
             <button
               type='button'
@@ -166,7 +167,6 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
               >
                 {getInitials(currentUser?.name || getDisplayName())}
               </button>
-              <LiveStoreStatus />
 
               {showDropdown && (
                 <div

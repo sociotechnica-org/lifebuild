@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import { useLiveStoreConnection } from '../../../hooks/useLiveStoreConnection.js'
+import { Tooltip } from '../../ui/Tooltip/Tooltip.js'
 
 const formatTime = (date: Date) =>
   date.toLocaleTimeString([], {
@@ -28,43 +29,51 @@ const formatLastConnected = (lastConnectedAt: Date | null) => {
 export const LiveStoreStatus: React.FC = () => {
   const { networkStatus, syncStatus, lastConnectedAt } = useLiveStoreConnection()
 
-  const { label, detail, dotClass } = useMemo(() => {
+  const { label, detail, dotClass, tooltipText } = useMemo(() => {
+    const lastConnectedText = formatLastConnected(lastConnectedAt)
+
     if (!networkStatus) {
       return {
         label: 'Checking…',
         detail: 'Waiting for connection status',
         dotClass: 'bg-[#d7d2cb]',
+        tooltipText: 'Waiting for connection status',
       }
     }
 
     if (!networkStatus.isConnected) {
       return {
         label: 'Offline',
-        detail: formatLastConnected(lastConnectedAt),
+        detail: lastConnectedText,
         dotClass: 'bg-[#c44b4b]',
+        tooltipText: `Offline · ${lastConnectedText}`,
       }
     }
 
     if (syncStatus && !syncStatus.isSynced) {
       return {
         label: `Syncing (${syncStatus.pendingCount})`,
-        detail: formatLastConnected(lastConnectedAt),
+        detail: lastConnectedText,
         dotClass: 'bg-[#d9a441]',
+        tooltipText: `Syncing (${syncStatus.pendingCount}) · ${lastConnectedText}`,
       }
     }
 
     return {
       label: 'Connected',
-      detail: formatLastConnected(lastConnectedAt),
+      detail: lastConnectedText,
       dotClass: 'bg-[#3a8f5c]',
+      tooltipText: lastConnectedText,
     }
   }, [networkStatus, syncStatus, lastConnectedAt])
 
   return (
-    <div className='flex items-center gap-2 text-xs text-[#8b8680]'>
-      <span className={`h-2 w-2 rounded-full ${dotClass}`} aria-hidden='true' />
-      <span className='font-medium text-[#2f2b27]'>{label}</span>
-      <span className='text-[#8b8680]'>{detail}</span>
-    </div>
+    <Tooltip content={tooltipText} position='bottom'>
+      <span
+        className={`h-2.5 w-2.5 rounded-full ${dotClass} inline-flex`}
+        aria-label={`${label}. ${detail}`}
+        role='status'
+      />
+    </Tooltip>
   )
 }
