@@ -1,6 +1,6 @@
 import { makePersistedAdapter } from '@livestore/adapter-web'
 import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedworker'
-import { LiveStoreProvider } from './livestore-compat.js'
+import { LiveStoreProvider, useStore } from './livestore-compat.js'
 import LiveStoreWorker from './livestore.worker.ts?worker'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
@@ -59,9 +59,48 @@ const ChorusNavigationInitializer: React.FC<{ children: React.ReactNode }> = ({ 
 }
 
 // LiveStore wrapper with auth integration
+const LiveStoreRestartCoordinator: React.FC<{
+  restartSignal: number
+  onShutdownComplete: () => void
+}> = ({ restartSignal, onShutdownComplete }) => {
+  const { store } = useStore()
+  const lastSignalRef = useRef(restartSignal)
+
+  useEffect(() => {
+    if (restartSignal === lastSignalRef.current) return
+    lastSignalRef.current = restartSignal
+    let isActive = true
+
+    const runShutdown = async () => {
+      try {
+        await Promise.race([
+          store.shutdownPromise?.() ?? Promise.resolve(),
+          new Promise<void>(resolve => {
+            window.setTimeout(resolve, 2000)
+          }),
+        ])
+      } catch (error) {
+        console.warn('[LiveStore] Shutdown failed:', error)
+      } finally {
+        if (isActive) {
+          onShutdownComplete()
+        }
+      }
+    }
+
+    void runShutdown()
+
+    return () => {
+      isActive = false
+    }
+  }, [restartSignal, store, onShutdownComplete])
+
+  return null
+}
+
 const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation()
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
 
   const storeId = useMemo(() => {
     if (typeof window === 'undefined') return 'unused'
@@ -95,18 +134,32 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
 
   const devtoolsEnabled = devtoolsParam === '1' || devtoolsParam === 'true'
 
+  const [restartSignal, setRestartSignal] = useState(0)
   const [restartIndex, setRestartIndex] = useState(0)
+  const [isRestarting, setIsRestarting] = useState(false)
+  const pendingRestartRef = useRef(false)
   const previousRef = useRef<{ storeId: string; authToken?: string } | null>(null)
   const skipNextAuthTokenRestartRef = useRef(false)
   const skipAuthTokenTimeoutRef = useRef<number | null>(null)
 
-  const triggerRestart = useCallback(
+  const requestRestart = useCallback(
     (reason: string) => {
+      if (pendingRestartRef.current) {
+        return
+      }
+      pendingRestartRef.current = true
       console.warn(`[LiveStore] Restarting store '${storeId}' (${reason}).`)
-      setRestartIndex(index => index + 1)
+      setIsRestarting(true)
+      setRestartSignal(value => value + 1)
     },
     [storeId]
   )
+
+  const handleShutdownComplete = useCallback(() => {
+    pendingRestartRef.current = false
+    setIsRestarting(false)
+    setRestartIndex(index => index + 1)
+  }, [])
 
   useEffect(() => {
     if (!previousRef.current) {
@@ -125,7 +178,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
         skipNextAuthTokenRestartRef.current = false
         skipAuthTokenTimeoutRef.current = null
       }, 10000)
-      triggerRestart('storeId changed')
+      requestRestart('storeId changed')
       return
     }
 
@@ -139,11 +192,16 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
         }
         return
       }
-      triggerRestart('auth token updated')
+      requestRestart('auth token updated')
     }
-  }, [storeId, syncPayload.authToken, triggerRestart])
+  }, [storeId, syncPayload.authToken, requestRestart])
 
   const providerKey = `${storeId}:${restartIndex}:${devtoolsEnabled ? 'devtools' : 'nodevtools'}`
+
+  const requireAuth = import.meta.env.VITE_REQUIRE_AUTH === 'true'
+  if (requireAuth && isAuthenticated && !syncPayload.authToken && !syncPayload.authError) {
+    return <LoadingState message='Preparing LiveStore...' fullScreen />
+  }
 
   return (
     <LiveStoreProvider
@@ -154,10 +212,18 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       batchUpdates={batchUpdates}
       storeId={storeId}
       syncPayload={syncPayload}
-      disableDevtools={devtoolsEnabled ? false : 'auto'}
+      disableDevtools={devtoolsEnabled ? false : true}
     >
-      <LiveStoreHealthMonitor syncPayload={syncPayload} onRestart={triggerRestart} />
-      <ChorusNavigationInitializer>{children}</ChorusNavigationInitializer>
+      <LiveStoreRestartCoordinator
+        restartSignal={restartSignal}
+        onShutdownComplete={handleShutdownComplete}
+      />
+      <LiveStoreHealthMonitor syncPayload={syncPayload} onRestart={requestRestart} />
+      {isRestarting ? (
+        <LoadingState message='Restarting LiveStore…' fullScreen />
+      ) : (
+        <ChorusNavigationInitializer>{children}</ChorusNavigationInitializer>
+      )}
     </LiveStoreProvider>
   )
 }
