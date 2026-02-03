@@ -422,7 +422,7 @@ export class StoreManager extends EventEmitter {
         | Stream.Stream<SyncState.SyncState, unknown>
         | undefined
       if (changesStream) {
-        this.consumeSyncStateChanges(storeId, changesStream)
+        this.consumeSyncStateChanges(storeId, store, changesStream)
       }
 
       // Read initial sync state (only if stream hasn't already updated it)
@@ -454,6 +454,7 @@ export class StoreManager extends EventEmitter {
    */
   private consumeSyncStateChanges(
     storeId: string,
+    originalStore: LiveStore,
     changesStream: Stream.Stream<SyncState.SyncState, unknown>
   ): void {
     const storeInfo = this.stores.get(storeId)
@@ -462,8 +463,9 @@ export class StoreManager extends EventEmitter {
     // Use Stream.runForEach to process each sync state update
     const streamEffect = Stream.runForEach(changesStream, state =>
       Effect.sync(() => {
-        // Check if store still exists
-        if (this.stores.has(storeId)) {
+        const currentInfo = this.stores.get(storeId)
+        // Ignore events from a stale stream after store has been replaced via reconnection
+        if (currentInfo && currentInfo.store === originalStore) {
           this.handleSyncStateUpdate(storeId, state)
         }
       })
@@ -471,7 +473,7 @@ export class StoreManager extends EventEmitter {
 
     // Run the stream consumption in the background
     Effect.runPromise(streamEffect).catch(error => {
-      // Stream consumption failed - this is expected when store shuts down
+      // Stream consumption failed - this is expected when store shuts down or reconnects
       storeLogger(storeId).debug({ error }, 'Sync state stream ended')
     })
   }
