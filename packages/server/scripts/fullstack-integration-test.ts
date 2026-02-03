@@ -23,7 +23,44 @@ const responseTimeoutMs = Number(process.env.FULLSTACK_RESPONSE_TIMEOUT_MS ?? 20
 const recoveryTimeoutMs = Number(process.env.FULLSTACK_RECOVERY_TIMEOUT_MS ?? 30_000)
 const noResponseWindowMs = Number(process.env.FULLSTACK_NO_RESPONSE_WINDOW_MS ?? 2_000)
 
-const serverBypassToken = process.env.FULLSTACK_SERVER_BYPASS_TOKEN ?? 'fullstack-test-bypass'
+const readEnvFile = (filePath: string): Record<string, string> => {
+  if (!fs.existsSync(filePath)) {
+    return {}
+  }
+
+  const contents = fs.readFileSync(filePath, 'utf-8')
+  const env: Record<string, string> = {}
+
+  for (const line of contents.split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) {
+      continue
+    }
+    const separatorIndex = trimmed.indexOf('=')
+    if (separatorIndex === -1) {
+      continue
+    }
+    const key = trimmed.slice(0, separatorIndex).trim()
+    let value = trimmed.slice(separatorIndex + 1).trim()
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1)
+    }
+    if (key) {
+      env[key] = value
+    }
+  }
+
+  return env
+}
+
+const workerDevVars = readEnvFile(path.join(repoRoot, 'packages', 'worker', '.dev.vars'))
+const serverBypassToken =
+  process.env.FULLSTACK_SERVER_BYPASS_TOKEN ??
+  workerDevVars.SERVER_BYPASS_TOKEN ??
+  'fullstack-test-bypass'
 
 const storeId = `fullstack-${Math.random().toString(36).slice(2, 10)}`
 const conversationId = `conv-${Math.random().toString(36).slice(2, 10)}`
