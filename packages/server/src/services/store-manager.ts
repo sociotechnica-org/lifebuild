@@ -1,6 +1,6 @@
 import type { Store as LiveStore, SyncState } from '@livestore/livestore'
 import { StoreInternalsSymbol } from '@livestore/livestore'
-import { Effect, Stream } from '@livestore/utils/effect'
+import { Effect, Fiber, Stream } from '@livestore/utils/effect'
 import { EventEmitter } from 'events'
 import { type StoreConfig, createStore } from '../factories/store-factory.js'
 import { logger, storeLogger, operationLogger } from '../utils/logger.js'
@@ -44,6 +44,9 @@ export interface StoreInfo {
   reconnectAttempts: number
   syncStatus?: SyncStatusInfo
   networkStatus?: NetworkStatusInfo
+  networkStatusFiber?: ReturnType<typeof Effect.runFork>
+  syncStateFiber?: ReturnType<typeof Effect.runFork>
+  monitoringSessionId: number
 }
 
 export const serializeStoreConnectionFields = (
@@ -171,6 +174,7 @@ export class StoreManager extends EventEmitter {
         statusHistory: [],
         errorCount: 0,
         reconnectAttempts: 0,
+        monitoringSessionId: 0,
       }
 
       this.recordStatusHistory(storeInfo, 'connected', now)
@@ -232,6 +236,8 @@ export class StoreManager extends EventEmitter {
     }
 
     let failureRecorded = false
+
+    this.stopMonitoring(storeInfo)
 
     try {
       await storeInfo.store.shutdownPromise()
@@ -297,11 +303,25 @@ export class StoreManager extends EventEmitter {
     const storeInfo = this.stores.get(storeId)
     if (!storeInfo) return
 
+    this.stopMonitoring(storeInfo)
     // Monitor network status (WebSocket connectivity)
     this.setupNetworkStatusMonitoring(storeId, store)
 
     // Monitor sync state (pending events, heads)
     this.setupSyncStateMonitoring(storeId, store)
+  }
+
+  private interruptFiber(fiber?: ReturnType<typeof Effect.runFork>): void {
+    if (!fiber) return
+    Effect.runFork(Fiber.interrupt(fiber))
+  }
+
+  private stopMonitoring(storeInfo: StoreInfo): void {
+    storeInfo.monitoringSessionId += 1
+    this.interruptFiber(storeInfo.networkStatusFiber)
+    this.interruptFiber(storeInfo.syncStateFiber)
+    storeInfo.networkStatusFiber = undefined
+    storeInfo.syncStateFiber = undefined
   }
 
   /**
@@ -366,10 +386,15 @@ export class StoreManager extends EventEmitter {
     originalStore: LiveStore,
     changesStream: Stream.Stream<{ isConnected: boolean }, unknown>
   ): void {
+    const storeInfo = this.stores.get(storeId)
+    if (!storeInfo) return
+    const sessionId = storeInfo.monitoringSessionId
+
     const streamEffect = Stream.runForEach(changesStream, status =>
       Effect.sync(() => {
         const storeInfo = this.stores.get(storeId)
         if (!storeInfo) return
+        if (storeInfo.monitoringSessionId !== sessionId) return
         // Ignore events from a stale stream after store has been replaced via reconnection
         if (storeInfo.store !== originalStore) return
 
@@ -403,38 +428,52 @@ export class StoreManager extends EventEmitter {
           }
         }
       })
+    ).pipe(
+      Effect.catchAll(error =>
+        Effect.sync(() => {
+          // Stream ended - check if this is from the current store or a stale (replaced) one
+          const storeInfo = this.stores.get(storeId)
+          if (storeInfo && storeInfo.monitoringSessionId !== sessionId) {
+            storeLogger(storeId).debug(
+              { error },
+              'Network status stream stopped intentionally'
+            )
+            return
+          }
+          if (storeInfo && storeInfo.store !== originalStore) {
+            // Store was replaced via reconnection - old stream ending is expected
+            storeLogger(storeId).debug(
+              { error },
+              'Old network status stream ended after reconnection'
+            )
+            return
+          }
+
+          // Stream ended unexpectedly on the current store (e.g., onSyncError: 'shutdown')
+          // Treat as disconnect to ensure the store doesn't remain "connected" forever
+          if (storeInfo && storeInfo.status === 'connected') {
+            storeLogger(storeId).warn(
+              { error },
+              'Network status stream ended unexpectedly - treating as disconnect'
+            )
+            const now = new Date()
+            storeInfo.networkStatus = {
+              isConnected: false,
+              lastUpdatedAt: now,
+              disconnectedSince: now,
+            }
+            if (this.updateStoreStatus(storeId, 'disconnected', now)) {
+              this.emit('storeDisconnected', { storeId })
+            }
+            this.scheduleReconnect(storeId)
+          } else {
+            storeLogger(storeId).debug({ error }, 'Network status stream ended')
+          }
+        })
+      )
     )
 
-    Effect.runPromise(streamEffect).catch(error => {
-      // Stream ended - check if this is from the current store or a stale (replaced) one
-      const storeInfo = this.stores.get(storeId)
-      if (storeInfo && storeInfo.store !== originalStore) {
-        // Store was replaced via reconnection - old stream ending is expected
-        storeLogger(storeId).debug({ error }, 'Old network status stream ended after reconnection')
-        return
-      }
-
-      // Stream ended unexpectedly on the current store (e.g., onSyncError: 'shutdown')
-      // Treat as disconnect to ensure the store doesn't remain "connected" forever
-      if (storeInfo && storeInfo.status === 'connected') {
-        storeLogger(storeId).warn(
-          { error },
-          'Network status stream ended unexpectedly - treating as disconnect'
-        )
-        const now = new Date()
-        storeInfo.networkStatus = {
-          isConnected: false,
-          lastUpdatedAt: now,
-          disconnectedSince: now,
-        }
-        if (this.updateStoreStatus(storeId, 'disconnected', now)) {
-          this.emit('storeDisconnected', { storeId })
-        }
-        this.scheduleReconnect(storeId)
-      } else {
-        storeLogger(storeId).debug({ error }, 'Network status stream ended')
-      }
-    })
+    storeInfo.networkStatusFiber = Effect.runFork(streamEffect)
   }
 
   /**
@@ -498,23 +537,39 @@ export class StoreManager extends EventEmitter {
   ): void {
     const storeInfo = this.stores.get(storeId)
     if (!storeInfo) return
+    const sessionId = storeInfo.monitoringSessionId
 
     // Use Stream.runForEach to process each sync state update
     const streamEffect = Stream.runForEach(changesStream, state =>
       Effect.sync(() => {
         const currentInfo = this.stores.get(storeId)
         // Ignore events from a stale stream after store has been replaced via reconnection
-        if (currentInfo && currentInfo.store === originalStore) {
+        if (
+          currentInfo &&
+          currentInfo.monitoringSessionId === sessionId &&
+          currentInfo.store === originalStore
+        ) {
           this.handleSyncStateUpdate(storeId, state)
         }
       })
     )
 
     // Run the stream consumption in the background
-    Effect.runPromise(streamEffect).catch(error => {
-      // Stream consumption failed - this is expected when store shuts down or reconnects
-      storeLogger(storeId).debug({ error }, 'Sync state stream ended')
-    })
+    const streamWithLogging = streamEffect.pipe(
+      Effect.catchAll(error =>
+        Effect.sync(() => {
+          const currentInfo = this.stores.get(storeId)
+          if (currentInfo && currentInfo.monitoringSessionId !== sessionId) {
+            storeLogger(storeId).debug({ error }, 'Sync state stream stopped intentionally')
+            return
+          }
+          // Stream consumption failed - this is expected when store shuts down or reconnects
+          storeLogger(storeId).debug({ error }, 'Sync state stream ended')
+        })
+      )
+    )
+
+    storeInfo.syncStateFiber = Effect.runFork(streamWithLogging)
   }
 
   /**
@@ -663,6 +718,7 @@ export class StoreManager extends EventEmitter {
           'Attempting store reconnect'
         )
 
+        this.stopMonitoring(currentInfo)
         await currentInfo.store.shutdownPromise()
         const { store } = await createStore(storeId, currentInfo.config)
 
