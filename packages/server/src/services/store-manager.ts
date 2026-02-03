@@ -434,10 +434,7 @@ export class StoreManager extends EventEmitter {
           // Stream ended - check if this is from the current store or a stale (replaced) one
           const storeInfo = this.stores.get(storeId)
           if (storeInfo && storeInfo.monitoringSessionId !== sessionId) {
-            storeLogger(storeId).debug(
-              { error },
-              'Network status stream stopped intentionally'
-            )
+            storeLogger(storeId).debug({ error }, 'Network status stream stopped intentionally')
             return
           }
           if (storeInfo && storeInfo.store !== originalStore) {
