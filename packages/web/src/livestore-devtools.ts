@@ -1,15 +1,9 @@
-const DEVTOOLS_QUERY_PARAM = 'livestoreDevtools'
-const DEVTOOLS_ROUTE_PARAM = 'devtoolsRoute'
-const DEVTOOLS_PATH = '/_livestore'
-
-const isDevtoolsEnabled = (value: string | null) =>
-  value !== null && value !== '0' && value !== 'false'
-
-const getMountPath = () => {
-  const base = import.meta.env.BASE_URL ?? '/'
-  const trimmedBase = base.endsWith('/') ? base.slice(0, -1) : base
-  return `${trimmedBase}${DEVTOOLS_PATH}`
-}
+import {
+  DEVTOOLS_QUERY_PARAM,
+  DEVTOOLS_ROUTE_PARAM,
+  getDevtoolsMountPath,
+  isDevtoolsEnabled,
+} from './utils/livestoreDevtools.js'
 
 const renderMessage = (title: string, message: string) => {
   document.title = title
@@ -50,7 +44,7 @@ if (!devtoolsEnabled) {
           ? `/${initialRouteParam}`
           : '/'
 
-      const mountPath = getMountPath()
+      const mountPath = getDevtoolsMountPath()
       const license =
         import.meta.env.VITE_LIVESTORE_DEVTOOLS_LICENSE ??
         import.meta.env.VITE_LSD_LICENSE ??

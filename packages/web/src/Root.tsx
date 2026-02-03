@@ -45,6 +45,12 @@ import { Stage3Form } from './components/new/drafting-room/Stage3Form.js'
 import { SortingRoom } from './components/new/sorting-room/SortingRoom.js'
 import { LIFE_MAP_ROOM, DRAFTING_ROOM, SORTING_ROOM } from '@lifebuild/shared/rooms'
 import { determineStoreIdFromUser } from './utils/navigation.js'
+import {
+  DEVTOOLS_QUERY_PARAM,
+  DEVTOOLS_ROUTE_PARAM,
+  getDevtoolsMountPath,
+  isDevtoolsEnabled,
+} from './utils/livestoreDevtools.js'
 
 const adapter = makePersistedAdapter({
   storage: { type: 'opfs' },
@@ -52,18 +58,6 @@ const adapter = makePersistedAdapter({
   sharedWorker: LiveStoreSharedWorker,
 })
 
-const DEVTOOLS_QUERY_PARAM = 'livestoreDevtools'
-const DEVTOOLS_ROUTE_PARAM = 'devtoolsRoute'
-const DEVTOOLS_PATH = '/_livestore'
-
-const isDevtoolsEnabled = (value: string | null) =>
-  value !== null && value !== '0' && value !== 'false'
-
-const getDevtoolsMountPath = () => {
-  const base = import.meta.env.BASE_URL ?? '/'
-  const trimmedBase = base.endsWith('/') ? base.slice(0, -1) : base
-  return `${trimmedBase}${DEVTOOLS_PATH}`
-}
 
 const DevtoolsUrlLogger: React.FC<{ enabled: boolean; storeId: string }> = ({
   enabled,
