@@ -1,6 +1,6 @@
 export const DEVTOOLS_QUERY_PARAM = 'livestoreDevtools'
 export const DEVTOOLS_ROUTE_PARAM = 'devtoolsRoute'
-export const DEVTOOLS_PATH = '/_livestore'
+const DEVTOOLS_PATH = '/_livestore'
 
 export const isDevtoolsEnabled = (value: string | null) => value === '1' || value === 'true'
 

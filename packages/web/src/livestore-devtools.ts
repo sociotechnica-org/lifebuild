@@ -29,6 +29,17 @@ const renderMessage = (title: string, message: string) => {
 const params = new URLSearchParams(window.location.search)
 const devtoolsEnabled = isDevtoolsEnabled(params.get(DEVTOOLS_QUERY_PARAM))
 
+const ensureDevtoolsStyles = (url: string) => {
+  if (!url || typeof document === 'undefined') return
+  const existing = document.querySelector('link[data-livestore-devtools]')
+  if (existing) return
+  const link = document.createElement('link')
+  link.rel = 'stylesheet'
+  link.href = url
+  link.dataset.livestoreDevtools = 'true'
+  document.head?.appendChild(link)
+}
+
 if (!devtoolsEnabled) {
   renderMessage(
     'LiveStore Devtools Disabled',
@@ -50,12 +61,15 @@ if (!devtoolsEnabled) {
         import.meta.env.VITE_LSD_LICENSE ??
         undefined
 
-      const [{ run }, { schema }, sharedWorker] = await Promise.all([
-        import('@livestore/devtools-vite/dist/devtools-bundle/index.js'),
-        import('@lifebuild/shared/schema'),
-        import('@livestore/adapter-web/shared-worker?sharedworker'),
-        import('@livestore/devtools-vite/dist/devtools-bundle/devtools-vite.css'),
-      ])
+      const [{ run }, { schema }, { default: sharedWorker }, { default: devtoolsStylesUrl }] =
+        await Promise.all([
+          import('@livestore/devtools-vite/dist/devtools-bundle/index.js'),
+          import('@lifebuild/shared/schema'),
+          import('@livestore/adapter-web/shared-worker?sharedworker'),
+          import('@livestore/devtools-vite/dist/devtools-bundle/devtools-vite.css'),
+        ])
+
+      ensureDevtoolsStyles(devtoolsStylesUrl)
 
       run({
         schemas: [schema],
