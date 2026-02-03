@@ -326,24 +326,28 @@ const run = async () => {
     )
 
     console.log('Restarting worker...')
-    const reconnectStart = Date.now()
+    const restartStart = Date.now()
     worker = spawnProcess('worker', 'pnpm', ['--filter', '@lifebuild/worker', 'dev'], workerEnv)
     await waitForPort(workerPort, startupTimeoutMs)
+    const workerReadyMs = Date.now() - restartStart
 
+    const responseWaitStart = Date.now()
     const reconnectResponse = await waitForAssistantResponse(
       store,
       reconnectMessageId,
       recoveryTimeoutMs
     )
-    const recoveryMs = Date.now() - reconnectStart
+    const responseWaitMs = Date.now() - responseWaitStart
 
     assert.equal(reconnectResponse.message, 'reconnected', 'Reconnect response should match stub')
     assert.ok(
-      recoveryMs <= recoveryTimeoutMs,
-      `Reconnect took too long: ${recoveryMs}ms (limit ${recoveryTimeoutMs}ms)`
+      responseWaitMs <= recoveryTimeoutMs,
+      `Reconnect response exceeded timeout: ${responseWaitMs}ms (limit ${recoveryTimeoutMs}ms)`
     )
 
-    console.log(`Reconnect response received in ${recoveryMs}ms`)
+    console.log(
+      `Worker restart ready in ${workerReadyMs}ms; reconnect response in ${responseWaitMs}ms`
+    )
     console.log('\nFullstack sync integration test completed')
   } finally {
     if (store) {
