@@ -9,6 +9,13 @@ import {
   getIncidentDashboardUrl,
 } from '../utils/orchestration-telemetry.js'
 
+export type StoreConnectionStatus = 'connected' | 'connecting' | 'disconnected' | 'error'
+
+export interface StatusHistoryEntry {
+  status: StoreConnectionStatus
+  timestamp: Date
+}
+
 export interface SyncStatusInfo {
   pendingCount: number
   localHead: string
@@ -29,12 +36,33 @@ export interface StoreInfo {
   config: StoreConfig
   connectedAt: Date
   lastActivity: Date
-  status: 'connected' | 'connecting' | 'disconnected' | 'error'
+  status: StoreConnectionStatus
+  lastConnectedAt: Date | null
+  lastDisconnectedAt: Date | null
+  statusHistory: StatusHistoryEntry[]
   errorCount: number
   reconnectAttempts: number
   syncStatus?: SyncStatusInfo
   networkStatus?: NetworkStatusInfo
 }
+
+export const serializeStoreConnectionFields = (
+  info: StoreInfo
+): {
+  lastConnectedAt: string | null
+  lastDisconnectedAt: string | null
+  statusHistory: Array<{
+    status: StoreConnectionStatus
+    timestamp: string
+  }>
+} => ({
+  lastConnectedAt: info.lastConnectedAt?.toISOString() ?? null,
+  lastDisconnectedAt: info.lastDisconnectedAt?.toISOString() ?? null,
+  statusHistory: info.statusHistory.map(entry => ({
+    status: entry.status,
+    timestamp: entry.timestamp.toISOString(),
+  })),
+})
 
 /** Event signatures for StoreManager - used for documentation */
 interface StoreManagerEvents {
@@ -45,6 +73,7 @@ interface StoreManagerEvents {
 // Configuration for sync status monitoring
 const SYNC_STUCK_THRESHOLD_MS = Number(process.env.SYNC_STUCK_THRESHOLD_MS) || 60_000 // 1 minute
 const NETWORK_DISCONNECT_FALLBACK_MS = Number(process.env.NETWORK_DISCONNECT_FALLBACK_MS) || 120_000 // 2 minutes - fallback if LiveStore auto-retry fails
+const STATUS_HISTORY_LIMIT = 50
 
 export class StoreManager extends EventEmitter {
   private stores: Map<string, StoreInfo> = new Map()
@@ -130,16 +159,21 @@ export class StoreManager extends EventEmitter {
     try {
       const { store, config } = await createStore(storeId)
 
+      const now = new Date()
       const storeInfo: StoreInfo = {
         store,
         config,
-        connectedAt: new Date(),
-        lastActivity: new Date(),
+        connectedAt: now,
+        lastActivity: now,
         status: 'connected',
+        lastConnectedAt: null,
+        lastDisconnectedAt: null,
+        statusHistory: [],
         errorCount: 0,
         reconnectAttempts: 0,
       }
 
+      this.recordStatusHistory(storeInfo, 'connected', now)
       this.stores.set(storeId, storeInfo)
       this.setupSyncStatusMonitoring(storeId, store)
 
@@ -263,8 +297,6 @@ export class StoreManager extends EventEmitter {
     const storeInfo = this.stores.get(storeId)
     if (!storeInfo) return
 
-    storeInfo.status = 'connected'
-
     // Monitor network status (WebSocket connectivity)
     this.setupNetworkStatusMonitoring(storeId, store)
 
@@ -315,8 +347,9 @@ export class StoreManager extends EventEmitter {
           // This avoids waiting for the next health check (30s delay)
           if (!initial.isConnected && storeInfo.status === 'connected') {
             storeLogger(storeId).warn('Network disconnected on startup - updating status')
-            storeInfo.status = 'disconnected'
-            this.emit('storeDisconnected', { storeId })
+            if (this.updateStoreStatus(storeId, 'disconnected', now)) {
+              this.emit('storeDisconnected', { storeId })
+            }
           }
         }
       })
@@ -354,7 +387,7 @@ export class StoreManager extends EventEmitter {
           // LiveStore handles reconnection automatically, just update our status
           // Also handle 'connecting' status - network may recover before our reconnect timeout fires
           if (storeInfo.status === 'disconnected' || storeInfo.status === 'connecting') {
-            storeInfo.status = 'connected'
+            this.updateStoreStatus(storeId, 'connected', now)
             storeInfo.reconnectAttempts = 0
           }
         } else if (!status.isConnected && wasConnected) {
@@ -365,8 +398,9 @@ export class StoreManager extends EventEmitter {
             lastUpdatedAt: now,
             disconnectedSince: now,
           }
-          storeInfo.status = 'disconnected'
-          this.emit('storeDisconnected', { storeId })
+          if (this.updateStoreStatus(storeId, 'disconnected', now)) {
+            this.emit('storeDisconnected', { storeId })
+          }
         }
       })
     )
@@ -393,8 +427,9 @@ export class StoreManager extends EventEmitter {
           lastUpdatedAt: now,
           disconnectedSince: now,
         }
-        storeInfo.status = 'disconnected'
-        this.emit('storeDisconnected', { storeId })
+        if (this.updateStoreStatus(storeId, 'disconnected', now)) {
+          this.emit('storeDisconnected', { storeId })
+        }
         this.scheduleReconnect(storeId)
       } else {
         storeLogger(storeId).debug({ error }, 'Network status stream ended')
@@ -566,8 +601,9 @@ export class StoreManager extends EventEmitter {
         },
         'Sync appears stuck - triggering reconnection'
       )
-      storeInfo.status = 'disconnected'
-      this.emit('storeDisconnected', { storeId })
+      if (this.updateStoreStatus(storeId, 'disconnected')) {
+        this.emit('storeDisconnected', { storeId })
+      }
       this.scheduleReconnect(storeId)
     }
   }
@@ -585,7 +621,7 @@ export class StoreManager extends EventEmitter {
         { maxReconnectAttempts: this.maxReconnectAttempts, attempts: storeInfo.reconnectAttempts },
         'Store exceeded max reconnect attempts'
       )
-      storeInfo.status = 'error'
+      this.updateStoreStatus(storeId, 'error')
       return
     }
 
@@ -593,7 +629,7 @@ export class StoreManager extends EventEmitter {
       { reconnectInterval: this.reconnectInterval, attempt: storeInfo.reconnectAttempts + 1 },
       'Scheduling store reconnect'
     )
-    storeInfo.status = 'connecting'
+    this.updateStoreStatus(storeId, 'connecting')
 
     const timeout = setTimeout(async () => {
       // Re-fetch storeInfo in case store was replaced during timeout
@@ -612,7 +648,7 @@ export class StoreManager extends EventEmitter {
         Date.now() - currentInfo.syncStatus.stuckSince.getTime() > SYNC_STUCK_THRESHOLD_MS
       if (currentInfo.networkStatus?.isConnected && !syncStuck) {
         storeLogger(storeId).info('Network recovered before reconnect - skipping')
-        currentInfo.status = 'connected'
+        this.updateStoreStatus(storeId, 'connected')
         currentInfo.reconnectAttempts = 0
         this.reconnectTimeouts.delete(storeId)
         return
@@ -631,7 +667,7 @@ export class StoreManager extends EventEmitter {
         const { store } = await createStore(storeId, currentInfo.config)
 
         currentInfo.store = store
-        currentInfo.status = 'connected'
+        this.updateStoreStatus(storeId, 'connected')
         currentInfo.connectedAt = new Date()
         currentInfo.errorCount = 0
         currentInfo.reconnectAttempts = 0
@@ -658,7 +694,7 @@ export class StoreManager extends EventEmitter {
         if (currentInfo.reconnectAttempts < this.maxReconnectAttempts) {
           this.scheduleReconnect(storeId)
         } else {
-          currentInfo.status = 'error'
+          this.updateStoreStatus(storeId, 'error')
         }
       }
     }, this.reconnectInterval)
@@ -682,12 +718,13 @@ export class StoreManager extends EventEmitter {
           if (storeInfo.networkStatus) {
             if (!storeInfo.networkStatus.isConnected && storeInfo.status === 'connected') {
               // Network is disconnected but we haven't updated our status yet
-              storeInfo.status = 'disconnected'
+              if (this.updateStoreStatus(storeId, 'disconnected')) {
+                this.emit('storeDisconnected', { storeId })
+              }
               storeLogger(storeId).warn('Network disconnected - updating status')
-              this.emit('storeDisconnected', { storeId })
             } else if (storeInfo.networkStatus.isConnected && storeInfo.status === 'disconnected') {
               // Network reconnected
-              storeInfo.status = 'connected'
+              this.updateStoreStatus(storeId, 'connected')
               storeInfo.reconnectAttempts = 0
               storeLogger(storeId).info('Network reconnected - updating status')
             }
@@ -785,8 +822,14 @@ export class StoreManager extends EventEmitter {
     healthy: boolean
     stores: Array<{
       storeId: string
-      status: string
+      status: StoreConnectionStatus
       connectedAt: string
+      lastConnectedAt?: string | null
+      lastDisconnectedAt?: string | null
+      statusHistory?: Array<{
+        status: StoreConnectionStatus
+        timestamp: string
+      }>
       lastActivity: string
       errorCount: number
       reconnectAttempts: number
@@ -812,6 +855,7 @@ export class StoreManager extends EventEmitter {
       storeId,
       status: info.status,
       connectedAt: info.connectedAt.toISOString(),
+      ...serializeStoreConnectionFields(info),
       lastActivity: info.lastActivity.toISOString(),
       errorCount: info.errorCount,
       reconnectAttempts: info.reconnectAttempts,
@@ -849,6 +893,38 @@ export class StoreManager extends EventEmitter {
       healthy,
       stores: storeStatuses,
     }
+  }
+
+  private recordStatusHistory(
+    storeInfo: StoreInfo,
+    status: StoreConnectionStatus,
+    timestamp: Date
+  ): void {
+    storeInfo.status = status
+    storeInfo.statusHistory.push({ status, timestamp })
+
+    if (status === 'connected') {
+      storeInfo.lastConnectedAt = timestamp
+    } else if (status === 'disconnected') {
+      storeInfo.lastDisconnectedAt = timestamp
+    }
+
+    if (storeInfo.statusHistory.length > STATUS_HISTORY_LIMIT) {
+      storeInfo.statusHistory.splice(0, storeInfo.statusHistory.length - STATUS_HISTORY_LIMIT)
+    }
+  }
+
+  private updateStoreStatus(
+    storeId: string,
+    status: StoreConnectionStatus,
+    timestamp: Date = new Date()
+  ): boolean {
+    const storeInfo = this.stores.get(storeId)
+    if (!storeInfo) return false
+    if (storeInfo.status === status) return false
+
+    this.recordStatusHistory(storeInfo, status, timestamp)
+    return true
   }
 }
 
