@@ -82,7 +82,7 @@ const loadStubConfigFromEnv = (): StubConfig => {
 }
 
 const renderTemplate = (template: string, message: string): string => {
-  return template.replace(/\{\{\s*message\s*\}\}/g, message)
+  return template.replace(/\{\{\s*message\s*\}\}/g, () => message)
 }
 
 export class StubLLMProvider implements LLMProvider {
