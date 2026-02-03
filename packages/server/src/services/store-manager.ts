@@ -36,12 +36,6 @@ export interface StoreInfo {
   networkStatus?: NetworkStatusInfo
 }
 
-/** Event signatures for StoreManager - used for documentation */
-interface StoreManagerEvents {
-  storeReconnected: (data: { storeId: string; store: LiveStore }) => void
-  storeDisconnected: (data: { storeId: string }) => void
-}
-
 // Configuration for sync status monitoring
 const SYNC_STUCK_THRESHOLD_MS = Number(process.env.SYNC_STUCK_THRESHOLD_MS) || 60_000 // 1 minute
 const NETWORK_DISCONNECT_FALLBACK_MS = Number(process.env.NETWORK_DISCONNECT_FALLBACK_MS) || 120_000 // 2 minutes - fallback if LiveStore auto-retry fails
@@ -54,7 +48,6 @@ export class StoreManager extends EventEmitter {
   private readonly maxReconnectAttempts: number
   private readonly reconnectInterval: number
   private readonly healthCheckIntervalMs: number
-  private readonly probeEveryNChecks: number
 
   constructor(
     maxReconnectAttempts = Number(process.env.STORE_MAX_RECONNECT_ATTEMPTS) || 3,
@@ -66,9 +59,6 @@ export class StoreManager extends EventEmitter {
     const parsedHealthCheck = Number(process.env.STORE_HEALTH_CHECK_INTERVAL_MS)
     this.healthCheckIntervalMs =
       Number.isFinite(parsedHealthCheck) && parsedHealthCheck > 0 ? parsedHealthCheck : 30000
-    const parsedProbeEvery = Number(process.env.STORE_PROBE_EVERY_N_CHECKS)
-    this.probeEveryNChecks =
-      Number.isFinite(parsedProbeEvery) && parsedProbeEvery > 0 ? parsedProbeEvery : 4
   }
 
   async initialize(storeIds: string[]): Promise<void> {

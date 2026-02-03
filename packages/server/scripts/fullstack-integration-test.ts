@@ -67,6 +67,15 @@ const conversationId = `conv-${Math.random().toString(36).slice(2, 10)}`
 
 const syncUrl = `ws://127.0.0.1:${workerPort}`
 const healthUrl = `http://127.0.0.1:${serverPort}/health`
+const workerConfigPath = path.join(repoRoot, 'packages', 'worker', 'wrangler.jsonc')
+const workerPersistPath = path.join(
+  repoRoot,
+  'packages',
+  'worker',
+  '.wrangler',
+  'state',
+  'sync'
+)
 
 const stubConfig = {
   defaultResponse: 'stub: {{message}}',
@@ -259,7 +268,6 @@ const run = async () => {
     STORE_RECONNECT_INTERVAL: '1000',
     STORE_MAX_RECONNECT_ATTEMPTS: '10',
     STORE_HEALTH_CHECK_INTERVAL_MS: '1000',
-    STORE_PROBE_EVERY_N_CHECKS: '1',
     LLM_PROVIDER: 'stub',
     LLM_STUB_RESPONSES: JSON.stringify(stubConfig),
     SERVER_BYPASS_TOKEN: serverBypassToken,
@@ -267,13 +275,39 @@ const run = async () => {
     AUTH_WORKER_URL: '',
   }
 
+  const workerArgs = [
+    '--filter',
+    '@lifebuild/worker',
+    'exec',
+    'wrangler',
+    'dev',
+    '--config',
+    workerConfigPath,
+    '--port',
+    String(workerPort),
+    '--persist-to',
+    workerPersistPath,
+    '--var',
+    `REQUIRE_AUTH=${workerEnv.REQUIRE_AUTH}`,
+    '--var',
+    `ENVIRONMENT=${workerEnv.ENVIRONMENT}`,
+    '--var',
+    `JWT_SECRET=${workerEnv.JWT_SECRET}`,
+    '--var',
+    `GRACE_PERIOD_SECONDS=${workerEnv.GRACE_PERIOD_SECONDS}`,
+    '--var',
+    `SERVER_BYPASS_TOKEN=${workerEnv.SERVER_BYPASS_TOKEN}`,
+    '--var',
+    `R2_PUBLIC_URL=${workerEnv.R2_PUBLIC_URL}`,
+  ]
+
   let worker: ChildProcessWithoutNullStreams | null = null
   let server: ChildProcessWithoutNullStreams | null = null
   let store: any = null
 
   try {
     console.log('\nStarting worker...')
-    worker = spawnProcess('worker', 'pnpm', ['--filter', '@lifebuild/worker', 'dev'], workerEnv)
+    worker = spawnProcess('worker', 'pnpm', workerArgs, workerEnv)
     await waitForPort(workerPort, startupTimeoutMs)
 
     console.log('Starting server...')
@@ -327,7 +361,7 @@ const run = async () => {
 
     console.log('Restarting worker...')
     const restartStart = Date.now()
-    worker = spawnProcess('worker', 'pnpm', ['--filter', '@lifebuild/worker', 'dev'], workerEnv)
+    worker = spawnProcess('worker', 'pnpm', workerArgs, workerEnv)
     await waitForPort(workerPort, startupTimeoutMs)
     const workerReadyMs = Date.now() - restartStart
 
@@ -355,6 +389,13 @@ const run = async () => {
     }
     await terminateProcess(server, 'server')
     await terminateProcess(worker, 'worker')
+    if (dataRoot) {
+      try {
+        fs.rmSync(dataRoot, { recursive: true, force: true })
+      } catch (error) {
+        console.warn('Failed to remove fullstack test data directory', error)
+      }
+    }
   }
 }
 
