@@ -12,6 +12,12 @@ import { makeWsSync } from '@livestore/sync-cf/client'
 import { schema, events, tables } from '@lifebuild/shared/schema'
 import { DEV_AUTH } from '@lifebuild/shared/auth'
 
+const globalWebSocket = (globalThis as { WebSocket?: unknown }).WebSocket
+if (typeof globalWebSocket !== 'function') {
+  const { WebSocket } = await import('ws')
+  ;(globalThis as { WebSocket?: unknown }).WebSocket = WebSocket
+}
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const repoRoot = path.resolve(__dirname, '..', '..', '..')
