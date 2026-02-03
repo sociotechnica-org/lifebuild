@@ -8,6 +8,12 @@ const __dirname = dirname(__filename)
 const packageRoot = resolve(__dirname, '..')
 dotenv.config({ path: resolve(packageRoot, '.env') })
 
+const globalWebSocket = (globalThis as { WebSocket?: unknown }).WebSocket
+if (typeof globalWebSocket !== 'function') {
+  const { WebSocket } = await import('ws')
+  ;(globalThis as { WebSocket?: unknown }).WebSocket = WebSocket
+}
+
 // IMPORTANT: Import Sentry instrumentation after env vars are loaded
 // Using dynamic import to ensure it happens after dotenv.config()
 await import('./instrument.js')
