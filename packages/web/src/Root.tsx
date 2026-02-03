@@ -58,7 +58,6 @@ const adapter = makePersistedAdapter({
   sharedWorker: LiveStoreSharedWorker,
 })
 
-
 const DevtoolsUrlLogger: React.FC<{ enabled: boolean; storeId: string }> = ({
   enabled,
   storeId,
