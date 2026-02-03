@@ -296,6 +296,8 @@ export class StoreManager extends EventEmitter {
     // Read initial network status (only if stream hasn't already updated it)
     Effect.runPromise(networkStatus as Effect.Effect<{ isConnected: boolean }, unknown>)
       .then(initial => {
+        // Skip if store has been replaced via reconnection (stale initial read)
+        if (storeInfo.store !== store) return
         // Only set if stream hasn't already provided data (avoids race condition)
         if (!storeInfo.networkStatus) {
           const now = new Date()
@@ -428,6 +430,8 @@ export class StoreManager extends EventEmitter {
       // Read initial sync state (only if stream hasn't already updated it)
       Effect.runPromise(syncState as Effect.Effect<SyncState.SyncState, unknown>)
         .then(initialState => {
+          // Skip if store has been replaced via reconnection (stale initial read)
+          if (storeInfo.store !== store) return
           // Only process if syncStatus hasn't been set by stream yet
           if (!storeInfo.syncStatus) {
             this.handleSyncStateUpdate(storeId, initialState)
@@ -517,8 +521,9 @@ export class StoreManager extends EventEmitter {
           // No progress - upstream head hasn't moved
           stuckSince = previousSyncStatus.stuckSince
         } else {
-          // upstreamHead advanced, so real sync progress is happening - reset stuck timer
-          stuckSince = undefined
+          // upstreamHead advanced, so real sync progress is happening - restart stuck timer
+          // Use `now` instead of `undefined` so remaining pending events are still monitored
+          stuckSince = now
         }
       } else {
         // Newly have pending events - start tracking
