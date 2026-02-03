@@ -290,7 +290,7 @@ export class StoreManager extends EventEmitter {
     // Subscribe to network status changes first
     const changesStream = (networkStatus as any).changes
     if (changesStream) {
-      this.consumeNetworkStatusChanges(storeId, changesStream)
+      this.consumeNetworkStatusChanges(storeId, store, changesStream)
     }
 
     // Read initial network status (only if stream hasn't already updated it)
@@ -328,12 +328,15 @@ export class StoreManager extends EventEmitter {
    */
   private consumeNetworkStatusChanges(
     storeId: string,
+    originalStore: LiveStore,
     changesStream: Stream.Stream<{ isConnected: boolean }, unknown>
   ): void {
     const streamEffect = Stream.runForEach(changesStream, status =>
       Effect.sync(() => {
         const storeInfo = this.stores.get(storeId)
         if (!storeInfo) return
+        // Ignore events from a stale stream after store has been replaced via reconnection
+        if (storeInfo.store !== originalStore) return
 
         const now = new Date()
         const wasConnected = storeInfo.networkStatus?.isConnected ?? true
@@ -367,9 +370,16 @@ export class StoreManager extends EventEmitter {
     )
 
     Effect.runPromise(streamEffect).catch(error => {
-      // Stream ended - this can happen when LiveStore shuts down (e.g., onSyncError: 'shutdown')
-      // Treat this as a disconnect signal to ensure the store doesn't remain "connected" forever
+      // Stream ended - check if this is from the current store or a stale (replaced) one
       const storeInfo = this.stores.get(storeId)
+      if (storeInfo && storeInfo.store !== originalStore) {
+        // Store was replaced via reconnection - old stream ending is expected
+        storeLogger(storeId).debug({ error }, 'Old network status stream ended after reconnection')
+        return
+      }
+
+      // Stream ended unexpectedly on the current store (e.g., onSyncError: 'shutdown')
+      // Treat as disconnect to ensure the store doesn't remain "connected" forever
       if (storeInfo && storeInfo.status === 'connected') {
         storeLogger(storeId).warn(
           { error },
