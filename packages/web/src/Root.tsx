@@ -145,8 +145,6 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   const pendingRestartRef = useRef(false)
   const hasStoreRef = useRef(false)
   const previousRef = useRef<{ storeId: string; authToken?: string } | null>(null)
-  const skipNextAuthTokenRestartRef = useRef(false)
-  const skipAuthTokenTimeoutRef = useRef<number | null>(null)
 
   const requestRestart = useCallback(
     (reason: string) => {
@@ -175,6 +173,12 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   }, [])
 
   useEffect(() => {
+    pendingRestartRef.current = false
+    hasStoreRef.current = false
+    setIsRestarting(false)
+  }, [storeId])
+
+  useEffect(() => {
     if (!previousRef.current) {
       previousRef.current = { storeId, authToken: syncPayload.authToken }
       return
@@ -190,27 +194,10 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
     }
 
     if (storeIdChanged) {
-      skipNextAuthTokenRestartRef.current = true
-      if (skipAuthTokenTimeoutRef.current !== null) {
-        window.clearTimeout(skipAuthTokenTimeoutRef.current)
-      }
-      skipAuthTokenTimeoutRef.current = window.setTimeout(() => {
-        skipNextAuthTokenRestartRef.current = false
-        skipAuthTokenTimeoutRef.current = null
-      }, 10000)
-      requestRestart('storeId changed')
       return
     }
 
     if (authTokenChanged) {
-      if (skipNextAuthTokenRestartRef.current) {
-        skipNextAuthTokenRestartRef.current = false
-        if (skipAuthTokenTimeoutRef.current !== null) {
-          window.clearTimeout(skipAuthTokenTimeoutRef.current)
-          skipAuthTokenTimeoutRef.current = null
-        }
-        return
-      }
       requestRestart('auth token updated')
     }
   }, [storeId, syncPayload.authToken, requestRestart])
