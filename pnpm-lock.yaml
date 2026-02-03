@@ -217,6 +217,9 @@ importers:
       '@livestore/sync-cf':
         specifier: 'catalog:'
         version: 0.4.0-dev.22(d3f9a641514f29e670ca001de7a20345)
+      '@livestore/utils':
+        specifier: 'catalog:'
+        version: 0.4.0-dev.22(d3f9a641514f29e670ca001de7a20345)
       '@sentry/node':
         specifier: ^10.30.0
         version: 10.30.0

@@ -1,13 +1,28 @@
-import type { Store as LiveStore } from '@livestore/livestore'
-import { queryDb } from '@livestore/livestore'
+import type { Store as LiveStore, SyncState } from '@livestore/livestore'
+import { StoreInternalsSymbol } from '@livestore/livestore'
+import { Effect, Stream } from '@livestore/utils/effect'
 import { EventEmitter } from 'events'
 import { type StoreConfig, createStore } from '../factories/store-factory.js'
-import { tables } from '@lifebuild/shared/schema'
 import { logger, storeLogger, operationLogger } from '../utils/logger.js'
 import {
   createOrchestrationTelemetry,
   getIncidentDashboardUrl,
 } from '../utils/orchestration-telemetry.js'
+
+export interface SyncStatusInfo {
+  pendingCount: number
+  localHead: string
+  upstreamHead: string
+  isSynced: boolean
+  lastUpdatedAt: Date
+  stuckSince?: Date
+}
+
+export interface NetworkStatusInfo {
+  isConnected: boolean
+  lastUpdatedAt: Date
+  disconnectedSince?: Date
+}
 
 export interface StoreInfo {
   store: LiveStore
@@ -17,17 +32,25 @@ export interface StoreInfo {
   status: 'connected' | 'connecting' | 'disconnected' | 'error'
   errorCount: number
   reconnectAttempts: number
+  syncStatus?: SyncStatusInfo
+  networkStatus?: NetworkStatusInfo
 }
 
-export interface StoreManagerEvents {
+/** Event signatures for StoreManager - used for documentation */
+interface StoreManagerEvents {
   storeReconnected: (data: { storeId: string; store: LiveStore }) => void
   storeDisconnected: (data: { storeId: string }) => void
 }
+
+// Configuration for sync status monitoring
+const SYNC_STUCK_THRESHOLD_MS = Number(process.env.SYNC_STUCK_THRESHOLD_MS) || 60_000 // 1 minute
+const NETWORK_DISCONNECT_FALLBACK_MS = Number(process.env.NETWORK_DISCONNECT_FALLBACK_MS) || 120_000 // 2 minutes - fallback if LiveStore auto-retry fails
 
 export class StoreManager extends EventEmitter {
   private stores: Map<string, StoreInfo> = new Map()
   private reconnectTimeouts: Map<string, NodeJS.Timeout> = new Map()
   private healthCheckInterval?: NodeJS.Timeout
+  private isShuttingDown = false
   private readonly maxReconnectAttempts: number
   private readonly reconnectInterval: number
 
@@ -118,7 +141,13 @@ export class StoreManager extends EventEmitter {
       }
 
       this.stores.set(storeId, storeInfo)
-      this.setupStoreEventHandlers(storeId, store)
+      this.setupSyncStatusMonitoring(storeId, store)
+
+      // Lazily start health checks if not already running
+      // This ensures stores added via addStore() (not just initialize()) get monitored
+      if (!this.healthCheckInterval) {
+        this.startHealthChecks()
+      }
 
       const { durationMs } = telemetry.recordSuccess({
         status: 'connected',
@@ -225,59 +254,322 @@ export class StoreManager extends EventEmitter {
     return new Map(this.stores)
   }
 
-  private setupStoreEventHandlers(storeId: string, _store: LiveStore): void {
-    // LiveStore doesn't expose traditional event emitters
-    // We'll rely on health checks and error handling during operations
+  /**
+   * Set up monitoring using LiveStore's networkStatus and syncState APIs.
+   * - networkStatus: tracks WebSocket connectivity to sync backend (uses ping/pong)
+   * - syncState: tracks local sync state (pending events, heads)
+   */
+  private setupSyncStatusMonitoring(storeId: string, store: LiveStore): void {
     const storeInfo = this.stores.get(storeId)
     if (!storeInfo) return
 
-    // Mark as connected since store creation succeeded
     storeInfo.status = 'connected'
-    storeLogger(storeId).debug('Store setup complete')
+
+    // Monitor network status (WebSocket connectivity)
+    this.setupNetworkStatusMonitoring(storeId, store)
+
+    // Monitor sync state (pending events, heads)
+    this.setupSyncStateMonitoring(storeId, store)
   }
 
   /**
-   * Actively probe a store connection by attempting a simple query.
-   * This detects silent WebSocket disconnections that wouldn't otherwise be noticed.
-   * Returns true if the store responds, false if the probe fails.
+   * Monitor store.networkStatus for WebSocket connectivity changes.
+   * LiveStore uses ping/pong (default 10s) to detect silent disconnects.
    */
-  probeStoreConnection(storeId: string): boolean {
+  private setupNetworkStatusMonitoring(storeId: string, store: LiveStore): void {
     const storeInfo = this.stores.get(storeId)
-    if (!storeInfo) {
-      storeLogger(storeId).warn('Cannot probe - store not found')
-      return false
+    if (!storeInfo) return
+
+    // networkStatus is a Subscribable on the store object
+    const networkStatus = (store as any).networkStatus
+    if (!networkStatus) {
+      storeLogger(storeId).debug('Network status not available')
+      return
     }
+
+    // Subscribe to network status changes first
+    const changesStream = (networkStatus as any).changes
+    if (changesStream) {
+      this.consumeNetworkStatusChanges(storeId, store, changesStream)
+    }
+
+    // Read initial network status (only if stream hasn't already updated it)
+    Effect.runPromise(networkStatus as Effect.Effect<{ isConnected: boolean }, unknown>)
+      .then(initial => {
+        // Skip if store has been replaced via reconnection (stale initial read)
+        if (storeInfo.store !== store) return
+        // Only set if stream hasn't already provided data (avoids race condition)
+        if (!storeInfo.networkStatus) {
+          const now = new Date()
+          storeInfo.networkStatus = {
+            isConnected: initial.isConnected,
+            lastUpdatedAt: now,
+            disconnectedSince: initial.isConnected ? undefined : now,
+          }
+          storeLogger(storeId).info(
+            { isConnected: initial.isConnected },
+            'Network status monitoring enabled'
+          )
+
+          // If initially disconnected, update status immediately (cold-start disconnect)
+          // This avoids waiting for the next health check (30s delay)
+          if (!initial.isConnected && storeInfo.status === 'connected') {
+            storeLogger(storeId).warn('Network disconnected on startup - updating status')
+            storeInfo.status = 'disconnected'
+            this.emit('storeDisconnected', { storeId })
+          }
+        }
+      })
+      .catch(error => {
+        storeLogger(storeId).debug({ error }, 'Could not read initial network status')
+      })
+  }
+
+  /**
+   * Consume network status changes from the stream.
+   */
+  private consumeNetworkStatusChanges(
+    storeId: string,
+    originalStore: LiveStore,
+    changesStream: Stream.Stream<{ isConnected: boolean }, unknown>
+  ): void {
+    const streamEffect = Stream.runForEach(changesStream, status =>
+      Effect.sync(() => {
+        const storeInfo = this.stores.get(storeId)
+        if (!storeInfo) return
+        // Ignore events from a stale stream after store has been replaced via reconnection
+        if (storeInfo.store !== originalStore) return
+
+        const now = new Date()
+        const wasConnected = storeInfo.networkStatus?.isConnected ?? true
+
+        if (status.isConnected && !wasConnected) {
+          // Reconnected
+          storeLogger(storeId).info('Network connection restored')
+          storeInfo.networkStatus = {
+            isConnected: true,
+            lastUpdatedAt: now,
+            disconnectedSince: undefined,
+          }
+          // LiveStore handles reconnection automatically, just update our status
+          // Also handle 'connecting' status - network may recover before our reconnect timeout fires
+          if (storeInfo.status === 'disconnected' || storeInfo.status === 'connecting') {
+            storeInfo.status = 'connected'
+            storeInfo.reconnectAttempts = 0
+          }
+        } else if (!status.isConnected && wasConnected) {
+          // Disconnected
+          storeLogger(storeId).warn('Network connection lost - LiveStore will auto-retry')
+          storeInfo.networkStatus = {
+            isConnected: false,
+            lastUpdatedAt: now,
+            disconnectedSince: now,
+          }
+          storeInfo.status = 'disconnected'
+          this.emit('storeDisconnected', { storeId })
+        }
+      })
+    )
+
+    Effect.runPromise(streamEffect).catch(error => {
+      // Stream ended - check if this is from the current store or a stale (replaced) one
+      const storeInfo = this.stores.get(storeId)
+      if (storeInfo && storeInfo.store !== originalStore) {
+        // Store was replaced via reconnection - old stream ending is expected
+        storeLogger(storeId).debug({ error }, 'Old network status stream ended after reconnection')
+        return
+      }
+
+      // Stream ended unexpectedly on the current store (e.g., onSyncError: 'shutdown')
+      // Treat as disconnect to ensure the store doesn't remain "connected" forever
+      if (storeInfo && storeInfo.status === 'connected') {
+        storeLogger(storeId).warn(
+          { error },
+          'Network status stream ended unexpectedly - treating as disconnect'
+        )
+        const now = new Date()
+        storeInfo.networkStatus = {
+          isConnected: false,
+          lastUpdatedAt: now,
+          disconnectedSince: now,
+        }
+        storeInfo.status = 'disconnected'
+        this.emit('storeDisconnected', { storeId })
+        this.scheduleReconnect(storeId)
+      } else {
+        storeLogger(storeId).debug({ error }, 'Network status stream ended')
+      }
+    })
+  }
+
+  /**
+   * Monitor sync state for pending events (stuck sync detection).
+   */
+  private setupSyncStateMonitoring(storeId: string, store: LiveStore): void {
+    const storeInfo = this.stores.get(storeId)
+    if (!storeInfo) return
 
     try {
-      // Run a lightweight query to verify the store is responsive
-      // Use a simple select with limit 1 to minimize overhead
-      storeInfo.store.query(queryDb(tables.chatMessages.select().limit(1)))
-      return true
+      const internals = store[StoreInternalsSymbol]
+      const syncState = internals?.clientSession?.leaderThread?.syncState
+
+      if (!syncState) {
+        storeLogger(storeId).debug('Sync state not available')
+        return
+      }
+
+      // Subscribe to sync state changes first (like networkStatus monitoring)
+      // This ensures monitoring works even if initial read fails
+      const changesStream = (syncState as any).changes as
+        | Stream.Stream<SyncState.SyncState, unknown>
+        | undefined
+      if (changesStream) {
+        this.consumeSyncStateChanges(storeId, store, changesStream)
+      }
+
+      // Read initial sync state (only if stream hasn't already updated it)
+      Effect.runPromise(syncState as Effect.Effect<SyncState.SyncState, unknown>)
+        .then(initialState => {
+          // Skip if store has been replaced via reconnection (stale initial read)
+          if (storeInfo.store !== store) return
+          // Only process if syncStatus hasn't been set by stream yet
+          if (!storeInfo.syncStatus) {
+            this.handleSyncStateUpdate(storeId, initialState)
+            storeLogger(storeId).info(
+              {
+                pendingCount: initialState.pending?.length ?? 0,
+                localHead: this.formatHead(initialState.localHead),
+                upstreamHead: this.formatHead(initialState.upstreamHead),
+              },
+              'Sync state monitoring enabled'
+            )
+          }
+        })
+        .catch(error => {
+          storeLogger(storeId).debug({ error }, 'Could not read initial sync state')
+        })
     } catch (error) {
-      storeLogger(storeId).warn({ error }, 'Store probe failed - connection may be broken')
-      // Mark store as disconnected so health checks can trigger reconnection
-      storeInfo.status = 'disconnected'
-      storeInfo.errorCount += 1
-      return false
+      storeLogger(storeId).debug({ error }, 'Failed to set up sync state monitoring')
     }
   }
 
   /**
-   * Get detailed connection probe results for all stores
+   * Consume sync state changes from the Effect Stream.
    */
-  probeAllConnections(): Map<string, { healthy: boolean; status: string; errorCount: number }> {
-    const results = new Map<string, { healthy: boolean; status: string; errorCount: number }>()
+  private consumeSyncStateChanges(
+    storeId: string,
+    originalStore: LiveStore,
+    changesStream: Stream.Stream<SyncState.SyncState, unknown>
+  ): void {
+    const storeInfo = this.stores.get(storeId)
+    if (!storeInfo) return
 
-    for (const [storeId, storeInfo] of this.stores) {
-      const probeResult = this.probeStoreConnection(storeId)
-      results.set(storeId, {
-        healthy: probeResult,
-        status: storeInfo.status,
-        errorCount: storeInfo.errorCount,
+    // Use Stream.runForEach to process each sync state update
+    const streamEffect = Stream.runForEach(changesStream, state =>
+      Effect.sync(() => {
+        const currentInfo = this.stores.get(storeId)
+        // Ignore events from a stale stream after store has been replaced via reconnection
+        if (currentInfo && currentInfo.store === originalStore) {
+          this.handleSyncStateUpdate(storeId, state)
+        }
       })
+    )
+
+    // Run the stream consumption in the background
+    Effect.runPromise(streamEffect).catch(error => {
+      // Stream consumption failed - this is expected when store shuts down or reconnects
+      storeLogger(storeId).debug({ error }, 'Sync state stream ended')
+    })
+  }
+
+  /**
+   * Format event head as string for logging.
+   */
+  private formatHead(head: any): string {
+    if (!head) return 'unknown'
+    if (typeof head === 'string') return head
+    if (typeof head === 'object') {
+      return `e${head.global ?? '?'}.${head.client ?? '?'}r${head.rebaseGeneration ?? '?'}`
+    }
+    return String(head)
+  }
+
+  /**
+   * Process a sync state update and detect stuck sync conditions.
+   */
+  private handleSyncStateUpdate(storeId: string, syncState: SyncState.SyncState): void {
+    const storeInfo = this.stores.get(storeId)
+    if (!storeInfo) return
+
+    const now = new Date()
+    const pendingCount = syncState.pending?.length ?? 0
+    const isSynced = pendingCount === 0
+
+    const localHead = this.formatHead(syncState.localHead)
+    const upstreamHead = this.formatHead(syncState.upstreamHead)
+
+    const previousSyncStatus = storeInfo.syncStatus
+
+    // Detect stuck sync - pending events not progressing
+    // The key indicator of progress is upstreamHead advancing, not pending count changing
+    // (pending count can increase when new events are added, but that's not sync progress)
+    let stuckSince: Date | undefined = undefined
+    if (pendingCount > 0) {
+      if (previousSyncStatus?.stuckSince) {
+        // Already stuck - check if upstreamHead advanced (real progress)
+        if (previousSyncStatus.upstreamHead === upstreamHead) {
+          // No progress - upstream head hasn't moved
+          stuckSince = previousSyncStatus.stuckSince
+        } else {
+          // upstreamHead advanced, so real sync progress is happening - restart stuck timer
+          // Use `now` instead of `undefined` so remaining pending events are still monitored
+          stuckSince = now
+        }
+      } else {
+        // Newly have pending events - start tracking
+        stuckSince = now
+      }
     }
 
-    return results
+    storeInfo.syncStatus = {
+      pendingCount,
+      localHead,
+      upstreamHead,
+      isSynced,
+      lastUpdatedAt: now,
+      stuckSince,
+    }
+
+    // Check if stuck for too long
+    if (stuckSince) {
+      this.handleStuckSyncRecovery(storeId, storeInfo)
+    }
+  }
+
+  /**
+   * Handle stuck sync recovery - extracted to avoid duplication between
+   * handleSyncStateUpdate and health checks.
+   */
+  private handleStuckSyncRecovery(storeId: string, storeInfo: StoreInfo): void {
+    if (!storeInfo.syncStatus?.stuckSince) return
+    // Only trigger recovery if store is still connected (prevent duplicate events)
+    if (storeInfo.status !== 'connected') return
+
+    const stuckDurationMs = Date.now() - storeInfo.syncStatus.stuckSince.getTime()
+    if (stuckDurationMs > SYNC_STUCK_THRESHOLD_MS) {
+      storeLogger(storeId).warn(
+        {
+          pendingCount: storeInfo.syncStatus.pendingCount,
+          stuckDurationMs,
+          localHead: storeInfo.syncStatus.localHead,
+          upstreamHead: storeInfo.syncStatus.upstreamHead,
+        },
+        'Sync appears stuck - triggering reconnection'
+      )
+      storeInfo.status = 'disconnected'
+      this.emit('storeDisconnected', { storeId })
+      this.scheduleReconnect(storeId)
+    }
   }
 
   private scheduleReconnect(storeId: string): void {
@@ -304,39 +596,69 @@ export class StoreManager extends EventEmitter {
     storeInfo.status = 'connecting'
 
     const timeout = setTimeout(async () => {
-      this.reconnectTimeouts.delete(storeId)
-      storeInfo.reconnectAttempts++
+      // Re-fetch storeInfo in case store was replaced during timeout
+      const currentInfo = this.stores.get(storeId)
+      if (!currentInfo) {
+        this.reconnectTimeouts.delete(storeId)
+        return
+      }
+
+      // Check if network has recovered before proceeding with reconnection
+      // This avoids unnecessary shutdown/recreation if LiveStore auto-recovered
+      // But don't skip if sync is stuck - the network may be up but sync is stalled,
+      // which is the exact scenario handleStuckSyncRecovery is meant to handle
+      const syncStuck =
+        currentInfo.syncStatus?.stuckSince &&
+        Date.now() - currentInfo.syncStatus.stuckSince.getTime() > SYNC_STUCK_THRESHOLD_MS
+      if (currentInfo.networkStatus?.isConnected && !syncStuck) {
+        storeLogger(storeId).info('Network recovered before reconnect - skipping')
+        currentInfo.status = 'connected'
+        currentInfo.reconnectAttempts = 0
+        this.reconnectTimeouts.delete(storeId)
+        return
+      }
+
+      // Keep entry in reconnectTimeouts during async work to prevent duplicate scheduling
+      currentInfo.reconnectAttempts++
 
       try {
         storeLogger(storeId).info(
-          { attempt: storeInfo.reconnectAttempts },
+          { attempt: currentInfo.reconnectAttempts },
           'Attempting store reconnect'
         )
 
-        await storeInfo.store.shutdownPromise()
-        const { store } = await createStore(storeId, storeInfo.config)
+        await currentInfo.store.shutdownPromise()
+        const { store } = await createStore(storeId, currentInfo.config)
 
-        storeInfo.store = store
-        storeInfo.status = 'connected'
-        storeInfo.connectedAt = new Date()
-        storeInfo.errorCount = 0
-        storeInfo.reconnectAttempts = 0
+        currentInfo.store = store
+        currentInfo.status = 'connected'
+        currentInfo.connectedAt = new Date()
+        currentInfo.errorCount = 0
+        currentInfo.reconnectAttempts = 0
+        currentInfo.syncStatus = undefined // Reset sync status for fresh start
+        currentInfo.networkStatus = undefined // Reset network status to allow fresh monitoring
 
-        this.setupStoreEventHandlers(storeId, store)
+        this.setupSyncStatusMonitoring(storeId, store)
         storeLogger(storeId).info('Store reconnected successfully')
 
         // Emit event so listeners (e.g., EventProcessor) can re-subscribe
         this.emit('storeReconnected', { storeId, store })
+
+        // Delete from map only after successful reconnection
+        this.reconnectTimeouts.delete(storeId)
       } catch (error) {
         storeLogger(storeId).error(
-          { error, attempt: storeInfo.reconnectAttempts },
+          { error, attempt: currentInfo.reconnectAttempts },
           'Failed to reconnect store'
         )
 
-        if (storeInfo.reconnectAttempts < this.maxReconnectAttempts) {
+        // Delete before retry to allow new schedule
+        this.reconnectTimeouts.delete(storeId)
+
+        if (currentInfo.reconnectAttempts < this.maxReconnectAttempts) {
           this.scheduleReconnect(storeId)
         } else {
-          storeInfo.status = 'error'
+          currentInfo.status = 'error'
         }
       }
     }, this.reconnectInterval)
@@ -345,39 +667,74 @@ export class StoreManager extends EventEmitter {
   }
 
   private startHealthChecks(): void {
-    const healthCheckInterval = 30000
-    // Probe interval - don't probe every health check to avoid overhead
-    let probeCounter = 0
-    const probeEveryNChecks = 4 // Probe every 2 minutes (4 * 30s)
+    // Guard against duplicate initialization
+    if (this.healthCheckInterval) {
+      return
+    }
 
-    this.healthCheckInterval = setInterval(() => {
-      probeCounter++
-      const shouldProbe = probeCounter >= probeEveryNChecks
+    const healthCheckInterval = 30000 // 30 seconds
 
-      for (const [storeId, storeInfo] of this.stores) {
-        // Active probing - detect silent disconnections
-        // Only probe stores that appear connected, and only periodically
-        if (shouldProbe && storeInfo.status === 'connected') {
-          const probeResult = this.probeStoreConnection(storeId)
-          if (!probeResult) {
-            storeLogger(storeId).warn(
-              { reconnectAttempts: storeInfo.reconnectAttempts },
-              'Health check probe failed - triggering reconnection'
-            )
+    const runHealthCheck = () => {
+      try {
+        for (const [storeId, storeInfo] of this.stores) {
+          // Sync our status with networkStatus
+          // Note: LiveStore handles reconnection automatically via leader thread
+          if (storeInfo.networkStatus) {
+            if (!storeInfo.networkStatus.isConnected && storeInfo.status === 'connected') {
+              // Network is disconnected but we haven't updated our status yet
+              storeInfo.status = 'disconnected'
+              storeLogger(storeId).warn('Network disconnected - updating status')
+              this.emit('storeDisconnected', { storeId })
+            } else if (storeInfo.networkStatus.isConnected && storeInfo.status === 'disconnected') {
+              // Network reconnected
+              storeInfo.status = 'connected'
+              storeInfo.reconnectAttempts = 0
+              storeLogger(storeId).info('Network reconnected - updating status')
+            }
+
+            // Check for extended disconnects - fallback if LiveStore auto-retry fails
+            // Skip stores in 'error' status (max reconnect attempts exhausted) to avoid noisy logs
+            const disconnectedSince = storeInfo.networkStatus.disconnectedSince
+            if (
+              disconnectedSince &&
+              !storeInfo.networkStatus.isConnected &&
+              storeInfo.status !== 'error'
+            ) {
+              const disconnectedMs = Date.now() - disconnectedSince.getTime()
+
+              if (disconnectedMs > NETWORK_DISCONNECT_FALLBACK_MS) {
+                // LiveStore auto-retry hasn't succeeded after threshold - trigger manual reconnection
+                storeLogger(storeId).warn(
+                  { disconnectedMs, disconnectedSince: disconnectedSince.toISOString() },
+                  'Extended network disconnect - triggering manual reconnection fallback'
+                )
+                this.scheduleReconnect(storeId)
+              } else if (storeInfo.status !== 'connecting') {
+                storeLogger(storeId).warn(
+                  { disconnectedMs, disconnectedSince: disconnectedSince.toISOString() },
+                  'Store still disconnected - LiveStore auto-retry in progress'
+                )
+              }
+            }
+          }
+
+          // Check for stuck sync (events failing to push) as secondary indicator
+          if (storeInfo.status === 'connected' && storeInfo.syncStatus?.stuckSince) {
+            this.handleStuckSyncRecovery(storeId, storeInfo)
           }
         }
-
-        if (storeInfo.status === 'error' || storeInfo.status === 'disconnected') {
-          if (storeInfo.reconnectAttempts < this.maxReconnectAttempts) {
-            this.scheduleReconnect(storeId)
-          }
+      } catch (error) {
+        logger.error({ error }, 'Health check error - continuing to next interval')
+      } finally {
+        // Schedule next health check unless shutdown is in progress
+        if (!this.isShuttingDown) {
+          this.healthCheckInterval = setTimeout(runHealthCheck, healthCheckInterval)
         }
       }
+    }
 
-      if (shouldProbe) {
-        probeCounter = 0
-      }
-    }, healthCheckInterval)
+    // Start the first health check
+    this.healthCheckInterval = setTimeout(runHealthCheck, healthCheckInterval)
   }
 
   async shutdown(): Promise<void> {
@@ -388,8 +745,11 @@ export class StoreManager extends EventEmitter {
     })
     log.info('Shutting down store manager')
 
+    // Set shutdown flag to prevent health check from rescheduling
+    this.isShuttingDown = true
+
     if (this.healthCheckInterval) {
-      clearInterval(this.healthCheckInterval)
+      clearTimeout(this.healthCheckInterval)
     }
 
     for (const timeout of this.reconnectTimeouts.values()) {
@@ -430,8 +790,24 @@ export class StoreManager extends EventEmitter {
       lastActivity: string
       errorCount: number
       reconnectAttempts: number
+      networkStatus?: {
+        isConnected: boolean
+        lastUpdatedAt: string
+        disconnectedSince?: string
+        disconnectedMs?: number
+      }
+      syncStatus?: {
+        pendingCount: number
+        localHead: string
+        upstreamHead: string
+        isSynced: boolean
+        lastUpdatedAt: string
+        stuckSince?: string
+        stuckDurationMs?: number
+      }
     }>
   } {
+    const now = Date.now()
     const storeStatuses = Array.from(this.stores.entries()).map(([storeId, info]) => ({
       storeId,
       status: info.status,
@@ -439,9 +815,35 @@ export class StoreManager extends EventEmitter {
       lastActivity: info.lastActivity.toISOString(),
       errorCount: info.errorCount,
       reconnectAttempts: info.reconnectAttempts,
+      networkStatus: info.networkStatus
+        ? {
+            isConnected: info.networkStatus.isConnected,
+            lastUpdatedAt: info.networkStatus.lastUpdatedAt.toISOString(),
+            disconnectedSince: info.networkStatus.disconnectedSince?.toISOString(),
+            disconnectedMs: info.networkStatus.disconnectedSince
+              ? now - info.networkStatus.disconnectedSince.getTime()
+              : undefined,
+          }
+        : undefined,
+      syncStatus: info.syncStatus
+        ? {
+            pendingCount: info.syncStatus.pendingCount,
+            localHead: info.syncStatus.localHead,
+            upstreamHead: info.syncStatus.upstreamHead,
+            isSynced: info.syncStatus.isSynced,
+            lastUpdatedAt: info.syncStatus.lastUpdatedAt.toISOString(),
+            stuckSince: info.syncStatus.stuckSince?.toISOString(),
+            stuckDurationMs: info.syncStatus.stuckSince
+              ? now - info.syncStatus.stuckSince.getTime()
+              : undefined,
+          }
+        : undefined,
     }))
 
-    const healthy = storeStatuses.every(s => s.status === 'connected')
+    // Consider unhealthy if any store is disconnected (via networkStatus or status)
+    const healthy = storeStatuses.every(
+      s => s.status === 'connected' && (s.networkStatus?.isConnected ?? true)
+    )
 
     return {
       healthy,
