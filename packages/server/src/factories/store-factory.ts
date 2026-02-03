@@ -91,16 +91,16 @@ function getSyncPayload(config: StoreConfig): Record<string, string> | undefined
 }
 
 function normalizePingMs(
-  value: number,
+  rawEnv: string | undefined,
   fallback: number,
   min: number,
   max: number,
   label: string
 ): number {
+  if (rawEnv === undefined) return fallback
+  const value = Number(rawEnv)
   if (!Number.isFinite(value) || value < min || value > max) {
-    if (value !== fallback) {
-      logger.warn({ value, min, max, label }, 'Invalid ping configuration, using fallback')
-    }
+    logger.warn({ value: rawEnv, min, max, label }, 'Invalid ping configuration, using fallback')
     return fallback
   }
   return value
@@ -131,14 +131,14 @@ export async function createStore(
   )
 
   const pingIntervalMs = normalizePingMs(
-    Number(process.env.LIVESTORE_PING_INTERVAL_MS) || 5000,
+    process.env.LIVESTORE_PING_INTERVAL_MS,
     5000,
     1000,
     60000,
     'LIVESTORE_PING_INTERVAL_MS'
   )
   const pingTimeoutMs = normalizePingMs(
-    Number(process.env.LIVESTORE_PING_TIMEOUT_MS) || 2000,
+    process.env.LIVESTORE_PING_TIMEOUT_MS,
     2000,
     1000,
     60000,
