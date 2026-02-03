@@ -53,6 +53,8 @@ export class StoreManager extends EventEmitter {
   private isShuttingDown = false
   private readonly maxReconnectAttempts: number
   private readonly reconnectInterval: number
+  private readonly healthCheckIntervalMs: number
+  private readonly probeEveryNChecks: number
 
   constructor(
     maxReconnectAttempts = Number(process.env.STORE_MAX_RECONNECT_ATTEMPTS) || 3,
@@ -61,6 +63,12 @@ export class StoreManager extends EventEmitter {
     super()
     this.maxReconnectAttempts = maxReconnectAttempts
     this.reconnectInterval = reconnectInterval
+    const parsedHealthCheck = Number(process.env.STORE_HEALTH_CHECK_INTERVAL_MS)
+    this.healthCheckIntervalMs =
+      Number.isFinite(parsedHealthCheck) && parsedHealthCheck > 0 ? parsedHealthCheck : 30000
+    const parsedProbeEvery = Number(process.env.STORE_PROBE_EVERY_N_CHECKS)
+    this.probeEveryNChecks =
+      Number.isFinite(parsedProbeEvery) && parsedProbeEvery > 0 ? parsedProbeEvery : 4
   }
 
   async initialize(storeIds: string[]): Promise<void> {
@@ -671,8 +679,7 @@ export class StoreManager extends EventEmitter {
     if (this.healthCheckInterval) {
       return
     }
-
-    const healthCheckInterval = 30000 // 30 seconds
+    const healthCheckInterval = this.healthCheckIntervalMs
 
     const runHealthCheck = () => {
       try {
