@@ -591,33 +591,43 @@ export class StoreManager extends EventEmitter {
     storeInfo.status = 'connecting'
 
     const timeout = setTimeout(async () => {
+      // Re-fetch storeInfo in case store was replaced during timeout
+      const currentInfo = this.stores.get(storeId)
+      if (!currentInfo) {
+        this.reconnectTimeouts.delete(storeId)
+        return
+      }
+
       // Check if network has recovered before proceeding with reconnection
       // This avoids unnecessary shutdown/recreation if LiveStore auto-recovered
-      if (storeInfo.networkStatus?.isConnected && storeInfo.status === 'connected') {
+      // Check 'connecting' status too - network may recover before timeout fires
+      if (currentInfo.networkStatus?.isConnected) {
         storeLogger(storeId).info('Network recovered before reconnect - skipping')
+        currentInfo.status = 'connected'
+        currentInfo.reconnectAttempts = 0
         this.reconnectTimeouts.delete(storeId)
         return
       }
 
       // Keep entry in reconnectTimeouts during async work to prevent duplicate scheduling
-      storeInfo.reconnectAttempts++
+      currentInfo.reconnectAttempts++
 
       try {
         storeLogger(storeId).info(
-          { attempt: storeInfo.reconnectAttempts },
+          { attempt: currentInfo.reconnectAttempts },
           'Attempting store reconnect'
         )
 
-        await storeInfo.store.shutdownPromise()
-        const { store } = await createStore(storeId, storeInfo.config)
+        await currentInfo.store.shutdownPromise()
+        const { store } = await createStore(storeId, currentInfo.config)
 
-        storeInfo.store = store
-        storeInfo.status = 'connected'
-        storeInfo.connectedAt = new Date()
-        storeInfo.errorCount = 0
-        storeInfo.reconnectAttempts = 0
-        storeInfo.syncStatus = undefined // Reset sync status for fresh start
-        storeInfo.networkStatus = undefined // Reset network status to allow fresh monitoring
+        currentInfo.store = store
+        currentInfo.status = 'connected'
+        currentInfo.connectedAt = new Date()
+        currentInfo.errorCount = 0
+        currentInfo.reconnectAttempts = 0
+        currentInfo.syncStatus = undefined // Reset sync status for fresh start
+        currentInfo.networkStatus = undefined // Reset network status to allow fresh monitoring
 
         this.setupSyncStatusMonitoring(storeId, store)
         storeLogger(storeId).info('Store reconnected successfully')
@@ -629,17 +639,17 @@ export class StoreManager extends EventEmitter {
         this.reconnectTimeouts.delete(storeId)
       } catch (error) {
         storeLogger(storeId).error(
-          { error, attempt: storeInfo.reconnectAttempts },
+          { error, attempt: currentInfo.reconnectAttempts },
           'Failed to reconnect store'
         )
 
         // Delete before retry to allow new schedule
         this.reconnectTimeouts.delete(storeId)
 
-        if (storeInfo.reconnectAttempts < this.maxReconnectAttempts) {
+        if (currentInfo.reconnectAttempts < this.maxReconnectAttempts) {
           this.scheduleReconnect(storeId)
         } else {
-          storeInfo.status = 'error'
+          currentInfo.status = 'error'
         }
       }
     }, this.reconnectInterval)
