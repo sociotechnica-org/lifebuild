@@ -107,6 +107,61 @@ pnpm --filter @lifebuild/server dev
 pnpm --filter @lifebuild/server lint-all
 ```
 
+## Testing
+
+### Fullstack sync integration test
+
+The fullstack harness boots the sync worker (Wrangler dev), starts the server, creates a local
+LiveStore client, sends a message, simulates a disconnect by stopping the worker, and verifies
+that the server recovers and delivers the response after the worker restarts.
+
+Run it with:
+
+```bash
+pnpm --filter @lifebuild/server test:fullstack
+# or from repo root:
+pnpm test:fullstack
+```
+
+Useful environment variables:
+
+- `FULLSTACK_WORKER_PORT` (default 8787)
+- `FULLSTACK_SERVER_PORT` (default 3003)
+- `FULLSTACK_STARTUP_TIMEOUT_MS` (default 60000)
+- `FULLSTACK_RESPONSE_TIMEOUT_MS` (default 20000)
+- `FULLSTACK_RECOVERY_TIMEOUT_MS` (default 30000)
+- `FULLSTACK_NO_RESPONSE_WINDOW_MS` (default 2000)
+- `FULLSTACK_TOTAL_TIMEOUT_MS` (default 120000)
+
+The harness writes temporary data under `.context/fullstack-*` and cleans it up on exit.
+
+### Stub LLM provider (deterministic responses)
+
+Set `LLM_PROVIDER=stub` to force the server to use the stub provider instead of Braintrust.
+You can configure responses via JSON (inline or from a file) and use `{{message}}` in templates.
+
+Inline example:
+
+```bash
+LLM_PROVIDER=stub \
+LLM_STUB_RESPONSES='{"defaultResponse":"stub: {{message}}","responses":[{"match":"ping","response":"pong"},{"match":"reconnect-test","response":"reconnected"}]}' \
+pnpm --filter @lifebuild/server dev
+```
+
+File-based example:
+
+```bash
+LLM_PROVIDER=stub \
+LLM_STUB_FIXTURE_PATH=packages/server/scripts/stub-responses.json \
+pnpm --filter @lifebuild/server dev
+```
+
+Response rules support:
+
+- `matchType`: `exact` (default), `includes`, or `regex`
+- `toolCalls`: optional tool call payloads for testing tool execution
+- `defaultResponse`: used when no rules match (can also be set via `LLM_STUB_DEFAULT_RESPONSE`)
+
 ## Usage
 
 ### Starting the Server
