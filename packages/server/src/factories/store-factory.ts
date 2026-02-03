@@ -90,6 +90,22 @@ function getSyncPayload(config: StoreConfig): Record<string, string> | undefined
   return undefined
 }
 
+function normalizePingMs(
+  value: number,
+  fallback: number,
+  min: number,
+  max: number,
+  label: string
+): number {
+  if (!Number.isFinite(value) || value < min || value > max) {
+    if (value !== fallback) {
+      logger.warn({ value, min, max, label }, 'Invalid ping configuration, using fallback')
+    }
+    return fallback
+  }
+  return value
+}
+
 export async function createStore(
   storeId: string,
   configOverrides?: Partial<StoreConfig>
@@ -114,6 +130,21 @@ export async function createStore(
     `Creating store ${storeId}`
   )
 
+  const pingIntervalMs = normalizePingMs(
+    Number(process.env.LIVESTORE_PING_INTERVAL_MS) || 5000,
+    5000,
+    1000,
+    60000,
+    'LIVESTORE_PING_INTERVAL_MS'
+  )
+  const pingTimeoutMs = normalizePingMs(
+    Number(process.env.LIVESTORE_PING_TIMEOUT_MS) || 2000,
+    2000,
+    1000,
+    60000,
+    'LIVESTORE_PING_TIMEOUT_MS'
+  )
+
   const storeDataPath = path.join(config.dataPath!, storeId)
 
   const adapter = makeAdapter({
@@ -123,8 +154,14 @@ export async function createStore(
     },
     sync: config.syncUrl
       ? {
-          backend: makeWsSync({ url: config.syncUrl }),
-          onSyncError: 'shutdown', // Revert to original behavior
+          backend: makeWsSync({
+            url: config.syncUrl,
+            ping: {
+              requestInterval: pingIntervalMs,
+              requestTimeout: pingTimeoutMs,
+            },
+          }),
+          onSyncError: 'shutdown',
         }
       : undefined,
     devtools: config.enableDevtools
