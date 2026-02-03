@@ -306,6 +306,12 @@ async function main() {
         id,
         status: info.status,
         connectedAt: info.connectedAt.toISOString(),
+        lastConnectedAt: info.lastConnectedAt?.toISOString() ?? null,
+        lastDisconnectedAt: info.lastDisconnectedAt?.toISOString() ?? null,
+        statusHistory: info.statusHistory.map(entry => ({
+          status: entry.status,
+          timestamp: entry.timestamp.toISOString(),
+        })),
         lastActivity: info.lastActivity.toISOString(),
         errorCount: info.errorCount,
         reconnectAttempts: info.reconnectAttempts,
