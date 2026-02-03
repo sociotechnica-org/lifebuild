@@ -157,6 +157,7 @@ export async function createStore(
           backend: makeWsSync({
             url: config.syncUrl,
             ping: {
+              enabled: true,
               requestInterval: pingIntervalMs,
               requestTimeout: pingTimeoutMs,
             },
