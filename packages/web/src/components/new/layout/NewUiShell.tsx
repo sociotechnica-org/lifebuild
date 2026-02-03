@@ -7,6 +7,7 @@ import { getUsers$ } from '@lifebuild/shared/queries'
 import type { User } from '@lifebuild/shared/schema'
 import { TableBar } from './TableBar.js'
 import { getInitials, isCurrentUserAdmin } from '../utils/index.js'
+import { LiveStoreStatus } from './LiveStoreStatus.js'
 
 type NewUiShellProps = {
   children: React.ReactNode
@@ -142,6 +143,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
           </Link>
         </nav>
         <div className='flex items-center gap-4'>
+          {isAuthenticated && onChatToggle && <LiveStoreStatus />}
           {onChatToggle && (
             <button
               type='button'
@@ -154,7 +156,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
             </button>
           )}
           {isAuthenticated ? (
-            <>
+            <div className='flex flex-col items-end gap-1'>
               <button
                 ref={buttonRef}
                 type='button'
@@ -200,7 +202,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
                   </button>
                 </div>
               )}
-            </>
+            </div>
           ) : (
             <Link
               to={ROUTES.LOGIN}

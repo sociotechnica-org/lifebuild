@@ -7,7 +7,14 @@
  * - useStore() returning { store }
  * - useQuery(query$) without explicit store parameter
  */
-import React, { createContext, useContext, useMemo, Suspense, type ReactNode } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  Suspense,
+  type ReactNode,
+} from 'react'
 import {
   StoreRegistry,
   StoreRegistryProvider,
@@ -27,6 +34,7 @@ export interface LiveStoreProviderProps {
   storeId?: string
   batchUpdates?: (callback: () => void) => void
   syncPayload?: RegistryStoreOptions['syncPayload']
+  disableDevtools?: RegistryStoreOptions['disableDevtools']
   boot?: RegistryStoreOptions['boot']
   renderLoading?: (state: { stage: string }) => ReactNode
   children: ReactNode
@@ -53,6 +61,7 @@ export const LiveStoreProvider: React.FC<LiveStoreProviderProps> = ({
   storeId: providedStoreId,
   batchUpdates,
   syncPayload,
+  disableDevtools,
   boot,
   renderLoading,
   children,
@@ -79,10 +88,18 @@ export const LiveStoreProvider: React.FC<LiveStoreProviderProps> = ({
         adapter,
         storeId,
         syncPayload,
+        disableDevtools,
         boot,
       }),
-    [schema, adapter, storeId, syncPayload, boot]
+    [schema, adapter, storeId, syncPayload, disableDevtools, boot]
   )
+
+  useEffect(() => {
+    return () => {
+      const registry = storeRegistry as { dispose?: () => Promise<void> }
+      void registry.dispose?.()
+    }
+  }, [storeRegistry])
 
   // Default loading fallback
   const loadingFallback = renderLoading ? renderLoading({ stage: 'loading' }) : null

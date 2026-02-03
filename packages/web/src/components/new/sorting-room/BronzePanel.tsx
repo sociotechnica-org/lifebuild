@@ -22,12 +22,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { Project, Task, TableBronzeProjectEntry } from '@lifebuild/shared/schema'
-import {
-  getCategoryInfo,
-  type ProjectCategory,
-  resolveLifecycleState,
-  type LifecycleStream,
-} from '@lifebuild/shared'
+import { getCategoryInfo, type ProjectCategory } from '@lifebuild/shared'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 

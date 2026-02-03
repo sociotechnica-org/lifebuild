@@ -7,7 +7,6 @@
 import type { Store } from '@livestore/livestore'
 import { events } from '@lifebuild/shared/schema'
 import {
-  getProjects$,
   getTableConfiguration$,
   getTableBronzeStack$,
   getProjectById$,
