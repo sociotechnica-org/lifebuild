@@ -605,8 +605,12 @@ export class StoreManager extends EventEmitter {
 
       // Check if network has recovered before proceeding with reconnection
       // This avoids unnecessary shutdown/recreation if LiveStore auto-recovered
-      // Check 'connecting' status too - network may recover before timeout fires
-      if (currentInfo.networkStatus?.isConnected) {
+      // But don't skip if sync is stuck - the network may be up but sync is stalled,
+      // which is the exact scenario handleStuckSyncRecovery is meant to handle
+      const syncStuck =
+        currentInfo.syncStatus?.stuckSince &&
+        Date.now() - currentInfo.syncStatus.stuckSince.getTime() > SYNC_STUCK_THRESHOLD_MS
+      if (currentInfo.networkStatus?.isConnected && !syncStuck) {
         storeLogger(storeId).info('Network recovered before reconnect - skipping')
         currentInfo.status = 'connected'
         currentInfo.reconnectAttempts = 0
