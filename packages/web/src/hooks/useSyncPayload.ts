@@ -16,6 +16,18 @@ export function useSyncPayload({ instanceId }: UseSyncPayloadOptions) {
     instanceId,
   }))
 
+  useEffect(() => {
+    setSyncPayload(previous => {
+      if (!isAuthenticated) {
+        return { instanceId }
+      }
+      return {
+        instanceId,
+        authToken: previous.authToken,
+      }
+    })
+  }, [instanceId, isAuthenticated])
+
   const updateSyncPayload = useCallback(async () => {
     try {
       if (!isAuthenticated) {
