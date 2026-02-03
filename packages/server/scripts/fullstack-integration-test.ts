@@ -10,6 +10,7 @@ import { createStorePromise, queryDb } from '@livestore/livestore'
 import { makeAdapter } from '@livestore/adapter-node'
 import { makeWsSync } from '@livestore/sync-cf/client'
 import { schema, events, tables } from '@lifebuild/shared/schema'
+import { DEV_AUTH } from '@lifebuild/shared/auth'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -168,7 +169,7 @@ const createClientStore = async (dataPath: string) => {
     adapter,
     schema: schema as any,
     storeId,
-    syncPayload: { instanceId: storeId },
+    syncPayload: { instanceId: storeId, authToken: DEV_AUTH.INSECURE_TOKEN },
   })
 }
 

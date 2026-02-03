@@ -189,10 +189,7 @@ export class EventProcessor {
     const providerEnv = process.env.LLM_PROVIDER?.toLowerCase()
     this.llmProviderMode = providerEnv === 'stub' ? 'stub' : 'braintrust'
     if (providerEnv && providerEnv !== 'stub' && providerEnv !== 'braintrust') {
-      logger.warn(
-        { providerEnv },
-        'Unknown LLM_PROVIDER value, defaulting to braintrust provider'
-      )
+      logger.warn({ providerEnv }, 'Unknown LLM_PROVIDER value, defaulting to braintrust provider')
     }
 
     // Load LLM configuration from environment
