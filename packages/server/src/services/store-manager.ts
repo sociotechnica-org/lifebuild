@@ -279,8 +279,6 @@ export class StoreManager extends EventEmitter {
     const storeInfo = this.stores.get(storeId)
     if (!storeInfo) return
 
-    this.updateStoreStatus(storeId, 'connected')
-
     // Monitor network status (WebSocket connectivity)
     this.setupNetworkStatusMonitoring(storeId, store)
 
