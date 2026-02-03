@@ -52,6 +52,45 @@ const adapter = makePersistedAdapter({
   sharedWorker: LiveStoreSharedWorker,
 })
 
+const DEVTOOLS_QUERY_PARAM = 'livestoreDevtools'
+const DEVTOOLS_ROUTE_PARAM = 'devtoolsRoute'
+const DEVTOOLS_PATH = '/_livestore'
+
+const isDevtoolsEnabled = (value: string | null) =>
+  value !== null && value !== '0' && value !== 'false'
+
+const getDevtoolsMountPath = () => {
+  const base = import.meta.env.BASE_URL ?? '/'
+  const trimmedBase = base.endsWith('/') ? base.slice(0, -1) : base
+  return `${trimmedBase}${DEVTOOLS_PATH}`
+}
+
+const DevtoolsUrlLogger: React.FC<{ enabled: boolean; storeId: string }> = ({
+  enabled,
+  storeId,
+}) => {
+  const { store } = useStore()
+  const lastUrlRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (!enabled || typeof window === 'undefined') return
+
+    const devtoolsAlias = (schema as { devtools?: { alias?: string } }).devtools?.alias ?? 'default'
+    const devtoolsRoute = `/web/${storeId}/${store.clientId}/${store.sessionId}/${devtoolsAlias}`
+    const devtoolsUrl = new URL(getDevtoolsMountPath(), window.location.origin)
+    devtoolsUrl.searchParams.set(DEVTOOLS_QUERY_PARAM, 'true')
+    devtoolsUrl.searchParams.set(DEVTOOLS_ROUTE_PARAM, devtoolsRoute)
+
+    const urlString = devtoolsUrl.toString()
+    if (lastUrlRef.current === urlString) return
+    lastUrlRef.current = urlString
+    ;(window as Window & { __LIVESTORE_DEVTOOLS_URL?: string }).__LIVESTORE_DEVTOOLS_URL = urlString
+    console.info(`[LiveStore] Devtools URL: ${urlString}`)
+  }, [enabled, storeId, store])
+
+  return null
+}
+
 // Component that initializes CHORUS navigation inside LiveStore context
 const ChorusNavigationInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   useChorusNavigation()
@@ -134,10 +173,10 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   const devtoolsParam = useMemo(() => {
     if (typeof window === 'undefined') return null
     const urlParams = new URLSearchParams(location.search)
-    return urlParams.get('livestoreDevtools')
+    return urlParams.get(DEVTOOLS_QUERY_PARAM)
   }, [location.search])
 
-  const devtoolsEnabled = devtoolsParam === '1' || devtoolsParam === 'true'
+  const devtoolsEnabled = isDevtoolsEnabled(devtoolsParam)
 
   const [restartSignal, setRestartSignal] = useState(0)
   const [restartIndex, setRestartIndex] = useState(0)
@@ -220,6 +259,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       syncPayload={syncPayload}
       disableDevtools={devtoolsEnabled ? false : true}
     >
+      <DevtoolsUrlLogger enabled={devtoolsEnabled} storeId={storeId} />
       <LiveStoreRestartCoordinator
         restartSignal={restartSignal}
         onShutdownComplete={handleShutdownComplete}

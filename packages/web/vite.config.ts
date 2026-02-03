@@ -2,7 +2,6 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { livestoreDevtoolsPlugin } from '@livestore/devtools-vite'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
@@ -21,6 +20,16 @@ export default defineConfig({
     // Make version available at runtime via import.meta.env
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(packageJson.version),
   },
+  resolve: {
+    alias: {
+      '@livestore/devtools-vite/dist/devtools-bundle/index.js': path.resolve(
+        './node_modules/@livestore/devtools-vite/dist/devtools-bundle/index.js'
+      ),
+      '@livestore/devtools-vite/dist/devtools-bundle/devtools-vite.css': path.resolve(
+        './node_modules/@livestore/devtools-vite/dist/devtools-bundle/devtools-vite.css'
+      ),
+    },
+  },
   server: {
     port: process.env.PORT ? Number(process.env.PORT) : 60_001,
     watch: {
@@ -35,11 +44,6 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     react(),
-    livestoreDevtoolsPlugin({
-      schemaPath: '../shared/src/livestore/schema.ts',
-      // Ensure devtools are enabled in production too
-      enabled: true,
-    }),
     // @ts-expect-error plugin types seem to be wrong
     shouldAnalyze
       ? visualizer({
@@ -65,5 +69,11 @@ export default defineConfig({
   build: {
     // Generate source maps for Sentry
     sourcemap: true,
+    rollupOptions: {
+      input: {
+        main: path.resolve('./index.html'),
+        devtools: path.resolve('./_livestore/index.html'),
+      },
+    },
   },
 })
