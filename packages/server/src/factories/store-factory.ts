@@ -144,6 +144,12 @@ export async function createStore(
     60000,
     'LIVESTORE_PING_TIMEOUT_MS'
   )
+  if (pingTimeoutMs >= pingIntervalMs) {
+    logger.warn(
+      { pingIntervalMs, pingTimeoutMs },
+      'Ping timeout should be less than interval to allow response before next ping'
+    )
+  }
 
   const storeDataPath = path.join(config.dataPath!, storeId)
 
