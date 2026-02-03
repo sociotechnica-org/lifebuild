@@ -18,7 +18,7 @@ import * as Sentry from '@sentry/node'
 // Static imports are hoisted and resolved before any code runs, so
 // any module that transitively imports logger.js would defeat the purpose.
 const { logger } = await import('./utils/logger.js')
-const { storeManager } = await import('./services/store-manager.js')
+const { serializeStoreConnectionFields, storeManager } = await import('./services/store-manager.js')
 const { EventProcessor } = await import('./services/event-processor.js')
 const { WorkspaceOrchestrator } = await import('./services/workspace-orchestrator.js')
 const { AuthWorkerWorkspaceDirectory } = await import('./services/workspace-directory.js')
@@ -306,12 +306,7 @@ async function main() {
         id,
         status: info.status,
         connectedAt: info.connectedAt.toISOString(),
-        lastConnectedAt: info.lastConnectedAt?.toISOString() ?? null,
-        lastDisconnectedAt: info.lastDisconnectedAt?.toISOString() ?? null,
-        statusHistory: info.statusHistory.map(entry => ({
-          status: entry.status,
-          timestamp: entry.timestamp.toISOString(),
-        })),
+        ...serializeStoreConnectionFields(info),
         lastActivity: info.lastActivity.toISOString(),
         errorCount: info.errorCount,
         reconnectAttempts: info.reconnectAttempts,

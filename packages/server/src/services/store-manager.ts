@@ -46,6 +46,24 @@ export interface StoreInfo {
   networkStatus?: NetworkStatusInfo
 }
 
+export const serializeStoreConnectionFields = (
+  info: StoreInfo
+): {
+  lastConnectedAt: string | null
+  lastDisconnectedAt: string | null
+  statusHistory: Array<{
+    status: StoreConnectionStatus
+    timestamp: string
+  }>
+} => ({
+  lastConnectedAt: info.lastConnectedAt?.toISOString() ?? null,
+  lastDisconnectedAt: info.lastDisconnectedAt?.toISOString() ?? null,
+  statusHistory: info.statusHistory.map(entry => ({
+    status: entry.status,
+    timestamp: entry.timestamp.toISOString(),
+  })),
+})
+
 /** Event signatures for StoreManager - used for documentation */
 interface StoreManagerEvents {
   storeReconnected: (data: { storeId: string; store: LiveStore }) => void
@@ -837,12 +855,7 @@ export class StoreManager extends EventEmitter {
       storeId,
       status: info.status,
       connectedAt: info.connectedAt.toISOString(),
-      lastConnectedAt: info.lastConnectedAt?.toISOString() ?? null,
-      lastDisconnectedAt: info.lastDisconnectedAt?.toISOString() ?? null,
-      statusHistory: info.statusHistory.map(entry => ({
-        status: entry.status,
-        timestamp: entry.timestamp.toISOString(),
-      })),
+      ...serializeStoreConnectionFields(info),
       lastActivity: info.lastActivity.toISOString(),
       errorCount: info.errorCount,
       reconnectAttempts: info.reconnectAttempts,
