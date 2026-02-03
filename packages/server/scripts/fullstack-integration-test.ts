@@ -28,6 +28,7 @@ const startupTimeoutMs = Number(process.env.FULLSTACK_STARTUP_TIMEOUT_MS ?? 60_0
 const responseTimeoutMs = Number(process.env.FULLSTACK_RESPONSE_TIMEOUT_MS ?? 20_000)
 const recoveryTimeoutMs = Number(process.env.FULLSTACK_RECOVERY_TIMEOUT_MS ?? 30_000)
 const noResponseWindowMs = Number(process.env.FULLSTACK_NO_RESPONSE_WINDOW_MS ?? 2_000)
+const totalTimeoutMs = Number(process.env.FULLSTACK_TOTAL_TIMEOUT_MS ?? 120_000)
 
 const readEnvFile = (filePath: string): Record<string, string> => {
   if (!fs.existsSync(filePath)) {
@@ -115,12 +116,25 @@ const waitForPort = async (port: number, timeoutMs: number) => {
   throw new Error(`Timed out waiting for port ${port}`)
 }
 
-const fetchJson = async <T>(url: string): Promise<T> => {
-  const response = await fetch(url)
+const fetchJson = async <T>(url: string, timeoutMs = 2_000): Promise<T> => {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+  const response = await fetch(url, { signal: controller.signal }).finally(() => {
+    clearTimeout(timeoutId)
+  })
   if (!response.ok) {
     throw new Error(`Unexpected response ${response.status} from ${url}`)
   }
   return (await response.json()) as T
+}
+
+const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> => {
+  return await Promise.race([
+    promise,
+    delay(timeoutMs).then(() => {
+      throw new Error(`${label} timed out after ${timeoutMs}ms`)
+    }),
+  ])
 }
 
 const waitForServerStore = async (timeoutMs: number) => {
@@ -244,10 +258,49 @@ const run = async () => {
   console.log(`- storeId: ${storeId}`)
   console.log(`- server: ${healthUrl}`)
   console.log(`- worker: ${syncUrl}`)
+  console.log(
+    `- timeouts (ms): startup=${startupTimeoutMs} response=${responseTimeoutMs} recovery=${recoveryTimeoutMs} total=${totalTimeoutMs}`
+  )
 
   const contextDir = path.join(repoRoot, '.context')
   ensureDir(contextDir)
-  const dataRoot = fs.mkdtempSync(path.join(contextDir, 'fullstack-'))
+  let dataRoot: string | null = null
+  let worker: ChildProcessWithoutNullStreams | null = null
+  let server: ChildProcessWithoutNullStreams | null = null
+  let store: any = null
+  let cleanupStarted = false
+
+  const cleanup = async () => {
+    if (cleanupStarted) return
+    cleanupStarted = true
+
+    if (store) {
+      await withTimeout(
+        store.shutdownPromise().catch(() => undefined),
+        5_000,
+        'Store shutdown'
+      ).catch(error => {
+        console.warn('Store shutdown did not complete cleanly', error)
+      })
+    }
+
+    await terminateProcess(server, 'server')
+    await terminateProcess(worker, 'worker')
+    if (dataRoot) {
+      try {
+        fs.rmSync(dataRoot, { recursive: true, force: true })
+      } catch (error) {
+        console.warn('Failed to remove fullstack test data directory', error)
+      }
+    }
+  }
+
+  const timeoutId = setTimeout(() => {
+    console.error(`Fullstack integration test exceeded ${totalTimeoutMs}ms`)
+    void cleanup().finally(() => process.exit(1))
+  }, totalTimeoutMs)
+
+  dataRoot = fs.mkdtempSync(path.join(contextDir, 'fullstack-'))
   const serverDataPath = path.join(dataRoot, 'server')
   const clientDataPath = path.join(dataRoot, 'client')
   ensureDir(serverDataPath)
@@ -306,10 +359,6 @@ const run = async () => {
     '--var',
     `R2_PUBLIC_URL=${workerEnv.R2_PUBLIC_URL}`,
   ]
-
-  let worker: ChildProcessWithoutNullStreams | null = null
-  let server: ChildProcessWithoutNullStreams | null = null
-  let store: any = null
 
   try {
     console.log('\nStarting worker...')
@@ -371,6 +420,8 @@ const run = async () => {
     await waitForPort(workerPort, startupTimeoutMs)
     const workerReadyMs = Date.now() - restartStart
 
+    await waitForServerStore(recoveryTimeoutMs)
+
     const responseWaitStart = Date.now()
     const reconnectResponse = await waitForAssistantResponse(
       store,
@@ -390,18 +441,8 @@ const run = async () => {
     )
     console.log('\nFullstack sync integration test completed')
   } finally {
-    if (store) {
-      await store.shutdownPromise().catch(() => undefined)
-    }
-    await terminateProcess(server, 'server')
-    await terminateProcess(worker, 'worker')
-    if (dataRoot) {
-      try {
-        fs.rmSync(dataRoot, { recursive: true, force: true })
-      } catch (error) {
-        console.warn('Failed to remove fullstack test data directory', error)
-      }
-    }
+    clearTimeout(timeoutId)
+    await cleanup()
   }
 }
 
