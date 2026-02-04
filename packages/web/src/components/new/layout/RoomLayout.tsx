@@ -53,6 +53,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children, noScroll
   const [isChatOpen, setIsChatOpen] = usePersistentChatToggle(room.roomId)
   const chat = useRoomChat(room)
   const previousOpenRef = React.useRef(isChatOpen)
+  const previousRoomIdRef = React.useRef(room.roomId)
   const disabledReason = chat.isConversationArchived
     ? 'This chat is archived.'
     : chat.isWorkerInactive
@@ -60,6 +61,13 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children, noScroll
       : null
 
   React.useEffect(() => {
+    // Reset tracking state when navigating to a different room
+    if (previousRoomIdRef.current !== room.roomId) {
+      previousOpenRef.current = isChatOpen
+      previousRoomIdRef.current = room.roomId
+      return
+    }
+
     if (isChatOpen && !previousOpenRef.current) {
       posthog?.capture('room_chat_opened', {
         roomId: room.roomId,
