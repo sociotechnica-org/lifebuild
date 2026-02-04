@@ -607,7 +607,7 @@ function createErrorResponse(message: string, status = 400): Response {
  */
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
 
-function checkRateLimit(clientIP: string, maxRequests = 10, windowMs = 60000): boolean {
+function checkRateLimit(clientIP: string, maxRequests = 60, windowMs = 60000): boolean {
   const now = Date.now()
   const key = clientIP
   const window = rateLimitStore.get(key)
