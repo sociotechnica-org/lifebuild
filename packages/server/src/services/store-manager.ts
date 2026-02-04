@@ -30,8 +30,26 @@ export interface SyncStatusInfo {
 export interface NetworkStatusInfo {
   isConnected: boolean
   lastUpdatedAt: Date
+  timestampMs: number
   disconnectedSince?: Date
 }
+
+export interface NetworkStatusHistoryEntry {
+  isConnected: boolean
+  timestampMs: number
+}
+
+export interface NetworkHealthStatusEntry {
+  status: StoreInfo['status']
+  networkStatus: StoreInfo['networkStatus'] | null
+  lastNetworkStatusAt: string | null
+  lastConnectedAt: string | null
+  lastDisconnectedAt: string | null
+  offlineDurationMs: number | null
+  history: StoreInfo['networkStatusHistory']
+}
+
+export type NetworkHealthStatusMap = Map<string, NetworkHealthStatusEntry>
 
 export interface StoreInfo {
   store: LiveStore
@@ -41,7 +59,9 @@ export interface StoreInfo {
   status: StoreConnectionStatus
   lastConnectedAt: Date | null
   lastDisconnectedAt: Date | null
+  lastNetworkStatusAt: Date | null
   statusHistory: StatusHistoryEntry[]
+  networkStatusHistory: NetworkStatusHistoryEntry[]
   errorCount: number
   reconnectAttempts: number
   syncStatus?: SyncStatusInfo
@@ -170,7 +190,9 @@ export class StoreManager extends EventEmitter {
         status: 'connected',
         lastConnectedAt: null,
         lastDisconnectedAt: null,
+        lastNetworkStatusAt: null,
         statusHistory: [],
+        networkStatusHistory: [],
         errorCount: 0,
         reconnectAttempts: 0,
         monitoringSessionId: 0,
@@ -352,11 +374,7 @@ export class StoreManager extends EventEmitter {
         // Only set if stream hasn't already provided data (avoids race condition)
         if (!storeInfo.networkStatus) {
           const now = new Date()
-          storeInfo.networkStatus = {
-            isConnected: initial.isConnected,
-            lastUpdatedAt: now,
-            disconnectedSince: initial.isConnected ? undefined : now,
-          }
+          this.updateNetworkStatusTracking(storeInfo, initial.isConnected, now)
           storeLogger(storeId).info(
             { isConnected: initial.isConnected },
             'Network status monitoring enabled'
@@ -404,11 +422,7 @@ export class StoreManager extends EventEmitter {
         if (status.isConnected && !wasConnected) {
           // Reconnected
           storeLogger(storeId).info('Network connection restored')
-          storeInfo.networkStatus = {
-            isConnected: true,
-            lastUpdatedAt: now,
-            disconnectedSince: undefined,
-          }
+          this.updateNetworkStatusTracking(storeInfo, true, now)
           // LiveStore handles reconnection automatically, just update our status
           // Also handle 'connecting' status - network may recover before our reconnect timeout fires
           if (storeInfo.status === 'disconnected' || storeInfo.status === 'connecting') {
@@ -418,11 +432,7 @@ export class StoreManager extends EventEmitter {
         } else if (!status.isConnected && wasConnected) {
           // Disconnected
           storeLogger(storeId).warn('Network connection lost - LiveStore will auto-retry')
-          storeInfo.networkStatus = {
-            isConnected: false,
-            lastUpdatedAt: now,
-            disconnectedSince: now,
-          }
+          this.updateNetworkStatusTracking(storeInfo, false, now)
           if (this.updateStoreStatus(storeId, 'disconnected', now)) {
             this.captureDisconnect(storeId, storeInfo, 'network_status_disconnected')
             this.emit('storeDisconnected', { storeId })
@@ -455,11 +465,7 @@ export class StoreManager extends EventEmitter {
               'Network status stream ended unexpectedly - treating as disconnect'
             )
             const now = new Date()
-            storeInfo.networkStatus = {
-              isConnected: false,
-              lastUpdatedAt: now,
-              disconnectedSince: now,
-            }
+            this.updateNetworkStatusTracking(storeInfo, false, now)
             if (this.updateStoreStatus(storeId, 'disconnected', now)) {
               this.captureDisconnect(storeId, storeInfo, 'network_status_stream_ended', error)
               this.emit('storeDisconnected', { storeId })
@@ -729,6 +735,8 @@ export class StoreManager extends EventEmitter {
         currentInfo.reconnectAttempts = 0
         currentInfo.syncStatus = undefined // Reset sync status for fresh start
         currentInfo.networkStatus = undefined // Reset network status to allow fresh monitoring
+        currentInfo.lastNetworkStatusAt = null
+        currentInfo.networkStatusHistory = []
 
         this.setupSyncStatusMonitoring(storeId, store)
         storeLogger(storeId).info('Store reconnected successfully')
@@ -986,6 +994,29 @@ export class StoreManager extends EventEmitter {
     }
   }
 
+  getNetworkHealthStatus(): NetworkHealthStatusMap {
+    const now = Date.now()
+    const result: NetworkHealthStatusMap = new Map()
+
+    for (const [storeId, info] of this.stores.entries()) {
+      const offlineDurationMs =
+        info.networkStatus?.isConnected === false && info.networkStatus.disconnectedSince
+          ? now - info.networkStatus.disconnectedSince.getTime()
+          : null
+      result.set(storeId, {
+        status: info.status,
+        networkStatus: info.networkStatus ?? null,
+        lastNetworkStatusAt: info.lastNetworkStatusAt?.toISOString() ?? null,
+        lastConnectedAt: info.lastConnectedAt?.toISOString() ?? null,
+        lastDisconnectedAt: info.lastDisconnectedAt?.toISOString() ?? null,
+        offlineDurationMs,
+        history: info.networkStatusHistory,
+      })
+    }
+
+    return result
+  }
+
   private recordStatusHistory(
     storeInfo: StoreInfo,
     status: StoreConnectionStatus,
@@ -1002,6 +1033,30 @@ export class StoreManager extends EventEmitter {
 
     if (storeInfo.statusHistory.length > STATUS_HISTORY_LIMIT) {
       storeInfo.statusHistory.splice(0, storeInfo.statusHistory.length - STATUS_HISTORY_LIMIT)
+    }
+  }
+
+  private updateNetworkStatusTracking(
+    storeInfo: StoreInfo,
+    isConnected: boolean,
+    timestamp: Date
+  ): void {
+    storeInfo.networkStatus = {
+      isConnected,
+      lastUpdatedAt: timestamp,
+      timestampMs: timestamp.getTime(),
+      disconnectedSince: isConnected ? undefined : timestamp,
+    }
+    storeInfo.lastNetworkStatusAt = timestamp
+    storeInfo.networkStatusHistory.push({
+      isConnected,
+      timestampMs: timestamp.getTime(),
+    })
+    if (storeInfo.networkStatusHistory.length > STATUS_HISTORY_LIMIT) {
+      storeInfo.networkStatusHistory.splice(
+        0,
+        storeInfo.networkStatusHistory.length - STATUS_HISTORY_LIMIT
+      )
     }
   }
 

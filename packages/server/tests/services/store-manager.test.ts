@@ -226,6 +226,79 @@ describe('StoreManager', () => {
     })
   })
 
+  describe('getNetworkHealthStatus', () => {
+    it('returns network health data with history', async () => {
+      await storeManager.addStore('test-store')
+
+      const info = storeManager.getStoreInfo('test-store')
+      expect(info).toBeTruthy()
+      if (!info) return
+
+      const connectedAt = new Date('2026-02-01T10:00:00Z')
+      const networkAt = new Date('2026-02-01T10:05:00Z')
+
+      info.status = 'connected'
+      info.lastConnectedAt = connectedAt
+      info.lastNetworkStatusAt = networkAt
+      info.networkStatus = {
+        isConnected: true,
+        lastUpdatedAt: networkAt,
+        timestampMs: networkAt.getTime(),
+      }
+      info.networkStatusHistory = [
+        { isConnected: true, timestampMs: connectedAt.getTime() },
+        { isConnected: true, timestampMs: networkAt.getTime() },
+      ]
+
+      const result = storeManager.getNetworkHealthStatus()
+      const store = result.get('test-store')
+
+      expect(store).toBeTruthy()
+      expect(store?.status).toBe('connected')
+      expect(store?.networkStatus).toEqual(info.networkStatus)
+      expect(store?.lastNetworkStatusAt).toBe(networkAt.toISOString())
+      expect(store?.lastConnectedAt).toBe(connectedAt.toISOString())
+      expect(store?.history).toEqual(info.networkStatusHistory)
+      expect(store?.offlineDurationMs).toBeNull()
+    })
+
+    it('calculates offlineDurationMs when disconnected', async () => {
+      vi.useFakeTimers()
+      try {
+        const statusDisconnectedAt = new Date('2026-02-04T09:50:00Z')
+        const networkDisconnectedAt = new Date('2026-02-04T10:00:00Z')
+        const now = new Date('2026-02-04T10:05:30Z')
+        vi.setSystemTime(now)
+
+        await storeManager.addStore('test-store')
+
+        const info = storeManager.getStoreInfo('test-store')
+        expect(info).toBeTruthy()
+        if (!info) return
+
+        info.status = 'disconnected'
+        info.lastDisconnectedAt = statusDisconnectedAt
+        info.lastNetworkStatusAt = networkDisconnectedAt
+        info.networkStatus = {
+          isConnected: false,
+          lastUpdatedAt: networkDisconnectedAt,
+          timestampMs: networkDisconnectedAt.getTime(),
+          disconnectedSince: networkDisconnectedAt,
+        }
+        info.networkStatusHistory = [
+          { isConnected: false, timestampMs: networkDisconnectedAt.getTime() },
+        ]
+
+        const result = storeManager.getNetworkHealthStatus()
+        const store = result.get('test-store')
+
+        expect(store?.offlineDurationMs).toBe(330000)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
+
   describe('shutdown', () => {
     it('should shutdown all stores', async () => {
       await storeManager.addStore('store-1')
