@@ -359,8 +359,6 @@ async function main() {
         reconnectAttempts: info.reconnectAttempts,
         networkStatus: info.networkStatus ?? null,
         lastNetworkStatusAt: info.lastNetworkStatusAt?.toISOString() ?? null,
-        lastConnectedAt: info.lastConnectedAt?.toISOString() ?? null,
-        lastDisconnectedAt: info.lastDisconnectedAt?.toISOString() ?? null,
         offlineDurationMs:
           info.networkStatus?.isConnected === false && info.networkStatus.disconnectedSince
             ? Date.now() - info.networkStatus.disconnectedSince.getTime()

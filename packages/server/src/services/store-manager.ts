@@ -39,6 +39,18 @@ export interface NetworkStatusHistoryEntry {
   timestampMs: number
 }
 
+export interface NetworkHealthStatusEntry {
+  status: StoreInfo['status']
+  networkStatus: StoreInfo['networkStatus'] | null
+  lastNetworkStatusAt: string | null
+  lastConnectedAt: string | null
+  lastDisconnectedAt: string | null
+  offlineDurationMs: number | null
+  history: StoreInfo['networkStatusHistory']
+}
+
+export type NetworkHealthStatusMap = Map<string, NetworkHealthStatusEntry>
+
 export interface StoreInfo {
   store: LiveStore
   config: StoreConfig
@@ -723,6 +735,8 @@ export class StoreManager extends EventEmitter {
         currentInfo.reconnectAttempts = 0
         currentInfo.syncStatus = undefined // Reset sync status for fresh start
         currentInfo.networkStatus = undefined // Reset network status to allow fresh monitoring
+        currentInfo.lastNetworkStatusAt = null
+        currentInfo.networkStatusHistory = []
 
         this.setupSyncStatusMonitoring(storeId, store)
         storeLogger(storeId).info('Store reconnected successfully')
@@ -980,31 +994,9 @@ export class StoreManager extends EventEmitter {
     }
   }
 
-  getNetworkHealthStatus(): Map<
-    string,
-    {
-      status: StoreInfo['status']
-      networkStatus: StoreInfo['networkStatus'] | null
-      lastNetworkStatusAt: string | null
-      lastConnectedAt: string | null
-      lastDisconnectedAt: string | null
-      offlineDurationMs: number | null
-      history: StoreInfo['networkStatusHistory']
-    }
-  > {
+  getNetworkHealthStatus(): NetworkHealthStatusMap {
     const now = Date.now()
-    const result = new Map<
-      string,
-      {
-        status: StoreInfo['status']
-        networkStatus: StoreInfo['networkStatus'] | null
-        lastNetworkStatusAt: string | null
-        lastConnectedAt: string | null
-        lastDisconnectedAt: string | null
-        offlineDurationMs: number | null
-        history: StoreInfo['networkStatusHistory']
-      }
-    >()
+    const result: NetworkHealthStatusMap = new Map()
 
     for (const [storeId, info] of this.stores.entries()) {
       const offlineDurationMs =
