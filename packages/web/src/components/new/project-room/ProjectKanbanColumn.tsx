@@ -5,6 +5,7 @@ import type { Task } from '@lifebuild/shared/schema'
 import type { StatusColumn } from '@lifebuild/shared'
 import { events } from '@lifebuild/shared/schema'
 import { SimpleTaskCard } from './SimpleTaskCard.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 interface ProjectKanbanColumnProps {
   column: StatusColumn
@@ -87,6 +88,7 @@ export function ProjectKanbanColumn({
   projectId,
 }: ProjectKanbanColumnProps) {
   const { store } = useStore()
+  const posthog = usePostHog()
   const [isAddingTask, setIsAddingTask] = useState(false)
 
   // Only allow adding tasks in the To Do column
@@ -132,6 +134,7 @@ export function ProjectKanbanColumn({
         createdAt: new Date(),
       })
     )
+    posthog?.capture('task_created', { projectId })
   }
 
   return (

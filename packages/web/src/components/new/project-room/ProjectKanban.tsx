@@ -17,6 +17,7 @@ import { STATUS_COLUMNS } from '@lifebuild/shared'
 import { ProjectKanbanColumn } from './ProjectKanbanColumn.js'
 import { SimpleTaskCard } from './SimpleTaskCard.js'
 import { calculateStatusTaskReorder, calculateStatusDropTarget } from './taskReordering.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 interface ProjectKanbanProps {
   tasks: readonly Task[]
@@ -26,6 +27,7 @@ interface ProjectKanbanProps {
 
 export function ProjectKanban({ tasks, projectId, onTaskClick }: ProjectKanbanProps) {
   const { store } = useStore()
+  const posthog = usePostHog()
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [insertionPreview, setInsertionPreview] = useState<{
     statusId: string
@@ -132,6 +134,16 @@ export function ProjectKanban({ tasks, projectId, onTaskClick }: ProjectKanbanPr
       const sortedTasks = [...statusTasks].sort((a, b) => a.position - b.position)
       const currentIndex = sortedTasks.findIndex(t => t.id === task.id)
       if (currentIndex === targetIndex) return
+    }
+
+    // Track status change if the task is moving to a different column
+    if (targetStatusId !== task.status) {
+      posthog?.capture('task_status_changed', {
+        from: task.status,
+        to: targetStatusId,
+        projectId,
+        taskId: task.id,
+      })
     }
 
     // Calculate reorder operations

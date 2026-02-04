@@ -14,6 +14,7 @@ import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import { useTableState } from '../../../hooks/useTableState.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 interface ProjectHeaderProps {
   project: Project
@@ -25,6 +26,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   const { user } = useAuth()
   const actorId = user?.id
   const { clearGold, clearSilver } = useTableState()
+  const posthog = usePostHog()
   const [showCompleteConfirm, setShowCompleteConfirm] = useState(false)
   const [showUncompleteConfirm, setShowUncompleteConfirm] = useState(false)
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
@@ -108,6 +110,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
         actorId,
       })
     )
+    posthog?.capture('project_completed', { projectId: project.id })
 
     // Clear table slot if project was on the table
     if (isOnGoldTable) {
@@ -161,6 +164,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
         actorId,
       })
     )
+    posthog?.capture('project_archived', { projectId: project.id })
 
     // Clear table slot if project was on the table
     if (isOnGoldTable) {

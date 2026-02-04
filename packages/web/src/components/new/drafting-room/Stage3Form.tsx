@@ -33,6 +33,7 @@ import { generateRoute } from '../../../constants/routes.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
 import { useRoomChatControl } from '../layout/RoomLayout.js'
 import { TaskDetailModal, formatDeadline } from '../project-room/TaskDetailModal.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 /**
  * Document icon component for indicating task has description
@@ -148,6 +149,7 @@ export const Stage3Form: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>()
   const { store } = useStore()
   const { user } = useAuth()
+  const posthog = usePostHog()
   const { openChat, sendDirectMessage } = useRoomChatControl()
 
   // Load existing project
@@ -320,6 +322,7 @@ export const Stage3Form: React.FC = () => {
   const handleContinue = () => {
     if (!hasAtLeastOneTask) return
     saveAndAdvance()
+    posthog?.capture('project_stage_completed', { stage: 3, projectId })
     // Project moves to backlog, navigate to Sorting Room with matching stream open
     const stream = lifecycleState?.stream as 'gold' | 'silver' | 'bronze' | undefined
     navigate(generateRoute.sortingRoom(stream))

@@ -66,6 +66,12 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children, noScroll
         roomKind: room.roomKind,
       })
     }
+    if (!isChatOpen && previousOpenRef.current) {
+      posthog?.capture('room_chat_closed', {
+        roomId: room.roomId,
+        roomKind: room.roomKind,
+      })
+    }
     previousOpenRef.current = isChatOpen
   }, [isChatOpen, posthog, room.roomId, room.roomKind])
 

@@ -13,12 +13,14 @@ import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
 import { Tooltip } from '../../ui/Tooltip/Tooltip.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 export const Stage1Form: React.FC = () => {
   const navigate = useNavigate()
   const { projectId: urlProjectId } = useParams<{ projectId: string }>()
   const { store } = useStore()
   const { user } = useAuth()
+  const posthog = usePostHog()
 
   // Load existing project if editing
   const projectResults = useQuery(getProjectById$(urlProjectId ?? ''))
@@ -123,6 +125,7 @@ export const Stage1Form: React.FC = () => {
           actorId: user?.id,
         })
       )
+      posthog?.capture('project_created', { category: currentCategory, projectId })
       setCreatedProjectId(projectId)
 
       // Navigate to the project-specific URL so browser back button works correctly
@@ -165,6 +168,7 @@ export const Stage1Form: React.FC = () => {
           actorId: user?.id,
         })
       )
+      posthog?.capture('project_stage_completed', { stage: 1, projectId })
       navigate(generateRoute.projectStage2(projectId))
     }
   }

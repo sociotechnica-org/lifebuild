@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useQuery, useStore } from '../../../livestore-compat.js'
 import { Link, useNavigate } from 'react-router-dom'
 import {
@@ -17,6 +17,7 @@ import { CategoryCard } from './CategoryCard.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 /**
  * Life Map - The overview of all eight life categories
@@ -30,9 +31,14 @@ export const LifeMap: React.FC = () => {
   const navigate = useNavigate()
   const { store } = useStore()
   const { user } = useAuth()
+  const posthog = usePostHog()
   const actorId = user?.id
   const [completedExpanded, setCompletedExpanded] = useState(false)
   const [archivedExpanded, setArchivedExpanded] = useState(false)
+
+  useEffect(() => {
+    posthog?.capture('life_map_viewed')
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
   const activeBronzeStack = useQuery(getActiveBronzeStack$) ?? []

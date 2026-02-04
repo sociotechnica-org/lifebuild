@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useStore } from '../../../livestore-compat.js'
 import { getProjects$ } from '@lifebuild/shared/queries'
@@ -15,6 +15,7 @@ import { generateRoute } from '../../../constants/routes.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { StageColumn } from './StageColumn.js'
 import { PlanningQueueCard } from './PlanningQueueCard.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 export type ProjectTier = 'gold' | 'silver' | 'bronze'
 
@@ -101,7 +102,12 @@ export const DraftingRoom: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const { store } = useStore()
   const { user } = useAuth()
+  const posthog = usePostHog()
   const allProjects = useQuery(getProjects$) ?? []
+
+  useEffect(() => {
+    posthog?.capture('drafting_room_viewed')
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Valid tier values for validation
   const validTiers: (ProjectTier | 'all')[] = ['all', 'gold', 'silver', 'bronze']
@@ -229,6 +235,10 @@ export const DraftingRoom: React.FC = () => {
     )
 
     if (confirmed) {
+      const lifecycle = getLifecycleState(
+        allProjects.find(p => p.id === projectId)!
+      )
+      posthog?.capture('project_abandoned', { projectId, stage: lifecycle.stage })
       store.commit(
         events.projectArchived({
           id: projectId,
