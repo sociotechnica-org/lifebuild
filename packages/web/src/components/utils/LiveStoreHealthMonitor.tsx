@@ -1,11 +1,14 @@
 import React, { useEffect, useRef } from 'react'
 import type { SyncPayload } from '@lifebuild/shared/auth'
 import { useLiveStoreConnection } from '../../hooks/useLiveStoreConnection.js'
+import { useLiveStoreRepairContext } from '../../contexts/LiveStoreRepairContext.js'
 
 const OFFLINE_RESTART_THRESHOLD_MS = 30_000
 const SYNC_STALE_THRESHOLD_MS = 60_000
 const RESTART_COOLDOWN_MS = 60_000
 const STATUS_STALE_RESTART_THRESHOLD_MS = 120_000
+const REPAIR_SUGGESTION_WINDOW_MS = 10 * 60_000
+const REPAIR_SUGGESTION_THRESHOLD = 3
 
 interface LiveStoreHealthMonitorProps {
   syncPayload: SyncPayload
@@ -17,9 +20,30 @@ export const LiveStoreHealthMonitor: React.FC<LiveStoreHealthMonitorProps> = ({
   onRestart,
 }) => {
   const { networkStatus, syncStatus, lastSyncUpdateAt } = useLiveStoreConnection()
+  const { suggestRepair } = useLiveStoreRepairContext()
   const lastRestartAtRef = useRef(0)
+  const restartHistoryRef = useRef<
+    { timestamp: number; reason: 'sync-stalled' | 'status-stale' }[]
+  >([])
 
   const canRestart = () => Date.now() - lastRestartAtRef.current > RESTART_COOLDOWN_MS
+  const recordRestart = (reason: 'sync-stalled' | 'status-stale') => {
+    const now = Date.now()
+    const recent = restartHistoryRef.current.filter(
+      entry => now - entry.timestamp <= REPAIR_SUGGESTION_WINDOW_MS
+    )
+    recent.push({ timestamp: now, reason })
+    restartHistoryRef.current = recent
+
+    const relevantCount = recent.filter(entry => entry.reason === reason).length
+    if (relevantCount >= REPAIR_SUGGESTION_THRESHOLD) {
+      const suggestion =
+        reason === 'status-stale'
+          ? 'Connection status has gone stale repeatedly'
+          : 'Repeated sync stalls detected'
+      suggestRepair(suggestion)
+    }
+  }
 
   const shouldMonitorOffline = !!networkStatus && !networkStatus.isConnected
   const shouldMonitorSync =
@@ -55,6 +79,7 @@ export const LiveStoreHealthMonitor: React.FC<LiveStoreHealthMonitorProps> = ({
     const staleDuration = Date.now() - lastSyncUpdateAt.getTime()
     if (staleDuration >= SYNC_STALE_THRESHOLD_MS) {
       lastRestartAtRef.current = Date.now()
+      recordRestart('sync-stalled')
       onRestart(`sync stalled for ${Math.round(staleDuration / 1000)}s`)
     }
   }
@@ -74,6 +99,7 @@ export const LiveStoreHealthMonitor: React.FC<LiveStoreHealthMonitorProps> = ({
     const staleDuration = Date.now() - lastActivityAt
     if (staleDuration >= STATUS_STALE_RESTART_THRESHOLD_MS) {
       lastRestartAtRef.current = Date.now()
+      recordRestart('status-stale')
       onRestart(`status stale for ${Math.round(staleDuration / 1000)}s`)
     }
   }
@@ -105,6 +131,7 @@ export const LiveStoreHealthMonitor: React.FC<LiveStoreHealthMonitorProps> = ({
     lastSyncUpdateAt?.getTime(),
     syncPayload.authError,
     onRestart,
+    suggestRepair,
   ])
 
   return null
