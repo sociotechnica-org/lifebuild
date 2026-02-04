@@ -107,7 +107,7 @@ export const DraftingRoom: React.FC = () => {
 
   useEffect(() => {
     posthog?.capture('drafting_room_viewed')
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   // Valid tier values for validation
   const validTiers: (ProjectTier | 'all')[] = ['all', 'gold', 'silver', 'bronze']
@@ -235,9 +235,7 @@ export const DraftingRoom: React.FC = () => {
     )
 
     if (confirmed) {
-      const lifecycle = getLifecycleState(
-        allProjects.find(p => p.id === projectId)!
-      )
+      const lifecycle = getLifecycleState(allProjects.find(p => p.id === projectId)!)
       posthog?.capture('project_abandoned', { projectId, stage: lifecycle.stage })
       store.commit(
         events.projectArchived({

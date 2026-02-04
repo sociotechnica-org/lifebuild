@@ -653,10 +653,14 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
                   key={item.project.id}
                   item={item}
                   onView={() => handleViewProject(item.project.id)}
-                  onAdd={onAddToTable ? () => {
-                    onAddToTable(item.project.id)
-                    posthog?.capture('bronze_project_added')
-                  } : undefined}
+                  onAdd={
+                    onAddToTable
+                      ? () => {
+                          onAddToTable(item.project.id)
+                          posthog?.capture('bronze_project_added')
+                        }
+                      : undefined
+                  }
                 />
               ))
             )}

@@ -31,7 +31,7 @@ export const ProjectDetailPage: React.FC = () => {
     if (project) {
       posthog?.capture('project_viewed', { projectId: resolvedProjectId })
     }
-  }, [project?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [project?.id])
 
   // Task modal state
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)

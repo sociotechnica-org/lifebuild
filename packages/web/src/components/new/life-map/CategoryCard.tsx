@@ -73,7 +73,11 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   }
 
   return (
-    <div className='border-2 rounded-2xl p-4 bg-white' style={{ borderColor: categoryColor }} onClick={handleCardClick}>
+    <div
+      className='border-2 rounded-2xl p-4 bg-white'
+      style={{ borderColor: categoryColor }}
+      onClick={handleCardClick}
+    >
       <h3 className="font-['Source_Serif_4',Georgia,serif] text-lg font-semibold mb-2 flex items-center gap-1">
         <span style={{ color: categoryColor }}>●</span>
         {categoryIcon && <span> {categoryIcon}</span>} {categoryName}

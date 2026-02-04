@@ -98,7 +98,7 @@ export const SortingRoom: React.FC = () => {
 
   useEffect(() => {
     posthog?.capture('sorting_room_viewed')
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   // Derive expanded stream from URL param (single source of truth)
   const expandedStream: Stream | null =

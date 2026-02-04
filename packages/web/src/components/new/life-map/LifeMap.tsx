@@ -38,7 +38,7 @@ export const LifeMap: React.FC = () => {
 
   useEffect(() => {
     posthog?.capture('life_map_viewed')
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
   const activeBronzeStack = useQuery(getActiveBronzeStack$) ?? []
