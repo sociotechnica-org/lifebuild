@@ -244,6 +244,7 @@ async function main() {
       const subscriptionHealth = eventProcessor.getSubscriptionHealthStatus()
       // Use getConnectionStatus for read-only status instead of probeAllConnections which has side effects
       const storeHealth = storeManager.getHealthStatus()
+      const networkHealth = storeManager.getNetworkHealthStatus()
 
       // Combine subscription and connection health
       const combinedHealth: Record<
@@ -260,6 +261,16 @@ async function main() {
           connection: {
             status: string
             errorCount: number
+            networkStatus: {
+              isConnected: boolean
+              lastUpdatedAt: string
+              disconnectedSince?: string
+              disconnectedMs?: number
+            } | null
+            lastNetworkStatusAt: string | null
+            lastConnectedAt: string | null
+            lastDisconnectedAt: string | null
+            offlineDurationMs: number | null
           }
           overallHealthy: boolean
         }
@@ -268,6 +279,7 @@ async function main() {
       for (const [storeId, subHealth] of subscriptionHealth) {
         // Find matching store status from health check (read-only)
         const storeStatus = storeHealth.stores.find(s => s.storeId === storeId)
+        const storeNetwork = networkHealth.get(storeId)
         combinedHealth[storeId] = {
           subscription: {
             lastUpdateAt: subHealth.lastUpdateAt,
@@ -280,6 +292,20 @@ async function main() {
           connection: {
             status: storeStatus?.status ?? 'unknown',
             errorCount: storeStatus?.errorCount ?? 0,
+            networkStatus: storeNetwork?.networkStatus
+              ? {
+                  isConnected: storeNetwork.networkStatus.isConnected,
+                  lastUpdatedAt: storeNetwork.networkStatus.lastUpdatedAt.toISOString(),
+                  disconnectedSince: storeNetwork.networkStatus.disconnectedSince?.toISOString(),
+                  disconnectedMs: storeNetwork.networkStatus.disconnectedSince
+                    ? Date.now() - storeNetwork.networkStatus.disconnectedSince.getTime()
+                    : undefined,
+                }
+              : null,
+            lastNetworkStatusAt: storeNetwork?.lastNetworkStatusAt ?? null,
+            lastConnectedAt: storeNetwork?.lastConnectedAt ?? null,
+            lastDisconnectedAt: storeNetwork?.lastDisconnectedAt ?? null,
+            offlineDurationMs: storeNetwork?.offlineDurationMs ?? null,
           },
           overallHealthy: subHealth.isHealthy && storeStatus?.status === 'connected',
         }
@@ -300,6 +326,21 @@ async function main() {
           storeStatuses: storeHealth.stores,
         })
       )
+    } else if (pathname === '/debug/network-health') {
+      if (!isDashboardAuthorized(req)) {
+        res.writeHead(401, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Unauthorized - add ?token=YOUR_SERVER_BYPASS_TOKEN' }))
+        return
+      }
+
+      const networkHealth = storeManager.getNetworkHealthStatus()
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          stores: Object.fromEntries(networkHealth),
+        })
+      )
     } else if (pathname === '/stores') {
       const storeInfo = storeManager.getAllStoreInfo()
       const processingStats = eventProcessor.getProcessingStats()
@@ -316,6 +357,14 @@ async function main() {
         lastActivity: info.lastActivity.toISOString(),
         errorCount: info.errorCount,
         reconnectAttempts: info.reconnectAttempts,
+        networkStatus: info.networkStatus ?? null,
+        lastNetworkStatusAt: info.lastNetworkStatusAt?.toISOString() ?? null,
+        lastConnectedAt: info.lastConnectedAt?.toISOString() ?? null,
+        lastDisconnectedAt: info.lastDisconnectedAt?.toISOString() ?? null,
+        offlineDurationMs:
+          info.networkStatus && info.networkStatus.isConnected === false && info.lastDisconnectedAt
+            ? Date.now() - info.lastDisconnectedAt.getTime()
+            : null,
         processing: processingStats.get(id) || null,
         orchestrator: orchestratorSummary.stores.find(store => store.storeId === id) || null,
       }))
@@ -376,6 +425,20 @@ async function main() {
         if (ms < 1000) return `${ms}ms`
         if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`
         return `${(ms / 60000).toFixed(1)}m`
+      }
+
+      const formatDuration = (ms: number) => {
+        if (ms < 1000) return `${ms}ms`
+        const totalSeconds = Math.floor(ms / 1000)
+        const seconds = totalSeconds % 60
+        const totalMinutes = Math.floor(totalSeconds / 60)
+        const minutes = totalMinutes % 60
+        const hours = Math.floor(totalMinutes / 60)
+        const parts: string[] = []
+        if (hours > 0) parts.push(`${hours}h`)
+        if (minutes > 0 || hours > 0) parts.push(`${minutes}m`)
+        parts.push(`${seconds}s`)
+        return parts.join(' ')
       }
 
       // Helper to get stage badge color
@@ -459,7 +522,8 @@ async function main() {
                 </div>
                 <p style="margin-top: 15px;">
                   <a href="/health${tokenParam}">Health JSON</a> |
-                  <a href="/stores${tokenParam}">Stores JSON</a>
+                  <a href="/stores${tokenParam}">Stores JSON</a> |
+                  <a href="/debug/network-health${tokenParam}">Network JSON</a>
                 </p>
               </div>
 
@@ -506,6 +570,18 @@ async function main() {
                             <small>
                               Connected: ${new Date(store.connectedAt).toLocaleString()}<br>
                               Last Activity: ${new Date(store.lastActivity).toLocaleString()}<br>
+                              Network: ${
+                                store.networkStatus?.isConnected === false
+                                  ? '<span class="status-disconnected">offline</span>'
+                                  : store.networkStatus?.isConnected === true
+                                    ? '<span class="status-connected">online</span>'
+                                    : '<span class="status-connecting">unknown</span>'
+                              } ${
+                                store.networkStatus?.isConnected === false &&
+                                store.lastDisconnectedAt
+                                  ? `for ${formatDuration(Date.now() - new Date(store.lastDisconnectedAt).getTime())}`
+                                  : ''
+                              }<br>
                               Errors: ${store.errorCount} | Reconnect Attempts: ${store.reconnectAttempts}
                             </small>
                           </div>
