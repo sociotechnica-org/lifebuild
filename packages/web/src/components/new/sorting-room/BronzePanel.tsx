@@ -25,6 +25,7 @@ import type { Project, Task, TableBronzeProjectEntry } from '@lifebuild/shared/s
 import { getCategoryInfo, type ProjectCategory } from '@lifebuild/shared'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 export interface BronzePanelProps {
   /** Tabled bronze projects (from tableBronzeProjects table) */
@@ -463,6 +464,7 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
   onQuickAddProject,
 }) => {
   const navigate = useNavigate()
+  const posthog = usePostHog()
   const [activeId, setActiveId] = useState<string | null>(null)
   const [activeType, setActiveType] = useState<'tabled' | 'available' | null>(null)
 
@@ -555,6 +557,7 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
       if (overIdStr === 'tabled-drop-zone' || !overIdStr.startsWith('available-')) {
         if (onAddToTable) {
           onAddToTable(projectId)
+          posthog?.capture('bronze_project_added')
         }
       }
       return
@@ -580,6 +583,7 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
     if (onReorder) {
       const reordered = arrayMove(tabledProjectsWithDetails, oldIndex, newIndex)
       onReorder(reordered.map(item => ({ id: item.entry.id, projectId: item.entry.projectId })))
+      posthog?.capture('bronze_stack_reordered')
     }
   }
 
@@ -649,7 +653,14 @@ export const BronzePanel: React.FC<BronzePanelProps> = ({
                   key={item.project.id}
                   item={item}
                   onView={() => handleViewProject(item.project.id)}
-                  onAdd={onAddToTable ? () => onAddToTable(item.project.id) : undefined}
+                  onAdd={
+                    onAddToTable
+                      ? () => {
+                          onAddToTable(item.project.id)
+                          posthog?.capture('bronze_project_added')
+                        }
+                      : undefined
+                  }
                 />
               ))
             )}

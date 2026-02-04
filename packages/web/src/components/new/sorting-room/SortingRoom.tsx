@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { useSearchParams, useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useStore } from '../../../livestore-compat.js'
 import { getProjects$, getAllTasks$ } from '@lifebuild/shared/queries'
@@ -16,6 +16,7 @@ import { useTableState } from '../../../hooks/useTableState.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { GoldSilverPanel } from './GoldSilverPanel.js'
 import { BronzePanel } from './BronzePanel.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 export type Stream = 'gold' | 'silver' | 'bronze'
 
@@ -91,8 +92,13 @@ export const SortingRoom: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const { stream: streamParam } = useParams<{ stream?: string }>()
   const navigate = useNavigate()
+  const posthog = usePostHog()
   const [draggedGoldProject, setDraggedGoldProject] = useState<Project | null>(null)
   const [draggedSilverProject, setDraggedSilverProject] = useState<Project | null>(null)
+
+  useEffect(() => {
+    posthog?.capture('sorting_room_viewed')
+  }, [])
 
   // Derive expanded stream from URL param (single source of truth)
   const expandedStream: Stream | null =
@@ -323,6 +329,9 @@ export const SortingRoom: React.FC = () => {
     // Toggle: if clicking the already-expanded stream, collapse it
     // Otherwise, expand the clicked stream
     const newStream = expandedStream === stream ? undefined : stream
+    if (newStream) {
+      posthog?.capture('sorting_room_stream_switched', { stream: newStream })
+    }
     // Preserve category filter when toggling streams
     const baseUrl = preserveStoreIdInUrl(generateRoute.sortingRoom(newStream))
     const categoryParam = searchParams.get('category')

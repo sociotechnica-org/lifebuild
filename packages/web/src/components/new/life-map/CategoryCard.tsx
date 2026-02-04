@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import type { Project } from '@lifebuild/shared/schema'
+import { usePostHog } from '../../../lib/analytics.js'
 
 export type CategoryCardProps = {
   categoryValue: string
@@ -65,8 +66,18 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   planningCount = 0,
   projectCompletionMap = new Map(),
 }) => {
+  const posthog = usePostHog()
+
+  const handleCardClick = () => {
+    posthog?.capture('life_map_category_clicked', { category: categoryValue })
+  }
+
   return (
-    <div className='border-2 rounded-2xl p-4 bg-white' style={{ borderColor: categoryColor }}>
+    <div
+      className='border-2 rounded-2xl p-4 bg-white'
+      style={{ borderColor: categoryColor }}
+      onClick={handleCardClick}
+    >
       <h3 className="font-['Source_Serif_4',Georgia,serif] text-lg font-semibold mb-2 flex items-center gap-1">
         <span style={{ color: categoryColor }}>●</span>
         {categoryIcon && <span> {categoryIcon}</span>} {categoryName}

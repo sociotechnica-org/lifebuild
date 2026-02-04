@@ -4,6 +4,7 @@ import type { Task } from '@lifebuild/shared/schema'
 import { events } from '@lifebuild/shared/schema'
 import { STATUS_COLUMNS, type TaskStatus } from '@lifebuild/shared'
 import { useAuth } from '../../../contexts/AuthContext.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 /**
  * Format a deadline timestamp for display.
@@ -78,6 +79,7 @@ export function TaskDetailModal({
 }: TaskDetailModalProps) {
   const { store } = useStore()
   const { user } = useAuth()
+  const posthog = usePostHog()
 
   // Edit mode state - creation mode starts in edit mode
   const [isEditing, setIsEditing] = useState(isCreating)
@@ -297,6 +299,7 @@ export function TaskDetailModal({
       )
     }
 
+    posthog?.capture('task_detail_edited', { projectId: projectId ?? task.projectId })
     setIsEditing(false)
   }
 

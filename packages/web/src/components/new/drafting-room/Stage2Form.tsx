@@ -15,6 +15,7 @@ import { useAuth } from '../../../contexts/AuthContext.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { type ProjectTier } from './DraftingRoom.js'
 import { StageWizard, type WizardStage } from './StageWizard.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 const TIERS: {
   value: ProjectTier
@@ -60,6 +61,7 @@ export const Stage2Form: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>()
   const { store } = useStore()
   const { user } = useAuth()
+  const posthog = usePostHog()
 
   // Load existing project (query returns array, get first item)
   const projectResults = useQuery(getProjectById$(projectId ?? ''))
@@ -193,8 +195,9 @@ export const Stage2Form: React.FC = () => {
 
   const handleContinue = () => {
     if (!isComplete || !projectId) return
-    // Save and advance to Stage 2
+    // Save and advance to Stage 3
     saveAndAdvance()
+    posthog?.capture('project_stage_completed', { stage: 2, projectId })
     // Navigate to Stage 3
     navigate(generateRoute.projectStage3(projectId))
   }

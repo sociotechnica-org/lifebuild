@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '../../../livestore-compat.js'
 import { getProjectById$, getProjectTasks$ } from '@lifebuild/shared/queries'
@@ -11,6 +11,7 @@ import { useProjectChatLifecycle } from '../../../hooks/useProjectChatLifecycle.
 import { ProjectHeader } from '../project-room/ProjectHeader.js'
 import { ProjectKanban } from '../project-room/ProjectKanban.js'
 import { TaskDetailModal } from '../project-room/TaskDetailModal.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 export const ProjectDetailPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>()
@@ -22,6 +23,15 @@ export const ProjectDetailPage: React.FC = () => {
   const projectQueryReady = projectResult !== undefined
   const tasks = useQuery(getProjectTasks$(resolvedProjectId)) ?? []
   const project = (projectRows[0] ?? undefined) as Project | undefined
+
+  const posthog = usePostHog()
+
+  // Track project viewed
+  useEffect(() => {
+    if (project) {
+      posthog?.capture('project_viewed', { projectId: resolvedProjectId })
+    }
+  }, [project?.id])
 
   // Task modal state
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
@@ -73,6 +83,7 @@ export const ProjectDetailPage: React.FC = () => {
 
   // Handle task click - open modal
   const handleTaskClick = (taskId: string) => {
+    posthog?.capture('task_detail_opened', { taskId, projectId: resolvedProjectId })
     setSelectedTaskId(taskId)
   }
 

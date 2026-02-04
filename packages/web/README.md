@@ -211,6 +211,75 @@ pnpm test:e2e --grep "validate.*form"
 - **jsdom**: DOM environment for testing
 - **MSW**: API mocking for integration tests
 
+## Product Analytics (PostHog)
+
+Events are sent to PostHog via the `usePostHog` hook from `posthog-js/react` (re-exported from `src/lib/analytics.ts`).
+
+### Page Views
+
+| Event                  | Trigger                     | Properties  | Source                  |
+| ---------------------- | --------------------------- | ----------- | ----------------------- |
+| `life_map_viewed`      | Life Map page mounted       | —           | `LifeMap.tsx`           |
+| `drafting_room_viewed` | Drafting Room page mounted  | —           | `DraftingRoom.tsx`      |
+| `sorting_room_viewed`  | Sorting Room page mounted   | —           | `SortingRoom.tsx`       |
+| `project_viewed`       | Project detail page mounted | `projectId` | `ProjectDetailPage.tsx` |
+
+### Project Lifecycle
+
+| Event                     | Trigger                               | Properties                        | Source                                               |
+| ------------------------- | ------------------------------------- | --------------------------------- | ---------------------------------------------------- |
+| `project_created`         | New project created in Stage 1        | `category`, `projectId`           | `Stage1Form.tsx`                                     |
+| `project_stage_completed` | User advances through drafting stages | `stage` (1, 2, or 3), `projectId` | `Stage1Form.tsx`, `Stage2Form.tsx`, `Stage3Form.tsx` |
+| `project_completed`       | Project marked as complete            | `projectId`                       | `ProjectHeader.tsx`                                  |
+| `project_archived`        | Project archived from project room    | `projectId`                       | `ProjectHeader.tsx`                                  |
+| `project_abandoned`       | Project abandoned from drafting room  | `projectId`, `stage`              | `DraftingRoom.tsx`                                   |
+
+### Sorting Room
+
+| Event                          | Trigger                                             | Properties            | Source                |
+| ------------------------------ | --------------------------------------------------- | --------------------- | --------------------- |
+| `sorting_room_stream_switched` | User switches between Gold/Silver/Bronze streams    | `stream`              | `SortingRoom.tsx`     |
+| `queue_reordered`              | Gold/Silver queue drag-and-drop reorder             | `stream`              | `GoldSilverPanel.tsx` |
+| `project_tabled`               | Project activated to the table                      | `stream`, `projectId` | `GoldSilverPanel.tsx` |
+| `project_released`             | Project released from table                         | `stream`              | `GoldSilverPanel.tsx` |
+| `bronze_project_added`         | Bronze project added to table (drag-drop or button) | —                     | `BronzePanel.tsx`     |
+| `bronze_stack_reordered`       | Bronze stack drag-and-drop reorder                  | —                     | `BronzePanel.tsx`     |
+
+### Tasks
+
+| Event                 | Trigger                             | Properties                | Source                    |
+| --------------------- | ----------------------------------- | ------------------------- | ------------------------- |
+| `task_created`        | New task created via kanban column  | `projectId`               | `ProjectKanbanColumn.tsx` |
+| `task_status_changed` | Task dragged between kanban columns | `from`, `to`, `projectId` | `ProjectKanban.tsx`       |
+| `task_detail_opened`  | Task detail modal opened            | `taskId`, `projectId`     | `ProjectDetailPage.tsx`   |
+| `task_detail_edited`  | Task detail saved after editing     | `projectId`               | `TaskDetailModal.tsx`     |
+
+### Life Map
+
+| Event                       | Trigger               | Properties | Source             |
+| --------------------------- | --------------------- | ---------- | ------------------ |
+| `life_map_category_clicked` | Category card clicked | `category` | `CategoryCard.tsx` |
+
+### Room Chat
+
+| Event                          | Trigger                      | Properties                        | Source                   |
+| ------------------------------ | ---------------------------- | --------------------------------- | ------------------------ |
+| `room_chat_opened`             | Chat panel opened            | `roomId`, `roomKind`              | `RoomLayout.tsx`         |
+| `room_chat_closed`             | Chat panel closed            | `roomId`, `roomKind`              | `RoomLayout.tsx`         |
+| `room_chat_conversation_ready` | Conversation data loaded     | `roomId`, `roomKind`, timing data | `useRoomConversation.ts` |
+| `room_chat_worker_created`     | AI worker created for a room | `workerId`, `roomId`, `roomKind`  | `useRoomAgent.ts`        |
+
+### Adding New Events
+
+Use the `usePostHog` hook and call `posthog?.capture()`:
+
+```typescript
+import { usePostHog } from '../lib/analytics.js'
+
+const posthog = usePostHog()
+posthog?.capture('event_name', { property: 'value' })
+```
+
 ## Deployment
 
 As of September 2025, the web package is deployed to **Cloudflare Pages** as a separate service from the backend worker.

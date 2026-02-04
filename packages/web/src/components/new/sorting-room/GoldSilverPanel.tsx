@@ -17,6 +17,7 @@ import { TableDropZone } from './TableDropZone.js'
 import { TableConfirmDialog, type DialogMode } from './TableConfirmDialog.js'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
+import { usePostHog } from '../../../lib/analytics.js'
 
 export type QueueView = 'backlog' | 'active'
 
@@ -58,6 +59,7 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
   tabledProjectCompletionPercentage = 0,
 }) => {
   const navigate = useNavigate()
+  const posthog = usePostHog()
   const [queueView, setQueueView] = useState<QueueView>('backlog')
   const [pendingProject, setPendingProject] = useState<Project | null>(null)
   const [dialogMode, setDialogMode] = useState<DialogMode>('activate')
@@ -119,6 +121,7 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
         if (movedProject) {
           reordered.splice(newIndex, 0, movedProject)
           onReorder(reordered)
+          posthog?.capture('queue_reordered', { stream })
         }
       }
     }
@@ -149,8 +152,10 @@ export const GoldSilverPanel: React.FC<GoldSilverPanelProps> = ({
     }
 
     if (dialogMode === 'activate' && pendingProject) {
+      posthog?.capture('project_tabled', { stream, projectId: pendingProject.id })
       onActivateToTable(pendingProject)
     } else if (dialogMode === 'release') {
+      posthog?.capture('project_released', { stream })
       onReleaseFromTable()
     }
     setPendingProject(null)
