@@ -100,6 +100,15 @@ The server package (`packages/server`) has several key architectural patterns:
 - **Dependency Flow**: `EventProcessor` and `WorkspaceOrchestrator` receive the `StoreManager` instance during construction.
 - **Sentry Integration**: `instrument.ts` is dynamically imported before all other app modules so that `dotenv.config()` runs first and Sentry's `pinoIntegration` can instrument the logger.
 
+### Server Coding Patterns
+
+- **Idempotent monitoring**: `ensureMonitored` must handle idempotency — never re-add stores that are already managed.
+- **Offline duration**: Use `networkStatus.disconnectedSince` (not `storeInfo.lastDisconnectedAt`) for `offlineDurationMs`. The former is tied directly to the network status event.
+- **Stale data on reconnection**: When a store reconnects and a new LiveStore instance is created, reset internal monitoring state (`syncStatus`, `networkStatus`) to allow fresh monitoring.
+- **Fiber cleanup**: Always use `Fiber.interrupt` to stop monitoring fibers before creating new ones during reconnection or shutdown.
+- **API serialization**: Convert `Date` objects to ISO strings (`toISOString()`) consistently in API responses. Handle internal-to-API type conversions explicitly (e.g., `NetworkStatusInfo` to API `NetworkStatus`).
+- **Graceful shutdown**: `StoreManager.shutdown()` must clear all timeouts (health check intervals) and shut down all managed stores. Use `SIGTERM` first, then `SIGKILL` after a timeout for child processes.
+
 ## Documentation
 
 - LiveStore patterns: https://docs.livestore.dev/llms.txt
