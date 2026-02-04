@@ -5,6 +5,7 @@ import type { StoreManager } from './store-manager.js'
 import { tables, events } from '@lifebuild/shared/schema'
 import { AgenticLoop, classifyError } from './agentic-loop/agentic-loop.js'
 import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
+import { StubLLMProvider } from './agentic-loop/stub-llm-provider.js'
 import { DEFAULT_MODEL, resolveLifecycleState, type PlanningAttributes } from '@lifebuild/shared'
 import {
   getRoomDefinitionByRoomId,
@@ -32,6 +33,7 @@ import type {
   BoardContext,
   WorkerContext,
   NavigationContext,
+  LLMProvider,
 } from './agentic-loop/types.js'
 
 const toTimestamp = (value: unknown): number | null => {
@@ -77,7 +79,7 @@ interface StoreProcessingState {
   activeConversations: Set<string> // Track conversations currently being processed
   messageQueue: MessageQueueManager // Queue of pending messages per conversation
   conversationProcessors: Map<string, AsyncQueueProcessor> // Per-conversation async processors
-  llmProvider?: BraintrustProvider
+  llmProvider?: LLMProvider
 }
 
 interface LiveStoreStats {
@@ -138,6 +140,7 @@ export class EventProcessor {
   private reconnectionHandler: ((data: { storeId: string; store: any }) => void) | null = null
   // Flag to prevent operations after shutdown
   private isShutdown = false
+  private readonly llmProviderMode: 'braintrust' | 'stub'
 
   // Tables to monitor for activity
   // IMPORTANT: Only monitor chatMessages to process user messages
@@ -183,11 +186,19 @@ export class EventProcessor {
       true
     )
 
+    const providerEnv = process.env.LLM_PROVIDER?.toLowerCase()
+    this.llmProviderMode = providerEnv === 'stub' ? 'stub' : 'braintrust'
+    if (providerEnv && providerEnv !== 'stub' && providerEnv !== 'braintrust') {
+      logger.warn({ providerEnv }, 'Unknown LLM_PROVIDER value, defaulting to braintrust provider')
+    }
+
     // Load LLM configuration from environment
     this.braintrustApiKey = process.env.BRAINTRUST_API_KEY
     this.braintrustProjectId = process.env.BRAINTRUST_PROJECT_ID
 
-    if (!this.braintrustApiKey || !this.braintrustProjectId) {
+    if (this.llmProviderMode === 'stub') {
+      logger.info('LLM provider configured: stub')
+    } else if (!this.braintrustApiKey || !this.braintrustProjectId) {
       logger.warn(
         'LLM functionality disabled: Missing BRAINTRUST_API_KEY or BRAINTRUST_PROJECT_ID environment variables'
       )
@@ -256,9 +267,11 @@ export class EventProcessor {
       messageQueue: new MessageQueueManager(),
       conversationProcessors: new Map(),
       llmProvider:
-        this.braintrustApiKey && this.braintrustProjectId
-          ? new BraintrustProvider(this.braintrustApiKey, this.braintrustProjectId)
-          : undefined,
+        this.llmProviderMode === 'stub'
+          ? StubLLMProvider.fromEnv()
+          : this.braintrustApiKey && this.braintrustProjectId
+            ? new BraintrustProvider(this.braintrustApiKey, this.braintrustProjectId)
+            : undefined,
     }
 
     this.storeStates.set(storeId, storeState)
