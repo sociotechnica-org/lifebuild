@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react'
 import * as Sentry from '@sentry/react'
 import { nanoid } from '@livestore/utils/nanoid'
 import {
-  getWorkerSentryChannelNameFromStore,
+  getLiveStoreWorkerName,
+  LIVESTORE_SENTRY_CHANNEL,
   isLiveStoreWorkerLogPayload,
   type LiveStoreWorkerLogPayload,
 } from '../utils/livestoreWorkerSentryBridge.js'
@@ -13,17 +14,21 @@ const shouldCapturePayload = (payload: LiveStoreWorkerLogPayload): boolean =>
 const buildFingerprint = (payload: LiveStoreWorkerLogPayload, storeId: string) =>
   `${storeId}:${payload.level}:${payload.message}:${payload.cause ?? ''}`
 
-const getOrCreateSessionId = (storeId: string): string => {
-  if (typeof window === 'undefined') return 'unknown'
-  if (typeof sessionStorage === 'undefined') return 'unknown'
+const getOrCreateSessionId = (storeId: string): string | null => {
+  if (typeof window === 'undefined') return null
+  if (typeof sessionStorage === 'undefined') return null
 
   const key = `livestore:sessionId:${storeId}`
-  const existing = sessionStorage.getItem(key)
-  if (existing) return existing
+  try {
+    const existing = sessionStorage.getItem(key)
+    if (existing) return existing
 
-  const next = nanoid(5)
-  sessionStorage.setItem(key, next)
-  return next
+    const next = nanoid(5)
+    sessionStorage.setItem(key, next)
+    return next
+  } catch {
+    return null
+  }
 }
 
 export const useLiveStoreWorkerSentryBridge = (storeId: string): void => {
@@ -32,14 +37,16 @@ export const useLiveStoreWorkerSentryBridge = (storeId: string): void => {
   useEffect(() => {
     if (typeof BroadcastChannel === 'undefined') return
     const sessionId = getOrCreateSessionId(storeId)
-    const channelName = getWorkerSentryChannelNameFromStore(storeId, sessionId)
+    if (!sessionId) return
+    const expectedWorkerName = getLiveStoreWorkerName(storeId, sessionId)
     lastFingerprintRef.current = null
 
-    const channel = new BroadcastChannel(channelName)
+    const channel = new BroadcastChannel(LIVESTORE_SENTRY_CHANNEL)
     const handleMessage = (event: MessageEvent) => {
       const payload = event.data
       if (!isLiveStoreWorkerLogPayload(payload)) return
       if (!shouldCapturePayload(payload)) return
+      if (payload.workerName !== expectedWorkerName) return
 
       const fingerprint = buildFingerprint(payload, storeId)
       if (fingerprint === lastFingerprintRef.current) return
