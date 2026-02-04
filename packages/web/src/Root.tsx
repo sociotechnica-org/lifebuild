@@ -32,6 +32,7 @@ import { UserInitializer } from './components/utils/UserInitializer/UserInitiali
 import { AuthUserSync } from './components/utils/AuthUserSync/AuthUserSync.js'
 import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
 import { LiveStoreHealthMonitor } from './components/utils/LiveStoreHealthMonitor.js'
+import { LiveStoreBootBoundary } from './components/utils/LiveStoreBootBoundary.js'
 import { LifeMapView } from './components/life-map/LifeMapView.js'
 import { schema } from '@lifebuild/shared/schema'
 import { ROUTES } from './constants/routes.js'
@@ -51,12 +52,8 @@ import {
   getDevtoolsMountPath,
   isDevtoolsEnabled,
 } from './utils/livestoreDevtools.js'
-
-const adapter = makePersistedAdapter({
-  storage: { type: 'opfs' },
-  worker: LiveStoreWorker,
-  sharedWorker: LiveStoreSharedWorker,
-})
+import { LiveStoreRepairProvider } from './contexts/LiveStoreRepairContext.js'
+import { consumeRepairRequestSync, useLiveStoreRepair } from './hooks/useLiveStoreRepair.js'
 
 const DevtoolsUrlLogger: React.FC<{ enabled: boolean; storeId: string }> = ({
   enabled,
@@ -171,6 +168,8 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
 
   const devtoolsEnabled = isDevtoolsEnabled(devtoolsParam)
 
+  const repair = useLiveStoreRepair({ storeId })
+
   const [restartSignal, setRestartSignal] = useState(0)
   const [restartIndex, setRestartIndex] = useState(0)
   const [isRestarting, setIsRestarting] = useState(false)
@@ -179,8 +178,13 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   const previousRef = useRef<{ storeId: string; authToken?: string } | null>(null)
 
   const requestRestart = useCallback(
-    (reason: string) => {
+    (reason: string, options?: { force?: boolean }) => {
       if (!hasStoreRef.current) {
+        if (!options?.force) {
+          return
+        }
+        console.warn(`[LiveStore] Forcing restart for '${storeId}' (${reason}).`)
+        setRestartIndex(index => index + 1)
         return
       }
       if (pendingRestartRef.current) {
@@ -192,6 +196,62 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       setRestartSignal(value => value + 1)
     },
     [storeId]
+  )
+
+  const repairAttempt = useMemo(() => consumeRepairRequestSync(storeId), [storeId, restartIndex])
+
+  useEffect(() => {
+    if (!repairAttempt) return
+    repair.refresh()
+  }, [repairAttempt, repair.refresh])
+
+  const adapter = useMemo(
+    () =>
+      makePersistedAdapter({
+        storage: { type: 'opfs' },
+        worker: LiveStoreWorker,
+        sharedWorker: LiveStoreSharedWorker,
+        ...(repairAttempt ? { resetPersistence: true } : {}),
+      }),
+    [repairAttempt]
+  )
+
+  const handleRequestRepair = useCallback(
+    (reason: string, source: string, options?: { forceRestart?: boolean }) => {
+      repair.requestRepair({ reason, source })
+      repair.clearRepairSuggestion()
+      requestRestart(reason, { force: options?.forceRestart })
+    },
+    [repair, requestRestart]
+  )
+
+  const requestRepair = useCallback(
+    (reason: string, source: string) => handleRequestRepair(reason, source),
+    [handleRequestRepair]
+  )
+
+  const requestRepairForced = useCallback(
+    (reason: string, source: string) => handleRequestRepair(reason, source, { forceRestart: true }),
+    [handleRequestRepair]
+  )
+
+  const repairContextValue = useMemo(
+    () => ({
+      storeId,
+      requestRepair,
+      repairState: repair.repairState,
+      repairSuggestion: repair.repairSuggestion,
+      clearRepairSuggestion: repair.clearRepairSuggestion,
+      suggestRepair: repair.suggestRepair,
+    }),
+    [
+      storeId,
+      requestRepair,
+      repair.repairState,
+      repair.repairSuggestion,
+      repair.clearRepairSuggestion,
+      repair.suggestRepair,
+    ]
   )
 
   const handleShutdownComplete = useCallback(() => {
@@ -242,29 +302,46 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   }
 
   return (
-    <LiveStoreProvider
-      key={providerKey}
-      schema={schema}
-      renderLoading={_ => <LoadingState message={`Loading LiveStore (${_.stage})...`} fullScreen />}
-      adapter={adapter}
-      batchUpdates={batchUpdates}
-      storeId={storeId}
-      syncPayload={syncPayload}
-      disableDevtools={devtoolsEnabled ? false : true}
-    >
-      <DevtoolsUrlLogger enabled={devtoolsEnabled} storeId={storeId} />
-      <LiveStoreRestartCoordinator
-        restartSignal={restartSignal}
-        onShutdownComplete={handleShutdownComplete}
-        onStoreReady={handleStoreReady}
-      />
-      <LiveStoreHealthMonitor syncPayload={syncPayload} onRestart={requestRestart} />
-      {isRestarting ? (
-        <LoadingState message='Restarting LiveStore…' fullScreen />
-      ) : (
-        <ChorusNavigationInitializer>{children}</ChorusNavigationInitializer>
-      )}
-    </LiveStoreProvider>
+    <LiveStoreRepairProvider value={repairContextValue}>
+      <LiveStoreBootBoundary
+        key={`boot:${providerKey}`}
+        onRetry={() => requestRestart('boot retry', { force: true })}
+        onRepair={() =>
+          requestRepairForced('LiveStore boot detected a head mismatch', 'boot-boundary')
+        }
+      >
+        <LiveStoreProvider
+          key={providerKey}
+          schema={schema}
+          renderLoading={state => (
+            <LoadingState
+              message={`${
+                repairAttempt ? 'Repairing local data' : 'Loading LiveStore'
+              } (${state.stage})...`}
+              fullScreen
+            />
+          )}
+          adapter={adapter}
+          batchUpdates={batchUpdates}
+          storeId={storeId}
+          syncPayload={syncPayload}
+          disableDevtools={devtoolsEnabled ? false : true}
+        >
+          <DevtoolsUrlLogger enabled={devtoolsEnabled} storeId={storeId} />
+          <LiveStoreRestartCoordinator
+            restartSignal={restartSignal}
+            onShutdownComplete={handleShutdownComplete}
+            onStoreReady={handleStoreReady}
+          />
+          <LiveStoreHealthMonitor syncPayload={syncPayload} onRestart={requestRestart} />
+          {isRestarting ? (
+            <LoadingState message='Restarting LiveStore…' fullScreen />
+          ) : (
+            <ChorusNavigationInitializer>{children}</ChorusNavigationInitializer>
+          )}
+        </LiveStoreProvider>
+      </LiveStoreBootBoundary>
+    </LiveStoreRepairProvider>
   )
 }
 
