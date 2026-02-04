@@ -227,7 +227,7 @@ We use GitHub Issues and Projects for all project management across the SocioTec
 
 ### Repository Organization
 
-- **`work-squared`**: Issues related to the LifeBuild app (features, bugs, technical work)
+- **`lifebuild`**: Issues related to the LifeBuild app (features, bugs, technical work)
 - **`company`**: Issues related to company-level activities (social media, marketing, partnerships, operations)
 
 ### Key Concepts
@@ -290,7 +290,7 @@ gh project item-add 2 --owner sociotechnica-org --url <issue-url>
 
 ```bash
 # List all Project issues
-gh issue list --search "type:Project" -R sociotechnica-org/work-squared
+gh issue list --search "type:Project" -R sociotechnica-org/lifebuild
 ```
 
 #### Sub-issues with gh-sub-issue extension
@@ -314,7 +314,7 @@ gh sub-issue create --parent 410 --title "New task for this project"
 gh sub-issue remove 410 415
 
 # When not in the repo directory, use -R flag
-gh sub-issue list 410 -R sociotechnica-org/work-squared
+gh sub-issue list 410 -R sociotechnica-org/lifebuild
 ```
 
 #### Sub-issues with REST API (no extension needed)
@@ -322,15 +322,15 @@ gh sub-issue list 410 -R sociotechnica-org/work-squared
 ```bash
 # Add a sub-issue to a project (using REST API)
 # Use -F (not -f) to pass integer values
-CHILD_ID=$(gh api repos/sociotechnica-org/work-squared/issues/123 --jq '.id')
-gh api repos/sociotechnica-org/work-squared/issues/100/sub_issues \
+CHILD_ID=$(gh api repos/sociotechnica-org/lifebuild/issues/123 --jq '.id')
+gh api repos/sociotechnica-org/lifebuild/issues/100/sub_issues \
   -X POST -F sub_issue_id="$CHILD_ID"
 
 # List sub-issues of a project
-gh api repos/sociotechnica-org/work-squared/issues/100/sub_issues
+gh api repos/sociotechnica-org/lifebuild/issues/100/sub_issues
 
 # View project in GitHub Project board
-# Filter: parent-issue:"sociotechnica-org/work-squared#100"
+# Filter: parent-issue:"sociotechnica-org/lifebuild#100"
 ```
 
 ### GitHub Project Views
@@ -338,7 +338,7 @@ gh api repos/sociotechnica-org/work-squared/issues/100/sub_issues
 Views must be created via the GitHub UI (no API available). Recommended views:
 
 - **All Projects**: Filter `type:Project` - shows all active projects
-- **[Project Name]**: Filter `parent-issue:"sociotechnica-org/work-squared#N"` - shows work for a specific project
+- **[Project Name]**: Filter `parent-issue:"sociotechnica-org/lifebuild#N"` - shows work for a specific project
 
 To create a view:
 

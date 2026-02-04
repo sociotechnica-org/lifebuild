@@ -29,7 +29,7 @@ We track work using GitHub Issues and the [SocioTechnica Project Board](https://
 
 ### Creating a New Project
 
-Create a new GitHub Issue in the [work-squared repo](https://github.com/sociotechnica-org/work-squared/issues/new) with:
+Create a new GitHub Issue in the [lifebuild repo](https://github.com/sociotechnica-org/lifebuild/issues/new) with:
 
 - Issue type: **Project**
 - Title format: `Project: [Name]`
@@ -37,7 +37,7 @@ Create a new GitHub Issue in the [work-squared repo](https://github.com/sociotec
 
 ### Adding Issues to a Project
 
-1. Navigate to the Project issue (e.g., [#410](https://github.com/sociotechnica-org/work-squared/issues/410))
+1. Navigate to the Project issue (e.g., [#410](https://github.com/sociotechnica-org/lifebuild/issues/410))
 2. In the right sidebar, find **Sub-issues**
 3. Click **Add sub-issue** to link existing issues or create new ones
 
