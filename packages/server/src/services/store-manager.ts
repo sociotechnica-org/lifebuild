@@ -1008,8 +1008,8 @@ export class StoreManager extends EventEmitter {
 
     for (const [storeId, info] of this.stores.entries()) {
       const offlineDurationMs =
-        info.networkStatus && info.networkStatus.isConnected === false && info.lastDisconnectedAt
-          ? now - info.lastDisconnectedAt.getTime()
+        info.networkStatus?.isConnected === false && info.networkStatus.disconnectedSince
+          ? now - info.networkStatus.disconnectedSince.getTime()
           : null
       result.set(storeId, {
         status: info.status,

@@ -362,8 +362,8 @@ async function main() {
         lastConnectedAt: info.lastConnectedAt?.toISOString() ?? null,
         lastDisconnectedAt: info.lastDisconnectedAt?.toISOString() ?? null,
         offlineDurationMs:
-          info.networkStatus && info.networkStatus.isConnected === false && info.lastDisconnectedAt
-            ? Date.now() - info.lastDisconnectedAt.getTime()
+          info.networkStatus?.isConnected === false && info.networkStatus.disconnectedSince
+            ? Date.now() - info.networkStatus.disconnectedSince.getTime()
             : null,
         processing: processingStats.get(id) || null,
         orchestrator: orchestratorSummary.stores.find(store => store.storeId === id) || null,
@@ -578,8 +578,8 @@ async function main() {
                                     : '<span class="status-connecting">unknown</span>'
                               } ${
                                 store.networkStatus?.isConnected === false &&
-                                store.lastDisconnectedAt
-                                  ? `for ${formatDuration(Date.now() - new Date(store.lastDisconnectedAt).getTime())}`
+                                store.networkStatus?.disconnectedSince
+                                  ? `for ${formatDuration(Date.now() - new Date(store.networkStatus.disconnectedSince).getTime())}`
                                   : ''
                               }<br>
                               Errors: ${store.errorCount} | Reconnect Attempts: ${store.reconnectAttempts}

@@ -265,7 +265,8 @@ describe('StoreManager', () => {
     it('calculates offlineDurationMs when disconnected', async () => {
       vi.useFakeTimers()
       try {
-        const disconnectedAt = new Date('2026-02-04T10:00:00Z')
+        const statusDisconnectedAt = new Date('2026-02-04T09:50:00Z')
+        const networkDisconnectedAt = new Date('2026-02-04T10:00:00Z')
         const now = new Date('2026-02-04T10:05:30Z')
         vi.setSystemTime(now)
 
@@ -276,15 +277,17 @@ describe('StoreManager', () => {
         if (!info) return
 
         info.status = 'disconnected'
-        info.lastDisconnectedAt = disconnectedAt
-        info.lastNetworkStatusAt = disconnectedAt
+        info.lastDisconnectedAt = statusDisconnectedAt
+        info.lastNetworkStatusAt = networkDisconnectedAt
         info.networkStatus = {
           isConnected: false,
-          lastUpdatedAt: disconnectedAt,
-          timestampMs: disconnectedAt.getTime(),
-          disconnectedSince: disconnectedAt,
+          lastUpdatedAt: networkDisconnectedAt,
+          timestampMs: networkDisconnectedAt.getTime(),
+          disconnectedSince: networkDisconnectedAt,
         }
-        info.networkStatusHistory = [{ isConnected: false, timestampMs: disconnectedAt.getTime() }]
+        info.networkStatusHistory = [
+          { isConnected: false, timestampMs: networkDisconnectedAt.getTime() },
+        ]
 
         const result = storeManager.getNetworkHealthStatus()
         const store = result.get('test-store')
