@@ -2,16 +2,9 @@
   <img src="https://lifebuild.me/lifebuild-logo.webp" alt="LifeBuild Logo" width="323" height="110" />
 </div>
 
-[LifeBuild](https://lifebuild.me) is an AI-enabled work environment where users and AI agents can collaborate on projects and documents.
+LifeBuild is a visual life management system. You map your personal life across eight domains, see all your projects in one place, prioritize ruthlessly, and delegate the operational stuff to AI workers who actually do things.
 
-## Why LifeBuild?
-
-LifeBuild reimagines project management with:
-
-- **Real-time collaboration** - See changes instantly across all users
-- **AI-powered workflows** - Integrated LLM capabilities
-- **Local-first architecture** - Works offline with automatic sync when reconnected
-- **Event-driven architecture** - Built on [LiveStore](https://livestore.dev)
+The premise: your personal life deserves the same strategic clarity you bring to your best professional work.
 
 Read some of [the thinking behind the technical foundations underpinning LifeBuild](https://sociotechnica.org/notebook/ws-tech-foundations/).
 
@@ -163,13 +156,12 @@ Before the first deployment, you need to create the production D1 database and c
 
 ## Features
 
-- **Real-time Kanban Boards**: Collaborative task management with live updates
-- **Multi-user Assignment**: Assign multiple team members to tasks with avatar indicators
-- **Task Management**: Create, edit, and view detailed task information
-- **Drag & Drop**: Move tasks between columns and reorder within columns
-- **Responsive Design**: Works on desktop and mobile devices
-- **Local-first Architecture**: Powered by LiveStore for offline-capable real-time sync
-- **Type-safe**: Built with TypeScript for robust development
+- **Life Map**: Dashboard view of all eight life domains with active projects, progress, and backlogs at a glance
+- **Drafting Room**: Three-stage planning pipeline (Identify, Scope, Detail) to turn ideas into well-defined projects
+- **Sorting Room**: Prioritize across Gold, Silver, and Bronze streams — activate projects to "The Table" and manage your backlog
+- **Project Room**: Per-project workspace with kanban task board, drag-and-drop, and room-based chat
+- **AI Workers**: Delegate operational work to LLM-powered agents that take action inside your projects
+- **Local-first Architecture**: Works offline with automatic sync, powered by [LiveStore](https://livestore.dev) event sourcing
 
 ## Development Commands
 
@@ -286,10 +278,3 @@ LifeBuild is built with a modern monorepo architecture featuring real-time colla
 - **AI Integration**: Client-side agentic loops with tool calling via LLM proxy
 - **Testing**: Vitest, React Testing Library, Playwright E2E tests
 
-### Package Structure
-
-- **[`packages/web`](./packages/web/README.md)** - React frontend application
-- **[`packages/worker`](./packages/worker/README.md)** - Cloudflare Worker for WebSocket sync
-- **[`packages/server`](./packages/server/README.md)** - Node.js server for LLM processing
-- **[`packages/auth-worker`](./packages/auth-worker/README.md)** - JWT authentication service
-- **[`packages/shared`](./packages/shared/README.md)** - Shared schemas and utilities
