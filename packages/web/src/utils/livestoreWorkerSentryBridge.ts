@@ -21,5 +21,5 @@ export const isLiveStoreWorkerLogPayload = (value: unknown): value is LiveStoreW
   return true
 }
 
-export const getLiveStoreWorkerName = (storeId: string, sessionId: string): string =>
-  `livestore-worker-${storeId}-${sessionId}`
+export const getLiveStoreWorkerNamePrefix = (storeId: string): string =>
+  `livestore-worker-${storeId}-`
