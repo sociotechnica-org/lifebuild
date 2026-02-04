@@ -202,11 +202,15 @@ function updateDocumentCore(store: Store, params: UpdateDocumentParams): UpdateD
 
   // Verify document exists
   const documents = store.query(getDocumentById$(documentId))
-  validators.requireEntity(documents, 'Document', documentId)
+  const document = validators.requireEntity(documents, 'Document', documentId)
 
   // At least one field must be provided for update
   if (title === undefined && content === undefined) {
-    throw new Error('At least one field (title or content) must be provided for update')
+    throw new Error(
+      `At least one field (title or content) must be provided for update. ` +
+        `Received only: documentId="${documentId}". ` +
+        `Please include a "title" and/or "content" parameter with the new value.`
+    )
   }
 
   // Prepare updates object
@@ -230,12 +234,13 @@ function updateDocumentCore(store: Store, params: UpdateDocumentParams): UpdateD
     })
   )
 
+  // Return the full document state after update (merge current values with updates)
   return {
     success: true,
     document: {
       id: documentId,
-      title: updates.title,
-      content: updates.content,
+      title: updates.title ?? (document as any).title,
+      content: updates.content ?? (document as any).content,
     },
   }
 }

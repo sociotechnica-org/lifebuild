@@ -21,6 +21,33 @@ describe('BraintrustProvider', () => {
     vi.useRealTimers()
   })
 
+  describe('API request configuration', () => {
+    it('should use max_tokens of 4096 to support document content in tool calls', async () => {
+      const mockMessages: LLMMessage[] = [{ role: 'user', content: 'test message' }]
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: 'test response',
+                  tool_calls: [],
+                },
+              },
+            ],
+          }),
+      })
+
+      await provider.call(mockMessages)
+
+      // Verify fetch was called with max_tokens: 4096
+      const fetchBody = JSON.parse(mockFetch.mock.calls[0][1].body)
+      expect(fetchBody.max_tokens).toBe(4096)
+    })
+  })
+
   describe('timeout error handling', () => {
     const mockMessages: LLMMessage[] = [{ role: 'user', content: 'test message' }]
 
