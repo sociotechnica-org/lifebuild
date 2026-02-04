@@ -5,7 +5,7 @@ import { Logger } from '@livestore/utils/effect'
 import { schema } from '@lifebuild/shared/schema'
 import { makeTracer } from './otel.js'
 import {
-  LIVESTORE_SENTRY_CHANNEL,
+  getWorkerSentryChannelNameFromWorker,
   type LiveStoreWorkerLogPayload,
 } from './utils/livestoreWorkerSentryBridge.js'
 
@@ -52,8 +52,11 @@ const toCauseString = (cause: unknown): string | undefined => {
   }
 }
 
+const workerName = self.name || 'worker'
 const sentryChannel =
-  typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel(LIVESTORE_SENTRY_CHANNEL)
+  typeof BroadcastChannel === 'undefined'
+    ? null
+    : new BroadcastChannel(getWorkerSentryChannelNameFromWorker(workerName))
 
 const sentryLogger = Logger.make(({ message, logLevel, date, cause }) => {
   const levelTag = logLevel._tag
@@ -66,7 +69,8 @@ const sentryLogger = Logger.make(({ message, logLevel, date, cause }) => {
     message: toMessageString(message),
     timestamp: date.getTime(),
     stack: toStack(message),
-    annotations: { thread: self.name || 'worker' },
+    workerName,
+    annotations: { thread: workerName },
     ...(cause ? { cause: toCauseString(cause) } : {}),
   }
 

@@ -1,4 +1,4 @@
-export const LIVESTORE_SENTRY_CHANNEL = 'lifebuild-livestore-sentry'
+const LIVESTORE_SENTRY_CHANNEL_PREFIX = 'lifebuild-livestore-sentry'
 
 export type LiveStoreWorkerLogPayload = {
   source: 'livestore-worker'
@@ -7,6 +7,7 @@ export type LiveStoreWorkerLogPayload = {
   timestamp: number
   cause?: string
   stack?: string
+  workerName?: string
   annotations?: Record<string, unknown>
 }
 
@@ -19,3 +20,9 @@ export const isLiveStoreWorkerLogPayload = (value: unknown): value is LiveStoreW
   if (typeof payload.timestamp !== 'number') return false
   return true
 }
+
+export const getWorkerSentryChannelNameFromWorker = (workerName: string): string =>
+  `${LIVESTORE_SENTRY_CHANNEL_PREFIX}:${workerName}`
+
+export const getWorkerSentryChannelNameFromStore = (storeId: string, sessionId: string): string =>
+  `${LIVESTORE_SENTRY_CHANNEL_PREFIX}:livestore-worker-${storeId}-${sessionId}`
