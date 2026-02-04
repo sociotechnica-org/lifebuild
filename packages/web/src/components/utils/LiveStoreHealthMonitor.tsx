@@ -37,7 +37,11 @@ export const LiveStoreHealthMonitor: React.FC<LiveStoreHealthMonitorProps> = ({
 
     const relevantCount = recent.filter(entry => entry.reason === reason).length
     if (relevantCount >= REPAIR_SUGGESTION_THRESHOLD) {
-      suggestRepair('Repeated sync stalls detected')
+      const suggestion =
+        reason === 'status-stale'
+          ? 'Connection status has gone stale repeatedly'
+          : 'Repeated sync stalls detected'
+      suggestRepair(suggestion)
     }
   }
 

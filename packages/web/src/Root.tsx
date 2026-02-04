@@ -53,7 +53,11 @@ import {
   isDevtoolsEnabled,
 } from './utils/livestoreDevtools.js'
 import { LiveStoreRepairProvider } from './contexts/LiveStoreRepairContext.js'
-import { consumeRepairRequestSync, useLiveStoreRepair } from './hooks/useLiveStoreRepair.js'
+import {
+  consumeRepairRequestSync,
+  peekRepairRequestSync,
+  useLiveStoreRepair,
+} from './hooks/useLiveStoreRepair.js'
 
 const DevtoolsUrlLogger: React.FC<{ enabled: boolean; storeId: string }> = ({
   enabled,
@@ -198,12 +202,14 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
     [storeId]
   )
 
-  const repairAttempt = useMemo(() => consumeRepairRequestSync(storeId), [storeId, restartIndex])
+  const repairRequested = useMemo(() => peekRepairRequestSync(storeId), [storeId, restartIndex])
+  const shouldResetPersistence = repairRequested?.status === 'requested'
 
   useEffect(() => {
-    if (!repairAttempt) return
+    if (!shouldResetPersistence) return
+    consumeRepairRequestSync(storeId)
     repair.refresh()
-  }, [repairAttempt, repair.refresh])
+  }, [repair.refresh, shouldResetPersistence, storeId])
 
   const adapter = useMemo(
     () =>
@@ -211,9 +217,9 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
         storage: { type: 'opfs' },
         worker: LiveStoreWorker,
         sharedWorker: LiveStoreSharedWorker,
-        ...(repairAttempt ? { resetPersistence: true } : {}),
+        ...(shouldResetPersistence ? { resetPersistence: true } : {}),
       }),
-    [repairAttempt]
+    [shouldResetPersistence]
   )
 
   const handleRequestRepair = useCallback(
@@ -316,7 +322,7 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
           renderLoading={state => (
             <LoadingState
               message={`${
-                repairAttempt ? 'Repairing local data' : 'Loading LiveStore'
+                shouldResetPersistence ? 'Repairing local data' : 'Loading LiveStore'
               } (${state.stage})...`}
               fullScreen
             />

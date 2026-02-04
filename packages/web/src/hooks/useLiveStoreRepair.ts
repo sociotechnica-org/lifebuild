@@ -60,6 +60,9 @@ const readRepairStateSync = (storeId: string): LiveStoreRepairState | null => {
   return parsed
 }
 
+export const peekRepairRequestSync = (storeId: string): LiveStoreRepairState | null =>
+  readRepairStateSync(storeId)
+
 const readRepairSuggestionSync = (storeId: string): LiveStoreRepairSuggestion | null => {
   if (typeof window === 'undefined') return null
   const key = getSuggestionKey(storeId)
