@@ -160,7 +160,7 @@ When users describe project requirements or ask you to create tasks, use the cre
             tools,
             tool_choice: 'auto',
             temperature: 0.7,
-            max_tokens: 1000,
+            max_tokens: 4096,
           }),
           signal: controller.signal,
         })
@@ -188,6 +188,18 @@ When users describe project requirements or ask you to create tasks, use the cre
 
         if (!responseMessage) {
           throw new Error('No response generated from LLM')
+        }
+
+        // Warn if response was truncated due to token limit - tool call arguments may be incomplete
+        if (choice.finish_reason === 'length') {
+          logger.warn(
+            {
+              model: model || DEFAULT_MODEL,
+              hasToolCalls: !!responseMessage.tool_calls?.length,
+              finishReason: choice.finish_reason,
+            },
+            'LLM response truncated due to max_tokens limit - tool call arguments may be incomplete'
+          )
         }
 
         logger.info(
