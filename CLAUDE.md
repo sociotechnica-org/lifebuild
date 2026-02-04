@@ -81,6 +81,9 @@ LifeBuild is a real-time collaborative web application built as a monorepo with 
 - `packages/shared/src/queries.ts` - Database queries
 - `packages/worker/functions/_worker.ts` - WebSocket sync server
 - `packages/web/src/` - React frontend application
+- `packages/server/src/index.ts` - Node.js server entry point (agentic loop, event processing)
+- `packages/server/src/services/agentic-loop/` - LLM provider abstraction and agentic processing
+- `packages/server/src/utils/logger.ts` - Structured logging with pino
 
 ## Documentation
 
@@ -374,6 +377,12 @@ Projects use the same status workflow as other issues:
 - Only for vital user flows
 - Run with `CI=true pnpm test:e2e` to verify
 
+### Testing Strategy
+
+- **Node.js integration tests** for server-side logic (reconnect paths, event processing) — fewer moving parts, faster execution
+- **Playwright E2E tests** for user-facing behavior (connection indicators, UI flows) — keep high-level and implementation-agnostic
+- **E2E tests should not depend on backend implementation details** — focus on observable behavior
+
 ### LiveStore Testing
 
 ```typescript
@@ -381,6 +390,58 @@ const store = createTestStore()
 await store.mutate([{ type: 'project.create', id: '1', name: 'Test', description: 'Test' }])
 const projects = await store.query(db => db.table('projects').all())
 ```
+
+### Full-Stack Integration Testing
+
+Full-stack tests spawn real worker and server processes and connect a LiveStore client. Key patterns:
+
+```bash
+# Run full-stack integration test
+pnpm --filter @lifebuild/server run test:fullstack
+```
+
+**StubLLMProvider for deterministic LLM responses:**
+
+Set `LLM_PROVIDER=stub` and configure responses via environment variables:
+
+```bash
+LLM_PROVIDER=stub
+LLM_STUB_RESPONSES='{"defaultResponse":"stub: {{message}}","responses":[{"match":"ping","response":"pong"}]}'
+# Or use a fixture file:
+LLM_STUB_FIXTURE_PATH=./fixtures/stub-responses.json
+# Or set a simple default:
+LLM_STUB_DEFAULT_RESPONSE="default stub response"
+```
+
+Response rules support `matchType`: `"exact"` (default), `"includes"`, or `"regex"`.
+
+**Process management in tests:**
+
+- Use `spawn` for child processes (worker, server) — never `exec`
+- Always terminate with `SIGTERM` first, then `SIGKILL` after timeout
+- Use `waitForPort()` to confirm process readiness before proceeding
+- Clean up temporary directories (`.context/fullstack-*`) in `finally` blocks
+- Set a total timeout guard to prevent tests from hanging indefinitely
+
+**WebSocket polyfill for Node.js:**
+
+Node.js may not provide `globalThis.WebSocket`. Polyfill with `ws` in tests and server code:
+
+```typescript
+if (typeof globalThis.WebSocket !== 'function') {
+  const { WebSocket } = await import('ws')
+  ;(globalThis as any).WebSocket = WebSocket
+}
+```
+
+### Logging
+
+The server uses `pino` for structured logging. Key utilities in `packages/server/src/utils/logger.ts`:
+
+- `createContextLogger({ storeId, operation, ... })` — child logger with structured context
+- `createCorrelatedLogger({ correlationId, messageId, ... })` — includes correlation ID from async local storage
+- `logMessageEvent(level, event, message)` — structured message lifecycle logging
+- Log level controlled by `LOG_LEVEL` env var (defaults: `debug` in dev, `warn` in test, `info` in prod)
 
 ## Component Architecture Patterns
 
