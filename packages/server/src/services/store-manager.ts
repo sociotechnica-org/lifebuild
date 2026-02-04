@@ -1,12 +1,14 @@
 import type { Store as LiveStore, SyncState } from '@livestore/livestore'
 import { StoreInternalsSymbol } from '@livestore/livestore'
 import { Effect, Fiber, Stream } from '@livestore/utils/effect'
+import * as Sentry from '@sentry/node'
 import { EventEmitter } from 'events'
 import { type StoreConfig, createStore } from '../factories/store-factory.js'
 import { logger, storeLogger, operationLogger } from '../utils/logger.js'
 import {
   createOrchestrationTelemetry,
   getIncidentDashboardUrl,
+  unwrapErrorForSentry,
 } from '../utils/orchestration-telemetry.js'
 
 export type StoreConnectionStatus = 'connected' | 'connecting' | 'disconnected' | 'error'
@@ -365,6 +367,7 @@ export class StoreManager extends EventEmitter {
           if (!initial.isConnected && storeInfo.status === 'connected') {
             storeLogger(storeId).warn('Network disconnected on startup - updating status')
             if (this.updateStoreStatus(storeId, 'disconnected', now)) {
+              this.captureDisconnect(storeId, storeInfo, 'startup_network_disconnected')
               this.emit('storeDisconnected', { storeId })
             }
           }
@@ -421,6 +424,7 @@ export class StoreManager extends EventEmitter {
             disconnectedSince: now,
           }
           if (this.updateStoreStatus(storeId, 'disconnected', now)) {
+            this.captureDisconnect(storeId, storeInfo, 'network_status_disconnected')
             this.emit('storeDisconnected', { storeId })
           }
         }
@@ -457,6 +461,7 @@ export class StoreManager extends EventEmitter {
               disconnectedSince: now,
             }
             if (this.updateStoreStatus(storeId, 'disconnected', now)) {
+              this.captureDisconnect(storeId, storeInfo, 'network_status_stream_ended', error)
               this.emit('storeDisconnected', { storeId })
             }
             this.scheduleReconnect(storeId)
@@ -651,6 +656,7 @@ export class StoreManager extends EventEmitter {
         'Sync appears stuck - triggering reconnection'
       )
       if (this.updateStoreStatus(storeId, 'disconnected')) {
+        this.captureDisconnect(storeId, storeInfo, 'sync_stuck')
         this.emit('storeDisconnected', { storeId })
       }
       this.scheduleReconnect(storeId)
@@ -768,6 +774,7 @@ export class StoreManager extends EventEmitter {
             if (!storeInfo.networkStatus.isConnected && storeInfo.status === 'connected') {
               // Network is disconnected but we haven't updated our status yet
               if (this.updateStoreStatus(storeId, 'disconnected')) {
+                this.captureDisconnect(storeId, storeInfo, 'health_check_network_disconnected')
                 this.emit('storeDisconnected', { storeId })
               }
               storeLogger(storeId).warn('Network disconnected - updating status')
@@ -821,6 +828,41 @@ export class StoreManager extends EventEmitter {
 
     // Start the first health check
     this.healthCheckInterval = setTimeout(runHealthCheck, healthCheckInterval)
+  }
+
+  private captureDisconnect(
+    storeId: string,
+    storeInfo: StoreInfo,
+    reason: string,
+    error?: unknown
+  ): void {
+    if (this.isShuttingDown) {
+      return
+    }
+    const syncUrl = storeInfo.config.syncUrl ?? 'unknown'
+    const unwrappedError = error ? unwrapErrorForSentry(error) : undefined
+    const errorToCapture =
+      unwrappedError instanceof Error
+        ? unwrappedError
+        : error
+          ? new Error(`Store disconnected: ${reason} (${String(error)})`)
+          : new Error(`Store disconnected: ${reason}`)
+    Sentry.withScope(scope => {
+      scope.setTag('storeId', storeId)
+      scope.setTag('syncUrl', syncUrl)
+      scope.setTag('reason', reason)
+      if (error) {
+        scope.setContext('disconnectError', {
+          message:
+            unwrappedError instanceof Error
+              ? unwrappedError.message
+              : unwrappedError
+                ? String(unwrappedError)
+                : String(error),
+        })
+      }
+      Sentry.captureException(errorToCapture)
+    })
   }
 
   async shutdown(): Promise<void> {
