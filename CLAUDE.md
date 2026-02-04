@@ -82,8 +82,23 @@ LifeBuild is a real-time collaborative web application built as a monorepo with 
 - `packages/worker/functions/_worker.ts` - WebSocket sync server
 - `packages/web/src/` - React frontend application
 - `packages/server/src/index.ts` - Node.js server entry point (agentic loop, event processing)
+- `packages/server/src/instrument.ts` - Sentry instrumentation (loaded via dynamic import before app modules)
+- `packages/server/src/services/store-manager.ts` - LiveStore instance lifecycle, monitoring, and reconnection
+- `packages/server/src/services/event-processor.ts` - Event processing pipeline
+- `packages/server/src/services/workspace-orchestrator.ts` - Workspace coordination (receives StoreManager)
 - `packages/server/src/services/agentic-loop/` - LLM provider abstraction and agentic processing
 - `packages/server/src/utils/logger.ts` - Structured logging with pino
+- `packages/server/src/utils/orchestration-telemetry.ts` - Metrics and telemetry helpers
+
+### Server Architecture Details
+
+The server package (`packages/server`) has several key architectural patterns:
+
+- **StoreManager**: Manages LiveStore instance lifecycle — initialization, adding, removing, reconnecting, and monitoring status (sync state, network status). Uses Fiber-based effects (`networkStatusFiber`, `syncStateFiber`) via `Effect.runFork` for monitoring, and `Fiber.interrupt` for cleanup during shutdown/reconnection.
+- **Health Check Mechanism**: A periodic `healthCheckInterval` in StoreManager checks all managed stores, syncs internal `storeInfo.status` with observed `networkStatus`, and triggers reconnects for extended disconnects or stuck sync states.
+- **Debug Endpoints**: Endpoints like `/debug/network-health` and `/debug/subscription-health` are token-gated via `isDashboardAuthorized` checking a `SERVER_BYPASS_TOKEN`.
+- **Dependency Flow**: `EventProcessor` and `WorkspaceOrchestrator` receive the `StoreManager` instance during construction.
+- **Sentry Integration**: `instrument.ts` is dynamically imported before all other app modules so that `dotenv.config()` runs first and Sentry's `pinoIntegration` can instrument the logger.
 
 ## Documentation
 
