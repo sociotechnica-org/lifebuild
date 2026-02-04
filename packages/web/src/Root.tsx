@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AuthProvider, useAuth } from './contexts/AuthContext.js'
 import { useChorusNavigation } from './hooks/useChorusNavigation.js'
 import { useSyncPayload } from './hooks/useSyncPayload.js'
+import { useLiveStoreWorkerSentryBridge } from './hooks/useLiveStoreWorkerSentryBridge.js'
 
 import { ProjectsPage } from './components/projects/ProjectsPage.js'
 import { ProjectWorkspace } from './components/projects/ProjectWorkspace/ProjectWorkspace.js'
@@ -171,6 +172,8 @@ const LiveStoreWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   }, [location.search])
 
   const devtoolsEnabled = isDevtoolsEnabled(devtoolsParam)
+
+  useLiveStoreWorkerSentryBridge(storeId)
 
   const repair = useLiveStoreRepair({ storeId })
 
