@@ -17,7 +17,7 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout work-squared repo
+      - name: Checkout lifebuild repo
         uses: actions/checkout@v4
         with:
           ref: main
@@ -188,7 +188,7 @@ jobs:
             --body "$(cat <<EOF
           ## Changelog Entry
 
-          This PR adds a changelog entry for [work-squared PR #${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }}).
+          This PR adds a changelog entry for [lifebuild PR #${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }}).
 
           **Version:** ${{ steps.extract.outputs.new_version }}
 

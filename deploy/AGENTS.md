@@ -96,7 +96,7 @@ wrangler deployments list
 
 ### Sentry (Error Tracking)
 
-**Dashboard**: https://sociotechnica.sentry.io/issues/?project=work-squared
+**Dashboard**: https://sociotechnica.sentry.io/issues/?project=lifebuild
 
 **CLI Setup**:
 
@@ -119,13 +119,13 @@ sentry-cli info
 sentry-cli issues list
 
 # Or specify explicitly
-sentry-cli issues list --org sociotechnica --project work-squared
+sentry-cli issues list --org sociotechnica --project lifebuild
 
 # View specific issue
 sentry-cli issues show <issue-id>
 ```
 
-Project: `work-squared` (covers all LifeBuild services)
+Project: `lifebuild` (covers all LifeBuild services)
 
 ### PostHog (Product Analytics)
 
