@@ -234,6 +234,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setConnectionState(ConnectionState.AUTHENTICATED)
         } else {
           // Logged out from another tab
+          posthog?.reset()
           setTokens(null)
           setUser(null)
           setConnectionState(ConnectionState.DISCONNECTED)
@@ -246,7 +247,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for storage changes (multi-tab sync)
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
-  }, [])
+  }, [posthog])
 
   // Identify user in PostHog when user state changes
   useEffect(() => {
