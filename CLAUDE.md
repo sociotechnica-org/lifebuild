@@ -143,11 +143,13 @@ The app includes a repair mechanism for when local LiveStore data becomes incons
 ### Common Gotchas
 
 **Worker error handling:**
+
 - Errors in web workers do NOT propagate to the main thread automatically. React error boundaries and main-thread Sentry won't catch worker errors without explicit bridging.
 - Sentry must be initialized inside workers, or errors must be forwarded to the main thread.
 - Effect-TS `shouldNeverHappen` defects do NOT reach React error boundaries unless explicitly forwarded.
 
 **React performance with LiveStore:**
+
 - Use `useMemo` for stable references to adapter configs, context values, and expensive computations.
 - Adapter instances (e.g., `makeWebAdapter`) must be memoized — recreating them causes full LiveStore reconnections.
 - Use `useRef` for mutable state that persists across renders without triggering re-renders (e.g., timestamps, counters).
