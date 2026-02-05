@@ -175,7 +175,10 @@ test.describe('New UI Workflow', () => {
     await expect(projectCard).toBeVisible({ timeout: 5000 })
 
     // Click "Activate to Table" button on the project card
-    const activateButton = projectCard.getByRole('button', { name: 'Activate to Table', exact: true })
+    const activateButton = projectCard.getByRole('button', {
+      name: 'Activate to Table',
+      exact: true,
+    })
     await expect(activateButton).toBeEnabled()
     await activateButton.click()
 
