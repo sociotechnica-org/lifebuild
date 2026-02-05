@@ -85,6 +85,49 @@ LifeBuild is a real-time collaborative web application built as a monorepo with 
 - `packages/server/src/services/agentic-loop/` - LLM provider abstraction and agentic processing
 - `packages/server/src/utils/logger.ts` - Structured logging with pino
 
+### Effect-TS Patterns
+
+The codebase uses Effect-TS extensively for async operations, side effects, and control flow:
+
+- **Control flow**: `Effect.gen`, `Effect.withSpan`, `Effect.runFork`
+- **Dependency injection**: `Layer` for composable service dependencies
+- **Streaming**: `Stream` for reactive data flows
+- **Concurrency**: `Deferred` for signaling, `SubscriptionRef` for observable state
+- **Resource management**: `Scope` for lifecycle management of DB connections and workers
+- **Error handling**: Map errors to `UnknownError` or specific LiveStore errors (`MaterializeError`, `BackendIdMismatchError`). Use `Effect.tapCauseLogPretty` for logging
+- **`shouldNeverHappen`**: Used for unrecoverable internal states. Throws `Error` in dev, logs defect in production. These defects are NOT caught by React error boundaries unless explicitly propagated
+
+### LiveStore Repair Flow
+
+The app includes a repair mechanism for when local LiveStore data becomes inconsistent:
+
+- **Root cause**: Boot head mismatch — the sync backend's "head" (latest committed event) diverges from the local event log, typically when a materializer crashes mid-sync
+- **`resetPersistence: true`**: The adapter option that clears LiveStore's local OPFS data to resolve corruption
+- **`LiveStoreBootBoundary`**: A dedicated React Error Boundary that catches LiveStore boot errors and renders a repair UI
+- **One-time repair flag**: Uses `localStorage` to persist a repair flag across page reloads, ensuring repair runs once then clears
+- **Cross-tab coordination**: Uses `BroadcastChannel` to coordinate repair requests across multiple tabs
+- **`syncStatus` API**: `useLiveStoreConnection` hook exposes sync status for health monitoring and repair suggestions
+- **User confirmation**: Repair requires explicit user confirmation — never auto-execute destructive operations
+
+### Worker Architecture
+
+- **SharedWorker + Web Worker**: The web adapter uses a web worker for LiveStore operations and a SharedWorker for multi-tab coordination
+- **OPFS persistence**: Client-side data persists via Origin Private File System
+- **Fallback design**: Adapters fall back gracefully when SharedWorker is unavailable (e.g., single-tab mode)
+- **WebLock**: Used for cross-tab synchronization to prevent race conditions
+
+### Common Gotchas
+
+**Worker error handling:**
+- Errors in web workers do NOT propagate to the main thread automatically. React error boundaries and main-thread Sentry won't catch worker errors without explicit bridging.
+- Sentry must be initialized inside workers, or errors must be forwarded to the main thread.
+- Effect-TS `shouldNeverHappen` defects do NOT reach React error boundaries unless explicitly forwarded.
+
+**React performance with LiveStore:**
+- Use `useMemo` for stable references to adapter configs, context values, and expensive computations.
+- Adapter instances (e.g., `makeWebAdapter`) must be memoized — recreating them causes full LiveStore reconnections.
+- Use `useRef` for mutable state that persists across renders without triggering re-renders (e.g., timestamps, counters).
+
 ## Documentation
 
 - LiveStore patterns: https://docs.livestore.dev/llms.txt
