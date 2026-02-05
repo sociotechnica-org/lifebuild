@@ -60,7 +60,8 @@ async function createProjectAndAddToSorting(page: Page, storeId: string, project
   await objectivesTextarea.blur()
 
   // Select project type (Initiative = Gold tier)
-  const initiativeButton = page.getByRole('button', { name: /^Initiative/ })
+  // Use specific text to avoid matching TableSlot's "Initiative Click to add" button
+  const initiativeButton = page.getByRole('button', { name: /Initiative.*Move your life/ })
   await initiativeButton.click()
 
   await page.waitForTimeout(500)
