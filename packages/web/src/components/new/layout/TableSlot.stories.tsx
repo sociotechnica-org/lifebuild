@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React, { useState } from 'react'
-import { MemoryRouter } from 'react-router-dom'
 import { TableSlot, type Stream } from './TableSlot.js'
 import type { BacklogItem } from './BacklogSelectPopover.js'
 
@@ -15,6 +14,7 @@ const sampleSilverBacklog: BacklogItem[] = [
 ]
 
 // Interactive wrapper for slots with backlog selection
+// Note: Router is provided by Storybook's preview.tsx (BrowserRouter)
 function InteractiveSlot({
   stream,
   backlogItems,
@@ -29,23 +29,21 @@ function InteractiveSlot({
   } | null>(null)
 
   return (
-    <MemoryRouter>
-      <div className='w-[280px]'>
-        <TableSlot
-          stream={stream}
-          projectId={selectedProject?.id}
-          projectName={selectedProject?.name}
-          projectMeta={selectedProject?.meta}
-          backlogItems={backlogItems}
-          onSelectFromBacklog={id => {
-            const item = backlogItems?.find(i => i.id === id)
-            if (item) {
-              setSelectedProject({ id: item.id, name: item.name, meta: item.meta })
-            }
-          }}
-        />
-      </div>
-    </MemoryRouter>
+    <div className='w-[280px]'>
+      <TableSlot
+        stream={stream}
+        projectId={selectedProject?.id}
+        projectName={selectedProject?.name}
+        projectMeta={selectedProject?.meta}
+        backlogItems={backlogItems}
+        onSelectFromBacklog={id => {
+          const item = backlogItems?.find(i => i.id === id)
+          if (item) {
+            setSelectedProject({ id: item.id, name: item.name, meta: item.meta })
+          }
+        }}
+      />
+    </div>
   )
 }
 
@@ -54,11 +52,9 @@ const meta: Meta<typeof TableSlot> = {
   component: TableSlot,
   decorators: [
     Story => (
-      <MemoryRouter>
-        <div className='w-[280px]'>
-          <Story />
-        </div>
-      </MemoryRouter>
+      <div className='w-[280px]'>
+        <Story />
+      </div>
     ),
   ],
   parameters: {

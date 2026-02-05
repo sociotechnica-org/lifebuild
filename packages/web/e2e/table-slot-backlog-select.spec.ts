@@ -40,8 +40,8 @@ async function createProjectAndAddToSorting(page: Page, storeId: string, project
   await descriptionTextarea.fill('Test project for backlog select')
   await descriptionTextarea.blur()
 
-  // Select category
-  const categoryButton = page.getByRole('button', { name: 'Growth' })
+  // Select category (pick "Health")
+  const categoryButton = page.getByRole('button', { name: 'Health' })
   await categoryButton.click()
 
   await page.waitForTimeout(500)

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React, { useState } from 'react'
-import { MemoryRouter } from 'react-router-dom'
 import { BacklogSelectPopover, type BacklogItem } from './BacklogSelectPopover.js'
 
 const sampleGoldItems: BacklogItem[] = [
@@ -18,34 +17,33 @@ const sampleSilverItems: BacklogItem[] = [
 ]
 
 // Interactive wrapper that manages popover state
+// Note: Router is provided by Storybook's preview.tsx (BrowserRouter)
 function PopoverWrapper({ stream, items }: { stream: 'gold' | 'silver'; items: BacklogItem[] }) {
   const [isOpen, setIsOpen] = useState(true)
   const [selected, setSelected] = useState<string | null>(null)
 
   return (
-    <MemoryRouter>
-      <div className='relative w-[280px] p-4 bg-gray-50'>
-        <button
-          type='button'
-          onClick={() => setIsOpen(true)}
-          className='w-full p-3 border border-[#e8e4de] rounded-xl bg-white text-left'
-        >
-          <div className='text-sm text-[#8b8680]'>
-            {selected ? `Selected: ${selected}` : 'Click to open popover'}
-          </div>
-        </button>
-        <BacklogSelectPopover
-          stream={stream}
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          onSelect={id => {
-            setSelected(id)
-            setIsOpen(false)
-          }}
-          items={items}
-        />
-      </div>
-    </MemoryRouter>
+    <div className='relative w-[280px] p-4 bg-gray-50'>
+      <button
+        type='button'
+        onClick={() => setIsOpen(true)}
+        className='w-full p-3 border border-[#e8e4de] rounded-xl bg-white text-left'
+      >
+        <div className='text-sm text-[#8b8680]'>
+          {selected ? `Selected: ${selected}` : 'Click to open popover'}
+        </div>
+      </button>
+      <BacklogSelectPopover
+        stream={stream}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        onSelect={id => {
+          setSelected(id)
+          setIsOpen(false)
+        }}
+        items={items}
+      />
+    </div>
   )
 }
 
