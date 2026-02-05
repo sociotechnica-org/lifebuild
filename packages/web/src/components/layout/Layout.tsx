@@ -51,7 +51,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <SnackbarProvider>
-      <div className='flex flex-col h-screen'>
+      <div className='flex flex-col h-dvh'>
         <AuthStatusBanner />
         {/* Top Navigation */}
         <Navigation isChatOpen={isChatOpen} onChatToggle={() => setIsChatOpen(!isChatOpen)} />

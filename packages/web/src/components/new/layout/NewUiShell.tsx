@@ -88,9 +88,10 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
     return location.pathname === path || location.pathname.startsWith(path + '/')
   }
 
-  // Always use h-screen flex layout to keep TableBar at the bottom
+  // Always use h-dvh flex layout to keep TableBar at the bottom
+  // h-dvh (dynamic viewport height) accounts for iOS Safari address bar
   // The main content area scrolls, TableBar stays fixed at bottom via flexbox
-  const outerClasses = 'h-screen flex flex-col overflow-hidden text-[#2f2b27] leading-relaxed'
+  const outerClasses = 'h-dvh flex flex-col overflow-hidden text-[#2f2b27] leading-relaxed'
 
   // fullHeight mode: full width content area
   // noScroll mode: children handle their own scrolling (e.g. kanban boards with scrollable columns)
