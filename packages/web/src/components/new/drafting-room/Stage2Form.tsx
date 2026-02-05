@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore, useQuery } from '../../../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
@@ -64,7 +64,8 @@ export const Stage2Form: React.FC = () => {
   const posthog = usePostHog()
 
   // Load existing project (query returns array, get first item)
-  const projectResults = useQuery(getProjectById$(projectId ?? ''))
+  const projectQuery = useMemo(() => getProjectById$(projectId ?? ''), [projectId])
+  const projectResults = useQuery(projectQuery)
   const project = projectResults?.[0] ?? null
 
   // Form state - initialized empty, will be populated from project

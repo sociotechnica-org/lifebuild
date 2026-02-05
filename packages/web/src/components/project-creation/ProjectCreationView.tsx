@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useStore, useQuery } from '../../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
@@ -93,7 +93,8 @@ export const ProjectCreationView: React.FC = () => {
   // Get project ID from URL if editing existing project
   const projectId = searchParams.get('projectId')
   // Always call useQuery unconditionally - use dummy ID when none exists to avoid hooks violations
-  const projectQueryResult = useQuery(getProjectDetails$(projectId || '__dummy__'))
+  const projectQuery = useMemo(() => getProjectDetails$(projectId || '__dummy__'), [projectId])
+  const projectQueryResult = useQuery(projectQuery)
   const existingProject = projectId ? (projectQueryResult?.[0] as any) : null
 
   // Stage management (only stages 1-2 are shown in UI, stage 3 navigates to workspace)

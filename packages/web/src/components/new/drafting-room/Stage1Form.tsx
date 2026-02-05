@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore, useQuery } from '../../../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
@@ -23,7 +23,8 @@ export const Stage1Form: React.FC = () => {
   const posthog = usePostHog()
 
   // Load existing project if editing
-  const projectResults = useQuery(getProjectById$(urlProjectId ?? ''))
+  const projectQuery = useMemo(() => getProjectById$(urlProjectId ?? ''), [urlProjectId])
+  const projectResults = useQuery(projectQuery)
   const existingProject = urlProjectId ? (projectResults?.[0] ?? null) : null
 
   const [title, setTitle] = useState('')
