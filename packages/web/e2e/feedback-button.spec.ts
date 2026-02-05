@@ -1,6 +1,10 @@
 /**
  * E2E tests for the feedback button in the header
  * Tests that the feedback button is visible and provides feedback mechanism
+ *
+ * Note: Testing the PostHog survey vs mailto fallback behavior requires
+ * unit tests with mocked environment variables, as Vite's import.meta.env
+ * is a build-time replacement not accessible at runtime.
  */
 
 import { test, expect, Page } from '@playwright/test'
@@ -50,40 +54,6 @@ test.describe('Feedback Button', () => {
       err => err.includes('feedback') || err.includes('PostHog') || err.includes('survey')
     )
     expect(relevantErrors).toHaveLength(0)
-  })
-
-  test('should fallback to email when survey ID is not configured', async ({ page }) => {
-    // Track navigation attempts (mailto: links trigger this)
-    let mailtoUrl: string | null = null
-    page.on('request', request => {
-      if (request.url().startsWith('mailto:')) {
-        mailtoUrl = request.url()
-      }
-    })
-
-    await navigateToDraftingRoom(page)
-
-    // Check if PostHog survey ID is configured
-    const hasSurveyId = await page.evaluate(
-      () => !!(window as any).__VITE_POSTHOG_FEEDBACK_SURVEY_ID
-    )
-
-    const feedbackButton = page.locator('button[aria-label="Send feedback"]')
-    await expect(feedbackButton).toBeVisible({ timeout: 10000 })
-
-    // Click the button
-    await feedbackButton.click()
-    await page.waitForTimeout(500)
-
-    // If no survey ID configured, should attempt mailto fallback
-    // Note: mailto links may not actually navigate in headless mode, but we verify the behavior
-    if (!hasSurveyId) {
-      // The button should have triggered some action (either PostHog survey or mailto)
-      // Since survey ID isn't set in tests, we just verify no errors occurred
-      const hasPostHog = await page.evaluate(() => !!(window as any).posthog)
-      // Either PostHog handles it or mailto fallback is triggered
-      expect(hasPostHog || mailtoUrl !== null || true).toBeTruthy()
-    }
   })
 
   test('should have correct styling and hover state', async ({ page }) => {
