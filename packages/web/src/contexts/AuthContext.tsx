@@ -188,6 +188,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   )
   const [isLoading, setIsLoading] = useState(true)
   const posthog = usePostHog()
+  const posthogRef = useRef(posthog)
+  posthogRef.current = posthog
 
   // Track retry attempts to prevent infinite loops
   const retryCountRef = useRef(0)
@@ -234,7 +236,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setConnectionState(ConnectionState.AUTHENTICATED)
         } else {
           // Logged out from another tab
-          posthog?.reset()
+          posthogRef.current?.reset()
           setTokens(null)
           setUser(null)
           setConnectionState(ConnectionState.DISCONNECTED)
@@ -247,14 +249,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for storage changes (multi-tab sync)
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
-  }, [posthog])
+  }, [])
 
   // Identify user in PostHog when user state changes
   useEffect(() => {
     if (user) {
-      posthog?.identify(user.email, {
+      posthog?.identify(user.id, {
         email: user.email,
-        user_id: user.id,
         is_admin: user.isAdmin,
       })
     }
