@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { generateRoute, ROUTES } from '../../../constants/routes.js'
 import { useQuery } from '../../../livestore-compat.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
+import { usePostHog } from '../../../lib/analytics.js'
 import { getUsers$ } from '@lifebuild/shared/queries'
 import type { User } from '@lifebuild/shared/schema'
 import { TableBar } from './TableBar.js'
@@ -34,6 +35,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
   const location = useLocation()
   const { user: authUser, isAuthenticated, logout } = useAuth()
   const users = useQuery(getUsers$) ?? []
+  const posthog = usePostHog()
   const [showDropdown, setShowDropdown] = useState(false)
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 })
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -86,6 +88,22 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(path + '/')
+  }
+
+  const handleFeedbackClick = () => {
+    const surveyId = import.meta.env.VITE_POSTHOG_FEEDBACK_SURVEY_ID
+    if (!surveyId) {
+      // Fallback: open email client if survey not configured
+      window.location.href = 'mailto:team@sociotechnica.org?subject=LifeBuild%20Feedback'
+      return
+    }
+    if (posthog) {
+      // PostHog API-triggered surveys: this event causes the survey popup to display
+      posthog.capture('survey shown', { $survey_id: surveyId })
+    } else {
+      // PostHog not available, fallback to email
+      window.location.href = 'mailto:team@sociotechnica.org?subject=LifeBuild%20Feedback'
+    }
   }
 
   // Always use h-dvh flex layout to keep TableBar at the bottom
@@ -144,6 +162,14 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
           </Link>
         </nav>
         <div className='flex items-center gap-4'>
+          <button
+            type='button'
+            onClick={handleFeedbackClick}
+            className='bg-transparent border-none text-sm font-medium text-[#8b8680] cursor-pointer px-3 py-2 rounded-lg transition-all duration-[160ms] hover:bg-black/[0.04] hover:text-[#2f2b27]'
+            aria-label='Send feedback'
+          >
+            Feedback
+          </button>
           {isAuthenticated && onChatToggle && <LiveStoreStatus />}
           {onChatToggle && (
             <button

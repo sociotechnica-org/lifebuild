@@ -4,6 +4,7 @@
 interface ImportMetaEnv {
   readonly VITE_PUBLIC_POSTHOG_KEY?: string
   readonly VITE_PUBLIC_POSTHOG_HOST?: string
+  readonly VITE_POSTHOG_FEEDBACK_SURVEY_ID?: string
   readonly VITE_LIVESTORE_DEVTOOLS_LICENSE?: string
   readonly VITE_LSD_LICENSE?: string
 }
