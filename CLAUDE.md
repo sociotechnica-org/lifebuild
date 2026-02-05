@@ -82,8 +82,32 @@ LifeBuild is a real-time collaborative web application built as a monorepo with 
 - `packages/worker/functions/_worker.ts` - WebSocket sync server
 - `packages/web/src/` - React frontend application
 - `packages/server/src/index.ts` - Node.js server entry point (agentic loop, event processing)
+- `packages/server/src/instrument.ts` - Sentry instrumentation (loaded via dynamic import before app modules)
+- `packages/server/src/services/store-manager.ts` - LiveStore instance lifecycle, monitoring, and reconnection
+- `packages/server/src/services/event-processor.ts` - Event processing pipeline
+- `packages/server/src/services/workspace-orchestrator.ts` - Workspace coordination (receives StoreManager)
 - `packages/server/src/services/agentic-loop/` - LLM provider abstraction and agentic processing
 - `packages/server/src/utils/logger.ts` - Structured logging with pino
+- `packages/server/src/utils/orchestration-telemetry.ts` - Metrics and telemetry helpers
+
+### Server Architecture Details
+
+The server package (`packages/server`) has several key architectural patterns:
+
+- **StoreManager**: Manages LiveStore instance lifecycle — initialization, adding, removing, reconnecting, and monitoring status (sync state, network status). Uses Fiber-based effects (`networkStatusFiber`, `syncStateFiber`) via `Effect.runFork` for monitoring, and `Fiber.interrupt` for cleanup during shutdown/reconnection.
+- **Health Check Mechanism**: A periodic `healthCheckInterval` in StoreManager checks all managed stores, syncs internal `storeInfo.status` with observed `networkStatus`, and triggers reconnects for extended disconnects or stuck sync states.
+- **Debug Endpoints**: Endpoints like `/debug/network-health` and `/debug/subscription-health` are token-gated via `isDashboardAuthorized` checking a `SERVER_BYPASS_TOKEN`.
+- **Dependency Flow**: `EventProcessor` and `WorkspaceOrchestrator` receive the `StoreManager` instance during construction.
+- **Sentry Integration**: `instrument.ts` is dynamically imported before all other app modules so that `dotenv.config()` runs first and Sentry's `pinoIntegration` can instrument the logger.
+
+### Server Coding Patterns
+
+- **Idempotent monitoring**: `ensureMonitored` must handle idempotency — never re-add stores that are already managed.
+- **Offline duration**: Use `networkStatus.disconnectedSince` (not `storeInfo.lastDisconnectedAt`) for `offlineDurationMs`. The former is tied directly to the network status event.
+- **Stale data on reconnection**: When a store reconnects and a new LiveStore instance is created, reset internal monitoring state (`syncStatus`, `networkStatus`) to allow fresh monitoring.
+- **Fiber cleanup**: Always use `Fiber.interrupt` to stop monitoring fibers before creating new ones during reconnection or shutdown.
+- **API serialization**: Convert `Date` objects to ISO strings (`toISOString()`) consistently in API responses. Handle internal-to-API type conversions explicitly (e.g., `NetworkStatusInfo` to API `NetworkStatus`).
+- **Graceful shutdown**: `StoreManager.shutdown()` must clear all timeouts (health check intervals) and shut down all managed stores. Use `SIGTERM` first, then `SIGKILL` after a timeout for child processes.
 
 ### Effect-TS Patterns
 
