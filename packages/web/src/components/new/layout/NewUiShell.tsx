@@ -90,7 +90,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
     return location.pathname === path || location.pathname.startsWith(path + '/')
   }
 
-const handleFeedbackClick = () => {
+  const handleFeedbackClick = () => {
     const surveyId = import.meta.env.VITE_POSTHOG_FEEDBACK_SURVEY_ID
     if (!surveyId) {
       // Fallback: open email client if survey not configured
