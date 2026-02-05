@@ -86,7 +86,8 @@ test.describe('New UI Workflow', () => {
     await deadlineInput.blur()
 
     // Select project type (Initiative = Gold tier)
-    const initiativeButton = page.getByRole('button', { name: /^Initiative/ })
+    // Use specific text to avoid matching TableSlot's "Initiative Click to add" button
+    const initiativeButton = page.getByRole('button', { name: /Initiative.*Move your life/ })
     await initiativeButton.click()
 
     // Wait for auto-save

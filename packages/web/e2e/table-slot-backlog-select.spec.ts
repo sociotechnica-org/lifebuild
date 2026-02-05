@@ -74,9 +74,20 @@ async function createProjectAndAddToSorting(page: Page, storeId: string, project
   // Stage 3: Detail
   await expect(page.getByText('Stage 3: Detail')).toBeVisible({ timeout: 10000 })
 
+  // Add at least one task (required for "Add to Sorting" to be enabled)
+  const addTaskButton = page.getByRole('button', { name: '+ Add Task' })
+  await addTaskButton.click()
+  const taskModal = page.getByRole('dialog')
+  await expect(taskModal).toBeVisible({ timeout: 5000 })
+  const taskTitleInput = taskModal.locator('input[placeholder="Task title"]')
+  await taskTitleInput.fill('Test task')
+  const createTaskButton = taskModal.getByRole('button', { name: 'Create Task' })
+  await createTaskButton.click()
+  await expect(taskModal).not.toBeVisible({ timeout: 5000 })
+
   // Add to Sorting (this moves it to backlog)
   const addToSortingButton = page.getByRole('button', { name: 'Add to Sorting' })
-  await expect(addToSortingButton).toBeEnabled()
+  await expect(addToSortingButton).toBeEnabled({ timeout: 5000 })
   await addToSortingButton.click()
 
   // Wait for Sorting Room to load
