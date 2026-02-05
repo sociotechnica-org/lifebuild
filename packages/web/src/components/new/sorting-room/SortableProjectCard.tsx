@@ -85,7 +85,7 @@ export const SortableProjectCard: React.FC<SortableProjectCardProps> = ({
           className='text-xs py-1.5 px-3 rounded-lg bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black whitespace-nowrap'
           onClick={() => onActivateToTable(project)}
         >
-          Activate
+          Activate to Table
         </button>
       </div>
     </div>

@@ -166,16 +166,19 @@ test.describe('New UI Workflow', () => {
       timeout: 5000,
     })
 
-    // Find our project in the backlog and click "Activate" within that card
+    // Find our project in the backlog and click "Activate to Table" within that card
     const projectCard = page
       .locator('div')
       .filter({ hasText: projectName })
-      .filter({ has: page.getByRole('button', { name: 'Activate', exact: true }) })
+      .filter({ has: page.getByRole('button', { name: 'Activate to Table', exact: true }) })
       .first()
     await expect(projectCard).toBeVisible({ timeout: 5000 })
 
-    // Click "Activate" button on the project card
-    const activateButton = projectCard.getByRole('button', { name: 'Activate', exact: true })
+    // Click "Activate to Table" button on the project card
+    const activateButton = projectCard.getByRole('button', {
+      name: 'Activate to Table',
+      exact: true,
+    })
     await expect(activateButton).toBeEnabled()
     await activateButton.click()
 
