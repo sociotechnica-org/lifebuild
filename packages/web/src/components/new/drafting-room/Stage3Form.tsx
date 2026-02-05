@@ -153,11 +153,13 @@ export const Stage3Form: React.FC = () => {
   const { openChat, sendDirectMessage } = useRoomChatControl()
 
   // Load existing project
-  const projectResults = useQuery(getProjectById$(projectId ?? ''))
+  const projectQuery = useMemo(() => getProjectById$(projectId ?? ''), [projectId])
+  const projectResults = useQuery(projectQuery)
   const project = projectResults?.[0] ?? null
 
   // Load existing tasks for this project
-  const allTasks = useQuery(getProjectTasks$(projectId ?? '')) ?? []
+  const tasksQuery = useMemo(() => getProjectTasks$(projectId ?? ''), [projectId])
+  const allTasks = useQuery(tasksQuery) ?? []
   const tasks = useMemo(
     () => allTasks.filter(t => !t.archivedAt).sort((a, b) => a.position - b.position),
     [allTasks]

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useMemo } from 'react'
 import { useStore, useQuery } from '../livestore-compat.js'
 import { events } from '@lifebuild/shared/schema'
 import { getWorkerById$, getConversations$ } from '@lifebuild/shared/queries'
@@ -36,9 +36,8 @@ export function useCategoryAdvisor(category: ProjectCategory | null | undefined)
   const advisorId = category ? `${category}-advisor` : null
 
   // Query for the advisor worker
-  const advisorResult = useQuery(
-    advisorId ? getWorkerById$(advisorId) : getWorkerById$('__no_advisor__')
-  )
+  const advisorQuery = useMemo(() => getWorkerById$(advisorId ?? '__no_advisor__'), [advisorId])
+  const advisorResult = useQuery(advisorQuery)
   const advisor = advisorId && advisorResult?.[0] ? advisorResult[0] : null
 
   // For now, we'll check if advisor exists to determine readiness
