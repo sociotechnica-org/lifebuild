@@ -29,6 +29,15 @@ const client = new Client({
   version: '0.1.0',
 })
 
+async function cleanup(exitCode: number) {
+  try {
+    await client.close()
+  } finally {
+    await fs.rm(tempDir, { recursive: true, force: true })
+    process.exit(exitCode)
+  }
+}
+
 try {
   await client.connect(transport)
 
@@ -52,9 +61,8 @@ try {
   }
 
   console.log('Integration test succeeded.')
-  await client.close()
-  process.exit(0)
+  await cleanup(0)
 } catch (error) {
-  await client.close()
+  await cleanup(1)
   throw error
 }
