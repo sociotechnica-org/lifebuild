@@ -3,6 +3,8 @@ import { makeAdapter } from '@livestore/adapter-node'
 import { makeWsSync } from '@livestore/sync-cf/client'
 import { schema } from '@lifebuild/shared/schema'
 import path from 'path'
+import fs from 'fs'
+import Database from 'better-sqlite3'
 import { logger } from '../utils/logger.js'
 
 export interface StoreConfig {
@@ -59,6 +61,87 @@ export function getStoreConfig(storeId: string): StoreConfig {
   }
 
   return baseConfig
+}
+
+const EVENTLOG_PREFIX = 'eventlog@'
+
+function findEventlogPath(storeDataPath: string, storeId: string): string | null {
+  const candidateDirs = [storeDataPath, path.join(storeDataPath, storeId)]
+
+  for (const dir of candidateDirs) {
+    if (!fs.existsSync(dir)) continue
+    const entries = fs.readdirSync(dir, { withFileTypes: true })
+    for (const entry of entries) {
+      if (!entry.isFile()) continue
+      if (entry.name.startsWith(EVENTLOG_PREFIX) && entry.name.endsWith('.db')) {
+        return path.join(dir, entry.name)
+      }
+    }
+  }
+
+  // Fall back to one-level deep search under storeDataPath
+  if (fs.existsSync(storeDataPath)) {
+    const entries = fs.readdirSync(storeDataPath, { withFileTypes: true })
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue
+      const dir = path.join(storeDataPath, entry.name)
+      const nested = fs.readdirSync(dir, { withFileTypes: true })
+      for (const file of nested) {
+        if (!file.isFile()) continue
+        if (file.name.startsWith(EVENTLOG_PREFIX) && file.name.endsWith('.db')) {
+          return path.join(dir, file.name)
+        }
+      }
+    }
+  }
+
+  return null
+}
+
+async function repairBackendHeadIfAhead(storeDataPath: string, storeId: string): Promise<void> {
+  try {
+    const eventlogPath = findEventlogPath(storeDataPath, storeId)
+    if (!eventlogPath) {
+      return
+    }
+
+    const db = new Database(eventlogPath)
+    try {
+      const headRow = db.prepare('select head from __livestore_sync_status').get() as
+        | { head?: number }
+        | undefined
+      const localRow = db.prepare('select max(seqNumGlobal) as maxHead from eventlog').get() as
+        | { maxHead?: number }
+        | undefined
+
+      if (!headRow) return
+
+      const backendHead = headRow.head ?? 0
+      const localHead = localRow?.maxHead ?? 0
+
+      if (backendHead > localHead) {
+        logger.warn(
+          {
+            storeId,
+            backendHead,
+            localHead,
+            eventlogPath,
+          },
+          'Backend head ahead of local head; resetting backend head to local head for recovery'
+        )
+        db.prepare('update __livestore_sync_status set head = ?').run(localHead)
+      }
+    } finally {
+      db.close()
+    }
+  } catch (error) {
+    logger.warn({ storeId, error }, 'Failed to repair backend head before LiveStore boot')
+  }
+}
+
+export const __test__ = {
+  findEventlogPath,
+  repairBackendHeadIfAhead,
 }
 
 /**
@@ -152,6 +235,10 @@ export async function createStore(
   }
 
   const storeDataPath = path.join(config.dataPath!, storeId)
+
+  if (process.env.LIVESTORE_REPAIR_BACKEND_HEAD !== 'false') {
+    await repairBackendHeadIfAhead(storeDataPath, storeId)
+  }
 
   const adapter = makeAdapter({
     storage: {
