@@ -30,7 +30,7 @@ export const useFileNavigation = () => {
       return {
         type: 'document',
         path: cleanPath,
-        navigable: true,
+        navigable: false,
       }
     }
 
@@ -97,35 +97,32 @@ export const useFileNavigation = () => {
           window.open(analysis.path, '_blank', 'noopener,noreferrer')
           break
 
-        case 'document':
-          // Handle document references
+        case 'document': {
           if (analysis.path.startsWith('document:')) {
             const documentId = analysis.path.split(':')[1]
-            if (documentId) {
-              navigate(preserveStoreIdInUrl(generateRoute.oldDocument(documentId)))
-            }
-          } else if (options?.documentId) {
-            navigate(preserveStoreIdInUrl(generateRoute.oldDocument(options.documentId)))
-          } else {
-            // Copy to clipboard as fallback
-            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-              navigator.clipboard.writeText(analysis.path).catch(err => {
-                console.error('Failed to copy file path', err)
+            if (
+              documentId &&
+              navigator.clipboard &&
+              typeof navigator.clipboard.writeText === 'function'
+            ) {
+              navigator.clipboard.writeText(`Document ID: ${documentId}`).catch(err => {
+                console.error('Failed to copy document ID', err)
               })
             }
+          } else if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            navigator.clipboard.writeText(analysis.path).catch(err => {
+              console.error('Failed to copy file path', err)
+            })
           }
           break
-
-        case 'project':
-          // Handle project and task references
+        }
+        case 'project': {
           if (analysis.path.startsWith('project:')) {
             const projectId = analysis.path.split(':')[1]
             if (projectId) {
-              navigate(preserveStoreIdInUrl(generateRoute.oldProject(projectId)))
+              navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
             }
           } else if (analysis.path.startsWith('task:')) {
-            // For tasks, we need to find the project they belong to
-            // For now, copy task ID to clipboard
             const taskId = analysis.path.split(':')[1]
             if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
               navigator.clipboard.writeText(`Task ID: ${taskId}`).catch(err => {
@@ -133,16 +130,14 @@ export const useFileNavigation = () => {
               })
             }
           } else if (options?.projectId) {
-            navigate(preserveStoreIdInUrl(generateRoute.oldProject(options.projectId)))
-          } else {
-            // Copy to clipboard as fallback
-            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-              navigator.clipboard.writeText(analysis.path).catch(err => {
-                console.error('Failed to copy file path', err)
-              })
-            }
+            navigate(preserveStoreIdInUrl(generateRoute.project(options.projectId)))
+          } else if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            navigator.clipboard.writeText(analysis.path).catch(err => {
+              console.error('Failed to copy file path', err)
+            })
           }
           break
+        }
 
         default:
           // For now, just copy the path to clipboard as fallback
@@ -190,15 +185,14 @@ export const useFileNavigation = () => {
           if (cleanPath.startsWith('document:')) {
             return {
               icon: '📝',
-              tooltip: 'Navigate to document',
+              tooltip: 'Copy document ID',
               className: 'cursor-pointer text-green-600 hover:text-green-800 hover:underline',
             }
-          } else {
-            return {
-              icon: '📝',
-              tooltip: 'Copy document path',
-              className: 'cursor-pointer text-green-600 hover:text-green-800 hover:underline',
-            }
+          }
+          return {
+            icon: '📝',
+            tooltip: 'Copy document path',
+            className: 'cursor-pointer text-green-600 hover:text-green-800 hover:underline',
           }
         case 'external':
           return {
