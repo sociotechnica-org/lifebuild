@@ -26,6 +26,7 @@ import {
   fetchWorkspaceSnapshot,
 } from '../utils/auth.js'
 import { TOKEN_STORAGE_KEYS } from '@lifebuild/shared/auth'
+import { usePostHog } from '../lib/analytics.js'
 
 interface AuthContextType {
   // State
@@ -186,6 +187,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     ConnectionState.DISCONNECTED
   )
   const [isLoading, setIsLoading] = useState(true)
+  const posthog = usePostHog()
+  const posthogRef = useRef(posthog)
+  posthogRef.current = posthog
 
   // Track retry attempts to prevent infinite loops
   const retryCountRef = useRef(0)
@@ -232,6 +236,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setConnectionState(ConnectionState.AUTHENTICATED)
         } else {
           // Logged out from another tab
+          posthogRef.current?.reset()
           setTokens(null)
           setUser(null)
           setConnectionState(ConnectionState.DISCONNECTED)
@@ -245,6 +250,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
+
+  // Identify user in PostHog when user state changes
+  useEffect(() => {
+    if (user) {
+      posthog?.identify(user.id, {
+        email: user.email,
+        is_admin: user.isAdmin,
+      })
+    }
+  }, [user, posthog])
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true)
@@ -271,6 +286,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     retryCountRef.current = 0
     try {
       await authLogout()
+      posthog?.reset()
       setUser(null)
       setTokens(null)
       setConnectionState(ConnectionState.DISCONNECTED)
@@ -279,7 +295,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false)
     }
-  }, [clearRefreshTimer])
+  }, [clearRefreshTimer, posthog])
 
   const refreshUser = useCallback(async (): Promise<boolean> => {
     try {
