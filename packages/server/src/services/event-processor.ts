@@ -35,6 +35,7 @@ import {
 } from '../utils/orchestration-telemetry.js'
 import { buildSystemPrompt } from './pi/prompts.js'
 import { createPiTools } from './pi/tools.js'
+import { createStubResponder } from './pi/stub-responder.js'
 import type {
   EventBuffer,
   ProcessedEvent,
@@ -151,6 +152,7 @@ export class EventProcessor {
   private isShutdown = false
   private readonly piBaseDir: string
   private readonly piModel = getModel('anthropic', 'claude-opus-4-5')
+  private readonly stubResponder: ((message: string) => string) | null
 
   // Tables to monitor for activity
   // IMPORTANT: Only monitor chatMessages to process user messages
@@ -200,6 +202,14 @@ export class EventProcessor {
     this.piBaseDir =
       process.env.PI_STORAGE_DIR ||
       (renderDiskPath ? path.join(renderDiskPath, 'lifebuild-pi') : path.join(process.cwd(), '.pi'))
+
+    const llmProvider = process.env.LLM_PROVIDER?.toLowerCase()
+    if (llmProvider === 'stub') {
+      this.stubResponder = createStubResponder()
+      logger.info('LLM stub responder configured for Pi integration')
+    } else {
+      this.stubResponder = null
+    }
 
     if (!this.piModel) {
       logger.error(
@@ -637,8 +647,8 @@ export class EventProcessor {
     const { conversationId, id: messageId } = chatMessage
     const correlationId = this.lifecycleTracker.getCorrelationId(messageId)
 
-    // Skip if Pi model is not configured
-    if (!this.piModel) {
+    // Skip if Pi model is not configured (unless stub responder is enabled)
+    if (!this.piModel && !this.stubResponder) {
       storeLogger(storeId).debug(`Skipping chat message processing: Pi model not configured`)
       this.lifecycleTracker.recordError(messageId, 'Pi model not configured', 'LLM_DISABLED')
       return
@@ -1066,6 +1076,36 @@ export class EventProcessor {
     }
   }
 
+  private async runStubResponder(store: LiveStore, userMessage: ChatMessage): Promise<boolean> {
+    const message = this.stubResponder?.(userMessage.message ?? '') ?? ''
+    const conversationId = userMessage.conversationId
+
+    store.commit(
+      events.llmResponseReceived({
+        id: crypto.randomUUID(),
+        conversationId,
+        message,
+        role: 'assistant',
+        modelId: 'stub',
+        responseToMessageId: userMessage.id,
+        createdAt: new Date(),
+        llmMetadata: { source: 'stub' },
+      })
+    )
+
+    store.commit(
+      events.llmResponseCompleted({
+        conversationId,
+        userMessageId: userMessage.id,
+        createdAt: new Date(),
+        iterations: 1,
+        success: true,
+      })
+    )
+
+    return true
+  }
+
   /**
    * Run the agentic loop for a user message
    */
@@ -1077,6 +1117,10 @@ export class EventProcessor {
     const store = this.storeManager.getStore(storeId)
     if (!store) {
       return false
+    }
+
+    if (this.stubResponder) {
+      return this.runStubResponder(store, userMessage)
     }
 
     if (!this.piModel) {
