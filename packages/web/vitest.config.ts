@@ -5,6 +5,10 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react() as any],
+  // Ensure React.act is available (only exported in development mode)
+  define: {
+    'process.env.NODE_ENV': JSON.stringify('development'),
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/test-utils.tsx'],
