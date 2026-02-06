@@ -11,10 +11,15 @@ import {
   type PlanningAttributes,
 } from '@lifebuild/shared'
 import { generateRoute } from '../../../constants/routes.js'
-import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
+import {
+  determineStoreIdFromUser,
+  getStoreIdFromUrl,
+  preserveStoreIdInUrl,
+} from '../../../utils/navigation.js'
 import { useTableState } from '../../../hooks/useTableState.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { usePostHog } from '../../../lib/analytics.js'
+import { ProjectAvatar } from '../../common/ProjectAvatar.js'
 
 interface ProjectHeaderProps {
   project: Project
@@ -23,13 +28,15 @@ interface ProjectHeaderProps {
 export function ProjectHeader({ project }: ProjectHeaderProps) {
   const navigate = useNavigate()
   const { store } = useStore()
-  const { user } = useAuth()
+  const { user, getCurrentToken } = useAuth()
   const actorId = user?.id
   const { clearGold, clearSilver } = useTableState()
   const posthog = usePostHog()
   const [showCompleteConfirm, setShowCompleteConfirm] = useState(false)
   const [showUncompleteConfirm, setShowUncompleteConfirm] = useState(false)
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
+  const [isRegenerating, setIsRegenerating] = useState(false)
+  const [regenerateError, setRegenerateError] = useState<string | null>(null)
 
   const tableConfiguration = useQuery(getTableConfiguration$) ?? []
   const tableConfig = tableConfiguration[0]
@@ -177,12 +184,46 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
     navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
   }
 
+  const handleRegenerateImage = async () => {
+    setIsRegenerating(true)
+    setRegenerateError(null)
+    try {
+      const token = await getCurrentToken()
+      const storeId = getStoreIdFromUrl() ?? determineStoreIdFromUser(user)
+      const baseUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:3003'
+      const response = await fetch(`${baseUrl}/api/project-images/regenerate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ projectId: project.id, storeId }),
+      })
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}))
+        throw new Error(errorBody.error || 'Failed to regenerate image')
+      }
+
+      posthog?.capture('project_image_regenerated', { projectId: project.id })
+    } catch (error) {
+      setRegenerateError(error instanceof Error ? error.message : 'Failed to regenerate image')
+    } finally {
+      setIsRegenerating(false)
+    }
+  }
+
   return (
     <div className='bg-white border-b border-[#e5e2dc] px-6 py-4 rounded-t-2xl'>
       <div className='flex items-start justify-between'>
         <div className='flex-1 min-w-0'>
           {/* Project name */}
-          <h1 className='text-2xl font-bold text-gray-900 truncate'>{project.name}</h1>
+          <div className='flex items-center gap-3'>
+            <ProjectAvatar project={project} size={56} />
+            <div className='min-w-0'>
+              <h1 className='text-2xl font-bold text-gray-900 truncate'>{project.name}</h1>
+            </div>
+          </div>
 
           {/* Status badges */}
           <div className='flex items-center gap-2 mt-2'>
@@ -218,6 +259,13 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
 
         {/* Actions */}
         <div className='flex items-center gap-2 flex-shrink-0'>
+          <button
+            onClick={handleRegenerateImage}
+            className='px-3 py-1.5 text-sm font-medium text-[#8b8680] bg-transparent border border-[#e8e4de] hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27] rounded-md transition-colors'
+            disabled={isRegenerating}
+          >
+            {isRegenerating ? 'Regenerating...' : 'Regenerate image'}
+          </button>
           {/* Mark as Completed button - only show when all tasks are done */}
           {allTasksDone && lifecycleState.status !== 'completed' && (
             <button
@@ -265,6 +313,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
           </button>
         </div>
       </div>
+      {regenerateError && <div className='mt-2 text-sm text-red-600'>{regenerateError}</div>}
 
       {/* Completion Confirmation Dialog */}
       {showCompleteConfirm && (

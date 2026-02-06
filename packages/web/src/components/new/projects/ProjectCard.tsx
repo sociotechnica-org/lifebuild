@@ -15,6 +15,7 @@ import {
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
 import { useAuth } from '../../../contexts/AuthContext.js'
 import { UrushiVisual, lifecycleToUrushiStage, type UrushiStage } from './UrushiVisual.js'
+import { ProjectAvatar } from '../../common/ProjectAvatar.js'
 
 const URUSHI_STAGE_LABELS: Record<UrushiStage, string> = {
   sketch: 'Sketch',
@@ -146,9 +147,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
               <div className='text-[11px] font-semibold uppercase tracking-wide text-slate-500'>
                 {categoryInfo?.name ?? 'Uncategorized'}
               </div>
-              <h3 className='text-lg font-semibold leading-snug text-slate-900'>
-                {project.name || 'Untitled project'}
-              </h3>
+              <div className='flex items-center gap-3'>
+                <ProjectAvatar project={project} size={40} />
+                <h3 className='text-lg font-semibold leading-snug text-slate-900'>
+                  {project.name || 'Untitled project'}
+                </h3>
+              </div>
               {project.description && (
                 <p className='line-clamp-2 text-sm text-slate-600'>{project.description}</p>
               )}

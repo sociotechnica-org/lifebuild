@@ -154,6 +154,7 @@ export interface PlanningAttributes {
   priority?: number
   activatedAt?: number
   lastActivityAt?: number
+  coverImage?: string
 }
 
 /**
@@ -175,6 +176,7 @@ export const PlanningAttributesSchema = Schema.Struct({
   priority: Schema.optional(Schema.Number),
   activatedAt: Schema.optional(Schema.Number),
   lastActivityAt: Schema.optional(Schema.Number),
+  coverImage: Schema.optional(Schema.String),
 })
 
 // =============================================================================
