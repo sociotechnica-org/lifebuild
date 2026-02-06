@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { EventProcessor } from './event-processor.js'
-import type { ChatMessage, LLMMessage } from './agentic-loop/types.js'
+import type { Message } from '@mariozechner/pi-ai'
+import type { ChatMessage } from './pi/types.js'
 
 const { createLoggerMock, loggerContainer } = vi.hoisted(() => {
   const factory = () => ({
@@ -48,16 +49,12 @@ describe('EventProcessor conversation history builder', () => {
   let eventProcessor: EventProcessor
 
   beforeEach(() => {
-    process.env.BRAINTRUST_API_KEY = 'test-key'
-    process.env.BRAINTRUST_PROJECT_ID = 'test-project'
     eventProcessor = new EventProcessor(createMockStoreManager() as any)
     vi.clearAllMocks()
   })
 
   afterEach(() => {
     eventProcessor.stopAll()
-    delete process.env.BRAINTRUST_API_KEY
-    delete process.env.BRAINTRUST_PROJECT_ID
     vi.clearAllMocks()
   })
 
@@ -84,18 +81,9 @@ describe('EventProcessor conversation history builder', () => {
     const conversationHistory = (eventProcessor as any).buildConversationHistory(
       chatHistory,
       userMessage
-    ) as LLMMessage[]
+    ) as Message[]
 
-    expect(conversationHistory).toHaveLength(1)
-    expect(conversationHistory[0]).toMatchObject({
-      role: 'system',
-      content: 'You are a helpful assistant',
-    })
-    expect(
-      conversationHistory.some(
-        (message: LLMMessage) => message.role === 'user' && message.content === userMessage.message
-      )
-    ).toBe(false)
+    expect(conversationHistory).toHaveLength(0)
     expect(loggerContainer.logger!.debug).toHaveBeenCalledWith(
       expect.objectContaining({
         conversationId: 'conv-1',
@@ -141,11 +129,19 @@ describe('EventProcessor conversation history builder', () => {
     const conversationHistory = (eventProcessor as any).buildConversationHistory(
       chatHistory,
       userMessage
-    ) as LLMMessage[]
+    ) as Message[]
 
-    expect(conversationHistory).toHaveLength(3)
-    expect(conversationHistory.map(({ role, content }: LLMMessage) => [role, content])).toEqual([
-      ['system', 'You are a helpful assistant'],
+    expect(conversationHistory).toHaveLength(2)
+    expect(
+      conversationHistory.map(({ role, content }: Message) => [
+        role,
+        role === 'assistant'
+          ? content.find(part => part.type === 'text')?.text
+          : typeof content === 'string'
+            ? content
+            : null,
+      ])
+    ).toEqual([
       ['user', 'Previous input'],
       ['assistant', 'Assistant response'],
     ])
@@ -181,13 +177,13 @@ describe('EventProcessor conversation history builder', () => {
     const conversationHistory = (eventProcessor as any).buildConversationHistory(
       chatHistory,
       userMessage
-    ) as LLMMessage[]
+    ) as Message[]
 
     expect(conversationHistory).toHaveLength(2)
     expect(
       conversationHistory
-        .filter((message: LLMMessage) => message.role === 'user')
-        .map((message: LLMMessage) => message.content)
+        .filter((message: Message) => message.role === 'user')
+        .map(message => (typeof message.content === 'string' ? message.content : ''))
     ).toEqual(['Repeated input', 'Repeated input'])
     expect(loggerContainer.logger!.warn).toHaveBeenCalledWith(
       expect.objectContaining({
