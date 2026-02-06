@@ -22,6 +22,12 @@ async function authenticateRequest(request: Request, env: Env): Promise<{ userId
     return { userId: DEV_AUTH.DEFAULT_USER_ID }
   }
 
+  const serverToken = request.headers.get('X-Server-Token')
+  if (serverToken && env.SERVER_BYPASS_TOKEN && serverToken === env.SERVER_BYPASS_TOKEN) {
+    console.log('Using server bypass token for image upload')
+    return { userId: DEV_AUTH.DEFAULT_USER_ID }
+  }
+
   // Check for auth token
   const authHeader = request.headers.get('Authorization')
   if (!authHeader) {

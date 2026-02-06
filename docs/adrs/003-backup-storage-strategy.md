@@ -69,24 +69,15 @@ Backup strategy:
 ## Implementation Notes
 
 ```typescript
-// Backup service implementation
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+// Backup service implementation (uploads via worker endpoint → R2)
 import { createReadStream } from 'fs'
 import { pipeline } from 'stream/promises'
 
 class BackupService {
-  private r2: S3Client
-
-  constructor() {
-    this.r2 = new S3Client({
-      region: 'auto',
-      endpoint: `https://${ACCOUNT_ID}.r2.cloudflarestorage.com`,
-      credentials: {
-        accessKeyId: R2_ACCESS_KEY_ID,
-        secretAccessKey: R2_SECRET_ACCESS_KEY,
-      },
-    })
-  }
+  constructor(
+    private readonly workerUploadUrl: string,
+    private readonly serverToken: string
+  ) {}
 
   async createBackup() {
     const timestamp = new Date().toISOString()
@@ -105,23 +96,44 @@ class BackupService {
       stats: await this.getSystemStats(),
     }
 
-    await this.r2.send(
-      new PutObjectCommand({
-        Bucket: 'worksquared-backups',
-        Key: `backups/full/${timestamp}/metadata.json`,
-        Body: JSON.stringify(metadata, null, 2),
-        ContentType: 'application/json',
-      })
+    const formData = new FormData()
+    formData.append(
+      'file',
+      new Blob([JSON.stringify(metadata, null, 2)], { type: 'application/json' }),
+      `backups/full/${timestamp}/metadata.json`
     )
+
+    const response = await fetch(`${this.workerUploadUrl}/api/upload-backup`, {
+      method: 'POST',
+      headers: {
+        'X-Server-Token': this.serverToken,
+      },
+      body: formData,
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '')
+      throw new Error(`Backup upload failed: ${response.status} ${errorText}`)
+    }
 
     // 3. Cleanup old backups based on retention policy
     await this.cleanupOldBackups()
   }
 
   async restoreBackup(timestamp: string) {
-    // Download from R2
+    // Download from R2 via worker endpoint
     const backupKey = `backups/full/${timestamp}/livestore.db`
-    const restored = await this.downloadFromR2(backupKey)
+    const response = await fetch(`${this.workerUploadUrl}/api/backups/${backupKey}`, {
+      headers: {
+        'X-Server-Token': this.serverToken,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Backup download failed: ${response.status}`)
+    }
+
+    const restored = await response.arrayBuffer()
 
     // Verify integrity
     const isValid = await this.verifyDatabase(restored)
@@ -135,7 +147,7 @@ class BackupService {
 // Render.com cron job configuration
 // cron: 0 */6 * * * (every 6 hours)
 async function runBackup() {
-  const backup = new BackupService()
+  const backup = new BackupService(process.env.R2_WORKER_URL!, process.env.SERVER_BYPASS_TOKEN!)
   await backup.createBackup()
   console.log('Backup completed successfully')
 }
