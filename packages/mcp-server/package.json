@@ -1,0 +1,41 @@
+{
+  "name": "@lifebuild/mcp-server",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "FSL-1.1-ALv2",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "tsx scripts/integration-test.ts",
+    "lint": "eslint src tests scripts",
+    "lint:fix": "eslint src tests scripts --fix",
+    "format": "prettier --write src tests scripts README.md",
+    "format:check": "prettier --check src tests scripts README.md",
+    "typecheck": "tsc --noEmit",
+    "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck"
+  },
+  "dependencies": {
+    "@lifebuild/server": "workspace:*",
+    "@lifebuild/shared": "workspace:*",
+    "@livestore/adapter-node": "catalog:",
+    "@livestore/livestore": "catalog:",
+    "@livestore/sync-cf": "catalog:",
+    "@modelcontextprotocol/sdk": "^1.18.1"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-prettier": "^5.5.3",
+    "prettier": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
