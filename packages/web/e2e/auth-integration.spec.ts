@@ -18,7 +18,7 @@ test.describe('Authentication Integration E2E', () => {
     // This test validates the complete authentication flow when auth is enforced
 
     // 1. Try to access protected route - should redirect to login
-    await page.goto(`${APP_URL}/projects`)
+    await page.goto(`${APP_URL}/drafting-room`)
     await page.waitForURL(/\/login/, { timeout: 10000 })
 
     // Should see login page
@@ -55,12 +55,12 @@ test.describe('Authentication Integration E2E', () => {
     await page.fill('input[name="password"]', testPassword)
     await page.click('button[type="submit"]')
 
-    // Should redirect to projects page after successful login
-    await page.waitForURL(/\/projects/, { timeout: 10000 })
+    // Should redirect to drafting room after successful login
+    await page.waitForURL(/\/drafting-room/, { timeout: 10000 })
 
     // Should see the main app interface
     await expect(page.locator('nav')).toBeVisible()
-    await expect(page.locator('text=Projects')).toBeVisible()
+    await expect(page.locator('text=Drafting Room')).toBeVisible()
 
     // 5. Verify authenticated state in header
     // Should see user initials dropdown, not "Sign in" button
@@ -70,17 +70,7 @@ test.describe('Authentication Integration E2E', () => {
     // Should not see "Sign in" button
     await expect(page.locator('text=Sign in')).not.toBeVisible()
 
-    // 6. Create a project to test authenticated functionality
-    await page.click('text=Add Project')
-    await page.fill('input[placeholder*="project name"]', 'E2E Test Project')
-    await page.fill('textarea[placeholder*="description"]', 'Created by E2E auth test')
-    await page.click('button:has-text("Create Project")')
-
-    // Should see the new project
-    await expect(page.locator('text=E2E Test Project')).toBeVisible()
-    await expect(page.locator('text=Created by E2E auth test')).toBeVisible()
-
-    // 7. Test logout functionality
+    // 6. Test logout functionality
     await userDropdown.click()
     await page.click('text=Sign out')
 
@@ -89,7 +79,7 @@ test.describe('Authentication Integration E2E', () => {
     await expect(page.locator('h2')).toContainText('Sign in to your account')
 
     // Should not be able to access protected routes after logout
-    await page.goto(`${APP_URL}/projects`)
+    await page.goto(`${APP_URL}/drafting-room`)
     await page.waitForURL(/\/login/, { timeout: 5000 })
   })
 
@@ -100,12 +90,12 @@ test.describe('Authentication Integration E2E', () => {
     // Test that users are redirected to their intended destination after login
 
     // Try to access a specific protected route
-    await page.goto(`${APP_URL}/tasks`)
+    await page.goto(`${APP_URL}/drafting-room`)
     await page.waitForURL(/\/login\?redirect=/, { timeout: 10000 })
 
     // Should be on login page with redirect parameter
     const url = page.url()
-    expect(url).toContain('redirect=%2Ftasks')
+    expect(url).toContain('redirect=%2Fdrafting-room')
 
     // Create and login with a test user
     const testUser = await createTestUserViaAPI()
@@ -114,9 +104,9 @@ test.describe('Authentication Integration E2E', () => {
     await page.fill('input[name="password"]', testUser.password)
     await page.click('button[type="submit"]')
 
-    // Should redirect to the original intended destination (/tasks)
-    await page.waitForURL(/\/tasks/, { timeout: 10000 })
-    await expect(page.locator('text=Tasks')).toBeVisible()
+    // Should redirect to the original intended destination (/drafting-room)
+    await page.waitForURL(/\/drafting-room/, { timeout: 10000 })
+    await expect(page.locator('text=Drafting Room')).toBeVisible()
   })
 
   test('should handle invalid login attempts gracefully', async ({ page }) => {

@@ -39,7 +39,6 @@ test.describe('New UI Shell User Dropdown', () => {
     await userMenuButton.click()
 
     // Verify dropdown menu is visible with expected options
-    await expect(page.locator('text=Settings')).toBeVisible({ timeout: 5000 })
     await expect(page.locator('text=Sign out')).toBeVisible({ timeout: 5000 })
 
     // Click Sign out
@@ -78,7 +77,7 @@ test.describe('New UI Shell User Dropdown', () => {
     await expect(page.locator('h2')).toContainText('Sign in to your account')
   })
 
-  test('should navigate to Settings from user dropdown', async ({ page }) => {
+  test('should not show admin link for non-admin users', async ({ page }) => {
     // Skip this test if auth is not required
     test.skip(!REQUIRE_AUTH, 'This test requires REQUIRE_AUTH=true environment')
 
@@ -98,11 +97,6 @@ test.describe('New UI Shell User Dropdown', () => {
     await expect(userMenuButton).toBeVisible({ timeout: 10000 })
     await userMenuButton.click()
 
-    // Click Settings link
-    await page.locator('a:has-text("Settings")').click()
-
-    // Should navigate to settings page
-    await page.waitForURL(/\/settings/, { timeout: 10000 })
-    await expect(page).toHaveURL(/\/settings/)
+    await expect(page.locator('text=Admin')).toHaveCount(0)
   })
 })

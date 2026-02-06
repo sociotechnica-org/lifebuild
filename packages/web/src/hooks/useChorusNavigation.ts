@@ -60,12 +60,11 @@ export const useChorusNavigation = () => {
               if (task?.projectId) {
                 navigate(preserveStoreIdInUrl(generateRoute.project(task.projectId)))
               } else {
-                // Navigate to orphaned tasks view
-                navigate('/old/tasks')
+                navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
               }
             } catch (error) {
               console.error('Error looking up task:', error)
-              navigate('/old/tasks')
+              navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
             }
             break
           }
@@ -135,10 +134,8 @@ export const useChorusNavigation = () => {
             break
           }
           case 'document':
-            navigate(`/old/document/${id}`)
-            break
           case 'contact':
-            navigate(`/old/contacts/${id}`)
+            navigateToFile(path)
             break
           case 'file':
             if (id) {

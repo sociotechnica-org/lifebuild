@@ -1,6 +1,6 @@
 import { useLocation, useParams } from 'react-router-dom'
 import { useQuery } from '../livestore-compat.js'
-import { getProjects$, getDocumentList$, getContacts$ } from '@lifebuild/shared/queries'
+import { getProjects$ } from '@lifebuild/shared/queries'
 import {
   getCategoryInfo,
   resolveLifecycleState,
@@ -88,15 +88,11 @@ export const useNavigationContext = (): NavigationContext | null => {
   const location = useLocation()
   const params = useParams<{
     projectId?: string
-    documentId?: string
-    contactId?: string
     categoryId?: string
   }>()
 
   // Call all hooks unconditionally (Rules of Hooks requirement)
   const projects = useQuery(getProjects$) ?? []
-  const documents = useQuery(getDocumentList$) ?? []
-  const contacts = useQuery(getContacts$) ?? []
 
   // Extract subtab from query parameters
   const searchParams = new URLSearchParams(location.search)
@@ -146,47 +142,6 @@ export const useNavigationContext = (): NavigationContext | null => {
       id: params.projectId,
       attributes: allAttributes,
     }
-  } else if (params.documentId) {
-    const document = documents.find(d => d.id === params.documentId)
-
-    context.currentEntity = {
-      type: 'document',
-      id: params.documentId,
-      attributes: document
-        ? {
-            title: document.title,
-            created: formatDate(document.createdAt),
-            updated: formatDate(document.updatedAt),
-          }
-        : {
-            // Placeholder - backend will enrich from database
-            title: params.documentId,
-          },
-    }
-
-    // TODO: Add related project if document belongs to one
-    // This would require querying documentProjects table
-  } else if (params.contactId) {
-    const contact = contacts.find(c => c.id === params.contactId)
-
-    context.currentEntity = {
-      type: 'contact',
-      id: params.contactId,
-      attributes: contact
-        ? {
-            name: contact.name,
-            email: contact.email || '(none)',
-            created: formatDate(contact.createdAt),
-            updated: formatDate(contact.updatedAt),
-          }
-        : {
-            // Placeholder - backend will enrich from database
-            name: params.contactId,
-          },
-    }
-
-    // TODO: Add related projects if contact is associated with any
-    // This would require querying projectContacts table
   } else if (params.categoryId) {
     const categoryInfo = getCategoryInfo(params.categoryId as ProjectCategory)
 

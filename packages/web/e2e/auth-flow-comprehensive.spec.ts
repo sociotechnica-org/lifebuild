@@ -22,7 +22,7 @@ test.describe('Authentication Flow E2E', () => {
     test.skip(!REQUIRE_AUTH, 'This test requires REQUIRE_AUTH=true environment')
 
     // Step 1: Verify protected routes redirect to login
-    await page.goto(`${APP_URL}/projects`)
+    await page.goto(`${APP_URL}/drafting-room`)
 
     // Should be redirected to login
     await page.waitForURL(/\/login/, { timeout: 15000 })
@@ -37,53 +37,17 @@ test.describe('Authentication Flow E2E', () => {
 
     // Should see main navigation
     await expect(page.locator('nav')).toBeVisible()
-    await expect(page.locator('text=Projects')).toBeVisible()
+    await expect(page.locator('text=Drafting Room')).toBeVisible()
 
     // Should NOT see "Sign in" button
     await expect(page.locator('text=Sign in')).not.toBeVisible()
 
-    // Step 5: Test authenticated functionality - create a project
-
-    // Look for "Add Project" button or similar
-    const addProjectButton = page
-      .locator(
-        'button:has-text("Add Project"), [aria-label*="project" i]:has-text("Add"), button:has-text("Create Project")'
-      )
-      .first()
-
-    // If project creation modal exists, use it
-    if (await addProjectButton.isVisible({ timeout: 5000 })) {
-      await addProjectButton.click()
-
-      // Fill project form (flexible selectors)
-      const projectNameInput = page
-        .locator(
-          'input[placeholder*="project" i], input[name*="name"], input[aria-label*="name" i]'
-        )
-        .first()
-      const projectDescInput = page
-        .locator('textarea[placeholder*="description" i], textarea[name*="description"]')
-        .first()
-
-      await projectNameInput.fill('E2E Auth Test Project')
-      if (await projectDescInput.isVisible({ timeout: 2000 })) {
-        await projectDescInput.fill('Created during E2E authentication test')
-      }
-
-      // Submit project creation
-      const createButton = page.locator('button:has-text("Create"), button[type="submit"]').first()
-      await createButton.click()
-
-      // Verify project was created
-      await expect(page.locator('text=E2E Auth Test Project')).toBeVisible({ timeout: 10000 })
-    }
-
-    // Step 6: Test logout functionality
+    // Step 5: Test logout functionality
 
     await logoutViaUI(page)
 
     // Step 7: Verify protection is restored
-    await page.goto(`${APP_URL}/old/projects`)
+    await page.goto(`${APP_URL}/drafting-room`)
     await page.waitForURL(/\/login/, { timeout: 10000 })
   })
 
@@ -94,7 +58,7 @@ test.describe('Authentication Flow E2E', () => {
     // Testing development mode behavior
 
     // In dev mode, should be able to access protected routes
-    await page.goto(`${APP_URL}/old/projects`)
+    await page.goto(`${APP_URL}/drafting-room`)
     await page.waitForLoadState('load', { timeout: 30000 })
 
     // Should NOT redirect to login in dev mode
@@ -108,8 +72,10 @@ test.describe('Authentication Flow E2E', () => {
       // LiveStore loading timeout - continuing with test
     }
 
-    // Should see main app interface - check for Projects heading instead of nav
-    await expect(page.locator('h1:has-text("Projects")')).toBeVisible({ timeout: 10000 })
+    // Should see main app interface - check for Drafting Room nav link
+    await expect(page.locator('nav a:has-text("Drafting Room")')).toBeVisible({
+      timeout: 10000,
+    })
 
     // Should still be able to access auth pages
     await page.goto(`${APP_URL}/login`)
