@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { generateRoute } from '../../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../../utils/navigation.js'
+import { BacklogSelectPopover, type BacklogItem } from './BacklogSelectPopover.js'
 
 export type Stream = 'gold' | 'silver' | 'bronze'
 
@@ -12,6 +13,10 @@ export type TableSlotProps = {
   projectMeta?: string
   progress?: number
   bronzeCount?: number
+  /** Available backlog items for this stream (Gold/Silver only) */
+  backlogItems?: BacklogItem[]
+  /** Called when user selects a backlog item to activate */
+  onSelectFromBacklog?: (id: string) => void
 }
 
 const streamColors = {
@@ -20,7 +25,7 @@ const streamColors = {
   bronze: '#c48b5a',
 }
 
-const getSlotClassName = (stream: Stream): string => {
+const getSlotClassName = (stream: Stream, isEmptyClickable: boolean): string => {
   const baseClasses =
     'border border-[#e8e4de] rounded-[0.9rem] p-3 bg-white min-h-[110px] relative overflow-hidden'
   const streamClasses = {
@@ -29,13 +34,17 @@ const getSlotClassName = (stream: Stream): string => {
       'border-[rgba(197,206,216,0.7)] bg-gradient-to-br from-[rgba(197,206,216,0.14)] to-white',
     bronze: 'border-[rgba(196,139,90,0.7)] bg-gradient-to-br from-[rgba(196,139,90,0.12)] to-white',
   }
-  return `${baseClasses} ${streamClasses[stream]}`
+  const hoverClasses = isEmptyClickable
+    ? 'cursor-pointer transition-all hover:border-opacity-100 hover:shadow-sm'
+    : ''
+  return `${baseClasses} ${streamClasses[stream]} ${hoverClasses}`
 }
 
 /**
  * TableSlot component - Represents a single slot in The Table (Gold, Silver, or Bronze).
  * Shows the current project in that stream with progress indication.
  * All slots with a project are clickable and navigate to the project detail page.
+ * Empty Gold/Silver slots can show a popover to select from backlog.
  */
 export const TableSlot: React.FC<TableSlotProps> = ({
   stream,
@@ -44,7 +53,11 @@ export const TableSlot: React.FC<TableSlotProps> = ({
   projectMeta,
   progress,
   bronzeCount,
+  backlogItems,
+  onSelectFromBacklog,
 }) => {
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+
   const streamLabels = {
     gold: 'Initiative',
     silver: 'Optimization',
@@ -53,6 +66,8 @@ export const TableSlot: React.FC<TableSlotProps> = ({
 
   const isEmpty = !projectId && !projectName
   const isClickable = !!projectId
+  const isEmptyClickable =
+    isEmpty && !!onSelectFromBacklog && (stream === 'gold' || stream === 'silver')
 
   const slotContent = (
     <>
@@ -60,7 +75,7 @@ export const TableSlot: React.FC<TableSlotProps> = ({
         {streamLabels[stream]}
       </h4>
       {isEmpty ? (
-        <div className='text-[#8b8680] text-sm'>Empty</div>
+        <div className='text-[#8b8680] text-sm'>{isEmptyClickable ? 'Click to add' : 'Empty'}</div>
       ) : (
         <>
           <div className='font-bold text-[#2f2b27]'>{projectName}</div>
@@ -84,16 +99,40 @@ export const TableSlot: React.FC<TableSlotProps> = ({
     </>
   )
 
+  // Filled slot - clickable link to project
   if (isClickable) {
     return (
       <Link
         to={preserveStoreIdInUrl(generateRoute.project(projectId))}
-        className={`${getSlotClassName(stream)} no-underline text-inherit cursor-pointer block`}
+        className={`${getSlotClassName(stream, false)} no-underline text-inherit cursor-pointer block`}
       >
         {slotContent}
       </Link>
     )
   }
 
-  return <div className={getSlotClassName(stream)}>{slotContent}</div>
+  // Empty slot with backlog selection (Gold/Silver only)
+  if (isEmptyClickable) {
+    return (
+      <div className='relative'>
+        <button
+          type='button'
+          onClick={() => setIsPopoverOpen(true)}
+          className={`${getSlotClassName(stream, true)} w-full text-left`}
+        >
+          {slotContent}
+        </button>
+        <BacklogSelectPopover
+          stream={stream}
+          isOpen={isPopoverOpen}
+          onClose={() => setIsPopoverOpen(false)}
+          onSelect={onSelectFromBacklog}
+          items={backlogItems ?? []}
+        />
+      </div>
+    )
+  }
+
+  // Regular empty slot (Bronze or no handler)
+  return <div className={getSlotClassName(stream, false)}>{slotContent}</div>
 }

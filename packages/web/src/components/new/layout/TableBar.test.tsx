@@ -6,13 +6,27 @@ import type { TableBronzeProjectEntry } from '@lifebuild/shared/schema'
 import { TableBar } from './TableBar.js'
 
 let mockProjects = [] as ReturnType<typeof createMockProject>[]
-let mockTableState: { configuration: null; tabledBronzeProjects: TableBronzeProjectEntry[] } = {
+let mockTableState: {
+  configuration: null
+  tabledBronzeProjects: TableBronzeProjectEntry[]
+  initializeConfiguration: () => Promise<void>
+  assignGold: () => Promise<void>
+  assignSilver: () => Promise<void>
+} = {
   configuration: null,
   tabledBronzeProjects: [],
+  initializeConfiguration: vi.fn(),
+  assignGold: vi.fn(),
+  assignSilver: vi.fn(),
 }
 
 vi.mock('../../../livestore-compat.js', () => ({
   useQuery: () => mockProjects,
+  useStore: () => ({ store: { commit: vi.fn() } }),
+}))
+
+vi.mock('../../../contexts/AuthContext.js', () => ({
+  useAuth: () => ({ user: { id: 'test-user' } }),
 }))
 
 vi.mock('../../../hooks/useTableState.js', () => ({
@@ -22,7 +36,13 @@ vi.mock('../../../hooks/useTableState.js', () => ({
 describe('TableBar', () => {
   beforeEach(() => {
     mockProjects = []
-    mockTableState = { configuration: null, tabledBronzeProjects: [] }
+    mockTableState = {
+      configuration: null,
+      tabledBronzeProjects: [],
+      initializeConfiguration: vi.fn(),
+      assignGold: vi.fn(),
+      assignSilver: vi.fn(),
+    }
   })
 
   it('shows the top tabled bronze project and count', () => {
@@ -60,6 +80,9 @@ describe('TableBar', () => {
           removedAt: null,
         },
       ],
+      initializeConfiguration: vi.fn(),
+      assignGold: vi.fn(),
+      assignSilver: vi.fn(),
     }
 
     render(
@@ -107,6 +130,9 @@ describe('TableBar', () => {
           removedAt: null,
         },
       ],
+      initializeConfiguration: vi.fn(),
+      assignGold: vi.fn(),
+      assignSilver: vi.fn(),
     }
 
     render(
