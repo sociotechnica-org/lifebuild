@@ -28,7 +28,6 @@
     "@livestore/livestore": "catalog:",
     "@livestore/sync-cf": "catalog:",
     "@livestore/utils": "catalog:",
-    "@aws-sdk/client-s3": "^3.883.0",
     "@sentry/node": "^10.30.0",
     "better-sqlite3": "^12.2.0",
     "dotenv": "^17.2.1",

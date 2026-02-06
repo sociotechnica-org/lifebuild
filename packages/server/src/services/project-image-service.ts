@@ -1,6 +1,5 @@
 import type { Store as LiveStore } from '@livestore/livestore'
 import { queryDb } from '@livestore/livestore'
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { events, tables } from '@lifebuild/shared/schema'
 import type { Project } from '@lifebuild/shared/schema'
 import { logger, createContextLogger } from '../utils/logger.js'
@@ -11,14 +10,7 @@ interface ProjectImageConfig {
   nanoBananaApiUrl: string
   nanoBananaApiKey?: string
   nanoBananaModel: string
-  s3Bucket: string
-  s3Region: string
-  s3Endpoint?: string
-  s3AccessKeyId: string
-  s3SecretAccessKey: string
-  s3PublicBaseUrl?: string
-  s3ForcePathStyle: boolean
-  s3KeyPrefix: string
+  workerUploadUrl: string
 }
 
 interface ImagePayload {
@@ -115,12 +107,12 @@ const extractImageFromResponse = async (response: Response): Promise<ImagePayloa
 
 const createConfig = (): ProjectImageConfig | null => {
   const nanoBananaApiUrl = process.env.NANO_BANANA_PRO_API_URL
-  const s3Bucket = process.env.S3_PROJECT_IMAGES_BUCKET
-  const s3Region = process.env.S3_REGION
-  const s3AccessKeyId = process.env.S3_ACCESS_KEY_ID
-  const s3SecretAccessKey = process.env.S3_SECRET_ACCESS_KEY
+  const workerUploadUrl =
+    process.env.PROJECT_IMAGE_UPLOAD_URL ||
+    process.env.LIVESTORE_SYNC_URL?.replace(/^ws:/, 'http:').replace(/^wss:/, 'https:') ||
+    ''
 
-  if (!nanoBananaApiUrl || !s3Bucket || !s3Region || !s3AccessKeyId || !s3SecretAccessKey) {
+  if (!nanoBananaApiUrl || !workerUploadUrl) {
     return null
   }
 
@@ -129,20 +121,12 @@ const createConfig = (): ProjectImageConfig | null => {
     nanoBananaApiUrl,
     nanoBananaApiKey: process.env.NANO_BANANA_PRO_API_KEY,
     nanoBananaModel: process.env.NANO_BANANA_PRO_MODEL || 'nano-banana-pro',
-    s3Bucket,
-    s3Region,
-    s3Endpoint: process.env.S3_ENDPOINT,
-    s3AccessKeyId,
-    s3SecretAccessKey,
-    s3PublicBaseUrl: process.env.S3_PUBLIC_BASE_URL || process.env.S3_PUBLIC_URL,
-    s3ForcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true',
-    s3KeyPrefix: process.env.S3_PROJECT_IMAGE_PREFIX || 'project-images',
+    workerUploadUrl,
   }
 }
 
 export class ProjectImageService {
   private readonly config = createConfig()
-  private readonly s3Client: S3Client | null
   private readonly subscriptions = new Map<string, () => void>()
   private readonly knownProjects = new Map<string, Set<string>>()
   private readonly initializedStores = new Set<string>()
@@ -150,25 +134,15 @@ export class ProjectImageService {
 
   constructor(private readonly storeManager: StoreManager) {
     if (this.config) {
-      this.s3Client = new S3Client({
-        region: this.config.s3Region,
-        credentials: {
-          accessKeyId: this.config.s3AccessKeyId,
-          secretAccessKey: this.config.s3SecretAccessKey,
-        },
-        endpoint: this.config.s3Endpoint,
-        forcePathStyle: this.config.s3ForcePathStyle,
-      })
     } else {
-      this.s3Client = null
       logger.warn(
-        'Project image service disabled: missing Nano Banana or S3 configuration variables'
+        'Project image service disabled: missing Nano Banana or upload endpoint configuration'
       )
     }
   }
 
   start(): void {
-    if (!this.config || !this.s3Client) {
+    if (!this.config) {
       return
     }
 
@@ -198,7 +172,7 @@ export class ProjectImageService {
   }
 
   private registerStore(storeId: string, store: LiveStore): void {
-    if (!this.config || !this.s3Client) {
+    if (!this.config) {
       return
     }
 
@@ -227,7 +201,7 @@ export class ProjectImageService {
   }
 
   private handleProjectUpdates(storeId: string, store: LiveStore, records: Project[]): void {
-    if (!this.config || !this.s3Client) {
+    if (!this.config) {
       return
     }
 
@@ -262,7 +236,7 @@ export class ProjectImageService {
     projectId: string,
     options: { actorId?: string; force?: boolean; reason: string }
   ): Promise<string> {
-    if (!this.config || !this.s3Client) {
+    if (!this.config) {
       throw new Error('Project image service is not configured')
     }
 
@@ -320,22 +294,34 @@ export class ProjectImageService {
 
       const imagePayload = await extractImageFromResponse(response)
       const extension = imagePayload.contentType.split('/')[1] || 'png'
-      const key = `${this.config.s3KeyPrefix}/${projectId}/${crypto.randomUUID()}.${extension}`
+      const filename = `${projectId}-${crypto.randomUUID()}.${extension}`
+      const formData = new FormData()
+      const arrayBuffer = Uint8Array.from(imagePayload.buffer).buffer
+      formData.append('file', new Blob([arrayBuffer], { type: imagePayload.contentType }), filename)
 
-      await this.s3Client.send(
-        new PutObjectCommand({
-          Bucket: this.config.s3Bucket,
-          Key: key,
-          Body: imagePayload.buffer,
-          ContentType: imagePayload.contentType,
-          CacheControl: 'public, max-age=31536000, immutable',
-        })
-      )
+      const serverToken = process.env.SERVER_BYPASS_TOKEN
+      if (!serverToken) {
+        throw new Error('SERVER_BYPASS_TOKEN not configured for image upload')
+      }
 
-      const publicBase = this.config.s3PublicBaseUrl
-      const publicUrl = publicBase
-        ? `${publicBase.replace(/\/$/, '')}/${key}`
-        : `https://${this.config.s3Bucket}.s3.${this.config.s3Region}.amazonaws.com/${key}`
+      const uploadResponse = await fetch(`${this.config.workerUploadUrl}/api/upload-image`, {
+        method: 'POST',
+        headers: {
+          'X-Server-Token': serverToken,
+        },
+        body: formData,
+      })
+
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text().catch(() => '')
+        throw new Error(`Image upload failed: ${uploadResponse.status} ${errorText}`)
+      }
+
+      const uploadPayload = (await uploadResponse.json()) as { url?: string }
+      if (!uploadPayload.url) {
+        throw new Error('Image upload response missing url')
+      }
+      const publicUrl = uploadPayload.url
 
       const updatedAttributes = {
         ...attributes,
