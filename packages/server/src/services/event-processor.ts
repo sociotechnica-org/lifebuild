@@ -1,17 +1,25 @@
 import type { Store as LiveStore } from '@livestore/livestore'
 import { queryDb } from '@livestore/livestore'
-import * as Sentry from '@sentry/node'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 import type { StoreManager } from './store-manager.js'
 import { tables, events } from '@lifebuild/shared/schema'
-import { AgenticLoop, classifyError } from './agentic-loop/agentic-loop.js'
-import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
-import { StubLLMProvider } from './agentic-loop/stub-llm-provider.js'
 import { DEFAULT_MODEL, resolveLifecycleState, type PlanningAttributes } from '@lifebuild/shared'
 import {
   getRoomDefinitionByRoomId,
   createProjectRoomDefinition,
   type ProjectRoomParameters,
 } from '@lifebuild/shared/rooms'
+import {
+  AuthStorage,
+  createAgentSession,
+  DefaultResourceLoader,
+  ModelRegistry,
+  SessionManager,
+  type AgentSession,
+  type AgentSessionEvent,
+} from '@mariozechner/pi-coding-agent'
+import { getModel, type Message } from '@mariozechner/pi-ai'
 import { MessageQueueManager } from './message-queue-manager.js'
 import { AsyncQueueProcessor } from './async-queue-processor.js'
 import { ProcessedMessageTracker } from './processed-message-tracker.js'
@@ -25,16 +33,15 @@ import {
   createOrchestrationTelemetry,
   getIncidentDashboardUrl,
 } from '../utils/orchestration-telemetry.js'
+import { buildSystemPrompt } from './pi/prompts.js'
+import { createPiTools } from './pi/tools.js'
 import type {
   EventBuffer,
   ProcessedEvent,
   ChatMessage,
-  LLMMessage,
-  BoardContext,
   WorkerContext,
   NavigationContext,
-  LLMProvider,
-} from './agentic-loop/types.js'
+} from './pi/types.js'
 
 const toTimestamp = (value: unknown): number | null => {
   if (value === null || value === undefined) {
@@ -79,7 +86,13 @@ interface StoreProcessingState {
   activeConversations: Set<string> // Track conversations currently being processed
   messageQueue: MessageQueueManager // Queue of pending messages per conversation
   conversationProcessors: Map<string, AsyncQueueProcessor> // Per-conversation async processors
-  llmProvider?: LLMProvider
+  piSessions: Map<string, PiConversationSession>
+  piInitialized: boolean
+}
+
+interface PiConversationSession {
+  session: AgentSession
+  sessionDir: string
 }
 
 interface LiveStoreStats {
@@ -111,10 +124,6 @@ export class EventProcessor {
   private lifecycleTracker: MessageLifecycleTracker
   private databaseInitialized = false
 
-  // LLM configuration from environment
-  private braintrustApiKey: string | undefined
-  private braintrustProjectId: string | undefined
-
   // Cutoff timestamp - messages before this are marked as processed but skipped
   private messageCutoffTimestamp: Date | null
 
@@ -140,7 +149,8 @@ export class EventProcessor {
   private reconnectionHandler: ((data: { storeId: string; store: any }) => void) | null = null
   // Flag to prevent operations after shutdown
   private isShutdown = false
-  private readonly llmProviderMode: 'braintrust' | 'stub'
+  private readonly piBaseDir: string
+  private readonly piModel = getModel('anthropic', 'claude-opus-4-5')
 
   // Tables to monitor for activity
   // IMPORTANT: Only monitor chatMessages to process user messages
@@ -186,24 +196,18 @@ export class EventProcessor {
       true
     )
 
-    const providerEnv = process.env.LLM_PROVIDER?.toLowerCase()
-    this.llmProviderMode = providerEnv === 'stub' ? 'stub' : 'braintrust'
-    if (providerEnv && providerEnv !== 'stub' && providerEnv !== 'braintrust') {
-      logger.warn({ providerEnv }, 'Unknown LLM_PROVIDER value, defaulting to braintrust provider')
-    }
+    const renderDiskPath = process.env.RENDER_DISK_PATH
+    this.piBaseDir =
+      process.env.PI_STORAGE_DIR ||
+      (renderDiskPath ? path.join(renderDiskPath, 'lifebuild-pi') : path.join(process.cwd(), '.pi'))
 
-    // Load LLM configuration from environment
-    this.braintrustApiKey = process.env.BRAINTRUST_API_KEY
-    this.braintrustProjectId = process.env.BRAINTRUST_PROJECT_ID
-
-    if (this.llmProviderMode === 'stub') {
-      logger.info('LLM provider configured: stub')
-    } else if (!this.braintrustApiKey || !this.braintrustProjectId) {
-      logger.warn(
-        'LLM functionality disabled: Missing BRAINTRUST_API_KEY or BRAINTRUST_PROJECT_ID environment variables'
+    if (!this.piModel) {
+      logger.error(
+        { model: 'claude-opus-4-5' },
+        'Pi model not available - LLM functionality disabled'
       )
     } else {
-      logger.info('LLM functionality enabled with Braintrust integration')
+      logger.info({ model: this.piModel.id }, 'Pi model configured for agent sessions')
     }
 
     // Load message cutoff timestamp from environment
@@ -266,12 +270,8 @@ export class EventProcessor {
       activeConversations: new Set(),
       messageQueue: new MessageQueueManager(),
       conversationProcessors: new Map(),
-      llmProvider:
-        this.llmProviderMode === 'stub'
-          ? StubLLMProvider.fromEnv()
-          : this.braintrustApiKey && this.braintrustProjectId
-            ? new BraintrustProvider(this.braintrustApiKey, this.braintrustProjectId)
-            : undefined,
+      piSessions: new Map(),
+      piInitialized: false,
     }
 
     this.storeStates.set(storeId, storeState)
@@ -308,7 +308,7 @@ export class EventProcessor {
       // Set stopping flag for consistency with other cleanup paths
       storeState.stopping = true
       storeState.messageQueue.destroy()
-      storeState.llmProvider = undefined
+      storeState.piSessions.clear()
       this.storeStates.delete(storeId)
       this.monitoringStartTime.delete(storeId)
 
@@ -637,10 +637,10 @@ export class EventProcessor {
     const { conversationId, id: messageId } = chatMessage
     const correlationId = this.lifecycleTracker.getCorrelationId(messageId)
 
-    // Skip if LLM is not configured
-    if (!storeState.llmProvider) {
-      storeLogger(storeId).debug(`Skipping chat message processing: LLM not configured`)
-      this.lifecycleTracker.recordError(messageId, 'LLM not configured', 'LLM_DISABLED')
+    // Skip if Pi model is not configured
+    if (!this.piModel) {
+      storeLogger(storeId).debug(`Skipping chat message processing: Pi model not configured`)
+      this.lifecycleTracker.recordError(messageId, 'Pi model not configured', 'LLM_DISABLED')
       return
     }
 
@@ -1079,7 +1079,7 @@ export class EventProcessor {
       return false
     }
 
-    if (!storeState.llmProvider) {
+    if (!this.piModel) {
       return false
     }
 
@@ -1139,7 +1139,6 @@ export class EventProcessor {
     }
 
     let workerContext: WorkerContext | undefined = undefined
-    const boardContext: BoardContext | undefined = undefined
     let navigationContext: NavigationContext | undefined = undefined
 
     // Resolve prompt from room definition (code) instead of worker.systemPrompt (DB)
@@ -1227,238 +1226,263 @@ export class EventProcessor {
     // loop appends it before contacting the provider.
     const conversationHistory = this.buildConversationHistory(chatHistory, userMessage)
 
-    let completionEmitted = false
-
-    // Create agentic loop instance with conversation history
-    const agenticLoop = new AgenticLoop(
+    const conversationId = userMessage.conversationId
+    const sessionEntry = await this.getOrCreatePiSession(
+      storeId,
+      conversationId,
+      storeState,
       store,
-      storeState.llmProvider,
-      {
-        onIterationStart: iteration => {
-          logger.debug({ iteration }, `Agentic loop iteration started`)
-        },
-        onIterationComplete: (iteration, response) => {
-          // Only send the LLM's message if there are tool calls
-          // If there are no tool calls, onFinalMessage will handle it
-          if (
-            response.message &&
-            response.message.trim() &&
-            response.toolCalls &&
-            response.toolCalls.length > 0
-          ) {
-            logger.debug(
-              { iteration, reasoning: response.message.substring(0, 100) },
-              `Iteration LLM reasoning`
-            )
-            store.commit(
-              events.llmResponseReceived({
-                id: crypto.randomUUID(),
-                conversationId: userMessage.conversationId,
-                message: response.message,
-                role: 'assistant',
-                modelId: conversation?.model || DEFAULT_MODEL,
-                responseToMessageId: userMessage.id,
-                createdAt: new Date(),
-                llmMetadata: {
-                  source: 'braintrust',
-                  iteration,
-                  hasToolCalls: true,
-                  messageType: 'reasoning',
-                },
-              })
-            )
-          }
-        },
-        onToolsExecuting: toolCalls => {
-          // Emit tool execution events for UI updates
-          for (const toolCall of toolCalls) {
-            store.commit(
-              events.llmResponseReceived({
-                id: crypto.randomUUID(),
-                conversationId: userMessage.conversationId,
-                message: `🔧 Using ${toolCall.function.name} tool...`,
-                role: 'assistant',
-                modelId: 'system',
-                responseToMessageId: userMessage.id,
-                createdAt: new Date(),
-                llmMetadata: {
-                  source: 'tool-execution',
-                  toolCall: toolCall,
-                },
-              })
-            )
-          }
-        },
-        onToolsComplete: toolMessages => {
-          // Send formatted tool results to the frontend
-          for (const toolMessage of toolMessages) {
-            store.commit(
-              events.llmResponseReceived({
-                id: crypto.randomUUID(),
-                conversationId: userMessage.conversationId,
-                message: toolMessage.content, // This is already formatted by ToolResultFormatterService
-                role: 'assistant',
-                modelId: 'system',
-                responseToMessageId: userMessage.id,
-                createdAt: new Date(),
-                llmMetadata: {
-                  source: 'tool-result',
-                  toolCallId: toolMessage.tool_call_id,
-                },
-              })
-            )
-          }
-        },
-        onFinalMessage: message => {
-          // Emit final LLM response
-          logger.info({ response: message.substring(0, 100) }, `Final LLM response`)
-          store.commit(
-            events.llmResponseReceived({
-              id: crypto.randomUUID(),
-              conversationId: userMessage.conversationId,
-              message,
-              role: 'assistant',
-              modelId: conversation?.model || DEFAULT_MODEL,
-              responseToMessageId: userMessage.id,
-              createdAt: new Date(),
-              llmMetadata: {
-                source: 'braintrust',
-                messageType: 'final',
-              },
-            })
-          )
-        },
-        onError: (error, iteration) => {
-          // Use the classification for consistent error typing
-          // Pass isAfterRetries=true since onError is only called after retries are exhausted
-          const classified = classifyError(error, true)
-          // Use 'err' key for proper pino error serialization with _diagnostic marker
-          logger.error(
-            {
-              err: classified.error,
-              iteration,
-              storeId,
-              messageId: userMessage.id,
-              errorType: classified.type,
-              _diagnostic: 'agentic_loop_error',
-            },
-            `Agentic loop error: ${classified.type}`
-          )
-
-          // DIAGNOSTIC: Also try Sentry's direct logging API
-          Sentry.logger.error('DIAGNOSTIC: Agentic loop error (Sentry.logger direct)', {
-            errorMessage: error.message,
-            errorType: classified.type,
-            iteration,
-            storeId,
-            messageId: userMessage.id,
-            _diagnostic: 'agentic_loop_error_sentry_direct',
-          })
-
-          // Use max_iterations message directly if that's the error type
-          const displayMessage = error.message.includes('Maximum iterations')
-            ? error.message
-            : classified.userMessage
-
-          store.commit(
-            events.llmResponseReceived({
-              id: crypto.randomUUID(),
-              conversationId: userMessage.conversationId,
-              message: displayMessage,
-              role: 'assistant',
-              modelId: 'error',
-              responseToMessageId: userMessage.id,
-              createdAt: new Date(),
-              llmMetadata: {
-                source: 'error',
-                agenticIteration: iteration,
-                errorType: classified.type,
-              },
-            })
-          )
-
-          // Send completion event indicating failure
-          store.commit(
-            events.llmResponseCompleted({
-              conversationId: userMessage.conversationId,
-              userMessageId: userMessage.id,
-              createdAt: new Date(),
-              iterations: iteration,
-              success: false,
-            })
-          )
-          completionEmitted = true
-        },
-        onComplete: iterations => {
-          // Send completion event to indicate the agentic loop has finished
-          // Skip if already emitted (e.g., from onError handler)
-          if (completionEmitted) {
-            logger.info({ iterations }, `Agentic loop completed (completion already emitted)`)
-            return
-          }
-          logger.info({ iterations }, `Agentic loop completed`)
-          store.commit(
-            events.llmResponseCompleted({
-              conversationId: userMessage.conversationId,
-              userMessageId: userMessage.id,
-              createdAt: new Date(),
-              iterations,
-              success: true,
-            })
-          )
-          completionEmitted = true
-        },
-      },
-      conversationHistory
+      worker?.id
     )
+    if (!sessionEntry) {
+      return false
+    }
 
-    // Conversation history is now set in the AgenticLoop constructor
-
-    // Get correlation ID for this message
+    const { session } = sessionEntry
     const correlationId = this.lifecycleTracker.getCorrelationId(userMessage.id)
+    const modelId = this.piModel?.id || conversation?.model || DEFAULT_MODEL
 
-    // DIAGNOSTIC: Log with base logger to verify Sentry receives logs during request processing
-    logger.info(
-      { storeId, messageId: userMessage.id, correlationId, _diagnostic: 'agentic_loop_start' },
-      'DIAGNOSTIC: Starting agentic loop (base logger)'
-    )
+    session.agent.setSystemPrompt(buildSystemPrompt(workerContext, navigationContext))
 
-    // DIAGNOSTIC: Also try Sentry's direct logging API (bypasses pino entirely)
-    Sentry.logger.info('DIAGNOSTIC: Starting agentic loop (Sentry.logger direct)', {
-      storeId,
-      messageId: userMessage.id,
-      correlationId,
-      _diagnostic: 'agentic_loop_start_sentry_direct',
+    if (session.agent.state.messages.length === 0 && conversationHistory.length > 0) {
+      session.agent.replaceMessages(conversationHistory)
+    }
+
+    let completionEmitted = false
+    let sawError = false
+
+    const unsubscribe = session.subscribe((event: AgentSessionEvent) => {
+      if (storeState.stopping) {
+        return
+      }
+
+      switch (event.type) {
+        case 'tool_execution_start': {
+          store.commit(
+            events.llmResponseReceived({
+              id: crypto.randomUUID(),
+              conversationId,
+              message: `🔧 Using ${event.toolName} tool...`,
+              role: 'assistant',
+              modelId: 'system',
+              responseToMessageId: userMessage.id,
+              createdAt: new Date(),
+              llmMetadata: {
+                source: 'tool-execution',
+                toolCallId: event.toolCallId,
+                toolName: event.toolName,
+              },
+            })
+          )
+          break
+        }
+        case 'tool_execution_end': {
+          const formatted =
+            typeof event.result?.details?.formatted === 'string'
+              ? event.result.details.formatted
+              : this.extractToolResultText(event.result?.content)
+
+          if (formatted) {
+            store.commit(
+              events.llmResponseReceived({
+                id: crypto.randomUUID(),
+                conversationId,
+                message: formatted,
+                role: 'assistant',
+                modelId: 'system',
+                responseToMessageId: userMessage.id,
+                createdAt: new Date(),
+                llmMetadata: {
+                  source: event.isError ? 'tool-error' : 'tool-result',
+                  toolCallId: event.toolCallId,
+                  toolName: event.toolName,
+                },
+              })
+            )
+          }
+          break
+        }
+        case 'message_end': {
+          if (event.message.role === 'assistant') {
+            const text = this.extractAssistantText(event.message)
+            if (text.trim().length > 0) {
+              store.commit(
+                events.llmResponseReceived({
+                  id: crypto.randomUUID(),
+                  conversationId,
+                  message: text,
+                  role: 'assistant',
+                  modelId,
+                  responseToMessageId: userMessage.id,
+                  createdAt: new Date(),
+                  llmMetadata: {
+                    source: 'pi',
+                    messageType: 'assistant',
+                  },
+                })
+              )
+            }
+          }
+          break
+        }
+        case 'agent_end': {
+          sawError = event.messages.some(
+            message => message.role === 'assistant' && (message as any).errorMessage
+          )
+          break
+        }
+        default:
+          break
+      }
     })
 
-    // Run the agentic loop with message tracking context
-    await agenticLoop.run(userMessage.message, {
-      boardContext,
-      navigationContext,
-      workerContext,
-      workerId: worker?.id,
-      model: conversation?.model || DEFAULT_MODEL,
-      // Message tracking context for debugging
-      messageId: userMessage.id,
-      correlationId,
-      storeId,
-    })
+    try {
+      await session.setModel(this.piModel)
+      await session.prompt(userMessage.message)
+    } catch (error) {
+      sawError = true
+      logger.error({ error, conversationId, correlationId }, 'Error in Pi agent session')
+      store.commit(
+        events.llmResponseReceived({
+          id: crypto.randomUUID(),
+          conversationId,
+          message: 'Sorry, I encountered an error processing your message. Please try again.',
+          role: 'assistant',
+          modelId: 'error',
+          responseToMessageId: userMessage.id,
+          createdAt: new Date(),
+          llmMetadata: { source: 'error' },
+        })
+      )
+    } finally {
+      unsubscribe()
+    }
 
-    // DIAGNOSTIC: Log with base logger after agentic loop completes
-    logger.info(
-      { storeId, messageId: userMessage.id, correlationId, _diagnostic: 'agentic_loop_complete' },
-      'DIAGNOSTIC: Agentic loop completed (base logger)'
-    )
-
-    // DIAGNOSTIC: Also try Sentry's direct logging API
-    Sentry.logger.info('DIAGNOSTIC: Agentic loop completed (Sentry.logger direct)', {
-      storeId,
-      messageId: userMessage.id,
-      correlationId,
-      _diagnostic: 'agentic_loop_complete_sentry_direct',
-    })
+    if (!completionEmitted) {
+      store.commit(
+        events.llmResponseCompleted({
+          conversationId,
+          userMessageId: userMessage.id,
+          createdAt: new Date(),
+          iterations: 1,
+          success: !sawError,
+        })
+      )
+      completionEmitted = true
+    }
 
     return completionEmitted
+  }
+
+  private async getOrCreatePiSession(
+    storeId: string,
+    conversationId: string,
+    storeState: StoreProcessingState,
+    store: LiveStore,
+    workerId?: string
+  ): Promise<PiConversationSession | null> {
+    const existing = storeState.piSessions.get(conversationId)
+    if (existing) {
+      return existing
+    }
+
+    const safeStoreId = this.sanitizePiSegment(storeId)
+    const safeConversationId = this.sanitizePiSegment(conversationId)
+    const sessionDir = path.join(this.piBaseDir, safeStoreId, safeConversationId)
+    const agentDir = path.join(this.piBaseDir, safeStoreId, 'agent')
+
+    try {
+      await fs.mkdir(sessionDir, { recursive: true })
+      await fs.mkdir(agentDir, { recursive: true })
+
+      const authStorage = new AuthStorage(path.join(agentDir, 'auth.json'))
+      const modelRegistry = new ModelRegistry(authStorage, path.join(agentDir, 'models.json'))
+      const resourceLoader = new DefaultResourceLoader({
+        cwd: process.cwd(),
+        agentDir,
+      })
+      await resourceLoader.reload()
+
+      const existingSessionFile = await this.findLatestSessionFile(sessionDir)
+      const sessionManager = existingSessionFile
+        ? SessionManager.open(existingSessionFile, sessionDir)
+        : SessionManager.create(process.cwd(), sessionDir)
+
+      const { session } = await createAgentSession({
+        model: this.piModel ?? undefined,
+        authStorage,
+        modelRegistry,
+        resourceLoader,
+        sessionManager,
+        tools: [],
+        customTools: createPiTools({ store, workerId }),
+      })
+
+      const entry = { session, sessionDir }
+      storeState.piSessions.set(conversationId, entry)
+      storeState.piInitialized = true
+
+      logger.info({ storeId, conversationId, sessionDir }, 'Pi session created')
+
+      return entry
+    } catch (error) {
+      logger.error({ error, storeId, conversationId }, 'Failed to create Pi session')
+      return null
+    }
+  }
+
+  private sanitizePiSegment(value: string): string {
+    return value.replace(/[^a-zA-Z0-9._-]/g, '_')
+  }
+
+  private async findLatestSessionFile(sessionDir: string): Promise<string | null> {
+    try {
+      const entries = await fs.readdir(sessionDir, { withFileTypes: true })
+      const sessionFiles = entries
+        .filter(entry => entry.isFile() && entry.name.endsWith('.jsonl'))
+        .map(entry => path.join(sessionDir, entry.name))
+
+      if (sessionFiles.length === 0) {
+        return null
+      }
+
+      const stats = await Promise.all(
+        sessionFiles.map(async filePath => ({
+          filePath,
+          stat: await fs.stat(filePath),
+        }))
+      )
+
+      stats.sort((a, b) => b.stat.mtimeMs - a.stat.mtimeMs)
+      return stats[0]?.filePath ?? null
+    } catch (error) {
+      logger.warn({ error, sessionDir }, 'Failed to inspect existing Pi sessions')
+      return null
+    }
+  }
+
+  private extractAssistantText(message: Message): string {
+    if (message.role !== 'assistant') {
+      return ''
+    }
+
+    return message.content
+      .filter(part => part.type === 'text')
+      .map(part => part.text)
+      .join('')
+  }
+
+  private extractToolResultText(content?: Array<{ type: string; text?: string }>): string | null {
+    if (!content || content.length === 0) {
+      return null
+    }
+
+    const text = content
+      .filter(part => part.type === 'text' && typeof part.text === 'string')
+      .map(part => part.text ?? '')
+      .join('')
+
+    return text.trim().length > 0 ? text : null
   }
 
   /**
@@ -1595,6 +1619,17 @@ export class EventProcessor {
     this.storeManager.on('storeReconnected', this.reconnectionHandler)
   }
 
+  private disposePiSessions(storeState: StoreProcessingState): void {
+    for (const { session } of storeState.piSessions.values()) {
+      try {
+        session.dispose()
+      } catch (error) {
+        logger.warn({ error }, 'Failed to dispose Pi session cleanly')
+      }
+    }
+    storeState.piSessions.clear()
+  }
+
   /**
    * Force immediate cleanup of store state for reconnection scenarios.
    * This bypasses the async processingQueue.finally to avoid race conditions.
@@ -1621,8 +1656,7 @@ export class EventProcessor {
     }
     storeState.conversationProcessors.clear()
 
-    // Clear llmProvider reference to allow GC and prevent use after cleanup
-    storeState.llmProvider = undefined
+    this.disposePiSessions(storeState)
 
     // Cleanup subscription health tracking
     this.lastSubscriptionUpdate.delete(storeId)
@@ -1682,8 +1716,7 @@ export class EventProcessor {
       }
       storeState.conversationProcessors.clear()
 
-      // Clear llmProvider reference to allow GC and prevent use after cleanup
-      storeState.llmProvider = undefined
+      this.disposePiSessions(storeState)
 
       // Cleanup subscription health tracking
       this.lastSubscriptionUpdate.delete(storeId)
@@ -2202,52 +2235,10 @@ export class EventProcessor {
     this.activeLLMCalls = 0
   }
 
-  /**
-   * Sanitize conversation history to prevent tool_use/tool_result mismatches
-   */
-  private sanitizeConversationHistory(history: LLMMessage[]): LLMMessage[] {
-    const sanitized: LLMMessage[] = []
-
-    for (let i = 0; i < history.length; i++) {
-      const message = history[i]
-
-      // If this is an assistant message with tool_calls
-      if (message.role === 'assistant' && message.tool_calls && message.tool_calls.length > 0) {
-        // Check if the next message has corresponding tool_result blocks
-        const nextMessage = history[i + 1]
-
-        if (!nextMessage || nextMessage.role !== 'tool' || !nextMessage.tool_call_id) {
-          // No corresponding tool result - strip the tool_calls to avoid API errors
-          logger.debug(`Sanitizing incomplete tool_calls from assistant message`)
-          sanitized.push({
-            ...message,
-            tool_calls: undefined,
-          })
-        } else {
-          // Has tool results - include as-is
-          sanitized.push(message)
-        }
-      } else if (message.role === 'tool') {
-        // Only include tool messages if the previous message was an assistant with tool_calls
-        const prevMessage = sanitized[sanitized.length - 1]
-        if (prevMessage && prevMessage.role === 'assistant' && prevMessage.tool_calls) {
-          sanitized.push(message)
-        } else {
-          logger.debug(`Removing orphaned tool result message`)
-        }
-      } else {
-        // Regular user/assistant message without tool_calls - include as-is
-        sanitized.push(message)
-      }
-    }
-
-    return sanitized
-  }
-
   private buildConversationHistory(
     chatHistory: ChatMessage[],
     userMessage: ChatMessage
-  ): LLMMessage[] {
+  ): Message[] {
     let historyToUse = chatHistory
 
     if (historyToUse.length > 0) {
@@ -2266,26 +2257,63 @@ export class EventProcessor {
       }
     }
 
-    const rawHistory: LLMMessage[] = historyToUse.map(msg => ({
-      role: msg.role as 'user' | 'assistant' | 'system' | 'tool',
-      content: msg.message || '',
-      tool_calls: msg.llmMetadata?.toolCalls as any,
-      tool_call_id: msg.llmMetadata?.tool_call_id as any,
-    }))
+    const api = this.piModel?.api ?? 'anthropic-messages'
+    const provider = this.piModel?.provider ?? 'anthropic'
+    const model = this.piModel?.id ?? DEFAULT_MODEL
 
-    const sanitizedHistory = this.sanitizeConversationHistory(rawHistory)
+    const sanitizedHistory: Message[] = historyToUse.flatMap((msg): Message[] => {
+      if (msg.role === 'user') {
+        return [
+          {
+            role: 'user',
+            content: msg.message || '',
+            timestamp: msg.createdAt.getTime(),
+          },
+        ]
+      }
+
+      if (msg.role === 'assistant') {
+        return [
+          {
+            role: 'assistant',
+            content: [{ type: 'text', text: msg.message || '' }],
+            api,
+            provider,
+            model,
+            usage: {
+              input: 0,
+              output: 0,
+              cacheRead: 0,
+              cacheWrite: 0,
+              totalTokens: 0,
+              cost: {
+                input: 0,
+                output: 0,
+                cacheRead: 0,
+                cacheWrite: 0,
+                total: 0,
+              },
+            },
+            stopReason: 'stop',
+            timestamp: msg.createdAt.getTime(),
+          },
+        ]
+      }
+
+      return []
+    })
 
     const duplicateUserMessages: Array<{ index: number; content: string | null }> = []
     for (let i = 1; i < sanitizedHistory.length; i++) {
       const previous = sanitizedHistory[i - 1]
       const current = sanitizedHistory[i]
 
-      if (
-        previous.role === 'user' &&
-        current.role === 'user' &&
-        previous.content === current.content
-      ) {
-        duplicateUserMessages.push({ index: i, content: current.content })
+      if (previous.role === 'user' && current.role === 'user') {
+        const previousContent = typeof previous.content === 'string' ? previous.content : null
+        const currentContent = typeof current.content === 'string' ? current.content : null
+        if (previousContent && previousContent === currentContent) {
+          duplicateUserMessages.push({ index: i, content: currentContent })
+        }
       }
     }
 

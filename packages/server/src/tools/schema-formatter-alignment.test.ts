@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { TaskToolFormatter } from '../services/agentic-loop/tool-formatters/task-formatter.js'
-import { DocumentToolFormatter } from '../services/agentic-loop/tool-formatters/document-formatter.js'
-import { ContactToolFormatter } from '../services/agentic-loop/tool-formatters/contact-formatter.js'
+import { TaskToolFormatter } from '../services/pi/tool-formatters/task-formatter.js'
+import { DocumentToolFormatter } from '../services/pi/tool-formatters/document-formatter.js'
+import { ContactToolFormatter } from '../services/pi/tool-formatters/contact-formatter.js'
 
 describe('Schema-Formatter Alignment', () => {
   describe('Task Formatters', () => {
