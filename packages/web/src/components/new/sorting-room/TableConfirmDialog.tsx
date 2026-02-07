@@ -142,7 +142,7 @@ export const TableConfirmDialog: React.FC<TableConfirmDialogProps> = ({
               className='py-2 px-5 rounded-lg text-sm font-medium bg-[#2f2b27] text-white border-none cursor-pointer transition-all duration-150 hover:bg-black'
               onClick={onConfirm}
             >
-              {mode === 'activate' ? 'Activate' : 'Release'}
+              {mode === 'activate' ? 'Activate to Table' : 'Release'}
             </button>
           )}
         </div>

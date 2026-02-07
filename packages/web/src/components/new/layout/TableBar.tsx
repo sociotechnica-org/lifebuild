@@ -40,7 +40,10 @@ export const TableBar: React.FC = () => {
   )
 
   return (
-    <div className='bg-white/95 border-t border-[#e8e4de] shadow-[0_-12px_24px_rgba(0,0,0,0.06)] py-3.5 px-6 flex-shrink-0'>
+    <div className='bg-white/95 border-t border-[#e8e4de] shadow-[0_-12px_24px_rgba(0,0,0,0.06)] py-3 px-6 flex-shrink-0'>
+      <div className='text-[10px] font-semibold text-[#8b8680] uppercase tracking-wider mb-2'>
+        The Table
+      </div>
       <div className='grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3 items-center'>
         <TableSlot
           stream='gold'
