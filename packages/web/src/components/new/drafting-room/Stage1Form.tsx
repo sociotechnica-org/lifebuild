@@ -235,7 +235,7 @@ export const Stage1Form: React.FC = () => {
             className='flex-1 py-2.5 px-4 rounded-lg text-sm font-medium bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-200 hover:border-[#d0ccc5] hover:text-[#2f2b27]'
             onClick={handleExit}
           >
-            Exit
+            Save & Exit
           </button>
           <button
             type='button'
