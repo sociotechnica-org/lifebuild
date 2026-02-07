@@ -122,7 +122,7 @@ const SortableBacklogProject: React.FC<SortableBacklogProjectProps> = ({
             disabled={isActivationInProgress}
             className='px-3 py-1.5 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-500 disabled:opacity-60 disabled:cursor-not-allowed'
           >
-            {isActivatingThisProject ? 'Activating...' : 'Activate'}
+            {isActivatingThisProject ? 'Activating...' : 'Activate to Table'}
           </button>
         </div>
       </div>
