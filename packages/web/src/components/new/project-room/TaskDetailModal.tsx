@@ -395,6 +395,25 @@ export function TaskDetailModal({
                   Edit
                 </button>
                 <button
+                  onClick={() => {
+                    if (task) {
+                      store.commit(
+                        events.taskArchived({
+                          taskId: task.id,
+                          archivedAt: new Date(),
+                          actorId: user?.id,
+                        })
+                      )
+                      posthog?.capture('task_deleted', { projectId: task.projectId })
+                      onClose()
+                    }
+                  }}
+                  className='px-3 py-1.5 text-sm border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors'
+                  aria-label='Delete task'
+                >
+                  Delete
+                </button>
+                <button
                   onClick={onClose}
                   className='text-[#8b8680] hover:text-[#2f2b27] transition-colors p-1 rounded-lg hover:bg-[#f5f3f0]'
                   aria-label='Close modal'
