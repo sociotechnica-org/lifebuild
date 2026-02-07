@@ -5,6 +5,12 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react() as any],
+  // React.act is only exported in development mode. Since unit tests with
+  // @testing-library/react require act(), we need NODE_ENV=development.
+  // Production behavior is tested via Playwright E2E tests instead.
+  define: {
+    'process.env.NODE_ENV': JSON.stringify('development'),
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/test-utils.tsx'],
