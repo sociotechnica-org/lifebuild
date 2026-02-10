@@ -11,21 +11,10 @@ import { useChorusNavigation } from './hooks/useChorusNavigation.js'
 import { useSyncPayload } from './hooks/useSyncPayload.js'
 import { useLiveStoreWorkerSentryBridge } from './hooks/useLiveStoreWorkerSentryBridge.js'
 
-import { ProjectsPage } from './components/projects/ProjectsPage.js'
-import { ProjectWorkspace } from './components/projects/ProjectWorkspace/ProjectWorkspace.js'
-import { TasksPage } from './components/tasks/TasksPage.js'
-import { WorkersPage } from './components/workers/WorkersPage.js'
-import { DocumentsPage } from './components/documents/DocumentsPage/DocumentsPage.js'
-import { DocumentPage } from './components/documents/DocumentPage.js'
-import { ContactList } from './components/contacts/ContactList.js'
-import { ContactDetail } from './components/contacts/ContactDetail.js'
-import { LifeCategoryView } from './components/life-category/LifeCategoryView.js'
 import { LoginPage } from './pages/LoginPage.js'
 import { SignupPage } from './pages/SignupPage.js'
-import { SettingsPage } from './components/settings/SettingsPage.js'
 import { AdminUsersPage } from './components/admin/AdminUsersPage.js'
 import { UserDetailPage } from './components/admin/UserDetailPage.js'
-import { Layout } from './components/layout/Layout.js'
 import { EnsureStoreId } from './components/utils/EnsureStoreId.js'
 import { LoadingState } from './components/ui/LoadingState.js'
 import { ErrorBoundary } from './components/ui/ErrorBoundary/ErrorBoundary.js'
@@ -34,17 +23,16 @@ import { AuthUserSync } from './components/utils/AuthUserSync/AuthUserSync.js'
 import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
 import { LiveStoreHealthMonitor } from './components/utils/LiveStoreHealthMonitor.js'
 import { LiveStoreBootBoundary } from './components/utils/LiveStoreBootBoundary.js'
-import { LifeMapView } from './components/life-map/LifeMapView.js'
 import { schema } from '@lifebuild/shared/schema'
 import { ROUTES } from './constants/routes.js'
-import { ProjectDetailPage } from './components/new/projects/ProjectDetailPage.js'
-import { LifeMap } from './components/new/life-map/LifeMap.js'
-import { RoomLayout } from './components/new/layout/RoomLayout.js'
-import { DraftingRoom } from './components/new/drafting-room/DraftingRoom.js'
-import { Stage1Form } from './components/new/drafting-room/Stage1Form.js'
-import { Stage2Form } from './components/new/drafting-room/Stage2Form.js'
-import { Stage3Form } from './components/new/drafting-room/Stage3Form.js'
-import { SortingRoom } from './components/new/sorting-room/SortingRoom.js'
+import { ProjectDetailPage } from './components/projects/ProjectDetailPage.js'
+import { LifeMap } from './components/life-map/LifeMap.js'
+import { RoomLayout } from './components/layout/RoomLayout.js'
+import { DraftingRoom } from './components/drafting-room/DraftingRoom.js'
+import { Stage1Form } from './components/drafting-room/Stage1Form.js'
+import { Stage2Form } from './components/drafting-room/Stage2Form.js'
+import { Stage3Form } from './components/drafting-room/Stage3Form.js'
+import { SortingRoom } from './components/sorting-room/SortingRoom.js'
 import { LIFE_MAP_ROOM, DRAFTING_ROOM, SORTING_ROOM } from '@lifebuild/shared/rooms'
 import { determineStoreIdFromUser } from './utils/navigation.js'
 import {
@@ -397,7 +385,7 @@ const ProtectedApp: React.FC = () => {
               <SettingsInitializer>
                 <ErrorBoundary>
                   <Routes>
-                    {/* New UI routes (default) */}
+                    {/* App routes */}
                     <Route
                       path={ROUTES.HOME}
                       element={
@@ -506,127 +494,8 @@ const ProtectedApp: React.FC = () => {
                         </ErrorBoundary>
                       }
                     />
-                    {/* Old UI routes (under /old) */}
-                    <Route
-                      path={ROUTES.OLD}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <LifeMapView />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.OLD_LIFE_MAP}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <LifeMapView />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.OLD_PROJECTS}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <ProjectsPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.OLD_TASKS}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <TasksPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.OLD_TEAM}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <WorkersPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.OLD_DOCUMENTS}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <DocumentsPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.OLD_CONTACTS}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <ContactList />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.OLD_CONTACT}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <ContactDetail />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.OLD_SETTINGS}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <SettingsPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.OLD_DOCUMENT}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <DocumentPage />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.OLD_PROJECT}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <ProjectWorkspace />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.OLD_CATEGORY}
-                      element={
-                        <Layout>
-                          <ErrorBoundary>
-                            <LifeCategoryView />
-                          </ErrorBoundary>
-                        </Layout>
-                      }
-                    />
+                    {/* Redirect legacy /old/* routes to life-map */}
+                    <Route path='/old/*' element={<Navigate to={ROUTES.LIFE_MAP} replace />} />
                   </Routes>
                 </ErrorBoundary>
               </SettingsInitializer>

@@ -25,27 +25,27 @@ test.describe('Smoke Tests', () => {
     await expect(page).toHaveURL(/\?storeId=[a-f0-9-]+/) // storeId-based URL
 
     // Verify chat interface is visible (may not be fully functional in CI)
-    const chatElement = page.locator('textarea[placeholder="Type your message..."]')
+    const chatElement = page.locator('textarea[placeholder="Ask something…"]')
     if (await chatElement.isVisible()) {
       await expect(chatElement).toBeVisible()
     }
 
     // Test navigation by going to projects route
     const storeId = 'test-smoke-' + Date.now()
-    await page.goto(`/projects?storeId=${storeId}`)
+    await page.goto(`/drafting-room?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
-    await expect(page).toHaveURL(/\/projects\?storeId=[^&]+/)
+    await expect(page).toHaveURL(/\/drafting-room\?storeId=[^&]+/)
 
     // Verify projects interface shows projects
-    const projectsSection = page.locator('text=Projects').first()
-    if (await projectsSection.isVisible()) {
-      await expect(projectsSection).toBeVisible()
+    const draftingSection = page.locator('text=Drafting Room').first()
+    if (await draftingSection.isVisible()) {
+      await expect(draftingSection).toBeVisible()
     }
 
     // Navigate directly to projects
-    await page.goto(`/projects?storeId=${storeId}`)
+    await page.goto(`/drafting-room?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
-    await expect(page).toHaveURL(/\/projects\?storeId=[^&]+/)
+    await expect(page).toHaveURL(/\/drafting-room\?storeId=[^&]+/)
   })
 
   test('LiveStore sync is working', async ({ page }) => {
@@ -64,7 +64,7 @@ test.describe('Smoke Tests', () => {
 
     // Basic functionality should be available (this tests that LiveStore has loaded)
     // Try to access the projects page which requires LiveStore data
-    await page.goto('/projects')
+    await page.goto('/drafting-room')
     await waitForLiveStoreReady(page)
 
     // Should not show any error messages (unless it's expected LiveStore sync errors in CI)
@@ -107,9 +107,9 @@ test.describe('Smoke Tests', () => {
     await expect(page).toHaveURL(/\?storeId=[^&]+$/)
 
     // Navigate to projects route directly
-    await page.goto(`/projects?storeId=${storeId}`)
+    await page.goto(`/drafting-room?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
-    await expect(page).toHaveURL(/\/projects\?storeId=[^&]+/)
+    await expect(page).toHaveURL(/\/drafting-room\?storeId=[^&]+/)
 
     // Basic navigation is working
   })

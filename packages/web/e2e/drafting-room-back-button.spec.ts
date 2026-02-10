@@ -4,9 +4,9 @@ import { waitForLiveStoreReady, createTestUserViaAPI, loginViaUI } from './test-
 const REQUIRE_AUTH = process.env.REQUIRE_AUTH === 'true'
 
 /**
- * Helper to navigate to new UI with unique store ID
+ * Helper to navigate to the app with a unique store ID
  */
-async function navigateToNewUiWithUniqueStore(page: Page) {
+async function navigateWithUniqueStore(page: Page) {
   const storeId = `test-${Date.now()}-${Math.random().toString(36).substring(7)}`
 
   if (REQUIRE_AUTH) {
@@ -25,7 +25,7 @@ test.describe('Drafting Room - Browser Back Button', () => {
   test('should not create duplicate project when using back button to change title', async ({
     page,
   }) => {
-    const storeId = await navigateToNewUiWithUniqueStore(page)
+    const storeId = await navigateWithUniqueStore(page)
     const initialTitle = `Initial Project ${Date.now()}`
     const updatedTitle = `Updated Project ${Date.now()}`
 
