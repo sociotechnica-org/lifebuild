@@ -85,6 +85,10 @@ jobs:
           required=(
             CLOUDFLARE_API_TOKEN
             CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN
+            CLOUDFLARE_PREVIEW_D1_DATABASE_ID
+            CLOUDFLARE_PREVIEW_D1_DATABASE_NAME
+            CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID
+            CLOUDFLARE_PREVIEW_R2_BUCKET_NAME
           )
 
           for name in "${required[@]}"; do
@@ -112,12 +116,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          extract_jsonc_key() {
-            local key="$1"
-            local file="$2"
-            grep -Eo "\"${key}\"[[:space:]]*:[[:space:]]*\"[^\"]+\"" "${file}" | head -n1 | sed -E 's/.*:[[:space:]]*"([^"]+)"/\1/' || true
-          }
-
           require_nonempty() {
             local name="$1"
             local value="$2"
@@ -126,12 +124,13 @@ jobs:
             fi
           }
 
-          PR_NUMBER="${{ steps.meta.outputs.pr_number }}"
+          generate_random_hex() {
+            node -e "const crypto = require('node:crypto'); process.stdout.write(crypto.randomBytes(32).toString('hex'))"
+          }
 
           unresolved=()
           generated_jwt_secret=false
           generated_server_bypass_token=false
-          using_repo_binding_defaults=false
 
           resolved_account_id="${CLOUDFLARE_PREVIEW_ACCOUNT_ID:-}"
           if [[ -z "${resolved_account_id}" ]]; then
@@ -140,34 +139,23 @@ jobs:
               -H "Content-Type: application/json" | jq -r '.result[0].id // empty' || true)"
           fi
 
-          fallback_d1_database_id="$(extract_jsonc_key database_id packages/worker/wrangler.jsonc)"
-          fallback_d1_database_name="$(extract_jsonc_key database_name packages/worker/wrangler.jsonc)"
-          fallback_kv_namespace_id="$(extract_jsonc_key id packages/worker/wrangler.jsonc)"
-          fallback_kv_preview_id="$(extract_jsonc_key preview_id packages/worker/wrangler.jsonc)"
-          fallback_r2_bucket_name="$(extract_jsonc_key bucket_name packages/worker/wrangler.jsonc)"
-          fallback_r2_preview_bucket_name="$(extract_jsonc_key preview_bucket_name packages/worker/wrangler.jsonc)"
-
-          resolved_d1_database_id="${CLOUDFLARE_PREVIEW_D1_DATABASE_ID:-$fallback_d1_database_id}"
-          resolved_d1_database_name="${CLOUDFLARE_PREVIEW_D1_DATABASE_NAME:-$fallback_d1_database_name}"
-          resolved_kv_namespace_id="${CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID:-$fallback_kv_namespace_id}"
-          resolved_kv_preview_id="${CLOUDFLARE_PREVIEW_KV_PREVIEW_ID:-${fallback_kv_preview_id:-$resolved_kv_namespace_id}}"
-          resolved_r2_bucket_name="${CLOUDFLARE_PREVIEW_R2_BUCKET_NAME:-$fallback_r2_bucket_name}"
-          resolved_r2_preview_bucket_name="${CLOUDFLARE_PREVIEW_R2_PREVIEW_BUCKET_NAME:-${fallback_r2_preview_bucket_name:-$resolved_r2_bucket_name}}"
-
-          if [[ -z "${CLOUDFLARE_PREVIEW_D1_DATABASE_ID:-}" ]] || [[ -z "${CLOUDFLARE_PREVIEW_D1_DATABASE_NAME:-}" ]] || [[ -z "${CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID:-}" ]] || [[ -z "${CLOUDFLARE_PREVIEW_R2_BUCKET_NAME:-}" ]]; then
-            using_repo_binding_defaults=true
-          fi
+          resolved_d1_database_id="${CLOUDFLARE_PREVIEW_D1_DATABASE_ID:-}"
+          resolved_d1_database_name="${CLOUDFLARE_PREVIEW_D1_DATABASE_NAME:-}"
+          resolved_kv_namespace_id="${CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID:-}"
+          resolved_kv_preview_id="${CLOUDFLARE_PREVIEW_KV_PREVIEW_ID:-$resolved_kv_namespace_id}"
+          resolved_r2_bucket_name="${CLOUDFLARE_PREVIEW_R2_BUCKET_NAME:-}"
+          resolved_r2_preview_bucket_name="${CLOUDFLARE_PREVIEW_R2_PREVIEW_BUCKET_NAME:-$resolved_r2_bucket_name}"
 
           resolved_jwt_secret="${PREVIEW_JWT_SECRET:-}"
           if [[ -z "${resolved_jwt_secret}" ]]; then
             generated_jwt_secret=true
-            resolved_jwt_secret="preview-jwt-pr-${PR_NUMBER}-${GITHUB_REPOSITORY_ID}"
+            resolved_jwt_secret="$(generate_random_hex)"
           fi
 
           resolved_server_bypass_token="${PREVIEW_SERVER_BYPASS_TOKEN:-}"
           if [[ -z "${resolved_server_bypass_token}" ]]; then
             generated_server_bypass_token=true
-            resolved_server_bypass_token="preview-bypass-pr-${PR_NUMBER}-${GITHUB_REPOSITORY_ID}"
+            resolved_server_bypass_token="$(generate_random_hex)"
           fi
 
           require_nonempty CLOUDFLARE_PREVIEW_ACCOUNT_ID "${resolved_account_id}"
@@ -183,7 +171,6 @@ jobs:
           echo "missing=${unresolved_csv}" >> "$GITHUB_OUTPUT"
           echo "generated_jwt_secret=${generated_jwt_secret}" >> "$GITHUB_OUTPUT"
           echo "generated_server_bypass_token=${generated_server_bypass_token}" >> "$GITHUB_OUTPUT"
-          echo "using_repo_binding_defaults=${using_repo_binding_defaults}" >> "$GITHUB_OUTPUT"
 
           if (( ${#unresolved[@]} > 0 )); then
             echo "Unable to resolve required preview inputs: ${unresolved_csv}" >&2
@@ -483,7 +470,6 @@ jobs:
           INPUTS_MISSING: ${{ steps.resolve_inputs.outputs.missing }}
           GENERATED_JWT_SECRET: ${{ steps.resolve_inputs.outputs.generated_jwt_secret }}
           GENERATED_SERVER_BYPASS_TOKEN: ${{ steps.resolve_inputs.outputs.generated_server_bypass_token }}
-          USING_REPO_BINDING_DEFAULTS: ${{ steps.resolve_inputs.outputs.using_repo_binding_defaults }}
           AUTH_OUTCOME: ${{ steps.deploy_auth.outcome }}
           SYNC_OUTCOME: ${{ steps.deploy_sync.outcome }}
           WEB_OUTCOME: ${{ steps.deploy_web.outcome }}
@@ -503,7 +489,6 @@ jobs:
             const missingInputs = process.env.INPUTS_MISSING || '';
             const generatedJwtSecret = process.env.GENERATED_JWT_SECRET === 'true';
             const generatedBypassToken = process.env.GENERATED_SERVER_BYPASS_TOKEN === 'true';
-            const usingRepoBindingDefaults = process.env.USING_REPO_BINDING_DEFAULTS === 'true';
 
             const authUrl = process.env.AUTH_URL || '(not deployed)';
             const syncUrl = process.env.SYNC_URL || '(not deployed)';
@@ -525,14 +510,11 @@ jobs:
                 : '- Preview deploy preflight: ✅';
 
             const notes = [];
-            if (inputsOk && usingRepoBindingDefaults) {
-              notes.push('- Preview data bindings: using defaults from checked-in wrangler config (set `CLOUDFLARE_PREVIEW_*` secrets to override).');
-            }
             if (inputsOk && generatedJwtSecret) {
-              notes.push('- Preview JWT secret: using generated non-production default (set `PREVIEW_JWT_SECRET` to override).');
+              notes.push('- Preview JWT secret: using a generated secure random value for this workflow run (set `PREVIEW_JWT_SECRET` to override).');
             }
             if (inputsOk && generatedBypassToken) {
-              notes.push('- Preview server bypass token: using generated non-production default (set `PREVIEW_SERVER_BYPASS_TOKEN` to override).');
+              notes.push('- Preview server bypass token: using a generated secure random value for this workflow run (set `PREVIEW_SERVER_BYPASS_TOKEN` to override).');
             }
 
             const body = [

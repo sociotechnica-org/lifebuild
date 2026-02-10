@@ -62,28 +62,28 @@ Configure these repository secrets for preview deployments:
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN`
-
-Optional preview secrets:
-
-- `CLOUDFLARE_PREVIEW_ACCOUNT_ID` (auto-resolved from `wrangler whoami --json` when omitted)
 - `CLOUDFLARE_PREVIEW_D1_DATABASE_ID`
 - `CLOUDFLARE_PREVIEW_D1_DATABASE_NAME`
 - `CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID`
-- `CLOUDFLARE_PREVIEW_KV_PREVIEW_ID` (defaults to `CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID`)
 - `CLOUDFLARE_PREVIEW_R2_BUCKET_NAME`
+
+Optional preview secrets:
+
+- `CLOUDFLARE_PREVIEW_ACCOUNT_ID` (auto-resolved from the Cloudflare accounts API when omitted)
+- `CLOUDFLARE_PREVIEW_KV_PREVIEW_ID` (defaults to `CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID`)
 - `CLOUDFLARE_PREVIEW_R2_PREVIEW_BUCKET_NAME` (defaults to `CLOUDFLARE_PREVIEW_R2_BUCKET_NAME`)
-- `PREVIEW_JWT_SECRET` (generated per PR when omitted)
-- `PREVIEW_SERVER_BYPASS_TOKEN` (generated per PR when omitted)
+- `PREVIEW_JWT_SECRET` (generated as a secure random value when omitted)
+- `PREVIEW_SERVER_BYPASS_TOKEN` (generated as a secure random value when omitted)
 - `PREVIEW_WEBHOOK_SECRET`
 - `PREVIEW_SERVER_WEBHOOK_URL`
 
-If data-plane override secrets are omitted, the preview workflow falls back to the bindings in `packages/worker/wrangler.jsonc`. Set the `CLOUDFLARE_PREVIEW_*` data-plane secrets to force preview-specific D1/KV/R2 resources.
+Preview data-plane secrets must point at non-production D1/KV/R2 resources.
 
 ### Preview Policy Notes
 
 - Forked PRs do not auto-deploy previews (secrets are protected).
 - PostHog analytics are intentionally disabled in preview environments.
-- Shared preview D1/KV/R2 resources are used (separate from production).
+- Preview D1/KV/R2 resources should be shared preview resources (separate from production).
 - Render preview URL in the PR comment may lag briefly until Render posts deployment status to GitHub.
 
 ## Manual Deployment
