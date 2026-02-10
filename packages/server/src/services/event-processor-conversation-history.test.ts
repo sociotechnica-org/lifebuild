@@ -577,11 +577,31 @@ describe('EventProcessor conversation history builder', () => {
 
     const processor = new EventProcessor(storeManager as any)
     vi.spyOn(processor as any, 'runAgenticLoop').mockResolvedValue(false)
+    const processQueuedMessagesSpy = vi
+      .spyOn(processor as any, 'processQueuedMessages')
+      .mockResolvedValue(undefined)
 
     const lifecycleTracker = (processor as any).lifecycleTracker
     const recordErrorSpy = vi.spyOn(lifecycleTracker, 'recordError')
     const recordCompletedSpy = vi.spyOn(lifecycleTracker, 'recordCompleted')
     lifecycleTracker.startTracking('message-4', 'store-1', 'conversation-4')
+
+    const storeState = {
+      subscriptions: [],
+      eventBuffer: { events: [], lastFlushed: new Date(), processing: false },
+      errorCount: 0,
+      processingQueue: Promise.resolve(),
+      stopping: false,
+      activeConversations: new Set<string>(),
+      messageQueue: {
+        enqueue: vi.fn(),
+        hasMessages: vi.fn(() => false),
+        dequeue: vi.fn(() => null),
+        getQueueLength: vi.fn(() => 0),
+      },
+      conversationProcessors: new Map(),
+      piSessions: new Map(),
+    }
 
     await (processor as any).handleUserMessage(
       'store-1',
@@ -592,22 +612,7 @@ describe('EventProcessor conversation history builder', () => {
         message: 'Try again',
         createdAt: new Date(),
       } satisfies ChatMessage,
-      {
-        subscriptions: [],
-        eventBuffer: { events: [], lastFlushed: new Date(), processing: false },
-        errorCount: 0,
-        processingQueue: Promise.resolve(),
-        stopping: false,
-        activeConversations: new Set<string>(),
-        messageQueue: {
-          enqueue: vi.fn(),
-          hasMessages: vi.fn(() => false),
-          dequeue: vi.fn(() => null),
-          getQueueLength: vi.fn(() => 0),
-        },
-        conversationProcessors: new Map(),
-        piSessions: new Map(),
-      } as any
+      storeState as any
     )
 
     expect(recordErrorSpy).toHaveBeenCalledWith(
@@ -616,6 +621,8 @@ describe('EventProcessor conversation history builder', () => {
       'AGENTIC_LOOP_FAILED'
     )
     expect(recordCompletedSpy).not.toHaveBeenCalledWith('message-4')
+    expect(processQueuedMessagesSpy).toHaveBeenCalledTimes(1)
+    expect(processQueuedMessagesSpy).toHaveBeenCalledWith('store-1', 'conversation-4', storeState)
     expect(loggerContainer.logMessageEvent).toHaveBeenCalledWith(
       'warn',
       expect.objectContaining({

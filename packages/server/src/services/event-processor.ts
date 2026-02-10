@@ -902,7 +902,6 @@ export class EventProcessor {
 
     let llmCallCompleted = false
     let agentRunSucceeded = false
-    let completionEventEmitted = false
     try {
       const startTime = Date.now()
       agentRunSucceeded = await this.runAgenticLoop(storeId, chatMessage, storeState)
@@ -928,28 +927,27 @@ export class EventProcessor {
           },
           'Message processing failed'
         )
-        return
+      } else {
+        // Track successful completion
+        this.endLLMCall(llmCallId, false, responseTime)
+        llmCallCompleted = true
+
+        // Record lifecycle completion
+        this.lifecycleTracker.recordCompleted(messageId)
+        logMessageEvent(
+          'info',
+          {
+            correlationId: correlationId || messageId,
+            messageId,
+            storeId,
+            conversationId,
+            stage: 'event_processor',
+            action: 'processing_completed',
+            durationMs: responseTime,
+          },
+          'Message processing completed successfully'
+        )
       }
-
-      // Track successful completion
-      this.endLLMCall(llmCallId, false, responseTime)
-      llmCallCompleted = true
-
-      // Record lifecycle completion
-      this.lifecycleTracker.recordCompleted(messageId)
-      logMessageEvent(
-        'info',
-        {
-          correlationId: correlationId || messageId,
-          messageId,
-          storeId,
-          conversationId,
-          stage: 'event_processor',
-          action: 'processing_completed',
-          durationMs: responseTime,
-        },
-        'Message processing completed successfully'
-      )
     } catch (error) {
       // Track error and ensure LLM call is properly cleaned up
       this.recordError()
@@ -982,19 +980,15 @@ export class EventProcessor {
             llmMetadata: { source: 'error' },
           })
         )
-
-        if (agentRunSucceeded === false) {
-          store.commit(
-            events.llmResponseCompleted({
-              conversationId,
-              userMessageId: messageId,
-              createdAt: new Date(),
-              iterations: 0,
-              success: false,
-            })
-          )
-          completionEventEmitted = true
-        }
+        store.commit(
+          events.llmResponseCompleted({
+            conversationId,
+            userMessageId: messageId,
+            createdAt: new Date(),
+            iterations: 0,
+            success: false,
+          })
+        )
       }
     } finally {
       // Ensure LLM call is always cleaned up
@@ -1004,19 +998,6 @@ export class EventProcessor {
 
       // Always remove from active conversations
       storeState.activeConversations.delete(conversationId)
-    }
-
-    if (!agentRunSucceeded && store && !completionEventEmitted) {
-      store.commit(
-        events.llmResponseCompleted({
-          conversationId,
-          userMessageId: messageId,
-          createdAt: new Date(),
-          iterations: 0,
-          success: llmCallCompleted,
-        })
-      )
-      completionEventEmitted = true
     }
 
     // Process any queued messages for this conversation (outside try/catch to avoid recursion)
@@ -1083,7 +1064,6 @@ export class EventProcessor {
 
     let llmCallCompleted = false
     let agentRunSucceeded = false
-    let completionEventEmitted = false
     try {
       const startTime = Date.now()
       agentRunSucceeded = await this.runAgenticLoop(storeId, chatMessage, storeState)
@@ -1110,27 +1090,27 @@ export class EventProcessor {
           'Queued message processing failed'
         )
         return
+      } else {
+        // Track successful completion
+        this.endLLMCall(llmCallId, false, responseTime)
+        llmCallCompleted = true
+
+        // Record lifecycle completion and log correlated event
+        this.lifecycleTracker.recordCompleted(messageId)
+        logMessageEvent(
+          'info',
+          {
+            correlationId,
+            messageId,
+            storeId,
+            conversationId,
+            stage: 'event_processor',
+            action: 'processing_completed_queued',
+            durationMs: responseTime,
+          },
+          'Queued message processed successfully'
+        )
       }
-
-      // Track successful completion
-      this.endLLMCall(llmCallId, false, responseTime)
-      llmCallCompleted = true
-
-      // Record lifecycle completion and log correlated event
-      this.lifecycleTracker.recordCompleted(messageId)
-      logMessageEvent(
-        'info',
-        {
-          correlationId,
-          messageId,
-          storeId,
-          conversationId,
-          stage: 'event_processor',
-          action: 'processing_completed_queued',
-          durationMs: responseTime,
-        },
-        'Queued message processed successfully'
-      )
     } catch (error) {
       // Track error and ensure LLM call is properly cleaned up
       this.recordError()
@@ -1177,19 +1157,15 @@ export class EventProcessor {
             llmMetadata: { source: 'error' },
           })
         )
-
-        if (agentRunSucceeded === false) {
-          store.commit(
-            events.llmResponseCompleted({
-              conversationId,
-              userMessageId: messageId,
-              createdAt: new Date(),
-              iterations: 0,
-              success: false,
-            })
-          )
-          completionEventEmitted = true
-        }
+        store.commit(
+          events.llmResponseCompleted({
+            conversationId,
+            userMessageId: messageId,
+            createdAt: new Date(),
+            iterations: 0,
+            success: false,
+          })
+        )
       }
     } finally {
       // Ensure LLM call is always cleaned up
@@ -1202,19 +1178,6 @@ export class EventProcessor {
     }
 
     // NOTE: Deliberately NOT calling processQueuedMessages here to avoid recursion
-
-    if (!agentRunSucceeded && store && !completionEventEmitted) {
-      store.commit(
-        events.llmResponseCompleted({
-          conversationId,
-          userMessageId: messageId,
-          createdAt: new Date(),
-          iterations: 0,
-          success: llmCallCompleted,
-        })
-      )
-      completionEventEmitted = true
-    }
   }
 
   private async runStubResponder(
