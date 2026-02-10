@@ -944,8 +944,7 @@ const materializers = State.SQLite.materializers(events, {
   },
 
   // @deprecated - Use v3.ProjectLifecycleUpdated instead.
-  // This event is kept for backwards compatibility with the old UI.
-  // It only updates the legacy `attributes` column, NOT `projectLifecycleState`.
+  // This event only updates the legacy `attributes` column, NOT `projectLifecycleState`.
   'v2.ProjectAttributesUpdated': ({ id, attributes, updatedAt }) =>
     projects
       .update({
