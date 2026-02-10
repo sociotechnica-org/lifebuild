@@ -240,10 +240,12 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     expect(startedEvents.length).toBe(1)
 
     const completionEvents = (mockStore.commit as any).mock.calls.filter(
-      (call: any) => call[0]?.name === 'v1.LLMResponseCompleted'
+      (call: any) =>
+        call[0]?.name === 'v1.LLMResponseCompleted' &&
+        call[0]?.args?.userMessageId === 'msg-context-fail'
     )
-    expect(completionEvents.length).toBeGreaterThanOrEqual(1)
-    expect(completionEvents.some((call: any) => call[0].args.success === false)).toBe(true)
+    expect(completionEvents.length).toBe(1)
+    expect(completionEvents[0][0].args.success).toBe(false)
 
     const errorResponseEvents = (mockStore.commit as any).mock.calls.filter(
       (call: any) =>

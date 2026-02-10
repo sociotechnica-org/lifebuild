@@ -333,10 +333,6 @@ async function runSmokeTest(): Promise<void> {
           .reverse()
           .find((message): message is AssistantMessage => message.role === 'assistant')
         if (latestAssistantMessage) {
-          const text = extractAssistantText(latestAssistantMessage).trim()
-          if (text.length > 0) {
-            assistantMessages.push(text)
-          }
           if (isAssistantErrorMessage(latestAssistantMessage)) {
             sawErrorState = true
             failureContext = {

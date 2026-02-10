@@ -156,7 +156,9 @@ export class EventProcessor {
   private monitoringStartTime: Map<string, Date> = new Map()
   private readonly subscriptionHealthThresholdMs: number
   // Store reference to reconnection handler so it can be removed on shutdown
-  private reconnectionHandler: ((data: { storeId: string; store: any }) => void) | null = null
+  private reconnectionHandler:
+    | ((data: { storeId: string; store: any }) => void | Promise<void>)
+    | null = null
   // Flag to prevent operations after shutdown
   private isShutdown = false
   private readonly piBaseDir: string
@@ -432,7 +434,7 @@ export class EventProcessor {
       // Set stopping flag for consistency with other cleanup paths
       storeState.stopping = true
       storeState.messageQueue.destroy()
-      this.disposePiSessions(storeId, storeState)
+      await this.disposePiSessions(storeId, storeState)
       this.clearPiAgentResources(storeId)
       this.storeStates.delete(storeId)
       this.monitoringStartTime.delete(storeId)
@@ -1727,7 +1729,7 @@ export class EventProcessor {
       return existing
     }
 
-    this.evictPiSessionsIfNeeded(storeId, storeState, conversationId)
+    await this.evictPiSessionsIfNeeded(storeId, storeState, conversationId)
 
     const safeStoreId = this.sanitizePiSegment(storeId)
     const sessionDir = path.join(
@@ -1877,11 +1879,11 @@ export class EventProcessor {
     }
   }
 
-  private evictPiSessionsIfNeeded(
+  private async evictPiSessionsIfNeeded(
     storeId: string,
     storeState: StoreProcessingState,
     preserveConversationId?: string
-  ): void {
+  ): Promise<void> {
     if (storeState.piSessions.size === 0) {
       return
     }
@@ -1898,7 +1900,7 @@ export class EventProcessor {
 
         const idleDurationMs = now - entry.lastAccessedAt
         if (idleDurationMs >= this.piSessionIdleTtlMs) {
-          this.disposePiSessionEntry(
+          await this.disposePiSessionEntry(
             storeState,
             storeId,
             cachedConversationId,
@@ -1936,7 +1938,13 @@ export class EventProcessor {
         break
       }
 
-      this.disposePiSessionEntry(storeState, storeId, cachedConversationId, entry, 'capacity_lru')
+      await this.disposePiSessionEntry(
+        storeState,
+        storeId,
+        cachedConversationId,
+        entry,
+        'capacity_lru'
+      )
     }
 
     if (storeState.piSessions.size > targetSizeBeforeInsert) {
@@ -1964,16 +1972,16 @@ export class EventProcessor {
     )
   }
 
-  private disposePiSessionEntry(
+  private async disposePiSessionEntry(
     storeState: StoreProcessingState,
     storeId: string,
     conversationId: string,
     entry: PiConversationSession,
     reason: 'idle_ttl_exceeded' | 'capacity_lru' | 'store_cleanup',
     metadata?: Record<string, unknown>
-  ): void {
+  ): Promise<void> {
     try {
-      entry.session.dispose()
+      await entry.session.dispose()
     } catch (error) {
       logger.warn(
         { error: this.formatErrorForLog(error), storeId, conversationId },
@@ -2233,7 +2241,7 @@ export class EventProcessor {
    * and start monitoring the new store instance.
    */
   private setupStoreReconnectionHandler(): void {
-    this.reconnectionHandler = ({ storeId, store }) => {
+    this.reconnectionHandler = async ({ storeId, store }) => {
       // Prevent operations after shutdown
       if (this.isShutdown) {
         logger.debug({ storeId }, 'Ignoring storeReconnected event - processor is shutdown')
@@ -2251,7 +2259,15 @@ export class EventProcessor {
 
       // Force immediate cleanup of old state (don't wait for async processingQueue.finally)
       // This avoids the race condition where startMonitoring sees stopping=true
-      this.forceCleanupStoreState(storeId, existingState)
+      try {
+        await this.forceCleanupStoreState(storeId, existingState)
+      } catch (error) {
+        logger.error(
+          { storeId, error: this.formatErrorForLog(error) },
+          'Failed to clean up old store state during reconnection'
+        )
+        return
+      }
 
       // Start fresh monitoring on the new store instance
       this.startMonitoring(storeId, store).catch(error => {
@@ -2262,9 +2278,12 @@ export class EventProcessor {
     this.storeManager.on('storeReconnected', this.reconnectionHandler)
   }
 
-  private disposePiSessions(storeId: string, storeState: StoreProcessingState): void {
+  private async disposePiSessions(
+    storeId: string,
+    storeState: StoreProcessingState
+  ): Promise<void> {
     for (const [conversationId, entry] of Array.from(storeState.piSessions.entries())) {
-      this.disposePiSessionEntry(storeState, storeId, conversationId, entry, 'store_cleanup')
+      await this.disposePiSessionEntry(storeState, storeId, conversationId, entry, 'store_cleanup')
     }
   }
 
@@ -2272,7 +2291,10 @@ export class EventProcessor {
    * Force immediate cleanup of store state for reconnection scenarios.
    * This bypasses the async processingQueue.finally to avoid race conditions.
    */
-  private forceCleanupStoreState(storeId: string, storeState: StoreProcessingState): void {
+  private async forceCleanupStoreState(
+    storeId: string,
+    storeState: StoreProcessingState
+  ): Promise<void> {
     // Mark as stopping to signal any in-flight operations to abort
     storeState.stopping = true
 
@@ -2294,7 +2316,7 @@ export class EventProcessor {
     }
     storeState.conversationProcessors.clear()
 
-    this.disposePiSessions(storeId, storeState)
+    await this.disposePiSessions(storeId, storeState)
     this.clearPiAgentResources(storeId)
 
     // Cleanup subscription health tracking
@@ -2345,25 +2367,32 @@ export class EventProcessor {
     }
 
     // Wait for processing to complete before removing state
-    storeState.processingQueue.finally(() => {
-      // Cleanup message queue manager
-      storeState.messageQueue.destroy()
+    void storeState.processingQueue.finally(async () => {
+      try {
+        // Cleanup message queue manager
+        storeState.messageQueue.destroy()
 
-      // Cleanup all conversation processors
-      for (const processor of storeState.conversationProcessors.values()) {
-        processor.destroy()
+        // Cleanup all conversation processors
+        for (const processor of storeState.conversationProcessors.values()) {
+          processor.destroy()
+        }
+        storeState.conversationProcessors.clear()
+
+        await this.disposePiSessions(storeId, storeState)
+        this.clearPiAgentResources(storeId)
+      } catch (error) {
+        storeLogger(storeId).error(
+          { error: this.formatErrorForLog(error) },
+          'Error during stopMonitoring cleanup'
+        )
+      } finally {
+        // Cleanup subscription health tracking
+        this.lastSubscriptionUpdate.delete(storeId)
+        this.monitoringStartTime.delete(storeId)
+
+        this.storeStates.delete(storeId)
+        storeLogger(storeId).info('Stopped event monitoring')
       }
-      storeState.conversationProcessors.clear()
-
-      this.disposePiSessions(storeId, storeState)
-      this.clearPiAgentResources(storeId)
-
-      // Cleanup subscription health tracking
-      this.lastSubscriptionUpdate.delete(storeId)
-      this.monitoringStartTime.delete(storeId)
-
-      this.storeStates.delete(storeId)
-      storeLogger(storeId).info('Stopped event monitoring')
     })
   }
 

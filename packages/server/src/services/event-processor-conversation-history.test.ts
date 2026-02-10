@@ -730,9 +730,9 @@ describe('EventProcessor conversation history builder', () => {
     processor.stopAll()
   })
 
-  it('evicts least-recently-used Pi sessions when cache capacity is reached', () => {
-    const disposeOldest = vi.fn()
-    const disposeNewest = vi.fn()
+  it('evicts least-recently-used Pi sessions when cache capacity is reached', async () => {
+    const disposeOldest = vi.fn().mockResolvedValue(undefined)
+    const disposeNewest = vi.fn().mockResolvedValue(undefined)
     const storeState = {
       activeConversations: new Set<string>(),
       piSessions: new Map<string, any>([
@@ -749,7 +749,7 @@ describe('EventProcessor conversation history builder', () => {
 
     ;(eventProcessor as any).maxPiSessionsPerStore = 2
     ;(eventProcessor as any).piSessionIdleTtlMs = 0
-    ;(eventProcessor as any).evictPiSessionsIfNeeded('store-1', storeState, 'conv-incoming')
+    await (eventProcessor as any).evictPiSessionsIfNeeded('store-1', storeState, 'conv-incoming')
 
     expect(disposeOldest).toHaveBeenCalledTimes(1)
     expect(disposeNewest).not.toHaveBeenCalled()
@@ -757,9 +757,33 @@ describe('EventProcessor conversation history builder', () => {
     expect(storeState.piSessions.has('conv-new')).toBe(true)
   })
 
+  it('evicts sessions even when async dispose rejects', async () => {
+    const disposeRejecting = vi.fn().mockRejectedValue(new Error('dispose failed'))
+    const storeState = {
+      activeConversations: new Set<string>(),
+      piSessions: new Map<string, any>([
+        [
+          'conv-old',
+          {
+            session: { dispose: disposeRejecting },
+            sessionDir: '/tmp/old',
+            lastAccessedAt: 100,
+          },
+        ],
+      ]),
+    }
+
+    ;(eventProcessor as any).maxPiSessionsPerStore = 1
+    ;(eventProcessor as any).piSessionIdleTtlMs = 0
+    await (eventProcessor as any).evictPiSessionsIfNeeded('store-1', storeState, 'conv-incoming')
+
+    expect(disposeRejecting).toHaveBeenCalledTimes(1)
+    expect(storeState.piSessions.has('conv-old')).toBe(false)
+  })
+
   it('returns cached Pi session without evicting other sessions', async () => {
-    const disposeCached = vi.fn()
-    const disposeOther = vi.fn()
+    const disposeCached = vi.fn().mockResolvedValue(undefined)
+    const disposeOther = vi.fn().mockResolvedValue(undefined)
     const cachedEntry = {
       session: { dispose: disposeCached },
       sessionDir: '/tmp/cached',
