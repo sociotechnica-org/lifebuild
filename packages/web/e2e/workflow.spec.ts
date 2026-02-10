@@ -185,8 +185,10 @@ test.describe('Workflow', () => {
     // Confirm in the dialog (dialog doesn't have role="dialog", look for the dialog content)
     await expect(page.getByText('Activate Initiative Project')).toBeVisible({ timeout: 5000 })
 
-    // Click the Activate button in the dialog (the second "Activate" button)
-    const confirmActivateButton = page.getByRole('button', { name: 'Activate', exact: true }).last()
+    // Click the Activate to Table button in the dialog
+    const confirmActivateButton = page
+      .getByRole('button', { name: 'Activate to Table', exact: true })
+      .last()
     await confirmActivateButton.click()
 
     // Wait for dialog to close and project to be tabled
