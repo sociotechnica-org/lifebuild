@@ -201,5 +201,23 @@ describe('Store Factory', () => {
       expect(firstAdapterArgs.devtools.port).toBe(4600)
       expect(secondAdapterArgs.devtools.port).toBe(4601)
     })
+
+    it('releases reserved devtools ports when store creation fails', async () => {
+      process.env.DEVTOOLS_PORT_BASE = '4700'
+      vi.mocked(makeAdapter).mockReturnValue({} as any)
+      vi.mocked(makeWsSync).mockReturnValue({} as any)
+      vi.mocked(createStorePromise)
+        .mockRejectedValueOnce(new Error('store init failed'))
+        .mockResolvedValueOnce({ shutdownPromise: vi.fn() } as any)
+
+      await expect(createStore('test-store-a')).rejects.toThrow('store init failed')
+      await createStore('test-store-a')
+
+      const firstAdapterArgs = vi.mocked(makeAdapter).mock.calls[0]?.[0] as any
+      const secondAdapterArgs = vi.mocked(makeAdapter).mock.calls[1]?.[0] as any
+
+      expect(firstAdapterArgs.devtools.port).toBe(4700)
+      expect(secondAdapterArgs.devtools.port).toBe(4701)
+    })
   })
 })

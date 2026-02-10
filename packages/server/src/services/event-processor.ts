@@ -98,6 +98,13 @@ interface PiConversationSession {
   lastAccessedAt: number
 }
 
+interface PiAgentResources {
+  agentDir: string
+  authStorage: AuthStorage
+  modelRegistry: ModelRegistry
+  resourceLoader: DefaultResourceLoader
+}
+
 interface LiveStoreStats {
   chatMessages: number
   userMessages: number
@@ -161,6 +168,8 @@ export class EventProcessor {
   private readonly inputValidator: PiInputValidator
   private readonly maxPiSessionsPerStore: number
   private readonly piSessionIdleTtlMs: number
+  private readonly piAgentResourcesByStore: Map<string, PiAgentResources> = new Map()
+  private readonly piAgentResourceInitPromises: Map<string, Promise<PiAgentResources>> = new Map()
 
   // Tables to monitor for activity
   // IMPORTANT: Only monitor chatMessages to process user messages
@@ -424,6 +433,7 @@ export class EventProcessor {
       storeState.stopping = true
       storeState.messageQueue.destroy()
       this.disposePiSessions(storeId, storeState)
+      this.clearPiAgentResources(storeId)
       this.storeStates.delete(storeId)
       this.monitoringStartTime.delete(storeId)
 
@@ -890,6 +900,7 @@ export class EventProcessor {
 
     let llmCallCompleted = false
     let agentRunSucceeded = false
+    let completionEventEmitted = false
     try {
       const startTime = Date.now()
       agentRunSucceeded = await this.runAgenticLoop(storeId, chatMessage, storeState)
@@ -980,7 +991,7 @@ export class EventProcessor {
               success: false,
             })
           )
-          agentRunSucceeded = false
+          completionEventEmitted = true
         }
       }
     } finally {
@@ -993,7 +1004,7 @@ export class EventProcessor {
       storeState.activeConversations.delete(conversationId)
     }
 
-    if (!agentRunSucceeded && store) {
+    if (!agentRunSucceeded && store && !completionEventEmitted) {
       store.commit(
         events.llmResponseCompleted({
           conversationId,
@@ -1003,6 +1014,7 @@ export class EventProcessor {
           success: llmCallCompleted,
         })
       )
+      completionEventEmitted = true
     }
 
     // Process any queued messages for this conversation (outside try/catch to avoid recursion)
@@ -1069,6 +1081,7 @@ export class EventProcessor {
 
     let llmCallCompleted = false
     let agentRunSucceeded = false
+    let completionEventEmitted = false
     try {
       const startTime = Date.now()
       agentRunSucceeded = await this.runAgenticLoop(storeId, chatMessage, storeState)
@@ -1173,7 +1186,7 @@ export class EventProcessor {
               success: false,
             })
           )
-          agentRunSucceeded = false
+          completionEventEmitted = true
         }
       }
     } finally {
@@ -1188,7 +1201,7 @@ export class EventProcessor {
 
     // NOTE: Deliberately NOT calling processQueuedMessages here to avoid recursion
 
-    if (!agentRunSucceeded && store) {
+    if (!agentRunSucceeded && store && !completionEventEmitted) {
       store.commit(
         events.llmResponseCompleted({
           conversationId,
@@ -1198,6 +1211,7 @@ export class EventProcessor {
           success: llmCallCompleted,
         })
       )
+      completionEventEmitted = true
     }
   }
 
@@ -1707,31 +1721,25 @@ export class EventProcessor {
     store: LiveStore,
     workerId?: string
   ): Promise<PiConversationSession | null> {
-    this.evictPiSessionsIfNeeded(storeId, storeState, conversationId)
-
     const existing = storeState.piSessions.get(conversationId)
     if (existing) {
       existing.lastAccessedAt = Date.now()
       return existing
     }
 
+    this.evictPiSessionsIfNeeded(storeId, storeState, conversationId)
+
     const safeStoreId = this.sanitizePiSegment(storeId)
-    const safeConversationId = this.sanitizePiSegment(conversationId)
-    const sessionDir = path.join(this.piBaseDir, safeStoreId, safeConversationId)
-    const agentDir = path.join(this.piBaseDir, safeStoreId, 'agent')
+    const sessionDir = path.join(
+      this.piBaseDir,
+      safeStoreId,
+      this.sanitizePiSegment(conversationId)
+    )
 
     try {
       await fs.mkdir(sessionDir, { recursive: true })
-      await fs.mkdir(agentDir, { recursive: true })
-
-      const authStorage = new AuthStorage(path.join(agentDir, 'auth.json'))
-      const modelRegistry = new ModelRegistry(authStorage, path.join(agentDir, 'models.json'))
-      this.configurePiProviderOverrides(modelRegistry)
-      const resourceLoader = new DefaultResourceLoader({
-        cwd: process.cwd(),
-        agentDir,
-      })
-      await resourceLoader.reload()
+      const { authStorage, modelRegistry, resourceLoader } =
+        await this.getOrCreatePiAgentResources(storeId)
 
       const existingSessionFile = await this.findLatestSessionFile(sessionDir)
       const sessionManager = existingSessionFile
@@ -1766,6 +1774,56 @@ export class EventProcessor {
       })
       return null
     }
+  }
+
+  private async getOrCreatePiAgentResources(storeId: string): Promise<PiAgentResources> {
+    const cached = this.piAgentResourcesByStore.get(storeId)
+    if (cached) {
+      return cached
+    }
+
+    const inFlight = this.piAgentResourceInitPromises.get(storeId)
+    if (inFlight) {
+      return inFlight
+    }
+
+    const safeStoreId = this.sanitizePiSegment(storeId)
+    const agentDir = path.join(this.piBaseDir, safeStoreId, 'agent')
+
+    const initPromise = (async () => {
+      await fs.mkdir(agentDir, { recursive: true })
+
+      const authStorage = new AuthStorage(path.join(agentDir, 'auth.json'))
+      const modelRegistry = new ModelRegistry(authStorage, path.join(agentDir, 'models.json'))
+      this.configurePiProviderOverrides(modelRegistry)
+      const resourceLoader = new DefaultResourceLoader({
+        cwd: process.cwd(),
+        agentDir,
+      })
+      await resourceLoader.reload()
+
+      const resources: PiAgentResources = {
+        agentDir,
+        authStorage,
+        modelRegistry,
+        resourceLoader,
+      }
+      this.piAgentResourcesByStore.set(storeId, resources)
+      return resources
+    })()
+
+    this.piAgentResourceInitPromises.set(storeId, initPromise)
+
+    try {
+      return await initPromise
+    } finally {
+      this.piAgentResourceInitPromises.delete(storeId)
+    }
+  }
+
+  private clearPiAgentResources(storeId: string): void {
+    this.piAgentResourceInitPromises.delete(storeId)
+    this.piAgentResourcesByStore.delete(storeId)
   }
 
   private sanitizePiSegment(value: string): string {
@@ -2237,6 +2295,7 @@ export class EventProcessor {
     storeState.conversationProcessors.clear()
 
     this.disposePiSessions(storeId, storeState)
+    this.clearPiAgentResources(storeId)
 
     // Cleanup subscription health tracking
     this.lastSubscriptionUpdate.delete(storeId)
@@ -2297,6 +2356,7 @@ export class EventProcessor {
       storeState.conversationProcessors.clear()
 
       this.disposePiSessions(storeId, storeState)
+      this.clearPiAgentResources(storeId)
 
       // Cleanup subscription health tracking
       this.lastSubscriptionUpdate.delete(storeId)

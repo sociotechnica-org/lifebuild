@@ -601,6 +601,8 @@ describe('EventProcessor conversation history builder', () => {
         activeConversations: new Set<string>(),
         messageQueue: {
           enqueue: vi.fn(),
+          hasMessages: vi.fn(() => false),
+          dequeue: vi.fn(() => null),
           getQueueLength: vi.fn(() => 0),
         },
         conversationProcessors: new Map(),
@@ -622,6 +624,108 @@ describe('EventProcessor conversation history builder', () => {
       }),
       'Message processing failed'
     )
+
+    processor.stopAll()
+  })
+
+  it('emits llmResponseCompleted only once when handleUserMessage catches a thrown agent error', async () => {
+    const commit = vi.fn()
+    const store = {
+      commit,
+      query: vi.fn().mockReturnValue([]),
+    }
+    const storeManager = createMockStoreManager()
+    storeManager.getStore = vi.fn(() => store as any)
+
+    const processor = new EventProcessor(storeManager as any)
+    vi.spyOn(processor as any, 'runAgenticLoop').mockRejectedValue(new Error('agent exploded'))
+
+    const lifecycleTracker = (processor as any).lifecycleTracker
+    lifecycleTracker.startTracking('message-throw', 'store-1', 'conversation-throw')
+
+    await (processor as any).handleUserMessage(
+      'store-1',
+      {
+        id: 'message-throw',
+        conversationId: 'conversation-throw',
+        role: 'user',
+        message: 'boom',
+        createdAt: new Date(),
+      } satisfies ChatMessage,
+      {
+        subscriptions: [],
+        eventBuffer: { events: [], lastFlushed: new Date(), processing: false },
+        errorCount: 0,
+        processingQueue: Promise.resolve(),
+        stopping: false,
+        activeConversations: new Set<string>(),
+        messageQueue: {
+          enqueue: vi.fn(),
+          hasMessages: vi.fn(() => false),
+          dequeue: vi.fn(() => null),
+          getQueueLength: vi.fn(() => 0),
+        },
+        conversationProcessors: new Map(),
+        piSessions: new Map(),
+      } as any
+    )
+
+    const completionEvents = commit.mock.calls.filter(
+      ([event]: any[]) => event?.name === 'v1.LLMResponseCompleted'
+    )
+    expect(completionEvents).toHaveLength(1)
+    expect(completionEvents[0][0].args.success).toBe(false)
+
+    processor.stopAll()
+  })
+
+  it('emits llmResponseCompleted only once when processQueuedMessage catches a thrown agent error', async () => {
+    const commit = vi.fn()
+    const store = {
+      commit,
+      query: vi.fn().mockReturnValue([]),
+    }
+    const storeManager = createMockStoreManager()
+    storeManager.getStore = vi.fn(() => store as any)
+
+    const processor = new EventProcessor(storeManager as any)
+    vi.spyOn(processor as any, 'runAgenticLoop').mockRejectedValue(
+      new Error('queued agent exploded')
+    )
+
+    const lifecycleTracker = (processor as any).lifecycleTracker
+    lifecycleTracker.startTracking('queued-message-throw', 'store-1', 'conversation-throw')
+
+    await (processor as any).processQueuedMessage(
+      'store-1',
+      {
+        id: 'queued-message-throw',
+        conversationId: 'conversation-throw',
+        role: 'user',
+        message: 'boom',
+        createdAt: new Date(),
+      } satisfies ChatMessage,
+      {
+        subscriptions: [],
+        eventBuffer: { events: [], lastFlushed: new Date(), processing: false },
+        errorCount: 0,
+        processingQueue: Promise.resolve(),
+        stopping: false,
+        activeConversations: new Set<string>(),
+        messageQueue: {
+          enqueue: vi.fn(),
+          getQueueLength: vi.fn(() => 0),
+        },
+        conversationProcessors: new Map(),
+        piSessions: new Map(),
+      } as any
+    )
+
+    const completionEvents = commit.mock.calls.filter(
+      ([event]: any[]) => event?.name === 'v1.LLMResponseCompleted'
+    )
+    expect(completionEvents).toHaveLength(1)
+    expect(completionEvents[0][0].args.success).toBe(false)
 
     processor.stopAll()
   })
@@ -651,6 +755,41 @@ describe('EventProcessor conversation history builder', () => {
     expect(disposeNewest).not.toHaveBeenCalled()
     expect(storeState.piSessions.has('conv-old')).toBe(false)
     expect(storeState.piSessions.has('conv-new')).toBe(true)
+  })
+
+  it('returns cached Pi session without evicting other sessions', async () => {
+    const disposeCached = vi.fn()
+    const disposeOther = vi.fn()
+    const cachedEntry = {
+      session: { dispose: disposeCached },
+      sessionDir: '/tmp/cached',
+      lastAccessedAt: 100,
+    }
+    const storeState = {
+      activeConversations: new Set<string>(),
+      piSessions: new Map<string, any>([
+        ['conv-cached', cachedEntry],
+        [
+          'conv-other',
+          { session: { dispose: disposeOther }, sessionDir: '/tmp/other', lastAccessedAt: 50 },
+        ],
+      ]),
+    }
+
+    ;(eventProcessor as any).maxPiSessionsPerStore = 1
+    ;(eventProcessor as any).piSessionIdleTtlMs = 0
+
+    const result = await (eventProcessor as any).getOrCreatePiSession(
+      'store-1',
+      'conv-cached',
+      storeState,
+      {} as any
+    )
+
+    expect(result).toBe(cachedEntry)
+    expect(disposeOther).not.toHaveBeenCalled()
+    expect(storeState.piSessions.has('conv-other')).toBe(true)
+    expect(cachedEntry.lastAccessedAt).toBeGreaterThan(100)
   })
 
   it('configures Braintrust-backed Pi model when LLM_PROVIDER=braintrust', () => {

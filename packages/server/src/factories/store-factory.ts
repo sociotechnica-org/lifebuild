@@ -289,6 +289,9 @@ export async function createStore(
     return { store, config }
   } catch (error) {
     abortController.abort()
+    if (devtoolsConfig) {
+      releaseDevtoolsPortForStore(config.storeId)
+    }
     logger.error({ storeId, error }, 'Failed to create store')
     throw error
   } finally {
