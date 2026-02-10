@@ -567,6 +567,7 @@ jobs:
         if: always()
         env:
           PRECHECK_OUTCOME: ${{ steps.preflight.outcome }}
+          PRECHECK_MISSING: ${{ steps.preflight.outputs.missing }}
           INPUTS_OUTCOME: ${{ steps.resolve_inputs.outcome }}
           AUTH_OUTCOME: ${{ steps.deploy_auth.outcome }}
           SYNC_OUTCOME: ${{ steps.deploy_sync.outcome }}
@@ -574,9 +575,19 @@ jobs:
         run: |
           set -euo pipefail
 
+          if [[ "${PRECHECK_OUTCOME}" != "success" ]]; then
+            if [[ -n "${PRECHECK_MISSING}" ]]; then
+              echo "Preview deployment skipped: missing required preview secrets (${PRECHECK_MISSING})."
+              exit 0
+            fi
+
+            echo "Preview preflight failed unexpectedly." >&2
+            exit 1
+          fi
+
           failed=0
 
-          for outcome in "${PRECHECK_OUTCOME}" "${INPUTS_OUTCOME}" "${AUTH_OUTCOME}" "${SYNC_OUTCOME}" "${WEB_OUTCOME}"; do
+          for outcome in "${INPUTS_OUTCOME}" "${AUTH_OUTCOME}" "${SYNC_OUTCOME}" "${WEB_OUTCOME}"; do
             if [[ "${outcome}" != "success" ]]; then
               failed=1
             fi
