@@ -59,11 +59,6 @@ const resolveProjectRecord = (store: LiveStore, projectId: string): Project | nu
   return results[0] ?? null
 }
 
-const resolveProjectList = (store: LiveStore): Project[] =>
-  (store.query(
-    queryDb(tables.projects.select(), { label: 'project-image-service.projects' })
-  ) as Project[]) ?? []
-
 const extractImageFromResponse = async (response: Response): Promise<ImagePayload> => {
   const contentType = response.headers.get('content-type')
   if (contentType && !contentType.includes('application/json')) {
@@ -133,8 +128,7 @@ export class ProjectImageService {
   private readonly inFlight = new Map<string, Set<string>>()
 
   constructor(private readonly storeManager: StoreManager) {
-    if (this.config) {
-    } else {
+    if (!this.config) {
       logger.warn(
         'Project image service disabled: missing Nano Banana or upload endpoint configuration'
       )
@@ -227,7 +221,7 @@ export class ProjectImageService {
       if (resolveCoverImage(attributes)) {
         return
       }
-      void this.generateAndAttachImage(storeId, project.id, { reason: 'auto_create' })
+      this.generateAndAttachImage(storeId, project.id, { reason: 'auto_create' }).catch(() => {})
     })
   }
 
@@ -348,12 +342,4 @@ export class ProjectImageService {
       inFlight.delete(projectId)
     }
   }
-}
-
-export const listProjectsMissingImages = (store: LiveStore): Project[] => {
-  const projects = resolveProjectList(store)
-  return projects.filter(project => {
-    const attributes = parseAttributes(project.attributes)
-    return !resolveCoverImage(attributes)
-  })
 }
