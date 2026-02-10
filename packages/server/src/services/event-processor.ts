@@ -883,25 +883,31 @@ export class EventProcessor {
     }
 
     let llmCallCompleted = false
-    let completionEventEmitted = false
+    let agentRunSucceeded = false
     try {
       const startTime = Date.now()
-      completionEventEmitted = await this.runAgenticLoop(storeId, chatMessage, storeState)
+      agentRunSucceeded = await this.runAgenticLoop(storeId, chatMessage, storeState)
       const responseTime = Date.now() - startTime
 
-      // Check if runAgenticLoop returned false (store disconnected or LLM not available)
-      if (!completionEventEmitted) {
-        // This means the store or LLM provider was unavailable - treat as error
+      if (!agentRunSucceeded) {
         this.endLLMCall(llmCallId, true)
         llmCallCompleted = true
         this.lifecycleTracker.recordError(
           messageId,
-          'Store disconnected or LLM provider unavailable during processing',
-          'STORE_UNAVAILABLE'
+          'Agentic loop reported failure during processing',
+          'AGENTIC_LOOP_FAILED'
         )
-        logger.warn(
-          { conversationId, correlationId, messageId },
-          'Agentic loop returned false - store or LLM unavailable'
+        logMessageEvent(
+          'warn',
+          {
+            correlationId: correlationId || messageId,
+            messageId,
+            storeId,
+            conversationId,
+            stage: 'event_processor',
+            action: 'processing_failed',
+          },
+          'Message processing failed'
         )
         return
       }
@@ -958,7 +964,7 @@ export class EventProcessor {
           })
         )
 
-        if (!completionEventEmitted) {
+        if (agentRunSucceeded === false) {
           store.commit(
             events.llmResponseCompleted({
               conversationId,
@@ -968,7 +974,7 @@ export class EventProcessor {
               success: false,
             })
           )
-          completionEventEmitted = true
+          agentRunSucceeded = false
         }
       }
     } finally {
@@ -981,7 +987,7 @@ export class EventProcessor {
       storeState.activeConversations.delete(conversationId)
     }
 
-    if (!completionEventEmitted && store) {
+    if (!agentRunSucceeded && store) {
       store.commit(
         events.llmResponseCompleted({
           conversationId,
@@ -991,7 +997,6 @@ export class EventProcessor {
           success: llmCallCompleted,
         })
       )
-      completionEventEmitted = true
     }
 
     // Process any queued messages for this conversation (outside try/catch to avoid recursion)
@@ -1057,25 +1062,31 @@ export class EventProcessor {
     }
 
     let llmCallCompleted = false
-    let completionEventEmitted = false
+    let agentRunSucceeded = false
     try {
       const startTime = Date.now()
-      completionEventEmitted = await this.runAgenticLoop(storeId, chatMessage, storeState)
+      agentRunSucceeded = await this.runAgenticLoop(storeId, chatMessage, storeState)
       const responseTime = Date.now() - startTime
 
-      // Check if runAgenticLoop returned false (store disconnected or LLM not available)
-      if (!completionEventEmitted) {
-        // This means the store or LLM provider was unavailable - treat as error
+      if (!agentRunSucceeded) {
         this.endLLMCall(llmCallId, true)
         llmCallCompleted = true
         this.lifecycleTracker.recordError(
           messageId,
-          'Store disconnected or LLM provider unavailable during queued message processing',
-          'STORE_UNAVAILABLE'
+          'Agentic loop reported failure during queued message processing',
+          'AGENTIC_LOOP_FAILED'
         )
-        logger.warn(
-          { conversationId, correlationId, messageId },
-          'Agentic loop returned false for queued message - store or LLM unavailable'
+        logMessageEvent(
+          'warn',
+          {
+            correlationId,
+            messageId,
+            storeId,
+            conversationId,
+            stage: 'event_processor',
+            action: 'processing_failed_queued',
+          },
+          'Queued message processing failed'
         )
         return
       }
@@ -1146,7 +1157,7 @@ export class EventProcessor {
           })
         )
 
-        if (!completionEventEmitted) {
+        if (agentRunSucceeded === false) {
           store.commit(
             events.llmResponseCompleted({
               conversationId,
@@ -1156,7 +1167,7 @@ export class EventProcessor {
               success: false,
             })
           )
-          completionEventEmitted = true
+          agentRunSucceeded = false
         }
       }
     } finally {
@@ -1171,7 +1182,7 @@ export class EventProcessor {
 
     // NOTE: Deliberately NOT calling processQueuedMessages here to avoid recursion
 
-    if (!completionEventEmitted && store) {
+    if (!agentRunSucceeded && store) {
       store.commit(
         events.llmResponseCompleted({
           conversationId,
@@ -1270,7 +1281,7 @@ export class EventProcessor {
         })
       )
 
-      return true
+      return false
     }
 
     const sanitizedPrompt = validationResult.sanitizedContent ?? userMessage.message ?? ''
@@ -1347,7 +1358,7 @@ export class EventProcessor {
         })
       )
 
-      return true
+      return false
     }
 
     let workerContext: WorkerContext | undefined = undefined
@@ -1476,7 +1487,7 @@ export class EventProcessor {
           success: false,
         })
       )
-      return true
+      return false
     }
 
     const { session } = sessionEntry
@@ -1489,8 +1500,10 @@ export class EventProcessor {
     }
 
     let sawError = false
+    let promptErrorCaptured = false
     let iterationCount = 0
     let assistantResponseEmitted = false
+    let failureContext: Record<string, unknown> | undefined
 
     const unsubscribe = session.subscribe((event: AgentSessionEvent) => {
       if (storeState.stopping) {
@@ -1551,6 +1564,12 @@ export class EventProcessor {
           if (event.message.role === 'assistant') {
             if (this.isAssistantErrorMessage(event.message)) {
               sawError = true
+              failureContext = {
+                source: 'message_end',
+                stopReason: event.message.stopReason,
+                errorMessage:
+                  'errorMessage' in event.message ? (event.message.errorMessage ?? null) : null,
+              }
             }
 
             const text = this.extractAssistantText(event.message)
@@ -1581,6 +1600,14 @@ export class EventProcessor {
             .find((message): message is AssistantMessage => message.role === 'assistant')
           if (latestAssistantMessage && this.isAssistantErrorMessage(latestAssistantMessage)) {
             sawError = true
+            failureContext = {
+              source: 'agent_end',
+              stopReason: latestAssistantMessage.stopReason,
+              errorMessage:
+                'errorMessage' in latestAssistantMessage
+                  ? (latestAssistantMessage.errorMessage ?? null)
+                  : null,
+            }
           }
           break
         }
@@ -1594,6 +1621,11 @@ export class EventProcessor {
       await session.prompt(sanitizedPrompt)
     } catch (error) {
       sawError = true
+      promptErrorCaptured = true
+      failureContext = {
+        source: 'prompt_exception',
+        error: this.formatErrorForLog(error),
+      }
       logger.error(
         { error: this.formatErrorForLog(error), conversationId, correlationId },
         'Error in Pi agent session'
@@ -1629,6 +1661,7 @@ export class EventProcessor {
           conversationId,
           correlationId,
           userMessageId: userMessage.id,
+          failureContext,
         },
         'Pi session reported an error state without assistant text; emitting fallback error response'
       )
@@ -1646,6 +1679,21 @@ export class EventProcessor {
       )
     }
 
+    if (sawError && !promptErrorCaptured) {
+      this.captureAgentError(
+        new Error('Pi session ended with non-throwing error state', {
+          cause: failureContext,
+        }),
+        {
+          storeId,
+          conversationId,
+          userMessageId: userMessage.id,
+          correlationId,
+          stage: 'prompt_execution',
+        }
+      )
+    }
+
     const completedIterations = iterationCount > 0 ? iterationCount : sawError ? 0 : 1
     store.commit(
       events.llmResponseCompleted({
@@ -1657,7 +1705,7 @@ export class EventProcessor {
       })
     )
 
-    return true
+    return !sawError
   }
 
   private async getOrCreatePiSession(

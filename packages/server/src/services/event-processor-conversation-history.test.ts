@@ -13,7 +13,10 @@ const { createLoggerMock, loggerContainer } = vi.hoisted(() => {
 
   return {
     createLoggerMock: factory,
-    loggerContainer: { logger: null as ReturnType<typeof factory> | null },
+    loggerContainer: {
+      logger: null as ReturnType<typeof factory> | null,
+      logMessageEvent: vi.fn(),
+    },
   }
 })
 
@@ -42,6 +45,7 @@ vi.mock('../utils/logger.js', () => {
     logger: loggerContainer.logger,
     storeLogger: vi.fn(() => createLoggerMock()),
     createContextLogger: vi.fn(() => createLoggerMock()),
+    logMessageEvent: loggerContainer.logMessageEvent,
   }
 })
 
@@ -361,7 +365,7 @@ describe('EventProcessor conversation history builder', () => {
       { stopping: false } as any
     )
 
-    expect(completed).toBe(true)
+    expect(completed).toBe(false)
     expect(sentryContainer.captureException).toHaveBeenCalledTimes(1)
 
     const completionEvents = commit.mock.calls.filter(
@@ -429,7 +433,7 @@ describe('EventProcessor conversation history builder', () => {
       { stopping: false } as any
     )
 
-    expect(completed).toBe(true)
+    expect(completed).toBe(false)
     expect(
       commit.mock.calls.some(
         ([event]: any[]) =>
@@ -444,6 +448,67 @@ describe('EventProcessor conversation history builder', () => {
     )
     expect(completionEvents.length).toBe(1)
     expect(completionEvents[0][0].args.success).toBe(false)
+    expect(sentryContainer.captureException).toHaveBeenCalledTimes(1)
+
+    processor.stopAll()
+  })
+
+  it('marks handleUserMessage as failed when agentic loop reports failure', async () => {
+    const commit = vi.fn()
+    const store = {
+      commit,
+      query: vi.fn().mockReturnValue([]),
+    }
+    const storeManager = createMockStoreManager()
+    storeManager.getStore = vi.fn(() => store as any)
+
+    const processor = new EventProcessor(storeManager as any)
+    vi.spyOn(processor as any, 'runAgenticLoop').mockResolvedValue(false)
+
+    const lifecycleTracker = (processor as any).lifecycleTracker
+    const recordErrorSpy = vi.spyOn(lifecycleTracker, 'recordError')
+    const recordCompletedSpy = vi.spyOn(lifecycleTracker, 'recordCompleted')
+    lifecycleTracker.startTracking('message-4', 'store-1', 'conversation-4')
+
+    await (processor as any).handleUserMessage(
+      'store-1',
+      {
+        id: 'message-4',
+        conversationId: 'conversation-4',
+        role: 'user',
+        message: 'Try again',
+        createdAt: new Date(),
+      } satisfies ChatMessage,
+      {
+        subscriptions: [],
+        eventBuffer: { events: [], lastFlushed: new Date(), processing: false },
+        errorCount: 0,
+        processingQueue: Promise.resolve(),
+        stopping: false,
+        activeConversations: new Set<string>(),
+        messageQueue: {
+          enqueue: vi.fn(),
+          getQueueLength: vi.fn(() => 0),
+        },
+        conversationProcessors: new Map(),
+        piSessions: new Map(),
+      } as any
+    )
+
+    expect(recordErrorSpy).toHaveBeenCalledWith(
+      'message-4',
+      'Agentic loop reported failure during processing',
+      'AGENTIC_LOOP_FAILED'
+    )
+    expect(recordCompletedSpy).not.toHaveBeenCalledWith('message-4')
+    expect(loggerContainer.logMessageEvent).toHaveBeenCalledWith(
+      'warn',
+      expect.objectContaining({
+        messageId: 'message-4',
+        action: 'processing_failed',
+      }),
+      'Message processing failed'
+    )
 
     processor.stopAll()
   })
