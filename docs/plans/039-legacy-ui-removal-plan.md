@@ -1,5 +1,7 @@
 # Plan: Remove legacy UI outside `src/components/new`
 
+> **Status: DONE** — Completed in PR #572. All legacy component directories, hooks, utilities, tests, stories, and E2E specs have been removed. A follow-up commit added a catch-all redirect from `/old/*` to `/life-map`. The only remaining cleanup is renaming `components/new/` (see below) and scrubbing "new UI" / "old UI" terminology from comments, stories, and non-plan docs.
+
 ## Goal
 
 Remove legacy UI components (and related tests/helpers/stories/assets) outside `packages/web/src/components/new`, leaving only the new UI implementation and its direct dependencies.

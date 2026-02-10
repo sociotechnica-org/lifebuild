@@ -4,7 +4,7 @@
  */
 export const ROUTES = {
   HOME: '/',
-  // New UI routes (now the default)
+  // App routes
   LIFE_MAP: '/life-map',
   DRAFTING_ROOM: '/drafting-room',
   SORTING_ROOM: '/sorting-room',
@@ -26,7 +26,7 @@ export const ROUTES = {
  * Route generators for dynamic routes
  */
 export const generateRoute = {
-  // New UI routes (default)
+  // App routes
   lifeMap: () => '/life-map',
   draftingRoom: () => '/drafting-room',
   sortingRoom: (stream?: 'gold' | 'silver' | 'bronze') =>

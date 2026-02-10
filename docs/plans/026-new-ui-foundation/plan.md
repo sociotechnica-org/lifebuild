@@ -1,5 +1,7 @@
 # New UI Foundation Plan
 
+> **Status: DONE** — The foundation described here was implemented and has since become the only UI. The legacy UI was fully removed in PR #572, and routes now live at the root level (`/life-map`, `/drafting-room`, etc.) rather than under `/new`. The `components/new/` directory still exists but is scheduled to be renamed as a follow-up.
+
 ## Overview
 
 This plan establishes the foundation for a complete UI revamp of Work Squared. The goal is to create a new directory structure and basic routing for the new UI, starting with Project and Projects pages. This PR focuses solely on **getting the right things on the page** - no design work or styling, just the foundation.

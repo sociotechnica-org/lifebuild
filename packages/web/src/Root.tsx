@@ -25,14 +25,14 @@ import { LiveStoreHealthMonitor } from './components/utils/LiveStoreHealthMonito
 import { LiveStoreBootBoundary } from './components/utils/LiveStoreBootBoundary.js'
 import { schema } from '@lifebuild/shared/schema'
 import { ROUTES } from './constants/routes.js'
-import { ProjectDetailPage } from './components/new/projects/ProjectDetailPage.js'
-import { LifeMap } from './components/new/life-map/LifeMap.js'
-import { RoomLayout } from './components/new/layout/RoomLayout.js'
-import { DraftingRoom } from './components/new/drafting-room/DraftingRoom.js'
-import { Stage1Form } from './components/new/drafting-room/Stage1Form.js'
-import { Stage2Form } from './components/new/drafting-room/Stage2Form.js'
-import { Stage3Form } from './components/new/drafting-room/Stage3Form.js'
-import { SortingRoom } from './components/new/sorting-room/SortingRoom.js'
+import { ProjectDetailPage } from './components/projects/ProjectDetailPage.js'
+import { LifeMap } from './components/life-map/LifeMap.js'
+import { RoomLayout } from './components/layout/RoomLayout.js'
+import { DraftingRoom } from './components/drafting-room/DraftingRoom.js'
+import { Stage1Form } from './components/drafting-room/Stage1Form.js'
+import { Stage2Form } from './components/drafting-room/Stage2Form.js'
+import { Stage3Form } from './components/drafting-room/Stage3Form.js'
+import { SortingRoom } from './components/sorting-room/SortingRoom.js'
 import { LIFE_MAP_ROOM, DRAFTING_ROOM, SORTING_ROOM } from '@lifebuild/shared/rooms'
 import { determineStoreIdFromUser } from './utils/navigation.js'
 import {
@@ -385,7 +385,7 @@ const ProtectedApp: React.FC = () => {
               <SettingsInitializer>
                 <ErrorBoundary>
                   <Routes>
-                    {/* New UI routes (default) */}
+                    {/* App routes */}
                     <Route
                       path={ROUTES.HOME}
                       element={

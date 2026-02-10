@@ -58,7 +58,7 @@ const sampleConversation = {
 }
 
 const meta: Meta<typeof RoomChatPanel> = {
-  title: 'New UI/Room Chat/RoomChatPanel',
+  title: 'Room Chat/RoomChatPanel',
   component: RoomChatPanel,
   args: {
     worker: baseWorker,
