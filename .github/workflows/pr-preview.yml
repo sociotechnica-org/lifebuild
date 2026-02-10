@@ -381,13 +381,21 @@ jobs:
           cd packages/web
           pnpm build
 
+          set +e
           DEPLOY_OUTPUT=$(pnpm exec wrangler pages deploy dist \
             --project-name lifebuild-web \
             --branch "${WEB_PREVIEW_BRANCH}" \
             --commit-hash "${GITHUB_SHA}" \
-            --commit-message "PR #${PR_NUMBER} preview")
+            --commit-message "PR #${PR_NUMBER} preview" 2>&1)
+          DEPLOY_EXIT_CODE=$?
+          set -e
 
           echo "${DEPLOY_OUTPUT}"
+
+          if [[ "${DEPLOY_EXIT_CODE}" -ne 0 ]]; then
+            echo "Cloudflare Pages preview deployment failed." >&2
+            exit "${DEPLOY_EXIT_CODE}"
+          fi
 
           WEB_URL=$(echo "${DEPLOY_OUTPUT}" | grep -Eo 'https://[a-zA-Z0-9._-]+\.pages\.dev' | head -n1 || true)
           if [[ -z "${WEB_URL}" ]]; then
