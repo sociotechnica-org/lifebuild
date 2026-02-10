@@ -135,6 +135,28 @@ Useful environment variables:
 
 The harness writes temporary data under `.context/fullstack-*` and cleans it up on exit.
 
+### Direct Pi smoke test (no frontend/worker)
+
+Use this when you want to verify Pi session setup and provider responses in isolation.
+
+```bash
+pnpm --filter @lifebuild/server test:pi-smoke
+# or from repo root:
+pnpm test:pi-smoke
+```
+
+Useful environment variables:
+
+- `LLM_PROVIDER` (`pi` or `braintrust`; `stub` is rejected for this script)
+- `PI_SMOKE_PROMPT` (default: a short connectivity prompt)
+- `PI_SMOKE_TIMEOUT_MS` (default: `60000`)
+- `PI_SMOKE_EXPECT_CONTAINS` (optional substring assertion)
+- `PI_SMOKE_EXPECT_REGEX` (optional regex assertion)
+- `PI_SMOKE_SETUP_ONLY` (`1` to validate setup without sending a prompt)
+- `PI_SMOKE_KEEP_ARTIFACTS` (`1` to keep generated session/auth artifacts)
+- `PI_SMOKE_STORAGE_DIR` (optional explicit artifact directory)
+- `PI_SMOKE_PROVIDER` / `PI_SMOKE_MODEL` (only for `LLM_PROVIDER=pi`)
+
 ### Braintrust provider with Pi
 
 Set `LLM_PROVIDER=braintrust` to run Pi sessions through Braintrust's OpenAI-compatible proxy.

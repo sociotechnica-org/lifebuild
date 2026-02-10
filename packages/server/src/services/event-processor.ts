@@ -250,6 +250,11 @@ export class EventProcessor {
         const braintrustHeaders = configuredProjectId
           ? { ...baseHeaders, 'x-bt-parent': `project_id:${configuredProjectId}` }
           : baseHeaders
+        const braintrustCompat = {
+          ...(baseModel.compat ?? {}),
+          supportsStore: false,
+          maxTokensField: 'max_tokens' as const,
+        }
 
         this.piModel = {
           ...baseModel,
@@ -259,6 +264,7 @@ export class EventProcessor {
           name: `Braintrust (${configuredModelId})`,
           baseUrl: configuredBaseUrl,
           headers: braintrustHeaders,
+          compat: braintrustCompat,
         }
       }
 

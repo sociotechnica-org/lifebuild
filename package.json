@@ -20,6 +20,7 @@
     "test:e2e:debug": "pnpm --filter @lifebuild/web test:e2e:debug",
     "test:integration:auth": "pnpm --filter @lifebuild/auth-worker test:integration",
     "test:fullstack": "pnpm --filter @lifebuild/server test:fullstack",
+    "test:pi-smoke": "pnpm --filter @lifebuild/server test:pi-smoke",
     "lint": "pnpm -r --if-present lint",
     "lint:fix": "pnpm -r --if-present lint:fix",
     "format": "pnpm -r --if-present format && pnpm format:md",

@@ -562,6 +562,8 @@ describe('EventProcessor conversation history builder', () => {
       expect(braintrustModel?.id).toBe('anthropic/claude-3-7-sonnet')
       expect(braintrustModel?.baseUrl).toBe('https://api.braintrust.dev/v1/proxy')
       expect(braintrustModel?.headers?.['x-bt-parent']).toBe('project_id:test-project-id')
+      expect(braintrustModel?.compat?.supportsStore).toBe(false)
+      expect(braintrustModel?.compat?.maxTokensField).toBe('max_tokens')
 
       const modelRegistry = { registerProvider: vi.fn() }
       ;(processor as any).configurePiProviderOverrides(modelRegistry)
