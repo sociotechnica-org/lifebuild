@@ -40,6 +40,50 @@ The deployment workflow requires the following GitHub secrets to be configured:
    - Secret: (your Cloudflare account email)
    - Click **Add secret**
 
+## PR Preview Deployments
+
+Internal pull requests deploy preview environments via:
+
+- `.github/workflows/pr-preview.yml`
+- `.github/workflows/pr-preview-cleanup.yml`
+
+Each PR gets:
+
+- Auth preview worker (`lifebuild-auth-pr-<PR_NUMBER>`)
+- Sync preview worker (`lifebuild-sync-pr-<PR_NUMBER>`)
+- Cloudflare Pages branch preview (`pr-<PR_NUMBER>`)
+- Render preview URL (resolved from GitHub Deployments when Render reports status)
+
+Preview resources are cleaned up when the PR closes. Cleanup may be asynchronous for Pages/Render and does not need to be immediate.
+
+### Required Preview Secrets
+
+Configure these repository secrets for preview deployments:
+
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_PREVIEW_ACCOUNT_ID`
+- `CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN`
+- `CLOUDFLARE_PREVIEW_D1_DATABASE_ID`
+- `CLOUDFLARE_PREVIEW_D1_DATABASE_NAME`
+- `CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID`
+- `CLOUDFLARE_PREVIEW_R2_BUCKET_NAME`
+- `PREVIEW_JWT_SECRET`
+- `PREVIEW_SERVER_BYPASS_TOKEN`
+
+Optional preview secrets:
+
+- `CLOUDFLARE_PREVIEW_KV_PREVIEW_ID` (defaults to `CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID`)
+- `CLOUDFLARE_PREVIEW_R2_PREVIEW_BUCKET_NAME` (defaults to `CLOUDFLARE_PREVIEW_R2_BUCKET_NAME`)
+- `PREVIEW_WEBHOOK_SECRET`
+- `PREVIEW_SERVER_WEBHOOK_URL`
+
+### Preview Policy Notes
+
+- Forked PRs do not auto-deploy previews (secrets are protected).
+- PostHog analytics are intentionally disabled in preview environments.
+- Shared preview D1/KV/R2 resources are used (separate from production).
+- Render preview URL in the PR comment may lag briefly until Render posts deployment status to GitHub.
+
 ## Manual Deployment
 
 For manual deployment, use these commands:
@@ -270,6 +314,32 @@ Configure these in your Render service dashboard:
 **Reconciliation (Optional overrides):**
 
 - `WORKSPACE_RECONCILE_INTERVAL_MS` - Override the default 5 minute reconciliation cadence.
+
+### Render Preview Endpoint Wiring
+
+For Render PR preview environments, the server now auto-derives PR-specific worker endpoints when `IS_PULL_REQUEST=true`.
+
+Required Render env var:
+
+- `CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN` - Workers.dev subdomain used to construct:
+  - `https://lifebuild-auth-pr-<PR_NUMBER>.<SUBDOMAIN>.workers.dev`
+  - `wss://lifebuild-sync-pr-<PR_NUMBER>.<SUBDOMAIN>.workers.dev`
+
+Optional Render env vars:
+
+- `PREVIEW_AUTH_WORKER_PREFIX` - Override default `lifebuild-auth-pr`
+- `PREVIEW_SYNC_WORKER_PREFIX` - Override default `lifebuild-sync-pr`
+
+PR number detection order:
+
+1. `RENDER_PULL_REQUEST` (if present)
+2. Parsed from Render metadata (`RENDER_SERVICE_NAME`, `RENDER_EXTERNAL_HOSTNAME`, `RENDER_EXTERNAL_URL`, `RENDER_GIT_BRANCH`)
+
+When resolved, the server applies runtime overrides for:
+
+- `AUTH_WORKER_INTERNAL_URL`
+- `LIVESTORE_SYNC_URL`
+- `STORE_IDS` (forced to empty in preview environments)
 
 ### Source Maps
 

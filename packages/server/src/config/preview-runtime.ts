@@ -1,0 +1,140 @@
+export interface RenderPreviewOverrides {
+  applied: boolean
+  isPreview: boolean
+  pullRequestNumber?: string
+  authWorkerInternalUrl?: string
+  liveStoreSyncUrl?: string
+  reason?: string
+}
+
+function normalizeBoolean(value: string | undefined): boolean {
+  return value?.toLowerCase() === 'true'
+}
+
+function isPositiveInteger(value: string | undefined): value is string {
+  return typeof value === 'string' && /^[1-9][0-9]*$/.test(value)
+}
+
+function detectPrNumberFromValue(value: string | undefined): string | undefined {
+  if (!value) {
+    return undefined
+  }
+
+  const patterns = [
+    /(?:^|[-_.])pr-(\d+)(?:$|[-_.])/i,
+    /^pr-(\d+)$/i,
+    /(?:^|\/)pull\/(\d+)(?:\/|$)/i,
+  ]
+
+  for (const pattern of patterns) {
+    const match = value.match(pattern)
+    if (match?.[1] && isPositiveInteger(match[1])) {
+      return match[1]
+    }
+  }
+
+  return undefined
+}
+
+function detectRenderPullRequestNumber(env: NodeJS.ProcessEnv): string | undefined {
+  if (isPositiveInteger(env.RENDER_PULL_REQUEST)) {
+    return env.RENDER_PULL_REQUEST
+  }
+
+  if (isPositiveInteger(env.PREVIEW_PULL_REQUEST_NUMBER)) {
+    return env.PREVIEW_PULL_REQUEST_NUMBER
+  }
+
+  const candidates = [
+    env.RENDER_SERVICE_NAME,
+    env.RENDER_EXTERNAL_HOSTNAME,
+    env.RENDER_EXTERNAL_URL,
+    env.RENDER_GIT_BRANCH,
+  ]
+
+  for (const candidate of candidates) {
+    const parsed = detectPrNumberFromValue(candidate)
+    if (parsed) {
+      return parsed
+    }
+  }
+
+  return undefined
+}
+
+function normalizeWorkerPrefix(prefix: string | undefined, fallback: string): string {
+  if (!prefix || prefix.trim() === '') {
+    return fallback
+  }
+
+  return prefix.trim().replace(/-+$/, '')
+}
+
+export function resolveRenderPreviewOverrides(
+  env: NodeJS.ProcessEnv = process.env
+): RenderPreviewOverrides {
+  const isPreview = normalizeBoolean(env.IS_PULL_REQUEST)
+  if (!isPreview) {
+    return {
+      applied: false,
+      isPreview: false,
+      reason: 'Not a Render pull-request preview environment',
+    }
+  }
+
+  const pullRequestNumber = detectRenderPullRequestNumber(env)
+  if (!pullRequestNumber) {
+    return {
+      applied: false,
+      isPreview: true,
+      reason: 'Unable to determine preview pull request number from Render environment variables',
+    }
+  }
+
+  const workersSubdomain = env.CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN ?? env.PREVIEW_WORKERS_SUBDOMAIN
+  if (!workersSubdomain || workersSubdomain.trim() === '') {
+    return {
+      applied: false,
+      isPreview: true,
+      pullRequestNumber,
+      reason: 'CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN is required for Render preview URL resolution',
+    }
+  }
+
+  const authWorkerPrefix = normalizeWorkerPrefix(
+    env.PREVIEW_AUTH_WORKER_PREFIX,
+    'lifebuild-auth-pr'
+  )
+  const syncWorkerPrefix = normalizeWorkerPrefix(
+    env.PREVIEW_SYNC_WORKER_PREFIX,
+    'lifebuild-sync-pr'
+  )
+
+  const authWorkerName = `${authWorkerPrefix}-${pullRequestNumber}`
+  const syncWorkerName = `${syncWorkerPrefix}-${pullRequestNumber}`
+  const trimmedSubdomain = workersSubdomain.trim()
+
+  return {
+    applied: true,
+    isPreview: true,
+    pullRequestNumber,
+    authWorkerInternalUrl: `https://${authWorkerName}.${trimmedSubdomain}.workers.dev`,
+    liveStoreSyncUrl: `wss://${syncWorkerName}.${trimmedSubdomain}.workers.dev`,
+  }
+}
+
+export function applyRenderPreviewOverrides(
+  env: NodeJS.ProcessEnv = process.env
+): RenderPreviewOverrides {
+  const resolved = resolveRenderPreviewOverrides(env)
+  if (!resolved.applied) {
+    return resolved
+  }
+
+  env.AUTH_WORKER_INTERNAL_URL = resolved.authWorkerInternalUrl
+  env.LIVESTORE_SYNC_URL = resolved.liveStoreSyncUrl
+  // Preview server instances should not bootstrap production store IDs.
+  env.STORE_IDS = ''
+
+  return resolved
+}

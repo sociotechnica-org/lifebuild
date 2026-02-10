@@ -21,6 +21,8 @@ services:
         sync: false
       - key: AUTH_WORKER_INTERNAL_URL
         value: https://auth.lifebuild.me
+      - key: CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN
+        sync: false # Required in Render preview envs to derive PR-specific worker URLs
       - key: STORE_IDS
         value: lifebuild-production,885773a8-b433-47bd-8ee4-a907a79922d8,11d1a22c-3462-43aa-988a-3cf11b95f03b,d56d28db-bc17-406d-8204-4dd24d17c5ac,70fb4e45-7677-4b70-9e46-3c2e4f3cbd0a
       - key: STORE_DATA_PATH
