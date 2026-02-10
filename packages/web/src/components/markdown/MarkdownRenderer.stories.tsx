@@ -61,7 +61,7 @@ export const WithChorusTags: Story = {
 I've analyzed the codebase and found the following files:
 
 ## Project Files
-- The main component is in <CHORUS_TAG>packages/web/src/components/chat/ChatInterface/ChatInterface.tsx</CHORUS_TAG>
+- The routing entry point is <CHORUS_TAG>packages/web/src/Root.tsx</CHORUS_TAG>
 - Database schema is defined in <CHORUS_TAG>packages/shared/src/schema.ts</CHORUS_TAG>
 - Event definitions are in <CHORUS_TAG>packages/shared/src/events.ts</CHORUS_TAG>
 
@@ -77,7 +77,7 @@ I've analyzed the codebase and found the following files:
 
 **✨ Click on any of the file paths above to test navigation!**  
 🎯 **Project files** (.tsx, .ts) → Copy to clipboard  
-📝 **Documents** (.md) → Navigate to document (if ID available)  
+📝 **Documents** (.md) → Copy document reference  
 🔗 **External URLs** → Open in new tab  
 📁 **Other files** → Copy to clipboard`,
     className: 'max-w-2xl',
