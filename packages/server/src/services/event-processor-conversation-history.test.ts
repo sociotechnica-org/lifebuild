@@ -196,4 +196,96 @@ describe('EventProcessor conversation history builder', () => {
       'Detected duplicate consecutive user messages in conversation history'
     )
   })
+
+  it('detects assistant error messages using stopReason and errorMessage', () => {
+    const assistantErrorMessage: Message = {
+      role: 'assistant',
+      content: [{ type: 'text', text: 'Something failed' }],
+      api: 'anthropic-messages',
+      provider: 'anthropic',
+      model: 'claude-opus-4-5',
+      usage: {
+        input: 0,
+        output: 0,
+        cacheRead: 0,
+        cacheWrite: 0,
+        totalTokens: 0,
+        cost: {
+          input: 0,
+          output: 0,
+          cacheRead: 0,
+          cacheWrite: 0,
+          total: 0,
+        },
+      },
+      stopReason: 'error',
+      errorMessage: 'Provider error',
+      timestamp: Date.now(),
+    }
+
+    const assistantSuccessMessage: Message = {
+      ...assistantErrorMessage,
+      stopReason: 'stop',
+      errorMessage: undefined,
+    }
+
+    expect((eventProcessor as any).isAssistantErrorMessage(assistantErrorMessage)).toBe(true)
+    expect((eventProcessor as any).isAssistantErrorMessage(assistantSuccessMessage)).toBe(false)
+  })
+
+  it('uses stub responses when LLM_PROVIDER=stub', async () => {
+    const previousProvider = process.env.LLM_PROVIDER
+    const previousStubResponse = process.env.LLM_STUB_DEFAULT_RESPONSE
+
+    process.env.LLM_PROVIDER = 'stub'
+    process.env.LLM_STUB_DEFAULT_RESPONSE = 'stub says hi'
+
+    try {
+      const commit = vi.fn()
+      const stubStore = {
+        commit,
+        query: vi.fn(),
+      }
+      const storeManager = createMockStoreManager()
+      storeManager.getStore = vi.fn(() => stubStore as any)
+
+      const stubProcessor = new EventProcessor(storeManager as any)
+      const completed = await (stubProcessor as any).runAgenticLoop(
+        'store-1',
+        {
+          id: 'user-msg-1',
+          conversationId: 'conv-1',
+          role: 'user',
+          message: 'ping',
+          createdAt: new Date(),
+        } satisfies ChatMessage,
+        {} as any
+      )
+
+      expect(completed).toBe(true)
+      expect((stubProcessor as any).piModel).toBeUndefined()
+      expect(
+        commit.mock.calls.some(
+          ([event]: any[]) =>
+            event?.name === 'v1.LLMResponseReceived' &&
+            event?.args?.modelId === 'stub' &&
+            event?.args?.message === 'stub says hi'
+        )
+      ).toBe(true)
+
+      stubProcessor.stopAll()
+    } finally {
+      if (previousProvider === undefined) {
+        delete process.env.LLM_PROVIDER
+      } else {
+        process.env.LLM_PROVIDER = previousProvider
+      }
+
+      if (previousStubResponse === undefined) {
+        delete process.env.LLM_STUB_DEFAULT_RESPONSE
+      } else {
+        process.env.LLM_STUB_DEFAULT_RESPONSE = previousStubResponse
+      }
+    }
+  })
 })

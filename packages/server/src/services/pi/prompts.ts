@@ -20,27 +20,25 @@ You have access to comprehensive project management tools for creating tasks, ma
 
 Remember: You're not just answering questions—you're helping build successful consultancy outcomes through structured, strategic thinking.`
 
-const toolGuidance = `You have access to tools for:
+const sharedToolList = `You have access to tools for:
 - Creating and managing tasks (create_task, update_task, move_task_within_project, move_task_to_project, orphan_task, archive_task, unarchive_task)
 - Viewing tasks (get_task_by_id, get_project_tasks, get_orphaned_tasks)
 - Managing projects (list_projects, get_project_details)
 - Creating and managing documents (create_document, update_document, archive_document)
 - Managing document-project associations (add_document_to_project, remove_document_from_project)
 - Viewing documents (list_documents, read_document, get_project_documents)
-- Searching through document content (search_documents, search_project_documents)
+- Searching through document content (search_documents, search_project_documents)`
 
-When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed. If you need to know what projects are available, use the list_projects tool first.`
+const sharedTaskGuidance =
+  'When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed.'
 
-const workerToolGuidance = `You have access to tools for:
-- Creating and managing tasks (create_task, update_task, move_task_within_project, move_task_to_project, orphan_task, archive_task, unarchive_task)
-- Viewing tasks (get_task_by_id, get_project_tasks, get_orphaned_tasks)
-- Managing projects (list_projects, get_project_details)
-- Creating and managing documents (create_document, update_document, archive_document)
-- Managing document-project associations (add_document_to_project, remove_document_from_project)
-- Viewing documents (list_documents, read_document, get_project_documents)
-- Searching through document content (search_documents, search_project_documents)
+const workerToolGuidance = `${sharedToolList}
 
-When users describe project requirements or ask you to create tasks, use the create_task tool to actually create them in the system. You can create multiple tasks at once if needed.`
+${sharedTaskGuidance}`
+
+const toolGuidance = `${sharedToolList}
+
+${sharedTaskGuidance} If you need to know what projects are available, use the list_projects tool first.`
 
 const buildNavigationContextPrompt = (navContext?: NavigationContext): string => {
   if (!navContext) {

@@ -19,7 +19,7 @@ import {
   type AgentSession,
   type AgentSessionEvent,
 } from '@mariozechner/pi-coding-agent'
-import { getModel, type Message } from '@mariozechner/pi-ai'
+import { getModel, type AssistantMessage, type Message, type Model } from '@mariozechner/pi-ai'
 import { MessageQueueManager } from './message-queue-manager.js'
 import { AsyncQueueProcessor } from './async-queue-processor.js'
 import { ProcessedMessageTracker } from './processed-message-tracker.js'
@@ -36,6 +36,7 @@ import {
 import { buildSystemPrompt } from './pi/prompts.js'
 import { createPiTools } from './pi/tools.js'
 import { createStubResponder } from './pi/stub-responder.js'
+import { PiInputValidator } from './pi/input-validator.js'
 import type {
   EventBuffer,
   ProcessedEvent,
@@ -88,7 +89,6 @@ interface StoreProcessingState {
   messageQueue: MessageQueueManager // Queue of pending messages per conversation
   conversationProcessors: Map<string, AsyncQueueProcessor> // Per-conversation async processors
   piSessions: Map<string, PiConversationSession>
-  piInitialized: boolean
 }
 
 interface PiConversationSession {
@@ -151,8 +151,9 @@ export class EventProcessor {
   // Flag to prevent operations after shutdown
   private isShutdown = false
   private readonly piBaseDir: string
-  private readonly piModel = getModel('anthropic', 'claude-opus-4-5')
+  private readonly piModel: Model<any> | undefined
   private readonly stubResponder: ((message: string) => string) | null
+  private readonly inputValidator: PiInputValidator
 
   // Tables to monitor for activity
   // IMPORTANT: Only monitor chatMessages to process user messages
@@ -203,21 +204,31 @@ export class EventProcessor {
       process.env.PI_STORAGE_DIR ||
       (renderDiskPath ? path.join(renderDiskPath, 'lifebuild-pi') : path.join(process.cwd(), '.pi'))
 
+    this.inputValidator = new PiInputValidator()
     const llmProvider = process.env.LLM_PROVIDER?.toLowerCase()
     if (llmProvider === 'stub') {
+      this.piModel = undefined
       this.stubResponder = createStubResponder()
       logger.info('LLM stub responder configured for Pi integration')
     } else {
+      this.piModel = getModel('anthropic', 'claude-opus-4-5')
       this.stubResponder = null
-    }
 
-    if (!this.piModel) {
-      logger.error(
-        { model: 'claude-opus-4-5' },
-        'Pi model not available - LLM functionality disabled'
-      )
-    } else {
-      logger.info({ model: this.piModel.id }, 'Pi model configured for agent sessions')
+      if (llmProvider && llmProvider !== 'pi') {
+        logger.warn(
+          { llmProvider },
+          'Unknown LLM_PROVIDER value for Pi integration, defaulting to Pi model'
+        )
+      }
+
+      if (!this.piModel) {
+        logger.error(
+          { model: 'claude-opus-4-5' },
+          'Pi model not available - LLM functionality disabled'
+        )
+      } else {
+        logger.info({ model: this.piModel.id }, 'Pi model configured for agent sessions')
+      }
     }
 
     // Load message cutoff timestamp from environment
@@ -281,7 +292,6 @@ export class EventProcessor {
       messageQueue: new MessageQueueManager(),
       conversationProcessors: new Map(),
       piSessions: new Map(),
-      piInitialized: false,
     }
 
     this.storeStates.set(storeId, storeState)
@@ -1076,8 +1086,12 @@ export class EventProcessor {
     }
   }
 
-  private async runStubResponder(store: LiveStore, userMessage: ChatMessage): Promise<boolean> {
-    const message = this.stubResponder?.(userMessage.message ?? '') ?? ''
+  private async runStubResponder(
+    store: LiveStore,
+    userMessage: ChatMessage,
+    prompt: string
+  ): Promise<boolean> {
+    const message = this.stubResponder?.(prompt) ?? ''
     const conversationId = userMessage.conversationId
 
     store.commit(
@@ -1119,8 +1133,64 @@ export class EventProcessor {
       return false
     }
 
+    const validationResult = this.inputValidator.validateUserMessage(userMessage.message ?? '')
+    if (!validationResult.isValid) {
+      logger.warn(
+        {
+          storeId,
+          conversationId: userMessage.conversationId,
+          userMessageId: userMessage.id,
+          reason: validationResult.reason,
+        },
+        'Blocked user message due to input validation failure'
+      )
+
+      store.commit(
+        events.llmResponseReceived({
+          id: crypto.randomUUID(),
+          conversationId: userMessage.conversationId,
+          message:
+            'I could not process that request safely. Please rephrase and try again without special instruction overrides.',
+          role: 'assistant',
+          modelId: 'error',
+          responseToMessageId: userMessage.id,
+          createdAt: new Date(),
+          llmMetadata: {
+            source: 'input-validation-error',
+            reason: validationResult.reason ?? 'unknown',
+          },
+        })
+      )
+
+      store.commit(
+        events.llmResponseCompleted({
+          conversationId: userMessage.conversationId,
+          userMessageId: userMessage.id,
+          createdAt: new Date(),
+          iterations: 0,
+          success: false,
+        })
+      )
+
+      return true
+    }
+
+    const sanitizedPrompt = validationResult.sanitizedContent ?? userMessage.message ?? ''
+    if (sanitizedPrompt !== (userMessage.message ?? '')) {
+      logger.debug(
+        {
+          storeId,
+          conversationId: userMessage.conversationId,
+          userMessageId: userMessage.id,
+          originalLength: (userMessage.message ?? '').length,
+          sanitizedLength: sanitizedPrompt.length,
+        },
+        'Sanitized user input before invoking LLM provider'
+      )
+    }
+
     if (this.stubResponder) {
-      return this.runStubResponder(store, userMessage)
+      return this.runStubResponder(store, userMessage, sanitizedPrompt)
     }
 
     if (!this.piModel) {
@@ -1271,6 +1341,7 @@ export class EventProcessor {
     const conversationHistory = this.buildConversationHistory(chatHistory, userMessage)
 
     const conversationId = userMessage.conversationId
+    const correlationId = this.lifecycleTracker.getCorrelationId(userMessage.id)
     const sessionEntry = await this.getOrCreatePiSession(
       storeId,
       conversationId,
@@ -1279,11 +1350,35 @@ export class EventProcessor {
       worker?.id
     )
     if (!sessionEntry) {
-      return false
+      logger.error(
+        { storeId, conversationId, correlationId },
+        'Pi session initialization failed before prompt execution'
+      )
+      store.commit(
+        events.llmResponseReceived({
+          id: crypto.randomUUID(),
+          conversationId,
+          message: 'Sorry, I could not start the assistant session. Please try again.',
+          role: 'assistant',
+          modelId: 'error',
+          responseToMessageId: userMessage.id,
+          createdAt: new Date(),
+          llmMetadata: { source: 'session-init-error' },
+        })
+      )
+      store.commit(
+        events.llmResponseCompleted({
+          conversationId,
+          userMessageId: userMessage.id,
+          createdAt: new Date(),
+          iterations: 0,
+          success: false,
+        })
+      )
+      return true
     }
 
     const { session } = sessionEntry
-    const correlationId = this.lifecycleTracker.getCorrelationId(userMessage.id)
     const modelId = this.piModel?.id || conversation?.model || DEFAULT_MODEL
 
     session.agent.setSystemPrompt(buildSystemPrompt(workerContext, navigationContext))
@@ -1292,7 +1387,6 @@ export class EventProcessor {
       session.agent.replaceMessages(conversationHistory)
     }
 
-    let completionEmitted = false
     let sawError = false
 
     const unsubscribe = session.subscribe((event: AgentSessionEvent) => {
@@ -1348,6 +1442,10 @@ export class EventProcessor {
         }
         case 'message_end': {
           if (event.message.role === 'assistant') {
+            if (this.isAssistantErrorMessage(event.message)) {
+              sawError = true
+            }
+
             const text = this.extractAssistantText(event.message)
             if (text.trim().length > 0) {
               store.commit(
@@ -1370,9 +1468,12 @@ export class EventProcessor {
           break
         }
         case 'agent_end': {
-          sawError = event.messages.some(
-            message => message.role === 'assistant' && (message as any).errorMessage
-          )
+          const latestAssistantMessage = [...event.messages]
+            .reverse()
+            .find((message): message is AssistantMessage => message.role === 'assistant')
+          if (latestAssistantMessage && this.isAssistantErrorMessage(latestAssistantMessage)) {
+            sawError = true
+          }
           break
         }
         default:
@@ -1382,7 +1483,7 @@ export class EventProcessor {
 
     try {
       await session.setModel(this.piModel)
-      await session.prompt(userMessage.message)
+      await session.prompt(sanitizedPrompt)
     } catch (error) {
       sawError = true
       logger.error({ error, conversationId, correlationId }, 'Error in Pi agent session')
@@ -1402,20 +1503,17 @@ export class EventProcessor {
       unsubscribe()
     }
 
-    if (!completionEmitted) {
-      store.commit(
-        events.llmResponseCompleted({
-          conversationId,
-          userMessageId: userMessage.id,
-          createdAt: new Date(),
-          iterations: 1,
-          success: !sawError,
-        })
-      )
-      completionEmitted = true
-    }
+    store.commit(
+      events.llmResponseCompleted({
+        conversationId,
+        userMessageId: userMessage.id,
+        createdAt: new Date(),
+        iterations: 1,
+        success: !sawError,
+      })
+    )
 
-    return completionEmitted
+    return true
   }
 
   private async getOrCreatePiSession(
@@ -1464,7 +1562,6 @@ export class EventProcessor {
 
       const entry = { session, sessionDir }
       storeState.piSessions.set(conversationId, entry)
-      storeState.piInitialized = true
 
       logger.info({ storeId, conversationId, sessionDir }, 'Pi session created')
 
@@ -1503,6 +1600,18 @@ export class EventProcessor {
       logger.warn({ error, sessionDir }, 'Failed to inspect existing Pi sessions')
       return null
     }
+  }
+
+  private isAssistantErrorMessage(message: Message): message is AssistantMessage {
+    if (message.role !== 'assistant') {
+      return false
+    }
+
+    return (
+      message.stopReason === 'error' ||
+      message.stopReason === 'aborted' ||
+      typeof message.errorMessage === 'string'
+    )
   }
 
   private extractAssistantText(message: Message): string {
