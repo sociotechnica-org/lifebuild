@@ -319,7 +319,7 @@ Configure these in your Render service dashboard:
 
 ### Render Preview Endpoint Wiring
 
-For Render PR preview environments, the server now auto-derives PR-specific worker endpoints when `IS_PULL_REQUEST=true`.
+For Render PR preview environments, the server now auto-derives PR-specific worker endpoints when `IS_PULL_REQUEST_PREVIEW=true` (legacy `IS_PULL_REQUEST=true` is also supported).
 
 Required Render env var:
 
@@ -341,7 +341,7 @@ When resolved, the server applies runtime overrides for:
 
 - `AUTH_WORKER_INTERNAL_URL`
 - `LIVESTORE_SYNC_URL`
-- `STORE_IDS` (forced to empty in preview environments)
+- `STORE_IDS` (forced to empty whenever a preview environment is detected)
 
 ### Source Maps
 

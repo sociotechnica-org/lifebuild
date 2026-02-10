@@ -13,7 +13,7 @@ describe('preview runtime overrides', () => {
 
   it('applies overrides when Render preview env and explicit PR number are provided', () => {
     const env: NodeJS.ProcessEnv = {
-      IS_PULL_REQUEST: 'true',
+      IS_PULL_REQUEST_PREVIEW: 'true',
       RENDER_PULL_REQUEST: '536',
       CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN: 'exampleteam',
       STORE_IDS: 'production-store-id',
@@ -34,9 +34,22 @@ describe('preview runtime overrides', () => {
     expect(env.STORE_IDS).toBe('')
   })
 
-  it('extracts PR number from Render service name when explicit PR var is unavailable', () => {
+  it('supports legacy IS_PULL_REQUEST preview flag', () => {
     const env: NodeJS.ProcessEnv = {
       IS_PULL_REQUEST: 'true',
+      RENDER_PULL_REQUEST: '536',
+      CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN: 'exampleteam',
+    }
+
+    const result = resolveRenderPreviewOverrides(env)
+
+    expect(result.applied).toBe(true)
+    expect(result.isPreview).toBe(true)
+    expect(result.pullRequestNumber).toBe('536')
+  })
+
+  it('extracts PR number from Render service name when explicit PR var is unavailable', () => {
+    const env: NodeJS.ProcessEnv = {
       RENDER_SERVICE_NAME: 'lifebuild-server-pr-712',
       CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN: 'exampleteam',
     }
@@ -50,7 +63,7 @@ describe('preview runtime overrides', () => {
 
   it('supports custom worker prefixes', () => {
     const env: NodeJS.ProcessEnv = {
-      IS_PULL_REQUEST: 'true',
+      IS_PULL_REQUEST_PREVIEW: 'true',
       RENDER_PULL_REQUEST: '9',
       CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN: 'exampleteam',
       PREVIEW_AUTH_WORKER_PREFIX: 'custom-auth',
@@ -67,7 +80,7 @@ describe('preview runtime overrides', () => {
 
   it('does not apply when workers subdomain is missing', () => {
     const env: NodeJS.ProcessEnv = {
-      IS_PULL_REQUEST: 'true',
+      IS_PULL_REQUEST_PREVIEW: 'true',
       RENDER_PULL_REQUEST: '536',
     }
 
@@ -76,5 +89,21 @@ describe('preview runtime overrides', () => {
     expect(result.applied).toBe(false)
     expect(result.isPreview).toBe(true)
     expect(result.reason).toContain('CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN')
+  })
+
+  it('still clears STORE_IDS when preview is detected but endpoint overrides cannot be applied', () => {
+    const env: NodeJS.ProcessEnv = {
+      IS_PULL_REQUEST_PREVIEW: 'true',
+      RENDER_PULL_REQUEST: '536',
+      STORE_IDS: 'production-store-id',
+    }
+
+    const result = applyRenderPreviewOverrides(env)
+
+    expect(result.applied).toBe(false)
+    expect(result.isPreview).toBe(true)
+    expect(env.STORE_IDS).toBe('')
+    expect(env.AUTH_WORKER_INTERNAL_URL).toBeUndefined()
+    expect(env.LIVESTORE_SYNC_URL).toBeUndefined()
   })
 })
