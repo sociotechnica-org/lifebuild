@@ -41,17 +41,16 @@ Context that helps with one task will help with future tasks. Don't repeat yours
 
 ### 1. Choose the right template
 
-| Documenting...           | Template        | Folder                 |
-| ------------------------ | --------------- | ---------------------- |
-| Major product area       | `_zone.md`      | `/product/zones/`      |
-| Cross-cutting mechanism  | `_system.md`    | `/product/systems/`    |
-| User-facing feature      | `_feature.md`   | `/product/features/`   |
-| Technical implementation | `_component.md` | `/product/components/` |
-| Strategic principle      | `_strategy.md`  | `/context/strategy/`   |
-| External force           | `_pressure.md`  | `/context/pressures/`  |
-| Metric/observation       | `_signal.md`    | `/context/signals/`    |
-| Past approach/lesson     | `_learning.md`  | `/timeline/past/`      |
-| Future plan              | `_vision.md`    | `/timeline/future/`    |
+| Documenting...           | Template        | Folder                  |
+| ------------------------ | --------------- | ----------------------- |
+| User-facing feature      | `_feature.md`   | `/product/features/`    |
+| Cross-cutting mechanism  | `_system.md`    | `/product/systems/`     |
+| Specification/standard   | `_standard.md`  | `/rationale/standards/`  |
+| Technical implementation | `_component.md` | `/product/components/`   |
+| Design principle         | `_principle.md` | `/rationale/principles/` |
+| Strategic bet            | `_strategy.md`  | `/rationale/strategies/` |
+| Past approach/lesson     | `_learning.md`  | `/timeline/past/`       |
+| Future plan              | `_vision.md`    | `/timeline/future/`     |
 
 ### 2. Copy and rename
 
@@ -62,6 +61,8 @@ cp templates/_feature.md product/features/my-feature.md
 ### 3. Fill in frontmatter completely
 
 Every field matters for querying and slug assembly. Don't skip the dimensional coordinates.
+We use **flat fields** (e.g., `ca-where-zone`, `ca-why-rationale`) so links are clickable in Obsidian Properties.
+Frontmatter link lists should be a single text value with comma-separated `[[links]]` (no `--` notes). Put descriptions in the body sections instead.
 
 ### 4. Write content following the template structure
 
@@ -82,114 +83,6 @@ Keep it atomic — one note answers one complete question.
 ### 6. Verify links resolve
 
 Check that `[[linked-note]]` actually exists. Broken links break slug assembly.
-
----
-
-## Linking Principles
-
-### Every Reference Should Be a WikiLink
-
-If you mention another concept that has (or should have) a note, make it a link:
-
-```markdown
-# Bad
-
-The Table depends on the Priority Queue for candidates.
-
-# Good
-
-[[the-table]] depends on [[priority-queue]] for candidates.
-```
-
-Even if the target note doesn't exist yet, create the link. Broken links are useful—they show what documentation is missing.
-
-### Links Need Context
-
-Don't drop naked links. Explain the relationship:
-
-```markdown
-# Bad
-
-Related:
-
-- [[priority-queue]]
-
-# Good
-
-**Requires:**
-
-- [[priority-queue]] — sources all candidates for The Table
-```
-
-### WHY Lives in Two Places
-
-For features and systems, capture WHY in both:
-
-1. **Metadata** (`ca-why` fields) — enables Conan to query relationships
-2. **Content section** ("Why It Exists") — enables humans to understand rationale
-
-This duplication is intentional. They serve different purposes:
-
-- Metadata answers: "What features implement visual-work strategy?" (query)
-- Content answers: "Why does The Table exist?" (understanding)
-
-### Lateral Links Create Discovery
-
-The "Related Features/Systems" section enables discovery of peer concepts:
-
-```markdown
-## Related Features
-
-**Prerequisites:**
-
-- [[sorting-room]] — where priorities are selected before appearing here
-
-**Complements:**
-
-- [[project-board]] — opened when clicking items on The Table
-
-**Enables:**
-
-- [[dual-presence]] — Work at Hand items appear in multiple places
-```
-
-Without these lateral links, notes become islands. With them, someone exploring one feature naturally discovers related features.
-
-### Temporal Links Show Evolution
-
-Even if Past/Future notes don't exist yet, include the Evolution section:
-
-```markdown
-## Evolution
-
-**Supersedes:** null (new capability)
-**Future:** [[future-bronze-quick-add]] — planned enhancement
-```
-
-This creates placeholders that:
-
-- Show what documentation is needed
-- Enable Conan to trace how features evolved
-- Prevent repeating past mistakes
-
----
-
-## Section Order (Features)
-
-Follow this order for consistency:
-
-1. **Title + intro paragraph** — what this is
-2. **Why It Exists** — strategy links, drivers, rationale
-3. **How It Works** — mechanics, interactions
-4. **Related Features** — prerequisites, complements, enables
-5. **Components** — child components with links
-6. **Dependencies** — what this requires and enables
-7. **Constraints** — hard limits
-8. **Edge Cases** — unusual scenarios
-9. **Evolution** — past and future
-10. **Open Questions** — unresolved decisions
-
-Not every section needs content, but the structure should be consistent.
 
 ---
 
@@ -247,6 +140,7 @@ If a note is getting too long (>800 words), consider splitting into hub + spokes
 Before committing note changes:
 
 - [ ] Frontmatter is complete (no empty required fields)
+- [ ] Flat `ca-where-*` / `ca-why-*` fields are used (no nested objects)
 - [ ] `ca-when` status is accurate
 - [ ] `last-verified` date is today
 - [ ] All `[[links]]` resolve to existing notes

@@ -156,6 +156,7 @@ The app includes a repair mechanism for when local LiveStore data becomes incons
 
 ## Documentation
 
+- **Context Library**: [docs/context-library/README.md](docs/context-library/README.md) — Product knowledge, strategic rationale, type taxonomy. Read `reference.md` for templates and conformance rules. Open folder in Obsidian for best browsing experience.
 - LiveStore patterns: https://docs.livestore.dev/llms.txt
 - LifeBuild Architecture: [docs/architecture.md](docs/architecture.md)
 
