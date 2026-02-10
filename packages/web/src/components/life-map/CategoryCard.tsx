@@ -1,173 +1,150 @@
 import React from 'react'
-import type { ProjectCategory } from '@lifebuild/shared'
-import { formatRelativeTime } from '../../utils/dates.js'
-import { isNeglected } from '../../utils/categoryHelpers.js'
+import { Link } from 'react-router-dom'
+import { generateRoute } from '../../constants/routes.js'
+import { preserveStoreIdInUrl } from '../../utils/navigation.js'
+import type { Project } from '@lifebuild/shared/schema'
+import { usePostHog } from '../../lib/analytics.js'
 
-export interface CategoryCardProps {
-  category: {
-    value: ProjectCategory
-    name: string
-    description: string
-    colorHex: string
-    icon: string
-    sortOrder: number
-  }
+export type CategoryCardProps = {
+  categoryValue: string
+  categoryName: string
+  categoryIcon?: string
+  categoryColor: string
   projectCount: number
-  activeProjectCount: number
-  planningProjectCount: number
-  lastActivityAt: number | null
-  onClick: () => void
-  onQuickAdd?: () => void
+  workerCount: number
+  activeProjects?: Project[]
+  ongoingProjects?: Project[]
+  backlogCount?: number
+  planningCount?: number
+  projectCompletionMap?: Map<string, number>
 }
 
-export const CategoryCard: React.FC<CategoryCardProps> = ({
-  category,
-  projectCount,
-  activeProjectCount,
-  planningProjectCount,
-  lastActivityAt,
-  onClick,
-  onQuickAdd,
-}) => {
-  const isActive = projectCount > 0
-  const neglected = isNeglected(lastActivityAt)
-  const relativeTime = formatRelativeTime(lastActivityAt)
+/**
+ * ProjectItem - A clickable project card within a category
+ */
+const ProjectItem: React.FC<{
+  project: Project
+  categoryColor: string
+  completionPercentage: number
+}> = ({ project, categoryColor, completionPercentage }) => {
+  return (
+    <Link
+      to={preserveStoreIdInUrl(generateRoute.project(project.id))}
+      className='block no-underline mb-2 p-2 rounded-lg bg-[#faf9f7] hover:bg-[#f5f3f0] transition-colors duration-200'
+      onClick={e => e.stopPropagation()}
+    >
+      <div className='font-semibold text-sm text-[#2f2b27] mb-1'>{project.name}</div>
+      <div className='h-2 bg-[#f1efe9] rounded-full overflow-hidden'>
+        <div
+          className='h-full rounded-full'
+          style={{
+            width: `${completionPercentage}%`,
+            backgroundColor: categoryColor,
+          }}
+        />
+      </div>
+    </Link>
+  )
+}
 
-  const handleQuickAddClick = (e: React.MouseEvent) => {
-    e.stopPropagation() // Prevent card click
-    onQuickAdd?.()
+/**
+ * CategoryCard component - Displays a life category card with project/worker stats
+ * and active projects (dual presence from The Table).
+ *
+ * Based on the prototype design with gradient background and color-coded borders.
+ */
+export const CategoryCard: React.FC<CategoryCardProps> = ({
+  categoryValue,
+  categoryName,
+  categoryIcon,
+  categoryColor,
+  projectCount: _projectCount,
+  workerCount: _workerCount,
+  activeProjects = [],
+  ongoingProjects = [],
+  backlogCount = 0,
+  planningCount = 0,
+  projectCompletionMap = new Map(),
+}) => {
+  const posthog = usePostHog()
+
+  const handleCardClick = () => {
+    posthog?.capture('life_map_category_clicked', { category: categoryValue })
   }
 
   return (
     <div
-      onClick={onClick}
-      role='button'
-      tabIndex={0}
-      onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick()
-        }
-      }}
-      className={`
-        relative w-full aspect-square rounded-lg sm:rounded-xl p-4 sm:p-6
-        flex flex-col items-center justify-center
-        transition-all duration-200
-        cursor-pointer
-        group
-        min-h-[120px] sm:min-h-0
-        ${
-          isActive
-            ? 'shadow-md hover:shadow-xl hover:-translate-y-1'
-            : 'shadow-sm hover:shadow-md opacity-60 hover:opacity-80'
-        }
-      `}
-      style={{
-        backgroundColor: isActive ? category.colorHex : '#D4CCC8',
-      }}
+      className='border-2 rounded-2xl p-4 bg-white'
+      style={{ borderColor: categoryColor }}
+      onClick={handleCardClick}
     >
-      {/* Icon */}
-      <div className='text-4xl sm:text-5xl mb-2 sm:mb-4'>{category.icon}</div>
-
-      {/* Category Name */}
-      <h3 className='text-white font-semibold text-center text-sm sm:text-lg mb-2 leading-tight'>
-        {category.name}
+      <h3 className="font-['Source_Serif_4',Georgia,serif] text-lg font-semibold mb-2 flex items-center gap-1">
+        <span style={{ color: categoryColor }}>●</span>
+        {categoryIcon && <span> {categoryIcon}</span>} {categoryName}
       </h3>
 
-      {/* Status Indicators - Bottom Left */}
-      <div className='absolute bottom-2 sm:bottom-4 left-2 sm:left-4 flex flex-col gap-1'>
-        {/* Active Project Count */}
-        {activeProjectCount > 0 && (
-          <div className='bg-white/90 backdrop-blur-sm rounded-full px-1.5 sm:px-2 py-0.5'>
-            <span className='text-[10px] sm:text-xs font-semibold text-gray-900'>
-              {activeProjectCount} Active
-            </span>
+      {/* Active Projects Section */}
+      {activeProjects.length > 0 && (
+        <div className='mt-2'>
+          <div className='text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide mb-1'>
+            Active
           </div>
-        )}
-
-        {/* Planning Count */}
-        {planningProjectCount > 0 && (
-          <div className='bg-white/70 backdrop-blur-sm rounded-full px-1.5 sm:px-2 py-0.5'>
-            <span className='text-[10px] sm:text-xs font-medium text-gray-700'>
-              {planningProjectCount} Planning
-            </span>
-          </div>
-        )}
-
-        {/* Empty State Guidance */}
-        {projectCount === 0 && (
-          <div className='bg-white/90 backdrop-blur-sm rounded-full px-2 sm:px-3 py-0.5 sm:py-1'>
-            <span className='text-[10px] sm:text-xs font-medium text-gray-700'>Get Started →</span>
-          </div>
-        )}
-      </div>
-
-      {/* Last Activity - Bottom Right */}
-      <div className='absolute bottom-2 sm:bottom-4 right-2 sm:right-4'>
-        <div
-          className={`
-          backdrop-blur-sm rounded-full px-1.5 sm:px-2 py-0.5
-          ${neglected ? 'bg-amber-100/90' : 'bg-white/70'}
-        `}
-        >
-          <span
-            className={`text-[10px] sm:text-xs font-medium ${neglected ? 'text-amber-800' : 'text-gray-600'}`}
-          >
-            {relativeTime}
-          </span>
+          {activeProjects.map(project => (
+            <ProjectItem
+              key={project.id}
+              project={project}
+              categoryColor={categoryColor}
+              completionPercentage={projectCompletionMap.get(project.id) ?? 0}
+            />
+          ))}
         </div>
-      </div>
-
-      {/* Active Indicator Dot */}
-      {isActive && (
-        <div className='absolute top-2 sm:top-4 right-2 sm:right-4 w-2 sm:w-3 h-2 sm:h-3 bg-white rounded-full shadow-md'></div>
       )}
 
-      {/* Neglected Warning Indicator */}
-      {neglected && isActive && (
-        <div className='absolute top-2 sm:top-4 left-2 sm:left-4 w-2 sm:w-3 h-2 sm:h-3 bg-amber-400 rounded-full shadow-md'></div>
+      {/* Ongoing Projects Section (active status, not on table) */}
+      {ongoingProjects.length > 0 && (
+        <div className='mt-2'>
+          <div className='text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide mb-1'>
+            Ongoing
+          </div>
+          <div className='grid grid-cols-2 gap-1'>
+            {ongoingProjects.slice(0, 6).map(project => (
+              <Link
+                key={project.id}
+                to={preserveStoreIdInUrl(generateRoute.project(project.id))}
+                className='no-underline p-1.5 rounded bg-[#faf9f7] hover:bg-[#f5f3f0] transition-colors duration-200'
+                onClick={e => e.stopPropagation()}
+              >
+                <div className='text-xs text-[#2f2b27] truncate'>{project.name}</div>
+              </Link>
+            ))}
+          </div>
+          {ongoingProjects.length > 6 && (
+            <div className='text-xs text-[#8b8680] mt-1'>+{ongoingProjects.length - 6} more</div>
+          )}
+        </div>
       )}
 
-      {/* Quick Add Button - Shows on hover */}
-      {onQuickAdd && projectCount > 0 && (
-        <button
-          onClick={handleQuickAddClick}
-          className='absolute top-4 right-12 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-50'
-          aria-label='Quick add project'
-        >
-          <svg
-            className='w-5 h-5 text-gray-700'
-            fill='none'
-            stroke='currentColor'
-            viewBox='0 0 24 24'
-          >
-            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 4v16m8-8H4' />
-          </svg>
-        </button>
-      )}
-
-      {/* Larger Quick Add for Empty Categories */}
-      {onQuickAdd && projectCount === 0 && (
-        <div className='absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none'>
-          <button
-            onClick={handleQuickAddClick}
-            className='w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors pointer-events-auto'
-            aria-label='Add first project'
-          >
-            <svg
-              className='w-10 h-10 text-gray-700'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
+      {/* Planning and Backlog links */}
+      {(planningCount > 0 || backlogCount > 0) && (
+        <div className='mt-2 flex gap-2 flex-wrap'>
+          {planningCount > 0 && (
+            <Link
+              to={preserveStoreIdInUrl(`${generateRoute.draftingRoom()}?category=${categoryValue}`)}
+              className='no-underline text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide hover:text-[#2f2b27]'
+              onClick={e => e.stopPropagation()}
             >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M12 4v16m8-8H4'
-              />
-            </svg>
-          </button>
+              DRAFTING ({planningCount})
+            </Link>
+          )}
+          {backlogCount > 0 && (
+            <Link
+              to={preserveStoreIdInUrl(`${generateRoute.sortingRoom()}?category=${categoryValue}`)}
+              className='no-underline text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide hover:text-[#2f2b27]'
+              onClick={e => e.stopPropagation()}
+            >
+              SORTING ({backlogCount})
+            </Link>
+          )}
         </div>
       )}
     </div>

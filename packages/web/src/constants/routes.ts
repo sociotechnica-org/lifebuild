@@ -4,7 +4,7 @@
  */
 export const ROUTES = {
   HOME: '/',
-  // New UI routes (now the default)
+  // App routes
   LIFE_MAP: '/life-map',
   DRAFTING_ROOM: '/drafting-room',
   SORTING_ROOM: '/sorting-room',
@@ -15,26 +15,6 @@ export const ROUTES = {
   PROJECT_STAGE3: '/drafting-room/:projectId/stage3',
   PROJECTS: '/projects',
   PROJECT: '/projects/:projectId',
-  // Old UI routes (now under /old)
-  OLD: '/old',
-  OLD_LIFE_MAP: '/old/life-map',
-  OLD_CATEGORY: '/old/category/:categoryId',
-  OLD_PROJECTS: '/old/projects',
-  OLD_PROJECT: '/old/project/:projectId',
-  OLD_TASKS: '/old/tasks',
-  OLD_TEAM: '/old/team',
-  OLD_DOCUMENTS: '/old/documents',
-  OLD_DOCUMENT: '/old/document/:documentId',
-  OLD_CONTACTS: '/old/contacts',
-  OLD_CONTACT: '/old/contacts/:contactId',
-  OLD_SETTINGS: '/old/settings',
-  // Legacy aliases for old route constants (for backwards compatibility with Navigation.tsx etc)
-  TASKS: '/old/tasks',
-  TEAM: '/old/team',
-  DOCUMENTS: '/old/documents',
-  DOCUMENT: '/old/document/:documentId',
-  CONTACTS: '/old/contacts',
-  CONTACT: '/old/contacts/:contactId',
   // Auth and admin routes (unchanged)
   ADMIN: '/admin',
   ADMIN_USER: '/admin/users/:userEmail',
@@ -46,7 +26,7 @@ export const ROUTES = {
  * Route generators for dynamic routes
  */
 export const generateRoute = {
-  // New UI routes (default)
+  // App routes
   lifeMap: () => '/life-map',
   draftingRoom: () => '/drafting-room',
   sortingRoom: (stream?: 'gold' | 'silver' | 'bronze') =>
@@ -56,13 +36,6 @@ export const generateRoute = {
   projectStage2: (projectId: string) => `/drafting-room/${projectId}/stage2`,
   projectStage3: (projectId: string) => `/drafting-room/${projectId}/stage3`,
   project: (id: string) => `/projects/${id}`,
-  // Old UI routes
-  oldLifeMap: () => '/old/life-map',
-  oldCategory: (id: string, tab?: string) =>
-    tab ? `/old/category/${id}?tab=${tab}` : `/old/category/${id}`,
-  oldDocument: (id: string) => `/old/document/${id}`,
-  oldProject: (id: string) => `/old/project/${id}`,
-  oldContact: (id: string) => `/old/contacts/${id}`,
   // Admin routes
   adminUser: (userEmail: string) => `/admin/users/${encodeURIComponent(userEmail)}`,
 } as const
@@ -72,11 +45,4 @@ export const generateRoute = {
  */
 export const ROUTE_PATTERNS = {
   PROJECT: '/projects/',
-  OLD_CATEGORY: '/old/category/',
-  OLD_DOCUMENT: '/old/document/',
-  OLD_PROJECT: '/old/project/',
-  OLD_CONTACT: '/old/contacts/',
-  // Legacy aliases
-  DOCUMENT: '/old/document/',
-  CONTACT: '/old/contacts/',
 } as const

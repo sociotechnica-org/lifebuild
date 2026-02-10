@@ -69,7 +69,7 @@ export async function navigateToAppWithUniqueStore(page: Page) {
     await page.waitForLoadState('networkidle', { timeout: 15000 })
   }
 
-  await page.goto(`/old/projects?storeId=${storeId}`)
+  await page.goto(`/drafting-room?storeId=${storeId}`)
   await waitForLiveStoreReady(page)
 
   if (REQUIRE_AUTH) {
@@ -104,7 +104,7 @@ export async function expectBasicAppStructure(page: Page) {
 
   try {
     // Check that main content area exists (more specific selector)
-    const mainContent = page.locator('.flex-1.overflow-auto')
+    const mainContent = page.locator('main')
     if (await mainContent.isVisible()) {
       await expect(mainContent).toBeVisible({ timeout: 5000 })
     }
