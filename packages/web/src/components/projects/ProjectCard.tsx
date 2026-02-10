@@ -15,7 +15,7 @@ import {
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { UrushiVisual, lifecycleToUrushiStage, type UrushiStage } from './UrushiVisual.js'
-import { ProjectAvatar } from '../../common/ProjectAvatar.js'
+import { ProjectAvatar } from '../common/ProjectAvatar.js'
 
 const URUSHI_STAGE_LABELS: Record<UrushiStage, string> = {
   sketch: 'Sketch',
