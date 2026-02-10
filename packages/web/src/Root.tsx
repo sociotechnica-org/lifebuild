@@ -494,6 +494,8 @@ const ProtectedApp: React.FC = () => {
                         </ErrorBoundary>
                       }
                     />
+                    {/* Redirect legacy /old/* routes to life-map */}
+                    <Route path='/old/*' element={<Navigate to={ROUTES.LIFE_MAP} replace />} />
                   </Routes>
                 </ErrorBoundary>
               </SettingsInitializer>
