@@ -111,10 +111,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          extract_rg() {
-            local pattern="$1"
+          extract_jsonc_key() {
+            local key="$1"
             local file="$2"
-            rg --pcre2 -U -o "${pattern}" -r '$1' "${file}" | head -n1 || true
+            grep -Eo "\"${key}\"[[:space:]]*:[[:space:]]*\"[^\"]+\"" "${file}" | head -n1 | sed -E 's/.*:[[:space:]]*"([^"]+)"/\1/' || true
           }
 
           require_nonempty() {
@@ -134,15 +134,17 @@ jobs:
 
           resolved_account_id="${CLOUDFLARE_PREVIEW_ACCOUNT_ID:-}"
           if [[ -z "${resolved_account_id}" ]]; then
-            resolved_account_id="$(pnpm --filter @lifebuild/worker exec wrangler whoami --json 2>/dev/null | jq -r '.accounts[0].id // empty' || true)"
+            resolved_account_id="$(curl -fsSL "https://api.cloudflare.com/client/v4/accounts?page=1&per_page=1" \
+              -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              -H "Content-Type: application/json" | jq -r '.result[0].id // empty' || true)"
           fi
 
-          fallback_d1_database_id="$(extract_rg '"database_id"\s*:\s*"([^"]+)"' packages/worker/wrangler.jsonc)"
-          fallback_d1_database_name="$(extract_rg '"database_name"\s*:\s*"([^"]+)"' packages/worker/wrangler.jsonc)"
-          fallback_kv_namespace_id="$(extract_rg '"id"\s*:\s*"([^"]+)"' packages/worker/wrangler.jsonc)"
-          fallback_kv_preview_id="$(extract_rg '"preview_id"\s*:\s*"([^"]+)"' packages/worker/wrangler.jsonc)"
-          fallback_r2_bucket_name="$(extract_rg '"bucket_name"\s*:\s*"([^"]+)"' packages/worker/wrangler.jsonc)"
-          fallback_r2_preview_bucket_name="$(extract_rg '"preview_bucket_name"\s*:\s*"([^"]+)"' packages/worker/wrangler.jsonc)"
+          fallback_d1_database_id="$(extract_jsonc_key database_id packages/worker/wrangler.jsonc)"
+          fallback_d1_database_name="$(extract_jsonc_key database_name packages/worker/wrangler.jsonc)"
+          fallback_kv_namespace_id="$(extract_jsonc_key id packages/worker/wrangler.jsonc)"
+          fallback_kv_preview_id="$(extract_jsonc_key preview_id packages/worker/wrangler.jsonc)"
+          fallback_r2_bucket_name="$(extract_jsonc_key bucket_name packages/worker/wrangler.jsonc)"
+          fallback_r2_preview_bucket_name="$(extract_jsonc_key preview_bucket_name packages/worker/wrangler.jsonc)"
 
           resolved_d1_database_id="${CLOUDFLARE_PREVIEW_D1_DATABASE_ID:-$fallback_d1_database_id}"
           resolved_d1_database_name="${CLOUDFLARE_PREVIEW_D1_DATABASE_NAME:-$fallback_d1_database_name}"
