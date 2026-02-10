@@ -35,6 +35,10 @@ The task flow interface within a Project Board — a visual representation of ta
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Task kanban exists in `ProjectDetailPage.tsx` with status-based columns. Implementation uses 4 columns (`todo`, `doing`, `in_review`, `done`) rather than the 3 described here (To Do, In Progress, Done) — `in_review` was added for agent workflows. WIP limits are not implemented. Drag-and-drop within kanban is not confirmed. The kanban lives on a full-page project detail route, not within a Project Board overlay.
+
 Core to Project Board design. Kanban familiar pattern chosen for immediate usability.
 
 ## HOW: Implementation

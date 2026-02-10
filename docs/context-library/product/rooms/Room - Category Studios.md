@@ -35,6 +35,10 @@ Domain-specific planning spaces within the Strategy Studio — one studio for ea
 
 ## WHEN: Timeline
 
+**Build phase:** Post-MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** All 8 category agents are defined in `rooms.ts` with room IDs (`category:health`, `category:relationships`, etc.), prompts, and personality names. However, there are no routes in `routes.ts` for Category Studios — directors cannot navigate directly to them. The agents are infrastructure-ready but lack a UI entry point. They shipped in the original room chat foundation commit (Nov 2025) but may be legacy from the prototype.
+
 Core to Strategy Studio design. Individual advisor personalities develop as system matures.
 
 ## HOW: Implementation

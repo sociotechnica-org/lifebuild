@@ -22,8 +22,10 @@ The mechanism that produces and maintains a director's active weekly commitment 
 - Driver: Directors need clarity on "what am I working on this week?" Weekly Priority answers that question.
 
 ## WHEN: Timeline
-- Status: core
-- Since: v1.0
+
+**Build phase:** MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** The Table displays active Gold/Silver/Bronze selections. Selection mechanics work via Sorting Room. However, no weekly cadence — no week validity, no Friday-to-Friday cycles, no prompts. Selections are ad-hoc. No Adaptation for mid-week changes.
 
 ## HOW: Mechanics
 

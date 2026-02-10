@@ -18,11 +18,10 @@ The specification for lifecycle stages a project moves through from initial capt
 - Driver: Directors need to know where each project stands and what they can do with it.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Core to project entity. States enable the pipeline flow and visual feedback systems.
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Project lifecycle states (planning, backlog, active, completed) are implemented via `ProjectLifecycleState` in `planning.ts` with four stages. Pipeline Architecture moves projects through these states. Visual treatment varies by state. The implementation matches the spec closely.
 
 ## HOW: Specification
 

@@ -21,11 +21,10 @@ The specification for visual vocabulary across all LifeBuild interfaces — cate
 - Decision: Content-depicting illustrations over abstract patterns. Recognition trumps beauty.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Established in Brand Standards v2. Visual language is stable — changes require updating all conforming elements simultaneously.
+**Build phase:** MVP (ongoing)
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Category colors are implemented in `constants.ts` and used throughout the UI. Stream colors (Gold/Silver/Bronze) are applied to The Table slots. But no hex tiles, no illustration stages, no smoke signal visual treatments. The visual language exists for colors and streams but not for the spatial/illustrated elements.
 
 ## HOW: Specification
 

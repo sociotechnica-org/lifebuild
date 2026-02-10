@@ -25,8 +25,10 @@ This connects to capacity-first philosophy: you can't transform what you can't s
 The visual distinction matters: "no Gold selected yet" (planning incomplete) should look different from "Gold intentionally empty" (strategic choice). The former prompts action; the latter communicates intentional restraint.
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** MVP (ongoing)
+**Implementation status:** Partial
+**Reality note (2026-02-10):** The Table allows empty Gold/Silver slots — directors aren't forced to fill them. However, no visual distinction between "not selected yet" and "intentionally empty." No agent awareness of empty-slot intent. No capacity-based recommendation to leave slots empty.
 
 ## HOW: Application
 

@@ -25,6 +25,10 @@ The scale control system for the Life Map, allowing directors to smoothly transi
 
 ## WHEN: Timeline
 
+**Build phase:** Post-MVP
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No zoom navigation exists. The Life Map renders as a flat layout of category cards — no spatial canvas, no zoom controls, no semantic zoom levels. Depends on Hex Grid implementation which is the top upgrade priority.
+
 Core to Life Map design. Zoom behavior refined based on usability testing.
 
 ## HOW: Implementation

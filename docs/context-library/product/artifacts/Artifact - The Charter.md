@@ -31,6 +31,10 @@ The living strategic document maintained in the Council Chamber — a director's
 
 ## WHEN: Timeline
 
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No Charter artifact exists. Depends on Council Chamber and Jarvis, neither of which are implemented. No values/themes/priorities document, no versioning, no agent-shared strategic context.
+
 Core strategic artifact. The Charter develops during onboarding and evolves through ongoing sessions.
 
 ## HOW: Implementation

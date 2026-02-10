@@ -20,8 +20,10 @@ The deterministic computation engine that transforms raw director data into Stat
 - Decision: State Summaries ~250 tokens. Compact enough for agent context, rich enough for personalized service.
 
 ## WHEN: Timeline
-- Status: core
-- Since: v1.0
+
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No Processing Layer exists. Agents receive raw conversation context, not pre-computed State Summaries. No calibration factors, no pattern detection, no smoke signal computation.
 
 ## HOW: Mechanics
 

@@ -18,11 +18,10 @@ The specification for how planning interfaces frame plans as hypotheses, how age
 - Driver: Without this spec, planning interfaces default to completion-tracking patterns that create guilt cycles and discourage adaptation.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Core specification. Calibration metrics refine as usage data accumulates.
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No calibration tracking exists. No plan-vs-reality comparison, no estimation accuracy metrics, no hypothesis framing in the UI. Depends on Weekly Priority cadence and Week-in-Review capability, neither of which exist.
 
 ## HOW: Specification
 

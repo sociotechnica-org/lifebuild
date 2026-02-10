@@ -48,6 +48,10 @@ The emergent spatial behavior where directors place related hex tiles adjacent t
 
 ## WHEN: Timeline
 
+**Build phase:** Post-MVP
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No clustering system exists. Depends on Hex Grid implementation. Projects are currently grouped by fixed category cards, not by director-driven spatial arrangement.
+
 Emergent from hex grid use. Clustering behavior develops as directors populate their Life Map.
 
 ## HOW: Implementation

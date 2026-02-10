@@ -20,11 +20,10 @@ The specification for trigger conditions, visual treatments, and dismissal rules
 - Driver: Directors need awareness without bombardment. Smoke Signals make problems visible without demanding immediate action.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Core specification. Thresholds refined based on director feedback.
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No smoke signal system exists. No threshold detection, no visual treatments, no ambient alerts. Depends on Hex Grid (tiles to apply signals to) and System primitive (health data to monitor), neither of which exist.
 
 ## HOW: Specification
 

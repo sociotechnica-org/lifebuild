@@ -21,6 +21,12 @@ This is a deliberate design choice. Most productivity tools are solitary experie
 
 The opposite of relatedness support is cold instrumentality: purely transactional interactions, no continuity, no care for the person. LifeBuild's design principles protect against these patterns.
 
+## WHEN: Timeline
+
+**Build phase:** Foundation
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Relatedness is partially served. Three agents active with distinct personalities (Cameron, Marvin, Mesa). Eight category advisors have personalities defined but are not user-accessible. Agent conversations feel teammate-like, not tool-like. But no continuity between sessions, no knowledge accumulation, no Charter — agents don't "remember" the director yet.
+
 ## HOW: Application
 
 When evaluating any feature or agent behavior, ask: "Does this feel like working with a colleague, or using a tool?"

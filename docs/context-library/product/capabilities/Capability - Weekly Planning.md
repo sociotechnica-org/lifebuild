@@ -28,6 +28,10 @@ The structured beginning-of-week ritual where directors select their Work at Han
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** The selection mechanics exist — directors can select Gold/Silver projects and set Bronze mode in the Sorting Room with Cameron's assistance. However, there is no formal weekly cadence or ritual structure. Selection is ad-hoc (directors visit the Sorting Room when they want), not a scheduled weekly planning session. No reminders, no Jarvis coordination, no combined review+planning flow.
+
 Core rhythm feature. Weekly Planning establishes the week's focus.
 
 ## HOW: Implementation

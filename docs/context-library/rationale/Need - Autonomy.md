@@ -19,6 +19,12 @@ In LifeBuild, autonomy manifests as directors seeing and controlling their work.
 
 The opposite of autonomy support is controlling behavior: surveillance, deadlines as threats, forced choices, hiding information, overriding decisions. LifeBuild's design principles protect against these patterns.
 
+## WHEN: Timeline
+
+**Build phase:** Foundation
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Autonomy is partially served. Directors control stream classification, priority selection, and project creation. But the spatial visibility that creates comprehension-driven agency (Hex Grid, Zoom Navigation) doesn't exist yet. The "see and control" loop works for process but not for spatial awareness.
+
 ## HOW: Application
 
 When evaluating any feature or agent behavior, ask: "Does this increase or decrease the director's sense of control over their own life?"

@@ -27,8 +27,10 @@ The real unlock is AI as _teammates_ — agents with defined roles, ongoing resp
 The bet: if directors have AI agents with defined jobs, appropriate permissions, and the ability to coordinate — teammates rather than tools — they can operate at a level of effectiveness previously available only to people with human staff, while maintaining sovereignty over the decisions that matter.
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** MVP (ongoing)
+**Implementation status:** Partial
+**Reality note (2026-02-10):** At Level 1 of the maturity ladder — specialized agents in rooms, reactive help. Three agents fully active with routes (Cameron, Marvin, Mesa). Eight category advisors defined in `rooms.ts` but no UI entry point. Three agents not started (Jarvis, Conan, Devin). No proactive behavior, no agent-to-agent coordination.
 
 ## HOW: Application
 

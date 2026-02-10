@@ -49,6 +49,10 @@ The mechanism managing which operational tasks populate the Bronze position on T
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Bronze stack exists as `tableBronzeProjects` table with full event support (`table.bronzeProjectAdded`, `table.bronzeProjectRemoved`, `table.bronzeProjectsReordered`). `TableSlot` component for bronze shows top project plus count. Stack ordering and management work via the Sorting Room.
+
 Core system. Stack mechanics enable directors to control operational load.
 
 ## HOW: Implementation

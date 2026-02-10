@@ -23,11 +23,10 @@ The specification for organizing everything the AI team learns about a director 
 - Decision: Seven domains capture comprehensive understanding without overwhelming complexity.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Architectural foundation for the AI team's intelligence layer. Enables progression from Level 0 (generic tool) to Level 5 (orchestrated life support).
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No knowledge framework exists. No structured knowledge schema, no cross-agent knowledge sharing, no director profile persistence beyond conversation context. Agents operate with ephemeral context per session — no cumulative learning or knowledge domains.
 
 ## HOW: Specification
 

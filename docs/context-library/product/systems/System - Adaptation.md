@@ -43,6 +43,10 @@ The invisible mechanism governing how weekly commitments change after planning. 
 
 ## WHEN: Timeline
 
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No adaptation system exists. No mid-week priority adjustments, no capacity sensing, no automatic Table modifications. Directors manually manage all changes via the Sorting Room.
+
 Core system. Adaptation mechanics designed to feel supportive, not punitive.
 
 ## HOW: Implementation

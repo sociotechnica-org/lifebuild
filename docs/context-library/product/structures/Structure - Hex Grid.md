@@ -32,6 +32,10 @@ The spatial organization canvas that fills most of the Life Map — a tessellate
 
 ## WHEN: Timeline
 
+**Build phase:** Post-MVP
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No hex grid exists in the codebase. The Life Map currently renders 8 `CategoryCard` components in a flat layout — projects appear as cards within category containers, not as hex tiles on a spatial canvas. Hex grid implementation is the top priority for upgrading the MVP per team decision.
+
 Core to Life Map design. The hex grid is the foundational spatial metaphor for LifeBuild.
 
 ## HOW: Implementation

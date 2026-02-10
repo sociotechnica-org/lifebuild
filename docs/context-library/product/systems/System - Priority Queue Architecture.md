@@ -21,8 +21,10 @@ The ordered repository of all fully-planned work ready for activation, organized
 - Decision: Separating Planning Queue from Priority Queue creates psychological safety — capture ideas quickly without immediately prioritizing.
 
 ## WHEN: Timeline
-- Status: core
-- Since: v1.0
+
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Priority Queue exists as backlog projects (`status: 'backlog'`, `stage: 4`) in Sorting Room. Organized by stream via `GoldSilverPanel.tsx` and `BronzePanel.tsx`. Drag-to-table selection. Cameron assists with prioritization.
 
 ## HOW: Mechanics
 

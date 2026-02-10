@@ -34,6 +34,10 @@ The detail overlay that opens when a director clicks any project tile — a focu
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Project detail exists at `/projects/:projectId` via `ProjectDetailPage.tsx` with a dynamically-created Project Guide agent (not a Category Advisor). Tasks display with status-based kanban (`todo`, `doing`, `in_review`, `done`). However, it's a full-page route, not an overlay over the Life Map as described. No image evolution, no hex grid overlay behavior. Project Guide was a quick patch to give directors in-project help before Category Advisors were accessible.
+
 Core to [[Zone - Life Map]] design. Project Board is where most execution work happens.
 
 ## HOW: Implementation

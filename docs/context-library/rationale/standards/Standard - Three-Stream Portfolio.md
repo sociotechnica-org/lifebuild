@@ -27,11 +27,10 @@ The specification for classifying all director work into three purpose-based str
 - **Exception consideration:** Directors with genuinely parallel transformations should sequence them — one Gold this month, the other next — or reframe one as Silver (capacity-building toward a future Gold).
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Core architecture from initial design. The three-stream model is foundational — changing it requires redesigning The Table, Priority Queue, and all prioritization interfaces.
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Three-stream classification (Gold/Silver/Bronze) is fully operational. The Table enforces 1 Gold + 1 Silver max. Purpose assignment determines stream. Three-stream filtering works in the Sorting Room. The standard is well-embodied in the current implementation.
 
 ## HOW: Specification
 

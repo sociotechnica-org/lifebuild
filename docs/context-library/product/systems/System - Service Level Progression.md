@@ -40,6 +40,10 @@ The invisible mechanism governing how AI capabilities evolve based on director e
 
 ## WHEN: Timeline
 
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No Service Level system exists. No tiered progression, no engagement-based advancement, no differentiated agent behavior by level.
+
 Core system. Progression develops as Service Level mechanics mature.
 
 ## HOW: Implementation

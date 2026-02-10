@@ -41,6 +41,10 @@ The mechanism that assigns one domain-specialist AI agent per Life Category, pro
 
 ## WHEN: Timeline
 
+**Build phase:** Post-MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** All 8 advisor definitions exist in `rooms.ts` with prompts and personalities but have no routable UI entry point. Directors cannot navigate to Category Studios. No progressive knowledge capture or domain-specific memory. May be legacy infrastructure from the prototype.
+
 Core system. Individual advisors become more valuable as they accumulate domain-specific knowledge about each director's situation. Advisor coverage for custom categories is a deferred decision (see [[Standard - Life Categories]]).
 
 ## HOW: Implementation

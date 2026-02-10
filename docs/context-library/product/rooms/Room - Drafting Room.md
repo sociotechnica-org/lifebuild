@@ -30,6 +30,10 @@ Marvin's dedicated space — where directors create new projects, guided through
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Drafting Room exists at `/drafting-room` with Marvin agent active. Stages 1-3 have dedicated forms (`Stage1Form.tsx`, `Stage2Form.tsx`, `Stage3Form.tsx`) plus a `StageWizard.tsx` flow. Planning Queue is visible with `PlanningQueueCard` components. Stage 4 (Prioritizing) happens in the Sorting Room rather than the Drafting Room. CHORUS_TAG navigation links between stages are implemented.
+
 Core support space. Drafting Room process refined as four-stage creation matured.
 
 ## HOW: Implementation

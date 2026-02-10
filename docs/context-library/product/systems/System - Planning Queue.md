@@ -19,8 +19,10 @@ The holding area for projects still in development — work in stages 1-3 of the
 - Driver: Not all projects are ready for prioritization. The Planning Queue holds work-in-progress until it's ready.
 
 ## WHEN: Timeline
-- Status: core
-- Since: v1.0
+
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Planning Queue operational. Projects with `status: 'planning'` and `stage: 1-3` rendered in Drafting Room via `PlanningQueueCard.tsx`. Directors click to resume at the appropriate stage form. Marvin guides progression.
 
 ## HOW: Mechanics
 

@@ -30,6 +30,10 @@ The planning workspace — a collection of specialized rooms where directors eng
 
 ## WHEN: Timeline
 
+**Build phase:** Post-MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** The Strategy Studio as a unified zone with a hub view does not exist. However, several of its rooms are implemented as top-level routes: Drafting Room (`/drafting-room`) and Sorting Room (`/sorting-room`). Category agents are defined in `rooms.ts` but have no direct routing. Council Chamber and Roster Room are not implemented. There is no hub navigation collecting these rooms into a single "strategy" zone.
+
 Core workspace from initial design. Strategy Studio evolved as advisor architecture developed.
 
 ## HOW: Implementation

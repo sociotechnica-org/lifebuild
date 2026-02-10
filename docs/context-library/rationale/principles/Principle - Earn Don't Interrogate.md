@@ -32,8 +32,10 @@ The mix shifts over time: early relationship favors explicit structured (low-cos
 Three sub-principles support this: Just-in-Time Over Just-in-Case (ask when relevant, not during onboarding), Confirm Don't Assume (surface inferences for validation), Priority Tracks to Pain (acquire knowledge about what's hurting first).
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** MVP (ongoing)
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Four-Stage Creation captures project info progressively (follows spirit of principle). Agent conversations don't require profile completion before value. But no knowledge capture system, no behavioral inference, no integration sourcing, no Charter. The five elicitation strategies are aspirational.
 
 ## HOW: Application
 

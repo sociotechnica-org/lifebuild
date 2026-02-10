@@ -17,11 +17,10 @@ The specification for director agency over hex grid spatial organization: direct
 - Driver: Without this spec, systems default to auto-organizing for efficiency, destroying the cognitive value of director-driven placement and breaking the bidirectional loop.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Core specification. Interaction patterns defined during Vision Capture.
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No hex grid exists. No director-driven spatial placement, no drag-and-drop rearrangement, no clustering. These rules cannot be evaluated without the Hex Grid structure they govern.
 
 ## HOW: Specification
 

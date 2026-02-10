@@ -21,11 +21,10 @@ The specification for the progressive ladder (Levels 0-5) measuring how well the
 - Decision: Six levels provide clear progression markers without false precision.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Architectural target. Current implementation targets Levels 1-2. Full ladder represents the AI Team maturity vision.
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No service level system exists. No tiered progression, no level tracking, no differentiated agent behavior by engagement depth. All users receive the same agent capabilities regardless of usage history.
 
 ## HOW: Specification
 

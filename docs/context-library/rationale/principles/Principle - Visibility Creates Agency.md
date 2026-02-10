@@ -24,8 +24,10 @@ Research supports this: Kaplan & Kaplan's Attention Restoration Theory (1989) sh
 The corollary is critical: hiding work removes agency. Defaults should show, not hide. Filters should be opt-in, not opt-out. The director should always answer "where is my stuff?" at a glance.
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** MVP (ongoing)
+**Implementation status:** Partial
+**Reality note (2026-02-10):** The Table shows Gold/Silver/Bronze simultaneously (follows principle). Life Map shows category cards in a flat grid. But no hex grid, no zoom navigation, no spatial indicators — the spatial dimension of "visibility" is largely unrealized. Current UI is more list/card-based than landscape-based.
 
 ## HOW: Application
 

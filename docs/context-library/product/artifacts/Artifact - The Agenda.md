@@ -26,6 +26,10 @@ The session structure that guides conversations in the Council Chamber — a cus
 
 ## WHEN: Timeline
 
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No Agenda artifact exists. Depends on Council Chamber and Jarvis, neither of which are implemented. No session templates, no structured conversation flows.
+
 Core to Council Chamber design. Agenda templates refine based on what works.
 
 ## HOW: Implementation

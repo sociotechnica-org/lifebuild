@@ -25,6 +25,12 @@ If SDT is wrong — if these aren't the core human needs, or if satisfying them 
 
 This is not a design principle we can simply update. It's the lens through which every design principle was derived. Invalidating SDT would mean re-examining every downstream decision.
 
+## WHEN: Timeline
+
+**Build phase:** Foundation
+**Implementation status:** Stable
+**Reality note (2026-02-10):** SDT is the theoretical foundation. It doesn't "implement" — it guides. All three needs are partially served: Autonomy through director control over classification/priorities, Competence through structured process (three-stream, pipeline), Relatedness through agent teammates (3 active, 8 defined). The foundation holds; coverage deepens as features mature.
+
 ## HOW: Application
 
 SDT governs feature design through a simple test: every feature must serve autonomy, competence, or relatedness. A feature that doesn't serve one of the three doesn't belong, regardless of how engaging or innovative it might be.

@@ -21,8 +21,10 @@ The first 72 hours define the relationship. A new director's initial experience 
 - Driver: New users abandon tools that feel overwhelming or empty. The first 72 hours must create momentum and understanding simultaneously.
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** Post-MVP
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No onboarding flow exists. No Campfire component, no Day 1/2/3 sequence, no progressive introduction to agents. New users land on the Life Map with no guided entry point. The Onboarding system this principle governs is not implemented.
 
 ## HOW: Application
 

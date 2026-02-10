@@ -19,8 +19,10 @@ The knowledge acquisition mechanism agents use to learn about directors over tim
 - Driver: Upfront questionnaires create friction and capture stale data. Progressive capture builds living, contextual knowledge through natural interaction.
 
 ## WHEN: Timeline
-- Status: core
-- Since: v1.0
+
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No structured knowledge capture exists. Agent conversations persist in `chatMessages` table, but there is no Knowledge Framework, no confidence-leveled fact store, no cross-agent knowledge sharing. Agents operate with system prompt + conversation history only.
 
 ## HOW: Mechanics
 

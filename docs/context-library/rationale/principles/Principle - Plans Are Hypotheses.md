@@ -27,8 +27,10 @@ Research on the planning fallacy (Kahneman & Tversky) shows people systematicall
 This principle touches everything: agent tone (Jarvis never says "you didn't complete your Gold this week"), success metrics (calibration accuracy, not completion rate), UI patterns (plan modification should feel like adjusting a strategy, not editing a failure report), and mid-week adaptation (the pause-and-replace pattern is legitimate, not shameful).
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** MVP (ongoing)
+**Implementation status:** Partial
+**Reality note (2026-02-10):** The Sorting Room doesn't use guilt language and directors can freely swap priorities. However, no weekly cadence exists (no Friday-to-Friday cycles), no calibration tracking, no plan-vs-reality comparison. The hypothesis framing is aspirational — the system doesn't yet have the temporal structure to test plans as hypotheses.
 
 ## HOW: Application
 

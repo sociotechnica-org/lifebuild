@@ -24,11 +24,9 @@ The Home & Environment Category Advisor. Reed specializes in living space, home 
 
 ## WHEN: Timeline
 
-- Status: core
-- Since: v1.0
-- Service level: Standard
-
-Launch advisor. Reed's value grows as he understands the director's living situation and home priorities.
+**Build phase:** Post-MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Reed is defined in `rooms.ts` as a category advisor with prompt and personality. However, no routable UI exists — Category Studios room is not implemented, so directors cannot interact with Reed directly. Infrastructure-ready, not user-accessible.
 
 ## HOW: Behavior
 

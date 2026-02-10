@@ -20,8 +20,10 @@ The progressive project development process that separates four cognitive modes:
 - Decision: Four stages, not three or five, because the four cognitive modes (divergent capture, convergent definition, generative planning, evaluative comparison) are distinct enough to warrant separation.
 
 ## WHEN: Timeline
-- Status: core
-- Since: v1.0
+
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Four-Stage Creation fully operational. `Stage1Form.tsx` (Identifying), `Stage2Form.tsx` (Scoping), `Stage3Form.tsx` (Detailing) plus `StageWizard.tsx`. Marvin guides through all stages via CHORUS_TAG navigation. Stage 4 happens in the Sorting Room. `ProjectLifecycleState` tracks `stage: 1-4`.
 
 ## HOW: Mechanics
 

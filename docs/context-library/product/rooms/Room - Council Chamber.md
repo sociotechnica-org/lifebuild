@@ -30,6 +30,10 @@ Jarvis's dedicated space in the Strategy Studio — where directors engage in hi
 
 ## WHEN: Timeline
 
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No Council Chamber exists in the codebase. Jarvis agent is not defined in `rooms.ts` and has no route. No Charter or Agenda artifacts are implemented. The strategic conversation partner concept is unbuilt.
+
 Core to Strategy Studio design. Council Chamber is where the Jarvis relationship lives.
 
 ## HOW: Implementation

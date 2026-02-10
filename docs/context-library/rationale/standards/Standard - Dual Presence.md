@@ -19,11 +19,10 @@ The specification for how Work at Hand projects appear in two places simultaneou
 - Decision: Same object rendered twice, not two objects synced. Ensures consistency.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Core architecture. Dual presence enables the Life Map to show both spatial context (hex grid) and priority focus (The Table) simultaneously.
+**Build phase:** MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Projects appear on The Table when assigned to Gold/Silver/Bronze slots AND on the Life Map as category-level entries. But no hex grid — there's no spatial tile for a project to "live" on. Dual presence works conceptually (same data model renders in both places) but the spatial half (hex tile) doesn't exist yet.
 
 ## HOW: Specification
 

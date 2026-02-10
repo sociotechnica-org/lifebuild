@@ -18,11 +18,10 @@ The specification for visual treatment and interaction behavior of empty Gold an
 - Driver: Without explicit spec, empty slots default to "incomplete" visual treatment that pressures directors to fill them, undermining the capacity-first philosophy.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Core specification. Visual treatments defined during Vision Capture.
+**Build phase:** MVP (ongoing)
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Gold/Silver/Bronze slots on The Table are implemented with empty and filled states. However, no visual distinction between "not yet selected" and "intentionally empty." No agent awareness of empty-slot intent. The empty state exists but isn't differentiated by intent.
 
 ## HOW: Specification
 

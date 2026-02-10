@@ -18,11 +18,10 @@ The specification for three Bronze stack operating modes — Minimal, Target, an
 - Driver: Different weeks need different operational engagement. Modes provide that flexibility.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Core to Bronze Operations. Mode selection is part of weekly planning.
+**Build phase:** Post-MVP
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No Bronze mode selection exists. The Bronze stack shows tasks but has no Minimal/Target/Maximal mode controls. Bronze Operations is partial (stack display works) but mode behaviors are not implemented.
 
 ## HOW: Specification
 

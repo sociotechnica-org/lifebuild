@@ -29,6 +29,10 @@ The learning workspace — where completed projects, uprooted systems, and histo
 
 ## WHEN: Timeline
 
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No Archives zone exists in the codebase. No route, no UI, no Conan agent in-app. Completed projects remain in the database but there is no dedicated browsing/search interface for historical data.
+
 Core workspace, developing as historical data accumulates. Archives become more valuable over time.
 
 ## HOW: Implementation

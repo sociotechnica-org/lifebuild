@@ -24,11 +24,9 @@ The Leisure & Lifestyle Category Advisor. Indie specializes in hobbies, recreati
 
 ## WHEN: Timeline
 
-- Status: core
-- Since: v1.0
-- Service level: Standard
-
-Launch advisor. Indie's value grows as she understands what the director actually enjoys and what recharges them.
+**Build phase:** Post-MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Indie is defined in `rooms.ts` as a category advisor with prompt and personality. However, no routable UI exists — Category Studios room is not implemented, so directors cannot interact with Indie directly. Infrastructure-ready, not user-accessible.
 
 ## HOW: Behavior
 

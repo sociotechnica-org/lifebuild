@@ -19,8 +19,10 @@ The two-queue system that separates work in development (Planning Queue) from wo
 - Decision: Separating queues prevents the common failure mode where effort required to "properly create" a project discourages capturing ideas at all.
 
 ## WHEN: Timeline
-- Status: core
-- Since: v1.0
+
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Two-queue pipeline exists. Planning Queue: projects with `status: 'planning'` (stages 1-3) in Drafting Room. Priority Queue: projects with `status: 'backlog'` (stage 4) in Sorting Room by stream. Projects flow Drafting Room → Sorting Room → The Table.
 
 ## HOW: Mechanics
 

@@ -24,11 +24,9 @@ The Purpose & Spirituality Category Advisor. Atlas specializes in life direction
 
 ## WHEN: Timeline
 
-- Status: core
-- Since: v1.0
-- Service level: Standard
-
-Launch advisor. Atlas's value grows as he understands the director's values, beliefs, and life direction.
+**Build phase:** Post-MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Atlas is defined in `rooms.ts` as a category advisor with prompt and personality. However, no routable UI exists — Category Studios room is not implemented, so directors cannot interact with Atlas directly. Infrastructure-ready, not user-accessible.
 
 ## HOW: Behavior
 

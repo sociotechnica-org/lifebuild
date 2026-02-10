@@ -26,6 +26,10 @@ The filtered views in the Sorting Room that separate Priority Queue candidates b
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Three-stream filtering exists in the Sorting Room via `GoldSilverPanel.tsx` and `BronzePanel.tsx`. Projects are separated by stream. Cameron agent assists with prioritization context. Drag-to-table interaction populates The Table positions. Priority score-based ranking is functional. Stream boundaries enforced in the UI.
+
 Core to Sorting Room design. Filters embody the three-stream philosophy in interaction.
 
 ## HOW: Implementation

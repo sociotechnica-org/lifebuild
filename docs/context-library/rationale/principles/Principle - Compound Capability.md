@@ -29,8 +29,10 @@ The tradeoff framework: when evaluating two designs, ask "Which one makes Month 
 The disposability test: if a director could switch to a competitor after 6 months without losing significant value, the compound capability isn't working. Lock-in should come from accumulated intelligence and infrastructure that the director values, not from switching costs or data hostage-taking.
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** MVP (ongoing)
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Event-sourced architecture (LiveStore) provides foundation for compound data. Priority Queue and Pipeline persist project history. But no Charter, no Knowledge Framework, no Service Levels, no calibration tracking. The compounding mechanisms described (infrastructure, knowledge, skill, support) are mostly aspirational — the data layer exists but the intelligence layer doesn't.
 
 ## HOW: Application
 

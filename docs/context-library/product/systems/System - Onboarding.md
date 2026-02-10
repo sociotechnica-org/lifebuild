@@ -20,8 +20,10 @@ The mechanism that implements the First 72 Hours principle — guiding new direc
 - Driver: New directors need a guided path that creates momentum without overwhelming.
 
 ## WHEN: Timeline
-- Status: core
-- Since: v1.0
+
+**Build phase:** Post-MVP
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No onboarding system exists. New users land directly on the Life Map with no guided introduction. No Campfire, no Day 1/2/3 sequence, no Mesa welcome flow. Second priority for MVP upgrade after hex grids.
 
 ## HOW: Mechanics
 

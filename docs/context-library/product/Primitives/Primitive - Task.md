@@ -20,9 +20,10 @@ A single, completable action that contributes to a project's objectives or fulfi
 - Driver: Directors need atomic work units they can complete in a session (typically 15min-2hrs).
 
 ## WHEN: Timeline
-- Status: core
-- Since: v1.0
-- Origin: foundational data model
+
+**Build phase:** MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Task primitive exists with `tasks` table, status-based flow (`todo`, `doing`, `in_review`, `done`), and events (`taskCreated`, `taskStatusUpdated`, `taskDeleted`). Tasks belong to projects and display on project detail page. However: CODAD task types are not implemented (no type classification). No delegation to AI Workers or humans (Roster Room unbuilt). No system-generated tasks (System primitive unbuilt). The `in_review` status was added beyond the card's 3-state model to support agent review workflows.
 
 Core entity. Tasks are the smallest work unit — what directors actually execute.
 

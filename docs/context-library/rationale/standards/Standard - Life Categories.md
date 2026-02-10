@@ -23,11 +23,10 @@ The specification for the eight default life-domain categories that organize all
 - Decision: Eight defaults, not immutable. Defaults serve two functions: (1) anchor the Life Map's visual structure, and (2) enable pre-built Category Advisors tuned to each domain. Customization is permitted because the director's mental model takes priority over system convenience.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Core architecture. Categories are foundational to spatial organization, visual language, and the advisor system. Customization policy may evolve based on alpha usage data.
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Eight default categories are fully implemented and used throughout the app. Projects require a category. Categories have associated colors in `constants.ts`. Category advisor agents are defined per category in `rooms.ts`. Category cards appear on the Life Map. Customization (renaming, adding, removing) is not yet supported.
 
 ## HOW: Specification
 

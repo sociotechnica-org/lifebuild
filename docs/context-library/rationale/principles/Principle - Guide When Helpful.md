@@ -26,8 +26,10 @@ Every feature needs two explanations: a "browse mode" explanation (what is this,
 The design pattern is NOT progressive disclosure (hiding complexity until the user "levels up"). It IS progressive guidance (all complexity is accessible, but the system's active help follows the director's journey). Don't interrupt a thriving director to educate them about features they haven't needed.
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** MVP (ongoing)
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Agents are available in rooms (discoverable by navigating). But no active guidance triggers based on behavior, no progressive guidance system, no behavioral detection. Agents respond when visited but don't surface help proactively based on observed patterns.
 
 ## HOW: Application
 

@@ -18,11 +18,10 @@ Standards sit between Principles (what guides decisions) and Features/Components
 - Decision: Standards are a distinct type because specifications require different treatment than mechanisms. A builder reads Standards to know what to produce; a builder reads Systems to understand how things work.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Type added February 2026 to address misclassification of specification cards previously typed as Systems.
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** This is a meta-card defining the Standard type within the context library taxonomy. The type definition is active and used — all Standard cards in the library conform to this classification. This is documentation infrastructure, not runtime code.
 
 ## HOW: Classification
 

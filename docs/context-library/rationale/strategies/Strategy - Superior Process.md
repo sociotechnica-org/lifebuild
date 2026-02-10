@@ -27,8 +27,10 @@ Almost none of this gets applied to personal life. The modern knowledge worker's
 The bet: if we apply structured process to personal life, directors will execute more effectively, avoid overwhelm, and make better decisions about what deserves their time and energy.
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** MVP (ongoing)
+**Implementation status:** Partial
+**Reality note (2026-02-10):** At Level 3 partially — three-stream portfolio, The Table, Four-Stage Creation, Priority Queue, and Pipeline Architecture all implemented. Weekly cadence (Friday-to-Friday planning rhythm), capacity tracking, and Adaptation system not yet built. Process exists but is ad-hoc, not rhythmic.
 
 ## HOW: Application
 

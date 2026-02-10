@@ -24,11 +24,9 @@ The Personal Growth & Learning Category Advisor. Sage specializes in skill devel
 
 ## WHEN: Timeline
 
-- Status: core
-- Since: v1.0
-- Service level: Standard
-
-Launch advisor. Sage's value grows as she understands the director's learning style, interests, and growth edges.
+**Build phase:** Post-MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Sage is defined in `rooms.ts` as a category advisor with prompt and personality. However, no routable UI exists — Category Studios room is not implemented, so directors cannot interact with Sage directly. Infrastructure-ready, not user-accessible.
 
 ## HOW: Behavior
 

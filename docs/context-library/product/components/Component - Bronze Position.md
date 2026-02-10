@@ -26,6 +26,10 @@ The rightmost position on The Table, displaying a stack of operational tasks —
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Bronze Position exists as a `TableSlot` component in `TableBar.tsx` rendering the top bronze project plus a count of additional queued projects. Bronze mode selection (Minimal/Target/Maximal) is functional in the Sorting Room via `BronzePanel.tsx`. Backed by `tableBronzeProjects` table.
+
 Core to Table structure. Bronze's stack behavior distinguishes it from the singular focus of Gold/Silver.
 
 ## HOW: Implementation

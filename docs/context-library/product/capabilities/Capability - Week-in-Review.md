@@ -28,6 +28,10 @@ The structured end-of-week reflection where directors review what happened again
 
 ## WHEN: Timeline
 
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No Week-in-Review capability exists. Depends on Council Chamber and Jarvis, neither of which are implemented. No structured reflection flow, no calibration data capture, no weekly rhythm features.
+
 Core rhythm feature. Week-in-Review closes the weekly loop before planning opens the next.
 
 ## HOW: Implementation

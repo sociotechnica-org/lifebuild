@@ -26,6 +26,10 @@ The detail overlay that opens when a director clicks any system tile — a focus
 
 ## WHEN: Timeline
 
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No System Board exists in the codebase. The System primitive is not implemented — no system tiles, no health indicators, no cycle tracking. No route or UI component for system management.
+
 Core to [[Zone - Life Map]] design. System Board parallels Project Board for the other tool type.
 
 ## HOW: Implementation

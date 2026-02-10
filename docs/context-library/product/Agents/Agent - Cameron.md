@@ -24,11 +24,9 @@ The Priority Coordinator who manages the Sorting Room, helping directors make pr
 
 ## WHEN: Timeline
 
-- Status: core
-- Since: v1.0
-- Service level: Advanced
-
-Cameron's pattern detection improves with observation — "this task has moved down your list three weeks running."
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Cameron is fully active in the Sorting Room with a routable UI, agent definition in `rooms.ts`, prompt, and personality. Guides directors through priority selection across Gold/Silver/Bronze streams. Pattern detection and capacity integration not yet implemented.
 
 ## HOW: Behavior
 

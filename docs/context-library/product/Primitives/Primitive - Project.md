@@ -25,9 +25,10 @@ A discrete initiative with a finish line — bounded work that completes and mov
 - Driver: Directors need bounded containers for work with finish lines. The question for projects is always: "How close am I to finished?"
 
 ## WHEN: Timeline
-- Status: core
-- Since: v1.0
-- Origin: foundational data model
+
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Project primitive is fully operational. `projects` table in LiveStore schema with full event support (`projectCreated`, `projectUpdated`, `projectDeleted`). `ProjectLifecycleState` stored as flat JSON — status (planning/backlog/active/completed), stage (1-4), archetypes, traits, stream/slot assignment. Projects render as `ProjectCard` components within category cards on Life Map (not hex tiles). No image evolution or progress rings. Category assignment, four-stage creation, and three-stream classification all functional.
 
 Core entity from initial design. Projects are one of two initiative types (alongside Systems) that occupy hex tiles on the Life Map.
 

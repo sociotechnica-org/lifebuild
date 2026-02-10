@@ -27,6 +27,10 @@ Devin's dedicated space — where directors assign AI Workers to delegatable tas
 
 ## WHEN: Timeline
 
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No Roster Room exists in the codebase. Devin agent is not defined in `rooms.ts`. Worker tables (`workers`, `workerProjects`, `workerCategories`) exist in the schema as legacy scaffolding but are not used. Deferred until core advisor agents are stable.
+
 Future feature. Worker architecture and delegation framework are in design phase. Roster Room depends on mature Agent coordination (Level 4+ on AI as Teammates ladder) and standing job/permission definitions (Level 3).
 
 ## HOW: Implementation

@@ -23,11 +23,9 @@ The Knowledge Manager who maintains the Archives — the repository where comple
 
 ## WHEN: Timeline
 
-- Status: core
-- Since: v1.0
-- Service level: Advanced
-
-Conan's pattern detection improves as history accumulates — meaningful patterns require data across months.
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** Conan does not exist as an in-app agent. Not defined in `rooms.ts`, no Archives zone route, no prompt. A "Conan the Librarian" skill exists as a Claude Code developer tool for context library quality, but this is unrelated to the in-app Knowledge Manager role described here.
 
 ## HOW: Behavior
 

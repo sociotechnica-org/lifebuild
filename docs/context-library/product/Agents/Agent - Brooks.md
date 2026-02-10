@@ -24,11 +24,9 @@ The Financial Resources Category Advisor. Brooks specializes in personal finance
 
 ## WHEN: Timeline
 
-- Status: core
-- Since: v1.0
-- Service level: Standard
-
-Launch advisor. Brooks's value grows as he understands the director's financial situation, goals, and constraints.
+**Build phase:** Post-MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Brooks is defined in `rooms.ts` as a category advisor with prompt and personality. However, no routable UI exists — Category Studios room is not implemented, so directors cannot interact with Brooks directly. Infrastructure-ready, not user-accessible.
 
 ## HOW: Behavior
 

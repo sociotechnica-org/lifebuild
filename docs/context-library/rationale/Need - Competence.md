@@ -19,6 +19,12 @@ In LifeBuild, competence manifests as directors completing what they commit to a
 
 The opposite of competence support is learned helplessness: unclear goals, no feedback, tasks too hard or too easy, no visible progress, repeated failure without learning. LifeBuild's design principles protect against these patterns.
 
+## WHEN: Timeline
+
+**Build phase:** Foundation
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Competence is partially served. Three-stream structure protects transformation work. Four-Stage Creation provides clear project flow. Pipeline Architecture shows lifecycle progress. But no weekly rhythm, no calibration tracking, no visible improvement metrics. The "complete and improve" loop is structural but not temporal.
+
 ## HOW: Application
 
 When evaluating any feature or agent behavior, ask: "Does this help the director feel more capable, or less?"

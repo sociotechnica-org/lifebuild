@@ -24,11 +24,9 @@ The Life Map Advisor — a friendly, helpful presence available on-call througho
 
 ## WHEN: Timeline
 
-- Status: core
-- Since: v1.0
-- Service level: Advanced
-
-Mesa's routing function becomes more sophisticated as the agent team grows and specializes.
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Mesa is fully active on the Life Map with a routable UI, agent definition in `rooms.ts`, prompt, and personality. Functions as general-purpose advisor and router. Hex Grid management and Zoom Navigation not yet relevant (those structures don't exist yet).
 
 ## HOW: Behavior
 

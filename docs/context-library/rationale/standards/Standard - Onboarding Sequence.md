@@ -17,11 +17,10 @@ The specification for the day-by-day first 72 hours experience: what happens eac
 - Driver: Without a sequenced spec, features compete for attention during onboarding, creating cognitive overload and abandonment.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Core specification. Sequence refined based on onboarding completion and retention data.
+**Build phase:** Post-MVP
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No onboarding sequence exists. No Day 1/2/3 structure, no progressive feature introduction, no Campfire first-contact. New users see the full UI immediately with no guided path.
 
 ## HOW: Specification
 

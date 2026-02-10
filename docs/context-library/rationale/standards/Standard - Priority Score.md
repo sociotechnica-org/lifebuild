@@ -22,11 +22,10 @@ The specification for computing priority ranking within streams: base formula pl
 - Decision: Formula is hypothesis, not validated algorithm. Expect tuning based on override frequency and director feedback.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Initial specification. Weights are tunable — architecture supports evolution as we learn.
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Priority scoring is implemented in the Priority Queue Architecture. Projects have urgency, importance, and other attributes that feed scoring. Stream-specific weighting (Gold amplifies importance, Bronze amplifies urgency) is functional. Processing Layer does not exist as a separate system — scoring runs client-side.
 
 ## HOW: Specification
 

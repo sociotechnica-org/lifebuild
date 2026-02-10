@@ -24,8 +24,10 @@ The five illustration stages (Sketch → Clean Pencils → Inked → Colored →
 Brand Standards v2 specifies the implementation: Source Serif for readability, warm earth tones for recognition without visual noise, 400ms transitions for contemplative pacing that doesn't interfere with scanning.
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No hex tiles, no diorama-style illustrations, no visual recognition system. Projects are represented as text cards, not illustrated tiles. The two-second recognition test cannot be applied to the current UI. Depends on Hex Grid and illustration pipeline, neither of which exist.
 
 ## HOW: Application
 

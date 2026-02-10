@@ -24,11 +24,9 @@ The Community & Contributions Category Advisor. Finn specializes in civic engage
 
 ## WHEN: Timeline
 
-- Status: core
-- Since: v1.0
-- Service level: Standard
-
-Launch advisor. Finn's value grows as he understands the director's community connections and contribution priorities.
+**Build phase:** Post-MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Finn is defined in `rooms.ts` as a category advisor with prompt and personality. However, no routable UI exists — Category Studios room is not implemented, so directors cannot interact with Finn directly. Infrastructure-ready, not user-accessible.
 
 ## HOW: Behavior
 

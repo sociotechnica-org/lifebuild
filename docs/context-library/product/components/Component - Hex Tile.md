@@ -25,6 +25,10 @@ An individual hexagonal tile on the grid representing a single project or system
 
 ## WHEN: Timeline
 
+**Build phase:** Post-MVP
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No hex tiles exist. Projects are rendered as `ProjectCard` components within `CategoryCard` containers on the Life Map. Hex Tile depends on Hex Grid implementation, which is the top upgrade priority.
+
 Core to Hex Grid design. Tile visual treatment evolves as the design system matures.
 
 ## HOW: Implementation

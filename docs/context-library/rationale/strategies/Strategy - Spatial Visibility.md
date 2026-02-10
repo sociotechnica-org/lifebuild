@@ -26,8 +26,10 @@ The bet: if work is represented spatially, visually, and traversably — like a 
 Research supports this: the brain's spatial processing and memory systems share neural infrastructure. When you organize information spatially and navigate that space, you engage hippocampal circuits that consolidate long-term memory. Navigable environments outperform static spatial organization because movement through space activates the full spatial memory system. The brain's own coordinate system is hexagonal — grid cells in the entorhinal cortex fire in hex patterns.
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** MVP (ongoing)
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Between Level 0 and 1 of the maturity ladder. Life Map shows category cards in a flat grid, Kanban boards exist for projects. No hex grid, no hex tiles, no zoom navigation, no spatial indicators. The spatial bet is largely unrealized — current UI is closer to lists + cards than spatial landscape.
 
 ## HOW: Application
 

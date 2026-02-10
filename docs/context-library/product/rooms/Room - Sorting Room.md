@@ -34,6 +34,10 @@ Cameron's dedicated space in the Strategy Studio — where directors make priori
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Sorting Room exists at `/sorting-room` with Cameron agent active. Three-stream filtering implemented with `GoldSilverPanel.tsx` and `BronzePanel.tsx`. Drag-to-table interaction works via dnd-kit (`SortableProjectCard.tsx`, `TableDropZone.tsx`, `TableConfirmDialog.tsx`). Bronze mode selection is functional. Stream-specific routes at `/sorting-room/:stream` exist.
+
 Core to Strategy Studio design. Sorting Room mechanics refined as priority math evolved.
 
 ## HOW: Implementation

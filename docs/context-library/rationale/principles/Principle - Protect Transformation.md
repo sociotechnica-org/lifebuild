@@ -24,8 +24,10 @@ Gold and Silver have reserved slots that Bronze cannot invade. Life sometimes de
 We're not saying maintenance doesn't matter. Bronze is essential. The claim is that maintenance doesn't need structural protection — it has urgency on its side already. Transformation needs protection because it lacks urgency's neurological advantage.
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** The Table enforces 1 Gold + 1 Silver max with separate Bronze position. Three-stream filtering works. Gold/Silver/Bronze are structurally separate competitions. The core protection mechanism is fully operational.
 
 ## HOW: Application
 

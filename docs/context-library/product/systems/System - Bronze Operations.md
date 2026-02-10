@@ -21,8 +21,10 @@ The operational workflow governing Bronze stream tasks — mode selection, stack
 - Driver: Operational work behaves differently than transformational work. Bronze Operations codifies that difference.
 
 ## WHEN: Timeline
-- Status: core
-- Since: v1.0
+
+**Build phase:** MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Bronze mode selection (Minimal/Target/Maximal) exists in `BronzePanel.tsx`. Bronze projects can be added/removed from The Table via `tableBronzeProjects` events. However, auto-replenishment on completion is not confirmed. System-generated tasks don't exist (no System primitive). Bronze sources limited to manually-classified bronze projects.
 
 ## HOW: Mechanics
 

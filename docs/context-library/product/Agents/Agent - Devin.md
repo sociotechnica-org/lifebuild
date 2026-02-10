@@ -24,11 +24,9 @@ The Delegation Specialist who manages the Roster Room, helping directors assign 
 
 ## WHEN: Timeline
 
-- Status: core
-- Since: v1.0
-- Service level: Advanced
-
-Devin's recommendations improve as delegation patterns become clear and Worker performance data accumulates.
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** Devin does not exist in the codebase. Not defined in `rooms.ts`, no Roster Room route, no prompt. Depends on Worker primitive and delegation system, neither of which exist.
 
 ## HOW: Behavior
 

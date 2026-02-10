@@ -22,9 +22,10 @@ Planted infrastructure that generates work indefinitely. Unlike projects, system
 - Driver: Directors need containers for recurring work that runs itself. The question for systems is: "Is it running smoothly?"
 
 ## WHEN: Timeline
-- Status: core
-- Since: v1.0
-- Origin: foundational data model
+
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No System primitive exists in the codebase. There is no `systems` table in the LiveStore schema, no system-related events, no health indicators, no cycle tracking, no task generation from systems. The `recurringTasks` table exists as legacy scaffolding from WorkSquared but is unrelated to this System concept. The entire System lifecycle (Planning → Planted → Hibernating → Uprooted) is unbuilt.
 
 Core entity. Systems represent the infrastructure layer of a director's LifeBuild — what runs automatically versus what requires active project management.
 

@@ -24,8 +24,10 @@ Purpose is captured during Stage 2 of project creation with a single question: "
 The one exception: if a classification seems like an error rather than a choice ("you marked 'buy groceries' as Gold — did you mean to do that?"), agents can ask once, gently.
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Purpose assignment is director-driven — stream classification derives from the director's archetype+scale choice, not objective criteria. The Sorting Room respects director overrides. Agents don't auto-reclassify. The principle is well-embodied in the current implementation.
 
 ## HOW: Application
 

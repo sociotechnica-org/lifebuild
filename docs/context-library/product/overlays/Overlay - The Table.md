@@ -40,6 +40,10 @@ A persistent priority spotlight that sits at the top of the Life Map, displaying
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** The Table exists as `TableBar.tsx` rendered persistently at the bottom of the screen (not the top as described) via `NewUiShell.tsx`. Three `TableSlot` components display Gold, Silver, and Bronze positions. Backed by `tableConfiguration` and `tableBronzeProjects` LiveStore tables with full event support (`table.configurationUpdated`, `table.bronzeProjectAdded`, etc.). Bronze shows top project plus count of additional. No project illustrations or image evolution on slots. Visible across all routes.
+
 Core interface element from initial design. The Table's three-position structure is foundational — it embodies the three-stream philosophy in UI.
 
 ## HOW: Implementation

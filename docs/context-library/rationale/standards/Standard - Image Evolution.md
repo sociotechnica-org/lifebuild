@@ -19,11 +19,10 @@ The specification for the five-stage visual progression of a project's illustrat
 - Decision: Content-depicting diorama-style illustrations over abstract patterns. By Colored stage, director should recognize "that's my kitchen project" from across the room.
 
 ## WHEN: Timeline
-- Status: active
-- Since: v1.0
-- Last updated: v1.0
 
-Design decision from Brand Standards v2. Image evolution serves both aesthetic progression AND recognition — each stage makes the project more identifiable.
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No illustration system exists. No five-stage visual progression, no diorama-style images, no image generation pipeline. Projects have no illustrations. Depends on Hex Tile component and an illustration generation pipeline, neither of which exist.
 
 ## HOW: Specification
 

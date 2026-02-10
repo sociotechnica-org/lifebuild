@@ -24,6 +24,10 @@ The center position on The Table, displaying a single capacity-building project 
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Silver Position exists as a `TableSlot` component in `TableBar.tsx`. Single Silver constraint is enforced. No project illustrations, system-building indicators, or evolution stages shown. Selection via Sorting Room.
+
 Core to Table structure. Silver's role as the bridge between transformation (Gold) and maintenance (Bronze) is foundational.
 
 ## HOW: Implementation

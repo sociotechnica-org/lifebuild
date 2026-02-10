@@ -26,6 +26,10 @@ The interface for moving between LifeBuild's three main workspaces — Life Map 
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Header navigation in `NewUiShell.tsx` provides links to Life Map, Drafting Room, and Sorting Room. CHORUS_TAG enables agent-initiated navigation to projects and drafting stages. However, the three-zone model (Life Map / Strategy Studio / Archives) is not implemented — rooms are accessed directly as top-level routes, not nested under a Strategy Studio hub. No keyboard shortcuts. No Archives zone. No context preservation across navigation (zoom/scroll state). Deep linking works via URL routing with `preserveStoreIdInUrl()`.
+
 Core feature. Navigation patterns established early, refined based on usage.
 
 ## HOW: Implementation

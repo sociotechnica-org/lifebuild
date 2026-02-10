@@ -24,11 +24,9 @@ The director's Strategic Advisor and Chief of Staff. Jarvis facilitates strategi
 
 ## WHEN: Timeline
 
-- Status: core
-- Since: v1.0
-- Service level: Advanced
-
-Jarvis's role expands as [[Standard - Service Levels]] progress — from basic strategic facilitation at Level 1 to genuine partnership at Level 4+.
+**Build phase:** Post-MVP
+**Implementation status:** Not started
+**Reality note (2026-02-10):** Jarvis does not exist in the codebase. Not defined in `rooms.ts`, no Council Chamber route, no prompt. The strategic advisor role is entirely aspirational — depends on Council Chamber room and Charter/Agenda artifacts, none of which exist.
 
 ## HOW: Behavior
 

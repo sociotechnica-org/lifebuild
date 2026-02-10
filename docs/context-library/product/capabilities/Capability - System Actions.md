@@ -25,6 +25,10 @@ The three operations available for planted systems: Hibernate (pause temporarily
 
 ## WHEN: Timeline
 
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No System Actions exist. Depends entirely on the System primitive and System Board, neither of which are implemented. No Hibernate, Upgrade, or Uproot functionality.
+
 Core to system entity. Actions available from System Board for any planted system.
 
 ## HOW: Implementation

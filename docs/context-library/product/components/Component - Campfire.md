@@ -23,6 +23,10 @@ The origin hex at the center of every new director's Life Map — a warm, inviti
 
 ## WHEN: Timeline
 
+**Build phase:** Post-MVP
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No Campfire component exists. Depends on both Hex Grid and Onboarding implementation, neither of which are built. Onboarding is the second priority after hex grids.
+
 Core to onboarding design. The Campfire establishes the spatial metaphor from moment one.
 
 ## HOW: Implementation

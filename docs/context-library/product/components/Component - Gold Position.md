@@ -25,6 +25,10 @@ The leftmost position on The Table, displaying a single expansion project — wo
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Gold Position exists as a `TableSlot` component in `TableBar.tsx`. Single Gold constraint is enforced. No project illustrations or evolution stages shown — displays project title and basic info. Selection happens via Sorting Room drag-to-table interaction.
+
 Core to Table structure. The single-Gold constraint is foundational to the protection philosophy.
 
 ## HOW: Implementation

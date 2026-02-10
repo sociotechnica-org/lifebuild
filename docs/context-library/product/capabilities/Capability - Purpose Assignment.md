@@ -25,6 +25,10 @@ The moment during project creation (Stage 2) when a director declares what the t
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Stream classification exists but not via the exact "What is this time investment for?" question described. Instead, stream is derived from archetype + scale during Stage 2 (Scoping) — e.g., initiative + major/epic → Gold, systembuild/discovery → Silver, quicktask/maintenance/micro → Bronze. Marvin's prompt includes stream assignment guidance. Directors can set archetypes via `Stage2Form.tsx`. The subjective purpose question as a distinct UX moment is not implemented.
+
 Captured during Stage 2 of project creation. Purpose can be changed later if the director's relationship to the work shifts.
 
 ## HOW: Implementation

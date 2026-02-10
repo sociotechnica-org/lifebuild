@@ -24,8 +24,10 @@ When directors place a project, they're making their internal understanding expl
 This flywheel justifies a critical design decision: directors place their own projects. The system does not assign locations. Placement reveals how the director actually thinks about their life, which is itself valuable data for the AI team.
 
 ## WHEN: Timeline
-- Status: stable
-- Since: v1.0
+
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No hex grid, no spatial placement by director, no drag-and-drop spatial arrangement. The bidirectional loop between external representation and internal understanding cannot function without the spatial substrate. Depends entirely on Hex Grid and Clustering, neither of which exist.
 
 ## HOW: Application
 

@@ -20,8 +20,10 @@ The ambient notification mechanism that surfaces items needing attention through
 - Driver: Directors need awareness without bombardment. Smoke Signals make problems visible without demanding immediate action.
 
 ## WHEN: Timeline
-- Status: core
-- Since: v1.0
+
+**Build phase:** Future
+**Implementation status:** Not started
+**Reality note (2026-02-10):** No Smoke Signals system exists. No health indicators on tiles, no threshold alerts, no ambient visual signals. Depends on Hex Grid and System primitive, neither implemented.
 
 ## HOW: Mechanics
 

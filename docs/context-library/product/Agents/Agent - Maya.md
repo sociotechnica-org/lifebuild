@@ -24,11 +24,9 @@ The Health & Well-Being Category Advisor. Maya specializes in physical health, m
 
 ## WHEN: Timeline
 
-- Status: core
-- Since: v1.0
-- Service level: Standard
-
-Launch advisor. Maya's value grows as she learns the director's health history, patterns, and priorities.
+**Build phase:** Post-MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Maya is defined in `rooms.ts` as a category advisor with prompt and personality. However, no routable UI exists — Category Studios room is not implemented, so directors cannot interact with Maya directly. Infrastructure-ready, not user-accessible.
 
 ## HOW: Behavior
 

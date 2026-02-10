@@ -24,11 +24,9 @@ The Operational Manager who handles tactical execution and project management. M
 
 ## WHEN: Timeline
 
-- Status: core
-- Since: v1.0
-- Service level: Advanced
-
-Marvin's guidance quality improves with [[Standard - Service Levels]] — better task suggestions as patterns emerge.
+**Build phase:** MVP
+**Implementation status:** Implemented
+**Reality note (2026-02-10):** Marvin is fully active in the Drafting Room with a routable UI, agent definition in `rooms.ts`, prompt, and personality. Guides four-stage project creation and task generation. System configuration for Silver projects not yet implemented (System primitive doesn't exist).
 
 ## HOW: Behavior
 

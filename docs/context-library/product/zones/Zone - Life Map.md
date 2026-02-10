@@ -38,6 +38,10 @@ The primary execution workspace — a spatial canvas where directors see their e
 
 ## WHEN: Timeline
 
+**Build phase:** MVP
+**Implementation status:** Partial
+**Reality note (2026-02-10):** Life Map exists as the default route (`/life-map`) rendering `LifeMap.tsx` with 8 `CategoryCard` components. Mesa agent is active. The Table overlay is implemented. However, the hex grid spatial canvas is not built — projects appear as cards within category containers, not hex tiles on a zoomable spatial canvas. Zoom Navigation, smoke signals, dual presence, and spatial positioning are not implemented.
+
 Core workspace from initial design. The Life Map is LifeBuild's primary interface — where directors spend most of their time.
 
 ## HOW: Implementation
