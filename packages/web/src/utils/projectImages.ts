@@ -1,5 +1,6 @@
 import type { Project } from '@lifebuild/shared/schema'
 import type { PlanningAttributes } from '@lifebuild/shared'
+import { getInitials } from './initials.js'
 
 const getFullImageUrl = (url: string): string => {
   if (!url) return ''
@@ -31,12 +32,5 @@ export const getProjectCoverImageUrl = (project: Project): string | null => {
 }
 
 export const getProjectInitials = (project: Project): string => {
-  const name = project.name?.trim()
-  if (!name) return 'P'
-  const words = name.split(/\s+/)
-  const initials = words
-    .slice(0, 2)
-    .map(word => word[0])
-    .join('')
-  return initials.toUpperCase()
+  return getInitials(project.name || 'P')
 }

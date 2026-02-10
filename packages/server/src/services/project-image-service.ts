@@ -317,8 +317,12 @@ export class ProjectImageService {
       }
       const publicUrl = uploadPayload.url
 
+      // Re-read attributes right before commit to avoid overwriting concurrent changes
+      const freshProject = resolveProjectRecord(store, projectId)
+      const freshAttributes = parseAttributes(freshProject?.attributes ?? null)
+
       const updatedAttributes = {
-        ...attributes,
+        ...freshAttributes,
         coverImage: publicUrl,
         coverImageUpdatedAt: new Date().toISOString(),
       }
