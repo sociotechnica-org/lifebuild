@@ -1490,6 +1490,7 @@ export class EventProcessor {
 
     let sawError = false
     let iterationCount = 0
+    let assistantResponseEmitted = false
 
     const unsubscribe = session.subscribe((event: AgentSessionEvent) => {
       if (storeState.stopping) {
@@ -1569,6 +1570,7 @@ export class EventProcessor {
                   },
                 })
               )
+              assistantResponseEmitted = true
             }
           }
           break
@@ -1615,8 +1617,33 @@ export class EventProcessor {
           llmMetadata: { source: 'error' },
         })
       )
+      assistantResponseEmitted = true
     } finally {
       unsubscribe()
+    }
+
+    if (sawError && !assistantResponseEmitted) {
+      logger.warn(
+        {
+          storeId,
+          conversationId,
+          correlationId,
+          userMessageId: userMessage.id,
+        },
+        'Pi session reported an error state without assistant text; emitting fallback error response'
+      )
+      store.commit(
+        events.llmResponseReceived({
+          id: crypto.randomUUID(),
+          conversationId,
+          message: 'Sorry, I encountered an error processing your message. Please try again.',
+          role: 'assistant',
+          modelId: 'error',
+          responseToMessageId: userMessage.id,
+          createdAt: new Date(),
+          llmMetadata: { source: 'error' },
+        })
+      )
     }
 
     const completedIterations = iterationCount > 0 ? iterationCount : sawError ? 0 : 1

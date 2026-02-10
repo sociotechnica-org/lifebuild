@@ -374,6 +374,80 @@ describe('EventProcessor conversation history builder', () => {
     processor.stopAll()
   })
 
+  it('emits fallback assistant error when Pi reports error state without text', async () => {
+    const commit = vi.fn()
+    const store = {
+      commit,
+      query: vi.fn().mockReturnValue([]),
+    }
+    const storeManager = createMockStoreManager()
+    storeManager.getStore = vi.fn(() => store as any)
+
+    const processor = new EventProcessor(storeManager as any)
+    const listeners: Array<(event: any) => void> = []
+    const assistantErrorMessage: any = {
+      role: 'assistant',
+      content: [],
+      stopReason: 'error',
+      errorMessage: 'Provider error',
+    }
+
+    const fakeSession = {
+      agent: {
+        setSystemPrompt: vi.fn(),
+        state: { messages: [] },
+        replaceMessages: vi.fn(),
+      },
+      subscribe: vi.fn((listener: (event: any) => void) => {
+        listeners.push(listener)
+        return vi.fn()
+      }),
+      setModel: vi.fn().mockResolvedValue(undefined),
+      prompt: vi.fn().mockImplementation(async () => {
+        for (const listener of listeners) {
+          listener({ type: 'message_end', message: assistantErrorMessage })
+          listener({ type: 'agent_end', messages: [assistantErrorMessage] })
+        }
+      }),
+    }
+
+    vi.spyOn(processor as any, 'getOrCreatePiSession').mockResolvedValue({
+      session: fakeSession,
+      sessionDir: '/tmp/pi-session',
+      lastAccessedAt: Date.now(),
+    })
+
+    const completed = await (processor as any).runAgenticLoop(
+      'store-1',
+      {
+        id: 'message-3',
+        conversationId: 'conversation-3',
+        role: 'user',
+        message: 'Are you there?',
+        createdAt: new Date(),
+      } satisfies ChatMessage,
+      { stopping: false } as any
+    )
+
+    expect(completed).toBe(true)
+    expect(
+      commit.mock.calls.some(
+        ([event]: any[]) =>
+          event?.name === 'v1.LLMResponseReceived' &&
+          event?.args?.modelId === 'error' &&
+          event?.args?.message?.includes('Sorry, I encountered an error')
+      )
+    ).toBe(true)
+
+    const completionEvents = commit.mock.calls.filter(
+      ([event]: any[]) => event?.name === 'v1.LLMResponseCompleted'
+    )
+    expect(completionEvents.length).toBe(1)
+    expect(completionEvents[0][0].args.success).toBe(false)
+
+    processor.stopAll()
+  })
+
   it('evicts least-recently-used Pi sessions when cache capacity is reached', () => {
     const disposeOldest = vi.fn()
     const disposeNewest = vi.fn()
