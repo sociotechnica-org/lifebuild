@@ -1518,22 +1518,7 @@ export class EventProcessor {
 
       switch (event.type) {
         case 'tool_execution_start': {
-          store.commit(
-            events.llmResponseReceived({
-              id: crypto.randomUUID(),
-              conversationId,
-              message: `🔧 Using ${event.toolName} tool...`,
-              role: 'assistant',
-              modelId: 'system',
-              responseToMessageId: userMessage.id,
-              createdAt: new Date(),
-              llmMetadata: {
-                source: 'tool-execution',
-                toolCallId: event.toolCallId,
-                toolName: event.toolName,
-              },
-            })
-          )
+          // Suppress tool progress chatter in the chat transcript.
           break
         }
         case 'tool_execution_end': {
@@ -1542,7 +1527,8 @@ export class EventProcessor {
               ? event.result.details.formatted
               : this.extractToolResultText(event.result?.content)
 
-          if (formatted) {
+          // Only surface tool output when the tool failed.
+          if (formatted && event.isError) {
             store.commit(
               events.llmResponseReceived({
                 id: crypto.randomUUID(),
@@ -1553,7 +1539,7 @@ export class EventProcessor {
                 responseToMessageId: userMessage.id,
                 createdAt: new Date(),
                 llmMetadata: {
-                  source: event.isError ? 'tool-error' : 'tool-result',
+                  source: 'tool-error',
                   toolCallId: event.toolCallId,
                   toolName: event.toolName,
                 },

@@ -26,6 +26,26 @@ export async function executeLLMTool(
   toolCall: { name: string; parameters: any },
   workerId?: string
 ): Promise<any> {
+  const disabledTools = new Set([
+    'list_documents',
+    'read_document',
+    'search_documents',
+    'get_project_documents',
+    'search_project_documents',
+    'create_document',
+    'update_document',
+    'archive_document',
+    'add_document_to_project',
+    'remove_document_from_project',
+  ])
+
+  if (disabledTools.has(toolCall.name)) {
+    return {
+      success: false,
+      error: `Tool "${toolCall.name}" is disabled because documents are not exposed in the UI.`,
+    }
+  }
+
   // Import functions dynamically to avoid circular dependencies
   const {
     createTask,
@@ -49,19 +69,6 @@ export async function executeLLMTool(
     archiveProject,
     unarchiveProject,
   } = await import('./projects.js')
-
-  const {
-    listDocuments,
-    readDocument,
-    searchDocuments,
-    getProjectDocuments,
-    searchProjectDocuments,
-    createDocument,
-    updateDocument,
-    archiveDocument,
-    addDocumentToProject,
-    removeDocumentFromProject,
-  } = await import('./documents.js')
 
   const {
     listContacts,
@@ -154,38 +161,8 @@ export async function executeLLMTool(
     case 'update_project_lifecycle':
       return updateProjectLifecycle(store, toolCall.parameters, workerId)
 
-    case 'list_documents':
-      return listDocuments(store)
-
-    case 'read_document':
-      return readDocument(store, toolCall.parameters.documentId)
-
-    case 'search_documents':
-      return searchDocuments(store, toolCall.parameters.query)
-
-    case 'get_project_documents':
-      return getProjectDocuments(store, toolCall.parameters.projectId)
-
-    case 'search_project_documents':
-      return searchProjectDocuments(store, toolCall.parameters.query, toolCall.parameters.projectId)
-
     case 'get_project_details':
       return getProjectDetails(store, toolCall.parameters.projectId)
-
-    case 'create_document':
-      return createDocument(store, toolCall.parameters)
-
-    case 'update_document':
-      return updateDocument(store, toolCall.parameters)
-
-    case 'archive_document':
-      return archiveDocument(store, toolCall.parameters.documentId)
-
-    case 'add_document_to_project':
-      return addDocumentToProject(store, toolCall.parameters)
-
-    case 'remove_document_from_project':
-      return removeDocumentFromProject(store, toolCall.parameters)
 
     // Contact tools
     case 'list_contacts':

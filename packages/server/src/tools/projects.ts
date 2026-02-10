@@ -47,13 +47,40 @@ export interface UpdateProjectLifecycleParams {
   objectives?: string
   deadline?: number
   estimatedDuration?: number
-  stream?: string
+  stream?: 'gold' | 'silver' | 'bronze'
+  projectType?: 'initiative' | 'optimization' | 'to-do' | 'todo' | 'to do'
   priority?: number
 }
 
 export interface UpdateProjectLifecycleResult {
   success: boolean
   error?: string
+}
+
+const LIFECYCLE_STREAMS = ['gold', 'silver', 'bronze'] as const
+type LifecycleStream = (typeof LIFECYCLE_STREAMS)[number]
+
+function isLifecycleStream(value: string): value is LifecycleStream {
+  return (LIFECYCLE_STREAMS as readonly string[]).includes(value)
+}
+
+function mapProjectTypeToStream(projectType: string): LifecycleStream | null {
+  const normalized = projectType
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, '-')
+
+  switch (normalized) {
+    case 'initiative':
+      return 'gold'
+    case 'optimization':
+      return 'silver'
+    case 'to-do':
+    case 'todo':
+      return 'bronze'
+    default:
+      return null
+  }
 }
 
 /**
@@ -329,7 +356,7 @@ function unarchiveProjectCore(
  * This is the correct way to update planning data - NOT the old 'attributes' field
  *
  * VALIDATION RULES (matching UI validation):
- * - Stage 3+: Must have objectives (non-empty) AND stream/tier (not null)
+ * - Stage 3+: Must have objectives (non-empty) AND project type/stream (not null)
  * - Stage 4 OR status 'backlog': Must have at least one task
  */
 function updateProjectLifecycleCore(
@@ -338,6 +365,38 @@ function updateProjectLifecycleCore(
   actorId?: string
 ): UpdateProjectLifecycleResult {
   try {
+    let resolvedStream: LifecycleStream | undefined
+
+    if (params.stream !== undefined) {
+      if (!isLifecycleStream(params.stream)) {
+        return {
+          success: false,
+          error:
+            'Invalid stream value. Must be one of: "gold", "silver", or "bronze" (or use projectType: "initiative", "optimization", "to-do").',
+        }
+      }
+      resolvedStream = params.stream
+    }
+
+    if (params.projectType !== undefined) {
+      const projectTypeStream = mapProjectTypeToStream(params.projectType)
+      if (!projectTypeStream) {
+        return {
+          success: false,
+          error:
+            'Invalid projectType value. Must be one of: "initiative", "optimization", or "to-do".',
+        }
+      }
+      if (resolvedStream !== undefined && resolvedStream !== projectTypeStream) {
+        return {
+          success: false,
+          error:
+            'Conflicting stream and projectType values. Use a matching pair or provide only one.',
+        }
+      }
+      resolvedStream = projectTypeStream
+    }
+
     // Validate project exists
     const projects = store.query(getProjectDetails$(params.projectId)) as any[]
     const project = validators.requireEntity(projects, 'Project', params.projectId)
@@ -364,11 +423,11 @@ function updateProjectLifecycleCore(
       ...(params.estimatedDuration !== undefined && {
         estimatedDuration: params.estimatedDuration,
       }),
-      ...(params.stream !== undefined && { stream: params.stream as any }),
+      ...(resolvedStream !== undefined && { stream: resolvedStream }),
       ...(params.priority !== undefined && { priority: params.priority }),
     }
 
-    // VALIDATION: Stage 3+ requires objectives and stream/tier
+    // VALIDATION: Stage 3+ requires objectives and project type/stream
     // Check if we're advancing TO stage 3 or higher
     const targetStage = updatedLifecycle.stage ?? 1
     if (targetStage >= 3) {

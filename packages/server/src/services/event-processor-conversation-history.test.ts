@@ -326,6 +326,119 @@ describe('EventProcessor conversation history builder', () => {
     processor.stopAll()
   })
 
+  it('suppresses successful tool chatter while keeping tool errors', async () => {
+    const commit = vi.fn()
+    const store = {
+      commit,
+      query: vi.fn().mockReturnValue([]),
+    }
+    const storeManager = createMockStoreManager()
+    storeManager.getStore = vi.fn(() => store as any)
+
+    const processor = new EventProcessor(storeManager as any)
+    const listeners: Array<(event: any) => void> = []
+
+    const fakeSession = {
+      agent: {
+        setSystemPrompt: vi.fn(),
+        state: { messages: [] },
+        replaceMessages: vi.fn(),
+      },
+      subscribe: vi.fn((listener: (event: any) => void) => {
+        listeners.push(listener)
+        return vi.fn()
+      }),
+      setModel: vi.fn().mockResolvedValue(undefined),
+      prompt: vi.fn().mockImplementation(async () => {
+        const assistantMessage = {
+          role: 'assistant',
+          content: [{ type: 'text', text: 'Done.' }],
+          stopReason: 'stop',
+        }
+
+        for (const listener of listeners) {
+          listener({
+            type: 'tool_execution_start',
+            toolName: 'update_project',
+            toolCallId: 'tool-1',
+          })
+          listener({
+            type: 'tool_execution_end',
+            toolName: 'update_project',
+            toolCallId: 'tool-1',
+            isError: false,
+            result: {
+              details: {
+                formatted: 'Tool executed successfully. Result: {"success": true}',
+              },
+            },
+          })
+          listener({
+            type: 'tool_execution_end',
+            toolName: 'update_project',
+            toolCallId: 'tool-2',
+            isError: true,
+            result: {
+              details: {
+                formatted: 'Tool execution failed',
+              },
+            },
+          })
+          listener({ type: 'message_end', message: assistantMessage })
+          listener({ type: 'agent_end', messages: [assistantMessage] })
+        }
+      }),
+    }
+
+    vi.spyOn(processor as any, 'getOrCreatePiSession').mockResolvedValue({
+      session: fakeSession,
+      sessionDir: '/tmp/pi-session',
+      lastAccessedAt: Date.now(),
+    })
+
+    const completed = await (processor as any).runAgenticLoop(
+      'store-1',
+      {
+        id: 'message-tool-noise',
+        conversationId: 'conversation-tool-noise',
+        role: 'user',
+        message: 'Update the project and tell me when done',
+        createdAt: new Date(),
+      } satisfies ChatMessage,
+      { stopping: false } as any
+    )
+
+    expect(completed).toBe(true)
+
+    const llmResponseReceived = commit.mock.calls
+      .map(([event]: any[]) => event)
+      .filter((event: any) => event?.name === 'v1.LLMResponseReceived')
+
+    expect(
+      llmResponseReceived.some(
+        (event: any) =>
+          event.args?.llmMetadata?.source === 'tool-execution' ||
+          event.args?.llmMetadata?.source === 'tool-result'
+      )
+    ).toBe(false)
+
+    expect(
+      llmResponseReceived.some(
+        (event: any) =>
+          event.args?.llmMetadata?.source === 'tool-error' &&
+          event.args?.message === 'Tool execution failed'
+      )
+    ).toBe(true)
+
+    expect(
+      llmResponseReceived.some(
+        (event: any) => event.args?.llmMetadata?.source === 'pi' && event.args?.message === 'Done.'
+      )
+    ).toBe(true)
+
+    processor.stopAll()
+  })
+
   it('captures Pi prompt errors in Sentry with failure completion metadata', async () => {
     const commit = vi.fn()
     const store = {

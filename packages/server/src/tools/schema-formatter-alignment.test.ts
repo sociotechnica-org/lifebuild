@@ -2,8 +2,44 @@ import { describe, it, expect } from 'vitest'
 import { TaskToolFormatter } from '../services/pi/tool-formatters/task-formatter.js'
 import { DocumentToolFormatter } from '../services/pi/tool-formatters/document-formatter.js'
 import { ContactToolFormatter } from '../services/pi/tool-formatters/contact-formatter.js'
+import { llmToolSchemas } from './schemas.js'
+import { executeLLMTool } from './index.js'
 
 describe('Schema-Formatter Alignment', () => {
+  it('does not expose document tools in llmToolSchemas', () => {
+    const toolNames = llmToolSchemas.map(tool => tool.function.name)
+    const documentTools = [
+      'list_documents',
+      'read_document',
+      'search_documents',
+      'get_project_documents',
+      'search_project_documents',
+      'create_document',
+      'update_document',
+      'archive_document',
+      'add_document_to_project',
+      'remove_document_from_project',
+    ]
+
+    for (const toolName of documentTools) {
+      expect(toolNames).not.toContain(toolName)
+    }
+  })
+
+  it('returns disabled error when document tools are called directly', async () => {
+    const result = await executeLLMTool(
+      {} as any,
+      {
+        name: 'list_documents',
+        parameters: {},
+      },
+      'worker-1'
+    )
+
+    expect(result.success).toBe(false)
+    expect(result.error).toContain('is disabled')
+  })
+
   describe('Task Formatters', () => {
     it('create_task formatter uses projectName and status', () => {
       const formatter = new TaskToolFormatter()
