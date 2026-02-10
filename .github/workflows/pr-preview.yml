@@ -83,14 +83,7 @@ jobs:
           missing=()
           required=(
             CLOUDFLARE_API_TOKEN
-            CLOUDFLARE_PREVIEW_ACCOUNT_ID
             CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN
-            CLOUDFLARE_PREVIEW_D1_DATABASE_ID
-            CLOUDFLARE_PREVIEW_D1_DATABASE_NAME
-            CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID
-            CLOUDFLARE_PREVIEW_R2_BUCKET_NAME
-            PREVIEW_JWT_SECRET
-            PREVIEW_SERVER_BYPASS_TOKEN
           )
 
           for name in "${required[@]}"; do
@@ -111,8 +104,106 @@ jobs:
             exit 1
           fi
 
-      - name: Write auth preview wrangler config
+      - name: Resolve preview deployment inputs
+        id: resolve_inputs
         if: steps.preflight.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+
+          extract_rg() {
+            local pattern="$1"
+            local file="$2"
+            rg --pcre2 -U -o "${pattern}" -r '$1' "${file}" | head -n1 || true
+          }
+
+          require_nonempty() {
+            local name="$1"
+            local value="$2"
+            if [[ -z "${value}" ]]; then
+              unresolved+=("${name}")
+            fi
+          }
+
+          PR_NUMBER="${{ steps.meta.outputs.pr_number }}"
+
+          unresolved=()
+          generated_jwt_secret=false
+          generated_server_bypass_token=false
+          using_repo_binding_defaults=false
+
+          resolved_account_id="${CLOUDFLARE_PREVIEW_ACCOUNT_ID:-}"
+          if [[ -z "${resolved_account_id}" ]]; then
+            resolved_account_id="$(pnpm --filter @lifebuild/worker exec wrangler whoami --json 2>/dev/null | jq -r '.accounts[0].id // empty' || true)"
+          fi
+
+          fallback_d1_database_id="$(extract_rg '"database_id"\s*:\s*"([^"]+)"' packages/worker/wrangler.jsonc)"
+          fallback_d1_database_name="$(extract_rg '"database_name"\s*:\s*"([^"]+)"' packages/worker/wrangler.jsonc)"
+          fallback_kv_namespace_id="$(extract_rg '"id"\s*:\s*"([^"]+)"' packages/worker/wrangler.jsonc)"
+          fallback_kv_preview_id="$(extract_rg '"preview_id"\s*:\s*"([^"]+)"' packages/worker/wrangler.jsonc)"
+          fallback_r2_bucket_name="$(extract_rg '"bucket_name"\s*:\s*"([^"]+)"' packages/worker/wrangler.jsonc)"
+          fallback_r2_preview_bucket_name="$(extract_rg '"preview_bucket_name"\s*:\s*"([^"]+)"' packages/worker/wrangler.jsonc)"
+
+          resolved_d1_database_id="${CLOUDFLARE_PREVIEW_D1_DATABASE_ID:-$fallback_d1_database_id}"
+          resolved_d1_database_name="${CLOUDFLARE_PREVIEW_D1_DATABASE_NAME:-$fallback_d1_database_name}"
+          resolved_kv_namespace_id="${CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID:-$fallback_kv_namespace_id}"
+          resolved_kv_preview_id="${CLOUDFLARE_PREVIEW_KV_PREVIEW_ID:-${fallback_kv_preview_id:-$resolved_kv_namespace_id}}"
+          resolved_r2_bucket_name="${CLOUDFLARE_PREVIEW_R2_BUCKET_NAME:-$fallback_r2_bucket_name}"
+          resolved_r2_preview_bucket_name="${CLOUDFLARE_PREVIEW_R2_PREVIEW_BUCKET_NAME:-${fallback_r2_preview_bucket_name:-$resolved_r2_bucket_name}}"
+
+          if [[ -z "${CLOUDFLARE_PREVIEW_D1_DATABASE_ID:-}" ]] || [[ -z "${CLOUDFLARE_PREVIEW_D1_DATABASE_NAME:-}" ]] || [[ -z "${CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID:-}" ]] || [[ -z "${CLOUDFLARE_PREVIEW_R2_BUCKET_NAME:-}" ]]; then
+            using_repo_binding_defaults=true
+          fi
+
+          resolved_jwt_secret="${PREVIEW_JWT_SECRET:-}"
+          if [[ -z "${resolved_jwt_secret}" ]]; then
+            generated_jwt_secret=true
+            resolved_jwt_secret="preview-jwt-pr-${PR_NUMBER}-${GITHUB_REPOSITORY_ID}"
+          fi
+
+          resolved_server_bypass_token="${PREVIEW_SERVER_BYPASS_TOKEN:-}"
+          if [[ -z "${resolved_server_bypass_token}" ]]; then
+            generated_server_bypass_token=true
+            resolved_server_bypass_token="preview-bypass-pr-${PR_NUMBER}-${GITHUB_REPOSITORY_ID}"
+          fi
+
+          require_nonempty CLOUDFLARE_PREVIEW_ACCOUNT_ID "${resolved_account_id}"
+          require_nonempty CLOUDFLARE_PREVIEW_D1_DATABASE_ID "${resolved_d1_database_id}"
+          require_nonempty CLOUDFLARE_PREVIEW_D1_DATABASE_NAME "${resolved_d1_database_name}"
+          require_nonempty CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID "${resolved_kv_namespace_id}"
+          require_nonempty CLOUDFLARE_PREVIEW_R2_BUCKET_NAME "${resolved_r2_bucket_name}"
+
+          unresolved_csv=""
+          if (( ${#unresolved[@]} > 0 )); then
+            unresolved_csv="$(IFS=,; echo "${unresolved[*]}")"
+          fi
+          echo "missing=${unresolved_csv}" >> "$GITHUB_OUTPUT"
+          echo "generated_jwt_secret=${generated_jwt_secret}" >> "$GITHUB_OUTPUT"
+          echo "generated_server_bypass_token=${generated_server_bypass_token}" >> "$GITHUB_OUTPUT"
+          echo "using_repo_binding_defaults=${using_repo_binding_defaults}" >> "$GITHUB_OUTPUT"
+
+          if (( ${#unresolved[@]} > 0 )); then
+            echo "Unable to resolve required preview inputs: ${unresolved_csv}" >&2
+            exit 1
+          fi
+
+          echo "::add-mask::${resolved_jwt_secret}"
+          echo "::add-mask::${resolved_server_bypass_token}"
+
+          {
+            echo "CLOUDFLARE_PREVIEW_ACCOUNT_ID=${resolved_account_id}"
+            echo "CLOUDFLARE_PREVIEW_D1_DATABASE_ID=${resolved_d1_database_id}"
+            echo "CLOUDFLARE_PREVIEW_D1_DATABASE_NAME=${resolved_d1_database_name}"
+            echo "CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID=${resolved_kv_namespace_id}"
+            echo "CLOUDFLARE_PREVIEW_KV_PREVIEW_ID=${resolved_kv_preview_id}"
+            echo "CLOUDFLARE_PREVIEW_R2_BUCKET_NAME=${resolved_r2_bucket_name}"
+            echo "CLOUDFLARE_PREVIEW_R2_PREVIEW_BUCKET_NAME=${resolved_r2_preview_bucket_name}"
+            echo "PREVIEW_JWT_SECRET=${resolved_jwt_secret}"
+            echo "PREVIEW_SERVER_BYPASS_TOKEN=${resolved_server_bypass_token}"
+          } >> "$GITHUB_ENV"
+
+      - name: Write auth preview wrangler config
+        if: steps.preflight.outcome == 'success' && steps.resolve_inputs.outcome == 'success'
         run: |
           set -euo pipefail
 
@@ -148,7 +239,7 @@ jobs:
 
       - name: Deploy auth preview worker
         id: deploy_auth
-        if: steps.preflight.outcome == 'success'
+        if: steps.preflight.outcome == 'success' && steps.resolve_inputs.outcome == 'success'
         continue-on-error: true
         run: |
           set -euo pipefail
@@ -183,7 +274,7 @@ jobs:
           echo "auth_url=https://${AUTH_WORKER_HOST}" >> "$GITHUB_OUTPUT"
 
       - name: Write sync preview wrangler config
-        if: steps.preflight.outcome == 'success'
+        if: steps.preflight.outcome == 'success' && steps.resolve_inputs.outcome == 'success'
         run: |
           set -euo pipefail
 
@@ -246,7 +337,7 @@ jobs:
 
       - name: Deploy sync preview worker
         id: deploy_sync
-        if: steps.preflight.outcome == 'success'
+        if: steps.preflight.outcome == 'success' && steps.resolve_inputs.outcome == 'success'
         continue-on-error: true
         run: |
           set -euo pipefail
@@ -270,7 +361,7 @@ jobs:
 
       - name: Build and deploy web preview
         id: deploy_web
-        if: steps.preflight.outcome == 'success'
+        if: steps.preflight.outcome == 'success' && steps.resolve_inputs.outcome == 'success'
         continue-on-error: true
         env:
           VITE_REQUIRE_AUTH: 'true'
@@ -369,6 +460,11 @@ jobs:
           SERVER_FOUND: ${{ steps.resolve_render.outputs.render_found }}
           PRECHECK_OUTCOME: ${{ steps.preflight.outcome }}
           PRECHECK_MISSING: ${{ steps.preflight.outputs.missing }}
+          INPUTS_OUTCOME: ${{ steps.resolve_inputs.outcome }}
+          INPUTS_MISSING: ${{ steps.resolve_inputs.outputs.missing }}
+          GENERATED_JWT_SECRET: ${{ steps.resolve_inputs.outputs.generated_jwt_secret }}
+          GENERATED_SERVER_BYPASS_TOKEN: ${{ steps.resolve_inputs.outputs.generated_server_bypass_token }}
+          USING_REPO_BINDING_DEFAULTS: ${{ steps.resolve_inputs.outputs.using_repo_binding_defaults }}
           AUTH_OUTCOME: ${{ steps.deploy_auth.outcome }}
           SYNC_OUTCOME: ${{ steps.deploy_sync.outcome }}
           WEB_OUTCOME: ${{ steps.deploy_web.outcome }}
@@ -384,6 +480,11 @@ jobs:
 
             const preflightOk = process.env.PRECHECK_OUTCOME === 'success';
             const missingSecrets = process.env.PRECHECK_MISSING || '';
+            const inputsOk = process.env.INPUTS_OUTCOME === 'success';
+            const missingInputs = process.env.INPUTS_MISSING || '';
+            const generatedJwtSecret = process.env.GENERATED_JWT_SECRET === 'true';
+            const generatedBypassToken = process.env.GENERATED_SERVER_BYPASS_TOKEN === 'true';
+            const usingRepoBindingDefaults = process.env.USING_REPO_BINDING_DEFAULTS === 'true';
 
             const authUrl = process.env.AUTH_URL || '(not deployed)';
             const syncUrl = process.env.SYNC_URL || '(not deployed)';
@@ -398,6 +499,23 @@ jobs:
               ? `- Render deploy logs: ${serverLogUrl}`
               : '- Render deploy logs: (not yet available)';
 
+            const preflightLine = !preflightOk
+              ? `- Preview deploy preflight: ❌ Missing required secrets: ${missingSecrets || '(unknown)'}`
+              : !inputsOk
+                ? `- Preview deploy preflight: ❌ Unable to resolve deploy inputs: ${missingInputs || '(unknown)'}`
+                : '- Preview deploy preflight: ✅';
+
+            const notes = [];
+            if (inputsOk && usingRepoBindingDefaults) {
+              notes.push('- Preview data bindings: using defaults from checked-in wrangler config (set `CLOUDFLARE_PREVIEW_*` secrets to override).');
+            }
+            if (inputsOk && generatedJwtSecret) {
+              notes.push('- Preview JWT secret: using generated non-production default (set `PREVIEW_JWT_SECRET` to override).');
+            }
+            if (inputsOk && generatedBypassToken) {
+              notes.push('- Preview server bypass token: using generated non-production default (set `PREVIEW_SERVER_BYPASS_TOKEN` to override).');
+            }
+
             const body = [
               marker,
               '## PR Preview Environments',
@@ -408,9 +526,8 @@ jobs:
               serverLine,
               serverLogLine,
               '',
-              preflightOk
-                ? '- Preview deploy preflight: ✅'
-                : `- Preview deploy preflight: ❌ Missing required secrets: ${missingSecrets || '(unknown)'}`,
+              preflightLine,
+              ...notes,
               '',
               '_PostHog analytics are intentionally disabled in preview environments._'
             ].join('\n');
@@ -449,6 +566,7 @@ jobs:
         if: always()
         env:
           PRECHECK_OUTCOME: ${{ steps.preflight.outcome }}
+          INPUTS_OUTCOME: ${{ steps.resolve_inputs.outcome }}
           AUTH_OUTCOME: ${{ steps.deploy_auth.outcome }}
           SYNC_OUTCOME: ${{ steps.deploy_sync.outcome }}
           WEB_OUTCOME: ${{ steps.deploy_web.outcome }}
@@ -457,7 +575,7 @@ jobs:
 
           failed=0
 
-          for outcome in "${PRECHECK_OUTCOME}" "${AUTH_OUTCOME}" "${SYNC_OUTCOME}" "${WEB_OUTCOME}"; do
+          for outcome in "${PRECHECK_OUTCOME}" "${INPUTS_OUTCOME}" "${AUTH_OUTCOME}" "${SYNC_OUTCOME}" "${WEB_OUTCOME}"; do
             if [[ "${outcome}" != "success" ]]; then
               failed=1
             fi
