@@ -366,6 +366,7 @@ jobs:
         if: steps.preflight.outcome == 'success' && steps.resolve_inputs.outcome == 'success'
         continue-on-error: true
         env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ env.CLOUDFLARE_PREVIEW_ACCOUNT_ID }}
           VITE_REQUIRE_AUTH: 'true'
           VITE_AUTH_SERVICE_URL: https://${{ steps.meta.outputs.auth_worker_host }}
           VITE_LIVESTORE_SYNC_URL: wss://${{ steps.meta.outputs.sync_worker_host }}
