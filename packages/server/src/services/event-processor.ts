@@ -1,5 +1,6 @@
 import type { Store as LiveStore } from '@livestore/livestore'
 import { queryDb } from '@livestore/livestore'
+import * as Sentry from '@sentry/node'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import type { StoreManager } from './store-manager.js'
@@ -94,6 +95,7 @@ interface StoreProcessingState {
 interface PiConversationSession {
   session: AgentSession
   sessionDir: string
+  lastAccessedAt: number
 }
 
 interface LiveStoreStats {
@@ -154,6 +156,8 @@ export class EventProcessor {
   private readonly piModel: Model<any> | undefined
   private readonly stubResponder: ((message: string) => string) | null
   private readonly inputValidator: PiInputValidator
+  private readonly maxPiSessionsPerStore: number
+  private readonly piSessionIdleTtlMs: number
 
   // Tables to monitor for activity
   // IMPORTANT: Only monitor chatMessages to process user messages
@@ -198,6 +202,12 @@ export class EventProcessor {
       5 * 60 * 1000,
       true
     )
+    this.maxPiSessionsPerStore = parsePositiveInt(process.env.PI_MAX_SESSIONS_PER_STORE, 200, true)
+    this.piSessionIdleTtlMs = parsePositiveInt(
+      process.env.PI_SESSION_IDLE_TTL_MS,
+      30 * 60 * 1000,
+      true
+    )
 
     const renderDiskPath = process.env.RENDER_DISK_PATH
     this.piBaseDir =
@@ -230,6 +240,15 @@ export class EventProcessor {
         logger.info({ model: this.piModel.id }, 'Pi model configured for agent sessions')
       }
     }
+
+    logger.info(
+      {
+        maxPiSessionsPerStore:
+          this.maxPiSessionsPerStore > 0 ? this.maxPiSessionsPerStore : 'unbounded',
+        piSessionIdleTtlMs: this.piSessionIdleTtlMs > 0 ? this.piSessionIdleTtlMs : 'disabled',
+      },
+      'Pi session cache configuration'
+    )
 
     // Load message cutoff timestamp from environment
     const cutoffEnv = process.env.MESSAGE_PROCESSING_CUTOFF_TIMESTAMP
@@ -328,7 +347,7 @@ export class EventProcessor {
       // Set stopping flag for consistency with other cleanup paths
       storeState.stopping = true
       storeState.messageQueue.destroy()
-      storeState.piSessions.clear()
+      this.disposePiSessions(storeId, storeState)
       this.storeStates.delete(storeId)
       this.monitoringStartTime.delete(storeId)
 
@@ -1388,6 +1407,7 @@ export class EventProcessor {
     }
 
     let sawError = false
+    let iterationCount = 0
 
     const unsubscribe = session.subscribe((event: AgentSessionEvent) => {
       if (storeState.stopping) {
@@ -1440,6 +1460,10 @@ export class EventProcessor {
           }
           break
         }
+        case 'turn_end': {
+          iterationCount += 1
+          break
+        }
         case 'message_end': {
           if (event.message.role === 'assistant') {
             if (this.isAssistantErrorMessage(event.message)) {
@@ -1487,6 +1511,13 @@ export class EventProcessor {
     } catch (error) {
       sawError = true
       logger.error({ error, conversationId, correlationId }, 'Error in Pi agent session')
+      this.captureAgentError(error, {
+        storeId,
+        conversationId,
+        userMessageId: userMessage.id,
+        correlationId,
+        stage: 'prompt_execution',
+      })
       store.commit(
         events.llmResponseReceived({
           id: crypto.randomUUID(),
@@ -1503,12 +1534,13 @@ export class EventProcessor {
       unsubscribe()
     }
 
+    const completedIterations = iterationCount > 0 ? iterationCount : sawError ? 0 : 1
     store.commit(
       events.llmResponseCompleted({
         conversationId,
         userMessageId: userMessage.id,
         createdAt: new Date(),
-        iterations: 1,
+        iterations: completedIterations,
         success: !sawError,
       })
     )
@@ -1523,8 +1555,11 @@ export class EventProcessor {
     store: LiveStore,
     workerId?: string
   ): Promise<PiConversationSession | null> {
+    this.evictPiSessionsIfNeeded(storeId, storeState, conversationId)
+
     const existing = storeState.piSessions.get(conversationId)
     if (existing) {
+      existing.lastAccessedAt = Date.now()
       return existing
     }
 
@@ -1560,7 +1595,7 @@ export class EventProcessor {
         customTools: createPiTools({ store, workerId }),
       })
 
-      const entry = { session, sessionDir }
+      const entry = { session, sessionDir, lastAccessedAt: Date.now() }
       storeState.piSessions.set(conversationId, entry)
 
       logger.info({ storeId, conversationId, sessionDir }, 'Pi session created')
@@ -1568,6 +1603,11 @@ export class EventProcessor {
       return entry
     } catch (error) {
       logger.error({ error, storeId, conversationId }, 'Failed to create Pi session')
+      this.captureAgentError(error, {
+        storeId,
+        conversationId,
+        stage: 'session_initialization',
+      })
       return null
     }
   }
@@ -1600,6 +1640,156 @@ export class EventProcessor {
       logger.warn({ error, sessionDir }, 'Failed to inspect existing Pi sessions')
       return null
     }
+  }
+
+  private evictPiSessionsIfNeeded(
+    storeId: string,
+    storeState: StoreProcessingState,
+    preserveConversationId?: string
+  ): void {
+    if (storeState.piSessions.size === 0) {
+      return
+    }
+
+    const now = Date.now()
+
+    if (this.piSessionIdleTtlMs > 0) {
+      for (const [cachedConversationId, entry] of Array.from(storeState.piSessions.entries())) {
+        if (
+          this.shouldPreservePiSession(storeState, cachedConversationId, preserveConversationId)
+        ) {
+          continue
+        }
+
+        const idleDurationMs = now - entry.lastAccessedAt
+        if (idleDurationMs >= this.piSessionIdleTtlMs) {
+          this.disposePiSessionEntry(
+            storeState,
+            storeId,
+            cachedConversationId,
+            entry,
+            'idle_ttl_exceeded',
+            {
+              idleDurationMs,
+              ttlMs: this.piSessionIdleTtlMs,
+            }
+          )
+        }
+      }
+    }
+
+    if (
+      this.maxPiSessionsPerStore <= 0 ||
+      storeState.piSessions.size < this.maxPiSessionsPerStore
+    ) {
+      return
+    }
+
+    const targetSizeBeforeInsert = Math.max(this.maxPiSessionsPerStore - 1, 0)
+    const evictionCandidates = Array.from(storeState.piSessions.entries())
+      .filter(([cachedConversationId]) => {
+        return !this.shouldPreservePiSession(
+          storeState,
+          cachedConversationId,
+          preserveConversationId
+        )
+      })
+      .sort((a, b) => a[1].lastAccessedAt - b[1].lastAccessedAt)
+
+    for (const [cachedConversationId, entry] of evictionCandidates) {
+      if (storeState.piSessions.size <= targetSizeBeforeInsert) {
+        break
+      }
+
+      this.disposePiSessionEntry(storeState, storeId, cachedConversationId, entry, 'capacity_lru')
+    }
+
+    if (storeState.piSessions.size > targetSizeBeforeInsert) {
+      logger.warn(
+        {
+          storeId,
+          cacheSize: storeState.piSessions.size,
+          maxPiSessionsPerStore: this.maxPiSessionsPerStore,
+          preserveConversationId,
+          activeConversations: storeState.activeConversations.size,
+        },
+        'Pi session cache exceeded capacity with no evictable idle sessions'
+      )
+    }
+  }
+
+  private shouldPreservePiSession(
+    storeState: StoreProcessingState,
+    conversationId: string,
+    preserveConversationId?: string
+  ): boolean {
+    return (
+      conversationId === preserveConversationId ||
+      storeState.activeConversations.has(conversationId)
+    )
+  }
+
+  private disposePiSessionEntry(
+    storeState: StoreProcessingState,
+    storeId: string,
+    conversationId: string,
+    entry: PiConversationSession,
+    reason: 'idle_ttl_exceeded' | 'capacity_lru' | 'store_cleanup',
+    metadata?: Record<string, unknown>
+  ): void {
+    try {
+      entry.session.dispose()
+    } catch (error) {
+      logger.warn({ error, storeId, conversationId }, 'Failed to dispose Pi session cleanly')
+      this.captureAgentError(error, {
+        storeId,
+        conversationId,
+        stage: 'session_dispose',
+      })
+    } finally {
+      storeState.piSessions.delete(conversationId)
+    }
+
+    logger.debug(
+      {
+        storeId,
+        conversationId,
+        reason,
+        cacheSizeAfterEviction: storeState.piSessions.size,
+        ...metadata,
+      },
+      'Disposed Pi session from cache'
+    )
+  }
+
+  private captureAgentError(
+    error: unknown,
+    context: {
+      storeId: string
+      conversationId?: string
+      userMessageId?: string
+      correlationId?: string | null
+      stage: 'session_initialization' | 'session_dispose' | 'prompt_execution'
+    }
+  ): void {
+    const exception = error instanceof Error ? error : new Error(String(error))
+
+    Sentry.withScope(scope => {
+      scope.setTag('agent.integration', 'pi')
+      scope.setTag('agent.stage', context.stage)
+      scope.setTag('store_id', context.storeId)
+      if (context.conversationId) {
+        scope.setTag('conversation_id', context.conversationId)
+      }
+      if (context.userMessageId) {
+        scope.setTag('message_id', context.userMessageId)
+      }
+      if (context.correlationId) {
+        scope.setTag('correlation_id', context.correlationId)
+      }
+      scope.setContext('agent_error_context', context)
+      Sentry.captureException(exception)
+    })
   }
 
   private isAssistantErrorMessage(message: Message): message is AssistantMessage {
@@ -1772,15 +1962,10 @@ export class EventProcessor {
     this.storeManager.on('storeReconnected', this.reconnectionHandler)
   }
 
-  private disposePiSessions(storeState: StoreProcessingState): void {
-    for (const { session } of storeState.piSessions.values()) {
-      try {
-        session.dispose()
-      } catch (error) {
-        logger.warn({ error }, 'Failed to dispose Pi session cleanly')
-      }
+  private disposePiSessions(storeId: string, storeState: StoreProcessingState): void {
+    for (const [conversationId, entry] of Array.from(storeState.piSessions.entries())) {
+      this.disposePiSessionEntry(storeState, storeId, conversationId, entry, 'store_cleanup')
     }
-    storeState.piSessions.clear()
   }
 
   /**
@@ -1809,7 +1994,7 @@ export class EventProcessor {
     }
     storeState.conversationProcessors.clear()
 
-    this.disposePiSessions(storeState)
+    this.disposePiSessions(storeId, storeState)
 
     // Cleanup subscription health tracking
     this.lastSubscriptionUpdate.delete(storeId)
@@ -1869,7 +2054,7 @@ export class EventProcessor {
       }
       storeState.conversationProcessors.clear()
 
-      this.disposePiSessions(storeState)
+      this.disposePiSessions(storeId, storeState)
 
       // Cleanup subscription health tracking
       this.lastSubscriptionUpdate.delete(storeId)

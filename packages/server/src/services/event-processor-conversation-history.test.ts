@@ -17,6 +17,25 @@ const { createLoggerMock, loggerContainer } = vi.hoisted(() => {
   }
 })
 
+const sentryContainer = vi.hoisted(() => {
+  const makeScope = () => ({
+    setTag: vi.fn(),
+    setContext: vi.fn(),
+  })
+
+  return {
+    captureException: vi.fn(),
+    withScope: vi.fn((callback: (scope: ReturnType<typeof makeScope>) => void) => {
+      callback(makeScope())
+    }),
+  }
+})
+
+vi.mock('@sentry/node', () => ({
+  captureException: sentryContainer.captureException,
+  withScope: sentryContainer.withScope,
+}))
+
 vi.mock('../utils/logger.js', () => {
   loggerContainer.logger = createLoggerMock()
   return {
@@ -231,6 +250,147 @@ describe('EventProcessor conversation history builder', () => {
 
     expect((eventProcessor as any).isAssistantErrorMessage(assistantErrorMessage)).toBe(true)
     expect((eventProcessor as any).isAssistantErrorMessage(assistantSuccessMessage)).toBe(false)
+  })
+
+  it('reports actual Pi iterations from turn_end events', async () => {
+    const commit = vi.fn()
+    const store = {
+      commit,
+      query: vi.fn().mockReturnValue([]),
+    }
+    const storeManager = createMockStoreManager()
+    storeManager.getStore = vi.fn(() => store as any)
+
+    const processor = new EventProcessor(storeManager as any)
+    const listeners: Array<(event: any) => void> = []
+    const fakeSession = {
+      agent: {
+        setSystemPrompt: vi.fn(),
+        state: { messages: [] },
+        replaceMessages: vi.fn(),
+      },
+      subscribe: vi.fn((listener: (event: any) => void) => {
+        listeners.push(listener)
+        return vi.fn()
+      }),
+      setModel: vi.fn().mockResolvedValue(undefined),
+      prompt: vi.fn().mockImplementation(async () => {
+        for (let i = 0; i < 3; i++) {
+          for (const listener of listeners) {
+            listener({ type: 'turn_end', message: { role: 'assistant' }, toolResults: [] })
+          }
+        }
+        for (const listener of listeners) {
+          listener({ type: 'agent_end', messages: [] })
+        }
+      }),
+    }
+
+    vi.spyOn(processor as any, 'getOrCreatePiSession').mockResolvedValue({
+      session: fakeSession,
+      sessionDir: '/tmp/pi-session',
+      lastAccessedAt: Date.now(),
+    })
+
+    const completed = await (processor as any).runAgenticLoop(
+      'store-1',
+      {
+        id: 'message-1',
+        conversationId: 'conversation-1',
+        role: 'user',
+        message: 'Plan this task',
+        createdAt: new Date(),
+      } satisfies ChatMessage,
+      { stopping: false } as any
+    )
+
+    expect(completed).toBe(true)
+    const completionEvents = commit.mock.calls.filter(
+      ([event]: any[]) => event?.name === 'v1.LLMResponseCompleted'
+    )
+    expect(completionEvents.length).toBe(1)
+    expect(completionEvents[0][0].args.iterations).toBe(3)
+
+    processor.stopAll()
+  })
+
+  it('captures Pi prompt errors in Sentry with failure completion metadata', async () => {
+    const commit = vi.fn()
+    const store = {
+      commit,
+      query: vi.fn().mockReturnValue([]),
+    }
+    const storeManager = createMockStoreManager()
+    storeManager.getStore = vi.fn(() => store as any)
+
+    const processor = new EventProcessor(storeManager as any)
+    const fakeSession = {
+      agent: {
+        setSystemPrompt: vi.fn(),
+        state: { messages: [] },
+        replaceMessages: vi.fn(),
+      },
+      subscribe: vi.fn(() => vi.fn()),
+      setModel: vi.fn().mockResolvedValue(undefined),
+      prompt: vi.fn().mockRejectedValue(new Error('Pi prompt failed')),
+    }
+
+    vi.spyOn(processor as any, 'getOrCreatePiSession').mockResolvedValue({
+      session: fakeSession,
+      sessionDir: '/tmp/pi-session',
+      lastAccessedAt: Date.now(),
+    })
+
+    const completed = await (processor as any).runAgenticLoop(
+      'store-1',
+      {
+        id: 'message-2',
+        conversationId: 'conversation-2',
+        role: 'user',
+        message: 'Do the thing',
+        createdAt: new Date(),
+      } satisfies ChatMessage,
+      { stopping: false } as any
+    )
+
+    expect(completed).toBe(true)
+    expect(sentryContainer.captureException).toHaveBeenCalledTimes(1)
+
+    const completionEvents = commit.mock.calls.filter(
+      ([event]: any[]) => event?.name === 'v1.LLMResponseCompleted'
+    )
+    expect(completionEvents.length).toBe(1)
+    expect(completionEvents[0][0].args.success).toBe(false)
+    expect(completionEvents[0][0].args.iterations).toBe(0)
+
+    processor.stopAll()
+  })
+
+  it('evicts least-recently-used Pi sessions when cache capacity is reached', () => {
+    const disposeOldest = vi.fn()
+    const disposeNewest = vi.fn()
+    const storeState = {
+      activeConversations: new Set<string>(),
+      piSessions: new Map<string, any>([
+        [
+          'conv-old',
+          { session: { dispose: disposeOldest }, sessionDir: '/tmp/old', lastAccessedAt: 100 },
+        ],
+        [
+          'conv-new',
+          { session: { dispose: disposeNewest }, sessionDir: '/tmp/new', lastAccessedAt: 200 },
+        ],
+      ]),
+    }
+
+    ;(eventProcessor as any).maxPiSessionsPerStore = 2
+    ;(eventProcessor as any).piSessionIdleTtlMs = 0
+    ;(eventProcessor as any).evictPiSessionsIfNeeded('store-1', storeState, 'conv-incoming')
+
+    expect(disposeOldest).toHaveBeenCalledTimes(1)
+    expect(disposeNewest).not.toHaveBeenCalled()
+    expect(storeState.piSessions.has('conv-old')).toBe(false)
+    expect(storeState.piSessions.has('conv-new')).toBe(true)
   })
 
   it('uses stub responses when LLM_PROVIDER=stub', async () => {
