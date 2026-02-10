@@ -252,6 +252,14 @@ describe('EventProcessor conversation history builder', () => {
     expect((eventProcessor as any).isAssistantErrorMessage(assistantSuccessMessage)).toBe(false)
   })
 
+  it('sanitizes Pi storage path segments to prevent dot-segment traversal', () => {
+    expect((eventProcessor as any).sanitizePiSegment('.')).toBe('_')
+    expect((eventProcessor as any).sanitizePiSegment('..')).toBe('__')
+    expect((eventProcessor as any).sanitizePiSegment('../..')).toBe('_____')
+    expect((eventProcessor as any).sanitizePiSegment('workspace.dev')).toBe('workspace_dev')
+    expect((eventProcessor as any).sanitizePiSegment('workspace-dev_01')).toBe('workspace-dev_01')
+  })
+
   it('reports actual Pi iterations from turn_end events', async () => {
     const commit = vi.fn()
     const store = {
@@ -391,6 +399,71 @@ describe('EventProcessor conversation history builder', () => {
     expect(disposeNewest).not.toHaveBeenCalled()
     expect(storeState.piSessions.has('conv-old')).toBe(false)
     expect(storeState.piSessions.has('conv-new')).toBe(true)
+  })
+
+  it('configures Braintrust-backed Pi model when LLM_PROVIDER=braintrust', () => {
+    const previousProvider = process.env.LLM_PROVIDER
+    const previousBraintrustKey = process.env.BRAINTRUST_API_KEY
+    const previousBraintrustProjectId = process.env.BRAINTRUST_PROJECT_ID
+    const previousBraintrustModel = process.env.BRAINTRUST_MODEL
+    const previousBraintrustBaseUrl = process.env.BRAINTRUST_BASE_URL
+
+    process.env.LLM_PROVIDER = 'braintrust'
+    process.env.BRAINTRUST_API_KEY = 'test-braintrust-api-key'
+    process.env.BRAINTRUST_PROJECT_ID = 'test-project-id'
+    process.env.BRAINTRUST_MODEL = 'anthropic/claude-3-7-sonnet'
+    process.env.BRAINTRUST_BASE_URL = 'https://api.braintrust.dev/v1/proxy'
+
+    try {
+      const processor = new EventProcessor(createMockStoreManager() as any)
+      const braintrustModel = (processor as any).piModel
+
+      expect(braintrustModel?.provider).toBe('braintrust')
+      expect(braintrustModel?.api).toBe('openai-completions')
+      expect(braintrustModel?.id).toBe('anthropic/claude-3-7-sonnet')
+      expect(braintrustModel?.baseUrl).toBe('https://api.braintrust.dev/v1/proxy')
+      expect(braintrustModel?.headers?.['x-bt-parent']).toBe('project_id:test-project-id')
+
+      const modelRegistry = { registerProvider: vi.fn() }
+      ;(processor as any).configurePiProviderOverrides(modelRegistry)
+      expect(modelRegistry.registerProvider).toHaveBeenCalledWith('braintrust', {
+        baseUrl: 'https://api.braintrust.dev/v1/proxy',
+        apiKey: 'BRAINTRUST_API_KEY',
+        headers: { 'x-bt-parent': 'project_id:test-project-id' },
+      })
+
+      processor.stopAll()
+    } finally {
+      if (previousProvider === undefined) {
+        delete process.env.LLM_PROVIDER
+      } else {
+        process.env.LLM_PROVIDER = previousProvider
+      }
+
+      if (previousBraintrustKey === undefined) {
+        delete process.env.BRAINTRUST_API_KEY
+      } else {
+        process.env.BRAINTRUST_API_KEY = previousBraintrustKey
+      }
+
+      if (previousBraintrustProjectId === undefined) {
+        delete process.env.BRAINTRUST_PROJECT_ID
+      } else {
+        process.env.BRAINTRUST_PROJECT_ID = previousBraintrustProjectId
+      }
+
+      if (previousBraintrustModel === undefined) {
+        delete process.env.BRAINTRUST_MODEL
+      } else {
+        process.env.BRAINTRUST_MODEL = previousBraintrustModel
+      }
+
+      if (previousBraintrustBaseUrl === undefined) {
+        delete process.env.BRAINTRUST_BASE_URL
+      } else {
+        process.env.BRAINTRUST_BASE_URL = previousBraintrustBaseUrl
+      }
+    }
   })
 
   it('uses stub responses when LLM_PROVIDER=stub', async () => {

@@ -24,6 +24,24 @@ describe('PiInputValidator', () => {
     expect(result.sanitizedContent).toBe('Hello world alert(1)')
   })
 
+  it('preserves normal multiline content', () => {
+    const validator = new PiInputValidator()
+    const message = 'Line 1\nLine 2\nLine 3'
+
+    const result = validator.validateUserMessage(message)
+
+    expect(result.isValid).toBe(true)
+    expect(result.sanitizedContent).toBe(message)
+  })
+
+  it('only strips actual HTML tags and keeps comparison text', () => {
+    const validator = new PiInputValidator()
+    const result = validator.validateUserMessage('Math: 2 < 3 and 4 > 1. <b>Bold</b>')
+
+    expect(result.isValid).toBe(true)
+    expect(result.sanitizedContent).toBe('Math: 2 < 3 and 4 > 1. Bold')
+  })
+
   it('blocks prompt-injection override patterns', () => {
     const validator = new PiInputValidator()
 

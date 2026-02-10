@@ -3,7 +3,11 @@ import { StoreInternalsSymbol } from '@livestore/livestore'
 import { Effect, Fiber, Stream } from '@livestore/utils/effect'
 import * as Sentry from '@sentry/node'
 import { EventEmitter } from 'events'
-import { type StoreConfig, createStore } from '../factories/store-factory.js'
+import {
+  type StoreConfig,
+  createStore,
+  releaseDevtoolsPortForStore,
+} from '../factories/store-factory.js'
 import { logger, storeLogger, operationLogger } from '../utils/logger.js'
 import {
   createOrchestrationTelemetry,
@@ -273,6 +277,7 @@ export class StoreManager extends EventEmitter {
     }
 
     this.stores.delete(storeId)
+    releaseDevtoolsPortForStore(storeId)
     if (!failureRecorded) {
       const { durationMs } = telemetry.recordSuccess({ status: 'removed' })
       storeLogger(storeId).info(
@@ -417,22 +422,33 @@ export class StoreManager extends EventEmitter {
         if (storeInfo.store !== originalStore) return
 
         const now = new Date()
-        const wasConnected = storeInfo.networkStatus?.isConnected ?? true
+        const previousIsConnected = storeInfo.networkStatus?.isConnected
+        this.updateNetworkStatusTracking(storeInfo, status.isConnected, now)
 
-        if (status.isConnected && !wasConnected) {
+        if (previousIsConnected === undefined) {
+          // First stream event: establish baseline status without emitting
+          // a spurious transition warning.
+          if (!status.isConnected && storeInfo.status === 'connected') {
+            if (this.updateStoreStatus(storeId, 'disconnected', now)) {
+              this.captureDisconnect(storeId, storeInfo, 'startup_network_disconnected')
+              this.emit('storeDisconnected', { storeId })
+            }
+          }
+          return
+        }
+
+        if (status.isConnected && !previousIsConnected) {
           // Reconnected
           storeLogger(storeId).info('Network connection restored')
-          this.updateNetworkStatusTracking(storeInfo, true, now)
           // LiveStore handles reconnection automatically, just update our status
           // Also handle 'connecting' status - network may recover before our reconnect timeout fires
           if (storeInfo.status === 'disconnected' || storeInfo.status === 'connecting') {
             this.updateStoreStatus(storeId, 'connected', now)
             storeInfo.reconnectAttempts = 0
           }
-        } else if (!status.isConnected && wasConnected) {
+        } else if (!status.isConnected && previousIsConnected) {
           // Disconnected
           storeLogger(storeId).warn('Network connection lost - LiveStore will auto-retry')
-          this.updateNetworkStatusTracking(storeInfo, false, now)
           if (this.updateStoreStatus(storeId, 'disconnected', now)) {
             this.captureDisconnect(storeId, storeInfo, 'network_status_disconnected')
             this.emit('storeDisconnected', { storeId })

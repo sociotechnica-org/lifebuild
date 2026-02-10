@@ -1,5 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { validateStoreId, getStoreConfig, StoreFactory } from '../../src/factories/store-factory.js'
+import { createStorePromise } from '@livestore/livestore'
+import { makeAdapter } from '@livestore/adapter-node'
+import { makeWsSync } from '@livestore/sync-cf/client'
+import {
+  validateStoreId,
+  getStoreConfig,
+  StoreFactory,
+  createStore,
+  resetDevtoolsPortAllocatorForTests,
+} from '../../src/factories/store-factory.js'
 
 vi.mock('@livestore/livestore', async (importOriginal) => {
   const actual = await importOriginal()
@@ -23,6 +32,7 @@ describe('Store Factory', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     process.env = { ...originalEnv }
+    resetDevtoolsPortAllocatorForTests()
   })
 
   afterEach(() => {
@@ -156,6 +166,40 @@ describe('Store Factory', () => {
         expect(config.connectionTimeout).toBe(45000)
         expect(config.syncUrl).toBe('ws://localhost:8787')
       })
+    })
+  })
+
+  describe('createStore', () => {
+    it('allocates distinct devtools ports for different stores', async () => {
+      vi.mocked(makeAdapter).mockReturnValue({} as any)
+      vi.mocked(makeWsSync).mockReturnValue({} as any)
+      vi.mocked(createStorePromise).mockResolvedValue({ shutdownPromise: vi.fn() } as any)
+
+      await createStore('test-store-a')
+      await createStore('test-store-b')
+
+      const firstAdapterArgs = vi.mocked(makeAdapter).mock.calls[0]?.[0] as any
+      const secondAdapterArgs = vi.mocked(makeAdapter).mock.calls[1]?.[0] as any
+
+      expect(firstAdapterArgs.devtools.port).not.toBe(secondAdapterArgs.devtools.port)
+      expect(firstAdapterArgs.devtools.host).toBe('localhost')
+      expect(secondAdapterArgs.devtools.host).toBe('localhost')
+    })
+
+    it('respects DEVTOOLS_PORT_BASE when allocating ports', async () => {
+      process.env.DEVTOOLS_PORT_BASE = '4600'
+      vi.mocked(makeAdapter).mockReturnValue({} as any)
+      vi.mocked(makeWsSync).mockReturnValue({} as any)
+      vi.mocked(createStorePromise).mockResolvedValue({ shutdownPromise: vi.fn() } as any)
+
+      await createStore('test-store-a')
+      await createStore('test-store-b')
+
+      const firstAdapterArgs = vi.mocked(makeAdapter).mock.calls[0]?.[0] as any
+      const secondAdapterArgs = vi.mocked(makeAdapter).mock.calls[1]?.[0] as any
+
+      expect(firstAdapterArgs.devtools.port).toBe(4600)
+      expect(secondAdapterArgs.devtools.port).toBe(4601)
     })
   })
 })

@@ -135,9 +135,26 @@ Useful environment variables:
 
 The harness writes temporary data under `.context/fullstack-*` and cleans it up on exit.
 
+### Braintrust provider with Pi
+
+Set `LLM_PROVIDER=braintrust` to run Pi sessions through Braintrust's OpenAI-compatible proxy.
+
+```bash
+LLM_PROVIDER=braintrust \
+BRAINTRUST_API_KEY="your-braintrust-api-key" \
+BRAINTRUST_PROJECT_ID="your-braintrust-project-id" \
+BRAINTRUST_MODEL="gpt-4o-mini" \
+pnpm --filter @lifebuild/server dev
+```
+
+Optional settings:
+
+- `BRAINTRUST_BASE_URL` (defaults to `https://api.braintrust.dev/v1/proxy`)
+- `BRAINTRUST_MODEL` (defaults to `gpt-4o-mini`)
+
 ### Stub LLM provider (deterministic responses)
 
-Set `LLM_PROVIDER=stub` to force the server to use the stub provider instead of Braintrust.
+Set `LLM_PROVIDER=stub` to force deterministic responses without external LLM calls.
 You can configure responses via JSON (inline or from a file) and use `{{message}}` in templates.
 
 Inline example:

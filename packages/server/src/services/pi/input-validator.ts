@@ -33,8 +33,8 @@ export class PiInputValidator {
     suspiciousPatterns: [
       /\n{5,}/g,
       /\s{20,}/g,
-      /[\u0000-\u001F\u007F-\u009F]/g,
-      /<(?!\/?CHORUS_TAG\b)[^>]+>/g,
+      /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g,
+      /<\/?(?!CHORUS_TAG\b)[A-Za-z][A-Za-z0-9:-]*(?:\s[^>]*)?>/g,
     ],
   }
 

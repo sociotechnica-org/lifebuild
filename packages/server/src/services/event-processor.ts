@@ -155,6 +155,9 @@ export class EventProcessor {
   private readonly piBaseDir: string
   private readonly piModel: Model<any> | undefined
   private readonly stubResponder: ((message: string) => string) | null
+  private readonly llmProviderMode: 'pi' | 'stub' | 'braintrust'
+  private readonly braintrustBaseUrl: string | null
+  private readonly braintrustProjectId: string | null
   private readonly inputValidator: PiInputValidator
   private readonly maxPiSessionsPerStore: number
   private readonly piSessionIdleTtlMs: number
@@ -214,20 +217,87 @@ export class EventProcessor {
       process.env.PI_STORAGE_DIR ||
       (renderDiskPath ? path.join(renderDiskPath, 'lifebuild-pi') : path.join(process.cwd(), '.pi'))
 
-    this.inputValidator = new PiInputValidator()
     const llmProvider = process.env.LLM_PROVIDER?.toLowerCase()
+    this.inputValidator = new PiInputValidator()
+
     if (llmProvider === 'stub') {
+      this.llmProviderMode = 'stub'
       this.piModel = undefined
       this.stubResponder = createStubResponder()
+      this.braintrustBaseUrl = null
+      this.braintrustProjectId = null
       logger.info('LLM stub responder configured for Pi integration')
+    } else if (llmProvider === 'braintrust') {
+      this.llmProviderMode = 'braintrust'
+      this.stubResponder = null
+
+      const baseModel = getModel('openai', 'gpt-4o-mini')
+      const configuredModelId = process.env.BRAINTRUST_MODEL?.trim() || 'gpt-4o-mini'
+      const configuredBaseUrl =
+        process.env.BRAINTRUST_BASE_URL?.trim() || 'https://api.braintrust.dev/v1/proxy'
+      const configuredProjectId = process.env.BRAINTRUST_PROJECT_ID?.trim()
+
+      if (!baseModel) {
+        this.piModel = undefined
+        logger.error(
+          {
+            requestedModel: configuredModelId,
+          },
+          'Unable to initialize Braintrust model because OpenAI base model is unavailable'
+        )
+      } else {
+        const baseHeaders = baseModel.headers ?? {}
+        const braintrustHeaders = configuredProjectId
+          ? { ...baseHeaders, 'x-bt-parent': `project_id:${configuredProjectId}` }
+          : baseHeaders
+
+        this.piModel = {
+          ...baseModel,
+          provider: 'braintrust',
+          api: 'openai-completions',
+          id: configuredModelId,
+          name: `Braintrust (${configuredModelId})`,
+          baseUrl: configuredBaseUrl,
+          headers: braintrustHeaders,
+        }
+      }
+
+      this.braintrustBaseUrl = configuredBaseUrl
+      this.braintrustProjectId =
+        configuredProjectId && configuredProjectId.length > 0 ? configuredProjectId : null
+
+      if (!process.env.BRAINTRUST_API_KEY) {
+        logger.warn(
+          'LLM_PROVIDER=braintrust is set but BRAINTRUST_API_KEY is missing; Pi prompts will fail until configured'
+        )
+      }
+      if (!configuredProjectId) {
+        logger.warn(
+          'LLM_PROVIDER=braintrust is set but BRAINTRUST_PROJECT_ID is missing; requests will run without project attribution'
+        )
+      }
+
+      if (this.piModel) {
+        logger.info(
+          {
+            model: this.piModel.id,
+            baseUrl: configuredBaseUrl,
+            projectIdConfigured: Boolean(configuredProjectId),
+          },
+          'Braintrust model configured for Pi agent sessions'
+        )
+      }
     } else {
+      this.llmProviderMode = 'pi'
       this.piModel = getModel('anthropic', 'claude-opus-4-5')
       this.stubResponder = null
+      this.braintrustBaseUrl = null
+      this.braintrustProjectId = null
 
       if (llmProvider && llmProvider !== 'pi') {
         logger.warn(
           { llmProvider },
-          'Unknown LLM_PROVIDER value for Pi integration, defaulting to Pi model'
+          'Unknown LLM_PROVIDER value for Pi integration, defaulting to Anthropic Pi model'
         )
       }
 
@@ -739,7 +809,10 @@ export class EventProcessor {
           `Message queued`
         )
       } catch (error) {
-        logger.error({ error, conversationId, correlationId }, `Failed to queue message`)
+        logger.error(
+          { error: this.formatErrorForLog(error), conversationId, correlationId },
+          `Failed to queue message`
+        )
         this.lifecycleTracker.recordError(
           messageId,
           error instanceof Error ? error : String(error),
@@ -858,7 +931,10 @@ export class EventProcessor {
       if (!llmCallCompleted) {
         this.endLLMCall(llmCallId, true) // Mark as timeout/error
       }
-      logger.error({ error, conversationId, correlationId }, `Error in agentic loop`)
+      logger.error(
+        { error: this.formatErrorForLog(error), conversationId, correlationId },
+        `Error in agentic loop`
+      )
 
       // Record lifecycle error
       this.lifecycleTracker.recordError(
@@ -1029,7 +1105,10 @@ export class EventProcessor {
       if (!llmCallCompleted) {
         this.endLLMCall(llmCallId, true) // Mark as timeout/error
       }
-      logger.error({ error, conversationId, correlationId }, `Error in agentic loop`)
+      logger.error(
+        { error: this.formatErrorForLog(error), conversationId, correlationId },
+        `Error in agentic loop`
+      )
 
       // Record lifecycle error
       this.lifecycleTracker.recordError(
@@ -1243,7 +1322,7 @@ export class EventProcessor {
         )
       )
     } catch (error) {
-      logger.error({ error }, `Error querying conversation context`)
+      logger.error({ error: this.formatErrorForLog(error) }, `Error querying conversation context`)
       // If we can't get the context due to store issues, bail out gracefully
       store.commit(
         events.llmResponseReceived({
@@ -1350,7 +1429,10 @@ export class EventProcessor {
         navigationContext = await this.enrichNavigationContext(store, parsedContext)
         logger.debug({ navigationContext }, 'Enriched navigation context')
       } catch (error) {
-        logger.warn({ error }, 'Failed to parse/enrich navigation context from user message')
+        logger.warn(
+          { error: this.formatErrorForLog(error) },
+          'Failed to parse/enrich navigation context from user message'
+        )
       }
     }
 
@@ -1510,7 +1592,10 @@ export class EventProcessor {
       await session.prompt(sanitizedPrompt)
     } catch (error) {
       sawError = true
-      logger.error({ error, conversationId, correlationId }, 'Error in Pi agent session')
+      logger.error(
+        { error: this.formatErrorForLog(error), conversationId, correlationId },
+        'Error in Pi agent session'
+      )
       this.captureAgentError(error, {
         storeId,
         conversationId,
@@ -1574,6 +1659,7 @@ export class EventProcessor {
 
       const authStorage = new AuthStorage(path.join(agentDir, 'auth.json'))
       const modelRegistry = new ModelRegistry(authStorage, path.join(agentDir, 'models.json'))
+      this.configurePiProviderOverrides(modelRegistry)
       const resourceLoader = new DefaultResourceLoader({
         cwd: process.cwd(),
         agentDir,
@@ -1602,7 +1688,10 @@ export class EventProcessor {
 
       return entry
     } catch (error) {
-      logger.error({ error, storeId, conversationId }, 'Failed to create Pi session')
+      logger.error(
+        { error: this.formatErrorForLog(error), storeId, conversationId },
+        'Failed to create Pi session'
+      )
       this.captureAgentError(error, {
         storeId,
         conversationId,
@@ -1613,7 +1702,25 @@ export class EventProcessor {
   }
 
   private sanitizePiSegment(value: string): string {
-    return value.replace(/[^a-zA-Z0-9._-]/g, '_')
+    // Keep path segments filesystem-safe and non-traversable by disallowing dots entirely.
+    const sanitized = value.replace(/[^a-zA-Z0-9_-]/g, '_')
+    return sanitized.length > 0 ? sanitized : '_'
+  }
+
+  private configurePiProviderOverrides(modelRegistry: ModelRegistry): void {
+    if (this.llmProviderMode !== 'braintrust' || !this.braintrustBaseUrl) {
+      return
+    }
+
+    const headers: Record<string, string> | undefined = this.braintrustProjectId
+      ? { 'x-bt-parent': `project_id:${this.braintrustProjectId}` }
+      : undefined
+
+    modelRegistry.registerProvider('braintrust', {
+      baseUrl: this.braintrustBaseUrl,
+      apiKey: 'BRAINTRUST_API_KEY',
+      headers,
+    })
   }
 
   private async findLatestSessionFile(sessionDir: string): Promise<string | null> {
@@ -1637,7 +1744,10 @@ export class EventProcessor {
       stats.sort((a, b) => b.stat.mtimeMs - a.stat.mtimeMs)
       return stats[0]?.filePath ?? null
     } catch (error) {
-      logger.warn({ error, sessionDir }, 'Failed to inspect existing Pi sessions')
+      logger.warn(
+        { error: this.formatErrorForLog(error), sessionDir },
+        'Failed to inspect existing Pi sessions'
+      )
       return null
     }
   }
@@ -1740,7 +1850,10 @@ export class EventProcessor {
     try {
       entry.session.dispose()
     } catch (error) {
-      logger.warn({ error, storeId, conversationId }, 'Failed to dispose Pi session cleanly')
+      logger.warn(
+        { error: this.formatErrorForLog(error), storeId, conversationId },
+        'Failed to dispose Pi session cleanly'
+      )
       this.captureAgentError(error, {
         storeId,
         conversationId,
@@ -1790,6 +1903,65 @@ export class EventProcessor {
       scope.setContext('agent_error_context', context)
       Sentry.captureException(exception)
     })
+  }
+
+  private formatErrorForLog(error: unknown, depth = 0): Record<string, unknown> {
+    if (depth >= 2) {
+      return { type: 'error-depth-limit', value: String(error) }
+    }
+
+    if (error instanceof Error) {
+      const typedError = error as Error & {
+        code?: unknown
+        status?: unknown
+        statusCode?: unknown
+      }
+
+      return {
+        type: error.constructor?.name || 'Error',
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        code: typedError.code,
+        status: typedError.status ?? typedError.statusCode,
+        cause:
+          error.cause !== undefined ? this.formatErrorForLog(error.cause, depth + 1) : undefined,
+        details: this.toSafeLogValue(
+          Object.fromEntries(
+            Object.entries(typedError).filter(
+              ([key]) => key !== 'name' && key !== 'message' && key !== 'stack' && key !== 'cause'
+            )
+          )
+        ),
+      }
+    }
+
+    return {
+      type: error === null ? 'null' : typeof error,
+      value: this.toSafeLogValue(error),
+    }
+  }
+
+  private toSafeLogValue(value: unknown): unknown {
+    try {
+      return JSON.parse(
+        JSON.stringify(value, (_key, nestedValue: unknown) => {
+          if (nestedValue instanceof Error) {
+            return {
+              name: nestedValue.name,
+              message: nestedValue.message,
+              stack: nestedValue.stack,
+            }
+          }
+          if (typeof nestedValue === 'bigint') {
+            return nestedValue.toString()
+          }
+          return nestedValue
+        })
+      )
+    } catch {
+      return String(value)
+    }
   }
 
   private isAssistantErrorMessage(message: Message): message is AssistantMessage {
@@ -1870,7 +2042,10 @@ export class EventProcessor {
           await this.processQueuedMessage(storeId, nextMessage, storeState)
         })
       } catch (error) {
-        logger.error({ error, conversationId }, `Error processing queued message`)
+        logger.error(
+          { error: this.formatErrorForLog(error), conversationId },
+          `Error processing queued message`
+        )
 
         // Emit error to conversation
         const store = this.storeManager.getStore(storeId)
@@ -2090,7 +2265,10 @@ export class EventProcessor {
 
     // Cleanup processed message tracker
     this.processedTracker.close().catch(error => {
-      logger.error({ error }, 'Error closing processed message tracker')
+      logger.error(
+        { error: this.formatErrorForLog(error) },
+        'Error closing processed message tracker'
+      )
     })
 
     // Cleanup global message lifecycle tracker (stops its cleanup timer)
