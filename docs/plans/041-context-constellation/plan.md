@@ -1,5 +1,18 @@
 # Context Constellation: Modified Project Plan
 
+## Status
+
+| Phase                          | Status          | Notes                                                     |
+| ------------------------------ | --------------- | --------------------------------------------------------- |
+| Phase 1: Protocol & Schema     | **Done**        | Consolidated into `.claude/skills/context-constellation/` |
+| Phase 2: Subagents             | **Done**        | Conan & Bob enhanced with library maintenance roles       |
+| Phase 3: Constellation Skill   | **Done**        | All skill files created and operational                   |
+| Phase 4: CLAUDE.md Integration | **Done**        | Context Library Retrieval section added                   |
+| Phase 5: Validation            | **Partial**     | 1/5 dry-runs completed (Kanban status filter — success)   |
+| Phase 6: Feedback Loop         | **Not started** | Ongoing — requires more constellation assemblies          |
+
+---
+
 ## Overview
 
 Build a context retrieval system for the Context Library using Claude Code's native infrastructure — skills, subagents, and file tools — instead of a custom MCP server.
@@ -66,16 +79,16 @@ Build a context retrieval system for the Context Library using Claude Code's nat
 
 ## Deliverables
 
-| #   | Deliverable                   | Type      | Location                                                         | Effort |
-| --- | ----------------------------- | --------- | ---------------------------------------------------------------- | ------ |
-| 1   | Constellation Protocol Spec   | Doc       | `docs/context-library/skills/constellation/protocol.md`          | Medium |
-| 2   | Conan Subagent Definition     | Agent     | `.claude/agents/conan.md`                                        | Low    |
-| 3   | Bob Subagent Definition       | Agent     | `.claude/agents/bob.md`                                          | Low    |
-| 4   | Constellation Skill           | Skill     | `.claude/skills/context-constellation/`                          | Medium |
-| 5   | Type-Based Retrieval Profiles | Reference | `.claude/skills/context-constellation/retrieval-profiles.md`     | Medium |
-| 6   | Provenance Log Schema         | Doc       | `docs/context-library/skills/constellation/provenance-schema.md` | Low    |
-| 7   | CLAUDE.md Integration         | Edit      | `CLAUDE.md`                                                      | Low    |
-| 8   | Validation Scenarios          | Test      | Manual dry-run                                                   | Medium |
+| #   | Deliverable                   | Type      | Location                                                     | Effort |
+| --- | ----------------------------- | --------- | ------------------------------------------------------------ | ------ |
+| 1   | Constellation Protocol Spec   | Doc       | `.claude/skills/context-constellation/protocol.md`           | Medium |
+| 2   | Conan Subagent Definition     | Agent     | `.claude/agents/conan.md`                                    | Low    |
+| 3   | Bob Subagent Definition       | Agent     | `.claude/agents/bob.md`                                      | Low    |
+| 4   | Constellation Skill           | Skill     | `.claude/skills/context-constellation/`                      | Medium |
+| 5   | Type-Based Retrieval Profiles | Reference | `.claude/skills/context-constellation/retrieval-profiles.md` | Medium |
+| 6   | Provenance Log Schema         | Doc       | `.claude/skills/context-constellation/provenance-schema.md`  | Low    |
+| 7   | CLAUDE.md Integration         | Edit      | `CLAUDE.md`                                                  | Low    |
+| 8   | Validation Scenarios          | Test      | Manual dry-run                                               | Medium |
 
 ---
 
@@ -83,7 +96,7 @@ Build a context retrieval system for the Context Library using Claude Code's nat
 
 ### 1.1 Constellation Protocol Spec
 
-**File:** `docs/context-library/skills/constellation/protocol.md`
+**File:** `.claude/skills/context-constellation/protocol.md`
 
 Document the contract between Conan and Bob:
 
@@ -94,7 +107,7 @@ Document the contract between Conan and Bob:
 
 ### 1.2 Provenance Log Schema
 
-**File:** `docs/context-library/skills/constellation/provenance-schema.md`
+**File:** `.claude/skills/context-constellation/provenance-schema.md`
 
 Same schema from the original plan — session ID, task description, cards retrieved, cards delivered, gaps identified, decisions logged, outcomes tracked. The only change: entries are appended via file writes instead of MCP tool calls.
 
@@ -129,7 +142,7 @@ Conan's job:
 3. Find seed cards: `Grep` the library for key terms from the task
 4. Expand via wikilinks: `Grep` for `[[` in seed cards, follow mandatory upstream links
 5. Read primary cards in full, summarize supporting cards
-6. Write `CONTEXT_BRIEFING.md` with the standard package structure
+6. Write `.context/CONTEXT_BRIEFING.md` with the standard package structure
 7. Log assembly to `constellation-log.jsonl`
 
 Conan does NOT implement. Conan prepares.
@@ -151,7 +164,7 @@ model: opus
 
 Bob's job:
 
-1. Read `CONTEXT_BRIEFING.md` if it exists
+1. Read `.context/CONTEXT_BRIEFING.md` if it exists
 2. Implement the task
 3. When uncertain, evaluate 5 signals (reversibility, coverage, precedent, blast radius, domain)
 4. If 2+ signals say "query" → use Grep/Read to search the library directly
