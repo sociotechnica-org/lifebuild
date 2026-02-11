@@ -31,10 +31,10 @@ The specification for trigger conditions, visual treatments, and dismissal rules
 
 #### Health Warning Signal (Systems)
 
-| Threshold | Visual |
-|-----------|--------|
-| Yellow | Cycle completion < 80% over past 2 weeks |
-| Red | Cycle completion < 50% OR 3+ consecutive misses |
+| Threshold | Visual                                          |
+| --------- | ----------------------------------------------- |
+| Yellow    | Cycle completion < 80% over past 2 weeks        |
+| Red       | Cycle completion < 50% OR 3+ consecutive misses |
 
 **Treatment:** Tile background tint (yellow or red). Clears automatically when health improves.
 
@@ -42,8 +42,8 @@ The specification for trigger conditions, visual treatments, and dismissal rules
 
 #### Staleness Signal (Projects)
 
-| Threshold | Trigger |
-|-----------|---------|
+| Threshold      | Trigger                 |
+| -------------- | ----------------------- |
 | Default active | No activity for 3 weeks |
 | Default paused | No activity for 6 weeks |
 
@@ -53,10 +53,10 @@ The specification for trigger conditions, visual treatments, and dismissal rules
 
 #### Due Date Signal (Projects/Tasks)
 
-| Threshold | Visual |
-|-----------|--------|
-| Appears | Deadline within 7 days (configurable) |
-| Intensifies | As deadline approaches |
+| Threshold   | Visual                                |
+| ----------- | ------------------------------------- |
+| Appears     | Deadline within 7 days (configurable) |
+| Intensifies | As deadline approaches                |
 
 **Treatment:** Calendar icon with date. Color intensifies yellow -> orange -> red.
 
@@ -64,8 +64,8 @@ The specification for trigger conditions, visual treatments, and dismissal rules
 
 #### Pattern Concern Signal
 
-| Trigger | Examples |
-|---------|----------|
+| Trigger                                            | Examples                                                                                     |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | Conan identifies statistically significant pattern | Project paused 3+ times, estimated vs. actual consistently off, same week slippage repeating |
 
 **Treatment:** Subtle pulse animation. Less urgent than other signals.
@@ -83,11 +83,13 @@ The specification for trigger conditions, visual treatments, and dismissal rules
 ### Examples
 
 **Example 1: Health Warning escalating from Yellow to Red**
+
 - Scenario: Director has a planted system "Morning Meditation" with daily cycles. Completion has been declining.
 - Input: Week 1: 5/7 cycles completed (71%). Week 2: 3/7 cycles completed (43%).
 - Correct output: After Week 1, Yellow signal appears (completion < 80% over 2 weeks is not yet met — needs sustained data). After Week 2, with 2-week average at ~57%, Yellow threshold is met (< 80%). If completion drops below 50% or hits 3+ consecutive misses, signal escalates to Red. Tile background tints accordingly. Signal clears automatically when health improves above thresholds.
 
 **Example 2: Staleness signal on an active project**
+
 - Scenario: Director's "Learn Guitar" project (Live state) has had no activity for 4 weeks.
 - Input: Last activity timestamp is 28 days ago. Project state is Live (active).
 - Correct output: Staleness signal appears after 3 weeks (default active threshold). Dust/fade overlay renders on the hex tile. Director can acknowledge ("still relevant" — signal clears temporarily) or archive the project. The signal does NOT use push notifications, sounds, or badges — it is ambient, visible only when the director looks at the Life Map.

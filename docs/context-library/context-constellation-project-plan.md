@@ -50,15 +50,15 @@ Build a context retrieval system for the Context Library using Claude Code's nat
 
 ### Why not an MCP server?
 
-| Concern | Assessment |
-|---------|-----------|
-| Library size (~100 cards) | Small enough for file-based retrieval |
-| Search quality | Card names + consistent terminology make keyword search effective |
-| Graph traversal | Wikilinks in cards are greppable relationship edges |
-| Type-based routing | Folder structure = type taxonomy, no index needed |
-| Scoring/ranking | Mandatory card rules substitute for computed scores at this scale |
-| Cost to build | Skills/agents: days. MCP server: weeks. |
-| Maintenance | Zero infrastructure vs. database + embeddings + deployment |
+| Concern                   | Assessment                                                        |
+| ------------------------- | ----------------------------------------------------------------- |
+| Library size (~100 cards) | Small enough for file-based retrieval                             |
+| Search quality            | Card names + consistent terminology make keyword search effective |
+| Graph traversal           | Wikilinks in cards are greppable relationship edges               |
+| Type-based routing        | Folder structure = type taxonomy, no index needed                 |
+| Scoring/ranking           | Mandatory card rules substitute for computed scores at this scale |
+| Cost to build             | Skills/agents: days. MCP server: weeks.                           |
+| Maintenance               | Zero infrastructure vs. database + embeddings + deployment        |
 
 **When to revisit:** If the library exceeds ~300 cards, or if keyword search produces too many false negatives, add an MCP server with embeddings as an optimization layer on top of this foundation.
 
@@ -66,16 +66,16 @@ Build a context retrieval system for the Context Library using Claude Code's nat
 
 ## Deliverables
 
-| # | Deliverable | Type | Location | Effort |
-|---|-------------|------|----------|--------|
-| 1 | Constellation Protocol Spec | Doc | `docs/context-library/skills/constellation/protocol.md` | Medium |
-| 2 | Conan Subagent Definition | Agent | `.claude/agents/conan.md` | Low |
-| 3 | Bob Subagent Definition | Agent | `.claude/agents/bob.md` | Low |
-| 4 | Constellation Skill | Skill | `.claude/skills/context-constellation/` | Medium |
-| 5 | Type-Based Retrieval Profiles | Reference | `.claude/skills/context-constellation/retrieval-profiles.md` | Medium |
-| 6 | Provenance Log Schema | Doc | `docs/context-library/skills/constellation/provenance-schema.md` | Low |
-| 7 | CLAUDE.md Integration | Edit | `CLAUDE.md` | Low |
-| 8 | Validation Scenarios | Test | Manual dry-run | Medium |
+| #   | Deliverable                   | Type      | Location                                                         | Effort |
+| --- | ----------------------------- | --------- | ---------------------------------------------------------------- | ------ |
+| 1   | Constellation Protocol Spec   | Doc       | `docs/context-library/skills/constellation/protocol.md`          | Medium |
+| 2   | Conan Subagent Definition     | Agent     | `.claude/agents/conan.md`                                        | Low    |
+| 3   | Bob Subagent Definition       | Agent     | `.claude/agents/bob.md`                                          | Low    |
+| 4   | Constellation Skill           | Skill     | `.claude/skills/context-constellation/`                          | Medium |
+| 5   | Type-Based Retrieval Profiles | Reference | `.claude/skills/context-constellation/retrieval-profiles.md`     | Medium |
+| 6   | Provenance Log Schema         | Doc       | `docs/context-library/skills/constellation/provenance-schema.md` | Low    |
+| 7   | CLAUDE.md Integration         | Edit      | `CLAUDE.md`                                                      | Low    |
+| 8   | Validation Scenarios          | Test      | Manual dry-run                                                   | Medium |
 
 ---
 
@@ -123,6 +123,7 @@ model: sonnet
 ```
 
 Conan's job:
+
 1. Parse the task → identify target card type + task type
 2. Load retrieval profile for that type (from skill reference)
 3. Find seed cards: `Grep` the library for key terms from the task
@@ -149,6 +150,7 @@ model: opus
 ```
 
 Bob's job:
+
 1. Read `CONTEXT_BRIEFING.md` if it exists
 2. Implement the task
 3. When uncertain, evaluate 5 signals (reversibility, coverage, precedent, blast radius, domain)
@@ -170,6 +172,7 @@ The original plan had Bob calling MCP tools (`search_by_dimension`, `get_related
 **Directory:** `.claude/skills/context-constellation/`
 
 **File:** `SKILL.md`
+
 ```markdown
 ---
 name: context-constellation
@@ -178,6 +181,7 @@ description: Assemble context from the Context Library for implementation tasks
 ```
 
 The skill teaches any agent how to:
+
 - Navigate the library structure (`docs/context-library/`)
 - Understand the 5-dimension card anatomy (WHAT/WHY/WHERE/HOW/WHEN)
 - Use wikilinks as relationship edges for graph traversal
@@ -194,6 +198,7 @@ This replaces the scoring algorithm with prose instructions per type. Example:
 ## When building/modifying a System
 
 **Always include:**
+
 - The System card itself (full content)
 - At least 1 governing Strategy (follow WHY links from the card)
 - All Principles referenced in the card's WHY section
@@ -248,19 +253,23 @@ Prose version of the dimension multipliers:
 
 ```markdown
 ## Feature addition
+
 Focus on WHERE (what connects to this) and HOW (implementation patterns).
 WHY context at normal weight — you need rationale but it's not the driver.
 
 ## Bug fix
+
 Focus on HOW (what should be happening) and WHEN (what changed recently).
 Temporal context critical — recent changes to related cards may explain the bug.
 
 ## Refactoring
+
 Focus on WHY (understand the rationale before changing structure) and WHERE
 (understand all the connections that might break). HOW is less important —
 you're changing the HOW.
 
 ## Architecture change
+
 Everything elevated. WHY is critical (don't break strategic alignment).
 WHERE is critical (understand blast radius). WHEN matters (what's stable
 vs. evolving).
@@ -298,13 +307,13 @@ See `.claude/skills/context-constellation/` for retrieval profiles.
 
 Test the system manually by running Conan against real tasks:
 
-| Scenario | What to test | Success criteria |
-|----------|-------------|-----------------|
-| "Add a status filter to the Kanban board" | Component build | Conan retrieves: Structure - Kanban Board, Room - Project Board, Standard - Project States, related Capabilities |
-| "Implement the System primitive" | System build (broad) | Conan retrieves: Primitive - System, Strategy chain, all System-related capabilities, Room - System Board, Learning - System Primitive Gap |
-| "Fix Bronze task ordering" | Bug fix (narrow) | Conan retrieves: System - Bronze Stack, System - Priority Queue Architecture, Standard - Priority Score, Overlay - The Table |
-| "Add Category Advisor routes" | Feature (cross-zone) | Conan retrieves: all 8 Agent cards, Room - Category Studios, Zone - Strategy Studio, Learning - Category Advisor Accessibility |
-| "Refactor the Planning Queue" | Refactoring | WHY-heavy retrieval: Strategy - Superior Process, Principle - Plans Are Hypotheses, System - Planning Queue + all referencing cards |
+| Scenario                                  | What to test         | Success criteria                                                                                                                           |
+| ----------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| "Add a status filter to the Kanban board" | Component build      | Conan retrieves: Structure - Kanban Board, Room - Project Board, Standard - Project States, related Capabilities                           |
+| "Implement the System primitive"          | System build (broad) | Conan retrieves: Primitive - System, Strategy chain, all System-related capabilities, Room - System Board, Learning - System Primitive Gap |
+| "Fix Bronze task ordering"                | Bug fix (narrow)     | Conan retrieves: System - Bronze Stack, System - Priority Queue Architecture, Standard - Priority Score, Overlay - The Table               |
+| "Add Category Advisor routes"             | Feature (cross-zone) | Conan retrieves: all 8 Agent cards, Room - Category Studios, Zone - Strategy Studio, Learning - Category Advisor Accessibility             |
+| "Refactor the Planning Queue"             | Refactoring          | WHY-heavy retrieval: Strategy - Superior Process, Principle - Plans Are Hypotheses, System - Planning Queue + all referencing cards        |
 
 ### Metrics to track
 
@@ -323,6 +332,7 @@ Test the system manually by running Conan against real tasks:
 ### 6.1 Provenance Review
 
 Weekly review of `constellation-log.jsonl`:
+
 - Which cards appear in successful sessions?
 - Which gaps repeat? → Priority for new card creation
 - Which cards are retrieved but not referenced by Bob? → Review for relevance
@@ -331,6 +341,7 @@ Weekly review of `constellation-log.jsonl`:
 ### 6.2 Profile Tuning
 
 After 10+ constellation assemblies:
+
 - Are certain types consistently over/under-retrieving?
 - Do the mandatory card rules need adjustment?
 - Should any type profiles add or remove upstream hops?
@@ -338,6 +349,7 @@ After 10+ constellation assemblies:
 ### 6.3 Library Health
 
 Feed constellation data back to Conan's existing grading/diagnosis jobs:
+
 - Cards never retrieved → may be poorly named or disconnected
 - Cards with weak wikilinks → Conan's diagnosis job can flag them
 - Frequent gaps → Bob's card creation jobs can fill them
@@ -346,26 +358,28 @@ Feed constellation data back to Conan's existing grading/diagnosis jobs:
 
 ## Timeline
 
-| Day | Phase | Deliverables |
-|-----|-------|-------------|
-| 1 | Protocol & Schema | Protocol spec, provenance schema |
-| 1-2 | Subagents | Conan agent, Bob agent |
-| 2-3 | Skill | Constellation skill, retrieval profiles, traversal guide |
-| 3 | Integration | CLAUDE.md updates |
-| 3-4 | Validation | 5 dry-run scenarios |
-| Ongoing | Feedback | Provenance review, profile tuning |
+| Day     | Phase             | Deliverables                                             |
+| ------- | ----------------- | -------------------------------------------------------- |
+| 1       | Protocol & Schema | Protocol spec, provenance schema                         |
+| 1-2     | Subagents         | Conan agent, Bob agent                                   |
+| 2-3     | Skill             | Constellation skill, retrieval profiles, traversal guide |
+| 3       | Integration       | CLAUDE.md updates                                        |
+| 3-4     | Validation        | 5 dry-run scenarios                                      |
+| Ongoing | Feedback          | Provenance review, profile tuning                        |
 
 ---
 
 ## Success Criteria
 
 **Minimum Viable:**
+
 - Conan can assemble a context briefing for any card type using Glob/Grep/Read
 - Bob reads the briefing and queries for more context when uncertain
 - Provenance logged for all sessions
 - CLAUDE.md points to the system
 
 **Full Success:**
+
 - Retrieval profiles validated across all 11 types
 - Briefings consistently contain the right cards (4/5+ scenarios)
 - Bob asks rather than guesses on ambiguous decisions
@@ -376,13 +390,13 @@ Feed constellation data back to Conan's existing grading/diagnosis jobs:
 
 ## Risks & Mitigations
 
-| Risk | Mitigation |
-|------|------------|
+| Risk                                             | Mitigation                                                                                                                 |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
 | Keyword search misses semantically related cards | Card naming conventions are strict; Grep for multiple terms; wikilinks provide structural paths that bypass keyword limits |
-| Retrieval profiles too rigid | Profiles are prose instructions, easy to iterate; Conan can use judgment beyond the rules |
-| Too many agentic turns for assembly | Conan reads the retrieval profile once, then executes a focused search pattern — typically 5-10 tool calls |
-| CONTEXT_BRIEFING.md gets stale mid-session | Bob can query the library directly; briefing is a starting point, not the only source |
-| Provenance logging overhead | Append-only JSONL is minimal overhead; logging is optional in fast iterations |
+| Retrieval profiles too rigid                     | Profiles are prose instructions, easy to iterate; Conan can use judgment beyond the rules                                  |
+| Too many agentic turns for assembly              | Conan reads the retrieval profile once, then executes a focused search pattern — typically 5-10 tool calls                 |
+| CONTEXT_BRIEFING.md gets stale mid-session       | Bob can query the library directly; briefing is a starting point, not the only source                                      |
+| Provenance logging overhead                      | Append-only JSONL is minimal overhead; logging is optional in fast iterations                                              |
 
 ---
 
@@ -396,13 +410,13 @@ Feed constellation data back to Conan's existing grading/diagnosis jobs:
 
 ## What's Changed
 
-| Original | Modified | Why |
-|----------|----------|-----|
-| MCP server (Python) | Claude Code native tools | ~100 cards don't need a database |
-| Embedding-based search | Keyword search (Grep) | Strict naming conventions make this sufficient |
-| Computed scoring formula | Mandatory card rules as prose | Rules-based > scoring-based at small scale |
-| `search_context_cards` MCP tool | `Grep` + `Glob` | Same result, zero infrastructure |
-| `get_card` MCP tool | `Read` | Literally the same operation |
-| `explore_related` MCP tool | Grep for wikilinks → Read | Wikilinks are greppable edges |
-| `get_constellation` MCP tool | Conan subagent following skill instructions | Agent judgment > computed pipeline at this scale |
-| Weeks of infrastructure | Days of configuration | Ship something, iterate |
+| Original                        | Modified                                    | Why                                              |
+| ------------------------------- | ------------------------------------------- | ------------------------------------------------ |
+| MCP server (Python)             | Claude Code native tools                    | ~100 cards don't need a database                 |
+| Embedding-based search          | Keyword search (Grep)                       | Strict naming conventions make this sufficient   |
+| Computed scoring formula        | Mandatory card rules as prose               | Rules-based > scoring-based at small scale       |
+| `search_context_cards` MCP tool | `Grep` + `Glob`                             | Same result, zero infrastructure                 |
+| `get_card` MCP tool             | `Read`                                      | Literally the same operation                     |
+| `explore_related` MCP tool      | Grep for wikilinks → Read                   | Wikilinks are greppable edges                    |
+| `get_constellation` MCP tool    | Conan subagent following skill instructions | Agent judgment > computed pipeline at this scale |
+| Weeks of infrastructure         | Days of configuration                       | Ship something, iterate                          |

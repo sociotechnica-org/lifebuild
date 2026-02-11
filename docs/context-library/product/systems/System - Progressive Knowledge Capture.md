@@ -35,27 +35,28 @@ The knowledge acquisition mechanism agents use to learn about directors over tim
 
 ### Transitions
 
-| From | Trigger | To | Side Effects |
-|------|---------|-----|--------------|
-| Unknown fact | Director states explicitly ("Family is my priority") | Known (high confidence) | Stored in Knowledge Framework; available to all agents via State Summary |
-| Unknown fact | Behavioral pattern observed (always pauses projects in December) | Known (medium confidence) | Stored with observation tag; requires higher threshold before agents act on it |
-| Known (medium confidence) | Director confirms or contradicts in conversation | Known (high confidence) or Corrected | Confidence updated; corrected items override previous knowledge |
-| Known fact | Extended time without reconfirmation | Potentially stale | Agents may gently re-check during natural conversation |
-| No knowledge | Onboarding begins (First 72 Hours) | Initial knowledge captured | Mesa and Jarvis begin building foundational understanding |
+| From                      | Trigger                                                          | To                                   | Side Effects                                                                   |
+| ------------------------- | ---------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------ |
+| Unknown fact              | Director states explicitly ("Family is my priority")             | Known (high confidence)              | Stored in Knowledge Framework; available to all agents via State Summary       |
+| Unknown fact              | Behavioral pattern observed (always pauses projects in December) | Known (medium confidence)            | Stored with observation tag; requires higher threshold before agents act on it |
+| Known (medium confidence) | Director confirms or contradicts in conversation                 | Known (high confidence) or Corrected | Confidence updated; corrected items override previous knowledge                |
+| Known fact                | Extended time without reconfirmation                             | Potentially stale                    | Agents may gently re-check during natural conversation                         |
+| No knowledge              | Onboarding begins (First 72 Hours)                               | Initial knowledge captured           | Mesa and Jarvis begin building foundational understanding                      |
 
 ### Processing Logic
 
 **Capture techniques:**
 
-| Technique | Example | Context |
-|-----------|---------|---------|
-| Observe-and-note | Director completes Gold -> note preference patterns | Background |
-| Conversational inference | "Sounds like family time is important" | Strategic sessions |
-| Gentle calibration | "Is this harder than it looks?" | Task estimation |
-| Reflection prompt | "What made that project satisfying?" | Week-in-Review |
-| Choice observation | Track what gets selected vs. deferred | Priority patterns |
+| Technique                | Example                                             | Context            |
+| ------------------------ | --------------------------------------------------- | ------------------ |
+| Observe-and-note         | Director completes Gold -> note preference patterns | Background         |
+| Conversational inference | "Sounds like family time is important"              | Strategic sessions |
+| Gentle calibration       | "Is this harder than it looks?"                     | Task estimation    |
+| Reflection prompt        | "What made that project satisfying?"                | Week-in-Review     |
+| Choice observation       | Track what gets selected vs. deferred               | Priority patterns  |
 
 **What gets captured:**
+
 - Values and priorities
 - Capacity patterns
 - Preference patterns
@@ -64,6 +65,7 @@ The knowledge acquisition mechanism agents use to learn about directors over tim
 - Historical patterns
 
 **Capture moments:**
+
 - During onboarding (First 72 Hours)
 - During strategic conversations (Council Chamber)
 - During project creation (Drafting Room)
@@ -71,11 +73,13 @@ The knowledge acquisition mechanism agents use to learn about directors over tim
 - Passively through usage patterns
 
 **Explicit vs. implicit:**
+
 - Some knowledge stated directly ("family is priority")
 - Some knowledge inferred from behavior (always pauses projects in December)
 - Both valid; inferred requires higher confidence threshold
 
 **Never interrogate:**
+
 - No upfront questionnaires
 - No mandatory profile completion
 - No blocking on information capture

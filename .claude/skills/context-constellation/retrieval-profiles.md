@@ -9,6 +9,7 @@ Type-specific instructions for assembling context constellations. Each profile d
 **Examples:** Bronze Stack, Pipeline Architecture, Four-Stage Creation, Clustering, Adaptation
 
 **Always include:**
+
 - The System card itself (full content)
 - At least 1 governing Strategy (follow WHY links)
 - All Principles referenced in the card's WHY section
@@ -33,6 +34,7 @@ When summarizing supporting cards, preserve WHY and WHERE content. Compress HOW 
 **Examples:** Gold Position, Silver Position, Bronze Position, Hex Tile, Campfire
 
 **Always include:**
+
 - The Component card itself (full content)
 - Parent Structure or Room (the container this lives in)
 - All Standards this component must conform to — check WHERE section for `[[Standard -` links
@@ -54,6 +56,7 @@ Components are implementation-heavy. Focus on HOW details and conforming Standar
 **Examples:** Drafting Room, Sorting Room, Project Board, Category Studios, Council Chamber
 
 **Always include:**
+
 - The Room card itself (full content)
 - Parent Zone (Rooms are always contained by a Zone)
 - Resident Agent (if one exists for this Room)
@@ -77,6 +80,7 @@ Rooms are relationship-heavy — WHERE context (what connects to what) is critic
 **Examples:** Life Map, Archives, Strategy Studio
 
 **Always include:**
+
 - The Zone card itself (full content)
 - All Rooms contained in this Zone — `Glob` for cards referencing this zone
 - Visible Overlays — `Grep` for the zone name across `product/overlays/`
@@ -97,6 +101,7 @@ Zones are strategic — WHY they exist matters more than HOW they work.
 **Examples:** Hex Grid, Kanban Board
 
 **Always include:**
+
 - The Structure card itself (full content)
 - Parent Room (where this Structure lives)
 - All Components contained in this Structure — `Grep` for the structure name across `product/components/`
@@ -117,6 +122,7 @@ Structures are spatial/visual — HOW they render and behave is primary.
 **Examples:** Purpose Assignment, Three-Stream Filtering, Weekly Planning, Workspace Navigation
 
 **Always include:**
+
 - The Capability card itself (full content)
 - Room(s) where this Capability is performed — check WHERE section
 - Artifacts created or edited by this Capability
@@ -138,6 +144,7 @@ Capabilities are about connections and workflows — WHERE it happens and HOW it
 **Examples:** The Charter, The Agenda
 
 **Always include:**
+
 - The Artifact card itself (full content)
 - Room where this Artifact is edited
 - Capabilities that use this Artifact
@@ -158,6 +165,7 @@ Artifacts are content objects — HOW they're structured and used matters most.
 **Examples:** The Table
 
 **Always include:**
+
 - The Overlay card itself (full content)
 - All Zones where this Overlay is visible — check WHERE section
 - Primitives displayed by this Overlay
@@ -179,6 +187,7 @@ Overlays are cross-zone — WHERE they appear and HOW they behave across context
 **Examples:** Cameron, Marvin, Mesa, Maya, Atlas, Brooks, Grace, Reed, Finn, Indie, Sage, Jarvis, Conan, Devin
 
 **Always include:**
+
 - The Agent card itself (full content)
 - Home Room (where this Agent lives)
 - All Capabilities available to this Agent — `Grep` for agent name across `product/capabilities/`
@@ -203,6 +212,7 @@ Agent alignment is strategic — WHY they exist and WHERE they fit matters as mu
 **Examples:** (no Prompt cards exist yet)
 
 **Always include:**
+
 - Parent Agent card (complete, full content)
 - The Agent's home Room
 - The Agent carries the context — the Prompt is just the implementation
@@ -221,6 +231,7 @@ Prompts are pure implementation — HOW to write the system prompt.
 **Examples:** Project, Task, System (the data entity)
 
 **Always include:**
+
 - The Primitive card itself (full content)
 - Rooms that serve this Primitive — `Grep` for primitive name across `product/rooms/`
 - Capabilities that operate on this Primitive — `Grep` for primitive name across `product/capabilities/`
@@ -240,16 +251,16 @@ Primitives are the data backbone — WHERE they're used throughout the product i
 
 Quick reference for what MUST be included regardless of scoring:
 
-| Target Type | Mandatory |
-|-------------|-----------|
-| System | 1+ Strategy, all anti-patterns, all affected Capabilities |
-| Component | Parent Structure/Room, all conforming Standards |
-| Room | Parent Zone, resident Agent (if exists) |
-| Zone | All contained Rooms, 1+ Strategy |
-| Structure | Parent Room, all conforming Standards |
-| Capability | 1+ Room, all affected Artifacts |
-| Agent | Home Room, all managed Artifacts, 1+ Strategy |
-| Prompt | Parent Agent (complete) |
-| Overlay | All visible Zones, all conforming Standards |
-| Primitive | All Rooms that serve it, all operating Capabilities |
-| Artifact | Host Room, all using Capabilities |
+| Target Type | Mandatory                                                 |
+| ----------- | --------------------------------------------------------- |
+| System      | 1+ Strategy, all anti-patterns, all affected Capabilities |
+| Component   | Parent Structure/Room, all conforming Standards           |
+| Room        | Parent Zone, resident Agent (if exists)                   |
+| Zone        | All contained Rooms, 1+ Strategy                          |
+| Structure   | Parent Room, all conforming Standards                     |
+| Capability  | 1+ Room, all affected Artifacts                           |
+| Agent       | Home Room, all managed Artifacts, 1+ Strategy             |
+| Prompt      | Parent Agent (complete)                                   |
+| Overlay     | All visible Zones, all conforming Standards               |
+| Primitive   | All Rooms that serve it, all operating Capabilities       |
+| Artifact    | Host Room, all using Capabilities                         |

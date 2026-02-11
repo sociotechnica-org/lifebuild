@@ -38,11 +38,11 @@ The specification for classifying all director work into three purpose-based str
 
 #### Stream Definitions
 
-| Stream | Purpose | Question | Example |
-|--------|---------|----------|---------|
-| Gold | Expansion | What changes my life? | Train for marathon |
-| Silver | Capacity | What creates leverage? | Set up automated bill pay |
-| Bronze | Maintenance | What prevents decay? | Pay the electric bill |
+| Stream | Purpose     | Question               | Example                   |
+| ------ | ----------- | ---------------------- | ------------------------- |
+| Gold   | Expansion   | What changes my life?  | Train for marathon        |
+| Silver | Capacity    | What creates leverage? | Set up automated bill pay |
+| Bronze | Maintenance | What prevents decay?   | Pay the electric bill     |
 
 #### Behavioral Intent
 
@@ -55,26 +55,29 @@ Purpose is determined by the director's relationship to the work, not objective 
 #### Stream Flow Pattern
 
 Work often matures through streams:
+
 - Learning Spanish starts as **Gold** (expansion)
 - Becomes **Silver** (building practice system)
 - Then **Bronze** (maintaining the routine)
 
 #### Slot Constraints
 
-| Stream | Maximum on Table |
-|--------|------------------|
-| Gold | 1 |
-| Silver | 1 |
+| Stream | Maximum on Table             |
+| ------ | ---------------------------- |
+| Gold   | 1                            |
+| Silver | 1                            |
 | Bronze | No maximum (mode-controlled) |
 
 ### Examples
 
 **Example 1: Same task classified differently by two directors**
+
 - Scenario: Two directors both have "Cook dinner" as a recurring task.
 - Input: Director A is a professional chef learning new cuisines at home. Director B is a busy parent keeping the family fed.
 - Correct output: Director A classifies "Cook dinner" as Gold (expansion — exploring new culinary territory changes their creative life). Director B classifies it as Bronze (maintenance — preventing the family from going hungry). Both are correct because classification depends on the director's relationship to the work, not objective criteria.
 
 **Example 2: Work maturing through streams over time**
+
 - Scenario: Director starts a "Morning Exercise" project.
 - Input: Month 1: Director is building a new habit from scratch (transformational). Month 4: Director is setting up a structured routine with gym schedule. Month 8: Director maintains the established routine.
 - Correct output: Month 1: Classified as Gold (expansion — "this changes my life"). Month 4: Reclassified as Silver (capacity — "building the system"). Month 8: Reclassified as Bronze (maintenance — "keeping the routine alive"). The stream flow pattern reflects the natural lifecycle of work.

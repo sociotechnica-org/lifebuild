@@ -35,13 +35,13 @@ The progressive project development process that separates four cognitive modes:
 
 ### Transitions
 
-| From | Trigger | To | Side Effects |
-|------|---------|-----|--------------|
-| No project | Director initiates creation with Marvin | Stage 1: Identified | Project created with title, description, Life Category; enters Planning Queue |
-| Stage 1: Identified | Director resumes with Marvin, provides purpose/objectives/priority data | Stage 2: Scoped | Stream assignment (Gold/Silver/Bronze), success criteria, priority attributes recorded |
-| Stage 2: Scoped | Director works with Marvin to generate task list or system config | Stage 3: Drafted | Complete task list or system configuration attached |
-| Stage 3: Drafted | Director reviews Priority Queue placement with Marvin | Stage 4: Prioritized | Project exits Planning Queue, enters Priority Queue with priority score |
-| Any stage | Director abandons project | Archived | Project removed from active queues |
+| From                | Trigger                                                                 | To                   | Side Effects                                                                           |
+| ------------------- | ----------------------------------------------------------------------- | -------------------- | -------------------------------------------------------------------------------------- |
+| No project          | Director initiates creation with Marvin                                 | Stage 1: Identified  | Project created with title, description, Life Category; enters Planning Queue          |
+| Stage 1: Identified | Director resumes with Marvin, provides purpose/objectives/priority data | Stage 2: Scoped      | Stream assignment (Gold/Silver/Bronze), success criteria, priority attributes recorded |
+| Stage 2: Scoped     | Director works with Marvin to generate task list or system config       | Stage 3: Drafted     | Complete task list or system configuration attached                                    |
+| Stage 3: Drafted    | Director reviews Priority Queue placement with Marvin                   | Stage 4: Prioritized | Project exits Planning Queue, enters Priority Queue with priority score                |
+| Any stage           | Director abandons project                                               | Archived             | Project removed from active queues                                                     |
 
 ### Processing Logic
 

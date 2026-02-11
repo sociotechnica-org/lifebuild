@@ -98,54 +98,54 @@ After task completion, append an outcome entry:
 
 ### Top-level fields
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `timestamp` | ISO-8601 | yes | When the entry was created |
-| `session_id` | UUID v4 | yes | Groups entries from same task session |
-| `agent` | string | yes | Which agent created this entry |
+| Field        | Type     | Required | Description                           |
+| ------------ | -------- | -------- | ------------------------------------- |
+| `timestamp`  | ISO-8601 | yes      | When the entry was created            |
+| `session_id` | UUID v4  | yes      | Groups entries from same task session |
+| `agent`      | string   | yes      | Which agent created this entry        |
 
 ### task object
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `description` | string | yes | What needs to be built/modified |
-| `target_type` | string | yes | Card type being built (System, Component, etc.) |
-| `task_type` | string | yes | feature, bug, refactor, new, architecture |
+| Field         | Type   | Required | Description                                     |
+| ------------- | ------ | -------- | ----------------------------------------------- |
+| `description` | string | yes      | What needs to be built/modified                 |
+| `target_type` | string | yes      | Card type being built (System, Component, etc.) |
+| `task_type`   | string | yes      | feature, bug, refactor, new, architecture       |
 
 ### assembly object (Conan entries only)
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `profile_used` | string | yes | Which retrieval profile was applied |
-| `seeds` | string[] | yes | Initial cards found via search |
-| `candidates_found` | number | no | Total cards considered |
-| `retrieved` | string[] | yes | All cards read during assembly |
-| `delivered.primary` | string[] | yes | Cards included in full |
-| `delivered.supporting` | string[] | yes | Cards included as summaries |
-| `gaps` | object[] | no | Identified context gaps |
+| Field                  | Type     | Required | Description                         |
+| ---------------------- | -------- | -------- | ----------------------------------- |
+| `profile_used`         | string   | yes      | Which retrieval profile was applied |
+| `seeds`                | string[] | yes      | Initial cards found via search      |
+| `candidates_found`     | number   | no       | Total cards considered              |
+| `retrieved`            | string[] | yes      | All cards read during assembly      |
+| `delivered.primary`    | string[] | yes      | Cards included in full              |
+| `delivered.supporting` | string[] | yes      | Cards included as summaries         |
+| `gaps`                 | object[] | no       | Identified context gaps             |
 
 ### queries array (Bob entries)
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `round` | number | yes | Query round (1-3) |
-| `technique` | string | yes | Grep, Glob, or Read |
-| `terms` | string | yes | Search terms used |
-| `path` | string | no | Search scope |
-| `result_count` | number | yes | Number of results |
-| `action` | string | yes | What was done with results |
+| Field          | Type   | Required | Description                |
+| -------------- | ------ | -------- | -------------------------- |
+| `round`        | number | yes      | Query round (1-3)          |
+| `technique`    | string | yes      | Grep, Glob, or Read        |
+| `terms`        | string | yes      | Search terms used          |
+| `path`         | string | no       | Search scope               |
+| `result_count` | number | yes      | Number of results          |
+| `action`       | string | yes      | What was done with results |
 
 ### decisions array (Bob entries)
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | yes | Unique decision identifier |
-| `description` | string | yes | What was decided |
-| `confidence` | string | yes | high, medium, or low |
-| `signals` | object | yes | 5-signal evaluation |
-| `cards_used` | string[] | yes | Cards that informed decision |
-| `default_used` | boolean | no | Whether default assumption was used |
-| `outcome` | string | yes | pending, success, failure, partial |
+| Field          | Type     | Required | Description                         |
+| -------------- | -------- | -------- | ----------------------------------- |
+| `id`           | string   | yes      | Unique decision identifier          |
+| `description`  | string   | yes      | What was decided                    |
+| `confidence`   | string   | yes      | high, medium, or low                |
+| `signals`      | object   | yes      | 5-signal evaluation                 |
+| `cards_used`   | string[] | yes      | Cards that informed decision        |
+| `default_used` | boolean  | no       | Whether default assumption was used |
+| `outcome`      | string   | yes      | pending, success, failure, partial  |
 
 ---
 

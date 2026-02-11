@@ -11,6 +11,7 @@ Audit ≠ Grading. Card can score A and still fail audit if misclassified.
 1. **Select scope** — By type, zone, or full library.
 
 2. **Apply decision tree to each card** (see Conan-Skill Type Taxonomy)
+
    ```
    Card: [Name]
    Step 1: WHY question? → Strategy/Principle/Standard
@@ -30,6 +31,7 @@ Audit ≠ Grading. Card can score A and still fail audit if misclassified.
    ```
 
 3. **Check System vs Standard** — For cards typed as System:
+
    ```
    - Has runtime state? [yes/no]
    - Processes inputs? [yes/no]
@@ -38,6 +40,7 @@ Audit ≠ Grading. Card can score A and still fail audit if misclassified.
    ```
 
 4. **Check conformance** — For product-layer cards (Rooms, Overlays, Structures, Components, Artifacts, Capabilities, Agents):
+
    ```
    Card: [Name]
    Governed domains touched:
@@ -46,7 +49,7 @@ Audit ≠ Grading. Card can score A and still fail audit if misclassified.
    - Stream classification? → needs Standard - Three-Stream Portfolio
    - Project states? → needs Standard - Project States
    [See Library Reference for full list]
-   
+
    Required: [list]
    Present: [list]
    Missing: [list]
@@ -72,13 +75,13 @@ Audit ≠ Grading. Card can score A and still fail audit if misclassified.
 
 ## Violation Patterns
 
-| Pattern | Signal | Detection |
-|---------|--------|-----------|
-| Layer Conflation | Wrong-layer language | Decision tree |
-| System/Standard Confusion | Spec in System, or System with no state | System vs Standard test |
-| Conformance Gap | Product-layer card touches governed domain, no Standard link | Conformance check |
-| Enumerated Instances | HOW table with behavioral types | Context needed per type? |
-| Atomicity Violation | Multiple distinct questions | Could sections stand alone? |
+| Pattern                   | Signal                                                       | Detection                   |
+| ------------------------- | ------------------------------------------------------------ | --------------------------- |
+| Layer Conflation          | Wrong-layer language                                         | Decision tree               |
+| System/Standard Confusion | Spec in System, or System with no state                      | System vs Standard test     |
+| Conformance Gap           | Product-layer card touches governed domain, no Standard link | Conformance check           |
+| Enumerated Instances      | HOW table with behavioral types                              | Context needed per type?    |
+| Atomicity Violation       | Multiple distinct questions                                  | Could sections stand alone? |
 
 ## Output
 

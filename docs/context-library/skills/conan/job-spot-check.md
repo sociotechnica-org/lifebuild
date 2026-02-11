@@ -32,11 +32,11 @@ Spot-Check gates product-layer builds. Catches upstream gaps before they cascade
 
 3. **Classify results**
 
-   | Result | Definition | Action |
-   |--------|------------|--------|
-   | PASS | All checks pass | Proceed to product-layer build |
-   | FIX | Minor gaps | Bob fixes before proceeding |
-   | ESCALATE | Substantive gaps | Human input needed |
+   | Result   | Definition       | Action                         |
+   | -------- | ---------------- | ------------------------------ |
+   | PASS     | All checks pass  | Proceed to product-layer build |
+   | FIX      | Minor gaps       | Bob fixes before proceeding    |
+   | ESCALATE | Substantive gaps | Human input needed             |
 
 4. **Flag cascade risk**
 
@@ -78,14 +78,17 @@ Cards checked: [n]
 ## Abbreviated Rubrics
 
 **Standard - HOW Check:**
+
 - Contains table, list, or explicit values? → Pass
 - Vague guidance only? → Fail
 
 **Strategy - WHY Check:**
+
 - Explains reasoning ("because...", "we believe...")? → Pass
 - Just asserts ("X is important")? → Fail
 
 **Anti-pattern Check:**
+
 - Includes concrete wrong example? → Pass
 - No negative guidance? → Fail (note: FIX, not ESCALATE)
 

@@ -29,35 +29,35 @@ Run before handing cards to Conan. Catches obvious issues.
 
 Does this card touch a governed domain?
 
-| If the card… | Must link to… |
-|--------------|---------------|
-| Renders visually | Standard - Visual Language |
-| Has state indicators (saturation, glow, dimming) | Standard - Visual Language |
-| Displays project illustrations | Standard - Image Evolution |
-| Involves priority ordering or scoring | Standard - Priority Score |
-| Involves stream classification (Gold/Silver/Bronze) | Standard - Three-Stream Portfolio |
-| Has project lifecycle states | Standard - Project States |
-| Shows smoke signal indicators | Standard - Smoke Signal Thresholds |
-| Has Bronze mode behavior | Standard - Bronze Mode Behaviors |
-| Involves service level awareness | Standard - Service Levels |
-| Renders Work at Hand in multiple locations | Standard - Dual Presence |
-| Involves category assignment | Standard - Life Categories |
-| Is an Agent or Prompt | Standard - Agent Voice (if exists) |
+| If the card…                                        | Must link to…                      |
+| --------------------------------------------------- | ---------------------------------- |
+| Renders visually                                    | Standard - Visual Language         |
+| Has state indicators (saturation, glow, dimming)    | Standard - Visual Language         |
+| Displays project illustrations                      | Standard - Image Evolution         |
+| Involves priority ordering or scoring               | Standard - Priority Score          |
+| Involves stream classification (Gold/Silver/Bronze) | Standard - Three-Stream Portfolio  |
+| Has project lifecycle states                        | Standard - Project States          |
+| Shows smoke signal indicators                       | Standard - Smoke Signal Thresholds |
+| Has Bronze mode behavior                            | Standard - Bronze Mode Behaviors   |
+| Involves service level awareness                    | Standard - Service Levels          |
+| Renders Work at Hand in multiple locations          | Standard - Dual Presence           |
+| Involves category assignment                        | Standard - Life Categories         |
+| Is an Agent or Prompt                               | Standard - Agent Voice (if exists) |
 
 If yes → conformance link must be in WHERE.
 If Standard doesn't exist yet → flag for creation.
 
 ### Containment Check
 
-| Type | Must Link To |
-|------|--------------|
-| Room | Zone (parent workspace) |
-| Structure | Room (where it lives) |
-| Component | Structure or Room or Overlay (parent element) |
-| Artifact | Room (where it's edited) |
-| Capability | Room(s) (where it's performed) |
-| Prompt | Agent (what it implements) |
-| Overlay | Zone(s) (where it's visible) |
+| Type       | Must Link To                                  |
+| ---------- | --------------------------------------------- |
+| Room       | Zone (parent workspace)                       |
+| Structure  | Room (where it lives)                         |
+| Component  | Structure or Room or Overlay (parent element) |
+| Artifact   | Room (where it's edited)                      |
+| Capability | Room(s) (where it's performed)                |
+| Prompt     | Agent (what it implements)                    |
+| Overlay    | Zone(s) (where it's visible)                  |
 
 ### Folder Placement Check
 
@@ -118,12 +118,12 @@ Different structure than product-layer cards.
 
 ## Quick Tally
 
-| Result | Meaning |
-|--------|---------|
-| ✓ All pass | Ready for Conan |
-| 1-2 minor | Fix now |
-| 3+ issues | Fix before continuing |
-| Unclear | Flag for human |
+| Result     | Meaning               |
+| ---------- | --------------------- |
+| ✓ All pass | Ready for Conan       |
+| 1-2 minor  | Fix now               |
+| 3+ issues  | Fix before continuing |
+| Unclear    | Flag for human        |
 
 ---
 
@@ -172,93 +172,122 @@ After finishing a zone's cards:
 ## Common Issues
 
 **Missing link context:**
+
 ```markdown
 # Bad
+
 - [[Priority Queue]]
 
 # Good
+
 - [[Priority Queue]] — provides candidate tasks for filtering
 ```
 
 **WHAT not standalone:**
+
 ```markdown
 # Bad
+
 "The settings for Bronze mode. See [[Bronze Operations]]."
 
 # Good
+
 "Bronze Mode Settings let directors control how many operational tasks
 appear in their Bronze queue each week..."
 ```
 
 **WHY links to stub:**
+
 ```markdown
 # The card says:
+
 Strategy: [[Strategy - Visual Work]] — implements visibility
 
 # But the strategy note is just:
+
 "Visual work is important."
 
 # Fix: Enrich the strategy note before handing off
 ```
 
 **Missing conformance:**
+
 ```markdown
 # Card renders visual indicators but WHERE has no Standard link
 
 # Fix: Add
+
 - [[Standard - Visual Language]] — constrains indicator rendering
 ```
 
 **All links in one dimension:**
+
 ```markdown
 # Bad (all WHERE)
+
 Zone, System, Dependency, Dependency, Component
 
 # Good (spread across dimensions)
+
 Zone, System, Dependency (WHERE)
 Strategy, Decision (WHY)
 Future enhancement (WHEN)
 ```
 
 **Missing examples in HOW:**
+
 ```markdown
 # Bad
+
 "The component displays priority scores for tasks."
 
 # Good
+
 "### Examples
+
 - Task with score 85 → displays in Gold stream with amber glow
 - Task with score 45 → displays in Bronze stream, dimmed"
 ```
 
 **Missing anti-examples:**
+
 ```markdown
 # Bad (no boundaries defined)
+
 "Colors follow the visual language."
 
 # Good
+
 "### Anti-Examples
+
 - Wrong: Using #FF0000 for errors (too harsh, not in palette)
 - Wrong: Applying glow to Bronze items (reserved for Gold/Silver)"
 ```
 
 **Strategy without anti-patterns:**
+
 ```markdown
 # Bad
+
 "We believe in spatial visibility."
 
 # Good
+
 "## Anti-Patterns
+
 - Wrong: Hiding status in dropdown menus
 - Wrong: Requiring hover to see critical info"
 ```
 
 **Wrong folder placement:**
+
 ```markdown
 # Bad
+
 Standard - Life Categories filed in /product/standards/
 
 # Good
+
 Standard - Life Categories filed in /rationale/standards/
 ```
 

@@ -34,32 +34,36 @@ The holding area for projects still in development — work in stages 1-3 of the
 
 ### Transitions
 
-| From | Trigger | To | Side Effects |
-|------|---------|-----|--------------|
-| Empty queue | Director captures new idea with Marvin | Queue contains Stage 1 project | Project appears in Planning Queue list |
-| Project at Stage 1 | Director resumes with Marvin, completes scoping | Project advances to Stage 2 | Purpose, objectives, priority attributes recorded |
-| Project at Stage 2 | Director resumes with Marvin, completes drafting | Project advances to Stage 3 | Task list or system configuration attached |
-| Project at Stage 3 | Director completes Stage 4 prioritization | Project exits Planning Queue | Project moves to Priority Queue with priority score |
-| Project stalled | Marvin detects no interaction for extended period | Stall surfaced | Marvin asks: "Want to continue, or archive this?" |
-| Project in any stage | Director abandons | Project archived | Removed from Planning Queue |
+| From                 | Trigger                                           | To                             | Side Effects                                        |
+| -------------------- | ------------------------------------------------- | ------------------------------ | --------------------------------------------------- |
+| Empty queue          | Director captures new idea with Marvin            | Queue contains Stage 1 project | Project appears in Planning Queue list              |
+| Project at Stage 1   | Director resumes with Marvin, completes scoping   | Project advances to Stage 2    | Purpose, objectives, priority attributes recorded   |
+| Project at Stage 2   | Director resumes with Marvin, completes drafting  | Project advances to Stage 3    | Task list or system configuration attached          |
+| Project at Stage 3   | Director completes Stage 4 prioritization         | Project exits Planning Queue   | Project moves to Priority Queue with priority score |
+| Project stalled      | Marvin detects no interaction for extended period | Stall surfaced                 | Marvin asks: "Want to continue, or archive this?"   |
+| Project in any stage | Director abandons                                 | Project archived               | Removed from Planning Queue                         |
 
 ### Processing Logic
 
 **Contents:**
+
 - Projects in Identified state (Stage 1)
 - Projects in Scoped state (Stage 2)
 - Projects in Drafted state (Stage 3)
 
 **Not included:**
+
 - Projects in Prioritized state (Stage 4) — those live in [[System - Priority Queue Architecture]]
 
 **Flow:**
+
 ```
 New idea -> Identified (Stage 1) -> Scoped (Stage 2) -> Drafted (Stage 3) -> Prioritized (Stage 4)
            |<-------- Planning Queue -------->|        |<-- Priority Queue -->|
 ```
 
 **Stall detection:**
+
 - Marvin can surface items that haven't progressed
 - "This has been in Scoped for three weeks — want to work on it or archive it?"
 

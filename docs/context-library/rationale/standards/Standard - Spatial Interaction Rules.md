@@ -28,40 +28,42 @@ The specification for director agency over hex grid spatial organization: direct
 
 #### Director Agency Rules
 
-| Rule | Requirement |
-|------|-------------|
-| Placement | Directors place their own projects. System does not assign locations. |
-| Rearrangement | Drag-and-drop. No confirmation dialogs for moves. |
-| Clustering | Adjacent hexes carry director-assigned meaning. System observes but doesn't impose. |
-| Persistence | Spatial arrangement persists exactly as director left it. |
+| Rule          | Requirement                                                                         |
+| ------------- | ----------------------------------------------------------------------------------- |
+| Placement     | Directors place their own projects. System does not assign locations.               |
+| Rearrangement | Drag-and-drop. No confirmation dialogs for moves.                                   |
+| Clustering    | Adjacent hexes carry director-assigned meaning. System observes but doesn't impose. |
+| Persistence   | Spatial arrangement persists exactly as director left it.                           |
 
 #### Interaction Requirements
 
-| Interaction | Spec |
-|-------------|------|
-| Place a project | Single drag-and-drop action |
-| Move a project | Grab and place — no multi-step process |
-| Suggested locations | Prohibited — no auto-place |
-| "Optimize layout" | Prohibited — no system rearrangement |
+| Interaction         | Spec                                   |
+| ------------------- | -------------------------------------- |
+| Place a project     | Single drag-and-drop action            |
+| Move a project      | Grab and place — no multi-step process |
+| Suggested locations | Prohibited — no auto-place             |
+| "Optimize layout"   | Prohibited — no system rearrangement   |
 
 #### AI Observation Rules
 
-| Permission | Rule |
-|------------|------|
-| Notice patterns | Allowed — "I see you've placed all family projects together" |
-| Ask about placement | Allowed — curiosity, not correction |
-| Move projects | **Only with explicit director request** |
-| Reorganize layout | **Never without permission** |
+| Permission           | Rule                                                                 |
+| -------------------- | -------------------------------------------------------------------- |
+| Notice patterns      | Allowed — "I see you've placed all family projects together"         |
+| Ask about placement  | Allowed — curiosity, not correction                                  |
+| Move projects        | **Only with explicit director request**                              |
+| Reorganize layout    | **Never without permission**                                         |
 | Learn from placement | Allowed — observations feed understanding of director's mental model |
 
 ### Examples
 
 **Example 1: Director places projects by personal association**
+
 - Scenario: Director creates three projects — "Family Reunion," "Call Mom Weekly," and "Anniversary Trip" — and places them in adjacent hexes.
 - Input: Director drags each project's hex tile to a cluster in the upper-left area of the Life Map.
 - Correct output: All three tiles remain exactly where placed. The system does not suggest a different arrangement, does not auto-sort them by category, and does not offer an "optimize layout" option. The Clustering system observes the grouping and may note "these three family-related projects are clustered together" as knowledge about the director's mental model.
 
 **Example 2: AI notices a pattern without imposing changes**
+
 - Scenario: Director has gradually placed all Finances projects near the bottom-right of the grid over several weeks.
 - Input: Mesa notices the spatial pattern during a conversation.
 - Correct output: Mesa says "I notice you've placed all your financial projects in the lower-right area — is that how you think about that part of your life?" This is curiosity, not correction. Mesa does NOT say "Would you like me to move your remaining Finance projects there too?" or rearrange anything. The director's response feeds understanding of their mental model.

@@ -52,6 +52,7 @@ Core system. Adaptation mechanics designed to feel supportive, not punitive.
 ## HOW: Implementation
 
 **Pause-and-Replace (Gold/Silver positions):**
+
 - Click project on The Table -> Open Project Board
 - Click Pause button
 - Paused project returns to Priority Queue (top position)
@@ -61,18 +62,21 @@ Core system. Adaptation mechanics designed to feel supportive, not punitive.
   3. Leave empty — intentional gap for remainder of week
 
 **Mode Change (Bronze position):**
+
 - Click gear icon on Bronze position
 - Select new mode (Minimal/Target/Maximal)
 - If Target, adjust number
 - Stack updates immediately
 
 **Emergency Insertion:**
+
 - Created via [[Room - Drafting Room]] with "urgent" flag
 - Skips normal queue positioning
 - Can go directly to [[Overlay - The Table]]
 - Jarvis notes for pattern tracking
 
 **Tone throughout:**
+
 - Never "you failed to complete"
 - Always "circumstances changed"
 - Adaptation framed as responsive leadership

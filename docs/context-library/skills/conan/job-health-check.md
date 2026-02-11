@@ -19,6 +19,7 @@ Follow build order — upstream before downstream.
    - Source changed since card created? → Drift risk
 
 **Output:**
+
 ```
 ## Source Alignment
 
@@ -39,6 +40,7 @@ Follow build order — upstream before downstream.
    - Misclassified cards
 
 **Output:**
+
 ```
 ## Inventory Status
 
@@ -53,15 +55,16 @@ Missing by type:
 
 Spot-check ALL Standards.
 
-| Check | Pass Criteria |
-|-------|---------------|
-| WHAT | Specifies something concrete |
-| WHY | Links to ≥1 Principle |
-| HOW | Has actual spec (values/rules/thresholds) |
-| Anti-examples | Shows what violation looks like |
-| Conformance | ≥1 product-layer card links to it |
+| Check         | Pass Criteria                             |
+| ------------- | ----------------------------------------- |
+| WHAT          | Specifies something concrete              |
+| WHY           | Links to ≥1 Principle                     |
+| HOW           | Has actual spec (values/rules/thresholds) |
+| Anti-examples | Shows what violation looks like           |
+| Conformance   | ≥1 product-layer card links to it         |
 
 **Output:**
+
 ```
 ## Standards Health
 
@@ -76,14 +79,15 @@ Standards missing anti-examples: [list]
 
 Spot-check ALL Strategy and Principle notes.
 
-| Check | Pass Criteria |
-|-------|---------------|
-| WHAT | Clear statement, not placeholder |
-| WHY | Reasoning present ("because..."), not assertion |
-| Anti-patterns | Shows what violating looks like |
-| Downstream | ≥1 downstream card links to it |
+| Check         | Pass Criteria                                   |
+| ------------- | ----------------------------------------------- |
+| WHAT          | Clear statement, not placeholder                |
+| WHY           | Reasoning present ("because..."), not assertion |
+| Anti-patterns | Shows what violating looks like                 |
+| Downstream    | ≥1 downstream card links to it                  |
 
 **Output:**
+
 ```
 ## Strategy/Principle Health
 
@@ -100,16 +104,19 @@ Stub notes (assertion only): [list]
 Full grade on sample of product-layer cards (20% or 10 cards, whichever larger).
 
 Select sample to include:
+
 - Highest-linked (most depended on)
 - Recently created
 - One from each zone
 
 Apply full rubric including:
+
 - Examples in HOW (≥2)?
 - Anti-examples in HOW (≥1)?
 - Conformance links where obligated?
 
 **Output:**
+
 ```
 ## Product Layer Sample
 
@@ -140,6 +147,7 @@ Card weak on HOW?
 ```
 
 **Output:**
+
 ```
 ## Cascade Analysis
 
@@ -210,11 +218,11 @@ Overall: [Healthy / Needs Work / Critical]
 
 ## Health Levels
 
-| Level | Definition |
-|-------|------------|
-| Healthy | >80% Standards pass, >80% Strategy/Principles pass, Product layer sample averages B+ |
-| Needs Work | 60-80% pass rates, or Product layer sample averages B- to C+ |
-| Critical | <60% pass rates, or Product layer sample below C |
+| Level      | Definition                                                                           |
+| ---------- | ------------------------------------------------------------------------------------ |
+| Healthy    | >80% Standards pass, >80% Strategy/Principles pass, Product layer sample averages B+ |
+| Needs Work | 60-80% pass rates, or Product layer sample averages B- to C+                         |
+| Critical   | <60% pass rates, or Product layer sample below C                                     |
 
 ## Principles
 

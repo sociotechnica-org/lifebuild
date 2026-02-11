@@ -10,6 +10,7 @@
    - Include conformance check for product-layer cards (Rooms, Overlays, Structures, Components, Artifacts, Capabilities, Agents)
 
 2. **Compute deltas**
+
    ```
    Card: [Name]
    Previous: [grade] → Current: [grade] → Delta: [+/-]
@@ -21,17 +22,19 @@
    |-----|--------|--------|--------|
 
 4. **Produce teach-backs** (for new cards and cards that moved >1 letter grade)
+
    ```
    [Card Name] (NEW/IMPROVED, Grade: [X])
-   
+
    My understanding: [2-3 sentences: what it is, why it exists, how it connects]
-   
+
    Confident this is accurate based on [source]. [Any concerns about specific sections.]
-   
+
    Does this match your intent?
    ```
 
 5. **Assess cascade results** (for upstream fixes)
+
    ```
    Upstream fix: [note]
    Expected cascade: [n] cards improve

@@ -44,6 +44,7 @@ Core to Strategy Studio design. Individual advisor personalities develop as syst
 ## HOW: Implementation
 
 **Studio structure (identical across all eight):**
+
 - Conversation thread with category advisor
 - Category-level overview (projects, systems in this category)
 - Strategic notes and decisions
@@ -51,16 +52,16 @@ Core to Strategy Studio design. Individual advisor personalities develop as syst
 
 **The eight studios:**
 
-| Category | Studio | Advisor |
-|----------|--------|---------|
-| Health & Well-Being | Health Studio | [[Agent - Maya]] |
-| Purpose & Spirituality | Purpose Studio | [[Agent - Atlas]] |
-| Financial Resources | Finances Studio | [[Agent - Brooks]] |
-| Relationships | Relationships Studio | [[Agent - Grace]] |
-| Home & Environment | Home Studio | [[Agent - Reed]] |
-| Community & Contributions | Community Studio | [[Agent - Finn]] |
-| Leisure & Lifestyle | Leisure Studio | [[Agent - Indie]] |
-| Personal Growth & Learning | Growth Studio | [[Agent - Sage]] |
+| Category                   | Studio               | Advisor            |
+| -------------------------- | -------------------- | ------------------ |
+| Health & Well-Being        | Health Studio        | [[Agent - Maya]]   |
+| Purpose & Spirituality     | Purpose Studio       | [[Agent - Atlas]]  |
+| Financial Resources        | Finances Studio      | [[Agent - Brooks]] |
+| Relationships              | Relationships Studio | [[Agent - Grace]]  |
+| Home & Environment         | Home Studio          | [[Agent - Reed]]   |
+| Community & Contributions  | Community Studio     | [[Agent - Finn]]   |
+| Leisure & Lifestyle        | Leisure Studio       | [[Agent - Indie]]  |
+| Personal Growth & Learning | Growth Studio        | [[Agent - Sage]]   |
 
 **Dual access:** Directors reach advisors here OR in-context on Project Boards. History syncs regardless of entry point.
 

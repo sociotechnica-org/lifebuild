@@ -28,56 +28,58 @@ The specification for the day-by-day first 72 hours experience: what happens eac
 
 #### Day 1: Welcome & Orient
 
-| Step | Actor | Outcome |
-|------|-------|---------|
-| Warm greeting | Mesa at Campfire | Director feels welcomed |
-| Spatial metaphor | Life Map introduction | "This is a map of your life" |
-| First project | Director creates (low stakes) | "I made something" |
+| Step             | Actor                         | Outcome                      |
+| ---------------- | ----------------------------- | ---------------------------- |
+| Warm greeting    | Mesa at Campfire              | Director feels welcomed      |
+| Spatial metaphor | Life Map introduction         | "This is a map of your life" |
+| First project    | Director creates (low stakes) | "I made something"           |
 
 **Emotional target:** "I made something."
 **Constraint:** Only Campfire, Life Map basics, and project creation are available.
 
 #### Day 2: Meet the Team
 
-| Step | Actor | Outcome |
-|------|-------|---------|
-| Jarvis introduction | Council Chamber unlocks | Director meets planning advisor |
-| Charter conversation | Jarvis guides | Values and current focus captured |
-| Second project | Marvin in Drafting Room | "I have help" |
+| Step                 | Actor                   | Outcome                           |
+| -------------------- | ----------------------- | --------------------------------- |
+| Jarvis introduction  | Council Chamber unlocks | Director meets planning advisor   |
+| Charter conversation | Jarvis guides           | Values and current focus captured |
+| Second project       | Marvin in Drafting Room | "I have help"                     |
 
 **Emotional target:** "I have help."
 **Constraint:** Strategy Studio unlocks. Sorting Room not yet available.
 
 #### Day 3: Establish Rhythm
 
-| Step | Actor | Outcome |
-|------|-------|---------|
-| Sorting Room visit | Cameron guides | Director prioritizes for first time |
-| Work at Hand selection | Director chooses (even minimal) | First weekly commitment |
-| Table populated | System displays selections | "I know what to do each week" |
+| Step                   | Actor                           | Outcome                             |
+| ---------------------- | ------------------------------- | ----------------------------------- |
+| Sorting Room visit     | Cameron guides                  | Director prioritizes for first time |
+| Work at Hand selection | Director chooses (even minimal) | First weekly commitment             |
+| Table populated        | System displays selections      | "I know what to do each week"       |
 
 **Emotional target:** "I know what to do each week."
 **Constraint:** Full feature set now available. Progressive disclosure complete.
 
 #### Progressive Disclosure Rules
 
-| Rule | Requirement |
-|------|-------------|
-| Feature unlock | Features unlock as relevant, not all at once |
-| Day 1 scope | Campfire + Life Map + project creation only |
+| Rule                | Requirement                                      |
+| ------------------- | ------------------------------------------------ |
+| Feature unlock      | Features unlock as relevant, not all at once     |
+| Day 1 scope         | Campfire + Life Map + project creation only      |
 | Never show on Day 1 | The Table, Sorting Room, full agent capabilities |
-| Each day | One primary emotional outcome |
-| Framing | "You can explore more later" throughout |
-| Tone | Warm, patient, encouraging |
+| Each day            | One primary emotional outcome                    |
+| Framing             | "You can explore more later" throughout          |
+| Tone                | Warm, patient, encouraging                       |
 
 ### Examples
 
 **Example 1: Successful Day 1 completion**
+
 - Scenario: New director opens LifeBuild for the first time.
 - Input: Director arrives at the app with no prior context.
 - Correct output: Mesa greets at Campfire. Director sees the Life Map with the spatial metaphor introduction. Director creates a low-stakes first project (e.g., "Organize Desk"). The Table, Sorting Room, and agent capabilities are hidden. Session ends with the director having created a visible artifact on their Life Map. Emotional outcome: "I made something."
 
 **Example 2: Day 2 progressive unlock**
+
 - Scenario: Director returns for second session.
 - Input: Director has completed Day 1 (first project created).
 - Correct output: Council Chamber unlocks. Jarvis introduces himself and guides a Charter conversation to capture values and current focus. Drafting Room becomes available with Marvin. Director creates a second project with Marvin's help. Sorting Room remains locked. Director leaves feeling "I have help" — the AI team is capable and supportive.

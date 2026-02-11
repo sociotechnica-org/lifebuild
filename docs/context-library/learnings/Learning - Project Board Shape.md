@@ -11,12 +11,15 @@
 Three distinct divergences in one room:
 
 ### 1. Full page vs overlay
+
 The card says overlay; reality is a standalone route. This affects navigation flow — the director leaves the Life Map context to enter a project, rather than opening a panel over it. This may be an intentional UX decision (more screen real estate for the board) or a pragmatic MVP choice.
 
 ### 2. Project Guide vs Category Advisor
+
 The card says the project's Category Advisor provides guidance. Reality: each project gets its own dynamically-created Project Guide agent via `createProjectRoomDefinition()` in `rooms.ts`. The Project Guide is scoped to that specific project's context. This is actually a useful pattern not described in the context library — the Project Guide doesn't exist as a card.
 
 ### 3. Four columns vs three
+
 The Kanban has an extra `in_review` status column. The Task primitive card describes three statuses (pending, in_progress, completed). Reality adds `in_review` between in_progress and completed. This supports a review/QA step before marking work done.
 
 ## Implications

@@ -41,16 +41,16 @@ Context that helps with one task will help with future tasks. Don't repeat yours
 
 ### 1. Choose the right template
 
-| Documenting...           | Template        | Folder                  |
-| ------------------------ | --------------- | ----------------------- |
-| User-facing feature      | `_feature.md`   | `/product/features/`    |
-| Cross-cutting mechanism  | `_system.md`    | `/product/systems/`     |
+| Documenting...           | Template        | Folder                   |
+| ------------------------ | --------------- | ------------------------ |
+| User-facing feature      | `_feature.md`   | `/product/features/`     |
+| Cross-cutting mechanism  | `_system.md`    | `/product/systems/`      |
 | Specification/standard   | `_standard.md`  | `/rationale/standards/`  |
 | Technical implementation | `_component.md` | `/product/components/`   |
 | Design principle         | `_principle.md` | `/rationale/principles/` |
 | Strategic bet            | `_strategy.md`  | `/rationale/strategies/` |
-| Past approach/lesson     | `_learning.md`  | `/timeline/past/`       |
-| Future plan              | `_vision.md`    | `/timeline/future/`     |
+| Past approach/lesson     | `_learning.md`  | `/timeline/past/`        |
+| Future plan              | `_vision.md`    | `/timeline/future/`      |
 
 ### 2. Copy and rename
 

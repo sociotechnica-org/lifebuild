@@ -5,6 +5,7 @@ Step-by-step procedure for building cards.
 ## Before You Start
 
 Have these open:
+
 - Conan's inventory for the zone
 - Relevant SOT sections and companion docs
 - Library Reference (templates, conformance obligations)
@@ -29,6 +30,7 @@ Don't write yet. Absorb.
 Start with WHAT. It anchors the card.
 
 Write 2-4 sentences:
+
 - What is this thing?
 - What does it do?
 - Who uses it?
@@ -54,6 +56,7 @@ Use the WHERE template from Library Reference for your card's type. Key patterns
 All types: include Conforms to links where obligated (see below).
 
 **Conformance check:** Does this card touch a governed domain?
+
 - Visual rendering → Standard - Visual Language
 - Priority/ordering → Standard - Priority Score
 - Stream classification → Standard - Three-Stream Portfolio
@@ -73,6 +76,7 @@ Trace the rationale.
 
 ```markdown
 ## WHY: Rationale
+
 - Strategy: [[Strategy]] — [how this implements it]
 - Principle: [[Principle]] — [what guidance it follows]
 - Driver: [[Signal/Pressure]] or Exploratory — [hypothesis]
@@ -89,10 +93,12 @@ Mark temporal status.
 
 ```markdown
 ## WHEN: Timeline
+
 New concept — no past. Planned for v1.0.
 ```
 
 Or if predecessor exists:
+
 ```markdown
 Supersedes [[Past - Old Approach]] which [why it changed].
 ```
@@ -105,15 +111,20 @@ Describe intended behavior with examples.
 ## HOW: Implementation
 
 ### Behavior
+
 [What it does. User-observable behavior. State transitions.]
 
 ### Examples
+
 [Concrete input → output. At least 2.]
+
 - Example 1: [input] → [output]
 - Example 2: [input] → [output]
 
 ### Anti-Examples
+
 [What wrong implementation looks like. At least 1.]
+
 - Wrong: [what it shouldn't do and why]
 ```
 
@@ -145,6 +156,7 @@ Standards are specifications that constrain product-layer cards. No runtime stat
 ### Step 1: Read
 
 Identify specification content in source:
+
 - Tables of values (colors, thresholds, formulas)
 - Rules with testable criteria
 - Constraints multiple cards must follow
@@ -153,6 +165,7 @@ Identify specification content in source:
 
 ```markdown
 ## WHAT: Definition
+
 [What this standard specifies. What it constrains.]
 ```
 
@@ -162,6 +175,7 @@ Standards don't "do" — they define what implementations must match.
 
 ```markdown
 ## WHERE: Ecosystem
+
 - Implements:
   - [[Principle]] — [what guidance this makes testable]
 - Conforming:
@@ -180,6 +194,7 @@ Standards don't "do" — they define what implementations must match.
 
 ```markdown
 ## WHY: Rationale
+
 - Principle: [[Principle]] — [what guidance it makes concrete]
 - Driver: [What goes wrong without this spec — the "Angry Birds" problem]
 ```
@@ -190,6 +205,7 @@ Standards must implement at least one Principle. No arbitrary rules.
 
 ```markdown
 ## WHEN: Timeline
+
 [Stability status. When established.]
 ```
 
@@ -197,6 +213,7 @@ Standards must implement at least one Principle. No arbitrary rules.
 
 ```markdown
 ## HOW: Specification
+
 [The actual spec. Values, rules, thresholds.]
 [Tables preferred — scannable, unambiguous.]
 ```
@@ -207,7 +224,9 @@ This is what builders read to know what to produce.
 
 ```markdown
 ## Anti-Examples
+
 [What violation looks like. Concrete wrong outputs.]
+
 - Wrong: [specific violation and why it fails the spec]
 ```
 
@@ -227,9 +246,11 @@ Don't stub it. Conan traces these.
 # Strategy - [Name]
 
 ## WHAT: The Strategy
+
 [One sentence articulating the bet.]
 
 ## WHERE: Ecosystem
+
 - Principles:
   - [[Principle]] — [what judgment guidance this generates]
 - Standards:
@@ -240,17 +261,21 @@ Don't stub it. Conan traces these.
   - [[Strategy]] — [what other strategies this trades off against]
 
 ## WHY: Belief
+
 [Why we believe this — reasoning, not just assertion]
 
 ## HOW: Application
 
 ### What Following This Looks Like
+
 [2-3 concrete examples.]
 
 ### What Violating This Looks Like
+
 [2-3 concrete anti-patterns.]
 
 ### Decision Heuristic
+
 [When facing a tradeoff, how does this strategy guide the choice?]
 ```
 
@@ -264,9 +289,11 @@ Don't stub it. Conan traces these.
 # Principle - [Name]
 
 ## WHAT: The Principle
+
 [One sentence. Judgment-based guidance.]
 
 ## WHERE: Ecosystem
+
 - Strategy:
   - [[Strategy]] — [what bet this serves]
 - Standards:
@@ -279,20 +306,25 @@ Don't stub it. Conan traces these.
   - [[Principle]] — [complementary or contrasting principles]
 
 ## WHY: Belief
+
 [Why we believe this]
 
 ## HOW: Application
 
 ### What Following This Looks Like
+
 [2-3 concrete examples.]
 
 ### What Violating This Looks Like
+
 [2-3 concrete anti-patterns.]
 
 ### Tensions
+
 [What other principles this trades off against.]
 
 ### Test
+
 [A question to ask when evaluating whether a design follows this principle.]
 ```
 
@@ -302,9 +334,11 @@ Don't stub it. Conan traces these.
 # Decision - [Name]
 
 ## WHAT: The Choice
+
 [What was decided]
 
 ## WHERE: Ecosystem
+
 - Affects:
   - [[Zone]] — [how it shapes this]
   - [[Room]] — [how it shapes this]
@@ -313,11 +347,14 @@ Don't stub it. Conan traces these.
   - [[Principle]] — [what guided the choice]
 
 ## WHY: Rationale
+
 Options considered:
+
 - Option A: [rejected because]
 - Option B: [chosen because]
 
 ## WHEN: Timeline
+
 [When made, what phase]
 ```
 
@@ -327,15 +364,19 @@ Options considered:
 # Learning - [Name]
 
 ## WHAT: The Insight
+
 [Generalized lesson]
 
 ## WHERE: Applies To
+
 [What this informs]
 
 ## WHY: Significance
+
 [Why it matters going forward]
 
 ## WHEN: How Learned
+
 [What happened, when]
 ```
 
@@ -366,6 +407,7 @@ For a zone with 10 cards:
 ## Progress Reporting
 
 During work:
+
 ```
 Starting Life Map zone. 8 cards in inventory.
 ```
@@ -375,6 +417,7 @@ Done: 4/8 cards. Created Standard - Visual Language along the way.
 ```
 
 After self-check:
+
 ```
 Self-check complete.
 - 8 product-layer cards ready

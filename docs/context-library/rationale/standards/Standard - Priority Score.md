@@ -39,20 +39,20 @@ Priority Score = (Urgency × Importance) / Effort
 
 #### Required Inputs
 
-| Input | Range | Description |
-|-------|-------|-------------|
-| Urgency | 1-10 | Time-sensitivity |
-| Importance | 1-10 | How much it matters |
-| Effort | 1-10 | What it costs |
-| Deadline | Date (optional) | External constraint |
+| Input      | Range           | Description         |
+| ---------- | --------------- | ------------------- |
+| Urgency    | 1-10            | Time-sensitivity    |
+| Importance | 1-10            | How much it matters |
+| Effort     | 1-10            | What it costs       |
+| Deadline   | Date (optional) | External constraint |
 
 #### Stream Weightings
 
-| Stream | Adjustment | Rationale |
-|--------|------------|-----------|
-| Gold | Importance × 1.5 | Transformation chosen for significance |
+| Stream | Adjustment              | Rationale                                 |
+| ------ | ----------------------- | ----------------------------------------- |
+| Gold   | Importance × 1.5        | Transformation chosen for significance    |
 | Silver | Score × Leverage Factor | Infrastructure evaluated by future return |
-| Bronze | Urgency × 1.5 | Maintenance surfaces time-sensitive first |
+| Bronze | Urgency × 1.5           | Maintenance surfaces time-sensitive first |
 
 #### Override Policy
 
@@ -61,11 +61,13 @@ Director override is sacred. The score is a suggestion, never a mandate. Consist
 ### Examples
 
 **Example 1: Gold stream weighting amplifies Importance**
+
 - Scenario: Two Gold project candidates in the Sorting Room — "Write Novel" (Urgency 3, Importance 9, Effort 5) and "Fix Fence" (Urgency 7, Importance 4, Effort 3).
 - Input: Base formula applied with Gold stream weighting (Importance x 1.5).
 - Correct output: "Write Novel" score = (3 x (9 x 1.5)) / 5 = (3 x 13.5) / 5 = 8.1. "Fix Fence" score = (7 x (4 x 1.5)) / 3 = (7 x 6) / 3 = 14.0. Even with Gold weighting, "Fix Fence" scores higher due to urgency and low effort — but the director can override because the score is a suggestion. If the director consistently overrides toward high-Importance projects, that is calibration data for the formula.
 
 **Example 2: Director override treated as calibration data**
+
 - Scenario: Cameron recommends "Automate Invoicing" as the Silver pick based on score. Director chooses "Build Morning Routine" instead.
 - Input: Director overrides the score-based recommendation.
 - Correct output: The system accepts the override without friction or justification. The override is logged as calibration data. After 5 similar overrides, the system notes the pattern: "You consistently prioritize habit-building Silver projects over automation — should we adjust the Leverage Factor for routine-type work?"

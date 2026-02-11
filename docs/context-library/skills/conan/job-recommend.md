@@ -7,9 +7,11 @@
 ## Procedure
 
 1. **Score each potential fix**
+
    ```
    Priority = Blast Radius Ã— Severity Ã— (1 / Effort)
    ```
+
    - Blast Radius (1-10): Cards affected
    - Severity (1-10): How broken (1-2 cosmetic, 9-10 missing)
    - Effort (1-5): Work required (1 quick, 5 source gap)

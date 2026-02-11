@@ -34,18 +34,22 @@ Brand Standards v2 specifies the implementation: Source Serif for readability, w
 Design all visual elements for instant recognition. Use content-depicting illustrations, not abstract patterns. Test with the two-second rule: can a director identify this element at a glance?
 
 ### What Following This Looks Like
+
 - A director glances at their Life Map from across the room and immediately spots their kitchen renovation project — the diorama-style illustration depicting kitchen elements makes it recognizable without reading any label or hovering.
 - Two projects in the same category (Health) are visually distinct because their illustrations depict different content — the marathon training hex shows running imagery while the meal prep hex shows cooking elements. Category color provides grouping; illustration provides identity.
 - A new project at the Sketch illustration stage is still recognizable enough that the director knows what it is, even though visual detail will increase through Clean Pencils, Inked, Colored, and Finished stages as the project progresses.
 
 ### What Violating This Looks Like
+
 - **Using abstract patterns instead of content-depicting illustrations** — A beautiful geometric design that requires reading the label to identify the project fails the two-second test. Content-depicting illustrations (kitchen elements for kitchen project, running imagery for marathon training) are what enable instant recognition.
 - **Requiring hover or click to identify an element** — If the director must inspect a tile to understand what it represents, the Life Map has become a puzzle. Recognition must happen at glance distance, not inspection distance.
 - **Prioritizing aesthetic consistency over visual distinctiveness** — Uniform styling across all tiles looks polished but prevents recognition. Each project should be visually distinct — category colors, content illustrations, and progress markers all serve identification, not decoration.
 
 ### Tensions
+
 - With contemplative pacing — recognition requires quick parsing, contemplation requires slow absorption; resolution is spatial layout (scannable) with depth on focus (contemplative)
 - With abstract aesthetics — beautiful abstractions may be less recognizable; recognition wins
 
 ### Test
+
 Can the director identify this element in under two seconds, at a glance?

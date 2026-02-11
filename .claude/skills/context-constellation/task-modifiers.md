@@ -9,6 +9,7 @@ How the type of task affects which dimensions to prioritize during context assem
 **What you're doing:** Adding new functionality to an existing card/concept.
 
 **Dimension emphasis:**
+
 - **WHERE** (high) — Understand all the connections. A new feature touches existing relationships. What else uses this? What depends on it?
 - **HOW** (high) — Need implementation patterns and anti-patterns from existing cards. What does "following this looks like"?
 - **WHY** (normal) — Rationale matters but is usually stable for feature additions.
@@ -23,6 +24,7 @@ How the type of task affects which dimensions to prioritize during context assem
 **What you're doing:** Fixing something that doesn't match expected behavior.
 
 **Dimension emphasis:**
+
 - **HOW** (high) — What SHOULD be happening? Read HOW sections carefully for expected behavior.
 - **WHEN** (very high) — What changed recently? Reality notes may explain the divergence. Check learnings for known gaps.
 - **WHERE** (normal) — Understand connections but don't over-expand.
@@ -37,6 +39,7 @@ How the type of task affects which dimensions to prioritize during context assem
 **What you're doing:** Changing structure without changing behavior.
 
 **Dimension emphasis:**
+
 - **WHY** (very high) — You MUST understand the rationale before restructuring. Refactoring that preserves behavior but breaks strategic alignment is worse than the original.
 - **WHERE** (high) — Understand the full blast radius. What references what you're changing?
 - **HOW** (low) — You're changing the HOW, so current HOW is less useful.
@@ -51,6 +54,7 @@ How the type of task affects which dimensions to prioritize during context assem
 **What you're doing:** Building a card/concept that doesn't yet exist in the codebase.
 
 **Dimension emphasis:**
+
 - **WHY** (high) — Strategic alignment is critical for new things. Why does this need to exist?
 - **HOW** (high) — Look at sibling cards for implementation patterns. How were similar things built?
 - **WHERE** (normal) — Understand where this fits in the graph.
@@ -65,6 +69,7 @@ How the type of task affects which dimensions to prioritize during context assem
 **What you're doing:** Changing fundamental structure, patterns, or contracts.
 
 **Dimension emphasis:**
+
 - **WHY** (very high) — Every architectural decision must trace to strategic rationale. Missing WHY = risk of misalignment.
 - **WHERE** (very high) — Full blast radius assessment. Everything connected to what you're changing.
 - **WHEN** (high) — Stability matters. Don't change stable foundations without strong justification. Check what's evolving vs settled.
@@ -76,10 +81,10 @@ How the type of task affects which dimensions to prioritize during context assem
 
 ## Quick Reference
 
-| Task Type | Primary Dimensions | Retrieval Width | Upstream Depth |
-|-----------|-------------------|-----------------|----------------|
-| Feature | WHERE, HOW | Broad lateral | Profile default |
-| Bug fix | HOW, WHEN | Narrow + temporal | Profile default |
-| Refactor | WHY, WHERE | Broad + blast radius | Maximum (to Strategy) |
-| New | WHY, HOW + siblings | Medium + patterns | Profile default |
-| Architecture | WHY, WHERE, WHEN | Maximum | Maximum (to Strategy) |
+| Task Type    | Primary Dimensions  | Retrieval Width      | Upstream Depth        |
+| ------------ | ------------------- | -------------------- | --------------------- |
+| Feature      | WHERE, HOW          | Broad lateral        | Profile default       |
+| Bug fix      | HOW, WHEN           | Narrow + temporal    | Profile default       |
+| Refactor     | WHY, WHERE          | Broad + blast radius | Maximum (to Strategy) |
+| New          | WHY, HOW + siblings | Medium + patterns    | Profile default       |
+| Architecture | WHY, WHERE, WHEN    | Maximum              | Maximum (to Strategy) |

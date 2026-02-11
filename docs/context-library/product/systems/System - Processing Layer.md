@@ -36,12 +36,12 @@ The deterministic computation engine that transforms raw director data into Stat
 
 ### Transitions
 
-| From | Trigger | To | Side Effects |
-|------|---------|-----|--------------|
-| Raw data updated | Director completes task, logs time, or interacts | Recomputation triggered | Calibration factors, patterns, and smoke signals recalculated |
-| No smoke signals | Pattern threshold breached (e.g., 3 missed system cycles) | Smoke signal active | Signal condition added to State Summary; visual treatment applied on Life Map |
-| Smoke signal active | Condition resolves (e.g., system cycles resume) | Smoke signal cleared | Signal removed from State Summary; visual treatment removed |
-| State Summary stale | New computation completes | State Summary refreshed | All agents receive updated summary on next conversation start |
+| From                | Trigger                                                   | To                      | Side Effects                                                                  |
+| ------------------- | --------------------------------------------------------- | ----------------------- | ----------------------------------------------------------------------------- |
+| Raw data updated    | Director completes task, logs time, or interacts          | Recomputation triggered | Calibration factors, patterns, and smoke signals recalculated                 |
+| No smoke signals    | Pattern threshold breached (e.g., 3 missed system cycles) | Smoke signal active     | Signal condition added to State Summary; visual treatment applied on Life Map |
+| Smoke signal active | Condition resolves (e.g., system cycles resume)           | Smoke signal cleared    | Signal removed from State Summary; visual treatment removed                   |
+| State Summary stale | New computation completes                                 | State Summary refreshed | All agents receive updated summary on next conversation start                 |
 
 ### Processing Logic
 

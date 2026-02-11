@@ -6,13 +6,13 @@ How to navigate the Context Library's knowledge graph using Claude Code's native
 
 ## The Library as a Graph
 
-| Graph Concept | File System Equivalent |
-|--------------|----------------------|
-| Node | A card (markdown file) |
-| Node type | Folder path (`product/systems/` → System type) |
-| Edge | A `[[wikilink]]` inside a card |
-| Edge label | The context phrase after the wikilink |
-| Node ID | File name (e.g., `System - Bronze Stack`) |
+| Graph Concept | File System Equivalent                         |
+| ------------- | ---------------------------------------------- |
+| Node          | A card (markdown file)                         |
+| Node type     | Folder path (`product/systems/` → System type) |
+| Edge          | A `[[wikilink]]` inside a card                 |
+| Edge label    | The context phrase after the wikilink          |
+| Node ID       | File name (e.g., `System - Bronze Stack`)      |
 
 ---
 
@@ -38,6 +38,7 @@ Grep: pattern="priority queue" path="docs/context-library/"
 ```
 
 Search tips:
+
 - Use the concept name, not the file name prefix
 - Try multiple terms: "priority" then "queue" then "planning queue"
 - Card names use strict conventions — if you know the type, search within that folder
@@ -45,15 +46,19 @@ Search tips:
 ### By dimension (content within a section)
 
 To find cards with specific WHY content:
+
 ```
 Grep: pattern="Spatial Visibility" path="docs/context-library/"
 ```
+
 This finds all cards that reference the Spatial Visibility strategy in any section.
 
 To narrow to a specific dimension header:
+
 ```
 Grep: pattern="## WHY" path="docs/context-library/product/systems/" -A 10
 ```
+
 Then scan the results for the concept you need.
 
 ---
@@ -76,24 +81,26 @@ Then scan the results for the concept you need.
 ### Reverse edges: from other cards to this card
 
 Find all cards that link TO a given card:
+
 ```
 Grep: pattern="Bronze Stack" path="docs/context-library/"
 ```
+
 This surfaces every card that references Bronze Stack, revealing reverse relationships.
 
 ### Edge types from context phrases
 
 Common patterns in wikilink context phrases:
 
-| Phrase Pattern | Relationship Type |
-|---------------|------------------|
-| "powers," "enables," "provides" | depends-on (reverse) |
-| "constrained by," "must conform to" | constrained-by |
-| "lives within," "contained by" | contained-by |
-| "performs," "invokes," "triggers" | invokes |
-| "implements," "realizes" | implements |
-| "coordinates with," "works alongside" | coordinates-with |
-| "operates on," "manages," "edits" | operates-on |
+| Phrase Pattern                        | Relationship Type    |
+| ------------------------------------- | -------------------- |
+| "powers," "enables," "provides"       | depends-on (reverse) |
+| "constrained by," "must conform to"   | constrained-by       |
+| "lives within," "contained by"        | contained-by         |
+| "performs," "invokes," "triggers"     | invokes              |
+| "implements," "realizes"              | implements           |
+| "coordinates with," "works alongside" | coordinates-with     |
+| "operates on," "manages," "edits"     | operates-on          |
 
 ---
 

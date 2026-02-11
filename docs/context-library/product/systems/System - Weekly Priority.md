@@ -39,34 +39,38 @@ The mechanism that produces and maintains a director's active weekly commitment 
 
 ### Transitions
 
-| From | Trigger | To | Side Effects |
-|------|---------|-----|--------------|
-| No weekly commitment | Director completes Weekly Planning with Cameron | Positions filled | Selected projects appear on The Table; enhanced treatment on Life Map |
-| Position filled | Director completes project | Position empty (completed) | Project marked complete; position opens for remainder of week |
-| Position filled | Director pauses project mid-week | Position vacated | Project returns to Priority Queue top; director can promote, insert emergency, or leave empty |
-| Position vacated | Director promotes from queue | Position filled (new project) | Replacement project moves from Priority Queue to The Table |
-| Position vacated | Director creates emergency | Position filled (emergency) | New project bypasses queue; Jarvis notes for pattern tracking |
-| Position vacated | Director leaves empty | Position empty (intentional) | Empty slot is a valid strategic choice per Empty Slots Strategic principle |
-| Week ends | New planning cycle begins | All positions reset | Previous commitments archived; new Weekly Planning session begins |
+| From                 | Trigger                                         | To                            | Side Effects                                                                                  |
+| -------------------- | ----------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------- |
+| No weekly commitment | Director completes Weekly Planning with Cameron | Positions filled              | Selected projects appear on The Table; enhanced treatment on Life Map                         |
+| Position filled      | Director completes project                      | Position empty (completed)    | Project marked complete; position opens for remainder of week                                 |
+| Position filled      | Director pauses project mid-week                | Position vacated              | Project returns to Priority Queue top; director can promote, insert emergency, or leave empty |
+| Position vacated     | Director promotes from queue                    | Position filled (new project) | Replacement project moves from Priority Queue to The Table                                    |
+| Position vacated     | Director creates emergency                      | Position filled (emergency)   | New project bypasses queue; Jarvis notes for pattern tracking                                 |
+| Position vacated     | Director leaves empty                           | Position empty (intentional)  | Empty slot is a valid strategic choice per Empty Slots Strategic principle                    |
+| Week ends            | New planning cycle begins                       | All positions reset           | Previous commitments archived; new Weekly Planning session begins                             |
 
 ### Processing Logic
 
 **Composition:**
+
 - Gold position: 0-1 expansion projects (Purpose = "Moving forward")
 - Silver position: 0-1 capacity projects (Purpose = "Building leverage")
 - Bronze position: Variable task stack (controlled by [[System - Bronze Operations]])
 
 **Selection timing:**
+
 - Selected during Weekly Planning (typically Friday or Sunday)
 - Valid for one week
 - Reselected each planning cycle
 
 **Constraints:**
+
 - Maximum 1 Gold, 1 Silver (hard limit)
 - Bronze has no maximum (mode-controlled)
 - Cross-stream placement blocked
 
 **State transitions:**
+
 - Project selected -> appears on The Table -> enhanced treatment on Life Map
 - Project completed -> leaves The Table -> position opens
 - Project paused -> returns to Priority Queue top -> position opens

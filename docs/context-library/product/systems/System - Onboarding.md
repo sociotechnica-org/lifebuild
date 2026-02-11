@@ -35,19 +35,20 @@ The mechanism that implements the First 72 Hours principle — guiding new direc
 
 ### Transitions
 
-| From | Trigger | To | Side Effects |
-|------|---------|-----|--------------|
-| Not Started | Director opens LifeBuild for the first time | Day 1: Orientation | Mesa greets at Campfire; spatial metaphor introduced |
-| Day 1: Orientation | Director completes first Mesa conversation | Day 2: Foundation | Jarvis initiates Charter creation; Life Categories established |
-| Day 2: Foundation | Charter draft created | Day 3: Momentum | Marvin available for first project capture; Life Map populated |
-| Day 3: Momentum | Director has created first project and explored Life Map | Complete | Service Level transitions from 0 to 1; full agent team available |
-| Any phase | Director disengages for extended period | Paused | Gentle re-engagement cues when director returns, resuming where they left off |
+| From               | Trigger                                                  | To                 | Side Effects                                                                  |
+| ------------------ | -------------------------------------------------------- | ------------------ | ----------------------------------------------------------------------------- |
+| Not Started        | Director opens LifeBuild for the first time              | Day 1: Orientation | Mesa greets at Campfire; spatial metaphor introduced                          |
+| Day 1: Orientation | Director completes first Mesa conversation               | Day 2: Foundation  | Jarvis initiates Charter creation; Life Categories established                |
+| Day 2: Foundation  | Charter draft created                                    | Day 3: Momentum    | Marvin available for first project capture; Life Map populated                |
+| Day 3: Momentum    | Director has created first project and explored Life Map | Complete           | Service Level transitions from 0 to 1; full agent team available              |
+| Any phase          | Director disengages for extended period                  | Paused             | Gentle re-engagement cues when director returns, resuming where they left off |
 
 ### Processing Logic
 
-*Stub card — detailed implementation to be developed.*
+_Stub card — detailed implementation to be developed._
 
 **Key design constraints:**
+
 - Progressive disclosure over three days
 - Circumstance-responsive, not fixed-sequence
 - Measure success by life improvement, not feature adoption

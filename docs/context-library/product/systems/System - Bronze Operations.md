@@ -37,22 +37,24 @@ The operational workflow governing Bronze stream tasks — mode selection, stack
 
 ### Transitions
 
-| From | Trigger | To | Side Effects |
-|------|---------|-----|--------------|
-| No mode selected | Weekly Planning mode choice | Mode active (Minimal/Target/Maximal) | Stack populated per mode rules |
-| Task visible in stack | Director checks off task | Task complete | Next task auto-replenishes per priority order |
-| Mode = Target N | Director clicks gear icon, selects Maximal | Mode = Maximal | Stack expands to show all available Bronze tasks |
-| Mode = Maximal | Director clicks gear icon, selects Minimal | Mode = Minimal | Stack contracts to due-date and critical items only |
-| Stack empty | No more Bronze tasks available | Stack empty (idle) | No replenishment; Bronze position shows "clear" state |
+| From                  | Trigger                                    | To                                   | Side Effects                                          |
+| --------------------- | ------------------------------------------ | ------------------------------------ | ----------------------------------------------------- |
+| No mode selected      | Weekly Planning mode choice                | Mode active (Minimal/Target/Maximal) | Stack populated per mode rules                        |
+| Task visible in stack | Director checks off task                   | Task complete                        | Next task auto-replenishes per priority order         |
+| Mode = Target N       | Director clicks gear icon, selects Maximal | Mode = Maximal                       | Stack expands to show all available Bronze tasks      |
+| Mode = Maximal        | Director clicks gear icon, selects Minimal | Mode = Minimal                       | Stack contracts to due-date and critical items only   |
+| Stack empty           | No more Bronze tasks available             | Stack empty (idle)                   | No replenishment; Bronze position shows "clear" state |
 
 ### Processing Logic
 
 **Mode selection:**
+
 - Initial selection during Weekly Planning
 - Can change mid-week via gear icon on Bronze position
 - Mode change takes effect immediately
 
 **Stack sources (priority order):**
+
 1. Due-date items (deadline approaching)
 2. Critical Responses (urgent flags)
 3. System-generated tasks (from planted systems)
@@ -60,6 +62,7 @@ The operational workflow governing Bronze stream tasks — mode selection, stack
 5. Decomposed tasks from larger projects
 
 **Completion flow:**
+
 - Check off task -> task marked complete
 - Stack updates per mode rules
 - Progress visible on Bronze position

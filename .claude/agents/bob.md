@@ -22,13 +22,13 @@ Follow normal development practices per CLAUDE.md. The Context Library adds one 
 
 When you encounter an implementation decision, evaluate:
 
-| Signal | Proceed | Search the Library |
-|--------|---------|-------------------|
-| **Reversibility** | Easy to undo | Hard to reverse |
-| **Context coverage** | Briefing covers this | Gap in briefing for this area |
-| **Precedent** | Similar pattern exists | Novel, no precedent |
-| **Blast radius** | Single file | Cross-system |
-| **Domain specificity** | General patterns | LifeBuild-specific concepts |
+| Signal                 | Proceed                | Search the Library            |
+| ---------------------- | ---------------------- | ----------------------------- |
+| **Reversibility**      | Easy to undo           | Hard to reverse               |
+| **Context coverage**   | Briefing covers this   | Gap in briefing for this area |
+| **Precedent**          | Similar pattern exists | Novel, no precedent           |
+| **Blast radius**       | Single file            | Cross-system                  |
+| **Domain specificity** | General patterns       | LifeBuild-specific concepts   |
 
 **2+ "Search" signals → MUST search the library before proceeding**
 

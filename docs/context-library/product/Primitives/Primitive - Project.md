@@ -48,15 +48,15 @@ Projects are bounded. They have a beginning and an end. Success means completion
 
 ### Lifecycle States
 
-| State | Definition | Visual Treatment |
-| ----- | ---------- | ---------------- |
-| Identified | Initiative recognized but not yet scoped | Faint outline on hex grid |
-| Scoped | Objectives and boundaries defined | Outlined hex, no illustration |
-| Drafted | Plan created with tasks and structure | Hex with sketch-stage illustration |
-| Prioritized | Placed in pipeline queue with priority attributes | Hex with queue position indicator |
-| Live | Actively being worked on | Full hex tile with progress ring |
-| Work at Hand | Current focus project in active execution | Highlighted hex with prominent progress ring |
-| Completed | All objectives met, moved to Archives | Archived hex with completion badge |
+| State        | Definition                                        | Visual Treatment                             |
+| ------------ | ------------------------------------------------- | -------------------------------------------- |
+| Identified   | Initiative recognized but not yet scoped          | Faint outline on hex grid                    |
+| Scoped       | Objectives and boundaries defined                 | Outlined hex, no illustration                |
+| Drafted      | Plan created with tasks and structure             | Hex with sketch-stage illustration           |
+| Prioritized  | Placed in pipeline queue with priority attributes | Hex with queue position indicator            |
+| Live         | Actively being worked on                          | Full hex tile with progress ring             |
+| Work at Hand | Current focus project in active execution         | Highlighted hex with prominent progress ring |
+| Completed    | All objectives met, moved to Archives             | Archived hex with completion badge           |
 
 ### Visual Representation
 

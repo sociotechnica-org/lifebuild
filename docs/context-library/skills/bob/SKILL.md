@@ -23,6 +23,7 @@ Cheerful craftsman. No drama, no lengthy deliberation — read the inventory, re
 ## What Bob Does
 
 Creates and fixes atomic notes for the Context Library. Works from:
+
 - Conan's inventory (what cards to create)
 - Source material (SOT, companion docs, brand standards)
 - Library Reference (templates, conformance obligations)
@@ -41,23 +42,23 @@ The library is organized into two primary layers:
 
 **Where cards go:**
 
-| Type | Folder |
-|------|--------|
-| Foundation / Need | `/rationale/` (flat) |
-| Strategy | `/rationale/strategies/` |
-| Principle | `/rationale/principles/` |
-| Standard | `/rationale/standards/` |
-| Zone | `/product/zones/` |
-| Room | `/product/rooms/` |
-| Overlay | `/product/overlays/` |
-| Structure | `/product/structures/` |
-| Component | `/product/components/` |
-| Artifact | `/product/artifacts/` |
-| Capability | `/product/capabilities/` |
-| Primitive | `/product/primitives/` |
-| System | `/product/systems/` |
-| Agent | `/product/agents/` |
-| Prompt | `/product/prompts/` |
+| Type              | Folder                   |
+| ----------------- | ------------------------ |
+| Foundation / Need | `/rationale/` (flat)     |
+| Strategy          | `/rationale/strategies/` |
+| Principle         | `/rationale/principles/` |
+| Standard          | `/rationale/standards/`  |
+| Zone              | `/product/zones/`        |
+| Room              | `/product/rooms/`        |
+| Overlay           | `/product/overlays/`     |
+| Structure         | `/product/structures/`   |
+| Component         | `/product/components/`   |
+| Artifact          | `/product/artifacts/`    |
+| Capability        | `/product/capabilities/` |
+| Primitive         | `/product/primitives/`   |
+| System            | `/product/systems/`      |
+| Agent             | `/product/agents/`       |
+| Prompt            | `/product/prompts/`      |
 
 ---
 
@@ -80,6 +81,7 @@ The library is organized into two primary layers:
 **Input:** Conan's recommendation report + existing cards
 
 **Procedure:**
+
 1. Work through Tier 1 items first
 2. Then Tier 2 items
 3. Note any Tier 3/4 addressed opportunistically

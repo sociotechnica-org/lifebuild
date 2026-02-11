@@ -53,12 +53,12 @@ Core entity. Tasks are the smallest work unit — what directors actually execut
 
 ### Lifecycle States
 
-| State | Definition | Visual Treatment |
-| ----- | ---------- | ---------------- |
-| To Do | Task identified but not yet started | Default card in backlog column |
-| In Progress | Task actively being worked on | Highlighted card in active column |
-| Done | Task completed | Checked-off card, moved to done column |
-| Blocked | Task cannot proceed due to dependency | Card with blocked indicator |
+| State       | Definition                            | Visual Treatment                       |
+| ----------- | ------------------------------------- | -------------------------------------- |
+| To Do       | Task identified but not yet started   | Default card in backlog column         |
+| In Progress | Task actively being worked on         | Highlighted card in active column      |
+| Done        | Task completed                        | Checked-off card, moved to done column |
+| Blocked     | Task cannot proceed due to dependency | Card with blocked indicator            |
 
 ### Visual Representation
 

@@ -80,15 +80,15 @@ packages/
 
 ## Architecture Decisions
 
-| Convention | Rationale |
-| --- | --- |
-| LiveStore event sourcing | Enables real-time sync across clients via WebSocket + Durable Objects. Events are the canonical data model; tables are derived views. |
-| Room = Screen + Agent | Every navigable screen has a paired AI agent. The `RoomLayout` wrapper provides this coupling. Keeps agent context scoped to what the Director sees. |
-| Flat lifecycle state JSON | Single `projectLifecycleState` column avoids dual-source bugs between separate `attributes` and `status` fields. All planning data lives together. |
-| CHORUS_TAG over URLs | Agents don't know URLs. CHORUS_TAG decouples navigation from routing implementation. `useChorusNavigation` resolves paths at click time. |
-| SharedWorker + OPFS | Client-side persistence via Origin Private File System. SharedWorker coordinates across tabs. Fallback to single-tab mode when SharedWorker unavailable. |
-| Three-stream model | Gold/Silver/Bronze streams limit active work. Only one Gold, one Silver, multiple Bronze. Enforces focus. |
-| `pnpm` monorepo with workspace protocol | `@lifebuild/shared` is `workspace:*`. LiveStore packages use `catalog:` from pnpm catalog. All packages are `"type": "module"` (ESM). |
+| Convention                              | Rationale                                                                                                                                                |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LiveStore event sourcing                | Enables real-time sync across clients via WebSocket + Durable Objects. Events are the canonical data model; tables are derived views.                    |
+| Room = Screen + Agent                   | Every navigable screen has a paired AI agent. The `RoomLayout` wrapper provides this coupling. Keeps agent context scoped to what the Director sees.     |
+| Flat lifecycle state JSON               | Single `projectLifecycleState` column avoids dual-source bugs between separate `attributes` and `status` fields. All planning data lives together.       |
+| CHORUS_TAG over URLs                    | Agents don't know URLs. CHORUS_TAG decouples navigation from routing implementation. `useChorusNavigation` resolves paths at click time.                 |
+| SharedWorker + OPFS                     | Client-side persistence via Origin Private File System. SharedWorker coordinates across tabs. Fallback to single-tab mode when SharedWorker unavailable. |
+| Three-stream model                      | Gold/Silver/Bronze streams limit active work. Only one Gold, one Silver, multiple Bronze. Enforces focus.                                                |
+| `pnpm` monorepo with workspace protocol | `@lifebuild/shared` is `workspace:*`. LiveStore packages use `catalog:` from pnpm catalog. All packages are `"type": "module"` (ESM).                    |
 
 ---
 
@@ -243,31 +243,31 @@ CI=true pnpm test:e2e  # E2E tests
 
 ### Key Libraries
 
-| Library | Purpose | Package |
-| --- | --- | --- |
-| LiveStore | Event-sourced state management + real-time sync | `@livestore/*` (catalog) |
-| React 19 | UI framework | web |
-| Effect-TS | Async operations, DI, streaming, error handling | server |
-| Cloudflare Workers + Durable Objects | WebSocket sync backend | worker |
-| dnd-kit | Drag-and-drop (Sorting Room table interaction) | web |
-| Phosphor Icons | Icon library | web |
-| Pino | Structured logging | server |
-| Sentry | Error tracking | web + server |
-| Vitest | Unit testing | all |
-| Playwright | E2E testing | web |
-| Storybook | Component development | web |
-| Tailwind CSS | Styling | web |
+| Library                              | Purpose                                         | Package                  |
+| ------------------------------------ | ----------------------------------------------- | ------------------------ |
+| LiveStore                            | Event-sourced state management + real-time sync | `@livestore/*` (catalog) |
+| React 19                             | UI framework                                    | web                      |
+| Effect-TS                            | Async operations, DI, streaming, error handling | server                   |
+| Cloudflare Workers + Durable Objects | WebSocket sync backend                          | worker                   |
+| dnd-kit                              | Drag-and-drop (Sorting Room table interaction)  | web                      |
+| Phosphor Icons                       | Icon library                                    | web                      |
+| Pino                                 | Structured logging                              | server                   |
+| Sentry                               | Error tracking                                  | web + server             |
+| Vitest                               | Unit testing                                    | all                      |
+| Playwright                           | E2E testing                                     | web                      |
+| Storybook                            | Component development                           | web                      |
+| Tailwind CSS                         | Styling                                         | web                      |
 
 ### LLM Models
 
 Defined in `packages/shared/src/models.ts`. Default: Claude Sonnet 4.5. All agent prompts use `DEFAULT_MODEL`.
 
-| Model | ID | Provider |
-| --- | --- | --- |
+| Model             | ID                           | Provider  |
+| ----------------- | ---------------------------- | --------- |
 | Claude 4.5 Sonnet | `claude-sonnet-4-5-20250929` | Anthropic |
-| Claude 4.5 Haiku | `claude-haiku-4-5-20251001` | Anthropic |
-| GPT-5 | `gpt-5-2025-08-07` | OpenAI |
-| O3 | `o3-2025-04-16` | OpenAI |
+| Claude 4.5 Haiku  | `claude-haiku-4-5-20251001`  | Anthropic |
+| GPT-5             | `gpt-5-2025-08-07`           | OpenAI    |
+| O3                | `o3-2025-04-16`              | OpenAI    |
 
 ---
 
@@ -280,11 +280,11 @@ Defined in `packages/shared/src/models.ts`. Default: Claude Sonnet 4.5. All agen
 
 ### Deploy Targets
 
-| Package | Platform | Command (manual) |
-| --- | --- | --- |
-| `@lifebuild/web` | Cloudflare Pages | `pnpm --filter @lifebuild/web run deploy` |
-| `@lifebuild/worker` | Cloudflare Workers (Durable Objects) | `pnpm --filter @lifebuild/worker run deploy` |
-| `@lifebuild/auth-worker` | Cloudflare Workers | `pnpm --filter @lifebuild/auth-worker run deploy` |
+| Package                  | Platform                             | Command (manual)                                  |
+| ------------------------ | ------------------------------------ | ------------------------------------------------- |
+| `@lifebuild/web`         | Cloudflare Pages                     | `pnpm --filter @lifebuild/web run deploy`         |
+| `@lifebuild/worker`      | Cloudflare Workers (Durable Objects) | `pnpm --filter @lifebuild/worker run deploy`      |
+| `@lifebuild/auth-worker` | Cloudflare Workers                   | `pnpm --filter @lifebuild/auth-worker run deploy` |
 
 Normal workflow: merge to `main` and GitHub Actions handles deployment.
 

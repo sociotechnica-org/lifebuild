@@ -27,16 +27,17 @@
 
 ## Link Target Status
 
-| Status | Zone Grading | System Grading |
-|--------|--------------|----------------|
-| Exists, complete | Grade | Grade |
-| Exists, stub | Deficiency | Deficiency |
-| In inventory, not built | Awaiting | Deficiency |
-| Not in inventory | Deficiency | Deficiency |
+| Status                  | Zone Grading | System Grading |
+| ----------------------- | ------------ | -------------- |
+| Exists, complete        | Grade        | Grade          |
+| Exists, stub            | Deficiency   | Deficiency     |
+| In inventory, not built | Awaiting     | Deficiency     |
+| Not in inventory        | Deficiency   | Deficiency     |
 
 ## Output
 
 ### Card Report
+
 ```
 ## [Type] - [Name]: [Grade] ([Score])
 
@@ -50,6 +51,7 @@ Verdict: [one line]
 ```
 
 ### Zone Scorecard
+
 ```
 ## Zone: [Name] — [Grade] ([Score])
 
@@ -64,6 +66,7 @@ Verdict: [one line]
 ```
 
 ### System Health
+
 ```
 ## System: [Grade] ([Score])
 

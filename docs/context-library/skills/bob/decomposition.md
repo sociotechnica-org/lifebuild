@@ -5,6 +5,7 @@ How to extract cards from source material. Use when Conan's inventory is sparse 
 ## What Becomes a Card
 
 ### Step 1: Is this about WHY we build?
+
 - Guiding philosophy (a bet) → **Strategy**
 - Judgment guidance (a rule of thumb) → **Principle**
 - Testable spec (concrete rules, values, thresholds) → **Standard**
@@ -12,43 +13,50 @@ How to extract cards from source material. Use when Conan's inventory is sparse 
 ### Step 2: Is this about WHAT exists that directors interact with?
 
 **Navigate TO it?**
+
 - Top-level workspace (header nav) → **Zone**
 - Nested space within a zone → **Room**
 
 **Persistent across zones?**
+
 - Always-visible layer → **Overlay**
 
 **Interact WITHIN a zone/room?**
+
 - Spatial canvas/visual fabric → **Structure**
 - Specific UI widget → **Component**
 - Content object directors create/edit → **Artifact**
 - Action/workflow directors perform → **Capability**
 
 **Core data entity?**
+
 - Foundational data type → **Primitive**
 
 ### Step 3: Is this invisible infrastructure?
+
 - Mechanism with state, processes inputs → **System**
 
 ### Step 4: Is this an AI team member?
+
 - The agent itself → **Agent**
 - The agent's implementation → **Prompt**
 
 ### Step 5: Is this temporal?
+
 - Past insight → **Learning**
 - Past choice → **Decision**
 - Future vision → **Future**
 
 ### Common Confusions
 
-| Question | Answer A | Answer B |
-|----------|----------|----------|
-| Navigate TO it, or interact WITHIN it? | Zone/Room | Structure/Component |
-| Directors say "I'm in X" or "I'm using X"? | Zone/Room | Structure/Component |
-| Has runtime state? Processes inputs? | System | Standard |
-| Content directors create, or spatial fabric? | Artifact | Structure |
-| Core data entity, or content object? | Primitive | Artifact |
-| Action/workflow, or spatial canvas? | Capability | Structure |
+| Question                                     | Answer A   | Answer B            |
+| -------------------------------------------- | ---------- | ------------------- |
+| Navigate TO it, or interact WITHIN it?       | Zone/Room  | Structure/Component |
+| Directors say "I'm in X" or "I'm using X"?   | Zone/Room  | Structure/Component |
+| Has runtime state? Processes inputs?         | System     | Standard            |
+| Content directors create, or spatial fabric? | Artifact   | Structure           |
+| Core data entity, or content object?         | Primitive  | Artifact            |
+| Action/workflow, or spatial canvas?          | Capability | Structure           |
 
 **When unsure:** Create the card, flag it, keep moving.
 
@@ -58,15 +66,16 @@ How to extract cards from source material. Use when Conan's inventory is sparse 
 
 Most common confusion. Ask:
 
-| Question | System | Standard |
-|----------|--------|----------|
-| Has runtime state? | Yes | No |
-| Processes inputs? | Yes | No |
-| Things conform to it? | Sometimes | Always |
-| Builder reads to implement? | Rarely | Always |
-| Changes require code? | Yes | No |
+| Question                    | System    | Standard |
+| --------------------------- | --------- | -------- |
+| Has runtime state?          | Yes       | No       |
+| Processes inputs?           | Yes       | No       |
+| Things conform to it?       | Sometimes | Always   |
+| Builder reads to implement? | Rarely    | Always   |
+| Changes require code?       | Yes       | No       |
 
 Examples:
+
 - Processing Layer (computes calibration) → System
 - Priority Score (defines formula) → Standard
 - Visual Language (defines colors) → Standard
@@ -78,21 +87,21 @@ Examples:
 
 ### Structure Signals
 
-| SOT Pattern | Likely Card Type |
-|-------------|------------------|
-| Top-level workspace/area | Zone |
-| Named space within a workspace | Room |
-| Always-visible, cross-zone element | Overlay |
-| Spatial canvas, grid, board layout | Structure |
-| Specific UI widget, button, indicator | Component |
-| Content object directors create/edit | Artifact |
-| Action, workflow, process directors perform | Capability |
-| Core data entity (project, task) | Primitive |
-| "The X System" or "X Architecture" | System |
-| Mentioned across multiple sections | System |
-| Table of values, thresholds, rules | Standard |
-| "Must conform to" or "follows spec" | Standard reference |
-| AI personality, team member | Agent |
+| SOT Pattern                                 | Likely Card Type   |
+| ------------------------------------------- | ------------------ |
+| Top-level workspace/area                    | Zone               |
+| Named space within a workspace              | Room               |
+| Always-visible, cross-zone element          | Overlay            |
+| Spatial canvas, grid, board layout          | Structure          |
+| Specific UI widget, button, indicator       | Component          |
+| Content object directors create/edit        | Artifact           |
+| Action, workflow, process directors perform | Capability         |
+| Core data entity (project, task)            | Primitive          |
+| "The X System" or "X Architecture"          | System             |
+| Mentioned across multiple sections          | System             |
+| Table of values, thresholds, rules          | Standard           |
+| "Must conform to" or "follows spec"         | Standard reference |
+| AI personality, team member                 | Agent              |
 
 ### Extraction Pass
 
@@ -106,6 +115,7 @@ Examples:
 ### Standard Extraction Signals
 
 Source material contains:
+
 - Hex codes, RGB values, specific colors
 - Threshold numbers, score formulas
 - State definitions with specific values
@@ -121,21 +131,25 @@ Source material contains:
 One card answers ONE complete question.
 
 ### Split When
+
 - Card documents multiple concepts agent might need independently
 - Removing a section still leaves a complete, useful card
 - Different tasks would require different portions
 
 ### Don't Split When
+
 - One concept with multiple aspects (use hub/spoke)
 - Related information agent would always need together
 
 ### Hub/Spoke vs Separate Cards
 
 **Hub/Spoke:** One concept, multiple aspects.
+
 - "Room - Bronze Mode" with spokes for specific workflows
 - Hub links to spokes, spokes link back
 
 **Separate cards:** Distinct concepts that happen to relate.
+
 - "Component - Minimal Mode" and "Component - Target Mode"
 - Each stands alone
 
@@ -162,10 +176,12 @@ Companion docs often have better behavioral specs. SOT often has better strategi
 Found something inventory missed?
 
 **Do:**
+
 - Create the card
 - Note as discovered: "Added: Room - X (not in inventory, found in SOT 2.3)"
 - Flag for human to confirm
 
 **Don't:**
+
 - Skip because not in inventory
 - Assume Conan was wrong (flag and move on)

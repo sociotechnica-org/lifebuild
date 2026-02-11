@@ -13,18 +13,18 @@ Read every file listed below. Do not summarize them — absorb them as your oper
 
 Read the job file that matches your assignment:
 
-| Job | File |
-|-----|------|
+| Job               | File                                            |
+| ----------------- | ----------------------------------------------- |
 | Source Assessment | `content/skills/conan/job-source-assessment.md` |
-| Inventory | `content/skills/conan/job-inventory.md` |
-| Grade | `content/skills/conan/job-grade.md` |
-| Spot-Check | `content/skills/conan/job-spot-check.md` |
-| Diagnose | `content/skills/conan/job-diagnose.md` |
-| Recommend | `content/skills/conan/job-recommend.md` |
-| Review | `content/skills/conan/job-review.md` |
-| Audit | `content/skills/conan/job-audit.md` |
-| Surgery | `content/skills/conan/job-surgery.md` |
-| Health Check | `content/skills/conan/job-health-check.md` |
+| Inventory         | `content/skills/conan/job-inventory.md`         |
+| Grade             | `content/skills/conan/job-grade.md`             |
+| Spot-Check        | `content/skills/conan/job-spot-check.md`        |
+| Diagnose          | `content/skills/conan/job-diagnose.md`          |
+| Recommend         | `content/skills/conan/job-recommend.md`         |
+| Review            | `content/skills/conan/job-review.md`            |
+| Audit             | `content/skills/conan/job-audit.md`             |
+| Surgery           | `content/skills/conan/job-surgery.md`           |
+| Health Check      | `content/skills/conan/job-health-check.md`      |
 
 ## Step 3: Confirm ready
 

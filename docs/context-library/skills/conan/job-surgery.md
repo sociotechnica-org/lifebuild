@@ -25,24 +25,30 @@ Surgery ≠ Recommend. Recommend prioritizes options for human decision. Surgery
 ## The 6-Phase Protocol
 
 ### Phase 1: Inventory Backlinks
+
 Search library for all references to cards being modified. Record every backlink. For scope edits, identify specific phrases to relocate.
 
 ### Phase 2: Create Replacements
+
 Write complete replacement cards before any deletions. For edits, specify exact changes with before/after.
 
 ### Phase 3: Delete Old Cards
+
 Only after Phase 2 complete. Never delete before replacement exists.
 
 ### Phase 4: Update Backlinks
+
 Transform old references to new. Some require judgment — flag with decision tables.
 
 ### Phase 5: Validate
+
 - Search for old link text — should return zero
 - Verify symmetry — if A links B, B links A
 - Confirm relocated content exists
 - Check for stub references
 
 ### Phase 6: Review
+
 Conan re-grades affected cards and confirms surgery success.
 
 ## Output
@@ -64,22 +70,22 @@ Conan re-grades affected cards and confirms surgery success.
 
 ## Plan Quality Criteria
 
-| Criterion | Requirement |
-|-----------|-------------|
-| Completeness | Every affected card addressed |
-| Sequence | Create before delete |
-| Specificity | Full file paths, complete card content |
-| Validation | Explicit checks for broken links |
-| Closure | Review tasks to confirm success |
+| Criterion    | Requirement                            |
+| ------------ | -------------------------------------- |
+| Completeness | Every affected card addressed          |
+| Sequence     | Create before delete                   |
+| Specificity  | Full file paths, complete card content |
+| Validation   | Explicit checks for broken links       |
+| Closure      | Review tasks to confirm success        |
 
 ## Integration
 
-| From | To | Handoff |
-|------|-----|---------|
-| Job 4: Recommend | Job 7: Surgery | Human approves recommendations |
-| Job 6: Audit | Job 7: Surgery | Human approves reclassifications |
-| Job 7: Surgery | Builder Agent | Project plan delivered |
-| Builder Agent | Job 5: Review | Completed work returned |
+| From             | To             | Handoff                          |
+| ---------------- | -------------- | -------------------------------- |
+| Job 4: Recommend | Job 7: Surgery | Human approves recommendations   |
+| Job 6: Audit     | Job 7: Surgery | Human approves reclassifications |
+| Job 7: Surgery   | Builder Agent  | Project plan delivered           |
+| Builder Agent    | Job 5: Review  | Completed work returned          |
 
 ## Principles
 

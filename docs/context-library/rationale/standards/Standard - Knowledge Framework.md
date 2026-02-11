@@ -34,45 +34,47 @@ The specification for organizing everything the AI team learns about a director 
 
 #### Two Fundamental Dimensions
 
-| Dimension | Contains |
-|-----------|----------|
-| Inside World | Energy, emotions, motivations, values |
+| Dimension     | Contains                              |
+| ------------- | ------------------------------------- |
+| Inside World  | Energy, emotions, motivations, values |
 | Outside World | Constraints, resources, circumstances |
 
 #### Two Scales
 
-| Scale | Scope |
-|-------|-------|
-| Macro | General state (overall capacity, life situation) |
+| Scale | Scope                                                         |
+| ----- | ------------------------------------------------------------- |
+| Macro | General state (overall capacity, life situation)              |
 | Micro | Per-project (specific requirements, feelings about this work) |
 
 #### Seven Domains
 
-| Domain | Description |
-|--------|-------------|
-| Micro Outside | Per-project requirements |
-| Micro Inside | Per-project psychology |
-| Macro Inside | Capacity state |
-| Macro Outside | Resources and constraints |
-| Identity & Profile | Stable characteristics |
-| Behavioral Patterns | Derived from observation |
-| System Health | Planted infrastructure status |
+| Domain              | Description                   |
+| ------------------- | ----------------------------- |
+| Micro Outside       | Per-project requirements      |
+| Micro Inside        | Per-project psychology        |
+| Macro Inside        | Capacity state                |
+| Macro Outside       | Resources and constraints     |
+| Identity & Profile  | Stable characteristics        |
+| Behavioral Patterns | Derived from observation      |
+| System Health       | Planted infrastructure status |
 
 #### Priority Equation
 
-| Question | Formula |
-|----------|---------|
+| Question                  | Formula                                            |
+| ------------------------- | -------------------------------------------------- |
 | What should they work on? | Priority Score (see [[Standard - Priority Score]]) |
-| Can they actually do it? | Feasibility = Capacity / Commitments |
+| Can they actually do it?  | Feasibility = Capacity / Commitments               |
 
 ### Examples
 
 **Example 1: Capturing knowledge across dimensions for a single project**
+
 - Scenario: Director is working on a "Home Renovation" project. Through conversation, Jarvis learns several facts.
 - Input: Director mentions: "I have a $15K budget" (Micro Outside), "I'm excited but anxious about the timeline" (Micro Inside), "My contractor is available weekends only" (Macro Outside).
 - Correct output: Each fact is stored in its correct domain — budget in Micro Outside (per-project requirements), emotional state in Micro Inside (per-project psychology), contractor availability in Macro Outside (resources and constraints). Not flattened into a single profile entry.
 
 **Example 2: Behavioral Patterns overriding stated preferences**
+
 - Scenario: Director states they prefer working on Gold projects Monday mornings. Over 8 weeks, observation shows they consistently do their best Gold work on Thursday evenings.
 - Input: Stated preference (Identity & Profile): "I work best Monday mornings." Observed pattern (Behavioral Patterns): Thursday evening Gold sessions are 3x more productive.
 - Correct output: Both are stored — stated preference in Identity & Profile, observed pattern in Behavioral Patterns. When making recommendations, the Behavioral Pattern data takes precedence because it is derived from observation, not self-report.

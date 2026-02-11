@@ -34,14 +34,14 @@ The two-queue system that separates work in development (Planning Queue) from wo
 
 ### Transitions
 
-| From | Trigger | To | Side Effects |
-|------|---------|-----|--------------|
-| No project | Director captures new idea with Marvin | Planning Queue (Stage 1) | Project created with minimal data; appears in Planning Queue |
-| Planning Queue (Stage 1-2) | Director resumes and advances with Marvin | Planning Queue (next stage) | Additional project data captured |
-| Planning Queue (Stage 3) | Director completes Stage 4 prioritization | Priority Queue | Project receives priority score; exits Planning Queue |
-| Priority Queue | Director selects as Work at Hand | Active on The Table | Project leaves queue; fills weekly position |
-| Either queue | Director abandons project | Archived | Project removed from pipeline entirely |
-| Priority Queue (was Live) | Director pauses active project | Priority Queue (top) | Paused project reappears at top of its stream |
+| From                       | Trigger                                   | To                          | Side Effects                                                 |
+| -------------------------- | ----------------------------------------- | --------------------------- | ------------------------------------------------------------ |
+| No project                 | Director captures new idea with Marvin    | Planning Queue (Stage 1)    | Project created with minimal data; appears in Planning Queue |
+| Planning Queue (Stage 1-2) | Director resumes and advances with Marvin | Planning Queue (next stage) | Additional project data captured                             |
+| Planning Queue (Stage 3)   | Director completes Stage 4 prioritization | Priority Queue              | Project receives priority score; exits Planning Queue        |
+| Priority Queue             | Director selects as Work at Hand          | Active on The Table         | Project leaves queue; fills weekly position                  |
+| Either queue               | Director abandons project                 | Archived                    | Project removed from pipeline entirely                       |
+| Priority Queue (was Live)  | Director pauses active project            | Priority Queue (top)        | Paused project reappears at top of its stream                |
 
 ### Processing Logic
 

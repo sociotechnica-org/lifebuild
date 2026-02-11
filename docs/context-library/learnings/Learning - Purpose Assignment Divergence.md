@@ -8,12 +8,12 @@
 
 ## Why It Matters
 
-This is a design divergence, not a missing feature. The current implementation *works* — directors end up with a stream classification. But the mechanism is different from what the context library describes:
+This is a design divergence, not a missing feature. The current implementation _works_ — directors end up with a stream classification. But the mechanism is different from what the context library describes:
 
 - **Vision:** One subjective question about meaning → stream
 - **Reality:** Two objective-ish selections (archetype + scale) → derived stream
 
-The Familiarity Over Function principle says the director's *relationship* to the work determines classification. The archetype+scale approach is slightly more objective (a "fix" at "minor" scale derives to Bronze regardless of how the director feels about it). A director who considers a minor fix personally transformational would need to override the derivation.
+The Familiarity Over Function principle says the director's _relationship_ to the work determines classification. The archetype+scale approach is slightly more objective (a "fix" at "minor" scale derives to Bronze regardless of how the director feels about it). A director who considers a minor fix personally transformational would need to override the derivation.
 
 ## Implications
 

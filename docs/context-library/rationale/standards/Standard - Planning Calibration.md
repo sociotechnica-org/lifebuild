@@ -29,20 +29,20 @@ The specification for how planning interfaces frame plans as hypotheses, how age
 
 #### Framing Rules
 
-| Context | Correct Framing | Wrong Framing |
-|---------|-----------------|---------------|
+| Context           | Correct Framing      | Wrong Framing            |
+| ----------------- | -------------------- | ------------------------ |
 | Plan modification | "Adjusting strategy" | "Editing failure report" |
-| Weekly review | "Testing hypothesis" | "Measuring compliance" |
-| Incomplete plan | "Calibration data" | "Underperformance" |
-| Mid-week change | "Engaged leadership" | "Deviation from plan" |
+| Weekly review     | "Testing hypothesis" | "Measuring compliance"   |
+| Incomplete plan   | "Calibration data"   | "Underperformance"       |
+| Mid-week change   | "Engaged leadership" | "Deviation from plan"    |
 
 #### Metrics
 
-| Metric | Role | Notes |
-|--------|------|-------|
-| Calibration accuracy | **Primary** | How well plans predict reality. Tracked over time. |
-| Estimation trend | Secondary | Are estimates getting more accurate week-over-week? |
-| Completion rate | **Never primary** | May be tracked but never headlined or guilt-inducing |
+| Metric               | Role              | Notes                                                |
+| -------------------- | ----------------- | ---------------------------------------------------- |
+| Calibration accuracy | **Primary**       | How well plans predict reality. Tracked over time.   |
+| Estimation trend     | Secondary         | Are estimates getting more accurate week-over-week?  |
+| Completion rate      | **Never primary** | May be tracked but never headlined or guilt-inducing |
 
 #### Agent Tone Rules
 
@@ -61,11 +61,13 @@ The specification for how planning interfaces frame plans as hypotheses, how age
 ### Examples
 
 **Example 1: Weekly review framed as calibration**
+
 - Scenario: Director planned 3 Gold tasks for the week and completed 2. The weekly review surfaces.
 - Input: 2 of 3 Gold tasks completed. One was replaced mid-week with a different priority.
 - Correct output: Week-in-Review says "Your calibration improved this week — estimates were closer to reality than last week. The mid-week adjustment to swap Task C for Task D shows engaged leadership." It does NOT say "You completed 67% of your plan" or "1 Gold task was not completed."
 
 **Example 2: Mid-week plan modification without justification**
+
 - Scenario: Director realizes Wednesday that their Silver project needs to be swapped for a more urgent one.
 - Input: Director drags a new project into the Silver slot, replacing the current one.
 - Correct output: The swap happens immediately with no "reason for change" dialog. The UI feels like adjusting a strategy board. The change is logged silently for calibration data. Cameron does not ask why the change was made.

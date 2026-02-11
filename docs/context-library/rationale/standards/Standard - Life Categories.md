@@ -35,15 +35,15 @@ The specification for the eight default life-domain categories that organize all
 #### Default Categories
 
 | LifeBuild Default | Wheel of Life Equivalent | Robbins Equivalent |
-|---|---|---|
-| Health | Health | Physical Body |
-| Relationships | Relationships / Romance | Relationships |
-| Finances | Money / Finances | Finances |
-| Learning | Personal Growth | Intellectual |
-| Leisure | Fun & Recreation | Emotions |
-| Purpose | Career / Business | Career/Mission |
-| Home | Physical Environment | — |
-| Service | Contribution | Contribution |
+| ----------------- | ------------------------ | ------------------ |
+| Health            | Health                   | Physical Body      |
+| Relationships     | Relationships / Romance  | Relationships      |
+| Finances          | Money / Finances         | Finances           |
+| Learning          | Personal Growth          | Intellectual       |
+| Leisure           | Fun & Recreation         | Emotions           |
+| Purpose           | Career / Business        | Career/Mission     |
+| Home              | Physical Environment     | —                  |
+| Service           | Contribution             | Contribution       |
 
 #### Customization Policy
 
@@ -54,21 +54,23 @@ The specification for the eight default life-domain categories that organize all
 
 #### Considered Resolutions for Custom Category Advisors
 
-| Option | Approach | Risk |
-|--------|----------|------|
-| 1 | Auto-generate advisor | Generic quality |
-| 2 | Advisor-less custom categories | Reduced value in most-cared-about domains |
-| 3 | Director-configured advisor | Configuration burden, violates [[Principle - Earn Don't Interrogate]] |
-| 4 (chosen) | Pause and observe | Honest choice when data doesn't exist yet |
+| Option     | Approach                       | Risk                                                                  |
+| ---------- | ------------------------------ | --------------------------------------------------------------------- |
+| 1          | Auto-generate advisor          | Generic quality                                                       |
+| 2          | Advisor-less custom categories | Reduced value in most-cared-about domains                             |
+| 3          | Director-configured advisor    | Configuration burden, violates [[Principle - Earn Don't Interrogate]] |
+| 4 (chosen) | Pause and observe              | Honest choice when data doesn't exist yet                             |
 
 ### Examples
 
 **Example 1: Director assigns a project to the correct default category**
+
 - Scenario: Director creates a "Run a 5K" project.
 - Input: Director is asked to assign a Life Category during project creation.
 - Correct output: Director chooses "Health" based on their mental model. The project inherits Health's vibrant green color on the hex tile, clusters near other Health projects on the Life Map, and falls under the Health Category Advisor's domain.
 
 **Example 2: Director customizes a category name**
+
 - Scenario: Director renames "Service" to "Volunteering" because that label resonates more with their mental model.
 - Input: Director changes the category label from "Service" to "Volunteering."
 - Correct output: All existing projects assigned to Service now display under "Volunteering." The visual color remains the same. The pre-built Service Category Advisor pauses (per customization policy). Projects are not broken or reassigned — they follow the category slot, not the label.

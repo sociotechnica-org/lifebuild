@@ -38,13 +38,13 @@ WHAT exists?
 
 #### Interaction Test
 
-| Question | System | Standard |
-|----------|--------|----------|
-| Has runtime state? | Yes | No |
-| Processes inputs? | Yes | No |
-| Other things conform to it? | Sometimes | Always |
-| Changes require code? | Yes | No (spec update) |
-| Builder reads to implement? | Rarely | Always |
+| Question                    | System    | Standard         |
+| --------------------------- | --------- | ---------------- |
+| Has runtime state?          | Yes       | No               |
+| Processes inputs?           | Yes       | No               |
+| Other things conform to it? | Sometimes | Always           |
+| Changes require code?       | Yes       | No (spec update) |
+| Builder reads to implement? | Rarely    | Always           |
 
 #### Card Structure
 
@@ -59,11 +59,13 @@ Standards use the same five sections (WHAT/WHERE/WHY/HOW/WHEN) with these adapta
 ### Examples
 
 **Example 1: Correctly classifying a specification card**
+
 - Scenario: A card defines the color palette for all life categories — Health is vibrant green, Finances is gold/amber, etc.
 - Input: The card has no runtime state, processes no inputs, and multiple components must conform to it.
 - Correct output: Type = Standard. The card passes all five interaction test questions on the Standard column (no state, no processing, always conformed to, spec update not code, builders read it).
 
 **Example 2: Distinguishing Standard from System**
+
 - Scenario: A card specifies the formula for computing priority scores: (Urgency x Importance) / Effort with stream-specific weightings.
 - Input: The card defines the formula but does not execute the calculation itself. The Processing Layer implements the calculation.
 - Correct output: Type = Standard (defines the spec). A separate System card (Processing Layer) has the runtime state and performs the computation. The formula card is read by builders to implement correctly.

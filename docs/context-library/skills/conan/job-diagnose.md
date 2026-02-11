@@ -20,15 +20,15 @@
 
 3. **Identify root causes**
 
-   | Type | Description |
-   |------|-------------|
-   | Missing Note | Should exist, doesn't |
-   | Stub Note | Exists but too thin |
-   | Disconnected Note | Exists, substantive, but not linked |
-   | Quality Gap | Per-card issue, no upstream cause |
-   | Structural Gap | Cluster of missing cards |
-   | Conformance Gap | Standard exists, product-layer cards don't link to it |
-   | Source Gap | Source material doesn't contain needed info |
+   | Type              | Description                                           |
+   | ----------------- | ----------------------------------------------------- |
+   | Missing Note      | Should exist, doesn't                                 |
+   | Stub Note         | Exists but too thin                                   |
+   | Disconnected Note | Exists, substantive, but not linked                   |
+   | Quality Gap       | Per-card issue, no upstream cause                     |
+   | Structural Gap    | Cluster of missing cards                              |
+   | Conformance Gap   | Standard exists, product-layer cards don't link to it |
+   | Source Gap        | Source material doesn't contain needed info           |
 
 4. **Calculate blast radius** — How many cards improve if this root cause is fixed?
 
@@ -65,9 +65,11 @@ Effort: [low/medium/high]
 
 ## Cascade Map
 ```
+
 [Upstream note] ───┬──→ [Card 1]
-                   ├──→ [Card 2]
-                   └──→ [Card 3]
+├──→ [Card 2]
+└──→ [Card 3]
+
 ```
 
 ## Source Gaps (need human input)

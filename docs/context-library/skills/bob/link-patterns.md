@@ -13,6 +13,7 @@ Standard phrases for relationship context. No naked links — every `[[Note]]` g
 ```
 
 **Examples:**
+
 ```markdown
 - [[Standard - Visual Language]] — constrains color and indicator rendering
 - [[Standard - Priority Score]] — specifies ranking formula used here
@@ -33,6 +34,7 @@ Standard phrases for relationship context. No naked links — every `[[Note]]` g
 ```
 
 **Examples:**
+
 ```markdown
 - [[Structure - The Table]] — must conform to this spec
 - [[Component - State Indicator]] — implements this specification
@@ -51,6 +53,7 @@ Standard phrases for relationship context. No naked links — every `[[Note]]` g
 ```
 
 **Examples:**
+
 ```markdown
 - [[Priority Queue]] — provides candidate tasks for filtering
 - [[User Preferences]] — stores selected mode between sessions
@@ -69,6 +72,7 @@ Standard phrases for relationship context. No naked links — every `[[Note]]` g
 ```
 
 **Examples:**
+
 ```markdown
 - [[Work at Hand]] — uses this to populate daily focus
 - [[The Table]] — displays priorities this system ranks
@@ -86,6 +90,7 @@ Standard phrases for relationship context. No naked links — every `[[Note]]` g
 ```
 
 **Examples:**
+
 ```markdown
 - [[Priority Queue]] — foundational mechanism for all task ordering
 - [[SODA Cycle]] — cross-cutting system handling weekly rhythm
@@ -99,24 +104,31 @@ Every card with a containment relationship must link to its parent.
 
 ```markdown
 # Room → Zone
+
 - [[Zone - X]] — parent workspace
 
 # Structure → Room
+
 - [[Room - X]] — where this structure lives
 
 # Component → Structure/Room/Overlay
+
 - [[Structure - X]] — parent element
 
 # Artifact → Room
+
 - [[Room - X]] — where this is created/edited
 
 # Capability → Room(s)
+
 - [[Room - X]] — where this is performed
 
 # Prompt → Agent
+
 - [[Agent - X]] — the agent this implements
 
 # Overlay → Zone(s)
+
 - [[Zone - X]] — where this is visible
 ```
 
@@ -187,6 +199,7 @@ Every card with a containment relationship must link to its parent.
 ```
 
 **Examples:**
+
 ```markdown
 - [[Strategy - Visual Work]] — this implements visibility by showing queue state
 - [[Principle - Visual Recognition]] — guidance driving indicator design
@@ -202,6 +215,7 @@ Every card with a containment relationship must link to its parent.
 ```
 
 **Examples:**
+
 ```markdown
 - [[Principle - Visual Recognition]] — this standard makes instant recognition testable
 ```
@@ -248,22 +262,22 @@ Blocked by: [[X]] — can't proceed until [dependency resolved]
 
 ## Quick Reference
 
-| Relationship | Pattern Start |
-|--------------|---------------|
-| Conforms to | "constrains", "specifies", "defines [values]" |
-| Conforming | "must conform", "implements this spec" |
-| Containment | "parent workspace", "where this lives", "where this is performed" |
-| Zone/Room | "parent workspace", "what you do there" |
-| Structure | "spatial canvas", "layout handling" |
-| Component | "UI element", "widget providing" |
-| Artifact | "content object", "created during" |
-| Capability | "action enabling", "workflow for" |
-| Agent/Prompt | "AI team member", "implementation of" |
-| Depends on | "provides", "must exist", "supplies" |
-| Depended on by | "uses this to", "displays", "built on" |
-| System | "foundational mechanism", "cross-cutting" |
-| Strategy | "implements [principle] by" |
-| Principle | "guidance driving", "makes testable" |
-| Decision | "key choice that", "decision determining" |
-| Learning | "insight that informed" |
-| Temporal | "supersedes", "enables", "blocked by" |
+| Relationship   | Pattern Start                                                     |
+| -------------- | ----------------------------------------------------------------- |
+| Conforms to    | "constrains", "specifies", "defines [values]"                     |
+| Conforming     | "must conform", "implements this spec"                            |
+| Containment    | "parent workspace", "where this lives", "where this is performed" |
+| Zone/Room      | "parent workspace", "what you do there"                           |
+| Structure      | "spatial canvas", "layout handling"                               |
+| Component      | "UI element", "widget providing"                                  |
+| Artifact       | "content object", "created during"                                |
+| Capability     | "action enabling", "workflow for"                                 |
+| Agent/Prompt   | "AI team member", "implementation of"                             |
+| Depends on     | "provides", "must exist", "supplies"                              |
+| Depended on by | "uses this to", "displays", "built on"                            |
+| System         | "foundational mechanism", "cross-cutting"                         |
+| Strategy       | "implements [principle] by"                                       |
+| Principle      | "guidance driving", "makes testable"                              |
+| Decision       | "key choice that", "decision determining"                         |
+| Learning       | "insight that informed"                                           |
+| Temporal       | "supersedes", "enables", "blocked by"                             |

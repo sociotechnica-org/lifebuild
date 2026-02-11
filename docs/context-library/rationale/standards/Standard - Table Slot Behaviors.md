@@ -29,10 +29,10 @@ The specification for visual treatment and interaction behavior of empty Gold an
 
 #### Empty Slot States
 
-| State | Visual Treatment | Meaning | Affordance |
-|-------|-----------------|---------|------------|
-| Not selected yet | Subtle outline, gentle prompt | Planning incomplete — director hasn't chosen | Action affordance present |
-| Intentionally empty | Calm, solid, distinct visual | Strategic choice — director chose restraint | No action prompt |
+| State               | Visual Treatment              | Meaning                                      | Affordance                |
+| ------------------- | ----------------------------- | -------------------------------------------- | ------------------------- |
+| Not selected yet    | Subtle outline, gentle prompt | Planning incomplete — director hasn't chosen | Action affordance present |
+| Intentionally empty | Calm, solid, distinct visual  | Strategic choice — director chose restraint  | No action prompt          |
 
 #### Visual Requirements
 
@@ -44,12 +44,12 @@ The specification for visual treatment and interaction behavior of empty Gold an
 
 #### Interaction Rules
 
-| Rule | Requirement |
-|------|-------------|
-| Setting intentional-empty | One deliberate action, not multi-step |
-| Agent check | Agents check intent once when slot is empty, then accept |
-| Repeat prompting | Prohibited for intentionally-empty slots |
-| Metrics | Do not penalize weeks with intentionally-empty slots |
+| Rule                      | Requirement                                              |
+| ------------------------- | -------------------------------------------------------- |
+| Setting intentional-empty | One deliberate action, not multi-step                    |
+| Agent check               | Agents check intent once when slot is empty, then accept |
+| Repeat prompting          | Prohibited for intentionally-empty slots                 |
+| Metrics                   | Do not penalize weeks with intentionally-empty slots     |
 
 #### Agent Behavior
 
@@ -61,11 +61,13 @@ The specification for visual treatment and interaction behavior of empty Gold an
 ### Examples
 
 **Example 1: Director intentionally leaves Gold slot empty**
+
 - Scenario: Director has a demanding Silver infrastructure project this week and decides not to take on a Gold transformation project.
 - Input: During weekly planning, director selects "intentionally empty" for the Gold slot.
 - Correct output: Gold slot renders with a calm, solid visual — warm presence of rest, not an alarming gap. Cameron asks once "Taking a lighter week?" and accepts the response. No further prompts about the Gold slot appear during the week. Weekly summary at week's end says "Strategic rest week — capacity invested in Silver infrastructure" rather than "0/1 Gold projects completed."
 
 **Example 2: Distinguishing "not yet selected" from "intentionally empty"**
+
 - Scenario: Director opens The Table on Monday morning but hasn't done weekly planning yet.
 - Input: Gold and Silver slots are empty because planning hasn't occurred.
 - Correct output: Both slots show "not yet selected" visual treatment — subtle outline with a gentle action affordance ("Select Gold project"). This is visually distinct from the "intentionally empty" calm solid visual. When the director taps a slot, they can either choose a project OR mark the slot as intentionally empty with a single action.

@@ -56,12 +56,12 @@ Systems are continuous. They don't complete — they run. Success is smooth oper
 
 ### Lifecycle States
 
-| State | Definition | Visual Treatment |
-| ----- | ---------- | ---------------- |
-| Planning | System being designed, not yet operational | Outlined hex with gear icon, no health indicator |
-| Planted | System is live and generating work | Full hex tile with health indicator (green dots) |
-| Hibernating | System temporarily paused, not generating work | Dimmed hex tile with paused health indicator |
-| Uprooted | System permanently decommissioned | Removed from hex grid, archived |
+| State       | Definition                                     | Visual Treatment                                 |
+| ----------- | ---------------------------------------------- | ------------------------------------------------ |
+| Planning    | System being designed, not yet operational     | Outlined hex with gear icon, no health indicator |
+| Planted     | System is live and generating work             | Full hex tile with health indicator (green dots) |
+| Hibernating | System temporarily paused, not generating work | Dimmed hex tile with paused health indicator     |
+| Uprooted    | System permanently decommissioned              | Removed from hex grid, archived                  |
 
 ### Visual Representation
 

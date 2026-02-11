@@ -34,18 +34,22 @@ The corollary is critical: hiding work removes agency. Defaults should show, not
 When designing any feature that displays work, prefer spatial organization over temporal feeds or abstract lists. When considering whether to hide or show information, default to showing — use spatial organization to manage complexity, not suppression.
 
 ### What Following This Looks Like
+
 - A director opens the Life Map and immediately sees all 14 of their active projects arranged spatially — health cluster in one area, work projects in another, creative pursuits grouped nearby. They grasp the full landscape in seconds without clicking into anything.
 - The Table shows Gold, Silver, and Bronze positions simultaneously. The director sees their entire weekly commitment at a glance — no tabs, no drill-downs, no "show more" buttons hiding work behind interactions.
 - A director zooms out on the hex grid and notices a cluster of stalled projects they'd forgotten about. The spatial presence of those hexes reminded them — a list view where completed items scroll off-screen would have buried the same information.
 
 ### What Violating This Looks Like
+
 - **Hiding work behind menus or click-through navigation** — The corollary is explicit: hiding work removes agency. If the director must click into a submenu, hover over an icon, or remember where something lives, the work has become invisible. Defaults should show, not hide.
 - **Using temporal feeds instead of spatial organization** — Timelines, activity feeds, and inboxes sort by when, not where. The director should answer "where is my stuff?" at a glance — not "what happened recently?"
 - **Opt-out filters as default** — Filters that hide work by default and require the director to turn them off violate the principle. Filters should be opt-in: the director chooses to narrow, not to reveal.
 
 ### Tensions
+
 - With [[Principle - Protect Transformation]] — showing everything risks overwhelm; resolution is spatial organization, not suppression
 - With information density — too much visible creates noise; resolution is zoom levels and progressive detail
 
 ### Test
+
 Can the director see and find this without hovering, clicking through menus, or remembering it exists?

@@ -39,18 +39,22 @@ The disposability test: if a director could switch to a competitor after 6 month
 Design features that become more valuable over time. Prefer deep-and-rich over simple-and-shallow when the richness compounds. When compound learning is possible, teach rather than automate.
 
 ### What Following This Looks Like
+
 - A director plants a "weekly meal prep" system in Month 2. By Month 6, it runs autonomously with Bronze-level maintenance, freeing capacity that now goes to Gold transformation work — the early investment compounds into sustained capacity.
 - The Charter captures a director's energy patterns over 8 weeks. By Month 3, Cameron's priority suggestions account for Tuesday fatigue and Thursday peaks — the accumulated knowledge makes every future recommendation more accurate.
 - A director who struggled with estimation in Month 1 now consistently plans within 10% accuracy by Month 4, because the system tracked calibration and surfaced the learning — the skill itself compounded.
 
 ### What Violating This Looks Like
+
 - **Optimizing for week-1 convenience over month-12 capability** — Design A is easier to learn but plateaus; Design B has a steeper curve but compounds. Choosing A because it demos well sacrifices the compound return that creates lasting value.
 - **Building disposable features** — The disposability test: if a director switches to a competitor after 6 months without losing significant value, compound capability isn't working. Features should accumulate intelligence and infrastructure the director values.
 - **Automating what should be taught** — When compound learning is possible, teaching builds director skill that compounds. Automating it away creates dependency without growth. The director who learns to plan well gains a skill; the one whose plans are auto-generated gains nothing.
 
 ### Tensions
+
 - With [[Principle - First 72 Hours]] — resolved through sequencing: quick wins that also establish compound foundations
 - With simplicity — compound features can be complex; resolution is progressive depth with gentle entry
 
 ### Test
+
 Does this design make the product feel disposable, or increasingly indispensable?

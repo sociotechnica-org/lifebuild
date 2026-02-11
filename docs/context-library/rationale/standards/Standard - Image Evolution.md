@@ -30,13 +30,13 @@ The specification for the five-stage visual progression of a project's illustrat
 
 #### Five Illustration Stages
 
-| Stage | Name | Visual | Roughly Maps To |
-|-------|------|--------|-----------------|
-| 1 | Sketch | Light pencil outlines | Stages 1-3 (Planning) |
-| 2 | Clean Pencils | Refined line work | Stage 4 (Planned) |
-| 3 | Inked | Bold outlines | Live |
-| 4 | Colored | Full color | Work at Hand |
-| 5 | Finished | Details and polish | Completed |
+| Stage | Name          | Visual                | Roughly Maps To       |
+| ----- | ------------- | --------------------- | --------------------- |
+| 1     | Sketch        | Light pencil outlines | Stages 1-3 (Planning) |
+| 2     | Clean Pencils | Refined line work     | Stage 4 (Planned)     |
+| 3     | Inked         | Bold outlines         | Live                  |
+| 4     | Colored       | Full color            | Work at Hand          |
+| 5     | Finished      | Details and polish    | Completed             |
 
 #### Progression Rules
 
@@ -51,11 +51,13 @@ A kitchen renovation shows kitchen elements; a marathon training shows running.
 ### Examples
 
 **Example 1: Standard progression through all five stages**
+
 - Scenario: Director creates a "Garden Redesign" project and develops it through the full lifecycle.
 - Input: Project moves Planning -> Planned -> Live -> Work at Hand -> Completed over several weeks.
 - Correct output: Illustration progresses Sketch (light pencil outlines of garden beds and plants) -> Clean Pencils (refined line work with clear plant shapes) -> Inked (bold outlines of garden layout) -> Colored (full color showing green plants, brown soil, colorful flowers) -> Finished (details like texture on leaves, water droplets, polished shading). At Colored stage, director recognizes "that's my garden project" from across the room.
 
 **Example 2: Project skipping stages due to direct Work at Hand selection**
+
 - Scenario: Director creates a "Tax Filing" project and selects it straight to Work at Hand during weekly planning.
 - Input: Project jumps from Planned directly to Work at Hand state.
 - Correct output: Illustration skips from Clean Pencils (Stage 2) directly to Colored (Stage 4), showing full-color content-depicting illustration of tax-related elements (calculator, forms, receipts). The intermediate Inked stage is not shown because illustration tracks meaningful state, not administrative steps.

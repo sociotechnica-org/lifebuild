@@ -29,11 +29,11 @@ The specification for three Bronze stack operating modes — Minimal, Target, an
 
 #### Mode Definitions
 
-| Mode | Behavior | Best For |
-|------|----------|----------|
-| Minimal | Only due-date tasks, critical responses, and system-generated items. Stack shrinks as tasks complete (no replenishment). | High Gold/Silver commitment weeks, recovery periods |
-| Target +X | Minimal tasks + X discretionary. Auto-replenishes to maintain count. | Normal weeks, steady operational cadence |
-| Maximal | Continuous pull from queue. As tasks complete, next candidate immediately surfaces. | Catch-up weeks, administrative clearing |
+| Mode      | Behavior                                                                                                                 | Best For                                            |
+| --------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| Minimal   | Only due-date tasks, critical responses, and system-generated items. Stack shrinks as tasks complete (no replenishment). | High Gold/Silver commitment weeks, recovery periods |
+| Target +X | Minimal tasks + X discretionary. Auto-replenishes to maintain count.                                                     | Normal weeks, steady operational cadence            |
+| Maximal   | Continuous pull from queue. As tasks complete, next candidate immediately surfaces.                                      | Catch-up weeks, administrative clearing             |
 
 #### Stack Sources (Priority Order)
 
@@ -52,11 +52,13 @@ The specification for three Bronze stack operating modes — Minimal, Target, an
 ### Examples
 
 **Example 1: Minimal mode during a high-Gold week**
+
 - Scenario: Director has a critical Gold project deadline this week and wants to minimize Bronze distractions.
 - Input: Director selects Minimal mode during weekly planning. Bronze stack starts with 3 due-date items and 1 critical response.
 - Correct output: Stack shows 4 items. As each is completed, the stack shrinks (no replenishment). By mid-week, if all 4 are done, Bronze stack is empty. No new items surface unless a new due-date or critical response arrives.
 
 **Example 2: Mid-week switch from Target to Maximal**
+
 - Scenario: Director finishes Gold work early on Wednesday and wants to clear operational backlog.
 - Input: Director taps gear icon on Bronze position, switches from Target +3 to Maximal.
 - Correct output: Mode change takes effect immediately. As the director completes each Bronze task, the next candidate surfaces from the queue in priority order (due-dates first, then critical responses, then system-generated, etc.). Stack never empties while queue has items.

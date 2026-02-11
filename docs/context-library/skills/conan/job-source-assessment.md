@@ -13,14 +13,14 @@ Source Assessment → Inventory → Build. This job gates inventory.
 2. **Assess coverage by dimension**
 
    For each dimension, scan source for:
-   
-   | Dimension | Looking For |
-   |-----------|-------------|
-   | WHAT | Clear definitions, card boundaries, user-facing descriptions |
-   | WHY | Strategy rationale, decision history, constraints/tensions, "why not X" |
-   | WHERE | Ecosystem references, dependencies mentioned, cross-zone connections |
-   | HOW | Behavior specs, technical approach, examples, edge cases |
-   | WHEN | Timeline references, predecessors, future state |
+
+   | Dimension | Looking For                                                             |
+   | --------- | ----------------------------------------------------------------------- |
+   | WHAT      | Clear definitions, card boundaries, user-facing descriptions            |
+   | WHY       | Strategy rationale, decision history, constraints/tensions, "why not X" |
+   | WHERE     | Ecosystem references, dependencies mentioned, cross-zone connections    |
+   | HOW       | Behavior specs, technical approach, examples, edge cases                |
+   | WHEN      | Timeline references, predecessors, future state                         |
 
 3. **Check for Standard candidates**
 
@@ -40,21 +40,21 @@ Source Assessment → Inventory → Build. This job gates inventory.
 
 5. **Identify source gaps**
 
-   | Gap Type | Signal |
-   |----------|--------|
-   | WHY Gap | Product cards described but rationale missing |
-   | HOW Gap | What it does but not how it works |
-   | Constraint Gap | No boundaries or anti-patterns documented |
-   | Standard Gap | Spec content buried in prose, not extracted |
-   | Decision Gap | Choices made but alternatives not documented |
+   | Gap Type       | Signal                                        |
+   | -------------- | --------------------------------------------- |
+   | WHY Gap        | Product cards described but rationale missing |
+   | HOW Gap        | What it does but not how it works             |
+   | Constraint Gap | No boundaries or anti-patterns documented     |
+   | Standard Gap   | Spec content buried in prose, not extracted   |
+   | Decision Gap   | Choices made but alternatives not documented  |
 
 6. **Classify readiness**
 
-   | Readiness | Definition | Action |
-   |-----------|------------|--------|
-   | READY | All dimensions covered, Standards extractable | Proceed to inventory |
-   | GAPS | Some dimensions thin, addressable | Flag gaps, proceed with caution |
-   | BLOCKED | Critical gaps requiring human input | Do not proceed until resolved |
+   | Readiness | Definition                                    | Action                          |
+   | --------- | --------------------------------------------- | ------------------------------- |
+   | READY     | All dimensions covered, Standards extractable | Proceed to inventory            |
+   | GAPS      | Some dimensions thin, addressable             | Flag gaps, proceed with caution |
+   | BLOCKED   | Critical gaps requiring human input           | Do not proceed until resolved   |
 
 ## Output
 
@@ -107,13 +107,13 @@ Source material reviewed:
 
 ## Gap Patterns
 
-| Pattern | Typical Signal | Typical Fix |
-|---------|----------------|-------------|
-| Strategy Orphan | Product cards exist but no strategy doc | Human provides strategy rationale |
-| Spec Buried in Prose | "Colors should be consistent with..." | Extract to Standard card |
-| Decision Amnesia | Card exists but no "why this approach" | Human documents decision history |
-| Anti-Pattern Void | Only positive descriptions | Human provides "what wrong looks like" |
-| HOW Handwave | "The system handles this" | Human provides behavior spec or examples |
+| Pattern              | Typical Signal                          | Typical Fix                              |
+| -------------------- | --------------------------------------- | ---------------------------------------- |
+| Strategy Orphan      | Product cards exist but no strategy doc | Human provides strategy rationale        |
+| Spec Buried in Prose | "Colors should be consistent with..."   | Extract to Standard card                 |
+| Decision Amnesia     | Card exists but no "why this approach"  | Human documents decision history         |
+| Anti-Pattern Void    | Only positive descriptions              | Human provides "what wrong looks like"   |
+| HOW Handwave         | "The system handles this"               | Human provides behavior spec or examples |
 
 ## Principles
 
