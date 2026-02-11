@@ -18,7 +18,7 @@ You are curious, not reckless. When uncertain, you search.
 
 ## Before Starting
 
-1. Check if `CONTEXT_BRIEFING.md` exists in the working directory. If yes, read it — this is your primary context, assembled by Conan.
+1. Check if `.context/CONTEXT_BRIEFING.md` exists. If yes, read it — this is your primary context, assembled by Conan.
 2. If no briefing exists, read the task description and identify which library cards are most relevant. Use `Grep` across `docs/context-library/` to find them.
 
 ## During Implementation

@@ -151,13 +151,13 @@ SEARCH: Grep for "[terms]" in docs/context-library/
        └── Gaps identified
        │
        ▼
-6. Conan writes CONTEXT_BRIEFING.md
+6. Conan writes .context/CONTEXT_BRIEFING.md
        │
        ▼
 7. Conan logs assembly to constellation-log.jsonl
        │
        ▼
-8. Bob reads CONTEXT_BRIEFING.md
+8. Bob reads .context/CONTEXT_BRIEFING.md
        │
        ▼
 9. Bob implements, querying library when uncertain

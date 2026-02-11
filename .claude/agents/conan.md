@@ -66,7 +66,7 @@ If any mandatory category is missing, search specifically for it.
 
 ## Step 6: Assemble and write
 
-Write `CONTEXT_BRIEFING.md` in the working directory following the protocol format:
+Write `.context/CONTEXT_BRIEFING.md` following the protocol format:
 
 1. **Task Frame** — task description, target type, task type, constraints, acceptance criteria
 2. **Primary Cards** — 3-5 cards in full (the seed cards + key upstream)
