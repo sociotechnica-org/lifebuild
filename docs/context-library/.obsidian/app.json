@@ -13,5 +13,7 @@
   "strictLineBreaks": false,
   "autoConvertHtml": true,
   "spellcheck": true,
-  "spellcheckLanguages": ["en"]
+  "spellcheckLanguages": [
+    "en"
+  ]
 }

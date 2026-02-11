@@ -1,4 +1,5 @@
 .conductor
+.context
 .DS_Store
 node_modules
 .wrangler
@@ -20,6 +21,9 @@ lifebuild-default/
 playwright-report/
 test-results/
 .playwright-mcp/
+
+# Obsidian workspace state (per-user, changes constantly)
+docs/context-library/.obsidian/workspace.json
 
 # Examples
 examples/
