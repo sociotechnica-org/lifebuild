@@ -1,6 +1,6 @@
 # Contributing to the Context Library
 
-This guide is for **humans and AI agents** working on LifeBuild. If you're adding context, fixing documentation, or assembling slugs, start here.
+This guide is for **humans and AI agents** working on LifeBuild. If you're adding context, fixing cards, or assembling constellations, start here.
 
 ---
 
@@ -8,13 +8,13 @@ This guide is for **humans and AI agents** working on LifeBuild. If you're addin
 
 **If you'll need to say it again, put it in the library.**
 
-Context that helps with one task will help with future tasks. Don't repeat yourself in handoffs — update the docs.
+Context that helps with one task will help with future tasks. Don't repeat yourself in handoffs — update the library.
 
 ---
 
-## When to Add or Update Notes
+## When to Add or Update Cards
 
-### Add a new note when:
+### Add a new card when:
 
 - You build a new feature, system, or component
 - You make a strategic decision worth preserving
@@ -22,14 +22,14 @@ Context that helps with one task will help with future tasks. Don't repeat yours
 - You discover a pressure or signal driving decisions
 - You're repeatedly explaining the same context in handoffs
 
-### Update an existing note when:
+### Update an existing card when:
 
 - The implementation changes
-- You discover the note is incomplete or wrong
+- You discover the card is incomplete or wrong
 - Dependencies or relationships change
-- Status changes (planned → present, present → past)
+- Implementation status changes (update the WHEN section)
 
-### Don't create a note when:
+### Don't create a card when:
 
 - It's one-time task-specific context (put in handoff)
 - It duplicates existing content (link instead)
@@ -37,74 +37,89 @@ Context that helps with one task will help with future tasks. Don't repeat yours
 
 ---
 
-## How to Add a Note
+## How to Add a Card
 
-### 1. Choose the right template
+### 1. Classify using the type taxonomy
 
-| Documenting...           | Template        | Folder                   |
-| ------------------------ | --------------- | ------------------------ |
-| User-facing feature      | `_feature.md`   | `/product/features/`     |
-| Cross-cutting mechanism  | `_system.md`    | `/product/systems/`      |
-| Specification/standard   | `_standard.md`  | `/rationale/standards/`  |
-| Technical implementation | `_component.md` | `/product/components/`   |
-| Design principle         | `_principle.md` | `/rationale/principles/` |
-| Strategic bet            | `_strategy.md`  | `/rationale/strategies/` |
-| Past approach/lesson     | `_learning.md`  | `/timeline/past/`        |
-| Future plan              | `_vision.md`    | `/timeline/future/`      |
+See `reference.md` for the full decision tree. Quick version:
 
-### 2. Copy and rename
+| Documenting...             | Type       | Folder                            |
+| -------------------------- | ---------- | --------------------------------- |
+| Guiding philosophy (a bet) | Strategy   | `/rationale/strategies/`          |
+| Judgment guidance           | Principle  | `/rationale/principles/`          |
+| Testable specification      | Standard   | `/rationale/standards/`           |
+| Top-level workspace         | Zone       | `/product/zones/`                 |
+| Nested workspace            | Room       | `/product/rooms/`                 |
+| Cross-zone persistent layer | Overlay    | `/product/overlays/`              |
+| Spatial canvas/fabric       | Structure  | `/product/structures/`            |
+| Specific UI widget          | Component  | `/product/components/`            |
+| Content object              | Artifact   | `/product/artifacts/`             |
+| Action/workflow             | Capability | `/product/capabilities/`          |
+| Core data entity            | Primitive  | `/product/primitives/`            |
+| Invisible mechanism         | System     | `/product/systems/`               |
+| AI team member              | Agent      | `/product/agents/`                |
+| Agent implementation        | Prompt     | `/product/prompts/`               |
+| Past insight                | Learning   | `/learnings/`                     |
 
-```bash
-cp templates/_feature.md product/features/my-feature.md
-```
+### 2. Create the file
 
-### 3. Fill in frontmatter completely
+Name it `Type - Name.md` in the correct folder. See `reference.md` for naming conventions and templates.
 
-Every field matters for querying and slug assembly. Don't skip the dimensional coordinates.
-We use **flat fields** (e.g., `ca-where-zone`, `ca-why-rationale`) so links are clickable in Obsidian Properties.
-Frontmatter link lists should be a single text value with comma-separated `[[links]]` (no `--` notes). Put descriptions in the body sections instead.
+### 3. Fill in all 5 dimensions
 
-### 4. Write content following the template structure
+Every card has these sections:
 
-Keep it atomic — one note answers one complete question.
+| Section       | Header          | Purpose                                   |
+| ------------- | --------------- | ----------------------------------------- |
+| **WHAT**      | `## WHAT:`      | Standalone definition                     |
+| **WHERE**     | `## WHERE:`     | Ecosystem links (3+ contextualized links) |
+| **WHY**       | `## WHY:`       | Strategy/Principle link + driver           |
+| **WHEN**      | `## WHEN:`      | Implementation status and timeline         |
+| **HOW**       | `## HOW:`       | Sufficient detail for a builder            |
+
+### 4. Write content following the template
+
+See `reference.md` for type-specific templates. Keep it atomic — one card answers one complete question.
 
 ### 5. Establish links with context
 
 ```markdown
-# Good
+# Good — link has context
+- Room: [[Room - Project Board]] — where the Kanban Board lives
 
-- Depends on: [[priority-queue]] — provides candidate tasks
-
-# Bad
-
-- See: [[priority-queue]]
+# Bad — naked link
+- See: [[Room - Project Board]]
 ```
 
 ### 6. Verify links resolve
 
-Check that `[[linked-note]]` actually exists. Broken links break slug assembly.
+Check that `[[Type - Name]]` actually exists. Broken links break constellation assembly.
+
+### 7. Check conformance obligations
+
+If your card touches a governed domain (visual rendering, priority scoring, stream classification, etc.), it must link to the constraining Standard. See the conformance table in `reference.md`.
 
 ---
 
-## How to Update a Note
+## How to Update a Card
 
-### 1. Update `last-verified` date
+### 1. Update the WHEN section
 
-Always update the frontmatter date so we know when this was last confirmed accurate.
+Always update implementation status and add a reality note with today's date if the implementation has changed.
 
 ### 2. Preserve links
 
-If you rename a note, update all notes that link to it. Obsidian can help with this.
+If you rename a card, update all cards that link to it. Obsidian can help with this.
 
 ### 3. Update status if needed
 
-- Code shipped? `planned` → `present`
-- Approach abandoned? `present` → `past`
-- Feature deprecated? Create a `_learning.md` note capturing what we learned
+- Code shipped? Update WHEN status to "Implemented" or "Partial"
+- Approach abandoned? Add a Learning card capturing what we learned
+- Reality diverged from vision? Add a reality note in the WHEN section
 
 ### 4. Keep atomic
 
-If a note is getting too long (>800 words), consider splitting into hub + spokes.
+If a card is getting too long (>700 words), consider splitting into hub + spokes.
 
 ---
 
@@ -112,58 +127,65 @@ If a note is getting too long (>800 words), consider splitting into hub + spokes
 
 ### Before starting work on a feature:
 
-1. **Check if a note exists** for the feature/system you're touching
-2. **Read the note** and follow its links to understand context
-3. **Check `ca-where` dependencies** — what else might be affected?
-4. **Check `ca-when`** — is this `present` (real) or `planned` (not yet built)?
-5. **Check `ca-why`** — understand the rationale before changing things
+1. **Check if a card exists** for the feature/system you're touching
+2. **Read the card** and follow its `[[wikilinks]]` to understand context
+3. **Check WHERE** — what else connects to this? What Standards must you conform to?
+4. **Check WHEN** — is this "Implemented" (real) or "Not started" (vision only)?
+5. **Check WHY** — understand the rationale before changing things
 
 ### After completing work:
 
-1. **Update affected notes** if implementation changed
-2. **Add new notes** for new features/components you created
-3. **Update `last-verified`** dates on notes you confirmed are accurate
+1. **Update affected cards** if implementation changed
+2. **Add new cards** for new features/components you created
+3. **Update WHEN sections** with reality notes on cards you confirmed are accurate
 4. **Flag gaps** — if you needed context that didn't exist, note it
 
-### When assembling slugs:
+### When assembling constellations:
 
-1. Start from the target artifact note
-2. Follow dimensional coordinates to gather context
-3. Weight by task type (see README for recipes)
-4. Flag any broken links or missing context
-5. Keep slugs token-efficient — include what's needed, not everything
+Use the **Conan agent** (`.claude/agents/conan.md`) to assemble a context constellation before implementation. Conan reads the retrieval profiles and assembles the right cards based on what you're building.
+
+1. Start from the target card
+2. Follow retrieval profiles to gather related context
+3. Write the constellation to `.context/CONTEXT_BRIEFING.md`
+4. Flag any broken links or missing context in the Gap Manifest
 
 ---
 
 ## Quality Checklist
 
-Before committing note changes:
+Before committing card changes:
 
-- [ ] Frontmatter is complete (no empty required fields)
-- [ ] Flat `ca-where-*` / `ca-why-*` fields are used (no nested objects)
-- [ ] `ca-when` status is accurate
-- [ ] `last-verified` date is today
-- [ ] All `[[links]]` resolve to existing notes
+- [ ] File named `Type - Name.md` in the correct folder
+- [ ] All 5 dimension headers present (`## WHAT:`, `## WHERE:`, `## WHY:`, `## WHEN:`, `## HOW:`)
+- [ ] WHEN section has implementation status and reality note (if applicable)
+- [ ] All `[[Type - Name]]` links resolve to existing cards
 - [ ] Links include context (not naked pointers)
-- [ ] Content matches template structure
-- [ ] Note is atomic (one complete question)
+- [ ] Content matches template structure from `reference.md`
+- [ ] Card is atomic (one complete question, <700 words preferred)
+- [ ] Conformance obligations met (links to constraining Standards)
 
 ---
 
 ## When You're Unsure
 
-- **Unsure which template?** → Pick closest match, can refactor later
-- **Unsure where it belongs?** → Check similar notes, follow the pattern
-- **Unsure if it's worth documenting?** → If you needed to know it, someone else will too
-- **Found conflicting information?** → Flag it, ask human librarian to resolve
+- **Unsure which type?** Check the decision tree in `reference.md`. Apply classification guardrails in order.
+- **Unsure where it belongs?** Check similar cards, follow the pattern
+- **Unsure if it's worth documenting?** If you needed to know it, someone else will too
+- **Found conflicting information?** Flag it — `**HUMAN JUDGMENT NEEDED:** [question]`
 
 ---
 
-## Questions?
+## Agent Roles
 
-Human librarian has final authority on structural decisions. Flag ambiguities rather than guessing on:
+- **Conan** (`.claude/agents/conan.md`): Assembles constellations, grades cards, audits quality. Does NOT write cards.
+- **Bob** (`.claude/agents/bob.md`): Creates cards, fixes per recommendations, runs self-checks. Does NOT grade.
+- **Human librarian**: Priority decisions, resolve ambiguity, go/no-go.
 
-- Template changes
-- Folder reorganization
-- Naming convention changes
-- Merging or splitting notes
+---
+
+## Key References
+
+- `reference.md` — Templates, folder structure, naming conventions, conformance obligations
+- `CONVENTIONS.md` — Codebase-specific patterns
+- `.claude/skills/bob/` — Card-building procedures
+- `.claude/skills/conan/` — Grading and audit procedures

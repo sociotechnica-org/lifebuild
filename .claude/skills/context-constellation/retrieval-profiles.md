@@ -13,8 +13,8 @@ Type-specific instructions for assembling context constellations. Each profile d
 - The System card itself (full content)
 - At least 1 governing Strategy (follow WHY links)
 - All Principles referenced in the card's WHY section
-- All Capabilities that invoke this system — `Grep` for the system name across `product/capabilities/`
-- All Rooms where this system is visible — `Grep` for the system name across `product/rooms/`
+- All Capabilities that invoke this system — `Grep` for the system name across `docs/context-library/product/capabilities/`
+- All Rooms where this system is visible — `Grep` for the system name across `docs/context-library/product/rooms/`
 - Any Standards this system must conform to
 
 **Traversal depth:** 3 hops upstream via wikilinks.
@@ -60,8 +60,8 @@ Components are implementation-heavy. Focus on HOW details and conforming Standar
 - The Room card itself (full content)
 - Parent Zone (Rooms are always contained by a Zone)
 - Resident Agent (if one exists for this Room)
-- All Structures contained in this Room — `Grep` for the room name across `product/structures/`
-- All Capabilities performed in this Room — `Grep` for the room name across `product/capabilities/`
+- All Structures contained in this Room — `Grep` for the room name across `docs/context-library/product/structures/`
+- All Capabilities performed in this Room — `Grep` for the room name across `docs/context-library/product/capabilities/`
 - Artifacts created/edited in this Room
 
 **Traversal depth:** 2 hops. Room → Zone and Room → contained elements.
@@ -83,7 +83,7 @@ Rooms are relationship-heavy — WHERE context (what connects to what) is critic
 
 - The Zone card itself (full content)
 - All Rooms contained in this Zone — `Glob` for cards referencing this zone
-- Visible Overlays — `Grep` for the zone name across `product/overlays/`
+- Visible Overlays — `Grep` for the zone name across `docs/context-library/product/overlays/`
 - Governing Strategies (at least 1)
 - Adjacent Zones for navigation context
 
@@ -104,7 +104,7 @@ Zones are strategic — WHY they exist matters more than HOW they work.
 
 - The Structure card itself (full content)
 - Parent Room (where this Structure lives)
-- All Components contained in this Structure — `Grep` for the structure name across `product/components/`
+- All Components contained in this Structure — `Grep` for the structure name across `docs/context-library/product/components/`
 - Primitives displayed by this Structure — check WHERE section
 - All Standards this Structure must conform to
 
@@ -169,7 +169,7 @@ Artifacts are content objects — HOW they're structured and used matters most.
 - The Overlay card itself (full content)
 - All Zones where this Overlay is visible — check WHERE section
 - Primitives displayed by this Overlay
-- Components contained in this Overlay — `Grep` for overlay name across `product/components/`
+- Components contained in this Overlay — `Grep` for overlay name across `docs/context-library/product/components/`
 - Standards this Overlay must conform to
 - Navigation targets (where does interacting with the Overlay take you?)
 
@@ -190,11 +190,11 @@ Overlays are cross-zone — WHERE they appear and HOW they behave across context
 
 - The Agent card itself (full content)
 - Home Room (where this Agent lives)
-- All Capabilities available to this Agent — `Grep` for agent name across `product/capabilities/`
+- All Capabilities available to this Agent — `Grep` for agent name across `docs/context-library/product/capabilities/`
 - Artifacts this Agent manages — check WHERE section
 - Coordinating Agents (agents this one hands off to or coordinates with)
 - Full WHY chain — at least 1 Strategy, all referenced Principles
-- Any Prompts that implement this Agent — `Glob` for `product/prompts/Prompt - [Agent Name]*.md`
+- Any Prompts that implement this Agent — `Glob` for `docs/context-library/product/prompts/Prompt - [Agent Name]*.md`
 
 **Traversal depth:** 3 hops. Agents are highly connected — Room, Capabilities, Artifacts, Strategy chain.
 
@@ -233,9 +233,9 @@ Prompts are pure implementation — HOW to write the system prompt.
 **Always include:**
 
 - The Primitive card itself (full content)
-- Rooms that serve this Primitive — `Grep` for primitive name across `product/rooms/`
-- Capabilities that operate on this Primitive — `Grep` for primitive name across `product/capabilities/`
-- Systems that manage this Primitive — `Grep` for primitive name across `product/systems/`
+- Rooms that serve this Primitive — `Grep` for primitive name across `docs/context-library/product/rooms/`
+- Capabilities that operate on this Primitive — `Grep` for primitive name across `docs/context-library/product/capabilities/`
+- Systems that manage this Primitive — `Grep` for primitive name across `docs/context-library/product/systems/`
 - Standards that define this Primitive's properties or states
 
 **Traversal depth:** 2 hops. Primitives are referenced by many card types.

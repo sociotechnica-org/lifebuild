@@ -1449,13 +1449,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) â†
   prompts/
   [flat: Decision, Learning, Initiative, Future]
 
-/releases/
-
-/skills/
-  conan/
-  bob/
-
-/templates/
+/learnings/
 
 reference.md
 CONTRIBUTING.md
