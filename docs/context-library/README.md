@@ -83,9 +83,7 @@ Without specification context, agents produce technically correct but contextual
 │   ├── /agents/            # AI team members
 │   └── /prompts/           # Agent implementations (planned)
 │
-└── /skills/                # Agent skill definitions
-    ├── /conan/             # Quality guardian (grade, audit, diagnose)
-    └── /bob/               # Builder (create, fix cards)
+Agent skill procedures live at `.claude/skills/bob/` and `.claude/skills/conan/`.
 ```
 
 ---

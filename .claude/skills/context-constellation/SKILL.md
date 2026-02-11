@@ -69,7 +69,7 @@ The library IS a knowledge graph encoded in the file system:
 See `retrieval-profiles.md` for type-specific instructions.
 See `traversal.md` for detailed graph navigation techniques.
 See `task-modifiers.md` for how task type affects retrieval emphasis.
-See `docs/context-library/skills/constellation/protocol.md` for the CONTEXT_BRIEFING.md format.
+See `protocol.md` for the CONTEXT_BRIEFING.md format.
 
 ## Quick Reference: Upstream Chain
 

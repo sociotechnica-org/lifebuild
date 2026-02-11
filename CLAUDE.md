@@ -182,7 +182,7 @@ Follow the **5-signal uncertainty protocol** when making decisions: if 2+ signal
 
 - `.claude/skills/context-constellation/retrieval-profiles.md` — What cards to pull for each type
 - `.claude/skills/context-constellation/traversal.md` — How to navigate the knowledge graph
-- `docs/context-library/skills/constellation/protocol.md` — CONTEXT_BRIEFING.md format
+- `.claude/skills/context-constellation/protocol.md` — CONTEXT_BRIEFING.md format
 
 ## Development Workflow
 
