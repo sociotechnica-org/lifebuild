@@ -16,7 +16,7 @@ Without specification context, agents produce technically correct but contextual
 
 ### For AI Agents
 
-1. Read **reference.md** — templates, naming, conformance obligations
+1. Read **reference.md** — type taxonomy, templates, naming, conformance obligations
 2. Read **CONVENTIONS.md** — codebase patterns and gotchas
 3. Before touching a feature, find its card and read the context (follow the wikilinks)
 4. After completing work, update affected cards
@@ -56,93 +56,14 @@ Without specification context, agents produce technically correct but contextual
 
 ---
 
-## Folder Structure
-
-```
-/context-library/
-├── README.md              # You are here
-├── CONTRIBUTING.md         # How to add/edit cards
-├── CONVENTIONS.md          # Codebase patterns and gotchas
-├── reference.md            # Templates, naming, conformance obligations
-│
-├── /rationale/             # WHY we build
-│   ├── /strategies/        # Guiding philosophies
-│   ├── /principles/        # Judgment guidance
-│   └── /standards/         # Testable specifications
-│
-├── /product/               # WHAT gets built
-│   ├── /zones/             # Top-level workspaces
-│   ├── /rooms/             # Nested spaces
-│   ├── /overlays/          # Cross-zone persistent elements
-│   ├── /structures/        # Spatial/visual fabric
-│   ├── /components/        # UI widgets
-│   ├── /artifacts/         # Content objects
-│   ├── /capabilities/      # Actions/workflows
-│   ├── /primitives/        # Core data entities
-│   ├── /systems/           # Invisible mechanisms
-│   ├── /agents/            # AI team members
-│   └── /prompts/           # Agent implementations (planned)
-│
-Agent skill procedures live at `.claude/skills/bob/` and `.claude/skills/conan/`.
-```
-
----
-
-## Card Anatomy
-
-Every card has five dimensions:
-
-| Dimension | Question             | Requirement                           |
-| --------- | -------------------- | ------------------------------------- |
-| **WHAT**  | What is this?        | Standalone definition                 |
-| **WHERE** | What's connected?    | 3+ contextualized wikilinks           |
-| **WHY**   | Why does this exist? | Strategy/Principle link + driver      |
-| **WHEN**  | What's the status?   | Temporal status                       |
-| **HOW**   | How does it work?    | Sufficient for a builder to implement |
-
----
-
-## Naming Conventions
-
-| Type      | Pattern                 | Example                             |
-| --------- | ----------------------- | ----------------------------------- |
-| Strategy  | `Strategy - [Name].md`  | `Strategy - Spatial Visibility.md`  |
-| Principle | `Principle - [Name].md` | `Principle - Visual Recognition.md` |
-| Standard  | `Standard - [Name].md`  | `Standard - Visual Language.md`     |
-| Zone      | `Zone - [Name].md`      | `Zone - Life Map.md`                |
-| Room      | `Room - [Name].md`      | `Room - Sorting Room.md`            |
-| Component | `Component - [Name].md` | `Component - Hex Tile.md`           |
-| System    | `System - [Name].md`    | `System - Adaptation.md`            |
-| Agent     | `Agent - [Name].md`     | `Agent - Jarvis.md`                 |
-
----
-
-## Linking Conventions
-
-Links must include context — no naked pointers:
-
-```markdown
-# Good
-
-- [[Zone - Life Map]] — primary execution workspace
-- [[Standard - Visual Language]] — hex tiles render per spec
-
-# Bad
-
-- [[Zone - Life Map]]
-- See: [[Standard - Visual Language]]
-```
-
----
-
 ## Key Documents
 
-| Document            | Purpose                                    |
-| ------------------- | ------------------------------------------ |
-| **README.md**       | Overview and orientation (you're here)     |
-| **reference.md**    | Templates, naming, conformance obligations |
-| **CONTRIBUTING.md** | How to add and edit cards                  |
-| **CONVENTIONS.md**  | Codebase patterns, naming, gotchas         |
+| Document            | Owns                                                                                              |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
+| **README.md**       | Orientation and motivation (you're here)                                                          |
+| **reference.md**    | Type taxonomy, card templates, folder structure, naming, conformance obligations, link quality    |
+| **CONTRIBUTING.md** | Procedures for adding/editing cards, quality checklist, agent roles (Conan/Bob/Human)             |
+| **CONVENTIONS.md**  | Codebase patterns, file organization, architecture decisions, gotchas, testing, git, dependencies |
 
 ---
 
@@ -154,13 +75,3 @@ For the best experience browsing and QA'ing this library, open this folder as an
 - Click-through `[[wikilink]]` navigation
 - Backlinks panel showing what references each card
 - Full-text search across all cards
-
----
-
-## Roles
-
-| Role           | Responsibility                                                                                         |
-| -------------- | ------------------------------------------------------------------------------------------------------ |
-| **Conan** (AI) | Quality guardian — grades, audits, diagnoses, recommends, creates surgery plans. Does NOT write cards. |
-| **Bob** (AI)   | Builder — creates and fixes cards per surgery plans.                                                   |
-| **Human**      | Priority decisions, ambiguity resolution, go/no-go.                                                    |

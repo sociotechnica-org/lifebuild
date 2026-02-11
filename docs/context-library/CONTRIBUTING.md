@@ -4,14 +4,6 @@ This guide is for **humans and AI agents** working on LifeBuild. If you're addin
 
 ---
 
-## Core Principle
-
-**If you'll need to say it again, put it in the library.**
-
-Context that helps with one task will help with future tasks. Don't repeat yourself in handoffs — update the library.
-
----
-
 ## When to Add or Update Cards
 
 ### Add a new card when:
@@ -41,63 +33,25 @@ Context that helps with one task will help with future tasks. Don't repeat yours
 
 ### 1. Classify using the type taxonomy
 
-See `reference.md` for the full decision tree. Quick version:
-
-| Documenting...              | Type       | Folder                   |
-| --------------------------- | ---------- | ------------------------ |
-| Guiding philosophy (a bet)  | Strategy   | `/rationale/strategies/` |
-| Judgment guidance           | Principle  | `/rationale/principles/` |
-| Testable specification      | Standard   | `/rationale/standards/`  |
-| Top-level workspace         | Zone       | `/product/zones/`        |
-| Nested workspace            | Room       | `/product/rooms/`        |
-| Cross-zone persistent layer | Overlay    | `/product/overlays/`     |
-| Spatial canvas/fabric       | Structure  | `/product/structures/`   |
-| Specific UI widget          | Component  | `/product/components/`   |
-| Content object              | Artifact   | `/product/artifacts/`    |
-| Action/workflow             | Capability | `/product/capabilities/` |
-| Core data entity            | Primitive  | `/product/primitives/`   |
-| Invisible mechanism         | System     | `/product/systems/`      |
-| AI team member              | Agent      | `/product/agents/`       |
-| Agent implementation        | Prompt     | `/product/prompts/`      |
-| Past insight                | Learning   | `/learnings/`            |
+Use the decision tree and folder table in `reference.md` to determine the card's type and folder.
 
 ### 2. Create the file
 
 Name it `Type - Name.md` in the correct folder. See `reference.md` for naming conventions and templates.
 
-### 3. Fill in all 5 dimensions
+### 3. Fill in all 5 dimensions and follow the template
 
-Every card has these sections:
+Every card has WHAT, WHERE, WHY, WHEN, and HOW sections. See `reference.md` for the dimension requirements and type-specific templates. Keep it atomic — one card answers one complete question.
 
-| Section   | Header      | Purpose                                   |
-| --------- | ----------- | ----------------------------------------- |
-| **WHAT**  | `## WHAT:`  | Standalone definition                     |
-| **WHERE** | `## WHERE:` | Ecosystem links (3+ contextualized links) |
-| **WHY**   | `## WHY:`   | Strategy/Principle link + driver          |
-| **WHEN**  | `## WHEN:`  | Implementation status and timeline        |
-| **HOW**   | `## HOW:`   | Sufficient detail for a builder           |
+### 4. Establish links with context
 
-### 4. Write content following the template
+Every `[[wikilink]]` must include a context phrase — no naked pointers. See `reference.md` for link quality rules and examples.
 
-See `reference.md` for type-specific templates. Keep it atomic — one card answers one complete question.
-
-### 5. Establish links with context
-
-```markdown
-# Good — link has context
-
-- Room: [[Room - Project Board]] — where the Kanban Board lives
-
-# Bad — naked link
-
-- See: [[Room - Project Board]]
-```
-
-### 6. Verify links resolve
+### 5. Verify links resolve
 
 Check that `[[Type - Name]]` actually exists. Broken links break constellation assembly.
 
-### 7. Check conformance obligations
+### 6. Check conformance obligations
 
 If your card touches a governed domain (visual rendering, priority scoring, stream classification, etc.), it must link to the constraining Standard. See the conformance table in `reference.md`.
 
