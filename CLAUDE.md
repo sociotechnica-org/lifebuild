@@ -160,6 +160,26 @@ The app includes a repair mechanism for when local LiveStore data becomes incons
 - LiveStore patterns: https://docs.livestore.dev/llms.txt
 - LifeBuild Architecture: [docs/architecture.md](docs/architecture.md)
 
+## Context Library Retrieval
+
+When implementing features that touch product concepts (rooms, agents, capabilities, systems, primitives, etc.), consult the Context Library for architectural alignment.
+
+### Quick lookup
+- Find a card: `Glob` for `docs/context-library/**/[Type] - [Name].md`
+- Search by topic: `Grep` across `docs/context-library/`
+- Check known gaps: `Grep` across `docs/context-library/learnings/`
+
+### Full constellation (for complex tasks)
+Use the **Conan subagent** (`.claude/agents/conan.md`) to assemble a context briefing before implementation. Conan reads the retrieval profiles and assembles the right cards based on what you're building.
+
+### During implementation
+Follow the **5-signal uncertainty protocol** when making decisions: if 2+ signals (reversibility, coverage, precedent, blast radius, domain specificity) say "search," check the library before proceeding. See `.claude/agents/bob.md` for the full protocol.
+
+### Key references
+- `.claude/skills/context-constellation/retrieval-profiles.md` — What cards to pull for each type
+- `.claude/skills/context-constellation/traversal.md` — How to navigate the knowledge graph
+- `docs/context-library/skills/constellation/protocol.md` — CONTEXT_BRIEFING.md format
+
 ## Development Workflow
 
 ### Before Starting Work
