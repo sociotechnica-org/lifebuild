@@ -43,23 +43,23 @@ Context that helps with one task will help with future tasks. Don't repeat yours
 
 See `reference.md` for the full decision tree. Quick version:
 
-| Documenting...             | Type       | Folder                            |
-| -------------------------- | ---------- | --------------------------------- |
-| Guiding philosophy (a bet) | Strategy   | `/rationale/strategies/`          |
-| Judgment guidance           | Principle  | `/rationale/principles/`          |
-| Testable specification      | Standard   | `/rationale/standards/`           |
-| Top-level workspace         | Zone       | `/product/zones/`                 |
-| Nested workspace            | Room       | `/product/rooms/`                 |
-| Cross-zone persistent layer | Overlay    | `/product/overlays/`              |
-| Spatial canvas/fabric       | Structure  | `/product/structures/`            |
-| Specific UI widget          | Component  | `/product/components/`            |
-| Content object              | Artifact   | `/product/artifacts/`             |
-| Action/workflow             | Capability | `/product/capabilities/`          |
-| Core data entity            | Primitive  | `/product/primitives/`            |
-| Invisible mechanism         | System     | `/product/systems/`               |
-| AI team member              | Agent      | `/product/agents/`                |
-| Agent implementation        | Prompt     | `/product/prompts/`               |
-| Past insight                | Learning   | `/learnings/`                     |
+| Documenting...              | Type       | Folder                   |
+| --------------------------- | ---------- | ------------------------ |
+| Guiding philosophy (a bet)  | Strategy   | `/rationale/strategies/` |
+| Judgment guidance           | Principle  | `/rationale/principles/` |
+| Testable specification      | Standard   | `/rationale/standards/`  |
+| Top-level workspace         | Zone       | `/product/zones/`        |
+| Nested workspace            | Room       | `/product/rooms/`        |
+| Cross-zone persistent layer | Overlay    | `/product/overlays/`     |
+| Spatial canvas/fabric       | Structure  | `/product/structures/`   |
+| Specific UI widget          | Component  | `/product/components/`   |
+| Content object              | Artifact   | `/product/artifacts/`    |
+| Action/workflow             | Capability | `/product/capabilities/` |
+| Core data entity            | Primitive  | `/product/primitives/`   |
+| Invisible mechanism         | System     | `/product/systems/`      |
+| AI team member              | Agent      | `/product/agents/`       |
+| Agent implementation        | Prompt     | `/product/prompts/`      |
+| Past insight                | Learning   | `/learnings/`            |
 
 ### 2. Create the file
 
@@ -69,13 +69,13 @@ Name it `Type - Name.md` in the correct folder. See `reference.md` for naming co
 
 Every card has these sections:
 
-| Section       | Header          | Purpose                                   |
-| ------------- | --------------- | ----------------------------------------- |
-| **WHAT**      | `## WHAT:`      | Standalone definition                     |
-| **WHERE**     | `## WHERE:`     | Ecosystem links (3+ contextualized links) |
-| **WHY**       | `## WHY:`       | Strategy/Principle link + driver           |
-| **WHEN**      | `## WHEN:`      | Implementation status and timeline         |
-| **HOW**       | `## HOW:`       | Sufficient detail for a builder            |
+| Section   | Header      | Purpose                                   |
+| --------- | ----------- | ----------------------------------------- |
+| **WHAT**  | `## WHAT:`  | Standalone definition                     |
+| **WHERE** | `## WHERE:` | Ecosystem links (3+ contextualized links) |
+| **WHY**   | `## WHY:`   | Strategy/Principle link + driver          |
+| **WHEN**  | `## WHEN:`  | Implementation status and timeline        |
+| **HOW**   | `## HOW:`   | Sufficient detail for a builder           |
 
 ### 4. Write content following the template
 
@@ -85,9 +85,11 @@ See `reference.md` for type-specific templates. Keep it atomic — one card answ
 
 ```markdown
 # Good — link has context
+
 - Room: [[Room - Project Board]] — where the Kanban Board lives
 
 # Bad — naked link
+
 - See: [[Room - Project Board]]
 ```
 

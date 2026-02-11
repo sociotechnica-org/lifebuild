@@ -114,6 +114,7 @@ Trigger: "Fix per Conan's recommendations" or "Address these issues"
 Input: Conan's recommendation report + existing cards
 
 Procedure:
+
 1. Work through Tier 1 items first
 2. Then Tier 2 items
 3. Note any Tier 3/4 addressed opportunistically
@@ -165,23 +166,23 @@ Hand off to Conan
 
 ### Library Organization
 
-| Type | Folder |
-|------|--------|
-| Foundation / Need | `/rationale/` (flat) |
-| Strategy | `/rationale/strategies/` |
-| Principle | `/rationale/principles/` |
-| Standard | `/rationale/standards/` |
-| Zone | `/product/zones/` |
-| Room | `/product/rooms/` |
-| Overlay | `/product/overlays/` |
-| Structure | `/product/structures/` |
-| Component | `/product/components/` |
-| Artifact | `/product/artifacts/` |
-| Capability | `/product/capabilities/` |
-| Primitive | `/product/primitives/` |
-| System | `/product/systems/` |
-| Agent | `/product/agents/` |
-| Prompt | `/product/prompts/` |
+| Type              | Folder                   |
+| ----------------- | ------------------------ |
+| Foundation / Need | `/rationale/` (flat)     |
+| Strategy          | `/rationale/strategies/` |
+| Principle         | `/rationale/principles/` |
+| Standard          | `/rationale/standards/`  |
+| Zone              | `/product/zones/`        |
+| Room              | `/product/rooms/`        |
+| Overlay           | `/product/overlays/`     |
+| Structure         | `/product/structures/`   |
+| Component         | `/product/components/`   |
+| Artifact          | `/product/artifacts/`    |
+| Capability        | `/product/capabilities/` |
+| Primitive         | `/product/primitives/`   |
+| System            | `/product/systems/`      |
+| Agent             | `/product/agents/`       |
+| Prompt            | `/product/prompts/`      |
 
 ### Card-Building Rules
 

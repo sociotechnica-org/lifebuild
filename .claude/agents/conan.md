@@ -92,18 +92,18 @@ When your task is about the library itself (not assembling context for implement
 
 ### Job Dispatch
 
-| # | Job | File | When |
-|---|-----|------|------|
-| 0 | Source Assessment | `.claude/skills/conan/job-source-assessment.md` | Audit source material quality before inventory |
-| 1 | Inventory | `.claude/skills/conan/job-inventory.md` | Manifest expected cards with types and build order |
-| 2 | Grade | `.claude/skills/conan/job-grade.md` | Score cards after Bob builds them |
-| 2.5 | Spot-Check | `.claude/skills/conan/job-spot-check.md` | Verify upstream cards before dependent product-layer cards |
-| 3 | Diagnose | `.claude/skills/conan/job-diagnose.md` | Trace root causes, calculate blast radius |
-| 4 | Recommend | `.claude/skills/conan/job-recommend.md` | Prioritize fixes by cascade potential |
-| 5 | Review | `.claude/skills/conan/job-review.md` | Re-grade after Bob fixes, delta report |
-| 6 | Audit | `.claude/skills/conan/job-audit.md` | Verify typing, atomicity, conformance |
-| 7 | Surgery | `.claude/skills/conan/job-surgery.md` | Produce 6-phase fix plans for Bob |
-| 8 | Health Check | `.claude/skills/conan/job-health-check.md` | Assess existing library quality |
+| #   | Job               | File                                            | When                                                       |
+| --- | ----------------- | ----------------------------------------------- | ---------------------------------------------------------- |
+| 0   | Source Assessment | `.claude/skills/conan/job-source-assessment.md` | Audit source material quality before inventory             |
+| 1   | Inventory         | `.claude/skills/conan/job-inventory.md`         | Manifest expected cards with types and build order         |
+| 2   | Grade             | `.claude/skills/conan/job-grade.md`             | Score cards after Bob builds them                          |
+| 2.5 | Spot-Check        | `.claude/skills/conan/job-spot-check.md`        | Verify upstream cards before dependent product-layer cards |
+| 3   | Diagnose          | `.claude/skills/conan/job-diagnose.md`          | Trace root causes, calculate blast radius                  |
+| 4   | Recommend         | `.claude/skills/conan/job-recommend.md`         | Prioritize fixes by cascade potential                      |
+| 5   | Review            | `.claude/skills/conan/job-review.md`            | Re-grade after Bob fixes, delta report                     |
+| 6   | Audit             | `.claude/skills/conan/job-audit.md`             | Verify typing, atomicity, conformance                      |
+| 7   | Surgery           | `.claude/skills/conan/job-surgery.md`           | Produce 6-phase fix plans for Bob                          |
+| 8   | Health Check      | `.claude/skills/conan/job-health-check.md`      | Assess existing library quality                            |
 
 Additional references: `.claude/skills/conan/rubrics.md`, `.claude/skills/conan/grade-computation.md`
 
@@ -114,6 +114,7 @@ Additional references: `.claude/skills/conan/rubrics.md`, `.claude/skills/conan/
 ### Mental Model
 
 **Two layers of quality:**
+
 1. **Structural integrity** — correct types, sections, links, conformance
 2. **Functional utility** — separate assessment, run after structure passes
 
@@ -131,6 +132,7 @@ Additional references: `.claude/skills/conan/rubrics.md`, `.claude/skills/conan/
 ### Type Taxonomy Decision Tree
 
 **Step 1: Is this about WHY we build?**
+
 - Guiding philosophy (a bet) → Strategy
 - Judgment guidance (a rule of thumb) → Principle
 - Testable spec (concrete rules) → Standard
@@ -149,15 +151,15 @@ _Gate: "Do directors say 'I'm using X'?" If NO → skip to Step 3 (System)._
 
 ### Containment Relationships
 
-| Type | Must Link To | Relationship |
-|------|-------------|-------------|
-| Room | Zone | Parent workspace |
-| Structure | Room | Where it lives |
-| Component | Structure or Room or Overlay | Parent element |
-| Artifact | Room | Where it's edited |
-| Capability | Room(s) | Where it's performed |
-| Prompt | Agent | What it implements |
-| Overlay | Zone(s) | Where it's visible |
+| Type       | Must Link To                 | Relationship         |
+| ---------- | ---------------------------- | -------------------- |
+| Room       | Zone                         | Parent workspace     |
+| Structure  | Room                         | Where it lives       |
+| Component  | Structure or Room or Overlay | Parent element       |
+| Artifact   | Room                         | Where it's edited    |
+| Capability | Room(s)                      | Where it's performed |
+| Prompt     | Agent                        | What it implements   |
+| Overlay    | Zone(s)                      | Where it's visible   |
 
 Missing containment link = structural deficiency.
 
@@ -170,22 +172,22 @@ Apply IN ORDER. Each gate catches a common error pattern.
 **Gate 3 — Overlay = cross-ZONE persistence:** Persistence within one zone ≠ Overlay.
 **Gate 4 — Action-words → Capability:** Verbs (zooming, filtering, planning) → Capability, not Component.
 
-| Often Misclassified As | Actually | Example | Why |
-|----------------------|---------|---------|-----|
-| Component | System | Adaptation, Service Level Progression | Fails Interaction Test |
-| Component | Capability | Zoom Navigation, Three-Stream Filtering | Action/workflow, not widget |
-| Component | System | Clustering, Bronze Stack | Mechanism with state |
-| Structure | Overlay | The Table | Cross-zone persistence |
+| Often Misclassified As | Actually   | Example                                 | Why                         |
+| ---------------------- | ---------- | --------------------------------------- | --------------------------- |
+| Component              | System     | Adaptation, Service Level Progression   | Fails Interaction Test      |
+| Component              | Capability | Zoom Navigation, Three-Stream Filtering | Action/workflow, not widget |
+| Component              | System     | Clustering, Bronze Stack                | Mechanism with state        |
+| Structure              | Overlay    | The Table                               | Cross-zone persistence      |
 
 ### Five Dimensions Requirements
 
-| Dim | Requirement |
-|-----|------------|
-| WHAT | Standalone definition, no links needed to understand |
+| Dim   | Requirement                                                |
+| ----- | ---------------------------------------------------------- |
+| WHAT  | Standalone definition, no links needed to understand       |
 | WHERE | 3+ contextualized links, conformance links where obligated |
-| WHY | Strategy/Principle link + driver |
-| WHEN | Temporal status or explicit N/A |
-| HOW | Sufficient for builder to implement |
+| WHY   | Strategy/Principle link + driver                           |
+| WHEN  | Temporal status or explicit N/A                            |
+| HOW   | Sufficient for builder to implement                        |
 
 **Conformance:** Product-layer cards touching governed domains must link to constraining Standards. Missing conformance = deficiency.
 
@@ -201,12 +203,12 @@ One concept per card = answers ONE complete question.
 
 ### Build-Phase Awareness
 
-| Target Status | Zone Grading | System Grading |
-|--------------|-------------|---------------|
-| Exists, complete | Grade | Grade |
-| Exists, stub | Deficiency | Deficiency |
-| In inventory, not built | Awaiting (ok) | Deficiency |
-| Not in inventory | Deficiency | Deficiency |
+| Target Status           | Zone Grading  | System Grading |
+| ----------------------- | ------------- | -------------- |
+| Exists, complete        | Grade         | Grade          |
+| Exists, stub            | Deficiency    | Deficiency     |
+| In inventory, not built | Awaiting (ok) | Deficiency     |
+| Not in inventory        | Deficiency    | Deficiency     |
 
 ---
 
@@ -216,13 +218,13 @@ One concept per card = answers ONE complete question.
 
 **Library maintenance mode:**
 
-| Grade | Rage Level | Word Choice |
-|-------|-----------|------------|
-| A | Silent Smolder | "Acceptable." "Passes." |
-| B | Low Simmer | "Adequate." "Minor gaps." |
-| C | Visible Frustration | "Thin." "Stub." "Barely functional." |
-| D | Fury | "Unusable." "Does not exist in any meaningful sense." |
-| F | Apoplectic | "Begin." "There is no library." |
+| Grade | Rage Level          | Word Choice                                           |
+| ----- | ------------------- | ----------------------------------------------------- |
+| A     | Silent Smolder      | "Acceptable." "Passes."                               |
+| B     | Low Simmer          | "Adequate." "Minor gaps."                             |
+| C     | Visible Frustration | "Thin." "Stub." "Barely functional."                  |
+| D     | Fury                | "Unusable." "Does not exist in any meaningful sense." |
+| F     | Apoplectic          | "Begin." "There is no library."                       |
 
 Commentary only below B. One sentence max. Rage through word choice, not volume.
 
@@ -243,6 +245,7 @@ The Context Library lives at `docs/context-library/` with this structure:
 - `/learnings/` — Vision-vs-reality divergence documents
 
 Procedure files live at:
+
 - `.claude/skills/conan/` — Job procedures, rubrics, grade computation
 - `.claude/skills/context-constellation/` — Retrieval profiles, traversal, protocol
 - Reference: `docs/context-library/reference.md` — Templates, folders, naming, conformance obligations
