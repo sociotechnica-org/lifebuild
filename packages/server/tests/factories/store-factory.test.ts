@@ -1,5 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { validateStoreId, getStoreConfig, StoreFactory } from '../../src/factories/store-factory.js'
+import fs from 'fs'
+import path from 'path'
+import os from 'os'
+import Database from 'better-sqlite3'
+import {
+  validateStoreId,
+  getStoreConfig,
+  StoreFactory,
+  __test__,
+} from '../../src/factories/store-factory.js'
 
 vi.mock('@livestore/livestore', async (importOriginal) => {
   const actual = await importOriginal()
@@ -19,14 +28,20 @@ vi.mock('@livestore/sync-cf/client', () => ({
 
 describe('Store Factory', () => {
   const originalEnv = process.env
+  let tempDir: string | null = null
 
   beforeEach(() => {
     vi.clearAllMocks()
     process.env = { ...originalEnv }
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'livestore-test-'))
   })
 
   afterEach(() => {
     process.env = originalEnv
+    if (tempDir) {
+      fs.rmSync(tempDir, { recursive: true, force: true })
+      tempDir = null
+    }
   })
 
   describe('validateStoreId', () => {
@@ -156,6 +171,56 @@ describe('Store Factory', () => {
         expect(config.connectionTimeout).toBe(45000)
         expect(config.syncUrl).toBe('ws://localhost:8787')
       })
+    })
+  })
+
+  describe('repairBackendHeadIfAhead', () => {
+    const { repairBackendHeadIfAhead } = __test__
+
+    const writeEventlogDb = (dbPath: string, backendHead: number, localHead?: number) => {
+      const db = new Database(dbPath)
+      db.exec('create table __livestore_sync_status (head integer not null, backendId text)')
+      db.exec('create table eventlog (seqNumGlobal integer not null)')
+      db.prepare('insert into __livestore_sync_status (head, backendId) values (?, ?)').run(
+        backendHead,
+        'test-backend'
+      )
+      if (localHead !== undefined) {
+        db.prepare('insert into eventlog (seqNumGlobal) values (?)').run(localHead)
+      }
+      db.close()
+    }
+
+    it('repairs backend head when ahead of local head', async () => {
+      const storeId = 'test-store'
+      const storePath = path.join(tempDir!, storeId, storeId)
+      fs.mkdirSync(storePath, { recursive: true })
+      const dbPath = path.join(storePath, 'eventlog@6.db')
+
+      writeEventlogDb(dbPath, 10, 7)
+
+      await repairBackendHeadIfAhead(path.join(tempDir!, storeId), storeId)
+
+      const db = new Database(dbPath)
+      const row = db.prepare('select head from __livestore_sync_status').get() as { head: number }
+      db.close()
+      expect(row.head).toBe(7)
+    })
+
+    it('does not change backend head when local head is ahead', async () => {
+      const storeId = 'test-store'
+      const storePath = path.join(tempDir!, storeId, storeId)
+      fs.mkdirSync(storePath, { recursive: true })
+      const dbPath = path.join(storePath, 'eventlog@6.db')
+
+      writeEventlogDb(dbPath, 5, 9)
+
+      await repairBackendHeadIfAhead(path.join(tempDir!, storeId), storeId)
+
+      const db = new Database(dbPath)
+      const row = db.prepare('select head from __livestore_sync_status').get() as { head: number }
+      db.close()
+      expect(row.head).toBe(5)
     })
   })
 })
