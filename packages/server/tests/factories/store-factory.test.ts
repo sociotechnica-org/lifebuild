@@ -78,7 +78,6 @@ describe('Store Factory', () => {
       expect(config.syncUrl).toBe('ws://localhost:8787')
       expect(config.dataPath).toBe('./data')
       expect(config.connectionTimeout).toBe(30000)
-      expect(config.devtoolsUrl).toBe('http://localhost:4300')
       expect(config.enableDevtools).toBe(true)
     })
 
@@ -86,34 +85,22 @@ describe('Store Factory', () => {
       process.env.LIVESTORE_SYNC_URL = 'ws://global:8787'
       process.env.STORE_DATA_PATH = './global-data'
       process.env.STORE_CONNECTION_TIMEOUT = '60000'
-      process.env.DEVTOOLS_URL = 'http://localhost:4400'
 
       const config = getStoreConfig('test-store')
 
       expect(config.syncUrl).toBe('ws://global:8787')
       expect(config.dataPath).toBe('./global-data')
       expect(config.connectionTimeout).toBe(60000)
-      expect(config.devtoolsUrl).toBe('http://localhost:4400')
     })
 
     it('should prioritize store-specific environment variables', () => {
       process.env.STORE_TEST_STORE_SYNC_URL = 'ws://specific:8787'
       process.env.STORE_TEST_STORE_DATA_PATH = './specific-data'
-      process.env.STORE_TEST_STORE_DEVTOOLS_URL = 'http://localhost:4500'
 
       const config = getStoreConfig('test-store')
 
       expect(config.syncUrl).toBe('ws://specific:8787')
       expect(config.dataPath).toBe('./specific-data')
-      expect(config.devtoolsUrl).toBe('http://localhost:4500')
-    })
-
-    it('should support store-specific devtools URL override', () => {
-      process.env.STORE_TEST_STORE_DEVTOOLS_URL = 'http://localhost:5000'
-
-      const config = getStoreConfig('test-store')
-
-      expect(config.devtoolsUrl).toBe('http://localhost:5000')
     })
 
     it('should disable devtools in production', () => {

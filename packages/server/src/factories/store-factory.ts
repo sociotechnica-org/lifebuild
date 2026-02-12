@@ -10,7 +10,6 @@ export interface StoreConfig {
   syncUrl?: string
   dataPath?: string
   connectionTimeout?: number
-  devtoolsUrl?: string
   enableDevtools?: boolean
 }
 
@@ -120,7 +119,6 @@ export function getStoreConfig(storeId: string): StoreConfig {
     syncUrl: process.env.LIVESTORE_SYNC_URL || 'ws://localhost:8787',
     dataPath: process.env.STORE_DATA_PATH || './data',
     connectionTimeout: Number(process.env.STORE_CONNECTION_TIMEOUT) || 30000,
-    devtoolsUrl: process.env.DEVTOOLS_URL || 'http://localhost:4300',
     enableDevtools:
       process.env.NODE_ENV !== 'production' && process.env.DISABLE_DEVTOOLS !== 'true',
   }
@@ -128,16 +126,12 @@ export function getStoreConfig(storeId: string): StoreConfig {
   const storeSpecificEnvPrefix = `STORE_${storeId.toUpperCase().replace(/-/g, '_')}_`
   const syncUrlKey = `${storeSpecificEnvPrefix}SYNC_URL`
   const dataPathKey = `${storeSpecificEnvPrefix}DATA_PATH`
-  const devtoolsUrlKey = `${storeSpecificEnvPrefix}DEVTOOLS_URL`
 
   if (process.env[syncUrlKey]) {
     baseConfig.syncUrl = process.env[syncUrlKey]
   }
   if (process.env[dataPathKey]) {
     baseConfig.dataPath = process.env[dataPathKey]
-  }
-  if (process.env[devtoolsUrlKey]) {
-    baseConfig.devtoolsUrl = process.env[devtoolsUrlKey]
   }
 
   return baseConfig
@@ -208,7 +202,6 @@ export async function createStore(
       syncUrl: config.syncUrl,
       dataPath: config.dataPath,
       devtoolsEnabled: config.enableDevtools,
-      devtoolsUrl: config.enableDevtools ? config.devtoolsUrl : 'disabled',
       devtoolsHost: devtoolsConfig?.host ?? 'disabled',
       devtoolsPort: devtoolsConfig?.port ?? 'disabled',
     },
