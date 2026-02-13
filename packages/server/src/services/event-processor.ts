@@ -1484,11 +1484,18 @@ export class EventProcessor {
       session.agent.replaceMessages(conversationHistory)
     }
 
+    // Snapshot message count before prompting so we can distinguish current-run
+    // output from historical messages already present in the session.
+    const promptStartMessageCount = session.agent.state.messages.length
+
     let sawError = false
     let promptErrorCaptured = false
     let iterationCount = 0
     let assistantResponseEmitted = false
     let failureContext: Record<string, unknown> | undefined
+    let latestAssistantText = ''
+    let assistantMessageEventCount = 0
+    let sawAssistantMessageEndText = false
 
     const unsubscribe = session.subscribe((event: AgentSessionEvent) => {
       if (storeState.stopping) {
@@ -1545,28 +1552,16 @@ export class EventProcessor {
 
             const text = this.extractAssistantText(event.message)
             if (text.trim().length > 0) {
-              store.commit(
-                events.llmResponseReceived({
-                  id: crypto.randomUUID(),
-                  conversationId,
-                  message: text,
-                  role: 'assistant',
-                  modelId,
-                  responseToMessageId: userMessage.id,
-                  createdAt: new Date(),
-                  llmMetadata: {
-                    source: 'pi',
-                    messageType: 'assistant',
-                  },
-                })
-              )
-              assistantResponseEmitted = true
+              latestAssistantText = text
+              assistantMessageEventCount += 1
+              sawAssistantMessageEndText = true
             }
           }
           break
         }
         case 'agent_end': {
-          const latestAssistantMessage = [...event.messages]
+          const currentRunMessages = event.messages.slice(promptStartMessageCount)
+          const latestAssistantMessage = [...currentRunMessages]
             .reverse()
             .find((message): message is AssistantMessage => message.role === 'assistant')
           if (latestAssistantMessage && this.isAssistantErrorMessage(latestAssistantMessage)) {
@@ -1578,6 +1573,12 @@ export class EventProcessor {
                 'errorMessage' in latestAssistantMessage
                   ? (latestAssistantMessage.errorMessage ?? null)
                   : null,
+            }
+          }
+          if (latestAssistantMessage && !sawAssistantMessageEndText) {
+            const latestText = this.extractAssistantText(latestAssistantMessage).trim()
+            if (latestText.length > 0) {
+              latestAssistantText = latestText
             }
           }
           break
@@ -1608,46 +1609,80 @@ export class EventProcessor {
         correlationId,
         stage: 'prompt_execution',
       })
-      store.commit(
-        events.llmResponseReceived({
-          id: crypto.randomUUID(),
-          conversationId,
-          message: 'Sorry, I encountered an error processing your message. Please try again.',
-          role: 'assistant',
-          modelId: 'error',
-          responseToMessageId: userMessage.id,
-          createdAt: new Date(),
-          llmMetadata: { source: 'error' },
-        })
-      )
-      assistantResponseEmitted = true
     } finally {
       unsubscribe()
     }
 
-    if (sawError && !assistantResponseEmitted) {
-      logger.warn(
-        {
-          storeId,
-          conversationId,
-          correlationId,
-          userMessageId: userMessage.id,
-          failureContext,
-        },
-        'Pi session reported an error state without assistant text; emitting fallback error response'
-      )
+    const finalAssistantText = latestAssistantText.trim()
+    if (storeState.stopping) {
+      if (finalAssistantText.length > 0) {
+        logger.info(
+          { storeId, conversationId, userMessageId: userMessage.id },
+          'Skipping assistant response emission because store is stopping'
+        )
+      }
+    } else if (!assistantResponseEmitted && finalAssistantText.length > 0) {
+      if (assistantMessageEventCount > 1) {
+        logger.info(
+          {
+            storeId,
+            conversationId,
+            userMessageId: userMessage.id,
+            assistantMessageEventCount,
+          },
+          'Collapsing multiple Pi assistant message_end events into a single response'
+        )
+      }
+
       store.commit(
         events.llmResponseReceived({
           id: crypto.randomUUID(),
           conversationId,
-          message: 'Sorry, I encountered an error processing your message. Please try again.',
+          message: finalAssistantText,
           role: 'assistant',
-          modelId: 'error',
+          modelId,
           responseToMessageId: userMessage.id,
           createdAt: new Date(),
-          llmMetadata: { source: 'error' },
+          llmMetadata: {
+            source: 'pi',
+            messageType: 'assistant',
+          },
         })
       )
+      assistantResponseEmitted = true
+    }
+
+    if (sawError && !assistantResponseEmitted) {
+      if (storeState.stopping) {
+        logger.info(
+          { storeId, conversationId, userMessageId: userMessage.id },
+          'Skipping fallback error response because store is stopping'
+        )
+      } else {
+        logger.warn(
+          {
+            storeId,
+            conversationId,
+            correlationId,
+            userMessageId: userMessage.id,
+            failureContext,
+          },
+          'Pi session reported an error state without assistant text; emitting fallback error response'
+        )
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId,
+            message: 'Sorry, I encountered an error processing your message. Please try again.',
+            role: 'assistant',
+            modelId: 'error',
+            responseToMessageId: userMessage.id,
+            createdAt: new Date(),
+            llmMetadata: { source: 'error' },
+          })
+        )
+        assistantResponseEmitted = true
+      }
     }
 
     if (sawError && !promptErrorCaptured) {
