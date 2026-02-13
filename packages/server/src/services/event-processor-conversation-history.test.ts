@@ -439,6 +439,83 @@ describe('EventProcessor conversation history builder', () => {
     processor.stopAll()
   })
 
+  it('emits only one assistant response when Pi sends multiple assistant messages for one prompt', async () => {
+    const commit = vi.fn()
+    const store = {
+      commit,
+      query: vi.fn().mockReturnValue([]),
+    }
+    const storeManager = createMockStoreManager()
+    storeManager.getStore = vi.fn(() => store as any)
+
+    const processor = new EventProcessor(storeManager as any)
+    const listeners: Array<(event: any) => void> = []
+
+    const assistantMessageA = {
+      role: 'assistant',
+      content: [{ type: 'text', text: 'First draft response.' }],
+      stopReason: 'stop',
+    }
+    const assistantMessageB = {
+      role: 'assistant',
+      content: [{ type: 'text', text: 'Final response.' }],
+      stopReason: 'stop',
+    }
+
+    const fakeSession = {
+      agent: {
+        setSystemPrompt: vi.fn(),
+        state: { messages: [] },
+        replaceMessages: vi.fn(),
+      },
+      subscribe: vi.fn((listener: (event: any) => void) => {
+        listeners.push(listener)
+        return vi.fn()
+      }),
+      setModel: vi.fn().mockResolvedValue(undefined),
+      prompt: vi.fn().mockImplementation(async () => {
+        for (const listener of listeners) {
+          listener({ type: 'message_end', message: assistantMessageA })
+          listener({ type: 'message_end', message: assistantMessageB })
+          listener({ type: 'agent_end', messages: [assistantMessageA, assistantMessageB] })
+        }
+      }),
+    }
+
+    vi.spyOn(processor as any, 'getOrCreatePiSession').mockResolvedValue({
+      session: fakeSession,
+      sessionDir: '/tmp/pi-session',
+      lastAccessedAt: Date.now(),
+    })
+
+    const completed = await (processor as any).runAgenticLoop(
+      'store-1',
+      {
+        id: 'message-multi-assistant',
+        conversationId: 'conversation-multi-assistant',
+        role: 'user',
+        message: 'Tell me what changed',
+        createdAt: new Date(),
+      } satisfies ChatMessage,
+      { stopping: false } as any
+    )
+
+    expect(completed).toBe(true)
+
+    const llmResponseReceived = commit.mock.calls
+      .map(([event]: any[]) => event)
+      .filter((event: any) => event?.name === 'v1.LLMResponseReceived')
+
+    const piAssistantResponses = llmResponseReceived.filter(
+      (event: any) => event.args?.llmMetadata?.source === 'pi'
+    )
+
+    expect(piAssistantResponses).toHaveLength(1)
+    expect(piAssistantResponses[0].args.message).toBe('Final response.')
+
+    processor.stopAll()
+  })
+
   it('captures Pi prompt errors in Sentry with failure completion metadata', async () => {
     const commit = vi.fn()
     const store = {

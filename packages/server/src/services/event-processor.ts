@@ -1489,6 +1489,8 @@ export class EventProcessor {
     let iterationCount = 0
     let assistantResponseEmitted = false
     let failureContext: Record<string, unknown> | undefined
+    let latestAssistantText = ''
+    let assistantMessageEventCount = 0
 
     const unsubscribe = session.subscribe((event: AgentSessionEvent) => {
       if (storeState.stopping) {
@@ -1545,22 +1547,8 @@ export class EventProcessor {
 
             const text = this.extractAssistantText(event.message)
             if (text.trim().length > 0) {
-              store.commit(
-                events.llmResponseReceived({
-                  id: crypto.randomUUID(),
-                  conversationId,
-                  message: text,
-                  role: 'assistant',
-                  modelId,
-                  responseToMessageId: userMessage.id,
-                  createdAt: new Date(),
-                  llmMetadata: {
-                    source: 'pi',
-                    messageType: 'assistant',
-                  },
-                })
-              )
-              assistantResponseEmitted = true
+              latestAssistantText = text
+              assistantMessageEventCount += 1
             }
           }
           break
@@ -1578,6 +1566,12 @@ export class EventProcessor {
                 'errorMessage' in latestAssistantMessage
                   ? (latestAssistantMessage.errorMessage ?? null)
                   : null,
+            }
+          }
+          if (latestAssistantMessage) {
+            const latestText = this.extractAssistantText(latestAssistantMessage).trim()
+            if (latestText.length > 0) {
+              latestAssistantText = latestText
             }
           }
           break
@@ -1623,6 +1617,38 @@ export class EventProcessor {
       assistantResponseEmitted = true
     } finally {
       unsubscribe()
+    }
+
+    const finalAssistantText = latestAssistantText.trim()
+    if (!assistantResponseEmitted && finalAssistantText.length > 0) {
+      if (assistantMessageEventCount > 1) {
+        logger.info(
+          {
+            storeId,
+            conversationId,
+            userMessageId: userMessage.id,
+            assistantMessageEventCount,
+          },
+          'Collapsing multiple Pi assistant message_end events into a single response'
+        )
+      }
+
+      store.commit(
+        events.llmResponseReceived({
+          id: crypto.randomUUID(),
+          conversationId,
+          message: finalAssistantText,
+          role: 'assistant',
+          modelId,
+          responseToMessageId: userMessage.id,
+          createdAt: new Date(),
+          llmMetadata: {
+            source: 'pi',
+            messageType: 'assistant',
+          },
+        })
+      )
+      assistantResponseEmitted = true
     }
 
     if (sawError && !assistantResponseEmitted) {
