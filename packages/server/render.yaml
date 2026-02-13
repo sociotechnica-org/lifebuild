@@ -55,8 +55,6 @@ services:
       # DevTools (disabled in production)
       - key: DISABLE_DEVTOOLS
         value: true
-      - key: LLM_PROVIDER
-        value: braintrust
       # BRAINTRUST credentials for server-side agentic loop
       - key: BRAINTRUST_API_KEY
         sync: false # Add via Render dashboard
