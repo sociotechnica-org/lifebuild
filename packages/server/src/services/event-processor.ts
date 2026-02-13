@@ -1602,25 +1602,19 @@ export class EventProcessor {
         correlationId,
         stage: 'prompt_execution',
       })
-      store.commit(
-        events.llmResponseReceived({
-          id: crypto.randomUUID(),
-          conversationId,
-          message: 'Sorry, I encountered an error processing your message. Please try again.',
-          role: 'assistant',
-          modelId: 'error',
-          responseToMessageId: userMessage.id,
-          createdAt: new Date(),
-          llmMetadata: { source: 'error' },
-        })
-      )
-      assistantResponseEmitted = true
     } finally {
       unsubscribe()
     }
 
     const finalAssistantText = latestAssistantText.trim()
-    if (!assistantResponseEmitted && finalAssistantText.length > 0) {
+    if (storeState.stopping) {
+      if (finalAssistantText.length > 0) {
+        logger.info(
+          { storeId, conversationId, userMessageId: userMessage.id },
+          'Skipping assistant response emission because store is stopping'
+        )
+      }
+    } else if (!assistantResponseEmitted && finalAssistantText.length > 0) {
       if (assistantMessageEventCount > 1) {
         logger.info(
           {
@@ -1652,28 +1646,36 @@ export class EventProcessor {
     }
 
     if (sawError && !assistantResponseEmitted) {
-      logger.warn(
-        {
-          storeId,
-          conversationId,
-          correlationId,
-          userMessageId: userMessage.id,
-          failureContext,
-        },
-        'Pi session reported an error state without assistant text; emitting fallback error response'
-      )
-      store.commit(
-        events.llmResponseReceived({
-          id: crypto.randomUUID(),
-          conversationId,
-          message: 'Sorry, I encountered an error processing your message. Please try again.',
-          role: 'assistant',
-          modelId: 'error',
-          responseToMessageId: userMessage.id,
-          createdAt: new Date(),
-          llmMetadata: { source: 'error' },
-        })
-      )
+      if (storeState.stopping) {
+        logger.info(
+          { storeId, conversationId, userMessageId: userMessage.id },
+          'Skipping fallback error response because store is stopping'
+        )
+      } else {
+        logger.warn(
+          {
+            storeId,
+            conversationId,
+            correlationId,
+            userMessageId: userMessage.id,
+            failureContext,
+          },
+          'Pi session reported an error state without assistant text; emitting fallback error response'
+        )
+        store.commit(
+          events.llmResponseReceived({
+            id: crypto.randomUUID(),
+            conversationId,
+            message: 'Sorry, I encountered an error processing your message. Please try again.',
+            role: 'assistant',
+            modelId: 'error',
+            responseToMessageId: userMessage.id,
+            createdAt: new Date(),
+            llmMetadata: { source: 'error' },
+          })
+        )
+        assistantResponseEmitted = true
+      }
     }
 
     if (sawError && !promptErrorCaptured) {

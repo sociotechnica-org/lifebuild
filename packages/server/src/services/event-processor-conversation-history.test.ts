@@ -568,6 +568,151 @@ describe('EventProcessor conversation history builder', () => {
     processor.stopAll()
   })
 
+  it('preserves buffered assistant reply when prompt fails after output', async () => {
+    const commit = vi.fn()
+    const store = {
+      commit,
+      query: vi.fn().mockReturnValue([]),
+    }
+    const storeManager = createMockStoreManager()
+    storeManager.getStore = vi.fn(() => store as any)
+
+    const processor = new EventProcessor(storeManager as any)
+    const listeners: Array<(event: any) => void> = []
+    const assistantMessage = {
+      role: 'assistant',
+      content: [{ type: 'text', text: 'This answer should be kept.' }],
+      stopReason: 'stop',
+    }
+
+    const fakeSession = {
+      agent: {
+        setSystemPrompt: vi.fn(),
+        state: { messages: [] },
+        replaceMessages: vi.fn(),
+      },
+      subscribe: vi.fn((listener: (event: any) => void) => {
+        listeners.push(listener)
+        return vi.fn()
+      }),
+      setModel: vi.fn().mockResolvedValue(undefined),
+      prompt: vi.fn().mockImplementation(async () => {
+        for (const listener of listeners) {
+          listener({ type: 'message_end', message: assistantMessage })
+        }
+        throw new Error('late prompt failure')
+      }),
+    }
+
+    vi.spyOn(processor as any, 'getOrCreatePiSession').mockResolvedValue({
+      session: fakeSession,
+      sessionDir: '/tmp/pi-session',
+      lastAccessedAt: Date.now(),
+    })
+
+    const completed = await (processor as any).runAgenticLoop(
+      'store-1',
+      {
+        id: 'message-late-error',
+        conversationId: 'conversation-late-error',
+        role: 'user',
+        message: 'Give me a response',
+        createdAt: new Date(),
+      } satisfies ChatMessage,
+      { stopping: false } as any
+    )
+
+    expect(completed).toBe(false)
+    expect(sentryContainer.captureException).toHaveBeenCalledTimes(1)
+
+    const responses = commit.mock.calls
+      .map(([event]: any[]) => event)
+      .filter((event: any) => event?.name === 'v1.LLMResponseReceived')
+
+    const piResponses = responses.filter((event: any) => event.args?.llmMetadata?.source === 'pi')
+    const errorResponses = responses.filter(
+      (event: any) => event.args?.llmMetadata?.source === 'error'
+    )
+
+    expect(piResponses).toHaveLength(1)
+    expect(piResponses[0].args.message).toBe('This answer should be kept.')
+    expect(errorResponses).toHaveLength(0)
+
+    const completionEvents = commit.mock.calls.filter(
+      ([event]: any[]) => event?.name === 'v1.LLMResponseCompleted'
+    )
+    expect(completionEvents.length).toBe(1)
+    expect(completionEvents[0][0].args.success).toBe(false)
+
+    processor.stopAll()
+  })
+
+  it('does not emit buffered assistant replies once store shutdown has started', async () => {
+    const commit = vi.fn()
+    const store = {
+      commit,
+      query: vi.fn().mockReturnValue([]),
+    }
+    const storeManager = createMockStoreManager()
+    storeManager.getStore = vi.fn(() => store as any)
+
+    const processor = new EventProcessor(storeManager as any)
+    const listeners: Array<(event: any) => void> = []
+    const storeState = { stopping: false } as any
+    const assistantMessage = {
+      role: 'assistant',
+      content: [{ type: 'text', text: 'Do not emit during shutdown.' }],
+      stopReason: 'stop',
+    }
+
+    const fakeSession = {
+      agent: {
+        setSystemPrompt: vi.fn(),
+        state: { messages: [] },
+        replaceMessages: vi.fn(),
+      },
+      subscribe: vi.fn((listener: (event: any) => void) => {
+        listeners.push(listener)
+        return vi.fn()
+      }),
+      setModel: vi.fn().mockResolvedValue(undefined),
+      prompt: vi.fn().mockImplementation(async () => {
+        for (const listener of listeners) {
+          listener({ type: 'message_end', message: assistantMessage })
+        }
+        storeState.stopping = true
+      }),
+    }
+
+    vi.spyOn(processor as any, 'getOrCreatePiSession').mockResolvedValue({
+      session: fakeSession,
+      sessionDir: '/tmp/pi-session',
+      lastAccessedAt: Date.now(),
+    })
+
+    const completed = await (processor as any).runAgenticLoop(
+      'store-1',
+      {
+        id: 'message-stopping',
+        conversationId: 'conversation-stopping',
+        role: 'user',
+        message: 'respond while stopping',
+        createdAt: new Date(),
+      } satisfies ChatMessage,
+      storeState
+    )
+
+    expect(completed).toBe(true)
+
+    const responses = commit.mock.calls
+      .map(([event]: any[]) => event)
+      .filter((event: any) => event?.name === 'v1.LLMResponseReceived')
+
+    expect(responses).toHaveLength(0)
+
+    processor.stopAll()
+  })
+
   it('emits fallback assistant error when Pi reports error state without text', async () => {
     const commit = vi.fn()
     const store = {
