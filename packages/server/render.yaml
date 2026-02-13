@@ -77,11 +77,8 @@ services:
       name: lifebuild-data
       mountPath: /var/data
       sizeGB: 10
-    # Scaling configuration from ADR-002
-    scaling:
-      minInstances: 1
-      maxInstances: 3
-      targetCPUPercent: 70
+    # Disk-attached services cannot use autoscaling.
+    numInstances: 1
   # Cron jobs for backup (from ADR-002)
   - type: cron
     name: backup-job
