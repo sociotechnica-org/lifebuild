@@ -23,6 +23,8 @@ import * as Sentry from '@sentry/node'
 // This ensures pinoIntegration() can instrument the pino logger.
 // Static imports are hoisted and resolved before any code runs, so
 // any module that transitively imports logger.js would defeat the purpose.
+const { applyRenderPreviewOverrides } = await import('./config/preview-runtime.js')
+const previewOverrides = applyRenderPreviewOverrides(process.env)
 const { logger } = await import('./utils/logger.js')
 const { serializeStoreConnectionFields, storeManager } = await import('./services/store-manager.js')
 const { EventProcessor } = await import('./services/event-processor.js')
@@ -43,6 +45,27 @@ const { createManualReconcileHandler, createManualReconcileState } = await impor
 import type { ManualReconcileState } from './api/manual-reconcile.js'
 const { getIncidentDashboardUrl } = await import('./utils/orchestration-telemetry.js')
 const { getMessageLifecycleTracker } = await import('./services/message-lifecycle-tracker.js')
+
+if (previewOverrides.applied) {
+  logger.info(
+    {
+      pullRequestNumber: previewOverrides.pullRequestNumber,
+      authWorkerInternalUrl: previewOverrides.authWorkerInternalUrl,
+      liveStoreSyncUrl: previewOverrides.liveStoreSyncUrl,
+      serverBypassTokenOverridden: previewOverrides.serverBypassTokenOverridden ?? false,
+      storeIds: process.env.STORE_IDS,
+    },
+    'Applied Render preview runtime overrides for auth/sync endpoints'
+  )
+} else if (previewOverrides.isPreview) {
+  logger.warn(
+    {
+      pullRequestNumber: previewOverrides.pullRequestNumber,
+      reason: previewOverrides.reason,
+    },
+    'Render preview environment detected but endpoint overrides were not applied'
+  )
+}
 
 /**
  * Check if dashboard access is authorized.

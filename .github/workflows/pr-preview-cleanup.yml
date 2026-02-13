@@ -1,0 +1,136 @@
+name: PR Preview Cleanup
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+
+concurrency:
+  # Must match pr-preview.yml so cleanup waits for any in-flight deploy for the same PR.
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  cleanup:
+    if: github.event.pull_request.head.repo.fork == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_PREVIEW_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Compute preview names
+        id: meta
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+
+          echo "auth_worker_name=lifebuild-auth-pr-${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "sync_worker_name=lifebuild-sync-pr-${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+
+      - name: Delete auth preview worker
+        id: delete_auth
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+
+          AUTH_WORKER_NAME="${{ steps.meta.outputs.auth_worker_name }}"
+
+          pnpm --filter @lifebuild/auth-worker exec wrangler delete \
+            --name "${AUTH_WORKER_NAME}" \
+            --force
+
+      - name: Delete sync preview worker
+        id: delete_sync
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+
+          SYNC_WORKER_NAME="${{ steps.meta.outputs.sync_worker_name }}"
+
+          pnpm --filter @lifebuild/worker exec wrangler delete \
+            --name "${SYNC_WORKER_NAME}" \
+            --force
+
+      - name: Update PR preview comment with cleanup status
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          AUTH_OUTCOME: ${{ steps.delete_auth.outcome }}
+          SYNC_OUTCOME: ${{ steps.delete_sync.outcome }}
+        with:
+          script: |
+            const marker = '<!-- pr-preview-status -->';
+            const icon = outcome => {
+              if (outcome === 'success') return '✅';
+              if (outcome === 'skipped') return '⏭️';
+              if (!outcome) return '⚪';
+              return '❌';
+            };
+
+            const body = [
+              marker,
+              '## PR Preview Environments',
+              '',
+              'This pull request is closed. Preview cleanup has been triggered.',
+              '',
+              `- Auth preview worker deletion ${icon(process.env.AUTH_OUTCOME)}`,
+              `- Sync preview worker deletion ${icon(process.env.SYNC_OUTCOME)}`,
+              '',
+              '- Cloudflare Pages preview deployments may age out asynchronously.',
+              '- Render preview environments should auto-destroy based on Render configuration.'
+            ].join('\n');
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+
+            const existing = comments.find(comment =>
+              comment.user?.type === 'Bot' && comment.body?.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }

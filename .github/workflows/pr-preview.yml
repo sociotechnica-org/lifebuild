@@ -1,0 +1,598 @@
+name: PR Preview Environments
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  deployments: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  preview:
+    if: github.event.pull_request.head.repo.fork == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_PREVIEW_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_PREVIEW_ACCOUNT_ID }}
+      CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN: ${{ secrets.CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN }}
+      CLOUDFLARE_PREVIEW_D1_DATABASE_ID: ${{ secrets.CLOUDFLARE_PREVIEW_D1_DATABASE_ID }}
+      CLOUDFLARE_PREVIEW_D1_DATABASE_NAME: ${{ secrets.CLOUDFLARE_PREVIEW_D1_DATABASE_NAME }}
+      CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID: ${{ secrets.CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID }}
+      CLOUDFLARE_PREVIEW_KV_PREVIEW_ID: ${{ secrets.CLOUDFLARE_PREVIEW_KV_PREVIEW_ID }}
+      CLOUDFLARE_PREVIEW_R2_BUCKET_NAME: ${{ secrets.CLOUDFLARE_PREVIEW_R2_BUCKET_NAME }}
+      CLOUDFLARE_PREVIEW_R2_PREVIEW_BUCKET_NAME: ${{ secrets.CLOUDFLARE_PREVIEW_R2_PREVIEW_BUCKET_NAME }}
+      PREVIEW_JWT_SECRET: ${{ secrets.PREVIEW_JWT_SECRET }}
+      PREVIEW_SERVER_BYPASS_TOKEN: ${{ secrets.PREVIEW_SERVER_BYPASS_TOKEN }}
+      PREVIEW_WEBHOOK_SECRET: ${{ secrets.PREVIEW_WEBHOOK_SECRET }}
+      PREVIEW_SERVER_WEBHOOK_URL: ${{ secrets.PREVIEW_SERVER_WEBHOOK_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Compute preview metadata
+        id: meta
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          WORKERS_SUBDOMAIN="${CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN}"
+
+          AUTH_WORKER_NAME="lifebuild-auth-pr-${PR_NUMBER}"
+          SYNC_WORKER_NAME="lifebuild-sync-pr-${PR_NUMBER}"
+          WEB_PREVIEW_BRANCH="pr-${PR_NUMBER}"
+
+          AUTH_WORKER_HOST="${AUTH_WORKER_NAME}.${WORKERS_SUBDOMAIN}.workers.dev"
+          SYNC_WORKER_HOST="${SYNC_WORKER_NAME}.${WORKERS_SUBDOMAIN}.workers.dev"
+
+          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "auth_worker_name=${AUTH_WORKER_NAME}" >> "$GITHUB_OUTPUT"
+          echo "sync_worker_name=${SYNC_WORKER_NAME}" >> "$GITHUB_OUTPUT"
+          echo "web_preview_branch=${WEB_PREVIEW_BRANCH}" >> "$GITHUB_OUTPUT"
+          echo "auth_worker_host=${AUTH_WORKER_HOST}" >> "$GITHUB_OUTPUT"
+          echo "sync_worker_host=${SYNC_WORKER_HOST}" >> "$GITHUB_OUTPUT"
+
+      - name: Preflight check required preview secrets
+        id: preflight
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+
+          missing=()
+          required=(
+            CLOUDFLARE_API_TOKEN
+            CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN
+            CLOUDFLARE_PREVIEW_D1_DATABASE_ID
+            CLOUDFLARE_PREVIEW_D1_DATABASE_NAME
+            CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID
+            CLOUDFLARE_PREVIEW_R2_BUCKET_NAME
+            PREVIEW_SERVER_BYPASS_TOKEN
+          )
+
+          for name in "${required[@]}"; do
+            if [[ -z "${!name:-}" ]]; then
+              missing+=("${name}")
+            fi
+          done
+
+          missing_csv=""
+          if (( ${#missing[@]} > 0 )); then
+            missing_csv="$(IFS=,; echo "${missing[*]}")"
+          fi
+
+          echo "missing=${missing_csv}" >> "$GITHUB_OUTPUT"
+
+          if (( ${#missing[@]} > 0 )); then
+            echo "Missing required preview secrets: ${missing_csv}" >&2
+            exit 1
+          fi
+
+      - name: Resolve preview deployment inputs
+        id: resolve_inputs
+        if: steps.preflight.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+
+          require_nonempty() {
+            local name="$1"
+            local value="$2"
+            if [[ -z "${value}" ]]; then
+              unresolved+=("${name}")
+            fi
+          }
+
+          generate_random_hex() {
+            node -e "const crypto = require('node:crypto'); process.stdout.write(crypto.randomBytes(32).toString('hex'))"
+          }
+
+          unresolved=()
+          generated_jwt_secret=false
+
+          resolved_account_id="${CLOUDFLARE_PREVIEW_ACCOUNT_ID:-}"
+          if [[ -z "${resolved_account_id}" ]]; then
+            resolved_account_id="$(curl -fsSL "https://api.cloudflare.com/client/v4/accounts?page=1&per_page=1" \
+              -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              -H "Content-Type: application/json" | jq -r '.result[0].id // empty' || true)"
+          fi
+
+          resolved_d1_database_id="${CLOUDFLARE_PREVIEW_D1_DATABASE_ID:-}"
+          resolved_d1_database_name="${CLOUDFLARE_PREVIEW_D1_DATABASE_NAME:-}"
+          resolved_kv_namespace_id="${CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID:-}"
+          resolved_kv_preview_id="${CLOUDFLARE_PREVIEW_KV_PREVIEW_ID:-$resolved_kv_namespace_id}"
+          resolved_r2_bucket_name="${CLOUDFLARE_PREVIEW_R2_BUCKET_NAME:-}"
+          resolved_r2_preview_bucket_name="${CLOUDFLARE_PREVIEW_R2_PREVIEW_BUCKET_NAME:-$resolved_r2_bucket_name}"
+
+          resolved_jwt_secret="${PREVIEW_JWT_SECRET:-}"
+          if [[ -z "${resolved_jwt_secret}" ]]; then
+            generated_jwt_secret=true
+            resolved_jwt_secret="$(generate_random_hex)"
+          fi
+
+          resolved_server_bypass_token="${PREVIEW_SERVER_BYPASS_TOKEN:-}"
+
+          require_nonempty CLOUDFLARE_PREVIEW_ACCOUNT_ID "${resolved_account_id}"
+          require_nonempty CLOUDFLARE_PREVIEW_D1_DATABASE_ID "${resolved_d1_database_id}"
+          require_nonempty CLOUDFLARE_PREVIEW_D1_DATABASE_NAME "${resolved_d1_database_name}"
+          require_nonempty CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID "${resolved_kv_namespace_id}"
+          require_nonempty CLOUDFLARE_PREVIEW_R2_BUCKET_NAME "${resolved_r2_bucket_name}"
+          require_nonempty PREVIEW_SERVER_BYPASS_TOKEN "${resolved_server_bypass_token}"
+
+          unresolved_csv=""
+          if (( ${#unresolved[@]} > 0 )); then
+            unresolved_csv="$(IFS=,; echo "${unresolved[*]}")"
+          fi
+          echo "missing=${unresolved_csv}" >> "$GITHUB_OUTPUT"
+          echo "generated_jwt_secret=${generated_jwt_secret}" >> "$GITHUB_OUTPUT"
+
+          if (( ${#unresolved[@]} > 0 )); then
+            echo "Unable to resolve required preview inputs: ${unresolved_csv}" >&2
+            exit 1
+          fi
+
+          echo "::add-mask::${resolved_jwt_secret}"
+          echo "::add-mask::${resolved_server_bypass_token}"
+
+          {
+            echo "CLOUDFLARE_PREVIEW_ACCOUNT_ID=${resolved_account_id}"
+            echo "CLOUDFLARE_PREVIEW_D1_DATABASE_ID=${resolved_d1_database_id}"
+            echo "CLOUDFLARE_PREVIEW_D1_DATABASE_NAME=${resolved_d1_database_name}"
+            echo "CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID=${resolved_kv_namespace_id}"
+            echo "CLOUDFLARE_PREVIEW_KV_PREVIEW_ID=${resolved_kv_preview_id}"
+            echo "CLOUDFLARE_PREVIEW_R2_BUCKET_NAME=${resolved_r2_bucket_name}"
+            echo "CLOUDFLARE_PREVIEW_R2_PREVIEW_BUCKET_NAME=${resolved_r2_preview_bucket_name}"
+            echo "PREVIEW_JWT_SECRET=${resolved_jwt_secret}"
+            echo "PREVIEW_SERVER_BYPASS_TOKEN=${resolved_server_bypass_token}"
+          } >> "$GITHUB_ENV"
+
+      - name: Write auth preview wrangler config
+        if: steps.preflight.outcome == 'success' && steps.resolve_inputs.outcome == 'success'
+        run: |
+          set -euo pipefail
+
+          KV_PREVIEW_ID="${CLOUDFLARE_PREVIEW_KV_PREVIEW_ID:-$CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID}"
+
+          cat > packages/auth-worker/wrangler.preview.toml <<EOF_CFG
+          name = "lifebuild-auth-preview"
+          account_id = "${CLOUDFLARE_PREVIEW_ACCOUNT_ID}"
+          compatibility_date = "2024-05-12"
+          compatibility_flags = ["nodejs_compat"]
+          main = "./src/index.ts"
+          workers_dev = true
+
+          [vars]
+          ENVIRONMENT = "preview"
+
+          [[durable_objects.bindings]]
+          name = "USER_STORE"
+          class_name = "UserStore"
+
+          [[kv_namespaces]]
+          binding = "WORKSPACE_CLAIMS_VERSION"
+          id = "${CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID}"
+          preview_id = "${KV_PREVIEW_ID}"
+
+          [[migrations]]
+          tag = "v1"
+          new_sqlite_classes = ["UserStore"]
+
+          [observability.logs]
+          enabled = true
+          EOF_CFG
+
+      - name: Deploy auth preview worker
+        id: deploy_auth
+        if: steps.preflight.outcome == 'success' && steps.resolve_inputs.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+
+          AUTH_WORKER_NAME="${{ steps.meta.outputs.auth_worker_name }}"
+          AUTH_WORKER_HOST="${{ steps.meta.outputs.auth_worker_host }}"
+
+          pnpm --filter @lifebuild/auth-worker exec wrangler deploy \
+            --config wrangler.preview.toml \
+            --name "${AUTH_WORKER_NAME}"
+
+          printf '%s' "${PREVIEW_JWT_SECRET}" | pnpm --filter @lifebuild/auth-worker exec wrangler secret put JWT_SECRET \
+            --config wrangler.preview.toml \
+            --name "${AUTH_WORKER_NAME}"
+
+          printf '%s' "${PREVIEW_SERVER_BYPASS_TOKEN}" | pnpm --filter @lifebuild/auth-worker exec wrangler secret put SERVER_BYPASS_TOKEN \
+            --config wrangler.preview.toml \
+            --name "${AUTH_WORKER_NAME}"
+
+          if [[ -n "${PREVIEW_WEBHOOK_SECRET:-}" ]]; then
+            printf '%s' "${PREVIEW_WEBHOOK_SECRET}" | pnpm --filter @lifebuild/auth-worker exec wrangler secret put WEBHOOK_SECRET \
+              --config wrangler.preview.toml \
+              --name "${AUTH_WORKER_NAME}"
+          fi
+
+          if [[ -n "${PREVIEW_SERVER_WEBHOOK_URL:-}" ]]; then
+            printf '%s' "${PREVIEW_SERVER_WEBHOOK_URL}" | pnpm --filter @lifebuild/auth-worker exec wrangler secret put SERVER_WEBHOOK_URL \
+              --config wrangler.preview.toml \
+              --name "${AUTH_WORKER_NAME}"
+          fi
+
+          echo "auth_url=https://${AUTH_WORKER_HOST}" >> "$GITHUB_OUTPUT"
+
+      - name: Write sync preview wrangler config
+        if: steps.preflight.outcome == 'success' && steps.resolve_inputs.outcome == 'success'
+        run: |
+          set -euo pipefail
+
+          SYNC_WORKER_HOST="${{ steps.meta.outputs.sync_worker_host }}"
+          KV_PREVIEW_ID="${CLOUDFLARE_PREVIEW_KV_PREVIEW_ID:-$CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID}"
+          R2_PREVIEW_BUCKET="${CLOUDFLARE_PREVIEW_R2_PREVIEW_BUCKET_NAME:-$CLOUDFLARE_PREVIEW_R2_BUCKET_NAME}"
+
+          cat > packages/worker/wrangler.preview.jsonc <<EOF_CFG
+          {
+            "name": "lifebuild-sync-preview",
+            "account_id": "${CLOUDFLARE_PREVIEW_ACCOUNT_ID}",
+            "compatibility_date": "2024-05-12",
+            "main": "./functions/_worker.ts",
+            "workers_dev": true,
+            "observability": {
+              "enabled": true
+            },
+            "vars": {
+              "REQUIRE_AUTH": "true",
+              "ENVIRONMENT": "preview",
+              "R2_PUBLIC_URL": "https://${SYNC_WORKER_HOST}/api/images"
+            },
+            "d1_databases": [
+              {
+                "binding": "DB",
+                "database_name": "${CLOUDFLARE_PREVIEW_D1_DATABASE_NAME}",
+                "database_id": "${CLOUDFLARE_PREVIEW_D1_DATABASE_ID}"
+              }
+            ],
+            "kv_namespaces": [
+              {
+                "binding": "WORKSPACE_CLAIMS_VERSION",
+                "id": "${CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID}",
+                "preview_id": "${KV_PREVIEW_ID}"
+              }
+            ],
+            "durable_objects": {
+              "bindings": [
+                {
+                  "name": "WEBSOCKET_SERVER",
+                  "class_name": "SyncBackendDO"
+                }
+              ]
+            },
+            "migrations": [
+              {
+                "tag": "v1",
+                "new_sqlite_classes": ["SyncBackendDO"]
+              }
+            ],
+            "r2_buckets": [
+              {
+                "binding": "IMAGES",
+                "bucket_name": "${CLOUDFLARE_PREVIEW_R2_BUCKET_NAME}",
+                "preview_bucket_name": "${R2_PREVIEW_BUCKET}"
+              }
+            ]
+          }
+          EOF_CFG
+
+      - name: Deploy sync preview worker
+        id: deploy_sync
+        if: steps.preflight.outcome == 'success' && steps.resolve_inputs.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+
+          SYNC_WORKER_NAME="${{ steps.meta.outputs.sync_worker_name }}"
+          SYNC_WORKER_HOST="${{ steps.meta.outputs.sync_worker_host }}"
+
+          pnpm --filter @lifebuild/worker exec wrangler deploy \
+            --config wrangler.preview.jsonc \
+            --name "${SYNC_WORKER_NAME}"
+
+          printf '%s' "${PREVIEW_JWT_SECRET}" | pnpm --filter @lifebuild/worker exec wrangler secret put JWT_SECRET \
+            --config wrangler.preview.jsonc \
+            --name "${SYNC_WORKER_NAME}"
+
+          printf '%s' "${PREVIEW_SERVER_BYPASS_TOKEN}" | pnpm --filter @lifebuild/worker exec wrangler secret put SERVER_BYPASS_TOKEN \
+            --config wrangler.preview.jsonc \
+            --name "${SYNC_WORKER_NAME}"
+
+          echo "sync_url=https://${SYNC_WORKER_HOST}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and deploy web preview
+        id: deploy_web
+        if: steps.preflight.outcome == 'success' && steps.resolve_inputs.outcome == 'success'
+        continue-on-error: true
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ env.CLOUDFLARE_PREVIEW_ACCOUNT_ID }}
+          VITE_REQUIRE_AUTH: 'true'
+          VITE_AUTH_SERVICE_URL: https://${{ steps.meta.outputs.auth_worker_host }}
+          VITE_LIVESTORE_SYNC_URL: wss://${{ steps.meta.outputs.sync_worker_host }}
+          VITE_PUBLIC_POSTHOG_KEY: ''
+          VITE_PUBLIC_POSTHOG_HOST: ''
+          NODE_ENV: production
+        run: |
+          set -euo pipefail
+
+          WEB_PREVIEW_BRANCH="${{ steps.meta.outputs.web_preview_branch }}"
+          PR_NUMBER="${{ steps.meta.outputs.pr_number }}"
+          AUTH_ORIGIN="https://${{ steps.meta.outputs.auth_worker_host }}"
+          SYNC_ORIGIN="https://${{ steps.meta.outputs.sync_worker_host }}"
+          HEADER_FILE="packages/web/public/_headers"
+
+          if [[ -f "${HEADER_FILE}" ]] && ! grep -Fq "${AUTH_ORIGIN}" "${HEADER_FILE}"; then
+            sed -i "s|connect-src \([^;]*\);|connect-src \1 ${AUTH_ORIGIN} ${SYNC_ORIGIN};|" "${HEADER_FILE}"
+          fi
+
+          cd packages/web
+          pnpm build
+
+          set +e
+          DEPLOY_OUTPUT=$(pnpm exec wrangler pages deploy dist \
+            --project-name lifebuild-web \
+            --branch "${WEB_PREVIEW_BRANCH}" \
+            --commit-hash "${GITHUB_SHA}" \
+            --commit-message "PR #${PR_NUMBER} preview" 2>&1)
+          DEPLOY_EXIT_CODE=$?
+          set -e
+
+          echo "${DEPLOY_OUTPUT}"
+
+          if [[ "${DEPLOY_EXIT_CODE}" -ne 0 ]]; then
+            echo "Cloudflare Pages preview deployment failed." >&2
+            exit "${DEPLOY_EXIT_CODE}"
+          fi
+
+          WEB_URL=$(echo "${DEPLOY_OUTPUT}" | grep -Eo 'https://[a-zA-Z0-9._-]+\.pages\.dev' | head -n1 || true)
+          if [[ -z "${WEB_URL}" ]]; then
+            WEB_URL="https://${WEB_PREVIEW_BRANCH}.lifebuild-web.pages.dev"
+          fi
+
+          echo "web_url=${WEB_URL}" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve Render preview URL from GitHub Deployments
+        id: resolve_render
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pr = context.payload.pull_request;
+            const renderUrlRegex = /^https:\/\/[a-z0-9.-]+\.onrender\.com\/?$/i;
+
+            const deployments = await github.paginate(github.rest.repos.listDeployments, {
+              owner,
+              repo,
+              per_page: 100,
+              sha: pr.head.sha,
+            });
+
+            let serverUrl = '';
+            let renderLogUrl = '';
+
+            for (const deployment of deployments) {
+              const statuses = await github.paginate(github.rest.repos.listDeploymentStatuses, {
+                owner,
+                repo,
+                deployment_id: deployment.id,
+                per_page: 100,
+              });
+
+              const match = statuses.find(status => {
+                if (typeof status.environment_url !== 'string') {
+                  return false;
+                }
+
+                if (!renderUrlRegex.test(status.environment_url)) {
+                  return false;
+                }
+
+                return true;
+              });
+
+              if (!match) {
+                continue;
+              }
+
+              serverUrl = match.environment_url;
+              renderLogUrl = match.log_url ?? '';
+              break;
+            }
+
+            core.setOutput('server_url', serverUrl);
+            core.setOutput('server_log_url', renderLogUrl);
+            core.setOutput('render_found', serverUrl ? 'true' : 'false');
+
+      - name: Create or update PR preview comment
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          AUTH_URL: ${{ steps.deploy_auth.outputs.auth_url }}
+          SYNC_URL: ${{ steps.deploy_sync.outputs.sync_url }}
+          WEB_URL: ${{ steps.deploy_web.outputs.web_url }}
+          SERVER_URL: ${{ steps.resolve_render.outputs.server_url }}
+          SERVER_LOG_URL: ${{ steps.resolve_render.outputs.server_log_url }}
+          SERVER_FOUND: ${{ steps.resolve_render.outputs.render_found }}
+          PRECHECK_OUTCOME: ${{ steps.preflight.outcome }}
+          PRECHECK_MISSING: ${{ steps.preflight.outputs.missing }}
+          INPUTS_OUTCOME: ${{ steps.resolve_inputs.outcome }}
+          INPUTS_MISSING: ${{ steps.resolve_inputs.outputs.missing }}
+          GENERATED_JWT_SECRET: ${{ steps.resolve_inputs.outputs.generated_jwt_secret }}
+          AUTH_OUTCOME: ${{ steps.deploy_auth.outcome }}
+          SYNC_OUTCOME: ${{ steps.deploy_sync.outcome }}
+          WEB_OUTCOME: ${{ steps.deploy_web.outcome }}
+        with:
+          script: |
+            const marker = '<!-- pr-preview-status -->';
+            const icon = outcome => {
+              if (outcome === 'success') return '✅';
+              if (outcome === 'skipped') return '⏭️';
+              if (!outcome) return '⚪';
+              return '❌';
+            };
+
+            const preflightOk = process.env.PRECHECK_OUTCOME === 'success';
+            const missingSecrets = process.env.PRECHECK_MISSING || '';
+            const inputsOk = process.env.INPUTS_OUTCOME === 'success';
+            const missingInputs = process.env.INPUTS_MISSING || '';
+            const generatedJwtSecret = process.env.GENERATED_JWT_SECRET === 'true';
+
+            const authUrl = process.env.AUTH_URL || '(not deployed)';
+            const syncUrl = process.env.SYNC_URL || '(not deployed)';
+            const webUrl = process.env.WEB_URL || '(not deployed)';
+            const serverFound = process.env.SERVER_FOUND === 'true';
+            const serverUrl = process.env.SERVER_URL || '(waiting for Render deployment status)';
+            const serverLogUrl = process.env.SERVER_LOG_URL || '';
+            const serverLine = serverFound
+              ? `- Server (Render): ${serverUrl}`
+              : '- Server (Render): awaiting GitHub deployment status from Render';
+            const serverLogLine = serverLogUrl
+              ? `- Render deploy logs: ${serverLogUrl}`
+              : '- Render deploy logs: (not yet available)';
+
+            const preflightLine = !preflightOk
+              ? `- Preview deploy preflight: ❌ Missing required secrets: ${missingSecrets || '(unknown)'}`
+              : !inputsOk
+                ? `- Preview deploy preflight: ❌ Unable to resolve deploy inputs: ${missingInputs || '(unknown)'}`
+                : '- Preview deploy preflight: ✅';
+
+            const notes = [];
+            if (inputsOk && generatedJwtSecret) {
+              notes.push('- Preview JWT secret: using a generated secure random value for this workflow run (set `PREVIEW_JWT_SECRET` to override).');
+            }
+
+            const body = [
+              marker,
+              '## PR Preview Environments',
+              '',
+              `- Auth Worker ${icon(process.env.AUTH_OUTCOME)}: ${authUrl}`,
+              `- Sync Worker ${icon(process.env.SYNC_OUTCOME)}: ${syncUrl}`,
+              `- Web ${icon(process.env.WEB_OUTCOME)}: ${webUrl}`,
+              serverLine,
+              serverLogLine,
+              '',
+              preflightLine,
+              ...notes,
+              '',
+              '_PostHog analytics are intentionally disabled in preview environments._'
+            ].join('\n');
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+
+            const existing = comments.find(comment =>
+              comment.user?.type === 'Bot' && comment.body?.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }
+
+      - name: Fail workflow when required preview components fail
+        if: always()
+        env:
+          PRECHECK_OUTCOME: ${{ steps.preflight.outcome }}
+          PRECHECK_MISSING: ${{ steps.preflight.outputs.missing }}
+          INPUTS_OUTCOME: ${{ steps.resolve_inputs.outcome }}
+          AUTH_OUTCOME: ${{ steps.deploy_auth.outcome }}
+          SYNC_OUTCOME: ${{ steps.deploy_sync.outcome }}
+          WEB_OUTCOME: ${{ steps.deploy_web.outcome }}
+        run: |
+          set -euo pipefail
+
+          if [[ "${PRECHECK_OUTCOME}" != "success" ]]; then
+            if [[ -n "${PRECHECK_MISSING}" ]]; then
+              echo "Preview deployment skipped: missing required preview secrets (${PRECHECK_MISSING})."
+              exit 0
+            fi
+
+            echo "Preview preflight failed unexpectedly." >&2
+            exit 1
+          fi
+
+          failed=0
+
+          for outcome in "${INPUTS_OUTCOME}" "${AUTH_OUTCOME}" "${SYNC_OUTCOME}" "${WEB_OUTCOME}"; do
+            if [[ "${outcome}" != "success" ]]; then
+              failed=1
+            fi
+          done
+
+          if [[ "${failed}" -ne 0 ]]; then
+            echo "One or more required preview components failed." >&2
+            exit 1
+          fi
+
+  fork-preview-notice:
+    if: github.event.pull_request.head.repo.fork == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report fork preview policy
+        run: |
+          echo "Preview deployments are skipped for fork pull requests on pull_request events."
