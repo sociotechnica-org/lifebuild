@@ -18,6 +18,7 @@ import { generateRoute } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
+import { ProjectAvatar } from '../common/ProjectAvatar.js'
 
 /**
  * Life Map - The overview of all eight life categories
@@ -329,6 +330,7 @@ export const LifeMap: React.FC = () => {
                     }
                   >
                     <div className='flex items-center gap-3'>
+                      <ProjectAvatar project={project} size={28} />
                       {category && (
                         <span
                           className='w-2 h-2 rounded-full flex-shrink-0'
@@ -409,6 +411,7 @@ export const LifeMap: React.FC = () => {
                     }
                   >
                     <div className='flex items-center gap-3'>
+                      <ProjectAvatar project={project} size={28} />
                       {category && (
                         <span
                           className='w-2 h-2 rounded-full flex-shrink-0'
