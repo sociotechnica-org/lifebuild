@@ -6,7 +6,8 @@ on:
     types: [closed]
 
 concurrency:
-  group: pr-preview-cleanup-${{ github.event.pull_request.number }}
+  # Must match pr-preview.yml so cleanup waits for any in-flight deploy for the same PR.
+  group: pr-preview-${{ github.event.pull_request.number }}
   cancel-in-progress: false
 
 permissions:
