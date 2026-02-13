@@ -15,11 +15,6 @@ services:
     buildCommand: ./packages/server/scripts/build.sh
     startCommand: pnpm --filter @lifebuild/server start
     envVars:
-      # Create this as a manually managed Render Environment Group.
-      # Required keys:
-      # - CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN
-      # - PREVIEW_SERVER_BYPASS_TOKEN
-      - fromGroup: lifebuild-preview-overrides
       - key: NODE_ENV
         value: production
       - key: PORT
@@ -31,6 +26,8 @@ services:
         value: wss://sync.lifebuild.me
       - key: SERVER_BYPASS_TOKEN
         sync: false
+      - key: PREVIEW_SERVER_BYPASS_TOKEN
+        sync: false # Optional preview override for SERVER_BYPASS_TOKEN
       - key: AUTH_WORKER_INTERNAL_URL
         value: https://auth.lifebuild.me
       - key: CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN
@@ -58,6 +55,8 @@ services:
       # DevTools (disabled in production)
       - key: DISABLE_DEVTOOLS
         value: true
+      - key: LLM_PROVIDER
+        value: braintrust
       # BRAINTRUST credentials for server-side agentic loop
       - key: BRAINTRUST_API_KEY
         sync: false # Add via Render dashboard
