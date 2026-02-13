@@ -10,11 +10,92 @@ export interface StoreConfig {
   syncUrl?: string
   dataPath?: string
   connectionTimeout?: number
-  devtoolsUrl?: string
   enableDevtools?: boolean
 }
 
 const STORE_ID_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-_]{2,63}$/
+const DEFAULT_DEVTOOLS_HOST = 'localhost'
+const DEFAULT_DEVTOOLS_PORT_BASE = 4242
+const MIN_PORT = 1024
+const MAX_PORT = 65535
+const allocatedDevtoolsPorts = new Map<string, number>()
+let nextDevtoolsPort: number | undefined
+
+const parsePort = (rawValue: string | undefined, fallback: number): number => {
+  if (rawValue === undefined) return fallback
+  const parsed = Number(rawValue)
+  if (!Number.isInteger(parsed) || parsed < MIN_PORT || parsed > MAX_PORT) {
+    logger.warn(
+      { rawValue, fallback, min: MIN_PORT, max: MAX_PORT },
+      'Invalid devtools port configuration, using fallback'
+    )
+    return fallback
+  }
+  return parsed
+}
+
+const getDevtoolsHost = (): string => {
+  const host = process.env.DEVTOOLS_HOST?.trim()
+  return host ? host : DEFAULT_DEVTOOLS_HOST
+}
+
+const getNextDevtoolsPort = (): number => {
+  if (nextDevtoolsPort === undefined) {
+    nextDevtoolsPort = parsePort(
+      process.env.DEVTOOLS_PORT_BASE ?? process.env.DEVTOOLS_PORT,
+      DEFAULT_DEVTOOLS_PORT_BASE
+    )
+  }
+
+  const usedPorts = new Set(allocatedDevtoolsPorts.values())
+  let candidate = nextDevtoolsPort
+  let attempts = 0
+  const maxAttempts = MAX_PORT - MIN_PORT + 1
+
+  while (usedPorts.has(candidate) && attempts < maxAttempts) {
+    candidate = candidate >= MAX_PORT ? MIN_PORT : candidate + 1
+    attempts += 1
+  }
+
+  if (attempts >= maxAttempts) {
+    throw new Error('Unable to allocate a devtools port: all available ports are in use')
+  }
+
+  nextDevtoolsPort = candidate >= MAX_PORT ? MIN_PORT : candidate + 1
+  return candidate
+}
+
+const allocateDevtoolsPort = (storeId: string): number => {
+  const existing = allocatedDevtoolsPorts.get(storeId)
+  if (existing !== undefined) {
+    return existing
+  }
+
+  const allocated = getNextDevtoolsPort()
+  allocatedDevtoolsPorts.set(storeId, allocated)
+  return allocated
+}
+
+export const resetDevtoolsPortAllocatorForTests = (): void => {
+  allocatedDevtoolsPorts.clear()
+  nextDevtoolsPort = undefined
+}
+
+export const releaseDevtoolsPortForStore = (storeId: string): void => {
+  allocatedDevtoolsPorts.delete(storeId)
+}
+
+const buildDevtoolsAdapterConfig = (config: StoreConfig) => {
+  if (!config.enableDevtools) {
+    return undefined
+  }
+
+  return {
+    schemaPath: '../shared/src/livestore/schema.ts',
+    host: getDevtoolsHost(),
+    port: allocateDevtoolsPort(config.storeId),
+  }
+}
 
 export function validateStoreId(storeId: string): boolean {
   if (!storeId || typeof storeId !== 'string') {
@@ -38,7 +119,6 @@ export function getStoreConfig(storeId: string): StoreConfig {
     syncUrl: process.env.LIVESTORE_SYNC_URL || 'ws://localhost:8787',
     dataPath: process.env.STORE_DATA_PATH || './data',
     connectionTimeout: Number(process.env.STORE_CONNECTION_TIMEOUT) || 30000,
-    devtoolsUrl: process.env.DEVTOOLS_URL || 'http://localhost:4300',
     enableDevtools:
       process.env.NODE_ENV !== 'production' && process.env.DISABLE_DEVTOOLS !== 'true',
   }
@@ -46,16 +126,12 @@ export function getStoreConfig(storeId: string): StoreConfig {
   const storeSpecificEnvPrefix = `STORE_${storeId.toUpperCase().replace(/-/g, '_')}_`
   const syncUrlKey = `${storeSpecificEnvPrefix}SYNC_URL`
   const dataPathKey = `${storeSpecificEnvPrefix}DATA_PATH`
-  const devtoolsUrlKey = `${storeSpecificEnvPrefix}DEVTOOLS_URL`
 
   if (process.env[syncUrlKey]) {
     baseConfig.syncUrl = process.env[syncUrlKey]
   }
   if (process.env[dataPathKey]) {
     baseConfig.dataPath = process.env[dataPathKey]
-  }
-  if (process.env[devtoolsUrlKey]) {
-    baseConfig.devtoolsUrl = process.env[devtoolsUrlKey]
   }
 
   return baseConfig
@@ -118,6 +194,7 @@ export async function createStore(
     ...getStoreConfig(storeId),
     ...configOverrides,
   }
+  const devtoolsConfig = buildDevtoolsAdapterConfig(config)
 
   logger.info(
     {
@@ -125,7 +202,8 @@ export async function createStore(
       syncUrl: config.syncUrl,
       dataPath: config.dataPath,
       devtoolsEnabled: config.enableDevtools,
-      devtoolsUrl: config.enableDevtools ? config.devtoolsUrl : 'disabled',
+      devtoolsHost: devtoolsConfig?.host ?? 'disabled',
+      devtoolsPort: devtoolsConfig?.port ?? 'disabled',
     },
     `Creating store ${storeId}`
   )
@@ -171,11 +249,7 @@ export async function createStore(
           onSyncError: 'shutdown',
         }
       : undefined,
-    devtools: config.enableDevtools
-      ? {
-          schemaPath: '../shared/src/livestore/schema.ts',
-        }
-      : undefined,
+    devtools: devtoolsConfig,
   })
 
   const abortController = new AbortController()
@@ -208,6 +282,9 @@ export async function createStore(
     return { store, config }
   } catch (error) {
     abortController.abort()
+    if (devtoolsConfig) {
+      releaseDevtoolsPortForStore(config.storeId)
+    }
     logger.error({ storeId, error }, 'Failed to create store')
     throw error
   } finally {

@@ -135,9 +135,48 @@ Useful environment variables:
 
 The harness writes temporary data under `.context/fullstack-*` and cleans it up on exit.
 
+### Direct Pi smoke test (no frontend/worker)
+
+Use this when you want to verify Pi session setup and provider responses in isolation.
+
+```bash
+pnpm --filter @lifebuild/server test:pi-smoke
+# or from repo root:
+pnpm test:pi-smoke
+```
+
+Useful environment variables:
+
+- `LLM_PROVIDER` (`pi` or `braintrust`; `stub` is rejected for this script)
+- `PI_SMOKE_PROMPT` (default: a short connectivity prompt)
+- `PI_SMOKE_TIMEOUT_MS` (default: `60000`)
+- `PI_SMOKE_EXPECT_CONTAINS` (optional substring assertion)
+- `PI_SMOKE_EXPECT_REGEX` (optional regex assertion)
+- `PI_SMOKE_SETUP_ONLY` (`1` to validate setup without sending a prompt)
+- `PI_SMOKE_KEEP_ARTIFACTS` (`1` to keep generated session/auth artifacts)
+- `PI_SMOKE_STORAGE_DIR` (optional explicit artifact directory)
+- `PI_SMOKE_PROVIDER` / `PI_SMOKE_MODEL` (only for `LLM_PROVIDER=pi`)
+
+### Braintrust provider with Pi
+
+Set `LLM_PROVIDER=braintrust` to run Pi sessions through Braintrust's OpenAI-compatible proxy.
+
+```bash
+LLM_PROVIDER=braintrust \
+BRAINTRUST_API_KEY="your-braintrust-api-key" \
+BRAINTRUST_PROJECT_ID="your-braintrust-project-id" \
+BRAINTRUST_MODEL="gpt-4o-mini" \
+pnpm --filter @lifebuild/server dev
+```
+
+Optional settings:
+
+- `BRAINTRUST_BASE_URL` (defaults to `https://api.braintrust.dev/v1/proxy`)
+- `BRAINTRUST_MODEL` (defaults to `gpt-4o-mini`)
+
 ### Stub LLM provider (deterministic responses)
 
-Set `LLM_PROVIDER=stub` to force the server to use the stub provider instead of Braintrust.
+Set `LLM_PROVIDER=stub` to force deterministic responses without external LLM calls.
 You can configure responses via JSON (inline or from a file) and use `{{message}}` in templates.
 
 Inline example:

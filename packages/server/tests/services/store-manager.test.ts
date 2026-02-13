@@ -4,6 +4,7 @@ import * as storeFactory from '../../src/factories/store-factory.js'
 
 vi.mock('../../src/factories/store-factory.js', () => ({
   createStore: vi.fn(),
+  releaseDevtoolsPortForStore: vi.fn(),
   validateStoreId: vi.fn((id) => /^[a-zA-Z0-9][a-zA-Z0-9-_]{2,63}$/.test(id)),
   getStoreConfig: vi.fn((id) => ({
     storeId: id,

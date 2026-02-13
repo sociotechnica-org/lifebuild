@@ -9,7 +9,7 @@ import {
   type ProjectCategory,
   type ProjectLifecycleState,
 } from '@lifebuild/shared'
-import type { NavigationContext } from '../../../server/src/services/agentic-loop/types.js'
+import type { NavigationContext } from '../../../server/src/services/pi/types.js'
 
 /**
  * Detect which page/view the user is on based on the route

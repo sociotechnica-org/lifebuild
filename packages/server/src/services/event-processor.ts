@@ -1,17 +1,26 @@
 import type { Store as LiveStore } from '@livestore/livestore'
 import { queryDb } from '@livestore/livestore'
 import * as Sentry from '@sentry/node'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 import type { StoreManager } from './store-manager.js'
 import { tables, events } from '@lifebuild/shared/schema'
-import { AgenticLoop, classifyError } from './agentic-loop/agentic-loop.js'
-import { BraintrustProvider } from './agentic-loop/braintrust-provider.js'
-import { StubLLMProvider } from './agentic-loop/stub-llm-provider.js'
 import { DEFAULT_MODEL, resolveLifecycleState, type PlanningAttributes } from '@lifebuild/shared'
 import {
   getRoomDefinitionByRoomId,
   createProjectRoomDefinition,
   type ProjectRoomParameters,
 } from '@lifebuild/shared/rooms'
+import {
+  AuthStorage,
+  createAgentSession,
+  DefaultResourceLoader,
+  ModelRegistry,
+  SessionManager,
+  type AgentSession,
+  type AgentSessionEvent,
+} from '@mariozechner/pi-coding-agent'
+import { getModel, type AssistantMessage, type Message, type Model } from '@mariozechner/pi-ai'
 import { MessageQueueManager } from './message-queue-manager.js'
 import { AsyncQueueProcessor } from './async-queue-processor.js'
 import { ProcessedMessageTracker } from './processed-message-tracker.js'
@@ -25,16 +34,17 @@ import {
   createOrchestrationTelemetry,
   getIncidentDashboardUrl,
 } from '../utils/orchestration-telemetry.js'
+import { buildSystemPrompt } from './pi/prompts.js'
+import { createPiTools } from './pi/tools.js'
+import { createStubResponder } from './pi/stub-responder.js'
+import { PiInputValidator } from './pi/input-validator.js'
 import type {
   EventBuffer,
   ProcessedEvent,
   ChatMessage,
-  LLMMessage,
-  BoardContext,
   WorkerContext,
   NavigationContext,
-  LLMProvider,
-} from './agentic-loop/types.js'
+} from './pi/types.js'
 
 const toTimestamp = (value: unknown): number | null => {
   if (value === null || value === undefined) {
@@ -79,7 +89,20 @@ interface StoreProcessingState {
   activeConversations: Set<string> // Track conversations currently being processed
   messageQueue: MessageQueueManager // Queue of pending messages per conversation
   conversationProcessors: Map<string, AsyncQueueProcessor> // Per-conversation async processors
-  llmProvider?: LLMProvider
+  piSessions: Map<string, PiConversationSession>
+}
+
+interface PiConversationSession {
+  session: AgentSession
+  sessionDir: string
+  lastAccessedAt: number
+}
+
+interface PiAgentResources {
+  agentDir: string
+  authStorage: AuthStorage
+  modelRegistry: ModelRegistry
+  resourceLoader: DefaultResourceLoader
 }
 
 interface LiveStoreStats {
@@ -111,10 +134,6 @@ export class EventProcessor {
   private lifecycleTracker: MessageLifecycleTracker
   private databaseInitialized = false
 
-  // LLM configuration from environment
-  private braintrustApiKey: string | undefined
-  private braintrustProjectId: string | undefined
-
   // Cutoff timestamp - messages before this are marked as processed but skipped
   private messageCutoffTimestamp: Date | null
 
@@ -137,10 +156,22 @@ export class EventProcessor {
   private monitoringStartTime: Map<string, Date> = new Map()
   private readonly subscriptionHealthThresholdMs: number
   // Store reference to reconnection handler so it can be removed on shutdown
-  private reconnectionHandler: ((data: { storeId: string; store: any }) => void) | null = null
+  private reconnectionHandler:
+    | ((data: { storeId: string; store: any }) => void | Promise<void>)
+    | null = null
   // Flag to prevent operations after shutdown
   private isShutdown = false
-  private readonly llmProviderMode: 'braintrust' | 'stub'
+  private readonly piBaseDir: string
+  private readonly piModel: Model<any> | undefined
+  private readonly stubResponder: ((message: string) => string) | null
+  private readonly llmProviderMode: 'pi' | 'stub' | 'braintrust'
+  private readonly braintrustBaseUrl: string | null
+  private readonly braintrustProjectId: string | null
+  private readonly inputValidator: PiInputValidator
+  private readonly maxPiSessionsPerStore: number
+  private readonly piSessionIdleTtlMs: number
+  private readonly piAgentResourcesByStore: Map<string, PiAgentResources> = new Map()
+  private readonly piAgentResourceInitPromises: Map<string, Promise<PiAgentResources>> = new Map()
 
   // Tables to monitor for activity
   // IMPORTANT: Only monitor chatMessages to process user messages
@@ -185,26 +216,126 @@ export class EventProcessor {
       5 * 60 * 1000,
       true
     )
+    this.maxPiSessionsPerStore = parsePositiveInt(process.env.PI_MAX_SESSIONS_PER_STORE, 200, true)
+    this.piSessionIdleTtlMs = parsePositiveInt(
+      process.env.PI_SESSION_IDLE_TTL_MS,
+      30 * 60 * 1000,
+      true
+    )
 
-    const providerEnv = process.env.LLM_PROVIDER?.toLowerCase()
-    this.llmProviderMode = providerEnv === 'stub' ? 'stub' : 'braintrust'
-    if (providerEnv && providerEnv !== 'stub' && providerEnv !== 'braintrust') {
-      logger.warn({ providerEnv }, 'Unknown LLM_PROVIDER value, defaulting to braintrust provider')
-    }
+    const renderDiskPath = process.env.RENDER_DISK_PATH
+    this.piBaseDir =
+      process.env.PI_STORAGE_DIR ||
+      (renderDiskPath ? path.join(renderDiskPath, 'lifebuild-pi') : path.join(process.cwd(), '.pi'))
 
-    // Load LLM configuration from environment
-    this.braintrustApiKey = process.env.BRAINTRUST_API_KEY
-    this.braintrustProjectId = process.env.BRAINTRUST_PROJECT_ID
+    const llmProvider = process.env.LLM_PROVIDER?.toLowerCase()
+    this.inputValidator = new PiInputValidator()
 
-    if (this.llmProviderMode === 'stub') {
-      logger.info('LLM provider configured: stub')
-    } else if (!this.braintrustApiKey || !this.braintrustProjectId) {
-      logger.warn(
-        'LLM functionality disabled: Missing BRAINTRUST_API_KEY or BRAINTRUST_PROJECT_ID environment variables'
-      )
+    if (llmProvider === 'stub') {
+      this.llmProviderMode = 'stub'
+      this.piModel = undefined
+      this.stubResponder = createStubResponder()
+      this.braintrustBaseUrl = null
+      this.braintrustProjectId = null
+      logger.info('LLM stub responder configured for Pi integration')
+    } else if (llmProvider === 'braintrust') {
+      this.llmProviderMode = 'braintrust'
+      this.stubResponder = null
+
+      const baseModel = getModel('openai', 'gpt-4o-mini')
+      const configuredModelId = process.env.BRAINTRUST_MODEL?.trim() || 'gpt-4o-mini'
+      const configuredBaseUrl =
+        process.env.BRAINTRUST_BASE_URL?.trim() || 'https://api.braintrust.dev/v1/proxy'
+      const configuredProjectId = process.env.BRAINTRUST_PROJECT_ID?.trim()
+
+      if (!baseModel) {
+        this.piModel = undefined
+        logger.error(
+          {
+            requestedModel: configuredModelId,
+          },
+          'Unable to initialize Braintrust model because OpenAI base model is unavailable'
+        )
+      } else {
+        const baseHeaders = baseModel.headers ?? {}
+        const braintrustHeaders = configuredProjectId
+          ? { ...baseHeaders, 'x-bt-parent': `project_id:${configuredProjectId}` }
+          : baseHeaders
+        const braintrustCompat = {
+          ...(baseModel.compat ?? {}),
+          supportsStore: false,
+          maxTokensField: 'max_tokens' as const,
+        }
+
+        this.piModel = {
+          ...baseModel,
+          provider: 'braintrust',
+          api: 'openai-completions',
+          id: configuredModelId,
+          name: `Braintrust (${configuredModelId})`,
+          baseUrl: configuredBaseUrl,
+          headers: braintrustHeaders,
+          compat: braintrustCompat,
+        }
+      }
+
+      this.braintrustBaseUrl = configuredBaseUrl
+      this.braintrustProjectId =
+        configuredProjectId && configuredProjectId.length > 0 ? configuredProjectId : null
+
+      if (!process.env.BRAINTRUST_API_KEY) {
+        logger.warn(
+          'LLM_PROVIDER=braintrust is set but BRAINTRUST_API_KEY is missing; Pi prompts will fail until configured'
+        )
+      }
+      if (!configuredProjectId) {
+        logger.warn(
+          'LLM_PROVIDER=braintrust is set but BRAINTRUST_PROJECT_ID is missing; requests will run without project attribution'
+        )
+      }
+
+      if (this.piModel) {
+        logger.info(
+          {
+            model: this.piModel.id,
+            baseUrl: configuredBaseUrl,
+            projectIdConfigured: Boolean(configuredProjectId),
+          },
+          'Braintrust model configured for Pi agent sessions'
+        )
+      }
     } else {
-      logger.info('LLM functionality enabled with Braintrust integration')
+      this.llmProviderMode = 'pi'
+      this.piModel = getModel('anthropic', 'claude-opus-4-5')
+      this.stubResponder = null
+      this.braintrustBaseUrl = null
+      this.braintrustProjectId = null
+
+      if (llmProvider && llmProvider !== 'pi') {
+        logger.warn(
+          { llmProvider },
+          'Unknown LLM_PROVIDER value for Pi integration, defaulting to Anthropic Pi model'
+        )
+      }
+
+      if (!this.piModel) {
+        logger.error(
+          { model: 'claude-opus-4-5' },
+          'Pi model not available - LLM functionality disabled'
+        )
+      } else {
+        logger.info({ model: this.piModel.id }, 'Pi model configured for agent sessions')
+      }
     }
+
+    logger.info(
+      {
+        maxPiSessionsPerStore:
+          this.maxPiSessionsPerStore > 0 ? this.maxPiSessionsPerStore : 'unbounded',
+        piSessionIdleTtlMs: this.piSessionIdleTtlMs > 0 ? this.piSessionIdleTtlMs : 'disabled',
+      },
+      'Pi session cache configuration'
+    )
 
     // Load message cutoff timestamp from environment
     const cutoffEnv = process.env.MESSAGE_PROCESSING_CUTOFF_TIMESTAMP
@@ -266,12 +397,7 @@ export class EventProcessor {
       activeConversations: new Set(),
       messageQueue: new MessageQueueManager(),
       conversationProcessors: new Map(),
-      llmProvider:
-        this.llmProviderMode === 'stub'
-          ? StubLLMProvider.fromEnv()
-          : this.braintrustApiKey && this.braintrustProjectId
-            ? new BraintrustProvider(this.braintrustApiKey, this.braintrustProjectId)
-            : undefined,
+      piSessions: new Map(),
     }
 
     this.storeStates.set(storeId, storeState)
@@ -308,7 +434,8 @@ export class EventProcessor {
       // Set stopping flag for consistency with other cleanup paths
       storeState.stopping = true
       storeState.messageQueue.destroy()
-      storeState.llmProvider = undefined
+      await this.disposePiSessions(storeId, storeState)
+      this.clearPiAgentResources(storeId)
       this.storeStates.delete(storeId)
       this.monitoringStartTime.delete(storeId)
 
@@ -637,10 +764,10 @@ export class EventProcessor {
     const { conversationId, id: messageId } = chatMessage
     const correlationId = this.lifecycleTracker.getCorrelationId(messageId)
 
-    // Skip if LLM is not configured
-    if (!storeState.llmProvider) {
-      storeLogger(storeId).debug(`Skipping chat message processing: LLM not configured`)
-      this.lifecycleTracker.recordError(messageId, 'LLM not configured', 'LLM_DISABLED')
+    // Skip if Pi model is not configured (unless stub responder is enabled)
+    if (!this.piModel && !this.stubResponder) {
+      storeLogger(storeId).debug(`Skipping chat message processing: Pi model not configured`)
+      this.lifecycleTracker.recordError(messageId, 'Pi model not configured', 'LLM_DISABLED')
       return
     }
 
@@ -700,7 +827,10 @@ export class EventProcessor {
           `Message queued`
         )
       } catch (error) {
-        logger.error({ error, conversationId, correlationId }, `Failed to queue message`)
+        logger.error(
+          { error: this.formatErrorForLog(error), conversationId, correlationId },
+          `Failed to queue message`
+        )
         this.lifecycleTracker.recordError(
           messageId,
           error instanceof Error ? error : String(error),
@@ -771,55 +901,63 @@ export class EventProcessor {
     }
 
     let llmCallCompleted = false
-    let completionEventEmitted = false
+    let agentRunSucceeded = false
     try {
       const startTime = Date.now()
-      completionEventEmitted = await this.runAgenticLoop(storeId, chatMessage, storeState)
+      agentRunSucceeded = await this.runAgenticLoop(storeId, chatMessage, storeState)
       const responseTime = Date.now() - startTime
 
-      // Check if runAgenticLoop returned false (store disconnected or LLM not available)
-      if (!completionEventEmitted) {
-        // This means the store or LLM provider was unavailable - treat as error
+      if (!agentRunSucceeded) {
         this.endLLMCall(llmCallId, true)
         llmCallCompleted = true
         this.lifecycleTracker.recordError(
           messageId,
-          'Store disconnected or LLM provider unavailable during processing',
-          'STORE_UNAVAILABLE'
+          'Agentic loop reported failure during processing',
+          'AGENTIC_LOOP_FAILED'
         )
-        logger.warn(
-          { conversationId, correlationId, messageId },
-          'Agentic loop returned false - store or LLM unavailable'
+        logMessageEvent(
+          'warn',
+          {
+            correlationId: correlationId || messageId,
+            messageId,
+            storeId,
+            conversationId,
+            stage: 'event_processor',
+            action: 'processing_failed',
+          },
+          'Message processing failed'
         )
-        return
+      } else {
+        // Track successful completion
+        this.endLLMCall(llmCallId, false, responseTime)
+        llmCallCompleted = true
+
+        // Record lifecycle completion
+        this.lifecycleTracker.recordCompleted(messageId)
+        logMessageEvent(
+          'info',
+          {
+            correlationId: correlationId || messageId,
+            messageId,
+            storeId,
+            conversationId,
+            stage: 'event_processor',
+            action: 'processing_completed',
+            durationMs: responseTime,
+          },
+          'Message processing completed successfully'
+        )
       }
-
-      // Track successful completion
-      this.endLLMCall(llmCallId, false, responseTime)
-      llmCallCompleted = true
-
-      // Record lifecycle completion
-      this.lifecycleTracker.recordCompleted(messageId)
-      logMessageEvent(
-        'info',
-        {
-          correlationId: correlationId || messageId,
-          messageId,
-          storeId,
-          conversationId,
-          stage: 'event_processor',
-          action: 'processing_completed',
-          durationMs: responseTime,
-        },
-        'Message processing completed successfully'
-      )
     } catch (error) {
       // Track error and ensure LLM call is properly cleaned up
       this.recordError()
       if (!llmCallCompleted) {
         this.endLLMCall(llmCallId, true) // Mark as timeout/error
       }
-      logger.error({ error, conversationId, correlationId }, `Error in agentic loop`)
+      logger.error(
+        { error: this.formatErrorForLog(error), conversationId, correlationId },
+        `Error in agentic loop`
+      )
 
       // Record lifecycle error
       this.lifecycleTracker.recordError(
@@ -842,19 +980,15 @@ export class EventProcessor {
             llmMetadata: { source: 'error' },
           })
         )
-
-        if (!completionEventEmitted) {
-          store.commit(
-            events.llmResponseCompleted({
-              conversationId,
-              userMessageId: messageId,
-              createdAt: new Date(),
-              iterations: 0,
-              success: false,
-            })
-          )
-          completionEventEmitted = true
-        }
+        store.commit(
+          events.llmResponseCompleted({
+            conversationId,
+            userMessageId: messageId,
+            createdAt: new Date(),
+            iterations: 0,
+            success: false,
+          })
+        )
       }
     } finally {
       // Ensure LLM call is always cleaned up
@@ -864,19 +998,6 @@ export class EventProcessor {
 
       // Always remove from active conversations
       storeState.activeConversations.delete(conversationId)
-    }
-
-    if (!completionEventEmitted && store) {
-      store.commit(
-        events.llmResponseCompleted({
-          conversationId,
-          userMessageId: messageId,
-          createdAt: new Date(),
-          iterations: 0,
-          success: llmCallCompleted,
-        })
-      )
-      completionEventEmitted = true
     }
 
     // Process any queued messages for this conversation (outside try/catch to avoid recursion)
@@ -942,55 +1063,64 @@ export class EventProcessor {
     }
 
     let llmCallCompleted = false
-    let completionEventEmitted = false
+    let agentRunSucceeded = false
     try {
       const startTime = Date.now()
-      completionEventEmitted = await this.runAgenticLoop(storeId, chatMessage, storeState)
+      agentRunSucceeded = await this.runAgenticLoop(storeId, chatMessage, storeState)
       const responseTime = Date.now() - startTime
 
-      // Check if runAgenticLoop returned false (store disconnected or LLM not available)
-      if (!completionEventEmitted) {
-        // This means the store or LLM provider was unavailable - treat as error
+      if (!agentRunSucceeded) {
         this.endLLMCall(llmCallId, true)
         llmCallCompleted = true
         this.lifecycleTracker.recordError(
           messageId,
-          'Store disconnected or LLM provider unavailable during queued message processing',
-          'STORE_UNAVAILABLE'
+          'Agentic loop reported failure during queued message processing',
+          'AGENTIC_LOOP_FAILED'
         )
-        logger.warn(
-          { conversationId, correlationId, messageId },
-          'Agentic loop returned false for queued message - store or LLM unavailable'
+        logMessageEvent(
+          'warn',
+          {
+            correlationId,
+            messageId,
+            storeId,
+            conversationId,
+            stage: 'event_processor',
+            action: 'processing_failed_queued',
+          },
+          'Queued message processing failed'
         )
         return
+      } else {
+        // Track successful completion
+        this.endLLMCall(llmCallId, false, responseTime)
+        llmCallCompleted = true
+
+        // Record lifecycle completion and log correlated event
+        this.lifecycleTracker.recordCompleted(messageId)
+        logMessageEvent(
+          'info',
+          {
+            correlationId,
+            messageId,
+            storeId,
+            conversationId,
+            stage: 'event_processor',
+            action: 'processing_completed_queued',
+            durationMs: responseTime,
+          },
+          'Queued message processed successfully'
+        )
       }
-
-      // Track successful completion
-      this.endLLMCall(llmCallId, false, responseTime)
-      llmCallCompleted = true
-
-      // Record lifecycle completion and log correlated event
-      this.lifecycleTracker.recordCompleted(messageId)
-      logMessageEvent(
-        'info',
-        {
-          correlationId,
-          messageId,
-          storeId,
-          conversationId,
-          stage: 'event_processor',
-          action: 'processing_completed_queued',
-          durationMs: responseTime,
-        },
-        'Queued message processed successfully'
-      )
     } catch (error) {
       // Track error and ensure LLM call is properly cleaned up
       this.recordError()
       if (!llmCallCompleted) {
         this.endLLMCall(llmCallId, true) // Mark as timeout/error
       }
-      logger.error({ error, conversationId, correlationId }, `Error in agentic loop`)
+      logger.error(
+        { error: this.formatErrorForLog(error), conversationId, correlationId },
+        `Error in agentic loop`
+      )
 
       // Record lifecycle error
       this.lifecycleTracker.recordError(
@@ -1027,19 +1157,15 @@ export class EventProcessor {
             llmMetadata: { source: 'error' },
           })
         )
-
-        if (!completionEventEmitted) {
-          store.commit(
-            events.llmResponseCompleted({
-              conversationId,
-              userMessageId: messageId,
-              createdAt: new Date(),
-              iterations: 0,
-              success: false,
-            })
-          )
-          completionEventEmitted = true
-        }
+        store.commit(
+          events.llmResponseCompleted({
+            conversationId,
+            userMessageId: messageId,
+            createdAt: new Date(),
+            iterations: 0,
+            success: false,
+          })
+        )
       }
     } finally {
       // Ensure LLM call is always cleaned up
@@ -1052,18 +1178,40 @@ export class EventProcessor {
     }
 
     // NOTE: Deliberately NOT calling processQueuedMessages here to avoid recursion
+  }
 
-    if (!completionEventEmitted && store) {
-      store.commit(
-        events.llmResponseCompleted({
-          conversationId,
-          userMessageId: messageId,
-          createdAt: new Date(),
-          iterations: 0,
-          success: llmCallCompleted,
-        })
-      )
-    }
+  private async runStubResponder(
+    store: LiveStore,
+    userMessage: ChatMessage,
+    prompt: string
+  ): Promise<boolean> {
+    const message = this.stubResponder?.(prompt) ?? ''
+    const conversationId = userMessage.conversationId
+
+    store.commit(
+      events.llmResponseReceived({
+        id: crypto.randomUUID(),
+        conversationId,
+        message,
+        role: 'assistant',
+        modelId: 'stub',
+        responseToMessageId: userMessage.id,
+        createdAt: new Date(),
+        llmMetadata: { source: 'stub' },
+      })
+    )
+
+    store.commit(
+      events.llmResponseCompleted({
+        conversationId,
+        userMessageId: userMessage.id,
+        createdAt: new Date(),
+        iterations: 1,
+        success: true,
+      })
+    )
+
+    return true
   }
 
   /**
@@ -1079,7 +1227,67 @@ export class EventProcessor {
       return false
     }
 
-    if (!storeState.llmProvider) {
+    const validationResult = this.inputValidator.validateUserMessage(userMessage.message ?? '')
+    if (!validationResult.isValid) {
+      logger.warn(
+        {
+          storeId,
+          conversationId: userMessage.conversationId,
+          userMessageId: userMessage.id,
+          reason: validationResult.reason,
+        },
+        'Blocked user message due to input validation failure'
+      )
+
+      store.commit(
+        events.llmResponseReceived({
+          id: crypto.randomUUID(),
+          conversationId: userMessage.conversationId,
+          message:
+            'I could not process that request safely. Please rephrase and try again without special instruction overrides.',
+          role: 'assistant',
+          modelId: 'error',
+          responseToMessageId: userMessage.id,
+          createdAt: new Date(),
+          llmMetadata: {
+            source: 'input-validation-error',
+            reason: validationResult.reason ?? 'unknown',
+          },
+        })
+      )
+
+      store.commit(
+        events.llmResponseCompleted({
+          conversationId: userMessage.conversationId,
+          userMessageId: userMessage.id,
+          createdAt: new Date(),
+          iterations: 0,
+          success: false,
+        })
+      )
+
+      return false
+    }
+
+    const sanitizedPrompt = validationResult.sanitizedContent ?? userMessage.message ?? ''
+    if (sanitizedPrompt !== (userMessage.message ?? '')) {
+      logger.debug(
+        {
+          storeId,
+          conversationId: userMessage.conversationId,
+          userMessageId: userMessage.id,
+          originalLength: (userMessage.message ?? '').length,
+          sanitizedLength: sanitizedPrompt.length,
+        },
+        'Sanitized user input before invoking LLM provider'
+      )
+    }
+
+    if (this.stubResponder) {
+      return this.runStubResponder(store, userMessage, sanitizedPrompt)
+    }
+
+    if (!this.piModel) {
       return false
     }
 
@@ -1110,7 +1318,7 @@ export class EventProcessor {
         )
       )
     } catch (error) {
-      logger.error({ error }, `Error querying conversation context`)
+      logger.error({ error: this.formatErrorForLog(error) }, `Error querying conversation context`)
       // If we can't get the context due to store issues, bail out gracefully
       store.commit(
         events.llmResponseReceived({
@@ -1135,11 +1343,10 @@ export class EventProcessor {
         })
       )
 
-      return true
+      return false
     }
 
     let workerContext: WorkerContext | undefined = undefined
-    const boardContext: BoardContext | undefined = undefined
     let navigationContext: NavigationContext | undefined = undefined
 
     // Resolve prompt from room definition (code) instead of worker.systemPrompt (DB)
@@ -1218,7 +1425,10 @@ export class EventProcessor {
         navigationContext = await this.enrichNavigationContext(store, parsedContext)
         logger.debug({ navigationContext }, 'Enriched navigation context')
       } catch (error) {
-        logger.warn({ error }, 'Failed to parse/enrich navigation context from user message')
+        logger.warn(
+          { error: this.formatErrorForLog(error) },
+          'Failed to parse/enrich navigation context from user message'
+        )
       }
     }
 
@@ -1227,238 +1437,663 @@ export class EventProcessor {
     // loop appends it before contacting the provider.
     const conversationHistory = this.buildConversationHistory(chatHistory, userMessage)
 
-    let completionEmitted = false
-
-    // Create agentic loop instance with conversation history
-    const agenticLoop = new AgenticLoop(
-      store,
-      storeState.llmProvider,
-      {
-        onIterationStart: iteration => {
-          logger.debug({ iteration }, `Agentic loop iteration started`)
-        },
-        onIterationComplete: (iteration, response) => {
-          // Only send the LLM's message if there are tool calls
-          // If there are no tool calls, onFinalMessage will handle it
-          if (
-            response.message &&
-            response.message.trim() &&
-            response.toolCalls &&
-            response.toolCalls.length > 0
-          ) {
-            logger.debug(
-              { iteration, reasoning: response.message.substring(0, 100) },
-              `Iteration LLM reasoning`
-            )
-            store.commit(
-              events.llmResponseReceived({
-                id: crypto.randomUUID(),
-                conversationId: userMessage.conversationId,
-                message: response.message,
-                role: 'assistant',
-                modelId: conversation?.model || DEFAULT_MODEL,
-                responseToMessageId: userMessage.id,
-                createdAt: new Date(),
-                llmMetadata: {
-                  source: 'braintrust',
-                  iteration,
-                  hasToolCalls: true,
-                  messageType: 'reasoning',
-                },
-              })
-            )
-          }
-        },
-        onToolsExecuting: toolCalls => {
-          // Emit tool execution events for UI updates
-          for (const toolCall of toolCalls) {
-            store.commit(
-              events.llmResponseReceived({
-                id: crypto.randomUUID(),
-                conversationId: userMessage.conversationId,
-                message: `🔧 Using ${toolCall.function.name} tool...`,
-                role: 'assistant',
-                modelId: 'system',
-                responseToMessageId: userMessage.id,
-                createdAt: new Date(),
-                llmMetadata: {
-                  source: 'tool-execution',
-                  toolCall: toolCall,
-                },
-              })
-            )
-          }
-        },
-        onToolsComplete: toolMessages => {
-          // Send formatted tool results to the frontend
-          for (const toolMessage of toolMessages) {
-            store.commit(
-              events.llmResponseReceived({
-                id: crypto.randomUUID(),
-                conversationId: userMessage.conversationId,
-                message: toolMessage.content, // This is already formatted by ToolResultFormatterService
-                role: 'assistant',
-                modelId: 'system',
-                responseToMessageId: userMessage.id,
-                createdAt: new Date(),
-                llmMetadata: {
-                  source: 'tool-result',
-                  toolCallId: toolMessage.tool_call_id,
-                },
-              })
-            )
-          }
-        },
-        onFinalMessage: message => {
-          // Emit final LLM response
-          logger.info({ response: message.substring(0, 100) }, `Final LLM response`)
-          store.commit(
-            events.llmResponseReceived({
-              id: crypto.randomUUID(),
-              conversationId: userMessage.conversationId,
-              message,
-              role: 'assistant',
-              modelId: conversation?.model || DEFAULT_MODEL,
-              responseToMessageId: userMessage.id,
-              createdAt: new Date(),
-              llmMetadata: {
-                source: 'braintrust',
-                messageType: 'final',
-              },
-            })
-          )
-        },
-        onError: (error, iteration) => {
-          // Use the classification for consistent error typing
-          // Pass isAfterRetries=true since onError is only called after retries are exhausted
-          const classified = classifyError(error, true)
-          // Use 'err' key for proper pino error serialization with _diagnostic marker
-          logger.error(
-            {
-              err: classified.error,
-              iteration,
-              storeId,
-              messageId: userMessage.id,
-              errorType: classified.type,
-              _diagnostic: 'agentic_loop_error',
-            },
-            `Agentic loop error: ${classified.type}`
-          )
-
-          // DIAGNOSTIC: Also try Sentry's direct logging API
-          Sentry.logger.error('DIAGNOSTIC: Agentic loop error (Sentry.logger direct)', {
-            errorMessage: error.message,
-            errorType: classified.type,
-            iteration,
-            storeId,
-            messageId: userMessage.id,
-            _diagnostic: 'agentic_loop_error_sentry_direct',
-          })
-
-          // Use max_iterations message directly if that's the error type
-          const displayMessage = error.message.includes('Maximum iterations')
-            ? error.message
-            : classified.userMessage
-
-          store.commit(
-            events.llmResponseReceived({
-              id: crypto.randomUUID(),
-              conversationId: userMessage.conversationId,
-              message: displayMessage,
-              role: 'assistant',
-              modelId: 'error',
-              responseToMessageId: userMessage.id,
-              createdAt: new Date(),
-              llmMetadata: {
-                source: 'error',
-                agenticIteration: iteration,
-                errorType: classified.type,
-              },
-            })
-          )
-
-          // Send completion event indicating failure
-          store.commit(
-            events.llmResponseCompleted({
-              conversationId: userMessage.conversationId,
-              userMessageId: userMessage.id,
-              createdAt: new Date(),
-              iterations: iteration,
-              success: false,
-            })
-          )
-          completionEmitted = true
-        },
-        onComplete: iterations => {
-          // Send completion event to indicate the agentic loop has finished
-          // Skip if already emitted (e.g., from onError handler)
-          if (completionEmitted) {
-            logger.info({ iterations }, `Agentic loop completed (completion already emitted)`)
-            return
-          }
-          logger.info({ iterations }, `Agentic loop completed`)
-          store.commit(
-            events.llmResponseCompleted({
-              conversationId: userMessage.conversationId,
-              userMessageId: userMessage.id,
-              createdAt: new Date(),
-              iterations,
-              success: true,
-            })
-          )
-          completionEmitted = true
-        },
-      },
-      conversationHistory
-    )
-
-    // Conversation history is now set in the AgenticLoop constructor
-
-    // Get correlation ID for this message
+    const conversationId = userMessage.conversationId
     const correlationId = this.lifecycleTracker.getCorrelationId(userMessage.id)
+    const sessionEntry = await this.getOrCreatePiSession(
+      storeId,
+      conversationId,
+      storeState,
+      store,
+      worker?.id
+    )
+    if (!sessionEntry) {
+      logger.error(
+        { storeId, conversationId, correlationId },
+        'Pi session initialization failed before prompt execution'
+      )
+      store.commit(
+        events.llmResponseReceived({
+          id: crypto.randomUUID(),
+          conversationId,
+          message: 'Sorry, I could not start the assistant session. Please try again.',
+          role: 'assistant',
+          modelId: 'error',
+          responseToMessageId: userMessage.id,
+          createdAt: new Date(),
+          llmMetadata: { source: 'session-init-error' },
+        })
+      )
+      store.commit(
+        events.llmResponseCompleted({
+          conversationId,
+          userMessageId: userMessage.id,
+          createdAt: new Date(),
+          iterations: 0,
+          success: false,
+        })
+      )
+      return false
+    }
 
-    // DIAGNOSTIC: Log with base logger to verify Sentry receives logs during request processing
-    logger.info(
-      { storeId, messageId: userMessage.id, correlationId, _diagnostic: 'agentic_loop_start' },
-      'DIAGNOSTIC: Starting agentic loop (base logger)'
+    const { session } = sessionEntry
+    const modelId = this.piModel?.id || conversation?.model || DEFAULT_MODEL
+
+    session.agent.setSystemPrompt(buildSystemPrompt(workerContext, navigationContext))
+
+    if (session.agent.state.messages.length === 0 && conversationHistory.length > 0) {
+      session.agent.replaceMessages(conversationHistory)
+    }
+
+    let sawError = false
+    let promptErrorCaptured = false
+    let iterationCount = 0
+    let assistantResponseEmitted = false
+    let failureContext: Record<string, unknown> | undefined
+
+    const unsubscribe = session.subscribe((event: AgentSessionEvent) => {
+      if (storeState.stopping) {
+        return
+      }
+
+      switch (event.type) {
+        case 'tool_execution_start': {
+          // Suppress tool progress chatter in the chat transcript.
+          break
+        }
+        case 'tool_execution_end': {
+          const formatted =
+            typeof event.result?.details?.formatted === 'string'
+              ? event.result.details.formatted
+              : this.extractToolResultText(event.result?.content)
+
+          // Only surface tool output when the tool failed.
+          if (formatted && event.isError) {
+            store.commit(
+              events.llmResponseReceived({
+                id: crypto.randomUUID(),
+                conversationId,
+                message: formatted,
+                role: 'assistant',
+                modelId: 'system',
+                responseToMessageId: userMessage.id,
+                createdAt: new Date(),
+                llmMetadata: {
+                  source: 'tool-error',
+                  toolCallId: event.toolCallId,
+                  toolName: event.toolName,
+                },
+              })
+            )
+          }
+          break
+        }
+        case 'turn_end': {
+          iterationCount += 1
+          break
+        }
+        case 'message_end': {
+          if (event.message.role === 'assistant') {
+            if (this.isAssistantErrorMessage(event.message)) {
+              sawError = true
+              failureContext = {
+                source: 'message_end',
+                stopReason: event.message.stopReason,
+                errorMessage:
+                  'errorMessage' in event.message ? (event.message.errorMessage ?? null) : null,
+              }
+            }
+
+            const text = this.extractAssistantText(event.message)
+            if (text.trim().length > 0) {
+              store.commit(
+                events.llmResponseReceived({
+                  id: crypto.randomUUID(),
+                  conversationId,
+                  message: text,
+                  role: 'assistant',
+                  modelId,
+                  responseToMessageId: userMessage.id,
+                  createdAt: new Date(),
+                  llmMetadata: {
+                    source: 'pi',
+                    messageType: 'assistant',
+                  },
+                })
+              )
+              assistantResponseEmitted = true
+            }
+          }
+          break
+        }
+        case 'agent_end': {
+          const latestAssistantMessage = [...event.messages]
+            .reverse()
+            .find((message): message is AssistantMessage => message.role === 'assistant')
+          if (latestAssistantMessage && this.isAssistantErrorMessage(latestAssistantMessage)) {
+            sawError = true
+            failureContext = {
+              source: 'agent_end',
+              stopReason: latestAssistantMessage.stopReason,
+              errorMessage:
+                'errorMessage' in latestAssistantMessage
+                  ? (latestAssistantMessage.errorMessage ?? null)
+                  : null,
+            }
+          }
+          break
+        }
+        default:
+          break
+      }
+    })
+
+    try {
+      await session.setModel(this.piModel)
+      await session.prompt(sanitizedPrompt)
+    } catch (error) {
+      sawError = true
+      promptErrorCaptured = true
+      failureContext = {
+        source: 'prompt_exception',
+        error: this.formatErrorForLog(error),
+      }
+      logger.error(
+        { error: this.formatErrorForLog(error), conversationId, correlationId },
+        'Error in Pi agent session'
+      )
+      this.captureAgentError(error, {
+        storeId,
+        conversationId,
+        userMessageId: userMessage.id,
+        correlationId,
+        stage: 'prompt_execution',
+      })
+      store.commit(
+        events.llmResponseReceived({
+          id: crypto.randomUUID(),
+          conversationId,
+          message: 'Sorry, I encountered an error processing your message. Please try again.',
+          role: 'assistant',
+          modelId: 'error',
+          responseToMessageId: userMessage.id,
+          createdAt: new Date(),
+          llmMetadata: { source: 'error' },
+        })
+      )
+      assistantResponseEmitted = true
+    } finally {
+      unsubscribe()
+    }
+
+    if (sawError && !assistantResponseEmitted) {
+      logger.warn(
+        {
+          storeId,
+          conversationId,
+          correlationId,
+          userMessageId: userMessage.id,
+          failureContext,
+        },
+        'Pi session reported an error state without assistant text; emitting fallback error response'
+      )
+      store.commit(
+        events.llmResponseReceived({
+          id: crypto.randomUUID(),
+          conversationId,
+          message: 'Sorry, I encountered an error processing your message. Please try again.',
+          role: 'assistant',
+          modelId: 'error',
+          responseToMessageId: userMessage.id,
+          createdAt: new Date(),
+          llmMetadata: { source: 'error' },
+        })
+      )
+    }
+
+    if (sawError && !promptErrorCaptured) {
+      this.captureAgentError(
+        new Error('Pi session ended with non-throwing error state', {
+          cause: failureContext,
+        }),
+        {
+          storeId,
+          conversationId,
+          userMessageId: userMessage.id,
+          correlationId,
+          stage: 'prompt_execution',
+        }
+      )
+    }
+
+    const completedIterations = iterationCount > 0 ? iterationCount : sawError ? 0 : 1
+    store.commit(
+      events.llmResponseCompleted({
+        conversationId,
+        userMessageId: userMessage.id,
+        createdAt: new Date(),
+        iterations: completedIterations,
+        success: !sawError,
+      })
     )
 
-    // DIAGNOSTIC: Also try Sentry's direct logging API (bypasses pino entirely)
-    Sentry.logger.info('DIAGNOSTIC: Starting agentic loop (Sentry.logger direct)', {
-      storeId,
-      messageId: userMessage.id,
-      correlationId,
-      _diagnostic: 'agentic_loop_start_sentry_direct',
-    })
+    return !sawError
+  }
 
-    // Run the agentic loop with message tracking context
-    await agenticLoop.run(userMessage.message, {
-      boardContext,
-      navigationContext,
-      workerContext,
-      workerId: worker?.id,
-      model: conversation?.model || DEFAULT_MODEL,
-      // Message tracking context for debugging
-      messageId: userMessage.id,
-      correlationId,
-      storeId,
-    })
+  private async getOrCreatePiSession(
+    storeId: string,
+    conversationId: string,
+    storeState: StoreProcessingState,
+    store: LiveStore,
+    workerId?: string
+  ): Promise<PiConversationSession | null> {
+    const existing = storeState.piSessions.get(conversationId)
+    if (existing) {
+      existing.lastAccessedAt = Date.now()
+      return existing
+    }
 
-    // DIAGNOSTIC: Log with base logger after agentic loop completes
-    logger.info(
-      { storeId, messageId: userMessage.id, correlationId, _diagnostic: 'agentic_loop_complete' },
-      'DIAGNOSTIC: Agentic loop completed (base logger)'
+    await this.evictPiSessionsIfNeeded(storeId, storeState, conversationId)
+
+    const safeStoreId = this.sanitizePiSegment(storeId)
+    const sessionDir = path.join(
+      this.piBaseDir,
+      safeStoreId,
+      this.sanitizePiSegment(conversationId)
     )
 
-    // DIAGNOSTIC: Also try Sentry's direct logging API
-    Sentry.logger.info('DIAGNOSTIC: Agentic loop completed (Sentry.logger direct)', {
-      storeId,
-      messageId: userMessage.id,
-      correlationId,
-      _diagnostic: 'agentic_loop_complete_sentry_direct',
-    })
+    try {
+      await fs.mkdir(sessionDir, { recursive: true })
+      const { authStorage, modelRegistry, resourceLoader } =
+        await this.getOrCreatePiAgentResources(storeId)
 
-    return completionEmitted
+      const existingSessionFile = await this.findLatestSessionFile(sessionDir)
+      const sessionManager = existingSessionFile
+        ? SessionManager.open(existingSessionFile, sessionDir)
+        : SessionManager.create(process.cwd(), sessionDir)
+
+      const { session } = await createAgentSession({
+        model: this.piModel ?? undefined,
+        authStorage,
+        modelRegistry,
+        resourceLoader,
+        sessionManager,
+        tools: [],
+        customTools: createPiTools({ store, workerId }),
+      })
+
+      const entry = { session, sessionDir, lastAccessedAt: Date.now() }
+      storeState.piSessions.set(conversationId, entry)
+
+      logger.info({ storeId, conversationId, sessionDir }, 'Pi session created')
+
+      return entry
+    } catch (error) {
+      logger.error(
+        { error: this.formatErrorForLog(error), storeId, conversationId },
+        'Failed to create Pi session'
+      )
+      this.captureAgentError(error, {
+        storeId,
+        conversationId,
+        stage: 'session_initialization',
+      })
+      return null
+    }
+  }
+
+  private async getOrCreatePiAgentResources(storeId: string): Promise<PiAgentResources> {
+    const cached = this.piAgentResourcesByStore.get(storeId)
+    if (cached) {
+      return cached
+    }
+
+    const inFlight = this.piAgentResourceInitPromises.get(storeId)
+    if (inFlight) {
+      return inFlight
+    }
+
+    const safeStoreId = this.sanitizePiSegment(storeId)
+    const agentDir = path.join(this.piBaseDir, safeStoreId, 'agent')
+
+    const initPromise = (async () => {
+      await fs.mkdir(agentDir, { recursive: true })
+
+      const authStorage = new AuthStorage(path.join(agentDir, 'auth.json'))
+      const modelRegistry = new ModelRegistry(authStorage, path.join(agentDir, 'models.json'))
+      this.configurePiProviderOverrides(modelRegistry)
+      const resourceLoader = new DefaultResourceLoader({
+        cwd: process.cwd(),
+        agentDir,
+      })
+      await resourceLoader.reload()
+
+      const resources: PiAgentResources = {
+        agentDir,
+        authStorage,
+        modelRegistry,
+        resourceLoader,
+      }
+      this.piAgentResourcesByStore.set(storeId, resources)
+      return resources
+    })()
+
+    this.piAgentResourceInitPromises.set(storeId, initPromise)
+
+    try {
+      return await initPromise
+    } finally {
+      this.piAgentResourceInitPromises.delete(storeId)
+    }
+  }
+
+  private clearPiAgentResources(storeId: string): void {
+    this.piAgentResourceInitPromises.delete(storeId)
+    this.piAgentResourcesByStore.delete(storeId)
+  }
+
+  private sanitizePiSegment(value: string): string {
+    // Keep path segments filesystem-safe and non-traversable by disallowing dots entirely.
+    const sanitized = value.replace(/[^a-zA-Z0-9_-]/g, '_')
+    return sanitized.length > 0 ? sanitized : '_'
+  }
+
+  private configurePiProviderOverrides(modelRegistry: ModelRegistry): void {
+    if (this.llmProviderMode !== 'braintrust' || !this.braintrustBaseUrl) {
+      return
+    }
+
+    const headers: Record<string, string> | undefined = this.braintrustProjectId
+      ? { 'x-bt-parent': `project_id:${this.braintrustProjectId}` }
+      : undefined
+
+    modelRegistry.registerProvider('braintrust', {
+      baseUrl: this.braintrustBaseUrl,
+      apiKey: 'BRAINTRUST_API_KEY',
+      headers,
+    })
+  }
+
+  private async findLatestSessionFile(sessionDir: string): Promise<string | null> {
+    try {
+      const entries = await fs.readdir(sessionDir, { withFileTypes: true })
+      const sessionFiles = entries
+        .filter(entry => entry.isFile() && entry.name.endsWith('.jsonl'))
+        .map(entry => path.join(sessionDir, entry.name))
+
+      if (sessionFiles.length === 0) {
+        return null
+      }
+
+      const stats = await Promise.all(
+        sessionFiles.map(async filePath => ({
+          filePath,
+          stat: await fs.stat(filePath),
+        }))
+      )
+
+      stats.sort((a, b) => b.stat.mtimeMs - a.stat.mtimeMs)
+      return stats[0]?.filePath ?? null
+    } catch (error) {
+      logger.warn(
+        { error: this.formatErrorForLog(error), sessionDir },
+        'Failed to inspect existing Pi sessions'
+      )
+      return null
+    }
+  }
+
+  private async evictPiSessionsIfNeeded(
+    storeId: string,
+    storeState: StoreProcessingState,
+    preserveConversationId?: string
+  ): Promise<void> {
+    if (storeState.piSessions.size === 0) {
+      return
+    }
+
+    const now = Date.now()
+
+    if (this.piSessionIdleTtlMs > 0) {
+      for (const [cachedConversationId, entry] of Array.from(storeState.piSessions.entries())) {
+        if (
+          this.shouldPreservePiSession(storeState, cachedConversationId, preserveConversationId)
+        ) {
+          continue
+        }
+
+        const idleDurationMs = now - entry.lastAccessedAt
+        if (idleDurationMs >= this.piSessionIdleTtlMs) {
+          await this.disposePiSessionEntry(
+            storeState,
+            storeId,
+            cachedConversationId,
+            entry,
+            'idle_ttl_exceeded',
+            {
+              idleDurationMs,
+              ttlMs: this.piSessionIdleTtlMs,
+            }
+          )
+        }
+      }
+    }
+
+    if (
+      this.maxPiSessionsPerStore <= 0 ||
+      storeState.piSessions.size < this.maxPiSessionsPerStore
+    ) {
+      return
+    }
+
+    const targetSizeBeforeInsert = Math.max(this.maxPiSessionsPerStore - 1, 0)
+    const evictionCandidates = Array.from(storeState.piSessions.entries())
+      .filter(([cachedConversationId]) => {
+        return !this.shouldPreservePiSession(
+          storeState,
+          cachedConversationId,
+          preserveConversationId
+        )
+      })
+      .sort((a, b) => a[1].lastAccessedAt - b[1].lastAccessedAt)
+
+    for (const [cachedConversationId, entry] of evictionCandidates) {
+      if (storeState.piSessions.size <= targetSizeBeforeInsert) {
+        break
+      }
+
+      await this.disposePiSessionEntry(
+        storeState,
+        storeId,
+        cachedConversationId,
+        entry,
+        'capacity_lru'
+      )
+    }
+
+    if (storeState.piSessions.size > targetSizeBeforeInsert) {
+      logger.warn(
+        {
+          storeId,
+          cacheSize: storeState.piSessions.size,
+          maxPiSessionsPerStore: this.maxPiSessionsPerStore,
+          preserveConversationId,
+          activeConversations: storeState.activeConversations.size,
+        },
+        'Pi session cache exceeded capacity with no evictable idle sessions'
+      )
+    }
+  }
+
+  private shouldPreservePiSession(
+    storeState: StoreProcessingState,
+    conversationId: string,
+    preserveConversationId?: string
+  ): boolean {
+    return (
+      conversationId === preserveConversationId ||
+      storeState.activeConversations.has(conversationId)
+    )
+  }
+
+  private async disposePiSessionEntry(
+    storeState: StoreProcessingState,
+    storeId: string,
+    conversationId: string,
+    entry: PiConversationSession,
+    reason: 'idle_ttl_exceeded' | 'capacity_lru' | 'store_cleanup',
+    metadata?: Record<string, unknown>
+  ): Promise<void> {
+    try {
+      await entry.session.dispose()
+    } catch (error) {
+      logger.warn(
+        { error: this.formatErrorForLog(error), storeId, conversationId },
+        'Failed to dispose Pi session cleanly'
+      )
+      this.captureAgentError(error, {
+        storeId,
+        conversationId,
+        stage: 'session_dispose',
+      })
+    } finally {
+      storeState.piSessions.delete(conversationId)
+    }
+
+    logger.debug(
+      {
+        storeId,
+        conversationId,
+        reason,
+        cacheSizeAfterEviction: storeState.piSessions.size,
+        ...metadata,
+      },
+      'Disposed Pi session from cache'
+    )
+  }
+
+  private captureAgentError(
+    error: unknown,
+    context: {
+      storeId: string
+      conversationId?: string
+      userMessageId?: string
+      correlationId?: string | null
+      stage: 'session_initialization' | 'session_dispose' | 'prompt_execution'
+    }
+  ): void {
+    const exception = error instanceof Error ? error : new Error(String(error))
+
+    Sentry.withScope(scope => {
+      scope.setTag('agent.integration', 'pi')
+      scope.setTag('agent.stage', context.stage)
+      scope.setTag('store_id', context.storeId)
+      if (context.conversationId) {
+        scope.setTag('conversation_id', context.conversationId)
+      }
+      if (context.userMessageId) {
+        scope.setTag('message_id', context.userMessageId)
+      }
+      if (context.correlationId) {
+        scope.setTag('correlation_id', context.correlationId)
+      }
+      scope.setContext('agent_error_context', context)
+      Sentry.captureException(exception)
+    })
+  }
+
+  private formatErrorForLog(error: unknown, depth = 0): Record<string, unknown> {
+    if (depth >= 2) {
+      return { type: 'error-depth-limit', value: String(error) }
+    }
+
+    if (error instanceof Error) {
+      const typedError = error as Error & {
+        code?: unknown
+        status?: unknown
+        statusCode?: unknown
+      }
+
+      return {
+        type: error.constructor?.name || 'Error',
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        code: typedError.code,
+        status: typedError.status ?? typedError.statusCode,
+        cause:
+          error.cause !== undefined ? this.formatErrorForLog(error.cause, depth + 1) : undefined,
+        details: this.toSafeLogValue(
+          Object.fromEntries(
+            Object.entries(typedError).filter(
+              ([key]) => key !== 'name' && key !== 'message' && key !== 'stack' && key !== 'cause'
+            )
+          )
+        ),
+      }
+    }
+
+    return {
+      type: error === null ? 'null' : typeof error,
+      value: this.toSafeLogValue(error),
+    }
+  }
+
+  private toSafeLogValue(value: unknown): unknown {
+    try {
+      return JSON.parse(
+        JSON.stringify(value, (_key, nestedValue: unknown) => {
+          if (nestedValue instanceof Error) {
+            return {
+              name: nestedValue.name,
+              message: nestedValue.message,
+              stack: nestedValue.stack,
+            }
+          }
+          if (typeof nestedValue === 'bigint') {
+            return nestedValue.toString()
+          }
+          return nestedValue
+        })
+      )
+    } catch {
+      return String(value)
+    }
+  }
+
+  private isAssistantErrorMessage(message: Message): message is AssistantMessage {
+    if (message.role !== 'assistant') {
+      return false
+    }
+
+    return (
+      message.stopReason === 'error' ||
+      message.stopReason === 'aborted' ||
+      typeof message.errorMessage === 'string'
+    )
+  }
+
+  private extractAssistantText(message: Message): string {
+    if (message.role !== 'assistant') {
+      return ''
+    }
+
+    return message.content
+      .filter(part => part.type === 'text')
+      .map(part => part.text)
+      .join('')
+  }
+
+  private extractToolResultText(content?: Array<{ type: string; text?: string }>): string | null {
+    if (!content || content.length === 0) {
+      return null
+    }
+
+    const text = content
+      .filter(part => part.type === 'text' && typeof part.text === 'string')
+      .map(part => part.text ?? '')
+      .join('')
+
+    return text.trim().length > 0 ? text : null
   }
 
   /**
@@ -1503,7 +2138,10 @@ export class EventProcessor {
           await this.processQueuedMessage(storeId, nextMessage, storeState)
         })
       } catch (error) {
-        logger.error({ error, conversationId }, `Error processing queued message`)
+        logger.error(
+          { error: this.formatErrorForLog(error), conversationId },
+          `Error processing queued message`
+        )
 
         // Emit error to conversation
         const store = this.storeManager.getStore(storeId)
@@ -1566,7 +2204,7 @@ export class EventProcessor {
    * and start monitoring the new store instance.
    */
   private setupStoreReconnectionHandler(): void {
-    this.reconnectionHandler = ({ storeId, store }) => {
+    this.reconnectionHandler = async ({ storeId, store }) => {
       // Prevent operations after shutdown
       if (this.isShutdown) {
         logger.debug({ storeId }, 'Ignoring storeReconnected event - processor is shutdown')
@@ -1584,7 +2222,15 @@ export class EventProcessor {
 
       // Force immediate cleanup of old state (don't wait for async processingQueue.finally)
       // This avoids the race condition where startMonitoring sees stopping=true
-      this.forceCleanupStoreState(storeId, existingState)
+      try {
+        await this.forceCleanupStoreState(storeId, existingState)
+      } catch (error) {
+        logger.error(
+          { storeId, error: this.formatErrorForLog(error) },
+          'Failed to clean up old store state during reconnection'
+        )
+        return
+      }
 
       // Start fresh monitoring on the new store instance
       this.startMonitoring(storeId, store).catch(error => {
@@ -1595,11 +2241,23 @@ export class EventProcessor {
     this.storeManager.on('storeReconnected', this.reconnectionHandler)
   }
 
+  private async disposePiSessions(
+    storeId: string,
+    storeState: StoreProcessingState
+  ): Promise<void> {
+    for (const [conversationId, entry] of Array.from(storeState.piSessions.entries())) {
+      await this.disposePiSessionEntry(storeState, storeId, conversationId, entry, 'store_cleanup')
+    }
+  }
+
   /**
    * Force immediate cleanup of store state for reconnection scenarios.
    * This bypasses the async processingQueue.finally to avoid race conditions.
    */
-  private forceCleanupStoreState(storeId: string, storeState: StoreProcessingState): void {
+  private async forceCleanupStoreState(
+    storeId: string,
+    storeState: StoreProcessingState
+  ): Promise<void> {
     // Mark as stopping to signal any in-flight operations to abort
     storeState.stopping = true
 
@@ -1621,8 +2279,8 @@ export class EventProcessor {
     }
     storeState.conversationProcessors.clear()
 
-    // Clear llmProvider reference to allow GC and prevent use after cleanup
-    storeState.llmProvider = undefined
+    await this.disposePiSessions(storeId, storeState)
+    this.clearPiAgentResources(storeId)
 
     // Cleanup subscription health tracking
     this.lastSubscriptionUpdate.delete(storeId)
@@ -1672,25 +2330,32 @@ export class EventProcessor {
     }
 
     // Wait for processing to complete before removing state
-    storeState.processingQueue.finally(() => {
-      // Cleanup message queue manager
-      storeState.messageQueue.destroy()
+    void storeState.processingQueue.finally(async () => {
+      try {
+        // Cleanup message queue manager
+        storeState.messageQueue.destroy()
 
-      // Cleanup all conversation processors
-      for (const processor of storeState.conversationProcessors.values()) {
-        processor.destroy()
+        // Cleanup all conversation processors
+        for (const processor of storeState.conversationProcessors.values()) {
+          processor.destroy()
+        }
+        storeState.conversationProcessors.clear()
+
+        await this.disposePiSessions(storeId, storeState)
+        this.clearPiAgentResources(storeId)
+      } catch (error) {
+        storeLogger(storeId).error(
+          { error: this.formatErrorForLog(error) },
+          'Error during stopMonitoring cleanup'
+        )
+      } finally {
+        // Cleanup subscription health tracking
+        this.lastSubscriptionUpdate.delete(storeId)
+        this.monitoringStartTime.delete(storeId)
+
+        this.storeStates.delete(storeId)
+        storeLogger(storeId).info('Stopped event monitoring')
       }
-      storeState.conversationProcessors.clear()
-
-      // Clear llmProvider reference to allow GC and prevent use after cleanup
-      storeState.llmProvider = undefined
-
-      // Cleanup subscription health tracking
-      this.lastSubscriptionUpdate.delete(storeId)
-      this.monitoringStartTime.delete(storeId)
-
-      this.storeStates.delete(storeId)
-      storeLogger(storeId).info('Stopped event monitoring')
     })
   }
 
@@ -1719,7 +2384,10 @@ export class EventProcessor {
 
     // Cleanup processed message tracker
     this.processedTracker.close().catch(error => {
-      logger.error({ error }, 'Error closing processed message tracker')
+      logger.error(
+        { error: this.formatErrorForLog(error) },
+        'Error closing processed message tracker'
+      )
     })
 
     // Cleanup global message lifecycle tracker (stops its cleanup timer)
@@ -2202,52 +2870,10 @@ export class EventProcessor {
     this.activeLLMCalls = 0
   }
 
-  /**
-   * Sanitize conversation history to prevent tool_use/tool_result mismatches
-   */
-  private sanitizeConversationHistory(history: LLMMessage[]): LLMMessage[] {
-    const sanitized: LLMMessage[] = []
-
-    for (let i = 0; i < history.length; i++) {
-      const message = history[i]
-
-      // If this is an assistant message with tool_calls
-      if (message.role === 'assistant' && message.tool_calls && message.tool_calls.length > 0) {
-        // Check if the next message has corresponding tool_result blocks
-        const nextMessage = history[i + 1]
-
-        if (!nextMessage || nextMessage.role !== 'tool' || !nextMessage.tool_call_id) {
-          // No corresponding tool result - strip the tool_calls to avoid API errors
-          logger.debug(`Sanitizing incomplete tool_calls from assistant message`)
-          sanitized.push({
-            ...message,
-            tool_calls: undefined,
-          })
-        } else {
-          // Has tool results - include as-is
-          sanitized.push(message)
-        }
-      } else if (message.role === 'tool') {
-        // Only include tool messages if the previous message was an assistant with tool_calls
-        const prevMessage = sanitized[sanitized.length - 1]
-        if (prevMessage && prevMessage.role === 'assistant' && prevMessage.tool_calls) {
-          sanitized.push(message)
-        } else {
-          logger.debug(`Removing orphaned tool result message`)
-        }
-      } else {
-        // Regular user/assistant message without tool_calls - include as-is
-        sanitized.push(message)
-      }
-    }
-
-    return sanitized
-  }
-
   private buildConversationHistory(
     chatHistory: ChatMessage[],
     userMessage: ChatMessage
-  ): LLMMessage[] {
+  ): Message[] {
     let historyToUse = chatHistory
 
     if (historyToUse.length > 0) {
@@ -2266,26 +2892,63 @@ export class EventProcessor {
       }
     }
 
-    const rawHistory: LLMMessage[] = historyToUse.map(msg => ({
-      role: msg.role as 'user' | 'assistant' | 'system' | 'tool',
-      content: msg.message || '',
-      tool_calls: msg.llmMetadata?.toolCalls as any,
-      tool_call_id: msg.llmMetadata?.tool_call_id as any,
-    }))
+    const api = this.piModel?.api ?? 'anthropic-messages'
+    const provider = this.piModel?.provider ?? 'anthropic'
+    const model = this.piModel?.id ?? DEFAULT_MODEL
 
-    const sanitizedHistory = this.sanitizeConversationHistory(rawHistory)
+    const sanitizedHistory: Message[] = historyToUse.flatMap((msg): Message[] => {
+      if (msg.role === 'user') {
+        return [
+          {
+            role: 'user',
+            content: msg.message || '',
+            timestamp: msg.createdAt.getTime(),
+          },
+        ]
+      }
+
+      if (msg.role === 'assistant') {
+        return [
+          {
+            role: 'assistant',
+            content: [{ type: 'text', text: msg.message || '' }],
+            api,
+            provider,
+            model,
+            usage: {
+              input: 0,
+              output: 0,
+              cacheRead: 0,
+              cacheWrite: 0,
+              totalTokens: 0,
+              cost: {
+                input: 0,
+                output: 0,
+                cacheRead: 0,
+                cacheWrite: 0,
+                total: 0,
+              },
+            },
+            stopReason: 'stop',
+            timestamp: msg.createdAt.getTime(),
+          },
+        ]
+      }
+
+      return []
+    })
 
     const duplicateUserMessages: Array<{ index: number; content: string | null }> = []
     for (let i = 1; i < sanitizedHistory.length; i++) {
       const previous = sanitizedHistory[i - 1]
       const current = sanitizedHistory[i]
 
-      if (
-        previous.role === 'user' &&
-        current.role === 'user' &&
-        previous.content === current.content
-      ) {
-        duplicateUserMessages.push({ index: i, content: current.content })
+      if (previous.role === 'user' && current.role === 'user') {
+        const previousContent = typeof previous.content === 'string' ? previous.content : null
+        const currentContent = typeof current.content === 'string' ? current.content : null
+        if (previousContent && previousContent === currentContent) {
+          duplicateUserMessages.push({ index: i, content: currentContent })
+        }
       }
     }
 

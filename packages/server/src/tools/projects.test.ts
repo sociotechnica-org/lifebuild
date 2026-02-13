@@ -200,6 +200,101 @@ describe('updateProjectLifecycle validation', () => {
       expect(result.success).toBe(true)
       expect(mockStore.commit).toHaveBeenCalled()
     })
+
+    it('should allow advancing to stage 3 using projectType instead of stream', async () => {
+      const { updateProjectLifecycle } = await import('./projects.js')
+
+      const mockStore = createMockStore({
+        projects: [
+          {
+            id: 'project-1',
+            name: 'Test Project',
+            projectLifecycleState: {
+              status: 'planning',
+              stage: 2,
+            },
+          },
+        ],
+        tasks: [],
+      })
+
+      const result = updateProjectLifecycle(
+        mockStore as any,
+        {
+          projectId: 'project-1',
+          stage: 3,
+          objectives: 'Ship it',
+          projectType: 'initiative',
+        },
+        'actor-1'
+      )
+
+      expect(result.success).toBe(true)
+      expect(mockStore.commit).toHaveBeenCalled()
+    })
+
+    it('should reject conflicting stream and projectType values', async () => {
+      const { updateProjectLifecycle } = await import('./projects.js')
+
+      const mockStore = createMockStore({
+        projects: [
+          {
+            id: 'project-1',
+            name: 'Test Project',
+            projectLifecycleState: {
+              status: 'planning',
+              stage: 2,
+            },
+          },
+        ],
+      })
+
+      const result = updateProjectLifecycle(
+        mockStore as any,
+        {
+          projectId: 'project-1',
+          stage: 3,
+          objectives: 'Ship it',
+          stream: 'gold',
+          projectType: 'optimization',
+        },
+        'actor-1'
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('Conflicting stream and projectType')
+    })
+
+    it('should reject invalid projectType values', async () => {
+      const { updateProjectLifecycle } = await import('./projects.js')
+
+      const mockStore = createMockStore({
+        projects: [
+          {
+            id: 'project-1',
+            name: 'Test Project',
+            projectLifecycleState: {
+              status: 'planning',
+              stage: 2,
+            },
+          },
+        ],
+      })
+
+      const result = updateProjectLifecycle(
+        mockStore as any,
+        {
+          projectId: 'project-1',
+          stage: 3,
+          objectives: 'Ship it',
+          projectType: 'not-a-valid-type',
+        },
+        'actor-1'
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('Invalid projectType')
+    })
   })
 
   describe('Stage 4 / backlog validation (tasks required)', () => {

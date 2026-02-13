@@ -155,9 +155,21 @@ export const llmToolSchemas = [
         projectId: requiredString('The ID of the project to update'),
         name: optionalString('New name for the project'),
         description: optionalString('New description for the project'),
-        category: optionalString(
-          'Project category: "health", "relationships", "growth", "work", "finance", "home", "creative", "community", or "learning"'
-        ),
+        category: {
+          type: 'string',
+          enum: [
+            'health',
+            'relationships',
+            'finances',
+            'growth',
+            'leisure',
+            'spirituality',
+            'home',
+            'contribution',
+          ],
+          description:
+            'Project category. Use only these values: "health", "relationships", "finances", "growth", "leisure", "spirituality", "home", or "contribution".',
+        },
         attributes: {
           type: 'object',
           description:
@@ -189,7 +201,7 @@ export const llmToolSchemas = [
 
   toolDef(
     'update_project_lifecycle',
-    "Update a project's planning stage, status, or planning attributes. Use this to advance projects through planning stages (1=Identifying, 2=Scoping, 3=Drafting, 4=Prioritizing) or update archetype, scale, complexity, etc.",
+    "Update a project's planning stage, status, or planning attributes. Use this to advance projects through planning stages (1=Identifying, 2=Scoping, 3=Drafting, 4=Prioritizing) or update archetype, scale, complexity, etc. Stage 3+ requires objectives and a project type/stream. Stage 4 or status backlog requires at least one task.",
     {
       type: 'object',
       properties: {
@@ -210,110 +222,21 @@ export const llmToolSchemas = [
         objectives: optionalString('Project objectives/goals'),
         deadline: optionalNumber('Deadline as Unix timestamp in milliseconds'),
         estimatedDuration: optionalNumber('Estimated duration in hours'),
-        stream: optionalString('Stream assignment: "gold", "silver", or "bronze"'),
+        projectType: {
+          type: 'string',
+          enum: ['initiative', 'optimization', 'to-do'],
+          description:
+            'Project type required for stage 3+. Maps to streams: initiative -> gold, optimization -> silver, to-do -> bronze.',
+        },
+        stream: {
+          type: 'string',
+          enum: ['gold', 'silver', 'bronze'],
+          description:
+            'Stream assignment. Equivalent project types are: gold=initiative, silver=optimization, bronze=to-do.',
+        },
         priority: optionalNumber('Priority number (lower = higher priority)'),
       },
       required: ['projectId'],
-    }
-  ),
-
-  // Document Management Tools
-  toolDef(
-    'list_documents',
-    'Get a list of all available documents with their IDs, titles, and last updated dates',
-    {
-      type: 'object',
-      properties: {},
-      required: [],
-    }
-  ),
-
-  toolDef('read_document', 'Read the full content of a specific document by its ID', {
-    type: 'object',
-    properties: {
-      documentId: requiredString('The ID of the document to read'),
-    },
-    required: ['documentId'],
-  }),
-
-  toolDef('search_documents', 'Search through document titles and content for a specific query', {
-    type: 'object',
-    properties: {
-      query: requiredString('The search query to find in document titles and content'),
-    },
-    required: ['query'],
-  }),
-
-  toolDef('get_project_documents', 'Get all documents for a specific project', {
-    type: 'object',
-    properties: {
-      projectId: requiredString('The ID of the project to get documents for'),
-    },
-    required: ['projectId'],
-  }),
-
-  toolDef(
-    'search_project_documents',
-    'Search through document titles and content within a specific project or across all projects if projectId is omitted',
-    {
-      type: 'object',
-      properties: {
-        query: requiredString('The search query to find in document titles and content'),
-        projectId: optionalString(
-          'The ID of the project to search within (searches all projects if omitted)'
-        ),
-      },
-      required: ['query'],
-    }
-  ),
-
-  // Document Event Tools (Write Operations)
-  toolDef('create_document', 'Create a new document with title and optional content', {
-    type: 'object',
-    properties: {
-      title: requiredString('The title of the document'),
-      content: optionalString('The content of the document (defaults to empty)'),
-    },
-    required: ['title'],
-  }),
-
-  toolDef('update_document', "Update an existing document's title and/or content", {
-    type: 'object',
-    properties: {
-      documentId: requiredString('The ID of the document to update'),
-      title: optionalString('New title for the document'),
-      content: optionalString('New content for the document'),
-    },
-    required: ['documentId'],
-  }),
-
-  toolDef('archive_document', 'Archive a document to remove it from active view', {
-    type: 'object',
-    properties: {
-      documentId: requiredString('The ID of the document to archive'),
-    },
-    required: ['documentId'],
-  }),
-
-  toolDef('add_document_to_project', 'Associate an existing document with a project', {
-    type: 'object',
-    properties: {
-      documentId: requiredString('The ID of the document to add to the project'),
-      projectId: requiredString('The ID of the project to add the document to'),
-    },
-    required: ['documentId', 'projectId'],
-  }),
-
-  toolDef(
-    'remove_document_from_project',
-    'Remove a document association from a project (keeps the document)',
-    {
-      type: 'object',
-      properties: {
-        documentId: requiredString('The ID of the document to remove from the project'),
-        projectId: requiredString('The ID of the project to remove the document from'),
-      },
-      required: ['documentId', 'projectId'],
     }
   ),
 

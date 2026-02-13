@@ -1,5 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { validateStoreId, getStoreConfig, StoreFactory } from '../../src/factories/store-factory.js'
+import { createStorePromise } from '@livestore/livestore'
+import { makeAdapter } from '@livestore/adapter-node'
+import { makeWsSync } from '@livestore/sync-cf/client'
+import {
+  validateStoreId,
+  getStoreConfig,
+  StoreFactory,
+  createStore,
+  resetDevtoolsPortAllocatorForTests,
+} from '../../src/factories/store-factory.js'
 
 vi.mock('@livestore/livestore', async (importOriginal) => {
   const actual = await importOriginal()
@@ -23,6 +32,7 @@ describe('Store Factory', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     process.env = { ...originalEnv }
+    resetDevtoolsPortAllocatorForTests()
   })
 
   afterEach(() => {
@@ -68,7 +78,6 @@ describe('Store Factory', () => {
       expect(config.syncUrl).toBe('ws://localhost:8787')
       expect(config.dataPath).toBe('./data')
       expect(config.connectionTimeout).toBe(30000)
-      expect(config.devtoolsUrl).toBe('http://localhost:4300')
       expect(config.enableDevtools).toBe(true)
     })
 
@@ -76,34 +85,22 @@ describe('Store Factory', () => {
       process.env.LIVESTORE_SYNC_URL = 'ws://global:8787'
       process.env.STORE_DATA_PATH = './global-data'
       process.env.STORE_CONNECTION_TIMEOUT = '60000'
-      process.env.DEVTOOLS_URL = 'http://localhost:4400'
 
       const config = getStoreConfig('test-store')
 
       expect(config.syncUrl).toBe('ws://global:8787')
       expect(config.dataPath).toBe('./global-data')
       expect(config.connectionTimeout).toBe(60000)
-      expect(config.devtoolsUrl).toBe('http://localhost:4400')
     })
 
     it('should prioritize store-specific environment variables', () => {
       process.env.STORE_TEST_STORE_SYNC_URL = 'ws://specific:8787'
       process.env.STORE_TEST_STORE_DATA_PATH = './specific-data'
-      process.env.STORE_TEST_STORE_DEVTOOLS_URL = 'http://localhost:4500'
 
       const config = getStoreConfig('test-store')
 
       expect(config.syncUrl).toBe('ws://specific:8787')
       expect(config.dataPath).toBe('./specific-data')
-      expect(config.devtoolsUrl).toBe('http://localhost:4500')
-    })
-
-    it('should support store-specific devtools URL override', () => {
-      process.env.STORE_TEST_STORE_DEVTOOLS_URL = 'http://localhost:5000'
-
-      const config = getStoreConfig('test-store')
-
-      expect(config.devtoolsUrl).toBe('http://localhost:5000')
     })
 
     it('should disable devtools in production', () => {
@@ -156,6 +153,58 @@ describe('Store Factory', () => {
         expect(config.connectionTimeout).toBe(45000)
         expect(config.syncUrl).toBe('ws://localhost:8787')
       })
+    })
+  })
+
+  describe('createStore', () => {
+    it('allocates distinct devtools ports for different stores', async () => {
+      vi.mocked(makeAdapter).mockReturnValue({} as any)
+      vi.mocked(makeWsSync).mockReturnValue({} as any)
+      vi.mocked(createStorePromise).mockResolvedValue({ shutdownPromise: vi.fn() } as any)
+
+      await createStore('test-store-a')
+      await createStore('test-store-b')
+
+      const firstAdapterArgs = vi.mocked(makeAdapter).mock.calls[0]?.[0] as any
+      const secondAdapterArgs = vi.mocked(makeAdapter).mock.calls[1]?.[0] as any
+
+      expect(firstAdapterArgs.devtools.port).not.toBe(secondAdapterArgs.devtools.port)
+      expect(firstAdapterArgs.devtools.host).toBe('localhost')
+      expect(secondAdapterArgs.devtools.host).toBe('localhost')
+    })
+
+    it('respects DEVTOOLS_PORT_BASE when allocating ports', async () => {
+      process.env.DEVTOOLS_PORT_BASE = '4600'
+      vi.mocked(makeAdapter).mockReturnValue({} as any)
+      vi.mocked(makeWsSync).mockReturnValue({} as any)
+      vi.mocked(createStorePromise).mockResolvedValue({ shutdownPromise: vi.fn() } as any)
+
+      await createStore('test-store-a')
+      await createStore('test-store-b')
+
+      const firstAdapterArgs = vi.mocked(makeAdapter).mock.calls[0]?.[0] as any
+      const secondAdapterArgs = vi.mocked(makeAdapter).mock.calls[1]?.[0] as any
+
+      expect(firstAdapterArgs.devtools.port).toBe(4600)
+      expect(secondAdapterArgs.devtools.port).toBe(4601)
+    })
+
+    it('releases reserved devtools ports when store creation fails', async () => {
+      process.env.DEVTOOLS_PORT_BASE = '4700'
+      vi.mocked(makeAdapter).mockReturnValue({} as any)
+      vi.mocked(makeWsSync).mockReturnValue({} as any)
+      vi.mocked(createStorePromise)
+        .mockRejectedValueOnce(new Error('store init failed'))
+        .mockResolvedValueOnce({ shutdownPromise: vi.fn() } as any)
+
+      await expect(createStore('test-store-a')).rejects.toThrow('store init failed')
+      await createStore('test-store-a')
+
+      const firstAdapterArgs = vi.mocked(makeAdapter).mock.calls[0]?.[0] as any
+      const secondAdapterArgs = vi.mocked(makeAdapter).mock.calls[1]?.[0] as any
+
+      expect(firstAdapterArgs.devtools.port).toBe(4700)
+      expect(secondAdapterArgs.devtools.port).toBe(4701)
     })
   })
 })
