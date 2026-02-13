@@ -162,6 +162,12 @@ export function applyRenderPreviewOverrides(
     // Preview server instances should never bootstrap production store IDs.
     env.STORE_IDS = ''
 
+    // Never allow preview instances to inherit production endpoints or bypass tokens.
+    delete env.AUTH_WORKER_INTERNAL_URL
+    delete env.AUTH_WORKER_URL
+    delete env.LIVESTORE_SYNC_URL
+    delete env.SERVER_BYPASS_TOKEN
+
     const previewServerBypassToken = env.PREVIEW_SERVER_BYPASS_TOKEN?.trim()
     if (previewServerBypassToken) {
       env.SERVER_BYPASS_TOKEN = previewServerBypassToken

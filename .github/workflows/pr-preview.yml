@@ -89,6 +89,7 @@ jobs:
             CLOUDFLARE_PREVIEW_D1_DATABASE_NAME
             CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID
             CLOUDFLARE_PREVIEW_R2_BUCKET_NAME
+            PREVIEW_SERVER_BYPASS_TOKEN
           )
 
           for name in "${required[@]}"; do
@@ -130,7 +131,6 @@ jobs:
 
           unresolved=()
           generated_jwt_secret=false
-          generated_server_bypass_token=false
 
           resolved_account_id="${CLOUDFLARE_PREVIEW_ACCOUNT_ID:-}"
           if [[ -z "${resolved_account_id}" ]]; then
@@ -153,16 +153,13 @@ jobs:
           fi
 
           resolved_server_bypass_token="${PREVIEW_SERVER_BYPASS_TOKEN:-}"
-          if [[ -z "${resolved_server_bypass_token}" ]]; then
-            generated_server_bypass_token=true
-            resolved_server_bypass_token="$(generate_random_hex)"
-          fi
 
           require_nonempty CLOUDFLARE_PREVIEW_ACCOUNT_ID "${resolved_account_id}"
           require_nonempty CLOUDFLARE_PREVIEW_D1_DATABASE_ID "${resolved_d1_database_id}"
           require_nonempty CLOUDFLARE_PREVIEW_D1_DATABASE_NAME "${resolved_d1_database_name}"
           require_nonempty CLOUDFLARE_PREVIEW_KV_NAMESPACE_ID "${resolved_kv_namespace_id}"
           require_nonempty CLOUDFLARE_PREVIEW_R2_BUCKET_NAME "${resolved_r2_bucket_name}"
+          require_nonempty PREVIEW_SERVER_BYPASS_TOKEN "${resolved_server_bypass_token}"
 
           unresolved_csv=""
           if (( ${#unresolved[@]} > 0 )); then
@@ -170,7 +167,6 @@ jobs:
           fi
           echo "missing=${unresolved_csv}" >> "$GITHUB_OUTPUT"
           echo "generated_jwt_secret=${generated_jwt_secret}" >> "$GITHUB_OUTPUT"
-          echo "generated_server_bypass_token=${generated_server_bypass_token}" >> "$GITHUB_OUTPUT"
 
           if (( ${#unresolved[@]} > 0 )); then
             echo "Unable to resolve required preview inputs: ${unresolved_csv}" >&2
@@ -469,7 +465,6 @@ jobs:
           INPUTS_OUTCOME: ${{ steps.resolve_inputs.outcome }}
           INPUTS_MISSING: ${{ steps.resolve_inputs.outputs.missing }}
           GENERATED_JWT_SECRET: ${{ steps.resolve_inputs.outputs.generated_jwt_secret }}
-          GENERATED_SERVER_BYPASS_TOKEN: ${{ steps.resolve_inputs.outputs.generated_server_bypass_token }}
           AUTH_OUTCOME: ${{ steps.deploy_auth.outcome }}
           SYNC_OUTCOME: ${{ steps.deploy_sync.outcome }}
           WEB_OUTCOME: ${{ steps.deploy_web.outcome }}
@@ -488,7 +483,6 @@ jobs:
             const inputsOk = process.env.INPUTS_OUTCOME === 'success';
             const missingInputs = process.env.INPUTS_MISSING || '';
             const generatedJwtSecret = process.env.GENERATED_JWT_SECRET === 'true';
-            const generatedBypassToken = process.env.GENERATED_SERVER_BYPASS_TOKEN === 'true';
 
             const authUrl = process.env.AUTH_URL || '(not deployed)';
             const syncUrl = process.env.SYNC_URL || '(not deployed)';
@@ -512,9 +506,6 @@ jobs:
             const notes = [];
             if (inputsOk && generatedJwtSecret) {
               notes.push('- Preview JWT secret: using a generated secure random value for this workflow run (set `PREVIEW_JWT_SECRET` to override).');
-            }
-            if (inputsOk && generatedBypassToken) {
-              notes.push('- Preview server bypass token: using a generated secure random value for this workflow run (set `PREVIEW_SERVER_BYPASS_TOKEN` to override).');
             }
 
             const body = [

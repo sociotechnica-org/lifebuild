@@ -112,6 +112,10 @@ describe('preview runtime overrides', () => {
       IS_PULL_REQUEST_PREVIEW: 'true',
       RENDER_PULL_REQUEST: '536',
       STORE_IDS: 'production-store-id',
+      AUTH_WORKER_INTERNAL_URL: 'https://auth.lifebuild.me',
+      AUTH_WORKER_URL: 'https://auth-public.lifebuild.me',
+      LIVESTORE_SYNC_URL: 'wss://sync.lifebuild.me',
+      SERVER_BYPASS_TOKEN: 'prod-token',
     }
 
     const result = applyRenderPreviewOverrides(env)
@@ -120,13 +124,17 @@ describe('preview runtime overrides', () => {
     expect(result.isPreview).toBe(true)
     expect(env.STORE_IDS).toBe('')
     expect(env.AUTH_WORKER_INTERNAL_URL).toBeUndefined()
+    expect(env.AUTH_WORKER_URL).toBeUndefined()
     expect(env.LIVESTORE_SYNC_URL).toBeUndefined()
+    expect(env.SERVER_BYPASS_TOKEN).toBeUndefined()
   })
 
   it('still applies preview token override even if endpoint URL overrides are not applied', () => {
     const env: NodeJS.ProcessEnv = {
       IS_PULL_REQUEST_PREVIEW: 'true',
       RENDER_PULL_REQUEST: '536',
+      AUTH_WORKER_INTERNAL_URL: 'https://auth.lifebuild.me',
+      LIVESTORE_SYNC_URL: 'wss://sync.lifebuild.me',
       SERVER_BYPASS_TOKEN: 'prod-token',
       PREVIEW_SERVER_BYPASS_TOKEN: 'preview-token',
     }
@@ -136,6 +144,8 @@ describe('preview runtime overrides', () => {
     expect(result.applied).toBe(false)
     expect(result.isPreview).toBe(true)
     expect(result.serverBypassTokenOverridden).toBe(true)
+    expect(env.AUTH_WORKER_INTERNAL_URL).toBeUndefined()
+    expect(env.LIVESTORE_SYNC_URL).toBeUndefined()
     expect(env.SERVER_BYPASS_TOKEN).toBe('preview-token')
   })
 })
