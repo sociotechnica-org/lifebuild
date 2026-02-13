@@ -34,6 +34,22 @@ describe('preview runtime overrides', () => {
     expect(env.STORE_IDS).toBe('')
   })
 
+  it('overrides SERVER_BYPASS_TOKEN from PREVIEW_SERVER_BYPASS_TOKEN in preview envs', () => {
+    const env: NodeJS.ProcessEnv = {
+      IS_PULL_REQUEST_PREVIEW: 'true',
+      RENDER_PULL_REQUEST: '536',
+      CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN: 'exampleteam',
+      SERVER_BYPASS_TOKEN: 'prod-token',
+      PREVIEW_SERVER_BYPASS_TOKEN: 'preview-token',
+    }
+
+    const result = applyRenderPreviewOverrides(env)
+
+    expect(result.applied).toBe(true)
+    expect(result.serverBypassTokenOverridden).toBe(true)
+    expect(env.SERVER_BYPASS_TOKEN).toBe('preview-token')
+  })
+
   it('supports legacy IS_PULL_REQUEST preview flag', () => {
     const env: NodeJS.ProcessEnv = {
       IS_PULL_REQUEST: 'true',
@@ -105,5 +121,21 @@ describe('preview runtime overrides', () => {
     expect(env.STORE_IDS).toBe('')
     expect(env.AUTH_WORKER_INTERNAL_URL).toBeUndefined()
     expect(env.LIVESTORE_SYNC_URL).toBeUndefined()
+  })
+
+  it('still applies preview token override even if endpoint URL overrides are not applied', () => {
+    const env: NodeJS.ProcessEnv = {
+      IS_PULL_REQUEST_PREVIEW: 'true',
+      RENDER_PULL_REQUEST: '536',
+      SERVER_BYPASS_TOKEN: 'prod-token',
+      PREVIEW_SERVER_BYPASS_TOKEN: 'preview-token',
+    }
+
+    const result = applyRenderPreviewOverrides(env)
+
+    expect(result.applied).toBe(false)
+    expect(result.isPreview).toBe(true)
+    expect(result.serverBypassTokenOverridden).toBe(true)
+    expect(env.SERVER_BYPASS_TOKEN).toBe('preview-token')
   })
 })

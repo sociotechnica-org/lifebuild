@@ -1,13 +1,25 @@
+previews:
+  generation: automatic
+  expireAfterDays: 3
+
 services:
   - type: web
     name: lifebuild-server
     runtime: node
     plan: starter
+    previews:
+      plan: starter
+      numInstances: 1
     # Build from monorepo root to access workspace dependencies
     rootDir: .
     buildCommand: ./packages/server/scripts/build.sh
     startCommand: pnpm --filter @lifebuild/server start
     envVars:
+      # Create this as a manually managed Render Environment Group.
+      # Required keys:
+      # - CLOUDFLARE_PREVIEW_WORKERS_SUBDOMAIN
+      # - PREVIEW_SERVER_BYPASS_TOKEN
+      - fromGroup: lifebuild-preview-overrides
       - key: NODE_ENV
         value: production
       - key: PORT
@@ -70,10 +82,8 @@ services:
       minInstances: 1
       maxInstances: 3
       targetCPUPercent: 70
-
-# Cron jobs for backup (from ADR-002)
-crons:
-  - type: worker
+  # Cron jobs for backup (from ADR-002)
+  - type: cron
     name: backup-job
     runtime: node
     schedule: '0 */6 * * *' # Every 6 hours

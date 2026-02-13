@@ -52,6 +52,7 @@ if (previewOverrides.applied) {
       pullRequestNumber: previewOverrides.pullRequestNumber,
       authWorkerInternalUrl: previewOverrides.authWorkerInternalUrl,
       liveStoreSyncUrl: previewOverrides.liveStoreSyncUrl,
+      serverBypassTokenOverridden: previewOverrides.serverBypassTokenOverridden ?? false,
       storeIds: process.env.STORE_IDS,
     },
     'Applied Render preview runtime overrides for auth/sync endpoints'

@@ -4,6 +4,7 @@ export interface RenderPreviewOverrides {
   pullRequestNumber?: string
   authWorkerInternalUrl?: string
   liveStoreSyncUrl?: string
+  serverBypassTokenOverridden?: boolean
   reason?: string
 }
 
@@ -160,6 +161,12 @@ export function applyRenderPreviewOverrides(
   if (resolved.isPreview) {
     // Preview server instances should never bootstrap production store IDs.
     env.STORE_IDS = ''
+
+    const previewServerBypassToken = env.PREVIEW_SERVER_BYPASS_TOKEN?.trim()
+    if (previewServerBypassToken) {
+      env.SERVER_BYPASS_TOKEN = previewServerBypassToken
+      resolved.serverBypassTokenOverridden = true
+    }
   }
 
   if (!resolved.applied) {
