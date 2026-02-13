@@ -713,6 +713,75 @@ describe('EventProcessor conversation history builder', () => {
     processor.stopAll()
   })
 
+  it('does not replay historical assistant text from agent_end as a new reply', async () => {
+    const commit = vi.fn()
+    const store = {
+      commit,
+      query: vi.fn().mockReturnValue([]),
+    }
+    const storeManager = createMockStoreManager()
+    storeManager.getStore = vi.fn(() => store as any)
+
+    const processor = new EventProcessor(storeManager as any)
+    const listeners: Array<(event: any) => void> = []
+    const historicalAssistantMessage = {
+      role: 'assistant',
+      content: [{ type: 'text', text: 'Older reply from previous turn.' }],
+      stopReason: 'stop',
+    }
+
+    const fakeSession = {
+      agent: {
+        setSystemPrompt: vi.fn(),
+        // Simulate reused session with existing history already present.
+        state: { messages: [historicalAssistantMessage] },
+        replaceMessages: vi.fn(),
+      },
+      subscribe: vi.fn((listener: (event: any) => void) => {
+        listeners.push(listener)
+        return vi.fn()
+      }),
+      setModel: vi.fn().mockResolvedValue(undefined),
+      prompt: vi.fn().mockImplementation(async () => {
+        for (const listener of listeners) {
+          listener({ type: 'agent_end', messages: [historicalAssistantMessage] })
+        }
+        throw new Error('prompt failed after no new assistant output')
+      }),
+    }
+
+    vi.spyOn(processor as any, 'getOrCreatePiSession').mockResolvedValue({
+      session: fakeSession,
+      sessionDir: '/tmp/pi-session',
+      lastAccessedAt: Date.now(),
+    })
+
+    const completed = await (processor as any).runAgenticLoop(
+      'store-1',
+      {
+        id: 'message-no-new-assistant',
+        conversationId: 'conversation-no-new-assistant',
+        role: 'user',
+        message: 'respond please',
+        createdAt: new Date(),
+      } satisfies ChatMessage,
+      { stopping: false } as any
+    )
+
+    expect(completed).toBe(false)
+
+    const responses = commit.mock.calls
+      .map(([event]: any[]) => event)
+      .filter((event: any) => event?.name === 'v1.LLMResponseReceived')
+
+    expect(
+      responses.some((event: any) => event.args?.message === 'Older reply from previous turn.')
+    ).toBe(false)
+    expect(responses.some((event: any) => event.args?.llmMetadata?.source === 'error')).toBe(true)
+
+    processor.stopAll()
+  })
+
   it('emits fallback assistant error when Pi reports error state without text', async () => {
     const commit = vi.fn()
     const store = {

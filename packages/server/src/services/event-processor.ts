@@ -1484,6 +1484,10 @@ export class EventProcessor {
       session.agent.replaceMessages(conversationHistory)
     }
 
+    // Snapshot message count before prompting so we can distinguish current-run
+    // output from historical messages already present in the session.
+    const promptStartMessageCount = session.agent.state.messages.length
+
     let sawError = false
     let promptErrorCaptured = false
     let iterationCount = 0
@@ -1491,6 +1495,7 @@ export class EventProcessor {
     let failureContext: Record<string, unknown> | undefined
     let latestAssistantText = ''
     let assistantMessageEventCount = 0
+    let sawAssistantMessageEndText = false
 
     const unsubscribe = session.subscribe((event: AgentSessionEvent) => {
       if (storeState.stopping) {
@@ -1549,12 +1554,14 @@ export class EventProcessor {
             if (text.trim().length > 0) {
               latestAssistantText = text
               assistantMessageEventCount += 1
+              sawAssistantMessageEndText = true
             }
           }
           break
         }
         case 'agent_end': {
-          const latestAssistantMessage = [...event.messages]
+          const currentRunMessages = event.messages.slice(promptStartMessageCount)
+          const latestAssistantMessage = [...currentRunMessages]
             .reverse()
             .find((message): message is AssistantMessage => message.role === 'assistant')
           if (latestAssistantMessage && this.isAssistantErrorMessage(latestAssistantMessage)) {
@@ -1568,7 +1575,7 @@ export class EventProcessor {
                   : null,
             }
           }
-          if (latestAssistantMessage) {
+          if (latestAssistantMessage && !sawAssistantMessageEndText) {
             const latestText = this.extractAssistantText(latestAssistantMessage).trim()
             if (latestText.length > 0) {
               latestAssistantText = latestText
