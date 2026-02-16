@@ -6,7 +6,8 @@ type MatchType = 'exact' | 'includes' | 'regex'
 
 interface StubResponseRule {
   match: string
-  response: string
+  response?: string
+  error?: string
   matchType?: MatchType
 }
 
@@ -74,18 +75,32 @@ const renderTemplate = (template: string, message: string): string => {
   return template.replace(/\{\{\s*message\s*\}\}/g, () => message)
 }
 
-const resolveStubResponse = (config: StubConfig, message: string): string => {
+const resolveStubResponse = (
+  config: StubConfig,
+  message: string
+): {
+  message?: string
+  error?: string
+} => {
   const responses = config.responses ?? []
 
   for (const rule of responses) {
-    if (!rule?.match || typeof rule.response !== 'string') continue
+    const hasResponse = typeof rule.response === 'string'
+    const hasError = typeof rule.error === 'string'
+    if (!rule?.match || (!hasResponse && !hasError)) continue
     const matchType = rule.matchType ?? 'exact'
+    const resolved = () => {
+      if (hasError) {
+        return { error: renderTemplate(rule.error!, message) }
+      }
+      return { message: renderTemplate(rule.response!, message) }
+    }
 
     if (matchType === 'regex') {
       try {
         const regex = new RegExp(rule.match)
         if (regex.test(message)) {
-          return renderTemplate(rule.response, message)
+          return resolved()
         }
       } catch (error) {
         logger.warn({ error, match: rule.match }, 'Invalid regex in stub rule')
@@ -95,21 +110,27 @@ const resolveStubResponse = (config: StubConfig, message: string): string => {
 
     if (matchType === 'includes') {
       if (message.includes(rule.match)) {
-        return renderTemplate(rule.response, message)
+        return resolved()
       }
       continue
     }
 
     if (message === rule.match) {
-      return renderTemplate(rule.response, message)
+      return resolved()
     }
   }
 
   const fallback = config.defaultResponse ?? DEFAULT_RESPONSE
-  return renderTemplate(fallback, message)
+  return { message: renderTemplate(fallback, message) }
 }
 
 export const createStubResponder = (): ((message: string) => string) => {
   const config = loadStubConfigFromEnv()
-  return (message: string) => resolveStubResponse(config, message)
+  return (message: string) => {
+    const resolved = resolveStubResponse(config, message)
+    if (resolved.error) {
+      throw new Error(resolved.error)
+    }
+    return resolved.message ?? ''
+  }
 }

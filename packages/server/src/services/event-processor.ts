@@ -1492,6 +1492,7 @@ export class EventProcessor {
     let promptErrorCaptured = false
     let iterationCount = 0
     let assistantResponseEmitted = false
+    let anyResponseEmitted = false
     let failureContext: Record<string, unknown> | undefined
     let latestAssistantText = ''
     let assistantMessageEventCount = 0
@@ -1531,6 +1532,7 @@ export class EventProcessor {
                 },
               })
             )
+            anyResponseEmitted = true
           }
           break
         }
@@ -1650,6 +1652,7 @@ export class EventProcessor {
         })
       )
       assistantResponseEmitted = true
+      anyResponseEmitted = true
     }
 
     if (sawError && !assistantResponseEmitted) {
@@ -1657,6 +1660,11 @@ export class EventProcessor {
         logger.info(
           { storeId, conversationId, userMessageId: userMessage.id },
           'Skipping fallback error response because store is stopping'
+        )
+      } else if (anyResponseEmitted) {
+        logger.info(
+          { storeId, conversationId, userMessageId: userMessage.id },
+          'Skipping fallback error response because a response was already emitted'
         )
       } else {
         logger.warn(
@@ -1682,6 +1690,7 @@ export class EventProcessor {
           })
         )
         assistantResponseEmitted = true
+        anyResponseEmitted = true
       }
     }
 

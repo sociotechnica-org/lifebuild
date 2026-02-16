@@ -88,6 +88,7 @@ const stubConfig = {
   defaultResponse: 'stub: {{message}}',
   responses: [
     { match: 'ping', response: 'pong' },
+    { match: 'fatal-test', error: 'Simulated LLM failure' },
     { match: 'reconnect-test', response: 'reconnected' },
   ],
 }
@@ -175,6 +176,30 @@ const waitForAssistantResponse = async (
     await delay(200)
   }
   throw new Error(`Timed out waiting for assistant response to message ${messageId}`)
+}
+
+const getAssistantResponsesForMessage = (store: any, messageId: string): Array<any> => {
+  const messages = store.query(
+    queryDb(tables.chatMessages.select().where('conversationId', '=', conversationId))
+  ) as Array<any>
+  return messages.filter(
+    message => message.role === 'assistant' && message.responseToMessageId === messageId
+  )
+}
+
+const assertSingleAssistantResponse = async (
+  store: any,
+  messageId: string,
+  windowMs: number,
+  context: string
+) => {
+  await delay(windowMs)
+  const responses = getAssistantResponsesForMessage(store, messageId)
+  assert.equal(
+    responses.length,
+    1,
+    `${context}: expected exactly one assistant response for ${messageId}, received ${responses.length}`
+  )
 }
 
 const spawnProcess = (
@@ -391,7 +416,19 @@ const run = async () => {
       responseTimeoutMs
     )
     assert.equal(firstResponse.message, 'pong', 'Initial response should be stubbed pong')
+    await assertSingleAssistantResponse(store, firstMessageId, noResponseWindowMs, 'initial message')
     console.log('Initial response received')
+
+    console.log('Sending fatal message to verify single terminal error response...')
+    const fatalMessageId = await sendMessage(store, 'fatal-test')
+    await waitForAssistantResponse(store, fatalMessageId, responseTimeoutMs)
+    await assertSingleAssistantResponse(
+      store,
+      fatalMessageId,
+      noResponseWindowMs,
+      'fatal error message'
+    )
+    console.log('Fatal response deduplication verified')
 
     console.log('\nStopping worker to simulate disconnect...')
     await terminateProcess(worker, 'worker')
@@ -431,6 +468,12 @@ const run = async () => {
     const responseWaitMs = Date.now() - responseWaitStart
 
     assert.equal(reconnectResponse.message, 'reconnected', 'Reconnect response should match stub')
+    await assertSingleAssistantResponse(
+      store,
+      reconnectMessageId,
+      noResponseWindowMs,
+      'reconnect message'
+    )
     assert.ok(
       responseWaitMs <= recoveryTimeoutMs,
       `Reconnect response exceeded timeout: ${responseWaitMs}ms (limit ${recoveryTimeoutMs}ms)`
