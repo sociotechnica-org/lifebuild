@@ -35,12 +35,12 @@ The mechanism that implements the First 72 Hours principle — guiding new build
 
 ### Transitions
 
-| From               | Trigger                                                  | To                 | Side Effects                                                                  |
-| ------------------ | -------------------------------------------------------- | ------------------ | ----------------------------------------------------------------------------- |
-| Not Started        | Builder opens LifeBuild for the first time              | Day 1: Orientation | Mesa greets at Campfire; spatial metaphor introduced                          |
-| Day 1: Orientation | Builder completes first Mesa conversation               | Day 2: Foundation  | Jarvis initiates Charter creation; Life Categories established                |
-| Day 2: Foundation  | Charter draft created                                    | Day 3: Momentum    | Marvin available for first project capture; Life Map populated                |
-| Day 3: Momentum    | Builder has created first project and explored Life Map | Complete           | Service Level transitions from 0 to 1; full agent team available              |
+| From               | Trigger                                                 | To                 | Side Effects                                                                 |
+| ------------------ | ------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------- |
+| Not Started        | Builder opens LifeBuild for the first time              | Day 1: Orientation | Mesa greets at Campfire; spatial metaphor introduced                         |
+| Day 1: Orientation | Builder completes first Mesa conversation               | Day 2: Foundation  | Jarvis initiates Charter creation; Life Categories established               |
+| Day 2: Foundation  | Charter draft created                                   | Day 3: Momentum    | Marvin available for first project capture; Life Map populated               |
+| Day 3: Momentum    | Builder has created first project and explored Life Map | Complete           | Service Level transitions from 0 to 1; full agent team available             |
 | Any phase          | Builder disengages for extended period                  | Paused             | Gentle re-engagement cues when builder returns, resuming where they left off |
 
 ### Processing Logic

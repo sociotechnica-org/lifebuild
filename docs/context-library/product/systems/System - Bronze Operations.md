@@ -37,13 +37,13 @@ The operational workflow governing Bronze stream tasks — mode selection, stack
 
 ### Transitions
 
-| From                  | Trigger                                    | To                                   | Side Effects                                          |
-| --------------------- | ------------------------------------------ | ------------------------------------ | ----------------------------------------------------- |
-| No mode selected      | Weekly Planning mode choice                | Mode active (Minimal/Target/Maximal) | Stack populated per mode rules                        |
+| From                  | Trigger                                   | To                                   | Side Effects                                          |
+| --------------------- | ----------------------------------------- | ------------------------------------ | ----------------------------------------------------- |
+| No mode selected      | Weekly Planning mode choice               | Mode active (Minimal/Target/Maximal) | Stack populated per mode rules                        |
 | Task visible in stack | Builder checks off task                   | Task complete                        | Next task auto-replenishes per priority order         |
 | Mode = Target N       | Builder clicks gear icon, selects Maximal | Mode = Maximal                       | Stack expands to show all available Bronze tasks      |
 | Mode = Maximal        | Builder clicks gear icon, selects Minimal | Mode = Minimal                       | Stack contracts to due-date and critical items only   |
-| Stack empty           | No more Bronze tasks available             | Stack empty (idle)                   | No replenishment; Bronze position shows "clear" state |
+| Stack empty           | No more Bronze tasks available            | Stack empty (idle)                   | No replenishment; Bronze position shows "clear" state |
 
 ### Processing Logic
 

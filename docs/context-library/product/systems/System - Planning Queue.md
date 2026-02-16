@@ -36,12 +36,12 @@ The holding area for projects still in development — work in stages 1-3 of the
 
 | From                 | Trigger                                           | To                             | Side Effects                                        |
 | -------------------- | ------------------------------------------------- | ------------------------------ | --------------------------------------------------- |
-| Empty queue          | Builder captures new idea with Marvin            | Queue contains Stage 1 project | Project appears in Planning Queue list              |
-| Project at Stage 1   | Builder resumes with Marvin, completes scoping   | Project advances to Stage 2    | Purpose, objectives, priority attributes recorded   |
-| Project at Stage 2   | Builder resumes with Marvin, completes drafting  | Project advances to Stage 3    | Task list or system configuration attached          |
-| Project at Stage 3   | Builder completes Stage 4 prioritization         | Project exits Planning Queue   | Project moves to Priority Queue with priority score |
+| Empty queue          | Builder captures new idea with Marvin             | Queue contains Stage 1 project | Project appears in Planning Queue list              |
+| Project at Stage 1   | Builder resumes with Marvin, completes scoping    | Project advances to Stage 2    | Purpose, objectives, priority attributes recorded   |
+| Project at Stage 2   | Builder resumes with Marvin, completes drafting   | Project advances to Stage 3    | Task list or system configuration attached          |
+| Project at Stage 3   | Builder completes Stage 4 prioritization          | Project exits Planning Queue   | Project moves to Priority Queue with priority score |
 | Project stalled      | Marvin detects no interaction for extended period | Stall surfaced                 | Marvin asks: "Want to continue, or archive this?"   |
-| Project in any stage | Builder abandons                                 | Project archived               | Removed from Planning Queue                         |
+| Project in any stage | Builder abandons                                  | Project archived               | Removed from Planning Queue                         |
 
 ### Processing Logic
 

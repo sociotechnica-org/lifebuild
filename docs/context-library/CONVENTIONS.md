@@ -83,7 +83,7 @@ packages/
 | Convention                              | Rationale                                                                                                                                                |
 | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | LiveStore event sourcing                | Enables real-time sync across clients via WebSocket + Durable Objects. Events are the canonical data model; tables are derived views.                    |
-| Room = Screen + Agent                   | Every navigable screen has a paired AI agent. The `RoomLayout` wrapper provides this coupling. Keeps agent context scoped to what the Builder sees.     |
+| Room = Screen + Agent                   | Every navigable screen has a paired AI agent. The `RoomLayout` wrapper provides this coupling. Keeps agent context scoped to what the Builder sees.      |
 | Flat lifecycle state JSON               | Single `projectLifecycleState` column avoids dual-source bugs between separate `attributes` and `status` fields. All planning data lives together.       |
 | CHORUS_TAG over URLs                    | Agents don't know URLs. CHORUS_TAG decouples navigation from routing implementation. `useChorusNavigation` resolves paths at click time.                 |
 | SharedWorker + OPFS                     | Client-side persistence via Origin Private File System. SharedWorker coordinates across tabs. Fallback to single-tab mode when SharedWorker unavailable. |

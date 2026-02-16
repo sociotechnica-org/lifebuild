@@ -18,11 +18,11 @@ I want to walk through why this model exists, what each piece actually does when
 
 Let's start with the thing we already use. A kanban board. To Do, In Progress, Done. You know the shape. We've used it, every software team uses it, and it works fine — until it doesn't.
 
-Here's the problem: a kanban board tells you *status* but not *cause*. When three items are sitting in "In Progress" and nothing's moving to "Done," what does the board tell you? That things are in progress. That's it. It doesn't tell you *why* they're stuck. It doesn't distinguish between "stuck because the code is hard" and "stuck because nobody's answered a question yet."
+Here's the problem: a kanban board tells you _status_ but not _cause_. When three items are sitting in "In Progress" and nothing's moving to "Done," what does the board tell you? That things are in progress. That's it. It doesn't tell you _why_ they're stuck. It doesn't distinguish between "stuck because the code is hard" and "stuck because nobody's answered a question yet."
 
 And that distinction is everything for us. Because our bottleneck is almost never "can AI code fast enough?" AI can code plenty fast. The bottleneck is the unanswered questions. The decision that hasn't been made. The spec that says one thing while Release 1 needs something different. The feel-dependent thing that nobody's sat with yet.
 
-A traditional board hides all of that under one column: "In Progress." We need a board that tells us *where in the process* something is stuck, and *who needs to do what* to unstick it.
+A traditional board hides all of that under one column: "In Progress." We need a board that tells us _where in the process_ something is stuck, and _who needs to do what_ to unstick it.
 
 That's what the factory model does.
 
@@ -32,17 +32,17 @@ That's what the factory model does.
 
 The word "factory" might sound weird for a two-person team building a life management app. But hear me out.
 
-Toyota figured something out in the 1950s that applies directly to us. Their system — the Toyota Production System — is built on two pillars. First: *jidoka*, which translates roughly to "automation with a human touch." It means the machines are smart enough to stop themselves when something goes wrong. They don't keep stamping out defective parts. They stop, signal the problem, and wait for a human to fix the root cause.
+Toyota figured something out in the 1950s that applies directly to us. Their system — the Toyota Production System — is built on two pillars. First: _jidoka_, which translates roughly to "automation with a human touch." It means the machines are smart enough to stop themselves when something goes wrong. They don't keep stamping out defective parts. They stop, signal the problem, and wait for a human to fix the root cause.
 
-Second: *just-in-time production*. Pull-based flow. Don't build things speculatively. Build what's needed, when it's needed, in the amount needed.
+Second: _just-in-time production_. Pull-based flow. Don't build things speculatively. Build what's needed, when it's needed, in the amount needed.
 
 Both of those ideas map directly to how we work with AI.
 
 Jidoka maps to our Andon cord — when a builder (AI or human) hits a missing decision, they stop. They don't guess. They don't build the wrong thing and hope someone catches it later. They pull the cord, the item turns red on the board, and the right person gets a clear signal: "I need a decision from you before I can continue."
 
-Just-in-time maps to our pull-based flow. AI doesn't speculatively build features that might be needed. It builds what's been decided, patched, and queued. MAKE doesn't start until DECIDE and PATCH have finished. Work gets *pulled* forward by completed upstream work, not *pushed* forward by someone's optimistic plan.
+Just-in-time maps to our pull-based flow. AI doesn't speculatively build features that might be needed. It builds what's been decided, patched, and queued. MAKE doesn't start until DECIDE and PATCH have finished. Work gets _pulled_ forward by completed upstream work, not _pushed_ forward by someone's optimistic plan.
 
-Toyota also identified eight wastes — they call them *muda*. Defects, overproduction, waiting, transportation, inventory, motion, extra-processing, and non-utilized talent. For us, the biggest waste is *waiting*. AI sitting idle because a human decision hasn't been made. And the second biggest is *defects* — building the wrong thing because the spec was incomplete, outdated, or described the full vision when we only need the Release 1 version.
+Toyota also identified eight wastes — they call them _muda_. Defects, overproduction, waiting, transportation, inventory, motion, extra-processing, and non-utilized talent. For us, the biggest waste is _waiting_. AI sitting idle because a human decision hasn't been made. And the second biggest is _defects_ — building the wrong thing because the spec was incomplete, outdated, or described the full vision when we only need the Release 1 version.
 
 The factory model is designed to eliminate those two wastes specifically.
 
@@ -50,13 +50,13 @@ The factory model is designed to eliminate those two wastes specifically.
 
 ## [CHAPTER 3: THE FOUR STATIONS]
 
-OK, the stations. There are four. They're not phases that happen in sequence — they're *places where different kinds of work happen*. Some work visits one station. Some visits three. The path depends on the nature of the work.
+OK, the stations. There are four. They're not phases that happen in sequence — they're _places where different kinds of work happen_. Some work visits one station. Some visits three. The path depends on the nature of the work.
 
 ### Station 1: DECIDE
 
 DECIDE is where unanswered questions get resolved. This is a human-only station. You and me. AI can't decide product vision. AI can't decide whether the campfire story should be scripted or free-form. AI can't decide whether algorithmic hex placement is acceptable for Release 1.
 
-Every DECIDE item has a clear question, a recommended answer, and a list of what it unblocks downstream. The whole point is to make deciding as cheap as possible. We don't need to research — we need to *call it*. Quick calls first, then the ones that need thought.
+Every DECIDE item has a clear question, a recommended answer, and a list of what it unblocks downstream. The whole point is to make deciding as cheap as possible. We don't need to research — we need to _call it_. Quick calls first, then the ones that need thought.
 
 The release plan has eight decisions queued up. D1 through D8. D1 through D4 are quick calls — yes/no, A/B/C, fifteen minutes each. D5 through D7 need more thought. D8 can wait.
 
@@ -66,11 +66,11 @@ Here's the key insight about DECIDE: it's almost always the bottleneck. When MAK
 
 PATCH is quality control for our design knowledge. Let me explain what I mean.
 
-We have a Context Library — all those Obsidian cards describing how LifeBuild works. Hex grids, agents, onboarding sequences, spatial interaction rules. The problem is that those cards describe the *full vision*. The infinite canvas, the five-stage image evolution, drag-to-rearrange, all of it. But Release 1 intentionally doesn't build all of that. Release 1 is a fixed 30-hex SVG grid. No drag. No image generation.
+We have a Context Library — all those Obsidian cards describing how LifeBuild works. Hex grids, agents, onboarding sequences, spatial interaction rules. The problem is that those cards describe the _full vision_. The infinite canvas, the five-stage image evolution, drag-to-rearrange, all of it. But Release 1 intentionally doesn't build all of that. Release 1 is a fixed 30-hex SVG grid. No drag. No image generation.
 
 So what happens when AI assembles a context constellation — a bundle of relevant library cards — to build the hex grid? It reads the Hex Grid card and sees "infinite canvas." It reads the Spatial Interaction Rules card and sees "builder places, system never assigns." And it builds the wrong thing. It overbuilds. It builds the dream, not the release.
 
-PATCH prevents that. AI reads the library cards, compares them against the Release 1 plan, and adds reality notes. "Release 1 uses a fixed ~30-40 position SVG grid. Infinite canvas deferred to Release 2." Now when a builder assembles a context constellation, the cards give correct guidance for *this* release.
+PATCH prevents that. AI reads the library cards, compares them against the Release 1 plan, and adds reality notes. "Release 1 uses a fixed ~30-40 position SVG grid. Infinite canvas deferred to Release 2." Now when a builder assembles a context constellation, the cards give correct guidance for _this_ release.
 
 There's a second scenario where PATCH matters. Sometimes we think a card is fine, AI builds from it, and during review we discover the card was actually incomplete or inconsistent. Maybe the Onboarding card references Mesa at the campfire, but Mesa's been replaced by Jarvis. That's a PATCH job. Fix the card, then the builder can try again with correct inputs.
 
@@ -94,7 +94,7 @@ SHAPE is the most interesting station because it handles the work that can't be 
 
 "Does Jarvis sound warm?" You can't answer that from a document. You have to hear him speak. You have to read the words and feel something. AI drafts, a human feels, the human says "not quite," AI revises, and you loop until the human says "that's it."
 
-SHAPE is where blueprints get *discovered*. Once the blueprint exists — once you know what "warm" sounds like for Jarvis — that spec flows into MAKE and gets built properly. SHAPE feeds MAKE.
+SHAPE is where blueprints get _discovered_. Once the blueprint exists — once you know what "warm" sounds like for Jarvis — that spec flows into MAKE and gets built properly. SHAPE feeds MAKE.
 
 Here's the fork in the road, and this is what the presentation showed on the "Two Kinds of Building" slide. After DECIDE and PATCH, every piece of work faces a question: do we know exactly what to build? If yes, go straight to MAKE. If no — if it needs taste, feel, iteration — go to SHAPE first, then to MAKE.
 
@@ -152,7 +152,7 @@ Every completed item goes through human review. And one of three things happens:
 
 **ECO — Engineering Change Order.** "The spec itself was wrong." This is the interesting one. You review the completed work and realize: huh, we asked for the wrong thing. The decision we made at DECIDE was based on incomplete understanding. Now that we see the built version, we realize the spec needs to change.
 
-ECO is not a failure. It's *learning*. Sometimes you can't know what you actually need until you see what you asked for. The item might still ship — but a new question goes back to DECIDE. The factory's specs get updated for next time.
+ECO is not a failure. It's _learning_. Sometimes you can't know what you actually need until you see what you asked for. The item might still ship — but a new question goes back to DECIDE. The factory's specs get updated for next time.
 
 In manufacturing, an ECO is a formal process. The engineering team revises the drawings, updates the bill of materials, and all downstream stations get the corrected spec. For us, it means the library card or the release plan gets updated, and any future builds from that spec use the corrected version.
 
@@ -222,13 +222,13 @@ Alright, the dashboard. Six metrics. Each one answers one specific question abou
 
 **Healthy:** 2-4 days for MAKE items, longer for SHAPE items (which iterate).
 
-**Unhealthy:** 12+ days. Items are sitting somewhere for a long time. The question is *where*. Cycle time by itself doesn't tell you the cause — but combined with the flow state breakdown, it tells you exactly which stage items are getting stuck in.
+**Unhealthy:** 12+ days. Items are sitting somewhere for a long time. The question is _where_. Cycle time by itself doesn't tell you the cause — but combined with the flow state breakdown, it tells you exactly which stage items are getting stuck in.
 
 ---
 
 ## [CHAPTER 8: THE PLAYBOOK]
 
-Now the part that makes this actionable. When a number goes red, what do you actually *do*?
+Now the part that makes this actionable. When a number goes red, what do you actually _do_?
 
 **Decision Velocity low → Clear the DECIDE queue.** This is almost always the fix for a slow factory. Danvers, Jess, sit down, make calls. Quick decisions first. The queue has the questions already written with recommended answers. Don't research — decide.
 
@@ -274,13 +274,13 @@ Most teams use GitHub Issues as tasks. Status columns. One dimension: done or no
 
 We're using two custom dimensions that change everything:
 
-**Station** tells you *what kind of work* this is. DECIDE, PATCH, MAKE, or SHAPE. It tells you who can act on it and what the work involves.
+**Station** tells you _what kind of work_ this is. DECIDE, PATCH, MAKE, or SHAPE. It tells you who can act on it and what the work involves.
 
-**Flow State** tells you *where in the process* this work is right now. Queued, On the Line, Blocked, QC Gate, Review, Rework, or Shipped.
+**Flow State** tells you _where in the process_ this work is right now. Queued, On the Line, Blocked, QC Gate, Review, Rework, or Shipped.
 
 Station x Flow State gives you a matrix. You can see that there are two items in MAKE/On the Line, one item in DECIDE/Queued, and one item in SHAPE/Blocked. That's a completely different picture than "3 items In Progress."
 
-You can switch between the factory view and the traditional view. Same data, two lenses. The factory view asks "where's the bottleneck?" The traditional view asks "what's the status?" Both are useful. But the factory view tells you what to *do* about it.
+You can switch between the factory view and the traditional view. Same data, two lenses. The factory view asks "where's the bottleneck?" The traditional view asks "what's the status?" Both are useful. But the factory view tells you what to _do_ about it.
 
 ---
 
@@ -318,4 +318,4 @@ That's the factory. That's how we build Release 1.
 
 ---
 
-*End of companion podcast.*
+_End of companion podcast._

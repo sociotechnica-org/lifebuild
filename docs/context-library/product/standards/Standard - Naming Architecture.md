@@ -30,11 +30,11 @@ The naming hierarchy for all characters in LifeBuild: **Builder** (the person), 
 
 ### The Hierarchy
 
-| Tier | Name | Who They Are | Authority Level | Voice |
-| ---- | ---- | ------------ | --------------- | ----- |
-| Person | **Builder** | The user. Brings vision, values, judgment. The irreplaceable element. | Sovereign — always has the final word | N/A — this is the player |
-| Core Team | **Stewards** | Wise, humble, capable advisors. Serve and advise but do not direct. Strategic-level support. | Advisory — suggests, recommends, pushes back gently | Each has distinct personality |
-| Extended Staff | **Attendants** | Specialists in task types: research, scheduling, drafting, coordination. Tactical, execution-level support. | Delegated — executes within assigned scope | Efficient, specialized |
+| Tier           | Name           | Who They Are                                                                                                | Authority Level                                     | Voice                         |
+| -------------- | -------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ----------------------------- |
+| Person         | **Builder**    | The user. Brings vision, values, judgment. The irreplaceable element.                                       | Sovereign — always has the final word               | N/A — this is the player      |
+| Core Team      | **Stewards**   | Wise, humble, capable advisors. Serve and advise but do not direct. Strategic-level support.                | Advisory — suggests, recommends, pushes back gently | Each has distinct personality |
+| Extended Staff | **Attendants** | Specialists in task types: research, scheduling, drafting, coordination. Tactical, execution-level support. | Delegated — executes within assigned scope          | Efficient, specialized        |
 
 ### Why These Names
 
@@ -52,12 +52,12 @@ The naming hierarchy for all characters in LifeBuild: **Builder** (the person), 
 
 ### Usage Guidelines
 
-| Context | Use | Don't Use |
-| ------- | --- | --------- |
-| Referring to the person | Builder | User, player, customer, member |
-| Referring to Jarvis/Marvin/Conan | Stewards, or their individual names | Agents, AIs, bots, assistants |
-| Referring to task executors | Attendants | Workers, bots, tools |
-| In code (pragmatic) | "user" acceptable in code contexts | "builder" in all user-facing copy |
+| Context                          | Use                                 | Don't Use                         |
+| -------------------------------- | ----------------------------------- | --------------------------------- |
+| Referring to the person          | Builder                             | User, player, customer, member    |
+| Referring to Jarvis/Marvin/Conan | Stewards, or their individual names | Agents, AIs, bots, assistants     |
+| Referring to task executors      | Attendants                          | Workers, bots, tools              |
+| In code (pragmatic)              | "user" acceptable in code contexts  | "builder" in all user-facing copy |
 
 ### Anti-Examples
 

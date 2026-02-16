@@ -28,10 +28,10 @@ The specification for the day-by-day first 72 hours experience: what happens eac
 
 #### Day 1: Welcome & Orient
 
-| Step             | Actor                         | Outcome                      |
-| ---------------- | ----------------------------- | ---------------------------- |
-| Warm greeting    | Mesa at Campfire              | Builder feels welcomed      |
-| Spatial metaphor | Life Map introduction         | "This is a map of your life" |
+| Step             | Actor                        | Outcome                      |
+| ---------------- | ---------------------------- | ---------------------------- |
+| Warm greeting    | Mesa at Campfire             | Builder feels welcomed       |
+| Spatial metaphor | Life Map introduction        | "This is a map of your life" |
 | First project    | Builder creates (low stakes) | "I made something"           |
 
 **Emotional target:** "I made something."
@@ -41,7 +41,7 @@ The specification for the day-by-day first 72 hours experience: what happens eac
 
 | Step                 | Actor                   | Outcome                           |
 | -------------------- | ----------------------- | --------------------------------- |
-| Jarvis introduction  | Council Chamber unlocks | Builder meets planning advisor   |
+| Jarvis introduction  | Council Chamber unlocks | Builder meets planning advisor    |
 | Charter conversation | Jarvis guides           | Values and current focus captured |
 | Second project       | Marvin in Drafting Room | "I have help"                     |
 
@@ -50,11 +50,11 @@ The specification for the day-by-day first 72 hours experience: what happens eac
 
 #### Day 3: Establish Rhythm
 
-| Step                   | Actor                           | Outcome                             |
-| ---------------------- | ------------------------------- | ----------------------------------- |
+| Step                   | Actor                          | Outcome                            |
+| ---------------------- | ------------------------------ | ---------------------------------- |
 | Sorting Room visit     | Marvin guides                  | Builder prioritizes for first time |
-| Work at Hand selection | Builder chooses (even minimal) | First weekly commitment             |
-| Table populated        | System displays selections      | "I know what to do each week"       |
+| Work at Hand selection | Builder chooses (even minimal) | First weekly commitment            |
+| Table populated        | System displays selections     | "I know what to do each week"      |
 
 **Emotional target:** "I know what to do each week."
 **Constraint:** Full feature set now available. Progressive disclosure complete.

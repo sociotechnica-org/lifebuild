@@ -30,25 +30,25 @@ LifeBuild uses no extrinsic reward mechanics. The moral principle: building capa
 
 ### Reward Types
 
-| Type | What It Is | Example |
-| ---- | ---------- | ------- |
-| Environmental | The map gets more beautiful | Hex tiles evolve through image evolution stages; sanctuary structure develops |
-| Capability | Stewards get smarter | Recommendations improve; the experience personalizes; Conan's archives deepen |
-| Capacity | Silver investments pay off | Delegation frees time; surplus appears; The Shift arrives |
-| Insight | Archives reveal patterns | Conan surfaces things the builder hadn't noticed; Jarvis connects dots across domains |
-| Freedom | Gold ventures shift character | The builder does things they couldn't have done before the sanctuary existed |
+| Type          | What It Is                    | Example                                                                               |
+| ------------- | ----------------------------- | ------------------------------------------------------------------------------------- |
+| Environmental | The map gets more beautiful   | Hex tiles evolve through image evolution stages; sanctuary structure develops         |
+| Capability    | Stewards get smarter          | Recommendations improve; the experience personalizes; Conan's archives deepen         |
+| Capacity      | Silver investments pay off    | Delegation frees time; surplus appears; The Shift arrives                             |
+| Insight       | Archives reveal patterns      | Conan surfaces things the builder hadn't noticed; Jarvis connects dots across domains |
+| Freedom       | Gold ventures shift character | The builder does things they couldn't have done before the sanctuary existed          |
 
 ### Anti-Patterns (What We Never Do)
 
-| Anti-Pattern | Why Harmful | What We Do Instead |
-| ------------ | ----------- | ------------------ |
-| Points / scores | External motivation crowds out internal | The map shows progress |
-| Streaks | Punishes absence, creates guilt | The sanctuary holds |
-| Daily login bonuses | Manufactures fake engagement | Natural engagement through meaningful work |
-| Leaderboards | Compares lives, which is toxic | Single-player experience |
-| "Earn your fun" mechanics | Morally injurious | Rest enables work, not the reverse |
-| Failure notifications | Creates anxiety about the app | Overgrowth visible on map, not pushed to phone |
-| Achievement pop-ups | Breaks contemplative tone | Jarvis notes milestones conversationally |
+| Anti-Pattern              | Why Harmful                             | What We Do Instead                             |
+| ------------------------- | --------------------------------------- | ---------------------------------------------- |
+| Points / scores           | External motivation crowds out internal | The map shows progress                         |
+| Streaks                   | Punishes absence, creates guilt         | The sanctuary holds                            |
+| Daily login bonuses       | Manufactures fake engagement            | Natural engagement through meaningful work     |
+| Leaderboards              | Compares lives, which is toxic          | Single-player experience                       |
+| "Earn your fun" mechanics | Morally injurious                       | Rest enables work, not the reverse             |
+| Failure notifications     | Creates anxiety about the app           | Overgrowth visible on map, not pushed to phone |
+| Achievement pop-ups       | Breaks contemplative tone               | Jarvis notes milestones conversationally       |
 
 ### Decision Heuristic
 

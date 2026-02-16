@@ -37,13 +37,13 @@ The ordered repository of all fully-planned work ready for activation, organized
 
 ### Transitions
 
-| From                     | Trigger                                   | To                              | Side Effects                                                            |
-| ------------------------ | ----------------------------------------- | ------------------------------- | ----------------------------------------------------------------------- |
+| From                     | Trigger                                  | To                              | Side Effects                                                            |
+| ------------------------ | ---------------------------------------- | ------------------------------- | ----------------------------------------------------------------------- |
 | Planning Queue (Stage 3) | Builder completes Stage 4 prioritization | Enters Priority Queue           | Project receives stream-specific priority score; placed in stream order |
 | In Priority Queue        | Builder selects during Weekly Planning   | Work at Hand (on The Table)     | Project exits queue; fills weekly position                              |
 | Active on The Table      | Builder pauses project mid-week          | Returns to Priority Queue (top) | Appears at top of its stream as paused                                  |
 | In Priority Queue        | Builder abandons                         | Archived                        | Removed from queue                                                      |
-| In Priority Queue        | Priority attributes change                | Re-scored in queue              | Position may shift based on new score                                   |
+| In Priority Queue        | Priority attributes change               | Re-scored in queue              | Position may shift based on new score                                   |
 
 ### Processing Logic
 

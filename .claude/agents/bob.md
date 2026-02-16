@@ -166,27 +166,27 @@ Hand off to Conan
 
 ### Library Organization
 
-| Type              | Folder                     |
-| ----------------- | -------------------------- |
-| Foundation / Need | `/rationale/` (flat)       |
-| Strategy          | `/rationale/strategies/`   |
-| Principle         | `/rationale/principles/`   |
-| Standard          | `/rationale/standards/`    |
-| Zone              | `/product/zones/`          |
-| Room              | `/product/rooms/`          |
-| Overlay           | `/product/overlays/`       |
-| Structure         | `/product/structures/`     |
-| Component         | `/product/components/`     |
-| Artifact          | `/product/artifacts/`      |
-| Capability        | `/product/capabilities/`   |
-| Primitive         | `/product/primitives/`     |
-| System            | `/product/systems/`        |
-| Agent             | `/product/agents/`         |
-| Prompt            | `/product/prompts/`        |
-| Loop              | `/experience/loops/`       |
-| Journey           | `/experience/journeys/`    |
-| Aesthetic          | `/experience/aesthetics/`  |
-| Dynamic           | `/experience/dynamics/`    |
+| Type              | Folder                    |
+| ----------------- | ------------------------- |
+| Foundation / Need | `/rationale/` (flat)      |
+| Strategy          | `/rationale/strategies/`  |
+| Principle         | `/rationale/principles/`  |
+| Standard          | `/rationale/standards/`   |
+| Zone              | `/product/zones/`         |
+| Room              | `/product/rooms/`         |
+| Overlay           | `/product/overlays/`      |
+| Structure         | `/product/structures/`    |
+| Component         | `/product/components/`    |
+| Artifact          | `/product/artifacts/`     |
+| Capability        | `/product/capabilities/`  |
+| Primitive         | `/product/primitives/`    |
+| System            | `/product/systems/`       |
+| Agent             | `/product/agents/`        |
+| Prompt            | `/product/prompts/`       |
+| Loop              | `/experience/loops/`      |
+| Journey           | `/experience/journeys/`   |
+| Aesthetic         | `/experience/aesthetics/` |
+| Dynamic           | `/experience/dynamics/`   |
 
 ### Card-Building Rules
 

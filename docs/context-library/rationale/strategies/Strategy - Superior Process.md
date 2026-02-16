@@ -44,7 +44,7 @@ The bet: if we apply structured process to personal life, builders will execute 
 | 3     | Bespoke Frameworks    | Bronze/Silver/Gold, The Table as WIP gate (current target)   |
 | 4     | Enterprise Principles | DRI clarity, OODA loops, retrospectives                      |
 | 5     | Structured Rhythm     | SODA cycle, weekly planning phases                           |
-| 6     | Capacity Tracking     | Builder Attributes measured and managed                     |
+| 6     | Capacity Tracking     | Builder Attributes measured and managed                      |
 | 7     | Full Orchestrated     | Defined roles, communication protocols, life-as-organization |
 
 **Current state:** Level 3. Three-stream portfolio and The Table implemented. Capacity tracking planned.

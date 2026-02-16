@@ -39,13 +39,13 @@ From campfire stranger to sanctuary resident — the builder meets Jarvis at a f
 
 ### Phases
 
-| Phase | Entry Condition | Activities | Transition Trigger | Target Feeling |
-| ----- | --------------- | ---------- | ------------------ | -------------- |
-| The Meeting | Builder opens app for first time | Arrive at campfire; Jarvis explains the tradition, the stewards, the sanctuary code | Builder agrees to walk with Jarvis | "I'm intrigued. These people are different." |
-| The Walk | Builder accepts invitation | Walk from campfire toward studio; Jarvis asks "What brought you here? What's the heaviest thing you're carrying?" | Arrive at the studio | "Someone actually listened." |
-| The Arrival | Reach the studio | Meet Marvin; studio is simple but warm; campfire fades behind them | Builder shapes first project from "the heavy thing" | "This is home now. Modest, but mine." |
-| First Project | Project shaped | Place first hex on the map near the studio; begin executing first tasks | Meaningful win achieved | "I did something real about the heavy thing." |
-| 72-Hour Win | First tasks underway | Achieve starting-state-appropriate win (see below) | Builder has evidence this works | "This actually works." |
+| Phase         | Entry Condition                  | Activities                                                                                                        | Transition Trigger                                  | Target Feeling                                |
+| ------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------- |
+| The Meeting   | Builder opens app for first time | Arrive at campfire; Jarvis explains the tradition, the stewards, the sanctuary code                               | Builder agrees to walk with Jarvis                  | "I'm intrigued. These people are different."  |
+| The Walk      | Builder accepts invitation       | Walk from campfire toward studio; Jarvis asks "What brought you here? What's the heaviest thing you're carrying?" | Arrive at the studio                                | "Someone actually listened."                  |
+| The Arrival   | Reach the studio                 | Meet Marvin; studio is simple but warm; campfire fades behind them                                                | Builder shapes first project from "the heavy thing" | "This is home now. Modest, but mine."         |
+| First Project | Project shaped                   | Place first hex on the map near the studio; begin executing first tasks                                           | Meaningful win achieved                             | "I did something real about the heavy thing." |
+| 72-Hour Win   | First tasks underway             | Achieve starting-state-appropriate win (see below)                                                                | Builder has evidence this works                     | "This actually works."                        |
 
 ### Starting State Wins
 

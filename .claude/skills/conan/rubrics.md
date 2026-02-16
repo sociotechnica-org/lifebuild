@@ -83,24 +83,24 @@ Binary pass/fail — structural readiness only.
 
 Flag during grading, don't halt. Complete grade + note AUDIT SIGNAL.
 
-| Signal                                                            | Suggests               |
-| ----------------------------------------------------------------- | ---------------------- |
-| WHAT says "mechanism," "manages state," "processes"               | System                 |
-| WHAT says "specification," "defines values," "must conform"       | Standard               |
-| WHAT says "principle," "guides," "judgment-based"                 | Principle              |
+| Signal                                                           | Suggests               |
+| ---------------------------------------------------------------- | ---------------------- |
+| WHAT says "mechanism," "manages state," "processes"              | System                 |
+| WHAT says "specification," "defines values," "must conform"      | Standard               |
+| WHAT says "principle," "guides," "judgment-based"                | Principle              |
 | Card typed as Room but builders don't navigate TO it             | Structure or Component |
 | Card typed as Structure but builders navigate TO it              | Room                   |
-| Card typed as Room but is top-level workspace                     | Zone                   |
-| Card has no state but constrains other cards                      | Standard               |
-| Card typed as Component but is a content object                   | Artifact               |
+| Card typed as Room but is top-level workspace                    | Zone                   |
+| Card has no state but constrains other cards                     | Standard               |
+| Card typed as Component but is a content object                  | Artifact               |
 | Card typed as Component but builders don't consciously invoke it | System                 |
-| Card typed as Component but name/description uses action-words    | Capability             |
-| Card typed as Component but describes a process/workflow          | Capability             |
-| Card typed as Structure but persists across all zones             | Overlay                |
-| Card typed as Room but describes an action/workflow               | Capability             |
-| Agent card has no Prompt card                                     | Prompt missing         |
-| HOW has behavioral types table                                    | Needs decomposition    |
-| Missing containment link (Room→Zone, Structure→Room, etc.)        | Structural deficiency  |
+| Card typed as Component but name/description uses action-words   | Capability             |
+| Card typed as Component but describes a process/workflow         | Capability             |
+| Card typed as Structure but persists across all zones            | Overlay                |
+| Card typed as Room but describes an action/workflow              | Capability             |
+| Agent card has no Prompt card                                    | Prompt missing         |
+| HOW has behavioral types table                                   | Needs decomposition    |
+| Missing containment link (Room→Zone, Structure→Room, etc.)       | Structural deficiency  |
 
 ## Type-Specific Notes
 

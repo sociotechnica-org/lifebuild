@@ -29,12 +29,12 @@ Every action a builder takes maps to one of four verbs: **Tend**, **Invest**, **
 
 ### The Verbs
 
-| Verb | What It Means | Typical Stream | Felt Experience |
-| ---- | ------------- | -------------- | --------------- |
-| **Tend** | Keep the sanctuary running. Execute Bronze tasks, maintain planted systems, handle routine. | Bronze (primary) | Usually Gray — low emotional payload, needs doing. The game is efficiency. |
-| **Invest** | Expand and improve the sanctuary. Build new infrastructure, fix broken things, upgrade existing systems. | Silver (primary), some Gold | Mixed — some draining (cleaning up disasters), some satisfying (new routines), some neutral (optimizing systems). All permanently change the territory. |
-| **Restore** | Refill capacity. Sleep, walk, meditate, connect with friends, exercise. Activities that buy your future self time and energy. | Bronze (Blue-time), some Silver | Blue — restorative, energizing. This isn't reward — it's fuel. |
-| **Venture** | Go beyond the sanctuary into the frontier. The ambitious project, the creative endeavor, the meaningful commitment. | Gold (primary) | Red to Blue — ventures cost energy but direct capacity toward chosen, meaningful work. |
+| Verb        | What It Means                                                                                                                 | Typical Stream                  | Felt Experience                                                                                                                                         |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tend**    | Keep the sanctuary running. Execute Bronze tasks, maintain planted systems, handle routine.                                   | Bronze (primary)                | Usually Gray — low emotional payload, needs doing. The game is efficiency.                                                                              |
+| **Invest**  | Expand and improve the sanctuary. Build new infrastructure, fix broken things, upgrade existing systems.                      | Silver (primary), some Gold     | Mixed — some draining (cleaning up disasters), some satisfying (new routines), some neutral (optimizing systems). All permanently change the territory. |
+| **Restore** | Refill capacity. Sleep, walk, meditate, connect with friends, exercise. Activities that buy your future self time and energy. | Bronze (Blue-time), some Silver | Blue — restorative, energizing. This isn't reward — it's fuel.                                                                                          |
+| **Venture** | Go beyond the sanctuary into the frontier. The ambitious project, the creative endeavor, the meaningful commitment.           | Gold (primary)                  | Red to Blue — ventures cost energy but direct capacity toward chosen, meaningful work.                                                                  |
 
 ### Relationship to Other Classifications
 

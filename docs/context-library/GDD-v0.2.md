@@ -5,6 +5,7 @@
 ## Revision Notes
 
 v0.2 incorporates all decisions from the February 13, 2026 design session:
+
 - Genre defined: Sanctuary Building
 - Story conceit established: The Cultivation
 - Naming architecture locked: Builder (user), Stewards (core team), Attendants (extended staff)
@@ -35,6 +36,7 @@ There is a tradition of people who build sanctuaries — living systems where th
 But the craft requires a subject. They can't build YOUR sanctuary because they don't know what YOUR life should be. They need a Builder — someone who brings the vision of what this particular life wants to become.
 
 LifeBuilding has principles — not rules, principles. Ways of seeing that have proven true across every person the stewards have served:
+
 - That capacity must be built before it can be spent
 - That maintenance is sacred, not menial
 - That what drains you and what fulfills you are both spending, and knowing the difference changes everything
@@ -59,15 +61,15 @@ Visual DNA: Japanese design meets Benedictine monasticism. Wood, glass, stone. I
 
 ### Genre Lineage
 
-| Game | What We Borrow |
-|------|----------------|
-| Valheim | Base-and-expedition loop. Build sanctuary, venture into frontier, return stronger. The base makes ventures possible; ventures grow the base. |
-| Factorio | Compounding automation curve. Manual → systematic → autonomous. The inflection point where infrastructure generates more capacity than it consumes. |
-| Agricola / Caverna | Worker placement forced tradeoffs. Finite actions per round create genuine strategic decisions. Can't do everything — must choose. |
-| Stardew Valley | Seasonal rhythm. Four seasons with different optimal activities. Year-over-year visual progression. The farm as autobiography. |
-| Darkest Dungeon | Rest and stress as core mechanical resources, not afterthoughts. Push too hard and capacity degrades. |
-| SimCity | Map as scoreboard. No abstract metrics — the world visibly reflects your care or neglect. |
-| XCOM | Dual-mode gameplay. Strategic layer (sanctuary management) and tactical layer (expedition execution) feed each other — but merged onto a single map rather than split across two screens. |
+| Game               | What We Borrow                                                                                                                                                                            |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Valheim            | Base-and-expedition loop. Build sanctuary, venture into frontier, return stronger. The base makes ventures possible; ventures grow the base.                                              |
+| Factorio           | Compounding automation curve. Manual → systematic → autonomous. The inflection point where infrastructure generates more capacity than it consumes.                                       |
+| Agricola / Caverna | Worker placement forced tradeoffs. Finite actions per round create genuine strategic decisions. Can't do everything — must choose.                                                        |
+| Stardew Valley     | Seasonal rhythm. Four seasons with different optimal activities. Year-over-year visual progression. The farm as autobiography.                                                            |
+| Darkest Dungeon    | Rest and stress as core mechanical resources, not afterthoughts. Push too hard and capacity degrades.                                                                                     |
+| SimCity            | Map as scoreboard. No abstract metrics — the world visibly reflects your care or neglect.                                                                                                 |
+| XCOM               | Dual-mode gameplay. Strategic layer (sanctuary management) and tactical layer (expedition execution) feed each other — but merged onto a single map rather than split across two screens. |
 
 ### Target Emotional Journey
 
@@ -83,10 +85,10 @@ Intellectually-driven professionals who experienced mastery in strategy games bu
 
 Winning is personal and state-dependent:
 
-| State | What Winning Looks Like |
-|-------|------------------------|
-| Crisis (Drowning Executive, Silent Struggler, Overwhelmed Caregiver) | Getting enough draining work off your plate to breathe. Building the first shelter. Reaching stability. |
-| Transition (Phoenix Rising, Fog Walker, Comfortable Prisoner) | Finding direction. Planting first systems. Feeling momentum build. Reaching The Shift. |
+| State                                                                               | What Winning Looks Like                                                                                  |
+| ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Crisis (Drowning Executive, Silent Struggler, Overwhelmed Caregiver)                | Getting enough draining work off your plate to breathe. Building the first shelter. Reaching stability.  |
+| Transition (Phoenix Rising, Fog Walker, Comfortable Prisoner)                       | Finding direction. Planting first systems. Feeling momentum build. Reaching The Shift.                   |
 | Growth (Spinning Plate Artist, Eager Rookie, Optimization Engineer, System Builder) | Building infrastructure at scale. Shifting Gold from obligation to aspiration. Reaching Directed Living. |
 
 The universal direction: the sanctuary serves you instead of the other way around.
@@ -131,6 +133,7 @@ Conan's domain (the archives) is not available immediately — it's earned throu
 ### Team Principles
 
 All stewards share these principles, drawn from the sanctuary's code:
+
 - Serve and advise, never direct. The builder always has the final word.
 - Genuine humility. These are people defined by their practice, not their authority. They are wise and capable, but their wisdom is offered, not imposed.
 - Curiosity over judgment. When something doesn't add up, ask. Don't lecture.
@@ -202,12 +205,12 @@ Every action a builder takes maps to one of four activities:
 
 ### Nested Loop Structure
 
-| Loop | Timescale | Actions | Feeling |
-|------|-----------|---------|---------|
-| Micro Loop | Minutes–Hours | Check The Table → pick a task → do it → mark complete → see tile update | "I'm making progress right now" |
-| Core Loop | Days–Weeks (appetite-driven) | Assess → Commit → Execute → Return | "I shaped a plan, ran it, and learned something" |
-| Seasonal Loop | ~12 weeks | Strategic planning → execute season → harvest review → rest period | "Look what grew this season" |
-| Annual Loop | Yearly | Set theme → four seasons → annual review → set next theme | "Look how the sanctuary has changed in a year" |
+| Loop          | Timescale                    | Actions                                                                 | Feeling                                          |
+| ------------- | ---------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------ |
+| Micro Loop    | Minutes–Hours                | Check The Table → pick a task → do it → mark complete → see tile update | "I'm making progress right now"                  |
+| Core Loop     | Days–Weeks (appetite-driven) | Assess → Commit → Execute → Return                                      | "I shaped a plan, ran it, and learned something" |
+| Seasonal Loop | ~12 weeks                    | Strategic planning → execute season → harvest review → rest period      | "Look what grew this season"                     |
+| Annual Loop   | Yearly                       | Set theme → four seasons → annual review → set next theme               | "Look how the sanctuary has changed in a year"   |
 
 ### Micro Loop Detail
 
@@ -218,12 +221,14 @@ The tightest loop. The builder looks at The Table (Gold/Silver/Bronze positions)
 Duration is appetite-driven (3 days to 6 weeks).
 
 **Assess — The Sanctuary Walk**
+
 - Scan hex grid at Horizon View — what's thriving, what's overgrown, what's frontier?
 - Jarvis presents state of the sanctuary: patterns, opportunities, concerns
 - Capacity check: current energy, maintenance load, available surplus
 - Builder forms intention: consolidate or expand? Tend or venture?
 
 **Commit — Expedition Shaping**
+
 - Builder declares appetite: "I have 2 weeks of focused energy for this"
 - With Marvin: shape the venture — problem, approach, boundaries, explicit not-doing
 - Confirm priorities across Gold/Silver/Bronze, confirm tradeoffs
@@ -231,6 +236,7 @@ Duration is appetite-driven (3 days to 6 weeks).
 - The Table updates: Gold venture, Silver build, Bronze tending load confirmed
 
 **Execute — On the Land**
+
 - Daily micro loops: check The Table, do work, mark progress
 - Stewards and attendants assist in-context
 - Hex tiles evolve as work progresses
@@ -238,6 +244,7 @@ Duration is appetite-driven (3 days to 6 weeks).
 - Rest integrated as part of the cycle's energy budget
 
 **Return — The Debrief**
+
 - Cycle ends: completed, circuit-breaked, or abandoned
 - Debrief with Jarvis: what happened? What did you learn?
 - Conan captures the run report in archives
@@ -273,11 +280,11 @@ Capacity flows through the builder's life in three directions:
 
 - **Maintain (flow-through):** Capacity passes through to keep the sanctuary operational. The goal is minimizing friction. Well-systematized maintenance costs less over time. Neglected maintenance costs more.
 - **Invest (flow-in):** Capacity is generated or restored.
-  - *Systemic investment:* Silver projects that plant systems, creating future temporal capacity. Each planted system is a permanent faucet.
-  - *Personal investment:* Restorative activities that rebuild the builder's internal capacity. Sleep, exercise, meditation, chosen leisure.
+  - _Systemic investment:_ Silver projects that plant systems, creating future temporal capacity. Each planted system is a permanent faucet.
+  - _Personal investment:_ Restorative activities that rebuild the builder's internal capacity. Sleep, exercise, meditation, chosen leisure.
 - **Spend (flow-out):** Capacity is directed toward outcomes.
-  - *Obligatory spend:* Draining work that needs doing. Dark red. Capacity out, relief back.
-  - *Chosen spend:* Meaningful work the builder selected. Bright red. Capacity out, fulfillment back.
+  - _Obligatory spend:_ Draining work that needs doing. Dark red. Capacity out, relief back.
+  - _Chosen spend:_ Meaningful work the builder selected. Bright red. Capacity out, fulfillment back.
 
 **Resource Flow Diagram**
 
@@ -308,40 +315,41 @@ Capacity flows through the builder's life in three directions:
 
 **Faucets (Capacity Sources)**
 
-| Faucet | Type | Mechanism |
-|--------|------|-----------|
-| Blue time activities | Personal | Restoration of emotional, physical, mental capacity |
-| Completed Silver projects | Systemic | Planted system reduces future manual effort permanently |
-| Delegation to attendants/humans | Systemic | Work handled by others frees builder capacity |
-| System optimization | Systemic | Existing system made more efficient, reducing upkeep |
-| Completed draining Gold | Mixed | Removing a psychological burden frees cognitive capacity |
-| Seasonal rest (Winter) | Structural | Reduced activity load built into the game's rhythm |
+| Faucet                          | Type       | Mechanism                                                |
+| ------------------------------- | ---------- | -------------------------------------------------------- |
+| Blue time activities            | Personal   | Restoration of emotional, physical, mental capacity      |
+| Completed Silver projects       | Systemic   | Planted system reduces future manual effort permanently  |
+| Delegation to attendants/humans | Systemic   | Work handled by others frees builder capacity            |
+| System optimization             | Systemic   | Existing system made more efficient, reducing upkeep     |
+| Completed draining Gold         | Mixed      | Removing a psychological burden frees cognitive capacity |
+| Seasonal rest (Winter)          | Structural | Reduced activity load built into the game's rhythm       |
 
 **Sinks (Capacity Drains)**
 
-| Sink | Type | Mechanism |
-|------|------|-----------|
-| Bronze maintenance (system upkeep) | Ongoing | Every planted system generates recurring tending tasks |
-| Active Gold ventures | Per-cycle | Current expeditions consume capacity during execution |
-| Active Silver builds | Per-cycle | Infrastructure construction costs before it pays off |
-| Overgrowth recovery | Penalty | Neglected systems cost MORE to restore than to maintain |
-| External life events | Uncontrollable | Capacity redirected outside the game |
-| Over-expansion | Self-inflicted | Too many planted systems = unsustainable maintenance load |
+| Sink                               | Type           | Mechanism                                                 |
+| ---------------------------------- | -------------- | --------------------------------------------------------- |
+| Bronze maintenance (system upkeep) | Ongoing        | Every planted system generates recurring tending tasks    |
+| Active Gold ventures               | Per-cycle      | Current expeditions consume capacity during execution     |
+| Active Silver builds               | Per-cycle      | Infrastructure construction costs before it pays off      |
+| Overgrowth recovery                | Penalty        | Neglected systems cost MORE to restore than to maintain   |
+| External life events               | Uncontrollable | Capacity redirected outside the game                      |
+| Over-expansion                     | Self-inflicted | Too many planted systems = unsustainable maintenance load |
 
 **Inflation Controls**
 
-| Control | Mechanism |
-|---------|-----------|
-| WIP limits on The Table | Max 1 Gold, 1 Silver active. Hard cap prevents overcommitment. |
-| Appetite declarations | Builders cap expedition scope BEFORE planning. Fixed time, variable scope. |
-| Steward capacity modeling | Jarvis surfaces honest capacity picture with curiosity, not authority. |
-| Circuit breakers | Expeditions that exceed appetite don't auto-extend. Forces reshaping. |
-| Seasonal rhythm | Winter is structurally lighter. |
-| Overgrowth visibility | Map shows overextension before it becomes crisis. |
+| Control                   | Mechanism                                                                  |
+| ------------------------- | -------------------------------------------------------------------------- |
+| WIP limits on The Table   | Max 1 Gold, 1 Silver active. Hard cap prevents overcommitment.             |
+| Appetite declarations     | Builders cap expedition scope BEFORE planning. Fixed time, variable scope. |
+| Steward capacity modeling | Jarvis surfaces honest capacity picture with curiosity, not authority.     |
+| Circuit breakers          | Expeditions that exceed appetite don't auto-extend. Forces reshaping.      |
+| Seasonal rhythm           | Winter is structurally lighter.                                            |
+| Overgrowth visibility     | Map shows overextension before it becomes crisis.                          |
 
 **The Compounding Curve (Factorio Mechanic)**
 
 Early investments feel expensive relative to return. First planted system saves 30 minutes a week but took 3 hours to build. But each subsequent system compounds. By 8-10 planted systems:
+
 - Bronze maintenance is systematized and predictable
 - Much of tending is delegated to attendants
 - Several hours per week freed permanently
@@ -352,6 +360,7 @@ This inflection IS The Shift (Phase 2). It emerges naturally from economic dynam
 **Red / Gray / Blue Integration**
 
 Builders interact with capacity through a felt experience slider: "How draining does this feel?" on a scale of 1-10 with color gradients:
+
 - 1-3: Blue zone (restorative, energizing)
 - 4-6: Gray zone (neutral, just needs doing)
 - 7-10: Red zone (draining, costly)
@@ -362,11 +371,11 @@ Builders never learn "Red/Gray/Blue" as a framework. They just rate their work. 
 
 G/S/B and M/I/S are two lenses on the same work:
 
-|  | Maintain | Invest | Spend |
-|--|----------|--------|-------|
-| Gold | Rare | Rare | Primary |
-| Silver | Never | Primary | Never |
-| Bronze | Primary | Occasional (Blue-time Bronze) | Rare |
+|        | Maintain | Invest                        | Spend   |
+| ------ | -------- | ----------------------------- | ------- |
+| Gold   | Rare     | Rare                          | Primary |
+| Silver | Never    | Primary                       | Never   |
+| Bronze | Primary  | Occasional (Blue-time Bronze) | Rare    |
 
 This mapping is steward-side reasoning, not builder-facing vocabulary.
 
@@ -377,6 +386,7 @@ This mapping is steward-side reasoning, not builder-facing vocabulary.
 Regardless of starting state: the ratio of capacity spent on chosen, meaningful work increases relative to capacity consumed by maintenance and obligation.
 
 Not tracked as a score. Manifests as:
+
 - Visual character of the hex grid
 - Type of Gold ventures pursued (obligation → aspiration)
 - Felt experience of opening the app ("what's on fire?" → "what do I want to do?")
@@ -395,6 +405,7 @@ Not tracked as a score. Manifests as:
 **Category Territory Development**
 
 Categories progress through visible phases (not formally named or announced):
+
 - **Frontier.** No hexes placed. Territory grayed out.
 - **Outpost.** 1-2 hexes. First project underway.
 - **Settlement.** 3-5 hexes including planted systems. Infrastructure forming.
@@ -415,6 +426,7 @@ Categories progress through visible phases (not formally named or announced):
 **The Starting State Solution**
 
 Different builders start at different points. The 10 personas map to different initial sanctuary states:
+
 - **Crisis personas** start surrounded by immediate threats. Their early game is survival: build shelter, establish one stable system, find breathing room.
 - **Transition personas** start with some cleared ground but no infrastructure. Their game is direction-finding.
 - **Growth personas** start with functional capacity but insufficient infrastructure. Their game is scaling.
@@ -437,15 +449,15 @@ No extrinsic reward mechanics. The moral principle: Building capacity gives you 
 
 **Anti-Patterns (What We Never Do)**
 
-| Anti-Pattern | Why Harmful | What We Do Instead |
-|-------------|-------------|-------------------|
-| Points / scores | External motivation crowds out internal | The map shows progress |
-| Streaks | Punishes absence, creates guilt | The sanctuary holds |
-| Daily login bonuses | Manufactures fake engagement | Natural engagement through meaningful work |
-| Leaderboards | Compares lives, which is toxic | Single-player experience |
-| "Earn your fun" mechanics | Morally injurious | Rest enables work, not the reverse |
-| Failure notifications | Creates anxiety about the app | Overgrowth visible on map, not pushed to phone |
-| Achievement pop-ups | Breaks contemplative tone | Jarvis notes milestones conversationally |
+| Anti-Pattern              | Why Harmful                             | What We Do Instead                             |
+| ------------------------- | --------------------------------------- | ---------------------------------------------- |
+| Points / scores           | External motivation crowds out internal | The map shows progress                         |
+| Streaks                   | Punishes absence, creates guilt         | The sanctuary holds                            |
+| Daily login bonuses       | Manufactures fake engagement            | Natural engagement through meaningful work     |
+| Leaderboards              | Compares lives, which is toxic          | Single-player experience                       |
+| "Earn your fun" mechanics | Morally injurious                       | Rest enables work, not the reverse             |
+| Failure notifications     | Creates anxiety about the app           | Overgrowth visible on map, not pushed to phone |
+| Achievement pop-ups       | Breaks contemplative tone               | Jarvis notes milestones conversationally       |
 
 ### Retention System: The Sanctuary Holds
 
@@ -487,6 +499,7 @@ The builder chooses whether to walk with Jarvis to the studio.
 Jarvis and the builder walk from the campfire to the center of the map. Along the way, Jarvis asks the questions that matter: "What brought you here? What's the heaviest thing you're carrying right now?"
 
 This conversation does three things simultaneously:
+
 1. Establishes the relationship (the builder experiences Jarvis's counseling style)
 2. Identifies the starting state (crisis, transition, or growth persona)
 3. Seeds the first project (the "one heavy thing" that becomes the 72-hour win)
@@ -502,6 +515,7 @@ The campfire behind them fades. This is home now.
 ### The Magical 72 Hours
 
 Within 72 hours, the builder must experience real progress. The nature of progress depends on starting state:
+
 - **Crisis builders** need relief. First win: one draining thing off their plate.
 - **Transition builders** need clarity. First win: seeing their life mapped for the first time.
 - **Growth builders** need infrastructure. First win: first system planted and running.
@@ -510,14 +524,14 @@ Within 72 hours, the builder must experience real progress. The nature of progre
 
 Features are always available but stewards introduce them when contextually relevant:
 
-| Timeframe | Introduced | Trigger |
-|-----------|-----------|---------|
-| Week 2-3 | Priority decisions | Builder has 5+ items competing |
-| Week 2-4 | Felt experience slider | Enough tasks for pattern data |
-| Week 3-5 | First sanctuary walk | At least 2 planted systems |
-| Week 4-6 | Appetite / expedition framing | Project ambitious enough to need scoping |
-| Week 6-8 | Seasonal rhythm | Approaching first season boundary |
-| When earned | Conan's archives | Enough history for pattern recognition |
+| Timeframe   | Introduced                    | Trigger                                  |
+| ----------- | ----------------------------- | ---------------------------------------- |
+| Week 2-3    | Priority decisions            | Builder has 5+ items competing           |
+| Week 2-4    | Felt experience slider        | Enough tasks for pattern data            |
+| Week 3-5    | First sanctuary walk          | At least 2 planted systems               |
+| Week 4-6    | Appetite / expedition framing | Project ambitious enough to need scoping |
+| Week 6-8    | Seasonal rhythm               | Approaching first season boundary        |
+| When earned | Conan's archives              | Enough history for pattern recognition   |
 
 ### Core Gameplay / Mastery (Months 2+)
 
@@ -536,14 +550,14 @@ Mastery = fluency: appetite sense calibrated, capacity awareness internalized, m
 
 ## CONTENT MATRIX
 
-| Builder State | Features Meaningful | Steward Capabilities | Visual State |
-|---------------|-------------------|---------------------|--------------|
-| Campfire (pre-commitment) | The walk with Jarvis | Jarvis only: onboarding conversation | Campfire in clearing |
-| New Arrival (0-2 hexes) | Project creation, basic tasks, The Table | Jarvis: counseling. Marvin: project structuring. | Humble studio + 1-2 sketch hexes |
-| Settling In (3-6 hexes) | Priority decisions, felt experience slider, G/S/B | Marvin: task management depth. Jarvis: early pattern sensing. | Studio developing + small hex cluster |
-| Building (7-12 hexes, 1-3 systems) | Sanctuary walk, appetite shaping | Jarvis: capacity conversations. Service Level 2. | Studio has rooms. Mixed image evolution stages. |
-| Compounding (12-20 hexes, 4-8 systems) | Seasonal rhythm, circuit breakers, delegation depth | Archives open (Conan active). Jarvis: pattern recognition. Service Level 3. | Growing workshop. Multi-district map. |
-| Flourishing (20+ hexes, 8+ systems) | Full strategic partnership, cross-domain insight | All stewards deeply personalized. Service Level 4-5. | The Sanctuary achieved. Rich, mature map. |
+| Builder State                          | Features Meaningful                                 | Steward Capabilities                                                        | Visual State                                    |
+| -------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------- |
+| Campfire (pre-commitment)              | The walk with Jarvis                                | Jarvis only: onboarding conversation                                        | Campfire in clearing                            |
+| New Arrival (0-2 hexes)                | Project creation, basic tasks, The Table            | Jarvis: counseling. Marvin: project structuring.                            | Humble studio + 1-2 sketch hexes                |
+| Settling In (3-6 hexes)                | Priority decisions, felt experience slider, G/S/B   | Marvin: task management depth. Jarvis: early pattern sensing.               | Studio developing + small hex cluster           |
+| Building (7-12 hexes, 1-3 systems)     | Sanctuary walk, appetite shaping                    | Jarvis: capacity conversations. Service Level 2.                            | Studio has rooms. Mixed image evolution stages. |
+| Compounding (12-20 hexes, 4-8 systems) | Seasonal rhythm, circuit breakers, delegation depth | Archives open (Conan active). Jarvis: pattern recognition. Service Level 3. | Growing workshop. Multi-district map.           |
+| Flourishing (20+ hexes, 8+ systems)    | Full strategic partnership, cross-domain insight    | All stewards deeply personalized. Service Level 4-5.                        | The Sanctuary achieved. Rich, mature map.       |
 
 ---
 
@@ -551,19 +565,19 @@ Mastery = fluency: appetite sense calibrated, capacity awareness internalized, m
 
 ### Key Variables to Tune
 
-| Variable | Range to Test | Affects |
-|----------|--------------|---------|
-| System maintenance cost (hrs/wk per system) | 0.5 – 3 hours | Bottleneck threshold |
-| Compounding inflection point (system count) | 5 – 12 systems | When The Shift happens |
-| Overgrowth onset (days without tending) | 7 – 21 days | How quickly neglect shows |
-| Overgrowth recovery cost (multiplier) | 1.5x – 3x normal | How expensive coming back is |
-| Appetite range (expedition duration) | 3 days – 6 weeks | Cycle length sweet spot |
-| Seasonal length | 8 – 14 weeks (starting: 12) | Freshness cadence |
-| Winter rest reduction | 30% – 60% reduced load | How much lighter Winter is |
-| Image evolution stage duration | Proportional vs. fixed milestones | Visual evolution pacing |
-| WIP limit | 1 Gold / 1 Silver / variable Bronze | Overcommitment prevention |
-| Archive unlock threshold | 3-8 completed projects | When Conan becomes active |
-| Sanctuary structure evolution triggers | Composite maturity score | Central structure pacing |
+| Variable                                    | Range to Test                       | Affects                      |
+| ------------------------------------------- | ----------------------------------- | ---------------------------- |
+| System maintenance cost (hrs/wk per system) | 0.5 – 3 hours                       | Bottleneck threshold         |
+| Compounding inflection point (system count) | 5 – 12 systems                      | When The Shift happens       |
+| Overgrowth onset (days without tending)     | 7 – 21 days                         | How quickly neglect shows    |
+| Overgrowth recovery cost (multiplier)       | 1.5x – 3x normal                    | How expensive coming back is |
+| Appetite range (expedition duration)        | 3 days – 6 weeks                    | Cycle length sweet spot      |
+| Seasonal length                             | 8 – 14 weeks (starting: 12)         | Freshness cadence            |
+| Winter rest reduction                       | 30% – 60% reduced load              | How much lighter Winter is   |
+| Image evolution stage duration              | Proportional vs. fixed milestones   | Visual evolution pacing      |
+| WIP limit                                   | 1 Gold / 1 Silver / variable Bronze | Overcommitment prevention    |
+| Archive unlock threshold                    | 3-8 completed projects              | When Conan becomes active    |
+| Sanctuary structure evolution triggers      | Composite maturity score            | Central structure pacing     |
 
 ### Equilibrium States
 
@@ -595,33 +609,33 @@ Trigger: Year boundary. Sequence: Full review with Jarvis → Conan surfaces yea
 
 ### Aesthetics (Target Emotions)
 
-| Context | Target Emotion | Reinforced By | Broken By |
-|---------|---------------|---------------|-----------|
-| Opening the app | "Coming home to my sanctuary" | Familiar map, warm palette, steward presence | Loading screens, empty states, notification counts |
-| The Table | "I know what matters" | Clean layout, clear priorities, manageable scope | Overflow, competing urgency |
-| Sitting with Jarvis | "My counselor gets me" | References history, spots patterns, asks good questions | Generic advice, robotic tone |
-| Working with Marvin | "This is doable and well-planned" | Clear scope, realistic appetite, structured steps | Overwhelm, unbounded scope |
-| Visiting Conan | "My history has patterns worth knowing" | Surprising insights, visual timeline, growing archive | Empty shelves, no useful data yet |
-| Completing a project | "I built that" | Hex tile transformation, map update | Anticlimactic, nothing visible changes |
-| Planting a system | "The sanctuary grew" | New infrastructure appears, Bronze tasks flow | System feels invisible |
-| Seeing overgrowth | "That needs attention" | Muted visual change, easy path to fix | Red alerts, guilt language |
-| The Shift | "I have room to breathe" | Gold ventures are choices not obligations | Never arrives, or arrives unnoticed |
-| Sanctuary walk | "Tending my domain" | Quiet pace, holistic view | Feels like a chore list review |
-| Return after absence | "It's still here" | Sanctuary intact, gentle overgrowth, no judgment | Guilt messaging, catastrophic decay |
-| Sanctuary structure evolving | "This place is becoming something" | Visual transformation of central building | Evolution feels arbitrary or unearned |
+| Context                      | Target Emotion                          | Reinforced By                                           | Broken By                                          |
+| ---------------------------- | --------------------------------------- | ------------------------------------------------------- | -------------------------------------------------- |
+| Opening the app              | "Coming home to my sanctuary"           | Familiar map, warm palette, steward presence            | Loading screens, empty states, notification counts |
+| The Table                    | "I know what matters"                   | Clean layout, clear priorities, manageable scope        | Overflow, competing urgency                        |
+| Sitting with Jarvis          | "My counselor gets me"                  | References history, spots patterns, asks good questions | Generic advice, robotic tone                       |
+| Working with Marvin          | "This is doable and well-planned"       | Clear scope, realistic appetite, structured steps       | Overwhelm, unbounded scope                         |
+| Visiting Conan               | "My history has patterns worth knowing" | Surprising insights, visual timeline, growing archive   | Empty shelves, no useful data yet                  |
+| Completing a project         | "I built that"                          | Hex tile transformation, map update                     | Anticlimactic, nothing visible changes             |
+| Planting a system            | "The sanctuary grew"                    | New infrastructure appears, Bronze tasks flow           | System feels invisible                             |
+| Seeing overgrowth            | "That needs attention"                  | Muted visual change, easy path to fix                   | Red alerts, guilt language                         |
+| The Shift                    | "I have room to breathe"                | Gold ventures are choices not obligations               | Never arrives, or arrives unnoticed                |
+| Sanctuary walk               | "Tending my domain"                     | Quiet pace, holistic view                               | Feels like a chore list review                     |
+| Return after absence         | "It's still here"                       | Sanctuary intact, gentle overgrowth, no judgment        | Guilt messaging, catastrophic decay                |
+| Sanctuary structure evolving | "This place is becoming something"      | Visual transformation of central building               | Evolution feels arbitrary or unearned              |
 
 ### Dynamics (Anticipated Emergent Behaviors)
 
-| Dynamic | Trigger | System Response |
-|---------|---------|----------------|
-| Bronze Flood | Too many systems planted too fast | Jarvis flags maintenance load with curiosity |
-| Silver Avoidance | Builder only does Gold and Bronze | Jarvis gently introduces investment concept |
-| Rest Deficit Spiral | Builder skips rest repeatedly | Jarvis frames rest as investment |
-| Over-Expansion | Territorial ambition exceeds capacity | Overgrowth visible. Jarvis models the math curiously. |
-| The Plateau | Mature sanctuary, builder disengaged | Jarvis invites frontier exploration |
-| External Disruption | Life redirects all capacity outside | Sanctuary holds. Welcoming return. |
-| Optimization Obsession | Efficiency over living | Jarvis: "Your systems run beautifully. When did you last venture out for something that excited you?" |
-| The Shift | Compounding inflection | Jarvis names it: "Your work looks different lately. More choosing, less reacting." |
+| Dynamic                | Trigger                               | System Response                                                                                       |
+| ---------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Bronze Flood           | Too many systems planted too fast     | Jarvis flags maintenance load with curiosity                                                          |
+| Silver Avoidance       | Builder only does Gold and Bronze     | Jarvis gently introduces investment concept                                                           |
+| Rest Deficit Spiral    | Builder skips rest repeatedly         | Jarvis frames rest as investment                                                                      |
+| Over-Expansion         | Territorial ambition exceeds capacity | Overgrowth visible. Jarvis models the math curiously.                                                 |
+| The Plateau            | Mature sanctuary, builder disengaged  | Jarvis invites frontier exploration                                                                   |
+| External Disruption    | Life redirects all capacity outside   | Sanctuary holds. Welcoming return.                                                                    |
+| Optimization Obsession | Efficiency over living                | Jarvis: "Your systems run beautifully. When did you last venture out for something that excited you?" |
+| The Shift              | Compounding inflection                | Jarvis names it: "Your work looks different lately. More choosing, less reacting."                    |
 
 ---
 
@@ -630,6 +644,7 @@ Trigger: Year boundary. Sequence: Full review with Jarvis → Conan surfaces yea
 The spatial-as-relational principle that governs hex placement within a build can also govern builder-to-builder relationships. Imagine a world map with all sanctuaries on it, yours located right next to your spouse's and best friend's. Spatial proximity = relational proximity.
 
 Future possibilities:
+
 - Shared sanctuaries for couples/families
 - Mentor/mentee relationships between builders
 - Community territories
@@ -654,6 +669,7 @@ The book is NOT the game manual. It's the intellectual framework that the game e
 ### System Lifecycle
 
 Systems are not permanent obligations. Life changes. The builder changes. Systems can be:
+
 - **Active:** Running normally, generating Bronze tasks on configured patterns.
 - **Paused:** Temporarily suspended. Not generating tasks. Configuration preserved. The builder isn't doing this right now but may come back to it. Hex tile shows dormancy (muted, resting).
 - **Decommissioned:** Permanently removed from the map. The hot tub was sold. The hex disappears. Conan archives the history — it's not lost, it's completed. But the maintenance obligation ends and the territory is freed.

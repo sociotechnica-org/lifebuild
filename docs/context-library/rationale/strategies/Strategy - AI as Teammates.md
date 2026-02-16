@@ -35,16 +35,16 @@ The bet: if builders have AI agents with defined jobs, appropriate permissions, 
 
 ### Maturity Ladder
 
-| Level | Name                   | What It Is                                          |
-| ----- | ---------------------- | --------------------------------------------------- |
-| 0     | Status Quo             | No AI or generic chat                               |
+| Level | Name                   | What It Is                                             |
+| ----- | ---------------------- | ------------------------------------------------------ |
+| 0     | Status Quo             | No AI or generic chat                                  |
 | 1     | Operational Team       | Consolidated agents with defined roles (current state) |
-| 2     | Extended to Real World | Agents handle email, calendar, web research         |
-| 3     | Jobs and Permissions   | Agents have standing authority, act proactively     |
-| 4     | Agent Coordination     | Agents hand off to each other                       |
-| 5     | Tiered Authority       | Seniority structure, escalation paths               |
-| 6     | Learning and Memory    | Agents remember, learn patterns, improve over time  |
-| 7+    | Autonomous Team        | Agents with genuine judgment, minimal oversight     |
+| 2     | Extended to Real World | Agents handle email, calendar, web research            |
+| 3     | Jobs and Permissions   | Agents have standing authority, act proactively        |
+| 4     | Agent Coordination     | Agents hand off to each other                          |
+| 5     | Tiered Authority       | Seniority structure, escalation paths                  |
+| 6     | Learning and Memory    | Agents remember, learn patterns, improve over time     |
+| 7+    | Autonomous Team        | Agents with genuine judgment, minimal oversight        |
 
 **Current state:** Level 1. Operational team with defined roles, reactive help.
 

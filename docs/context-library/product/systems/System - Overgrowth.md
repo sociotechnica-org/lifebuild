@@ -53,10 +53,10 @@ The visual language is garden-like: seasons changing, not buildings collapsing.
 
 Always proportional to neglect:
 
-| Absence | Recovery |
-| ------- | -------- |
-| < 1 week | Trivial. Complete 1-2 missed tasks. Colors return immediately. |
-| 1-4 weeks | Light tending cycle. A few catch-up tasks. Colors return over a session. |
+| Absence   | Recovery                                                                                                   |
+| --------- | ---------------------------------------------------------------------------------------------------------- |
+| < 1 week  | Trivial. Complete 1-2 missed tasks. Colors return immediately.                                             |
+| 1-4 weeks | Light tending cycle. A few catch-up tasks. Colors return over a session.                                   |
 | 1+ months | Focused tending cycle. More catch-up tasks, possibly some system reconfiguration. Colors return over days. |
 
 Nothing requires rebuilding from scratch. The worst case is a focused tending cycle.

@@ -29,8 +29,8 @@ The specification for visual treatment and interaction behavior of empty Gold an
 
 #### Empty Slot States
 
-| State               | Visual Treatment              | Meaning                                      | Affordance                |
-| ------------------- | ----------------------------- | -------------------------------------------- | ------------------------- |
+| State               | Visual Treatment              | Meaning                                     | Affordance                |
+| ------------------- | ----------------------------- | ------------------------------------------- | ------------------------- |
 | Not selected yet    | Subtle outline, gentle prompt | Planning incomplete — builder hasn't chosen | Action affordance present |
 | Intentionally empty | Calm, solid, distinct visual  | Strategic choice — builder chose restraint  | No action prompt          |
 

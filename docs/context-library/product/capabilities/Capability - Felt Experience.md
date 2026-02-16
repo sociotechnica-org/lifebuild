@@ -34,11 +34,11 @@ The builder rates how draining their work feels on a 1-10 scale with color gradi
 
 After completing a task or at natural reflection points, the builder is asked: "How draining did that feel?" on a 1-10 scale.
 
-| Range | Zone | Color | Meaning |
-| ----- | ---- | ----- | ------- |
-| 1-3 | Blue | Cool blues | Restorative, energizing |
-| 4-6 | Gray | Neutral grays | Neutral, just needed doing |
-| 7-10 | Red | Warm reds | Draining, costly |
+| Range | Zone | Color         | Meaning                    |
+| ----- | ---- | ------------- | -------------------------- |
+| 1-3   | Blue | Cool blues    | Restorative, energizing    |
+| 4-6   | Gray | Neutral grays | Neutral, just needed doing |
+| 7-10  | Red  | Warm reds     | Draining, costly           |
 
 ### What the Builder Sees
 
@@ -47,6 +47,7 @@ A simple 1-10 slider with smooth color gradient. No labels. No framework explana
 ### What the Stewards See
 
 Patterns over time:
+
 - Average drain score trending up (capacity declining) or down (sanctuary improving)
 - Specific categories or projects that consistently score Red
 - Time-of-day or day-of-week patterns

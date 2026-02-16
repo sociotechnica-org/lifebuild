@@ -40,8 +40,8 @@ The ambient notification mechanism that surfaces items needing attention through
 | -------------- | ---------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------ |
 | No signal      | Threshold breached (e.g., system misses 3 cycles)          | Signal active                         | Tile receives visual treatment (tint/effect); Processing Layer updates State Summary |
 | Signal active  | Underlying condition resolves (e.g., system cycles resume) | Signal cleared                        | Visual treatment removed; State Summary updated                                      |
-| Signal active  | Builder dismisses signal                                  | Signal dismissed                      | Visual treatment removed for this instance; underlying condition still tracked       |
-| Signal active  | Builder snoozes signal                                    | Signal snoozed (temporary)            | Visual treatment removed temporarily; reappears after snooze period                  |
+| Signal active  | Builder dismisses signal                                   | Signal dismissed                      | Visual treatment removed for this instance; underlying condition still tracked       |
+| Signal active  | Builder snoozes signal                                     | Signal snoozed (temporary)            | Visual treatment removed temporarily; reappears after snooze period                  |
 | Signal snoozed | Snooze period expires                                      | Signal active (if condition persists) | Visual treatment reapplied                                                           |
 
 ### Processing Logic

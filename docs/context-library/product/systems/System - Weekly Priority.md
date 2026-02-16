@@ -39,15 +39,15 @@ The mechanism that produces and maintains a builder's active weekly commitment â
 
 ### Transitions
 
-| From                 | Trigger                                         | To                            | Side Effects                                                                                  |
-| -------------------- | ----------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------- |
-| No weekly commitment | Builder completes Weekly Planning with Marvin | Positions filled              | Selected projects appear on The Table; enhanced treatment on Life Map                         |
-| Position filled      | Builder completes project                      | Position empty (completed)    | Project marked complete; position opens for remainder of week                                 |
-| Position filled      | Builder pauses project mid-week                | Position vacated              | Project returns to Priority Queue top; builder can promote, insert emergency, or leave empty |
-| Position vacated     | Builder promotes from queue                    | Position filled (new project) | Replacement project moves from Priority Queue to The Table                                    |
-| Position vacated     | Builder creates emergency                      | Position filled (emergency)   | New project bypasses queue; Jarvis notes for pattern tracking                                 |
-| Position vacated     | Builder leaves empty                           | Position empty (intentional)  | Empty slot is a valid strategic choice per Empty Slots Strategic principle                    |
-| Week ends            | New planning cycle begins                       | All positions reset           | Previous commitments archived; new Weekly Planning session begins                             |
+| From                 | Trigger                                       | To                            | Side Effects                                                                                 |
+| -------------------- | --------------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------- |
+| No weekly commitment | Builder completes Weekly Planning with Marvin | Positions filled              | Selected projects appear on The Table; enhanced treatment on Life Map                        |
+| Position filled      | Builder completes project                     | Position empty (completed)    | Project marked complete; position opens for remainder of week                                |
+| Position filled      | Builder pauses project mid-week               | Position vacated              | Project returns to Priority Queue top; builder can promote, insert emergency, or leave empty |
+| Position vacated     | Builder promotes from queue                   | Position filled (new project) | Replacement project moves from Priority Queue to The Table                                   |
+| Position vacated     | Builder creates emergency                     | Position filled (emergency)   | New project bypasses queue; Jarvis notes for pattern tracking                                |
+| Position vacated     | Builder leaves empty                          | Position empty (intentional)  | Empty slot is a valid strategic choice per Empty Slots Strategic principle                   |
+| Week ends            | New planning cycle begins                     | All positions reset           | Previous commitments archived; new Weekly Planning session begins                            |
 
 ### Processing Logic
 

@@ -130,17 +130,17 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 #### Common Misclassifications
 
-| Often Misclassified As | Actually   | Example                                 | Reasoning                                          |
-| ---------------------- | ---------- | --------------------------------------- | -------------------------------------------------- |
+| Often Misclassified As | Actually   | Example                                 | Reasoning                                         |
+| ---------------------- | ---------- | --------------------------------------- | ------------------------------------------------- |
 | Component              | System     | Adaptation, Service Level Progression   | Builders don't invoke it — fails Interaction Test |
-| Component              | Capability | Zoom Navigation, Three-Stream Filtering | Action/workflow, not a pointable widget            |
-| Component              | System     | Clustering, Bronze Stack                | Mechanism with state, not a UI widget              |
-| Structure              | Overlay    | The Table                               | Persists across ALL zones                          |
+| Component              | Capability | Zoom Navigation, Three-Stream Filtering | Action/workflow, not a pointable widget           |
+| Component              | System     | Clustering, Bronze Stack                | Mechanism with state, not a UI widget             |
+| Structure              | Overlay    | The Table                               | Persists across ALL zones                         |
 | Component              | Capability | Purpose Assignment, System Actions      | Workflow builders perform                         |
-| Capability             | Loop       | Weekly Planning rhythm                  | Not a single action — repeating cycle              |
-| System                 | Dynamic    | Bronze Flood, Rest Deficit Spiral       | Not designed — emergent from system interaction     |
-| Principle              | Aesthetic  | "Coming home to my sanctuary"           | Not judgment guidance — target feeling             |
-| System                 | Journey    | Onboarding progression                  | Not invisible — builder consciously lives the arc  |
+| Capability             | Loop       | Weekly Planning rhythm                  | Not a single action — repeating cycle             |
+| System                 | Dynamic    | Bronze Flood, Rest Deficit Spiral       | Not designed — emergent from system interaction   |
+| Principle              | Aesthetic  | "Coming home to my sanctuary"           | Not judgment guidance — target feeling            |
+| System                 | Journey    | Onboarding progression                  | Not invisible — builder consciously lives the arc |
 
 ---
 
@@ -1835,14 +1835,14 @@ Cards touching governed domains must link to constraining Standards.
 
 ## Containment Relationships
 
-| Type       | Must Link To                 | Relationship         |
-| ---------- | ---------------------------- | -------------------- |
-| Room       | Zone                         | Parent workspace     |
-| Structure  | Room                         | Where it lives       |
-| Component  | Structure or Room or Overlay | Parent element       |
-| Artifact   | Room                         | Where it's edited    |
-| Capability | Room(s)                      | Where it's performed |
-| Prompt     | Agent                        | What it implements   |
+| Type       | Must Link To                   | Relationship         |
+| ---------- | ------------------------------ | -------------------- |
+| Room       | Zone                           | Parent workspace     |
+| Structure  | Room                           | Where it lives       |
+| Component  | Structure or Room or Overlay   | Parent element       |
+| Artifact   | Room                           | Where it's edited    |
+| Capability | Room(s)                        | Where it's performed |
+| Prompt     | Agent                          | What it implements   |
 | Overlay    | Zone(s)                        | Where it's visible   |
 | Loop       | Room(s), Capability(s)         | What it contains     |
 | Journey    | Loop(s), Room(s)               | What it spans        |

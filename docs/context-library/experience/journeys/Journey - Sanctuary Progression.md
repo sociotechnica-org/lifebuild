@@ -42,11 +42,11 @@ From survival to sovereignty — the builder progresses through three phases of 
 
 ### Phases
 
-| Phase | Entry Condition | Activities | Transition Trigger | Target Feeling |
-| ----- | --------------- | ---------- | ------------------ | -------------- |
-| Phase 1: Survival Building | Builder begins (any starting state) | Tending, first systems, basic project execution. Most capacity consumed by obligation. | Systems begin compounding; capacity surplus appears | "I'm finally doing something about this." |
-| Phase 2: The Shift | 8-10 planted systems; Bronze systematized; several hours/week freed | Efficient tending, delegation to attendants, surplus directed to chosen ventures. Gold shifts from obligation to aspiration. | Capacity routinely exceeds obligation; Gold ventures are predominantly chosen | "I have room to breathe. What do I want to do with it?" |
-| Phase 3: Directed Living | Sustainable rhythm with reliable surplus; Gold is predominantly aspirational | Full strategic partnership with stewards, cross-domain insight, refinement and optimization | (No end state — life continues generating frontier) | "My life works for me." |
+| Phase                      | Entry Condition                                                              | Activities                                                                                                                   | Transition Trigger                                                            | Target Feeling                                          |
+| -------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Phase 1: Survival Building | Builder begins (any starting state)                                          | Tending, first systems, basic project execution. Most capacity consumed by obligation.                                       | Systems begin compounding; capacity surplus appears                           | "I'm finally doing something about this."               |
+| Phase 2: The Shift         | 8-10 planted systems; Bronze systematized; several hours/week freed          | Efficient tending, delegation to attendants, surplus directed to chosen ventures. Gold shifts from obligation to aspiration. | Capacity routinely exceeds obligation; Gold ventures are predominantly chosen | "I have room to breathe. What do I want to do with it?" |
+| Phase 3: Directed Living   | Sustainable rhythm with reliable surplus; Gold is predominantly aspirational | Full strategic partnership with stewards, cross-domain insight, refinement and optimization                                  | (No end state — life continues generating frontier)                           | "My life works for me."                                 |
 
 ### Sanctuary Maturity Dimensions
 
@@ -64,13 +64,13 @@ Progression manifests across seven dimensions (not tracked as scores — observe
 
 Individual life categories progress through visible phases:
 
-| Phase | Hex Count | Character |
-| ----- | --------- | --------- |
-| Frontier | 0 | Grayed out. Unexplored. |
-| Outpost | 1-2 | First project underway. |
-| Settlement | 3-5 | Systems forming. Infrastructure emerging. |
-| Established | 5+ | Maintained routines. Visual maturity. |
-| Flourishing | Many | Self-sustaining. Gold ventures here are aspirational. |
+| Phase       | Hex Count | Character                                             |
+| ----------- | --------- | ----------------------------------------------------- |
+| Frontier    | 0         | Grayed out. Unexplored.                               |
+| Outpost     | 1-2       | First project underway.                               |
+| Settlement  | 3-5       | Systems forming. Infrastructure emerging.             |
+| Established | 5+        | Maintained routines. Visual maturity.                 |
+| Flourishing | Many      | Self-sustaining. Gold ventures here are aspirational. |
 
 ### Success Signals
 

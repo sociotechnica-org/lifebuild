@@ -27,6 +27,7 @@ Builder stops engaging for 1+ weeks due to external life circumstances. The trig
 ### System Response
 
 The sanctuary holds. Specifically:
+
 - **Short absence (< 1 week):** Minimal change. Business as usual when the builder returns.
 - **Medium absence (1-4 weeks):** Some overgrowth visible. Gradual muted colors on neglected system hexes. Jarvis: "Welcome back. A few things need tending — want to walk the sanctuary?"
 - **Long absence (1+ months):** Significant overgrowth. Multiple territories showing dormancy. Jarvis: "The sanctuary held while you were away. Where would you like to start?" Builder chooses re-entry pace.

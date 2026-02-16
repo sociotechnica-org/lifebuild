@@ -39,45 +39,47 @@ The single currency in LifeBuild is capacity — a composite of time, energy, co
 **Maintain (flow-through):** Capacity passes through to keep the sanctuary operational. The goal is minimizing friction. Well-systematized maintenance costs less over time. Neglected maintenance costs more.
 
 **Invest (flow-in):** Capacity is generated or restored.
-- *Systemic investment:* Silver projects that plant systems, creating future temporal capacity. Each planted system is a permanent faucet.
-- *Personal investment:* Restorative activities that rebuild the builder's internal capacity. Sleep, exercise, meditation, chosen leisure.
+
+- _Systemic investment:_ Silver projects that plant systems, creating future temporal capacity. Each planted system is a permanent faucet.
+- _Personal investment:_ Restorative activities that rebuild the builder's internal capacity. Sleep, exercise, meditation, chosen leisure.
 
 **Spend (flow-out):** Capacity is directed toward outcomes.
-- *Obligatory spend:* Draining work that needs doing. Dark red. Capacity out, relief back.
-- *Chosen spend:* Meaningful work the builder selected. Bright red. Capacity out, fulfillment back.
+
+- _Obligatory spend:_ Draining work that needs doing. Dark red. Capacity out, relief back.
+- _Chosen spend:_ Meaningful work the builder selected. Bright red. Capacity out, fulfillment back.
 
 ### Faucets (Capacity Sources)
 
-| Faucet | Type | Mechanism |
-| ------ | ---- | --------- |
-| Blue time activities | Personal | Restoration of emotional, physical, mental capacity |
-| Completed Silver projects | Systemic | Planted system reduces future manual effort permanently |
-| Delegation to attendants/humans | Systemic | Work handled by others frees builder capacity |
-| System optimization | Systemic | Existing system made more efficient, reducing upkeep |
-| Completed draining Gold | Mixed | Removing a psychological burden frees cognitive capacity |
-| Seasonal rest (Winter) | Structural | Reduced activity load built into the game's rhythm |
+| Faucet                          | Type       | Mechanism                                                |
+| ------------------------------- | ---------- | -------------------------------------------------------- |
+| Blue time activities            | Personal   | Restoration of emotional, physical, mental capacity      |
+| Completed Silver projects       | Systemic   | Planted system reduces future manual effort permanently  |
+| Delegation to attendants/humans | Systemic   | Work handled by others frees builder capacity            |
+| System optimization             | Systemic   | Existing system made more efficient, reducing upkeep     |
+| Completed draining Gold         | Mixed      | Removing a psychological burden frees cognitive capacity |
+| Seasonal rest (Winter)          | Structural | Reduced activity load built into the game's rhythm       |
 
 ### Sinks (Capacity Drains)
 
-| Sink | Type | Mechanism |
-| ---- | ---- | --------- |
-| Bronze maintenance (system upkeep) | Ongoing | Every planted system generates recurring tending tasks |
-| Active Gold ventures | Per-cycle | Current expeditions consume capacity during execution |
-| Active Silver builds | Per-cycle | Infrastructure construction costs before it pays off |
-| Overgrowth recovery | Penalty | Neglected systems cost MORE to restore than to maintain |
-| External life events | Uncontrollable | Capacity redirected outside the game |
-| Over-expansion | Self-inflicted | Too many planted systems = unsustainable maintenance load |
+| Sink                               | Type           | Mechanism                                                 |
+| ---------------------------------- | -------------- | --------------------------------------------------------- |
+| Bronze maintenance (system upkeep) | Ongoing        | Every planted system generates recurring tending tasks    |
+| Active Gold ventures               | Per-cycle      | Current expeditions consume capacity during execution     |
+| Active Silver builds               | Per-cycle      | Infrastructure construction costs before it pays off      |
+| Overgrowth recovery                | Penalty        | Neglected systems cost MORE to restore than to maintain   |
+| External life events               | Uncontrollable | Capacity redirected outside the game                      |
+| Over-expansion                     | Self-inflicted | Too many planted systems = unsustainable maintenance load |
 
 ### Inflation Controls
 
-| Control | Mechanism |
-| ------- | --------- |
-| WIP limits on The Table | Max 1 Gold, 1 Silver active. Hard cap prevents overcommitment. |
-| Appetite declarations | Builders cap expedition scope BEFORE planning. Fixed time, variable scope. |
-| Steward capacity modeling | Jarvis surfaces honest capacity picture with curiosity, not authority. |
-| Circuit breakers | Expeditions that exceed appetite don't auto-extend. Forces reshaping. |
-| Seasonal rhythm | Winter is structurally lighter. |
-| Overgrowth visibility | Map shows overextension before it becomes crisis. |
+| Control                   | Mechanism                                                                  |
+| ------------------------- | -------------------------------------------------------------------------- |
+| WIP limits on The Table   | Max 1 Gold, 1 Silver active. Hard cap prevents overcommitment.             |
+| Appetite declarations     | Builders cap expedition scope BEFORE planning. Fixed time, variable scope. |
+| Steward capacity modeling | Jarvis surfaces honest capacity picture with curiosity, not authority.     |
+| Circuit breakers          | Expeditions that exceed appetite don't auto-extend. Forces reshaping.      |
+| Seasonal rhythm           | Winter is structurally lighter.                                            |
+| Overgrowth visibility     | Map shows overextension before it becomes crisis.                          |
 
 ### The Compounding Curve
 
@@ -85,11 +87,11 @@ Early investments feel expensive relative to return. First planted system saves 
 
 ### G/S/B × M/I/S Mapping
 
-|  | Maintain | Invest | Spend |
-|--|----------|--------|-------|
-| Gold | Rare | Rare | Primary |
-| Silver | Never | Primary | Never |
-| Bronze | Primary | Occasional (Blue-time) | Rare |
+|        | Maintain | Invest                 | Spend   |
+| ------ | -------- | ---------------------- | ------- |
+| Gold   | Rare     | Rare                   | Primary |
+| Silver | Never    | Primary                | Never   |
+| Bronze | Primary  | Occasional (Blue-time) | Rare    |
 
 This mapping is steward-side reasoning, not builder-facing vocabulary.
 

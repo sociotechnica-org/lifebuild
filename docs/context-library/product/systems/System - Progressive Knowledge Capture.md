@@ -37,9 +37,9 @@ The knowledge acquisition mechanism agents use to learn about builders over time
 
 | From                      | Trigger                                                          | To                                   | Side Effects                                                                   |
 | ------------------------- | ---------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------ |
-| Unknown fact              | Builder states explicitly ("Family is my priority")             | Known (high confidence)              | Stored in Knowledge Framework; available to all agents via State Summary       |
+| Unknown fact              | Builder states explicitly ("Family is my priority")              | Known (high confidence)              | Stored in Knowledge Framework; available to all agents via State Summary       |
 | Unknown fact              | Behavioral pattern observed (always pauses projects in December) | Known (medium confidence)            | Stored with observation tag; requires higher threshold before agents act on it |
-| Known (medium confidence) | Builder confirms or contradicts in conversation                 | Known (high confidence) or Corrected | Confidence updated; corrected items override previous knowledge                |
+| Known (medium confidence) | Builder confirms or contradicts in conversation                  | Known (high confidence) or Corrected | Confidence updated; corrected items override previous knowledge                |
 | Known fact                | Extended time without reconfirmation                             | Potentially stale                    | Agents may gently re-check during natural conversation                         |
 | No knowledge              | Onboarding begins (First 72 Hours)                               | Initial knowledge captured           | Mesa and Jarvis begin building foundational understanding                      |
 
@@ -47,13 +47,13 @@ The knowledge acquisition mechanism agents use to learn about builders over time
 
 **Capture techniques:**
 
-| Technique                | Example                                             | Context            |
-| ------------------------ | --------------------------------------------------- | ------------------ |
+| Technique                | Example                                            | Context            |
+| ------------------------ | -------------------------------------------------- | ------------------ |
 | Observe-and-note         | Builder completes Gold -> note preference patterns | Background         |
-| Conversational inference | "Sounds like family time is important"              | Strategic sessions |
-| Gentle calibration       | "Is this harder than it looks?"                     | Task estimation    |
-| Reflection prompt        | "What made that project satisfying?"                | Week-in-Review     |
-| Choice observation       | Track what gets selected vs. deferred               | Priority patterns  |
+| Conversational inference | "Sounds like family time is important"             | Strategic sessions |
+| Gentle calibration       | "Is this harder than it looks?"                    | Task estimation    |
+| Reflection prompt        | "What made that project satisfying?"               | Week-in-Review     |
+| Choice observation       | Track what gets selected vs. deferred              | Priority patterns  |
 
 **What gets captured:**
 

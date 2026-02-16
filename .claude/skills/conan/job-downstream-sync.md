@@ -20,38 +20,38 @@ Files that mirror library structure and must stay in sync with `docs/context-lib
 
 ### Agent Definitions
 
-| File | Sync Points |
-| --- | --- |
+| File                      | Sync Points                                                                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `.claude/agents/conan.md` | Target type list (Step 2), decision tree steps, containment relationships table, library structure description ("What You Know") |
-| `.claude/agents/bob.md` | Library Organization table |
+| `.claude/agents/bob.md`   | Library Organization table                                                                                                       |
 
 ### Skill Files — Bob
 
-| File | Sync Points |
-| --- | --- |
+| File                                  | Sync Points                                                     |
+| ------------------------------------- | --------------------------------------------------------------- |
 | `.claude/skills/bob/decomposition.md` | Decision tree steps, common confusions table, SOT pattern table |
-| `.claude/skills/bob/link-patterns.md` | Example card names, terminology |
-| `.claude/skills/bob/self-check.md` | Example card names, terminology |
+| `.claude/skills/bob/link-patterns.md` | Example card names, terminology                                 |
+| `.claude/skills/bob/self-check.md`    | Example card names, terminology                                 |
 
 ### Skill Files — Context Constellation
 
-| File | Sync Points |
-| --- | --- |
+| File                                                         | Sync Points                                                                                            |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
 | `.claude/skills/context-constellation/retrieval-profiles.md` | One profile per type, example card names (must match actual cards), mandatory categories summary table |
-| `.claude/skills/context-constellation/traversal.md` | Folder path examples in "Finding Cards" section |
-| `.claude/skills/context-constellation/protocol.md` | Relationship types, target type mentions |
+| `.claude/skills/context-constellation/traversal.md`          | Folder path examples in "Finding Cards" section                                                        |
+| `.claude/skills/context-constellation/protocol.md`           | Relationship types, target type mentions                                                               |
 
 ### Skill Files — Conan
 
-| File | Sync Points |
-| --- | --- |
-| `.claude/skills/conan/rubrics.md` | Type signal table, terminology |
+| File                                | Sync Points                          |
+| ----------------------------------- | ------------------------------------ |
+| `.claude/skills/conan/rubrics.md`   | Type signal table, terminology       |
 | `.claude/skills/conan/job-audit.md` | Decision tree reference, terminology |
 
 ### Library Reference
 
-| File | Sync Points |
-| --- | --- |
+| File                                | Sync Points                                                                                                   |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `docs/context-library/reference.md` | Canonical type taxonomy, templates, folder structure, naming conventions — this is the SOURCE, not the target |
 
 ## Procedure
@@ -74,15 +74,15 @@ Then Glob actual card files to get:
 
 For each file in the manifest, read it and check each sync point against current library state. Flag any:
 
-| Deviation | Example |
-| --- | --- |
-| **Missing type** | New type in reference.md but absent from a type list or decision tree |
-| **Stale type** | Type listed in meta-file but removed from reference.md |
-| **Wrong examples** | Example card names that don't match actual cards |
-| **Stale terminology** | Old naming that was renamed (Director, Worker, Mesa, etc.) |
-| **Missing folder paths** | New folders not reflected in path examples |
-| **Missing retrieval profile** | Type exists but has no profile in retrieval-profiles.md |
-| **Stale section headers** | Template section names changed but not reflected in meta-files |
+| Deviation                     | Example                                                               |
+| ----------------------------- | --------------------------------------------------------------------- |
+| **Missing type**              | New type in reference.md but absent from a type list or decision tree |
+| **Stale type**                | Type listed in meta-file but removed from reference.md                |
+| **Wrong examples**            | Example card names that don't match actual cards                      |
+| **Stale terminology**         | Old naming that was renamed (Director, Worker, Mesa, etc.)            |
+| **Missing folder paths**      | New folders not reflected in path examples                            |
+| **Missing retrieval profile** | Type exists but has no profile in retrieval-profiles.md               |
+| **Stale section headers**     | Template section names changed but not reflected in meta-files        |
 
 ### Step 3: Fix deviations
 
@@ -114,12 +114,12 @@ Remaining issues: [any that need human judgment]
 
 Known renames to check for (add to this list as renames happen):
 
-| Old | New | When |
-| --- | --- | --- |
-| Director | Builder | 2026-02 |
+| Old                      | New       | When    |
+| ------------------------ | --------- | ------- |
+| Director                 | Builder   | 2026-02 |
 | Worker (product concept) | Attendant | 2026-02 |
-| Mesa (agent) | removed | 2026-02 |
-| Cameron (agent) | removed | 2026-02 |
-| Devin (agent) | removed | 2026-02 |
+| Mesa (agent)             | removed   | 2026-02 |
+| Cameron (agent)          | removed   | 2026-02 |
+| Devin (agent)            | removed   | 2026-02 |
 
 **Note:** "Worker" in infrastructure contexts (Cloudflare Worker, SharedWorker, web worker) is correct and should NOT be renamed.

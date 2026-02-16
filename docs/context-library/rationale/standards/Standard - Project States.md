@@ -57,7 +57,7 @@ The specification for lifecycle stages a project moves through from initial capt
 | Live         | Work at Hand | Weekly selection              |
 | Work at Hand | Live         | Week ends                     |
 | Work at Hand | Completed    | All objectives met            |
-| Any          | Paused       | Builder choice               |
+| Any          | Paused       | Builder choice                |
 | Paused       | Planned      | Returns to Priority Queue top |
 
 ### Examples

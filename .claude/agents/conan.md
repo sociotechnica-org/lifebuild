@@ -161,19 +161,19 @@ _Gate: "Do builders say 'I'm using X'?" If NO → skip to Step 3 (System)._
 
 ### Containment Relationships
 
-| Type       | Must Link To                 | Relationship         |
-| ---------- | ---------------------------- | -------------------- |
-| Room       | Zone                         | Parent workspace     |
-| Structure  | Room                         | Where it lives       |
-| Component  | Structure or Room or Overlay | Parent element       |
-| Artifact   | Room                         | Where it's edited    |
-| Capability | Room(s)                      | Where it's performed |
-| Prompt     | Agent                        | What it implements   |
-| Overlay    | Zone(s)                      | Where it's visible   |
-| Loop       | Room(s), Capability(ies)     | Where cycle plays out |
-| Journey    | Loop(s), Agent(s)            | What composes it      |
+| Type       | Must Link To                   | Relationship          |
+| ---------- | ------------------------------ | --------------------- |
+| Room       | Zone                           | Parent workspace      |
+| Structure  | Room                           | Where it lives        |
+| Component  | Structure or Room or Overlay   | Parent element        |
+| Artifact   | Room                           | Where it's edited     |
+| Capability | Room(s)                        | Where it's performed  |
+| Prompt     | Agent                          | What it implements    |
+| Overlay    | Zone(s)                        | Where it's visible    |
+| Loop       | Room(s), Capability(ies)       | Where cycle plays out |
+| Journey    | Loop(s), Agent(s)              | What composes it      |
 | Aesthetic  | Room(s), Loop(s), Component(s) | Where feeling applies |
-| Dynamic    | System(s)                    | What produces it      |
+| Dynamic    | System(s)                      | What produces it      |
 
 Missing containment link = structural deficiency.
 

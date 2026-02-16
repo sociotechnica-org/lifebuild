@@ -28,10 +28,10 @@ The specification for builder agency over hex grid spatial organization: builder
 
 #### Builder Agency Rules
 
-| Rule          | Requirement                                                                         |
-| ------------- | ----------------------------------------------------------------------------------- |
+| Rule          | Requirement                                                                        |
+| ------------- | ---------------------------------------------------------------------------------- |
 | Placement     | Builders place their own projects. System does not assign locations.               |
-| Rearrangement | Drag-and-drop. No confirmation dialogs for moves.                                   |
+| Rearrangement | Drag-and-drop. No confirmation dialogs for moves.                                  |
 | Clustering    | Adjacent hexes carry builder-assigned meaning. System observes but doesn't impose. |
 | Persistence   | Spatial arrangement persists exactly as builder left it.                           |
 
@@ -46,12 +46,12 @@ The specification for builder agency over hex grid spatial organization: builder
 
 #### AI Observation Rules
 
-| Permission           | Rule                                                                 |
-| -------------------- | -------------------------------------------------------------------- |
-| Notice patterns      | Allowed — "I see you've placed all family projects together"         |
-| Ask about placement  | Allowed — curiosity, not correction                                  |
+| Permission           | Rule                                                                |
+| -------------------- | ------------------------------------------------------------------- |
+| Notice patterns      | Allowed — "I see you've placed all family projects together"        |
+| Ask about placement  | Allowed — curiosity, not correction                                 |
 | Move projects        | **Only with explicit builder request**                              |
-| Reorganize layout    | **Never without permission**                                         |
+| Reorganize layout    | **Never without permission**                                        |
 | Learn from placement | Allowed — observations feed understanding of builder's mental model |
 
 ### Examples

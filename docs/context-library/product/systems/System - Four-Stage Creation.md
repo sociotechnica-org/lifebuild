@@ -35,8 +35,8 @@ The progressive project development process that separates four cognitive modes:
 
 ### Transitions
 
-| From                | Trigger                                                                 | To                   | Side Effects                                                                           |
-| ------------------- | ----------------------------------------------------------------------- | -------------------- | -------------------------------------------------------------------------------------- |
+| From                | Trigger                                                                | To                   | Side Effects                                                                           |
+| ------------------- | ---------------------------------------------------------------------- | -------------------- | -------------------------------------------------------------------------------------- |
 | No project          | Builder initiates creation with Marvin                                 | Stage 1: Identified  | Project created with title, description, Life Category; enters Planning Queue          |
 | Stage 1: Identified | Builder resumes with Marvin, provides purpose/objectives/priority data | Stage 2: Scoped      | Stream assignment (Gold/Silver/Bronze), success criteria, priority attributes recorded |
 | Stage 2: Scoped     | Builder works with Marvin to generate task list or system config       | Stage 3: Drafted     | Complete task list or system configuration attached                                    |

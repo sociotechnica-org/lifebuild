@@ -57,6 +57,7 @@ Previous cycle concluded, or builder initiates a new expedition. The trigger can
 ### Completion
 
 Three possible endings:
+
 - **Completed** — the shaped work is done within appetite
 - **Circuit-breaked** — appetite expired, work continues next cycle (not failure — expected)
 - **Interrupted** — life redirected capacity outside the expedition

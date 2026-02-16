@@ -34,8 +34,8 @@ The two-queue system that separates work in development (Planning Queue) from wo
 
 ### Transitions
 
-| From                       | Trigger                                   | To                          | Side Effects                                                 |
-| -------------------------- | ----------------------------------------- | --------------------------- | ------------------------------------------------------------ |
+| From                       | Trigger                                  | To                          | Side Effects                                                 |
+| -------------------------- | ---------------------------------------- | --------------------------- | ------------------------------------------------------------ |
 | No project                 | Builder captures new idea with Marvin    | Planning Queue (Stage 1)    | Project created with minimal data; appears in Planning Queue |
 | Planning Queue (Stage 1-2) | Builder resumes and advances with Marvin | Planning Queue (next stage) | Additional project data captured                             |
 | Planning Queue (Stage 3)   | Builder completes Stage 4 prioritization | Priority Queue              | Project receives priority score; exits Planning Queue        |
