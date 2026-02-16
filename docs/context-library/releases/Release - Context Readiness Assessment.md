@@ -4,7 +4,7 @@
 **Assessor:** Conan the Librarian
 **Question answered:** Does the Context Library contain enough guidance for an AI builder to build each Release 1 item correctly without human intervention?
 
-**Important note:** This assessment evaluates the _Context Library_ (`docs/context-library/`), not the release plan (`docs/plans/release-1-the-campfire.md`). The release plan is a separate document with implementation-level decisions that fill many gaps the library alone would leave. Where the release plan provides specifics the library lacks, that is noted.
+**Important note:** This assessment evaluates the *Context Library* (`docs/context-library/`), not the release plan (`Release - The Campfire.md`). The release plan is a separate document with implementation-level decisions that fill many gaps the library alone would leave. Where the release plan provides specifics the library lacks, that is noted.
 
 ---
 
