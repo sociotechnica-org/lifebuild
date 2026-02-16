@@ -4,13 +4,13 @@
 
 A Standard is an implementation specification that constrains how features and components are built. Standards have no runtime state and perform no computation — they define what implementations must conform to.
 
-Standards sit between Principles (what guides decisions) and Features/Components (how things are built). A Principle says "directors should recognize elements instantly." A Standard says "Jarvis is cobalt blue #2B5C9E, 10-30 strokes, rounded endpoints."
+Standards sit between Principles (what guides decisions) and Features/Components (how things are built). A Principle says "builders should recognize elements instantly." A Standard says "Jarvis is cobalt blue #2B5C9E, 10-30 strokes, rounded endpoints."
 
 ## WHERE: Ecosystem
 
 - Upstream: [[Principle]] cards — Standards implement Principles
 - Downstream: [[Feature]] and [[Component]] cards — must conform to Standards
-- Sibling types: [[System]] (has state, computes), [[Feature]] (directors interact)
+- Sibling types: [[System]] (has state, computes), [[Feature]] (builders interact)
 
 ## WHY: Rationale
 
@@ -31,7 +31,7 @@ Standards sit between Principles (what guides decisions) and Features/Components
 
 ```
 WHAT exists?
-├─ Directors consciously interact? → FEATURE/COMPONENT
+├─ Builders consciously interact? → FEATURE/COMPONENT
 ├─ NO + foundational mechanism (has state, computes) → SYSTEM
 └─ NO + implementation specification (constrains, no state) → STANDARD
 ```

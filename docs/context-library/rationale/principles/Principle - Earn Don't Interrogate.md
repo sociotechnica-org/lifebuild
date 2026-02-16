@@ -11,9 +11,9 @@ Knowledge acquisition must never block progress, must feel helpful rather than i
 - Serves: [[Need - Autonomy]] — never block progress, respect boundaries
 - Advances: [[Strategy - AI as Teammates]]
 - Governs: All agent knowledge acquisition, [[Artifact - The Charter]], [[Artifact - The Agenda]], [[System - Progressive Knowledge Capture]], [[System - Smoke Signals]]
-- Agents: [[Agent - Jarvis]], [[Agent - Mesa]], [[Agent - Marvin]], [[Agent - Cameron]], [[Agent - Devin]], [[Agent - Conan]]
-- Companion detail: Director Knowledge & Intelligence System (companion document)
-- Related: [[Principle - Guide When Helpful]] — both concern system-to-director interaction timing
+- Agents: [[Agent - Jarvis]], [[Agent - Mesa]], [[Agent - Marvin]], [[Agent - Conan]]
+- Companion detail: Builder Knowledge & Intelligence System (companion document)
+- Related: [[Principle - Guide When Helpful]] — both concern system-to-builder interaction timing
 
 ## WHY: Belief
 
@@ -43,15 +43,15 @@ Never require information before providing value. Capture during natural workflo
 
 ### What Following This Looks Like
 
-- During a weekly check-in conversation, Jarvis notices the director mentions feeling overwhelmed and naturally asks "What's driving that this week?" — the question feels like genuine colleague interest because it's embedded in real context.
-- Marvin captures the director's energy level through a simple slider during project creation (Stage 2), not through a standalone survey — the data is gathered as part of a workflow the director already values.
-- After observing three weeks of consistent effort underestimation, Cameron surfaces the pattern: "I've noticed your Tuesday tasks tend to take about 1.5x your estimates — want me to factor that in?" — inference is confirmed, not silently applied.
+- During a weekly check-in conversation, Jarvis notices the builder mentions feeling overwhelmed and naturally asks "What's driving that this week?" — the question feels like genuine colleague interest because it's embedded in real context.
+- Marvin captures the builder's energy level through a simple slider during project creation (Stage 2), not through a standalone survey — the data is gathered as part of a workflow the builder already values.
+- After observing three weeks of consistent effort underestimation, Marvin surfaces the pattern: "I've noticed your Tuesday tasks tend to take about 1.5x your estimates — want me to factor that in?" — inference is confirmed, not silently applied.
 
 ### What Violating This Looks Like
 
-- **Blocking progress until profile is complete** — Knowledge acquisition must never block progress. An onboarding flow that requires 20 fields before the director can create their first project turns earning into interrogation.
+- **Blocking progress until profile is complete** — Knowledge acquisition must never block progress. An onboarding flow that requires 20 fields before the builder can create their first project turns earning into interrogation.
 - **Asking questions out of context** — "What's your energy level?" during project creation is a non-sequitur. The same question during a Council Chamber check-in is natural. Context makes questions helpful; absence of context makes them invasive.
-- **Treating behavioral inferences as confirmed facts** — A director who consistently underestimates effort has a behavioral pattern. Acting on it silently ("I adjusted your estimate because you always underestimate") violates Confirm Don't Assume. Surface the inference, let the director validate.
+- **Treating behavioral inferences as confirmed facts** — A builder who consistently underestimates effort has a behavioral pattern. Acting on it silently ("I adjusted your estimate because you always underestimate") violates Confirm Don't Assume. Surface the inference, let the builder validate.
 
 ### Tensions
 
@@ -60,4 +60,4 @@ Never require information before providing value. Capture during natural workflo
 
 ### Test
 
-Would the director think "why are you asking me this?" or "that's a helpful question"?
+Would the builder think "why are you asking me this?" or "that's a helpful question"?

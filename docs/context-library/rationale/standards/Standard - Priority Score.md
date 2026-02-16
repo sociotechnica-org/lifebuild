@@ -8,10 +8,10 @@ The specification for computing priority ranking within streams: base formula pl
 
 - Implemented by: [[System - Processing Layer]] — performs the calculation
 - Used in: [[Room - Sorting Room]] — scores displayed during selection
-- Used by: [[Agent - Cameron]] — surfaces recommendations based on scores
+- Used by: [[Agent - Marvin]] — surfaces recommendations based on scores
 - Conforming rooms: [[Room - Sorting Room]] — displays scores, respects formula
 - Conforming capabilities: [[Capability - Three-Stream Filtering]] — rankings within filtered views
-- Implements: [[Principle - Familiarity Over Function]] — score suggests, director decides
+- Implements: [[Principle - Familiarity Over Function]] — score suggests, builder decides
 - Depends on: [[Capability - Purpose Assignment]] — determines which weighting applies
 - Related: [[Standard - Three-Stream Portfolio]] — defines the streams
 
@@ -19,7 +19,7 @@ The specification for computing priority ranking within streams: base formula pl
 
 - Strategy: [[Strategy - Superior Process]] — systematic prioritization support
 - Driver: Without stream weighting, the formula would rank Gold and Bronze on same criteria. Weightings encode philosophy: Gold amplifies Importance, Bronze amplifies Urgency, Silver rewards Leverage.
-- Decision: Formula is hypothesis, not validated algorithm. Expect tuning based on override frequency and director feedback.
+- Decision: Formula is hypothesis, not validated algorithm. Expect tuning based on override frequency and builder feedback.
 
 ## WHEN: Timeline
 
@@ -56,7 +56,7 @@ Priority Score = (Urgency × Importance) / Effort
 
 #### Override Policy
 
-Director override is sacred. The score is a suggestion, never a mandate. Consistent overrides are data about the formula, not evidence the director is wrong.
+Builder override is sacred. The score is a suggestion, never a mandate. Consistent overrides are data about the formula, not evidence the builder is wrong.
 
 ### Examples
 
@@ -64,18 +64,18 @@ Director override is sacred. The score is a suggestion, never a mandate. Consist
 
 - Scenario: Two Gold project candidates in the Sorting Room — "Write Novel" (Urgency 3, Importance 9, Effort 5) and "Fix Fence" (Urgency 7, Importance 4, Effort 3).
 - Input: Base formula applied with Gold stream weighting (Importance x 1.5).
-- Correct output: "Write Novel" score = (3 x (9 x 1.5)) / 5 = (3 x 13.5) / 5 = 8.1. "Fix Fence" score = (7 x (4 x 1.5)) / 3 = (7 x 6) / 3 = 14.0. Even with Gold weighting, "Fix Fence" scores higher due to urgency and low effort — but the director can override because the score is a suggestion. If the director consistently overrides toward high-Importance projects, that is calibration data for the formula.
+- Correct output: "Write Novel" score = (3 x (9 x 1.5)) / 5 = (3 x 13.5) / 5 = 8.1. "Fix Fence" score = (7 x (4 x 1.5)) / 3 = (7 x 6) / 3 = 14.0. Even with Gold weighting, "Fix Fence" scores higher due to urgency and low effort — but the builder can override because the score is a suggestion. If the builder consistently overrides toward high-Importance projects, that is calibration data for the formula.
 
-**Example 2: Director override treated as calibration data**
+**Example 2: Builder override treated as calibration data**
 
-- Scenario: Cameron recommends "Automate Invoicing" as the Silver pick based on score. Director chooses "Build Morning Routine" instead.
-- Input: Director overrides the score-based recommendation.
+- Scenario: Marvin recommends "Automate Invoicing" as the Silver pick based on score. Builder chooses "Build Morning Routine" instead.
+- Input: Builder overrides the score-based recommendation.
 - Correct output: The system accepts the override without friction or justification. The override is logged as calibration data. After 5 similar overrides, the system notes the pattern: "You consistently prioritize habit-building Silver projects over automation — should we adjust the Leverage Factor for routine-type work?"
 
 ### Anti-Examples
 
 - **Applying the same weighting across all streams** — Gold amplifies Importance (x1.5), Bronze amplifies Urgency (x1.5), Silver rewards Leverage. Using a single ranking formula lets urgency dominate across all streams, which is exactly what the three-stream model prevents.
-- **Treating score as a mandate and blocking director override** — The score suggests; the director decides. Preventing or discouraging override treats the formula as truth rather than hypothesis. Consistent overrides are signal to tune the formula.
+- **Treating score as a mandate and blocking builder override** — The score suggests; the builder decides. Preventing or discouraging override treats the formula as truth rather than hypothesis. Consistent overrides are signal to tune the formula.
 - **Omitting Effort from the calculation** — Without dividing by Effort, a high-urgency, high-importance task that takes 40 hours ranks the same as one that takes 30 minutes. Effort keeps the score grounded in feasibility.
 
 ### Conformance Test

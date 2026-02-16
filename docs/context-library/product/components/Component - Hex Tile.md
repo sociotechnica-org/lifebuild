@@ -21,7 +21,7 @@ An individual hexagonal tile on the grid representing a single project or system
 
 - Strategy: [[Strategy - Spatial Visibility]] — tiles are the atomic spatial unit
 - Principle: [[Principle - Visual Recognition]] — consistent tile format aids scanning
-- Driver: Directors need to recognize work at a glance. Tiles provide consistent, scannable representation.
+- Driver: Builders need to recognize work at a glance. Tiles provide consistent, scannable representation.
 
 ## WHEN: Timeline
 

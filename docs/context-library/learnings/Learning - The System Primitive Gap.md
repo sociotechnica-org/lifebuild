@@ -2,7 +2,7 @@
 
 ## Divergence
 
-**Vision:** The System primitive represents recurring patterns in a director's life — habits, routines, and maintenance workflows that run semi-autonomously once configured. Systems have a pattern (what repeats), controls (frequency, thresholds), inputs, outputs, and a delegation profile. Silver projects are often "system-building" — creating a new system that reduces future Bronze load. This is central to Compound Capability: each planted system is future work that runs itself.
+**Vision:** The System primitive represents recurring patterns in a builder's life — habits, routines, and maintenance workflows that run semi-autonomously once configured. Systems have a pattern (what repeats), controls (frequency, thresholds), inputs, outputs, and a delegation profile. Silver projects are often "system-building" — creating a new system that reduces future Bronze load. This is central to Compound Capability: each planted system is future work that runs itself.
 
 **Reality:** No `systems` table exists in the database schema. No System primitive in the data model. No system creation, configuration, or monitoring UI. Silver projects exist but the "system-building" variant has no special handling. The entire System concept — from configuration through Smoke Signals health monitoring — is absent.
 

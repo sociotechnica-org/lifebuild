@@ -2,12 +2,11 @@
 
 ## WHAT: Definition
 
-The detail overlay that opens when a director clicks any system tile — a focused view showing system health, configuration, generated tasks, cycle history, and available actions. The System Board is where directors monitor and manage their continuous infrastructure.
+The detail overlay that opens when a builder clicks any system tile — a focused view showing system health, configuration, generated tasks, cycle history, and available actions. The System Board is where builders monitor and manage their continuous infrastructure.
 
 ## WHERE: Ecosystem
 
 - Zone: [[Zone - Life Map]] — opens as overlay
-- Agent: [[System - Category Advisors]] — in-context consultation available
 - Capabilities:
   - [[Capability - System Actions]] — Hibernate, Upgrade, Uproot available here
 - Adjacent:
@@ -21,8 +20,8 @@ The detail overlay that opens when a director clicks any system tile — a focus
 
 - Strategy: [[Strategy - Superior Process]] — systems need monitoring interface
 - Principle: [[Principle - Visibility Creates Agency]] — system health visible, not hidden
-- Driver: Directors need to see how their infrastructure is performing. The System Board answers "is this system healthy?"
-- Constraints: System Board monitors infrastructure health, not director productivity. System health reflects cycle adherence and task generation, not how much the director accomplished. Yellow is attention, Red is concern — neither is judgment.
+- Driver: Builders need to see how their infrastructure is performing. The System Board answers "is this system healthy?"
+- Constraints: System Board monitors infrastructure health, not builder productivity. System health reflects cycle adherence and task generation, not how much the builder accomplished. Yellow is attention, Red is concern — neither is judgment.
 
 ## WHEN: Timeline
 
@@ -59,10 +58,10 @@ Core to [[Zone - Life Map]] design. System Board parallels Project Board for the
 
 ### Examples
 
-- Director opens "Morning Routine" system tile → System Board shows: health Green, 12/14 cycles completed this month, 3 Bronze tasks generated this week, next cycle tomorrow → director sees the system is healthy and producing expected work.
-- System Board shows health Yellow for "Weekly Meal Prep" → detail: cycle completion dropped to 70% over past 2 weeks (down from 95%) → director clicks "Edit" → adjusts frequency from daily to 3x/week → system reconfigures → health tracking baseline resets for new cadence.
+- Builder opens "Morning Routine" system tile → System Board shows: health Green, 12/14 cycles completed this month, 3 Bronze tasks generated this week, next cycle tomorrow → builder sees the system is healthy and producing expected work.
+- System Board shows health Yellow for "Weekly Meal Prep" → detail: cycle completion dropped to 70% over past 2 weeks (down from 95%) → builder clicks "Edit" → adjusts frequency from daily to 3x/week → system reconfigures → health tracking baseline resets for new cadence.
 
 ### Anti-Examples
 
 - **System Board showing only a health color dot without supporting data** — Green/Yellow/Red must include the data behind the assessment. "Yellow" means nothing without "cycle completion 70%, down from 95% two weeks ago." Color without context is useless.
-- **Treating Yellow health status as an emergency requiring immediate action** — Yellow is attention, not alarm. The smoke signal surfaces awareness; the director decides when and whether to investigate. No popup, no forced action.
+- **Treating Yellow health status as an emergency requiring immediate action** — Yellow is attention, not alarm. The smoke signal surfaces awareness; the builder decides when and whether to investigate. No popup, no forced action.

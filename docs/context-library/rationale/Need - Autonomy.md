@@ -15,7 +15,7 @@ The psychological need to feel in control of one's own actions and decisions —
 
 When autonomy is satisfied, people experience enhanced motivation, creativity, and wellbeing. When thwarted — through controlling environments, external pressure, or lack of choice — people experience diminished functioning, resistance, and disengagement.
 
-In LifeBuild, autonomy manifests as directors seeing and controlling their work. The spatial Life Map creates comprehension that enables agency. Directors place their own projects, choose their own classifications, adapt their own plans. The system informs and recommends but never controls.
+In LifeBuild, autonomy manifests as builders seeing and controlling their work. The spatial Life Map creates comprehension that enables agency. Builders place their own projects, choose their own classifications, adapt their own plans. The system informs and recommends but never controls.
 
 The opposite of autonomy support is controlling behavior: surveillance, deadlines as threats, forced choices, hiding information, overriding decisions. LifeBuild's design principles protect against these patterns.
 
@@ -23,15 +23,15 @@ The opposite of autonomy support is controlling behavior: surveillance, deadline
 
 **Build phase:** Foundation
 **Implementation status:** Partial
-**Reality note (2026-02-10):** Autonomy is partially served. Directors control stream classification, priority selection, and project creation. But the spatial visibility that creates comprehension-driven agency (Hex Grid, Zoom Navigation) doesn't exist yet. The "see and control" loop works for process but not for spatial awareness.
+**Reality note (2026-02-10):** Autonomy is partially served. Builders control stream classification, priority selection, and project creation. But the spatial visibility that creates comprehension-driven agency (Hex Grid, Zoom Navigation) doesn't exist yet. The "see and control" loop works for process but not for spatial awareness.
 
 ## HOW: Application
 
-When evaluating any feature or agent behavior, ask: "Does this increase or decrease the director's sense of control over their own life?"
+When evaluating any feature or agent behavior, ask: "Does this increase or decrease the builder's sense of control over their own life?"
 
 **Signs of autonomy support:**
 
-- Director makes the decision
+- Builder makes the decision
 - Information is visible, not hidden
 - Choices are framed as options, not requirements
 - Plans can be changed without guilt
@@ -39,7 +39,7 @@ When evaluating any feature or agent behavior, ask: "Does this increase or decre
 
 **Signs of autonomy threat:**
 
-- System makes decisions for director
+- System makes decisions for builder
 - Information hidden until "needed"
 - Guilt for changing plans
 - Mandatory sequences or gates
@@ -50,4 +50,4 @@ When evaluating any feature or agent behavior, ask: "Does this increase or decre
 - [[Principle - Visibility Creates Agency]] — can't control what you can't see
 - [[Principle - Plans Are Hypotheses]] — adaptation is leadership, not failure
 - [[Principle - Empty Slots Strategic]] — permission to choose restraint
-- [[Principle - Familiarity Over Function]] — director's classification is final
+- [[Principle - Familiarity Over Function]] — builder's classification is final

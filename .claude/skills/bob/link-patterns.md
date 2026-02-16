@@ -174,7 +174,7 @@ Every card with a containment relationship must link to its parent.
 ## Capabilities (Actions/Workflows)
 
 ```markdown
-- [[Capability - X]] — action enabling [what directors do]
+- [[Capability - X]] — action enabling [what builders do]
 - [[Capability - X]] — workflow for [process]
 ```
 

@@ -15,7 +15,7 @@ The specification for visual treatment and interaction behavior of empty Gold an
 ## WHY: Rationale
 
 - Principle: [[Principle - Empty Slots Strategic]] — an empty slot can be a deliberate choice
-- Driver: Without explicit spec, empty slots default to "incomplete" visual treatment that pressures directors to fill them, undermining the capacity-first philosophy.
+- Driver: Without explicit spec, empty slots default to "incomplete" visual treatment that pressures builders to fill them, undermining the capacity-first philosophy.
 
 ## WHEN: Timeline
 
@@ -29,10 +29,10 @@ The specification for visual treatment and interaction behavior of empty Gold an
 
 #### Empty Slot States
 
-| State               | Visual Treatment              | Meaning                                      | Affordance                |
-| ------------------- | ----------------------------- | -------------------------------------------- | ------------------------- |
-| Not selected yet    | Subtle outline, gentle prompt | Planning incomplete — director hasn't chosen | Action affordance present |
-| Intentionally empty | Calm, solid, distinct visual  | Strategic choice — director chose restraint  | No action prompt          |
+| State               | Visual Treatment              | Meaning                                     | Affordance                |
+| ------------------- | ----------------------------- | ------------------------------------------- | ------------------------- |
+| Not selected yet    | Subtle outline, gentle prompt | Planning incomplete — builder hasn't chosen | Action affordance present |
+| Intentionally empty | Calm, solid, distinct visual  | Strategic choice — builder chose restraint  | No action prompt          |
 
 #### Visual Requirements
 
@@ -53,29 +53,29 @@ The specification for visual treatment and interaction behavior of empty Gold an
 
 #### Agent Behavior
 
-- Cameron checks intent once: "Taking a lighter week?" — accepts response
+- Marvin checks intent once: "Taking a lighter week?" — accepts response
 - No follow-up: "are you sure you don't want a Gold project?"
 - Jarvis frames empty weeks as strategic: "investing in capacity" not "missing Gold"
 - Weekly summary recognizes intentional restraint, does not report "0/1 Gold completed"
 
 ### Examples
 
-**Example 1: Director intentionally leaves Gold slot empty**
+**Example 1: Builder intentionally leaves Gold slot empty**
 
-- Scenario: Director has a demanding Silver infrastructure project this week and decides not to take on a Gold transformation project.
-- Input: During weekly planning, director selects "intentionally empty" for the Gold slot.
-- Correct output: Gold slot renders with a calm, solid visual — warm presence of rest, not an alarming gap. Cameron asks once "Taking a lighter week?" and accepts the response. No further prompts about the Gold slot appear during the week. Weekly summary at week's end says "Strategic rest week — capacity invested in Silver infrastructure" rather than "0/1 Gold projects completed."
+- Scenario: Builder has a demanding Silver infrastructure project this week and decides not to take on a Gold transformation project.
+- Input: During weekly planning, builder selects "intentionally empty" for the Gold slot.
+- Correct output: Gold slot renders with a calm, solid visual — warm presence of rest, not an alarming gap. Marvin asks once "Taking a lighter week?" and accepts the response. No further prompts about the Gold slot appear during the week. Weekly summary at week's end says "Strategic rest week — capacity invested in Silver infrastructure" rather than "0/1 Gold projects completed."
 
 **Example 2: Distinguishing "not yet selected" from "intentionally empty"**
 
-- Scenario: Director opens The Table on Monday morning but hasn't done weekly planning yet.
+- Scenario: Builder opens The Table on Monday morning but hasn't done weekly planning yet.
 - Input: Gold and Silver slots are empty because planning hasn't occurred.
-- Correct output: Both slots show "not yet selected" visual treatment — subtle outline with a gentle action affordance ("Select Gold project"). This is visually distinct from the "intentionally empty" calm solid visual. When the director taps a slot, they can either choose a project OR mark the slot as intentionally empty with a single action.
+- Correct output: Both slots show "not yet selected" visual treatment — subtle outline with a gentle action affordance ("Select Gold project"). This is visually distinct from the "intentionally empty" calm solid visual. When the builder taps a slot, they can either choose a project OR mark the slot as intentionally empty with a single action.
 
 ### Anti-Examples
 
 - **Red border or exclamation mark on an empty Gold slot** — treats emptiness as error. Intentionally-empty slots should feel calm and intentional, communicating strategic restraint.
-- **Cameron asking "are you sure you don't want a Gold project?" after director chose intentional rest** — agent already checked intent and should accept the choice. Repeated prompting undermines director autonomy.
+- **Marvin asking "are you sure you don't want a Gold project?" after builder chose intentional rest** — agent already checked intent and should accept the choice. Repeated prompting undermines builder autonomy.
 - **Weekly summary showing "0/1 Gold projects completed" for intentionally-empty weeks** — frames strategic rest as zero performance. The metric should recognize intentional restraint as a valid outcome.
 
 ### Conformance Test

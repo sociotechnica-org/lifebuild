@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-Planted infrastructure that generates work indefinitely. Unlike projects, systems have no finish line — they run until deliberately uprooted. Systems represent the director's automated, recurring commitments.
+Planted infrastructure that generates work indefinitely. Unlike projects, systems have no finish line — they run until deliberately uprooted. Systems represent the builder's automated, recurring commitments.
 
 ## WHERE: Ecosystem
 
@@ -19,7 +19,7 @@ Planted infrastructure that generates work indefinitely. Unlike projects, system
 
 - Strategy: [[Strategy - Superior Process]] — infrastructure reduces future cognitive load
 - Principle: [[Principle - Compound Capability]] — planted systems make future weeks easier
-- Driver: Directors need containers for recurring work that runs itself. The question for systems is: "Is it running smoothly?"
+- Driver: Builders need containers for recurring work that runs itself. The question for systems is: "Is it running smoothly?"
 
 ## WHEN: Timeline
 
@@ -27,7 +27,7 @@ Planted infrastructure that generates work indefinitely. Unlike projects, system
 **Implementation status:** Not started
 **Reality note (2026-02-10):** No System primitive exists in the codebase. There is no `systems` table in the LiveStore schema, no system-related events, no health indicators, no cycle tracking, no task generation from systems. The `recurringTasks` table exists as legacy scaffolding from WorkSquared but is unrelated to this System concept. The entire System lifecycle (Planning → Planted → Hibernating → Uprooted) is unbuilt.
 
-Core entity. Systems represent the infrastructure layer of a director's LifeBuild — what runs automatically versus what requires active project management.
+Core entity. Systems represent the infrastructure layer of a builder's LifeBuild — what runs automatically versus what requires active project management.
 
 ## HOW: Implementation
 
@@ -52,7 +52,7 @@ Systems are continuous. They don't complete — they run. Success is smooth oper
 5. **Outputs** — What the system generates (tasks, events, alerts)
 6. **Delegation Profile** — Who does what
 
-**Systems are color-agnostic:** Systems don't have Gold/Silver/Bronze color. They generate work — the director colors that work based on their relationship to it.
+**Systems are color-agnostic:** Systems don't have Gold/Silver/Bronze color. They generate work — the builder colors that work based on their relationship to it.
 
 ### Lifecycle States
 

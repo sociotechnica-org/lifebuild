@@ -15,7 +15,7 @@ The specification for how Work at Hand projects appear in two places simultaneou
 ## WHY: Rationale
 
 - Strategy: [[Strategy - Spatial Visibility]] — work has spatial location AND priority status
-- Principle: [[Principle - Visibility Creates Agency]] — director sees both where work lives (grid) and that it's prioritized (Table)
+- Principle: [[Principle - Visibility Creates Agency]] — builder sees both where work lives (grid) and that it's prioritized (Table)
 - Decision: Same object rendered twice, not two objects synced. Ensures consistency.
 
 ## WHEN: Timeline
@@ -54,15 +54,15 @@ The specification for how Work at Hand projects appear in two places simultaneou
 
 **Example 1: Progress update reflected in both views**
 
-- Scenario: Director completes a task on their Gold project "Write Novel" via the Project Board opened from The Table.
+- Scenario: Builder completes a task on their Gold project "Write Novel" via the Project Board opened from The Table.
 - Input: Task marked complete, progress advances from 40% to 50%.
 - Correct output: The progress ring on the hex tile on the Life Map grid updates to 50%. The Table's Gold position also reflects 50% progress. Both views update because they render the same underlying object.
 
 **Example 2: Clicking hex tile vs. Table position**
 
-- Scenario: Director sees their Silver project "Automate Invoicing" both on the hex grid (near their Finances cluster) and on The Table's Silver position.
-- Input: Director clicks the hex tile on the Life Map.
-- Correct output: The Project Board overlay opens for "Automate Invoicing" — the same overlay that would open if the director had clicked the Silver position on The Table instead. One object, two entry points, same destination.
+- Scenario: Builder sees their Silver project "Automate Invoicing" both on the hex grid (near their Finances cluster) and on The Table's Silver position.
+- Input: Builder clicks the hex tile on the Life Map.
+- Correct output: The Project Board overlay opens for "Automate Invoicing" — the same overlay that would open if the builder had clicked the Silver position on The Table instead. One object, two entry points, same destination.
 
 ### Anti-Examples
 

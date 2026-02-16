@@ -53,7 +53,7 @@ Components are implementation-heavy. Focus on HOW details and conforming Standar
 
 ## Room
 
-**Examples:** Drafting Room, Sorting Room, Project Board, Category Studios, Council Chamber
+**Examples:** Drafting Room, Sorting Room, Project Board, Roster Room, Council Chamber
 
 **Always include:**
 
@@ -184,7 +184,7 @@ Overlays are cross-zone — WHERE they appear and HOW they behave across context
 
 ## Agent
 
-**Examples:** Cameron, Marvin, Mesa, Maya, Atlas, Brooks, Grace, Reed, Finn, Indie, Sage, Jarvis, Conan, Devin
+**Examples:** Jarvis, Marvin, Conan
 
 **Always include:**
 
@@ -247,6 +247,94 @@ Primitives are the data backbone — WHERE they're used throughout the product i
 
 ---
 
+## Loop
+
+**Examples:** Expedition Cycle, Daily Check-In, Seasonal Review
+
+**Always include:**
+
+- The Loop card itself (full content)
+- All Rooms involved in this Loop — check WHERE section
+- All Capabilities that compose this Loop
+- Parent Loop (if nested) and child Loops (if containing)
+- Journey this Loop advances (if any)
+- Agents who participate
+- At least 1 Strategy from the WHY section
+
+**Traversal depth:** 2 hops. Loops connect Rooms, Capabilities, and Agents.
+
+**Dimension priority:** HOW (high) > WHERE (high) > WHY (medium) > WHAT (low).
+Loops are about the cycle — HOW it flows and WHERE it happens.
+
+**Lateral scope:** Medium — include sibling Loops at the same timescale and parent/child Loops.
+
+---
+
+## Journey
+
+**Examples:** Builder Onboarding, Sanctuary Progression
+
+**Always include:**
+
+- The Journey card itself (full content)
+- All Loops the builder engages in during this Journey
+- Rooms involved across journey phases
+- Agents who guide through phases
+- Systems that support progression
+- Capabilities unlocked during progression
+- At least 1 Strategy from the WHY section
+
+**Traversal depth:** 3 hops. Journeys span the full product.
+
+**Dimension priority:** WHY (high) > HOW (high) > WHERE (medium) > WHAT (low).
+Journeys are strategic — WHY they exist and HOW progression works.
+
+**Lateral scope:** Broad — Journeys touch many parts of the product.
+
+---
+
+## Aesthetic
+
+**Examples:** Sanctuary, Clarity, Being Known, Accomplishment, Stewardship, The Shift
+
+**Always include:**
+
+- The Aesthetic card itself (full content)
+- All Rooms/Loops/Capabilities where this feeling should exist — check WHERE section
+- Components that reinforce this feeling
+- Standards that govern the visual/interaction design supporting this feeling
+- At least 1 Principle from the WHY section
+
+**Traversal depth:** 1 hop. Aesthetics are target feelings — they point to contexts, not chains.
+
+**Dimension priority:** HOW (high) > WHY (high) > WHERE (medium) > WHAT (low).
+Aesthetics are about what reinforces and what breaks the feeling.
+
+**Lateral scope:** Medium — include contrasting Aesthetics for the same context.
+
+---
+
+## Dynamic
+
+**Examples:** Bronze Flood, Rest Deficit Spiral, The Shift
+
+**Always include:**
+
+- The Dynamic card itself (full content)
+- All Systems that produce this emergent behavior — check WHERE section
+- Loops and Capabilities that contribute
+- Rooms where it manifests
+- Agent responses to this Dynamic
+
+**Traversal depth:** 2 hops. Dynamics arise from System interactions.
+
+**Dimension priority:** WHY (medium) > HOW (high) > WHERE (medium) > WHAT (low).
+Dynamics are about HOW the system responds to emergent behavior.
+
+**Lateral scope:** Medium — include related Dynamics that share contributing Systems.
+
+---
+
 ## Mandatory Categories Summary
 
 Quick reference for what MUST be included regardless of scoring:
@@ -264,3 +352,7 @@ Quick reference for what MUST be included regardless of scoring:
 | Overlay     | All visible Zones, all conforming Standards               |
 | Primitive   | All Rooms that serve it, all operating Capabilities       |
 | Artifact    | Host Room, all using Capabilities                         |
+| Loop        | All composing Capabilities, all involved Rooms            |
+| Journey     | All Loops engaged, all guiding Agents                     |
+| Aesthetic   | All contexts where feeling applies                        |
+| Dynamic     | All contributing Systems, agent responses                 |

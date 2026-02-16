@@ -9,15 +9,15 @@ The specification for trigger conditions, visual treatments, and dismissal rules
 - Implemented by: [[System - Smoke Signals]] — detection mechanism
 - Applied to: [[Component - Hex Tile]]
 - Monitored by: [[Agent - Mesa]] — can explain any signal
-- Implements: [[Principle - Visibility Creates Agency]] — directors see problems early
+- Implements: [[Principle - Visibility Creates Agency]] — builders see problems early
 - Implements: [[Principle - Guide When Helpful]] — helpful signals, not nagging alerts
 
 ## WHY: Rationale
 
 - Strategy: [[Strategy - Spatial Visibility]] — ambient signals leverage spatial awareness
-- Principle: [[Principle - Visibility Creates Agency]] — directors see problems early
+- Principle: [[Principle - Visibility Creates Agency]] — builders see problems early
 - Principle: [[Principle - Guide When Helpful]] — helpful signals, not nagging alerts
-- Driver: Directors need awareness without bombardment. Smoke Signals make problems visible without demanding immediate action.
+- Driver: Builders need awareness without bombardment. Smoke Signals make problems visible without demanding immediate action.
 
 ## WHEN: Timeline
 
@@ -38,7 +38,7 @@ The specification for trigger conditions, visual treatments, and dismissal rules
 
 **Treatment:** Tile background tint (yellow or red). Clears automatically when health improves.
 
-**Dismissal:** Director can snooze for 1 week. Signal returns if condition persists.
+**Dismissal:** Builder can snooze for 1 week. Signal returns if condition persists.
 
 #### Staleness Signal (Projects)
 
@@ -49,7 +49,7 @@ The specification for trigger conditions, visual treatments, and dismissal rules
 
 **Treatment:** Dust/fade overlay effect. Progressively more pronounced with time.
 
-**Dismissal:** Director can acknowledge ("still relevant") or archive.
+**Dismissal:** Builder can acknowledge ("still relevant") or archive.
 
 #### Due Date Signal (Projects/Tasks)
 
@@ -78,26 +78,26 @@ The specification for trigger conditions, visual treatments, and dismissal rules
 - Horizon View shows aggregate (cluster has signals)
 - Signals don't block interaction
 - No sounds, no badges, no push notifications
-- Directors see signals when they look at Life Map
+- Builders see signals when they look at Life Map
 
 ### Examples
 
 **Example 1: Health Warning escalating from Yellow to Red**
 
-- Scenario: Director has a planted system "Morning Meditation" with daily cycles. Completion has been declining.
+- Scenario: Builder has a planted system "Morning Meditation" with daily cycles. Completion has been declining.
 - Input: Week 1: 5/7 cycles completed (71%). Week 2: 3/7 cycles completed (43%).
 - Correct output: After Week 1, Yellow signal appears (completion < 80% over 2 weeks is not yet met — needs sustained data). After Week 2, with 2-week average at ~57%, Yellow threshold is met (< 80%). If completion drops below 50% or hits 3+ consecutive misses, signal escalates to Red. Tile background tints accordingly. Signal clears automatically when health improves above thresholds.
 
 **Example 2: Staleness signal on an active project**
 
-- Scenario: Director's "Learn Guitar" project (Live state) has had no activity for 4 weeks.
+- Scenario: Builder's "Learn Guitar" project (Live state) has had no activity for 4 weeks.
 - Input: Last activity timestamp is 28 days ago. Project state is Live (active).
-- Correct output: Staleness signal appears after 3 weeks (default active threshold). Dust/fade overlay renders on the hex tile. Director can acknowledge ("still relevant" — signal clears temporarily) or archive the project. The signal does NOT use push notifications, sounds, or badges — it is ambient, visible only when the director looks at the Life Map.
+- Correct output: Staleness signal appears after 3 weeks (default active threshold). Dust/fade overlay renders on the hex tile. Builder can acknowledge ("still relevant" — signal clears temporarily) or archive the project. The signal does NOT use push notifications, sounds, or badges — it is ambient, visible only when the builder looks at the Life Map.
 
 ### Anti-Examples
 
-- **Using push notifications or badge counts for smoke signals** — Signals are ambient, not interruptive. No sounds, no badges, no push notifications. Directors see signals when they look at Life Map, not when signals demand attention.
-- **Showing individual signals at Horizon View** — Horizon View shows aggregate only (cluster has signals). Rendering individual signal details at that zoom level creates visual noise where the director needs landscape-level awareness.
+- **Using push notifications or badge counts for smoke signals** — Signals are ambient, not interruptive. No sounds, no badges, no push notifications. Builders see signals when they look at Life Map, not when signals demand attention.
+- **Showing individual signals at Horizon View** — Horizon View shows aggregate only (cluster has signals). Rendering individual signal details at that zoom level creates visual noise where the builder needs landscape-level awareness.
 - **Firing a Staleness signal after 1 week of inactivity on an active project** — Default active threshold is 3 weeks. Triggering too early turns awareness into nagging, violating the Guide When Helpful principle.
 
 ### Conformance Test

@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The emergent spatial behavior where directors place related hex tiles adjacent to each other, creating meaningful clusters that reflect their mental model of how life areas relate. Directors don't "use" Clustering — it's an emergent behavior the system observes and learns from. Clustering is director-assigned meaning; the system tracks patterns and offers suggestions but never imposes arrangement.
+The emergent spatial behavior where builders place related hex tiles adjacent to each other, creating meaningful clusters that reflect their mental model of how life areas relate. Builders don't "use" Clustering — it's an emergent behavior the system observes and learns from. Clustering is builder-assigned meaning; the system tracks patterns and offers suggestions but never imposes arrangement.
 
 ## WHERE: Scope
 
@@ -17,15 +17,15 @@ The emergent spatial behavior where directors place related hex tiles adjacent t
 - Implements:
   - [[Standard - Visual Language]] — category color reinforcement per spec
   - [[Standard - Life Categories]] — clusters organize by life category
-  - [[Standard - Spatial Interaction Rules]] — clustering reflects director-assigned meaning
+  - [[Standard - Spatial Interaction Rules]] — clustering reflects builder-assigned meaning
 - State:
   - Current tile positions on the hex grid
-  - Observed adjacency patterns per director
+  - Observed adjacency patterns per builder
   - Cluster shape data at various zoom levels
 - Transitions:
-  - Director drags tile -> adjacency relationships update
+  - Builder drags tile -> adjacency relationships update
   - New project created -> system suggests placement ("near your other health work?")
-  - Cluster patterns mature over time as directors populate their map
+  - Cluster patterns mature over time as builders populate their map
 - Processing:
   - System observes clustering patterns over time
   - Suggests placements for new projects — never forces
@@ -37,26 +37,26 @@ The emergent spatial behavior where directors place related hex tiles adjacent t
   - [[Principle - Bidirectional Loop]] — arrangement reflects and shapes understanding
   - [[Strategy - Spatial Visibility]] — spatial proximity carries meaning
   - [[Principle - Visual Recognition]] — "my health stuff is upper-left"
-  - [[Principle - Familiarity Over Function]] — directors organize intuitively
+  - [[Principle - Familiarity Over Function]] — builders organize intuitively
 
 ## WHY: Rationale
 
 - Strategy: [[Strategy - Spatial Visibility]] — space carries meaning
 - Principle: [[Principle - Visual Recognition]] — spatial memory aids navigation
-- Principle: [[Principle - Familiarity Over Function]] — directors organize intuitively
-- Driver: Directors naturally group related things together. Clustering makes this explicit and learnable.
+- Principle: [[Principle - Familiarity Over Function]] — builders organize intuitively
+- Driver: Builders naturally group related things together. Clustering makes this explicit and learnable.
 
 ## WHEN: Timeline
 
 **Build phase:** Post-MVP
 **Implementation status:** Not started
-**Reality note (2026-02-10):** No clustering system exists. Depends on Hex Grid implementation. Projects are currently grouped by fixed category cards, not by director-driven spatial arrangement.
+**Reality note (2026-02-10):** No clustering system exists. Depends on Hex Grid implementation. Projects are currently grouped by fixed category cards, not by builder-driven spatial arrangement.
 
-Emergent from hex grid use. Clustering behavior develops as directors populate their Life Map.
+Emergent from hex grid use. Clustering behavior develops as builders populate their Life Map.
 
 ## HOW: Implementation
 
-**Director behavior:**
+**Builder behavior:**
 
 - Drag tiles to create adjacency
 - Group by category (health projects together)
@@ -75,4 +75,4 @@ Emergent from hex grid use. Clustering behavior develops as directors populate t
 - Cluster boundaries emerge from empty space
 - Zoom out reveals cluster shapes
 
-**No rules:** Directors can organize however they want. Cross-category clusters, single-tile isolation, tight packing or sparse spreading — all valid.
+**No rules:** Builders can organize however they want. Cross-category clusters, single-tile isolation, tight packing or sparse spreading — all valid.

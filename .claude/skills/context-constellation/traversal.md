@@ -29,6 +29,8 @@ Glob: docs/context-library/**/System - Bronze Stack.md
 ```
 Glob: docs/context-library/product/systems/*.md
 Glob: docs/context-library/rationale/principles/*.md
+Glob: docs/context-library/experience/loops/*.md
+Glob: docs/context-library/experience/dynamics/*.md
 ```
 
 ### By topic (keyword search)

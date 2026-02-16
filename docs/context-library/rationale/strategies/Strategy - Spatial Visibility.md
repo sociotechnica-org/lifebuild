@@ -7,7 +7,7 @@ Making work visual, placed, and traversable creates comprehension and agency tha
 ## WHERE: Ecosystem
 
 - Type: Strategic Bet
-- Serves: [[Need - Autonomy]] — directors see and control their work
+- Serves: [[Need - Autonomy]] — builders see and control their work
 - Serves: [[Need - Competence]] (secondary) — visibility enables progress tracking
 - Implementing principles: [[Principle - Visibility Creates Agency]], [[Principle - Visual Recognition]]
 - Governs: [[Zone - Life Map]], [[Structure - Hex Grid]], [[Overlay - The Table]], [[Capability - Zoom Navigation]], [[Room - Project Board]], [[Room - System Board]]
@@ -21,7 +21,7 @@ Our commitments — both present and future — are largely abstract. We don't h
 
 Most productivity tools compound this by treating work as lists, databases, or inboxes — abstract containers that require cognitive effort to translate into meaning. You have to _think_ about your work to understand it. You can't _see_ it.
 
-The bet: if work is represented spatially, visually, and traversably — like a place you can visit rather than a list you parse — directors will develop deeper, broader understanding of their present and future, leading to better decisions and greater agency.
+The bet: if work is represented spatially, visually, and traversably — like a place you can visit rather than a list you parse — builders will develop deeper, broader understanding of their present and future, leading to better decisions and greater agency.
 
 Research supports this: the brain's spatial processing and memory systems share neural infrastructure. When you organize information spatially and navigate that space, you engage hippocampal circuits that consolidate long-term memory. Navigable environments outperform static spatial organization because movement through space activates the full spatial memory system. The brain's own coordinate system is hexagonal — grid cells in the entorhinal cortex fire in hex patterns.
 
@@ -47,13 +47,13 @@ Research supports this: the brain's spatial processing and memory systems share 
 
 ### What Following This Looks Like
 
-- A director opens the Life Map and immediately sees the state of all their projects as hex tiles with visual status indicators — no clicking, no parsing, no mental translation required.
+- A builder opens the Life Map and immediately sees the state of all their projects as hex tiles with visual status indicators — no clicking, no parsing, no mental translation required.
 - Zoom levels match intent: Horizon View for big-picture scanning, Working View for current priorities, Detail View for deep focus on a single project. Information density scales with attention.
-- Work has a persistent, visible place on the map. A director can point to where a project lives, remember it by location, and notice when something looks different — the same way you'd notice a change in a familiar room.
+- Work has a persistent, visible place on the map. A builder can point to where a project lives, remember it by location, and notice when something looks different — the same way you'd notice a change in a familiar room.
 
 ### What Violating This Looks Like
 
-- **Defaulting to list or feed views** — Lists and inboxes are Level 0. If the primary view of work is a scrollable list, the spatial bet has failed. Directors should browse a landscape, not parse a feed.
+- **Defaulting to list or feed views** — Lists and inboxes are Level 0. If the primary view of work is a scrollable list, the spatial bet has failed. Builders should browse a landscape, not parse a feed.
 - **Hiding work behind menus or hover states** — Spatial visibility means work has a persistent, visible place. Requiring clicks to reveal status or hover to see details moves work back into abstraction. Default to showing.
 - **Flat spatial layout without zoom levels** — A hex grid with no zoom tiers dumps all information at the same density. Horizon View, Working View, and Detail View exist because information needs vary by intent. No zoom means no information hierarchy.
 

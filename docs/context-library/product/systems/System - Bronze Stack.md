@@ -4,7 +4,7 @@
 
 ## WHAT: Definition
 
-The mechanism managing which operational tasks populate the Bronze position on The Table. The Bronze Stack draws from multiple sources and operates in one of three modes (Minimal, Target, Maximal) controlling how many tasks surface. Directors set the mode; the system handles population, prioritization, and auto-replenishment.
+The mechanism managing which operational tasks populate the Bronze position on The Table. The Bronze Stack draws from multiple sources and operates in one of three modes (Minimal, Target, Maximal) controlling how many tasks surface. Builders set the mode; the system handles population, prioritization, and auto-replenishment.
 
 ## WHERE: Scope
 
@@ -53,7 +53,7 @@ The mechanism managing which operational tasks populate the Bronze position on T
 **Implementation status:** Implemented
 **Reality note (2026-02-10):** Bronze stack exists as `tableBronzeProjects` table with full event support (`table.bronzeProjectAdded`, `table.bronzeProjectRemoved`, `table.bronzeProjectsReordered`). `TableSlot` component for bronze shows top project plus count. Stack ordering and management work via the Sorting Room.
 
-Core system. Stack mechanics enable directors to control operational load.
+Core system. Stack mechanics enable builders to control operational load.
 
 ## HOW: Implementation
 
@@ -74,4 +74,4 @@ Core system. Stack mechanics enable directors to control operational load.
 
 **Mode selection:** Set during weekly planning in [[Room - Sorting Room]]. Can change mid-week via gear icon.
 
-**Bronze never blocks Gold/Silver:** Even with 50 Bronze candidates queued, if director has capacity for transformation work, activate those streams. Bronze will always exist. Waiting for Bronze to be "finished" is a trap.
+**Bronze never blocks Gold/Silver:** Even with 50 Bronze candidates queued, if builder has capacity for transformation work, activate those streams. Bronze will always exist. Waiting for Bronze to be "finished" is a trap.

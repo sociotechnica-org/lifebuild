@@ -71,7 +71,7 @@ The specification for visual vocabulary across all LifeBuild interfaces — cate
 
 **Example 1: Correctly rendering a Health project at Work at Hand state**
 
-- Scenario: Director's "Run a 5K" project (Health category) is selected as Gold Work at Hand this week.
+- Scenario: Builder's "Run a 5K" project (Health category) is selected as Gold Work at Hand this week.
 - Input: Category = Health, State = Work at Hand, Entity = Project, Stream = Gold.
 - Correct output: Hex tile uses vibrant green (Health category color) at enhanced saturation with active glow (Work at Hand state). A progress ring shows completion percentage (Project entity marker). The Gold position on The Table uses deep amber/gold accent (Gold stream accent). No health dots appear (those are for Systems only).
 
@@ -83,9 +83,9 @@ The specification for visual vocabulary across all LifeBuild interfaces — cate
 
 ### Anti-Examples
 
-- **Using arbitrary colors not mapped to life categories** — Each category has a specific color (Health = vibrant green, Finances = gold/amber, etc.). Introducing unmapped colors breaks the visual vocabulary and forces directors to re-learn associations.
+- **Using arbitrary colors not mapped to life categories** — Each category has a specific color (Health = vibrant green, Finances = gold/amber, etc.). Introducing unmapped colors breaks the visual vocabulary and forces builders to re-learn associations.
 - **Rendering a Planned project at full saturation** — Planned projects render at ~60% saturation (dimmed). Showing them at full saturation makes them visually identical to Live projects, destroying the state-at-a-glance signal.
-- **Using progress rings on systems or health dots on projects** — Entity type markers are distinct: projects get progress rings (% complete), systems get health dots (●●●●○). Mixing markers creates confusion about what kind of entity the director is looking at.
+- **Using progress rings on systems or health dots on projects** — Entity type markers are distinct: projects get progress rings (% complete), systems get health dots (●●●●○). Mixing markers creates confusion about what kind of entity the builder is looking at.
 
 ### Conformance Test
 

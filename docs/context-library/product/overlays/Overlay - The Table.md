@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-A persistent priority spotlight that sits at the top of the Life Map, displaying the director's Work at Hand across three distinct positions: Gold (expansion), Silver (capacity), and Bronze (operations). The Table remains visible at all zoom levels — current priorities never disappear from view.
+A persistent priority spotlight that sits at the top of the Life Map, displaying the builder's Work at Hand across three distinct positions: Gold (expansion), Silver (capacity), and Bronze (operations). The Table remains visible at all zoom levels — current priorities never disappear from view.
 
 ## WHERE: Ecosystem
 
@@ -35,7 +35,7 @@ A persistent priority spotlight that sits at the top of the Life Map, displaying
 - Strategy: [[Strategy - Superior Process]] — structured weekly commitment
 - Principle: [[Principle - Protect Transformation]] — Gold/Silver slots protected from Bronze overflow
 - Principle: [[Principle - Empty Slots Strategic]] — empty positions are valid choices
-- Driver: Directors need constant awareness of what they've committed to this week. The Table is the answer to "what am I working on right now?"
+- Driver: Builders need constant awareness of what they've committed to this week. The Table is the answer to "what am I working on right now?"
 - Constraints: The Table shows commitment, not progress. It answers "what am I working on?" not "how much is done?" Maximum 1 Gold + 1 Silver is structural, not configurable.
 
 ## WHEN: Timeline
@@ -54,7 +54,7 @@ Core interface element from initial design. The Table's three-position structure
 - Silver Position (center) — single capacity project
 - Bronze Position (rightmost) — stack of operational tasks
 
-**Persistence:** The Table remains visible regardless of zoom level or navigation state on the Life Map. Directors can always see their current priorities.
+**Persistence:** The Table remains visible regardless of zoom level or navigation state on the Life Map. Builders can always see their current priorities.
 
 **Interaction:**
 
@@ -74,10 +74,10 @@ Core interface element from initial design. The Table's three-position structure
 
 ### Examples
 
-- Director opens LifeBuild on Monday morning → The Table shows Gold: "Home Renovation" (full saturation, active glow), Silver: "Meal Prep System" (full saturation), Bronze: 5 tasks in Target +3 mode → director immediately sees the week's commitments without clicking anything.
-- Director completes Gold project mid-week → Gold position transitions from active glow to calm empty state → director can promote from queue, insert emergency work, or leave intentionally empty for the rest of the week.
+- Builder opens LifeBuild on Monday morning → The Table shows Gold: "Home Renovation" (full saturation, active glow), Silver: "Meal Prep System" (full saturation), Bronze: 5 tasks in Target +3 mode → builder immediately sees the week's commitments without clicking anything.
+- Builder completes Gold project mid-week → Gold position transitions from active glow to calm empty state → builder can promote from queue, insert emergency work, or leave intentionally empty for the rest of the week.
 
 ### Anti-Examples
 
-- **Hiding The Table when the director opens a Project Board** — The Table is always visible at all zoom levels. Current priorities never disappear, even when focus narrows to a single project.
+- **Hiding The Table when the builder opens a Project Board** — The Table is always visible at all zoom levels. Current priorities never disappear, even when focus narrows to a single project.
 - **Showing task-level progress bars as the dominant visual on each position** — The Table answers "what am I working on?" not "how far along am I?" Progress detail belongs on Project Boards, not The Table's priority display.

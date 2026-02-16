@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The three operations available for planted systems: Hibernate (pause temporarily), Upgrade (spawn improvement project), and Uproot (end deliberately). System Actions give directors control over their infrastructure lifecycle.
+The three operations available for planted systems: Hibernate (pause temporarily), Upgrade (spawn improvement project), and Uproot (end deliberately). System Actions give builders control over their infrastructure lifecycle.
 
 ## WHERE: Ecosystem
 
@@ -21,7 +21,7 @@ The three operations available for planted systems: Hibernate (pause temporarily
 
 - Strategy: [[Strategy - Superior Process]] — infrastructure needs lifecycle management
 - Principle: [[Principle - Plans Are Hypotheses]] — systems can be adjusted as life changes
-- Driver: Systems are long-lived but not permanent. Directors need ways to pause, improve, or end them.
+- Driver: Systems are long-lived but not permanent. Builders need ways to pause, improve, or end them.
 
 ## WHEN: Timeline
 
@@ -38,7 +38,7 @@ Core to system entity. Actions available from System Board for any planted syste
 - Use case: "I'm traveling for a month — pause hot tub maintenance"
 - Configuration preserved, no outputs generated
 - Can reactivate anytime
-- Different from Uproot: director expects to return
+- Different from Uproot: builder expects to return
 
 **Upgrade** — Improve the system
 

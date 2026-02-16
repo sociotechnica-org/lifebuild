@@ -15,7 +15,7 @@ The specification for lifecycle stages a project moves through from initial capt
 
 - Strategy: [[Strategy - Superior Process]] — clear lifecycle enables structured management
 - Principle: [[Principle - Visibility Creates Agency]] — state visible at a glance
-- Driver: Directors need to know where each project stands and what they can do with it.
+- Driver: Builders need to know where each project stands and what they can do with it.
 
 ## WHEN: Timeline
 
@@ -57,22 +57,22 @@ The specification for lifecycle stages a project moves through from initial capt
 | Live         | Work at Hand | Weekly selection              |
 | Work at Hand | Live         | Week ends                     |
 | Work at Hand | Completed    | All objectives met            |
-| Any          | Paused       | Director choice               |
+| Any          | Paused       | Builder choice                |
 | Paused       | Planned      | Returns to Priority Queue top |
 
 ### Examples
 
 **Example 1: New project reaches Work at Hand**
 
-- Scenario: Director creates a "Kitchen Renovation" project and completes all four planning stages.
-- Input: Project in Planning state, Stage 4 just completed. Director selects it during weekly planning.
+- Scenario: Builder creates a "Kitchen Renovation" project and completes all four planning stages.
+- Input: Project in Planning state, Stage 4 just completed. Builder selects it during weekly planning.
 - Correct output: State transitions Planning -> Planned (on Stage 4 completion), then Planned -> Work at Hand (on weekly selection). Project appears both on hex grid at full saturation with active glow and on The Table in Gold/Silver position.
 
 **Example 2: Pausing and resuming a project**
 
-- Scenario: Director pauses their "Marathon Training" project mid-week to focus on urgent work.
-- Input: Project currently in Work at Hand state. Director chooses to pause.
-- Correct output: State transitions Work at Hand -> Paused. Project moves to top of Priority Queue. Visual treatment drops to 50% saturation with muted presence. Project no longer appears on The Table. When director resumes, project returns to Planned state at top of Priority Queue, not directly back to Work at Hand.
+- Scenario: Builder pauses their "Marathon Training" project mid-week to focus on urgent work.
+- Input: Project currently in Work at Hand state. Builder chooses to pause.
+- Correct output: State transitions Work at Hand -> Paused. Project moves to top of Priority Queue. Visual treatment drops to 50% saturation with muted presence. Project no longer appears on The Table. When builder resumes, project returns to Planned state at top of Priority Queue, not directly back to Work at Hand.
 
 ### Anti-Examples
 

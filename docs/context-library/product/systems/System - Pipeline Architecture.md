@@ -34,14 +34,14 @@ The two-queue system that separates work in development (Planning Queue) from wo
 
 ### Transitions
 
-| From                       | Trigger                                   | To                          | Side Effects                                                 |
-| -------------------------- | ----------------------------------------- | --------------------------- | ------------------------------------------------------------ |
-| No project                 | Director captures new idea with Marvin    | Planning Queue (Stage 1)    | Project created with minimal data; appears in Planning Queue |
-| Planning Queue (Stage 1-2) | Director resumes and advances with Marvin | Planning Queue (next stage) | Additional project data captured                             |
-| Planning Queue (Stage 3)   | Director completes Stage 4 prioritization | Priority Queue              | Project receives priority score; exits Planning Queue        |
-| Priority Queue             | Director selects as Work at Hand          | Active on The Table         | Project leaves queue; fills weekly position                  |
-| Either queue               | Director abandons project                 | Archived                    | Project removed from pipeline entirely                       |
-| Priority Queue (was Live)  | Director pauses active project            | Priority Queue (top)        | Paused project reappears at top of its stream                |
+| From                       | Trigger                                  | To                          | Side Effects                                                 |
+| -------------------------- | ---------------------------------------- | --------------------------- | ------------------------------------------------------------ |
+| No project                 | Builder captures new idea with Marvin    | Planning Queue (Stage 1)    | Project created with minimal data; appears in Planning Queue |
+| Planning Queue (Stage 1-2) | Builder resumes and advances with Marvin | Planning Queue (next stage) | Additional project data captured                             |
+| Planning Queue (Stage 3)   | Builder completes Stage 4 prioritization | Priority Queue              | Project receives priority score; exits Planning Queue        |
+| Priority Queue             | Builder selects as Work at Hand          | Active on The Table         | Project leaves queue; fills weekly position                  |
+| Either queue               | Builder abandons project                 | Archived                    | Project removed from pipeline entirely                       |
+| Priority Queue (was Live)  | Builder pauses active project            | Priority Queue (top)        | Paused project reappears at top of its stream                |
 
 ### Processing Logic
 
@@ -67,10 +67,10 @@ Idea -> Stage 1 (Planning Queue) -> Stages 2-3 -> Stage 4 -> Priority Queue -> W
 
 ### Examples
 
-- A director has three ideas in quick succession: "Learn guitar," "Fix fence," and "Meal prep system." They capture all three with Marvin in under five minutes — each becomes a Stage 1 project in the Planning Queue. The Priority Queue is unaffected. Later that week, the director returns to "Meal prep system," works through Stages 2-3, and on completing Stage 4, the project moves to the Priority Queue with a Silver priority score. The other two ideas remain safely in the Planning Queue, waiting.
-- A director's "Home renovation" project has been Live (on The Table) but life gets busy. They pause it. The project returns to the top of the Gold stream in the Priority Queue — it doesn't go back to the Planning Queue because it's already fully planned. Next week during planning, it appears as the first Gold candidate, easy to re-select.
+- A builder has three ideas in quick succession: "Learn guitar," "Fix fence," and "Meal prep system." They capture all three with Marvin in under five minutes — each becomes a Stage 1 project in the Planning Queue. The Priority Queue is unaffected. Later that week, the builder returns to "Meal prep system," works through Stages 2-3, and on completing Stage 4, the project moves to the Priority Queue with a Silver priority score. The other two ideas remain safely in the Planning Queue, waiting.
+- A builder's "Home renovation" project has been Live (on The Table) but life gets busy. They pause it. The project returns to the top of the Gold stream in the Priority Queue — it doesn't go back to the Planning Queue because it's already fully planned. Next week during planning, it appears as the first Gold candidate, easy to re-select.
 
 ### Anti-Examples
 
-- **Requiring full planning before a project can exist in the system** — the entire pipeline design exists so that a 30-second idea capture (Stage 1) is valid. If the system forced directors to complete all four stages before saving, most ideas would never be recorded. The Planning Queue holds incomplete work deliberately.
+- **Requiring full planning before a project can exist in the system** — the entire pipeline design exists so that a 30-second idea capture (Stage 1) is valid. If the system forced builders to complete all four stages before saving, most ideas would never be recorded. The Planning Queue holds incomplete work deliberately.
 - **Planted systems entering the pipeline** — systems generate recurring Bronze tasks directly, bypassing the project pipeline entirely. Routing a system's generated task through four stages of project creation would be absurd overhead for "take out the trash."
