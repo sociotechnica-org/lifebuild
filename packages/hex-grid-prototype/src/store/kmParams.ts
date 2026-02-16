@@ -31,7 +31,7 @@ export interface KMParams {
 
 export const defaultKMParams: Omit<KMParams, 'set'> = {
   ochreAmount: 0.55,
-  siennaAmount: 0.30,
+  siennaAmount: 0.3,
   greenAmount: 0.35,
   umberAmount: 0.15,
 
@@ -39,7 +39,7 @@ export const defaultKMParams: Omit<KMParams, 'set'> = {
   thicknessVariation: 0.35,
 
   regionScale: 0.06,
-  blotchScale: 0.20,
+  blotchScale: 0.2,
 
   grainScale: 4.0,
   grainIntensity: 0.03,
@@ -54,13 +54,13 @@ export type KMPresetValues = Omit<KMParams, 'set' | 'edgeStrength' | 'edgeWidth'
 export const kmPresets: Record<string, KMPresetValues> = {
   'Warm Parchment': {
     ochreAmount: 0.55,
-    siennaAmount: 0.30,
+    siennaAmount: 0.3,
     greenAmount: 0.35,
     umberAmount: 0.15,
     baseThickness: 0.5,
     thicknessVariation: 0.35,
     regionScale: 0.06,
-    blotchScale: 0.20,
+    blotchScale: 0.2,
     grainScale: 4.0,
     grainIntensity: 0.03,
     edgeDarkening: 0.04,
@@ -68,9 +68,9 @@ export const kmPresets: Record<string, KMPresetValues> = {
 
   'Verdant Wash': {
     ochreAmount: 0.25,
-    siennaAmount: 0.10,
+    siennaAmount: 0.1,
     greenAmount: 0.65,
-    umberAmount: 0.10,
+    umberAmount: 0.1,
     baseThickness: 0.7,
     thicknessVariation: 0.4,
     regionScale: 0.05,
@@ -81,8 +81,8 @@ export const kmPresets: Record<string, KMPresetValues> = {
   },
 
   'Aged Treasure Map': {
-    ochreAmount: 0.40,
-    siennaAmount: 0.50,
+    ochreAmount: 0.4,
+    siennaAmount: 0.5,
     greenAmount: 0.12,
     umberAmount: 0.35,
     baseThickness: 1.0,
@@ -97,7 +97,7 @@ export const kmPresets: Record<string, KMPresetValues> = {
   'Light Wash': {
     ochreAmount: 0.35,
     siennaAmount: 0.12,
-    greenAmount: 0.20,
+    greenAmount: 0.2,
     umberAmount: 0.06,
     baseThickness: 0.3,
     thicknessVariation: 0.25,
@@ -110,9 +110,9 @@ export const kmPresets: Record<string, KMPresetValues> = {
 
   'Deep Forest': {
     ochreAmount: 0.15,
-    siennaAmount: 0.20,
+    siennaAmount: 0.2,
     greenAmount: 0.75,
-    umberAmount: 0.30,
+    umberAmount: 0.3,
     baseThickness: 1.2,
     thicknessVariation: 0.45,
     regionScale: 0.04,
@@ -125,7 +125,7 @@ export const kmPresets: Record<string, KMPresetValues> = {
 
 export const useKMParams = create<KMParams>(set => ({
   ...defaultKMParams,
-  set: (params) => set(params),
+  set: params => set(params),
 }))
 
 export const useShaderMode = create<{

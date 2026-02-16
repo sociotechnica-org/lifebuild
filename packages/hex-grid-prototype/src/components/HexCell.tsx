@@ -47,10 +47,11 @@ export function HexCell({ coord, isSelected, hasUnit, onClick }: HexCellProps) {
   else if (hovered) highlight = HIGHLIGHT_HOVER
 
   // Update uniforms based on active shader
-  const u = material.uniforms
+  const u = material.uniforms as any
   u.uHighlight.value.set(highlight[0], highlight[1], highlight[2])
   u.uHighlightStrength.value = highlight[3]
-  u.uEdgeStrength.value = mode === 'parchment' ? parchmentParams.edgeStrength : kmParams.edgeStrength
+  u.uEdgeStrength.value =
+    mode === 'parchment' ? parchmentParams.edgeStrength : kmParams.edgeStrength
   u.uEdgeWidth.value = mode === 'parchment' ? parchmentParams.edgeWidth : kmParams.edgeWidth
 
   if (mode === 'parchment') {

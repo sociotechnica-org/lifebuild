@@ -229,21 +229,21 @@ export function createKubelkaMunkMaterial(): THREE.ShaderMaterial {
 
       // Pigment K values (absorption) — per RGB channel
       // Yellow Ochre: warm base, semi-opaque earth pigment (muted)
-      uK0: { value: new THREE.Vector3(0.12, 0.25, 1.40) },
-      uS0: { value: new THREE.Vector3(0.35, 0.30, 0.22) },
+      uK0: { value: new THREE.Vector3(0.12, 0.25, 1.4) },
+      uS0: { value: new THREE.Vector3(0.35, 0.3, 0.22) },
 
       // Burnt Sienna: warm brown, transparent
-      uK1: { value: new THREE.Vector3(0.25, 0.75, 1.40) },
-      uS1: { value: new THREE.Vector3(0.15, 0.10, 0.08) },
+      uK1: { value: new THREE.Vector3(0.25, 0.75, 1.4) },
+      uS1: { value: new THREE.Vector3(0.15, 0.1, 0.08) },
 
       // Sage Green (desaturated): moderate R absorption, some G absorption, moderate B
       // More muted than pure sap green — parchment-appropriate
-      uK2: { value: new THREE.Vector3(0.90, 0.30, 0.70) },
-      uS2: { value: new THREE.Vector3(0.15, 0.12, 0.10) },
+      uK2: { value: new THREE.Vector3(0.9, 0.3, 0.7) },
+      uS2: { value: new THREE.Vector3(0.15, 0.12, 0.1) },
 
       // Raw Umber: dark earth, moderate all-channel absorption
-      uK3: { value: new THREE.Vector3(0.50, 0.65, 1.10) },
-      uS3: { value: new THREE.Vector3(0.12, 0.10, 0.08) },
+      uK3: { value: new THREE.Vector3(0.5, 0.65, 1.1) },
+      uS3: { value: new THREE.Vector3(0.12, 0.1, 0.08) },
 
       // Paper substrate — warm off-white
       uPaperColor: { value: new THREE.Vector3(0.92, 0.89, 0.82) },
@@ -252,11 +252,11 @@ export function createKubelkaMunkMaterial(): THREE.ShaderMaterial {
       uBaseThickness: { value: 0.5 },
       uThicknessVariation: { value: 0.35 },
       uOchreAmount: { value: 0.55 },
-      uSiennaAmount: { value: 0.30 },
+      uSiennaAmount: { value: 0.3 },
       uGreenAmount: { value: 0.35 },
       uUmberAmount: { value: 0.15 },
       uRegionScale: { value: 0.06 },
-      uBlotchScale: { value: 0.20 },
+      uBlotchScale: { value: 0.2 },
       uGrainScale: { value: 4.0 },
       uGrainIntensity: { value: 0.03 },
       uEdgeDarkening: { value: 0.04 },

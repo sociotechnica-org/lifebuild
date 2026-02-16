@@ -62,16 +62,15 @@ export const useSpriteState = create<SpriteState>((set, get) => ({
   sprites: initialSprites,
   heldSpriteId: null,
 
-  pickUp: (id) => set({ heldSpriteId: id }),
+  pickUp: id => set({ heldSpriteId: id }),
 
-  drop: (coord) => set(s => ({
-    heldSpriteId: null,
-    sprites: s.sprites.map(sp =>
-      sp.id === s.heldSpriteId ? { ...sp, coord } : sp
-    ),
-  })),
+  drop: coord =>
+    set(s => ({
+      heldSpriteId: null,
+      sprites: s.sprites.map(sp => (sp.id === s.heldSpriteId ? { ...sp, coord } : sp)),
+    })),
 
   cancel: () => set({ heldSpriteId: null }),
 
-  spriteAt: (coord) => get().sprites.find(sp => hexEquals(sp.coord, coord)),
+  spriteAt: coord => get().sprites.find(sp => hexEquals(sp.coord, coord)),
 }))

@@ -109,14 +109,7 @@ function CameraControls() {
   const setElevation = useGameState(s => s.setCameraElevation)
 
   return (
-    <Slider
-      label='Elevation'
-      value={elevation}
-      min={5}
-      max={90}
-      step={1}
-      onChange={setElevation}
-    />
+    <Slider label='Elevation' value={elevation} min={5} max={90} step={1} onChange={setElevation} />
   )
 }
 
@@ -141,9 +134,13 @@ function ShaderControls() {
             }}
             style={selectStyle}
           >
-            <option value='' disabled>Choose a preset...</option>
+            <option value='' disabled>
+              Choose a preset...
+            </option>
             {Object.keys(presets).map(name => (
-              <option key={name} value={name}>{name}</option>
+              <option key={name} value={name}>
+                {name}
+              </option>
             ))}
           </select>
         </div>
@@ -155,15 +152,78 @@ function ShaderControls() {
         </div>
         {scalesOpen && (
           <>
-            <Slider label='Region' value={params.regionScale} min={0.01} max={0.3} step={0.005} onChange={v => set({ regionScale: v })} />
-            <Slider label='Region 2' value={params.region2Scale} min={0.01} max={0.3} step={0.005} onChange={v => set({ region2Scale: v })} />
-            <Slider label='Blotch' value={params.blotchScale} min={0.05} max={1.0} step={0.01} onChange={v => set({ blotchScale: v })} />
-            <Slider label='Blotch 2' value={params.blotch2Scale} min={0.05} max={1.0} step={0.01} onChange={v => set({ blotch2Scale: v })} />
-            <Slider label='Wet Edge' value={params.wetEdgeScale} min={0.01} max={0.5} step={0.005} onChange={v => set({ wetEdgeScale: v })} />
-            <Slider label='Grain' value={params.grainScale} min={0.5} max={15.0} step={0.1} onChange={v => set({ grainScale: v })} />
-            <Slider label='Fiber X' value={params.fiberScaleX} min={0.5} max={20.0} step={0.1} onChange={v => set({ fiberScaleX: v })} />
-            <Slider label='Fiber Y' value={params.fiberScaleY} min={0.5} max={20.0} step={0.1} onChange={v => set({ fiberScaleY: v })} />
-            <Slider label='Speckle' value={params.speckleScale} min={1.0} max={30.0} step={0.5} onChange={v => set({ speckleScale: v })} />
+            <Slider
+              label='Region'
+              value={params.regionScale}
+              min={0.01}
+              max={0.3}
+              step={0.005}
+              onChange={v => set({ regionScale: v })}
+            />
+            <Slider
+              label='Region 2'
+              value={params.region2Scale}
+              min={0.01}
+              max={0.3}
+              step={0.005}
+              onChange={v => set({ region2Scale: v })}
+            />
+            <Slider
+              label='Blotch'
+              value={params.blotchScale}
+              min={0.05}
+              max={1.0}
+              step={0.01}
+              onChange={v => set({ blotchScale: v })}
+            />
+            <Slider
+              label='Blotch 2'
+              value={params.blotch2Scale}
+              min={0.05}
+              max={1.0}
+              step={0.01}
+              onChange={v => set({ blotch2Scale: v })}
+            />
+            <Slider
+              label='Wet Edge'
+              value={params.wetEdgeScale}
+              min={0.01}
+              max={0.5}
+              step={0.005}
+              onChange={v => set({ wetEdgeScale: v })}
+            />
+            <Slider
+              label='Grain'
+              value={params.grainScale}
+              min={0.5}
+              max={15.0}
+              step={0.1}
+              onChange={v => set({ grainScale: v })}
+            />
+            <Slider
+              label='Fiber X'
+              value={params.fiberScaleX}
+              min={0.5}
+              max={20.0}
+              step={0.1}
+              onChange={v => set({ fiberScaleX: v })}
+            />
+            <Slider
+              label='Fiber Y'
+              value={params.fiberScaleY}
+              min={0.5}
+              max={20.0}
+              step={0.1}
+              onChange={v => set({ fiberScaleY: v })}
+            />
+            <Slider
+              label='Speckle'
+              value={params.speckleScale}
+              min={1.0}
+              max={30.0}
+              step={0.5}
+              onChange={v => set({ speckleScale: v })}
+            />
           </>
         )}
       </div>
@@ -174,14 +234,70 @@ function ShaderControls() {
         </div>
         {strengthsOpen && (
           <>
-            <Slider label='Sage' value={params.sageStrength} min={0} max={1.0} step={0.01} onChange={v => set({ sageStrength: v })} />
-            <Slider label='Stain' value={params.stainStrength} min={0} max={1.0} step={0.01} onChange={v => set({ stainStrength: v })} />
-            <Slider label='Pool Light' value={params.poolLightStrength} min={0} max={1.0} step={0.01} onChange={v => set({ poolLightStrength: v })} />
-            <Slider label='Pool Dark' value={params.poolDarkStrength} min={0} max={1.0} step={0.01} onChange={v => set({ poolDarkStrength: v })} />
-            <Slider label='Wet Edge' value={params.wetEdgeStrength} min={0} max={0.2} step={0.005} onChange={v => set({ wetEdgeStrength: v })} />
-            <Slider label='Grain' value={params.grainIntensity} min={0} max={0.15} step={0.002} onChange={v => set({ grainIntensity: v })} />
-            <Slider label='Fiber' value={params.fiberIntensity} min={0} max={0.1} step={0.002} onChange={v => set({ fiberIntensity: v })} />
-            <Slider label='Speckle' value={params.speckleIntensity} min={0} max={0.1} step={0.002} onChange={v => set({ speckleIntensity: v })} />
+            <Slider
+              label='Sage'
+              value={params.sageStrength}
+              min={0}
+              max={1.0}
+              step={0.01}
+              onChange={v => set({ sageStrength: v })}
+            />
+            <Slider
+              label='Stain'
+              value={params.stainStrength}
+              min={0}
+              max={1.0}
+              step={0.01}
+              onChange={v => set({ stainStrength: v })}
+            />
+            <Slider
+              label='Pool Light'
+              value={params.poolLightStrength}
+              min={0}
+              max={1.0}
+              step={0.01}
+              onChange={v => set({ poolLightStrength: v })}
+            />
+            <Slider
+              label='Pool Dark'
+              value={params.poolDarkStrength}
+              min={0}
+              max={1.0}
+              step={0.01}
+              onChange={v => set({ poolDarkStrength: v })}
+            />
+            <Slider
+              label='Wet Edge'
+              value={params.wetEdgeStrength}
+              min={0}
+              max={0.2}
+              step={0.005}
+              onChange={v => set({ wetEdgeStrength: v })}
+            />
+            <Slider
+              label='Grain'
+              value={params.grainIntensity}
+              min={0}
+              max={0.15}
+              step={0.002}
+              onChange={v => set({ grainIntensity: v })}
+            />
+            <Slider
+              label='Fiber'
+              value={params.fiberIntensity}
+              min={0}
+              max={0.1}
+              step={0.002}
+              onChange={v => set({ fiberIntensity: v })}
+            />
+            <Slider
+              label='Speckle'
+              value={params.speckleIntensity}
+              min={0}
+              max={0.1}
+              step={0.002}
+              onChange={v => set({ speckleIntensity: v })}
+            />
           </>
         )}
       </div>
@@ -192,8 +308,22 @@ function ShaderControls() {
         </div>
         {edgesOpen && (
           <>
-            <Slider label='Strength' value={params.edgeStrength} min={0} max={0.8} step={0.01} onChange={v => set({ edgeStrength: v })} />
-            <Slider label='Width' value={params.edgeWidth} min={0.01} max={0.2} step={0.005} onChange={v => set({ edgeWidth: v })} />
+            <Slider
+              label='Strength'
+              value={params.edgeStrength}
+              min={0}
+              max={0.8}
+              step={0.01}
+              onChange={v => set({ edgeStrength: v })}
+            />
+            <Slider
+              label='Width'
+              value={params.edgeWidth}
+              min={0.01}
+              max={0.2}
+              step={0.005}
+              onChange={v => set({ edgeWidth: v })}
+            />
           </>
         )}
       </div>
@@ -258,9 +388,13 @@ function KMControls() {
             }}
             style={selectStyle}
           >
-            <option value='' disabled>Choose a preset...</option>
+            <option value='' disabled>
+              Choose a preset...
+            </option>
             {Object.keys(kmPresets).map(name => (
-              <option key={name} value={name}>{name}</option>
+              <option key={name} value={name}>
+                {name}
+              </option>
             ))}
           </select>
         </div>
@@ -272,10 +406,38 @@ function KMControls() {
         </div>
         {pigmentsOpen && (
           <>
-            <Slider label='Yellow Ochre' value={params.ochreAmount} min={0} max={1.0} step={0.01} onChange={v => set({ ochreAmount: v })} />
-            <Slider label='Burnt Sienna' value={params.siennaAmount} min={0} max={1.0} step={0.01} onChange={v => set({ siennaAmount: v })} />
-            <Slider label='Sap Green' value={params.greenAmount} min={0} max={1.0} step={0.01} onChange={v => set({ greenAmount: v })} />
-            <Slider label='Raw Umber' value={params.umberAmount} min={0} max={1.0} step={0.01} onChange={v => set({ umberAmount: v })} />
+            <Slider
+              label='Yellow Ochre'
+              value={params.ochreAmount}
+              min={0}
+              max={1.0}
+              step={0.01}
+              onChange={v => set({ ochreAmount: v })}
+            />
+            <Slider
+              label='Burnt Sienna'
+              value={params.siennaAmount}
+              min={0}
+              max={1.0}
+              step={0.01}
+              onChange={v => set({ siennaAmount: v })}
+            />
+            <Slider
+              label='Sap Green'
+              value={params.greenAmount}
+              min={0}
+              max={1.0}
+              step={0.01}
+              onChange={v => set({ greenAmount: v })}
+            />
+            <Slider
+              label='Raw Umber'
+              value={params.umberAmount}
+              min={0}
+              max={1.0}
+              step={0.01}
+              onChange={v => set({ umberAmount: v })}
+            />
           </>
         )}
       </div>
@@ -286,9 +448,30 @@ function KMControls() {
         </div>
         {paintOpen && (
           <>
-            <Slider label='Thickness' value={params.baseThickness} min={0.1} max={5.0} step={0.1} onChange={v => set({ baseThickness: v })} />
-            <Slider label='Variation' value={params.thicknessVariation} min={0} max={1.0} step={0.01} onChange={v => set({ thicknessVariation: v })} />
-            <Slider label='Edge Dark' value={params.edgeDarkening} min={0} max={0.3} step={0.005} onChange={v => set({ edgeDarkening: v })} />
+            <Slider
+              label='Thickness'
+              value={params.baseThickness}
+              min={0.1}
+              max={5.0}
+              step={0.1}
+              onChange={v => set({ baseThickness: v })}
+            />
+            <Slider
+              label='Variation'
+              value={params.thicknessVariation}
+              min={0}
+              max={1.0}
+              step={0.01}
+              onChange={v => set({ thicknessVariation: v })}
+            />
+            <Slider
+              label='Edge Dark'
+              value={params.edgeDarkening}
+              min={0}
+              max={0.3}
+              step={0.005}
+              onChange={v => set({ edgeDarkening: v })}
+            />
           </>
         )}
       </div>
@@ -299,10 +482,38 @@ function KMControls() {
         </div>
         {textureOpen && (
           <>
-            <Slider label='Region' value={params.regionScale} min={0.01} max={0.2} step={0.005} onChange={v => set({ regionScale: v })} />
-            <Slider label='Blotch' value={params.blotchScale} min={0.05} max={0.5} step={0.01} onChange={v => set({ blotchScale: v })} />
-            <Slider label='Grain' value={params.grainScale} min={0.5} max={10.0} step={0.1} onChange={v => set({ grainScale: v })} />
-            <Slider label='Grain Str' value={params.grainIntensity} min={0} max={0.1} step={0.002} onChange={v => set({ grainIntensity: v })} />
+            <Slider
+              label='Region'
+              value={params.regionScale}
+              min={0.01}
+              max={0.2}
+              step={0.005}
+              onChange={v => set({ regionScale: v })}
+            />
+            <Slider
+              label='Blotch'
+              value={params.blotchScale}
+              min={0.05}
+              max={0.5}
+              step={0.01}
+              onChange={v => set({ blotchScale: v })}
+            />
+            <Slider
+              label='Grain'
+              value={params.grainScale}
+              min={0.5}
+              max={10.0}
+              step={0.1}
+              onChange={v => set({ grainScale: v })}
+            />
+            <Slider
+              label='Grain Str'
+              value={params.grainIntensity}
+              min={0}
+              max={0.1}
+              step={0.002}
+              onChange={v => set({ grainIntensity: v })}
+            />
           </>
         )}
       </div>
@@ -313,8 +524,22 @@ function KMControls() {
         </div>
         {edgesOpen && (
           <>
-            <Slider label='Strength' value={params.edgeStrength} min={0} max={0.8} step={0.01} onChange={v => set({ edgeStrength: v })} />
-            <Slider label='Width' value={params.edgeWidth} min={0.01} max={0.2} step={0.005} onChange={v => set({ edgeWidth: v })} />
+            <Slider
+              label='Strength'
+              value={params.edgeStrength}
+              min={0}
+              max={0.8}
+              step={0.01}
+              onChange={v => set({ edgeStrength: v })}
+            />
+            <Slider
+              label='Width'
+              value={params.edgeWidth}
+              min={0.01}
+              max={0.2}
+              step={0.005}
+              onChange={v => set({ edgeWidth: v })}
+            />
           </>
         )}
       </div>
@@ -375,33 +600,29 @@ export function App() {
         <Unit />
         <Suspense fallback={null}>
           {sprites.map(sp => (
-            <MapSprite
-              key={sp.id}
-              coord={sp.coord}
-              url={sp.url}
-              scale={sp.scale}
-            />
+            <MapSprite key={sp.id} coord={sp.coord} url={sp.url} scale={sp.scale} />
           ))}
         </Suspense>
       </Canvas>
 
       {/* Held sprite indicator */}
       {heldSprite && (
-        <div style={{
-          position: 'absolute',
-          bottom: 16,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          color: '#5c4a32',
-          fontFamily: 'monospace',
-          fontSize: 13,
-          background: 'rgba(232, 213, 181, 0.95)',
-          padding: '6px 14px',
-          borderRadius: 6,
-          border: '2px solid #8b7355',
-          userSelect: 'none',
-          cursor: 'pointer',
-        }}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 16,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            color: '#5c4a32',
+            fontFamily: 'monospace',
+            fontSize: 13,
+            background: 'rgba(232, 213, 181, 0.95)',
+            padding: '6px 14px',
+            borderRadius: 6,
+            border: '2px solid #8b7355',
+            userSelect: 'none',
+            cursor: 'pointer',
+          }}
           onClick={cancel}
         >
           Holding: <strong>{heldSprite.id}</strong> — click a hex to place, Esc to cancel
@@ -409,19 +630,21 @@ export function App() {
       )}
 
       {/* Shader mode indicator */}
-      <div style={{
-        position: 'absolute',
-        top: 16,
-        right: 16,
-        color: '#5c4a32',
-        fontFamily: 'monospace',
-        fontSize: 11,
-        background: 'rgba(232, 213, 181, 0.85)',
-        padding: '4px 8px',
-        borderRadius: 4,
-        border: '1px solid #c4a87a',
-        userSelect: 'none',
-      }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: 16,
+          right: 16,
+          color: '#5c4a32',
+          fontFamily: 'monospace',
+          fontSize: 11,
+          background: 'rgba(232, 213, 181, 0.85)',
+          padding: '4px 8px',
+          borderRadius: 4,
+          border: '1px solid #c4a87a',
+          userSelect: 'none',
+        }}
+      >
         {mode === 'parchment' ? 'Parchment' : 'Kubelka-Munk'} [Tab]
       </div>
 

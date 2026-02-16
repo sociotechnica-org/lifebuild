@@ -228,7 +228,7 @@ export function createParchmentMaterial(): THREE.ShaderMaterial {
 
       // Strengths / intensities
       uSageStrength: { value: 0.35 },
-      uStainStrength: { value: 0.30 },
+      uStainStrength: { value: 0.3 },
       uPoolLightStrength: { value: 0.25 },
       uPoolDarkStrength: { value: 0.15 },
       uWetEdgeStrength: { value: 0.03 },
