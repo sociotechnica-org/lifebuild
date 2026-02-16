@@ -254,4 +254,50 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     )
     expect(errorResponseEvents.length).toBe(1)
   })
+
+  it('should emit only one assistant response when the agentic loop errors', async () => {
+    const storeId = 'test-store'
+
+    eventProcessor.startMonitoring(storeId, mockStore as any)
+
+    const sentry = await import('@sentry/node')
+    ;(sentry as any).logger = {
+      info: vi.fn(),
+      error: vi.fn(),
+    }
+
+    const tableUpdateCallback = tableUpdateCallbacks.get('monitor-chatMessages-test-store')
+    expect(tableUpdateCallback).toBeDefined()
+
+    // Force a deterministic fatal LLM error for this test.
+    const storeState = (eventProcessor as any).storeStates.get(storeId)
+    storeState.llmProvider = {
+      call: vi.fn().mockRejectedValue(new Error('Simulated LLM failure')),
+    }
+
+    mockStore.commit.mockClear()
+
+    const failingMessage = {
+      id: 'msg-fatal-error',
+      conversationId: 'conv-fatal',
+      message: 'trigger failure',
+      role: 'user',
+      createdAt: new Date(),
+    }
+
+    tableUpdateCallback!([failingMessage])
+
+    // Allow async processing and loop callbacks to flush.
+    await new Promise(resolve => setImmediate(resolve))
+    await new Promise(resolve => setImmediate(resolve))
+    await new Promise(resolve => setImmediate(resolve))
+
+    const responsesForMessage = (mockStore.commit as any).mock.calls.filter(
+      (call: any) =>
+        call[0]?.name === 'v1.LLMResponseReceived' &&
+        call[0]?.args?.responseToMessageId === failingMessage.id
+    )
+
+    expect(responsesForMessage.length).toBe(1)
+  })
 })

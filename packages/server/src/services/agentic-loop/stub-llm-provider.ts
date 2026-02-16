@@ -16,7 +16,8 @@ type MatchType = 'exact' | 'includes' | 'regex'
 
 interface StubResponseRule {
   match: string
-  response: string
+  response?: string
+  error?: string
   matchType?: MatchType
   toolCalls?: ToolCall[]
 }
@@ -119,28 +120,43 @@ export class StubLLMProvider implements LLMProvider {
 
     const userContent = lastUserMessage?.content ?? ''
     const resolved = this.resolveResponse(userContent)
+    if (resolved.error) {
+      throw new Error(resolved.error)
+    }
 
     return {
-      message: resolved.message,
+      message: resolved.message ?? '',
       toolCalls: resolved.toolCalls ?? [],
     }
   }
 
-  private resolveResponse(message: string): { message: string; toolCalls?: ToolCall[] } {
+  private resolveResponse(message: string): {
+    message?: string
+    toolCalls?: ToolCall[]
+    error?: string
+  } {
     const responses = this.config.responses ?? []
 
     for (const rule of responses) {
-      if (!rule?.match || typeof rule.response !== 'string') continue
+      const hasResponse = typeof rule.response === 'string'
+      const hasError = typeof rule.error === 'string'
+      if (!rule?.match || (!hasResponse && !hasError)) continue
       const matchType = rule.matchType ?? 'exact'
+      const resolved = () => {
+        if (hasError) {
+          return { error: renderTemplate(rule.error!, message) }
+        }
+        return {
+          message: renderTemplate(rule.response!, message),
+          toolCalls: rule.toolCalls,
+        }
+      }
 
       if (matchType === 'regex') {
         try {
           const regex = new RegExp(rule.match)
           if (regex.test(message)) {
-            return {
-              message: renderTemplate(rule.response, message),
-              toolCalls: rule.toolCalls,
-            }
+            return resolved()
           }
         } catch (error) {
           logger.warn({ error, match: rule.match }, 'Invalid regex in stub rule')
@@ -150,19 +166,13 @@ export class StubLLMProvider implements LLMProvider {
 
       if (matchType === 'includes') {
         if (message.includes(rule.match)) {
-          return {
-            message: renderTemplate(rule.response, message),
-            toolCalls: rule.toolCalls,
-          }
+          return resolved()
         }
         continue
       }
 
       if (message === rule.match) {
-        return {
-          message: renderTemplate(rule.response, message),
-          toolCalls: rule.toolCalls,
-        }
+        return resolved()
       }
     }
 

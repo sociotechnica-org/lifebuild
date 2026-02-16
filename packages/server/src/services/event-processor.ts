@@ -1346,7 +1346,7 @@ export class EventProcessor {
           )
 
           // DIAGNOSTIC: Also try Sentry's direct logging API
-          Sentry.logger.error('DIAGNOSTIC: Agentic loop error (Sentry.logger direct)', {
+          Sentry.logger?.error?.('DIAGNOSTIC: Agentic loop error (Sentry.logger direct)', {
             errorMessage: error.message,
             errorType: classified.type,
             iteration,
@@ -1424,7 +1424,7 @@ export class EventProcessor {
     )
 
     // DIAGNOSTIC: Also try Sentry's direct logging API (bypasses pino entirely)
-    Sentry.logger.info('DIAGNOSTIC: Starting agentic loop (Sentry.logger direct)', {
+    Sentry.logger?.info?.('DIAGNOSTIC: Starting agentic loop (Sentry.logger direct)', {
       storeId,
       messageId: userMessage.id,
       correlationId,
@@ -1451,7 +1451,7 @@ export class EventProcessor {
     )
 
     // DIAGNOSTIC: Also try Sentry's direct logging API
-    Sentry.logger.info('DIAGNOSTIC: Agentic loop completed (Sentry.logger direct)', {
+    Sentry.logger?.info?.('DIAGNOSTIC: Agentic loop completed (Sentry.logger direct)', {
       storeId,
       messageId: userMessage.id,
       correlationId,

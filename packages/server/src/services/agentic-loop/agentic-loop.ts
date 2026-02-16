@@ -185,6 +185,7 @@ export class AgenticLoop {
 
     // Run the loop
     let completedSuccessfully = false
+    let terminatedWithError = false
     let retryAttempts = 0 // Track retry attempts across the retry cycle (persists across iteration decrements)
     for (let iteration = 1; iteration <= this.maxIterations; iteration++) {
       const iterationStartTime = Date.now()
@@ -406,16 +407,14 @@ export class AgenticLoop {
         }
 
         this.events.onError?.(classified.error, iteration)
-
-        // Send user-friendly error message
-        this.events.onFinalMessage?.(classified.userMessage)
         this.events.onComplete?.(iteration)
+        terminatedWithError = true
         break
       }
     }
 
     // Only report max iterations error if we didn't complete successfully
-    if (!completedSuccessfully) {
+    if (!completedSuccessfully && !terminatedWithError) {
       log.warn(
         { maxIterations: this.maxIterations, toolCallHistory: toolCallHistory.slice(-5) },
         `Hit max iterations - loop may be incomplete`
