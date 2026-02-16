@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { hexToWorld } from '../hex/math.js'
 import type { HexCoord } from '../hex/types.js'
@@ -87,6 +87,13 @@ export function HexCell({ coord, isSelected, hasUnit, onClick }: HexCellProps) {
     u.uGrainIntensity.value = k.grainIntensity
     u.uEdgeDarkening.value = k.edgeDarkening
   }
+
+  // Reset cursor on unmount so it doesn't stay stuck as 'pointer'
+  useEffect(() => {
+    return () => {
+      document.body.style.cursor = 'default'
+    }
+  }, [])
 
   return (
     <group position={[x, 0, z]}>

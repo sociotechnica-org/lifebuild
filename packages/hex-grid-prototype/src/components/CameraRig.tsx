@@ -17,7 +17,11 @@ export function CameraRig() {
   const zoom = useRef(INITIAL_ZOOM)
   const elevation = useGameState(s => s.cameraElevation)
 
+  const { gl } = useThree()
+
   useEffect(() => {
+    const canvas = gl.domElement
+
     const onKeyDown = (e: KeyboardEvent) => {
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
         e.preventDefault()
@@ -27,6 +31,9 @@ export function CameraRig() {
     const onKeyUp = (e: KeyboardEvent) => {
       keys.current.delete(e.key)
     }
+    const onBlur = () => {
+      keys.current.clear()
+    }
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
       const delta = e.deltaY * ZOOM_SPEED
@@ -35,13 +42,15 @@ export function CameraRig() {
 
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
-    window.addEventListener('wheel', onWheel, { passive: false })
+    window.addEventListener('blur', onBlur)
+    canvas.addEventListener('wheel', onWheel, { passive: false })
     return () => {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
-      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('blur', onBlur)
+      canvas.removeEventListener('wheel', onWheel)
     }
-  }, [])
+  }, [gl])
 
   useFrame((_, delta) => {
     const ortho = camera as THREE.OrthographicCamera

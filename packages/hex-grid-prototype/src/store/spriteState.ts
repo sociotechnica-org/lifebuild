@@ -64,11 +64,28 @@ export const useSpriteState = create<SpriteState>((set, get) => ({
 
   pickUp: id => set({ heldSpriteId: id }),
 
-  drop: coord =>
-    set(s => ({
-      heldSpriteId: null,
-      sprites: s.sprites.map(sp => (sp.id === s.heldSpriteId ? { ...sp, coord } : sp)),
-    })),
+  drop: coord => {
+    const { sprites, heldSpriteId } = get()
+    const occupied = sprites.find(sp => sp.id !== heldSpriteId && hexEquals(sp.coord, coord))
+    if (occupied) {
+      // Swap: move occupying sprite to where the held sprite was
+      const heldSprite = sprites.find(sp => sp.id === heldSpriteId)
+      const heldOrigin = heldSprite?.coord
+      set(s => ({
+        heldSpriteId: null,
+        sprites: s.sprites.map(sp => {
+          if (sp.id === s.heldSpriteId) return { ...sp, coord }
+          if (sp.id === occupied.id && heldOrigin) return { ...sp, coord: heldOrigin }
+          return sp
+        }),
+      }))
+    } else {
+      set(s => ({
+        heldSpriteId: null,
+        sprites: s.sprites.map(sp => (sp.id === s.heldSpriteId ? { ...sp, coord } : sp)),
+      }))
+    }
+  },
 
   cancel: () => set({ heldSpriteId: null }),
 
