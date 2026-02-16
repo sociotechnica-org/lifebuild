@@ -1,0 +1,471 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Factory Dashboard — Release 1: The Campfire
+# Queries GitHub Project board #4 and displays factory metrics.
+# Appends a snapshot to .context/factory-snapshots.jsonl for historical tracking.
+#
+# Usage:
+#   ./scripts/factory-dashboard           # Full dashboard + snapshot
+#   ./scripts/factory-dashboard --json    # Raw JSON snapshot to stdout
+#   ./scripts/factory-dashboard --quiet   # Snapshot only, no display
+
+# ─── Config ──────────────────────────────────────────────────────────────────
+PROJECT_NUMBER=4
+ORG="sociotechnica-org"
+BAR_WIDTH=12
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+SNAPSHOT_FILE="${FACTORY_SNAPSHOT_FILE:-$REPO_ROOT/.context/factory-snapshots.jsonl}"
+
+# ─── Args ────────────────────────────────────────────────────────────────────
+MODE="display"
+for arg in "$@"; do
+  case "$arg" in
+    --json)  MODE="json" ;;
+    --quiet) MODE="quiet" ;;
+    --help)  echo "Usage: factory-dashboard [--json|--quiet]"; exit 0 ;;
+  esac
+done
+
+# ─── Colors (disabled if not a terminal) ─────────────────────────────────────
+if [[ -t 1 ]]; then
+  BOLD='\033[1m'
+  DIM='\033[2m'
+  RED='\033[0;31m'
+  GREEN='\033[0;32m'
+  YELLOW='\033[0;33m'
+  CYAN='\033[0;36m'
+  NC='\033[0m'
+else
+  BOLD='' DIM='' RED='' GREEN='' YELLOW='' CYAN='' NC=''
+fi
+
+# ─── Fetch data from GitHub Project board ────────────────────────────────────
+fetch_data() {
+  gh api graphql -f query='
+  {
+    organization(login: "'"$ORG"'") {
+      projectV2(number: '"$PROJECT_NUMBER"') {
+        title
+        items(first: 50) {
+          nodes {
+            fieldValues(first: 10) {
+              nodes {
+                ... on ProjectV2ItemFieldSingleSelectValue {
+                  name
+                  field { ... on ProjectV2SingleSelectField { name } }
+                }
+                ... on ProjectV2ItemFieldTextValue {
+                  text
+                  field { ... on ProjectV2Field { name } }
+                }
+              }
+            }
+            content {
+              ... on Issue {
+                title
+                number
+                state
+                body
+                createdAt
+                closedAt
+              }
+              ... on DraftIssue {
+                title
+                body
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  '
+}
+
+# ─── Transform raw GraphQL to clean JSON array ──────────────────────────────
+transform() {
+  jq '[
+    .data.organization.projectV2.items.nodes[] |
+    select(.content.title != null) |
+    {
+      title: .content.title,
+      number: (.content.number // null),
+      state: (.content.state // null),
+      body: (.content.body // ""),
+      createdAt: (.content.createdAt // null),
+      closedAt: (.content.closedAt // null),
+      station: ([.fieldValues.nodes[] | select(.field.name == "Station") | .name] | first // null),
+      flowState: ([.fieldValues.nodes[] | select(.field.name == "Flow State") | .name] | first // null),
+      status: ([.fieldValues.nodes[] | select(.field.name == "Status") | .name] | first // null),
+      takt: ([.fieldValues.nodes[] | select(.field.name == "Takt") | .name] | first // null)
+    }
+  ]'
+}
+
+# ─── Extract blockers from issue body ────────────────────────────────────────
+# Parses the "Blocked by" section and returns comma-separated blocker names
+extract_blockers_jq='
+  def extract_blockers:
+    (.body // "") |
+    split("locked by") |
+    if length > 1 then
+      .[1] |
+      split("\n## ")[0] | split("\n**")[0] |
+      [split("\n")[] | select(test("^\\s*-\\s+"))] |
+      map(
+        gsub("^\\s*-\\s+"; "") |
+        gsub("\\s*\\(.*$"; "") |
+        gsub("^\\s+|\\s+$"; "")
+      ) |
+      map(select(length > 0))
+    else [] end;
+'
+
+# ─── Bar chart renderer ─────────────────────────────────────────────────────
+bar() {
+  local value=$1
+  local max=$2
+  local width=${3:-$BAR_WIDTH}
+  local filled=0
+  if [[ $max -gt 0 ]]; then
+    filled=$(( (value * width + max - 1) / max ))
+  fi
+  if [[ $filled -gt $width ]]; then filled=$width; fi
+  local empty=$(( width - filled ))
+  local b=""
+  for ((i=0; i<filled; i++)); do b+="█"; done
+  for ((i=0; i<empty; i++)); do b+="░"; done
+  echo "$b"
+}
+
+# ─── Section: Header ────────────────────────────────────────────────────────
+show_header() {
+  local ts
+  ts=$(date -u '+%Y-%m-%d %H:%M UTC')
+  printf "\n${BOLD}FACTORY DASHBOARD${NC} — Release 1: The Campfire\n"
+  printf "${DIM}%s${NC}\n" "$ts"
+  printf "================================================================\n"
+}
+
+# ─── Section: WIP Balance ───────────────────────────────────────────────────
+show_wip_balance() {
+  local items="$1"
+  local total
+  total=$(echo "$items" | jq '[.[] | select(.station != null)] | length')
+  local max_station
+  max_station=$(echo "$items" | jq '
+    [.[] | select(.station != null)] | group_by(.station) | map(length) | max // 1
+  ')
+
+  printf "\n${BOLD}WIP BALANCE${NC}"
+  printf "%*s" $(( 53 - 11 )) ""
+  printf "${DIM}%s items${NC}\n" "$total"
+  printf "────────────────────────────────────────────────────────────────\n"
+
+  for station in DECIDE PATCH MAKE SHAPE; do
+    local count queued blocked on_line shipped review rework
+    count=$(echo "$items" | jq "[.[] | select(.station == \"$station\")] | length")
+    queued=$(echo "$items" | jq "[.[] | select(.station == \"$station\" and .flowState == \"Queued\")] | length")
+    blocked=$(echo "$items" | jq "[.[] | select(.station == \"$station\" and .flowState == \"Blocked (Andon)\")] | length")
+    on_line=$(echo "$items" | jq "[.[] | select(.station == \"$station\" and .flowState == \"On the Line\")] | length")
+    shipped=$(echo "$items" | jq "[.[] | select(.station == \"$station\" and .flowState == \"Shipped\")] | length")
+    review=$(echo "$items" | jq "[.[] | select(.station == \"$station\" and (.flowState == \"QC Gate\" or .flowState == \"Review\"))] | length")
+    rework=$(echo "$items" | jq "[.[] | select(.station == \"$station\" and .flowState == \"Rework\")] | length")
+
+    local b
+    b=$(bar "$count" "$max_station")
+
+    # Build detail string
+    local parts=()
+    [[ $queued -gt 0 ]]   && parts+=("${queued} queued")
+    [[ $on_line -gt 0 ]]  && parts+=("${on_line} active")
+    [[ $review -gt 0 ]]   && parts+=("${review} review")
+    [[ $rework -gt 0 ]]   && parts+=("${rework} rework")
+    [[ $blocked -gt 0 ]]  && parts+=("${blocked} blocked")
+    [[ $shipped -gt 0 ]]  && parts+=("${shipped} shipped")
+
+    local detail=""
+    for i in "${!parts[@]}"; do
+      [[ $i -gt 0 ]] && detail+=", "
+      local p="${parts[$i]}"
+      if [[ "$p" == *"blocked"* ]]; then
+        detail+="${RED}${p}${NC}"
+      elif [[ "$p" == *"shipped"* ]]; then
+        detail+="${GREEN}${p}${NC}"
+      elif [[ "$p" == *"active"* ]]; then
+        detail+="${CYAN}${p}${NC}"
+      else
+        detail+="$p"
+      fi
+    done
+
+    printf "  ${BOLD}%-7s${NC} %s  %-3s  (%b)\n" "$station" "$b" "$count" "$detail"
+  done
+}
+
+# ─── Section: Blocked (Andon) ───────────────────────────────────────────────
+show_blocked() {
+  local items="$1"
+  local total blocked_count pct
+  total=$(echo "$items" | jq '[.[] | select(.station != null)] | length')
+  blocked_count=$(echo "$items" | jq '[.[] | select(.flowState == "Blocked (Andon)")] | length')
+  if [[ $total -gt 0 ]]; then
+    pct=$(( blocked_count * 100 / total ))
+  else
+    pct=0
+  fi
+
+  # Health rating
+  local health
+  if [[ $blocked_count -le 1 ]]; then
+    health="${GREEN}HEALTHY${NC}"
+  elif [[ $blocked_count -le 3 ]]; then
+    health="${YELLOW}WATCH${NC}"
+  else
+    health="${RED}UNHEALTHY${NC}"
+  fi
+
+  printf "\n${BOLD}BLOCKED (ANDON)${NC}"
+  printf "%*s" $(( 41 - 15 )) ""
+  printf "${BOLD}%s/%s (%s%%)${NC}\n" "$blocked_count" "$total" "$pct"
+  printf "────────────────────────────────────────────────────────────────\n"
+  printf "  %b  (target: 0-1)\n" "$health"
+
+  if [[ $blocked_count -gt 0 ]]; then
+    printf "\n"
+    echo "$items" | jq -r "$extract_blockers_jq"'
+      [.[] | select(.flowState == "Blocked (Andon)")] |
+      sort_by(.station) |
+      .[] |
+      {
+        number: (.number // 0),
+        title: (.title | if length > 36 then .[:33] + "..." else . end),
+        station,
+        blockers: (extract_blockers | join(", "))
+      } |
+      "\(.number)\t\(.title)\t\(.station)\t\(.blockers)"
+    ' | while IFS=$'\t' read -r num title station blockers; do
+      if [[ -n "$blockers" ]]; then
+        printf "  ${DIM}#%-4s${NC} %-38s ${DIM}%-6s${NC} <- %s\n" "$num" "$title" "$station" "$blockers"
+      else
+        printf "  ${DIM}#%-4s${NC} %-38s ${DIM}%-6s${NC}\n" "$num" "$title" "$station"
+      fi
+    done
+  fi
+}
+
+# ─── Section: Decision Queue ────────────────────────────────────────────────
+show_decisions() {
+  local items="$1"
+  local decide_total decided
+  decide_total=$(echo "$items" | jq '[.[] | select(.station == "DECIDE")] | length')
+  decided=$(echo "$items" | jq '[.[] | select(.station == "DECIDE" and (.flowState == "Shipped" or .state == "CLOSED"))] | length')
+
+  printf "\n${BOLD}DECISION QUEUE${NC}"
+  printf "%*s" $(( 44 - 14 )) ""
+  printf "${BOLD}%s/%s decided${NC}\n" "$decided" "$decide_total"
+  printf "────────────────────────────────────────────────────────────────\n"
+
+  echo "$items" | jq -r '
+    [.[] | select(.station == "DECIDE")] |
+    sort_by(
+      if .flowState == "Shipped" then 0
+      elif .flowState == "On the Line" then 1
+      elif .flowState == "Queued" then 2
+      elif .flowState == "Blocked (Andon)" then 3
+      else 4 end
+    ) |
+    .[] |
+    "\(.flowState // "—")\t#\(.number // 0)\t\(.title | if length > 36 then .[:33] + "..." else . end)\t\(.takt // "—")"
+  ' | while IFS=$'\t' read -r flow num title takt; do
+    local color label
+    case "$flow" in
+      "Shipped")          color="$GREEN";  label="DECIDED" ;;
+      "On the Line")      color="$CYAN";   label="ACTIVE " ;;
+      "Queued")           color="$YELLOW"; label="READY  " ;;
+      "Blocked (Andon)")  color="$RED";    label="BLOCKED" ;;
+      *)                  color="$DIM";    label="BACKLOG" ;;
+    esac
+    printf "  %b%s%b  %-6s  %-38s  ${DIM}%s${NC}\n" "$color" "$label" "$NC" "$num" "$title" "$takt"
+  done
+}
+
+# ─── Section: Takt Load ─────────────────────────────────────────────────────
+show_takt() {
+  local items="$1"
+  local max_takt
+  max_takt=$(echo "$items" | jq '
+    [.[] | select(.takt != null and .station != null)] |
+    group_by(.takt) | map(length) | max // 1
+  ')
+
+  printf "\n${BOLD}TAKT LOAD${NC}\n"
+  printf "────────────────────────────────────────────────────────────────\n"
+
+  echo "$items" | jq -r '
+    [.[] | select(.takt != null and .station != null)] |
+    group_by(.takt) |
+    map({
+      takt: .[0].takt,
+      total: length,
+      breakdown: (group_by(.station) | map("\(length) \(.[0].station)") | join(", "))
+    }) |
+    sort_by(-.total) |
+    .[] |
+    "\(.takt)\t\(.total)\t\(.breakdown)"
+  ' | while IFS=$'\t' read -r takt total breakdown; do
+    local b
+    b=$(bar "$total" "$max_takt")
+    printf "  ${BOLD}%-9s${NC} %s  %-3s  ${DIM}(%s)${NC}\n" "$takt" "$b" "$total" "$breakdown"
+  done
+}
+
+# ─── Section: Highest-Leverage Moves ────────────────────────────────────────
+show_leverage() {
+  local items="$1"
+  local blocked_count
+  blocked_count=$(echo "$items" | jq '[.[] | select(.flowState == "Blocked (Andon)")] | length')
+
+  if [[ $blocked_count -eq 0 ]]; then
+    return
+  fi
+
+  printf "\n${BOLD}HIGHEST-LEVERAGE MOVES${NC}\n"
+  printf "────────────────────────────────────────────────────────────────\n"
+
+  # Extract D-references (D1, D5, D7, etc.) from all blocked items' blocker text
+  # and count how many blocked items reference each decision
+  local leverage
+  leverage=$(echo "$items" | jq -r "$extract_blockers_jq"'
+    [.[] | select(.flowState == "Blocked (Andon)")] |
+    [.[] |
+      . as $item |
+      extract_blockers |
+      [.[] | [scan("D[0-9]+")] | .[]] |
+      unique |
+      .[] |
+      {d: ., item_title: $item.title}
+    ] |
+    group_by(.d) |
+    map({
+      decision: .[0].d,
+      count: length,
+      unblocks: ([.[].item_title] | unique | join("; "))
+    }) |
+    sort_by(-.count) |
+    .[] |
+    "\(.decision)\t\(.count)\t\(.unblocks)"
+  ')
+
+  if [[ -n "$leverage" ]]; then
+    printf "  ${DIM}Decisions (resolve these to unblock builds):${NC}\n\n"
+    echo "$leverage" | while IFS=$'\t' read -r decision count unblocks; do
+      printf "  ${BOLD}%s${NC} — resolving unblocks ${BOLD}%s${NC} items\n" "$decision" "$count"
+      printf "    ${DIM}%s${NC}\n\n" "$unblocks"
+    done
+  fi
+
+  # Also show non-decision build items that block multiple others
+  local build_blockers
+  build_blockers=$(echo "$items" | jq -r "$extract_blockers_jq"'
+    [.[] | select(.flowState == "Blocked (Andon)")] |
+    [.[] |
+      . as $item |
+      extract_blockers |
+      [.[] | select(test("^D[0-9]") | not)] |
+      .[] |
+      {blocker: ., item_title: $item.title}
+    ] |
+    group_by(.blocker) |
+    map({
+      blocker: .[0].blocker,
+      count: length,
+      unblocks: ([.[].item_title] | unique | join("; "))
+    }) |
+    sort_by(-.count) |
+    .[] | select(.count > 1) |
+    "\(.blocker)\t\(.count)\t\(.unblocks)"
+  ')
+
+  if [[ -n "$build_blockers" ]]; then
+    printf "  ${DIM}Build dependencies (complete these to unblock downstream):${NC}\n\n"
+    echo "$build_blockers" | while IFS=$'\t' read -r blocker count unblocks; do
+      printf "  ${BOLD}%s${NC} — blocks ${BOLD}%s${NC} items\n" "$blocker" "$count"
+      printf "    ${DIM}%s${NC}\n\n" "$unblocks"
+    done
+  fi
+}
+
+# ─── Snapshot ────────────────────────────────────────────────────────────────
+save_snapshot() {
+  local items="$1"
+
+  mkdir -p "$(dirname "$SNAPSHOT_FILE")"
+
+  local snapshot
+  snapshot=$(echo "$items" | jq -c '{
+    timestamp: (now | todate),
+    wip: (
+      [.[] | select(.station != null)] |
+      group_by(.station) |
+      map({key: .[0].station, value: length}) |
+      from_entries
+    ),
+    byFlowState: (
+      [.[] | select(.flowState != null)] |
+      group_by(.flowState) |
+      map({key: .[0].flowState, value: length}) |
+      from_entries
+    ),
+    byTakt: (
+      [.[] | select(.takt != null)] |
+      group_by(.takt) |
+      map({key: .[0].takt, value: length}) |
+      from_entries
+    ),
+    blocked: ([.[] | select(.flowState == "Blocked (Andon)")] | length),
+    total: ([.[] | select(.station != null)] | length),
+    decisions: {
+      total: ([.[] | select(.station == "DECIDE")] | length),
+      resolved: ([.[] | select(.station == "DECIDE" and (.flowState == "Shipped" or .state == "CLOSED"))] | length)
+    },
+    items: [.[] | select(.station != null) | {number, title, station, flowState, takt, state}]
+  }')
+
+  echo "$snapshot" >> "$SNAPSHOT_FILE"
+
+  if [[ "$MODE" == "display" ]]; then
+    printf "\n${DIM}Snapshot saved -> %s${NC}\n" "$SNAPSHOT_FILE"
+  fi
+}
+
+# ─── Main ────────────────────────────────────────────────────────────────────
+main() {
+  # Fetch and transform
+  local raw_data items
+  raw_data=$(fetch_data)
+  items=$(echo "$raw_data" | transform)
+
+  case "$MODE" in
+    json)
+      echo "$items" | jq .
+      ;;
+    quiet)
+      save_snapshot "$items"
+      echo "Snapshot saved -> $SNAPSHOT_FILE"
+      ;;
+    display)
+      show_header "$items"
+      show_wip_balance "$items"
+      show_blocked "$items"
+      show_decisions "$items"
+      show_takt "$items"
+      show_leverage "$items"
+      save_snapshot "$items"
+      printf "\n"
+      ;;
+  esac
+}
+
+main "$@"
