@@ -69,14 +69,14 @@ Same as Status Report. Get current state.
 
 What's the presenting problem? Common symptoms:
 
-| Symptom | What to investigate |
-|---------|-------------------|
-| High blocked count (5+) | Shared root cause — are they all waiting on the same decision? |
-| WIP piled at DECIDE | Decision starvation — factory is starving downstream |
-| WIP piled at MAKE | Either DECIDE is feeding well (good) or items are stuck in review/rework (bad) |
-| Zero items at a station | That station is either empty (starved) or cleared (healthy) |
-| High rework count | Specs are unclear — DECIDE or PATCH isn't doing enough work |
-| Velocity at zero | Nothing is moving — look for systemic blockers |
+| Symptom                 | What to investigate                                                            |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| High blocked count (5+) | Shared root cause — are they all waiting on the same decision?                 |
+| WIP piled at DECIDE     | Decision starvation — factory is starving downstream                           |
+| WIP piled at MAKE       | Either DECIDE is feeding well (good) or items are stuck in review/rework (bad) |
+| Zero items at a station | That station is either empty (starved) or cleared (healthy)                    |
+| High rework count       | Specs are unclear — DECIDE or PATCH isn't doing enough work                    |
+| Velocity at zero        | Nothing is moving — look for systemic blockers                                 |
 
 ### Step 3: Trace the cause
 
@@ -89,13 +89,13 @@ Follow the dependency chain backward from blocked items. Use the "Highest-Levera
 
 ### Step 4: Classify the problem
 
-| Problem Type | Description | Fix |
-|-------------|-------------|-----|
-| Decision starvation | DECIDE queue growing, nothing moving | Human needs to make calls |
-| Patch bottleneck | Library cards are wrong, builders are building against bad specs | Run Conan + Bob on PATCH items |
-| Build dependency chain | MAKE items waiting on other MAKE items | Sequence builds correctly |
-| Spec quality | High rework rate, ECOs | DECIDE and PATCH need more rigor |
-| Resource mismatch | One takt overloaded, another idle | Redistribute work |
+| Problem Type           | Description                                                      | Fix                              |
+| ---------------------- | ---------------------------------------------------------------- | -------------------------------- |
+| Decision starvation    | DECIDE queue growing, nothing moving                             | Human needs to make calls        |
+| Patch bottleneck       | Library cards are wrong, builders are building against bad specs | Run Conan + Bob on PATCH items   |
+| Build dependency chain | MAKE items waiting on other MAKE items                           | Sequence builds correctly        |
+| Spec quality           | High rework rate, ECOs                                           | DECIDE and PATCH need more rigor |
+| Resource mismatch      | One takt overloaded, another idle                                | Redistribute work                |
 
 ### Step 5: Prescribe
 
@@ -116,6 +116,7 @@ Get current state, blocked items, leverage analysis.
 ### Step 2: Identify available resources
 
 Ask (or infer from Takt field):
+
 - Who is available? (Danvers, Jess, AI)
 - How much time? (quick session vs full day)
 
@@ -140,6 +141,7 @@ For each available resource, assign specific items with clear next actions. Form
 ### Step 5: Flag risks
 
 Note anything that could derail the plan:
+
 - Items with unclear scope
 - Decisions that might cascade into more decisions
 - Build items that might reveal new blockers
@@ -195,12 +197,12 @@ DECIDE ──► PATCH ──► MAKE ──► (shipped)
 
 Short. Direct. Practical. Like a foreman on a floor, not a consultant in a meeting.
 
-| Context | Style |
-|---------|-------|
-| Things are fine | "Floor looks clean. Hex Grid and Agent Cleanup are ready to run. No blockers on those." |
-| Something's wrong | "You've got 7 items blocked and zero decisions shipped. The factory is waiting on you." |
-| Recommending | "D5 first. It unblocks D6, which unblocks Steward Prompts, which unblocks the Campfire. That's the critical path." |
-| Planning | "Danvers: D5 and D7 — two decisions, should take an hour. Jess: review Agent Cleanup when it's ready. AI: start Hex Grid and Agent Cleanup now, they're clear." |
+| Context           | Style                                                                                                                                                           |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Things are fine   | "Floor looks clean. Hex Grid and Agent Cleanup are ready to run. No blockers on those."                                                                         |
+| Something's wrong | "You've got 7 items blocked and zero decisions shipped. The factory is waiting on you."                                                                         |
+| Recommending      | "D5 first. It unblocks D6, which unblocks Steward Prompts, which unblocks the Campfire. That's the critical path."                                              |
+| Planning          | "Danvers: D5 and D7 — two decisions, should take an hour. Jess: review Agent Cleanup when it's ready. AI: start Hex Grid and Agent Cleanup now, they're clear." |
 
 Never say "I recommend considering..." Say "Do this."
 Never say "It might be helpful to..." Say "Start here."

@@ -15,6 +15,7 @@
 ### Step 2: Determine available resources
 
 Ask or infer:
+
 - **Who is available?** Check Takt field. Common resources: Danvers (product/design), Jess (architecture), AI (Conductor workspaces).
 - **How much time?** Quick session (1-2 hours), half day (3-4 hours), full day (6+ hours).
 - **Any constraints?** "I can only do decisions today", "I want to focus on SHAPE work", etc.
@@ -65,6 +66,7 @@ Any items in QC Gate or Review flow state:
 For each available resource, create a prioritized task list.
 
 Format:
+
 ```
 ## [Person/Resource]
 
@@ -80,6 +82,7 @@ If time remains:
 ### Step 5: Identify parallel tracks
 
 What can run simultaneously?
+
 - DECIDE (human) + MAKE (AI) always parallel
 - Multiple MAKE items can run in parallel (separate Conductor workspaces)
 - PATCH (AI) can run while human does DECIDE
@@ -88,6 +91,7 @@ What can run simultaneously?
 ### Step 6: Set expectations
 
 For each assigned item, note:
+
 - **Happy path:** What done looks like
 - **Watch for:** What might block or slow it
 - **If stuck:** What to do (skip to next item, escalate, take a different approach)
@@ -155,6 +159,7 @@ Launch in Conductor:
 ### Quick Decision Session (1-2 hours)
 
 Focus: Clear the DECIDE queue.
+
 1. Run dashboard
 2. Pick highest-leverage decisions
 3. Make calls, update issues
@@ -163,6 +168,7 @@ Focus: Clear the DECIDE queue.
 ### Build Sprint (half day)
 
 Focus: Ship MAKE items.
+
 1. Run dashboard
 2. Launch AI builds on all Ready MAKE items
 3. Human reviews as builds complete
@@ -171,6 +177,7 @@ Focus: Ship MAKE items.
 ### Full Factory Day (6+ hours)
 
 Focus: Move items across all stations.
+
 1. Decisions first (1-2 hours)
 2. Launch PATCH + MAKE in parallel
 3. SHAPE work while builds run

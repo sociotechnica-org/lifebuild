@@ -22,19 +22,19 @@ If `.context/factory-snapshots.jsonl` has 2+ entries:
 
 From the dashboard output, record:
 
-| Metric | Value | Rating |
-|--------|-------|--------|
-| WIP Balance | [per-station counts] | [HEALTHY/WATCH/UNHEALTHY] |
-| Blocked Count | [n/total (pct)] | [HEALTHY/WATCH/UNHEALTHY] |
-| Decision Queue | [resolved/total] | [HEALTHY/WATCH/UNHEALTHY] |
-| Takt Load | [per-person counts] | [HEALTHY/WATCH/UNHEALTHY] |
+| Metric         | Value                | Rating                    |
+| -------------- | -------------------- | ------------------------- |
+| WIP Balance    | [per-station counts] | [HEALTHY/WATCH/UNHEALTHY] |
+| Blocked Count  | [n/total (pct)]      | [HEALTHY/WATCH/UNHEALTHY] |
+| Decision Queue | [resolved/total]     | [HEALTHY/WATCH/UNHEALTHY] |
+| Takt Load      | [per-person counts]  | [HEALTHY/WATCH/UNHEALTHY] |
 
 If history is available, add:
 
-| Metric | Value | Trend |
-|--------|-------|-------|
+| Metric            | Value    | Trend                        |
+| ----------------- | -------- | ---------------------------- |
 | Decision Velocity | [n/week] | [improving/stable/declining] |
-| Blocked Trend | [delta] | [improving/stable/worsening] |
+| Blocked Trend     | [delta]  | [improving/stable/worsening] |
 
 Rate each metric using thresholds in `metrics-reference.md`.
 
@@ -53,6 +53,7 @@ What's the single most important thing? Pick one:
 1-3 specific actions. Format: "[Who] should [action] on [item #number] because [reason]."
 
 Priority order:
+
 1. Unblock decisions that have the highest cascade (from Highest-Leverage Moves)
 2. Start builds that are ready with no blockers
 3. Advance SHAPE items that are stalled
@@ -61,6 +62,7 @@ Priority order:
 ### Step 5: Flag risks
 
 Note anything that could get worse if ignored:
+
 - Growing blocked count
 - Decision items sitting at Ready for multiple days
 - Single person as bottleneck for multiple stations
