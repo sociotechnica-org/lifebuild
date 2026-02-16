@@ -88,12 +88,12 @@ Flag during grading, don't halt. Complete grade + note AUDIT SIGNAL.
 | WHAT says "mechanism," "manages state," "processes"               | System                 |
 | WHAT says "specification," "defines values," "must conform"       | Standard               |
 | WHAT says "principle," "guides," "judgment-based"                 | Principle              |
-| Card typed as Room but directors don't navigate TO it             | Structure or Component |
-| Card typed as Structure but directors navigate TO it              | Room                   |
+| Card typed as Room but builders don't navigate TO it             | Structure or Component |
+| Card typed as Structure but builders navigate TO it              | Room                   |
 | Card typed as Room but is top-level workspace                     | Zone                   |
 | Card has no state but constrains other cards                      | Standard               |
 | Card typed as Component but is a content object                   | Artifact               |
-| Card typed as Component but directors don't consciously invoke it | System                 |
+| Card typed as Component but builders don't consciously invoke it | System                 |
 | Card typed as Component but name/description uses action-words    | Capability             |
 | Card typed as Component but describes a process/workflow          | Capability             |
 | Card typed as Structure but persists across all zones             | Overlay                |

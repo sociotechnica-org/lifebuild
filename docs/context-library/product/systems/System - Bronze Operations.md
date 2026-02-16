@@ -8,7 +8,7 @@ The operational workflow governing Bronze stream tasks — mode selection, stack
 
 - Displayed in: [[Component - Bronze Position]]
 - Configured via: [[Room - Sorting Room]] during [[Capability - Weekly Planning]]
-- Agent: [[Agent - Cameron]] — guides mode decisions
+- Agent: [[Agent - Marvin]] — guides mode decisions
 - Implements: [[Standard - Three-Stream Portfolio]] — Bronze stream mechanics
 - Sources: [[Primitive - Project]] (maintenance tasks), [[Primitive - System]] (generated tasks)
 - Implements: [[Standard - Bronze Mode Behaviors]] — mode specifications
@@ -31,7 +31,7 @@ The operational workflow governing Bronze stream tasks — mode selection, stack
 ### State
 
 - **Current Bronze mode**: One of Minimal / Target N / Maximal (selected during Weekly Planning or changed mid-week)
-- **Active stack**: Ordered list of Bronze tasks currently visible to the director
+- **Active stack**: Ordered list of Bronze tasks currently visible to the builder
 - **Stack depth**: Number of tasks populated, governed by mode
 - **Completion count**: Tasks completed this cycle
 
@@ -40,9 +40,9 @@ The operational workflow governing Bronze stream tasks — mode selection, stack
 | From                  | Trigger                                    | To                                   | Side Effects                                          |
 | --------------------- | ------------------------------------------ | ------------------------------------ | ----------------------------------------------------- |
 | No mode selected      | Weekly Planning mode choice                | Mode active (Minimal/Target/Maximal) | Stack populated per mode rules                        |
-| Task visible in stack | Director checks off task                   | Task complete                        | Next task auto-replenishes per priority order         |
-| Mode = Target N       | Director clicks gear icon, selects Maximal | Mode = Maximal                       | Stack expands to show all available Bronze tasks      |
-| Mode = Maximal        | Director clicks gear icon, selects Minimal | Mode = Minimal                       | Stack contracts to due-date and critical items only   |
+| Task visible in stack | Builder checks off task                   | Task complete                        | Next task auto-replenishes per priority order         |
+| Mode = Target N       | Builder clicks gear icon, selects Maximal | Mode = Maximal                       | Stack expands to show all available Bronze tasks      |
+| Mode = Maximal        | Builder clicks gear icon, selects Minimal | Mode = Minimal                       | Stack contracts to due-date and critical items only   |
 | Stack empty           | No more Bronze tasks available             | Stack empty (idle)                   | No replenishment; Bronze position shows "clear" state |
 
 ### Processing Logic
@@ -67,12 +67,12 @@ The operational workflow governing Bronze stream tasks — mode selection, stack
 - Stack updates per mode rules
 - Progress visible on Bronze position
 
-**Constraint:** Bronze never blocks Gold/Silver. Even with 100 Bronze tasks queued, directors have independent transformation slots.
+**Constraint:** Bronze never blocks Gold/Silver. Even with 100 Bronze tasks queued, builders have independent transformation slots.
 
 ### Examples
 
-- A director selects Target +3 during Weekly Planning. The stack populates with 3 Bronze tasks: a bill payment due Thursday, a dentist-appointment system task, and a quick errand. The director completes the bill payment; the stack auto-replenishes with the next highest-priority Bronze item (a home maintenance task from a planted system). The director sees 3 tasks throughout the week without manually searching for what's next.
-- Mid-week, a director's workload spikes at their job. They tap the gear icon on the Bronze position and switch from Target +3 to Minimal. The stack contracts to show only the one item with a hard deadline (car registration due Friday). All other Bronze tasks remain in the queue but stop surfacing. The director handles only what's urgent and returns to Target mode next week.
+- A builder selects Target +3 during Weekly Planning. The stack populates with 3 Bronze tasks: a bill payment due Thursday, a dentist-appointment system task, and a quick errand. The builder completes the bill payment; the stack auto-replenishes with the next highest-priority Bronze item (a home maintenance task from a planted system). The builder sees 3 tasks throughout the week without manually searching for what's next.
+- Mid-week, a builder's workload spikes at their job. They tap the gear icon on the Bronze position and switch from Target +3 to Minimal. The stack contracts to show only the one item with a hard deadline (car registration due Friday). All other Bronze tasks remain in the queue but stop surfacing. The builder handles only what's urgent and returns to Target mode next week.
 
 ### Anti-Examples
 

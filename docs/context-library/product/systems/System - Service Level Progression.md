@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The invisible mechanism governing how AI capabilities evolve based on director engagement over time. Directors don't interact with Service Level Progression directly — they simply use LifeBuild, and the system tracks depth of relationship to unlock progressively better agent performance. Levels reflect genuine system capability growth, not gamification.
+The invisible mechanism governing how AI capabilities evolve based on builder engagement over time. Builders don't interact with Service Level Progression directly — they simply use LifeBuild, and the system tracks depth of relationship to unlock progressively better agent performance. Levels reflect genuine system capability growth, not gamification.
 
 ## WHERE: Scope
 
@@ -13,7 +13,7 @@ The invisible mechanism governing how AI capabilities evolve based on director e
 - Capabilities:
   - [[Capability - Week-in-Review]] — review data feeds level calculation
 - Primitives:
-  - [[Primitive - Director]] — level is a property of the director's account
+  - [[Primitive - Builder]] — level is a property of the builder's account
 - Implements:
   - [[Standard - Service Levels]] — defines level thresholds and capabilities
   - [[Standard - Visual Language]] — level indicators and progress display render per spec
@@ -35,8 +35,8 @@ The invisible mechanism governing how AI capabilities evolve based on director e
 
 - System: [[Standard - Service Levels]] — levels need visibility to motivate
 - Principle: [[Principle - Compound Capability]] — seeing progress reinforces investment
-- Driver: Directors should see their relationship with LifeBuild deepening. Progression makes the invisible visible.
-- Constraints: Progression reflects system capability growth, not director achievement scores. No badges, no leaderboards, no feature locks. Levels are honest about what the system can and cannot yet do.
+- Driver: Builders should see their relationship with LifeBuild deepening. Progression makes the invisible visible.
+- Constraints: Progression reflects system capability growth, not builder achievement scores. No badges, no leaderboards, no feature locks. Levels are honest about what the system can and cannot yet do.
 
 ## WHEN: Timeline
 
@@ -69,10 +69,10 @@ Core system. Progression develops as Service Level mechanics mature.
 
 ### Examples
 
-- New director at Level 0 (Newcomer) -> completes first week of planning and review -> advances to Level 1 (Establishing) -> Jarvis notes: "With a week of history, I can start noticing basic patterns in your preferences" -> capability connection made visible.
-- Director at Level 3 (Developing) for three months -> Jarvis: "I've seen 12 weeks of your planning now. Your calibration is improving — estimates are 20% closer to reality than month one" -> the relationship depth is tangible.
+- New builder at Level 0 (Newcomer) -> completes first week of planning and review -> advances to Level 1 (Establishing) -> Jarvis notes: "With a week of history, I can start noticing basic patterns in your preferences" -> capability connection made visible.
+- Builder at Level 3 (Developing) for three months -> Jarvis: "I've seen 12 weeks of your planning now. Your calibration is improving — estimates are 20% closer to reality than month one" -> the relationship depth is tangible.
 
 ### Anti-Examples
 
 - **Awarding badges for arbitrary engagement metrics** — "You viewed your Life Map 10 times!" is gamification. Progression reflects genuine system capability growth (better predictions, deeper pattern recognition), not click counts.
-- **Gatekeeping features behind level requirements** — levels describe what the system can do for the director, not what the director is allowed to do. All features are available from Day 1. Higher levels unlock better quality, not access.
+- **Gatekeeping features behind level requirements** — levels describe what the system can do for the builder, not what the builder is allowed to do. All features are available from Day 1. Higher levels unlock better quality, not access.

@@ -83,7 +83,7 @@ packages/
 | Convention                              | Rationale                                                                                                                                                |
 | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | LiveStore event sourcing                | Enables real-time sync across clients via WebSocket + Durable Objects. Events are the canonical data model; tables are derived views.                    |
-| Room = Screen + Agent                   | Every navigable screen has a paired AI agent. The `RoomLayout` wrapper provides this coupling. Keeps agent context scoped to what the Director sees.     |
+| Room = Screen + Agent                   | Every navigable screen has a paired AI agent. The `RoomLayout` wrapper provides this coupling. Keeps agent context scoped to what the Builder sees.     |
 | Flat lifecycle state JSON               | Single `projectLifecycleState` column avoids dual-source bugs between separate `attributes` and `status` fields. All planning data lives together.       |
 | CHORUS_TAG over URLs                    | Agents don't know URLs. CHORUS_TAG decouples navigation from routing implementation. `useChorusNavigation` resolves paths at click time.                 |
 | SharedWorker + OPFS                     | Client-side persistence via Origin Private File System. SharedWorker coordinates across tabs. Fallback to single-tab mode when SharedWorker unavailable. |
@@ -297,7 +297,7 @@ These tables and events exist in the schema but are inherited from the prior Wor
 - `documents` / `documentProjects` — Document management
 - `contacts` / `projectContacts` — Contact management
 - `recurringTasks` — Recurring task scheduling
-- `workers` / `workerProjects` / `workerCategories` — Worker agent assignment (Roster Room not yet implemented)
+- `workers` / `workerProjects` / `workerCategories` — Attendant assignment (Roster Room not yet implemented)
 - `columns` / `columnCreated` / `columnRenamed` / `columnDeleted` — Dynamic kanban columns (replaced by fixed `TASK_STATUSES`)
 
 Do not build new features on top of legacy tables. They may be removed in a future cleanup.

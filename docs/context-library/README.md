@@ -48,8 +48,8 @@ Without specification context, agents produce technically correct but contextual
 | Overlays     | 1     | Cross-zone persistent elements (The Table)                 |
 | Structures   | 2     | Spatial/visual fabric (Hex Grid, Kanban Board)             |
 | Components   | 5     | Specific UI widgets                                        |
-| Artifacts    | 2     | Content objects directors create/edit                      |
-| Capabilities | 7     | Actions/workflows directors perform                        |
+| Artifacts    | 2     | Content objects builders create/edit                      |
+| Capabilities | 7     | Actions/workflows builders perform                        |
 | Primitives   | 3     | Core data entities (Project, System, Task)                 |
 | Systems      | 15    | Invisible mechanisms governing behavior                    |
 | Agents       | 14    | AI team members                                            |

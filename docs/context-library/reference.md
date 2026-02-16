@@ -13,7 +13,7 @@ WHY we build things?
 └─ Testable specification → STANDARD
 
 WHAT exists?
-├─ Directors consciously interact?
+├─ Builders consciously interact?
 │   ├─ Navigate TO it?
 │   │   ├─ Top-level workspace → ZONE
 │   │   └─ Nested within a zone → ROOM
@@ -27,6 +27,12 @@ WHAT exists?
 ├─ NO + governs behavior invisibly → SYSTEM
 └─ AI team member → AGENT
     └─ Agent implementation → PROMPT
+
+HOW it feels?
+├─ Repeating engagement cycle → LOOP
+├─ Multi-phase progression arc → JOURNEY
+├─ Target emotional experience → AESTHETIC
+└─ Emergent cross-system behavior → DYNAMIC
 
 WHEN?
 ├─ Historical → LEARNING / DECISION
@@ -45,8 +51,8 @@ WHAT ships?
 - Judgment guidance (a rule of thumb) → Principle
 - Testable spec (concrete rules) → Standard
 
-**Step 2: Do directors consciously interact with this?**
-_Gate: "Do directors say 'I'm using X'?" If NO → skip to Step 3 (System)._
+**Step 2: Do builders consciously interact with this?**
+_Gate: "Do builders say 'I'm using X'?" If NO → skip to Step 3 (System)._
 _Having visible UI effects does not make something a Component._
 
 - Navigate TO it?
@@ -56,8 +62,8 @@ _Having visible UI effects does not make something a Component._
 - Interact WITHIN a zone/room?
   - Spatial canvas/fabric → Structure
   - Specific UI widget you can point at → Component
-  - Content object directors create/edit → Artifact
-  - Action/workflow directors perform → Capability
+  - Content object builders create/edit → Artifact
+  - Action/workflow builders perform → Capability
 - Core data entity → Primitive
 
 **Step 3: Is this invisible infrastructure?**
@@ -69,13 +75,21 @@ _Having visible UI effects does not make something a Component._
 - The agent itself → Agent
 - The agent's implementation → Prompt
 
-**Step 5: Is this temporal?**
+**Step 5: Is this about the experience of using the product?**
+_Gate: These describe how engagement feels over time — rhythms, arcs, emotions, and emergent behaviors._
+
+- Repeating cycle of engagement → Loop
+- Multi-phase progression arc → Journey
+- Target emotional experience for a moment or context → Aesthetic
+- Emergent behavior from multiple systems interacting → Dynamic
+
+**Step 6: Is this temporal?**
 
 - Past insight → Learning
 - Past choice → Decision
 - Future vision → Future
 
-**Step 6: Is this about shipping?**
+**Step 7: Is this about shipping?**
 
 - Shippable scope → Initiative
 - Version marker → Release
@@ -85,9 +99,9 @@ _Having visible UI effects does not make something a Component._
 Apply these checks IN ORDER when classifying. Each gate eliminates common errors.
 
 **Gate 1 — Interaction Test (apply FIRST):**
-"Do directors consciously invoke or say 'I'm using X'?" If NO → System, regardless of visible UI effects.
+"Do builders consciously invoke or say 'I'm using X'?" If NO → System, regardless of visible UI effects.
 
-- Adaptation changes UI progressively → but directors never invoke it → System
+- Adaptation changes UI progressively → but builders never invoke it → System
 - Service Level Progression adjusts tiers → invisible mechanism → System
 
 **Gate 2 — Component Litmus Test:**
@@ -106,15 +120,27 @@ Overlay = visible across ALL zones simultaneously. Persistence within one zone �
 **Gate 4 — Action-words signal Capability:**
 Verbs and process-words (zooming, filtering, planning, navigating, reviewing) → Capability, not Component.
 
+**Gate 5 — Experience types describe HOW it feels, not WHAT exists:**
+Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience over time — not the product's structure.
+
+- Loop vs. Capability: A Capability is a single action. A Loop is a repeating cycle that may contain multiple capabilities. "Three-Stream Filtering" is a Capability. "The Expedition Cycle" (Assess → Commit → Execute → Return) is a Loop.
+- Journey vs. System: A System is invisible infrastructure. A Journey is a consciously experienced progression arc. Service Level Progression is a System (the builder doesn't invoke it). The Onboarding Journey is a Journey (the builder lives through its phases).
+- Aesthetic vs. Principle: A Principle guides builder (team) judgment. An Aesthetic targets builder (user) feelings. "Earn Don't Interrogate" is a Principle. "Coming home to my sanctuary" is an Aesthetic.
+- Dynamic vs. System: A System is designed infrastructure. A Dynamic is anticipated emergent behavior from systems interacting. The Priority Queue is a System. Bronze Flood (too many systems planted too fast) is a Dynamic.
+
 #### Common Misclassifications
 
 | Often Misclassified As | Actually   | Example                                 | Reasoning                                          |
 | ---------------------- | ---------- | --------------------------------------- | -------------------------------------------------- |
-| Component              | System     | Adaptation, Service Level Progression   | Directors don't invoke it — fails Interaction Test |
+| Component              | System     | Adaptation, Service Level Progression   | Builders don't invoke it — fails Interaction Test |
 | Component              | Capability | Zoom Navigation, Three-Stream Filtering | Action/workflow, not a pointable widget            |
 | Component              | System     | Clustering, Bronze Stack                | Mechanism with state, not a UI widget              |
 | Structure              | Overlay    | The Table                               | Persists across ALL zones                          |
-| Component              | Capability | Purpose Assignment, System Actions      | Workflow directors perform                         |
+| Component              | Capability | Purpose Assignment, System Actions      | Workflow builders perform                         |
+| Capability             | Loop       | Weekly Planning rhythm                  | Not a single action — repeating cycle              |
+| System                 | Dynamic    | Bronze Flood, Rest Deficit Spiral       | Not designed — emergent from system interaction     |
+| Principle              | Aesthetic  | "Coming home to my sanctuary"           | Not judgment guidance — target feeling             |
+| System                 | Journey    | Onboarding progression                  | Not invisible — builder consciously lives the arc  |
 
 ---
 
@@ -307,7 +333,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 ## WHAT: Definition
 
-[What foundational data entity. What it represents in the director's world. 2-4 sentences, standalone.]
+[What foundational data entity. What it represents in the builder's world. 2-4 sentences, standalone.]
 
 ## WHERE: Ecosystem
 
@@ -317,7 +343,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 - Primitives:
   - [[Primitive]] — [relationship to other primitives]
 - Served by:
-  - [[Room]] — [where directors interact with this]
+  - [[Room]] — [where builders interact with this]
   - [[Capability]] — [what actions operate on this]
   - [[Structure]] — [what displays this]
 - Contrast:
@@ -327,7 +353,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 - Strategy: [[Strategy]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes it]
-- Driver: [Why directors need this entity. What problem it solves.]
+- Driver: [Why builders need this entity. What problem it solves.]
 
 ## WHEN: Timeline
 
@@ -361,13 +387,13 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 - Instance: [X]
 - State: [Y]
-- How director interacts: [Z]
+- How builder interacts: [Z]
 
 **Example 2:** [Scenario]
 
 - Instance: [X]
 - State: [Y]
-- How director interacts: [Z]
+- How builder interacts: [Z]
 
 ### Anti-Examples
 
@@ -387,7 +413,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 ## WHAT: Definition
 
-[What workspace. Primary job-to-be-done. What cognitive mode directors are in here. 2-4 sentences, standalone.]
+[What workspace. Primary job-to-be-done. What cognitive mode builders are in here. 2-4 sentences, standalone.]
 
 ## WHERE: Ecosystem
 
@@ -415,17 +441,17 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 ### Navigation Pattern
 
-- Entry points: [How directors arrive]
-- Exit points: [Where directors go next]
+- Entry points: [How builders arrive]
+- Exit points: [Where builders go next]
 - Hub-and-spoke: [If applicable — what's the hub, what are spokes]
 
 ### Cognitive Mode
 
-[What mental state directors are in. Planning vs. executing vs. reflecting.]
+[What mental state builders are in. Planning vs. executing vs. reflecting.]
 
 ### Typical Session
 
-[What a director does during a typical visit. 3-5 steps.]
+[What a builder does during a typical visit. 3-5 steps.]
 
 ### Examples
 
@@ -433,13 +459,13 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 **Example 1:** [Scenario]
 
-- Director arrives via: [X]
+- Builder arrives via: [X]
 - Does: [Y]
 - Leaves to: [Z]
 
 **Example 2:** [Scenario]
 
-- Director arrives via: [X]
+- Builder arrives via: [X]
 - Does: [Y]
 - Leaves to: [Z]
 
@@ -457,7 +483,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 ## WHAT: Definition
 
-[What space. Primary job-to-be-done. What directors come here to accomplish. 2-4 sentences, standalone.]
+[What space. Primary job-to-be-done. What builders come here to accomplish. 2-4 sentences, standalone.]
 
 ## WHERE: Ecosystem
 
@@ -487,7 +513,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 ### Entry
 
-[How directors arrive. What triggers entry.]
+[How builders arrive. What triggers entry.]
 
 ### Workflow
 
@@ -499,7 +525,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 ### Exit
 
-[Where directors go next. What triggers exit.]
+[Where builders go next. What triggers exit.]
 
 ### Examples
 
@@ -507,13 +533,13 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 **Example 1:** [Scenario]
 
-- Director's goal: [X]
+- Builder's goal: [X]
 - What they do: [Y]
 - Outcome: [Z]
 
 **Example 2:** [Scenario]
 
-- Director's goal: [X]
+- Builder's goal: [X]
 - What they do: [Y]
 - Outcome: [Z]
 
@@ -581,13 +607,13 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 - Zone: [X]
 - What's displayed: [Y]
-- Director interaction: [Z]
+- Builder interaction: [Z]
 
 **Example 2:** [Scenario]
 
 - Zone: [X]
 - What's displayed: [Y]
-- Director interaction: [Z]
+- Builder interaction: [Z]
 
 ### Anti-Examples
 
@@ -618,7 +644,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 ## WHY: Rationale
 
 - Principle: [[Principle]] — [what guidance shapes it]
-- Purpose: [What directors use this structure for. Why it's spatial.]
+- Purpose: [What builders use this structure for. Why it's spatial.]
 
 ## WHEN: Timeline
 
@@ -633,7 +659,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 ### Interaction Model
 
-[How directors interact with this structure. Navigation, selection, manipulation.]
+[How builders interact with this structure. Navigation, selection, manipulation.]
 
 ### Visual Behavior
 
@@ -645,12 +671,12 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 **Example 1:** [Scenario]
 
-- Director action: [X]
+- Builder action: [X]
 - Structure response: [Y]
 
 **Example 2:** [Scenario]
 
-- Director action: [X]
+- Builder action: [X]
 - Structure response: [Y]
 
 ### Anti-Examples
@@ -734,7 +760,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 ## WHAT: Definition
 
-[What content object. What directors create, edit, or reference. 2-3 sentences, standalone.]
+[What content object. What builders create, edit, or reference. 2-3 sentences, standalone.]
 
 ## WHERE: Ecosystem
 
@@ -753,7 +779,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 - Strategy: [[Strategy]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes it]
-- Purpose: [What directors use this artifact for. What problem it solves.]
+- Purpose: [What builders use this artifact for. What problem it solves.]
 
 ## WHEN: Timeline
 
@@ -810,7 +836,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 ## WHAT: Definition
 
-[What action or workflow. What directors consciously do. 2-3 sentences, standalone.]
+[What action or workflow. What builders consciously do. 2-3 sentences, standalone.]
 
 ## WHERE: Ecosystem
 
@@ -829,7 +855,7 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 - Strategy: [[Strategy]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes it]
-- Purpose: [Why directors need to do this. What goal it serves.]
+- Purpose: [Why builders need to do this. What goal it serves.]
 
 ## WHEN: Timeline
 
@@ -860,13 +886,13 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 **Example 1:** [Scenario]
 
-- Director's goal: [X]
+- Builder's goal: [X]
 - What they do: [Y]
 - Outcome: [Z]
 
 **Example 2:** [Scenario]
 
-- Director's goal: [X]
+- Builder's goal: [X]
 - What they do: [Y]
 - Outcome: [Z]
 
@@ -937,14 +963,14 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 - Initial state: [X]
 - Trigger: [Y]
 - New state: [Z]
-- Director observes: [W]
+- Builder observes: [W]
 
 **Example 2:** [Scenario]
 
 - Initial state: [X]
 - Trigger: [Y]
 - New state: [Z]
-- Director observes: [W]
+- Builder observes: [W]
 
 ### Anti-Examples
 
@@ -1026,13 +1052,13 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 
 **Example 1:** [Scenario]
 
-- Director says: [X]
+- Builder says: [X]
 - Agent does: [Y]
 - Outcome: [Z]
 
 **Example 2:** [Scenario]
 
-- Director says: [X]
+- Builder says: [X]
 - Agent does: [Y]
 - Outcome: [Z]
 
@@ -1115,6 +1141,290 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
 **Wrong response:** [X]
 - Why it's wrong: [Y]
 - Correct alternative: [Z]
+```
+
+---
+
+### Loop
+
+```markdown
+# Loop - [Name]
+
+## WHAT: The Cycle
+
+[What repeats. What timescale. What it feels like to complete one iteration. 2-4 sentences, standalone.]
+
+## WHERE: Ecosystem
+
+- Timescale: [minutes-hours | days-weeks | weeks-months | seasonal | annual]
+- Rooms:
+  - [[Room]] — [which rooms are involved]
+- Capabilities:
+  - [[Capability]] — [what actions compose this loop]
+- Systems:
+  - [[System]] — [what infrastructure supports this]
+- Agents:
+  - [[Agent]] — [who participates]
+- Contains:
+  - [[Loop]] — [nested loops within this one]
+- Part of:
+  - [[Loop]] — [parent loop if nested]
+  - [[Journey]] — [what progression arc this advances]
+
+## WHY: Purpose
+
+- Strategy: [[Strategy]] — [what bet this serves]
+- Principle: [[Principle]] — [what guidance shapes it]
+- Driver: [What engagement pattern this creates. What the builder gains from completing one cycle.]
+
+## WHEN: Timeline
+
+**Build phase:** [MVP | Post-MVP | Future]
+**Implementation status:** [Not started | Partial | Implemented]
+
+## HOW: The Cycle
+
+### Phases
+
+[The repeating sequence. 3-5 phases.]
+
+1. [Phase name] — [what happens]
+2. [Phase name] — [what happens]
+3. [Phase name] — [what happens]
+
+### Entry
+
+[What triggers a new iteration of this loop.]
+
+### Completion
+
+[What marks the end of one iteration. What state changes.]
+
+### Target Feeling
+
+[What completing one cycle should feel like. One sentence.]
+
+### Examples
+
+[2+ concrete scenarios of this loop in action.]
+
+**Example 1:** [Scenario]
+
+- Trigger: [X]
+- Cycle: [Y]
+- Builder feels: [Z]
+
+**Example 2:** [Scenario]
+
+- Trigger: [X]
+- Cycle: [Y]
+- Builder feels: [Z]
+
+### Anti-Examples
+
+[What this loop should NOT feel like. Common failure modes.]
+```
+
+---
+
+### Journey
+
+```markdown
+# Journey - [Name]
+
+## WHAT: The Arc
+
+[What progression from where to where. What the builder becomes by the end. 2-4 sentences, standalone.]
+
+## WHERE: Ecosystem
+
+- Spans:
+  - [[Room]] — [rooms involved across the journey]
+  - [[Loop]] — [loops the builder engages in during this journey]
+- Agents:
+  - [[Agent]] — [who guides through phases]
+- Systems:
+  - [[System]] — [infrastructure that supports progression]
+- Unlocks:
+  - [[Capability]] — [what becomes available during progression]
+
+## WHY: Purpose
+
+- Strategy: [[Strategy]] — [what bet this serves]
+- Principle: [[Principle]] — [what guidance shapes it]
+- Driver: [What growth this journey produces. What the builder gains.]
+
+## WHEN: Timeline
+
+**Build phase:** [MVP | Post-MVP | Future]
+**Implementation status:** [Not started | Partial | Implemented]
+**Duration:** [Expected timeframe from start to end]
+
+## HOW: Progression
+
+### Phases
+
+[Sequential phases of the journey. Each has entry conditions, activities, and transition triggers.]
+
+| Phase | Entry Condition | Activities | Transition Trigger | Target Feeling |
+| ----- | --------------- | ---------- | ------------------ | -------------- |
+| [X]   | [Y]             | [Z]        | [W]                | [V]            |
+
+### Success Signals
+
+[How stewards and the system recognize progression.]
+
+### Failure Modes
+
+[What stalling looks like. How to detect and address it.]
+
+### Examples
+
+[2+ concrete scenarios of builders at different journey phases.]
+
+**Example 1:** [Scenario]
+
+- Phase: [X]
+- Builder's state: [Y]
+- What happens: [Z]
+
+**Example 2:** [Scenario]
+
+- Phase: [X]
+- Builder's state: [Y]
+- What happens: [Z]
+
+### Anti-Examples
+
+[What this journey should NOT feel like. Wrong pacing, wrong expectations.]
+```
+
+---
+
+### Aesthetic
+
+```markdown
+# Aesthetic - [Name]
+
+## WHAT: The Feeling
+
+[What emotional experience. One sentence capturing the target feeling.]
+
+## WHERE: Moments
+
+- Contexts:
+  - [[Room]] — [where this feeling should exist]
+  - [[Loop]] — [what cycles should evoke this]
+  - [[Capability]] — [what actions should feel this way]
+  - [[Component]] — [what UI elements reinforce this]
+
+## WHY: Purpose
+
+- Strategy: [[Strategy]] — [what bet this serves]
+- Principle: [[Principle]] — [what guidance shapes it]
+- Driver: [Why this feeling matters. What it signals about the builder's state.]
+
+## WHEN: Timeline
+
+**Build phase:** [MVP | Post-MVP | Future]
+**Implementation status:** [Not started | Partial | Implemented]
+
+## HOW: Design
+
+### Reinforced By
+
+[What creates or strengthens this feeling. 3-5 concrete design elements.]
+
+- [Element]
+- [Element]
+- [Element]
+
+### Broken By
+
+[What destroys this feeling. 3-5 concrete violations.]
+
+- [Violation]
+- [Violation]
+- [Violation]
+
+### Examples
+
+[2+ concrete moments where this aesthetic should be felt.]
+
+**Example 1:** [Scenario]
+
+- Context: [X]
+- Builder feels: [Y]
+- Design creates this via: [Z]
+
+**Example 2:** [Scenario]
+
+- Context: [X]
+- Builder feels: [Y]
+- Design creates this via: [Z]
+
+### Anti-Examples
+
+[Moments that wrongly attempt this feeling, or accidentally produce the opposite.]
+```
+
+---
+
+### Dynamic
+
+```markdown
+# Dynamic - [Name]
+
+## WHAT: The Emergence
+
+[What behavior emerges. What systems produce it. 2-4 sentences, standalone.]
+
+## WHERE: Ecosystem
+
+- Arises from:
+  - [[System]] — [contributing systems]
+  - [[Loop]] — [contributing loops]
+  - [[Capability]] — [contributing capabilities]
+- Observed in:
+  - [[Room]] — [where it manifests]
+
+## WHY: Significance
+
+- Driver: [Why this emergent behavior matters. What it tells us about the builder's state.]
+
+## WHEN: Trigger
+
+[What conditions produce this dynamic. What threshold or combination causes it to emerge.]
+
+## HOW: Response
+
+### System Response
+
+[How the sanctuary responds. What stewards do. What visual changes occur.]
+
+### Builder Experience
+
+[What the builder notices. How it feels.]
+
+### Examples
+
+[2+ concrete scenarios of this dynamic in action.]
+
+**Example 1:** [Scenario]
+
+- Trigger: [X]
+- Emerges from: [Y]
+- Steward response: [Z]
+
+**Example 2:** [Scenario]
+
+- Trigger: [X]
+- Emerges from: [Y]
+- Steward response: [Z]
+
+### Anti-Examples
+
+[What the system should NOT do in response to this dynamic.]
 ```
 
 ---
@@ -1447,9 +1757,15 @@ Verbs and process-words (zooming, filtering, planning, navigating, reviewing) �
   systems/
   agents/
   prompts/
-  [flat: Decision, Learning, Initiative, Future]
+
+/experience/
+  loops/
+  journeys/
+  aesthetics/
+  dynamics/
 
 /learnings/
+  [flat: Decision, Learning, Initiative, Future]
 
 reference.md
 CONTRIBUTING.md
@@ -1476,8 +1792,12 @@ CONVENTIONS.md
 | Capability       | Capability - [Name]              | Capability - Weekly Planning                 |
 | Capability spoke | Capability - [Parent] - [Aspect] | Capability - Weekly Planning - Bronze Review |
 | System           | System - [Name]                  | System - Adaptation                          |
-| Agent            | Agent - [Name]                   | Agent - Cameron                              |
-| Prompt           | Prompt - [Name]                  | Prompt - Cameron                             |
+| Agent            | Agent - [Name]                   | Agent - Marvin                               |
+| Prompt           | Prompt - [Name]                  | Prompt - Marvin                              |
+| Loop             | Loop - [Name]                    | Loop - Expedition Cycle                      |
+| Journey          | Journey - [Name]                 | Journey - Builder Onboarding                 |
+| Aesthetic        | Aesthetic - [Name]               | Aesthetic - Coming Home                      |
+| Dynamic          | Dynamic - [Name]                 | Dynamic - Bronze Flood                       |
 | Decision         | Decision - [Choice]              | Decision - Three Slot Limit                  |
 | Learning         | Learning - [Insight]             | Learning - Queue Overwhelm                   |
 | Initiative       | Initiative - [Name]              | Initiative - AI Prioritization               |
@@ -1523,7 +1843,11 @@ Cards touching governed domains must link to constraining Standards.
 | Artifact   | Room                         | Where it's edited    |
 | Capability | Room(s)                      | Where it's performed |
 | Prompt     | Agent                        | What it implements   |
-| Overlay    | Zone(s)                      | Where it's visible   |
+| Overlay    | Zone(s)                        | Where it's visible   |
+| Loop       | Room(s), Capability(s)         | What it contains     |
+| Journey    | Loop(s), Room(s)               | What it spans        |
+| Aesthetic  | Room(s), Loop(s), Component(s) | Where it applies     |
+| Dynamic    | System(s)                      | What produces it     |
 
 ---
 

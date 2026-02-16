@@ -2,7 +2,7 @@
 
 ## Divergence
 
-**Vision:** The Life Map is a hex-grid landscape where directors spatially place projects, navigate via zoom levels, and develop understanding through the bidirectional loop of placement and observation. This is Strategic Plank 1 (Spatial Visibility).
+**Vision:** The Life Map is a hex-grid landscape where builders spatially place projects, navigate via zoom levels, and develop understanding through the bidirectional loop of placement and observation. This is Strategic Plank 1 (Spatial Visibility).
 
 **Reality:** The Life Map is a flat grid of category cards. Projects are listed within categories, not spatially placed. No hex tiles, no zoom navigation, no spatial indicators, no diorama-style illustrations. The UI is closer to a dashboard with cards than a navigable landscape.
 

@@ -22,7 +22,7 @@ A discrete initiative with a finish line — bounded work that completes and mov
 - Strategy: [[Strategy - Superior Process]] — structured work management
 - Strategy: [[Strategy - Spatial Visibility]] — projects have spatial presence on hex grid
 - Principle: [[Principle - Plans Are Hypotheses]] — project plans can adapt
-- Driver: Directors need bounded containers for work with finish lines. The question for projects is always: "How close am I to finished?"
+- Driver: Builders need bounded containers for work with finish lines. The question for projects is always: "How close am I to finished?"
 
 ## WHEN: Timeline
 
@@ -64,7 +64,7 @@ Hex tile with project illustration, progress ring, category color accent, state 
 
 ### Examples
 
-1. **"Plan kitchen renovation"** — A Gold project in the Home category. State: Live. The director has scoped objectives (new countertops, appliances, layout), created tasks on the kanban board (get quotes, select contractor, choose materials), and tracks progress via the progress ring showing 40% complete.
+1. **"Plan kitchen renovation"** — A Gold project in the Home category. State: Live. The builder has scoped objectives (new countertops, appliances, layout), created tasks on the kanban board (get quotes, select contractor, choose materials), and tracks progress via the progress ring showing 40% complete.
 
 2. **"Schedule annual physical"** — A Bronze project in the Health category. State: Drafted. A small project with just two tasks (find available slot, book appointment). Moves quickly from Drafted to Completed once the appointment is confirmed.
 

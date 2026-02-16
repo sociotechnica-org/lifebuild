@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The structured end-of-week reflection where directors review what happened against what was planned — celebrating completions, understanding what didn't happen, and capturing learnings. Week-in-Review happens in the Council Chamber with Jarvis.
+The structured end-of-week reflection where builders review what happened against what was planned — celebrating completions, understanding what didn't happen, and capturing learnings. Week-in-Review happens in the Council Chamber with Jarvis.
 
 ## WHERE: Ecosystem
 
@@ -23,8 +23,8 @@ The structured end-of-week reflection where directors review what happened again
 - Strategy: [[Strategy - AI as Teammates]] — reflection requires partnership
 - Principle: [[Principle - Plans Are Hypotheses]] — review tests hypotheses
 - Principle: [[Principle - Compound Capability]] — learnings compound
-- Driver: Directors need to process what happened, not just move to next week. Week-in-Review creates that processing.
-- Constraints: Week-in-Review is reflection, not performance review. Jarvis never scores, ranks, or grades the director's week. Calibration accuracy is data, not judgment.
+- Driver: Builders need to process what happened, not just move to next week. Week-in-Review creates that processing.
+- Constraints: Week-in-Review is reflection, not performance review. Jarvis never scores, ranks, or grades the builder's week. Calibration accuracy is data, not judgment.
 
 ## WHEN: Timeline
 
@@ -63,8 +63,8 @@ Core rhythm feature. Week-in-Review closes the weekly loop before planning opens
 
 ### Examples
 
-- Jarvis: "You completed your Silver project and adapted your Gold mid-week. What prompted the change?" → director explains a family situation → Jarvis: "That's happened twice now — Tuesday surprises shifting Gold. Want to note that pattern in your Charter?" → learning captured, no judgment.
-- Director completed nothing from original plan due to emergency → Jarvis: "Intense week. Your calibration data shows this happens about once a quarter — big disruptions that reshape everything. How are you feeling about it?" → framing as data point, not failure.
+- Jarvis: "You completed your Silver project and adapted your Gold mid-week. What prompted the change?" → builder explains a family situation → Jarvis: "That's happened twice now — Tuesday surprises shifting Gold. Want to note that pattern in your Charter?" → learning captured, no judgment.
+- Builder completed nothing from original plan due to emergency → Jarvis: "Intense week. Your calibration data shows this happens about once a quarter — big disruptions that reshape everything. How are you feeling about it?" → framing as data point, not failure.
 
 ### Anti-Examples
 

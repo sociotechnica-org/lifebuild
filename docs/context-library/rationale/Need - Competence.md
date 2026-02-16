@@ -15,7 +15,7 @@ The psychological need to feel capable and effective — to experience mastery, 
 
 When competence is satisfied, people persist through challenges, seek optimal difficulty, and experience flow. When thwarted — through repeated failure, unclear feedback, or tasks mismatched to skill — people experience helplessness, anxiety, and withdrawal.
 
-In LifeBuild, competence manifests as directors completing what they commit to and improving over time. The three-stream structure protects transformation work. The weekly rhythm creates accomplishment cycles. Calibration tracking shows estimation accuracy improving. Systems compound, making future weeks easier.
+In LifeBuild, competence manifests as builders completing what they commit to and improving over time. The three-stream structure protects transformation work. The weekly rhythm creates accomplishment cycles. Calibration tracking shows estimation accuracy improving. Systems compound, making future weeks easier.
 
 The opposite of competence support is learned helplessness: unclear goals, no feedback, tasks too hard or too easy, no visible progress, repeated failure without learning. LifeBuild's design principles protect against these patterns.
 
@@ -27,7 +27,7 @@ The opposite of competence support is learned helplessness: unclear goals, no fe
 
 ## HOW: Application
 
-When evaluating any feature or agent behavior, ask: "Does this help the director feel more capable, or less?"
+When evaluating any feature or agent behavior, ask: "Does this help the builder feel more capable, or less?"
 
 **Signs of competence support:**
 

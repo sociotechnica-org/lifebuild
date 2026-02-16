@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The living strategic document maintained in the Council Chamber — a director's articulated values, current themes, active priorities, and known constraints. The Charter is Jarvis's primary reference and the foundation of strategic conversation.
+The living strategic document maintained in the Council Chamber — a builder's articulated values, current themes, active priorities, and known constraints. The Charter is Jarvis's primary reference and the foundation of strategic conversation.
 
 ## WHERE: Ecosystem
 
@@ -26,8 +26,8 @@ The living strategic document maintained in the Council Chamber — a director's
 
 - Strategy: [[Strategy - AI as Teammates]] — teammates need shared context
 - Principle: [[Principle - Plans Are Hypotheses]] — strategic documents adapt
-- Driver: Jarvis needs to know what matters to the director. The Charter captures that — not as rigid doctrine but as living understanding.
-- Constraints: The Charter belongs to the director, not the system. Jarvis proposes updates, the director decides. The Charter describes current understanding, never binding commitments.
+- Driver: Jarvis needs to know what matters to the builder. The Charter captures that — not as rigid doctrine but as living understanding.
+- Constraints: The Charter belongs to the builder, not the system. Jarvis proposes updates, the builder decides. The Charter describes current understanding, never binding commitments.
 
 ## WHEN: Timeline
 
@@ -51,17 +51,17 @@ Core strategic artifact. The Charter develops during onboarding and evolves thro
 
 - Jarvis references Charter in conversations
 - Jarvis proposes updates after significant discussions
-- Director approves changes
+- Builder approves changes
 - Historical versions archived
 
 **Not a contract:** The Charter describes current understanding, not binding commitments. Changing it is leadership, not failure.
 
 ### Examples
 
-- After a major life discussion, Jarvis proposes: "Based on our conversation, I'd suggest adding 'career transition' as a current theme. Here's how I'd phrase it..." → director reviews, edits the wording, approves → Charter updates → all agents now reference this context in their recommendations.
-- Director reviews Charter quarterly → notices "financial stability" theme no longer feels urgent → removes it → Jarvis: "Got it — that priority has shifted. I'll adjust how I frame financial projects going forward."
+- After a major life discussion, Jarvis proposes: "Based on our conversation, I'd suggest adding 'career transition' as a current theme. Here's how I'd phrase it..." → builder reviews, edits the wording, approves → Charter updates → all agents now reference this context in their recommendations.
+- Builder reviews Charter quarterly → notices "financial stability" theme no longer feels urgent → removes it → Jarvis: "Got it — that priority has shifted. I'll adjust how I frame financial projects going forward."
 
 ### Anti-Examples
 
-- **Pre-populating the Charter with default values during onboarding** — the Charter captures the director's own articulation of what matters. Default values would be someone else's words in the director's mouth.
-- **Requiring justification for Charter updates** — asking "why are you changing your priorities?" treats evolution as deviation. The Charter changes because the director changes. That's the entire point.
+- **Pre-populating the Charter with default values during onboarding** — the Charter captures the builder's own articulation of what matters. Default values would be someone else's words in the builder's mouth.
+- **Requiring justification for Charter updates** — asking "why are you changing your priorities?" treats evolution as deviation. The Charter changes because the builder changes. That's the entire point.

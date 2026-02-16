@@ -15,7 +15,7 @@ The psychological need to feel connected to others — to experience caring rela
 
 When relatedness is satisfied, people experience security, willingness to explore, and prosocial behavior. When thwarted — through isolation, rejection, or purely transactional interactions — people experience loneliness, defensiveness, and withdrawal.
 
-In LifeBuild, relatedness manifests as directors working with a team of AI agents who function as colleagues, not tools. Each agent has a distinct role and personality. Relationships develop over time as agents learn the director's patterns and preferences. The director isn't alone in managing their life — they have support.
+In LifeBuild, relatedness manifests as builders working with a team of AI agents who function as colleagues, not tools. Each agent has a distinct role and personality. Relationships develop over time as agents learn the builder's patterns and preferences. The builder isn't alone in managing their life — they have support.
 
 This is a deliberate design choice. Most productivity tools are solitary experiences — you and your list. LifeBuild creates the experience of having a staff, even for individuals who could never afford human assistance.
 
@@ -25,7 +25,7 @@ The opposite of relatedness support is cold instrumentality: purely transactiona
 
 **Build phase:** Foundation
 **Implementation status:** Partial
-**Reality note (2026-02-10):** Relatedness is partially served. Three agents active with distinct personalities (Cameron, Marvin, Mesa). Eight category advisors have personalities defined but are not user-accessible. Agent conversations feel teammate-like, not tool-like. But no continuity between sessions, no knowledge accumulation, no Charter — agents don't "remember" the director yet.
+**Reality note (2026-02-10):** Relatedness is partially served. Two agents active with distinct personalities (Marvin, Mesa — Mesa in reserve). Agent conversations feel teammate-like, not tool-like. But no continuity between sessions, no knowledge accumulation, no Charter — agents don't "remember" the builder yet.
 
 ## HOW: Application
 
@@ -36,15 +36,15 @@ When evaluating any feature or agent behavior, ask: "Does this feel like working
 - Agents have consistent personalities
 - Relationship develops over time
 - Agents remember and reference past work
-- Agents show appropriate care for director wellbeing
-- Director feels supported, not alone
+- Agents show appropriate care for builder wellbeing
+- Builder feels supported, not alone
 
 **Signs of relatedness threat:**
 
 - Generic, interchangeable responses
 - No continuity between sessions
 - Purely transactional interactions
-- Director feels isolated with their work
+- Builder feels isolated with their work
 - Agents feel like tools, not teammates
 
 ## Implementing Principles

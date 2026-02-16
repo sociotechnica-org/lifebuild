@@ -35,9 +35,9 @@ The Table enforces 1 Gold + 1 Silver maximum. Bronze has its own position that c
 
 ### What Following This Looks Like
 
-- A director's Bronze list has 12 urgent items this week, but The Table still shows their Gold project (marathon training) in its reserved slot. The urgent items compete among themselves for Bronze position — they never displace the transformation work.
-- During a heavy maintenance week, Cameron surfaces the Gold project in the weekly check-in: "Your Gold is still reserved — even 30 minutes on marathon training this week keeps the momentum." The structural protection ensures transformation stays visible even when urgency dominates attention.
-- A director opens The Table and sees three distinct areas: Gold at top, Silver in the middle, Bronze below. The visual separation reinforces that these are different competitions — "pay electric bill" and "train for marathon" never appear in the same ranked list.
+- A builder's Bronze list has 12 urgent items this week, but The Table still shows their Gold project (marathon training) in its reserved slot. The urgent items compete among themselves for Bronze position — they never displace the transformation work.
+- During a heavy maintenance week, Marvin surfaces the Gold project in the weekly check-in: "Your Gold is still reserved — even 30 minutes on marathon training this week keeps the momentum." The structural protection ensures transformation stays visible even when urgency dominates attention.
+- A builder opens The Table and sees three distinct areas: Gold at top, Silver in the middle, Bronze below. The visual separation reinforces that these are different competitions — "pay electric bill" and "train for marathon" never appear in the same ranked list.
 
 ### What Violating This Looks Like
 

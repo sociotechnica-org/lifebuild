@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The leftmost position on The Table, displaying a single expansion project — work that changes the director's life. The Gold position represents the director's transformational focus for the week.
+The leftmost position on The Table, displaying a single expansion project — work that changes the builder's life. The Gold position represents the builder's transformational focus for the week.
 
 ## WHERE: Ecosystem
 

@@ -178,6 +178,10 @@ Use the **Conan subagent** (`.claude/agents/conan.md`) to assemble a context bri
 
 Follow the **5-signal uncertainty protocol** when making decisions: if 2+ signals (reversibility, coverage, precedent, blast radius, domain specificity) say "search," check the library before proceeding. See `.claude/agents/bob.md` for the full protocol.
 
+### After structural library changes
+
+When a session adds types, renames terminology, creates/deletes cards in bulk, or changes folder structure, **always run Conan's Downstream Sync** (Job 9) as the final step. This automatically checks and fixes all meta-files (agent definitions, skill procedures, retrieval profiles) that mirror library structure. Conan will auto-trigger this after any maintenance job, but if changes were made outside of Conan's maintenance jobs, invoke it explicitly.
+
 ### Key references
 
 - `.claude/skills/context-constellation/retrieval-profiles.md` — What cards to pull for each type

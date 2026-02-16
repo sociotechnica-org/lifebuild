@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-Marvin's dedicated space — where directors create new projects, guided through the four-stage creation process. The Drafting Room is where ideas become executable plans.
+Marvin's dedicated space — where builders create new projects, guided through the four-stage creation process. The Drafting Room is where ideas become executable plans.
 
 ## WHERE: Ecosystem
 
@@ -10,7 +10,6 @@ Marvin's dedicated space — where directors create new projects, guided through
 - Agent: [[Agent - Marvin]] — operational manager
 - Adjacent:
   - [[Room - Council Chamber]] — strategic conversation
-  - [[Room - Category Studios]] — domain-specific planning
   - [[Room - Sorting Room]] — priority selection
   - [[Room - Roster Room]] — delegation management
 - Conforms to:
@@ -25,7 +24,7 @@ Marvin's dedicated space — where directors create new projects, guided through
 
 - Strategy: [[Strategy - Superior Process]] — creation deserves structure
 - Principle: [[Principle - Earn Don't Interrogate]] — Marvin guides without blocking
-- Driver: Directors need help turning ideas into actionable projects. The Drafting Room provides that translation.
+- Driver: Builders need help turning ideas into actionable projects. The Drafting Room provides that translation.
 - Constraints: Drafting Room translates ideas into projects without judging them. Marvin guides structure, not evaluates worth. Quick capture is always available.
 
 ## WHEN: Timeline
@@ -68,10 +67,10 @@ Core support space. Drafting Room process refined as four-stage creation matured
 
 ### Examples
 
-- Director has an idea: "Kitchen Renovation" → enters Drafting Room → types title and brief description → Marvin asks: "Is this about changing your life, building infrastructure, or handling something that needs doing?" → director says "changing my life" → project tagged as Gold stream → Marvin guides through scoping objectives and tasks.
-- Director captures "Call dentist" as quick capture → Stage 1 only (title + description) → task sits in Planning Queue as "Identified" → director returns three days later → clicks to continue → Marvin picks up at Stage 2 → low-friction capture didn't block the original thought.
+- Builder has an idea: "Kitchen Renovation" → enters Drafting Room → types title and brief description → Marvin asks: "Is this about changing your life, building infrastructure, or handling something that needs doing?" → builder says "changing my life" → project tagged as Gold stream → Marvin guides through scoping objectives and tasks.
+- Builder captures "Call dentist" as quick capture → Stage 1 only (title + description) → task sits in Planning Queue as "Identified" → builder returns three days later → clicks to continue → Marvin picks up at Stage 2 → low-friction capture didn't block the original thought.
 
 ### Anti-Examples
 
 - **Requiring all four stages before a project can exist in the system** — quick capture (Stage 1 only) must be possible. Forcing full scoping on every idea kills spontaneity and makes capture feel heavy.
-- **Marvin auto-classifying projects by analyzing the title** — purpose assignment comes from the director. "Kitchen Renovation" could be Gold (transformative remodel) or Bronze (fix the faucet) depending on the director's intent. Only the director knows.
+- **Marvin auto-classifying projects by analyzing the title** — purpose assignment comes from the builder. "Kitchen Renovation" could be Gold (transformative remodel) or Bronze (fix the faucet) depending on the builder's intent. Only the builder knows.

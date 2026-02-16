@@ -13,7 +13,7 @@ A macro-theory of human motivation identifying three innate psychological needs 
 
 ## WHY: Significance
 
-LifeBuild's entire product architecture traces to SDT. This is the foundational assumption — that serving these three needs produces human flourishing, and that features serving other goals (engagement, retention, revenue) at the expense of these needs will ultimately fail directors.
+LifeBuild's entire product architecture traces to SDT. This is the foundational assumption — that serving these three needs produces human flourishing, and that features serving other goals (engagement, retention, revenue) at the expense of these needs will ultimately fail builders.
 
 The three Wows map directly to the three needs:
 
@@ -29,7 +29,7 @@ This is not a design principle we can simply update. It's the lens through which
 
 **Build phase:** Foundation
 **Implementation status:** Stable
-**Reality note (2026-02-10):** SDT is the theoretical foundation. It doesn't "implement" — it guides. All three needs are partially served: Autonomy through director control over classification/priorities, Competence through structured process (three-stream, pipeline), Relatedness through agent teammates (3 active, 8 defined). The foundation holds; coverage deepens as features mature.
+**Reality note (2026-02-10):** SDT is the theoretical foundation. It doesn't "implement" — it guides. All three needs are partially served: Autonomy through builder control over classification/priorities, Competence through structured process (three-stream, pipeline), Relatedness through agent teammates (3 active, 8 defined). The foundation holds; coverage deepens as features mature.
 
 ## HOW: Application
 
@@ -40,7 +40,7 @@ When evaluating any feature, agent behavior, or interface choice, trace it back 
 **Anti-patterns SDT helps us avoid:**
 
 - Gamification that creates dependency (serves engagement, not competence)
-- Agent behaviors that do things for directors instead of teaching (undermines competence)
+- Agent behaviors that do things for builders instead of teaching (undermines competence)
 - Social features creating comparison rather than connection (undermines relatedness)
 - Hiding information "for the user's benefit" (undermines autonomy)
 

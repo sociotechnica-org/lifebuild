@@ -37,11 +37,11 @@ The progressive project development process that separates four cognitive modes:
 
 | From                | Trigger                                                                 | To                   | Side Effects                                                                           |
 | ------------------- | ----------------------------------------------------------------------- | -------------------- | -------------------------------------------------------------------------------------- |
-| No project          | Director initiates creation with Marvin                                 | Stage 1: Identified  | Project created with title, description, Life Category; enters Planning Queue          |
-| Stage 1: Identified | Director resumes with Marvin, provides purpose/objectives/priority data | Stage 2: Scoped      | Stream assignment (Gold/Silver/Bronze), success criteria, priority attributes recorded |
-| Stage 2: Scoped     | Director works with Marvin to generate task list or system config       | Stage 3: Drafted     | Complete task list or system configuration attached                                    |
-| Stage 3: Drafted    | Director reviews Priority Queue placement with Marvin                   | Stage 4: Prioritized | Project exits Planning Queue, enters Priority Queue with priority score                |
-| Any stage           | Director abandons project                                               | Archived             | Project removed from active queues                                                     |
+| No project          | Builder initiates creation with Marvin                                 | Stage 1: Identified  | Project created with title, description, Life Category; enters Planning Queue          |
+| Stage 1: Identified | Builder resumes with Marvin, provides purpose/objectives/priority data | Stage 2: Scoped      | Stream assignment (Gold/Silver/Bronze), success criteria, priority attributes recorded |
+| Stage 2: Scoped     | Builder works with Marvin to generate task list or system config       | Stage 3: Drafted     | Complete task list or system configuration attached                                    |
+| Stage 3: Drafted    | Builder reviews Priority Queue placement with Marvin                   | Stage 4: Prioritized | Project exits Planning Queue, enters Priority Queue with priority score                |
+| Any stage           | Builder abandons project                                               | Archived             | Project removed from active queues                                                     |
 
 ### Processing Logic
 
@@ -65,15 +65,15 @@ The progressive project development process that separates four cognitive modes:
 **Stage 4: Prioritized** — Decide where this ranks
 
 - Marvin shows Priority Queue with scores
-- Director places project within stream
+- Builder places project within stream
 - Result: Project exits Planning Queue -> enters Priority Queue
 
 ### Examples
 
-- A director has a flash of inspiration about learning Spanish. They open the Drafting Room and tell Marvin "I want to learn conversational Spanish." Marvin captures the title and assigns Life Category = Growth. The project is now Stage 1: Identified, sitting in the Planning Queue. No pressure to define objectives or tasks yet — the idea is safely captured. Two days later, the director returns and Marvin walks them through Stage 2, discovering this is a Gold project about "Moving forward."
-- A director has a Stage 3: Drafted project "Automate bill payments" (Silver stream). They return to Marvin, who shows the Priority Queue with current Silver candidates ranked by leverage score. The director sees this project scores higher than "Organize digital photos" but lower than "Set up meal planning system." They confirm placement and the project moves to Stage 4: Prioritized, now living in the Priority Queue ready for selection as Work at Hand.
+- A builder has a flash of inspiration about learning Spanish. They open the Drafting Room and tell Marvin "I want to learn conversational Spanish." Marvin captures the title and assigns Life Category = Growth. The project is now Stage 1: Identified, sitting in the Planning Queue. No pressure to define objectives or tasks yet — the idea is safely captured. Two days later, the builder returns and Marvin walks them through Stage 2, discovering this is a Gold project about "Moving forward."
+- A builder has a Stage 3: Drafted project "Automate bill payments" (Silver stream). They return to Marvin, who shows the Priority Queue with current Silver candidates ranked by leverage score. The builder sees this project scores higher than "Organize digital photos" but lower than "Set up meal planning system." They confirm placement and the project moves to Stage 4: Prioritized, now living in the Priority Queue ready for selection as Work at Hand.
 
 ### Anti-Examples
 
-- **Requiring all four stages in a single session** — the entire point of stage separation is that directors can capture an idea in 30 seconds (Stage 1) and return later for definition. Forcing a director to provide objectives, tasks, and priority ranking in one sitting defeats the cognitive-mode-separation design.
+- **Requiring all four stages in a single session** — the entire point of stage separation is that builders can capture an idea in 30 seconds (Stage 1) and return later for definition. Forcing a builder to provide objectives, tasks, and priority ranking in one sitting defeats the cognitive-mode-separation design.
 - **Allowing a project to skip from Stage 1 directly to Stage 4** — each stage captures distinct data that downstream systems depend on. A project without purpose assignment (Stage 2) cannot be scored for priority. A project without a task list (Stage 3) cannot be executed. Stages must be completed in order.

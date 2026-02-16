@@ -22,7 +22,7 @@ The holding area for projects still in development — work in stages 1-3 of the
 
 **Build phase:** MVP
 **Implementation status:** Implemented
-**Reality note (2026-02-10):** Planning Queue operational. Projects with `status: 'planning'` and `stage: 1-3` rendered in Drafting Room via `PlanningQueueCard.tsx`. Directors click to resume at the appropriate stage form. Marvin guides progression.
+**Reality note (2026-02-10):** Planning Queue operational. Projects with `status: 'planning'` and `stage: 1-3` rendered in Drafting Room via `PlanningQueueCard.tsx`. Builders click to resume at the appropriate stage form. Marvin guides progression.
 
 ## HOW: Mechanics
 
@@ -36,12 +36,12 @@ The holding area for projects still in development — work in stages 1-3 of the
 
 | From                 | Trigger                                           | To                             | Side Effects                                        |
 | -------------------- | ------------------------------------------------- | ------------------------------ | --------------------------------------------------- |
-| Empty queue          | Director captures new idea with Marvin            | Queue contains Stage 1 project | Project appears in Planning Queue list              |
-| Project at Stage 1   | Director resumes with Marvin, completes scoping   | Project advances to Stage 2    | Purpose, objectives, priority attributes recorded   |
-| Project at Stage 2   | Director resumes with Marvin, completes drafting  | Project advances to Stage 3    | Task list or system configuration attached          |
-| Project at Stage 3   | Director completes Stage 4 prioritization         | Project exits Planning Queue   | Project moves to Priority Queue with priority score |
+| Empty queue          | Builder captures new idea with Marvin            | Queue contains Stage 1 project | Project appears in Planning Queue list              |
+| Project at Stage 1   | Builder resumes with Marvin, completes scoping   | Project advances to Stage 2    | Purpose, objectives, priority attributes recorded   |
+| Project at Stage 2   | Builder resumes with Marvin, completes drafting  | Project advances to Stage 3    | Task list or system configuration attached          |
+| Project at Stage 3   | Builder completes Stage 4 prioritization         | Project exits Planning Queue   | Project moves to Priority Queue with priority score |
 | Project stalled      | Marvin detects no interaction for extended period | Stall surfaced                 | Marvin asks: "Want to continue, or archive this?"   |
-| Project in any stage | Director abandons                                 | Project archived               | Removed from Planning Queue                         |
+| Project in any stage | Builder abandons                                 | Project archived               | Removed from Planning Queue                         |
 
 ### Processing Logic
 
@@ -69,10 +69,10 @@ New idea -> Identified (Stage 1) -> Scoped (Stage 2) -> Drafted (Stage 3) -> Pri
 
 ### Examples
 
-- A director captures "Build a reading nook" as a quick idea on Monday morning. It sits in the Planning Queue at Stage 1: Identified. On Wednesday, they open the Drafting Room and Marvin says "You have 3 projects in development — want to pick one up?" The director chooses the reading nook, works through scoping (Stage 2), and leaves it there. The Planning Queue now shows it at Stage 2: Scoped, waiting for the director to return for task planning.
-- Three weeks pass and a Stage 2 project "Organize photos" hasn't been touched. Marvin surfaces it during a Drafting Room visit: "This has been in Scoped for three weeks — want to work on it or archive it?" The director realizes they've lost interest and archives it. The Planning Queue shrinks by one, keeping only active intentions visible.
+- A builder captures "Build a reading nook" as a quick idea on Monday morning. It sits in the Planning Queue at Stage 1: Identified. On Wednesday, they open the Drafting Room and Marvin says "You have 3 projects in development — want to pick one up?" The builder chooses the reading nook, works through scoping (Stage 2), and leaves it there. The Planning Queue now shows it at Stage 2: Scoped, waiting for the builder to return for task planning.
+- Three weeks pass and a Stage 2 project "Organize photos" hasn't been touched. Marvin surfaces it during a Drafting Room visit: "This has been in Scoped for three weeks — want to work on it or archive it?" The builder realizes they've lost interest and archives it. The Planning Queue shrinks by one, keeping only active intentions visible.
 
 ### Anti-Examples
 
-- **Auto-promoting a Stage 3 project to the Priority Queue without director confirmation** — Stage 4 (prioritization) requires the director to consciously decide where a project ranks relative to others. The system should never auto-complete this decision, even if a project has a full task list.
-- **Hiding stalled projects to keep the queue looking "clean"** — stalled projects represent real decisions the director hasn't made yet. Hiding them removes visibility. Instead, Marvin surfaces them gently for the director to continue or consciously archive.
+- **Auto-promoting a Stage 3 project to the Priority Queue without builder confirmation** — Stage 4 (prioritization) requires the builder to consciously decide where a project ranks relative to others. The system should never auto-complete this decision, even if a project has a full task list.
+- **Hiding stalled projects to keep the queue looking "clean"** — stalled projects represent real decisions the builder hasn't made yet. Hiding them removes visibility. Instead, Marvin surfaces them gently for the builder to continue or consciously archive.

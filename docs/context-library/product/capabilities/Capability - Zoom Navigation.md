@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The scale control system for the Life Map, allowing directors to smoothly transition between landscape view (entire life visible) and detail view (individual tile focus). Semantic zoom means information density changes with scale — zoomed out shows less detail per tile.
+The scale control system for the Life Map, allowing builders to smoothly transition between landscape view (entire life visible) and detail view (individual tile focus). Semantic zoom means information density changes with scale — zoomed out shows less detail per tile.
 
 ## WHERE: Ecosystem
 
@@ -18,9 +18,9 @@ The scale control system for the Life Map, allowing directors to smoothly transi
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — directors need both overview and detail
+- Strategy: [[Strategy - Spatial Visibility]] — builders need both overview and detail
 - Principle: [[Principle - Visibility Creates Agency]] — agency requires ability to change perspective
-- Driver: Life is complex — directors need to zoom out for big picture, zoom in for action. Same space, different scales.
+- Driver: Life is complex — builders need to zoom out for big picture, zoom in for action. Same space, different scales.
 - Constraints: Zoom controls information density, not access. All data exists at every level — zoom reveals or conceals detail layers. The Table remains fixed size regardless of zoom.
 
 ## WHEN: Timeline
@@ -53,16 +53,16 @@ Core to Life Map design. Zoom behavior refined based on usability testing.
 - Mid: Title, image thumbnail, progress
 - Close: Full tile detail, health indicators, recent activity
 
-**Persistence:** Zoom level persists across sessions. Directors return to where they were.
+**Persistence:** Zoom level persists across sessions. Builders return to where they were.
 
 **Transition:** From Detail View, clicking a tile opens Project Board or System Board overlay.
 
 ### Examples
 
-- Director pinch-zooms out on Life Map → hex tiles shrink to colored icons → individual titles disappear → cluster shapes and category colors become the dominant visual → director sees the full landscape of their life at a glance.
-- Director double-taps a cluster at Horizon level → zoom animates smoothly to Working level → tiles now show titles, image thumbnails, and progress indicators → director reads project names and states without opening any boards.
+- Builder pinch-zooms out on Life Map → hex tiles shrink to colored icons → individual titles disappear → cluster shapes and category colors become the dominant visual → builder sees the full landscape of their life at a glance.
+- Builder double-taps a cluster at Horizon level → zoom animates smoothly to Working level → tiles now show titles, image thumbnails, and progress indicators → builder reads project names and states without opening any boards.
 
 ### Anti-Examples
 
-- **Showing full tile detail (task lists, health metrics, activity logs) at Horizon zoom** — far zoom shows shapes, colors, and patterns. Rendering full detail at every level creates visual noise where the director needs landscape awareness.
-- **Resetting zoom level when the director returns after closing the app** — zoom persists across sessions. Directors build spatial habits based on their preferred working perspective. Resetting destroys that muscle memory.
+- **Showing full tile detail (task lists, health metrics, activity logs) at Horizon zoom** — far zoom shows shapes, colors, and patterns. Rendering full detail at every level creates visual noise where the builder needs landscape awareness.
+- **Resetting zoom level when the builder returns after closing the app** — zoom persists across sessions. Builders build spatial habits based on their preferred working perspective. Resetting destroys that muscle memory.

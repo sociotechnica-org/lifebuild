@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Software Factory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const Presentation = () => {
+      const [currentSlide, setCurrentSlide] = useState(0);
+      const totalSlides = 19;
+
+      const getSectionColor = (slideNum) => {
+        if (slideNum >= 6 && slideNum <= 7) return '#d4b85c';
+        if (slideNum === 8) return '#5c8ac9';
+        if (slideNum === 10) return '#7a9e7a';
+        if (slideNum === 11) return '#9e7a9e';
+        if (slideNum >= 12 && slideNum <= 13) return '#c95c5c';
+        if (slideNum >= 15 && slideNum <= 17) return '#5c8ac9';
+        return '#d4b85c';
+      };
+
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            setCurrentSlide(prev => Math.min(prev + 1, totalSlides - 1));
+          } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            setCurrentSlide(prev => Math.max(prev - 1, 0));
+          }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, []);
+
+      const styles = `
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: 'Source Sans 3', sans-serif;
+          background: linear-gradient(145deg, #1a1612 0%, #2d2620 100%);
+          color: #f5f0e8;
+          overflow: hidden;
+        }
+
+        h1, h2, h3 {
+          font-family: 'Fraunces', serif;
+        }
+
+        .slide-container {
+          width: 100vw;
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 60px;
+        }
+
+        .slide {
+          max-width: 1200px;
+          width: 100%;
+          animation: fadeIn 0.4s ease-in;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.6; }
+        }
+
+        h2 {
+          font-size: 42px;
+          margin-bottom: 40px;
+          font-weight: 600;
+        }
+
+        .section-label {
+          font-size: 14px;
+          letter-spacing: 2px;
+          text-transform: uppercase;
+          margin-bottom: 20px;
+          font-weight: 600;
+        }
+
+        .key-insight {
+          margin-top: 50px;
+          padding: 20px 24px;
+          background: rgba(255, 255, 255, 0.03);
+          border-left: 4px solid;
+          border-radius: 12px;
+          font-size: 18px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .key-insight .emoji {
+          font-size: 24px;
+          flex-shrink: 0;
+        }
+
+        .card {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          padding: 24px;
+        }
+
+        .nav-bar {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: rgba(26, 22, 18, 0.95);
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          padding: 20px 40px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .nav-button {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: #f5f0e8;
+          padding: 10px 24px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-family: 'Source Sans 3', sans-serif;
+          font-size: 16px;
+          transition: all 0.2s;
+        }
+
+        .nav-button:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-button:disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+
+        .progress-dots {
+          display: flex;
+          gap: 12px;
+        }
+
+        .dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.2);
+          transition: all 0.3s;
+          cursor: pointer;
+        }
+
+        .dot.active {
+          transform: scale(1.4);
+        }
+
+        .dot:hover {
+          background: rgba(255, 255, 255, 0.4);
+        }
+
+        .center-text {
+          text-align: center;
+        }
+
+        .badge {
+          display: inline-block;
+          background: linear-gradient(135deg, #d4b85c 0%, #c9a55c 100%);
+          color: #1a1612;
+          padding: 8px 20px;
+          border-radius: 20px;
+          font-size: 14px;
+          font-weight: 700;
+          letter-spacing: 1px;
+          margin-bottom: 30px;
+        }
+
+        .subtitle {
+          font-size: 24px;
+          color: #a89f94;
+          margin-top: 20px;
+        }
+
+        .click-to-begin {
+          margin-top: 60px;
+          font-size: 18px;
+          color: #6b635a;
+          animation: pulse 2s infinite;
+        }
+
+        .two-column {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 40px;
+          margin-top: 40px;
+        }
+
+        .icon-large {
+          font-size: 80px;
+          text-align: center;
+          margin-bottom: 20px;
+        }
+
+        .label {
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: #a89f94;
+          margin-top: 10px;
+        }
+
+        .caption {
+          font-size: 16px;
+          color: #a89f94;
+          text-align: center;
+          margin-top: 10px;
+        }
+
+        .question-mark {
+          font-size: 120px;
+          text-align: center;
+          color: #c95c5c;
+          margin: 40px 0;
+        }
+
+        .visual-center {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 40px;
+          margin: 60px 0;
+        }
+
+        .flow-diagram {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          justify-content: center;
+        }
+
+        .arrow {
+          font-size: 36px;
+          color: #a89f94;
+        }
+
+        .stage-dot {
+          display: inline-block;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          margin-right: 8px;
+        }
+
+        .pipeline {
+          display: flex;
+          gap: 30px;
+          margin: 40px 0;
+          justify-content: space-between;
+        }
+
+        .pipeline-stage {
+          flex: 1;
+          text-align: center;
+        }
+
+        .light-red {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background: #c95c5c;
+          margin: 0 auto 20px;
+          animation: pulse 1.5s infinite;
+          box-shadow: 0 0 30px rgba(201, 92, 92, 0.5);
+        }
+
+        .fork-diagram {
+          margin: 60px 0;
+        }
+
+        .fork-path {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          margin: 20px 0;
+          padding: 20px;
+          background: rgba(255, 255, 255, 0.02);
+          border-radius: 12px;
+        }
+
+        .comparison {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 60px;
+          margin-top: 40px;
+        }
+
+        .comparison-column h3 {
+          font-size: 24px;
+          margin-bottom: 30px;
+          color: #d4b85c;
+        }
+
+        .comparison-column ul {
+          list-style: none;
+          font-size: 18px;
+          line-height: 2;
+        }
+
+        .comparison-column li:before {
+          content: "→ ";
+          color: #a89f94;
+        }
+
+        .mini-board {
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 12px;
+          padding: 30px;
+          margin: 20px 0;
+        }
+
+        .board-columns {
+          display: flex;
+          gap: 20px;
+          margin-top: 20px;
+        }
+
+        .board-column {
+          flex: 1;
+          background: rgba(255, 255, 255, 0.03);
+          border-radius: 8px;
+          padding: 15px;
+        }
+
+        .board-column-title {
+          font-size: 14px;
+          font-weight: 600;
+          margin-bottom: 15px;
+          text-align: center;
+          color: #a89f94;
+        }
+
+        .board-card {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 6px;
+          padding: 10px;
+          margin-bottom: 10px;
+          font-size: 12px;
+        }
+
+        .board-card.blocked {
+          border-left: 3px solid #c95c5c;
+          opacity: 0.7;
+        }
+
+        .board-card.active {
+          border-left: 3px solid #7a9e7a;
+        }
+
+        .board-card.shipped {
+          border-left: 3px solid #5c8ac9;
+          opacity: 0.7;
+        }
+
+        .human-figure {
+          font-size: 100px;
+          text-align: center;
+        }
+
+        .ai-robots {
+          display: flex;
+          gap: 20px;
+          justify-content: center;
+          font-size: 60px;
+          opacity: 0.4;
+        }
+
+        .thought-bubble {
+          position: relative;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 20px;
+          padding: 20px 30px;
+          margin: 20px auto;
+          max-width: 300px;
+          text-align: center;
+          font-size: 24px;
+          font-style: italic;
+        }
+
+        .queue-visual {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+          margin: 30px 0;
+        }
+
+        .queue-item {
+          background: rgba(255, 255, 255, 0.03);
+          border-left: 4px solid #a89f94;
+          padding: 15px 20px;
+          border-radius: 8px;
+          font-size: 16px;
+        }
+
+        .example-box {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          padding: 20px;
+          margin: 30px 0;
+          font-size: 16px;
+        }
+
+        .example-box strong {
+          color: #d4b85c;
+        }
+
+        .before-after {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 20px;
+          margin: 40px 0;
+        }
+
+        .before-card {
+          background: rgba(201, 92, 92, 0.1);
+          border: 2px solid rgba(201, 92, 92, 0.3);
+          border-radius: 12px;
+          padding: 30px;
+          text-align: center;
+          font-size: 20px;
+          width: 80%;
+        }
+
+        .after-card {
+          background: rgba(122, 158, 122, 0.1);
+          border: 2px solid rgba(122, 158, 122, 0.3);
+          border-radius: 12px;
+          padding: 30px;
+          text-align: center;
+          font-size: 20px;
+          width: 80%;
+        }
+
+        .cycle-visual {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          align-items: center;
+          gap: 20px;
+          margin: 40px 0;
+        }
+
+        .cycle-step {
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 12px;
+          padding: 20px 30px;
+          font-size: 18px;
+        }
+
+        .review-outcomes {
+          display: flex;
+          flex-direction: column;
+          gap: 25px;
+          margin: 40px 0;
+        }
+
+        .outcome {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          padding: 20px;
+          background: rgba(255, 255, 255, 0.03);
+          border-radius: 12px;
+        }
+
+        .outcome-icon {
+          font-size: 32px;
+          flex-shrink: 0;
+        }
+
+        .outcome-text {
+          font-size: 18px;
+        }
+
+        .note {
+          font-size: 14px;
+          color: #a89f94;
+          margin-top: 10px;
+        }
+
+        .station-label {
+          margin-top: 30px;
+          padding-top: 20px;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          font-size: 20px;
+          font-weight: 600;
+        }
+
+        .station-subtitle {
+          font-size: 16px;
+          color: #a89f94;
+          margin-top: 5px;
+        }
+
+        .transition-slide {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          min-height: 70vh;
+        }
+
+        .transition-question {
+          font-size: 48px;
+          margin-bottom: 40px;
+        }
+
+        .transition-answer {
+          font-size: 24px;
+          color: #a89f94;
+        }
+
+        .metric-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 20px;
+          margin: 40px 0;
+        }
+
+        .metric-card {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          padding: 20px;
+          text-align: center;
+        }
+
+        .metric-card .metric-icon {
+          font-size: 36px;
+          margin-bottom: 12px;
+        }
+
+        .metric-card .metric-name {
+          font-family: 'Fraunces', serif;
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 8px;
+        }
+
+        .metric-card .metric-question {
+          font-size: 14px;
+          color: #a89f94;
+          font-style: italic;
+        }
+
+        .dashboard-row {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          padding: 16px 20px;
+          background: rgba(255, 255, 255, 0.02);
+          border-radius: 10px;
+          margin-bottom: 12px;
+        }
+
+        .dashboard-label {
+          width: 160px;
+          font-weight: 600;
+          font-size: 15px;
+          flex-shrink: 0;
+        }
+
+        .dashboard-bar-track {
+          flex: 1;
+          height: 24px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 12px;
+          overflow: hidden;
+        }
+
+        .dashboard-bar-fill {
+          height: 100%;
+          border-radius: 12px;
+          transition: width 0.3s;
+        }
+
+        .dashboard-value {
+          width: 60px;
+          text-align: right;
+          font-weight: 600;
+          font-size: 16px;
+          flex-shrink: 0;
+        }
+
+        .playbook {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          margin: 30px 0;
+        }
+
+        .playbook-row {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 14px 20px;
+          background: rgba(255, 255, 255, 0.02);
+          border-radius: 10px;
+          border-left: 3px solid;
+        }
+
+        .playbook-signal {
+          font-size: 15px;
+          font-weight: 600;
+          width: 200px;
+          flex-shrink: 0;
+        }
+
+        .playbook-arrow {
+          color: #a89f94;
+          font-size: 20px;
+          flex-shrink: 0;
+        }
+
+        .playbook-fix {
+          font-size: 15px;
+          flex: 1;
+        }
+      `;
+
+      const slides = [
+        <div className="slide center-text">
+          <div className="badge">LIFEBUILD</div>
+          <h1 style={{fontSize: '56px', marginBottom: '20px'}}>The Software Factory</h1>
+          <p className="subtitle">A new way to see how we build Release 1</p>
+          <p className="click-to-begin">Click to begin →</p>
+        </div>,
+
+        <div className="slide">
+          <div className="section-label" style={{color: '#d4b85c'}}>PART 1: THE FAMILIAR</div>
+          <h2>You Already Know This</h2>
+          <div className="mini-board">
+            <div className="board-columns">
+              <div className="board-column">
+                <div className="board-column-title">To Do</div>
+                <div className="board-card">Design campfire</div>
+                <div className="board-card">Add worker filters</div>
+                <div className="board-card">Fix hex sizing</div>
+              </div>
+              <div className="board-column">
+                <div className="board-column-title">In Progress</div>
+                <div className="board-card active">Update schema</div>
+                <div className="board-card active">Build nav</div>
+              </div>
+              <div className="board-column">
+                <div className="board-column-title">Done</div>
+                <div className="board-card shipped">Login flow</div>
+                <div className="board-card shipped">Project board</div>
+              </div>
+            </div>
+          </div>
+          <div className="key-insight" style={{borderColor: '#d4b85c'}}>
+            <span className="emoji">📋</span>
+            <span>You already use a board like this. Columns show status. Cards move left to right.</span>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <h2>Something Is Slow</h2>
+          <div className="mini-board">
+            <div className="board-columns">
+              <div className="board-column">
+                <div className="board-column-title">To Do</div>
+                <div className="board-card">Design campfire</div>
+                <div className="board-card">Add worker filters</div>
+                <div className="board-card">Fix hex sizing</div>
+                <div className="board-card">Agent voices</div>
+                <div className="board-card">Task routing</div>
+                <div className="board-card">Week planning</div>
+              </div>
+              <div className="board-column">
+                <div className="board-column-title">In Progress</div>
+                <div className="board-card blocked">Update schema</div>
+                <div className="board-card blocked">Build nav</div>
+                <div className="board-card blocked">Add filters</div>
+              </div>
+              <div className="board-column">
+                <div className="board-column-title">Done</div>
+                <div className="board-card shipped">Login flow</div>
+              </div>
+            </div>
+          </div>
+          <div className="question-mark">?</div>
+          <div className="key-insight" style={{borderColor: '#d4b85c'}}>
+            <span className="emoji">🤔</span>
+            <span>But WHY are things stuck? It's not because coding is slow...</span>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <h2>The Real Bottleneck</h2>
+          <div className="visual-center">
+            <div>
+              <div className="human-figure">🧑</div>
+              <div className="thought-bubble">Hmm...</div>
+              <div className="caption">Questions waiting for answers</div>
+              <div className="queue-visual" style={{maxWidth: '400px', margin: '20px auto'}}>
+                <div className="queue-item">Should this be scripted?</div>
+                <div className="queue-item">Fixed grid or infinite?</div>
+                <div className="queue-item">How warm should Jarvis sound?</div>
+              </div>
+            </div>
+            <div>
+              <div className="ai-robots">
+                <span>🤖</span>
+                <span>🤖</span>
+                <span>🤖</span>
+              </div>
+              <div className="caption">Builders ready but idle</div>
+            </div>
+          </div>
+          <div className="key-insight" style={{borderColor: '#d4b85c'}}>
+            <span className="emoji">💡</span>
+            <span>The bottleneck isn't building. It's the unanswered questions. AI can build fast — but only after someone decides WHAT to build.</span>
+          </div>
+        </div>,
+
+        <div className="slide center-text transition-slide">
+          <h2 className="transition-question">What if we organized our board around clearing those questions?</h2>
+          <p className="transition-answer">Instead of tracking status... track WHERE work is in the process.</p>
+        </div>,
+
+        <div className="slide">
+          <h2>Two Kinds of Building</h2>
+          <div className="two-column">
+            <div className="card">
+              <div className="icon-large">📦</div>
+              <div style={{textAlign: 'center', fontSize: '18px', lineHeight: '1.8'}}>
+                <div><strong>Clear instructions</strong></div>
+                <div>Follow the blueprint</div>
+                <div>Anyone could build it</div>
+              </div>
+            </div>
+            <div className="card">
+              <div className="icon-large">🎨</div>
+              <div style={{textAlign: 'center', fontSize: '18px', lineHeight: '1.8'}}>
+                <div><strong>No blueprint exists</strong></div>
+                <div>You have to feel it</div>
+                <div>Try → adjust → try again</div>
+              </div>
+            </div>
+          </div>
+          <div className="key-insight" style={{borderColor: '#d4b85c'}}>
+            <span className="emoji">🔧</span>
+            <span>Some work has clear specs. Some work needs taste. Both are valid — they just need different stations.</span>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <div className="section-label" style={{color: '#d4b85c'}}>THE STATIONS</div>
+          <h2>Station 1 — DECIDE</h2>
+          <div className="flow-diagram" style={{margin: '60px 0'}}>
+            <div>
+              <div className="queue-visual" style={{maxWidth: '300px'}}>
+                <div className="queue-item">Question 1</div>
+                <div className="queue-item">Question 2</div>
+                <div className="queue-item">Question 3</div>
+              </div>
+            </div>
+            <span className="arrow">→</span>
+            <div className="human-figure" style={{fontSize: '80px'}}>🧑</div>
+            <span className="arrow">→</span>
+            <div className="card" style={{padding: '30px', minWidth: '200px'}}>
+              <div style={{fontSize: '20px', textAlign: 'center'}}>
+                <div><strong>Answer:</strong></div>
+                <div style={{marginTop: '15px', color: '#7a9e7a'}}>Option B ✓</div>
+              </div>
+            </div>
+          </div>
+          <div className="example-box">
+            <strong>D5:</strong> Should the campfire story be scripted or improvised?<br/>
+            <span style={{color: '#7a9e7a', marginTop: '10px', display: 'block'}}>→ Answer: Scripted with improvised moments</span>
+          </div>
+          <div className="key-insight" style={{borderColor: '#d4b85c'}}>
+            <span className="emoji">👤</span>
+            <span>A human picks from known options. Quick calls first, then the ones that need thought.</span>
+          </div>
+          <div className="station-label" style={{color: '#d4b85c'}}>
+            DECIDE
+            <div className="station-subtitle">Danvers · Jess</div>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <div className="section-label" style={{color: '#d4b85c'}}>THE STATIONS</div>
+          <h2>Station 2 — PATCH</h2>
+          <div className="flow-diagram" style={{margin: '50px 0'}}>
+            <div className="card" style={{padding: '20px', maxWidth: '200px', textAlign: 'center'}}>
+              <div style={{fontSize: '32px', marginBottom: '10px'}}>📄</div>
+              <div style={{fontSize: '16px'}}>Library cards</div>
+              <div style={{fontSize: '13px', color: '#a89f94', marginTop: '5px'}}>Our design knowledge</div>
+            </div>
+            <span className="arrow">→</span>
+            <div style={{textAlign: 'center'}}>
+              <div style={{fontSize: '48px'}}>🤖🔍</div>
+              <div style={{fontSize: '14px', color: '#a89f94', marginTop: '10px'}}>AI checks against<br/>R1 reality</div>
+            </div>
+            <span className="arrow">→</span>
+            <div className="card" style={{padding: '20px', maxWidth: '200px', textAlign: 'center', borderColor: '#7a9e7a'}}>
+              <div style={{fontSize: '32px', marginBottom: '10px'}}>📄✅</div>
+              <div style={{fontSize: '16px'}}>Patched cards</div>
+              <div style={{fontSize: '13px', color: '#7a9e7a', marginTop: '5px'}}>Ready to feed MAKE + SHAPE</div>
+            </div>
+          </div>
+          <div className="example-box">
+            <strong>Example:</strong> Hex Grid card says "infinite canvas." AI reads it, spots the gap, adds a note:<br/>
+            <span style={{color: '#7a9e7a', marginTop: '10px', display: 'block'}}>→ "R1: fixed ~30-40 hex SVG grid. Infinite canvas deferred to R2."</span>
+          </div>
+          <div className="key-insight" style={{borderColor: '#5c8ac9'}}>
+            <span className="emoji">🩹</span>
+            <span>AI reads our design docs and flags what's missing, inconsistent, or too big for Release 1. Patched docs mean builders get correct instructions — not the full-vision dream.</span>
+          </div>
+          <div className="station-label" style={{color: '#5c8ac9'}}>
+            PATCH
+            <div className="station-subtitle">AI (with human approval)</div>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <h2>The Fork</h2>
+          <p style={{fontSize: '20px', marginBottom: '40px'}}>After DECIDE + PATCH, work splits:</p>
+          <div className="fork-diagram">
+            <div className="fork-path">
+              <span style={{fontSize: '48px'}}>📦</span>
+              <span style={{fontSize: '20px'}}>Clear spec</span>
+              <span className="arrow">→</span>
+              <div className="card" style={{background: 'rgba(122, 158, 122, 0.1)', borderColor: '#7a9e7a', padding: '20px 40px'}}>
+                <strong style={{fontSize: '20px', color: '#7a9e7a'}}>MAKE</strong>
+              </div>
+            </div>
+            <div className="fork-path">
+              <span style={{fontSize: '48px'}}>🎨</span>
+              <span style={{fontSize: '20px'}}>Needs feel</span>
+              <span className="arrow">→</span>
+              <div className="card" style={{background: 'rgba(158, 122, 158, 0.1)', borderColor: '#9e7a9e', padding: '20px 40px'}}>
+                <strong style={{fontSize: '20px', color: '#9e7a9e'}}>SHAPE</strong>
+              </div>
+              <span className="arrow">→</span>
+              <div className="card" style={{background: 'rgba(122, 158, 122, 0.1)', borderColor: '#7a9e7a', padding: '20px 40px'}}>
+                <strong style={{fontSize: '20px', color: '#7a9e7a'}}>MAKE</strong>
+              </div>
+            </div>
+          </div>
+          <div className="key-insight" style={{borderColor: '#d4b85c'}}>
+            <span className="emoji">🔀</span>
+            <span>If you can write the blueprint, go straight to MAKE. If you need to discover the blueprint, go to SHAPE first.</span>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <h2>Station 3 — MAKE</h2>
+          <div className="visual-center">
+            <div className="icon-large">🤖</div>
+            <div className="flow-diagram">
+              <div className="card" style={{padding: '20px 30px'}}>
+                <strong>INPUT:</strong><br/>
+                Blueprint (spec)<br/>
+                + Library cards
+              </div>
+              <span className="arrow">→</span>
+              <div className="card" style={{padding: '20px 30px'}}>
+                <strong>OUTPUT:</strong><br/>
+                Working code (PR)
+              </div>
+            </div>
+            <div className="queue-visual" style={{maxWidth: '500px'}}>
+              <div className="queue-item">Hex grid geometry</div>
+              <div className="queue-item">Agent cleanup</div>
+              <div className="queue-item">LiveStore schema</div>
+            </div>
+          </div>
+          <div className="key-insight" style={{borderColor: '#7a9e7a'}}>
+            <span className="emoji">⚡</span>
+            <span>AI builds from clear blueprints. Multiple MAKE tracks run in parallel — the bottleneck is never "can AI code fast enough?"</span>
+          </div>
+          <div className="station-label" style={{color: '#7a9e7a'}}>
+            MAKE
+            <div className="station-subtitle">AI</div>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <div className="section-label" style={{color: '#9e7a9e'}}>THE STATIONS</div>
+          <h2>Station 4 — SHAPE</h2>
+          <div className="cycle-visual">
+            <div className="cycle-step">AI drafts</div>
+            <span className="arrow">→</span>
+            <div className="cycle-step">Human feels</div>
+            <span className="arrow">→</span>
+            <div className="cycle-step" style={{color: '#c95c5c'}}>"Not quite..."</div>
+            <span className="arrow">→</span>
+            <div className="cycle-step">AI revises</div>
+            <span className="arrow" style={{fontSize: '48px'}}>↻</span>
+          </div>
+          <div style={{textAlign: 'center', margin: '40px 0', fontSize: '24px'}}>
+            <span style={{color: '#7a9e7a'}}>✓ "That's it!"</span>
+            <span className="arrow" style={{margin: '0 20px'}}>→</span>
+            <span>feeds into MAKE</span>
+          </div>
+          <div className="example-box">
+            <strong>Example:</strong> "Does Jarvis sound warm?" — you can't answer that from a document.
+          </div>
+          <div className="key-insight" style={{borderColor: '#9e7a9e'}}>
+            <span className="emoji">🎨</span>
+            <span>SHAPE discovers the blueprint. Then MAKE builds from it.</span>
+          </div>
+          <div className="station-label" style={{color: '#9e7a9e'}}>
+            SHAPE
+            <div className="station-subtitle">Danvers + AI</div>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <div className="section-label" style={{color: '#d4b85c'}}>READING THE FLOOR</div>
+          <h2>How Work Flows</h2>
+          <div className="pipeline">
+            <div className="pipeline-stage">
+              <div><span className="stage-dot" style={{background: '#a89f94'}}></span></div>
+              <div style={{fontSize: '20px', marginBottom: '10px'}}>Queued</div>
+              <div className="label">Waiting</div>
+            </div>
+            <div className="pipeline-stage">
+              <div><span className="stage-dot" style={{background: '#7a9e7a'}}></span></div>
+              <div style={{fontSize: '20px', marginBottom: '10px'}}>Working</div>
+              <div className="label">Active</div>
+            </div>
+            <div className="pipeline-stage">
+              <div><span className="stage-dot" style={{background: '#d4b85c'}}></span></div>
+              <div style={{fontSize: '20px', marginBottom: '10px'}}>QC Gate</div>
+              <div className="label">Auto-checks</div>
+            </div>
+            <div className="pipeline-stage">
+              <div><span className="stage-dot" style={{background: '#9e7a9e'}}></span></div>
+              <div style={{fontSize: '20px', marginBottom: '10px'}}>Review</div>
+              <div className="label">Human checks</div>
+            </div>
+            <div className="pipeline-stage">
+              <div><span className="stage-dot" style={{background: '#5c8ac9'}}></span></div>
+              <div style={{fontSize: '20px', marginBottom: '10px'}}>Shipped</div>
+              <div className="label">Done</div>
+            </div>
+          </div>
+          <div className="key-insight" style={{borderColor: '#d4b85c'}}>
+            <span className="emoji">🔄</span>
+            <span>Every item on the board moves through these stages. The colors tell you where things are at a glance.</span>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <h2>When Something Goes Wrong</h2>
+          <div className="visual-center">
+            <div className="light-red"></div>
+            <div className="example-box" style={{maxWidth: '600px', margin: '0 auto'}}>
+              <div style={{fontSize: '18px', lineHeight: '1.8'}}>
+                <div>Builder starts working...</div>
+                <div style={{color: '#c95c5c', margin: '15px 0'}}>→ discovers the spec is missing a decision</div>
+                <div style={{color: '#d4b85c'}}>→ <strong>STOP.</strong> Don't build the wrong thing.</div>
+                <div style={{marginTop: '15px'}}>→ Signal: "I need a decision from DECIDE."</div>
+                <div style={{marginTop: '15px', color: '#c95c5c'}}>→ Item turns red on the board</div>
+              </div>
+            </div>
+          </div>
+          <div className="key-insight" style={{borderColor: '#c95c5c'}}>
+            <span className="emoji">🚨</span>
+            <span>When something's wrong, STOP and signal — don't pass the problem forward. In factory terms, this is called pulling the "Andon cord."</span>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <h2>Three Things Happen at Review</h2>
+          <div className="visual-center" style={{margin: '40px 0'}}>
+            <div className="human-figure" style={{fontSize: '60px'}}>👤</div>
+            <p style={{fontSize: '18px', color: '#a89f94'}}>Reviews a completed item</p>
+          </div>
+          <div className="review-outcomes">
+            <div className="outcome">
+              <span className="outcome-icon">✅</span>
+              <div className="outcome-text">
+                <strong>"Looks good"</strong><br/>
+                <span style={{color: '#a89f94'}}>→ Shipped (blue dot)</span>
+              </div>
+            </div>
+            <div className="outcome">
+              <span className="outcome-icon">🔧</span>
+              <div className="outcome-text">
+                <strong>"Doesn't match the spec"</strong><br/>
+                <span style={{color: '#a89f94'}}>→ Rework → back to building (orange dot)</span>
+              </div>
+            </div>
+            <div className="outcome">
+              <span className="outcome-icon">💡</span>
+              <div className="outcome-text">
+                <strong>"The spec itself was wrong"</strong><br/>
+                <span style={{color: '#a89f94'}}>→ New question for DECIDE (gold dot)</span>
+                <div className="note">This isn't a failure — it's learning. The item might still ship.</div>
+              </div>
+            </div>
+          </div>
+          <div className="key-insight" style={{borderColor: '#9e7a9e'}}>
+            <span className="emoji">🔍</span>
+            <span>Review is where the factory learns. Sometimes building something reveals what you actually needed.</span>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <h2>Reading the Board</h2>
+          <div className="two-column">
+            <div>
+              <h3 style={{color: '#7a9e7a', fontSize: '24px', marginBottom: '20px'}}>Healthy</h3>
+              <div className="mini-board" style={{background: 'rgba(122, 158, 122, 0.05)'}}>
+                <div className="board-columns" style={{gridTemplateColumns: 'repeat(4, 1fr)'}}>
+                  <div className="board-column">
+                    <div className="board-column-title">DECIDE</div>
+                    <div className="board-card shipped">D1 ✓</div>
+                    <div className="board-card shipped">D2 ✓</div>
+                  </div>
+                  <div className="board-column">
+                    <div className="board-column-title">PATCH</div>
+                    <div className="board-card active">P1</div>
+                  </div>
+                  <div className="board-column">
+                    <div className="board-column-title">MAKE</div>
+                    <div className="board-card active">M1</div>
+                    <div className="board-card active">M2</div>
+                  </div>
+                  <div className="board-column">
+                    <div className="board-column-title">SHAPE</div>
+                    <div className="board-card active">S1</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 style={{color: '#c95c5c', fontSize: '24px', marginBottom: '20px'}}>Starving</h3>
+              <div className="mini-board" style={{background: 'rgba(201, 92, 92, 0.05)'}}>
+                <div className="board-columns" style={{gridTemplateColumns: 'repeat(4, 1fr)'}}>
+                  <div className="board-column">
+                    <div className="board-column-title">DECIDE</div>
+                    <div className="board-card blocked">D1</div>
+                    <div className="board-card blocked">D2</div>
+                    <div className="board-card blocked">D3</div>
+                    <div className="board-card">D4</div>
+                    <div className="board-card">D5</div>
+                  </div>
+                  <div className="board-column">
+                    <div className="board-column-title">PATCH</div>
+                  </div>
+                  <div className="board-column">
+                    <div className="board-column-title">MAKE</div>
+                  </div>
+                  <div className="board-column">
+                    <div className="board-column-title">SHAPE</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="key-insight" style={{borderColor: '#d4b85c'}}>
+            <span className="emoji">📊</span>
+            <span>If MAKE is empty and DECIDE is full, the answer is always the same: go clear some decisions.</span>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <div className="section-label" style={{color: '#5c8ac9'}}>THE DASHBOARD</div>
+          <h2>Six Numbers That Matter</h2>
+          <div className="metric-grid">
+            <div className="metric-card">
+              <div className="metric-icon">⚡</div>
+              <div className="metric-name">Decision Velocity</div>
+              <div className="metric-question">Are decisions flowing?</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-icon">⚖️</div>
+              <div className="metric-name">WIP Balance</div>
+              <div className="metric-question">Is any station overloaded?</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-icon">✅</div>
+              <div className="metric-name">First-Pass Yield</div>
+              <div className="metric-question">Does it ship without rework?</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-icon">🚨</div>
+              <div className="metric-name">Blocked Count</div>
+              <div className="metric-question">How many red lights right now?</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-icon">💡</div>
+              <div className="metric-name">ECO Rate</div>
+              <div className="metric-question">How often was the spec wrong?</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-icon">⏱️</div>
+              <div className="metric-name">Cycle Time</div>
+              <div className="metric-question">How long from queued to shipped?</div>
+            </div>
+          </div>
+          <div className="key-insight" style={{borderColor: '#5c8ac9'}}>
+            <span className="emoji">🎯</span>
+            <span>Each number answers one question about factory health. Together, they tell you exactly where to look when something feels off.</span>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <div className="section-label" style={{color: '#5c8ac9'}}>THE DASHBOARD</div>
+          <h2>Reading the Numbers</h2>
+          <div className="two-column" style={{gap: '50px'}}>
+            <div>
+              <h3 style={{color: '#7a9e7a', fontSize: '20px', marginBottom: '20px'}}>Healthy Factory</h3>
+              <div className="dashboard-row">
+                <div className="dashboard-label">Decision Velocity</div>
+                <div className="dashboard-bar-track">
+                  <div className="dashboard-bar-fill" style={{width: '75%', background: '#7a9e7a'}}></div>
+                </div>
+                <div className="dashboard-value" style={{color: '#7a9e7a'}}>6/wk</div>
+              </div>
+              <div className="dashboard-row">
+                <div className="dashboard-label">First-Pass Yield</div>
+                <div className="dashboard-bar-track">
+                  <div className="dashboard-bar-fill" style={{width: '80%', background: '#7a9e7a'}}></div>
+                </div>
+                <div className="dashboard-value" style={{color: '#7a9e7a'}}>80%</div>
+              </div>
+              <div className="dashboard-row">
+                <div className="dashboard-label">Blocked</div>
+                <div className="dashboard-bar-track">
+                  <div className="dashboard-bar-fill" style={{width: '7%', background: '#7a9e7a'}}></div>
+                </div>
+                <div className="dashboard-value" style={{color: '#7a9e7a'}}>1</div>
+              </div>
+              <div className="dashboard-row">
+                <div className="dashboard-label">Avg Cycle Time</div>
+                <div className="dashboard-bar-track">
+                  <div className="dashboard-bar-fill" style={{width: '30%', background: '#7a9e7a'}}></div>
+                </div>
+                <div className="dashboard-value" style={{color: '#7a9e7a'}}>3d</div>
+              </div>
+            </div>
+            <div>
+              <h3 style={{color: '#c95c5c', fontSize: '20px', marginBottom: '20px'}}>Starving Factory</h3>
+              <div className="dashboard-row">
+                <div className="dashboard-label">Decision Velocity</div>
+                <div className="dashboard-bar-track">
+                  <div className="dashboard-bar-fill" style={{width: '15%', background: '#c95c5c'}}></div>
+                </div>
+                <div className="dashboard-value" style={{color: '#c95c5c'}}>1/wk</div>
+              </div>
+              <div className="dashboard-row">
+                <div className="dashboard-label">First-Pass Yield</div>
+                <div className="dashboard-bar-track">
+                  <div className="dashboard-bar-fill" style={{width: '40%', background: '#d4b85c'}}></div>
+                </div>
+                <div className="dashboard-value" style={{color: '#d4b85c'}}>40%</div>
+              </div>
+              <div className="dashboard-row">
+                <div className="dashboard-label">Blocked</div>
+                <div className="dashboard-bar-track">
+                  <div className="dashboard-bar-fill" style={{width: '45%', background: '#c95c5c'}}></div>
+                </div>
+                <div className="dashboard-value" style={{color: '#c95c5c'}}>5</div>
+              </div>
+              <div className="dashboard-row">
+                <div className="dashboard-label">Avg Cycle Time</div>
+                <div className="dashboard-bar-track">
+                  <div className="dashboard-bar-fill" style={{width: '85%', background: '#c95c5c'}}></div>
+                </div>
+                <div className="dashboard-value" style={{color: '#c95c5c'}}>12d</div>
+              </div>
+            </div>
+          </div>
+          <div className="key-insight" style={{borderColor: '#5c8ac9'}}>
+            <span className="emoji">🔍</span>
+            <span>The right side isn't a speed problem — it's a decision problem. Low velocity + high blocked = humans need to clear the queue. The dashboard points you to the fix.</span>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <div className="section-label" style={{color: '#5c8ac9'}}>THE DASHBOARD</div>
+          <h2>The Playbook</h2>
+          <p style={{fontSize: '18px', color: '#a89f94', marginBottom: '10px'}}>When a number goes red, here's what to do:</p>
+          <div className="playbook">
+            <div className="playbook-row" style={{borderColor: '#d4b85c'}}>
+              <div className="playbook-signal">⚡ Decision Velocity low</div>
+              <div className="playbook-arrow">→</div>
+              <div className="playbook-fix">Danvers/Jess: clear the DECIDE queue. Quick calls first.</div>
+            </div>
+            <div className="playbook-row" style={{borderColor: '#9e7a9e'}}>
+              <div className="playbook-signal">⚖️ WIP piling up</div>
+              <div className="playbook-arrow">→</div>
+              <div className="playbook-fix">Find the overloaded station. Stop starting, start finishing.</div>
+            </div>
+            <div className="playbook-row" style={{borderColor: '#c95c5c'}}>
+              <div className="playbook-signal">✅ First-Pass Yield dropping</div>
+              <div className="playbook-arrow">→</div>
+              <div className="playbook-fix">Specs aren't clear enough. Invest more in PATCH and DECIDE.</div>
+            </div>
+            <div className="playbook-row" style={{borderColor: '#c95c5c'}}>
+              <div className="playbook-signal">🚨 Blocked Count rising</div>
+              <div className="playbook-arrow">→</div>
+              <div className="playbook-fix">Multiple red lights = systemic gap. Look for a shared root cause.</div>
+            </div>
+            <div className="playbook-row" style={{borderColor: '#d4b85c'}}>
+              <div className="playbook-signal">💡 ECO Rate high</div>
+              <div className="playbook-arrow">→</div>
+              <div className="playbook-fix">Specs keep being wrong. Use SHAPE more, or DECIDE needs deeper thought.</div>
+            </div>
+            <div className="playbook-row" style={{borderColor: '#a89f94'}}>
+              <div className="playbook-signal">⏱️ Cycle Time creeping</div>
+              <div className="playbook-arrow">→</div>
+              <div className="playbook-fix">Check which flow state items are stuck in. That's your bottleneck.</div>
+            </div>
+          </div>
+          <div className="key-insight" style={{borderColor: '#5c8ac9'}}>
+            <span className="emoji">🗺️</span>
+            <span>Every number points to a station. The fix is always: go to that station and unblock it.</span>
+          </div>
+        </div>,
+
+        <div className="slide">
+          <h2>Summary</h2>
+          <div className="comparison">
+            <div className="comparison-column">
+              <h3>THE OLD VIEW</h3>
+              <ul>
+                <li>Status board</li>
+                <li>To Do / Doing / Done</li>
+                <li>Asks "What's the status?"</li>
+                <li>Tracks completion</li>
+              </ul>
+            </div>
+            <div className="comparison-column">
+              <h3>THE FACTORY VIEW</h3>
+              <ul>
+                <li>Station board</li>
+                <li>DECIDE / PATCH / MAKE / SHAPE</li>
+                <li>Asks "Where's the bottleneck?"</li>
+                <li>Tracks flow</li>
+              </ul>
+            </div>
+          </div>
+          <div className="key-insight" style={{borderColor: '#d4b85c', marginTop: '60px'}}>
+            <span className="emoji">🔗</span>
+            <div>
+              <div>Both views live at github.com/orgs/sociotechnica-org/projects/4</div>
+              <div style={{marginTop: '10px', color: '#a89f94'}}>Switch between them to see the same work from two angles.</div>
+            </div>
+          </div>
+        </div>,
+      ];
+
+      return (
+        <>
+          <style>{styles}</style>
+          <div className="slide-container">
+            {slides[currentSlide]}
+          </div>
+          <div className="nav-bar">
+            <button
+              className="nav-button"
+              onClick={() => setCurrentSlide(prev => Math.max(prev - 1, 0))}
+              disabled={currentSlide === 0}
+            >
+              ← Previous
+            </button>
+            <div className="progress-dots">
+              {Array.from({length: totalSlides}).map((_, i) => (
+                <div
+                  key={i}
+                  className={`dot ${i === currentSlide ? 'active' : ''}`}
+                  style={{background: i === currentSlide ? getSectionColor(i) : 'rgba(255, 255, 255, 0.2)'}}
+                  onClick={() => setCurrentSlide(i)}
+                />
+              ))}
+            </div>
+            <button
+              className="nav-button"
+              onClick={() => setCurrentSlide(prev => Math.min(prev + 1, totalSlides - 1))}
+              disabled={currentSlide === totalSlides - 1}
+            >
+              Next →
+            </button>
+          </div>
+        </>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Presentation />);
+  </script>
+</body>
+</html>

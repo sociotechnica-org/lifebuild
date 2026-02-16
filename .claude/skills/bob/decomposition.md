@@ -10,7 +10,7 @@ How to extract cards from source material. Use when Conan's inventory is sparse 
 - Judgment guidance (a rule of thumb) → **Principle**
 - Testable spec (concrete rules, values, thresholds) → **Standard**
 
-### Step 2: Is this about WHAT exists that directors interact with?
+### Step 2: Is this about WHAT exists that builders interact with?
 
 **Navigate TO it?**
 
@@ -25,8 +25,8 @@ How to extract cards from source material. Use when Conan's inventory is sparse 
 
 - Spatial canvas/visual fabric → **Structure**
 - Specific UI widget → **Component**
-- Content object directors create/edit → **Artifact**
-- Action/workflow directors perform → **Capability**
+- Content object builders create/edit → **Artifact**
+- Action/workflow builders perform → **Capability**
 
 **Core data entity?**
 
@@ -41,7 +41,14 @@ How to extract cards from source material. Use when Conan's inventory is sparse 
 - The agent itself → **Agent**
 - The agent's implementation → **Prompt**
 
-### Step 5: Is this temporal?
+### Step 5: Is this about the player experience over time?
+
+- Repeating activity cycle → **Loop**
+- Multi-phase progression arc → **Journey**
+- Target emotional state → **Aesthetic**
+- Emergent cross-system behavior → **Dynamic**
+
+### Step 6: Is this temporal?
 
 - Past insight → **Learning**
 - Past choice → **Decision**
@@ -52,9 +59,9 @@ How to extract cards from source material. Use when Conan's inventory is sparse 
 | Question                                     | Answer A   | Answer B            |
 | -------------------------------------------- | ---------- | ------------------- |
 | Navigate TO it, or interact WITHIN it?       | Zone/Room  | Structure/Component |
-| Directors say "I'm in X" or "I'm using X"?   | Zone/Room  | Structure/Component |
+| Builders say "I'm in X" or "I'm using X"?    | Zone/Room  | Structure/Component |
 | Has runtime state? Processes inputs?         | System     | Standard            |
-| Content directors create, or spatial fabric? | Artifact   | Structure           |
+| Content builders create, or spatial fabric? | Artifact   | Structure           |
 | Core data entity, or content object?         | Primitive  | Artifact            |
 | Action/workflow, or spatial canvas?          | Capability | Structure           |
 
@@ -94,8 +101,8 @@ Examples:
 | Always-visible, cross-zone element          | Overlay            |
 | Spatial canvas, grid, board layout          | Structure          |
 | Specific UI widget, button, indicator       | Component          |
-| Content object directors create/edit        | Artifact           |
-| Action, workflow, process directors perform | Capability         |
+| Content object builders create/edit        | Artifact           |
+| Action, workflow, process builders perform | Capability         |
 | Core data entity (project, task)            | Primitive          |
 | "The X System" or "X Architecture"          | System             |
 | Mentioned across multiple sections          | System             |
@@ -106,7 +113,7 @@ Examples:
 ### Extraction Pass
 
 1. **First read:** Note every named thing. Don't judge.
-2. **Second read:** Mark spaces directors navigate to (zone/room candidates).
+2. **Second read:** Mark spaces builders navigate to (zone/room candidates).
 3. **Third read:** Mark things within spaces (structure/component/artifact/capability candidates).
 4. **Fourth read:** Mark cross-cutting mechanisms (system candidates).
 5. **Fifth read:** Mark specification content (standard candidates).

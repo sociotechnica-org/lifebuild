@@ -22,7 +22,7 @@ The session structure that guides conversations in the Council Chamber — a cus
 - Strategy: [[Strategy - Superior Process]] — good conversations have shape
 - Principle: [[Principle - Guide When Helpful]] — structure aids, doesn't control
 - Driver: Strategic conversations can wander aimlessly. The Agenda provides just enough structure to keep them productive.
-- Constraints: The Agenda provides shape, not control. Enough structure to be productive, enough flexibility to be human. Directors can override, modify, or skip any agenda item.
+- Constraints: The Agenda provides shape, not control. Enough structure to be productive, enough flexibility to be human. Builders can override, modify, or skip any agenda item.
 
 ## WHEN: Timeline
 
@@ -57,16 +57,16 @@ Core to Council Chamber design. Agenda templates refine based on what works.
 3. Options — What are the paths?
 4. Direction — What's the inclination?
 
-**Customization:** Directors can modify agenda templates. Jarvis adapts to preferences over time.
+**Customization:** Builders can modify agenda templates. Jarvis adapts to preferences over time.
 
 **Flexibility:** Agenda guides, doesn't mandate. Conversations can deviate when needed.
 
 ### Examples
 
-- Weekly check-in begins → Jarvis follows agenda: "How did last week go?" → director reflects → "What patterns am I noticing?" → Jarvis shares a calibration observation → "What's ahead?" → director previews upcoming commitments → "Any Charter updates?" → session ends with structure and substance.
-- Director wants to discuss a sudden job offer instead of the standard agenda → tells Jarvis → "Of course — let's focus on that" → agenda flexes → decision conversation happens → Jarvis returns to remaining agenda items if time and energy allow.
+- Weekly check-in begins → Jarvis follows agenda: "How did last week go?" → builder reflects → "What patterns am I noticing?" → Jarvis shares a calibration observation → "What's ahead?" → builder previews upcoming commitments → "Any Charter updates?" → session ends with structure and substance.
+- Builder wants to discuss a sudden job offer instead of the standard agenda → tells Jarvis → "Of course — let's focus on that" → agenda flexes → decision conversation happens → Jarvis returns to remaining agenda items if time and energy allow.
 
 ### Anti-Examples
 
-- **Jarvis refusing to deviate from the planned agenda** — the agenda guides, not mandates. When a director has something urgent or important, the structure yields. Rigid agendas turn strategic conversation into bureaucratic process.
+- **Jarvis refusing to deviate from the planned agenda** — the agenda guides, not mandates. When a builder has something urgent or important, the structure yields. Rigid agendas turn strategic conversation into bureaucratic process.
 - **Running every session with no agenda at all** — some structure prevents productive conversations from becoming aimless. Without an agenda, sessions drift toward whatever is most emotionally salient, missing systemic patterns.

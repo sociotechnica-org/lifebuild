@@ -30,9 +30,9 @@ The specification for the day-by-day first 72 hours experience: what happens eac
 
 | Step             | Actor                         | Outcome                      |
 | ---------------- | ----------------------------- | ---------------------------- |
-| Warm greeting    | Mesa at Campfire              | Director feels welcomed      |
+| Warm greeting    | Mesa at Campfire              | Builder feels welcomed      |
 | Spatial metaphor | Life Map introduction         | "This is a map of your life" |
-| First project    | Director creates (low stakes) | "I made something"           |
+| First project    | Builder creates (low stakes) | "I made something"           |
 
 **Emotional target:** "I made something."
 **Constraint:** Only Campfire, Life Map basics, and project creation are available.
@@ -41,7 +41,7 @@ The specification for the day-by-day first 72 hours experience: what happens eac
 
 | Step                 | Actor                   | Outcome                           |
 | -------------------- | ----------------------- | --------------------------------- |
-| Jarvis introduction  | Council Chamber unlocks | Director meets planning advisor   |
+| Jarvis introduction  | Council Chamber unlocks | Builder meets planning advisor   |
 | Charter conversation | Jarvis guides           | Values and current focus captured |
 | Second project       | Marvin in Drafting Room | "I have help"                     |
 
@@ -52,8 +52,8 @@ The specification for the day-by-day first 72 hours experience: what happens eac
 
 | Step                   | Actor                           | Outcome                             |
 | ---------------------- | ------------------------------- | ----------------------------------- |
-| Sorting Room visit     | Cameron guides                  | Director prioritizes for first time |
-| Work at Hand selection | Director chooses (even minimal) | First weekly commitment             |
+| Sorting Room visit     | Marvin guides                  | Builder prioritizes for first time |
+| Work at Hand selection | Builder chooses (even minimal) | First weekly commitment             |
 | Table populated        | System displays selections      | "I know what to do each week"       |
 
 **Emotional target:** "I know what to do each week."
@@ -74,24 +74,24 @@ The specification for the day-by-day first 72 hours experience: what happens eac
 
 **Example 1: Successful Day 1 completion**
 
-- Scenario: New director opens LifeBuild for the first time.
-- Input: Director arrives at the app with no prior context.
-- Correct output: Mesa greets at Campfire. Director sees the Life Map with the spatial metaphor introduction. Director creates a low-stakes first project (e.g., "Organize Desk"). The Table, Sorting Room, and agent capabilities are hidden. Session ends with the director having created a visible artifact on their Life Map. Emotional outcome: "I made something."
+- Scenario: New builder opens LifeBuild for the first time.
+- Input: Builder arrives at the app with no prior context.
+- Correct output: Mesa greets at Campfire. Builder sees the Life Map with the spatial metaphor introduction. Builder creates a low-stakes first project (e.g., "Organize Desk"). The Table, Sorting Room, and agent capabilities are hidden. Session ends with the builder having created a visible artifact on their Life Map. Emotional outcome: "I made something."
 
 **Example 2: Day 2 progressive unlock**
 
-- Scenario: Director returns for second session.
-- Input: Director has completed Day 1 (first project created).
-- Correct output: Council Chamber unlocks. Jarvis introduces himself and guides a Charter conversation to capture values and current focus. Drafting Room becomes available with Marvin. Director creates a second project with Marvin's help. Sorting Room remains locked. Director leaves feeling "I have help" — the AI team is capable and supportive.
+- Scenario: Builder returns for second session.
+- Input: Builder has completed Day 1 (first project created).
+- Correct output: Council Chamber unlocks. Jarvis introduces himself and guides a Charter conversation to capture values and current focus. Drafting Room becomes available with Marvin. Builder creates a second project with Marvin's help. Sorting Room remains locked. Builder leaves feeling "I have help" — the AI team is capable and supportive.
 
 ### Anti-Examples
 
 - **Full feature tour on Day 1** — Day 1 has one job: spatial metaphor + first project + "I made something." Showing The Table, Sorting Room, and agent capabilities creates cognitive overload and abandonment.
-- **Requiring profile completion before first project creation** — every field between arrival and first "I made something" moment is friction. Directors should create their first project within minutes.
-- **Day 1 ending without director having created something tangible** — if the first session ends without a visible artifact, the tool feels hollow. The first project (low stakes, quick win) establishes that LifeBuild produces, not just organizes.
+- **Requiring profile completion before first project creation** — every field between arrival and first "I made something" moment is friction. Builders should create their first project within minutes.
+- **Day 1 ending without builder having created something tangible** — if the first session ends without a visible artifact, the tool feels hollow. The first project (low stakes, quick win) establishes that LifeBuild produces, not just organizes.
 
 ### Conformance Test
 
-1. Walk through Day 1 as a new director and verify that only Campfire, Life Map basics, and project creation are available — The Table, Sorting Room, and full agent capabilities must be hidden.
+1. Walk through Day 1 as a new builder and verify that only Campfire, Life Map basics, and project creation are available — The Table, Sorting Room, and full agent capabilities must be hidden.
 2. Verify that each day has exactly one primary emotional target and that the UI/agent interactions are designed to produce that outcome ("I made something" / "I have help" / "I know what to do each week").
-3. On Day 2, confirm the Sorting Room remains locked and only unlocks on Day 3 when the director is ready to prioritize.
+3. On Day 2, confirm the Sorting Room remains locked and only unlocks on Day 3 when the builder is ready to prioritize.

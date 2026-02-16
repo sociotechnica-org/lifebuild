@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The specification for the progressive ladder (Levels 0-5) measuring how well the AI team knows a director. This standard defines what knowledge corresponds to what service quality; the Knowledge Framework and Progressive Knowledge Capture implement the acquisition.
+The specification for the progressive ladder (Levels 0-5) measuring how well the AI team knows a builder. This standard defines what knowledge corresponds to what service quality; the Knowledge Framework and Progressive Knowledge Capture implement the acquisition.
 
 ## WHERE: Ecosystem
 
@@ -50,21 +50,21 @@ The specification for the progressive ladder (Levels 0-5) measuring how well the
 
 #### Goal
 
-Move every director up the ladder through thoughtful observation and well-timed questions, not interrogation.
+Move every builder up the ladder through thoughtful observation and well-timed questions, not interrogation.
 
 ### Examples
 
 **Example 1: Level 1 service — basic recommendations**
 
-- Scenario: New director has completed onboarding. System knows their projects, weekly capacity estimate, and planted systems.
-- Input: Director asks "What should I work on this week?"
-- Correct output: Cameron uses Priority Score math to rank projects within each stream and presents top candidates. Recommendations are score-based only — no personalization, no pattern-based insights. Cameron does NOT say "based on your tendency to..." because behavioral patterns are not yet available at Level 1.
+- Scenario: New builder has completed onboarding. System knows their projects, weekly capacity estimate, and planted systems.
+- Input: Builder asks "What should I work on this week?"
+- Correct output: Marvin uses Priority Score math to rank projects within each stream and presents top candidates. Recommendations are score-based only — no personalization, no pattern-based insights. Marvin does NOT say "based on your tendency to..." because behavioral patterns are not yet available at Level 1.
 
 **Example 2: Level 2 service — pattern detection**
 
-- Scenario: Director has been using LifeBuild for 6 weeks. System has observed behavioral patterns: director consistently underestimates Gold project effort by 30%.
-- Input: Director creates a new Gold project and estimates Effort as 4.
-- Correct output: Conan detects the pattern and Cameron adjusts the recommendation: "Your Gold estimates have been running about 30% under actual effort. Consider whether this is closer to Effort 5-6." This insight is only available at Level 2+ because it requires observed behavioral patterns.
+- Scenario: Builder has been using LifeBuild for 6 weeks. System has observed behavioral patterns: builder consistently underestimates Gold project effort by 30%.
+- Input: Builder creates a new Gold project and estimates Effort as 4.
+- Correct output: Conan detects the pattern and Marvin adjusts the recommendation: "Your Gold estimates have been running about 30% under actual effort. Consider whether this is closer to Effort 5-6." This insight is only available at Level 2+ because it requires observed behavioral patterns.
 
 ### Anti-Examples
 

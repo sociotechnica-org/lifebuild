@@ -2,9 +2,9 @@
 
 ## Divergence
 
-**Vision:** LifeBuild runs on a weekly cadence. Directors complete Weekly Planning (typically Friday or Sunday), commit to Gold/Silver/Bronze for the week, execute against that plan, then review via Week-in-Review. Plans are hypotheses tested against reality. Calibration accuracy is tracked over time. Mid-week Adaptation is a structured system for modifying commitments.
+**Vision:** LifeBuild runs on a weekly cadence. Builders complete Weekly Planning (typically Friday or Sunday), commit to Gold/Silver/Bronze for the week, execute against that plan, then review via Week-in-Review. Plans are hypotheses tested against reality. Calibration accuracy is tracked over time. Mid-week Adaptation is a structured system for modifying commitments.
 
-**Reality:** No weekly cadence exists. Selections on The Table are ad-hoc — directors can assign/unassign projects at any time with no temporal boundaries. No week start, no week end, no planning sessions, no review sessions, no calibration tracking, no Adaptation system.
+**Reality:** No weekly cadence exists. Selections on The Table are ad-hoc — builders can assign/unassign projects at any time with no temporal boundaries. No week start, no week end, no planning sessions, no review sessions, no calibration tracking, no Adaptation system.
 
 ## Scale
 
@@ -26,7 +26,7 @@ Weekly cadence requires: (1) a concept of "week" in the data model, (2) a trigge
 - Builders should not reference "this week's plan" or "weekly commitment" as if it exists in code. The Table shows current selections, not week-scoped commitments.
 - Any feature that requires "week end" or "new planning cycle" logic needs the temporal layer first.
 - The current ad-hoc selection model is not a bug — it's a simpler starting point. But it means the Plans Are Hypotheses principle is aspirational, not operational.
-- Cameron's Sorting Room guidance currently helps with selection, not with weekly commitment framing.
+- Marvin's Sorting Room guidance currently helps with selection, not with weekly commitment framing.
 
 ## When This Closes
 

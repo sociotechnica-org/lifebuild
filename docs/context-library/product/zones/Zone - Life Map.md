@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The primary execution workspace — a spatial canvas where directors see their entire life organized as a hex grid of projects and systems. The Life Map is where work happens: viewing priorities, tracking progress, and managing the landscape of commitments.
+The primary — and essentially only — workspace. The map IS the game. A spatial canvas where builders see their entire life organized as a hex grid of projects and systems. The Life Map is where everything happens: viewing priorities, tracking progress, managing the landscape of commitments, and entering the sanctuary structure for strategic conversations with stewards. There is no separate Strategy Studio mode.
 
 ## WHERE: Ecosystem
 
@@ -26,15 +26,15 @@ The primary execution workspace — a spatial canvas where directors see their e
 - Implements: [[Standard - Dual Presence]] — Work at Hand appears on both Table and grid
 - Implements: [[Principle - Visibility Creates Agency]] — everything visible at once
 - Conforms to: [[Standard - Visual Language]] — hex tiles, state indicators, category colors render per spec
-- Conforms to: [[Standard - Spatial Interaction Rules]] — director controls spatial arrangement
+- Conforms to: [[Standard - Spatial Interaction Rules]] — builder controls spatial arrangement
 
 ## WHY: Rationale
 
 - Strategy: [[Strategy - Spatial Visibility]] — Life Map is the primary embodiment of spatial thinking
-- Principle: [[Principle - Visibility Creates Agency]] — directors see everything, decide what to focus on
+- Principle: [[Principle - Visibility Creates Agency]] — builders see everything, decide what to focus on
 - Principle: [[Principle - Visual Recognition]] — spatial memory aids finding and understanding
-- Driver: Directors need a home base where all their work is visible and organized. The Life Map is that home.
-- Constraints: Life Map is an execution workspace, not a dashboard. It shows spatial reality, not summarized metrics. Every element the director sees has a spatial position they chose.
+- Driver: Builders need a home base where all their work is visible and organized. The Life Map is that home.
+- Constraints: Life Map is an execution workspace, not a dashboard. It shows spatial reality, not summarized metrics. Every element the builder sees has a spatial position they chose.
 
 ## WHEN: Timeline
 
@@ -42,7 +42,9 @@ The primary execution workspace — a spatial canvas where directors see their e
 **Implementation status:** Partial
 **Reality note (2026-02-10):** Life Map exists as the default route (`/life-map`) rendering `LifeMap.tsx` with 8 `CategoryCard` components. Mesa agent is active. The Table overlay is implemented. However, the hex grid spatial canvas is not built — projects appear as cards within category containers, not hex tiles on a zoomable spatial canvas. Zoom Navigation, smoke signals, dual presence, and spatial positioning are not implemented.
 
-Core workspace from initial design. The Life Map is LifeBuild's primary interface — where directors spend most of their time.
+**Design decision (GDD v0.2, 2026-02-13):** Map-first architecture confirmed. The map is the primary and essentially only UI. The sanctuary structure (Humble Studio → Growing Workshop → The Sanctuary) sits at the center of the hex grid and contains all steward rooms (Council Chamber, Drafting/Sorting/Roster). Strategic and tactical modes merge on the single map — zoom in to enter the sanctuary for planning, zoom out to work the territories. The frontier (grayed-out unclaimed hexes) surrounds the builder's territories. See [[GDD-v0.2]] for full architecture.
+
+Core workspace from initial design. The Life Map is LifeBuild's primary interface — where builders spend all of their time. GDD v0.2 confirms map-first: everything lives on the map.
 
 ## HOW: Implementation
 
@@ -66,14 +68,14 @@ Core workspace from initial design. The Life Map is LifeBuild's primary interfac
 - Dive into specific work ([[Room - Project Board]] overlay)
 - Get help (summon Mesa)
 
-**Entry point:** Life Map is the default view when directors open LifeBuild.
+**Entry point:** Life Map is the default view when builders open LifeBuild.
 
 ### Examples
 
-- Director opens LifeBuild → Life Map loads at last zoom level and scroll position → [[Overlay - The Table]] shows current priorities → [[Structure - Hex Grid]] shows project landscape → director orients in under 3 seconds without clicking anything.
-- Director notices a red smoke signal on a system tile at Neighborhood zoom → zooms in to Detail level → reads health warning "cycle completion 45%" → clicks tile → [[Room - System Board]] opens as overlay → director diagnoses the issue while Life Map stays visible behind.
+- Builder opens LifeBuild → Life Map loads at last zoom level and scroll position → [[Overlay - The Table]] shows current priorities → [[Structure - Hex Grid]] shows project landscape → builder orients in under 3 seconds without clicking anything.
+- Builder notices a red smoke signal on a system tile at Neighborhood zoom → zooms in to Detail level → reads health warning "cycle completion 45%" → clicks tile → [[Room - System Board]] opens as overlay → builder diagnoses the issue while Life Map stays visible behind.
 
 ### Anti-Examples
 
-- **Opening to a dashboard or activity feed instead of the spatial Life Map** — Life Map is home base because spatial context orients faster than a list of updates. Directors need to see their landscape, not read about it.
-- **Removing completed projects immediately from the grid, leaving visible gaps** — completed projects archive gracefully. Sudden spatial holes would disorient directors who navigate by spatial memory ("my health projects are upper-left").
+- **Opening to a dashboard or activity feed instead of the spatial Life Map** — Life Map is home base because spatial context orients faster than a list of updates. Builders need to see their landscape, not read about it.
+- **Removing completed projects immediately from the grid, leaving visible gaps** — completed projects archive gracefully. Sudden spatial holes would disorient builders who navigate by spatial memory ("my health projects are upper-left").

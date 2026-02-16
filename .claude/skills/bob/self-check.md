@@ -192,7 +192,7 @@ After finishing a zone's cards:
 
 # Good
 
-"Bronze Mode Settings let directors control how many operational tasks
+"Bronze Mode Settings let builders control how many operational tasks
 appear in their Bronze queue each week..."
 ```
 

@@ -7,7 +7,7 @@ Applying structured frameworks — from basic organization through sophisticated
 ## WHERE: Ecosystem
 
 - Type: Strategic Bet
-- Serves: [[Need - Competence]] — directors complete what they commit to
+- Serves: [[Need - Competence]] — builders complete what they commit to
 - Serves: [[Need - Autonomy]] (secondary) — structured process increases control
 - Implementing principles: [[Principle - Protect Transformation]], [[Principle - Plans Are Hypotheses]], [[Principle - Empty Slots Strategic]]
 - Governs: [[Standard - Three-Stream Portfolio]], [[System - Priority Queue Architecture]], [[System - Pipeline Architecture]], [[System - Four-Stage Creation]], [[System - Weekly Priority]], [[Standard - Priority Score]]
@@ -24,7 +24,7 @@ Meanwhile, professional project management has developed sophisticated framework
 
 Almost none of this gets applied to personal life. The modern knowledge worker's life has organizational complexity without organizational support.
 
-The bet: if we apply structured process to personal life, directors will execute more effectively, avoid overwhelm, and make better decisions about what deserves their time and energy.
+The bet: if we apply structured process to personal life, builders will execute more effectively, avoid overwhelm, and make better decisions about what deserves their time and energy.
 
 ## WHEN: Timeline
 
@@ -44,29 +44,29 @@ The bet: if we apply structured process to personal life, directors will execute
 | 3     | Bespoke Frameworks    | Bronze/Silver/Gold, The Table as WIP gate (current target)   |
 | 4     | Enterprise Principles | DRI clarity, OODA loops, retrospectives                      |
 | 5     | Structured Rhythm     | SODA cycle, weekly planning phases                           |
-| 6     | Capacity Tracking     | Director Attributes measured and managed                     |
+| 6     | Capacity Tracking     | Builder Attributes measured and managed                     |
 | 7     | Full Orchestrated     | Defined roles, communication protocols, life-as-organization |
 
 **Current state:** Level 3. Three-stream portfolio and The Table implemented. Capacity tracking planned.
 
 ### What Following This Looks Like
 
-- A director runs a weekly planning session using The Table to gate work-in-progress, reviews the three-stream portfolio, and consciously decides what gets active attention this week versus what stays queued.
-- When a new commitment arrives mid-week, the director evaluates it against current WIP limits and priority scores rather than reflexively saying yes. Process creates space for intentional decisions.
-- Projects move through defined stages (Four-Stage Creation) with clear transitions, so the director always knows whether something is being explored, committed, in-progress, or complete.
+- A builder runs a weekly planning session using The Table to gate work-in-progress, reviews the three-stream portfolio, and consciously decides what gets active attention this week versus what stays queued.
+- When a new commitment arrives mid-week, the builder evaluates it against current WIP limits and priority scores rather than reflexively saying yes. Process creates space for intentional decisions.
+- Projects move through defined stages (Four-Stage Creation) with clear transitions, so the builder always knows whether something is being explored, committed, in-progress, or complete.
 
 ### What Violating This Looks Like
 
-- **Forcing full process on day one** — Level 7 (full orchestrated) on first use overwhelms. The ladder exists because process adoption must be progressive. A new director needs basic capture (Level 1) before bespoke frameworks (Level 3).
+- **Forcing full process on day one** — Level 7 (full orchestrated) on first use overwhelms. The ladder exists because process adoption must be progressive. A new builder needs basic capture (Level 1) before bespoke frameworks (Level 3).
 - **Applying corporate process without adapting to personal context** — Professional frameworks like DRI clarity and OODA loops (Level 4) are solutions to organizational problems. Importing them unchanged into personal life adds overhead without value. Adaptation is required.
 - **Treating process as rigid rather than adaptive** — If the weekly plan is a contract (see [[Principle - Plans Are Hypotheses]]), process becomes a cage. Process should enable flexibility, not constrain it. Mid-week adaptation is engaged leadership, not process failure.
 
 ### Decision Heuristic
 
-When choosing between ad-hoc response and structured process, choose structure — but only as much structure as the director's current maturity level can absorb without overhead exceeding value.
+When choosing between ad-hoc response and structured process, choose structure — but only as much structure as the builder's current maturity level can absorb without overhead exceeding value.
 
 ## Tensions
 
-- With simplicity — process adds overhead; resolution is progressive adoption based on director need
+- With simplicity — process adds overhead; resolution is progressive adoption based on builder need
 - Could be subsumed by AI — if agents become powerful enough, process becomes invisible scaffolding internal to them
 - Independent from other planks — can succeed or fail independently of Visual and AI Team bets

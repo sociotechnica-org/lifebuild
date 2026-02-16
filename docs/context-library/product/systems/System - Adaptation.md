@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The invisible mechanism governing how weekly commitments change after planning. Directors don't consciously "use" Adaptation — they just change their plans. The system manages state transitions when projects are paused, replacements promoted, Bronze mode adjusted, or emergency work inserted. Adaptation ensures these mutations follow consistent rules while feeling effortless.
+The invisible mechanism governing how weekly commitments change after planning. Builders don't consciously "use" Adaptation — they just change their plans. The system manages state transitions when projects are paused, replacements promoted, Bronze mode adjusted, or emergency work inserted. Adaptation ensures these mutations follow consistent rules while feeling effortless.
 
 ## WHERE: Scope
 
@@ -38,14 +38,14 @@ The invisible mechanism governing how weekly commitments change after planning. 
 
 - Principle: [[Principle - Plans Are Hypotheses]] — plans change; that's leadership, not failure
 - Strategy: [[Strategy - Superior Process]] — adaptation has structure, not chaos
-- Driver: Life doesn't wait for Friday planning. Directors need to respond to change without guilt or friction.
+- Driver: Life doesn't wait for Friday planning. Builders need to respond to change without guilt or friction.
 - Constraints: Adaptation carries no guilt tax. The system never frames mid-week changes as failure. Modification UI feels like adjusting strategy, not editing a failure report.
 
 ## WHEN: Timeline
 
 **Build phase:** Future
 **Implementation status:** Not started
-**Reality note (2026-02-10):** No adaptation system exists. No mid-week priority adjustments, no capacity sensing, no automatic Table modifications. Directors manually manage all changes via the Sorting Room.
+**Reality note (2026-02-10):** No adaptation system exists. No mid-week priority adjustments, no capacity sensing, no automatic Table modifications. Builders manually manage all changes via the Sorting Room.
 
 Core system. Adaptation mechanics designed to feel supportive, not punitive.
 
@@ -56,7 +56,7 @@ Core system. Adaptation mechanics designed to feel supportive, not punitive.
 - Click project on The Table -> Open Project Board
 - Click Pause button
 - Paused project returns to Priority Queue (top position)
-- Slot opens; director chooses:
+- Slot opens; builder chooses:
   1. Promote from queue — select different project
   2. Create emergency — new project jumps to position
   3. Leave empty — intentional gap for remainder of week
@@ -83,8 +83,8 @@ Core system. Adaptation mechanics designed to feel supportive, not punitive.
 
 ### Examples
 
-- Director's parent falls ill on Tuesday -> director opens The Table -> pauses Gold project "Career Course" -> slot opens -> director selects "Leave empty" -> Bronze mode switches to Minimal -> the week reshapes around care without guilt or friction.
-- Sprint at work demands unexpected effort -> director opens Bronze position -> switches from Target +3 to Maximal -> operational tasks surface to match the week's intensity -> no judgment about the change, just responsive adaptation.
+- Builder's parent falls ill on Tuesday -> builder opens The Table -> pauses Gold project "Career Course" -> slot opens -> builder selects "Leave empty" -> Bronze mode switches to Minimal -> the week reshapes around care without guilt or friction.
+- Sprint at work demands unexpected effort -> builder opens Bronze position -> switches from Target +3 to Maximal -> operational tasks surface to match the week's intensity -> no judgment about the change, just responsive adaptation.
 
 ### Anti-Examples
 

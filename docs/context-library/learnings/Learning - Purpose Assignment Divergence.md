@@ -2,18 +2,18 @@
 
 ## Divergence
 
-**Vision:** Purpose is captured during Stage 2 of project creation with a single direct question: "What is this time investment for?" The director answers with one of three purposes — Gold (expansion/transformation), Silver (capacity/leverage), or Bronze (maintenance/operations). The question is subjective and personal per [[Principle - Familiarity Over Function]].
+**Vision:** Purpose is captured during Stage 2 of project creation with a single direct question: "What is this time investment for?" The builder answers with one of three purposes — Gold (expansion/transformation), Silver (capacity/leverage), or Bronze (maintenance/operations). The question is subjective and personal per [[Principle - Familiarity Over Function]].
 
-**Reality:** Stream classification is derived from two separate selections: archetype and scale. The director chooses a project archetype (e.g., "build," "learn," "fix," "maintain") and a scale (e.g., "major," "moderate," "minor"), and the system derives the Gold/Silver/Bronze stream from that combination. There is no single "What is this time investment for?" question.
+**Reality:** Stream classification is derived from two separate selections: archetype and scale. The builder chooses a project archetype (e.g., "build," "learn," "fix," "maintain") and a scale (e.g., "major," "moderate," "minor"), and the system derives the Gold/Silver/Bronze stream from that combination. There is no single "What is this time investment for?" question.
 
 ## Why It Matters
 
-This is a design divergence, not a missing feature. The current implementation _works_ — directors end up with a stream classification. But the mechanism is different from what the context library describes:
+This is a design divergence, not a missing feature. The current implementation _works_ — builders end up with a stream classification. But the mechanism is different from what the context library describes:
 
 - **Vision:** One subjective question about meaning → stream
 - **Reality:** Two objective-ish selections (archetype + scale) → derived stream
 
-The Familiarity Over Function principle says the director's _relationship_ to the work determines classification. The archetype+scale approach is slightly more objective (a "fix" at "minor" scale derives to Bronze regardless of how the director feels about it). A director who considers a minor fix personally transformational would need to override the derivation.
+The Familiarity Over Function principle says the builder's _relationship_ to the work determines classification. The archetype+scale approach is slightly more objective (a "fix" at "minor" scale derives to Bronze regardless of how the builder feels about it). A builder who considers a minor fix personally transformational would need to override the derivation.
 
 ## Implications
 

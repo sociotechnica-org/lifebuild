@@ -2,9 +2,9 @@
 
 ## Divergence
 
-**Vision:** The Project Board is an overlay or room within the Life Map where directors manage a single project's tasks via a Kanban board. The project's Category Advisor provides guidance. The board renders as three columns (To Do, In Progress, Done) with WIP limits.
+**Vision:** The Project Board is an overlay or room within the Life Map where builders manage a single project's tasks via a Kanban board. A Project Guide agent provides project-specific guidance. The board renders as three columns (To Do, In Progress, Done) with WIP limits.
 
-**Reality:** The Project Board is a full-page route (`/project/:id`) with its own layout, not an overlay. It uses a **Project Guide** agent (dynamically created per project via `createProjectRoomDefinition()`) rather than the Category Advisor. The Kanban board has four columns (To Do, In Progress, In Review, Done) instead of three — an `in_review` status was added. No WIP limits are enforced.
+**Reality:** The Project Board is a full-page route (`/project/:id`) with its own layout, not an overlay. It uses a **Project Guide** agent (dynamically created per project via `createProjectRoomDefinition()`) — the settled pattern for project-specific assistance. The Kanban board has four columns (To Do, In Progress, In Review, Done) instead of three — an `in_review` status was added. No WIP limits are enforced.
 
 ## Why It Matters
 
@@ -12,11 +12,11 @@ Three distinct divergences in one room:
 
 ### 1. Full page vs overlay
 
-The card says overlay; reality is a standalone route. This affects navigation flow — the director leaves the Life Map context to enter a project, rather than opening a panel over it. This may be an intentional UX decision (more screen real estate for the board) or a pragmatic MVP choice.
+The card says overlay; reality is a standalone route. This affects navigation flow — the builder leaves the Life Map context to enter a project, rather than opening a panel over it. This may be an intentional UX decision (more screen real estate for the board) or a pragmatic MVP choice.
 
-### 2. Project Guide vs Category Advisor
+### 2. Project Guide pattern
 
-The card says the project's Category Advisor provides guidance. Reality: each project gets its own dynamically-created Project Guide agent via `createProjectRoomDefinition()` in `rooms.ts`. The Project Guide is scoped to that specific project's context. This is actually a useful pattern not described in the context library — the Project Guide doesn't exist as a card.
+Each project gets its own dynamically-created Project Guide agent via `createProjectRoomDefinition()` in `rooms.ts`. The Project Guide is scoped to that specific project's context and provides project-specific help. This is the settled pattern for project-specific assistance.
 
 ### 3. Four columns vs three
 
