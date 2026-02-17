@@ -1,12 +1,12 @@
 # Constellation Protocol
 
-Contract between Conan (assembler) and Bob (implementer) for context delivery.
+Contract between Conan (assembler) and Sam (implementer) for context delivery.
 
 ---
 
 ## Context Package: CONTEXT_BRIEFING.md
 
-Conan writes this file before Bob starts implementation. Bob reads it as primary context.
+Conan writes this file before Sam starts implementation. Sam reads it as primary context.
 
 ### Structure
 
@@ -82,11 +82,11 @@ When a card serves both primary and WHY-chain purposes, include it as a primary 
 
 ---
 
-## Bob's Inquiry Protocol
+## Sam's Inquiry Protocol
 
 ### 5-Signal Decision Matrix
 
-When Bob encounters uncertainty during implementation:
+When Sam encounters uncertainty during implementation:
 
 | Signal                 | Proceed Autonomously                           | Search the Library                                       |
 | ---------------------- | ---------------------------------------------- | -------------------------------------------------------- |
@@ -100,7 +100,7 @@ When Bob encounters uncertainty during implementation:
 
 ### Query Format
 
-When Bob needs more context, log this before searching:
+When Sam needs more context, log this before searching:
 
 ```
 UNCERTAINTY: [dimension — WHAT/WHY/WHERE/HOW/WHEN]
@@ -157,16 +157,16 @@ SEARCH: Grep for "[terms]" in docs/context-library/
 7. Conan logs assembly to constellation-log.jsonl
        │
        ▼
-8. Bob reads .context/CONTEXT_BRIEFING.md
+8. Sam reads .context/CONTEXT_BRIEFING.md
        │
        ▼
-9. Bob implements, querying library when uncertain
+9. Sam implements, querying library when uncertain
        │
        ▼
-10. Bob logs decisions to constellation-log.jsonl
+10. Sam logs decisions to constellation-log.jsonl
        │
        ▼
-11. Bob updates decision outcomes after task completion
+11. Sam updates decision outcomes after task completion
 ```
 
 ---

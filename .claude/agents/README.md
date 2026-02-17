@@ -8,7 +8,7 @@ Four agents operate across the software factory. Each owns a domain. None overla
 | --------------- | ----------------- | ----------------------- | ------- | ------------------------ |
 | **George**      | Factory Foreman   | All (reads instruments) | sonnet  | `/george` or Task agent  |
 | **Conan**       | Context Librarian | PATCH (quality side)    | sonnet  | `/conan` or Task agent   |
-| **Bob**         | Builder           | PATCH + MAKE            | opus    | `/bob` or Task agent     |
+| **Sam**         | Scribe            | PATCH                   | opus    | `/sam` or Task agent     |
 | **PR Reviewer** | Code Reviewer     | MAKE (QC gate)          | inherit | Task agent (pr-reviewer) |
 
 ## Agent Jobs
@@ -40,13 +40,13 @@ Assembles context constellations for builders. Grades, audits, and plans library
 | --- | ----------------- | --------------------------------------- | --------------------------------------- |
 | 0   | Source Assessment | `skills/conan/job-source-assessment.md` | Audit source material quality           |
 | 1   | Inventory         | `skills/conan/job-inventory.md`         | Manifest expected cards                 |
-| 2   | Grade             | `skills/conan/job-grade.md`             | Score cards after Bob builds them       |
+| 2   | Grade             | `skills/conan/job-grade.md`             | Score cards after Sam builds them       |
 | 2.5 | Spot-Check        | `skills/conan/job-spot-check.md`        | Verify upstream before dependent cards  |
 | 3   | Diagnose          | `skills/conan/job-diagnose.md`          | Trace root causes, blast radius         |
 | 4   | Recommend         | `skills/conan/job-recommend.md`         | Prioritize fixes by cascade potential   |
 | 5   | Review            | `skills/conan/job-review.md`            | Re-grade after fixes                    |
 | 6   | Audit             | `skills/conan/job-audit.md`             | Verify typing, atomicity, conformance   |
-| 7   | Surgery           | `skills/conan/job-surgery.md`           | Produce fix plans for Bob               |
+| 7   | Surgery           | `skills/conan/job-surgery.md`           | Produce fix plans for Sam               |
 | 8   | Health Check      | `skills/conan/job-health-check.md`      | Assess library quality                  |
 | 9   | Downstream Sync   | `skills/conan/job-downstream-sync.md`   | Fix meta-files after structural changes |
 | 10  | Release Planning  | `skills/conan/job-release-planning.md`  | Write/edit release cards                |
@@ -57,25 +57,21 @@ Context assembly skills: `skills/context-constellation/` (retrieval profiles, tr
 
 Conan does NOT: implement code, create or edit library cards (exception: Downstream Sync edits meta-files — agent definitions, skill procedures, retrieval profiles).
 
-### Bob — Builder
+### Sam — Scribe
 
-Implements features and crafts library cards. Two modes.
-
-**Mode 1: Code Implementation** — Builds features using Context Library guidance and Conan's briefings.
-
-**Mode 2: Library Card Building** — Creates and fixes markdown cards per Conan's instructions.
+Creates and maintains Context Library cards per Conan's instructions.
 
 | #   | Job          | Skill File                    | When                            |
 | --- | ------------ | ----------------------------- | ------------------------------- |
-| 1   | Create Cards | `skills/bob/card-creation.md` | Build cards from inventory      |
+| 1   | Create Cards | `skills/sam/card-creation.md` | Build cards from inventory      |
 | 2   | Fix Cards    | (inline in agent)             | Address Conan's recommendations |
-| 3   | Self-Check   | `skills/bob/self-check.md`    | Validate before handoff         |
+| 3   | Self-Check   | `skills/sam/self-check.md`    | Validate before handoff         |
 
-Supporting: `skills/bob/decomposition.md`, `skills/bob/link-patterns.md`
+Supporting: `skills/sam/decomposition.md`, `skills/sam/link-patterns.md`
 
-Bob also uses the shared context constellation skills (see below) for navigating the library when building cards or self-assembling context without a Conan briefing.
+Sam also uses the shared context constellation skills (see below) for navigating the library when building cards or self-assembling context without a Conan briefing.
 
-Bob does NOT: grade cards, make architectural decisions without checking the library, skip self-check before handoff.
+Sam does NOT: grade cards, write product code, skip self-check before handoff.
 
 ### PR Reviewer — Code Quality Gate
 
@@ -102,14 +98,14 @@ Human resolves decision
     │
     ├──> George (Job 4: Decision Resolution)
     │       ├── Updates GitHub issues (direct)
-    │       ├── Produces library checklist ──> Conan + Bob
-    │       └── Produces release card checklist ──> Conan + Bob
+    │       ├── Produces library checklist ──> Conan + Sam
+    │       └── Produces release card checklist ──> Conan + Sam
     │
     ▼
 Conan assembles context constellation
     │
     ▼
-Bob implements (code or cards)
+Sam builds library cards
     │
     ▼
 PR Reviewer reviews code changes
@@ -123,27 +119,27 @@ Human reviews and ships
 | From   | To          | What Passes                                                    | When                              |
 | ------ | ----------- | -------------------------------------------------------------- | --------------------------------- |
 | George | Human       | Status reports, shift plans, triage findings                   | Start/end of sessions, when stuck |
-| George | Conan + Bob | Library update checklists (exact text)                         | After decision resolution         |
-| Conan  | Bob         | Context briefings, inventories, recommendations, surgery plans | Before implementation             |
-| Bob    | Conan       | Completed cards for grading                                    | After building                    |
+| George | Conan + Sam | Library update checklists (exact text)                         | After decision resolution         |
+| Conan  | Sam         | Context briefings, inventories, recommendations, surgery plans | Before card building              |
+| Sam    | Conan       | Completed cards for grading                                    | After building                    |
 | Human  | George      | `/george propagate` on closed D-issues                         | After making a decision           |
 | Human  | Conan       | "Audit the library", "Assemble context for X"                  | When library work needed          |
-| Human  | Bob         | "Build this feature", "Fix these cards"                        | When implementation needed        |
+| Human  | Sam         | "Build these cards", "Fix these cards"                         | When card building needed         |
 
-### The Conan-Bob Cycle
+### The Conan-Sam Cycle
 
 Library card building follows a tight loop:
 
 ```
-Conan: Inventory ──> Bob: Create Cards ──> Bob: Self-Check
+Conan: Inventory ──> Sam: Create Cards ──> Sam: Self-Check
                                                    │
                                            (passes)│(issues)
                                                    │
-Conan: Grade <──────────── Bob: Fix ◄──────────────┘
+Conan: Grade <──────────── Sam: Fix ◄──────────────┘
     │
     ├── (passes) ──> Done
     │
-    └── (issues) ──> Conan: Recommend ──> Bob: Fix ──> Conan: Review
+    └── (issues) ──> Conan: Recommend ──> Sam: Fix ──> Conan: Review
 ```
 
 ### George's Safety Nets
@@ -156,19 +152,19 @@ The skills at `skills/context-constellation/` are shared infrastructure used by 
 
 | File                    | What It Does                                     | Used By                                            |
 | ----------------------- | ------------------------------------------------ | -------------------------------------------------- |
-| `retrieval-profiles.md` | Per-type rules for what cards to pull            | Conan (assembly), Bob (navigation + self-assembly) |
-| `traversal.md`          | Graph navigation patterns (find, follow, search) | Conan (assembly), Bob (navigation)                 |
-| `protocol.md`           | CONTEXT_BRIEFING.md format (Conan→Bob contract)  | Conan (writes), Bob (reads)                        |
-| `provenance-schema.md`  | constellation-log.jsonl schema                   | Conan, Bob, George (all log)                       |
+| `retrieval-profiles.md` | Per-type rules for what cards to pull            | Conan (assembly), Sam (navigation + self-assembly) |
+| `traversal.md`          | Graph navigation patterns (find, follow, search) | Conan (assembly), Sam (navigation)                 |
+| `protocol.md`           | CONTEXT_BRIEFING.md format (Conan→Sam contract)  | Conan (writes), Sam (reads)                        |
+| `provenance-schema.md`  | constellation-log.jsonl schema                   | Conan, Sam, George (all log)                       |
 
-Conan does the heavy-lift constellation assembly for complex features. Bob uses retrieval profiles and traversal rules directly when self-assembling context or navigating during card building.
+Conan does the heavy-lift constellation assembly for complex features. Sam uses retrieval profiles and traversal rules directly when self-assembling context or navigating during card building.
 
 ### Provenance
 
 All agents log to `docs/context-library/constellation-log.jsonl`:
 
 - Conan logs context assembly sessions
-- Bob logs implementation decisions
+- Sam logs card-building decisions
 - George logs decision resolutions
 
 ## Quick Reference
@@ -180,5 +176,5 @@ All agents log to `docs/context-library/constellation-log.jsonl`:
 **"Assemble context for this feature"** → Conan (Mode 1: Context Assembly)
 **"Audit the library"** → Conan (Job 6 or 8)
 **"Plan release X"** → Conan (Job 10: Release Planning)
-**"Build this"** → Bob (Mode 1 or 2, depending on code vs cards)
+**"Build these cards"** → Sam
 **"Review this PR"** → PR Reviewer

@@ -134,7 +134,7 @@ Before committing card changes:
 ## Agent Roles
 
 - **Conan** (`.claude/agents/conan.md`): Assembles constellations, grades cards, audits quality. Does NOT write cards.
-- **Bob** (`.claude/agents/bob.md`): Creates cards, fixes per recommendations, runs self-checks. Does NOT grade.
+- **Sam** (`.claude/agents/sam.md`): Creates cards, fixes per recommendations, runs self-checks. Does NOT grade.
 - **Human librarian**: Priority decisions, resolve ambiguity, go/no-go.
 
 ---
@@ -143,5 +143,5 @@ Before committing card changes:
 
 - `reference.md` — Templates, folder structure, naming conventions, conformance obligations
 - `CONVENTIONS.md` — Codebase-specific patterns
-- `.claude/skills/bob/` — Card-building procedures
+- `.claude/skills/sam/` — Card-building procedures
 - `.claude/skills/conan/` — Grading and audit procedures

@@ -176,7 +176,7 @@ Use the **Conan subagent** (`.claude/agents/conan.md`) to assemble a context bri
 
 ### During implementation
 
-Follow the **5-signal uncertainty protocol** when making decisions: if 2+ signals (reversibility, coverage, precedent, blast radius, domain specificity) say "search," check the library before proceeding. See `.claude/agents/bob.md` for the full protocol.
+Follow the **5-signal uncertainty protocol** when making decisions: if 2+ signals (reversibility, coverage, precedent, blast radius, domain specificity) say "search," check the library before proceeding. See `.claude/agents/sam.md` for the full protocol.
 
 ### After structural library changes
 

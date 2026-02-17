@@ -60,7 +60,7 @@ Read the "Highest-Leverage Moves" section. The decision that unblocks the most i
 
 Library patches must land before MAKE builds that depend on them. If any PATCH items are Ready:
 
-- Assign to AI (Conan → Bob pipeline)
+- Assign to AI (Conan → Sam pipeline)
 - These can run in parallel with human DECIDE work
 
 #### Priority 3: Start free MAKE builds

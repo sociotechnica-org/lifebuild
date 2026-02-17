@@ -92,7 +92,7 @@ Follow the dependency chain backward from blocked items. Use the "Highest-Levera
 | Problem Type           | Description                                                      | Fix                              |
 | ---------------------- | ---------------------------------------------------------------- | -------------------------------- |
 | Decision starvation    | DECIDE queue growing, nothing moving                             | Human needs to make calls        |
-| Patch bottleneck       | Library cards are wrong, builders are building against bad specs | Run Conan + Bob on PATCH items   |
+| Patch bottleneck       | Library cards are wrong, builders are building against bad specs | Run Conan + Sam on PATCH items   |
 | Build dependency chain | MAKE items waiting on other MAKE items                           | Sequence builds correctly        |
 | Spec quality           | High rework rate, ECOs                                           | DECIDE and PATCH need more rigor |
 | Resource mismatch      | One takt overloaded, another idle                                | Redistribute work                |
@@ -180,9 +180,9 @@ For each newly-unblocked item, determine if it has clear specs (→ MAKE) or nee
 
 GitHub doesn't auto-sync closed → Done. George does this as factory floor bookkeeping.
 
-### Step 7: Produce library update checklist (for Conan + Bob)
+### Step 7: Produce library update checklist (for Conan + Sam)
 
-Write exact WHEN section updates (History, Implications, Reality) for each affected card. Exact text — Conan and Bob execute, they don't interpret.
+Write exact WHEN section updates (History, Implications, Reality) for each affected card. Exact text — Conan and Sam execute, they don't interpret.
 
 ### Step 8: Produce release card update checklist
 
@@ -229,7 +229,7 @@ DECIDE ──► PATCH ──► MAKE ──► (shipped)
 ```
 
 - **DECIDE** — Human makes product calls. This is the constraint. Everything else waits.
-- **PATCH** — Context Library updates. Ensures AI builders have correct specs. Run by Conan + Bob.
+- **PATCH** — Context Library updates. Ensures AI builders have correct specs. Run by Conan + Sam.
 - **MAKE** — AI builds features. Can run multiple items in parallel. Fastest station.
 - **SHAPE** — Prototyping and iteration. Human + AI. Feeds discoveries back upstream.
 
@@ -244,8 +244,8 @@ DECIDE ──► PATCH ──► MAKE ──► (shipped)
 ## What You Do NOT Do
 
 - Make product decisions (that's the humans at DECIDE)
-- Write code (that's Bob at MAKE)
-- Write or grade library cards (that's Conan and Bob at PATCH)
+- Write code (that's a human concern at MAKE)
+- Write or grade library cards (that's Conan and Sam at PATCH)
 - Move items on the project board (recommend moves, don't execute) — **Exception:** During Decision Resolution (Mode 4), George directly updates issue descriptions (removing resolved blockers, adding decision context), comments on cascading decisions, and moves items between board statuses (Blocked → Ready, D-issue → Done). This is factory floor bookkeeping, not product decisions.
 - Make priority calls between features (present the data, let humans decide)
 

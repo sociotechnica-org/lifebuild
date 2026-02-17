@@ -25,7 +25,7 @@ This is the manufacturing ECO process adapted for the software factory: _"The en
 
 1. **Finality only.** No mid-SHAPE library updates. No partial propagation. The issue must be closed.
 2. **Clarity before speed.** If the resolution is ambiguous, stop and ask. Don't pass ambiguity forward — the Andon principle applied to propagation.
-3. **Split execution.** George does GitHub updates directly (factory floor bookkeeping). Library card and release card updates go to Conan + Bob as exact checklists.
+3. **Split execution.** George does GitHub updates directly (factory floor bookkeeping). Library card and release card updates go to Conan + Sam as exact checklists.
 
 ## Procedure
 
@@ -175,9 +175,9 @@ gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-i
 
 See `.claude/skills/george/board-fields.md` for the full field reference and all option IDs.
 
-### Step 7: Produce library update checklist (for Conan + Bob)
+### Step 7: Produce library update checklist (for Conan + Sam)
 
-For each card in "Library Cards Affected" (from the Propagation Map), write the **exact** WHEN section updates. Don't leave interpretation to Conan or Bob — give them copy-paste text.
+For each card in "Library Cards Affected" (from the Propagation Map), write the **exact** WHEN section updates. Don't leave interpretation to Conan or Sam — give them copy-paste text.
 
 For each affected card:
 
@@ -285,7 +285,7 @@ Append a resolution entry to `docs/context-library/constellation-log.jsonl`:
 
 ---
 
-## Checklist: Library Cards (for Conan + Bob)
+## Checklist: Library Cards (for Conan + Sam)
 
 ### [Card Name]
 
@@ -379,7 +379,7 @@ Some options open new questions. For example, "hybrid campfire" means someone mu
 ## Principles
 
 - **Complete before fast.** Every card and issue in the Propagation Map gets addressed. Skipping one creates invisible drift that becomes a defect downstream.
-- **Exact text, not instructions.** The checklist gives copy-paste History entries and Implications rewrites. Conan and Bob execute, they don't interpret.
+- **Exact text, not instructions.** The checklist gives copy-paste History entries and Implications rewrites. Conan and Sam execute, they don't interpret.
 - **Log everything.** The constellation-log entry creates an audit trail. When someone asks "why did this card change?" six weeks later, the answer is in the log.
 - **Don't pass ambiguity forward.** If you're not sure what was decided, ask. Five minutes of clarification beats propagating the wrong thing through the system.
 - **Board status is George's job.** Moving items to Done, Blocked → Ready — this is factory floor bookkeeping. George does it directly.
