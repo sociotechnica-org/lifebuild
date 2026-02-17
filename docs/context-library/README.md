@@ -71,9 +71,9 @@ Release cards track the product roadmap from Release 1 (The Campfire) through Re
 
 Frozen snapshot documents (GDDs, research, strategic memos) that informed the creation of cards. **Not searchable by agents** — used by humans and Conan for drift detection and error checking. See `sources/README.md` for conventions.
 
-### Learnings (`/learnings/`) — WHAT we discovered
+### Temporal (`/temporal/`) — WHEN decisions were made
 
-Implementation learnings and known gaps discovered during development.
+Decision records, initiative tracking, and future vision cards. (Vision-vs-reality divergences live in each card's WHEN section, not in standalone files.)
 
 ---
 

@@ -231,15 +231,6 @@ Every card with a containment relationship must link to its parent.
 
 ---
 
-## Learning Links (WHY Section)
-
-```markdown
-- [[Learning - X]] — insight that informed [design choice]
-- [[Learning - X]] — past experience shaping [aspect]
-```
-
----
-
 ## Temporal Links (WHEN Section)
 
 ```markdown
@@ -279,5 +270,4 @@ Blocked by: [[X]] — can't proceed until [dependency resolved]
 | Strategy       | "implements [principle] by"                                       |
 | Principle      | "guidance driving", "makes testable"                              |
 | Decision       | "key choice that", "decision determining"                         |
-| Learning       | "insight that informed"                                           |
 | Temporal       | "supersedes", "enables", "blocked by"                             |

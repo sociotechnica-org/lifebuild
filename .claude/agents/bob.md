@@ -47,7 +47,7 @@ When you need more context than the briefing provides:
 2. **Search by topic:** `Grep` for key terms across `docs/context-library/`
 3. **Follow relationships:** Read a card's `[[wikilinks]]`, then read those cards
 4. **Check a dimension:** `Grep` for content under `## WHY:` or `## HOW:` headers
-5. **Check learnings:** `Grep` across `docs/context-library/learnings/` for known divergences
+5. **Check WHEN sections:** Read WHEN sections (Reality + Implications) on related cards for known divergences
 
 ### Query Logging
 
@@ -215,7 +215,7 @@ Hand off to Conan
 - Cards follow `Type - Name.md` naming
 - 5 dimensions: WHAT, WHY, WHERE, HOW, WHEN
 - WHEN sections contain implementation status and reality notes
-- Learnings document known vision-vs-reality gaps
+- WHEN sections on cards contain reality notes, history, and implications
 - CONVENTIONS.md has codebase-specific patterns
 - Card-building procedures: `.claude/skills/bob/`
 - Constellation/retrieval info: `.claude/skills/context-constellation/`

@@ -50,7 +50,7 @@ How to extract cards from source material. Use when Conan's inventory is sparse 
 
 ### Step 6: Is this temporal?
 
-- Past insight → **Learning**
+- Past insight → captured in card WHEN History entries (not a standalone type)
 - Past choice → **Decision**
 - Future vision → **Future**
 

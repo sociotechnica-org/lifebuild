@@ -35,7 +35,7 @@ HOW it feels?
 └─ Emergent cross-system behavior → DYNAMIC
 
 WHEN?
-├─ Historical → LEARNING / DECISION
+├─ Historical → DECISION
 └─ Future → FUTURE
 
 WHAT ships?
@@ -85,7 +85,7 @@ _Gate: These describe how engagement feels over time — rhythms, arcs, emotions
 
 **Step 6: Is this temporal?**
 
-- Past insight → Learning
+- Past insight → captured in card WHEN History entries (not a standalone type)
 - Past choice → Decision
 - Future vision → Future
 
@@ -144,6 +144,81 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 ---
 
+## WHEN Convention
+
+**Core principle: Past, present, and future live on the same card.**
+
+- **Future** = the WHAT and HOW sections (the vision — what this will be)
+- **Present** = the Reality snapshot (what's actually true right now)
+- **Past** = the History log (how the vision and reality have evolved)
+
+WHEN is the section that bridges all three temporal dimensions. The other sections describe the destination. WHEN says where you are, where you've been, and what the gap means.
+
+### Universal Structure
+
+Every card's WHEN section follows this structure. Type-specific status enums and extra fields vary (shown in each template), but Reality, History, and Implications are universal.
+
+```markdown
+## WHEN: Timeline
+
+- Status: [type-appropriate enum]
+- Since: [date or version]
+
+### Reality ([YYYY-MM-DD])
+
+[Present-tense ground truth. What's actually built, implemented, or
+in effect. Agents use this to calibrate work against the vision in
+WHAT/HOW.
+
+- Not started: What doesn't exist yet and what it depends on.
+- Partial: What's built and what's missing. File paths if useful.
+- Implemented: Confirm alignment with vision. Note any minor drift.
+
+Update the date when reality changes.]
+
+### History
+
+[Reverse-chronological log of significant changes to this concept —
+vision shifts, implementation milestones, design decisions.
+Each entry records WHAT changed, WHY, and what it replaced.
+One to three sentences per entry. Omit section if card is new.]
+
+> **YYYY-MM-DD — [Title]**
+> [What changed. Why. What it replaced.]
+
+> **YYYY-MM-DD — [Title]**
+> [Earlier change...]
+
+### Implications
+
+[What the gap between Reality and the vision in WHAT/HOW means for
+builders working on this or related cards. The "so what."
+Omit section when reality matches vision — no gap, no implications.]
+```
+
+### Subsection Reference
+
+| Subsection   | Temporal dimension   | Question it answers                         | When to omit                          |
+| ------------ | -------------------- | ------------------------------------------- | ------------------------------------- |
+| Status+Since | Lifecycle position   | How mature is this concept?                 | Never                                 |
+| Reality      | **Present**          | What's actually true right now?             | Never — even "not started" is reality |
+| History      | **Past**             | How did we get here? What changed and why?  | New cards with no changes yet         |
+| Implications | **Present → Future** | What does the current gap mean for builders? | When reality matches vision (gap = 0) |
+
+### Status Enums by Type
+
+| Card types                               | Status values                                      |
+| ---------------------------------------- | -------------------------------------------------- |
+| Strategy, Principle                      | `experimental` \| `evolving` \| `stable`           |
+| Standard                                 | `draft` \| `active` \| `deprecated`                |
+| Product layer (Zone through Agent)       | `core` \| `evolving` \| `proposed`                 |
+| Experience layer (Loop through Dynamic)  | `core` \| `evolving` \| `proposed`                 |
+| Prompt                                   | `draft` \| `testing` \| `production` \| `deprecated` |
+| Component                                | `active` \| `deprecated`                           |
+| Release                                  | `planned` \| `in-progress` \| `shipped`            |
+
+---
+
 ## Templates
 
 ### Strategy
@@ -174,7 +249,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 - Status: experimental | evolving | stable
 - Since: [version or date]
-- Last validated: [date]
+
+### Reality ([YYYY-MM-DD])
+
+[Is this strategy being followed? What evidence exists? What's diverging?]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What divergence from this strategy means for builders. Omit when stable.]
 
 ## HOW: Application
 
@@ -223,7 +310,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 - Status: experimental | evolving | stable
 - Since: [version or date]
-- Derived from: [[Decision]] — [if born from specific choice]
+
+### Reality ([YYYY-MM-DD])
+
+[Is this principle being followed? Where is it applied? Where is it violated?]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why. Include origin if derived from a specific decision.]
+
+### Implications
+
+[What gaps in application mean for builders. Omit when stable.]
 
 ## HOW: Application
 
@@ -277,7 +376,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 - Status: draft | active | deprecated
 - Since: [version or date]
-- Last updated: [date]
+
+### Reality ([YYYY-MM-DD])
+
+[Current conformance state. What implements this? What doesn't yet?]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What non-conformance means for builders. Omit when fully implemented.]
 
 ## HOW: Specification
 
@@ -359,7 +470,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 - Status: core | evolving | proposed
 - Since: [version or date]
-- Origin: [What drove creation]
+
+### Reality ([YYYY-MM-DD])
+
+[What's actually built. Schema, events, rendering. What exists vs. vision.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why. Include origin story for initial entry.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully implemented.]
 
 ## HOW: Implementation
 
@@ -437,6 +560,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 - Status: core | evolving | proposed
 - Since: [version or date]
 
+### Reality ([YYYY-MM-DD])
+
+[What's actually built. Routes, components, agents. What exists vs. vision.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully implemented.]
+
 ## HOW: Experience
 
 ### Navigation Pattern
@@ -508,6 +644,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 - Status: core | evolving | proposed
 - Since: [version or date]
+
+### Reality ([YYYY-MM-DD])
+
+[What's actually built. Routes, UI, agent. What exists vs. vision.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully implemented.]
 
 ## HOW: Experience
 
@@ -581,6 +730,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 - Since: [version or date]
 - Subtype: HUD | Panel | Toast | [other]
 
+### Reality ([YYYY-MM-DD])
+
+[What's actually built. Cross-zone behavior. What exists vs. vision.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully implemented.]
+
 ## HOW: Behavior
 
 ### Display States
@@ -651,6 +813,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 - Status: core | evolving | proposed
 - Since: [version or date]
 
+### Reality ([YYYY-MM-DD])
+
+[What's actually built. Spatial behavior, rendering. What exists vs. vision.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully implemented.]
+
 ## HOW: Implementation
 
 ### Layout
@@ -713,6 +888,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 - Status: active | deprecated
 - Since: [version or date]
+
+### Reality ([YYYY-MM-DD])
+
+[What's actually built. Component state, rendering. What exists vs. vision.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully implemented.]
 
 ## HOW: Technical
 
@@ -785,6 +973,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 - Status: core | evolving | proposed
 - Since: [version or date]
+
+### Reality ([YYYY-MM-DD])
+
+[What's actually built. Data model, UI, storage. What exists vs. vision.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully implemented.]
 
 ## HOW: Implementation
 
@@ -862,6 +1063,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 - Status: core | evolving | proposed
 - Since: [version or date]
 
+### Reality ([YYYY-MM-DD])
+
+[What's actually built. Workflows, UI, triggers. What exists vs. vision.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully implemented.]
+
 ## HOW: Behavior
 
 ### Trigger
@@ -935,6 +1149,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 - Status: core | evolving | proposed
 - Since: [version or date]
+
+### Reality ([YYYY-MM-DD])
+
+[What's actually built. State management, processing, events. What exists vs. vision.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully implemented.]
 
 ## HOW: Mechanics
 
@@ -1010,6 +1237,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 - Status: core | evolving | proposed
 - Since: [version or date]
 - Service level: [current level on progression ladder]
+
+### Reality ([YYYY-MM-DD])
+
+[What's actually built. Prompt state, capabilities, memory. What exists vs. vision.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully implemented.]
 
 ## HOW: Behavior
 
@@ -1089,17 +1329,24 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 - Conforms to:
   - [[Standard]] — [prompt engineering standards if any]
 
-## WHEN: Version
+## WHEN: Timeline
 
-- Current: [version number]
 - Status: draft | testing | production | deprecated
-- Last updated: [date]
+- Current version: [version number]
+- Since: [date]
 
-### Changelog
+### Reality ([YYYY-MM-DD])
 
-| Version | Date | Changes |
-| ------- | ---- | ------- |
-| [X]     | [Y]  | [Z]     |
+[Current prompt state. What's deployed vs. what's in draft.]
+
+### History
+
+> **YYYY-MM-DD — v[X] [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when prompt is production-stable.]
 
 ## HOW: Implementation
 
@@ -1179,8 +1426,21 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 ## WHEN: Timeline
 
-**Build phase:** [MVP | Post-MVP | Future]
-**Implementation status:** [Not started | Partial | Implemented]
+- Status: core | evolving | proposed
+- Since: [version or date]
+
+### Reality ([YYYY-MM-DD])
+
+[What's actually implemented. What the builder can experience now.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully implemented.]
 
 ## HOW: The Cycle
 
@@ -1256,9 +1516,22 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 ## WHEN: Timeline
 
-**Build phase:** [MVP | Post-MVP | Future]
-**Implementation status:** [Not started | Partial | Implemented]
-**Duration:** [Expected timeframe from start to end]
+- Status: core | evolving | proposed
+- Since: [version or date]
+- Duration: [Expected timeframe from start to end]
+
+### Reality ([YYYY-MM-DD])
+
+[What's actually implemented. What phases the builder can experience now.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully implemented.]
 
 ## HOW: Progression
 
@@ -1326,8 +1599,21 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 ## WHEN: Timeline
 
-**Build phase:** [MVP | Post-MVP | Future]
-**Implementation status:** [Not started | Partial | Implemented]
+- Status: core | evolving | proposed
+- Since: [version or date]
+
+### Reality ([YYYY-MM-DD])
+
+[What's actually implemented. Where this feeling is achieved today.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully implemented.]
 
 ## HOW: Design
 
@@ -1392,9 +1678,25 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 - Driver: [Why this emergent behavior matters. What it tells us about the builder's state.]
 
-## WHEN: Trigger
+## WHEN: Trigger & Timeline
 
 [What conditions produce this dynamic. What threshold or combination causes it to emerge.]
+
+- Status: core | evolving | proposed
+- Since: [version or date]
+
+### Reality ([YYYY-MM-DD])
+
+[Whether this dynamic has been observed. Current detection capability.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap means for builders. Omit when fully detectable.]
 
 ## HOW: Response
 
@@ -1490,6 +1792,19 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 - Decided: [date]
 - Revisit trigger: [what would cause reconsideration]
 
+### Reality ([YYYY-MM-DD])
+
+[Current state of this decision. Is it still in effect? Any drift?]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What this decision means for builders working on affected cards.]
+
 ## HOW: Implementation
 
 [How this decision is implemented. What changed.]
@@ -1507,69 +1822,6 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 - Before decision: [X]
 - After decision: [Y]
-```
-
----
-
-### Learning
-
-```markdown
-# Learning - [Name]
-
-## WHAT: The Insight
-
-[Generalized lesson. One sentence. What we now know.]
-
-## WHERE: Applies To
-
-- Informs:
-  - [[Zone]] — [how this shapes it]
-  - [[Room]] — [how this shapes it]
-  - [[Capability]] — [how this shapes it]
-  - [[System]] — [how this shapes it]
-  - [[Agent]] — [how this shapes it]
-- Became:
-  - [[Principle]] — [if insight became principle]
-  - [[Standard]] — [if insight became standard]
-  - [[Decision]] — [if insight drove decision]
-
-## WHY: Significance
-
-[Why this insight matters. What goes wrong without it. 2-3 sentences.]
-
-## WHEN: Origin
-
-- Discovered: [date]
-- Context: [What happened. What we tried. What failed or succeeded.]
-
-## HOW: Application
-
-### What We Do Differently
-
-[Concrete behavior changes. What to do now that we know this.]
-
-- [Change]
-- [Change]
-
-### Examples
-
-[2+ concrete examples of applying this learning.]
-
-**Example 1:** [Scenario]
-
-- Old approach: [X]
-- New approach: [Y]
-- Result: [Z]
-
-**Example 2:** [Scenario]
-
-- Old approach: [X]
-- New approach: [Y]
-- Result: [Z]
-
-### Anti-Examples
-
-[What ignoring this learning looks like. How we might regress.]
 ```
 
 ---
@@ -1610,6 +1862,15 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 - Releases:
   - [[Release]] — [milestone]
 
+### Reality ([YYYY-MM-DD])
+
+[Current state of the initiative. What's shipped, what's in progress.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
 ## HOW: Approach
 
 ### Scope
@@ -1627,10 +1888,6 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 ### Success Criteria
 
 [How we know it worked. Measurable outcomes.]
-
-## Learnings
-
-- [[Learning]] — [insight gained]
 ```
 
 ---
@@ -1699,8 +1956,19 @@ Releases use **planning mode** (forward-looking) while being built and **retrosp
 - Released: [date, when shipped]
 - Decisions:
   - [[Decision]] — [key choices made]
-- Learnings:
-  - [[Learning]] — [insights gained]
+
+### Reality ([YYYY-MM-DD])
+
+[Current state of the release. What's shipped, what's in progress, what's blocked.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the current state means for dependent cards or future releases.]
 ```
 
 ---
@@ -1737,6 +2005,19 @@ Releases use **planning mode** (forward-looking) while being built and **retrosp
 - Target: [version or quarter]
 - Confidence: exploratory | low | medium | high
 - Status: proposed | approved | in-progress | blocked | cancelled | shipped
+
+### Reality ([YYYY-MM-DD])
+
+[Current viability assessment. What's changed since this was proposed.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the current state means for dependent plans or cards.]
 
 ## HOW: Approach
 
@@ -1797,8 +2078,8 @@ Releases use **planning mode** (forward-looking) while being built and **retrosp
   aesthetics/
   dynamics/
 
-/learnings/
-  [flat: Decision, Learning, Initiative, Future]
+/temporal/
+  [flat: Decision, Initiative, Future]
 
 /releases/
   [flat: Release cards]
@@ -1839,7 +2120,6 @@ CONVENTIONS.md
 | Aesthetic        | Aesthetic - [Name]               | Aesthetic - Coming Home                      |
 | Dynamic          | Dynamic - [Name]                 | Dynamic - Bronze Flood                       |
 | Decision         | Decision - [Choice]              | Decision - Three Slot Limit                  |
-| Learning         | Learning - [Insight]             | Learning - Queue Overwhelm                   |
 | Initiative       | Initiative - [Name]              | Initiative - AI Prioritization               |
 | Release          | Release [Version]                | Release 2.3                                  |
 | Future           | Future - [Name]                  | Future - Context-Aware Slots                 |
@@ -1920,7 +2200,7 @@ Every link must have context. No naked links.
 | Brand standards docs  | Standards (colors, typography, illustration rules)           |
 | Roadmap/planning docs | Future state, phasing, dependencies                          |
 | Design docs/PRDs      | Capability specs, user scenarios, edge cases                 |
-| Decision records      | Decision rationale, alternatives, Learning                   |
+| Decision records      | Decision rationale, alternatives                             |
 
 **Standard extraction signal:** Tables of values, testable rules, specs multiple cards must conform to → extract as Standard.
 

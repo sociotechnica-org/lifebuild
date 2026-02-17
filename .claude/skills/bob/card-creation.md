@@ -358,28 +358,6 @@ Options considered:
 [When made, what phase]
 ```
 
-### Learning Note (3-5 minutes)
-
-```markdown
-# Learning - [Name]
-
-## WHAT: The Insight
-
-[Generalized lesson]
-
-## WHERE: Applies To
-
-[What this informs]
-
-## WHY: Significance
-
-[Why it matters going forward]
-
-## WHEN: How Learned
-
-[What happened, when]
-```
-
 ---
 
 ## Batch Workflow

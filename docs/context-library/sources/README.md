@@ -17,7 +17,7 @@ Snapshot documents that informed the creation of Context Library cards. These ar
 - Atomic cards (those go in their typed folders)
 - Code documentation (that goes in CONVENTIONS.md or CLAUDE.md)
 - Release plans (those go in `/releases/`)
-- Learnings from implementation (those go in `/learnings/`)
+- Temporal records like Decisions, Initiatives, Futures (those go in `/temporal/`)
 
 ### Rules
 

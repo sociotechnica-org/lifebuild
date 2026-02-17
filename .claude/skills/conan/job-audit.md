@@ -23,7 +23,7 @@ Audit ≠ Grading. Card can score A and still fail audit if misclassified.
      - Core data entity → Primitive
    Step 3: Invisible infrastructure? → System
    Step 4: AI team member? → Agent (implementation → Prompt)
-   Step 5: Temporal? → Learning/Decision/Future
+   Step 5: Temporal? → Decision/Future
    Step 6: Shipping? → Initiative/Release
    Result: [type]
    Claimed: [type]

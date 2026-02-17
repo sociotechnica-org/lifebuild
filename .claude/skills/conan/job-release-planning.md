@@ -232,8 +232,7 @@ After a release ships, convert the planning card to retrospective format by addi
 
 - Actual ship date
 - Decisions made (with outcomes)
-- Learnings
-- What changed from the plan
+- What changed from the plan (captured in History subsection)
 
 ## Cross-References
 

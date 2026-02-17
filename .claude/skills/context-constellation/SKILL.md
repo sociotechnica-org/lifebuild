@@ -31,7 +31,7 @@ Location: `docs/context-library/`
 | Product   | `/product/primitives/`   | Primitive (3)  |
 | Product   | `/product/systems/`      | System (15)    |
 | Product   | `/product/agents/`       | Agent (14)     |
-| Learnings | `/learnings/`            | Learning (7)   |
+| Temporal  | `/temporal/`             | Decision, Initiative, Future |
 
 ## Card Anatomy
 
@@ -62,7 +62,7 @@ The library IS a knowledge graph encoded in the file system:
 | Find cards referencing a card | `Grep` for `[[Card Name]]` across the library           |
 | Search within a dimension     | `Grep` for content under `## WHY:` or `## HOW:` headers |
 | Check implementation status   | Read the card's WHEN section                            |
-| Find known divergences        | `Grep` across `docs/context-library/learnings/`         |
+| Find known divergences        | Read WHEN sections (Reality + Implications) on related cards |
 
 ## Assembly Process
 
