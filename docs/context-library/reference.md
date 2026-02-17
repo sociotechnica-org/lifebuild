@@ -198,24 +198,24 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ### Subsection Reference
 
-| Subsection   | Temporal dimension   | Question it answers                         | When to omit                          |
-| ------------ | -------------------- | ------------------------------------------- | ------------------------------------- |
-| Status+Since | Lifecycle position   | How mature is this concept?                 | Never                                 |
-| Reality      | **Present**          | What's actually true right now?             | Never — even "not started" is reality |
-| History      | **Past**             | How did we get here? What changed and why?  | New cards with no changes yet         |
+| Subsection   | Temporal dimension   | Question it answers                          | When to omit                          |
+| ------------ | -------------------- | -------------------------------------------- | ------------------------------------- |
+| Status+Since | Lifecycle position   | How mature is this concept?                  | Never                                 |
+| Reality      | **Present**          | What's actually true right now?              | Never — even "not started" is reality |
+| History      | **Past**             | How did we get here? What changed and why?   | New cards with no changes yet         |
 | Implications | **Present → Future** | What does the current gap mean for builders? | When reality matches vision (gap = 0) |
 
 ### Status Enums by Type
 
-| Card types                               | Status values                                      |
-| ---------------------------------------- | -------------------------------------------------- |
-| Strategy, Principle                      | `experimental` \| `evolving` \| `stable`           |
-| Standard                                 | `draft` \| `active` \| `deprecated`                |
-| Product layer (Zone through Agent)       | `core` \| `evolving` \| `proposed`                 |
-| Experience layer (Loop through Dynamic)  | `core` \| `evolving` \| `proposed`                 |
-| Prompt                                   | `draft` \| `testing` \| `production` \| `deprecated` |
-| Component                                | `active` \| `deprecated`                           |
-| Release                                  | `planned` \| `in-progress` \| `shipped`            |
+| Card types                              | Status values                                        |
+| --------------------------------------- | ---------------------------------------------------- |
+| Strategy, Principle                     | `experimental` \| `evolving` \| `stable`             |
+| Standard                                | `draft` \| `active` \| `deprecated`                  |
+| Product layer (Zone through Agent)      | `core` \| `evolving` \| `proposed`                   |
+| Experience layer (Loop through Dynamic) | `core` \| `evolving` \| `proposed`                   |
+| Prompt                                  | `draft` \| `testing` \| `production` \| `deprecated` |
+| Component                               | `active` \| `deprecated`                             |
+| Release                                 | `planned` \| `in-progress` \| `shipped`              |
 
 ---
 
