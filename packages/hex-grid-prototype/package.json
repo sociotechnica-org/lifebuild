@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck"
+    "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck",
+    "deploy": "wrangler pages deploy dist --project-name hex-grid-prototype"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
