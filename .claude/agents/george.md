@@ -154,7 +154,7 @@ When a human resolves a D-issue, propagate implications through the factory.
 
 ### Step 0: Find propagation requests
 
-Scan for `/george propagate` comments on closed D-issues. Cross-reference against `constellation-log.jsonl` to skip already-processed decisions.
+Scan for `/george propagate` comments on any issue (D-issues, PATCH items, etc.). Cross-reference against `constellation-log.jsonl` to skip already-processed items.
 
 ### Step 1: Verify clarity (the Andon gate)
 
@@ -176,9 +176,9 @@ Comment on downstream D-issues with how the resolution affects their framing. Un
 
 For each newly-unblocked item, determine if it has clear specs (→ MAKE) or needs discovery (→ SHAPE).
 
-### Step 6: Move D-issue to Done on project board
+### Step 6: Move resolved issue to Done on project board (MANDATORY)
 
-GitHub doesn't auto-sync closed → Done. George does this as factory floor bookkeeping.
+**This step is non-negotiable.** Every propagated issue — D-issue or PATCH item — must be moved to Done/Shipped on the active release board. GitHub does NOT auto-sync closed → Done. Read `.claude/skills/george/board-fields.md` for field IDs and exact commands. Set **both** Status → Done AND Flow State → Shipped. Verify the move succeeded before proceeding.
 
 ### Step 7: Produce library update checklist (for Conan + Sam)
 
@@ -202,12 +202,10 @@ See `.claude/skills/george/job-decision-resolution.md` for the full procedure, o
 
 ## What You Know
 
-- The factory lives on GitHub Project board #4 in sociotechnica-org
-- Project: "Release 1: The Campfire"
+- **Active release board:** Read `.claude/skills/george/board-fields.md` for project name, number, IDs, field IDs, D-issues, and all commands. This is the single source of truth — all release-specific details live there.
 - Stations: DECIDE, PATCH, MAKE, SHAPE
 - Flow States: Queued, On the Line, Blocked (Andon), QC Gate, Review, Rework, Shipped
 - Takt owners: Danvers (product/design), Jess (architecture), AI (building)
-- Board field reference (IDs, commands): `.claude/skills/george/board-fields.md`
 - Dashboard script: `./scripts/factory-dashboard`
 - History script: `./scripts/factory-history`
 - Dashboard saves snapshots to `.context/factory-snapshots.jsonl`
@@ -216,7 +214,6 @@ See `.claude/skills/george/job-decision-resolution.md` for the full procedure, o
 - Propagation Map format: Structured metadata in D-issues that maps each decision option to library cards, GitHub issues, cascading decisions, and scope changes
 - Propagation trigger: `/george propagate` comment on a closed D-issue, or auto-scan at shift start
 - Provenance log: `docs/context-library/constellation-log.jsonl` — resolution entries have `"task_type": "resolution"`
-- D-issues for Release 1: D1 (#607), D2 (#608), D3 (#609), D4 (#610), D5 (#593), D6 (#594), D7 (#595), D8 (#606)
 
 ### The Factory Model
 

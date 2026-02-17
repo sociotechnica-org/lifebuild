@@ -1,8 +1,13 @@
-# Board Field Reference — Project Board #4
+# Board Field Reference — Active Release
+
+> **This is the single source of truth for the active release board.** All George procedures reference this file for project IDs, field IDs, and commands. When a new release starts, update this file — everything else adapts automatically.
 
 > **Project:** Release 1: The Campfire
+> **Project Number:** 4
 > **Project ID:** `PVT_kwDOBzJqv84BPOmG`
 > **Board URL:** https://github.com/orgs/sociotechnica-org/projects/4
+> **Release Issue:** #591
+> **D-issues:** D1 (#607), D2 (#608), D3 (#609), D4 (#610), D5 (#593), D6 (#594), D7 (#595), D8 (#606)
 
 ## Field IDs and Option IDs
 

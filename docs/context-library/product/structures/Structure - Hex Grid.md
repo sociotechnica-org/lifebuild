@@ -40,6 +40,9 @@ Core to Life Map design. The hex grid is the foundational spatial metaphor for L
 
 ### History
 
+> **2026-02-17 — #611: Bounded initial canvas**
+> R1 ships a bounded initial canvas — builders should feel cozy, not lost in empty space. The grid starts small so early builds fill the space, creating a sense of progress. Expansion unlocks later (fog-of-war preferred, fixed small grid acceptable as fallback). Technical approach (fog-of-war vs. fixed grid count) is an implementation decision for Jess + AI. Design intent: no giant empty canvas with one or two lonely squares.
+
 > **2026-02-17 — D3: One project per hex?**
 > Decided: One project per hex. Sanctuary is a 3-tile exception. Simplifies data model — hex position is a unique constraint on projects. Sanctuary gets special treatment as a multi-tile structure.
 
@@ -50,10 +53,12 @@ Core to Life Map design. The hex grid is the foundational spatial metaphor for L
 
 **Grid behavior:**
 
-- Infinite canvas (extends as needed)
+- Infinite canvas (extends as needed) — see R1 note below
 - Builders drag tiles to arrange
 - Adjacent tiles form visual clusters (categories)
 - Empty hexes between clusters create breathing room
+
+**R1 reality:** The grid starts bounded — small enough that a few projects fill the space and it feels cozy, not vacuous. Expansion unlocks as the builder adds more. Fog-of-war (Civilization-style reveal) is the preferred mechanism; a fixed small grid count is an acceptable MVP fallback. Technical approach owned by Jess + AI builders.
 
 **Tile types:**
 
