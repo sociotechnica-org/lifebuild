@@ -240,7 +240,7 @@
 - `docs/context-library/rationale/principles/Principle - Earn Don't Interrogate.md`
 - `docs/context-library/experience/aesthetics/Aesthetic - Being Known.md`
 - `docs/context-library/experience/aesthetics/Aesthetic - Sanctuary.md`
-- `docs/context-library/GDD-v0.2.md` (The Cultivation narrative)
+- `docs/context-library/sources/GDD-v0.2.md` (The Cultivation narrative)
 
 **What the library covers well:**
 
@@ -350,7 +350,7 @@
 - `docs/context-library/rationale/principles/Principle - Earn Don't Interrogate.md`
 - `docs/context-library/experience/aesthetics/Aesthetic - Being Known.md`
 - `docs/context-library/experience/aesthetics/Aesthetic - Stewardship.md`
-- `docs/context-library/GDD-v0.2.md` (Team Principles section)
+- `docs/context-library/sources/GDD-v0.2.md` (Team Principles section)
 
 **What the library covers well:**
 
