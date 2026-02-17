@@ -6,6 +6,30 @@
 
 ## Procedure
 
+### Step 0: Check for pending propagation
+
+Before running the dashboard, scan for decisions that were resolved but never propagated:
+
+1. Search for `/george propagate` comments on closed D-issues:
+
+   ```bash
+   gh search issues --repo sociotechnica-org/lifebuild "george propagate" --json number,title,state
+   ```
+
+2. Check for recently-closed D-issues (last 7 days):
+
+   ```bash
+   gh issue list -R sociotechnica-org/lifebuild --state closed --search "D" --json number,title,closedAt
+   ```
+
+3. Cross-reference against `docs/context-library/constellation-log.jsonl` — look for `"task_type": "resolution"` entries matching those issue numbers. Any closed D-issue without a matching log entry is unprocessed.
+
+4. If unprocessed resolutions found, add to the report under a **Pending Propagation** gauge:
+
+   > **Pending propagation:** D[N] was resolved [n] days ago but not yet propagated. Run decision resolution before planning new work — downstream items may be building against stale specs.
+
+This is the safety net. The primary trigger is the `/george propagate` comment on the issue; this scan catches anything that slipped through.
+
 ### Step 1: Run instruments
 
 ```bash
@@ -83,6 +107,7 @@ Note anything that could get worse if ignored:
 | Blocked Count | n/total (pct%) | [rating] |
 | Decisions | n/total decided | [rating] |
 | Takt Load | [summary] | [rating] |
+| Pending Propagation | [n unprocessed] | [CLEAR/ACTION NEEDED] |
 
 ## What's Working
 

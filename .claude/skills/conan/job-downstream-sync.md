@@ -20,10 +20,11 @@ Files that mirror library structure and must stay in sync with `docs/context-lib
 
 ### Agent Definitions
 
-| File                      | Sync Points                                                                                                                      |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `.claude/agents/conan.md` | Target type list (Step 2), decision tree steps, containment relationships table, library structure description ("What You Know") |
-| `.claude/agents/bob.md`   | Library Organization table                                                                                                       |
+| File                       | Sync Points                                                                                                                      |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `.claude/agents/conan.md`  | Target type list (Step 2), decision tree steps, containment relationships table, library structure description ("What You Know") |
+| `.claude/agents/bob.md`    | Library Organization table                                                                                                       |
+| `.claude/agents/george.md` | Station list, mode descriptions, "What You Know" section, D-issue numbers for current release                                    |
 
 ### Skill Files — Bob
 
@@ -40,6 +41,15 @@ Files that mirror library structure and must stay in sync with `docs/context-lib
 | `.claude/skills/context-constellation/retrieval-profiles.md` | One profile per type, example card names (must match actual cards), mandatory categories summary table |
 | `.claude/skills/context-constellation/traversal.md`          | Folder path examples in "Finding Cards" section                                                        |
 | `.claude/skills/context-constellation/protocol.md`           | Relationship types, target type mentions                                                               |
+
+### Skill Files — George
+
+| File                                               | Sync Points                                                       |
+| -------------------------------------------------- | ----------------------------------------------------------------- |
+| `.claude/skills/george/job-decision-resolution.md` | Propagation Map format, D-issue template structure, station names |
+| `.claude/skills/george/job-status-report.md`       | Propagation scan step, metric names, station names                |
+| `.claude/skills/george/job-shift-plan.md`          | Propagation scan step, priority algorithm, station names          |
+| `.claude/skills/george/metrics-reference.md`       | Metric names, thresholds, station names                           |
 
 ### Skill Files — Conan
 
