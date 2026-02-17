@@ -29,7 +29,7 @@ Without specification context, agents produce technically correct but contextual
 
 ---
 
-## Two Layers
+## Library Structure
 
 ### Rationale (`/rationale/`) — WHY we build
 
@@ -53,6 +53,27 @@ Without specification context, agents produce technically correct but contextual
 | Primitives   | 3     | Core data entities (Project, System, Task)                 |
 | Systems      | 15    | Invisible mechanisms governing behavior                    |
 | Agents       | 14    | AI team members                                            |
+
+### Experience (`/experience/`) — HOW it feels
+
+| Type       | Count | Purpose                         |
+| ---------- | ----- | ------------------------------- |
+| Loops      | 5     | Repeating engagement cycles     |
+| Journeys   | 2     | Multi-phase progression arcs    |
+| Aesthetics | 6     | Target emotional experiences    |
+| Dynamics   | 8     | Emergent cross-system behaviors |
+
+### Releases (`/releases/`) — WHAT ships
+
+Release cards track the product roadmap from Release 1 (The Campfire) through Release 9 (The Seasons), organized in 4 narrative arcs.
+
+### Sources (`/sources/`) — WHERE ideas came from
+
+Frozen snapshot documents (GDDs, research, strategic memos) that informed the creation of cards. **Not searchable by agents** — used by humans and Conan for drift detection and error checking. See `sources/README.md` for conventions.
+
+### Temporal (`/temporal/`) — WHEN decisions were made
+
+Decision records, initiative tracking, and future vision cards. (Vision-vs-reality divergences live in each card's WHEN section, not in standalone files.)
 
 ---
 

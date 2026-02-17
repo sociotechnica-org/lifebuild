@@ -44,6 +44,7 @@ Search tips:
 - Use the concept name, not the file name prefix
 - Try multiple terms: "priority" then "queue" then "planning queue"
 - Card names use strict conventions — if you know the type, search within that folder
+- **Skip `sources/`** — source documents are frozen provenance, not cards. If a topic search returns hits in `sources/`, ignore them during context assembly. Only Conan in audit mode reads sources.
 
 ### By dimension (content within a section)
 
@@ -174,7 +175,7 @@ Find everything affected by changing a card:
 4. **Components:** `Grep` for "Kanban" across `product/components/` → Read matches
 5. **Primitives:** Card mentions `[[Primitive - Task]]` → Read it (task statuses are the filter values)
 6. **WHY chain:** WHY section links to a Principle → Read it → follow to Strategy
-7. **Learnings:** `Grep` for "Kanban" or "Project Board" in `learnings/` → Read matches
+7. **WHEN check:** Read WHEN sections of related cards for reality notes and divergences
 
 **Result:** ~8 cards covering the Structure, its Room, conforming Standards, displayed Primitive, and strategic rationale.
 
@@ -188,8 +189,8 @@ Find everything affected by changing a card:
 3. **Rooms:** `Grep` for "System" across `product/rooms/` → finds Room - System Board
 4. **Capabilities:** `Grep` for "System" across `product/capabilities/` → finds Capability - System Actions
 5. **Systems:** `Grep` for "System" across `product/systems/` → finds multiple
-6. **Learning:** `Glob` for `learnings/*System*` → finds Learning - The System Primitive Gap
+6. **WHEN check:** Read WHEN sections of related cards for reality notes and implications
 7. **WHY chain:** Follow upstream to Strategy/Principle
 8. **Standards:** Check what Standards define System properties
 
-**Result:** ~12 cards covering the Primitive, its associated Room and Capabilities, the known gap analysis, and the strategic rationale for why Systems matter.
+**Result:** ~12 cards covering the Primitive, its associated Room and Capabilities, gap analysis from WHEN sections, and the strategic rationale for why Systems matter.

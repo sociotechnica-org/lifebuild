@@ -76,9 +76,9 @@ Write `.context/CONTEXT_BRIEFING.md` following the protocol format:
 
 Order for attention: primary cards first, relationship map and summaries in the middle, WHY/anti-pattern content at the end.
 
-## Step 7: Check learnings
+## Step 7: Check WHEN sections for divergences
 
-Search `docs/context-library/learnings/` for any Learning cards relevant to the task. These document known vision-vs-reality divergences. Include relevant learnings as supporting cards.
+Read WHEN sections (Reality + Implications) on seed and expanded cards for known vision-vs-reality divergences. These replace the former Learning cards — temporal context now lives on the card itself.
 
 ## Step 8: Log provenance
 
@@ -258,7 +258,9 @@ The Context Library lives at `docs/context-library/` with this structure:
 - `/rationale/` — Strategies, Principles, Standards (WHY layer)
 - `/product/` — Zones, Rooms, Overlays, Structures, Components, Artifacts, Capabilities, Primitives, Systems, Agents (WHAT layer)
 - `/experience/` — Loops, Journeys, Aesthetics, Dynamics (experience layer — how the product feels over time)
-- `/learnings/` — Vision-vs-reality divergence documents
+- `/temporal/` — Decision, Initiative, Future cards
+- `/releases/` — Release cards tracking the product roadmap (4 arcs, 9 releases)
+- `/sources/` — Frozen provenance material (GDDs, research, strategic memos). **Not for context assembly** — agents skip this folder. Conan reads sources only in audit mode for drift detection and error checking.
 
 Procedure files live at:
 

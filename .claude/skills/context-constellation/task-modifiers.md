@@ -26,11 +26,11 @@ How the type of task affects which dimensions to prioritize during context assem
 **Dimension emphasis:**
 
 - **HOW** (high) — What SHOULD be happening? Read HOW sections carefully for expected behavior.
-- **WHEN** (very high) — What changed recently? Reality notes may explain the divergence. Check learnings for known gaps.
+- **WHEN** (very high) — What changed recently? Reality notes may explain the divergence. Check WHEN sections (Reality + Implications) on related cards for known gaps.
 - **WHERE** (normal) — Understand connections but don't over-expand.
 - **WHY** (normal) — Unless the bug is a design misalignment, in which case WHY becomes critical.
 
-**Retrieval adjustment:** Prioritize temporal context. Read WHEN sections of all related cards. Check `learnings/` for known vision-vs-reality divergences that might explain the bug.
+**Retrieval adjustment:** Prioritize temporal context. Read WHEN sections (Reality + Implications) of all related cards for known vision-vs-reality divergences that might explain the bug.
 
 ---
 
@@ -60,7 +60,7 @@ How the type of task affects which dimensions to prioritize during context assem
 - **WHERE** (normal) — Understand where this fits in the graph.
 - **WHEN** (normal) — Check if related cards are implemented (you may be building on vision, not reality).
 
-**Retrieval adjustment:** Look for sibling cards of the same type. If building a new System, read 2-3 existing System cards to understand the pattern. Check `learnings/` for gaps related to this concept — the gap itself is context.
+**Retrieval adjustment:** Look for sibling cards of the same type. If building a new System, read 2-3 existing System cards to understand the pattern. Check WHEN sections on related cards for reality notes about gaps — the gap itself is context.
 
 ---
 
