@@ -34,9 +34,17 @@ The spatial organization canvas that fills most of the Life Map — a tessellate
 
 **Build phase:** Post-MVP
 **Implementation status:** Not started
-**Reality note (2026-02-10):** No hex grid exists in the codebase. The Life Map currently renders 8 `CategoryCard` components in a flat layout — projects appear as cards within category containers, not as hex tiles on a spatial canvas. Hex grid implementation is the top priority for upgrading the MVP per team decision.
+**Reality note (2026-02-17):** No hex grid exists in the codebase. The Life Map currently renders 8 `CategoryCard` components in a flat layout. Hex grid is the top priority for R1. Key decisions resolved: manual builder placement (no algorithmic zone layout), one project per hex with sanctuary as 3-tile exception.
 
 Core to Life Map design. The hex grid is the foundational spatial metaphor for LifeBuild.
+
+### History
+
+> **2026-02-17 — D3: One project per hex?**
+> Decided: One project per hex. Sanctuary is a 3-tile exception. Simplifies data model — hex position is a unique constraint on projects. Sanctuary gets special treatment as a multi-tile structure.
+
+> **2026-02-17 — D1: Algorithmic hex placement OK for Release 1?**
+> Decided: Manual — builder places from day one. No algorithmic category zone layout. Builders choose hex positions from R1 launch. This means the grid needs placement UX (tap/drag) and placement validation, but no auto-placement algorithm.
 
 ## HOW: Implementation
 

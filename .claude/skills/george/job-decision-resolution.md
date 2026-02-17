@@ -107,7 +107,20 @@ For each issue in "Build Issues Unblocked" (from the Propagation Map or reconstr
    gh issue comment <number> -R sociotechnica-org/lifebuild --body "> **D[N] resolved ([date]):** [one-sentence summary of chosen option and what it means for this build track]"
    ```
 
-4. **Check remaining blockers.** If the issue has no more items in its "Blocked by" section, move it from Blocked to Ready on the project board.
+4. **Check remaining blockers.** If the issue has no more items in its "Blocked by" section, move it from Blocked to Ready on the project board. Use the board field reference (`.claude/skills/george/board-fields.md`) for field IDs and commands:
+
+   ```bash
+   # Get the project item ID
+   ITEM_ID=$(gh project item-list 4 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == <issue-number>) | .id')
+
+   # Set Status → Ready
+   gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9sqAQ --single-select-option-id 27164c6d
+
+   # Set Flow State → Queued
+   gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9srEo --single-select-option-id 5bbc4dfb
+   ```
+
+   **Always update both Status and Flow State together.** See board-fields.md for the full semantics.
 
 5. **Flag for context constellation assembly.** Any newly-Ready MAKE item needs its context constellation verified before building starts — the "incoming component quality verification" from the manufacturing checklist. Note this in the output.
 
@@ -121,7 +134,17 @@ For each entry in "Cascading Decisions" (from the Propagation Map):
    gh issue comment <number> -R sociotechnica-org/lifebuild --body "**Upstream update:** D[N] resolved — [chosen option]. This affects D[M] because: [how the framing, options, or recommendation changes]."
    ```
 
-2. **If the downstream D-issue was Blocked** (waiting on this decision), move it to Ready on the project board.
+2. **If the downstream D-issue was Blocked** (waiting on this decision), move it to Ready on the project board. Update both fields:
+
+   ```bash
+   ITEM_ID=$(gh project item-list 4 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == <issue-number>) | .id')
+
+   # Set Status → Ready
+   gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9sqAQ --single-select-option-id 27164c6d
+
+   # Set Flow State → Queued
+   gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9srEo --single-select-option-id 5bbc4dfb
+   ```
 
 3. **If the resolution changes the downstream decision's option list or recommendation,** note that explicitly in the comment so the human re-evaluates before deciding.
 
@@ -137,12 +160,20 @@ Note the routing in the output so the shift plan knows where each item goes.
 
 ### Step 6: Move D-issue to Done on project board
 
-GitHub doesn't automatically move closed issues to "Done" on the project board. George does this as part of propagation:
+GitHub doesn't automatically move closed issues to "Done" on the project board. George does this as part of propagation. Update both Status and Flow State:
 
 ```bash
-# Get the project item ID and Done option ID, then update
-gh project item-list 4 --owner sociotechnica-org --format json | jq '.items[] | select(.content.number == <D-number>)'
+# Get the project item ID
+ITEM_ID=$(gh project item-list 4 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == <D-number>) | .id')
+
+# Set Status → Done
+gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9sqAQ --single-select-option-id ea38e33a
+
+# Set Flow State → Shipped
+gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9srEo --single-select-option-id 03f954dc
 ```
+
+See `.claude/skills/george/board-fields.md` for the full field reference and all option IDs.
 
 ### Step 7: Produce library update checklist (for Conan + Bob)
 

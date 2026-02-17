@@ -31,7 +31,12 @@ Jarvis's dedicated space in the Strategy Studio — where builders engage in hig
 
 **Build phase:** Future
 **Implementation status:** Not started
-**Reality note (2026-02-10):** No Council Chamber exists in the codebase. Jarvis agent is not defined in `rooms.ts` and has no route. No Charter or Agenda artifacts are implemented. The strategic conversation partner concept is unbuilt.
+**Reality note (2026-02-17):** No Council Chamber exists in the codebase. D2 resolved: R1 implements Jarvis as an overlay panel/drawer accessible from the map — no dedicated `/council-chamber` route. The route-based Council Chamber is deferred to a future release. Charter and Agenda artifacts remain unbuilt.
+
+### History
+
+> **2026-02-17 — D2: Jarvis UI — route or overlay?**
+> Decided: Overlay — panel/drawer accessible from the map. No dedicated `/council-chamber` route in R1. The Council Chamber as a full room with its own route is deferred. Jarvis lives on the map as an overlay for R1.
 
 Core to Strategy Studio design. Council Chamber is where the Jarvis relationship lives.
 

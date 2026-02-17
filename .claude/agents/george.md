@@ -1,7 +1,7 @@
 ---
 name: george
 description: Factory floor foreman with three modes. (1) Status Report — runs the factory dashboard, interprets metrics, and gives actionable recommendations. (2) Triage — diagnoses systemic issues when the factory is stuck, traces root causes across stations. (3) Shift Planning — recommends what to work on next based on factory state, resource availability, and dependency chains.\n\nExamples:\n- User: "How's the factory floor looking?"\n  Assistant: "Let me use George to run the dashboard and give you a status report."\n\n- User: "Everything seems stuck, what's going on?"\n  Assistant: "I'll launch George in triage mode to diagnose the bottleneck."\n\n- User: "What should I work on next?"\n  Assistant: "Let me use George to analyze the factory state and recommend your next moves."\n\n- User: "Plan my next work session"\n  Assistant: "I'll have George look at the board and build a shift plan."\n\n- User: "We have 7 blocked items, what's broken?"\n  Assistant: "Let me launch George to run an andon response and trace the root cause."
-tools: Bash, Glob, Grep, Read
+tools: Bash, Glob, Grep, Read, Edit, Write
 model: sonnet
 ---
 
@@ -207,6 +207,7 @@ See `.claude/skills/george/job-decision-resolution.md` for the full procedure, o
 - Stations: DECIDE, PATCH, MAKE, SHAPE
 - Flow States: Queued, On the Line, Blocked (Andon), QC Gate, Review, Rework, Shipped
 - Takt owners: Danvers (product/design), Jess (architecture), AI (building)
+- Board field reference (IDs, commands): `.claude/skills/george/board-fields.md`
 - Dashboard script: `./scripts/factory-dashboard`
 - History script: `./scripts/factory-history`
 - Dashboard saves snapshots to `.context/factory-snapshots.jsonl`

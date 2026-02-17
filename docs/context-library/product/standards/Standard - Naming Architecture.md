@@ -24,7 +24,12 @@ The naming hierarchy for all characters in LifeBuild: **Builder** (the person), 
 
 **Build phase:** MVP (principle) through all phases
 **Implementation status:** Partial
-**Reality note (2026-02-12):** "Builder" is used inconsistently (sometimes "user" in code). Steward terminology is not yet adopted in the codebase (agents are called "agents"). Attendants are referenced as the future execution tier but none exist yet. The naming architecture is established in design documents but not fully reflected in the product or codebase.
+**Reality note (2026-02-17):** "Builder" is used inconsistently (sometimes "user" in code). Steward terminology is not yet adopted in the codebase (agents are called "agents"). Attendants are referenced as the future execution tier but none exist yet. The naming architecture is established in design documents but not fully reflected in the product or codebase. D2 resolved: no Council Chamber route in R1, so "Council Chamber" won't appear in navigation yet.
+
+### History
+
+> **2026-02-17 — D2: Jarvis UI — route or overlay?**
+> Decided: Overlay for R1. No `/council-chamber` route means the "Council Chamber" name won't appear in the navigation or routing layer yet. The name persists in design documents and library cards as the future room concept for Jarvis's dedicated space.
 
 ## HOW: Specification
 

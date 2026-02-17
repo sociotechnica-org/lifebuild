@@ -26,7 +26,12 @@ The builder's Counselor — a steward whose counsel you seek before making decis
 
 **Build phase:** Post-MVP
 **Implementation status:** Not started
-**Reality note (2026-02-10):** Jarvis does not exist in the codebase. Not defined in `rooms.ts`, no Council Chamber route, no prompt. The strategic advisor role is entirely aspirational — depends on Council Chamber room and Charter/Agenda artifacts, none of which exist.
+**Reality note (2026-02-17):** Jarvis does not exist in the codebase yet. D2 resolved: R1 will implement Jarvis as an overlay/drawer on the map (no dedicated route). Depends on campfire story decisions (D5) for initial prompt design. Charter and Agenda artifacts remain unbuilt.
+
+### History
+
+> **2026-02-17 — D2: Jarvis UI — route or overlay?**
+> Decided: Overlay — panel/drawer accessible from the map. Jarvis is available from anywhere on the Life Map via overlay in R1. Route-based Council Chamber deferred to future release.
 
 ## HOW: Behavior
 

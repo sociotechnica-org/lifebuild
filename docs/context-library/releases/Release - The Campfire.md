@@ -129,6 +129,8 @@ These are yes/no or A/B/C choices. Make them once, AI builds immediately after.
 
 #### D1: Algorithmic hex placement OK for Release 1?
 
+> **Resolved 2026-02-17:** Manual — builder places from day one. Algorithmic placement rejected. Standard - Spatial Interaction Rules upheld from R1. New work: hex placement UX (tap/drag to place), placement validation UI, existing project migration strategy. Eliminated: #612 (Spatial Interaction Rules override patch).
+
 **The tension:** The library (`Standard - Spatial Interaction Rules`) says "builder places their own projects, system never assigns locations." Release 1 needs projects on the map before drag-to-rearrange exists. The proposal: algorithmic initial placement (8 category zones radiating from center), with builder-driven rearrangement coming in Release 2.
 
 **Question for Danvers:** Is it OK for Release 1 to auto-place projects by category zone, knowing we add drag-to-rearrange later? Or must the builder choose position from day one (even without a polished placement UI)?
@@ -140,6 +142,8 @@ These are yes/no or A/B/C choices. Make them once, AI builds immediately after.
 ---
 
 #### D2: Jarvis UI — route or overlay?
+
+> **Resolved 2026-02-17:** Overlay — panel/drawer accessible from the map. Route-based Council Chamber deferred. New work: overlay/drawer component for Jarvis. Eliminated: no `/council-chamber` route needed in R1.
 
 **Question for Danvers:** After the campfire is gone, where does Jarvis live? Options:
 
@@ -155,6 +159,8 @@ These are yes/no or A/B/C choices. Make them once, AI builds immediately after.
 
 #### D3: One project per hex?
 
+> **Resolved 2026-02-17:** One project per hex. Sanctuary is a 3-tile exception. Simpler data model, hex position is a unique constraint. New work: hex uniqueness validation, sanctuary 3-tile exception logic.
+
 **Question for Jess:** Can two projects occupy the same hex position? Or is each hex exclusive?
 
 **Recommended answer:** One project per hex. Hex position is a unique constraint. Simpler data model, cleaner map rendering.
@@ -164,6 +170,8 @@ These are yes/no or A/B/C choices. Make them once, AI builds immediately after.
 ---
 
 #### D4: What happens to category room agents?
+
+> **Resolved 2026-02-17:** Remove entirely for R1. Category agents are vestigial — Jarvis and Marvin handle everything. Eliminated: category agent maintenance and prompt updates.
 
 **Context:** 8 category-specific agents exist in `rooms.ts` (Maya, Grace, Brooks, etc.) that aren't part of the steward model. They're per-category chat agents from an earlier design.
 
@@ -225,6 +233,8 @@ The campfire conversation could be:
 
 #### D7: Where does builder context live?
 
+> **Retired 2026-02-17:** This decision card was a technical architecture question ("which storage mechanism?"), not a product-feel decision. Technical architecture questions belong in MAKE — agents resolve them during implementation using the existing LiveStore patterns. The HOW dimension in the library is about how things should work for the builder, not how to build them technically. Removed as a blocker from dependent issues.
+
 **Context:** After the campfire, Jarvis needs to remember: starting state, what the builder shared, the first project seed, conversation summary. On return visits, Jarvis references this. The question is the storage mechanism.
 
 **Options:**
@@ -266,27 +276,26 @@ The campfire conversation could be:
 
 These can start immediately. AI assembles a context constellation from the library + release plan, then builds.
 
-| Track                    | What AI builds                                                                                  | Context readiness                                   | Notes                                                                               |
-| ------------------------ | ----------------------------------------------------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| **Hex grid geometry**    | SVG hex renderer, offset coordinate system, hex math utilities, viewport sizing                 | YELLOW — needs library patches first (see below)    | The math is solved. SVG is straightforward. This is the longest pole — start first. |
-| **Agent cleanup**        | Remove Mesa from `rooms.ts`, define Jarvis room, remove Cameron/Devin, update Marvin vocabulary | GREEN — library is thick                            | Mostly mechanical. After D2 (Jarvis UI) and D4 (category agents), wire the rest.    |
-| **LiveStore hex events** | `project.hexPlaced` event definition, materializer for hex coordinates, schema migration        | YELLOW — release plan fills gaps                    | After D3 (uniqueness), design the full schema. Scaffold can start now.              |
-| **First-run detection**  | Routing guard: no projects + no onboarding flag → campfire; else → map                          | YELLOW — release plan fills gaps                    | After D7 (context persistence), wire the flag. Detection logic itself is simple.    |
-| **Naming audit**         | Inventory all user-facing strings with stale vocabulary (Director, Mesa, agent)                 | GREEN — library is thick on naming                  | Audit scope only. Actual rename waits until campfire UI is built.                   |
-| **Marvin prompt update** | Rewrite Marvin's prompt with Builder vocabulary, steward voice, per Agent - Marvin card         | YELLOW — no prompt exists, but voice spec is strong | AI drafts, Danvers or Jess reviews. Low risk — Marvin's role is well-defined.       |
+| Track                    | What AI builds                                                                                                | Context readiness                                   | Notes                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **Hex grid geometry**    | SVG hex renderer, offset coordinate system, hex math utilities, viewport sizing                               | YELLOW — needs library patches first (see below)    | The math is solved. SVG is straightforward. This is the longest pole — start first. |
+| **Agent cleanup**        | Remove category agents from `rooms.ts`, define Jarvis overlay, remove Cameron/Devin, update Marvin vocabulary | GREEN — D2 + D4 resolved                            | D2: Jarvis as overlay (not route). D4: category agents removed. Fully unblocked.    |
+| **LiveStore hex events** | `project.hexPlaced` event definition, materializer for hex coordinates, schema migration                      | GREEN — D3 resolved                                 | D3: one project per hex, unique constraint. Full schema design can proceed.         |
+| **Hex placement UX**     | Tap/drag to place hex tiles, placement validation UI, existing project migration                              | GREEN — D1 resolved                                 | D1: manual placement from day one. New track from D1 scope changes.                 |
+| **First-run detection**  | Routing guard: no projects + no onboarding flag → campfire; else → map                                        | YELLOW — release plan fills gaps                    | D7 retired (technical architecture, not a DECIDE item). Detection logic is simple.  |
+| **Naming audit**         | Inventory all user-facing strings with stale vocabulary (Director, Mesa, agent)                               | GREEN — library is thick on naming                  | Audit scope only. Actual rename waits until campfire UI is built.                   |
+| **Marvin prompt update** | Rewrite Marvin's prompt with Builder vocabulary, steward voice, per Agent - Marvin card                       | YELLOW — no prompt exists, but voice spec is strong | AI drafts, Danvers or Jess reviews. Low risk — Marvin's role is well-defined.       |
 
 ### BLOCKED — waiting on specific decisions
 
 | Track                            | Blocked by                             | What AI builds after                                                               | Notes                                                                             |
 | -------------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| **Category zone layout**         | D1 (algorithmic placement)             | Territory algorithm, zone-to-hex mapping, existing project migration               | Quick to unblock — just needs a yes from Danvers                                  |
 | **Sanctuary + campfire visuals** | D5 (story structure, partially)        | SVG elements for Humble Studio and campfire, visual treatment, glow/warmth effects | AI can build placeholder visuals now, refine after story structure is decided     |
 | **Campfire UI architecture**     | D5 (story structure)                   | Chat-based, guided-sequence, or hybrid campfire UI component                       | This is the big one. Can't design the UI without knowing the interaction model.   |
 | **Jarvis campfire prompt**       | D5 (story structure) + D6 (assessment) | System prompt for the campfire conversation                                        | Drafts possible now; final version needs story structure and assessment approach  |
-| **Campfire-to-Marvin handoff**   | D5 + D6 + D7                           | Data extraction from conversation, format for Marvin's context injection           | Needs to know what data to extract, where to store it, and how Marvin reads it    |
+| **Campfire-to-Marvin handoff**   | D5 + D6                                | Data extraction from conversation, format for Marvin's context injection           | D7 retired — storage mechanism is a MAKE decision, not DECIDE. Still needs D5+D6. |
 | **Walk animation**               | D5 (what triggers the walk)            | Viewport pan, campfire fade, arrival rendering                                     | The animation itself is simple. The trigger mechanism depends on story structure. |
-| **Builder context schema**       | D7 (persistence mechanism)             | LiveStore events, materializer, context injection into Jarvis prompt               | Jess decides architecture, AI builds immediately after                            |
-| **Return experience**            | D7 + campfire must work first          | Return greeting, context-aware Jarvis, progress acknowledgment                     | Late-stage — depends on everything else                                           |
+| **Return experience**            | Campfire must work first               | Return greeting, context-aware Jarvis, progress acknowledgment                     | Late-stage — depends on everything else. D7 retired (technical, not DECIDE).      |
 
 ### PROTOTYPE — iterative human + AI cycles
 
@@ -303,14 +312,15 @@ These aren't "build once and ship." They need multiple drafts, feel-testing, and
 
 ## LIBRARY PATCHES
 
-Four Context Library cards describe the full vision without acknowledging Release 1's intentional constraints. An AI builder reading these cards alone will overbuild. Each needs a Release 1 reality note.
+Some Context Library cards describe the full vision without acknowledging Release 1's intentional constraints. An AI builder reading these cards alone will overbuild. Each needs a Release 1 reality note.
 
-| Card                                   | Problem                                     | Patch needed                                                                                                                                                               |
-| -------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Structure - Hex Grid`                 | Says "infinite canvas"                      | Add reality note: "Release 1 uses a fixed ~30-40 position SVG grid. Infinite canvas deferred to Release 2."                                                                |
-| `Standard - Spatial Interaction Rules` | Says "builder places, system never assigns" | Add reality note: "Release 1 uses algorithmic initial placement by category zone. Drag-to-rearrange deferred to Release 2. First hex during onboarding IS builder-placed." |
-| `System - Onboarding`                  | Describes Day 1/2/3 sequence                | Add reality note: "Release 1 collapses to a single campfire conversation + walk. Multi-day sequencing deferred."                                                           |
-| `Standard - Onboarding Sequence`       | References Mesa at campfire                 | Update: Jarvis conducts onboarding, not Mesa. Mesa is reserve status.                                                                                                      |
+| Card                             | Problem                      | Patch needed                                                                                                     | Status                                               |
+| -------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `Structure - Hex Grid`           | Says "infinite canvas"       | Add reality note: "Release 1 uses a fixed ~30-40 position SVG grid. Infinite canvas deferred to Release 2."      | WHEN updated with D1+D3 History entries (2026-02-17) |
+| `System - Onboarding`            | Describes Day 1/2/3 sequence | Add reality note: "Release 1 collapses to a single campfire conversation + walk. Multi-day sequencing deferred." | Pending                                              |
+| `Standard - Onboarding Sequence` | References Mesa at campfire  | Update: Jarvis conducts onboarding, not Mesa. Mesa is reserve status.                                            | Pending                                              |
+
+**Eliminated patch:** `Standard - Spatial Interaction Rules` — D1 resolved: manual placement from day one. The Standard is upheld as-is in R1. No override patch needed. (#612 closed.)
 
 **These patches should be applied before AI starts building**, so context constellations assembled from the library give correct guidance.
 
@@ -344,10 +354,10 @@ IMMEDIATE (AI starts now)
 ├── PATCH: 4 library cards get R1 reality notes
 └── PROTOTYPE: Image gen experimentation (Release 2 frontload)
 
-AFTER QUICK CALLS (D1-D4, aim for day 1)
-├── MAKE: Category zone layout algorithm (D1)
-├── MAKE: Agent cleanup complete (D2 for Jarvis route, D4 for category agents)
-├── MAKE: LiveStore hex event schema finalized (D3)
+QUICK CALLS RESOLVED (D1-D4, 2026-02-17)
+├── MAKE: Hex placement UX — tap/drag to place (D1: manual placement)
+├── MAKE: Agent cleanup complete (D2: Jarvis overlay, D4: category agents removed)
+├── MAKE: LiveStore hex event schema finalized (D3: one per hex, unique constraint)
 └── MAKE: Map-project binding + hex click navigation
 
 AFTER D5 (campfire story structure — the big one)
@@ -361,9 +371,9 @@ AFTER D6 (assessment mechanics — flows from D5)
 ├── MAKE: Starting state extraction logic
 └── PROTOTYPE: Jarvis voice iteration
 
-AFTER D7 (context persistence — Jess call)
-├── MAKE: Builder context LiveStore events + materializer
-├── MAKE: First-run detection flag wiring
+AFTER D5+D6 (campfire experience resolved)
+├── MAKE: Builder context LiveStore events + materializer (D7 retired — technical, resolved at MAKE)
+├── MAKE: First-run detection flag wiring (D7 retired — technical, resolved at MAKE)
 ├── MAKE: Campfire-to-Marvin handoff
 └── MAKE: Return experience (context injection, greeting)
 
@@ -474,7 +484,7 @@ Detailed specs for each build item, referenced by AI builders during implementat
 
 **Campfire at the edge.** Only rendered for builders who haven't completed onboarding. Warm glow, fire aesthetic. Corner or edge of the grid.
 
-**Category territory layout.** 8 category zones radiating from center per `Standard - Life Categories` color mapping. Initial placement algorithmic (per D1).
+**Builder-driven placement.** Builder places hex tiles manually via tap/drag (per D1 — algorithmic placement rejected). Category-colored borders per `Standard - Life Categories`. No auto-placement or suggested positions.
 
 **Hex tile rendering.** Each occupied hex displays: project title (truncated), category color border, simple state indicator (planning/active/completed). All tiles same size per `Component - Hex Tile`.
 
@@ -486,15 +496,15 @@ Detailed specs for each build item, referenced by AI builders during implementat
 
 ### Agent Architecture Cleanup
 
-Remove Mesa agent definition from `rooms.ts` and all references. Define Jarvis agent with room type `council-chamber`. Remove Cameron/Devin references. Update Marvin's prompt to Builder vocabulary. Update room definitions to steward naming. Remove category room agents (per D4). Add Jarvis route per D2.
+Remove category room agents (Maya, Grace, Brooks, etc.) from `rooms.ts` and all references (per D4). Define Jarvis as overlay/drawer component accessible from the map (per D2 — no dedicated route). Remove Cameron/Devin references. Update Marvin's prompt to Builder vocabulary. Update room definitions to steward naming.
 
 ### LiveStore Hex Events
 
-New event: `project.hexPlaced { projectId, q, r }`. One project per hex (per D3). Materializer updates project records with hex coordinates. Migration: existing projects get algorithmic placement by category zone.
+New event: `project.hexPlaced { projectId, q, r }`. One project per hex (per D3) — hex position is a unique constraint. Materializer updates project records with hex coordinates. Migration: existing projects need manual placement by builder (per D1 — no algorithmic placement).
 
 ### Builder Context Persistence
 
-LiveStore event: `builder.onboardingCompleted { startingState, conversationSummary, firstProjectSeed, heavyThing }` (per D7). Materializer creates builder context record. Jarvis prompt receives this context on return visits.
+LiveStore event: `builder.onboardingCompleted { startingState, conversationSummary, firstProjectSeed, heavyThing }`. Materializer creates builder context record. Jarvis prompt receives this context on return visits. (D7 retired — storage mechanism is a technical decision resolved at MAKE, not a human DECIDE item. LiveStore events recommended in the original D7 framing and consistent with existing architecture.)
 
 ### First-Run Detection
 
