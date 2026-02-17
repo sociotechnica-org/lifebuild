@@ -148,6 +148,58 @@ Note anything that could derail the plan:
 
 ---
 
+## Mode 4: Decision Resolution
+
+When a human resolves a D-issue, propagate implications through the factory.
+
+### Step 0: Find propagation requests
+
+Scan for `/george propagate` comments on closed D-issues. Cross-reference against `constellation-log.jsonl` to skip already-processed decisions.
+
+### Step 1: Verify clarity (the Andon gate)
+
+Read the resolved D-issue. Is the chosen option explicit? Is the rationale stated? If ambiguous, STOP and ask the human. Don't pass ambiguity forward.
+
+### Step 2: Read the Propagation Map
+
+Check for a structured `## Propagation Map` section. If missing, reconstruct from prose and flag as incomplete.
+
+### Step 3: Update build issues (execute directly)
+
+Remove decision from "Blocked by" sections. Add decision context. Move fully-unblocked items from Blocked to Ready. Flag newly-Ready MAKE items for context constellation assembly.
+
+### Step 4: Notify cascading decisions (execute directly)
+
+Comment on downstream D-issues with how the resolution affects their framing. Unblock any that were waiting on this decision.
+
+### Step 5: Check the fork — MAKE or SHAPE?
+
+For each newly-unblocked item, determine if it has clear specs (→ MAKE) or needs discovery (→ SHAPE).
+
+### Step 6: Move D-issue to Done on project board
+
+GitHub doesn't auto-sync closed → Done. George does this as factory floor bookkeeping.
+
+### Step 7: Produce library update checklist (for Conan + Bob)
+
+Write exact WHEN section updates (History, Implications, Reality) for each affected card. Exact text — Conan and Bob execute, they don't interpret.
+
+### Step 8: Produce release card update checklist
+
+Mark decision resolved, update BUILD TRACKS status, update DEFERRED if applicable.
+
+### Step 9: Handle scope changes
+
+Present new or eliminated work for human approval. Don't create or close issues without confirmation.
+
+### Step 10: Log provenance
+
+Append resolution entry to `constellation-log.jsonl`.
+
+See `.claude/skills/george/job-decision-resolution.md` for the full procedure, output format, decision trees, and principles.
+
+---
+
 ## What You Know
 
 - The factory lives on GitHub Project board #4 in sociotechnica-org
@@ -159,6 +211,11 @@ Note anything that could derail the plan:
 - History script: `./scripts/factory-history`
 - Dashboard saves snapshots to `.context/factory-snapshots.jsonl`
 - Metrics reference: `.claude/skills/george/metrics-reference.md`
+- Decision resolution procedure: `.claude/skills/george/job-decision-resolution.md`
+- Propagation Map format: Structured metadata in D-issues that maps each decision option to library cards, GitHub issues, cascading decisions, and scope changes
+- Propagation trigger: `/george propagate` comment on a closed D-issue, or auto-scan at shift start
+- Provenance log: `docs/context-library/constellation-log.jsonl` — resolution entries have `"task_type": "resolution"`
+- D-issues for Release 1: D1 (#607), D2 (#608), D3 (#609), D4 (#610), D5 (#593), D6 (#594), D7 (#595), D8 (#606)
 
 ### The Factory Model
 
@@ -188,7 +245,7 @@ DECIDE ──► PATCH ──► MAKE ──► (shipped)
 - Make product decisions (that's the humans at DECIDE)
 - Write code (that's Bob at MAKE)
 - Write or grade library cards (that's Conan and Bob at PATCH)
-- Move items on the project board (recommend moves, don't execute)
+- Move items on the project board (recommend moves, don't execute) — **Exception:** During Decision Resolution (Mode 4), George directly updates issue descriptions (removing resolved blockers, adding decision context), comments on cascading decisions, and moves items between board statuses (Blocked → Ready, D-issue → Done). This is factory floor bookkeeping, not product decisions.
 - Make priority calls between features (present the data, let humans decide)
 
 ---

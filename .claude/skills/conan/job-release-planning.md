@@ -105,9 +105,62 @@ Releases are grouped into thematic arcs. Each arc has a narrative theme and a pr
 
 8. **Identify decisions** — What human decisions are needed before building? Categorize: Quick Call vs Needs Thought.
 
-9. **Write the narrative sentence** — One sentence that captures the emotional beat. Format: "You [verb]. [Something changes]. [Feeling.]"
+9. **Build Propagation Maps** — For each decision identified in Step 8, pre-wire the signal paths so that when the decision resolves, George (Job 4: Decision Resolution) can mechanically propagate implications. For each decision:
 
-10. **Cross-check with deferred list** — Read the previous release's CANNOT DO list. Everything there should either appear in this release's features or in a future release's plan.
+   a. **Trace library card impacts.** For each option, which library cards need WHEN section updates? Check:
+   - Cards listed in Step 7's AFFECTED LIBRARY CARDS table
+   - Cards referenced in the decision's framing
+   - Cards whose WHAT or HOW sections describe behavior that depends on this choice
+   - For each affected card, specify: which subsection (History, Reality, Implications) and what the update would say under each option
+
+   b. **Trace build issue impacts.** For each option, which build track issues are blocked by this decision?
+   - Cross-reference the BUILD TRACKS section's blockers
+   - For each blocked issue: what happens when the blocker is removed? Does the item need context constellation assembly?
+
+   c. **Trace cascading decisions.** Does resolving this decision change the framing, options, or recommendation of any other decision?
+   - Check: does any other D-issue reference this one?
+   - If yes, describe how each option affects the downstream decision
+
+   d. **Trace scope changes.** Does any option add work that's not currently on the board? Does any option eliminate planned work?
+
+   e. **Write the Propagation Map** using the format below, adding it to both the release card's DECISIONS NEEDED section and to the D-issue on GitHub.
+
+   **Propagation Map format:**
+
+   ```markdown
+   ## Propagation Map
+
+   ### Library Cards Affected
+
+   | Card          | Section      | If Option A     | If Option B     |
+   | ------------- | ------------ | --------------- | --------------- |
+   | [[Card Name]] | WHEN History | "[update text]" | "[update text]" |
+   | [[Card Name]] | WHEN Reality | "[update text]" | "[update text]" |
+
+   ### Build Issues Unblocked
+
+   | Issue        | Action When Resolved                             |
+   | ------------ | ------------------------------------------------ |
+   | #[n] [title] | [what to do — remove blocker, add context, etc.] |
+
+   ### Cascading Decisions
+
+   | Decision    | How This Affects It                               |
+   | ----------- | ------------------------------------------------- |
+   | D[N] (#[n]) | [how each option changes the downstream decision] |
+
+   ### Scope Changes
+
+   | If Option | New Work    | Eliminated Work |
+   | --------- | ----------- | --------------- |
+   | [option]  | [new items] | [removed items] |
+   ```
+
+   **Why this matters:** Without Propagation Maps, decision resolution requires George to reconstruct signal paths from prose — slow, incomplete, error-prone. With them, resolution is mechanical: read the chosen option's column, follow the instructions. This is pre-wiring the factory's signal system.
+
+10. **Write the narrative sentence** — One sentence that captures the emotional beat. Format: "You [verb]. [Something changes]. [Feeling.]"
+
+11. **Cross-check with deferred list** — Read the previous release's CANNOT DO list. Everything there should either appear in this release's features or in a future release's plan.
 
 ### Editing an Existing Release
 
@@ -212,11 +265,43 @@ Use this format for releases that are being planned but not yet built:
 
 ### Quick Calls
 
-- **[D-id]:** [Question] — Recommended: [answer]. Unblocks: [what].
+#### D[id]: [Question]
+
+[1-2 sentence framing — the tension this resolves]
+
+**Options:** [list]
+**Recommended:** [answer]
+
+<details><summary>Propagation Map</summary>
+
+| Card     | Section    | If Option A | If Option B |
+| -------- | ---------- | ----------- | ----------- |
+| [[Card]] | WHEN [sub] | "[text]"    | "[text]"    |
+
+| Issue | Action When Resolved |
+| ----- | -------------------- |
+| #[n]  | [action]             |
+
+| Decision | How This Affects It |
+| -------- | ------------------- |
+| D[N]     | [effect]            |
+
+</details>
 
 ### Needs Thought
 
-- **[D-id]:** [Question] — Options: [list]. Unblocks: [what].
+#### D[id]: [Question]
+
+[2-4 sentence framing — why this needs thought]
+
+**Options:** [detailed list with pros/cons]
+**Recommended:** [if any]
+
+<details><summary>Propagation Map</summary>
+
+[Same table format as Quick Calls]
+
+</details>
 
 ---
 

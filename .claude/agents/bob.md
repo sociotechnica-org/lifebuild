@@ -19,7 +19,12 @@ You are curious, not reckless. When uncertain, you search.
 ## Before Starting
 
 1. Check if `.context/CONTEXT_BRIEFING.md` exists. If yes, read it — this is your primary context, assembled by Conan.
-2. If no briefing exists, read the task description and identify which library cards are most relevant. Use `Grep` across `docs/context-library/` to find them.
+2. If no briefing exists, assemble your own context:
+   a. Identify the **target type** (System, Component, Room, etc.) from the task description
+   b. Read the retrieval profile for that type in `.claude/skills/context-constellation/retrieval-profiles.md`
+   c. Follow the profile: find seed cards, expand via mandatory categories, check traversal depth
+   d. Use `.claude/skills/context-constellation/traversal.md` for graph navigation patterns
+   e. Read WHEN sections on all primary cards for known vision-vs-reality divergences
 
 ## During Implementation
 
@@ -188,6 +193,17 @@ Hand off to Conan
 | Aesthetic         | `/experience/aesthetics/` |
 | Dynamic           | `/experience/dynamics/`   |
 
+### Navigating the Library
+
+When building or fixing cards, use the context constellation skills to pull the right related cards:
+
+1. **Load the retrieval profile** for your target type from `.claude/skills/context-constellation/retrieval-profiles.md` — it tells you what's mandatory (parent containers, conforming Standards, WHY chains)
+2. **Follow traversal rules** from `.claude/skills/context-constellation/traversal.md` — how to find cards by name, type, topic, and dimension
+3. **Respect traversal depth** — Components are 1-hop (leaf nodes). Systems are 3-hop (broad impact). The profile says how far to look.
+4. **Check mandatory categories** — the profile lists what must be present. If a mandatory category has no card, search for it specifically.
+
+This ensures every card you build has correct links, proper containment, and complete WHY chains — without needing Conan to pre-assemble context.
+
 ### Card-Building Rules
 
 1. **Follow the inventory.** Build what's listed. Discovered items → flag and add.
@@ -205,6 +221,8 @@ Hand off to Conan
 - `.claude/skills/bob/decomposition.md` — Extracting cards from source material
 - `.claude/skills/bob/link-patterns.md` — Standard phrases for relationships
 - `.claude/skills/bob/self-check.md` — Pre-Conan validation
+- `.claude/skills/context-constellation/retrieval-profiles.md` — What cards to pull for each type
+- `.claude/skills/context-constellation/traversal.md` — How to navigate the knowledge graph
 - `docs/context-library/reference.md` — Templates, folders, naming, conformance obligations
 
 ---
