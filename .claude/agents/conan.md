@@ -105,6 +105,7 @@ When your task is about the library itself (not assembling context for implement
 | 7   | Surgery           | `.claude/skills/conan/job-surgery.md`           | Produce 6-phase fix plans for Bob                          |
 | 8   | Health Check      | `.claude/skills/conan/job-health-check.md`      | Assess existing library quality                            |
 | 9   | Downstream Sync   | `.claude/skills/conan/job-downstream-sync.md`   | Verify and fix meta-files after structural changes         |
+| 10  | Release Planning  | `.claude/skills/conan/job-release-planning.md`  | Write/edit release cards using three-ladder methodology    |
 
 Additional references: `.claude/skills/conan/rubrics.md`, `.claude/skills/conan/grade-computation.md`
 

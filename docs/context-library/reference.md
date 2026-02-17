@@ -1637,33 +1637,66 @@ Loops, Journeys, Aesthetics, and Dynamics are about the builder's experience ove
 
 ### Release
 
+Releases use **planning mode** (forward-looking) while being built and **retrospective mode** (what shipped) after they ship. Planning mode follows the three-ladder methodology documented in `.claude/skills/conan/job-release-planning.md`.
+
 ```markdown
-# Release [Version]
+# Release [N]: [Title]
 
-## WHAT: Summary
+> **Arc:** [Arc Name]
+> **Narrative:** "[One sentence — the emotional beat of this release]"
 
-[What shipped. One paragraph.]
+## GOAL
 
-## WHERE: Affected
+[2-3 sentences. What this release enables. What changes for the builder.]
 
-- Zones:
-  - [[Zone]] — [launched/changed]
-- Rooms:
-  - [[Room]] — [launched/changed]
-- Capabilities:
-  - [[Capability]] — [launched/changed]
-- Systems:
-  - [[System]] — [launched/changed]
-- Agents:
-  - [[Agent]] — [launched/changed]
+### Success Criteria
 
-## WHY: Arc
+- [ ] [Observable outcome]
+- [ ] [Observable outcome]
 
-- Part of: [[Initiative]] — [what initiative this advances]
+## LADDER POSITIONS
+
+| Bet                | Before | After  | Key Advancement |
+| ------------------ | ------ | ------ | --------------- |
+| Spatial Visibility | L[n]   | L[n+x] | [What changes]  |
+| Superior Process   | L[n]   | L[n+x] | [What changes]  |
+| AI as Teammates    | L[n]   | L[n+x] | [What changes]  |
+
+## FEATURES (Minimum Viable)
+
+| Feature | Minimum Viable Implementation | Full Vision (deferred) |
+| ------- | ----------------------------- | ---------------------- |
+
+## BUILDER EXPERIENCE CHECKPOINT
+
+**After this release, the builder can:**
+
+- [Concrete capability]
+
+**After this release, the builder CANNOT:**
+
+- [Explicit limitation — must appear in a future release]
+
+**Bottleneck:** [Single biggest limitation]
+
+**Who falls in love here:** [Builder archetype]
+
+**Viable scale:** [N projects, N systems, etc.]
+
+## AFFECTED LIBRARY CARDS
+
+| Card | How It's Affected |
+| ---- | ----------------- |
+
+## WHAT'S EXPLICITLY DEFERRED
+
+| Feature | Deferred To | Why |
+| ------- | ----------- | --- |
 
 ## WHEN: Timeline
 
-- Released: [date]
+- Status: planned | in-progress | shipped
+- Released: [date, when shipped]
 - Decisions:
   - [[Decision]] — [key choices made]
 - Learnings:
