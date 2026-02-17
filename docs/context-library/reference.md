@@ -1800,6 +1800,13 @@ Releases use **planning mode** (forward-looking) while being built and **retrosp
 /learnings/
   [flat: Decision, Learning, Initiative, Future]
 
+/releases/
+  [flat: Release cards]
+
+/sources/
+  [frozen provenance — GDDs, research, strategic memos]
+  [NOT searchable by agents — see sources/README.md]
+
 reference.md
 CONTRIBUTING.md
 CONVENTIONS.md

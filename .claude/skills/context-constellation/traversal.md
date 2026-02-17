@@ -44,6 +44,7 @@ Search tips:
 - Use the concept name, not the file name prefix
 - Try multiple terms: "priority" then "queue" then "planning queue"
 - Card names use strict conventions — if you know the type, search within that folder
+- **Skip `sources/`** — source documents are frozen provenance, not cards. If a topic search returns hits in `sources/`, ignore them during context assembly. Only Conan in audit mode reads sources.
 
 ### By dimension (content within a section)
 

@@ -259,6 +259,8 @@ The Context Library lives at `docs/context-library/` with this structure:
 - `/product/` — Zones, Rooms, Overlays, Structures, Components, Artifacts, Capabilities, Primitives, Systems, Agents (WHAT layer)
 - `/experience/` — Loops, Journeys, Aesthetics, Dynamics (experience layer — how the product feels over time)
 - `/learnings/` — Vision-vs-reality divergence documents
+- `/releases/` — Release cards tracking the product roadmap (4 arcs, 9 releases)
+- `/sources/` — Frozen provenance material (GDDs, research, strategic memos). **Not for context assembly** — agents skip this folder. Conan reads sources only in audit mode for drift detection and error checking.
 
 Procedure files live at:
 
