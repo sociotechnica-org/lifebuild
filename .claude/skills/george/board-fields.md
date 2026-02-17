@@ -13,28 +13,28 @@
 
 ### Status (`PVTSSF_lADOBzJqv84BPOmGzg9sqAQ`)
 
-| Option        | ID         |
-|---------------|------------|
-| Backlog       | `06bc7e24` |
-| Ready         | `27164c6d` |
-| In progress   | `206a38ee` |
-| In review     | `a4fa5a44` |
-| Blocked       | `03d0d9ef` |
-| Done          | `ea38e33a` |
+| Option      | ID         |
+| ----------- | ---------- |
+| Backlog     | `06bc7e24` |
+| Ready       | `27164c6d` |
+| In progress | `206a38ee` |
+| In review   | `a4fa5a44` |
+| Blocked     | `03d0d9ef` |
+| Done        | `ea38e33a` |
 
 ### Station (`PVTSSF_lADOBzJqv84BPOmGzg9srEk`)
 
-| Option  | ID         |
-|---------|------------|
-| DECIDE  | `0d78f282` |
-| PATCH   | `28254008` |
-| MAKE    | `04d4fff3` |
-| SHAPE   | `d28648b7` |
+| Option | ID         |
+| ------ | ---------- |
+| DECIDE | `0d78f282` |
+| PATCH  | `28254008` |
+| MAKE   | `04d4fff3` |
+| SHAPE  | `d28648b7` |
 
 ### Flow State (`PVTSSF_lADOBzJqv84BPOmGzg9srEo`)
 
 | Option          | ID         |
-|-----------------|------------|
+| --------------- | ---------- |
 | Queued          | `5bbc4dfb` |
 | On the Line     | `0b7a880b` |
 | Blocked (Andon) | `c6f03e83` |
@@ -46,7 +46,7 @@
 ### Takt (`PVTSSF_lADOBzJqv84BPOmGzg9srEs`)
 
 | Option  | ID         |
-|---------|------------|
+| ------- | ---------- |
 | Danvers | `fa822e86` |
 | Jess    | `5f5d716e` |
 | AI      | `075c46fc` |
@@ -77,30 +77,35 @@ gh project item-edit \
 ### Common Operations
 
 **Move item to Done (Status):**
+
 ```bash
 ITEM_ID=$(gh project item-list 4 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == ISSUE_NUMBER) | .id')
 gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9sqAQ --single-select-option-id ea38e33a
 ```
 
 **Move item from Blocked to Ready (Status):**
+
 ```bash
 ITEM_ID=$(gh project item-list 4 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == ISSUE_NUMBER) | .id')
 gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9sqAQ --single-select-option-id 27164c6d
 ```
 
 **Set Flow State to Shipped:**
+
 ```bash
 ITEM_ID=$(gh project item-list 4 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == ISSUE_NUMBER) | .id')
 gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9srEo --single-select-option-id 03f954dc
 ```
 
 **Set Flow State to Queued:**
+
 ```bash
 ITEM_ID=$(gh project item-list 4 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == ISSUE_NUMBER) | .id')
 gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9srEo --single-select-option-id 5bbc4dfb
 ```
 
 **Set Flow State to Blocked (Andon):**
+
 ```bash
 ITEM_ID=$(gh project item-list 4 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == ISSUE_NUMBER) | .id')
 gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9srEo --single-select-option-id c6f03e83
@@ -114,10 +119,10 @@ gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-i
 
 These are two different fields serving different purposes:
 
-| Field      | Purpose                        | Who changes it        |
-|------------|--------------------------------|-----------------------|
-| **Status** | Issue lifecycle (project board) | George during propagation, humans during work |
-| **Flow State** | Factory floor position       | George during propagation, humans during work |
+| Field          | Purpose                         | Who changes it                                |
+| -------------- | ------------------------------- | --------------------------------------------- |
+| **Status**     | Issue lifecycle (project board) | George during propagation, humans during work |
+| **Flow State** | Factory floor position          | George during propagation, humans during work |
 
 **Rules:**
 
