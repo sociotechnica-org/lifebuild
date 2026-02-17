@@ -83,7 +83,7 @@ Decision records, initiative tracking, and future vision cards. (Vision-vs-reali
 | ------------------- | ------------------------------------------------------------------------------------------------- |
 | **README.md**       | Orientation and motivation (you're here)                                                          |
 | **reference.md**    | Type taxonomy, card templates, folder structure, naming, conformance obligations, link quality    |
-| **CONTRIBUTING.md** | Procedures for adding/editing cards, quality checklist, agent roles (Conan/Bob/Human)             |
+| **CONTRIBUTING.md** | Procedures for adding/editing cards, quality checklist, agent roles (Conan/Sam/Human)             |
 | **CONVENTIONS.md**  | Codebase patterns, file organization, architecture decisions, gotchas, testing, git, dependencies |
 
 ---

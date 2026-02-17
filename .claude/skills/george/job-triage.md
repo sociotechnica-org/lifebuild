@@ -60,7 +60,7 @@ The root cause is the single thing that, if fixed, resolves the most symptoms. I
 | Root Cause              | Signal                                                     | Fix                         |
 | ----------------------- | ---------------------------------------------------------- | --------------------------- |
 | **Undecided decisions** | Multiple items blocked by the same D-number                | Make the decision           |
-| **Missing context**     | Builders blocked because they don't know what to build     | Run Conan → Bob (PATCH)     |
+| **Missing context**     | Builders blocked because they don't know what to build     | Run Conan → Sam (PATCH)     |
 | **Wrong sequencing**    | Items started before their dependencies were ready         | Re-sequence the board       |
 | **Resource mismatch**   | One person is the bottleneck, others are idle              | Redistribute or pair        |
 | **Scope creep**         | Items growing beyond original spec, never finishing        | Split the item              |

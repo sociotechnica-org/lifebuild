@@ -23,16 +23,16 @@ Files that mirror library structure and must stay in sync with `docs/context-lib
 | File                       | Sync Points                                                                                                                      |
 | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `.claude/agents/conan.md`  | Target type list (Step 2), decision tree steps, containment relationships table, library structure description ("What You Know") |
-| `.claude/agents/bob.md`    | Library Organization table                                                                                                       |
+| `.claude/agents/sam.md`    | Library Organization table                                                                                                       |
 | `.claude/agents/george.md` | Station list, mode descriptions, "What You Know" section, D-issue numbers for current release                                    |
 
-### Skill Files — Bob
+### Skill Files — Sam
 
 | File                                  | Sync Points                                                     |
 | ------------------------------------- | --------------------------------------------------------------- |
-| `.claude/skills/bob/decomposition.md` | Decision tree steps, common confusions table, SOT pattern table |
-| `.claude/skills/bob/link-patterns.md` | Example card names, terminology                                 |
-| `.claude/skills/bob/self-check.md`    | Example card names, terminology                                 |
+| `.claude/skills/sam/decomposition.md` | Decision tree steps, common confusions table, SOT pattern table |
+| `.claude/skills/sam/link-patterns.md` | Example card names, terminology                                 |
+| `.claude/skills/sam/self-check.md`    | Example card names, terminology                                 |
 
 ### Skill Files — Context Constellation
 
@@ -131,5 +131,6 @@ Known renames to check for (add to this list as renames happen):
 | Mesa (agent)             | removed   | 2026-02 |
 | Cameron (agent)          | removed   | 2026-02 |
 | Devin (agent)            | removed   | 2026-02 |
+| Bob (agent)              | Sam       | 2026-02 |
 
 **Note:** "Worker" in infrastructure contexts (Cloudflare Worker, SharedWorker, web worker) is correct and should NOT be renamed.

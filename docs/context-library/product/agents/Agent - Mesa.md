@@ -26,7 +26,12 @@ The Life Map Advisor — a friendly, helpful presence available on-call througho
 
 **Build phase:** Reserve
 **Implementation status:** Implemented
-**Reality note (2026-02-12):** Mesa is fully active on the Life Map with a routable UI, agent definition in `rooms.ts`, prompt, and personality. Functions as general-purpose advisor and router. Currently in reserve — not part of the initial active agent roster (Jarvis, Marvin, Conan). Remains in codebase for potential activation as a tactical Life Map helper or client services bridge. Hex Grid management and Zoom Navigation not yet relevant (those structures don't exist yet).
+**Reality note (2026-02-17):** Mesa is fully active on the Life Map with a routable UI, agent definition in `rooms.ts`, prompt, and personality. Currently in reserve — not part of the initial active agent roster (Jarvis, Marvin, Conan). D4 resolved: category room agents (Maya, Grace, Brooks, etc.) removed entirely for R1. Mesa remains in codebase in reserve status for potential activation as a tactical Life Map helper. Hex Grid management and Zoom Navigation not yet relevant.
+
+### History
+
+> **2026-02-17 — D4: What happens to category room agents?**
+> Decided: Remove entirely for R1. Category agents are vestigial — Jarvis and Marvin handle everything they did. Mesa is unaffected (already in reserve), but the 8 category-specific agents (Maya, Grace, Brooks, etc.) are removed from `rooms.ts` and all references.
 
 ## HOW: Behavior
 

@@ -20,7 +20,12 @@ The specification for builder agency over hex grid spatial organization: builder
 
 **Build phase:** Future
 **Implementation status:** Not started
-**Reality note (2026-02-10):** No hex grid exists. No builder-driven spatial placement, no drag-and-drop rearrangement, no clustering. These rules cannot be evaluated without the Hex Grid structure they govern.
+**Reality note (2026-02-17):** No hex grid exists yet. D1 resolved: Release 1 will implement builder-driven manual placement from day one — no algorithmic initial placement. Drag-and-drop rearrangement and clustering deferred to Release 2. These rules govern the Hex Grid structure being built for R1.
+
+### History
+
+> **2026-02-17 — D1: Algorithmic hex placement OK for Release 1?**
+> Decided: Manual — builder places from day one. Algorithmic placement rejected. The Standard's core principle ("Builder places their own projects. System does not assign locations.") is upheld from R1 launch. This means R1 needs placement UX (tap/drag to place) and placement validation UI, but avoids the need for a category zone algorithm or an override patch to this Standard.
 
 ## HOW: Specification
 

@@ -2,7 +2,7 @@
 
 **Purpose:** Verify upstream cards (Standards, Strategy, Principles) before dependent product-layer cards are built.
 
-**Trigger:** After Bob builds Standards or Strategy/Principle notes, before building product-layer cards (Rooms, Overlays, Structures, etc.).
+**Trigger:** After Sam builds Standards or Strategy/Principle notes, before building product-layer cards (Rooms, Overlays, Structures, etc.).
 
 Spot-Check gates product-layer builds. Catches upstream gaps before they cascade.
 
@@ -35,7 +35,7 @@ Spot-Check gates product-layer builds. Catches upstream gaps before they cascade
    | Result   | Definition       | Action                         |
    | -------- | ---------------- | ------------------------------ |
    | PASS     | All checks pass  | Proceed to product-layer build |
-   | FIX      | Minor gaps       | Bob fixes before proceeding    |
+   | FIX      | Minor gaps       | Sam fixes before proceeding    |
    | ESCALATE | Substantive gaps | Human input needed             |
 
 4. **Flag cascade risk**
@@ -71,7 +71,7 @@ Cards checked: [n]
 
 ## Gate: [PROCEED / FIX FIRST / ESCALATE]
 
-[If FIX FIRST: Bob addresses issues before product-layer build]
+[If FIX FIRST: Sam addresses issues before product-layer build]
 [If ESCALATE: specific items for human]
 ```
 
@@ -96,6 +96,6 @@ Cards checked: [n]
 
 - Fast, not thorough — full grading comes later
 - Focus on what will cascade into product-layer cards
-- Anti-pattern gaps are fixable by Bob
+- Anti-pattern gaps are fixable by Sam
 - WHY gaps often need human input
 - Better to catch now than rebuild downstream cards later

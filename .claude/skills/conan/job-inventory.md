@@ -28,7 +28,7 @@
 
 8. **Note source references** — Where does builder look for each card?
 
-9. **Determine build order** — Sequence for Bob to build:
+9. **Determine build order** — Sequence for Sam to build:
    - Standards first (they constrain everything)
    - Strategy/Principles next (WHY upstream)
    - Systems next (cross-cutting mechanisms)

@@ -28,9 +28,14 @@ A discrete initiative with a finish line — bounded work that completes and mov
 
 **Build phase:** MVP
 **Implementation status:** Implemented
-**Reality note (2026-02-10):** Project primitive is fully operational. `projects` table in LiveStore schema with full event support (`projectCreated`, `projectUpdated`, `projectDeleted`). `ProjectLifecycleState` stored as flat JSON — status (planning/backlog/active/completed), stage (1-4), archetypes, traits, stream/slot assignment. Projects render as `ProjectCard` components within category cards on Life Map (not hex tiles). No image evolution or progress rings. Category assignment, four-stage creation, and three-stream classification all functional.
+**Reality note (2026-02-17):** Project primitive is fully operational. `projects` table in LiveStore schema with full event support. Projects render as `ProjectCard` components within category cards (not hex tiles yet). D3 resolved: each project will have a unique hex position — one project per hex, hex position as unique constraint. `project.hexPlaced { projectId, q, r }` event to be added for R1 hex grid integration.
 
 Core entity from initial design. Projects are one of two initiative types (alongside Systems) that occupy hex tiles on the Life Map.
+
+### History
+
+> **2026-02-17 — D3: One project per hex?**
+> Decided: One project per hex. Hex position is a unique constraint — no two projects share a hex. Sanctuary is a 3-tile exception. This means the Project primitive gains a hex coordinate property and a uniqueness validation on placement.
 
 ## HOW: Implementation
 

@@ -12,7 +12,7 @@ Append-only log tracking context assembly and decision provenance.
 {
   "timestamp": "2026-02-11T14:30:00Z",
   "session_id": "uuid-v4",
-  "agent": "conan | bob",
+  "agent": "conan | sam",
 
   "task": {
     "description": "Implement Bronze Mode toggle in Sorting Room",
@@ -124,7 +124,7 @@ After task completion, append an outcome entry:
 | `delivered.supporting` | string[] | yes      | Cards included as summaries         |
 | `gaps`                 | object[] | no       | Identified context gaps             |
 
-### queries array (Bob entries)
+### queries array (Sam entries)
 
 | Field          | Type   | Required | Description                |
 | -------------- | ------ | -------- | -------------------------- |
@@ -135,7 +135,7 @@ After task completion, append an outcome entry:
 | `result_count` | number | yes      | Number of results          |
 | `action`       | string | yes      | What was done with results |
 
-### decisions array (Bob entries)
+### decisions array (Sam entries)
 
 | Field          | Type     | Required | Description                         |
 | -------------- | -------- | -------- | ----------------------------------- |
