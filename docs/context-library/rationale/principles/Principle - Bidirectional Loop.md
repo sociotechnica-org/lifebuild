@@ -7,8 +7,6 @@ External representation and internal understanding strengthen each other through
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Serves: [[Need - Autonomy]] — builder controls their map
-- Serves: [[Need - Competence]] — clarity improves over time
 - Advances: [[Strategy - Spatial Visibility]] — spatial organization enables the loop
 - Governs: [[Structure - Hex Grid]], [[System - Clustering]], [[Zone - Life Map]]
 - Implemented by: [[Standard - Spatial Interaction Rules]] — makes builder spatial agency testable

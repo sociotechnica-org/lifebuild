@@ -6,8 +6,6 @@ High-functioning relationships are governed by explicit agreement, not implicit 
 
 ## WHERE: Ecosystem
 
-- Serves: [[Need - Relatedness]] — mutual understanding builds genuine connection
-- Serves: [[Need - Autonomy]] — the builder chooses what to share and what to commit to
 - Advances: [[Strategy - AI as Teammates]] — teammates negotiate working agreements, they don't impose defaults
 - Companion: [[Principle - Earn Don't Interrogate]] — that principle governs HOW we acquire knowledge (timing, tone, method); this principle governs WHAT relational knowledge matters and WHY explicit agreement beats implicit expectation
 - Governs:

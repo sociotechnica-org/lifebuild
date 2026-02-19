@@ -7,8 +7,6 @@ Agents with defined jobs, permissions, and coordination capabilities provide lev
 ## WHERE: Ecosystem
 
 - Type: Strategic Bet
-- Serves: [[Need - Relatedness]] — agents function as colleagues, not tools
-- Serves: [[Need - Competence]] (secondary) — agents enable accomplishment
 - Implementing principles: [[Principle - Earn Don't Interrogate]], [[Principle - Guide When Helpful]]
 - Core team: [[Agent - Jarvis]], [[Agent - Marvin]], [[Agent - Conan]]. Reserve: [[Agent - Mesa]]
 - Systems: [[Standard - Service Levels]], [[Standard - Knowledge Framework]], [[System - Processing Layer]]

@@ -7,7 +7,6 @@ Builders classify work by how it feels to them, not by objective criteria — th
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Serves: [[Need - Autonomy]] — builder's classification is final
 - Advances: [[Strategy - Superior Process]], [[Strategy - AI as Teammates]]
 - Governs: [[Capability - Purpose Assignment]], [[Standard - Priority Score]], [[Room - Sorting Room]], [[System - Weekly Priority]]
 - Agents: [[Agent - Marvin]] (priority recommendations and purpose capture during creation)

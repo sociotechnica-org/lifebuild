@@ -24,7 +24,7 @@ LifeBuild uses no extrinsic reward mechanics. The moral principle: building capa
 ## WHEN: Timeline
 
 **Build phase:** MVP (principle) through Future (full implementation)
-**Implementation status:** Principle established; anti-patterns actively enforced in design decisions
+**Implementation status:** Active — anti-patterns actively enforced in design decisions
 
 ## HOW: Specification
 

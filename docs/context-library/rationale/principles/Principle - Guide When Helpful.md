@@ -7,8 +7,6 @@ All capabilities are always available to find — active guidance follows the bu
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Serves: [[Need - Autonomy]] — all capabilities available, no forced education
-- Serves: [[Need - Relatedness]] — guidance feels like colleague help
 - Advances: [[Strategy - AI as Teammates]]
 - Governs: Feature discoverability, [[Capability - Workspace Navigation]], [[Agent - Mesa]] (routing behavior)
 - Rooms: [[Room - Council Chamber]], [[Room - Drafting Room]], [[Room - Sorting Room]], [[Room - Roster Room]]

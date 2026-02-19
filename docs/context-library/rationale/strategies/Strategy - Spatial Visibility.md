@@ -7,13 +7,11 @@ Making work visual, placed, and traversable creates comprehension and agency tha
 ## WHERE: Ecosystem
 
 - Type: Strategic Bet
-- Serves: [[Need - Autonomy]] — builders see and control their work
-- Serves: [[Need - Competence]] (secondary) — visibility enables progress tracking
 - Implementing principles: [[Principle - Visibility Creates Agency]], [[Principle - Visual Recognition]]
 - Governs: [[Zone - Life Map]], [[Structure - Hex Grid]], [[Overlay - The Table]], [[Capability - Zoom Navigation]], [[Room - Project Board]], [[Room - System Board]]
 - Zoom tiers: [[Capability - Zoom Navigation]]
 - Visual elements: [[Component - Hex Tile]], [[Component - Campfire]], [[System - Clustering]]
-- Serves: Autonomy (from [[Self-Determination Theory]])
+
 
 ## WHY: Belief
 
