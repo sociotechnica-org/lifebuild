@@ -12,7 +12,7 @@ Append-only log tracking context assembly and decision provenance.
 {
   "timestamp": "2026-02-11T14:30:00Z",
   "session_id": "uuid-v4",
-  "agent": "conan | sam",
+  "agent": "conan | sam | george",
 
   "task": {
     "description": "Implement Bronze Mode toggle in Sorting Room",

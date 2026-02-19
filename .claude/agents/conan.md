@@ -84,6 +84,23 @@ Read WHEN sections (Reality + Implications) on seed and expanded cards for known
 
 Append an entry to `docs/context-library/provenance-log.jsonl` following the schema in `.claude/skills/context-briefing/provenance-schema.md`.
 
+**Known limitation:** Context assembly skills can be invoked directly without the Conan agent wrapper, which bypasses provenance logging and feedback triage. If you discover unlogged assemblies during maintenance, note the gap — provenance data undercounts actual library usage.
+
+## Step 9: Library Feedback Triage
+
+After logging provenance, review the assembly just completed for actionable library feedback:
+
+1. **Gap manifest entries** (from Step 5) — are any gaps actionable (a card should exist but doesn't) vs. noise (expected gap for this task type)?
+2. **Weak cards encountered** — any cards with thin dimensions that hurt assembly quality?
+3. **Retrieval misses** — cards that should have been found by the retrieval profile but weren't?
+4. **Relationship discoveries** — connections between cards noticed during traversal but not recorded as wikilinks?
+
+For each item, classify: **noise** (expected, not worth tracking) or **actionable** (library should be improved).
+
+Write actionable items to `docs/context-library/feedback-queue.jsonl` following the schema in `.claude/skills/context-briefing/feedback-queue-schema.md`.
+
+If zero actionable items, skip — do not write an empty entry.
+
 ---
 
 ## Mode 2: Library Maintenance
