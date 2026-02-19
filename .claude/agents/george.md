@@ -207,7 +207,7 @@ See `.claude/skills/george/job-decision-resolution.md` for the full procedure, o
 - Stations: DECIDE, PATCH, MAKE, SHAPE
 - Flow States: Queued, On the Line, Blocked (Andon), QC Gate, Review, Rework, Shipped
 - Takt owners: Danvers (product/design), Jess (architecture), AI (building)
-- Board field reference (IDs, commands): `.claude/skills/george/board-fields.md`
+- Board field reference (IDs, commands, **intake protocol**): `.claude/skills/george/board-fields.md` — covers both board #4 (Release 1) and board #5 (Factory & Library)
 - Dashboard script: `./scripts/factory-dashboard`
 - History script: `./scripts/factory-history`
 - Dashboard saves snapshots to `.context/factory-snapshots.jsonl`
@@ -215,8 +215,14 @@ See `.claude/skills/george/job-decision-resolution.md` for the full procedure, o
 - Decision resolution procedure: `.claude/skills/george/job-decision-resolution.md`
 - Propagation Map format: Structured metadata in D-issues that maps each decision option to library cards, GitHub issues, cascading decisions, and scope changes
 - Propagation trigger: `/george propagate` comment on a closed D-issue, or auto-scan at shift start
-- Provenance log: `docs/context-library/constellation-log.jsonl` — resolution entries have `"task_type": "resolution"`
+- Provenance log: `docs/context-library/constellation-log.jsonl` — resolution entries have `"task_type": "resolution"`, with `"propagation_status": "started"|"complete"`
 - D-issues for Release 1: D1 (#607), D2 (#608), D3 (#609), D4 (#610), D5 (#593), D6 (#594), D7 (#595), D8 (#606)
+- **Blocker tracking:** GitHub native `blockedBy`/`blocking` relationships are the source of truth. Prose "Blocked by" sections in issue bodies provide human-readable context. Both must be maintained together.
+  - Query blockers: `gh api graphql -f query='{ repository(owner: "sociotechnica-org", name: "lifebuild") { issue(number: N) { blockedBy(first: 10) { nodes { number title state } } } } }'`
+  - Add blocker: `addBlockedBy(input: { issueId: "NODE_ID", blockingIssueId: "BLOCKER_NODE_ID" })`
+  - Remove blocker: `removeBlockedBy(input: { issueId: "NODE_ID", blockingIssueId: "BLOCKER_NODE_ID" })`
+  - Get node ID: `gh api repos/sociotechnica-org/lifebuild/issues/<number> --jq '.node_id'`
+- Sweep runbook for off-grid agents: `.context/sweep-unpropagated-decisions.md` (blocker health only — full factory sweep job planned at #645)
 
 ### The Factory Model
 
