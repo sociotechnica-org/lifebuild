@@ -30,7 +30,7 @@ The specification for the day-by-day first 72 hours experience: what happens eac
 
 | Step             | Actor                        | Outcome                      |
 | ---------------- | ---------------------------- | ---------------------------- |
-| Warm greeting    | Mesa at Campfire             | Builder feels welcomed       |
+| Warm greeting    | Jarvis at Campfire           | Builder feels welcomed       |
 | Spatial metaphor | Life Map introduction        | "This is a map of your life" |
 | First project    | Builder creates (low stakes) | "I made something"           |
 
@@ -76,7 +76,7 @@ The specification for the day-by-day first 72 hours experience: what happens eac
 
 - Scenario: New builder opens LifeBuild for the first time.
 - Input: Builder arrives at the app with no prior context.
-- Correct output: Mesa greets at Campfire. Builder sees the Life Map with the spatial metaphor introduction. Builder creates a low-stakes first project (e.g., "Organize Desk"). The Table, Sorting Room, and agent capabilities are hidden. Session ends with the builder having created a visible artifact on their Life Map. Emotional outcome: "I made something."
+- Correct output: Jarvis greets at Campfire. Builder sees the Life Map with the spatial metaphor introduction. Builder creates a low-stakes first project (e.g., "Organize Desk"). The Table, Sorting Room, and agent capabilities are hidden. Session ends with the builder having created a visible artifact on their Life Map. Emotional outcome: "I made something."
 
 **Example 2: Day 2 progressive unlock**
 

@@ -17,6 +17,8 @@ From campfire stranger to sanctuary resident — the builder meets Jarvis at a f
 - Systems:
   - [[System - Onboarding]] — orchestrates the flow
   - [[Standard - Onboarding Sequence]] — defines the steps
+- Principles:
+  - [[Principle - Agreement Over Expectation]] — the campfire establishes a designed alliance through Me/You/Us zones
 - Unlocks:
   - [[Capability - Purpose Assignment]] — first project gets classified
   - [[Overlay - The Table]] — becomes visible after first project
@@ -26,6 +28,7 @@ From campfire stranger to sanctuary resident — the builder meets Jarvis at a f
 - Strategy: [[Strategy - AI as Teammates]] — the builder's first experience IS the teammate relationship
 - Principle: [[Principle - First 72 Hours]] — real progress within 72 hours or the builder is lost
 - Principle: [[Principle - Earn Don't Interrogate]] — Jarvis elicits, never interrogates
+- Principle: [[Principle - Agreement Over Expectation]] — the campfire establishes a "designed alliance" (Co-Active coaching term) — a purposeful, stated, adaptable agreement co-created between Jarvis and the builder
 - Driver: The onboarding journey must establish three things simultaneously: the relationship (builder trusts the stewards), the starting state (crisis/transition/growth), and the first project (the "heavy thing" that becomes the 72-hour win).
 
 ## WHEN: Timeline
@@ -33,19 +36,25 @@ From campfire stranger to sanctuary resident — the builder meets Jarvis at a f
 **Build phase:** Post-MVP
 **Implementation status:** Not started
 **Duration:** 1-3 days (campfire to 72-hour win)
+**Design refinement (2026-02-18):** Campfire conversation design grounded in four research frameworks — MI four processes (Engaging → Focusing → Evoking → Planning), Bordin Working Alliance (exit criteria: goals, tasks, bond), Co-Active Designed Alliance (co-created agreement), Stages of Change (pacing calibrated to starting state). Posture-based hybrid approach chosen for D5.
+
+**Design decision (2026-02-18):** D6 resolved — the campfire produces a 6-field scorecard via reflected extraction (Jarvis reflects, builder confirms). Scorecard fields: `startingState`, `heavyThing`, `firstProjectSeed`, `allianceAgreement`, `capacitySignals`, `valueSignals`. This scorecard marks the transition from Meeting/Walk to Arrival — the builder's first structured context record, readable by all agents.
+
 **Reality note (2026-02-12):** No campfire onboarding exists. The current app opens to a basic Life Map or Drafting Room. No walk mechanic, no Jarvis onboarding conversation, no starting state identification, no 72-hour win tracking. The [[Standard - Onboarding Sequence]] card describes the intended flow but none of it is built.
 
 ## HOW: Progression
 
 ### Phases
 
-| Phase         | Entry Condition                  | Activities                                                                                                        | Transition Trigger                                  | Target Feeling                                |
-| ------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------- |
-| The Meeting   | Builder opens app for first time | Arrive at campfire; Jarvis explains the tradition, the stewards, the sanctuary code                               | Builder agrees to walk with Jarvis                  | "I'm intrigued. These people are different."  |
-| The Walk      | Builder accepts invitation       | Walk from campfire toward studio; Jarvis asks "What brought you here? What's the heaviest thing you're carrying?" | Arrive at the studio                                | "Someone actually listened."                  |
-| The Arrival   | Reach the studio                 | Meet Marvin; studio is simple but warm; campfire fades behind them                                                | Builder shapes first project from "the heavy thing" | "This is home now. Modest, but mine."         |
-| First Project | Project shaped                   | Place first hex on the map near the studio; begin executing first tasks                                           | Meaningful win achieved                             | "I did something real about the heavy thing." |
-| 72-Hour Win   | First tasks underway             | Achieve starting-state-appropriate win (see below)                                                                | Builder has evidence this works                     | "This actually works."                        |
+The first three phases map to a designed posture sequence grounded in Motivational Interviewing: The Meeting = Engaging (Me zone), The Walk = Focusing + Evoking (You zone), The Arrival = Planning (Us zone). Pacing calibrates to starting state — crisis builders experience more urgency and directness, growth builders experience more exploration. See [[Principle - Agreement Over Expectation]] for the Me/You/Us framework.
+
+| Phase         | Entry Condition                  | MI Posture                                                              | Activities                                                                                                                                                                                 | Transition Trigger                                  | Target Feeling                               |
+| ------------- | -------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- | -------------------------------------------- |
+| The Meeting   | Builder opens app for first time | Engaging (Me)                                                           | Arrive at campfire; Jarvis introduces himself and his role, explains the tradition and the sanctuary code                                                                                  | Builder agrees to walk with Jarvis                  | "I'm intrigued. These people are different." |
+| The Walk      | Builder accepts invitation       | Focusing + Evoking (You)                                                | Walk from campfire toward studio; Jarvis asks "What brought you here? What's the heaviest thing you're carrying?" Surface starting state and draw out builder's own motivations for change | Arrive at the studio                                | "Someone actually listened."                 |
+| The Arrival   | Reach the studio                 | Planning (Us)                                                           | Meet Marvin; studio is simple but warm; campfire fades; establish what we'll do together, personalized to starting state                                                                   | Builder shapes first project from "the heavy thing" | "This is home now. Modest, but mine."        |
+| First Project | Project shaped                   | Place first hex on the map near the studio; begin executing first tasks | Meaningful win achieved                                                                                                                                                                    | "I did something real about the heavy thing."       |
+| 72-Hour Win   | First tasks underway             | Achieve starting-state-appropriate win (see below)                      | Builder has evidence this works                                                                                                                                                            | "This actually works."                              |
 
 ### Starting State Wins
 

@@ -8,7 +8,7 @@ The mechanism that implements the First 72 Hours principle — guiding new build
 
 - Implements: [[Principle - First 72 Hours]] — this system serves that principle
 - Entry point: [[Component - Campfire]] — where onboarding begins
-- Agents: [[Agent - Mesa]] (first contact), [[Agent - Jarvis]] (Charter creation), [[Agent - Marvin]] (first projects)
+- Agents: [[Agent - Jarvis]] (first contact, onboarding conversation), [[Agent - Marvin]] (first projects)
 - Creates: [[Artifact - The Charter]] — initial version during onboarding
 - Feeds: [[Standard - Service Levels]] — Level 0 to Level 1 progression
 
@@ -23,22 +23,22 @@ The mechanism that implements the First 72 Hours principle — guiding new build
 
 **Build phase:** Post-MVP
 **Implementation status:** Not started
-**Reality note (2026-02-10):** No onboarding system exists. New users land directly on the Life Map with no guided introduction. No Campfire, no Day 1/2/3 sequence, no Mesa welcome flow. Second priority for MVP upgrade after hex grids.
+**Reality note (2026-02-10):** No onboarding system exists. New users land directly on the Life Map with no guided introduction. No Campfire, no Day 1/2/3 sequence, no Jarvis welcome flow. Second priority for MVP upgrade after hex grids.
 
 ## HOW: Mechanics
 
 ### State
 
 - **Onboarding phase**: One of Not Started / Day 1 (Orientation) / Day 2 (Foundation) / Day 3 (Momentum) / Complete
-- **Milestones achieved**: Tracks which onboarding moments have occurred (first Mesa conversation, Charter draft, first project captured, first Life Map exploration)
+- **Milestones achieved**: Tracks which onboarding moments have occurred (campfire conversation, Charter draft, first project captured, first Life Map exploration)
 - **Service level**: Level 0 (pre-onboarding) transitioning to Level 1 (active)
 
 ### Transitions
 
 | From               | Trigger                                                 | To                 | Side Effects                                                                 |
 | ------------------ | ------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------- |
-| Not Started        | Builder opens LifeBuild for the first time              | Day 1: Orientation | Mesa greets at Campfire; spatial metaphor introduced                         |
-| Day 1: Orientation | Builder completes first Mesa conversation               | Day 2: Foundation  | Jarvis initiates Charter creation; Life Categories established               |
+| Not Started        | Builder opens LifeBuild for the first time              | Day 1: Orientation | Jarvis greets at Campfire; onboarding conversation begins                    |
+| Day 1: Orientation | Builder completes campfire conversation                 | Day 2: Foundation  | Jarvis initiates Charter creation; Life Categories established               |
 | Day 2: Foundation  | Charter draft created                                   | Day 3: Momentum    | Marvin available for first project capture; Life Map populated               |
 | Day 3: Momentum    | Builder has created first project and explored Life Map | Complete           | Service Level transitions from 0 to 1; full agent team available             |
 | Any phase          | Builder disengages for extended period                  | Paused             | Gentle re-engagement cues when builder returns, resuming where they left off |
@@ -56,7 +56,7 @@ _Stub card — detailed implementation to be developed._
 
 ### Examples
 
-- A new builder opens LifeBuild for the first time. Mesa greets them at the Campfire: "Welcome — I'm Mesa, and I help you navigate this space." Over a relaxed conversation, Mesa introduces the Life Map metaphor and asks about what's on the builder's mind. By the end of Day 1, the builder understands the spatial layout and has met one agent. No forms, no onboarding checklist — just a warm introduction that plants seeds.
+- A new builder opens LifeBuild for the first time. Jarvis greets them at the Campfire, explains the tradition and the stewards, and asks open questions about what brought the builder here. Over a warm conversation following the MI posture sequence (Engaging → Focusing → Evoking → Planning), the builder shares what's weighing on them. By the end, Jarvis reflects back what he heard (producing the campfire scorecard), invites the walk to the sanctuary, and the builder's first project is seeded. No forms, no onboarding checklist — just a genuine conversation that plants seeds.
 - On Day 3, Marvin appears in the Drafting Room and says "Ready to capture something you've been meaning to get to?" The builder mentions wanting to organize their garage. Marvin walks them through Stage 1 in under a minute — title, brief description, Life Category = Home. The builder sees their first project appear on the Life Map. They feel momentum: "This thing actually works." Service level transitions to Level 1.
 
 ### Anti-Examples

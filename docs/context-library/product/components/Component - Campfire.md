@@ -15,12 +15,14 @@ A temporary onboarding moment — the place where the builder first meets Jarvis
   - [[Component - Hex Tile]] — sibling component on the hex grid
   - [[Journey - Builder Onboarding]] — the campfire is the first phase of the onboarding journey
   - [[Agent - Jarvis]] — Jarvis greets the builder here
+  - [[Principle - Agreement Over Expectation]] — the campfire establishes the designed alliance between builder and LifeBuild
 
 ## WHY: Rationale
 
 - Strategy: [[Strategy - AI as Teammates]] — the first impression IS the teammate relationship
 - Principle: [[Principle - First 72 Hours]] — the campfire seeds the 72-hour win
 - Principle: [[Principle - Earn Don't Interrogate]] — Jarvis asks open questions, never interrogates
+- Principle: [[Principle - Agreement Over Expectation]] — the campfire follows a Me/You/Us arc, establishing a designed alliance before the walk
 - Driver: The campfire is where the social contract is established. The builder meets the stewards. Values are exchanged, not marketed. The builder chooses to walk to the sanctuary — it's not automatic. This makes the sanctuary feel chosen, not assigned.
 
 ## WHEN: Timeline
@@ -28,6 +30,10 @@ A temporary onboarding moment — the place where the builder first meets Jarvis
 **Build phase:** Post-MVP
 **Implementation status:** Not started
 **Reality note (2026-02-12):** No Campfire component exists. Depends on Hex Grid, Jarvis agent, and the onboarding walk mechanic.
+
+**Design decision (2026-02-18):** D5 shaping session identified a posture-based hybrid approach for the campfire conversation, grounded in Motivational Interviewing, Bordin Working Alliance, Co-Active Designed Alliance, and Stages of Change research. The conversation follows a designed posture sequence (Engaging → Focusing → Evoking → Planning) with free-form content within each posture. See [[Principle - Agreement Over Expectation]] for the Me/You/Us framework.
+
+**Design decision (2026-02-18):** D6 resolved — Option B, reflected extraction. The campfire produces a 6-field scorecard (`startingState`, `heavyThing`, `firstProjectSeed`, `allianceAgreement`, `capacitySignals`, `valueSignals`) via Jarvis reflecting back understanding in the Planning phase. Builder confirms/corrects. The reflection IS the scorecard. All downstream agents read this before their first interaction with the builder.
 
 **Design decision (GDD v0.2, 2026-02-13):** The campfire is explicitly temporary — NOT a permanent feature on the map. It exists off to the side, not at the center. The walk from campfire to sanctuary is the onboarding core mechanic. When the builder agrees to walk, the campfire disappears. The builder never returns. The campfire was a threshold, not a home.
 
@@ -42,11 +48,13 @@ A temporary onboarding moment — the place where the builder first meets Jarvis
 
 **The sequence:**
 
+The 8 steps operate within a designed posture sequence grounded in Motivational Interviewing (Engaging → Focusing → Evoking → Planning), mapped to a Me → You → Us relational arc per [[Principle - Agreement Over Expectation]]. Conversational moves use OARS (Open questions, Affirmations, Reflective listening, Summaries). Pacing calibrates to the builder's starting state — crisis builders move faster toward Planning, growth builders spend more time in Evoking. Exit criteria are Bordin's Working Alliance components: agreement on goals, agreement on tasks, felt bond.
+
 1. Builder arrives at the campfire
-2. Jarvis explains the tradition — the ways of the sanctuary, what the stewards believe, how they work
-3. Jarvis asks open questions: "What brought you here? What's the heaviest thing you're carrying?"
-4. The conversation identifies the builder's starting state (crisis, transition, or growth)
-5. Jarvis invites: "There's a place nearby. Humble but buildable. It takes a builder."
+2. **Engaging (Me):** Jarvis introduces himself and his role, explains the tradition — the ways of the sanctuary, what the stewards believe, how they work
+3. **Focusing (You):** Jarvis asks open questions: "What brought you here? What's the heaviest thing you're carrying?"
+4. **Evoking (You → Us):** The conversation identifies the builder's starting state (crisis, transition, or growth) and draws out the builder's own motivations for change
+5. **Planning (Us):** Jarvis invites: "There's a place nearby. Humble but buildable. It takes a builder." — the walk invitation is the culmination of the designed alliance
 6. Builder agrees to walk
 7. They walk together from campfire to the sanctuary at the center of the map
 8. The campfire fades. The sanctuary is home.
