@@ -157,6 +157,11 @@ SEARCH: Grep for "[terms]" in docs/context-library/
 7. Conan logs assembly to provenance-log.jsonl
        │
        ▼
+7.5. Conan triages assembly insights → actionable items
+     to feedback-queue.jsonl (gaps, weak cards,
+     retrieval misses, relationship discoveries)
+       │
+       ▼
 8. Sam reads .context/CONTEXT_BRIEFING.md
        │
        ▼

@@ -1,6 +1,8 @@
 # Job 4: Decision Resolution
 
-**Purpose:** When a human resolves a decision (D-issue), propagate implications through the factory — update build issues, notify cascading decisions, produce library update checklists, and log provenance. This is the mechanism that converts a cleared human decision into machine-ready inputs.
+**Purpose:** When a human resolves a decision (D-issue or any DECIDE-station item on any board), propagate implications through the factory — update build issues, notify cascading decisions, produce library update checklists, and log provenance. This is the mechanism that converts a cleared human decision into machine-ready inputs.
+
+**Scope:** Decision resolution applies to any board's decisions, not just Board #4 (Release 1). Factory-infrastructure decisions on Board #5 (Factory & Library) follow the same procedure. Use the board field reference (`.claude/skills/george/board-fields.md`) to look up the correct field IDs for each board.
 
 As the companion podcast puts it: _"Clear the human work as fast as possible, so the machines can build."_ The closure event is the moment the human work is cleared — that's when the machines get their updated specs.
 
@@ -426,6 +428,26 @@ Sometimes a decision resolves part of the question but defers another part (e.g.
 2. Note the unresolved portion in the output
 3. Recommend creating a new D-issue for the remainder if it blocks downstream work
 4. Don't close the original D-issue — it's not fully resolved
+
+### What if the decision needs backfilling?
+
+Sometimes decisions are resolved and manually propagated before George runs. In this case, backfill the provenance record:
+
+1. Run the full Mode 4 procedure as normal — verify clarity, read propagation map, check downstream effects
+2. Add a `backfill_note` field to the provenance entry explaining: when the decision was actually made, what was already propagated manually, and why the log entry is being created now
+3. Set `propagation_status` to `"complete"` since the actual propagation already happened
+4. If downstream comments/blocker updates were already applied manually, note this rather than duplicating them
+
+Example backfill_note: `"Backfilled 2026-02-19 via #644. Decided 2026-02-18. Downstream comments and blocker updates were applied manually on 2026-02-18. Propagation map reconstructed from prose."`
+
+### What if a D-issue should never have been at DECIDE?
+
+Sometimes an issue is classified as a decision but is actually a technical/architecture question that belongs at MAKE or SHAPE. In this case:
+
+1. Note the reclassification in the Resolution comment: `"Retired — not a valid DECIDE card. [Reason]. Reclassified to [MAKE/SHAPE]."`
+2. Log a provenance entry with `chosen_option` set to the retirement explanation
+3. Move the issue to Done/Shipped on the board (it's resolved, just not as a decision)
+4. No propagation needed — there are no downstream effects from a misclassified issue
 
 ### What if multiple decisions resolve simultaneously?
 
