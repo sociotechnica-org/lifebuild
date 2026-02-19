@@ -30,7 +30,7 @@ The first 72 hours define the relationship. A new builder's initial experience w
 
 **Day 1 Goals: Welcome & Orient**
 
-- Warm greeting at Campfire (Mesa)
+- Warm greeting at Campfire (Jarvis)
 - Spatial metaphor established (this is a map of your life)
 - First project created (low stakes, quick win)
 - Immediate sense of "I made something"
@@ -66,7 +66,7 @@ The first 72 hours define the relationship. A new builder's initial experience w
 
 ### What Following This Looks Like
 
-- A new builder arrives, Mesa greets them warmly at the Campfire, and within 15 minutes they've placed their first project on the hex grid — they leave Day 1 with a tangible artifact and the spatial metaphor clicked.
+- A new builder arrives, Jarvis greets them warmly at the Campfire, and within 15 minutes they've placed their first project on the hex grid — they leave Day 1 with a tangible artifact and the spatial metaphor clicked.
 - On Day 2, Jarvis introduces himself in the Council Chamber with a short, warm conversation about the builder's current focus. The builder creates a second project with Marvin and feels "I have a team helping me" — not "I have a tool to learn."
 - By end of Day 3, the builder has visited the Sorting Room, selected their first Work at Hand, and sees The Table populated. The rhythm is established without any feature having been forced or rushed.
 

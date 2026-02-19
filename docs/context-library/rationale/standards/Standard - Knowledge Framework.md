@@ -63,6 +63,29 @@ The specification for organizing everything the AI team learns about a builder �
 | What should they work on? | Priority Score (see [[Standard - Priority Score]]) |
 | Can they actually do it?  | Feasibility = Capacity / Commitments               |
 
+#### Extraction-to-Schema Pipeline
+
+The Knowledge Framework is a schema — it defines where knowledge lives. But a schema without an ingestion mechanism is inert. The extraction-to-schema pipeline specifies how unstructured conversational signal arrives in the correct domain.
+
+**Pipeline stages:**
+
+| Stage          | Input                                       | Output                                                  | Responsibility                             |
+| -------------- | ------------------------------------------- | ------------------------------------------------------- | ------------------------------------------ |
+| Conversation   | Builder interacts with an agent             | Raw transcript or observation data                      | Agent (conducts the conversation)          |
+| Extraction     | Raw transcript + touchpoint-specific rubric | Structured facts with domain tags and confidence levels | Extraction layer (runs post-conversation)  |
+| Domain routing | Structured facts with domain tags           | Facts written to correct Knowledge Framework domain     | Extraction layer (applies rubric mappings) |
+| Availability   | Facts in Knowledge Framework domains        | Updated State Summary available to all agents           | Processing Layer (refreshes summaries)     |
+
+**Rubric-to-domain mapping rules:**
+
+- Each extraction rubric target maps to exactly one primary Knowledge Framework domain. A single conversational signal may produce facts in multiple domains (e.g., "I'm overwhelmed by my renovation budget" maps to both Micro Inside and Micro Outside), but each fact is routed to one domain.
+- Domain routing respects the Macro/Micro distinction: signals about a specific project route to Micro domains; signals about general life state route to Macro domains. Ambiguous signals default to Macro and may be refined to Micro when project context is available.
+- Confidence levels are assigned during extraction, not during storage. The extraction rubric specifies confidence rules: explicitly stated facts receive high confidence, conversational inferences receive medium confidence, and single behavioral observations receive low confidence. The Knowledge Framework stores the confidence level as assigned.
+
+**Cross-agent contract:**
+
+The extraction pipeline guarantees that knowledge extracted from any agent's conversation is available to every agent before that agent's next builder interaction. This is the cross-agent availability contract. Without it, knowledge stays siloed in individual conversation histories and the Knowledge Framework is a schema with no data.
+
 ### Examples
 
 **Example 1: Capturing knowledge across dimensions for a single project**
@@ -77,14 +100,22 @@ The specification for organizing everything the AI team learns about a builder �
 - Input: Stated preference (Identity & Profile): "I work best Monday mornings." Observed pattern (Behavioral Patterns): Thursday evening Gold sessions are 3x more productive.
 - Correct output: Both are stored — stated preference in Identity & Profile, observed pattern in Behavioral Patterns. When making recommendations, the Behavioral Pattern data takes precedence because it is derived from observation, not self-report.
 
+**Example 3: Extraction pipeline routing a single conversation to multiple domains**
+
+- Scenario: Builder finishes a Week-in-Review with Jarvis. During the conversation, the builder says: "The renovation project stressed me out this week, but I finally got the permit approved. Also, I realized I really enjoy the design phase more than the execution phase."
+- Input: The Week-in-Review rubric runs against this transcript. Three extraction targets match: (1) emotional state about a specific project, (2) a concrete project milestone, (3) a preference pattern.
+- Correct output: Three facts are written to the Knowledge Framework — "stressed about renovation" routes to Micro Inside (per-project psychology) with high confidence, "permit approved" routes to Micro Outside (per-project requirements) with high confidence, "enjoys design more than execution" routes to Identity & Profile (stable characteristics) with medium confidence (single statement, not yet a confirmed pattern). All three are available in the next State Summary refresh.
+
 ### Anti-Examples
 
 - **Storing all knowledge in a single flat profile** — The two-dimension, two-scale structure exists because per-project psychology (Micro Inside) is categorically different from stable characteristics (Identity & Profile). Flattening loses the distinction.
 - **Treating Behavioral Patterns as builder-stated preferences** — Behavioral Patterns are derived from observation, not self-report. A builder who says they prefer morning work but consistently ships at midnight has a behavioral pattern that overrides the stated preference.
 - **Ignoring the Macro/Micro distinction when computing feasibility** — A builder with high macro capacity but overwhelming micro commitments on a specific project will fail. Both scales must factor into recommendations.
+- **Relying on agents to manually write knowledge to the framework during conversation** — If each agent is responsible for identifying, classifying, and storing knowledge while simultaneously conducting a conversation, extraction quality degrades and agent context windows are consumed by bookkeeping instead of empathy. The extraction pipeline runs post-conversation as a separate pass, using a rubric designed for extraction rather than conversation. Agents focus on the builder; the pipeline focuses on the knowledge.
 
 ### Conformance Test
 
 1. For a given builder, verify that knowledge is stored across the correct domains (not flattened) — check that per-project data lives in Micro domains and general data lives in Macro domains.
 2. Verify that Behavioral Patterns are populated from observation data (session logs, completion patterns) rather than builder self-report only.
 3. Confirm the feasibility calculation uses both Macro capacity and Micro commitments, not just one scale.
+4. For a given relational touchpoint (campfire, strategic conversation, weekly review), verify that a touchpoint-specific extraction rubric exists, that each rubric target maps to a Knowledge Framework domain, and that extraction output is available in State Summaries before the next agent interaction.

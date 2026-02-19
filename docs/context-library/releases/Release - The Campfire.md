@@ -111,7 +111,7 @@ The bottleneck is decisions, not engineering. AI builds fast. Humans decide, aut
 
 - **Danvers** (Product Owner) — owns all product decisions, story authoring, campfire experience design, prompt voice, feel-testing. Primary on all DECIDE and PROTOTYPE work.
 - **Jess** (CTO) — owns backend architecture decisions (context persistence, event schemas), oversees complex engineering. Prompt work when Danvers is in story mode.
-- **AI** — builds everything that isn't blocked by a decision. Runs in parallel on all unblocked tracks. Drafts prompts and stories for human refinement. Assembles context briefings before building.
+- **AI** — builds everything that isn't blocked by a decision. Runs in parallel on all unblocked tracks. Drafts prompts and stories for human refinement. Assembles context constellations before building.
 
 ### Velocity principle
 
@@ -189,25 +189,26 @@ These require Danvers to sit with the question. They're the real blockers to the
 
 #### D5: Campfire story structure — how scripted vs how improv?
 
+> **Shaping (2026-02-18):** Designed posture sequence + free-form content. Grounded in MI (Engaging → Focusing → Evoking → Planning), Bordin Working Alliance (exit criteria: goals, tasks, bond), Co-Active Designed Alliance (co-created agreement), and Stages of Change (pacing calibrated to starting state). Maps to Me → You → Us relational knowledge exchange per new [[Principle - Agreement Over Expectation]]. Not yet fully resolved — needs prompt prototyping to validate. Next step: three prompt variants, simulated conversations across builder personas.
+
 **This is Decision Zero. It's upstream of the entire campfire experience.**
 
-The campfire conversation could be:
+The shaping session (2026-02-18) identified a fourth approach beyond the original three, grounded in established research:
 
-| Approach                      | What it means                                                                                                                                                                   | Pros                                                                                            | Cons                                                                                            |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| **Scripted with branches**    | Jarvis follows a designed conversation tree. 8-step sequence from the library, with branching paths for different builder types. Builder responses trigger specific next steps. | Predictable quality, testable, consistent onboarding. Story beats land reliably.                | Feels robotic if branches are too rigid. Harder to handle truly unexpected responses.           |
-| **Free-form with guardrails** | Jarvis has a system prompt with goals (identify starting state, surface the heavy thing, invite the walk) but converses naturally. LLM handles the flow.                        | Feels genuinely conversational. Handles any builder naturally. More like "meeting a counselor." | Quality varies by conversation. Hard to ensure all assessment goals are hit. Testing is harder. |
-| **Hybrid**                    | Key moments are scripted (greeting, tradition explanation, walk invitation). The conversation between those moments is free-form with guardrails.                               | Best of both — reliability at key moments, authenticity in between.                             | More complex to implement. Need to define which moments are fixed vs fluid.                     |
+| Approach                              | What it means                                                                                                                                                                                                                                                        | Pros                                                                                             | Cons                                                                                            |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| **Scripted with branches**            | Jarvis follows a designed conversation tree. 8-step sequence from the library, with branching paths for different builder types. Builder responses trigger specific next steps.                                                                                      | Predictable quality, testable, consistent onboarding. Story beats land reliably.                 | Feels robotic if branches are too rigid. Harder to handle truly unexpected responses.           |
+| **Free-form with guardrails**         | Jarvis has a system prompt with goals (identify starting state, surface the heavy thing, invite the walk) but converses naturally. LLM handles the flow.                                                                                                             | Feels genuinely conversational. Handles any builder naturally. More like "meeting a counselor."  | Quality varies by conversation. Hard to ensure all assessment goals are hit. Testing is harder. |
+| **Hybrid (original)**                 | Key moments are scripted (greeting, tradition explanation, walk invitation). The conversation between those moments is free-form with guardrails.                                                                                                                    | Best of both — reliability at key moments, authenticity in between.                              | More complex to implement. Need to define which moments are fixed vs fluid.                     |
+| **Designed posture sequence** _(new)_ | Intentional posture sequence (Engaging → Focusing → Evoking → Planning) with free-form content within each posture. OARS as the move vocabulary. Pacing adapts to builder's stage of change. Exit criteria are Bordin's three: goal agreement, task agreement, bond. | Grounded in research. Modular and testable. Observable and traceable. Flexible within structure. | Needs prompt prototyping to validate feel. More conceptual framework to implement in prompts.   |
 
-**Question for Danvers:** Which approach? This determines:
+**Current direction:** Designed posture sequence. This determines:
 
-- Whether the campfire is a chat UI (free-form) or a guided sequence UI (scripted) or both (hybrid)
-- How the Jarvis campfire prompt is structured
-- How assessment happens (embedded in natural conversation vs. structured extraction)
-- How the walk is triggered (conversational cue vs. button after specific step)
-- How the handoff to Marvin is structured (extracted data vs. conversation summary)
-
-**No recommended answer.** This is a product vision call. The library cards lean toward free-form ("elicitation over interrogation," "not a tutorial, a conversation") but the 8-step sequence suggests structure.
+- The campfire is a chat UI (free-form content) with a structured posture sequence guiding the prompt
+- The Jarvis campfire prompt encodes phase transitions (Engaging → Focusing → Evoking → Planning)
+- Assessment happens via embedded extraction calibrated to Stages of Change
+- The walk is triggered when Bordin's exit criteria are met (goal + task + bond agreement)
+- The handoff to Marvin carries extracted context (starting state, heavy thing, first project seed)
 
 **Unblocks:** Campfire prompt design, campfire UI architecture, assessment mechanics, walk trigger, Marvin handoff format. _Almost everything in the campfire experience._
 
@@ -215,19 +216,9 @@ The campfire conversation could be:
 
 #### D6: How does Jarvis assess crisis / transition / growth?
 
-**Depends on D5.** If scripted, the assessment can be a structured rubric applied at a specific step. If free-form, it needs to be inferred by the LLM from the conversation.
+> **Resolved 2026-02-18:** Option B — Reflected extraction. Reframed from "how does Jarvis assess" to "what structured output does the campfire produce that all agents can use?" The campfire produces a 6-field scorecard: `startingState`, `heavyThing`, `firstProjectSeed`, `allianceAgreement`, `capacitySignals`, `valueSignals`. Jarvis reflects back understanding in the Planning phase; builder confirms/corrects. The reflection IS the scorecard. Matches [[Principle - Agreement Over Expectation]] — builder validates what was understood. No separate extraction mechanism needed for R1. Full extraction layer vision added to Progressive Knowledge Capture and Knowledge Framework cards.
 
-**Options:**
-
-1. **LLM inference** — Jarvis's prompt includes the three states and their signals. The LLM classifies based on what the builder shares. Simple but less reliable.
-2. **Structured rubric** — After the conversation, a separate LLM call analyzes the transcript against a rubric and outputs `{ startingState, heavyThing, firstProjectSeed }`. More reliable but more complex.
-3. **Builder choice (masked)** — Jarvis asks a question like "What feels most true right now — that things are on fire, that you're between chapters, or that you're ready to build?" Direct but breaks the "not a quiz" principle.
-
-**Question for Danvers:** Which approach? Or a combination?
-
-**Recommended answer:** LLM inference for Release 1 (simplest, matches the "natural conversation" principle). Add a structured rubric as a validation pass in Release 2 if classification accuracy is a problem.
-
-**Unblocks:** Assessment model, campfire prompt design, builder context schema.
+**Unblocks:** Assessment model, campfire prompt design, builder context schema, cross-agent knowledge sharing (R1 scope).
 
 ---
 
@@ -274,7 +265,7 @@ The campfire conversation could be:
 
 ### MAKE — AI builds now, no decisions needed
 
-These can start immediately. AI assembles a context briefing from the library + release plan, then builds.
+These can start immediately. AI assembles a context constellation from the library + release plan, then builds.
 
 | Track                    | What AI builds                                                                                                | Context readiness                                   | Notes                                                                               |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------- |
@@ -288,14 +279,14 @@ These can start immediately. AI assembles a context briefing from the library + 
 
 ### BLOCKED — waiting on specific decisions
 
-| Track                            | Blocked by                             | What AI builds after                                                               | Notes                                                                             |
-| -------------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| **Sanctuary + campfire visuals** | D5 (story structure, partially)        | SVG elements for Humble Studio and campfire, visual treatment, glow/warmth effects | AI can build placeholder visuals now, refine after story structure is decided     |
-| **Campfire UI architecture**     | D5 (story structure)                   | Chat-based, guided-sequence, or hybrid campfire UI component                       | This is the big one. Can't design the UI without knowing the interaction model.   |
-| **Jarvis campfire prompt**       | D5 (story structure) + D6 (assessment) | System prompt for the campfire conversation                                        | Drafts possible now; final version needs story structure and assessment approach  |
-| **Campfire-to-Marvin handoff**   | D5 + D6                                | Data extraction from conversation, format for Marvin's context injection           | D7 retired — storage mechanism is a MAKE decision, not DECIDE. Still needs D5+D6. |
-| **Walk animation**               | D5 (what triggers the walk)            | Viewport pan, campfire fade, arrival rendering                                     | The animation itself is simple. The trigger mechanism depends on story structure. |
-| **Return experience**            | Campfire must work first               | Return greeting, context-aware Jarvis, progress acknowledgment                     | Late-stage — depends on everything else. D7 retired (technical, not DECIDE).      |
+| Track                            | Blocked by                                                  | What AI builds after                                                               | Notes                                                                                   |
+| -------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Sanctuary + campfire visuals** | D5 (story structure, partially)                             | SVG elements for Humble Studio and campfire, visual treatment, glow/warmth effects | AI can build placeholder visuals now, refine after story structure is decided           |
+| **Campfire UI architecture**     | D5 (story structure)                                        | Chat-based, guided-sequence, or hybrid campfire UI component                       | This is the big one. Can't design the UI without knowing the interaction model.         |
+| **Jarvis campfire prompt**       | ~~D5 (story structure) + D6 (assessment)~~ ✅ Both resolved | System prompt for the campfire conversation                                        | D5: designed posture sequence. D6: reflected extraction scorecard. Ready for PROTOTYPE. |
+| **Campfire-to-Marvin handoff**   | ~~D5 + D6~~ ✅ Both resolved                                | Data extraction from conversation, format for Marvin's context injection           | Scorecard fields define the handoff payload. Ready for MAKE.                            |
+| **Walk animation**               | D5 (what triggers the walk)                                 | Viewport pan, campfire fade, arrival rendering                                     | The animation itself is simple. The trigger mechanism depends on story structure.       |
+| **Return experience**            | Campfire must work first                                    | Return greeting, context-aware Jarvis, progress acknowledgment                     | Late-stage — depends on everything else. D7 retired (technical, not DECIDE).            |
 
 ### PROTOTYPE — iterative human + AI cycles
 
@@ -322,15 +313,15 @@ Some Context Library cards describe the full vision without acknowledging Releas
 
 **Eliminated patch:** `Standard - Spatial Interaction Rules` — D1 resolved: manual placement from day one. The Standard is upheld as-is in R1. No override patch needed. (#612 closed.)
 
-**These patches should be applied before AI starts building**, so context briefings assembled from the library give correct guidance.
+**These patches should be applied before AI starts building**, so context constellations assembled from the library give correct guidance.
 
 ---
 
-## CONTEXT BRIEFINGS
+## CONTEXT CONSTELLATIONS
 
-For each MAKE track, a context briefing should be assembled before AI starts building. The briefing includes relevant library cards + release plan specs + any patches applied above.
+For each MAKE track, a context constellation should be assembled before AI starts building. The constellation includes relevant library cards + release plan specs + any patches applied above.
 
-| Build track          | Briefing cards                                                                                                                                         | Library sufficient?      |
+| Build track          | Constellation cards                                                                                                                                    | Library sufficient?      |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ |
 | Hex grid geometry    | Structure - Hex Grid, Component - Hex Tile, Standard - Life Categories (for colors), Strategy - Spatial Visibility + this release plan (MVMap section) | Yes, after patches       |
 | Agent cleanup        | Agent - Jarvis, Agent - Marvin, Agent - Mesa, Room - Council Chamber, Standard - Naming Architecture                                                   | Yes — strongest coverage |
@@ -366,10 +357,10 @@ AFTER D5 (campfire story structure — the big one)
 ├── PROTOTYPE: Jarvis campfire prompt drafting
 └── MAKE: Walk trigger mechanism
 
-AFTER D6 (assessment mechanics — flows from D5)
-├── MAKE: Assessment framework in prompt
-├── MAKE: Starting state extraction logic
-└── PROTOTYPE: Jarvis voice iteration
+AFTER D6 (assessment mechanics — ✅ RESOLVED 2026-02-18)
+├── MAKE: Campfire scorecard schema (6 fields, reflected extraction)
+├── MAKE: Campfire-to-Marvin handoff (scorecard → Marvin context)
+└── PROTOTYPE: Jarvis voice iteration (campfire prompt with posture sequence + reflection)
 
 AFTER D5+D6 (campfire experience resolved)
 ├── MAKE: Builder context LiveStore events + materializer (D7 retired — technical, resolved at MAKE)
@@ -468,7 +459,7 @@ The complete experience, start to finish:
 | Campfire conversation doesn't feel magical    | Prototype track. Draft, test, iterate. The prompt is the soul — it can be revised independently of the UI.                                                            |
 | Walk animation feels awkward                  | Keep it simple. Viewport pan, 2-3 seconds. The emotion comes from the conversation, not the animation.                                                                |
 | Map feels empty for new builders              | Empty space is potential, not absence — but only if the aesthetic communicates that. Sanctuary at center + first hex is enough.                                       |
-| Library cards mislead AI builder              | Apply patches first. Context briefings include release plan alongside library cards.                                                                                  |
+| Library cards mislead AI builder              | Apply patches first. Context constellations include release plan alongside library cards.                                                                             |
 
 ---
 
@@ -504,7 +495,7 @@ New event: `project.hexPlaced { projectId, q, r }`. One project per hex (per D3)
 
 ### Builder Context Persistence
 
-LiveStore event: `builder.onboardingCompleted { startingState, conversationSummary, firstProjectSeed, heavyThing }`. Materializer creates builder context record. Jarvis prompt receives this context on return visits. (D7 retired — storage mechanism is a technical decision resolved at MAKE, not a human DECIDE item. LiveStore events recommended in the original D7 framing and consistent with existing architecture.)
+LiveStore event: `builder.onboardingCompleted { startingState, heavyThing, firstProjectSeed, allianceAgreement, capacitySignals, valueSignals }` — the campfire scorecard. These 6 fields are produced via reflected extraction (D6: Option B): Jarvis reflects back understanding in the Planning phase, builder confirms/corrects, that reflection becomes the structured record. Materializer creates builder context record. All agents read this before their first interaction. Jarvis prompt receives this context on return visits. (D7 retired — storage mechanism is a technical decision resolved at MAKE, not a human DECIDE item. LiveStore events recommended in the original D7 framing and consistent with existing architecture.)
 
 ### First-Run Detection
 
