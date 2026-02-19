@@ -7,14 +7,12 @@ Applying structured frameworks — from basic organization through sophisticated
 ## WHERE: Ecosystem
 
 - Type: Strategic Bet
-- Serves: [[Need - Competence]] — builders complete what they commit to
-- Serves: [[Need - Autonomy]] (secondary) — structured process increases control
 - Implementing principles: [[Principle - Protect Transformation]], [[Principle - Plans Are Hypotheses]], [[Principle - Empty Slots Strategic]]
 - Governs: [[Standard - Three-Stream Portfolio]], [[System - Priority Queue Architecture]], [[System - Pipeline Architecture]], [[System - Four-Stage Creation]], [[System - Weekly Priority]], [[Standard - Priority Score]]
 - Systems: [[System - Bronze Operations]], [[System - Adaptation]]
 - Overlay and capabilities: [[Overlay - The Table]], [[Capability - Three-Stream Filtering]]
 - Rooms: [[Room - Council Chamber]], [[Room - Drafting Room]], [[Room - Sorting Room]], [[Room - Roster Room]]
-- Serves: Competence (from [[Self-Determination Theory]])
+
 
 ## WHY: Belief
 

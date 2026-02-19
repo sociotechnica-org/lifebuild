@@ -7,7 +7,6 @@ A builder must immediately recognize what each visual element represents without
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Serves: [[Need - Autonomy]] — instant recognition enables control
 - Advances: [[Strategy - Spatial Visibility]]
 - Governs: [[Primitive - Project]], [[Primitive - System]], [[Structure - Hex Grid]], [[Component - Hex Tile]]
 - Companion detail: Brand Standards v2
