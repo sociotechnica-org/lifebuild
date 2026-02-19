@@ -223,6 +223,7 @@ See `.claude/skills/george/job-decision-resolution.md` for the full procedure, o
   - Remove blocker: `removeBlockedBy(input: { issueId: "NODE_ID", blockingIssueId: "BLOCKER_NODE_ID" })`
   - Get node ID: `gh api repos/sociotechnica-org/lifebuild/issues/<number> --jq '.node_id'`
 - Sweep runbook for off-grid agents: `.context/sweep-unpropagated-decisions.md` (blocker health only — full factory sweep job planned at #645)
+- Library feedback queue: `docs/context-library/feedback-queue.jsonl` — actionable library issues surfaced during context assembly (gaps, weak cards, retrieval misses). Conan writes entries during triage (Step 9); George should check for open items during triage (Mode 2) and shift planning (Mode 3) as a library health signal.
 
 ### The Factory Model
 
