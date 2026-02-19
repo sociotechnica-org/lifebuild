@@ -84,6 +84,7 @@ Any items in QC Gate or Review flow state:
 
 - Assign review to appropriate person
 - Quick wins — moving items to Shipped clears WIP
+- **PR gate check:** Flag any MAKE or PATCH item at QC Gate or Review without a linked PR. Per the PR gate protocol (`.claude/skills/george/board-fields.md`), these stations require a PR as the review artifact. An item at Review with no PR means the gate was skipped.
 
 ### Step 4: Build the plan
 
