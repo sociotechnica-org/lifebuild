@@ -7,7 +7,6 @@ An empty Gold or Silver slot can be a deliberate choice — to recover, catch up
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Serves: [[Need - Autonomy]] — permission to choose restraint
 - Advances: [[Strategy - Superior Process]]
 - Governs: [[Overlay - The Table]] (visual treatment of empty slots), [[Component - Gold Position]], [[Component - Silver Position]]
 - Implemented by: [[Standard - Table Slot Behaviors]] — makes intentional emptiness testable

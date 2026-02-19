@@ -7,7 +7,6 @@ A single ranked priority list lets urgent maintenance perpetually displace impor
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Serves: [[Need - Competence]] — structural protection enables completion
 - Advances: [[Strategy - Superior Process]]
 - Governs: [[Capability - Three-Stream Filtering]], [[Overlay - The Table]], [[System - Bronze Operations]], [[Room - Sorting Room]], [[System - Weekly Priority]]
 - Table positions: [[Component - Gold Position]], [[Component - Silver Position]], [[Component - Bronze Position]]

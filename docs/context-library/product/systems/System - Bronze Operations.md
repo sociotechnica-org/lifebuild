@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The operational workflow governing Bronze stream tasks — mode selection, stack population, auto-replenishment, and completion handling. Bronze Operations manages the mechanics that keep maintenance work flowing without overwhelming transformation work.
+The builder-facing workflow for Bronze stream interaction — mode selection, task completion, mid-week adjustments, and agent guidance. Bronze Operations describes what builders do with Bronze: choosing modes, checking off tasks, switching modes mid-week, and receiving Marvin's guidance. For the underlying data mechanism (sources, population rules, priority ordering, mode state definitions), see [[System - Bronze Stack]].
 
 ## WHERE: Scope
 
@@ -53,13 +53,7 @@ The operational workflow governing Bronze stream tasks — mode selection, stack
 - Can change mid-week via gear icon on Bronze position
 - Mode change takes effect immediately
 
-**Stack sources (priority order):**
-
-1. Due-date items (deadline approaching)
-2. Critical Responses (urgent flags)
-3. System-generated tasks (from planted systems)
-4. Quick Task project tasks
-5. Decomposed tasks from larger projects
+**Stack sources:** Defined in [[System - Bronze Stack]] (priority-ordered from due-date items through decomposed tasks).
 
 **Completion flow:**
 

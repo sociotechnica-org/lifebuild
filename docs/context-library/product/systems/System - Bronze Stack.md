@@ -1,10 +1,8 @@
-<!-- OVERLAP CHECK: May duplicate System - Bronze Operations. Review for merge. Bronze Operations covers operational workflow (mode selection, stack population, auto-replenishment, completion handling). Bronze Stack covers the stack mechanism itself (what populates it, mode behaviors, source priorities). Significant overlap in mode settings table, stack sources, and the "Bronze never blocks Gold/Silver" constraint. -->
-
 # System - Bronze Stack
 
 ## WHAT: Definition
 
-The mechanism managing which operational tasks populate the Bronze position on The Table. The Bronze Stack draws from multiple sources and operates in one of three modes (Minimal, Target, Maximal) controlling how many tasks surface. Builders set the mode; the system handles population, prioritization, and auto-replenishment.
+The data mechanism governing which operational tasks populate the Bronze position on The Table — sources, population rules, priority ordering, and mode state. Bronze Stack is the "what and why" of Bronze content: where tasks come from, how they are prioritized, and what mode settings control stack depth. For the builder-facing workflow (how builders interact with Bronze — mode selection, completion handling, mid-week changes), see [[System - Bronze Operations]].
 
 ## WHERE: Scope
 
@@ -57,21 +55,29 @@ Core system. Stack mechanics enable builders to control operational load.
 
 ## HOW: Implementation
 
-**Bronze sources:**
+**Bronze sources (priority order):**
 
-- Quick Task projects (Purpose = Maintenance)
-- System-generated tasks from planted systems
-- Small Critical Responses
-- Decomposed work from larger efforts
+1. Due-date items (deadline approaching)
+2. Critical Responses (urgent flags)
+3. System-generated tasks from planted systems
+4. Quick Task project tasks (Purpose = Maintenance)
+5. Decomposed tasks from larger efforts
 
-**Mode settings:**
+**Mode state definitions:**
 
-| Mode          | Behavior                                                                           |
+| Mode          | Population Rule                                                                    |
 | ------------- | ---------------------------------------------------------------------------------- |
 | **Minimal**   | Only due-date tasks + Critical Responses + system-generated. Stack varies (0-50+). |
-| **Target +X** | Minimal + X discretionary tasks. Auto-replenish to count.                          |
-| **Maximal**   | Continuous pull. As tasks complete, next surfaces.                                 |
+| **Target +X** | Minimal + X discretionary tasks. Auto-replenish to maintain count.                 |
+| **Maximal**   | Continuous pull. As tasks complete, next surfaces from priority queue.              |
 
-**Mode selection:** Set during weekly planning in [[Room - Sorting Room]]. Can change mid-week via gear icon.
+Mode state determines stack depth. For how builders select and change modes (weekly planning, mid-week gear icon), see [[System - Bronze Operations]].
 
-**Bronze never blocks Gold/Silver:** Even with 50 Bronze candidates queued, if builder has capacity for transformation work, activate those streams. Bronze will always exist. Waiting for Bronze to be "finished" is a trap.
+**Population rules:**
+
+- Stack draws from source queue in priority order above
+- Mode state controls how deep the draw goes
+- Auto-replenishment in Target mode maintains count by pulling next-priority item
+- New system-generated tasks enter the priority queue and surface per mode rules
+
+**Structural constraint:** Bronze never blocks Gold/Silver. Even with 50 Bronze candidates queued, transformation slots remain independent. Bronze has its own capacity lane.

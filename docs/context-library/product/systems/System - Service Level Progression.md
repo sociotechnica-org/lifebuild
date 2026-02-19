@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The invisible mechanism governing how AI capabilities evolve based on builder engagement over time. Builders don't interact with Service Level Progression directly — they simply use LifeBuild, and the system tracks depth of relationship to unlock progressively better agent performance. Levels reflect genuine system capability growth, not gamification.
+The invisible state machine governing how AI capabilities evolve based on builder engagement over time. Builders don't interact with Service Level Progression directly — they simply use LifeBuild, and the system tracks depth of relationship to trigger transitions between service levels. The system determines when to advance, what capabilities to unlock, and how to notify the builder of progression.
 
 ## WHERE: Scope
 
@@ -15,17 +15,20 @@ The invisible mechanism governing how AI capabilities evolve based on builder en
 - Primitives:
   - [[Primitive - Builder]] — level is a property of the builder's account
 - Implements:
-  - [[Standard - Service Levels]] — defines level thresholds and capabilities
+  - [[Standard - Service Levels]] — defines level thresholds, knowledge requirements, and service quality tiers
   - [[Standard - Visual Language]] — level indicators and progress display render per spec
 - State:
-  - Current level (0-5): Newcomer, Establishing, Building, Developing, Maturing, Flourishing
+  - Current level (0-5): computed from engagement metrics
   - Progress toward next level threshold
-  - Capabilities unlocked at current level
+  - Engagement metrics: weeks of consistent use, behavioral patterns observed, historical data accumulated
 - Transitions:
-  - Level advancement triggers based on engagement depth (weeks of consistent use, pattern emergence, historical data accumulation)
+  - Level advancement triggers based on engagement depth thresholds (defined in Standard - Service Levels)
   - Never regresses — levels reflect cumulative relationship, not recent activity
+  - Transition events fire when engagement metrics cross thresholds
+  - Notification of advancement surfaces in Council Chamber
 - Processing:
   - [[Agent - Conan]] — historical data feeds level calculation
+  - [[Agent - Jarvis]] — announces level progression, explains new capabilities
   - Agent quality scales with level — higher levels yield better recommendations, deeper pattern recognition
 - Rationale:
   - [[Principle - Compound Capability]] — visible compounding of system intelligence
@@ -48,31 +51,38 @@ Core system. Progression develops as Service Level mechanics mature.
 
 ## HOW: Implementation
 
-**Level summaries:**
+**State machine mechanics:**
 
-| Level | Name         | Threshold                |
-| ----- | ------------ | ------------------------ |
-| 0     | Newcomer     | New account              |
-| 1     | Establishing | First week complete      |
-| 2     | Building     | Consistent weekly rhythm |
-| 3     | Developing   | Patterns emerging        |
-| 4     | Maturing     | Strong historical data   |
-| 5     | Flourishing  | Deep partnership         |
+The system tracks engagement metrics defined in [[Standard - Service Levels]] and fires transition events when thresholds are crossed. Thresholds are specified in the Standard, not here — this System implements the transition mechanism.
 
-**Agent quality indicators:**
+When engagement data indicates threshold crossing:
+1. Transition event fires
+2. Current level state updates
+3. New capabilities become available
+4. Jarvis receives notification to announce progression
 
-- Higher levels = better agent recommendations
-- Jarvis notes: "With more history, I can see patterns..."
-- Visible connection between engagement and service quality
+**Advancement notification:**
 
-**Not gamification:** Levels reflect genuine capability growth, not arbitrary points. No badges, no leaderboards — just honest representation of system capability.
+When a level transition fires, Jarvis announces the progression in Council Chamber and explains what new capabilities are now available. The notification connects engagement to service quality — "With more history, I can see patterns..." — making the relationship depth tangible.
+
+**Agent quality scaling:**
+
+Higher levels unlock better agent performance:
+- Better recommendations (personalized vs. generic)
+- Deeper pattern recognition (behavioral insights vs. simple priority math)
+- Predictive guidance (anticipating needs vs. reactive responses)
+
+The specific service quality tiers are defined in [[Standard - Service Levels]]. This System implements the mechanism that delivers differentiated service based on level state.
+
+**Not gamification:** Levels reflect genuine capability growth, not arbitrary points. No badges, no leaderboards, no feature locks — just honest representation of what the system can do for the builder at this stage of the relationship.
 
 ### Examples
 
-- New builder at Level 0 (Newcomer) -> completes first week of planning and review -> advances to Level 1 (Establishing) -> Jarvis notes: "With a week of history, I can start noticing basic patterns in your preferences" -> capability connection made visible.
-- Builder at Level 3 (Developing) for three months -> Jarvis: "I've seen 12 weeks of your planning now. Your calibration is improving — estimates are 20% closer to reality than month one" -> the relationship depth is tangible.
+- New builder creates account → system initializes at Level 0 → completes first week of planning and review → system detects "first week complete" threshold crossed (as defined in Standard - Service Levels) → fires Level 1 transition → Jarvis announces: "With a week of history, I can start noticing basic patterns in your preferences" → capability connection made visible.
+- Builder at Level 3 for three months → system has observed 12 weeks of planning data → sufficient behavioral patterns accumulated → Jarvis: "I've seen 12 weeks of your planning now. Your calibration is improving — estimates are 20% closer to reality than month one" → the relationship depth is tangible.
 
 ### Anti-Examples
 
-- **Awarding badges for arbitrary engagement metrics** — "You viewed your Life Map 10 times!" is gamification. Progression reflects genuine system capability growth (better predictions, deeper pattern recognition), not click counts.
-- **Gatekeeping features behind level requirements** — levels describe what the system can do for the builder, not what the builder is allowed to do. All features are available from Day 1. Higher levels unlock better quality, not access.
+- **Awarding badges for arbitrary engagement metrics** — "You viewed your Life Map 10 times!" is gamification. Progression reflects genuine system capability growth (better predictions, deeper pattern recognition), not click counts. The state machine transitions on meaningful engagement thresholds, not vanity metrics.
+- **Gatekeeping features behind level requirements** — Levels describe what the system can do for the builder, not what the builder is allowed to do. All features are available from Day 1. Higher levels unlock better quality, not access. The state machine gates service quality, not feature availability.
+- **Duplicating threshold specifications in the System card** — Thresholds ("first week complete," "consistent weekly rhythm," etc.) are specification content and belong in [[Standard - Service Levels]]. The System card describes the state machine and transition mechanism only. If threshold definitions appear here, they should be removed and consolidated into the Standard.

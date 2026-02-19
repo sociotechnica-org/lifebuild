@@ -7,7 +7,6 @@ Builders can't control what they can't see — spatial visibility creates compre
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Serves: [[Need - Autonomy]] — can't control what you can't see
 - Advances: [[Strategy - Spatial Visibility]]
 - Governs: [[Zone - Life Map]], [[Overlay - The Table]], [[Structure - Hex Grid]], [[Capability - Zoom Navigation]], [[Room - Project Board]], [[Room - System Board]]
 - Zoom tiers: [[Capability - Zoom Navigation]]
