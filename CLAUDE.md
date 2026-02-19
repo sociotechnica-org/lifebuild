@@ -170,7 +170,7 @@ When implementing features that touch product concepts (rooms, agents, capabilit
 - Search by topic: `Grep` across `docs/context-library/`
 - Check known gaps: `Grep` across `docs/context-library/learnings/`
 
-### Full constellation (for complex tasks)
+### Full briefing (for complex tasks)
 
 Use the **Conan subagent** (`.claude/agents/conan.md`) to assemble a context briefing before implementation. Conan reads the retrieval profiles and assembles the right cards based on what you're building.
 
@@ -184,9 +184,9 @@ When a session adds types, renames terminology, creates/deletes cards in bulk, o
 
 ### Key references
 
-- `.claude/skills/context-constellation/retrieval-profiles.md` — What cards to pull for each type
-- `.claude/skills/context-constellation/traversal.md` — How to navigate the knowledge graph
-- `.claude/skills/context-constellation/protocol.md` — CONTEXT_BRIEFING.md format
+- `.claude/skills/context-briefing/retrieval-profiles.md` — What cards to pull for each type
+- `.claude/skills/context-briefing/traversal.md` — How to navigate the knowledge graph
+- `.claude/skills/context-briefing/protocol.md` — CONTEXT_BRIEFING.md format
 
 ## Development Workflow
 

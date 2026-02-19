@@ -10,12 +10,12 @@ Two factory floor boards. Same field names, different IDs.
 
 ### Required fields
 
-| Field | Required? | How to decide |
-|-------|-----------|---------------|
-| **Status** | Yes | `Todo` for new work, `In Progress` if starting now, `Blocked` if waiting on something |
-| **Station** | Yes | `DECIDE` = human decision needed, `PATCH` = library/docs update, `MAKE` = build work, `SHAPE` = prototyping/discovery |
-| **Flow State** | Yes | `Queued` for new items, `On the Line` if actively working, `Blocked (Andon)` if blocked |
-| **Takt** | Yes | `Danvers` = product/design, `Jess` = architecture, `AI` = agent-executable |
+| Field          | Required? | How to decide                                                                                                         |
+| -------------- | --------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Status**     | Yes       | `Todo` for new work, `In Progress` if starting now, `Blocked` if waiting on something                                 |
+| **Station**    | Yes       | `DECIDE` = human decision needed, `PATCH` = library/docs update, `MAKE` = build work, `SHAPE` = prototyping/discovery |
+| **Flow State** | Yes       | `Queued` for new items, `On the Line` if actively working, `Blocked (Andon)` if blocked                               |
+| **Takt**       | Yes       | `Danvers` = product/design, `Jess` = architecture, `AI` = agent-executable                                            |
 
 ### Intake steps
 
@@ -55,28 +55,28 @@ Project issues are parents — they don't go through factory stations themselves
 
 ### Status (`PVTSSF_lADOBzJqv84BPOmGzg9sqAQ`)
 
-| Option        | ID         |
-|---------------|------------|
-| Backlog       | `06bc7e24` |
-| Ready         | `27164c6d` |
-| In progress   | `206a38ee` |
-| In review     | `a4fa5a44` |
-| Blocked       | `03d0d9ef` |
-| Done          | `ea38e33a` |
+| Option      | ID         |
+| ----------- | ---------- |
+| Backlog     | `06bc7e24` |
+| Ready       | `27164c6d` |
+| In progress | `206a38ee` |
+| In review   | `a4fa5a44` |
+| Blocked     | `03d0d9ef` |
+| Done        | `ea38e33a` |
 
 ### Station (`PVTSSF_lADOBzJqv84BPOmGzg9srEk`)
 
-| Option  | ID         |
-|---------|------------|
-| DECIDE  | `0d78f282` |
-| PATCH   | `28254008` |
-| MAKE    | `04d4fff3` |
-| SHAPE   | `d28648b7` |
+| Option | ID         |
+| ------ | ---------- |
+| DECIDE | `0d78f282` |
+| PATCH  | `28254008` |
+| MAKE   | `04d4fff3` |
+| SHAPE  | `d28648b7` |
 
 ### Flow State (`PVTSSF_lADOBzJqv84BPOmGzg9srEo`)
 
 | Option          | ID         |
-|-----------------|------------|
+| --------------- | ---------- |
 | Queued          | `5bbc4dfb` |
 | On the Line     | `0b7a880b` |
 | Blocked (Andon) | `c6f03e83` |
@@ -88,7 +88,7 @@ Project issues are parents — they don't go through factory stations themselves
 ### Takt (`PVTSSF_lADOBzJqv84BPOmGzg9srEs`)
 
 | Option  | ID         |
-|---------|------------|
+| ------- | ---------- |
 | Danvers | `fa822e86` |
 | Jess    | `5f5d716e` |
 | AI      | `075c46fc` |
@@ -119,30 +119,35 @@ gh project item-edit \
 ### Common Operations
 
 **Move item to Done (Status):**
+
 ```bash
 ITEM_ID=$(gh project item-list 4 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == ISSUE_NUMBER) | .id')
 gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9sqAQ --single-select-option-id ea38e33a
 ```
 
 **Move item from Blocked to Ready (Status):**
+
 ```bash
 ITEM_ID=$(gh project item-list 4 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == ISSUE_NUMBER) | .id')
 gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9sqAQ --single-select-option-id 27164c6d
 ```
 
 **Set Flow State to Shipped:**
+
 ```bash
 ITEM_ID=$(gh project item-list 4 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == ISSUE_NUMBER) | .id')
 gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9srEo --single-select-option-id 03f954dc
 ```
 
 **Set Flow State to Queued:**
+
 ```bash
 ITEM_ID=$(gh project item-list 4 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == ISSUE_NUMBER) | .id')
 gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9srEo --single-select-option-id 5bbc4dfb
 ```
 
 **Set Flow State to Blocked (Andon):**
+
 ```bash
 ITEM_ID=$(gh project item-list 4 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == ISSUE_NUMBER) | .id')
 gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-id PVTSSF_lADOBzJqv84BPOmGzg9srEo --single-select-option-id c6f03e83
@@ -156,10 +161,10 @@ gh project item-edit --project-id PVT_kwDOBzJqv84BPOmG --id "$ITEM_ID" --field-i
 
 These are two different fields serving different purposes:
 
-| Field      | Purpose                        | Who changes it        |
-|------------|--------------------------------|-----------------------|
-| **Status** | Issue lifecycle (project board) | George during propagation, humans during work |
-| **Flow State** | Factory floor position       | George during propagation, humans during work |
+| Field          | Purpose                         | Who changes it                                |
+| -------------- | ------------------------------- | --------------------------------------------- |
+| **Status**     | Issue lifecycle (project board) | George during propagation, humans during work |
+| **Flow State** | Factory floor position          | George during propagation, humans during work |
 
 **Rules:**
 
@@ -189,26 +194,26 @@ Queued → On the Line → QC Gate → Review → Shipped
 
 ### Status (`PVTSSF_lADOBzJqv84BPoAQzg9-v94`)
 
-| Option        | ID         |
-|---------------|------------|
-| Todo          | `f75ad846` |
-| In Progress   | `47fc9ee4` |
-| In Review     | `bd9c404b` |
-| Done          | `98236657` |
+| Option      | ID         |
+| ----------- | ---------- |
+| Todo        | `f75ad846` |
+| In Progress | `47fc9ee4` |
+| In Review   | `bd9c404b` |
+| Done        | `98236657` |
 
 ### Station (`PVTSSF_lADOBzJqv84BPoAQzg9-wAM`)
 
-| Option  | ID         |
-|---------|------------|
-| DECIDE  | `62fcc83e` |
-| PATCH   | `f57e88dc` |
-| MAKE    | `97efd016` |
-| SHAPE   | `cc9e8481` |
+| Option | ID         |
+| ------ | ---------- |
+| DECIDE | `62fcc83e` |
+| PATCH  | `f57e88dc` |
+| MAKE   | `97efd016` |
+| SHAPE  | `cc9e8481` |
 
 ### Flow State (`PVTSSF_lADOBzJqv84BPoAQzg9-wAk`)
 
 | Option          | ID         |
-|-----------------|------------|
+| --------------- | ---------- |
 | Queued          | `e522186b` |
 | On the Line     | `f4850abf` |
 | Blocked (Andon) | `34dee8be` |
@@ -220,7 +225,7 @@ Queued → On the Line → QC Gate → Review → Shipped
 ### Takt (`PVTSSF_lADOBzJqv84BPoAQzg9-wBQ`)
 
 | Option  | ID         |
-|---------|------------|
+| ------- | ---------- |
 | Danvers | `67735a1f` |
 | Jess    | `a2de3100` |
 | AI      | `1383234f` |

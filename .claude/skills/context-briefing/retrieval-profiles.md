@@ -1,8 +1,8 @@
 # Retrieval Profiles
 
-Type-specific instructions for assembling context constellations. Each profile describes what cards to include when building/modifying a card of that type.
+Type-specific instructions for assembling context briefings. Each profile describes what cards to include when building/modifying a card of that type.
 
-**Exclusion: `sources/`** — Source documents in `docs/context-library/sources/` are frozen provenance material (GDDs, research notes, strategic memos). Never include sources in context constellations. Only Conan in audit mode reads sources for drift detection and error checking. See `sources/README.md` for conventions.
+**Exclusion: `sources/`** — Source documents in `docs/context-library/sources/` are frozen provenance material (GDDs, research notes, strategic memos). Never include sources in context briefings. Only Conan in audit mode reads sources for drift detection and error checking. See `sources/README.md` for conventions.
 
 ---
 

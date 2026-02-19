@@ -30,7 +30,7 @@ George does NOT: build code, write library cards, make product decisions, move c
 
 ### Conan — Context Assembler & Quality Guardian
 
-Assembles context constellations for builders. Grades, audits, and plans library improvements.
+Assembles context briefings for builders. Grades, audits, and plans library improvements.
 
 **Mode 1: Context Assembly** — Prepares implementation context so builders make aligned decisions.
 
@@ -53,7 +53,7 @@ Assembles context constellations for builders. Grades, audits, and plans library
 
 Supporting: `skills/conan/rubrics.md`, `skills/conan/grade-computation.md`
 
-Context assembly skills: `skills/context-constellation/` (retrieval profiles, traversal, protocol, provenance schema)
+Context assembly skills: `skills/context-briefing/` (retrieval profiles, traversal, protocol, provenance schema)
 
 Conan does NOT: implement code, create or edit library cards (exception: Downstream Sync edits meta-files — agent definitions, skill procedures, retrieval profiles).
 
@@ -69,7 +69,7 @@ Creates and maintains Context Library cards per Conan's instructions.
 
 Supporting: `skills/sam/decomposition.md`, `skills/sam/link-patterns.md`
 
-Sam also uses the shared context constellation skills (see below) for navigating the library when building cards or self-assembling context without a Conan briefing.
+Sam also uses the shared context briefing skills (see below) for navigating the library when building cards or self-assembling context without a Conan briefing.
 
 Sam does NOT: grade cards, write product code, skip self-check before handoff.
 
@@ -102,7 +102,7 @@ Human resolves decision
     │       └── Produces release card checklist ──> Conan + Sam
     │
     ▼
-Conan assembles context constellation
+Conan assembles context briefing
     │
     ▼
 Sam builds library cards
@@ -146,22 +146,22 @@ Conan: Grade <──────────── Sam: Fix ◄─────�
 
 George's Jobs 1 and 3 both include a Step 0 that scans for unprocessed decision resolutions. This catches decisions that were closed but never explicitly propagated via `/george propagate`.
 
-### Shared Infrastructure: Context Constellation Skills
+### Shared Infrastructure: Context Briefing Skills
 
-The skills at `skills/context-constellation/` are shared infrastructure used by multiple agents:
+The skills at `skills/context-briefing/` are shared infrastructure used by multiple agents:
 
 | File                    | What It Does                                     | Used By                                            |
 | ----------------------- | ------------------------------------------------ | -------------------------------------------------- |
 | `retrieval-profiles.md` | Per-type rules for what cards to pull            | Conan (assembly), Sam (navigation + self-assembly) |
 | `traversal.md`          | Graph navigation patterns (find, follow, search) | Conan (assembly), Sam (navigation)                 |
 | `protocol.md`           | CONTEXT_BRIEFING.md format (Conan→Sam contract)  | Conan (writes), Sam (reads)                        |
-| `provenance-schema.md`  | constellation-log.jsonl schema                   | Conan, Sam, George (all log)                       |
+| `provenance-schema.md`  | provenance-log.jsonl schema                      | Conan, Sam, George (all log)                       |
 
-Conan does the heavy-lift constellation assembly for complex features. Sam uses retrieval profiles and traversal rules directly when self-assembling context or navigating during card building.
+Conan does the heavy-lift briefing assembly for complex features. Sam uses retrieval profiles and traversal rules directly when self-assembling context or navigating during card building.
 
 ### Provenance
 
-All agents log to `docs/context-library/constellation-log.jsonl`:
+All agents log to `docs/context-library/provenance-log.jsonl`:
 
 - Conan logs context assembly sessions
 - Sam logs card-building decisions

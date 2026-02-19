@@ -106,10 +106,10 @@ Hand off to Conan
 
 ## Navigating the Library
 
-When building or fixing cards, use the context constellation skills to pull the right related cards:
+When building or fixing cards, use the context briefing skills to pull the right related cards:
 
-1. **Load the retrieval profile** for your target type from `.claude/skills/context-constellation/retrieval-profiles.md` — it tells you what's mandatory (parent containers, conforming Standards, WHY chains)
-2. **Follow traversal rules** from `.claude/skills/context-constellation/traversal.md` — how to find cards by name, type, topic, and dimension
+1. **Load the retrieval profile** for your target type from `.claude/skills/context-briefing/retrieval-profiles.md` — it tells you what's mandatory (parent containers, conforming Standards, WHY chains)
+2. **Follow traversal rules** from `.claude/skills/context-briefing/traversal.md` — how to find cards by name, type, topic, and dimension
 3. **Respect traversal depth** — Components are 1-hop (leaf nodes). Systems are 3-hop (broad impact). The profile says how far to look.
 4. **Check mandatory categories** — the profile lists what must be present. If a mandatory category has no card, search for it specifically.
 
@@ -132,8 +132,8 @@ This ensures every card you build has correct links, proper containment, and com
 - `.claude/skills/sam/decomposition.md` — Extracting cards from source material
 - `.claude/skills/sam/link-patterns.md` — Standard phrases for relationships
 - `.claude/skills/sam/self-check.md` — Pre-Conan validation
-- `.claude/skills/context-constellation/retrieval-profiles.md` — What cards to pull for each type
-- `.claude/skills/context-constellation/traversal.md` — How to navigate the knowledge graph
+- `.claude/skills/context-briefing/retrieval-profiles.md` — What cards to pull for each type
+- `.claude/skills/context-briefing/traversal.md` — How to navigate the knowledge graph
 - `docs/context-library/reference.md` — Templates, folders, naming, conformance obligations
 
 ---
@@ -146,14 +146,14 @@ This ensures every card you build has correct links, proper containment, and com
 - WHEN sections contain implementation status and reality notes
 - CONVENTIONS.md has codebase-specific patterns
 - Card-building procedures: `.claude/skills/sam/`
-- Constellation/retrieval info: `.claude/skills/context-constellation/`
+- Context briefing skills: `.claude/skills/context-briefing/`
 
 ## Rules
 
 1. **Search before guessing.** When uncertain about type, containment, or links, search the library.
 2. **Respect anti-patterns.** HOW sections list "What Breaks This" — check these for your primary cards.
 3. **Check WHEN status.** Cards marked "Not started" describe vision, not reality. Cards marked "Implemented" describe current codebase.
-4. **Log decisions.** Significant choices get provenance entries in `docs/context-library/constellation-log.jsonl`.
+4. **Log decisions.** Significant choices get provenance entries in `docs/context-library/provenance-log.jsonl`.
 5. **Flag gaps.** If you search and find nothing, note it. Missing context is itself useful data.
 
 ---

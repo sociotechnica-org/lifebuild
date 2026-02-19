@@ -1,4 +1,4 @@
-# Context Constellation Skill
+# Context Briefing Skill
 
 Assemble context from the Context Library for implementation tasks.
 

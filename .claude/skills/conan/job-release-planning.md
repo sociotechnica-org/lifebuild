@@ -115,7 +115,7 @@ Releases are grouped into thematic arcs. Each arc has a narrative theme and a pr
 
    b. **Trace build issue impacts.** For each option, which build track issues are blocked by this decision?
    - Cross-reference the BUILD TRACKS section's blockers
-   - For each blocked issue: what happens when the blocker is removed? Does the item need context constellation assembly?
+   - For each blocked issue: what happens when the blocker is removed? Does the item need context briefing assembly?
 
    c. **Trace cascading decisions.** Does resolving this decision change the framing, options, or recommendation of any other decision?
    - Check: does any other D-issue reference this one?

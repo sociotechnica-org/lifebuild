@@ -2,7 +2,7 @@
 
 Append-only log tracking context assembly and decision provenance.
 
-**File:** `docs/context-library/constellation-log.jsonl` (one JSON object per line)
+**File:** `docs/context-library/provenance-log.jsonl` (one JSON object per line)
 
 ---
 
@@ -151,7 +151,7 @@ After task completion, append an outcome entry:
 
 ## Weekly Review Queries
 
-Analyze `constellation-log.jsonl` weekly to answer:
+Analyze `provenance-log.jsonl` weekly to answer:
 
 1. **Which cards correlate with success?** Cards in successful sessions → validate quality. Cards in failures → review accuracy.
 2. **Which cards are retrieved but unused?** High retrieval + low decision reference → over-weighted or poorly structured.
