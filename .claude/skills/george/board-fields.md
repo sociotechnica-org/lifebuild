@@ -184,6 +184,28 @@ Queued → On the Line → QC Gate → Review → Shipped
               Rework ─────────────────────────┘
 ```
 
+### PR Gate — Flow State to Git Workflow
+
+MAKE and PATCH station items change repo files. The PR is the gate between QC Gate and Review. **This applies to both Board #4 (Release 1) and Board #5 (Factory & Library).** Any repo artifact — product code, agent definitions, skill procedures, protocol files, library cards — gets a PR. (D9, #654)
+
+| Flow State      | Git Action                          | Who             |
+| --------------- | ----------------------------------- | --------------- |
+| **On the Line** | Work happens on a branch            | AI / builder    |
+| **QC Gate**     | `lint-all` + tests pass, PR created | AI / builder    |
+| **Review**      | PR is being reviewed                | Danvers / Jess  |
+| **Shipped**     | PR merged                           | Human merges    |
+
+**Which stations need PRs:**
+
+| Station    | PR Required? | Why                                                     |
+| ---------- | ------------ | ------------------------------------------------------- |
+| **MAKE**   | Yes          | Builds features — always changes repo files             |
+| **PATCH**  | Yes          | Updates library docs in the repo                        |
+| **DECIDE** | No           | Resolved on GitHub issues, no code                      |
+| **SHAPE**  | Optional     | Prototyping/discovery — PR if it produces repo changes  |
+
+**The rule:** An item at MAKE or PATCH cannot move from QC Gate → Review without a PR. The PR is the review artifact.
+
 ---
 
 ## Board #5 — Factory & Library

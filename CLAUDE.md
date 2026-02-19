@@ -213,6 +213,8 @@ CI=true pnpm test:e2e  # Run E2E tests
 
 ### Creating a PR
 
+**All MAKE and PATCH station items on both Board #4 and Board #5 require a PR** (D9, #654). This includes product code, agent definitions, skill procedures, protocol files, and library cards — anything that lives in version control. See `.claude/skills/george/board-fields.md` for the full PR gate protocol.
+
 1. Write clear commit messages
 2. Push your branch to GitHub
 3. Create PR: `gh pr create --title "Title" --body "Description"` (or use GitHub web UI)
