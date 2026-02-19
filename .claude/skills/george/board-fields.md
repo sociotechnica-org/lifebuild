@@ -186,7 +186,7 @@ Queued → On the Line → QC Gate → Review → Shipped
 
 ### PR Gate — Flow State to Git Workflow
 
-MAKE and PATCH station items change repo files. The PR is the gate between QC Gate and Review.
+MAKE and PATCH station items change repo files. The PR is the gate between QC Gate and Review. **This applies to both Board #4 (Release 1) and Board #5 (Factory & Library).** Any repo artifact — product code, agent definitions, skill procedures, protocol files, library cards — gets a PR. (D9, #654)
 
 | Flow State      | Git Action                          | Who             |
 | --------------- | ----------------------------------- | --------------- |
