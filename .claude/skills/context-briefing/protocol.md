@@ -154,7 +154,7 @@ SEARCH: Grep for "[terms]" in docs/context-library/
 6. Conan writes .context/CONTEXT_BRIEFING.md
        │
        ▼
-7. Conan logs assembly to constellation-log.jsonl
+7. Conan logs assembly to provenance-log.jsonl
        │
        ▼
 8. Sam reads .context/CONTEXT_BRIEFING.md
@@ -163,7 +163,7 @@ SEARCH: Grep for "[terms]" in docs/context-library/
 9. Sam implements, querying library when uncertain
        │
        ▼
-10. Sam logs decisions to constellation-log.jsonl
+10. Sam logs decisions to provenance-log.jsonl
        │
        ▼
 11. Sam updates decision outcomes after task completion

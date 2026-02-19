@@ -31,7 +31,7 @@ Name the presenting symptom. One sentence. Examples:
 | High blocked count, diverse blockers | Multiple independent issues | List each blocker, triage individually                                   |
 | WIP piled at DECIDE                  | Input overload              | Too many items entered DECIDE? Or decisions aren't moving?               |
 | WIP piled at MAKE, high rework       | Quality problem             | PATCH or DECIDE producing bad specs?                                     |
-| WIP piled at MAKE, items sitting     | Build paralysis             | AI needs clearer instructions? Context constellation incomplete?         |
+| WIP piled at MAKE, items sitting     | Build paralysis             | AI needs clearer instructions? Context briefing incomplete?              |
 | Empty downstream stations            | Starvation                  | Upstream isn't feeding. Why?                                             |
 | Velocity zero                        | Systemic stop               | Is it DECIDE (no decisions), MAKE (no builds), or SHAPE (no prototypes)? |
 

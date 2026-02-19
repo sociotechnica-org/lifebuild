@@ -1,6 +1,6 @@
 # Contributing to the Context Library
 
-This guide is for **humans and AI agents** working on LifeBuild. If you're adding context, fixing cards, or assembling constellations, start here.
+This guide is for **humans and AI agents** working on LifeBuild. If you're adding context, fixing cards, or assembling context briefings, start here.
 
 ---
 
@@ -49,7 +49,7 @@ Every `[[wikilink]]` must include a context phrase — no naked pointers. See `r
 
 ### 5. Verify links resolve
 
-Check that `[[Type - Name]]` actually exists. Broken links break constellation assembly.
+Check that `[[Type - Name]]` actually exists. Broken links break context briefing assembly.
 
 ### 6. Check conformance obligations
 
@@ -96,13 +96,13 @@ If a card is getting too long (>700 words), consider splitting into hub + spokes
 3. **Update WHEN sections** with reality notes on cards you confirmed are accurate
 4. **Flag gaps** — if you needed context that didn't exist, note it
 
-### When assembling constellations:
+### When assembling context briefings:
 
-Use the **Conan agent** (`.claude/agents/conan.md`) to assemble a context constellation before implementation. Conan reads the retrieval profiles and assembles the right cards based on what you're building.
+Use the **Conan agent** (`.claude/agents/conan.md`) to assemble a context briefing before implementation. Conan reads the retrieval profiles and assembles the right cards based on what you're building.
 
 1. Start from the target card
 2. Follow retrieval profiles to gather related context
-3. Write the constellation to `.context/CONTEXT_BRIEFING.md`
+3. Write the briefing to `.context/CONTEXT_BRIEFING.md`
 4. Flag any broken links or missing context in the Gap Manifest
 
 ---
@@ -133,7 +133,7 @@ Before committing card changes:
 
 ## Agent Roles
 
-- **Conan** (`.claude/agents/conan.md`): Assembles constellations, grades cards, audits quality. Does NOT write cards.
+- **Conan** (`.claude/agents/conan.md`): Assembles context briefings, grades cards, audits quality. Does NOT write cards.
 - **Sam** (`.claude/agents/sam.md`): Creates cards, fixes per recommendations, runs self-checks. Does NOT grade.
 - **Human librarian**: Priority decisions, resolve ambiguity, go/no-go.
 

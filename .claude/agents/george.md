@@ -154,7 +154,7 @@ When a human resolves a D-issue, propagate implications through the factory.
 
 ### Step 0: Find propagation requests
 
-Scan for `/george propagate` comments on closed D-issues. Cross-reference against `constellation-log.jsonl` to skip already-processed decisions.
+Scan for `/george propagate` comments on closed D-issues. Cross-reference against `provenance-log.jsonl` to skip already-processed decisions.
 
 ### Step 1: Verify clarity (the Andon gate)
 
@@ -166,7 +166,7 @@ Check for a structured `## Propagation Map` section. If missing, reconstruct fro
 
 ### Step 3: Update build issues (execute directly)
 
-Remove decision from "Blocked by" sections. Add decision context. Move fully-unblocked items from Blocked to Ready. Flag newly-Ready MAKE items for context constellation assembly.
+Remove decision from "Blocked by" sections. Add decision context. Move fully-unblocked items from Blocked to Ready. Flag newly-Ready MAKE items for context briefing assembly.
 
 ### Step 4: Notify cascading decisions (execute directly)
 
@@ -194,7 +194,7 @@ Present new or eliminated work for human approval. Don't create or close issues 
 
 ### Step 10: Log provenance
 
-Append resolution entry to `constellation-log.jsonl`.
+Append resolution entry to `provenance-log.jsonl`.
 
 See `.claude/skills/george/job-decision-resolution.md` for the full procedure, output format, decision trees, and principles.
 
@@ -215,7 +215,7 @@ See `.claude/skills/george/job-decision-resolution.md` for the full procedure, o
 - Decision resolution procedure: `.claude/skills/george/job-decision-resolution.md`
 - Propagation Map format: Structured metadata in D-issues that maps each decision option to library cards, GitHub issues, cascading decisions, and scope changes
 - Propagation trigger: `/george propagate` comment on a closed D-issue, or auto-scan at shift start
-- Provenance log: `docs/context-library/constellation-log.jsonl` — resolution entries have `"task_type": "resolution"`, with `"propagation_status": "started"|"complete"`
+- Provenance log: `docs/context-library/provenance-log.jsonl` — resolution entries have `"task_type": "resolution"`, with `"propagation_status": "started"|"complete"`
 - D-issues for Release 1: D1 (#607), D2 (#608), D3 (#609), D4 (#610), D5 (#593), D6 (#594), D7 (#595), D8 (#606)
 - **Blocker tracking:** GitHub native `blockedBy`/`blocking` relationships are the source of truth. Prose "Blocked by" sections in issue bodies provide human-readable context. Both must be maintained together.
   - Query blockers: `gh api graphql -f query='{ repository(owner: "sociotechnica-org", name: "lifebuild") { issue(number: N) { blockedBy(first: 10) { nodes { number title state } } } } }'`

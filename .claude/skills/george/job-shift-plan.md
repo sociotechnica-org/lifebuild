@@ -22,7 +22,7 @@ Before planning work, scan for decisions that were resolved but never propagated
    gh issue list -R sociotechnica-org/lifebuild --state closed --search "D" --json number,title,closedAt
    ```
 
-3. Cross-reference against `docs/context-library/constellation-log.jsonl` for `"task_type": "resolution"` entries. Any closed D-issue without a matching entry is unprocessed.
+3. Cross-reference against `docs/context-library/provenance-log.jsonl` for `"task_type": "resolution"` entries. Any closed D-issue without a matching entry is unprocessed.
 
 4. **If unprocessed resolutions found:** Insert as Priority 0 in the shift plan — run Decision Resolution (Job 4) before anything else. Format:
 
@@ -155,7 +155,7 @@ If time remains:
 
 Launch in Conductor:
 1. **#[number]** — [build description]
-   Context: [what constellation to pull, what to watch for]
+   Context: [what briefing to pull, what to watch for]
 
 2. **#[number]** — [build description]
 

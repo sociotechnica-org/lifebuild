@@ -41,7 +41,7 @@ gh search issues --repo sociotechnica-org/lifebuild "george propagate" --json nu
 gh issue list -R sociotechnica-org/lifebuild --state closed --search "D" --json number,title,closedAt
 ```
 
-Cross-reference against `docs/context-library/constellation-log.jsonl` — look for entries with `"task_type": "resolution"` matching the issue number. Check the `propagation_status` field:
+Cross-reference against `docs/context-library/provenance-log.jsonl` — look for entries with `"task_type": "resolution"` matching the issue number. Check the `propagation_status` field:
 
 - **No entry at all** → Decision was never propagated. Run full Mode 4.
 - **`"propagation_status": "started"`** → Propagation was interrupted. Resume from where it left off (check which steps completed).
@@ -79,7 +79,7 @@ gh issue comment <number> -R sociotechnica-org/lifebuild --body "## Resolution
 
 **Log first, propagate second.** Write the provenance entry immediately after verifying clarity — before any downstream updates. This creates the anchor that the safety net checks against. If propagation is interrupted mid-way, the log entry means the safety net can detect "partially propagated" resolutions and resume from where they left off.
 
-Append an initial resolution entry to `docs/context-library/constellation-log.jsonl`:
+Append an initial resolution entry to `docs/context-library/provenance-log.jsonl`:
 
 ```json
 {
@@ -145,6 +145,7 @@ For each issue in "Build Issues Unblocked" (from the Propagation Map or reconstr
 2. **Remove the blocker — two places:**
 
    **a) Remove the native GitHub blocker relationship (source of truth):**
+
    ```bash
    # Get node IDs
    ISSUE_ID=$(gh api repos/sociotechnica-org/lifebuild/issues/<number> --jq '.node_id')
@@ -183,7 +184,7 @@ For each issue in "Build Issues Unblocked" (from the Propagation Map or reconstr
 
    **Always update both Status and Flow State together.** See board-fields.md for the full semantics.
 
-5. **Flag for context constellation assembly.** Any newly-Ready MAKE item needs its context constellation verified before building starts — the "incoming component quality verification" from the manufacturing checklist. Note this in the output.
+5. **Flag for context briefing assembly.** Any newly-Ready MAKE item needs its context briefing verified before building starts — the "incoming component quality verification" from the manufacturing checklist. Note this in the output.
 
 #### Adding blockers (when new blockers are discovered)
 
@@ -349,7 +350,7 @@ Update the anchor entry logged at Step 1.5 (or append a completion entry) with t
 | Issue | Action Taken |
 |-------|-------------|
 | #[n] [title] | Removed D[N] blocker; added decision context |
-| #[n] [title] | Removed D[N] blocker; moved Blocked → Ready; needs context constellation |
+| #[n] [title] | Removed D[N] blocker; moved Blocked → Ready; needs context briefing |
 
 ### Cascading Decisions Notified
 
@@ -405,7 +406,7 @@ Update the anchor entry logged at Step 1.5 (or append a completion entry) with t
 
 - **Items unblocked:** [n]
 - **Items now Ready:** #[n] [title], #[n] [title]
-- **Items needing context constellation:** #[n], #[n]
+- **Items needing context briefing:** #[n], #[n]
 - **Routing:** #[n] → MAKE, #[n] → SHAPE first
 - **Cascade:** D[N] now unblocked → [n] more items downstream
 - **Remaining blocked items:** [n] (waiting on: D[x], D[y])
@@ -459,6 +460,6 @@ Some options open new questions. For example, "hybrid campfire" means someone mu
 
 - **Complete before fast.** Every card and issue in the Propagation Map gets addressed. Skipping one creates invisible drift that becomes a defect downstream.
 - **Exact text, not instructions.** The checklist gives copy-paste History entries and Implications rewrites. Conan and Sam execute, they don't interpret.
-- **Log first, propagate second.** The constellation-log anchor entry (Step 1.5) is written before any downstream updates. This is the safety net's source of truth. A missing entry means "never started." A "started" entry means "check what's done." A "complete" entry means "fully propagated." When someone asks "why did this card change?" six weeks later, the answer is in the log.
+- **Log first, propagate second.** The provenance-log anchor entry (Step 1.5) is written before any downstream updates. This is the safety net's source of truth. A missing entry means "never started." A "started" entry means "check what's done." A "complete" entry means "fully propagated." When someone asks "why did this card change?" six weeks later, the answer is in the log.
 - **Don't pass ambiguity forward.** If you're not sure what was decided, ask. Five minutes of clarification beats propagating the wrong thing through the system.
 - **Board status is George's job.** Moving items to Done, Blocked → Ready — this is factory floor bookkeeping. George does it directly.

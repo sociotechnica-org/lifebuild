@@ -34,13 +34,13 @@ Files that mirror library structure and must stay in sync with `docs/context-lib
 | `.claude/skills/sam/link-patterns.md` | Example card names, terminology                                 |
 | `.claude/skills/sam/self-check.md`    | Example card names, terminology                                 |
 
-### Skill Files — Context Constellation
+### Skill Files — Context Briefing
 
-| File                                                         | Sync Points                                                                                            |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| `.claude/skills/context-constellation/retrieval-profiles.md` | One profile per type, example card names (must match actual cards), mandatory categories summary table |
-| `.claude/skills/context-constellation/traversal.md`          | Folder path examples in "Finding Cards" section                                                        |
-| `.claude/skills/context-constellation/protocol.md`           | Relationship types, target type mentions                                                               |
+| File                                                    | Sync Points                                                                                            |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `.claude/skills/context-briefing/retrieval-profiles.md` | One profile per type, example card names (must match actual cards), mandatory categories summary table |
+| `.claude/skills/context-briefing/traversal.md`          | Folder path examples in "Finding Cards" section                                                        |
+| `.claude/skills/context-briefing/protocol.md`           | Relationship types, target type mentions                                                               |
 
 ### Skill Files — George
 

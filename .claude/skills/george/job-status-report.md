@@ -22,7 +22,7 @@ Before running the dashboard, scan for decisions that were resolved but never pr
    gh issue list -R sociotechnica-org/lifebuild --state closed --search "D" --json number,title,closedAt
    ```
 
-3. Cross-reference against `docs/context-library/constellation-log.jsonl` — look for `"task_type": "resolution"` entries matching those issue numbers. Any closed D-issue without a matching log entry is unprocessed.
+3. Cross-reference against `docs/context-library/provenance-log.jsonl` — look for `"task_type": "resolution"` entries matching those issue numbers. Any closed D-issue without a matching log entry is unprocessed.
 
 4. If unprocessed resolutions found, add to the report under a **Pending Propagation** gauge:
 
