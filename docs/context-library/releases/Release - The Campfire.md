@@ -111,7 +111,7 @@ The bottleneck is decisions, not engineering. AI builds fast. Humans decide, aut
 
 - **Danvers** (Product Owner) — owns all product decisions, story authoring, campfire experience design, prompt voice, feel-testing. Primary on all DECIDE and PROTOTYPE work.
 - **Jess** (CTO) — owns backend architecture decisions (context persistence, event schemas), oversees complex engineering. Prompt work when Danvers is in story mode.
-- **AI** — builds everything that isn't blocked by a decision. Runs in parallel on all unblocked tracks. Drafts prompts and stories for human refinement. Assembles context constellations before building.
+- **AI** — builds everything that isn't blocked by a decision. Runs in parallel on all unblocked tracks. Drafts prompts and stories for human refinement. Conan assembles a context briefing before each build track begins.
 
 ### Velocity principle
 
@@ -265,7 +265,7 @@ The shaping session (2026-02-18) identified a fourth approach beyond the origina
 
 ### MAKE — AI builds now, no decisions needed
 
-These can start immediately. AI assembles a context constellation from the library + release plan, then builds.
+These can start immediately. Conan assembles a context briefing from the seed cards + release plan, then Sam builds.
 
 | Track                    | What AI builds                                                                                                | Context readiness                                   | Notes                                                                               |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------- |
@@ -313,15 +313,15 @@ Some Context Library cards describe the full vision without acknowledging Releas
 
 **Eliminated patch:** `Standard - Spatial Interaction Rules` — D1 resolved: manual placement from day one. The Standard is upheld as-is in R1. No override patch needed. (#612 closed.)
 
-**These patches should be applied before AI starts building**, so context constellations assembled from the library give correct guidance.
+**These patches should be applied before AI starts building**, so context briefings assembled from the library give correct guidance.
 
 ---
 
-## CONTEXT CONSTELLATIONS
+## CONTEXT BRIEFING SEEDS
 
-For each MAKE track, a context constellation should be assembled before AI starts building. The constellation includes relevant library cards + release plan specs + any patches applied above.
+For each MAKE track, Conan assembles a full context briefing (`.context/CONTEXT_BRIEFING.md`) before building begins — per the Constellation Protocol in `.claude/skills/context-briefing/protocol.md`. The seed cards below are starting points for Conan's retrieval. Conan expands these via retrieval profiles, adds full primary card content, supporting card summaries, a relationship map, and a gap manifest.
 
-| Build track          | Constellation cards                                                                                                                                    | Library sufficient?      |
+| Build track          | Seed cards                                                                                                                                             | Library sufficient?      |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ |
 | Hex grid geometry    | Structure - Hex Grid, Component - Hex Tile, Standard - Life Categories (for colors), Strategy - Spatial Visibility + this release plan (MVMap section) | Yes, after patches       |
 | Agent cleanup        | Agent - Jarvis, Agent - Marvin, Agent - Mesa, Room - Council Chamber, Standard - Naming Architecture                                                   | Yes — strongest coverage |
@@ -459,7 +459,7 @@ The complete experience, start to finish:
 | Campfire conversation doesn't feel magical    | Prototype track. Draft, test, iterate. The prompt is the soul — it can be revised independently of the UI.                                                            |
 | Walk animation feels awkward                  | Keep it simple. Viewport pan, 2-3 seconds. The emotion comes from the conversation, not the animation.                                                                |
 | Map feels empty for new builders              | Empty space is potential, not absence — but only if the aesthetic communicates that. Sanctuary at center + first hex is enough.                                       |
-| Library cards mislead AI builder              | Apply patches first. Context constellations include release plan alongside library cards.                                                                             |
+| Library cards mislead AI builder              | Apply patches first. Context briefings include release plan alongside library cards.                                                                                  |
 
 ---
 
