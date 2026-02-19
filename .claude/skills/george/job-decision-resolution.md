@@ -105,7 +105,8 @@ Append an initial resolution entry to `docs/context-library/provenance-log.jsonl
     "cascading_decisions_notified": [],
     "scope_changes": {
       "new_work": [],
-      "eliminated_work": []
+      "eliminated_work": [],
+      "deferred_work": []
     },
     "propagation_status": "started"
   }
@@ -298,6 +299,19 @@ Read the "Scope Changes" table from the Propagation Map for the chosen option.
 - Recommend closing the issue with a comment explaining why: `"Eliminated by D[N] resolution: [rationale]"`
 - Present for human confirmation before closing.
 
+**Deferred work:**
+
+Work that is explicitly postponed (not eliminated) with known prerequisites must become a tracked card. Deferred items buried in closed issue bodies are invisible to the dashboard and shift planning.
+
+For each deferred item:
+
+1. Create a GitHub issue with clear **prerequisites** (what must happen before this work is actionable)
+2. Add as sub-issue to the relevant Project issue
+3. Add to the appropriate board with full intake fields (Status: Todo, Station, Flow State: Queued, Takt)
+4. Log in provenance under `scope_changes.deferred_work`
+
+If no deferred items exist, skip — but actively check. Common sources of deferred work: audit findings with insufficient data, design options explicitly postponed to a later release, features dependent on prerequisites that don't exist yet.
+
 ### Step 10: Finalize provenance
 
 Update the anchor entry logged at Step 1.5 (or append a completion entry) with the full propagation details:
@@ -324,7 +338,8 @@ Update the anchor entry logged at Step 1.5 (or append a completion entry) with t
     "cascading_decisions_notified": ["D6"],
     "scope_changes": {
       "new_work": [],
-      "eliminated_work": []
+      "eliminated_work": [],
+      "deferred_work": []
     },
     "propagation_status": "complete"
   }
@@ -401,6 +416,7 @@ Update the anchor entry logged at Step 1.5 (or append a completion entry) with t
 |--------|------|--------------------|
 | [desc] | New work | Create issue: "[suggested title]" (Mode: MAKE/SHAPE) |
 | [desc] | Eliminated | Close #[n] with rationale |
+| [desc] | Deferred | Create issue with prerequisites: "[suggested title]" (blocked until [condition]) |
 
 ---
 
