@@ -41,7 +41,11 @@ gh search issues --repo sociotechnica-org/lifebuild "george propagate" --json nu
 gh issue list -R sociotechnica-org/lifebuild --state closed --search "D" --json number,title,closedAt
 ```
 
-Cross-reference against `docs/context-library/constellation-log.jsonl` — look for entries with `"task_type": "resolution"` matching the issue number. Skip already-processed decisions.
+Cross-reference against `docs/context-library/constellation-log.jsonl` — look for entries with `"task_type": "resolution"` matching the issue number. Check the `propagation_status` field:
+
+- **No entry at all** → Decision was never propagated. Run full Mode 4.
+- **`"propagation_status": "started"`** → Propagation was interrupted. Resume from where it left off (check which steps completed).
+- **`"propagation_status": "complete"`** → Already propagated. Skip.
 
 If invoked directly ("run decision resolution on D5"), skip to Step 1 with the specified issue.
 
@@ -71,6 +75,45 @@ gh issue comment <number> -R sociotechnica-org/lifebuild --body "## Resolution
 - **Propagated:** [date]"
 ```
 
+### Step 1.5: Log provenance (anchor entry)
+
+**Log first, propagate second.** Write the provenance entry immediately after verifying clarity — before any downstream updates. This creates the anchor that the safety net checks against. If propagation is interrupted mid-way, the log entry means the safety net can detect "partially propagated" resolutions and resume from where they left off.
+
+Append an initial resolution entry to `docs/context-library/constellation-log.jsonl`:
+
+```json
+{
+  "timestamp": "[ISO-8601]",
+  "session_id": "[uuid-v4]",
+  "agent": "george",
+  "task": {
+    "description": "Decision resolution: D[N] - [title]",
+    "target_type": "Decision",
+    "task_type": "resolution"
+  },
+  "resolution": {
+    "decision_id": "D[N]",
+    "issue_number": "[number]",
+    "chosen_option": "[option name]",
+    "rationale": "[brief]",
+    "propagation_map_present": null,
+    "library_cards_affected": [],
+    "issues_unblocked": [],
+    "issues_moved_to_ready": [],
+    "cascading_decisions_notified": [],
+    "scope_changes": {
+      "new_work": [],
+      "eliminated_work": []
+    },
+    "propagation_status": "started"
+  }
+}
+```
+
+The `"propagation_status": "started"` field distinguishes this anchor entry from a completed propagation. At Step 10, update the entry in-place (or append a completion entry) with the full propagation details and `"propagation_status": "complete"`.
+
+**Why this matters:** The safety net scan (Step 0) checks the log for resolution entries. Without this anchor, a partially-propagated decision looks identical to an unpropagated one. With it, the scan can distinguish "never started" from "started but incomplete" and resume accordingly.
+
 ### Step 2: Read the Propagation Map
 
 Check if the D-issue body has a `## Propagation Map` section.
@@ -99,7 +142,19 @@ For each issue in "Build Issues Unblocked" (from the Propagation Map or reconstr
    gh issue view <number> -R sociotechnica-org/lifebuild
    ```
 
-2. **Remove the decision from the "Blocked by" section.** Edit the issue body to remove the D[N] line from the blockers list.
+2. **Remove the blocker — two places:**
+
+   **a) Remove the native GitHub blocker relationship (source of truth):**
+   ```bash
+   # Get node IDs
+   ISSUE_ID=$(gh api repos/sociotechnica-org/lifebuild/issues/<number> --jq '.node_id')
+   BLOCKER_ID=$(gh api repos/sociotechnica-org/lifebuild/issues/<D-number> --jq '.node_id')
+
+   # Remove the relationship
+   gh api graphql -f query="mutation { removeBlockedBy(input: { issueId: \"$ISSUE_ID\", blockingIssueId: \"$BLOCKER_ID\" }) { issue { number } } }"
+   ```
+
+   **b) Strike through the prose in the "Blocked by" section:** Edit the issue body to strike through the D[N] line and add ✅ Closed with a brief resolution note. This keeps the human-readable history.
 
 3. **Add a decision context note** as a comment:
 
@@ -107,7 +162,13 @@ For each issue in "Build Issues Unblocked" (from the Propagation Map or reconstr
    gh issue comment <number> -R sociotechnica-org/lifebuild --body "> **D[N] resolved ([date]):** [one-sentence summary of chosen option and what it means for this build track]"
    ```
 
-4. **Check remaining blockers.** If the issue has no more items in its "Blocked by" section, move it from Blocked to Ready on the project board. Use the board field reference (`.claude/skills/george/board-fields.md`) for field IDs and commands:
+4. **Check remaining blockers.** Query native relationships to see if any active blockers remain:
+
+   ```bash
+   gh api graphql -f query='query { repository(owner: "sociotechnica-org", name: "lifebuild") { issue(number: <number>) { blockedBy(first: 10) { nodes { number title state } } } } }'
+   ```
+
+   If zero open blockers remain, move from Blocked to Ready on the project board. Use the board field reference (`.claude/skills/george/board-fields.md`) for field IDs and commands:
 
    ```bash
    # Get the project item ID
@@ -123,6 +184,21 @@ For each issue in "Build Issues Unblocked" (from the Propagation Map or reconstr
    **Always update both Status and Flow State together.** See board-fields.md for the full semantics.
 
 5. **Flag for context constellation assembly.** Any newly-Ready MAKE item needs its context constellation verified before building starts — the "incoming component quality verification" from the manufacturing checklist. Note this in the output.
+
+#### Adding blockers (when new blockers are discovered)
+
+When a new blocker is identified during propagation or triage:
+
+```bash
+# Get node IDs
+ISSUE_ID=$(gh api repos/sociotechnica-org/lifebuild/issues/<blocked-number> --jq '.node_id')
+BLOCKER_ID=$(gh api repos/sociotechnica-org/lifebuild/issues/<blocker-number> --jq '.node_id')
+
+# Add the relationship
+gh api graphql -f query="mutation { addBlockedBy(input: { issueId: \"$ISSUE_ID\", blockingIssueId: \"$BLOCKER_ID\" }) { issue { number } blockingIssue { number } } }"
+```
+
+Also add a prose entry in the issue body's "Blocked by" section for human context.
 
 ### Step 4: Notify cascading decisions (George executes directly)
 
@@ -219,14 +295,14 @@ Read the "Scope Changes" table from the Propagation Map for the chosen option.
 - Recommend closing the issue with a comment explaining why: `"Eliminated by D[N] resolution: [rationale]"`
 - Present for human confirmation before closing.
 
-### Step 10: Log provenance
+### Step 10: Finalize provenance
 
-Append a resolution entry to `docs/context-library/constellation-log.jsonl`:
+Update the anchor entry logged at Step 1.5 (or append a completion entry) with the full propagation details:
 
 ```json
 {
   "timestamp": "[ISO-8601]",
-  "session_id": "[uuid-v4]",
+  "session_id": "[same session_id as Step 1.5]",
   "agent": "george",
   "task": {
     "description": "Decision resolution: D[N] - [title]",
@@ -246,10 +322,13 @@ Append a resolution entry to `docs/context-library/constellation-log.jsonl`:
     "scope_changes": {
       "new_work": [],
       "eliminated_work": []
-    }
+    },
+    "propagation_status": "complete"
   }
 }
 ```
+
+**Note:** The anchor entry at Step 1.5 has `"propagation_status": "started"`. This final entry has `"propagation_status": "complete"`. The safety net scan (Step 0) uses this to distinguish unpropagated, partially propagated, and fully propagated decisions.
 
 ## Output Format
 
@@ -380,6 +459,6 @@ Some options open new questions. For example, "hybrid campfire" means someone mu
 
 - **Complete before fast.** Every card and issue in the Propagation Map gets addressed. Skipping one creates invisible drift that becomes a defect downstream.
 - **Exact text, not instructions.** The checklist gives copy-paste History entries and Implications rewrites. Conan and Sam execute, they don't interpret.
-- **Log everything.** The constellation-log entry creates an audit trail. When someone asks "why did this card change?" six weeks later, the answer is in the log.
+- **Log first, propagate second.** The constellation-log anchor entry (Step 1.5) is written before any downstream updates. This is the safety net's source of truth. A missing entry means "never started." A "started" entry means "check what's done." A "complete" entry means "fully propagated." When someone asks "why did this card change?" six weeks later, the answer is in the log.
 - **Don't pass ambiguity forward.** If you're not sure what was decided, ask. Five minutes of clarification beats propagating the wrong thing through the system.
 - **Board status is George's job.** Moving items to Done, Blocked → Ready — this is factory floor bookkeeping. George does it directly.

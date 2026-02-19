@@ -1,10 +1,57 @@
-# Board Field Reference — Project Board #4
+# Board Field Reference
 
-> **Project:** Release 1: The Campfire
+Two factory floor boards. Same field names, different IDs.
+
+---
+
+## New Item Intake — Required Protocol
+
+**Every issue added to a factory board MUST have all four fields set.** An item with no Station is invisible to the dashboard and sweep agents.
+
+### Required fields
+
+| Field | Required? | How to decide |
+|-------|-----------|---------------|
+| **Status** | Yes | `Todo` for new work, `In Progress` if starting now, `Blocked` if waiting on something |
+| **Station** | Yes | `DECIDE` = human decision needed, `PATCH` = library/docs update, `MAKE` = build work, `SHAPE` = prototyping/discovery |
+| **Flow State** | Yes | `Queued` for new items, `On the Line` if actively working, `Blocked (Andon)` if blocked |
+| **Takt** | Yes | `Danvers` = product/design, `Jess` = architecture, `AI` = agent-executable |
+
+### Intake steps
+
+```bash
+# 1. Create the issue
+gh issue create -R sociotechnica-org/lifebuild --title "Title" --body "Body"
+
+# 2. Add to the board
+gh project item-add <BOARD_NUMBER> --owner sociotechnica-org --url <issue-url>
+
+# 3. Get the item ID
+ITEM_ID=$(gh project item-list <BOARD_NUMBER> --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == ISSUE_NUMBER) | .id')
+
+# 4. Set ALL four fields (use IDs from the relevant board section below)
+gh project item-edit --project-id <PROJECT_ID> --id "$ITEM_ID" --field-id <STATUS_FIELD> --single-select-option-id <STATUS_OPTION>
+gh project item-edit --project-id <PROJECT_ID> --id "$ITEM_ID" --field-id <STATION_FIELD> --single-select-option-id <STATION_OPTION>
+gh project item-edit --project-id <PROJECT_ID> --id "$ITEM_ID" --field-id <FLOW_FIELD> --single-select-option-id <FLOW_OPTION>
+gh project item-edit --project-id <PROJECT_ID> --id "$ITEM_ID" --field-id <TAKT_FIELD> --single-select-option-id <TAKT_OPTION>
+
+# 5. Add native blocker relationships if blocked
+ISSUE_ID=$(gh api repos/sociotechnica-org/lifebuild/issues/<number> --jq '.node_id')
+BLOCKER_ID=$(gh api repos/sociotechnica-org/lifebuild/issues/<blocker-number> --jq '.node_id')
+gh api graphql -f query="mutation { addBlockedBy(input: { issueId: \"$ISSUE_ID\", blockingIssueId: \"$BLOCKER_ID\" }) { issue { number } blockingIssue { number } } }"
+```
+
+### Project-type issues (containers)
+
+Project issues are parents — they don't go through factory stations themselves. Set **Status** only (to track lifecycle). Leave Station, Flow State, and Takt unset. Sub-issues get the full treatment.
+
+---
+
+## Board #4 — Release 1: The Campfire
+
 > **Project ID:** `PVT_kwDOBzJqv84BPOmG`
 > **Board URL:** https://github.com/orgs/sociotechnica-org/projects/4
-
-## Field IDs and Option IDs
+> **Board number:** `4`
 
 ### Status (`PVTSSF_lADOBzJqv84BPOmGzg9sqAQ`)
 
@@ -130,4 +177,60 @@ Queued → On the Line → QC Gate → Review → Shipped
        Blocked (Andon) → (unblocked) ────────┤
                                               │
               Rework ─────────────────────────┘
+```
+
+---
+
+## Board #5 — Factory & Library
+
+> **Project ID:** `PVT_kwDOBzJqv84BPoAQ`
+> **Board URL:** https://github.com/orgs/sociotechnica-org/projects/5
+> **Board number:** `5`
+
+### Status (`PVTSSF_lADOBzJqv84BPoAQzg9-v94`)
+
+| Option        | ID         |
+|---------------|------------|
+| Todo          | `f75ad846` |
+| In Progress   | `47fc9ee4` |
+| In Review     | `bd9c404b` |
+| Done          | `98236657` |
+
+### Station (`PVTSSF_lADOBzJqv84BPoAQzg9-wAM`)
+
+| Option  | ID         |
+|---------|------------|
+| DECIDE  | `62fcc83e` |
+| PATCH   | `f57e88dc` |
+| MAKE    | `97efd016` |
+| SHAPE   | `cc9e8481` |
+
+### Flow State (`PVTSSF_lADOBzJqv84BPoAQzg9-wAk`)
+
+| Option          | ID         |
+|-----------------|------------|
+| Queued          | `e522186b` |
+| On the Line     | `f4850abf` |
+| Blocked (Andon) | `34dee8be` |
+| QC Gate         | `c9cae6f8` |
+| Review          | `edd1c28e` |
+| Rework          | `4e942b0e` |
+| Shipped         | `26e01b14` |
+
+### Takt (`PVTSSF_lADOBzJqv84BPoAQzg9-wBQ`)
+
+| Option  | ID         |
+|---------|------------|
+| Danvers | `67735a1f` |
+| Jess    | `a2de3100` |
+| AI      | `1383234f` |
+
+### Board #5 Command Templates
+
+```bash
+# Look up item ID
+ITEM_ID=$(gh project item-list 5 --owner sociotechnica-org --format json | jq -r '.items[] | select(.content.number == ISSUE_NUMBER) | .id')
+
+# Set a field
+gh project item-edit --project-id PVT_kwDOBzJqv84BPoAQ --id "$ITEM_ID" --field-id FIELD_ID --single-select-option-id OPTION_ID
 ```

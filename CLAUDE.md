@@ -302,7 +302,8 @@ gh project item-edit --project-id <PROJECT_ID> --id <ITEM_ID> --field-id <STATUS
 
 - **Parent Issues**: Only use the "Parent issue" feature for issues with type "Project". Never set a parent issue on regular issues. Only ONE level of sub-issues - sub-issues should not have their own sub-issues.
 - **Sub-issues**: Use the REST API to link issues as sub-issues to Project-type issues. For smaller sub-tasks within an issue, use markdown checklists instead of creating separate issues.
-- **Adding to Projects**: Use `gh project item-add <project-number> --owner sociotechnica-org --url <issue-url>`
+- **Adding to Projects**: Use `gh project item-add <project-number> --owner sociotechnica-org --url <issue-url>`. **IMPORTANT:** After adding, you MUST set all four board fields (Status, Station, Flow State, Takt). Items with missing fields are invisible to dashboard and sweep agents. See `.claude/skills/george/board-fields.md` for the full intake protocol, field IDs, and option IDs for each board.
+- **Blocker tracking**: Use GitHub native `blockedBy`/`blocking` relationships as the source of truth. Also maintain prose "Blocked by" sections in issue bodies for human context. See `.claude/skills/george/board-fields.md` for API commands.
 
 ### Common Workflows
 
