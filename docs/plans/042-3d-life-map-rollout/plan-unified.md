@@ -303,34 +303,19 @@ packages/web/src/components/layout/NewUiShell.tsx (if shell hooks needed)
 ## Sequencing
 
 ```
-PR1: Three.js Hex Grid Shell ──────────────────────┐
-  (visual foundation, no data)                      │
-                                                    │
-PR2: LiveStore Hex Events + Project Tiles ──────────┤
-  (projects on the grid, click navigation)          │
-                                                    │
-PR3: Hex Placement UX ─────────────────────────────┤
-  (builder places projects manually)                │
-                                                    ├── PR4: Visual Treatments
-PR4-6 can partially parallelize after PR3 ─────────┤      (state indicators)
-                                                    │
-                                                    ├── PR5: Parchment Shader
-                                                    │      (aesthetic polish)
-                                                    │
-                                                    ├── PR6: Landmarks
-                                                    │      (sanctuary + campfire)
-                                                    │
-PR7: Table Overlay ─────────────────────────────────┤
-  (depends on PR3 for map stability)                │
-                                                    │
-PR8: Navigation, Routing, Hardening ────────────────┘
-  (final integration, cleanup, analytics)
+Sequential:  PR1 → PR2 → PR3
+                              ╲
+Parallel after PR3:            ├── PR4: Visual Treatments
+                               ├── PR5: Parchment Shader
+                               ├── PR6: Landmarks
+                               ├── PR7: Table Overlay
+                              ╱
+Final:                    PR8: Hardening
 ```
 
-PRs 1-3 are strictly sequential.
-PRs 4, 5, 6 can parallelize after PR3.
-PR7 can start after PR3 (independent of 4-6).
-PR8 is the final integration pass after all others land.
+- **PRs 1 → 2 → 3** are strictly sequential (each builds on the last)
+- **PRs 4, 5, 6, 7** can all run in parallel after PR3 lands — they touch different files and have no dependencies on each other
+- **PR8** is the final integration pass after all others land
 
 ---
 

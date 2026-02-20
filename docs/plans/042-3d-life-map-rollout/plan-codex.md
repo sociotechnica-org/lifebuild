@@ -1,3 +1,5 @@
+> **Superseded by [plan-unified.md](./plan-unified.md).** This draft is kept for reference only.
+
 # 042: 3D Life Map Rollout Plan (Orthographic Hex Map)
 
 ## Goal
