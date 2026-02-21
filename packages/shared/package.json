@@ -41,6 +41,11 @@
       "require": "./dist/types.js",
       "default": "./dist/types.js"
     },
+    "./hex": {
+      "import": "./src/hex/index.ts",
+      "require": "./dist/hex/index.js",
+      "default": "./dist/hex/index.js"
+    },
     "./auth": {
       "import": "./src/auth/index.ts",
       "require": "./dist/auth/index.js",
