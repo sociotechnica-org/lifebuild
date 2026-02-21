@@ -40,34 +40,35 @@ This plan covers the hex grid portion of Release 1 ("The Campfire"): grid render
 
 Hex positions stored in a **separate `hex_positions` table** (not columns on `projects`), because the map will eventually hold more than just projects (systems, landmarks, etc.).
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | text (PK) | Position ID |
-| `hexQ` | integer | Cube coordinate q |
-| `hexR` | integer | Cube coordinate r |
-| `entityType` | text | `'project'` for now, extensible |
-| `entityId` | text | Foreign key to the entity |
-| `placedAt` | integer | Timestamp |
+| Column       | Type      | Notes                           |
+| ------------ | --------- | ------------------------------- |
+| `id`         | text (PK) | Position ID                     |
+| `hexQ`       | integer   | Cube coordinate q               |
+| `hexR`       | integer   | Cube coordinate r               |
+| `entityType` | text      | `'project'` for now, extensible |
+| `entityId`   | text      | Foreign key to the entity       |
+| `placedAt`   | integer   | Timestamp                       |
 
 Unique constraint on `(hexQ, hexR)` — one entity per hex.
 
 ### State Boundary: React Context vs LiveStore
 
-| State | Store | Why |
-|-------|-------|-----|
-| Hex positions (q, r) per entity | LiveStore | Persistent, syncs across devices |
-| Shader random seed per user | LiveStore | Consistent across loads |
-| Camera position/zoom | React context | Ephemeral, per-session |
-| Hover state | React context | Ephemeral, per-frame |
-| Selected hex | React context | Ephemeral, UI state |
-| Placement mode | React context | Ephemeral, interaction state |
-| Shader parameters | Hardcoded | Not user-configurable |
+| State                           | Store         | Why                              |
+| ------------------------------- | ------------- | -------------------------------- |
+| Hex positions (q, r) per entity | LiveStore     | Persistent, syncs across devices |
+| Shader random seed per user     | LiveStore     | Consistent across loads          |
+| Camera position/zoom            | React context | Ephemeral, per-session           |
+| Hover state                     | React context | Ephemeral, per-frame             |
+| Selected hex                    | React context | Ephemeral, UI state              |
+| Placement mode                  | React context | Ephemeral, interaction state     |
+| Shader parameters               | Hardcoded     | Not user-configurable            |
 
 Start with React context for ephemeral 3D state (shared between DOM and R3F scene graph via `<Canvas>` context forwarding). Reach for Zustand only if the cross-tree state sharing becomes unwieldy.
 
 ### Text Rendering: HTML Overlays
 
 Use `@react-three/drei`'s `<Html>` component for project name labels on hex tiles:
+
 - Much cheaper than 3D text geometry
 - CSS styling for free
 - Playwright-targetable DOM elements for E2E testing
@@ -81,12 +82,12 @@ Use `@react-three/drei`'s `<Html>` component for project name labels on hex tile
 
 ### Where Code Lives
 
-| Code | Location | Rationale |
-|------|----------|-----------|
-| Hex math utilities | `packages/shared/src/hex/` | Shared between web and potential server use |
-| LiveStore events + materializer | `packages/shared/src/livestore/` | Existing pattern |
-| React Three Fiber components | `packages/web/src/components/hex-map/` | Web-only rendering, distinct from card-based life-map |
-| React contexts (camera, interaction) | `packages/web/src/components/hex-map/` | Ephemeral 3D state, co-located |
+| Code                                 | Location                               | Rationale                                             |
+| ------------------------------------ | -------------------------------------- | ----------------------------------------------------- |
+| Hex math utilities                   | `packages/shared/src/hex/`             | Shared between web and potential server use           |
+| LiveStore events + materializer      | `packages/shared/src/livestore/`       | Existing pattern                                      |
+| React Three Fiber components         | `packages/web/src/components/hex-map/` | Web-only rendering, distinct from card-based life-map |
+| React contexts (camera, interaction) | `packages/web/src/components/hex-map/` | Ephemeral 3D state, co-located                        |
 
 ---
 
@@ -97,6 +98,7 @@ Use `@react-three/drei`'s `<Html>` component for project name labels on hex tile
 **Goal:** A 3D hex grid renders in the app. No project data yet. Just the visual canvas replacing the category cards on desktop.
 
 **What ships:**
+
 - Add `three`, `@react-three/fiber`, `@react-three/drei` to `packages/web`
 - Port hex math utilities from prototype to `packages/shared/src/hex/` (types, math, grid generation)
 - Create `packages/web/src/components/hex-map/HexMap.tsx` — the new top-level component
@@ -115,6 +117,7 @@ Use `@react-three/drei`'s `<Html>` component for project name labels on hex tile
 - **Storybook stories** for HexMap component (Canvas wrapper)
 
 **Key files created:**
+
 ```
 packages/shared/src/hex/types.ts
 packages/shared/src/hex/math.ts
@@ -134,6 +137,7 @@ packages/web/src/components/hex-map/CameraRig.tsx
 **Goal:** Projects appear as hex tiles on the grid. Clicking a hex navigates to the project. Unplaced projects are visible.
 
 **What ships:**
+
 - New LiveStore event: `hexPosition.placed { id, hexQ, hexR, entityType, entityId, actorId, placedAt }`
 - New LiveStore event: `hexPosition.removed { id, actorId, removedAt }`
 - New `hex_positions` table with materializer (unique constraint on `(hexQ, hexR)`)
@@ -151,6 +155,7 @@ packages/web/src/components/hex-map/CameraRig.tsx
 - Storybook stories for HexTile, UnplacedPanel (empty, with projects, long titles)
 
 **Key files created/modified:**
+
 ```
 packages/shared/src/livestore/events.ts          (add hex position events)
 packages/shared/src/livestore/schema.ts           (add hex_positions table)
@@ -166,6 +171,7 @@ packages/web/src/components/hex-map/UnplacedPanel.tsx
 **Goal:** Builder can place unplaced projects onto empty hexes. Manual, no suggestions, no auto-place (D1).
 
 **What ships:**
+
 - **Click-click placement**: Builder clicks a project in the unplaced panel → enters placement mode → clicks empty hex to place
 - **Visual feedback**: Empty hexes highlight (subtle glow/outline) to show they're available during placement mode
 - Selected project name shown as floating label near cursor / on hover
@@ -178,6 +184,7 @@ packages/web/src/components/hex-map/UnplacedPanel.tsx
   - Note: This needs to dovetail with the eventual Jarvis campfire/walk onboarding — keep it simple and replaceable
 
 **Key files created/modified:**
+
 ```
 packages/web/src/components/hex-map/PlacementContext.tsx
 packages/web/src/components/hex-map/HexMap.tsx    (placement mode integration)
@@ -192,6 +199,7 @@ packages/web/src/components/hex-map/UnplacedPanel.tsx (project selection + remov
 **Goal:** Hex tiles visually communicate project state (planning/active/completed, Work at Hand) through color, saturation, and effects.
 
 **What ships:**
+
 - **Category-colored hex borders**: Top-face edge ring in category color (from `PROJECT_CATEGORIES[].colorHex`)
 - **State-based saturation** (from Standard - Project States):
   - Planning: 60% saturation, muted
@@ -203,6 +211,7 @@ packages/web/src/components/hex-map/UnplacedPanel.tsx (project selection + remov
 - Update HexTile to read lifecycle state and table status
 
 **Key files modified:**
+
 ```
 packages/web/src/components/hex-map/HexTile.tsx
 packages/web/src/components/hex-map/HexCell.tsx
@@ -215,6 +224,7 @@ packages/web/src/components/hex-map/HexCell.tsx
 **Goal:** The hex grid looks and feels like a hand-drawn parchment map. Warm, organic, inviting.
 
 **What ships:**
+
 - Port parchment shader from prototype to web package
 - Apply shader parameters provided by Jess (specific values TBD — will be supplied)
 - **Per-user random seed**: Saved in LiveStore so the shader noise pattern is consistent across loads for each user
@@ -226,6 +236,7 @@ packages/web/src/components/hex-map/HexCell.tsx
 - Performance target: 60fps on a 2020 MacBook Air
 
 **Key files created/modified:**
+
 ```
 packages/web/src/components/hex-map/shaders/parchmentShader.ts
 packages/web/src/components/hex-map/HexCell.tsx (shader material swap)
@@ -239,6 +250,7 @@ packages/web/src/components/hex-map/BackgroundPlane.tsx
 **Goal:** The sanctuary and campfire render as distinct structures on the grid.
 
 **What ships:**
+
 - **Sanctuary** occupies 3 hexes: `(0, 0)`, `(0, -1)`, `(1, -1)` — compact triangle cluster at grid center
   - Distinct visual treatment — warm, "home" feeling, not a regular hex tile
   - **Visually merged geometry** — try connected/merged look, flag PR for visual review
@@ -252,6 +264,7 @@ packages/web/src/components/hex-map/BackgroundPlane.tsx
 - Reserve sanctuary + campfire hex coordinates in the `hex_positions` table as `entityType: 'landmark'`
 
 **Key files created:**
+
 ```
 packages/web/src/components/hex-map/Sanctuary.tsx
 packages/web/src/components/hex-map/Campfire.tsx
@@ -266,6 +279,7 @@ packages/web/src/components/hex-map/Campfire.tsx
 **Goal:** The Table renders cleanly as an overlay on the map view, maintaining the dual-presence pattern (same project visible on both hex tile and Table).
 
 **What ships:**
+
 - Table renders as overlay layer above the map scene
 - Ensure chat panel, Table, and map input layering are stable
 - Responsive behavior — Table doesn't block map interaction when collapsed
@@ -273,6 +287,7 @@ packages/web/src/components/hex-map/Campfire.tsx
 - Verify dual-presence rendering: Work at Hand projects show on both hex tile (with glow) and Table simultaneously
 
 **Key files modified:**
+
 ```
 packages/web/src/components/hex-map/HexMap.tsx (overlay integration)
 packages/web/src/components/layout/NewUiShell.tsx (if shell hooks needed)
@@ -285,6 +300,7 @@ packages/web/src/components/layout/NewUiShell.tsx (if shell hooks needed)
 **Goal:** The hex map is fully integrated as the default app view. Clean transitions, proper routing, mobile fallback finalized. Production-ready.
 
 **What ships:**
+
 - Map as default route (already wired in PR1, but polish here)
 - Remove list/map toggle — map is the default
 - Loading state while hex data loads
@@ -323,15 +339,15 @@ Final:                    PR8: Hardening
 
 Each PR should include stories. Stories wrap components in both `<LiveStoreProvider>` (with boot functions creating test data) and Three.js `<Canvas>`. May need a shared decorator/wrapper.
 
-| PR | Stories |
-|----|---------|
-| PR1 | HexMap (empty grid), HexCell (hover states) |
+| PR  | Stories                                                            |
+| --- | ------------------------------------------------------------------ |
+| PR1 | HexMap (empty grid), HexCell (hover states)                        |
 | PR2 | HexTile (with project data), UnplacedPanel (with/without projects) |
-| PR3 | Placement mode (visual feedback states) |
-| PR4 | State treatments (planning/active/WaH/completed side-by-side) |
-| PR5 | Shader aesthetics (before/after) |
-| PR6 | Sanctuary, Campfire (visual review) |
-| PR7 | Table overlay + map (chat open/closed) |
+| PR3 | Placement mode (visual feedback states)                            |
+| PR4 | State treatments (planning/active/WaH/completed side-by-side)      |
+| PR5 | Shader aesthetics (before/after)                                   |
+| PR6 | Sanctuary, Campfire (visual review)                                |
+| PR7 | Table overlay + map (chat open/closed)                             |
 
 ---
 

@@ -56,6 +56,7 @@ Core system. Progression develops as Service Level mechanics mature.
 The system tracks engagement metrics defined in [[Standard - Service Levels]] and fires transition events when thresholds are crossed. Thresholds are specified in the Standard, not here — this System implements the transition mechanism.
 
 When engagement data indicates threshold crossing:
+
 1. Transition event fires
 2. Current level state updates
 3. New capabilities become available
@@ -68,6 +69,7 @@ When a level transition fires, Jarvis announces the progression in Council Chamb
 **Agent quality scaling:**
 
 Higher levels unlock better agent performance:
+
 - Better recommendations (personalized vs. generic)
 - Deeper pattern recognition (behavioral insights vs. simple priority math)
 - Predictive guidance (anticipating needs vs. reactive responses)

@@ -25,11 +25,11 @@ Both plans are strongly aligned on fundamentals:
 
 ### 1. Data Model: Separate Table vs Columns on Projects
 
-| | Opus | Codex |
-|---|---|---|
-| **Approach** | Separate `hex_positions` table with `entityType` + `entityId` | `hexQ`/`hexR` nullable columns on `projects` table |
-| **Events** | `hexPosition.placed`, `hexPosition.removed` | `v4.ProjectHexPlaced` (implied columns on projects) |
-| **Rationale** | Extensible for future entity types (systems, landmarks) | Simpler, fewer joins |
+|               | Opus                                                          | Codex                                               |
+| ------------- | ------------------------------------------------------------- | --------------------------------------------------- |
+| **Approach**  | Separate `hex_positions` table with `entityType` + `entityId` | `hexQ`/`hexR` nullable columns on `projects` table  |
+| **Events**    | `hexPosition.placed`, `hexPosition.removed`                   | `v4.ProjectHexPlaced` (implied columns on projects) |
+| **Rationale** | Extensible for future entity types (systems, landmarks)       | Simpler, fewer joins                                |
 
 **Analysis:** Opus's separate table is more forward-looking — the context library mentions System tiles (deferred to R2) and other entity types. However, for R1 scope (projects only), Codex's approach is simpler. The context briefing suggests `project.hexPlaced { projectId, q, r }` which is closer to Codex's model but could work with either storage approach.
 
@@ -39,10 +39,10 @@ Both plans are strongly aligned on fundamentals:
 
 ### 2. Code Location
 
-| | Opus | Codex |
-|---|---|---|
+|                   | Opus                                                   | Codex                                                              |
+| ----------------- | ------------------------------------------------------ | ------------------------------------------------------------------ |
 | **3D components** | `packages/web/src/components/hex-map/` (new directory) | `packages/web/src/components/life-map/three/` (nested in existing) |
-| **Hex math** | `packages/shared/src/hex/` | Not explicitly specified |
+| **Hex math**      | `packages/shared/src/hex/`                             | Not explicitly specified                                           |
 
 **Analysis:** Opus creates a clean new namespace (`hex-map/`), Codex nests inside existing `life-map/`. Since the hex map IS the life map on desktop, Codex's nesting makes conceptual sense — but Opus's separation is cleaner for code organization since the 3D code is a fundamentally different rendering paradigm.
 
@@ -52,15 +52,15 @@ Both plans are strongly aligned on fundamentals:
 
 ### 3. PR Structure
 
-| PR# | Opus | Codex |
-|-----|------|-------|
-| 1 | Three.js Hex Grid Shell | Map Foundation (similar) |
-| 2 | LiveStore Events + Project Tiles | Hex Data + Tiles (similar) |
-| 3 | Hex Placement UX | Project Placement (similar) |
-| 4 | Visual Treatments + State Indicators | **Table Overlay** |
-| 5 | Parchment Shader + Aesthetic Polish | **Landmarks (Sanctuary/Campfire)** |
-| 6 | Sanctuary Structure | **Campfire Walk Hooks** |
-| 7 | Navigation, Routing, Polish | Hardening |
+| PR# | Opus                                 | Codex                              |
+| --- | ------------------------------------ | ---------------------------------- |
+| 1   | Three.js Hex Grid Shell              | Map Foundation (similar)           |
+| 2   | LiveStore Events + Project Tiles     | Hex Data + Tiles (similar)         |
+| 3   | Hex Placement UX                     | Project Placement (similar)        |
+| 4   | Visual Treatments + State Indicators | **Table Overlay**                  |
+| 5   | Parchment Shader + Aesthetic Polish  | **Landmarks (Sanctuary/Campfire)** |
+| 6   | Sanctuary Structure                  | **Campfire Walk Hooks**            |
+| 7   | Navigation, Routing, Polish          | Hardening                          |
 
 **Analysis:** PRs 1-3 are essentially identical. The divergence is in PRs 4-7:
 
@@ -70,6 +70,7 @@ Both plans are strongly aligned on fundamentals:
 - Campfire walk transitions are part of the release vision but may be out of scope per Opus's stated exclusions
 
 **Recommendation:** Merge the best of both:
+
 - Keep Opus's visual treatment separation (state indicators + shader are genuinely independent)
 - Add Codex's Table Overlay PR (it's in the acceptance criteria)
 - Combine sanctuary + campfire into one landmarks PR
@@ -79,10 +80,10 @@ Both plans are strongly aligned on fundamentals:
 
 ### 4. Feature Flag / Toggle Strategy
 
-| | Opus | Codex |
-|---|---|---|
-| **Approach** | List/Map toggle in nav for desktop users | `VITE_LIFE_MAP_3D_ENABLED` feature flag |
-| **Rationale** | User choice | Safe staged rollout |
+|               | Opus                                     | Codex                                   |
+| ------------- | ---------------------------------------- | --------------------------------------- |
+| **Approach**  | List/Map toggle in nav for desktop users | `VITE_LIFE_MAP_3D_ENABLED` feature flag |
+| **Rationale** | User choice                              | Safe staged rollout                     |
 
 **Analysis:** These aren't mutually exclusive. A feature flag controls rollout; a toggle gives users the option once it's enabled. But the context briefing says "Map as default route" and the strategy warns against "defaulting to list or feed views." A permanent toggle risks undermining the spatial-first bet.
 
@@ -92,10 +93,10 @@ Both plans are strongly aligned on fundamentals:
 
 ### 5. Archived/Completed Project Handling
 
-| | Opus | Codex |
-|---|---|---|
-| **Archived** | Hex position removed (freed for reuse) | "Preserve current access in side panel or drawer" |
-| **Completed** | Greyed-out decorative tile (not clickable), keeps position | Not explicitly addressed |
+|               | Opus                                                       | Codex                                             |
+| ------------- | ---------------------------------------------------------- | ------------------------------------------------- |
+| **Archived**  | Hex position removed (freed for reuse)                     | "Preserve current access in side panel or drawer" |
+| **Completed** | Greyed-out decorative tile (not clickable), keeps position | Not explicitly addressed                          |
 
 **Analysis:** Opus is more specific. The context briefing says completed projects get "Greyed, archived indicator" treatment. Opus's approach (completed keeps position, archived frees it) makes spatial sense — completed work is still part of the map's history.
 
@@ -105,14 +106,14 @@ Both plans are strongly aligned on fundamentals:
 
 ### 6. Scope Boundaries
 
-| Topic | Opus | Codex |
-|-------|------|-------|
-| Table Overlay | Not mentioned | Dedicated PR |
-| Campfire Walk | Explicitly excluded | Dedicated PR |
-| WebGL Fallback | Not mentioned | Fallback to card view |
-| PostHog Analytics | In final PR | In hardening PR |
-| Shader Details | Dedicated PR with specifics | Not explicitly addressed |
-| First-time UX | Simple prompt in placement PR | "Support first-time migration of existing projects" |
+| Topic             | Opus                          | Codex                                               |
+| ----------------- | ----------------------------- | --------------------------------------------------- |
+| Table Overlay     | Not mentioned                 | Dedicated PR                                        |
+| Campfire Walk     | Explicitly excluded           | Dedicated PR                                        |
+| WebGL Fallback    | Not mentioned                 | Fallback to card view                               |
+| PostHog Analytics | In final PR                   | In hardening PR                                     |
+| Shader Details    | Dedicated PR with specifics   | Not explicitly addressed                            |
+| First-time UX     | Simple prompt in placement PR | "Support first-time migration of existing projects" |
 
 **Recommendation:** Include Table Overlay (it's in acceptance criteria). Exclude campfire walk (depends on onboarding design decisions not yet made). Include WebGL fallback (Codex's pragmatism). Include analytics in final PR. Include shader work. Address first-time migration in placement PR.
 

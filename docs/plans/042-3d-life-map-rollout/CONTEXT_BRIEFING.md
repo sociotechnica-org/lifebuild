@@ -9,6 +9,7 @@
 **Task type:** Feature -- new implementation (nothing exists in the codebase)
 
 **Constraints:**
+
 - R1 scope only -- fixed ~30-40 position SVG grid, NOT infinite canvas
 - Builder-driven manual placement from day one (D1 resolved) -- no algorithmic auto-placement
 - One project per hex (D3 resolved) -- hex position is a unique constraint
@@ -22,6 +23,7 @@
 - Desktop-first; mobile falls back to existing card view
 
 **Acceptance criteria:**
+
 - SVG hex grid renders with sanctuary at center, campfire at edge
 - Projects appear as hex tiles with category-colored borders
 - Clicking a hex opens `/projects/:id`
@@ -66,12 +68,14 @@ The spatial organization canvas that fills most of the Life Map -- a tessellated
 **Reality note (2026-02-17):** No hex grid exists in the codebase. The Life Map currently renders 8 `CategoryCard` components in a flat layout. Key decisions resolved: manual builder placement (D1), one project per hex with sanctuary as 3-tile exception (D3).
 
 **History:**
+
 - D3 (2026-02-17): One project per hex. Sanctuary is a 3-tile exception. Hex position is a unique constraint.
 - D1 (2026-02-17): Manual -- builder places from day one. No algorithmic category zone layout.
 
 #### HOW: Implementation
 
 **Grid behavior (full vision -- scope to R1 below):**
+
 - Infinite canvas (R1: fixed ~30-40 positions)
 - Builders drag tiles to arrange (R1: placement only, no rearrange)
 - Adjacent tiles form visual clusters (R1: deferred)
@@ -84,6 +88,7 @@ The spatial organization canvas that fills most of the Life Map -- a tessellated
 **Zoom interaction:** Deferred to R2. R1 uses a single zoom level.
 
 **Anti-patterns:**
+
 - Auto-arranging hex tiles into a neat category grid -- spatial arrangement must reflect the builder's thinking
 - Snap-to-grid behavior that forces tiles into rigid positions
 
@@ -116,22 +121,26 @@ An individual hexagonal tile representing a single project or system. Displays i
 #### HOW: Implementation
 
 **Tile contents (R1 scope):**
+
 - Project title (truncated if long)
 - Category color border
 - Simple state indicator (planning/active/completed)
 
 **Tile contents (deferred):**
+
 - Project illustration (requires image generation pipeline)
 - Progress ring (% complete) -- may include in R1 if simple
 - Health indicator for systems
 
 **State treatments (R1 simplified):**
+
 - Planning: Lower saturation (~60%)
 - Live: Full color, active
 - Work at Hand: Enhanced glow, stream accent
 - Completed: Greyed, archived indicator
 
 **Interactions:**
+
 - Click -> opens `/projects/:id` (Project Board)
 - Placement via tap/drag on empty hex
 
@@ -151,19 +160,20 @@ Eight default life-domain categories organizing all builder work. Every project 
 #### HOW: Key Specification (for hex implementation)
 
 | LifeBuild Default | Color (from Standard - Visual Language) |
-| --- | --- |
-| Health | Vibrant green |
-| Relationships | Warm pink/rose |
-| Finances | Gold/amber |
-| Learning | Teal |
-| Leisure | Sky blue |
-| Purpose | Deep purple/indigo |
-| Home | Earthy brown/terracotta |
-| Service | Orange |
+| ----------------- | --------------------------------------- |
+| Health            | Vibrant green                           |
+| Relationships     | Warm pink/rose                          |
+| Finances          | Gold/amber                              |
+| Learning          | Teal                                    |
+| Leisure           | Sky blue                                |
+| Purpose           | Deep purple/indigo                      |
+| Home              | Earthy brown/terracotta                 |
+| Service           | Orange                                  |
 
 **Implementation note:** Category colors are already implemented in `constants.ts`. Hex tiles should use the existing color constants for border rendering.
 
 **Rules:**
+
 - Every project requires exactly one Life Category
 - Category assignment is builder-driven (subjective), not algorithmic
 - Colors are tied to category slots, not labels (renaming a category does not change its color)
@@ -195,12 +205,12 @@ A discrete initiative with a finish line -- bounded work that completes and move
 
 **Lifecycle States relevant to hex rendering:**
 
-| State | Hex Visual Treatment |
-| --- | --- |
-| Planning | ~60% saturation, no glow |
-| Live | Full saturation, standard |
+| State        | Hex Visual Treatment                   |
+| ------------ | -------------------------------------- |
+| Planning     | ~60% saturation, no glow               |
+| Live         | Full saturation, standard              |
 | Work at Hand | Full saturation + glow + stream accent |
-| Completed | Greyed, archived |
+| Completed    | Greyed, archived                       |
 
 ---
 
@@ -221,17 +231,18 @@ Research: the brain's spatial processing and memory systems share neural infrast
 
 #### HOW: Maturity Ladder
 
-| Level | Name | Current State |
-| --- | --- | --- |
-| 0 | Status Quo | Lists, databases |
-| 1 | Minimally Viable | Kanban + backlogs (current) |
+| Level | Name                     | Current State                   |
+| ----- | ------------------------ | ------------------------------- |
+| 0     | Status Quo               | Lists, databases                |
+| 1     | Minimally Viable         | Kanban + backlogs (current)     |
 | **2** | **Placed & Illustrated** | **Hexmap Life Map (R1 target)** |
-| 3 | Immersive & Navigable | Game engine (future) |
-| 4 | Hybrid Physical/Digital | AR (far future) |
+| 3     | Immersive & Navigable    | Game engine (future)            |
+| 4     | Hybrid Physical/Digital  | AR (far future)                 |
 
 **Decision heuristic:** When choosing between abstract and spatial/visual representation, always choose spatial.
 
 **Anti-patterns:**
+
 - Defaulting to list or feed views
 - Hiding work behind menus or hover states
 - Flat spatial layout without zoom levels (acceptable for R1 given scope constraints)
@@ -251,27 +262,29 @@ Builder places their own projects. System never auto-organizes. Rearrangement is
 
 **Builder Agency Rules:**
 
-| Rule | Requirement |
-| --- | --- |
-| Placement | Builders place their own projects. System does not assign locations. |
-| Rearrangement | Drag-and-drop. No confirmation dialogs. (R2) |
-| Clustering | Adjacent hexes carry builder-assigned meaning. System observes but doesn't impose. |
-| Persistence | Spatial arrangement persists exactly as builder left it. |
+| Rule          | Requirement                                                                        |
+| ------------- | ---------------------------------------------------------------------------------- |
+| Placement     | Builders place their own projects. System does not assign locations.               |
+| Rearrangement | Drag-and-drop. No confirmation dialogs. (R2)                                       |
+| Clustering    | Adjacent hexes carry builder-assigned meaning. System observes but doesn't impose. |
+| Persistence   | Spatial arrangement persists exactly as builder left it.                           |
 
 **Interaction Requirements:**
 
-| Interaction | Spec |
-| --- | --- |
-| Place a project | Single drag-and-drop action |
-| Suggested locations | Prohibited -- no auto-place |
-| "Optimize layout" | Prohibited -- no system rearrangement |
+| Interaction         | Spec                                  |
+| ------------------- | ------------------------------------- |
+| Place a project     | Single drag-and-drop action           |
+| Suggested locations | Prohibited -- no auto-place           |
+| "Optimize layout"   | Prohibited -- no system rearrangement |
 
 **Anti-patterns:**
+
 - System auto-organizing hex grid by category
 - Confirmation dialog when moving a project
 - "Optimize layout" feature
 
 **Conformance test:**
+
 1. Create a project and place it -- verify no suggested location or auto-place prompt appears
 2. Review all AI interactions -- agents only observe, never suggest moves
 
@@ -279,17 +292,17 @@ Builder places their own projects. System never auto-organizes. Rearrangement is
 
 ## Supporting Cards (summaries)
 
-| Card | Type | Key Insight |
-| --- | --- | --- |
-| Zone - Life Map | Zone | The hex grid lives directly in Life Map (not nested in a Room). Life Map is the primary workspace and default route. Map-first architecture confirmed. |
-| Component - Campfire | Component | Temporary onboarding moment at edge of grid. Fades after builder walks to sanctuary. First-run only. Off to the side, NOT at center. |
-| Standard - Dual Presence | Standard | Work at Hand projects appear both on hex tile AND on The Table. Same object rendered twice, not two synced objects. Both views update simultaneously. |
-| Standard - Visual Language | Standard | Category colors, stream accents (Gold/Silver/Bronze), state indicators (saturation levels), entity markers (progress rings for projects, health dots for systems). Already partially implemented in `constants.ts`. |
-| Standard - Project States | Standard | Six states (Planning, Planned, Live, Work at Hand, Paused, Completed) with distinct visual treatments. Work at Hand = full saturation + glow. Planned = 70%. Paused = 50%. |
-| Principle - Visual Recognition | Principle | Two-second test: builder must identify a tile in under 2 seconds at glance distance. Content-depicting illustrations (deferred for R1), but category colors and title must suffice initially. |
-| Principle - Bidirectional Loop | Principle | External representation and internal understanding strengthen each other. Builder placement reveals mental models. Justifies manual placement (no auto-organization). |
-| Principle - Visibility Creates Agency | Principle | Builders can't control what they can't see. Default to showing, not hiding. Filters opt-in, not opt-out. Everything has a persistent, visible place. |
-| Principle - Familiarity Over Function | Principle | Builders classify by feeling, not objective criteria. Categories feel immediately recognizable. Spatial metaphor should feel natural. |
+| Card                                  | Type      | Key Insight                                                                                                                                                                                                         |
+| ------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Zone - Life Map                       | Zone      | The hex grid lives directly in Life Map (not nested in a Room). Life Map is the primary workspace and default route. Map-first architecture confirmed.                                                              |
+| Component - Campfire                  | Component | Temporary onboarding moment at edge of grid. Fades after builder walks to sanctuary. First-run only. Off to the side, NOT at center.                                                                                |
+| Standard - Dual Presence              | Standard  | Work at Hand projects appear both on hex tile AND on The Table. Same object rendered twice, not two synced objects. Both views update simultaneously.                                                               |
+| Standard - Visual Language            | Standard  | Category colors, stream accents (Gold/Silver/Bronze), state indicators (saturation levels), entity markers (progress rings for projects, health dots for systems). Already partially implemented in `constants.ts`. |
+| Standard - Project States             | Standard  | Six states (Planning, Planned, Live, Work at Hand, Paused, Completed) with distinct visual treatments. Work at Hand = full saturation + glow. Planned = 70%. Paused = 50%.                                          |
+| Principle - Visual Recognition        | Principle | Two-second test: builder must identify a tile in under 2 seconds at glance distance. Content-depicting illustrations (deferred for R1), but category colors and title must suffice initially.                       |
+| Principle - Bidirectional Loop        | Principle | External representation and internal understanding strengthen each other. Builder placement reveals mental models. Justifies manual placement (no auto-organization).                                               |
+| Principle - Visibility Creates Agency | Principle | Builders can't control what they can't see. Default to showing, not hiding. Filters opt-in, not opt-out. Everything has a persistent, visible place.                                                                |
+| Principle - Familiarity Over Function | Principle | Builders classify by feeling, not objective criteria. Categories feel immediately recognizable. Spatial metaphor should feel natural.                                                                               |
 
 ---
 
@@ -321,6 +334,7 @@ Builder places their own projects. System never auto-organizes. Rearrangement is
 
 **Chosen:** Builder places projects manually. No algorithmic category zone layout.
 **Impact on implementation:**
+
 - Must build placement UX (tap/drag to place on empty hex)
 - Must build placement validation (no two projects on same hex)
 - No need for auto-placement algorithm
@@ -331,6 +345,7 @@ Builder places their own projects. System never auto-organizes. Rearrangement is
 
 **Chosen:** One project per hex. Sanctuary is a 3-tile exception.
 **Impact on implementation:**
+
 - Hex position (q, r) is a unique constraint on projects
 - LiveStore event: `project.hexPlaced { projectId, q, r }`
 - Placement validation: reject if hex already occupied
@@ -386,17 +401,17 @@ Builder places their own projects. System never auto-organizes. Rearrangement is
 
 ## Gap Manifest
 
-| Dimension | Topic | Searched | Found | Recommendation |
-| --- | --- | --- | --- | --- |
-| HOW | Exact hex grid dimensions (how many rings, what radius) | yes | partial | Release plan says "~30-40 positions." Builder should decide exact grid size. A 3-ring hex grid = 37 hexes (good fit). |
-| HOW | Hex coordinate system choice (offset vs cube vs axial) | yes | no | Release plan says "offset coordinates (odd-q or even-q)." Use offset for storage, cube for math operations. Well-documented pattern. |
-| HOW | SVG rendering approach (individual hex elements vs single path) | yes | no | Individual SVG elements recommended for click handling and per-hex styling. |
-| HOW | Viewport/container sizing and responsive behavior | yes | partial | Release plan says "desktop-first, mobile falls back to existing card view." Need to determine breakpoint and container dimensions. |
-| HOW | Existing project migration UX (how builders place pre-existing projects) | yes | partial | D1 says "existing projects need manual placement by builder." Need UX for prompting builder to place unplaced projects. |
-| HOW | Sanctuary 3-tile visual design | yes | no | Described as "Humble Studio -- small, warm, recognizable as home." No visual spec exists. Builder should design this. |
-| HOW | Campfire visual design | yes | partial | "Fire in the wilderness, off to the side." No SVG spec. Builder should design warm/glowing element. |
-| WHERE | How hex grid integrates with existing LifeMap.tsx component | yes | no | Current LifeMap.tsx renders CategoryCards. Hex grid replaces this. Need to understand current component structure. |
-| WHEN | Which hex features ship in Milestone 1 vs later R1 milestones | yes | partial | Milestone 1 ("The Grid"): hex grid renders, projects as hex tiles, click opens project, Table overlay works. Campfire/walk are Milestone 3. |
+| Dimension | Topic                                                                    | Searched | Found   | Recommendation                                                                                                                              |
+| --------- | ------------------------------------------------------------------------ | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| HOW       | Exact hex grid dimensions (how many rings, what radius)                  | yes      | partial | Release plan says "~30-40 positions." Builder should decide exact grid size. A 3-ring hex grid = 37 hexes (good fit).                       |
+| HOW       | Hex coordinate system choice (offset vs cube vs axial)                   | yes      | no      | Release plan says "offset coordinates (odd-q or even-q)." Use offset for storage, cube for math operations. Well-documented pattern.        |
+| HOW       | SVG rendering approach (individual hex elements vs single path)          | yes      | no      | Individual SVG elements recommended for click handling and per-hex styling.                                                                 |
+| HOW       | Viewport/container sizing and responsive behavior                        | yes      | partial | Release plan says "desktop-first, mobile falls back to existing card view." Need to determine breakpoint and container dimensions.          |
+| HOW       | Existing project migration UX (how builders place pre-existing projects) | yes      | partial | D1 says "existing projects need manual placement by builder." Need UX for prompting builder to place unplaced projects.                     |
+| HOW       | Sanctuary 3-tile visual design                                           | yes      | no      | Described as "Humble Studio -- small, warm, recognizable as home." No visual spec exists. Builder should design this.                       |
+| HOW       | Campfire visual design                                                   | yes      | partial | "Fire in the wilderness, off to the side." No SVG spec. Builder should design warm/glowing element.                                         |
+| WHERE     | How hex grid integrates with existing LifeMap.tsx component              | yes      | no      | Current LifeMap.tsx renders CategoryCards. Hex grid replaces this. Need to understand current component structure.                          |
+| WHEN      | Which hex features ship in Milestone 1 vs later R1 milestones            | yes      | partial | Milestone 1 ("The Grid"): hex grid renders, projects as hex tiles, click opens project, Table overlay works. Campfire/walk are Milestone 3. |
 
 ---
 

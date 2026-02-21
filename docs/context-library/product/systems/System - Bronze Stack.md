@@ -69,7 +69,7 @@ Core system. Stack mechanics enable builders to control operational load.
 | ------------- | ---------------------------------------------------------------------------------- |
 | **Minimal**   | Only due-date tasks + Critical Responses + system-generated. Stack varies (0-50+). |
 | **Target +X** | Minimal + X discretionary tasks. Auto-replenish to maintain count.                 |
-| **Maximal**   | Continuous pull. As tasks complete, next surfaces from priority queue.              |
+| **Maximal**   | Continuous pull. As tasks complete, next surfaces from priority queue.             |
 
 Mode state determines stack depth. For how builders select and change modes (weekly planning, mid-week gear icon), see [[System - Bronze Operations]].
 

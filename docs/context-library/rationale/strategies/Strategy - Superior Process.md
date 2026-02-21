@@ -13,7 +13,6 @@ Applying structured frameworks — from basic organization through sophisticated
 - Overlay and capabilities: [[Overlay - The Table]], [[Capability - Three-Stream Filtering]]
 - Rooms: [[Room - Council Chamber]], [[Room - Drafting Room]], [[Room - Sorting Room]], [[Room - Roster Room]]
 
-
 ## WHY: Belief
 
 Most people manage their personal lives reactively — responding to whatever feels urgent, carrying commitments in their heads, with no systematic approach to prioritization, capacity, or coordination. This breaks down as complexity increases.
