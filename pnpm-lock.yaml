@@ -430,6 +430,12 @@ importers:
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@react-three/drei':
+        specifier: ^10.7.7
+        version: 10.7.7(@react-three/fiber@9.5.0(@types/react@19.1.13)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(three@0.182.0))(@types/react@19.1.13)(@types/three@0.182.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(three@0.182.0)
+      '@react-three/fiber':
+        specifier: ^9.5.0
+        version: 9.5.0(@types/react@19.1.13)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(three@0.182.0)
       '@sentry/react':
         specifier: ^10.20.0
         version: 10.20.0(react@19.1.1)
@@ -454,6 +460,9 @@ importers:
       react-router-dom:
         specifier: ^7.7.1
         version: 7.9.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      three:
+        specifier: ^0.182.0
+        version: 0.182.0
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.3.1
@@ -500,6 +509,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.1.7
         version: 19.1.9(@types/react@19.1.13)
+      '@types/three':
+        specifier: ^0.182.0
+        version: 0.182.0
       '@typescript-eslint/eslint-plugin':
         specifier: 'catalog:'
         version: 8.44.1(@typescript-eslint/parser@8.44.1(eslint@9.36.0(jiti@2.6.0))(typescript@5.9.2))(eslint@9.36.0(jiti@2.6.0))(typescript@5.9.2)

@@ -1,6 +1,7 @@
 // Re-export all shared functionality
 export * from './types'
 export * from './constants'
+export * from './hex'
 export * from './livestore/events'
 export * from './livestore/schema'
 export * from './livestore/queries'
