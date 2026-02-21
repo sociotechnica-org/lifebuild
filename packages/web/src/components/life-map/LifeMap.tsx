@@ -85,7 +85,7 @@ const useIsDesktopViewport = () => {
 
 const renderHexMapLoadingState = () => {
   return (
-    <div className='h-full min-h-[520px] flex items-center justify-center rounded-2xl border border-[#e8ded0] bg-[#efe2cd]'>
+    <div className='h-full min-h-[520px] flex items-center justify-center bg-[#efe2cd]'>
       <div className='text-center'>
         <div className='text-sm font-semibold text-[#6f5b44]'>Loading map...</div>
       </div>
@@ -568,7 +568,7 @@ export const LifeMap: React.FC = () => {
       )}
 
       {shouldRenderHexMap ? (
-        <div className='h-full min-h-[520px] overflow-hidden rounded-2xl border border-[#e8ded0] bg-[#efe2cd]'>
+        <div className='h-full min-h-[520px] overflow-hidden bg-[#efe2cd]'>
           <Suspense fallback={renderHexMapLoadingState()}>
             <LazyHexMap />
           </Suspense>

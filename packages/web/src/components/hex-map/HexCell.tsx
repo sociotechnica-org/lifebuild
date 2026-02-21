@@ -39,7 +39,7 @@ export function HexCell({ coord, visualStateOverride }: HexCellProps) {
         document.body.style.cursor = 'default'
       }}
     >
-      <cylinderGeometry args={[HEX_SIZE * 0.985, HEX_SIZE * 0.985, HEX_HEIGHT, 6]} />
+      <cylinderGeometry args={[HEX_SIZE, HEX_SIZE, HEX_HEIGHT, 6]} />
       <meshStandardMaterial
         attach='material-0'
         color={isHovered ? '#b89b7d' : '#ab8f72'}
