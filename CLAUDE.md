@@ -2,14 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 🚨 CRITICAL: Before Committing Code
+## 🚨 CRITICAL: Before Pushing Code
 
-**ALWAYS run lint-all and tests before committing:**
+**A pre-push hook runs `pnpm format:check` automatically.** If formatting fails, the push is blocked. Run `pnpm lint-all` to fix, then push again.
+
+**Before pushing, also run tests:**
 
 ```bash
 pnpm lint-all          # Runs lint, format, AND typecheck in one command
 pnpm test              # Runs unit tests
-CI=true pnpm test:e2e  # Runs E2E tests (required before committing)
+CI=true pnpm test:e2e  # Runs E2E tests (required before pushing)
 ```
 
 `lint-all` replaces:
@@ -45,7 +47,7 @@ PORT=3000 VITE_LIVESTORE_SYNC_URL='http://localhost:8787' pnpm dev
 ### Key Commands
 
 ```bash
-# Quality checks (use before committing!)
+# Quality checks (use before pushing!)
 pnpm lint-all      # ✅ Use this! Runs lint, format, and typecheck
 
 # Testing
@@ -203,10 +205,10 @@ When a session adds types, renames terminology, creates/deletes cards in bulk, o
 2. Write minimal, focused tests
 3. Create Storybook stories for UI components
 
-### Before Committing (CRITICAL)
+### Before Pushing (CRITICAL)
 
 ```bash
-pnpm lint-all  # ALWAYS run this!
+pnpm lint-all  # ALWAYS run this! Pre-push hook checks formatting automatically
 pnpm test      # Run tests
 CI=true pnpm test:e2e  # Run E2E tests
 ```
@@ -457,7 +459,7 @@ Projects use the same status workflow as other issues:
 
 ## Important Guidelines
 
-- **Quality before committing**: Always run `pnpm lint-all` and `pnpm test`
+- **Quality before pushing**: Always run `pnpm lint-all` and `pnpm test`
 - **Small PRs**: Keep them focused and demoable
 - **No time estimates**: Focus on sequencing and dependencies
 - **Test-driven bug fixes**: Write failing test first, then fix
