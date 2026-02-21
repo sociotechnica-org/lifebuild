@@ -119,6 +119,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
     : 'flex-1 min-h-0 overflow-y-auto'
 
   const contentClasses = fullHeight ? 'h-full' : 'max-w-[1200px] mx-auto p-2'
+  const mainPaddingClass = fullHeight ? '' : 'p-3.5'
 
   return (
     <div
@@ -240,7 +241,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
           )}
         </div>
       </header>
-      <main className={`${mainClasses} p-3.5`}>
+      <main className={`${mainClasses} ${mainPaddingClass}`}>
         <div className={contentClasses}>{children}</div>
       </main>
       <TableBar />
