@@ -64,6 +64,10 @@ export function hexToWorld(coord: HexCoord, size: number): [x: number, z: number
 
 /** Round fractional cube coordinates to nearest hex. */
 export function roundHex(q: number, r: number, s: number): HexCoord {
+  if (!Number.isFinite(q) || !Number.isFinite(r) || !Number.isFinite(s)) {
+    throw new Error(`Invalid cube coordinates: q=${q}, r=${r}, s=${s}`)
+  }
+
   let roundedQ = Math.round(q)
   let roundedR = Math.round(r)
   let roundedS = Math.round(s)
@@ -83,8 +87,8 @@ export function roundHex(q: number, r: number, s: number): HexCoord {
 
   // Normalize -0 to 0.
   return {
-    q: roundedQ || 0,
-    r: roundedR || 0,
-    s: roundedS || 0,
+    q: normalizeNegativeZero(roundedQ),
+    r: normalizeNegativeZero(roundedR),
+    s: normalizeNegativeZero(roundedS),
   }
 }

@@ -95,6 +95,18 @@ describe('roundHex', () => {
     expect(hex).toEqual({ q: 1, r: -1, s: 0 })
     expect(hex.q + hex.r + hex.s).toBe(0)
   })
+
+  it('normalizes negative zero values', () => {
+    const hex = roundHex(-0.4, 0.2, 0.2)
+    expect(Object.is(hex.q, -0)).toBe(false)
+    expect(Object.is(hex.r, -0)).toBe(false)
+    expect(Object.is(hex.s, -0)).toBe(false)
+  })
+
+  it('throws on non-finite coordinates', () => {
+    expect(() => roundHex(Number.NaN, 0, 0)).toThrow('Invalid cube coordinates')
+    expect(() => roundHex(0, Number.POSITIVE_INFINITY, 0)).toThrow('Invalid cube coordinates')
+  })
 })
 
 describe('hexToWorld', () => {
