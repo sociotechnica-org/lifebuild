@@ -40,23 +40,26 @@ const supportsWebGL = (): boolean => {
   }
 }
 
-const getInitialDesktopValue = () => {
-  if (typeof window === 'undefined') {
-    return false
+const getDesktopMediaQueryList = (): MediaQueryList | null => {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return null
   }
 
-  return window.matchMedia(DESKTOP_BREAKPOINT_QUERY).matches
+  return window.matchMedia(DESKTOP_BREAKPOINT_QUERY)
+}
+
+const getInitialDesktopValue = () => {
+  return getDesktopMediaQueryList()?.matches ?? false
 }
 
 const useIsDesktopViewport = () => {
   const [isDesktopViewport, setIsDesktopViewport] = useState(getInitialDesktopValue)
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    const mediaQueryList = getDesktopMediaQueryList()
+    if (!mediaQueryList) {
       return
     }
-
-    const mediaQueryList = window.matchMedia(DESKTOP_BREAKPOINT_QUERY)
     const handleChange = (event: MediaQueryListEvent) => {
       setIsDesktopViewport(event.matches)
     }
@@ -117,7 +120,10 @@ export const LifeMap: React.FC = () => {
   useEffect(() => {
     if (!isDesktopViewport || !hasWebGLSupport) {
       setViewMode('list')
+      return
     }
+
+    setViewMode('map')
   }, [hasWebGLSupport, isDesktopViewport])
 
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
