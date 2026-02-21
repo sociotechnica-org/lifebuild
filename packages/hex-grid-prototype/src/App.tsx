@@ -648,6 +648,28 @@ export function App() {
         {mode === 'parchment' ? 'Parchment' : 'Kubelka-Munk'} [Tab]
       </div>
 
+      {/* GitHub repo link */}
+      <a
+        href='https://github.com/sociotechnica-org/lifebuild/tree/main/packages/hex-grid-prototype'
+        target='_blank'
+        rel='noopener noreferrer'
+        style={{
+          position: 'absolute',
+          bottom: 16,
+          right: 16,
+          color: '#5c4a32',
+          fontFamily: 'monospace',
+          fontSize: 11,
+          background: 'rgba(232, 213, 181, 0.85)',
+          padding: '4px 8px',
+          borderRadius: 4,
+          border: '1px solid #c4a87a',
+          textDecoration: 'none',
+        }}
+      >
+        GitHub
+      </a>
+
       <div style={{ position: 'absolute', top: 16, left: 16 }}>
         {panelOpen && (
           <div style={panelBodyStyle}>

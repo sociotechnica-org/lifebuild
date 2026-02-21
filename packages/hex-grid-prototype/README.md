@@ -38,6 +38,10 @@ pnpm lint-all     # Lint, format, and typecheck
 pnpm deploy       # Deploy to Cloudflare Pages
 ```
 
+## Live Demo
+
+https://hex-grid-prototype.pages.dev/
+
 ## Deploy
 
 Deploys as a static site to Cloudflare Pages:
