@@ -574,7 +574,9 @@ export const LifeMap: React.FC = () => {
           </Suspense>
         </div>
       ) : (
-        <div className={canShowViewModeToggle ? 'pt-12' : ''}>{renderCategoryCardLayout()}</div>
+        <div className={canShowViewModeToggle ? 'pt-12 px-3.5 pb-3.5' : 'p-3.5'}>
+          {renderCategoryCardLayout()}
+        </div>
       )}
     </div>
   )
