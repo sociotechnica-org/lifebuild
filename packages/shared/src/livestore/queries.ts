@@ -80,6 +80,7 @@ export const getUnplacedProjects$ = queryDb(
         AND hex_positions.entityType = 'project'
       WHERE projects.deletedAt IS NULL
         AND projects.archivedAt IS NULL
+        AND COALESCE(json_extract(projects.projectLifecycleState, '$.status'), 'active') != 'completed'
         AND hex_positions.id IS NULL
       ORDER BY projects.updatedAt DESC
     `,
