@@ -1,11 +1,36 @@
 import { Canvas } from '@react-three/fiber'
 import React, { Suspense } from 'react'
+import { useState } from 'react'
 import { CameraRig } from './CameraRig.js'
-import { HexGrid } from './HexGrid.js'
+import { HexGrid, type PlacedHexTile } from './HexGrid.js'
+import {
+  UnplacedPanel,
+  type PanelArchivedProjectItem,
+  type PanelCompletedProjectItem,
+  type PanelProjectItem,
+} from './UnplacedPanel.js'
 
-export const HexMap: React.FC = () => {
+type HexMapProps = {
+  tiles?: readonly PlacedHexTile[]
+  unplacedProjects?: readonly PanelProjectItem[]
+  completedProjects?: readonly PanelCompletedProjectItem[]
+  archivedProjects?: readonly PanelArchivedProjectItem[]
+  onOpenProject?: (projectId: string) => void
+  onUnarchiveProject?: (projectId: string) => void
+}
+
+export const HexMap: React.FC<HexMapProps> = ({
+  tiles = [],
+  unplacedProjects = [],
+  completedProjects = [],
+  archivedProjects = [],
+  onOpenProject,
+  onUnarchiveProject,
+}) => {
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false)
+
   return (
-    <div className='h-full w-full'>
+    <div className='relative h-full w-full'>
       <Canvas
         orthographic
         camera={{ position: [0, 40, 35], zoom: 1, near: 0.1, far: 200 }}
@@ -21,9 +46,19 @@ export const HexMap: React.FC = () => {
 
         <Suspense fallback={null}>
           <CameraRig />
-          <HexGrid />
+          <HexGrid tiles={tiles} />
         </Suspense>
       </Canvas>
+
+      <UnplacedPanel
+        isCollapsed={isPanelCollapsed}
+        unplacedProjects={unplacedProjects}
+        completedProjects={completedProjects}
+        archivedProjects={archivedProjects}
+        onToggleCollapsed={() => setIsPanelCollapsed(collapsed => !collapsed)}
+        onOpenProject={onOpenProject}
+        onUnarchiveProject={onUnarchiveProject}
+      />
     </div>
   )
 }

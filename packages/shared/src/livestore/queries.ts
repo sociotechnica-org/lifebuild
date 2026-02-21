@@ -65,6 +65,29 @@ export const getBoards$ = queryDb(
 // New terminology alias
 export const getProjects$ = getBoards$
 
+export const getHexPositions$ = queryDb(
+  tables.hexPositions.select().orderBy([{ col: 'placedAt', direction: 'asc' }]),
+  { label: 'getHexPositions' }
+)
+
+export const getUnplacedProjects$ = queryDb(
+  {
+    query: sql`
+      SELECT projects.*
+      FROM projects
+      LEFT JOIN hex_positions
+        ON projects.id = hex_positions.entityId
+        AND hex_positions.entityType = 'project'
+      WHERE projects.deletedAt IS NULL
+        AND projects.archivedAt IS NULL
+        AND hex_positions.id IS NULL
+      ORDER BY projects.updatedAt DESC
+    `,
+    schema: Schema.Array(tables.projects.rowSchema),
+  },
+  { label: 'getUnplacedProjects' }
+)
+
 // PR3: Column queries removed - migration to status-based tasks complete
 // Removed: getBoardColumns$, getProjectColumns$, getBoardColumnsOptional$
 

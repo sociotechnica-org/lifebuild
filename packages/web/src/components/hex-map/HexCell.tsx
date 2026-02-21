@@ -35,7 +35,7 @@ export function HexCell({ coord, visualStateOverride }: HexCellProps) {
       onPointerOver={event => {
         event.stopPropagation()
         setIsPointerHovering(true)
-        document.body.style.cursor = 'pointer'
+        document.body.style.cursor = 'default'
       }}
       onPointerOut={() => {
         setIsPointerHovering(false)
