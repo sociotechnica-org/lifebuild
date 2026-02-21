@@ -19,6 +19,7 @@
     "deploy": "wrangler pages deploy dist --project-name hex-grid-prototype"
   },
   "dependencies": {
+    "@lifebuild/shared": "workspace:*",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "react": "19.1.1",

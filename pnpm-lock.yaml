@@ -178,6 +178,9 @@ importers:
 
   packages/hex-grid-prototype:
     dependencies:
+      '@lifebuild/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@react-three/drei':
         specifier: ^10.7.7
         version: 10.7.7(@react-three/fiber@9.5.0(@types/react@19.1.13)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(three@0.182.0))(@types/react@19.1.13)(@types/three@0.182.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(three@0.182.0)
