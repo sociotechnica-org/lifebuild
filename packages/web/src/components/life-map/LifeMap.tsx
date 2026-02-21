@@ -568,15 +568,13 @@ export const LifeMap: React.FC = () => {
       )}
 
       {shouldRenderHexMap ? (
-        <div className='h-full min-h-[520px] overflow-hidden bg-[#efe2cd]'>
+        <div className='absolute -inset-3.5 min-h-[520px] overflow-hidden bg-[#efe2cd]'>
           <Suspense fallback={renderHexMapLoadingState()}>
             <LazyHexMap />
           </Suspense>
         </div>
       ) : (
-        <div className={canShowViewModeToggle ? 'pt-12 px-3.5 pb-3.5' : 'p-3.5'}>
-          {renderCategoryCardLayout()}
-        </div>
+        <div className={canShowViewModeToggle ? 'pt-12' : ''}>{renderCategoryCardLayout()}</div>
       )}
     </div>
   )

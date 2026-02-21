@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from 'react'
 const HEX_SIZE = 1
 const HEX_HEIGHT = 0.22
 const HOVER_LIFT = 0.03
+// Slight overlap hides subpixel seams between neighboring meshes.
+const HEX_JOIN_SCALE = 1.002
 
 export type HexCellVisualState = 'default' | 'hover'
 
@@ -29,6 +31,7 @@ export function HexCell({ coord, visualStateOverride }: HexCellProps) {
   return (
     <mesh
       position={[x, HEX_HEIGHT / 2 + (isHovered ? HOVER_LIFT : 0), z]}
+      scale={[HEX_JOIN_SCALE, 1, HEX_JOIN_SCALE]}
       onPointerOver={event => {
         event.stopPropagation()
         setIsPointerHovering(true)

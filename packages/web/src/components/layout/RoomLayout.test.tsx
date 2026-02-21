@@ -109,4 +109,16 @@ describe('RoomLayout', () => {
     // Chat panel should not be visible when closed
     expect(screen.queryByText('Send')).not.toBeInTheDocument()
   })
+
+  it('preserves shell padding for full-height room layouts', () => {
+    render(
+      <MemoryRouter>
+        <RoomLayout room={LIFE_MAP_ROOM}>
+          <div>Life Map Content</div>
+        </RoomLayout>
+      </MemoryRouter>
+    )
+
+    expect(screen.getByRole('main')).toHaveClass('p-3.5')
+  })
 })
