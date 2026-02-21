@@ -294,7 +294,8 @@ export const LifeMap: React.FC = () => {
 
   const hasNoProjects = categoriesWithProjects.length === 0
   const canRenderHexMap = isDesktopViewport && hasWebGLSupport
-  const shouldRenderHexMap = canRenderHexMap && viewMode === 'map'
+  const canShowViewModeToggle = canRenderHexMap && !hasNoProjects
+  const shouldRenderHexMap = canShowViewModeToggle && viewMode === 'map'
 
   const renderCategoryCardLayout = () => {
     if (hasNoProjects) {
@@ -537,7 +538,7 @@ export const LifeMap: React.FC = () => {
 
   return (
     <div className='relative h-full'>
-      {canRenderHexMap && (
+      {canShowViewModeToggle && (
         <div className='pointer-events-none absolute top-2 left-1/2 z-[3] -translate-x-1/2'>
           <div className='pointer-events-auto inline-flex items-center gap-1 rounded-full border border-[#d8cab3] bg-[#faf4e9]/90 p-1 shadow-sm backdrop-blur-sm'>
             <button
@@ -573,7 +574,7 @@ export const LifeMap: React.FC = () => {
           </Suspense>
         </div>
       ) : (
-        <div className={canRenderHexMap ? 'pt-12' : ''}>{renderCategoryCardLayout()}</div>
+        <div className={canShowViewModeToggle ? 'pt-12' : ''}>{renderCategoryCardLayout()}</div>
       )}
     </div>
   )
