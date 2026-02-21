@@ -163,6 +163,16 @@ Before the first deployment, you need to create the production D1 database and c
 - **AI Workers**: Delegate operational work to LLM-powered agents that take action inside your projects
 - **Local-first Architecture**: Works offline with automatic sync, powered by [LiveStore](https://livestore.dev) event sourcing
 
+## Git Hooks
+
+A **pre-push hook** (via [Husky](https://typicode.github.io/husky/)) runs `pnpm format:check` before every push. If any files aren't formatted, the push is blocked. Run `pnpm lint-all` to fix formatting, then push again.
+
+To skip the hook when needed:
+
+```bash
+git push --no-verify
+```
+
 ## Development Commands
 
 ### Workspace Commands (run from root)
