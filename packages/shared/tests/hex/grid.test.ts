@@ -18,4 +18,12 @@ describe('generateHexGrid', () => {
     const keys = new Set(cells.map(cell => cell.key))
     expect(keys.size).toBe(cells.length)
   })
+
+  it('throws when radius is fractional', () => {
+    expect(() => generateHexGrid(2.5)).toThrow('non-negative integer')
+  })
+
+  it('throws when radius is negative', () => {
+    expect(() => generateHexGrid(-1)).toThrow('non-negative integer')
+  })
 })

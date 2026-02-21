@@ -12,13 +12,22 @@ const DIRECTIONS: HexCoord[] = [
   { q: 0, r: 1, s: -1 },
 ]
 
+const normalizeNegativeZero = (value: number): number => {
+  return Object.is(value, -0) ? 0 : value
+}
+
 export function createHex(q: number, r: number): HexCoord {
-  const normalizedQ = q || 0
-  const normalizedR = r || 0
+  if (!Number.isFinite(q) || !Number.isFinite(r)) {
+    throw new Error(`Invalid cube coordinates: q=${q}, r=${r}`)
+  }
+
+  const normalizedQ = normalizeNegativeZero(q)
+  const normalizedR = normalizeNegativeZero(r)
+
   return {
     q: normalizedQ,
     r: normalizedR,
-    s: -normalizedQ - normalizedR || 0,
+    s: normalizeNegativeZero(-normalizedQ - normalizedR),
   }
 }
 

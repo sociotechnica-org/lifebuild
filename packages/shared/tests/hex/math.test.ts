@@ -19,6 +19,17 @@ describe('createHex', () => {
     const hex = createHex(3, -7)
     expect(hex.q + hex.r + hex.s).toBe(0)
   })
+
+  it('normalizes negative zero values', () => {
+    const hex = createHex(-0, 0)
+    expect(Object.is(hex.q, -0)).toBe(false)
+    expect(Object.is(hex.s, -0)).toBe(false)
+  })
+
+  it('throws on non-finite coordinates', () => {
+    expect(() => createHex(Number.NaN, 0)).toThrow('Invalid cube coordinates')
+    expect(() => createHex(0, Number.POSITIVE_INFINITY)).toThrow('Invalid cube coordinates')
+  })
 })
 
 describe('hexToKey', () => {

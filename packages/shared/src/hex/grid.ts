@@ -3,6 +3,10 @@ import type { HexCell } from './types.js'
 
 /** Generate a hex grid of a given radius centered on (0, 0, 0). */
 export function generateHexGrid(radius: number): HexCell[] {
+  if (!Number.isInteger(radius) || radius < 0) {
+    throw new Error(`Hex grid radius must be a non-negative integer, received: ${radius}`)
+  }
+
   const cells: HexCell[] = []
 
   for (let q = -radius; q <= radius; q += 1) {
