@@ -33,6 +33,8 @@ const { AuthWorkerWorkspaceDirectory } = await import('./services/workspace-dire
 import type { WorkspaceDirectory } from './services/workspace-directory.js'
 const { loadStoresConfig } = await import('./config/stores.js')
 const { handleWorkspaceWebhook } = await import('./api/workspace-webhooks.js')
+const { createProjectImageRegenerateHandler } = await import('./api/project-images.js')
+const { ProjectImageService } = await import('./services/project-image-service.js')
 const { WorkspaceReconciler, getDisabledReconcilerStatus } = await import(
   './services/workspace-reconciler.js'
 )
@@ -98,6 +100,8 @@ async function main() {
   // Set up event processor
   const eventProcessor = new EventProcessor(storeManager)
   const workspaceOrchestrator = new WorkspaceOrchestrator(storeManager, eventProcessor)
+  const projectImageService = new ProjectImageService(storeManager)
+  projectImageService.start()
   const webhookSecret = process.env.WEBHOOK_SECRET
 
   if (!webhookSecret) {
@@ -174,6 +178,7 @@ async function main() {
           state: manualReconcileState,
         })
       : null
+  const projectImageRegenerateHandler = createProjectImageRegenerateHandler(projectImageService)
 
   const http = await import('http')
   const healthServer = http.createServer(async (req, res) => {
@@ -207,6 +212,11 @@ async function main() {
       } else {
         await manualReconcileHandler(req, res)
       }
+      return
+    }
+
+    if (pathname === '/api/project-images/regenerate') {
+      await projectImageRegenerateHandler(req, res)
       return
     }
 

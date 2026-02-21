@@ -4,6 +4,7 @@ import { generateRoute } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import type { Project } from '@lifebuild/shared/schema'
 import { usePostHog } from '../../lib/analytics.js'
+import { ProjectAvatar } from '../common/ProjectAvatar.js'
 
 export type CategoryCardProps = {
   categoryValue: string
@@ -33,7 +34,10 @@ const ProjectItem: React.FC<{
       className='block no-underline mb-2 p-2 rounded-lg bg-[#faf9f7] hover:bg-[#f5f3f0] transition-colors duration-200'
       onClick={e => e.stopPropagation()}
     >
-      <div className='font-semibold text-sm text-[#2f2b27] mb-1'>{project.name}</div>
+      <div className='flex items-center gap-2'>
+        <ProjectAvatar project={project} size={24} />
+        <div className='font-semibold text-sm text-[#2f2b27] mb-1'>{project.name}</div>
+      </div>
       <div className='h-2 bg-[#f1efe9] rounded-full overflow-hidden'>
         <div
           className='h-full rounded-full'
@@ -114,7 +118,10 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
                 className='no-underline p-1.5 rounded bg-[#faf9f7] hover:bg-[#f5f3f0] transition-colors duration-200'
                 onClick={e => e.stopPropagation()}
               >
-                <div className='text-xs text-[#2f2b27] truncate'>{project.name}</div>
+                <div className='flex items-center gap-1.5 text-xs text-[#2f2b27] truncate'>
+                  <ProjectAvatar project={project} size={18} />
+                  <span className='truncate'>{project.name}</span>
+                </div>
               </Link>
             ))}
           </div>
