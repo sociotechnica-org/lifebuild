@@ -46,3 +46,4 @@ sources/
 | Document | Snapshot Date | Scope                                         |
 | -------- | ------------- | --------------------------------------------- |
 | GDD-v0.2 | 2025-12       | Full game design — informed nearly every card |
+| automation-strategy-conversation-2026-02-17 | 2026-02-17 | Factory & library automation strategy — task catalog, cost tiers, role bundles |
