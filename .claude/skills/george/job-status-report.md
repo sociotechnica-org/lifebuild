@@ -30,6 +30,28 @@ Before running the dashboard, scan for decisions that were resolved but never pr
 
 This is the safety net. The primary trigger is the `/george propagate` comment on the issue; this scan catches anything that slipped through.
 
+### Step 0.5: Board drift check
+
+Scan for closed issues that are still not marked Done on the active release board. GitHub does NOT auto-sync closed → Done. Read `.claude/skills/george/board-fields.md` for the project number and all command templates.
+
+```bash
+# Get all items on the active release board (use project number from board-fields.md)
+gh project item-list <PROJECT_NUMBER> --owner sociotechnica-org --format json | \
+  jq '[.items[] | select(.status != "Done" and .content.type == "Issue") | {number: .content.number, title: .content.title, board_status: .status}]'
+```
+
+For each item returned, check if the issue is closed:
+
+```bash
+gh issue view <number> -R sociotechnica-org/lifebuild --json state -q .state
+```
+
+Any issue that is CLOSED but not Done on the board is **drifted**. Fix it immediately — use the "Move item to Done" and "Set Flow State to Shipped" commands from board-fields.md. Report fixes in the output under a **Board Drift** section:
+
+> **Board drift corrected:** #[n] [title] was closed but still showed [status] on the active release board. Moved to Done/Shipped.
+
+This is factory floor housekeeping. Don't skip it — stale board state makes every other gauge unreliable.
+
 ### Step 1: Run instruments
 
 ```bash
@@ -108,6 +130,10 @@ Note anything that could get worse if ignored:
 | Decisions | n/total decided | [rating] |
 | Takt Load | [summary] | [rating] |
 | Pending Propagation | [n unprocessed] | [CLEAR/ACTION NEEDED] |
+
+## Board Drift (if any corrected)
+
+- #[n] [title]: was [old status], moved to Done/Shipped
 
 ## What's Working
 
