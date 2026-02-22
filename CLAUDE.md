@@ -197,7 +197,6 @@ When a session adds types, renames terminology, creates/deletes cards in bulk, o
 1. Review requirements thoroughly
 2. Ask clarifying questions
 3. **Set issue status to "In Progress"**: Update the GitHub issue status on the project board
-4. Create descriptive branch with your username prefix (e.g., `jessmartin/add-feature-name`)
 
 ### While Developing
 
@@ -459,6 +458,7 @@ Projects use the same status workflow as other issues:
 
 ## Important Guidelines
 
+- **Branch discipline**: All code changes should be on feature branches and merged to `main` via Pull Requests. Use descriptive branch names prefixed with the model name (e.g., `claude/fix-sync-reconnect`). Do not commit directly to `main`.
 - **Quality before pushing**: Always run `pnpm lint-all` and `pnpm test`
 - **Small PRs**: Keep them focused and demoable
 - **No time estimates**: Focus on sequencing and dependencies
