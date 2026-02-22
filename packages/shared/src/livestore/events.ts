@@ -918,3 +918,28 @@ export const bronzeProjectsReordered = Events.synced({
     actorId: Schema.optional(Schema.String),
   }),
 })
+
+// ============================================================================
+// HEX MAP PLACEMENT EVENTS
+// ============================================================================
+
+export const projectHexPlaced = Events.synced({
+  name: 'v1.ProjectHexPlaced',
+  schema: Schema.Struct({
+    projectId: Schema.String,
+    q: Schema.Number,
+    r: Schema.Number,
+    s: Schema.Number,
+    placedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const projectHexRemoved = Events.synced({
+  name: 'v1.ProjectHexRemoved',
+  schema: Schema.Struct({
+    projectId: Schema.String,
+    removedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})

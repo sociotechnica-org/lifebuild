@@ -12,6 +12,7 @@ import {
 } from '@lifebuild/shared'
 import type { Project, Task } from '@lifebuild/shared/schema'
 import { events } from '@lifebuild/shared/schema'
+import { useHexPlacement } from '../../hooks/useHexPlacement.js'
 import { useTableState } from '../../hooks/useTableState.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { GoldSilverPanel } from './GoldSilverPanel.js'
@@ -93,6 +94,7 @@ export const SortingRoom: React.FC = () => {
   const { stream: streamParam } = useParams<{ stream?: string }>()
   const navigate = useNavigate()
   const posthog = usePostHog()
+  const { placements: hexPlacements } = useHexPlacement()
   const [draggedGoldProject, setDraggedGoldProject] = useState<Project | null>(null)
   const [draggedSilverProject, setDraggedSilverProject] = useState<Project | null>(null)
 
@@ -413,6 +415,12 @@ export const SortingRoom: React.FC = () => {
       } else {
         await assignGold(project.id)
       }
+
+      // Navigate to Life Map placement if the project isn't already placed
+      const alreadyPlaced = hexPlacements.some(p => p.projectId === project.id)
+      if (!alreadyPlaced) {
+        navigate(preserveStoreIdInUrl(`/life-map?place=${project.id}`))
+      }
     },
     [
       store,
@@ -423,6 +431,8 @@ export const SortingRoom: React.FC = () => {
       goldProject,
       goldProjectHasProgress,
       handleOutgoingProject,
+      hexPlacements,
+      navigate,
     ]
   )
 
@@ -455,6 +465,12 @@ export const SortingRoom: React.FC = () => {
       } else {
         await assignSilver(project.id)
       }
+
+      // Navigate to Life Map placement if the project isn't already placed
+      const alreadyPlaced = hexPlacements.some(p => p.projectId === project.id)
+      if (!alreadyPlaced) {
+        navigate(preserveStoreIdInUrl(`/life-map?place=${project.id}`))
+      }
     },
     [
       store,
@@ -465,6 +481,8 @@ export const SortingRoom: React.FC = () => {
       silverProject,
       silverProjectHasProgress,
       handleOutgoingProject,
+      hexPlacements,
+      navigate,
     ]
   )
 

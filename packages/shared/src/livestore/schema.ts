@@ -212,6 +212,19 @@ const tableBronzeProjects = State.SQLite.table({
   },
 })
 
+const hexPlacements = State.SQLite.table({
+  name: 'hexPlacements',
+  columns: {
+    projectId: State.SQLite.text({ primaryKey: true }),
+    q: State.SQLite.integer({ default: 0 }),
+    r: State.SQLite.integer({ default: 0 }),
+    s: State.SQLite.integer({ default: 0 }),
+    placedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
 const conversations = State.SQLite.table({
   name: 'conversations',
   columns: {
@@ -444,6 +457,7 @@ export type UiState = typeof uiState.default.value
 export type TableConfiguration = State.SQLite.FromTable.RowDecoded<typeof tableConfiguration>
 export type TableBronzeStackEntry = State.SQLite.FromTable.RowDecoded<typeof tableBronzeStack>
 export type TableBronzeProjectEntry = State.SQLite.FromTable.RowDecoded<typeof tableBronzeProjects>
+export type HexPlacement = State.SQLite.FromTable.RowDecoded<typeof hexPlacements>
 
 export const events = {
   ...eventsDefs,
@@ -460,6 +474,7 @@ export const tables = {
   tableConfiguration,
   tableBronzeStack,
   tableBronzeProjects,
+  hexPlacements,
   conversations,
   comments,
   documents,
@@ -1107,6 +1122,17 @@ const materializers = State.SQLite.materializers(events, {
     ordering.map(order =>
       tableBronzeProjects.update({ position: order.position }).where({ id: order.id })
     ),
+
+  // ============================================================================
+  // HEX MAP PLACEMENT MATERIALIZERS
+  // ============================================================================
+
+  'v1.ProjectHexPlaced': ({ projectId, q, r, s, placedAt }) => [
+    hexPlacements.delete().where({ projectId }),
+    hexPlacements.insert({ projectId, q, r, s, placedAt }),
+  ],
+
+  'v1.ProjectHexRemoved': ({ projectId }) => hexPlacements.delete().where({ projectId }),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

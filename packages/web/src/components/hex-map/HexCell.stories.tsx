@@ -3,13 +3,14 @@ import { Canvas } from '@react-three/fiber'
 import { createHex } from '@lifebuild/shared/hex'
 import React from 'react'
 import { CameraRig } from './CameraRig.js'
-import { HexCell, type HexCellVisualState } from './HexCell.js'
+import { HexCell, type HexCellVisualState, type HexCellProjectData } from './HexCell.js'
 
 type HexCellStoryProps = {
   visualStateOverride?: HexCellVisualState
+  projectData?: HexCellProjectData
 }
 
-const HexCellPreview: React.FC<HexCellStoryProps> = ({ visualStateOverride }) => {
+const HexCellPreview: React.FC<HexCellStoryProps> = ({ visualStateOverride, projectData }) => {
   return (
     <div className='h-[320px] w-full'>
       <Canvas
@@ -22,7 +23,11 @@ const HexCellPreview: React.FC<HexCellStoryProps> = ({ visualStateOverride }) =>
         <directionalLight position={[10, 20, 10]} color='#ffe8cc' intensity={0.6} />
         <hemisphereLight color='#c9dde6' groundColor='#d4b896' intensity={0.4} />
         <CameraRig />
-        <HexCell coord={createHex(0, 0)} visualStateOverride={visualStateOverride} />
+        <HexCell
+          coord={createHex(0, 0)}
+          visualStateOverride={visualStateOverride}
+          projectData={projectData}
+        />
       </Canvas>
     </div>
   )
@@ -36,7 +41,7 @@ const meta: Meta<typeof HexCellPreview> = {
     docs: {
       description: {
         component:
-          'Single hex cell used by the map shell. Hover story uses a fixed visual override to show highlight treatment.',
+          'Single hex cell used by the map shell. Shows empty, occupied, and placement-target states.',
       },
     },
   },
@@ -55,5 +60,52 @@ export const Default: Story = {
 export const Hovered: Story = {
   args: {
     visualStateOverride: 'hover',
+  },
+}
+
+export const WithProject: Story = {
+  args: {
+    projectData: {
+      id: '1',
+      name: 'Morning Routine',
+      categoryColor: '#10B981',
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Occupied hex tile showing a project with category color border (Health: green).',
+      },
+    },
+  },
+}
+
+export const WithProjectFinances: Story = {
+  args: {
+    projectData: {
+      id: '2',
+      name: 'Budget Tracker',
+      categoryColor: '#3B82F6',
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Occupied hex tile with Finances category color (blue).',
+      },
+    },
+  },
+}
+
+export const PlacementTarget: Story = {
+  args: {
+    visualStateOverride: 'placement-target',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Empty hex highlighted as an available placement target during placement mode.',
+      },
+    },
   },
 }

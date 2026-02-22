@@ -491,3 +491,11 @@ export const getAllProjectsIncludingArchived$ = queryDb(
     .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
   { label: 'getAllProjectsIncludingArchived' }
 )
+
+// ============================================================================
+// HEX MAP PLACEMENT QUERIES
+// ============================================================================
+
+export const getHexPlacements$ = queryDb(tables.hexPlacements.select(), {
+  label: 'getHexPlacements',
+})

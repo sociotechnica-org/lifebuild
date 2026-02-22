@@ -1,6 +1,7 @@
-import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react'
+import type { HexCoord } from '@lifebuild/shared/hex'
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery, useStore } from '../../livestore-compat.js'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   getProjectsByCategory$,
   getAllWorkerProjects$,
@@ -17,6 +18,7 @@ import { CategoryCard } from './CategoryCard.js'
 import { generateRoute } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useAuth } from '../../contexts/AuthContext.js'
+import { useHexPlacement } from '../../hooks/useHexPlacement.js'
 import { usePostHog } from '../../lib/analytics.js'
 
 type LifeMapViewMode = 'map' | 'list'
@@ -112,6 +114,9 @@ export const LifeMap: React.FC = () => {
   const [viewMode, setViewMode] = useState<LifeMapViewMode>('map')
   const [completedExpanded, setCompletedExpanded] = useState(false)
   const [archivedExpanded, setArchivedExpanded] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const placementProjectId = searchParams.get('place')
+  const { placements: hexPlacementsList, placeProject } = useHexPlacement()
 
   useEffect(() => {
     posthog?.capture('life_map_viewed')
@@ -126,6 +131,43 @@ export const LifeMap: React.FC = () => {
     setViewMode('map')
   }, [hasWebGLSupport, isDesktopViewport])
 
+  // Force map view when in placement mode
+  useEffect(() => {
+    if (placementProjectId && isDesktopViewport && hasWebGLSupport) {
+      setViewMode('map')
+    }
+  }, [placementProjectId, isDesktopViewport, hasWebGLSupport])
+
+  const handlePlaceOnHex = useCallback(
+    (coord: HexCoord) => {
+      if (!placementProjectId) return
+      const success = placeProject(placementProjectId, coord)
+      if (success) {
+        setSearchParams(prev => {
+          const next = new URLSearchParams(prev)
+          next.delete('place')
+          return next
+        })
+      }
+    },
+    [placementProjectId, placeProject, setSearchParams]
+  )
+
+  const handleCancelPlacement = useCallback(() => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.delete('place')
+      return next
+    })
+  }, [setSearchParams])
+
+  const handleHexClick = useCallback(
+    (projectId: string) => {
+      navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
+    },
+    [navigate]
+  )
+
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
   const activeBronzeStack = useQuery(getActiveBronzeStack$) ?? []
   const tabledBronzeProjects = useQuery(getTabledBronzeProjects$) ?? []
@@ -134,6 +176,11 @@ export const LifeMap: React.FC = () => {
   const tableConfig = tableConfiguration[0]
   const allProjects = useQuery(getProjects$) ?? []
   const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []
+
+  const placementProject = useMemo(() => {
+    if (!placementProjectId) return null
+    return allProjects.find(p => p.id === placementProjectId) ?? null
+  }, [placementProjectId, allProjects])
 
   // Query projects for each category.
   const healthProjects = useQuery(getProjectsByCategory$('health')) ?? []
@@ -201,6 +248,18 @@ export const LifeMap: React.FC = () => {
 
     return projectIds
   }, [activeBronzeStack, tabledBronzeProjects, allTasks, tableConfig])
+
+  // Find the first unplaced active project to suggest placement
+  const firstUnplacedActiveProject = useMemo(() => {
+    if (placementProjectId) return null // Already in placement mode
+    const placedIds = new Set(hexPlacementsList.map(p => p.projectId))
+    for (const projectId of activeProjectIds) {
+      if (!placedIds.has(projectId)) {
+        return allProjects.find(p => p.id === projectId) ?? null
+      }
+    }
+    return null
+  }, [activeProjectIds, hexPlacementsList, allProjects, placementProjectId])
 
   // Calculate workers for each category.
   const categoryWorkersMap = useMemo(() => {
@@ -295,7 +354,8 @@ export const LifeMap: React.FC = () => {
   const hasNoProjects = categoriesWithProjects.length === 0
   const canRenderHexMap = isDesktopViewport && hasWebGLSupport
   const canShowViewModeToggle = canRenderHexMap && !hasNoProjects
-  const shouldRenderHexMap = canShowViewModeToggle && viewMode === 'map'
+  const isInPlacementMode = placementProject != null && canRenderHexMap
+  const shouldRenderHexMap = (canShowViewModeToggle && viewMode === 'map') || isInPlacementMode
 
   const renderCategoryCardLayout = () => {
     if (hasNoProjects) {
@@ -567,10 +627,35 @@ export const LifeMap: React.FC = () => {
         </div>
       )}
 
+      {/* Placement mode overlay banner */}
+      {isInPlacementMode && placementProject && (
+        <div className='pointer-events-none absolute top-2 left-1/2 z-[4] -translate-x-1/2'>
+          <div className='pointer-events-auto inline-flex items-center gap-3 rounded-xl border border-[#d8cab3] bg-[#faf4e9]/95 px-4 py-2.5 shadow-md backdrop-blur-sm'>
+            <span className='text-sm font-semibold text-[#2f2b27]'>
+              Choose a hex for &ldquo;{placementProject.name}&rdquo;
+            </span>
+            <button
+              type='button'
+              className='rounded-lg border border-[#e8e4de] bg-transparent px-3 py-1 text-xs font-medium text-[#8b8680] cursor-pointer transition-colors hover:bg-[#f0e3cf] hover:text-[#2f2b27]'
+              onClick={handleCancelPlacement}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       {shouldRenderHexMap ? (
         <div className='absolute -inset-3.5 min-h-[520px] overflow-hidden bg-[#efe2cd]'>
           <Suspense fallback={renderHexMapLoadingState()}>
-            <LazyHexMap />
+            <LazyHexMap
+              onHexClick={isInPlacementMode ? undefined : handleHexClick}
+              placementMode={
+                isInPlacementMode && placementProjectId
+                  ? { projectId: placementProjectId, onPlace: handlePlaceOnHex }
+                  : undefined
+              }
+            />
           </Suspense>
         </div>
       ) : (

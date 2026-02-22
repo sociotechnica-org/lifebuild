@@ -1,9 +1,45 @@
+import type { HexCoord } from '@lifebuild/shared/hex'
+import { hexToKey } from '@lifebuild/shared/hex'
+import { getHexPlacements$, getProjects$ } from '@lifebuild/shared/queries'
+import { getCategoryInfo, type ProjectCategory } from '@lifebuild/shared'
 import { Canvas } from '@react-three/fiber'
-import React, { Suspense } from 'react'
+import React, { Suspense, useMemo } from 'react'
+import { useQuery } from '../../livestore-compat.js'
 import { CameraRig } from './CameraRig.js'
+import type { HexCellProjectData } from './HexCell.js'
 import { HexGrid } from './HexGrid.js'
 
-export const HexMap: React.FC = () => {
+export type HexMapProps = {
+  onHexClick?: (projectId: string) => void
+  placementMode?: {
+    projectId: string
+    onPlace: (coord: HexCoord) => void
+  }
+}
+
+export const HexMap: React.FC<HexMapProps> = ({ onHexClick, placementMode }) => {
+  const placements = useQuery(getHexPlacements$) ?? []
+  const projects = useQuery(getProjects$) ?? []
+
+  const hexProjectMap = useMemo(() => {
+    const map = new Map<string, HexCellProjectData>()
+    const projectMap = new Map(projects.map(p => [p.id, p]))
+
+    for (const placement of placements) {
+      const project = projectMap.get(placement.projectId)
+      if (!project) continue
+      const key = hexToKey({ q: placement.q, r: placement.r, s: placement.s })
+      const info = getCategoryInfo(project.category as ProjectCategory | null)
+      map.set(key, {
+        id: project.id,
+        name: project.name,
+        categoryColor: info?.colorHex ?? '#8b8680',
+      })
+    }
+
+    return map
+  }, [placements, projects])
+
   return (
     <div className='h-full w-full'>
       <Canvas
@@ -21,7 +57,11 @@ export const HexMap: React.FC = () => {
 
         <Suspense fallback={null}>
           <CameraRig />
-          <HexGrid />
+          <HexGrid
+            hexProjectMap={hexProjectMap}
+            onHexClick={onHexClick}
+            placementMode={placementMode}
+          />
         </Suspense>
       </Canvas>
     </div>
