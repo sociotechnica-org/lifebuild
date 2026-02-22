@@ -67,7 +67,7 @@ The ambient notification mechanism that surfaces items needing attention through
 
 ### Examples
 
-- A builder opens their Life Map and notices a warm yellow tint on their Health category tile. They tap it and Mesa explains: "Your workout system has missed three consecutive cycles. Want to adjust the frequency or pause it for now?" The builder adjusts the system's cadence from 3x/week to 2x/week. The condition resolves and the tint fades on the next Processing Layer cycle. The builder was informed, not nagged.
+- A builder opens their Life Map and notices a yellow tint on their Health system tile. They tap it and Mesa explains: "Your workout system's 'complete workout' template has missed three consecutive cycles. Want to adjust that template's cadence or pause the system?" The builder adjusts the template's cadence from 3x/week to 2x/week. The condition resolves and the tint fades on the next Processing Layer cycle. The builder was informed, not nagged.
 - A Gold project "Career course" has a deadline in 5 days but no tasks have been completed this week. The project's tile shows a subtle pulsing effect. During a Life Map visit, the builder notices it and opens the Project Board. They see the deadline approaching and decide to prioritize it. The smoke signal did its job: it created awareness at the moment the builder was looking, without sending a push notification or interrupting their day.
 
 ### Anti-Examples

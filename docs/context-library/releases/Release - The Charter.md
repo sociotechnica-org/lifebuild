@@ -63,7 +63,7 @@ The product earns its visual identity and strategic depth in one move. Pre-made 
 
 **After this release, the builder CANNOT:**
 
-- Plant systems (Silver projects just complete, nothing takes root)
+- Create systems (no System primitive yet, nothing takes root)
 - See health signals on the map (no smoke signals)
 - Delegate any work to AI attendants
 - Run structured expedition cycles (work is still ad-hoc)

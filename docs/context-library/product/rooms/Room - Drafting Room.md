@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-Marvin's dedicated space — where builders create new projects, guided through the four-stage creation process. The Drafting Room is where ideas become executable plans.
+Marvin's dedicated space — where builders create new projects and systems, guided through structured creation flows. The Drafting Room is where ideas become executable plans (projects) or planted infrastructure (systems).
 
 ## WHERE: Ecosystem
 
@@ -17,15 +17,15 @@ Marvin's dedicated space — where builders create new projects, guided through 
 - Implements: [[System - Four-Stage Creation]] — guided process
 - Implements: [[Strategy - Superior Process]] — structured project development
 - Implements: [[Principle - Earn Don't Interrogate]] — progressive capture
-- Creates: [[Primitive - Project]] — output of drafting process
-- Configures: [[Primitive - System]] — for system-building Silver projects
+- Creates: [[Primitive - Project]] — output of project creation flow
+- Creates: [[Primitive - System]] — output of system creation flow
 
 ## WHY: Rationale
 
 - Strategy: [[Strategy - Superior Process]] — creation deserves structure
 - Principle: [[Principle - Earn Don't Interrogate]] — Marvin guides without blocking
 - Driver: Builders need help turning ideas into actionable projects. The Drafting Room provides that translation.
-- Constraints: Drafting Room translates ideas into projects without judging them. Marvin guides structure, not evaluates worth. Quick capture is always available.
+- Constraints: Drafting Room translates ideas into projects or systems without judging them. Marvin guides structure, not evaluates worth. Quick capture is always available.
 
 ## WHEN: Timeline
 
@@ -37,23 +37,35 @@ Core support space. Drafting Room process refined as four-stage creation matured
 
 ## HOW: Implementation
 
-**Four-stage flow:**
+**Entity type choice:**
+
+When the builder initiates creation, the **first screen** presents a binary choice: **Project or System**. This is an explicit UI element — not conversational, not something Marvin asks during dialogue. It is upstream of everything else. Gold/Silver/Bronze purpose assignment only appears for projects, after the entity type is chosen. The entity type choice is a distinct UI screen, not a conversation with Marvin.
+
+**Project creation flow (four stages):**
 
 1. **Identify** — capture basics (title, description, category)
-2. **Scope** — define purpose, objectives, priority attributes
-3. **Draft** — create tasks or configure system
+2. **Scope** — define purpose (G/S/B), objectives, priority attributes
+3. **Draft** — create task list
 4. **Prioritize** — place in Priority Queue
+
+**System creation flow (three stages):**
+
+1. **Identify** — capture basics (title, description, category). Designed to take 20 seconds from a phone.
+2. **Scope** — define purpose statement ("what does this system maintain?") + recurring task templates with individual cadences. Each template gets its own cadence (daily/weekly/monthly/quarterly/annually). This is where the complexity lives — simple systems have 1 template, complex ones have many.
+3. **Detail** — health metrics/controls, delegation profile, refinements. Lightweight in R3 — this stage exists but is minimal initially.
+
+Systems are planted immediately after the Detail stage — they generate tasks right away. There is no prioritization stage for systems because systems are infrastructure, not competing priorities.
 
 **Marvin's role:**
 
-- Guide through stages
-- Suggest task decomposition
-- Ask purpose question (Gold/Silver/Bronze classification)
-- Configure systems for system-building projects
+- Entity type choice happens on first screen (before Marvin conversation)
+- For projects: guide four-stage flow, suggest task decomposition, ask purpose question (G/S/B)
+- For systems: guide three-stage flow, help define per-template cadences and purpose statement, support mid-cycle status button
+- Support iteration and refinement of both entity types
 
 **Entry points:**
 
-- "Create project" from anywhere
+- "Create project" or "Create system" from anywhere
 - Quick capture (Stage 1 only, return later)
 - Triggered by life event or advisor suggestion
 - Click item in Planning Queue to continue work
@@ -69,6 +81,7 @@ Core support space. Drafting Room process refined as four-stage creation matured
 
 - Builder has an idea: "Kitchen Renovation" → enters Drafting Room → types title and brief description → Marvin asks: "Is this about changing your life, building infrastructure, or handling something that needs doing?" → builder says "changing my life" → project tagged as Gold stream → Marvin guides through scoping objectives and tasks.
 - Builder captures "Call dentist" as quick capture → Stage 1 only (title + description) → task sits in Planning Queue as "Identified" → builder returns three days later → clicks to continue → Marvin picks up at Stage 2 → low-friction capture didn't block the original thought.
+- Builder taps "Create" → first screen shows Project or System → builder taps "System" → Stage 1: title "Weekly Meal Prep," category Home → Stage 2: purpose "maintain weekly meal preparation," adds three task templates each with weekly (Sunday) cadence: "plan meals," "create grocery list," "prep ingredients" → builder taps "I'm mid-cycle and need to update this" because they already prepped this week → sets initial health snapshot → Stage 3: delegation profile is builder-only, health metrics deferred → system is planted, next week's tasks generate on schedule.
 
 ### Anti-Examples
 

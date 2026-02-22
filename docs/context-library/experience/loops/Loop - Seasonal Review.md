@@ -83,5 +83,5 @@ The builder has reviewed the previous season, rested, and declared direction for
 | ------ | ---------- | ---------------------------------------------------------------- | -------------------------------------- |
 | Spring | Planting   | New ventures conceived, Silver investments planned               | "What will you cultivate this season?" |
 | Summer | Growing    | Execution peak, tending load highest, energy management critical | (none — just the work)                 |
-| Fall   | Harvesting | Projects complete, systems plant, results visible                | "What bloomed? What didn't?"           |
+| Fall   | Harvesting | Projects complete, systems mature, results visible               | "What bloomed? What didn't?"           |
 | Winter | Resting    | Fewer ventures, reflection, pruning, planning                    | Fireside planning for Spring           |
