@@ -17,6 +17,16 @@ const canUseLocalStorage = (): boolean => {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
 }
 
+const shouldShowFirstPlacementPrompt = (hasUnplacedProjects: boolean): boolean => {
+  if (!hasUnplacedProjects) {
+    return false
+  }
+  if (!canUseLocalStorage()) {
+    return true
+  }
+  return window.localStorage.getItem(FIRST_PLACEMENT_PROMPT_KEY) !== '1'
+}
+
 type HexMapProps = {
   tiles?: readonly PlacedHexTile[]
   unplacedProjects?: readonly PanelProjectItem[]
@@ -53,15 +63,9 @@ const HexMapSurface: React.FC<HexMapProps> = ({
   } = usePlacement()
 
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false)
-  const [showFirstPlacementPrompt, setShowFirstPlacementPrompt] = useState(() => {
-    if (unplacedProjects.length === 0) {
-      return false
-    }
-    if (!canUseLocalStorage()) {
-      return true
-    }
-    return window.localStorage.getItem(FIRST_PLACEMENT_PROMPT_KEY) !== '1'
-  })
+  const [showFirstPlacementPrompt, setShowFirstPlacementPrompt] = useState(() =>
+    shouldShowFirstPlacementPrompt(unplacedProjects.length > 0)
+  )
 
   const unplacedProjectsById = useMemo(() => {
     return new Map(unplacedProjects.map(project => [project.id, project]))
@@ -95,9 +99,7 @@ const HexMapSurface: React.FC<HexMapProps> = ({
   }, [clearPlacedProjectSelection, placedProjectsById, selectedPlacedProjectId])
 
   useEffect(() => {
-    if (unplacedProjects.length === 0) {
-      setShowFirstPlacementPrompt(false)
-    }
+    setShowFirstPlacementPrompt(shouldShowFirstPlacementPrompt(unplacedProjects.length > 0))
   }, [unplacedProjects.length])
 
   useEffect(() => {

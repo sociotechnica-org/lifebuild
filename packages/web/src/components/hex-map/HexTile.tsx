@@ -18,6 +18,7 @@ type HexTileProps = {
   categoryColor: string
   isCompleted?: boolean
   isSelected?: boolean
+  allowCompletedClick?: boolean
   onClick?: () => void
 }
 
@@ -27,11 +28,13 @@ export function HexTile({
   categoryColor,
   isCompleted = false,
   isSelected = false,
+  allowCompletedClick = false,
   onClick,
 }: HexTileProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [x, z] = useMemo(() => hexToWorld(coord, BASE_HEX_SIZE), [coord.q, coord.r, coord.s])
-  const canInteract = !isCompleted && typeof onClick === 'function'
+  const canClick = typeof onClick === 'function' && (!isCompleted || allowCompletedClick)
+  const canHover = !isCompleted && canClick
   const isHighlighted = isHovered || isSelected
   const label = useMemo(() => truncateLabel(projectName, MAX_LABEL_LENGTH), [projectName])
 
@@ -45,7 +48,7 @@ export function HexTile({
     <group position={[x, TILE_LIFT + (isHovered ? HOVER_LIFT : 0) + (isSelected ? 0.02 : 0), z]}>
       <mesh
         onClick={event => {
-          if (!canInteract) {
+          if (!canClick) {
             return
           }
           event.stopPropagation()
@@ -53,7 +56,7 @@ export function HexTile({
         }}
         onPointerOver={event => {
           event.stopPropagation()
-          if (!canInteract) {
+          if (!canHover) {
             return
           }
           setIsHovered(true)

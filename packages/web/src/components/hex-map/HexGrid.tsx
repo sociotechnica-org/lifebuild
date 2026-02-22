@@ -57,6 +57,10 @@ export function HexGrid({
     return new Map(tiles.map(tile => [hexToKey(tile.coord), tile]))
   }, [tiles])
 
+  const isBlockedCell = (cellKey: string, coord: HexCoord): boolean => {
+    return occupiedTilesByKey.has(cellKey) || isReservedProjectCoord(coord)
+  }
+
   useEffect(() => {
     if (!isPlacementMode) {
       setHoveredPlacementKey(null)
@@ -64,19 +68,24 @@ export function HexGrid({
   }, [isPlacementMode])
 
   const hoveredPlacementCell = hoveredPlacementKey ? cellByKey.get(hoveredPlacementKey) : null
+  const isHoveredPlacementBlocked =
+    hoveredPlacementCell && hoveredPlacementKey
+      ? isBlockedCell(hoveredPlacementKey, hoveredPlacementCell.coord)
+      : false
   const hoveredPlacementLabel = placementProject
     ? truncateLabel(placementProject.name, MAX_PLACEMENT_LABEL_LENGTH)
     : ''
-  const hoveredPlacementPosition = hoveredPlacementCell
-    ? hexToWorld(hoveredPlacementCell.coord, 1)
-    : null
+  const hoveredPlacementPosition =
+    hoveredPlacementCell && !isHoveredPlacementBlocked
+      ? hexToWorld(hoveredPlacementCell.coord, 1)
+      : null
 
   const handlePlacementClick = (cell: { coord: HexCoord; key: string }) => {
     if (!isPlacementMode || !placementProject || !onPlaceProject) {
       return
     }
 
-    const isBlocked = occupiedTilesByKey.has(cell.key) || isReservedProjectCoord(cell.coord)
+    const isBlocked = isBlockedCell(cell.key, cell.coord)
     if (isBlocked) {
       return
     }
@@ -108,13 +117,13 @@ export function HexGrid({
   return (
     <group>
       {cells.map(cell => {
-        const isBlocked = occupiedTilesByKey.has(cell.key) || isReservedProjectCoord(cell.coord)
+        const isBlocked = isBlockedCell(cell.key, cell.coord)
         const isTargeted = hoveredPlacementKey === cell.key
         const visualState = isPlacementMode
-          ? isTargeted
-            ? 'targeted'
-            : isBlocked
-              ? 'blocked'
+          ? isBlocked
+            ? 'blocked'
+            : isTargeted
+              ? 'targeted'
               : 'placeable'
           : undefined
 
@@ -150,20 +159,25 @@ export function HexGrid({
           categoryColor={tile.categoryColor}
           isCompleted={tile.isCompleted}
           isSelected={selectedPlacedProjectId === tile.projectId}
+          allowCompletedClick={isPlacementMode}
           onClick={() => handleTileClick(tile)}
         />
       ))}
-      {isPlacementMode && hoveredPlacementCell && hoveredPlacementPosition && placementProject && (
-        <Html
-          position={[hoveredPlacementPosition[0], 0.44, hoveredPlacementPosition[1]]}
-          center
-          style={{ pointerEvents: 'none' }}
-        >
-          <div className='rounded-md border border-[#c48b5a] bg-[#fff7ec]/95 px-2 py-1 text-[10px] font-semibold text-[#5f462f] shadow-sm'>
-            Place: {hoveredPlacementLabel}
-          </div>
-        </Html>
-      )}
+      {isPlacementMode &&
+        hoveredPlacementCell &&
+        hoveredPlacementPosition &&
+        placementProject &&
+        !isHoveredPlacementBlocked && (
+          <Html
+            position={[hoveredPlacementPosition[0], 0.44, hoveredPlacementPosition[1]]}
+            center
+            style={{ pointerEvents: 'none' }}
+          >
+            <div className='rounded-md border border-[#c48b5a] bg-[#fff7ec]/95 px-2 py-1 text-[10px] font-semibold text-[#5f462f] shadow-sm'>
+              Place: {hoveredPlacementLabel}
+            </div>
+          </Html>
+        )}
     </group>
   )
 }
