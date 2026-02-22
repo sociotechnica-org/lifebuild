@@ -66,25 +66,25 @@ Three mechanisms prevent silent failures:
 
 All tasks involved in maintaining the Context Library.
 
-| Task | What happens | AI seniority | Human seniority |
-|------|-------------|-------------|----------------|
-| **Source Assessment** | Judge whether source material is good enough to build from | High — quality judgment | None |
-| **Inventory** | Plan what cards should exist, in what order | High — architectural understanding | Low — approve the manifest |
-| **Create Cards** | Write cards from inventory + source material | Low — following a defined procedure with clear inputs | None |
-| **Spot-Check** | Verify upstream cards before dependents get built | High — quality gate | None |
-| **Self-Check** | Run checklist on finished cards | Low — mechanical checklist | None |
-| **Grade** | Score cards on 5 dimensions with rubrics | High — evaluative judgment | None |
-| **Diagnose** | Trace root causes of quality issues, calculate blast radius | High — analytical reasoning | None |
-| **Recommend** | Prioritize fixes by severity/effort/blast radius | High — prioritization judgment | Low — approve the priority order |
-| **Fix Cards** | Update cards per recommendations | Low — prescribed fixes, clear inputs | None |
-| **Review** | Re-grade after fixes, accept or send back | High — evaluative judgment | None |
-| **Audit** | Verify typing, atomicity, conformance | Medium — decision tree with some judgment | None |
-| **Surgery Plan** | Design multi-phase structural fix plans | High — architectural reasoning | Low — approve the plan |
-| **Surgery Execute** | Build replacement cards, update links per plan | Low — following the plan | None |
-| **Downstream Sync** | Update meta-files after structural changes | Low — mechanical reference checking | None |
-| **Health Check** | Full 6-phase library assessment | High — comprehensive evaluation | Low — review findings |
-| **Context Assembly** | Pull the right cards for a build task | High — understanding what a builder needs | None |
-| **Release Planning** | Write release cards with propagation maps | High — strategic + structural | High — product vision input |
+| Task                  | What happens                                                | AI seniority                                          | Human seniority                  |
+| --------------------- | ----------------------------------------------------------- | ----------------------------------------------------- | -------------------------------- |
+| **Source Assessment** | Judge whether source material is good enough to build from  | High — quality judgment                               | None                             |
+| **Inventory**         | Plan what cards should exist, in what order                 | High — architectural understanding                    | Low — approve the manifest       |
+| **Create Cards**      | Write cards from inventory + source material                | Low — following a defined procedure with clear inputs | None                             |
+| **Spot-Check**        | Verify upstream cards before dependents get built           | High — quality gate                                   | None                             |
+| **Self-Check**        | Run checklist on finished cards                             | Low — mechanical checklist                            | None                             |
+| **Grade**             | Score cards on 5 dimensions with rubrics                    | High — evaluative judgment                            | None                             |
+| **Diagnose**          | Trace root causes of quality issues, calculate blast radius | High — analytical reasoning                           | None                             |
+| **Recommend**         | Prioritize fixes by severity/effort/blast radius            | High — prioritization judgment                        | Low — approve the priority order |
+| **Fix Cards**         | Update cards per recommendations                            | Low — prescribed fixes, clear inputs                  | None                             |
+| **Review**            | Re-grade after fixes, accept or send back                   | High — evaluative judgment                            | None                             |
+| **Audit**             | Verify typing, atomicity, conformance                       | Medium — decision tree with some judgment             | None                             |
+| **Surgery Plan**      | Design multi-phase structural fix plans                     | High — architectural reasoning                        | Low — approve the plan           |
+| **Surgery Execute**   | Build replacement cards, update links per plan              | Low — following the plan                              | None                             |
+| **Downstream Sync**   | Update meta-files after structural changes                  | Low — mechanical reference checking                   | None                             |
+| **Health Check**      | Full 6-phase library assessment                             | High — comprehensive evaluation                       | Low — review findings            |
+| **Context Assembly**  | Pull the right cards for a build task                       | High — understanding what a builder needs             | None                             |
+| **Release Planning**  | Write release cards with propagation maps                   | High — strategic + structural                         | High — product vision input      |
 
 ---
 
@@ -92,16 +92,16 @@ All tasks involved in maintaining the Context Library.
 
 All tasks involved in moving work through the factory stations.
 
-| Task | What happens | AI seniority | Human seniority |
-|------|-------------|-------------|----------------|
-| **Status Report** | Read dashboard, rate metrics, recommend actions | Low — read instruments, apply known rubrics | Low — glance at the report |
-| **Shift Plan** | Prioritize today's work, assign to people | Medium — priority algorithm with some judgment | Low — approve or adjust |
-| **Triage** | Diagnose why the factory is stuck | High — root cause analysis across systems | Medium — validate diagnosis, agree on fix |
-| **Decision Resolution** | Propagate a closed decision through GitHub + library | Medium — 10-step procedure, but mostly mechanical once decision is clear | Low — verify the cascade makes sense |
-| **Build** (MAKE) | Implement a feature with context briefing | Medium-High — depends on complexity | None to High — depends on review needs |
-| **Shape** (SHAPE) | Prototype iteratively to discover the right approach | High — creative problem-solving | High — taste, direction, feedback |
-| **PR Review** | Review code for quality | Medium — pattern matching against known standards | Low — final approve |
-| **Decide** (DECIDE) | Resolve open questions, make product calls | None | High — this is the human's core job |
+| Task                    | What happens                                         | AI seniority                                                             | Human seniority                           |
+| ----------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------- |
+| **Status Report**       | Read dashboard, rate metrics, recommend actions      | Low — read instruments, apply known rubrics                              | Low — glance at the report                |
+| **Shift Plan**          | Prioritize today's work, assign to people            | Medium — priority algorithm with some judgment                           | Low — approve or adjust                   |
+| **Triage**              | Diagnose why the factory is stuck                    | High — root cause analysis across systems                                | Medium — validate diagnosis, agree on fix |
+| **Decision Resolution** | Propagate a closed decision through GitHub + library | Medium — 10-step procedure, but mostly mechanical once decision is clear | Low — verify the cascade makes sense      |
+| **Build** (MAKE)        | Implement a feature with context briefing            | Medium-High — depends on complexity                                      | None to High — depends on review needs    |
+| **Shape** (SHAPE)       | Prototype iteratively to discover the right approach | High — creative problem-solving                                          | High — taste, direction, feedback         |
+| **PR Review**           | Review code for quality                              | Medium — pattern matching against known standards                        | Low — final approve                       |
+| **Decide** (DECIDE)     | Resolve open questions, make product calls           | None                                                                     | High — this is the human's core job       |
 
 ---
 
@@ -129,7 +129,7 @@ Tasks: Approve manifests, approve priority orders, approve surgery plans, glance
 
 Tasks: Make product decisions (DECIDE), resolve ambiguity when the Andon gate fires, shape prototypes (SHAPE), provide product vision for Release Planning, validate triage diagnoses for systemic issues, strategic library direction.
 
-**Shared pattern:** Taste, vision, ambiguity resolution. These are the things no model can substitute for because they require knowing what you *want*.
+**Shared pattern:** Taste, vision, ambiguity resolution. These are the things no model can substitute for because they require knowing what you _want_.
 
 ---
 
@@ -137,12 +137,12 @@ Tasks: Make product decisions (DECIDE), resolve ambiguity when the Andon gate fi
 
 The conversation identified a spectrum from fully manual to fully automated, with important distinctions:
 
-| Level | Description | Example |
-|-------|------------|---------|
-| **Agent vibing** | Back-and-forth creative problem-solving. No predefined steps. | Shaping a prototype, debugging a novel issue |
-| **Agent running a skill** | Executing a defined procedure (a "skill" file) but with agent judgment at decision points | Conan grading a card — follows rubrics but interprets edge cases |
-| **Tool** | A callable function with defined inputs/outputs. Agent invokes it but doesn't improvise the steps | Running the factory dashboard script, checking board field IDs |
-| **Software** | Code that runs on a trigger with no agent involved. Fully automated | Decision closes → GitHub webhook → propagation cascade runs → cards update |
+| Level                     | Description                                                                                       | Example                                                                    |
+| ------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| **Agent vibing**          | Back-and-forth creative problem-solving. No predefined steps.                                     | Shaping a prototype, debugging a novel issue                               |
+| **Agent running a skill** | Executing a defined procedure (a "skill" file) but with agent judgment at decision points         | Conan grading a card — follows rubrics but interprets edge cases           |
+| **Tool**                  | A callable function with defined inputs/outputs. Agent invokes it but doesn't improvise the steps | Running the factory dashboard script, checking board field IDs             |
+| **Software**              | Code that runs on a trigger with no agent involved. Fully automated                               | Decision closes → GitHub webhook → propagation cascade runs → cards update |
 
 The key insight: **the affordable AI bundle is almost entirely automatable as software today.** Those tasks could run on events — decision closes → propagation fires → cards get updated → self-check runs → downstream sync triggers. No human in the loop until the end. The expensive AI bundle is where agents earn their keep, and the expensive human bundle is where humans earn theirs.
 
