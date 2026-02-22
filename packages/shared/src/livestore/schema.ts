@@ -76,6 +76,35 @@ const projects = State.SQLite.table({
   },
 })
 
+const hexPositions = State.SQLite.table({
+  name: 'hex_positions',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    hexQ: State.SQLite.integer(),
+    hexR: State.SQLite.integer(),
+    entityType: State.SQLite.text({
+      default: 'project',
+      schema: Schema.Literal('project', 'landmark'),
+    }),
+    entityId: State.SQLite.text(),
+    placedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+  },
+  indexes: [
+    {
+      name: 'idx_hex_positions_qr_unique',
+      columns: ['hexQ', 'hexR'],
+      isUnique: true,
+    },
+    {
+      name: 'idx_hex_positions_entity_unique',
+      columns: ['entityType', 'entityId'],
+      isUnique: true,
+    },
+  ],
+})
+
 // PR3: columns table definition removed - migration to status-based tasks complete
 // Kept as comment for reference - columns functionality replaced by task.status field
 /*
@@ -421,6 +450,7 @@ const uiState = State.SQLite.clientDocument({
 
 export type ChatMessage = State.SQLite.FromTable.RowDecoded<typeof chatMessages>
 export type Project = State.SQLite.FromTable.RowDecoded<typeof projects>
+export type HexPosition = State.SQLite.FromTable.RowDecoded<typeof hexPositions>
 // ProjectCategory type defined in constants.ts
 export type Board = Project // Backwards compatibility alias (deprecated)
 // Column type removed - PR3: migration to status-based tasks complete
@@ -454,6 +484,7 @@ export const tables = {
   uiState,
   chatMessages,
   projects,
+  hexPositions,
   // columns removed - PR3: migration to status-based tasks complete
   users,
   tasks,
@@ -962,8 +993,23 @@ const materializers = State.SQLite.materializers(events, {
       })
       .where({ id: projectId }),
 
+  'hexPosition.placed': ({ id, hexQ, hexR, entityType, entityId, placedAt }) => [
+    hexPositions.delete().where({ id }),
+    hexPositions.insert({
+      id,
+      hexQ,
+      hexR,
+      entityType,
+      entityId,
+      placedAt,
+    }),
+  ],
+
+  'hexPosition.removed': ({ id }) => hexPositions.delete().where({ id }),
+
   'v2.ProjectArchived': ({ id, archivedAt }) => [
     projects.update({ archivedAt, updatedAt: archivedAt }).where({ id }),
+    hexPositions.delete().where({ entityType: 'project', entityId: id }),
     workers
       .update({ status: 'inactive', isActive: false, updatedAt: archivedAt })
       .where({ roomId: `project:${id}` }),
