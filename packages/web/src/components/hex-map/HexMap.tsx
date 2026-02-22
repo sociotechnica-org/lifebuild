@@ -15,6 +15,7 @@ type HexMapProps = {
   unplacedProjects?: readonly PanelProjectItem[]
   completedProjects?: readonly PanelCompletedProjectItem[]
   archivedProjects?: readonly PanelArchivedProjectItem[]
+  onSelectUnplacedProject?: (projectId: string) => void
   onOpenProject?: (projectId: string) => void
   onUnarchiveProject?: (projectId: string) => void
 }
@@ -24,6 +25,7 @@ export const HexMap: React.FC<HexMapProps> = ({
   unplacedProjects = [],
   completedProjects = [],
   archivedProjects = [],
+  onSelectUnplacedProject,
   onOpenProject,
   onUnarchiveProject,
 }) => {
@@ -56,6 +58,7 @@ export const HexMap: React.FC<HexMapProps> = ({
         completedProjects={completedProjects}
         archivedProjects={archivedProjects}
         onToggleCollapsed={() => setIsPanelCollapsed(collapsed => !collapsed)}
+        onSelectUnplacedProject={onSelectUnplacedProject}
         onOpenProject={onOpenProject}
         onUnarchiveProject={onUnarchiveProject}
       />

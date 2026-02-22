@@ -641,6 +641,9 @@ export const LifeMap: React.FC = () => {
               unplacedProjects={unplacedProjects}
               completedProjects={completedProjectsForPanel}
               archivedProjects={archivedProjectsForPanel}
+              onSelectUnplacedProject={projectId =>
+                navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
+              }
               onOpenProject={projectId =>
                 navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
               }
