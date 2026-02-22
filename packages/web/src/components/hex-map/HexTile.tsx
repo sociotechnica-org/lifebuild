@@ -3,6 +3,7 @@ import type { HexCoord } from '@lifebuild/shared/hex'
 import { hexToWorld } from '@lifebuild/shared/hex'
 import React from 'react'
 import { useEffect, useMemo, useState } from 'react'
+import { truncateLabel } from './labelUtils.js'
 
 const BASE_HEX_SIZE = 1
 const TILE_RADIUS = 0.68
@@ -18,14 +19,6 @@ type HexTileProps = {
   isCompleted?: boolean
   isSelected?: boolean
   onClick?: () => void
-}
-
-const truncateLabel = (value: string, maxLength: number): string => {
-  if (value.length <= maxLength) {
-    return value
-  }
-
-  return `${value.slice(0, maxLength - 3)}...`
 }
 
 export function HexTile({

@@ -6,6 +6,7 @@ import React from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { HexCell } from './HexCell.js'
 import { HexTile } from './HexTile.js'
+import { truncateLabel } from './labelUtils.js'
 import { isReservedProjectCoord } from './placementRules.js'
 
 const GRID_RADIUS = 3
@@ -33,14 +34,6 @@ type HexGridProps = {
   onPlaceProject?: (projectId: string, coord: HexCoord) => Promise<void> | void
   onSelectPlacedProject?: (projectId: string) => void
   onCancelPlacement?: () => void
-}
-
-const truncateLabel = (value: string, maxLength: number): string => {
-  if (value.length <= maxLength) {
-    return value
-  }
-
-  return `${value.slice(0, maxLength - 3)}...`
 }
 
 export function HexGrid({
@@ -85,7 +78,6 @@ export function HexGrid({
 
     const isBlocked = occupiedTilesByKey.has(cell.key) || isReservedProjectCoord(cell.coord)
     if (isBlocked) {
-      onCancelPlacement?.()
       return
     }
 
