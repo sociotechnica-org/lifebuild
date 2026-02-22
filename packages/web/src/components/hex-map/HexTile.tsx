@@ -56,10 +56,10 @@ export function HexTile({
           onClick?.()
         }}
         onPointerOver={event => {
+          event.stopPropagation()
           if (!canInteract) {
             return
           }
-          event.stopPropagation()
           setIsHovered(true)
           document.body.style.cursor = 'pointer'
         }}
