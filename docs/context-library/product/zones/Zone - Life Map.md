@@ -73,7 +73,7 @@ Core workspace from initial design. The Life Map is LifeBuild's primary interfac
 ### Examples
 
 - Builder opens LifeBuild → Life Map loads at last zoom level and scroll position → [[Overlay - The Table]] shows current priorities → [[Structure - Hex Grid]] shows project landscape → builder orients in under 3 seconds without clicking anything.
-- Builder notices a red smoke signal on a system tile at Neighborhood zoom → zooms in to Detail level → reads health warning "cycle completion 45%" → clicks tile → [[Room - System Board]] opens as overlay → builder diagnoses the issue while Life Map stays visible behind.
+- Builder notices a red smoke signal on a system tile at Neighborhood zoom → zooms in to Detail level → reads health warning "meal prep task overdue by 3 days" → clicks tile → [[Room - System Board]] opens as overlay → builder diagnoses the issue while Life Map stays visible behind.
 
 ### Anti-Examples
 

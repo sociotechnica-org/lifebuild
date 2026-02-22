@@ -423,7 +423,7 @@ Alpha testers. Real people. Full cycle. Measure: does the 72-hour win land?
 | Overgrowth                  | Requires mature system primitives                             |
 | Capacity Economy (explicit) | Stewards reason implicitly first                              |
 | Attendants                  | No delegation system yet                                      |
-| System planting             | Silver projects don't yet become planted systems              |
+| System creation             | Systems as first-class entities not yet available             |
 | Four Verbs (explicit)       | Builders naturally do all four; explicit classification later |
 
 ---

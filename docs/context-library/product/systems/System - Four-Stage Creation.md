@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The progressive project development process that separates four cognitive modes: capture (Stage 1), definition (Stage 2), planning (Stage 3), and evaluation (Stage 4). Each stage requires different thinking; separating them reduces decision fatigue.
+The progressive development process for projects (and the template for system creation) that separates cognitive modes: capture (Stage 1), definition (Stage 2), planning (Stage 3), and evaluation (Stage 4). Each stage requires different thinking; separating them reduces decision fatigue. Systems use a parallel 3-stage flow (Identify, Scope, Detail) based on the same progressive-investment principle.
 
 ## WHERE: Scope
 
@@ -39,7 +39,7 @@ The progressive project development process that separates four cognitive modes:
 | ------------------- | ---------------------------------------------------------------------- | -------------------- | -------------------------------------------------------------------------------------- |
 | No project          | Builder initiates creation with Marvin                                 | Stage 1: Identified  | Project created with title, description, Life Category; enters Planning Queue          |
 | Stage 1: Identified | Builder resumes with Marvin, provides purpose/objectives/priority data | Stage 2: Scoped      | Stream assignment (Gold/Silver/Bronze), success criteria, priority attributes recorded |
-| Stage 2: Scoped     | Builder works with Marvin to generate task list or system config       | Stage 3: Drafted     | Complete task list or system configuration attached                                    |
+| Stage 2: Scoped     | Builder works with Marvin to generate task list                        | Stage 3: Drafted     | Complete task list attached                                                            |
 | Stage 3: Drafted    | Builder reviews Priority Queue placement with Marvin                   | Stage 4: Prioritized | Project exits Planning Queue, enters Priority Queue with priority score                |
 | Any stage           | Builder abandons project                                               | Archived             | Project removed from active queues                                                     |
 
@@ -53,14 +53,14 @@ The progressive project development process that separates four cognitive modes:
 **Stage 2: Scoped** — Define success and capture priority data
 
 - Marvin asks: Purpose (-> stream), Objectives (1-3), Priority attributes (U/I/E), Deadline
-- For system-building Silver: "Will this create something that runs continuously?"
 - Result: Stream assignment, success criteria, priority data
 
-**Stage 3: Drafted** — Create complete task list or configure system
+**Stage 3: Drafted** — Create complete task list
 
-- Standard projects: Generate and iterate task list
-- System-building Silver: Configure pattern, controls, outputs, delegation
-- Result: Complete task list OR system configuration
+- Generate and iterate task list with Marvin
+- Result: Complete task list
+
+Note: The entity type choice (Project or System) happens on the Drafting Room's first screen, upstream of any stage flow. Systems use a separate 3-stage creation flow (see [[Room - Drafting Room]]): Identify (quick capture), Scope (purpose + recurring task templates with individual cadences), Detail (health metrics, delegation — lightweight in R3).
 
 **Stage 4: Prioritized** — Decide where this ranks
 

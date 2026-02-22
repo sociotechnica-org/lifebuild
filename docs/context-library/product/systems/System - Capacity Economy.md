@@ -40,7 +40,7 @@ The single currency in LifeBuild is capacity — a composite of time, energy, co
 
 **Invest (flow-in):** Capacity is generated or restored.
 
-- _Systemic investment:_ Silver projects that plant systems, creating future temporal capacity. Each planted system is a permanent faucet.
+- _Systemic investment:_ Creating systems that generate recurring infrastructure, building future temporal capacity. Each planted system is a permanent faucet. Silver projects build the skills and foundations; systems formalize the recurring work.
 - _Personal investment:_ Restorative activities that rebuild the builder's internal capacity. Sleep, exercise, meditation, chosen leisure.
 
 **Spend (flow-out):** Capacity is directed toward outcomes.
@@ -50,14 +50,14 @@ The single currency in LifeBuild is capacity — a composite of time, energy, co
 
 ### Faucets (Capacity Sources)
 
-| Faucet                          | Type       | Mechanism                                                |
-| ------------------------------- | ---------- | -------------------------------------------------------- |
-| Blue time activities            | Personal   | Restoration of emotional, physical, mental capacity      |
-| Completed Silver projects       | Systemic   | Planted system reduces future manual effort permanently  |
-| Delegation to attendants/humans | Systemic   | Work handled by others frees builder capacity            |
-| System optimization             | Systemic   | Existing system made more efficient, reducing upkeep     |
-| Completed draining Gold         | Mixed      | Removing a psychological burden frees cognitive capacity |
-| Seasonal rest (Winter)          | Structural | Reduced activity load built into the game's rhythm       |
+| Faucet                          | Type       | Mechanism                                                         |
+| ------------------------------- | ---------- | ----------------------------------------------------------------- |
+| Blue time activities            | Personal   | Restoration of emotional, physical, mental capacity               |
+| Planted systems                 | Systemic   | Recurring infrastructure reduces future manual effort permanently |
+| Delegation to attendants/humans | Systemic   | Work handled by others frees builder capacity                     |
+| System optimization             | Systemic   | Existing system made more efficient, reducing upkeep              |
+| Completed draining Gold         | Mixed      | Removing a psychological burden frees cognitive capacity          |
+| Seasonal rest (Winter)          | Structural | Reduced activity load built into the game's rhythm                |
 
 ### Sinks (Capacity Drains)
 

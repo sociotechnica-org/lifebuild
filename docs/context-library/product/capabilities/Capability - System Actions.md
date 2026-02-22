@@ -45,7 +45,7 @@ Core to system entity. Actions available from System Board for any planted syste
 - Use case: "Oil changes are too frequent — research and optimize"
 - Spawns a Silver project to improve the system
 - System continues running during upgrade work
-- Completed upgrade modifies system's pattern/configuration
+- Completed upgrade modifies system's task templates, cadences, or configuration
 
 **Uproot** — End deliberately
 

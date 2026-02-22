@@ -78,5 +78,3 @@ Hex tile with project illustration, progress ring, category color accent, state 
 - **Not a Project:** A recurring daily habit like "Take vitamins every morning" — that is a [[Primitive - System]], not a Project, because it has no finish line.
 - **Not a Project:** A single action like "Buy milk" — that is a [[Primitive - Task]], not a Project, because it needs no decomposition into sub-tasks or objectives.
 - **Not a Project:** An ongoing weekly review process — that is a [[Primitive - System]] because it repeats indefinitely rather than completing.
-
-**Projects that create Systems:** Silver projects marked as "system-building" plant a new System on completion. The project archives; the system persists.

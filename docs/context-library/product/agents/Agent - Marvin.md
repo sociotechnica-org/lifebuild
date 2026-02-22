@@ -22,7 +22,7 @@ The builder's Manager — a steward who makes things real. When the builder deci
 - Implements: [[Principle - Familiarity Over Function]] — score suggests, builder decides
 - Implements: [[Principle - Protect Transformation]] — guides stream selection
 - Uses: [[System - Priority Queue Architecture]] — source of candidates
-- Configures: [[Primitive - System]] — system setup for Silver projects
+- Creates: [[Primitive - System]] — guides system creation in Drafting Room
 
 ## WHY: Rationale
 
@@ -34,7 +34,7 @@ The builder's Manager — a steward who makes things real. When the builder deci
 
 **Build phase:** MVP
 **Implementation status:** Partial
-**Reality note (2026-02-12):** Marvin is fully active in the Drafting Room and Sorting Room with routable UIs, agent definitions in `rooms.ts`, prompts, and personalities. Guides four-stage project creation, task generation, and priority selection across Gold/Silver/Bronze streams. Roster Room is not yet built (Attendant primitive and delegation system don't exist). System configuration for Silver projects not yet implemented. Pattern detection and capacity integration not yet implemented.
+**Reality note (2026-02-12):** Marvin is fully active in the Drafting Room and Sorting Room with routable UIs, agent definitions in `rooms.ts`, prompts, and personalities. Guides four-stage project creation, task generation, and priority selection across Gold/Silver/Bronze streams. Roster Room is not yet built (Attendant primitive and delegation system don't exist). System creation flow in Drafting Room not yet implemented. Pattern detection and capacity integration not yet implemented.
 
 ## HOW: Behavior
 
@@ -42,10 +42,10 @@ The builder's Manager — a steward who makes things real. When the builder deci
 
 **Drafting (Room - Drafting Room):**
 
-- Guide four-stage project creation
-- Generate task lists from objectives
-- Configure systems for Silver projects
-- Support project iteration and refinement
+- Guide creation of both projects and systems (builder selects entity type on first screen before Marvin conversation begins)
+- For projects: four-stage creation flow with task generation
+- For systems: three-stage creation flow (Identify, Scope, Detail) — guide per-template cadence setup in Stage 2, support mid-cycle status button
+- Support iteration and refinement of both entity types
 
 **Prioritizing (Room - Sorting Room):**
 
@@ -66,9 +66,9 @@ The builder's Manager — a steward who makes things real. When the builder deci
 **Stage guidance:**
 
 - Stage 1: Capture basics (title, description, category)
-- Stage 2: Define scope (purpose, objectives, priority attributes)
-- Stage 3: Draft tasks or configure system
-- Stage 4: Place in Priority Queue
+- Stage 2: For projects: define scope (purpose, objectives, priority attributes). For systems: define purpose statement + recurring task templates with individual cadences.
+- Stage 3: For projects: draft tasks. For systems: health metrics/controls, delegation profile (lightweight in R3).
+- Stage 4: Place in Priority Queue (projects only — systems are planted after Stage 3)
 
 **Selection flow support:**
 
@@ -78,7 +78,7 @@ The builder's Manager — a steward who makes things real. When the builder deci
 
 **Pattern detection:** Marvin notices when tasks repeatedly slip, when capacity estimates miss, when streams are chronically empty or overloaded.
 
-**System configuration:** For Silver projects marked "system-building," Marvin guides configuration of pattern, controls, inputs, outputs, and delegation profile.
+**System creation:** When the builder selects "System" on the first screen, Marvin guides the 3-stage system creation flow: Identify (title, description, category), Scope (purpose statement + recurring task templates, each with its own cadence), Detail (health metrics/controls, delegation profile — lightweight in R3). If the builder taps the "I'm mid-cycle and need to update this" button (builder-initiated, not Marvin asking), Marvin helps them set the initial health snapshot so the system does not show as stale on day one.
 
 ### Voice
 
@@ -99,7 +99,7 @@ Marvin is precise, energetic, and pro-social — the master tactician who genuin
 - [[Capability - Three-Stream Filtering]] — presents Gold/Silver/Bronze filtered views
 - [[Standard - Priority Score]] — computes and displays priority scores
 - [[System - Priority Queue Architecture]] — pulls and ranks candidates
-- [[Primitive - System]] — system configuration for Silver projects
+- [[Primitive - System]] — system creation flow in Drafting Room
 - [[Primitive - Task]] — task generation from objectives
 - Attendant assignment engine — matches tasks to available Attendants by specialization
 - Delegation tracker — monitors check-in schedules and completion status
@@ -107,7 +107,7 @@ Marvin is precise, energetic, and pro-social — the master tactician who genuin
 ### Knowledge Domains
 
 - Project architecture patterns and best practices for scoping
-- System design: patterns, controls, inputs, outputs, delegation profiles
+- System design: recurring task templates with per-template cadences, health controls, delegation profiles
 - Task decomposition techniques — turning objectives into actionable steps
 - Purpose classification heuristics (Gold/Silver/Bronze signals)
 - Progressive capture methods — what to ask now vs. what to earn later

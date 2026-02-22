@@ -2,7 +2,7 @@
 
 ## WHAT: Definition
 
-The moment during project creation (Stage 2) when a builder declares what the time investment is for — Maintenance, Building leverage, or Moving forward — determining which stream (Bronze, Silver, Gold) the project belongs to.
+The moment during project creation (Stage 2) when a builder declares what the time investment is for — Maintenance, Building leverage, or Moving forward — determining which stream (Bronze, Silver, Gold) the project belongs to. Purpose Assignment applies only to projects. It occurs after the builder has already selected "Project" (not "System") on the Drafting Room's first screen. Systems are color-agnostic and do not receive Gold/Silver/Bronze classification.
 
 ## WHERE: Ecosystem
 

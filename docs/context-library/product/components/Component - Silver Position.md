@@ -39,7 +39,6 @@ Core to Table structure. Silver's role as the bridge between transformation (Gol
 - Progress indicator
 - Category color accent on border
 - Cool silver/platinum stream accent
-- System indicator if project will plant system on completion
 
 **States:**
 
@@ -50,7 +49,5 @@ Core to Table structure. Silver's role as the bridge between transformation (Gol
 **Interactions:**
 
 - Click → Opens [[Room - Project Board]] overlay
-- Project completion → If system-building, system plants on Life Map; slot opens
+- Project completion → Slot opens; project archives
 - Mid-week pause → Project returns to Priority Queue top, slot opens
-
-**System-building indicator:** Silver projects marked as creating systems show subtle indicator. On completion, the project archives and a new planted system appears on the hex grid.
