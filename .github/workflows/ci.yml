@@ -13,7 +13,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 9
+          version: 10
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -32,7 +32,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 9
+          version: 10
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -51,7 +51,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 9
+          version: 10
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -70,7 +70,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 9
+          version: 10
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -79,6 +79,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Install Playwright browsers
-        run: pnpm --filter @lifebuild/web exec playwright install --with-deps
+        run: pnpm --filter @lifebuild/web exec playwright install --with-deps chromium
       - name: Run Storybook tests
         run: pnpm --filter @lifebuild/web test:storybook:ci
