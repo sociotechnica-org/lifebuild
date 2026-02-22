@@ -12,6 +12,10 @@ type UnplacedPanelPreviewProps = {
   unplacedProjects: PanelProjectItem[]
   completedProjects: PanelCompletedProjectItem[]
   archivedProjects: PanelArchivedProjectItem[]
+  placementProject?: PanelProjectItem | null
+  selectedPlacedProject?: PanelProjectItem | null
+  isSelectingPlacedProject?: boolean
+  showRemovalControls?: boolean
 }
 
 const UnplacedPanelPreview: React.FC<UnplacedPanelPreviewProps> = ({
@@ -19,6 +23,10 @@ const UnplacedPanelPreview: React.FC<UnplacedPanelPreviewProps> = ({
   unplacedProjects,
   completedProjects,
   archivedProjects,
+  placementProject = null,
+  selectedPlacedProject = null,
+  isSelectingPlacedProject = false,
+  showRemovalControls = false,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(startCollapsed)
 
@@ -30,6 +38,13 @@ const UnplacedPanelPreview: React.FC<UnplacedPanelPreviewProps> = ({
         completedProjects={completedProjects}
         archivedProjects={archivedProjects}
         onToggleCollapsed={() => setIsCollapsed(collapsed => !collapsed)}
+        placementProject={placementProject}
+        selectedPlacedProject={selectedPlacedProject}
+        isSelectingPlacedProject={isSelectingPlacedProject}
+        onCancelPlacement={placementProject ? () => {} : undefined}
+        onStartSelectingPlacedProject={showRemovalControls ? () => {} : undefined}
+        onClearPlacedProjectSelection={showRemovalControls ? () => {} : undefined}
+        onRemoveSelectedPlacedProject={showRemovalControls ? () => {} : undefined}
       />
     </div>
   )
@@ -115,5 +130,25 @@ export const LongTitles: Story = {
       },
     ],
     archivedProjects: [],
+  },
+}
+
+export const PlacementMode: Story = {
+  args: {
+    startCollapsed: false,
+    unplacedProjects: [
+      { id: 'project-1', name: 'Ship project tile rendering', category: 'growth' },
+      { id: 'project-2', name: 'Improve daily mobility routine', category: 'health' },
+    ],
+    completedProjects: [],
+    archivedProjects: [],
+    placementProject: { id: 'project-1', name: 'Ship project tile rendering', category: 'growth' },
+    selectedPlacedProject: {
+      id: 'project-placed',
+      name: 'Quarterly budget review',
+      category: 'finances',
+    },
+    isSelectingPlacedProject: false,
+    showRemovalControls: true,
   },
 }

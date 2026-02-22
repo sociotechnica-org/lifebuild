@@ -10,12 +10,14 @@ type HexTilePreviewProps = {
   projectName: string
   categoryColor: string
   isCompleted?: boolean
+  isSelected?: boolean
 }
 
 const HexTilePreview: React.FC<HexTilePreviewProps> = ({
   projectName,
   categoryColor,
   isCompleted = false,
+  isSelected = false,
 }) => {
   return (
     <div className='h-[340px] w-full'>
@@ -35,6 +37,7 @@ const HexTilePreview: React.FC<HexTilePreviewProps> = ({
           projectName={projectName}
           categoryColor={categoryColor}
           isCompleted={isCompleted}
+          isSelected={isSelected}
           onClick={() => {}}
         />
       </Canvas>
@@ -73,5 +76,14 @@ export const CompletedProject: Story = {
     projectName: 'Finish tax filing workflow',
     categoryColor: '#3B82F6',
     isCompleted: true,
+  },
+}
+
+export const SelectedForRemoval: Story = {
+  args: {
+    projectName: 'Rework weekly planning cadence',
+    categoryColor: '#c48b5a',
+    isCompleted: false,
+    isSelected: true,
   },
 }

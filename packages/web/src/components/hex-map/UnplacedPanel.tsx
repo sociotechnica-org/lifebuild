@@ -24,6 +24,13 @@ type UnplacedPanelProps = {
   onSelectUnplacedProject?: (projectId: string) => void
   onOpenProject?: (projectId: string) => void
   onUnarchiveProject?: (projectId: string) => void
+  placementProject?: PanelProjectItem | null
+  selectedPlacedProject?: PanelProjectItem | null
+  isSelectingPlacedProject?: boolean
+  onCancelPlacement?: () => void
+  onStartSelectingPlacedProject?: () => void
+  onClearPlacedProjectSelection?: () => void
+  onRemoveSelectedPlacedProject?: () => void
 }
 
 const formatTimestamp = (value: number | null | undefined): string | null => {
@@ -66,6 +73,13 @@ export function UnplacedPanel({
   onSelectUnplacedProject,
   onOpenProject,
   onUnarchiveProject,
+  placementProject,
+  selectedPlacedProject,
+  isSelectingPlacedProject = false,
+  onCancelPlacement,
+  onStartSelectingPlacedProject,
+  onClearPlacedProjectSelection,
+  onRemoveSelectedPlacedProject,
 }: UnplacedPanelProps) {
   const [completedExpanded, setCompletedExpanded] = useState(false)
   const [archivedExpanded, setArchivedExpanded] = useState(false)
@@ -124,11 +138,86 @@ export function UnplacedPanel({
                 >
                   <CategoryDot category={project.category} />
                   <span className='truncate font-medium'>{project.name}</span>
+                  {placementProject?.id === project.id && (
+                    <span className='ml-auto rounded-full bg-[#c48b5a] px-2 py-0.5 text-[10px] font-semibold text-white'>
+                      Placing
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
           )}
         </section>
+
+        {placementProject && (
+          <section className='rounded-lg border border-[#d8cab3] bg-[#fff8ec] p-3'>
+            <p className='text-xs font-semibold text-[#2f2b27]'>Placement mode</p>
+            <p className='mt-1 text-xs text-[#7f6952]'>
+              Placing <span className='font-semibold text-[#2f2b27]'>{placementProject.name}</span>.
+              Click an empty highlighted hex.
+            </p>
+            <p className='mt-1 text-[11px] text-[#8b7a66]'>Press Esc or click away to cancel.</p>
+            {onCancelPlacement && (
+              <button
+                type='button'
+                className='mt-2 rounded border border-[#d8cab3] bg-white px-2 py-1 text-[10px] font-semibold text-[#7f6952]'
+                onClick={onCancelPlacement}
+              >
+                Cancel placement
+              </button>
+            )}
+          </section>
+        )}
+
+        {onRemoveSelectedPlacedProject && (
+          <section className='rounded-lg border border-[#e8dcc8] bg-white p-3'>
+            <p className='text-xs font-semibold text-[#2f2b27]'>Placed Project Removal</p>
+            {selectedPlacedProject ? (
+              <div className='mt-2 space-y-2'>
+                <div className='flex items-center gap-2 rounded-md bg-[#faf9f7] px-2 py-2 text-xs text-[#2f2b27]'>
+                  <CategoryDot category={selectedPlacedProject.category} />
+                  <span className='min-w-0 flex-1 truncate font-medium'>
+                    {selectedPlacedProject.name}
+                  </span>
+                </div>
+                <div className='flex items-center gap-2'>
+                  {onClearPlacedProjectSelection && (
+                    <button
+                      type='button'
+                      className='rounded border border-[#d8cab3] bg-white px-2 py-1 text-[10px] font-semibold text-[#7f6952]'
+                      onClick={onClearPlacedProjectSelection}
+                    >
+                      Choose another
+                    </button>
+                  )}
+                  <button
+                    type='button'
+                    className='rounded border border-[#c48b5a] bg-[#fff2e4] px-2 py-1 text-[10px] font-semibold text-[#8f5d2f]'
+                    onClick={onRemoveSelectedPlacedProject}
+                  >
+                    Remove from map
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className='mt-2 space-y-2'>
+                <button
+                  type='button'
+                  className='rounded border border-[#d8cab3] bg-white px-2 py-1 text-[10px] font-semibold text-[#7f6952]'
+                  onClick={onStartSelectingPlacedProject}
+                  disabled={!onStartSelectingPlacedProject}
+                >
+                  Select placed tile
+                </button>
+                {isSelectingPlacedProject && (
+                  <p className='text-[11px] text-[#8b7a66]'>
+                    Click a placed hex tile on the map to select it.
+                  </p>
+                )}
+              </div>
+            )}
+          </section>
+        )}
 
         {completedProjects.length > 0 && (
           <section className='rounded-lg border border-[#e8dcc8] bg-white'>

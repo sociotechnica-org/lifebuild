@@ -1,5 +1,6 @@
 import { events, type HexPosition } from '@lifebuild/shared/schema'
 import type { Store } from '@livestore/livestore'
+import { isReservedProjectHex } from './placementRules.js'
 
 export class HexPlacementConflictError extends Error {
   constructor(message: string) {
@@ -42,6 +43,10 @@ export async function placeProjectOnHex(
   positions: readonly HexPosition[],
   { projectId, hexQ, hexR, actorId, placementId, placedAt }: PlaceProjectOnHexInput
 ) {
+  if (isReservedProjectHex(hexQ, hexR)) {
+    throw new HexPlacementConflictError(`Hex (${hexQ}, ${hexR}) is reserved for landmarks`)
+  }
+
   const conflictingPosition = isTargetHexOccupied(positions, hexQ, hexR, projectId)
   if (conflictingPosition) {
     throw new HexPlacementConflictError(`Hex (${hexQ}, ${hexR}) is already occupied`)

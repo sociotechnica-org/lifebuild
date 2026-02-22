@@ -3,6 +3,7 @@ import type { HexCoord } from '@lifebuild/shared/hex'
 import { hexToWorld } from '@lifebuild/shared/hex'
 import React from 'react'
 import { useEffect, useMemo, useState } from 'react'
+import { truncateLabel } from './labelUtils.js'
 
 const BASE_HEX_SIZE = 1
 const TILE_RADIUS = 0.68
@@ -16,15 +17,9 @@ type HexTileProps = {
   projectName: string
   categoryColor: string
   isCompleted?: boolean
+  isSelected?: boolean
+  allowCompletedClick?: boolean
   onClick?: () => void
-}
-
-const truncateLabel = (value: string, maxLength: number): string => {
-  if (value.length <= maxLength) {
-    return value
-  }
-
-  return `${value.slice(0, maxLength - 3)}...`
 }
 
 export function HexTile({
@@ -32,11 +27,15 @@ export function HexTile({
   projectName,
   categoryColor,
   isCompleted = false,
+  isSelected = false,
+  allowCompletedClick = false,
   onClick,
 }: HexTileProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [x, z] = useMemo(() => hexToWorld(coord, BASE_HEX_SIZE), [coord.q, coord.r, coord.s])
-  const canInteract = !isCompleted && typeof onClick === 'function'
+  const canClick = typeof onClick === 'function' && (!isCompleted || allowCompletedClick)
+  const canHover = !isCompleted && canClick
+  const isHighlighted = isHovered || isSelected
   const label = useMemo(() => truncateLabel(projectName, MAX_LABEL_LENGTH), [projectName])
 
   useEffect(() => {
@@ -46,10 +45,10 @@ export function HexTile({
   }, [])
 
   return (
-    <group position={[x, TILE_LIFT + (isHovered ? HOVER_LIFT : 0), z]}>
+    <group position={[x, TILE_LIFT + (isHovered ? HOVER_LIFT : 0) + (isSelected ? 0.02 : 0), z]}>
       <mesh
         onClick={event => {
-          if (!canInteract) {
+          if (!canClick) {
             return
           }
           event.stopPropagation()
@@ -57,7 +56,7 @@ export function HexTile({
         }}
         onPointerOver={event => {
           event.stopPropagation()
-          if (!canInteract) {
+          if (!canHover) {
             return
           }
           setIsHovered(true)
@@ -78,8 +77,8 @@ export function HexTile({
         <meshStandardMaterial
           attach='material-1'
           color={isCompleted ? '#d4cec4' : categoryColor}
-          emissive={isHovered ? '#6e5a45' : '#000000'}
-          emissiveIntensity={isHovered ? 0.12 : 0}
+          emissive={isHighlighted ? '#6e5a45' : '#000000'}
+          emissiveIntensity={isHovered ? 0.12 : isSelected ? 0.18 : 0}
           roughness={0.74}
           metalness={0.05}
         />
@@ -96,7 +95,9 @@ export function HexTile({
           className={`max-w-[140px] rounded-md px-2 py-1 text-center text-[11px] font-semibold shadow-sm ${
             isCompleted
               ? 'bg-[#f0ece5]/95 text-[#6f6a62]'
-              : 'bg-[#faf4e9]/95 text-[#2f2b27] backdrop-blur-[2px]'
+              : `bg-[#faf4e9]/95 text-[#2f2b27] backdrop-blur-[2px] ${
+                  isSelected ? 'ring-1 ring-[#c48b5a]' : ''
+                }`
           }`}
           title={projectName}
         >

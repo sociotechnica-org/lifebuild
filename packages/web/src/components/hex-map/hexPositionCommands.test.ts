@@ -16,8 +16,8 @@ const createStoreMock = () => {
 const basePositions: HexPosition[] = [
   {
     id: 'pos-1',
-    hexQ: 0,
-    hexR: 0,
+    hexQ: -2,
+    hexR: 2,
     entityType: 'project',
     entityId: 'project-1',
     placedAt: new Date('2026-01-01T00:00:00Z'),
@@ -31,8 +31,8 @@ describe('hexPositionCommands', () => {
 
     await placeProjectOnHex(store, basePositions, {
       projectId: 'project-2',
-      hexQ: 1,
-      hexR: -1,
+      hexQ: 2,
+      hexR: -2,
       placementId: 'placement-1',
       placedAt,
       actorId: 'tester',
@@ -45,8 +45,8 @@ describe('hexPositionCommands', () => {
       id: 'placement-1',
       entityId: 'project-2',
       entityType: 'project',
-      hexQ: 1,
-      hexR: -1,
+      hexQ: 2,
+      hexR: -2,
       placedAt,
       actorId: 'tester',
     })
@@ -58,8 +58,22 @@ describe('hexPositionCommands', () => {
     await expect(
       placeProjectOnHex(store, basePositions, {
         projectId: 'project-2',
-        hexQ: 0,
-        hexR: 0,
+        hexQ: -2,
+        hexR: 2,
+      })
+    ).rejects.toBeInstanceOf(HexPlacementConflictError)
+
+    expect(commit).not.toHaveBeenCalled()
+  })
+
+  it('throws when trying to place on a reserved sanctuary hex', async () => {
+    const { store, commit } = createStoreMock()
+
+    await expect(
+      placeProjectOnHex(store, basePositions, {
+        projectId: 'project-2',
+        hexQ: 1,
+        hexR: -1,
       })
     ).rejects.toBeInstanceOf(HexPlacementConflictError)
 
@@ -71,8 +85,8 @@ describe('hexPositionCommands', () => {
 
     await placeProjectOnHex(store, basePositions, {
       projectId: 'project-1',
-      hexQ: 0,
-      hexR: 0,
+      hexQ: -2,
+      hexR: 2,
     })
 
     expect(commit).not.toHaveBeenCalled()

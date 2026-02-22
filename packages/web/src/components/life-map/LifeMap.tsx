@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react'
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery, useStore } from '../../livestore-compat.js'
 import { Link, useNavigate } from 'react-router-dom'
 import {
@@ -15,12 +15,14 @@ import {
 } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
 import { createHex } from '@lifebuild/shared/hex'
+import type { HexCoord } from '@lifebuild/shared/hex'
 import { PROJECT_CATEGORIES, resolveLifecycleState } from '@lifebuild/shared'
 import { CategoryCard } from './CategoryCard.js'
 import { generateRoute } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
+import { placeProjectOnHex, removeProjectFromHex } from '../hex-map/hexPositionCommands.js'
 
 type LifeMapViewMode = 'map' | 'list'
 
@@ -291,6 +293,28 @@ export const LifeMap: React.FC = () => {
     )
   }
 
+  const handlePlaceProjectOnMap = useCallback(
+    async (projectId: string, coord: HexCoord) => {
+      await placeProjectOnHex(store, hexPositions, {
+        projectId,
+        hexQ: coord.q,
+        hexR: coord.r,
+        actorId,
+      })
+    },
+    [actorId, hexPositions, store]
+  )
+
+  const handleRemoveProjectFromMap = useCallback(
+    async (projectId: string) => {
+      await removeProjectFromHex(store, hexPositions, {
+        projectId,
+        actorId,
+      })
+    },
+    [actorId, hexPositions, store]
+  )
+
   const placedHexTiles = useMemo(() => {
     const projectsById = new Map(allProjects.map(project => [project.id, project]))
 
@@ -311,8 +335,10 @@ export const LifeMap: React.FC = () => {
       return [
         {
           id: position.id,
+          projectId: project.id,
           coord: createHex(position.hexQ, position.hexR),
           projectName: project.name,
+          category: project.category ?? null,
           categoryColor: isCompleted ? '#a7a29a' : (category?.colorHex ?? '#8b8680'),
           isCompleted,
           onClick: isCompleted
@@ -641,6 +667,8 @@ export const LifeMap: React.FC = () => {
               unplacedProjects={unplacedProjects}
               completedProjects={completedProjectsForPanel}
               archivedProjects={archivedProjectsForPanel}
+              onPlaceProject={handlePlaceProjectOnMap}
+              onRemovePlacedProject={handleRemoveProjectFromMap}
               onSelectUnplacedProject={projectId =>
                 navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
               }

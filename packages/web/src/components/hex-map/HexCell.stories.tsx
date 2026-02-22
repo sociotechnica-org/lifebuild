@@ -57,3 +57,21 @@ export const Hovered: Story = {
     visualStateOverride: 'hover',
   },
 }
+
+export const Placeable: Story = {
+  args: {
+    visualStateOverride: 'placeable',
+  },
+}
+
+export const Blocked: Story = {
+  args: {
+    visualStateOverride: 'blocked',
+  },
+}
+
+export const Targeted: Story = {
+  args: {
+    visualStateOverride: 'targeted',
+  },
+}
