@@ -10,8 +10,11 @@ import {
   getTableConfiguration$,
   getProjects$,
   getAllProjectsIncludingArchived$,
+  getHexPositions$,
+  getUnplacedProjects$,
 } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
+import { createHex } from '@lifebuild/shared/hex'
 import { PROJECT_CATEGORIES, resolveLifecycleState } from '@lifebuild/shared'
 import { CategoryCard } from './CategoryCard.js'
 import { generateRoute } from '../../constants/routes.js'
@@ -134,6 +137,8 @@ export const LifeMap: React.FC = () => {
   const tableConfig = tableConfiguration[0]
   const allProjects = useQuery(getProjects$) ?? []
   const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []
+  const hexPositions = useQuery(getHexPositions$) ?? []
+  const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
 
   // Query projects for each category.
   const healthProjects = useQuery(getProjectsByCategory$('health')) ?? []
@@ -285,6 +290,67 @@ export const LifeMap: React.FC = () => {
       })
     )
   }
+
+  const placedHexTiles = useMemo(() => {
+    const projectsById = new Map(allProjects.map(project => [project.id, project]))
+
+    return hexPositions.flatMap(position => {
+      if (position.entityType !== 'project') {
+        return []
+      }
+
+      const project = projectsById.get(position.entityId)
+      if (!project) {
+        return []
+      }
+
+      const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
+      const category = PROJECT_CATEGORIES.find(item => item.value === project.category)
+      const isCompleted = lifecycle.status === 'completed'
+
+      return [
+        {
+          id: position.id,
+          coord: createHex(position.hexQ, position.hexR),
+          projectName: project.name,
+          categoryColor: isCompleted ? '#a7a29a' : (category?.colorHex ?? '#8b8680'),
+          isCompleted,
+          onClick: isCompleted
+            ? undefined
+            : () => navigate(preserveStoreIdInUrl(generateRoute.project(project.id))),
+        },
+      ]
+    })
+  }, [allProjects, hexPositions, navigate])
+
+  const unplacedProjects = useMemo(() => {
+    return unplacedProjectsFromQuery.map(project => ({
+      id: project.id,
+      name: project.name,
+      category: project.category ?? null,
+    }))
+  }, [unplacedProjectsFromQuery])
+
+  const completedProjectsForPanel = useMemo(() => {
+    return completedProjects.map(project => {
+      const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
+      return {
+        id: project.id,
+        name: project.name,
+        category: project.category ?? null,
+        completedAt: lifecycle.completedAt ?? null,
+      }
+    })
+  }, [completedProjects])
+
+  const archivedProjectsForPanel = useMemo(() => {
+    return archivedProjects.map(project => ({
+      id: project.id,
+      name: project.name,
+      category: project.category ?? null,
+      archivedAt: project.archivedAt ?? null,
+    }))
+  }, [archivedProjects])
 
   // Check if there are any categories with projects.
   const categoriesWithProjects = PROJECT_CATEGORIES.filter(category => {
@@ -570,7 +636,19 @@ export const LifeMap: React.FC = () => {
       {shouldRenderHexMap ? (
         <div className='absolute -inset-3.5 min-h-[520px] overflow-hidden bg-[#efe2cd]'>
           <Suspense fallback={renderHexMapLoadingState()}>
-            <LazyHexMap />
+            <LazyHexMap
+              tiles={placedHexTiles}
+              unplacedProjects={unplacedProjects}
+              completedProjects={completedProjectsForPanel}
+              archivedProjects={archivedProjectsForPanel}
+              onSelectUnplacedProject={projectId =>
+                navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
+              }
+              onOpenProject={projectId =>
+                navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
+              }
+              onUnarchiveProject={handleUnarchive}
+            />
           </Suspense>
         </div>
       ) : (

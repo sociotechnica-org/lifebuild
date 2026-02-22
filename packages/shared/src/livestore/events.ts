@@ -777,6 +777,30 @@ export const projectLifecycleUpdated = Events.synced({
   }),
 })
 
+const HexEntityTypeLiteral = Schema.Literal('project', 'landmark')
+
+export const hexPositionPlaced = Events.synced({
+  name: 'hexPosition.placed',
+  schema: Schema.Struct({
+    id: Schema.String,
+    hexQ: Schema.Number,
+    hexR: Schema.Number,
+    entityType: HexEntityTypeLiteral,
+    entityId: Schema.String,
+    placedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const hexPositionRemoved = Events.synced({
+  name: 'hexPosition.removed',
+  schema: Schema.Struct({
+    id: Schema.String,
+    removedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
 // ============================================================================
 // TABLE STATE & BRONZE STACK EVENTS (PR2)
 // ============================================================================
