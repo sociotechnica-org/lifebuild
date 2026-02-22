@@ -33,9 +33,9 @@ The specification for trigger conditions, visual treatments, and dismissal rules
 
 Health is a snapshot of right now — "do I need to act?" — not a rolling average of historical performance. The car maintenance analogy: if maintenance has been neglected for months but the builder just completed a major overhaul, the system is healthy and no action is needed. Health conveys the current state of care. Health is computed across all of a system's task templates — any template with overdue items contributes to the signal.
 
-| Threshold | Visual                                          |
-| --------- | ----------------------------------------------- |
-| Yellow    | One or more task templates have overdue or incomplete items needing attention |
+| Threshold | Visual                                                                                  |
+| --------- | --------------------------------------------------------------------------------------- |
+| Yellow    | One or more task templates have overdue or incomplete items needing attention           |
 | Red       | System is significantly behind — multiple task templates have unmet current obligations |
 
 **Treatment:** Tile background tint (yellow or red). Clears automatically when current obligations are met.
@@ -44,10 +44,10 @@ Health is a snapshot of right now — "do I need to act?" — not a rolling aver
 
 #### Staleness Signal (Projects and Systems)
 
-| Threshold      | Trigger                  |
-| -------------- | ------------------------ |
-| Default active | No activity for 14 days  |
-| Default paused | No activity for 6 weeks  |
+| Threshold      | Trigger                 |
+| -------------- | ----------------------- |
+| Default active | No activity for 14 days |
+| Default paused | No activity for 6 weeks |
 
 **Treatment:** Sepia overlay. Progressively more pronounced with time. Ambient, not alarming.
 

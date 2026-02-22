@@ -24,9 +24,9 @@ Introduce the System primitive — the second core entity alongside Projects. Th
 
 ## LADDER POSITIONS
 
-| Bet                | Before                               | After                                             | Key Advancement                                                                  |
-| ------------------ | ------------------------------------ | ------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Spatial Visibility | L2.5 (illustrated, territory phases) | L2.7 (living map — smoke signals, system visuals) | Map communicates health; systems have distinct tile treatment                    |
+| Bet                | Before                               | After                                             | Key Advancement                                                                                    |
+| ------------------ | ------------------------------------ | ------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Spatial Visibility | L2.5 (illustrated, territory phases) | L2.7 (living map — smoke signals, system visuals) | Map communicates health; systems have distinct tile treatment                                      |
 | Superior Process   | L3 (Table, G/S/B, Pipeline)          | L3.5 (systems exist, infrastructure compounds)    | System primitive introduced as first-class entity; Drafting Room creates both projects and systems |
 | AI as Teammates    | L2 (Charter, Agenda)                 | L2.5 (system-aware advice)                        | Marvin guides system creation in Drafting Room; Jarvis advises on system investments via Charter   |
 
@@ -36,27 +36,27 @@ Introduce the System primitive — the second core entity alongside Projects. Th
 
 ### Spatial Visibility
 
-| Feature                       | Minimum Viable Implementation                                                          | Full Vision (deferred)                                |
-| ----------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| System tile visual            | Distinct sprite treatment + small looping icon; health shown as filled/unfilled dots   | Rich health animations, overgrowth visual treatment   |
+| Feature                       | Minimum Viable Implementation                                                                                   | Full Vision (deferred)                                |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| System tile visual            | Distinct sprite treatment + small looping icon; health shown as filled/unfilled dots                            | Rich health animations, overgrowth visual treatment   |
 | Smoke signals                 | Two signals: staleness (sepia overlay, 14+ days untouched) and overdue (candle flicker). Ambient, not alarming. | Full signal taxonomy with priority, dismissal, snooze |
-| System vs project distinction | Different border treatment or icon overlay on system tiles                             | Distinct sprite families for systems vs projects      |
+| System vs project distinction | Different border treatment or icon overlay on system tiles                                                      | Distinct sprite families for systems vs projects      |
 
 ### Superior Process
 
-| Feature                   | Minimum Viable Implementation                                                                      | Full Vision (deferred)                                                       |
-| ------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| System primitive          | New data entity: first-class, created in Drafting Room. Has purpose, recurring task templates (each with own cadence), and snapshot-based health. | Full 6-component systems with controls, inputs, outputs, delegation profiles |
+| Feature                   | Minimum Viable Implementation                                                                                                                      | Full Vision (deferred)                                                       |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| System primitive          | New data entity: first-class, created in Drafting Room. Has purpose, recurring task templates (each with own cadence), and snapshot-based health.  | Full 6-component systems with controls, inputs, outputs, delegation profiles |
 | Recurring task generation | Each task template generates tasks on its own cadence (daily/weekly/monthly/quarterly/annually). Non-time triggers use estimated time equivalents. | Pattern-based generation with conditional triggers, non-time trigger types   |
-| System Board              | List view of all planted systems with name, task template count, health status, last-generated task | Full System Board with health dashboard, trend data                          |
-| System lifecycle          | Three actions: Hibernate (pause), Upgrade (spawn Silver), Uproot (archive)                         | Rich lifecycle with state machine, transition effects                        |
+| System Board              | List view of all planted systems with name, task template count, health status, last-generated task                                                | Full System Board with health dashboard, trend data                          |
+| System lifecycle          | Three actions: Hibernate (pause), Upgrade (spawn Silver), Uproot (archive)                                                                         | Rich lifecycle with state machine, transition effects                        |
 
 ### AI as Teammates
 
-| Feature                 | Minimum Viable Implementation                                    | Full Vision (deferred)                         |
-| ----------------------- | ---------------------------------------------------------------- | ---------------------------------------------- |
+| Feature                 | Minimum Viable Implementation                                                                                               | Full Vision (deferred)                         |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | System creation         | Marvin guides 3-stage system creation flow; helps define per-template cadences in Stage 2; supports mid-cycle status button | Marvin configures full 6-component system spec |
-| Strategic system advice | Jarvis advises on when to create systems, aligned with Charter   | Jarvis models capacity impact of new systems   |
+| Strategic system advice | Jarvis advises on when to create systems, aligned with Charter                                                              | Jarvis models capacity impact of new systems   |
 
 ---
 
@@ -89,16 +89,16 @@ Introduce the System primitive — the second core entity alongside Projects. Th
 
 ## AFFECTED LIBRARY CARDS
 
-| Card                                   | How It's Affected                                     |
-| -------------------------------------- | ----------------------------------------------------- |
-| [[Primitive - System]]                 | Core feature — activated (basic)                      |
-| [[Capability - System Actions]]        | Hibernate/Upgrade/Uproot activated                    |
-| [[Room - System Board]]                | Launched (basic list view)                            |
-| [[System - Smoke Signals]]             | Basic activation (2 signal types)                     |
-| [[Standard - Smoke Signal Thresholds]] | Reality note: only staleness and overdue thresholds   |
-| [[Standard - Project States]]          | Verified: no system planting transition needed        |
-| [[Agent - Marvin]]                     | Prompt updated for system creation in Drafting Room   |
-| [[Agent - Jarvis]]                     | Prompt updated to advise on system creation timing    |
+| Card                                   | How It's Affected                                   |
+| -------------------------------------- | --------------------------------------------------- |
+| [[Primitive - System]]                 | Core feature — activated (basic)                    |
+| [[Capability - System Actions]]        | Hibernate/Upgrade/Uproot activated                  |
+| [[Room - System Board]]                | Launched (basic list view)                          |
+| [[System - Smoke Signals]]             | Basic activation (2 signal types)                   |
+| [[Standard - Smoke Signal Thresholds]] | Reality note: only staleness and overdue thresholds |
+| [[Standard - Project States]]          | Verified: no system planting transition needed      |
+| [[Agent - Marvin]]                     | Prompt updated for system creation in Drafting Room |
+| [[Agent - Jarvis]]                     | Prompt updated to advise on system creation timing  |
 
 ---
 

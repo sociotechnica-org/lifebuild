@@ -61,11 +61,11 @@ Systems are a first-class entity type. The builder makes a binary choice on the 
 
 The Drafting Room uses the same 3-stage flow as projects (Identify, Scope, Detail) but with system-specific fields:
 
-| Stage | Project Fields | System Fields |
-| ----- | -------------- | ------------- |
-| 1. Identify | Title, description, category | Title, description, category |
-| 2. Scope | Purpose (G/S/B), objectives, priority attributes | Purpose statement ("what does this system maintain?"), recurring task templates with individual cadences |
-| 3. Detail | Task list | Health metrics/controls, delegation profile, refinements (lightweight in R3) |
+| Stage       | Project Fields                                   | System Fields                                                                                            |
+| ----------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| 1. Identify | Title, description, category                     | Title, description, category                                                                             |
+| 2. Scope    | Purpose (G/S/B), objectives, priority attributes | Purpose statement ("what does this system maintain?"), recurring task templates with individual cadences |
+| 3. Detail   | Task list                                        | Health metrics/controls, delegation profile, refinements (lightweight in R3)                             |
 
 Stage 2 is where the complexity lives for systems. Each recurring task template gets its own cadence. Simple systems (e.g., "weekly date night") have one template. Complex systems (e.g., "car maintenance") have many: oil change (every 3 months), tire rotation (every 6 months), annual inspection (yearly).
 
@@ -75,12 +75,12 @@ R3 cadence scope is time-based only: daily, weekly, monthly, quarterly, annually
 
 ### Lifecycle States
 
-| State       | Definition                                     | Visual Treatment                                 |
-| ----------- | ---------------------------------------------- | ------------------------------------------------ |
+| State       | Definition                                                  | Visual Treatment                                 |
+| ----------- | ----------------------------------------------------------- | ------------------------------------------------ |
 | Planning    | System being designed in Drafting Room, not yet operational | Outlined hex with gear icon, no health indicator |
-| Planted     | System is live and generating work             | Full hex tile with health indicator (green dots) |
-| Hibernating | System temporarily paused, not generating work | Dimmed hex tile with paused health indicator     |
-| Uprooted    | System permanently decommissioned              | Removed from hex grid, archived                  |
+| Planted     | System is live and generating work                          | Full hex tile with health indicator (green dots) |
+| Hibernating | System temporarily paused, not generating work              | Dimmed hex tile with paused health indicator     |
+| Uprooted    | System permanently decommissioned                           | Removed from hex grid, archived                  |
 
 ### Visual Representation
 

@@ -50,14 +50,14 @@ The single currency in LifeBuild is capacity — a composite of time, energy, co
 
 ### Faucets (Capacity Sources)
 
-| Faucet                          | Type       | Mechanism                                                |
-| ------------------------------- | ---------- | -------------------------------------------------------- |
-| Blue time activities            | Personal   | Restoration of emotional, physical, mental capacity      |
+| Faucet                          | Type       | Mechanism                                                         |
+| ------------------------------- | ---------- | ----------------------------------------------------------------- |
+| Blue time activities            | Personal   | Restoration of emotional, physical, mental capacity               |
 | Planted systems                 | Systemic   | Recurring infrastructure reduces future manual effort permanently |
-| Delegation to attendants/humans | Systemic   | Work handled by others frees builder capacity            |
-| System optimization             | Systemic   | Existing system made more efficient, reducing upkeep     |
-| Completed draining Gold         | Mixed      | Removing a psychological burden frees cognitive capacity |
-| Seasonal rest (Winter)          | Structural | Reduced activity load built into the game's rhythm       |
+| Delegation to attendants/humans | Systemic   | Work handled by others frees builder capacity                     |
+| System optimization             | Systemic   | Existing system made more efficient, reducing upkeep              |
+| Completed draining Gold         | Mixed      | Removing a psychological burden frees cognitive capacity          |
+| Seasonal rest (Winter)          | Structural | Reduced activity load built into the game's rhythm                |
 
 ### Sinks (Capacity Drains)
 
