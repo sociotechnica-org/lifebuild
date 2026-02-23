@@ -182,4 +182,34 @@ describe('HexGrid placement behavior', () => {
       consoleErrorSpy.mockRestore()
     }
   })
+
+  it('allows selecting completed tiles in placed-project removal mode', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const onSelectPlacedProject = vi.fn()
+
+    try {
+      render(
+        <HexGrid
+          isSelectingPlacedProject
+          onSelectPlacedProject={onSelectPlacedProject}
+          tiles={[
+            {
+              id: 'tile-completed',
+              projectId: 'project-completed',
+              coord: { q: 0, r: 2, s: -2 },
+              projectName: 'Completed',
+              categoryColor: '#9d9d9d',
+              isCompleted: true,
+            },
+          ]}
+        />
+      )
+
+      fireEvent.click(screen.getByTestId('hex-tile-Completed'))
+      expect(onSelectPlacedProject).toHaveBeenCalledTimes(1)
+      expect(onSelectPlacedProject).toHaveBeenCalledWith('project-completed')
+    } finally {
+      consoleErrorSpy.mockRestore()
+    }
+  })
 })

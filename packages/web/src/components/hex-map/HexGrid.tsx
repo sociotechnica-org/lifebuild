@@ -106,7 +106,7 @@ export function HexGrid({
       return
     }
 
-    if (isSelectingPlacedProject && !tile.isCompleted) {
+    if (isSelectingPlacedProject) {
       onSelectPlacedProject?.(tile.projectId)
       return
     }
@@ -159,7 +159,7 @@ export function HexGrid({
           categoryColor={tile.categoryColor}
           isCompleted={tile.isCompleted}
           isSelected={selectedPlacedProjectId === tile.projectId}
-          allowCompletedClick={isPlacementMode}
+          allowCompletedClick={isPlacementMode || isSelectingPlacedProject}
           onClick={() => handleTileClick(tile)}
         />
       ))}
