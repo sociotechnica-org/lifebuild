@@ -1,4 +1,4 @@
-import { Html } from '@react-three/drei'
+import { Text } from '@react-three/drei'
 import type { HexCoord } from '@lifebuild/shared/hex'
 import { hexToWorld } from '@lifebuild/shared/hex'
 import React from 'react'
@@ -7,10 +7,18 @@ import { truncateLabel } from './labelUtils.js'
 
 const BASE_HEX_SIZE = 1
 const TILE_RADIUS = 0.68
-const TILE_HEIGHT = 0.16
-const TILE_LIFT = 0.14
+const TILE_HEIGHT = 0.22
+const TILE_LIFT = 0.24
 const HOVER_LIFT = 0.04
 const MAX_LABEL_LENGTH = 24
+
+const getInitials = (value: string): string => {
+  const words = value.trim().split(/\s+/).filter(Boolean)
+  if (words.length >= 2) {
+    return `${words[0]?.[0] ?? ''}${words[1]?.[0] ?? ''}`.toUpperCase()
+  }
+  return value.slice(0, 2).toUpperCase()
+}
 
 type HexTileProps = {
   coord: HexCoord
@@ -34,9 +42,10 @@ export function HexTile({
   const [isHovered, setIsHovered] = useState(false)
   const [x, z] = useMemo(() => hexToWorld(coord, BASE_HEX_SIZE), [coord.q, coord.r, coord.s])
   const canClick = typeof onClick === 'function' && (!isCompleted || allowCompletedClick)
-  const canHover = !isCompleted && canClick
+  const canHover = canClick
   const isHighlighted = isHovered || isSelected
   const label = useMemo(() => truncateLabel(projectName, MAX_LABEL_LENGTH), [projectName])
+  const initials = useMemo(() => getInitials(projectName), [projectName])
 
   useEffect(() => {
     return () => {
@@ -68,42 +77,62 @@ export function HexTile({
         }}
       >
         <cylinderGeometry args={[TILE_RADIUS, TILE_RADIUS, TILE_HEIGHT, 6]} />
+        {/* material-0 = side faces (tube) */}
         <meshStandardMaterial
           attach='material-0'
           color={isCompleted ? '#a7a29a' : categoryColor}
-          roughness={0.8}
-          metalness={0.06}
+          roughness={0.62}
+          metalness={0.12}
         />
+        {/* material-1 = top cap */}
         <meshStandardMaterial
           attach='material-1'
-          color={isCompleted ? '#d4cec4' : categoryColor}
+          color={isCompleted ? '#d4cec4' : isHighlighted ? '#faf4e8' : '#f5ead6'}
           emissive={isHighlighted ? '#6e5a45' : '#000000'}
           emissiveIntensity={isHovered ? 0.12 : isSelected ? 0.18 : 0}
-          roughness={0.74}
-          metalness={0.05}
+          roughness={0.9}
+          metalness={0.03}
         />
+        {/* material-2 = bottom cap */}
         <meshStandardMaterial
           attach='material-2'
-          color={isCompleted ? '#c6c0b7' : categoryColor}
-          roughness={0.78}
-          metalness={0.04}
+          color={isCompleted ? '#c6c0b7' : '#e7d8c2'}
+          roughness={0.85}
+          metalness={0.02}
         />
       </mesh>
 
-      <Html position={[0, TILE_HEIGHT / 2 + 0.05, 0]} center style={{ pointerEvents: 'none' }}>
-        <div
-          className={`max-w-[140px] rounded-md px-2 py-1 text-center text-[11px] font-semibold shadow-sm ${
-            isCompleted
-              ? 'bg-[#f0ece5]/95 text-[#6f6a62]'
-              : `bg-[#faf4e9]/95 text-[#2f2b27] backdrop-blur-[2px] ${
-                  isSelected ? 'ring-1 ring-[#c48b5a]' : ''
-                }`
-          }`}
-          title={projectName}
+      <Text
+        position={[0, TILE_HEIGHT / 2 + 0.12, 0.16]}
+        rotation={[-0.52, 0, 0]}
+        fontSize={0.34}
+        textAlign='center'
+        color={isCompleted ? '#6f6a62' : '#ffffff'}
+        anchorX='center'
+        anchorY='middle'
+        outlineWidth={0.03}
+        outlineColor={isCompleted ? '#d4cec4' : '#3d2e1e'}
+      >
+        {initials}
+      </Text>
+
+      {isHovered && (
+        <Text
+          position={[0, TILE_HEIGHT / 2 + 0.42, 0.02]}
+          rotation={[-0.52, 0, 0]}
+          fontSize={0.22}
+          maxWidth={2.2}
+          textAlign='center'
+          color='#ffffff'
+          anchorX='center'
+          anchorY='middle'
+          outlineWidth={0.04}
+          outlineColor='#2a1f14'
+          lineHeight={1.1}
         >
           {label}
-        </div>
-      </Html>
+        </Text>
+      )}
     </group>
   )
 }

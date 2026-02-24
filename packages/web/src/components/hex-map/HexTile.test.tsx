@@ -1,13 +1,32 @@
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import { fireEvent, render } from '../../../tests/test-utils.js'
+import { fireEvent, render, screen } from '../../../tests/test-utils.js'
 import { HexTile } from './HexTile.js'
 
 vi.mock('@react-three/drei', () => ({
-  Html: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Text: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))
 
 describe('HexTile click behavior', () => {
+  it('renders initials for tile labels', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    try {
+      render(
+        <HexTile
+          coord={{ q: 0, r: 0, s: 0 }}
+          projectName='Focus Sprint'
+          categoryColor='#9d9d9d'
+          onClick={vi.fn()}
+        />
+      )
+
+      expect(screen.getByText('FS')).toBeInTheDocument()
+    } finally {
+      consoleErrorSpy.mockRestore()
+    }
+  })
+
   it('allows completed tiles to invoke onClick when allowCompletedClick is true', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const onClick = vi.fn()
