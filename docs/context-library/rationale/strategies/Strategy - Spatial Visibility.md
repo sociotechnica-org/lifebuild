@@ -12,7 +12,6 @@ Making work visual, placed, and traversable creates comprehension and agency tha
 - Zoom tiers: [[Capability - Zoom Navigation]]
 - Visual elements: [[Component - Hex Tile]], [[Component - Campfire]], [[System - Clustering]]
 
-
 ## WHY: Belief
 
 Our commitments — both present and future — are largely abstract. We don't have a clear picture of what we're actually committed to, what state our work is in, or what our future will look like if we follow through. This isn't just about the future being uncertain; we don't have a clear sense of the present either.

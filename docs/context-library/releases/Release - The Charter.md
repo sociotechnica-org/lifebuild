@@ -24,11 +24,11 @@ The product earns strategic depth and expands its visual richness in one move. R
 
 ## LADDER POSITIONS
 
-| Bet                | Before                        | After                                | Key Advancement                                                     |
-| ------------------ | ----------------------------- | ------------------------------------ | ------------------------------------------------------------------- |
+| Bet                | Before                            | After                                     | Key Advancement                                                                              |
+| ------------------ | --------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------- |
 | Spatial Visibility | L2.3 (hex map, illustrated tiles) | L2.5 (expanded gallery, territory phases) | Full sprite gallery across all categories, sanctuary evolution, territory visual progression |
-| Superior Process   | L3 (Table, G/S/B, Pipeline)   | L3 (holds)                           | No new process features — existing frameworks carry over            |
-| AI as Teammates    | L1.5 (Jarvis + Marvin active) | L2 (strategic depth)                 | Charter gives Jarvis strategic context; Agenda structures sessions  |
+| Superior Process   | L3 (Table, G/S/B, Pipeline)       | L3 (holds)                                | No new process features — existing frameworks carry over                                     |
+| AI as Teammates    | L1.5 (Jarvis + Marvin active)     | L2 (strategic depth)                      | Charter gives Jarvis strategic context; Agenda structures sessions                           |
 
 ---
 
@@ -36,19 +36,19 @@ The product earns strategic depth and expands its visual richness in one move. R
 
 ### Spatial Visibility
 
-| Feature             | Minimum Viable Implementation                                                                   | Full Vision (deferred)                                          |
-| ------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Tile illustrations  | Builder picks from an expanded gallery of sprites organized by life category; 30+ sprites across all 8 categories | AI-generated sprites from project content                       |
-| Territory phases    | Border/background treatment changes at hex-count thresholds per category                        | Full Frontier -> Flourishing progression with rich visual detail |
-| Sanctuary evolution | Sanctuary visual upgrades at project-count thresholds (Humble Studio -> Growing Workshop)       | Continuous evolution tied to 7 maturity dimensions               |
+| Feature             | Minimum Viable Implementation                                                                                     | Full Vision (deferred)                                           |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Tile illustrations  | Builder picks from an expanded gallery of sprites organized by life category; 30+ sprites across all 8 categories | AI-generated sprites from project content                        |
+| Territory phases    | Border/background treatment changes at hex-count thresholds per category                                          | Full Frontier -> Flourishing progression with rich visual detail |
+| Sanctuary evolution | Sanctuary visual upgrades at project-count thresholds (Humble Studio -> Growing Workshop)                         | Continuous evolution tied to 7 maturity dimensions               |
 
 ### AI as Teammates
 
-| Feature                     | Minimum Viable Implementation                                                                                       | Full Vision (deferred)                                                 |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| The Charter                 | Text document: values, themes, priorities, constraints. Jarvis proposes, builder edits. Persists across sessions.   | Versioned, with historical diffing; feeds capacity modeling            |
-| Agenda templates            | 3 session types (weekly, quarterly, ad-hoc) with default question sequences in Jarvis's prompt                      | Builder-customizable templates; Jarvis adapts to preferences over time |
-| Charter-aware conversations | Jarvis system prompt includes Charter content; references it naturally                                              | Deep Charter reasoning across all agents                               |
+| Feature                     | Minimum Viable Implementation                                                                                     | Full Vision (deferred)                                                 |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| The Charter                 | Text document: values, themes, priorities, constraints. Jarvis proposes, builder edits. Persists across sessions. | Versioned, with historical diffing; feeds capacity modeling            |
+| Agenda templates            | 3 session types (weekly, quarterly, ad-hoc) with default question sequences in Jarvis's prompt                    | Builder-customizable templates; Jarvis adapts to preferences over time |
+| Charter-aware conversations | Jarvis system prompt includes Charter content; references it naturally                                            | Deep Charter reasoning across all agents                               |
 
 ---
 
@@ -95,14 +95,14 @@ The product earns strategic depth and expands its visual richness in one move. R
 
 ## WHAT'S EXPLICITLY DEFERRED
 
-| Feature                                | Deferred To | Why                                                               |
-| -------------------------------------- | ----------- | ----------------------------------------------------------------- |
-| Image generation                       | Release 8   | Requires art direction, API pipeline, prompt engineering          |
-| Art evolution (5 stages)               | Release 8   | Needs generation pipeline first                                   |
-| Zoom tiers                             | Release 7   | Map isn't large enough to need them yet                           |
-| Drag-to-rearrange                      | Release 7   | Algorithmic placement fine at this scale                          |
-| System primitive                       | Release 3   | Next release — this one establishes visual + strategic foundation |
-| Smoke signals                          | Release 3   | Need systems before health signals matter                         |
+| Feature                  | Deferred To | Why                                                               |
+| ------------------------ | ----------- | ----------------------------------------------------------------- |
+| Image generation         | Release 8   | Requires art direction, API pipeline, prompt engineering          |
+| Art evolution (5 stages) | Release 8   | Needs generation pipeline first                                   |
+| Zoom tiers               | Release 7   | Map isn't large enough to need them yet                           |
+| Drag-to-rearrange        | Release 7   | Algorithmic placement fine at this scale                          |
+| System primitive         | Release 3   | Next release — this one establishes visual + strategic foundation |
+| Smoke signals            | Release 3   | Need systems before health signals matter                         |
 
 ---
 
