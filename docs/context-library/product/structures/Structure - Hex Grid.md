@@ -33,8 +33,9 @@ The spatial organization canvas that fills most of the Life Map — a tessellate
 ## WHEN: Timeline
 
 **Build phase:** Post-MVP
-**Implementation status:** Not started
-**Reality note (2026-02-17):** No hex grid exists in the codebase. The Life Map currently renders 8 `CategoryCard` components in a flat layout. Hex grid is the top priority for R1. Key decisions resolved: manual builder placement (no algorithmic zone layout), one project per hex with sanctuary as 3-tile exception.
+**Implementation status:** Prototyped
+**Reality note (2026-02-17):** No hex grid exists in the main product. The Life Map currently renders category cards in a flat layout. Hex grid is the top priority for R1.
+**Reality note (2026-02-24):** A working prototype demonstrates the hex grid with illustrated tiles, camera-based navigation, sprite placement, and pathfinding. The visual approach is proven -- warm parchment texture, draggable sprites, smooth camera movement. Integration into the main product is an engineering task, not a design question. One engineering decision remains before integration begins.
 
 Core to Life Map design. The hex grid is the foundational spatial metaphor for LifeBuild.
 
@@ -45,6 +46,9 @@ Core to Life Map design. The hex grid is the foundational spatial metaphor for L
 
 > **2026-02-17 — D1: Algorithmic hex placement OK for Release 1?**
 > Decided: Manual — builder places from day one. No algorithmic category zone layout. Builders choose hex positions from R1 launch. This means the grid needs placement UX (tap/drag) and placement validation, but no auto-placement algorithm.
+
+> **2026-02-24 -- Hex grid prototype exists**
+> A working prototype demonstrates the hex grid with illustrated tiles, camera-based navigation, and builder-driven placement. All core visual and interaction questions are resolved. One engineering decision remains before integration into the main product begins.
 
 ## HOW: Implementation
 
