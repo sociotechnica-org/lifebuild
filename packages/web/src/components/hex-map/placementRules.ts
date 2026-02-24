@@ -1,7 +1,7 @@
 import { createHex, hexToKey } from '@lifebuild/shared/hex'
 import type { HexCoord } from '@lifebuild/shared/hex'
 
-export const RESERVED_PROJECT_HEX_COORDS: readonly HexCoord[] = [
+const RESERVED_PROJECT_HEX_COORDS: readonly HexCoord[] = [
   createHex(0, 0),
   createHex(0, -1),
   createHex(1, -1),
