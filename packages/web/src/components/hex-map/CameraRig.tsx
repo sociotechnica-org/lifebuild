@@ -4,7 +4,7 @@ import { MathUtils, OrthographicCamera, Vector3 } from 'three'
 
 const CAMERA_DISTANCE = 24
 const CAMERA_ELEVATION_DEGREES = 31
-const ORTHOGRAPHIC_VIEW_HEIGHT = 11.5
+const ORTHOGRAPHIC_VIEW_HEIGHT = 8
 
 export function CameraRig() {
   const { camera, size } = useThree()

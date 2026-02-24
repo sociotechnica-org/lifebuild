@@ -4,18 +4,24 @@ import { createHex } from '@lifebuild/shared/hex'
 import React from 'react'
 import { CameraRig } from './CameraRig.js'
 import { HexCell } from './HexCell.js'
-import { HexTile } from './HexTile.js'
+import { HexTile, type HexTileVisualState, type HexTileWorkstream } from './HexTile.js'
 
 type HexTilePreviewProps = {
   projectName: string
   categoryColor: string
+  visualState?: HexTileVisualState
+  workstream?: HexTileWorkstream
   isCompleted?: boolean
+  isSelected?: boolean
 }
 
 const HexTilePreview: React.FC<HexTilePreviewProps> = ({
   projectName,
   categoryColor,
+  visualState = 'active',
+  workstream = null,
   isCompleted = false,
+  isSelected = false,
 }) => {
   return (
     <div className='h-[340px] w-full'>
@@ -34,7 +40,10 @@ const HexTilePreview: React.FC<HexTilePreviewProps> = ({
           coord={createHex(0, 0)}
           projectName={projectName}
           categoryColor={categoryColor}
+          visualState={visualState}
+          workstream={workstream}
           isCompleted={isCompleted}
+          isSelected={isSelected}
           onClick={() => {}}
         />
       </Canvas>
@@ -64,7 +73,24 @@ export const ActiveProject: Story = {
   args: {
     projectName: 'Launch life map pilot',
     categoryColor: '#10B981',
-    isCompleted: false,
+    visualState: 'active',
+  },
+}
+
+export const PlanningProject: Story = {
+  args: {
+    projectName: 'Sketch summer reset plan',
+    categoryColor: '#F97316',
+    visualState: 'planning',
+  },
+}
+
+export const WorkAtHand: Story = {
+  args: {
+    projectName: 'Ship relational check-in loop',
+    categoryColor: '#3B82F6',
+    visualState: 'work-at-hand',
+    workstream: 'gold',
   },
 }
 
@@ -72,6 +98,16 @@ export const CompletedProject: Story = {
   args: {
     projectName: 'Finish tax filing workflow',
     categoryColor: '#3B82F6',
+    visualState: 'completed',
     isCompleted: true,
+  },
+}
+
+export const SelectedForRemoval: Story = {
+  args: {
+    projectName: 'Rework weekly planning cadence',
+    categoryColor: '#c48b5a',
+    isCompleted: false,
+    isSelected: true,
   },
 }
