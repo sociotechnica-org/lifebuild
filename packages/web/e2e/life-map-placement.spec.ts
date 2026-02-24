@@ -139,7 +139,7 @@ const selectPlacedTile = async (
   const removeButton = panel.getByRole('button', { name: 'Remove from map' })
   const selectionHint = panel.getByText('Click a placed hex tile on the map to select it.')
   const selectionTrigger = panel.getByRole('button', { name: 'Select placed tile' })
-  const candidates: Array<[number, number]> = [
+  const focusedCandidates: Array<[number, number]> = [
     [basePoint.x, basePoint.y],
     [basePoint.x + 0.015, basePoint.y],
     [basePoint.x - 0.015, basePoint.y],
@@ -148,6 +148,13 @@ const selectPlacedTile = async (
     [basePoint.x + 0.03, basePoint.y + 0.015],
     [basePoint.x - 0.03, basePoint.y - 0.015],
   ]
+  const broadCandidates: Array<[number, number]> = []
+  for (const y of [0.28, 0.36, 0.44, 0.52, 0.6, 0.68]) {
+    for (const x of [0.2, 0.28, 0.36, 0.44, 0.52, 0.6, 0.68]) {
+      broadCandidates.push([x, y])
+    }
+  }
+  const candidates = [...focusedCandidates, ...broadCandidates]
 
   for (const [x, y] of candidates) {
     if ((await removeButton.count()) > 0) {

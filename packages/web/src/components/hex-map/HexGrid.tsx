@@ -5,7 +5,7 @@ import { Html } from '@react-three/drei'
 import React from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { HexCell } from './HexCell.js'
-import { HexTile } from './HexTile.js'
+import { HexTile, type HexTileVisualState, type HexTileWorkstream } from './HexTile.js'
 import { truncateLabel } from './labelUtils.js'
 import { isReservedProjectCoord } from './placementRules.js'
 
@@ -19,6 +19,8 @@ export type PlacedHexTile = {
   projectName: string
   category?: string | null
   categoryColor: string
+  visualState?: HexTileVisualState
+  workstream?: HexTileWorkstream
   isCompleted?: boolean
   onClick?: () => void
 }
@@ -157,6 +159,8 @@ export function HexGrid({
           coord={tile.coord}
           projectName={tile.projectName}
           categoryColor={tile.categoryColor}
+          visualState={tile.visualState}
+          workstream={tile.workstream}
           isCompleted={tile.isCompleted}
           isSelected={selectedPlacedProjectId === tile.projectId}
           allowCompletedClick={isPlacementMode || isSelectingPlacedProject}
