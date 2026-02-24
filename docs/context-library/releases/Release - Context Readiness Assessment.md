@@ -8,9 +8,15 @@
 
 ---
 
-## 1. Hex Grid SVG Renderer
+## 1. Hex Grid Renderer
 
-**Readiness: YELLOW**
+**Readiness: GREEN** _(updated 2026-02-24 — was YELLOW)_
+
+**Update (2026-02-24):** The hex grid renderer track is de-risked by a working prototype. The coordinate system, rendering approach, grid layout, and core interactions are all proven. The sanctuary visual exists. The track is now an integration task, not a build-from-scratch task. One engineering decision remains before integration begins. Once that resolves, this track is fully GREEN.
+
+**Original assessment below preserved for reference:**
+
+**Was: YELLOW**
 
 **Relevant cards:**
 

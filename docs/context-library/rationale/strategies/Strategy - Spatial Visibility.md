@@ -12,6 +12,7 @@ Making work visual, placed, and traversable creates comprehension and agency tha
 - Zoom tiers: [[Capability - Zoom Navigation]]
 - Visual elements: [[Component - Hex Tile]], [[Component - Campfire]], [[System - Clustering]]
 
+
 ## WHY: Belief
 
 Our commitments — both present and future — are largely abstract. We don't have a clear picture of what we're actually committed to, what state our work is in, or what our future will look like if we follow through. This isn't just about the future being uncertain; we don't have a clear sense of the present either.
@@ -27,6 +28,7 @@ Research supports this: the brain's spatial processing and memory systems share 
 **Build phase:** MVP (ongoing)
 **Implementation status:** Partial
 **Reality note (2026-02-10):** Between Level 0 and 1 of the maturity ladder. Life Map shows category cards in a flat grid, Kanban boards exist for projects. No hex grid, no hex tiles, no zoom navigation, no spatial indicators. The spatial bet is largely unrealized — current UI is closer to lists + cards than spatial landscape.
+**Reality note (2026-02-24):** A prototype demonstrates Level 2-3 spatial capabilities. Illustrated tiles, camera-based navigation, and visual texture are proven. The assumption that "graphics will be difficult" -- which drove deferral of spatial features to later releases -- is no longer accurate. R1 can deliver an illustrated map from day one. R2's sprite gallery is substantially de-risked. The sequence from Level 2 to Level 3 is faster than the original roadmap assumed.
 
 ## HOW: Application
 
