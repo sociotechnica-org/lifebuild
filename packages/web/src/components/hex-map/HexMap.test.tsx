@@ -1,6 +1,6 @@
 import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen } from '../../../tests/test-utils.js'
+import { fireEvent, render, screen } from '../../../tests/test-utils.js'
 import type { PanelProjectItem } from './UnplacedPanel.js'
 import { HexMap } from './HexMap.js'
 
@@ -73,5 +73,32 @@ describe('HexMap first placement prompt', () => {
     render(<HexMap unplacedProjects={[unplacedProject]} />)
 
     expect(screen.queryByText('Your projects are ready to place')).toBeNull()
+  })
+
+  it('shows the prompt when localStorage reads throw', () => {
+    const getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('Blocked storage access')
+    })
+
+    try {
+      render(<HexMap unplacedProjects={[unplacedProject]} />)
+      expect(screen.getByText('Your projects are ready to place')).toBeInTheDocument()
+    } finally {
+      getItemSpy.mockRestore()
+    }
+  })
+
+  it('dismisses the prompt even when localStorage writes throw', () => {
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('Blocked storage access')
+    })
+
+    try {
+      render(<HexMap unplacedProjects={[unplacedProject]} />)
+      fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
+      expect(screen.queryByText('Your projects are ready to place')).toBeNull()
+    } finally {
+      setItemSpy.mockRestore()
+    }
   })
 })

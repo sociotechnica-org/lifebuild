@@ -3,6 +3,7 @@ import type { HexCoord } from '@lifebuild/shared/hex'
 import { hexToWorld } from '@lifebuild/shared/hex'
 import React from 'react'
 import { useEffect, useMemo, useState } from 'react'
+import { getInitials } from '../../utils/initials.js'
 import { truncateLabel } from './labelUtils.js'
 
 const BASE_HEX_SIZE = 1
@@ -13,14 +14,6 @@ const HOVER_LIFT = 0.04
 const MAX_LABEL_LENGTH = 24
 const INNER_TOP_RADIUS = TILE_RADIUS * 0.82
 const INNER_TOP_HEIGHT = 0.035
-
-const getInitials = (value: string): string => {
-  const words = value.trim().split(/\s+/).filter(Boolean)
-  if (words.length >= 2) {
-    return `${words[0]?.[0] ?? ''}${words[1]?.[0] ?? ''}`.toUpperCase()
-  }
-  return value.slice(0, 2).toUpperCase()
-}
 
 const clamp = (value: number, min: number, max: number): number => {
   return Math.min(max, Math.max(min, value))

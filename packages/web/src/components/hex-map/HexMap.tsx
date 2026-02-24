@@ -14,17 +14,47 @@ import {
 const FIRST_PLACEMENT_PROMPT_KEY = 'life-map-placement-first-run-dismissed-v1'
 
 const canUseLocalStorage = (): boolean => {
-  return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  try {
+    return typeof window.localStorage !== 'undefined'
+  } catch {
+    return false
+  }
+}
+
+const isFirstPlacementPromptDismissed = (): boolean => {
+  if (!canUseLocalStorage()) {
+    return false
+  }
+
+  try {
+    return window.localStorage.getItem(FIRST_PLACEMENT_PROMPT_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+const persistFirstPlacementPromptDismissed = (): void => {
+  if (!canUseLocalStorage()) {
+    return
+  }
+
+  try {
+    window.localStorage.setItem(FIRST_PLACEMENT_PROMPT_KEY, '1')
+  } catch {
+    // Ignore storage failures so placement UI remains usable.
+  }
 }
 
 const shouldShowFirstPlacementPrompt = (hasUnplacedProjects: boolean): boolean => {
   if (!hasUnplacedProjects) {
     return false
   }
-  if (!canUseLocalStorage()) {
-    return true
-  }
-  return window.localStorage.getItem(FIRST_PLACEMENT_PROMPT_KEY) !== '1'
+
+  return !isFirstPlacementPromptDismissed()
 }
 
 type HexMapProps = {
@@ -129,9 +159,7 @@ const HexMapSurface: React.FC<HexMapProps> = ({
 
   const dismissFirstPlacementPrompt = useCallback(() => {
     setShowFirstPlacementPrompt(false)
-    if (canUseLocalStorage()) {
-      window.localStorage.setItem(FIRST_PLACEMENT_PROMPT_KEY, '1')
-    }
+    persistFirstPlacementPromptDismissed()
   }, [])
 
   const handlePointerMissed = useCallback(() => {
