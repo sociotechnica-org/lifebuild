@@ -43,10 +43,10 @@ describe('HexTile click behavior', () => {
         />
       )
 
-      const mesh = container.querySelector('mesh')
-      expect(mesh).not.toBeNull()
+      const clickableRoot = container.querySelector('group') ?? container.querySelector('mesh')
+      expect(clickableRoot).not.toBeNull()
 
-      fireEvent.click(mesh as Element)
+      fireEvent.click(clickableRoot as Element)
       expect(onClick).toHaveBeenCalledTimes(1)
     } finally {
       consoleErrorSpy.mockRestore()
@@ -68,10 +68,10 @@ describe('HexTile click behavior', () => {
         />
       )
 
-      const mesh = container.querySelector('mesh')
-      expect(mesh).not.toBeNull()
+      const clickableRoot = container.querySelector('group') ?? container.querySelector('mesh')
+      expect(clickableRoot).not.toBeNull()
 
-      fireEvent.click(mesh as Element)
+      fireEvent.click(clickableRoot as Element)
       expect(onClick).not.toHaveBeenCalled()
     } finally {
       consoleErrorSpy.mockRestore()

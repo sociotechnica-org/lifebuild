@@ -23,6 +23,7 @@ import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
 import { placeProjectOnHex, removeProjectFromHex } from '../hex-map/hexPositionCommands.js'
+import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.js'
 
 type LifeMapViewMode = 'map' | 'list'
 
@@ -331,6 +332,23 @@ export const LifeMap: React.FC = () => {
       const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
       const category = PROJECT_CATEGORIES.find(item => item.value === project.category)
       const isCompleted = lifecycle.status === 'completed'
+      const isWorkAtHand = !isCompleted && activeProjectIds.has(project.id)
+
+      const visualState: HexTileVisualState = isCompleted
+        ? 'completed'
+        : lifecycle.status === 'planning' || lifecycle.status === 'backlog'
+          ? 'planning'
+          : isWorkAtHand
+            ? 'work-at-hand'
+            : 'active'
+
+      const workstream: HexTileWorkstream =
+        visualState === 'work-at-hand' &&
+        (lifecycle.stream === 'gold' ||
+          lifecycle.stream === 'silver' ||
+          lifecycle.stream === 'bronze')
+          ? lifecycle.stream
+          : null
 
       return [
         {
@@ -339,7 +357,9 @@ export const LifeMap: React.FC = () => {
           coord: createHex(position.hexQ, position.hexR),
           projectName: project.name,
           category: project.category ?? null,
-          categoryColor: isCompleted ? '#a7a29a' : (category?.colorHex ?? '#8b8680'),
+          categoryColor: category?.colorHex ?? '#8b8680',
+          visualState,
+          workstream,
           isCompleted,
           onClick: isCompleted
             ? undefined
@@ -347,7 +367,7 @@ export const LifeMap: React.FC = () => {
         },
       ]
     })
-  }, [allProjects, hexPositions, navigate])
+  }, [activeProjectIds, allProjects, hexPositions, navigate])
 
   const unplacedProjects = useMemo(() => {
     return unplacedProjectsFromQuery.map(project => ({
