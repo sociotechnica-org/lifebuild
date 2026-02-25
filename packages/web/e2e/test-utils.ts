@@ -68,6 +68,43 @@ export async function waitForLiveStoreReady(page: Page) {
 }
 
 /**
+ * Wait for a storeId query parameter to appear in the current URL.
+ * Returns null when storeId is not present within the timeout window.
+ */
+export async function waitForStoreIdInUrl(page: Page, timeoutMs = 12000): Promise<string | null> {
+  if (page.isClosed()) {
+    return null
+  }
+
+  const getStoreId = () => {
+    const currentUrl = page.url()
+    return currentUrl ? new URL(currentUrl).searchParams.get('storeId') : null
+  }
+
+  const existingStoreId = getStoreId()
+  if (existingStoreId) {
+    return existingStoreId
+  }
+
+  await page
+    .waitForFunction(
+      () => {
+        return new URL(window.location.href).searchParams.has('storeId')
+      },
+      { timeout: timeoutMs }
+    )
+    .catch(() => {
+      // Some CI runs are slow to redirect from "/".
+    })
+
+  if (page.isClosed()) {
+    return null
+  }
+
+  return getStoreId()
+}
+
+/**
  * Navigate to the app with a unique store ID for test isolation
  * Uses root routes to access the full interface for testing
  */
