@@ -185,9 +185,105 @@
 
 **Files modified:** rooms.ts
 
-**Notes for next stories:**
+---
 
-- S5 depends on S4 ✅ — can proceed
-- S5 → S6 is a sequential chain (S5 builds Stage 2 form, S6 builds Stage 3 + Plant action)
-- After S6: S7 (hex tile), S10 (task generation), S12 (Marvin prompt) all become unblocked
-- S7 and S10 can run in parallel after S6
+## S5 — System Stage 2: Scope + task templates [COMPLETE]
+
+**Status:** Complete
+**Date:** 2026-02-24
+
+**What was built:**
+
+- `SystemStage2Form` component: purpose statement textarea + recurring task template editor
+- Template editor: add/edit/delete templates with title, cadence dropdown, description
+- Mid-cycle button: "I'm already doing this" inline panel with per-template date inputs
+- Batch commit on "Continue": new templates via `systemTaskTemplateAdded`, modified via `systemTaskTemplateUpdated`, deleted via `systemTaskTemplateRemoved`
+- Auto-save purpose statement on blur
+- Fixed invalid `lifecycleState` field in SystemStage1Form's `systemCreated` event call
+- Storybook stories: Default, WithExistingTemplates, MidCycleFlow
+
+**Files modified:** Root.tsx, SystemStage1Form.tsx, SystemStage1Form.stories.tsx
+**Files created:** SystemStage2Form.tsx, SystemStage2Form.stories.tsx
+
+---
+
+## S6 — System Stage 3 + Plant action [COMPLETE]
+
+**Status:** Complete
+**Date:** 2026-02-24
+
+**What was built:**
+
+- `SystemStage3Form` component: health notes + delegation notes (optional textareas)
+- Notes stored in description field using section markers (## Health Notes / ## Delegation Notes)
+- "Plant System" button: commits `systemPlanted` + `systemMidCycleUpdated` for template scheduling
+- Read-only template summary displayed
+- Navigates to Life Map after planting
+- Storybook stories: Default, WithNotes
+
+**Files modified:** Root.tsx
+**Files created:** SystemStage3Form.tsx, SystemStage3Form.stories.tsx
+
+---
+
+## S10 — Client-side task generation engine [COMPLETE]
+
+**Status:** Complete
+**Date:** 2026-02-24
+
+**What was built:**
+
+- `SystemTaskGenerator` component: background utility mounted in ProtectedApp after SettingsInitializer
+- Pure function `computeTasksToGenerate()` extracted for testability
+- Queries planted systems + all templates, generates overdue tasks via `taskCreatedV2` + `systemTaskGenerated`
+- 52-task cap per template per session prevents unbounded catch-up
+- Generated tasks are orphaned (no projectId)
+- One-shot pattern with global flag (runs once per session)
+- 10 unit tests: weekly/monthly cadences, cap enforcement, future/null nextGenerateAt, boundary conditions
+
+**Files modified:** Root.tsx
+**Files created:** SystemTaskGenerator.tsx, system-task-generator.test.ts
+
+---
+
+## S12 — Marvin prompt: system creation guidance [COMPLETE]
+
+**Status:** Complete
+**Date:** 2026-02-24
+
+**What was built:**
+
+- DRAFTING_ROOM_PROMPT updated with System Creation: The 3-Stage Process section
+- Entity Types section with finish line test
+- Mid-cycle awareness, System vs Project distinction
+- System navigation CHORUS_TAG links (system-stage2, system-stage3, entity-type-gate)
+- "What You Do NOT Do" section for system boundaries
+- Stream Assignment labeled "(Projects Only)"
+- Guidelines updated for simple-system approach
+
+**Files modified:** rooms.ts
+
+---
+
+## S7 — System hex tile [DEFERRED]
+
+**Status:** Deferred (dependency not installable)
+**Date:** 2026-02-24
+
+**Reason:** `@react-three/drei` and `@react-three/fiber` are declared in package.json but not installed in node_modules. All existing hex-map code has pre-existing typecheck failures. The hex tile visual treatment requires these packages to compile and test. S7 and S11 (which depends on S7) are deferred until the Three.js dependency issue is resolved.
+
+---
+
+## S11 — Smoke signals [DEFERRED]
+
+**Status:** Deferred (blocked on S7)
+**Date:** 2026-02-24
+
+**Reason:** Depends on S7 (hex tile), which is deferred due to missing Three.js dependencies.
+
+---
+
+## Summary
+
+**Complete:** S1, S2, S3, S4, S5, S6, S8, S9, S10, S12, S13 (11/13)
+**Deferred:** S7, S11 (hex map visual features — blocked on missing @react-three/drei install)
