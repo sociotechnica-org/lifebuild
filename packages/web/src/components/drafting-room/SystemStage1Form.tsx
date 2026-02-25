@@ -93,7 +93,6 @@ export const SystemStage1Form: React.FC = () => {
           name: currentTitle.trim(),
           description: currentDescription.trim() || undefined,
           category: currentCategory ?? undefined,
-          lifecycleState: 'planning',
           createdAt: now,
           actorId: user?.id,
         })

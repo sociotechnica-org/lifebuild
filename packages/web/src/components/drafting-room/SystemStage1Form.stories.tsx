@@ -95,7 +95,6 @@ const existingSystemBoot = (store: Store) => {
       name: 'Morning Routine',
       description: 'A daily morning routine to maintain energy and focus',
       category: 'health',
-      lifecycleState: 'planning',
       createdAt: now,
       actorId: 'storybook',
     })

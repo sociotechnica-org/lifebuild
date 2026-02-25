@@ -34,6 +34,7 @@ import { Stage1Form } from './components/drafting-room/Stage1Form.js'
 import { Stage2Form } from './components/drafting-room/Stage2Form.js'
 import { Stage3Form } from './components/drafting-room/Stage3Form.js'
 import { SystemStage1Form } from './components/drafting-room/SystemStage1Form.js'
+import { SystemStage2Form } from './components/drafting-room/SystemStage2Form.js'
 import { SortingRoom } from './components/sorting-room/SortingRoom.js'
 import { SystemBoard } from './components/system-board/SystemBoard.js'
 import {
@@ -474,26 +475,6 @@ const ProtectedApp: React.FC = () => {
                         </ErrorBoundary>
                       }
                     />
-                    {/* System creation route — placeholder until S4 */}
-                    <Route
-                      path={ROUTES.SYSTEM_CREATE}
-                      element={
-                        <ErrorBoundary>
-                          <RoomLayout room={DRAFTING_ROOM}>
-                            <div className='flex items-center justify-center min-h-[calc(100vh-200px)] py-8'>
-                              <div className='bg-white rounded-2xl border border-[#e8e4de] shadow-sm p-8 w-full max-w-md text-center'>
-                                <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-bold text-[#2f2b27] mb-2">
-                                  System Creation
-                                </h1>
-                                <p className='text-sm text-[#8b8680]'>
-                                  System creation forms are coming soon.
-                                </p>
-                              </div>
-                            </div>
-                          </RoomLayout>
-                        </ErrorBoundary>
-                      }
-                    />
                     <Route
                       path={ROUTES.SYSTEM_CREATE}
                       element={
@@ -510,6 +491,16 @@ const ProtectedApp: React.FC = () => {
                         <ErrorBoundary>
                           <RoomLayout room={DRAFTING_ROOM}>
                             <SystemStage1Form />
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.SYSTEM_STAGE2}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={DRAFTING_ROOM}>
+                            <SystemStage2Form />
                           </RoomLayout>
                         </ErrorBoundary>
                       }
