@@ -9,6 +9,7 @@ export const ROUTES = {
   DRAFTING_ROOM: '/drafting-room',
   SORTING_ROOM: '/sorting-room',
   SORTING_ROOM_STREAM: '/sorting-room/:stream',
+  SYSTEM_BOARD: '/system-board',
   ENTITY_TYPE_GATE: '/drafting-room/new',
   PROJECT_CREATE: '/drafting-room/new/project',
   PROJECT_STAGE1: '/drafting-room/:projectId/stage1',
@@ -36,6 +37,7 @@ export const generateRoute = {
   draftingRoom: () => '/drafting-room',
   sortingRoom: (stream?: 'gold' | 'silver' | 'bronze') =>
     stream ? `/sorting-room/${stream}` : '/sorting-room',
+  systemBoard: () => '/system-board',
   entityTypeGate: () => '/drafting-room/new',
   projectCreate: () => '/drafting-room/new/project',
   projectStage1: (projectId: string) => `/drafting-room/${projectId}/stage1`,

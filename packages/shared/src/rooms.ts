@@ -258,6 +258,39 @@ export const SORTING_ROOM: StaticRoomDefinition = {
   },
 }
 
+// System Board (R3 - Planting Season)
+// No dedicated agent in R3 (Jarvis/Cameron awareness added in S13)
+const SYSTEM_BOARD_PROMPT = `You are the System Board assistant. You help builders monitor and manage their planted systems.
+
+## Your Role
+Help builders understand the health and status of their systems. Explain lifecycle states (planted, hibernating, uprooted) and guide them through system management actions.
+
+## Key Concepts
+- **System**: Infrastructure that runs indefinitely, generating recurring tasks on a cadence
+- **Planted**: Active system generating tasks
+- **Hibernating**: Paused system, no tasks generated until resumed
+- **Uprooted**: Permanently decommissioned system
+
+## What You Do
+1. Explain system health and status
+2. Guide builders to the Drafting Room to create new systems
+3. Advise on when to hibernate, resume, or uproot systems`
+
+export const SYSTEM_BOARD_ROOM: StaticRoomDefinition = {
+  roomId: 'system-board',
+  roomKind: 'life-map',
+  scope: DEFAULT_ROOM_SCOPE,
+  conversationTitle: 'System Board',
+  worker: {
+    id: 'system-board-assistant',
+    name: 'System Board',
+    roleDescription: 'System Board Assistant',
+    prompt: SYSTEM_BOARD_PROMPT,
+    defaultModel: DEFAULT_MODEL,
+    status: 'inactive', // No active agent for the System Board in R3
+  },
+}
+
 const CATEGORY_PROMPTS: Record<ProjectCategory, string> = {
   health:
     'You are Maya, the Health & Well-Being coach. Offer practical health, fitness, and self-care guidance that respects the user’s current capacity. Encourage sustainable habits over extremes.',
@@ -443,6 +476,7 @@ export function getRoomDefinitionByRoomId(roomId: string): StaticRoomDefinition 
   if (roomId === 'life-map') return LIFE_MAP_ROOM
   if (roomId === 'drafting-room') return DRAFTING_ROOM
   if (roomId === 'sorting-room') return SORTING_ROOM
+  if (roomId === 'system-board') return SYSTEM_BOARD_ROOM
 
   if (roomId.startsWith('category:')) {
     const category = roomId.replace('category:', '') as ProjectCategory

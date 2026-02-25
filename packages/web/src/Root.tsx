@@ -34,7 +34,13 @@ import { Stage1Form } from './components/drafting-room/Stage1Form.js'
 import { Stage2Form } from './components/drafting-room/Stage2Form.js'
 import { Stage3Form } from './components/drafting-room/Stage3Form.js'
 import { SortingRoom } from './components/sorting-room/SortingRoom.js'
-import { LIFE_MAP_ROOM, DRAFTING_ROOM, SORTING_ROOM } from '@lifebuild/shared/rooms'
+import { SystemBoard } from './components/system-board/SystemBoard.js'
+import {
+  LIFE_MAP_ROOM,
+  DRAFTING_ROOM,
+  SORTING_ROOM,
+  SYSTEM_BOARD_ROOM,
+} from '@lifebuild/shared/rooms'
 import { determineStoreIdFromUser } from './utils/navigation.js'
 import {
   DEVTOOLS_QUERY_PARAM,
@@ -503,6 +509,16 @@ const ProtectedApp: React.FC = () => {
                         <ErrorBoundary>
                           <RoomLayout room={SORTING_ROOM}>
                             <SortingRoom />
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.SYSTEM_BOARD}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={SYSTEM_BOARD_ROOM}>
+                            <SystemBoard />
                           </RoomLayout>
                         </ErrorBoundary>
                       }

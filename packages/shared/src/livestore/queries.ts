@@ -602,3 +602,33 @@ export const getUnplacedSystems$ = queryDb(
   },
   { label: 'getUnplacedSystems' }
 )
+
+/**
+ * Get all systems including uprooted, ordered by createdAt DESC
+ */
+export const getAllSystems$ = queryDb(
+  tables.systems.select().orderBy([{ col: 'createdAt', direction: 'desc' }]),
+  { label: 'getAllSystems' }
+)
+
+/**
+ * Get uprooted systems
+ */
+export const getUprootedSystems$ = queryDb(
+  {
+    query: sql`SELECT * FROM systems WHERE uprootedAt IS NOT NULL ORDER BY uprootedAt DESC`,
+    schema: Schema.Array(tables.systems.rowSchema),
+  },
+  { label: 'getUprootedSystems' }
+)
+
+/**
+ * Get all system task templates (across all systems)
+ */
+export const getAllSystemTaskTemplates$ = queryDb(
+  tables.systemTaskTemplates.select().orderBy([
+    { col: 'systemId', direction: 'asc' },
+    { col: 'position', direction: 'asc' },
+  ]),
+  { label: 'getAllSystemTaskTemplates' }
+)
