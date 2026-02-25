@@ -33,3 +33,38 @@
 - Queries are already in queries.ts — S2 adds additional queries (getSystemHexPositions$, getAllHexPositions$, getUnplacedSystems$) and the `computeNextGenerateAt` utility
 - The `computeNextGenerateAt` utility goes in `packages/shared/src/utils/system-schedule.ts`
 - Pre-existing test failures exist in hex-map/ tests (missing @react-three/drei) and hex-grid-prototype typecheck — not related to system changes
+
+---
+
+## S2 — System queries + schedule helper [COMPLETE]
+
+**Status:** Complete
+**Date:** 2026-02-24
+
+**What was built:**
+
+- Added 3 additional queries: `getSystemHexPositions$`, `getAllHexPositions$`, `getUnplacedSystems$` (raw SQL join query matching `getUnplacedProjects$` pattern)
+- Created `computeNextGenerateAt(cadence, from)` utility in `packages/shared/src/utils/system-schedule.ts`
+- Uses UTC methods throughout to avoid DST-related time shifts
+- Handles month-end clamping (Jan 31 + 1 month = Feb 28, leap years handled)
+- 10 unit tests covering all 5 cadences, month-end clamping, leap years, and immutability
+- Exported from shared package index
+
+**Files modified:**
+
+- `packages/shared/src/livestore/queries.ts` — 3 new queries
+- `packages/shared/src/utils/system-schedule.ts` — new file
+- `packages/shared/tests/utils/system-schedule.test.ts` — new file
+- `packages/shared/src/index.ts` — re-export
+
+**Decisions:**
+
+- Used native Date UTC methods instead of date-fns (no new dependency needed)
+- `getUnplacedSystems$` uses raw SQL with LEFT JOIN (same pattern as existing `getUnplacedProjects$`)
+- `getAllHexPositions$` queries all entity types, complementing existing `getHexPositions$`
+
+**Notes for next story (S3):**
+
+- S3 (Entity type gate) depends on S1 and S2 — both complete
+- S3 touches routes.ts, App.tsx router, DraftingRoom.tsx — read these first
+- The gate is a simple binary choice (Project vs System), no Marvin involvement

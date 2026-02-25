@@ -563,3 +563,42 @@ export const getPlantedSystems$ = queryDb(
     .orderBy([{ col: 'createdAt', direction: 'desc' }]),
   { label: 'getPlantedSystems' }
 )
+
+/**
+ * Get hex positions for systems only
+ */
+export const getSystemHexPositions$ = queryDb(
+  tables.hexPositions
+    .select()
+    .where({ entityType: 'system' })
+    .orderBy([{ col: 'placedAt', direction: 'asc' }]),
+  { label: 'getSystemHexPositions' }
+)
+
+/**
+ * Get all hex positions regardless of entity type
+ */
+export const getAllHexPositions$ = queryDb(
+  tables.hexPositions.select().orderBy([{ col: 'placedAt', direction: 'asc' }]),
+  { label: 'getAllHexPositions' }
+)
+
+/**
+ * Get planted systems that have no hex position (not yet placed on map)
+ */
+export const getUnplacedSystems$ = queryDb(
+  {
+    query: sql`
+      SELECT systems.*
+      FROM systems
+      LEFT JOIN hex_positions
+        ON systems.id = hex_positions.entityId
+        AND hex_positions.entityType = 'system'
+      WHERE systems.lifecycleState = 'planted'
+        AND hex_positions.id IS NULL
+      ORDER BY systems.createdAt DESC
+    `,
+    schema: Schema.Array(tables.systems.rowSchema),
+  },
+  { label: 'getUnplacedSystems' }
+)
