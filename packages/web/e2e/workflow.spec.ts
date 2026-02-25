@@ -371,7 +371,12 @@ test.describe('Workflow', () => {
         }
       }
 
-      if (await page.getByText('No projects yet').isVisible().catch(() => false)) {
+      if (
+        await page
+          .getByText('No projects yet')
+          .isVisible()
+          .catch(() => false)
+      ) {
         await expect(page.getByText('Go to Drafting Room to create projects')).toBeVisible()
       }
     }
