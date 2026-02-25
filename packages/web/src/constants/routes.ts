@@ -17,6 +17,7 @@ export const ROUTES = {
   PROJECT_STAGE3: '/drafting-room/:projectId/stage3',
   // System routes
   SYSTEM_CREATE: '/drafting-room/new/system',
+  SYSTEM_STAGE1: '/drafting-room/:systemId/system-stage1',
   SYSTEM_STAGE2: '/drafting-room/:systemId/system-stage2',
   SYSTEM_STAGE3: '/drafting-room/:systemId/system-stage3',
   PROJECTS: '/projects',
@@ -45,6 +46,7 @@ export const generateRoute = {
   projectStage3: (projectId: string) => `/drafting-room/${projectId}/stage3`,
   // System routes
   systemCreate: () => '/drafting-room/new/system',
+  systemStage1: (systemId: string) => `/drafting-room/${systemId}/system-stage1`,
   systemStage2: (systemId: string) => `/drafting-room/${systemId}/system-stage2`,
   systemStage3: (systemId: string) => `/drafting-room/${systemId}/system-stage3`,
   project: (id: string) => `/projects/${id}`,

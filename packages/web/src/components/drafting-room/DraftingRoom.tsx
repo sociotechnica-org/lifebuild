@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useStore } from '../../livestore-compat.js'
-import { getProjects$ } from '@lifebuild/shared/queries'
+import { getProjects$, getSystems$ } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
 import {
   PROJECT_CATEGORIES,
@@ -10,11 +10,12 @@ import {
   type ProjectLifecycleState,
   resolveLifecycleState,
 } from '@lifebuild/shared'
-import type { Project } from '@lifebuild/shared/schema'
+import type { Project, System } from '@lifebuild/shared/schema'
 import { generateRoute } from '../../constants/routes.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { StageColumn } from './StageColumn.js'
 import { PlanningQueueCard } from './PlanningQueueCard.js'
+import { SystemQueueCard } from './SystemQueueCard.js'
 import { usePostHog } from '../../lib/analytics.js'
 
 export type ProjectTier = 'gold' | 'silver' | 'bronze'
@@ -104,6 +105,7 @@ export const DraftingRoom: React.FC = () => {
   const { user } = useAuth()
   const posthog = usePostHog()
   const allProjects = useQuery(getProjects$) ?? []
+  const allSystems = useQuery(getSystems$) ?? []
 
   useEffect(() => {
     posthog?.capture('drafting_room_viewed')
@@ -201,6 +203,38 @@ export const DraftingRoom: React.FC = () => {
     return filteredProjects.filter(p => isStale(p.updatedAt)).length
   }, [filteredProjects])
 
+  // Get planning systems and group by stage (determined by data completeness)
+  const planningSystems = useMemo(() => {
+    return allSystems.filter(system => system.lifecycleState === 'planning')
+  }, [allSystems])
+
+  const filteredSystems = useMemo(() => {
+    return planningSystems.filter(system => {
+      if (categoryFilter !== 'all' && system.category !== categoryFilter) return false
+      // Systems don't have tier, skip tier filtering
+      if (tierFilter !== 'all') return false
+      return true
+    })
+  }, [planningSystems, categoryFilter, tierFilter])
+
+  // Determine system stage by data completeness:
+  // Stage 1: exists but no purposeStatement
+  // Stage 2: has purposeStatement (ready for scope)
+  // Stage 3: has purposeStatement and is ready for detail/review
+  const getSystemStage = (system: System): PlanningStage => {
+    if (system.purposeStatement) return 2
+    return 1
+  }
+
+  const systemsByStage = useMemo(() => {
+    const grouped: Record<PlanningStage, System[]> = { 1: [], 2: [], 3: [], 4: [] }
+    filteredSystems.forEach(system => {
+      const stage = getSystemStage(system)
+      grouped[stage].push(system)
+    })
+    return grouped
+  }, [filteredSystems])
+
   const hasActiveFilters = categoryFilter !== 'all' || tierFilter !== 'all'
 
   const clearFilters = () => {
@@ -229,6 +263,39 @@ export const DraftingRoom: React.FC = () => {
     }
   }
 
+  const handleSystemResume = (systemId: string, stage: PlanningStage) => {
+    switch (stage) {
+      case 1:
+        navigate(generateRoute.systemStage1(systemId))
+        break
+      case 2:
+        navigate(generateRoute.systemStage2(systemId))
+        break
+      case 3:
+        navigate(generateRoute.systemStage3(systemId))
+        break
+      default:
+        break
+    }
+  }
+
+  const handleSystemAbandon = (systemId: string, systemName: string) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to uproot "${systemName}"?\n\nThis will remove the system from the planning queue.`
+    )
+
+    if (confirmed) {
+      posthog?.capture('system_uprooted', { systemId })
+      store.commit(
+        events.systemUprooted({
+          id: systemId,
+          uprootedAt: new Date(),
+          actorId: user?.id,
+        })
+      )
+    }
+  }
+
   const handleAbandon = (projectId: string, projectName: string) => {
     const confirmed = window.confirm(
       `Are you sure you want to abandon "${projectName}"?\n\nThis will archive the project and remove it from the planning queue.`
@@ -248,7 +315,8 @@ export const DraftingRoom: React.FC = () => {
   }
 
   const stage1Projects = projectsByStage[1] ?? []
-  const isIdentifyingEmpty = stage1Projects.length === 0
+  const stage1Systems = systemsByStage[1] ?? []
+  const isIdentifyingEmpty = stage1Projects.length === 0 && stage1Systems.length === 0
 
   return (
     <div className='py-4'>
@@ -306,7 +374,8 @@ export const DraftingRoom: React.FC = () => {
         {hasActiveFilters && (
           <div className='flex items-center gap-2 text-xs text-[#8b8680]'>
             <span>
-              Showing {filteredProjects.length} of {planningProjects.length} projects
+              Showing {filteredProjects.length} projects, {filteredSystems.length} systems (of{' '}
+              {planningProjects.length} projects, {planningSystems.length} systems)
             </span>
             <button
               type='button'
@@ -330,13 +399,15 @@ export const DraftingRoom: React.FC = () => {
       <div className='grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 items-start'>
         {STAGES.map(({ stage, name, emptyMessage }) => {
           const stageProjects = projectsByStage[stage] ?? []
+          const stageSystems = systemsByStage[stage] ?? []
+          const totalCount = stageProjects.length + stageSystems.length
           const showNewProjectLink = stage === 1 && isIdentifyingEmpty
           return (
             <StageColumn
               key={stage}
               stage={stage}
               stageName={name}
-              projectCount={stageProjects.length}
+              projectCount={totalCount}
               emptyMessage={showNewProjectLink ? undefined : emptyMessage}
               emptyAction={
                 showNewProjectLink ? (
@@ -365,6 +436,16 @@ export const DraftingRoom: React.FC = () => {
                   />
                 )
               })}
+              {stageSystems.map(system => (
+                <SystemQueueCard
+                  key={system.id}
+                  system={system}
+                  stage={stage}
+                  isStale={isStale(system.updatedAt)}
+                  onResume={() => handleSystemResume(system.id, stage)}
+                  onAbandon={() => handleSystemAbandon(system.id, system.name)}
+                />
+              ))}
             </StageColumn>
           )
         })}

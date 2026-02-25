@@ -33,6 +33,7 @@ import { EntityTypeGate } from './components/drafting-room/EntityTypeGate.js'
 import { Stage1Form } from './components/drafting-room/Stage1Form.js'
 import { Stage2Form } from './components/drafting-room/Stage2Form.js'
 import { Stage3Form } from './components/drafting-room/Stage3Form.js'
+import { SystemStage1Form } from './components/drafting-room/SystemStage1Form.js'
 import { SortingRoom } from './components/sorting-room/SortingRoom.js'
 import { SystemBoard } from './components/system-board/SystemBoard.js'
 import {
@@ -489,6 +490,26 @@ const ProtectedApp: React.FC = () => {
                                 </p>
                               </div>
                             </div>
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.SYSTEM_CREATE}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={DRAFTING_ROOM}>
+                            <SystemStage1Form />
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.SYSTEM_STAGE1}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={DRAFTING_ROOM}>
+                            <SystemStage1Form />
                           </RoomLayout>
                         </ErrorBoundary>
                       }
