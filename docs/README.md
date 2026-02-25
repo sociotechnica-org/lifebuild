@@ -11,10 +11,6 @@ This directory contains the technical documentation for LifeBuild, organized by 
 - Deployment configuration
 - Development workflow
 
-## LLM Tooling
-
-**[llm-tools.md](./llm-tools.md)** - LLM tool schema and implementation reference.
-
 ## Plans
 
 The `plans/` directory contains implementation plans organized chronologically:

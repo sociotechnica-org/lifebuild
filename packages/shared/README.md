@@ -11,10 +11,6 @@ This package provides the foundation for type-safe communication and data consis
 - **Query Definitions**: Reusable database queries for common operations
 - **Type Definitions**: Shared TypeScript interfaces and types
 
-Related reference:
-
-- `docs/llm-tools.md` - LLM tool schemas, formatter alignment notes, and tool-status tracking.
-
 ## Package Contents
 
 ### Core Files
