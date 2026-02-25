@@ -119,6 +119,6 @@ Use these for deeper guidance:
 | Sync Worker | `pnpm dev:worker` | 8787  |
 | Auth Worker | `pnpm dev:auth`   | 8788  |
 | Server      | `pnpm dev:server` | 3003  |
-| Storybook   | `pnpm dev`        | 6010  |
+| Storybook   | `pnpm storybook`  | 6010  |
 
 Environment setup and package-specific bootstrapping live in package READMEs.
