@@ -68,3 +68,51 @@
 - S3 (Entity type gate) depends on S1 and S2 — both complete
 - S3 touches routes.ts, App.tsx router, DraftingRoom.tsx — read these first
 - The gate is a simple binary choice (Project vs System), no Marvin involvement
+
+---
+
+## S3 — Entity type gate (Project vs System) [COMPLETE]
+
+**Status:** Complete
+**Date:** 2026-02-24
+
+**What was built:**
+
+- `EntityTypeGate` component with two large cards: Project ("Bounded work with a finish line") and System ("Infrastructure that runs indefinitely")
+- Updated routes: `ENTITY_TYPE_GATE` at `/drafting-room/new`, `PROJECT_CREATE` moved to `/drafting-room/new/project`, `SYSTEM_CREATE` at `/drafting-room/new/system`
+- DraftingRoom "New Project" button renamed to "New", navigates to gate
+- System create placeholder page (for S4)
+- E2E tests updated for new project create URL
+- Storybook stories for EntityTypeGate (default + narrow viewport)
+- `useNavigationContext` updated for new routes
+
+**Files modified:** routes.ts, Root.tsx, DraftingRoom.tsx, useNavigationContext.ts, 3 E2E specs
+**Files created:** EntityTypeGate.tsx, EntityTypeGate.stories.tsx
+
+---
+
+## S8 — System Board: basic list view [COMPLETE]
+
+**Status:** Complete
+**Date:** 2026-02-24
+
+**What was built:**
+
+- `SystemBoard` component with list view of planted/hibernating systems
+- Each row: system name, category badge, lifecycle state badge, template count, next-due (relative time), last-generated
+- Collapsible "Uprooted" section for decommissioned systems
+- Empty state with link to Drafting Room
+- "System Board" nav item in shell header navigation
+- `SYSTEM_BOARD_ROOM` definition in rooms.ts with minimal prompt
+- Stubbed Hibernate/Resume/Uproot action buttons (for S9)
+- Additional queries: `getAllSystems$`, `getUprootedSystems$`, `getAllSystemTaskTemplates$`
+- Storybook stories: Empty, ThreePlantedSystems, WithHibernating, WithUprooted
+
+**Files modified:** routes.ts, Root.tsx, NewUiShell.tsx, rooms.ts, queries.ts
+**Files created:** SystemBoard.tsx, SystemBoard.stories.tsx
+
+**Notes for next stories:**
+
+- S4 (System Stage 1) depends on S3 — complete, can proceed
+- S9 (lifecycle actions) depends on S8 — complete, can proceed
+- S4 and S9 are independent and can run in parallel
