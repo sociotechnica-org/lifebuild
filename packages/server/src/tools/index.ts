@@ -18,6 +18,9 @@ export * from './contacts.js'
 // Export worker tools
 export * from './workers.js'
 
+// Export system tools
+export * from './systems.js'
+
 /**
  * Execute an LLM tool call
  */
@@ -111,6 +114,18 @@ export async function executeLLMTool(
     reorderBronzeStack,
     getTableConfiguration,
   } = await import('./table.js')
+
+  const {
+    createSystem,
+    updateSystem,
+    getSystemDetails,
+    listSystems,
+    updateSystemLifecycle,
+    addSystemTaskTemplate,
+    updateSystemTaskTemplate,
+    removeSystemTaskTemplate,
+    getSystemTaskTemplates,
+  } = await import('./systems.js')
 
   switch (toolCall.name) {
     case 'create_task':
@@ -265,6 +280,34 @@ export async function executeLLMTool(
 
     case 'reorder_bronze_stack':
       return reorderBronzeStack(store, toolCall.parameters, workerId)
+
+    // System management tools
+    case 'create_system':
+      return createSystem(store, toolCall.parameters, workerId)
+
+    case 'update_system':
+      return updateSystem(store, toolCall.parameters, workerId)
+
+    case 'get_system_details':
+      return getSystemDetails(store, toolCall.parameters.systemId)
+
+    case 'list_systems':
+      return listSystems(store)
+
+    case 'update_system_lifecycle':
+      return updateSystemLifecycle(store, toolCall.parameters, workerId)
+
+    case 'add_system_task_template':
+      return addSystemTaskTemplate(store, toolCall.parameters, workerId)
+
+    case 'update_system_task_template':
+      return updateSystemTaskTemplate(store, toolCall.parameters, workerId)
+
+    case 'remove_system_task_template':
+      return removeSystemTaskTemplate(store, toolCall.parameters.templateId, workerId)
+
+    case 'get_system_task_templates':
+      return getSystemTaskTemplates(store, toolCall.parameters.systemId)
 
     default:
       throw new Error(`Unknown tool: ${toolCall.name}`)

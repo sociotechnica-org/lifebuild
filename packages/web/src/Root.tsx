@@ -38,13 +38,9 @@ import { SystemStage1Form } from './components/drafting-room/SystemStage1Form.js
 import { SystemStage2Form } from './components/drafting-room/SystemStage2Form.js'
 import { SystemStage3Form } from './components/drafting-room/SystemStage3Form.js'
 import { SortingRoom } from './components/sorting-room/SortingRoom.js'
-import { SystemBoard } from './components/system-board/SystemBoard.js'
-import {
-  LIFE_MAP_ROOM,
-  DRAFTING_ROOM,
-  SORTING_ROOM,
-  SYSTEM_BOARD_ROOM,
-} from '@lifebuild/shared/rooms'
+// SystemBoard is now embedded in SortingRoom via SystemBoardSection
+import { SystemDetailPage } from './components/system-board/SystemDetailPage.js'
+import { LIFE_MAP_ROOM, DRAFTING_ROOM, SORTING_ROOM } from '@lifebuild/shared/rooms'
 import { determineStoreIdFromUser } from './utils/navigation.js'
 import {
   DEVTOOLS_QUERY_PARAM,
@@ -540,13 +536,7 @@ const ProtectedApp: React.FC = () => {
                     />
                     <Route
                       path={ROUTES.SYSTEM_BOARD}
-                      element={
-                        <ErrorBoundary>
-                          <RoomLayout room={SYSTEM_BOARD_ROOM}>
-                            <SystemBoard />
-                          </RoomLayout>
-                        </ErrorBoundary>
-                      }
+                      element={<Navigate to={ROUTES.SORTING_ROOM} replace />}
                     />
                     <Route
                       path={ROUTES.PROJECTS}
@@ -563,6 +553,14 @@ const ProtectedApp: React.FC = () => {
                       element={
                         <ErrorBoundary>
                           <ProjectDetailPage />
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.SYSTEM}
+                      element={
+                        <ErrorBoundary>
+                          <SystemDetailPage />
                         </ErrorBoundary>
                       }
                     />

@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from '../../tests/test-utils.js'
 import { describe, expect, it, beforeEach, vi } from 'vitest'
-import { getCategoryRoomDefinition } from '@lifebuild/shared/rooms'
+import { SORTING_ROOM } from '@lifebuild/shared/rooms'
 import { useRoomAgent } from './useRoomAgent.js'
 
 const mocks = vi.hoisted(() => {
@@ -34,7 +34,7 @@ describe('useRoomAgent', () => {
   })
 
   it('creates a worker once even if multiple components mount simultaneously', async () => {
-    const room = getCategoryRoomDefinition('health')
+    const room = SORTING_ROOM
 
     const first = renderHook(() => useRoomAgent(room))
     const second = renderHook(() => useRoomAgent(room))
@@ -46,7 +46,7 @@ describe('useRoomAgent', () => {
   })
 
   it('skips creation when the worker already exists', () => {
-    const room = getCategoryRoomDefinition('finances')
+    const room = SORTING_ROOM
     mocks.setQueryValue([
       {
         id: room.worker.id,

@@ -194,7 +194,7 @@ test.describe('Life Map placement tray flow', () => {
     const canvas = page.locator('canvas').first()
     await expect(canvas).toBeVisible({ timeout: 10000 })
 
-    const panel = page.locator('aside').filter({ hasText: 'Unplaced Projects' }).first()
+    const panel = page.locator('aside').filter({ hasText: 'Unplaced Items' }).first()
     await expect(panel).toBeVisible({ timeout: 10000 })
 
     const firstRunPrompt = page.getByText('Your projects are ready to place')

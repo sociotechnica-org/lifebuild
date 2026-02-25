@@ -475,7 +475,7 @@ export const LifeMap: React.FC = () => {
           lifecycleState: system.lifecycleState as 'planted' | 'hibernating',
           isStale,
           isOverdue,
-          onClick: () => navigate(preserveStoreIdInUrl(generateRoute.systemBoard())),
+          onClick: () => navigate(preserveStoreIdInUrl(generateRoute.system(system.id))),
         },
       ]
     })
@@ -517,12 +517,14 @@ export const LifeMap: React.FC = () => {
   })
 
   const hasNoProjects = categoriesWithProjects.length === 0
+  const hasSystems = plantedSystems.length > 0 || unplacedSystemsFromQuery.length > 0
+  const hasContent = !hasNoProjects || hasSystems
   const canRenderHexMap = isDesktopViewport && hasWebGLSupport
-  const canShowViewModeToggle = canRenderHexMap && !hasNoProjects
+  const canShowViewModeToggle = canRenderHexMap && hasContent
   const shouldRenderHexMap = canShowViewModeToggle && viewMode === 'map'
 
   const renderCategoryCardLayout = () => {
-    if (hasNoProjects) {
+    if (!hasContent) {
       return (
         <div className='flex min-h-[calc(100vh-300px)] items-center justify-center'>
           <div className='text-center'>
@@ -810,7 +812,7 @@ export const LifeMap: React.FC = () => {
               onOpenProject={projectId =>
                 navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
               }
-              onOpenSystem={() => navigate(preserveStoreIdInUrl(generateRoute.systemBoard()))}
+              onOpenSystem={sysId => navigate(preserveStoreIdInUrl(generateRoute.system(sysId)))}
               onUnarchiveProject={handleUnarchive}
             />
           </Suspense>

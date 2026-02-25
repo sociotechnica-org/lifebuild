@@ -8,85 +8,17 @@ import {
   getSystemHexPositions$,
 } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
-import { getCategoryInfo, computeNextGenerateAt } from '@lifebuild/shared'
+import { computeNextGenerateAt } from '@lifebuild/shared'
 import { generateRoute } from '../../constants/routes.js'
 import { useAuth } from '../../contexts/AuthContext.js'
+import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import type { System, SystemTaskTemplate, HexPosition } from '@lifebuild/shared/schema'
-
-/**
- * Format a date as relative time (e.g., "Today", "In 3 days", "2 days overdue")
- */
-function formatRelativeTime(date: Date | null): string {
-  if (!date) return 'Not scheduled'
-
-  const now = new Date()
-  const diffMs = date.getTime() - now.getTime()
-  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
-
-  if (diffDays === 0) return 'Today'
-  if (diffDays === 1) return 'Tomorrow'
-  if (diffDays === -1) return '1 day overdue'
-  if (diffDays > 1) return `In ${diffDays} days`
-  if (diffDays < -1) return `${Math.abs(diffDays)} days overdue`
-
-  return 'Today'
-}
-
-/**
- * Format a date as a human-readable string or "Never"
- */
-function formatLastGenerated(date: Date | null): string {
-  if (!date) return 'Never'
-
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
-
-  if (diffDays === 0) return 'Today'
-  if (diffDays === 1) return 'Yesterday'
-  if (diffDays < 30) return `${diffDays} days ago`
-
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-
-/**
- * Lifecycle state badge component
- */
-const LifecycleStateBadge: React.FC<{ state: string }> = ({ state }) => {
-  const defaultStyle = { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Planning' }
-  const styles: Record<string, { bg: string; text: string; label: string }> = {
-    planted: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: 'Planted' },
-    hibernating: { bg: 'bg-amber-100', text: 'text-amber-700', label: 'Hibernating' },
-    uprooted: { bg: 'bg-stone-200', text: 'text-stone-500', label: 'Uprooted' },
-    planning: defaultStyle,
-  }
-
-  const style = styles[state] ?? defaultStyle
-  return (
-    <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style.bg} ${style.text}`}
-    >
-      {style.label}
-    </span>
-  )
-}
-
-/**
- * Category badge component (colored pill)
- */
-const CategoryBadge: React.FC<{ category: string | null }> = ({ category }) => {
-  const info = getCategoryInfo(category as Parameters<typeof getCategoryInfo>[0])
-  if (!info) return <span className='text-xs text-[#8b8680]'>No category</span>
-
-  return (
-    <span
-      className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-white'
-      style={{ backgroundColor: info.colorHex }}
-    >
-      {info.name}
-    </span>
-  )
-}
+import {
+  formatRelativeTime,
+  formatLastGenerated,
+  LifecycleStateBadge,
+  CategoryBadge,
+} from './system-utils.js'
 
 /**
  * Single system row in the System Board list
@@ -121,9 +53,12 @@ const SystemRow: React.FC<{
       {/* System name and badges */}
       <div className='flex-1 min-w-0'>
         <div className='flex items-center gap-2 mb-1'>
-          <h3 className="font-['Source_Serif_4',Georgia,serif] font-semibold text-base text-[#2f2b27] truncate">
+          <Link
+            to={preserveStoreIdInUrl(generateRoute.system(system.id))}
+            className="font-['Source_Serif_4',Georgia,serif] font-semibold text-base text-[#2f2b27] truncate no-underline hover:text-[#4a4540]"
+          >
             {system.name}
-          </h3>
+          </Link>
           <LifecycleStateBadge state={system.lifecycleState} />
         </div>
         <div className='flex items-center gap-2'>
@@ -241,7 +176,11 @@ const EmptyState: React.FC = () => (
  * - Resume: hibernating -> planted (resets template schedules from now)
  * - Uproot: planted|hibernating -> uprooted (permanent decommission)
  */
-export const SystemBoard: React.FC = () => {
+/**
+ * Embeddable system board section (no page-level header)
+ * Used inside the Sorting Room.
+ */
+export const SystemBoardSection: React.FC = () => {
   const { store } = useStore()
   const { user } = useAuth()
   const nonUprootedSystems = (useQuery(getSystems$) ?? []) as System[]
@@ -372,23 +311,11 @@ export const SystemBoard: React.FC = () => {
 
   // Show empty state if no systems exist at all
   if (!hasAnySystems) {
-    return (
-      <div className='py-4'>
-        <EmptyState />
-      </div>
-    )
+    return <EmptyState />
   }
 
   return (
-    <div className='py-4'>
-      {/* Header */}
-      <div className='mb-4'>
-        <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-semibold text-[#2f2b27]">
-          System Board
-        </h1>
-        <p className='text-sm text-[#8b8680] mt-1'>Monitor and manage your planted systems</p>
-      </div>
-
+    <>
       {/* Active systems list (planted + hibernating) */}
       {activeSystems.length > 0 ? (
         <div className='space-y-3'>
@@ -439,6 +366,21 @@ export const SystemBoard: React.FC = () => {
           )}
         </div>
       )}
-    </div>
+    </>
   )
 }
+
+/**
+ * SystemBoard - Standalone page wrapper (kept for backward compat / stories)
+ */
+export const SystemBoard: React.FC = () => (
+  <div className='py-4'>
+    <div className='mb-4'>
+      <h1 className="font-['Source_Serif_4',Georgia,serif] text-2xl font-semibold text-[#2f2b27]">
+        System Board
+      </h1>
+      <p className='text-sm text-[#8b8680] mt-1'>Monitor and manage your planted systems</p>
+    </div>
+    <SystemBoardSection />
+  </div>
+)

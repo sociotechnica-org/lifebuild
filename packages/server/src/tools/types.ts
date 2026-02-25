@@ -938,6 +938,131 @@ export interface GetTableConfigurationResult {
   error?: string
 }
 
+// ===== SYSTEM TOOL TYPES =====
+
+export interface CreateSystemParams {
+  name: string
+  description?: string
+  category?: string
+}
+
+export interface CreateSystemResult {
+  success: boolean
+  system?: {
+    id: string
+    name: string
+    description?: string
+    category?: string
+    lifecycleState: string
+    createdAt: Date
+  }
+  error?: string
+}
+
+export interface UpdateSystemParams {
+  systemId: string
+  name?: string
+  description?: string | null
+  category?: string | null
+  purposeStatement?: string | null
+}
+
+export interface UpdateSystemResult {
+  success: boolean
+  error?: string
+}
+
+export interface GetSystemDetailsResult {
+  success: boolean
+  system?: {
+    id: string
+    name: string
+    description?: string
+    category?: string
+    purposeStatement?: string
+    lifecycleState: string
+    createdAt: Date
+    templateCount: number
+  }
+  error?: string
+}
+
+export interface ListSystemsResult {
+  success: boolean
+  systems?: Array<{
+    id: string
+    name: string
+    description?: string
+    category?: string
+    lifecycleState: string
+    createdAt: Date
+  }>
+  error?: string
+}
+
+export interface UpdateSystemLifecycleParams {
+  systemId: string
+  action: string
+}
+
+export interface UpdateSystemLifecycleResult {
+  success: boolean
+  error?: string
+}
+
+export interface AddSystemTaskTemplateParams {
+  systemId: string
+  title: string
+  description?: string
+  cadence: string
+}
+
+export interface AddSystemTaskTemplateResult {
+  success: boolean
+  template?: {
+    id: string
+    systemId: string
+    title: string
+    description?: string
+    cadence: string
+    position: number
+    createdAt: Date
+  }
+  error?: string
+}
+
+export interface UpdateSystemTaskTemplateParams {
+  templateId: string
+  title?: string
+  description?: string | null
+  cadence?: string
+}
+
+export interface UpdateSystemTaskTemplateResult {
+  success: boolean
+  error?: string
+}
+
+export interface RemoveSystemTaskTemplateResult {
+  success: boolean
+  error?: string
+}
+
+export interface GetSystemTaskTemplatesResult {
+  success: boolean
+  templates?: Array<{
+    id: string
+    systemId: string
+    title: string
+    description?: string
+    cadence: string
+    position: number
+    nextGenerateAt?: Date
+    createdAt: Date
+  }>
+  error?: string
+}
+
 // ===== UNION TYPES =====
 
 export type LLMToolParams =
@@ -993,6 +1118,11 @@ export type LLMToolParams =
   | AddBronzeTaskParams
   | RemoveBronzeTaskParams
   | ReorderBronzeStackParams
+  | CreateSystemParams
+  | UpdateSystemParams
+  | UpdateSystemLifecycleParams
+  | AddSystemTaskTemplateParams
+  | UpdateSystemTaskTemplateParams
 
 export type LLMToolResult =
   | CreateTaskResult
@@ -1050,3 +1180,12 @@ export type LLMToolResult =
   | RemoveBronzeTaskResult
   | ReorderBronzeStackResult
   | GetTableConfigurationResult
+  | CreateSystemResult
+  | UpdateSystemResult
+  | GetSystemDetailsResult
+  | ListSystemsResult
+  | UpdateSystemLifecycleResult
+  | AddSystemTaskTemplateResult
+  | UpdateSystemTaskTemplateResult
+  | RemoveSystemTaskTemplateResult
+  | GetSystemTaskTemplatesResult

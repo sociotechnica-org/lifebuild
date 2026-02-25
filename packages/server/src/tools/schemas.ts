@@ -554,4 +554,143 @@ export const llmToolSchemas = [
     },
     required: ['ordering'],
   }),
+
+  // ===== SYSTEM MANAGEMENT TOOLS =====
+
+  toolDef('create_system', 'Create a new system with name, optional description, and category', {
+    type: 'object',
+    properties: {
+      name: requiredString('The name of the system'),
+      description: optionalString('Optional description of the system'),
+      category: {
+        type: 'string',
+        enum: [
+          'health',
+          'relationships',
+          'finances',
+          'growth',
+          'leisure',
+          'spirituality',
+          'home',
+          'contribution',
+        ],
+        description: 'Life category for the system',
+      },
+    },
+    required: ['name'],
+  }),
+
+  toolDef(
+    'update_system',
+    'Update an existing system name, description, category, or purpose statement',
+    {
+      type: 'object',
+      properties: {
+        systemId: requiredString('The ID of the system to update'),
+        name: optionalString('New name for the system'),
+        description: optionalString('New description for the system'),
+        category: {
+          type: 'string',
+          enum: [
+            'health',
+            'relationships',
+            'finances',
+            'growth',
+            'leisure',
+            'spirituality',
+            'home',
+            'contribution',
+          ],
+          description: 'Life category for the system',
+        },
+        purposeStatement: optionalString('What this system maintains or enables'),
+      },
+      required: ['systemId'],
+    }
+  ),
+
+  toolDef(
+    'get_system_details',
+    'Get detailed information about a specific system including its task templates',
+    {
+      type: 'object',
+      properties: {
+        systemId: requiredString('The ID of the system to get details for'),
+      },
+      required: ['systemId'],
+    }
+  ),
+
+  toolDef('list_systems', 'Get a list of all non-uprooted systems', {
+    type: 'object',
+    properties: {},
+    required: [],
+  }),
+
+  toolDef(
+    'update_system_lifecycle',
+    'Change a system lifecycle state: plant, hibernate, resume, or uproot',
+    {
+      type: 'object',
+      properties: {
+        systemId: requiredString('The ID of the system to update'),
+        action: {
+          type: 'string',
+          enum: ['plant', 'hibernate', 'resume', 'uproot'],
+          description: 'Lifecycle action to perform',
+        },
+      },
+      required: ['systemId', 'action'],
+    }
+  ),
+
+  toolDef('add_system_task_template', 'Add a recurring task template to a system with a cadence', {
+    type: 'object',
+    properties: {
+      systemId: requiredString('The ID of the system to add the template to'),
+      title: requiredString('Title of the recurring task template'),
+      description: optionalString('Optional description of the task template'),
+      cadence: {
+        type: 'string',
+        enum: ['daily', 'weekly', 'monthly', 'quarterly', 'annually'],
+        description: 'How often this task recurs',
+      },
+    },
+    required: ['systemId', 'title', 'cadence'],
+  }),
+
+  toolDef(
+    'update_system_task_template',
+    'Update an existing task template title, description, or cadence',
+    {
+      type: 'object',
+      properties: {
+        templateId: requiredString('The ID of the task template to update'),
+        title: optionalString('New title for the template'),
+        description: optionalString('New description for the template'),
+        cadence: {
+          type: 'string',
+          enum: ['daily', 'weekly', 'monthly', 'quarterly', 'annually'],
+          description: 'New cadence for the template',
+        },
+      },
+      required: ['templateId'],
+    }
+  ),
+
+  toolDef('remove_system_task_template', 'Remove a task template from a system', {
+    type: 'object',
+    properties: {
+      templateId: requiredString('The ID of the task template to remove'),
+    },
+    required: ['templateId'],
+  }),
+
+  toolDef('get_system_task_templates', 'Get all task templates for a specific system', {
+    type: 'object',
+    properties: {
+      systemId: requiredString('The ID of the system to get templates for'),
+    },
+    required: ['systemId'],
+  }),
 ]

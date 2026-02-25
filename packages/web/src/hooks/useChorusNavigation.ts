@@ -90,7 +90,7 @@ export const useChorusNavigation = () => {
                   attributes
                 )
 
-                // For planning projects, "View project" should take the Director to the
+                // For planning projects, "View project" should take the Builder to the
                 // appropriate Drafting Room stage (where edits happen), not the read-only view.
                 if (lifecycleState.status === 'planning') {
                   if (lifecycleState.stage === 1) {

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
-  CATEGORY_ROOMS,
   LIFE_MAP_ROOM,
+  COUNCIL_CHAMBER,
+  SORTING_ROOM,
   createProjectRoomDefinition,
-  getCategoryRoomDefinition,
 } from '../src/rooms.js'
 
 describe('rooms definitions', () => {
@@ -13,11 +13,15 @@ describe('rooms definitions', () => {
     expect(LIFE_MAP_ROOM.scope).toBe('workspace')
   })
 
-  it('exposes category rooms keyed by slug', () => {
-    expect(Object.keys(CATEGORY_ROOMS)).toContain('health')
-    const healthRoom = getCategoryRoomDefinition('health')
-    expect(healthRoom.roomId).toBe('category:health')
-    expect(healthRoom.worker.name).toBe('Maya')
+  it('provides a council chamber room for Jarvis', () => {
+    expect(COUNCIL_CHAMBER.roomId).toBe('council-chamber')
+    expect(COUNCIL_CHAMBER.worker.name).toBe('Jarvis')
+    expect(COUNCIL_CHAMBER.roomKind).toBe('council-chamber')
+  })
+
+  it('provides a sorting room for Marvin', () => {
+    expect(SORTING_ROOM.roomId).toBe('sorting-room')
+    expect(SORTING_ROOM.worker.name).toBe('Marvin')
   })
 
   it('creates unique project room definitions', () => {

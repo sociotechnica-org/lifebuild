@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { useSearchParams, useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useStore } from '../../livestore-compat.js'
 import { getProjects$, getAllTasks$ } from '@lifebuild/shared/queries'
+import { SystemBoardSection } from '../system-board/SystemBoard.js'
 import { generateRoute } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import {
@@ -849,6 +850,19 @@ export const SortingRoom: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Systems Section */}
+      <div className='mt-6'>
+        <div className='flex items-center gap-2 mb-3'>
+          <h2 className="font-['Source_Serif_4',Georgia,serif] text-lg font-semibold text-[#2f2b27]">
+            Systems
+          </h2>
+          <span className='text-xs text-[#8b8680]'>Infrastructure that runs indefinitely</span>
+        </div>
+        <div className='bg-white rounded-xl border border-[#e8e4de] p-4'>
+          <SystemBoardSection />
+        </div>
+      </div>
     </div>
   )
 }

@@ -160,16 +160,6 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
           >
             Life Map
           </Link>
-          <Link
-            to={generateRoute.systemBoard()}
-            className={`no-underline py-2 px-3 rounded-xl transition-all duration-[160ms] ${
-              isActive('/system-board')
-                ? 'text-[#2f2b27] bg-black/[0.04]'
-                : 'text-[#8b8680] hover:text-[#2f2b27]'
-            }`}
-          >
-            System Board
-          </Link>
         </nav>
         <div className='flex items-center gap-4'>
           <button

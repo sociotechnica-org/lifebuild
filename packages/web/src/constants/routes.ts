@@ -22,6 +22,7 @@ export const ROUTES = {
   SYSTEM_STAGE3: '/drafting-room/:systemId/system-stage3',
   PROJECTS: '/projects',
   PROJECT: '/projects/:projectId',
+  SYSTEM: '/systems/:systemId',
   // Auth and admin routes (unchanged)
   ADMIN: '/admin',
   ADMIN_USER: '/admin/users/:userEmail',
@@ -50,6 +51,7 @@ export const generateRoute = {
   systemStage2: (systemId: string) => `/drafting-room/${systemId}/system-stage2`,
   systemStage3: (systemId: string) => `/drafting-room/${systemId}/system-stage3`,
   project: (id: string) => `/projects/${id}`,
+  system: (id: string) => `/systems/${id}`,
   // Admin routes
   adminUser: (userEmail: string) => `/admin/users/${encodeURIComponent(userEmail)}`,
 } as const
