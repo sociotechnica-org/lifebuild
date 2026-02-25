@@ -1,14 +1,17 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { useQuery } from '../../livestore-compat.js'
+import { useQuery, useStore } from '../../livestore-compat.js'
 import {
   getSystems$,
   getUprootedSystems$,
   getAllSystemTaskTemplates$,
+  getSystemHexPositions$,
 } from '@lifebuild/shared/queries'
-import { getCategoryInfo } from '@lifebuild/shared'
+import { events } from '@lifebuild/shared/schema'
+import { getCategoryInfo, computeNextGenerateAt } from '@lifebuild/shared'
 import { generateRoute } from '../../constants/routes.js'
-import type { System, SystemTaskTemplate } from '@lifebuild/shared/schema'
+import { useAuth } from '../../contexts/AuthContext.js'
+import type { System, SystemTaskTemplate, HexPosition } from '@lifebuild/shared/schema'
 
 /**
  * Format a date as relative time (e.g., "Today", "In 3 days", "2 days overdue")
@@ -91,7 +94,10 @@ const CategoryBadge: React.FC<{ category: string | null }> = ({ category }) => {
 const SystemRow: React.FC<{
   system: System
   templates: readonly SystemTaskTemplate[]
-}> = ({ system, templates }) => {
+  onHibernate: (system: System) => void
+  onResume: (system: System) => void
+  onUproot: (system: System) => void
+}> = ({ system, templates, onHibernate, onResume, onUproot }) => {
   const templateCount = templates.length
 
   // Find the earliest nextGenerateAt across all templates
@@ -154,24 +160,34 @@ const SystemRow: React.FC<{
         <div className='text-[10px] text-[#8b8680] uppercase tracking-wide'>Last Generated</div>
       </div>
 
-      {/* Action buttons (stubbed for S9) */}
+      {/* Action buttons */}
       <div className='flex items-center gap-1'>
         {system.lifecycleState === 'planted' && (
-          <button
-            type='button'
-            disabled
-            className='text-xs py-1 px-2 rounded bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-not-allowed opacity-60'
-            title='Hibernate (coming in S9)'
-          >
-            Hibernate
-          </button>
+          <>
+            <button
+              type='button'
+              onClick={() => onHibernate(system)}
+              className='text-xs py-1 px-2 rounded border border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors duration-200'
+              title='Pause task generation until you resume'
+            >
+              Hibernate
+            </button>
+            <button
+              type='button'
+              disabled
+              className='text-xs py-1 px-2 rounded border border-[#e8e4de] text-[#8b8680] bg-transparent cursor-not-allowed opacity-60'
+              title='Coming soon — spawn a Silver optimization project'
+            >
+              Upgrade
+            </button>
+          </>
         )}
         {system.lifecycleState === 'hibernating' && (
           <button
             type='button'
-            disabled
-            className='text-xs py-1 px-2 rounded bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-not-allowed opacity-60'
-            title='Resume (coming in S9)'
+            onClick={() => onResume(system)}
+            className='text-xs py-1 px-2 rounded border border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors duration-200'
+            title='Resume task generation with fresh schedule'
           >
             Resume
           </button>
@@ -179,9 +195,9 @@ const SystemRow: React.FC<{
         {(system.lifecycleState === 'planted' || system.lifecycleState === 'hibernating') && (
           <button
             type='button'
-            disabled
-            className='text-xs py-1 px-2 rounded bg-transparent border border-red-200 text-red-300 cursor-not-allowed opacity-60'
-            title='Uproot (coming in S9)'
+            onClick={() => onUproot(system)}
+            className='text-xs py-1 px-2 rounded border border-red-300 text-red-600 bg-red-50 hover:bg-red-100 transition-colors duration-200'
+            title='Permanently decommission this system'
           >
             Uproot
           </button>
@@ -219,11 +235,19 @@ const EmptyState: React.FC = () => (
  * Displays a list of planted systems with health snapshot, template counts,
  * next-due dates, and last-generated dates. Uprooted systems appear in a
  * collapsible section at the bottom.
+ *
+ * Lifecycle actions:
+ * - Hibernate: planted -> hibernating (pauses task generation)
+ * - Resume: hibernating -> planted (resets template schedules from now)
+ * - Uproot: planted|hibernating -> uprooted (permanent decommission)
  */
 export const SystemBoard: React.FC = () => {
+  const { store } = useStore()
+  const { user } = useAuth()
   const nonUprootedSystems = (useQuery(getSystems$) ?? []) as System[]
   const uprootedSystems = (useQuery(getUprootedSystems$) ?? []) as System[]
   const allTemplates = (useQuery(getAllSystemTaskTemplates$) ?? []) as SystemTaskTemplate[]
+  const systemHexPositions = (useQuery(getSystemHexPositions$) ?? []) as HexPosition[]
   const [showUprooted, setShowUprooted] = useState(false)
 
   // Filter to only show planted and hibernating systems (not planning)
@@ -245,6 +269,104 @@ export const SystemBoard: React.FC = () => {
     }
     return map
   }, [allTemplates])
+
+  const actorId = user?.id
+
+  /**
+   * Hibernate: planted -> hibernating
+   * Pauses task generation until the system is resumed.
+   */
+  const handleHibernate = useCallback(
+    (system: System) => {
+      if (!window.confirm(`Hibernate ${system.name}? Tasks will stop generating until you resume.`))
+        return
+
+      store.commit(
+        events.systemHibernated({
+          id: system.id,
+          hibernatedAt: new Date(),
+          actorId,
+        })
+      )
+    },
+    [store, actorId]
+  )
+
+  /**
+   * Resume: hibernating -> planted
+   * Resets all template schedules from now based on their cadence.
+   */
+  const handleResume = useCallback(
+    (system: System) => {
+      const now = new Date()
+      const systemTemplates = templatesBySystem.get(system.id) ?? []
+
+      // Resume the system
+      store.commit(
+        events.systemResumed({
+          id: system.id,
+          resumedAt: now,
+          actorId,
+        })
+      )
+
+      // Reset template schedules via mid-cycle update if there are templates
+      if (systemTemplates.length > 0) {
+        store.commit(
+          events.systemMidCycleUpdated({
+            id: system.id,
+            templateOverrides: systemTemplates.map(t => ({
+              templateId: t.id,
+              lastGeneratedAt: now,
+              nextGenerateAt: computeNextGenerateAt(t.cadence, now),
+            })),
+            midCycleUpdatedAt: now,
+            actorId,
+          })
+        )
+      }
+    },
+    [store, actorId, templatesBySystem]
+  )
+
+  /**
+   * Uproot: planted|hibernating -> uprooted
+   * Permanently decommissions the system. Also removes hex position if placed on the map.
+   * Already-generated tasks are unaffected.
+   */
+  const handleUproot = useCallback(
+    (system: System) => {
+      if (
+        !window.confirm(
+          `Uproot ${system.name}? This permanently decommissions the system. Tasks already generated are unaffected.`
+        )
+      )
+        return
+
+      const now = new Date()
+
+      store.commit(
+        events.systemUprooted({
+          id: system.id,
+          uprootedAt: now,
+          actorId,
+        })
+      )
+
+      // Remove hex position if one exists for this system
+      const hexPosition = systemHexPositions.find(hp => hp.entityId === system.id)
+      if (hexPosition) {
+        store.commit(
+          events.hexPositionRemoved({
+            id: hexPosition.id,
+            removedAt: now,
+            actorId,
+          })
+        )
+      }
+    },
+    [store, actorId, systemHexPositions]
+  )
 
   const hasAnySystems = activeSystems.length > 0 || uprootedSystems.length > 0
 
@@ -275,6 +397,9 @@ export const SystemBoard: React.FC = () => {
               key={system.id}
               system={system}
               templates={templatesBySystem.get(system.id) ?? []}
+              onHibernate={handleHibernate}
+              onResume={handleResume}
+              onUproot={handleUproot}
             />
           ))}
         </div>
@@ -305,6 +430,9 @@ export const SystemBoard: React.FC = () => {
                   key={system.id}
                   system={system}
                   templates={templatesBySystem.get(system.id) ?? []}
+                  onHibernate={handleHibernate}
+                  onResume={handleResume}
+                  onUproot={handleUproot}
                 />
               ))}
             </div>

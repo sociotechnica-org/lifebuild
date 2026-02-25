@@ -51,7 +51,7 @@ const seedSystem = (
   if (state === 'planted' || state === 'hibernating' || state === 'uprooted') {
     store.commit(
       events.systemPlanted({
-        systemId: id,
+        id,
         plantedAt: now,
         actorId: 'storybook',
       })
@@ -60,7 +60,7 @@ const seedSystem = (
   if (state === 'hibernating') {
     store.commit(
       events.systemHibernated({
-        systemId: id,
+        id,
         hibernatedAt: now,
         actorId: 'storybook',
       })
@@ -69,7 +69,7 @@ const seedSystem = (
   if (state === 'uprooted') {
     store.commit(
       events.systemUprooted({
-        systemId: id,
+        id,
         uprootedAt: now,
         actorId: 'storybook',
       })
@@ -204,6 +204,58 @@ const withUprootedSetup = (store: Store) => {
   seedTemplate(store, 'tpl-u2', 'sys-uprooted-2', 'Write newsletter', 'weekly', 0)
 }
 
+/**
+ * Mixed lifecycle states: planted, hibernating, and uprooted systems together.
+ * Demonstrates all three lifecycle actions (Hibernate, Resume, Uproot).
+ */
+const mixedLifecycleSetup = (store: Store) => {
+  const now = new Date()
+  const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
+  const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000)
+
+  // Planted system with Hibernate and Uproot buttons
+  seedSystem(store, 'sys-active', 'Weekly Meal Prep', {
+    category: 'health',
+    purposeStatement: 'Plan and prep meals every Sunday',
+    lifecycleState: 'planted',
+  })
+  seedTemplate(store, 'tpl-active-1', 'sys-active', 'Plan weekly meals', 'weekly', 0, {
+    lastGeneratedAt: twoDaysAgo,
+    nextGenerateAt: threeDaysFromNow,
+  })
+  seedTemplate(store, 'tpl-active-2', 'sys-active', 'Grocery shopping', 'weekly', 1, {
+    lastGeneratedAt: twoDaysAgo,
+    nextGenerateAt: threeDaysFromNow,
+  })
+
+  // Hibernating system with Resume and Uproot buttons
+  seedSystem(store, 'sys-sleeping', 'Garden Maintenance', {
+    category: 'home',
+    purposeStatement: 'Keep the garden healthy through the growing season',
+    lifecycleState: 'hibernating',
+  })
+  seedTemplate(store, 'tpl-sleeping-1', 'sys-sleeping', 'Water plants', 'daily', 0)
+  seedTemplate(store, 'tpl-sleeping-2', 'sys-sleeping', 'Weed garden beds', 'weekly', 1)
+
+  // Another planted system
+  seedSystem(store, 'sys-active-2', 'Morning Routine', {
+    category: 'growth',
+    purposeStatement: 'Consistent morning practice for energy and focus',
+    lifecycleState: 'planted',
+  })
+  seedTemplate(store, 'tpl-active2-1', 'sys-active-2', 'Morning journaling', 'daily', 0, {
+    lastGeneratedAt: now,
+    nextGenerateAt: new Date(now.getTime() + 24 * 60 * 60 * 1000),
+  })
+
+  // Uprooted system (appears in collapsible section)
+  seedSystem(store, 'sys-gone', 'Old Workout Routine', {
+    category: 'health',
+    lifecycleState: 'uprooted',
+  })
+  seedTemplate(store, 'tpl-gone-1', 'sys-gone', 'Gym session', 'daily', 0)
+}
+
 const meta: Meta<typeof SystemBoard> = {
   title: 'System Board/SystemBoard',
   component: SystemBoard,
@@ -212,7 +264,7 @@ const meta: Meta<typeof SystemBoard> = {
     docs: {
       description: {
         component:
-          'The System Board displays a list of planted systems with their health status, template counts, next-due dates, and last-generated information. Uprooted systems appear in a collapsible section.',
+          'The System Board displays a list of planted systems with their health status, template counts, next-due dates, and last-generated information. Lifecycle actions (Hibernate, Resume, Uproot) allow managing system state directly from the board. Uprooted systems appear in a collapsible section.',
       },
     },
   },
@@ -246,14 +298,14 @@ export const ThreePlantedSystems: Story = {
     docs: {
       description: {
         story:
-          'Three planted systems: Meal Planning (on track), Financial Review (overdue), and Morning Routine (daily, fresh). Shows different template counts and due states.',
+          'Three planted systems: Meal Planning (on track), Financial Review (overdue), and Morning Routine (daily, fresh). Each has a Hibernate button (amber) and Uproot button (red). The disabled Upgrade button is also shown.',
       },
     },
   },
 }
 
 /**
- * With a hibernating system
+ * With a hibernating system showing Resume button
  */
 export const WithHibernating: Story = {
   decorators: [withLiveStore(withHibernatingSetup)],
@@ -261,7 +313,7 @@ export const WithHibernating: Story = {
     docs: {
       description: {
         story:
-          'Three planted systems plus one hibernating system (Garden Maintenance). The hibernating system shows a "Hibernating" badge and a "Resume" button (stubbed).',
+          'Three planted systems plus one hibernating system (Garden Maintenance). The hibernating system shows a green "Resume" button and a red "Uproot" button. Click Resume to reactivate with fresh schedules.',
       },
     },
   },
@@ -276,7 +328,22 @@ export const WithUprooted: Story = {
     docs: {
       description: {
         story:
-          'Three planted systems plus two uprooted systems in a collapsible section. Click "Uprooted (2)" to expand the section.',
+          'Three planted systems plus two uprooted systems in a collapsible section. Click "Uprooted (2)" to expand. Uprooted systems have no action buttons since they are permanently decommissioned.',
+      },
+    },
+  },
+}
+
+/**
+ * Mixed lifecycle states demonstrating all actions
+ */
+export const MixedLifecycleStates: Story = {
+  decorators: [withLiveStore(mixedLifecycleSetup)],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates all lifecycle actions in one view. Planted systems show Hibernate (amber) and Uproot (red) buttons. The hibernating system shows Resume (green) and Uproot (red). Try clicking Hibernate on a planted system to see it transition to hibernating, then Resume to bring it back. Uproot permanently decommissions a system and moves it to the collapsed section.',
       },
     },
   },

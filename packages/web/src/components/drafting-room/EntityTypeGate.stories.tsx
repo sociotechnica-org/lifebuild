@@ -44,7 +44,8 @@ export const NarrowViewport: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'On narrow viewports, the two choice cards stack vertically for a mobile-friendly layout.',
+        story:
+          'On narrow viewports, the two choice cards stack vertically for a mobile-friendly layout.',
       },
     },
   },
