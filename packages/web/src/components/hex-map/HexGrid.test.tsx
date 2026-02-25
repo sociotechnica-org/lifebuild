@@ -59,6 +59,18 @@ vi.mock('./HexTile.js', () => ({
   ),
 }))
 
+vi.mock('./SystemHexTile.js', () => ({
+  SystemHexTile: (props: { systemName: string; onClick?: () => void }) => (
+    <button
+      data-testid={`system-hex-tile-${props.systemName}`}
+      onClick={() => props.onClick?.()}
+      type='button'
+    >
+      system-tile
+    </button>
+  ),
+}))
+
 vi.mock('./HexCell.js', () => ({
   HexCell: (props: MockHexCellProps) => (
     <button
@@ -178,6 +190,35 @@ describe('HexGrid placement behavior', () => {
 
       fireEvent.click(screen.getByTestId('hex-tile-Completed'))
       expect(onCancelPlacement).toHaveBeenCalledTimes(1)
+    } finally {
+      consoleErrorSpy.mockRestore()
+    }
+  })
+
+  it('marks cells occupied by system tiles as blocked during placement', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const onPlaceProject = vi.fn()
+
+    try {
+      render(
+        <HexGrid
+          placementProject={{ id: 'project-1', name: 'Project Alpha' }}
+          onPlaceProject={onPlaceProject}
+          systemTiles={[
+            {
+              id: 'sys-tile-1',
+              systemId: 'system-1',
+              coord: { q: 0, r: 2, s: -2 },
+              systemName: 'Weekly Review',
+              categoryColor: '#10B981',
+              lifecycleState: 'planted',
+            },
+          ]}
+        />
+      )
+
+      const blockedCell = screen.getByTestId('hex-cell-0,2,-2')
+      expect(blockedCell).toHaveAttribute('data-state', 'blocked')
     } finally {
       consoleErrorSpy.mockRestore()
     }

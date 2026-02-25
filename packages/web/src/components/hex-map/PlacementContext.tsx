@@ -2,10 +2,12 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 
 type PlacementContextValue = {
   placementProjectId: string | null
+  placementSystemId: string | null
   selectedPlacedProjectId: string | null
   isSelectingPlacedProject: boolean
   isPlacing: boolean
   startPlacement: (projectId: string) => void
+  startSystemPlacement: (systemId: string) => void
   clearPlacement: () => void
   startSelectingPlacedProject: () => void
   selectPlacedProject: (projectId: string) => void
@@ -21,22 +23,33 @@ type PlacementProviderProps = {
 
 export function PlacementProvider({ children }: PlacementProviderProps) {
   const [placementProjectId, setPlacementProjectId] = useState<string | null>(null)
+  const [placementSystemId, setPlacementSystemId] = useState<string | null>(null)
   const [selectedPlacedProjectId, setSelectedPlacedProjectId] = useState<string | null>(null)
   const [isSelectingPlacedProject, setIsSelectingPlacedProject] = useState(false)
 
   const startPlacement = useCallback((projectId: string) => {
     setPlacementProjectId(projectId)
+    setPlacementSystemId(null)
+    setSelectedPlacedProjectId(null)
+    setIsSelectingPlacedProject(false)
+  }, [])
+
+  const startSystemPlacement = useCallback((systemId: string) => {
+    setPlacementSystemId(systemId)
+    setPlacementProjectId(null)
     setSelectedPlacedProjectId(null)
     setIsSelectingPlacedProject(false)
   }, [])
 
   const clearPlacement = useCallback(() => {
     setPlacementProjectId(null)
+    setPlacementSystemId(null)
   }, [])
 
   const startSelectingPlacedProject = useCallback(() => {
     setIsSelectingPlacedProject(true)
     setPlacementProjectId(null)
+    setPlacementSystemId(null)
     setSelectedPlacedProjectId(null)
   }, [])
 
@@ -44,6 +57,7 @@ export function PlacementProvider({ children }: PlacementProviderProps) {
     setSelectedPlacedProjectId(projectId)
     setIsSelectingPlacedProject(false)
     setPlacementProjectId(null)
+    setPlacementSystemId(null)
   }, [])
 
   const clearPlacedProjectSelection = useCallback(() => {
@@ -53,6 +67,7 @@ export function PlacementProvider({ children }: PlacementProviderProps) {
 
   const clearAll = useCallback(() => {
     setPlacementProjectId(null)
+    setPlacementSystemId(null)
     setSelectedPlacedProjectId(null)
     setIsSelectingPlacedProject(false)
   }, [])
@@ -60,10 +75,12 @@ export function PlacementProvider({ children }: PlacementProviderProps) {
   const value = useMemo(
     () => ({
       placementProjectId,
+      placementSystemId,
       selectedPlacedProjectId,
       isSelectingPlacedProject,
-      isPlacing: placementProjectId !== null,
+      isPlacing: placementProjectId !== null || placementSystemId !== null,
       startPlacement,
+      startSystemPlacement,
       clearPlacement,
       startSelectingPlacedProject,
       selectPlacedProject,
@@ -76,10 +93,12 @@ export function PlacementProvider({ children }: PlacementProviderProps) {
       clearPlacedProjectSelection,
       isSelectingPlacedProject,
       placementProjectId,
+      placementSystemId,
       selectPlacedProject,
       selectedPlacedProjectId,
       startPlacement,
       startSelectingPlacedProject,
+      startSystemPlacement,
     ]
   )
 

@@ -4,7 +4,9 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   HexPlacementConflictError,
   placeProjectOnHex,
+  placeSystemOnHex,
   removeProjectFromHex,
+  removeSystemFromHex,
 } from './hexPositionCommands.js'
 
 const createStoreMock = () => {
@@ -131,6 +133,101 @@ describe('hexPositionCommands', () => {
 
     await removeProjectFromHex(store, basePositions, {
       projectId: 'project-missing',
+    })
+
+    expect(commit).not.toHaveBeenCalled()
+  })
+
+  it('commits hexPosition.placed for a system with entityType system', async () => {
+    const { store, commit } = createStoreMock()
+    const placedAt = new Date('2026-02-01T00:00:00Z')
+
+    await placeSystemOnHex(store, basePositions, {
+      systemId: 'system-1',
+      hexQ: 2,
+      hexR: -2,
+      placementId: 'sys-placement-1',
+      placedAt,
+      actorId: 'tester',
+    })
+
+    expect(commit).toHaveBeenCalledTimes(1)
+    const committedEvent = commit.mock.calls[0]![0]
+    expect(committedEvent.name).toBe('hexPosition.placed')
+    expect(committedEvent.args).toMatchObject({
+      id: 'sys-placement-1',
+      entityId: 'system-1',
+      entityType: 'system',
+      hexQ: 2,
+      hexR: -2,
+      placedAt,
+      actorId: 'tester',
+    })
+  })
+
+  it('throws when placing a system on an occupied hex', async () => {
+    const { store, commit } = createStoreMock()
+
+    await expect(
+      placeSystemOnHex(store, basePositions, {
+        systemId: 'system-1',
+        hexQ: -2,
+        hexR: 2,
+      })
+    ).rejects.toBeInstanceOf(HexPlacementConflictError)
+
+    expect(commit).not.toHaveBeenCalled()
+  })
+
+  it('throws when placing a system on a reserved hex', async () => {
+    const { store, commit } = createStoreMock()
+
+    await expect(
+      placeSystemOnHex(store, basePositions, {
+        systemId: 'system-1',
+        hexQ: 0,
+        hexR: 0,
+      })
+    ).rejects.toBeInstanceOf(HexPlacementConflictError)
+
+    expect(commit).not.toHaveBeenCalled()
+  })
+
+  it('commits hexPosition.removed for a placed system', async () => {
+    const { store, commit } = createStoreMock()
+    const systemPositions: HexPosition[] = [
+      {
+        id: 'sys-pos-1',
+        hexQ: 3,
+        hexR: -3,
+        entityType: 'system',
+        entityId: 'system-1',
+        placedAt: new Date('2026-02-01T00:00:00Z'),
+      },
+    ]
+    const removedAt = new Date('2026-02-10T00:00:00Z')
+
+    await removeSystemFromHex(store, systemPositions, {
+      systemId: 'system-1',
+      actorId: 'tester',
+      removedAt,
+    })
+
+    expect(commit).toHaveBeenCalledTimes(1)
+    const committedEvent = commit.mock.calls[0]![0]
+    expect(committedEvent.name).toBe('hexPosition.removed')
+    expect(committedEvent.args).toMatchObject({
+      id: 'sys-pos-1',
+      removedAt,
+      actorId: 'tester',
+    })
+  })
+
+  it('is a no-op when removing a system without a hex position', async () => {
+    const { store, commit } = createStoreMock()
+
+    await removeSystemFromHex(store, basePositions, {
+      systemId: 'system-missing',
     })
 
     expect(commit).not.toHaveBeenCalled()

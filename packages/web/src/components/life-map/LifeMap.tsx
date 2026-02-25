@@ -12,6 +12,10 @@ import {
   getAllProjectsIncludingArchived$,
   getHexPositions$,
   getUnplacedProjects$,
+  getPlantedSystems$,
+  getSystemHexPositions$,
+  getUnplacedSystems$,
+  getAllHexPositions$,
 } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
 import { createHex } from '@lifebuild/shared/hex'
@@ -22,7 +26,11 @@ import { generateRoute } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
-import { placeProjectOnHex, removeProjectFromHex } from '../hex-map/hexPositionCommands.js'
+import {
+  placeProjectOnHex,
+  placeSystemOnHex,
+  removeProjectFromHex,
+} from '../hex-map/hexPositionCommands.js'
 import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.js'
 
 type LifeMapViewMode = 'map' | 'list'
@@ -141,7 +149,11 @@ export const LifeMap: React.FC = () => {
   const allProjects = useQuery(getProjects$) ?? []
   const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []
   const hexPositions = useQuery(getHexPositions$) ?? []
+  const allHexPositions = useQuery(getAllHexPositions$) ?? []
   const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
+  const plantedSystems = useQuery(getPlantedSystems$) ?? []
+  const systemHexPositions = useQuery(getSystemHexPositions$) ?? []
+  const unplacedSystemsFromQuery = useQuery(getUnplacedSystems$) ?? []
 
   // Query projects for each category.
   const healthProjects = useQuery(getProjectsByCategory$('health')) ?? []
@@ -316,6 +328,18 @@ export const LifeMap: React.FC = () => {
     [actorId, hexPositions, store]
   )
 
+  const handlePlaceSystemOnMap = useCallback(
+    async (systemId: string, coord: HexCoord) => {
+      await placeSystemOnHex(store, allHexPositions, {
+        systemId,
+        hexQ: coord.q,
+        hexR: coord.r,
+        actorId,
+      })
+    },
+    [actorId, allHexPositions, store]
+  )
+
   const placedHexTiles = useMemo(() => {
     const projectsById = new Map(allProjects.map(project => [project.id, project]))
 
@@ -376,6 +400,40 @@ export const LifeMap: React.FC = () => {
       category: project.category ?? null,
     }))
   }, [unplacedProjectsFromQuery])
+
+  const placedSystemTiles = useMemo(() => {
+    const systemsById = new Map(plantedSystems.map(system => [system.id, system]))
+
+    return systemHexPositions.flatMap(position => {
+      const system = systemsById.get(position.entityId)
+      if (!system) {
+        return []
+      }
+
+      const category = PROJECT_CATEGORIES.find(item => item.value === system.category)
+
+      return [
+        {
+          id: position.id,
+          systemId: system.id,
+          coord: createHex(position.hexQ, position.hexR),
+          systemName: system.name,
+          category: system.category ?? null,
+          categoryColor: category?.colorHex ?? '#8b8680',
+          lifecycleState: system.lifecycleState as 'planted' | 'hibernating',
+          onClick: () => navigate(preserveStoreIdInUrl(generateRoute.systemBoard())),
+        },
+      ]
+    })
+  }, [navigate, plantedSystems, systemHexPositions])
+
+  const unplacedSystems = useMemo(() => {
+    return unplacedSystemsFromQuery.map(system => ({
+      id: system.id,
+      name: system.name,
+      category: system.category ?? null,
+    }))
+  }, [unplacedSystemsFromQuery])
 
   const completedProjectsForPanel = useMemo(() => {
     return completedProjects.map(project => {
@@ -684,10 +742,13 @@ export const LifeMap: React.FC = () => {
           <Suspense fallback={renderHexMapLoadingState()}>
             <LazyHexMap
               tiles={placedHexTiles}
+              systemTiles={placedSystemTiles}
               unplacedProjects={unplacedProjects}
+              unplacedSystems={unplacedSystems}
               completedProjects={completedProjectsForPanel}
               archivedProjects={archivedProjectsForPanel}
               onPlaceProject={handlePlaceProjectOnMap}
+              onPlaceSystem={handlePlaceSystemOnMap}
               onRemovePlacedProject={handleRemoveProjectFromMap}
               onSelectUnplacedProject={projectId =>
                 navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
@@ -695,6 +756,7 @@ export const LifeMap: React.FC = () => {
               onOpenProject={projectId =>
                 navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
               }
+              onOpenSystem={() => navigate(preserveStoreIdInUrl(generateRoute.systemBoard()))}
               onUnarchiveProject={handleUnarchive}
             />
           </Suspense>

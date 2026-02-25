@@ -28,10 +28,12 @@ vi.mock('./PlacementContext.js', () => ({
   PlacementProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   usePlacement: () => ({
     placementProjectId: null,
+    placementSystemId: null,
     selectedPlacedProjectId: null,
     isSelectingPlacedProject: false,
     isPlacing: false,
     startPlacement: vi.fn(),
+    startSystemPlacement: vi.fn(),
     clearPlacement: vi.fn(),
     startSelectingPlacedProject: vi.fn(),
     selectPlacedProject: vi.fn(),
@@ -60,11 +62,11 @@ describe('HexMap first placement prompt', () => {
   it('shows the prompt when unplaced projects appear after initial empty state', () => {
     const { rerender } = render(<HexMap unplacedProjects={[]} />)
 
-    expect(screen.queryByText('Your projects are ready to place')).toBeNull()
+    expect(screen.queryByText('Your projects and systems are ready to place')).toBeNull()
 
     rerender(<HexMap unplacedProjects={[unplacedProject]} />)
 
-    expect(screen.getByText('Your projects are ready to place')).toBeInTheDocument()
+    expect(screen.getByText('Your projects and systems are ready to place')).toBeInTheDocument()
   })
 
   it('does not show the prompt when it has already been dismissed', () => {
@@ -72,7 +74,7 @@ describe('HexMap first placement prompt', () => {
 
     render(<HexMap unplacedProjects={[unplacedProject]} />)
 
-    expect(screen.queryByText('Your projects are ready to place')).toBeNull()
+    expect(screen.queryByText('Your projects and systems are ready to place')).toBeNull()
   })
 
   it('shows the prompt when localStorage reads throw', () => {
@@ -82,7 +84,7 @@ describe('HexMap first placement prompt', () => {
 
     try {
       render(<HexMap unplacedProjects={[unplacedProject]} />)
-      expect(screen.getByText('Your projects are ready to place')).toBeInTheDocument()
+      expect(screen.getByText('Your projects and systems are ready to place')).toBeInTheDocument()
     } finally {
       getItemSpy.mockRestore()
     }
@@ -96,7 +98,7 @@ describe('HexMap first placement prompt', () => {
     try {
       render(<HexMap unplacedProjects={[unplacedProject]} />)
       fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
-      expect(screen.queryByText('Your projects are ready to place')).toBeNull()
+      expect(screen.queryByText('Your projects and systems are ready to place')).toBeNull()
     } finally {
       setItemSpy.mockRestore()
     }
