@@ -59,6 +59,14 @@ vi.mock('./HexTile.js', () => ({
   ),
 }))
 
+vi.mock('./Sanctuary.js', () => ({
+  Sanctuary: () => null,
+}))
+
+vi.mock('./Campfire.js', () => ({
+  Campfire: () => null,
+}))
+
 vi.mock('./HexCell.js', () => ({
   HexCell: (props: MockHexCellProps) => (
     <button

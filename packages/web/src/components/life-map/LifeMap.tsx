@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery, useStore } from '../../livestore-compat.js'
 import { Link, useNavigate } from 'react-router-dom'
 import {
@@ -11,6 +11,7 @@ import {
   getProjects$,
   getAllProjectsIncludingArchived$,
   getHexPositions$,
+  getSettingByKey$,
   getUnplacedProjects$,
 } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
@@ -25,9 +26,8 @@ import { usePostHog } from '../../lib/analytics.js'
 import { placeProjectOnHex, removeProjectFromHex } from '../hex-map/hexPositionCommands.js'
 import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.js'
 
-type LifeMapViewMode = 'map' | 'list'
-
 const DESKTOP_BREAKPOINT_QUERY = '(min-width: 768px)'
+const HEX_MAP_PARCHMENT_SEED_KEY = 'hexMap.parchmentSeed'
 
 const LazyHexMap = lazy(() =>
   import('../hex-map/HexMap.js').then(module => ({ default: module.HexMap }))
@@ -115,22 +115,15 @@ export const LifeMap: React.FC = () => {
   const actorId = user?.id
   const isDesktopViewport = useIsDesktopViewport()
   const [hasWebGLSupport] = useState(() => supportsWebGL())
-  const [viewMode, setViewMode] = useState<LifeMapViewMode>('map')
   const [completedExpanded, setCompletedExpanded] = useState(false)
   const [archivedExpanded, setArchivedExpanded] = useState(false)
+  const generatedParchmentSeedRef = useRef(Math.random())
+  const hasPersistedParchmentSeedRef = useRef(false)
+  const hasCapturedHexMapViewedRef = useRef(false)
 
   useEffect(() => {
     posthog?.capture('life_map_viewed')
-  }, [])
-
-  useEffect(() => {
-    if (!isDesktopViewport || !hasWebGLSupport) {
-      setViewMode('list')
-      return
-    }
-
-    setViewMode('map')
-  }, [hasWebGLSupport, isDesktopViewport])
+  }, [posthog])
 
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
   const activeBronzeStack = useQuery(getActiveBronzeStack$) ?? []
@@ -141,7 +134,25 @@ export const LifeMap: React.FC = () => {
   const allProjects = useQuery(getProjects$) ?? []
   const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []
   const hexPositions = useQuery(getHexPositions$) ?? []
+  const hexPositionsRef = useRef(hexPositions)
+  const parchmentSeedSetting = useQuery(getSettingByKey$(HEX_MAP_PARCHMENT_SEED_KEY))
   const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
+
+  const storedParchmentSeed = useMemo(() => {
+    const value = parchmentSeedSetting?.[0]?.value
+    if (!value) {
+      return null
+    }
+
+    const parsedValue = Number(value)
+    return Number.isFinite(parsedValue) ? parsedValue : null
+  }, [parchmentSeedSetting])
+
+  const parchmentSeed = storedParchmentSeed ?? generatedParchmentSeedRef.current
+
+  useEffect(() => {
+    hexPositionsRef.current = hexPositions
+  }, [hexPositions])
 
   // Query projects for each category.
   const healthProjects = useQuery(getProjectsByCategory$('health')) ?? []
@@ -296,21 +307,25 @@ export const LifeMap: React.FC = () => {
 
   const handlePlaceProjectOnMap = useCallback(
     async (projectId: string, coord: HexCoord) => {
-      const latestHexPositions = await store.query(getHexPositions$)
-      await placeProjectOnHex(store, latestHexPositions, {
+      await placeProjectOnHex(store, hexPositionsRef.current, {
         projectId,
         hexQ: coord.q,
         hexR: coord.r,
         actorId,
       })
+
+      posthog?.capture('project_hex_placed', {
+        projectId,
+        hexQ: coord.q,
+        hexR: coord.r,
+      })
     },
-    [actorId, store]
+    [actorId, posthog, store]
   )
 
   const handleRemoveProjectFromMap = useCallback(
     async (projectId: string) => {
-      const latestHexPositions = await store.query(getHexPositions$)
-      await removeProjectFromHex(store, latestHexPositions, {
+      await removeProjectFromHex(store, hexPositionsRef.current, {
         projectId,
         actorId,
       })
@@ -365,11 +380,14 @@ export const LifeMap: React.FC = () => {
           isCompleted,
           onClick: isCompleted
             ? undefined
-            : () => navigate(preserveStoreIdInUrl(generateRoute.project(project.id))),
+            : () => {
+                posthog?.capture('hex_tile_clicked', { projectId: project.id })
+                navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
+              },
         },
       ]
     })
-  }, [activeProjectIds, allProjects, hexPositions, navigate])
+  }, [activeProjectIds, allProjects, hexPositions, navigate, posthog])
 
   const unplacedProjects = useMemo(() => {
     return unplacedProjectsFromQuery.map(project => ({
@@ -408,8 +426,43 @@ export const LifeMap: React.FC = () => {
 
   const hasNoProjects = categoriesWithProjects.length === 0
   const canRenderHexMap = isDesktopViewport && hasWebGLSupport
-  const canShowViewModeToggle = canRenderHexMap && !hasNoProjects
-  const shouldRenderHexMap = canShowViewModeToggle && viewMode === 'map'
+  const shouldRenderHexMap = canRenderHexMap
+
+  useEffect(() => {
+    if (hasPersistedParchmentSeedRef.current) {
+      return
+    }
+    if (!parchmentSeedSetting) {
+      return
+    }
+    if (parchmentSeedSetting.length > 0) {
+      hasPersistedParchmentSeedRef.current = true
+      return
+    }
+
+    hasPersistedParchmentSeedRef.current = true
+    void Promise.resolve(
+      store.commit(
+        events.settingUpdated({
+          key: HEX_MAP_PARCHMENT_SEED_KEY,
+          value: String(parchmentSeed),
+          updatedAt: new Date(),
+        })
+      )
+    ).catch((error: unknown) => {
+      hasPersistedParchmentSeedRef.current = false
+      console.error('Failed to persist hex map parchment seed', error)
+    })
+  }, [parchmentSeed, parchmentSeedSetting, store])
+
+  useEffect(() => {
+    if (!shouldRenderHexMap || hasCapturedHexMapViewedRef.current) {
+      return
+    }
+
+    hasCapturedHexMapViewedRef.current = true
+    posthog?.capture('hex_map_viewed')
+  }, [posthog, shouldRenderHexMap])
 
   const renderCategoryCardLayout = () => {
     if (hasNoProjects) {
@@ -652,39 +705,11 @@ export const LifeMap: React.FC = () => {
 
   return (
     <div className='relative h-full'>
-      {canShowViewModeToggle && (
-        <div className='pointer-events-none absolute top-2 left-1/2 z-[3] -translate-x-1/2'>
-          <div className='pointer-events-auto inline-flex items-center gap-1 rounded-full border border-[#d8cab3] bg-[#faf4e9]/90 p-1 shadow-sm backdrop-blur-sm'>
-            <button
-              type='button'
-              className={`rounded-full border-none px-3 py-1.5 text-xs font-semibold cursor-pointer transition-colors ${
-                viewMode === 'map'
-                  ? 'bg-[#2f2b27] text-[#faf9f7]'
-                  : 'bg-transparent text-[#7f6952] hover:bg-[#f0e3cf]'
-              }`}
-              onClick={() => setViewMode('map')}
-            >
-              Map
-            </button>
-            <button
-              type='button'
-              className={`rounded-full border-none px-3 py-1.5 text-xs font-semibold cursor-pointer transition-colors ${
-                viewMode === 'list'
-                  ? 'bg-[#2f2b27] text-[#faf9f7]'
-                  : 'bg-transparent text-[#7f6952] hover:bg-[#f0e3cf]'
-              }`}
-              onClick={() => setViewMode('list')}
-            >
-              List
-            </button>
-          </div>
-        </div>
-      )}
-
       {shouldRenderHexMap ? (
         <div className='absolute -inset-3.5 min-h-[520px] overflow-hidden bg-[#efe2cd]'>
           <Suspense fallback={renderHexMapLoadingState()}>
             <LazyHexMap
+              parchmentSeed={parchmentSeed}
               tiles={placedHexTiles}
               unplacedProjects={unplacedProjects}
               completedProjects={completedProjectsForPanel}
@@ -702,7 +727,7 @@ export const LifeMap: React.FC = () => {
           </Suspense>
         </div>
       ) : (
-        <div className={canShowViewModeToggle ? 'pt-12' : ''}>{renderCategoryCardLayout()}</div>
+        <div>{renderCategoryCardLayout()}</div>
       )}
     </div>
   )

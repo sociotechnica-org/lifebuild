@@ -20,6 +20,10 @@ vi.mock('./HexGrid.js', () => ({
   HexGrid: () => null,
 }))
 
+vi.mock('./BackgroundPlane.js', () => ({
+  BackgroundPlane: () => null,
+}))
+
 vi.mock('./UnplacedPanel.js', () => ({
   UnplacedPanel: () => null,
 }))

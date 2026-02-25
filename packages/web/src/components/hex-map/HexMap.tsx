@@ -1,6 +1,7 @@
 import type { HexCoord } from '@lifebuild/shared/hex'
 import { Canvas } from '@react-three/fiber'
 import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import { BackgroundPlane } from './BackgroundPlane.js'
 import { CameraRig } from './CameraRig.js'
 import { HexGrid, type PlacedHexTile } from './HexGrid.js'
 import { PlacementProvider, usePlacement } from './PlacementContext.js'
@@ -59,6 +60,7 @@ const shouldShowFirstPlacementPrompt = (hasUnplacedProjects: boolean): boolean =
 
 type HexMapProps = {
   tiles?: readonly PlacedHexTile[]
+  parchmentSeed?: number
   unplacedProjects?: readonly PanelProjectItem[]
   completedProjects?: readonly PanelCompletedProjectItem[]
   archivedProjects?: readonly PanelArchivedProjectItem[]
@@ -71,6 +73,7 @@ type HexMapProps = {
 
 const HexMapSurface: React.FC<HexMapProps> = ({
   tiles = [],
+  parchmentSeed = 0,
   unplacedProjects = [],
   completedProjects = [],
   archivedProjects = [],
@@ -96,6 +99,7 @@ const HexMapSurface: React.FC<HexMapProps> = ({
   const [showFirstPlacementPrompt, setShowFirstPlacementPrompt] = useState(() =>
     shouldShowFirstPlacementPrompt(unplacedProjects.length > 0)
   )
+  const showCampfire = unplacedProjects.length > 0
 
   const unplacedProjectsById = useMemo(() => {
     return new Map(unplacedProjects.map(project => [project.id, project]))
@@ -193,14 +197,22 @@ const HexMapSurface: React.FC<HexMapProps> = ({
       return
     }
 
-    void Promise.resolve(onRemovePlacedProject(selectedPlacedProjectId))
-      .then(() => {
-        clearPlacedProjectSelection()
-      })
-      .catch(error => {
-        console.error('Failed to remove project from map', error)
-      })
-  }, [clearPlacedProjectSelection, onRemovePlacedProject, selectedPlacedProjectId])
+    const projectIdToRemove = selectedPlacedProjectId
+    clearPlacedProjectSelection()
+
+    void Promise.resolve(onRemovePlacedProject(projectIdToRemove)).catch(error => {
+      startSelectingPlacedProject()
+      selectPlacedProject(projectIdToRemove)
+      setIsPanelCollapsed(false)
+      console.error('Failed to remove project from map', error)
+    })
+  }, [
+    clearPlacedProjectSelection,
+    onRemovePlacedProject,
+    selectPlacedProject,
+    selectedPlacedProjectId,
+    startSelectingPlacedProject,
+  ])
 
   return (
     <div className='relative h-full w-full'>
@@ -235,9 +247,12 @@ const HexMapSurface: React.FC<HexMapProps> = ({
         <hemisphereLight color='#c9dde6' groundColor='#d4b896' intensity={0.4} />
 
         <Suspense fallback={null}>
+          <BackgroundPlane parchmentSeed={parchmentSeed} />
           <CameraRig />
           <HexGrid
             tiles={tiles}
+            parchmentSeed={parchmentSeed}
+            showCampfire={showCampfire}
             placementProject={
               selectedPlacementProject
                 ? { id: selectedPlacementProject.id, name: selectedPlacementProject.name }

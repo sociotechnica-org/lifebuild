@@ -4,8 +4,10 @@ import type { HexCoord } from '@lifebuild/shared/hex'
 import { Html } from '@react-three/drei'
 import React from 'react'
 import { useEffect, useMemo, useState } from 'react'
+import { Campfire } from './Campfire.js'
 import { HexCell } from './HexCell.js'
 import { HexTile, type HexTileVisualState, type HexTileWorkstream } from './HexTile.js'
+import { Sanctuary } from './Sanctuary.js'
 import { truncateLabel } from './labelUtils.js'
 import { isReservedProjectCoord } from './placementRules.js'
 
@@ -27,6 +29,8 @@ export type PlacedHexTile = {
 
 type HexGridProps = {
   tiles?: readonly PlacedHexTile[]
+  parchmentSeed?: number
+  showCampfire?: boolean
   placementProject?: {
     id: string
     name: string
@@ -36,16 +40,22 @@ type HexGridProps = {
   onPlaceProject?: (projectId: string, coord: HexCoord) => Promise<void> | void
   onSelectPlacedProject?: (projectId: string) => void
   onCancelPlacement?: () => void
+  onSelectSanctuary?: () => void
+  onSelectCampfire?: () => void
 }
 
 export function HexGrid({
   tiles = [],
+  parchmentSeed = 0,
+  showCampfire = false,
   placementProject = null,
   selectedPlacedProjectId = null,
   isSelectingPlacedProject = false,
   onPlaceProject,
   onSelectPlacedProject,
   onCancelPlacement,
+  onSelectSanctuary,
+  onSelectCampfire,
 }: HexGridProps) {
   const cells = useMemo(() => generateHexGrid(GRID_RADIUS), [])
   const [hoveredPlacementKey, setHoveredPlacementKey] = useState<string | null>(null)
@@ -133,6 +143,7 @@ export function HexGrid({
           <HexCell
             key={cell.key}
             coord={cell.coord}
+            parchmentSeed={parchmentSeed}
             visualStateOverride={visualState}
             onClick={
               isPlacementMode
@@ -153,6 +164,8 @@ export function HexGrid({
           />
         )
       })}
+      <Sanctuary onSelect={onSelectSanctuary} />
+      {showCampfire && <Campfire onSelect={onSelectCampfire} />}
       {tiles.map(tile => (
         <HexTile
           key={tile.id}
