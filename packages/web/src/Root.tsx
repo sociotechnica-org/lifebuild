@@ -21,6 +21,7 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary/ErrorBoundary.js'
 import { UserInitializer } from './components/utils/UserInitializer/UserInitializer.js'
 import { AuthUserSync } from './components/utils/AuthUserSync/AuthUserSync.js'
 import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
+import { SystemTaskGenerator } from './components/utils/SystemTaskGenerator.js'
 import { LiveStoreHealthMonitor } from './components/utils/LiveStoreHealthMonitor.js'
 import { LiveStoreBootBoundary } from './components/utils/LiveStoreBootBoundary.js'
 import { schema } from '@lifebuild/shared/schema'
@@ -393,6 +394,7 @@ const ProtectedApp: React.FC = () => {
           <UserInitializer>
             <AuthUserSync>
               <SettingsInitializer>
+                <SystemTaskGenerator />
                 <ErrorBoundary>
                   <Routes>
                     {/* App routes */}
