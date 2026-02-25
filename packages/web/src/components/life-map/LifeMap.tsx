@@ -28,6 +28,11 @@ import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.j
 
 const DESKTOP_BREAKPOINT_QUERY = '(min-width: 768px)'
 const HEX_MAP_PARCHMENT_SEED_KEY = 'hexMap.parchmentSeed'
+const getHexMapParchmentSeedKey = (actorId: string | undefined) => {
+  return actorId
+    ? `${HEX_MAP_PARCHMENT_SEED_KEY}.${actorId}`
+    : `${HEX_MAP_PARCHMENT_SEED_KEY}.anonymous`
+}
 
 const LazyHexMap = lazy(() =>
   import('../hex-map/HexMap.js').then(module => ({ default: module.HexMap }))
@@ -118,7 +123,7 @@ export const LifeMap: React.FC = () => {
   const [completedExpanded, setCompletedExpanded] = useState(false)
   const [archivedExpanded, setArchivedExpanded] = useState(false)
   const generatedParchmentSeedRef = useRef(Math.random())
-  const hasPersistedParchmentSeedRef = useRef(false)
+  const persistedParchmentSeedKeyRef = useRef<string | null>(null)
   const hasCapturedHexMapViewedRef = useRef(false)
 
   useEffect(() => {
@@ -135,18 +140,20 @@ export const LifeMap: React.FC = () => {
   const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []
   const hexPositions = useQuery(getHexPositions$) ?? []
   const hexPositionsRef = useRef(hexPositions)
-  const parchmentSeedSetting = useQuery(getSettingByKey$(HEX_MAP_PARCHMENT_SEED_KEY))
+  const parchmentSeedSettingKey = useMemo(() => getHexMapParchmentSeedKey(actorId), [actorId])
+  const parchmentSeedSetting = useQuery(getSettingByKey$(parchmentSeedSettingKey))
+  const legacyParchmentSeedSetting = useQuery(getSettingByKey$(HEX_MAP_PARCHMENT_SEED_KEY))
   const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
 
   const storedParchmentSeed = useMemo(() => {
-    const value = parchmentSeedSetting?.[0]?.value
+    const value = parchmentSeedSetting?.[0]?.value ?? legacyParchmentSeedSetting?.[0]?.value
     if (!value) {
       return null
     }
 
     const parsedValue = Number(value)
     return Number.isFinite(parsedValue) ? parsedValue : null
-  }, [parchmentSeedSetting])
+  }, [legacyParchmentSeedSetting, parchmentSeedSetting])
 
   const parchmentSeed = storedParchmentSeed ?? generatedParchmentSeedRef.current
 
@@ -429,31 +436,33 @@ export const LifeMap: React.FC = () => {
   const shouldRenderHexMap = canRenderHexMap
 
   useEffect(() => {
-    if (hasPersistedParchmentSeedRef.current) {
+    if (persistedParchmentSeedKeyRef.current === parchmentSeedSettingKey) {
       return
     }
     if (!parchmentSeedSetting) {
       return
     }
     if (parchmentSeedSetting.length > 0) {
-      hasPersistedParchmentSeedRef.current = true
+      persistedParchmentSeedKeyRef.current = parchmentSeedSettingKey
       return
     }
 
-    hasPersistedParchmentSeedRef.current = true
+    persistedParchmentSeedKeyRef.current = parchmentSeedSettingKey
     void Promise.resolve(
       store.commit(
         events.settingUpdated({
-          key: HEX_MAP_PARCHMENT_SEED_KEY,
+          key: parchmentSeedSettingKey,
           value: String(parchmentSeed),
           updatedAt: new Date(),
         })
       )
     ).catch((error: unknown) => {
-      hasPersistedParchmentSeedRef.current = false
+      if (persistedParchmentSeedKeyRef.current === parchmentSeedSettingKey) {
+        persistedParchmentSeedKeyRef.current = null
+      }
       console.error('Failed to persist hex map parchment seed', error)
     })
-  }, [parchmentSeed, parchmentSeedSetting, store])
+  }, [parchmentSeed, parchmentSeedSetting, parchmentSeedSettingKey, store])
 
   useEffect(() => {
     if (!shouldRenderHexMap || hasCapturedHexMapViewedRef.current) {
