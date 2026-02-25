@@ -515,3 +515,51 @@ export const getAllProjectsIncludingArchived$ = queryDb(
     .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
   { label: 'getAllProjectsIncludingArchived' }
 )
+
+// ============================================================================
+// SYSTEM QUERIES (R3 - Planting Season)
+// ============================================================================
+
+/**
+ * Get all non-uprooted systems
+ */
+export const getSystems$ = queryDb(
+  {
+    query: sql`SELECT * FROM systems WHERE uprootedAt IS NULL ORDER BY createdAt DESC`,
+    schema: Schema.Array(tables.systems.rowSchema),
+  },
+  { label: 'getSystems' }
+)
+
+/**
+ * Get a single system by id
+ */
+export const getSystemById$ = (id: string) =>
+  queryDb(tables.systems.select().where({ id }), {
+    label: `getSystemById:${id}`,
+  })
+
+/**
+ * Get task templates for a system, ordered by position
+ */
+export const getSystemTaskTemplates$ = (systemId: string) =>
+  queryDb(
+    tables.systemTaskTemplates
+      .select()
+      .where({ systemId })
+      .orderBy([{ col: 'position', direction: 'asc' }]),
+    {
+      label: `getSystemTaskTemplates:${systemId}`,
+    }
+  )
+
+/**
+ * Get systems in planted state only
+ */
+export const getPlantedSystems$ = queryDb(
+  tables.systems
+    .select()
+    .where({ lifecycleState: 'planted' })
+    .orderBy([{ col: 'createdAt', direction: 'desc' }]),
+  { label: 'getPlantedSystems' }
+)
