@@ -681,3 +681,46 @@ pnpm --filter @lifebuild/auth-worker run deploy  # Deploy auth worker to Cloudfl
 pnpm --filter @lifebuild/worker run deploy       # Deploy sync server to Cloudflare
 pnpm --filter @lifebuild/web run deploy          # Deploy web app to Cloudflare Pages
 ```
+
+## Cursor Cloud specific instructions
+
+### Services overview
+
+| Service     | Command           | Port                          | Notes                        |
+| ----------- | ----------------- | ----------------------------- | ---------------------------- |
+| Web (Vite)  | `pnpm dev:web`    | 60001                         | React frontend               |
+| Sync Worker | `pnpm dev:worker` | 8787                          | Cloudflare Worker (Wrangler) |
+| Auth Worker | `pnpm dev:auth`   | 8788                          | Cloudflare Worker (Wrangler) |
+| Server      | `pnpm dev:server` | 3003                          | Node.js agentic loop         |
+| All at once | `pnpm dev`        | all above + Storybook on 6010 | Runs concurrently            |
+
+For local dev without auth, set `VITE_REQUIRE_AUTH=false` in `packages/web/.env` (this is the default from `.env.example`).
+
+### Environment file setup
+
+Copy example files before first run (the update script handles this):
+
+- `packages/web/.env` from `.env.example`
+- `packages/worker/.dev.vars` from `.dev.vars.example`
+- `packages/auth-worker/.dev.vars` from `.dev.vars.example`
+- `packages/server/.env` from `.env.example`
+
+Update `STORE_IDS` in `packages/server/.env` from the placeholder to a valid value (e.g. `workspace-dev`).
+
+### Key commands
+
+All lint/format/typecheck/test commands are documented in the top of this file. Key ones:
+
+- `pnpm lint-all` — lint + format + typecheck (run before push)
+- `pnpm test` — all unit tests
+- `CI=true pnpm test:e2e` — Playwright E2E tests (CI mode, non-interactive)
+- `pnpm --filter @lifebuild/web build` — production build of web
+
+### Gotchas
+
+- The pre-push hook runs `pnpm format:check`. If formatting fails, run `pnpm lint-all` to fix.
+- Playwright browsers must be installed separately: `pnpm exec playwright install --with-deps chromium`.
+- The `pnpm install` warning about ignored build scripts (`@parcel/watcher`, `@sentry/cli`, `@swc/core`, etc.) is expected; these are handled by `onlyBuiltDependencies` in `pnpm-workspace.yaml`. Do not run `pnpm approve-builds` (interactive).
+- Worker (port 8787) returns 404 on root — this is normal; it only handles WebSocket upgrade requests and specific API routes.
+- E2E tests may show "workspace webhook error" logs from auth-worker — this is expected when the server is not running alongside.
+- The `scripts/cleanup-dev-ports.sh` script is run automatically via the `predev` hook before `pnpm dev` starts.
