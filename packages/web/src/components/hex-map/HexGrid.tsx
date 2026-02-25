@@ -33,6 +33,8 @@ export type PlacedHexTile = {
 
 type HexGridProps = {
   tiles?: readonly PlacedHexTile[]
+  parchmentSeed?: number
+  showCampfire?: boolean
   placementProject?: {
     id: string
     name: string
@@ -49,6 +51,7 @@ type HexGridProps = {
 
 export function HexGrid({
   tiles = [],
+  parchmentSeed = 0,
   placementProject = null,
   selectedPlacedProjectId = null,
   isSelectingPlacedProject = false,
@@ -157,6 +160,7 @@ export function HexGrid({
           <HexCell
             key={cell.key}
             coord={cell.coord}
+            parchmentSeed={parchmentSeed}
             visualStateOverride={visualState}
             onClick={
               isPlacementMode
