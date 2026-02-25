@@ -116,3 +116,78 @@
 - S4 (System Stage 1) depends on S3 — complete, can proceed
 - S9 (lifecycle actions) depends on S8 — complete, can proceed
 - S4 and S9 are independent and can run in parallel
+
+---
+
+## S4 — System Stage 1: Identify form [COMPLETE]
+
+**Status:** Complete
+**Date:** 2026-02-24
+
+**What was built:**
+
+- `SystemStage1Form` component: title, description, category fields with auto-save on blur
+- `SystemStageWizard` component: 3-stage wizard (Identify/Scope/Detail) using system routes
+- `SystemQueueCard` component: card for systems in Drafting Room queue with "System" badge
+- DraftingRoom updated to show planning systems alongside projects, grouped by stage
+- Route `SYSTEM_STAGE1` added for editing existing systems at stage 1
+- Root.tsx updated to use SystemStage1Form instead of placeholder
+- Storybook stories: Default (new system) and WithExistingSystem
+
+**Files modified:** Root.tsx, DraftingRoom.tsx, routes.ts
+**Files created:** SystemStage1Form.tsx, SystemStageWizard.tsx, SystemQueueCard.tsx, SystemStage1Form.stories.tsx
+
+**Decisions:**
+
+- Kept S3's entity type gate pattern (single "New" button → gate) rather than separate Project/System buttons
+- System stage determined by data completeness: Stage 1 = no purposeStatement, Stage 2 = has purposeStatement
+- Reused PROJECT_CATEGORIES for systems (same 8 life categories)
+- Systems in planning with `tierFilter !== 'all'` are hidden (systems don't have tiers)
+
+---
+
+## S9 — Lifecycle actions: Hibernate/Resume/Uproot [COMPLETE]
+
+**Status:** Complete
+**Date:** 2026-02-24
+
+**What was built:**
+
+- Hibernate button: confirm dialog, commits `systemHibernated`, amber styling
+- Resume button: no confirm, commits `systemResumed` + `systemMidCycleUpdated` to recalculate all template `nextGenerateAt`
+- Uproot button: destructive confirm dialog, commits `systemUprooted` + removes hex position if exists
+- Upgrade button: disabled stub with "Coming soon" tooltip (planted systems only)
+- New `MixedLifecycleStates` Storybook story demonstrating all actions
+- Fixed bug in stories: lifecycle events used `systemId` instead of `id`
+
+**Files modified:** SystemBoard.tsx, SystemBoard.stories.tsx, EntityTypeGate.stories.tsx (format)
+
+**Decisions:**
+
+- Resume uses `systemMidCycleUpdated` to batch-update template schedules (consistent with mid-cycle flow)
+- `computeNextGenerateAt` imported from shared package for schedule recalculation
+- Hex position removal on uproot via `hexPositionRemoved` event
+
+---
+
+## S13 — Cameron prompt: system investment advice [COMPLETE]
+
+**Status:** Complete
+**Date:** 2026-02-24
+
+**What was built:**
+
+- Cameron's SORTING_ROOM_PROMPT updated with System Awareness section
+- Added: finish line test, when to suggest creating a system, system vs Silver project distinction
+- Added CHORUS_TAG links: entity-type-gate for system creation, system-board for monitoring
+- Charter alignment guidance (suggest checking Charter but no live data access)
+- SYSTEM_BOARD_PROMPT upgraded with comprehensive lifecycle actions guidance, health diagnostics
+
+**Files modified:** rooms.ts
+
+**Notes for next stories:**
+
+- S5 depends on S4 ✅ — can proceed
+- S5 → S6 is a sequential chain (S5 builds Stage 2 form, S6 builds Stage 3 + Plant action)
+- After S6: S7 (hex tile), S10 (task generation), S12 (Marvin prompt) all become unblocked
+- S7 and S10 can run in parallel after S6
