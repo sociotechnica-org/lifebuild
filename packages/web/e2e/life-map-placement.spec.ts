@@ -224,6 +224,11 @@ test.describe('Life Map placement tray flow', () => {
     await expect(panel.getByRole('button', { name: 'Remove from map' })).toBeVisible()
     await panel.getByRole('button', { name: 'Remove from map' }).click()
 
-    await expect(panel.getByRole('button', { name: projectNameMatcher }).first()).toBeVisible()
+    await expect(panel.getByRole('button', { name: 'Remove from map' })).toHaveCount(0, {
+      timeout: 15000,
+    })
+    await expect(panel.getByRole('button', { name: projectNameMatcher }).first()).toBeVisible({
+      timeout: 15000,
+    })
   })
 })
