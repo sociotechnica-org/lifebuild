@@ -5,6 +5,12 @@ import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import type { Project } from '@lifebuild/shared/schema'
 import { usePostHog } from '../../lib/analytics.js'
 
+export type SystemItem = {
+  id: string
+  name: string
+  lifecycleState: 'planted' | 'hibernating'
+}
+
 export type CategoryCardProps = {
   categoryValue: string
   categoryName: string
@@ -17,6 +23,7 @@ export type CategoryCardProps = {
   backlogCount?: number
   planningCount?: number
   projectCompletionMap?: Map<string, number>
+  systems?: SystemItem[]
 }
 
 /**
@@ -65,6 +72,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   backlogCount = 0,
   planningCount = 0,
   projectCompletionMap = new Map(),
+  systems = [],
 }) => {
   const posthog = usePostHog()
 
@@ -121,6 +129,30 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           {ongoingProjects.length > 6 && (
             <div className='text-xs text-[#8b8680] mt-1'>+{ongoingProjects.length - 6} more</div>
           )}
+        </div>
+      )}
+
+      {/* Systems Section */}
+      {systems.length > 0 && (
+        <div className='mt-2'>
+          <div className='text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide mb-1'>
+            Systems
+          </div>
+          <div className='grid grid-cols-2 gap-1'>
+            {systems.map(system => (
+              <Link
+                key={system.id}
+                to={preserveStoreIdInUrl(generateRoute.system(system.id))}
+                className='no-underline p-1.5 rounded bg-[#faf9f7] hover:bg-[#f5f3f0] transition-colors duration-200'
+                onClick={e => e.stopPropagation()}
+              >
+                <div className='flex items-center gap-1 text-xs text-[#2f2b27] truncate'>
+                  <span className='text-[10px] text-[#8b8680]'>∞</span>
+                  {system.name}
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 

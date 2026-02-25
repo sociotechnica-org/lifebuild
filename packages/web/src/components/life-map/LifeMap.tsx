@@ -510,13 +510,27 @@ export const LifeMap: React.FC = () => {
     }))
   }, [archivedProjects])
 
-  // Check if there are any categories with projects.
-  const categoriesWithProjects = PROJECT_CATEGORIES.filter(category => {
+  // Group planted systems by category for the list view.
+  const categorySystemsMap = useMemo(() => {
+    const map: Record<string, (typeof plantedSystems)[number][]> = {}
+    plantedSystems.forEach(system => {
+      const cat = system.category ?? 'uncategorized'
+      if (!map[cat]) {
+        map[cat] = []
+      }
+      map[cat].push(system)
+    })
+    return map
+  }, [plantedSystems])
+
+  // Check if there are any categories with projects or systems.
+  const categoriesWithContent = PROJECT_CATEGORIES.filter(category => {
     const projects = categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
-    return projects.length > 0
+    const systems = categorySystemsMap[category.value] || []
+    return projects.length > 0 || systems.length > 0
   })
 
-  const hasNoProjects = categoriesWithProjects.length === 0
+  const hasNoProjects = categoriesWithContent.length === 0
   const hasSystems = plantedSystems.length > 0 || unplacedSystemsFromQuery.length > 0
   const hasContent = !hasNoProjects || hasSystems
   const canRenderHexMap = isDesktopViewport && hasWebGLSupport
@@ -543,9 +557,14 @@ export const LifeMap: React.FC = () => {
     return (
       <div className='bg-white rounded-2xl p-4 border border-[#e8e4de]'>
         <div className='grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4'>
-          {categoriesWithProjects.map(category => {
+          {categoriesWithContent.map(category => {
             const projects =
               categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
+            const categorySystems = (categorySystemsMap[category.value] || []).map(s => ({
+              id: s.id,
+              name: s.name,
+              lifecycleState: s.lifecycleState as 'planted' | 'hibernating',
+            }))
             const workers = categoryWorkersMap[category.value] || 0
 
             // Split projects based on lifecycle status:
@@ -596,6 +615,7 @@ export const LifeMap: React.FC = () => {
                 backlogCount={backlogProjects.length}
                 planningCount={planningProjects.length}
                 projectCompletionMap={projectCompletionMap}
+                systems={categorySystems}
               />
             )
           })}
