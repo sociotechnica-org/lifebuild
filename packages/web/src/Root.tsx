@@ -35,6 +35,7 @@ import { Stage2Form } from './components/drafting-room/Stage2Form.js'
 import { Stage3Form } from './components/drafting-room/Stage3Form.js'
 import { SystemStage1Form } from './components/drafting-room/SystemStage1Form.js'
 import { SystemStage2Form } from './components/drafting-room/SystemStage2Form.js'
+import { SystemStage3Form } from './components/drafting-room/SystemStage3Form.js'
 import { SortingRoom } from './components/sorting-room/SortingRoom.js'
 import { SystemBoard } from './components/system-board/SystemBoard.js'
 import {
@@ -501,6 +502,16 @@ const ProtectedApp: React.FC = () => {
                         <ErrorBoundary>
                           <RoomLayout room={DRAFTING_ROOM}>
                             <SystemStage2Form />
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.SYSTEM_STAGE3}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={DRAFTING_ROOM}>
+                            <SystemStage3Form />
                           </RoomLayout>
                         </ErrorBoundary>
                       }
