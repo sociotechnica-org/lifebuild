@@ -292,13 +292,13 @@ export const DraftingRoom: React.FC = () => {
             ))}
           </select>
 
-          {/* New Project button - always right-aligned */}
+          {/* New entity button - always right-aligned */}
           <button
             type='button'
             className='ml-auto py-1.5 px-3 rounded-lg text-xs font-semibold bg-[#2f2b27] text-[#faf9f7] cursor-pointer border-none transition-all duration-200 hover:bg-[#4a4540]'
-            onClick={() => navigate(generateRoute.projectCreate())}
+            onClick={() => navigate(generateRoute.entityTypeGate())}
           >
-            + New Project
+            + New
           </button>
         </div>
 
@@ -343,9 +343,9 @@ export const DraftingRoom: React.FC = () => {
                   <button
                     type='button'
                     className='bg-transparent border border-dashed border-[#d0ccc5] text-[#8b8680] py-2 px-4 rounded-lg text-sm cursor-pointer transition-all duration-200 w-full hover:border-[#2f2b27] hover:text-[#2f2b27] hover:bg-[rgba(47,43,39,0.03)]'
-                    onClick={() => navigate(generateRoute.projectCreate())}
+                    onClick={() => navigate(generateRoute.entityTypeGate())}
                   >
-                    + Start a new project
+                    + Start a new project or system
                   </button>
                 ) : undefined
               }
