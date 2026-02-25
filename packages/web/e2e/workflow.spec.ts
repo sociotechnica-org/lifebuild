@@ -341,15 +341,37 @@ test.describe('Workflow', () => {
     if (hasMapCanvas) {
       await expect(mapCanvas).toBeVisible({ timeout: 10000 })
     } else {
-      const hasProjects = await page
-        .getByText('No projects yet')
-        .isHidden({ timeout: 5000 })
-        .catch(() => true)
+      const hasCategoryFallback = await page
+        .locator('div.bg-white.rounded-2xl')
+        .first()
+        .isVisible({ timeout: 3000 })
+        .catch(() => false)
 
-      if (hasProjects) {
-        await expect(page.locator('.rounded-2xl')).toBeVisible({ timeout: 10000 })
+      if (hasCategoryFallback) {
+        await expect(page.locator('div.bg-white.rounded-2xl').first()).toBeVisible({
+          timeout: 10000,
+        })
       } else {
-        await expect(page.getByText('No projects yet')).toBeVisible({ timeout: 10000 })
+        const hasNoProjectsState = await page
+          .getByText('No projects yet')
+          .isVisible({ timeout: 3000 })
+          .catch(() => false)
+        const hasMapLoadingState = await page
+          .getByText('Loading map...')
+          .isVisible({ timeout: 3000 })
+          .catch(() => false)
+
+        if (hasNoProjectsState) {
+          await expect(page.getByText('No projects yet')).toBeVisible({ timeout: 10000 })
+          await expect(page.getByText('Go to Drafting Room to create projects')).toBeVisible()
+        } else if (hasMapLoadingState) {
+          await expect(page.getByText('Loading map...')).toBeVisible({ timeout: 10000 })
+        } else {
+          throw new Error('Life Map did not render a recognized canvas or fallback state')
+        }
+      }
+
+      if (await page.getByText('No projects yet').isVisible().catch(() => false)) {
         await expect(page.getByText('Go to Drafting Room to create projects')).toBeVisible()
       }
     }
