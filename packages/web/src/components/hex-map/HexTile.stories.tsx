@@ -13,6 +13,8 @@ type HexTilePreviewProps = {
   workstream?: HexTileWorkstream
   isCompleted?: boolean
   isSelected?: boolean
+  isStale?: boolean
+  isOverdue?: boolean
 }
 
 const HexTilePreview: React.FC<HexTilePreviewProps> = ({
@@ -22,6 +24,8 @@ const HexTilePreview: React.FC<HexTilePreviewProps> = ({
   workstream = null,
   isCompleted = false,
   isSelected = false,
+  isStale = false,
+  isOverdue = false,
 }) => {
   return (
     <div className='h-[340px] w-full'>
@@ -44,6 +48,8 @@ const HexTilePreview: React.FC<HexTilePreviewProps> = ({
           workstream={workstream}
           isCompleted={isCompleted}
           isSelected={isSelected}
+          isStale={isStale}
+          isOverdue={isOverdue}
           onClick={() => {}}
         />
       </Canvas>
@@ -109,5 +115,33 @@ export const SelectedForRemoval: Story = {
     categoryColor: '#c48b5a',
     isCompleted: false,
     isSelected: true,
+  },
+}
+
+export const StaleProject: Story = {
+  args: {
+    projectName: 'Untouched for two weeks',
+    categoryColor: '#10B981',
+    visualState: 'active',
+    isStale: true,
+  },
+}
+
+export const OverdueProject: Story = {
+  args: {
+    projectName: 'Past deadline candle flicker',
+    categoryColor: '#F97316',
+    visualState: 'active',
+    isOverdue: true,
+  },
+}
+
+export const StaleAndOverdue: Story = {
+  args: {
+    projectName: 'Neglected and overdue',
+    categoryColor: '#3B82F6',
+    visualState: 'active',
+    isStale: true,
+    isOverdue: true,
   },
 }

@@ -265,25 +265,47 @@
 
 ---
 
-## S7 — System hex tile [DEFERRED]
+## S7 — System hex tile [COMPLETE]
 
-**Status:** Deferred (dependency not installable)
+**Status:** Complete
 **Date:** 2026-02-24
 
-**Reason:** `@react-three/drei` and `@react-three/fiber` are declared in package.json but not installed in node_modules. All existing hex-map code has pre-existing typecheck failures. The hex tile visual treatment requires these packages to compile and test. S7 and S11 (which depends on S7) are deferred until the Three.js dependency issue is resolved.
+**What was built:**
+
+- `SystemHexTile` component: hexagonal tile with infinity symbol, health dot, desaturated category color
+- Distinct from project tiles: no initials, infinity icon instead, single health dot, 30% desaturation
+- Hibernating state: further desaturation, muted health dot color
+- Updated `HexGrid` with `PlacedSystemTile` type, system tile rendering, occupancy blocking
+- Updated `LifeMap` to query systems and pass system tiles/unplaced systems
+- Updated `UnplacedPanel` with system section and "System" badge
+- Updated `PlacementContext` with `startSystemPlacement` callback
+- Updated `hexPositionCommands` with `placeSystemOnHex`/`removeSystemFromHex`
+- Storybook stories: PlantedSystem, HibernatingSystem, SelectedSystem, LongNameSystem
+
+**Files modified:** HexGrid.tsx, LifeMap.tsx, UnplacedPanel.tsx, PlacementContext.tsx, hexPositionCommands.ts, HexMap.tsx
+**Files created:** SystemHexTile.tsx, SystemHexTile.stories.tsx
 
 ---
 
-## S11 — Smoke signals [DEFERRED]
+## S11 — Smoke signals [COMPLETE]
 
-**Status:** Deferred (blocked on S7)
+**Status:** Complete
 **Date:** 2026-02-24
 
-**Reason:** Depends on S7 (hex tile), which is deferred due to missing Three.js dependencies.
+**What was built:**
+
+- Staleness sepia overlay: projects/systems untouched for 14+ days get sepia color shift (40% mix toward #b5a99a)
+- Overdue candle flicker: tiles with past-deadline tasks get animated emissive glow (~2s sine wave period)
+- `CandleFlicker` helper component using `useFrame` — only mounted when `isOverdue` is true for performance
+- Added `isStale`/`isOverdue` props to HexTile and SystemHexTile
+- LifeMap computes overdue from task deadlines (projects) and template nextGenerateAt (systems)
+- Storybook stories: StaleProject, OverdueProject, StaleAndOverdue, StaleSystem, OverdueSystem, StaleAndOverdueSystem
+
+**Files modified:** HexTile.tsx, SystemHexTile.tsx, HexGrid.tsx, LifeMap.tsx, HexTile.test.tsx, HexTile.stories.tsx, SystemHexTile.stories.tsx
 
 ---
 
 ## Summary
 
-**Complete:** S1, S2, S3, S4, S5, S6, S8, S9, S10, S12, S13 (11/13)
-**Deferred:** S7, S11 (hex map visual features — blocked on missing @react-three/drei install)
+**Complete:** S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13 (13/13)
+**All stories delivered.**

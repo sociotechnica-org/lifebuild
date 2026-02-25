@@ -7,6 +7,10 @@ vi.mock('@react-three/drei', () => ({
   Text: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))
 
+vi.mock('@react-three/fiber', () => ({
+  useFrame: vi.fn(),
+}))
+
 describe('HexTile click behavior', () => {
   it('renders initials for tile labels', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

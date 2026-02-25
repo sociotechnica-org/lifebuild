@@ -16,6 +16,7 @@ import {
   getSystemHexPositions$,
   getUnplacedSystems$,
   getAllHexPositions$,
+  getAllSystemTaskTemplates$,
 } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
 import { createHex } from '@lifebuild/shared/hex'
@@ -32,6 +33,9 @@ import {
   removeProjectFromHex,
 } from '../hex-map/hexPositionCommands.js'
 import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.js'
+
+/** 14 days in milliseconds for staleness detection. */
+const STALENESS_THRESHOLD_MS = 14 * 24 * 60 * 60 * 1000
 
 type LifeMapViewMode = 'map' | 'list'
 
@@ -154,6 +158,7 @@ export const LifeMap: React.FC = () => {
   const plantedSystems = useQuery(getPlantedSystems$) ?? []
   const systemHexPositions = useQuery(getSystemHexPositions$) ?? []
   const unplacedSystemsFromQuery = useQuery(getUnplacedSystems$) ?? []
+  const allSystemTaskTemplates = useQuery(getAllSystemTaskTemplates$) ?? []
 
   // Query projects for each category.
   const healthProjects = useQuery(getProjectsByCategory$('health')) ?? []
@@ -340,8 +345,43 @@ export const LifeMap: React.FC = () => {
     [actorId, allHexPositions, store]
   )
 
+  /** Set of project IDs that have at least one non-done, non-archived task with a past deadline. */
+  const overdueProjectIds = useMemo(() => {
+    const now = Date.now()
+    const ids = new Set<string>()
+    allTasks.forEach(task => {
+      if (!task.projectId || task.status === 'done' || task.archivedAt !== null) {
+        return
+      }
+      const attributes = task.attributes as { deadline?: number } | null
+      if (attributes?.deadline && attributes.deadline < now) {
+        ids.add(task.projectId)
+      }
+    })
+    return ids
+  }, [allTasks])
+
+  /** Set of system IDs that have at least one template with nextGenerateAt in the past. */
+  const overdueSystemIds = useMemo(() => {
+    const now = Date.now()
+    const ids = new Set<string>()
+    allSystemTaskTemplates.forEach(template => {
+      if (template.nextGenerateAt) {
+        const nextAt =
+          template.nextGenerateAt instanceof Date
+            ? template.nextGenerateAt.getTime()
+            : Number(template.nextGenerateAt)
+        if (nextAt < now) {
+          ids.add(template.systemId)
+        }
+      }
+    })
+    return ids
+  }, [allSystemTaskTemplates])
+
   const placedHexTiles = useMemo(() => {
     const projectsById = new Map(allProjects.map(project => [project.id, project]))
+    const now = Date.now()
 
     return hexPositions.flatMap(position => {
       if (position.entityType !== 'project') {
@@ -374,6 +414,11 @@ export const LifeMap: React.FC = () => {
           ? lifecycle.stream
           : null
 
+      const updatedAtMs =
+        project.updatedAt instanceof Date ? project.updatedAt.getTime() : Number(project.updatedAt)
+      const isStale = !isCompleted && now - updatedAtMs >= STALENESS_THRESHOLD_MS
+      const isOverdue = !isCompleted && overdueProjectIds.has(project.id)
+
       return [
         {
           id: position.id,
@@ -385,13 +430,15 @@ export const LifeMap: React.FC = () => {
           visualState,
           workstream,
           isCompleted,
+          isStale,
+          isOverdue,
           onClick: isCompleted
             ? undefined
             : () => navigate(preserveStoreIdInUrl(generateRoute.project(project.id))),
         },
       ]
     })
-  }, [activeProjectIds, allProjects, hexPositions, navigate])
+  }, [activeProjectIds, allProjects, hexPositions, navigate, overdueProjectIds])
 
   const unplacedProjects = useMemo(() => {
     return unplacedProjectsFromQuery.map(project => ({
@@ -403,6 +450,7 @@ export const LifeMap: React.FC = () => {
 
   const placedSystemTiles = useMemo(() => {
     const systemsById = new Map(plantedSystems.map(system => [system.id, system]))
+    const now = Date.now()
 
     return systemHexPositions.flatMap(position => {
       const system = systemsById.get(position.entityId)
@@ -411,6 +459,10 @@ export const LifeMap: React.FC = () => {
       }
 
       const category = PROJECT_CATEGORIES.find(item => item.value === system.category)
+      const updatedAtMs =
+        system.updatedAt instanceof Date ? system.updatedAt.getTime() : Number(system.updatedAt)
+      const isStale = now - updatedAtMs >= STALENESS_THRESHOLD_MS
+      const isOverdue = overdueSystemIds.has(system.id)
 
       return [
         {
@@ -421,11 +473,13 @@ export const LifeMap: React.FC = () => {
           category: system.category ?? null,
           categoryColor: category?.colorHex ?? '#8b8680',
           lifecycleState: system.lifecycleState as 'planted' | 'hibernating',
+          isStale,
+          isOverdue,
           onClick: () => navigate(preserveStoreIdInUrl(generateRoute.systemBoard())),
         },
       ]
     })
-  }, [navigate, plantedSystems, systemHexPositions])
+  }, [navigate, overdueSystemIds, plantedSystems, systemHexPositions])
 
   const unplacedSystems = useMemo(() => {
     return unplacedSystemsFromQuery.map(system => ({

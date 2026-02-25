@@ -1,8 +1,10 @@
 import { Text } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
 import type { HexCoord } from '@lifebuild/shared/hex'
 import { hexToWorld } from '@lifebuild/shared/hex'
 import React from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import type { MeshStandardMaterial } from 'three'
 import { truncateLabel } from './labelUtils.js'
 
 const BASE_HEX_SIZE = 1
@@ -22,6 +24,28 @@ const HEALTH_DOT_COLOR = '#4ade80'
 const DESATURATION_TARGET = '#9d968d'
 const DESATURATION_WEIGHT = 0.3
 const HIBERNATING_OPACITY = 0.55
+
+const SEPIA_TARGET = '#b5a99a'
+const SEPIA_WEIGHT = 0.4
+const CANDLE_EMISSIVE = '#e8a954'
+const CANDLE_BASE_INTENSITY = 0.06
+const CANDLE_AMPLITUDE = 0.08
+
+/**
+ * Helper component that runs a useFrame loop for the candle-flicker effect.
+ * Rendered only when isOverdue is true so the frame loop is inactive otherwise.
+ */
+const CandleFlicker: React.FC<{
+  materialRef: React.RefObject<MeshStandardMaterial | null>
+}> = ({ materialRef }) => {
+  useFrame(({ clock }) => {
+    if (materialRef.current) {
+      materialRef.current.emissiveIntensity =
+        CANDLE_BASE_INTENSITY + Math.sin(clock.elapsedTime * Math.PI) * CANDLE_AMPLITUDE
+    }
+  })
+  return null
+}
 
 const clamp = (value: number, min: number, max: number): number => {
   return Math.min(max, Math.max(min, value))
@@ -63,6 +87,8 @@ export type SystemHexTileProps = {
   categoryColor: string
   lifecycleState: 'planted' | 'hibernating'
   isSelected?: boolean
+  isStale?: boolean
+  isOverdue?: boolean
   onClick?: () => void
 }
 
@@ -72,6 +98,8 @@ export function SystemHexTile({
   categoryColor,
   lifecycleState,
   isSelected = false,
+  isStale = false,
+  isOverdue = false,
   onClick,
 }: SystemHexTileProps) {
   const [isHovered, setIsHovered] = useState(false)
@@ -82,25 +110,33 @@ export function SystemHexTile({
   const isHighlighted = (isHoverEnabled && isHovered) || isSelected
   const label = useMemo(() => truncateLabel(systemName, MAX_LABEL_LENGTH), [systemName])
 
+  const topCapRef = useRef<MeshStandardMaterial>(null)
+
+  /** Apply sepia tint when stale by mixing toward sepia target at 40% weight. */
+  const sepia = (color: string): string =>
+    isStale ? mixHexColors(color, SEPIA_TARGET, SEPIA_WEIGHT) : color
+
   // Desaturated base color: mix category color toward #9d968d by 30%
   const desaturatedBaseColor = useMemo(
     () => mixHexColors(categoryColor, DESATURATION_TARGET, DESATURATION_WEIGHT),
     [categoryColor]
   )
 
-  // For hibernating systems, apply additional desaturation
+  // For hibernating systems, apply additional desaturation; apply sepia if stale
   const edgeColor = useMemo(() => {
+    let base = desaturatedBaseColor
     if (isHibernating) {
-      return mixHexColors(desaturatedBaseColor, DESATURATION_TARGET, 0.3)
+      base = mixHexColors(base, DESATURATION_TARGET, 0.3)
     }
-    return desaturatedBaseColor
-  }, [desaturatedBaseColor, isHibernating])
+    return isStale ? mixHexColors(base, SEPIA_TARGET, SEPIA_WEIGHT) : base
+  }, [desaturatedBaseColor, isHibernating, isStale])
 
-  // Category-colored border glow: subtle emissive ring in the category color
-  const emissiveColor = isHighlighted ? categoryColor : categoryColor
-  const emissiveIntensity = isHighlighted ? 0.2 : 0.08
+  // Category-colored border glow, or candle emissive when overdue
+  const emissiveColor = isOverdue ? CANDLE_EMISSIVE : categoryColor
+  const emissiveIntensity = isOverdue ? CANDLE_BASE_INTENSITY : isHighlighted ? 0.2 : 0.08
 
-  const innerTopColor = isHibernating ? '#ddd5ca' : isHighlighted ? '#f0ebe2' : '#e8e0d4'
+  const innerTopColor = sepia(isHibernating ? '#ddd5ca' : isHighlighted ? '#f0ebe2' : '#e8e0d4')
+  const bottomCapColor = sepia(isHibernating ? '#c6c0b7' : '#ddd4c6')
 
   const groupOpacity = isHibernating ? HIBERNATING_OPACITY : 1
 
@@ -160,6 +196,7 @@ export function SystemHexTile({
         />
         {/* material-1 = top cap (category ring base with emissive glow) */}
         <meshStandardMaterial
+          ref={topCapRef}
           attach='material-1'
           color={edgeColor}
           emissive={emissiveColor}
@@ -172,7 +209,7 @@ export function SystemHexTile({
         {/* material-2 = bottom cap */}
         <meshStandardMaterial
           attach='material-2'
-          color={isHibernating ? '#c6c0b7' : '#ddd4c6'}
+          color={bottomCapColor}
           roughness={0.85}
           metalness={0.02}
           transparent={isHibernating}
@@ -241,6 +278,8 @@ export function SystemHexTile({
           {label}
         </Text>
       )}
+
+      {isOverdue && <CandleFlicker materialRef={topCapRef} />}
     </group>
   )
 }

@@ -11,6 +11,8 @@ type SystemHexTilePreviewProps = {
   categoryColor: string
   lifecycleState: 'planted' | 'hibernating'
   isSelected?: boolean
+  isStale?: boolean
+  isOverdue?: boolean
 }
 
 const SystemHexTilePreview: React.FC<SystemHexTilePreviewProps> = ({
@@ -18,6 +20,8 @@ const SystemHexTilePreview: React.FC<SystemHexTilePreviewProps> = ({
   categoryColor,
   lifecycleState,
   isSelected = false,
+  isStale = false,
+  isOverdue = false,
 }) => {
   return (
     <div className='h-[340px] w-full'>
@@ -38,6 +42,8 @@ const SystemHexTilePreview: React.FC<SystemHexTilePreviewProps> = ({
           categoryColor={categoryColor}
           lifecycleState={lifecycleState}
           isSelected={isSelected}
+          isStale={isStale}
+          isOverdue={isOverdue}
           onClick={() => {}}
         />
       </Canvas>
@@ -123,5 +129,33 @@ export const LongNameSystem: Story = {
         story: 'System with a long name - hover to see the truncated label tooltip.',
       },
     },
+  },
+}
+
+export const StaleSystem: Story = {
+  args: {
+    systemName: 'Neglected Journal Habit',
+    categoryColor: '#10B981',
+    lifecycleState: 'planted',
+    isStale: true,
+  },
+}
+
+export const OverdueSystem: Story = {
+  args: {
+    systemName: 'Overdue Budget Review',
+    categoryColor: '#F97316',
+    lifecycleState: 'planted',
+    isOverdue: true,
+  },
+}
+
+export const StaleAndOverdueSystem: Story = {
+  args: {
+    systemName: 'Forgotten Fitness Routine',
+    categoryColor: '#3B82F6',
+    lifecycleState: 'planted',
+    isStale: true,
+    isOverdue: true,
   },
 }

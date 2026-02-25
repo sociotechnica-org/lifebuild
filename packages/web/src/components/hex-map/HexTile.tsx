@@ -1,8 +1,10 @@
 import { Text } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
 import type { HexCoord } from '@lifebuild/shared/hex'
 import { hexToWorld } from '@lifebuild/shared/hex'
 import React from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import type { MeshStandardMaterial } from 'three'
 import { getInitials } from '../../utils/initials.js'
 import { truncateLabel } from './labelUtils.js'
 
@@ -49,6 +51,28 @@ const mixHexColors = (base: string, target: string, weight: number): string => {
   ])
 }
 
+const SEPIA_TARGET = '#b5a99a'
+const SEPIA_WEIGHT = 0.4
+const CANDLE_EMISSIVE = '#e8a954'
+const CANDLE_BASE_INTENSITY = 0.06
+const CANDLE_AMPLITUDE = 0.08
+
+/**
+ * Helper component that runs a useFrame loop for the candle-flicker effect.
+ * Rendered only when isOverdue is true so the frame loop is inactive otherwise.
+ */
+const CandleFlicker: React.FC<{
+  materialRef: React.RefObject<MeshStandardMaterial | null>
+}> = ({ materialRef }) => {
+  useFrame(({ clock }) => {
+    if (materialRef.current) {
+      materialRef.current.emissiveIntensity =
+        CANDLE_BASE_INTENSITY + Math.sin(clock.elapsedTime * Math.PI) * CANDLE_AMPLITUDE
+    }
+  })
+  return null
+}
+
 const STREAM_GLOW_COLORS = {
   gold: '#d8a650',
   silver: '#c5ced8',
@@ -66,6 +90,8 @@ type HexTileProps = {
   workstream?: HexTileWorkstream
   isCompleted?: boolean
   isSelected?: boolean
+  isStale?: boolean
+  isOverdue?: boolean
   allowCompletedClick?: boolean
   onClick?: () => void
 }
@@ -78,6 +104,8 @@ export function HexTile({
   workstream = null,
   isCompleted = false,
   isSelected = false,
+  isStale = false,
+  isOverdue = false,
   allowCompletedClick = false,
   onClick,
 }: HexTileProps) {
@@ -91,30 +119,43 @@ export function HexTile({
   const label = useMemo(() => truncateLabel(projectName, MAX_LABEL_LENGTH), [projectName])
   const initials = useMemo(() => getInitials(projectName), [projectName])
 
+  const topCapRef = useRef<MeshStandardMaterial>(null)
+
+  /** Apply sepia tint when stale by mixing toward sepia target at 40% weight. */
+  const sepia = (color: string): string =>
+    isStale ? mixHexColors(color, SEPIA_TARGET, SEPIA_WEIGHT) : color
+
   const categoryEdgeColor = useMemo(() => {
+    let base: string
     if (isCompletedState) {
-      return '#a7a29a'
+      base = '#a7a29a'
+    } else if (resolvedVisualState === 'planning') {
+      base = mixHexColors(categoryColor, '#9d968d', 0.4)
+    } else {
+      base = categoryColor
     }
-    if (resolvedVisualState === 'planning') {
-      return mixHexColors(categoryColor, '#9d968d', 0.4)
-    }
-    return categoryColor
-  }, [categoryColor, isCompletedState, resolvedVisualState])
+    return isStale ? mixHexColors(base, SEPIA_TARGET, SEPIA_WEIGHT) : base
+  }, [categoryColor, isCompletedState, isStale, resolvedVisualState])
 
   const streamGlowColor =
     resolvedVisualState === 'work-at-hand' ? STREAM_GLOW_COLORS[workstream ?? 'bronze'] : null
 
-  const emissiveColor = streamGlowColor ?? (isHighlighted ? '#6e5a45' : '#000000')
-  const emissiveIntensity = streamGlowColor
-    ? isHighlighted
-      ? 0.26
-      : 0.2
-    : isHovered
-      ? 0.12
-      : isSelected
-        ? 0.18
-        : 0
-  const innerTopColor = isCompletedState ? '#ddd5ca' : isHighlighted ? '#fff2e2' : '#f5ead6'
+  const emissiveColor = isOverdue
+    ? CANDLE_EMISSIVE
+    : (streamGlowColor ?? (isHighlighted ? '#6e5a45' : '#000000'))
+  const emissiveIntensity = isOverdue
+    ? CANDLE_BASE_INTENSITY
+    : streamGlowColor
+      ? isHighlighted
+        ? 0.26
+        : 0.2
+      : isHovered
+        ? 0.12
+        : isSelected
+          ? 0.18
+          : 0
+  const innerTopColor = sepia(isCompletedState ? '#ddd5ca' : isHighlighted ? '#fff2e2' : '#f5ead6')
+  const bottomCapColor = sepia(isCompletedState ? '#c6c0b7' : '#e7d8c2')
 
   useEffect(() => {
     return () => {
@@ -160,6 +201,7 @@ export function HexTile({
         />
         {/* material-1 = top cap (category ring base) */}
         <meshStandardMaterial
+          ref={topCapRef}
           attach='material-1'
           color={categoryEdgeColor}
           emissive={emissiveColor}
@@ -170,7 +212,7 @@ export function HexTile({
         {/* material-2 = bottom cap */}
         <meshStandardMaterial
           attach='material-2'
-          color={isCompletedState ? '#c6c0b7' : '#e7d8c2'}
+          color={bottomCapColor}
           roughness={0.85}
           metalness={0.02}
         />
@@ -221,6 +263,8 @@ export function HexTile({
           {label}
         </Text>
       )}
+
+      {isOverdue && <CandleFlicker materialRef={topCapRef} />}
     </group>
   )
 }

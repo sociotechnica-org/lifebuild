@@ -23,6 +23,8 @@ export type PlacedHexTile = {
   visualState?: HexTileVisualState
   workstream?: HexTileWorkstream
   isCompleted?: boolean
+  isStale?: boolean
+  isOverdue?: boolean
   onClick?: () => void
 }
 
@@ -34,6 +36,8 @@ export type PlacedSystemTile = {
   category?: string | null
   categoryColor: string
   lifecycleState: 'planted' | 'hibernating'
+  isStale?: boolean
+  isOverdue?: boolean
   onClick?: () => void
 }
 
@@ -224,6 +228,8 @@ export function HexGrid({
           visualState={tile.visualState}
           workstream={tile.workstream}
           isCompleted={tile.isCompleted}
+          isStale={tile.isStale}
+          isOverdue={tile.isOverdue}
           isSelected={selectedPlacedProjectId === tile.projectId}
           allowCompletedClick={isPlacementMode || isSelectingPlacedProject}
           onClick={() => handleTileClick(tile)}
@@ -236,6 +242,8 @@ export function HexGrid({
           systemName={tile.systemName}
           categoryColor={tile.categoryColor}
           lifecycleState={tile.lifecycleState}
+          isStale={tile.isStale}
+          isOverdue={tile.isOverdue}
           onClick={() => handleSystemTileClick(tile)}
         />
       ))}
