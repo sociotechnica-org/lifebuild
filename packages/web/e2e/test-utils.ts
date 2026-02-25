@@ -10,6 +10,8 @@ import { Page, expect } from '@playwright/test'
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:8788'
 const APP_URL = process.env.APP_URL || 'http://localhost:5173'
 const REQUIRE_AUTH = process.env.REQUIRE_AUTH === 'true'
+const LIVE_STORE_READY_TIMEOUT_MS = process.env.CI ? 4000 : 15000
+const LIVE_STORE_SETTLE_DELAY_MS = process.env.CI ? 150 : 1000
 
 type AuthCredentials = {
   email: string
@@ -24,27 +26,45 @@ let cachedAuthCredentials: AuthCredentials | null = null
  * so we handle both success and failure cases gracefully.
  */
 export async function waitForLiveStoreReady(page: Page) {
+  if (page.isClosed()) {
+    return
+  }
+
   try {
     // Wait for the loading message to disappear using proper DOM traversal
     await page.waitForFunction(
       () => {
-        const elements = document.querySelectorAll('div')
-        for (const element of elements) {
-          if (element.textContent && element.textContent.includes('Loading LiveStore')) {
-            return false // Still loading
-          }
+        const bodyText = document.body?.textContent ?? ''
+        if (!bodyText.includes('Loading LiveStore')) {
+          return true
         }
-        return true // No loading message found
+
+        // If app shell is visible, continue even if loading text lingers in background.
+        return Boolean(document.querySelector('main, nav, textarea, [role="main"]'))
       },
-      { timeout: 15000 } // Reduced timeout for CI
+      { timeout: LIVE_STORE_READY_TIMEOUT_MS }
     )
   } catch {
+    if (page.isClosed()) {
+      return
+    }
+
     // In CI, LiveStore might fail to connect to sync server, which is expected
     // Continue with tests anyway since we're testing the basic app structure
   }
 
+  if (page.isClosed()) {
+    return
+  }
+
+  await page.waitForLoadState('domcontentloaded').catch(() => {
+    // Ignore load-state failures in teardown scenarios.
+  })
+
   // Wait a bit more to ensure any transitions are complete
-  await page.waitForTimeout(1000)
+  await page.waitForTimeout(LIVE_STORE_SETTLE_DELAY_MS).catch(() => {
+    // Ignore closed-page timing races.
+  })
 }
 
 /**
