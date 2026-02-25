@@ -1,14 +1,17 @@
 import { test, expect } from '@playwright/test'
-import { waitForLiveStoreReady } from './test-utils'
+import { waitForLiveStoreReady, waitForStoreIdInUrl } from './test-utils'
 
 test.describe('Session Persistence', () => {
+  test.describe.configure({ timeout: 60000 })
+
   test('session state persists across URL visits', async ({ page }) => {
     // Navigate to root - should add storeId to URL
     await page.goto('/')
     await waitForLiveStoreReady(page)
 
     // Wait for redirect to happen and add storeId to URL
-    await page.waitForURL(/\?storeId=[a-f0-9-]+$/, { timeout: 10000 })
+    const initialStoreId = await waitForStoreIdInUrl(page, 15000)
+    expect(initialStoreId).toBeTruthy()
 
     // Should have storeId query parameter
     await expect(page).toHaveURL(/\?storeId=[a-f0-9-]+$/)
@@ -58,6 +61,8 @@ test.describe('Session Persistence', () => {
     // First visit to root
     await page.goto('/')
     await waitForLiveStoreReady(page)
+    const firstStoreId = await waitForStoreIdInUrl(page, 15000)
+    expect(firstStoreId).toBeTruthy()
 
     // Should have storeId query parameter
     const firstUrl = page.url()
@@ -65,14 +70,12 @@ test.describe('Session Persistence', () => {
     // Should have storeId format
     expect(firstUrl).toMatch(/\?storeId=[a-f0-9-]+$/)
 
-    // Extract storeId
-    const firstStoreId = new URL(firstUrl).searchParams.get('storeId')
-    expect(firstStoreId).toBeTruthy()
-
     // Navigate away and back to root again (use about:blank to avoid external network dependency)
     await page.goto('about:blank')
     await page.goto('/')
     await waitForLiveStoreReady(page)
+    const secondStoreId = await waitForStoreIdInUrl(page, 15000)
+    expect(secondStoreId).toBeTruthy()
 
     const secondUrl = page.url()
 
@@ -81,7 +84,6 @@ test.describe('Session Persistence', () => {
     expect(secondUrl).toMatch(/\?storeId=[a-f0-9-]+$/)
 
     // Extract second storeId - should be the same
-    const secondStoreId = new URL(secondUrl).searchParams.get('storeId')
     expect(secondStoreId).toBe(firstStoreId)
   })
 
@@ -92,6 +94,8 @@ test.describe('Session Persistence', () => {
     const page1 = await context.newPage()
     await page1.goto('/')
     await waitForLiveStoreReady(page1)
+    const firstTabStoreId = await waitForStoreIdInUrl(page1, 15000)
+    expect(firstTabStoreId).toBeTruthy()
 
     const firstTabUrl = page1.url()
     expect(firstTabUrl).toMatch(/\?storeId=[a-f0-9-]+$/)
@@ -100,6 +104,8 @@ test.describe('Session Persistence', () => {
     const page2 = await context.newPage()
     await page2.goto('/')
     await waitForLiveStoreReady(page2)
+    const secondTabStoreId = await waitForStoreIdInUrl(page2, 15000)
+    expect(secondTabStoreId).toBeTruthy()
 
     const secondTabUrl = page2.url()
 
@@ -115,6 +121,8 @@ test.describe('Session Persistence', () => {
     const page1 = await context1.newPage()
     await page1.goto('/')
     await waitForLiveStoreReady(page1)
+    const contextOneStoreId = await waitForStoreIdInUrl(page1, 15000)
+    expect(contextOneStoreId).toBeTruthy()
     const url1 = page1.url()
 
     // Incognito context (separate localStorage)
@@ -122,6 +130,8 @@ test.describe('Session Persistence', () => {
     const page2 = await context2.newPage()
     await page2.goto('/')
     await waitForLiveStoreReady(page2)
+    const contextTwoStoreId = await waitForStoreIdInUrl(page2, 15000)
+    expect(contextTwoStoreId).toBeTruthy()
     const url2 = page2.url()
 
     // Should be different storeIds

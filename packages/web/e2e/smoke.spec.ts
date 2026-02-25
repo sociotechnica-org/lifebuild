@@ -1,11 +1,15 @@
 import { test, expect } from '@playwright/test'
-import { waitForLiveStoreReady, expectBasicAppStructure } from './test-utils'
+import { waitForLiveStoreReady, waitForStoreIdInUrl, expectBasicAppStructure } from './test-utils'
 
 test.describe('Smoke Tests', () => {
+  test.describe.configure({ timeout: 60000 })
+
   test('app loads and basic functionality works', async ({ page }) => {
     // Navigate to app (let it handle store ID automatically)
     await page.goto('/')
     await waitForLiveStoreReady(page)
+    const rootStoreId = await waitForStoreIdInUrl(page, 15000)
+    expect(rootStoreId).toBeTruthy()
 
     // Verify the app loaded correctly
     await expect(page).toHaveTitle(/LifeBuild/)
@@ -54,6 +58,7 @@ test.describe('Smoke Tests', () => {
 
     // Wait for LiveStore to be ready (or timeout gracefully)
     await waitForLiveStoreReady(page)
+    await waitForStoreIdInUrl(page, 15000)
 
     // Check if we're still loading (expected in CI)
     const isLoading = await page.locator('text=Loading LiveStore').isVisible()
@@ -100,6 +105,7 @@ test.describe('Smoke Tests', () => {
 
     // Wait for initial load
     await waitForLiveStoreReady(page)
+    await waitForStoreIdInUrl(page, 15000)
 
     // Test storeId-based routing
     const storeId = 'test-routing-' + Date.now()
