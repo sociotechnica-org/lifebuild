@@ -1,11 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Link, Route, Routes } from 'react-router-dom'
 import { BrowserRouter } from 'react-router-dom'
-import { PrototypeLayout } from './components/PrototypeLayout.js'
 import { HomePage } from './pages/HomePage.js'
-import { SignalGardenPrototype } from './prototypes/SignalGardenPrototype.js'
-import { StateSignalLabPrototype } from './prototypes/StateSignalLabPrototype.js'
-import { StreamArenaPrototype } from './prototypes/StreamArenaPrototype.js'
 
 const HexGridPrototype = lazy(async () => ({
   default: (await import('./prototypes/HexGridPrototype.js')).HexGridPrototype,
@@ -42,39 +38,6 @@ export function App() {
             <Suspense fallback={<RouteLoadingFallback />}>
               <HexGridPrototype />
             </Suspense>
-          }
-        />
-        <Route
-          path='/state-signals'
-          element={
-            <PrototypeLayout
-              title='State Signal Lab'
-              summary='Stress-test category colors, state saturation levels, stream accents, and project/system markers.'
-            >
-              <StateSignalLabPrototype />
-            </PrototypeLayout>
-          }
-        />
-        <Route
-          path='/stream-arena'
-          element={
-            <PrototypeLayout
-              title='Stream Arena'
-              summary='Classify work into Gold, Silver, and Bronze lanes with slot constraints and tactical swaps.'
-            >
-              <StreamArenaPrototype />
-            </PrototypeLayout>
-          }
-        />
-        <Route
-          path='/signal-garden'
-          element={
-            <PrototypeLayout
-              title='Signal Garden'
-              summary='Tap through a hex field and inspect state transitions through saturation and glow cues.'
-            >
-              <SignalGardenPrototype />
-            </PrototypeLayout>
           }
         />
         <Route path='*' element={<NotFoundPage />} />
