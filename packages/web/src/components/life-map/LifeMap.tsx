@@ -35,6 +35,11 @@ const getHexMapParchmentSeedKey = (actorId: string | undefined) => {
     ? `${HEX_MAP_PARCHMENT_SEED_KEY}.${actorId}`
     : `${HEX_MAP_PARCHMENT_SEED_KEY}.anonymous`
 }
+const getHexMapLocalParchmentSeedKey = (actorId: string | undefined) => {
+  return actorId
+    ? `${HEX_MAP_PARCHMENT_SEED_KEY}.local.${actorId}`
+    : `${HEX_MAP_PARCHMENT_SEED_KEY}.local.anonymous`
+}
 
 const LazyHexMap = lazy(() =>
   import('../hex-map/HexMap.js').then(module => ({ default: module.HexMap }))
@@ -145,19 +150,38 @@ export const LifeMap: React.FC = () => {
   const hexPositions = useQuery(getHexPositions$) ?? []
   const hexPositionsRef = useRef(hexPositions)
   const parchmentSeedSettingKey = useMemo(() => getHexMapParchmentSeedKey(actorId), [actorId])
+  const localParchmentSeedKey = useMemo(() => getHexMapLocalParchmentSeedKey(actorId), [actorId])
   const parchmentSeedSetting = useQuery(getSettingByKey$(parchmentSeedSettingKey))
   const legacyParchmentSeedSetting = useQuery(getSettingByKey$(HEX_MAP_PARCHMENT_SEED_KEY))
   const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
+  const localParchmentSeed = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return null
+    }
+
+    try {
+      const localSeed = window.localStorage.getItem(localParchmentSeedKey)
+      if (!localSeed) {
+        return null
+      }
+
+      const parsedLocalSeed = Number(localSeed)
+      return Number.isFinite(parsedLocalSeed) ? parsedLocalSeed : null
+    } catch (error) {
+      console.warn('Failed to read local hex map parchment seed', error)
+      return null
+    }
+  }, [localParchmentSeedKey])
 
   const storedParchmentSeed = useMemo(() => {
     const value = parchmentSeedSetting?.[0]?.value ?? legacyParchmentSeedSetting?.[0]?.value
     if (!value) {
-      return null
+      return localParchmentSeed
     }
 
     const parsedValue = Number(value)
-    return Number.isFinite(parsedValue) ? parsedValue : null
-  }, [legacyParchmentSeedSetting, parchmentSeedSetting])
+    return Number.isFinite(parsedValue) ? parsedValue : localParchmentSeed
+  }, [legacyParchmentSeedSetting, localParchmentSeed, parchmentSeedSetting])
 
   const parchmentSeed = storedParchmentSeed ?? generatedParchmentSeedRef.current
   hexPositionsRef.current = hexPositions
@@ -435,6 +459,18 @@ export const LifeMap: React.FC = () => {
   const hasNoProjects = categoriesWithProjects.length === 0
   const canRenderHexMap = isDesktopViewport && hasWebGLSupport
   const shouldRenderHexMap = canRenderHexMap
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    try {
+      window.localStorage.setItem(localParchmentSeedKey, String(parchmentSeed))
+    } catch (error) {
+      console.warn('Failed to persist local hex map parchment seed', error)
+    }
+  }, [localParchmentSeedKey, parchmentSeed])
 
   useEffect(() => {
     if (!syncStatus?.isSynced) {
