@@ -108,12 +108,22 @@ The onboarding is a 4-beat sequence that introduces the map, the attendants, and
 - User can manually add/edit tasks; Marvin observes and responds
 - User closes overlay — Marvin sprite walks to the workshop
 
-### Beat 4: The Branching
+### Beat 4: The Unburdening (optional, either order with Beat 5)
 
-- User now has four buildings on the map: campfire (decorative), project, sanctuary (Jarvis), workshop (Marvin)
-- Can visit Workshop (Unburdening — draft more projects with Marvin) or Sanctuary (Visioning — write charter with Jarvis) in either order
-- Each experience, if the user hasn't done the other, nudges them to go do it (at the end or at a natural pause point)
-- After both: user is at steady state — a fully functioning map-first UI
+- User clicks on the Workshop building (Marvin standing outside)
+- Workshop overlay opens — the drafting experience for creating new projects
+- Marvin guides the user through drafting multiple projects via conversation
+- Projects exist as sketches inside the Workshop until placed on the map
+- If user hasn't done the Visioning yet, Marvin nudges them toward the Sanctuary at the end
+- After completing: user has multiple project sketches ready for placement
+
+### Beat 5: The Visioning (optional, either order with Beat 4)
+
+- User clicks on the Sanctuary building (Jarvis standing outside)
+- Sanctuary overlay opens — the chartering experience
+- Jarvis guides the user through writing a life charter that spells out what's most important
+- If user hasn't done the Unburdening yet, Jarvis nudges them toward the Workshop at the end
+- After completing both Beats 4 and 5: user is at steady state — a fully functioning map-first UI
 
 ---
 
