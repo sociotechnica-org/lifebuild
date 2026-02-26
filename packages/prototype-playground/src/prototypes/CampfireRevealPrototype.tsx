@@ -410,11 +410,11 @@ function CampfireHexCell({
     <group position={[x, 0, z]}>
       <mesh
         material={material}
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation()
           onClick()
         }}
-        onPointerOver={(e) => {
+        onPointerOver={e => {
           e.stopPropagation()
           document.body.style.cursor = 'pointer'
         }}
@@ -602,8 +602,7 @@ function CampfireSprite({ visible }: { visible: boolean }) {
   useFrame((_, delta) => {
     timeRef.current += delta
     if (lightRef.current) {
-      const flicker =
-        0.8 + 0.2 * Math.sin(timeRef.current * 4) * Math.cos(timeRef.current * 2.7)
+      const flicker = 0.8 + 0.2 * Math.sin(timeRef.current * 4) * Math.cos(timeRef.current * 2.7)
       lightRef.current.intensity = visible ? flicker * 3 : 0
     }
   })
@@ -612,7 +611,7 @@ function CampfireSprite({ visible }: { visible: boolean }) {
     <group position={[cx, HEX_HEIGHT / 2, cz]}>
       <pointLight
         ref={lightRef}
-        color="#ff8030"
+        color='#ff8030'
         intensity={visible ? 3 : 0}
         distance={8}
         decay={2}
@@ -629,15 +628,15 @@ function CampfireSprite({ visible }: { visible: boolean }) {
       )}
       <mesh position={[0, 0.3, 0]}>
         <sphereGeometry args={[0.15, 8, 8]} />
-        <meshBasicMaterial color="#ff6020" transparent opacity={visible ? 0.9 : 0} />
+        <meshBasicMaterial color='#ff6020' transparent opacity={visible ? 0.9 : 0} />
       </mesh>
       <mesh position={[0, 0.5, 0]}>
         <sphereGeometry args={[0.1, 8, 8]} />
-        <meshBasicMaterial color="#ffaa40" transparent opacity={visible ? 0.8 : 0} />
+        <meshBasicMaterial color='#ffaa40' transparent opacity={visible ? 0.8 : 0} />
       </mesh>
       <mesh position={[0, 0.15, 0]}>
         <sphereGeometry args={[0.2, 8, 8]} />
-        <meshBasicMaterial color="#cc3010" transparent opacity={visible ? 0.7 : 0} />
+        <meshBasicMaterial color='#cc3010' transparent opacity={visible ? 0.7 : 0} />
       </mesh>
     </group>
   )
@@ -665,7 +664,7 @@ function EmberParticle({ offset }: { offset: number }) {
   return (
     <mesh ref={ref}>
       <sphereGeometry args={[0.03, 4, 4]} />
-      <meshBasicMaterial color="#ffaa50" transparent />
+      <meshBasicMaterial color='#ffaa50' transparent />
     </mesh>
   )
 }
@@ -844,8 +843,8 @@ function ChatPanel({
         {minimized && (
           <>
             <img
-              src="/characters/jarvis.png"
-              alt="Jarvis"
+              src='/characters/jarvis.png'
+              alt='Jarvis'
               style={{
                 width: 32,
                 height: 32,
@@ -869,153 +868,153 @@ function ChatPanel({
         )}
         {/* Full panel content — hidden when minimized */}
         {!minimized && (
-        <>
-        {/* Portrait region — Jarvis looms large */}
-        <div
-          style={{
-            flex: `0 0 ${portraitFlex * 100}%`,
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'flex-basis 800ms cubic-bezier(0.4, 0, 0.2, 1)',
-            background: '#f0ebe3',
-          }}
-        >
-          <img
-            src="/characters/jarvis.png"
-            alt="Jarvis"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center 15%',
-              maskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
-              animation: 'jarvis-breathe 4s ease-in-out infinite',
-              willChange: 'transform',
-              opacity: portraitOpacity,
-              transition: 'opacity 800ms ease',
-            }}
-          />
-
-          {/* Eye glow overlay */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '22%',
-              left: '48%',
-              width: 30,
-              height: 30,
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(100, 160, 255, 0.5), transparent 60%)',
-              animation: 'eye-glow 5s ease-in-out infinite',
-              pointerEvents: 'none',
-            }}
-          />
-
-          {/* Name label overlaid at bottom of portrait */}
-          <span
-            style={{
-              position: 'absolute',
-              bottom: 20,
-              left: 20,
-              fontFamily: "'Caveat', cursive",
-              fontWeight: 700,
-              fontSize: 18,
-              color: '#5c4a32',
-              textShadow: '0 1px 4px rgba(245, 239, 230, 0.8)',
-              pointerEvents: 'none',
-            }}
-          >
-            Jarvis
-          </span>
-        </div>
-
-        {/* Chat messages — handwriting font */}
-        <div
-          style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: '16px 20px',
-            boxShadow: 'inset 0 8px 12px -8px rgba(92, 74, 50, 0.12)',
-          }}
-        >
-          {jarvisText && (
+          <>
+            {/* Portrait region — Jarvis looms large */}
             <div
               style={{
-                color: '#3d2e1a',
-                fontFamily: "'Caveat', cursive",
-                fontSize: 22,
-                fontWeight: 600,
-                lineHeight: 1.55,
-                whiteSpace: 'pre-wrap',
-                opacity: 1,
-                transition: 'opacity 500ms ease',
+                flex: `0 0 ${portraitFlex * 100}%`,
+                position: 'relative',
+                overflow: 'hidden',
+                transition: 'flex-basis 800ms cubic-bezier(0.4, 0, 0.2, 1)',
+                background: '#f0ebe3',
               }}
             >
-              {jarvisText}
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
+              <img
+                src='/characters/jarvis.png'
+                alt='Jarvis'
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center 15%',
+                  maskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
+                  WebkitMaskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
+                  animation: 'jarvis-breathe 4s ease-in-out infinite',
+                  willChange: 'transform',
+                  opacity: portraitOpacity,
+                  transition: 'opacity 800ms ease',
+                }}
+              />
 
-        {/* Input area — Georgia serif for the builder's voice */}
-        <div
-          style={{
-            padding: '14px 20px',
-            borderTop: '1px solid #d4c0a0',
-            opacity: showInput ? 1 : 0.3,
-            transition: 'opacity 400ms ease',
-          }}
-        >
-          <div style={{ display: 'flex', gap: 8 }}>
-            <textarea
-              ref={inputRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  handleSubmit()
-                }
-              }}
-              placeholder={showInput ? 'Type your answer...' : ''}
-              disabled={!showInput}
-              rows={2}
+              {/* Eye glow overlay */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '22%',
+                  left: '48%',
+                  width: 30,
+                  height: 30,
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle, rgba(100, 160, 255, 0.5), transparent 60%)',
+                  animation: 'eye-glow 5s ease-in-out infinite',
+                  pointerEvents: 'none',
+                }}
+              />
+
+              {/* Name label overlaid at bottom of portrait */}
+              <span
+                style={{
+                  position: 'absolute',
+                  bottom: 20,
+                  left: 20,
+                  fontFamily: "'Caveat', cursive",
+                  fontWeight: 700,
+                  fontSize: 18,
+                  color: '#5c4a32',
+                  textShadow: '0 1px 4px rgba(245, 239, 230, 0.8)',
+                  pointerEvents: 'none',
+                }}
+              >
+                Jarvis
+              </span>
+            </div>
+
+            {/* Chat messages — handwriting font */}
+            <div
               style={{
                 flex: 1,
-                padding: '10px 14px',
-                background: showInput ? '#fff' : '#f0ebe3',
-                border: '1px solid #c4a87a',
-                borderRadius: 6,
-                color: '#3d2e1a',
-                fontFamily: "'Georgia', serif",
-                fontSize: 15,
-                outline: 'none',
-                resize: 'none',
-                lineHeight: 1.4,
-              }}
-            />
-            <button
-              onClick={handleSubmit}
-              disabled={!showInput || !inputValue.trim()}
-              style={{
-                padding: '10px 16px',
-                background: showInput && inputValue.trim() ? '#8b7355' : '#c4b89a',
-                border: 'none',
-                borderRadius: 6,
-                color: '#fff',
-                fontFamily: "'Caveat', cursive",
-                fontWeight: 700,
-                fontSize: 16,
-                cursor: showInput && inputValue.trim() ? 'pointer' : 'default',
-                alignSelf: 'flex-end',
+                overflowY: 'auto',
+                padding: '16px 20px',
+                boxShadow: 'inset 0 8px 12px -8px rgba(92, 74, 50, 0.12)',
               }}
             >
-              Send
-            </button>
-          </div>
-        </div>
-        </>
+              {jarvisText && (
+                <div
+                  style={{
+                    color: '#3d2e1a',
+                    fontFamily: "'Caveat', cursive",
+                    fontSize: 22,
+                    fontWeight: 600,
+                    lineHeight: 1.55,
+                    whiteSpace: 'pre-wrap',
+                    opacity: 1,
+                    transition: 'opacity 500ms ease',
+                  }}
+                >
+                  {jarvisText}
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input area — Georgia serif for the builder's voice */}
+            <div
+              style={{
+                padding: '14px 20px',
+                borderTop: '1px solid #d4c0a0',
+                opacity: showInput ? 1 : 0.3,
+                transition: 'opacity 400ms ease',
+              }}
+            >
+              <div style={{ display: 'flex', gap: 8 }}>
+                <textarea
+                  ref={inputRef}
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      handleSubmit()
+                    }
+                  }}
+                  placeholder={showInput ? 'Type your answer...' : ''}
+                  disabled={!showInput}
+                  rows={2}
+                  style={{
+                    flex: 1,
+                    padding: '10px 14px',
+                    background: showInput ? '#fff' : '#f0ebe3',
+                    border: '1px solid #c4a87a',
+                    borderRadius: 6,
+                    color: '#3d2e1a',
+                    fontFamily: "'Georgia', serif",
+                    fontSize: 15,
+                    outline: 'none',
+                    resize: 'none',
+                    lineHeight: 1.4,
+                  }}
+                />
+                <button
+                  onClick={handleSubmit}
+                  disabled={!showInput || !inputValue.trim()}
+                  style={{
+                    padding: '10px 16px',
+                    background: showInput && inputValue.trim() ? '#8b7355' : '#c4b89a',
+                    border: 'none',
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontFamily: "'Caveat', cursive",
+                    fontWeight: 700,
+                    fontSize: 16,
+                    cursor: showInput && inputValue.trim() ? 'pointer' : 'default',
+                    alignSelf: 'flex-end',
+                  }}
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </>
@@ -1054,7 +1053,7 @@ export function CampfireRevealPrototype() {
 
   const gridCells = useMemo(() => {
     const all = generateHexGrid(GRID_RADIUS)
-    return all.filter((c) => !specialHexes.some((s) => hexEquals(c, s)))
+    return all.filter(c => !specialHexes.some(s => hexEquals(c, s)))
   }, [specialHexes])
 
   const handleCampfireClick = useCallback(() => {
@@ -1063,12 +1062,12 @@ export function CampfireRevealPrototype() {
 
     setTimeout(() => {
       setPhase('greeting')
-      setJarvisText("Hey. Glad you\u2019re here.")
+      setJarvisText('Hey. Glad you\u2019re here.')
 
       setTimeout(() => {
         setPhase('question')
         setJarvisText(
-          "Hey. Glad you\u2019re here.\n\nWhat\u2019s one project in your life you could finish in the next week \u2014 where getting it done would just feel amazing?"
+          'Hey. Glad you\u2019re here.\n\nWhat\u2019s one project in your life you could finish in the next week \u2014 where getting it done would just feel amazing?'
         )
 
         setTimeout(() => {
@@ -1090,20 +1089,29 @@ export function CampfireRevealPrototype() {
       setProjectReveal(1)
     }, REFLECTION_HOLD)
 
-    setTimeout(() => {
-      setJarvisText('You came to the right place.')
-      setPhase('confidence')
-    }, REFLECTION_HOLD + REVEAL_DURATION + CONFIDENCE_DELAY)
+    setTimeout(
+      () => {
+        setJarvisText('You came to the right place.')
+        setPhase('confidence')
+      },
+      REFLECTION_HOLD + REVEAL_DURATION + CONFIDENCE_DELAY
+    )
 
-    setTimeout(() => {
-      setJarvisText("We\u2019ll talk soon.")
-      setPhase('farewell')
-    }, REFLECTION_HOLD + REVEAL_DURATION + CONFIDENCE_DELAY + FAREWELL_DELAY)
+    setTimeout(
+      () => {
+        setJarvisText('We\u2019ll talk soon.')
+        setPhase('farewell')
+      },
+      REFLECTION_HOLD + REVEAL_DURATION + CONFIDENCE_DELAY + FAREWELL_DELAY
+    )
 
-    setTimeout(() => {
-      setJarvisText('')
-      setPhase('explore')
-    }, REFLECTION_HOLD + REVEAL_DURATION + CONFIDENCE_DELAY + FAREWELL_DELAY + JARVIS_FADE_OUT)
+    setTimeout(
+      () => {
+        setJarvisText('')
+        setPhase('explore')
+      },
+      REFLECTION_HOLD + REVEAL_DURATION + CONFIDENCE_DELAY + FAREWELL_DELAY + JARVIS_FADE_OUT
+    )
   }, [])
 
   const handleReset = useCallback(() => {
@@ -1117,10 +1125,7 @@ export function CampfireRevealPrototype() {
   // Chat panel hidden in idle, visible once campfire is clicked
   const chatVisible = phase !== 'idle'
   const projectSpriteVisible =
-    phase === 'reveal' ||
-    phase === 'confidence' ||
-    phase === 'farewell' ||
-    phase === 'explore'
+    phase === 'reveal' || phase === 'confidence' || phase === 'farewell' || phase === 'explore'
 
   return (
     <div
@@ -1138,18 +1143,18 @@ export function CampfireRevealPrototype() {
         gl={{ antialias: true }}
         style={{ background: '#060504' }}
       >
-        <ambientLight color="#1a1208" intensity={0.3} />
-        <hemisphereLight color="#0a0806" groundColor="#0a0806" intensity={0.1} />
+        <ambientLight color='#1a1208' intensity={0.3} />
+        <hemisphereLight color='#0a0806' groundColor='#0a0806' intensity={0.1} />
 
         <AnimatedCameraRig phase={phase} chatOpen={chatVisible && phase !== 'explore'} />
 
         {/* Dark hex grid */}
-        {gridCells.map((c) => (
+        {gridCells.map(c => (
           <DarkHexCell key={`${c.q},${c.r}`} coord={c} />
         ))}
 
         {/* House hexes */}
-        {HOUSE_HEXES.map((c) => (
+        {HOUSE_HEXES.map(c => (
           <DarkHexCell key={`house-${c.q},${c.r}`} coord={c} />
         ))}
 
@@ -1167,10 +1172,7 @@ export function CampfireRevealPrototype() {
         </Suspense>
 
         {/* Campfire hex */}
-        <CampfireHexCell
-          onClick={handleCampfireClick}
-          glowIntensity={campfireVisible ? 1 : 0}
-        />
+        <CampfireHexCell onClick={handleCampfireClick} glowIntensity={campfireVisible ? 1 : 0} />
         <CampfireSprite visible={campfireVisible} />
 
         {/* Project hex */}
@@ -1196,13 +1198,7 @@ export function CampfireRevealPrototype() {
       </Canvas>
 
       {/* Chat panel — hidden in idle, appears after campfire click */}
-      {chatVisible && (
-        <ChatPanel
-          phase={phase}
-          jarvisText={jarvisText}
-          onSubmit={handleAnswer}
-        />
-      )}
+      {chatVisible && <ChatPanel phase={phase} jarvisText={jarvisText} onSubmit={handleAnswer} />}
 
       {/* Phase indicator */}
       <div
@@ -1265,7 +1261,7 @@ export function CampfireRevealPrototype() {
       </button>
 
       <Link
-        to="/"
+        to='/'
         style={{
           position: 'absolute',
           bottom: 16,
