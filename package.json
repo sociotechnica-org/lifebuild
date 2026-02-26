@@ -33,6 +33,7 @@
     "build-storybook": "pnpm --filter @lifebuild/web build-storybook",
     "deploy:worker": "pnpm --filter @lifebuild/worker deploy",
     "deploy:auth": "pnpm --filter @lifebuild/auth-worker deploy",
+    "deploy:prototypes": "pnpm --filter @lifebuild/prototype-playground deploy",
     "open:context-library": "docs/context-library/open-in-obsidian.sh",
     "prepare": "husky"
   },

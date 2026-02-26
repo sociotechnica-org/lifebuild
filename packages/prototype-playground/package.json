@@ -1,11 +1,8 @@
 {
-  "name": "@lifebuild/hex-grid-prototype",
+  "name": "@lifebuild/prototype-playground",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "exports": {
-    ".": "./src/index.ts"
-  },
   "license": "FSL-1.1-ALv2",
   "scripts": {
     "dev": "vite",
@@ -19,21 +16,17 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck",
-    "deploy": "wrangler pages deploy dist --project-name hex-grid-prototype"
+    "deploy": "wrangler pages deploy dist --project-name lifebuild-prototypes"
   },
   "dependencies": {
-    "@lifebuild/shared": "workspace:*",
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.5.0",
+    "@lifebuild/hex-grid-prototype": "workspace:*",
     "react": "19.1.1",
     "react-dom": "19.1.1",
-    "three": "^0.182.0",
-    "zustand": "^5.0.11"
+    "react-router-dom": "^7.7.1"
   },
   "devDependencies": {
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
-    "@types/three": "^0.182.0",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
     "@vitejs/plugin-react": "^4.7.0",

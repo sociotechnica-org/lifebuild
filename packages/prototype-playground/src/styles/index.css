@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap');
+
+:root {
+  --paper: #f6efe2;
+  --ink: #2f2b27;
+  --muted: #7e7468;
+  --shadow: rgba(55, 45, 32, 0.14);
+  --font-serif: 'Source Serif 4', Georgia, serif;
+  --font-sans: 'Manrope', 'Avenir Next', 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  color: var(--ink);
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(circle at 10% -10%, rgba(216, 166, 80, 0.32), transparent 38%),
+    radial-gradient(circle at 90% 0%, rgba(76, 168, 248, 0.2), transparent 32%),
+    radial-gradient(circle at 50% 120%, rgba(196, 139, 90, 0.24), transparent 40%),
+    linear-gradient(145deg, #fbf6ec, var(--paper));
+}
+
+a {
+  color: inherit;
+}
+
+.playground-index {
+  min-height: 100dvh;
+  padding: clamp(1.5rem, 3vw, 3rem);
+}
+
+.playground-index h1 {
+  margin: 0 0 1rem;
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.playground-index__list {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.playground-index__item {
+  color: #4b4239;
+}
+
+.playground-index__item a {
+  font-size: 1rem;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2rem;
+}
+
+.hex-grid-route {
+  width: 100vw;
+  height: 100dvh;
+  position: relative;
+  overflow: hidden;
+}
+
+.hex-grid-route__hud {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  gap: 0.55rem;
+}
+
+.hex-grid-route__hud-link {
+  text-decoration: none;
+  padding: 0.44rem 0.62rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(92, 74, 50, 0.45);
+  background: rgba(245, 236, 220, 0.92);
+  color: #5c4a32;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.not-found {
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  gap: 0.6rem;
+  padding: 1rem;
+}
+
+.route-loading {
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  color: #5f5448;
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+}
+
+.not-found h1 {
+  margin: 0;
+  font-family: var(--font-serif);
+}
+
+.not-found p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.not-found__link {
+  text-decoration: none;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(47, 43, 39, 0.4);
+  padding: 0.45rem 0.76rem;
+  font-weight: 700;
+}
