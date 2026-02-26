@@ -296,24 +296,26 @@ export const LifeMap: React.FC = () => {
 
   const handlePlaceProjectOnMap = useCallback(
     async (projectId: string, coord: HexCoord) => {
-      await placeProjectOnHex(store, hexPositions, {
+      const latestHexPositions = await store.query(getHexPositions$)
+      await placeProjectOnHex(store, latestHexPositions, {
         projectId,
         hexQ: coord.q,
         hexR: coord.r,
         actorId,
       })
     },
-    [actorId, hexPositions, store]
+    [actorId, store]
   )
 
   const handleRemoveProjectFromMap = useCallback(
     async (projectId: string) => {
-      await removeProjectFromHex(store, hexPositions, {
+      const latestHexPositions = await store.query(getHexPositions$)
+      await removeProjectFromHex(store, latestHexPositions, {
         projectId,
         actorId,
       })
     },
-    [actorId, hexPositions, store]
+    [actorId, store]
   )
 
   const placedHexTiles = useMemo(() => {
