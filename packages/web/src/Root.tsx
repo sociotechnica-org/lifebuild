@@ -21,6 +21,7 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary/ErrorBoundary.js'
 import { UserInitializer } from './components/utils/UserInitializer/UserInitializer.js'
 import { AuthUserSync } from './components/utils/AuthUserSync/AuthUserSync.js'
 import { SettingsInitializer } from './components/utils/SettingsInitializer/SettingsInitializer.js'
+import { SystemTaskGenerator } from './components/utils/SystemTaskGenerator.js'
 import { LiveStoreHealthMonitor } from './components/utils/LiveStoreHealthMonitor.js'
 import { LiveStoreBootBoundary } from './components/utils/LiveStoreBootBoundary.js'
 import { schema } from '@lifebuild/shared/schema'
@@ -29,10 +30,16 @@ import { ProjectDetailPage } from './components/projects/ProjectDetailPage.js'
 import { LifeMap } from './components/life-map/LifeMap.js'
 import { RoomLayout } from './components/layout/RoomLayout.js'
 import { DraftingRoom } from './components/drafting-room/DraftingRoom.js'
+import { EntityTypeGate } from './components/drafting-room/EntityTypeGate.js'
 import { Stage1Form } from './components/drafting-room/Stage1Form.js'
 import { Stage2Form } from './components/drafting-room/Stage2Form.js'
 import { Stage3Form } from './components/drafting-room/Stage3Form.js'
+import { SystemStage1Form } from './components/drafting-room/SystemStage1Form.js'
+import { SystemStage2Form } from './components/drafting-room/SystemStage2Form.js'
+import { SystemStage3Form } from './components/drafting-room/SystemStage3Form.js'
 import { SortingRoom } from './components/sorting-room/SortingRoom.js'
+// SystemBoard is now embedded in SortingRoom via SystemBoardSection
+import { SystemDetailPage } from './components/system-board/SystemDetailPage.js'
 import { LIFE_MAP_ROOM, DRAFTING_ROOM, SORTING_ROOM } from '@lifebuild/shared/rooms'
 import { determineStoreIdFromUser } from './utils/navigation.js'
 import {
@@ -383,6 +390,7 @@ const ProtectedApp: React.FC = () => {
           <UserInitializer>
             <AuthUserSync>
               <SettingsInitializer>
+                <SystemTaskGenerator />
                 <ErrorBoundary>
                   <Routes>
                     {/* App routes */}
@@ -412,6 +420,16 @@ const ProtectedApp: React.FC = () => {
                         <ErrorBoundary>
                           <RoomLayout room={DRAFTING_ROOM}>
                             <DraftingRoom />
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.ENTITY_TYPE_GATE}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={DRAFTING_ROOM}>
+                            <EntityTypeGate />
                           </RoomLayout>
                         </ErrorBoundary>
                       }
@@ -457,6 +475,46 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
+                      path={ROUTES.SYSTEM_CREATE}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={DRAFTING_ROOM}>
+                            <SystemStage1Form />
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.SYSTEM_STAGE1}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={DRAFTING_ROOM}>
+                            <SystemStage1Form />
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.SYSTEM_STAGE2}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={DRAFTING_ROOM}>
+                            <SystemStage2Form />
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.SYSTEM_STAGE3}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={DRAFTING_ROOM}>
+                            <SystemStage3Form />
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
                       path={ROUTES.SORTING_ROOM}
                       element={
                         <ErrorBoundary>
@@ -477,6 +535,10 @@ const ProtectedApp: React.FC = () => {
                       }
                     />
                     <Route
+                      path={ROUTES.SYSTEM_BOARD}
+                      element={<Navigate to={ROUTES.SORTING_ROOM} replace />}
+                    />
+                    <Route
                       path={ROUTES.PROJECTS}
                       element={
                         <ErrorBoundary>
@@ -491,6 +553,14 @@ const ProtectedApp: React.FC = () => {
                       element={
                         <ErrorBoundary>
                           <ProjectDetailPage />
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.SYSTEM}
+                      element={
+                        <ErrorBoundary>
+                          <SystemDetailPage />
                         </ErrorBoundary>
                       }
                     />

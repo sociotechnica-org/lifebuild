@@ -12,6 +12,11 @@ import {
   getAllProjectsIncludingArchived$,
   getHexPositions$,
   getUnplacedProjects$,
+  getPlantedSystems$,
+  getSystemHexPositions$,
+  getUnplacedSystems$,
+  getAllHexPositions$,
+  getAllSystemTaskTemplates$,
 } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
 import { createHex } from '@lifebuild/shared/hex'
@@ -22,8 +27,15 @@ import { generateRoute } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
-import { placeProjectOnHex, removeProjectFromHex } from '../hex-map/hexPositionCommands.js'
+import {
+  placeProjectOnHex,
+  placeSystemOnHex,
+  removeProjectFromHex,
+} from '../hex-map/hexPositionCommands.js'
 import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.js'
+
+/** 14 days in milliseconds for staleness detection. */
+const STALENESS_THRESHOLD_MS = 14 * 24 * 60 * 60 * 1000
 
 type LifeMapViewMode = 'map' | 'list'
 
@@ -141,7 +153,12 @@ export const LifeMap: React.FC = () => {
   const allProjects = useQuery(getProjects$) ?? []
   const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []
   const hexPositions = useQuery(getHexPositions$) ?? []
+  const allHexPositions = useQuery(getAllHexPositions$) ?? []
   const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
+  const plantedSystems = useQuery(getPlantedSystems$) ?? []
+  const systemHexPositions = useQuery(getSystemHexPositions$) ?? []
+  const unplacedSystemsFromQuery = useQuery(getUnplacedSystems$) ?? []
+  const allSystemTaskTemplates = useQuery(getAllSystemTaskTemplates$) ?? []
 
   // Query projects for each category.
   const healthProjects = useQuery(getProjectsByCategory$('health')) ?? []
@@ -318,8 +335,55 @@ export const LifeMap: React.FC = () => {
     [actorId, store]
   )
 
+  const handlePlaceSystemOnMap = useCallback(
+    async (systemId: string, coord: HexCoord) => {
+      await placeSystemOnHex(store, allHexPositions, {
+        systemId,
+        hexQ: coord.q,
+        hexR: coord.r,
+        actorId,
+      })
+    },
+    [actorId, allHexPositions, store]
+  )
+
+  /** Set of project IDs that have at least one non-done, non-archived task with a past deadline. */
+  const overdueProjectIds = useMemo(() => {
+    const now = Date.now()
+    const ids = new Set<string>()
+    allTasks.forEach(task => {
+      if (!task.projectId || task.status === 'done' || task.archivedAt !== null) {
+        return
+      }
+      const attributes = task.attributes as { deadline?: number } | null
+      if (attributes?.deadline && attributes.deadline < now) {
+        ids.add(task.projectId)
+      }
+    })
+    return ids
+  }, [allTasks])
+
+  /** Set of system IDs that have at least one template with nextGenerateAt in the past. */
+  const overdueSystemIds = useMemo(() => {
+    const now = Date.now()
+    const ids = new Set<string>()
+    allSystemTaskTemplates.forEach(template => {
+      if (template.nextGenerateAt) {
+        const nextAt =
+          template.nextGenerateAt instanceof Date
+            ? template.nextGenerateAt.getTime()
+            : Number(template.nextGenerateAt)
+        if (nextAt < now) {
+          ids.add(template.systemId)
+        }
+      }
+    })
+    return ids
+  }, [allSystemTaskTemplates])
+
   const placedHexTiles = useMemo(() => {
     const projectsById = new Map(allProjects.map(project => [project.id, project]))
+    const now = Date.now()
 
     return hexPositions.flatMap(position => {
       if (position.entityType !== 'project') {
@@ -352,6 +416,11 @@ export const LifeMap: React.FC = () => {
           ? lifecycle.stream
           : null
 
+      const updatedAtMs =
+        project.updatedAt instanceof Date ? project.updatedAt.getTime() : Number(project.updatedAt)
+      const isStale = !isCompleted && now - updatedAtMs >= STALENESS_THRESHOLD_MS
+      const isOverdue = !isCompleted && overdueProjectIds.has(project.id)
+
       return [
         {
           id: position.id,
@@ -363,13 +432,15 @@ export const LifeMap: React.FC = () => {
           visualState,
           workstream,
           isCompleted,
+          isStale,
+          isOverdue,
           onClick: isCompleted
             ? undefined
             : () => navigate(preserveStoreIdInUrl(generateRoute.project(project.id))),
         },
       ]
     })
-  }, [activeProjectIds, allProjects, hexPositions, navigate])
+  }, [activeProjectIds, allProjects, hexPositions, navigate, overdueProjectIds])
 
   const unplacedProjects = useMemo(() => {
     return unplacedProjectsFromQuery.map(project => ({
@@ -378,6 +449,47 @@ export const LifeMap: React.FC = () => {
       category: project.category ?? null,
     }))
   }, [unplacedProjectsFromQuery])
+
+  const placedSystemTiles = useMemo(() => {
+    const systemsById = new Map(plantedSystems.map(system => [system.id, system]))
+    const now = Date.now()
+
+    return systemHexPositions.flatMap(position => {
+      const system = systemsById.get(position.entityId)
+      if (!system) {
+        return []
+      }
+
+      const category = PROJECT_CATEGORIES.find(item => item.value === system.category)
+      const updatedAtMs =
+        system.updatedAt instanceof Date ? system.updatedAt.getTime() : Number(system.updatedAt)
+      const isStale = now - updatedAtMs >= STALENESS_THRESHOLD_MS
+      const isOverdue = overdueSystemIds.has(system.id)
+
+      return [
+        {
+          id: position.id,
+          systemId: system.id,
+          coord: createHex(position.hexQ, position.hexR),
+          systemName: system.name,
+          category: system.category ?? null,
+          categoryColor: category?.colorHex ?? '#8b8680',
+          lifecycleState: system.lifecycleState as 'planted' | 'hibernating',
+          isStale,
+          isOverdue,
+          onClick: () => navigate(preserveStoreIdInUrl(generateRoute.system(system.id))),
+        },
+      ]
+    })
+  }, [navigate, overdueSystemIds, plantedSystems, systemHexPositions])
+
+  const unplacedSystems = useMemo(() => {
+    return unplacedSystemsFromQuery.map(system => ({
+      id: system.id,
+      name: system.name,
+      category: system.category ?? null,
+    }))
+  }, [unplacedSystemsFromQuery])
 
   const completedProjectsForPanel = useMemo(() => {
     return completedProjects.map(project => {
@@ -400,19 +512,35 @@ export const LifeMap: React.FC = () => {
     }))
   }, [archivedProjects])
 
-  // Check if there are any categories with projects.
-  const categoriesWithProjects = PROJECT_CATEGORIES.filter(category => {
+  // Group planted systems by category for the list view.
+  const categorySystemsMap = useMemo(() => {
+    const map: Record<string, (typeof plantedSystems)[number][]> = {}
+    plantedSystems.forEach(system => {
+      const cat = system.category ?? 'uncategorized'
+      if (!map[cat]) {
+        map[cat] = []
+      }
+      map[cat].push(system)
+    })
+    return map
+  }, [plantedSystems])
+
+  // Check if there are any categories with projects or systems.
+  const categoriesWithContent = PROJECT_CATEGORIES.filter(category => {
     const projects = categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
-    return projects.length > 0
+    const systems = categorySystemsMap[category.value] || []
+    return projects.length > 0 || systems.length > 0
   })
 
-  const hasNoProjects = categoriesWithProjects.length === 0
+  const hasNoProjects = categoriesWithContent.length === 0
+  const hasSystems = plantedSystems.length > 0 || unplacedSystemsFromQuery.length > 0
+  const hasContent = !hasNoProjects || hasSystems
   const canRenderHexMap = isDesktopViewport && hasWebGLSupport
-  const canShowViewModeToggle = canRenderHexMap && !hasNoProjects
+  const canShowViewModeToggle = canRenderHexMap && hasContent
   const shouldRenderHexMap = canShowViewModeToggle && viewMode === 'map'
 
   const renderCategoryCardLayout = () => {
-    if (hasNoProjects) {
+    if (!hasContent) {
       return (
         <div className='flex min-h-[calc(100vh-300px)] items-center justify-center'>
           <div className='text-center'>
@@ -431,9 +559,14 @@ export const LifeMap: React.FC = () => {
     return (
       <div className='bg-white rounded-2xl p-4 border border-[#e8e4de]'>
         <div className='grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4'>
-          {categoriesWithProjects.map(category => {
+          {categoriesWithContent.map(category => {
             const projects =
               categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
+            const categorySystems = (categorySystemsMap[category.value] || []).map(s => ({
+              id: s.id,
+              name: s.name,
+              lifecycleState: s.lifecycleState as 'planted' | 'hibernating',
+            }))
             const workers = categoryWorkersMap[category.value] || 0
 
             // Split projects based on lifecycle status:
@@ -484,6 +617,7 @@ export const LifeMap: React.FC = () => {
                 backlogCount={backlogProjects.length}
                 planningCount={planningProjects.length}
                 projectCompletionMap={projectCompletionMap}
+                systems={categorySystems}
               />
             )
           })}
@@ -686,10 +820,13 @@ export const LifeMap: React.FC = () => {
           <Suspense fallback={renderHexMapLoadingState()}>
             <LazyHexMap
               tiles={placedHexTiles}
+              systemTiles={placedSystemTiles}
               unplacedProjects={unplacedProjects}
+              unplacedSystems={unplacedSystems}
               completedProjects={completedProjectsForPanel}
               archivedProjects={archivedProjectsForPanel}
               onPlaceProject={handlePlaceProjectOnMap}
+              onPlaceSystem={handlePlaceSystemOnMap}
               onRemovePlacedProject={handleRemoveProjectFromMap}
               onSelectUnplacedProject={projectId =>
                 navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
@@ -697,6 +834,7 @@ export const LifeMap: React.FC = () => {
               onOpenProject={projectId =>
                 navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
               }
+              onOpenSystem={sysId => navigate(preserveStoreIdInUrl(generateRoute.system(sysId)))}
               onUnarchiveProject={handleUnarchive}
             />
           </Suspense>

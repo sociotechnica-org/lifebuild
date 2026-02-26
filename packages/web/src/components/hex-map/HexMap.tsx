@@ -2,13 +2,14 @@ import type { HexCoord } from '@lifebuild/shared/hex'
 import { Canvas } from '@react-three/fiber'
 import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { CameraRig } from './CameraRig.js'
-import { HexGrid, type PlacedHexTile } from './HexGrid.js'
+import { HexGrid, type PlacedHexTile, type PlacedSystemTile } from './HexGrid.js'
 import { PlacementProvider, usePlacement } from './PlacementContext.js'
 import {
   UnplacedPanel,
   type PanelArchivedProjectItem,
   type PanelCompletedProjectItem,
   type PanelProjectItem,
+  type PanelSystemItem,
 } from './UnplacedPanel.js'
 
 const FIRST_PLACEMENT_PROMPT_KEY = 'life-map-placement-first-run-dismissed-v1'
@@ -49,8 +50,8 @@ const persistFirstPlacementPromptDismissed = (): void => {
   }
 }
 
-const shouldShowFirstPlacementPrompt = (hasUnplacedProjects: boolean): boolean => {
-  if (!hasUnplacedProjects) {
+const shouldShowFirstPlacementPrompt = (hasUnplacedEntities: boolean): boolean => {
+  if (!hasUnplacedEntities) {
     return false
   }
 
@@ -59,33 +60,43 @@ const shouldShowFirstPlacementPrompt = (hasUnplacedProjects: boolean): boolean =
 
 type HexMapProps = {
   tiles?: readonly PlacedHexTile[]
+  systemTiles?: readonly PlacedSystemTile[]
   unplacedProjects?: readonly PanelProjectItem[]
+  unplacedSystems?: readonly PanelSystemItem[]
   completedProjects?: readonly PanelCompletedProjectItem[]
   archivedProjects?: readonly PanelArchivedProjectItem[]
   onPlaceProject?: (projectId: string, coord: HexCoord) => Promise<void> | void
+  onPlaceSystem?: (systemId: string, coord: HexCoord) => Promise<void> | void
   onRemovePlacedProject?: (projectId: string) => Promise<void> | void
   onSelectUnplacedProject?: (projectId: string) => void
   onOpenProject?: (projectId: string) => void
+  onOpenSystem?: (systemId: string) => void
   onUnarchiveProject?: (projectId: string) => void
 }
 
 const HexMapSurface: React.FC<HexMapProps> = ({
   tiles = [],
+  systemTiles = [],
   unplacedProjects = [],
+  unplacedSystems = [],
   completedProjects = [],
   archivedProjects = [],
   onPlaceProject,
+  onPlaceSystem,
   onRemovePlacedProject,
   onSelectUnplacedProject,
   onOpenProject,
+  onOpenSystem,
   onUnarchiveProject,
 }) => {
   const {
     placementProjectId,
+    placementSystemId,
     selectedPlacedProjectId,
     isSelectingPlacedProject,
     isPlacing,
     startPlacement,
+    startSystemPlacement,
     clearPlacement,
     startSelectingPlacedProject,
     selectPlacedProject,
@@ -94,12 +105,17 @@ const HexMapSurface: React.FC<HexMapProps> = ({
 
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false)
   const [showFirstPlacementPrompt, setShowFirstPlacementPrompt] = useState(() =>
-    shouldShowFirstPlacementPrompt(unplacedProjects.length > 0)
+    shouldShowFirstPlacementPrompt(unplacedProjects.length > 0 || unplacedSystems.length > 0)
   )
 
   const unplacedProjectsById = useMemo(() => {
     return new Map(unplacedProjects.map(project => [project.id, project]))
   }, [unplacedProjects])
+
+  const unplacedSystemsById = useMemo(() => {
+    return new Map(unplacedSystems.map(system => [system.id, system]))
+  }, [unplacedSystems])
+
   const placedProjectsById = useMemo(() => {
     return new Map(
       tiles.map(tile => [
@@ -112,6 +128,11 @@ const HexMapSurface: React.FC<HexMapProps> = ({
   const selectedPlacementProject = placementProjectId
     ? (unplacedProjectsById.get(placementProjectId) ?? null)
     : null
+
+  const selectedPlacementSystem = placementSystemId
+    ? (unplacedSystemsById.get(placementSystemId) ?? null)
+    : null
+
   const selectedPlacedProject = selectedPlacedProjectId
     ? (placedProjectsById.get(selectedPlacedProjectId) ?? null)
     : null
@@ -123,14 +144,22 @@ const HexMapSurface: React.FC<HexMapProps> = ({
   }, [clearPlacement, placementProjectId, unplacedProjectsById])
 
   useEffect(() => {
+    if (placementSystemId && !unplacedSystemsById.has(placementSystemId)) {
+      clearPlacement()
+    }
+  }, [clearPlacement, placementSystemId, unplacedSystemsById])
+
+  useEffect(() => {
     if (selectedPlacedProjectId && !placedProjectsById.has(selectedPlacedProjectId)) {
       clearPlacedProjectSelection()
     }
   }, [clearPlacedProjectSelection, placedProjectsById, selectedPlacedProjectId])
 
   useEffect(() => {
-    setShowFirstPlacementPrompt(shouldShowFirstPlacementPrompt(unplacedProjects.length > 0))
-  }, [unplacedProjects.length])
+    setShowFirstPlacementPrompt(
+      shouldShowFirstPlacementPrompt(unplacedProjects.length > 0 || unplacedSystems.length > 0)
+    )
+  }, [unplacedProjects.length, unplacedSystems.length])
 
   useEffect(() => {
     if (showFirstPlacementPrompt) {
@@ -183,6 +212,18 @@ const HexMapSurface: React.FC<HexMapProps> = ({
     [onPlaceProject, onSelectUnplacedProject, startPlacement]
   )
 
+  const handleSelectUnplacedSystem = useCallback(
+    (systemId: string) => {
+      if (onPlaceSystem) {
+        startSystemPlacement(systemId)
+        setIsPanelCollapsed(false)
+        return
+      }
+      onOpenSystem?.(systemId)
+    },
+    [onPlaceSystem, onOpenSystem, startSystemPlacement]
+  )
+
   const handleStartSelectingPlacedProject = useCallback(() => {
     startSelectingPlacedProject()
     setIsPanelCollapsed(false)
@@ -204,11 +245,13 @@ const HexMapSurface: React.FC<HexMapProps> = ({
 
   return (
     <div className='relative h-full w-full'>
-      {showFirstPlacementPrompt && unplacedProjects.length > 0 && (
+      {showFirstPlacementPrompt && (unplacedProjects.length > 0 || unplacedSystems.length > 0) && (
         <div className='pointer-events-auto absolute left-4 top-4 z-[6] max-w-[320px] rounded-lg border border-[#d8cab3] bg-[#fff8ec]/95 p-3 shadow-sm backdrop-blur-sm'>
-          <p className='text-xs font-semibold text-[#2f2b27]'>Your projects are ready to place</p>
+          <p className='text-xs font-semibold text-[#2f2b27]'>
+            Your projects and systems are ready to place
+          </p>
           <p className='mt-1 text-xs text-[#7f6952]'>
-            Select an unplaced project, then click an empty highlighted hex to put it on the map.
+            Select an unplaced item, then click an empty highlighted hex to put it on the map.
           </p>
           <button
             type='button'
@@ -238,14 +281,21 @@ const HexMapSurface: React.FC<HexMapProps> = ({
           <CameraRig />
           <HexGrid
             tiles={tiles}
+            systemTiles={systemTiles}
             placementProject={
               selectedPlacementProject
                 ? { id: selectedPlacementProject.id, name: selectedPlacementProject.name }
                 : null
             }
+            placementSystem={
+              selectedPlacementSystem
+                ? { id: selectedPlacementSystem.id, name: selectedPlacementSystem.name }
+                : null
+            }
             selectedPlacedProjectId={selectedPlacedProjectId}
             isSelectingPlacedProject={isSelectingPlacedProject}
             onPlaceProject={onPlaceProject}
+            onPlaceSystem={onPlaceSystem}
             onSelectPlacedProject={selectPlacedProject}
             onCancelPlacement={clearPlacement}
           />
@@ -255,13 +305,16 @@ const HexMapSurface: React.FC<HexMapProps> = ({
       <UnplacedPanel
         isCollapsed={isPanelCollapsed}
         unplacedProjects={unplacedProjects}
+        unplacedSystems={unplacedSystems}
         completedProjects={completedProjects}
         archivedProjects={archivedProjects}
         onToggleCollapsed={() => setIsPanelCollapsed(collapsed => !collapsed)}
         onSelectUnplacedProject={handleSelectUnplacedProject}
+        onSelectUnplacedSystem={handleSelectUnplacedSystem}
         onOpenProject={onOpenProject}
         onUnarchiveProject={onUnarchiveProject}
         placementProject={selectedPlacementProject}
+        placementSystem={selectedPlacementSystem}
         selectedPlacedProject={selectedPlacedProject}
         isSelectingPlacedProject={isSelectingPlacedProject}
         onCancelPlacement={clearPlacement}

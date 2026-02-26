@@ -5,7 +5,6 @@ import { hexToWorld } from '@lifebuild/shared/hex'
 import React from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { MeshStandardMaterial } from 'three'
-import { getInitials } from '../../utils/initials.js'
 import { truncateLabel } from './labelUtils.js'
 
 const BASE_HEX_SIZE = 1
@@ -16,6 +15,37 @@ const HOVER_LIFT = 0.04
 const MAX_LABEL_LENGTH = 24
 const INNER_TOP_RADIUS = TILE_RADIUS * 0.82
 const INNER_TOP_HEIGHT = 0.035
+
+const HEALTH_DOT_RADIUS = 0.03
+const HEALTH_DOT_COUNT = 3
+const HEALTH_DOT_SPACING = 0.1
+const HEALTH_DOT_COLOR = '#4ade80'
+
+const DESATURATION_TARGET = '#9d968d'
+const DESATURATION_WEIGHT = 0.3
+const HIBERNATING_OPACITY = 0.55
+
+const SEPIA_TARGET = '#b5a99a'
+const SEPIA_WEIGHT = 0.4
+const CANDLE_EMISSIVE = '#e8a954'
+const CANDLE_BASE_INTENSITY = 0.06
+const CANDLE_AMPLITUDE = 0.08
+
+/**
+ * Helper component that runs a useFrame loop for the candle-flicker effect.
+ * Rendered only when isOverdue is true so the frame loop is inactive otherwise.
+ */
+const CandleFlicker: React.FC<{
+  materialRef: React.RefObject<MeshStandardMaterial | null>
+}> = ({ materialRef }) => {
+  useFrame(({ clock }) => {
+    if (materialRef.current) {
+      materialRef.current.emissiveIntensity =
+        CANDLE_BASE_INTENSITY + Math.sin(clock.elapsedTime * Math.PI) * CANDLE_AMPLITUDE
+    }
+  })
+  return null
+}
 
 const clamp = (value: number, min: number, max: number): number => {
   return Math.min(max, Math.max(min, value))
@@ -51,73 +81,34 @@ const mixHexColors = (base: string, target: string, weight: number): string => {
   ])
 }
 
-const SEPIA_TARGET = '#b5a99a'
-const SEPIA_WEIGHT = 0.4
-const CANDLE_EMISSIVE = '#e8a954'
-const CANDLE_BASE_INTENSITY = 0.06
-const CANDLE_AMPLITUDE = 0.08
-
-/**
- * Helper component that runs a useFrame loop for the candle-flicker effect.
- * Rendered only when isOverdue is true so the frame loop is inactive otherwise.
- */
-const CandleFlicker: React.FC<{
-  materialRef: React.RefObject<MeshStandardMaterial | null>
-}> = ({ materialRef }) => {
-  useFrame(({ clock }) => {
-    if (materialRef.current) {
-      materialRef.current.emissiveIntensity =
-        CANDLE_BASE_INTENSITY + Math.sin(clock.elapsedTime * Math.PI) * CANDLE_AMPLITUDE
-    }
-  })
-  return null
-}
-
-const STREAM_GLOW_COLORS = {
-  gold: '#d8a650',
-  silver: '#c5ced8',
-  bronze: '#c48b5a',
-} as const
-
-export type HexTileVisualState = 'planning' | 'active' | 'work-at-hand' | 'completed'
-export type HexTileWorkstream = 'gold' | 'silver' | 'bronze' | null
-
-type HexTileProps = {
+export type SystemHexTileProps = {
   coord: HexCoord
-  projectName: string
+  systemName: string
   categoryColor: string
-  visualState?: HexTileVisualState
-  workstream?: HexTileWorkstream
-  isCompleted?: boolean
+  lifecycleState: 'planted' | 'hibernating'
   isSelected?: boolean
   isStale?: boolean
   isOverdue?: boolean
-  allowCompletedClick?: boolean
   onClick?: () => void
 }
 
-export function HexTile({
+export function SystemHexTile({
   coord,
-  projectName,
+  systemName,
   categoryColor,
-  visualState,
-  workstream = null,
-  isCompleted = false,
+  lifecycleState,
   isSelected = false,
   isStale = false,
   isOverdue = false,
-  allowCompletedClick = false,
   onClick,
-}: HexTileProps) {
+}: SystemHexTileProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [x, z] = useMemo(() => hexToWorld(coord, BASE_HEX_SIZE), [coord.q, coord.r, coord.s])
-  const resolvedVisualState = visualState ?? (isCompleted ? 'completed' : 'active')
-  const isCompletedState = resolvedVisualState === 'completed'
-  const canClick = typeof onClick === 'function' && (!isCompletedState || allowCompletedClick)
-  const isHoverEnabled = canClick && !isCompletedState
+  const isHibernating = lifecycleState === 'hibernating'
+  const canClick = typeof onClick === 'function'
+  const isHoverEnabled = canClick
   const isHighlighted = (isHoverEnabled && isHovered) || isSelected
-  const label = useMemo(() => truncateLabel(projectName, MAX_LABEL_LENGTH), [projectName])
-  const initials = useMemo(() => getInitials(projectName), [projectName])
+  const label = useMemo(() => truncateLabel(systemName, MAX_LABEL_LENGTH), [systemName])
 
   const topCapRef = useRef<MeshStandardMaterial>(null)
 
@@ -125,42 +116,44 @@ export function HexTile({
   const sepia = (color: string): string =>
     isStale ? mixHexColors(color, SEPIA_TARGET, SEPIA_WEIGHT) : color
 
-  const categoryEdgeColor = useMemo(() => {
-    let base: string
-    if (isCompletedState) {
-      base = '#a7a29a'
-    } else if (resolvedVisualState === 'planning') {
-      base = mixHexColors(categoryColor, '#9d968d', 0.4)
-    } else {
-      base = categoryColor
+  // Desaturated base color: mix category color toward #9d968d by 30%
+  const desaturatedBaseColor = useMemo(
+    () => mixHexColors(categoryColor, DESATURATION_TARGET, DESATURATION_WEIGHT),
+    [categoryColor]
+  )
+
+  // For hibernating systems, apply additional desaturation; apply sepia if stale
+  const edgeColor = useMemo(() => {
+    let base = desaturatedBaseColor
+    if (isHibernating) {
+      base = mixHexColors(base, DESATURATION_TARGET, 0.3)
     }
     return isStale ? mixHexColors(base, SEPIA_TARGET, SEPIA_WEIGHT) : base
-  }, [categoryColor, isCompletedState, isStale, resolvedVisualState])
+  }, [desaturatedBaseColor, isHibernating, isStale])
 
-  const streamGlowColor =
-    resolvedVisualState === 'work-at-hand' ? STREAM_GLOW_COLORS[workstream ?? 'bronze'] : null
+  // Category-colored border glow, or candle emissive when overdue
+  const emissiveColor = isOverdue ? CANDLE_EMISSIVE : categoryColor
+  const emissiveIntensity = isOverdue ? CANDLE_BASE_INTENSITY : isHighlighted ? 0.2 : 0.08
 
-  const emissiveColor = isOverdue
-    ? CANDLE_EMISSIVE
-    : (streamGlowColor ?? (isHighlighted ? '#6e5a45' : '#000000'))
-  const emissiveIntensity = isOverdue
-    ? CANDLE_BASE_INTENSITY
-    : streamGlowColor
-      ? isHighlighted
-        ? 0.26
-        : 0.2
-      : isHovered
-        ? 0.12
-        : isSelected
-          ? 0.18
-          : 0
-  const innerTopColor = sepia(isCompletedState ? '#ddd5ca' : isHighlighted ? '#fff2e2' : '#f5ead6')
-  const bottomCapColor = sepia(isCompletedState ? '#c6c0b7' : '#e7d8c2')
+  const innerTopColor = sepia(isHibernating ? '#ddd5ca' : isHighlighted ? '#f0ebe2' : '#e8e0d4')
+  const bottomCapColor = sepia(isHibernating ? '#c6c0b7' : '#ddd4c6')
+
+  const groupOpacity = isHibernating ? HIBERNATING_OPACITY : 1
 
   useEffect(() => {
     return () => {
       document.body.style.cursor = 'default'
     }
+  }, [])
+
+  // Health dot positions: centered row of 3 dots below the name area
+  const healthDotPositions = useMemo(() => {
+    const totalWidth = (HEALTH_DOT_COUNT - 1) * HEALTH_DOT_SPACING
+    const startX = -totalWidth / 2
+    return Array.from(
+      { length: HEALTH_DOT_COUNT },
+      (_, index) => startX + index * HEALTH_DOT_SPACING
+    )
   }, [])
 
   return (
@@ -195,19 +188,23 @@ export function HexTile({
         {/* material-0 = side faces (tube) */}
         <meshStandardMaterial
           attach='material-0'
-          color={categoryEdgeColor}
+          color={edgeColor}
           roughness={0.62}
           metalness={0.12}
+          transparent={isHibernating}
+          opacity={groupOpacity}
         />
-        {/* material-1 = top cap (category ring base) */}
+        {/* material-1 = top cap (category ring base with emissive glow) */}
         <meshStandardMaterial
           ref={topCapRef}
           attach='material-1'
-          color={categoryEdgeColor}
+          color={edgeColor}
           emissive={emissiveColor}
           emissiveIntensity={emissiveIntensity}
           roughness={0.9}
           metalness={0.03}
+          transparent={isHibernating}
+          opacity={groupOpacity}
         />
         {/* material-2 = bottom cap */}
         <meshStandardMaterial
@@ -215,36 +212,54 @@ export function HexTile({
           color={bottomCapColor}
           roughness={0.85}
           metalness={0.02}
+          transparent={isHibernating}
+          opacity={groupOpacity}
         />
 
-        {/* Inner top disk leaves a visible category ring around the edge. */}
+        {/* Inner top disk leaves a visible category ring around the edge */}
         <mesh position={[0, TILE_HEIGHT / 2 + INNER_TOP_HEIGHT / 2, 0]}>
           <cylinderGeometry args={[INNER_TOP_RADIUS, INNER_TOP_RADIUS, INNER_TOP_HEIGHT, 6]} />
           <meshStandardMaterial
             color={innerTopColor}
-            emissive={streamGlowColor ?? '#000000'}
-            emissiveIntensity={streamGlowColor ? 0.08 : 0}
+            emissive={categoryColor}
+            emissiveIntensity={0.04}
             roughness={0.9}
             metalness={0.03}
+            transparent={isHibernating}
+            opacity={groupOpacity}
           />
         </mesh>
       </mesh>
 
+      {/* Loop icon (infinity symbol) instead of initials */}
       <Text
         raycast={() => null}
         position={[0, TILE_HEIGHT / 2 + 0.12, 0.16]}
         rotation={[-0.52, 0, 0]}
-        fontSize={0.34}
+        fontSize={0.32}
         textAlign='center'
-        color={isCompletedState ? '#6f6a62' : '#ffffff'}
+        color={isHibernating ? '#6f6a62' : '#ffffff'}
         anchorX='center'
         anchorY='middle'
         outlineWidth={0.03}
-        outlineColor={isCompletedState ? '#d4cec4' : '#3d2e1e'}
+        outlineColor={isHibernating ? '#d4cec4' : '#3d2e1e'}
       >
-        {initials}
+        {'\u221E'}
       </Text>
 
+      {/* Health dots: 3 small filled dots below the infinity symbol */}
+      {healthDotPositions.map((dotX, index) => (
+        <mesh key={index} position={[dotX, TILE_HEIGHT / 2 + 0.04, 0.3]} rotation={[-0.52, 0, 0]}>
+          <circleGeometry args={[HEALTH_DOT_RADIUS, 16]} />
+          <meshStandardMaterial
+            color={isHibernating ? '#8b8680' : HEALTH_DOT_COLOR}
+            transparent={isHibernating}
+            opacity={isHibernating ? 0.5 : 1}
+          />
+        </mesh>
+      ))}
+
+      {/* Hover label */}
       {isHoverEnabled && isHovered && (
         <Text
           raycast={() => null}

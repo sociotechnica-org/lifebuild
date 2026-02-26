@@ -515,3 +515,120 @@ export const getAllProjectsIncludingArchived$ = queryDb(
     .orderBy([{ col: 'updatedAt', direction: 'desc' }]),
   { label: 'getAllProjectsIncludingArchived' }
 )
+
+// ============================================================================
+// SYSTEM QUERIES (R3 - Planting Season)
+// ============================================================================
+
+/**
+ * Get all non-uprooted systems
+ */
+export const getSystems$ = queryDb(
+  {
+    query: sql`SELECT * FROM systems WHERE uprootedAt IS NULL ORDER BY createdAt DESC`,
+    schema: Schema.Array(tables.systems.rowSchema),
+  },
+  { label: 'getSystems' }
+)
+
+/**
+ * Get a single system by id
+ */
+export const getSystemById$ = (id: string) =>
+  queryDb(tables.systems.select().where({ id }), {
+    label: `getSystemById:${id}`,
+  })
+
+/**
+ * Get task templates for a system, ordered by position
+ */
+export const getSystemTaskTemplates$ = (systemId: string) =>
+  queryDb(
+    tables.systemTaskTemplates
+      .select()
+      .where({ systemId })
+      .orderBy([{ col: 'position', direction: 'asc' }]),
+    {
+      label: `getSystemTaskTemplates:${systemId}`,
+    }
+  )
+
+/**
+ * Get systems in planted state only
+ */
+export const getPlantedSystems$ = queryDb(
+  tables.systems
+    .select()
+    .where({ lifecycleState: 'planted' })
+    .orderBy([{ col: 'createdAt', direction: 'desc' }]),
+  { label: 'getPlantedSystems' }
+)
+
+/**
+ * Get hex positions for systems only
+ */
+export const getSystemHexPositions$ = queryDb(
+  tables.hexPositions
+    .select()
+    .where({ entityType: 'system' })
+    .orderBy([{ col: 'placedAt', direction: 'asc' }]),
+  { label: 'getSystemHexPositions' }
+)
+
+/**
+ * Get all hex positions regardless of entity type
+ */
+export const getAllHexPositions$ = queryDb(
+  tables.hexPositions.select().orderBy([{ col: 'placedAt', direction: 'asc' }]),
+  { label: 'getAllHexPositions' }
+)
+
+/**
+ * Get planted systems that have no hex position (not yet placed on map)
+ */
+export const getUnplacedSystems$ = queryDb(
+  {
+    query: sql`
+      SELECT systems.*
+      FROM systems
+      LEFT JOIN hex_positions
+        ON systems.id = hex_positions.entityId
+        AND hex_positions.entityType = 'system'
+      WHERE systems.lifecycleState = 'planted'
+        AND hex_positions.id IS NULL
+      ORDER BY systems.createdAt DESC
+    `,
+    schema: Schema.Array(tables.systems.rowSchema),
+  },
+  { label: 'getUnplacedSystems' }
+)
+
+/**
+ * Get all systems including uprooted, ordered by createdAt DESC
+ */
+export const getAllSystems$ = queryDb(
+  tables.systems.select().orderBy([{ col: 'createdAt', direction: 'desc' }]),
+  { label: 'getAllSystems' }
+)
+
+/**
+ * Get uprooted systems
+ */
+export const getUprootedSystems$ = queryDb(
+  {
+    query: sql`SELECT * FROM systems WHERE uprootedAt IS NOT NULL ORDER BY uprootedAt DESC`,
+    schema: Schema.Array(tables.systems.rowSchema),
+  },
+  { label: 'getUprootedSystems' }
+)
+
+/**
+ * Get all system task templates (across all systems)
+ */
+export const getAllSystemTaskTemplates$ = queryDb(
+  tables.systemTaskTemplates.select().orderBy([
+    { col: 'systemId', direction: 'asc' },
+    { col: 'position', direction: 'asc' },
+  ]),
+  { label: 'getAllSystemTaskTemplates' }
+)

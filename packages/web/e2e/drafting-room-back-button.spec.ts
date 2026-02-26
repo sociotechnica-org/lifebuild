@@ -33,7 +33,7 @@ test.describe('Drafting Room - Browser Back Button', () => {
     // STAGE 1: Create project with initial title
     // =====================
 
-    await page.goto(`/drafting-room/new?storeId=${storeId}`)
+    await page.goto(`/drafting-room/new/project?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
 
     await expect(page.getByText('Stage 1: Identify')).toBeVisible({ timeout: 10000 })
@@ -48,7 +48,7 @@ test.describe('Drafting Room - Browser Back Button', () => {
     await healthButton.click()
 
     // Wait for auto-save and URL update
-    // After the fix, the URL should change from /drafting-room/new to /drafting-room/{projectId}/stage1
+    // After the fix, the URL should change from /drafting-room/new/project to /drafting-room/{projectId}/stage1
     await page.waitForTimeout(1000)
 
     // Verify the URL now contains a project ID

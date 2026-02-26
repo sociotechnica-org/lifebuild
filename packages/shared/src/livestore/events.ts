@@ -777,7 +777,7 @@ export const projectLifecycleUpdated = Events.synced({
   }),
 })
 
-const HexEntityTypeLiteral = Schema.Literal('project', 'landmark')
+const HexEntityTypeLiteral = Schema.Literal('project', 'landmark', 'system')
 
 export const hexPositionPlaced = Events.synced({
   name: 'hexPosition.placed',
@@ -939,6 +939,154 @@ export const bronzeProjectsReordered = Events.synced({
       })
     ),
     updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+// ============================================================================
+// SYSTEM EVENTS (R3 - Planting Season)
+// ============================================================================
+
+const SystemLifecycleStateLiteral = Schema.Literal('planning', 'planted', 'hibernating', 'uprooted')
+const SystemCadenceLiteral = Schema.Literal('daily', 'weekly', 'monthly', 'quarterly', 'annually')
+
+const CategoryLiteral = Schema.Literal(
+  'health',
+  'relationships',
+  'finances',
+  'growth',
+  'leisure',
+  'spirituality',
+  'home',
+  'contribution'
+)
+
+export const systemCreated = Events.synced({
+  name: 'v1.SystemCreated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+    description: Schema.optional(Schema.String),
+    category: Schema.optional(CategoryLiteral),
+    purposeStatement: Schema.optional(Schema.String),
+    createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const systemUpdated = Events.synced({
+  name: 'v1.SystemUpdated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    updates: Schema.Struct({
+      name: Schema.optional(Schema.String),
+      description: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+      category: Schema.optional(Schema.Union(CategoryLiteral, Schema.Null)),
+      purposeStatement: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+    }),
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const systemPlanted = Events.synced({
+  name: 'v1.SystemPlanted',
+  schema: Schema.Struct({
+    id: Schema.String,
+    plantedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const systemHibernated = Events.synced({
+  name: 'v1.SystemHibernated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    hibernatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const systemResumed = Events.synced({
+  name: 'v1.SystemResumed',
+  schema: Schema.Struct({
+    id: Schema.String,
+    resumedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const systemUprooted = Events.synced({
+  name: 'v1.SystemUprooted',
+  schema: Schema.Struct({
+    id: Schema.String,
+    uprootedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const systemTaskTemplateAdded = Events.synced({
+  name: 'v1.SystemTaskTemplateAdded',
+  schema: Schema.Struct({
+    id: Schema.String,
+    systemId: Schema.String,
+    title: Schema.String,
+    description: Schema.optional(Schema.String),
+    cadence: SystemCadenceLiteral,
+    position: Schema.Number,
+    createdAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const systemTaskTemplateUpdated = Events.synced({
+  name: 'v1.SystemTaskTemplateUpdated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    updates: Schema.Struct({
+      title: Schema.optional(Schema.String),
+      description: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+      cadence: Schema.optional(SystemCadenceLiteral),
+      position: Schema.optional(Schema.Number),
+    }),
+    updatedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const systemTaskTemplateRemoved = Events.synced({
+  name: 'v1.SystemTaskTemplateRemoved',
+  schema: Schema.Struct({
+    id: Schema.String,
+    removedAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const systemTaskGenerated = Events.synced({
+  name: 'v1.SystemTaskGenerated',
+  schema: Schema.Struct({
+    systemId: Schema.String,
+    templateId: Schema.String,
+    taskId: Schema.String,
+    generatedAt: Schema.Date,
+    nextGenerateAt: Schema.Date,
+    actorId: Schema.optional(Schema.String),
+  }),
+})
+
+export const systemMidCycleUpdated = Events.synced({
+  name: 'v1.SystemMidCycleUpdated',
+  schema: Schema.Struct({
+    id: Schema.String,
+    midCycleUpdatedAt: Schema.Date,
+    templateOverrides: Schema.Array(
+      Schema.Struct({
+        templateId: Schema.String,
+        lastGeneratedAt: Schema.Date,
+        nextGenerateAt: Schema.Date,
+      })
+    ),
     actorId: Schema.optional(Schema.String),
   }),
 })

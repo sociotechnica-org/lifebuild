@@ -43,7 +43,7 @@ const getHexCenterRatios = async (canvas: Locator, q: number, r: number) => {
 }
 
 const createInitiativeProject = async (page: Page, storeId: string, projectName: string) => {
-  await page.goto(`/drafting-room/new?storeId=${storeId}`)
+  await page.goto(`/drafting-room/new/project?storeId=${storeId}`)
   await waitForLiveStoreReady(page)
 
   await expect(page.getByText('Stage 1: Identify')).toBeVisible({ timeout: 10000 })
@@ -194,7 +194,7 @@ test.describe('Life Map placement tray flow', () => {
     const canvas = page.locator('canvas').first()
     await expect(canvas).toBeVisible({ timeout: 10000 })
 
-    const panel = page.locator('aside').filter({ hasText: 'Unplaced Projects' }).first()
+    const panel = page.locator('aside').filter({ hasText: 'Unplaced Items' }).first()
     await expect(panel).toBeVisible({ timeout: 10000 })
 
     const firstRunPrompt = page.getByText('Your projects are ready to place')

@@ -7,6 +7,12 @@ export type PanelProjectItem = {
   category: string | null
 }
 
+export type PanelSystemItem = {
+  id: string
+  name: string
+  category: string | null
+}
+
 export type PanelCompletedProjectItem = PanelProjectItem & {
   completedAt?: number | null
 }
@@ -18,13 +24,16 @@ export type PanelArchivedProjectItem = PanelProjectItem & {
 type UnplacedPanelProps = {
   isCollapsed: boolean
   unplacedProjects: readonly PanelProjectItem[]
+  unplacedSystems?: readonly PanelSystemItem[]
   completedProjects: readonly PanelCompletedProjectItem[]
   archivedProjects: readonly PanelArchivedProjectItem[]
   onToggleCollapsed: () => void
   onSelectUnplacedProject?: (projectId: string) => void
+  onSelectUnplacedSystem?: (systemId: string) => void
   onOpenProject?: (projectId: string) => void
   onUnarchiveProject?: (projectId: string) => void
   placementProject?: PanelProjectItem | null
+  placementSystem?: PanelSystemItem | null
   selectedPlacedProject?: PanelProjectItem | null
   isSelectingPlacedProject?: boolean
   onCancelPlacement?: () => void
@@ -67,13 +76,16 @@ const CategoryDot: React.FC<{ category: string | null }> = ({ category }) => {
 export function UnplacedPanel({
   isCollapsed,
   unplacedProjects,
+  unplacedSystems = [],
   completedProjects,
   archivedProjects,
   onToggleCollapsed,
   onSelectUnplacedProject,
+  onSelectUnplacedSystem,
   onOpenProject,
   onUnarchiveProject,
   placementProject,
+  placementSystem,
   selectedPlacedProject,
   isSelectingPlacedProject = false,
   onCancelPlacement,
@@ -83,7 +95,9 @@ export function UnplacedPanel({
 }: UnplacedPanelProps) {
   const [completedExpanded, setCompletedExpanded] = useState(false)
   const [archivedExpanded, setArchivedExpanded] = useState(false)
-  const unplacedCount = unplacedProjects.length
+  const unplacedCount = unplacedProjects.length + unplacedSystems.length
+
+  const activePlacementEntity = placementProject ?? placementSystem ?? null
 
   if (isCollapsed) {
     return (
@@ -106,7 +120,7 @@ export function UnplacedPanel({
     <aside className='pointer-events-auto absolute right-0 top-0 z-[5] flex h-full w-[320px] flex-col border-l border-[#d8cab3] bg-[#faf4e9]/95 shadow-xl backdrop-blur-sm'>
       <div className='flex items-center justify-between border-b border-[#e8dcc8] px-4 py-3'>
         <div>
-          <p className='text-sm font-semibold text-[#2f2b27]'>Unplaced Projects</p>
+          <p className='text-sm font-semibold text-[#2f2b27]'>Unplaced Items</p>
           <p className='text-xs text-[#7f6952]'>{unplacedCount} waiting for placement</p>
         </div>
         <button
@@ -149,11 +163,42 @@ export function UnplacedPanel({
           )}
         </section>
 
-        {placementProject && (
+        {unplacedSystems.length > 0 && (
+          <section>
+            <p className='mb-2 text-xs font-semibold text-[#2f2b27]'>Systems</p>
+            <div className='space-y-2'>
+              {unplacedSystems.map(system => (
+                <button
+                  key={system.id}
+                  type='button'
+                  className={`flex w-full items-center gap-2 rounded-lg border border-[#e8dcc8] bg-white px-3 py-2 text-left text-xs text-[#2f2b27] transition-colors ${
+                    onSelectUnplacedSystem ? 'hover:bg-[#f7efe0] cursor-pointer' : 'cursor-default'
+                  }`}
+                  disabled={!onSelectUnplacedSystem}
+                  onClick={() => onSelectUnplacedSystem?.(system.id)}
+                >
+                  <CategoryDot category={system.category} />
+                  <span className='truncate font-medium'>{system.name}</span>
+                  <span className='ml-auto rounded-full bg-[#7f6952]/20 px-2 py-0.5 text-[10px] font-semibold text-[#7f6952]'>
+                    System
+                  </span>
+                  {placementSystem?.id === system.id && (
+                    <span className='rounded-full bg-[#c48b5a] px-2 py-0.5 text-[10px] font-semibold text-white'>
+                      Placing
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {activePlacementEntity && (
           <section className='rounded-lg border border-[#d8cab3] bg-[#fff8ec] p-3'>
             <p className='text-xs font-semibold text-[#2f2b27]'>Placement mode</p>
             <p className='mt-1 text-xs text-[#7f6952]'>
-              Placing <span className='font-semibold text-[#2f2b27]'>{placementProject.name}</span>.
+              Placing{' '}
+              <span className='font-semibold text-[#2f2b27]'>{activePlacementEntity.name}</span>.
               Click an empty highlighted hex.
             </p>
             <p className='mt-1 text-[11px] text-[#8b7a66]'>Press Esc or click away to cancel.</p>

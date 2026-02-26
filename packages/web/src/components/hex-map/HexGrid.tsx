@@ -6,6 +6,7 @@ import React from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { HexCell } from './HexCell.js'
 import { HexTile, type HexTileVisualState, type HexTileWorkstream } from './HexTile.js'
+import { SystemHexTile } from './SystemHexTile.js'
 import { truncateLabel } from './labelUtils.js'
 import { isReservedProjectCoord } from './placementRules.js'
 
@@ -22,42 +23,92 @@ export type PlacedHexTile = {
   visualState?: HexTileVisualState
   workstream?: HexTileWorkstream
   isCompleted?: boolean
+  isStale?: boolean
+  isOverdue?: boolean
   onClick?: () => void
+}
+
+export type PlacedSystemTile = {
+  id: string
+  systemId: string
+  coord: HexCoord
+  systemName: string
+  category?: string | null
+  categoryColor: string
+  lifecycleState: 'planted' | 'hibernating'
+  isStale?: boolean
+  isOverdue?: boolean
+  onClick?: () => void
+}
+
+type PlacementEntity = {
+  id: string
+  name: string
+  entityType: 'project' | 'system'
 }
 
 type HexGridProps = {
   tiles?: readonly PlacedHexTile[]
+  systemTiles?: readonly PlacedSystemTile[]
   placementProject?: {
+    id: string
+    name: string
+  } | null
+  placementSystem?: {
     id: string
     name: string
   } | null
   selectedPlacedProjectId?: string | null
   isSelectingPlacedProject?: boolean
   onPlaceProject?: (projectId: string, coord: HexCoord) => Promise<void> | void
+  onPlaceSystem?: (systemId: string, coord: HexCoord) => Promise<void> | void
   onSelectPlacedProject?: (projectId: string) => void
   onCancelPlacement?: () => void
 }
 
 export function HexGrid({
   tiles = [],
+  systemTiles = [],
   placementProject = null,
+  placementSystem = null,
   selectedPlacedProjectId = null,
   isSelectingPlacedProject = false,
   onPlaceProject,
+  onPlaceSystem,
   onSelectPlacedProject,
   onCancelPlacement,
 }: HexGridProps) {
   const cells = useMemo(() => generateHexGrid(GRID_RADIUS), [])
   const [hoveredPlacementKey, setHoveredPlacementKey] = useState<string | null>(null)
-  const isPlacementMode = Boolean(placementProject && onPlaceProject)
+
+  // Resolve the active placement entity (project or system)
+  const placementEntity: PlacementEntity | null = useMemo(() => {
+    if (placementProject && onPlaceProject) {
+      return { id: placementProject.id, name: placementProject.name, entityType: 'project' }
+    }
+    if (placementSystem && onPlaceSystem) {
+      return { id: placementSystem.id, name: placementSystem.name, entityType: 'system' }
+    }
+    return null
+  }, [placementProject, placementSystem, onPlaceProject, onPlaceSystem])
+
+  const isPlacementMode = placementEntity !== null
 
   const cellByKey = useMemo(() => {
     return new Map(cells.map(cell => [cell.key, cell]))
   }, [cells])
 
+  // Include both project and system tiles in occupied cells
   const occupiedTilesByKey = useMemo(() => {
-    return new Map(tiles.map(tile => [hexToKey(tile.coord), tile]))
-  }, [tiles])
+    const map = new Map<string, PlacedHexTile | PlacedSystemTile>()
+    for (const tile of tiles) {
+      map.set(hexToKey(tile.coord), tile)
+    }
+    for (const tile of systemTiles) {
+      map.set(hexToKey(tile.coord), tile)
+    }
+    return map
+  }, [tiles, systemTiles])
 
   const isBlockedCell = (cellKey: string, coord: HexCoord): boolean => {
     return occupiedTilesByKey.has(cellKey) || isReservedProjectCoord(coord)
@@ -74,8 +125,8 @@ export function HexGrid({
     hoveredPlacementCell && hoveredPlacementKey
       ? isBlockedCell(hoveredPlacementKey, hoveredPlacementCell.coord)
       : false
-  const hoveredPlacementLabel = placementProject
-    ? truncateLabel(placementProject.name, MAX_PLACEMENT_LABEL_LENGTH)
+  const hoveredPlacementLabel = placementEntity
+    ? truncateLabel(placementEntity.name, MAX_PLACEMENT_LABEL_LENGTH)
     : ''
   const hoveredPlacementPosition =
     hoveredPlacementCell && !isHoveredPlacementBlocked
@@ -83,7 +134,7 @@ export function HexGrid({
       : null
 
   const handlePlacementClick = (cell: { coord: HexCoord; key: string }) => {
-    if (!isPlacementMode || !placementProject || !onPlaceProject) {
+    if (!isPlacementMode || !placementEntity) {
       return
     }
 
@@ -92,13 +143,19 @@ export function HexGrid({
       return
     }
 
-    void Promise.resolve(onPlaceProject(placementProject.id, cell.coord))
+    const placeHandler = placementEntity.entityType === 'project' ? onPlaceProject : onPlaceSystem
+
+    if (!placeHandler) {
+      return
+    }
+
+    void Promise.resolve(placeHandler(placementEntity.id, cell.coord))
       .then(() => {
         setHoveredPlacementKey(null)
         onCancelPlacement?.()
       })
       .catch(error => {
-        console.error('Failed to place project on hex', error)
+        console.error(`Failed to place ${placementEntity.entityType} on hex`, error)
       })
   }
 
@@ -110,6 +167,15 @@ export function HexGrid({
 
     if (isSelectingPlacedProject) {
       onSelectPlacedProject?.(tile.projectId)
+      return
+    }
+
+    tile.onClick?.()
+  }
+
+  const handleSystemTileClick = (tile: PlacedSystemTile) => {
+    if (isPlacementMode) {
+      onCancelPlacement?.()
       return
     }
 
@@ -162,15 +228,29 @@ export function HexGrid({
           visualState={tile.visualState}
           workstream={tile.workstream}
           isCompleted={tile.isCompleted}
+          isStale={tile.isStale}
+          isOverdue={tile.isOverdue}
           isSelected={selectedPlacedProjectId === tile.projectId}
           allowCompletedClick={isPlacementMode || isSelectingPlacedProject}
           onClick={() => handleTileClick(tile)}
         />
       ))}
+      {systemTiles.map(tile => (
+        <SystemHexTile
+          key={tile.id}
+          coord={tile.coord}
+          systemName={tile.systemName}
+          categoryColor={tile.categoryColor}
+          lifecycleState={tile.lifecycleState}
+          isStale={tile.isStale}
+          isOverdue={tile.isOverdue}
+          onClick={() => handleSystemTileClick(tile)}
+        />
+      ))}
       {isPlacementMode &&
         hoveredPlacementCell &&
         hoveredPlacementPosition &&
-        placementProject &&
+        placementEntity &&
         !isHoveredPlacementBlocked && (
           <Html
             position={[hoveredPlacementPosition[0], 0.44, hoveredPlacementPosition[1]]}

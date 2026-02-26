@@ -84,7 +84,7 @@ const hexPositions = State.SQLite.table({
     hexR: State.SQLite.integer(),
     entityType: State.SQLite.text({
       default: 'project',
-      schema: Schema.Literal('project', 'landmark'),
+      schema: Schema.Literal('project', 'landmark', 'system'),
     }),
     entityId: State.SQLite.text(),
     placedAt: State.SQLite.integer({
@@ -103,6 +103,76 @@ const hexPositions = State.SQLite.table({
       isUnique: true,
     },
   ],
+})
+
+// ============================================================================
+// SYSTEM TABLES (R3 - Planting Season)
+// ============================================================================
+
+const systems = State.SQLite.table({
+  name: 'systems',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    name: State.SQLite.text({ default: '' }),
+    description: State.SQLite.text({ nullable: true }),
+    category: State.SQLite.text({ nullable: true }),
+    purposeStatement: State.SQLite.text({ nullable: true }),
+    lifecycleState: State.SQLite.text({
+      default: 'planning',
+      schema: Schema.Literal('planning', 'planted', 'hibernating', 'uprooted'),
+    }),
+    plantedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+    hibernatedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+    uprootedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+    midCycleUpdatedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    updatedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+  },
+})
+
+const systemTaskTemplates = State.SQLite.table({
+  name: 'systemTaskTemplates',
+  columns: {
+    id: State.SQLite.text({ primaryKey: true }),
+    systemId: State.SQLite.text(),
+    title: State.SQLite.text({ default: '' }),
+    description: State.SQLite.text({ nullable: true }),
+    cadence: State.SQLite.text({
+      default: 'weekly',
+      schema: Schema.Literal('daily', 'weekly', 'monthly', 'quarterly', 'annually'),
+    }),
+    lastGeneratedAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+    nextGenerateAt: State.SQLite.integer({
+      nullable: true,
+      schema: Schema.DateFromNumber,
+    }),
+    position: State.SQLite.integer({ default: 0 }),
+    createdAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+    updatedAt: State.SQLite.integer({
+      schema: Schema.DateFromNumber,
+    }),
+  },
 })
 
 // PR3: columns table definition removed - migration to status-based tasks complete
@@ -474,6 +544,10 @@ export type UiState = typeof uiState.default.value
 export type TableConfiguration = State.SQLite.FromTable.RowDecoded<typeof tableConfiguration>
 export type TableBronzeStackEntry = State.SQLite.FromTable.RowDecoded<typeof tableBronzeStack>
 export type TableBronzeProjectEntry = State.SQLite.FromTable.RowDecoded<typeof tableBronzeProjects>
+export type System = State.SQLite.FromTable.RowDecoded<typeof systems>
+export type SystemTaskTemplate = State.SQLite.FromTable.RowDecoded<typeof systemTaskTemplates>
+export type SystemLifecycleState = 'planning' | 'planted' | 'hibernating' | 'uprooted'
+export type SystemCadence = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annually'
 
 export const events = {
   ...eventsDefs,
@@ -503,6 +577,8 @@ export const tables = {
   contacts,
   projectContacts,
   taskExecutions,
+  systems,
+  systemTaskTemplates,
 }
 
 /**
@@ -1153,6 +1229,129 @@ const materializers = State.SQLite.materializers(events, {
     ordering.map(order =>
       tableBronzeProjects.update({ position: order.position }).where({ id: order.id })
     ),
+
+  // ============================================================================
+  // SYSTEM MATERIALIZERS (R3 - Planting Season)
+  // ============================================================================
+
+  'v1.SystemCreated': ({ id, name, description, category, purposeStatement, createdAt }) =>
+    systems.insert({
+      id,
+      name,
+      description,
+      category: category || null,
+      purposeStatement: purposeStatement || null,
+      lifecycleState: 'planning',
+      plantedAt: null,
+      hibernatedAt: null,
+      uprootedAt: null,
+      midCycleUpdatedAt: null,
+      createdAt,
+      updatedAt: createdAt,
+    }),
+
+  'v1.SystemUpdated': ({ id, updates, updatedAt }) => {
+    const updateData: Record<string, any> = { updatedAt }
+    if (updates.name !== undefined) updateData.name = updates.name
+    if (updates.description !== undefined) updateData.description = updates.description
+    if (updates.category !== undefined) updateData.category = updates.category
+    if (updates.purposeStatement !== undefined)
+      updateData.purposeStatement = updates.purposeStatement
+
+    return systems.update(updateData).where({ id })
+  },
+
+  'v1.SystemPlanted': ({ id, plantedAt }) =>
+    systems
+      .update({
+        lifecycleState: 'planted',
+        plantedAt,
+        updatedAt: plantedAt,
+      })
+      .where({ id }),
+
+  'v1.SystemHibernated': ({ id, hibernatedAt }) =>
+    systems
+      .update({
+        lifecycleState: 'hibernating',
+        hibernatedAt,
+        updatedAt: hibernatedAt,
+      })
+      .where({ id }),
+
+  'v1.SystemResumed': ({ id, resumedAt }) =>
+    systems
+      .update({
+        lifecycleState: 'planted',
+        hibernatedAt: null,
+        updatedAt: resumedAt,
+      })
+      .where({ id }),
+
+  'v1.SystemUprooted': ({ id, uprootedAt }) =>
+    systems
+      .update({
+        lifecycleState: 'uprooted',
+        uprootedAt,
+        updatedAt: uprootedAt,
+      })
+      .where({ id }),
+
+  'v1.SystemTaskTemplateAdded': ({
+    id,
+    systemId,
+    title,
+    description,
+    cadence,
+    position,
+    createdAt,
+  }) =>
+    systemTaskTemplates.insert({
+      id,
+      systemId,
+      title,
+      description,
+      cadence,
+      lastGeneratedAt: null,
+      nextGenerateAt: null,
+      position,
+      createdAt,
+      updatedAt: createdAt,
+    }),
+
+  'v1.SystemTaskTemplateUpdated': ({ id, updates, updatedAt }) => {
+    const updateData: Record<string, any> = { updatedAt }
+    if (updates.title !== undefined) updateData.title = updates.title
+    if (updates.description !== undefined) updateData.description = updates.description
+    if (updates.cadence !== undefined) updateData.cadence = updates.cadence
+    if (updates.position !== undefined) updateData.position = updates.position
+
+    return systemTaskTemplates.update(updateData).where({ id })
+  },
+
+  'v1.SystemTaskTemplateRemoved': ({ id }) => systemTaskTemplates.delete().where({ id }),
+
+  'v1.SystemTaskGenerated': ({ templateId, generatedAt, nextGenerateAt }) =>
+    systemTaskTemplates
+      .update({
+        lastGeneratedAt: generatedAt,
+        nextGenerateAt,
+        updatedAt: generatedAt,
+      })
+      .where({ id: templateId }),
+
+  'v1.SystemMidCycleUpdated': ({ id, midCycleUpdatedAt, templateOverrides }) => [
+    systems.update({ midCycleUpdatedAt, updatedAt: midCycleUpdatedAt }).where({ id }),
+    ...templateOverrides.map(override =>
+      systemTaskTemplates
+        .update({
+          lastGeneratedAt: override.lastGeneratedAt,
+          nextGenerateAt: override.nextGenerateAt,
+          updatedAt: midCycleUpdatedAt,
+        })
+        .where({ id: override.templateId })
+    ),
+  ],
 })
 
 const state = State.SQLite.makeState({ tables, materializers })

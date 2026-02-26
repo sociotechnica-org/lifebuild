@@ -34,7 +34,7 @@ test.describe('Workflow', () => {
     // =====================
 
     // Navigate to create new project
-    await page.goto(`/drafting-room/new?storeId=${storeId}`)
+    await page.goto(`/drafting-room/new/project?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
 
     // Wait for Stage 1 form to load
@@ -279,7 +279,7 @@ test.describe('Workflow', () => {
     const projectName = `Quick Test ${Date.now()}`
 
     // Navigate to create new project
-    await page.goto(`/drafting-room/new?storeId=${storeId}`)
+    await page.goto(`/drafting-room/new/project?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
 
     // Wait for Stage 1 form

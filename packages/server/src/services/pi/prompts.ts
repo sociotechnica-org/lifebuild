@@ -26,6 +26,7 @@ const sharedToolList = `You have access to tools for:
 - Managing contacts and relationships (list_contacts, get_contact, search_contacts, create_contact, update_contact, delete_contact, get_project_contacts, get_contact_projects, add_contact_to_project, remove_contact_from_project, get_project_email_list, find_contacts_by_email, get_project_contact_emails, validate_email_list, suggest_contacts_from_emails)
 - Managing workers and assignments (create_worker, update_worker, list_workers, get_worker, deactivate_worker, assign_worker_to_project, unassign_worker_from_project, get_project_workers, get_worker_projects)
 - Managing table planning state (get_table_configuration, assign_table_gold, clear_table_gold, assign_table_silver, clear_table_silver, update_bronze_mode, add_bronze_task, remove_bronze_task, reorder_bronze_stack)
+- Managing systems and task templates (create_system, update_system, get_system_details, list_systems, update_system_lifecycle, add_system_task_template, update_system_task_template, remove_system_task_template, get_system_task_templates)
 - Document tools are currently disabled in this workspace. Do not reference or call document APIs.`
 
 const sharedTaskGuidance =
