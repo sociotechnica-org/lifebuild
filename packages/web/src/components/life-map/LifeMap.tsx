@@ -473,10 +473,6 @@ export const LifeMap: React.FC = () => {
   }, [localParchmentSeedKey, parchmentSeed])
 
   useEffect(() => {
-    if (!syncStatus?.isSynced) {
-      return
-    }
-
     const legacyReservedPlacements = hexPositions.filter(position => {
       if (position.entityType !== 'project') {
         return false
@@ -512,7 +508,7 @@ export const LifeMap: React.FC = () => {
         }
       })
     )
-  }, [actorId, hexPositions, store, syncStatus?.isSynced])
+  }, [actorId, hexPositions, store])
 
   useEffect(() => {
     if (persistedParchmentSeedKeyRef.current === parchmentSeedSettingKey) {
