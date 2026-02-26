@@ -26,6 +26,7 @@ import { usePostHog } from '../../lib/analytics.js'
 import { placeProjectOnHex, removeProjectFromHex } from '../hex-map/hexPositionCommands.js'
 import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.js'
 import { useLiveStoreConnection } from '../../hooks/useLiveStoreConnection.js'
+import { isReservedProjectHex } from '../hex-map/placementRules.js'
 
 const DESKTOP_BREAKPOINT_QUERY = '(min-width: 768px)'
 const HEX_MAP_PARCHMENT_SEED_KEY = 'hexMap.parchmentSeed'
@@ -127,6 +128,7 @@ export const LifeMap: React.FC = () => {
   const generatedParchmentSeedRef = useRef(Math.random())
   const persistedParchmentSeedKeyRef = useRef<string | null>(null)
   const hasCapturedHexMapViewedRef = useRef(false)
+  const migratedReservedPlacementIdsRef = useRef(new Set<string>())
 
   useEffect(() => {
     posthog?.capture('life_map_viewed')
@@ -435,6 +437,48 @@ export const LifeMap: React.FC = () => {
   const shouldRenderHexMap = canRenderHexMap
 
   useEffect(() => {
+    if (!syncStatus?.isSynced) {
+      return
+    }
+
+    const legacyReservedPlacements = hexPositions.filter(position => {
+      if (position.entityType !== 'project') {
+        return false
+      }
+      if (!isReservedProjectHex(position.hexQ, position.hexR)) {
+        return false
+      }
+
+      return !migratedReservedPlacementIdsRef.current.has(position.id)
+    })
+
+    if (legacyReservedPlacements.length === 0) {
+      return
+    }
+
+    legacyReservedPlacements.forEach(position => {
+      migratedReservedPlacementIdsRef.current.add(position.id)
+    })
+
+    void Promise.all(
+      legacyReservedPlacements.map(async position => {
+        try {
+          await store.commit(
+            events.hexPositionRemoved({
+              id: position.id,
+              actorId,
+              removedAt: new Date(),
+            })
+          )
+        } catch (error) {
+          migratedReservedPlacementIdsRef.current.delete(position.id)
+          console.error('Failed to migrate reserved hex placement', error)
+        }
+      })
+    )
+  }, [actorId, hexPositions, store, syncStatus?.isSynced])
+
+  useEffect(() => {
     if (persistedParchmentSeedKeyRef.current === parchmentSeedSettingKey) {
       return
     }
@@ -467,12 +511,12 @@ export const LifeMap: React.FC = () => {
   }, [parchmentSeed, parchmentSeedSetting, parchmentSeedSettingKey, store, syncStatus?.isSynced])
 
   useEffect(() => {
-    if (!shouldRenderHexMap || hasCapturedHexMapViewedRef.current) {
+    if (!shouldRenderHexMap || hasCapturedHexMapViewedRef.current || !posthog) {
       return
     }
 
+    posthog.capture('hex_map_viewed')
     hasCapturedHexMapViewedRef.current = true
-    posthog?.capture('hex_map_viewed')
   }, [posthog, shouldRenderHexMap])
 
   const renderCategoryCardLayout = () => {
