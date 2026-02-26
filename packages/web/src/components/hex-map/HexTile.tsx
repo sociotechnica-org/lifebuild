@@ -1,7 +1,7 @@
 import { Text } from '@react-three/drei'
 import type { HexCoord } from '@lifebuild/shared/hex'
 import { hexToWorld } from '@lifebuild/shared/hex'
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { getInitials } from '../../utils/initials.js'
 import { truncateLabel } from './labelUtils.js'
@@ -188,38 +188,42 @@ export function HexTile({
         </mesh>
       </mesh>
 
-      <Text
-        raycast={() => null}
-        position={[0, TILE_HEIGHT / 2 + 0.12, 0.16]}
-        rotation={[-0.52, 0, 0]}
-        fontSize={0.34}
-        textAlign='center'
-        color={isCompletedState ? '#6f6a62' : '#ffffff'}
-        anchorX='center'
-        anchorY='middle'
-        outlineWidth={0.03}
-        outlineColor={isCompletedState ? '#d4cec4' : '#3d2e1e'}
-      >
-        {initials}
-      </Text>
-
-      {isHoverEnabled && isHovered && (
+      <Suspense fallback={null}>
         <Text
           raycast={() => null}
-          position={[0, TILE_HEIGHT / 2 + 0.42, 0.02]}
+          position={[0, TILE_HEIGHT / 2 + 0.12, 0.16]}
           rotation={[-0.52, 0, 0]}
-          fontSize={0.22}
-          maxWidth={2.2}
+          fontSize={0.34}
           textAlign='center'
-          color='#ffffff'
+          color={isCompletedState ? '#6f6a62' : '#ffffff'}
           anchorX='center'
           anchorY='middle'
-          outlineWidth={0.04}
-          outlineColor='#2a1f14'
-          lineHeight={1.1}
+          outlineWidth={0.03}
+          outlineColor={isCompletedState ? '#d4cec4' : '#3d2e1e'}
         >
-          {label}
+          {initials}
         </Text>
+      </Suspense>
+
+      {isHoverEnabled && isHovered && (
+        <Suspense fallback={null}>
+          <Text
+            raycast={() => null}
+            position={[0, TILE_HEIGHT / 2 + 0.42, 0.02]}
+            rotation={[-0.52, 0, 0]}
+            fontSize={0.22}
+            maxWidth={2.2}
+            textAlign='center'
+            color='#ffffff'
+            anchorX='center'
+            anchorY='middle'
+            outlineWidth={0.04}
+            outlineColor='#2a1f14'
+            lineHeight={1.1}
+          >
+            {label}
+          </Text>
+        </Suspense>
       )}
     </group>
   )

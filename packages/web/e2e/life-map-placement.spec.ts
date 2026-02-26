@@ -7,6 +7,11 @@ const escapeRegExp = (value: string): string => {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+const blockRemoteTextFontRequests = async (page: Page) => {
+  await page.route('**://fonts.googleapis.com/**', route => route.abort())
+  await page.route('**://fonts.gstatic.com/**', route => route.abort())
+}
+
 const clickCanvasAtNormalizedPoint = async (
   page: Page,
   canvas: Locator,
@@ -233,5 +238,58 @@ test.describe('Life Map placement tray flow', () => {
     await expect(panel.getByRole('button', { name: projectNameMatcher }).first()).toBeVisible({
       timeout: 15000,
     })
+  })
+
+  test('keeps map visible after project placement when remote text fonts are unavailable', async ({
+    page,
+  }) => {
+    await blockRemoteTextFontRequests(page)
+
+    const storeId = await navigateToAppWithUniqueStore(page)
+    const projectName = `Placement Offline Font Project ${Date.now()}`
+    const projectNameMatcher = new RegExp(escapeRegExp(projectName))
+
+    await createInitiativeProject(page, storeId, projectName)
+    await activateInitiativeProject(page, projectName)
+
+    await page.getByRole('link', { name: 'Life Map' }).click()
+    await waitForLiveStoreReady(page)
+
+    let canvas = page.locator('canvas').first()
+    await expect(canvas).toBeVisible({ timeout: 10000 })
+
+    const panel = page.locator('aside').filter({ hasText: 'Unplaced Projects' }).first()
+    await expect(panel).toBeVisible({ timeout: 10000 })
+
+    const firstRunPrompt = page.getByText('Your projects are ready to place')
+    if (await firstRunPrompt.isVisible()) {
+      await page.getByRole('button', { name: 'Dismiss' }).click()
+      await expect(firstRunPrompt).toHaveCount(0)
+    }
+
+    const projectButton = panel.getByRole('button', { name: projectNameMatcher }).first()
+    await expect(projectButton).toBeVisible()
+    await projectButton.click()
+    await expect(panel.getByText('Placement mode')).toBeVisible()
+
+    const placedPoint = await placeProjectOnMap(page, panel, canvas, projectNameMatcher)
+    await expect(panel.getByRole('button', { name: projectNameMatcher })).toHaveCount(0)
+    await expect(canvas).toBeVisible()
+
+    await page.reload()
+    await waitForLiveStoreReady(page)
+
+    canvas = page.locator('canvas').first()
+    await expect(canvas).toBeVisible({ timeout: 10000 })
+
+    const reloadedPanel = page.locator('aside').filter({ hasText: 'Unplaced Projects' }).first()
+    await expect(reloadedPanel).toBeVisible({ timeout: 10000 })
+    await reloadedPanel.getByRole('button', { name: 'Select placed tile' }).click()
+    await expect(
+      reloadedPanel.getByText('Click a placed hex tile on the map to select it.')
+    ).toBeVisible()
+
+    await selectPlacedTile(page, reloadedPanel, canvas, placedPoint)
+    await expect(reloadedPanel.getByRole('button', { name: 'Remove from map' })).toBeVisible()
   })
 })
