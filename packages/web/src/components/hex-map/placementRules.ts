@@ -1,10 +1,17 @@
 import { createHex, hexToKey } from '@lifebuild/shared/hex'
 import type { HexCoord } from '@lifebuild/shared/hex'
 
-const RESERVED_PROJECT_HEX_COORDS: readonly HexCoord[] = [
+export const SANCTUARY_PROJECT_HEX_COORDS: readonly HexCoord[] = [
   createHex(0, 0),
   createHex(0, -1),
   createHex(1, -1),
+]
+
+export const CAMPFIRE_PROJECT_HEX_COORD = createHex(3, 0)
+
+export const RESERVED_PROJECT_HEX_COORDS: readonly HexCoord[] = [
+  ...SANCTUARY_PROJECT_HEX_COORDS,
+  CAMPFIRE_PROJECT_HEX_COORD,
 ]
 
 const RESERVED_PROJECT_HEX_KEYS = new Set(RESERVED_PROJECT_HEX_COORDS.map(coord => hexToKey(coord)))

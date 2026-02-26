@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery, useStore } from '../../livestore-compat.js'
 import { Link, useNavigate } from 'react-router-dom'
 import {
@@ -11,6 +11,7 @@ import {
   getProjects$,
   getAllProjectsIncludingArchived$,
   getHexPositions$,
+  getSettingByKey$,
   getUnplacedProjects$,
 } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
@@ -24,10 +25,21 @@ import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
 import { placeProjectOnHex, removeProjectFromHex } from '../hex-map/hexPositionCommands.js'
 import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.js'
-
-type LifeMapViewMode = 'map' | 'list'
+import { useLiveStoreConnection } from '../../hooks/useLiveStoreConnection.js'
+import { isReservedProjectHex } from '../hex-map/placementRules.js'
 
 const DESKTOP_BREAKPOINT_QUERY = '(min-width: 768px)'
+const HEX_MAP_PARCHMENT_SEED_KEY = 'hexMap.parchmentSeed'
+const getHexMapParchmentSeedKey = (actorId: string | undefined) => {
+  return actorId
+    ? `${HEX_MAP_PARCHMENT_SEED_KEY}.${actorId}`
+    : `${HEX_MAP_PARCHMENT_SEED_KEY}.anonymous`
+}
+const getHexMapLocalParchmentSeedKey = (actorId: string | undefined) => {
+  return actorId
+    ? `${HEX_MAP_PARCHMENT_SEED_KEY}.local.${actorId}`
+    : `${HEX_MAP_PARCHMENT_SEED_KEY}.local.anonymous`
+}
 
 const LazyHexMap = lazy(() =>
   import('../hex-map/HexMap.js').then(module => ({ default: module.HexMap }))
@@ -112,25 +124,20 @@ export const LifeMap: React.FC = () => {
   const { store } = useStore()
   const { user } = useAuth()
   const posthog = usePostHog()
+  const { syncStatus } = useLiveStoreConnection()
   const actorId = user?.id
   const isDesktopViewport = useIsDesktopViewport()
   const [hasWebGLSupport] = useState(() => supportsWebGL())
-  const [viewMode, setViewMode] = useState<LifeMapViewMode>('map')
   const [completedExpanded, setCompletedExpanded] = useState(false)
   const [archivedExpanded, setArchivedExpanded] = useState(false)
+  const generatedParchmentSeedRef = useRef(Math.random())
+  const persistedParchmentSeedKeyRef = useRef<string | null>(null)
+  const hasCapturedHexMapViewedRef = useRef(false)
+  const migratedReservedPlacementIdsRef = useRef(new Set<string>())
 
   useEffect(() => {
     posthog?.capture('life_map_viewed')
-  }, [])
-
-  useEffect(() => {
-    if (!isDesktopViewport || !hasWebGLSupport) {
-      setViewMode('list')
-      return
-    }
-
-    setViewMode('map')
-  }, [hasWebGLSupport, isDesktopViewport])
+  }, [posthog])
 
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
   const activeBronzeStack = useQuery(getActiveBronzeStack$) ?? []
@@ -141,7 +148,43 @@ export const LifeMap: React.FC = () => {
   const allProjects = useQuery(getProjects$) ?? []
   const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []
   const hexPositions = useQuery(getHexPositions$) ?? []
+  const hexPositionsRef = useRef(hexPositions)
+  const parchmentSeedSettingKey = useMemo(() => getHexMapParchmentSeedKey(actorId), [actorId])
+  const localParchmentSeedKey = useMemo(() => getHexMapLocalParchmentSeedKey(actorId), [actorId])
+  const parchmentSeedSetting = useQuery(getSettingByKey$(parchmentSeedSettingKey))
+  const legacyParchmentSeedSetting = useQuery(getSettingByKey$(HEX_MAP_PARCHMENT_SEED_KEY))
   const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
+  const localParchmentSeed = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return null
+    }
+
+    try {
+      const localSeed = window.localStorage.getItem(localParchmentSeedKey)
+      if (!localSeed) {
+        return null
+      }
+
+      const parsedLocalSeed = Number(localSeed)
+      return Number.isFinite(parsedLocalSeed) ? parsedLocalSeed : null
+    } catch (error) {
+      console.warn('Failed to read local hex map parchment seed', error)
+      return null
+    }
+  }, [localParchmentSeedKey])
+
+  const storedParchmentSeed = useMemo(() => {
+    const value = parchmentSeedSetting?.[0]?.value ?? legacyParchmentSeedSetting?.[0]?.value
+    if (!value) {
+      return localParchmentSeed
+    }
+
+    const parsedValue = Number(value)
+    return Number.isFinite(parsedValue) ? parsedValue : localParchmentSeed
+  }, [legacyParchmentSeedSetting, localParchmentSeed, parchmentSeedSetting])
+
+  const parchmentSeed = storedParchmentSeed ?? generatedParchmentSeedRef.current
+  hexPositionsRef.current = hexPositions
 
   // Query projects for each category.
   const healthProjects = useQuery(getProjectsByCategory$('health')) ?? []
@@ -296,21 +339,25 @@ export const LifeMap: React.FC = () => {
 
   const handlePlaceProjectOnMap = useCallback(
     async (projectId: string, coord: HexCoord) => {
-      const latestHexPositions = await store.query(getHexPositions$)
-      await placeProjectOnHex(store, latestHexPositions, {
+      await placeProjectOnHex(store, hexPositionsRef.current, {
         projectId,
         hexQ: coord.q,
         hexR: coord.r,
         actorId,
       })
+
+      posthog?.capture('project_hex_placed', {
+        projectId,
+        hexQ: coord.q,
+        hexR: coord.r,
+      })
     },
-    [actorId, store]
+    [actorId, posthog, store]
   )
 
   const handleRemoveProjectFromMap = useCallback(
     async (projectId: string) => {
-      const latestHexPositions = await store.query(getHexPositions$)
-      await removeProjectFromHex(store, latestHexPositions, {
+      await removeProjectFromHex(store, hexPositionsRef.current, {
         projectId,
         actorId,
       })
@@ -365,11 +412,14 @@ export const LifeMap: React.FC = () => {
           isCompleted,
           onClick: isCompleted
             ? undefined
-            : () => navigate(preserveStoreIdInUrl(generateRoute.project(project.id))),
+            : () => {
+                posthog?.capture('hex_tile_clicked', { projectId: project.id })
+                navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
+              },
         },
       ]
     })
-  }, [activeProjectIds, allProjects, hexPositions, navigate])
+  }, [activeProjectIds, allProjects, hexPositions, navigate, posthog])
 
   const unplacedProjects = useMemo(() => {
     return unplacedProjectsFromQuery.map(project => ({
@@ -408,8 +458,98 @@ export const LifeMap: React.FC = () => {
 
   const hasNoProjects = categoriesWithProjects.length === 0
   const canRenderHexMap = isDesktopViewport && hasWebGLSupport
-  const canShowViewModeToggle = canRenderHexMap && !hasNoProjects
-  const shouldRenderHexMap = canShowViewModeToggle && viewMode === 'map'
+  const shouldRenderHexMap = canRenderHexMap
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    try {
+      window.localStorage.setItem(localParchmentSeedKey, String(parchmentSeed))
+    } catch (error) {
+      console.warn('Failed to persist local hex map parchment seed', error)
+    }
+  }, [localParchmentSeedKey, parchmentSeed])
+
+  useEffect(() => {
+    const legacyReservedPlacements = hexPositions.filter(position => {
+      if (position.entityType !== 'project') {
+        return false
+      }
+      if (!isReservedProjectHex(position.hexQ, position.hexR)) {
+        return false
+      }
+
+      return !migratedReservedPlacementIdsRef.current.has(position.id)
+    })
+
+    if (legacyReservedPlacements.length === 0) {
+      return
+    }
+
+    legacyReservedPlacements.forEach(position => {
+      migratedReservedPlacementIdsRef.current.add(position.id)
+    })
+
+    void Promise.all(
+      legacyReservedPlacements.map(async position => {
+        try {
+          await store.commit(
+            events.hexPositionRemoved({
+              id: position.id,
+              actorId,
+              removedAt: new Date(),
+            })
+          )
+        } catch (error) {
+          migratedReservedPlacementIdsRef.current.delete(position.id)
+          console.error('Failed to migrate reserved hex placement', error)
+        }
+      })
+    )
+  }, [actorId, hexPositions, store])
+
+  useEffect(() => {
+    if (persistedParchmentSeedKeyRef.current === parchmentSeedSettingKey) {
+      return
+    }
+    if (!syncStatus?.isSynced) {
+      return
+    }
+    if (!parchmentSeedSetting) {
+      return
+    }
+    if (parchmentSeedSetting.length > 0) {
+      persistedParchmentSeedKeyRef.current = parchmentSeedSettingKey
+      return
+    }
+
+    persistedParchmentSeedKeyRef.current = parchmentSeedSettingKey
+    void Promise.resolve(
+      store.commit(
+        events.settingUpdated({
+          key: parchmentSeedSettingKey,
+          value: String(parchmentSeed),
+          updatedAt: new Date(),
+        })
+      )
+    ).catch((error: unknown) => {
+      if (persistedParchmentSeedKeyRef.current === parchmentSeedSettingKey) {
+        persistedParchmentSeedKeyRef.current = null
+      }
+      console.error('Failed to persist hex map parchment seed', error)
+    })
+  }, [parchmentSeed, parchmentSeedSetting, parchmentSeedSettingKey, store, syncStatus?.isSynced])
+
+  useEffect(() => {
+    if (!shouldRenderHexMap || hasCapturedHexMapViewedRef.current || !posthog) {
+      return
+    }
+
+    posthog.capture('hex_map_viewed')
+    hasCapturedHexMapViewedRef.current = true
+  }, [posthog, shouldRenderHexMap])
 
   const renderCategoryCardLayout = () => {
     if (hasNoProjects) {
@@ -652,39 +792,11 @@ export const LifeMap: React.FC = () => {
 
   return (
     <div className='relative h-full'>
-      {canShowViewModeToggle && (
-        <div className='pointer-events-none absolute top-2 left-1/2 z-[3] -translate-x-1/2'>
-          <div className='pointer-events-auto inline-flex items-center gap-1 rounded-full border border-[#d8cab3] bg-[#faf4e9]/90 p-1 shadow-sm backdrop-blur-sm'>
-            <button
-              type='button'
-              className={`rounded-full border-none px-3 py-1.5 text-xs font-semibold cursor-pointer transition-colors ${
-                viewMode === 'map'
-                  ? 'bg-[#2f2b27] text-[#faf9f7]'
-                  : 'bg-transparent text-[#7f6952] hover:bg-[#f0e3cf]'
-              }`}
-              onClick={() => setViewMode('map')}
-            >
-              Map
-            </button>
-            <button
-              type='button'
-              className={`rounded-full border-none px-3 py-1.5 text-xs font-semibold cursor-pointer transition-colors ${
-                viewMode === 'list'
-                  ? 'bg-[#2f2b27] text-[#faf9f7]'
-                  : 'bg-transparent text-[#7f6952] hover:bg-[#f0e3cf]'
-              }`}
-              onClick={() => setViewMode('list')}
-            >
-              List
-            </button>
-          </div>
-        </div>
-      )}
-
       {shouldRenderHexMap ? (
         <div className='absolute -inset-3.5 min-h-[520px] overflow-hidden bg-[#efe2cd]'>
           <Suspense fallback={renderHexMapLoadingState()}>
             <LazyHexMap
+              parchmentSeed={parchmentSeed}
               tiles={placedHexTiles}
               unplacedProjects={unplacedProjects}
               completedProjects={completedProjectsForPanel}
@@ -702,7 +814,7 @@ export const LifeMap: React.FC = () => {
           </Suspense>
         </div>
       ) : (
-        <div className={canShowViewModeToggle ? 'pt-12' : ''}>{renderCategoryCardLayout()}</div>
+        <div>{renderCategoryCardLayout()}</div>
       )}
     </div>
   )

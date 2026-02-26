@@ -14,6 +14,7 @@ const HOVER_LIFT = 0.04
 const MAX_LABEL_LENGTH = 24
 const INNER_TOP_RADIUS = TILE_RADIUS * 0.82
 const INNER_TOP_HEIGHT = 0.035
+const HEX_TILE_FONT_URL = '/fonts/kenpixel.ttf'
 
 const clamp = (value: number, min: number, max: number): number => {
   return Math.min(max, Math.max(min, value))
@@ -192,6 +193,7 @@ export function HexTile({
         raycast={() => null}
         position={[0, TILE_HEIGHT / 2 + 0.12, 0.16]}
         rotation={[-0.52, 0, 0]}
+        font={HEX_TILE_FONT_URL}
         fontSize={0.34}
         textAlign='center'
         color={isCompletedState ? '#6f6a62' : '#ffffff'}
@@ -208,6 +210,7 @@ export function HexTile({
           raycast={() => null}
           position={[0, TILE_HEIGHT / 2 + 0.42, 0.02]}
           rotation={[-0.52, 0, 0]}
+          font={HEX_TILE_FONT_URL}
           fontSize={0.22}
           maxWidth={2.2}
           textAlign='center'

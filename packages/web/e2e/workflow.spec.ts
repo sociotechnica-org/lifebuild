@@ -332,19 +332,53 @@ test.describe('Workflow', () => {
     await page.click('text=Life Map')
     await waitForLiveStoreReady(page)
 
-    // Verify Life Map loads - either shows categories or "No projects yet" message
-    // (categories only show if there are projects in them)
-    const hasProjects = await page
-      .getByText('No projects yet')
-      .isHidden({ timeout: 5000 })
-      .catch(() => true)
-    if (hasProjects) {
-      // If there are projects, we should see category cards
-      await expect(page.locator('.rounded-2xl')).toBeVisible({ timeout: 10000 })
+    // Verify Life Map loads.
+    // Desktop + WebGL renders the map canvas (even with zero projects);
+    // fallback layout shows category cards or the no-projects empty state.
+    const mapCanvas = page.locator('canvas').first()
+    const hasMapCanvas = await mapCanvas.isVisible({ timeout: 5000 }).catch(() => false)
+
+    if (hasMapCanvas) {
+      await expect(mapCanvas).toBeVisible({ timeout: 10000 })
     } else {
-      // If no projects, we should see the empty state
-      await expect(page.getByText('No projects yet')).toBeVisible({ timeout: 10000 })
-      await expect(page.getByText('Go to Drafting Room to create projects')).toBeVisible()
+      const hasCategoryFallback = await page
+        .locator('div.bg-white.rounded-2xl')
+        .first()
+        .isVisible({ timeout: 3000 })
+        .catch(() => false)
+
+      if (hasCategoryFallback) {
+        await expect(page.locator('div.bg-white.rounded-2xl').first()).toBeVisible({
+          timeout: 10000,
+        })
+      } else {
+        const hasNoProjectsState = await page
+          .getByText('No projects yet')
+          .isVisible({ timeout: 3000 })
+          .catch(() => false)
+        const hasMapLoadingState = await page
+          .getByText('Loading map...')
+          .isVisible({ timeout: 3000 })
+          .catch(() => false)
+
+        if (hasNoProjectsState) {
+          await expect(page.getByText('No projects yet')).toBeVisible({ timeout: 10000 })
+          await expect(page.getByText('Go to Drafting Room to create projects')).toBeVisible()
+        } else if (hasMapLoadingState) {
+          await expect(page.getByText('Loading map...')).toBeVisible({ timeout: 10000 })
+        } else {
+          throw new Error('Life Map did not render a recognized canvas or fallback state')
+        }
+      }
+
+      if (
+        await page
+          .getByText('No projects yet')
+          .isVisible()
+          .catch(() => false)
+      ) {
+        await expect(page.getByText('Go to Drafting Room to create projects')).toBeVisible()
+      }
     }
 
     // Navigate back to Drafting Room

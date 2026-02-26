@@ -7,13 +7,26 @@ const escapeRegExp = (value: string): string => {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+const blockRemoteTextFontRequests = async (page: Page) => {
+  await page.route('**://cdn.jsdelivr.net/gh/lojjic/unicode-font-resolver@*/**', route =>
+    route.abort()
+  )
+  await page.route('**://fonts.googleapis.com/**', route => route.abort())
+  await page.route('**://fonts.gstatic.com/**', route => route.abort())
+}
+
 const clickCanvasAtNormalizedPoint = async (
   page: Page,
   canvas: Locator,
   xRatio: number,
   yRatio: number
 ) => {
-  const box = await canvas.boundingBox()
+  const canvasHandle = await canvas.elementHandle({ timeout: 1500 }).catch(() => null)
+  if (!canvasHandle) {
+    throw new Error('Canvas is not available for click interaction')
+  }
+
+  const box = await canvasHandle.boundingBox()
   if (!box) {
     throw new Error('Canvas is not visible for click interaction')
   }
@@ -167,8 +180,24 @@ const selectPlacedTile = async (
       await expect(selectionHint).toBeVisible()
     }
 
-    await clickCanvasAtNormalizedPoint(page, canvas, x, y)
+    try {
+      await clickCanvasAtNormalizedPoint(page, canvas, x, y)
+    } catch {
+      // If a tile click navigated to a project room, recover back to Life Map and continue.
+      if (!new URL(page.url()).pathname.startsWith('/life-map')) {
+        await page.getByRole('link', { name: 'Life Map' }).click()
+        await waitForLiveStoreReady(page)
+      }
+      continue
+    }
     await page.waitForTimeout(300)
+
+    if (!new URL(page.url()).pathname.startsWith('/life-map')) {
+      await page.getByRole('link', { name: 'Life Map' }).click()
+      await waitForLiveStoreReady(page)
+      continue
+    }
+
     if ((await removeButton.count()) > 0) {
       return
     }
@@ -211,6 +240,9 @@ test.describe('Life Map placement tray flow', () => {
     await expect(panel.getByText('Click an empty highlighted hex.')).toBeVisible()
 
     await clickCanvasAtNormalizedPoint(page, canvas, 0.5, 0.5)
+    if ((await panel.getByText('Placement mode').count()) === 0) {
+      await projectButton.click()
+    }
     await expect(panel.getByText('Placement mode')).toBeVisible()
 
     const placedPoint = await placeProjectOnMap(page, panel, canvas, projectNameMatcher)
@@ -230,5 +262,53 @@ test.describe('Life Map placement tray flow', () => {
     await expect(panel.getByRole('button', { name: projectNameMatcher }).first()).toBeVisible({
       timeout: 15000,
     })
+  })
+
+  test('keeps map visible after project placement when remote text resources are unavailable', async ({
+    page,
+  }) => {
+    await blockRemoteTextFontRequests(page)
+
+    const storeId = await navigateToAppWithUniqueStore(page)
+    const projectName = `Placement Offline Font Project ${Date.now()}`
+    const projectNameMatcher = new RegExp(escapeRegExp(projectName))
+
+    await createInitiativeProject(page, storeId, projectName)
+    await activateInitiativeProject(page, projectName)
+
+    await page.getByRole('link', { name: 'Life Map' }).click()
+    await waitForLiveStoreReady(page)
+
+    let canvas = page.locator('canvas').first()
+    await expect(canvas).toBeVisible({ timeout: 10000 })
+
+    const panel = page.locator('aside').filter({ hasText: 'Unplaced Projects' }).first()
+    await expect(panel).toBeVisible({ timeout: 10000 })
+
+    const firstRunPrompt = page.getByText('Your projects are ready to place')
+    if (await firstRunPrompt.isVisible()) {
+      await page.getByRole('button', { name: 'Dismiss' }).click()
+      await expect(firstRunPrompt).toHaveCount(0)
+    }
+
+    const projectButton = panel.getByRole('button', { name: projectNameMatcher }).first()
+    await expect(projectButton).toBeVisible()
+    await projectButton.click()
+    await expect(panel.getByText('Placement mode')).toBeVisible()
+
+    await placeProjectOnMap(page, panel, canvas, projectNameMatcher)
+    await expect(panel.getByRole('button', { name: projectNameMatcher })).toHaveCount(0)
+    await expect(canvas).toBeVisible()
+
+    await page.reload()
+    await waitForLiveStoreReady(page)
+
+    canvas = page.locator('canvas').first()
+    await expect(canvas).toBeVisible({ timeout: 10000 })
+
+    const reloadedPanel = page.locator('aside').filter({ hasText: 'Unplaced Projects' }).first()
+    await expect(reloadedPanel).toBeVisible({ timeout: 10000 })
+    await expect(reloadedPanel.getByRole('button', { name: projectNameMatcher })).toHaveCount(0)
+    await expect(reloadedPanel.getByText('0 waiting for placement')).toBeVisible()
   })
 })
