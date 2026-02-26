@@ -44,6 +44,7 @@ This release deliberately trades process UI sophistication for spatial reality: 
 | Feature | Minimum Viable Implementation | Full Vision (deferred) |
 | ------- | ----------------------------- | ---------------------- |
 | Map as base layer | Hex map is always visible, full-bleed. All other UI layers on top. | Semantic zoom tiers (horizon/working/detail) |
+| Map navigation | Scroll wheel to zoom in/out, arrow keys to pan. Fixed camera angle (no rotation/tilt). Orthographic camera. Same controls as the X-Grid prototype (`packages/hex-grid-prototype`). | Click-and-drag pan, pinch-to-zoom on mobile, smooth camera transitions |
 | Building overlays | Centered panel over dimmed map. URL-addressable routes (`/workshop`, `/sanctuary`, `/projects/:id`). Back button works. | Animated open/close transitions |
 | Project buildings | Nano Banana generated statues placed on hex cells. Grayed out when completed/archived. Gold/silver/bronze subtle border coloring (unexplained to user). | Drag-to-rearrange, clustering |
 | Fixed buildings | Campfire (non-clickable, decorative), Sanctuary (clickable), Workshop (clickable) | Library/Archives building |
@@ -231,7 +232,7 @@ Key questions the prototypes will answer:
 
 | Feature | Deferred To | Why |
 | ------- | ----------- | --- |
-| Zoom tiers (horizon/working/detail) | Future spatial release | Need L2 foundation first |
+| Semantic zoom tiers (horizon/working/detail — content changes at different zoom levels) | Future spatial release | Basic zoom/pan included; semantic zoom needs L2 foundation first |
 | Drag-to-rearrange projects on map | Future spatial release | Placement mechanic comes first |
 | Systems on the map | Future release | Projects only for now |
 | Library/Archives building | Future release (Conan) | Completed project destination |
