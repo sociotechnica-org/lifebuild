@@ -25,6 +25,7 @@ import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
 import { placeProjectOnHex, removeProjectFromHex } from '../hex-map/hexPositionCommands.js'
 import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.js'
+import { useLiveStoreConnection } from '../../hooks/useLiveStoreConnection.js'
 
 const DESKTOP_BREAKPOINT_QUERY = '(min-width: 768px)'
 const HEX_MAP_PARCHMENT_SEED_KEY = 'hexMap.parchmentSeed'
@@ -117,6 +118,7 @@ export const LifeMap: React.FC = () => {
   const { store } = useStore()
   const { user } = useAuth()
   const posthog = usePostHog()
+  const { syncStatus } = useLiveStoreConnection()
   const actorId = user?.id
   const isDesktopViewport = useIsDesktopViewport()
   const [hasWebGLSupport] = useState(() => supportsWebGL())
@@ -156,10 +158,7 @@ export const LifeMap: React.FC = () => {
   }, [legacyParchmentSeedSetting, parchmentSeedSetting])
 
   const parchmentSeed = storedParchmentSeed ?? generatedParchmentSeedRef.current
-
-  useEffect(() => {
-    hexPositionsRef.current = hexPositions
-  }, [hexPositions])
+  hexPositionsRef.current = hexPositions
 
   // Query projects for each category.
   const healthProjects = useQuery(getProjectsByCategory$('health')) ?? []
@@ -439,6 +438,9 @@ export const LifeMap: React.FC = () => {
     if (persistedParchmentSeedKeyRef.current === parchmentSeedSettingKey) {
       return
     }
+    if (!syncStatus?.isSynced) {
+      return
+    }
     if (!parchmentSeedSetting) {
       return
     }
@@ -462,7 +464,7 @@ export const LifeMap: React.FC = () => {
       }
       console.error('Failed to persist hex map parchment seed', error)
     })
-  }, [parchmentSeed, parchmentSeedSetting, parchmentSeedSettingKey, store])
+  }, [parchmentSeed, parchmentSeedSetting, parchmentSeedSettingKey, store, syncStatus?.isSynced])
 
   useEffect(() => {
     if (!shouldRenderHexMap || hasCapturedHexMapViewedRef.current) {

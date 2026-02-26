@@ -296,7 +296,7 @@ test.describe('Life Map placement tray flow', () => {
     await projectButton.click()
     await expect(panel.getByText('Placement mode')).toBeVisible()
 
-    const placedPoint = await placeProjectOnMap(page, panel, canvas, projectNameMatcher)
+    await placeProjectOnMap(page, panel, canvas, projectNameMatcher)
     await expect(panel.getByRole('button', { name: projectNameMatcher })).toHaveCount(0)
     await expect(canvas).toBeVisible()
 
