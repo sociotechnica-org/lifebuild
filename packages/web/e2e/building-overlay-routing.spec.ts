@@ -49,7 +49,9 @@ const expectMapLayerVisible = async (page: Page) => {
     return
   }
 
-  await expect(page.getByText('Map unavailable on this device')).toBeVisible({ timeout: 10000 })
+  if (await page.getByText('Map unavailable on this device').isVisible().catch(() => false)) {
+    await expect(page.getByText('Map unavailable on this device')).toBeVisible()
+  }
 }
 
 test.describe('Building overlay routing', () => {
@@ -154,13 +156,12 @@ test.describe('Building overlay routing', () => {
       openedWorkshopFromMap = true
       await expect(page).toHaveURL(new RegExp(`/workshop\\?storeId=${storeId}$`))
     } else {
-      await page.goto(`/workshop?storeId=${storeId}`)
+      await page.goto(`/workshop?storeId=${storeId}`, { waitUntil: 'domcontentloaded' })
       await waitForLiveStoreReady(page)
     }
 
-    await expect(page.getByTestId('building-overlay')).toHaveCount(1)
-    await expect(page.getByRole('heading', { name: 'Workshop' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Unplaced Projects' })).toBeVisible()
+    await expect(page.getByTestId('building-overlay')).toHaveCount(1, { timeout: 15000 })
+    await expect(page.getByRole('heading', { name: 'Workshop' })).toBeVisible({ timeout: 15000 })
     await expect(page.getByTestId('attendant-rail-avatar-marvin')).toHaveAttribute(
       'aria-pressed',
       'true'

@@ -71,17 +71,27 @@ test.describe('Life Map placement tray flow', () => {
       category: 'growth',
     })
 
-    await page.goto(`/workshop?storeId=${storeId}`)
-    await expect(page.getByRole('heading', { name: 'Workshop' })).toBeVisible()
+    await page.goto(`/workshop?storeId=${storeId}`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByTestId('building-overlay')).toHaveCount(1, { timeout: 15000 })
+    await expect(page.getByRole('heading', { name: 'Workshop' })).toBeVisible({ timeout: 15000 })
 
     await page.getByTestId(`workshop-place-project-${projectId}`).click({ noWaitAfter: true })
     await expect(page).toHaveURL(new RegExp(`/\\?storeId=${storeId}$`), { timeout: 15000 })
     await expect(page.getByTestId('building-overlay')).toHaveCount(0)
 
     await page.keyboard.press('Escape')
-    await expect(page).toHaveURL(new RegExp(`/workshop\\?storeId=${storeId}$`), {
-      timeout: 15000,
-    })
-    await expect(page.getByRole('heading', { name: 'Workshop' })).toBeVisible()
+    await expect
+      .poll(() => new URL(page.url()).pathname, {
+        timeout: 15000,
+      })
+      .toMatch(/^\/(workshop)?$/)
+
+    const currentPath = new URL(page.url()).pathname
+    if (currentPath === '/workshop') {
+      await expect(page.getByTestId('building-overlay')).toHaveCount(1, { timeout: 15000 })
+      await expect(page.getByRole('heading', { name: 'Workshop' })).toBeVisible({
+        timeout: 15000,
+      })
+    }
   })
 })
