@@ -4,6 +4,7 @@ This directory contains the LifeBuild user-facing components. Sub-directories ar
 
 - `layout/` – App shell, room layout, table bar, and LiveStore status indicator.
 - `life-map/` – Life Map view and category cards.
+- `task-queue/` – Cross-project task queue panel shown from the shell.
 - `project-room/` – Project detail view with task list and task modals.
 - `projects/` – Project cards and detail page wrapper.
 - `room-chat/` – Per-room chat panel.

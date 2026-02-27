@@ -11,6 +11,7 @@ import { AttendantChatPanel } from './AttendantChatPanel.js'
 import { AttendantRail } from './AttendantRail.js'
 import { useAttendantRail } from './AttendantRailProvider.js'
 import { LiveStoreStatus } from './LiveStoreStatus.js'
+import { TaskQueuePanel } from '../task-queue/TaskQueuePanel.js'
 
 type NewUiShellProps = {
   children: React.ReactNode
@@ -216,6 +217,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
           )}
         </div>
       </header>
+      <TaskQueuePanel />
       <AttendantRail activeAttendantId={activeAttendantId} onAttendantClick={toggleAttendant} />
       <AttendantChatPanel />
       <main className={`${mainClasses} ${fullBleed ? '' : 'p-3.5'}`}>
