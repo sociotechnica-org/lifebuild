@@ -2,8 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { events, tables } from '@lifebuild/shared/schema'
 import { getBoardTasks$ } from '@lifebuild/shared/queries'
 
-describe('Kanban Events and Materialization', () => {
-  // PR3: Column events removed - migration to status-based tasks complete
+describe('Task Events and Materialization', () => {
   it('should have v1 task events defined', () => {
     expect(events.taskCreated).toBeDefined()
     expect(events.taskMoved).toBeDefined()

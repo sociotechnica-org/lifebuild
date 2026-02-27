@@ -31,8 +31,7 @@ export const TASK_STATUSES = ['todo', 'doing', 'in_review', 'done'] as const
 // Note: TaskStatus type is defined in livestore/schema.ts to avoid circular dependencies
 
 /**
- * Status column definitions for Kanban board display
- * These replace the old dynamic columns with fixed status-based columns
+ * Status definitions for task list display
  */
 export const STATUS_COLUMNS = [
   {

@@ -1,19 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
-import { DndContext } from '@dnd-kit/core'
 import type { Task } from '@lifebuild/shared/schema'
 import { SimpleTaskCard } from './SimpleTaskCard.js'
 
 const PROJECT_ID = 'task-card-project'
 
-// Wrapper to provide DndContext for the draggable card
 function SimpleTaskCardWrapper({ task }: { task: Task }) {
   return (
-    <DndContext>
-      <div className='w-64 p-4 bg-gray-100'>
-        <SimpleTaskCard task={task} onClick={taskId => console.log('Clicked:', taskId)} />
-      </div>
-    </DndContext>
+    <div className='w-80 p-4 bg-gray-100'>
+      <SimpleTaskCard
+        task={task}
+        onClick={taskId => console.log('Clicked:', taskId)}
+        onCycleStatus={t => console.log('Cycle status:', t.id)}
+      />
+    </div>
   )
 }
 
@@ -103,7 +103,7 @@ const meta: Meta<typeof SimpleTaskCardWrapper> = {
     docs: {
       description: {
         component:
-          'A compact task card used in the kanban board. Displays task title and optional due date. Due dates in the past are shown in orange.',
+          'A compact task card used in the task list. Displays task title, status indicator, and optional due date. Due dates in the past are shown in orange.',
       },
     },
   },

@@ -134,7 +134,7 @@ const meta: Meta<typeof ProjectDetailPage> = {
     docs: {
       description: {
         component:
-          'Project detail page with a kanban board for task management. Features drag-and-drop between columns, inline task creation in To Do, and a task detail modal for editing.',
+          'Project detail page with a task list for task management. Features click-to-cycle status indicators, inline task creation, and a task detail modal for editing.',
       },
     },
   },

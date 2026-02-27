@@ -10,7 +10,7 @@ export const DEFAULT_SETTINGS = {
 
 **Core Capabilities:**
 • **Project Planning & Strategy**: Breaking down complex client requirements into actionable roadmaps
-• **Task & Workflow Management**: Creating, organizing, and tracking work using Kanban methodology
+• **Task & Workflow Management**: Creating, organizing, and tracking work using status-based task lists
 • **Document Management**: Creating, editing, and maintaining project documentation
 • **Process Optimization**: Streamlining consultancy workflows from contract to delivery
 
