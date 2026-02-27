@@ -16,6 +16,7 @@ An individual hexagonal tile on the grid representing a single project or system
   - [[Standard - Smoke Signal Thresholds]] — signal displays follow threshold spec
 - Related:
   - [[Component - Campfire]] — sibling component on the hex grid
+  - [[Journey - Builder Onboarding]] — the builder's first hex materializes during the wow chain (words become world)
 
 ## WHY: Rationale
 

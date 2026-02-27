@@ -37,6 +37,8 @@ The living strategic document maintained in the Council Chamber — a builder's 
 
 Core strategic artifact. The Charter develops during onboarding and evolves through ongoing sessions.
 
+**Design refinement (2026-02-27):** Charter conversations -- where the Me/You/Us framework and deep strategic dialogue apply -- happen post-onboarding when both Jarvis and the builder have shared context. At first contact, [[Principle - Action Before Explanation]] governs: the builder acts before they understand. The Charter's conversational depth requires the relationship foundation that only emerges after the builder has experienced the product through action.
+
 ## HOW: Implementation
 
 **Contents:**

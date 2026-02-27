@@ -4,14 +4,17 @@
 
 High-functioning relationships are governed by explicit agreement, not implicit expectation. Before working together, both parties establish what they bring, what they need, and how they'll collaborate — a designed alliance rather than an assumed contract.
 
+In first contact, this principle defers to [[Principle - Action Before Explanation]] — the builder acts first, and the designed alliance emerges from shared experience rather than upfront exchange. The Me/You/Us framework applies to ongoing relationship moments (Charter conversations, weekly check-ins, quarterly reviews) where both parties have shared context to build on.
+
 ## WHERE: Ecosystem
 
 - Advances: [[Strategy - AI as Teammates]] — teammates negotiate working agreements, they don't impose defaults
 - Companion: [[Principle - Earn Don't Interrogate]] — that principle governs HOW we acquire knowledge (timing, tone, method); this principle governs WHAT relational knowledge matters and WHY explicit agreement beats implicit expectation
 - Governs:
-  - [[Component - Campfire]] — where the designed alliance is first established
-  - [[Journey - Builder Onboarding]] — the onboarding arc moves through Me/You/Us zones to reach agreement
-  - [[Agent - Jarvis]] — Jarvis facilitates the alliance conversation, not a one-sided intake
+  - [[Component - Campfire]] — Campfire first contact defers to [[Principle - Action Before Explanation]]; designed alliance forms through shared experience, not conversational exchange
+  - [[Journey - Builder Onboarding]] — the onboarding arc uses action-first principles for first contact; Agreement Over Expectation governs the ongoing relationship that follows
+  - [[Agent - Jarvis]] — Jarvis facilitates the alliance conversation in post-onboarding interactions, not a one-sided intake
+  - [[Artifact - The Charter]] — the Charter IS the designed alliance in written form
 
 ## WHY: Belief
 
@@ -26,6 +29,8 @@ The relational weight of LifeBuild sits between transactional software (tax prep
 **Reality note (2026-02-18):** Surfaced during D5 shaping session (Feb 2026), new to the library. No implementation exists. The campfire conversation (where this principle would first apply) is not yet built. The three-zone framework (Me/You/Us) and its research grounding (Motivational Interviewing, Bordin Working Alliance, Co-Active Designed Alliance, Stages of Change) are documented here but have not been tested in prompt prototypes.
 
 **Implications:** Until the campfire conversation is built and the designed alliance pattern is tested, all onboarding interactions risk falling into implicit expectation mode — the system assumes what the builder wants, or the builder assumes what the system provides. The first prompt prototypes for Jarvis's campfire conversation should explicitly implement the Me/You/Us arc.
+
+**Design refinement (2026-02-26):** Scoped to long-term agent relationships. First contact now uses Action Before Explanation — the builder acts first, and the designed alliance forms from shared experience. The Me/You/Us framework and MI research (Bordin Working Alliance, Co-Active Designed Alliance, Stages of Change) remain valuable for Jarvis's ongoing conversations — Charter sessions, weekly check-ins, quarterly reviews — where both parties have shared context. Source: Power of the Portal.
 
 ## HOW: Application
 
@@ -63,13 +68,13 @@ Each piece of relational knowledge has two dimensions: is it useful (does it hel
 
 ### What Following This Looks Like
 
-- Jarvis opens the campfire by sharing who he is and what the sanctuary believes — the builder learns about LifeBuild before being asked to share anything about themselves.
+- After the builder's first session (portal crossing, wow chain, first hex placed), Jarvis's subsequent conversations follow the Me/You/Us arc — building on the shared experience of what the builder has already done, not explaining from scratch.
 - After the builder shares what brought them here, Jarvis reflects it back and proposes what the first few days could look like — the "Us" agreement is co-created, not prescribed.
-- When the builder walks to the sanctuary, both sides have a shared understanding: the builder knows what LifeBuild offers, LifeBuild knows what the builder needs, and both have agreed on what happens next.
+- When the builder returns for a second session, both sides have shared context: the builder has acted on the map, LifeBuild has observed what matters to the builder, and the "Us" agreement is built on shared experience rather than upfront explanation.
 
 ### What Violating This Looks Like
 
-- **Asking before sharing** — demanding the builder's life story before explaining what LifeBuild is. The "Me" zone comes before the "You" zone because trust must be offered before it's requested.
+- **Asking before sharing** — demanding the builder's life story before explaining what LifeBuild is. The "Me" zone comes before the "You" zone because trust must be offered before it's requested. Exception: first contact. The first interaction is action-first per [[Principle - Action Before Explanation]]. After the first session, asking before sharing applies.
 - **Assuming the agreement** — auto-enrolling the builder in a plan without asking if it matches what they want. "Here's your 72-hour plan" without checking if the builder agrees to it.
 - **Treating the agreement as permanent** — the designed alliance is adaptable. If the builder's situation changes, the agreement should be renegotiated, not enforced.
 

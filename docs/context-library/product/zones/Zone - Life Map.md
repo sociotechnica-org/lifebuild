@@ -27,6 +27,7 @@ The primary — and essentially only — workspace. The map IS the game. A spati
 - Implements: [[Principle - Visibility Creates Agency]] — everything visible at once
 - Conforms to: [[Standard - Visual Language]] — hex tiles, state indicators, category colors render per spec
 - Conforms to: [[Standard - Spatial Interaction Rules]] — builder controls spatial arrangement
+- Related: [[Principle - Compression and Release]] — first reveal of the Life Map IS the release moment after campfire compression
 
 ## WHY: Rationale
 

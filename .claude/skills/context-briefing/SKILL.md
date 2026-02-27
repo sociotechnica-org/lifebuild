@@ -19,7 +19,7 @@ Location: `docs/context-library/`
 | Layer     | Folder                   | Types                        |
 | --------- | ------------------------ | ---------------------------- |
 | Rationale | `/rationale/strategies/` | Strategy (3)                 |
-| Rationale | `/rationale/principles/` | Principle (11)               |
+| Rationale | `/rationale/principles/` | Principle (15)               |
 | Rationale | `/rationale/standards/`  | Standard (16)                |
 | Product   | `/product/zones/`        | Zone (3)                     |
 | Product   | `/product/rooms/`        | Room (7)                     |

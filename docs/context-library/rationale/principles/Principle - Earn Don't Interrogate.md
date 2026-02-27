@@ -12,6 +12,7 @@ Knowledge acquisition must never block progress, must feel helpful rather than i
 - Agents: [[Agent - Jarvis]], [[Agent - Mesa]], [[Agent - Marvin]], [[Agent - Conan]]
 - Companion detail: Builder Knowledge & Intelligence System (companion document)
 - Related: [[Principle - Guide When Helpful]] — both concern system-to-builder interaction timing
+- Companion: [[Principle - Action Before Explanation]] — that principle says "never explain before acting"; this principle says "never block progress with knowledge acquisition"
 
 ## WHY: Belief
 

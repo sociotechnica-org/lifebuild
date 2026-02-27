@@ -2,63 +2,70 @@
 
 ## WHAT: The Arc
 
-From campfire stranger to sanctuary resident — the builder meets Jarvis at a fire in the wilderness, walks to the humble studio, meets Marvin, places their first hex, and achieves a meaningful win within 72 hours. By the end, the builder has a home, a team, and evidence that this works.
+From portal stranger to sanctuary resident -- the builder answers one question, the world opens, their words become territory, a team appears, and within 72 hours they have evidence that this works. The journey is a wow chain: a sequence of varied surprises that each teach the builder something about LifeBuild without ever feeling like a tutorial.
 
 ## WHERE: Ecosystem
 
 - Spans:
-  - [[Component - Campfire]] — the meeting point (temporary, disappears after the walk)
-  - [[Zone - Life Map]] — the walk to the studio, first hex placement
-  - [[Room - Council Chamber]] — first strategic conversation with Jarvis
-  - [[Room - Drafting Room]] — first project creation with Marvin
+  - [[Component - Campfire]] -- compression phase (temporary, fades after the portal)
+  - [[Zone - Life Map]] -- release + wow chain territory
+  - [[Room - Drafting Room]] -- project deepening on Day 2+
 - Agents:
-  - [[Agent - Jarvis]] — guides the walk, establishes the relationship, identifies starting state
-  - [[Agent - Marvin]] — introduced at the studio, shapes the first project
+  - [[Agent - Jarvis]] -- portal guide, ongoing counselor
+  - [[Agent - Marvin]] -- wow beat, appears with work
 - Systems:
-  - [[System - Onboarding]] — orchestrates the flow
-  - [[Standard - Onboarding Sequence]] — defines the steps
+  - [[System - Onboarding]] -- orchestrates the flow
+  - [[Standard - Onboarding Sequence]] -- defines the steps
 - Principles:
-  - [[Principle - Agreement Over Expectation]] — the campfire establishes a designed alliance through Me/You/Us zones
+  - [[Principle - Action Before Explanation]] -- the builder acts before they understand
+  - [[Principle - Compression and Release]] -- the portal pattern structures the entrance
+  - [[Principle - The WOW Chain]] -- surprise beats are sequenced and varied
+  - [[Principle - First 72 Hours]] -- real progress within 72 hours
 - Unlocks:
-  - [[Capability - Purpose Assignment]] — first project gets classified
-  - [[Overlay - The Table]] — becomes visible after first project
+  - [[Capability - Purpose Assignment]] -- first project gets classified
+  - [[Overlay - The Table]] -- becomes visible after first project
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy - AI as Teammates]] — the builder's first experience IS the teammate relationship
-- Principle: [[Principle - First 72 Hours]] — real progress within 72 hours or the builder is lost
-- Principle: [[Principle - Earn Don't Interrogate]] — Jarvis elicits, never interrogates
-- Principle: [[Principle - Agreement Over Expectation]] — the campfire establishes a "designed alliance" (Co-Active coaching term) — a purposeful, stated, adaptable agreement co-created between Jarvis and the builder
-- Driver: The onboarding journey must establish three things simultaneously: the relationship (builder trusts the stewards), the starting state (crisis/transition/growth), and the first project (the "heavy thing" that becomes the 72-hour win).
+- Strategy: [[Strategy - AI as Teammates]] -- the builder's first experience IS the teammate relationship, delivered through action
+- Principle: [[Principle - First 72 Hours]] -- real progress within 72 hours
+- Principle: [[Principle - Action Before Explanation]] -- the builder acts before they understand
+- Principle: [[Principle - Compression and Release]] -- the portal creates the emotional foundation for everything that follows
+- Driver: The onboarding must feel like entering a world, not completing a tutorial. The builder should never feel taught. By the end of the first session, they should be able to point at their map and say "that's mine."
 
 ## WHEN: Timeline
 
 **Build phase:** Post-MVP
 **Implementation status:** Not started
-**Duration:** 1-3 days (campfire to 72-hour win)
-**Design refinement (2026-02-18):** Campfire conversation design grounded in four research frameworks — MI four processes (Engaging → Focusing → Evoking → Planning), Bordin Working Alliance (exit criteria: goals, tasks, bond), Co-Active Designed Alliance (co-created agreement), Stages of Change (pacing calibrated to starting state). Posture-based hybrid approach chosen for D5.
+**Duration:** First session (5 minutes) + 3-day deepening
 
-**Design decision (2026-02-18):** D6 resolved — the campfire produces a 6-field scorecard via reflected extraction (Jarvis reflects, builder confirms). Scorecard fields: `startingState`, `heavyThing`, `firstProjectSeed`, `allianceAgreement`, `capacitySignals`, `valueSignals`. This scorecard marks the transition from Meeting/Walk to Arrival — the builder's first structured context record, readable by all agents.
+**Design refinement (2026-02-26):** Journey redesigned from MI posture sequence to wow chain choreography. The campfire conversation is replaced by a compression phase with one question. The wow chain delivers the mental model through action, not explanation. Source: Power of the Portal.
 
-**Reality note (2026-02-12):** No campfire onboarding exists. The current app opens to a basic Life Map or Drafting Room. No walk mechanic, no Jarvis onboarding conversation, no starting state identification, no 72-hour win tracking. The [[Standard - Onboarding Sequence]] card describes the intended flow but none of it is built.
+**Reality note (2026-02-12):** No onboarding exists. Current app opens to basic Life Map.
 
-## HOW: Progression
+## HOW: The WOW Chain
 
-### Phases
+Each beat has: the moment (what happens), the emotional target (what the builder feels), the teaching (what the builder learns about LifeBuild), the variety type (what KIND of surprise), and design constraints (what makes it land vs. breaks it).
 
-The first three phases map to a designed posture sequence grounded in Motivational Interviewing: The Meeting = Engaging (Me zone), The Walk = Focusing + Evoking (You zone), The Arrival = Planning (Us zone). Pacing calibrates to starting state — crisis builders experience more urgency and directness, growth builders experience more exploration. See [[Principle - Agreement Over Expectation]] for the Me/You/Us framework.
+| Beat                           | Moment                                                                                                              | Emotional Target                  | Teaching                                            | Variety Type            | Design Constraints                                                                                                                                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- | --------------------------------- | --------------------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| #0: Compression                | Intimate space. Jarvis. One question: "What's something you've been meaning to deal with?" Builder types answer.    | "I'm intrigued."                  | "Someone is listening."                             | -- (loading the spring) | Must feel enclosed, intimate. Map NOT visible. ~60 seconds max.                                                                                                                                             |
+| #1: The Portal                 | View expands. Map reveals -- open sky, terrain, sanctuary at center.                                                | "Oh -- there's a world here."     | "This is spatial. There's a whole world."           | Spatial                 | Must produce contrast with compression. The builder couldn't predict this. If it feels like a page loading, the compression failed.                                                                         |
+| #2: Words Become World         | Builder's answer materializes as a hex on the map. Their words are becoming territory.                              | "My words are becoming real."     | "My input becomes part of the world."               | Personal                | Must feel like creation, not data entry. The transition from words to hex is the product's entire pitch in one moment. No loading spinner. No generic hex. The builder's words should be visible/reflected. |
+| #3: The Team                   | Marvin appears. Already breaking the problem into steps. "Here are three things you could do -- which feels right?" | "I have a team."                  | "AI teammates do actual work on my actual problem." | Relational              | Marvin must arrive with work already done, not asking questions. The builder watches a teammate act, not introduce themselves.                                                                              |
+| #4: Placement                  | Builder places the hex on the map. Chooses where it goes.                                                           | "This is mine. I chose."          | "I control the space. The map is mine."             | Agency                  | Manual placement, not algorithmic. The builder's choice is respected.                                                                                                                                       |
+| #5: Something Moves (optional) | An attendant picks up a task. "I'll look into that for you."                                                        | "Something is already happening." | "The team works even when I'm not here."            | Scalar                  | Only if the task is genuinely actionable. Don't fake progress.                                                                                                                                              |
 
-| Phase         | Entry Condition                  | MI Posture                                                              | Activities                                                                                                                                                                                 | Transition Trigger                                  | Target Feeling                               |
-| ------------- | -------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- | -------------------------------------------- |
-| The Meeting   | Builder opens app for first time | Engaging (Me)                                                           | Arrive at campfire; Jarvis introduces himself and his role, explains the tradition and the sanctuary code                                                                                  | Builder agrees to walk with Jarvis                  | "I'm intrigued. These people are different." |
-| The Walk      | Builder accepts invitation       | Focusing + Evoking (You)                                                | Walk from campfire toward studio; Jarvis asks "What brought you here? What's the heaviest thing you're carrying?" Surface starting state and draw out builder's own motivations for change | Arrive at the studio                                | "Someone actually listened."                 |
-| The Arrival   | Reach the studio                 | Planning (Us)                                                           | Meet Marvin; studio is simple but warm; campfire fades; establish what we'll do together, personalized to starting state                                                                   | Builder shapes first project from "the heavy thing" | "This is home now. Modest, but mine."        |
-| First Project | Project shaped                   | Place first hex on the map near the studio; begin executing first tasks | Meaningful win achieved                                                                                                                                                                    | "I did something real about the heavy thing."       |
-| 72-Hour Win   | First tasks underway             | Achieve starting-state-appropriate win (see below)                      | Builder has evidence this works                                                                                                                                                            | "This actually works."                              |
+### The Deepening Arc (Days 2-3)
+
+| Phase                   | Entry                   | Activities                                                                                                    | Emotional Target               |
+| ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| Day 1 (after wow chain) | First session continues | Complete first task. Explore the map. Come back and it's still there.                                         | "I did something real."        |
+| Day 2                   | Builder returns         | Jarvis references what happened (Me/You/Us now applies -- shared context exists). Second project with Marvin. | "They remember. I have help."  |
+| Day 3                   | Builder is ready        | Sorting Room. Work at Hand. The Table.                                                                        | "I know what to do each week." |
+| 72-Hour Win             | Tasks underway          | Starting-state-appropriate win achieved.                                                                      | "This actually works."         |
 
 ### Starting State Wins
-
-The nature of the 72-hour win depends on the builder's starting state (identified during the Walk):
 
 - **Crisis builders** need relief. First win: one draining thing off their plate.
 - **Transition builders** need clarity. First win: seeing their life mapped for the first time.
@@ -73,29 +80,36 @@ The nature of the 72-hour win depends on the builder's starting state (identifie
 
 ### Failure Modes
 
-- **Jarvis overwhelms** — too much philosophy, not enough doing. The walk should feel like a conversation, not a lecture.
-- **No tangible output** — if the builder leaves the onboarding with nothing on the map, the 72-hour clock is already losing.
-- **The stewards feel robotic** — the onboarding is a values exchange, not a tutorial. If Jarvis sounds like a chatbot, the whole conceit fails.
-- **Forced self-disclosure** — Jarvis asks open questions but never pushes. If the builder doesn't want to share the "heavy thing," Jarvis pivots gracefully.
+- **Compression fails** -- campfire doesn't feel intimate, or the map is visible too early. No contrast = no gasp.
+- **Wow chain breaks** -- gap between beats where nothing happens. Deflation. Blank canvas problem.
+- **All wows same type** -- five spatial reveals = diminishing returns. Variety is essential.
+- **Builder's words don't become territory** -- the hex materializes but feels like a form submission, not creation. The words-to-hex transition must feel magical.
+- **Marvin explains instead of acts** -- Marvin should arrive WITH work done, not asking questions. The builder watches a teammate in action.
+- **No tangible output** -- if the builder leaves the first session with nothing on the map, the 72-hour clock is losing.
 
 ### Examples
 
 **Example 1:** Crisis builder (Drowning Executive)
 
-- Phase: The Walk
-- Builder's state: Overwhelmed, skeptical, testing the waters
-- What happens: Jarvis asks "What's heaviest right now?" → builder says "I haven't slept properly in months, everything at work is on fire" → Jarvis identifies crisis state → at the studio, Marvin helps shape a tiny first project: "Establish a sleep routine" → one task: "Set a bedtime alarm for 10pm tonight" → builder does it → first hex placed (Health territory)
-- 72-hour win: Builder has slept at their target bedtime 2 of 3 nights
+- Beat #0: Builder opens the app, sees intimate campfire space. Types "I haven't slept properly in months, everything at work is on fire."
+- Beat #1: Portal opens. Map reveals. Builder gasps.
+- Beat #2: Their words become a hex -- "Sleep & Recovery" territory materializing on the map.
+- Beat #3: Marvin appears: "Here are three things you could do -- set a bedtime alarm, block off wind-down time, or audit your evening screen time. Which feels right?"
+- Beat #4: Builder places the hex in Health territory on the map.
+- 72-hour win: Builder has slept at their target bedtime 2 of 3 nights.
 
 **Example 2:** Growth builder (System Builder)
 
-- Phase: The Walk
-- Builder's state: Capable but scattered, ready for infrastructure
-- What happens: Jarvis asks "What brought you here?" → builder says "I'm good at my job but my personal life is unmanaged chaos" → Jarvis identifies growth state → at the studio, Marvin helps shape: "Automate monthly bill payments" → 4 tasks → builder completes 2 in first session → Finance hex placed
-- 72-hour win: First system planted and generating its first Bronze task
+- Beat #0: Builder types "I'm good at my job but my personal life is unmanaged chaos."
+- Beat #1: Portal opens. Map reveals -- a world, not a tool.
+- Beat #2: Words become a hex -- "Personal Life Systems" on the map.
+- Beat #3: Marvin appears with three actionable angles already broken down.
+- Beat #4: Builder places the hex, choosing the location deliberately.
+- 72-hour win: First system planted and generating its first Bronze task.
 
 ### Anti-Examples
 
-- **Skipping the campfire and dropping builders into an empty map** — the campfire is a threshold moment. Without the values exchange, the builder has no relationship with the stewards and no understanding of why the sanctuary works the way it does.
-- **Making the campfire a permanent fixture** — the campfire is a beginning, not a place to return. Once the builder walks to the studio, the campfire fades. There is no going back. The sanctuary is home.
-- **Forcing all builders through identical onboarding** — crisis builders need relief, transition builders need clarity, growth builders need infrastructure. Same journey, different emphasis.
+- **Full conversation before showing the map** -- violates Action Before Explanation. One question, then the world opens.
+- **Making the campfire permanent** -- threshold, not fixture.
+- **Tutorial overlay explaining features** -- the wow chain IS the tutorial. The builder learns through surprises, not instructions.
+- **Identical onboarding for all builders** -- same wow chain, but the deepening (Days 2-3) adapts to starting state.

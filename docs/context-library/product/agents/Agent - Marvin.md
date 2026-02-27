@@ -2,7 +2,9 @@
 
 ## WHAT: Identity
 
-The builder's Manager — a steward who makes things real. When the builder decides something needs doing, Marvin helps plan it, scope it, break it into pieces that can actually get done. He bridges strategy into action: he drafts projects, prioritizes the work, and manages delegation. He operates across three rooms in the sanctuary structure, owning the entire operational cycle from idea capture through prioritization to team assignment. He's the master craftsman — he doesn't decide what to build, but everything gets built well because he's managing the work.
+The builder's Manager — a steward who makes things real. When the builder decides something needs doing, Marvin helps plan it, scope it, break it into pieces that can actually get done.
+
+During onboarding, Marvin's entrance IS a wow beat — he appears on the map already working on the builder's problem, not introducing himself. The builder watches an AI teammate act before they hear an explanation. He bridges strategy into action: he drafts projects, prioritizes the work, and manages delegation. He operates across three rooms in the sanctuary structure, owning the entire operational cycle from idea capture through prioritization to team assignment. He's the master craftsman — he doesn't decide what to build, but everything gets built well because he's managing the work.
 
 ## WHERE: Presence
 
@@ -19,6 +21,8 @@ The builder's Manager — a steward who makes things real. When the builder deci
 - Implements: [[Strategy - Superior Process]] — structured project development and prioritization
 - Implements: [[Strategy - AI as Teammates]] — team coordination and delegation
 - Implements: [[Principle - Earn Don't Interrogate]] — progressive capture, not upfront interrogation
+- Implements: [[Principle - Action Before Explanation]] — arrives with work done, not questions
+- Implements: [[Principle - The WOW Chain]] — Marvin's entrance is wow beat #3 (relational surprise)
 - Implements: [[Principle - Familiarity Over Function]] — score suggests, builder decides
 - Implements: [[Principle - Protect Transformation]] — guides stream selection
 - Uses: [[System - Priority Queue Architecture]] — source of candidates
@@ -35,6 +39,8 @@ The builder's Manager — a steward who makes things real. When the builder deci
 **Build phase:** MVP
 **Implementation status:** Partial
 **Reality note (2026-02-12):** Marvin is fully active in the Drafting Room and Sorting Room with routable UIs, agent definitions in `rooms.ts`, prompts, and personalities. Guides four-stage project creation, task generation, and priority selection across Gold/Silver/Bronze streams. Roster Room is not yet built (Attendant primitive and delegation system don't exist). System creation flow in Drafting Room not yet implemented. Pattern detection and capacity integration not yet implemented.
+
+**Design refinement (2026-02-26):** Marvin's onboarding entrance redesigned as a wow beat in the chain. Marvin appears after the builder's words become a hex, already breaking the problem into actionable steps. The builder's first experience of Marvin is watching him work, not hearing him introduce himself. Source: Power of the Portal.
 
 ## HOW: Behavior
 

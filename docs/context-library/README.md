@@ -36,7 +36,7 @@ Without specification context, agents produce technically correct but contextual
 | Type       | Count | Purpose                                                   |
 | ---------- | ----- | --------------------------------------------------------- |
 | Strategies | 3     | Guiding philosophies — the bets we're making              |
-| Principles | 11    | Judgment guidance — rules of thumb                        |
+| Principles | 15    | Judgment guidance — rules of thumb                        |
 | Standards  | 16    | Testable specifications — concrete rules cards conform to |
 
 ### Product (`/product/`) — WHAT gets built

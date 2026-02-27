@@ -2,78 +2,79 @@
 
 ## WHAT: Definition
 
-A temporary onboarding moment — the place where the builder first meets Jarvis, off to the side of the map. The Campfire is a threshold, not a fixture. Jarvis greets the builder, explains the tradition, and invites them to walk to the sanctuary structure at the center of the map. When the builder accepts, they walk together, and the campfire fades behind them. The builder never goes back.
+A temporary compression phase -- the intimate space where the builder first encounters Jarvis and answers one question before the portal opens and the map reveals. The Campfire is the spring that loads before the release. It exists for the builder's first 60 seconds, then gives way to the world.
 
 ## WHERE: Ecosystem
 
 - Parent:
-  - [[Structure - Hex Grid]] — exists on the grid off to the side, in a corner
+  - [[Structure - Hex Grid]] -- exists at the edge of the grid (or as a pre-map overlay)
 - Conforms to:
-  - [[Standard - Visual Language]] — warm glow, fire-in-the-wilderness aesthetic
-  - [[Standard - Onboarding Sequence]] — Day 1 the walk with Jarvis
+  - [[Standard - Visual Language]] -- warm glow, ink-and-color aesthetic visible up close
+  - [[Standard - Onboarding Sequence]] -- the campfire is the compression step in the portal sequence
+- Conforms to:
+  - [[Principle - Compression and Release]] -- the Campfire IS the compression
+  - [[Principle - Action Before Explanation]] -- one question, no explanation
 - Related:
-  - [[Component - Hex Tile]] — sibling component on the hex grid
-  - [[Journey - Builder Onboarding]] — the campfire is the first phase of the onboarding journey
-  - [[Agent - Jarvis]] — Jarvis greets the builder here
-  - [[Principle - Agreement Over Expectation]] — the campfire establishes the designed alliance between builder and LifeBuild
+  - [[Journey - Builder Onboarding]] -- the campfire is wow beat #0 (compression)
+  - [[Agent - Jarvis]] -- Jarvis is present, asks the question
+  - [[Principle - First 72 Hours]] -- the campfire opens the 72-hour window
+  - [[Component - Hex Tile]] -- sibling component on the hex grid
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — the first impression IS the teammate relationship
-- Principle: [[Principle - First 72 Hours]] — the campfire seeds the 72-hour win
-- Principle: [[Principle - Earn Don't Interrogate]] — Jarvis asks open questions, never interrogates
-- Principle: [[Principle - Agreement Over Expectation]] — the campfire follows a Me/You/Us arc, establishing a designed alliance before the walk
-- Driver: The campfire is where the social contract is established. The builder meets the stewards. Values are exchanged, not marketed. The builder chooses to walk to the sanctuary — it's not automatic. This makes the sanctuary feel chosen, not assigned.
+- Strategy: [[Strategy - AI as Teammates]] -- Jarvis is the first face
+- Strategy: [[Strategy - Spatial Visibility]] -- the compression makes the spatial release land
+- Principle: [[Principle - Compression and Release]] -- the Campfire exists TO create compression. Without it, the map reveal is just a screen loading.
+- Driver: The builder needs an intimate, focused moment before the world opens. The compression loads the spring. The single question creates the builder's first action. The release rewards it.
 
 ## WHEN: Timeline
 
 **Build phase:** Post-MVP
 **Implementation status:** Not started
-**Reality note (2026-02-12):** No Campfire component exists. Depends on Hex Grid, Jarvis agent, and the onboarding walk mechanic.
+**Reality note (2026-02-12):** No Campfire component exists. Depends on Hex Grid, Jarvis agent, and the portal mechanic.
 
-**Design decision (2026-02-18):** D5 shaping session identified a posture-based hybrid approach for the campfire conversation, grounded in Motivational Interviewing, Bordin Working Alliance, Co-Active Designed Alliance, and Stages of Change research. The conversation follows a designed posture sequence (Engaging → Focusing → Evoking → Planning) with free-form content within each posture. See [[Principle - Agreement Over Expectation]] for the Me/You/Us framework.
+**Design decision (2026-02-26):** Campfire redesigned as compression phase. The 8-step MI conversation (D5) and 6-field scorecard (D6) are superseded. The campfire now asks ONE question and produces one field (`heavyThing`). MI research (Bordin, Co-Active, Stages of Change) remains valuable for post-onboarding Jarvis interactions but does not govern the campfire. Source: Power of the Portal.
 
-**Design decision (2026-02-18):** D6 resolved — Option B, reflected extraction. The campfire produces a 6-field scorecard (`startingState`, `heavyThing`, `firstProjectSeed`, `allianceAgreement`, `capacitySignals`, `valueSignals`) via Jarvis reflecting back understanding in the Planning phase. Builder confirms/corrects. The reflection IS the scorecard. All downstream agents read this before their first interaction with the builder.
-
-**Design decision (GDD v0.2, 2026-02-13):** The campfire is explicitly temporary — NOT a permanent feature on the map. It exists off to the side, not at the center. The walk from campfire to sanctuary is the onboarding core mechanic. When the builder agrees to walk, the campfire disappears. The builder never returns. The campfire was a threshold, not a home.
+**Design decision (GDD v0.2, 2026-02-13):** The campfire remains explicitly temporary -- NOT permanent. The campfire is a threshold, not a home.
 
 ## HOW: Implementation
 
-**Visual treatment:**
+### Visual Treatment
 
-- Fire in the wilderness, off to the side of the map
-- Warm, inviting, small — a clearing in the frontier
-- Jarvis is present; other stewards nearby but not yet introduced
-- Distinct from the sanctuary structure (which is at the center)
+- Enclosed, intimate space -- the builder's view is narrowed, focused
+- Warm, inviting, small -- ink-and-color aesthetic visible up close
+- Jarvis is present -- the first time the builder sees the art style
+- The map is NOT visible -- compression requires the world to be hidden
 
-**The sequence:**
+### The Sequence
 
-The 8 steps operate within a designed posture sequence grounded in Motivational Interviewing (Engaging → Focusing → Evoking → Planning), mapped to a Me → You → Us relational arc per [[Principle - Agreement Over Expectation]]. Conversational moves use OARS (Open questions, Affirmations, Reflective listening, Summaries). Pacing calibrates to the builder's starting state — crisis builders move faster toward Planning, growth builders spend more time in Evoking. Exit criteria are Bordin's Working Alliance components: agreement on goals, agreement on tasks, felt bond.
+1. Builder opens the app -> campfire renders (compression space)
+2. Jarvis asks ONE question: "What's something you've been meaning to deal with?"
+3. Builder types an answer (~15 seconds)
+4. The portal opens -> view expands -> map reveals (this IS the crossing + release)
+5. The campfire fades. The world is open.
 
-1. Builder arrives at the campfire
-2. **Engaging (Me):** Jarvis introduces himself and his role, explains the tradition — the ways of the sanctuary, what the stewards believe, how they work
-3. **Focusing (You):** Jarvis asks open questions: "What brought you here? What's the heaviest thing you're carrying?"
-4. **Evoking (You → Us):** The conversation identifies the builder's starting state (crisis, transition, or growth) and draws out the builder's own motivations for change
-5. **Planning (Us):** Jarvis invites: "There's a place nearby. Humble but buildable. It takes a builder." — the walk invitation is the culmination of the designed alliance
-6. Builder agrees to walk
-7. They walk together from campfire to the sanctuary at the center of the map
-8. The campfire fades. The sanctuary is home.
+### What the Campfire Accomplishes
 
-**What the walk accomplishes:**
+- Creates emotional compression (intimate -> expansive contrast)
+- Captures the builder's first input (`heavyThing` -- seeds the first project)
+- Introduces Jarvis visually (the art style, the character)
+- Does NOT: explain what LifeBuild is, describe the map, discuss AI teammates, establish a designed alliance, or identify a starting state through conversation
 
-- Establishes the steward relationship (builder experiences Jarvis's counseling style)
-- Identifies starting state (crisis, transition, or growth persona)
-- Seeds the first project (the "heavy thing" becomes the 72-hour win)
+### Persistence
 
-**Persistence:** None. The campfire is gone once the builder walks away. The sanctuary replaces it.
+None. The campfire is gone once the portal opens. The map replaces it.
 
 ### Examples
 
-- Builder opens LifeBuild for the first time → campfire in a clearing, Jarvis present → warm conversation → builder shares that work stress is overwhelming → Jarvis identifies crisis state → invites the walk → they arrive at the humble studio → Marvin is introduced → first project shaped from the "heavy thing" → campfire fades behind them.
+- Builder opens LifeBuild for the first time -> campfire in an intimate space, Jarvis present -> one question -> builder types "I need to get my finances sorted" -> portal opens -> map reveals with sanctuary at center -> builder's words materialize as a hex -> the campfire fades. Total time: ~60 seconds.
+
+- Builder opens the app on a mobile device -> same compression space, adapted to smaller screen -> Jarvis's question is prominent -> builder types a short answer -> the portal opens and the map reveals with the same spatial impact as desktop.
 
 ### Anti-Examples
 
-- **Campfire as permanent map feature** — the campfire is a threshold moment. Making it permanent weakens the metaphor. Once crossed, the sanctuary is home.
-- **Skipping the campfire and dropping builders into an empty map** — without the values exchange, the builder has no relationship with the stewards and no understanding of why the sanctuary works the way it does.
-- **Mesa greeting at the campfire instead of Jarvis** — the first steward relationship must be Jarvis (the counselor). Mesa is the Life Map assistant, not the onboarding guide.
-- **Campfire at the center of the map** — the campfire is in the wilderness, off to the side. The sanctuary is at the center. The walk FROM campfire TO sanctuary is the spatial metaphor for choosing to build.
+- **Full MI conversation at the campfire** -- the campfire is 60 seconds, not 15 minutes. One question. The world teaches, not the conversation.
+- **Campfire as permanent map feature** -- threshold, not fixture. Once crossed, gone.
+- **Explaining LifeBuild before the portal** -- "Let me tell you about the sanctuary, the hex map, and your AI teammates" violates Action Before Explanation. The map SHOWS the builder what LifeBuild is.
+- **Skipping the campfire** -- without compression, the map reveal is just a screen loading. The campfire exists to create the contrast that makes the release land.
+- **Campfire at the center of the map** -- the campfire is at the EDGE or as a pre-map overlay. The sanctuary is at the center. Spatial distance creates the transition.
