@@ -111,6 +111,7 @@ test.describe('Building overlay routing', () => {
 
     await expect(page.getByTestId('building-overlay')).toHaveCount(1)
     await expect(page.getByRole('heading', { name: 'Sanctuary' })).toBeVisible()
+    await expect(page.getByTestId('sanctuary-charter-placeholder')).toBeVisible()
 
     await page.keyboard.press('Escape')
     await expect(page).toHaveURL(new RegExp(`/\\?storeId=${storeId}$`))
@@ -158,6 +159,7 @@ test.describe('Building overlay routing', () => {
     await expectMapLayerVisible(page)
     await expect(page.getByRole('heading', { name: 'Sanctuary' })).toBeVisible()
     await expect(page.getByTestId('building-overlay')).toHaveCount(1)
+    await expect(page.getByTestId('sanctuary-charter-placeholder')).toBeVisible()
 
     await page.goto(`/workshop?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
