@@ -47,3 +47,4 @@ sources/
 | ------------------------------------------- | ------------- | ------------------------------------------------------------------------------ |
 | GDD-v0.2                                    | 2025-12       | Full game design — informed nearly every card                                  |
 | automation-strategy-conversation-2026-02-17 | 2026-02-17    | Factory & library automation strategy — task catalog, cost tiers, role bundles |
+| power-of-the-portal-2026-02-26              | 2026-02-26    | Onboarding philosophy — Action Before Explanation, Compression and Release, WOW Chain |

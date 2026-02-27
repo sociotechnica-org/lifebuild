@@ -12,6 +12,7 @@
   - [[Loop - Daily Check-In]] — arriving at the sanctuary each session
   - [[Component - Hex Tile]] — tiles that visually evolve with care
   - [[Structure - Hex Grid]] — the spatial arrangement as externalized mental model
+- Related: [[Principle - Compression and Release]] — Sanctuary feeling begins at the portal crossing; the compression-release threshold is how a builder first enters the sanctuary
 
 ## WHY: Purpose
 
