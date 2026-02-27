@@ -47,6 +47,10 @@ export const getRouteAutoSelectedAttendant = (pathname: string): AttendantId | n
     return 'jarvis'
   }
 
+  if (Boolean(matchPath(ROUTES.WORKSHOP, pathname))) {
+    return 'marvin'
+  }
+
   if (Boolean(matchPath(ROUTES.PROJECT, pathname))) {
     return 'marvin'
   }

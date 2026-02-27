@@ -67,8 +67,9 @@ describe('AttendantRail', () => {
     expect(screen.getByTestId('attendant-rail-notification-marvin')).toBeInTheDocument()
   })
 
-  it('maps sanctuary and project routes to attendant auto-selection', () => {
+  it('maps sanctuary, workshop, and project routes to attendant auto-selection', () => {
     expect(getRouteAutoSelectedAttendant('/sanctuary')).toBe('jarvis')
+    expect(getRouteAutoSelectedAttendant('/workshop')).toBe('marvin')
     expect(getRouteAutoSelectedAttendant('/projects/project-123')).toBe('marvin')
     expect(getRouteAutoSelectedAttendant('/')).toBeNull()
   })
