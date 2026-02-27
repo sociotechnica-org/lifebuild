@@ -316,15 +316,24 @@ and open a pull request.
 2. Implement the changes in the technical plan
 3. Write tests:
    - Unit tests for new logic
-   - E2E Playwright tests for user-facing changes
+   - E2E Playwright tests for EVERY user-facing change
    - Storybook stories for new Presenter components
 4. Run `pnpm lint-all` and fix any issues
 5. Run `pnpm test` and ensure all tests pass
 6. Run `CI=true pnpm test:e2e` and ensure e2e pass
-7. Open a PR with:
+7. **Manual QA via browser:** Start the dev server
+   (`pnpm dev:web`) and use the Playwright Chrome MCP
+   to drive the browser through the user story's
+   acceptance criteria. Click through every flow
+   described in the story. If anything is broken or
+   doesn't match the acceptance criteria, fix it
+   before proceeding.
+8. Open a PR with:
    - Title matching the user story title
    - Body with ## Summary, ## Test plan, ## Changelog
    - Include `Closes #{issue_number}`
+   - Include a ## QA section describing what you
+     clicked through and verified in the browser
 
 ## Architecture (from AGENTS.md)
 
@@ -352,6 +361,8 @@ and open a pull request.
 
 - Do NOT modify files outside the technical plan
 - Do NOT add features beyond the story scope
+- E2E Playwright tests are MANDATORY, not optional
+- Manual QA via Playwright Chrome MCP is MANDATORY
 - Do NOT skip tests
 - Add a `## Changelog` section for user-facing changes
 - Create Storybook stories for new UI components
