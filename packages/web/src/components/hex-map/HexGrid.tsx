@@ -8,7 +8,11 @@ import { FixedBuilding } from './FixedBuilding.js'
 import { HexCell } from './HexCell.js'
 import { HexTile, type HexTileVisualState, type HexTileWorkstream } from './HexTile.js'
 import { truncateLabel } from './labelUtils.js'
-import { FIXED_BUILDINGS, isReservedProjectCoord } from './placementRules.js'
+import {
+  FIXED_BUILDINGS,
+  isReservedProjectCoord,
+  type FixedBuildingType,
+} from './placementRules.js'
 
 const GRID_RADIUS = 3
 const MAX_PLACEMENT_LABEL_LENGTH = 30
@@ -37,6 +41,8 @@ type HexGridProps = {
   onPlaceProject?: (projectId: string, coord: HexCoord) => Promise<void> | void
   onSelectPlacedProject?: (projectId: string) => void
   onCancelPlacement?: () => void
+  onOpenWorkshop?: () => void
+  onOpenSanctuary?: () => void
 }
 
 export function HexGrid({
@@ -47,10 +53,13 @@ export function HexGrid({
   onPlaceProject,
   onSelectPlacedProject,
   onCancelPlacement,
+  onOpenWorkshop,
+  onOpenSanctuary,
 }: HexGridProps) {
   const cells = useMemo(() => generateHexGrid(GRID_RADIUS), [])
   const [hoveredPlacementKey, setHoveredPlacementKey] = useState<string | null>(null)
   const isPlacementMode = Boolean(placementProject && onPlaceProject)
+  const allowBuildingOverlayOpen = !isPlacementMode && !isSelectingPlacedProject
 
   const cellByKey = useMemo(() => {
     return new Map(cells.map(cell => [cell.key, cell]))
@@ -117,6 +126,17 @@ export function HexGrid({
     tile.onClick?.()
   }
 
+  const handleFixedBuildingActivate = (buildingType: FixedBuildingType) => {
+    if (buildingType === 'sanctuary') {
+      onOpenSanctuary?.()
+      return
+    }
+
+    if (buildingType === 'workshop') {
+      onOpenWorkshop?.()
+    }
+  }
+
   return (
     <group>
       {cells.map(cell => {
@@ -169,7 +189,18 @@ export function HexGrid({
         />
       ))}
       {FIXED_BUILDINGS.map(building => (
-        <FixedBuilding key={building.type} type={building.type} coord={building.coord} />
+        <FixedBuilding
+          key={building.type}
+          type={building.type}
+          coord={building.coord}
+          onActivate={
+            building.type === 'campfire' || !allowBuildingOverlayOpen
+              ? undefined
+              : () => {
+                  handleFixedBuildingActivate(building.type)
+                }
+          }
+        />
       ))}
       {isPlacementMode &&
         hoveredPlacementCell &&

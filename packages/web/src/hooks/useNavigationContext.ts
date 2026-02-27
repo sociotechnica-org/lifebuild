@@ -18,6 +18,15 @@ function detectCurrentView(pathname: string): string | undefined {
   if (pathname === '/' || pathname === '/life-map') {
     return 'Life Map - Overview of all life categories and active projects'
   }
+  if (pathname === '/workshop') {
+    return 'Workshop overlay on Life Map'
+  }
+  if (pathname === '/sanctuary') {
+    return 'Sanctuary overlay on Life Map'
+  }
+  if (pathname.startsWith('/projects/')) {
+    return 'Project Board overlay on Life Map'
+  }
   return undefined
 }
 

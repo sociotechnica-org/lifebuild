@@ -66,7 +66,10 @@ type HexMapProps = {
   onRemovePlacedProject?: (projectId: string) => Promise<void> | void
   onSelectUnplacedProject?: (projectId: string) => void
   onOpenProject?: (projectId: string) => void
+  onOpenWorkshop?: () => void
+  onOpenSanctuary?: () => void
   onUnarchiveProject?: (projectId: string) => void
+  isOverlayOpen?: boolean
 }
 
 const HexMapSurface: React.FC<HexMapProps> = ({
@@ -78,7 +81,10 @@ const HexMapSurface: React.FC<HexMapProps> = ({
   onRemovePlacedProject,
   onSelectUnplacedProject,
   onOpenProject,
+  onOpenWorkshop,
+  onOpenSanctuary,
   onUnarchiveProject,
+  isOverlayOpen = false,
 }) => {
   const {
     placementProjectId,
@@ -139,10 +145,11 @@ const HexMapSurface: React.FC<HexMapProps> = ({
   }, [showFirstPlacementPrompt])
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (isOverlayOpen || typeof window === 'undefined') {
       return
     }
 
+    // Keep Escape available for placement mode only when no overlay is active.
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') {
         return
@@ -155,7 +162,7 @@ const HexMapSurface: React.FC<HexMapProps> = ({
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [clearPlacement, clearPlacedProjectSelection])
+  }, [clearPlacement, clearPlacedProjectSelection, isOverlayOpen])
 
   const dismissFirstPlacementPrompt = useCallback(() => {
     setShowFirstPlacementPrompt(false)
@@ -248,6 +255,8 @@ const HexMapSurface: React.FC<HexMapProps> = ({
             onPlaceProject={onPlaceProject}
             onSelectPlacedProject={selectPlacedProject}
             onCancelPlacement={clearPlacement}
+            onOpenWorkshop={onOpenWorkshop}
+            onOpenSanctuary={onOpenSanctuary}
           />
         </Suspense>
       </Canvas>

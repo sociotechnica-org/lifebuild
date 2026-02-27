@@ -11,7 +11,7 @@ import { events } from '@lifebuild/shared/schema'
 import { createHex } from '@lifebuild/shared/hex'
 import type { HexCoord } from '@lifebuild/shared/hex'
 import { PROJECT_CATEGORIES, resolveLifecycleState } from '@lifebuild/shared'
-import { generateRoute } from '../../constants/routes.js'
+import { generateRoute, ROUTES } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
@@ -46,7 +46,11 @@ const renderHexMapLoadingState = () => {
 /**
  * Life Map renders the full-bleed hex map as the primary surface.
  */
-export const LifeMap: React.FC = () => {
+type LifeMapProps = {
+  isOverlayOpen?: boolean
+}
+
+export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
   const navigate = useNavigate()
   const { store } = useStore()
   const { user } = useAuth()
@@ -62,6 +66,13 @@ export const LifeMap: React.FC = () => {
   const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []
   const hexPositions = useQuery(getHexPositions$) ?? []
   const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
+
+  const navigateToOverlayRoute = useCallback(
+    (path: string) => {
+      navigate(preserveStoreIdInUrl(path), { state: { openedFromMap: true } })
+    },
+    [navigate]
+  )
 
   const activeProjectIds = useMemo(() => {
     return new Set(
@@ -177,11 +188,11 @@ export const LifeMap: React.FC = () => {
           isCompleted,
           onClick: isCompleted
             ? undefined
-            : () => navigate(preserveStoreIdInUrl(generateRoute.project(project.id))),
+            : () => navigateToOverlayRoute(generateRoute.project(project.id)),
         },
       ]
     })
-  }, [activeProjectIds, allProjects, hexPositions, navigate])
+  }, [activeProjectIds, allProjects, hexPositions, navigateToOverlayRoute])
 
   const unplacedProjects = useMemo(() => {
     return unplacedProjectsFromQuery.map(project => ({
@@ -234,12 +245,13 @@ export const LifeMap: React.FC = () => {
           onPlaceProject={handlePlaceProjectOnMap}
           onRemovePlacedProject={handleRemoveProjectFromMap}
           onSelectUnplacedProject={projectId =>
-            navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
+            navigateToOverlayRoute(generateRoute.project(projectId))
           }
-          onOpenProject={projectId =>
-            navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
-          }
+          onOpenProject={projectId => navigateToOverlayRoute(generateRoute.project(projectId))}
+          onOpenWorkshop={() => navigateToOverlayRoute(ROUTES.WORKSHOP)}
+          onOpenSanctuary={() => navigateToOverlayRoute(ROUTES.SANCTUARY)}
           onUnarchiveProject={handleUnarchive}
+          isOverlayOpen={isOverlayOpen}
         />
       </Suspense>
     </div>

@@ -5,6 +5,8 @@ import type { PanelProjectItem } from './UnplacedPanel.js'
 import { HexMap } from './HexMap.js'
 
 const FIRST_PLACEMENT_PROMPT_KEY = 'life-map-placement-first-run-dismissed-v1'
+const clearPlacementMock = vi.fn()
+const clearPlacedProjectSelectionMock = vi.fn()
 
 vi.mock('@react-three/fiber', () => ({
   Canvas: ({ children }: { children: React.ReactNode }) => (
@@ -32,10 +34,10 @@ vi.mock('./PlacementContext.js', () => ({
     isSelectingPlacedProject: false,
     isPlacing: false,
     startPlacement: vi.fn(),
-    clearPlacement: vi.fn(),
+    clearPlacement: clearPlacementMock,
     startSelectingPlacedProject: vi.fn(),
     selectPlacedProject: vi.fn(),
-    clearPlacedProjectSelection: vi.fn(),
+    clearPlacedProjectSelection: clearPlacedProjectSelectionMock,
   }),
 }))
 
@@ -51,6 +53,8 @@ describe('HexMap first placement prompt', () => {
   beforeEach(() => {
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     window.localStorage.removeItem(FIRST_PLACEMENT_PROMPT_KEY)
+    clearPlacementMock.mockClear()
+    clearPlacedProjectSelectionMock.mockClear()
   })
 
   afterEach(() => {
@@ -100,5 +104,30 @@ describe('HexMap first placement prompt', () => {
     } finally {
       setItemSpy.mockRestore()
     }
+  })
+})
+
+describe('HexMap escape handling', () => {
+  beforeEach(() => {
+    clearPlacementMock.mockClear()
+    clearPlacedProjectSelectionMock.mockClear()
+  })
+
+  it('clears placement state on Escape when no overlay is open', () => {
+    render(<HexMap />)
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+
+    expect(clearPlacementMock).toHaveBeenCalledTimes(1)
+    expect(clearPlacedProjectSelectionMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not clear placement state on Escape while overlay is open', () => {
+    render(<HexMap isOverlayOpen />)
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+
+    expect(clearPlacementMock).not.toHaveBeenCalled()
+    expect(clearPlacedProjectSelectionMock).not.toHaveBeenCalled()
   })
 })

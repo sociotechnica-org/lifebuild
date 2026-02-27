@@ -4,16 +4,18 @@ import { useQuery } from '../../livestore-compat.js'
 import { getProjectById$, getProjectTasks$ } from '@lifebuild/shared/queries'
 import type { Project, Task } from '@lifebuild/shared/schema'
 import { type PlanningAttributes, resolveLifecycleState } from '@lifebuild/shared'
-import { RoomLayout } from '../layout/RoomLayout.js'
 import { createProjectRoomDefinition } from '@lifebuild/shared/rooms'
-import { NewUiShell } from '../layout/NewUiShell.js'
 import { useProjectChatLifecycle } from '../../hooks/useProjectChatLifecycle.js'
 import { ProjectHeader } from '../project-room/ProjectHeader.js'
 import { TaskList } from '../project-room/TaskList.js'
 import { TaskDetailModal } from '../project-room/TaskDetailModal.js'
 import { usePostHog } from '../../lib/analytics.js'
 
-export const ProjectDetailPage: React.FC = () => {
+type ProjectDetailPageProps = {
+  onCloseOverlay?: () => void
+}
+
+export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ onCloseOverlay }) => {
   const { projectId } = useParams<{ projectId: string }>()
   const resolvedProjectId = projectId ?? '__invalid__'
 
@@ -94,54 +96,35 @@ export const ProjectDetailPage: React.FC = () => {
 
   // Loading and error states
   if (!projectId) {
-    return (
-      <NewUiShell>
-        <p className='p-6 text-gray-500'>Invalid project ID</p>
-      </NewUiShell>
-    )
+    return <p className='p-6 text-[#7f6952]'>Invalid project ID</p>
   }
 
   if (!projectQueryReady) {
-    return (
-      <NewUiShell>
-        <p className='p-6 text-gray-500'>Loading project...</p>
-      </NewUiShell>
-    )
+    return <p className='p-6 text-[#7f6952]'>Loading project...</p>
   }
 
   if (!project) {
     return (
-      <NewUiShell>
-        <div className='p-6'>
-          <h1 className='text-xl font-semibold text-gray-900'>Project not found</h1>
-          <p className='text-gray-500 mt-2'>The requested project ({projectId}) does not exist.</p>
-        </div>
-      </NewUiShell>
+      <div className='p-6'>
+        <h1 className='text-xl font-semibold text-[#2f2b27]'>Project not found</h1>
+        <p className='mt-2 text-[#7f6952]'>The requested project ({projectId}) does not exist.</p>
+      </div>
     )
   }
 
   if (!room) {
-    return (
-      <NewUiShell>
-        <p className='p-6 text-gray-500'>Preparing project room...</p>
-      </NewUiShell>
-    )
+    return <p className='p-6 text-[#7f6952]'>Preparing project room...</p>
   }
 
   return (
-    <RoomLayout room={room} noScroll>
-      <div className='h-full flex flex-col bg-[#f5f3f0] rounded-2xl border border-[#e5e2dc] overflow-hidden'>
-        {/* Project Header */}
-        <ProjectHeader project={project} />
+    <div className='flex h-full flex-col overflow-hidden rounded-2xl border border-[#e5e2dc] bg-[#f5f3f0]'>
+      <ProjectHeader project={project} onClose={onCloseOverlay} />
 
-        {/* Task list - fills remaining space */}
-        <div className='flex-1 min-h-0'>
-          <TaskList tasks={tasks} projectId={resolvedProjectId} onTaskClick={handleTaskClick} />
-        </div>
-
-        {/* Task Detail Modal */}
-        <TaskDetailModal task={selectedTask ?? null} allTasks={tasks} onClose={handleModalClose} />
+      <div className='min-h-0 flex-1'>
+        <TaskList tasks={tasks} projectId={resolvedProjectId} onTaskClick={handleTaskClick} />
       </div>
-    </RoomLayout>
+
+      <TaskDetailModal task={selectedTask ?? null} allTasks={tasks} onClose={handleModalClose} />
+    </div>
   )
 }

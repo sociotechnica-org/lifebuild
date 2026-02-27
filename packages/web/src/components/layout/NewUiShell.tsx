@@ -87,9 +87,12 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const isActive = (path: string) => {
-    return location.pathname === path || location.pathname.startsWith(path + '/')
-  }
+  const isLifeMapActive =
+    location.pathname === ROUTES.HOME ||
+    location.pathname === ROUTES.LIFE_MAP ||
+    location.pathname === ROUTES.WORKSHOP ||
+    location.pathname === ROUTES.SANCTUARY ||
+    location.pathname.startsWith('/projects/')
 
   const handleFeedbackClick = () => {
     const surveyId = import.meta.env.VITE_POSTHOG_FEEDBACK_SURVEY_ID
@@ -137,7 +140,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
           <Link
             to={generateRoute.lifeMap()}
             className={`no-underline py-2 px-3 rounded-xl transition-all duration-[160ms] ${
-              isActive('/life-map')
+              isLifeMapActive
                 ? 'text-[#2f2b27] bg-black/[0.04]'
                 : 'text-[#8b8680] hover:text-[#2f2b27]'
             }`}

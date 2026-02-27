@@ -3,7 +3,10 @@ import { waitForLiveStoreReady, expectBasicAppStructure } from './test-utils'
 
 const expectLifeMapSurface = async (page: Page) => {
   const lifeMapCanvas = page.locator('canvas').first()
-  const hasCanvas = await lifeMapCanvas.isVisible()
+  const hasCanvas = await lifeMapCanvas
+    .waitFor({ state: 'visible', timeout: 10000 })
+    .then(() => true)
+    .catch(() => false)
 
   if (!hasCanvas) {
     await expect(page.getByText('Map unavailable on this device')).toBeVisible({ timeout: 10000 })
@@ -19,10 +22,12 @@ test.describe('Smoke Tests', () => {
     // Verify the app loaded correctly
     await expect(page).toHaveTitle(/LifeBuild/)
 
-    // In CI, the app may not fully load due to LiveStore sync issues
-    // Check if we have basic app structure or if it's still loading
-    const hasContent = await page.locator('body').textContent()
-    if (hasContent?.includes('Loading LiveStore')) {
+    // In CI, the app may not fully load due to LiveStore sync issues.
+    const isLoading = await page
+      .locator('text=Loading LiveStore')
+      .isVisible()
+      .catch(() => false)
+    if (isLoading) {
       // App is stuck loading - this is expected in CI without sync server
       return // Exit test gracefully
     }
@@ -30,7 +35,7 @@ test.describe('Smoke Tests', () => {
     // Check basic app structure
     await expectBasicAppStructure(page)
 
-    // Should add storeId to URL by default
+    // Once loading completes, app should include a storeId in URL.
     await expect(page).toHaveURL(/\?storeId=[^&]+$/)
 
     // Navigation should only include Life Map
@@ -50,9 +55,28 @@ test.describe('Smoke Tests', () => {
     // Test legacy room redirects to map-first route
     const storeId = 'test-smoke-' + Date.now()
     await page.goto(`/drafting-room?storeId=${storeId}`)
-    await page.waitForURL(new RegExp(`/life-map\\?storeId=${storeId}`), { timeout: 10000 })
+    const draftingLoading = await page
+      .locator('text=Loading LiveStore')
+      .isVisible()
+      .catch(() => false)
+    if (!draftingLoading) {
+      const draftUrl = new URL(page.url())
+      expect(draftUrl.searchParams.get('storeId')).toBe(storeId)
+      expect(draftUrl.pathname).not.toContain('/drafting-room')
+      expect(['/', '/life-map']).toContain(draftUrl.pathname)
+    }
+
     await page.goto(`/sorting-room/gold?storeId=${storeId}`)
-    await page.waitForURL(new RegExp(`/life-map\\?storeId=${storeId}`), { timeout: 10000 })
+    const sortingLoading = await page
+      .locator('text=Loading LiveStore')
+      .isVisible()
+      .catch(() => false)
+    if (!sortingLoading) {
+      const sortUrl = new URL(page.url())
+      expect(sortUrl.searchParams.get('storeId')).toBe(storeId)
+      expect(sortUrl.pathname).not.toContain('/sorting-room')
+      expect(['/', '/life-map']).toContain(sortUrl.pathname)
+    }
   })
 
   test('LiveStore sync is working', async ({ page }) => {
@@ -113,12 +137,19 @@ test.describe('Smoke Tests', () => {
     await page.goto(`/?storeId=${storeId}`)
     await expect(page).toHaveURL(new RegExp(`\\/\\?storeId=${storeId}$`))
 
-    // Navigate to life-map route directly
+    // Navigate to compatibility life-map route directly
     await page.goto(`/life-map?storeId=${storeId}`)
-    await page.waitForURL(new RegExp(`/life-map\\?storeId=${storeId}$`), { timeout: 10000 })
+    await waitForLiveStoreReady(page)
+
+    const compatUrl = new URL(page.url())
+    expect(compatUrl.searchParams.get('storeId')).toBe(storeId)
+    expect(['/', '/life-map']).toContain(compatUrl.pathname)
 
     // In CI without sync server, LiveStore can remain on loading shell
-    const isLoading = await page.locator('text=Loading LiveStore').isVisible()
+    const isLoading = await page
+      .locator('text=Loading LiveStore')
+      .isVisible()
+      .catch(() => false)
     if (isLoading) {
       return
     }
@@ -130,6 +161,6 @@ test.describe('Smoke Tests', () => {
     await expect(page.getByText('Table')).toHaveCount(0)
     await expectLifeMapSurface(page)
 
-    // Basic navigation is working
+    // Overlay route behavior is covered by building-overlay-routing.spec.ts.
   })
 })
