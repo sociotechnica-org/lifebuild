@@ -66,6 +66,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monos
 .event.github_review::before { background: #c084fc; }
 .event.github_issue::before { background: #f43f5e; }
 .event.github_issue_closed::before { background: #22c55e; }
+.event.github_pr::before { background: #2ea043; }
+.event.github_pr_merged::before { background: #8957e5; }
 .event.github_event::before { background: #6b7280; }
 
 .event-time {
@@ -87,6 +89,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monos
 .badge-github_commit { background: #8b5cf622; color: #8b5cf6; border: 1px solid #8b5cf644; }
 .badge-github_comment, .badge-github_review { background: #a855f722; color: #a855f7; border: 1px solid #a855f744; }
 .badge-github_issue, .badge-github_issue_closed { background: #f43f5e22; color: #f43f5e; border: 1px solid #f43f5e44; }
+.badge-github_pr { background: #2ea04322; color: #3fb950; border: 1px solid #2ea04344; }
+.badge-github_pr_merged { background: #8957e522; color: #8957e5; border: 1px solid #8957e544; }
 .badge-github_event { background: #6b728022; color: #9ca3af; border: 1px solid #6b728044; }
 
 .event-text {
@@ -144,6 +148,8 @@ var SOURCE_LABELS = {
   github_review: 'GH Review',
   github_issue: 'GH Issue',
   github_issue_closed: 'GH Closed',
+  github_pr: 'GH PR',
+  github_pr_merged: 'GH Merged',
   github_event: 'GH Event'
 };
 
@@ -151,66 +157,55 @@ var SOURCE_GROUPS = {
   'Social': ['twitter', 'discord'],
   'Claude': ['claude_human', 'claude_assistant'],
   'Codex': ['codex_start', 'codex_end'],
-  'GitHub': ['github_commit', 'github_comment', 'github_review', 'github_issue', 'github_issue_closed', 'github_event']
+  'GitHub': ['github_commit', 'github_comment', 'github_review', 'github_issue', 'github_issue_closed', 'github_pr', 'github_pr_merged', 'github_event']
 };
 
 var activeFilters = new Set(Object.keys(SOURCE_LABELS));
 var searchTerm = '';
 
-function formatTime(timeEt) {
-  try {
-    var d = new Date(timeEt);
-    if (isNaN(d.getTime())) {
-      var parts = timeEt.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
-      if (parts) {
-        var h = parseInt(parts[4]);
-        var m = parts[5];
-        var ampm = h >= 12 ? 'pm' : 'am';
-        h = h % 12 || 12;
-        return h + ':' + m + ampm;
-      }
-      return '??';
-    }
-    var et = new Date(d.getTime() - 5 * 60 * 60 * 1000);
-    var h = et.getUTCHours();
-    var m = String(et.getUTCMinutes()).padStart(2, '0');
-    var ampm = h >= 12 ? 'pm' : 'am';
-    h = h % 12 || 12;
-    return h + ':' + m + ampm;
-  } catch(e) {
-    return '??';
+var DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var ET_OFFSET = -5 * 60; // ET is UTC-5 in February
+
+// Parse any ISO 8601 timestamp to UTC millis
+function toUtcMillis(ts) {
+  // Try native parse first (handles +00:00 and -05:00)
+  var d = new Date(ts);
+  if (!isNaN(d.getTime())) return d.getTime();
+  // Fallback: manual parse
+  var m = ts.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):?(\d{2})?/);
+  if (!m) return 0;
+  var utc = Date.UTC(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +(m[6]||0));
+  // Check for offset
+  var offMatch = ts.match(/([+-])(\d{2}):(\d{2})$/);
+  if (offMatch) {
+    var sign = offMatch[1] === '+' ? 1 : -1;
+    utc -= sign * (+offMatch[2]*60 + +offMatch[3]) * 60000;
   }
+  return utc;
 }
 
-function getHourLabel(timeEt) {
-  try {
-    var d = new Date(timeEt);
-    var et;
-    if (isNaN(d.getTime())) {
-      var parts = timeEt.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2})/);
-      if (!parts) return '??';
-      var h = parseInt(parts[4]);
-      var day = parseInt(parts[3]);
-      var ampm = h >= 12 ? 'PM' : 'AM';
-      var h12 = h % 12 || 12;
-      var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-      var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      var etDate = new Date(parseInt(parts[1]), parseInt(parts[2])-1, parseInt(parts[3]), h);
-      etDate = new Date(etDate.getTime() - 5*60*60*1000);
-      var dayLabel = dayNames[etDate.getDay()] + ' ' + monthNames[etDate.getMonth()] + ' ' + etDate.getDate();
-      return dayLabel + ' \u2014 ' + h12 + ':00 ' + ampm + ' ET';
-    }
-    et = new Date(d.getTime() - 5 * 60 * 60 * 1000);
-    var h = et.getUTCHours();
-    var ampm = h >= 12 ? 'PM' : 'AM';
-    var h12 = h % 12 || 12;
-    var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    var dayLabel = dayNames[et.getUTCDay()] + ' ' + monthNames[et.getUTCMonth()] + ' ' + et.getUTCDate();
-    return dayLabel + ' \u2014 ' + h12 + ':00 ' + ampm + ' ET';
-  } catch(e) {
-    return '??';
-  }
+// Convert UTC millis to an ET Date-like object (using UTC methods)
+function toEt(utcMs) {
+  return new Date(utcMs + ET_OFFSET * 60000);
+}
+
+function formatTime(ts) {
+  var et = toEt(toUtcMillis(ts));
+  var h = et.getUTCHours();
+  var m = String(et.getUTCMinutes()).padStart(2, '0');
+  var ampm = h >= 12 ? 'pm' : 'am';
+  h = h % 12 || 12;
+  return h + ':' + m + ampm;
+}
+
+function getHourLabel(ts) {
+  var et = toEt(toUtcMillis(ts));
+  var h = et.getUTCHours();
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  var h12 = h % 12 || 12;
+  var dayLabel = DAY_NAMES[et.getUTCDay()] + ' ' + MONTH_NAMES[et.getUTCMonth()] + ' ' + et.getUTCDate();
+  return dayLabel + ' \u2014 ' + h12 + ':00 ' + ampm + ' ET';
 }
 
 function escapeHtml(text) {
@@ -278,13 +273,13 @@ function render() {
   var lastHour = '';
 
   filtered.forEach(function(e) {
-    var hour = getHourLabel(e.time_et);
+    var hour = getHourLabel(e.timestamp);
     if (hour !== lastHour) {
       html += '<div class="time-marker">' + hour + '</div>';
       lastHour = hour;
     }
 
-    var time = formatTime(e.time_et);
+    var time = formatTime(e.timestamp);
     var badge = SOURCE_LABELS[e.source] || e.source;
     var text = escapeHtml(e.text);
     var isLong = e.text.length > 120;
@@ -316,10 +311,29 @@ document.getElementById('search').addEventListener('input', function(e) {
   }, 200);
 });
 
-fetch('timeline-data.json')
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    ALL_EVENTS = data;
+var SOURCE_FILES = [
+  'sources/claude-session.json',
+  'sources/codex-sessions.json',
+  'sources/discord.json',
+  'sources/github-activity.json',
+  'sources/twitter.json'
+];
+
+Promise.all(SOURCE_FILES.map(function(f) {
+  return fetch(f).then(function(r) { return r.json(); });
+}))
+  .then(function(results) {
+    var all = [];
+    results.forEach(function(events) {
+      events.forEach(function(e) {
+        all.push(e);
+      });
+    });
+    // Sort by UTC millis
+    all.sort(function(a, b) {
+      return toUtcMillis(a.timestamp) - toUtcMillis(b.timestamp);
+    });
+    ALL_EVENTS = all;
     buildFilters();
     render();
   })
