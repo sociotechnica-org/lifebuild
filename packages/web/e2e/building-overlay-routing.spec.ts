@@ -59,6 +59,18 @@ const expectMapLayerVisible = async (page: Page) => {
   }
 }
 
+const expectSanctuaryOverlayContent = async (page: Page) => {
+  const firstVisitWelcome = page.getByTestId('sanctuary-first-visit-welcome')
+  const returningPlaceholder = page.getByTestId('sanctuary-charter-placeholder')
+
+  if (await firstVisitWelcome.isVisible().catch(() => false)) {
+    await expect(firstVisitWelcome).toBeVisible()
+    return
+  }
+
+  await expect(returningPlaceholder).toBeVisible()
+}
+
 test.describe('Building overlay routing', () => {
   test('opens project overlay from a map tile and closes via button, Escape, and browser back', async ({
     page,
@@ -149,8 +161,14 @@ test.describe('Building overlay routing', () => {
 
     await expect(page.getByTestId('building-overlay')).toHaveCount(1)
     await expect(page.getByRole('heading', { name: 'Sanctuary' })).toBeVisible()
-    await expect(page.getByTestId('sanctuary-charter-placeholder')).toBeVisible()
+    await expect(page.getByTestId('sanctuary-first-visit-welcome')).toBeVisible()
 
+    await page.keyboard.press('Escape')
+    await expect(page).toHaveURL(new RegExp(`/\\?storeId=${storeId}$`))
+
+    await page.goto(`/sanctuary?storeId=${storeId}`)
+    await waitForLiveStoreReady(page)
+    await expectSanctuaryOverlayContent(page)
     await page.keyboard.press('Escape')
     await expect(page).toHaveURL(new RegExp(`/\\?storeId=${storeId}$`))
 
@@ -196,7 +214,7 @@ test.describe('Building overlay routing', () => {
     await expectMapLayerVisible(page)
     await expect(page.getByRole('heading', { name: 'Sanctuary' })).toBeVisible()
     await expect(page.getByTestId('building-overlay')).toHaveCount(1)
-    await expect(page.getByTestId('sanctuary-charter-placeholder')).toBeVisible()
+    await expect(page.getByTestId('sanctuary-first-visit-welcome')).toBeVisible()
 
     await page.goto(`/workshop?storeId=${storeId}`)
     await waitForLiveStoreReady(page)

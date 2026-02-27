@@ -1,6 +1,7 @@
 import React from 'react'
 import type { ChatMessage } from '@lifebuild/shared/schema'
 import { MarkdownRenderer } from '../markdown/MarkdownRenderer.js'
+import { isSanctuaryFirstVisitBootstrapMessage } from '../../constants/sanctuary.js'
 
 export type RoomChatMessageListProps = {
   messages: readonly ChatMessage[]
@@ -13,13 +14,18 @@ export const RoomChatMessageList: React.FC<RoomChatMessageListProps> = ({
   workerName = 'Assistant',
   isProcessing,
 }) => {
-  if (messages.length === 0 && !isProcessing) {
+  const visibleMessages = messages.filter(message => {
+    if (message.role !== 'user') return true
+    return !isSanctuaryFirstVisitBootstrapMessage(message.message)
+  })
+
+  if (visibleMessages.length === 0 && !isProcessing) {
     return <p className='text-sm text-gray-500'>Start a conversation to see messages here.</p>
   }
 
   return (
     <div className='space-y-3'>
-      {messages.map(message => (
+      {visibleMessages.map(message => (
         <div
           key={message.id}
           className={`rounded border px-3 py-2 text-sm ${

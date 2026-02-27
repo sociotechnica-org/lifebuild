@@ -5,7 +5,12 @@ import { RoomChatPanel } from '../room-chat/RoomChatPanel.js'
 import { useAttendantRail } from './AttendantRailProvider.js'
 
 export const AttendantChatPanel: React.FC = () => {
-  const { activeAttendantId, closeAttendant } = useAttendantRail()
+  const {
+    activeAttendantId,
+    clearQueuedAttendantMessage,
+    closeAttendant,
+    queuedAttendantMessages,
+  } = useAttendantRail()
   const room =
     activeAttendantId === 'jarvis'
       ? JARVIS_ATTENDANT_ROOM
@@ -13,6 +18,17 @@ export const AttendantChatPanel: React.FC = () => {
         ? MARVIN_ATTENDANT_ROOM
         : null
   const chat = useRoomChat(room)
+  const queuedMessage = activeAttendantId ? queuedAttendantMessages[activeAttendantId] : undefined
+  const sendDirectMessage = chat.sendDirectMessage
+
+  React.useEffect(() => {
+    if (!activeAttendantId || !queuedMessage) return
+
+    const sent = sendDirectMessage(queuedMessage)
+    if (sent) {
+      clearQueuedAttendantMessage(activeAttendantId)
+    }
+  }, [activeAttendantId, clearQueuedAttendantMessage, queuedMessage, sendDirectMessage])
 
   if (!activeAttendantId) {
     return null

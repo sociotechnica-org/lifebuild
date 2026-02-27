@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { render, screen } from '../../../tests/test-utils.js'
 import { RoomChatMessageList } from './RoomChatMessageList.js'
 import type { ChatMessage } from '@lifebuild/shared/schema'
+import { SANCTUARY_FIRST_VISIT_BOOTSTRAP_PREFIX } from '../../constants/sanctuary.js'
 
 const baseMessage: ChatMessage = {
   id: 'msg',
@@ -35,5 +36,31 @@ describe('RoomChatMessageList', () => {
   it('shows empty state when there are no messages', () => {
     render(<RoomChatMessageList messages={[]} workerName='Life Map' isProcessing={false} />)
     expect(screen.getByText(/start a conversation to see messages here/i)).toBeInTheDocument()
+  })
+
+  it('hides internal sanctuary first-visit bootstrap messages', () => {
+    render(
+      <RoomChatMessageList
+        messages={[
+          {
+            ...baseMessage,
+            id: 'bootstrap',
+            role: 'user',
+            message: `${SANCTUARY_FIRST_VISIT_BOOTSTRAP_PREFIX} hidden bootstrap`,
+          },
+          {
+            ...baseMessage,
+            id: 'assistant',
+            role: 'assistant',
+            message: 'Welcome to your Sanctuary.',
+          },
+        ]}
+        workerName='Jarvis'
+        isProcessing={false}
+      />
+    )
+
+    expect(screen.queryByText(/hidden bootstrap/i)).not.toBeInTheDocument()
+    expect(screen.getByText('Welcome to your Sanctuary.')).toBeInTheDocument()
   })
 })
