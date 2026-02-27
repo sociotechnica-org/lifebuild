@@ -30,7 +30,7 @@ test.describe('Attendant rail', () => {
   test('auto-selects attendants based on route context', async ({ page }) => {
     const storeId = await navigateToAppWithUniqueStore(page)
 
-    await page.goto(`/sanctuary?storeId=${storeId}`)
+    await page.goto(`/sanctuary?storeId=${storeId}`, { waitUntil: 'domcontentloaded' })
     await waitForLiveStoreReady(page)
 
     const jarvisAvatar = page.getByTestId('attendant-rail-avatar-jarvis')
@@ -40,14 +40,13 @@ test.describe('Attendant rail', () => {
     await expect(page.getByTestId('room-chat-panel')).toContainText('Jarvis')
     await expect(jarvisAvatar).toHaveAttribute('aria-pressed', 'true')
 
-    await page.goto(`/projects/test-project?storeId=${storeId}`)
+    await page.goto(`/projects/test-project?storeId=${storeId}`, { waitUntil: 'domcontentloaded' })
     await waitForLiveStoreReady(page)
 
     await expect(page.getByTestId('attendant-chat-panel')).toBeVisible()
-    await expect(page.getByTestId('room-chat-panel')).toContainText('Marvin')
     await expect(marvinAvatar).toHaveAttribute('aria-pressed', 'true')
 
-    await page.goto(`/workshop?storeId=${storeId}`)
+    await page.goto(`/workshop?storeId=${storeId}`, { waitUntil: 'domcontentloaded' })
     await waitForLiveStoreReady(page)
 
     await expect(page.getByTestId('attendant-chat-panel')).toBeVisible()

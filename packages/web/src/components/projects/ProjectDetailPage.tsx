@@ -1,10 +1,15 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useQuery } from '../../livestore-compat.js'
-import { getProjectById$, getProjectTasks$ } from '@lifebuild/shared/queries'
-import type { Project, Task } from '@lifebuild/shared/schema'
-import { type PlanningAttributes, resolveLifecycleState } from '@lifebuild/shared'
-import { createProjectRoomDefinition } from '@lifebuild/shared/rooms'
+import { useQuery, useStore } from '../../livestore-compat.js'
+import {
+  getConversationByRoom$,
+  getProjectById$,
+  getProjectTasks$,
+  getSettingByKey$,
+} from '@lifebuild/shared/queries'
+import { events, type Project, type Task } from '@lifebuild/shared/schema'
+import { SETTINGS_KEYS, type PlanningAttributes, resolveLifecycleState } from '@lifebuild/shared'
+import { MARVIN_ATTENDANT_ROOM, createProjectRoomDefinition } from '@lifebuild/shared/rooms'
 import { useProjectChatLifecycle } from '../../hooks/useProjectChatLifecycle.js'
 import { ProjectHeader } from '../project-room/ProjectHeader.js'
 import { TaskList } from '../project-room/TaskList.js'
@@ -15,9 +20,17 @@ type ProjectDetailPageProps = {
   onCloseOverlay?: () => void
 }
 
+const generateMessageId = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return `msg_${Math.random().toString(36).slice(2)}`
+}
+
 export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ onCloseOverlay }) => {
   const { projectId } = useParams<{ projectId: string }>()
   const resolvedProjectId = projectId ?? '__invalid__'
+  const { store } = useStore()
 
   // Query project and tasks
   const projectResult = useQuery(getProjectById$(resolvedProjectId))
@@ -25,8 +38,23 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ onCloseOve
   const projectQueryReady = projectResult !== undefined
   const tasks = useQuery(getProjectTasks$(resolvedProjectId)) ?? []
   const project = (projectRows[0] ?? undefined) as Project | undefined
+  const firstProjectIntroSettingQuery = useMemo(
+    () => getSettingByKey$(SETTINGS_KEYS.JOURNEY_FIRST_PROJECT_MARVIN_INTRO_COMPLETED_AT),
+    []
+  )
+  const firstProjectIntroSetting = useQuery(firstProjectIntroSettingQuery)
+  const firstProjectIntroReady = firstProjectIntroSetting !== undefined
+  const hasCompletedFirstProjectIntro = Boolean(firstProjectIntroSetting?.[0]?.value?.trim())
+  const marvinConversationQuery = useMemo(
+    () => getConversationByRoom$(MARVIN_ATTENDANT_ROOM.roomId),
+    []
+  )
+  const marvinConversation = useQuery(marvinConversationQuery)?.[0]
 
   const posthog = usePostHog()
+  const [showFirstOpenMarvinBanner, setShowFirstOpenMarvinBanner] = useState(false)
+  const hasInitializedFirstOpenRef = useRef(false)
+  const hasSentFirstOpenWelcomeRef = useRef(false)
 
   // Track project viewed
   useEffect(() => {
@@ -34,6 +62,40 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ onCloseOve
       posthog?.capture('project_viewed', { projectId: resolvedProjectId })
     }
   }, [project?.id])
+
+  useEffect(() => {
+    if (!firstProjectIntroReady || hasInitializedFirstOpenRef.current) return
+    hasInitializedFirstOpenRef.current = true
+    setShowFirstOpenMarvinBanner(!hasCompletedFirstProjectIntro)
+  }, [firstProjectIntroReady, hasCompletedFirstProjectIntro])
+
+  useEffect(() => {
+    if (!showFirstOpenMarvinBanner || !project || !marvinConversation) return
+    if (hasSentFirstOpenWelcomeRef.current) return
+    hasSentFirstOpenWelcomeRef.current = true
+
+    const now = new Date()
+    const completionTimestamp = now.toISOString()
+    const welcomeMessage = `Welcome to "${project.name}". I can help you craft project details, tighten scope, and shape clear next tasks.`
+
+    store.commit(
+      events.chatMessageSent({
+        id: generateMessageId(),
+        conversationId: marvinConversation.id,
+        message: welcomeMessage,
+        role: 'assistant',
+        createdAt: now,
+      })
+    )
+
+    store.commit(
+      events.settingUpdated({
+        key: SETTINGS_KEYS.JOURNEY_FIRST_PROJECT_MARVIN_INTRO_COMPLETED_AT,
+        value: completionTimestamp,
+        updatedAt: now,
+      })
+    )
+  }, [marvinConversation, project, showFirstOpenMarvinBanner, store])
 
   // Task modal state
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
@@ -119,6 +181,15 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ onCloseOve
   return (
     <div className='flex h-full flex-col overflow-hidden rounded-2xl border border-[#e5e2dc] bg-[#f5f3f0]'>
       <ProjectHeader project={project} onClose={onCloseOverlay} />
+
+      {showFirstOpenMarvinBanner && (
+        <div
+          className='mx-4 mt-3 rounded-xl border border-[#d8cab3] bg-[#fff8ec] px-4 py-2 text-sm text-[#5f4a36]'
+          data-testid='project-marvin-help-banner'
+        >
+          Marvin can help! Ask him to shape your project details and next tasks.
+        </div>
+      )}
 
       <div className='min-h-0 flex-1'>
         <TaskList tasks={tasks} projectId={resolvedProjectId} onTaskClick={handleTaskClick} />
