@@ -174,7 +174,7 @@ export class EventProcessor {
   private readonly piAgentResourceInitPromises: Map<string, Promise<PiAgentResources>> = new Map()
 
   // Tables to monitor for activity
-  // IMPORTANT: Only monitor chatMessages to process user messages
+  // IMPORTANT: Only monitor chatMessages to process incoming user/system messages
   // Monitoring other tables is unnecessary and causes performance issues
   private readonly monitoredTables = ['chatMessages'] as const
 
@@ -461,7 +461,7 @@ export class EventProcessor {
     storeState: StoreProcessingState
   ): boolean {
     try {
-      // We only monitor chatMessages now for processing user messages
+      // We only monitor chatMessages now for processing incoming chat turns
       if (tableName !== 'chatMessages') {
         logger.warn(`Unexpected table ${tableName} - only chatMessages should be monitored`)
         return false
@@ -510,21 +510,23 @@ export class EventProcessor {
       return
     }
 
-    // Filter for user messages only
-    const userRecords = records.filter(
-      (record: any) => record && typeof record === 'object' && record.role === 'user'
+    // Filter for incoming user/system messages only.
+    // System messages are used for internal bootstrap turns that should still trigger the agent loop.
+    const incomingRecords = records.filter(
+      (record: any) =>
+        record && typeof record === 'object' && (record.role === 'user' || record.role === 'system')
     )
 
-    if (userRecords.length === 0) {
+    if (incomingRecords.length === 0) {
       return
     }
 
     const log = createContextLogger({ storeId, operation: 'buffer_messages' })
-    log.info({ messageCount: userRecords.length }, 'Buffering user messages for processing')
+    log.info({ messageCount: incomingRecords.length }, 'Buffering incoming messages for processing')
 
     // Convert records to ProcessedEvent objects for buffering
     // Start lifecycle tracking for each message
-    const events: ProcessedEvent[] = userRecords.map((record: any) => {
+    const events: ProcessedEvent[] = incomingRecords.map((record: any) => {
       // Start tracking this message's lifecycle
       const { correlationId } = this.lifecycleTracker.startTracking(
         record.id,
@@ -542,7 +544,7 @@ export class EventProcessor {
           stage: 'event_processor',
           action: 'message_received',
         },
-        'User message received'
+        'Incoming chat message received'
       )
 
       return {

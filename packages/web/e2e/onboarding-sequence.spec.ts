@@ -24,14 +24,22 @@ test.describe('Onboarding sequence', () => {
 
     await expect(page.getByTestId('onboarding-campfire-panel')).toBeVisible()
     await expect(page.getByTestId('onboarding-fog-overlay')).toBeVisible()
+    await expect(page.getByTestId('room-chat-panel')).toBeVisible()
     await expect(page.getByTestId('attendant-rail')).toHaveCount(0)
     await expect(page.getByTestId('task-queue-panel')).toHaveCount(0)
 
-    await page.getByTestId('onboarding-project-name').fill('My first onboarding project')
-    await page
-      .getByTestId('onboarding-project-description')
-      .fill('Create momentum with a small, visible first win.')
-    await page.getByTestId('onboarding-create-project').click()
+    const seededProjectId = await page.evaluate(async () => {
+      const hooks = window.__LIFEBUILD_E2E__
+      if (!hooks?.seedOnboardingProjectWithTasks) {
+        throw new Error('Missing onboarding e2e seed hook')
+      }
+
+      return hooks.seedOnboardingProjectWithTasks({
+        name: 'My first onboarding project',
+        description: 'Create momentum with a small, visible first win.',
+        taskCount: 3,
+      })
+    })
 
     await expect(page.getByTestId('onboarding-reveal-panel')).toBeVisible()
     await expect(page.getByTestId('onboarding-first-project-banner')).toBeVisible({
@@ -41,7 +49,7 @@ test.describe('Onboarding sequence', () => {
     await expect(page.getByTestId('attendant-rail')).toBeVisible()
     await expect(page.getByTestId('attendant-rail-notification-marvin')).toBeVisible()
 
-    const firstProjectTile = page.locator('[data-testid^="hex-tile-button-"]').first()
+    const firstProjectTile = page.getByTestId(`hex-tile-button-${seededProjectId}`)
     await expect(firstProjectTile).toBeVisible({ timeout: 10000 })
     await firstProjectTile.click()
 

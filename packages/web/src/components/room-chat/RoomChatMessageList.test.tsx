@@ -4,7 +4,10 @@ import { render, screen } from '../../../tests/test-utils.js'
 import { RoomChatMessageList } from './RoomChatMessageList.js'
 import type { ChatMessage } from '@lifebuild/shared/schema'
 import { SANCTUARY_FIRST_VISIT_BOOTSTRAP_PREFIX } from '../../constants/sanctuary.js'
-import { WORKSHOP_FIRST_VISIT_BOOTSTRAP_PREFIX } from './internalMessages.js'
+import {
+  CAMPFIRE_BOOTSTRAP_PREFIX,
+  WORKSHOP_FIRST_VISIT_BOOTSTRAP_PREFIX,
+} from './internalMessages.js'
 
 const baseMessage: ChatMessage = {
   id: 'msg',
@@ -88,5 +91,31 @@ describe('RoomChatMessageList', () => {
 
     expect(screen.queryByText(/Bootstrap/i)).not.toBeInTheDocument()
     expect(screen.getByText('Welcome to the Workshop.')).toBeInTheDocument()
+  })
+
+  it('hides internal campfire bootstrap messages from the transcript', () => {
+    render(
+      <RoomChatMessageList
+        messages={[
+          {
+            ...baseMessage,
+            id: 'campfire-bootstrap',
+            role: 'system',
+            message: `${CAMPFIRE_BOOTSTRAP_PREFIX}\nCampfire bootstrap`,
+          },
+          {
+            ...baseMessage,
+            id: 'assistant-visible',
+            role: 'assistant',
+            message: 'Welcome to the Campfire.',
+          },
+        ]}
+        workerName='Jarvis'
+        isProcessing={false}
+      />
+    )
+
+    expect(screen.queryByText(/Campfire bootstrap/i)).not.toBeInTheDocument()
+    expect(screen.getByText('Welcome to the Campfire.')).toBeInTheDocument()
   })
 })

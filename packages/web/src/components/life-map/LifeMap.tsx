@@ -31,6 +31,14 @@ type SeedProjectOnMapInput = {
   lifecycleStatus?: SeedLifecycleStatus
 }
 
+type SeedOnboardingProjectInput = {
+  projectId?: string
+  name: string
+  description?: string
+  category?: ProjectCategory | null
+  taskCount?: number
+}
+
 type SeedProjectPlacementInput = SeedProjectOnMapInput & {
   coord: {
     q: number
@@ -41,6 +49,7 @@ type SeedProjectPlacementInput = SeedProjectOnMapInput & {
 type E2ELifeMapHooks = {
   seedProjectOnMap: (input: SeedProjectPlacementInput) => Promise<void>
   seedUnplacedProject: (input: SeedProjectOnMapInput) => Promise<void>
+  seedOnboardingProjectWithTasks: (input: SeedOnboardingProjectInput) => Promise<string>
 }
 
 declare global {
@@ -170,10 +179,43 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
       })
     }
 
+    const seedOnboardingProjectWithTasks: E2ELifeMapHooks['seedOnboardingProjectWithTasks'] =
+      async ({ projectId, name, description, category, taskCount = 3 }) => {
+        const resolvedProjectId = projectId ?? `onboarding-${crypto.randomUUID()}`
+
+        await seedUnplacedProject({
+          projectId: resolvedProjectId,
+          name,
+          description,
+          category,
+          lifecycleStatus: 'planning',
+        })
+
+        const normalizedTaskCount = Math.max(1, taskCount)
+        for (let index = 0; index < normalizedTaskCount; index += 1) {
+          await store.commit(
+            events.taskCreatedV2({
+              id: crypto.randomUUID(),
+              projectId: resolvedProjectId,
+              title: `Starter task ${index + 1}`,
+              description: `Seeded onboarding task ${index + 1}`,
+              assigneeIds: undefined,
+              status: 'todo',
+              position: (index + 1) * 1000,
+              createdAt: new Date(),
+              actorId,
+            })
+          )
+        }
+
+        return resolvedProjectId
+      }
+
     window.__LIFEBUILD_E2E__ = {
       ...window.__LIFEBUILD_E2E__,
       seedProjectOnMap,
       seedUnplacedProject,
+      seedOnboardingProjectWithTasks,
     }
   }, [actorId, store])
 

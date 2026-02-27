@@ -207,6 +207,36 @@ describe('EventProcessor - Infinite Loop Prevention', () => {
     expect(assistantMessageCommits.length).toBe(0)
   })
 
+  it('should process internal system bootstrap messages', async () => {
+    const storeId = 'test-store'
+
+    eventProcessor.startMonitoring(storeId, mockStore as any)
+
+    const tableUpdateCallback = tableUpdateCallbacks.get('monitor-chatMessages-test-store')
+    expect(tableUpdateCallback).toBeDefined()
+
+    mockStore.commit.mockClear()
+
+    const systemMessage = {
+      id: 'msg-system-bootstrap',
+      conversationId: 'conv-bootstrap',
+      message: '[internal:campfire-bootstrap]\nStart the conversation',
+      role: 'system',
+      createdAt: new Date(),
+    }
+
+    tableUpdateCallback!([systemMessage])
+
+    await new Promise(resolve => setImmediate(resolve))
+    await new Promise(resolve => setImmediate(resolve))
+
+    const startedEvents = (mockStore.commit as any).mock.calls.filter(
+      (call: any) => call[0]?.name === 'v1.LLMResponseStarted'
+    )
+    expect(startedEvents.length).toBe(1)
+    expect(startedEvents[0][0].args.userMessageId).toBe('msg-system-bootstrap')
+  })
+
   it('should emit completion event when conversation context fails to load', async () => {
     const storeId = 'test-store'
 
