@@ -27,9 +27,6 @@ function detectCurrentView(pathname: string): string | undefined {
   if (pathname === '/drafting-room') {
     return 'Drafting Room - Overview of all projects in planning stages 1-3'
   }
-  if (pathname === '/sorting-room' || pathname.startsWith('/sorting-room/')) {
-    return 'Sorting Room - Prioritizing and scheduling backlog projects'
-  }
   if (pathname === '/life-map') {
     return 'Life Map - Overview of all life categories and active projects'
   }

@@ -293,7 +293,7 @@ export const Stage3Form: React.FC = () => {
   }
 
   /**
-   * Save and advance to Stage 4 (Prioritizing) and move to backlog
+   * Save and advance to Stage 4 and move to backlog
    */
   const saveAndAdvance = () => {
     if (!projectId || !hasAtLeastOneTask || !lifecycleState) return
@@ -303,8 +303,8 @@ export const Stage3Form: React.FC = () => {
     // Update lifecycle state to stage 4 and status to backlog
     const updatedLifecycle: ProjectLifecycleState = {
       ...lifecycleState,
-      stage: 4, // Advance to Stage 4 (Prioritizing)
-      status: 'backlog', // Move to backlog for sorting
+      stage: 4, // Advance to Stage 4
+      status: 'backlog', // Move to backlog for future activation
     }
 
     store.commit(
@@ -325,9 +325,8 @@ export const Stage3Form: React.FC = () => {
     if (!hasAtLeastOneTask) return
     saveAndAdvance()
     posthog?.capture('project_stage_completed', { stage: 3, projectId })
-    // Project moves to backlog, navigate to Sorting Room with matching stream open
-    const stream = lifecycleState?.stream as 'gold' | 'silver' | 'bronze' | undefined
-    navigate(generateRoute.sortingRoom(stream))
+    // Project moves to backlog, then return to Life Map
+    navigate(generateRoute.lifeMap())
   }
 
   if (!project) {
@@ -469,7 +468,7 @@ export const Stage3Form: React.FC = () => {
             onClick={handleContinue}
             disabled={!hasAtLeastOneTask}
           >
-            Add to Sorting
+            Add to Backlog
           </button>
         </div>
       </div>

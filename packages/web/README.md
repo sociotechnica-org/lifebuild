@@ -221,7 +221,6 @@ Events are sent to PostHog via the `usePostHog` hook from `posthog-js/react` (re
 | ---------------------- | --------------------------- | ----------- | ----------------------- |
 | `life_map_viewed`      | Life Map page mounted       | —           | `LifeMap.tsx`           |
 | `drafting_room_viewed` | Drafting Room page mounted  | —           | `DraftingRoom.tsx`      |
-| `sorting_room_viewed`  | Sorting Room page mounted   | —           | `SortingRoom.tsx`       |
 | `project_viewed`       | Project detail page mounted | `projectId` | `ProjectDetailPage.tsx` |
 
 ### Project Lifecycle
@@ -233,17 +232,6 @@ Events are sent to PostHog via the `usePostHog` hook from `posthog-js/react` (re
 | `project_completed`       | Project marked as complete            | `projectId`                       | `ProjectHeader.tsx`                                  |
 | `project_archived`        | Project archived from project room    | `projectId`                       | `ProjectHeader.tsx`                                  |
 | `project_abandoned`       | Project abandoned from drafting room  | `projectId`, `stage`              | `DraftingRoom.tsx`                                   |
-
-### Sorting Room
-
-| Event                          | Trigger                                             | Properties            | Source                |
-| ------------------------------ | --------------------------------------------------- | --------------------- | --------------------- |
-| `sorting_room_stream_switched` | User switches between Gold/Silver/Bronze streams    | `stream`              | `SortingRoom.tsx`     |
-| `queue_reordered`              | Gold/Silver queue drag-and-drop reorder             | `stream`              | `GoldSilverPanel.tsx` |
-| `project_tabled`               | Project activated to the table                      | `stream`, `projectId` | `GoldSilverPanel.tsx` |
-| `project_released`             | Project released from table                         | `stream`              | `GoldSilverPanel.tsx` |
-| `bronze_project_added`         | Bronze project added to table (drag-drop or button) | —                     | `BronzePanel.tsx`     |
-| `bronze_stack_reordered`       | Bronze stack drag-and-drop reorder                  | —                     | `BronzePanel.tsx`     |
 
 ### Tasks
 

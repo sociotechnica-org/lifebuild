@@ -139,16 +139,6 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
             Drafting Room
           </Link>
           <Link
-            to={generateRoute.sortingRoom()}
-            className={`no-underline py-2 px-3 rounded-xl transition-all duration-[160ms] ${
-              isActive('/sorting-room')
-                ? 'text-[#2f2b27] bg-black/[0.04]'
-                : 'text-[#8b8680] hover:text-[#2f2b27]'
-            }`}
-          >
-            Sorting Room
-          </Link>
-          <Link
             to={generateRoute.lifeMap()}
             className={`no-underline py-2 px-3 rounded-xl transition-all duration-[160ms] ${
               isActive('/life-map')

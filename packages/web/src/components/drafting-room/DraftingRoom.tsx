@@ -76,7 +76,7 @@ function getLifecycleState(project: Project): ProjectLifecycleState {
   return resolveLifecycleState(project.projectLifecycleState, null)
 }
 
-// Stage configuration (3 stages - Stage 4 happens in the Sorting Room)
+// Stage configuration (3 stages - Stage 4 moves projects to backlog)
 const STAGES: { stage: PlanningStage; name: string; emptyMessage: string }[] = [
   { stage: 1, name: 'Identify', emptyMessage: "Click 'Start New Project' to begin" },
   { stage: 2, name: 'Scope', emptyMessage: 'Complete Stage 1 projects to move them here' },
@@ -154,7 +154,7 @@ export const DraftingRoom: React.FC = () => {
       // Must be in planning or backlog status
       if (lifecycle.status !== 'planning' && lifecycle.status !== 'backlog') return false
 
-      // Must have a valid stage 1-3 (Stage 4 projects go to Sorting Room)
+      // Must have a valid stage 1-3 (Stage 4 projects are no longer shown here)
       if (lifecycle.stage < 1 || lifecycle.stage > 3) return false
 
       return true
@@ -224,7 +224,7 @@ export const DraftingRoom: React.FC = () => {
         navigate(generateRoute.projectStage3(projectId))
         break
       default:
-        // Stage 4+ projects should be in the Sorting Room, not here
+        // Stage 4+ projects are not shown in the Drafting Room
         break
     }
   }
