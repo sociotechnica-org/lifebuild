@@ -16,7 +16,6 @@ type MockHexTileProps = {
   projectId?: string
   projectName: string
   isCompleted?: boolean
-  allowCompletedClick?: boolean
   onClick?: () => void
 }
 
@@ -47,12 +46,7 @@ vi.mock('./HexTile.js', () => ({
   HexTile: (props: MockHexTileProps) => (
     <button
       data-testid={`hex-tile-${props.projectName}`}
-      onClick={() => {
-        if (props.isCompleted && !props.allowCompletedClick) {
-          return
-        }
-        props.onClick?.()
-      }}
+      onClick={() => props.onClick?.()}
       type='button'
     >
       tile
@@ -261,6 +255,34 @@ describe('HexGrid placement behavior', () => {
       fireEvent.click(screen.getByTestId('hex-tile-Completed'))
       expect(onSelectPlacedProject).toHaveBeenCalledTimes(1)
       expect(onSelectPlacedProject).toHaveBeenCalledWith('project-completed')
+    } finally {
+      consoleErrorSpy.mockRestore()
+    }
+  })
+
+  it('opens completed tiles in normal mode when tile click handler is provided', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const onOpenCompletedProject = vi.fn()
+
+    try {
+      render(
+        <HexGrid
+          tiles={[
+            {
+              id: 'tile-completed',
+              projectId: 'project-completed',
+              coord: { q: 0, r: 2, s: -2 },
+              projectName: 'Completed',
+              categoryColor: '#9d9d9d',
+              isCompleted: true,
+              onClick: onOpenCompletedProject,
+            },
+          ]}
+        />
+      )
+
+      fireEvent.click(screen.getByTestId('hex-tile-Completed'))
+      expect(onOpenCompletedProject).toHaveBeenCalledTimes(1)
     } finally {
       consoleErrorSpy.mockRestore()
     }

@@ -19,11 +19,14 @@ import { usePostHog } from '../../lib/analytics.js'
 import { placeProjectOnHex, removeProjectFromHex } from '../hex-map/hexPositionCommands.js'
 import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.js'
 
+type SeedLifecycleStatus = 'planning' | 'backlog' | 'active' | 'completed'
+
 type SeedProjectOnMapInput = {
   projectId: string
   name: string
   description?: string
   category?: ProjectCategory | null
+  lifecycleStatus?: SeedLifecycleStatus
 }
 
 type SeedProjectPlacementInput = SeedProjectOnMapInput & {
@@ -69,6 +72,22 @@ const renderHexMapLoadingState = () => {
   )
 }
 
+const createSeedLifecycleState = (status: SeedLifecycleStatus) => {
+  const now = Date.now()
+
+  switch (status) {
+    case 'completed':
+      return { status: 'completed' as const, stage: 4 as const, completedAt: now }
+    case 'active':
+      return { status: 'active' as const, stage: 4 as const, stream: 'bronze' as const }
+    case 'backlog':
+      return { status: 'backlog' as const, stage: 3 as const, stream: 'bronze' as const }
+    case 'planning':
+    default:
+      return { status: 'planning' as const, stage: 1 as const }
+  }
+}
+
 /**
  * Life Map renders the full-bleed hex map as the primary surface.
  */
@@ -98,6 +117,7 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
       name,
       description,
       category,
+      lifecycleStatus,
     }) => {
       const existingProject = await store.query(getProjectById$(projectId))
       if (!existingProject || existingProject.length === 0) {
@@ -108,6 +128,17 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
             description,
             category: category ?? undefined,
             createdAt: new Date(),
+            actorId,
+          })
+        )
+      }
+
+      if (lifecycleStatus) {
+        await store.commit(
+          events.projectLifecycleUpdated({
+            projectId,
+            lifecycleState: createSeedLifecycleState(lifecycleStatus),
+            updatedAt: new Date(),
             actorId,
           })
         )
@@ -223,7 +254,7 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
   )
 
   const placedHexTiles = useMemo(() => {
-    const projectsById = new Map(allProjects.map(project => [project.id, project]))
+    const projectsById = new Map(allProjectsIncludingArchived.map(project => [project.id, project]))
 
     return hexPositions.flatMap(position => {
       if (position.entityType !== 'project') {
@@ -237,7 +268,8 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
 
       const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
       const category = PROJECT_CATEGORIES.find(item => item.value === project.category)
-      const isCompleted = lifecycle.status === 'completed'
+      const isArchived = project.archivedAt !== null
+      const isCompleted = lifecycle.status === 'completed' || isArchived
       const isWorkAtHand = !isCompleted && activeProjectIds.has(project.id)
 
       const visualState: HexTileVisualState = isCompleted
@@ -249,10 +281,9 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
             : 'active'
 
       const workstream: HexTileWorkstream =
-        visualState === 'work-at-hand' &&
-        (lifecycle.stream === 'gold' ||
-          lifecycle.stream === 'silver' ||
-          lifecycle.stream === 'bronze')
+        lifecycle.stream === 'gold' ||
+        lifecycle.stream === 'silver' ||
+        lifecycle.stream === 'bronze'
           ? lifecycle.stream
           : null
 
@@ -267,13 +298,12 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
           visualState,
           workstream,
           isCompleted,
-          onClick: isCompleted
-            ? undefined
-            : () => navigateToOverlayRoute(generateRoute.project(project.id)),
+          isArchived,
+          onClick: () => navigateToOverlayRoute(generateRoute.project(project.id)),
         },
       ]
     })
-  }, [activeProjectIds, allProjects, hexPositions, navigateToOverlayRoute])
+  }, [activeProjectIds, allProjectsIncludingArchived, hexPositions, navigateToOverlayRoute])
 
   const unplacedProjects = useMemo(() => {
     return unplacedProjectsFromQuery.map(project => ({

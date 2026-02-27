@@ -3,8 +3,8 @@ import type { HexCoord } from '@lifebuild/shared/hex'
 import { hexToWorld } from '@lifebuild/shared/hex'
 import React from 'react'
 import { useEffect, useMemo, useState } from 'react'
-import { getInitials } from '../../utils/initials.js'
 import { truncateLabel } from './labelUtils.js'
+import { ProjectSprite } from './ProjectSprite.js'
 
 const BASE_HEX_SIZE = 1
 const TILE_RADIUS = 0.68
@@ -66,8 +66,8 @@ type HexTileProps = {
   visualState?: HexTileVisualState
   workstream?: HexTileWorkstream
   isCompleted?: boolean
+  isArchived?: boolean
   isSelected?: boolean
-  allowCompletedClick?: boolean
   onClick?: () => void
 }
 
@@ -79,19 +79,25 @@ export function HexTile({
   visualState,
   workstream = null,
   isCompleted = false,
+  isArchived = false,
   isSelected = false,
-  allowCompletedClick = false,
   onClick,
 }: HexTileProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [x, z] = useMemo(() => hexToWorld(coord, BASE_HEX_SIZE), [coord.q, coord.r, coord.s])
-  const resolvedVisualState = visualState ?? (isCompleted ? 'completed' : 'active')
-  const isCompletedState = resolvedVisualState === 'completed'
-  const canClick = typeof onClick === 'function' && (!isCompletedState || allowCompletedClick)
-  const isHoverEnabled = canClick && !isCompletedState
+  const resolvedVisualState = visualState ?? (isCompleted || isArchived ? 'completed' : 'active')
+  const isCompletedState = resolvedVisualState === 'completed' || isArchived
+  const canClick = typeof onClick === 'function'
+  const isHoverEnabled = canClick
   const isHighlighted = (isHoverEnabled && isHovered) || isSelected
   const label = useMemo(() => truncateLabel(projectName, MAX_LABEL_LENGTH), [projectName])
-  const initials = useMemo(() => getInitials(projectName), [projectName])
+  const tileButtonTestId = useMemo(() => {
+    if (projectId) {
+      return projectId
+    }
+
+    return projectName.trim().toLowerCase().replace(/\s+/g, '-')
+  }, [projectId, projectName])
 
   const categoryEdgeColor = useMemo(() => {
     if (isCompletedState) {
@@ -190,20 +196,11 @@ export function HexTile({
         </mesh>
       </mesh>
 
-      <Text
-        raycast={() => null}
-        position={[0, TILE_HEIGHT / 2 + 0.12, 0.16]}
-        rotation={[-0.52, 0, 0]}
-        fontSize={0.34}
-        textAlign='center'
-        color={isCompletedState ? '#6f6a62' : '#ffffff'}
-        anchorX='center'
-        anchorY='middle'
-        outlineWidth={0.03}
-        outlineColor={isCompletedState ? '#d4cec4' : '#3d2e1e'}
-      >
-        {initials}
-      </Text>
+      <ProjectSprite
+        visualState={resolvedVisualState}
+        workstream={workstream}
+        isArchived={isArchived}
+      />
 
       {isHoverEnabled && isHovered && (
         <Text
@@ -229,7 +226,7 @@ export function HexTile({
           <button
             type='button'
             aria-label={`Open project ${projectName}`}
-            data-testid={`hex-tile-button-${projectId ?? initials.toLowerCase()}`}
+            data-testid={`hex-tile-button-${tileButtonTestId}`}
             className='h-10 w-10 rounded-full border border-transparent bg-transparent p-0 text-[0] transition-colors focus-visible:border-[#2f2b27] focus-visible:bg-[#fff8ec]/85'
             onClick={event => {
               event.stopPropagation()
