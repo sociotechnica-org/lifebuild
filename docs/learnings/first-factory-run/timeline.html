@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>First Factory Run — Unified Timeline</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; background: #0d1117; color: #c9d1d9; }
+
+.header {
+  background: linear-gradient(135deg, #161b22, #1c2333);
+  padding: 24px 32px;
+  border-bottom: 1px solid #30363d;
+  position: sticky; top: 0; z-index: 100;
+}
+.header h1 { font-size: 20px; color: #f0f6fc; margin-bottom: 8px; }
+.header .subtitle { color: #8b949e; font-size: 13px; margin-bottom: 12px; }
+
+.filters {
+  display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+}
+.filter-btn {
+  padding: 4px 10px; border-radius: 16px; border: 1px solid #30363d;
+  background: #21262d; color: #c9d1d9; font-size: 11px; cursor: pointer;
+  transition: all 0.15s;
+}
+.filter-btn:hover { border-color: #58a6ff; }
+.filter-btn.active { background: #1f6feb33; border-color: #58a6ff; color: #58a6ff; }
+.filter-btn .count { opacity: 0.5; margin-left: 4px; }
+
+.search-box {
+  margin-left: auto; padding: 4px 10px; border-radius: 6px;
+  border: 1px solid #30363d; background: #161b22; color: #c9d1d9;
+  font-size: 12px; width: 200px;
+}
+
+.timeline { padding: 16px 32px; max-width: 1200px; }
+
+.time-marker {
+  padding: 12px 0 6px; font-size: 14px; font-weight: 600;
+  color: #58a6ff; border-top: 1px solid #21262d; margin-top: 8px;
+  position: sticky; top: 105px; background: #0d1117; z-index: 50;
+}
+
+.event {
+  display: flex; gap: 12px; padding: 6px 0; border-left: 2px solid #21262d;
+  margin-left: 60px; padding-left: 16px; position: relative;
+  transition: background 0.15s;
+}
+.event:hover { background: #161b2266; }
+
+.event::before {
+  content: ''; position: absolute; left: -5px; top: 12px;
+  width: 8px; height: 8px; border-radius: 50%;
+}
+
+.event.twitter::before { background: #1d9bf0; }
+.event.discord::before { background: #5865f2; }
+.event.claude_human::before { background: #f97316; }
+.event.claude_assistant::before { background: #d4a574; }
+.event.codex_start::before { background: #10b981; }
+.event.codex_end::before { background: #065f46; }
+.event.github_commit::before { background: #8b5cf6; }
+.event.github_comment::before { background: #a855f7; }
+.event.github_review::before { background: #c084fc; }
+.event.github_issue::before { background: #f43f5e; }
+.event.github_issue_closed::before { background: #22c55e; }
+.event.github_event::before { background: #6b7280; }
+
+.event-time {
+  position: absolute; left: -76px; top: 6px;
+  font-size: 10px; color: #484f58; width: 56px; text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.event-badge {
+  font-size: 9px; padding: 2px 6px; border-radius: 10px;
+  font-weight: 600; text-transform: uppercase; white-space: nowrap;
+  flex-shrink: 0; margin-top: 2px;
+}
+.badge-twitter { background: #1d9bf022; color: #1d9bf0; border: 1px solid #1d9bf044; }
+.badge-discord { background: #5865f222; color: #818cf8; border: 1px solid #5865f244; }
+.badge-claude_human { background: #f9731622; color: #f97316; border: 1px solid #f9731644; }
+.badge-claude_assistant { background: #d4a57422; color: #d4a574; border: 1px solid #d4a57444; }
+.badge-codex_start, .badge-codex_end { background: #10b98122; color: #10b981; border: 1px solid #10b98144; }
+.badge-github_commit { background: #8b5cf622; color: #8b5cf6; border: 1px solid #8b5cf644; }
+.badge-github_comment, .badge-github_review { background: #a855f722; color: #a855f7; border: 1px solid #a855f744; }
+.badge-github_issue, .badge-github_issue_closed { background: #f43f5e22; color: #f43f5e; border: 1px solid #f43f5e44; }
+.badge-github_event { background: #6b728022; color: #9ca3af; border: 1px solid #6b728044; }
+
+.event-text {
+  font-size: 12px; line-height: 1.5; color: #c9d1d9;
+  overflow-wrap: break-word; word-break: break-word;
+}
+.event-text.is-collapsed {
+  max-height: 42px; overflow: hidden; cursor: pointer;
+  mask-image: linear-gradient(180deg, #000 60%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent);
+}
+.event-text.is-expanded { max-height: none; cursor: pointer; }
+
+.event-img {
+  display: block; max-width: 400px; max-height: 200px; margin-top: 8px;
+  border-radius: 8px; border: 1px solid #30363d; cursor: pointer;
+  transition: max-width 0.2s, max-height 0.2s;
+}
+.event-img.expanded { max-width: 800px; max-height: none; }
+
+.stats-bar {
+  display: flex; gap: 16px; padding: 8px 0; font-size: 11px; color: #8b949e;
+}
+.stats-bar span { font-variant-numeric: tabular-nums; }
+
+.loading { padding: 48px; text-align: center; color: #8b949e; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>First Factory Run — Unified Timeline</h1>
+  <div class="subtitle">Feb 26-27, 2026 | 20 issues, 20 PRs, 53 Codex sessions | ~22 hours</div>
+  <div class="stats-bar">
+    <span id="visible-count"></span>
+  </div>
+  <div class="filters" id="filters"></div>
+  <input type="text" class="search-box" id="search" placeholder="Search events..." />
+</div>
+
+<div class="timeline" id="timeline"><div class="loading">Loading timeline data...</div></div>
+
+<script>
+var ALL_EVENTS = [];
+
+var SOURCE_LABELS = {
+  twitter: 'Twitter',
+  discord: 'Discord',
+  claude_human: 'Jess\u2192Claude',
+  claude_assistant: 'Opus',
+  codex_start: 'Codex Start',
+  codex_end: 'Codex End',
+  github_commit: 'GH Commit',
+  github_comment: 'GH Comment',
+  github_review: 'GH Review',
+  github_issue: 'GH Issue',
+  github_issue_closed: 'GH Closed',
+  github_event: 'GH Event'
+};
+
+var SOURCE_GROUPS = {
+  'Social': ['twitter', 'discord'],
+  'Claude': ['claude_human', 'claude_assistant'],
+  'Codex': ['codex_start', 'codex_end'],
+  'GitHub': ['github_commit', 'github_comment', 'github_review', 'github_issue', 'github_issue_closed', 'github_event']
+};
+
+var activeFilters = new Set(Object.keys(SOURCE_LABELS));
+var searchTerm = '';
+
+function formatTime(timeEt) {
+  try {
+    var d = new Date(timeEt);
+    if (isNaN(d.getTime())) {
+      var parts = timeEt.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+      if (parts) {
+        var h = parseInt(parts[4]);
+        var m = parts[5];
+        var ampm = h >= 12 ? 'pm' : 'am';
+        h = h % 12 || 12;
+        return h + ':' + m + ampm;
+      }
+      return '??';
+    }
+    var et = new Date(d.getTime() - 5 * 60 * 60 * 1000);
+    var h = et.getUTCHours();
+    var m = String(et.getUTCMinutes()).padStart(2, '0');
+    var ampm = h >= 12 ? 'pm' : 'am';
+    h = h % 12 || 12;
+    return h + ':' + m + ampm;
+  } catch(e) {
+    return '??';
+  }
+}
+
+function getHourLabel(timeEt) {
+  try {
+    var d = new Date(timeEt);
+    var et;
+    if (isNaN(d.getTime())) {
+      var parts = timeEt.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2})/);
+      if (!parts) return '??';
+      var h = parseInt(parts[4]);
+      var day = parseInt(parts[3]);
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      var h12 = h % 12 || 12;
+      var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var etDate = new Date(parseInt(parts[1]), parseInt(parts[2])-1, parseInt(parts[3]), h);
+      etDate = new Date(etDate.getTime() - 5*60*60*1000);
+      var dayLabel = dayNames[etDate.getDay()] + ' ' + monthNames[etDate.getMonth()] + ' ' + etDate.getDate();
+      return dayLabel + ' \u2014 ' + h12 + ':00 ' + ampm + ' ET';
+    }
+    et = new Date(d.getTime() - 5 * 60 * 60 * 1000);
+    var h = et.getUTCHours();
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    var h12 = h % 12 || 12;
+    var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var dayLabel = dayNames[et.getUTCDay()] + ' ' + monthNames[et.getUTCMonth()] + ' ' + et.getUTCDate();
+    return dayLabel + ' \u2014 ' + h12 + ':00 ' + ampm + ' ET';
+  } catch(e) {
+    return '??';
+  }
+}
+
+function escapeHtml(text) {
+  var div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function toggleExpand(el) {
+  if (el.classList.contains('is-collapsed')) {
+    el.classList.remove('is-collapsed');
+    el.classList.add('is-expanded');
+  } else {
+    el.classList.remove('is-expanded');
+    el.classList.add('is-collapsed');
+  }
+}
+
+function buildFilters() {
+  var container = document.getElementById('filters');
+  var counts = {};
+  ALL_EVENTS.forEach(function(e) { counts[e.source] = (counts[e.source] || 0) + 1; });
+
+  Object.keys(SOURCE_GROUPS).forEach(function(group) {
+    var sources = SOURCE_GROUPS[group];
+    var btn = document.createElement('button');
+    var total = sources.reduce(function(s, src) { return s + (counts[src] || 0); }, 0);
+    btn.className = 'filter-btn active';
+    btn.dataset.group = group;
+    btn.innerHTML = group + '<span class="count">' + total + '</span>';
+    btn.onclick = function() {
+      var allActive = sources.every(function(s) { return activeFilters.has(s); });
+      sources.forEach(function(s) { if (allActive) activeFilters.delete(s); else activeFilters.add(s); });
+      updateFilterButtons();
+      render();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function updateFilterButtons() {
+  document.querySelectorAll('.filter-btn').forEach(function(btn) {
+    var group = btn.dataset.group;
+    if (group && SOURCE_GROUPS[group]) {
+      var sources = SOURCE_GROUPS[group];
+      var allActive = sources.every(function(s) { return activeFilters.has(s); });
+      btn.classList.toggle('active', allActive);
+    }
+  });
+}
+
+function render() {
+  var container = document.getElementById('timeline');
+  var search = searchTerm.toLowerCase();
+
+  var filtered = ALL_EVENTS.filter(function(e) {
+    if (!activeFilters.has(e.source)) return false;
+    if (search && e.text.toLowerCase().indexOf(search) === -1) return false;
+    return true;
+  });
+
+  document.getElementById('visible-count').textContent = filtered.length + ' of ' + ALL_EVENTS.length + ' events';
+
+  var html = '';
+  var lastHour = '';
+
+  filtered.forEach(function(e) {
+    var hour = getHourLabel(e.time_et);
+    if (hour !== lastHour) {
+      html += '<div class="time-marker">' + hour + '</div>';
+      lastHour = hour;
+    }
+
+    var time = formatTime(e.time_et);
+    var badge = SOURCE_LABELS[e.source] || e.source;
+    var text = escapeHtml(e.text);
+    var isLong = e.text.length > 120;
+
+    html += '<div class="event ' + e.source + '">';
+    html += '<span class="event-time">' + time + '</span>';
+    html += '<span class="event-badge badge-' + e.source + '">' + badge + '</span>';
+    var imgHtml = '';
+    if (e.images && e.images.length > 0) {
+      e.images.forEach(function(src) {
+        imgHtml += '<img src="' + escapeHtml(src) + '" class="event-img" onclick="this.classList.toggle(\'expanded\')" />';
+      });
+    }
+    html += '<span class="event-text' + (isLong ? ' is-collapsed' : '') + '"' +
+            (isLong ? ' onclick="toggleExpand(this)"' : '') +
+            '>' + text.replace(/\n/g, '<br>') + imgHtml + '</span>';
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+var debounceTimer;
+document.getElementById('search').addEventListener('input', function(e) {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(function() {
+    searchTerm = e.target.value;
+    render();
+  }, 200);
+});
+
+fetch('timeline-data.json')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    ALL_EVENTS = data;
+    buildFilters();
+    render();
+  })
+  .catch(function(err) {
+    document.getElementById('timeline').innerHTML = '<div class="loading">Error loading data: ' + err.message + '</div>';
+  });
+</script>
+</body>
+</html>
