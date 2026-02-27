@@ -51,14 +51,14 @@ ready → briefed → planned → implementing
                                 rework
 ```
 
-| Phase | What Happens | Who |
-| ----- | ------------ | --- |
-| `ready` | Story written, AC clear | Chip + Jess |
-| `briefed` | Context briefing attached | Claude |
-| `planned` | Technical plan attached | Codex |
-| `implementing` | Code written, PR opened | Codex |
-| `in-review` | Reviews + checks monitored | Claude |
-| `merged` | PR merged, issue closed | Claude |
+| Phase          | What Happens               | Who         |
+| -------------- | -------------------------- | ----------- |
+| `ready`        | Story written, AC clear    | Chip + Jess |
+| `briefed`      | Context briefing attached  | Claude      |
+| `planned`      | Technical plan attached    | Codex       |
+| `implementing` | Code written, PR opened    | Codex       |
+| `in-review`    | Reviews + checks monitored | Claude      |
+| `merged`       | PR merged, issue closed    | Claude      |
 
 ## Pre-loop Setup
 
@@ -131,14 +131,14 @@ loop will restart you.
 ### phase:briefed → Generate technical plan
 
 - Invoke Codex with the PLAN.md template
-  + story + briefing
+  - story + briefing
 - Post the technical plan as an issue comment
 - Update label to `phase:planned`
 
 ### phase:planned → Kick off implementation
 
 - Invoke Codex with the IMPLEMENT.md template
-  + story + briefing + plan
+  - story + briefing + plan
 - Codex will create a branch and open a PR
 - Link the PR to the issue
 - Update label to `phase:implementing`
@@ -178,11 +178,14 @@ loop will restart you.
 
 ## The Codex Plan Prompt (`.ralph/PLAN.md`)
 
-Template that gets filled per-story:
+Template that gets filled per-story. Modeled after
+existing plans in `docs/plans/` (e.g., 038, 040, 042).
 
 ```markdown
 You are writing a technical implementation plan for
-a LifeBuild user story.
+a LifeBuild user story. Your plan will be handed to
+another agent for implementation, so it must be
+concrete and unambiguous.
 
 ## User Story
 
@@ -195,33 +198,99 @@ a LifeBuild user story.
 
 ## Instructions
 
-Write a technical plan that covers:
+Read the relevant source files before writing the
+plan. Do NOT implement anything — plan only.
 
-1. **Files to modify** — list every file that needs
-   changes, with a brief description of the change
-2. **Files to create** — any new files needed
-3. **Files to delete** — any files being removed
-4. **Data model changes** — event/schema/query changes
-5. **Test plan** — what tests to write
-   (unit, integration, e2e Playwright)
-6. **Risk areas** — anything tricky or likely to break
-7. **Order of operations** — what order to make changes
+Write a plan with these sections:
 
-Reference the existing codebase. Read files before
-planning changes. Do NOT implement anything.
+### 1. Architecture Decisions
+
+For each non-obvious design choice:
+
+- What the decision is
+- Options considered
+- Chosen approach and why
+- State boundaries (LiveStore vs React context
+  vs URL state)
+
+### 2. File Changes
+
+Table format:
+
+| Action | File | Description      |
+| ------ | ---- | ---------------- |
+| modify | path | what changes     |
+| create | path | what it contains |
+| delete | path | why it's removed |
+
+### 3. Data Model Changes
+
+If events, schema, queries, or materializers change:
+
+- New/modified events with field definitions
+- New/modified materializer SQL
+- New/modified query definitions
+- Migration notes (if any)
+
+### 4. Component Hierarchy
+
+For new UI work, show the component tree
+using indented plain text:
+
+    ParentComponent
+      ChildA (props: ...)
+      ChildB (props: ...)
+        GrandchildC (props: ...)
+
+### 5. PR Breakdown
+
+If the story is large enough for multiple PRs,
+break it down. For each PR:
+
+- Scope (what it delivers)
+- Dependencies (which PRs must land first)
+- Success criteria (testable assertions)
+
+For single-PR stories, just list success criteria.
+
+### 6. Test Plan
+
+- Unit tests: what functions/hooks to test
+- E2E Playwright tests: user flows to verify
+- Storybook stories: for new Presenter components
+
+### 7. Risks and Mitigations
+
+| Risk | Impact | Mitigation |
+| ---- | ------ | ---------- |
+| ...  | ...    | ...        |
+
+### 8. What's Out of Scope
+
+Explicitly list related work that this story
+does NOT cover, to prevent scope creep.
 
 ## Key paths
 
-- Events: packages/shared/src/events.ts
-- Schema: packages/shared/src/schema.ts
-- Queries: packages/shared/src/queries.ts
-- Web components: packages/web/src/components/
-- Routes: packages/web/src/routes.tsx
+- Events: `packages/shared/src/events.ts`
+- Schema: `packages/shared/src/schema.ts`
+- Queries: `packages/shared/src/queries.ts`
+- Web components: `packages/web/src/components/`
+- Routes: `packages/web/src/routes.tsx`
+- Hex map: `packages/web/src/components/hex-map/`
+- Layout: `packages/web/src/components/layout/`
+
+## Reference
+
+See `docs/plans/` for examples of good plans
+(especially 038, 040, 042).
 ```
 
 ## The Codex Implementation Prompt (`.ralph/IMPLEMENT.md`)
 
-Template that gets filled per-story:
+Template that gets filled per-story. Includes key
+rules from AGENTS.md so Codex follows project
+conventions.
 
 ```markdown
 You are implementing a LifeBuild user story. Create a
@@ -248,32 +317,60 @@ and open a pull request.
 3. Write tests:
    - Unit tests for new logic
    - E2E Playwright tests for user-facing changes
+   - Storybook stories for new Presenter components
 4. Run `pnpm lint-all` and fix any issues
 5. Run `pnpm test` and ensure all tests pass
 6. Run `CI=true pnpm test:e2e` and ensure e2e pass
 7. Open a PR with:
    - Title matching the user story title
-   - Body containing:
-     - ## Summary (what changed)
-     - ## Test plan (how to verify)
-     - Closes #{issue_number}
+   - Body with ## Summary, ## Test plan, ## Changelog
+   - Include `Closes #{issue_number}`
+
+## Architecture (from AGENTS.md)
+
+- LiveStore event-sourced state with SQLite
+  materialized views
+- Web app: React 19 + TypeScript (`packages/web`)
+- Sync backend: Cloudflare Worker + Durable Objects
+  (`packages/worker`)
+- Client persistence: OPFS + SharedWorker
+
+## Critical Gotchas (from AGENTS.md)
+
+- Worker errors do not auto-propagate to main thread;
+  bridge explicitly.
+- React Error Boundaries do not catch all
+  worker/defect paths by default.
+- LiveStore adapter instances must be memoized
+  (`useMemo`) to avoid reconnect loops.
+- Use `networkStatus.disconnectedSince` for
+  offline-duration calculations.
+- Serialize `Date` values to ISO strings in API
+  responses.
 
 ## Rules
 
-- Do NOT modify files outside the technical plan scope
-- Do NOT add features beyond what the story specifies
+- Do NOT modify files outside the technical plan
+- Do NOT add features beyond the story scope
 - Do NOT skip tests
-- If blocked, document it in a PR comment and open
-  the PR as draft
+- Add a `## Changelog` section for user-facing changes
+- Create Storybook stories for new UI components
+  (see `packages/web/AGENTS.md` for patterns)
+- Keep the PR small and focused
+- If blocked, document in a PR comment and open
+  as draft
 
 ## Key paths
 
-- Events: packages/shared/src/events.ts
-- Schema: packages/shared/src/schema.ts
-- Queries: packages/shared/src/queries.ts
-- Web components: packages/web/src/components/
-- Routes: packages/web/src/routes.tsx
-- E2E tests: packages/web/e2e/
+- Events: `packages/shared/src/events.ts`
+- Schema: `packages/shared/src/schema.ts`
+- Queries: `packages/shared/src/queries.ts`
+- Web components: `packages/web/src/components/`
+- Routes: `packages/web/src/routes.tsx`
+- Hex map: `packages/web/src/components/hex-map/`
+- Layout: `packages/web/src/components/layout/`
+- E2E tests: `packages/web/e2e/`
+- Storybook: `packages/web/src/stories/`
 ```
 
 ## The Bash Loop (`.ralph/loop.sh`)
@@ -414,16 +511,16 @@ Examples:
 - [ ] Chip agent created with user story skill
 - [ ] User stories written for all ~19 stories
 - [ ] Stories created as GitHub issues on Board #4
-  with correct labels and dependencies
+      with correct labels and dependencies
 - [ ] `.ralph/PROMPT.md` finalized
 - [ ] `.ralph/PLAN.md` finalized
 - [ ] `.ralph/IMPLEMENT.md` finalized
 - [ ] `.ralph/loop.sh` tested with a dry run
 - [ ] Codex CLI configured and authenticated
 - [ ] Context briefings generated for Phase 1
-  (can be done by the loop itself)
+      (can be done by the loop itself)
 - [ ] PATCH station work started (library cards)
-  — can run in parallel with MAKE
+      — can run in parallel with MAKE
 
 ## Open Questions
 
