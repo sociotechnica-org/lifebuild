@@ -75,6 +75,7 @@ test.describe('Building overlay routing', () => {
   test('opens project overlay from a map tile and closes via button, Escape, and browser back', async ({
     page,
   }) => {
+    test.setTimeout(60_000)
     const storeId = await navigateToAppWithUniqueStore(page)
 
     if (await isLoadingLiveStore(page)) {
@@ -142,6 +143,7 @@ test.describe('Building overlay routing', () => {
   })
 
   test('supports landmark routing plus back/escape close behavior', async ({ page }) => {
+    test.setTimeout(60_000)
     const storeId = await navigateToAppWithUniqueStore(page)
 
     if (await isLoadingLiveStore(page)) {

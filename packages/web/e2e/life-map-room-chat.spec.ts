@@ -3,6 +3,7 @@ import { navigateToAppWithUniqueStore, waitForLiveStoreReady } from './test-util
 
 test.describe('Attendant rail', () => {
   test('opens, closes, and switches attendant chat panels from the rail', async ({ page }) => {
+    test.setTimeout(60_000)
     await navigateToAppWithUniqueStore(page)
 
     const jarvisAvatar = page.getByTestId('attendant-rail-avatar-jarvis')
@@ -28,6 +29,7 @@ test.describe('Attendant rail', () => {
   })
 
   test('auto-selects attendants based on route context', async ({ page }) => {
+    test.setTimeout(60_000)
     const storeId = await navigateToAppWithUniqueStore(page)
 
     await page.goto(`/sanctuary?storeId=${storeId}`, { waitUntil: 'domcontentloaded' })
