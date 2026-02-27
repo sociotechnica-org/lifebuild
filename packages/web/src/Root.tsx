@@ -28,7 +28,8 @@ import { ROUTES } from './constants/routes.js'
 import { ProjectDetailPage } from './components/projects/ProjectDetailPage.js'
 import { LifeMap } from './components/life-map/LifeMap.js'
 import { RoomLayout } from './components/layout/RoomLayout.js'
-import { LIFE_MAP_ROOM } from '@lifebuild/shared/rooms'
+import { LIFE_MAP_ROOM, SORTING_ROOM } from '@lifebuild/shared/rooms'
+import { SortingRoom } from './components/sorting-room/SortingRoom.js'
 import { determineStoreIdFromUser } from './utils/navigation.js'
 import {
   DEVTOOLS_QUERY_PARAM,
@@ -416,6 +417,26 @@ const ProtectedApp: React.FC = () => {
                     <Route path='/drafting-room/*' element={<LegacyDraftingRoomRedirect />} />
                     {/* Redirect legacy sorting-room routes to life-map (preserving query params) */}
                     <Route path='/sorting-room/*' element={<LegacySortingRoomRedirect />} />
+                    <Route
+                      path={ROUTES.SORTING_ROOM}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={SORTING_ROOM}>
+                            <SortingRoom />
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.SORTING_ROOM_STREAM}
+                      element={
+                        <ErrorBoundary>
+                          <RoomLayout room={SORTING_ROOM}>
+                            <SortingRoom />
+                          </RoomLayout>
+                        </ErrorBoundary>
+                      }
+                    />
                     <Route
                       path={ROUTES.PROJECTS}
                       element={
