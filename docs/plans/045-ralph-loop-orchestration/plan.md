@@ -462,32 +462,30 @@ Phase 3: New UI (depends on Phase 2)
   S10: Project interface as building overlay
        [blocked-by: S5, S7]
 
-Phase 4: Prototype-dependent
-  S11: Workshop overlay shell
-       [blocked-by: S7, P1]
+Phase 4: Buildings + Integration
+  S11: Workshop overlay (coming soon)
+       [blocked-by: S7]
   S12: Sanctuary overlay shell
        [blocked-by: S7]
   S13: Task Queue panel
-       [blocked-by: S10, P4]
+       [blocked-by: S10]
   S14: Project placement flow
-       [blocked-by: S11, P2]
+       [blocked-by: S11]
   S15: Onboarding sequence (mechanical)
        [blocked-by: S9, S10, S11, S12]
   S16: Campfire conversation
-       [blocked-by: S15, P6]
+       [blocked-by: S15]
   S17: Unburdening conversation
-       [blocked-by: S11, P7]
+       [blocked-by: S11]
   S18: Visioning conversation
-       [blocked-by: S12, P8]
-  S19: Statue/sketch generation
-       [blocked-by: S14, P3]
+       [blocked-by: S12]
+  S19: Statue sprite on placed projects
+       [blocked-by: S14]
 ```
 
-Note: S12 (Sanctuary shell) is NOT blocked on a
-prototype — the overlay is just a container for
-the charter + Jarvis chat. The conversation content
-(S18) is blocked on P8, but the shell can be built
-now.
+With temp decisions resolved, Phase 4 is no longer
+blocked on prototypes. All stories can proceed
+sequentially without waiting for shaping work.
 
 ## Temp Decisions
 
@@ -499,23 +497,29 @@ decision is documented in the story with:
 > for [X]. When prototype P[N] resolves, a follow-up
 > story will replace this with the shaped version.
 
-Examples:
+Resolved temp decisions:
 
-- **Workshop interior (P1):** Shell overlay with
-  "drafting coming soon" + Marvin chat. Wired to
-  route, left rail auto-selects Marvin. Interior
-  filled in after P1.
-- **Task Queue interaction (P4):** Flat task list,
-  click navigates to project. No fancy filtering
-  or direct completion. Refined after P4.
-- **Conversations (P6-P8):** Placeholder scripts
-  with the right structure (posture sequence,
-  handoff triggers) but generic content. Real
+- **Workshop interior (P1):** "Coming soon" sign
+  inside the overlay + Marvin chat. Wired to route,
+  left rail auto-selects Marvin. Real drafting
+  experience filled in after P1 prototype.
+- **Task Queue (P4):** Tasks grouped by project
+  (standard group-by). Click a task to navigate to
+  its project. Refined after P4 prototype.
+- **Task states:** Four states cycled by clicking
+  the checkbox: `[ ]` todo, `[i]` in progress,
+  `[r]` review, `[x]` done. Each click advances
+  to the next state.
+- **Conversations (P6-P8):** Generic prompt for
+  each attendant. Jarvis gets a welcoming/coaching
+  prompt, Marvin gets a project-helper prompt. Real
   scripts after Danvers finishes prototypes.
-- **Project placement (P2):** Simple "click hex
-  to place" without flourish. Fanfare after P2.
-- **Statues (P3):** Colored placeholder buildings
-  (category color). Nano Banana art after P3.
+- **Project placement (P2):** Simple "click hex to
+  place" — no flourish or fanfare. Enhanced after
+  P2 prototype.
+- **Statues (P3):** Single static PNG sprite
+  reused for all projects. Nano Banana generated
+  unique art comes after P3 prototype.
 
 ## What Needs to Happen Before Starting the Loop
 
