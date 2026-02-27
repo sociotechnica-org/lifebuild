@@ -257,7 +257,7 @@ This release requires a major Context Library patch before implementation begins
 | [[Zone - Life Map]] | Sole zone. All rooms become building overlays. Remove Mesa reference. |
 | [[Structure - Hex Grid]] | Elevated to primary UI canvas. Add map slots, fixed buildings, placement flow. |
 | [[Component - Hex Tile]] | Now represents project buildings/statues. Click opens overlay. Subtle tier coloring. |
-| [[Component - Campfire]] | **Decision needed:** Card says campfire fades; release says it persists as decorative. Reconcile. |
+| [[Component - Campfire]] | **Open decision:** Card says campfire fades after onboarding; release currently assumes it persists as non-interactive decorative element. To be decided later. |
 | [[Overlay - The Table]] | Removed from UI. Data layer preserved. May return via spatial mechanic. |
 | [[Room - Drafting Room]] | Removed as standalone room. Functionality rebuilt inside Workshop. |
 | [[Room - Sorting Room]] | Removed entirely. May return as spatial-native experience. |
