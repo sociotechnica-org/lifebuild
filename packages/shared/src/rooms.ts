@@ -150,6 +150,47 @@ export const DRAFTING_ROOM: StaticRoomDefinition = {
   },
 }
 
+const CAMPFIRE_ROOM_PROMPT = `// SHIM: replace after P6 prototype
+You are Jarvis, guiding a new builder at the Campfire in LifeBuild.
+
+## Goal
+Help the builder create their first project with momentum.
+
+## Conversation style
+- Be warm, calm, and practical.
+- Ask one clear question at a time.
+- Keep responses concise and human.
+- Focus on helping them name one meaningful first project.
+
+## Execution
+- Once you understand the project, call create_project with:
+  - a clear project name
+  - a short plain-language description
+  - category set to "growth" unless the builder clearly requests another category
+- Then call create_task to create 3-5 starter tasks for that project.
+- Make tasks concrete, small, and beginner-friendly.
+- After creation, reflect back what was created and invite one small next step.
+
+## Important
+- Do not ask the user to fill forms.
+- Do not claim creation succeeded unless tool calls succeeded.
+- If details are missing, ask a quick follow-up before creating.
+`
+
+export const CAMPFIRE_ROOM: StaticRoomDefinition = {
+  roomId: 'campfire',
+  roomKind: 'life-map',
+  scope: DEFAULT_ROOM_SCOPE,
+  conversationTitle: 'Jarvis · Campfire',
+  worker: {
+    id: 'campfire-jarvis',
+    name: 'Jarvis',
+    roleDescription: 'Campfire Guide',
+    prompt: CAMPFIRE_ROOM_PROMPT,
+    defaultModel: DEFAULT_MODEL,
+  },
+}
+
 const JARVIS_ATTENDANT_PROMPT = `You are Jarvis, the counselor attendant for LifeBuild.
 
 ## Your Role
@@ -397,6 +438,7 @@ export const getCategoryRoomDefinition = (category: ProjectCategory): StaticRoom
  */
 export function getRoomDefinitionByRoomId(roomId: string): StaticRoomDefinition | null {
   if (roomId === 'life-map') return LIFE_MAP_ROOM
+  if (roomId === 'campfire') return CAMPFIRE_ROOM
   if (roomId === 'drafting-room') return DRAFTING_ROOM
   if (roomId === 'attendant:jarvis') return JARVIS_ATTENDANT_ROOM
   if (roomId === 'attendant:marvin') return MARVIN_ATTENDANT_ROOM

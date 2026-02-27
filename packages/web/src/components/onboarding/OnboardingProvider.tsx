@@ -1,5 +1,6 @@
 import {
   createHex,
+  getAllTasks$,
   generateHexGrid,
   getHexPositions$,
   getProjects$,
@@ -30,6 +31,7 @@ import {
 const GRID_RADIUS = 3
 
 const MAX_HEX_DISTANCE_FROM_CENTER = 3
+const MIN_ONBOARDING_TASK_COUNT = 3
 
 const getHexDistanceFromCenter = (q: number, r: number, s: number): number => {
   return (Math.abs(q) + Math.abs(r) + Math.abs(s)) / 2
@@ -62,11 +64,6 @@ const pickOnboardingProjectCoord = (positions: readonly HexPosition[]) => {
   return candidates[0] ?? null
 }
 
-export type CreateOnboardingProjectInput = {
-  name: string
-  description: string
-}
-
 type OnboardingContextValue = {
   isReady: boolean
   isActive: boolean
@@ -79,7 +76,6 @@ type OnboardingContextValue = {
   isFogDismissed: boolean
   dismissFogOverlay: () => void
   resetFogOverlay: () => void
-  createFirstProject: (input: CreateOnboardingProjectInput) => Promise<string | null>
   completeReveal: () => Promise<void>
   markProjectOpened: (projectId: string) => Promise<void>
   markMarvinAutoOpened: () => Promise<void>
@@ -101,7 +97,6 @@ const DEFAULT_CONTEXT: OnboardingContextValue = {
   isFogDismissed: false,
   dismissFogOverlay: () => {},
   resetFogOverlay: () => {},
-  createFirstProject: async () => null,
   completeReveal: async () => {},
   markProjectOpened: async () => {},
   markMarvinAutoOpened: async () => {},
@@ -124,6 +119,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const onboardingSettingRows = useQuery(getSettingByKey$(ONBOARDING_SETTING_KEY))
   const projects = useQuery(getProjects$)
+  const tasks = useQuery(getAllTasks$)
   const hexPositions = useQuery(getHexPositions$)
 
   const [isBootstrapping, setIsBootstrapping] = useState(true)
@@ -202,94 +198,92 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     [persistState, persistedState]
   )
 
-  const createFirstProject = useCallback(
-    async ({ name, description }: CreateOnboardingProjectInput) => {
-      if (!persistedState) {
-        return null
-      }
+  useEffect(() => {
+    if (!isReady || !persistedState) {
+      return
+    }
 
-      if (persistedState.phase !== 'campfire' && persistedState.phase !== 'not_started') {
-        return persistedState.firstProjectId
-      }
+    if (persistedState.phase !== 'campfire' && persistedState.phase !== 'not_started') {
+      return
+    }
 
-      const trimmedName = name.trim()
-      const trimmedDescription = description.trim()
-      if (!trimmedName || !trimmedDescription) {
-        return null
-      }
+    if (persistedState.firstProjectId) {
+      return
+    }
 
+    if (!projects || !tasks) {
+      return
+    }
+
+    const onboardingStartAt = new Date(persistedState.startedAt).getTime()
+    if (Number.isNaN(onboardingStartAt)) {
+      return
+    }
+
+    const candidateProjects = projects
+      .filter(project => project.createdAt.getTime() >= onboardingStartAt)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+
+    const candidateProject = candidateProjects.find(project => {
+      const taskCount = tasks.filter(task => task.projectId === project.id).length
+      return taskCount >= MIN_ONBOARDING_TASK_COUNT
+    })
+
+    if (!candidateProject) {
+      return
+    }
+
+    let cancelled = false
+
+    const promoteFirstProject = async () => {
       const now = new Date()
-      const projectId = crypto.randomUUID()
-
-      await store.commit(
-        events.projectCreatedV2({
-          id: projectId,
-          name: trimmedName,
-          description: trimmedDescription,
-          category: 'growth',
-          createdAt: now,
-          actorId,
-        })
-      )
-
-      await store.commit(
-        events.taskCreatedV2({
-          id: crypto.randomUUID(),
-          projectId,
-          title: 'Define the next tiny step',
-          description: 'Write down the smallest action you can complete today.',
-          assigneeIds: undefined,
-          status: 'todo',
-          position: 1000,
-          createdAt: now,
-          actorId,
-        })
-      )
-
-      await store.commit(
-        events.taskCreatedV2({
-          id: crypto.randomUUID(),
-          projectId,
-          title: 'Capture why this matters',
-          description: 'Add one sentence about the purpose of this project.',
-          assigneeIds: undefined,
-          status: 'todo',
-          position: 2000,
-          createdAt: now,
-          actorId,
-        })
-      )
-
       const latestHexPositions = await store.query(getHexPositions$)
-      const placementCoord = pickOnboardingProjectCoord(latestHexPositions)
+      const isAlreadyPlaced = latestHexPositions.some(
+        position => position.entityType === 'project' && position.entityId === candidateProject.id
+      )
 
-      if (placementCoord) {
-        await store.commit(
-          events.hexPositionPlaced({
-            id: crypto.randomUUID(),
-            hexQ: placementCoord.q,
-            hexR: placementCoord.r,
-            entityType: 'project',
-            entityId: projectId,
-            placedAt: now,
-            actorId,
-          })
-        )
+      if (!isAlreadyPlaced) {
+        const placementCoord = pickOnboardingProjectCoord(latestHexPositions)
+        if (placementCoord) {
+          await store.commit(
+            events.hexPositionPlaced({
+              id: crypto.randomUUID(),
+              hexQ: placementCoord.q,
+              hexR: placementCoord.r,
+              entityType: 'project',
+              entityId: candidateProject.id,
+              placedAt: now,
+              actorId,
+            })
+          )
+        }
+      }
+
+      if (cancelled) {
+        return
       }
 
       await updateState(current => {
-        const transitioned = transitionPhase(current, 'reveal', now.toISOString())
+        if (current.phase !== 'campfire' && current.phase !== 'not_started') {
+          return current
+        }
+
+        const nowIso = now.toISOString()
+        const transitioned = transitionPhase(current, 'reveal', nowIso)
         return {
           ...transitioned,
-          firstProjectId: projectId,
-          updatedAt: now.toISOString(),
+          firstProjectId: current.firstProjectId ?? candidateProject.id,
+          updatedAt: nowIso,
         }
       })
+    }
 
-      return projectId
-    },
-    [actorId, persistedState, store, updateState]
-  )
+    void promoteFirstProject()
+
+    return () => {
+      cancelled = true
+    }
+  }, [actorId, isReady, persistedState, projects, store, tasks, updateState])
 
   const completeReveal = useCallback(async () => {
     await updateState(current => {
@@ -420,7 +414,6 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       resetFogOverlay: () => {
         setIsFogDismissed(false)
       },
-      createFirstProject,
       completeReveal,
       markProjectOpened,
       markMarvinAutoOpened,
@@ -429,7 +422,6 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     [
       completeOnboarding,
       completeReveal,
-      createFirstProject,
       isFogDismissed,
       isReady,
       isViewingFirstProject,

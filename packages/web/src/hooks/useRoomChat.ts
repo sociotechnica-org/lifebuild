@@ -49,22 +49,40 @@ export const useRoomChat = (room: StaticRoomDefinition | null) => {
 
   // Send a message directly without going through state
   const sendDirectMessage = React.useCallback(
-    (message: string) => {
+    (
+      message: string,
+      options?: { role?: 'user' | 'system'; includeNavigationContext?: boolean }
+    ) => {
       if (!isReady || !room || !message.trim()) return false
+      const role = options?.role ?? 'user'
+      const includeNavigationContext = options?.includeNavigationContext ?? role === 'user'
 
       store.commit(
         events.chatMessageSent({
           id: generateMessageId(),
           conversationId: conversation!.id,
           message: message.trim(),
-          role: 'user',
-          navigationContext: navigationContext ? JSON.stringify(navigationContext) : undefined,
+          role,
+          navigationContext:
+            includeNavigationContext && navigationContext
+              ? JSON.stringify(navigationContext)
+              : undefined,
           createdAt: new Date(),
         })
       )
       return true
     },
     [conversation, isReady, navigationContext, room, store]
+  )
+
+  const sendInternalMessage = React.useCallback(
+    (message: string) => {
+      return sendDirectMessage(message, {
+        role: 'system',
+        includeNavigationContext: false,
+      })
+    },
+    [sendDirectMessage]
   )
 
   return {
@@ -79,5 +97,6 @@ export const useRoomChat = (room: StaticRoomDefinition | null) => {
     setMessageText,
     sendMessage: handleSend,
     sendDirectMessage,
+    sendInternalMessage,
   }
 }

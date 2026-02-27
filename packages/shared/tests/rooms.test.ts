@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
+  CAMPFIRE_ROOM,
   CATEGORY_ROOMS,
   LIFE_MAP_ROOM,
   JARVIS_ATTENDANT_ROOM,
   MARVIN_ATTENDANT_ROOM,
   createProjectRoomDefinition,
   getCategoryRoomDefinition,
+  getRoomDefinitionByRoomId,
 } from '../src/rooms.js'
 
 describe('rooms definitions', () => {
@@ -26,6 +28,15 @@ describe('rooms definitions', () => {
     expect(MARVIN_ATTENDANT_ROOM.worker.id).toBe('attendant-marvin')
     expect(MARVIN_ATTENDANT_ROOM.worker.name).toBe('Marvin')
     expect(MARVIN_ATTENDANT_ROOM.scope).toBe('workspace')
+  })
+
+  it('provides a deterministic campfire room for onboarding', () => {
+    expect(CAMPFIRE_ROOM.roomId).toBe('campfire')
+    expect(CAMPFIRE_ROOM.worker.id).toBe('campfire-jarvis')
+    expect(CAMPFIRE_ROOM.worker.name).toBe('Jarvis')
+    expect(CAMPFIRE_ROOM.scope).toBe('workspace')
+    expect(CAMPFIRE_ROOM.worker.prompt).toContain('SHIM: replace after P6 prototype')
+    expect(getRoomDefinitionByRoomId('campfire')).toEqual(CAMPFIRE_ROOM)
   })
 
   it('exposes category rooms keyed by slug', () => {
