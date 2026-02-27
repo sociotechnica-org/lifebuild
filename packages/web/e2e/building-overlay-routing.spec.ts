@@ -116,8 +116,10 @@ test.describe('Building overlay routing', () => {
     await expect(page).toHaveURL(new RegExp(`/\\?storeId=${storeId}$`))
 
     const workshopButton = page.getByTestId('fixed-building-workshop-button')
+    let openedWorkshopFromMap = false
     if (await workshopButton.isVisible().catch(() => false)) {
       await workshopButton.click()
+      openedWorkshopFromMap = true
       await expect(page).toHaveURL(new RegExp(`/workshop\\?storeId=${storeId}$`))
     } else {
       await page.goto(`/workshop?storeId=${storeId}`)
@@ -127,7 +129,11 @@ test.describe('Building overlay routing', () => {
     await expect(page.getByTestId('building-overlay')).toHaveCount(1)
     await expect(page.getByRole('heading', { name: 'Workshop' })).toBeVisible()
 
-    await page.goBack()
+    if (openedWorkshopFromMap) {
+      await page.goBack()
+    } else {
+      await page.keyboard.press('Escape')
+    }
     await expect(page).toHaveURL(new RegExp(`/\\?storeId=${storeId}$`))
   })
 
