@@ -10,6 +10,7 @@ describe('rooms definitions', () => {
   it('provides a deterministic life map room', () => {
     expect(LIFE_MAP_ROOM.roomId).toBe('life-map')
     expect(LIFE_MAP_ROOM.worker.id).toBe('life-map-mesa')
+    expect(LIFE_MAP_ROOM.worker.status).toBe('inactive')
     expect(LIFE_MAP_ROOM.scope).toBe('workspace')
   })
 

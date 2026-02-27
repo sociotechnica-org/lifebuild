@@ -28,8 +28,8 @@ describe('RoomChatPanel', () => {
       <RoomChatPanel
         worker={{
           id: 'worker',
-          name: 'MESA',
-          roleDescription: 'Navigator',
+          name: 'Life Map',
+          roleDescription: 'Inactive room attendant',
           systemPrompt: '',
           defaultModel: 'gpt-4o-mini',
           createdAt: new Date(),
@@ -48,7 +48,7 @@ describe('RoomChatPanel', () => {
       />
     )
 
-    expect(screen.getByText('MESA')).toBeInTheDocument()
+    expect(screen.getByText('Life Map')).toBeInTheDocument()
     expect(screen.getByText('Ping')).toBeInTheDocument()
   })
 
@@ -57,8 +57,8 @@ describe('RoomChatPanel', () => {
       <RoomChatPanel
         worker={{
           id: 'worker',
-          name: 'MESA',
-          roleDescription: 'Navigator',
+          name: 'Life Map',
+          roleDescription: 'Inactive room attendant',
           systemPrompt: '',
           defaultModel: 'gpt-4o-mini',
           createdAt: new Date(),

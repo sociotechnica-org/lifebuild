@@ -34,21 +34,21 @@ vi.mock('../../hooks/useRoomChat.js', () => ({
   useRoomChat: () => ({
     worker: {
       id: 'life-map-mesa',
-      name: 'MESA',
-      roleDescription: 'Life Map Navigator',
+      name: 'Life Map',
+      roleDescription: 'Inactive room attendant',
       defaultModel: 'gpt-4o-mini',
       systemPrompt: '',
       createdAt: new Date(),
       updatedAt: new Date(),
       roomId: 'life-map',
       roomKind: 'life-map',
-      status: 'active',
-      isActive: true,
+      status: 'inactive',
+      isActive: false,
       avatar: null,
     },
     conversation: {
       id: 'conversation-1',
-      title: 'MESA Chat',
+      title: 'Life Map',
       model: 'gpt-4o-mini',
       workerId: 'life-map-mesa',
       roomId: 'life-map',
@@ -66,7 +66,7 @@ vi.mock('../../hooks/useRoomChat.js', () => ({
     setMessageText: mockSetMessageText,
     sendMessage: mockSendMessage,
     isConversationArchived: false,
-    isWorkerInactive: false,
+    isWorkerInactive: true,
   }),
 }))
 

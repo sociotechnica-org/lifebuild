@@ -30,22 +30,22 @@ const sampleMessages: ChatMessage[] = [
 
 const baseWorker = {
   id: 'life-map-mesa',
-  name: 'MESA',
-  roleDescription: 'Life Map Navigator',
+  name: 'Life Map',
+  roleDescription: 'Inactive room attendant',
   systemPrompt: '',
   defaultModel: 'gpt-4o-mini',
   createdAt: new Date(),
   updatedAt: new Date(),
   roomId: null,
   roomKind: null,
-  status: 'active' as const,
-  isActive: true,
+  status: 'inactive' as const,
+  isActive: false,
   avatar: null,
 }
 
 const sampleConversation = {
   id: 'conv',
-  title: 'Life Map · MESA',
+  title: 'Life Map',
   model: 'gpt-4o-mini',
   workerId: 'life-map-mesa',
   roomId: 'life-map',
