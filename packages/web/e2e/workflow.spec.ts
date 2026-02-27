@@ -304,17 +304,17 @@ test.describe('Workflow', () => {
   })
 
   test('navigate through all pages', async ({ page }) => {
-    await navigateWithUniqueStore(page)
+    const storeId = await navigateWithUniqueStore(page)
 
-    // Navigate to Life Map (the primary page)
-    await page.click('text=Life Map')
+    // Navigate to Life Map
+    await page.goto(`/life-map?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
 
     // Verify Life Map loads with empty state
     await expect(page.getByText('No projects yet')).toBeVisible({ timeout: 10000 })
 
-    // Verify legacy routes redirect to Life Map
-    await page.goto('/drafting-room')
+    // Verify legacy /drafting-room route redirects to Life Map
+    await page.goto(`/drafting-room?storeId=${storeId}`)
     await page.waitForURL(/\/life-map/, { timeout: 10000 })
     await waitForLiveStoreReady(page)
     await expect(page.getByText('No projects yet')).toBeVisible({ timeout: 10000 })
