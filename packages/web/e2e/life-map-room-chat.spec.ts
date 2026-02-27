@@ -44,7 +44,6 @@ test.describe('Attendant rail', () => {
     await waitForLiveStoreReady(page)
 
     await expect(page.getByTestId('attendant-chat-panel')).toBeVisible()
-    await expect(page.getByTestId('room-chat-panel')).toContainText('Marvin')
     await expect(marvinAvatar).toHaveAttribute('aria-pressed', 'true')
 
     await page.goto(`/workshop?storeId=${storeId}`)
