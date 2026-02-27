@@ -240,15 +240,14 @@ This release requires a major Context Library patch before implementation begins
 | Room | Sanctuary | Charter creation space. Building on map with overlay. Houses the Visioning experience with Jarvis. Disambiguates from Aesthetic - Sanctuary and Journey - Sanctuary Progression. |
 | Component | Left Rail | Persistent vertical rail on left edge with attendant avatar icons and expandable chat panel. Primary agent interaction surface. |
 | Component | Task Queue | Persistent collapsible panel in top-right. Aggregated cross-project task view. Appears when second project is placed. |
-| Component | Notification Pip | Small indicator on attendant avatars when agents have something to say. Behavioral rules for when to show/clear. |
+| Component | Attendant Avatar | Circular avatar icon in Left Rail for each attendant. States: idle, notification pip (agent wants to speak), active (chat open). Expandable to chat panel. |
 | Component | Attendant Sprite | Jarvis and Marvin as map sprites. Walk between buildings during onboarding. Stand outside buildings at steady state. |
 | Structure | Building Overlay | Centered panel over dimmed map. URL-addressable. Back-button navigable. Used by Workshop, Sanctuary, and Project overlays. Governs consistency across all overlay implementations. |
 | Structure | Task List | Replaces Kanban Board inside Project Board. Tasks with toggleable states (to-do, doing, review, done). |
-| System | Fog-of-War | Dark/dawn state for new users. Transition triggers (campfire conversation → sunrise effect). Controls progressive map reveal. |
 | System | Map Slots | Fixed hex cells available for project placement. Completed/archived projects don't consume slots. Spatial WIP mechanism replacing The Table. |
 | Capability | Project Placement | Flow from Workshop sketch to placed building on map. Cursor mechanic, validation, flourish/animation. |
-| Capability | The Unburdening | Named experience — Marvin guides multi-project drafting in Workshop. |
-| Capability | The Visioning | Named experience — Jarvis guides charter creation in Sanctuary. |
+| Journey | The Unburdening | Named experience — Marvin guides multi-project drafting in Workshop. Multi-phase progression arc. |
+| Journey | The Visioning | Named experience — Jarvis guides charter creation in Sanctuary. Multi-phase progression arc. |
 
 ### Existing Cards Needing WHEN Updates
 
