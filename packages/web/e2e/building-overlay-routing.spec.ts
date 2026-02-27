@@ -6,6 +6,7 @@ type SeedProjectOnMapInput = {
   name: string
   description?: string
   coord: { q: number; r: number }
+  lifecycleStatus?: 'planning' | 'backlog' | 'active' | 'completed'
 }
 
 const seedProjectOnMap = async (page: Page, input: SeedProjectOnMapInput) => {
@@ -39,12 +40,16 @@ const isLoadingLiveStore = async (page: Page): Promise<boolean> => {
 
 const expectMapLayerVisible = async (page: Page) => {
   const canvas = page.locator('canvas').first()
-  if (await canvas.isVisible().catch(() => false)) {
-    await expect(canvas).toBeVisible()
+  const hasCanvas = await canvas
+    .waitFor({ state: 'visible', timeout: 10000 })
+    .then(() => true)
+    .catch(() => false)
+
+  if (hasCanvas) {
     return
   }
 
-  await expect(page.getByText('Map unavailable on this device')).toBeVisible()
+  await expect(page.getByText('Map unavailable on this device')).toBeVisible({ timeout: 10000 })
 }
 
 test.describe('Building overlay routing', () => {
@@ -89,6 +94,32 @@ test.describe('Building overlay routing', () => {
     await expect(page.getByTestId('building-overlay')).toHaveCount(1)
     await page.goBack()
     await expect(page).toHaveURL(new RegExp(`/\\?storeId=${storeId}$`))
+  })
+
+  test('opens completed project overlays from map tiles', async ({ page }) => {
+    const storeId = await navigateToAppWithUniqueStore(page)
+
+    if (await isLoadingLiveStore(page)) {
+      return
+    }
+
+    await expectMapLayerVisible(page)
+
+    const projectId = `e2e-completed-project-${Date.now()}`
+    await seedProjectOnMap(page, {
+      projectId,
+      name: 'Completed Map Project',
+      description: 'Project seeded in completed state for overlay routing.',
+      coord: { q: 2, r: -2 },
+      lifecycleStatus: 'completed',
+    })
+
+    const tileButton = page.getByTestId(`hex-tile-button-${projectId}`)
+    await expect(tileButton).toBeVisible({ timeout: 10000 })
+
+    await tileButton.click()
+    await expect(page).toHaveURL(new RegExp(`/projects/${projectId}\\?storeId=${storeId}$`))
+    await expect(page.getByRole('heading', { name: 'Completed Map Project' })).toBeVisible()
   })
 
   test('supports landmark routing plus back/escape close behavior', async ({ page }) => {

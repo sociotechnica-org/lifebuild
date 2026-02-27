@@ -27,6 +27,7 @@ export type PlacedHexTile = {
   visualState?: HexTileVisualState
   workstream?: HexTileWorkstream
   isCompleted?: boolean
+  isArchived?: boolean
   onClick?: () => void
 }
 
@@ -183,8 +184,8 @@ export function HexGrid({
           visualState={tile.visualState}
           workstream={tile.workstream}
           isCompleted={tile.isCompleted}
+          isArchived={tile.isArchived}
           isSelected={selectedPlacedProjectId === tile.projectId}
-          allowCompletedClick={isSelectingPlacedProject}
           onClick={isPlacementMode ? undefined : () => handleTileClick(tile)}
         />
       ))}

@@ -12,6 +12,7 @@ type HexTilePreviewProps = {
   visualState?: HexTileVisualState
   workstream?: HexTileWorkstream
   isCompleted?: boolean
+  isArchived?: boolean
   isSelected?: boolean
 }
 
@@ -21,6 +22,7 @@ const HexTilePreview: React.FC<HexTilePreviewProps> = ({
   visualState = 'active',
   workstream = null,
   isCompleted = false,
+  isArchived = false,
   isSelected = false,
 }) => {
   return (
@@ -43,6 +45,7 @@ const HexTilePreview: React.FC<HexTilePreviewProps> = ({
           visualState={visualState}
           workstream={workstream}
           isCompleted={isCompleted}
+          isArchived={isArchived}
           isSelected={isSelected}
           onClick={() => {}}
         />
@@ -59,7 +62,7 @@ const meta: Meta<typeof HexTilePreview> = {
     docs: {
       description: {
         component:
-          'Project tile rendered on top of a base hex cell with category color and truncated label.',
+          'Project tile rendered on top of a base hex cell with a placeholder statue sprite, lifecycle styling, and hover tooltip.',
       },
     },
   },
@@ -94,12 +97,39 @@ export const WorkAtHand: Story = {
   },
 }
 
+export const SilverTier: Story = {
+  args: {
+    projectName: 'Refine project intake process',
+    categoryColor: '#22C55E',
+    visualState: 'active',
+    workstream: 'silver',
+  },
+}
+
+export const BronzeTier: Story = {
+  args: {
+    projectName: 'Stabilize weekly review routine',
+    categoryColor: '#F97316',
+    visualState: 'active',
+    workstream: 'bronze',
+  },
+}
+
 export const CompletedProject: Story = {
   args: {
     projectName: 'Finish tax filing workflow',
     categoryColor: '#3B82F6',
     visualState: 'completed',
     isCompleted: true,
+  },
+}
+
+export const ArchivedProject: Story = {
+  args: {
+    projectName: 'Retired migration experiment',
+    categoryColor: '#3B82F6',
+    visualState: 'active',
+    isArchived: true,
   },
 }
 
