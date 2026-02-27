@@ -1,6 +1,35 @@
 import { test, expect, type Page } from '@playwright/test'
 import { navigateToAppWithUniqueStore, waitForLiveStoreReady } from './test-utils'
 
+type SeedProjectOnMapInput = {
+  projectId: string
+  name: string
+  description?: string
+  coord: { q: number; r: number }
+}
+
+const seedProjectOnMap = async (page: Page, input: SeedProjectOnMapInput) => {
+  await page.waitForFunction(
+    () =>
+      typeof (window as { __LIFEBUILD_E2E__?: { seedProjectOnMap?: unknown } }).__LIFEBUILD_E2E__
+        ?.seedProjectOnMap === 'function',
+    undefined,
+    { timeout: 15000 }
+  )
+
+  await page.evaluate(async seedInput => {
+    const testHooks = (
+      window as {
+        __LIFEBUILD_E2E__?: { seedProjectOnMap?: (input: SeedProjectOnMapInput) => Promise<void> }
+      }
+    ).__LIFEBUILD_E2E__
+    if (!testHooks?.seedProjectOnMap) {
+      throw new Error('Missing map seeding hooks')
+    }
+    await testHooks.seedProjectOnMap(seedInput)
+  }, input)
+}
+
 const isLoadingLiveStore = async (page: Page): Promise<boolean> => {
   return page
     .locator('text=Loading LiveStore')
@@ -19,6 +48,49 @@ const expectMapLayerVisible = async (page: Page) => {
 }
 
 test.describe('Building overlay routing', () => {
+  test('opens project overlay from a map tile and closes via button, Escape, and browser back', async ({
+    page,
+  }) => {
+    const storeId = await navigateToAppWithUniqueStore(page)
+
+    if (await isLoadingLiveStore(page)) {
+      return
+    }
+
+    await expectMapLayerVisible(page)
+
+    const projectId = `e2e-project-${Date.now()}`
+    await seedProjectOnMap(page, {
+      projectId,
+      name: 'Map Tile Overlay Project',
+      description: 'Project seeded for overlay route testing.',
+      coord: { q: -1, r: 1 },
+    })
+
+    const tileButton = page.getByTestId(`hex-tile-button-${projectId}`)
+    await expect(tileButton).toBeVisible({ timeout: 10000 })
+
+    await tileButton.click()
+    await expect(page).toHaveURL(new RegExp(`/projects/${projectId}\\?storeId=${storeId}$`))
+    await expect(page.getByRole('heading', { name: 'Map Tile Overlay Project' })).toBeVisible()
+    await expect(page.getByText('Project seeded for overlay route testing.')).toBeVisible()
+
+    await page.getByTestId('building-overlay-close').click()
+    await expect(page).toHaveURL(new RegExp(`/\\?storeId=${storeId}$`))
+
+    await tileButton.click()
+    await expect(page).toHaveURL(new RegExp(`/projects/${projectId}\\?storeId=${storeId}$`))
+    await expect(page.getByTestId('building-overlay')).toHaveCount(1)
+    await page.keyboard.press('Escape')
+    await expect(page).toHaveURL(new RegExp(`/\\?storeId=${storeId}$`))
+
+    await tileButton.click()
+    await expect(page).toHaveURL(new RegExp(`/projects/${projectId}\\?storeId=${storeId}$`))
+    await expect(page.getByTestId('building-overlay')).toHaveCount(1)
+    await page.goBack()
+    await expect(page).toHaveURL(new RegExp(`/\\?storeId=${storeId}$`))
+  })
+
   test('supports landmark routing plus back/escape close behavior', async ({ page }) => {
     const storeId = await navigateToAppWithUniqueStore(page)
 

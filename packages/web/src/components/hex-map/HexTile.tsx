@@ -1,4 +1,4 @@
-import { Text } from '@react-three/drei'
+import { Html, Text } from '@react-three/drei'
 import type { HexCoord } from '@lifebuild/shared/hex'
 import { hexToWorld } from '@lifebuild/shared/hex'
 import React from 'react'
@@ -59,6 +59,7 @@ export type HexTileVisualState = 'planning' | 'active' | 'work-at-hand' | 'compl
 export type HexTileWorkstream = 'gold' | 'silver' | 'bronze' | null
 
 type HexTileProps = {
+  projectId?: string
   coord: HexCoord
   projectName: string
   categoryColor: string
@@ -71,6 +72,7 @@ type HexTileProps = {
 }
 
 export function HexTile({
+  projectId,
   coord,
   projectName,
   categoryColor,
@@ -220,6 +222,23 @@ export function HexTile({
         >
           {label}
         </Text>
+      )}
+
+      {canClick && (
+        <Html position={[0, TILE_HEIGHT / 2 + 0.12, 0]} center>
+          <button
+            type='button'
+            aria-label={`Open project ${projectName}`}
+            data-testid={`hex-tile-button-${projectId ?? initials.toLowerCase()}`}
+            className='h-10 w-10 rounded-full border border-transparent bg-transparent p-0 text-[0] transition-colors focus-visible:border-[#2f2b27] focus-visible:bg-[#fff8ec]/85'
+            onClick={event => {
+              event.stopPropagation()
+              onClick?.()
+            }}
+          >
+            {projectName}
+          </button>
+        </Html>
       )}
     </group>
   )

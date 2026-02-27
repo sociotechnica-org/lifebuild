@@ -13,6 +13,7 @@ type MockHexCellProps = {
 
 type MockHexTileProps = {
   id?: string
+  projectId?: string
   projectName: string
   isCompleted?: boolean
   allowCompletedClick?: boolean

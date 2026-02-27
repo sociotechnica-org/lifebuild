@@ -148,7 +148,7 @@ const meta: Meta<typeof ProjectDetailPage> = {
     docs: {
       description: {
         component:
-          'Project detail page with a task list for task management. Features click-to-cycle status indicators, inline task creation, and a task detail modal for editing.',
+          'Project overlay content rendered inside the shared building overlay frame. Includes project metadata with the task list flow for add, edit, and status toggling.',
       },
     },
   },
@@ -256,7 +256,7 @@ export const ManyTasks: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Demonstrates how the page handles projects with large task counts.',
+        story: 'Demonstrates how overlay content handles projects with large task counts.',
       },
     },
   },

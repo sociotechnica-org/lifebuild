@@ -5,6 +5,7 @@ import { HexTile } from './HexTile.js'
 
 vi.mock('@react-three/drei', () => ({
   Text: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Html: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))
 
 describe('HexTile click behavior', () => {

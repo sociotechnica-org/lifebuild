@@ -43,4 +43,17 @@ describe('ProjectHeader', () => {
 
     expect(screen.queryByRole('button', { name: /stage/i })).toBeNull()
   })
+
+  it('renders the project description when present', () => {
+    const project = createMockProject({
+      id: 'proj-123',
+      description: 'Project description from overlay header',
+    })
+
+    render(<ProjectHeader project={project} />)
+
+    expect(screen.getByTestId('project-header-description')).toHaveTextContent(
+      'Project description from overlay header'
+    )
+  })
 })
