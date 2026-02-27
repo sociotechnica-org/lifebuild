@@ -42,14 +42,6 @@ const getHexCenterRatios = async (canvas: Locator, q: number, r: number) => {
   }
 }
 
-const getStreamSummaryCard = (page: Page, label: 'Initiative' | 'Optimization' | 'To-Do') => {
-  return page
-    .locator('div.border.rounded-xl')
-    .filter({ has: page.locator('span', { hasText: label }) })
-    .filter({ has: page.getByRole('button', { name: /Expand|Hide/ }) })
-    .first()
-}
-
 const createInitiativeProject = async (page: Page, storeId: string, projectName: string) => {
   await page.goto(`/drafting-room/new?storeId=${storeId}`)
   await waitForLiveStoreReady(page)
@@ -74,25 +66,8 @@ const createInitiativeProject = async (page: Page, storeId: string, projectName:
   await modal.getByRole('button', { name: 'Create Task' }).click()
   await expect(modal).not.toBeVisible({ timeout: 5000 })
 
-  await page.getByRole('button', { name: 'Add to Sorting' }).click()
-  await expect(getStreamSummaryCard(page, 'Initiative')).toBeVisible({ timeout: 10000 })
-}
-
-const activateInitiativeProject = async (page: Page, projectName: string) => {
-  const initiativeSummaryHeader = getStreamSummaryCard(page, 'Initiative')
-  const initiativeToggle = initiativeSummaryHeader.getByRole('button', { name: /Expand|Hide/ })
-  if ((await initiativeToggle.textContent())?.trim() === 'Expand') {
-    await initiativeToggle.click()
-  }
-
-  const projectCard = page
-    .locator('div')
-    .filter({ hasText: projectName })
-    .filter({ has: page.getByRole('button', { name: 'Activate', exact: true }) })
-    .first()
-  await expect(projectCard).toBeVisible({ timeout: 10000 })
-  await projectCard.getByRole('button', { name: 'Activate', exact: true }).click()
-  await page.waitForTimeout(800)
+  await page.getByRole('button', { name: 'Add to Backlog' }).click()
+  await expect(page).toHaveURL(/\/life-map(?:\?|$)/)
 }
 
 const placeProjectOnMap = async (
@@ -188,9 +163,6 @@ test.describe('Life Map placement tray flow', () => {
     const projectNameMatcher = new RegExp(escapeRegExp(projectName))
 
     await createInitiativeProject(page, storeId, projectName)
-    await activateInitiativeProject(page, projectName)
-
-    await page.getByRole('link', { name: 'Life Map' }).click()
     await waitForLiveStoreReady(page)
 
     const canvas = page.locator('canvas').first()

@@ -7,8 +7,6 @@ export const ROUTES = {
   // App routes
   LIFE_MAP: '/life-map',
   DRAFTING_ROOM: '/drafting-room',
-  SORTING_ROOM: '/sorting-room',
-  SORTING_ROOM_STREAM: '/sorting-room/:stream',
   PROJECT_CREATE: '/drafting-room/new',
   PROJECT_STAGE1: '/drafting-room/:projectId/stage1',
   PROJECT_STAGE2: '/drafting-room/:projectId/stage2',
@@ -29,8 +27,6 @@ export const generateRoute = {
   // App routes
   lifeMap: () => '/life-map',
   draftingRoom: () => '/drafting-room',
-  sortingRoom: (stream?: 'gold' | 'silver' | 'bronze') =>
-    stream ? `/sorting-room/${stream}` : '/sorting-room',
   projectCreate: () => '/drafting-room/new',
   projectStage1: (projectId: string) => `/drafting-room/${projectId}/stage1`,
   projectStage2: (projectId: string) => `/drafting-room/${projectId}/stage2`,
