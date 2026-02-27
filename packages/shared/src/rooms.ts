@@ -35,7 +35,7 @@ export const LIFE_MAP_ROOM: StaticRoomDefinition = {
   scope: DEFAULT_ROOM_SCOPE,
   conversationTitle: 'Life Map',
   worker: {
-    id: 'life-map-attendant',
+    id: 'life-map-mesa',
     name: 'Life Map',
     roleDescription: 'Inactive room attendant',
     prompt: LIFE_MAP_ROOM_PROMPT,

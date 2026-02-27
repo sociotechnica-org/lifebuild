@@ -29,7 +29,7 @@ const sampleMessages: ChatMessage[] = [
 ]
 
 const baseWorker = {
-  id: 'life-map-attendant',
+  id: 'life-map-mesa',
   name: 'Life Map',
   roleDescription: 'Inactive room attendant',
   systemPrompt: '',
@@ -47,7 +47,7 @@ const sampleConversation = {
   id: 'conv',
   title: 'Life Map',
   model: 'gpt-4o-mini',
-  workerId: 'life-map-attendant',
+  workerId: 'life-map-mesa',
   roomId: 'life-map',
   roomKind: 'life-map',
   scope: 'workspace' as const,

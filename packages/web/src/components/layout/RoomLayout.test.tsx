@@ -33,7 +33,7 @@ const mockSetMessageText = vi.fn()
 vi.mock('../../hooks/useRoomChat.js', () => ({
   useRoomChat: () => ({
     worker: {
-      id: 'life-map-attendant',
+      id: 'life-map-mesa',
       name: 'Life Map',
       roleDescription: 'Inactive room attendant',
       defaultModel: 'gpt-4o-mini',
@@ -50,7 +50,7 @@ vi.mock('../../hooks/useRoomChat.js', () => ({
       id: 'conversation-1',
       title: 'Life Map',
       model: 'gpt-4o-mini',
-      workerId: 'life-map-attendant',
+      workerId: 'life-map-mesa',
       roomId: 'life-map',
       roomKind: 'life-map',
       scope: 'workspace',
