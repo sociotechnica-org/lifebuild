@@ -42,6 +42,14 @@ const getHexCenterRatios = async (canvas: Locator, q: number, r: number) => {
   }
 }
 
+const getStreamSummaryCard = (page: Page, label: 'Initiative' | 'Optimization' | 'To-Do') => {
+  return page
+    .locator('div.border.rounded-xl')
+    .filter({ has: page.locator('span', { hasText: label }) })
+    .filter({ has: page.getByRole('button', { name: /Expand|Hide/ }) })
+    .first()
+}
+
 const createInitiativeProject = async (page: Page, storeId: string, projectName: string) => {
   await page.goto(`/drafting-room/new?storeId=${storeId}`)
   await waitForLiveStoreReady(page)
@@ -67,14 +75,11 @@ const createInitiativeProject = async (page: Page, storeId: string, projectName:
   await expect(modal).not.toBeVisible({ timeout: 5000 })
 
   await page.getByRole('button', { name: 'Add to Sorting' }).click()
-  await expect(page.getByRole('heading', { name: 'Initiative' })).toBeVisible({ timeout: 10000 })
+  await expect(getStreamSummaryCard(page, 'Initiative')).toBeVisible({ timeout: 10000 })
 }
 
 const activateInitiativeProject = async (page: Page, projectName: string) => {
-  const initiativeSummaryHeader = page
-    .locator('div')
-    .filter({ hasText: /^Initiative\s*\d+\s*in backlog\s*(Expand|Hide)$/ })
-    .first()
+  const initiativeSummaryHeader = getStreamSummaryCard(page, 'Initiative')
   const initiativeToggle = initiativeSummaryHeader.getByRole('button', { name: /Expand|Hide/ })
   if ((await initiativeToggle.textContent())?.trim() === 'Expand') {
     await initiativeToggle.click()
@@ -83,13 +88,10 @@ const activateInitiativeProject = async (page: Page, projectName: string) => {
   const projectCard = page
     .locator('div')
     .filter({ hasText: projectName })
-    .filter({ has: page.getByRole('button', { name: 'Activate to Table', exact: true }) })
+    .filter({ has: page.getByRole('button', { name: 'Activate', exact: true }) })
     .first()
   await expect(projectCard).toBeVisible({ timeout: 10000 })
-  await projectCard.getByRole('button', { name: 'Activate to Table', exact: true }).click()
-
-  await expect(page.getByText('Activate Initiative Project')).toBeVisible({ timeout: 5000 })
-  await page.getByRole('button', { name: 'Activate to Table', exact: true }).last().click()
+  await projectCard.getByRole('button', { name: 'Activate', exact: true }).click()
   await page.waitForTimeout(800)
 }
 

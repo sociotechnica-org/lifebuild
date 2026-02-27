@@ -359,7 +359,7 @@ export const describeProjectLifecycleState = (
     case 'backlog':
       return `Sorting · ${streamLabel}`
     case 'active':
-      return `Active${lifecycle.slot ? ` · ${STREAM_LABELS[lifecycle.slot]} slot` : ''}`
+      return 'Active'
     case 'completed':
       return 'Completed'
     default:

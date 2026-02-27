@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery, useStore } from '../../livestore-compat.js'
 import type { Project } from '@lifebuild/shared/schema'
 import { events } from '@lifebuild/shared/schema'
-import { getTableConfiguration$, getAllTasks$ } from '@lifebuild/shared/queries'
+import { getAllTasks$ } from '@lifebuild/shared/queries'
 import {
   resolveLifecycleState,
   describeProjectLifecycleState,
@@ -12,7 +12,6 @@ import {
 } from '@lifebuild/shared'
 import { generateRoute } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
-import { useTableState } from '../../hooks/useTableState.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
 
@@ -25,14 +24,11 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   const { store } = useStore()
   const { user } = useAuth()
   const actorId = user?.id
-  const { clearGold, clearSilver } = useTableState()
   const posthog = usePostHog()
   const [showCompleteConfirm, setShowCompleteConfirm] = useState(false)
   const [showUncompleteConfirm, setShowUncompleteConfirm] = useState(false)
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
 
-  const tableConfiguration = useQuery(getTableConfiguration$) ?? []
-  const tableConfig = tableConfiguration[0]
   const allTasks = useQuery(getAllTasks$) ?? []
 
   // Parse project attributes for legacy lifecycle data
@@ -55,11 +51,6 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
     attributes
   )
 
-  // Check if project is on the table
-  const isOnGoldTable = tableConfig?.goldProjectId === project.id
-  const isOnSilverTable = tableConfig?.silverProjectId === project.id
-  const isOnTable = isOnGoldTable || isOnSilverTable
-
   // Check if all tasks are done (vacuously true for projects with no tasks)
   const allTasksDone = useMemo(() => {
     const projectTasks = allTasks.filter(
@@ -67,9 +58,6 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
     )
     return projectTasks.every(task => task.status === 'done')
   }, [allTasks, project.id])
-
-  // Get table slot label
-  const tableSlotLabel = isOnGoldTable ? 'Initiative' : isOnSilverTable ? 'Optimization' : null
 
   // Get lifecycle description
   const lifecycleDescription = describeProjectLifecycleState(lifecycleState)
@@ -95,7 +83,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
     }
   }
 
-  const handleCompleteProject = async () => {
+  const handleCompleteProject = () => {
     // Update lifecycle to completed
     store.commit(
       events.projectLifecycleUpdated({
@@ -104,20 +92,12 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
           ...lifecycleState,
           status: 'completed',
           completedAt: Date.now(),
-          slot: undefined,
         },
         updatedAt: new Date(),
         actorId,
       })
     )
     posthog?.capture('project_completed', { projectId: project.id })
-
-    // Clear table slot if project was on the table
-    if (isOnGoldTable) {
-      await clearGold()
-    } else if (isOnSilverTable) {
-      await clearSilver()
-    }
 
     setShowCompleteConfirm(false)
     navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
@@ -140,23 +120,8 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
     setShowUncompleteConfirm(false)
   }
 
-  const handleArchiveProject = async () => {
-    // Clear the slot from lifecycle state if project was on the table
-    if (isOnTable) {
-      store.commit(
-        events.projectLifecycleUpdated({
-          projectId: project.id,
-          lifecycleState: {
-            ...lifecycleState,
-            slot: undefined,
-          },
-          updatedAt: new Date(),
-          actorId,
-        })
-      )
-    }
-
-    // Archive the project before async operations to ensure consistent state
+  const handleArchiveProject = () => {
+    // Archive the project before navigation to ensure consistent state
     store.commit(
       events.projectArchived({
         id: project.id,
@@ -165,13 +130,6 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
       })
     )
     posthog?.capture('project_archived', { projectId: project.id })
-
-    // Clear table slot if project was on the table
-    if (isOnGoldTable) {
-      await clearGold()
-    } else if (isOnSilverTable) {
-      await clearSilver()
-    }
 
     setShowArchiveConfirm(false)
     navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
@@ -199,13 +157,6 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
             ) : (
               <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800'>
                 {lifecycleDescription}
-              </span>
-            )}
-
-            {/* On Table badge */}
-            {isOnTable && tableSlotLabel && (
-              <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800'>
-                On Table · {tableSlotLabel}
               </span>
             )}
           </div>

@@ -6,7 +6,6 @@ import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
 import { getUsers$ } from '@lifebuild/shared/queries'
 import type { User } from '@lifebuild/shared/schema'
-import { TableBar } from './TableBar.js'
 import { getInitials, isCurrentUserAdmin } from '../utils/helpers.js'
 import { LiveStoreStatus } from './LiveStoreStatus.js'
 
@@ -23,7 +22,7 @@ type NewUiShellProps = {
 /**
  * Minimal shell for the next-generation UI surfaces.
  * Keeps legacy navigation/chat chrome out of new routes while providing
- * a consistent canvas and spacing baseline with persistent navigation and table bar.
+ * a consistent canvas and spacing baseline with persistent navigation.
  */
 export const NewUiShell: React.FC<NewUiShellProps> = ({
   children,
@@ -106,9 +105,8 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
     }
   }
 
-  // Always use h-dvh flex layout to keep TableBar at the bottom
-  // h-dvh (dynamic viewport height) accounts for iOS Safari address bar
-  // The main content area scrolls, TableBar stays fixed at bottom via flexbox
+  // Always use h-dvh flex layout for a full-viewport shell.
+  // h-dvh (dynamic viewport height) accounts for iOS Safari address bar.
   const outerClasses = 'h-dvh flex flex-col overflow-hidden text-[#2f2b27] leading-relaxed'
 
   // fullHeight mode: full width content area
@@ -243,7 +241,6 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
       <main className={`${mainClasses} p-3.5`}>
         <div className={contentClasses}>{children}</div>
       </main>
-      <TableBar />
     </div>
   )
 }

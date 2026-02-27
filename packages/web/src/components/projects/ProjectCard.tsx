@@ -70,7 +70,7 @@ const lifecycleBadgeLabel = (lifecycle: ProjectLifecycleState, stage: UrushiStag
     return `${stream.charAt(0).toUpperCase()}${stream.slice(1)} plan`
   }
   if (lifecycle.status === 'active') {
-    return lifecycle.slot ? `${lifecycle.slot.toUpperCase()} slot` : 'Active'
+    return 'Active'
   }
   if (lifecycle.status === 'completed') return 'Completed'
   return URUSHI_STAGE_LABELS[stage]

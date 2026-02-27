@@ -4,54 +4,6 @@ import { tables } from './schema'
 
 export const app$ = queryDb(tables.uiState.get(), { label: 'app' })
 
-export const getTableConfiguration$ = queryDb(tables.tableConfiguration.select().limit(1), {
-  label: 'getTableConfiguration',
-})
-
-export const getTableBronzeStack$ = queryDb(
-  tables.tableBronzeStack.select().orderBy([{ col: 'position', direction: 'asc' }]),
-  { label: 'getTableBronzeStack' }
-)
-
-export const getActiveBronzeStack$ = queryDb(
-  tables.tableBronzeStack
-    .select()
-    .where({ status: 'active' })
-    .orderBy([{ col: 'position', direction: 'asc' }]),
-  { label: 'getActiveBronzeStack' }
-)
-
-// ============================================================================
-// BRONZE PROJECT TABLE QUERIES (PR1 - Task Queue Redesign)
-// ============================================================================
-
-/**
- * Get all bronze project entries (including removed)
- */
-export const getTableBronzeProjects$ = queryDb(
-  tables.tableBronzeProjects.select().orderBy([{ col: 'position', direction: 'asc' }]),
-  { label: 'getTableBronzeProjects' }
-)
-
-/**
- * Get only active (tabled) bronze projects
- */
-export const getTabledBronzeProjects$ = queryDb(
-  tables.tableBronzeProjects
-    .select()
-    .where({ status: 'active' })
-    .orderBy([{ col: 'position', direction: 'asc' }]),
-  { label: 'getTabledBronzeProjects' }
-)
-
-/**
- * Check if a specific project is currently tabled as bronze
- */
-export const isBronzeProjectTabled$ = (projectId: string) =>
-  queryDb(tables.tableBronzeProjects.select().where({ projectId, status: 'active' }), {
-    label: `isBronzeProjectTabled:${projectId}`,
-  })
-
 export const getBoards$ = queryDb(
   _get => {
     return tables.projects.select().where({

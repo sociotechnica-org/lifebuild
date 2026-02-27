@@ -81,11 +81,6 @@
       "require": "./dist/rooms.js",
       "default": "./dist/rooms.js"
     },
-    "./table-state": {
-      "import": "./src/table-state.ts",
-      "require": "./dist/table-state.js",
-      "default": "./dist/table-state.js"
-    },
     "./llm-tools/base": {
       "import": "./src/llm-tools/base.ts",
       "require": "./dist/llm-tools/base.js",

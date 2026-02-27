@@ -846,98 +846,6 @@ export interface GetWorkerProjectsResult {
   error?: string
 }
 
-// ===== TABLE MANAGEMENT TYPES =====
-
-export interface AssignTableGoldParams {
-  projectId: string
-}
-
-export interface AssignTableGoldResult {
-  success: boolean
-  projectId?: string
-  projectName?: string
-  error?: string
-}
-
-export interface ClearTableGoldResult {
-  success: boolean
-  error?: string
-}
-
-export interface AssignTableSilverParams {
-  projectId: string
-}
-
-export interface AssignTableSilverResult {
-  success: boolean
-  projectId?: string
-  projectName?: string
-  error?: string
-}
-
-export interface ClearTableSilverResult {
-  success: boolean
-  error?: string
-}
-
-export interface UpdateBronzeModeParams {
-  bronzeMode: 'minimal' | 'target' | 'maximal'
-  bronzeTargetExtra?: number
-}
-
-export interface UpdateBronzeModeResult {
-  success: boolean
-  bronzeMode?: string
-  bronzeTargetExtra?: number
-  error?: string
-}
-
-export interface AddBronzeTaskParams {
-  taskId: string
-}
-
-export interface AddBronzeTaskResult {
-  success: boolean
-  taskId?: string
-  taskTitle?: string
-  position?: number
-  error?: string
-}
-
-export interface RemoveBronzeTaskParams {
-  entryId: string
-}
-
-export interface RemoveBronzeTaskResult {
-  success: boolean
-  entryId?: string
-  error?: string
-}
-
-export interface ReorderBronzeStackParams {
-  ordering: Array<{ id: string; position: number }>
-}
-
-export interface ReorderBronzeStackResult {
-  success: boolean
-  ordering?: Array<{ id: string; position: number }>
-  error?: string
-}
-
-export interface GetTableConfigurationResult {
-  success: boolean
-  configuration?: {
-    goldProjectId?: string | null
-    goldProjectName?: string
-    silverProjectId?: string | null
-    silverProjectName?: string
-    bronzeMode?: string
-    bronzeTargetExtra?: number
-    bronzeStackCount?: number
-  }
-  error?: string
-}
-
 // ===== UNION TYPES =====
 
 export type LLMToolParams =
@@ -987,12 +895,6 @@ export type LLMToolParams =
   | UnassignWorkerFromProjectParams
   | GetProjectWorkersParams
   | GetWorkerProjectsParams
-  | AssignTableGoldParams
-  | AssignTableSilverParams
-  | UpdateBronzeModeParams
-  | AddBronzeTaskParams
-  | RemoveBronzeTaskParams
-  | ReorderBronzeStackParams
 
 export type LLMToolResult =
   | CreateTaskResult
@@ -1041,12 +943,3 @@ export type LLMToolResult =
   | UnassignWorkerFromProjectResult
   | GetProjectWorkersResult
   | GetWorkerProjectsResult
-  | AssignTableGoldResult
-  | ClearTableGoldResult
-  | AssignTableSilverResult
-  | ClearTableSilverResult
-  | UpdateBronzeModeResult
-  | AddBronzeTaskResult
-  | RemoveBronzeTaskResult
-  | ReorderBronzeStackResult
-  | GetTableConfigurationResult

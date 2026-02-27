@@ -19,10 +19,18 @@ async function navigateWithUniqueStore(page: Page) {
   return storeId
 }
 
+const getStreamSummaryCard = (page: Page, label: 'Initiative' | 'Optimization' | 'To-Do') => {
+  return page
+    .locator('div.border.rounded-xl')
+    .filter({ has: page.locator('span', { hasText: label }) })
+    .filter({ has: page.getByRole('button', { name: /Expand|Hide/ }) })
+    .first()
+}
+
 test.describe('Workflow', () => {
   test.describe.configure({ timeout: 120000 }) // 2 minute timeout for full workflow
 
-  test('complete workflow: create project in drafting room, add to table, change task status', async ({
+  test('complete workflow: create project in drafting room, activate in sorting room, change task status', async ({
     page,
   }) => {
     const storeId = await navigateWithUniqueStore(page)
@@ -140,19 +148,16 @@ test.describe('Workflow', () => {
     await addToSortingButton.click()
 
     // =====================
-    // SORTING ROOM: Put on table
+    // SORTING ROOM: Activate project
     // =====================
 
     // Wait for Sorting Room to load
-    await expect(page.getByRole('heading', { name: 'Initiative' })).toBeVisible({ timeout: 10000 })
-    await expect(page.getByRole('heading', { name: 'Optimization' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'To-Do' })).toBeVisible()
+    await expect(getStreamSummaryCard(page, 'Initiative')).toBeVisible({ timeout: 10000 })
+    await expect(getStreamSummaryCard(page, 'Optimization')).toBeVisible()
+    await expect(getStreamSummaryCard(page, 'To-Do')).toBeVisible()
 
     // Ensure Initiative stream is expanded (we selected Initiative tier)
-    const initiativeSummaryHeader = page
-      .locator('div')
-      .filter({ hasText: /^Initiative\s*\d+\s*in backlog\s*(Expand|Hide)$/ })
-      .first()
+    const initiativeSummaryHeader = getStreamSummaryCard(page, 'Initiative')
     const initiativeToggleButton = initiativeSummaryHeader.getByRole('button', {
       name: /Expand|Hide/,
     })
@@ -166,36 +171,23 @@ test.describe('Workflow', () => {
       timeout: 5000,
     })
 
-    // Find our project in the backlog and click "Activate to Table" within that card
+    // Find our project in the backlog and click "Activate" within that card
     const projectCard = page
       .locator('div')
       .filter({ hasText: projectName })
-      .filter({ has: page.getByRole('button', { name: 'Activate to Table', exact: true }) })
+      .filter({ has: page.getByRole('button', { name: 'Activate', exact: true }) })
       .first()
     await expect(projectCard).toBeVisible({ timeout: 5000 })
 
-    // Click "Activate to Table" button on the project card
+    // Click "Activate" button on the project card
     const activateButton = projectCard.getByRole('button', {
-      name: 'Activate to Table',
+      name: 'Activate',
       exact: true,
     })
     await expect(activateButton).toBeEnabled()
     await activateButton.click()
 
-    // Confirm in the dialog (dialog doesn't have role="dialog", look for the dialog content)
-    await expect(page.getByText('Activate Initiative Project')).toBeVisible({ timeout: 5000 })
-
-    // Click the Activate to Table button in the dialog
-    const confirmActivateButton = page
-      .getByRole('button', { name: 'Activate to Table', exact: true })
-      .last()
-    await confirmActivateButton.click()
-
-    // Wait for dialog to close and project to be tabled
-    await page.waitForTimeout(1000)
-
-    // Verify project is now on the table - just verify the project name is visible on the page
-    // (it appears in multiple places - ON TABLE section, etc.)
+    // Verify project is now active
     await expect(page.getByText(projectName).first()).toBeVisible({ timeout: 5000 })
 
     // =====================
@@ -263,15 +255,18 @@ test.describe('Workflow', () => {
     // Navigate to Life Map
     await page.click('text=Life Map')
 
-    // Wait for Life Map to load
-    await expect(page.getByText('Health')).toBeVisible({ timeout: 10000 })
+    // Wait for Life Map to load in either map (canvas) or list mode.
+    const lifeMapCanvas = page.locator('canvas').first()
+    const hasCanvas = await lifeMapCanvas
+      .waitFor({ state: 'visible', timeout: 4000 })
+      .then(() => true)
+      .catch(() => false)
+    if (!hasCanvas) {
+      await expect(page.locator('.rounded-2xl').first()).toBeVisible({ timeout: 10000 })
+    }
 
-    // Verify our project appears under Health category (since we selected Health)
-    const healthSection = page
-      .locator('div')
-      .filter({ hasText: /Health/i })
-      .first()
-    await expect(healthSection).toBeVisible()
+    // Verify our project appears on the Life Map surface.
+    await expect(page.getByText(projectName).first()).toBeVisible({ timeout: 10000 })
   })
 
   test('create project and verify it appears in drafting room', async ({ page }) => {
@@ -324,9 +319,9 @@ test.describe('Workflow', () => {
     await waitForLiveStoreReady(page)
 
     // Verify Sorting Room elements
-    await expect(page.getByRole('heading', { name: 'Initiative' })).toBeVisible({ timeout: 10000 })
-    await expect(page.getByRole('heading', { name: 'Optimization' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'To-Do' })).toBeVisible()
+    await expect(getStreamSummaryCard(page, 'Initiative')).toBeVisible({ timeout: 10000 })
+    await expect(getStreamSummaryCard(page, 'Optimization')).toBeVisible()
+    await expect(getStreamSummaryCard(page, 'To-Do')).toBeVisible()
 
     // Navigate to Life Map via nav
     await page.click('text=Life Map')

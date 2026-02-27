@@ -17,10 +17,6 @@ vi.mock('../../livestore-compat.js', () => ({
   useStore: () => ({ store: { commit: vi.fn() } }),
 }))
 
-vi.mock('../../hooks/useTableState.js', () => ({
-  useTableState: () => ({ clearGold: vi.fn(), clearSilver: vi.fn() }),
-}))
-
 vi.mock('../../contexts/AuthContext.js', () => ({
   useAuth: () => ({ user: { id: 'test-user' } }),
 }))

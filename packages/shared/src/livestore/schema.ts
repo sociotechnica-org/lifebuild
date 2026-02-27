@@ -177,8 +177,6 @@ const tasks = State.SQLite.table({
   },
 })
 
-const TABLE_CONFIGURATION_ID = 'singleton-table-configuration'
-
 const tableConfiguration = State.SQLite.table({
   name: 'tableConfiguration',
   columns: {
@@ -567,6 +565,19 @@ const materializers = State.SQLite.materializers(events, {
   'v1.ColumnCreated': () => [], // No-op - columns no longer exist
   'v1.ColumnRenamed': () => [], // No-op - columns no longer exist
   'v1.ColumnReordered': () => [], // No-op - columns no longer exist
+  // Table materializers converted to no-ops - preserves event history without side effects
+  'table.configuration_initialized': () => [], // No-op - table removed
+  'table.gold_assigned': () => [], // No-op - table removed
+  'table.gold_cleared': () => [], // No-op - table removed
+  'table.silver_assigned': () => [], // No-op - table removed
+  'table.silver_cleared': () => [], // No-op - table removed
+  'table.bronze_mode_updated': () => [], // No-op - table removed
+  'table.bronze_task_added': () => [], // No-op - table removed
+  'table.bronze_task_removed': () => [], // No-op - table removed
+  'table.bronze_stack_reordered': () => [], // No-op - table removed
+  'table.bronze_project_tabled': () => [], // No-op - table removed
+  'table.bronze_project_removed': () => [], // No-op - table removed
+  'table.bronze_projects_reordered': () => [], // No-op - table removed
   'v1.TaskCreated': ({
     id,
     projectId,
@@ -1038,121 +1049,6 @@ const materializers = State.SQLite.materializers(events, {
         .where({ id: projectId }),
     ]
   },
-
-  'table.configuration_initialized': ({
-    goldProjectId,
-    silverProjectId,
-    bronzeMode,
-    bronzeTargetExtra,
-    updatedAt,
-  }) => [
-    tableConfiguration.delete().where({ id: TABLE_CONFIGURATION_ID }),
-    tableConfiguration.insert({
-      id: TABLE_CONFIGURATION_ID,
-      goldProjectId: goldProjectId ?? null,
-      silverProjectId: silverProjectId ?? null,
-      bronzeMode: bronzeMode ?? 'minimal',
-      bronzeTargetExtra: bronzeTargetExtra ?? 0,
-      updatedAt,
-    }),
-  ],
-
-  'table.gold_assigned': ({ projectId, updatedAt }) =>
-    tableConfiguration
-      .update({
-        goldProjectId: projectId,
-        updatedAt,
-      })
-      .where({ id: TABLE_CONFIGURATION_ID }),
-
-  'table.gold_cleared': ({ updatedAt }) =>
-    tableConfiguration
-      .update({
-        goldProjectId: null,
-        updatedAt,
-      })
-      .where({ id: TABLE_CONFIGURATION_ID }),
-
-  'table.silver_assigned': ({ projectId, updatedAt }) =>
-    tableConfiguration
-      .update({
-        silverProjectId: projectId,
-        updatedAt,
-      })
-      .where({ id: TABLE_CONFIGURATION_ID }),
-
-  'table.silver_cleared': ({ updatedAt }) =>
-    tableConfiguration
-      .update({
-        silverProjectId: null,
-        updatedAt,
-      })
-      .where({ id: TABLE_CONFIGURATION_ID }),
-
-  'table.bronze_mode_updated': ({ bronzeMode, bronzeTargetExtra, updatedAt }) =>
-    tableConfiguration
-      .update({
-        bronzeMode,
-        bronzeTargetExtra: bronzeTargetExtra ?? 0,
-        updatedAt,
-      })
-      .where({ id: TABLE_CONFIGURATION_ID }),
-
-  'table.bronze_task_added': ({ id, taskId, position, insertedAt, insertedBy, status }) => [
-    tableBronzeStack.delete().where({ id }),
-    tableBronzeStack.insert({
-      id,
-      taskId,
-      position,
-      insertedAt,
-      insertedBy: insertedBy ?? null,
-      status: status ?? 'active',
-      removedAt: null,
-    }),
-  ],
-
-  'table.bronze_task_removed': ({ id, removedAt }) =>
-    tableBronzeStack
-      .update({
-        status: 'removed',
-        removedAt,
-      })
-      .where({ id }),
-
-  'table.bronze_stack_reordered': ({ ordering }) =>
-    ordering.map(order =>
-      tableBronzeStack.update({ position: order.position }).where({ id: order.id })
-    ),
-
-  // ============================================================================
-  // BRONZE PROJECT TABLE MATERIALIZERS (PR1 - Task Queue Redesign)
-  // ============================================================================
-
-  'table.bronze_project_tabled': ({ id, projectId, position, tabledAt, tabledBy, status }) => [
-    tableBronzeProjects.delete().where({ id }),
-    tableBronzeProjects.insert({
-      id,
-      projectId,
-      position,
-      tabledAt,
-      tabledBy: tabledBy ?? null,
-      status: status ?? 'active',
-      removedAt: null,
-    }),
-  ],
-
-  'table.bronze_project_removed': ({ id, removedAt }) =>
-    tableBronzeProjects
-      .update({
-        status: 'removed',
-        removedAt,
-      })
-      .where({ id }),
-
-  'table.bronze_projects_reordered': ({ ordering }) =>
-    ordering.map(order =>
-      tableBronzeProjects.update({ position: order.position }).where({ id: order.id })
-    ),
 })
 
 const state = State.SQLite.makeState({ tables, materializers })
