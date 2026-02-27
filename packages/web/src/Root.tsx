@@ -34,6 +34,12 @@ import { Stage2Form } from './components/drafting-room/Stage2Form.js'
 import { Stage3Form } from './components/drafting-room/Stage3Form.js'
 import { LIFE_MAP_ROOM, DRAFTING_ROOM } from '@lifebuild/shared/rooms'
 import { determineStoreIdFromUser } from './utils/navigation.js'
+
+/** Redirect /sorting-room/* → /life-map preserving query params (e.g. storeId) */
+const LegacySortingRoomRedirect: React.FC = () => {
+  const location = useLocation()
+  return <Navigate to={`${ROUTES.LIFE_MAP}${location.search}`} replace />
+}
 import {
   DEVTOOLS_QUERY_PARAM,
   DEVTOOLS_ROUTE_PARAM,
@@ -473,11 +479,8 @@ const ProtectedApp: React.FC = () => {
                         </ErrorBoundary>
                       }
                     />
-                    {/* Redirect legacy sorting-room routes to life-map */}
-                    <Route
-                      path='/sorting-room/*'
-                      element={<Navigate to={ROUTES.LIFE_MAP} replace />}
-                    />
+                    {/* Redirect legacy sorting-room routes to life-map (preserving query params) */}
+                    <Route path='/sorting-room/*' element={<LegacySortingRoomRedirect />} />
                     {/* Redirect legacy /old/* routes to life-map */}
                     <Route path='/old/*' element={<Navigate to={ROUTES.LIFE_MAP} replace />} />
                   </Routes>
