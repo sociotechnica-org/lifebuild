@@ -7,6 +7,7 @@ import { ProjectDetailPage } from './ProjectDetailPage.js'
 const mockCommit = vi.fn()
 const mockUseQuery = vi.fn()
 const mockCapture = vi.fn()
+const FIRST_PROJECT_INTRO_SETTING_KEY = 'journey.firstProjectMarvinIntroCompletedAt'
 
 vi.mock('../../livestore-compat.js', () => ({
   useQuery: (...args: unknown[]) => mockUseQuery(...args),
@@ -62,6 +63,9 @@ const mockTasks = [
   },
 ]
 
+let firstProjectIntroSettingValue = '2026-02-01T00:00:00.000Z'
+let marvinConversationRows: Array<{ id: string }> = [{ id: 'marvin-conversation-1' }]
+
 const renderProjectDetailPage = () => {
   return render(
     <MemoryRouter initialEntries={['/projects/project-1']}>
@@ -83,14 +87,34 @@ const expectCommittedEvent = (event: unknown, expectedName: string, expectedPayl
 describe('ProjectDetailPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    firstProjectIntroSettingValue = '2026-02-01T00:00:00.000Z'
+    marvinConversationRows = [{ id: 'marvin-conversation-1' }]
 
     let queryCount = 0
     mockUseQuery.mockImplementation(() => {
       queryCount += 1
-      const querySlot = ((queryCount - 1) % 3) + 1
+      const querySlot = ((queryCount - 1) % 5) + 1
 
       if (querySlot === 1) {
         return [mockProject]
+      }
+
+      if (querySlot === 2) {
+        return mockTasks
+      }
+
+      if (querySlot === 3) {
+        return [
+          {
+            key: FIRST_PROJECT_INTRO_SETTING_KEY,
+            value: firstProjectIntroSettingValue,
+            updatedAt: new Date('2026-02-01T00:00:00.000Z'),
+          },
+        ]
+      }
+
+      if (querySlot === 4) {
+        return marvinConversationRows
       }
 
       return mockTasks
@@ -143,5 +167,30 @@ describe('ProjectDetailPage', () => {
 
     expect(mockCommit).toHaveBeenCalledTimes(1)
     expectCommittedEvent(mockCommit.mock.calls[0]?.[0], 'v1.TaskUpdated', 'Refine overlay tests')
+  })
+
+  it('shows a first-open Marvin help banner and sends a one-time welcome message', () => {
+    firstProjectIntroSettingValue = ''
+
+    renderProjectDetailPage()
+
+    expect(screen.getByTestId('project-marvin-help-banner')).toHaveTextContent('Marvin can help!')
+    expect(mockCommit).toHaveBeenCalledTimes(2)
+    expectCommittedEvent(
+      mockCommit.mock.calls[0]?.[0],
+      'v1.ChatMessageSent',
+      'Welcome to \\"Project Overlay Test\\"'
+    )
+    expectCommittedEvent(mockCommit.mock.calls[1]?.[0], 'v1.SettingUpdated')
+    expectCommittedEvent(mockCommit.mock.calls[1]?.[0], FIRST_PROJECT_INTRO_SETTING_KEY)
+  })
+
+  it('does not show first-open banner after the intro setting is already completed', () => {
+    firstProjectIntroSettingValue = '2026-02-01T00:00:00.000Z'
+
+    renderProjectDetailPage()
+
+    expect(screen.queryByTestId('project-marvin-help-banner')).not.toBeInTheDocument()
+    expect(mockCommit).not.toHaveBeenCalled()
   })
 })

@@ -2,6 +2,7 @@ export const SETTINGS_KEYS = {
   INSTANCE_NAME: 'instanceName',
   SYSTEM_PROMPT: 'systemPrompt',
   RECURRING_TASK_PROMPT: 'recurringTaskPrompt',
+  JOURNEY_FIRST_PROJECT_MARVIN_INTRO_COMPLETED_AT: 'journey.firstProjectMarvinIntroCompletedAt',
 } as const
 
 export const DEFAULT_SETTINGS = {
@@ -28,4 +29,4 @@ Remember: You're not just answering questions—you're helping build successful 
   [SETTINGS_KEYS.RECURRING_TASK_PROMPT]: '',
 } as const
 
-export type SettingsKey = keyof typeof DEFAULT_SETTINGS
+export type SettingsKey = (typeof SETTINGS_KEYS)[keyof typeof SETTINGS_KEYS]
