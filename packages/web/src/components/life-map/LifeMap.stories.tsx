@@ -58,7 +58,7 @@ const seedLifeMap = (store: Store) => {
       createdAt: now,
       roomId: LIFE_MAP_ROOM.roomId,
       roomKind: LIFE_MAP_ROOM.roomKind,
-      status: 'active',
+      status: LIFE_MAP_ROOM.worker.status ?? 'active',
     })
   )
 
@@ -226,7 +226,7 @@ const meta: Meta<typeof LifeMap> = {
     docs: {
       description: {
         component:
-          'Life Map surface rendered inside RoomLayout so the MESA chat sidebar can be toggled on/off while exploring categories.',
+          'Life Map surface rendered inside RoomLayout so the room chat sidebar can be toggled on/off while exploring categories.',
       },
     },
   },

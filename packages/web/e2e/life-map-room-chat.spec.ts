@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { navigateToAppWithUniqueStore, waitForLiveStoreReady } from './test-utils'
 
 test.describe('Life Map room chat', () => {
-  test('enables chat via feature override and sends a user message', async ({ page }) => {
+  test('shows read-only chat when life-map attendant is inactive', async ({ page }) => {
     const storeId = await navigateToAppWithUniqueStore(page)
 
     await page.goto(`/life-map?storeId=${storeId}&roomChat=1`)
@@ -16,12 +16,11 @@ test.describe('Life Map room chat', () => {
     await expect(chatPanel).toBeVisible()
 
     const textarea = page.getByPlaceholder('Ask something…')
-    await expect(textarea).toBeEnabled({ timeout: 10000 })
+    await expect(textarea).toBeDisabled({ timeout: 10000 })
 
-    const message = 'Hello from Playwright'
-    await textarea.fill(message)
-    await textarea.press('Enter')
-
-    await expect(chatPanel.getByText(message)).toBeVisible()
+    await expect(chatPanel.getByTestId('room-chat-status')).toHaveText(
+      "This room's agent is inactive."
+    )
+    await expect(chatPanel.getByText(/mesa/i)).toHaveCount(0)
   })
 })

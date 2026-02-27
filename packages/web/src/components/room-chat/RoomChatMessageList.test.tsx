@@ -24,7 +24,7 @@ describe('RoomChatMessageList', () => {
           { ...baseMessage, id: 'assistant', role: 'assistant', message: '**Bold** response' },
         ]}
         isProcessing={false}
-        workerName='MESA'
+        workerName='Life Map'
       />
     )
 
@@ -33,7 +33,7 @@ describe('RoomChatMessageList', () => {
   })
 
   it('shows empty state when there are no messages', () => {
-    render(<RoomChatMessageList messages={[]} workerName='MESA' isProcessing={false} />)
+    render(<RoomChatMessageList messages={[]} workerName='Life Map' isProcessing={false} />)
     expect(screen.getByText(/start a conversation to see messages here/i)).toBeInTheDocument()
   })
 })
