@@ -49,7 +49,12 @@ const expectMapLayerVisible = async (page: Page) => {
     return
   }
 
-  if (await page.getByText('Map unavailable on this device').isVisible().catch(() => false)) {
+  if (
+    await page
+      .getByText('Map unavailable on this device')
+      .isVisible()
+      .catch(() => false)
+  ) {
     await expect(page.getByText('Map unavailable on this device')).toBeVisible()
   }
 }
