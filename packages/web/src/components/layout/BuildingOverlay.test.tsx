@@ -58,6 +58,22 @@ describe('BuildingOverlay', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
+  it('does not close on Escape when another layer already prevented the event', () => {
+    const onClose = vi.fn()
+
+    render(
+      <BuildingOverlay title='Workshop' onClose={onClose}>
+        <div>Overlay content</div>
+      </BuildingOverlay>
+    )
+
+    const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+    event.preventDefault()
+    window.dispatchEvent(event)
+
+    expect(onClose).not.toHaveBeenCalled()
+  })
+
   it('does not close when clicking inside the panel content', () => {
     const onClose = vi.fn()
 

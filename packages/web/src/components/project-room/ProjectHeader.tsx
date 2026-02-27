@@ -126,6 +126,13 @@ export function ProjectHeader({ project, onClose }: ProjectHeaderProps) {
             </span>
           </div>
 
+          {/* Project description */}
+          {project.description && (
+            <p className='mt-3 text-sm text-gray-700' data-testid='project-header-description'>
+              {project.description}
+            </p>
+          )}
+
           {/* Objectives */}
           {lifecycleState.objectives && (
             <p className='mt-3 text-sm text-gray-600'>{lifecycleState.objectives}</p>

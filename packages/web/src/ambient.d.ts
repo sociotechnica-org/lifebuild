@@ -7,6 +7,7 @@ interface ImportMetaEnv {
   readonly VITE_POSTHOG_FEEDBACK_SURVEY_ID?: string
   readonly VITE_LIVESTORE_DEVTOOLS_LICENSE?: string
   readonly VITE_LSD_LICENSE?: string
+  readonly VITE_E2E_TEST_HOOKS?: string
 }
 
 declare module '@livestore/devtools-vite/dist/devtools-bundle/index.js' {

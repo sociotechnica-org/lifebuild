@@ -18,6 +18,10 @@ export const BuildingOverlay: React.FC<BuildingOverlayProps> = ({
 }) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) {
+        return
+      }
+
       if (event.key === 'Escape') {
         event.preventDefault()
         onClose()

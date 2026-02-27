@@ -177,6 +177,7 @@ export function HexGrid({
       {tiles.map(tile => (
         <HexTile
           key={tile.id}
+          projectId={tile.projectId}
           coord={tile.coord}
           projectName={tile.projectName}
           categoryColor={tile.categoryColor}

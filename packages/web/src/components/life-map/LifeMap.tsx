@@ -5,18 +5,40 @@ import {
   getProjects$,
   getAllProjectsIncludingArchived$,
   getHexPositions$,
+  getProjectById$,
   getUnplacedProjects$,
 } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
 import { createHex } from '@lifebuild/shared/hex'
 import type { HexCoord } from '@lifebuild/shared/hex'
-import { PROJECT_CATEGORIES, resolveLifecycleState } from '@lifebuild/shared'
+import { type ProjectCategory, PROJECT_CATEGORIES, resolveLifecycleState } from '@lifebuild/shared'
 import { generateRoute, ROUTES } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
 import { placeProjectOnHex, removeProjectFromHex } from '../hex-map/hexPositionCommands.js'
 import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.js'
+
+type SeedProjectOnMapInput = {
+  projectId: string
+  name: string
+  description?: string
+  category?: ProjectCategory | null
+  coord: {
+    q: number
+    r: number
+  }
+}
+
+type E2ELifeMapHooks = {
+  seedProjectOnMap: (input: SeedProjectOnMapInput) => Promise<void>
+}
+
+declare global {
+  interface Window {
+    __LIFEBUILD_E2E__?: E2ELifeMapHooks
+  }
+}
 
 const LazyHexMap = lazy(() =>
   import('../hex-map/HexMap.js').then(module => ({ default: module.HexMap }))
@@ -61,6 +83,60 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
   useEffect(() => {
     posthog?.capture('life_map_viewed')
   }, [posthog])
+
+  useEffect(() => {
+    if (import.meta.env.VITE_E2E_TEST_HOOKS !== 'true' || typeof window === 'undefined') {
+      return
+    }
+
+    const seedProjectOnMap: E2ELifeMapHooks['seedProjectOnMap'] = async ({
+      projectId,
+      name,
+      description,
+      category,
+      coord,
+    }) => {
+      const existingProject = await store.query(getProjectById$(projectId))
+      if (!existingProject || existingProject.length === 0) {
+        await store.commit(
+          events.projectCreatedV2({
+            id: projectId,
+            name,
+            description,
+            category: category ?? undefined,
+            createdAt: new Date(),
+            actorId,
+          })
+        )
+      }
+
+      let latestHexPositions = await store.query(getHexPositions$)
+      const existingPlacement = latestHexPositions.find(
+        position => position.entityType === 'project' && position.entityId === projectId
+      )
+
+      if (existingPlacement) {
+        if (existingPlacement.hexQ === coord.q && existingPlacement.hexR === coord.r) {
+          return
+        }
+
+        await removeProjectFromHex(store, latestHexPositions, { projectId, actorId })
+        latestHexPositions = await store.query(getHexPositions$)
+      }
+
+      await placeProjectOnHex(store, latestHexPositions, {
+        projectId,
+        hexQ: coord.q,
+        hexR: coord.r,
+        actorId,
+      })
+    }
+
+    window.__LIFEBUILD_E2E__ = {
+      ...window.__LIFEBUILD_E2E__,
+      seedProjectOnMap,
+    }
+  }, [actorId, store])
 
   const allProjects = useQuery(getProjects$) ?? []
   const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []

@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
-import { LiveStoreProvider } from '../../livestore-compat.js'
+import { LiveStoreProvider, useQuery } from '../../livestore-compat.js'
 import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'
 import { schema, events } from '@lifebuild/shared/schema'
+import { getProjectTasks$ } from '@lifebuild/shared/queries'
 import { TaskList } from './TaskList.js'
 
 const PROJECT_ID = 'task-list-project'
@@ -96,37 +97,31 @@ const meta: Meta = {
 export default meta
 type Story = StoryObj
 
-export const Default: Story = {
-  decorators: [withLiveStore(seedTasks)],
-  render: () => (
+const TaskListStorySurface: React.FC = () => {
+  const tasks = useQuery(getProjectTasks$(PROJECT_ID)) ?? []
+
+  return (
     <TaskList
-      tasks={[]}
+      tasks={tasks}
       projectId={PROJECT_ID}
       onTaskClick={id => console.log('Task clicked:', id)}
     />
-  ),
+  )
+}
+
+export const Default: Story = {
+  decorators: [withLiveStore(seedTasks)],
+  render: () => <TaskListStorySurface />,
 }
 
 export const Empty: Story = {
   decorators: [withLiveStore()],
-  render: () => (
-    <TaskList
-      tasks={[]}
-      projectId={PROJECT_ID}
-      onTaskClick={id => console.log('Task clicked:', id)}
-    />
-  ),
+  render: () => <TaskListStorySurface />,
 }
 
 export const ManyTasks: Story = {
   decorators: [withLiveStore(seedManyTasks)],
-  render: () => (
-    <TaskList
-      tasks={[]}
-      projectId={PROJECT_ID}
-      onTaskClick={id => console.log('Task clicked:', id)}
-    />
-  ),
+  render: () => <TaskListStorySurface />,
   parameters: {
     docs: {
       description: {

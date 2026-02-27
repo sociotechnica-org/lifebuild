@@ -136,6 +136,9 @@ export function TaskDetailModal({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+
         if (isEditing && !isCreating && task) {
           // Reset form fields
           setEditTitle(task.title)

@@ -11,7 +11,6 @@ import {
   Navigate,
   Outlet,
   useLocation,
-  useNavigate,
   matchPath,
 } from 'react-router-dom'
 
@@ -34,7 +33,6 @@ import { LiveStoreHealthMonitor } from './components/utils/LiveStoreHealthMonito
 import { LiveStoreBootBoundary } from './components/utils/LiveStoreBootBoundary.js'
 import { schema } from '@lifebuild/shared/schema'
 import { ROUTES } from './constants/routes.js'
-import { ProjectDetailPage } from './components/projects/ProjectDetailPage.js'
 import { LifeMap } from './components/life-map/LifeMap.js'
 import { RoomLayout } from './components/layout/RoomLayout.js'
 import { BuildingOverlay } from './components/layout/BuildingOverlay.js'
@@ -42,6 +40,10 @@ import { WorkshopOverlayContent } from './components/buildings/WorkshopOverlayCo
 import { SanctuaryOverlayContent } from './components/buildings/SanctuaryOverlayContent.js'
 import { AttendantRailProvider } from './components/layout/AttendantRailProvider.js'
 import { LIFE_MAP_ROOM } from '@lifebuild/shared/rooms'
+import {
+  ProjectOverlayRoute,
+  useCloseMapOverlayRoute,
+} from './components/projects/ProjectOverlayRoute.js'
 import { determineStoreIdFromUser } from './utils/navigation.js'
 import {
   DEVTOOLS_QUERY_PARAM,
@@ -399,23 +401,6 @@ const isMapOverlayPath = (pathname: string): boolean => {
   return MAP_OVERLAY_PATH_PATTERNS.some(pattern => Boolean(matchPath(pattern, pathname)))
 }
 
-const useCloseOverlayRoute = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const openedFromMap = Boolean(
-    (location.state as { openedFromMap?: boolean } | null)?.openedFromMap
-  )
-
-  return useCallback(() => {
-    if (openedFromMap && window.history.length > 1) {
-      navigate(-1)
-      return
-    }
-
-    navigate({ pathname: ROUTES.HOME, search: location.search }, { replace: true })
-  }, [location.search, navigate, openedFromMap])
-}
-
 const MapOverlayLayoutRoute: React.FC = () => {
   const location = useLocation()
   const overlayOpen = useMemo(() => isMapOverlayPath(location.pathname), [location.pathname])
@@ -433,7 +418,7 @@ const MapOverlayLayoutRoute: React.FC = () => {
 }
 
 const WorkshopOverlayRoute: React.FC = () => {
-  const closeOverlay = useCloseOverlayRoute()
+  const closeOverlay = useCloseMapOverlayRoute()
   return (
     <BuildingOverlay title='Workshop' onClose={closeOverlay}>
       <WorkshopOverlayContent />
@@ -442,19 +427,10 @@ const WorkshopOverlayRoute: React.FC = () => {
 }
 
 const SanctuaryOverlayRoute: React.FC = () => {
-  const closeOverlay = useCloseOverlayRoute()
+  const closeOverlay = useCloseMapOverlayRoute()
   return (
     <BuildingOverlay title='Sanctuary' onClose={closeOverlay}>
       <SanctuaryOverlayContent />
-    </BuildingOverlay>
-  )
-}
-
-const ProjectOverlayRoute: React.FC = () => {
-  const closeOverlay = useCloseOverlayRoute()
-  return (
-    <BuildingOverlay title='Project Board' onClose={closeOverlay} panelClassName='max-w-[1100px]'>
-      <ProjectDetailPage onCloseOverlay={closeOverlay} />
     </BuildingOverlay>
   )
 }
