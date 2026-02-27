@@ -42,16 +42,16 @@ The mechanism that implements the portal-first onboarding -- guiding new builder
 
 ### Transitions
 
-| From | Trigger | To | Side Effects |
-|------|---------|-----|-------------|
-| Not Started | Builder opens app | Portal: Compression | Campfire renders; Jarvis asks one question |
-| Portal: Compression | Builder types answer | Portal: Release | View expands; map reveals; hex materializes |
-| Portal: Release | Builder places hex | First Session | Marvin appears; project shaped; tasks available |
-| First Session | Builder completes first task OR session ends | Day 2 | Context persists; map and hex await return |
-| Day 2 | Second session begins | Day 2: Deepening | Jarvis references prior context; second project option |
-| Day 2: Deepening | Second project created OR session ends | Day 3 | Sorting Room available |
-| Day 3 | Builder visits Sorting Room | Complete | Service Level 0 -> 1; full feature set available |
-| Any | Extended disengagement | Paused | Warm re-engagement on return |
+| From                | Trigger                                      | To                  | Side Effects                                           |
+| ------------------- | -------------------------------------------- | ------------------- | ------------------------------------------------------ |
+| Not Started         | Builder opens app                            | Portal: Compression | Campfire renders; Jarvis asks one question             |
+| Portal: Compression | Builder types answer                         | Portal: Release     | View expands; map reveals; hex materializes            |
+| Portal: Release     | Builder places hex                           | First Session       | Marvin appears; project shaped; tasks available        |
+| First Session       | Builder completes first task OR session ends | Day 2               | Context persists; map and hex await return             |
+| Day 2               | Second session begins                        | Day 2: Deepening    | Jarvis references prior context; second project option |
+| Day 2: Deepening    | Second project created OR session ends       | Day 3               | Sorting Room available                                 |
+| Day 3               | Builder visits Sorting Room                  | Complete            | Service Level 0 -> 1; full feature set available       |
+| Any                 | Extended disengagement                       | Paused              | Warm re-engagement on return                           |
 
 ### Campfire Output (simplified)
 

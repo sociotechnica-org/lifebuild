@@ -26,11 +26,11 @@ Enable the magical portal. A new builder arrives at an intimate campfire space, 
 
 ## LADDER POSITIONS
 
-| Bet                | Before                        | After                                                       | Key Advancement                                                               |
-| ------------------ | ----------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Spatial Visibility | L1 (kanban boards, card view) | L2.3 (hex map, illustrated tiles, sanctuary sprite visible) | Hex map with illustrated sprites from day one; sanctuary visible at center    |
-| Superior Process   | L3 (Table, G/S/B, Pipeline)   | L3 (holds)                                                  | No new process features -- existing frameworks carry over                     |
-| AI as Teammates    | L1 (generic agents)           | L1.5 (Jarvis + Marvin active with defined roles)            | Jarvis opens portal; Marvin appears as wow beat; steward model established    |
+| Bet                | Before                        | After                                                       | Key Advancement                                                            |
+| ------------------ | ----------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Spatial Visibility | L1 (kanban boards, card view) | L2.3 (hex map, illustrated tiles, sanctuary sprite visible) | Hex map with illustrated sprites from day one; sanctuary visible at center |
+| Superior Process   | L3 (Table, G/S/B, Pipeline)   | L3 (holds)                                                  | No new process features -- existing frameworks carry over                  |
+| AI as Teammates    | L1 (generic agents)           | L1.5 (Jarvis + Marvin active with defined roles)            | Jarvis opens portal; Marvin appears as wow beat; steward model established |
 
 ---
 
@@ -95,22 +95,22 @@ Enable the magical portal. A new builder arrives at an intimate campfire space, 
 
 ## AFFECTED LIBRARY CARDS
 
-| Card                                     | How It's Affected                                                                        |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------- |
-| [[Structure - Hex Grid]]                 | Partially activated -- fixed grid, illustrated tiles, no zoom tiers                      |
-| [[Component - Hex Tile]]                 | Activated with category colors and illustrated sprites                                   |
-| [[Component - Campfire]]                 | Rewritten -- compression phase with one question, not MI conversation                    |
-| [[Agent - Jarvis]]                       | Activated -- portal guide at campfire, one question, overlay after                       |
-| [[Agent - Marvin]]                       | Entrance redesigned as wow beat -- appears with work done, not introductions             |
-| [[Agent - Mesa]]                         | Reserve status confirmed -- removed from active routing                                  |
-| [[System - Onboarding]]                  | Rewritten -- state machine reoriented around portal + wow chain                          |
-| [[Standard - Onboarding Sequence]]       | Rewritten -- 5-minute portal + 3-day deepening replaces 3-day progressive disclosure     |
-| [[Standard - Spatial Interaction Rules]] | Upheld from R1 -- manual placement from day one                                          |
-| [[Room - Council Chamber]]               | Jarvis accessible via overlay (not dedicated route in R1)                                |
-| [[Principle - Action Before Explanation]] | NEW -- comprehension follows action, never the other way around                          |
-| [[Principle - Compression and Release]]  | NEW -- the portal pattern: compression, crossing, release                                |
-| [[Principle - The WOW Chain]]            | NEW -- varied surprise sequence prevents deflation after the reveal                      |
-| [[Journey - Builder Onboarding]]         | Rewritten -- MI posture phases replaced by wow chain choreography                        |
+| Card                                      | How It's Affected                                                                    |
+| ----------------------------------------- | ------------------------------------------------------------------------------------ |
+| [[Structure - Hex Grid]]                  | Partially activated -- fixed grid, illustrated tiles, no zoom tiers                  |
+| [[Component - Hex Tile]]                  | Activated with category colors and illustrated sprites                               |
+| [[Component - Campfire]]                  | Rewritten -- compression phase with one question, not MI conversation                |
+| [[Agent - Jarvis]]                        | Activated -- portal guide at campfire, one question, overlay after                   |
+| [[Agent - Marvin]]                        | Entrance redesigned as wow beat -- appears with work done, not introductions         |
+| [[Agent - Mesa]]                          | Reserve status confirmed -- removed from active routing                              |
+| [[System - Onboarding]]                   | Rewritten -- state machine reoriented around portal + wow chain                      |
+| [[Standard - Onboarding Sequence]]        | Rewritten -- 5-minute portal + 3-day deepening replaces 3-day progressive disclosure |
+| [[Standard - Spatial Interaction Rules]]  | Upheld from R1 -- manual placement from day one                                      |
+| [[Room - Council Chamber]]                | Jarvis accessible via overlay (not dedicated route in R1)                            |
+| [[Principle - Action Before Explanation]] | NEW -- comprehension follows action, never the other way around                      |
+| [[Principle - Compression and Release]]   | NEW -- the portal pattern: compression, crossing, release                            |
+| [[Principle - The WOW Chain]]             | NEW -- varied surprise sequence prevents deflation after the reveal                  |
+| [[Journey - Builder Onboarding]]          | Rewritten -- MI posture phases replaced by wow chain choreography                    |
 
 ---
 
@@ -248,13 +248,13 @@ The complete experience, start to finish:
 
 ## RISKS
 
-| Risk                                          | Mitigation                                                                                                                                                |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| D5 (story structure) takes too long to decide | Build everything else in parallel. Hex grid, agents, events, map integration -- all unblocked. The campfire experience is the last thing assembled.       |
-| Campfire conversation doesn't feel magical    | Prototype track. Draft, test, iterate. The prompt is the soul -- it can be revised independently of the UI.                                               |
-| Portal transition feels awkward               | Camera movement is proven feasible. Easing curve tuning is a few hours, not a design problem. The emotion comes from the compression, not the animation.  |
-| Map feels empty for new builders              | Empty space is potential, not absence -- but only if the aesthetic communicates that. Sanctuary at center + first illustrated hex is enough.              |
-| Sprite style doesn't match product identity   | Review existing sprites and visual aesthetic before committing to the approach. Style should be validated early.                                          |
+| Risk                                          | Mitigation                                                                                                                                               |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D5 (story structure) takes too long to decide | Build everything else in parallel. Hex grid, agents, events, map integration -- all unblocked. The campfire experience is the last thing assembled.      |
+| Campfire conversation doesn't feel magical    | Prototype track. Draft, test, iterate. The prompt is the soul -- it can be revised independently of the UI.                                              |
+| Portal transition feels awkward               | Camera movement is proven feasible. Easing curve tuning is a few hours, not a design problem. The emotion comes from the compression, not the animation. |
+| Map feels empty for new builders              | Empty space is potential, not absence -- but only if the aesthetic communicates that. Sanctuary at center + first illustrated hex is enough.             |
+| Sprite style doesn't match product identity   | Review existing sprites and visual aesthetic before committing to the approach. Style should be validated early.                                         |
 
 ---
 

@@ -33,34 +33,34 @@ The specification for the onboarding experience: what happens in the first five 
 
 ### First 5 Minutes: The Portal
 
-| Step | What Happens | Wow Type | What Builder Learns | Emotional Target |
-|------|-------------|----------|-------------------|-----------------|
-| 1. Compression | Builder sees intimate space with Jarvis. One question: "What's something you've been meaning to deal with?" | -- (loading the spring) | -- | "I'm intrigued." |
-| 2. Action | Builder types an answer. ~15 seconds. | -- (first action) | "I can interact with this." | "That was easy." |
-| 3. Portal opens | View expands. Map reveals -- open sky, terrain, sanctuary at center. | Spatial | "This is a world. It's spatial." | "Oh -- there's a world here." |
-| 4. Words become hex | Builder's input materializes as a hex on the map. | Personal | "My words become real here." | "That's mine." |
-| 5. Marvin appears | Marvin breaks the problem into steps. "Here are three things you could do -- which feels right?" | Relational | "I have a team." | "Someone is already helping." |
-| 6. Builder places hex | Builder chooses where the hex goes on the map. | Agency | "I control the space." | "I chose where this lives." |
-| 7. Attendant acts (optional) | An attendant picks up a task. "I'll look into that." | Scalar | "Things happen without me doing everything." | "Something is already moving." |
+| Step                         | What Happens                                                                                                | Wow Type                | What Builder Learns                          | Emotional Target               |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------- | -------------------------------------------- | ------------------------------ |
+| 1. Compression               | Builder sees intimate space with Jarvis. One question: "What's something you've been meaning to deal with?" | -- (loading the spring) | --                                           | "I'm intrigued."               |
+| 2. Action                    | Builder types an answer. ~15 seconds.                                                                       | -- (first action)       | "I can interact with this."                  | "That was easy."               |
+| 3. Portal opens              | View expands. Map reveals -- open sky, terrain, sanctuary at center.                                        | Spatial                 | "This is a world. It's spatial."             | "Oh -- there's a world here."  |
+| 4. Words become hex          | Builder's input materializes as a hex on the map.                                                           | Personal                | "My words become real here."                 | "That's mine."                 |
+| 5. Marvin appears            | Marvin breaks the problem into steps. "Here are three things you could do -- which feels right?"            | Relational              | "I have a team."                             | "Someone is already helping."  |
+| 6. Builder places hex        | Builder chooses where the hex goes on the map.                                                              | Agency                  | "I control the space."                       | "I chose where this lives."    |
+| 7. Attendant acts (optional) | An attendant picks up a task. "I'll look into that."                                                        | Scalar                  | "Things happen without me doing everything." | "Something is already moving." |
 
 **Constraint:** Steps 1-6 must complete within 5 minutes. The builder must have ACTED (typed, placed, chosen) before any explanation.
 
 ### Day 1-3: Deepening
 
-| Day | Focus | Activities | Emotional Target |
-|-----|-------|-----------|-----------------|
-| Day 1 (after portal) | First project is real | Complete first task. Explore the map. See the hex. Come back and it's still there. | "I did something real." |
-| Day 2 | The team deepens | Second conversation with Jarvis (now Me/You/Us applies -- they have shared context). Shape a second project with Marvin. | "I have help. They know me." |
-| Day 3 | Rhythm emerges | First sorting session. Work at Hand selected. The Table shows what's active. | "I know what to do each week." |
+| Day                  | Focus                 | Activities                                                                                                               | Emotional Target               |
+| -------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------ |
+| Day 1 (after portal) | First project is real | Complete first task. Explore the map. See the hex. Come back and it's still there.                                       | "I did something real."        |
+| Day 2                | The team deepens      | Second conversation with Jarvis (now Me/You/Us applies -- they have shared context). Shape a second project with Marvin. | "I have help. They know me."   |
+| Day 3                | Rhythm emerges        | First sorting session. Work at Hand selected. The Table shows what's active.                                             | "I know what to do each week." |
 
 ### Progressive Disclosure Rules (updated)
 
-| Rule | Requirement |
-|------|------------|
-| Action before explanation | Builder acts first. Understanding follows. Never explain a feature before the builder has used it. |
-| Wow chain in first 5 minutes | 4-6 varied surprise beats before the builder leaves the first session. |
-| Depth over existence | Show the map, team, and hex from minute 1. Deeper features (Sorting Room, Charter, strategic conversations) unlock as the builder needs them. |
-| Never on Day 1 | Full priority scoring, system creation, delegation, capacity planning. These require context the builder doesn't have yet. |
+| Rule                         | Requirement                                                                                                                                   |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Action before explanation    | Builder acts first. Understanding follows. Never explain a feature before the builder has used it.                                            |
+| Wow chain in first 5 minutes | 4-6 varied surprise beats before the builder leaves the first session.                                                                        |
+| Depth over existence         | Show the map, team, and hex from minute 1. Deeper features (Sorting Room, Charter, strategic conversations) unlock as the builder needs them. |
+| Never on Day 1               | Full priority scoring, system creation, delegation, capacity planning. These require context the builder doesn't have yet.                    |
 
 ## Anti-Examples
 
