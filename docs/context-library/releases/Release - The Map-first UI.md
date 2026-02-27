@@ -228,6 +228,74 @@ Key questions the prototypes will answer:
 
 ---
 
+## LIBRARY PATCH
+
+This release requires a major Context Library patch before implementation begins. Sam should execute these changes in a single pass.
+
+### New Cards to Create
+
+| Type | Name | Why Needed |
+| ---- | ---- | ---------- |
+| Room | Workshop | Primary project creation space replacing Drafting Room. Building on map with overlay. Houses the Unburdening experience with Marvin. |
+| Room | Sanctuary | Charter creation space. Building on map with overlay. Houses the Visioning experience with Jarvis. Disambiguates from Aesthetic - Sanctuary and Journey - Sanctuary Progression. |
+| Component | Left Rail | Persistent vertical rail on left edge with attendant avatar icons and expandable chat panel. Primary agent interaction surface. |
+| Component | Task Queue | Persistent collapsible panel in top-right. Aggregated cross-project task view. Appears when second project is placed. |
+| Component | Notification Pip | Small indicator on attendant avatars when agents have something to say. Behavioral rules for when to show/clear. |
+| Component | Attendant Sprite | Jarvis and Marvin as map sprites. Walk between buildings during onboarding. Stand outside buildings at steady state. |
+| Structure | Building Overlay | Centered panel over dimmed map. URL-addressable. Back-button navigable. Used by Workshop, Sanctuary, and Project overlays. Governs consistency across all overlay implementations. |
+| Structure | Task List | Replaces Kanban Board inside Project Board. Tasks with toggleable states (to-do, doing, review, done). |
+| System | Fog-of-War | Dark/dawn state for new users. Transition triggers (campfire conversation → sunrise effect). Controls progressive map reveal. |
+| System | Map Slots | Fixed hex cells available for project placement. Completed/archived projects don't consume slots. Spatial WIP mechanism replacing The Table. |
+| Capability | Project Placement | Flow from Workshop sketch to placed building on map. Cursor mechanic, validation, flourish/animation. |
+| Capability | The Unburdening | Named experience — Marvin guides multi-project drafting in Workshop. |
+| Capability | The Visioning | Named experience — Jarvis guides charter creation in Sanctuary. |
+
+### Existing Cards Needing WHEN Updates
+
+| Card | Update Needed |
+| ---- | ------------- |
+| [[Zone - Life Map]] | Sole zone. All rooms become building overlays. Remove Mesa reference. |
+| [[Structure - Hex Grid]] | Elevated to primary UI canvas. Add map slots, fixed buildings, placement flow. |
+| [[Component - Hex Tile]] | Now represents project buildings/statues. Click opens overlay. Subtle tier coloring. |
+| [[Component - Campfire]] | **Decision needed:** Card says campfire fades; release says it persists as decorative. Reconcile. |
+| [[Overlay - The Table]] | Removed from UI. Data layer preserved. May return via spatial mechanic. |
+| [[Room - Drafting Room]] | Removed as standalone room. Functionality rebuilt inside Workshop. |
+| [[Room - Sorting Room]] | Removed entirely. May return as spatial-native experience. |
+| [[Room - Project Board]] | Kanban replaced with task list. Opens as building overlay. Marvin always present. |
+| [[Agent - Jarvis]] | Activated. Campfire onboarding, Sanctuary visioning, left rail presence. Home is no longer Council Chamber. |
+| [[Agent - Marvin]] | Expanded. Project assistance, Workshop unburdening, left rail presence. Home is no longer Drafting/Sorting Room. |
+| [[Agent - Mesa]] | Removed from codebase. Mark as deprecated/reserve. |
+| [[System - Four-Stage Creation]] | Stage forms deleted. May become conversation-driven via Marvin in Workshop. |
+| [[System - Pipeline Architecture]] | Table removal breaks terminal step. Pipeline needs re-evaluation. |
+| [[Standard - Three-Stream Portfolio]] | UI surfaces removed. Data preserved. Subtle border coloring only visible surface. |
+| [[Artifact - The Charter]] | Created in Sanctuary via Jarvis conversation, not Council Chamber. |
+| [[Standard - Onboarding Sequence]] | **Major rewrite.** Day 1/2/3 progressive unlock replaced by 5-beat spatial sequence. |
+| [[System - Onboarding]] | Fundamentally redesigned. 5-beat spatial sequence replaces feature unlocks. |
+| [[Journey - Builder Onboarding]] | Phases replaced by 5-beat spatial sequence. Walk-to-sanctuary replaced by fog-of-war reveal. |
+| [[Structure - Kanban Board]] | Removed. Replaced by Task List. |
+| [[Zone - Strategy Studio]] | Confirmed removed. Rooms dissolved into map overlays. |
+| [[Standard - Dual Presence]] | Inert — The Table removal makes dual presence N/A. Defer or deprecate. |
+| [[Standard - Spatial Interaction Rules]] | Fixed buildings (Campfire, Sanctuary, Workshop) are system-placed exceptions to builder-only placement. |
+| [[Journey - Sanctuary Progression]] | Clarify how Sanctuary building relates to the progression journey's sanctuary concept. |
+| [[Aesthetic - Sanctuary]] | Sanctuary metaphor now spatially literal via Sanctuary building. |
+
+### Cards to Deprecate
+
+| Card | Reason |
+| ---- | ------ |
+| [[Overlay - The Table]] | Removed from UI. Data preserved, may return. |
+| [[Room - Drafting Room]] | Replaced by Room - Workshop. |
+| [[Room - Sorting Room]] | Removed entirely. |
+| [[Structure - Kanban Board]] | Replaced by Structure - Task List. |
+| [[Agent - Mesa]] | Removed. May return in future role. |
+| [[Standard - Dual Presence]] | The Table removal makes this inert. |
+| [[Standard - Table Slot Behaviors]] | The Table removed. Standard inert. |
+| [[Component - Gold Position]] | Table Position component. Table removed. |
+| [[Component - Silver Position]] | Table Position component. Table removed. |
+| [[Component - Bronze Position]] | Table Position component. Table removed. |
+
+---
+
 ## WHAT'S EXPLICITLY DEFERRED
 
 | Feature | Deferred To | Why |
