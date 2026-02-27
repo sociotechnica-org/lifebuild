@@ -10,28 +10,29 @@
 
 ### Primary Cards
 
-| Card | Type | Relevance |
-|------|------|-----------|
-| Capability - Zoom Navigation | Capability | Directly specifies zoom behavior: scroll-to-zoom, semantic zoom levels (Far/Mid/Close), zoom persistence across sessions |
-| Capability - Workspace Navigation | Capability | Parent capability; zoom/pan state must persist when switching workspaces |
-| Structure - Hex Grid | Structure | The spatial canvas this navigation operates on; infinite canvas, orthographic view |
-| Standard - Spatial Interaction Rules | Standard | Builder agency over spatial arrangement; pan/zoom must not interfere with drag-and-drop placement |
+| Card                                 | Type       | Relevance                                                                                                                |
+| ------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Capability - Zoom Navigation         | Capability | Directly specifies zoom behavior: scroll-to-zoom, semantic zoom levels (Far/Mid/Close), zoom persistence across sessions |
+| Capability - Workspace Navigation    | Capability | Parent capability; zoom/pan state must persist when switching workspaces                                                 |
+| Structure - Hex Grid                 | Structure  | The spatial canvas this navigation operates on; infinite canvas, orthographic view                                       |
+| Standard - Spatial Interaction Rules | Standard   | Builder agency over spatial arrangement; pan/zoom must not interfere with drag-and-drop placement                        |
 
 ### Supporting Cards
 
-| Card | Type | Relevance |
-|------|------|-----------|
-| Zone - Life Map | Zone | The zone where zoom/pan navigation operates; "the map IS the game" |
-| Strategy - Spatial Visibility | Strategy | Strategic Plank 1; zoom levels resolve tension between overview and detail |
-| Principle - Visibility Creates Agency | Principle | Builders can't control what they can't see; zoom controls information density, not access |
-| Principle - Visual Recognition | Principle | Two-second recognition test; zoom levels must maintain recognizability at each scale |
-| Component - Hex Tile | Component | Tiles must render appropriately at all zoom levels; same size, visual treatments vary by state |
+| Card                                  | Type      | Relevance                                                                                      |
+| ------------------------------------- | --------- | ---------------------------------------------------------------------------------------------- |
+| Zone - Life Map                       | Zone      | The zone where zoom/pan navigation operates; "the map IS the game"                             |
+| Strategy - Spatial Visibility         | Strategy  | Strategic Plank 1; zoom levels resolve tension between overview and detail                     |
+| Principle - Visibility Creates Agency | Principle | Builders can't control what they can't see; zoom controls information density, not access      |
+| Principle - Visual Recognition        | Principle | Two-second recognition test; zoom levels must maintain recognizability at each scale           |
+| Component - Hex Tile                  | Component | Tiles must render appropriately at all zoom levels; same size, visual treatments vary by state |
 
 ---
 
 ## Key Design Constraints
 
 From **Capability - Zoom Navigation**:
+
 - Zoom controls information density, not access. All data exists at every level.
 - The Table remains fixed size regardless of zoom.
 - Zoom level persists across sessions.
@@ -39,18 +40,22 @@ From **Capability - Zoom Navigation**:
 - Controls: pinch/scroll to zoom, double-tap to toggle between levels.
 
 From **Capability - Workspace Navigation**:
+
 - Leaving a workspace preserves state (zoom, scroll, selection).
 - Return to where you were.
 
 From **Standard - Spatial Interaction Rules**:
+
 - Drag-and-drop must coexist with pan/zoom controls (no confirmation dialogs for moves).
 - Spatial arrangement persists exactly as builder left it.
 
 From **Strategy - Spatial Visibility**:
+
 - "A hex grid with no zoom tiers dumps all information at the same density" -- zoom is essential.
 - Navigable environments outperform static spatial organization.
 
 From **Principle - Visibility Creates Agency**:
+
 - "Resolution is zoom levels and progressive detail" for managing information density vs. overwhelm.
 
 ---
@@ -182,11 +187,7 @@ export function CameraRig() {
     // Arc the camera on a circle from south, based on elevation angle
     const elevRad = THREE.MathUtils.degToRad(Math.max(elevation, 1))
     const d = CAMERA_DISTANCE
-    ortho.position.set(
-      target.current.x,
-      d * Math.sin(elevRad),
-      target.current.z + d * Math.cos(elevRad)
-    )
+    ortho.position.set(target.current.x, d * Math.sin(elevRad), target.current.z + d * Math.cos(elevRad))
     ortho.lookAt(target.current)
   })
 
@@ -196,25 +197,25 @@ export function CameraRig() {
 
 ### Key Differences (Web vs. Prototype)
 
-| Aspect | Web (current) | Prototype (target) |
-|--------|--------------|-------------------|
-| Zoom | Fixed at `ORTHOGRAPHIC_VIEW_HEIGHT = 8` | Scroll wheel, clamped `MIN_ZOOM=5` to `MAX_ZOOM=50` |
-| Pan | None | Arrow keys, per-frame delta-time movement |
-| Frame loop | `useLayoutEffect` only (one-shot) | `useFrame` (per-frame updates) |
-| Camera distance | 24 | 50 |
-| Elevation | 31 degrees, static | Dynamic via `useGameState` (but issue says fixed, no rotation) |
-| Event handling | None | keydown/keyup/wheel listeners |
+| Aspect          | Web (current)                           | Prototype (target)                                             |
+| --------------- | --------------------------------------- | -------------------------------------------------------------- |
+| Zoom            | Fixed at `ORTHOGRAPHIC_VIEW_HEIGHT = 8` | Scroll wheel, clamped `MIN_ZOOM=5` to `MAX_ZOOM=50`            |
+| Pan             | None                                    | Arrow keys, per-frame delta-time movement                      |
+| Frame loop      | `useLayoutEffect` only (one-shot)       | `useFrame` (per-frame updates)                                 |
+| Camera distance | 24                                      | 50                                                             |
+| Elevation       | 31 degrees, static                      | Dynamic via `useGameState` (but issue says fixed, no rotation) |
+| Event handling  | None                                    | keydown/keyup/wheel listeners                                  |
 
 ---
 
 ## Impacted Files
 
-| File | Change |
-|------|--------|
-| `packages/web/src/components/hex-map/CameraRig.tsx` | **Primary** -- replace static camera with zoom/pan controls matching prototype |
-| `packages/web/src/components/hex-map/HexMap.tsx` | May need `{ passive: false }` on canvas or event coordination with placement |
-| `packages/web/src/components/hex-map/HexMap.test.tsx` | Tests for zoom/pan behavior |
-| `packages/web/src/components/hex-map/HexMap.stories.tsx` | Story updates to demonstrate zoom/pan |
+| File                                                     | Change                                                                         |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `packages/web/src/components/hex-map/CameraRig.tsx`      | **Primary** -- replace static camera with zoom/pan controls matching prototype |
+| `packages/web/src/components/hex-map/HexMap.tsx`         | May need `{ passive: false }` on canvas or event coordination with placement   |
+| `packages/web/src/components/hex-map/HexMap.test.tsx`    | Tests for zoom/pan behavior                                                    |
+| `packages/web/src/components/hex-map/HexMap.stories.tsx` | Story updates to demonstrate zoom/pan                                          |
 
 ---
 
@@ -236,9 +237,9 @@ export function CameraRig() {
 
 ## Gaps
 
-| Dimension | Topic | Notes |
-|-----------|-------|-------|
-| HOW | Zoom/pan state persistence | Capability card requires persistence; not in #706 scope but architecture should support it |
-| HOW | Touch/mobile controls | Explicitly out of scope per issue; capability card mentions pinch-to-zoom |
-| HOW | Semantic zoom level thresholds | Capability card defines Far/Mid/Close but no specific zoom value ranges mapped |
-| WHERE | Interaction with tile drag-and-drop | Zoom/pan during placement mode needs testing |
+| Dimension | Topic                               | Notes                                                                                      |
+| --------- | ----------------------------------- | ------------------------------------------------------------------------------------------ |
+| HOW       | Zoom/pan state persistence          | Capability card requires persistence; not in #706 scope but architecture should support it |
+| HOW       | Touch/mobile controls               | Explicitly out of scope per issue; capability card mentions pinch-to-zoom                  |
+| HOW       | Semantic zoom level thresholds      | Capability card defines Far/Mid/Close but no specific zoom value ranges mapped             |
+| WHERE     | Interaction with tile drag-and-drop | Zoom/pan during placement mode needs testing                                               |

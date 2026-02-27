@@ -9,6 +9,7 @@
 **Task type:** New feature
 
 **Constraints:**
+
 - Panel is persistent (visible across routes via the shell) and collapsible
 - Positioned in top-right corner of the viewport
 - Tasks grouped by project -- not a flat cross-project list
@@ -17,6 +18,7 @@
 - TEMP DECISION: grouping by project is provisional; may evolve
 
 **Acceptance criteria:**
+
 - Panel renders in top-right corner, collapsible to a minimal indicator
 - Tasks from all active (non-archived) projects are aggregated and displayed grouped by project name
 - Panel visibility is gated on 2+ projects having tasks
@@ -124,6 +126,7 @@ The detail overlay that opens when a builder clicks any project tile -- a focuse
 **Interaction (current reality):** Full-page navigation to `/projects/:projectId`. Uses `preserveStoreIdInUrl()` for LiveStore sync identity.
 
 **Anti-patterns:**
+
 - Project Board should not replace the Life Map entirely -- it's meant to be an overlay (not yet implemented).
 - Detail density should match lifecycle state.
 
@@ -157,13 +160,13 @@ A persistent priority spotlight that sat at the bottom of the screen, displaying
 
 ## Supporting Cards (summaries)
 
-| Card | Type | Key Insight |
-| --- | --- | --- |
-| Zone - Life Map | Zone | Primary workspace. The Task Queue panel will float over this zone. Life Map renders via `NewUiShell.tsx` which is where the panel should be added. |
-| Structure - Kanban Board | Structure | Task flow interface within projects. The Task Queue panel shows a cross-project view of tasks that normally live on per-project kanban boards. WIP limit of 3 per project is relevant context. |
-| System - Priority Queue Architecture | System | Defines how projects are ordered by stream-specific priority. The Task Queue groups by project, not by priority stream -- a simpler model. |
-| Component - Bronze Position | Component | Previously showed a stack of operational tasks on The Table. The Task Queue panel is broader (all tasks, all projects) but Bronze Position's "stack of tasks" pattern is a relevant precedent for compact task display. |
-| Standard - Three-Stream Portfolio | Standard | Gold/Silver/Bronze classification. The Task Queue panel groups by project, not by stream. This is a TEMP DECISION -- future iterations may add stream-based grouping or filtering. |
+| Card                                  | Type      | Key Insight                                                                                                                                                                                                                                                                 |
+| ------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Zone - Life Map                       | Zone      | Primary workspace. The Task Queue panel will float over this zone. Life Map renders via `NewUiShell.tsx` which is where the panel should be added.                                                                                                                          |
+| Structure - Kanban Board              | Structure | Task flow interface within projects. The Task Queue panel shows a cross-project view of tasks that normally live on per-project kanban boards. WIP limit of 3 per project is relevant context.                                                                              |
+| System - Priority Queue Architecture  | System    | Defines how projects are ordered by stream-specific priority. The Task Queue groups by project, not by priority stream -- a simpler model.                                                                                                                                  |
+| Component - Bronze Position           | Component | Previously showed a stack of operational tasks on The Table. The Task Queue panel is broader (all tasks, all projects) but Bronze Position's "stack of tasks" pattern is a relevant precedent for compact task display.                                                     |
+| Standard - Three-Stream Portfolio     | Standard  | Gold/Silver/Bronze classification. The Task Queue panel groups by project, not by stream. This is a TEMP DECISION -- future iterations may add stream-based grouping or filtering.                                                                                          |
 | Principle - Visibility Creates Agency | Principle | "Builders can't control what they can't see." The Task Queue panel increases task visibility across projects. Aligns with the principle's guidance to default to showing, not hiding. The collapsible nature is acceptable because it's opt-in collapse, not opt-in reveal. |
 
 ## Relationship Map
@@ -181,20 +184,22 @@ A persistent priority spotlight that sat at the bottom of the screen, displaying
 
 Files that will be created or modified:
 
-| File | Impact |
-| --- | --- |
-| `packages/web/src/components/layout/TaskQueuePanel.tsx` | **Create** -- new component for the collapsible task queue panel |
-| `packages/web/src/components/layout/TaskQueuePanel.stories.tsx` | **Create** -- Storybook story with real LiveStore events |
-| `packages/web/src/components/layout/TaskQueuePanel.test.tsx` | **Create** -- unit tests for panel logic |
-| `packages/web/src/components/layout/NewUiShell.tsx` | **Edit** -- add TaskQueuePanel rendering in header area (top-right) |
-| `packages/shared/src/livestore/queries.ts` | **Review** -- existing `getAllTasks$` query returns all non-archived tasks; may need a new query for tasks grouped by project with project name join, or handle grouping client-side |
+| File                                                            | Impact                                                                                                                                                                               |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `packages/web/src/components/layout/TaskQueuePanel.tsx`         | **Create** -- new component for the collapsible task queue panel                                                                                                                     |
+| `packages/web/src/components/layout/TaskQueuePanel.stories.tsx` | **Create** -- Storybook story with real LiveStore events                                                                                                                             |
+| `packages/web/src/components/layout/TaskQueuePanel.test.tsx`    | **Create** -- unit tests for panel logic                                                                                                                                             |
+| `packages/web/src/components/layout/NewUiShell.tsx`             | **Edit** -- add TaskQueuePanel rendering in header area (top-right)                                                                                                                  |
+| `packages/shared/src/livestore/queries.ts`                      | **Review** -- existing `getAllTasks$` query returns all non-archived tasks; may need a new query for tasks grouped by project with project name join, or handle grouping client-side |
 
 Key existing queries to leverage:
+
 - `getAllTasks$` -- all non-archived tasks, ordered by position
 - `getProjects$` -- all projects for metadata (name, category, status)
 - `getProjectTasks$` / `getBoardTasks$` -- tasks for a single project (useful reference but panel needs cross-project)
 
 Key patterns to follow:
+
 - `preserveStoreIdInUrl()` for all navigation to project detail pages
 - `useQuery()` from `livestore-compat.js` for reactive data queries
 - PascalCase component file naming (`TaskQueuePanel.tsx`)
@@ -203,14 +208,14 @@ Key patterns to follow:
 
 ## Gap Manifest
 
-| Dimension | Topic | Searched | Found | Recommendation |
-| --- | --- | --- | --- | --- |
-| HOW | Task filtering logic (which statuses to show) | Yes | Partial | Tasks table has statuses: `todo`, `doing`, `in_review`, `done`. The panel should likely show only incomplete tasks (`todo`, `doing`, `in_review`). Not explicitly specified in the issue -- recommend filtering out `done` tasks. |
-| HOW | Panel appearance trigger ("when second project placed") | Yes | No | "Second project placed" is ambiguous -- does it mean 2+ projects exist in LiveStore, or 2+ projects with non-done tasks? Recommend: show panel when 2+ projects have at least one non-done, non-archived task. |
-| HOW | Task ordering within project groups | Yes | No | Issue does not specify ordering. Recommend: order by task `position` field (existing kanban order) within each project group, and order project groups alphabetically or by most recent activity. |
-| HOW | Collapsible state persistence mechanism | Yes | Partial | `usePersistentChatToggle` uses localStorage for chat panel state. Follow same pattern for Task Queue collapsed/expanded state. |
-| WHERE | Exact positioning in header vs. floating panel | Yes | No | Issue says "top-right corner." The header in `NewUiShell.tsx` already has items in the top-right (feedback button, chat toggle, user menu). The Task Queue panel could be: (a) a new header button that toggles a dropdown, or (b) a fixed-position floating panel. Recommend: floating panel overlaying content, toggled by a header button, similar to chat panel pattern. |
-| WHAT | Maximum tasks to show before truncation | Yes | No | With many projects and tasks, the panel could become very long. Recommend: show top N tasks per project (e.g., 3-5) with a "show all" link that navigates to the project. |
+| Dimension | Topic                                                   | Searched | Found   | Recommendation                                                                                                                                                                                                                                                                                                                                                               |
+| --------- | ------------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| HOW       | Task filtering logic (which statuses to show)           | Yes      | Partial | Tasks table has statuses: `todo`, `doing`, `in_review`, `done`. The panel should likely show only incomplete tasks (`todo`, `doing`, `in_review`). Not explicitly specified in the issue -- recommend filtering out `done` tasks.                                                                                                                                            |
+| HOW       | Panel appearance trigger ("when second project placed") | Yes      | No      | "Second project placed" is ambiguous -- does it mean 2+ projects exist in LiveStore, or 2+ projects with non-done tasks? Recommend: show panel when 2+ projects have at least one non-done, non-archived task.                                                                                                                                                               |
+| HOW       | Task ordering within project groups                     | Yes      | No      | Issue does not specify ordering. Recommend: order by task `position` field (existing kanban order) within each project group, and order project groups alphabetically or by most recent activity.                                                                                                                                                                            |
+| HOW       | Collapsible state persistence mechanism                 | Yes      | Partial | `usePersistentChatToggle` uses localStorage for chat panel state. Follow same pattern for Task Queue collapsed/expanded state.                                                                                                                                                                                                                                               |
+| WHERE     | Exact positioning in header vs. floating panel          | Yes      | No      | Issue says "top-right corner." The header in `NewUiShell.tsx` already has items in the top-right (feedback button, chat toggle, user menu). The Task Queue panel could be: (a) a new header button that toggles a dropdown, or (b) a fixed-position floating panel. Recommend: floating panel overlaying content, toggled by a header button, similar to chat panel pattern. |
+| WHAT      | Maximum tasks to show before truncation                 | Yes      | No      | With many projects and tasks, the panel could become very long. Recommend: show top N tasks per project (e.g., 3-5) with a "show all" link that navigates to the project.                                                                                                                                                                                                    |
 
 ## WHEN Section Divergences
 

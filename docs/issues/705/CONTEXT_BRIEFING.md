@@ -97,37 +97,38 @@ Not implemented yet but uses identical overlay behavior: "Opens over Life Map (g
 
 ### Files to Create
 
-| File | Purpose |
-|------|---------|
-| `packages/web/src/components/layout/BuildingOverlay.tsx` | Reusable overlay frame component — dimmed backdrop, centered panel, Escape handling, click-outside-to-close |
-| `packages/web/src/components/layout/BuildingOverlay.stories.tsx` | Storybook stories per web AGENTS.md |
-| `packages/web/src/components/layout/BuildingOverlay.test.tsx` | Unit tests for overlay behavior (Escape, back button, backdrop click) |
+| File                                                             | Purpose                                                                                                     |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `packages/web/src/components/layout/BuildingOverlay.tsx`         | Reusable overlay frame component — dimmed backdrop, centered panel, Escape handling, click-outside-to-close |
+| `packages/web/src/components/layout/BuildingOverlay.stories.tsx` | Storybook stories per web AGENTS.md                                                                         |
+| `packages/web/src/components/layout/BuildingOverlay.test.tsx`    | Unit tests for overlay behavior (Escape, back button, backdrop click)                                       |
 
 ### Files to Modify
 
-| File | Change |
-|------|--------|
-| `packages/web/src/constants/routes.ts` | Add `WORKSHOP: '/workshop'`, `SANCTUARY: '/sanctuary'` routes. Keep existing `PROJECT: '/projects/:projectId'` |
-| `packages/web/src/Root.tsx` | Add overlay routes that render the map as base layer with `BuildingOverlay` on top. Restructure routing so `/workshop`, `/sanctuary`, and `/projects/:id` render the hex map with the overlay, not as standalone pages |
-| `packages/web/src/components/projects/ProjectDetailPage.tsx` | Refactor from full-page route to render inside `BuildingOverlay`. Remove `NewUiShell` wrapper (the map shell provides it) |
-| `packages/web/src/components/life-map/LifeMap.tsx` | Potentially needs to handle `onOpenProject` callback that navigates to overlay route instead of full-page route |
-| `packages/web/src/components/hex-map/HexMap.tsx` | The `onOpenProject` prop already exists — wire it to navigate to overlay route |
-| `packages/web/src/components/layout/NewUiShell.tsx` | May need z-index coordination with overlay layer. TableBar removal (separate issue) will simplify this |
+| File                                                         | Change                                                                                                                                                                                                                 |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/web/src/constants/routes.ts`                       | Add `WORKSHOP: '/workshop'`, `SANCTUARY: '/sanctuary'` routes. Keep existing `PROJECT: '/projects/:projectId'`                                                                                                         |
+| `packages/web/src/Root.tsx`                                  | Add overlay routes that render the map as base layer with `BuildingOverlay` on top. Restructure routing so `/workshop`, `/sanctuary`, and `/projects/:id` render the hex map with the overlay, not as standalone pages |
+| `packages/web/src/components/projects/ProjectDetailPage.tsx` | Refactor from full-page route to render inside `BuildingOverlay`. Remove `NewUiShell` wrapper (the map shell provides it)                                                                                              |
+| `packages/web/src/components/life-map/LifeMap.tsx`           | Potentially needs to handle `onOpenProject` callback that navigates to overlay route instead of full-page route                                                                                                        |
+| `packages/web/src/components/hex-map/HexMap.tsx`             | The `onOpenProject` prop already exists — wire it to navigate to overlay route                                                                                                                                         |
+| `packages/web/src/components/layout/NewUiShell.tsx`          | May need z-index coordination with overlay layer. TableBar removal (separate issue) will simplify this                                                                                                                 |
 
 ### Existing Patterns to Reference
 
-| Pattern | File | Relevance |
-|---------|------|-----------|
-| Modal component | `packages/web/src/components/ui/Modal/Modal.tsx` | Existing overlay pattern with backdrop, Escape handling, click-outside. Building Overlay is similar but route-aware and larger |
-| RoomLayout | `packages/web/src/components/layout/RoomLayout.tsx` | Current room wrapper — Building Overlay replaces this pattern for map-based rooms |
-| TaskDetailModal | `packages/web/src/components/project-room/TaskDetailModal.tsx` | Another modal pattern in the codebase |
-| HexMap Escape handling | `packages/web/src/components/hex-map/HexMap.tsx` (lines 142-158) | Already handles Escape for placement mode — overlay Escape must take priority when overlay is open |
+| Pattern                | File                                                             | Relevance                                                                                                                      |
+| ---------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Modal component        | `packages/web/src/components/ui/Modal/Modal.tsx`                 | Existing overlay pattern with backdrop, Escape handling, click-outside. Building Overlay is similar but route-aware and larger |
+| RoomLayout             | `packages/web/src/components/layout/RoomLayout.tsx`              | Current room wrapper — Building Overlay replaces this pattern for map-based rooms                                              |
+| TaskDetailModal        | `packages/web/src/components/project-room/TaskDetailModal.tsx`   | Another modal pattern in the codebase                                                                                          |
+| HexMap Escape handling | `packages/web/src/components/hex-map/HexMap.tsx` (lines 142-158) | Already handles Escape for placement mode — overlay Escape must take priority when overlay is open                             |
 
 ### Routing Architecture Decision
 
 The current routing uses `react-router-dom` v6 with `BrowserRouter` and flat `<Routes>`. The overlay pattern requires a **nested route** or **layout route** approach:
 
 **Option A — Nested routes (recommended):**
+
 ```
 / → MapLayout (always renders hex map)
   /workshop → MapLayout + BuildingOverlay(Workshop)
@@ -145,6 +146,7 @@ The key constraint is that the hex map (Three.js Canvas) must remain mounted whe
 ### z-index Considerations
 
 Current z-index usage:
+
 - Header: `z-[8]`
 - Modal: `z-[9999]`
 - User dropdown: `z-[9999]`
@@ -173,14 +175,14 @@ The Building Overlay should use a z-index between the header and existing modals
 
 ## Gaps Identified
 
-| Dimension | Topic | Searched | Found |
-|-----------|-------|----------|-------|
-| HOW | Building Overlay card does not exist yet in context library | Yes | No — specified in Release plan but card not created |
-| HOW | Overlay open/close animation spec | Yes | Explicitly deferred in release plan |
-| WHERE | Workshop room card does not exist yet | Yes | No — specified in Release plan but card not created |
-| WHERE | Sanctuary room card does not exist yet | Yes | No — specified in Release plan but card not created |
-| HOW | Overlay sizing spec (width, max-height, mobile responsive) | Yes | Not found — Release plan says "centered panel" but no dimensions |
-| HOW | Overlay scroll behavior when content exceeds viewport | Yes | Not found |
+| Dimension | Topic                                                       | Searched | Found                                                            |
+| --------- | ----------------------------------------------------------- | -------- | ---------------------------------------------------------------- |
+| HOW       | Building Overlay card does not exist yet in context library | Yes      | No — specified in Release plan but card not created              |
+| HOW       | Overlay open/close animation spec                           | Yes      | Explicitly deferred in release plan                              |
+| WHERE     | Workshop room card does not exist yet                       | Yes      | No — specified in Release plan but card not created              |
+| WHERE     | Sanctuary room card does not exist yet                      | Yes      | No — specified in Release plan but card not created              |
+| HOW       | Overlay sizing spec (width, max-height, mobile responsive)  | Yes      | Not found — Release plan says "centered panel" but no dimensions |
+| HOW       | Overlay scroll behavior when content exceeds viewport       | Yes      | Not found                                                        |
 
 ---
 

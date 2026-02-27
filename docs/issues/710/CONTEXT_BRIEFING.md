@@ -11,6 +11,7 @@
 **Blocked by:** #705 (Building overlay pattern and routing)
 
 **Constraints:**
+
 - Must use the standard building overlay frame component from #705
 - Jarvis auto-selected in Attendant Rail when Sanctuary overlay opens
 - Overlay must be URL-addressable at `/sanctuary`
@@ -20,6 +21,7 @@
 - Content is placeholder only -- no charter editing, no visioning conversation flow
 
 **Acceptance criteria:**
+
 - Clicking the Sanctuary building on the map opens the Sanctuary overlay at `/sanctuary`
 - The overlay displays a placeholder for the charter/visioning experience
 - Jarvis is auto-selected in the Attendant Rail when the Sanctuary overlay opens
@@ -62,6 +64,7 @@ Reality note (2026-02-17): Jarvis does not exist in the codebase yet. D2 resolve
 **Voice:** Warm and thoughtful, the advisor who knows the builder deeply and earns trust through genuine curiosity rather than interrogation. He frames adaptation as leadership, not failure. Jarvis elicits the builder's own thinking before offering perspective, asks questions that open up reflection, and speaks with the quiet confidence of someone who has been paying attention for a long time.
 
 **Boundaries:**
+
 - Does NOT make decisions for the builder -- elicits and recommends, never prescribes
 - Does NOT execute tasks, assign attendants, or manage operational details
 - Hands off to Marvin when strategic direction needs operational implementation
@@ -171,6 +174,7 @@ Reality note (2026-02-17): No Council Chamber exists in the codebase. D2 resolve
 **Relevance:** Defines the Sanctuary as a fixed building on the map with a building overlay. This is the governing release spec for this work.
 
 **Key specifications for Sanctuary:**
+
 - Fixed buildings: Campfire (non-clickable, decorative), Sanctuary (clickable), Workshop (clickable)
 - Building overlays: Centered panel over dimmed map. URL-addressable routes (`/workshop`, `/sanctuary`, `/projects/:id`). Back button works.
 - Attendant Rail: Vertical rail on left edge with circular avatar icons. Navigating to Sanctuary auto-selects Jarvis. Chat can contain navigation shortcuts.
@@ -190,18 +194,18 @@ Reality note (2026-02-17): No Council Chamber exists in the codebase. D2 resolve
 
 ### Files to create
 
-| File | Purpose |
-|------|---------|
-| `packages/web/src/components/sanctuary/SanctuaryOverlay.tsx` | Sanctuary overlay shell component with placeholder content |
-| `packages/web/src/components/sanctuary/SanctuaryOverlay.stories.tsx` | Storybook story for the overlay |
+| File                                                                 | Purpose                                                    |
+| -------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `packages/web/src/components/sanctuary/SanctuaryOverlay.tsx`         | Sanctuary overlay shell component with placeholder content |
+| `packages/web/src/components/sanctuary/SanctuaryOverlay.stories.tsx` | Storybook story for the overlay                            |
 
 ### Files to modify
 
-| File | Change |
-|------|--------|
-| `packages/web/src/constants/routes.ts` | Add `SANCTUARY: '/sanctuary'` route constant and `generateRoute.sanctuary()` |
-| `packages/web/src/Root.tsx` | Add `<Route path={ROUTES.SANCTUARY}>` rendering the SanctuaryOverlay inside the building overlay frame |
-| `packages/shared/src/rooms.ts` | Add `SANCTUARY_ROOM` static room definition with Jarvis prompt for sanctuary/visioning context. Add to `getRoomDefinitionByRoomId()`. |
+| File                                   | Change                                                                                                                                |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/web/src/constants/routes.ts` | Add `SANCTUARY: '/sanctuary'` route constant and `generateRoute.sanctuary()`                                                          |
+| `packages/web/src/Root.tsx`            | Add `<Route path={ROUTES.SANCTUARY}>` rendering the SanctuaryOverlay inside the building overlay frame                                |
+| `packages/shared/src/rooms.ts`         | Add `SANCTUARY_ROOM` static room definition with Jarvis prompt for sanctuary/visioning context. Add to `getRoomDefinitionByRoomId()`. |
 
 ### Key patterns to follow
 
@@ -235,6 +239,7 @@ The shell needs a generic Jarvis prompt for the Sanctuary context. Based on the 
 ### Placeholder content
 
 The overlay body should:
+
 - Indicate this is the Sanctuary -- a place for chartering and visioning
 - Not feel broken or empty -- frame it as "coming soon" or show Jarvis's welcoming presence
 - Match the warm palette described in Aesthetic - Sanctuary
@@ -243,15 +248,15 @@ The overlay body should:
 
 ## Provenance
 
-| Card | Path | Confidence |
-|------|------|------------|
-| Agent - Jarvis | `docs/context-library/product/agents/Agent - Jarvis.md` | High -- resident agent, directly specified |
-| Artifact - The Charter | `docs/context-library/product/artifacts/Artifact - The Charter.md` | High -- the artifact created in this room |
-| Room - Council Chamber | `docs/context-library/product/rooms/Room - Council Chamber.md` | High -- conceptual predecessor to Sanctuary overlay |
-| Aesthetic - Sanctuary | `docs/context-library/experience/aesthetics/Aesthetic - Sanctuary.md` | Medium -- target feeling for this space |
-| Journey - Sanctuary Progression | `docs/context-library/experience/journeys/Journey - Sanctuary Progression.md` | Medium -- progression context |
-| Loop - Sanctuary Walk | `docs/context-library/experience/loops/Loop - Sanctuary Walk.md` | Low -- future loop, minimal shell impact |
-| Release - The Map-first UI | `docs/context-library/releases/Release - The Map-first UI.md` | High -- governing release specification |
-| Standard - Naming Architecture | `docs/context-library/product/standards/Standard - Naming Architecture.md` | Medium -- naming conventions for prompts/copy |
+| Card                            | Path                                                                          | Confidence                                          |
+| ------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------- |
+| Agent - Jarvis                  | `docs/context-library/product/agents/Agent - Jarvis.md`                       | High -- resident agent, directly specified          |
+| Artifact - The Charter          | `docs/context-library/product/artifacts/Artifact - The Charter.md`            | High -- the artifact created in this room           |
+| Room - Council Chamber          | `docs/context-library/product/rooms/Room - Council Chamber.md`                | High -- conceptual predecessor to Sanctuary overlay |
+| Aesthetic - Sanctuary           | `docs/context-library/experience/aesthetics/Aesthetic - Sanctuary.md`         | Medium -- target feeling for this space             |
+| Journey - Sanctuary Progression | `docs/context-library/experience/journeys/Journey - Sanctuary Progression.md` | Medium -- progression context                       |
+| Loop - Sanctuary Walk           | `docs/context-library/experience/loops/Loop - Sanctuary Walk.md`              | Low -- future loop, minimal shell impact            |
+| Release - The Map-first UI      | `docs/context-library/releases/Release - The Map-first UI.md`                 | High -- governing release specification             |
+| Standard - Naming Architecture  | `docs/context-library/product/standards/Standard - Naming Architecture.md`    | Medium -- naming conventions for prompts/copy       |
 
 **Note:** No `Room - Sanctuary` card exists in the context library. The Release - The Map-first UI card calls for its creation. This issue implements the code shell; the library card should be created separately.

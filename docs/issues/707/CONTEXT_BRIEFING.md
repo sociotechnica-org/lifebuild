@@ -11,22 +11,22 @@
 
 ### Seed Cards
 
-| Card | Role in This Issue |
-|------|--------------------|
-| [Agent - Jarvis](../../context-library/product/agents/Agent%20-%20Jarvis.md) | One of two attendants in the rail. Counselor agent. Auto-selected on `/sanctuary` navigation. Not yet implemented in codebase. |
-| [Agent - Marvin](../../context-library/product/agents/Agent%20-%20Marvin.md) | Second attendant in the rail. Manager agent. Auto-selected when opening a project. Partially implemented (Drafting Room and Sorting Room). |
-| [Component - Campfire](../../context-library/product/components/Component%20-%20Campfire.md) | The rail must be hidden during the campfire onboarding beat and fade in during the reveal. Campfire is not yet built. |
-| [Release - The Attendants](../../context-library/releases/Release%20-%20The%20Attendants.md) | The broader release context for attendant agents. This rail is a precursor UI component for that release. |
+| Card                                                                                         | Role in This Issue                                                                                                                         |
+| -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| [Agent - Jarvis](../../context-library/product/agents/Agent%20-%20Jarvis.md)                 | One of two attendants in the rail. Counselor agent. Auto-selected on `/sanctuary` navigation. Not yet implemented in codebase.             |
+| [Agent - Marvin](../../context-library/product/agents/Agent%20-%20Marvin.md)                 | Second attendant in the rail. Manager agent. Auto-selected when opening a project. Partially implemented (Drafting Room and Sorting Room). |
+| [Component - Campfire](../../context-library/product/components/Component%20-%20Campfire.md) | The rail must be hidden during the campfire onboarding beat and fade in during the reveal. Campfire is not yet built.                      |
+| [Release - The Attendants](../../context-library/releases/Release%20-%20The%20Attendants.md) | The broader release context for attendant agents. This rail is a precursor UI component for that release.                                  |
 
 ### 1-Hop Expansion
 
-| Card | Relationship | Relevance |
-|------|-------------|-----------|
-| [Strategy - AI as Teammates](../../context-library/rationale/strategies/Strategy%20-%20AI%20as%20Teammates.md) | Standard (Jarvis + Marvin implement this) | The rail makes agents persistently accessible — advancing from "tool you use" to "teammate you work with." Currently at Level 1 (operational team with defined roles). |
-| [Capability - Workspace Navigation](../../context-library/product/capabilities/Capability%20-%20Workspace%20Navigation.md) | Sibling capability | Navigation currently lives in the header (`NewUiShell.tsx`). The rail is a new navigation surface that coexists with the header nav. The rail does not replace workspace navigation — it adds agent-context navigation. |
-| [Standard - Onboarding Sequence](../../context-library/rationale/standards/Standard%20-%20Onboarding%20Sequence.md) | Standard (rail conforms to) | Day 1: only Campfire + Life Map visible. The rail must respect progressive disclosure — hidden until the appropriate onboarding beat. Not yet built. |
-| [Journey - Builder Onboarding](../../context-library/experience/journeys/Journey%20-%20Builder%20Onboarding.md) | Parent journey | The campfire-to-sanctuary walk is the threshold moment. Rail visibility ties to this journey's completion. Not yet built. |
-| [Aesthetic - Sanctuary](../../context-library/experience/aesthetics/Aesthetic%20-%20Sanctuary.md) | Parent aesthetic | The `/sanctuary` route auto-selects Jarvis because the sanctuary is where Jarvis lives — the counselor's home. Sanctuary aesthetic: warm, persistent, no alerts competing for attention. Notification pips must be subtle, not demanding. |
+| Card                                                                                                                       | Relationship                              | Relevance                                                                                                                                                                                                                                 |
+| -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Strategy - AI as Teammates](../../context-library/rationale/strategies/Strategy%20-%20AI%20as%20Teammates.md)             | Standard (Jarvis + Marvin implement this) | The rail makes agents persistently accessible — advancing from "tool you use" to "teammate you work with." Currently at Level 1 (operational team with defined roles).                                                                    |
+| [Capability - Workspace Navigation](../../context-library/product/capabilities/Capability%20-%20Workspace%20Navigation.md) | Sibling capability                        | Navigation currently lives in the header (`NewUiShell.tsx`). The rail is a new navigation surface that coexists with the header nav. The rail does not replace workspace navigation — it adds agent-context navigation.                   |
+| [Standard - Onboarding Sequence](../../context-library/rationale/standards/Standard%20-%20Onboarding%20Sequence.md)        | Standard (rail conforms to)               | Day 1: only Campfire + Life Map visible. The rail must respect progressive disclosure — hidden until the appropriate onboarding beat. Not yet built.                                                                                      |
+| [Journey - Builder Onboarding](../../context-library/experience/journeys/Journey%20-%20Builder%20Onboarding.md)            | Parent journey                            | The campfire-to-sanctuary walk is the threshold moment. Rail visibility ties to this journey's completion. Not yet built.                                                                                                                 |
+| [Aesthetic - Sanctuary](../../context-library/experience/aesthetics/Aesthetic%20-%20Sanctuary.md)                          | Parent aesthetic                          | The `/sanctuary` route auto-selects Jarvis because the sanctuary is where Jarvis lives — the counselor's home. Sanctuary aesthetic: warm, persistent, no alerts competing for attention. Notification pips must be subtle, not demanding. |
 
 ---
 
@@ -48,31 +48,31 @@
 
 ### Files to Create
 
-| File | Purpose |
-|------|---------|
-| `packages/web/src/components/layout/AttendantRail.tsx` | New component: vertical rail with avatar icons, notification pips, click handlers |
-| `packages/web/src/components/layout/AttendantRail.test.tsx` | Unit tests for rail behavior (selection, toggle, auto-select logic) |
-| `packages/web/src/components/layout/AttendantRail.stories.tsx` | Storybook stories (per web AGENTS.md: add stories for UI components) |
-| `packages/web/src/components/layout/AttendantChatPanel.tsx` | Chat panel that opens adjacent to the rail (may reuse or wrap `RoomChatPanel`) |
+| File                                                           | Purpose                                                                           |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `packages/web/src/components/layout/AttendantRail.tsx`         | New component: vertical rail with avatar icons, notification pips, click handlers |
+| `packages/web/src/components/layout/AttendantRail.test.tsx`    | Unit tests for rail behavior (selection, toggle, auto-select logic)               |
+| `packages/web/src/components/layout/AttendantRail.stories.tsx` | Storybook stories (per web AGENTS.md: add stories for UI components)              |
+| `packages/web/src/components/layout/AttendantChatPanel.tsx`    | Chat panel that opens adjacent to the rail (may reuse or wrap `RoomChatPanel`)    |
 
 ### Files to Modify
 
-| File | Change |
-|------|--------|
+| File                                                | Change                                                                                                                                                                                                                                                          |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `packages/web/src/components/layout/NewUiShell.tsx` | Add the AttendantRail to the left edge of the shell layout. The rail sits outside the main content area, always visible. Current layout: header (top) + main (center) + TableBar (bottom). New: rail (left) + header (top) + main (center) + TableBar (bottom). |
-| `packages/web/src/components/layout/RoomLayout.tsx` | Currently manages chat panel open/close state and positions it on the right. The attendant rail replaces or supplements this pattern. The existing `RoomChatPanel` integration may need refactoring — the rail decouples chat from room context. |
-| `packages/web/src/Root.tsx` | Auto-selection logic: `/sanctuary` route (does not exist yet, but when added) should pass prop to auto-select Jarvis. Project routes (`/projects/:projectId`) should auto-select Marvin. |
-| `packages/web/src/constants/routes.ts` | May need a `/sanctuary` route constant if the auto-select behavior needs a route to key off. Currently no sanctuary route exists. |
-| `packages/shared/src/rooms.ts` | Jarvis does not have a room definition yet. A `JARVIS_ROOM` or equivalent `StaticRoomDefinition` will be needed for the chat panel to work. Marvin already has `DRAFTING_ROOM` but may need a context-free variant for rail-based chat. |
+| `packages/web/src/components/layout/RoomLayout.tsx` | Currently manages chat panel open/close state and positions it on the right. The attendant rail replaces or supplements this pattern. The existing `RoomChatPanel` integration may need refactoring — the rail decouples chat from room context.                |
+| `packages/web/src/Root.tsx`                         | Auto-selection logic: `/sanctuary` route (does not exist yet, but when added) should pass prop to auto-select Jarvis. Project routes (`/projects/:projectId`) should auto-select Marvin.                                                                        |
+| `packages/web/src/constants/routes.ts`              | May need a `/sanctuary` route constant if the auto-select behavior needs a route to key off. Currently no sanctuary route exists.                                                                                                                               |
+| `packages/shared/src/rooms.ts`                      | Jarvis does not have a room definition yet. A `JARVIS_ROOM` or equivalent `StaticRoomDefinition` will be needed for the chat panel to work. Marvin already has `DRAFTING_ROOM` but may need a context-free variant for rail-based chat.                         |
 
 ### Existing Patterns to Reuse
 
-| Pattern | Location | How |
-|---------|----------|-----|
-| `RoomChatPanel` | `packages/web/src/components/room-chat/RoomChatPanel.tsx` | The existing chat panel component handles message display, scroll behavior, input, and processing state. The rail's chat panel should reuse this component (or a variant) rather than rebuilding chat UI. |
-| `useRoomChat` hook | `packages/web/src/hooks/useRoomChat.ts` | Manages conversation state, message sending, worker connection. The rail panel needs equivalent functionality per-attendant. |
-| `usePersistentChatToggle` | `packages/web/src/components/layout/RoomLayout.tsx` | LocalStorage-persisted open/close state per room. The rail should use a similar pattern for remembering which attendant was last selected. |
-| `RoomWorkerDefinition` | `packages/shared/src/rooms.ts` | Jarvis and Marvin need worker definitions with prompts, names, and role descriptions. Marvin already has one (`drafting-room-marvin`). Jarvis needs one. |
+| Pattern                   | Location                                                  | How                                                                                                                                                                                                       |
+| ------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RoomChatPanel`           | `packages/web/src/components/room-chat/RoomChatPanel.tsx` | The existing chat panel component handles message display, scroll behavior, input, and processing state. The rail's chat panel should reuse this component (or a variant) rather than rebuilding chat UI. |
+| `useRoomChat` hook        | `packages/web/src/hooks/useRoomChat.ts`                   | Manages conversation state, message sending, worker connection. The rail panel needs equivalent functionality per-attendant.                                                                              |
+| `usePersistentChatToggle` | `packages/web/src/components/layout/RoomLayout.tsx`       | LocalStorage-persisted open/close state per room. The rail should use a similar pattern for remembering which attendant was last selected.                                                                |
+| `RoomWorkerDefinition`    | `packages/shared/src/rooms.ts`                            | Jarvis and Marvin need worker definitions with prompts, names, and role descriptions. Marvin already has one (`drafting-room-marvin`). Jarvis needs one.                                                  |
 
 ### Architecture Considerations
 
@@ -98,18 +98,18 @@
 
 ## Provenance
 
-| Card | Full Path | Read? |
-|------|-----------|-------|
-| Agent - Jarvis | `docs/context-library/product/agents/Agent - Jarvis.md` | Yes |
-| Agent - Marvin | `docs/context-library/product/agents/Agent - Marvin.md` | Yes |
-| Component - Campfire | `docs/context-library/product/components/Component - Campfire.md` | Yes |
-| Release - The Attendants | `docs/context-library/releases/Release - The Attendants.md` | Yes |
-| Strategy - AI as Teammates | `docs/context-library/rationale/strategies/Strategy - AI as Teammates.md` | Yes |
-| Capability - Workspace Navigation | `docs/context-library/product/capabilities/Capability - Workspace Navigation.md` | Yes |
-| Standard - Onboarding Sequence | `docs/context-library/rationale/standards/Standard - Onboarding Sequence.md` | Yes |
-| Journey - Builder Onboarding | `docs/context-library/experience/journeys/Journey - Builder Onboarding.md` | Yes |
-| Aesthetic - Sanctuary | `docs/context-library/experience/aesthetics/Aesthetic - Sanctuary.md` | Yes |
-| Journey - Sanctuary Progression | `docs/context-library/experience/journeys/Journey - Sanctuary Progression.md` | Yes |
+| Card                              | Full Path                                                                        | Read? |
+| --------------------------------- | -------------------------------------------------------------------------------- | ----- |
+| Agent - Jarvis                    | `docs/context-library/product/agents/Agent - Jarvis.md`                          | Yes   |
+| Agent - Marvin                    | `docs/context-library/product/agents/Agent - Marvin.md`                          | Yes   |
+| Component - Campfire              | `docs/context-library/product/components/Component - Campfire.md`                | Yes   |
+| Release - The Attendants          | `docs/context-library/releases/Release - The Attendants.md`                      | Yes   |
+| Strategy - AI as Teammates        | `docs/context-library/rationale/strategies/Strategy - AI as Teammates.md`        | Yes   |
+| Capability - Workspace Navigation | `docs/context-library/product/capabilities/Capability - Workspace Navigation.md` | Yes   |
+| Standard - Onboarding Sequence    | `docs/context-library/rationale/standards/Standard - Onboarding Sequence.md`     | Yes   |
+| Journey - Builder Onboarding      | `docs/context-library/experience/journeys/Journey - Builder Onboarding.md`       | Yes   |
+| Aesthetic - Sanctuary             | `docs/context-library/experience/aesthetics/Aesthetic - Sanctuary.md`            | Yes   |
+| Journey - Sanctuary Progression   | `docs/context-library/experience/journeys/Journey - Sanctuary Progression.md`    | Yes   |
 
 ### Codebase Files Examined
 

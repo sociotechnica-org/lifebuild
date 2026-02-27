@@ -68,7 +68,7 @@ This release deliberately trades process UI sophistication for spatial reality: 
 
 | Feature                       | Minimum Viable Implementation                                                                                                                                                         | Full Vision (deferred)                        |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| Attendant Rail with avatars        | Vertical rail on left edge with circular avatar icons for Jarvis and Marvin. Click to expand chat panel. Hidden during campfire, fades in during reveal. Always visible after reveal. | More attendants in rail, status indicators    |
+| Attendant Rail with avatars   | Vertical rail on left edge with circular avatar icons for Jarvis and Marvin. Click to expand chat panel. Hidden during campfire, fades in during reveal. Always visible after reveal. | More attendants in rail, status indicators    |
 | Notification pips             | Small indicator on attendant avatar when they have something to say. Marvin pips when you open a project he can help with.                                                            | Urgency levels, unread counts                 |
 | Chat decoupled from buildings | Can chat with either attendant from any context (bare map, any overlay). Navigating to Sanctuary auto-selects Jarvis. Chat can contain navigation shortcuts ("go to Workshop").       | Context-aware conversation switching          |
 | Marvin on projects            | Marvin always present when a project overlay is open. Observes user edits (task creation, state changes) and responds. Can create tasks on user's behalf.                             | Proactive suggestions, learning from patterns |
@@ -183,23 +183,23 @@ These prototypes must be completed (or at least explored enough to unblock imple
 
 ## AFFECTED LIBRARY CARDS
 
-| Card                                  | How It's Affected                                                         |
-| ------------------------------------- | ------------------------------------------------------------------------- |
-| [[Zone - Life Map]]                   | Becomes the sole zone — all other zones fold into it as building overlays |
-| [[Structure - Hex Grid]]              | Elevated from sub-component to the primary canvas                         |
-| [[Component - Hex Tile]]              | Now represents project buildings/statues, not just colored tiles          |
-| [[Component - Campfire]]              | Origin point for onboarding, non-interactive at steady state              |
-| [[Overlay - The Table]]               | **Removed from UI.** Data layer preserved. Card needs WHEN update.        |
-| [[Room - Drafting Room]]              | **Removed as standalone room.** Rebuilt inside Workshop building.         |
-| [[Room - Sorting Room]]               | **Removed entirely.** Card needs WHEN update.                             |
-| [[Room - Project Board]]              | Kanban replaced with task list. Major rework.                             |
-| [[Agent - Jarvis]]                    | Activated — campfire onboarding, sanctuary visioning, Attendant Rail presence  |
-| [[Agent - Marvin]]                    | Expanded — project assistance, workshop unburdening, Attendant Rail presence   |
-| [[Agent - Mesa]]                      | **Removed.** Card needs WHEN update.                                      |
-| [[System - Four-Stage Creation]]      | Stages may be reworked for Workshop flow. Depends on P1 prototype.        |
-| [[System - Pipeline Architecture]]    | Table-based pipeline removed. Needs re-evaluation.                        |
-| [[Standard - Three-Stream Portfolio]] | Data preserved, UI removed. Tier coloring is subtle/hidden.               |
-| [[Artifact - The Charter]]            | Now created in Sanctuary building via Jarvis conversation.                |
+| Card                                  | How It's Affected                                                             |
+| ------------------------------------- | ----------------------------------------------------------------------------- |
+| [[Zone - Life Map]]                   | Becomes the sole zone — all other zones fold into it as building overlays     |
+| [[Structure - Hex Grid]]              | Elevated from sub-component to the primary canvas                             |
+| [[Component - Hex Tile]]              | Now represents project buildings/statues, not just colored tiles              |
+| [[Component - Campfire]]              | Origin point for onboarding, non-interactive at steady state                  |
+| [[Overlay - The Table]]               | **Removed from UI.** Data layer preserved. Card needs WHEN update.            |
+| [[Room - Drafting Room]]              | **Removed as standalone room.** Rebuilt inside Workshop building.             |
+| [[Room - Sorting Room]]               | **Removed entirely.** Card needs WHEN update.                                 |
+| [[Room - Project Board]]              | Kanban replaced with task list. Major rework.                                 |
+| [[Agent - Jarvis]]                    | Activated — campfire onboarding, sanctuary visioning, Attendant Rail presence |
+| [[Agent - Marvin]]                    | Expanded — project assistance, workshop unburdening, Attendant Rail presence  |
+| [[Agent - Mesa]]                      | **Removed.** Card needs WHEN update.                                          |
+| [[System - Four-Stage Creation]]      | Stages may be reworked for Workshop flow. Depends on P1 prototype.            |
+| [[System - Pipeline Architecture]]    | Table-based pipeline removed. Needs re-evaluation.                            |
+| [[Standard - Three-Stream Portfolio]] | Data preserved, UI removed. Tier coloring is subtle/hidden.                   |
+| [[Artifact - The Charter]]            | Now created in Sanctuary building via Jarvis conversation.                    |
 
 ---
 
@@ -261,8 +261,8 @@ This release requires a major Context Library patch before implementation begins
 | [[Room - Drafting Room]]                 | Removed as standalone room. Functionality rebuilt inside Workshop.                                                                                              |
 | [[Room - Sorting Room]]                  | Removed entirely. May return as spatial-native experience.                                                                                                      |
 | [[Room - Project Board]]                 | Kanban replaced with task list. Opens as building overlay. Marvin always present.                                                                               |
-| [[Agent - Jarvis]]                       | Activated. Campfire onboarding, Sanctuary visioning, Attendant Rail presence. Home is no longer Council Chamber.                                                     |
-| [[Agent - Marvin]]                       | Expanded. Project assistance, Workshop unburdening, Attendant Rail presence. Home is no longer Drafting/Sorting Room.                                                |
+| [[Agent - Jarvis]]                       | Activated. Campfire onboarding, Sanctuary visioning, Attendant Rail presence. Home is no longer Council Chamber.                                                |
+| [[Agent - Marvin]]                       | Expanded. Project assistance, Workshop unburdening, Attendant Rail presence. Home is no longer Drafting/Sorting Room.                                           |
 | [[Agent - Mesa]]                         | Removed from codebase. Mark as deprecated/reserve.                                                                                                              |
 | [[System - Four-Stage Creation]]         | Stage forms deleted. May become conversation-driven via Marvin in Workshop.                                                                                     |
 | [[System - Pipeline Architecture]]       | Table removal breaks terminal step. Pipeline needs re-evaluation.                                                                                               |

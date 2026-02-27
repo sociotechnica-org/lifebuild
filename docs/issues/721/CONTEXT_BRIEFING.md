@@ -7,6 +7,7 @@
 **Task type:** New feature (shim)
 **Blocked by:** #708
 **Constraints:**
+
 - This is an interim shim. The real scripted first-project experience will be shaped via prototype later.
 - Marvin auto-opens only on the builder's FIRST project overlay open. Subsequent opens keep Marvin available but not auto-opened.
 - Marvin can CREATE tasks but NOT edit existing tasks.
@@ -15,6 +16,7 @@
 - The app must build and all tests pass.
 
 **Acceptance criteria:**
+
 1. First project overlay open triggers Marvin's chat auto-open
 2. Marvin greets builder and acknowledges the specific project by name
 3. Marvin can see the project's current tasks and offers to help refine them
@@ -60,17 +62,20 @@ Reality note (2026-02-12): Marvin is fully active in the Drafting Room and Sorti
 **Voice:** Precise, energetic, and pro-social. The master tactician who genuinely enjoys turning chaos into structure. "Let's frame this out. What does done look like for you?" He is detail-oriented but never micromanaging; he respects the builder's autonomy above all. The math informs, the structure supports, but the builder decides.
 
 **Boundaries:**
+
 - Does NOT: Provide strategic life counsel or facilitate reflection sessions (Jarvis's domain)
 - Does NOT: Maintain the Archives or manage historical data (Conan's domain)
 - Does NOT: Override the builder's selections -- asks once if unusual, then respects the call
 
 **Stage guidance (project creation):**
+
 - Stage 1: Capture basics (title, description, category)
 - Stage 2: Define scope (purpose, objectives, priority attributes)
 - Stage 3: Draft tasks
 - Stage 4: Place in Priority Queue
 
 **Anti-Examples:**
+
 - Builder asks "But is this really what I should be focusing on?" -- Marvin does NOT start facilitating strategic reflection. He notes the question, suggests a Council Chamber session, and pauses.
 - Builder selects a low-scoring task as Gold -- Marvin does NOT say "That's a bad choice." He recommends, never overrides.
 
@@ -103,20 +108,22 @@ From campfire stranger to sanctuary resident -- the builder meets Jarvis at a fi
 
 ## HOW: Progression
 
-| Phase         | Entry Condition                  | Activities                                                                           | Target Feeling                               |
-| ------------- | -------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------- |
-| The Meeting   | Builder opens app for first time | Jarvis introduces himself                                                            | "I'm intrigued."                             |
-| The Walk      | Builder accepts invitation       | Jarvis asks "What's the heaviest thing you're carrying?" Surface starting state      | "Someone actually listened."                 |
-| The Arrival   | Reach the studio                 | Meet Marvin; establish what we'll do together                                        | "This is home now."                          |
-| First Project | Project shaped                   | Place first hex; begin executing first tasks                                         | "I did something real."                      |
-| 72-Hour Win   | First tasks underway             | Achieve starting-state-appropriate win                                               | "This actually works."                       |
+| Phase         | Entry Condition                  | Activities                                                                      | Target Feeling               |
+| ------------- | -------------------------------- | ------------------------------------------------------------------------------- | ---------------------------- |
+| The Meeting   | Builder opens app for first time | Jarvis introduces himself                                                       | "I'm intrigued."             |
+| The Walk      | Builder accepts invitation       | Jarvis asks "What's the heaviest thing you're carrying?" Surface starting state | "Someone actually listened." |
+| The Arrival   | Reach the studio                 | Meet Marvin; establish what we'll do together                                   | "This is home now."          |
+| First Project | Project shaped                   | Place first hex; begin executing first tasks                                    | "I did something real."      |
+| 72-Hour Win   | First tasks underway             | Achieve starting-state-appropriate win                                          | "This actually works."       |
 
 **Success Signals:**
+
 - Builder returns to the app within 48 hours of first visit
 - First project has at least one completed task within 72 hours
 - Builder voluntarily engages with Marvin on task shaping (not just Jarvis)
 
 **Failure Modes:**
+
 - Jarvis overwhelms with philosophy, not enough doing
 - No tangible output -- builder leaves with nothing on the map
 - Stewards feel robotic -- onboarding is a values exchange, not a tutorial
@@ -154,11 +161,11 @@ Reality note (2026-02-10): No onboarding system exists. New users land directly 
 
 ## HOW: Mechanics
 
-| From               | Trigger                                    | To                 | Side Effects                                                 |
-| ------------------ | ------------------------------------------ | ------------------ | ------------------------------------------------------------ |
-| Not Started        | Builder opens LifeBuild for the first time | Day 1: Orientation | Jarvis greets at Campfire                                    |
-| Day 2: Foundation  | Charter draft created                      | Day 3: Momentum    | Marvin available for first project capture                   |
-| Day 3: Momentum    | Builder created first project              | Complete           | Service Level transitions 0 to 1; full agent team available  |
+| From              | Trigger                                    | To                 | Side Effects                                                |
+| ----------------- | ------------------------------------------ | ------------------ | ----------------------------------------------------------- |
+| Not Started       | Builder opens LifeBuild for the first time | Day 1: Orientation | Jarvis greets at Campfire                                   |
+| Day 2: Foundation | Charter draft created                      | Day 3: Momentum    | Marvin available for first project capture                  |
+| Day 3: Momentum   | Builder created first project              | Complete           | Service Level transitions 0 to 1; full agent team available |
 
 Key design constraints: Progressive disclosure over three days. Circumstance-responsive, not fixed-sequence. Measure success by life improvement, not feature adoption. Warm, patient, encouraging tone throughout.
 
@@ -194,15 +201,15 @@ Entity type choice on first screen (Project or System) is upstream of Marvin con
 
 ## Supporting Cards (summaries)
 
-| Card | Type | Key Insight |
-| --- | --- | --- |
-| Principle - Earn Don't Interrogate | Principle | Knowledge acquisition must never block progress. Capture during natural workflows. Marvin should observe and earn knowledge, not demand upfront forms. Five elicitation strategies: explicit structured, explicit conversational, embedded extraction, behavioral inference, integration sourcing. |
-| Principle - First 72 Hours | Principle | The first 72 hours define the relationship. Day 1: "I made something." Day 2: "I have help." Day 3: "I know what to do each week." Progressive disclosure -- features unlock as relevant. |
-| Strategy - AI as Teammates | Strategy | Agents with defined roles, permissions, and coordination. Current state: Level 1 (Operational Team, reactive help). The builder's FIRST experience is the teammate relationship. |
-| System - Four-Stage Creation | System | Progressive project development: Identify (30s), Scope (10min), Draft (30min), Prioritize (5min). Fully operational. Stage1Form, Stage2Form, Stage3Form, StageWizard. ProjectLifecycleState tracks stage 1-4. |
-| Standard - Onboarding Sequence | Standard | Day-by-day first 72 hours spec. Day 1: Campfire + Life Map + project creation only. Day 2: Jarvis intro + Marvin in Drafting Room. Day 3: Sorting Room + Work at Hand. Progressive disclosure rules: features unlock as relevant, not all at once. |
-| Capability - Purpose Assignment | Capability | Stage 2 moment when builder declares purpose (Maintenance/Building leverage/Moving forward) determining stream (Bronze/Silver/Gold). Subjective classification -- builder's relationship to the work is the only classification that matters. |
-| Component - Campfire | Component | Temporary onboarding entry point. Not yet built. Produces 6-field scorecard via reflected extraction. |
+| Card                               | Type       | Key Insight                                                                                                                                                                                                                                                                                        |
+| ---------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Principle - Earn Don't Interrogate | Principle  | Knowledge acquisition must never block progress. Capture during natural workflows. Marvin should observe and earn knowledge, not demand upfront forms. Five elicitation strategies: explicit structured, explicit conversational, embedded extraction, behavioral inference, integration sourcing. |
+| Principle - First 72 Hours         | Principle  | The first 72 hours define the relationship. Day 1: "I made something." Day 2: "I have help." Day 3: "I know what to do each week." Progressive disclosure -- features unlock as relevant.                                                                                                          |
+| Strategy - AI as Teammates         | Strategy   | Agents with defined roles, permissions, and coordination. Current state: Level 1 (Operational Team, reactive help). The builder's FIRST experience is the teammate relationship.                                                                                                                   |
+| System - Four-Stage Creation       | System     | Progressive project development: Identify (30s), Scope (10min), Draft (30min), Prioritize (5min). Fully operational. Stage1Form, Stage2Form, Stage3Form, StageWizard. ProjectLifecycleState tracks stage 1-4.                                                                                      |
+| Standard - Onboarding Sequence     | Standard   | Day-by-day first 72 hours spec. Day 1: Campfire + Life Map + project creation only. Day 2: Jarvis intro + Marvin in Drafting Room. Day 3: Sorting Room + Work at Hand. Progressive disclosure rules: features unlock as relevant, not all at once.                                                 |
+| Capability - Purpose Assignment    | Capability | Stage 2 moment when builder declares purpose (Maintenance/Building leverage/Moving forward) determining stream (Bronze/Silver/Gold). Subjective classification -- builder's relationship to the work is the only classification that matters.                                                      |
+| Component - Campfire               | Component  | Temporary onboarding entry point. Not yet built. Produces 6-field scorecard via reflected extraction.                                                                                                                                                                                              |
 
 ## Relationship Map
 
@@ -223,26 +230,26 @@ Entity type choice on first screen (Project or System) is upstream of Marvin con
 
 Key files that will be touched or referenced:
 
-| File | Role | Impact |
-| --- | --- | --- |
-| `packages/web/src/components/projects/ProjectDetailPage.tsx` | Project overlay page | Add first-open detection, trigger auto-open of Marvin chat |
-| `packages/web/src/components/layout/RoomLayout.tsx` | Chat panel container with toggle | Expose `openChat()` method, persist chat state. Already has `useRoomChatControl` context with `openChat`, `isChatOpen`, `sendDirectMessage` |
-| `packages/web/src/components/room-chat/RoomChatPanel.tsx` | Chat panel UI | No changes expected -- receives messages and renders |
-| `packages/web/src/hooks/useRoomChat.ts` | Chat hook with message sending | Has `sendDirectMessage` for programmatic message sending |
-| `packages/web/src/hooks/useProjectChatLifecycle.ts` | Worker/conversation lifecycle for project rooms | May need to emit auto-greeting or trigger first-open logic |
-| `packages/shared/src/rooms.ts` | Room and prompt definitions | Add shim prompt for project-room Marvin (currently uses generic `PROJECT_PROMPT_TEMPLATE`) |
-| `packages/shared/src/livestore/events.ts` | Event definitions | May need event for tracking "first project open" state |
-| `packages/shared/src/livestore/queries.ts` | Materialized view queries | May need query to check if builder has previously opened a project |
+| File                                                         | Role                                            | Impact                                                                                                                                      |
+| ------------------------------------------------------------ | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/web/src/components/projects/ProjectDetailPage.tsx` | Project overlay page                            | Add first-open detection, trigger auto-open of Marvin chat                                                                                  |
+| `packages/web/src/components/layout/RoomLayout.tsx`          | Chat panel container with toggle                | Expose `openChat()` method, persist chat state. Already has `useRoomChatControl` context with `openChat`, `isChatOpen`, `sendDirectMessage` |
+| `packages/web/src/components/room-chat/RoomChatPanel.tsx`    | Chat panel UI                                   | No changes expected -- receives messages and renders                                                                                        |
+| `packages/web/src/hooks/useRoomChat.ts`                      | Chat hook with message sending                  | Has `sendDirectMessage` for programmatic message sending                                                                                    |
+| `packages/web/src/hooks/useProjectChatLifecycle.ts`          | Worker/conversation lifecycle for project rooms | May need to emit auto-greeting or trigger first-open logic                                                                                  |
+| `packages/shared/src/rooms.ts`                               | Room and prompt definitions                     | Add shim prompt for project-room Marvin (currently uses generic `PROJECT_PROMPT_TEMPLATE`)                                                  |
+| `packages/shared/src/livestore/events.ts`                    | Event definitions                               | May need event for tracking "first project open" state                                                                                      |
+| `packages/shared/src/livestore/queries.ts`                   | Materialized view queries                       | May need query to check if builder has previously opened a project                                                                          |
 
 ## Gap Manifest
 
-| Dimension | Topic | Searched | Found | Recommendation |
-| --- | --- | --- | --- | --- |
-| HOW | "Beat 3" definition in code | yes | no | Beat 3 is not defined anywhere in the codebase. Issue #708 (blocked-by) likely introduces the onboarding beat system. Implementer should check #708 for beat tracking mechanism. |
-| HOW | First-open tracking mechanism | yes | no | No onboarding state tracking exists in events or schema. Need to decide: localStorage flag vs. LiveStore event. LiveStore event is preferred for cross-device sync, but localStorage is simpler for a shim. |
-| HOW | Marvin "observes" user edits pattern | yes | no | No reactive observation pattern exists. The project room currently has a generic guide prompt. Observation likely means: when tasks change, send a system-level context update to the conversation so Marvin's next response can reference what changed. This may require navigation context enrichment or a new event-driven mechanism. |
-| WHERE | Project room prompt vs. Drafting Room prompt | yes | found | The project room uses `PROJECT_PROMPT_TEMPLATE` (generic guide), while the Drafting Room uses `DRAFTING_ROOM_PROMPT` (Marvin with full personality). The shim prompt for this issue should be a Marvin-voiced version of the project room prompt, not the Drafting Room prompt. |
-| WHAT | Attendant Rail | yes | no | Issue mentions "Marvin is available in the Attendant Rail" on subsequent visits. No Attendant Rail component exists. Likely refers to the existing chat toggle button in `NewUiShell`. Implementer should treat "available but not auto-opened" as the existing chat toggle behavior. |
+| Dimension | Topic                                        | Searched | Found | Recommendation                                                                                                                                                                                                                                                                                                                           |
+| --------- | -------------------------------------------- | -------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| HOW       | "Beat 3" definition in code                  | yes      | no    | Beat 3 is not defined anywhere in the codebase. Issue #708 (blocked-by) likely introduces the onboarding beat system. Implementer should check #708 for beat tracking mechanism.                                                                                                                                                         |
+| HOW       | First-open tracking mechanism                | yes      | no    | No onboarding state tracking exists in events or schema. Need to decide: localStorage flag vs. LiveStore event. LiveStore event is preferred for cross-device sync, but localStorage is simpler for a shim.                                                                                                                              |
+| HOW       | Marvin "observes" user edits pattern         | yes      | no    | No reactive observation pattern exists. The project room currently has a generic guide prompt. Observation likely means: when tasks change, send a system-level context update to the conversation so Marvin's next response can reference what changed. This may require navigation context enrichment or a new event-driven mechanism. |
+| WHERE     | Project room prompt vs. Drafting Room prompt | yes      | found | The project room uses `PROJECT_PROMPT_TEMPLATE` (generic guide), while the Drafting Room uses `DRAFTING_ROOM_PROMPT` (Marvin with full personality). The shim prompt for this issue should be a Marvin-voiced version of the project room prompt, not the Drafting Room prompt.                                                          |
+| WHAT      | Attendant Rail                               | yes      | no    | Issue mentions "Marvin is available in the Attendant Rail" on subsequent visits. No Attendant Rail component exists. Likely refers to the existing chat toggle button in `NewUiShell`. Implementer should treat "available but not auto-opened" as the existing chat toggle behavior.                                                    |
 
 ## Anti-Pattern Warnings
 

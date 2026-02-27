@@ -9,12 +9,14 @@
 **Task type:** Removal
 
 **Constraints:**
+
 - Preserve project tier data (Gold/Silver/Bronze classification on projects)
 - Preserve the three-stream portfolio model in the data layer
 - Only remove the UI rendering and its direct state management
 - The Sorting Room's ability to assign projects to streams should remain functional in the data layer even if the Table display is removed
 
 **Acceptance criteria:**
+
 - TableBar component no longer renders in the UI shell
 - TableSlot components are removed
 - useTableState hook is removed
@@ -177,20 +179,20 @@ The rightmost position on The Table, displaying a stack of operational tasks.
 
 ## Supporting Cards (summaries)
 
-| Card | Type | Key Insight |
-| --- | --- | --- |
-| Zone - Life Map | Zone | The Table is listed as an overlay in the Life Map zone. Life Map renders `TableBar` via `NewUiShell.tsx`. Removing The Table changes the Life Map's layout. |
-| Zone - Strategy Studio | Zone | The Table is listed as a persistent overlay visible across this zone. Not implemented as a separate zone -- rooms are standalone routes. |
-| Zone - Archives | Zone | The Table is listed as a persistent overlay. Archives zone is not implemented. No removal impact. |
-| Standard - Three-Stream Portfolio | Standard | Defines Gold/Silver/Bronze classification. The Table enforces slot constraints (1G, 1S). The standard itself is preserved -- only The Table's enforcement UI is removed. |
-| Standard - Visual Language | Standard | Defines stream color accents applied to Table positions. After removal, stream colors still apply elsewhere (Sorting Room, project cards). |
-| Standard - Dual Presence | Standard | Projects appear on both The Table and hex grid. With The Table removed, dual presence becomes single presence (grid only). Standard is partially orphaned. |
-| System - Weekly Priority | System | The Table is the display surface for weekly commitment. After removal, weekly priority data still exists but has no persistent visibility surface. |
-| System - Capacity Economy | System | References WIP limits on The Table (1G, 1S) as inflation control. Not implemented. Removal has no runtime impact. |
-| Principle - Visibility Creates Agency | Principle | The Table embodies "priorities always visible." Removing it reduces persistent visibility of weekly commitment. |
-| Principle - Protect Transformation | Principle | The Table enforces structural separation of streams. Removal eliminates the visible enforcement surface. Data-layer enforcement (1G, 1S max) can persist. |
-| Principle - Empty Slots Strategic | Principle | Governs empty slot behavior on The Table. Becomes less relevant UI-wise after removal, but the principle still applies to data model. |
-| Room - Sorting Room | Room | Populates The Table via drag-to-table interaction. After Table removal, Sorting Room still assigns projects to streams -- the `TableDropZone` and `TableConfirmDialog` components in the Sorting Room will need removal or refactoring. |
+| Card                                  | Type      | Key Insight                                                                                                                                                                                                                             |
+| ------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Zone - Life Map                       | Zone      | The Table is listed as an overlay in the Life Map zone. Life Map renders `TableBar` via `NewUiShell.tsx`. Removing The Table changes the Life Map's layout.                                                                             |
+| Zone - Strategy Studio                | Zone      | The Table is listed as a persistent overlay visible across this zone. Not implemented as a separate zone -- rooms are standalone routes.                                                                                                |
+| Zone - Archives                       | Zone      | The Table is listed as a persistent overlay. Archives zone is not implemented. No removal impact.                                                                                                                                       |
+| Standard - Three-Stream Portfolio     | Standard  | Defines Gold/Silver/Bronze classification. The Table enforces slot constraints (1G, 1S). The standard itself is preserved -- only The Table's enforcement UI is removed.                                                                |
+| Standard - Visual Language            | Standard  | Defines stream color accents applied to Table positions. After removal, stream colors still apply elsewhere (Sorting Room, project cards).                                                                                              |
+| Standard - Dual Presence              | Standard  | Projects appear on both The Table and hex grid. With The Table removed, dual presence becomes single presence (grid only). Standard is partially orphaned.                                                                              |
+| System - Weekly Priority              | System    | The Table is the display surface for weekly commitment. After removal, weekly priority data still exists but has no persistent visibility surface.                                                                                      |
+| System - Capacity Economy             | System    | References WIP limits on The Table (1G, 1S) as inflation control. Not implemented. Removal has no runtime impact.                                                                                                                       |
+| Principle - Visibility Creates Agency | Principle | The Table embodies "priorities always visible." Removing it reduces persistent visibility of weekly commitment.                                                                                                                         |
+| Principle - Protect Transformation    | Principle | The Table enforces structural separation of streams. Removal eliminates the visible enforcement surface. Data-layer enforcement (1G, 1S max) can persist.                                                                               |
+| Principle - Empty Slots Strategic     | Principle | Governs empty slot behavior on The Table. Becomes less relevant UI-wise after removal, but the principle still applies to data model.                                                                                                   |
+| Room - Sorting Room                   | Room      | Populates The Table via drag-to-table interaction. After Table removal, Sorting Room still assigns projects to streams -- the `TableDropZone` and `TableConfirmDialog` components in the Sorting Room will need removal or refactoring. |
 
 ## Relationship Map
 
@@ -208,30 +210,30 @@ The rightmost position on The Table, displaying a stack of operational tasks.
 
 Files confirmed to reference Table components (from grep):
 
-| File | Impact |
-| --- | --- |
-| `packages/web/src/components/layout/TableBar.tsx` | **Remove entirely** -- main Table component |
-| `packages/web/src/components/layout/TableBar.test.tsx` | **Remove entirely** -- tests for removed component |
-| `packages/web/src/components/layout/TableSlot.tsx` | **Remove entirely** -- slot sub-component |
-| `packages/web/src/hooks/useTableState.ts` | **Remove entirely** -- Table state hook |
-| `packages/web/src/components/layout/NewUiShell.tsx` | **Edit** -- remove TableBar import and rendering |
-| `packages/web/src/components/life-map/LifeMap.tsx` | **Edit** -- remove any Table references |
-| `packages/web/src/components/life-map/LifeMap.stories.tsx` | **Edit** -- remove Table references from stories |
-| `packages/shared/src/livestore/schema.ts` | **Review** -- `tableConfiguration` and `tableBronzeProjects` tables. Preserve schema (event history), but materializer-only views may be removable. |
-| `packages/shared/src/livestore/events.ts` | **Preserve** -- `table.configurationUpdated`, `table.bronzeProjectAdded` etc. are part of event-sourced history. Do not remove events. |
-| `packages/shared/src/livestore/queries.ts` | **Review** -- remove queries used solely by Table UI |
-| `packages/web/src/components/sorting-room/BronzePanel.tsx` | **Review** -- may reference Table drop zones |
-| `packages/web/src/components/sorting-room/SortingRoom.stories.tsx` | **Review** -- may reference Table in stories |
-| `packages/web/src/components/project-room/ProjectHeader.tsx` | **Review** -- may reference Table state |
+| File                                                               | Impact                                                                                                                                              |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/web/src/components/layout/TableBar.tsx`                  | **Remove entirely** -- main Table component                                                                                                         |
+| `packages/web/src/components/layout/TableBar.test.tsx`             | **Remove entirely** -- tests for removed component                                                                                                  |
+| `packages/web/src/components/layout/TableSlot.tsx`                 | **Remove entirely** -- slot sub-component                                                                                                           |
+| `packages/web/src/hooks/useTableState.ts`                          | **Remove entirely** -- Table state hook                                                                                                             |
+| `packages/web/src/components/layout/NewUiShell.tsx`                | **Edit** -- remove TableBar import and rendering                                                                                                    |
+| `packages/web/src/components/life-map/LifeMap.tsx`                 | **Edit** -- remove any Table references                                                                                                             |
+| `packages/web/src/components/life-map/LifeMap.stories.tsx`         | **Edit** -- remove Table references from stories                                                                                                    |
+| `packages/shared/src/livestore/schema.ts`                          | **Review** -- `tableConfiguration` and `tableBronzeProjects` tables. Preserve schema (event history), but materializer-only views may be removable. |
+| `packages/shared/src/livestore/events.ts`                          | **Preserve** -- `table.configurationUpdated`, `table.bronzeProjectAdded` etc. are part of event-sourced history. Do not remove events.              |
+| `packages/shared/src/livestore/queries.ts`                         | **Review** -- remove queries used solely by Table UI                                                                                                |
+| `packages/web/src/components/sorting-room/BronzePanel.tsx`         | **Review** -- may reference Table drop zones                                                                                                        |
+| `packages/web/src/components/sorting-room/SortingRoom.stories.tsx` | **Review** -- may reference Table in stories                                                                                                        |
+| `packages/web/src/components/project-room/ProjectHeader.tsx`       | **Review** -- may reference Table state                                                                                                             |
 
 ## Gap Manifest
 
-| Dimension | Topic | Searched | Found | Recommendation |
-| --- | --- | --- | --- | --- |
-| HOW | Sorting Room drag-to-table removal plan | Yes | No | The Sorting Room uses `TableDropZone.tsx` and `TableConfirmDialog.tsx` for drag-to-table. These are not in the main file list but are referenced in the Room - Sorting Room reality note. Search for and remove these components. |
-| HOW | What replaces The Table's "persistent priority visibility" | Yes | No | Issue says remove only. No replacement specified. If a replacement is planned, it should be a separate issue. |
-| WHERE | Full list of Storybook stories referencing Table | Yes | Partial | Found `LifeMap.stories.tsx` and `SortingRoom.stories.tsx`. Grep for `Table` across all `.stories.tsx` files before removal. |
-| WHEN | Library card updates after Table removal | Yes | No | Multiple cards reference The Table. After removal, cards should be updated: Overlay - The Table WHEN section should note removal; Zone - Life Map should remove Table from overlays list; etc. Recommend a follow-up library maintenance task. |
+| Dimension | Topic                                                      | Searched | Found   | Recommendation                                                                                                                                                                                                                                 |
+| --------- | ---------------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| HOW       | Sorting Room drag-to-table removal plan                    | Yes      | No      | The Sorting Room uses `TableDropZone.tsx` and `TableConfirmDialog.tsx` for drag-to-table. These are not in the main file list but are referenced in the Room - Sorting Room reality note. Search for and remove these components.              |
+| HOW       | What replaces The Table's "persistent priority visibility" | Yes      | No      | Issue says remove only. No replacement specified. If a replacement is planned, it should be a separate issue.                                                                                                                                  |
+| WHERE     | Full list of Storybook stories referencing Table           | Yes      | Partial | Found `LifeMap.stories.tsx` and `SortingRoom.stories.tsx`. Grep for `Table` across all `.stories.tsx` files before removal.                                                                                                                    |
+| WHEN      | Library card updates after Table removal                   | Yes      | No      | Multiple cards reference The Table. After removal, cards should be updated: Overlay - The Table WHEN section should note removal; Zone - Life Map should remove Table from overlays list; etc. Recommend a follow-up library maintenance task. |
 
 ## WHEN Section Divergences
 

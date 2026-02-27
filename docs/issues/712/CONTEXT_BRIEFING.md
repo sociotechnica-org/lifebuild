@@ -119,19 +119,19 @@ Issue #709 (blocker) establishes the Workshop overlay at `/workshop`. The placem
 
 ### Already implemented (significant prior work exists)
 
-| File | Role |
-|------|------|
-| `packages/web/src/components/hex-map/PlacementContext.tsx` | React context managing placement state (`isPlacing`, `startPlacement`, `clearPlacement`, `placementProjectId`) |
-| `packages/web/src/components/hex-map/HexGrid.tsx` | Grid component with full placement mode: `placeable`/`blocked`/`targeted` visual states, hover tracking, click-to-place handler, placement label tooltip |
-| `packages/web/src/components/hex-map/HexMap.tsx` | Orchestrator: Escape key handler, pointer-missed cancel, first-placement prompt, `PlacementProvider` wrapping |
-| `packages/web/src/components/hex-map/UnplacedPanel.tsx` | Side panel listing unplaced projects, placement mode indicator, cancel button |
-| `packages/web/src/components/hex-map/hexPositionCommands.ts` | Domain commands: `placeProjectOnHex()`, `removeProjectFromHex()` with conflict validation |
-| `packages/web/src/components/hex-map/placementRules.ts` | Reserved hex coords `(0,0)`, `(0,-1)`, `(1,-1)` |
-| `packages/web/src/components/life-map/LifeMap.tsx` | Integration: `handlePlaceProjectOnMap` wiring, hex position queries, tile building, view mode toggle |
-| `packages/shared/src/livestore/events.ts` | `hexPosition.placed` and `hexPosition.removed` synced events |
-| `packages/shared/src/livestore/schema.ts` | `hex_positions` table with unique indexes on `(hexQ, hexR)` and `(entityType, entityId)` |
-| `packages/shared/src/livestore/queries.ts` | `getHexPositions$` and `getUnplacedProjects$` queries |
-| `packages/web/e2e/life-map-placement.spec.ts` | E2E test: full place-and-remove flow via unplaced tray |
+| File                                                         | Role                                                                                                                                                     |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/web/src/components/hex-map/PlacementContext.tsx`   | React context managing placement state (`isPlacing`, `startPlacement`, `clearPlacement`, `placementProjectId`)                                           |
+| `packages/web/src/components/hex-map/HexGrid.tsx`            | Grid component with full placement mode: `placeable`/`blocked`/`targeted` visual states, hover tracking, click-to-place handler, placement label tooltip |
+| `packages/web/src/components/hex-map/HexMap.tsx`             | Orchestrator: Escape key handler, pointer-missed cancel, first-placement prompt, `PlacementProvider` wrapping                                            |
+| `packages/web/src/components/hex-map/UnplacedPanel.tsx`      | Side panel listing unplaced projects, placement mode indicator, cancel button                                                                            |
+| `packages/web/src/components/hex-map/hexPositionCommands.ts` | Domain commands: `placeProjectOnHex()`, `removeProjectFromHex()` with conflict validation                                                                |
+| `packages/web/src/components/hex-map/placementRules.ts`      | Reserved hex coords `(0,0)`, `(0,-1)`, `(1,-1)`                                                                                                          |
+| `packages/web/src/components/life-map/LifeMap.tsx`           | Integration: `handlePlaceProjectOnMap` wiring, hex position queries, tile building, view mode toggle                                                     |
+| `packages/shared/src/livestore/events.ts`                    | `hexPosition.placed` and `hexPosition.removed` synced events                                                                                             |
+| `packages/shared/src/livestore/schema.ts`                    | `hex_positions` table with unique indexes on `(hexQ, hexR)` and `(entityType, entityId)`                                                                 |
+| `packages/shared/src/livestore/queries.ts`                   | `getHexPositions$` and `getUnplacedProjects$` queries                                                                                                    |
+| `packages/web/e2e/life-map-placement.spec.ts`                | E2E test: full place-and-remove flow via unplaced tray                                                                                                   |
 
 ### What issue #712 adds (gap analysis)
 
@@ -162,15 +162,15 @@ The existing implementation supports placement from the **Unplaced Panel** (side
 
 ## Provenance
 
-| Card | Path | Read in full |
-|------|------|:---:|
-| Standard - Spatial Interaction Rules | `docs/context-library/rationale/standards/Standard - Spatial Interaction Rules.md` | Yes |
-| Structure - Hex Grid | `docs/context-library/product/structures/Structure - Hex Grid.md` | Yes |
-| Primitive - Project | `docs/context-library/product/primitives/Primitive - Project.md` | Yes |
-| Component - Hex Tile | `docs/context-library/product/components/Component - Hex Tile.md` | Yes |
-| Zone - Life Map | `docs/context-library/product/zones/Zone - Life Map.md` | Yes |
-| Strategy - Spatial Visibility | `docs/context-library/rationale/strategies/Strategy - Spatial Visibility.md` | Yes |
-| Principle - Bidirectional Loop | `docs/context-library/rationale/principles/Principle - Bidirectional Loop.md` | Yes |
-| System - Four-Stage Creation | `docs/context-library/product/systems/System - Four-Stage Creation.md` | Yes |
+| Card                                 | Path                                                                               | Read in full |
+| ------------------------------------ | ---------------------------------------------------------------------------------- | :----------: |
+| Standard - Spatial Interaction Rules | `docs/context-library/rationale/standards/Standard - Spatial Interaction Rules.md` |     Yes      |
+| Structure - Hex Grid                 | `docs/context-library/product/structures/Structure - Hex Grid.md`                  |     Yes      |
+| Primitive - Project                  | `docs/context-library/product/primitives/Primitive - Project.md`                   |     Yes      |
+| Component - Hex Tile                 | `docs/context-library/product/components/Component - Hex Tile.md`                  |     Yes      |
+| Zone - Life Map                      | `docs/context-library/product/zones/Zone - Life Map.md`                            |     Yes      |
+| Strategy - Spatial Visibility        | `docs/context-library/rationale/strategies/Strategy - Spatial Visibility.md`       |     Yes      |
+| Principle - Bidirectional Loop       | `docs/context-library/rationale/principles/Principle - Bidirectional Loop.md`      |     Yes      |
+| System - Four-Stage Creation         | `docs/context-library/product/systems/System - Four-Stage Creation.md`             |     Yes      |
 
 No cards from `sources/` were included. No content was fabricated.

@@ -8,23 +8,23 @@
 
 ### Seed Cards
 
-| Card | Type | Relevance |
-|------|------|-----------|
-| Room - Project Board | Room | Primary target. Defines the project detail overlay, its contents, and overlay behavior over the Life Map. |
-| Primitive - Task | Primitive | Atomic work unit displayed in the task list within the overlay. Defines task states and lifecycle. |
+| Card                 | Type      | Relevance                                                                                                 |
+| -------------------- | --------- | --------------------------------------------------------------------------------------------------------- |
+| Room - Project Board | Room      | Primary target. Defines the project detail overlay, its contents, and overlay behavior over the Life Map. |
+| Primitive - Task     | Primitive | Atomic work unit displayed in the task list within the overlay. Defines task states and lifecycle.        |
 
 ### Expanded Constellation (2-hop traversal)
 
-| Card | Type | Hop | Connection |
-|------|------|-----|------------|
-| Primitive - Project | Primitive | 1 | Governs Room - Project Board. Defines project properties, lifecycle states, and data model. |
-| Structure - Kanban Board | Structure | 1 | Current task flow interface inside Project Board. Being replaced by task list per #703. |
-| Agent - Marvin | Agent | 1 | Resident agent for project execution. Auto-selected in Attendant Rail when overlay opens. |
-| Zone - Life Map | Zone | 1 | Parent zone. Overlay opens over the Life Map; map stays visible but dimmed behind. |
-| Overlay - The Table | Overlay | 1 | Persistent priority display. Clicking Gold/Silver positions navigates to Project Board. Adjacent overlay pattern. |
-| Standard - Project States | Standard | 2 | Determines visual treatment and available actions within the Project Board based on lifecycle state. |
-| Standard - Spatial Interaction Rules | Standard | 2 | Governs hex grid interactions. Clicking a project building on the map is the entry point to this overlay. |
-| Capability - Workspace Navigation | Capability | 2 | Navigation patterns including deep linking, URL routing, and context preservation. |
+| Card                                 | Type       | Hop | Connection                                                                                                        |
+| ------------------------------------ | ---------- | --- | ----------------------------------------------------------------------------------------------------------------- |
+| Primitive - Project                  | Primitive  | 1   | Governs Room - Project Board. Defines project properties, lifecycle states, and data model.                       |
+| Structure - Kanban Board             | Structure  | 1   | Current task flow interface inside Project Board. Being replaced by task list per #703.                           |
+| Agent - Marvin                       | Agent      | 1   | Resident agent for project execution. Auto-selected in Attendant Rail when overlay opens.                         |
+| Zone - Life Map                      | Zone       | 1   | Parent zone. Overlay opens over the Life Map; map stays visible but dimmed behind.                                |
+| Overlay - The Table                  | Overlay    | 1   | Persistent priority display. Clicking Gold/Silver positions navigates to Project Board. Adjacent overlay pattern. |
+| Standard - Project States            | Standard   | 2   | Determines visual treatment and available actions within the Project Board based on lifecycle state.              |
+| Standard - Spatial Interaction Rules | Standard   | 2   | Governs hex grid interactions. Clicking a project building on the map is the entry point to this overlay.         |
+| Capability - Workspace Navigation    | Capability | 2   | Navigation patterns including deep linking, URL routing, and context preservation.                                |
 
 ## Key Design Decisions from Cards
 
@@ -42,35 +42,35 @@
 
 ### Files to Modify
 
-| File | Impact | Notes |
-|------|--------|-------|
-| `packages/web/src/Root.tsx` | **High** | Currently renders `ProjectDetailPage` as a standalone route at `ROUTES.PROJECT`. Must change to render the project overlay within the Life Map layout, or adopt the overlay routing pattern from #705. |
-| `packages/web/src/components/projects/ProjectDetailPage.tsx` | **High** | Currently a full-page component using `RoomLayout` + `NewUiShell`. Must be refactored into an overlay component that renders over the map. Core logic (project query, task query, room definition, chat lifecycle) is reusable. |
-| `packages/web/src/components/project-room/ProjectKanban.tsx` | **High** | Will be replaced by the new task list component from #703. The overlay will render the task list instead of the kanban. |
-| `packages/web/src/components/project-room/ProjectHeader.tsx` | **Medium** | Header displaying project name and metadata. May need adaptation for overlay context (close button, compact layout). |
-| `packages/web/src/constants/routes.ts` | **Medium** | `ROUTES.PROJECT` (`/projects/:projectId`) remains as a route but its rendering changes from full-page to overlay-over-map. May need to align with overlay routing pattern from #705. |
-| `packages/web/src/components/hex-map/HexGrid.tsx` | **Medium** | Click handler on project buildings must trigger overlay open with project ID. Currently navigates to project detail page. |
-| `packages/web/src/components/hex-map/HexMap.tsx` | **Medium** | May need to host overlay rendering or pass overlay state down. |
-| `packages/web/src/components/life-map/LifeMap.tsx` | **Medium** | May need to integrate overlay rendering within the Life Map view. |
-| `packages/web/src/components/layout/RoomLayout.tsx` | **Low** | Currently wraps ProjectDetailPage with chat panel. Overlay version may use RoomLayout differently or need a variant for overlay context. |
-| `packages/web/src/components/layout/TableBar.tsx` | **Low** | Table slots navigate to Project Board. Click handlers may need updating to open overlay instead of navigating to full page. |
-| `packages/web/src/hooks/useProjectChatLifecycle.ts` | **Low** | Manages chat lifecycle for project rooms. Should work with overlay pattern but may need lifecycle adjustments for overlay open/close. |
+| File                                                         | Impact     | Notes                                                                                                                                                                                                                           |
+| ------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/web/src/Root.tsx`                                  | **High**   | Currently renders `ProjectDetailPage` as a standalone route at `ROUTES.PROJECT`. Must change to render the project overlay within the Life Map layout, or adopt the overlay routing pattern from #705.                          |
+| `packages/web/src/components/projects/ProjectDetailPage.tsx` | **High**   | Currently a full-page component using `RoomLayout` + `NewUiShell`. Must be refactored into an overlay component that renders over the map. Core logic (project query, task query, room definition, chat lifecycle) is reusable. |
+| `packages/web/src/components/project-room/ProjectKanban.tsx` | **High**   | Will be replaced by the new task list component from #703. The overlay will render the task list instead of the kanban.                                                                                                         |
+| `packages/web/src/components/project-room/ProjectHeader.tsx` | **Medium** | Header displaying project name and metadata. May need adaptation for overlay context (close button, compact layout).                                                                                                            |
+| `packages/web/src/constants/routes.ts`                       | **Medium** | `ROUTES.PROJECT` (`/projects/:projectId`) remains as a route but its rendering changes from full-page to overlay-over-map. May need to align with overlay routing pattern from #705.                                            |
+| `packages/web/src/components/hex-map/HexGrid.tsx`            | **Medium** | Click handler on project buildings must trigger overlay open with project ID. Currently navigates to project detail page.                                                                                                       |
+| `packages/web/src/components/hex-map/HexMap.tsx`             | **Medium** | May need to host overlay rendering or pass overlay state down.                                                                                                                                                                  |
+| `packages/web/src/components/life-map/LifeMap.tsx`           | **Medium** | May need to integrate overlay rendering within the Life Map view.                                                                                                                                                               |
+| `packages/web/src/components/layout/RoomLayout.tsx`          | **Low**    | Currently wraps ProjectDetailPage with chat panel. Overlay version may use RoomLayout differently or need a variant for overlay context.                                                                                        |
+| `packages/web/src/components/layout/TableBar.tsx`            | **Low**    | Table slots navigate to Project Board. Click handlers may need updating to open overlay instead of navigating to full page.                                                                                                     |
+| `packages/web/src/hooks/useProjectChatLifecycle.ts`          | **Low**    | Manages chat lifecycle for project rooms. Should work with overlay pattern but may need lifecycle adjustments for overlay open/close.                                                                                           |
 
 ### Files from Dependencies (#703, #705)
 
-| File | Dependency | Notes |
-|------|------------|-------|
-| New task list component (from #703) | #703 | Replaces ProjectKanban. State-toggling task rows. Must exist before #708 can integrate it. |
-| Overlay component/pattern (from #705) | #705 | Reusable overlay frame with close button, Escape handling, dimmed backdrop. Must exist before #708 uses it. |
+| File                                  | Dependency | Notes                                                                                                       |
+| ------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------- |
+| New task list component (from #703)   | #703       | Replaces ProjectKanban. State-toggling task rows. Must exist before #708 can integrate it.                  |
+| Overlay component/pattern (from #705) | #705       | Reusable overlay frame with close button, Escape handling, dimmed backdrop. Must exist before #708 uses it. |
 
 ### LiveStore / Shared Layer
 
-| File | Impact | Notes |
-|------|--------|-------|
-| `packages/shared/src/queries.ts` | **None** | `getProjectById$` and `getProjectTasks$` queries already exist and are sufficient. |
-| `packages/shared/src/events.ts` | **None** | Task events (`taskCreated`, `taskStatusUpdated`, `taskDeleted`) already exist. |
-| `packages/shared/src/schema.ts` | **None** | `projects` and `tasks` tables already exist with required fields. |
-| `packages/shared/src/rooms.ts` | **Low** | `createProjectRoomDefinition` already exists. May need to wire Marvin as the default agent for project overlay rooms. |
+| File                             | Impact   | Notes                                                                                                                 |
+| -------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `packages/shared/src/queries.ts` | **None** | `getProjectById$` and `getProjectTasks$` queries already exist and are sufficient.                                    |
+| `packages/shared/src/events.ts`  | **None** | Task events (`taskCreated`, `taskStatusUpdated`, `taskDeleted`) already exist.                                        |
+| `packages/shared/src/schema.ts`  | **None** | `projects` and `tasks` tables already exist with required fields.                                                     |
+| `packages/shared/src/rooms.ts`   | **Low**  | `createProjectRoomDefinition` already exists. May need to wire Marvin as the default agent for project overlay rooms. |
 
 ## Dependency Chain
 
