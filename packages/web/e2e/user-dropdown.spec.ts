@@ -16,8 +16,8 @@ test.describe('User Dropdown', () => {
     // Create a test user
     const testUser = await createTestUserViaAPI()
 
-    // Navigate to drafting-room
-    await page.goto(`${APP_URL}/drafting-room`)
+    // Navigate to life-map
+    await page.goto(`${APP_URL}/life-map`)
 
     // Should redirect to login since auth is required
     await page.waitForURL(/\/login/, { timeout: 10000 })
@@ -26,12 +26,12 @@ test.describe('User Dropdown', () => {
     await loginViaUI(page, testUser.email, testUser.password, { skipNavigation: true })
 
     // After login, navigate to the app
-    await page.goto(`${APP_URL}/drafting-room`)
+    await page.goto(`${APP_URL}/life-map`)
     await page.waitForLoadState('load')
     await page.waitForTimeout(2000) // Allow time for app to initialize
 
-    // Verify we're on the drafting room page
-    await expect(page).toHaveURL(/\/drafting-room/)
+    // Verify we're on the life map page
+    await expect(page).toHaveURL(/\/life-map/)
 
     // Find and click the user menu button (the initials button)
     const userMenuButton = page.locator('[data-testid="user-menu-button"]')
@@ -51,7 +51,7 @@ test.describe('User Dropdown', () => {
     await expect(page.locator('h2')).toContainText('Sign in to your account')
 
     // Verify we cannot access protected routes
-    await page.goto(`${APP_URL}/drafting-room`)
+    await page.goto(`${APP_URL}/life-map`)
     await page.waitForURL(/\/login/, { timeout: 10000 })
   })
 
@@ -68,7 +68,7 @@ test.describe('User Dropdown', () => {
     })
 
     // Navigate to a protected route
-    await page.goto(`${APP_URL}/drafting-room`)
+    await page.goto(`${APP_URL}/life-map`)
 
     // Should redirect to login since not authenticated
     await page.waitForURL(/\/login/, { timeout: 10000 })
@@ -88,7 +88,7 @@ test.describe('User Dropdown', () => {
     await loginViaUI(page, testUser.email, testUser.password, { skipNavigation: true })
 
     // Navigate to the app
-    await page.goto(`${APP_URL}/drafting-room`)
+    await page.goto(`${APP_URL}/life-map`)
     await page.waitForLoadState('load')
     await page.waitForTimeout(2000)
 

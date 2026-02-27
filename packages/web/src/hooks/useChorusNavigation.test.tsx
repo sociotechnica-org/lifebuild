@@ -60,37 +60,9 @@ describe('useChorusNavigation', () => {
     element.dispatchEvent(event)
   }
 
-  it('should navigate to project when clicking project: link', async () => {
+  it('should navigate to project detail when clicking project: link', async () => {
     renderHook(() => useChorusNavigation(), { wrapper })
 
-    mockStore.query.mockResolvedValueOnce([
-      {
-        attributes: null,
-        projectLifecycleState: { status: 'planning', stage: 1 },
-      },
-    ])
-    const element = createChorusElement('project:abc123', 'View project')
-
-    await act(async () => {
-      simulateClick(element)
-      // Allow async handlers to complete
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-
-    expect(mockNavigate).toHaveBeenCalledWith('/drafting-room/abc123/stage1?storeId=test-store-123')
-
-    document.body.removeChild(element)
-  })
-
-  it('should navigate to Project view when clicking project: link for non-planning projects', async () => {
-    renderHook(() => useChorusNavigation(), { wrapper })
-
-    mockStore.query.mockResolvedValueOnce([
-      {
-        attributes: null,
-        projectLifecycleState: { status: 'active', stage: 2 },
-      },
-    ])
     const element = createChorusElement('project:abc123', 'View project')
 
     await act(async () => {
@@ -104,7 +76,24 @@ describe('useChorusNavigation', () => {
     document.body.removeChild(element)
   })
 
-  it('should navigate to stage1 form when clicking drafting-stage1: link', async () => {
+  it('should preserve storeId when navigating to project detail', async () => {
+    renderHook(() => useChorusNavigation(), { wrapper })
+
+    const element = createChorusElement('project:abc123', 'View project')
+
+    await act(async () => {
+      simulateClick(element)
+      // Allow async handlers to complete
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+
+    expect(mockNavigate).toHaveBeenCalledWith('/projects/abc123?storeId=test-store-123')
+
+    document.body.removeChild(element)
+  })
+
+  it('should ignore removed drafting-stage links', async () => {
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     renderHook(() => useChorusNavigation(), { wrapper })
 
     const element = createChorusElement('drafting-stage1:proj-uuid', 'Start planning')
@@ -114,77 +103,10 @@ describe('useChorusNavigation', () => {
       await new Promise(resolve => setTimeout(resolve, 0))
     })
 
-    expect(mockNavigate).toHaveBeenCalledWith(
-      '/drafting-room/proj-uuid/stage1?storeId=test-store-123'
-    )
-
-    document.body.removeChild(element)
-  })
-
-  it('should navigate to stage2 form when clicking drafting-stage2: link', async () => {
-    renderHook(() => useChorusNavigation(), { wrapper })
-
-    const element = createChorusElement('drafting-stage2:proj-uuid', 'Continue scoping')
-
-    await act(async () => {
-      simulateClick(element)
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-
-    expect(mockNavigate).toHaveBeenCalledWith(
-      '/drafting-room/proj-uuid/stage2?storeId=test-store-123'
-    )
-
-    document.body.removeChild(element)
-  })
-
-  it('should navigate to stage3 form when clicking drafting-stage3: link', async () => {
-    renderHook(() => useChorusNavigation(), { wrapper })
-
-    const element = createChorusElement('drafting-stage3:proj-uuid', 'Detail project')
-
-    await act(async () => {
-      simulateClick(element)
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-
-    expect(mockNavigate).toHaveBeenCalledWith(
-      '/drafting-room/proj-uuid/stage3?storeId=test-store-123'
-    )
-
-    document.body.removeChild(element)
-  })
-
-  it('should handle UUID-style project IDs', async () => {
-    renderHook(() => useChorusNavigation(), { wrapper })
-
-    const uuid = 'c18b2ef4-c77e-4862-8245-baca1537c81a'
-    const element = createChorusElement(`drafting-stage1:${uuid}`, 'Start planning')
-
-    await act(async () => {
-      simulateClick(element)
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-
-    expect(mockNavigate).toHaveBeenCalledWith(
-      `/drafting-room/${uuid}/stage1?storeId=test-store-123`
-    )
-
-    document.body.removeChild(element)
-  })
-
-  it('should not navigate when id is empty', async () => {
-    renderHook(() => useChorusNavigation(), { wrapper })
-
-    const element = createChorusElement('drafting-stage1:', 'Invalid link')
-
-    await act(async () => {
-      simulateClick(element)
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-
     expect(mockNavigate).not.toHaveBeenCalled()
+    expect(consoleSpy).toHaveBeenCalledWith('Unknown CHORUS_TAG type:', 'drafting-stage1')
 
+    consoleSpy.mockRestore()
     document.body.removeChild(element)
   })
 

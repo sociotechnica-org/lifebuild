@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { fireEvent, render, screen, createMockProject } from '../../../tests/test-utils.js'
+import { render, screen, createMockProject } from '../../../tests/test-utils.js'
 import { ProjectHeader } from './ProjectHeader.js'
 
 const mockNavigate = vi.fn()
@@ -30,7 +30,7 @@ describe('ProjectHeader', () => {
     })
   })
 
-  it('links Drafting lifecycle badge to the stage route', () => {
+  it('renders planning lifecycle badge as non-interactive text', () => {
     const project = createMockProject({
       id: 'proj-123',
       projectLifecycleState: { status: 'planning', stage: 2 },
@@ -38,14 +38,11 @@ describe('ProjectHeader', () => {
 
     render(<ProjectHeader project={project} />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Open Drafting Stage 2' }))
-
-    expect(mockNavigate).toHaveBeenCalledWith(
-      '/drafting-room/proj-123/stage2?storeId=test-store-123'
-    )
+    expect(screen.getByText(/stage 2/i)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Open Drafting Stage/i })).toBeNull()
   })
 
-  it('does not render a Drafting stage link badge for non-planning projects', () => {
+  it('does not render a lifecycle badge button for non-planning projects', () => {
     const project = createMockProject({
       id: 'proj-123',
       projectLifecycleState: { status: 'active', stage: 2 },
@@ -53,6 +50,6 @@ describe('ProjectHeader', () => {
 
     render(<ProjectHeader project={project} />)
 
-    expect(screen.queryByRole('button', { name: /Open Drafting Stage/i })).toBeNull()
+    expect(screen.queryByRole('button', { name: /stage/i })).toBeNull()
   })
 })

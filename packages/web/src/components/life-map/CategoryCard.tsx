@@ -102,16 +102,12 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       {(planningCount > 0 || backlogCount > 0) && (
         <div className='mt-3 flex gap-2 flex-wrap'>
           {planningCount > 0 && (
-            <Link
-              to={preserveStoreIdInUrl(`${generateRoute.draftingRoom()}?category=${categoryValue}`)}
-              className='no-underline inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#f5f3f0] hover:bg-[#ebe8e3] transition-colors duration-150'
-              onClick={e => e.stopPropagation()}
-            >
-              <span className='text-xs font-medium text-[#8b8680]'>Drafting</span>
+            <div className='inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#f5f3f0]'>
+              <span className='text-xs font-medium text-[#8b8680]'>Planning</span>
               <span className='text-xs font-semibold text-[#2f2b27] bg-white px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center'>
                 {planningCount}
               </span>
-            </Link>
+            </div>
           )}
           {backlogCount > 0 && (
             <div className='inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#f5f3f0]'>

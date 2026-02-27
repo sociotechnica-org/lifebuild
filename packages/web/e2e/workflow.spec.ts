@@ -306,33 +306,17 @@ test.describe('Workflow', () => {
   test('navigate through all pages', async ({ page }) => {
     const storeId = await navigateWithUniqueStore(page)
 
-    // Navigate to Drafting Room
-    await page.goto(`/drafting-room?storeId=${storeId}`)
-    await waitForLiveStoreReady(page)
-
-    // Verify Drafting Room elements
-    await expect(page.getByText(/Stage 1 ·/)).toBeVisible({ timeout: 10000 })
-    await expect(page.getByText(/Stage 2 ·/)).toBeVisible()
-    await expect(page.getByText(/Stage 3 ·/)).toBeVisible()
-
-    // Navigate to Life Map via nav
-    await page.click('text=Life Map')
+    // Navigate to Life Map
+    await page.goto(`/life-map?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
 
     // Verify Life Map loads with empty state
     await expect(page.getByText('No projects yet')).toBeVisible({ timeout: 10000 })
 
-    // Verify legacy /sorting-room route redirects to Life Map
-    await page.goto(`/sorting-room?storeId=${storeId}`)
+    // Verify legacy /drafting-room route redirects to Life Map
+    await page.goto(`/drafting-room?storeId=${storeId}`)
     await page.waitForURL(/\/life-map/, { timeout: 10000 })
     await waitForLiveStoreReady(page)
     await expect(page.getByText('No projects yet')).toBeVisible({ timeout: 10000 })
-
-    // Navigate back to Drafting Room
-    await page.click('text=Drafting Room')
-    await waitForLiveStoreReady(page)
-
-    // Verify we're back
-    await expect(page.getByText(/Stage 1 ·/)).toBeVisible({ timeout: 10000 })
   })
 })

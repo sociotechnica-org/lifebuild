@@ -129,16 +129,6 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
       <header className='sticky top-0 z-[8] backdrop-blur-[10px] bg-[rgba(250,249,247,0.88)] border-b border-[#e8e4de] py-3.5 px-6 flex items-center justify-between flex-shrink-0'>
         <nav className='flex gap-4 items-center font-semibold'>
           <Link
-            to={generateRoute.draftingRoom()}
-            className={`no-underline py-2 px-3 rounded-xl transition-all duration-[160ms] ${
-              isActive('/drafting-room')
-                ? 'text-[#2f2b27] bg-black/[0.04]'
-                : 'text-[#8b8680] hover:text-[#2f2b27]'
-            }`}
-          >
-            Drafting Room
-          </Link>
-          <Link
             to={generateRoute.lifeMap()}
             className={`no-underline py-2 px-3 rounded-xl transition-all duration-[160ms] ${
               isActive('/life-map')

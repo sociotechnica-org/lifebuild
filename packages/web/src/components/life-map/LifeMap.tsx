@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery, useStore } from '../../livestore-compat.js'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import {
   getProjectsByCategory$,
   getAllWorkerProjects$,
@@ -387,12 +387,9 @@ export const LifeMap: React.FC = () => {
         <div className='flex min-h-[calc(100vh-300px)] items-center justify-center'>
           <div className='text-center'>
             <p className='mb-4 text-lg text-gray-500'>No projects yet</p>
-            <Link
-              to={generateRoute.draftingRoom()}
-              className='py-2.5 px-4 rounded-lg text-sm font-semibold bg-[#2f2b27] text-[#faf9f7] no-underline inline-block'
-            >
-              Go to Drafting Room to create projects
-            </Link>
+            <p className='text-sm text-gray-500'>
+              Project creation is currently unavailable from this view.
+            </p>
           </div>
         </div>
       )
@@ -417,7 +414,7 @@ export const LifeMap: React.FC = () => {
               return lifecycle.status === 'backlog' && lifecycle.stage === 4
             })
 
-            // Count planning projects (status='planning' OR 'backlog' in stages 1-3 - matches DraftingRoom filter).
+            // Count early-stage planning projects (stages 1-3).
             const planningProjects = projects.filter(project => {
               const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
               return (

@@ -2,7 +2,6 @@
 
 This directory contains the LifeBuild user-facing components. Sub-directories are organised by feature area:
 
-- `drafting-room/` – Project creation wizard (stages 1–3).
 - `layout/` – App shell, room layout, table bar, and LiveStore status indicator.
 - `life-map/` – Life Map view and category cards.
 - `project-room/` – Project detail view with task list and task modals.

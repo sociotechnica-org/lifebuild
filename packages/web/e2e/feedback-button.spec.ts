@@ -13,15 +13,15 @@ import { waitForLiveStoreReady, APP_URL } from './test-utils.js'
 test.describe('Feedback Button', () => {
   test.describe.configure({ timeout: 60000 })
 
-  async function navigateToDraftingRoom(page: Page) {
-    await page.goto(`${APP_URL}/drafting-room`)
+  async function navigateToApp(page: Page) {
+    await page.goto(`${APP_URL}/life-map`)
     await waitForLiveStoreReady(page)
     await page.waitForLoadState('load')
     await page.waitForTimeout(2000) // Allow time for app to initialize
   }
 
   test('should display feedback button in header', async ({ page }) => {
-    await navigateToDraftingRoom(page)
+    await navigateToApp(page)
 
     // Find the feedback button by its aria-label
     const feedbackButton = page.locator('button[aria-label="Send feedback"]')
@@ -30,7 +30,7 @@ test.describe('Feedback Button', () => {
   })
 
   test('should be clickable without errors', async ({ page }) => {
-    await navigateToDraftingRoom(page)
+    await navigateToApp(page)
 
     const feedbackButton = page.locator('button[aria-label="Send feedback"]')
     await expect(feedbackButton).toBeVisible({ timeout: 10000 })
@@ -57,7 +57,7 @@ test.describe('Feedback Button', () => {
   })
 
   test('should have correct styling and hover state', async ({ page }) => {
-    await navigateToDraftingRoom(page)
+    await navigateToApp(page)
 
     const feedbackButton = page.locator('button[aria-label="Send feedback"]')
     await expect(feedbackButton).toBeVisible({ timeout: 10000 })

@@ -28,18 +28,8 @@ import { ROUTES } from './constants/routes.js'
 import { ProjectDetailPage } from './components/projects/ProjectDetailPage.js'
 import { LifeMap } from './components/life-map/LifeMap.js'
 import { RoomLayout } from './components/layout/RoomLayout.js'
-import { DraftingRoom } from './components/drafting-room/DraftingRoom.js'
-import { Stage1Form } from './components/drafting-room/Stage1Form.js'
-import { Stage2Form } from './components/drafting-room/Stage2Form.js'
-import { Stage3Form } from './components/drafting-room/Stage3Form.js'
-import { LIFE_MAP_ROOM, DRAFTING_ROOM } from '@lifebuild/shared/rooms'
+import { LIFE_MAP_ROOM } from '@lifebuild/shared/rooms'
 import { determineStoreIdFromUser } from './utils/navigation.js'
-
-/** Redirect /sorting-room/* → /life-map preserving query params (e.g. storeId) */
-const LegacySortingRoomRedirect: React.FC = () => {
-  const location = useLocation()
-  return <Navigate to={`${ROUTES.LIFE_MAP}${location.search}`} replace />
-}
 import {
   DEVTOOLS_QUERY_PARAM,
   DEVTOOLS_ROUTE_PARAM,
@@ -379,6 +369,17 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>
 }
 
+const LegacyDraftingRoomRedirect: React.FC = () => {
+  const location = useLocation()
+  return <Navigate to={{ pathname: ROUTES.LIFE_MAP, search: location.search }} replace />
+}
+
+/** Redirect /sorting-room/* → /life-map preserving query params (e.g. storeId) */
+const LegacySortingRoomRedirect: React.FC = () => {
+  const location = useLocation()
+  return <Navigate to={`${ROUTES.LIFE_MAP}${location.search}`} replace />
+}
+
 // Protected app wrapper - includes LiveStore and all protected routes
 const ProtectedApp: React.FC = () => {
   return (
@@ -411,56 +412,10 @@ const ProtectedApp: React.FC = () => {
                         </ErrorBoundary>
                       }
                     />
-                    <Route
-                      path={ROUTES.DRAFTING_ROOM}
-                      element={
-                        <ErrorBoundary>
-                          <RoomLayout room={DRAFTING_ROOM}>
-                            <DraftingRoom />
-                          </RoomLayout>
-                        </ErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.PROJECT_CREATE}
-                      element={
-                        <ErrorBoundary>
-                          <RoomLayout room={DRAFTING_ROOM}>
-                            <Stage1Form />
-                          </RoomLayout>
-                        </ErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.PROJECT_STAGE1}
-                      element={
-                        <ErrorBoundary>
-                          <RoomLayout room={DRAFTING_ROOM}>
-                            <Stage1Form />
-                          </RoomLayout>
-                        </ErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.PROJECT_STAGE2}
-                      element={
-                        <ErrorBoundary>
-                          <RoomLayout room={DRAFTING_ROOM}>
-                            <Stage2Form />
-                          </RoomLayout>
-                        </ErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.PROJECT_STAGE3}
-                      element={
-                        <ErrorBoundary>
-                          <RoomLayout room={DRAFTING_ROOM}>
-                            <Stage3Form />
-                          </RoomLayout>
-                        </ErrorBoundary>
-                      }
-                    />
+                    {/* Redirect legacy drafting-room routes to life-map */}
+                    <Route path='/drafting-room/*' element={<LegacyDraftingRoomRedirect />} />
+                    {/* Redirect legacy sorting-room routes to life-map (preserving query params) */}
+                    <Route path='/sorting-room/*' element={<LegacySortingRoomRedirect />} />
                     <Route
                       path={ROUTES.PROJECTS}
                       element={
@@ -479,8 +434,6 @@ const ProtectedApp: React.FC = () => {
                         </ErrorBoundary>
                       }
                     />
-                    {/* Redirect legacy sorting-room routes to life-map (preserving query params) */}
-                    <Route path='/sorting-room/*' element={<LegacySortingRoomRedirect />} />
                     {/* Redirect legacy /old/* routes to life-map */}
                     <Route path='/old/*' element={<Navigate to={ROUTES.LIFE_MAP} replace />} />
                   </Routes>

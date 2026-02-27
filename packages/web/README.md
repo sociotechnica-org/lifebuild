@@ -217,21 +217,17 @@ Events are sent to PostHog via the `usePostHog` hook from `posthog-js/react` (re
 
 ### Page Views
 
-| Event                  | Trigger                     | Properties  | Source                  |
-| ---------------------- | --------------------------- | ----------- | ----------------------- |
-| `life_map_viewed`      | Life Map page mounted       | —           | `LifeMap.tsx`           |
-| `drafting_room_viewed` | Drafting Room page mounted  | —           | `DraftingRoom.tsx`      |
-| `project_viewed`       | Project detail page mounted | `projectId` | `ProjectDetailPage.tsx` |
+| Event             | Trigger                     | Properties  | Source                  |
+| ----------------- | --------------------------- | ----------- | ----------------------- |
+| `life_map_viewed` | Life Map page mounted       | —           | `LifeMap.tsx`           |
+| `project_viewed`  | Project detail page mounted | `projectId` | `ProjectDetailPage.tsx` |
 
 ### Project Lifecycle
 
-| Event                     | Trigger                               | Properties                        | Source                                               |
-| ------------------------- | ------------------------------------- | --------------------------------- | ---------------------------------------------------- |
-| `project_created`         | New project created in Stage 1        | `category`, `projectId`           | `Stage1Form.tsx`                                     |
-| `project_stage_completed` | User advances through drafting stages | `stage` (1, 2, or 3), `projectId` | `Stage1Form.tsx`, `Stage2Form.tsx`, `Stage3Form.tsx` |
-| `project_completed`       | Project marked as complete            | `projectId`                       | `ProjectHeader.tsx`                                  |
-| `project_archived`        | Project archived from project room    | `projectId`                       | `ProjectHeader.tsx`                                  |
-| `project_abandoned`       | Project abandoned from drafting room  | `projectId`, `stage`              | `DraftingRoom.tsx`                                   |
+| Event               | Trigger                            | Properties  | Source              |
+| ------------------- | ---------------------------------- | ----------- | ------------------- |
+| `project_completed` | Project marked as complete         | `projectId` | `ProjectHeader.tsx` |
+| `project_archived`  | Project archived from project room | `projectId` | `ProjectHeader.tsx` |
 
 ### Tasks
 
