@@ -70,6 +70,8 @@ type HexMapProps = {
   onOpenSanctuary?: () => void
   onUnarchiveProject?: (projectId: string) => void
   isOverlayOpen?: boolean
+  showUnplacedPanel?: boolean
+  disableLandmarkInteractions?: boolean
 }
 
 const HexMapSurface: React.FC<HexMapProps> = ({
@@ -85,6 +87,8 @@ const HexMapSurface: React.FC<HexMapProps> = ({
   onOpenSanctuary,
   onUnarchiveProject,
   isOverlayOpen = false,
+  showUnplacedPanel = true,
+  disableLandmarkInteractions = false,
 }) => {
   const {
     placementProjectId,
@@ -136,8 +140,13 @@ const HexMapSurface: React.FC<HexMapProps> = ({
   }, [clearPlacedProjectSelection, placedProjectsById, selectedPlacedProjectId])
 
   useEffect(() => {
+    if (!showUnplacedPanel) {
+      setShowFirstPlacementPrompt(false)
+      return
+    }
+
     setShowFirstPlacementPrompt(shouldShowFirstPlacementPrompt(unplacedProjects.length > 0))
-  }, [unplacedProjects.length])
+  }, [showUnplacedPanel, unplacedProjects.length])
 
   useEffect(() => {
     if (showFirstPlacementPrompt) {
@@ -227,7 +236,7 @@ const HexMapSurface: React.FC<HexMapProps> = ({
 
   return (
     <div className='relative h-full w-full'>
-      {showFirstPlacementPrompt && unplacedProjects.length > 0 && (
+      {showUnplacedPanel && showFirstPlacementPrompt && unplacedProjects.length > 0 && (
         <div className='pointer-events-auto absolute left-4 top-4 z-[6] max-w-[320px] rounded-lg border border-[#d8cab3] bg-[#fff8ec]/95 p-3 shadow-sm backdrop-blur-sm'>
           <p className='text-xs font-semibold text-[#2f2b27]'>Your projects are ready to place</p>
           <p className='mt-1 text-xs text-[#7f6952]'>
@@ -273,31 +282,34 @@ const HexMapSurface: React.FC<HexMapProps> = ({
             onCancelPlacement={clearPlacement}
             onOpenWorkshop={onOpenWorkshop}
             onOpenSanctuary={onOpenSanctuary}
+            disableLandmarkInteractions={disableLandmarkInteractions}
           />
         </Suspense>
       </Canvas>
 
-      <UnplacedPanel
-        isCollapsed={isPanelCollapsed}
-        unplacedProjects={unplacedProjects}
-        completedProjects={completedProjects}
-        archivedProjects={archivedProjects}
-        onToggleCollapsed={() => setIsPanelCollapsed(collapsed => !collapsed)}
-        onSelectUnplacedProject={handleSelectUnplacedProject}
-        onOpenProject={onOpenProject}
-        onUnarchiveProject={onUnarchiveProject}
-        placementProject={selectedPlacementProject}
-        selectedPlacedProject={selectedPlacedProject}
-        isSelectingPlacedProject={isSelectingPlacedProject}
-        onCancelPlacement={clearPlacement}
-        onStartSelectingPlacedProject={
-          onRemovePlacedProject ? handleStartSelectingPlacedProject : undefined
-        }
-        onClearPlacedProjectSelection={clearPlacedProjectSelection}
-        onRemoveSelectedPlacedProject={
-          onRemovePlacedProject ? handleRemoveSelectedPlacedProject : undefined
-        }
-      />
+      {showUnplacedPanel && (
+        <UnplacedPanel
+          isCollapsed={isPanelCollapsed}
+          unplacedProjects={unplacedProjects}
+          completedProjects={completedProjects}
+          archivedProjects={archivedProjects}
+          onToggleCollapsed={() => setIsPanelCollapsed(collapsed => !collapsed)}
+          onSelectUnplacedProject={handleSelectUnplacedProject}
+          onOpenProject={onOpenProject}
+          onUnarchiveProject={onUnarchiveProject}
+          placementProject={selectedPlacementProject}
+          selectedPlacedProject={selectedPlacedProject}
+          isSelectingPlacedProject={isSelectingPlacedProject}
+          onCancelPlacement={clearPlacement}
+          onStartSelectingPlacedProject={
+            onRemovePlacedProject ? handleStartSelectingPlacedProject : undefined
+          }
+          onClearPlacedProjectSelection={clearPlacedProjectSelection}
+          onRemoveSelectedPlacedProject={
+            onRemovePlacedProject ? handleRemoveSelectedPlacedProject : undefined
+          }
+        />
+      )}
     </div>
   )
 }

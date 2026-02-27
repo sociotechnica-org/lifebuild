@@ -83,6 +83,12 @@ describe('HexMap first placement prompt', () => {
     expect(screen.queryByText('Your projects are ready to place')).toBeNull()
   })
 
+  it('does not show the prompt when onboarding hides the unplaced panel', () => {
+    render(<HexMap showUnplacedPanel={false} unplacedProjects={[unplacedProject]} />)
+
+    expect(screen.queryByText('Your projects are ready to place')).toBeNull()
+  })
+
   it('shows the prompt when localStorage reads throw', () => {
     const getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new Error('Blocked storage access')

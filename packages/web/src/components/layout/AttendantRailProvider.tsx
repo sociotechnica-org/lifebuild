@@ -6,6 +6,7 @@ import {
 } from '@lifebuild/shared/rooms'
 import { matchPath, useLocation } from 'react-router-dom'
 import { ROUTES } from '../../constants/routes.js'
+import { useOnboarding } from '../onboarding/useOnboarding.js'
 
 export const ATTENDANT_IDS = ['jarvis', 'marvin'] as const
 export type AttendantId = (typeof ATTENDANT_IDS)[number]
@@ -63,6 +64,7 @@ export const getRouteAutoSelectedAttendant = (pathname: string): AttendantId | n
 
 export const AttendantRailProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation()
+  const onboarding = useOnboarding()
   const [activeAttendantId, setActiveAttendantId] = useState<AttendantId | null>(null)
   const [queuedAttendantMessages, setQueuedAttendantMessages] = useState<
     Partial<Record<AttendantId, string>>
@@ -73,6 +75,15 @@ export const AttendantRailProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!autoSelectedAttendant) return
     setActiveAttendantId(autoSelectedAttendant)
   }, [location.pathname])
+
+  useEffect(() => {
+    if (!onboarding.shouldAutoOpenMarvin) {
+      return
+    }
+
+    setActiveAttendantId('marvin')
+    void onboarding.markMarvinAutoOpened()
+  }, [onboarding.markMarvinAutoOpened, onboarding.shouldAutoOpenMarvin])
 
   const openAttendant = useCallback((id: AttendantId) => {
     setActiveAttendantId(id)

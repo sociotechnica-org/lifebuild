@@ -40,6 +40,7 @@ import { WorkshopOverlayContent } from './components/buildings/WorkshopOverlayCo
 import { useWorkshopFirstVisit } from './components/buildings/useWorkshopFirstVisit.js'
 import { SanctuaryOverlayContent } from './components/buildings/SanctuaryOverlayContent.js'
 import { AttendantRailProvider } from './components/layout/AttendantRailProvider.js'
+import { OnboardingProvider } from './components/onboarding/OnboardingProvider.js'
 import { LIFE_MAP_ROOM } from '@lifebuild/shared/rooms'
 import {
   ProjectOverlayRoute,
@@ -477,29 +478,34 @@ const ProtectedApp: React.FC = () => {
           <UserInitializer>
             <AuthUserSync>
               <SettingsInitializer>
-                <AttendantRailProvider>
-                  <ErrorBoundary>
-                    <Routes>
-                      <Route path={ROUTES.HOME} element={<MapOverlayLayoutRoute />}>
-                        <Route index element={null} />
-                        <Route path={ROUTES.WORKSHOP.slice(1)} element={<WorkshopOverlayRoute />} />
-                        <Route
-                          path={ROUTES.SANCTUARY.slice(1)}
-                          element={<SanctuaryOverlayRoute />}
-                        />
-                        <Route path={ROUTES.PROJECT.slice(1)} element={<ProjectOverlayRoute />} />
-                      </Route>
-                      <Route path={ROUTES.LIFE_MAP} element={<MapCompatibilityRedirect />} />
-                      <Route path={ROUTES.PROJECTS} element={<MapCompatibilityRedirect />} />
-                      {/* Redirect legacy drafting-room routes to map root */}
-                      <Route path='/drafting-room/*' element={<LegacyDraftingRoomRedirect />} />
-                      {/* Redirect legacy sorting-room routes to map root (preserving query params) */}
-                      <Route path='/sorting-room/*' element={<LegacySortingRoomRedirect />} />
-                      {/* Redirect legacy /old/* routes to map root */}
-                      <Route path='/old/*' element={<Navigate to={ROUTES.HOME} replace />} />
-                    </Routes>
-                  </ErrorBoundary>
-                </AttendantRailProvider>
+                <OnboardingProvider>
+                  <AttendantRailProvider>
+                    <ErrorBoundary>
+                      <Routes>
+                        <Route path={ROUTES.HOME} element={<MapOverlayLayoutRoute />}>
+                          <Route index element={null} />
+                          <Route
+                            path={ROUTES.WORKSHOP.slice(1)}
+                            element={<WorkshopOverlayRoute />}
+                          />
+                          <Route
+                            path={ROUTES.SANCTUARY.slice(1)}
+                            element={<SanctuaryOverlayRoute />}
+                          />
+                          <Route path={ROUTES.PROJECT.slice(1)} element={<ProjectOverlayRoute />} />
+                        </Route>
+                        <Route path={ROUTES.LIFE_MAP} element={<MapCompatibilityRedirect />} />
+                        <Route path={ROUTES.PROJECTS} element={<MapCompatibilityRedirect />} />
+                        {/* Redirect legacy drafting-room routes to map root */}
+                        <Route path='/drafting-room/*' element={<LegacyDraftingRoomRedirect />} />
+                        {/* Redirect legacy sorting-room routes to map root (preserving query params) */}
+                        <Route path='/sorting-room/*' element={<LegacySortingRoomRedirect />} />
+                        {/* Redirect legacy /old/* routes to map root */}
+                        <Route path='/old/*' element={<Navigate to={ROUTES.HOME} replace />} />
+                      </Routes>
+                    </ErrorBoundary>
+                  </AttendantRailProvider>
+                </OnboardingProvider>
               </SettingsInitializer>
             </AuthUserSync>
           </UserInitializer>

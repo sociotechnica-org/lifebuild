@@ -12,6 +12,7 @@ import { AttendantRail } from './AttendantRail.js'
 import { useAttendantRail } from './AttendantRailProvider.js'
 import { LiveStoreStatus } from './LiveStoreStatus.js'
 import { TaskQueuePanel } from '../task-queue/TaskQueuePanel.js'
+import { useOnboarding } from '../onboarding/useOnboarding.js'
 
 type NewUiShellProps = {
   children: React.ReactNode
@@ -33,7 +34,8 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
   noScroll = false,
   fullBleed = false,
 }) => {
-  const { activeAttendantId, toggleAttendant } = useAttendantRail()
+  const { activeAttendantId, closeAttendant, toggleAttendant } = useAttendantRail()
+  const onboarding = useOnboarding()
   const location = useLocation()
   const { user: authUser, isAuthenticated, logout } = useAuth()
   const users = useQuery(getUsers$) ?? []
@@ -42,6 +44,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 })
   const dropdownRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const [isRailVisible, setIsRailVisible] = useState(!onboarding.uiPolicy.railFadingIn)
 
   const currentUser = users.find((user: User) => user.id === authUser?.id)
 
@@ -87,6 +90,27 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  useEffect(() => {
+    if (onboarding.uiPolicy.showAttendantRail) {
+      if (onboarding.uiPolicy.railFadingIn) {
+        setIsRailVisible(false)
+        const timeoutId = window.setTimeout(() => {
+          setIsRailVisible(true)
+        }, 40)
+
+        return () => {
+          window.clearTimeout(timeoutId)
+        }
+      }
+
+      setIsRailVisible(true)
+      return
+    }
+
+    setIsRailVisible(false)
+    closeAttendant()
+  }, [closeAttendant, onboarding.uiPolicy.railFadingIn, onboarding.uiPolicy.showAttendantRail])
 
   const isLifeMapActive =
     location.pathname === ROUTES.HOME ||
@@ -217,9 +241,21 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
           )}
         </div>
       </header>
-      <TaskQueuePanel />
-      <AttendantRail activeAttendantId={activeAttendantId} onAttendantClick={toggleAttendant} />
-      <AttendantChatPanel />
+      {onboarding.uiPolicy.showTaskQueue && <TaskQueuePanel />}
+      {onboarding.uiPolicy.showAttendantRail && (
+        <div
+          className={`transition-opacity duration-700 ${isRailVisible ? 'opacity-100' : 'opacity-0'}`}
+        >
+          <AttendantRail
+            activeAttendantId={activeAttendantId}
+            onAttendantClick={toggleAttendant}
+            notifications={
+              onboarding.uiPolicy.showMarvinNotification ? { marvin: true } : undefined
+            }
+          />
+        </div>
+      )}
+      {onboarding.uiPolicy.showAttendantRail && <AttendantChatPanel />}
       <main className={`${mainClasses} ${fullBleed ? '' : 'p-3.5'}`}>
         <div className={contentClasses}>{children}</div>
       </main>
