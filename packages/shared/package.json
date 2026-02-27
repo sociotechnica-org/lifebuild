@@ -51,6 +51,11 @@
       "require": "./dist/auth/index.js",
       "default": "./dist/auth/index.js"
     },
+    "./settings": {
+      "import": "./src/settings.ts",
+      "require": "./dist/settings.js",
+      "default": "./dist/settings.js"
+    },
     "./llm-tools": {
       "import": "./src/llm-tools/index.ts",
       "require": "./dist/llm-tools/index.js",

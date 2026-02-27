@@ -20,8 +20,11 @@ type AttendantRecord = {
 type AttendantRailContextValue = {
   activeAttendantId: AttendantId | null
   attendants: Record<AttendantId, AttendantRecord>
+  queuedAttendantMessages: Partial<Record<AttendantId, string>>
+  clearQueuedAttendantMessage: (id: AttendantId) => void
   closeAttendant: () => void
   openAttendant: (id: AttendantId) => void
+  queueAttendantMessage: (id: AttendantId, message: string) => void
   toggleAttendant: (id: AttendantId) => void
 }
 
@@ -61,6 +64,9 @@ export const getRouteAutoSelectedAttendant = (pathname: string): AttendantId | n
 export const AttendantRailProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation()
   const [activeAttendantId, setActiveAttendantId] = useState<AttendantId | null>(null)
+  const [queuedAttendantMessages, setQueuedAttendantMessages] = useState<
+    Partial<Record<AttendantId, string>>
+  >({})
 
   useEffect(() => {
     const autoSelectedAttendant = getRouteAutoSelectedAttendant(location.pathname)
@@ -80,17 +86,49 @@ export const AttendantRailProvider: React.FC<{ children: React.ReactNode }> = ({
     setActiveAttendantId(current => (current === id ? null : id))
   }, [])
 
+  const queueAttendantMessage = useCallback((id: AttendantId, message: string) => {
+    const trimmedMessage = message.trim()
+    if (!trimmedMessage) return
+
+    setQueuedAttendantMessages(current => ({
+      ...current,
+      [id]: trimmedMessage,
+    }))
+  }, [])
+
+  const clearQueuedAttendantMessage = useCallback((id: AttendantId) => {
+    setQueuedAttendantMessages(current => {
+      if (!current[id]) return current
+
+      const nextState = { ...current }
+      delete nextState[id]
+      return nextState
+    })
+  }, [])
+
   const attendants = useMemo<Record<AttendantId, AttendantRecord>>(() => ATTENDANT_RECORDS, [])
 
   const value = useMemo<AttendantRailContextValue>(
     () => ({
       activeAttendantId,
       attendants,
+      queuedAttendantMessages,
+      clearQueuedAttendantMessage,
       closeAttendant,
       openAttendant,
+      queueAttendantMessage,
       toggleAttendant,
     }),
-    [activeAttendantId, attendants, closeAttendant, openAttendant, toggleAttendant]
+    [
+      activeAttendantId,
+      attendants,
+      queuedAttendantMessages,
+      clearQueuedAttendantMessage,
+      closeAttendant,
+      openAttendant,
+      queueAttendantMessage,
+      toggleAttendant,
+    ]
   )
 
   return <AttendantRailContext.Provider value={value}>{children}</AttendantRailContext.Provider>

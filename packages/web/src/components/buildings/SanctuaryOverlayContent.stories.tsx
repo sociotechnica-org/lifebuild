@@ -1,7 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
+import { makeInMemoryAdapter } from '@livestore/adapter-web'
+import type { Store } from '@livestore/livestore'
 import { SanctuaryOverlayContent } from './SanctuaryOverlayContent.js'
 import { BuildingOverlay } from '../layout/BuildingOverlay.js'
+import { events, schema } from '@lifebuild/shared/schema'
+import { LiveStoreProvider } from '../../livestore-compat.js'
+import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
+import { AttendantRailProvider } from '../layout/AttendantRailProvider.js'
+import { SANCTUARY_FIRST_VISIT_SETTING_KEY } from '../../constants/sanctuary.js'
 
 const meta: Meta<typeof SanctuaryOverlayContent> = {
   title: 'Buildings/SanctuaryOverlayContent',
@@ -24,16 +31,45 @@ const MapBackdrop: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   )
 }
 
+const withLiveStore =
+  (boot?: (store: Store) => void) =>
+  (Story: React.ComponentType): React.ReactElement => {
+    return (
+      <LiveStoreProvider
+        schema={schema}
+        adapter={makeInMemoryAdapter()}
+        batchUpdates={batchUpdates}
+        boot={store => {
+          boot?.(store)
+        }}
+      >
+        <AttendantRailProvider>
+          <MapBackdrop>
+            <BuildingOverlay title='Sanctuary' onClose={() => {}}>
+              <Story />
+            </BuildingOverlay>
+          </MapBackdrop>
+        </AttendantRailProvider>
+      </LiveStoreProvider>
+    )
+  }
+
 export const Default: Story = {
+  decorators: [withLiveStore()],
   render: () => <SanctuaryOverlayContent />,
 }
 
 export const InBuildingOverlayFrame: Story = {
-  render: () => (
-    <MapBackdrop>
-      <BuildingOverlay title='Sanctuary' onClose={() => {}}>
-        <SanctuaryOverlayContent />
-      </BuildingOverlay>
-    </MapBackdrop>
-  ),
+  decorators: [
+    withLiveStore(store => {
+      store.commit(
+        events.settingUpdated({
+          key: SANCTUARY_FIRST_VISIT_SETTING_KEY,
+          value: new Date('2026-02-27T00:00:00.000Z').toISOString(),
+          updatedAt: new Date('2026-02-27T00:00:00.000Z'),
+        })
+      )
+    }),
+  ],
+  render: () => <SanctuaryOverlayContent />,
 }
