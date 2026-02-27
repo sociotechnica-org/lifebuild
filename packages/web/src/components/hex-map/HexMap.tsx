@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { CameraRig } from './CameraRig.js'
 import { HexGrid, type PlacedHexTile } from './HexGrid.js'
-import { PlacementProvider, usePlacement } from './PlacementContext.js'
+import { usePlacement } from './PlacementContext.js'
 import {
   UnplacedPanel,
   type PanelArchivedProjectItem,
@@ -88,6 +88,7 @@ const HexMapSurface: React.FC<HexMapProps> = ({
 }) => {
   const {
     placementProjectId,
+    placementSource,
     selectedPlacedProjectId,
     isSelectingPlacedProject,
     isPlacing,
@@ -154,6 +155,14 @@ const HexMapSurface: React.FC<HexMapProps> = ({
       if (event.key !== 'Escape') {
         return
       }
+
+      if (isPlacing && placementSource === 'workshop') {
+        clearPlacement()
+        clearPlacedProjectSelection()
+        onOpenWorkshop?.()
+        return
+      }
+
       clearPlacement()
       clearPlacedProjectSelection()
     }
@@ -162,7 +171,14 @@ const HexMapSurface: React.FC<HexMapProps> = ({
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [clearPlacement, clearPlacedProjectSelection, isOverlayOpen])
+  }, [
+    clearPlacement,
+    clearPlacedProjectSelection,
+    isOverlayOpen,
+    isPlacing,
+    onOpenWorkshop,
+    placementSource,
+  ])
 
   const dismissFirstPlacementPrompt = useCallback(() => {
     setShowFirstPlacementPrompt(false)
@@ -287,9 +303,5 @@ const HexMapSurface: React.FC<HexMapProps> = ({
 }
 
 export const HexMap: React.FC<HexMapProps> = props => {
-  return (
-    <PlacementProvider>
-      <HexMapSurface {...props} />
-    </PlacementProvider>
-  )
+  return <HexMapSurface {...props} />
 }

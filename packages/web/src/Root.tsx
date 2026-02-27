@@ -1,6 +1,6 @@
 import { makePersistedAdapter } from '@livestore/adapter-web'
 import LiveStoreSharedWorker from '@livestore/adapter-web/shared-worker?sharedworker'
-import { LiveStoreProvider, useStore } from './livestore-compat.js'
+import { LiveStoreProvider, useQuery, useStore } from './livestore-compat.js'
 import LiveStoreWorker from './livestore.worker.ts?worker'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
@@ -44,7 +44,9 @@ import {
   ProjectOverlayRoute,
   useCloseMapOverlayRoute,
 } from './components/projects/ProjectOverlayRoute.js'
+import { PlacementProvider, usePlacement } from './components/hex-map/PlacementContext.js'
 import { determineStoreIdFromUser } from './utils/navigation.js'
+import { getUnplacedProjects$ } from '@lifebuild/shared/queries'
 import {
   DEVTOOLS_QUERY_PARAM,
   DEVTOOLS_ROUTE_PARAM,
@@ -407,21 +409,41 @@ const MapOverlayLayoutRoute: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <RoomLayout room={LIFE_MAP_ROOM}>
-        <div className='relative h-full w-full'>
-          <LifeMap isOverlayOpen={overlayOpen} />
-          <Outlet />
-        </div>
-      </RoomLayout>
+      <PlacementProvider>
+        <RoomLayout room={LIFE_MAP_ROOM}>
+          <div className='relative h-full w-full'>
+            <LifeMap isOverlayOpen={overlayOpen} />
+            <Outlet />
+          </div>
+        </RoomLayout>
+      </PlacementProvider>
     </ErrorBoundary>
   )
 }
 
 const WorkshopOverlayRoute: React.FC = () => {
   const closeOverlay = useCloseMapOverlayRoute()
+  const { startPlacement } = usePlacement()
+  const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
+  const unplacedProjects = useMemo(() => {
+    return unplacedProjectsFromQuery.map(project => ({
+      id: project.id,
+      name: project.name,
+      category: project.category ?? null,
+    }))
+  }, [unplacedProjectsFromQuery])
+
+  const handlePlaceOnMap = useCallback(
+    (projectId: string) => {
+      startPlacement(projectId, { source: 'workshop' })
+      closeOverlay()
+    },
+    [closeOverlay, startPlacement]
+  )
+
   return (
     <BuildingOverlay title='Workshop' onClose={closeOverlay}>
-      <WorkshopOverlayContent />
+      <WorkshopOverlayContent unplacedProjects={unplacedProjects} onPlaceOnMap={handlePlaceOnMap} />
     </BuildingOverlay>
   )
 }

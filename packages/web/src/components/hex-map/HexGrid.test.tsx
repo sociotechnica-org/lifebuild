@@ -206,7 +206,7 @@ describe('HexGrid placement behavior', () => {
     }
   })
 
-  it('cancels placement mode when clicking a completed tile', () => {
+  it('keeps placement mode active when clicking an occupied completed tile', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const onCancelPlacement = vi.fn()
 
@@ -230,7 +230,7 @@ describe('HexGrid placement behavior', () => {
       )
 
       fireEvent.click(screen.getByTestId('hex-tile-Completed'))
-      expect(onCancelPlacement).toHaveBeenCalledTimes(1)
+      expect(onCancelPlacement).not.toHaveBeenCalled()
     } finally {
       consoleErrorSpy.mockRestore()
     }

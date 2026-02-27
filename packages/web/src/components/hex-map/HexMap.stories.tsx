@@ -5,6 +5,7 @@ import React from 'react'
 import { useState } from 'react'
 import { HexMap } from './HexMap.js'
 import type { PlacedHexTile } from './HexGrid.js'
+import { PlacementProvider } from './PlacementContext.js'
 import type { PanelProjectItem } from './UnplacedPanel.js'
 
 const meta: Meta<typeof HexMap> = {
@@ -19,6 +20,13 @@ const meta: Meta<typeof HexMap> = {
       },
     },
   },
+  decorators: [
+    Story => (
+      <PlacementProvider>
+        <Story />
+      </PlacementProvider>
+    ),
+  ],
   tags: ['autodocs'],
 } satisfies Meta<typeof HexMap>
 
