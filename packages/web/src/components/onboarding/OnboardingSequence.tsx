@@ -38,7 +38,7 @@ export const OnboardingSequence: React.FC = () => {
       />
 
       {onboarding.phase === 'campfire' && (
-        <CampfireConversation onKeepExploring={onboarding.dismissFogOverlay} />
+        <CampfireConversation onKeepExploring={() => void onboarding.completeOnboarding()} />
       )}
 
       {onboarding.phase === 'reveal' && (
