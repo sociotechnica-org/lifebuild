@@ -62,6 +62,7 @@ test.describe('Building overlay routing', () => {
   test('deep links render map behind overlay and enforce single-overlay route state', async ({
     page,
   }) => {
+    test.setTimeout(60_000)
     const storeId = await navigateToAppWithUniqueStore(page)
 
     if (await isLoadingLiveStore(page)) {

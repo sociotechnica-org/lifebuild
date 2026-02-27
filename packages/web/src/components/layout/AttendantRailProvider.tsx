@@ -6,19 +6,15 @@ import {
 } from '@lifebuild/shared/rooms'
 import { matchPath, useLocation } from 'react-router-dom'
 import { ROUTES } from '../../constants/routes.js'
-import { useRoomChat } from '../../hooks/useRoomChat.js'
 
 export const ATTENDANT_IDS = ['jarvis', 'marvin'] as const
 export type AttendantId = (typeof ATTENDANT_IDS)[number]
-
-type AttendantChatState = ReturnType<typeof useRoomChat>
 
 type AttendantRecord = {
   id: AttendantId
   label: string
   shortLabel: string
   room: StaticRoomDefinition
-  chat: AttendantChatState
 }
 
 type AttendantRailContextValue = {
@@ -30,6 +26,21 @@ type AttendantRailContextValue = {
 }
 
 const AttendantRailContext = createContext<AttendantRailContextValue | null>(null)
+
+const ATTENDANT_RECORDS: Record<AttendantId, AttendantRecord> = {
+  jarvis: {
+    id: 'jarvis',
+    label: 'Jarvis',
+    shortLabel: 'J',
+    room: JARVIS_ATTENDANT_ROOM,
+  },
+  marvin: {
+    id: 'marvin',
+    label: 'Marvin',
+    shortLabel: 'M',
+    room: MARVIN_ATTENDANT_ROOM,
+  },
+}
 
 export const getRouteAutoSelectedAttendant = (pathname: string): AttendantId | null => {
   if (Boolean(matchPath(ROUTES.SANCTUARY, pathname))) {
@@ -46,9 +57,6 @@ export const getRouteAutoSelectedAttendant = (pathname: string): AttendantId | n
 export const AttendantRailProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation()
   const [activeAttendantId, setActiveAttendantId] = useState<AttendantId | null>(null)
-
-  const jarvisChat = useRoomChat(JARVIS_ATTENDANT_ROOM)
-  const marvinChat = useRoomChat(MARVIN_ATTENDANT_ROOM)
 
   useEffect(() => {
     const autoSelectedAttendant = getRouteAutoSelectedAttendant(location.pathname)
@@ -68,25 +76,7 @@ export const AttendantRailProvider: React.FC<{ children: React.ReactNode }> = ({
     setActiveAttendantId(current => (current === id ? null : id))
   }, [])
 
-  const attendants = useMemo<Record<AttendantId, AttendantRecord>>(
-    () => ({
-      jarvis: {
-        id: 'jarvis',
-        label: 'Jarvis',
-        shortLabel: 'J',
-        room: JARVIS_ATTENDANT_ROOM,
-        chat: jarvisChat,
-      },
-      marvin: {
-        id: 'marvin',
-        label: 'Marvin',
-        shortLabel: 'M',
-        room: MARVIN_ATTENDANT_ROOM,
-        chat: marvinChat,
-      },
-    }),
-    [jarvisChat, marvinChat]
-  )
+  const attendants = useMemo<Record<AttendantId, AttendantRecord>>(() => ATTENDANT_RECORDS, [])
 
   const value = useMemo<AttendantRailContextValue>(
     () => ({

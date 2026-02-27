@@ -1,16 +1,22 @@
 import React from 'react'
+import { JARVIS_ATTENDANT_ROOM, MARVIN_ATTENDANT_ROOM } from '@lifebuild/shared/rooms'
+import { useRoomChat } from '../../hooks/useRoomChat.js'
 import { RoomChatPanel } from '../room-chat/RoomChatPanel.js'
 import { useAttendantRail } from './AttendantRailProvider.js'
 
 export const AttendantChatPanel: React.FC = () => {
-  const { activeAttendantId, attendants, closeAttendant } = useAttendantRail()
+  const { activeAttendantId, closeAttendant } = useAttendantRail()
+  const room =
+    activeAttendantId === 'jarvis'
+      ? JARVIS_ATTENDANT_ROOM
+      : activeAttendantId === 'marvin'
+        ? MARVIN_ATTENDANT_ROOM
+        : null
+  const chat = useRoomChat(room)
 
   if (!activeAttendantId) {
     return null
   }
-
-  const activeAttendant = attendants[activeAttendantId]
-  const chat = activeAttendant.chat
 
   const statusMessage = chat.isConversationArchived
     ? 'This chat is archived.'

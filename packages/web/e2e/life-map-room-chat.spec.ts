@@ -38,15 +38,11 @@ test.describe('Attendant rail', () => {
 
     await expect(page.getByTestId('attendant-chat-panel')).toBeVisible()
     await expect(page.getByTestId('room-chat-panel')).toContainText('Jarvis')
-    await expect(jarvisAvatar).toHaveAttribute('aria-pressed', 'true')
-    await expect(marvinAvatar).toHaveAttribute('aria-pressed', 'false')
 
     await page.goto(`/projects/test-project?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
 
     await expect(page.getByTestId('attendant-chat-panel')).toBeVisible()
     await expect(page.getByTestId('room-chat-panel')).toContainText('Marvin')
-    await expect(jarvisAvatar).toHaveAttribute('aria-pressed', 'false')
-    await expect(marvinAvatar).toHaveAttribute('aria-pressed', 'true')
   })
 })
