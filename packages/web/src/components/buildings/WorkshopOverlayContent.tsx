@@ -10,6 +10,7 @@ export type WorkshopUnplacedProjectItem = {
 type WorkshopOverlayContentProps = {
   unplacedProjects?: readonly WorkshopUnplacedProjectItem[]
   onPlaceOnMap?: (projectId: string) => void
+  showFirstVisitGreeting?: boolean
 }
 
 const CategoryDot: React.FC<{ category: string | null }> = ({ category }) => {
@@ -28,14 +29,27 @@ const CategoryDot: React.FC<{ category: string | null }> = ({ category }) => {
 export const WorkshopOverlayContent: React.FC<WorkshopOverlayContentProps> = ({
   unplacedProjects = [],
   onPlaceOnMap,
+  showFirstVisitGreeting = false,
 }) => {
   return (
     <div className='mx-auto w-full max-w-3xl px-1 py-2'>
       <h1 className='text-2xl font-semibold text-[#2f2b27]'>Workshop</h1>
 
       <p className='mt-2 text-sm text-[#6a5845]'>
-        Select a project sketch, then place it on an empty hex tile.
+        {showFirstVisitGreeting
+          ? 'Marvin opened chat to guide your first Unburdening and capture project sketches.'
+          : 'Select a project sketch, then place it on an empty hex tile.'}
       </p>
+
+      {showFirstVisitGreeting && (
+        <div
+          className='mt-4 rounded-xl border border-[#c9b18e] bg-[#fff5e7] px-4 py-3 text-sm text-[#4d3d2f]'
+          data-testid='workshop-first-visit-greeting'
+        >
+          <span className='font-semibold text-[#3f3024]'>Marvin:</span> Welcome to the Workshop.
+          Let&apos;s unburden what&apos;s on your mind and turn it into project sketches.
+        </div>
+      )}
 
       <div className='mt-5 rounded-2xl border border-[#d8cab3] bg-[#f0e2c9] p-5 shadow-[0_14px_28px_rgba(68,46,26,0.14)]'>
         <h2 className='text-sm font-semibold text-[#3f3024]'>Unplaced Projects</h2>

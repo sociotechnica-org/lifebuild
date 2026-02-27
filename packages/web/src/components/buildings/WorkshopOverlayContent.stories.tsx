@@ -54,3 +54,14 @@ export const InBuildingOverlayFrame: Story = {
 export const Empty: Story = {
   render: () => <WorkshopOverlayContent unplacedProjects={[]} />,
 }
+
+export const FirstVisitGreeting: Story = {
+  render: () => (
+    <WorkshopOverlayContent
+      showFirstVisitGreeting
+      unplacedProjects={[
+        { id: 'project-1', name: 'Plan family photo archive cleanup', category: 'home' },
+      ]}
+    />
+  ),
+}

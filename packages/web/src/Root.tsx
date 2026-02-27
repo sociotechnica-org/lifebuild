@@ -37,6 +37,7 @@ import { LifeMap } from './components/life-map/LifeMap.js'
 import { RoomLayout } from './components/layout/RoomLayout.js'
 import { BuildingOverlay } from './components/layout/BuildingOverlay.js'
 import { WorkshopOverlayContent } from './components/buildings/WorkshopOverlayContent.js'
+import { useWorkshopFirstVisit } from './components/buildings/useWorkshopFirstVisit.js'
 import { SanctuaryOverlayContent } from './components/buildings/SanctuaryOverlayContent.js'
 import { AttendantRailProvider } from './components/layout/AttendantRailProvider.js'
 import { LIFE_MAP_ROOM } from '@lifebuild/shared/rooms'
@@ -424,6 +425,7 @@ const MapOverlayLayoutRoute: React.FC = () => {
 const WorkshopOverlayRoute: React.FC = () => {
   const closeOverlay = useCloseMapOverlayRoute()
   const { startPlacement } = usePlacement()
+  const { showFirstVisitGreeting } = useWorkshopFirstVisit()
   const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
   const unplacedProjects = useMemo(() => {
     return unplacedProjectsFromQuery.map(project => ({
@@ -443,7 +445,11 @@ const WorkshopOverlayRoute: React.FC = () => {
 
   return (
     <BuildingOverlay title='Workshop' onClose={closeOverlay}>
-      <WorkshopOverlayContent unplacedProjects={unplacedProjects} onPlaceOnMap={handlePlaceOnMap} />
+      <WorkshopOverlayContent
+        unplacedProjects={unplacedProjects}
+        onPlaceOnMap={handlePlaceOnMap}
+        showFirstVisitGreeting={showFirstVisitGreeting}
+      />
     </BuildingOverlay>
   )
 }
