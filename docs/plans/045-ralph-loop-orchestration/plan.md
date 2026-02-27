@@ -442,45 +442,49 @@ blocked-by links:
 
 ```text
 Phase 1: Demolition (no deps, can parallel)
-  S1:  Remove the Table
-  S2:  Remove the Sorting Room
-  S3:  Remove the Drafting Room
-  S4:  Remove Mesa references
-  S5:  Remove Kanban, replace with task list
+  #699: Remove the Table
+  #700: Remove the Sorting Room
+  #701: Remove the Drafting Room
+  #702: Remove Mesa from the map
+  #703: Remove Kanban, replace with task list
 
 Phase 2: Foundation (depends on Phase 1)
-  S6:  Map as full-bleed base layer
-       [blocked-by: S1, S2, S3]
-  S7:  Building overlay pattern + routing
-       [blocked-by: S6]
-  S8:  Map navigation (zoom/pan)
-       [blocked-by: S6]
+  #704: Map as full-bleed base layer
+        [blocked-by: #699, #700, #701]
+  #705: Building overlay pattern + routing
+        [blocked-by: #704]
+  #706: Map navigation (zoom/pan)
+        [blocked-by: #704]
 
 Phase 3: New UI (depends on Phase 2)
-  S9:  Left rail with attendant avatars
-       [blocked-by: S7]
-  S10: Project interface as building overlay
-       [blocked-by: S5, S7]
+  #707: Attendant Rail with attendant avatars
+        [blocked-by: #705]
+  #708: Project interface as building overlay
+        [blocked-by: #703, #705]
 
 Phase 4: Buildings + Integration
-  S11: Workshop overlay (coming soon)
-       [blocked-by: S7]
-  S12: Sanctuary overlay shell
-       [blocked-by: S7]
-  S13: Task Queue panel
-       [blocked-by: S10]
-  S14: Project placement flow
-       [blocked-by: S11]
-  S15: Onboarding sequence (mechanical)
-       [blocked-by: S9, S10, S11, S12]
-  S16: Campfire conversation
-       [blocked-by: S15]
-  S17: Unburdening conversation
-       [blocked-by: S11]
-  S18: Visioning conversation
-       [blocked-by: S12]
-  S19: Statue sprite on placed projects
-       [blocked-by: S14]
+  #709: Workshop overlay (coming soon)
+        [blocked-by: #705]
+  #710: Sanctuary overlay shell
+        [blocked-by: #705]
+  #711: Task Queue panel
+        [blocked-by: #708]
+  #712: Project placement flow
+        [blocked-by: #709]
+  #713: Onboarding sequence (mechanical)
+        [blocked-by: #707, #708, #709, #710]
+  #717: Statue sprite on placed projects
+        [blocked-by: #712]
+
+Phase 5: Journeys (shim — replace after prototypes)
+  #718: Campfire conversation with Jarvis
+        [blocked-by: #713]
+  #719: Workshop first visit: Unburdening with Marvin
+        [blocked-by: #709]
+  #720: Sanctuary first visit: Visioning with Jarvis
+        [blocked-by: #710]
+  #721: First project open: Marvin helps craft details
+        [blocked-by: #708]
 ```
 
 With temp decisions resolved, Phase 4 is no longer
@@ -501,7 +505,7 @@ Resolved temp decisions:
 
 - **Workshop interior (P1):** "Coming soon" sign
   inside the overlay + Marvin chat. Wired to route,
-  left rail auto-selects Marvin. Real drafting
+  Attendant Rail auto-selects Marvin. Real drafting
   experience filled in after P1 prototype.
 - **Task Queue (P4):** Tasks grouped by project
   (standard group-by). Click a task to navigate to
