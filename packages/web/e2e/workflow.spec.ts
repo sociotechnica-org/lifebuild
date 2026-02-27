@@ -310,13 +310,25 @@ test.describe('Workflow', () => {
     await page.goto(`/life-map?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
 
-    // Verify Life Map loads with empty state
-    await expect(page.getByText('No projects yet')).toBeVisible({ timeout: 10000 })
+    // Verify Life Map shell is available
+    await expect(page.locator('header nav a')).toHaveCount(1)
+    await expect(page.getByRole('link', { name: 'Life Map' })).toBeVisible()
+    await expect(page.getByText('Drafting Room')).toHaveCount(0)
+    await expect(page.getByText('Sorting Room')).toHaveCount(0)
+    await expect(page.getByText('Table')).toHaveCount(0)
+
+    const lifeMapCanvas = page.locator('canvas').first()
+    const hasCanvas = await lifeMapCanvas.isVisible()
+    if (!hasCanvas) {
+      await expect(page.getByText('Map unavailable on this device')).toBeVisible({ timeout: 10000 })
+    }
 
     // Verify legacy /drafting-room route redirects to Life Map
     await page.goto(`/drafting-room?storeId=${storeId}`)
     await page.waitForURL(/\/life-map/, { timeout: 10000 })
-    await waitForLiveStoreReady(page)
-    await expect(page.getByText('No projects yet')).toBeVisible({ timeout: 10000 })
+
+    // Verify legacy /sorting-room route redirects to Life Map
+    await page.goto(`/sorting-room/gold?storeId=${storeId}`)
+    await page.waitForURL(/\/life-map/, { timeout: 10000 })
   })
 })
