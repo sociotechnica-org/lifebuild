@@ -6,8 +6,6 @@ export const ROUTES = {
   HOME: '/',
   // App routes
   LIFE_MAP: '/life-map',
-  SORTING_ROOM: '/sorting-room',
-  SORTING_ROOM_STREAM: '/sorting-room/:stream',
   PROJECTS: '/projects',
   PROJECT: '/projects/:projectId',
   // Auth and admin routes (unchanged)
@@ -23,8 +21,6 @@ export const ROUTES = {
 export const generateRoute = {
   // App routes
   lifeMap: () => '/life-map',
-  sortingRoom: (stream?: 'gold' | 'silver' | 'bronze') =>
-    stream ? `/sorting-room/${stream}` : '/sorting-room',
   project: (id: string) => `/projects/${id}`,
   // Admin routes
   adminUser: (userEmail: string) => `/admin/users/${encodeURIComponent(userEmail)}`,
