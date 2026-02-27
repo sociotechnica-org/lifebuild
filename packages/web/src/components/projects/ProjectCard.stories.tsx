@@ -129,12 +129,12 @@ const activeSetup = (store: Store) => {
     events.projectCreatedV2({
       id: 'project-active',
       name: 'Execution in Motion',
-      description: 'Actively working in the Gold slot.',
+      description: 'Actively working project.',
       category: 'health',
       lifecycleState: {
         status: 'active',
         stage: 4, // Preserve stage from planning
-        slot: 'gold',
+        stream: 'gold',
         activatedAt: createdAt.getTime(),
       },
       createdAt,

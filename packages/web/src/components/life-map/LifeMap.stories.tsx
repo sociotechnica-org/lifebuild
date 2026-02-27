@@ -166,7 +166,33 @@ const seedLifeMap = (store: Store) => {
     )
   })
 
-  // Create tasks for some projects to demonstrate active vs tabled
+  // Mark a few projects as active to demonstrate lifecycle-based active rendering.
+  store.commit(
+    events.projectLifecycleUpdated({
+      projectId: 'proj-finances',
+      lifecycleState: { status: 'active', stage: 4, stream: 'gold' },
+      updatedAt: now,
+      actorId: 'storybook',
+    })
+  )
+  store.commit(
+    events.projectLifecycleUpdated({
+      projectId: 'proj-purpose',
+      lifecycleState: { status: 'active', stage: 4, stream: 'silver' },
+      updatedAt: now,
+      actorId: 'storybook',
+    })
+  )
+  store.commit(
+    events.projectLifecycleUpdated({
+      projectId: 'proj-health',
+      lifecycleState: { status: 'active', stage: 4, stream: 'bronze' },
+      updatedAt: now,
+      actorId: 'storybook',
+    })
+  )
+
+  // Create tasks for some projects to demonstrate progress in active sections.
   const taskSeeds = [
     { id: 'task-health-1', projectId: 'proj-health', title: 'Research sleep trackers' },
     { id: 'task-health-2', projectId: 'proj-health-2', title: 'Buy gym equipment' },
@@ -185,39 +211,6 @@ const seedLifeMap = (store: Store) => {
         status: 'todo',
         position: index,
         createdAt: new Date(now.getTime() + index * 60000),
-        actorId: 'storybook',
-      })
-    )
-  })
-
-  // Initialize table configuration with Gold and Silver projects
-  store.commit(
-    events.tableConfigurationInitialized({
-      goldProjectId: 'proj-finances', // Finances project is Gold
-      silverProjectId: 'proj-purpose', // Growth project is Silver
-      bronzeMode: 'target',
-      bronzeTargetExtra: 0,
-      updatedAt: now,
-      actorId: 'storybook',
-    })
-  )
-
-  // Add some tasks to bronze stack to make projects "active"
-  // This simulates projects that have tasks in the active bronze queue
-  const bronzeTaskSeeds = [
-    { id: 'bronze-1', taskId: 'task-health-1', position: 0 },
-    { id: 'bronze-2', taskId: 'task-finances-1', position: 1 },
-  ]
-
-  bronzeTaskSeeds.forEach(entry => {
-    store.commit(
-      events.bronzeTaskAdded({
-        id: entry.id,
-        taskId: entry.taskId,
-        position: entry.position,
-        insertedAt: now,
-        insertedBy: 'storybook',
-        status: 'active',
         actorId: 'storybook',
       })
     )

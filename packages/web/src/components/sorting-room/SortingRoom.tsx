@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react'
+import React, { useEffect, useMemo, useCallback } from 'react'
 import { useSearchParams, useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useStore } from '../../livestore-compat.js'
 import { getProjects$, getAllTasks$ } from '@lifebuild/shared/queries'
@@ -12,7 +12,6 @@ import {
 } from '@lifebuild/shared'
 import type { Project, Task } from '@lifebuild/shared/schema'
 import { events } from '@lifebuild/shared/schema'
-import { useTableState } from '../../hooks/useTableState.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { GoldSilverPanel } from './GoldSilverPanel.js'
 import { BronzePanel } from './BronzePanel.js'
@@ -23,27 +22,16 @@ export type Stream = 'gold' | 'silver' | 'bronze'
 interface StreamSummary {
   stream: Stream
   label: string
-  tabledName: string | null
-  tabledMeta: string | null
-  queueCount: number
+  activeName: string | null
+  activeMeta: string | null
+  activeCount: number
+  backlogCount: number
 }
 
 function getLifecycleState(project: Project): ProjectLifecycleState {
   return resolveLifecycleState(project.projectLifecycleState, null)
 }
 
-/**
- * Check if a project has any tasks with progress (status !== 'todo')
- */
-function projectHasProgress(projectId: string, tasks: readonly Task[]): boolean {
-  return tasks.some(
-    task => task.projectId === projectId && task.archivedAt === null && task.status !== 'todo'
-  )
-}
-
-/**
- * Check if all tasks for a project are done (vacuously true for projects with no tasks)
- */
 function projectAllTasksDone(projectId: string, tasks: readonly Task[]): boolean {
   const projectTasks = tasks.filter(
     task => task.projectId === projectId && task.archivedAt === null
@@ -51,32 +39,28 @@ function projectAllTasksDone(projectId: string, tasks: readonly Task[]): boolean
   return projectTasks.every(task => task.status === 'done')
 }
 
-/**
- * Get the most recent activity timestamp for a project (from tasks)
- */
 function getLastActivityTime(projectId: string, tasks: readonly Task[]): number {
-  const projectTasks = tasks.filter(t => t.projectId === projectId && t.archivedAt === null)
+  const projectTasks = tasks.filter(
+    task => task.projectId === projectId && task.archivedAt === null
+  )
   if (projectTasks.length === 0) return 0
 
   return Math.max(
-    ...projectTasks.map(t => {
-      const updated = t.updatedAt ? new Date(t.updatedAt).getTime() : 0
-      const created = t.createdAt ? new Date(t.createdAt).getTime() : 0
+    ...projectTasks.map(task => {
+      const updated = task.updatedAt ? new Date(task.updatedAt).getTime() : 0
+      const created = task.createdAt ? new Date(task.createdAt).getTime() : 0
       return Math.max(updated, created)
     })
   )
 }
 
-/**
- * SortingRoom - The main Sorting Room component
- *
- * Displays three stream tabs (Gold, Silver, Bronze) that can be expanded
- * to show and manage queued projects/tasks with drag-and-drop reordering.
- */
-// Category filter options
 const CATEGORY_FILTERS: { value: ProjectCategory | 'all'; label: string; colorHex?: string }[] = [
   { value: 'all', label: 'All' },
-  ...PROJECT_CATEGORIES.map(c => ({ value: c.value, label: c.name, colorHex: c.colorHex })),
+  ...PROJECT_CATEGORIES.map(category => ({
+    value: category.value,
+    label: category.name,
+    colorHex: category.colorHex,
+  })),
 ]
 
 const getStreamDotClass = (stream: Stream): string => {
@@ -93,27 +77,25 @@ export const SortingRoom: React.FC = () => {
   const { stream: streamParam } = useParams<{ stream?: string }>()
   const navigate = useNavigate()
   const posthog = usePostHog()
-  const [draggedGoldProject, setDraggedGoldProject] = useState<Project | null>(null)
-  const [draggedSilverProject, setDraggedSilverProject] = useState<Project | null>(null)
+  const { store } = useStore()
+  const { user } = useAuth()
+  const actorId = user?.id
 
   useEffect(() => {
     posthog?.capture('sorting_room_viewed')
   }, [])
 
-  // Derive expanded stream from URL param (single source of truth)
   const expandedStream: Stream | null =
     streamParam === 'gold' || streamParam === 'silver' || streamParam === 'bronze'
       ? streamParam
       : null
 
-  // Derive category filter directly from URL (single source of truth)
   const categoryFromUrl = searchParams.get('category') as ProjectCategory | null
   const categoryFilter: ProjectCategory | 'all' =
-    categoryFromUrl && PROJECT_CATEGORIES.some(c => c.value === categoryFromUrl)
+    categoryFromUrl && PROJECT_CATEGORIES.some(category => category.value === categoryFromUrl)
       ? categoryFromUrl
       : 'all'
 
-  // Update URL when category filter changes (called by UI handlers)
   const setCategoryFilter = (value: ProjectCategory | 'all') => {
     const newParams = new URLSearchParams(searchParams)
     if (value === 'all') {
@@ -126,529 +108,191 @@ export const SortingRoom: React.FC = () => {
 
   const allProjects = (useQuery(getProjects$) ?? []) as Project[]
   const allTasks = (useQuery(getAllTasks$) ?? []) as Task[]
-  const {
-    configuration,
-    tabledBronzeProjects,
-    initializeConfiguration,
-    assignGold,
-    assignSilver,
-    clearGold,
-    clearSilver,
-    tableBronzeProject,
-    removeBronzeProject,
-    reorderBronzeProjects,
-  } = useTableState()
-  const { store } = useStore()
-  const { user } = useAuth()
-  const actorId = user?.id
 
-  // Filter and sort backlog projects (Stage 4, backlog status, sorted by queuePosition)
-  // Exclude projects that are currently on the table
-  // Apply category filter if set
   const backlogProjectsByStream = useMemo(() => {
-    const stage4Projects = allProjects.filter(project => {
+    const stage4BacklogProjects = allProjects.filter(project => {
       const lifecycle = getLifecycleState(project)
       if (lifecycle.status !== 'backlog' || lifecycle.stage !== 4) return false
-      // Apply category filter
       if (categoryFilter !== 'all' && project.category !== categoryFilter) return false
       return true
     })
 
-    const goldProjects = stage4Projects
-      .filter(p => getLifecycleState(p).stream === 'gold' && p.id !== configuration?.goldProjectId)
-      .sort((a, b) => {
-        const aPos = getLifecycleState(a).queuePosition ?? 999
-        const bPos = getLifecycleState(b).queuePosition ?? 999
-        return aPos - bPos
-      })
+    const byQueuePosition = (projectA: Project, projectB: Project) => {
+      const aPosition = getLifecycleState(projectA).queuePosition ?? 999
+      const bPosition = getLifecycleState(projectB).queuePosition ?? 999
+      return aPosition - bPosition
+    }
 
-    const silverProjects = stage4Projects
-      .filter(
-        p => getLifecycleState(p).stream === 'silver' && p.id !== configuration?.silverProjectId
-      )
-      .sort((a, b) => {
-        const aPos = getLifecycleState(a).queuePosition ?? 999
-        const bPos = getLifecycleState(b).queuePosition ?? 999
-        return aPos - bPos
-      })
+    return {
+      gold: stage4BacklogProjects
+        .filter(project => getLifecycleState(project).stream === 'gold')
+        .sort(byQueuePosition),
+      silver: stage4BacklogProjects
+        .filter(project => getLifecycleState(project).stream === 'silver')
+        .sort(byQueuePosition),
+      bronze: stage4BacklogProjects
+        .filter(project => getLifecycleState(project).stream === 'bronze')
+        .sort(byQueuePosition),
+    }
+  }, [allProjects, categoryFilter])
 
-    // Bronze projects: backlog bronze-stream projects
-    const bronzeProjects = stage4Projects
-      .filter(p => getLifecycleState(p).stream === 'bronze')
-      .sort((a, b) => {
-        const aPos = getLifecycleState(a).queuePosition ?? 999
-        const bPos = getLifecycleState(b).queuePosition ?? 999
-        return aPos - bPos
-      })
-
-    return { gold: goldProjects, silver: silverProjects, bronze: bronzeProjects }
-  }, [allProjects, configuration?.goldProjectId, configuration?.silverProjectId, categoryFilter])
-
-  // Filter and sort active projects by stream (sorted by last activity time)
-  // Exclude projects that are currently on the table
-  // Apply category filter if set
   const activeProjectsByStream = useMemo(() => {
     const activeProjects = allProjects.filter(project => {
       const lifecycle = getLifecycleState(project)
       if (lifecycle.status !== 'active') return false
-      // Apply category filter
       if (categoryFilter !== 'all' && project.category !== categoryFilter) return false
       return true
     })
 
-    const goldProjects = activeProjects
-      .filter(p => getLifecycleState(p).stream === 'gold' && p.id !== configuration?.goldProjectId)
-      .sort((a, b) => getLastActivityTime(b.id, allTasks) - getLastActivityTime(a.id, allTasks))
+    const byLastActivity = (projectA: Project, projectB: Project) =>
+      getLastActivityTime(projectB.id, allTasks) - getLastActivityTime(projectA.id, allTasks)
 
-    const silverProjects = activeProjects
-      .filter(
-        p => getLifecycleState(p).stream === 'silver' && p.id !== configuration?.silverProjectId
-      )
-      .sort((a, b) => getLastActivityTime(b.id, allTasks) - getLastActivityTime(a.id, allTasks))
-
-    return { gold: goldProjects, silver: silverProjects }
-  }, [
-    allProjects,
-    allTasks,
-    configuration?.goldProjectId,
-    configuration?.silverProjectId,
-    categoryFilter,
-  ])
-
-  // Get eligible bronze tasks:
-  // - Orphaned tasks (no projectId)
-  // - Tasks from bronze-stream projects (backlog OR active)
-  // - Tasks from active projects (any stream) that are NOT the tabled gold/silver projects
-  // PR1 Task Queue Redesign: Compute available bronze projects (not yet tabled)
-  const tabledBronzeProjectIds = useMemo(
-    () => new Set(tabledBronzeProjects.map(entry => entry.projectId)),
-    [tabledBronzeProjects]
-  )
-
-  const availableBronzeProjects = useMemo(
-    () => backlogProjectsByStream.bronze.filter(p => !tabledBronzeProjectIds.has(p.id)),
-    [backlogProjectsByStream.bronze, tabledBronzeProjectIds]
-  )
-
-  // Get top tabled bronze project for summary
-  // Find the first tabled project that still exists in allProjects (skip orphan entries)
-  const topTabledBronzeProject = useMemo(() => {
-    for (const entry of tabledBronzeProjects) {
-      const project = allProjects.find(p => p.id === entry.projectId)
-      if (project) return project
+    return {
+      gold: activeProjects
+        .filter(project => getLifecycleState(project).stream === 'gold')
+        .sort(byLastActivity),
+      silver: activeProjects
+        .filter(project => getLifecycleState(project).stream === 'silver')
+        .sort(byLastActivity),
+      bronze: activeProjects
+        .filter(project => getLifecycleState(project).stream === 'bronze')
+        .sort(byLastActivity),
     }
-    return null
-  }, [tabledBronzeProjects, allProjects])
+  }, [allProjects, allTasks, categoryFilter])
 
-  // Get count of valid (non-orphan) tabled bronze projects for consistent display
-  const validTabledBronzeCount = useMemo(
-    () => tabledBronzeProjects.filter(e => allProjects.some(p => p.id === e.projectId)).length,
-    [tabledBronzeProjects, allProjects]
-  )
-
-  // Get tabled projects for Gold/Silver
-  const goldProject = useMemo(
-    () => allProjects.find(p => p.id === configuration?.goldProjectId) ?? null,
-    [allProjects, configuration?.goldProjectId]
-  )
-
-  const silverProject = useMemo(
-    () => allProjects.find(p => p.id === configuration?.silverProjectId) ?? null,
-    [allProjects, configuration?.silverProjectId]
-  )
-
-  // Check if tabled projects have progress
-  const goldProjectHasProgress = useMemo(
-    () => (goldProject ? projectHasProgress(goldProject.id, allTasks) : false),
-    [goldProject, allTasks]
-  )
-
-  const silverProjectHasProgress = useMemo(
-    () => (silverProject ? projectHasProgress(silverProject.id, allTasks) : false),
-    [silverProject, allTasks]
-  )
-
-  // Check if all tasks are done for tabled projects
-  const goldProjectAllTasksDone = useMemo(
-    () => (goldProject ? projectAllTasksDone(goldProject.id, allTasks) : false),
-    [goldProject, allTasks]
-  )
-
-  const silverProjectAllTasksDone = useMemo(
-    () => (silverProject ? projectAllTasksDone(silverProject.id, allTasks) : false),
-    [silverProject, allTasks]
-  )
-
-  // Calculate completion percentage for tabled projects
-  const getProjectCompletionPercentage = useCallback(
-    (projectId: string): number => {
-      const projectTasks = allTasks.filter(t => t.projectId === projectId && t.archivedAt === null)
-      if (projectTasks.length === 0) return 0
-      const completedTasks = projectTasks.filter(t => t.status === 'done').length
-      return Math.round((completedTasks / projectTasks.length) * 100)
-    },
-    [allTasks]
-  )
-
-  const goldProjectCompletionPercentage = useMemo(
-    () => (goldProject ? getProjectCompletionPercentage(goldProject.id) : 0),
-    [goldProject, getProjectCompletionPercentage]
-  )
-
-  const silverProjectCompletionPercentage = useMemo(
-    () => (silverProject ? getProjectCompletionPercentage(silverProject.id) : 0),
-    [silverProject, getProjectCompletionPercentage]
-  )
-
-  // Build stream summaries for collapsed view
   const streamSummaries: StreamSummary[] = [
     {
       stream: 'gold',
       label: 'Initiative',
-      tabledName: goldProject?.name ?? null,
-      tabledMeta: goldProject?.category ?? null,
-      queueCount: backlogProjectsByStream.gold.length,
+      activeName: activeProjectsByStream.gold[0]?.name ?? null,
+      activeMeta: activeProjectsByStream.gold[0]?.category ?? null,
+      activeCount: activeProjectsByStream.gold.length,
+      backlogCount: backlogProjectsByStream.gold.length,
     },
     {
       stream: 'silver',
       label: 'Optimization',
-      tabledName: silverProject?.name ?? null,
-      tabledMeta: silverProject?.category ?? null,
-      queueCount: backlogProjectsByStream.silver.length,
+      activeName: activeProjectsByStream.silver[0]?.name ?? null,
+      activeMeta: activeProjectsByStream.silver[0]?.category ?? null,
+      activeCount: activeProjectsByStream.silver.length,
+      backlogCount: backlogProjectsByStream.silver.length,
     },
     {
       stream: 'bronze',
       label: 'To-Do',
-      tabledName: topTabledBronzeProject?.name ?? null,
-      tabledMeta: validTabledBronzeCount > 1 ? `+${validTabledBronzeCount - 1} more` : null,
-      queueCount: availableBronzeProjects.length,
+      activeName: activeProjectsByStream.bronze[0]?.name ?? null,
+      activeMeta:
+        activeProjectsByStream.bronze.length > 1
+          ? `+${activeProjectsByStream.bronze.length - 1} more`
+          : null,
+      activeCount: activeProjectsByStream.bronze.length,
+      backlogCount: backlogProjectsByStream.bronze.length,
     },
   ]
 
   const handleTabClick = (stream: Stream) => {
-    // Toggle: if clicking the already-expanded stream, collapse it
-    // Otherwise, expand the clicked stream
     const newStream = expandedStream === stream ? undefined : stream
     if (newStream) {
       posthog?.capture('sorting_room_stream_switched', { stream: newStream })
     }
-    // Preserve category filter when toggling streams
+
     const baseUrl = preserveStoreIdInUrl(generateRoute.sortingRoom(newStream))
     const categoryParam = searchParams.get('category')
     const urlWithCategory = categoryParam
       ? `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}category=${categoryParam}`
       : baseUrl
+
     navigate(urlWithCategory)
   }
 
-  /**
-   * Handle the outgoing project when a new project is activated
-   * - If project has progress (tasks not in 'todo'), keep it active
-   * - If project has no progress, move it back to backlog
-   */
-  const handleOutgoingProject = useCallback(
-    (outgoingProject: Project, hasProgress: boolean, _stream: 'gold' | 'silver') => {
-      const currentLifecycle = getLifecycleState(outgoingProject)
-
-      if (hasProgress) {
-        // Keep active, just clear the slot
-        store.commit(
-          events.projectLifecycleUpdated({
-            projectId: outgoingProject.id,
-            lifecycleState: {
-              ...currentLifecycle,
-              slot: undefined,
-            },
-            updatedAt: new Date(),
-            actorId,
-          })
-        )
-      } else {
-        // Move back to backlog at top of queue
-        store.commit(
-          events.projectLifecycleUpdated({
-            projectId: outgoingProject.id,
-            lifecycleState: {
-              ...currentLifecycle,
-              status: 'backlog',
-              slot: undefined,
-              queuePosition: 0,
-            },
-            updatedAt: new Date(),
-            actorId,
-          })
-        )
-      }
-    },
-    [store, actorId]
-  )
-
-  // Handler for activating a project to the table
-  const handleActivateGold = useCallback(
-    async (project: Project) => {
-      // Handle outgoing project first
-      if (goldProject) {
-        handleOutgoingProject(goldProject, goldProjectHasProgress, 'gold')
-      }
-
-      // Update incoming project lifecycle to active with gold slot
-      const currentLifecycle = getLifecycleState(project)
+  const updateLifecycle = useCallback(
+    (project: Project, lifecycleState: ProjectLifecycleState) => {
       store.commit(
         events.projectLifecycleUpdated({
           projectId: project.id,
-          lifecycleState: {
-            ...currentLifecycle,
-            status: 'active',
-            slot: 'gold',
-          },
+          lifecycleState,
           updatedAt: new Date(),
           actorId,
         })
       )
-
-      // If configuration doesn't exist, initialize with this project
-      // Otherwise, assign to existing configuration
-      if (!configuration) {
-        await initializeConfiguration({ goldProjectId: project.id })
-      } else {
-        await assignGold(project.id)
-      }
     },
-    [
-      store,
-      actorId,
-      assignGold,
-      configuration,
-      initializeConfiguration,
-      goldProject,
-      goldProjectHasProgress,
-      handleOutgoingProject,
-    ]
+    [store, actorId]
   )
 
-  const handleActivateSilver = useCallback(
-    async (project: Project) => {
-      // Handle outgoing project first
-      if (silverProject) {
-        handleOutgoingProject(silverProject, silverProjectHasProgress, 'silver')
-      }
-
-      // Update incoming project lifecycle to active with silver slot
+  const activateProject = useCallback(
+    (project: Project) => {
       const currentLifecycle = getLifecycleState(project)
+      updateLifecycle(project, {
+        ...currentLifecycle,
+        status: 'active',
+        activatedAt: Date.now(),
+        queuePosition: undefined,
+      })
+    },
+    [updateLifecycle]
+  )
+
+  const moveProjectToBacklog = useCallback(
+    (project: Project) => {
+      const currentLifecycle = getLifecycleState(project)
+      updateLifecycle(project, {
+        ...currentLifecycle,
+        status: 'backlog',
+        completedAt: undefined,
+        queuePosition: 0,
+      })
+    },
+    [updateLifecycle]
+  )
+
+  const completeProject = useCallback(
+    (project: Project) => {
+      const currentLifecycle = getLifecycleState(project)
+      updateLifecycle(project, {
+        ...currentLifecycle,
+        status: 'completed',
+        completedAt: Date.now(),
+        queuePosition: undefined,
+      })
+    },
+    [updateLifecycle]
+  )
+
+  const archiveProject = useCallback(
+    (project: Project) => {
       store.commit(
-        events.projectLifecycleUpdated({
-          projectId: project.id,
-          lifecycleState: {
-            ...currentLifecycle,
-            status: 'active',
-            slot: 'silver',
-          },
-          updatedAt: new Date(),
+        events.projectArchived({
+          id: project.id,
+          archivedAt: new Date(),
           actorId,
         })
       )
-
-      // If configuration doesn't exist, initialize with this project
-      // Otherwise, assign to existing configuration
-      if (!configuration) {
-        await initializeConfiguration({ silverProjectId: project.id })
-      } else {
-        await assignSilver(project.id)
-      }
-    },
-    [
-      store,
-      actorId,
-      assignSilver,
-      configuration,
-      initializeConfiguration,
-      silverProject,
-      silverProjectHasProgress,
-      handleOutgoingProject,
-    ]
-  )
-
-  // Handler for releasing a project from the table (without replacement)
-  const handleReleaseGold = useCallback(async () => {
-    if (!configuration) return
-    if (goldProject) {
-      handleOutgoingProject(goldProject, goldProjectHasProgress, 'gold')
-    }
-    await clearGold()
-  }, [goldProject, goldProjectHasProgress, clearGold, configuration, handleOutgoingProject])
-
-  const handleReleaseSilver = useCallback(async () => {
-    if (!configuration) return
-    if (silverProject) {
-      handleOutgoingProject(silverProject, silverProjectHasProgress, 'silver')
-    }
-    await clearSilver()
-  }, [silverProject, silverProjectHasProgress, clearSilver, configuration, handleOutgoingProject])
-
-  // Handler for completing a project (marking as done)
-  const handleCompleteGold = useCallback(async () => {
-    if (!configuration || !goldProject) return
-    const currentLifecycle = getLifecycleState(goldProject)
-    store.commit(
-      events.projectLifecycleUpdated({
-        projectId: goldProject.id,
-        lifecycleState: {
-          ...currentLifecycle,
-          status: 'completed',
-          completedAt: Date.now(),
-          slot: undefined,
-        },
-        updatedAt: new Date(),
-        actorId,
-      })
-    )
-    await clearGold()
-  }, [goldProject, clearGold, configuration, store, actorId])
-
-  const handleCompleteSilver = useCallback(async () => {
-    if (!configuration || !silverProject) return
-    const currentLifecycle = getLifecycleState(silverProject)
-    store.commit(
-      events.projectLifecycleUpdated({
-        projectId: silverProject.id,
-        lifecycleState: {
-          ...currentLifecycle,
-          status: 'completed',
-          completedAt: Date.now(),
-          slot: undefined,
-        },
-        updatedAt: new Date(),
-        actorId,
-      })
-    )
-    await clearSilver()
-  }, [silverProject, clearSilver, configuration, store, actorId])
-
-  // Handler for archiving a project
-  const handleArchiveGold = useCallback(async () => {
-    if (!configuration || !goldProject) return
-    // Clear the slot from lifecycle state first
-    const currentLifecycle = getLifecycleState(goldProject)
-    store.commit(
-      events.projectLifecycleUpdated({
-        projectId: goldProject.id,
-        lifecycleState: {
-          ...currentLifecycle,
-          slot: undefined,
-        },
-        updatedAt: new Date(),
-        actorId,
-      })
-    )
-    store.commit(
-      events.projectArchived({
-        id: goldProject.id,
-        archivedAt: new Date(),
-        actorId,
-      })
-    )
-    await clearGold()
-  }, [goldProject, clearGold, configuration, store, actorId])
-
-  const handleArchiveSilver = useCallback(async () => {
-    if (!configuration || !silverProject) return
-    // Clear the slot from lifecycle state first
-    const currentLifecycle = getLifecycleState(silverProject)
-    store.commit(
-      events.projectLifecycleUpdated({
-        projectId: silverProject.id,
-        lifecycleState: {
-          ...currentLifecycle,
-          slot: undefined,
-        },
-        updatedAt: new Date(),
-        actorId,
-      })
-    )
-    store.commit(
-      events.projectArchived({
-        id: silverProject.id,
-        archivedAt: new Date(),
-        actorId,
-      })
-    )
-    await clearSilver()
-  }, [silverProject, clearSilver, configuration, store, actorId])
-
-  // Handler for reordering queue
-  const handleReorderGold = useCallback(
-    (reorderedProjects: Project[]) => {
-      // Emit lifecycle updates with new queue positions
-      reorderedProjects.forEach((project, index) => {
-        const currentLifecycle = getLifecycleState(project)
-        if (currentLifecycle.queuePosition !== index + 1) {
-          store.commit(
-            events.projectLifecycleUpdated({
-              projectId: project.id,
-              lifecycleState: {
-                ...currentLifecycle,
-                queuePosition: index + 1,
-              },
-              updatedAt: new Date(),
-              actorId,
-            })
-          )
-        }
-      })
     },
     [store, actorId]
   )
 
-  const handleReorderSilver = useCallback(
-    (reorderedProjects: Project[]) => {
+  const reorderBacklog = useCallback(
+    (stream: Stream, reorderedProjects: Project[]) => {
       reorderedProjects.forEach((project, index) => {
         const currentLifecycle = getLifecycleState(project)
-        if (currentLifecycle.queuePosition !== index + 1) {
-          store.commit(
-            events.projectLifecycleUpdated({
-              projectId: project.id,
-              lifecycleState: {
-                ...currentLifecycle,
-                queuePosition: index + 1,
-              },
-              updatedAt: new Date(),
-              actorId,
-            })
-          )
+        const nextPosition = index + 1
+        if (currentLifecycle.queuePosition !== nextPosition) {
+          updateLifecycle(project, {
+            ...currentLifecycle,
+            queuePosition: nextPosition,
+            stream,
+            status: 'backlog',
+          })
         }
       })
     },
-    [store, actorId]
+    [updateLifecycle]
   )
 
-  // PR1 Task Queue Redesign: Bronze project handlers
-  const handleAddBronzeProject = useCallback(
-    async (projectId: string) => {
-      await tableBronzeProject(projectId, undefined, true)
-    },
-    [tableBronzeProject]
-  )
-
-  const handleRemoveBronzeProject = useCallback(
-    async (entryId: string) => {
-      await removeBronzeProject(entryId)
-    },
-    [removeBronzeProject]
-  )
-
-  const handleReorderBronzeProjects = useCallback(
-    async (entries: Array<{ id: string; projectId: string }>) => {
-      await reorderBronzeProjects(entries)
-    },
-    [reorderBronzeProjects]
-  )
-
-  // Handler for quick adding a new bronze project directly to the table
   const handleQuickAddBronzeProject = useCallback(
     async (name: string) => {
       const projectId = crypto.randomUUID()
 
-      // Create a minimal bronze project with quicktask archetype
       store.commit(
         events.projectCreatedV2({
           id: projectId,
@@ -667,12 +311,24 @@ export const SortingRoom: React.FC = () => {
           actorId,
         })
       )
-
-      // Add to bronze table with initializeIfNeeded
-      await tableBronzeProject(projectId, undefined, true)
     },
-    [store, actorId, tableBronzeProject]
+    [store, actorId]
   )
+
+  const completableProjectIdsByStream = useMemo(() => {
+    return {
+      gold: new Set(
+        activeProjectsByStream.gold
+          .filter(project => projectAllTasksDone(project.id, allTasks))
+          .map(project => project.id)
+      ),
+      silver: new Set(
+        activeProjectsByStream.silver
+          .filter(project => projectAllTasksDone(project.id, allTasks))
+          .map(project => project.id)
+      ),
+    }
+  }, [activeProjectsByStream.gold, activeProjectsByStream.silver, allTasks])
 
   const hasActiveFilters = categoryFilter !== 'all'
 
@@ -682,28 +338,31 @@ export const SortingRoom: React.FC = () => {
 
   return (
     <div className='py-4'>
-      {/* Category Filter Bar */}
       <div className='mb-4 flex flex-wrap items-center gap-2'>
         <span className='text-xs font-semibold text-[#8b8680]'>Category:</span>
-        {CATEGORY_FILTERS.map(cat => (
+        {CATEGORY_FILTERS.map(category => (
           <button
-            key={cat.value}
+            key={category.value}
             type='button'
             className={`py-1 px-2.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer ${
-              categoryFilter === cat.value
+              categoryFilter === category.value
                 ? 'text-white'
                 : 'bg-transparent border-[#e8e4de] text-[#8b8680] hover:border-[#d0ccc5] hover:text-[#2f2b27]'
             }`}
             style={
-              categoryFilter === cat.value && cat.colorHex
-                ? { backgroundColor: cat.colorHex, borderColor: cat.colorHex, color: '#fff' }
-                : categoryFilter === cat.value
+              categoryFilter === category.value && category.colorHex
+                ? {
+                    backgroundColor: category.colorHex,
+                    borderColor: category.colorHex,
+                    color: '#fff',
+                  }
+                : categoryFilter === category.value
                   ? { backgroundColor: '#2f2b27', borderColor: '#2f2b27', color: '#fff' }
                   : undefined
             }
-            onClick={() => setCategoryFilter(cat.value)}
+            onClick={() => setCategoryFilter(category.value)}
           >
-            {cat.label}
+            {category.label}
           </button>
         ))}
         {hasActiveFilters && (
@@ -758,15 +417,13 @@ export const SortingRoom: React.FC = () => {
                   {summary.label}
                 </span>
                 <span className='text-xs text-[#8b8680]'>
-                  {summary.stream === 'bronze'
-                    ? `${validTabledBronzeCount} on table / ${summary.queueCount} in backlog`
-                    : `${summary.queueCount} in backlog`}
+                  {summary.activeCount} active / {summary.backlogCount} in backlog
                 </span>
                 <button
                   type='button'
                   className='ml-auto text-xs py-1 px-2 rounded bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer hover:border-[#d0ccc5] hover:text-[#2f2b27]'
-                  onClick={e => {
-                    e.stopPropagation()
+                  onClick={event => {
+                    event.stopPropagation()
                     handleTabClick(summary.stream)
                   }}
                 >
@@ -776,19 +433,19 @@ export const SortingRoom: React.FC = () => {
               <div className='px-3 pb-3 border-t' style={{ borderTopColor: colors.border }}>
                 <div className='flex items-center gap-2 pt-2'>
                   <span className='text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide'>
-                    ON TABLE
+                    ACTIVE NOW
                   </span>
-                  {summary.tabledName ? (
+                  {summary.activeName ? (
                     <>
                       <span className='text-sm font-semibold text-[#2f2b27]'>
-                        {summary.tabledName}
+                        {summary.activeName}
                       </span>
-                      {summary.tabledMeta && (
-                        <span className='text-xs text-[#8b8680]'>{summary.tabledMeta}</span>
+                      {summary.activeMeta && (
+                        <span className='text-xs text-[#8b8680]'>{summary.activeMeta}</span>
                       )}
                     </>
                   ) : (
-                    <span className='text-sm text-[#8b8680]'>Empty</span>
+                    <span className='text-sm text-[#8b8680]'>None</span>
                   )}
                 </div>
               </div>
@@ -802,48 +459,36 @@ export const SortingRoom: React.FC = () => {
           {expandedStream === 'gold' && (
             <GoldSilverPanel
               stream='gold'
-              tabledProject={goldProject}
               backlogProjects={backlogProjectsByStream.gold}
               activeProjects={activeProjectsByStream.gold}
-              onActivateToTable={handleActivateGold}
-              onReleaseFromTable={handleReleaseGold}
-              onCompleteProject={handleCompleteGold}
-              onArchiveProject={handleArchiveGold}
-              onReorder={handleReorderGold}
-              draggedProject={draggedGoldProject}
-              setDraggedProject={setDraggedGoldProject}
-              outgoingProjectHasProgress={goldProjectHasProgress}
-              allTasksDone={goldProjectAllTasksDone}
-              tabledProjectCompletionPercentage={goldProjectCompletionPercentage}
+              completableProjectIds={completableProjectIdsByStream.gold}
+              onActivate={activateProject}
+              onMoveToBacklog={moveProjectToBacklog}
+              onCompleteProject={completeProject}
+              onArchiveProject={archiveProject}
+              onReorder={projects => reorderBacklog('gold', projects)}
             />
           )}
           {expandedStream === 'silver' && (
             <GoldSilverPanel
               stream='silver'
-              tabledProject={silverProject}
               backlogProjects={backlogProjectsByStream.silver}
               activeProjects={activeProjectsByStream.silver}
-              onActivateToTable={handleActivateSilver}
-              onReleaseFromTable={handleReleaseSilver}
-              onCompleteProject={handleCompleteSilver}
-              onArchiveProject={handleArchiveSilver}
-              onReorder={handleReorderSilver}
-              draggedProject={draggedSilverProject}
-              setDraggedProject={setDraggedSilverProject}
-              outgoingProjectHasProgress={silverProjectHasProgress}
-              allTasksDone={silverProjectAllTasksDone}
-              tabledProjectCompletionPercentage={silverProjectCompletionPercentage}
+              completableProjectIds={completableProjectIdsByStream.silver}
+              onActivate={activateProject}
+              onMoveToBacklog={moveProjectToBacklog}
+              onCompleteProject={completeProject}
+              onArchiveProject={archiveProject}
+              onReorder={projects => reorderBacklog('silver', projects)}
             />
           )}
           {expandedStream === 'bronze' && (
             <BronzePanel
-              tabledProjects={tabledBronzeProjects}
-              availableProjects={availableBronzeProjects}
+              activeProjects={activeProjectsByStream.bronze}
+              backlogProjects={backlogProjectsByStream.bronze}
               allTasks={allTasks}
-              allProjects={allProjects}
-              onAddToTable={handleAddBronzeProject}
-              onRemoveFromTable={handleRemoveBronzeProject}
-              onReorder={handleReorderBronzeProjects}
+              onActivate={activateProject}
+              onMoveToBacklog={moveProjectToBacklog}
               onQuickAddProject={handleQuickAddBronzeProject}
             />
           )}

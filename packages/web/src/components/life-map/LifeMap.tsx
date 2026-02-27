@@ -4,10 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import {
   getProjectsByCategory$,
   getAllWorkerProjects$,
-  getActiveBronzeStack$,
-  getTabledBronzeProjects$,
   getAllTasks$,
-  getTableConfiguration$,
   getProjects$,
   getAllProjectsIncludingArchived$,
   getHexPositions$,
@@ -133,11 +130,7 @@ export const LifeMap: React.FC = () => {
   }, [hasWebGLSupport, isDesktopViewport])
 
   const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
-  const activeBronzeStack = useQuery(getActiveBronzeStack$) ?? []
-  const tabledBronzeProjects = useQuery(getTabledBronzeProjects$) ?? []
   const allTasks = useQuery(getAllTasks$) ?? []
-  const tableConfiguration = useQuery(getTableConfiguration$) ?? []
-  const tableConfig = tableConfiguration[0]
   const allProjects = useQuery(getProjects$) ?? []
   const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []
   const hexPositions = useQuery(getHexPositions$) ?? []
@@ -176,39 +169,16 @@ export const LifeMap: React.FC = () => {
     contributionProjects,
   ])
 
-  // Build a set of project IDs that are "active" (on the table).
+  // Build a set of project IDs that are in an active lifecycle state.
   const activeProjectIds = useMemo(() => {
-    const projectIds = new Set<string>()
-
-    // Gold and Silver projects are active (they're "on the table").
-    if (tableConfig?.goldProjectId) {
-      projectIds.add(tableConfig.goldProjectId)
-    }
-    if (tableConfig?.silverProjectId) {
-      projectIds.add(tableConfig.silverProjectId)
-    }
-
-    // PR1 Task Queue Redesign: Bronze projects that are tabled are active.
-    tabledBronzeProjects.forEach(entry => {
-      projectIds.add(entry.projectId)
-    })
-
-    // Legacy: Projects with tasks in the bronze stack are also active
-    // (will be removed in PR2 when Task Queue is implemented).
-    const taskIdToProjectId = new Map<string, string | null>()
-    allTasks.forEach(task => {
-      taskIdToProjectId.set(task.id, task.projectId)
-    })
-
-    activeBronzeStack.forEach(entry => {
-      const projectId = taskIdToProjectId.get(entry.taskId)
-      if (projectId) {
-        projectIds.add(projectId)
-      }
-    })
-
-    return projectIds
-  }, [activeBronzeStack, tabledBronzeProjects, allTasks, tableConfig])
+    return new Set(
+      allProjects
+        .filter(
+          project => resolveLifecycleState(project.projectLifecycleState, null).status === 'active'
+        )
+        .map(project => project.id)
+    )
+  }, [allProjects])
 
   // Calculate workers for each category.
   const categoryWorkersMap = useMemo(() => {
@@ -437,27 +407,14 @@ export const LifeMap: React.FC = () => {
             const workers = categoryWorkersMap[category.value] || 0
 
             // Split projects based on lifecycle status:
-            // - Active: projects that are on the table OR have bronze tasks (already filtered by activeProjectIds)
-            // - Ongoing: projects with status='active' but NOT currently on the table
+            // - Active: projects with lifecycle status='active'
             // - Backlog: projects with status='backlog'
             const activeProjects = projects.filter(project => activeProjectIds.has(project.id))
 
-            // For ongoing, show active-status projects that aren't currently on the table.
-            const ongoingProjects = projects.filter(project => {
-              if (activeProjectIds.has(project.id)) return false
-              const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
-              return lifecycle.status === 'active'
-            })
-
-            // Count backlog projects (status='backlog', stage 4, gold/silver stream only - matches SortingRoom).
-            // Bronze-stream projects don't appear as projects in SortingRoom (only their tasks show).
+            // Count backlog projects (status='backlog', stage 4).
             const backlogProjects = projects.filter(project => {
               const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
-              return (
-                lifecycle.status === 'backlog' &&
-                lifecycle.stage === 4 &&
-                (lifecycle.stream === 'gold' || lifecycle.stream === 'silver')
-              )
+              return lifecycle.status === 'backlog' && lifecycle.stage === 4
             })
 
             // Count planning projects (status='planning' OR 'backlog' in stages 1-3 - matches DraftingRoom filter).
@@ -480,7 +437,6 @@ export const LifeMap: React.FC = () => {
                 projectCount={projects.length}
                 workerCount={workers}
                 activeProjects={activeProjects}
-                ongoingProjects={ongoingProjects}
                 backlogCount={backlogProjects.length}
                 planningCount={planningProjects.length}
                 projectCompletionMap={projectCompletionMap}

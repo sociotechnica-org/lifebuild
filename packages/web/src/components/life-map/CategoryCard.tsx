@@ -13,7 +13,6 @@ export type CategoryCardProps = {
   projectCount: number
   workerCount: number
   activeProjects?: Project[]
-  ongoingProjects?: Project[]
   backlogCount?: number
   planningCount?: number
   projectCompletionMap?: Map<string, number>
@@ -49,7 +48,7 @@ const ProjectItem: React.FC<{
 
 /**
  * CategoryCard component - Displays a life category card with project/worker stats
- * and active projects (dual presence from The Table).
+ * and active projects.
  *
  * Based on the prototype design with gradient background and color-coded borders.
  */
@@ -61,7 +60,6 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   projectCount: _projectCount,
   workerCount: _workerCount,
   activeProjects = [],
-  ongoingProjects = [],
   backlogCount = 0,
   planningCount = 0,
   projectCompletionMap = new Map(),
@@ -97,30 +95,6 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
               completionPercentage={projectCompletionMap.get(project.id) ?? 0}
             />
           ))}
-        </div>
-      )}
-
-      {/* Ongoing Projects Section (active status, not on table) */}
-      {ongoingProjects.length > 0 && (
-        <div className='mt-2'>
-          <div className='text-[10px] font-semibold text-[#8b8680] uppercase tracking-wide mb-1'>
-            Ongoing
-          </div>
-          <div className='grid grid-cols-2 gap-1'>
-            {ongoingProjects.slice(0, 6).map(project => (
-              <Link
-                key={project.id}
-                to={preserveStoreIdInUrl(generateRoute.project(project.id))}
-                className='no-underline p-1.5 rounded bg-[#faf9f7] hover:bg-[#f5f3f0] transition-colors duration-200'
-                onClick={e => e.stopPropagation()}
-              >
-                <div className='text-xs text-[#2f2b27] truncate'>{project.name}</div>
-              </Link>
-            ))}
-          </div>
-          {ongoingProjects.length > 6 && (
-            <div className='text-xs text-[#8b8680] mt-1'>+{ongoingProjects.length - 6} more</div>
-          )}
         </div>
       )}
 

@@ -22,7 +22,7 @@ async function navigateWithUniqueStore(page: Page) {
 test.describe('Workflow', () => {
   test.describe.configure({ timeout: 120000 }) // 2 minute timeout for full workflow
 
-  test('complete workflow: create project in drafting room, add to table, change task status', async ({
+  test('complete workflow: create project in drafting room, activate in sorting room, change task status', async ({
     page,
   }) => {
     const storeId = await navigateWithUniqueStore(page)
@@ -140,7 +140,7 @@ test.describe('Workflow', () => {
     await addToSortingButton.click()
 
     // =====================
-    // SORTING ROOM: Put on table
+    // SORTING ROOM: Activate project
     // =====================
 
     // Wait for Sorting Room to load
@@ -151,7 +151,8 @@ test.describe('Workflow', () => {
     // Ensure Initiative stream is expanded (we selected Initiative tier)
     const initiativeSummaryHeader = page
       .locator('div')
-      .filter({ hasText: /^Initiative\s*\d+\s*in backlog\s*(Expand|Hide)$/ })
+      .filter({ has: page.getByText('Initiative', { exact: true }) })
+      .filter({ has: page.getByRole('button', { name: /Expand|Hide/ }) })
       .first()
     const initiativeToggleButton = initiativeSummaryHeader.getByRole('button', {
       name: /Expand|Hide/,
@@ -166,36 +167,23 @@ test.describe('Workflow', () => {
       timeout: 5000,
     })
 
-    // Find our project in the backlog and click "Activate to Table" within that card
+    // Find our project in the backlog and click "Activate" within that card
     const projectCard = page
       .locator('div')
       .filter({ hasText: projectName })
-      .filter({ has: page.getByRole('button', { name: 'Activate to Table', exact: true }) })
+      .filter({ has: page.getByRole('button', { name: 'Activate', exact: true }) })
       .first()
     await expect(projectCard).toBeVisible({ timeout: 5000 })
 
-    // Click "Activate to Table" button on the project card
+    // Click "Activate" button on the project card
     const activateButton = projectCard.getByRole('button', {
-      name: 'Activate to Table',
+      name: 'Activate',
       exact: true,
     })
     await expect(activateButton).toBeEnabled()
     await activateButton.click()
 
-    // Confirm in the dialog (dialog doesn't have role="dialog", look for the dialog content)
-    await expect(page.getByText('Activate Initiative Project')).toBeVisible({ timeout: 5000 })
-
-    // Click the Activate to Table button in the dialog
-    const confirmActivateButton = page
-      .getByRole('button', { name: 'Activate to Table', exact: true })
-      .last()
-    await confirmActivateButton.click()
-
-    // Wait for dialog to close and project to be tabled
-    await page.waitForTimeout(1000)
-
-    // Verify project is now on the table - just verify the project name is visible on the page
-    // (it appears in multiple places - ON TABLE section, etc.)
+    // Verify project is now active
     await expect(page.getByText(projectName).first()).toBeVisible({ timeout: 5000 })
 
     // =====================
