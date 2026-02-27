@@ -315,33 +315,18 @@ test.describe('Workflow', () => {
     await expect(page.getByText(/Stage 2 ·/)).toBeVisible()
     await expect(page.getByText(/Stage 3 ·/)).toBeVisible()
 
-    // Navigate to Sorting Room via nav
-    await page.click('text=Sorting Room')
-    await waitForLiveStoreReady(page)
-
-    // Verify Sorting Room elements
-    await expect(getStreamSummaryCard(page, 'Initiative')).toBeVisible({ timeout: 10000 })
-    await expect(getStreamSummaryCard(page, 'Optimization')).toBeVisible()
-    await expect(getStreamSummaryCard(page, 'To-Do')).toBeVisible()
-
     // Navigate to Life Map via nav
     await page.click('text=Life Map')
     await waitForLiveStoreReady(page)
 
-    // Verify Life Map loads - either shows categories or "No projects yet" message
-    // (categories only show if there are projects in them)
-    const hasProjects = await page
-      .getByText('No projects yet')
-      .isHidden({ timeout: 5000 })
-      .catch(() => true)
-    if (hasProjects) {
-      // If there are projects, we should see category cards
-      await expect(page.locator('.rounded-2xl')).toBeVisible({ timeout: 10000 })
-    } else {
-      // If no projects, we should see the empty state
-      await expect(page.getByText('No projects yet')).toBeVisible({ timeout: 10000 })
-      await expect(page.getByText('Go to Drafting Room to create projects')).toBeVisible()
-    }
+    // Verify Life Map loads with empty state
+    await expect(page.getByText('No projects yet')).toBeVisible({ timeout: 10000 })
+
+    // Verify legacy /sorting-room route redirects to Life Map
+    await page.goto(`/sorting-room?storeId=${storeId}`)
+    await page.waitForURL(/\/life-map/, { timeout: 10000 })
+    await waitForLiveStoreReady(page)
+    await expect(page.getByText('No projects yet')).toBeVisible({ timeout: 10000 })
 
     // Navigate back to Drafting Room
     await page.click('text=Drafting Room')
